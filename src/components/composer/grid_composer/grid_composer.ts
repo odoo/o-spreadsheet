@@ -96,12 +96,14 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       if (this.isCellReferenceVisible) {
         return;
       }
-      const sheetId = this.env.model.getters.getActiveSheetId();
       const zone = this.env.model.getters.getSelectedZone();
       const rect = this.env.model.getters.getVisibleRect(zone);
+      const { sheetId, col, row } = this.env.model.getters.getCurrentEditedCell();
       if (
         !deepEquals(rect, this.rect) ||
-        sheetId !== this.env.model.getters.getCurrentEditedCell().sheetId
+        sheetId !== this.env.model.getters.getActiveSheetId() ||
+        col < 0 || // peut mieux faire genre vérifier que la position est dan la sheet par exemple ...
+        row < 0
       ) {
         this.isCellReferenceVisible = true;
       }
@@ -115,9 +117,13 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
   get cellReference(): string {
     const { col, row, sheetId } = this.env.model.getters.getCurrentEditedCell();
     const prefixSheet = sheetId !== this.env.model.getters.getActiveSheetId();
-    return `${
-      prefixSheet ? getCanonicalSheetName(this.env.model.getters.getSheetName(sheetId)) + "!" : ""
-    }${toXC(col, row)}`;
+    if (col >= 0 && row >= 0) {
+      return `${
+        prefixSheet ? getCanonicalSheetName(this.env.model.getters.getSheetName(sheetId)) + "!" : ""
+      }${toXC(col, row)}`;
+    } else {
+      return this.env._t("!! deleted cell");
+    }
   }
 
   get cellReferenceStyle(): string {

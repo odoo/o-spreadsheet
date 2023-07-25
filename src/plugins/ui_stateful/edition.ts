@@ -11,7 +11,6 @@ import {
   numberToString,
   positionToZone,
   splitReference,
-  updateSelectionOnDeletion,
   updateSelectionOnInsertion,
 } from "../../helpers/index";
 import { canonicalizeContent, localizeFormula } from "../../helpers/locale";
@@ -42,7 +41,7 @@ export type EditionMode =
   | "selecting" // should tell if you need to underline the current range selected.
   | "inactive";
 
-const CELL_DELETED_MESSAGE = _lt("The cell you are trying to edit has been deleted.");
+export const CELL_DELETED_MESSAGE = _lt("The cell you are trying to edit has been deleted.");
 
 export interface ComposerSelection {
   start: number;
@@ -97,6 +96,15 @@ export class EditionPlugin extends UIPlugin {
         } else {
           return CommandResult.Success;
         }
+      case "STOP_EDITION":
+        if (
+          this.mode !== "inactive" &&
+          !cmd.cancel &&
+          (this.col < 0 || this.row < 0 || !this.getters.getSheetIds().includes(this.sheetId))
+        ) {
+          return CommandResult.InvalidComposerCell;
+        }
+        return CommandResult.Success;
       default:
         return CommandResult.Success;
     }
@@ -342,39 +350,51 @@ export class EditionPlugin extends UIPlugin {
   }
 
   private onColumnsRemoved(cmd: RemoveColumnsRowsCommand) {
-    if (cmd.elements.includes(this.col) && this.mode !== "inactive") {
-      this.dispatch("STOP_EDITION", { cancel: true });
-      this.ui.notifyUI({
-        type: "ERROR",
-        text: CELL_DELETED_MESSAGE,
-      });
-      return;
+    // if (cmd.elements.includes(this.col) && this.mode !== "inactive") {
+    //   this.dispatch("STOP_EDITION", { cancel: true });
+    //   this.ui.notifyUI({
+    //     type: "ERROR",
+    //     text: CELL_DELETED_MESSAGE,
+    //   });
+    //   return;
+    // }
+    // const { top, left } = updateSelectionOnDeletion(
+    //   { left: this.col, right: this.col, top: this.row, bottom: this.row },
+    //   "left",
+    //   [...cmd.elements]
+    // );
+    // this.col = left;
+    // this.row = top;
+    if (cmd.elements.includes(this.col)) {
+      this.col = -1;
+    } else {
+      this.col = this.col - cmd.elements.filter((e) => e < this.col).length;
     }
-    const { top, left } = updateSelectionOnDeletion(
-      { left: this.col, right: this.col, top: this.row, bottom: this.row },
-      "left",
-      [...cmd.elements]
-    );
-    this.col = left;
-    this.row = top;
   }
 
   private onRowsRemoved(cmd: RemoveColumnsRowsCommand) {
-    if (cmd.elements.includes(this.row) && this.mode !== "inactive") {
-      this.dispatch("STOP_EDITION", { cancel: true });
-      this.ui.notifyUI({
-        type: "ERROR",
-        text: CELL_DELETED_MESSAGE,
-      });
-      return;
+    // if (cmd.elements.includes(this.row) && this.mode !== "inactive") {
+    //   this.dispatch("STOP_EDITION", { cancel: true });
+    //   this.ui.notifyUI({
+    //     type: "ERROR",
+    //     text: CELL_DELETED_MESSAGE,
+    //   });
+    //   return;
+    // }
+    // const { top, left } = updateSelectionOnDeletion(
+    //   { left: this.col, right: this.col, top: this.row, bottom: this.row },
+    //   "top",
+    //   [...cmd.elements]
+    // );
+    // this.col = left;
+    // const top =
+    // this.row = this.row - cmd.elements.filter((e) => e <= this.row).length;
+    if (cmd.elements.includes(this.row)) {
+      this.row = -1;
+    } else {
+      this.row = this.row - cmd.elements.filter((e) => e < this.row).length;
     }
-    const { top, left } = updateSelectionOnDeletion(
-      { left: this.col, right: this.col, top: this.row, bottom: this.row },
-      "top",
-      [...cmd.elements]
-    );
-    this.col = left;
-    this.row = top;
+    // console.log(this.row);
   }
 
   private onAddElements(cmd: AddColumnsRowsCommand) {

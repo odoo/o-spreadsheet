@@ -3,6 +3,7 @@ import { DEFAULT_FONT, NEWLINE } from "../../../constants";
 import { EnrichedToken } from "../../../formulas/index";
 import { functionRegistry } from "../../../functions/index";
 import { fuzzyLookup, getZoneArea, isEqual, splitReference } from "../../../helpers/index";
+import { interactiveStopEdition } from "../../../helpers/ui/edition_interactive";
 import { ComposerSelection } from "../../../plugins/ui_stateful/edition";
 
 import {
@@ -203,6 +204,16 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     useEffect(() => {
       this.processContent();
     });
+
+    useEffect(
+      (sheetIds) => {
+        const { sheetId } = this.env.model.getters.getCurrentEditedCell();
+        if (!sheetIds.includes(sheetId)) {
+          interactiveStopEdition(this.env);
+        }
+      },
+      () => [this.env.model.getters.getSheetIds()]
+    );
   }
 
   // ---------------------------------------------------------------------------
@@ -224,7 +235,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
       !this.autoCompleteState.showProvider &&
       !content.startsWith("=")
     ) {
-      this.env.model.dispatch("STOP_EDITION");
+      interactiveStopEdition(this.env);
       return;
     }
     // All arrow keys are processed: up and down should move autocomplete, left
@@ -262,7 +273,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     }
 
     const direction = ev.shiftKey ? "left" : "right";
-    this.env.model.dispatch("STOP_EDITION");
+    interactiveStopEdition(this.env);
     this.env.model.selection.moveAnchorCell(direction, 1);
   }
 
@@ -293,13 +304,13 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
         return;
       }
     }
-    this.env.model.dispatch("STOP_EDITION");
+    interactiveStopEdition(this.env);
     const direction = ev.shiftKey ? "up" : "down";
     this.env.model.selection.moveAnchorCell(direction, 1);
   }
 
   private processEscapeKey() {
-    this.env.model.dispatch("STOP_EDITION", { cancel: true });
+    interactiveStopEdition(this.env, true);
   }
 
   private processF4Key() {
