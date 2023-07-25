@@ -76,7 +76,7 @@ export const deleteValues: ActionSpec = {
 export const deleteRows: ActionSpec = {
   name: ACTIONS.REMOVE_ROWS_NAME,
   execute: ACTIONS.REMOVE_ROWS_ACTION,
-  isVisible: ACTIONS.NOT_ALL_VISIBLE_ROWS_SELECTED,
+  isVisible: (env: SpreadsheetChildEnv) => ACTIONS.CAN_REMOVE_COLUMNS_ROWS("ROW", env),
 };
 
 export const deleteRow: ActionSpec = {
@@ -92,7 +92,7 @@ export const clearRows: ActionSpec = {
 export const deleteCols: ActionSpec = {
   name: ACTIONS.REMOVE_COLUMNS_NAME,
   execute: ACTIONS.REMOVE_COLUMNS_ACTION,
-  isVisible: ACTIONS.NOT_ALL_VISIBLE_COLS_SELECTED,
+  isVisible: (env: SpreadsheetChildEnv) => ACTIONS.CAN_REMOVE_COLUMNS_ROWS("COL", env),
 };
 
 export const deleteCol: ActionSpec = {
