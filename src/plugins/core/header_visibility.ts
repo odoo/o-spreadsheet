@@ -5,7 +5,7 @@ import { CorePlugin } from "../core_plugin";
 
 export class HeaderVisibilityPlugin extends CorePlugin {
   static getters = [
-    "canRemoveHeaders",
+    "checkElementsIncludeAllVisibleHeaders",
     "getHiddenColsGroups",
     "getHiddenRowsGroups",
     "isRowHiddenByUser",
@@ -41,7 +41,7 @@ export class HeaderVisibilityPlugin extends CorePlugin {
         if (!this.getters.tryGetSheet(cmd.sheetId)) {
           return CommandResult.InvalidSheetId;
         }
-        if (!this.canRemoveHeaders(cmd.sheetId, cmd.dimension, cmd.elements)) {
+        if (this.checkElementsIncludeAllVisibleHeaders(cmd.sheetId, cmd.dimension, cmd.elements)) {
           return CommandResult.NotEnoughElements;
         }
         return CommandResult.Success;
@@ -97,9 +97,13 @@ export class HeaderVisibilityPlugin extends CorePlugin {
     return;
   }
 
-  canRemoveHeaders(sheetId: UID, dimension: Dimension, elements: HeaderIndex[]): boolean {
+  checkElementsIncludeAllVisibleHeaders(
+    sheetId: UID,
+    dimension: Dimension,
+    elements: HeaderIndex[]
+  ): boolean {
     const visibleHeaders = this.getAllVisibleHeaders(sheetId, dimension);
-    return !includesAll(elements, visibleHeaders);
+    return includesAll(elements, visibleHeaders);
   }
 
   isRowHiddenByUser(sheetId: UID, index: HeaderIndex): boolean {
