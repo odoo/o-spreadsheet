@@ -4,10 +4,12 @@ import {
   deepCopy,
   getUnquotedSheetName,
   groupConsecutive,
+  includesAll,
   isDefined,
   isZoneInside,
   isZoneValid,
   positions,
+  range,
   toCartesian,
 } from "../../helpers/index";
 import { _lt, _t } from "../../translation";
@@ -71,6 +73,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getPaneDivisions",
     "checkZonesExistInSheet",
     "getCommandZones",
+    "checkElementsIncludeAllNonFrozenHeaders",
   ] as const;
 
   readonly sheetIdsMapName: Record<string, UID | undefined> = {};
@@ -133,6 +136,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
             : this.getNumberRows(cmd.sheetId);
         if (Math.min(...cmd.elements) < 0 || Math.max(...cmd.elements) > elements) {
           return CommandResult.InvalidHeaderIndex;
+        } else if (
+          this.checkElementsIncludeAllNonFrozenHeaders(cmd.sheetId, cmd.dimension, cmd.elements)
+        ) {
+          return CommandResult.NotEnoughElements;
         } else {
           return CommandResult.Success;
         }
@@ -461,6 +468,27 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       panes.ySplit = base;
     }
     this.history.update("sheets", sheetId, "panes", panes);
+  }
+
+  /**
+   * Checks if all non-frozen header indices are present in the provided elements of selected rows/columns.
+   * This validation ensures that all rows or columns cannot be deleted when frozen panes exist.
+   */
+  checkElementsIncludeAllNonFrozenHeaders(
+    sheetId: UID,
+    dimension: Dimension,
+    elements: HeaderIndex[]
+  ): boolean {
+    const paneDivisions = this.getters.getPaneDivisions(sheetId);
+    const startIndex = dimension === "ROW" ? paneDivisions.ySplit : paneDivisions.xSplit;
+    const endIndex = this.getters.getNumberHeaders(sheetId, dimension);
+
+    if (!startIndex) {
+      return false;
+    }
+
+    const indicesToCheck = range(startIndex, endIndex);
+    return includesAll(elements, indicesToCheck);
   }
 
   // ---------------------------------------------------------------------------

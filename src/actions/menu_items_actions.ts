@@ -16,7 +16,7 @@ import {
 import { _lt } from "../translation";
 import { ClipboardPasteOptions } from "../types/clipboard";
 import { Image } from "../types/image";
-import { Format, SpreadsheetChildEnv, Style } from "../types/index";
+import { Dimension, Format, SpreadsheetChildEnv, Style } from "../types/index";
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -237,6 +237,27 @@ export const REMOVE_ROWS_ACTION = (env: SpreadsheetChildEnv) => {
   });
 };
 
+export const CAN_REMOVE_COLUMNS_ROWS = (
+  dimension: Dimension,
+  env: SpreadsheetChildEnv
+): boolean => {
+  const sheetId = env.model.getters.getActiveSheetId();
+  const selectedElements = env.model.getters.getElementsFromSelection(dimension);
+
+  const includesAllVisibleHeaders = env.model.getters.checkElementsIncludeAllVisibleHeaders(
+    sheetId,
+    dimension,
+    selectedElements
+  );
+  const includesAllNonFrozenHeaders = env.model.getters.checkElementsIncludeAllNonFrozenHeaders(
+    sheetId,
+    dimension,
+    selectedElements
+  );
+
+  return !includesAllVisibleHeaders && !includesAllNonFrozenHeaders;
+};
+
 export const REMOVE_COLUMNS_NAME = (env: SpreadsheetChildEnv) => {
   if (env.model.getters.getSelectedZones().length > 1) {
     return _lt("Delete columns");
@@ -261,7 +282,7 @@ export const REMOVE_COLUMNS_NAME = (env: SpreadsheetChildEnv) => {
 export const NOT_ALL_VISIBLE_ROWS_SELECTED = (env: SpreadsheetChildEnv) => {
   const sheetId = env.model.getters.getActiveSheetId();
   const selectedRows = env.model.getters.getElementsFromSelection("ROW");
-  return env.model.getters.canRemoveHeaders(sheetId, "ROW", selectedRows);
+  return !env.model.getters.checkElementsIncludeAllVisibleHeaders(sheetId, "ROW", selectedRows);
 };
 
 export const REMOVE_COLUMNS_ACTION = (env: SpreadsheetChildEnv) => {
@@ -282,7 +303,7 @@ export const REMOVE_COLUMNS_ACTION = (env: SpreadsheetChildEnv) => {
 export const NOT_ALL_VISIBLE_COLS_SELECTED = (env: SpreadsheetChildEnv) => {
   const sheetId = env.model.getters.getActiveSheetId();
   const selectedCols = env.model.getters.getElementsFromSelection("COL");
-  return env.model.getters.canRemoveHeaders(sheetId, "COL", selectedCols);
+  return !env.model.getters.checkElementsIncludeAllVisibleHeaders(sheetId, "COL", selectedCols);
 };
 
 export const INSERT_CELL_SHIFT_DOWN = (env: SpreadsheetChildEnv) => {
