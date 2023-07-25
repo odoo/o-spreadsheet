@@ -371,6 +371,9 @@ export class InternalViewport {
       this.boundaries.right,
       this.searchHeaderIndex("COL", this.viewportWidth, this.left)
     );
+    if (this.left === -1) {
+      this.left = this.boundaries.left;
+    }
     if (this.right === -1) {
       this.right = this.getters.getNumberCols(sheetId) - 1;
     }
@@ -388,6 +391,9 @@ export class InternalViewport {
       this.boundaries.bottom,
       this.searchHeaderIndex("ROW", this.viewportHeight, this.top)
     );
+    if (this.top === -1) {
+      this.top = this.boundaries.top;
+    }
     if (this.bottom === -1) {
       this.bottom = this.getters.getNumberRows(sheetId) - 1;
     }
