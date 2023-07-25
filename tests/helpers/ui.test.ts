@@ -1,6 +1,7 @@
 import { toCartesian, toXC, toZone, zoneToXc } from "../../src/helpers/index";
 import { interactiveSortSelection } from "../../src/helpers/sort";
 import { interactiveCut } from "../../src/helpers/ui/cut_interactive";
+import { interactiveSetContent } from "../../src/helpers/ui/edition_interactive";
 import {
   AddFilterInteractiveContent,
   interactiveAddFilter,
@@ -504,6 +505,20 @@ describe("UI Helpers", () => {
           direction: "ascending",
         })
       ).toBeCancelledBecause(CommandResult.InvalidSortZone);
+    });
+  });
+
+  describe("Interactive Edition", () => {
+    test("write too long formulas raises an error", async () => {
+      const model = new Model({});
+      const raiseError = jest.fn();
+      model.dispatch("START_EDITION");
+      const env = makeInteractiveTestEnv(model, { raiseError });
+      const content = // 101 tokens
+        "=1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1";
+      interactiveSetContent(env, content);
+
+      expect(raiseError).toHaveBeenCalled();
     });
   });
 });

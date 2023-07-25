@@ -28,7 +28,6 @@ import { Model } from "../../model";
 import { ComposerSelection } from "../../plugins/ui_stateful/edition";
 import { _lt } from "../../translation";
 import { Pixel, SpreadsheetChildEnv } from "../../types";
-import { NotifyUIEvent } from "../../types/ui";
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
 import { Grid } from "../grid/grid";
@@ -253,7 +252,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
   private bindModelEvents() {
     this.model.on("update", this, () => this.render(true));
-    this.model.on("notify-ui", this, this.onNotifyUI);
   }
 
   private unbindModelEvents() {
@@ -284,14 +282,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       this.isViewportTooSmall = true;
     } else {
       this.isViewportTooSmall = false;
-    }
-  }
-
-  private onNotifyUI(payload: NotifyUIEvent) {
-    switch (payload.type) {
-      case "ERROR":
-        this.env.raiseError(payload.text);
-        break;
     }
   }
 

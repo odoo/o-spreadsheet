@@ -827,18 +827,6 @@ describe("edition", () => {
     expect(model.getters.getCurrentContent()).toBe("12:00:00 AM");
   });
 
-  test("write too long formulas raises an error", async () => {
-    const model = new Model({});
-    const spyNotify = jest.spyOn(model["config"], "notifyUI");
-    model.dispatch("START_EDITION");
-    const content = // 101 tokens
-      "=1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1";
-    model.dispatch("SET_CURRENT_CONTENT", { content });
-    model.dispatch("STOP_EDITION");
-
-    expect(spyNotify).toHaveBeenCalled();
-  });
-
   test("start edition twice --> overwrites the contents of the first start edition", () => {
     const model = new Model();
     model.dispatch("START_EDITION", { text: "=SUM(" });

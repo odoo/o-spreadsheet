@@ -52,7 +52,6 @@ import {
   Locale,
   UID,
 } from "./types/index";
-import { NotifyUIEvent } from "./types/ui";
 import { WorkbookData } from "./types/workbook_data";
 import { XLSXExport } from "./types/xlsx";
 import { getXLSX } from "./xlsx/xlsx_writer";
@@ -104,7 +103,6 @@ export interface ModelConfig {
   readonly transportService: TransportService;
   readonly client: Client;
   readonly snapshotRequested: boolean;
-  readonly notifyUI: (payload: NotifyUIEvent) => void;
 }
 
 export interface ModelExternalConfig {
@@ -395,7 +393,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       client,
       moveClient: () => {},
       snapshotRequested: false,
-      notifyUI: (payload: NotifyUIEvent) => this.trigger("notify-ui", payload),
     };
   }
 
@@ -427,7 +424,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       selection: this.selection,
       moveClient: this.session.move.bind(this.session),
       custom: this.config.custom,
-      uiActions: this.config,
       session: this.session,
     };
   }

@@ -292,13 +292,6 @@ test("Warn user only once when the viewport is too small for its frozen panes", 
   expect(notifyUser).toHaveBeenCalledTimes(2);
 });
 
-test("Notify ui correctly with type notification correctly use notifyUser in the env", async () => {
-  const raiseError = jest.fn();
-  ({ model, fixture } = await mountSpreadsheet(undefined, { raiseError }));
-  model["config"].notifyUI({ type: "ERROR", text: "hello" });
-  expect(raiseError).toHaveBeenCalledWith("hello");
-});
-
 describe("Composer / selectionInput interactions", () => {
   const modelDataCf = {
     sheets: [

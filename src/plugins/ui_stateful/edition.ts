@@ -230,20 +230,6 @@ export class EditionPlugin extends UIPlugin {
           this.selection.resetAnchor(this, { cell: { col, row }, zone });
         }
         break;
-      case "DELETE_SHEET":
-      case "UNDO":
-      case "REDO":
-        const sheetIdExists = !!this.getters.tryGetSheet(this.sheetId);
-        if (!sheetIdExists && this.mode !== "inactive") {
-          this.sheetId = this.getters.getActiveSheetId();
-          this.cancelEditionAndActivateSheet();
-          this.resetContent();
-          this.ui.notifyUI({
-            type: "ERROR",
-            text: CELL_DELETED_MESSAGE,
-          });
-        }
-        break;
       case "CYCLE_EDITION_REFERENCES":
         this.cycleReferences();
         break;
@@ -350,51 +336,21 @@ export class EditionPlugin extends UIPlugin {
   }
 
   private onColumnsRemoved(cmd: RemoveColumnsRowsCommand) {
-    // if (cmd.elements.includes(this.col) && this.mode !== "inactive") {
-    //   this.dispatch("STOP_EDITION", { cancel: true });
-    //   this.ui.notifyUI({
-    //     type: "ERROR",
-    //     text: CELL_DELETED_MESSAGE,
-    //   });
-    //   return;
-    // }
-    // const { top, left } = updateSelectionOnDeletion(
-    //   { left: this.col, right: this.col, top: this.row, bottom: this.row },
-    //   "left",
-    //   [...cmd.elements]
-    // );
-    // this.col = left;
-    // this.row = top;
     if (cmd.elements.includes(this.col)) {
       this.col = -1;
+      this.row = -1;
     } else {
       this.col = this.col - cmd.elements.filter((e) => e < this.col).length;
     }
   }
 
   private onRowsRemoved(cmd: RemoveColumnsRowsCommand) {
-    // if (cmd.elements.includes(this.row) && this.mode !== "inactive") {
-    //   this.dispatch("STOP_EDITION", { cancel: true });
-    //   this.ui.notifyUI({
-    //     type: "ERROR",
-    //     text: CELL_DELETED_MESSAGE,
-    //   });
-    //   return;
-    // }
-    // const { top, left } = updateSelectionOnDeletion(
-    //   { left: this.col, right: this.col, top: this.row, bottom: this.row },
-    //   "top",
-    //   [...cmd.elements]
-    // );
-    // this.col = left;
-    // const top =
-    // this.row = this.row - cmd.elements.filter((e) => e <= this.row).length;
     if (cmd.elements.includes(this.row)) {
+      this.col = -1;
       this.row = -1;
     } else {
       this.row = this.row - cmd.elements.filter((e) => e < this.row).length;
     }
-    // console.log(this.row);
   }
 
   private onAddElements(cmd: AddColumnsRowsCommand) {
@@ -569,16 +525,6 @@ export class EditionPlugin extends UIPlugin {
     if (isNewCurrentContent || this.mode !== "inactive") {
       const locale = this.getters.getLocale();
       this.currentTokens = text.startsWith("=") ? composerTokenize(text, locale) : [];
-      if (this.currentTokens.length > 100) {
-        if (raise) {
-          this.ui.notifyUI({
-            type: "ERROR",
-            text: _lt(
-              "This formula has over 100 parts. It can't be processed properly, consider splitting it into multiple cells"
-            ),
-          });
-        }
-      }
     }
     if (this.canStartComposerRangeSelection()) {
       this.startComposerRangeSelection();
