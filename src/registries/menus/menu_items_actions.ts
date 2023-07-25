@@ -15,7 +15,7 @@ import {
 } from "../../helpers/ui/paste_interactive";
 import { _lt } from "../../translation";
 import { Image } from "../../types/image";
-import { Format, SpreadsheetChildEnv, Style } from "../../types/index";
+import { Dimension, Format, SpreadsheetChildEnv, Style } from "../../types/index";
 import { ClipboardPasteOptions } from "./../../types/clipboard";
 
 //------------------------------------------------------------------------------
@@ -235,6 +235,27 @@ export const REMOVE_ROWS_ACTION = (env: SpreadsheetChildEnv) => {
     dimension: "ROW",
     elements: rows,
   });
+};
+
+export const CAN_REMOVE_COLUMNS_ROWS = (
+  dimension: Dimension,
+  env: SpreadsheetChildEnv
+): boolean => {
+  const sheetId = env.model.getters.getActiveSheetId();
+  const selectedElements = env.model.getters.getElementsFromSelection(dimension);
+
+  const includesAllVisibleHeaders = env.model.getters.checkElementsIncludeAllVisibleHeaders(
+    sheetId,
+    dimension,
+    selectedElements
+  );
+  const includesAllNonFrozenHeaders = env.model.getters.checkElementsIncludeAllNonFrozenHeaders(
+    sheetId,
+    dimension,
+    selectedElements
+  );
+
+  return !includesAllVisibleHeaders && !includesAllNonFrozenHeaders;
 };
 
 export const REMOVE_COLUMNS_NAME = (env: SpreadsheetChildEnv) => {
