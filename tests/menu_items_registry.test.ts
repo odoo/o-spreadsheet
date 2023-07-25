@@ -296,6 +296,17 @@ describe("Menu Item actions", () => {
         elements: [3, 4],
       });
     });
+
+    test("selecting all non-frozen rows should hide the option for deletion", async () => {
+      const sheetId = model.getters.getActiveSheetId();
+      const lastRow = model.getters.getNumberRows(sheetId) - 1;
+
+      freezeRows(model, 4, sheetId);
+      selectRow(model, 4, "newAnchor");
+      selectRow(model, lastRow, "updateAnchor");
+
+      expect(getNode(path).isVisible(env)).toBeFalsy();
+    });
   });
 
   describe("Edit -> edit_delete_column", () => {
@@ -357,6 +368,17 @@ describe("Menu Item actions", () => {
         dimension: "COL",
         elements: [3, 4],
       });
+    });
+
+    test("selecting all non-frozen columns should hide the option for deletion", async () => {
+      const sheetId = model.getters.getActiveSheetId();
+      const lastColumn = model.getters.getNumberCols(sheetId) - 1;
+
+      freezeColumns(model, 3, sheetId);
+      selectColumn(model, 3, "newAnchor");
+      selectColumn(model, lastColumn, "updateAnchor");
+
+      expect(getNode(path).isVisible(env)).toBeFalsy();
     });
   });
 

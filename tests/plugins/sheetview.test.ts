@@ -1036,6 +1036,37 @@ describe("Multi Panes viewport", () => {
       CommandResult.InvalidScrollingDirection
     );
   });
+
+  test("Viewport remains unaffected when hiding all rows below frozen pane or columns right to frozen panes", () => {
+    const model = new Model({ sheets: [{ colNumber: 8, rowNumber: 8 }] });
+    const sheetId = model.getters.getActiveSheetId();
+
+    freezeRows(model, 4, sheetId);
+    let originalActiveMainViewport = model.getters.getActiveMainViewport();
+    hideRows(model, [4, 5, 6, 7]);
+    expect(model.getters.getActiveMainViewport()).toEqual(originalActiveMainViewport);
+
+    freezeColumns(model, 4, sheetId);
+    originalActiveMainViewport = model.getters.getActiveMainViewport();
+    hideColumns(model, ["E", "F", "G", "H"]);
+    expect(model.getters.getActiveMainViewport()).toEqual(originalActiveMainViewport);
+  });
+
+  test("Viewport remains unaffected when hiding all rows below frozen panes by data filter", () => {
+    const model = new Model({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
+    const sheetId = model.getters.getActiveSheetId();
+
+    setCellContent(model, "A2", "2808");
+    setCellContent(model, "A3", "2808");
+
+    createFilter(model, "A1:A3");
+    freezeRows(model, 2, sheetId);
+
+    const originalActiveMainViewport = model.getters.getActiveMainViewport();
+    updateFilter(model, "A1", ["2808"]);
+
+    expect(model.getters.getActiveMainViewport()).toEqual(originalActiveMainViewport);
+  });
 });
 
 describe("multi sheet with different sizes", () => {
