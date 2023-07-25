@@ -105,11 +105,13 @@ topbarMenuRegistry
     name: ACTIONS.REMOVE_ROWS_NAME,
     sequence: 80,
     action: ACTIONS.REMOVE_ROWS_ACTION,
+    isVisible: (env: SpreadsheetChildEnv) => ACTIONS.CAN_REMOVE_COLUMNS_ROWS("ROW", env),
   })
   .addChild("edit_delete_column", ["edit"], {
     name: ACTIONS.REMOVE_COLUMNS_NAME,
     sequence: 90,
     action: ACTIONS.REMOVE_COLUMNS_ACTION,
+    isVisible: (env: SpreadsheetChildEnv) => ACTIONS.CAN_REMOVE_COLUMNS_ROWS("COL", env),
   })
   .addChild("edit_delete_cell_shift_up", ["edit"], {
     name: _lt("Delete cell and shift up"),
