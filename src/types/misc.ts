@@ -168,7 +168,7 @@ export type _CompiledFormula = (
   refFn: ReferenceDenormalizer,
   range: EnsureRange,
   ctx: {}
-) => FormulaReturn;
+) => FunctionReturn;
 
 export interface CompiledFormula {
   execute: _CompiledFormula;
@@ -177,34 +177,28 @@ export interface CompiledFormula {
 }
 
 export type Matrix<T = unknown> = T[][];
+export type ValueAndFormat = { value: CellValue; format?: Format };
 
-// FORMULA FUNCTION INPUT
+// FORMULA FUNCTION VALUE AND FORMAT INPUT
+export type Arg = PrimitiveArg | MatrixArg;
+export type PrimitiveArg = ValueAndFormat | undefined; // undefined corresponds to the lack of argument, e.g. =SUM(1,2,,4)
+export type MatrixArg = Matrix<ValueAndFormat>; // could not be undefined, because we throw an error during the compilation in this case
 
-export type Arg = MatrixArg | PrimitiveArg;
-export type MatrixArg = Matrix<PrimitiveArg>;
-export type PrimitiveArg = { value: PrimitiveArgValue; format?: PrimitiveFormat };
-
+// FORMULA FUNCTION ONLY VALUE INPUT
 export type ArgValue = PrimitiveArgValue | MatrixArgValue;
+export type PrimitiveArgValue = CellValue | undefined;
+export type MatrixArgValue = Matrix<CellValue>;
 
-export type MatrixArgValue = Matrix<PrimitiveArgValue>;
-export type PrimitiveArgValue = CellValue;
-
-export type MatrixArgFormat = Matrix<PrimitiveFormat>;
-export type PrimitiveFormat = Format | undefined;
-
-// FORMULA FUNCTION OUTPUT
-
+// FORMULA FUNCTION VALUE AND FORMAT OUTPUT
 export type FunctionReturn = MatrixFunctionReturn | PrimitiveFunctionReturn;
+export type PrimitiveFunctionReturn = ValueAndFormat;
+export type MatrixFunctionReturn = Matrix<ValueAndFormat>;
+
+// FORMULA FUNCTION ONLY VALUE OUTPUT
 export type FunctionReturnValue = CellValue | Matrix<CellValue>;
-export type FunctionReturnFormat = PrimitiveFormat | MatrixArgFormat;
 
-export type MatrixFunctionReturn = Matrix<PrimitiveFunctionReturn>;
-export type PrimitiveFunctionReturn = { value: CellValue; format?: PrimitiveFormat };
-
-// FORMULA OUTPUT
-
-export type FormulaReturn = MatrixFunctionReturn | PrimitiveFormulaReturn;
-type PrimitiveFormulaReturn = { value: CellValue | null; format?: PrimitiveFormat };
+// FORMULA FUNCTION ONLY Format OUTPUT
+export type FunctionReturnFormat = Format | undefined | Matrix<Format | undefined>;
 
 export function isMatrix(x: any): x is Matrix<any> {
   return Array.isArray(x) && Array.isArray(x[0]);

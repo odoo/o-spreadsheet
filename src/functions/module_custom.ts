@@ -18,8 +18,8 @@ export const FORMAT_LARGE_NUMBER = {
   ],
   returns: ["NUMBER"],
   computeFormat: function (arg: PrimitiveArg, unit: PrimitiveArg | undefined) {
-    const value = Math.abs(toNumber(arg.value, this.locale));
-    const format = arg.format;
+    const value = Math.abs(toNumber(arg?.value, this.locale));
+    const format = arg?.format;
     if (unit !== undefined) {
       const postFix = unit?.value;
       switch (postFix) {

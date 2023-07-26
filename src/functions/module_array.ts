@@ -49,8 +49,8 @@ export const ARRAY_CONSTRAIN = {
     columns: PrimitiveArg
   ): MatrixFunctionReturn {
     const _array = toMatrix(array);
-    const _rowsArg = toInteger(rows.value, this.locale);
-    const _columnsArg = toInteger(columns.value, this.locale);
+    const _rowsArg = toInteger(rows?.value, this.locale);
+    const _columnsArg = toInteger(columns?.value, this.locale);
 
     assertPositive(
       _t("The rows argument (%s) must be strictly positive.", _rowsArg.toString()),
@@ -88,7 +88,7 @@ export const CHOOSECOLS = {
   returns: ["RANGE<ANY>"],
   computeValueAndFormat: function (array: Arg, ...columns: Arg[]): MatrixFunctionReturn {
     const _array = toMatrix(array);
-    const _columns = flattenRowFirst(columns, (item) => toInteger(item.value, this.locale));
+    const _columns = flattenRowFirst(columns, (item) => toInteger(item?.value, this.locale));
 
     assert(
       () => _columns.every((col) => col > 0 && col <= _array.length),
@@ -126,7 +126,7 @@ export const CHOOSEROWS = {
   returns: ["RANGE<ANY>"],
   computeValueAndFormat: function (array: Arg, ...rows: Arg[]): MatrixFunctionReturn {
     const _array = toMatrix(array);
-    const _rows = flattenRowFirst(rows, (item) => toInteger(item.value, this.locale));
+    const _rows = flattenRowFirst(rows, (item) => toInteger(item?.value, this.locale));
     const _nbColumns = _array.length;
 
     assert(
@@ -168,7 +168,7 @@ export const EXPAND = {
     padWith: PrimitiveArg = { value: 0 } // TODO : Replace with #N/A errors once it's supported
   ): MatrixFunctionReturn {
     const _array = toMatrix(arg);
-    const _nbRows = toInteger(rows.value, this.locale);
+    const _nbRows = toInteger(rows?.value, this.locale);
     const _nbColumns = columns !== undefined ? toInteger(columns.value, this.local) : _array.length;
 
     assert(
@@ -731,7 +731,7 @@ export const WRAPCOLS = {
     padWith: PrimitiveArg = { value: 0 }
   ): MatrixFunctionReturn {
     const _array = toMatrix(range);
-    const nbRows = toInteger(wrapCount.value, this.locale);
+    const nbRows = toInteger(wrapCount?.value, this.locale);
 
     assertSingleColOrRow(_t("Argument range must be a single row or column."), _array);
 
@@ -771,7 +771,7 @@ export const WRAPROWS = {
     padWith: PrimitiveArg = { value: 0 }
   ): MatrixFunctionReturn {
     const _array = toMatrix(range);
-    const nbColumns = toInteger(wrapCount.value, this.locale);
+    const nbColumns = toInteger(wrapCount?.value, this.locale);
 
     assertSingleColOrRow(_t("Argument range must be a single row or column."), _array);
 

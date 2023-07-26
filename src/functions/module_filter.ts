@@ -5,6 +5,7 @@ import {
   isMatrix,
   MatrixFunctionReturn,
   PrimitiveArg,
+  ValueAndFormat,
 } from "../types";
 import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
@@ -89,20 +90,24 @@ export const UNIQUE = {
     ),
   ],
   returns: ["RANGE<NUMBER>"],
-  computeValueAndFormat: function (range: Arg, byColumn: PrimitiveArg, exactlyOnce: PrimitiveArg) {
+  computeValueAndFormat: function (
+    range: Arg = { value: "" },
+    byColumn: PrimitiveArg,
+    exactlyOnce: PrimitiveArg
+  ) {
     if (!isMatrix(range)) {
-      return { value: range.value, format: range.format };
+      return range;
     }
+
     const _byColumn = toBoolean(byColumn?.value) || false;
     const _exactlyOnce = toBoolean(exactlyOnce?.value) || false;
-    let _array = toMatrix(range);
     if (!_byColumn) {
-      _array = transposeMatrix(_array);
+      range = transposeMatrix(range);
     }
 
-    const map: Map<string, { data: PrimitiveArg[]; count: number }> = new Map();
+    const map: Map<string, { data: ValueAndFormat[]; count: number }> = new Map();
 
-    for (const data of _array) {
+    for (const data of range) {
       const key = JSON.stringify(data.map((item) => item.value));
       const occurrence = map.get(key);
       if (!occurrence) {

@@ -80,7 +80,7 @@ describe("functions", () => {
     functionRegistry.add("RETURN.FORMAT.DEPENDING.ON.INPUT.FORMAT", {
       description: "return format depending on input format",
       computeFormat: function (arg: PrimitiveArg) {
-        return arg.format;
+        return arg?.format;
       } as ComputeFunction<Arg, Format | undefined>,
       compute: function (arg: PrimitiveArgValue) {
         return arg;
@@ -103,7 +103,7 @@ describe("functions", () => {
     functionRegistry.add("RETURN.FORMAT.DEPENDING.ON.INPUT.VALUE", {
       description: "return format depending on input value",
       computeFormat: function (arg: PrimitiveArg) {
-        return toNumber(arg.value, DEFAULT_LOCALE) >= 0 ? "0%" : "#,##0.00";
+        return toNumber(arg?.value, DEFAULT_LOCALE) >= 0 ? "0%" : "#,##0.00";
       } as ComputeFunction<Arg, Format | undefined>,
       compute: function (arg: PrimitiveArgValue) {
         return arg;

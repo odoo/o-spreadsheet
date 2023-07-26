@@ -278,7 +278,7 @@ export const UPLUS = {
   args: [arg("value (any)", _t("The number to return."))],
   returns: ["ANY"],
   computeFormat: (value: PrimitiveArg) => value?.format,
-  compute: function (value: PrimitiveArgValue): FunctionReturnValue {
+  compute: function (value: PrimitiveArgValue = ""): FunctionReturnValue {
     return value === null ? "" : value;
   },
 } satisfies AddFunctionDescription;
