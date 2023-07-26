@@ -178,7 +178,7 @@ describe("formatting values (with formatters)", () => {
         return value || 0;
       } as ComputeFunction<ArgValue, FunctionReturnValue>,
       computeFormat: function (value: PrimitiveArg, format: PrimitiveArg) {
-        return toString(format.value);
+        return toString(format?.value);
       } as ComputeFunction<Arg, Format>,
       returns: ["ANY"],
     });

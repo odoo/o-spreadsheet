@@ -16,6 +16,7 @@ import {
   reduceAny,
   reduceNumbers,
   reduceNumbersTextAs0,
+  toMatrix,
   toNumber,
   visitAny,
   visitMatchingRanges,
@@ -351,22 +352,21 @@ export const AVERAGEA = {
 export const AVERAGEIF = {
   description: _t(`Average of values depending on criteria.`),
   args: [
-    arg("criteria_range (range)", _t("The range to check against criterion.")),
+    arg("criteria_range (number, range<number>)", _t("The range to check against criterion.")),
     arg("criterion (string)", _t("The pattern or test to apply to criteria_range.")),
     arg(
-      "average_range (range, default=criteria_range)",
+      "average_range (number, range<number>, default=criteria_range)",
       _t("The range to average. If not included, criteria_range is used for the average instead.")
     ),
   ],
   returns: ["NUMBER"],
   compute: function (
-    criteriaRange: MatrixArgValue,
+    criteriaRange: ArgValue,
     criterion: PrimitiveArgValue,
     averageRange: ArgValue
   ): number {
-    if (averageRange === undefined || averageRange === null) {
-      averageRange = criteriaRange;
-    }
+    const _criteriaRange = toMatrix(criteriaRange);
+    const _averageRange = averageRange === undefined ? _criteriaRange : toMatrix(averageRange);
 
     let count = 0;
     let sum = 0;
@@ -374,7 +374,7 @@ export const AVERAGEIF = {
     visitMatchingRanges(
       [criteriaRange, criterion],
       (i, j) => {
-        const value = (averageRange || criteriaRange)[i][j];
+        const value = _averageRange[i][j];
         if (typeof value === "number") {
           count += 1;
           sum += value;
@@ -410,12 +410,13 @@ export const AVERAGEIFS = {
   ],
   returns: ["NUMBER"],
   compute: function (averageRange: MatrixArgValue, ...values: ArgValue[]): number {
+    const _averageRange = toMatrix(averageRange);
     let count = 0;
     let sum = 0;
     visitMatchingRanges(
       values,
       (i, j) => {
-        const value = averageRange[i][j];
+        const value = _averageRange[i][j];
         if (typeof value === "number") {
           count += 1;
           sum += value;
@@ -682,10 +683,11 @@ export const MAXIFS = {
   returns: ["NUMBER"],
   compute: function (range: MatrixArgValue, ...args: ArgValue[]): number {
     let result = -Infinity;
+    const _range = toMatrix(range);
     visitMatchingRanges(
       args,
       (i, j) => {
-        const value = range[i][j];
+        const value = _range[i][j];
         if (typeof value === "number") {
           result = result < value ? value : result;
         }
@@ -814,10 +816,11 @@ export const MINIFS = {
   returns: ["NUMBER"],
   compute: function (range: MatrixArgValue, ...args: ArgValue[]): number {
     let result = Infinity;
+    const _range = toMatrix(range);
     visitMatchingRanges(
       args,
       (i, j) => {
-        const value = range[i][j];
+        const value = _range[i][j];
         if (typeof value === "number") {
           result = result > value ? value : result;
         }

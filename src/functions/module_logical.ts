@@ -106,7 +106,7 @@ export const IFERROR = {
     valueIfError: () => PrimitiveArg = () => ({ value: "" })
   ) => {
     try {
-      return value().format;
+      return value()?.format;
     } catch (e) {
       return valueIfError()?.format;
     }
@@ -189,7 +189,7 @@ export const IFS = {
     for (let n = 0; n < values.length - 1; n += 2) {
       if (toBoolean(values[n]())) {
         const returnValue = values[n + 1]();
-        return returnValue !== null ? returnValue : "";
+        return returnValue === null || returnValue === undefined ? "" : returnValue;
       }
     }
     throw new Error(_t(`No match.`));

@@ -13,6 +13,7 @@ import {
   PrimitiveArg,
   Range,
   ReferenceDenormalizer,
+  ValueAndFormat,
 } from "../../../types";
 import { InvalidReferenceError } from "../../../types/errors";
 
@@ -97,7 +98,7 @@ class CompilationParametersBuilder {
     return this.readCell(position);
   }
 
-  private readCell(position: CellPosition): PrimitiveArg {
+  private readCell(position: CellPosition): ValueAndFormat {
     if (!this.getters.tryGetSheet(position.sheetId)) {
       throw new Error(_t("Invalid sheet name"));
     }

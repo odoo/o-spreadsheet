@@ -790,7 +790,10 @@ function compareCellValues(left: CellValue | undefined, right: CellValue | undef
   return typeOrder;
 }
 
-export function toMatrix<T>(data: T | Matrix<T>): Matrix<T> {
+export function toMatrix<T>(data: T | Matrix<T> | undefined): Matrix<T> {
+  if (data === undefined) {
+    return [[]];
+  }
   return isMatrix(data) ? data : [[data]];
 }
 

@@ -26,7 +26,7 @@ export interface ArgDefinition {
   defaultValue?: any;
 }
 
-export type ComputeFunctionArg<T> = T | (() => T) | undefined;
+export type ComputeFunctionArg<T> = T | (() => T);
 export type ComputeFunction<T, R> = (this: EvalContext, ...args: ComputeFunctionArg<T>[]) => R;
 
 interface AddFunctionDescriptionBase {
