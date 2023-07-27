@@ -57,6 +57,7 @@ export interface ExcelChartDefinition {
   readonly verticalAxisPosition: VerticalAxisPosition;
   readonly legendPosition: LegendPosition;
   readonly stacked?: boolean;
+  readonly cumulative?: boolean;
 }
 
 export interface ChartCreationContext {
