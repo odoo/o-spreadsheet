@@ -369,14 +369,21 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     this.processTokenAtCursor();
   }
 
-  onKeyup() {
+  onKeyup(ev: KeyboardEvent) {
     if (this.contentHelper.el === document.activeElement) {
+      const isSelectingForComposer = this.env.model.getters.isSelectingForComposer();
+      if (isSelectingForComposer && ev.key?.startsWith("Arrow")) {
+        return;
+      }
+
       const { start: oldStart, end: oldEnd } = this.env.model.getters.getComposerSelection();
       const { start, end } = this.contentHelper.getCurrentSelection();
 
       if (start !== oldStart || end !== oldEnd) {
         this.env.model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start, end });
       }
+
+      this.processTokenAtCursor();
     }
   }
 
