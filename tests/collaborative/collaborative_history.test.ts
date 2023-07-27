@@ -457,6 +457,7 @@ describe("Collaborative local history", () => {
                 verticalAxisPosition: "left",
                 title: "Line",
                 stacked: false,
+                cumulative: false,
               },
             },
           ],

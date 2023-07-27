@@ -177,6 +177,7 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
       labelsAsText: false,
       stacked: false,
       aggregated: false,
+      cumulative: false,
       labelRange: labelRangeXc,
       type: "line",
       dataSetsHaveTitle,
