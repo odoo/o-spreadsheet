@@ -391,6 +391,7 @@ describe("Insert chart menu item", () => {
     payload.definition.dataSetsHaveTitle = true;
     payload.definition.labelRange = "C2:C4";
     payload.definition.type = "line";
+    payload.definition.cumulative = false;
     payload.definition.labelsAsText = false;
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
   });
@@ -404,6 +405,7 @@ describe("Insert chart menu item", () => {
     payload.definition.dataSetsHaveTitle = true;
     payload.definition.labelRange = "C2:C4";
     payload.definition.type = "line";
+    payload.definition.cumulative = false;
     payload.definition.labelsAsText = false;
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
   });
@@ -426,6 +428,7 @@ describe("Insert chart menu item", () => {
     payload.definition.labelRange = "F2:F5";
     payload.definition.legendPosition = "top";
     payload.definition.type = "line";
+    payload.definition.cumulative = false;
     payload.definition.labelsAsText = false;
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
   });
@@ -480,6 +483,7 @@ describe("Insert chart menu item", () => {
     payload.definition.dataSets = ["L1:L3"];
     payload.definition.labelRange = "K1:K3";
     payload.definition.type = "line";
+    payload.definition.cumulative = false;
     payload.definition.labelsAsText = false;
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     expect(zoneToXc(model.getters.getSelectedZone())).toBe("K1:L3");
@@ -499,6 +503,7 @@ describe("Insert chart menu item", () => {
     payload.definition.dataSets = ["L1:L3"];
     payload.definition.labelRange = "K1:K3";
     payload.definition.type = "line";
+    payload.definition.cumulative = false;
     payload.definition.labelsAsText = false;
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     expect(zoneToXc(model.getters.getSelectedZone())).toBe("K1:L3");
