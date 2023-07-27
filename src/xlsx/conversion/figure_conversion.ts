@@ -93,6 +93,7 @@ function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | un
     legendPosition: chartData.legendPosition,
     stacked: chartData.stacked || false,
     aggregated: false,
+    cumulative: chartData.cumulative || false,
     labelsAsText: false,
   };
 }
