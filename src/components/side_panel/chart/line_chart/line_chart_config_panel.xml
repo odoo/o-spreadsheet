@@ -14,6 +14,18 @@
             Stacked linechart
           </label>
         </div>
+        <div class="o-checkbox">
+          <label>
+            <input
+              type="checkbox"
+              name="cumulative"
+              t-att-checked="props.definition.cumulative"
+              t-on-change="onUpdateCumulative"
+              class="align-middle"
+            />
+            Cumulative data
+          </label>
+        </div>
       </div>
       <div class="o-section o-data-series">
         <div class="o-section-title">Data Series</div>

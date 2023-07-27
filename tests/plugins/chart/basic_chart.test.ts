@@ -1845,6 +1845,36 @@ describe("Chart evaluation", () => {
     ).toBe("#REF");
   });
 });
+
+describe("Cumulative Data line chart", () => {
+  test("Chart to display cumulative data", () => {
+    createChart(
+      model,
+      {
+        dataSets: ["B2:B8"],
+        dataSetsHaveTitle: true,
+        labelRange: "A2",
+        type: "line",
+        cumulative: false,
+      },
+      "1"
+    );
+
+    const chartData = (model.getters.getChartRuntime("1") as LineChartRuntime).chartJsConfig.data!
+      .datasets![0].data;
+    const initialData = [11, 12, 13, "P4", 30];
+    const expectedCumulativeData = [11, 23, 36, "P4", 66];
+
+    expect(chartData).toEqual(initialData);
+
+    updateChart(model, "1", { cumulative: true });
+    const updatedChartData = (model.getters.getChartRuntime("1") as LineChartRuntime).chartJsConfig
+      .data!.datasets![0].data;
+
+    expect(updatedChartData).toEqual(expectedCumulativeData);
+  });
+});
+
 test("creating chart with single dataset should have legend position set as none, followed by changing it to top", async () => {
   createChart(
     model,
