@@ -63,6 +63,7 @@ function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | un
     verticalAxisPosition: chartData.verticalAxisPosition,
     legendPosition: chartData.legendPosition,
     stacked: chartData.stacked || false,
+    cumulative: chartData.cumulative || false,
     labelsAsText: false,
   };
 }
