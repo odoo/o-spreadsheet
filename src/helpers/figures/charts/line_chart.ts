@@ -63,6 +63,7 @@ export class LineChart extends AbstractChart {
   readonly stacked: boolean;
   readonly aggregated?: boolean;
   readonly type = "line";
+  readonly cumulative: boolean;
 
   constructor(definition: LineChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -79,6 +80,7 @@ export class LineChart extends AbstractChart {
     this.labelsAsText = definition.labelsAsText;
     this.stacked = definition.stacked;
     this.aggregated = definition.aggregated;
+    this.cumulative = definition.cumulative;
   }
 
   static validateChartDefinition(
@@ -108,6 +110,7 @@ export class LineChart extends AbstractChart {
       labelRange: context.auxiliaryRange || undefined,
       stacked: false,
       aggregated: false,
+      cumulative: false,
     };
   }
 
@@ -136,6 +139,7 @@ export class LineChart extends AbstractChart {
       labelsAsText: this.labelsAsText,
       stacked: this.stacked,
       aggregated: this.aggregated,
+      cumulative: this.cumulative,
     };
   }
 
@@ -377,6 +381,17 @@ export function createLineChartRuntime(chart: LineChart, getters: Getters): Line
     if (chart.stacked) {
       backgroundRGBA.a = LINE_FILL_TRANSPARENCY;
     }
+    if (chart.cumulative) {
+      let accumulator = 0;
+      data = data.map((value) => {
+        if (!isNaN(value)) {
+          accumulator += parseFloat(value);
+          return accumulator;
+        }
+        return value;
+      });
+    }
+
     const backgroundColor = rgbaToHex(backgroundRGBA);
 
     const dataset: ChartDataSets = {
