@@ -23,4 +23,10 @@ export class LineConfigPanel extends LineBarPieConfigPanel {
       stacked: ev.target.checked,
     });
   }
+
+  onUpdateCumulative(ev) {
+    this.props.updateChart(this.props.figureId, {
+      cumulative: ev.target.checked,
+    });
+  }
 }

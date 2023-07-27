@@ -13,6 +13,7 @@ export interface LineChartDefinition {
   readonly legendPosition: LegendPosition;
   readonly labelsAsText: boolean;
   readonly stacked: boolean;
+  readonly cumulative: boolean;
 }
 
 export type LineChartRuntime = {
