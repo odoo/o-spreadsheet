@@ -404,6 +404,22 @@ describe("formula assistant", () => {
             .textContent
         ).toBe("f4Arg2");
       });
+
+      test("Formula Helper updates when navigating with keyboard arrows", async () => {
+        await typeInComposer("=UPTOWNFUNC(1, 2, 3");
+        expect(
+          fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
+            .textContent
+        ).toBe("f4Arg3");
+        await keyDown({ key: "ArrowLeft" });
+        await keyDown({ key: "ArrowLeft" });
+        await keyDown({ key: "ArrowLeft" });
+        await keyUp({ key: "ArrowLeft" });
+        expect(
+          fixture.querySelectorAll(".o-formula-assistant-arg.o-formula-assistant-focus span")[0]
+            .textContent
+        ).toBe("f4Arg2");
+      });
     });
   });
 });
