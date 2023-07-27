@@ -5,11 +5,16 @@ import { SearchOptions } from "../../src/plugins/ui/find_and_replace";
 import {
   activateSheet,
   addRows,
+  createFilter,
   createSheet,
+  deleteFilter,
   deleteRows,
+  hideRows,
   redo,
   setCellContent,
   undo,
+  unhideRows,
+  updateFilter,
 } from "../test_helpers/commands_helpers";
 import { getCellContent, getCellText } from "../test_helpers/getters_helpers";
 
@@ -226,6 +231,43 @@ describe("basic search", () => {
     matches = model.getters.getSearchMatches();
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
     expect(matches).toHaveLength(3);
+    expect(matchIndex).toStrictEqual(0);
+  });
+
+  test("Need to update search when column or row is hiding and unhiding", () => {
+    model.dispatch("UPDATE_SEARCH", { toSearch: "1", searchOptions });
+    let matches = model.getters.getSearchMatches();
+    let matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(4);
+    expect(matchIndex).toStrictEqual(0);
+    hideRows(model, [1]);
+    matches = model.getters.getSearchMatches();
+    matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(3);
+    expect(matchIndex).toStrictEqual(0);
+    unhideRows(model, [1]);
+    matches = model.getters.getSearchMatches();
+    matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(4);
+    expect(matchIndex).toStrictEqual(0);
+  });
+
+  test("Need to update search if updating or removing the filter", () => {
+    createFilter(model, "A1:A6");
+    model.dispatch("UPDATE_SEARCH", { toSearch: "1", searchOptions });
+    let matches = model.getters.getSearchMatches();
+    let matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(4);
+    expect(matchIndex).toStrictEqual(0);
+    updateFilter(model, "A1", ["1"]);
+    matches = model.getters.getSearchMatches();
+    matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(2);
+    expect(matchIndex).toStrictEqual(0);
+    deleteFilter(model, "A1:A6");
+    matches = model.getters.getSearchMatches();
+    matchIndex = model.getters.getCurrentSelectedMatchIndex();
+    expect(matches).toHaveLength(4);
     expect(matchIndex).toStrictEqual(0);
   });
 
