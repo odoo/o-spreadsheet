@@ -2,10 +2,11 @@ import { getCanonicalSheetName, toXC, toZone } from "../helpers/index";
 import { _t } from "../translation";
 import {
   AddFunctionDescription,
-  ArgValue,
-  FunctionReturnValue,
+  FunctionReturn,
   isMatrix,
+  MatrixArg,
   MatrixArgValue,
+  PrimitiveArg,
   PrimitiveArgValue,
 } from "../types";
 import { NotAvailableError } from "../types/errors";
@@ -170,38 +171,35 @@ export const HLOOKUP = {
     ),
   ],
   returns: ["ANY"],
-  compute: function (
-    searchKey: PrimitiveArgValue,
-    range: MatrixArgValue,
-    index: PrimitiveArgValue,
-    isSorted: PrimitiveArgValue = DEFAULT_IS_SORTED
-  ): FunctionReturnValue {
-    const _index = Math.trunc(toNumber(index, this.locale));
+  computeValueAndFormat: function (
+    searchKey: PrimitiveArg,
+    range: MatrixArg,
+    index: PrimitiveArg,
+    isSorted: PrimitiveArg = { value: DEFAULT_IS_SORTED }
+  ): FunctionReturn {
+    const _index = Math.trunc(toNumber(index?.value, this.locale));
 
     assert(
       () => 1 <= _index && _index <= range[0].length,
       _t("[[FUNCTION_NAME]] evaluates to an out of bounds range.")
     );
 
-    const getValueFromRange = (range: MatrixArgValue, index: number) => range[index][0];
+    const getValueFromRange = (range: MatrixArg, index: number) => range[index][0].value;
 
-    const _isSorted = toBoolean(isSorted);
-    let colIndex;
-    if (_isSorted) {
-      colIndex = dichotomicSearch(
-        range,
-        searchKey,
-        "nextSmaller",
-        "asc",
-        range.length,
-        getValueFromRange
-      );
-    } else {
-      colIndex = linearSearch(range, searchKey, "strict", range.length, getValueFromRange);
-    }
+    const _isSorted = toBoolean(isSorted.value);
+    const colIndex = _isSorted
+      ? dichotomicSearch(
+          range,
+          searchKey?.value,
+          "nextSmaller",
+          "asc",
+          range.length,
+          getValueFromRange
+        )
+      : linearSearch(range, searchKey?.value, "strict", range.length, getValueFromRange);
     const col = range[colIndex];
-    assertAvailable(col, searchKey);
-    return col[_index - 1] as FunctionReturnValue;
+    assertAvailable(col, searchKey?.value);
+    return col[_index - 1];
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -223,14 +221,14 @@ export const INDEX: AddFunctionDescription = {
     ),
   ],
   returns: ["ANY"],
-  compute: function (
-    reference: ArgValue,
-    row: PrimitiveArgValue = 0,
-    column: PrimitiveArgValue = 0
+  computeValueAndFormat: function (
+    reference: MatrixArg,
+    row: PrimitiveArg = { value: 0 },
+    column: PrimitiveArg = { value: 0 }
   ): any {
     const _reference = isMatrix(reference) ? reference : [[reference]];
-    const _row = toNumber(row, this.locale);
-    const _column = toNumber(column, this.locale);
+    const _row = toNumber(row.value, this.locale);
+    const _column = toNumber(column.value, this.locale);
     assert(
       () =>
         _column >= 0 &&
@@ -239,13 +237,13 @@ export const INDEX: AddFunctionDescription = {
         _row - 1 < _reference[0].length,
       _t("Index out of range.")
     );
-    if (row === 0 && column === 0) {
+    if (_row === 0 && _column === 0) {
       return _reference;
     }
-    if (row === 0) {
+    if (_row === 0) {
       return [_reference[_column - 1]];
     }
-    if (column === 0) {
+    if (_column === 0) {
       return _reference.map((col) => [col[_row - 1]]);
     }
     return _reference[_column - 1][_row - 1];
@@ -275,38 +273,36 @@ export const LOOKUP = {
     ),
   ],
   returns: ["ANY"],
-  compute: function (
-    searchKey: PrimitiveArgValue,
-    searchArray: MatrixArgValue,
-    resultRange: MatrixArgValue | undefined
-  ): FunctionReturnValue {
+  computeValueAndFormat: function (
+    searchKey: PrimitiveArg,
+    searchArray: MatrixArg,
+    resultRange: MatrixArg | undefined
+  ): FunctionReturn {
     let nbCol = searchArray.length;
     let nbRow = searchArray[0].length;
 
     const verticalSearch = nbRow >= nbCol;
     const getElement = verticalSearch
-      ? (range: MatrixArgValue, index: number) => range[0][index]
-      : (range: MatrixArgValue, index: number) => range[index][0];
+      ? (range: MatrixArg, index: number) => range[0][index].value
+      : (range: MatrixArg, index: number) => range[index][0].value;
     const rangeLength = verticalSearch ? nbRow : nbCol;
     const index = dichotomicSearch(
       searchArray,
-      searchKey,
+      searchKey?.value,
       "nextSmaller",
       "asc",
       rangeLength,
       getElement
     );
 
-    if (index === -1) assertAvailable(undefined, searchKey);
+    if (index === -1) assertAvailable(undefined, searchKey?.value);
 
     verticalSearch
-      ? assertAvailable(searchArray[0][index], searchKey)
-      : assertAvailable(searchArray[index][nbRow - 1], searchKey);
+      ? assertAvailable(searchArray[0][index], searchKey?.value)
+      : assertAvailable(searchArray[index][nbRow - 1], searchKey?.value);
 
     if (resultRange === undefined) {
-      return (
-        verticalSearch ? searchArray[nbCol - 1][index] : searchArray[index][nbRow - 1]
-      ) as FunctionReturnValue;
+      return verticalSearch ? searchArray[nbCol - 1][index] : searchArray[index][nbRow - 1];
     }
 
     nbCol = resultRange.length;
@@ -321,7 +317,7 @@ export const LOOKUP = {
         () => index <= nbCol - 1,
         _t("[[FUNCTION_NAME]] evaluates to an out of range row value %s.", (index + 1).toString())
       );
-      return resultRange[index][0] as FunctionReturnValue;
+      return resultRange[index][0];
     }
 
     assert(
@@ -329,7 +325,7 @@ export const LOOKUP = {
       _t("[[FUNCTION_NAME]] evaluates to an out of range column value %s.", (index + 1).toString())
     );
 
-    return resultRange[0][index] as FunctionReturnValue;
+    return resultRange[0][index];
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -463,38 +459,35 @@ export const VLOOKUP = {
     ),
   ],
   returns: ["ANY"],
-  compute: function (
-    searchKey: PrimitiveArgValue,
-    range: MatrixArgValue,
-    index: PrimitiveArgValue,
-    isSorted: PrimitiveArgValue = DEFAULT_IS_SORTED
-  ): FunctionReturnValue {
-    const _index = Math.trunc(toNumber(index, this.locale));
+  computeValueAndFormat: function (
+    searchKey: PrimitiveArg,
+    range: MatrixArg,
+    index: PrimitiveArg,
+    isSorted: PrimitiveArg = { value: DEFAULT_IS_SORTED }
+  ): FunctionReturn {
+    const _index = Math.trunc(toNumber(index?.value, this.locale));
     assert(
       () => 1 <= _index && _index <= range.length,
       _t("[[FUNCTION_NAME]] evaluates to an out of bounds range.")
     );
 
-    const getValueFromRange = (range: MatrixArgValue, index: number) => range[0][index];
+    const getValueFromRange = (range: MatrixArg, index: number) => range[0][index].value;
 
-    const _isSorted = toBoolean(isSorted);
-    let rowIndex;
-    if (_isSorted) {
-      rowIndex = dichotomicSearch(
-        range,
-        searchKey,
-        "nextSmaller",
-        "asc",
-        range[0].length,
-        getValueFromRange
-      );
-    } else {
-      rowIndex = linearSearch(range, searchKey, "strict", range[0].length, getValueFromRange);
-    }
+    const _isSorted = toBoolean(isSorted.value);
+    const rowIndex = _isSorted
+      ? dichotomicSearch(
+          range,
+          searchKey?.value,
+          "nextSmaller",
+          "asc",
+          range[0].length,
+          getValueFromRange
+        )
+      : linearSearch(range, searchKey?.value, "strict", range[0].length, getValueFromRange);
 
     const value = range[_index - 1][rowIndex];
     assertAvailable(value, searchKey);
-    return value as FunctionReturnValue;
+    return value;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -538,16 +531,16 @@ export const XLOOKUP = {
     ),
   ],
   returns: ["ANY"],
-  compute: function (
-    searchKey: PrimitiveArgValue,
-    lookupRange: MatrixArgValue,
-    returnRange: MatrixArgValue,
-    defaultValue?: () => PrimitiveArgValue,
-    matchMode: PrimitiveArgValue = DEFAULT_MATCH_MODE,
-    searchMode: PrimitiveArgValue = DEFAULT_SEARCH_MODE
-  ): FunctionReturnValue {
-    const _matchMode = Math.trunc(toNumber(matchMode, this.locale));
-    const _searchMode = Math.trunc(toNumber(searchMode, this.locale));
+  computeValueAndFormat: function (
+    searchKey: PrimitiveArg,
+    lookupRange: MatrixArg,
+    returnRange: MatrixArg,
+    defaultValue?: () => PrimitiveArg,
+    matchMode: PrimitiveArg = { value: DEFAULT_MATCH_MODE },
+    searchMode: PrimitiveArg = { value: DEFAULT_SEARCH_MODE }
+  ): FunctionReturn {
+    const _matchMode = Math.trunc(toNumber(matchMode.value, this.locale));
+    const _searchMode = Math.trunc(toNumber(searchMode.value, this.locale));
 
     assert(
       () => lookupRange.length === 1 || lookupRange[0].length === 1,
@@ -571,21 +564,25 @@ export const XLOOKUP = {
 
     const getElement =
       lookupDirection === "col"
-        ? (range: MatrixArgValue, index: number) => range[0][index]
-        : (range: MatrixArgValue, index: number) => range[index][0];
+        ? (range: MatrixArg, index: number) => range[0][index].value
+        : (range: MatrixArg, index: number) => range[index][0].value;
 
     const rangeLen = lookupDirection === "col" ? lookupRange[0].length : lookupRange.length;
 
     const mode = _matchMode === 0 ? "strict" : _matchMode === 1 ? "nextGreater" : "nextSmaller";
     const reverseSearch = _searchMode === -1;
 
-    let index: number;
-    if (_searchMode === 2 || _searchMode === -2) {
-      const sortOrder = _searchMode === 2 ? "asc" : "desc";
-      index = dichotomicSearch(lookupRange, searchKey, mode, sortOrder, rangeLen, getElement);
-    } else {
-      index = linearSearch(lookupRange, searchKey, mode, rangeLen, getElement, reverseSearch);
-    }
+    const index =
+      _searchMode === 2 || _searchMode === -2
+        ? dichotomicSearch(
+            lookupRange,
+            searchKey?.value,
+            mode,
+            _searchMode === 2 ? "asc" : "desc",
+            rangeLen,
+            getElement
+          )
+        : linearSearch(lookupRange, searchKey?.value, mode, rangeLen, getElement, reverseSearch);
 
     if (index !== -1) {
       return lookupDirection === "col"

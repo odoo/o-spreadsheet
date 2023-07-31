@@ -1,7 +1,7 @@
 import { Model } from "../../src";
 import { setCellContent, setCellFormat } from "../test_helpers/commands_helpers";
 import { getEvaluatedCell } from "../test_helpers/getters_helpers";
-import { evaluateCell } from "../test_helpers/helpers";
+import { evaluateCell, evaluateCellFormat } from "../test_helpers/helpers";
 
 describe("AND formula", () => {
   test("functional tests on simple arguments", () => {
@@ -98,6 +98,15 @@ describe("IF formula", () => {
     expect(evaluateCell("A1", { A1: "=IF(A2, A3, A4)", A2: "0", A3: "1", A4: "2" })).toBe(2);
     expect(evaluateCell("A1", { A1: "=IF(A2, A3, A4)", A3: "1", A4: "2" })).toBe(2);
   });
+
+  test("take format into account", () => {
+    expect(evaluateCellFormat("A1", { A1: "=IF(true, A2, A3)", A2: "12/12/12", A3: "42%" })).toBe(
+      "m/d/yy"
+    );
+    expect(evaluateCellFormat("A1", { A1: "=IF(false, A2, A3)", A2: "12/12/12", A3: "42%" })).toBe(
+      "0%"
+    );
+  });
 });
 
 describe("IFERROR formula", () => {
@@ -185,6 +194,13 @@ describe("IFNA formula", () => {
     expect(evaluateCell("A1", { A1: "=IFNA(A2, 42)", A2: "TRUE" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=IFNA(A2, 42)", A2: "3" })).toBe(3);
     expect(evaluateCell("A1", { A1: "=IFNA(A2, 42)", A2: "test" })).toBe("test");
+  });
+
+  test("take format into account", () => {
+    expect(evaluateCellFormat("A1", { A1: "=IFNA(A2, A3)", A2: "=NA()", A3: "42%" })).toBe("0%");
+    expect(evaluateCellFormat("A1", { A1: "=IFNA(A2, A3)", A2: "12/12/12", A3: "42%" })).toBe(
+      "m/d/yy"
+    );
   });
 });
 
@@ -283,6 +299,15 @@ describe("IFS formula", () => {
         A5: "ok2",
       })
     ).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+  });
+
+  test("take format into account", () => {
+    expect(
+      evaluateCellFormat("A1", { A1: "=IFS(true, A2, true, A3)", A2: "12/12/12", A3: "42%" })
+    ).toBe("m/d/yy");
+    expect(
+      evaluateCellFormat("A1", { A1: "=IFS(false, A2, true, A3)", A2: "12/12/12", A3: "42%" })
+    ).toBe("0%");
   });
 });
 
