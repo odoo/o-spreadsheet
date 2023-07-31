@@ -143,37 +143,31 @@ export class InternalViewport {
     const sheetId = this.sheetId;
     const { end } = this.getters.getColDimensions(sheetId, targetCol);
     const maxCol = this.getters.getNumberCols(sheetId);
-
     if (this.offsetX + this.offsetCorrectionX + this.viewportWidth < end) {
-      for (
-        let col = this.left;
-        this.offsetX + this.offsetCorrectionX + this.viewportWidth < end;
-        col++
-      ) {
-        if (col > maxCol) {
-          break;
-        }
-        if (this.getters.isColHidden(sheetId, col)) {
-          continue;
-        }
-
-        this.offsetX = this.getters.getColDimensions(sheetId, col).end - this.offsetCorrectionX;
-        this.offsetScrollbarX = this.offsetX;
-        this.adjustViewportZoneX();
+      let finalTarget = targetCol;
+      while (this.getters.isColHidden(sheetId, finalTarget) && targetCol < maxCol) {
+        finalTarget++;
       }
+      const finalTargetEnd = this.getters.getColDimensions(sheetId, finalTarget).end;
+      const startIndex = this.searchHeaderIndex(
+        "COL",
+        finalTargetEnd - this.viewportWidth - this.offsetCorrectionX,
+        this.boundaries.left,
+        true
+      );
+      this.offsetX =
+        this.getters.getColDimensions(sheetId, startIndex).end - this.offsetCorrectionX;
+      this.offsetScrollbarX = this.offsetX;
+      this.adjustViewportZoneX();
     } else if (this.left > targetCol) {
-      for (let col = this.left; col >= targetCol; col--) {
-        if (col < 0) {
-          break;
-        }
-        if (this.getters.isColHidden(sheetId, col)) {
-          continue;
-        }
-
-        this.offsetX = this.getters.getColDimensions(sheetId, col).start - this.offsetCorrectionX;
-        this.offsetScrollbarX = this.offsetX;
-        this.adjustViewportZoneX();
+      let finalTarget = targetCol;
+      while (this.getters.isColHidden(sheetId, finalTarget) && targetCol > 0) {
+        finalTarget--;
       }
+      this.offsetX =
+        this.getters.getColDimensions(sheetId, finalTarget).start - this.offsetCorrectionX;
+      this.offsetScrollbarX = this.offsetX;
+      this.adjustViewportZoneX();
     }
   }
 
@@ -181,37 +175,31 @@ export class InternalViewport {
     const sheetId = this.sheetId;
     const { end } = this.getters.getRowDimensions(sheetId, targetRow);
     const maxRow = this.getters.getNumberRows(sheetId);
-
     if (this.offsetY + this.viewportHeight + this.offsetCorrectionY < end) {
-      for (
-        let row = this.top;
-        this.offsetY + this.viewportHeight + this.offsetCorrectionY < end;
-        row++
-      ) {
-        if (row > maxRow) {
-          break;
-        }
-        if (this.getters.isRowHidden(sheetId, row)) {
-          continue;
-        }
-
-        this.offsetY = this.getters.getRowDimensions(sheetId, row).end - this.offsetCorrectionY;
-        this.offsetScrollbarY = this.offsetY;
-        this.adjustViewportZoneY();
+      let finalTarget = targetRow;
+      while (this.getters.isRowHidden(sheetId, finalTarget) && targetRow < maxRow) {
+        finalTarget++;
       }
+      const finalTargetEnd = this.getters.getRowDimensions(sheetId, finalTarget).end;
+      const startIndex = this.searchHeaderIndex(
+        "ROW",
+        finalTargetEnd - this.viewportHeight - this.offsetCorrectionY,
+        this.boundaries.top,
+        true
+      );
+      this.offsetY =
+        this.getters.getRowDimensions(sheetId, startIndex).end - this.offsetCorrectionY;
+      this.offsetScrollbarY = this.offsetY;
+      this.adjustViewportZoneY();
     } else if (this.top > targetRow) {
-      for (let row = this.top; row >= targetRow; row--) {
-        if (row < 0) {
-          break;
-        }
-        if (this.getters.isRowHidden(sheetId, row)) {
-          continue;
-        }
-
-        this.offsetY = this.getters.getRowDimensions(sheetId, row).start - this.offsetCorrectionY;
-        this.offsetScrollbarY = this.offsetY;
-        this.adjustViewportZoneY();
+      let finalTarget = targetRow;
+      while (this.getters.isRowHidden(sheetId, finalTarget) && targetRow > 0) {
+        finalTarget--;
       }
+      this.offsetY =
+        this.getters.getRowDimensions(sheetId, finalTarget).start - this.offsetCorrectionY;
+      this.offsetScrollbarY = this.offsetY;
+      this.adjustViewportZoneY();
     }
   }
 
