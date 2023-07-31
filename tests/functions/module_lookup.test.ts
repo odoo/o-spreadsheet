@@ -4,6 +4,7 @@ import { getEvaluatedCell } from "../test_helpers/getters_helpers";
 import {
   createModelFromGrid,
   evaluateCell,
+  evaluateCellFormat,
   evaluateGrid,
   getRangeValuesAsMatrix,
 } from "../test_helpers/helpers";
@@ -211,6 +212,16 @@ describe("LOOKUP formula", () => {
 
     const evaluatedGrid = evaluateGrid(grid);
     expect(evaluatedGrid.D1).toBe("C");
+  });
+
+  test("take format into account", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "1", B1: "42%",      C1: "3$", 
+      A2: "2", B2: "12/12/12", C2: "24",      
+    };
+    expect(evaluateCellFormat("A5", { A5: "=LOOKUP(2, A1:B2)", ...grid })).toBe("m/d/yy");
+    expect(evaluateCellFormat("A6", { A6: "=LOOKUP(1, A1:A2, C1:C2)", ...grid })).toBe("#,##0[$$]");
   });
 });
 
@@ -721,6 +732,16 @@ describe("VLOOKUP formula", () => {
   test("Accents and uppercase are ignored", () => {
     expect(evaluateCell("A1", { A1: '=VLOOKUP("epee", B1, 1)', B1: "Épée" })).toBe("Épée");
   });
+
+  test("take format into account", () => {
+    // prettier-ignore
+    const grid = {
+      A2: "A2", B2: "12/12/12", C2: "3€",
+      A3: "A3", B3: "42%"     , C3: "3$",
+    };
+    expect(evaluateCellFormat("D1", { D1: '=VLOOKUP("A2", A2:C3, 3)', ...grid })).toBe("#,##0[$€]");
+    expect(evaluateCellFormat("E1", { E1: '=VLOOKUP("B2", A2:C3, 2)', ...grid })).toBe("0%");
+  });
 });
 
 describe("HLOOKUP formula", () => {
@@ -876,6 +897,19 @@ describe("HLOOKUP formula", () => {
         expect(gridU.Z1).toBe("#N/A");
         expect(gridU.Z2).toBe("#N/A");
       });
+    });
+
+    test("take format into account", () => {
+      // prettier-ignore
+      const grid = {
+        A2: "A2", B2: "B2",
+        A3: "12/12/12", B3: "42%", 
+        A4: "3€", B4: "3$",
+      };
+      expect(evaluateCellFormat("D1", { D1: '=HLOOKUP("A2", A2:B4, 3)', ...grid })).toBe(
+        "#,##0[$€]"
+      );
+      expect(evaluateCellFormat("E1", { E1: '=HLOOKUP("B2", A2:B4, 2)', ...grid })).toBe("0%");
     });
   });
 
@@ -1102,6 +1136,18 @@ describe("XLOOKUP formula", () => {
       expect(grid.Z7).toBe("C4");
     });
   });
+
+  test("take format into account", () => {
+    // prettier-ignore
+    const grid = {
+      B1: "24", C1: "42", 
+      B2: "12/12/12", C2: "2$", 
+    };
+    expect(evaluateCellFormat("D1", { D1: "=XLOOKUP(24, B1:C1, B2:C2)", ...grid })).toBe("m/d/yy");
+    expect(evaluateCellFormat("E1", { E1: "=XLOOKUP(42, B1:C1, B2:C3)", ...grid })).toBe(
+      "#,##0[$$]"
+    );
+  });
 });
 
 describe("INDEX formula", () => {
@@ -1247,5 +1293,15 @@ describe("INDEX formula", () => {
     expect(getEvaluatedCell(model, "B6").value).toBe("B3");
     expect(getEvaluatedCell(model, "C6").value).toBe("C3");
     expect(getEvaluatedCell(model, "A7").value).toBe("");
+  });
+
+  test("take format into account", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "12/12/12", B1: "42%", 
+      A2: "3€",       B2: "3%",
+    };
+    expect(evaluateCellFormat("A4", { A4: "=INDEX(A1:B2, 2, 1)", ...grid })).toBe("#,##0[$€]");
+    expect(evaluateCellFormat("B4", { B4: "=INDEX(A1:B2, 1, 2)", ...grid })).toBe("0%");
   });
 });

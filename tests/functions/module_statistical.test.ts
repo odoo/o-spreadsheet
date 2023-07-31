@@ -778,9 +778,10 @@ describe("LARGE formula", () => {
     ).toBe(0);
   });
 
-  test("result format depends on 1st argument", () => {
+  test("result format is kept", () => {
     expect(evaluateCellFormat("A1", { A1: "=LARGE(A2, 2)", A2: "42" })).toBe("");
-    expect(evaluateCellFormat("A1", { A1: "=LARGE(A2, A3)", A2: "42%", A3: "1" })).toBe("0%");
+    expect(evaluateCellFormat("A1", { A1: "=LARGE(A2:A3, 1)", A2: "42%", A3: "1" })).toBe("");
+    expect(evaluateCellFormat("A1", { A1: "=LARGE(A2:A3, 2)", A2: "7", A3: "600%" })).toBe("0%");
   });
 });
 
@@ -1911,9 +1912,9 @@ describe("SMALL formula", () => {
     ).toBe(0);
   });
 
-  test("result format depends on 1st argument", () => {
+  test("format is kept", () => {
     expect(evaluateCellFormat("A1", { A1: "=SMALL(A2, 2)", A2: "42" })).toBe("");
-    expect(evaluateCellFormat("A1", { A1: "=SMALL(A2:A3, 2)", A2: "600%", A3: "7" })).toBe("0%");
+    expect(evaluateCellFormat("A1", { A1: "=SMALL(A2:A3, 1)", A2: "600%", A3: "7" })).toBe("0%");
     expect(evaluateCellFormat("A1", { A1: "=SMALL(A2:A3, 2)", A2: "1", A3: "42%" })).toBe("");
   });
 });

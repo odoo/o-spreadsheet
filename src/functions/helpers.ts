@@ -10,6 +10,7 @@ import {
   Matrix,
   MatrixArgValue,
   PrimitiveArgValue,
+  ValueAndFormat,
 } from "../types";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
@@ -176,10 +177,10 @@ export function toJsDate(
 // -----------------------------------------------------------------------------
 // VISIT FUNCTIONS
 // -----------------------------------------------------------------------------
-function visitArgs(
-  args: ArgValue[],
-  cellCb: (a: CellValue | undefined) => void,
-  dataCb: (a: PrimitiveArgValue) => void
+function visitArgs<T extends ValueAndFormat | CellValue>(
+  args: (T | Matrix<T> | undefined)[],
+  cellCb: (a: T) => void,
+  dataCb: (a: T | undefined) => void
 ): void {
   for (let arg of args) {
     if (Array.isArray(arg)) {
@@ -188,7 +189,7 @@ function visitArgs(
       const lenCol = arg[0].length;
       for (let y = 0; y < lenCol; y++) {
         for (let x = 0; x < lenRow; x++) {
-          cellCb(arg[x][y] ?? undefined);
+          cellCb(arg[x][y]);
         }
       }
     } else {
@@ -198,7 +199,10 @@ function visitArgs(
   }
 }
 
-export function visitAny(args: ArgValue[], cb: (a: PrimitiveArgValue | undefined) => void): void {
+export function visitAny<T extends ValueAndFormat | CellValue>(
+  args: (T | Matrix<T> | undefined)[],
+  cb: (a: T) => void
+): void {
   visitArgs(args, cb, cb);
 }
 

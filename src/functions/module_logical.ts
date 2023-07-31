@@ -2,7 +2,7 @@ import { _t } from "../translation";
 import {
   AddFunctionDescription,
   ArgValue,
-  FunctionReturnValue,
+  FunctionReturn,
   PrimitiveArg,
   PrimitiveArgValue,
 } from "../types";
@@ -77,13 +77,19 @@ export const IF = {
     ),
   ],
   returns: ["ANY"],
-  compute: function (
-    logicalExpression: PrimitiveArgValue,
-    valueIfTrue: () => PrimitiveArgValue,
-    valueIfFalse: () => PrimitiveArgValue = () => false
-  ): FunctionReturnValue {
-    const result = toBoolean(logicalExpression) ? valueIfTrue() : valueIfFalse();
-    return result === null || result === undefined ? "" : result;
+  computeValueAndFormat: function (
+    logicalExpression: PrimitiveArg,
+    valueIfTrue: () => PrimitiveArg,
+    valueIfFalse: () => PrimitiveArg = () => ({ value: false })
+  ): FunctionReturn {
+    const result = toBoolean(logicalExpression?.value) ? valueIfTrue() : valueIfFalse();
+    if (result === undefined) {
+      return { value: "" };
+    }
+    if (result.value === null) {
+      result.value = "";
+    }
+    return result;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -101,27 +107,23 @@ export const IFERROR = {
     ),
   ],
   returns: ["ANY"],
-  computeFormat: (
+  computeValueAndFormat: function (
     value: () => PrimitiveArg,
     valueIfError: () => PrimitiveArg = () => ({ value: "" })
-  ) => {
-    try {
-      return value()?.format;
-    } catch (e) {
-      return valueIfError()?.format;
-    }
-  },
-  compute: function (
-    value: () => PrimitiveArgValue,
-    valueIfError: () => PrimitiveArgValue = () => ""
-  ): FunctionReturnValue {
+  ): FunctionReturn {
     let result;
     try {
       result = value();
     } catch (e) {
       result = valueIfError();
     }
-    return result === null || result === undefined ? "" : result;
+    if (result === undefined) {
+      return { value: "" };
+    }
+    if (result.value === null) {
+      result.value = "";
+    }
+    return result;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -139,10 +141,10 @@ export const IFNA = {
     ),
   ],
   returns: ["ANY"],
-  compute: function (
-    value: () => PrimitiveArgValue,
-    valueIfError: () => PrimitiveArgValue = () => ""
-  ): FunctionReturnValue {
+  computeValueAndFormat: function (
+    value: () => PrimitiveArg,
+    valueIfError: () => PrimitiveArg = () => ({ value: "" })
+  ): FunctionReturn {
     let result;
     try {
       result = value();
@@ -153,7 +155,13 @@ export const IFNA = {
         result = value();
       }
     }
-    return result === null || result === undefined ? "" : result;
+    if (result === undefined) {
+      return { value: "" };
+    }
+    if (result.value === null) {
+      result.value = "";
+    }
+    return result;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -181,15 +189,21 @@ export const IFS = {
     ),
   ],
   returns: ["ANY"],
-  compute: function (...values: (() => PrimitiveArgValue)[]): FunctionReturnValue {
+  computeValueAndFormat: function (...values: (() => PrimitiveArg)[]): FunctionReturn {
     assert(
       () => values.length % 2 === 0,
       _t(`Wrong number of arguments. Expected an even number of arguments.`)
     );
     for (let n = 0; n < values.length - 1; n += 2) {
-      if (toBoolean(values[n]())) {
-        const returnValue = values[n + 1]();
-        return returnValue === null || returnValue === undefined ? "" : returnValue;
+      if (toBoolean(values[n]()?.value)) {
+        const result = values[n + 1]();
+        if (result === undefined) {
+          return { value: "" };
+        }
+        if (result.value === null) {
+          result.value = "";
+        }
+        return result;
       }
     }
     throw new Error(_t(`No match.`));

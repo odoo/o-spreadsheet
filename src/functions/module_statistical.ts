@@ -7,7 +7,10 @@ import {
   ArgValue,
   Locale,
   MatrixArgValue,
+  PrimitiveArg,
   PrimitiveArgValue,
+  PrimitiveFunctionReturn,
+  ValueAndFormat,
 } from "../types";
 import { arg } from "./arguments";
 import {
@@ -562,23 +565,20 @@ export const LARGE = {
     arg("n (number)", _t("The rank from largest to smallest of the element to return.")),
   ],
   returns: ["NUMBER"],
-  computeFormat: (data: Arg) => {
-    return Array.isArray(data) ? data[0][0]?.format : data?.format;
-  },
-  compute: function (data: ArgValue, n: PrimitiveArgValue): number {
-    const _n = Math.trunc(toNumber(n, this.locale));
-    let largests: number[] = [];
+  computeValueAndFormat: function (data: Arg, n: PrimitiveArg): PrimitiveFunctionReturn {
+    const _n = Math.trunc(toNumber(n?.value, this.locale));
+    let largests: ValueAndFormat[] = [];
     let index: number;
     let count = 0;
     visitAny([data], (d) => {
-      if (typeof d === "number") {
+      if (typeof d.value === "number") {
         index = dichotomicSearch(
           largests,
-          d,
+          d.value,
           "nextSmaller",
           "asc",
           largests.length,
-          (array, i) => array[i]
+          (array, i) => array[i].value
         );
         largests.splice(index + 1, 0, d);
         count++;
@@ -969,23 +969,20 @@ export const SMALL = {
     arg("n (number)", _t("The rank from smallest to largest of the element to return.")),
   ],
   returns: ["NUMBER"],
-  computeFormat: (data: Arg) => {
-    return Array.isArray(data) ? data[0][0].format : data?.format;
-  },
-  compute: function (data: ArgValue, n: PrimitiveArgValue): number {
-    const _n = Math.trunc(toNumber(n, this.locale));
-    let largests: number[] = [];
+  computeValueAndFormat: function (data: Arg, n: PrimitiveArg): PrimitiveFunctionReturn {
+    const _n = Math.trunc(toNumber(n?.value, this.locale));
+    let largests: ValueAndFormat[] = [];
     let index: number;
     let count = 0;
     visitAny([data], (d) => {
-      if (typeof d === "number") {
+      if (typeof d.value === "number") {
         index = dichotomicSearch(
           largests,
-          d,
+          d.value,
           "nextSmaller",
           "asc",
           largests.length,
-          (array, i) => array[i]
+          (array, i) => array[i].value
         );
         largests.splice(index + 1, 0, d);
         count++;
