@@ -36,6 +36,7 @@ export class DependencyContainer {
     this.dependencies.set(Store, instance);
   }
 
+  // TODO remove args. Since the store might already be instantiated (with other args)
   get<T>(Store: StoreConstructor<T>, ...args: StoreParameters<StoreConstructor<T>>): T {
     if (!this.dependencies.has(Store)) {
       this.dependencies.set(Store, this.instantiate(Store, ...args));

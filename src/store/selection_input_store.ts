@@ -33,12 +33,17 @@ export class SelectionInputStore extends LocalSpreadsheetStore {
   private willAddNewRange: boolean = false;
   private focusStore = this.get(FocusStore);
 
-  constructor(get: Get, initialRanges: string[], private readonly inputHasSingleRange: boolean) {
+  constructor(
+    get: Get,
+    initialRanges: string[] = [],
+    private readonly inputHasSingleRange: boolean = false
+  ) {
     super(get);
     this.insertNewRange(0, initialRanges);
     this.activeSheet = this.getters.getActiveSheetId();
     if (this.ranges.length === 0) {
       this.insertNewRange(this.ranges.length, [""]);
+      // this means the last mounted component is focused :/
       this.focusLast();
     }
   }
@@ -186,6 +191,9 @@ export class SelectionInputStore extends LocalSpreadsheetStore {
   }
 
   private get selectionInputHighlights(): Highlight[] {
+    if (this.focusStore.focusedElement !== this) {
+      return [];
+    }
     return this.ranges.map((input) => this.inputToHighlights(input)).flat();
   }
 
@@ -239,6 +247,9 @@ export class SelectionInputStore extends LocalSpreadsheetStore {
    * Insert new inputs after the given index.
    */
   private insertNewRange(index: number, values: string[]) {
+    if (this.ranges.length === 1 && this.inputHasSingleRange) {
+      return;
+    }
     const currentMaxId = Math.max(0, ...this.ranges.map((range) => Number(range.id)));
     this.ranges.splice(
       index,
