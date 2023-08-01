@@ -1,7 +1,11 @@
 /**
  * An injectable store constructor
  */
-export interface StoreConstructor<T = any, A extends any[] = any[]> {
+export interface StoreConstructor<T = any> {
+  new (get: Get): T;
+}
+
+export interface ParametricStoreConstructor<T = any, A extends any[] = any[]> {
   new (get: Get, ...args: A): T;
 }
 
@@ -36,15 +40,20 @@ export class DependencyContainer {
     this.dependencies.set(Store, instance);
   }
 
-  // TODO remove args. Since the store might already be instantiated (with other args)
-  get<T>(Store: StoreConstructor<T>, ...args: StoreParameters<StoreConstructor<T>>): T {
+  /**
+   * Get an instance of a store.
+   */
+  get<T>(Store: StoreConstructor<T>): T {
     if (!this.dependencies.has(Store)) {
-      this.dependencies.set(Store, this.instantiate(Store, ...args));
+      this.dependencies.set(Store, this.instantiate(Store));
     }
     return this.dependencies.get(Store);
   }
 
-  instantiate<T>(Store: StoreConstructor<T>, ...args: StoreParameters<StoreConstructor<T>>): T {
+  instantiate<T>(
+    Store: ParametricStoreConstructor<T>,
+    ...args: StoreParameters<ParametricStoreConstructor<T>>
+  ): T {
     return this.factory.build(Store, ...args);
   }
 }
@@ -59,7 +68,10 @@ class StoreFactory {
    * Build a store instance and get all its dependencies
    * while detecting and preventing circular dependencies
    */
-  build<T>(Store: StoreConstructor<T>, ...args: StoreParameters<StoreConstructor<T>>): T {
+  build<T>(
+    Store: ParametricStoreConstructor<T>,
+    ...args: StoreParameters<ParametricStoreConstructor<T>>
+  ): T {
     if (this.building.has(Store)) {
       throw new Error(
         `Circular dependency detected: ${[...this.building, Store].map((s) => s.name).join(" -> ")}`

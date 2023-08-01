@@ -1,4 +1,4 @@
-import { Component, onPatched, useEffect, useRef, useState } from "@odoo/owl";
+import { Component, onMounted, onPatched, useEffect, useRef, useState } from "@odoo/owl";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 // import { UuidGenerator } from "../../helpers/index";
 import { RangeInputValue } from "../../plugins/ui_feature/selection_input";
@@ -79,6 +79,8 @@ interface SelectionRange extends Omit<RangeInputValue, "color"> {
   isValidRange: boolean;
   color?: string;
 }
+
+let d = 0;
 /**
  * This component can be used when the user needs to input some
  * ranges. He can either input the ranges with the regular DOM `<input/>`
@@ -118,6 +120,8 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get hasFocus(): boolean {
+    // @ts-ignore
+    // console.log("hasFocus", this.d,  this.ranges.filter((i) => i.isFocused).length > 0);
     return this.ranges.filter((i) => i.isFocused).length > 0;
   }
 
@@ -130,14 +134,25 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   }
 
   setup() {
+    // @ts-ignore
+    this.d = ++d;
     // what if props changes?
     this.store = useLocalStore(
       SelectionInputStore,
       this.props.ranges,
       this.props.hasSingleRange || false
     );
+    // onMounted hooks are called in reverse order of component declaration
+    // with this, we make sure that the first input in the DOM is focused
+    onMounted(() => {
+      if (!this.store.selectionInputs[0].xc) {
+        this.store.focusById(this.store.selectionInputs[0].id);
+      }
+    });
     useEffect(
-      () => this.focusedInput.el?.focus(),
+      () => {
+        this.focusedInput.el?.focus();
+      },
       () => [this.focusedInput.el]
     );
     // onMounted(() => this.enableNewSelectionInput());
@@ -194,6 +209,8 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   }
 
   focus(rangeId: number) {
+    // @ts-ignore
+    // console.log("focus", rangeId, this.d);
     this.state.isMissing = false;
     this.state.mode = "select-range";
     this.store.focusById(rangeId);

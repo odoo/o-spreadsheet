@@ -30,6 +30,7 @@ export function useStore<T extends StoreConstructor>(
   return useState(container.get(Store));
 }
 
+// useComponentStore ?
 export function useLocalStore<T extends DisposableStoreConstructor>(
   Store: T,
   ...args: StoreParameters<T>

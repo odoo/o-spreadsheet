@@ -322,6 +322,7 @@ describe("Selection Input", () => {
     await nextTick();
     expect(fixture.querySelector(".input-1 .o-focused")).toBeTruthy();
     expect(fixture.querySelector(".input-2 .o-focused")).toBeFalsy();
+    console.log("simeuylate click");
     await simulateClick(".input-2 input");
     expect(fixture.querySelector(".input-1 .o-focused")).toBeFalsy();
     expect(fixture.querySelector(".input-2 .o-focused")).toBeTruthy();
