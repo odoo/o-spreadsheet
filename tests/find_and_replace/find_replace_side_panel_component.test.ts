@@ -1,5 +1,7 @@
 import { Model, Spreadsheet } from "../../src";
-import { setCellContent } from "../test_helpers/commands_helpers";
+import { toZone } from "../../src/helpers";
+import { SearchOptions } from "../../src/types/find_and_replace";
+import { activateSheet, createSheet, setCellContent } from "../test_helpers/commands_helpers";
 import {
   click,
   focusAndKeyDown,
@@ -14,7 +16,7 @@ let model: Model;
 const selectors = {
   closeSidepanel: ".o-sidePanel .o-sidePanelClose",
   inputSearch:
-    ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-input-search-container input",
+    ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-input-search-container input.o-input-with-count",
   inputReplace: ".o-sidePanel .o-find-and-replace .o-section:nth-child(3) input",
   previousButton:
     ".o-sidePanel .o-find-and-replace .o-sidePanelButtons:nth-of-type(2) .o-button:nth-child(1)",
@@ -31,7 +33,37 @@ const selectors = {
   checkBoxSearchFormulas:
     ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-checkbox:nth-child(3) input",
   checkBoxReplaceFormulas:
-    ".o-sidePanel .o-find-and-replace .o-section:nth-child(3) .o-checkbox:nth-child(3) input",
+    ".o-sidePanel .o-find-and-replace .o-section:nth-child(3) .o-far-item:nth-child(3) input",
+  searchRangeSelection: ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-type-selector",
+  searchRange: ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-selection-input input",
+  resetSearchRange: ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-selection-ko",
+  confirmSearchRange: ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-selection-ok",
+  matchesCount: ".o-sidePanel .o-find-and-replace .o-matches-count",
+};
+
+function changeSearchScope(scope: SearchOptions["searchScope"]) {
+  const selectRangeSelection = document.querySelector(
+    selectors.searchRangeSelection
+  ) as HTMLSelectElement;
+  setInputValueAndTrigger(selectRangeSelection, scope);
+}
+
+function inputSearchValue(value: string) {
+  setInputValueAndTrigger(selectors.inputSearch, value);
+  jest.runOnlyPendingTimers();
+}
+
+function getMatchesCountContent() {
+  const countDivs = document.querySelectorAll(selectors.matchesCount + " div");
+  return [...countDivs].map((div) => div.textContent);
+}
+
+const DEFAULT_SEARCH_OPTS: SearchOptions = {
+  matchCase: false,
+  exactMatch: false,
+  searchFormulas: false,
+  searchScope: "allSheets",
+  specificRange: undefined,
 };
 
 describe("find and replace sidePanel component", () => {
@@ -44,10 +76,12 @@ describe("find and replace sidePanel component", () => {
       parent.env.openSidePanel("FindAndReplace");
       await nextTick();
     });
-    test("Can close the remove duplicate side panel", async () => {
+
+    test("Closing the side panel clears the search", async () => {
+      const dispatch = spyDispatch(parent);
       expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
       await click(fixture, selectors.closeSidepanel);
-      expect(document.querySelectorAll(".o-sidePanel").length).toBe(0);
+      expect(dispatch).toHaveBeenCalledWith("CLEAR_SEARCH");
     });
 
     test("When opening sidepanel, focus will be on search input", async () => {
@@ -93,7 +127,7 @@ describe("find and replace sidePanel component", () => {
       jest.runOnlyPendingTimers();
       await nextTick();
       expect(dispatch).toHaveBeenCalledWith("UPDATE_SEARCH", {
-        searchOptions: { exactMatch: false, matchCase: false, searchFormulas: false },
+        searchOptions: DEFAULT_SEARCH_OPTS,
         toSearch: "1",
       });
     });
@@ -121,7 +155,7 @@ describe("find and replace sidePanel component", () => {
       jest.runOnlyPendingTimers();
       await nextTick();
       expect(dispatch).toHaveBeenCalledWith("UPDATE_SEARCH", {
-        searchOptions: { exactMatch: false, matchCase: false, searchFormulas: false },
+        searchOptions: DEFAULT_SEARCH_OPTS,
         toSearch: "",
       });
     });
@@ -132,6 +166,67 @@ describe("find and replace sidePanel component", () => {
       jest.runOnlyPendingTimers();
       await nextTick();
       expect(dispatch).not.toHaveBeenCalledWith("UPDATE_SEARCH", expect.any(Object));
+    });
+
+    test("clicking on specific range and set range will update the range", async () => {
+      expect(document.querySelector(selectors.searchRange)).toBeFalsy();
+      changeSearchScope("specificRange");
+      await nextTick();
+      expect(document.querySelector(selectors.searchRange)).toBeTruthy();
+      await setInputValueAndTrigger(selectors.searchRange, "A1:B2");
+      expect(model.getters.getSearchOptions().specificRange).toBeUndefined();
+      await click(fixture, selectors.confirmSearchRange);
+      expect(model.getters.getSearchOptions().specificRange).toMatchObject({
+        _sheetId: "Sheet1",
+        _zone: toZone("A1:B2"),
+      });
+    });
+
+    test("Specific range is following the active sheet", async () => {
+      createSheet(model, { sheetId: "sh2", activate: true });
+      changeSearchScope("specificRange");
+      await nextTick();
+      activateSheet(model, "Sheet1");
+      await nextTick();
+      await setInputValueAndTrigger(selectors.searchRange, "A1:B2");
+      await click(fixture, selectors.confirmSearchRange);
+      expect(model.getters.getSearchOptions().specificRange).toMatchObject({
+        _sheetId: "sh2",
+        _zone: toZone("A1:B2"),
+      });
+    });
+
+    test.each(["allSheets", "activeSheet"] as const)(
+      "Specific range is presistent when changing scopes",
+      async (scope) => {
+        changeSearchScope("specificRange");
+        await nextTick();
+        setInputValueAndTrigger(selectors.searchRange, "A1:B2");
+        await nextTick();
+        await click(fixture, selectors.confirmSearchRange);
+        changeSearchScope(scope);
+        await nextTick();
+        expect(document.querySelector(selectors.searchRange)).toBeFalsy();
+        changeSearchScope("specificRange");
+        await nextTick();
+        expect((document.querySelector(selectors.searchRange) as HTMLInputElement).value).toBe(
+          "A1:B2"
+        );
+      }
+    );
+
+    test("Specific range is updated when reselecting the search input", async () => {
+      changeSearchScope("specificRange");
+      await nextTick();
+      expect(fixture.querySelector(selectors.searchRange)).toBeTruthy();
+      await simulateClick(selectors.searchRange);
+      setInputValueAndTrigger(selectors.searchRange, "A1:B2");
+      expect(model.getters.getSearchOptions().specificRange).toBeUndefined();
+      await simulateClick(selectors.inputSearch);
+      expect(model.getters.getSearchOptions().specificRange).toMatchObject({
+        _sheetId: "Sheet1",
+        _zone: toZone("A1:B2"),
+      });
     });
   });
 
@@ -146,11 +241,11 @@ describe("find and replace sidePanel component", () => {
     afterEach(() => {
       jest.useRealTimers();
     });
+
     test("search match count is displayed", async () => {
       setCellContent(model, "A1", "Hello");
       expect(fixture.querySelector(".o-input-count")).toBeNull();
-      setInputValueAndTrigger(selectors.inputSearch, "Hel");
-      jest.runOnlyPendingTimers();
+      inputSearchValue("Hel");
       await nextTick();
       expect(fixture.querySelector(".o-input-count")?.innerHTML).toBe("1 / 1");
     });
@@ -162,16 +257,14 @@ describe("find and replace sidePanel component", () => {
       jest.runOnlyPendingTimers();
       await nextTick();
       expect(fixture.querySelector(".o-input-count")?.innerHTML).toBe("1 / 1");
-      setInputValueAndTrigger(selectors.inputSearch, "");
-      jest.runOnlyPendingTimers();
+      inputSearchValue("");
       await nextTick();
       expect(fixture.querySelector(".o-input-count")).toBeNull();
     });
 
     test("search without match displays no match count", async () => {
       expect(fixture.querySelector(".o-input-count")).toBeNull();
-      setInputValueAndTrigger(selectors.inputSearch, "a search term");
-      jest.runOnlyPendingTimers();
+      inputSearchValue("a search term");
       await nextTick();
       expect(fixture.querySelector(".o-input-count")?.innerHTML).toBe("0 / 0");
     });
@@ -189,7 +282,7 @@ describe("find and replace sidePanel component", () => {
       setInputValueAndTrigger(selectors.inputSearch, "Hell");
       await click(fixture, selectors.checkBoxMatchingCase);
       expect(dispatch).toHaveBeenCalledWith("UPDATE_SEARCH", {
-        searchOptions: { exactMatch: false, matchCase: true, searchFormulas: false },
+        searchOptions: { ...DEFAULT_SEARCH_OPTS, matchCase: true },
         toSearch: "Hell",
       });
     });
@@ -200,7 +293,7 @@ describe("find and replace sidePanel component", () => {
       setInputValueAndTrigger(selectors.inputSearch, "Hell");
       await click(fixture, selectors.checkBoxExactMatch);
       expect(dispatch).toHaveBeenCalledWith("UPDATE_SEARCH", {
-        searchOptions: { exactMatch: true, matchCase: false, searchFormulas: false },
+        searchOptions: { ...DEFAULT_SEARCH_OPTS, exactMatch: true },
         toSearch: "Hell",
       });
     });
@@ -211,7 +304,7 @@ describe("find and replace sidePanel component", () => {
       setInputValueAndTrigger(selectors.inputSearch, "Hell");
       await click(fixture, selectors.checkBoxSearchFormulas);
       expect(dispatch).toHaveBeenCalledWith("UPDATE_SEARCH", {
-        searchOptions: { exactMatch: false, matchCase: false, searchFormulas: true },
+        searchOptions: { ...DEFAULT_SEARCH_OPTS, searchFormulas: true },
         toSearch: "Hell",
       });
     });
@@ -286,6 +379,45 @@ describe("find and replace sidePanel component", () => {
       const dispatch = spyDispatch(parent);
       await focusAndKeyDown(selectors.inputReplace, { key: "Enter" });
       expect(dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", { replaceWith: "kikou" });
+    });
+  });
+
+  describe("match counts checking", () => {
+    beforeEach(async () => {
+      jest.useFakeTimers();
+      ({ parent, model, fixture } = await mountSpreadsheet());
+      parent.env.openSidePanel("FindAndReplace");
+      await nextTick();
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    test("match counts return number of search in allSheet, currentSheet and selected range", async () => {
+      createSheet(model, { sheetId: "sheet2" });
+      setCellContent(model, "A1", "Hello");
+      setCellContent(model, "A3", "Hello");
+      setCellContent(model, "B1", "Hello");
+      setCellContent(model, "A1", "Hello", "sheet2");
+      setCellContent(model, "A2", "Hello", "sheet2");
+      expect(fixture.querySelector(".o-matches-count")).toBeNull();
+      expect(getMatchesCountContent()).toEqual([]);
+      inputSearchValue("hello");
+      await nextTick();
+      expect(getMatchesCountContent()).toEqual(["3 in sheet Sheet1", "5 in all sheets"]);
+      changeSearchScope("specificRange");
+      await nextTick();
+      expect(getMatchesCountContent()).toEqual(["3 in sheet Sheet1", "5 in all sheets"]);
+      await simulateClick(selectors.searchRange);
+      setInputValueAndTrigger(selectors.searchRange, "A1:B2");
+      await nextTick();
+      await click(fixture, selectors.confirmSearchRange);
+      expect(getMatchesCountContent()).toEqual([
+        "2 in range A1:B2 of sheet Sheet1",
+        "3 in sheet Sheet1",
+        "5 in all sheets",
+      ]);
     });
   });
 });
