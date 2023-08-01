@@ -44,8 +44,8 @@
           </button>
         </div>
 
-        <SidePanelErrors messages="errorMessages" msgType="'error'"/>
-        <SidePanelErrors messages="warningMessages" msgType="'warning'"/>
+        <ValidationMessages messages="errorMessages" msgType="'error'"/>
+        <ValidationMessages messages="warningMessages" msgType="'warning'"/>
       </div>
     </div>
   </t>

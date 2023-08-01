@@ -5,7 +5,7 @@ import { interactiveStopEdition } from "../../../helpers/ui/stop_edition_interac
 import { _t } from "../../../translation";
 import { CommandResult, SpreadsheetChildEnv } from "../../../types/index";
 import { SplitToColumnsTerms } from "../../translations_terms";
-import { SidePanelErrors } from "../side_panel_errors/side_panel_errors";
+import { ValidationMessages } from "../../validation_messages/validation_messages";
 
 type SeparatorValue = "auto" | "custom" | " " | "," | ";" | typeof NEWLINE;
 
@@ -35,7 +35,7 @@ interface State {
 
 export class SplitIntoColumnsPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SplitIntoColumnsPanel";
-  static components = { SidePanelErrors };
+  static components = { ValidationMessages };
 
   state = useState<State>({ separatorValue: "auto", addNewColumns: false, customSeparator: "" });
 

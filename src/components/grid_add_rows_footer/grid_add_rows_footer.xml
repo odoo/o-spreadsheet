@@ -16,7 +16,7 @@
         t-on-input.stop="onInput"
       />
       <span>more rows at the bottom</span>
-      <SidePanelErrors t-if="state.errorFlag" messages="errorMessages" msgType="'error'"/>
+      <ValidationMessages t-if="state.errorFlag" messages="errorMessages" msgType="'error'"/>
     </div>
   </t>
 </templates>

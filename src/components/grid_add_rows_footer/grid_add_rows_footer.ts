@@ -2,7 +2,7 @@ import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
 import { _t } from "../../translation";
 import { SpreadsheetChildEnv } from "../../types";
 import { css, cssPropertiesToCss } from "../helpers";
-import { SidePanelErrors } from "./../side_panel/side_panel_errors/side_panel_errors";
+import { ValidationMessages } from "../validation_messages/validation_messages";
 
 css/* scss */ `
   .o-grid-add-rows {
@@ -12,7 +12,7 @@ css/* scss */ `
       height: 30px;
     }
 
-    .o-sidepanel-error {
+    .o-validation-error {
       display: inline-block !important;
       margin-top: 0;
       margin-left: 8px;
@@ -26,7 +26,7 @@ interface Props {
 
 export class GridAddRowsFooter extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GridAddRowsFooter";
-  static components = { SidePanelErrors };
+  static components = { ValidationMessages };
   inputRef = useRef<HTMLInputElement>("inputRef");
   state = useState({
     inputValue: "100",

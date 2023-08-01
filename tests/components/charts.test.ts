@@ -52,7 +52,7 @@ function createTestChart(type: string) {
 }
 
 function errorMessages(): string[] {
-  return textContentAll(".o-sidepanel-error");
+  return textContentAll(".o-validation-error");
 }
 
 let fixture: HTMLElement;

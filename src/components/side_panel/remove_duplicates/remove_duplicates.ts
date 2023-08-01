@@ -4,7 +4,7 @@ import { _t } from "../../../translation";
 import { HeaderIndex, SpreadsheetChildEnv } from "../../../types/index";
 import { css } from "../../helpers";
 import { RemoveDuplicateTerms } from "../../translations_terms";
-import { SidePanelErrors } from "../side_panel_errors/side_panel_errors";
+import { ValidationMessages } from "../../validation_messages/validation_messages";
 
 css/* scss */ `
   .o-checkbox-selection {
@@ -20,10 +20,9 @@ interface RemoveDuplicatesState {
   hasHeader: boolean;
   columns: { [colIndex: number]: boolean };
 }
-
 export class RemoveDuplicatesPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-RemoveDuplicatesPanel";
-  static components = { SidePanelErrors };
+  static components = { ValidationMessages };
 
   state: RemoveDuplicatesState = useState({
     hasHeader: false,

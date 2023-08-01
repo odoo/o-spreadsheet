@@ -78,7 +78,7 @@
       </div>
 
       <div class="o-section" t-if="errorMessages.length">
-        <SidePanelErrors messages="errorMessages" msgType="'error'"/>
+        <ValidationMessages messages="errorMessages" msgType="'error'"/>
       </div>
     </div>
   </t>
