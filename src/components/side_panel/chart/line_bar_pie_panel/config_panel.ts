@@ -7,7 +7,7 @@ import { PieChartDefinition } from "../../../../types/chart/pie_chart";
 import { CommandResult, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { ChartTerms } from "../../../translations_terms";
-import { SidePanelErrors } from "../../side_panel_errors/side_panel_errors";
+import { ValidationMessages } from "../../../validation_messages/validation_messages";
 
 interface Props {
   figureId: UID;
@@ -29,7 +29,7 @@ interface ChartPanelState {
 
 export class LineBarPieConfigPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-LineBarPieConfigPanel";
-  static components = { SelectionInput, SidePanelErrors };
+  static components = { SelectionInput, ValidationMessages };
 
   private state: ChartPanelState = useState({
     datasetDispatchResult: undefined,

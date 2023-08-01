@@ -109,7 +109,7 @@ describe("split to columns sidePanel component", () => {
     await nextTick();
 
     expect(confirmButton.classList).toContain("o-disabled");
-    expect(fixture.querySelectorAll(".o-sidepanel-error")).toHaveLength(1);
+    expect(fixture.querySelectorAll(".o-validation-error")).toHaveLength(1);
   });
 
   test("Empty custom separator : confirm button disabled but no error message", async () => {
@@ -117,7 +117,7 @@ describe("split to columns sidePanel component", () => {
     await nextTick();
 
     expect(confirmButton.classList).toContain("o-disabled");
-    expect(fixture.querySelectorAll(".o-sidepanel-error")).toHaveLength(0);
+    expect(fixture.querySelectorAll(".o-validation-error")).toHaveLength(0);
   });
 
   test("No separator in selection : confirm button disabled + error message", async () => {
@@ -128,7 +128,7 @@ describe("split to columns sidePanel component", () => {
     await nextTick();
 
     expect(confirmButton.classList).toContain("o-disabled");
-    expect(fixture.querySelectorAll(".o-sidepanel-error")).toHaveLength(1);
+    expect(fixture.querySelectorAll(".o-validation-error")).toHaveLength(1);
   });
 
   test("Warning if we will overwrite some content", async () => {
@@ -139,7 +139,7 @@ describe("split to columns sidePanel component", () => {
     await nextTick();
 
     expect(confirmButton.classList).not.toContain("o-disabled");
-    expect(fixture.querySelectorAll(".o-sidepanel-warning")).toHaveLength(1);
+    expect(fixture.querySelectorAll(".o-validation-warning")).toHaveLength(1);
   });
 
   test("Warning not displayed if there's an error", async () => {
@@ -149,8 +149,8 @@ describe("split to columns sidePanel component", () => {
     setCheckboxValueAndTrigger(checkBox, false, "change");
     await nextTick();
 
-    expect(fixture.querySelectorAll(".o-sidepanel-warning")).toHaveLength(0);
-    expect(fixture.querySelectorAll(".o-sidepanel-error")).toHaveLength(1);
+    expect(fixture.querySelectorAll(".o-validation-warning")).toHaveLength(0);
+    expect(fixture.querySelectorAll(".o-validation-error")).toHaveLength(1);
   });
 
   test("Errors updated on separator selection change", async () => {
@@ -159,12 +159,12 @@ describe("split to columns sidePanel component", () => {
     setInputValueAndTrigger(".o-split-to-cols-panel select", " ", "change");
     await nextTick();
 
-    expect(fixture.querySelectorAll(".o-sidepanel-error")).toHaveLength(0);
+    expect(fixture.querySelectorAll(".o-validation-error")).toHaveLength(0);
 
     setInputValueAndTrigger(".o-split-to-cols-panel select", ";", "change");
     await nextTick();
 
-    expect(fixture.querySelectorAll(".o-sidepanel-error")).toHaveLength(1);
+    expect(fixture.querySelectorAll(".o-validation-error")).toHaveLength(1);
   });
 
   test("Panel is closed if the user starts to edit a cell", async () => {

@@ -353,7 +353,7 @@ describe("Adding rows footer at the end of sheet", () => {
     const input = fixture.querySelector(".o-grid-add-rows input")!;
     setInputValueAndTrigger(input, "0", "input");
     await click(fixture, ".o-grid-add-rows button");
-    expect(fixture.querySelector(".o-sidepanel-error")).toBeTruthy();
+    expect(fixture.querySelector(".o-validation-error")).toBeTruthy();
     expect(model.getters.getNumberRows(sheetId)).toEqual(numberOfRows);
   });
 
@@ -364,7 +364,7 @@ describe("Adding rows footer at the end of sheet", () => {
     const input = fixture.querySelector(".o-grid-add-rows input")!;
     setInputValueAndTrigger(input, "10001", "input");
     await click(fixture, ".o-grid-add-rows button");
-    expect(fixture.querySelector(".o-sidepanel-error")).toBeTruthy();
+    expect(fixture.querySelector(".o-validation-error")).toBeTruthy();
     expect(model.getters.getNumberRows(sheetId)).toEqual(numberOfRows);
   });
 
@@ -375,7 +375,7 @@ describe("Adding rows footer at the end of sheet", () => {
     const input = fixture.querySelector(".o-grid-add-rows input")!;
     setInputValueAndTrigger(input, "abc", "input");
     await click(fixture, ".o-grid-add-rows button");
-    expect(fixture.querySelector(".o-sidepanel-error")).toBeTruthy();
+    expect(fixture.querySelector(".o-validation-error")).toBeTruthy();
     expect(model.getters.getNumberRows(sheetId)).toEqual(numberOfRows);
   });
 
