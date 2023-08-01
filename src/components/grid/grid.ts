@@ -2,7 +2,6 @@ import {
   Component,
   onMounted,
   useChildSubEnv,
-  useEffect,
   useExternalListener,
   useRef,
   useState,
@@ -155,10 +154,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     useGridDrawing("canvas", this.env.model, () =>
       this.env.model.getters.getSheetViewDimensionWithHeaders()
     );
-    useEffect(
-      () => this.focus(),
-      () => [this.env.model.getters.getActiveSheetId()]
-    );
+
     this.onMouseWheel = useWheelHandler((deltaX, deltaY) => {
       this.moveCanvas(deltaX, deltaY);
       this.hoveredCell.col = undefined;
