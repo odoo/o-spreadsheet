@@ -9,6 +9,7 @@
             t-ref="searchInput"
             class="o-input o-input-with-count"
             t-on-input="onInput"
+            t-on-focus="onFocusSearch"
             t-on-keydown="onKeydownSearch"
           />
           <div class="o-input-count" t-if="hasSearchResult">
@@ -17,6 +18,22 @@
             <t t-esc="env.model.getters.getSearchMatches().length"/>
           </div>
           <div t-elif="!pendingSearch and toSearch !== ''" class="o-input-count">0 / 0</div>
+        </div>
+        <select
+          class="o-input o-type-selector o-type-range-selector mt-3 mb-3"
+          t-on-change="changeSearchScope">
+          <option value="allSheets">All sheets</option>
+          <option value="activeSheet">Current sheet</option>
+          <option value="specificRange">Specific range</option>
+        </select>
+        <div t-if="searchOptions.searchScope === 'specificRange'">
+          <SelectionInput
+            ranges="() => [this.dataRange]"
+            onSelectionChanged="(ranges) => this.onSearchRangeChanged(ranges)"
+            onSelectionConfirmed.bind="updateDataRange"
+            hasSingleRange="true"
+            required="true"
+          />
         </div>
         <div>
           <!-- TODO: go through this css, the group misses a padding and could profit from BootStrap -->
@@ -44,6 +61,17 @@
             />
             <span>Search in formulas</span>
           </label>
+        </div>
+        <div class="o-matches-count mt-4" t-if="toSearch !== ''">
+          <div t-if="searchOptions.searchScope === 'specificRange' and dataRange != ''">
+            <t t-esc="specificRangeMatchesCount"/>
+          </div>
+          <div>
+            <t t-esc="currentSheetMatchesCount"/>
+          </div>
+          <div>
+            <t t-esc="allSheetsMatchesCount"/>
+          </div>
         </div>
       </div>
       <div class="o-sidePanelButtons">

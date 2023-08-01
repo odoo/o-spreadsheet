@@ -1,9 +1,9 @@
-import { SearchOptions } from "../plugins/ui_feature/find_and_replace";
 import { ComposerSelection } from "../plugins/ui_stateful/edition";
 import { CellPopoverType } from "./cell_popovers";
 import { ChartDefinition } from "./chart/chart";
 import { ClipboardPasteOptions } from "./clipboard";
 import { FigureSize } from "./figure";
+import { SearchOptions } from "./find_and_replace";
 import { Image } from "./image";
 import {
   ConditionalFormat,
