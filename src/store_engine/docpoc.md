@@ -4,7 +4,7 @@
   - [Defining a store](#defining-a-store)
   - [Using a store in a component](#using-a-store-in-a-component)
   - [Store dependencies](#store-dependencies)
-  - [Properties of a store](#properties-of-a-store)
+  - [Rules of a store](#rules-of-a-store)
   - [Spreadsheet store for reacting to commands](#spreadsheet-store-for-reacting-to-commands)
   - [Local store](#local-store)
   - [Injecting external resources as a store](#injecting-external-resources-as-a-store)
@@ -93,7 +93,7 @@ class MyStoreB extends ReactiveStore {
 }
 ```
 
-## Properties of a store
+## Rules of a store
 
 Stores must follow the **[Command-query separation (CQS)](https://en.wikipedia.org/wiki/Command%E2%80%93query_separation)** principle.
 
@@ -102,11 +102,11 @@ CQS principle helps in designing more maintainable and predictable code. By foll
 To apply the CQS principle to stores, they should have the following characteristics:
 
 - **write-only methods** (commands): methods should never return anything, they can only update internal state.
-- **readonly properties** (queries): properties can never be changes by components directly
+- **readonly properties** (queries): properties can never be changed by components or other stores directly
 
 > Notes:
 >
-> - you can use javascript getters to have computed properties.
+> - you can have computed properties by using javascript getters.
 >
 > - if you are using TypeScript, `useStore` and `get` enforce these principles with the generic `Store` type.
 
