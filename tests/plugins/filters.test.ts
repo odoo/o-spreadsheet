@@ -18,6 +18,7 @@ import {
   setCellContent,
   setStyle,
   undo,
+  unhideRows,
   updateFilter,
 } from "../test_helpers/commands_helpers";
 import { getCellContent } from "../test_helpers/getters_helpers";
@@ -185,6 +186,19 @@ describe("Filters plugin", () => {
       updateFilter(model, "B1", ["28"]);
       expect(model.getters.isRowHidden(sheetId, 1)).toBe(true);
       expect(model.getters.isRowHidden(sheetId, 2)).toBe(false);
+    });
+
+    test("Filtered rows should persist after hiding and unhiding multiple rows", () => {
+      const model = new Model();
+
+      setCellContent(model, "A4", "D");
+
+      createFilter(model, "A3:A4");
+      updateFilter(model, "A3", ["D"]);
+      expect(model.getters.isRowFiltered(sheetId, 3)).toEqual(true);
+      hideRows(model, [2, 3]);
+      unhideRows(model, [2, 3]);
+      expect(model.getters.isRowFiltered(sheetId, 3)).toEqual(true);
     });
   });
 
