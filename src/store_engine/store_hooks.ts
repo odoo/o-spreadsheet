@@ -17,10 +17,8 @@ export function useStoreProvider() {
 
 type Env = ReturnType<typeof useEnv>;
 
-export function useStore<T extends StoreConstructor>(
-  Store: T,
-  env: Env = useEnv()
-): Store<InstanceType<T>> {
+export function useStore<T extends StoreConstructor>(Store: T): Store<InstanceType<T>> {
+  const env: Env = useEnv();
   const container = getDependencyContainer(env);
   return useState(container.get(Store));
 }
@@ -40,7 +38,7 @@ export function useLocalStore<T extends DisposableStoreConstructor>(
 function getDependencyContainer(env: Env) {
   const container = env.__spreadsheet_stores__;
   if (!(container instanceof DependencyContainer)) {
-    throw new Error("No store provider found. Did you forget to call useStoreProvider() ?");
+    throw new Error("No store provider found. Did you forget to call useStoreProvider()?");
   }
   return container;
 }

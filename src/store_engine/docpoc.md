@@ -36,11 +36,13 @@ class NotificationStore extends ReactiveStore {
 
 That's it ! You don't need to do anything else.
 
-> Note: ReactiveStore is required for OWL to react to state changes in the store. In the o-spreadsheet application, you'll probably want to use SpreadsheetStore, which is described [below](#spreadsheet-store-for-reacting-to-commands).
+> Note: `ReactiveStore` is required for OWL to react to state changes in the store. In the o-spreadsheet application, you probably want to use `SpreadsheetStore`, which is described [below](#spreadsheet-store-for-reacting-to-commands).
 
 ## Using a store in a component
 
-To use a store in a component, you just need to use the `useStore` hook and provide it with the store class, like `useStore(NotificationStore)`. You can access the same instance of the store each time the hook is called with the same store class.
+First you need to use the `useStoreProvider()` hook on your application root component.
+
+Then, to use a store in any component, you just need to use the `useStore` hook and provide it with the store class, like `useStore(NotificationStore)`. You can access the same instance of the store each time the hook is called with the same store class.
 
 ```ts
 import { Component } from "@odoo/owl";
@@ -116,6 +118,6 @@ In addition to application-wide stores, stores also provides a convenient way to
 
 To create a local store, you can use the `useLocalStore` hook. It creates a new store instance bound to the component and automatically disposes of the store when the component unmounts.
 
-To implement a local store, your store class must adhere to the `DisposableStore` interface, which requires the implementation of a `dispose` method. The `dispose` method is called when the component unmounts and is used to perform any necessary cleanup, such as unsubscribing from event handlers or releasing external resources, avoiding memory leaks.
+To implement a local store, your store class must implement the `DisposableStore` interface, which requires the implementation of a `dispose` method. The `dispose` method is called when the component unmounts and is used to perform any necessary cleanup, such as unsubscribing from event handlers or releasing external resources, avoiding memory leaks.
 
 > Note: `SpreadsheetStore` is a `DisposableStore` and automatically unsubscribes from model commands when it's disposed.
