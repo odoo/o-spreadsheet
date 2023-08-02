@@ -37,11 +37,19 @@ class NotificationStore extends ReactiveStore {
 
 That's it ! You don't need to do anything else.
 
-> Note: `ReactiveStore` is required for OWL to react to state changes in the store. In the o-spreadsheet application, you probably want to use `SpreadsheetStore`, which is described [below](#spreadsheet-store-for-reacting-to-commands).
+> Note: `ReactiveStore` is required for OWL to react to state changes in the store. In the o-spreadsheet application, you probably want to use `SpreadsheetStore` instead of `ReactiveStore`. `SpreadsheetStore` is described [below](#spreadsheet-store-for-reacting-to-commands).
 
 ## Using a store in a component
 
 First you need to use the `useStoreProvider()` hook on your application root component.
+
+```ts
+class RootComponent extends Component {
+  setup() {
+    useStoreProvider();
+  }
+}
+```
 
 Then, to use a store in any component, you just need to use the `useStore` hook and provide it with the store class, like `useStore(NotificationStore)`. You can access the same instance of the store each time the hook is called with the same store class.
 
@@ -50,6 +58,9 @@ import { Component } from "@odoo/owl";
 import { NotificationStore } from "./notification_store";
 
 class MyComponent extends Component {
+  static template = xml`
+    <button t-on-click="onButtonClicked">Show notification</button>
+  `;
   private notification: Store<NotificationStore>;
 
   setup() {
@@ -84,7 +95,7 @@ class MyStoreB extends ReactiveStore {
 
 ## Properties of a store
 
-Stores must follow the **[Command-query separation (CQS)](https://en.wikipedia.org/wiki/Command%E2%80%93query_separation)**.
+Stores must follow the **[Command-query separation (CQS)](https://en.wikipedia.org/wiki/Command%E2%80%93query_separation)** principle.
 
 CQS principle helps in designing more maintainable and predictable code. By following this separation, you can reason more easily about how state changes and how rendering is based on the current state. It is also the architecture for o-spreadsheet plugins.
 
@@ -97,7 +108,7 @@ To apply the CQS principle to stores, they should have the following characteris
 >
 > - you can use javascript getters to have computed properties.
 >
-> - if you are using TypeScript, the generic type `Store` enforces these principles.
+> - if you are using TypeScript, `useStore` and `get` enforce these principles with the generic `Store` type.
 
 ## Spreadsheet store for reacting to commands
 
@@ -121,11 +132,11 @@ To create a local store, you can use the `useLocalStore` hook. It creates a new 
 
 To implement a local store, your store class must implement the `Disposable` interface, which requires the implementation of a `dispose` method. The `dispose` method is called when the component unmounts and is used to perform any necessary cleanup, such as unsubscribing from event handlers or releasing external resources, avoiding memory leaks.
 
-> Note: `SpreadsheetStore` is a `Disposable` and automatically unsubscribes from model commands when it's disposed.
+> Note: `SpreadsheetStore` is already a `Disposable` and automatically unsubscribes from model commands when it's disposed.
 
 ## Injecting external resources as a store
 
-Sometimes, a store may depend on an external resource that is not a store itself. To inject such an external resource into a store, you can use a trick. First, create a "fake" store using `createValueStore`, which acts as a placeholder for the injected resource. Then, in the (root) component where the real external resource is available, inject it into the "fake" store.
+Sometimes, a store may depend on an external resource that is not a store itself. To inject such an external resource into a store, you can use a trick. First, create a "fake" store using `createValueStore`, which acts as a placeholder for the injected resource. Then, in the (root) component where the real external resource is available, inject it to replace the "fake" store.
 
 Let's take an example where we want to inject a spreadsheet Model instance into a store called ModelStore.
 
@@ -139,7 +150,7 @@ export const ModelStore = createValueStore(() => {
 class RootComponent extends Component {
   setup() {
     const stores = useStoreProvider();
-    stores.inject(ModelStore, this.model); // Inject the real Model instance
+    stores.inject(ModelStore, this.props.model); // Inject the real Model instance
   }
 }
 ```
