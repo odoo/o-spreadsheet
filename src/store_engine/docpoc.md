@@ -54,7 +54,7 @@ class RootComponent extends Component {
 Then, to use a store in any component, you just need to use the `useStore` hook and provide it with the store class, like `useStore(NotificationStore)`. You can access the same instance of the store each time the hook is called with the same store class.
 
 ```ts
-import { Component } from "@odoo/owl";
+import { Component, xml } from "@odoo/owl";
 import { NotificationStore } from "./notification_store";
 
 class MyComponent extends Component {
