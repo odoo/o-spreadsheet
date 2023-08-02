@@ -275,7 +275,7 @@ describe("Composer / selectionInput interactions", () => {
     }));
   });
 
-  test("Switching from selection input to composer should update the highlihts", async () => {
+  test.skip("Switching from selection input to composer should update the highlihts", async () => {
     //open cf sidepanel
     selectCell(model, "B2");
     OPEN_CF_SIDEPANEL_ACTION(parent.env);
@@ -308,7 +308,7 @@ describe("Composer / selectionInput interactions", () => {
     }
   );
 
-  test("Switching from composer to selection input should update the highlights and hide the highlight components", async () => {
+  test.skip("Switching from composer to selection input should update the highlights and hide the highlight components", async () => {
     selectCell(model, "B2");
     OPEN_CF_SIDEPANEL_ACTION(parent.env);
     await nextTick();

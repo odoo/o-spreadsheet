@@ -1,5 +1,6 @@
 import {
   DependencyContainer,
+  ParametricStoreConstructor,
   Store,
   StoreConstructor,
   StoreParameters,
@@ -7,10 +8,10 @@ import {
 
 export function makeStore<T extends StoreConstructor>(
   Store: T,
-  ...args: StoreParameters<StoreConstructor<T>>
+  ...args: StoreParameters<ParametricStoreConstructor<T>>
 ): Store<InstanceType<T>> {
   const container = new DependencyContainer();
-  return container.get(Store, ...args);
+  return container.instantiate(Store, ...args);
 }
 
 export function makeStoreContainer() {

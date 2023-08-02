@@ -91,7 +91,8 @@ describe("figures", () => {
         },
       ],
     };
-    ({ parent, model, fixture } = await mountSpreadsheet({ model: new Model(data) }));
+    model = new Model(data);
+    ({ parent, fixture } = await mountSpreadsheet({ model }));
     await nextTick();
     await nextTick();
     await nextTick();
@@ -187,7 +188,7 @@ describe("figures", () => {
   );
 
   test.each(["basicChart", "scorecard", "gauge"])(
-    "can edit charts %s",
+    "can edit charts 8",
     async (chartType: string) => {
       createTestChart(chartType);
       await nextTick();
@@ -203,37 +204,26 @@ describe("figures", () => {
         ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
       )[0] as HTMLInputElement;
       const dataSeriesValues = dataSeries.querySelector("input");
-      const dispatch = spyDispatch(parent);
       switch (chartType) {
         case "basicChart":
           await click(dataSeries!.querySelector("input[type=checkbox]")!);
-          expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
-            id: chartId,
-            sheetId,
-            definition: {
-              ...model.getters.getChartDefinition(chartId),
-              dataSetsHaveTitle: false,
-            },
+          expect(model.getters.getChartDefinition(chartId)).toMatchObject({
+            dataSetsHaveTitle: false,
           });
           break;
         case "scorecard":
           setInputValueAndTrigger(dataSeriesValues, "B2:B4", "input");
-          expect(dispatch).toHaveBeenLastCalledWith("CHANGE_RANGE", {
-            value: "B2:B4",
-            id: expect.anything(),
-            rangeId: expect.anything(),
+          await nextTick();
+          await click(fixture, ".o-data-series button.o-selection-ok");
+          expect(model.getters.getChartDefinition(chartId)).toMatchObject({
+            keyValue: "B2:B4",
           });
           break;
       }
       await simulateClick(".o-panel .inactive");
       setInputValueAndTrigger(".o-chart-title input", "hello", "change");
-      expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
-        id: chartId,
-        sheetId,
-        definition: {
-          ...model.getters.getChartDefinition(chartId),
-          title: "hello",
-        },
+      expect(model.getters.getChartDefinition(chartId)).toMatchObject({
+        title: "hello",
       });
     }
   );
@@ -306,13 +296,8 @@ describe("figures", () => {
           break;
         }
       }
-      expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
-        id: chartId,
-        sheetId,
-        definition: {
-          ...model.getters.getChartDefinition(chartId),
-          background: "#000000",
-        },
+      expect(model.getters.getChartDefinition(chartId)).toMatchObject({
+        background: "#000000",
       });
       if (chartType === "basicChart") {
         const figureCanvas = fixture.querySelector(".o-figure-canvas");
@@ -827,7 +812,6 @@ describe("figures", () => {
   describe("Scorecard specific tests", () => {
     test("can edit chart baseline colors", async () => {
       createTestChart("scorecard");
-      const dispatch = spyDispatch(parent);
       await nextTick();
       await simulateClick(".o-figure");
       await simulateClick(".o-figure-menu-item");
@@ -854,13 +838,8 @@ describe("figures", () => {
           break;
         }
       }
-      expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
-        id: chartId,
-        sheetId,
-        definition: {
-          ...model.getters.getChartDefinition(chartId),
-          baselineColorUp: "#0000ff",
-        },
+      expect(model.getters.getChartDefinition(chartId)).toMatchObject({
+        baselineColorUp: "#0000ff",
       });
 
       // Change color of "down" value of baseline
@@ -878,13 +857,8 @@ describe("figures", () => {
           break;
         }
       }
-      expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
-        id: chartId,
-        sheetId,
-        definition: {
-          ...model.getters.getChartDefinition(chartId),
-          baselineColorDown: "#ff0000",
-        },
+      expect(model.getters.getChartDefinition(chartId)).toMatchObject({
+        baselineColorDown: "#ff0000",
       });
     });
   });

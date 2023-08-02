@@ -679,7 +679,7 @@ describe("selection input plugin", () => {
   test("manually adding a range from another sheet", () => {
     const stores = makeStoreContainer();
     const model = stores.get(ModelStore);
-    const store = stores.get(SelectionInputStore, ["A1"]);
+    const store = stores.instantiate(SelectionInputStore, ["A1"]);
     // model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, initialRanges: ["A1"] });
     createSheet(model, { sheetId: "42", activate: true });
     expect(store.selectionInputs[0].xc).toBe("A1");
@@ -708,7 +708,7 @@ describe("selection input plugin", () => {
     const stores = makeStoreContainer();
     const model = stores.get(ModelStore);
     model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
-    const store = stores.get(SelectionInputStore, ["Sheet2!B2"]);
+    const store = stores.instantiate(SelectionInputStore, ["Sheet2!B2"]);
     // model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, initialRanges: ["Sheet2!B2"] });
     store.focusById(idOfRange(store, 0));
     store.unfocus();
