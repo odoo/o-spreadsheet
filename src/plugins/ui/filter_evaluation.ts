@@ -73,6 +73,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
         this.filterValues[cmd.sheetId] = {};
         break;
       case "HIDE_COLUMNS_ROWS":
+      case "UNHIDE_COLUMNS_ROWS":
         this.updateHiddenRows();
         break;
       case "UPDATE_FILTER":
