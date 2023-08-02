@@ -22,8 +22,10 @@ import {
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Model } from "../../model";
 import { ComposerSelection } from "../../plugins/ui_stateful/edition";
+import { Store } from "../../store/dependency_container";
 import { ModelStore } from "../../store/model_store";
-import { useStoreProvider } from "../../store/store_hooks";
+import { SidePanelStore } from "../../store/side_panel_store";
+import { useStore, useStoreProvider } from "../../store/store_hooks";
 import { _lt } from "../../translation";
 import { Pixel, SpreadsheetChildEnv } from "../../types";
 import { NotifyUIEvent } from "../../types/ui";
@@ -131,12 +133,6 @@ export interface SpreadsheetProps {
 
 const t = (s: string): string => s;
 
-interface SidePanelState {
-  isOpen: boolean;
-  component?: string;
-  panelProps: any;
-}
-
 interface ComposerState {
   topBarFocus: Exclude<ComposerFocusType, "cellFocus">;
   gridFocusMode: ComposerFocusType;
@@ -147,7 +143,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   static components = { TopBar, Grid, BottomBar, SidePanel, SpreadsheetDashboard };
   static _t = t;
 
-  sidePanel!: SidePanelState;
+  sidePanel!: Store<SidePanelStore>;
   composer!: ComposerState;
 
   private _focusGrid?: () => void;
@@ -168,14 +164,15 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   }
 
   setup() {
-    this.sidePanel = useState({ isOpen: false, panelProps: {} });
+    const stores = useStoreProvider();
+    this.sidePanel = useStore(SidePanelStore);
     this.composer = useState({
       topBarFocus: "inactive",
       gridFocusMode: "inactive",
     });
     this.keyDownMapping = {
-      "CTRL+H": () => this.toggleSidePanel("FindAndReplace", {}),
-      "CTRL+F": () => this.toggleSidePanel("FindAndReplace", {}),
+      "CTRL+H": () => this.sidePanel.toggleSidePanel("FindAndReplace", {}),
+      "CTRL+F": () => this.sidePanel.toggleSidePanel("FindAndReplace", {}),
     };
     const fileStore = this.model.config.external.fileStore;
     useSubEnv({
@@ -183,8 +180,8 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       imageProvider: fileStore ? new ImageProvider(fileStore) : undefined,
       loadCurrencies: this.model.config.external.loadCurrencies,
       isDashboard: () => this.model.getters.isDashboard(),
-      openSidePanel: this.openSidePanel.bind(this),
-      toggleSidePanel: this.toggleSidePanel.bind(this),
+      openSidePanel: this.sidePanel.openSidePanel.bind(this.sidePanel),
+      toggleSidePanel: this.sidePanel.toggleSidePanel.bind(this.sidePanel),
       _t: Spreadsheet._t,
       clipboard: this.env.clipboard || instantiateClipboard(),
       startCellEdition: (content: string) => this.onGridComposerCellFocused(content),
@@ -201,7 +198,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     onPatched(() => {
       this.checkViewportSize();
     });
-    const stores = useStoreProvider();
     stores.inject(ModelStore, this.model);
   }
 
@@ -255,25 +251,11 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     }
   }
 
-  openSidePanel(panel: string, panelProps: any) {
-    this.sidePanel.component = panel;
-    this.sidePanel.panelProps = panelProps;
-    this.sidePanel.isOpen = true;
-  }
-
   closeSidePanel() {
-    this.sidePanel.isOpen = false;
+    this.sidePanel.closeSidePanel();
     this.focusGrid();
   }
 
-  toggleSidePanel(panel: string, panelProps: any) {
-    if (this.sidePanel.isOpen && panel === this.sidePanel.component) {
-      this.sidePanel.isOpen = false;
-      this.focusGrid();
-    } else {
-      this.openSidePanel(panel, panelProps);
-    }
-  }
   focusGrid() {
     if (!this._focusGrid) {
       throw new Error("_focusGrid should be exposed by the grid component");
