@@ -1,10 +1,10 @@
 import { Component, useChildSubEnv, useRef } from "@odoo/owl";
 import { positionToZone } from "../../helpers/zones";
 import { clickableCellRegistry } from "../../registries/cell_clickable_registry";
-import { CellPopover } from "../../store/cell_popover";
-import { Store } from "../../store/dependency_container";
-import { HoveredCell } from "../../store/hovered_cell";
-import { useStore } from "../../store/store_hooks";
+import { CellPopover } from "../../stores/cell_popover";
+import { HoveredCell } from "../../stores/hovered_cell";
+import { Store } from "../../store_engine/store";
+import { useStore } from "../../store_engine/store_hooks";
 import {
   CellPosition,
   DOMCoordinates,

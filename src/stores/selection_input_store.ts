@@ -6,12 +6,12 @@ import {
   splitReference,
   zoneToXc,
 } from "../helpers";
+import { Get } from "../store_engine/dependency_container";
+import { SpreadsheetStore } from "../store_engine/spreadsheet_store";
 import { Command, Highlight, LAYERS, UID } from "../types";
 import { SelectionEvent } from "../types/event_stream";
 import { CanvasStore } from "./canvas_store";
-import { Get } from "./dependency_container";
 import { FocusStore } from "./focus_store";
-import { LocalSpreadsheetStore } from "./spreadsheet_store";
 
 export interface RangeInputValue {
   id: number;
@@ -26,7 +26,7 @@ export interface RangeInputValue {
  * it requires an intermediary internal state to work.
  * This plugin handles this internal state.
  */
-export class SelectionInputStore extends LocalSpreadsheetStore {
+export class SelectionInputStore extends SpreadsheetStore {
   ranges: RangeInputValue[] = [];
   focusedRangeIndex: number | null = null;
   private activeSheet: UID;

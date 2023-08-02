@@ -1,9 +1,9 @@
+import { ModelStore } from "../stores/model_store";
 import { Command } from "../types";
-import { DisposableStore } from "./dependency_container";
-import { ModelStore } from "./model_store";
-import { ReactiveStore } from "./store";
+import { ReactiveStore } from "./reactive_store";
+import { DisposableStore } from "./store";
 
-export class SpreadsheetStore extends ReactiveStore {
+export class SpreadsheetStore extends ReactiveStore implements DisposableStore {
   protected model = this.get(ModelStore);
   protected getters = this.model.getters;
 
@@ -13,9 +13,7 @@ export class SpreadsheetStore extends ReactiveStore {
   }
 
   protected handle(cmd: Command) {}
-}
 
-export class LocalSpreadsheetStore extends SpreadsheetStore implements DisposableStore {
   dispose() {
     this.model.off("command-dispatched", this);
   }

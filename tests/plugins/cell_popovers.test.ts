@@ -1,7 +1,7 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
-import { CellPopover } from "../../src/store/cell_popover";
-import { HoveredCell } from "../../src/store/hovered_cell";
-import { ModelStore } from "../../src/store/model_store";
+import { CellPopover } from "../../src/stores/cell_popover";
+import { HoveredCell } from "../../src/stores/hovered_cell";
+import { ModelStore } from "../../src/stores/model_store";
 import { activateSheet, createSheet, merge, setCellContent } from "../test_helpers";
 import { makeStore, makeStoreContainer } from "../test_helpers/stores";
 

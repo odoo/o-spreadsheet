@@ -12,7 +12,7 @@ import {
 } from "../../src/constants";
 import { toCartesian, toHex, toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { CellPopover } from "../../src/store/cell_popover";
+import { CellPopover } from "../../src/stores/cell_popover";
 import { getClipboardEvent, MockClipboardData } from "../test_helpers/clipboard";
 import {
   copy,

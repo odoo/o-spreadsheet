@@ -1,11 +1,6 @@
 import { onWillUnmount, useEnv, useState, useSubEnv } from "@odoo/owl";
-import {
-  DependencyContainer,
-  DisposableStoreConstructor,
-  Store,
-  StoreConstructor,
-  StoreParameters,
-} from "./dependency_container";
+import { DependencyContainer } from "./dependency_container";
+import { DisposableStoreConstructor, Store, StoreConstructor, StoreParameters } from "./store";
 
 export function useStoreProvider() {
   const env = useEnv();

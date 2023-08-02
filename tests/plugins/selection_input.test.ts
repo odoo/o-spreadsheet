@@ -1,8 +1,8 @@
 import { Model } from "../../src";
 import { zoneToXc } from "../../src/helpers";
-import { Store } from "../../src/store/dependency_container";
-import { ModelStore } from "../../src/store/model_store";
-import { SelectionInputStore } from "../../src/store/selection_input_store";
+import { ModelStore } from "../../src/stores/model_store";
+import { SelectionInputStore } from "../../src/stores/selection_input_store";
+import { Store } from "../../src/store_engine/store";
 import { Highlight } from "../../src/types";
 import {
   activateSheet,

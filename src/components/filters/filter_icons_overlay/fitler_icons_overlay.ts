@@ -1,8 +1,8 @@
 import { Component } from "@odoo/owl";
 import { FILTER_ICON_EDGE_LENGTH, FILTER_ICON_MARGIN } from "../../../constants";
-import { CellPopover } from "../../../store/cell_popover";
-import { Store } from "../../../store/dependency_container";
-import { useStore } from "../../../store/store_hooks";
+import { CellPopover } from "../../../stores/cell_popover";
+import { Store } from "../../../store_engine/store";
+import { useStore } from "../../../store_engine/store_hooks";
 import { DOMCoordinates, HeaderIndex, Position, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
 import { FilterIcon } from "../filter_icon/filter_icon";

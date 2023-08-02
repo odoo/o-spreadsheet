@@ -1,10 +1,10 @@
+import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import {
-  DependencyContainer,
   ParametricStoreConstructor,
   Store,
   StoreConstructor,
   StoreParameters,
-} from "../../src/store/dependency_container";
+} from "../../src/store_engine/store";
 
 export function makeStore<T extends StoreConstructor>(
   Store: T,

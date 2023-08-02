@@ -1,5 +1,5 @@
+import { SpreadsheetStore } from "../store_engine/spreadsheet_store";
 import { Command, Position } from "../types";
-import { SpreadsheetStore } from "./spreadsheet_store";
 
 export class HoveredCell extends SpreadsheetStore {
   col?: number;

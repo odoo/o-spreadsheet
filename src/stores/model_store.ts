@@ -1,4 +1,4 @@
 import { Model } from "../model";
-import { createValueStore } from "./dependency_container";
+import { createValueStore } from "../store_engine/store";
 
 export const ModelStore = createValueStore(() => new Model());

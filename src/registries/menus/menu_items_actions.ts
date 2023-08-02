@@ -13,7 +13,7 @@ import {
   interactivePaste,
   interactivePasteFromOS,
 } from "../../helpers/ui/paste_interactive";
-import { CellPopover } from "../../store/cell_popover";
+import { CellPopover } from "../../stores/cell_popover";
 import { _lt } from "../../translation";
 import { Image } from "../../types/image";
 import { Format, SpreadsheetChildEnv, Style } from "../../types/index";

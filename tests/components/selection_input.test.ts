@@ -2,8 +2,8 @@ import { App, Component, onMounted, onWillUnmount, useSubEnv, xml } from "@odoo/
 import { Model } from "../../src";
 import { SelectionInput } from "../../src/components/selection_input/selection_input";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/registries";
-import { ModelStore } from "../../src/store/model_store";
-import { useStoreProvider } from "../../src/store/store_hooks";
+import { ModelStore } from "../../src/stores/model_store";
+import { useStoreProvider } from "../../src/store_engine/store_hooks";
 import { activateSheet, createSheet, selectCell, undo } from "../test_helpers/commands_helpers";
 import { clickCell, keyDown, keyUp, simulateClick } from "../test_helpers/dom_helper";
 import {

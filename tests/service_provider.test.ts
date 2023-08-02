@@ -1,4 +1,5 @@
-import { createValueStore, DependencyContainer, Get } from "../src/store/dependency_container";
+import { DependencyContainer, Get } from "../src/store_engine/dependency_container";
+import { createValueStore } from "../src/store_engine/store";
 
 class MyOtherService {
   constructor(get: Get) {

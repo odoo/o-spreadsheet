@@ -1,5 +1,6 @@
 import { positionToZone } from "../helpers";
 import { cellPopoverRegistry } from "../registries/cell_popovers_registry";
+import { SpreadsheetStore } from "../store_engine/spreadsheet_store";
 import { CellPosition, Command, Position, Rect } from "../types";
 import {
   CellPopoverType,
@@ -8,7 +9,6 @@ import {
   PositionedCellPopover,
 } from "../types/cell_popovers";
 import { HoveredCell } from "./hovered_cell";
-import { SpreadsheetStore } from "./spreadsheet_store";
 
 export class CellPopover extends SpreadsheetStore {
   private persistentPopover?: CellPosition & { type: CellPopoverType };

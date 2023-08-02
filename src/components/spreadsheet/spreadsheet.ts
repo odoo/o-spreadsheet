@@ -22,10 +22,10 @@ import {
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Model } from "../../model";
 import { ComposerSelection } from "../../plugins/ui_stateful/edition";
-import { Store } from "../../store/dependency_container";
-import { ModelStore } from "../../store/model_store";
-import { SidePanelStore } from "../../store/side_panel_store";
-import { useStore, useStoreProvider } from "../../store/store_hooks";
+import { ModelStore } from "../../stores/model_store";
+import { SidePanelStore } from "../../stores/side_panel_store";
+import { Store } from "../../store_engine/store";
+import { useStore, useStoreProvider } from "../../store_engine/store_hooks";
 import { _lt } from "../../translation";
 import { Pixel, SpreadsheetChildEnv } from "../../types";
 import { NotifyUIEvent } from "../../types/ui";

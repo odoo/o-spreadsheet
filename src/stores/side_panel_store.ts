@@ -1,4 +1,4 @@
-import { SpreadsheetStore } from "./spreadsheet_store";
+import { SpreadsheetStore } from "../store_engine/spreadsheet_store";
 
 export class SidePanelStore extends SpreadsheetStore {
   isOpen = false;

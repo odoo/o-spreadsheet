@@ -1,6 +1,6 @@
 import { Component, onMounted, onWillUnmount, useRef } from "@odoo/owl";
-import { HoveredCell } from "../../store/hovered_cell";
-import { useStore } from "../../store/store_hooks";
+import { HoveredCell } from "../../stores/hovered_cell";
+import { useStore } from "../../store_engine/store_hooks";
 import {
   DOMCoordinates,
   DOMDimension,

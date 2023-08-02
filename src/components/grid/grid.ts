@@ -21,10 +21,10 @@ import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
 import { INSERT_LINK } from "../../registries/menus/menu_items_actions";
 import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
-import { CellPopover } from "../../store/cell_popover";
-import { Store } from "../../store/dependency_container";
-import { HoveredCell } from "../../store/hovered_cell";
-import { useStore } from "../../store/store_hooks";
+import { CellPopover } from "../../stores/cell_popover";
+import { HoveredCell } from "../../stores/hovered_cell";
+import { Store } from "../../store_engine/store";
+import { useStore } from "../../store_engine/store_hooks";
 import { _lt } from "../../translation";
 import {
   CellValueType,

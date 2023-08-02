@@ -2,9 +2,9 @@ import { Component, onMounted, onPatched, useEffect, useRef, useState } from "@o
 import { SELECTION_BORDER_COLOR } from "../../constants";
 // import { UuidGenerator } from "../../helpers/index";
 import { RangeInputValue } from "../../plugins/ui_feature/selection_input";
-import { Store } from "../../store/dependency_container";
-import { SelectionInputStore } from "../../store/selection_input_store";
-import { useLocalStore } from "../../store/store_hooks";
+import { SelectionInputStore } from "../../stores/selection_input_store";
+import { Store } from "../../store_engine/store";
+import { useLocalStore } from "../../store_engine/store_hooks";
 import { SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";

@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "@odoo/owl";
 import { Model } from "../..";
 import { CANVAS_SHIFT } from "../../constants";
-import { CanvasStore } from "../../store/canvas_store";
-import { useStoreProvider } from "../../store/store_hooks";
+import { CanvasStore } from "../../stores/canvas_store";
+import { useStoreProvider } from "../../store_engine/store_hooks";
 import { DOMDimension } from "../../types";
 
 export function useGridDrawing(refName: string, model: Model, canvasSize: () => DOMDimension) {

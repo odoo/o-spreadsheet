@@ -8,7 +8,7 @@ import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
 import { topbarMenuRegistry } from "../../src/registries";
 import { MenuItem, MenuItemRegistry } from "../../src/registries/menu_items_registry";
-import { DependencyContainer } from "../../src/store/dependency_container";
+import { DependencyContainer } from "../../src/store_engine/dependency_container";
 import {
   ChartDefinition,
   ColorScaleMidPointThreshold,

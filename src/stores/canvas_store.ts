@@ -1,5 +1,5 @@
+import { createValueStore } from "../store_engine/store";
 import { GridRenderingContext } from "../types";
-import { createValueStore } from "./dependency_container";
 
 export const CanvasStore = createValueStore(
   (): GridRenderingContext => ({
