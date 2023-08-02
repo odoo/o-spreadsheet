@@ -7,6 +7,7 @@
   - [Properties of a store](#properties-of-a-store)
   - [Spreadsheet store for reacting to commands](#spreadsheet-store-for-reacting-to-commands)
   - [Local store](#local-store)
+  - [Injecting external resources as a store](#injecting-external-resources-as-a-store)
 
 In a typical OWL application, data is passed top-down (from parent to child) via props. However, this approach can become cumbersome for certain types of props that are required by many components within the application.
 
@@ -118,6 +119,30 @@ In addition to application-wide stores, stores also provides a convenient way to
 
 To create a local store, you can use the `useLocalStore` hook. It creates a new store instance bound to the component and automatically disposes of the store when the component unmounts.
 
-To implement a local store, your store class must implement the `DisposableStore` interface, which requires the implementation of a `dispose` method. The `dispose` method is called when the component unmounts and is used to perform any necessary cleanup, such as unsubscribing from event handlers or releasing external resources, avoiding memory leaks.
+To implement a local store, your store class must implement the `Disposable` interface, which requires the implementation of a `dispose` method. The `dispose` method is called when the component unmounts and is used to perform any necessary cleanup, such as unsubscribing from event handlers or releasing external resources, avoiding memory leaks.
 
-> Note: `SpreadsheetStore` is a `DisposableStore` and automatically unsubscribes from model commands when it's disposed.
+> Note: `SpreadsheetStore` is a `Disposable` and automatically unsubscribes from model commands when it's disposed.
+
+## Injecting external resources as a store
+
+Sometimes, a store may depend on an external resource that is not a store itself. To inject such an external resource into a store, you can use a trick. First, create a "fake" store using `createValueStore`, which acts as a placeholder for the injected resource. Then, in the (root) component where the real external resource is available, inject it into the "fake" store.
+
+Let's take an example where we want to inject a spreadsheet Model instance into a store called ModelStore.
+
+```ts
+// Create a "fake"/"empty" store to act as a placeholder
+export const ModelStore = createValueStore(() => {
+  return new Model(); // Will be replaced with the injected Model later
+});
+
+// In the root component where the Model is available, inject it into the ModelStore
+class RootComponent extends Component {
+  setup() {
+    const stores = useStoreProvider();
+    stores.inject(ModelStore, this.model); // Inject the real Model instance
+  }
+}
+```
+
+Now, when you request the `ModelStore` in another store or component (using `this.get(ModelStore)` or `useStore(ModelStore)`), you will get the injected `Model` instance. This allows you to use external resources seamlessly within your stores.
+It can also allow to mock a store in unit tests.

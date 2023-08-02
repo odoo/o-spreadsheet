@@ -2,6 +2,9 @@ import { onWillUnmount, useEnv, useState, useSubEnv } from "@odoo/owl";
 import { DependencyContainer } from "./dependency_container";
 import { DisposableStoreConstructor, Store, StoreConstructor, StoreParameters } from "./store";
 
+/**
+ * This hook should be used at the root of your app to provide the store container.
+ */
 export function useStoreProvider() {
   const env = useEnv();
   if (env.__spreadsheet_stores__ instanceof DependencyContainer) {
@@ -17,6 +20,9 @@ export function useStoreProvider() {
 
 type Env = ReturnType<typeof useEnv>;
 
+/**
+ * Get the instance of a store.
+ */
 export function useStore<T extends StoreConstructor>(Store: T): Store<InstanceType<T>> {
   const env: Env = useEnv();
   const container = getDependencyContainer(env);

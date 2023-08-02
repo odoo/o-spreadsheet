@@ -7,15 +7,18 @@ export interface StoreConstructor<T = any> {
   new (get: Get): T;
 }
 
+/**
+ * An injectable store constructor which accepts additional constructor parameters
+ */
 export interface ParametricStoreConstructor<T = any, A extends any[] = any[]> {
   new (get: Get, ...args: A): T;
 }
 
-export interface DisposableStore {
+export interface Disposable {
   dispose(): void;
 }
 
-export type DisposableStoreConstructor<T extends DisposableStore = any> = StoreConstructor<T>;
+export type DisposableStoreConstructor<T extends Disposable = any> = StoreConstructor<T>;
 
 export type StoreParameters<T extends StoreConstructor> = SkipFirst<ConstructorParameters<T>>;
 
@@ -31,7 +34,6 @@ export function createValueStore<T extends object>(value: () => T): StoreConstru
 }
 
 export type Store<T> = CQS<T>;
-// export type DisposableStore<T> = Omit<Store<T>, "dispose">;
 
 /**
  * Command Query Separation [1,2] implementation with types.
@@ -53,6 +55,3 @@ type CQS<T> = {
  * making it write-only.
  */
 type NeverReturns<T> = T extends (...args: any[]) => any ? (...args: Parameters<T>) => void : T;
-
-// Design ==================
-// make it easy to read (computed properties)

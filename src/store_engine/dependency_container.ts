@@ -42,7 +42,7 @@ export class DependencyContainer {
 }
 
 class StoreFactory {
-  private building: Set<StoreConstructor<any>> = new Set();
+  private pendingBuilds: Set<StoreConstructor<any>> = new Set();
 
   constructor(private get: Get) {}
   /**
@@ -53,14 +53,16 @@ class StoreFactory {
     Store: ParametricStoreConstructor<T>,
     ...args: StoreParameters<ParametricStoreConstructor<T>>
   ): T {
-    if (this.building.has(Store)) {
+    if (this.pendingBuilds.has(Store)) {
       throw new Error(
-        `Circular dependency detected: ${[...this.building, Store].map((s) => s.name).join(" -> ")}`
+        `Circular dependency detected: ${[...this.pendingBuilds, Store]
+          .map((s) => s.name)
+          .join(" -> ")}`
       );
     }
-    this.building.add(Store);
+    this.pendingBuilds.add(Store);
     const instance = new Store(this.get, ...args);
-    this.building.delete(Store);
+    this.pendingBuilds.delete(Store);
     return instance;
   }
 }
