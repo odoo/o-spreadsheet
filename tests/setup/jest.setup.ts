@@ -2,6 +2,7 @@
  * This file will be run before each test file
  */
 import { setDefaultSheetViewSize } from "../../src/constants";
+import { setTranslationMethod } from "../../src/translation";
 import { getParsedOwlTemplateBundle } from "../../tools/bundle_xml/bundle_xml_templates";
 import "./canvas.mock";
 import "./jest_extend";
@@ -12,6 +13,10 @@ export let OWL_TEMPLATES: Document;
 beforeAll(() => {
   OWL_TEMPLATES = getParsedOwlTemplateBundle();
   setDefaultSheetViewSize(1000);
+  setTranslationMethod(
+    (str, ...values) => str,
+    () => true
+  );
 });
 
 beforeEach(() => {

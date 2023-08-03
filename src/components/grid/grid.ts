@@ -28,7 +28,7 @@ import { ComposerSelection } from "../../plugins/ui_stateful/edition";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
 import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
-import { _lt } from "../../translation";
+import { _t } from "../../translation";
 import {
   Align,
   CellValueType,
@@ -630,7 +630,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private displayWarningCopyPasteNotSupported() {
-    this.env.raiseError(_lt("Copy/Paste is not supported in this browser."));
+    this.env.raiseError(_t("Copy/Paste is not supported in this browser."));
   }
 
   private clearFormatting() {

@@ -1,7 +1,7 @@
 import { forEachPositionsInZone, JetSet, lazy, toXC } from "../../../helpers";
 import { createEvaluatedCell, errorCell, evaluateLiteral } from "../../../helpers/cells";
 import { ModelConfig } from "../../../model";
-import { _lt } from "../../../translation";
+import { _t } from "../../../translation";
 import {
   Cell,
   CellPosition,
@@ -296,17 +296,15 @@ export class Evaluator {
     }
 
     if (enoughCols) {
-      throw new Error(_lt("Result couldn't be automatically expanded. Please insert more rows."));
+      throw new Error(_t("Result couldn't be automatically expanded. Please insert more rows."));
     }
 
     if (enoughRows) {
-      throw new Error(
-        _lt("Result couldn't be automatically expanded. Please insert more columns.")
-      );
+      throw new Error(_t("Result couldn't be automatically expanded. Please insert more columns."));
     }
 
     throw new Error(
-      _lt("Result couldn't be automatically expanded. Please insert more columns and rows.")
+      _t("Result couldn't be automatically expanded. Please insert more columns and rows.")
     );
   }
 
@@ -334,7 +332,7 @@ export class Evaluator {
       ) {
         this.blockedArrayFormulas.add(formulaPositionId);
         throw new Error(
-          _lt(
+          _t(
             "Array result was not expanded because it would overwrite data in %s.",
             toXC(position.col, position.row)
           )

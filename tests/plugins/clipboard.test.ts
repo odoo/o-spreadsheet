@@ -45,6 +45,8 @@ import {
 } from "../test_helpers/getters_helpers";
 import { createEqualCF, getGrid, target, toRangesData } from "../test_helpers/helpers";
 
+let model: Model;
+
 describe("clipboard", () => {
   test("can copy and paste a cell", () => {
     const model = new Model();
@@ -837,9 +839,8 @@ describe("clipboard", () => {
   });
 
   describe("copy/paste several zones", () => {
-    const model = new Model();
-
     beforeEach(() => {
+      model = new Model();
       setCellContent(model, "A1", "a1");
       setCellContent(model, "A2", "a2");
       setCellContent(model, "A3", "a3");

@@ -97,11 +97,11 @@ describe("Interactive rename sheet", () => {
 });
 
 describe("Interactive Freeze columns/rows", () => {
-  const model = new Model();
   test.each([
     ["column", "COL"],
     ["row", "ROW"],
   ])("freeze %s through a merge", (name, dimension) => {
+    const model = new Model();
     merge(model, "A1:D4");
     const raiseError = jest.fn();
     const env = makeInteractiveTestEnv(model, { raiseError });

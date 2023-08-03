@@ -1,7 +1,5 @@
 import { addMetaInfoFromArg, arg, validateArguments } from "../../src/functions/arguments";
-import { setTranslationMethod, _lt } from "../../src/translation";
 import { AddFunctionDescription } from "../../src/types";
-import { registerCleanup } from "../setup/jest.setup";
 
 describe("args", () => {
   test("various", () => {
@@ -44,22 +42,6 @@ describe("args", () => {
       default: true,
       defaultValue: "10",
     });
-  });
-
-  test("argument description is translated", () => {
-    const description = _lt("description");
-    const argDefinition = arg("test (number)", description);
-    // set the translation method after creating the argument.
-    // This is what actually happens because translations are
-    // loaded after the function definition
-    setTranslationMethod((str, ...values) => {
-      if (str === "description") {
-        return "translated description";
-      }
-      return str;
-    });
-    registerCleanup(() => setTranslationMethod((str, ...values) => str));
-    expect(argDefinition.description.toString()).toEqual("translated description");
   });
 
   test("default string value", () => {

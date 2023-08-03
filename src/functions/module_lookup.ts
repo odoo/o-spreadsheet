@@ -1,5 +1,5 @@
 import { getCanonicalSheetName, toXC, toZone } from "../helpers/index";
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import {
   AddFunctionDescription,
   FunctionReturnValue,
@@ -32,7 +32,7 @@ const DEFAULT_ABSOLUTE_RELATIVE_MODE = 1;
 function assertAvailable(variable, searchKey) {
   if (variable === undefined) {
     throw new NotAvailableError(
-      _lt("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", toString(searchKey))
+      _t("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", toString(searchKey))
     );
   }
 }
@@ -42,28 +42,28 @@ function assertAvailable(variable, searchKey) {
 // -----------------------------------------------------------------------------
 
 export const ADDRESS: AddFunctionDescription = {
-  description: _lt("Returns a cell reference as a string. "),
+  description: _t("Returns a cell reference as a string. "),
   args: [
-    arg("row (number)", _lt("The row number of the cell reference. ")),
+    arg("row (number)", _t("The row number of the cell reference. ")),
     arg(
       "column (number)",
-      _lt("The column number (not name) of the cell reference. A is column number 1. ")
+      _t("The column number (not name) of the cell reference. A is column number 1. ")
     ),
     arg(
       `absolute_relative_mode (number, default=${DEFAULT_ABSOLUTE_RELATIVE_MODE})`,
-      _lt(
+      _t(
         "An indicator of whether the reference is row/column absolute. 1 is row and column absolute (e.g. $A$1), 2 is row absolute and column relative (e.g. A$1), 3 is row relative and column absolute (e.g. $A1), and 4 is row and column relative (e.g. A1)."
       )
     ),
     arg(
       "use_a1_notation (boolean, default=TRUE)",
-      _lt(
+      _t(
         "A boolean indicating whether to use A1 style notation (TRUE) or R1C1 style notation (FALSE)."
       )
     ),
     arg(
       "sheet (string, optional)",
-      _lt("A string indicating the name of the sheet into which the address points.")
+      _t("A string indicating the name of the sheet into which the address points.")
     ),
   ],
   returns: ["STRING"],
@@ -109,11 +109,11 @@ export const ADDRESS: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 
 export const COLUMN: AddFunctionDescription = {
-  description: _lt("Column number of a specified cell."),
+  description: _t("Column number of a specified cell."),
   args: [
     arg(
       "cell_reference (meta, default='this cell')",
-      _lt(
+      _t(
         "The cell whose column number will be returned. Column A corresponds to 1. By default, the function use the cell in which the formula is entered."
       )
     ),
@@ -136,8 +136,8 @@ export const COLUMN: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 
 export const COLUMNS: AddFunctionDescription = {
-  description: _lt("Number of columns in a specified array or range."),
-  args: [arg("range (meta)", _lt("The range whose column count will be returned."))],
+  description: _t("Number of columns in a specified array or range."),
+  args: [arg("range (meta)", _t("The range whose column count will be returned."))],
   returns: ["NUMBER"],
   compute: function (range: string): number {
     const zone = toZone(range);
@@ -151,22 +151,22 @@ export const COLUMNS: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 
 export const HLOOKUP: AddFunctionDescription = {
-  description: _lt(`Horizontal lookup`),
+  description: _t(`Horizontal lookup`),
   args: [
-    arg("search_key (any)", _lt("The value to search for. For example, 42, 'Cats', or I24.")),
+    arg("search_key (any)", _t("The value to search for. For example, 42, 'Cats', or I24.")),
     arg(
       "range (range)",
-      _lt(
+      _t(
         "The range to consider for the search. The first row in the range is searched for the key specified in search_key."
       )
     ),
     arg(
       "index (number)",
-      _lt("The row index of the value to be returned, where the first row in range is numbered 1.")
+      _t("The row index of the value to be returned, where the first row in range is numbered 1.")
     ),
     arg(
       `is_sorted (boolean, default=${DEFAULT_IS_SORTED})`,
-      _lt(
+      _t(
         "Indicates whether the row to be searched (the first row of the specified range) is sorted, in which case the closest match for search_key will be returned."
       )
     ),
@@ -183,7 +183,7 @@ export const HLOOKUP: AddFunctionDescription = {
 
     assert(
       () => 1 <= _index && _index <= range[0].length,
-      _lt("[[FUNCTION_NAME]] evaluates to an out of bounds range.")
+      _t("[[FUNCTION_NAME]] evaluates to an out of bounds range.")
     );
 
     const _isSorted = toBoolean(isSorted);
@@ -218,18 +218,18 @@ export const HLOOKUP: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 
 export const LOOKUP: AddFunctionDescription = {
-  description: _lt(`Look up a value.`),
+  description: _t(`Look up a value.`),
   args: [
-    arg("search_key (any)", _lt("The value to search for. For example, 42, 'Cats', or I24.")),
+    arg("search_key (any)", _t("The value to search for. For example, 42, 'Cats', or I24.")),
     arg(
       "search_array (range)",
-      _lt(
+      _t(
         "One method of using this function is to provide a single sorted row or column search_array to look through for the search_key with a second argument result_range. The other way is to combine these two arguments into one search_array where the first row or column is searched and a value is returned from the last row or column in the array. If search_key is not found, a non-exact match may be returned."
       )
     ),
     arg(
       "result_range (range, optional)",
-      _lt(
+      _t(
         "The range from which to return a result. The value returned corresponds to the location where search_key is found in search_range. This range must be only a single row or column and should not be used if using the search_result_array method."
       )
     ),
@@ -274,20 +274,20 @@ export const LOOKUP: AddFunctionDescription = {
     nbRow = resultRange[0].length;
     assert(
       () => nbCol === 1 || nbRow === 1,
-      _lt("The result_range must be a single row or a single column.")
+      _t("The result_range must be a single row or a single column.")
     );
 
     if (nbCol > 1) {
       assert(
         () => index <= nbCol - 1,
-        _lt("[[FUNCTION_NAME]] evaluates to an out of range row value %s.", (index + 1).toString())
+        _t("[[FUNCTION_NAME]] evaluates to an out of range row value %s.", (index + 1).toString())
       );
       return resultRange[index][0] as FunctionReturnValue;
     }
 
     assert(
       () => index <= nbRow - 1,
-      _lt("[[FUNCTION_NAME]] evaluates to an out of range column value %s.", (index + 1).toString())
+      _t("[[FUNCTION_NAME]] evaluates to an out of range column value %s.", (index + 1).toString())
     );
 
     return resultRange[0][index] as FunctionReturnValue;
@@ -300,13 +300,13 @@ export const LOOKUP: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 const DEFAULT_SEARCH_TYPE = 1;
 export const MATCH: AddFunctionDescription = {
-  description: _lt(`Position of item in range that matches value.`),
+  description: _t(`Position of item in range that matches value.`),
   args: [
-    arg("search_key (any)", _lt("The value to search for. For example, 42, 'Cats', or I24.")),
-    arg("range (any, range)", _lt("The one-dimensional array to be searched.")),
+    arg("search_key (any)", _t("The value to search for. For example, 42, 'Cats', or I24.")),
+    arg("range (any, range)", _t("The one-dimensional array to be searched.")),
     arg(
       `search_type (number, default=${DEFAULT_SEARCH_TYPE})`,
-      _lt(
+      _t(
         "The search method. 1 (default) finds the largest value less than or equal to search_key when range is sorted in ascending order. 0 finds the exact value when range is unsorted. -1 finds the smallest value greater than or equal to search_key when range is sorted in descending order."
       )
     ),
@@ -324,7 +324,7 @@ export const MATCH: AddFunctionDescription = {
 
     assert(
       () => nbCol === 1 || nbRow === 1,
-      _lt("The range must be a single row or a single column.")
+      _t("The range must be a single row or a single column.")
     );
 
     let index = -1;
@@ -356,11 +356,11 @@ export const MATCH: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 
 export const ROW: AddFunctionDescription = {
-  description: _lt("Row number of a specified cell."),
+  description: _t("Row number of a specified cell."),
   args: [
     arg(
       "cell_reference (meta, default='this cell')",
-      _lt(
+      _t(
         "The cell whose row number will be returned. By default, this function uses the cell in which the formula is entered."
       )
     ),
@@ -383,8 +383,8 @@ export const ROW: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 
 export const ROWS: AddFunctionDescription = {
-  description: _lt("Number of rows in a specified array or range."),
-  args: [arg("range (meta)", _lt("The range whose row count will be returned."))],
+  description: _t("Number of rows in a specified array or range."),
+  args: [arg("range (meta)", _t("The range whose row count will be returned."))],
   returns: ["NUMBER"],
   compute: function (range: string): number {
     const zone = toZone(range);
@@ -398,24 +398,24 @@ export const ROWS: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 
 export const VLOOKUP: AddFunctionDescription = {
-  description: _lt(`Vertical lookup.`),
+  description: _t(`Vertical lookup.`),
   args: [
-    arg("search_key (any)", _lt("The value to search for. For example, 42, 'Cats', or I24.")),
+    arg("search_key (any)", _t("The value to search for. For example, 42, 'Cats', or I24.")),
     arg(
       "range (any, range)",
-      _lt(
+      _t(
         "The range to consider for the search. The first column in the range is searched for the key specified in search_key."
       )
     ),
     arg(
       "index (number)",
-      _lt(
+      _t(
         "The column index of the value to be returned, where the first column in range is numbered 1."
       )
     ),
     arg(
       `is_sorted (boolean, default=${DEFAULT_IS_SORTED})`,
-      _lt(
+      _t(
         "Indicates whether the column to be searched (the first column of the specified range) is sorted, in which case the closest match for search_key will be returned."
       )
     ),
@@ -431,7 +431,7 @@ export const VLOOKUP: AddFunctionDescription = {
     const _searchKey = normalizeValue(searchKey);
     assert(
       () => 1 <= _index && _index <= range.length,
-      _lt("[[FUNCTION_NAME]] evaluates to an out of bounds range.")
+      _t("[[FUNCTION_NAME]] evaluates to an out of bounds range.")
     );
 
     const _isSorted = toBoolean(isSorted);
@@ -466,32 +466,32 @@ export const VLOOKUP: AddFunctionDescription = {
 // XLOOKUP
 // -----------------------------------------------------------------------------
 export const XLOOKUP: AddFunctionDescription = {
-  description: _lt(
+  description: _t(
     `Search a range for a match and return the corresponding item from a second range.`
   ),
   args: [
-    arg("search_key (any)", _lt("The value to search for.")),
+    arg("search_key (any)", _t("The value to search for.")),
     arg(
       "lookup_range (any, range)",
-      _lt("The range to consider for the search. Should be a single column or a single row.")
+      _t("The range to consider for the search. Should be a single column or a single row.")
     ),
     arg(
       "return_range (any, range)",
-      _lt("The range containing the return value. Should have the same dimensions as lookup_range.")
+      _t("The range containing the return value. Should have the same dimensions as lookup_range.")
     ),
     arg(
       "if_not_found (any, lazy, optional)",
-      _lt("If a valid match is not found, return this value.")
+      _t("If a valid match is not found, return this value.")
     ),
     arg(
       `match_mode (any, default=${DEFAULT_MATCH_MODE})`,
-      _lt(
+      _t(
         "(0) Exact match. (-1) Return next smaller item if no match. (1) Return next greater item if no match."
       )
     ),
     arg(
       `search_mode (any, default=${DEFAULT_SEARCH_MODE})`,
-      _lt(
+      _t(
         "(1) Search starting at first item. \
       (-1) Search starting at last item. \
       (2) Perform a binary search that relies on lookup_array being sorted in ascending order. If not sorted, invalid results will be returned. \
@@ -515,16 +515,13 @@ export const XLOOKUP: AddFunctionDescription = {
 
     assert(
       () => lookupRange.length === 1 || lookupRange[0].length === 1,
-      _lt("lookup_range should be either a single row or single column.")
+      _t("lookup_range should be either a single row or single column.")
     );
     assert(
       () => [-1, 1, -2, 2].includes(_searchMode),
-      _lt("searchMode should be a value in [-1, 1, -2, 2].")
+      _t("searchMode should be a value in [-1, 1, -2, 2].")
     );
-    assert(
-      () => [-1, 0, 1].includes(_matchMode),
-      _lt("matchMode should be a value in [-1, 0, 1].")
-    );
+    assert(() => [-1, 0, 1].includes(_matchMode), _t("matchMode should be a value in [-1, 0, 1]."));
 
     const lookupDirection = lookupRange.length === 1 ? "col" : "row";
 
@@ -533,7 +530,7 @@ export const XLOOKUP: AddFunctionDescription = {
         lookupDirection === "col"
           ? returnRange[0].length === lookupRange[0].length
           : returnRange.length === lookupRange.length,
-      _lt("return_range should have the same dimensions as lookup_range.")
+      _t("return_range should have the same dimensions as lookup_range.")
     );
 
     const getElement =

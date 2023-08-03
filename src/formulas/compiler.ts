@@ -1,7 +1,7 @@
 import { Token } from ".";
 import { functionRegistry } from "../functions/index";
 import { concat, parseNumber, removeStringQuotes } from "../helpers";
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import { CompiledFormula, DEFAULT_LOCALE } from "../types";
 import { BadExpressionError, UnknownFunctionError } from "../types/errors";
 import { FunctionCode, FunctionCodeBuilder, Scope } from "./code_builder";
@@ -60,10 +60,10 @@ export function compile(formula: string): CompiledFormula {
     const scope = new Scope();
 
     if (ast.type === "BIN_OPERATION" && ast.value === ":") {
-      throw new BadExpressionError(_lt("Invalid formula"));
+      throw new BadExpressionError(_t("Invalid formula"));
     }
     if (ast.type === "EMPTY") {
-      throw new BadExpressionError(_lt("Invalid formula"));
+      throw new BadExpressionError(_t("Invalid formula"));
     }
     const compiledAST = compileAST(ast);
     const code = new FunctionCodeBuilder();
@@ -120,7 +120,7 @@ export function compile(formula: string): CompiledFormula {
         if (isRangeOnly) {
           if (!isRangeInput(currentArg)) {
             throw new BadExpressionError(
-              _lt(
+              _t(
                 "Function %s expects the parameter %s to be reference to a cell or range, not a %s.",
                 functionName,
                 (i + 1).toString(),
@@ -164,7 +164,7 @@ export function compile(formula: string): CompiledFormula {
       const code = new FunctionCodeBuilder(scope);
       if (ast.type !== "REFERENCE" && !(ast.type === "BIN_OPERATION" && ast.value === ":")) {
         if (isMeta) {
-          throw new BadExpressionError(_lt(`Argument must be a reference to a cell or range.`));
+          throw new BadExpressionError(_t(`Argument must be a reference to a cell or range.`));
         }
       }
       if (ast.debug) {
@@ -317,7 +317,7 @@ function assertEnoughArgs(ast: ASTFuncall) {
 
   if (nbrArg < functionDefinition.minArgRequired) {
     throw new BadExpressionError(
-      _lt(
+      _t(
         "Invalid number of arguments for the %s function. Expected %s minimum, but got %s instead.",
         functionName,
         functionDefinition.minArgRequired.toString(),
@@ -328,7 +328,7 @@ function assertEnoughArgs(ast: ASTFuncall) {
 
   if (nbrArg > functionDefinition.maxArgPossible) {
     throw new BadExpressionError(
-      _lt(
+      _t(
         "Invalid number of arguments for the %s function. Expected %s maximum, but got %s instead.",
         functionName,
         functionDefinition.maxArgPossible.toString(),
@@ -343,7 +343,7 @@ function assertEnoughArgs(ast: ASTFuncall) {
     const repeatingArgs = nbrArg - unrepeatableArgs;
     if (repeatingArgs % repeatableArgs !== 0) {
       throw new BadExpressionError(
-        _lt(
+        _t(
           "Invalid number of arguments for the %s function. Expected all arguments after position %s to be supplied by groups of %s arguments",
           functionName,
           unrepeatableArgs.toString(),

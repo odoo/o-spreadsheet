@@ -1,96 +1,96 @@
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import { CommandResult } from "../types/index";
 
 export const CfTerms = {
   Errors: {
-    [CommandResult.InvalidRange]: _lt("The range is invalid"),
-    [CommandResult.FirstArgMissing]: _lt("The argument is missing. Please provide a value"),
-    [CommandResult.SecondArgMissing]: _lt("The second argument is missing. Please provide a value"),
-    [CommandResult.MinNaN]: _lt("The minpoint must be a number"),
-    [CommandResult.MidNaN]: _lt("The midpoint must be a number"),
-    [CommandResult.MaxNaN]: _lt("The maxpoint must be a number"),
-    [CommandResult.ValueUpperInflectionNaN]: _lt("The first value must be a number"),
-    [CommandResult.ValueLowerInflectionNaN]: _lt("The second value must be a number"),
-    [CommandResult.MinBiggerThanMax]: _lt("Minimum must be smaller then Maximum"),
-    [CommandResult.MinBiggerThanMid]: _lt("Minimum must be smaller then Midpoint"),
-    [CommandResult.MidBiggerThanMax]: _lt("Midpoint must be smaller then Maximum"),
-    [CommandResult.LowerBiggerThanUpper]: _lt(
+    [CommandResult.InvalidRange]: _t("The range is invalid"),
+    [CommandResult.FirstArgMissing]: _t("The argument is missing. Please provide a value"),
+    [CommandResult.SecondArgMissing]: _t("The second argument is missing. Please provide a value"),
+    [CommandResult.MinNaN]: _t("The minpoint must be a number"),
+    [CommandResult.MidNaN]: _t("The midpoint must be a number"),
+    [CommandResult.MaxNaN]: _t("The maxpoint must be a number"),
+    [CommandResult.ValueUpperInflectionNaN]: _t("The first value must be a number"),
+    [CommandResult.ValueLowerInflectionNaN]: _t("The second value must be a number"),
+    [CommandResult.MinBiggerThanMax]: _t("Minimum must be smaller then Maximum"),
+    [CommandResult.MinBiggerThanMid]: _t("Minimum must be smaller then Midpoint"),
+    [CommandResult.MidBiggerThanMax]: _t("Midpoint must be smaller then Maximum"),
+    [CommandResult.LowerBiggerThanUpper]: _t(
       "Lower inflection point must be smaller than upper inflection point"
     ),
-    [CommandResult.MinInvalidFormula]: _lt("Invalid Minpoint formula"),
-    [CommandResult.MaxInvalidFormula]: _lt("Invalid Maxpoint formula"),
-    [CommandResult.MidInvalidFormula]: _lt("Invalid Midpoint formula"),
-    [CommandResult.ValueUpperInvalidFormula]: _lt("Invalid upper inflection point formula"),
-    [CommandResult.ValueLowerInvalidFormula]: _lt("Invalid lower inflection point formula"),
-    [CommandResult.EmptyRange]: _lt("A range needs to be defined"),
-    Unexpected: _lt("The rule is invalid for an unknown reason"),
+    [CommandResult.MinInvalidFormula]: _t("Invalid Minpoint formula"),
+    [CommandResult.MaxInvalidFormula]: _t("Invalid Maxpoint formula"),
+    [CommandResult.MidInvalidFormula]: _t("Invalid Midpoint formula"),
+    [CommandResult.ValueUpperInvalidFormula]: _t("Invalid upper inflection point formula"),
+    [CommandResult.ValueLowerInvalidFormula]: _t("Invalid lower inflection point formula"),
+    [CommandResult.EmptyRange]: _t("A range needs to be defined"),
+    Unexpected: _t("The rule is invalid for an unknown reason"),
   },
-  ColorScale: _lt("Color scale"),
-  IconSet: _lt("Icon set"),
+  ColorScale: _t("Color scale"),
+  IconSet: _t("Icon set"),
 };
 
 export const CellIsOperators = {
-  IsEmpty: _lt("Is empty"),
-  IsNotEmpty: _lt("Is not empty"),
-  ContainsText: _lt("Contains"),
-  NotContains: _lt("Does not contain"),
-  BeginsWith: _lt("Starts with"),
-  EndsWith: _lt("Ends with"),
-  Equal: _lt("Is equal to"),
-  NotEqual: _lt("Is not equal to"),
-  GreaterThan: _lt("Is greater than"),
-  GreaterThanOrEqual: _lt("Is greater than or equal to"),
-  LessThan: _lt("Is less than"),
-  LessThanOrEqual: _lt("Is less than or equal to"),
-  Between: _lt("Is between"),
-  NotBetween: _lt("Is not between"),
+  IsEmpty: _t("Is empty"),
+  IsNotEmpty: _t("Is not empty"),
+  ContainsText: _t("Contains"),
+  NotContains: _t("Does not contain"),
+  BeginsWith: _t("Starts with"),
+  EndsWith: _t("Ends with"),
+  Equal: _t("Is equal to"),
+  NotEqual: _t("Is not equal to"),
+  GreaterThan: _t("Is greater than"),
+  GreaterThanOrEqual: _t("Is greater than or equal to"),
+  LessThan: _t("Is less than"),
+  LessThanOrEqual: _t("Is less than or equal to"),
+  Between: _t("Is between"),
+  NotBetween: _t("Is not between"),
 };
 
 export const ChartTerms = {
-  Series: _lt("Series"),
+  Series: _t("Series"),
   Errors: {
-    Unexpected: _lt("The chart definition is invalid for an unknown reason"),
+    Unexpected: _t("The chart definition is invalid for an unknown reason"),
     // BASIC CHART ERRORS (LINE | BAR | PIE)
-    [CommandResult.InvalidDataSet]: _lt("The dataset is invalid"),
-    [CommandResult.InvalidLabelRange]: _lt("Labels are invalid"),
+    [CommandResult.InvalidDataSet]: _t("The dataset is invalid"),
+    [CommandResult.InvalidLabelRange]: _t("Labels are invalid"),
     // SCORECARD CHART ERRORS
-    [CommandResult.InvalidScorecardKeyValue]: _lt("The key value is invalid"),
-    [CommandResult.InvalidScorecardBaseline]: _lt("The baseline value is invalid"),
+    [CommandResult.InvalidScorecardKeyValue]: _t("The key value is invalid"),
+    [CommandResult.InvalidScorecardBaseline]: _t("The baseline value is invalid"),
     // GAUGE CHART ERRORS
-    [CommandResult.InvalidGaugeDataRange]: _lt("The data range is invalid"),
-    [CommandResult.EmptyGaugeRangeMin]: _lt("A minimum range limit value is needed"),
-    [CommandResult.GaugeRangeMinNaN]: _lt("The minimum range limit value must be a number"),
-    [CommandResult.EmptyGaugeRangeMax]: _lt("A maximum range limit value is needed"),
-    [CommandResult.GaugeRangeMaxNaN]: _lt("The maximum range limit value must be a number"),
-    [CommandResult.GaugeRangeMinBiggerThanRangeMax]: _lt(
+    [CommandResult.InvalidGaugeDataRange]: _t("The data range is invalid"),
+    [CommandResult.EmptyGaugeRangeMin]: _t("A minimum range limit value is needed"),
+    [CommandResult.GaugeRangeMinNaN]: _t("The minimum range limit value must be a number"),
+    [CommandResult.EmptyGaugeRangeMax]: _t("A maximum range limit value is needed"),
+    [CommandResult.GaugeRangeMaxNaN]: _t("The maximum range limit value must be a number"),
+    [CommandResult.GaugeRangeMinBiggerThanRangeMax]: _t(
       "Minimum range limit must be smaller than maximum range limit"
     ),
-    [CommandResult.GaugeLowerInflectionPointNaN]: _lt(
+    [CommandResult.GaugeLowerInflectionPointNaN]: _t(
       "The lower inflection point value must be a number"
     ),
-    [CommandResult.GaugeUpperInflectionPointNaN]: _lt(
+    [CommandResult.GaugeUpperInflectionPointNaN]: _t(
       "The upper inflection point value must be a number"
     ),
   },
 };
 
 export const CustomCurrencyTerms = {
-  Custom: _lt("Custom"),
+  Custom: _t("Custom"),
 };
 
-export const MergeErrorMessage = _lt(
+export const MergeErrorMessage = _t(
   "Merged cells are preventing this operation. Unmerge those cells and try again."
 );
 
 export const SplitToColumnsTerms = {
   Errors: {
-    Unexpected: _lt("Cannot split the selection for an unknown reason"),
-    [CommandResult.NoSplitSeparatorInSelection]: _lt(
+    Unexpected: _t("Cannot split the selection for an unknown reason"),
+    [CommandResult.NoSplitSeparatorInSelection]: _t(
       "There is no match for the selected separator in the selection"
     ),
-    [CommandResult.MoreThanOneColumnSelected]: _lt(
+    [CommandResult.MoreThanOneColumnSelected]: _t(
       "Only a selection from a single column can be split"
     ),
-    [CommandResult.SplitWillOverwriteContent]: _lt("Splitting will overwrite existing content"),
+    [CommandResult.SplitWillOverwriteContent]: _t("Splitting will overwrite existing content"),
   },
 };

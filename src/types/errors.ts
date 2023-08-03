@@ -1,4 +1,4 @@
-import { _lt } from "../translation";
+import { _t } from "../translation";
 
 export enum CellErrorType {
   NotAvailable = "#N/A",
@@ -32,13 +32,13 @@ export class BadExpressionError extends EvaluationError {
 
 export class CircularDependencyError extends EvaluationError {
   constructor() {
-    super(CellErrorType.CircularDependency, _lt("Circular reference"));
+    super(CellErrorType.CircularDependency, _t("Circular reference"));
   }
 }
 
 export class InvalidReferenceError extends EvaluationError {
   constructor() {
-    super(CellErrorType.InvalidReference, _lt("Invalid reference"));
+    super(CellErrorType.InvalidReference, _t("Invalid reference"));
   }
 }
 
@@ -46,7 +46,7 @@ export class NotAvailableError extends EvaluationError {
   constructor(errorMessage: string | undefined = undefined) {
     super(
       CellErrorType.NotAvailable,
-      errorMessage || _lt("Data not available"),
+      errorMessage || _t("Data not available"),
       errorMessage ? CellErrorLevel.error : CellErrorLevel.silent
     );
   }
@@ -54,6 +54,6 @@ export class NotAvailableError extends EvaluationError {
 
 export class UnknownFunctionError extends EvaluationError {
   constructor(fctName: string) {
-    super(CellErrorType.UnknownFunction, _lt('Unknown function: "%s"', fctName));
+    super(CellErrorType.UnknownFunction, _t('Unknown function: "%s"', fctName));
   }
 }

@@ -1,5 +1,5 @@
 import { Registry } from "../registries/registry";
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import {
   AddFunctionDescription,
   Arg,
@@ -33,21 +33,21 @@ export { arg } from "./arguments";
 type Functions = { [functionName: string]: AddFunctionDescription };
 type Category = { name: string; functions: Functions };
 const categories: Category[] = [
-  { name: _lt("Array"), functions: array },
-  { name: _lt("Database"), functions: database },
-  { name: _lt("Date"), functions: date },
-  { name: _lt("Filter"), functions: filter },
-  { name: _lt("Financial"), functions: financial },
-  { name: _lt("Info"), functions: info },
-  { name: _lt("Lookup"), functions: lookup },
-  { name: _lt("Logical"), functions: logical },
-  { name: _lt("Math"), functions: math },
-  { name: _lt("Misc"), functions: misc },
-  { name: _lt("Operator"), functions: operators },
-  { name: _lt("Statistical"), functions: statistical },
-  { name: _lt("Text"), functions: text },
-  { name: _lt("Engineering"), functions: engineering },
-  { name: _lt("Web"), functions: web },
+  { name: _t("Array"), functions: array },
+  { name: _t("Database"), functions: database },
+  { name: _t("Date"), functions: date },
+  { name: _t("Filter"), functions: filter },
+  { name: _t("Financial"), functions: financial },
+  { name: _t("Info"), functions: info },
+  { name: _t("Lookup"), functions: lookup },
+  { name: _t("Logical"), functions: logical },
+  { name: _t("Math"), functions: math },
+  { name: _t("Misc"), functions: misc },
+  { name: _t("Operator"), functions: operators },
+  { name: _t("Statistical"), functions: statistical },
+  { name: _t("Text"), functions: text },
+  { name: _t("Engineering"), functions: engineering },
+  { name: _t("Web"), functions: web },
 ];
 
 const functionNameRegex = /^[A-Z0-9\_\.]+$/;
@@ -64,7 +64,7 @@ class FunctionRegistry extends Registry<FunctionDescription> {
     name = name.toUpperCase();
     if (!functionNameRegex.test(name)) {
       throw new Error(
-        _lt(
+        _t(
           "Invalid function name %s. Function names can exclusively contain alphanumerical values separated by dots (.) or underscore (_)",
           name
         )

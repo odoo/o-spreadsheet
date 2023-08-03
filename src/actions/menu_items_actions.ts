@@ -6,7 +6,7 @@ import {
 import { centerFigurePosition, getMaxFigureSize } from "../helpers/figures/figure/figure";
 import { getZoneArea, numberToLetters } from "../helpers/index";
 import { interactivePaste, interactivePasteFromOS } from "../helpers/ui/paste_interactive";
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import { ClipboardMIMEType, ClipboardPasteOptions } from "../types/clipboard";
 import { Image } from "../types/image";
 import { Format, SpreadsheetChildEnv, Style } from "../types/index";
@@ -56,14 +56,14 @@ async function paste(env: SpreadsheetChildEnv, pasteOption?: ClipboardPasteOptio
       break;
     case "notImplemented":
       env.raiseError(
-        _lt(
+        _t(
           "Pasting from the context menu is not supported in this browser. Use keyboard shortcuts ctrl+c / ctrl+v instead."
         )
       );
       break;
     case "permissionDenied":
       env.raiseError(
-        _lt(
+        _t(
           "Access to the clipboard denied by the browser. Please enable clipboard permission for this page in your browser settings."
         )
       );
@@ -79,7 +79,7 @@ export const PASTE_FORMAT_ACTION = (env: SpreadsheetChildEnv) => paste(env, "onl
 
 export const DELETE_CONTENT_ROWS_NAME = (env: SpreadsheetChildEnv) => {
   if (env.model.getters.getSelectedZones().length > 1) {
-    return _lt("Clear rows");
+    return _t("Clear rows");
   }
   let first: number;
   let last: number;
@@ -93,9 +93,9 @@ export const DELETE_CONTENT_ROWS_NAME = (env: SpreadsheetChildEnv) => {
     last = zone.bottom;
   }
   if (first === last) {
-    return _lt("Clear row %s", (first + 1).toString());
+    return _t("Clear row %s", (first + 1).toString());
   }
-  return _lt("Clear rows %s - %s", (first + 1).toString(), (last + 1).toString());
+  return _t("Clear rows %s - %s", (first + 1).toString(), (last + 1).toString());
 };
 
 export const DELETE_CONTENT_ROWS_ACTION = (env: SpreadsheetChildEnv) => {
@@ -111,7 +111,7 @@ export const DELETE_CONTENT_ROWS_ACTION = (env: SpreadsheetChildEnv) => {
 
 export const DELETE_CONTENT_COLUMNS_NAME = (env: SpreadsheetChildEnv) => {
   if (env.model.getters.getSelectedZones().length > 1) {
-    return _lt("Clear columns");
+    return _t("Clear columns");
   }
   let first: number;
   let last: number;
@@ -125,9 +125,9 @@ export const DELETE_CONTENT_COLUMNS_NAME = (env: SpreadsheetChildEnv) => {
     last = zone.right;
   }
   if (first === last) {
-    return _lt("Clear column %s", numberToLetters(first));
+    return _t("Clear column %s", numberToLetters(first));
   }
-  return _lt("Clear columns %s - %s", numberToLetters(first), numberToLetters(last));
+  return _t("Clear columns %s - %s", numberToLetters(first), numberToLetters(last));
 };
 
 export const DELETE_CONTENT_COLUMNS_ACTION = (env: SpreadsheetChildEnv) => {
@@ -143,7 +143,7 @@ export const DELETE_CONTENT_COLUMNS_ACTION = (env: SpreadsheetChildEnv) => {
 
 export const REMOVE_ROWS_NAME = (env: SpreadsheetChildEnv) => {
   if (env.model.getters.getSelectedZones().length > 1) {
-    return _lt("Delete rows");
+    return _t("Delete rows");
   }
   let first: number;
   let last: number;
@@ -157,9 +157,9 @@ export const REMOVE_ROWS_NAME = (env: SpreadsheetChildEnv) => {
     last = zone.bottom;
   }
   if (first === last) {
-    return _lt("Delete row %s", (first + 1).toString());
+    return _t("Delete row %s", (first + 1).toString());
   }
-  return _lt("Delete rows %s - %s", (first + 1).toString(), (last + 1).toString());
+  return _t("Delete rows %s - %s", (first + 1).toString(), (last + 1).toString());
 };
 
 export const REMOVE_ROWS_ACTION = (env: SpreadsheetChildEnv) => {
@@ -179,7 +179,7 @@ export const REMOVE_ROWS_ACTION = (env: SpreadsheetChildEnv) => {
 
 export const REMOVE_COLUMNS_NAME = (env: SpreadsheetChildEnv) => {
   if (env.model.getters.getSelectedZones().length > 1) {
-    return _lt("Delete columns");
+    return _t("Delete columns");
   }
   let first: number;
   let last: number;
@@ -193,9 +193,9 @@ export const REMOVE_COLUMNS_NAME = (env: SpreadsheetChildEnv) => {
     last = zone.right;
   }
   if (first === last) {
-    return _lt("Delete column %s", numberToLetters(first));
+    return _t("Delete column %s", numberToLetters(first));
   }
-  return _lt("Delete columns %s - %s", numberToLetters(first), numberToLetters(last));
+  return _t("Delete columns %s - %s", numberToLetters(first), numberToLetters(last));
 };
 
 export const NOT_ALL_VISIBLE_ROWS_SELECTED = (env: SpreadsheetChildEnv) => {
@@ -314,15 +314,15 @@ export const HIDE_COLUMNS_NAME = (env: SpreadsheetChildEnv) => {
   let first = cols[0];
   let last = cols[cols.length - 1];
   if (cols.length === 1) {
-    return _lt("Hide column %s", numberToLetters(first).toString());
+    return _t("Hide column %s", numberToLetters(first).toString());
   } else if (last - first + 1 === cols.length) {
-    return _lt(
+    return _t(
       "Hide columns %s - %s",
       numberToLetters(first).toString(),
       numberToLetters(last).toString()
     );
   } else {
-    return _lt("Hide columns");
+    return _t("Hide columns");
   }
 };
 
@@ -331,11 +331,11 @@ export const HIDE_ROWS_NAME = (env: SpreadsheetChildEnv) => {
   let first = rows[0];
   let last = rows[rows.length - 1];
   if (rows.length === 1) {
-    return _lt("Hide row %s", (first + 1).toString());
+    return _t("Hide row %s", (first + 1).toString());
   } else if (last - first + 1 === rows.length) {
-    return _lt("Hide rows %s - %s", (first + 1).toString(), (last + 1).toString());
+    return _t("Hide rows %s - %s", (first + 1).toString(), (last + 1).toString());
   } else {
-    return _lt("Hide rows");
+    return _t("Hide rows");
   }
 };
 
@@ -375,7 +375,7 @@ async function requestImage(env: SpreadsheetChildEnv): Promise<Image | undefined
   try {
     return await env.imageProvider!.requestImage();
   } catch {
-    env.raiseError(_lt("An unexpected error occurred during the image transfer"));
+    env.raiseError(_t("An unexpected error occurred during the image transfer"));
     return undefined;
   }
 }

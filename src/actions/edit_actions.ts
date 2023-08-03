@@ -2,13 +2,13 @@ import { isEqual, positionToZone } from "../helpers";
 import { interactiveCut } from "../helpers/ui/cut_interactive";
 import { interactiveAddMerge } from "../helpers/ui/merge_interactive";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import { SpreadsheetChildEnv } from "../types";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 
 export const undo: ActionSpec = {
-  name: _lt("Undo"),
+  name: _t("Undo"),
   description: "Ctrl+Z",
   execute: (env) => env.model.dispatch("REQUEST_UNDO"),
   isEnabled: (env) => env.model.getters.canUndo(),
@@ -16,7 +16,7 @@ export const undo: ActionSpec = {
 };
 
 export const redo: ActionSpec = {
-  name: _lt("Redo"),
+  name: _t("Redo"),
   description: "Ctrl+Y",
   execute: (env) => env.model.dispatch("REQUEST_REDO"),
   isEnabled: (env) => env.model.getters.canRedo(),
@@ -24,7 +24,7 @@ export const redo: ActionSpec = {
 };
 
 export const copy: ActionSpec = {
-  name: _lt("Copy"),
+  name: _t("Copy"),
   description: "Ctrl+C",
   isReadonlyAllowed: true,
   execute: async (env) => {
@@ -35,7 +35,7 @@ export const copy: ActionSpec = {
 };
 
 export const cut: ActionSpec = {
-  name: _lt("Cut"),
+  name: _t("Cut"),
   description: "Ctrl+X",
   execute: async (env) => {
     interactiveCut(env);
@@ -45,14 +45,14 @@ export const cut: ActionSpec = {
 };
 
 export const paste: ActionSpec = {
-  name: _lt("Paste"),
+  name: _t("Paste"),
   description: "Ctrl+V",
   execute: ACTIONS.PASTE_ACTION,
   icon: "o-spreadsheet-Icon.PASTE",
 };
 
 export const pasteSpecial: ActionSpec = {
-  name: _lt("Paste special"),
+  name: _t("Paste special"),
   isVisible: (env): boolean => {
     return !env.model.getters.isCutOperation();
   },
@@ -60,18 +60,18 @@ export const pasteSpecial: ActionSpec = {
 };
 
 export const pasteSpecialValue: ActionSpec = {
-  name: _lt("Paste value only"),
+  name: _t("Paste value only"),
   description: "Ctrl+Shift+V",
   execute: ACTIONS.PASTE_VALUE_ACTION,
 };
 
 export const pasteSpecialFormat: ActionSpec = {
-  name: _lt("Paste format only"),
+  name: _t("Paste format only"),
   execute: ACTIONS.PASTE_FORMAT_ACTION,
 };
 
 export const findAndReplace: ActionSpec = {
-  name: _lt("Find and replace"),
+  name: _t("Find and replace"),
   description: "Ctrl+H",
   isReadonlyAllowed: true,
   execute: (env) => {
@@ -81,7 +81,7 @@ export const findAndReplace: ActionSpec = {
 };
 
 export const deleteValues: ActionSpec = {
-  name: _lt("Delete values"),
+  name: _t("Delete values"),
   execute: (env) =>
     env.model.dispatch("DELETE_CONTENT", {
       sheetId: env.model.getters.getActiveSheetId(),
@@ -122,12 +122,12 @@ export const clearCols: ActionSpec = {
 };
 
 export const deleteCells: ActionSpec = {
-  name: _lt("Delete cells"),
+  name: _t("Delete cells"),
   isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
 };
 
 export const deleteCellShiftUp: ActionSpec = {
-  name: _lt("Delete cell and shift up"),
+  name: _t("Delete cell and shift up"),
   execute: (env) => {
     const zone = env.model.getters.getSelectedZone();
     const result = env.model.dispatch("DELETE_CELL", { zone, shiftDimension: "ROW" });
@@ -136,7 +136,7 @@ export const deleteCellShiftUp: ActionSpec = {
 };
 
 export const deleteCellShiftLeft: ActionSpec = {
-  name: _lt("Delete cell and shift left"),
+  name: _t("Delete cell and shift left"),
   execute: (env) => {
     const zone = env.model.getters.getSelectedZone();
     const result = env.model.dispatch("DELETE_CELL", { zone, shiftDimension: "COL" });
@@ -145,7 +145,7 @@ export const deleteCellShiftLeft: ActionSpec = {
 };
 
 export const mergeCells: ActionSpec = {
-  name: _lt("Merge cells"),
+  name: _t("Merge cells"),
   isEnabled: (env) => !cannotMerge(env),
   isActive: (env) => isInMerge(env),
   execute: (env) => toggleMerge(env),

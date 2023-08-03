@@ -10,7 +10,7 @@ import {
   createScorecardChartRuntime,
   ScorecardChart,
 } from "../helpers/figures/charts/scorecard_chart";
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import {
   AddColumnsRowsCommand,
   CommandResult,
@@ -80,7 +80,7 @@ chartRegistry.add("bar", {
   ) => BarChart.transformDefinition(definition, executed),
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     BarChart.getDefinitionFromContextCreation(context),
-  name: _lt("Bar"),
+  name: _t("Bar"),
   sequence: 10,
 });
 chartRegistry.add("line", {
@@ -96,7 +96,7 @@ chartRegistry.add("line", {
   ) => LineChart.transformDefinition(definition, executed),
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     LineChart.getDefinitionFromContextCreation(context),
-  name: _lt("Line"),
+  name: _t("Line"),
   sequence: 20,
 });
 chartRegistry.add("pie", {
@@ -112,7 +112,7 @@ chartRegistry.add("pie", {
   ) => PieChart.transformDefinition(definition, executed),
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     PieChart.getDefinitionFromContextCreation(context),
-  name: _lt("Pie"),
+  name: _t("Pie"),
   sequence: 30,
 });
 chartRegistry.add("scorecard", {
@@ -128,7 +128,7 @@ chartRegistry.add("scorecard", {
   ) => ScorecardChart.transformDefinition(definition, executed),
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     ScorecardChart.getDefinitionFromContextCreation(context),
-  name: _lt("Scorecard"),
+  name: _t("Scorecard"),
   sequence: 40,
 });
 chartRegistry.add("gauge", {
@@ -144,7 +144,7 @@ chartRegistry.add("gauge", {
   ) => GaugeChart.transformDefinition(definition, executed),
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
     GaugeChart.getDefinitionFromContextCreation(context),
-  name: _lt("Gauge"),
+  name: _t("Gauge"),
   sequence: 50,
 });
 

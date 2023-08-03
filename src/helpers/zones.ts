@@ -1,4 +1,4 @@
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import { Position, UnboundedZone, Zone, ZoneDimension } from "../types";
 import { lettersToNumber, numberToLetters, toCartesian, toXC } from "./coordinates";
 import { range } from "./misc";
@@ -192,7 +192,7 @@ export function zoneToXc(zone: Zone | UnboundedZone): string {
     return isOneCell ? toXC(left, top) : `${toXC(left, top)}:${toXC(right, bottom)}`;
   }
 
-  throw new Error(_lt("Bad zone format"));
+  throw new Error(_t("Bad zone format"));
 }
 
 /**

@@ -1,10 +1,10 @@
-import { _lt } from "../../translation";
+import { _t } from "../../translation";
 import { CommandResult, SpreadsheetChildEnv, UID, Zone } from "../../types";
 
 export const AddFilterInteractiveContent = {
-  filterOverlap: _lt("You cannot create overlapping filters."),
-  nonContinuousTargets: _lt("A filter can only be created on a continuous selection."),
-  mergeInFilter: _lt("You can't create a filter over a range that contains a merge."),
+  filterOverlap: _t("You cannot create overlapping filters."),
+  nonContinuousTargets: _t("A filter can only be created on a continuous selection."),
+  mergeInFilter: _t("You can't create a filter over a range that contains a merge."),
 };
 
 export function interactiveAddFilter(env: SpreadsheetChildEnv, sheetId: UID, target: Zone[]) {

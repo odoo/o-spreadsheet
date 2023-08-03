@@ -1,7 +1,7 @@
 // HELPERS
 import { numberToJsDate, parseDateTime } from "../helpers/dates";
 import { isNumber, parseNumber } from "../helpers/numbers";
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import {
   ArgValue,
   CellValue,
@@ -24,13 +24,13 @@ export function assert(condition: () => boolean, message: string): void {
 // -----------------------------------------------------------------------------
 
 const expectNumberValueError = (value: string) =>
-  _lt(
+  _t(
     "The function [[FUNCTION_NAME]] expects a number value, but '%s' is a string, and cannot be coerced to a number.",
     value
   );
 
 export const expectNumberRangeError = (lowerBound: number, upperBound: number, value: number) =>
-  _lt(
+  _t(
     "The function [[FUNCTION_NAME]] expects a number value between %s and %s inclusive, but receives %s.",
     lowerBound.toString(),
     upperBound.toString(),
@@ -39,7 +39,7 @@ export const expectNumberRangeError = (lowerBound: number, upperBound: number, v
 
 export const expectStringSetError = (stringSet: string[], value: string) => {
   const stringSetString = stringSet.map((str) => `'${str}'`).join(", ");
-  return _lt(
+  return _t(
     "The function [[FUNCTION_NAME]] has an argument with value '%s'. It should be one of: %s.",
     value,
     stringSetString
@@ -93,7 +93,7 @@ export function strictToInteger(
 export function assertNumberGreaterThanOrEqualToOne(value: number) {
   assert(
     () => value >= 1,
-    _lt(
+    _t(
       "The function [[FUNCTION_NAME]] expects a number value to be greater than or equal to 1, but receives %s.",
       value.toString()
     )
@@ -138,7 +138,7 @@ export function normalizeValue<T>(value: T): T | string {
 }
 
 const expectBooleanValueError = (value: string) =>
-  _lt(
+  _t(
     "The function [[FUNCTION_NAME]] expects a boolean value, but '%s' is a text, and cannot be coerced to a number.",
     value
   );
@@ -517,7 +517,7 @@ export function visitMatchingRanges(
 
   if (countArg % 2 === 1) {
     throw new Error(
-      _lt(`Function [[FUNCTION_NAME]] expects criteria_range and criterion to be in pairs.`)
+      _t(`Function [[FUNCTION_NAME]] expects criteria_range and criterion to be in pairs.`)
     );
   }
 
@@ -535,7 +535,7 @@ export function visitMatchingRanges(
       criteriaRange[0].length !== dimCol
     ) {
       throw new Error(
-        _lt(`Function [[FUNCTION_NAME]] expects criteria_range to have the same dimension`)
+        _t(`Function [[FUNCTION_NAME]] expects criteria_range to have the same dimension`)
       );
     }
 

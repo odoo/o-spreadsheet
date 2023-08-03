@@ -1,4 +1,4 @@
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import { AddFunctionDescription, PrimitiveArgValue } from "../types";
 import { arg } from "./arguments";
 import { toNumber } from "./helpers";
@@ -9,10 +9,10 @@ const DEFAULT_DELTA_ARG = 0;
 // DELTA
 // -----------------------------------------------------------------------------
 export const DELTA: AddFunctionDescription = {
-  description: _lt("Compare two numeric values, returning 1 if they're equal."),
+  description: _t("Compare two numeric values, returning 1 if they're equal."),
   args: [
-    arg(" (number)", _lt("The first number to compare.")),
-    arg(` (number, default=${DEFAULT_DELTA_ARG})`, _lt("The second number to compare.")),
+    arg(" (number)", _t("The first number to compare.")),
+    arg(` (number, default=${DEFAULT_DELTA_ARG})`, _t("The second number to compare.")),
   ],
   returns: ["NUMBER"],
   compute: function (

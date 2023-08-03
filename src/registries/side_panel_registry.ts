@@ -4,7 +4,7 @@ import { CustomCurrencyPanel } from "../components/side_panel/custom_currency/cu
 import { FindAndReplacePanel } from "../components/side_panel/find_and_replace/find_and_replace";
 import { SettingsPanel } from "../components/side_panel/settings/settings_panel";
 import { SplitIntoColumnsPanel } from "../components/side_panel/split_to_columns_panel/split_to_columns_panel";
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import { SpreadsheetChildEnv } from "../types";
 import { Registry } from "./registry";
 
@@ -20,31 +20,31 @@ export interface SidePanelContent {
 export const sidePanelRegistry = new Registry<SidePanelContent>();
 
 sidePanelRegistry.add("ConditionalFormatting", {
-  title: _lt("Conditional formatting"),
+  title: _t("Conditional formatting"),
   Body: ConditionalFormattingPanel,
 });
 
 sidePanelRegistry.add("ChartPanel", {
-  title: _lt("Chart"),
+  title: _t("Chart"),
   Body: ChartPanel,
 });
 
 sidePanelRegistry.add("FindAndReplace", {
-  title: _lt("Find and Replace"),
+  title: _t("Find and Replace"),
   Body: FindAndReplacePanel,
 });
 
 sidePanelRegistry.add("CustomCurrency", {
-  title: _lt("Custom currency format"),
+  title: _t("Custom currency format"),
   Body: CustomCurrencyPanel,
 });
 
 sidePanelRegistry.add("SplitToColumns", {
-  title: _lt("Split text into columns"),
+  title: _t("Split text into columns"),
   Body: SplitIntoColumnsPanel,
 });
 
 sidePanelRegistry.add("Settings", {
-  title: _lt("Spreadsheet settings"),
+  title: _t("Spreadsheet settings"),
   Body: SettingsPanel,
 });

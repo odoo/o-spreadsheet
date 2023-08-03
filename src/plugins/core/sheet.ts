@@ -10,7 +10,7 @@ import {
   positions,
   toCartesian,
 } from "../../helpers/index";
-import { _lt, _t } from "../../translation";
+import { _t } from "../../translation";
 import {
   Cell,
   CellPosition,
@@ -635,7 +635,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     if (deltaIndex === 0) {
       return currentIndex;
     }
-    throw new Error(_lt("There is not enough visible sheets"));
+    throw new Error(_t("There is not enough visible sheets"));
   }
 
   private checkSheetName(cmd: RenameSheetCommand | CreateSheetCommand): CommandResult {
@@ -761,7 +761,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   private getDuplicateSheetName(sheetName: string) {
     let i = 1;
     const names = this.orderedSheetIds.map(this.getSheetName.bind(this));
-    const baseName = _lt("Copy of %s", sheetName);
+    const baseName = _t("Copy of %s", sheetName);
     let name = baseName.toString();
     while (names.includes(name)) {
       name = `${baseName} (${i})`;

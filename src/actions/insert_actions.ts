@@ -1,14 +1,14 @@
 import { functionRegistry } from "../functions";
 import { isConsecutive, isDefined } from "../helpers";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import { ActionBuilder, ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 
 export const insertRow: ActionSpec = {
   name: (env) => {
     const number = getRowsNumber(env);
-    return number === 1 ? _lt("Insert row") : _lt("Insert %s rows", number.toString());
+    return number === 1 ? _t("Insert row") : _t("Insert %s rows", number.toString());
   },
   isVisible: (env) =>
     isConsecutive(env.model.getters.getActiveRows()) &&
@@ -20,7 +20,7 @@ export const insertRow: ActionSpec = {
 export const rowInsertRowBefore: ActionSpec = {
   name: (env) => {
     const number = getRowsNumber(env);
-    return number === 1 ? _lt("Insert row above") : _lt("Insert %s rows above", number.toString());
+    return number === 1 ? _t("Insert row above") : _t("Insert %s rows above", number.toString());
   },
   execute: ACTIONS.INSERT_ROWS_BEFORE_ACTION,
   isVisible: (env) =>
@@ -35,9 +35,9 @@ export const topBarInsertRowsBefore: ActionSpec = {
   name: (env) => {
     const number = getRowsNumber(env);
     if (number === 1) {
-      return _lt("Row above");
+      return _t("Row above");
     }
-    return _lt("%s Rows above", number.toString());
+    return _t("%s Rows above", number.toString());
   },
 };
 
@@ -46,9 +46,9 @@ export const cellInsertRowsBefore: ActionSpec = {
   name: (env) => {
     const number = getRowsNumber(env);
     if (number === 1) {
-      return _lt("Insert row");
+      return _t("Insert row");
     }
-    return _lt("Insert %s rows", number.toString());
+    return _t("Insert %s rows", number.toString());
   },
   isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
   icon: "o-spreadsheet-Icon.INSERT_ROW_BEFORE",
@@ -58,7 +58,7 @@ export const rowInsertRowsAfter: ActionSpec = {
   execute: ACTIONS.INSERT_ROWS_AFTER_ACTION,
   name: (env) => {
     const number = getRowsNumber(env);
-    return number === 1 ? _lt("Insert row below") : _lt("Insert %s rows below", number.toString());
+    return number === 1 ? _t("Insert row below") : _t("Insert %s rows below", number.toString());
   },
   isVisible: (env) =>
     isConsecutive(env.model.getters.getActiveRows()) &&
@@ -72,16 +72,16 @@ export const topBarInsertRowsAfter: ActionSpec = {
   name: (env) => {
     const number = getRowsNumber(env);
     if (number === 1) {
-      return _lt("Row below");
+      return _t("Row below");
     }
-    return _lt("%s Rows below", number.toString());
+    return _t("%s Rows below", number.toString());
   },
 };
 
 export const insertCol: ActionSpec = {
   name: (env) => {
     const number = getColumnsNumber(env);
-    return number === 1 ? _lt("Insert column") : _lt("Insert %s columns", number.toString());
+    return number === 1 ? _t("Insert column") : _t("Insert %s columns", number.toString());
   },
   isVisible: (env) =>
     isConsecutive(env.model.getters.getActiveCols()) &&
@@ -94,8 +94,8 @@ export const colInsertColsBefore: ActionSpec = {
   name: (env) => {
     const number = getColumnsNumber(env);
     return number === 1
-      ? _lt("Insert column left")
-      : _lt("Insert %s columns left", number.toString());
+      ? _t("Insert column left")
+      : _t("Insert %s columns left", number.toString());
   },
   execute: ACTIONS.INSERT_COLUMNS_BEFORE_ACTION,
   isVisible: (env) =>
@@ -110,9 +110,9 @@ export const topBarInsertColsBefore: ActionSpec = {
   name: (env) => {
     const number = getColumnsNumber(env);
     if (number === 1) {
-      return _lt("Column left");
+      return _t("Column left");
     }
-    return _lt("%s Columns left", number.toString());
+    return _t("%s Columns left", number.toString());
   },
 };
 
@@ -121,9 +121,9 @@ export const cellInsertColsBefore: ActionSpec = {
   name: (env) => {
     const number = getColumnsNumber(env);
     if (number === 1) {
-      return _lt("Insert column");
+      return _t("Insert column");
     }
-    return _lt("Insert %s columns", number.toString());
+    return _t("Insert %s columns", number.toString());
   },
   isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
   icon: "o-spreadsheet-Icon.INSERT_COL_BEFORE",
@@ -133,8 +133,8 @@ export const colInsertColsAfter: ActionSpec = {
   name: (env) => {
     const number = getColumnsNumber(env);
     return number === 1
-      ? _lt("Insert column right")
-      : _lt("Insert %s columns right", number.toString());
+      ? _t("Insert column right")
+      : _t("Insert %s columns right", number.toString());
   },
   execute: ACTIONS.INSERT_COLUMNS_AFTER_ACTION,
   isVisible: (env) =>
@@ -149,15 +149,15 @@ export const topBarInsertColsAfter: ActionSpec = {
   name: (env) => {
     const number = getColumnsNumber(env);
     if (number === 1) {
-      return _lt("Column right");
+      return _t("Column right");
     }
-    return _lt("%s Columns right", number.toString());
+    return _t("%s Columns right", number.toString());
   },
   execute: ACTIONS.INSERT_COLUMNS_AFTER_ACTION,
 };
 
 export const insertCell: ActionSpec = {
-  name: _lt("Insert cells"),
+  name: _t("Insert cells"),
   isVisible: (env) =>
     ACTIONS.IS_ONLY_ONE_RANGE(env) &&
     env.model.getters.getActiveCols().size === 0 &&
@@ -166,7 +166,7 @@ export const insertCell: ActionSpec = {
 };
 
 export const insertCellShiftDown: ActionSpec = {
-  name: _lt("Insert cells and shift down"),
+  name: _t("Insert cells and shift down"),
   execute: (env) => {
     const zone = env.model.getters.getSelectedZone();
     const result = env.model.dispatch("INSERT_CELL", { zone, shiftDimension: "ROW" });
@@ -178,7 +178,7 @@ export const insertCellShiftDown: ActionSpec = {
 };
 
 export const insertCellShiftRight: ActionSpec = {
-  name: _lt("Insert cells and shift right"),
+  name: _t("Insert cells and shift right"),
   execute: (env) => {
     const zone = env.model.getters.getSelectedZone();
     const result = env.model.dispatch("INSERT_CELL", { zone, shiftDimension: "COL" });
@@ -190,13 +190,13 @@ export const insertCellShiftRight: ActionSpec = {
 };
 
 export const insertChart: ActionSpec = {
-  name: _lt("Chart"),
+  name: _t("Chart"),
   execute: ACTIONS.CREATE_CHART,
   icon: "o-spreadsheet-Icon.INSERT_CHART",
 };
 
 export const insertImage: ActionSpec = {
-  name: _lt("Image"),
+  name: _t("Image"),
   description: "Ctrl+O",
   execute: ACTIONS.CREATE_IMAGE,
   isVisible: (env) => env.imageProvider !== undefined,
@@ -204,37 +204,37 @@ export const insertImage: ActionSpec = {
 };
 
 export const insertFunction: ActionSpec = {
-  name: _lt("Function"),
+  name: _t("Function"),
   icon: "o-spreadsheet-Icon.SHOW_HIDE_FORMULA",
 };
 
 export const insertFunctionSum: ActionSpec = {
-  name: _lt("SUM"),
+  name: _t("SUM"),
   execute: (env) => env.startCellEdition(`=SUM(`),
 };
 
 export const insertFunctionAverage: ActionSpec = {
-  name: _lt("AVERAGE"),
+  name: _t("AVERAGE"),
   execute: (env) => env.startCellEdition(`=AVERAGE(`),
 };
 
 export const insertFunctionCount: ActionSpec = {
-  name: _lt("COUNT"),
+  name: _t("COUNT"),
   execute: (env) => env.startCellEdition(`=COUNT(`),
 };
 
 export const insertFunctionMax: ActionSpec = {
-  name: _lt("MAX"),
+  name: _t("MAX"),
   execute: (env) => env.startCellEdition(`=MAX(`),
 };
 
 export const insertFunctionMin: ActionSpec = {
-  name: _lt("MIN"),
+  name: _t("MIN"),
   execute: (env) => env.startCellEdition(`=MIN(`),
 };
 
 export const categorieFunctionAll: ActionSpec = {
-  name: _lt("All"),
+  name: _t("All"),
   children: [allFunctionListMenuBuilder],
 };
 
@@ -261,13 +261,13 @@ export const categoriesFunctionListMenuBuilder: ActionBuilder = () => {
 };
 
 export const insertLink: ActionSpec = {
-  name: _lt("Link"),
+  name: _t("Link"),
   execute: ACTIONS.INSERT_LINK,
   icon: "o-spreadsheet-Icon.INSERT_LINK",
 };
 
 export const insertSheet: ActionSpec = {
-  name: _lt("Insert sheet"),
+  name: _t("Insert sheet"),
   execute: (env) => {
     const activeSheetId = env.model.getters.getActiveSheetId();
     const position = env.model.getters.getSheetIds().indexOf(activeSheetId) + 1;

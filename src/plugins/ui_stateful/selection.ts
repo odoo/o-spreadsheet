@@ -12,7 +12,7 @@ import {
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
 } from "../../helpers/index";
-import { _lt } from "../../translation";
+import { _t } from "../../translation";
 import { SelectionEvent } from "../../types/event_stream";
 import {
   AddColumnsRowsCommand,
@@ -51,32 +51,32 @@ interface SelectionStatisticFunction {
 
 const selectionStatisticFunctions: SelectionStatisticFunction[] = [
   {
-    name: _lt("Sum"),
+    name: _t("Sum"),
     types: [CellValueType.number],
     compute: (values, locale) => SUM.compute.bind({ locale })([values]) as number,
   },
   {
-    name: _lt("Avg"),
+    name: _t("Avg"),
     types: [CellValueType.number],
     compute: (values, locale) => AVERAGE.compute.bind({ locale })([values]) as number,
   },
   {
-    name: _lt("Min"),
+    name: _t("Min"),
     types: [CellValueType.number],
     compute: (values, locale) => MIN.compute.bind({ locale })([values]) as number,
   },
   {
-    name: _lt("Max"),
+    name: _t("Max"),
     types: [CellValueType.number],
     compute: (values, locale) => MAX.compute.bind({ locale })([values]) as number,
   },
   {
-    name: _lt("Count"),
+    name: _t("Count"),
     types: [CellValueType.number, CellValueType.text, CellValueType.boolean, CellValueType.error],
     compute: (values, locale) => COUNTA.compute.bind({ locale })([values]) as number,
   },
   {
-    name: _lt("Count Numbers"),
+    name: _t("Count Numbers"),
     types: [CellValueType.number, CellValueType.text, CellValueType.boolean, CellValueType.error],
     compute: (values, locale) => COUNT.compute.bind({ locale })([values]) as number,
   },

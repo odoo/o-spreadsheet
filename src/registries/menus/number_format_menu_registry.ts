@@ -1,6 +1,6 @@
 import { ActionSpec } from "../../actions/action";
 import * as ACTION_FORMAT from "../../actions/format_actions";
-import { _lt } from "../../translation";
+import { _t } from "../../translation";
 import { MenuItemRegistry } from "../menu_items_registry";
 
 export const numberFormatMenuRegistry = new MenuItemRegistry();
@@ -52,7 +52,7 @@ numberFormatMenuRegistry
   });
 
 export const formatNumberMenuItemSpec: ActionSpec = {
-  name: _lt("More formats"),
+  name: _t("More formats"),
   icon: "o-spreadsheet-Icon.NUMBER_FORMATS",
   children: [() => numberFormatMenuRegistry.getAll()],
 };

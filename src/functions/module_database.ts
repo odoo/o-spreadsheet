@@ -1,4 +1,4 @@
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import {
   AddFunctionDescription,
   ArgValue,
@@ -46,7 +46,7 @@ function getMatchingCells(
   // where the first column has the value 1.
 
   if (typeof field !== "number" && typeof field !== "string") {
-    throw new Error(_lt("The field must be a number or a string"));
+    throw new Error(_t("The field must be a number or a string"));
   }
 
   let index: number;
@@ -54,7 +54,7 @@ function getMatchingCells(
     index = Math.trunc(field) - 1;
     if (index < 0 || dimRowDB - 1 < index) {
       throw new Error(
-        _lt(
+        _t(
           "The field (%s) must be one of %s or must be a number between 1 and %s inclusive.",
           field.toString(),
           dimRowDB.toString()
@@ -66,7 +66,7 @@ function getMatchingCells(
     index = indexColNameDB.get(colName) ?? -1;
     if (index === -1) {
       throw new Error(
-        _lt(
+        _t(
           "The field (%s) must be one of %s.",
           toString(field),
           [...indexColNameDB.keys()].toString()
@@ -83,7 +83,7 @@ function getMatchingCells(
 
   if (dimColCriteria < 2) {
     throw new Error(
-      _lt(
+      _t(
         "The criteria range contains %s row, it must be at least 2 rows.",
         dimColCriteria.toString()
       )
@@ -145,17 +145,17 @@ function getMatchingCells(
 const databaseArgs = [
   arg(
     "database (range)",
-    _lt(
+    _t(
       "The array or range containing the data to consider, structured in such a way that the first row contains the labels for each column's values."
     )
   ),
   arg(
     "field (any)",
-    _lt("Indicates which column in database contains the values to be extracted and operated on.")
+    _t("Indicates which column in database contains the values to be extracted and operated on.")
   ),
   arg(
     "criteria (range)",
-    _lt(
+    _t(
       "An array or range containing zero or more criteria to filter the database values by before operating."
     )
   ),
@@ -165,7 +165,7 @@ const databaseArgs = [
 // DAVERAGE
 // -----------------------------------------------------------------------------
 export const DAVERAGE: AddFunctionDescription = {
-  description: _lt("Average of a set of values from a table-like range."),
+  description: _t("Average of a set of values from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
   compute: function (
@@ -183,7 +183,7 @@ export const DAVERAGE: AddFunctionDescription = {
 // DCOUNT
 // -----------------------------------------------------------------------------
 export const DCOUNT: AddFunctionDescription = {
-  description: _lt("Counts values from a table-like range."),
+  description: _t("Counts values from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
   compute: function (
@@ -201,7 +201,7 @@ export const DCOUNT: AddFunctionDescription = {
 // DCOUNTA
 // -----------------------------------------------------------------------------
 export const DCOUNTA: AddFunctionDescription = {
-  description: _lt("Counts values and text from a table-like range."),
+  description: _t("Counts values and text from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
   compute: function (
@@ -219,7 +219,7 @@ export const DCOUNTA: AddFunctionDescription = {
 // DGET
 // -----------------------------------------------------------------------------
 export const DGET: AddFunctionDescription = {
-  description: _lt("Single value from a table-like range."),
+  description: _t("Single value from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
   compute: function (
@@ -228,7 +228,7 @@ export const DGET: AddFunctionDescription = {
     criteria: MatrixArgValue
   ): FunctionReturnValue {
     const cells = getMatchingCells(database, field, criteria, this.locale);
-    assert(() => cells.length === 1, _lt("More than one match found in DGET evaluation."));
+    assert(() => cells.length === 1, _t("More than one match found in DGET evaluation."));
     return cells[0];
   },
   isExported: true,
@@ -238,7 +238,7 @@ export const DGET: AddFunctionDescription = {
 // DMAX
 // -----------------------------------------------------------------------------
 export const DMAX: AddFunctionDescription = {
-  description: _lt("Maximum of values from a table-like range."),
+  description: _t("Maximum of values from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
   compute: function (
@@ -256,7 +256,7 @@ export const DMAX: AddFunctionDescription = {
 // DMIN
 // -----------------------------------------------------------------------------
 export const DMIN: AddFunctionDescription = {
-  description: _lt("Minimum of values from a table-like range."),
+  description: _t("Minimum of values from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
   compute: function (
@@ -274,7 +274,7 @@ export const DMIN: AddFunctionDescription = {
 // DPRODUCT
 // -----------------------------------------------------------------------------
 export const DPRODUCT: AddFunctionDescription = {
-  description: _lt("Product of values from a table-like range."),
+  description: _t("Product of values from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
   compute: function (
@@ -292,7 +292,7 @@ export const DPRODUCT: AddFunctionDescription = {
 // DSTDEV
 // -----------------------------------------------------------------------------
 export const DSTDEV: AddFunctionDescription = {
-  description: _lt("Standard deviation of population sample from table."),
+  description: _t("Standard deviation of population sample from table."),
   args: databaseArgs,
   returns: ["NUMBER"],
   compute: function (
@@ -310,7 +310,7 @@ export const DSTDEV: AddFunctionDescription = {
 // DSTDEVP
 // -----------------------------------------------------------------------------
 export const DSTDEVP: AddFunctionDescription = {
-  description: _lt("Standard deviation of entire population from table."),
+  description: _t("Standard deviation of entire population from table."),
   args: databaseArgs,
   returns: ["NUMBER"],
   compute: function (
@@ -328,7 +328,7 @@ export const DSTDEVP: AddFunctionDescription = {
 // DSUM
 // -----------------------------------------------------------------------------
 export const DSUM: AddFunctionDescription = {
-  description: _lt("Sum of values from a table-like range."),
+  description: _t("Sum of values from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
   compute: function (
@@ -346,7 +346,7 @@ export const DSUM: AddFunctionDescription = {
 // DVAR
 // -----------------------------------------------------------------------------
 export const DVAR: AddFunctionDescription = {
-  description: _lt("Variance of population sample from table-like range."),
+  description: _t("Variance of population sample from table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
   compute: function (
@@ -364,7 +364,7 @@ export const DVAR: AddFunctionDescription = {
 // DVARP
 // -----------------------------------------------------------------------------
 export const DVARP: AddFunctionDescription = {
-  description: _lt("Variance of a population from a table-like range."),
+  description: _t("Variance of a population from a table-like range."),
   args: databaseArgs,
   returns: ["NUMBER"],
   compute: function (

@@ -1,14 +1,14 @@
 import { CommandResult, DispatchResult } from "../..";
-import { _lt } from "../../translation";
+import { _t } from "../../translation";
 import { ClipboardPasteOptions, SpreadsheetChildEnv, Zone } from "../../types";
 
 export const PasteInteractiveContent = {
-  wrongPasteSelection: _lt("This operation is not allowed with multiple selections."),
-  willRemoveExistingMerge: _lt(
+  wrongPasteSelection: _t("This operation is not allowed with multiple selections."),
+  willRemoveExistingMerge: _t(
     "This operation is not possible due to a merge. Please remove the merges first than try again."
   ),
-  wrongFigurePasteOption: _lt("Cannot do a special paste of a figure."),
-  frozenPaneOverlap: _lt("Cannot paste merged cells over a frozen pane."),
+  wrongFigurePasteOption: _t("Cannot do a special paste of a figure."),
+  frozenPaneOverlap: _t("Cannot paste merged cells over a frozen pane."),
 };
 
 export function handlePasteResult(env: SpreadsheetChildEnv, result: DispatchResult) {

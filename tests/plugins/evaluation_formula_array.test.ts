@@ -27,9 +27,8 @@ import {
 import { getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { restoreDefaultFunctions, target } from "../test_helpers/helpers";
 
+let model: Model;
 describe("evaluate formulas that return an array", () => {
-  let model: Model = new Model();
-
   beforeEach(() => {
     model = new Model();
     functionRegistry.add("MFILL", {

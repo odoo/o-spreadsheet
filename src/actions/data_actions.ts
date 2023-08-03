@@ -1,18 +1,18 @@
 import { areZonesContinuous } from "../helpers/index";
 import { interactiveSortSelection } from "../helpers/sort";
 import { interactiveAddFilter } from "../helpers/ui/filter_interactive";
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 
 export const sortRange: ActionSpec = {
-  name: _lt("Sort range"),
+  name: _t("Sort range"),
   isVisible: ACTIONS.IS_ONLY_ONE_RANGE,
   icon: "o-spreadsheet-Icon.SORT_RANGE",
 };
 
 export const sortAscending: ActionSpec = {
-  name: _lt("Ascending (A ⟶ Z)"),
+  name: _t("Ascending (A ⟶ Z)"),
   execute: (env) => {
     const { anchor, zones } = env.model.getters.getSelection();
     const sheetId = env.model.getters.getActiveSheetId();
@@ -22,7 +22,7 @@ export const sortAscending: ActionSpec = {
 };
 
 export const sortDescending: ActionSpec = {
-  name: _lt("Descending (Z ⟶ A)"),
+  name: _t("Descending (Z ⟶ A)"),
   execute: (env) => {
     const { anchor, zones } = env.model.getters.getSelection();
     const sheetId = env.model.getters.getActiveSheetId();
@@ -32,7 +32,7 @@ export const sortDescending: ActionSpec = {
 };
 
 export const addDataFilter: ActionSpec = {
-  name: _lt("Create filter"),
+  name: _t("Create filter"),
   execute: (env) => {
     const sheetId = env.model.getters.getActiveSheetId();
     const selection = env.model.getters.getSelection().zones;
@@ -47,7 +47,7 @@ export const addDataFilter: ActionSpec = {
 };
 
 export const removeDataFilter: ActionSpec = {
-  name: _lt("Remove filter"),
+  name: _t("Remove filter"),
   execute: (env) => {
     const sheetId = env.model.getters.getActiveSheetId();
     env.model.dispatch("REMOVE_FILTER_TABLE", {
@@ -60,7 +60,7 @@ export const removeDataFilter: ActionSpec = {
 };
 
 export const splitToColumns: ActionSpec = {
-  name: _lt("Split text to columns"),
+  name: _t("Split text to columns"),
   sequence: 1,
   execute: (env) => env.openSidePanel("SplitToColumns", {}),
   isEnabled: (env) => env.model.getters.isSingleColSelected(),

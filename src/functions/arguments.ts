@@ -1,4 +1,4 @@
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import { AddFunctionDescription, ArgDefinition, ArgType, FunctionDescription } from "../types";
 
 //------------------------------------------------------------------------------
@@ -153,7 +153,7 @@ export function validateArguments(args: ArgDefinition[]) {
   for (let current of args) {
     if (current.type.includes("META") && current.type.length > 1) {
       throw new Error(
-        _lt(
+        _t(
           "Function ${name} has an argument that has been declared with more than one type whose type 'META'. The 'META' type can only be declared alone."
         )
       );
@@ -161,7 +161,7 @@ export function validateArguments(args: ArgDefinition[]) {
 
     if (previousArgRepeating && !current.repeating) {
       throw new Error(
-        _lt(
+        _t(
           "Function ${name} has no-repeatable arguments declared after repeatable ones. All repeatable arguments must be declared last."
         )
       );
@@ -170,7 +170,7 @@ export function validateArguments(args: ArgDefinition[]) {
     const currentIsntOptional = !(current.optional || current.repeating || current.default);
     if (previousIsOptional && currentIsntOptional) {
       throw new Error(
-        _lt(
+        _t(
           "Function ${name} has at mandatory arguments declared after optional ones. All optional arguments must be after all mandatory arguments."
         )
       );

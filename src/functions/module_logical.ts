@@ -1,4 +1,4 @@
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import {
   AddFunctionDescription,
   ArgValue,
@@ -14,17 +14,17 @@ import { assert, conditionalVisitBoolean, toBoolean } from "./helpers";
 // AND
 // -----------------------------------------------------------------------------
 export const AND: AddFunctionDescription = {
-  description: _lt("Logical `and` operator."),
+  description: _t("Logical `and` operator."),
   args: [
     arg(
       "logical_expression1 (boolean, range<boolean>)",
-      _lt(
+      _t(
         "An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE, or an expression that can be coerced to a logical value."
       )
     ),
     arg(
       "logical_expression2 (boolean, range<boolean>, repeating)",
-      _lt("More expressions that represent logical values.")
+      _t("More expressions that represent logical values.")
     ),
   ],
   returns: ["BOOLEAN"],
@@ -36,7 +36,7 @@ export const AND: AddFunctionDescription = {
       acc = acc && arg;
       return acc;
     });
-    assert(() => foundBoolean, _lt(`[[FUNCTION_NAME]] has no valid input data.`));
+    assert(() => foundBoolean, _t(`[[FUNCTION_NAME]] has no valid input data.`));
     return acc;
   },
   isExported: true,
@@ -46,7 +46,7 @@ export const AND: AddFunctionDescription = {
 // FALSE
 // -----------------------------------------------------------------------------
 export const FALSE: AddFunctionDescription = {
-  description: _lt("Logical value `false`."),
+  description: _t("Logical value `false`."),
   args: [],
   returns: ["BOOLEAN"],
   compute: function (): boolean {
@@ -59,21 +59,21 @@ export const FALSE: AddFunctionDescription = {
 // IF
 // -----------------------------------------------------------------------------
 export const IF: AddFunctionDescription = {
-  description: _lt("Returns value depending on logical expression."),
+  description: _t("Returns value depending on logical expression."),
   args: [
     arg(
       "logical_expression (boolean)",
-      _lt(
+      _t(
         "An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE."
       )
     ),
     arg(
       "value_if_true (any, lazy)",
-      _lt("The value the function returns if logical_expression is TRUE.")
+      _t("The value the function returns if logical_expression is TRUE.")
     ),
     arg(
       "value_if_false (any, lazy, default=FALSE)",
-      _lt("The value the function returns if logical_expression is FALSE.")
+      _t("The value the function returns if logical_expression is FALSE.")
     ),
   ],
   returns: ["ANY"],
@@ -92,12 +92,12 @@ export const IF: AddFunctionDescription = {
 // IFERROR
 // -----------------------------------------------------------------------------
 export const IFERROR: AddFunctionDescription = {
-  description: _lt("Value if it is not an error, otherwise 2nd argument."),
+  description: _t("Value if it is not an error, otherwise 2nd argument."),
   args: [
-    arg("value (any, lazy)", _lt("The value to return if value itself is not an error.")),
+    arg("value (any, lazy)", _t("The value to return if value itself is not an error.")),
     arg(
       `value_if_error (any, lazy, default="empty")`,
-      _lt("The value the function returns if value is an error.")
+      _t("The value the function returns if value is an error.")
     ),
   ],
   returns: ["ANY"],
@@ -130,12 +130,12 @@ export const IFERROR: AddFunctionDescription = {
 // IFNA
 // -----------------------------------------------------------------------------
 export const IFNA: AddFunctionDescription = {
-  description: _lt("Value if it is not an #N/A error, otherwise 2nd argument."),
+  description: _t("Value if it is not an #N/A error, otherwise 2nd argument."),
   args: [
-    arg("value (any, lazy)", _lt("The value to return if value itself is not #N/A an error.")),
+    arg("value (any, lazy)", _t("The value to return if value itself is not #N/A an error.")),
     arg(
       `value_if_error (any, lazy, default="empty")`,
-      _lt("The value the function returns if value is an #N/A error.")
+      _t("The value the function returns if value is an #N/A error.")
     ),
   ],
   returns: ["ANY"],
@@ -162,29 +162,29 @@ export const IFNA: AddFunctionDescription = {
 // IFS
 // -----------------------------------------------------------------------------
 export const IFS: AddFunctionDescription = {
-  description: _lt("Returns a value depending on multiple logical expressions."),
+  description: _t("Returns a value depending on multiple logical expressions."),
   args: [
     arg(
       "condition1 (boolean, lazy)",
-      _lt(
+      _t(
         "The first condition to be evaluated. This can be a boolean, a number, an array, or a reference to any of those."
       )
     ),
-    arg("value1 (any, lazy)", _lt("The returned value if condition1 is TRUE.")),
+    arg("value1 (any, lazy)", _t("The returned value if condition1 is TRUE.")),
     arg(
       "condition2 (boolean, lazy, repeating)",
-      _lt("Additional conditions to be evaluated if the previous ones are FALSE.")
+      _t("Additional conditions to be evaluated if the previous ones are FALSE.")
     ),
     arg(
       "value2 (any, lazy, repeating)",
-      _lt("Additional values to be returned if their corresponding conditions are TRUE.")
+      _t("Additional values to be returned if their corresponding conditions are TRUE.")
     ),
   ],
   returns: ["ANY"],
   compute: function (...values: (() => PrimitiveArgValue)[]): FunctionReturnValue {
     assert(
       () => values.length % 2 === 0,
-      _lt(`Wrong number of arguments. Expected an even number of arguments.`)
+      _t(`Wrong number of arguments. Expected an even number of arguments.`)
     );
     for (let n = 0; n < values.length - 1; n += 2) {
       if (toBoolean(values[n]())) {
@@ -192,7 +192,7 @@ export const IFS: AddFunctionDescription = {
         return returnValue !== null ? returnValue : "";
       }
     }
-    throw new Error(_lt(`No match.`));
+    throw new Error(_t(`No match.`));
   },
   isExported: true,
 };
@@ -201,11 +201,11 @@ export const IFS: AddFunctionDescription = {
 // NOT
 // -----------------------------------------------------------------------------
 export const NOT: AddFunctionDescription = {
-  description: _lt("Returns opposite of provided logical value."),
+  description: _t("Returns opposite of provided logical value."),
   args: [
     arg(
       "logical_expression (boolean)",
-      _lt(
+      _t(
         "An expression or reference to a cell holding an expression that represents some logical value."
       )
     ),
@@ -221,17 +221,17 @@ export const NOT: AddFunctionDescription = {
 // OR
 // -----------------------------------------------------------------------------
 export const OR: AddFunctionDescription = {
-  description: _lt("Logical `or` operator."),
+  description: _t("Logical `or` operator."),
   args: [
     arg(
       "logical_expression1 (boolean, range<boolean>)",
-      _lt(
+      _t(
         "An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE, or an expression that can be coerced to a logical value."
       )
     ),
     arg(
       "logical_expression2 (boolean, range<boolean>, repeating)",
-      _lt("More expressions that evaluate to logical values.")
+      _t("More expressions that evaluate to logical values.")
     ),
   ],
   returns: ["BOOLEAN"],
@@ -243,7 +243,7 @@ export const OR: AddFunctionDescription = {
       acc = acc || arg;
       return !acc;
     });
-    assert(() => foundBoolean, _lt(`[[FUNCTION_NAME]] has no valid input data.`));
+    assert(() => foundBoolean, _t(`[[FUNCTION_NAME]] has no valid input data.`));
     return acc;
   },
   isExported: true,
@@ -253,7 +253,7 @@ export const OR: AddFunctionDescription = {
 // TRUE
 // -----------------------------------------------------------------------------
 export const TRUE: AddFunctionDescription = {
-  description: _lt("Logical value `true`."),
+  description: _t("Logical value `true`."),
   args: [],
   returns: ["BOOLEAN"],
   compute: function (): boolean {
@@ -266,17 +266,17 @@ export const TRUE: AddFunctionDescription = {
 // XOR
 // -----------------------------------------------------------------------------
 export const XOR: AddFunctionDescription = {
-  description: _lt("Logical `xor` operator."),
+  description: _t("Logical `xor` operator."),
   args: [
     arg(
       "logical_expression1 (boolean, range<boolean>)",
-      _lt(
+      _t(
         "An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE, or an expression that can be coerced to a logical value."
       )
     ),
     arg(
       "logical_expression2 (boolean, range<boolean>, repeating)",
-      _lt("More expressions that evaluate to logical values.")
+      _t("More expressions that evaluate to logical values.")
     ),
   ],
   returns: ["BOOLEAN"],
@@ -288,7 +288,7 @@ export const XOR: AddFunctionDescription = {
       acc = acc ? !arg : arg;
       return true; // no stop condition
     });
-    assert(() => foundBoolean, _lt(`[[FUNCTION_NAME]] has no valid input data.`));
+    assert(() => foundBoolean, _t(`[[FUNCTION_NAME]] has no valid input data.`));
     return acc;
   },
   isExported: true,

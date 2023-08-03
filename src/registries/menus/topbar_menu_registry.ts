@@ -3,7 +3,7 @@ import * as ACTION_EDIT from "../../actions/edit_actions";
 import * as ACTION_FORMAT from "../../actions/format_actions";
 import * as ACTION_INSERT from "../../actions/insert_actions";
 import * as ACTION_VIEW from "../../actions/view_actions";
-import { _lt } from "../../translation";
+import { _t } from "../../translation";
 import { MenuItemRegistry } from "../menu_items_registry";
 import { formatNumberMenuItemSpec } from "./number_format_menu_registry";
 
@@ -16,11 +16,11 @@ topbarMenuRegistry
   // ---------------------------------------------------------------------
 
   .add("file", {
-    name: _lt("File"),
+    name: _t("File"),
     sequence: 10,
   })
   .addChild("settings", ["file"], {
-    name: _lt("Settings"),
+    name: _t("Settings"),
     sequence: 100,
     execute: (env) => env.openSidePanel("Settings"),
     icon: "o-spreadsheet-Icon.COG",
@@ -31,7 +31,7 @@ topbarMenuRegistry
   // ---------------------------------------------------------------------
 
   .add("edit", {
-    name: _lt("Edit"),
+    name: _t("Edit"),
     sequence: 20,
   })
   .addChild("undo", ["edit"], {
@@ -74,7 +74,7 @@ topbarMenuRegistry
     separator: true,
   })
   .addChild("delete", ["edit"], {
-    name: _lt("Delete"),
+    name: _t("Delete"),
     icon: "o-spreadsheet-Icon.DELETE",
     sequence: 70,
   })
@@ -112,7 +112,7 @@ topbarMenuRegistry
   // ---------------------------------------------------------------------
 
   .add("view", {
-    name: _lt("View"),
+    name: _t("View"),
     sequence: 30,
   })
   .addChild("unfreeze_panes", ["view"], {
@@ -171,7 +171,7 @@ topbarMenuRegistry
   // ---------------------------------------------------------------------
 
   .add("insert", {
-    name: _lt("Insert"),
+    name: _t("Insert"),
     sequence: 40,
   })
   .addChild("insert_row", ["insert"], {
@@ -204,12 +204,12 @@ topbarMenuRegistry
   })
   .addChild("insert_cell_down", ["insert", "insert_cell"], {
     ...ACTION_INSERT.insertCellShiftDown,
-    name: _lt("Shift down"),
+    name: _t("Shift down"),
     sequence: 10,
   })
   .addChild("insert_cell_right", ["insert", "insert_cell"], {
     ...ACTION_INSERT.insertCellShiftRight,
-    name: _lt("Shift right"),
+    name: _t("Shift right"),
     sequence: 20,
   })
   .addChild("insert_sheet", ["insert"], {
@@ -269,10 +269,10 @@ topbarMenuRegistry
   // FORMAT MENU ITEMS
   // ---------------------------------------------------------------------
 
-  .add("format", { name: _lt("Format"), sequence: 50 })
+  .add("format", { name: _t("Format"), sequence: 50 })
   .addChild("format_number", ["format"], {
     ...formatNumberMenuItemSpec,
-    name: _lt("Number"),
+    name: _t("Number"),
     sequence: 10,
     separator: true,
   })
@@ -361,7 +361,7 @@ topbarMenuRegistry
   // ---------------------------------------------------------------------
 
   .add("data", {
-    name: _lt("Data"),
+    name: _t("Data"),
     sequence: 60,
   })
   .addChild("sort_range", ["data"], {

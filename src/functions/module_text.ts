@@ -1,5 +1,5 @@
 import { escapeRegExp, formatValue, transpose2dArray } from "../helpers";
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import { AddFunctionDescription, ArgValue, PrimitiveArgValue } from "../types";
 import { arg } from "./arguments";
 import { assert, reduceAny, toBoolean, toNumber, toString } from "./helpers";
@@ -13,13 +13,11 @@ const wordRegex = /[A-Za-zÀ-ÖØ-öø-ÿ]+/g;
 // CHAR
 // -----------------------------------------------------------------------------
 export const CHAR: AddFunctionDescription = {
-  description: _lt("Gets character associated with number."),
+  description: _t("Gets character associated with number."),
   args: [
     arg(
       "table_number (number)",
-      _lt(
-        "The number of the character to look up from the current Unicode table in decimal format."
-      )
+      _t("The number of the character to look up from the current Unicode table in decimal format.")
     ),
   ],
   returns: ["STRING"],
@@ -27,7 +25,7 @@ export const CHAR: AddFunctionDescription = {
     const _tableNumber = Math.trunc(toNumber(tableNumber, this.locale));
     assert(
       () => _tableNumber >= 1,
-      _lt("The table_number (%s) is out of range.", _tableNumber.toString())
+      _t("The table_number (%s) is out of range.", _tableNumber.toString())
     );
     return String.fromCharCode(_tableNumber);
   },
@@ -38,8 +36,8 @@ export const CHAR: AddFunctionDescription = {
 // CLEAN
 // -----------------------------------------------------------------------------
 export const CLEAN: AddFunctionDescription = {
-  description: _lt("Remove non-printable characters from a piece of text."),
-  args: [arg("text (string)", _lt("The text whose non-printable characters are to be removed."))],
+  description: _t("Remove non-printable characters from a piece of text."),
+  args: [arg("text (string)", _t("The text whose non-printable characters are to be removed."))],
   returns: ["STRING"],
   compute: function (text: PrimitiveArgValue): string {
     const _text = toString(text);
@@ -58,10 +56,10 @@ export const CLEAN: AddFunctionDescription = {
 // CONCATENATE
 // -----------------------------------------------------------------------------
 export const CONCATENATE: AddFunctionDescription = {
-  description: _lt("Appends strings to one another."),
+  description: _t("Appends strings to one another."),
   args: [
-    arg("string1 (string, range<string>)", _lt("The initial string.")),
-    arg("string2 (string, range<string>, repeating)", _lt("More strings to append in sequence.")),
+    arg("string1 (string, range<string>)", _t("The initial string.")),
+    arg("string2 (string, range<string>, repeating)", _t("More strings to append in sequence.")),
   ],
   returns: ["STRING"],
   compute: function (...values: ArgValue[]): string {
@@ -74,10 +72,10 @@ export const CONCATENATE: AddFunctionDescription = {
 // EXACT
 // -----------------------------------------------------------------------------
 export const EXACT: AddFunctionDescription = {
-  description: _lt("Tests whether two strings are identical."),
+  description: _t("Tests whether two strings are identical."),
   args: [
-    arg("string1 (string)", _lt("The first string to compare.")),
-    arg("string2 (string)", _lt("The second string to compare.")),
+    arg("string1 (string)", _t("The first string to compare.")),
+    arg("string2 (string)", _t("The second string to compare.")),
   ],
   returns: ["BOOLEAN"],
   compute: function (string1: PrimitiveArgValue, string2: PrimitiveArgValue): boolean {
@@ -90,16 +88,16 @@ export const EXACT: AddFunctionDescription = {
 // FIND
 // -----------------------------------------------------------------------------
 export const FIND: AddFunctionDescription = {
-  description: _lt("First position of string found in text, case-sensitive."),
+  description: _t("First position of string found in text, case-sensitive."),
   args: [
-    arg("search_for (string)", _lt("The string to look for within text_to_search.")),
+    arg("search_for (string)", _t("The string to look for within text_to_search.")),
     arg(
       "text_to_search (string)",
-      _lt("The text to search for the first occurrence of search_for.")
+      _t("The text to search for the first occurrence of search_for.")
     ),
     arg(
       `starting_at (number, default=${DEFAULT_STARTING_AT})`,
-      _lt("The character within text_to_search at which to start the search.")
+      _t("The character within text_to_search at which to start the search.")
     ),
   ],
   returns: ["NUMBER"],
@@ -112,17 +110,17 @@ export const FIND: AddFunctionDescription = {
     const _textToSearch = toString(textToSearch);
     const _startingAt = toNumber(startingAt, this.locale);
 
-    assert(() => _textToSearch !== "", _lt(`The text_to_search must be non-empty.`));
+    assert(() => _textToSearch !== "", _t(`The text_to_search must be non-empty.`));
     assert(
       () => _startingAt >= 1,
-      _lt("The starting_at (%s) must be greater than or equal to 1.", _startingAt.toString())
+      _t("The starting_at (%s) must be greater than or equal to 1.", _startingAt.toString())
     );
 
     const result = _textToSearch.indexOf(_searchFor, _startingAt - 1);
 
     assert(
       () => result >= 0,
-      _lt(
+      _t(
         "In [[FUNCTION_NAME]] evaluation, cannot find '%s' within '%s'.",
         _searchFor.toString(),
         _textToSearch
@@ -138,19 +136,19 @@ export const FIND: AddFunctionDescription = {
 // JOIN
 // -----------------------------------------------------------------------------
 export const JOIN: AddFunctionDescription = {
-  description: _lt("Concatenates elements of arrays with delimiter."),
+  description: _t("Concatenates elements of arrays with delimiter."),
   args: [
     arg(
       "delimiter (string)",
-      _lt("The character or string to place between each concatenated value.")
+      _t("The character or string to place between each concatenated value.")
     ),
     arg(
       "value_or_array1 (string, range<string>)",
-      _lt("The value or values to be appended using delimiter.")
+      _t("The value or values to be appended using delimiter.")
     ),
     arg(
       "value_or_array2 (string, range<string>, repeating)",
-      _lt("More values to be appended using delimiter.")
+      _t("More values to be appended using delimiter.")
     ),
   ],
   returns: ["STRING"],
@@ -164,12 +162,12 @@ export const JOIN: AddFunctionDescription = {
 // LEFT
 // -----------------------------------------------------------------------------
 export const LEFT: AddFunctionDescription = {
-  description: _lt("Substring from beginning of specified string."),
+  description: _t("Substring from beginning of specified string."),
   args: [
-    arg("text (string)", _lt("The string from which the left portion will be returned.")),
+    arg("text (string)", _t("The string from which the left portion will be returned.")),
     arg(
       "number_of_characters (number, optional)",
-      _lt("The number of characters to return from the left side of string.")
+      _t("The number of characters to return from the left side of string.")
     ),
   ],
   returns: ["STRING"],
@@ -177,7 +175,7 @@ export const LEFT: AddFunctionDescription = {
     const _numberOfCharacters = args.length ? toNumber(args[0], this.locale) : 1;
     assert(
       () => _numberOfCharacters >= 0,
-      _lt("The number_of_characters (%s) must be positive or null.", _numberOfCharacters.toString())
+      _t("The number_of_characters (%s) must be positive or null.", _numberOfCharacters.toString())
     );
     return toString(text).substring(0, _numberOfCharacters);
   },
@@ -188,8 +186,8 @@ export const LEFT: AddFunctionDescription = {
 // LEN
 // -----------------------------------------------------------------------------
 export const LEN: AddFunctionDescription = {
-  description: _lt("Length of a string."),
-  args: [arg("text (string)", _lt("The string whose length will be returned."))],
+  description: _t("Length of a string."),
+  args: [arg("text (string)", _t("The string whose length will be returned."))],
   returns: ["NUMBER"],
   compute: function (text: PrimitiveArgValue): number {
     return toString(text).length;
@@ -201,8 +199,8 @@ export const LEN: AddFunctionDescription = {
 // LOWER
 // -----------------------------------------------------------------------------
 export const LOWER: AddFunctionDescription = {
-  description: _lt("Converts a specified string to lowercase."),
-  args: [arg("text (string)", _lt("The string to convert to lowercase."))],
+  description: _t("Converts a specified string to lowercase."),
+  args: [arg("text (string)", _t("The string to convert to lowercase."))],
   returns: ["STRING"],
   compute: function (text: PrimitiveArgValue): string {
     return toString(text).toLowerCase();
@@ -214,16 +212,16 @@ export const LOWER: AddFunctionDescription = {
 // MID
 // -----------------------------------------------------------------------------
 export const MID: AddFunctionDescription = {
-  description: _lt("A segment of a string."),
+  description: _t("A segment of a string."),
   args: [
-    arg("text (string)", _lt("The string to extract a segment from.")),
+    arg("text (string)", _t("The string to extract a segment from.")),
     arg(
       " (number)",
-      _lt(
+      _t(
         "The index from the left of string from which to begin extracting. The first character in string has the index 1."
       )
     ),
-    arg(" (number)", _lt("The length of the segment to extract.")),
+    arg(" (number)", _t("The length of the segment to extract.")),
   ],
   returns: ["STRING"],
   compute: function (
@@ -237,14 +235,14 @@ export const MID: AddFunctionDescription = {
 
     assert(
       () => _starting_at >= 1,
-      _lt(
+      _t(
         "The starting_at argument (%s) must be positive greater than one.",
         _starting_at.toString()
       )
     );
     assert(
       () => _extract_length >= 0,
-      _lt("The extract_length argument (%s) must be positive or null.", _extract_length.toString())
+      _t("The extract_length argument (%s) must be positive or null.", _extract_length.toString())
     );
 
     return _text.slice(_starting_at - 1, _starting_at + _extract_length - 1);
@@ -256,11 +254,11 @@ export const MID: AddFunctionDescription = {
 // PROPER
 // -----------------------------------------------------------------------------
 export const PROPER: AddFunctionDescription = {
-  description: _lt("Capitalizes each word in a specified string."),
+  description: _t("Capitalizes each word in a specified string."),
   args: [
     arg(
       "text_to_capitalize (string)",
-      _lt(
+      _t(
         "The text which will be returned with the first letter of each word in uppercase and all other letters in lowercase."
       )
     ),
@@ -279,15 +277,15 @@ export const PROPER: AddFunctionDescription = {
 // REPLACE
 // -----------------------------------------------------------------------------
 export const REPLACE: AddFunctionDescription = {
-  description: _lt("Replaces part of a text string with different text."),
+  description: _t("Replaces part of a text string with different text."),
   args: [
-    arg("text (string)", _lt("The text, a part of which will be replaced.")),
+    arg("text (string)", _t("The text, a part of which will be replaced.")),
     arg(
       "position (number)",
-      _lt("The position where the replacement will begin (starting from 1).")
+      _t("The position where the replacement will begin (starting from 1).")
     ),
-    arg("length (number)", _lt("The number of characters in the text to be replaced.")),
-    arg("new_text (string)", _lt("The text which will be inserted into the original text.")),
+    arg("length (number)", _t("The number of characters in the text to be replaced.")),
+    arg("new_text (string)", _t("The text which will be inserted into the original text.")),
   ],
   returns: ["STRING"],
   compute: function (
@@ -299,7 +297,7 @@ export const REPLACE: AddFunctionDescription = {
     const _position = toNumber(position, this.locale);
     assert(
       () => _position >= 1,
-      _lt("The position (%s) must be greater than or equal to 1.", _position.toString())
+      _t("The position (%s) must be greater than or equal to 1.", _position.toString())
     );
 
     const _text = toString(text);
@@ -314,12 +312,12 @@ export const REPLACE: AddFunctionDescription = {
 // RIGHT
 // -----------------------------------------------------------------------------
 export const RIGHT: AddFunctionDescription = {
-  description: _lt("A substring from the end of a specified string."),
+  description: _t("A substring from the end of a specified string."),
   args: [
-    arg("text (string)", _lt("The string from which the right portion will be returned.")),
+    arg("text (string)", _t("The string from which the right portion will be returned.")),
     arg(
       "number_of_characters (number, optional)",
-      _lt("The number of characters to return from the right side of string.")
+      _t("The number of characters to return from the right side of string.")
     ),
   ],
   returns: ["STRING"],
@@ -327,7 +325,7 @@ export const RIGHT: AddFunctionDescription = {
     const _numberOfCharacters = args.length ? toNumber(args[0], this.locale) : 1;
     assert(
       () => _numberOfCharacters >= 0,
-      _lt("The number_of_characters (%s) must be positive or null.", _numberOfCharacters.toString())
+      _t("The number_of_characters (%s) must be positive or null.", _numberOfCharacters.toString())
     );
     const _text = toString(text);
     const stringLength = _text.length;
@@ -340,16 +338,16 @@ export const RIGHT: AddFunctionDescription = {
 // SEARCH
 // -----------------------------------------------------------------------------
 export const SEARCH: AddFunctionDescription = {
-  description: _lt("First position of string found in text, ignoring case."),
+  description: _t("First position of string found in text, ignoring case."),
   args: [
-    arg("search_for (string)", _lt("The string to look for within text_to_search.")),
+    arg("search_for (string)", _t("The string to look for within text_to_search.")),
     arg(
       "text_to_search (string)",
-      _lt("The text to search for the first occurrence of search_for.")
+      _t("The text to search for the first occurrence of search_for.")
     ),
     arg(
       `starting_at (number, default=${DEFAULT_STARTING_AT})`,
-      _lt("The character within text_to_search at which to start the search.")
+      _t("The character within text_to_search at which to start the search.")
     ),
   ],
   returns: ["NUMBER"],
@@ -362,17 +360,17 @@ export const SEARCH: AddFunctionDescription = {
     const _textToSearch = toString(textToSearch).toLowerCase();
     const _startingAt = toNumber(startingAt, this.locale);
 
-    assert(() => _textToSearch !== "", _lt(`The text_to_search must be non-empty.`));
+    assert(() => _textToSearch !== "", _t(`The text_to_search must be non-empty.`));
     assert(
       () => _startingAt >= 1,
-      _lt("The starting_at (%s) must be greater than or equal to 1.", _startingAt.toString())
+      _t("The starting_at (%s) must be greater than or equal to 1.", _startingAt.toString())
     );
 
     const result = _textToSearch.indexOf(_searchFor, _startingAt - 1);
 
     assert(
       () => result >= 0,
-      _lt(
+      _t(
         "In [[FUNCTION_NAME]] evaluation, cannot find '%s' within '%s'.",
         _searchFor,
         _textToSearch
@@ -390,17 +388,17 @@ export const SEARCH: AddFunctionDescription = {
 const SPLIT_DEFAULT_SPLIT_BY_EACH = true;
 const SPLIT_DEFAULT_REMOVE_EMPTY_TEXT = true;
 export const SPLIT: AddFunctionDescription = {
-  description: _lt("Split text by specific character delimiter(s)."),
+  description: _t("Split text by specific character delimiter(s)."),
   args: [
-    arg("text (string)", _lt("The text to divide.")),
-    arg("delimiter (string)", _lt("The character or characters to use to split text.")),
+    arg("text (string)", _t("The text to divide.")),
+    arg("delimiter (string)", _t("The character or characters to use to split text.")),
     arg(
       `split_by_each (boolean, default=${SPLIT_DEFAULT_SPLIT_BY_EACH}})`,
-      _lt("Whether or not to divide text around each character contained in delimiter.")
+      _t("Whether or not to divide text around each character contained in delimiter.")
     ),
     arg(
       `remove_empty_text (boolean, default=${SPLIT_DEFAULT_REMOVE_EMPTY_TEXT})`,
-      _lt(
+      _t(
         "Whether or not to remove empty text messages from the split results. The default behavior is to treat \
         consecutive delimiters as one (if TRUE). If FALSE, empty cells values are added between consecutive delimiters."
       )
@@ -420,7 +418,7 @@ export const SPLIT: AddFunctionDescription = {
 
     assert(
       () => _delimiter.length > 0,
-      _lt("The _delimiter (%s) must be not be empty.", _delimiter)
+      _t("The _delimiter (%s) must be not be empty.", _delimiter)
     );
 
     const regex = _splitByEach ? new RegExp(`[${_delimiter}]`, "g") : new RegExp(_delimiter, "g");
@@ -439,14 +437,14 @@ export const SPLIT: AddFunctionDescription = {
 // SUBSTITUTE
 // -----------------------------------------------------------------------------
 export const SUBSTITUTE: AddFunctionDescription = {
-  description: _lt("Replaces existing text with new text in a string."),
+  description: _t("Replaces existing text with new text in a string."),
   args: [
-    arg("text_to_search (string)", _lt("The text within which to search and replace.")),
-    arg("search_for (string)", _lt("The string to search for within text_to_search.")),
-    arg("replace_with (string)", _lt("The string that will replace search_for.")),
+    arg("text_to_search (string)", _t("The text within which to search and replace.")),
+    arg("search_for (string)", _t("The string to search for within text_to_search.")),
+    arg("replace_with (string)", _t("The string that will replace search_for.")),
     arg(
       "occurrence_number (number, optional)",
-      _lt(
+      _t(
         "The instance of search_for within text_to_search to replace with replace_with. By default, all occurrences of search_for are replaced; however, if occurrence_number is specified, only the indicated instance of search_for is replaced."
       )
     ),
@@ -462,7 +460,7 @@ export const SUBSTITUTE: AddFunctionDescription = {
 
     assert(
       () => _occurrenceNumber >= 0,
-      _lt("The occurrenceNumber (%s) must be positive or null.", _occurrenceNumber.toString())
+      _t("The occurrenceNumber (%s) must be positive or null.", _occurrenceNumber.toString())
     );
 
     const _textToSearch = toString(textToSearch);
@@ -487,25 +485,25 @@ export const SUBSTITUTE: AddFunctionDescription = {
 // TEXTJOIN
 // -----------------------------------------------------------------------------
 export const TEXTJOIN: AddFunctionDescription = {
-  description: _lt("Combines text from multiple strings and/or arrays."),
+  description: _t("Combines text from multiple strings and/or arrays."),
   args: [
     arg(
       "delimiter (string)",
-      _lt(
+      _t(
         " A string, possible empty, or a reference to a valid string. If empty, the text will be simply concatenated."
       )
     ),
     arg(
       "ignore_empty (boolean)",
-      _lt(
+      _t(
         "A boolean; if TRUE, empty cells selected in the text arguments won't be included in the result."
       )
     ),
     arg(
       "text1 (string, range<string>)",
-      _lt("Any text item. This could be a string, or an array of strings in a range.")
+      _t("Any text item. This could be a string, or an array of strings in a range.")
     ),
-    arg("text2 (string, range<string>, repeating)", _lt("Additional text item(s).")),
+    arg("text2 (string, range<string>, repeating)", _t("Additional text item(s).")),
   ],
   returns: ["STRING"],
   compute: function (
@@ -530,9 +528,9 @@ export const TEXTJOIN: AddFunctionDescription = {
 // TRIM
 // -----------------------------------------------------------------------------
 export const TRIM: AddFunctionDescription = {
-  description: _lt("Removes space characters."),
+  description: _t("Removes space characters."),
   args: [
-    arg("text (string)", _lt("The text or reference to a cell containing text to be trimmed.")),
+    arg("text (string)", _t("The text or reference to a cell containing text to be trimmed.")),
   ],
   returns: ["STRING"],
   compute: function (text: PrimitiveArgValue): string {
@@ -545,8 +543,8 @@ export const TRIM: AddFunctionDescription = {
 // UPPER
 // -----------------------------------------------------------------------------
 export const UPPER: AddFunctionDescription = {
-  description: _lt("Converts a specified string to uppercase."),
-  args: [arg("text (string)", _lt("The string to convert to uppercase."))],
+  description: _t("Converts a specified string to uppercase."),
+  args: [arg("text (string)", _t("The string to convert to uppercase."))],
   returns: ["STRING"],
   compute: function (text: PrimitiveArgValue): string {
     return toString(text).toUpperCase();
@@ -558,12 +556,12 @@ export const UPPER: AddFunctionDescription = {
 // TEXT
 // -----------------------------------------------------------------------------
 export const TEXT: AddFunctionDescription = {
-  description: _lt("Converts a number to text according to a specified format."),
+  description: _t("Converts a number to text according to a specified format."),
   args: [
-    arg("number (number)", _lt("The number, date or time to format.")),
+    arg("number (number)", _t("The number, date or time to format.")),
     arg(
       "format (string)",
-      _lt("The pattern by which to format the number, enclosed in quotation marks.")
+      _t("The pattern by which to format the number, enclosed in quotation marks.")
     ),
   ],
   returns: ["STRING"],

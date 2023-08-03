@@ -14,7 +14,7 @@ Task: : [TASK_ID](https://www.odoo.com/web#id=TASK_ID&action=333&active_id=2328&
 - [ ] multiuser-able commands (has inverse commands and transformations where needed)
 - [ ] new/updated/removed commands are documented
 - [ ] exportable in excel
-- [ ] translations (\_lt("qmsdf %s", abc))
+- [ ] translations (\_t("qmsdf %s", abc))
 - [ ] unit tested
 - [ ] clean commented code
 - [ ] track breaking changes

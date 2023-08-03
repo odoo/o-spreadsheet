@@ -1,7 +1,7 @@
 import { areZonesContinuous } from "../helpers";
 import { interactiveAddFilter } from "../helpers/ui/filter_interactive";
 import { interactiveFreezeColumnsRows } from "../helpers/ui/freeze_interactive";
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import { SpreadsheetChildEnv } from "../types";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
@@ -21,7 +21,7 @@ export const hideCols: ActionSpec = {
 };
 
 export const unhideCols: ActionSpec = {
-  name: _lt("Unhide columns"),
+  name: _t("Unhide columns"),
   execute: (env) => {
     const columns = env.model.getters.getElementsFromSelection("COL");
     env.model.dispatch("UNHIDE_COLUMNS_ROWS", {
@@ -40,7 +40,7 @@ export const unhideCols: ActionSpec = {
 };
 
 export const unhideAllCols: ActionSpec = {
-  name: _lt("Unhide all columns"),
+  name: _t("Unhide all columns"),
   execute: (env) => {
     const sheetId = env.model.getters.getActiveSheetId();
     env.model.dispatch("UNHIDE_COLUMNS_ROWS", {
@@ -68,7 +68,7 @@ export const hideRows: ActionSpec = {
 };
 
 export const unhideRows: ActionSpec = {
-  name: _lt("Unhide rows"),
+  name: _t("Unhide rows"),
   execute: (env) => {
     const columns = env.model.getters.getElementsFromSelection("ROW");
     env.model.dispatch("UNHIDE_COLUMNS_ROWS", {
@@ -87,7 +87,7 @@ export const unhideRows: ActionSpec = {
 };
 
 export const unhideAllRows: ActionSpec = {
-  name: _lt("Unhide all rows"),
+  name: _t("Unhide all rows"),
   execute: (env) => {
     const sheetId = env.model.getters.getActiveSheetId();
     env.model.dispatch("UNHIDE_COLUMNS_ROWS", {
@@ -101,7 +101,7 @@ export const unhideAllRows: ActionSpec = {
 };
 
 export const unFreezePane: ActionSpec = {
-  name: _lt("Unfreeze"),
+  name: _t("Unfreeze"),
   isVisible: (env) => {
     const { xSplit, ySplit } = env.model.getters.getPaneDivisions(
       env.model.getters.getActiveSheetId()
@@ -116,12 +116,12 @@ export const unFreezePane: ActionSpec = {
 };
 
 export const freezePane: ActionSpec = {
-  name: _lt("Freeze"),
+  name: _t("Freeze"),
   icon: "o-spreadsheet-Icon.FREEZE",
 };
 
 export const unFreezeRows: ActionSpec = {
-  name: _lt("No rows"),
+  name: _t("No rows"),
   execute: (env) =>
     env.model.dispatch("UNFREEZE_ROWS", {
       sheetId: env.model.getters.getActiveSheetId(),
@@ -132,19 +132,19 @@ export const unFreezeRows: ActionSpec = {
 };
 
 export const freezeFirstRow: ActionSpec = {
-  name: _lt("1 row"),
+  name: _t("1 row"),
   execute: (env) => interactiveFreezeColumnsRows(env, "ROW", 1),
   isReadonlyAllowed: true,
 };
 
 export const freezeSecondRow: ActionSpec = {
-  name: _lt("2 rows"),
+  name: _t("2 rows"),
   execute: (env) => interactiveFreezeColumnsRows(env, "ROW", 2),
   isReadonlyAllowed: true,
 };
 
 export const freezeCurrentRow: ActionSpec = {
-  name: _lt("Up to current row"),
+  name: _t("Up to current row"),
   execute: (env) => {
     const { bottom } = env.model.getters.getSelectedZone();
     interactiveFreezeColumnsRows(env, "ROW", bottom + 1);
@@ -153,7 +153,7 @@ export const freezeCurrentRow: ActionSpec = {
 };
 
 export const unFreezeCols: ActionSpec = {
-  name: _lt("No columns"),
+  name: _t("No columns"),
   execute: (env) =>
     env.model.dispatch("UNFREEZE_COLUMNS", {
       sheetId: env.model.getters.getActiveSheetId(),
@@ -164,19 +164,19 @@ export const unFreezeCols: ActionSpec = {
 };
 
 export const freezeFirstCol: ActionSpec = {
-  name: _lt("1 column"),
+  name: _t("1 column"),
   execute: (env) => interactiveFreezeColumnsRows(env, "COL", 1),
   isReadonlyAllowed: true,
 };
 
 export const freezeSecondCol: ActionSpec = {
-  name: _lt("2 columns"),
+  name: _t("2 columns"),
   execute: (env) => interactiveFreezeColumnsRows(env, "COL", 2),
   isReadonlyAllowed: true,
 };
 
 export const freezeCurrentCol: ActionSpec = {
-  name: _lt("Up to current column"),
+  name: _t("Up to current column"),
   execute: (env) => {
     const { right } = env.model.getters.getSelectedZone();
     interactiveFreezeColumnsRows(env, "COL", right + 1);
@@ -187,8 +187,8 @@ export const freezeCurrentCol: ActionSpec = {
 export const viewGridlines: ActionSpec = {
   name: (env: SpreadsheetChildEnv) =>
     env.model.getters.getGridLinesVisibility(env.model.getters.getActiveSheetId())
-      ? _lt("Hide gridlines")
-      : _lt("Show gridlines"),
+      ? _t("Hide gridlines")
+      : _t("Show gridlines"),
   execute: (env) => {
     const sheetId = env.model.getters.getActiveSheetId();
     env.model.dispatch("SET_GRID_LINES_VISIBILITY", {
@@ -201,7 +201,7 @@ export const viewGridlines: ActionSpec = {
 
 export const viewFormulas: ActionSpec = {
   name: (env: SpreadsheetChildEnv) =>
-    env.model.getters.shouldShowFormulas() ? _lt("Hide formulas") : _lt("Show formulas"),
+    env.model.getters.shouldShowFormulas() ? "Hide formulas" : _t("Show formulas"),
   execute: (env) =>
     env.model.dispatch("SET_FORMULA_VISIBILITY", { show: !env.model.getters.shouldShowFormulas() }),
   isReadonlyAllowed: true,
@@ -210,7 +210,7 @@ export const viewFormulas: ActionSpec = {
 
 export const createRemoveFilter: ActionSpec = {
   name: (env) =>
-    selectionContainsFilter(env) ? _lt("Remove selected filters") : _lt("Create filter"),
+    selectionContainsFilter(env) ? _t("Remove selected filters") : _t("Create filter"),
   isActive: (env) => selectionContainsFilter(env),
   isEnabled: (env) => !cannotCreateFilter(env),
   execute: (env) => createRemoveFilterAction(env),

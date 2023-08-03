@@ -871,8 +871,10 @@ describe("Alter Selection with content in selection", () => {
 });
 
 describe("move elements(s)", () => {
-  const model = new Model({
-    sheets: [{ id: "1", colNumber: 10, rowNumber: 10, merges: ["C3:D4", "G7:H8"] }],
+  beforeEach(() => {
+    model = new Model({
+      sheets: [{ id: "1", colNumber: 10, rowNumber: 10, merges: ["C3:D4", "G7:H8"] }],
+    });
   });
   test("can't move columns whose merges overflow from the selection", () => {
     const result = moveColumns(model, "F", ["B", "C"]);
