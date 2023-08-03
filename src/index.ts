@@ -89,7 +89,7 @@ import {
   repeatCommandTransformRegistry,
   repeatLocalCommandTransformRegistry,
 } from "./registries/repeat_commands_registry";
-import { FunctionDescription } from "./types";
+import { AddFunctionDescription } from "./types";
 import { CellErrorLevel, EvaluationError } from "./types/errors";
 import { DEFAULT_LOCALE } from "./types/locale";
 
@@ -231,7 +231,7 @@ export const components = {
   FigureComponent,
 };
 
-export function addFunction(functionName: string, functionDescription: FunctionDescription) {
+export function addFunction(functionName: string, functionDescription: AddFunctionDescription) {
   functionRegistry.add(functionName, functionDescription);
 }
 
