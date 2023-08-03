@@ -233,6 +233,10 @@ export const components = {
 
 export function addFunction(functionName: string, functionDescription: AddFunctionDescription) {
   functionRegistry.add(functionName, functionDescription);
+  return {
+    addFunction: (fName: string, fDescription: AddFunctionDescription) =>
+      addFunction(fName, fDescription),
+  };
 }
 
 export const constants = {
