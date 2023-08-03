@@ -17,21 +17,28 @@
 ## Adding a new custom function
 
 The `addFunction` method takes a name, and a function description which should
-implement the [`AddFunctionDescription`](https://github.com/odoo/o-spreadsheet/blob/49285322f75dda2d5bab4aea04daa2a3d6c28370/src/types/functions.ts#L31) interface.
+implement the [`AddFunctionDescription`](https://github.com/odoo/o-spreadsheet/blob/49285322f75dda2d5bab4aea04daa2a3d6c28370/src/types/functions.ts#L31) interface. `addFunction` will return an object to allow chain calls.
 
-Below is a skeleton example to add a new function.
+Below is a skeleton example to add multiple functions.
 
 ```ts
 const { addFunction } = spreadsheet;
 
-const MY_FUNC = {
+const MY_FUNC_1 = {
   description: "...",
   compute: ...,
   computeFormat: ...,
   args: ...
   returns: ...,
 };
-addFunction("MY.FUNC", MY_FUNC);
+const MY_FUNC_2 = {
+  description: "...",
+  compute: ...,
+  computeFormat: ...,
+  args: ...
+  returns: ...,
+};
+addFunction("MY.FUNC", MY_FUNC_1).addFunction("MY.SECOND.FUNC", MY_FUNC_2);
 ```
 
 The properties of a function are:
