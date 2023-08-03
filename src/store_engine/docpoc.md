@@ -4,7 +4,7 @@
   - [Defining a store](#defining-a-store)
   - [Using a store in a component](#using-a-store-in-a-component)
   - [Store dependencies](#store-dependencies)
-  - [Rules of a store](#rules-of-a-store)
+  - [Best practices](#best-practices)
   - [Spreadsheet store for reacting to commands](#spreadsheet-store-for-reacting-to-commands)
   - [Local store](#local-store)
   - [Injecting external resources as a store](#injecting-external-resources-as-a-store)
@@ -93,9 +93,9 @@ class MyStoreB extends ReactiveStore {
 }
 ```
 
-## Rules of a store
+## Best practices
 
-Stores must follow the **[Command-query separation (CQS)](https://en.wikipedia.org/wiki/Command%E2%80%93query_separation)** principle.
+Stores should follow the **[Command-query separation (CQS)](https://en.wikipedia.org/wiki/Command%E2%80%93query_separation)** principle.
 
 CQS principle helps in designing more maintainable and predictable code. By following this separation, you can reason more easily about how state changes and how rendering is based on the current state. It is also the architecture for o-spreadsheet plugins.
 

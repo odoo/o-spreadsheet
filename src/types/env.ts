@@ -1,6 +1,6 @@
 import { Model } from "..";
 import { ClipboardInterface } from "../helpers/clipboard/navigator_clipboard_wrapper";
-import { Get } from "../store_engine/dependency_container";
+import { Get } from "../store_engine/store";
 import { TranslationFunction } from "../translation";
 import { Currency } from "./currency";
 import { ImageProviderInterface } from "./files";

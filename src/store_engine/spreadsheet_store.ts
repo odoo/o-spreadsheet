@@ -1,8 +1,7 @@
 import { ModelStore } from "../stores/model_store";
 import { Command } from "../types";
-import { Get } from "./dependency_container";
 import { ReactiveStore } from "./reactive_store";
-import { Disposable } from "./store";
+import { Disposable, Get } from "./store";
 
 export class SpreadsheetStore extends ReactiveStore implements Disposable {
   protected model = this.get(ModelStore);

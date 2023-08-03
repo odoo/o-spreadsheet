@@ -1,11 +1,4 @@
-import { ParametricStoreConstructor, StoreConstructor, StoreParameters } from "./store";
-
-/**
- * A function used to inject dependencies in a store constructor
- */
-export type Get = <T extends StoreConstructor<any>>(
-  Store: T
-) => T extends StoreConstructor<infer I> ? I : never;
+import { Get, ParametricStoreConstructor, StoreConstructor, StoreParameters } from "./store";
 
 /**
  * A type-safe dependency container

@@ -1,5 +1,3 @@
-import { Get } from "./dependency_container";
-
 /**
  * An injectable store constructor
  */
@@ -21,6 +19,13 @@ export interface Disposable {
 export type DisposableStoreConstructor<T extends Disposable = any> = StoreConstructor<T>;
 
 export type StoreParameters<T extends StoreConstructor> = SkipFirst<ConstructorParameters<T>>;
+
+/**
+ * A function used to inject dependencies in a store constructor
+ */
+export type Get = <T extends StoreConstructor<any>>(
+  Store: T
+) => T extends StoreConstructor<infer I> ? Store<I> : never;
 
 type SkipFirst<T extends any[]> = T extends [any, ...infer U] ? U : never;
 

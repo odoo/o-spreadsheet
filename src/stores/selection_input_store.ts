@@ -6,8 +6,8 @@ import {
   splitReference,
   zoneToXc,
 } from "../helpers";
-import { Get } from "../store_engine/dependency_container";
 import { SpreadsheetStore } from "../store_engine/spreadsheet_store";
+import { Get } from "../store_engine/store";
 import { Command, Highlight, LAYERS, UID } from "../types";
 import { SelectionEvent } from "../types/event_stream";
 import { CanvasStore } from "./canvas_store";
