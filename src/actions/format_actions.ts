@@ -6,20 +6,20 @@ import {
 } from "../constants";
 import { formatValue, roundFormat } from "../helpers";
 import { parseLiteral } from "../helpers/cells";
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import { Align, DEFAULT_LOCALE, SpreadsheetChildEnv, VerticalAlign, Wrapping } from "../types";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 import { setFormatter, setStyle } from "./menu_items_actions";
 
 export const formatNumberAutomatic: ActionSpec = {
-  name: _lt("Automatic"),
+  name: _t("Automatic"),
   execute: (env) => setFormatter(env, ""),
   isActive: (env) => isAutomaticFormatSelected(env),
 };
 
 export const formatNumberNumber: ActionSpec = {
-  name: _lt("Number"),
+  name: _t("Number"),
   description: (env) =>
     formatValue(1000.12, {
       format: "#,##0.00",
@@ -30,13 +30,13 @@ export const formatNumberNumber: ActionSpec = {
 };
 
 export const formatPercent: ActionSpec = {
-  name: _lt("Format as percent"),
+  name: _t("Format as percent"),
   execute: ACTIONS.FORMAT_PERCENT_ACTION,
   icon: "o-spreadsheet-Icon.PERCENT",
 };
 
 export const formatNumberPercent: ActionSpec = {
-  name: _lt("Percent"),
+  name: _t("Percent"),
   description: (env) =>
     formatValue(0.1012, {
       format: "0.00%",
@@ -47,7 +47,7 @@ export const formatNumberPercent: ActionSpec = {
 };
 
 export const formatNumberCurrency: ActionSpec = {
-  name: _lt("Currency"),
+  name: _t("Currency"),
   description: (env) =>
     formatValue(1000.12, {
       format: env.model.config.defaultCurrencyFormat,
@@ -58,7 +58,7 @@ export const formatNumberCurrency: ActionSpec = {
 };
 
 export const formatNumberCurrencyRounded: ActionSpec = {
-  name: _lt("Currency rounded"),
+  name: _t("Currency rounded"),
   description: (env) =>
     formatValue(1000, {
       format: roundFormat(env.model.config.defaultCurrencyFormat),
@@ -73,13 +73,13 @@ export const formatNumberCurrencyRounded: ActionSpec = {
 };
 
 export const formatCustomCurrency: ActionSpec = {
-  name: _lt("Custom currency"),
+  name: _t("Custom currency"),
   isVisible: (env) => env.loadCurrencies !== undefined,
   execute: (env) => env.openSidePanel("CustomCurrency", {}),
 };
 
 export const formatNumberDate: ActionSpec = {
-  name: _lt("Date"),
+  name: _t("Date"),
   description: (env) => {
     const locale = env.model.getters.getLocale();
     return formatValue(parseLiteral("9/26/2023", DEFAULT_LOCALE), {
@@ -92,7 +92,7 @@ export const formatNumberDate: ActionSpec = {
 };
 
 export const formatNumberTime: ActionSpec = {
-  name: _lt("Time"),
+  name: _t("Time"),
   description: (env) => {
     const locale = env.model.getters.getLocale();
     return formatValue(parseLiteral("9/26/2023 10:43:00 PM", DEFAULT_LOCALE), {
@@ -105,7 +105,7 @@ export const formatNumberTime: ActionSpec = {
 };
 
 export const formatNumberDateTime: ActionSpec = {
-  name: _lt("Date time"),
+  name: _t("Date time"),
   description: (env) => {
     const locale = env.model.getters.getLocale();
     return formatValue(parseLiteral("9/26/2023 22:43:00", DEFAULT_LOCALE), {
@@ -124,14 +124,14 @@ export const formatNumberDateTime: ActionSpec = {
 };
 
 export const formatNumberDuration: ActionSpec = {
-  name: _lt("Duration"),
+  name: _t("Duration"),
   description: "27:51:38",
   execute: (env) => setFormatter(env, "hhhh:mm:ss"),
   isActive: (env) => isFormatSelected(env, "hhhh:mm:ss"),
 };
 
 export const incraseDecimalPlaces: ActionSpec = {
-  name: _lt("Increase decimal places"),
+  name: _t("Increase decimal places"),
   icon: "o-spreadsheet-Icon.INCREASE_DECIMAL",
   execute: (env) =>
     env.model.dispatch("SET_DECIMAL", {
@@ -142,7 +142,7 @@ export const incraseDecimalPlaces: ActionSpec = {
 };
 
 export const decraseDecimalPlaces: ActionSpec = {
-  name: _lt("Decrease decimal places"),
+  name: _t("Decrease decimal places"),
   icon: "o-spreadsheet-Icon.DECRASE_DECIMAL",
   execute: (env) =>
     env.model.dispatch("SET_DECIMAL", {
@@ -153,7 +153,7 @@ export const decraseDecimalPlaces: ActionSpec = {
 };
 
 export const formatBold: ActionSpec = {
-  name: _lt("Bold"),
+  name: _t("Bold"),
   description: "Ctrl+B",
   execute: (env) => setStyle(env, { bold: !env.model.getters.getCurrentStyle().bold }),
   icon: "o-spreadsheet-Icon.BOLD",
@@ -161,7 +161,7 @@ export const formatBold: ActionSpec = {
 };
 
 export const formatItalic: ActionSpec = {
-  name: _lt("Italic"),
+  name: _t("Italic"),
   description: "Ctrl+I",
   execute: (env) => setStyle(env, { italic: !env.model.getters.getCurrentStyle().italic }),
   icon: "o-spreadsheet-Icon.ITALIC",
@@ -169,7 +169,7 @@ export const formatItalic: ActionSpec = {
 };
 
 export const formatUnderline: ActionSpec = {
-  name: _lt("Underline"),
+  name: _t("Underline"),
   description: "Ctrl+U",
   execute: (env) => setStyle(env, { underline: !env.model.getters.getCurrentStyle().underline }),
   icon: "o-spreadsheet-Icon.UNDERLINE",
@@ -177,7 +177,7 @@ export const formatUnderline: ActionSpec = {
 };
 
 export const formatStrikethrough: ActionSpec = {
-  name: _lt("Strikethrough"),
+  name: _t("Strikethrough"),
   execute: (env) =>
     setStyle(env, { strikethrough: !env.model.getters.getCurrentStyle().strikethrough }),
   icon: "o-spreadsheet-Icon.STRIKE",
@@ -185,23 +185,23 @@ export const formatStrikethrough: ActionSpec = {
 };
 
 export const formatFontSize: ActionSpec = {
-  name: _lt("Font size"),
+  name: _t("Font size"),
   children: fontSizeMenuBuilder(),
   icon: "o-spreadsheet-Icon.FONT_SIZE",
 };
 
 export const formatAlignment: ActionSpec = {
-  name: _lt("Alignment"),
+  name: _t("Alignment"),
   icon: "o-spreadsheet-Icon.ALIGN_LEFT",
 };
 
 export const formatAlignmentHorizontal: ActionSpec = {
-  name: _lt("Horizontal align"),
+  name: _t("Horizontal align"),
   icon: (env) => getHorizontalAlignmentIcon(env),
 };
 
 export const formatAlignmentLeft: ActionSpec = {
-  name: _lt("Left"),
+  name: _t("Left"),
   description: "Ctrl+Shift+L",
   execute: (env) => ACTIONS.setStyle(env, { align: "left" }),
   isActive: (env) => getHorizontalAlign(env) === "left",
@@ -209,7 +209,7 @@ export const formatAlignmentLeft: ActionSpec = {
 };
 
 export const formatAlignmentCenter: ActionSpec = {
-  name: _lt("Center"),
+  name: _t("Center"),
   description: "Ctrl+Shift+E",
   execute: (env) => ACTIONS.setStyle(env, { align: "center" }),
   isActive: (env) => getHorizontalAlign(env) === "center",
@@ -217,7 +217,7 @@ export const formatAlignmentCenter: ActionSpec = {
 };
 
 export const formatAlignmentRight: ActionSpec = {
-  name: _lt("Right"),
+  name: _t("Right"),
   description: "Ctrl+Shift+R",
   execute: (env) => ACTIONS.setStyle(env, { align: "right" }),
   isActive: (env) => getHorizontalAlign(env) === "right",
@@ -225,80 +225,80 @@ export const formatAlignmentRight: ActionSpec = {
 };
 
 export const formatAlignmentVertical: ActionSpec = {
-  name: _lt("Vertical align"),
+  name: _t("Vertical align"),
   icon: (env) => getVerticalAlignmentIcon(env),
 };
 
 export const formatAlignmentTop: ActionSpec = {
-  name: _lt("Top"),
+  name: _t("Top"),
   execute: (env) => ACTIONS.setStyle(env, { verticalAlign: "top" }),
   isActive: (env) => getVerticalAlign(env) === "top",
   icon: "o-spreadsheet-Icon.ALIGN_TOP",
 };
 
 export const formatAlignmentMiddle: ActionSpec = {
-  name: _lt("Middle"),
+  name: _t("Middle"),
   execute: (env) => ACTIONS.setStyle(env, { verticalAlign: "middle" }),
   isActive: (env) => getVerticalAlign(env) === "middle",
   icon: "o-spreadsheet-Icon.ALIGN_MIDDLE",
 };
 
 export const formatAlignmentBottom: ActionSpec = {
-  name: _lt("Bottom"),
+  name: _t("Bottom"),
   execute: (env) => ACTIONS.setStyle(env, { verticalAlign: "bottom" }),
   isActive: (env) => getVerticalAlign(env) === "bottom",
   icon: "o-spreadsheet-Icon.ALIGN_BOTTOM",
 };
 
 export const formatWrappingIcon: ActionSpec = {
-  name: _lt("Wrapping"),
+  name: _t("Wrapping"),
   icon: "o-spreadsheet-Icon.WRAPPING_OVERFLOW",
 };
 
 export const formatWrapping: ActionSpec = {
-  name: _lt("Wrapping"),
+  name: _t("Wrapping"),
   icon: (env) => getWrapModeIcon(env),
 };
 
 export const formatWrappingOverflow: ActionSpec = {
-  name: _lt("Overflow"),
+  name: _t("Overflow"),
   execute: (env) => ACTIONS.setStyle(env, { wrapping: "overflow" }),
   isActive: (env) => getWrappingMode(env) === "overflow",
   icon: "o-spreadsheet-Icon.WRAPPING_OVERFLOW",
 };
 
 export const formatWrappingWrap: ActionSpec = {
-  name: _lt("Wrap"),
+  name: _t("Wrap"),
   execute: (env) => ACTIONS.setStyle(env, { wrapping: "wrap" }),
   isActive: (env) => getWrappingMode(env) === "wrap",
   icon: "o-spreadsheet-Icon.WRAPPING_WRAP",
 };
 
 export const formatWrappingClip: ActionSpec = {
-  name: _lt("Clip"),
+  name: _t("Clip"),
   execute: (env) => ACTIONS.setStyle(env, { wrapping: "clip" }),
   isActive: (env) => getWrappingMode(env) === "clip",
   icon: "o-spreadsheet-Icon.WRAPPING_CLIP",
 };
 
 export const textColor: ActionSpec = {
-  name: _lt("Text Color"),
+  name: _t("Text Color"),
   icon: "o-spreadsheet-Icon.TEXT_COLOR",
 };
 
 export const fillColor: ActionSpec = {
-  name: _lt("Fill Color"),
+  name: _t("Fill Color"),
   icon: "o-spreadsheet-Icon.FILL_COLOR",
 };
 
 export const formatCF: ActionSpec = {
-  name: _lt("Conditional formatting"),
+  name: _t("Conditional formatting"),
   execute: ACTIONS.OPEN_CF_SIDEPANEL_ACTION,
   icon: "o-spreadsheet-Icon.CONDITIONAL_FORMAT",
 };
 
 export const clearFormat: ActionSpec = {
-  name: _lt("Clear formatting"),
+  name: _t("Clear formatting"),
   description: "Ctrl+<",
   execute: (env) =>
     env.model.dispatch("CLEAR_FORMATTING", {

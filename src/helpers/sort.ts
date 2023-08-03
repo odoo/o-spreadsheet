@@ -1,4 +1,4 @@
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import {
   CellValueType,
   CommandResult,
@@ -101,7 +101,7 @@ export function interactiveSortSelection(
       });
     } else {
       env.askConfirmation(
-        _lt(
+        _t(
           "We found data next to your selection. Since this data was not selected, it will not be sorted. Do you want to extend your selection?"
         ),
         () => {
@@ -130,7 +130,7 @@ export function interactiveSortSelection(
     const { col, row } = anchor;
     env.model.selection.selectZone({ cell: { col, row }, zone });
     env.raiseError(
-      _lt("Cannot sort. To sort, select only cells or only merges that have the same size.")
+      _t("Cannot sort. To sort, select only cells or only merges that have the same size.")
     );
   }
 }

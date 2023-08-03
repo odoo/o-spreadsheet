@@ -1,6 +1,6 @@
 import { DEFAULT_REVISION_ID } from "../constants";
 import { removeFalsyAttributes } from "../helpers";
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import {
   ImportedFiles,
   XLSXExternalBook,
@@ -135,7 +135,7 @@ export class XlsxReader {
     };
 
     if (!xlsxFileStructure.workbook.rels) {
-      throw Error(_lt("Cannot find workbook relations file"));
+      throw Error(_t("Cannot find workbook relations file"));
     }
 
     return xlsxFileStructure;

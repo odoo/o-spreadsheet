@@ -1,6 +1,6 @@
 import { isInside, overlap, positions, range, zoneToDimension } from "../../helpers/index";
 import { sortCells } from "../../helpers/sort";
-import { _lt } from "../../translation";
+import { _t } from "../../translation";
 import {
   CellPosition,
   CellValueType,
@@ -26,7 +26,7 @@ export class SortPlugin extends UIPlugin {
     switch (cmd.type) {
       case "SORT_CELLS":
         if (!isInside(cmd.col, cmd.row, cmd.zone)) {
-          throw new Error(_lt("The anchor must be part of the provided zone"));
+          throw new Error(_t("The anchor must be part of the provided zone"));
         }
         return this.checkValidations(cmd, this.checkMerge, this.checkMergeSizes);
     }

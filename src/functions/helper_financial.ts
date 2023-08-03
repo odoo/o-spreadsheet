@@ -1,4 +1,4 @@
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import { Locale } from "../types";
 import { assert, toJsDate } from "./helpers";
 
@@ -6,7 +6,7 @@ import { assert, toJsDate } from "./helpers";
 export function assertMaturityAndSettlementDatesAreValid(settlement: number, maturity: number) {
   assert(
     () => settlement < maturity,
-    _lt(
+    _t(
       "The maturity (%s) must be strictly greater than the settlement (%s).",
       maturity.toString(),
       settlement.toString()
@@ -18,7 +18,7 @@ export function assertMaturityAndSettlementDatesAreValid(settlement: number, mat
 export function assertSettlementAndIssueDatesAreValid(settlement: number, issue: number) {
   assert(
     () => issue < settlement,
-    _lt(
+    _t(
       "The settlement date (%s) must be strictly greater than the issue date (%s).",
       settlement.toString(),
       issue.toString()
@@ -30,7 +30,7 @@ export function assertSettlementAndIssueDatesAreValid(settlement: number, issue:
 export function assertCouponFrequencyIsValid(frequency: number) {
   assert(
     () => [1, 2, 4].includes(frequency),
-    _lt("The frequency (%s) must be one of %s", frequency.toString(), [1, 2, 4].toString())
+    _t("The frequency (%s) must be one of %s", frequency.toString(), [1, 2, 4].toString())
   );
 }
 
@@ -38,7 +38,7 @@ export function assertCouponFrequencyIsValid(frequency: number) {
 export function assertDayCountConventionIsValid(dayCountConvention: number) {
   assert(
     () => 0 <= dayCountConvention && dayCountConvention <= 4,
-    _lt(
+    _t(
       "The day_count_convention (%s) must be between 0 and 4 inclusive.",
       dayCountConvention.toString()
     )
@@ -48,53 +48,53 @@ export function assertDayCountConventionIsValid(dayCountConvention: number) {
 export function assertRedemptionStrictlyPositive(redemption: number) {
   assert(
     () => redemption > 0,
-    _lt("The redemption (%s) must be strictly positive.", redemption.toString())
+    _t("The redemption (%s) must be strictly positive.", redemption.toString())
   );
 }
 
 export function assertPriceStrictlyPositive(price: number) {
-  assert(() => price > 0, _lt("The price (%s) must be strictly positive.", price.toString()));
+  assert(() => price > 0, _t("The price (%s) must be strictly positive.", price.toString()));
 }
 
 export function assertNumberOfPeriodsStrictlyPositive(nPeriods: number) {
   assert(
     () => nPeriods > 0,
-    _lt("The number_of_periods (%s) must be greater than 0.", nPeriods.toString())
+    _t("The number_of_periods (%s) must be greater than 0.", nPeriods.toString())
   );
 }
 
 export function assertRateStrictlyPositive(rate: number) {
-  assert(() => rate > 0, _lt("The rate (%s) must be strictly positive.", rate.toString()));
+  assert(() => rate > 0, _t("The rate (%s) must be strictly positive.", rate.toString()));
 }
 
 export function assertLifeStrictlyPositive(life: number) {
-  assert(() => life > 0, _lt("The life (%s) must be strictly positive.", life.toString()));
+  assert(() => life > 0, _t("The life (%s) must be strictly positive.", life.toString()));
 }
 
 export function assertCostStrictlyPositive(cost: number) {
-  assert(() => cost > 0, _lt("The cost (%s) must be strictly positive.", cost.toString()));
+  assert(() => cost > 0, _t("The cost (%s) must be strictly positive.", cost.toString()));
 }
 
 export function assertCostPositiveOrZero(cost: number) {
-  assert(() => cost >= 0, _lt("The cost (%s) must be positive or null.", cost.toString()));
+  assert(() => cost >= 0, _t("The cost (%s) must be positive or null.", cost.toString()));
 }
 
 export function assertPeriodStrictlyPositive(period: number) {
-  assert(() => period > 0, _lt("The period (%s) must be strictly positive.", period.toString()));
+  assert(() => period > 0, _t("The period (%s) must be strictly positive.", period.toString()));
 }
 
 export function assertPeriodPositiveOrZero(period: number) {
-  assert(() => period >= 0, _lt("The period (%s) must be positive or null.", period.toString()));
+  assert(() => period >= 0, _t("The period (%s) must be positive or null.", period.toString()));
 }
 
 export function assertSalvagePositiveOrZero(salvage: number) {
-  assert(() => salvage >= 0, _lt("The salvage (%s) must be positive or null.", salvage.toString()));
+  assert(() => salvage >= 0, _t("The salvage (%s) must be positive or null.", salvage.toString()));
 }
 
 export function assertSalvageSmallerOrEqualThanCost(salvage: number, cost: number) {
   assert(
     () => salvage <= cost,
-    _lt(
+    _t(
       "The salvage (%s) must be smaller or equal than the cost (%s).",
       salvage.toString(),
       cost.toString()
@@ -103,38 +103,38 @@ export function assertSalvageSmallerOrEqualThanCost(salvage: number, cost: numbe
 }
 
 export function assertPresentValueStrictlyPositive(pv: number) {
-  assert(() => pv > 0, _lt("The present value (%s) must be strictly positive.", pv.toString()));
+  assert(() => pv > 0, _t("The present value (%s) must be strictly positive.", pv.toString()));
 }
 
 export function assertPeriodSmallerOrEqualToLife(period: number, life: number) {
   assert(
     () => period <= life,
-    _lt("The period (%s) must be less than or equal life (%s).", period.toString(), life.toString())
+    _t("The period (%s) must be less than or equal life (%s).", period.toString(), life.toString())
   );
 }
 
 export function assertInvestmentStrictlyPositive(investment: number) {
   assert(
     () => investment > 0,
-    _lt("The investment (%s) must be strictly positive.", investment.toString())
+    _t("The investment (%s) must be strictly positive.", investment.toString())
   );
 }
 
 export function assertDiscountStrictlyPositive(discount: number) {
   assert(
     () => discount > 0,
-    _lt("The discount (%s) must be strictly positive.", discount.toString())
+    _t("The discount (%s) must be strictly positive.", discount.toString())
   );
 }
 
 export function assertDiscountStrictlySmallerThanOne(discount: number) {
-  assert(() => discount < 1, _lt("The discount (%s) must be smaller than 1.", discount.toString()));
+  assert(() => discount < 1, _t("The discount (%s) must be smaller than 1.", discount.toString()));
 }
 
 export function assertDeprecationFactorStrictlyPositive(factor: number) {
   assert(
     () => factor > 0,
-    _lt("The depreciation factor (%s) must be strictly positive.", factor.toString())
+    _t("The depreciation factor (%s) must be strictly positive.", factor.toString())
   );
 }
 
@@ -151,7 +151,7 @@ export function assertSettlementLessThanOneYearBeforeMaturity(
 
   assert(
     () => endDate.getTime() <= startDatePlusOneYear.getTime(),
-    _lt(
+    _t(
       "The settlement date (%s) must at most one year after the maturity date (%s).",
       settlement.toString(),
       maturity.toString()
@@ -174,15 +174,15 @@ export function assertFirstAndLastPeriodsAreValid(
   assertNumberOfPeriodsStrictlyPositive(numberOfPeriods);
   assert(
     () => firstPeriod > 0,
-    _lt("The first_period (%s) must be strictly positive.", firstPeriod.toString())
+    _t("The first_period (%s) must be strictly positive.", firstPeriod.toString())
   );
   assert(
     () => lastPeriod > 0,
-    _lt("The last_period (%s) must be strictly positive.", lastPeriod.toString())
+    _t("The last_period (%s) must be strictly positive.", lastPeriod.toString())
   );
   assert(
     () => firstPeriod <= lastPeriod,
-    _lt(
+    _t(
       "The first_period (%s) must be smaller or equal to the last_period (%s).",
       firstPeriod.toString(),
       lastPeriod.toString()
@@ -190,7 +190,7 @@ export function assertFirstAndLastPeriodsAreValid(
   );
   assert(
     () => lastPeriod <= numberOfPeriods,
-    _lt(
+    _t(
       "The last_period (%s) must be smaller or equal to the number_of_periods (%s).",
       firstPeriod.toString(),
       numberOfPeriods.toString()
@@ -214,15 +214,15 @@ export function assertStartAndEndPeriodAreValid(
   assertLifeStrictlyPositive(life);
   assert(
     () => startPeriod >= 0,
-    _lt("The start_period (%s) must be greater or equal than 0.", startPeriod.toString())
+    _t("The start_period (%s) must be greater or equal than 0.", startPeriod.toString())
   );
   assert(
     () => endPeriod >= 0,
-    _lt("The end_period (%s) must be greater or equal than 0.", endPeriod.toString())
+    _t("The end_period (%s) must be greater or equal than 0.", endPeriod.toString())
   );
   assert(
     () => startPeriod <= endPeriod,
-    _lt(
+    _t(
       "The start_period (%s) must be smaller or equal to the end_period (%s).",
       startPeriod.toString(),
       endPeriod.toString()
@@ -230,7 +230,7 @@ export function assertStartAndEndPeriodAreValid(
   );
   assert(
     () => endPeriod <= life,
-    _lt(
+    _t(
       "The end_period (%s) must be smaller or equal to the life (%s).",
       startPeriod.toString(),
       life.toString()
@@ -241,28 +241,28 @@ export function assertStartAndEndPeriodAreValid(
 export function assertRateGuessStrictlyGreaterThanMinusOne(guess: number) {
   assert(
     () => guess > -1,
-    _lt("The rate_guess (%s) must be strictly greater than -1.", guess.toString())
+    _t("The rate_guess (%s) must be strictly greater than -1.", guess.toString())
   );
 }
 
 export function assertCashFlowsAndDatesHaveSameDimension(cashFlows: any[][], dates: any[][]) {
   assert(
     () => cashFlows.length === dates.length && cashFlows[0].length === dates[0].length,
-    _lt("The cashflow_amounts and cashflow_dates ranges must have the same dimensions.")
+    _t("The cashflow_amounts and cashflow_dates ranges must have the same dimensions.")
   );
 }
 
 export function assertCashFlowsHavePositiveAndNegativesValues(cashFlow: number[]) {
   assert(
     () => cashFlow.some((val) => val > 0) && cashFlow.some((val) => val < 0),
-    _lt("There must be both positive and negative values in cashflow_amounts.")
+    _t("There must be both positive and negative values in cashflow_amounts.")
   );
 }
 
 export function assertEveryDateGreaterThanFirstDateOfCashFlowDates(dates: number[]) {
   assert(
     () => dates.every((date) => date >= dates[0]),
-    _lt(
+    _t(
       "All the dates should be greater or equal to the first date in cashflow_dates (%s).",
       dates[0].toString()
     )

@@ -1,5 +1,5 @@
 import { createLargeNumberFormat } from "../helpers";
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import { AddFunctionDescription, PrimitiveArg, PrimitiveArgValue } from "../types";
 import { arg } from "./arguments";
 import { toNumber } from "./helpers";
@@ -8,12 +8,12 @@ import { toNumber } from "./helpers";
 // FORMAT.LARGE.NUMBER
 // -----------------------------------------------------------------------------
 export const FORMAT_LARGE_NUMBER: AddFunctionDescription = {
-  description: _lt(`Apply a large number format`),
+  description: _t(`Apply a large number format`),
   args: [
-    arg("value (number)", _lt("The number.")),
+    arg("value (number)", _t("The number.")),
     arg(
       "unit (string, optional)",
-      _lt("The formatting unit. Use 'k', 'm', or 'b' to force the unit")
+      _t("The formatting unit. Use 'k', 'm', or 'b' to force the unit")
     ),
   ],
   returns: ["NUMBER"],
@@ -30,7 +30,7 @@ export const FORMAT_LARGE_NUMBER: AddFunctionDescription = {
         case "b":
           return createLargeNumberFormat(format, 1e9, "b", this.locale);
         default:
-          throw new Error(_lt("The formatting unit should be 'k', 'm' or 'b'."));
+          throw new Error(_t("The formatting unit should be 'k', 'm' or 'b'."));
       }
     }
     if (value < 1e5) {

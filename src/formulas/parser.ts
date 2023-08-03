@@ -1,6 +1,6 @@
 import { DEFAULT_ERROR_MESSAGE } from "../constants";
 import { parseNumber, removeStringQuotes } from "../helpers/index";
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import { DEFAULT_LOCALE } from "../types";
 import { BadExpressionError, InvalidReferenceError } from "../types/errors";
 import { Token, tokenize } from "./tokenizer";
@@ -137,11 +137,11 @@ function parseOperand(tokens: Token[]): AST {
       if (upperCaseValue === "TRUE" || upperCaseValue === "FALSE") {
         return { type: "BOOLEAN", value: upperCaseValue === "TRUE" };
       }
-      throw new BadExpressionError(_lt("Invalid formula"));
+      throw new BadExpressionError(_t("Invalid formula"));
 
     case "LEFT_PAREN":
       const result = parseExpression(tokens);
-      consumeOrThrow(tokens, "RIGHT_PAREN", _lt("Missing closing parenthesis"));
+      consumeOrThrow(tokens, "RIGHT_PAREN", _t("Missing closing parenthesis"));
       return result;
     case "OPERATOR":
       const operator = current.value;
@@ -152,14 +152,14 @@ function parseOperand(tokens: Token[]): AST {
           operand: parseExpression(tokens, OP_PRIORITY[operator]),
         };
       }
-      throw new BadExpressionError(_lt("Unexpected token: %s", current.value));
+      throw new BadExpressionError(_t("Unexpected token: %s", current.value));
     default:
-      throw new BadExpressionError(_lt("Unexpected token: %s", current.value));
+      throw new BadExpressionError(_t("Unexpected token: %s", current.value));
   }
 }
 
 function parseFunctionArgs(tokens: Token[]): AST[] {
-  consumeOrThrow(tokens, "LEFT_PAREN", _lt("Missing opening parenthesis"));
+  consumeOrThrow(tokens, "LEFT_PAREN", _t("Missing opening parenthesis"));
   const nextToken = tokens[0];
   if (nextToken?.type === "RIGHT_PAREN") {
     consumeOrThrow(tokens, "RIGHT_PAREN");
@@ -168,7 +168,7 @@ function parseFunctionArgs(tokens: Token[]): AST[] {
   const args: AST[] = [];
   args.push(parseOneFunctionArg(tokens));
   while (tokens[0]?.type !== "RIGHT_PAREN") {
-    consumeOrThrow(tokens, "ARG_SEPARATOR", _lt("Wrong function call"));
+    consumeOrThrow(tokens, "ARG_SEPARATOR", _t("Wrong function call"));
     args.push(parseOneFunctionArg(tokens));
   }
   consumeOrThrow(tokens, "RIGHT_PAREN");

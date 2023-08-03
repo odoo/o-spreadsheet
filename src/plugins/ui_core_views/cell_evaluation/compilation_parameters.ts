@@ -1,7 +1,7 @@
 import { functionRegistry } from "../../../functions";
 import { intersection, isZoneValid, zoneToXc } from "../../../helpers";
 import { ModelConfig } from "../../../model";
-import { _lt } from "../../../translation";
+import { _t } from "../../../translation";
 import {
   CellPosition,
   CellValue,
@@ -81,19 +81,19 @@ class CompilationParametersBuilder {
     if (range.zone.bottom !== range.zone.top || range.zone.left !== range.zone.right) {
       throw new Error(
         paramNumber
-          ? _lt(
+          ? _t(
               "Function %s expects the parameter %s to be a single value or a single cell reference, not a range.",
               functionName.toString(),
               paramNumber.toString()
             )
-          : _lt(
+          : _t(
               "Function %s expects its parameters to be single values or single cell references, not ranges.",
               functionName.toString()
             )
       );
     }
     if (range.invalidSheetName) {
-      throw new Error(_lt("Invalid sheet name: %s", range.invalidSheetName));
+      throw new Error(_t("Invalid sheet name: %s", range.invalidSheetName));
     }
 
     return this.readCell(range);
@@ -101,7 +101,7 @@ class CompilationParametersBuilder {
 
   private readCell(range: Range): PrimitiveArg {
     if (!this.getters.tryGetSheet(range.sheetId)) {
-      throw new Error(_lt("Invalid sheet name"));
+      throw new Error(_t("Invalid sheet name"));
     }
     const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
     const evaluatedCell = this.getEvaluatedCellIfNotEmpty(position);

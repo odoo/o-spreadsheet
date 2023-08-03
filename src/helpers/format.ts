@@ -1,4 +1,4 @@
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import { CellValue, Currency, Format, FormattedValue, Locale, LocaleFormat } from "../types";
 import { DEFAULT_LOCALE } from "./../types/locale";
 import { INITIAL_1900_DAY, isDateTime, numberToJsDate, parseDateTime } from "./dates";
@@ -52,28 +52,28 @@ type InternalFormat = (
 // TODO in the future : remove these constants MONTHS/DAYS, and use a library such as luxon to handle it
 // + possibly handle automatic translation of day/month
 const MONTHS: Readonly<Record<number, string>> = {
-  0: _lt("January"),
-  1: _lt("February"),
-  2: _lt("March"),
-  3: _lt("April"),
-  4: _lt("May"),
-  5: _lt("June"),
-  6: _lt("July"),
-  7: _lt("August"),
-  8: _lt("September"),
-  9: _lt("October"),
-  10: _lt("November"),
-  11: _lt("December"),
+  0: _t("January"),
+  1: _t("February"),
+  2: _t("March"),
+  3: _t("April"),
+  4: _t("May"),
+  5: _t("June"),
+  6: _t("July"),
+  7: _t("August"),
+  8: _t("September"),
+  9: _t("October"),
+  10: _t("November"),
+  11: _t("December"),
 };
 
 const DAYS: Readonly<Record<number, string>> = {
-  0: _lt("Sunday"),
-  1: _lt("Monday"),
-  2: _lt("Tuesday"),
-  3: _lt("Wednesday"),
-  4: _lt("Thursday"),
-  5: _lt("Friday"),
-  6: _lt("Saturday"),
+  0: _t("Sunday"),
+  1: _t("Monday"),
+  2: _t("Tuesday"),
+  3: _t("Wednesday"),
+  4: _t("Thursday"),
+  5: _t("Friday"),
+  6: _t("Saturday"),
 };
 
 interface InternalNumberFormat {

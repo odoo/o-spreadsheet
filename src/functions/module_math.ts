@@ -1,4 +1,4 @@
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import {
   AddFunctionDescription,
   Arg,
@@ -33,8 +33,8 @@ const DECIMAL_REPRESENTATION = /^-?[a-z0-9]+$/i;
 // ABS
 // -----------------------------------------------------------------------------
 export const ABS: AddFunctionDescription = {
-  description: _lt("Absolute value of a number."),
-  args: [arg("value (number)", _lt("The number of which to return the absolute value."))],
+  description: _t("Absolute value of a number."),
+  args: [arg("value (number)", _t("The number of which to return the absolute value."))],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
     return Math.abs(toNumber(value, this.locale));
@@ -46,11 +46,11 @@ export const ABS: AddFunctionDescription = {
 // ACOS
 // -----------------------------------------------------------------------------
 export const ACOS: AddFunctionDescription = {
-  description: _lt("Inverse cosine of a value, in radians."),
+  description: _t("Inverse cosine of a value, in radians."),
   args: [
     arg(
       "value (number)",
-      _lt(
+      _t(
         "The value for which to calculate the inverse cosine. Must be between -1 and 1, inclusive."
       )
     ),
@@ -60,7 +60,7 @@ export const ACOS: AddFunctionDescription = {
     const _value = toNumber(value, this.locale);
     assert(
       () => Math.abs(_value) <= 1,
-      _lt("The value (%s) must be between -1 and 1 inclusive.", _value.toString())
+      _t("The value (%s) must be between -1 and 1 inclusive.", _value.toString())
     );
     return Math.acos(_value);
   },
@@ -71,11 +71,11 @@ export const ACOS: AddFunctionDescription = {
 // ACOSH
 // -----------------------------------------------------------------------------
 export const ACOSH: AddFunctionDescription = {
-  description: _lt("Inverse hyperbolic cosine of a number."),
+  description: _t("Inverse hyperbolic cosine of a number."),
   args: [
     arg(
       "value (number)",
-      _lt(
+      _t(
         "The value for which to calculate the inverse hyperbolic cosine. Must be greater than or equal to 1."
       )
     ),
@@ -85,7 +85,7 @@ export const ACOSH: AddFunctionDescription = {
     const _value = toNumber(value, this.locale);
     assert(
       () => _value >= 1,
-      _lt("The value (%s) must be greater than or equal to 1.", _value.toString())
+      _t("The value (%s) must be greater than or equal to 1.", _value.toString())
     );
     return Math.acosh(_value);
   },
@@ -96,8 +96,8 @@ export const ACOSH: AddFunctionDescription = {
 // ACOT
 // -----------------------------------------------------------------------------
 export const ACOT: AddFunctionDescription = {
-  description: _lt("Inverse cotangent of a value."),
-  args: [arg("value (number)", _lt("The value for which to calculate the inverse cotangent."))],
+  description: _t("Inverse cotangent of a value."),
+  args: [arg("value (number)", _t("The value for which to calculate the inverse cotangent."))],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
     const _value = toNumber(value, this.locale);
@@ -114,11 +114,11 @@ export const ACOT: AddFunctionDescription = {
 // ACOTH
 // -----------------------------------------------------------------------------
 export const ACOTH: AddFunctionDescription = {
-  description: _lt("Inverse hyperbolic cotangent of a value."),
+  description: _t("Inverse hyperbolic cotangent of a value."),
   args: [
     arg(
       "value (number)",
-      _lt(
+      _t(
         "The value for which to calculate the inverse hyperbolic cotangent. Must not be between -1 and 1, inclusive."
       )
     ),
@@ -128,7 +128,7 @@ export const ACOTH: AddFunctionDescription = {
     const _value = toNumber(value, this.locale);
     assert(
       () => Math.abs(_value) > 1,
-      _lt("The value (%s) cannot be between -1 and 1 inclusive.", _value.toString())
+      _t("The value (%s) cannot be between -1 and 1 inclusive.", _value.toString())
     );
     return Math.log((_value + 1) / (_value - 1)) / 2;
   },
@@ -139,11 +139,11 @@ export const ACOTH: AddFunctionDescription = {
 // ASIN
 // -----------------------------------------------------------------------------
 export const ASIN: AddFunctionDescription = {
-  description: _lt("Inverse sine of a value, in radians."),
+  description: _t("Inverse sine of a value, in radians."),
   args: [
     arg(
       "value (number)",
-      _lt("The value for which to calculate the inverse sine. Must be between -1 and 1, inclusive.")
+      _t("The value for which to calculate the inverse sine. Must be between -1 and 1, inclusive.")
     ),
   ],
   returns: ["NUMBER"],
@@ -151,7 +151,7 @@ export const ASIN: AddFunctionDescription = {
     const _value = toNumber(value, this.locale);
     assert(
       () => Math.abs(_value) <= 1,
-      _lt("The value (%s) must be between -1 and 1 inclusive.", _value.toString())
+      _t("The value (%s) must be between -1 and 1 inclusive.", _value.toString())
     );
     return Math.asin(_value);
   },
@@ -162,9 +162,9 @@ export const ASIN: AddFunctionDescription = {
 // ASINH
 // -----------------------------------------------------------------------------
 export const ASINH: AddFunctionDescription = {
-  description: _lt("Inverse hyperbolic sine of a number."),
+  description: _t("Inverse hyperbolic sine of a number."),
   args: [
-    arg("value (number)", _lt("The value for which to calculate the inverse hyperbolic sine.")),
+    arg("value (number)", _t("The value for which to calculate the inverse hyperbolic sine.")),
   ],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
@@ -177,8 +177,8 @@ export const ASINH: AddFunctionDescription = {
 // ATAN
 // -----------------------------------------------------------------------------
 export const ATAN: AddFunctionDescription = {
-  description: _lt("Inverse tangent of a value, in radians."),
-  args: [arg("value (number)", _lt("The value for which to calculate the inverse tangent."))],
+  description: _t("Inverse tangent of a value, in radians."),
+  args: [arg("value (number)", _t("The value for which to calculate the inverse tangent."))],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
     return Math.atan(toNumber(value, this.locale));
@@ -190,17 +190,17 @@ export const ATAN: AddFunctionDescription = {
 // ATAN2
 // -----------------------------------------------------------------------------
 export const ATAN2: AddFunctionDescription = {
-  description: _lt("Angle from the X axis to a point (x,y), in radians."),
+  description: _t("Angle from the X axis to a point (x,y), in radians."),
   args: [
     arg(
       "x (number)",
-      _lt(
+      _t(
         "The x coordinate of the endpoint of the line segment for which to calculate the angle from the x-axis."
       )
     ),
     arg(
       "y (number)",
-      _lt(
+      _t(
         "The y coordinate of the endpoint of the line segment for which to calculate the angle from the x-axis."
       )
     ),
@@ -211,7 +211,7 @@ export const ATAN2: AddFunctionDescription = {
     const _y = toNumber(y, this.locale);
     assert(
       () => _x !== 0 || _y !== 0,
-      _lt(`Function [[FUNCTION_NAME]] caused a divide by zero error.`)
+      _t(`Function [[FUNCTION_NAME]] caused a divide by zero error.`)
     );
     return Math.atan2(_y, _x);
   },
@@ -222,11 +222,11 @@ export const ATAN2: AddFunctionDescription = {
 // ATANH
 // -----------------------------------------------------------------------------
 export const ATANH: AddFunctionDescription = {
-  description: _lt("Inverse hyperbolic tangent of a number."),
+  description: _t("Inverse hyperbolic tangent of a number."),
   args: [
     arg(
       "value (number)",
-      _lt(
+      _t(
         "The value for which to calculate the inverse hyperbolic tangent. Must be between -1 and 1, exclusive."
       )
     ),
@@ -236,7 +236,7 @@ export const ATANH: AddFunctionDescription = {
     const _value = toNumber(value, this.locale);
     assert(
       () => Math.abs(_value) < 1,
-      _lt("The value (%s) must be between -1 and 1 exclusive.", _value.toString())
+      _t("The value (%s) must be between -1 and 1 exclusive.", _value.toString())
     );
     return Math.atanh(_value);
   },
@@ -247,12 +247,12 @@ export const ATANH: AddFunctionDescription = {
 // CEILING
 // -----------------------------------------------------------------------------
 export const CEILING: AddFunctionDescription = {
-  description: _lt(`Rounds number up to nearest multiple of factor.`),
+  description: _t(`Rounds number up to nearest multiple of factor.`),
   args: [
-    arg("value (number)", _lt("The value to round up to the nearest integer multiple of factor.")),
+    arg("value (number)", _t("The value to round up to the nearest integer multiple of factor.")),
     arg(
       `factor (number, default=${DEFAULT_FACTOR})`,
-      _lt("The number to whose multiples value will be rounded.")
+      _t("The number to whose multiples value will be rounded.")
     ),
   ],
   returns: ["NUMBER"],
@@ -262,7 +262,7 @@ export const CEILING: AddFunctionDescription = {
     const _factor = toNumber(factor, this.locale);
     assert(
       () => _factor >= 0 || _value <= 0,
-      _lt(
+      _t(
         "The factor (%s) must be positive when the value (%s) is positive.",
         _factor.toString(),
         _value.toString()
@@ -277,21 +277,21 @@ export const CEILING: AddFunctionDescription = {
 // CEILING.MATH
 // -----------------------------------------------------------------------------
 export const CEILING_MATH: AddFunctionDescription = {
-  description: _lt(`Rounds number up to nearest multiple of factor.`),
+  description: _t(`Rounds number up to nearest multiple of factor.`),
   args: [
     arg(
       "number (number)",
-      _lt("The value to round up to the nearest integer multiple of significance.")
+      _t("The value to round up to the nearest integer multiple of significance.")
     ),
     arg(
       `significance (number, default=${DEFAULT_SIGNIFICANCE})`,
-      _lt(
+      _t(
         "The number to whose multiples number will be rounded. The sign of significance will be ignored."
       )
     ),
     arg(
       `mode (number, default=${DEFAULT_MODE})`,
-      _lt(
+      _t(
         "If number is negative, specifies the rounding direction. If 0 or blank, it is rounded towards zero. Otherwise, it is rounded away from zero."
       )
     ),
@@ -328,15 +328,15 @@ export const CEILING_MATH: AddFunctionDescription = {
 // CEILING.PRECISE
 // -----------------------------------------------------------------------------
 export const CEILING_PRECISE: AddFunctionDescription = {
-  description: _lt(`Rounds number up to nearest multiple of factor.`),
+  description: _t(`Rounds number up to nearest multiple of factor.`),
   args: [
     arg(
       "number (number)",
-      _lt("The value to round up to the nearest integer multiple of significance.")
+      _t("The value to round up to the nearest integer multiple of significance.")
     ),
     arg(
       `significance (number, default=${DEFAULT_SIGNIFICANCE})`,
-      _lt("The number to whose multiples number will be rounded.")
+      _t("The number to whose multiples number will be rounded.")
     ),
   ],
   returns: ["NUMBER"],
@@ -351,8 +351,8 @@ export const CEILING_PRECISE: AddFunctionDescription = {
 // COS
 // -----------------------------------------------------------------------------
 export const COS: AddFunctionDescription = {
-  description: _lt("Cosine of an angle provided in radians."),
-  args: [arg("angle (number)", _lt("The angle to find the cosine of, in radians."))],
+  description: _t("Cosine of an angle provided in radians."),
+  args: [arg("angle (number)", _t("The angle to find the cosine of, in radians."))],
   returns: ["NUMBER"],
   compute: function (angle: PrimitiveArgValue): number {
     return Math.cos(toNumber(angle, this.locale));
@@ -364,8 +364,8 @@ export const COS: AddFunctionDescription = {
 // COSH
 // -----------------------------------------------------------------------------
 export const COSH: AddFunctionDescription = {
-  description: _lt("Hyperbolic cosine of any real number."),
-  args: [arg("value (number)", _lt("Any real value to calculate the hyperbolic cosine of."))],
+  description: _t("Hyperbolic cosine of any real number."),
+  args: [arg("value (number)", _t("Any real value to calculate the hyperbolic cosine of."))],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
     return Math.cosh(toNumber(value, this.locale));
@@ -377,14 +377,14 @@ export const COSH: AddFunctionDescription = {
 // COT
 // -----------------------------------------------------------------------------
 export const COT: AddFunctionDescription = {
-  description: _lt("Cotangent of an angle provided in radians."),
-  args: [arg("angle (number)", _lt("The angle to find the cotangent of, in radians."))],
+  description: _t("Cotangent of an angle provided in radians."),
+  args: [arg("angle (number)", _t("The angle to find the cotangent of, in radians."))],
   returns: ["NUMBER"],
   compute: function (angle: PrimitiveArgValue): number {
     const _angle = toNumber(angle, this.locale);
     assert(
       () => _angle !== 0,
-      _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+      _t(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
     );
     return 1 / Math.tan(_angle);
   },
@@ -395,14 +395,14 @@ export const COT: AddFunctionDescription = {
 // COTH
 // -----------------------------------------------------------------------------
 export const COTH: AddFunctionDescription = {
-  description: _lt("Hyperbolic cotangent of any real number."),
-  args: [arg("value (number)", _lt("Any real value to calculate the hyperbolic cotangent of."))],
+  description: _t("Hyperbolic cotangent of any real number."),
+  args: [arg("value (number)", _t("Any real value to calculate the hyperbolic cotangent of."))],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
     const _value = toNumber(value, this.locale);
     assert(
       () => _value !== 0,
-      _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+      _t(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
     );
     return 1 / Math.tanh(_value);
   },
@@ -413,15 +413,15 @@ export const COTH: AddFunctionDescription = {
 // COUNTBLANK
 // -----------------------------------------------------------------------------
 export const COUNTBLANK: AddFunctionDescription = {
-  description: _lt("Number of empty values."),
+  description: _t("Number of empty values."),
   args: [
     arg(
       "value1 (any, range)",
-      _lt("The first value or range in which to count the number of blanks.")
+      _t("The first value or range in which to count the number of blanks.")
     ),
     arg(
       "value2 (any, range, repeating)",
-      _lt("Additional values or ranges in which to count the number of blanks.")
+      _t("Additional values or ranges in which to count the number of blanks.")
     ),
   ],
   returns: ["NUMBER"],
@@ -439,10 +439,10 @@ export const COUNTBLANK: AddFunctionDescription = {
 // COUNTIF
 // -----------------------------------------------------------------------------
 export const COUNTIF: AddFunctionDescription = {
-  description: _lt("A conditional count across a range."),
+  description: _t("A conditional count across a range."),
   args: [
-    arg("range (range)", _lt("The range that is tested against criterion.")),
-    arg("criterion (string)", _lt("The pattern or test to apply to range.")),
+    arg("range (range)", _t("The range that is tested against criterion.")),
+    arg("criterion (string)", _t("The pattern or test to apply to range.")),
   ],
   returns: ["NUMBER"],
   compute: function (...argsValues: ArgValue[]): number {
@@ -463,17 +463,17 @@ export const COUNTIF: AddFunctionDescription = {
 // COUNTIFS
 // -----------------------------------------------------------------------------
 export const COUNTIFS: AddFunctionDescription = {
-  description: _lt("Count values depending on multiple criteria."),
+  description: _t("Count values depending on multiple criteria."),
   args: [
-    arg("criteria_range1 (range)", _lt("The range to check against criterion1.")),
-    arg("criterion1 (string)", _lt("The pattern or test to apply to criteria_range1.")),
+    arg("criteria_range1 (range)", _t("The range to check against criterion1.")),
+    arg("criterion1 (string)", _t("The pattern or test to apply to criteria_range1.")),
     arg(
       "criteria_range2 (any, range, repeating)",
-      _lt(
+      _t(
         "Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair."
       )
     ),
-    arg("criterion2 (string, repeating)", _lt("Additional criteria to check.")),
+    arg("criterion2 (string, repeating)", _t("Additional criteria to check.")),
   ],
   returns: ["NUMBER"],
   compute: function (...argsValues: ArgValue[]): number {
@@ -508,12 +508,12 @@ function isDefined(value: any): boolean {
 }
 
 export const COUNTUNIQUE: AddFunctionDescription = {
-  description: _lt("Counts number of unique values in a range."),
+  description: _t("Counts number of unique values in a range."),
   args: [
-    arg("value1 (any, range)", _lt("The first value or range to consider for uniqueness.")),
+    arg("value1 (any, range)", _t("The first value or range to consider for uniqueness.")),
     arg(
       "value2 (any, range, repeating)",
-      _lt("Additional values or ranges to consider for uniqueness.")
+      _t("Additional values or ranges to consider for uniqueness.")
     ),
   ],
   returns: ["NUMBER"],
@@ -527,26 +527,26 @@ export const COUNTUNIQUE: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 
 export const COUNTUNIQUEIFS: AddFunctionDescription = {
-  description: _lt("Counts number of unique values in a range, filtered by a set of criteria."),
+  description: _t("Counts number of unique values in a range, filtered by a set of criteria."),
   args: [
     arg(
       "range (range)",
-      _lt("The range of cells from which the number of unique values will be counted.")
+      _t("The range of cells from which the number of unique values will be counted.")
     ),
-    arg("criteria_range1 (range)", _lt("The range of cells over which to evaluate criterion1.")),
+    arg("criteria_range1 (range)", _t("The range of cells over which to evaluate criterion1.")),
     arg(
       "criterion1 (string)",
-      _lt(
+      _t(
         "The pattern or test to apply to criteria_range1, such that each cell that evaluates to TRUE will be included in the filtered set."
       )
     ),
     arg(
       "criteria_range2 (any, range, repeating)",
-      _lt(
+      _t(
         "Additional ranges over which to evaluate the additional criteria. The filtered set will be the intersection of the sets produced by each criterion-range pair."
       )
     ),
-    arg("criterion2 (string, repeating)", _lt("The pattern or test to apply to criteria_range2.")),
+    arg("criterion2 (string, repeating)", _t("The pattern or test to apply to criteria_range2.")),
   ],
   returns: ["NUMBER"],
   compute: function (range: MatrixArgValue, ...argsValues: ArgValue[]): number {
@@ -569,14 +569,14 @@ export const COUNTUNIQUEIFS: AddFunctionDescription = {
 // CSC
 // -----------------------------------------------------------------------------
 export const CSC: AddFunctionDescription = {
-  description: _lt("Cosecant of an angle provided in radians."),
-  args: [arg("angle (number)", _lt("The angle to find the cosecant of, in radians."))],
+  description: _t("Cosecant of an angle provided in radians."),
+  args: [arg("angle (number)", _t("The angle to find the cosecant of, in radians."))],
   returns: ["NUMBER"],
   compute: function (angle: PrimitiveArgValue): number {
     const _angle = toNumber(angle, this.locale);
     assert(
       () => _angle !== 0,
-      _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+      _t(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
     );
     return 1 / Math.sin(_angle);
   },
@@ -587,14 +587,14 @@ export const CSC: AddFunctionDescription = {
 // CSCH
 // -----------------------------------------------------------------------------
 export const CSCH: AddFunctionDescription = {
-  description: _lt("Hyperbolic cosecant of any real number."),
-  args: [arg("value (number)", _lt("Any real value to calculate the hyperbolic cosecant of."))],
+  description: _t("Hyperbolic cosecant of any real number."),
+  args: [arg("value (number)", _t("Any real value to calculate the hyperbolic cosecant of."))],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
     const _value = toNumber(value, this.locale);
     assert(
       () => _value !== 0,
-      _lt(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+      _t(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
     );
     return 1 / Math.sinh(_value);
   },
@@ -605,10 +605,10 @@ export const CSCH: AddFunctionDescription = {
 // DECIMAL
 // -----------------------------------------------------------------------------
 export const DECIMAL: AddFunctionDescription = {
-  description: _lt("Converts from another base to decimal."),
+  description: _t("Converts from another base to decimal."),
   args: [
-    arg("value (string)", _lt("The number to convert.")),
-    arg(",base (number)", _lt("The base to convert the value from.")),
+    arg("value (string)", _t("The number to convert.")),
+    arg(",base (number)", _t("The base to convert the value from.")),
   ],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue, base: PrimitiveArgValue): number {
@@ -617,7 +617,7 @@ export const DECIMAL: AddFunctionDescription = {
 
     assert(
       () => 2 <= _base && _base <= 36,
-      _lt("The base (%s) must be between 2 and 36 inclusive.", _base.toString())
+      _t("The base (%s) must be between 2 and 36 inclusive.", _base.toString())
     );
 
     const _value = toString(value);
@@ -632,13 +632,13 @@ export const DECIMAL: AddFunctionDescription = {
      */
     assert(
       () => !!DECIMAL_REPRESENTATION.test(_value),
-      _lt("The value (%s) must be a valid base %s representation.", _value, _base.toString())
+      _t("The value (%s) must be a valid base %s representation.", _value, _base.toString())
     );
 
     const deci = parseInt(_value, _base);
     assert(
       () => !isNaN(deci),
-      _lt("The value (%s) must be a valid base %s representation.", _value, _base.toString())
+      _t("The value (%s) must be a valid base %s representation.", _value, _base.toString())
     );
     return deci;
   },
@@ -649,8 +649,8 @@ export const DECIMAL: AddFunctionDescription = {
 // DEGREES
 // -----------------------------------------------------------------------------
 export const DEGREES: AddFunctionDescription = {
-  description: _lt(`Converts an angle value in radians to degrees.`),
-  args: [arg("angle (number)", _lt("The angle to convert from radians to degrees."))],
+  description: _t(`Converts an angle value in radians to degrees.`),
+  args: [arg("angle (number)", _t("The angle to convert from radians to degrees."))],
   returns: ["NUMBER"],
   compute: function (angle: PrimitiveArgValue): number {
     return (toNumber(angle, this.locale) * 180) / Math.PI;
@@ -662,8 +662,8 @@ export const DEGREES: AddFunctionDescription = {
 // EXP
 // -----------------------------------------------------------------------------
 export const EXP: AddFunctionDescription = {
-  description: _lt(`Euler's number, e (~2.718) raised to a power.`),
-  args: [arg("value (number)", _lt("The exponent to raise e."))],
+  description: _t(`Euler's number, e (~2.718) raised to a power.`),
+  args: [arg("value (number)", _t("The exponent to raise e."))],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
     return Math.exp(toNumber(value, this.locale));
@@ -675,15 +675,12 @@ export const EXP: AddFunctionDescription = {
 // FLOOR
 // -----------------------------------------------------------------------------
 export const FLOOR: AddFunctionDescription = {
-  description: _lt(`Rounds number down to nearest multiple of factor.`),
+  description: _t(`Rounds number down to nearest multiple of factor.`),
   args: [
-    arg(
-      "value (number)",
-      _lt("The value to round down to the nearest integer multiple of factor.")
-    ),
+    arg("value (number)", _t("The value to round down to the nearest integer multiple of factor.")),
     arg(
       `factor (number, default=${DEFAULT_FACTOR})`,
-      _lt("The number to whose multiples value will be rounded.")
+      _t("The number to whose multiples value will be rounded.")
     ),
   ],
   returns: ["NUMBER"],
@@ -693,7 +690,7 @@ export const FLOOR: AddFunctionDescription = {
     const _factor = toNumber(factor, this.locale);
     assert(
       () => _factor >= 0 || _value <= 0,
-      _lt(
+      _t(
         "The factor (%s) must be positive when the value (%s) is positive.",
         _factor.toString(),
         _value.toString()
@@ -708,21 +705,21 @@ export const FLOOR: AddFunctionDescription = {
 // FLOOR.MATH
 // -----------------------------------------------------------------------------
 export const FLOOR_MATH: AddFunctionDescription = {
-  description: _lt(`Rounds number down to nearest multiple of factor.`),
+  description: _t(`Rounds number down to nearest multiple of factor.`),
   args: [
     arg(
       "number (number)",
-      _lt("The value to round down to the nearest integer multiple of significance.")
+      _t("The value to round down to the nearest integer multiple of significance.")
     ),
     arg(
       `significance (number, default=${DEFAULT_SIGNIFICANCE})`,
-      _lt(
+      _t(
         "The number to whose multiples number will be rounded. The sign of significance will be ignored."
       )
     ),
     arg(
       `mode (number, default=${DEFAULT_MODE})`,
-      _lt(
+      _t(
         "If number is negative, specifies the rounding direction. If 0 or blank, it is rounded away from zero. Otherwise, it is rounded towards zero."
       )
     ),
@@ -758,15 +755,15 @@ export const FLOOR_MATH: AddFunctionDescription = {
 // FLOOR.PRECISE
 // -----------------------------------------------------------------------------
 export const FLOOR_PRECISE: AddFunctionDescription = {
-  description: _lt(`Rounds number down to nearest multiple of factor.`),
+  description: _t(`Rounds number down to nearest multiple of factor.`),
   args: [
     arg(
       "number (number)",
-      _lt("The value to round down to the nearest integer multiple of significance.")
+      _t("The value to round down to the nearest integer multiple of significance.")
     ),
     arg(
       `significance (number, default=${DEFAULT_SIGNIFICANCE})`,
-      _lt("The number to whose multiples number will be rounded.")
+      _t("The number to whose multiples number will be rounded.")
     ),
   ],
   returns: ["NUMBER"],
@@ -784,8 +781,8 @@ export const FLOOR_PRECISE: AddFunctionDescription = {
 // ISEVEN
 // -----------------------------------------------------------------------------
 export const ISEVEN: AddFunctionDescription = {
-  description: _lt(`Whether the provided value is even.`),
-  args: [arg("value (number)", _lt("The value to be verified as even."))],
+  description: _t(`Whether the provided value is even.`),
+  args: [arg("value (number)", _t("The value to be verified as even."))],
   returns: ["BOOLEAN"],
   compute: function (value: PrimitiveArgValue): boolean {
     const _value = strictToNumber(value, this.locale);
@@ -799,15 +796,15 @@ export const ISEVEN: AddFunctionDescription = {
 // ISO.CEILING
 // -----------------------------------------------------------------------------
 export const ISO_CEILING: AddFunctionDescription = {
-  description: _lt(`Rounds number up to nearest multiple of factor.`),
+  description: _t(`Rounds number up to nearest multiple of factor.`),
   args: [
     arg(
       "number (number)",
-      _lt("The value to round up to the nearest integer multiple of significance.")
+      _t("The value to round up to the nearest integer multiple of significance.")
     ),
     arg(
       `significance (number, default=${DEFAULT_SIGNIFICANCE})`,
-      _lt("The number to whose multiples number will be rounded.")
+      _t("The number to whose multiples number will be rounded.")
     ),
   ],
   returns: ["NUMBER"],
@@ -825,8 +822,8 @@ export const ISO_CEILING: AddFunctionDescription = {
 // ISODD
 // -----------------------------------------------------------------------------
 export const ISODD: AddFunctionDescription = {
-  description: _lt(`Whether the provided value is even.`),
-  args: [arg("value (number)", _lt("The value to be verified as even."))],
+  description: _t(`Whether the provided value is even.`),
+  args: [arg("value (number)", _t("The value to be verified as even."))],
   returns: ["BOOLEAN"],
   compute: function (value: PrimitiveArgValue): boolean {
     const _value = strictToNumber(value, this.locale);
@@ -840,12 +837,12 @@ export const ISODD: AddFunctionDescription = {
 // LN
 // -----------------------------------------------------------------------------
 export const LN: AddFunctionDescription = {
-  description: _lt(`The logarithm of a number, base e (euler's number).`),
-  args: [arg("value (number)", _lt("The value for which to calculate the logarithm, base e."))],
+  description: _t(`The logarithm of a number, base e (euler's number).`),
+  args: [arg("value (number)", _t("The value for which to calculate the logarithm, base e."))],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
     const _value = toNumber(value, this.locale);
-    assert(() => _value > 0, _lt("The value (%s) must be strictly positive.", _value.toString()));
+    assert(() => _value > 0, _t("The value (%s) must be strictly positive.", _value.toString()));
     return Math.log(_value);
   },
   isExported: true,
@@ -855,17 +852,17 @@ export const LN: AddFunctionDescription = {
 // MOD
 // -----------------------------------------------------------------------------
 export const MOD: AddFunctionDescription = {
-  description: _lt(`Modulo (remainder) operator.`),
+  description: _t(`Modulo (remainder) operator.`),
   args: [
-    arg("dividend (number)", _lt("The number to be divided to find the remainder.")),
-    arg("divisor (number)", _lt("The number to divide by.")),
+    arg("dividend (number)", _t("The number to be divided to find the remainder.")),
+    arg("divisor (number)", _t("The number to divide by.")),
   ],
   returns: ["NUMBER"],
   computeFormat: (dividend: PrimitiveArg) => dividend?.format,
   compute: function (dividend: PrimitiveArgValue, divisor: PrimitiveArgValue): number {
     const _divisor = toNumber(divisor, this.locale);
 
-    assert(() => _divisor !== 0, _lt("The divisor must be different from 0."));
+    assert(() => _divisor !== 0, _t("The divisor must be different from 0."));
 
     const _dividend = toNumber(dividend, this.locale);
     const modulus = _dividend % _divisor;
@@ -882,17 +879,17 @@ export const MOD: AddFunctionDescription = {
 // MUNIT
 // -----------------------------------------------------------------------------
 export const MUNIT: AddFunctionDescription = {
-  description: _lt("Returns a n x n unit matrix, where n is the input dimension."),
+  description: _t("Returns a n x n unit matrix, where n is the input dimension."),
   args: [
     arg(
       "dimension (number)",
-      _lt("An integer specifying the dimension size of the unit matrix. It must be positive.")
+      _t("An integer specifying the dimension size of the unit matrix. It must be positive.")
     ),
   ],
   returns: ["RANGE<NUMBER>"],
   compute: function (n: PrimitiveArgValue): number[][] {
     const _n = toInteger(n, this.locale);
-    assertPositive(_lt("The argument dimension must be positive"), _n);
+    assertPositive(_t("The argument dimension must be positive"), _n);
     return getUnitMatrix(_n);
   },
   isExported: true,
@@ -902,8 +899,8 @@ export const MUNIT: AddFunctionDescription = {
 // ODD
 // -----------------------------------------------------------------------------
 export const ODD: AddFunctionDescription = {
-  description: _lt(`Rounds a number up to the nearest odd integer.`),
-  args: [arg("value (number)", _lt("The value to round to the next greatest odd number."))],
+  description: _t(`Rounds a number up to the nearest odd integer.`),
+  args: [arg("value (number)", _t("The value to round to the next greatest odd number."))],
   returns: ["NUMBER"],
   computeFormat: (number: PrimitiveArg) => number?.format,
   compute: function (value: PrimitiveArgValue): number {
@@ -920,7 +917,7 @@ export const ODD: AddFunctionDescription = {
 // PI
 // -----------------------------------------------------------------------------
 export const PI: AddFunctionDescription = {
-  description: _lt(`The number pi.`),
+  description: _t(`The number pi.`),
   args: [],
   returns: ["NUMBER"],
   compute: function (): number {
@@ -933,10 +930,10 @@ export const PI: AddFunctionDescription = {
 // POWER
 // -----------------------------------------------------------------------------
 export const POWER: AddFunctionDescription = {
-  description: _lt(`A number raised to a power.`),
+  description: _t(`A number raised to a power.`),
   args: [
-    arg("base (number)", _lt("The number to raise to the exponent power.")),
-    arg("exponent (number)", _lt("The exponent to raise base to.")),
+    arg("base (number)", _t("The number to raise to the exponent power.")),
+    arg("exponent (number)", _t("The exponent to raise base to.")),
   ],
   returns: ["NUMBER"],
   computeFormat: (base: PrimitiveArg) => base?.format,
@@ -945,7 +942,7 @@ export const POWER: AddFunctionDescription = {
     const _exponent = toNumber(exponent, this.locale);
     assert(
       () => _base >= 0 || Number.isInteger(_exponent),
-      _lt("The exponent (%s) must be an integer when the base is negative.", _exponent.toString())
+      _t("The exponent (%s) must be an integer when the base is negative.", _exponent.toString())
     );
     return Math.pow(_base, _exponent);
   },
@@ -956,15 +953,15 @@ export const POWER: AddFunctionDescription = {
 // PRODUCT
 // -----------------------------------------------------------------------------
 export const PRODUCT: AddFunctionDescription = {
-  description: _lt("Result of multiplying a series of numbers together."),
+  description: _t("Result of multiplying a series of numbers together."),
   args: [
     arg(
       "factor1 (number, range<number>)",
-      _lt("The first number or range to calculate for the product.")
+      _t("The first number or range to calculate for the product.")
     ),
     arg(
       "factor2 (number, range<number>, repeating)",
-      _lt("More numbers or ranges to calculate for the product.")
+      _t("More numbers or ranges to calculate for the product.")
     ),
   ],
   returns: ["NUMBER"],
@@ -1001,7 +998,7 @@ export const PRODUCT: AddFunctionDescription = {
 // RAND
 // -----------------------------------------------------------------------------
 export const RAND: AddFunctionDescription = {
-  description: _lt("A random number between 0 inclusive and 1 exclusive."),
+  description: _t("A random number between 0 inclusive and 1 exclusive."),
   args: [],
   returns: ["NUMBER"],
   compute: function (): number {
@@ -1014,13 +1011,13 @@ export const RAND: AddFunctionDescription = {
 // RANDARRAY
 // -----------------------------------------------------------------------------
 export const RANDARRAY: AddFunctionDescription = {
-  description: _lt("Returns a grid of random numbers between 0 inclusive and 1 exclusive."),
+  description: _t("Returns a grid of random numbers between 0 inclusive and 1 exclusive."),
   args: [
-    arg("rows (number, default=1)", _lt("The number of rows to be returned.")),
-    arg("columns (number, default=1)", _lt("The number of columns to be returned.")),
-    arg("min (number, default=0)", _lt("The minimum number you would like returned.")),
-    arg("max (number, default=1)", _lt("The maximum number you would like returned.")),
-    arg("whole_number (number, default=FALSE)", _lt("Return a whole number or a decimal value.")),
+    arg("rows (number, default=1)", _t("The number of rows to be returned.")),
+    arg("columns (number, default=1)", _t("The number of columns to be returned.")),
+    arg("min (number, default=0)", _t("The minimum number you would like returned.")),
+    arg("max (number, default=1)", _t("The maximum number you would like returned.")),
+    arg("whole_number (number, default=FALSE)", _t("Return a whole number or a decimal value.")),
   ],
   returns: ["RANGE<NUMBER>"],
   compute: function (
@@ -1036,11 +1033,11 @@ export const RANDARRAY: AddFunctionDescription = {
     const _max = toNumber(max, this.locale);
     const _whole_number = toBoolean(whole_number);
 
-    assertPositive(_lt("The number columns (%s) must be positive.", _cols.toString()), _cols);
-    assertPositive(_lt("The number rows (%s) must be positive.", _rows.toString()), _rows);
+    assertPositive(_t("The number columns (%s) must be positive.", _cols.toString()), _cols);
+    assertPositive(_t("The number rows (%s) must be positive.", _rows.toString()), _rows);
     assert(
       () => _min <= _max,
-      _lt(
+      _t(
         "The maximum (%s) must be greater than or equal to the minimum (%s).",
         _max.toString(),
         _min.toString()
@@ -1049,7 +1046,7 @@ export const RANDARRAY: AddFunctionDescription = {
     if (_whole_number) {
       assert(
         () => Number.isInteger(_min) && Number.isInteger(_max),
-        _lt(
+        _t(
           "The maximum (%s) and minimum (%s) must be integers when whole_number is TRUE.",
           _max.toString(),
           _min.toString()
@@ -1077,10 +1074,10 @@ export const RANDARRAY: AddFunctionDescription = {
 // RANDBETWEEN
 // -----------------------------------------------------------------------------
 export const RANDBETWEEN: AddFunctionDescription = {
-  description: _lt("Random integer between two values, inclusive."),
+  description: _t("Random integer between two values, inclusive."),
   args: [
-    arg("low (number)", _lt("The low end of the random range.")),
-    arg("high (number)", _lt("The high end of the random range.")),
+    arg("low (number)", _t("The low end of the random range.")),
+    arg("high (number)", _t("The high end of the random range.")),
   ],
   returns: ["NUMBER"],
   computeFormat: (low: PrimitiveArg) => low?.format,
@@ -1097,7 +1094,7 @@ export const RANDBETWEEN: AddFunctionDescription = {
 
     assert(
       () => _low <= _high,
-      _lt(
+      _t(
         "The high (%s) must be greater than or equal to the low (%s).",
         _high.toString(),
         _low.toString()
@@ -1112,12 +1109,12 @@ export const RANDBETWEEN: AddFunctionDescription = {
 // ROUND
 // -----------------------------------------------------------------------------
 export const ROUND: AddFunctionDescription = {
-  description: _lt("Rounds a number according to standard rules."),
+  description: _t("Rounds a number according to standard rules."),
   args: [
-    arg("value (number)", _lt("The value to round to places number of places.")),
+    arg("value (number)", _t("The value to round to places number of places.")),
     arg(
       `places (number, default=${DEFAULT_PLACES})`,
-      _lt("The number of decimal places to which to round.")
+      _t("The number of decimal places to which to round.")
     ),
   ],
   returns: ["NUMBER"],
@@ -1145,15 +1142,15 @@ export const ROUND: AddFunctionDescription = {
 // ROUNDDOWN
 // -----------------------------------------------------------------------------
 export const ROUNDDOWN: AddFunctionDescription = {
-  description: _lt(`Rounds down a number.`),
+  description: _t(`Rounds down a number.`),
   args: [
     arg(
       "value (number)",
-      _lt("The value to round to places number of places, always rounding down.")
+      _t("The value to round to places number of places, always rounding down.")
     ),
     arg(
       `places (number, default=${DEFAULT_PLACES})`,
-      _lt("The number of decimal places to which to round.")
+      _t("The number of decimal places to which to round.")
     ),
   ],
   returns: ["NUMBER"],
@@ -1181,15 +1178,12 @@ export const ROUNDDOWN: AddFunctionDescription = {
 // ROUNDUP
 // -----------------------------------------------------------------------------
 export const ROUNDUP: AddFunctionDescription = {
-  description: _lt(`Rounds up a number.`),
+  description: _t(`Rounds up a number.`),
   args: [
-    arg(
-      "value (number)",
-      _lt("The value to round to places number of places, always rounding up.")
-    ),
+    arg("value (number)", _t("The value to round to places number of places, always rounding up.")),
     arg(
       `places (number, default=${DEFAULT_PLACES})`,
-      _lt("The number of decimal places to which to round.")
+      _t("The number of decimal places to which to round.")
     ),
   ],
   returns: ["NUMBER"],
@@ -1217,8 +1211,8 @@ export const ROUNDUP: AddFunctionDescription = {
 // SEC
 // -----------------------------------------------------------------------------
 export const SEC: AddFunctionDescription = {
-  description: _lt("Secant of an angle provided in radians."),
-  args: [arg("angle (number)", _lt("The angle to find the secant of, in radians."))],
+  description: _t("Secant of an angle provided in radians."),
+  args: [arg("angle (number)", _t("The angle to find the secant of, in radians."))],
   returns: ["NUMBER"],
   compute: function (angle: PrimitiveArgValue): number {
     return 1 / Math.cos(toNumber(angle, this.locale));
@@ -1230,8 +1224,8 @@ export const SEC: AddFunctionDescription = {
 // SECH
 // -----------------------------------------------------------------------------
 export const SECH: AddFunctionDescription = {
-  description: _lt("Hyperbolic secant of any real number."),
-  args: [arg("value (number)", _lt("Any real value to calculate the hyperbolic secant of."))],
+  description: _t("Hyperbolic secant of any real number."),
+  args: [arg("value (number)", _t("Any real value to calculate the hyperbolic secant of."))],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
     return 1 / Math.cosh(toNumber(value, this.locale));
@@ -1243,8 +1237,8 @@ export const SECH: AddFunctionDescription = {
 // SIN
 // -----------------------------------------------------------------------------
 export const SIN: AddFunctionDescription = {
-  description: _lt("Sine of an angle provided in radians."),
-  args: [arg("angle (number)", _lt("The angle to find the sine of, in radians."))],
+  description: _t("Sine of an angle provided in radians."),
+  args: [arg("angle (number)", _t("The angle to find the sine of, in radians."))],
   returns: ["NUMBER"],
   compute: function (angle: PrimitiveArgValue): number {
     return Math.sin(toNumber(angle, this.locale));
@@ -1256,8 +1250,8 @@ export const SIN: AddFunctionDescription = {
 // SINH
 // -----------------------------------------------------------------------------
 export const SINH: AddFunctionDescription = {
-  description: _lt("Hyperbolic sine of any real number."),
-  args: [arg("value (number)", _lt("Any real value to calculate the hyperbolic sine of."))],
+  description: _t("Hyperbolic sine of any real number."),
+  args: [arg("value (number)", _t("Any real value to calculate the hyperbolic sine of."))],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
     return Math.sinh(toNumber(value, this.locale));
@@ -1269,13 +1263,13 @@ export const SINH: AddFunctionDescription = {
 // SQRT
 // -----------------------------------------------------------------------------
 export const SQRT: AddFunctionDescription = {
-  description: _lt("Positive square root of a positive number."),
-  args: [arg("value (number)", _lt("The number for which to calculate the positive square root."))],
+  description: _t("Positive square root of a positive number."),
+  args: [arg("value (number)", _t("The number for which to calculate the positive square root."))],
   returns: ["NUMBER"],
   computeFormat: (value: PrimitiveArg) => value?.format,
   compute: function (value: PrimitiveArgValue): number {
     const _value = toNumber(value, this.locale);
-    assert(() => _value >= 0, _lt("The value (%s) must be positive or null.", _value.toString()));
+    assert(() => _value >= 0, _t("The value (%s) must be positive or null.", _value.toString()));
     return Math.sqrt(_value);
   },
   isExported: true,
@@ -1285,12 +1279,12 @@ export const SQRT: AddFunctionDescription = {
 // SUM
 // -----------------------------------------------------------------------------
 export const SUM: AddFunctionDescription = {
-  description: _lt("Sum of a series of numbers and/or cells."),
+  description: _t("Sum of a series of numbers and/or cells."),
   args: [
-    arg("value1 (number, range<number>)", _lt("The first number or range to add together.")),
+    arg("value1 (number, range<number>)", _t("The first number or range to add together.")),
     arg(
       "value2 (number, range<number>, repeating)",
-      _lt("Additional numbers or ranges to add to value1.")
+      _t("Additional numbers or ranges to add to value1.")
     ),
   ],
   returns: ["NUMBER"],
@@ -1307,13 +1301,13 @@ export const SUM: AddFunctionDescription = {
 // SUMIF
 // -----------------------------------------------------------------------------
 export const SUMIF: AddFunctionDescription = {
-  description: _lt("A conditional sum across a range."),
+  description: _t("A conditional sum across a range."),
   args: [
-    arg("criteria_range (range)", _lt("The range which is tested against criterion.")),
-    arg("criterion (string)", _lt("The pattern or test to apply to range.")),
+    arg("criteria_range (range)", _t("The range which is tested against criterion.")),
+    arg("criterion (string)", _t("The pattern or test to apply to range.")),
     arg(
       "sum_range (range, default=criteria_range)",
-      _lt("The range to be summed, if different from range.")
+      _t("The range to be summed, if different from range.")
     ),
   ],
   returns: ["NUMBER"],
@@ -1346,13 +1340,13 @@ export const SUMIF: AddFunctionDescription = {
 // SUMIFS
 // -----------------------------------------------------------------------------
 export const SUMIFS: AddFunctionDescription = {
-  description: _lt("Sums a range depending on multiple criteria."),
+  description: _t("Sums a range depending on multiple criteria."),
   args: [
-    arg("sum_range (range)", _lt("The range to sum.")),
-    arg("criteria_range1 (range)", _lt("The range to check against criterion1.")),
-    arg("criterion1 (string)", _lt("The pattern or test to apply to criteria_range1.")),
-    arg("criteria_range2 (any, range, repeating)", _lt("Additional ranges to check.")),
-    arg("criterion2 (string, repeating)", _lt("Additional criteria to check.")),
+    arg("sum_range (range)", _t("The range to sum.")),
+    arg("criteria_range1 (range)", _t("The range to check against criterion1.")),
+    arg("criterion1 (string)", _t("The pattern or test to apply to criteria_range1.")),
+    arg("criteria_range2 (any, range, repeating)", _t("Additional ranges to check.")),
+    arg("criterion2 (string, repeating)", _t("Additional criteria to check.")),
   ],
   returns: ["NUMBER"],
   compute: function (sumRange: MatrixArgValue, ...criters: ArgValue[]): number {
@@ -1376,8 +1370,8 @@ export const SUMIFS: AddFunctionDescription = {
 // TAN
 // -----------------------------------------------------------------------------
 export const TAN: AddFunctionDescription = {
-  description: _lt("Tangent of an angle provided in radians."),
-  args: [arg("angle (number)", _lt("The angle to find the tangent of, in radians."))],
+  description: _t("Tangent of an angle provided in radians."),
+  args: [arg("angle (number)", _t("The angle to find the tangent of, in radians."))],
   returns: ["NUMBER"],
   compute: function (angle: PrimitiveArgValue): number {
     return Math.tan(toNumber(angle, this.locale));
@@ -1389,8 +1383,8 @@ export const TAN: AddFunctionDescription = {
 // TANH
 // -----------------------------------------------------------------------------
 export const TANH: AddFunctionDescription = {
-  description: _lt("Hyperbolic tangent of any real number."),
-  args: [arg("value (number)", _lt("Any real value to calculate the hyperbolic tangent of."))],
+  description: _t("Hyperbolic tangent of any real number."),
+  args: [arg("value (number)", _t("Any real value to calculate the hyperbolic tangent of."))],
   returns: ["NUMBER"],
   compute: function (value: PrimitiveArgValue): number {
     return Math.tanh(toNumber(value, this.locale));
@@ -1402,12 +1396,12 @@ export const TANH: AddFunctionDescription = {
 // TRUNC
 // -----------------------------------------------------------------------------
 export const TRUNC: AddFunctionDescription = {
-  description: _lt("Truncates a number."),
+  description: _t("Truncates a number."),
   args: [
-    arg("value (number)", _lt("The value to be truncated.")),
+    arg("value (number)", _t("The value to be truncated.")),
     arg(
       `places (number, default=${DEFAULT_PLACES})`,
-      _lt("The number of significant digits to the right of the decimal point to retain.")
+      _t("The number of significant digits to the right of the decimal point to retain.")
     ),
   ],
   returns: ["NUMBER"],

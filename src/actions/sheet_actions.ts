@@ -1,9 +1,9 @@
 import { buildSheetLink, markdownLink } from "../helpers";
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import { ActionSpec } from "./action";
 
 export const linkSheet: ActionSpec = {
-  name: _lt("Link sheet"),
+  name: _t("Link sheet"),
   children: [
     (env) => {
       const sheets = env.model.getters
@@ -19,18 +19,18 @@ export const linkSheet: ActionSpec = {
 };
 
 export const deleteSheet: ActionSpec = {
-  name: _lt("Delete"),
+  name: _t("Delete"),
   isVisible: (env) => {
     return env.model.getters.getSheetIds().length > 1;
   },
   execute: (env) =>
-    env.askConfirmation(_lt("Are you sure you want to delete this sheet?"), () => {
+    env.askConfirmation(_t("Are you sure you want to delete this sheet?"), () => {
       env.model.dispatch("DELETE_SHEET", { sheetId: env.model.getters.getActiveSheetId() });
     }),
 };
 
 export const duplicateSheet: ActionSpec = {
-  name: _lt("Duplicate"),
+  name: _t("Duplicate"),
   execute: (env) => {
     const sheetIdFrom = env.model.getters.getActiveSheetId();
     const sheetIdTo = env.model.uuidGenerator.uuidv4();
@@ -44,13 +44,13 @@ export const duplicateSheet: ActionSpec = {
 
 export const renameSheet = (args: { renameSheetCallback: () => void }): ActionSpec => {
   return {
-    name: _lt("Rename"),
+    name: _t("Rename"),
     execute: args.renameSheetCallback,
   };
 };
 
 export const sheetMoveRight: ActionSpec = {
-  name: _lt("Move right"),
+  name: _t("Move right"),
   isVisible: (env) => {
     const sheetId = env.model.getters.getActiveSheetId();
     const sheetIds = env.model.getters.getVisibleSheetIds();
@@ -64,7 +64,7 @@ export const sheetMoveRight: ActionSpec = {
 };
 
 export const sheetMoveLeft: ActionSpec = {
-  name: _lt("Move left"),
+  name: _t("Move left"),
   isVisible: (env) => {
     const sheetId = env.model.getters.getActiveSheetId();
     return env.model.getters.getVisibleSheetIds()[0] !== sheetId;
@@ -77,7 +77,7 @@ export const sheetMoveLeft: ActionSpec = {
 };
 
 export const hideSheet: ActionSpec = {
-  name: _lt("Hide sheet"),
+  name: _t("Hide sheet"),
   isVisible: (env) => env.model.getters.getVisibleSheetIds().length !== 1,
   execute: (env) =>
     env.model.dispatch("HIDE_SHEET", { sheetId: env.model.getters.getActiveSheetId() }),

@@ -1,4 +1,4 @@
-import { _lt } from "../../translation";
+import { _t } from "../../translation";
 import { MenuItemRegistry } from "../menu_items_registry";
 
 import * as ACTION_EDIT from "../../actions/edit_actions";
@@ -51,12 +51,12 @@ cellMenuRegistry
   })
   .addChild("insert_cell_down", ["insert_cell"], {
     ...ACTION_INSERT.insertCellShiftDown,
-    name: _lt("Shift down"),
+    name: _t("Shift down"),
     sequence: 10,
   })
   .addChild("insert_cell_right", ["insert_cell"], {
     ...ACTION_INSERT.insertCellShiftRight,
-    name: _lt("Shift right"),
+    name: _t("Shift right"),
     sequence: 20,
   })
   .add("delete_row", {
@@ -77,19 +77,19 @@ cellMenuRegistry
   })
   .addChild("delete_cell_up", ["delete_cell"], {
     ...ACTION_EDIT.deleteCellShiftUp,
-    name: _lt("Shift up"),
+    name: _t("Shift up"),
     sequence: 10,
     icon: "o-spreadsheet-Icon.DELETE_CELL_SHIFT_UP",
   })
   .addChild("delete_cell_left", ["delete_cell"], {
     ...ACTION_EDIT.deleteCellShiftLeft,
-    name: _lt("Shift left"),
+    name: _t("Shift left"),
     sequence: 20,
     icon: "o-spreadsheet-Icon.DELETE_CELL_SHIFT_LEFT",
   })
   .add("insert_link", {
     ...ACTION_INSERT.insertLink,
-    name: _lt("Insert link"),
+    name: _t("Insert link"),
     sequence: 150,
     separator: true,
   });

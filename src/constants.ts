@@ -1,4 +1,4 @@
-import { _lt } from "./translation";
+import { _t } from "./translation";
 import { BorderDescr, Color } from "./types";
 import { CellErrorType } from "./types/errors";
 
@@ -195,7 +195,7 @@ export const FORBIDDEN_IN_EXCEL_REGEX = /'|\*|\?|\/|\\|\[|\]/;
 // Cells
 export const FORMULA_REF_IDENTIFIER = "|";
 export const LOADING = "Loading...";
-export const DEFAULT_ERROR_MESSAGE = _lt("Invalid expression");
+export const DEFAULT_ERROR_MESSAGE = _t("Invalid expression");
 
 // Components
 export enum ComponentsImportance {

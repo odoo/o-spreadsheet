@@ -29,6 +29,7 @@ import {
 } from "../test_helpers/getters_helpers";
 import { toRangesData } from "../test_helpers/helpers";
 
+let model: Model;
 describe("core", () => {
   describe("statistic functions", () => {
     test("functions are applied on deduplicated cells in zones", () => {
@@ -51,13 +52,15 @@ describe("core", () => {
     });
 
     describe("return undefined if the types handled by the function are not present among the types of the selected cells", () => {
-      const model = new Model();
-      setCellContent(model, "A1", "24");
-      setCellContent(model, "A2", "=42");
-      setCellContent(model, "A3", "107% of people don't get statistics");
-      setCellContent(model, "A4", "TRUE");
-      setCellContent(model, "A5", "=A5");
-      setCellContent(model, "A6", "=A7");
+      beforeEach(() => {
+        model = new Model();
+        setCellContent(model, "A1", "24");
+        setCellContent(model, "A2", "=42");
+        setCellContent(model, "A3", "107% of people don't get statistics");
+        setCellContent(model, "A4", "TRUE");
+        setCellContent(model, "A5", "=A5");
+        setCellContent(model, "A6", "=A7");
+      });
 
       test('return the "SUM" value only on cells interpreted as number', () => {
         // select the range A1:A7
@@ -148,7 +151,7 @@ describe("core", () => {
       });
     });
 
-    describe("raise error from compilation with specific error message", () => {
+    test("raise error from compilation with specific error message", () => {
       functionRegistry.add("TWOARGSNEEDED", {
         description: "any function",
         compute: () => {

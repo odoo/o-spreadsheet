@@ -1,5 +1,5 @@
 import { Registry } from "../registries/registry";
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import { CellValue, Getters, Link, SpreadsheetChildEnv } from "../types";
 import { isMarkdownLink, isSheetUrl, isWebLink, parseMarkdownLink, parseSheetUrl } from "./misc";
 
@@ -52,7 +52,7 @@ urlRegistry.add("sheet_URL", {
   },
   urlRepresentation(url, getters) {
     const sheetId = parseSheetUrl(url);
-    return getters.tryGetSheetName(sheetId) || _lt("Invalid sheet");
+    return getters.tryGetSheetName(sheetId) || _t("Invalid sheet");
   },
   open(url, env) {
     const sheetId = parseSheetUrl(url);

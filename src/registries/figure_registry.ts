@@ -2,7 +2,7 @@ import { Action, ActionSpec, createActions } from "../actions/action";
 import { ChartFigure } from "../components/figures/figure_chart/figure_chart";
 import { ImageFigure } from "../components/figures/figure_image/figure_image";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import { SpreadsheetChildEnv, UID } from "../types";
 import { Registry } from "./registry";
 
@@ -48,7 +48,7 @@ function getChartMenu(
   const menuItemSpecs: ActionSpec[] = [
     {
       id: "edit",
-      name: _lt("Edit"),
+      name: _t("Edit"),
       sequence: 1,
       execute: () => {
         env.model.dispatch("SELECT_FIGURE", { id: figureId });
@@ -73,7 +73,7 @@ function getImageMenuRegistry(
     getCutMenuItem(figureId, env),
     {
       id: "reset_size",
-      name: _lt("Reset size"),
+      name: _t("Reset size"),
       sequence: 4,
       execute: async () => {
         const imagePath = env.model.getters.getImagePath(figureId);
@@ -102,7 +102,7 @@ function getImageMenuRegistry(
 function getCopyMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
   return {
     id: "copy",
-    name: _lt("Copy"),
+    name: _t("Copy"),
     sequence: 2,
     description: "Ctrl+C",
     execute: async () => {
@@ -117,7 +117,7 @@ function getCopyMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
 function getCutMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
   return {
     id: "cut",
-    name: _lt("Cut"),
+    name: _t("Cut"),
     sequence: 3,
     description: "Ctrl+X",
     execute: async () => {
@@ -136,7 +136,7 @@ function getDeleteMenuItem(
 ): ActionSpec {
   return {
     id: "delete",
-    name: _lt("Delete"),
+    name: _t("Delete"),
     sequence: 10,
     execute: () => {
       env.model.dispatch("DELETE_FIGURE", {

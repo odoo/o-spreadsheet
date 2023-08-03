@@ -26,7 +26,7 @@ import {
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Model } from "../../model";
 import { ComposerSelection } from "../../plugins/ui_stateful/edition";
-import { _lt } from "../../translation";
+import { _t } from "../../translation";
 import { Pixel, SpreadsheetChildEnv } from "../../types";
 import { NotifyUIEvent } from "../../types/ui";
 import { BottomBar } from "../bottom_bar/bottom_bar";
@@ -276,7 +276,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
         return;
       }
       this.env.notifyUser({
-        text: _lt(
+        text: _t(
           "The current window is too small to display this sheet properly. Consider resizing your browser window or adjusting frozen rows and columns."
         ),
         tag: "viewportTooSmall",

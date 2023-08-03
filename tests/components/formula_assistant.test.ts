@@ -1,7 +1,7 @@
 import { setTranslationMethod } from "../../src";
 import { arg, functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
-import { _lt } from "../../src/translation";
+import { _t } from "../../src/translation";
 import { registerCleanup } from "../setup/jest.setup";
 import { keyDown, keyUp } from "../test_helpers/dom_helper";
 import {
@@ -45,12 +45,17 @@ describe("formula assistant", () => {
       compute: () => 1,
       returns: ["ANY"],
     });
+    setTranslationMethod(
+      (str, ...values) => str,
+      () => false
+    );
     functionRegistry.add("FUNC1", {
       description: "func1 def",
-      args: [arg("f1Arg1 (any)", "f1 Arg1 def"), arg("f1Arg2 (any)", _lt("f1 Arg2 def"))],
+      args: [arg("f1Arg1 (any)", "f1 Arg1 def"), arg("f1Arg2 (any)", _t("f1 Arg2 def"))],
       compute: () => 1,
       returns: ["ANY"],
     });
+    setTranslationMethod((str, ...values) => str);
     functionRegistry.add("FUNC2", {
       description: "func2 def",
       args: [

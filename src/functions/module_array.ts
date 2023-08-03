@@ -1,5 +1,5 @@
 import { transpose2dArray } from "../helpers";
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import {
   AddFunctionDescription,
   Arg,
@@ -36,11 +36,11 @@ import { invertMatrix, multiplyMatrices } from "./helper_matrices";
 // ARRAY_CONSTRAIN
 // -----------------------------------------------------------------------------
 export const ARRAY_CONSTRAIN: AddFunctionDescription = {
-  description: _lt("Returns a result array constrained to a specific width and height."),
+  description: _t("Returns a result array constrained to a specific width and height."),
   args: [
-    arg("input_range (any, range<any>)", _lt("The range to constrain.")),
-    arg("rows (number)", _lt("The number of rows in the constrained array.")),
-    arg("columns (number)", _lt("The number of columns in the constrained array.")),
+    arg("input_range (any, range<any>)", _t("The range to constrain.")),
+    arg("rows (number)", _t("The number of rows in the constrained array.")),
+    arg("columns (number)", _t("The number of columns in the constrained array.")),
   ],
   returns: ["RANGE<ANY>"],
   //TODO computeFormat
@@ -54,11 +54,11 @@ export const ARRAY_CONSTRAIN: AddFunctionDescription = {
     const _columnsArg = toInteger(columns, this.locale);
 
     assertPositive(
-      _lt("The rows argument (%s) must be strictly positive.", _rowsArg.toString()),
+      _t("The rows argument (%s) must be strictly positive.", _rowsArg.toString()),
       _rowsArg
     );
     assertPositive(
-      _lt("The columns argument (%s) must be strictly positive.", _rowsArg.toString()),
+      _t("The columns argument (%s) must be strictly positive.", _rowsArg.toString()),
       _columnsArg
     );
 
@@ -81,16 +81,16 @@ export const ARRAY_CONSTRAIN: AddFunctionDescription = {
 // CHOOSECOLS
 // -----------------------------------------------------------------------------
 export const CHOOSECOLS: AddFunctionDescription = {
-  description: _lt("Creates a new array from the selected columns in the existing range."),
+  description: _t("Creates a new array from the selected columns in the existing range."),
   args: [
-    arg("array (any, range<any>)", _lt("The array that contains the columns to be returned.")),
+    arg("array (any, range<any>)", _t("The array that contains the columns to be returned.")),
     arg(
       "col_num (number, range<number>)",
-      _lt("The first column index of the columns to be returned.")
+      _t("The first column index of the columns to be returned.")
     ),
     arg(
       "col_num2 (number, range<number>, repeating)",
-      _lt("The columns indexes of the columns to be returned.")
+      _t("The columns indexes of the columns to be returned.")
     ),
   ],
   returns: ["RANGE<ANY>"],
@@ -100,7 +100,7 @@ export const CHOOSECOLS: AddFunctionDescription = {
     const _columns = flattenRowFirst(columns, (val) => toInteger(val, this.locale));
     assert(
       () => _columns.every((col) => col > 0 && col <= _array.length),
-      _lt(
+      _t(
         "The columns arguments must be between 1 and %s (got %s).",
         _array.length.toString(),
         (_columns.find((col) => col <= 0 || col > _array.length) || 0).toString()
@@ -122,13 +122,13 @@ export const CHOOSECOLS: AddFunctionDescription = {
 // CHOOSEROWS
 // -----------------------------------------------------------------------------
 export const CHOOSEROWS: AddFunctionDescription = {
-  description: _lt("Creates a new array from the selected rows in the existing range."),
+  description: _t("Creates a new array from the selected rows in the existing range."),
   args: [
-    arg("array (any, range<any>)", _lt("The array that contains the rows to be returned.")),
-    arg("row_num (number, range<number>)", _lt("The first row index of the rows to be returned.")),
+    arg("array (any, range<any>)", _t("The array that contains the rows to be returned.")),
+    arg("row_num (number, range<number>)", _t("The first row index of the rows to be returned.")),
     arg(
       "row_num2 (number, range<number>, repeating)",
-      _lt("The rows indexes of the rows to be returned.")
+      _t("The rows indexes of the rows to be returned.")
     ),
   ],
   returns: ["RANGE<ANY>"],
@@ -138,7 +138,7 @@ export const CHOOSEROWS: AddFunctionDescription = {
     const _rows = flattenRowFirst(rows, (val) => toInteger(val, this.locale));
     assert(
       () => _rows.every((row) => row > 0 && row <= _array[0].length),
-      _lt(
+      _t(
         "The rows arguments must be between 1 and %s (got %s).",
         _array[0].length.toString(),
         (_rows.find((row) => row <= 0 || row > _array[0].length) || 0).toString()
@@ -163,18 +163,18 @@ export const CHOOSEROWS: AddFunctionDescription = {
 // EXPAND
 // -----------------------------------------------------------------------------
 export const EXPAND: AddFunctionDescription = {
-  description: _lt("Expands or pads an array to specified row and column dimensions."),
+  description: _t("Expands or pads an array to specified row and column dimensions."),
   args: [
-    arg("array (any, range<any>)", _lt("The array to expand.")),
+    arg("array (any, range<any>)", _t("The array to expand.")),
     arg(
       "rows (number)",
-      _lt("The number of rows in the expanded array. If missing, rows will not be expanded.")
+      _t("The number of rows in the expanded array. If missing, rows will not be expanded.")
     ),
     arg(
       "columns (number, optional)",
-      _lt("The number of columns in the expanded array. If missing, columns will not be expanded.")
+      _t("The number of columns in the expanded array. If missing, columns will not be expanded.")
     ),
-    arg("pad_with (any, default=0)", _lt("The value with which to pad.")), // @compatibility: on Excel, pad with #N/A
+    arg("pad_with (any, default=0)", _t("The value with which to pad.")), // @compatibility: on Excel, pad with #N/A
   ],
   returns: ["RANGE<ANY>"],
   //TODO computeFormat
@@ -191,14 +191,14 @@ export const EXPAND: AddFunctionDescription = {
 
     assert(
       () => _rows >= _array[0].length,
-      _lt(
+      _t(
         "The rows arguments (%s) must be greater or equal than the number of rows of the array.",
         _rows.toString()
       )
     );
     assert(
       () => _columns >= _array.length,
-      _lt(
+      _t(
         "The columns arguments (%s) must be greater or equal than the number of columns of the array.",
         _columns.toString()
       )
@@ -224,10 +224,10 @@ export const EXPAND: AddFunctionDescription = {
 // FLATTEN
 // -----------------------------------------------------------------------------
 export const FLATTEN: AddFunctionDescription = {
-  description: _lt("Flattens all the values from one or more ranges into a single column."),
+  description: _t("Flattens all the values from one or more ranges into a single column."),
   args: [
-    arg("range (any, range<any>)", _lt("The first range to flatten.")),
-    arg("range2 (any, range<any>, repeating)", _lt("Additional ranges to flatten.")),
+    arg("range (any, range<any>)", _t("The first range to flatten.")),
+    arg("range2 (any, range<any>, repeating)", _t("Additional ranges to flatten.")),
   ],
   returns: ["RANGE<ANY>"],
   compute: function (...ranges: ArgValue[]): Matrix<CellValue> {
@@ -240,10 +240,10 @@ export const FLATTEN: AddFunctionDescription = {
 // FREQUENCY
 // -----------------------------------------------------------------------------
 export const FREQUENCY: AddFunctionDescription = {
-  description: _lt("Calculates the frequency distribution of a range."),
+  description: _t("Calculates the frequency distribution of a range."),
   args: [
-    arg("data (range<number>)", _lt("The array of ranges containing the values to be counted.")),
-    arg("classes (number, range<number>)", _lt("The range containing the set of classes.")),
+    arg("data (range<number>)", _t("The array of ranges containing the values to be counted.")),
+    arg("classes (number, range<number>)", _t("The range containing the set of classes.")),
   ],
   returns: ["RANGE<NUMBER>"],
   compute: function (data: MatrixArgValue, classes: MatrixArgValue): CellValue[][] {
@@ -298,10 +298,10 @@ export const FREQUENCY: AddFunctionDescription = {
 // HSTACK
 // -----------------------------------------------------------------------------
 export const HSTACK: AddFunctionDescription = {
-  description: _lt("Appends ranges horizontally and in sequence to return a larger array."),
+  description: _t("Appends ranges horizontally and in sequence to return a larger array."),
   args: [
-    arg("range1 (any, range<any>)", _lt("The first range to be appended.")),
-    arg("range2 (any, range<any>, repeating)", _lt("Additional ranges to add to range1.")),
+    arg("range1 (any, range<any>)", _t("The first range to be appended.")),
+    arg("range2 (any, range<any>, repeating)", _t("Additional ranges to add to range1.")),
   ],
   returns: ["RANGE<ANY>"],
   //TODO computeFormat
@@ -330,11 +330,11 @@ export const HSTACK: AddFunctionDescription = {
 // MDETERM
 // -----------------------------------------------------------------------------
 export const MDETERM: AddFunctionDescription = {
-  description: _lt("Returns the matrix determinant of a square matrix."),
+  description: _t("Returns the matrix determinant of a square matrix."),
   args: [
     arg(
       "square_matrix (number, range<number>)",
-      _lt(
+      _t(
         "An range with an equal number of rows and columns representing a matrix whose determinant will be calculated."
       )
     ),
@@ -344,11 +344,11 @@ export const MDETERM: AddFunctionDescription = {
     const _matrix = toMatrixArgValue(matrix);
 
     assertSquareMatrix(
-      _lt("The argument square_matrix must have the same number of columns and rows."),
+      _t("The argument square_matrix must have the same number of columns and rows."),
       _matrix
     );
     if (!isNumberMatrix(_matrix)) {
-      throw new Error(_lt("The argument square_matrix must be a matrix of numbers."));
+      throw new Error(_t("The argument square_matrix must be a matrix of numbers."));
     }
     const { determinant } = invertMatrix(_matrix);
 
@@ -361,11 +361,11 @@ export const MDETERM: AddFunctionDescription = {
 // MINVERSE
 // -----------------------------------------------------------------------------
 export const MINVERSE: AddFunctionDescription = {
-  description: _lt("Returns the multiplicative inverse of a square matrix."),
+  description: _t("Returns the multiplicative inverse of a square matrix."),
   args: [
     arg(
       "square_matrix (number, range<number>)",
-      _lt(
+      _t(
         "An range with an equal number of rows and columns representing a matrix whose multiplicative inverse will be calculated."
       )
     ),
@@ -375,16 +375,16 @@ export const MINVERSE: AddFunctionDescription = {
     const _matrix = toMatrixArgValue(matrix);
 
     assertSquareMatrix(
-      _lt("The argument square_matrix must have the same number of columns and rows."),
+      _t("The argument square_matrix must have the same number of columns and rows."),
       _matrix
     );
     if (!isNumberMatrix(_matrix)) {
-      throw new Error(_lt("The argument square_matrix must be a matrix of numbers."));
+      throw new Error(_t("The argument square_matrix must be a matrix of numbers."));
     }
 
     const { inverted } = invertMatrix(_matrix);
     if (!inverted) {
-      throw new Error(_lt("The matrix is not invertible."));
+      throw new Error(_t("The matrix is not invertible."));
     }
 
     return inverted;
@@ -396,15 +396,15 @@ export const MINVERSE: AddFunctionDescription = {
 // MMULT
 // -----------------------------------------------------------------------------
 export const MMULT: AddFunctionDescription = {
-  description: _lt("Calculates the matrix product of two matrices."),
+  description: _t("Calculates the matrix product of two matrices."),
   args: [
     arg(
       "matrix1 (number, range<number>)",
-      _lt("The first matrix in the matrix multiplication operation.")
+      _t("The first matrix in the matrix multiplication operation.")
     ),
     arg(
       "matrix2 (number, range<number>)",
-      _lt("The second matrix in the matrix multiplication operation.")
+      _t("The second matrix in the matrix multiplication operation.")
     ),
   ],
   returns: ["RANGE<NUMBER>"],
@@ -414,7 +414,7 @@ export const MMULT: AddFunctionDescription = {
 
     assert(
       () => _matrix1.length === _matrix2[0].length,
-      _lt(
+      _t(
         "In [[FUNCTION_NAME]], the number of columns of the first matrix (%s) must be equal to the \
         number of rows of the second matrix (%s).",
         _matrix1.length.toString(),
@@ -422,7 +422,7 @@ export const MMULT: AddFunctionDescription = {
       )
     );
     if (!isNumberMatrix(_matrix1) || !isNumberMatrix(_matrix2)) {
-      throw new Error(_lt("The arguments matrix1 and matrix2 must be matrices of numbers."));
+      throw new Error(_t("The arguments matrix1 and matrix2 must be matrices of numbers."));
     }
 
     return multiplyMatrices(_matrix1, _matrix2);
@@ -434,26 +434,26 @@ export const MMULT: AddFunctionDescription = {
 // SUMPRODUCT
 // -----------------------------------------------------------------------------
 export const SUMPRODUCT: AddFunctionDescription = {
-  description: _lt(
+  description: _t(
     "Calculates the sum of the products of corresponding entries in equal-sized ranges."
   ),
   args: [
     arg(
       "range1 (number, range<number>)",
-      _lt(
+      _t(
         "The first range whose entries will be multiplied with corresponding entries in the other ranges."
       )
     ),
     arg(
       "range2 (number, range<number>, repeating)",
-      _lt(
+      _t(
         "The other range whose entries will be multiplied with corresponding entries in the other ranges."
       )
     ),
   ],
   returns: ["NUMBER"],
   compute: function (...args: ArgValue[]): number {
-    assertSameDimensions(_lt("All the ranges must have the same dimensions."), ...args);
+    assertSameDimensions(_t("All the ranges must have the same dimensions."), ...args);
     const _args = args.map(toMatrixArgValue);
     let result = 0;
     for (let i = 0; i < _args[0].length; i++) {
@@ -517,19 +517,19 @@ function getSumXAndY(
 }
 
 export const SUMX2MY2: AddFunctionDescription = {
-  description: _lt(
+  description: _t(
     "Calculates the sum of the difference of the squares of the values in two array."
   ),
   args: [
     arg(
       "array_x (number, range<number>)",
-      _lt(
+      _t(
         "The array or range of values whose squares will be reduced by the squares of corresponding entries in array_y and added together."
       )
     ),
     arg(
       "array_y (number, range<number>)",
-      _lt(
+      _t(
         "The array or range of values whose squares will be subtracted from the squares of corresponding entries in array_x and added together."
       )
     ),
@@ -545,17 +545,17 @@ export const SUMX2MY2: AddFunctionDescription = {
 // SUMX2PY2
 // -----------------------------------------------------------------------------
 export const SUMX2PY2: AddFunctionDescription = {
-  description: _lt("Calculates the sum of the sum of the squares of the values in two array."),
+  description: _t("Calculates the sum of the sum of the squares of the values in two array."),
   args: [
     arg(
       "array_x (number, range<number>)",
-      _lt(
+      _t(
         "The array or range of values whose squares will be added to the squares of corresponding entries in array_y and added together."
       )
     ),
     arg(
       "array_y (number, range<number>)",
-      _lt(
+      _t(
         "The array or range of values whose squares will be added to the squares of corresponding entries in array_x and added together."
       )
     ),
@@ -571,17 +571,17 @@ export const SUMX2PY2: AddFunctionDescription = {
 // SUMXMY2
 // -----------------------------------------------------------------------------
 export const SUMXMY2: AddFunctionDescription = {
-  description: _lt("Calculates the sum of squares of the differences of values in two array."),
+  description: _t("Calculates the sum of squares of the differences of values in two array."),
   args: [
     arg(
       "array_x (number, range<number>)",
-      _lt(
+      _t(
         "The array or range of values that will be reduced by corresponding entries in array_y, squared, and added together."
       )
     ),
     arg(
       "array_y (number, range<number>)",
-      _lt(
+      _t(
         "The array or range of values that will be subtracted from corresponding entries in array_x, the result squared, and all such results added together."
       )
     ),
@@ -599,16 +599,16 @@ export const SUMXMY2: AddFunctionDescription = {
 const TO_COL_ROW_DEFAULT_IGNORE = 0;
 const TO_COL_ROW_DEFAULT_SCAN = false;
 const TO_COL_ROW_ARGS = [
-  arg("array (any, range<any>)", _lt("The array which will be transformed.")),
+  arg("array (any, range<any>)", _t("The array which will be transformed.")),
   arg(
     `ignore (number, default=${TO_COL_ROW_DEFAULT_IGNORE})`,
-    _lt(
+    _t(
       "The control to ignore blanks and errors. 0 (default) is to keep all values, 1 is to ignore blanks, 2 is to ignore errors, and 3 is to ignore blanks and errors."
     )
   ),
   arg(
     `scan_by_column (number, default=${TO_COL_ROW_DEFAULT_SCAN})`,
-    _lt(
+    _t(
       "Whether the array should be scanned by column. True scans the array by column and false (default) \
       scans the array by row."
     )
@@ -616,7 +616,7 @@ const TO_COL_ROW_ARGS = [
 ];
 
 export const TOCOL: AddFunctionDescription = {
-  description: _lt("Transforms a range of cells into a single column."),
+  description: _t("Transforms a range of cells into a single column."),
   args: TO_COL_ROW_ARGS,
   returns: ["RANGE<ANY>"],
   //TODO compute format
@@ -629,7 +629,7 @@ export const TOCOL: AddFunctionDescription = {
     const _ignore = toInteger(ignore, this.locale);
     const _scanByColumn = toBoolean(scanByColumn);
 
-    assert(() => _ignore >= 0 && _ignore <= 3, _lt("Argument ignore must be between 0 and 3"));
+    assert(() => _ignore >= 0 && _ignore <= 3, _t("Argument ignore must be between 0 and 3"));
 
     const mappedFn = (acc: CellValue[], item: CellValue | undefined) => {
       // TODO : implement ignore value 2 (ignore error) & 3 (ignore blanks and errors) once we can have errors in
@@ -645,7 +645,7 @@ export const TOCOL: AddFunctionDescription = {
     const result = reduceAny([_array], mappedFn, [], _scanByColumn ? "colFirst" : "rowFirst");
 
     if (result.length === 0) {
-      throw new NotAvailableError(_lt("No results for the given arguments of TOCOL."));
+      throw new NotAvailableError(_t("No results for the given arguments of TOCOL."));
     }
     return [result];
   },
@@ -656,7 +656,7 @@ export const TOCOL: AddFunctionDescription = {
 // TOROW
 // -----------------------------------------------------------------------------
 export const TOROW: AddFunctionDescription = {
-  description: _lt("Transforms a range of cells into a single row."),
+  description: _t("Transforms a range of cells into a single row."),
   args: TO_COL_ROW_ARGS,
   returns: ["RANGE<ANY>"],
   //TODO compute format
@@ -669,7 +669,7 @@ export const TOROW: AddFunctionDescription = {
     const _ignore = toInteger(ignore, this.locale);
     const _scanByColumn = toBoolean(scanByColumn);
 
-    assert(() => _ignore >= 0 && _ignore <= 3, _lt("Argument ignore must be between 0 and 3"));
+    assert(() => _ignore >= 0 && _ignore <= 3, _t("Argument ignore must be between 0 and 3"));
 
     const mappedFn = (acc: Matrix<CellValue>, item: CellValue | undefined) => {
       // TODO : implement ignore value 2 (ignore error) & 3 (ignore blanks and errors) once we can have errors in
@@ -685,7 +685,7 @@ export const TOROW: AddFunctionDescription = {
     const result = reduceAny([_array], mappedFn, [], _scanByColumn ? "colFirst" : "rowFirst");
 
     if (result.length === 0 || result[0].length === 0) {
-      throw new NotAvailableError(_lt("No results for the given arguments of TOROW."));
+      throw new NotAvailableError(_t("No results for the given arguments of TOROW."));
     }
     return result;
   },
@@ -696,8 +696,8 @@ export const TOROW: AddFunctionDescription = {
 // TRANSPOSE
 // -----------------------------------------------------------------------------
 export const TRANSPOSE: AddFunctionDescription = {
-  description: _lt("Transposes the rows and columns of a range."),
-  args: [arg("range (any, range<any>)", _lt("The range to be transposed."))],
+  description: _t("Transposes the rows and columns of a range."),
+  args: [arg("range (any, range<any>)", _t("The range to be transposed."))],
   returns: ["RANGE<ANY>"],
   computeFormat: (values: Arg) => {
     if (!values.format) {
@@ -719,10 +719,10 @@ export const TRANSPOSE: AddFunctionDescription = {
 // VSTACK
 // -----------------------------------------------------------------------------
 export const VSTACK: AddFunctionDescription = {
-  description: _lt("Appends ranges vertically and in sequence to return a larger array."),
+  description: _t("Appends ranges vertically and in sequence to return a larger array."),
   args: [
-    arg("range1 (any, range<any>)", _lt("The first range to be appended.")),
-    arg("range2 (any, range<any>, repeating)", _lt("Additional ranges to add to range1.")),
+    arg("range1 (any, range<any>)", _t("The first range to be appended.")),
+    arg("range2 (any, range<any>, repeating)", _t("Additional ranges to add to range1.")),
   ],
   returns: ["RANGE<ANY>"],
   //TODO computeFormat
@@ -755,18 +755,18 @@ export const VSTACK: AddFunctionDescription = {
 // WRAPCOLS
 // -----------------------------------------------------------------------------
 export const WRAPCOLS: AddFunctionDescription = {
-  description: _lt(
+  description: _t(
     "Wraps the provided row or column of cells by columns after a specified number of elements to form a new array."
   ),
   args: [
-    arg("range (any, range<any>)", _lt("The range to wrap.")),
+    arg("range (any, range<any>)", _t("The range to wrap.")),
     arg(
       "wrap_count (number)",
-      _lt("The maximum number of cells for each column, rounded down to the nearest whole number.")
+      _t("The maximum number of cells for each column, rounded down to the nearest whole number.")
     ),
     arg(
       "pad_with  (any, default=0)", // TODO : replace with #N/A
-      _lt("The value with which to fill the extra cells in the range.")
+      _t("The value with which to fill the extra cells in the range.")
     ),
   ],
   returns: ["RANGE<ANY>"],
@@ -780,7 +780,7 @@ export const WRAPCOLS: AddFunctionDescription = {
     const nOfRows = toInteger(wrapCount, this.locale);
     const _padWith = padWith === null ? 0 : padWith;
 
-    assertSingleColOrRow(_lt("Argument range must be a single row or column."), _range);
+    assertSingleColOrRow(_t("Argument range must be a single row or column."), _range);
 
     const values = _range.flat();
     const nOfCols = Math.ceil(values.length / nOfRows);
@@ -805,18 +805,18 @@ export const WRAPCOLS: AddFunctionDescription = {
 // WRAPROWS
 // -----------------------------------------------------------------------------
 export const WRAPROWS: AddFunctionDescription = {
-  description: _lt(
+  description: _t(
     "Wraps the provided row or column of cells by rows after a specified number of elements to form a new array."
   ),
   args: [
-    arg("range (any, range<any>)", _lt("The range to wrap.")),
+    arg("range (any, range<any>)", _t("The range to wrap.")),
     arg(
       "wrap_count (number)",
-      _lt("The maximum number of cells for each row, rounded down to the nearest whole number.")
+      _t("The maximum number of cells for each row, rounded down to the nearest whole number.")
     ),
     arg(
       "pad_with  (any, default=0)", // TODO : replace with #N/A
-      _lt("The value with which to fill the extra cells in the range.")
+      _t("The value with which to fill the extra cells in the range.")
     ),
   ],
   returns: ["RANGE<ANY>"],
@@ -830,7 +830,7 @@ export const WRAPROWS: AddFunctionDescription = {
     const nOfCols = toInteger(wrapCount, this.locale);
     const _padWith = padWith === null ? 0 : padWith;
 
-    assertSingleColOrRow(_lt("Argument range must be a single row or column."), _range);
+    assertSingleColOrRow(_t("Argument range must be a single row or column."), _range);
 
     const values = _range.flat();
     const nOfRows = Math.ceil(values.length / nOfCols);

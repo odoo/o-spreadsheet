@@ -1,5 +1,5 @@
 import { transpose2dArray } from "../helpers";
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import {
   AddFunctionDescription,
   ArgValue,
@@ -18,21 +18,21 @@ import { assertSameDimensions, assertSingleColOrRow } from "./helper_assert";
 // FILTER
 // -----------------------------------------------------------------------------
 export const FILTER: AddFunctionDescription = {
-  description: _lt(
+  description: _t(
     "Returns a filtered version of the source range, returning only rows or columns that meet the specified conditions."
   ),
   // TODO modify args description when vectorization on formulas is available
   args: [
-    arg("range (any, range<any>)", _lt("The data to be filtered.")),
+    arg("range (any, range<any>)", _t("The data to be filtered.")),
     arg(
       "condition1 (boolean, range<boolean>)",
-      _lt(
+      _t(
         "A column or row containing true or false values corresponding to the first column or row of range."
       )
     ),
     arg(
       "condition2 (boolean, range<boolean>, repeating)",
-      _lt("Additional column or row containing true or false values.")
+      _t("Additional column or row containing true or false values.")
     ),
   ],
   returns: ["RANGE<ANY>"],
@@ -41,10 +41,10 @@ export const FILTER: AddFunctionDescription = {
     let _range = toMatrixArgValue(range);
     const _conditionsMatrices = conditions.map((cond) => toMatrixArgValue(cond));
     _conditionsMatrices.map((c) =>
-      assertSingleColOrRow(_lt("The arguments condition must be a single column or row."), c)
+      assertSingleColOrRow(_t("The arguments condition must be a single column or row."), c)
     );
     assertSameDimensions(
-      _lt("The arguments conditions must have the same dimensions."),
+      _t("The arguments conditions must have the same dimensions."),
       ..._conditionsMatrices
     );
     const _conditions = _conditionsMatrices.map((c) => c.flat());
@@ -54,7 +54,7 @@ export const FILTER: AddFunctionDescription = {
 
     assert(
       () => _conditions.every((cond) => cond.length === _range.length),
-      _lt(`FILTER has mismatched sizes on the range and conditions.`)
+      _t(`FILTER has mismatched sizes on the range and conditions.`)
     );
 
     const results: MatrixArgValue = [];
@@ -67,7 +67,7 @@ export const FILTER: AddFunctionDescription = {
     }
 
     if (!results.length) {
-      throw new NotAvailableError(_lt("No match found in FILTER evaluation"));
+      throw new NotAvailableError(_t("No match found in FILTER evaluation"));
     }
 
     return toCellValueMatrix(mode === "row" ? transpose2dArray(results) : results);
@@ -79,16 +79,16 @@ export const FILTER: AddFunctionDescription = {
 // UNIQUE
 // -----------------------------------------------------------------------------
 export const UNIQUE: AddFunctionDescription = {
-  description: _lt("Unique rows in the provided source range."),
+  description: _t("Unique rows in the provided source range."),
   args: [
-    arg("range (any, range<any>)", _lt("The data to filter by unique entries.")),
+    arg("range (any, range<any>)", _t("The data to filter by unique entries.")),
     arg(
       "by_column (boolean, default=FALSE)",
-      _lt("Whether to filter the data by columns or by rows.")
+      _t("Whether to filter the data by columns or by rows.")
     ),
     arg(
       "exactly_once (boolean, default=FALSE)",
-      _lt("Whether to return only entries with no duplicates.")
+      _t("Whether to return only entries with no duplicates.")
     ),
   ],
   returns: ["RANGE<NUMBER>"],
@@ -121,7 +121,7 @@ export const UNIQUE: AddFunctionDescription = {
       ? [...map.values()].filter((v) => v.count === 1).map((v) => v.val)
       : [...map.values()].map((v) => v.val);
 
-    if (!results.length) throw new Error(_lt("No unique values found"));
+    if (!results.length) throw new Error(_t("No unique values found"));
 
     return toCellValueMatrix(_byColumn ? results : transpose2dArray(results));
   },

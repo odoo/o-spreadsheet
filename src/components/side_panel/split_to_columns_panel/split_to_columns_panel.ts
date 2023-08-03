@@ -1,7 +1,7 @@
 import { Component, onMounted, onWillUpdateProps, useState } from "@odoo/owl";
 import { NEWLINE } from "../../../constants";
 import { interactiveSplitToColumns } from "../../../helpers/ui/split_to_columns_interactive";
-import { _lt } from "../../../translation";
+import { _t } from "../../../translation";
 import { CommandResult, SpreadsheetChildEnv } from "../../../types/index";
 import { SplitToColumnsTerms } from "../../translations_terms";
 import { SidePanelErrors } from "../side_panel_errors/side_panel_errors";
@@ -14,12 +14,12 @@ interface Separator {
 }
 
 const SEPARATORS: Separator[] = [
-  { name: _lt("Detect automatically"), value: "auto" },
-  { name: _lt("Custom separator"), value: "custom" },
-  { name: _lt("Space"), value: " " },
-  { name: _lt("Comma"), value: "," },
-  { name: _lt("Semicolon"), value: ";" },
-  { name: _lt("Line Break"), value: NEWLINE },
+  { name: _t("Detect automatically"), value: "auto" },
+  { name: _t("Custom separator"), value: "custom" },
+  { name: _t("Space"), value: " " },
+  { name: _t("Comma"), value: "," },
+  { name: _t("Semicolon"), value: ";" },
+  { name: _t("Line Break"), value: NEWLINE },
 ];
 
 interface Props {

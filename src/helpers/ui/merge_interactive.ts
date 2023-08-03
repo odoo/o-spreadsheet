@@ -1,11 +1,11 @@
-import { _lt } from "../../translation";
+import { _t } from "../../translation";
 import { CommandResult, SpreadsheetChildEnv, UID, Zone } from "../../types";
 
 export const AddMergeInteractiveContent = {
-  MergeIsDestructive: _lt(
+  MergeIsDestructive: _t(
     "Merging these cells will only preserve the top-leftmost value. Merge anyway?"
   ),
-  MergeInFilter: _lt("You can't merge cells inside of an existing filter."),
+  MergeInFilter: _t("You can't merge cells inside of an existing filter."),
 };
 
 export function interactiveAddMerge(env: SpreadsheetChildEnv, sheetId: UID, target: Zone[]) {

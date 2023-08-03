@@ -16,7 +16,7 @@ import {
 } from "../../helpers/index";
 import { canonicalizeContent, localizeFormula } from "../../helpers/locale";
 import { loopThroughReferenceType } from "../../helpers/reference_type";
-import { _lt } from "../../translation";
+import { _t } from "../../translation";
 import {
   AddColumnsRowsCommand,
   CellPosition,
@@ -42,7 +42,7 @@ export type EditionMode =
   | "selecting" // should tell if you need to underline the current range selected.
   | "inactive";
 
-const CELL_DELETED_MESSAGE = _lt("The cell you are trying to edit has been deleted.");
+const CELL_DELETED_MESSAGE = _t("The cell you are trying to edit has been deleted.");
 
 export interface ComposerSelection {
   start: number;
@@ -572,7 +572,7 @@ export class EditionPlugin extends UIPlugin {
         if (raise) {
           this.ui.notifyUI({
             type: "ERROR",
-            text: _lt(
+            text: _t(
               "This formula has over 100 parts. It can't be processed properly, consider splitting it into multiple cells"
             ),
           });

@@ -1,10 +1,10 @@
 import { CommandResult } from "../..";
-import { _lt } from "../../translation";
+import { _t } from "../../translation";
 import { SpreadsheetChildEnv } from "../../types";
 import { DispatchResult } from "./../../types/commands";
 
 export const SplitToColumnsInteractiveContent = {
-  SplitIsDestructive: _lt("This will overwrite data in the subsequent columns. Split anyway?"),
+  SplitIsDestructive: _t("This will overwrite data in the subsequent columns. Split anyway?"),
 };
 
 export function interactiveSplitToColumns(

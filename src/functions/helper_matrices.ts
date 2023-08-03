@@ -1,4 +1,4 @@
-import { _lt } from "../translation";
+import { _t } from "../translation";
 import { Matrix } from "../types";
 
 export function getUnitMatrix(n: number): Matrix<number> {
@@ -114,7 +114,7 @@ function swapMatrixRows(matrix: number[][], row1: number, row2: number) {
  */
 export function multiplyMatrices(matrix1: Matrix<number>, matrix2: Matrix<number>): Matrix<number> {
   if (matrix1.length !== matrix2[0].length) {
-    throw new Error(_lt("Cannot multiply matrices : incompatible matrices size."));
+    throw new Error(_t("Cannot multiply matrices : incompatible matrices size."));
   }
 
   const rowsM1 = matrix1[0].length;

@@ -3,7 +3,7 @@ import { compile } from "../../formulas";
 import { parseLiteral } from "../../helpers/cells";
 import { colorNumberString, percentile } from "../../helpers/index";
 import { clip, lazy } from "../../helpers/misc";
-import { _lt } from "../../translation";
+import { _t } from "../../translation";
 import {
   CellIsRule,
   CellPosition,
@@ -458,7 +458,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
           return cell.value === values[0];
         default:
           console.warn(
-            _lt(
+            _t(
               "Not implemented operator %s for kind of conditional formatting:  %s",
               rule.operator,
               rule.type

@@ -3,7 +3,7 @@ import * as ACTION_EDIT from "../../actions/edit_actions";
 import * as ACTION_FORMAT from "../../actions/format_actions";
 import * as ACTION_INSERT from "../../actions/insert_actions";
 import * as ACTION_VIEW from "../../actions/view_actions";
-import { _lt } from "../../translation";
+import { _t } from "../../translation";
 import { MenuItemRegistry } from "../menu_items_registry";
 
 export const colMenuRegistry = new MenuItemRegistry();
@@ -37,7 +37,7 @@ colMenuRegistry
   .add("sort_columns", {
     ...ACTION_DATA.sortRange,
     name: (env) =>
-      env.model.getters.getActiveCols().size > 1 ? _lt("Sort columns") : _lt("Sort column"),
+      env.model.getters.getActiveCols().size > 1 ? _t("Sort columns") : _t("Sort column"),
     sequence: 50,
     separator: true,
   })
