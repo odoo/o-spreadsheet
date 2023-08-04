@@ -12,6 +12,7 @@ import {
   getCellText,
   getEvaluatedCell,
 } from "./test_helpers/getters_helpers";
+import { addTestPlugin } from "./test_helpers/helpers";
 
 describe("Model", () => {
   test("core plugin can refuse command from UI plugin", () => {
@@ -36,13 +37,11 @@ describe("Model", () => {
         }
       }
     }
-    featurePluginRegistry.add("myUIPlugin", MyUIPlugin);
-    corePluginRegistry.add("myCorePlugin", MyCorePlugin);
+    addTestPlugin(featurePluginRegistry, MyUIPlugin);
+    addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = new Model();
     copy(model, "A1");
     expect(result).toBeCancelledBecause(CommandResult.CancelledForUnknownReason);
-    featurePluginRegistry.remove("myUIPlugin");
-    corePluginRegistry.remove("myCorePlugin");
   });
 
   test("core plugin cannot refuse command from core plugin", () => {
@@ -65,12 +64,11 @@ describe("Model", () => {
         }
       }
     }
-    corePluginRegistry.add("myCorePlugin", MyCorePlugin);
+    addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = new Model();
     model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
     expect(result).toBeSuccessfullyDispatched();
     expect(getCellText(model, "A1", "42")).toBe("Hello");
-    corePluginRegistry.remove("myCorePlugin");
   });
 
   test("UI plugin cannot refuse command from UI plugin", () => {
@@ -90,13 +88,12 @@ describe("Model", () => {
         }
       }
     }
-    featurePluginRegistry.add("myUIPlugin", MyUIPlugin);
+    addTestPlugin(featurePluginRegistry, MyUIPlugin);
     const model = new Model();
     setCellContent(model, "A1", "copy&paste me");
     copy(model, "A1");
     expect(result).toBeSuccessfullyDispatched();
     expect(getCellText(model, "A2")).toBe("copy&paste me");
-    featurePluginRegistry.remove("myUIPlugin");
   });
 
   test("UI plugins cannot refuse core commands", () => {
@@ -108,12 +105,11 @@ describe("Model", () => {
         return CommandResult.Success;
       }
     }
-    featurePluginRegistry.add("myUIPlugin", MyUIPlugin);
+    addTestPlugin(featurePluginRegistry, MyUIPlugin);
     const model = new Model();
 
     setCellContent(model, "A1", "hello");
     expect(getCellContent(model, "A1")).toBe("hello");
-    featurePluginRegistry.remove("myUIPlugin");
   });
 
   test("Core plugins allowDispatch don't receive UI commands", () => {
@@ -124,7 +120,7 @@ describe("Model", () => {
         return CommandResult.Success;
       }
     }
-    corePluginRegistry.add("myCorePlugin", MyCorePlugin);
+    addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = new Model();
     model.dispatch("COPY");
     expect(receivedCommands).not.toContain("COPY");
@@ -139,7 +135,7 @@ describe("Model", () => {
         return CommandResult.Success;
       }
     }
-    corePluginRegistry.add("myCorePlugin", MyCorePlugin);
+    addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = new Model();
     expect(model.canDispatch("CREATE_SHEET", { sheetId: "42", position: 1 })).toBeCancelledBecause(
       CommandResult.CancelledForUnknownReason
@@ -203,13 +199,10 @@ describe("Model", () => {
 
       getSomething() {}
     }
-    corePluginRegistry.add("myCorePlugin1", MyCorePlugin1);
-    corePluginRegistry.add("myCorePlugin2", MyCorePlugin2);
+    addTestPlugin(corePluginRegistry, MyCorePlugin1);
+    addTestPlugin(corePluginRegistry, MyCorePlugin2);
 
     expect(() => new Model()).toThrowError(`Getter "getSomething" is already defined.`);
-
-    corePluginRegistry.remove("myCorePlugin1");
-    corePluginRegistry.remove("myCorePlugin2");
   });
 
   test("Cannot add an already existing getters", () => {
@@ -224,13 +217,10 @@ describe("Model", () => {
 
       getSomething() {}
     }
-    featurePluginRegistry.add("myUIPlugin1", MyUIPlugin1);
-    featurePluginRegistry.add("myUIPlugin2", MyUIPlugin2);
+    addTestPlugin(featurePluginRegistry, MyUIPlugin1);
+    addTestPlugin(featurePluginRegistry, MyUIPlugin2);
 
     expect(() => new Model()).toThrowError(`Getter "getSomething" is already defined.`);
-
-    featurePluginRegistry.remove("myUIPlugin1");
-    featurePluginRegistry.remove("myUIPlugin2");
   });
 
   test("Replayed commands are not send to UI plugins", () => {
@@ -249,7 +239,7 @@ describe("Model", () => {
         }
       }
     }
-    featurePluginRegistry.add("myUIPlugin", MyUIPlugin);
+    addTestPlugin(featurePluginRegistry, MyUIPlugin);
 
     class MyCorePlugin extends CorePlugin {
       public readonly state: number = 0;
@@ -262,7 +252,7 @@ describe("Model", () => {
         }
       }
     }
-    corePluginRegistry.add("myCorePlugin", MyCorePlugin);
+    addTestPlugin(corePluginRegistry, MyCorePlugin);
 
     const { alice, bob, network } = setupCollaborativeEnv();
     network.concurrent(() => {
@@ -271,8 +261,6 @@ describe("Model", () => {
       bob.dispatch("MY_CMD_1");
     });
     expect(numberCall).toEqual(1);
-    featurePluginRegistry.remove("myUIPlugin");
-    corePluginRegistry.remove("myCorePlugin");
   });
 
   test("Initial commands are not sent to UI plugins", () => {
@@ -283,7 +271,7 @@ describe("Model", () => {
         }
       }
     }
-    featurePluginRegistry.add("MyUIPlugin", MyUIPlugin);
+    addTestPlugin(featurePluginRegistry, MyUIPlugin);
     const data = {
       sheets: [{ id: "sheet1" }],
       revisionId: "initialRevision",
@@ -307,7 +295,6 @@ describe("Model", () => {
       },
     ]);
     expect(getEvaluatedCell(model, "A1").value).toBe(6);
-    featurePluginRegistry.remove("MyUIPlugin");
   });
 
   test("Core commands which dispatch UPDATE_CELL should trigger evaluation", () => {
@@ -327,7 +314,7 @@ describe("Model", () => {
         }
       }
     }
-    corePluginRegistry.add("myCorePlugin", MyCorePlugin);
+    addTestPlugin(corePluginRegistry, MyCorePlugin);
 
     const { alice, bob, charlie } = setupCollaborativeEnv();
     setCellContent(alice, "A1", "=3");
@@ -341,6 +328,5 @@ describe("Model", () => {
       (user) => getCellContent(user, "A1"),
       "5"
     );
-    corePluginRegistry.remove("myCorePlugin");
   });
 });
