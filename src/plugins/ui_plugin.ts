@@ -35,7 +35,7 @@ export interface UIPluginConstructor {
  * UI plugins handle any transient data required to display a spreadsheet.
  * They can draw on the grid canvas.
  */
-export class UIPlugin<State = any, C = Command> extends BasePlugin<State, C> {
+export class UIPlugin<State = any> extends BasePlugin<State, Command> {
   static layers: LAYERS[] = [];
 
   protected getters: Getters;

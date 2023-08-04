@@ -34,8 +34,8 @@ export interface CorePluginConstructor {
  * persisted state.
  * They should not be concerned about UI parts or transient state.
  */
-export class CorePlugin<State = any, C = CoreCommand>
-  extends BasePlugin<State, C>
+export class CorePlugin<State = any>
+  extends BasePlugin<State, CoreCommand>
   implements RangeProvider
 {
   protected getters: CoreGetters;
