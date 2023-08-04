@@ -22,9 +22,12 @@ import { ImageProvider } from "../../src/helpers/figures/images/image_provider";
 import { range, toCartesian, toUnboundedZone, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
+import { CorePluginConstructor } from "../../src/plugins/core_plugin";
+import { UIPluginConstructor } from "../../src/plugins/ui_plugin";
 import { ComposerSelection } from "../../src/plugins/ui_stateful";
 import { topbarMenuRegistry } from "../../src/registries";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
+import { Registry } from "../../src/registries/registry";
 import { _t } from "../../src/translation";
 import {
   CellPosition,
@@ -73,6 +76,15 @@ export function getPlugin<T extends new (...args: any) => any>(
   cls: T
 ): InstanceType<T> {
   return model["handlers"].find((handler) => handler instanceof cls) as unknown as InstanceType<T>;
+}
+
+export function addTestPlugin(
+  registry: Registry<CorePluginConstructor | UIPluginConstructor>,
+  Plugin: CorePluginConstructor | UIPluginConstructor
+) {
+  const key = `test-plugin-${Plugin.name}`;
+  registry.add(key, Plugin);
+  registerCleanup(() => registry.remove(key));
 }
 
 const realTimeSetTimeout = window.setTimeout.bind(window);

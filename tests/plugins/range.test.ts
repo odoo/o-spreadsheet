@@ -12,6 +12,7 @@ import {
   deleteSheet,
   renameSheet,
 } from "../test_helpers/commands_helpers";
+import { addTestPlugin } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let m;
@@ -76,11 +77,8 @@ class PluginTestRange extends CorePlugin {
   }
 }
 
-beforeAll(() => {
-  corePluginRegistry.add("testRange", PluginTestRange);
-});
-afterAll(() => {
-  corePluginRegistry.remove("testRange");
+beforeEach(() => {
+  addTestPlugin(corePluginRegistry, PluginTestRange);
 });
 
 describe("range plugin", () => {

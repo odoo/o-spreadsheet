@@ -21,7 +21,7 @@ import {
   getEvaluatedCell,
 } from "../test_helpers/getters_helpers"; // to have getcontext mocks
 import "../test_helpers/helpers";
-import { getPlugin } from "../test_helpers/helpers";
+import { addTestPlugin, getPlugin } from "../test_helpers/helpers";
 
 // we test here the undo/redo feature
 
@@ -308,7 +308,7 @@ describe("Model history", () => {
 
   test("undone & redone commands are part of the command", () => {
     class TestPlugin extends UIPlugin {}
-    featurePluginRegistry.add("test-plugin", TestPlugin);
+    addTestPlugin(featurePluginRegistry, TestPlugin);
     const model = new Model();
     const plugin = getPlugin(model, TestPlugin);
     plugin.handle = jest.fn((cmd) => {});
@@ -330,6 +330,5 @@ describe("Model history", () => {
       type: "REDO",
       commands: [command],
     });
-    featurePluginRegistry.remove("test-plugin");
   });
 });
