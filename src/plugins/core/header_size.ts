@@ -105,7 +105,8 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
         }
         break;
       case "UPDATE_CELL":
-        if (!this.sizes[cmd.sheetId]?.["ROW"]?.[cmd.row]?.manualSize) {
+        const row = this.sizes[cmd.sheetId]?.["ROW"]?.[cmd.row];
+        if (row && !row.manualSize) {
           const { sheetId, row } = cmd;
           this.history.update(
             "sizes",
