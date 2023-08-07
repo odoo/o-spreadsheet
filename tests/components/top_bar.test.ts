@@ -20,6 +20,7 @@ import {
   click,
   doubleClick,
   getElComputedStyle,
+  keyDown,
   simulateClick,
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
@@ -124,8 +125,12 @@ describe("TopBar component", () => {
     expect(fixture.querySelectorAll(".o-menu").length).toBe(0);
     await click(fixture, ".o-topbar-menu[data-id='edit']");
     expect(fixture.querySelectorAll(".o-menu").length).toBe(1);
+    expect(document.activeElement).toBe(fixture.querySelector(".o-menu"));
     await click(fixture, ".o-spreadsheet-topbar div.o-composer");
     expect(fixture.querySelectorAll(".o-menu").length).toBe(0);
+    expect(document.activeElement).toBe(
+      fixture.querySelector(".o-spreadsheet-topbar div.o-composer")
+    );
   });
 
   test("merging cell button state is correct", async () => {
@@ -892,6 +897,7 @@ test("The composer helper should be closed on toggle topbar context menu", async
 });
 
 test("The menu items are orderer by their sequence", async () => {
+  const menuDefinitions = Object.assign({}, topbarMenuRegistry.content);
   topbarMenuRegistry.add("test", {
     sequence: 1,
     name: "test",
@@ -914,6 +920,176 @@ test("The menu items are orderer by their sequence", async () => {
   expect(menuItems[0].dataset.name).toBe("first");
   expect(menuItems[1].dataset.name).toBe("second");
   expect(menuItems[2].dataset.name).toBe("third");
+  topbarMenuRegistry.content = menuDefinitions;
+});
+
+describe("Topbar menus - keyboard shortcuts", () => {
+  const menuDefinitions = Object.assign({}, topbarMenuRegistry.content);
+  beforeAll(() => {
+    topbarMenuRegistry.addChild("fileChild", ["file"], {
+      name: "TestAction",
+      sequence: 1,
+      execute: () => {},
+    });
+  });
+
+  afterAll(() => {
+    topbarMenuRegistry.content = menuDefinitions;
+  });
+
+  test.each([
+    ["file", "F"],
+    ["edit", "E"],
+    ["view", "V"],
+    ["insert", "I"],
+    ["format", "O"],
+    ["data", "D"],
+  ])("Open menu %s", async (menuName: string, key) => {
+    await mountParent();
+    const menuButton = fixture.querySelector(`.o-topbar-menu[data-id='${menuName}']`);
+    expect(menuButton!.classList).not.toContain("active");
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
+    await keyDown({ key, altKey: true });
+    await nextTick();
+    expect(menuButton!.classList).toContain("active");
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+  });
+
+  test("ArrowLeft to open the preceding menu if no sub menu is opened", async () => {
+    await mountParent();
+    const dataMenuButton = fixture.querySelector(".o-topbar-menu[data-id='data']");
+    const formatMenuButton = fixture.querySelector(".o-topbar-menu[data-id='format']");
+    await keyDown({ key: "D", altKey: true });
+    await nextTick();
+    expect(dataMenuButton!.classList).toContain("active");
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    expect(formatMenuButton!.classList).not.toContain("active");
+    await keyDown({ key: "ArrowLeft" });
+    expect(dataMenuButton!.classList).not.toContain("active");
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    expect(formatMenuButton!.classList).toContain("active");
+  });
+
+  test("ArrowLeft to open the last menu (Data) if no sub menu is opened, and the current menu is the first menu (File)", async () => {
+    await mountParent();
+    const fileMenu = fixture.querySelector(".o-topbar-menu[data-id='file']");
+    const dataMenu = fixture.querySelector(".o-topbar-menu[data-id='data']");
+    await keyDown({ key: "F", altKey: true });
+    await nextTick();
+    expect(fileMenu!.classList).toContain("active");
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    expect(dataMenu!.classList).not.toContain("active");
+    await keyDown({ key: "ArrowLeft" });
+    expect(fileMenu!.classList).not.toContain("active");
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    expect(dataMenu!.classList).toContain("active");
+  });
+
+  test("ArrowRight to open the next menu if no sub menu is opened", async () => {
+    await mountParent();
+    const editMenu = fixture.querySelector(".o-topbar-menu[data-id='edit']");
+    const viewMenu = fixture.querySelector(".o-topbar-menu[data-id='view']");
+    await keyDown({ key: "E", altKey: true });
+    await nextTick();
+    expect(editMenu!.classList).toContain("active");
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    expect(viewMenu!.classList).not.toContain("active");
+    await keyDown({ key: "ArrowRight" });
+    expect(editMenu!.classList).not.toContain("active");
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    expect(viewMenu!.classList).toContain("active");
+  });
+
+  test("ArrowRight to open the first menu (File) if no sub menu is opened, and the current menu is the last menu (Data)", async () => {
+    await mountParent();
+    const fileMenu = fixture.querySelector(".o-topbar-menu[data-id='file']");
+    const dataMenu = fixture.querySelector(".o-topbar-menu[data-id='data']");
+    await keyDown({ key: "D", altKey: true });
+    await nextTick();
+    expect(fileMenu!.classList).not.toContain("active");
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    expect(dataMenu!.classList).toContain("active");
+    await keyDown({ key: "ArrowRight" });
+    expect(fileMenu!.classList).toContain("active");
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    expect(dataMenu!.classList).not.toContain("active");
+  });
+
+  test("Menu with all invisible menu items won't break the navigation", async () => {
+    const menuDefinitions = Object.assign({}, topbarMenuRegistry.content);
+    topbarMenuRegistry.add("invisible", {
+      name: "invisible",
+    });
+    topbarMenuRegistry.addChild("invisibleChild", ["invisible"], {
+      name: "TestAction",
+      sequence: 1,
+      execute: () => {},
+      isVisible: () => false,
+    });
+    await mountParent();
+    await simulateClick(".o-topbar-menu[data-id='invisible']");
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
+    await keyDown({ key: "ArrowRight" });
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    expect(fixture.querySelector(".o-topbar-menu[data-id='file']")!.classList).toContain("active");
+    topbarMenuRegistry.content = menuDefinitions;
+  });
+
+  test("Menu with all disabled menu items won't break the navigation", async () => {
+    const menuDefinitions = Object.assign({}, topbarMenuRegistry.content);
+    topbarMenuRegistry.add("disabled", {
+      name: "disabled",
+    });
+    topbarMenuRegistry.addChild("disabledItem", ["disabled"], {
+      name: "TestAction",
+      sequence: 1,
+      execute: () => {},
+      isEnabled: () => false,
+    });
+    await mountParent();
+    const disabledMenuItem = fixture.querySelector(".o-topbar-menu[data-id='disabled']");
+    const fileMenuItem = fixture.querySelector(".o-topbar-menu[data-id='file']");
+    await simulateClick(".o-topbar-menu[data-id='disabled']");
+    expect(disabledMenuItem!.classList).toContain("active");
+    expect(fileMenuItem!.classList).not.toContain("active");
+    await keyDown({ key: "ArrowRight" });
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
+    expect(disabledMenuItem!.classList).not.toContain("active");
+    expect(fileMenuItem!.classList).toContain("active");
+    topbarMenuRegistry.content = menuDefinitions;
+  });
+
+  test("Enter to execute and close a menu item", async () => {
+    window.HTMLElement.prototype.scrollIntoView = jest.fn();
+    const menuDefinitions = Object.assign({}, topbarMenuRegistry.content);
+    let number = 0;
+    topbarMenuRegistry.add("test", { name: "Test", sequence: 1 });
+    topbarMenuRegistry.addChild("testaction", ["test"], {
+      name: "TestAction",
+      sequence: 1,
+      execute: () => {
+        number++;
+      },
+    });
+    const { fixture } = await mountParent();
+    await click(fixture, ".o-topbar-menu[data-id='test']");
+    await keyDown({ key: "ArrowDown" });
+    await keyDown({ key: "Enter" });
+    expect(fixture.querySelectorAll(".o-menu-dropdown-content")).toHaveLength(0);
+    expect(number).toBe(1);
+    topbarMenuRegistry.content = menuDefinitions;
+  });
+
+  test("ESC to close all menus including sub menus", async () => {
+    await mountParent();
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: "O", altKey: true, bubbles: true }));
+    await nextTick();
+    await keyDown({ key: "ArrowDown" });
+    await keyDown({ key: "ArrowRight" }); // open format number sub menu
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(2);
+    await keyDown({ key: "Escape" });
+    expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
+  });
 });
 
 describe("Topbar svg icon", () => {

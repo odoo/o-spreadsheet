@@ -8,6 +8,7 @@
         <div class="o-topbar-topleft d-flex">
           <t t-foreach="menus" t-as="menu" t-key="menu_index">
             <div
+              t-ref="{{menu.id}}"
               t-if="menu.children.length !== 0"
               class="o-topbar-menu o-hoverable-button rounded"
               t-att-class="{'active': state.menuState.parentMenu and state.menuState.parentMenu.id === menu.id}"
@@ -173,10 +174,12 @@
     </div>
     <Menu
       t-if="state.menuState.isOpen"
+      t-key="state.openedMenuId"
       position="state.menuState.position"
       menuItems="state.menuState.menuItems"
       onClose="() => this.closeMenus()"
       onMenuClicked="() => this.props.onClick()"
+      navigateBackToParent="(direction) => this.changeActiveMenu(direction)"
     />
   </t>
 </templates>

@@ -148,6 +148,24 @@ describe("Simple Spreadsheet Component", () => {
     expect(document.querySelectorAll(".o-sidePanel").length).toBe(0);
   });
 
+  test("when side panel is opening and the search query input has focus, the input won't lose its focus", async () => {
+    ({ model, parent, fixture } = await mountSpreadsheet());
+    await keyDown({ key: "F", ctrlKey: true });
+    const input = document.querySelector(".o-sidePanel .o-input")!;
+    await click(input);
+    expect(document.activeElement).toBe(input);
+  });
+
+  test("when side panel is opening and the search query input has focus, arow keys will only work in input", async () => {
+    ({ model, parent, fixture } = await mountSpreadsheet());
+    await keyDown({ key: "F", ctrlKey: true });
+    const input = document.querySelector(".o-sidePanel .o-input")!;
+    await click(input);
+    await keyDown({ key: "ArrowRight" });
+    expect(document.activeElement).toBe(input);
+    expect(fixture.querySelector("o-menu")).toBeFalsy();
+  });
+
   test("Z-indexes of the various spreadsheet components", async () => {
     jest.useFakeTimers();
     ({ model, fixture } = await mountSpreadsheet());

@@ -203,8 +203,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       /** TODO: Clean once we introduce proper focus on sub components. Grid should not have to handle all this logic */
       if (this.env.model.getters.hasOpenedPopover()) {
         this.closeOpenedPopover();
-      } else if (this.menuState.isOpen) {
-        this.closeMenu();
       } else if (this.env.model.getters.isPaintingFormat()) {
         this.env.model.dispatch("CANCEL_PAINT_FORMAT");
       } else {

@@ -3,6 +3,7 @@
 exports[`BottomBar component Can open the list of statistics 1`] = `
 <div
   class="o-menu"
+  tabindex="-1"
 >
   
   <div

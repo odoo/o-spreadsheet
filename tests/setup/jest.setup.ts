@@ -12,6 +12,7 @@ export let OWL_TEMPLATES: Document;
 beforeAll(() => {
   OWL_TEMPLATES = getParsedOwlTemplateBundle();
   setDefaultSheetViewSize(1000);
+  window.HTMLElement.prototype.scrollIntoView = jest.fn();
 });
 
 beforeEach(() => {

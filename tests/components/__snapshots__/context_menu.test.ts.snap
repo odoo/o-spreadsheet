@@ -3,6 +3,7 @@
 exports[`Context Menu integration tests context menu simple rendering 1`] = `
 <div
   class="o-menu"
+  tabindex="-1"
 >
   
   <div
