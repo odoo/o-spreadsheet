@@ -125,6 +125,7 @@
       "json",
       "node"
     ],
+    "workerIdleMemoryLimit": "800MB",
     "setupFilesAfterEnv": [
       "<rootDir>/tests/setup/jest.setup.ts"
     ]
