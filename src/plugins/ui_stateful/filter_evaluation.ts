@@ -156,11 +156,11 @@ export class FilterEvaluationPlugin extends UIPlugin {
     };
   }
 
-  private updateFilter({ col, row, values, sheetId }: UpdateFilterCommand) {
+  private updateFilter({ col, row, hiddenValues, sheetId }: UpdateFilterCommand) {
     const id = this.getters.getFilterId({ sheetId, col, row });
     if (!id) return;
     if (!this.filterValues[sheetId]) this.filterValues[sheetId] = {};
-    this.filterValues[sheetId][id] = values;
+    this.filterValues[sheetId][id] = hiddenValues;
   }
 
   private updateHiddenRows() {

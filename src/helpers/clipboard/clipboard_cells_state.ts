@@ -457,7 +457,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
           sheetId,
           col: newTableZone.left + i,
           row: newTableZone.top,
-          values: table.filtersValues[i],
+          hiddenValues: table.filtersValues[i],
         });
       }
     }

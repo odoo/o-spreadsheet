@@ -837,11 +837,11 @@ export function createFilter(
 export function updateFilter(
   model: Model,
   xc: string,
-  values: string[],
+  hiddenValues: string[],
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
   const { col, row } = toCartesian(xc);
-  return model.dispatch("UPDATE_FILTER", { col, row, sheetId, values });
+  return model.dispatch("UPDATE_FILTER", { col, row, sheetId, hiddenValues });
 }
 
 export function deleteFilter(
