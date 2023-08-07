@@ -219,7 +219,7 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
     this.env.model.dispatch("UPDATE_FILTER", {
       ...position,
       sheetId: this.env.model.getters.getActiveSheetId(),
-      values: this.state.values.filter((val) => !val.checked).map((val) => val.string),
+      hiddenValues: this.state.values.filter((val) => !val.checked).map((val) => val.string),
     });
     this.props.onClosed?.();
   }

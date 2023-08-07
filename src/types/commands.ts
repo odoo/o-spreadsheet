@@ -463,7 +463,7 @@ export interface RemoveFilterTableCommand extends TargetDependentCommand {
 
 export interface UpdateFilterCommand extends PositionDependentCommand {
   type: "UPDATE_FILTER";
-  values: string[];
+  hiddenValues: string[];
 }
 
 export interface SetFormattingCommand extends TargetDependentCommand {
