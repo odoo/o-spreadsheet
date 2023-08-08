@@ -182,7 +182,7 @@ function visitArgs<T extends ValueAndFormat | CellValue>(
   dataCb: (a: T | undefined) => void
 ): void {
   for (let arg of args) {
-    if (Array.isArray(arg)) {
+    if (isMatrix(arg)) {
       // arg is ref to a Cell/Range
       const lenRow = arg.length;
       const lenCol = arg[0].length;
@@ -232,7 +232,7 @@ function reduceArgs<T, M>(
 ): M {
   let val = initialValue;
   for (let arg of args) {
-    if (Array.isArray(arg)) {
+    if (isMatrix(arg)) {
       // arg is ref to a Cell/Range
       const numberOfCols = arg.length;
       const numberOfRows = arg[0].length;
@@ -365,7 +365,7 @@ function conditionalVisitArgs(
   dataCb: (a: PrimitiveArgValue) => boolean
 ): void {
   for (let arg of args) {
-    if (Array.isArray(arg)) {
+    if (isMatrix(arg)) {
       // arg is ref to a Cell/Range
       const lenRow = arg.length;
       const lenCol = arg[0].length;
@@ -561,7 +561,7 @@ export function visitMatchingRanges(
     const criteriaRange = args[i];
 
     if (
-      !Array.isArray(criteriaRange) ||
+      !isMatrix(criteriaRange) ||
       criteriaRange.length !== dimRow ||
       criteriaRange[0].length !== dimCol
     ) {

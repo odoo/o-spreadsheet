@@ -10,6 +10,7 @@ import {
   AddFunctionDescription,
   ArgValue,
   CellValue,
+  isMatrix,
   Locale,
   Matrix,
   PrimitiveArgValue,
@@ -2584,14 +2585,14 @@ export const XNPV = {
   ): number {
     const rate = toNumber(discount, this.locale);
 
-    const _cashFlows = Array.isArray(cashflowAmounts)
+    const _cashFlows = isMatrix(cashflowAmounts)
       ? cashflowAmounts.flat().map((val) => strictToNumber(val, this.locale))
       : [strictToNumber(cashflowAmounts, this.locale)];
-    const _dates = Array.isArray(cashflowDates)
+    const _dates = isMatrix(cashflowDates)
       ? cashflowDates.flat().map((val) => strictToNumber(val, this.locale))
       : [strictToNumber(cashflowDates, this.locale)];
 
-    if (Array.isArray(cashflowDates) && Array.isArray(cashflowAmounts)) {
+    if (isMatrix(cashflowDates) && isMatrix(cashflowAmounts)) {
       assertCashFlowsAndDatesHaveSameDimension(cashflowAmounts, cashflowDates);
     } else {
       assert(
