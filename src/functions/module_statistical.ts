@@ -6,6 +6,7 @@ import {
   Arg,
   ArgValue,
   CellValue,
+  isMatrix,
   Locale,
   Matrix,
   PrimitiveArg,
@@ -204,7 +205,7 @@ export const AVERAGE = {
   ],
   returns: ["NUMBER"],
   computeFormat: (value1: Arg) => {
-    return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
+    return isMatrix(value1) ? value1[0][0]?.format : value1?.format;
   },
   compute: function (...values: ArgValue[]): number {
     let count = 0;
@@ -247,7 +248,7 @@ export const AVERAGE_WEIGHTED = {
   ],
   returns: ["NUMBER"],
   computeFormat: (values: Arg) => {
-    return Array.isArray(values) ? values[0][0]?.format : values?.format;
+    return isMatrix(values) ? values[0][0]?.format : values?.format;
   },
   compute: function (...values: ArgValue[]): number {
     let sum = 0;
@@ -264,8 +265,8 @@ export const AVERAGE_WEIGHTED = {
       // if (typeof value != typeof weight) {
       //   throw new Error(rangeError);
       // }
-      if (Array.isArray(value)) {
-        assert(() => Array.isArray(weight), rangeError);
+      if (isMatrix(value)) {
+        assert(() => isMatrix(weight), rangeError);
 
         let dimColValue = value.length;
         let dimLinValue = value[0].length;
@@ -327,7 +328,7 @@ export const AVERAGEA = {
   ],
   returns: ["NUMBER"],
   computeFormat: (value1: Arg) => {
-    return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
+    return isMatrix(value1) ? value1[0][0]?.format : value1?.format;
   },
   compute: function (...values: ArgValue[]): number {
     let count = 0;
@@ -455,7 +456,7 @@ export const COUNT = {
   compute: function (...values: ArgValue[]): number {
     let count = 0;
     for (let n of values) {
-      if (Array.isArray(n)) {
+      if (isMatrix(n)) {
         for (let i of n) {
           for (let j of i) {
             if (typeof j === "number") {
@@ -616,7 +617,7 @@ export const MAX = {
   ],
   returns: ["NUMBER"],
   computeFormat: (value1: Arg) => {
-    return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
+    return isMatrix(value1) ? value1[0][0]?.format : value1?.format;
   },
   compute: function (...values: ArgValue[]): number {
     const result = reduceNumbers(values, (acc, a) => (acc < a ? a : acc), -Infinity, this.locale);
@@ -642,7 +643,7 @@ export const MAXA = {
   ],
   returns: ["NUMBER"],
   computeFormat: (value1: Arg) => {
-    return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
+    return isMatrix(value1) ? value1[0][0]?.format : value1?.format;
   },
   compute: function (...values: ArgValue[]): number {
     const maxa = reduceNumbersTextAs0(
@@ -716,7 +717,7 @@ export const MEDIAN = {
   ],
   returns: ["NUMBER"],
   computeFormat: (value1: Arg) => {
-    return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
+    return isMatrix(value1) ? value1[0][0]?.format : value1?.format;
   },
   compute: function (...values: ArgValue[]): number {
     let data: ArgValue[] = [];
@@ -749,7 +750,7 @@ export const MIN = {
   ],
   returns: ["NUMBER"],
   computeFormat: (value1: Arg) => {
-    return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
+    return isMatrix(value1) ? value1[0][0]?.format : value1?.format;
   },
   compute: function (...values: ArgValue[]): number {
     const result = reduceNumbers(values, (acc, a) => (a < acc ? a : acc), Infinity, this.locale);
@@ -775,7 +776,7 @@ export const MINA = {
   ],
   returns: ["NUMBER"],
   computeFormat: (value1: Arg) => {
-    return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
+    return isMatrix(value1) ? value1[0][0]?.format : value1?.format;
   },
   compute: function (...values: ArgValue[]): number {
     const mina: number = reduceNumbersTextAs0(
@@ -846,7 +847,7 @@ export const PERCENTILE = {
   ],
   returns: ["NUMBER"],
   computeFormat: (data: Arg) => {
-    return Array.isArray(data) ? data[0][0]?.format : data?.format;
+    return isMatrix(data) ? data[0][0]?.format : data?.format;
   },
   compute: function (data: ArgValue, percentile: PrimitiveArgValue): number {
     return PERCENTILE_INC.compute.bind(this)(data, percentile);
@@ -870,7 +871,7 @@ export const PERCENTILE_EXC = {
   ],
   returns: ["NUMBER"],
   computeFormat: (data: Arg) => {
-    return Array.isArray(data) ? data[0][0]?.format : data?.format;
+    return isMatrix(data) ? data[0][0]?.format : data?.format;
   },
   compute: function (data: ArgValue, percentile: PrimitiveArgValue): number {
     return centile([data], percentile, false, this.locale);
@@ -892,7 +893,7 @@ export const PERCENTILE_INC = {
   ],
   returns: ["NUMBER"],
   computeFormat: (data: Arg) => {
-    return Array.isArray(data) ? data[0][0]?.format : data?.format;
+    return isMatrix(data) ? data[0][0]?.format : data?.format;
   },
   compute: function (data: ArgValue, percentile: PrimitiveArgValue): number {
     return centile([data], percentile, true, this.locale);
@@ -911,7 +912,7 @@ export const QUARTILE = {
   ],
   returns: ["NUMBER"],
   computeFormat: (data: Arg) => {
-    return Array.isArray(data) ? data[0][0]?.format : data?.format;
+    return isMatrix(data) ? data[0][0]?.format : data?.format;
   },
   compute: function (data: ArgValue, quartileNumber: PrimitiveArgValue): number {
     return QUARTILE_INC.compute.bind(this)(data, quartileNumber);
@@ -930,7 +931,7 @@ export const QUARTILE_EXC = {
   ],
   returns: ["NUMBER"],
   computeFormat: (data: Arg) => {
-    return Array.isArray(data) ? data[0][0]?.format : data?.format;
+    return isMatrix(data) ? data[0][0]?.format : data?.format;
   },
   compute: function (data: ArgValue, quartileNumber: PrimitiveArgValue): number {
     const _quartileNumber = Math.trunc(toNumber(quartileNumber, this.locale));
@@ -950,7 +951,7 @@ export const QUARTILE_INC = {
   ],
   returns: ["NUMBER"],
   computeFormat: (data: Arg) => {
-    return Array.isArray(data) ? data[0][0]?.format : data?.format;
+    return isMatrix(data) ? data[0][0]?.format : data?.format;
   },
   compute: function (data: ArgValue, quartileNumber: PrimitiveArgValue): number {
     const _quartileNumber = Math.trunc(toNumber(quartileNumber, this.locale));

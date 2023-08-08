@@ -3,11 +3,11 @@ import { _t } from "../translation";
 import {
   AddFunctionDescription,
   CellValue,
+  isMatrix,
   Matrix,
   PrimitiveArg,
   PrimitiveArgValue,
   ValueAndFormat,
-  isMatrix,
 } from "../types";
 import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
@@ -224,8 +224,8 @@ export const INDEX: AddFunctionDescription = {
   returns: ["ANY"],
   computeValueAndFormat: function (
     reference: Matrix<ValueAndFormat>,
-    row: PrimitiveArg = {value: 0},
-    column: PrimitiveArg = {value: 0}
+    row: PrimitiveArg = { value: 0 },
+    column: PrimitiveArg = { value: 0 }
   ): any {
     const _reference = isMatrix(reference) ? reference : [[reference]];
     const _row = toNumber(row.value, this.locale);

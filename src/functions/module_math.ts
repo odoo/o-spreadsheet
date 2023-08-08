@@ -4,6 +4,7 @@ import {
   Arg,
   ArgValue,
   CellValue,
+  isMatrix,
   Matrix,
   PrimitiveArg,
   PrimitiveArgValue,
@@ -967,13 +968,13 @@ export const PRODUCT = {
   ],
   returns: ["NUMBER"],
   computeFormat: (factor1: Arg) => {
-    return Array.isArray(factor1) ? factor1[0][0]?.format : factor1?.format;
+    return isMatrix(factor1) ? factor1[0][0]?.format : factor1?.format;
   },
   compute: function (...factors: ArgValue[]): number {
     let count = 0;
     let acc = 1;
     for (let n of factors) {
-      if (Array.isArray(n)) {
+      if (isMatrix(n)) {
         for (let i of n) {
           for (let j of i) {
             if (typeof j === "number") {
@@ -1290,7 +1291,7 @@ export const SUM = {
   ],
   returns: ["NUMBER"],
   computeFormat: (value1: Arg) => {
-    return Array.isArray(value1) ? value1[0][0]?.format : value1?.format;
+    return isMatrix(value1) ? value1[0][0]?.format : value1?.format;
   },
   compute: function (...values: ArgValue[]): number {
     return reduceNumbers(values, (acc, a) => acc + a, 0, this.locale);
