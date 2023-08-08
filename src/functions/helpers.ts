@@ -8,7 +8,6 @@ import {
   isMatrix,
   Locale,
   Matrix,
-  MatrixArgValue,
   PrimitiveArgValue,
   ValueAndFormat,
 } from "../types";
@@ -553,8 +552,8 @@ export function visitMatchingRanges(
     );
   }
 
-  const dimRow = (args[0] as MatrixArgValue).length;
-  const dimCol = (args[0] as MatrixArgValue)[0].length;
+  const dimRow = (args[0] as Matrix<CellValue>).length;
+  const dimCol = (args[0] as Matrix<CellValue>)[0].length;
 
   let predicates: Predicate[] = [];
 
@@ -579,7 +578,7 @@ export function visitMatchingRanges(
     for (let j = 0; j < dimCol; j++) {
       let validatedPredicates = true;
       for (let k = 0; k < countArg - 1; k += 2) {
-        const criteriaValue = (args[k] as MatrixArgValue)[i][j];
+        const criteriaValue = (args[k] as Matrix<CellValue>)[i][j];
         const criterion = predicates[k / 2];
         validatedPredicates = evaluatePredicate(criteriaValue ?? undefined, criterion);
         if (!validatedPredicates) {

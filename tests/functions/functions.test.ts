@@ -4,10 +4,10 @@ import { arg, functionRegistry } from "../../src/functions/index";
 import {
   Arg,
   ArgValue,
+  CellValue,
   ComputeFunction,
   DEFAULT_LOCALE,
   Format,
-  FunctionReturnValue,
   PrimitiveArg,
   PrimitiveArgValue,
 } from "../../src/types";
@@ -24,7 +24,7 @@ describe("functions", () => {
     expect(val).toBe("#NAME?");
     functionRegistry.add("DOUBLEDOUBLE", {
       description: "Double the first argument",
-      compute: ((arg: number) => 2 * arg) as ComputeFunction<ArgValue, FunctionReturnValue>,
+      compute: ((arg: number) => 2 * arg) as ComputeFunction<ArgValue, CellValue>,
       args: [arg("number (number)", "my number")],
       returns: ["NUMBER"],
     });
@@ -63,7 +63,7 @@ describe("functions", () => {
       description: "return value depending on input value",
       compute: function (arg: PrimitiveArgValue) {
         return toNumber(arg, DEFAULT_LOCALE) * 2;
-      } as ComputeFunction<ArgValue, FunctionReturnValue>,
+      } as ComputeFunction<ArgValue, CellValue>,
       args: [arg("number (number)", "blabla")],
       returns: ["NUMBER"],
     });
@@ -84,7 +84,7 @@ describe("functions", () => {
       } as ComputeFunction<Arg, Format | undefined>,
       compute: function (arg: PrimitiveArgValue) {
         return arg;
-      } as ComputeFunction<ArgValue, FunctionReturnValue>,
+      } as ComputeFunction<ArgValue, CellValue>,
       args: [arg("number (number)", "blabla")],
       returns: ["NUMBER"],
     });
@@ -107,7 +107,7 @@ describe("functions", () => {
       } as ComputeFunction<Arg, Format | undefined>,
       compute: function (arg: PrimitiveArgValue) {
         return arg;
-      } as ComputeFunction<ArgValue, FunctionReturnValue>,
+      } as ComputeFunction<ArgValue, CellValue>,
       args: [arg("number (number)", "blabla")],
       returns: ["NUMBER"],
     });

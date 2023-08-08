@@ -5,11 +5,8 @@ import {
   ArgValue,
   CellValue,
   Matrix,
-  MatrixArg,
-  MatrixArgValue,
-  MatrixFunctionReturn,
   PrimitiveArg,
-  PrimitiveFunctionReturn,
+  ValueAndFormat,
 } from "../types";
 import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
@@ -47,7 +44,7 @@ export const ARRAY_CONSTRAIN = {
     array: Arg,
     rows: PrimitiveArg,
     columns: PrimitiveArg
-  ): MatrixFunctionReturn {
+  ): Matrix<ValueAndFormat> {
     const _array = toMatrix(array);
     const _rowsArg = toInteger(rows?.value, this.locale);
     const _columnsArg = toInteger(columns?.value, this.locale);
@@ -86,7 +83,7 @@ export const CHOOSECOLS = {
     ),
   ],
   returns: ["RANGE<ANY>"],
-  computeValueAndFormat: function (array: Arg, ...columns: Arg[]): MatrixFunctionReturn {
+  computeValueAndFormat: function (array: Arg, ...columns: Arg[]): Matrix<ValueAndFormat> {
     const _array = toMatrix(array);
     const _columns = flattenRowFirst(columns, (item) => toInteger(item?.value, this.locale));
 
@@ -99,7 +96,7 @@ export const CHOOSECOLS = {
       )
     );
 
-    const result: MatrixArg = Array(_columns.length);
+    const result: Matrix<ValueAndFormat> = Array(_columns.length);
     for (let col = 0; col < _columns.length; col++) {
       const colIndex = _columns[col] - 1; // -1 because columns arguments are 1-indexed
       result[col] = _array[colIndex];
@@ -124,7 +121,7 @@ export const CHOOSEROWS = {
     ),
   ],
   returns: ["RANGE<ANY>"],
-  computeValueAndFormat: function (array: Arg, ...rows: Arg[]): MatrixFunctionReturn {
+  computeValueAndFormat: function (array: Arg, ...rows: Arg[]): Matrix<ValueAndFormat> {
     const _array = toMatrix(array);
     const _rows = flattenRowFirst(rows, (item) => toInteger(item?.value, this.locale));
     const _nbColumns = _array.length;
@@ -166,7 +163,7 @@ export const EXPAND = {
     rows: PrimitiveArg,
     columns?: PrimitiveArg,
     padWith: PrimitiveArg = { value: 0 } // TODO : Replace with #N/A errors once it's supported
-  ): MatrixFunctionReturn {
+  ): Matrix<ValueAndFormat> {
     const _array = toMatrix(arg);
     const _nbRows = toInteger(rows?.value, this.locale);
     const _nbColumns = columns !== undefined ? toInteger(columns.value, this.local) : _array.length;
@@ -203,8 +200,8 @@ export const FLATTEN = {
     arg("range2 (any, range<any>, repeating)", _t("Additional ranges to flatten.")),
   ],
   returns: ["RANGE<ANY>"],
-  computeValueAndFormat: function (...ranges: Arg[]): MatrixFunctionReturn {
-    return [flattenRowFirst(ranges, (data) => (data === undefined ? { value: "" } : data))];
+  computeValueAndFormat: function (...ranges: Arg[]): Matrix<ValueAndFormat> {
+    return [flattenRowFirst(ranges, (val) => (val === undefined ? { value: "" } : val))];
   },
   isExported: false,
 } satisfies AddFunctionDescription;
@@ -219,7 +216,7 @@ export const FREQUENCY = {
     arg("classes (number, range<number>)", _t("The range containing the set of classes.")),
   ],
   returns: ["RANGE<NUMBER>"],
-  compute: function (data: MatrixArgValue, classes: MatrixArgValue): CellValue[][] {
+  compute: function (data: Matrix<CellValue>, classes: Matrix<CellValue>): CellValue[][] {
     const _data = flattenRowFirst([data], (val) => val).filter(
       (val): val is number => typeof val === "number"
     );
@@ -277,16 +274,16 @@ export const HSTACK = {
     arg("range2 (any, range<any>, repeating)", _t("Additional ranges to add to range1.")),
   ],
   returns: ["RANGE<ANY>"],
-  computeValueAndFormat: function (...ranges: Arg[]) {
+  computeValueAndFormat: function (...ranges: Arg[]): Matrix<ValueAndFormat> {
     const nbRows = Math.max(...ranges.map((r) => r?.[0]?.length ?? 0));
 
-    const result: MatrixFunctionReturn = [];
+    const result: Matrix<ValueAndFormat> = [];
 
     for (const range of ranges) {
       const _range = toMatrix(range);
       for (let col = 0; col < _range.length; col++) {
         //TODO: fill with #N/A for unavailable values instead of zeroes
-        const array: PrimitiveFunctionReturn[] = Array(nbRows).fill({ value: null });
+        const array: ValueAndFormat[] = Array(nbRows).fill({ value: null });
         for (let row = 0; row < _range[col].length; row++) {
           array[row] = _range[col][row];
         }
@@ -343,7 +340,7 @@ export const MINVERSE = {
     ),
   ],
   returns: ["RANGE<NUMBER>"],
-  compute: function (matrix: ArgValue): Matrix<CellValue> {
+  compute: function (matrix: ArgValue): Matrix<number> {
     const _matrix = toMatrix(matrix);
 
     assertSquareMatrix(
@@ -380,7 +377,7 @@ export const MMULT = {
     ),
   ],
   returns: ["RANGE<NUMBER>"],
-  compute: function (matrix1: ArgValue, matrix2: ArgValue): Matrix<CellValue> {
+  compute: function (matrix1: ArgValue, matrix2: ArgValue): Matrix<number> {
     const _matrix1 = toMatrix(matrix1);
     const _matrix2 = toMatrix(matrix2);
 
@@ -630,7 +627,7 @@ export const TOROW = {
     array: Arg,
     ignore: PrimitiveArg = { value: TO_COL_ROW_DEFAULT_IGNORE },
     scanByColumn: PrimitiveArg = { value: TO_COL_ROW_DEFAULT_SCAN }
-  ) {
+  ): Matrix<ValueAndFormat> {
     const _array = toMatrix(array);
     const _ignore = toInteger(ignore.value, this.locale);
     const _scanByColumn = toBoolean(scanByColumn.value);
@@ -662,7 +659,7 @@ export const TRANSPOSE = {
   description: _t("Transposes the rows and columns of a range."),
   args: [arg("range (any, range<any>)", _t("The range to be transposed."))],
   returns: ["RANGE"],
-  computeValueAndFormat: function (arg: Arg) {
+  computeValueAndFormat: function (arg: Arg): Matrix<ValueAndFormat> {
     const _array = toMatrix(arg);
     const nbColumns = _array[0].length;
     const nbRows = _array.length;
@@ -682,11 +679,11 @@ export const VSTACK = {
     arg("range2 (any, range<any>, repeating)", _t("Additional ranges to add to range1.")),
   ],
   returns: ["RANGE<ANY>"],
-  computeValueAndFormat: function (...ranges: Arg[]) {
+  computeValueAndFormat: function (...ranges: Arg[]): Matrix<ValueAndFormat> {
     const nbColumns = Math.max(...ranges.map((range) => toMatrix(range).length));
     const nbRows = ranges.reduce((acc, range) => acc + toMatrix(range)[0].length, 0);
 
-    const result: MatrixFunctionReturn = Array(nbColumns)
+    const result: Matrix<ValueAndFormat> = Array(nbColumns)
       .fill([])
       .map(() => Array(nbRows).fill({ value: 0 })); // TODO fill with #N/A
 
@@ -729,7 +726,7 @@ export const WRAPCOLS = {
     range: Arg,
     wrapCount: PrimitiveArg,
     padWith: PrimitiveArg = { value: 0 }
-  ): MatrixFunctionReturn {
+  ): Matrix<ValueAndFormat> {
     const _array = toMatrix(range);
     const nbRows = toInteger(wrapCount?.value, this.locale);
 
@@ -769,7 +766,7 @@ export const WRAPROWS = {
     range: Arg,
     wrapCount: PrimitiveArg,
     padWith: PrimitiveArg = { value: 0 }
-  ): MatrixFunctionReturn {
+  ): Matrix<ValueAndFormat> {
     const _array = toMatrix(range);
     const nbColumns = toInteger(wrapCount?.value, this.locale);
 

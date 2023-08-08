@@ -4,14 +4,15 @@ import { Model } from "../../src/model";
 import {
   Arg,
   ArgValue,
+  CellValue,
   ComputeFunction,
   DEFAULT_LOCALE,
   ErrorCell,
-  FunctionReturnFormat,
-  FunctionReturnValue,
+  Format,
   isMatrix,
-  MatrixArg,
+  Matrix,
   PrimitiveArgValue,
+  ValueAndFormat,
 } from "../../src/types";
 import {
   addColumns,
@@ -47,7 +48,7 @@ describe("evaluate formulas that return an array", () => {
         return Array.from({ length: toNumber(n, DEFAULT_LOCALE) }, (_, i) =>
           Array.from({ length: toNumber(m, DEFAULT_LOCALE) }, (_, j) => v)
         );
-      } as ComputeFunction<ArgValue, FunctionReturnValue>,
+      } as ComputeFunction<ArgValue, CellValue | Matrix<CellValue>>,
     });
 
     functionRegistry.add("TRANSPOSE", {
@@ -61,7 +62,7 @@ describe("evaluate formulas that return an array", () => {
           );
         }
         return [[values]];
-      } as ComputeFunction<ArgValue, FunctionReturnValue>,
+      } as ComputeFunction<ArgValue, CellValue | Matrix<CellValue>>,
       isExported: true,
     });
   });
@@ -178,11 +179,11 @@ describe("evaluate formulas that return an array", () => {
         description: "Return the matrix passed as argument",
         args: [arg("matrix (range<number>)", "a matrix")],
         returns: ["RANGE<NUMBER>"],
-        compute: ((matrix) => matrix) as ComputeFunction<ArgValue, FunctionReturnValue>,
-        computeFormat: ((matrix: MatrixArg) =>
+        compute: ((matrix) => matrix) as ComputeFunction<ArgValue, Matrix<CellValue>>,
+        computeFormat: ((matrix: Matrix<ValueAndFormat>) =>
           matrix.map((row) => row.map((item) => item?.format))) as ComputeFunction<
           Arg,
-          FunctionReturnFormat
+          Matrix<Format | undefined>
         >,
       });
 

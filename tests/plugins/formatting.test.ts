@@ -15,10 +15,10 @@ import { Model } from "../../src/model";
 import {
   Arg,
   ArgValue,
+  CellValue,
   CommandResult,
   ComputeFunction,
   Format,
-  FunctionReturnValue,
   PrimitiveArg,
   PrimitiveArgValue,
   SetDecimalStep,
@@ -176,7 +176,7 @@ describe("formatting values (with formatters)", () => {
       args: [arg("value (any)", "value to format"), arg("format (any)", "format to set.")],
       compute: function (value: PrimitiveArgValue, format: PrimitiveArgValue) {
         return value || 0;
-      } as ComputeFunction<ArgValue, FunctionReturnValue>,
+      } as ComputeFunction<ArgValue, CellValue>,
       computeFormat: function (value: PrimitiveArg, format: PrimitiveArg) {
         return toString(format?.value);
       } as ComputeFunction<Arg, Format>,

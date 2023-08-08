@@ -1,5 +1,7 @@
+import { CellValue } from "./cells";
+import { Format } from "./format";
 import { Locale } from "./locale";
-import { Arg, ArgValue, FunctionReturn, FunctionReturnFormat, FunctionReturnValue } from "./misc";
+import { Arg, ArgValue, Matrix, ValueAndFormat } from "./misc";
 
 export type ArgType =
   | "ANY"
@@ -39,15 +41,15 @@ interface AddFunctionDescriptionBase {
 }
 
 interface ComputeValue {
-  compute: ComputeFunction<ArgValue, FunctionReturnValue>;
+  compute: ComputeFunction<ArgValue, CellValue | Matrix<CellValue>>;
 }
 
 interface ComputeFormat {
-  computeFormat: ComputeFunction<Arg, FunctionReturnFormat>;
+  computeFormat: ComputeFunction<Arg, Format | undefined | Matrix<Format | undefined>>;
 }
 
 interface ComputeValueAndFormat {
-  computeValueAndFormat: ComputeFunction<Arg, FunctionReturn>;
+  computeValueAndFormat: ComputeFunction<Arg, Matrix<ValueAndFormat> | ValueAndFormat>;
 }
 
 export type AddFunctionDescription =

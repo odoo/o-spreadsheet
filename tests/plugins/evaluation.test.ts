@@ -2,11 +2,11 @@ import { arg, functionRegistry } from "../../src/functions";
 import { Model } from "../../src/model";
 import {
   ArgValue,
+  CellValue,
   CellValueType,
   ComputeFunction,
   ErrorCell,
-  FunctionReturnValue,
-  MatrixArgValue,
+  Matrix,
 } from "../../src/types";
 import {
   activateSheet,
@@ -277,9 +277,9 @@ describe("evaluateCells", () => {
   test("Evaluate only existing cells from a range partially outside of sheet", () => {
     functionRegistry.add("RANGE.COUNT.FUNCTION", {
       description: "any function",
-      compute: ((range: MatrixArgValue) => range.flat().length) as ComputeFunction<
+      compute: ((range: Matrix<CellValue>) => range.flat().length) as ComputeFunction<
         ArgValue,
-        FunctionReturnValue
+        CellValue
       >,
       args: [{ name: "range", description: "", type: ["RANGE"] }],
       returns: ["NUMBER"],

@@ -9,7 +9,7 @@ import {
   EvalContext,
   EvaluatedCell,
   Getters,
-  MatrixArg,
+  Matrix,
   PrimitiveArg,
   Range,
   ReferenceDenormalizer,
@@ -136,7 +136,7 @@ class CompilationParametersBuilder {
    * Note that each col is possibly sparse: it only contain the values of cells
    * that are actually present in the grid.
    */
-  private range({ sheetId, zone }: Range): MatrixArg {
+  private range({ sheetId, zone }: Range): Matrix<ValueAndFormat> {
     if (!isZoneValid(zone)) {
       throw new InvalidReferenceError();
     }
@@ -151,7 +151,9 @@ class CompilationParametersBuilder {
 
     const height = _zone.bottom - _zone.top + 1;
     const width = _zone.right - _zone.left + 1;
-    const matrix: MatrixArg = Array.from({ length: width }, () => Array.from({ length: height }));
+    const matrix: Matrix<ValueAndFormat> = Array.from({ length: width }, () =>
+      Array.from({ length: height })
+    );
     // Performance issue: nested loop is faster than a map here
     for (let col = _zone.left; col <= _zone.right; col++) {
       for (let row = _zone.top; row <= _zone.bottom; row++) {

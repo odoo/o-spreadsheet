@@ -159,7 +159,7 @@ export type ReferenceDenormalizer = (
   paramNumber: number
 ) => any | any[][];
 
-export type EnsureRange = (range: Range) => MatrixArg;
+export type EnsureRange = (range: Range) => Matrix<ValueAndFormat>;
 
 export type NumberParser = (str: string) => number;
 
@@ -168,7 +168,7 @@ export type _CompiledFormula = (
   refFn: ReferenceDenormalizer,
   range: EnsureRange,
   ctx: {}
-) => FunctionReturn;
+) => Matrix<ValueAndFormat> | ValueAndFormat;
 
 export interface CompiledFormula {
   execute: _CompiledFormula;
@@ -180,25 +180,12 @@ export type Matrix<T = unknown> = T[][];
 export type ValueAndFormat = { value: CellValue; format?: Format };
 
 // FORMULA FUNCTION VALUE AND FORMAT INPUT
-export type Arg = PrimitiveArg | MatrixArg;
+export type Arg = PrimitiveArg | Matrix<ValueAndFormat>;
 export type PrimitiveArg = ValueAndFormat | undefined; // undefined corresponds to the lack of argument, e.g. =SUM(1,2,,4)
-export type MatrixArg = Matrix<ValueAndFormat>; // could not be undefined, because we throw an error during the compilation in this case
 
 // FORMULA FUNCTION ONLY VALUE INPUT
-export type ArgValue = PrimitiveArgValue | MatrixArgValue;
+export type ArgValue = PrimitiveArgValue | Matrix<CellValue>;
 export type PrimitiveArgValue = CellValue | undefined;
-export type MatrixArgValue = Matrix<CellValue>;
-
-// FORMULA FUNCTION VALUE AND FORMAT OUTPUT
-export type FunctionReturn = MatrixFunctionReturn | PrimitiveFunctionReturn;
-export type PrimitiveFunctionReturn = ValueAndFormat;
-export type MatrixFunctionReturn = Matrix<ValueAndFormat>;
-
-// FORMULA FUNCTION ONLY VALUE OUTPUT
-export type FunctionReturnValue = CellValue | Matrix<CellValue>;
-
-// FORMULA FUNCTION ONLY Format OUTPUT
-export type FunctionReturnFormat = Format | undefined | Matrix<Format | undefined>;
 
 export function isMatrix(x: any): x is Matrix<any> {
   return Array.isArray(x) && Array.isArray(x[0]);

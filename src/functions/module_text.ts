@@ -1,6 +1,6 @@
 import { escapeRegExp, formatValue } from "../helpers";
 import { _t } from "../translation";
-import { AddFunctionDescription, ArgValue, PrimitiveArgValue } from "../types";
+import { AddFunctionDescription, ArgValue, Matrix, PrimitiveArgValue } from "../types";
 import { arg } from "./arguments";
 import { assert, reduceAny, toBoolean, toNumber, toString, transposeMatrix } from "./helpers";
 
@@ -410,7 +410,7 @@ export const SPLIT = {
     delimiter: PrimitiveArgValue,
     splitByEach: PrimitiveArgValue = SPLIT_DEFAULT_SPLIT_BY_EACH,
     removeEmptyText: PrimitiveArgValue = SPLIT_DEFAULT_REMOVE_EMPTY_TEXT
-  ): string[][] {
+  ): Matrix<string> {
     const _text = toString(text);
     const _delimiter = escapeRegExp(toString(delimiter));
     const _splitByEach = toBoolean(splitByEach);

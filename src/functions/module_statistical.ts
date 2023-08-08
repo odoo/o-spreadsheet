@@ -5,11 +5,11 @@ import {
   AddFunctionDescription,
   Arg,
   ArgValue,
+  CellValue,
   Locale,
-  MatrixArgValue,
+  Matrix,
   PrimitiveArg,
   PrimitiveArgValue,
-  PrimitiveFunctionReturn,
   ValueAndFormat,
 } from "../types";
 import { arg } from "./arguments";
@@ -412,7 +412,7 @@ export const AVERAGEIFS = {
     arg("criterion2 (string, repeating)", _t("The pattern or test to apply to criteria_range2.")),
   ],
   returns: ["NUMBER"],
-  compute: function (averageRange: MatrixArgValue, ...values: ArgValue[]): number {
+  compute: function (averageRange: Matrix<CellValue>, ...values: ArgValue[]): number {
     const _averageRange = toMatrix(averageRange);
     let count = 0;
     let sum = 0;
@@ -565,7 +565,7 @@ export const LARGE = {
     arg("n (number)", _t("The rank from largest to smallest of the element to return.")),
   ],
   returns: ["NUMBER"],
-  computeValueAndFormat: function (data: Arg, n: PrimitiveArg): PrimitiveFunctionReturn {
+  computeValueAndFormat: function (data: Arg, n: PrimitiveArg): ValueAndFormat {
     const _n = Math.trunc(toNumber(n?.value, this.locale));
     let largests: ValueAndFormat[] = [];
     let index: number;
@@ -681,7 +681,7 @@ export const MAXIFS = {
     arg("criterion2 (string, repeating)", _t("The pattern or test to apply to criteria_range2.")),
   ],
   returns: ["NUMBER"],
-  compute: function (range: MatrixArgValue, ...args: ArgValue[]): number {
+  compute: function (range: Matrix<CellValue>, ...args: ArgValue[]): number {
     let result = -Infinity;
     const _range = toMatrix(range);
     visitMatchingRanges(
@@ -814,7 +814,7 @@ export const MINIFS = {
     arg("criterion2 (string, repeating)", _t("The pattern or test to apply to criteria_range2.")),
   ],
   returns: ["NUMBER"],
-  compute: function (range: MatrixArgValue, ...args: ArgValue[]): number {
+  compute: function (range: Matrix<CellValue>, ...args: ArgValue[]): number {
     let result = Infinity;
     const _range = toMatrix(range);
     visitMatchingRanges(
@@ -969,7 +969,7 @@ export const SMALL = {
     arg("n (number)", _t("The rank from smallest to largest of the element to return.")),
   ],
   returns: ["NUMBER"],
-  computeValueAndFormat: function (data: Arg, n: PrimitiveArg): PrimitiveFunctionReturn {
+  computeValueAndFormat: function (data: Arg, n: PrimitiveArg): ValueAndFormat {
     const _n = Math.trunc(toNumber(n?.value, this.locale));
     let largests: ValueAndFormat[] = [];
     let index: number;

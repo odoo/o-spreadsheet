@@ -9,8 +9,9 @@ import { _t } from "../translation";
 import {
   AddFunctionDescription,
   ArgValue,
+  CellValue,
   Locale,
-  MatrixArgValue,
+  Matrix,
   PrimitiveArgValue,
 } from "../types";
 import { arg } from "./arguments";
@@ -1174,7 +1175,7 @@ export const IRR = {
   returns: ["NUMBER"],
   computeFormat: () => "0%",
   compute: function (
-    cashFlowAmounts: MatrixArgValue,
+    cashFlowAmounts: Matrix<CellValue>,
     rateGuess: PrimitiveArgValue = DEFAULT_RATE_GUESS
   ): number {
     const _rateGuess = toNumber(rateGuess, this.locale);
@@ -1348,7 +1349,7 @@ export const MIRR = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    cashflowAmount: MatrixArgValue,
+    cashflowAmount: Matrix<CellValue>,
     financingRate: PrimitiveArgValue,
     reinvestmentRate: PrimitiveArgValue
   ): number {
@@ -2492,8 +2493,8 @@ export const XIRR = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    cashflowAmounts: MatrixArgValue,
-    cashflowDates: MatrixArgValue,
+    cashflowAmounts: Matrix<CellValue>,
+    cashflowDates: Matrix<CellValue>,
     rateGuess: PrimitiveArgValue = RATE_GUESS_DEFAULT
   ): number {
     rateGuess = rateGuess || 0;
