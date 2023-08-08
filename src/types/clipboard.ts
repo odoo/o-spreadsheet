@@ -25,7 +25,7 @@ export interface ClipboardState {
 
   isPasteAllowed(target: Zone[], clipboardOption?: ClipboardOptions): CommandResult;
 
-  paste(target: Zone[], options?: ClipboardOptions | undefined): void;
+  paste?(target: Zone[], options?: ClipboardOptions | undefined): void;
   getClipboardContent(): ClipboardContent;
   drawClipboard(renderingContext: GridRenderingContext): void;
 

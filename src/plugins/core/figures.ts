@@ -1,5 +1,11 @@
-import { isDefined } from "../../helpers/index";
 import {
+  ClipboardFigureChart,
+  ClipboardFigureImage,
+  ClipboardFigureState,
+} from "../../helpers/clipboard/clipboard_figure_state";
+import { isDefined, UuidGenerator } from "../../helpers/index";
+import {
+  ClipboardState,
   CommandResult,
   CoreCommand,
   ExcelWorkbookData,
@@ -19,6 +25,10 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   readonly figures: {
     [sheet: string]: Record<UID, Figure | undefined> | undefined;
   } = {};
+  copiedFigure: Figure | undefined = undefined;
+  operation: "COPY" | "CUT" | undefined = undefined;
+  copiedFigureContent: ClipboardFigureChart | ClipboardFigureImage | undefined = undefined;
+
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
@@ -57,6 +67,31 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
       case "REMOVE_COLUMNS_ROWS":
         this.onRowColDelete(cmd.sheetId, cmd.dimension);
     }
+  }
+
+  copy(state: ClipboardState, isCutOperation: boolean) {
+    if (state instanceof ClipboardFigureState) {
+      this.copiedFigure = state.copiedFigure;
+      this.copiedFigureContent = state.copiedFigureContent;
+      this.operation = isCutOperation ? "CUT" : "COPY";
+    }
+  }
+
+  pasteFigure(sheetId: UID, position: { x: number; y: number }) {
+    if (!this.copiedFigure || !this.copiedFigureContent) {
+      return;
+    }
+    const { width, height } = this.copiedFigure;
+    const newId = new UuidGenerator().uuidv4();
+    this.copiedFigureContent.paste(sheetId, newId, position, { height, width });
+
+    if (this.operation === "CUT") {
+      this.dispatch("DELETE_FIGURE", {
+        sheetId: this.copiedFigureContent.sheetId,
+        id: this.copiedFigure.id,
+      });
+    }
+    this.dispatch("SELECT_FIGURE", { id: newId });
   }
 
   private onRowColDelete(sheetId: string, dimension: string) {

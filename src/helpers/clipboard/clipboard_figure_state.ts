@@ -13,7 +13,6 @@ import {
 import { Image } from "../../types/image";
 import { AbstractChart } from "../figures/charts";
 import { deepCopy } from "../misc";
-import { UuidGenerator } from "../uuid";
 import {
   ClipboardContent,
   ClipboardMIMEType,
@@ -25,12 +24,12 @@ import {
 /** State of the clipboard when copying/cutting figures */
 export class ClipboardFigureState implements ClipboardState {
   readonly sheetId: UID;
-  private readonly copiedFigure: Figure;
-  private readonly copiedFigureContent: ClipboardFigureChart | ClipboardFigureImage;
+  readonly copiedFigure: Figure;
+  readonly copiedFigureContent: ClipboardFigureChart | ClipboardFigureImage;
   constructor(
     readonly operation: ClipboardOperation,
-    private readonly getters: Getters,
-    private readonly dispatch: CommandDispatcher["dispatch"]
+    readonly getters: Getters,
+    readonly dispatch: CommandDispatcher["dispatch"]
   ) {
     this.sheetId = getters.getActiveSheetId();
     const copiedFigureId = getters.getSelectedFigureId();
@@ -77,35 +76,6 @@ export class ClipboardFigureState implements ClipboardState {
       return CommandResult.WrongFigurePasteOption;
     }
     return CommandResult.Success;
-  }
-
-  /**
-   * Paste the clipboard content in the given target
-   */
-  paste(target: Zone[]) {
-    const sheetId = this.getters.getActiveSheetId();
-    const { width, height } = this.copiedFigure;
-    const numCols = this.getters.getNumberCols(sheetId);
-    const numRows = this.getters.getNumberRows(sheetId);
-    const targetX = this.getters.getColDimensions(sheetId, target[0].left).start;
-    const targetY = this.getters.getRowDimensions(sheetId, target[0].top).start;
-    const maxX = this.getters.getColDimensions(sheetId, numCols - 1).end;
-    const maxY = this.getters.getRowDimensions(sheetId, numRows - 1).end;
-    const position = {
-      x: maxX < width ? 0 : Math.min(targetX, maxX - width),
-      y: maxY < height ? 0 : Math.min(targetY, maxY - height),
-    };
-    const newId = new UuidGenerator().uuidv4();
-    this.copiedFigureContent.paste(sheetId, newId, position, { height, width });
-
-    if (this.operation === "CUT") {
-      this.dispatch("DELETE_FIGURE", {
-        sheetId: this.copiedFigureContent.sheetId,
-        id: this.copiedFigure.id,
-      });
-    }
-
-    this.dispatch("SELECT_FIGURE", { id: newId });
   }
 
   getClipboardContent(): ClipboardContent {

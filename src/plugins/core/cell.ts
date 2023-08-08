@@ -1,5 +1,6 @@
 import { compile, tokenize } from "../../formulas";
 import { parseLiteral } from "../../helpers/cells";
+import { ClipboardCellsState } from "../../helpers/clipboard/clipboard_cells_state";
 import {
   concat,
   detectDateFormat,
@@ -17,6 +18,8 @@ import {
   Cell,
   CellData,
   CellPosition,
+  ClipboardOptions,
+  ClipboardState,
   CommandResult,
   CompiledFormula,
   CoreCommand,
@@ -58,6 +61,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   ] as const;
   readonly nextId = 1;
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
+  private state: ClipboardCellsState | undefined = undefined;
 
   adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
     for (const sheet of Object.keys(this.cells)) {
@@ -81,6 +85,21 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         }
       }
     }
+  }
+
+  copy(state: ClipboardState, isCutOperation: boolean) {
+    if (state instanceof ClipboardCellsState) {
+      this.state = state;
+    } else {
+      this.state = undefined;
+    }
+  }
+
+  pasteCells(target: Zone[], options?: ClipboardOptions) {
+    if (this.state === undefined) {
+      return;
+    }
+    this.state?.paste(target, options);
   }
 
   // ---------------------------------------------------------------------------

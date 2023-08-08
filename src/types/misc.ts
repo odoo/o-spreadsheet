@@ -4,6 +4,7 @@
 import { ComponentConstructor } from "@odoo/owl";
 import { Token } from "../formulas";
 import { Cell, CellValue, EvaluatedCell } from "./cells";
+import { ClipboardOptions, ClipboardState } from "./clipboard";
 import { CommandResult } from "./commands";
 import { Format } from "./format";
 import { Range } from "./range";
@@ -294,6 +295,12 @@ export type ConsecutiveIndexes = HeaderIndex[];
 
 export interface RangeProvider {
   adaptRanges: (applyChange: ApplyRangeChange, sheetId?: UID) => void;
+}
+
+export interface ClipboardProvider {
+  copy: (state: ClipboardState, isCutOperation: boolean) => void;
+  pasteFigure: (sheetId: UID, position: { x: number; y: number }) => void;
+  pasteCells: (target: Zone[], options?: ClipboardOptions) => void;
 }
 
 export type Validation<T> = (toValidate: T) => CommandResult | CommandResult[];
