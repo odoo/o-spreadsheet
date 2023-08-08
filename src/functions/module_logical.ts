@@ -2,9 +2,9 @@ import { _t } from "../translation";
 import {
   AddFunctionDescription,
   ArgValue,
-  FunctionReturn,
   PrimitiveArg,
   PrimitiveArgValue,
+  ValueAndFormat,
 } from "../types";
 import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
@@ -81,7 +81,7 @@ export const IF = {
     logicalExpression: PrimitiveArg,
     valueIfTrue: () => PrimitiveArg,
     valueIfFalse: () => PrimitiveArg = () => ({ value: false })
-  ): FunctionReturn {
+  ): ValueAndFormat {
     const result = toBoolean(logicalExpression?.value) ? valueIfTrue() : valueIfFalse();
     if (result === undefined) {
       return { value: "" };
@@ -110,7 +110,7 @@ export const IFERROR = {
   computeValueAndFormat: function (
     value: () => PrimitiveArg,
     valueIfError: () => PrimitiveArg = () => ({ value: "" })
-  ): FunctionReturn {
+  ): ValueAndFormat {
     let result;
     try {
       result = value();
@@ -144,7 +144,7 @@ export const IFNA = {
   computeValueAndFormat: function (
     value: () => PrimitiveArg,
     valueIfError: () => PrimitiveArg = () => ({ value: "" })
-  ): FunctionReturn {
+  ): ValueAndFormat {
     let result;
     try {
       result = value();
@@ -189,7 +189,7 @@ export const IFS = {
     ),
   ],
   returns: ["ANY"],
-  computeValueAndFormat: function (...values: (() => PrimitiveArg)[]): FunctionReturn {
+  computeValueAndFormat: function (...values: (() => PrimitiveArg)[]): ValueAndFormat {
     assert(
       () => values.length % 2 === 0,
       _t(`Wrong number of arguments. Expected an even number of arguments.`)

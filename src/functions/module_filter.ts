@@ -3,7 +3,7 @@ import {
   AddFunctionDescription,
   Arg,
   isMatrix,
-  MatrixFunctionReturn,
+  Matrix,
   PrimitiveArg,
   ValueAndFormat,
 } from "../types";
@@ -34,7 +34,7 @@ export const FILTER = {
     ),
   ],
   returns: ["RANGE<ANY>"],
-  computeValueAndFormat: function (range: Arg, ...conditions: Arg[]) {
+  computeValueAndFormat: function (range: Arg, ...conditions: Arg[]): Matrix<ValueAndFormat> {
     let _array = toMatrix(range);
     const _conditionsMatrices = conditions.map((cond) =>
       matrixMap(toMatrix(cond), (data) => data.value)
@@ -56,7 +56,7 @@ export const FILTER = {
       _t(`FILTER has mismatched sizes on the range and conditions.`)
     );
 
-    const result: MatrixFunctionReturn = [];
+    const result: Matrix<ValueAndFormat> = [];
     for (let i = 0; i < _array.length; i++) {
       const row = _array[i];
       if (_conditions.every((c) => c[i])) {
@@ -94,9 +94,9 @@ export const UNIQUE = {
     range: Arg = { value: "" },
     byColumn: PrimitiveArg,
     exactlyOnce: PrimitiveArg
-  ) {
+  ): Matrix<ValueAndFormat> {
     if (!isMatrix(range)) {
-      return range;
+      return [[range]];
     }
 
     const _byColumn = toBoolean(byColumn?.value) || false;
@@ -117,7 +117,7 @@ export const UNIQUE = {
       }
     }
 
-    const result: MatrixFunctionReturn = [];
+    const result: Matrix<ValueAndFormat> = [];
     for (const row of map.values()) {
       if (_exactlyOnce && row.count > 1) {
         continue;

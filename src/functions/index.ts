@@ -8,8 +8,9 @@ import {
   ComputeFunctionArg,
   EvalContext,
   FunctionDescription,
-  FunctionReturn,
   isMatrix,
+  Matrix,
+  ValueAndFormat,
 } from "../types";
 import { addMetaInfoFromArg, validateArguments } from "./arguments";
 import { matrixMap } from "./helpers";
@@ -58,7 +59,7 @@ const functionNameRegex = /^[A-Z0-9\_\.]+$/;
 //------------------------------------------------------------------------------
 class FunctionRegistry extends Registry<FunctionDescription> {
   mapping: {
-    [key: string]: ComputeFunction<Arg, FunctionReturn>;
+    [key: string]: ComputeFunction<Arg, Matrix<ValueAndFormat> | ValueAndFormat>;
   } = {};
 
   add(name: string, addDescr: AddFunctionDescription) {
@@ -81,7 +82,7 @@ class FunctionRegistry extends Registry<FunctionDescription> {
 
 function createComputeFunctionFromDescription(
   descr: FunctionDescription
-): ComputeFunction<Arg, FunctionReturn> {
+): ComputeFunction<Arg, Matrix<ValueAndFormat> | ValueAndFormat> {
   const computeValueAndFormat = "computeValueAndFormat" in descr;
   const computeValue = "compute" in descr;
   const computeFormat = "computeFormat" in descr;
@@ -107,7 +108,10 @@ function createComputeFunctionFromDescription(
 }
 
 function buildComputeFunctionFromDescription(descr) {
-  return function (this: EvalContext, ...args: ComputeFunctionArg<Arg>[]): FunctionReturn {
+  return function (
+    this: EvalContext,
+    ...args: ComputeFunctionArg<Arg>[]
+  ): Matrix<ValueAndFormat> | ValueAndFormat {
     const computeValue = descr.compute.bind(this);
     const computeFormat = descr.computeFormat?.bind(this) || (() => undefined);
     const value = computeValue(...extractArgValuesFromArgs(args));

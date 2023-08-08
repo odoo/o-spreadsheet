@@ -1,10 +1,5 @@
 import { _t } from "../translation";
-import {
-  AddFunctionDescription,
-  FunctionReturnValue,
-  PrimitiveArg,
-  PrimitiveArgValue,
-} from "../types";
+import { AddFunctionDescription, CellValue, PrimitiveArg, PrimitiveArgValue } from "../types";
 import { arg } from "./arguments";
 import { assert, toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";
@@ -278,7 +273,7 @@ export const UPLUS = {
   args: [arg("value (any)", _t("The number to return."))],
   returns: ["ANY"],
   computeFormat: (value: PrimitiveArg) => value?.format,
-  compute: function (value: PrimitiveArgValue = ""): FunctionReturnValue {
+  compute: function (value: PrimitiveArgValue = ""): CellValue {
     return value === null ? "" : value;
   },
 } satisfies AddFunctionDescription;

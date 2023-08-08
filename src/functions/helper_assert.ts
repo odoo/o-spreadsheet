@@ -1,4 +1,4 @@
-import { ArgValue, isMatrix, Matrix, MatrixArgValue } from "../types";
+import { ArgValue, CellValue, isMatrix, Matrix } from "../types";
 import { assert } from "./helpers";
 
 export function assertSingleColOrRow(errorStr: string, arg: Matrix) {
@@ -23,10 +23,10 @@ export function assertPositive(errorStr: string, arg: number) {
   assert(() => arg > 0, errorStr);
 }
 
-export function assertSquareMatrix(errorStr: string, arg: MatrixArgValue) {
+export function assertSquareMatrix(errorStr: string, arg: Matrix<CellValue>) {
   assert(() => arg.length === arg[0].length, errorStr);
 }
 
-export function isNumberMatrix(arg: MatrixArgValue): arg is Matrix<number> {
+export function isNumberMatrix(arg: Matrix<CellValue>): arg is Matrix<number> {
   return arg.every((row) => row.every((val) => typeof val === "number"));
 }

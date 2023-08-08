@@ -3,7 +3,8 @@ import {
   AddFunctionDescription,
   Arg,
   ArgValue,
-  MatrixArgValue,
+  CellValue,
+  Matrix,
   PrimitiveArg,
   PrimitiveArgValue,
 } from "../types";
@@ -549,7 +550,7 @@ export const COUNTUNIQUEIFS = {
     arg("criterion2 (string, repeating)", _t("The pattern or test to apply to criteria_range2.")),
   ],
   returns: ["NUMBER"],
-  compute: function (range: MatrixArgValue, ...argsValues: ArgValue[]): number {
+  compute: function (range: Matrix<CellValue>, ...argsValues: ArgValue[]): number {
     let uniqueValues = new Set();
     visitMatchingRanges(
       argsValues,
@@ -887,7 +888,7 @@ export const MUNIT = {
     ),
   ],
   returns: ["RANGE<NUMBER>"],
-  compute: function (n: PrimitiveArgValue): number[][] {
+  compute: function (n: PrimitiveArgValue): Matrix<number> {
     const _n = toInteger(n, this.locale);
     assertPositive(_t("The argument dimension must be positive"), _n);
     return getUnitMatrix(_n);
@@ -1026,7 +1027,7 @@ export const RANDARRAY = {
     min: PrimitiveArgValue = 0,
     max: PrimitiveArgValue = 1,
     whole_number: PrimitiveArgValue = false
-  ): number[][] {
+  ): Matrix<number> {
     const _cols = toInteger(columns, this.locale);
     const _rows = toInteger(rows, this.locale);
     const _min = toNumber(min, this.locale);
@@ -1314,7 +1315,7 @@ export const SUMIF = {
   compute: function (
     criteriaRange: ArgValue,
     criterion: PrimitiveArgValue,
-    sumRange: ArgValue | undefined = undefined
+    sumRange: ArgValue
   ): number {
     if (sumRange === undefined) {
       sumRange = criteriaRange;
@@ -1349,7 +1350,7 @@ export const SUMIFS = {
     arg("criterion2 (string, repeating)", _t("Additional criteria to check.")),
   ],
   returns: ["NUMBER"],
-  compute: function (sumRange: MatrixArgValue, ...criters: ArgValue[]): number {
+  compute: function (sumRange: Matrix<CellValue>, ...criters: ArgValue[]): number {
     let sum = 0;
     visitMatchingRanges(
       criters,

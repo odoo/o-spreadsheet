@@ -10,8 +10,9 @@ import {
   FormulaCell,
   Getters,
   isMatrix,
-  MatrixFunctionReturn,
+  Matrix,
   UID,
+  ValueAndFormat,
 } from "../../../types";
 import {
   CellErrorLevel,
@@ -277,7 +278,7 @@ export class Evaluator {
 
   private assertSheetHasEnoughSpaceToSpreadFormulaResult(
     { sheetId, col, row }: CellPosition,
-    matrixResult: MatrixFunctionReturn
+    matrixResult: Matrix<ValueAndFormat>
   ) {
     const numberOfCols = this.getters.getNumberCols(sheetId);
     const numberOfRows = this.getters.getNumberRows(sheetId);
@@ -337,7 +338,7 @@ export class Evaluator {
 
   private spreadValues(
     { sheetId, col, row }: CellPosition,
-    matrixResult: MatrixFunctionReturn
+    matrixResult: Matrix<ValueAndFormat>
   ): (i: number, j: number) => void {
     return (i: number, j: number) => {
       const position = { sheetId, col: i + col, row: j + row };
