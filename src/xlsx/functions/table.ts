@@ -4,7 +4,16 @@ import { XMLAttributes, XMLString } from "../../types/xlsx";
 import { NAMESPACE } from "../constants";
 import { escapeXml, formatAttributes, joinXmlNodes, parseXML } from "../helpers/xml_helpers";
 
-const TABLE_DEFAULT_STYLE = escapeXml/*xml*/ `<tableStyleInfo name="TableStyleLight8" showFirstColumn="0" showLastColumn="0" showRowStripes="0" showColumnStripes="0"/>`;
+const TABLE_DEFAULT_ATTRS: XMLAttributes = [
+  ["name", "TableStyleLight8"],
+  ["showFirstColumn", "0"],
+  ["showLastColumn", "0"],
+  ["showRowStripes", "0"],
+  ["showColumnStripes", "0"],
+];
+const TABLE_DEFAULT_STYLE = escapeXml/*xml*/ `<tableStyleInfo ${formatAttributes(
+  TABLE_DEFAULT_ATTRS
+)}/>`;
 
 export function createTable(
   table: ExcelFilterTableData,
