@@ -5,6 +5,7 @@ dist/
 .npmrc
 /coverage/
 logs/
+build/
 
 debug.log
 .git.cache
