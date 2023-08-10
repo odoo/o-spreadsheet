@@ -4,6 +4,7 @@
   </t>
 
   <t t-name="o-spreadsheet-ColorScaleRuleEditorThreshold" owl="1">
+    <t t-set="fill_color">Fill Color</t>
     <div t-attf-class="o-threshold o-threshold-{{thresholdType}}">
       <t t-if="thresholdType === 'midpoint'">
         <t t-set="type" t-value="threshold and threshold.type"/>
@@ -41,7 +42,7 @@
         toggleColorPicker="(ev) => this.toggleMenu('colorScale-'+thresholdType+'Color', ev)"
         showColorPicker="state.openedMenu === 'colorScale-'+thresholdType+'Color'"
         onColorPicked="(color) => this.setColorScaleColor(thresholdType, color)"
-        title="env._t('Fill Color')"
+        title="fill_color"
         icon="'o-spreadsheet-Icon.FILL_COLOR'"
         disabled="threshold === undefined"
       />

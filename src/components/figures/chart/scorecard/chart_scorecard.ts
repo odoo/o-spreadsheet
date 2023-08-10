@@ -1,6 +1,7 @@
 import { Component } from "@odoo/owl";
 import { DEFAULT_FONT } from "../../../../constants";
 import { getFontSizeMatchingWidth, relativeLuminance } from "../../../../helpers";
+import { _t } from "../../../../translation";
 import { Color, Figure, Pixel, SpreadsheetChildEnv, Style } from "../../../../types";
 import { ScorecardChartRuntime } from "../../../../types/chart/scorecard_chart";
 import { cellTextStyleToCss, cssPropertiesToCss } from "../../../helpers";
@@ -140,6 +141,10 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
 
   get chartPadding() {
     return this.props.figure.width * CHART_PADDING_RATIO;
+  }
+
+  translate(term) {
+    return _t(term);
   }
 
   getTextStyles() {

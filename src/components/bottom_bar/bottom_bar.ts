@@ -2,6 +2,7 @@ import { Component, onWillUnmount, onWillUpdateProps, useRef, useState } from "@
 import { BACKGROUND_GRAY_COLOR, HEADER_WIDTH, TEXT_HEADER_COLOR } from "../../constants";
 import { deepEquals } from "../../helpers";
 import { MenuItemRegistry } from "../../registries/menu_items_registry";
+import { _t } from "../../translation";
 import { MenuMouseEvent, Pixel, Rect, SpreadsheetChildEnv, UID } from "../../types";
 import { Ripple } from "../animation/ripple";
 import { BottomBarSheet } from "../bottom_bar_sheet/bottom_bar_sheet";
@@ -132,7 +133,7 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
     const position =
       this.env.model.getters.getSheetIds().findIndex((sheetId) => sheetId === activeSheetId) + 1;
     const sheetId = this.env.model.uuidGenerator.uuidv4();
-    const name = this.env.model.getters.getNextSheetName(this.env._t("Sheet"));
+    const name = this.env.model.getters.getNextSheetName(_t("Sheet"));
     this.env.model.dispatch("CREATE_SHEET", { sheetId, position, name });
     this.env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: sheetId });
   }
