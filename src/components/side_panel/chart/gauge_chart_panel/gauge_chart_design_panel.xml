@@ -1,5 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-GaugeChartDesignPanel" owl="1">
+    <t t-set="background_color">Background Color</t>
     <div>
       <div class="o-section o-chart-background-color">
         <div class="o-section-title">Background color</div>
@@ -9,7 +10,7 @@
           toggleColorPicker="() => this.toggleMenu('backgroundColor', ev)"
           showColorPicker="state.openedMenu === 'backgroundColor'"
           onColorPicked="(color) => this.updateBackgroundColor(color)"
-          title="env._t('Background Color')"
+          title="background_color"
           icon="'o-spreadsheet-Icon.FILL_COLOR'"
         />
       </div>

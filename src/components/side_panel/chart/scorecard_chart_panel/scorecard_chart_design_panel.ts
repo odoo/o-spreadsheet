@@ -38,6 +38,10 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
     });
   }
 
+  translate(term) {
+    return _t(term);
+  }
+
   updateBaselineDescr(ev) {
     this.props.updateChart(this.props.figureId, { baselineDescr: ev.target.value });
   }

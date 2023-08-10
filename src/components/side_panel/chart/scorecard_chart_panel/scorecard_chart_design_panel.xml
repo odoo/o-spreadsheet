@@ -1,5 +1,8 @@
 <templates>
   <t t-name="o-spreadsheet-ScorecardChartDesignPanel" owl="1">
+    <t t-set="background_color">Background Color</t>
+    <t t-set="color_up">Color Up</t>
+    <t t-set="color_down">Color Down</t>
     <div>
       <div class="o-section o-chart-background-color">
         <div class="o-section-title">Background color</div>
@@ -9,7 +12,7 @@
           toggleColorPicker="() => this.toggleColorPicker('backgroundColor')"
           showColorPicker="state.openedColorPicker === 'backgroundColor'"
           onColorPicked="(color) => this.setColor(color, 'backgroundColor')"
-          title="env._t('Background Color')"
+          title="background_color"
           icon="'o-spreadsheet-Icon.FILL_COLOR'"
         />
       </div>
@@ -28,7 +31,7 @@
         <div class="o-section-title">Baseline description</div>
         <input
           type="text"
-          t-att-value="env._t(props.definition.baselineDescr)"
+          t-att-value="translate(props.definition.baselineDescr)"
           t-on-change="updateBaselineDescr"
           class="o-input o-optional"
         />
@@ -42,7 +45,7 @@
         toggleColorPicker="() => this.toggleColorPicker('baselineColorUp')"
         showColorPicker="state.openedColorPicker === 'baselineColorUp'"
         onColorPicked="(color) => this.setColor(color, 'baselineColorUp')"
-        title="env._t('Color Up')"
+        title="color_up"
         icon="'o-spreadsheet-Icon.FILL_COLOR'"
       />
       <br/>
@@ -52,7 +55,7 @@
         toggleColorPicker="() => this.toggleColorPicker('baselineColorDown')"
         showColorPicker="state.openedColorPicker === 'baselineColorDown'"
         onColorPicked="(color) => this.setColor(color, 'baselineColorDown')"
-        title="env._t('Color Down')"
+        title="color_down"
         icon="'o-spreadsheet-Icon.FILL_COLOR'"
       />
     </div>

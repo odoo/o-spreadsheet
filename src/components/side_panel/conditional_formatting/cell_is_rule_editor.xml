@@ -14,6 +14,8 @@
   </t>
 
   <t t-name="o-spreadsheet-CellIsRuleEditor" owl="1">
+    <t t-set="fill_color">Fill Color</t>
+    <t t-set="text_color">Text Color</t>
     <div class="o-cf-cell-is-rule">
       <div class="o-section-subtitle">Format cells if...</div>
       <select t-model="rule.operator" class="o-input o-cell-is-operator">
@@ -80,7 +82,7 @@
           toggleColorPicker="(ev) => this.toggleMenu('cellIsRule-textColor', ev)"
           showColorPicker="state.openedMenu === 'cellIsRule-textColor'"
           onColorPicked="(color) => this.setColor('textColor', color)"
-          title="env._t('Text Color')"
+          title="text_color"
           icon="'o-spreadsheet-Icon.TEXT_COLOR'"
           class="'o-tool'"
         />
@@ -90,7 +92,7 @@
           toggleColorPicker="(ev) => this.toggleMenu('cellIsRule-fillColor', ev)"
           showColorPicker="state.openedMenu === 'cellIsRule-fillColor'"
           onColorPicked="(color) => this.setColor('fillColor', color)"
-          title="env._t('Fill Color')"
+          title="fill_color"
           icon="'o-spreadsheet-Icon.FILL_COLOR'"
           class="'o-tool'"
         />

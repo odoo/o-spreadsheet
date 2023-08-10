@@ -1,5 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-BorderEditor" owl="1">
+    <t t-set="border_color">Border Color</t>
     <Popover t-props="popoverProps">
       <div
         class="d-flex bg-white o-border-selector"
@@ -34,7 +35,7 @@
               toggleColorPicker="(ev) => this.toggleDropdownTool('borderColorTool')"
               showColorPicker="state.activeTool === 'borderColorTool'"
               onColorPicked="(color) => this.setBorderColor(color)"
-              title="env._t('Border Color')"
+              title="border_color"
               icon="props.currentBorderColor === '' ? 'o-spreadsheet-Icon.BORDER_NO_COLOR' : 'o-spreadsheet-Icon.BORDER_COLOR'"
               dropdownMaxHeight="this.props.dropdownMaxHeight"
               class="'o-dropdown-button o-border-picker-button'"

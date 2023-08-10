@@ -23,7 +23,7 @@
               </span>
             </t>
             <span t-att-style="textStyles.baselineDescrStyle" class="o-baseline-text-description">
-              <t t-esc="env._t(baselineDescr)"/>
+              <t t-esc="translate(baselineDescr)"/>
             </span>
           </div>
         </t>
