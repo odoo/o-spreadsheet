@@ -2,7 +2,7 @@ import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import { selectCell } from "../test_helpers/commands_helpers";
-import { click, keyDown, simulateClick } from "../test_helpers/dom_helper";
+import { click, keyDown, keyUp, simulateClick } from "../test_helpers/dom_helper";
 import { getCellText } from "../test_helpers/getters_helpers";
 import {
   clearFunctions,
@@ -146,10 +146,12 @@ describe("Functions autocomplete", () => {
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
       ).toBe("SUM");
       await keyDown({ key: "ArrowDown" });
+      await keyUp({ key: "ArrowDown" });
       expect(
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
       ).toBe("SZZ");
       await keyDown({ key: "ArrowUp" });
+      await keyUp({ key: "ArrowUp" });
       expect(
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
       ).toBe("SUM");

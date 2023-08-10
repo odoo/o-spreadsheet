@@ -371,8 +371,11 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
 
   onKeyup(ev: KeyboardEvent) {
     if (this.contentHelper.el === document.activeElement) {
-      const isSelectingForComposer = this.env.model.getters.isSelectingForComposer();
-      if (isSelectingForComposer && ev.key?.startsWith("Arrow")) {
+      if (this.autoCompleteState.showProvider && ["ArrowUp", "ArrowDown"].includes(ev.key)) {
+        return;
+      }
+
+      if (this.env.model.getters.isSelectingForComposer() && ev.key?.startsWith("Arrow")) {
         return;
       }
 
