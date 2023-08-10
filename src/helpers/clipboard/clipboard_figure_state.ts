@@ -168,6 +168,7 @@ export class ClipboardFigureImage {
       position,
       size,
       definition: copy,
+      CreateFilterTableCommand: undefined,
     });
   }
 }

@@ -1,5 +1,4 @@
 import {
-  areZonesContinuous,
   deepCopy,
   expandZoneOnInsertion,
   intersection,
@@ -10,11 +9,10 @@ import {
   range,
   reduceZoneOnDeletion,
   toZone,
-  union,
   zoneToDimension,
   zoneToXc,
 } from "../../helpers";
-import { Filter, FilterTable } from "../../helpers/filters";
+import { Checkbox, CheckboxTable } from "../../helpers/checkbox";
 import {
   AddColumnsRowsCommand,
   CellPosition,
@@ -32,57 +30,57 @@ import {
 } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
 
-interface FiltersState {
-  tables: Record<UID, Record<FilterTableId, FilterTable | undefined>>;
+interface CheckboxState {
+  tables: Record<UID, Record<FilterTableId, CheckboxTable | undefined>>;
 }
 
-export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersState {
+export class CheckboxsPlugin extends CorePlugin<CheckboxState> implements CheckboxState {
+  private valueCheck;
+
   static getters = [
-    "doesZonesContainFilter",
-    "getFilter",
-    "getFilters",
-    "getFilterTable",
-    "getFilterTables",
-    "getFilterTablesInZone",
-    "getFilterId",
-    "getFilterHeaders",
-    "isFilterHeader",
+    // "doesZonesContainCheckbox",
+    // "getCheckbox",
+    // "getCheckboxs",
+    // "getCheckboxTable",
+    // "getCheckboxTables",
+    // "getCheckboxTablesInZone",
+    // "getCheckboxId",
+    "getCheckboxddHeaders",
+    // "isCheckboxHeader",
   ] as const;
 
-  readonly tables: Record<UID, Record<FilterTableId, FilterTable | undefined>> = {};
-
+  readonly tables: Record<UID, Record<FilterTableId, CheckboxTable | undefined>> = {};
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
 
   allowDispatch(cmd: CoreCommand): CommandResult | CommandResult[] {
     switch (cmd.type) {
-      case "CREATE_FILTER_TABLE":
-        console.log("CREATE FILTER TABLE");
-        if (!areZonesContinuous(...cmd.target)) {
-          return CommandResult.NonContinuousTargets;
-        }
-        const zone = union(...cmd.target);
-        const checkFilterOverlap = () => {
-          if (this.getFilterTables(cmd.sheetId).some((filter) => overlap(filter.zone, zone))) {
-            return CommandResult.FilterOverlap;
-          }
-          return CommandResult.Success;
-        };
-        const checkMergeInFilter = () => {
-          const mergesInTarget = this.getters.getMergesInZone(cmd.sheetId, zone);
-          for (let merge of mergesInTarget) {
-            if (overlap(zone, merge)) {
-              return CommandResult.MergeInFilter;
-            }
-          }
-          return CommandResult.Success;
-        };
-        return this.checkValidations(cmd, checkFilterOverlap, checkMergeInFilter);
+      case "CREATE_CHECKBOX":
+        // if (!areZonesContinuous(...cmd.target)) {
+        //   return CommandResult.NonContinuousTargets;
+        // }
+        // const zone = union(...cmd.target);
+        // const checkCheckboxOverlap = () => {
+        //   if (this.getCheckboxTables(cmd.sheetId).some((filter) => overlap(filter.zone, zone))) {
+        //     return CommandResult.FilterOverlap;
+        //   }
+        // return CommandResult.Success;
+        // };
+        // const checkMergeInCheckbox = () => {
+        //   const mergesInTarget = this.getters.getMergesInZone(cmd.sheetId, zone);
+        //   for (let merge of mergesInTarget) {
+        //     if (overlap(zone, merge)) {
+        //       return CommandResult.MergeInFilter;
+        //     }
+        //   }
+        //   return CommandResult.Success;
+        // };
+        // return this.checkValidations(cmd, checkCheckboxOverlap, checkMergeInCheckbox);
         break;
       case "ADD_MERGE":
         for (let merge of cmd.target) {
-          for (let filterTable of this.getFilterTables(cmd.sheetId)) {
+          for (let filterTable of this.getCheckboxTables(cmd.sheetId)) {
             if (overlap(filterTable.zone, merge)) {
               return CommandResult.MergeInFilter;
             }
@@ -104,11 +102,11 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
         this.history.update("tables", filterTables);
         break;
       case "DUPLICATE_SHEET":
-        const tables: Record<FilterTableId, FilterTable | undefined> = {};
+        const tables: Record<FilterTableId, CheckboxTable | undefined> = {};
         for (const filterTable of Object.values(this.tables[cmd.sheetId] || {})) {
           if (filterTable) {
-            const newFilterTable = deepCopy(filterTable);
-            tables[newFilterTable.id] = newFilterTable;
+            const newCheckboxTable = deepCopy(filterTable);
+            tables[newCheckboxTable.id] = newCheckboxTable;
           }
         }
         this.history.update("tables", cmd.sheetIdTo, tables);
@@ -119,20 +117,20 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
       case "REMOVE_COLUMNS_ROWS":
         this.onDeleteColumnsRows(cmd);
         break;
-      case "CREATE_FILTER_TABLE": {
-        console.log("CREATE FILTER TABLE TABLE");
-        const zone = union(...cmd.target);
-        const newFilterTable = this.createFilterTable(zone);
-        this.history.update("tables", cmd.sheetId, newFilterTable.id, newFilterTable);
+      case "CREATE_CHECKBOX": {
+        console.log(
+          "COMMAND DISPATCHED CHECKBOX >>> >>>>>>>>>>>>>>>> >>>>>>>>>>>>>> >>>>>>>> >>>>>>>..",
+          cmd
+        );
+        this.valueCheck = { ...cmd };
+        // const zone = union(...cmd.target);
+        // const newCheckboxTable = this.createCheckbox(zone);
+        // this.history.update("tables", cmd.sheetId, newCheckboxTable.id, newCheckboxTable);
         break;
       }
-      // case "CREATE_CHECKBOX": {
-      //   console.log("CHECKBOX CREATE COMMAND");
-      //   break;
-      // }
       case "REMOVE_FILTER_TABLE": {
-        const tables: Record<UID, FilterTable> = {};
-        for (const filterTable of this.getFilterTables(cmd.sheetId)) {
+        const tables: Record<UID, CheckboxTable> = {};
+        for (const filterTable of this.getCheckboxTables(cmd.sheetId)) {
           if (cmd.target.every((zone) => !intersection(zone, filterTable.zone))) {
             tables[filterTable.id] = filterTable;
           }
@@ -142,7 +140,7 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
       }
       case "UPDATE_CELL": {
         const sheetId = cmd.sheetId;
-        for (let table of this.getFilterTables(sheetId)) {
+        for (let table of this.getCheckboxTables(sheetId)) {
           if (this.canUpdateCellCmdExtendTable(cmd, table)) {
             this.extendTableDown(sheetId, table);
           }
@@ -152,40 +150,40 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
     }
   }
 
-  getFilters(sheetId: UID): Filter[] {
-    return this.getFilterTables(sheetId)
+  getCheckboxs(sheetId: UID): Checkbox[] {
+    return this.getCheckboxTables(sheetId)
       .map((filterTable) => filterTable.filters)
       .flat();
   }
 
-  getFilterTables(sheetId: UID): FilterTable[] {
+  getCheckboxTables(sheetId: UID): CheckboxTable[] {
     return this.tables[sheetId] ? Object.values(this.tables[sheetId]).filter(isDefined) : [];
   }
 
-  getFilter(position: CellPosition): Filter | undefined {
-    return this.getFilterTable(position)?.filters.find((filter) => filter.col === position.col);
+  getCheckbox(position: CellPosition): Checkbox | undefined {
+    return this.getCheckboxTable(position)?.filters.find((filter) => filter.col === position.col);
   }
 
-  getFilterId(position: CellPosition): FilterId | undefined {
-    return this.getFilter(position)?.id;
+  getCheckboxId(position: CellPosition): FilterId | undefined {
+    return this.getCheckbox(position)?.id;
   }
 
-  getFilterTable({ sheetId, col, row }: CellPosition): FilterTable | undefined {
-    return this.getFilterTables(sheetId).find((filterTable) =>
+  getCheckboxTable({ sheetId, col, row }: CellPosition): CheckboxTable | undefined {
+    return this.getCheckboxTables(sheetId).find((filterTable) =>
       isInside(col, row, filterTable.zone)
     );
   }
 
   /** Get the filter tables that are fully inside the given zone */
-  getFilterTablesInZone(sheetId: UID, zone: Zone): FilterTable[] {
-    return this.getFilterTables(sheetId).filter((filterTable) =>
+  getCheckboxTablesInZone(sheetId: UID, zone: Zone): CheckboxTable[] {
+    return this.getCheckboxTables(sheetId).filter((filterTable) =>
       isZoneInside(filterTable.zone, zone)
     );
   }
 
-  doesZonesContainFilter(sheetId: UID, zones: Zone[]): boolean {
+  doesZonesContainCheckbox(sheetId: UID, zones: Zone[]): boolean {
     for (const zone of zones) {
-      for (const filterTable of this.getFilterTables(sheetId)) {
+      for (const filterTable of this.getCheckboxTables(sheetId)) {
         if (intersection(zone, filterTable.zone)) {
           return true;
         }
@@ -194,28 +192,19 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
     return false;
   }
 
-  getFilterHeaders(sheetId: UID): Position[] {
-    const headers: Position[] = [];
-    // console.log(">>>>>>>>>getFilterHeaders<<<<<<<<<<<<<<<<<< :",this)
-    for (let filterTable of this.getFilterTables(sheetId)) {
-      const zone = filterTable.zone;
-      const row = zone.top;
-      for (let col = zone.left; col <= zone.right; col++) {
-        headers.push({ col, row });
-      }
-    }
-    return headers;
+  getCheckboxddHeaders(sheetId: UID): Position[] {
+    return this.valueCheck;
   }
 
-  isFilterHeader({ sheetId, col, row }: CellPosition): boolean {
-    const headers = this.getFilterHeaders(sheetId);
+  isCheckboxHeader({ sheetId, col, row }: CellPosition): boolean {
+    const headers = this.getCheckboxddHeaders(sheetId);
     // console.log("iSFILTERHEADER : ",headers.some((header) => header.col === col && header.row === row))
 
     return headers.some((header) => header.col === col && header.row === row);
   }
 
   private onAddColumnsRows(cmd: AddColumnsRowsCommand) {
-    for (const filterTable of this.getFilterTables(cmd.sheetId)) {
+    for (const filterTable of this.getCheckboxTables(cmd.sheetId)) {
       const zone = expandZoneOnInsertion(
         filterTable.zone,
         cmd.dimension === "COL" ? "left" : "top",
@@ -223,7 +212,7 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
         cmd.position,
         cmd.quantity
       );
-      const filters: Filter[] = [];
+      const filters: Checkbox[] = [];
       for (const filter of filterTable.filters) {
         const filterZone = expandZoneOnInsertion(
           filter.zoneWithHeaders,
@@ -232,7 +221,7 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
           cmd.position,
           cmd.quantity
         );
-        filters.push(new Filter(filter.id, filterZone));
+        filters.push(new Checkbox(filter.id, filterZone));
       }
 
       // Add filters for new columns
@@ -240,7 +229,7 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
         for (let col = zone.left; col <= zone.right; col++) {
           if (!filters.find((filter) => filter.col === col)) {
             filters.push(
-              new Filter(this.uuidGenerator.uuidv4(), { ...zone, left: col, right: col })
+              new Checkbox(this.uuidGenerator.uuidv4(), { ...zone, left: col, right: col })
             );
           }
         }
@@ -252,7 +241,7 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
   }
 
   private onDeleteColumnsRows(cmd: RemoveColumnsRowsCommand) {
-    for (const table of this.getFilterTables(cmd.sheetId)) {
+    for (const table of this.getCheckboxTables(cmd.sheetId)) {
       const zone = reduceZoneOnDeletion(
         table.zone,
         cmd.dimension === "COL" ? "left" : "top",
@@ -264,15 +253,15 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
         this.history.update("tables", cmd.sheetId, tables);
       } else {
         if (zoneToXc(zone) !== zoneToXc(table.zone)) {
-          const filters: Filter[] = [];
+          const filters: Checkbox[] = [];
           for (const filter of table.filters) {
-            const newFilterZone = reduceZoneOnDeletion(
+            const newCheckboxZone = reduceZoneOnDeletion(
               filter.zoneWithHeaders,
               cmd.dimension === "COL" ? "left" : "top",
               cmd.elements
             );
-            if (newFilterZone) {
-              filters.push(new Filter(filter.id, newFilterZone));
+            if (newCheckboxZone) {
+              filters.push(new Checkbox(filter.id, newCheckboxZone));
             }
           }
           this.history.update("tables", cmd.sheetId, table.id, "zone", zone);
@@ -282,18 +271,21 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
     }
   }
 
-  private createFilterTable(zone: Zone): FilterTable {
+  private createCheckboxTable(zone: Zone): CheckboxTable {
     console.log("create filter");
-    return new FilterTable(zone);
+    return new CheckboxTable(zone);
   }
-
+  private createCheckbox(zone: Zone): CheckboxTable {
+    console.log("create checkbox CREATE");
+    return new CheckboxTable(zone);
+  }
   /** Extend a table down one row */
-  private extendTableDown(sheetId: UID, table: FilterTable) {
+  private extendTableDown(sheetId: UID, table: CheckboxTable) {
     const newZone = { ...table.zone, bottom: table.zone.bottom + 1 };
     this.history.update("tables", sheetId, table.id, "zone", newZone);
     for (let filterIndex = 0; filterIndex < table.filters.length; filterIndex++) {
       const filter = table.filters[filterIndex];
-      const newFilterZone = {
+      const newCheckboxZone = {
         ...filter.zoneWithHeaders,
         bottom: filter.zoneWithHeaders.bottom + 1,
       };
@@ -304,7 +296,7 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
         "filters",
         filterIndex,
         "zoneWithHeaders",
-        newFilterZone
+        newCheckboxZone
       );
     }
     return;
@@ -323,7 +315,7 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
    */
   private canUpdateCellCmdExtendTable(
     { content: newCellContent, sheetId, col, row }: UpdateCellCommand,
-    table: FilterTable
+    table: CheckboxTable
   ) {
     if (!newCellContent) {
       return;
@@ -360,7 +352,7 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
   import(data: WorkbookData) {
     for (const sheet of data.sheets) {
       for (const filterTableData of sheet.filterTables || []) {
-        const table = this.createFilterTable(toZone(filterTableData.range));
+        const table = this.createCheckboxTable(toZone(filterTableData.range));
         this.history.update("tables", sheet.id, table.id, table);
       }
     }
@@ -368,7 +360,7 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
 
   export(data: WorkbookData) {
     for (const sheet of data.sheets) {
-      for (const filterTable of this.getFilterTables(sheet.id)) {
+      for (const filterTable of this.getCheckboxTables(sheet.id)) {
         sheet.filterTables.push({
           range: zoneToXc(filterTable.zone),
         });

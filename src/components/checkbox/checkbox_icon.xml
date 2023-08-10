@@ -1,0 +1,8 @@
+<templates>
+  <t t-name="o-spreadsheet-CheckboxIcon" owl="1">
+    <div class="o-filter-icon" t-att-style="style" t-on-click.stop="props.onClick">
+      <t t-if="props.isActive" t-call="o-spreadsheet-Icon.CHECKBOX"/>
+      <t t-else="" t-call="o-spreadsheet-Icon.UNCHECKBOX"/>
+    </div>
+  </t>
+</templates>

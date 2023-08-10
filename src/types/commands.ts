@@ -207,6 +207,9 @@ export const coreTypes = new Set<CoreCommandTypes>([
   /** IMAGE */
   "CREATE_IMAGE",
 
+  /** CHECKBOX */
+  "CREATE_CHECKBOX",
+
   "UPDATE_LOCALE",
 ]);
 
@@ -385,7 +388,7 @@ export interface MoveRangeCommand extends PositionDependentCommand, TargetDepend
 
 /**
  * todo: use id instead of a list. this is not safe to serialize and send to
- * another user
+ * another userCreateFilterTableCommand
  */
 export interface AddConditionalFormatCommand extends SheetDependentCommand, RangesDependentCommand {
   type: "ADD_CONDITIONAL_FORMAT";
@@ -395,6 +398,7 @@ export interface AddConditionalFormatCommand extends SheetDependentCommand, Rang
 export interface RemoveConditionalFormatCommand extends SheetDependentCommand {
   type: "REMOVE_CONDITIONAL_FORMAT";
   id: string;
+  CreateFilterTableCommand;
 }
 
 export interface MoveConditionalFormatCommand extends SheetDependentCommand {
@@ -449,6 +453,7 @@ export interface CreateImageOverCommand extends SheetDependentCommand {
   figureId: UID;
   position: { x: Pixel; y: Pixel };
   size: FigureSize;
+  CreateFilterTableCommand;
   definition: Image;
 }
 
@@ -469,6 +474,10 @@ export interface UpdateFilterCommand extends PositionDependentCommand {
   values: string[];
 }
 
+export interface CreateCheckboxCommand extends PositionDependentCommand {
+  type: "CREATE_CHECKBOX";
+  isCheckboxCell?: boolean;
+}
 export interface SetFormattingCommand extends TargetDependentCommand {
   type: "SET_FORMATTING";
   style?: Style;
@@ -984,7 +993,10 @@ export type CoreCommand =
   /** FILTERS */
   | CreateFilterTableCommand
   | RemoveFilterTableCommand
-  | UpdateLocaleCommand;
+  | UpdateLocaleCommand
+
+  /** CHECKBOX */
+  | CreateCheckboxCommand;
 
 export type LocalCommand =
   | RequestUndoCommand

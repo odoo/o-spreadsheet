@@ -1,6 +1,7 @@
 import { BordersPlugin } from "../plugins/core/borders";
 import { CellPlugin } from "../plugins/core/cell";
 import { ChartPlugin } from "../plugins/core/chart";
+import { CheckboxsPlugin } from "../plugins/core/checkboxs";
 import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
 import { FigurePlugin } from "../plugins/core/figures";
 import { FiltersPlugin } from "../plugins/core/filters";
@@ -88,6 +89,7 @@ type ConditionalFormatGetters = Pick<
 >;
 type LocalHistoryGetters = Pick<HistoryPlugin, GetterNames<typeof HistoryPlugin>>;
 type FiltersGetters = Pick<FiltersPlugin, GetterNames<typeof FiltersPlugin>>;
+type CheckboxGetters = Pick<CheckboxsPlugin, GetterNames<typeof CheckboxsPlugin>>;
 type SettingsGetters = Pick<SettingsPlugin, GetterNames<typeof SettingsPlugin>>;
 
 export type CoreGetters = SheetGetters &
@@ -102,6 +104,7 @@ export type CoreGetters = SheetGetters &
   FigureGetters &
   RangeAdapterGetters &
   FiltersGetters &
+  CheckboxGetters &
   SettingsGetters;
 
 type AutofillGetters = Pick<AutofillPlugin, GetterNames<typeof AutofillPlugin>>;

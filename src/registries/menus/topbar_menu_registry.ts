@@ -221,6 +221,10 @@ topbarMenuRegistry
     ...ACTION_INSERT.insertChart,
     sequence: 50,
   })
+  .addChild("insert_checkbox", ["insert"], {
+    ...ACTION_INSERT.insertCheckbox,
+    sequence: 52,
+  })
   .addChild("insert_image", ["insert"], {
     ...ACTION_INSERT.insertImage,
     sequence: 55,

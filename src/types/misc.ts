@@ -113,6 +113,7 @@ export interface UpdateCellData {
   formula?: string;
   style?: Style | null;
   format?: Format;
+  isCheckboxCell?: boolean;
 }
 
 export interface Sheet {

@@ -74,6 +74,7 @@
         onClose="() => this.closeMenu()"
       />
       <FilterIconsOverlay gridPosition="{ x: HEADER_WIDTH, y : HEADER_HEIGHT }"/>
+      <CheckboxIconsOverlay gridPosition="{ x: HEADER_WIDTH, y : HEADER_HEIGHT }"/>
       <VerticalScrollBar topOffset="HEADER_HEIGHT"/>
       <HorizontalScrollBar leftOffset="HEADER_WIDTH"/>
       <div class="o-scrollbar corner"/>

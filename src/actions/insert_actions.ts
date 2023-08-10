@@ -195,6 +195,12 @@ export const insertChart: ActionSpec = {
   icon: "o-spreadsheet-Icon.INSERT_CHART",
 };
 
+export const insertCheckbox: ActionSpec = {
+  name: _lt("Checkbox"),
+  execute: (env) => check(env),
+  icon: "o-spreadsheet-Icon.CHECKBOX",
+};
+
 export const insertImage: ActionSpec = {
   name: _lt("Image"),
   description: "Ctrl+O",
@@ -306,4 +312,15 @@ function getColumnsNumber(env): number {
     const zone = env.model.getters.getSelectedZones()[0];
     return zone.right - zone.left + 1;
   }
+}
+function check(env) {
+  console.log("CREATE FILTER");
+  const { sheetId, col, row } = env.model.getters.getActivePosition();
+  env.model.dispatch("UPDATE_CELL", {
+    sheetId,
+    col,
+    row,
+    content: "false",
+    isCheckboxCell: true,
+  });
 }

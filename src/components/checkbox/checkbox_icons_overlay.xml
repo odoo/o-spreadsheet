@@ -1,0 +1,15 @@
+<templates>
+  <t t-name="o-spreadsheet-CheckboxIconsOverlay" owl="1">
+    <t
+      t-foreach="getVisibleFilterHeaders()"
+      t-as="header"
+      t-key="'filter'+header.col + '_' + header.row">
+      <CheckboxIcon
+        position="getCheckboxHeaderPosition(header)"
+        isActive="getStatus()"
+        t-key="'icon_'+header.col + '_' + header.row"
+        onClick="() => this.toggleFilterMenu(header)"
+      />
+    </t>
+  </t>
+</templates>

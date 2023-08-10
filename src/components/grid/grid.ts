@@ -44,6 +44,7 @@ import {
   SpreadsheetChildEnv,
 } from "../../types/index";
 import { Autofill } from "../autofill/autofill";
+import { CheckboxIconsOverlay } from "../checkbox/checkbox_icons_overlay";
 import { ClientTag } from "../collaborative_client_tag/collaborative_client_tag";
 import { GridComposer } from "../composer/grid_composer/grid_composer";
 import { FilterIconsOverlay } from "../filters/filter_icons_overlay/filter_icons_overlay";
@@ -107,6 +108,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     VerticalScrollBar,
     HorizontalScrollBar,
     FilterIconsOverlay,
+    CheckboxIconsOverlay,
   };
   readonly HEADER_HEIGHT = HEADER_HEIGHT;
   readonly HEADER_WIDTH = HEADER_WIDTH;

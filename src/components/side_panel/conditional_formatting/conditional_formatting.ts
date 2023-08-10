@@ -555,6 +555,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
     this.env.model.dispatch("REMOVE_CONDITIONAL_FORMAT", {
       id: cf.id,
       sheetId: this.env.model.getters.getActiveSheetId(),
+      CreateFilterTableCommand: undefined,
     });
   }
 
@@ -641,6 +642,23 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
     const style = this.state.rules.cellIs.style;
     style[tool] = !style[tool];
     this.closeMenus();
+  }
+
+  onKeydown(event: KeyboardEvent) {
+    if (event.key === "F4") {
+      const target = event.target as HTMLInputElement;
+      const update = this.env.model.getters.getCycledReference(
+        { start: target.selectionStart ?? 0, end: target.selectionEnd ?? 0 },
+        target.value
+      );
+
+      if (!update) {
+        return;
+      }
+      target.value = update.content;
+      target.setSelectionRange(update.selection.start, update.selection.end);
+      target.dispatchEvent(new Event("input"));
+    }
   }
 
   setColor(target: string, color: Color) {
@@ -758,6 +776,7 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
   }
 
   setIcon(target: "upper" | "middle" | "lower", icon: string) {
+    console.log("STATE RULES :", icon);
     this.state.rules.iconSet.icons[target] = icon;
   }
 }

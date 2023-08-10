@@ -52,8 +52,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     "zoneToXC",
     "getCells",
     "getFormulaCellContent",
+    "getTranslatedCellFormula",
     "getCellStyle",
-    "buildFormulaContent",
     "getCellById",
   ] as const;
   readonly nextId = 1;
@@ -283,7 +283,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   /*
    * Reconstructs the original formula string based on a normalized form and its dependencies
    */
-  buildFormulaContent(
+  getFormulaCellContent(
     sheetId: UID,
     cell: Pick<FormulaCell, "dependencies" | "compiledFormula">,
     dependencies?: Range[]
@@ -300,8 +300,26 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     );
   }
 
-  getFormulaCellContent(sheetId: UID, cell: FormulaCell): string {
-    return this.buildFormulaContent(sheetId, cell);
+  /*
+   * Constructs a formula string based on an initial formula and a translation vector
+   */
+  getTranslatedCellFormula(
+    sheetId: UID,
+    offsetX: number,
+    offsetY: number,
+    compiledFormula: CompiledFormula,
+    dependencies: Range[]
+  ) {
+    const adaptedDependencies = this.getters.createAdaptedRanges(
+      dependencies,
+      offsetX,
+      offsetY,
+      sheetId
+    );
+    return this.getFormulaCellContent(sheetId, {
+      compiledFormula,
+      dependencies: adaptedDependencies,
+    });
   }
 
   getCellStyle(position: CellPosition): Style {
@@ -429,7 +447,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   private updateCell(sheetId: UID, col: HeaderIndex, row: HeaderIndex, after: UpdateCellData) {
     const before = this.getters.getCell({ sheetId, col, row });
     const hasContent = "content" in after || "formula" in after;
-
+    console.log("____________________________", after, before);
     // Compute the new cell properties
     const afterContent = hasContent ? replaceSpecialSpaces(after?.content) : before?.content || "";
     let style: Style | undefined;
@@ -437,6 +455,15 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       style = after.style || undefined;
     } else {
       style = before ? before.style : undefined;
+    }
+    if (after.isCheckboxCell) {
+      console.log("AFTER ISCHECKBOXCELLLLL ::::::::::::");
+      this.dispatch("CREATE_CHECKBOX", {
+        col,
+        row,
+        sheetId,
+        isCheckboxCell: after.isCheckboxCell,
+      });
     }
     const locale = this.getters.getLocale();
     let format =
@@ -552,7 +579,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       style,
       dependencies,
       sheetId,
-      this.buildFormulaContent.bind(this)
+      this.getFormulaCellContent.bind(this)
     );
   }
 
@@ -597,14 +624,14 @@ class FormulaCellWithDependencies {
     readonly style: Style | undefined,
     readonly dependencies: Range[],
     private readonly sheetId: UID,
-    private readonly buildFormulaContent: (
+    private readonly getFormulaCellContent: (
       sheetId: UID,
       cell: Pick<FormulaCell, "dependencies" | "compiledFormula">
     ) => string
   ) {}
 
   get content() {
-    return this.buildFormulaContent(this.sheetId, {
+    return this.getFormulaCellContent(this.sheetId, {
       dependencies: this.dependencies,
       compiledFormula: this.compiledFormula,
     });

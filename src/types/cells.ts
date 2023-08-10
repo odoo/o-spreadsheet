@@ -56,6 +56,7 @@ export interface TextCell extends EvaluatedCellProperties {
 export interface BooleanCell extends EvaluatedCellProperties {
   readonly type: CellValueType.boolean;
   readonly value: boolean;
+  readonly isCheckboxCell?: boolean;
 }
 
 export interface EmptyCell extends EvaluatedCellProperties {

@@ -396,6 +396,7 @@ export const CREATE_IMAGE = async (env: SpreadsheetChildEnv) => {
       position,
       size,
       definition: image,
+      CreateFilterTableCommand: undefined,
     });
   }
 };

@@ -366,6 +366,7 @@ export class RendererPlugin extends UIPlugin {
   }
 
   private drawIcon(renderingContext: GridRenderingContext) {
+    // console.log("draw icon");
     const { ctx } = renderingContext;
     for (const box of this.boxes) {
       if (box.image) {
@@ -616,6 +617,7 @@ export class RendererPlugin extends UIPlugin {
     const col: HeaderIndex = zone.left;
     const row: HeaderIndex = zone.top;
     const position = { sheetId, col, row };
+    // console.log("CELL POSITION",this.getters.getEvaluatedCell({sheetId: 'sh1',col:1,row:1}))
     const cell = this.getters.getEvaluatedCell(position);
     const showFormula = this.getters.shouldShowFormulas();
     const { x, y, width, height } = this.getters.getVisibleRect(zone);
@@ -630,7 +632,27 @@ export class RendererPlugin extends UIPlugin {
       style: this.getters.getCellComputedStyle(position),
       verticalAlign,
     };
-
+    // console.log(">>>>>>>>>>>Cell Type",cell.type)
+    // if(cell.type === CellValueType.boolean) {
+    //   if (cell.value == true)
+    //     {
+    //       box.image = {
+    //       type: "icon",
+    //       size: 20,
+    //       clipIcon: { x: box.x - box.width / 2, y: box.y, width, height },
+    //       image: ICONS['checkbox'].img,
+    //     };
+    // }
+    // else {
+    //   box.image = {
+    //         type: "icon",
+    //         size: 20,
+    //         clipIcon: { x: box.x - box.width / 2, y: box.y, width, height },
+    //         image: ICONS['unchecked'].img,
+    //     }
+    //   }
+    //   return box;
+    // }
     if (cell.type === CellValueType.empty) {
       return box;
     }
@@ -638,7 +660,9 @@ export class RendererPlugin extends UIPlugin {
     const cfIcon = this.getters.getConditionalIcon(position);
     const fontSizePX = computeTextFontSizeInPixels(box.style);
     const iconBoxWidth = cfIcon ? MIN_CF_ICON_MARGIN + fontSizePX : 0;
+    // console.log("cfIcon",cfIcon,">>",ICONS['checkbox'])
     if (cfIcon) {
+      // console.log("CFICON TRUE")
       box.image = {
         type: "icon",
         size: fontSizePX,
