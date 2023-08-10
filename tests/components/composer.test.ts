@@ -1551,3 +1551,16 @@ describe("Copy/paste in composer", () => {
     expect(sypeDispatch).not.toBeCalledWith("PASTE", expect.any);
   });
 });
+
+test("Menu should be closed while clicking on composer", async () => {
+  expect(fixture.querySelectorAll(".o-menu").length).toBe(0);
+  fixture.querySelector(".o-topbar-menu[data-id='file']")!.dispatchEvent(new Event("click"));
+  await nextTick();
+  expect(fixture.querySelectorAll(".o-menu").length).toBe(1);
+  const topbarComposerElement = fixture.querySelector(
+    ".o-topbar-toolbar .o-composer-container div"
+  )!;
+  await simulateClick(topbarComposerElement);
+  expect(model.getters.getEditionMode()).toBe("editing");
+  expect(fixture.querySelectorAll(".o-menu").length).toBe(0);
+});
