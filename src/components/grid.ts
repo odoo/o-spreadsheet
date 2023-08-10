@@ -178,7 +178,7 @@ const TEMPLATE = xml/* xml */ `
         focus="props.focusComposer"
         />
     </t>
-    <t else="1">
+    <t t-else="1">
       <input class="position-absolute"
         style="z-index:-1000;"
         t-on-input="onInput"
