@@ -302,6 +302,7 @@ const allExportableFormulasData = {
         A165: { content: '=HYPERLINK("https://www.odoo.com", "Odoo")' },
         A166: { content: '=ADDRESS(27,53,4,FALSE,"sheet!")' },
         A167: { content: '=DATEDIF("2002/01/01","2002/01/02","D")' },
+        A168: { content: "=RANDARRAY(2, 2)" },
 
         // DATA
         G1: { content: "Name", style: 8 },
