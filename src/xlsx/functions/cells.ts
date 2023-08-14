@@ -21,7 +21,10 @@ export function addFormula(cell: ExcelCellData): {
   attrs: XMLAttributes;
   node: XMLString;
 } {
-  const formula = cell.content!;
+  const formula = cell.content;
+  if (!formula) {
+    return { attrs: [], node: escapeXml`` };
+  }
 
   const attrs: XMLAttributes = [];
   let node = escapeXml``;

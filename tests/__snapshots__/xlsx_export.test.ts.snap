@@ -14648,6 +14648,21 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
                 </f>
             </c>
         </row>
+        <row r="168" ht="17.25" customHeight="1" hidden="0">
+            <c r="A168" s="1">
+                <f>
+                    RANDARRAY(2,2)
+                </f>
+            </c>
+            <c r="B168" s="1">
+            </c>
+        </row>
+        <row r="169" ht="17.25" customHeight="1" hidden="0">
+            <c r="A169" s="1">
+            </c>
+            <c r="B169" s="1">
+            </c>
+        </row>
     </sheetData>
 </worksheet>",
       "contentType": "sheet",
@@ -17114,6 +17129,21 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
                 <f>
                     DATEDIF("2002-01-01","2002-01-02","D")
                 </f>
+            </c>
+        </row>
+        <row r="168" ht="17.25" customHeight="1" hidden="0">
+            <c r="A168" s="1">
+                <f>
+                    RANDARRAY(2,2)
+                </f>
+            </c>
+            <c r="B168" s="1">
+            </c>
+        </row>
+        <row r="169" ht="17.25" customHeight="1" hidden="0">
+            <c r="A169" s="1">
+            </c>
+            <c r="B169" s="1">
             </c>
         </row>
     </sheetData>
