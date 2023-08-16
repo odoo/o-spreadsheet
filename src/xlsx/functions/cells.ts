@@ -7,17 +7,17 @@ import {
   parse,
 } from "../../formulas/parser";
 import { functionRegistry } from "../../functions";
-import { formatValue, isNumber } from "../../helpers";
+import { formatValue, isNumber, isSingleCellReference } from "../../helpers";
 import { mdyDateRegexp, parseDateTime, timeRegexp, ymdDateRegexp } from "../../helpers/dates";
-import { ExcelCellData, Format } from "../../types";
+import { Format, FormulaExcelCellData } from "../../types";
 import { CellErrorType } from "../../types/errors";
 import { XMLAttributes, XMLString } from "../../types/xlsx";
 import { FORCE_DEFAULT_ARGS_FUNCTIONS, NON_RETROCOMPATIBLE_FUNCTIONS } from "../constants";
 import { pushElement } from "../helpers/content_helpers";
-import { escapeXml } from "../helpers/xml_helpers";
+import { escapeXml, formatAttributes } from "../helpers/xml_helpers";
 import { DEFAULT_LOCALE } from "./../../types/locale";
 
-export function addFormula(cell: ExcelCellData): {
+export function addFormula(cell: FormulaExcelCellData): {
   attrs: XMLAttributes;
   node: XMLString;
 } {
@@ -37,8 +37,14 @@ export function addFormula(cell: ExcelCellData): {
     attrs.push(["t", "str"]);
     cycle = escapeXml/*xml*/ `<v>${cell.value}</v>`;
   }
+  const formulaAttributes: XMLAttributes = [];
+  if (!isSingleCellReference(cell.resultSpanningCells)) {
+    // OpenXml §18.17.6.3
+    // note: the documentation refers to the "ref" attribute as "r", it looks like a mistake
+    formulaAttributes.push(["t", "array"], ["ref", cell.resultSpanningCells]);
+  }
   node = escapeXml/*xml*/ `
-      <f>
+      <f ${formatAttributes(formulaAttributes)}>
         ${XlsxFormula}
       </f>
       ${cycle}

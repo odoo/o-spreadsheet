@@ -69,11 +69,20 @@ export interface ExcelWorkbookData extends WorkbookData {
   sheets: ExcelSheetData[];
 }
 
-export interface ExcelCellData extends CellData {
+interface LiteralExcelCellData extends CellData {
   value: CellValue;
-  isFormula: Boolean;
+  isFormula: false;
+}
+
+export interface FormulaExcelCellData extends CellData {
+  value: CellValue;
+  isFormula: true;
+  resultSpanningCells: string;
   computedFormat?: Format;
 }
+
+export type ExcelCellData = LiteralExcelCellData | FormulaExcelCellData;
+
 export interface ExcelSheetData extends Omit<SheetData, "figureTables"> {
   cells: { [key: string]: ExcelCellData | undefined };
   charts: FigureData<ExcelChartDefinition>[];
