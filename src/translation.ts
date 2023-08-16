@@ -1,16 +1,15 @@
-export type TranslationFunction = (
-  string: string,
-  ...values: string[] | [{ [key: string]: string }]
-) => string;
+type SprintfValues = (string | String)[] | [{ [key: string]: string }];
+
+export type TranslationFunction = (string: string, ...values: SprintfValues) => string;
 
 // define a mock translation function, when o-spreadsheet runs in standalone it doesn't translate any string
 let _translate: TranslationFunction = (s) => s;
 let _loaded: () => boolean = () => false;
 
-function sprintf(s: string, ...values: string[] | [{ [key: string]: string }]): string {
-  if (values.length === 1 && typeof values[0] === "object") {
+function sprintf(s: string, ...values: SprintfValues): string {
+  if (values.length === 1 && typeof values[0] === "object" && !(values[0] instanceof String)) {
     const valuesDict = values[0] as { [key: string]: string };
-    s = s.replace(/\%\(?([^\)]+)\)s/g, (match, value) => valuesDict[value]);
+    s = s.replace(/\%\(([^\)]+)\)s/g, (match, value) => valuesDict[value]);
   } else if (values.length > 0) {
     s = s.replace(/\%s/g, () => values.shift() as string);
   }
@@ -27,10 +26,7 @@ export function setTranslationMethod(tfn: TranslationFunction, loaded: () => boo
   _loaded = loaded;
 }
 
-export const _t: TranslationFunction = function (
-  s: string,
-  ...values: string[] | [{ [key: string]: string }]
-) {
+export const _t: TranslationFunction = function (s: string, ...values: SprintfValues) {
   if (!_loaded()) {
     return new LazyTranslatedString(s, values) as unknown as string;
   }
@@ -38,7 +34,7 @@ export const _t: TranslationFunction = function (
 };
 
 class LazyTranslatedString extends String {
-  constructor(str: string, private values: string[] | [{ [key: string]: string }]) {
+  constructor(str: string, private values: SprintfValues) {
     super(str);
   }
 
