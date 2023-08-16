@@ -214,13 +214,13 @@ export class Evaluator {
         ? this.computeFormulaCell(cell)
         : evaluateLiteral(cell.content, { format: cell.format, locale: this.getters.getLocale() });
     } catch (e) {
-      return this.handleError(e, cell);
+      return this.handleError(e);
     } finally {
       this.cellsBeingComputed.delete(cellId);
     }
   }
 
-  private handleError(e: Error | any, cell: Cell): EvaluatedCell {
+  private handleError(e: Error | any): EvaluatedCell {
     if (!(e instanceof Error)) {
       e = new Error(e);
     }
@@ -232,7 +232,7 @@ export class Evaluator {
       e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled),
       e.logLevel !== undefined ? e.logLevel : CellErrorLevel.error
     );
-    return errorCell(cell.content, error);
+    return errorCell(error);
   }
 
   private computeFormulaCell(cellData: FormulaCell): EvaluatedCell {
