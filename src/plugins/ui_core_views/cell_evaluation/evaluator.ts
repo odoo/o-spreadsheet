@@ -246,7 +246,7 @@ export class Evaluator {
         ? this.computeFormulaCell(cellPosition.sheetId, cell)
         : evaluateLiteral(cell.content, { format: cell.format, locale: this.getters.getLocale() });
     } catch (e) {
-      return this.handleError(e, cell);
+      return this.handleError(e);
     } finally {
       this.cellsBeingComputed.delete(cellId);
     }
@@ -261,7 +261,7 @@ export class Evaluator {
     return evaluatedCell;
   }
 
-  private handleError(e: Error | any, cell: Cell): EvaluatedCell {
+  private handleError(e: Error | any): EvaluatedCell {
     if (!(e instanceof EvaluationError)) {
       e = new EvaluationError(CellErrorType.GenericError, e.message);
     }
