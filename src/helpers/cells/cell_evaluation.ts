@@ -1,4 +1,3 @@
-import { DEFAULT_ERROR_MESSAGE } from "../../constants";
 import { toNumber, toString } from "../../functions/helpers";
 import {
   BooleanCell,
@@ -13,7 +12,7 @@ import {
   NumberCell,
   PLAIN_TEXT_FORMAT,
 } from "../../types";
-import { CellErrorType, EvaluationError } from "../../types/errors";
+import { EvaluationError } from "../../types/errors";
 import { isDateTime } from "../dates";
 import { detectDateFormat, detectNumberFormat, formatValue, isDateTimeFormat } from "../format";
 import { detectLink } from "../links";
@@ -64,34 +63,28 @@ export function createEvaluatedCell(
   return _createEvaluatedCell(value, localeFormat);
 }
 
-function _createEvaluatedCell(value: CellValue | null, localeFormat: LocaleFormat): EvaluatedCell {
-  try {
-    if (localeFormat.format === PLAIN_TEXT_FORMAT) {
-      return textCell(toString(value), localeFormat);
-    }
-
-    for (const builder of builders) {
-      const evaluateCell = builder(value, localeFormat);
-      if (evaluateCell) {
-        return evaluateCell;
-      }
-    }
-    return textCell((value || "").toString(), localeFormat);
-  } catch (error) {
-    return errorCell(
-      new EvaluationError(CellErrorType.GenericError, error.message || DEFAULT_ERROR_MESSAGE)
-    );
+function _createEvaluatedCell(value: CellValue, localeFormat: LocaleFormat): EvaluatedCell {
+  if (localeFormat.format === PLAIN_TEXT_FORMAT) {
+    return textCell(toString(value), localeFormat);
   }
-}
 
-/**
- * Instantiate an evaluated cell object based on its value
- * and format.
- */
-type EvaluatedCellBuilder = (
-  value: CellValue | null,
-  localeFormat: LocaleFormat
-) => EvaluatedCell | undefined;
+  if (value === "") {
+    return emptyCell(localeFormat);
+  }
+  if (typeof value === "number") {
+    if (isDateTimeFormat(localeFormat.format || "")) {
+      return dateTimeCell(value, localeFormat);
+    }
+    return numberCell(value, localeFormat);
+  }
+  if (value === null) {
+    return numberCell(0, localeFormat);
+  }
+  if (typeof value === "boolean") {
+    return booleanCell(value, localeFormat);
+  }
+  return textCell((value || "").toString(), localeFormat);
+}
 
 function textCell(value: string, localeFormat: LocaleFormat): EvaluatedCell {
   return {
@@ -173,36 +166,3 @@ export function errorCell(error: EvaluationError): ErrorCell {
     formattedValue: error.errorType,
   };
 }
-
-const builders: EvaluatedCellBuilder[] = [
-  function createEmpty(value, localeFormat) {
-    if (value === "") {
-      return emptyCell(localeFormat);
-    }
-    return undefined;
-  },
-  function createDateTime(value, localeFormat) {
-    if (
-      !!localeFormat.format &&
-      typeof value === "number" &&
-      isDateTimeFormat(localeFormat.format)
-    ) {
-      return dateTimeCell(value, localeFormat);
-    }
-    return undefined;
-  },
-  function createNumber(value, localeFormat) {
-    if (typeof value === "number") {
-      return numberCell(value, localeFormat);
-    } else if (value === null) {
-      return numberCell(0, localeFormat);
-    }
-    return undefined;
-  },
-  function createBoolean(value, localeFormat) {
-    if (typeof value === "boolean") {
-      return booleanCell(value, localeFormat);
-    }
-    return undefined;
-  },
-];
