@@ -12,6 +12,7 @@ import {
   Matrix,
   ValueAndFormat,
 } from "../types";
+import { CellErrorType, EvaluationError } from "../types/errors";
 import { addMetaInfoFromArg, validateArguments } from "./arguments";
 import { matrixMap } from "./helpers";
 import * as array from "./module_array";
@@ -74,7 +75,7 @@ class FunctionRegistry extends Registry<FunctionDescription> {
     }
     const descr = addMetaInfoFromArg(addDescr);
     validateArguments(descr.args);
-    this.mapping[name] = createComputeFunctionFromDescription(descr);
+    this.mapping[name] = addErrorHandling(createComputeFunctionFromDescription(descr), name);
     super.add(name, descr);
     return this;
   }
@@ -105,6 +106,31 @@ function createComputeFunctionFromDescription(
 
   // case computeValue
   return buildComputeFunctionFromDescription(descr);
+}
+
+function addErrorHandling(
+  computeValueAndFormat: ComputeFunction<Arg, Matrix<ValueAndFormat> | ValueAndFormat>,
+  functionName: string
+): ComputeFunction<Arg, Matrix<ValueAndFormat> | ValueAndFormat> {
+  return function (
+    this: EvalContext,
+    ...args: ComputeFunctionArg<Arg>[]
+  ): Matrix<ValueAndFormat> | ValueAndFormat {
+    try {
+      const computeFormula = computeValueAndFormat.bind(this);
+      return computeFormula(...args);
+    } catch (e) {
+      return handleError(e, functionName);
+    }
+  };
+}
+
+function handleError(e: Error | any, functionName: string): ValueAndFormat {
+  if (!(e instanceof EvaluationError)) {
+    e = new EvaluationError(e.message, CellErrorType.GenericError);
+  }
+  e.message = e.message.replace("[[FUNCTION_NAME]]", functionName);
+  return { value: e };
 }
 
 function buildComputeFunctionFromDescription(descr) {

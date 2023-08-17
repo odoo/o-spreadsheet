@@ -19,6 +19,7 @@ import {
   AddColumnsRowsCommand,
   AnchorZone,
   CellPosition,
+  CellValue,
   CellValueType,
   ClientPosition,
   Command,
@@ -46,7 +47,7 @@ interface SheetInfo {
 
 interface SelectionStatisticFunction {
   name: string;
-  compute: (values: (number | string | boolean)[], locale: Locale) => number;
+  compute: (values: CellValue[], locale: Locale) => number;
   types: CellValueType[];
 }
 
@@ -437,7 +438,7 @@ export class GridSelectionPlugin extends UIPlugin {
     }
 
     let cellsTypes = new Set<CellValueType>();
-    let cellsValues: (string | number | boolean)[] = [];
+    let cellsValues: CellValue[] = [];
     for (let cell of cells) {
       cellsTypes.add(cell.type);
       cellsValues.push(cell.value);

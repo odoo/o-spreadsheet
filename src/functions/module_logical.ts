@@ -1,6 +1,6 @@
 import { _t } from "../translation";
 import { AddFunctionDescription, ArgValue, CellValue, Maybe, ValueAndFormat } from "../types";
-import { CellErrorType } from "../types/errors";
+import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import { assert, conditionalVisitBoolean, toBoolean } from "./helpers";
 
@@ -61,22 +61,19 @@ export const IF = {
         "An expression or reference to a cell containing an expression that represents some logical value, i.e. TRUE or FALSE."
       )
     ),
+    arg("value_if_true (any)", _t("The value the function returns if logical_expression is TRUE.")),
     arg(
-      "value_if_true (any, lazy)",
-      _t("The value the function returns if logical_expression is TRUE.")
-    ),
-    arg(
-      "value_if_false (any, lazy, default=FALSE)",
+      "value_if_false (any, default=FALSE)",
       _t("The value the function returns if logical_expression is FALSE.")
     ),
   ],
   returns: ["ANY"],
   computeValueAndFormat: function (
     logicalExpression: Maybe<ValueAndFormat>,
-    valueIfTrue: () => Maybe<ValueAndFormat>,
-    valueIfFalse: () => Maybe<ValueAndFormat> = () => ({ value: false })
+    valueIfTrue: Maybe<ValueAndFormat>,
+    valueIfFalse: Maybe<ValueAndFormat>
   ): ValueAndFormat {
-    const result = toBoolean(logicalExpression?.value) ? valueIfTrue() : valueIfFalse();
+    const result = toBoolean(logicalExpression?.value) ? valueIfTrue : valueIfFalse;
     if (result === undefined) {
       return { value: "" };
     }
@@ -94,23 +91,18 @@ export const IF = {
 export const IFERROR = {
   description: _t("Value if it is not an error, otherwise 2nd argument."),
   args: [
-    arg("value (any, lazy)", _t("The value to return if value itself is not an error.")),
+    arg("value (any)", _t("The value to return if value itself is not an error.")),
     arg(
-      `value_if_error (any, lazy, default="empty")`,
+      `value_if_error (any, default="empty")`,
       _t("The value the function returns if value is an error.")
     ),
   ],
   returns: ["ANY"],
   computeValueAndFormat: function (
-    value: () => Maybe<ValueAndFormat>,
-    valueIfError: () => Maybe<ValueAndFormat> = () => ({ value: "" })
+    value: Maybe<ValueAndFormat>,
+    valueIfError: Maybe<ValueAndFormat> = { value: "" }
   ): ValueAndFormat {
-    let result;
-    try {
-      result = value();
-    } catch (e) {
-      result = valueIfError();
-    }
+    const result = value?.value instanceof Error ? valueIfError : value;
     if (result === undefined) {
       return { value: "" };
     }
@@ -128,27 +120,18 @@ export const IFERROR = {
 export const IFNA = {
   description: _t("Value if it is not an #N/A error, otherwise 2nd argument."),
   args: [
-    arg("value (any, lazy)", _t("The value to return if value itself is not #N/A an error.")),
+    arg("value (any)", _t("The value to return if value itself is not #N/A an error.")),
     arg(
-      `value_if_error (any, lazy, default="empty")`,
+      `value_if_error (any, default="empty")`,
       _t("The value the function returns if value is an #N/A error.")
     ),
   ],
   returns: ["ANY"],
   computeValueAndFormat: function (
-    value: () => Maybe<ValueAndFormat>,
-    valueIfError: () => Maybe<ValueAndFormat> = () => ({ value: "" })
+    value: Maybe<ValueAndFormat>,
+    valueIfError: Maybe<ValueAndFormat> = { value: "" }
   ): ValueAndFormat {
-    let result;
-    try {
-      result = value();
-    } catch (e) {
-      if (e.errorType === CellErrorType.NotAvailable) {
-        result = valueIfError();
-      } else {
-        result = value();
-      }
-    }
+    const result = value?.value instanceof NotAvailableError ? valueIfError : value;
     if (result === undefined) {
       return { value: "" };
     }

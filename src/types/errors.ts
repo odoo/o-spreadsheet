@@ -16,8 +16,8 @@ export enum CellErrorLevel {
 
 export class EvaluationError extends Error {
   constructor(
-    readonly errorType: string,
     message: string,
+    readonly errorType: string = CellErrorType.GenericError,
     readonly logLevel: number = CellErrorLevel.error
   ) {
     super(message);
@@ -30,27 +30,27 @@ export class EvaluationError extends Error {
 
 export class BadExpressionError extends EvaluationError {
   constructor(errorMessage: string) {
-    super(CellErrorType.BadExpression, errorMessage);
+    super(errorMessage, CellErrorType.BadExpression);
   }
 }
 
 export class CircularDependencyError extends EvaluationError {
   constructor() {
-    super(CellErrorType.CircularDependency, _t("Circular reference"));
+    super(_t("Circular reference"), CellErrorType.CircularDependency);
   }
 }
 
 export class InvalidReferenceError extends EvaluationError {
   constructor() {
-    super(CellErrorType.InvalidReference, _t("Invalid reference"));
+    super(_t("Invalid reference"), CellErrorType.InvalidReference);
   }
 }
 
 export class NotAvailableError extends EvaluationError {
   constructor(errorMessage: string | undefined = undefined) {
     super(
-      CellErrorType.NotAvailable,
       errorMessage || _t("Data not available"),
+      CellErrorType.NotAvailable,
       errorMessage ? CellErrorLevel.error : CellErrorLevel.silent
     );
   }
@@ -58,6 +58,6 @@ export class NotAvailableError extends EvaluationError {
 
 export class UnknownFunctionError extends EvaluationError {
   constructor(fctName: string) {
-    super(CellErrorType.UnknownFunction, _t('Unknown function: "%s"', fctName));
+    super(_t('Unknown function: "%s"', fctName), CellErrorType.UnknownFunction);
   }
 }
