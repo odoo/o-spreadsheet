@@ -78,6 +78,7 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     <span>
       <svg
         class="o-icon"
+        xmlns="http://www.w3.org/2000/svg"
       >
         <polygon
           fill="#000000"
@@ -136,6 +137,7 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     <span>
       <svg
         class="o-icon"
+        xmlns="http://www.w3.org/2000/svg"
       >
         <polygon
           fill="#000000"
@@ -194,6 +196,7 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
     <span>
       <svg
         class="o-icon"
+        xmlns="http://www.w3.org/2000/svg"
       >
         <polygon
           fill="#000000"
