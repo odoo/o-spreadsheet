@@ -163,8 +163,6 @@ export interface SpreadsheetProps {
   model: Model;
 }
 
-const t = (s: string): string => s;
-
 interface SidePanelState {
   isOpen: boolean;
   component?: string;
@@ -179,7 +177,6 @@ interface ComposerState {
 export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Spreadsheet";
   static components = { TopBar, Grid, BottomBar, SidePanel, SpreadsheetDashboard };
-  static _t = t;
 
   sidePanel!: SidePanelState;
   composer!: ComposerState;
@@ -220,7 +217,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       isDashboard: () => this.model.getters.isDashboard(),
       openSidePanel: this.openSidePanel.bind(this),
       toggleSidePanel: this.toggleSidePanel.bind(this),
-      _t: Spreadsheet._t,
       clipboard: this.env.clipboard || instantiateClipboard(),
       startCellEdition: (content: string) => this.onGridComposerCellFocused(content),
     });

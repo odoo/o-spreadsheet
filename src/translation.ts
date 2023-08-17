@@ -1,8 +1,3 @@
-/*
- * usage: every string should be translated with Spreadsheet._t in the templates. Spreadsheet._t is exposed in the
- *  sub-env of Spreadsheet components as _t
- * */
-
 export type TranslationFunction = (
   string: string,
   ...values: string[] | [{ [key: string]: string }]
