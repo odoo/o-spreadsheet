@@ -89,7 +89,7 @@ describe("COLUMN formula", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "kikoulol");
-    expect(model.getters.evaluateFormula(sheetId, "=COLUMN()")).toBe("#ERROR");
+    expect(model.getters.evaluateFormula(sheetId, "=COLUMN()")).toBe("#ERROR"); // @compatibility: on google sheets, return #N/A
     expect(model.getters.evaluateFormula(sheetId, "=COLUMN(A1)")).toBe(1);
   });
 
@@ -222,6 +222,15 @@ describe("LOOKUP formula", () => {
     };
     expect(evaluateCellFormat("A5", { A5: "=LOOKUP(2, A1:B2)", ...grid })).toBe("m/d/yy");
     expect(evaluateCellFormat("A6", { A6: "=LOOKUP(1, A1:A2, C1:C2)", ...grid })).toBe("#,##0[$$]");
+  });
+
+  test("can LOOKUP in a range with errors cells", () => {
+    const grid = {
+      A1: "=1/0",
+      A2: "2",
+      A3: "=?LOOKUP(2, A1:A2)",
+    };
+    expect(evaluateCell("A3", grid)).toBe(2);
   });
 });
 
@@ -452,7 +461,7 @@ describe("ROW formula", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "kikoulol");
-    expect(model.getters.evaluateFormula(sheetId, "=ROW()")).toBe("#ERROR");
+    expect(model.getters.evaluateFormula(sheetId, "=ROW()")).toBe("#ERROR"); // @compatibility: on google sheets, return #N/A
     expect(model.getters.evaluateFormula(sheetId, "=ROW(A1)")).toBe(1);
   });
 
