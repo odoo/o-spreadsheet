@@ -6,17 +6,17 @@ import {
   CoreCommand,
   GridDependentCommand,
   HeaderIndex,
-  isGridDependent,
-  isPositionDependent,
-  isSheetDependent,
-  isTargetDependent,
   PositionDependentCommand,
   RemoveColumnsRowsCommand,
   SheetDependentCommand,
   TargetDependentCommand,
   Zone,
+  isGridDependent,
+  isPositionDependent,
+  isSheetDependent,
+  isTargetDependent,
 } from "../../types";
-import { isRangeDependant, RangesDependentCommand } from "./../../types/commands";
+import { RangesDependentCommand, isRangeDependant } from "./../../types/commands";
 import { RangeData } from "./../../types/range";
 import { transformZone } from "./ot_helpers";
 import "./ot_specific";

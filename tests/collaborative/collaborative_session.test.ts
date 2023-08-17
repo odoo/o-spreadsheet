@@ -3,8 +3,8 @@ import { Session } from "../../src/collaborative/session";
 import { DEBOUNCE_TIME, MESSAGE_VERSION } from "../../src/constants";
 import { buildRevisionLog } from "../../src/history/factory";
 import { Client, CommandResult } from "../../src/types";
-import { selectCell } from "../test_helpers/commands_helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
+import { selectCell } from "../test_helpers/commands_helpers";
 
 describe("Collaborative session", () => {
   let transport: MockTransportService;

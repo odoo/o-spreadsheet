@@ -10,6 +10,8 @@ import {
   ValueAndFormat,
 } from "../types";
 import { arg } from "./arguments";
+import { assertPositive } from "./helper_assert";
+import { getUnitMatrix } from "./helper_matrices";
 import {
   assert,
   reduceAny,
@@ -21,8 +23,6 @@ import {
   toString,
   visitMatchingRanges,
 } from "./helpers";
-import { assertPositive } from "./helper_assert";
-import { getUnitMatrix } from "./helper_matrices";
 
 const DEFAULT_FACTOR = 1;
 const DEFAULT_MODE = 0;

@@ -10,23 +10,12 @@ import {
   AddFunctionDescription,
   ArgValue,
   CellValue,
-  isMatrix,
   Locale,
   Matrix,
   Maybe,
+  isMatrix,
 } from "../types";
 import { arg } from "./arguments";
-import {
-  assert,
-  reduceAny,
-  reduceNumbers,
-  strictToNumber,
-  toBoolean,
-  toJsDate,
-  toNumber,
-  transposeMatrix,
-  visitNumbers,
-} from "./helpers";
 import {
   assertCashFlowsAndDatesHaveSameDimension,
   assertCashFlowsHavePositiveAndNegativesValues,
@@ -57,6 +46,17 @@ import {
   assertSettlementLessThanOneYearBeforeMaturity,
   assertStartAndEndPeriodAreValid,
 } from "./helper_financial";
+import {
+  assert,
+  reduceAny,
+  reduceNumbers,
+  strictToNumber,
+  toBoolean,
+  toJsDate,
+  toNumber,
+  transposeMatrix,
+  visitNumbers,
+} from "./helpers";
 import { DAYS, YEARFRAC } from "./module_date";
 
 const DEFAULT_DAY_COUNT_CONVENTION = 0;

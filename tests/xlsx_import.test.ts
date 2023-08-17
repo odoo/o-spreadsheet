@@ -22,11 +22,12 @@ import {
   BORDER_STYLE_CONVERSION_MAP,
   CF_THRESHOLD_CONVERSION_MAP,
   CF_TYPE_CONVERSION_MAP,
-  convertCFCellIsOperator,
   H_ALIGNMENT_CONVERSION_MAP,
   ICON_SET_CONVERSION_MAP,
   V_ALIGNMENT_CONVERSION_MAP,
+  convertCFCellIsOperator,
 } from "./../src/xlsx/conversion/conversion_maps";
+import { getTextXlsxFiles } from "./__xlsx__/read_demo_xlsx";
 import {
   getCFBeginningAt,
   getColPosition,
@@ -38,7 +39,6 @@ import {
   getWorkbookSheet,
   standardizeColor,
 } from "./test_helpers/xlsx";
-import { getTextXlsxFiles } from "./__xlsx__/read_demo_xlsx";
 
 describe("Import xlsx data", () => {
   let convertedData: WorkbookData;

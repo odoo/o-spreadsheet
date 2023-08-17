@@ -89,7 +89,7 @@
     "ts-jest": "^29.1.0",
     "typedoc": "0.24.8",
     "typedoc-plugin-markdown": "3.11.1",
-    "typescript": "^4.9.5",
+    "typescript": "^5.1.6",
     "xml-formatter": "^2.4.0"
   },
   "prettier": {

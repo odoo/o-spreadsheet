@@ -8,7 +8,6 @@ import { GridOverlay } from "./components/grid_overlay/grid_overlay";
 import { Menu } from "./components/menu/menu";
 import {
   BarConfigPanel,
-  chartSidePanelComponentRegistry,
   GaugeChartConfigPanel,
   GaugeChartDesignPanel,
   LineBarPieConfigPanel,
@@ -16,6 +15,7 @@ import {
   LineConfigPanel,
   ScorecardChartConfigPanel,
   ScorecardChartDesignPanel,
+  chartSidePanelComponentRegistry,
 } from "./components/side_panel/chart";
 import { ChartPanel } from "./components/side_panel/chart/main_chart_panel/main_chart_panel";
 import {
@@ -38,6 +38,7 @@ import {
   getFillingMode,
 } from "./helpers/figures/charts";
 import {
+  UuidGenerator,
   colorToRGBA,
   computeTextWidth,
   createCurrencyFormat,
@@ -53,7 +54,6 @@ import {
   toCartesian,
   toXC,
   toZone,
-  UuidGenerator,
 } from "./helpers/index";
 import { openLink, urlRegistry, urlRepresentation } from "./helpers/links";
 import {

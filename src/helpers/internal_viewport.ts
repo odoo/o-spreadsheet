@@ -1,7 +1,7 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
 import {
-  Dimension,
   DOMDimension,
+  Dimension,
   Getters,
   HeaderIndex,
   Pixel,

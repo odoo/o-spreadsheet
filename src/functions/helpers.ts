@@ -2,7 +2,7 @@
 import { numberToJsDate, parseDateTime } from "../helpers/dates";
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _t } from "../translation";
-import { ArgValue, CellValue, isMatrix, Locale, Matrix, Maybe, ValueAndFormat } from "../types";
+import { ArgValue, CellValue, Locale, Matrix, Maybe, ValueAndFormat, isMatrix } from "../types";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
 

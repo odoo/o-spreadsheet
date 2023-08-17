@@ -1,6 +1,6 @@
 import { Model } from "../../src";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
-import { lettersToNumber, MIN_DELAY, scrollDelay, toZone } from "../../src/helpers";
+import { MIN_DELAY, lettersToNumber, scrollDelay, toZone } from "../../src/helpers";
 import { Pixel } from "../../src/types";
 import { nextTick } from "./helpers";
 

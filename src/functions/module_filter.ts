@@ -2,8 +2,8 @@ import { _t } from "../translation";
 import { AddFunctionDescription, Arg, isMatrix, Matrix, Maybe, ValueAndFormat } from "../types";
 import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
-import { assert, matrixMap, toBoolean, toMatrix, transposeMatrix } from "./helpers";
 import { assertSameDimensions, assertSingleColOrRow } from "./helper_assert";
+import { assert, matrixMap, toBoolean, toMatrix, transposeMatrix } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // FILTER

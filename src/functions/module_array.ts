@@ -11,6 +11,14 @@ import {
 import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import {
+  assertPositive,
+  assertSameDimensions,
+  assertSingleColOrRow,
+  assertSquareMatrix,
+  isNumberMatrix,
+} from "./helper_assert";
+import { invertMatrix, multiplyMatrices } from "./helper_matrices";
+import {
   assert,
   flattenRowFirst,
   generateMatrix,
@@ -20,14 +28,6 @@ import {
   toNumber,
   transposeMatrix,
 } from "./helpers";
-import {
-  assertPositive,
-  assertSameDimensions,
-  assertSingleColOrRow,
-  assertSquareMatrix,
-  isNumberMatrix,
-} from "./helper_assert";
-import { invertMatrix, multiplyMatrices } from "./helper_matrices";
 
 // -----------------------------------------------------------------------------
 // ARRAY_CONSTRAIN

@@ -13,10 +13,10 @@ import {
 import { dragFigureForMove, dragFigureForResize } from "../../helpers/figure_drag_helper";
 import {
   HFigureAxisType,
-  snapForMove,
-  snapForResize,
   SnapLine,
   VFigureAxisType,
+  snapForMove,
+  snapForResize,
 } from "../../helpers/figure_snap_helper";
 import { FigureComponent } from "../figure/figure";
 

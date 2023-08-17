@@ -3,7 +3,7 @@ import { toZone } from "../src/helpers";
 import { Model, ModelConfig } from "../src/model";
 import { corePluginRegistry, featurePluginRegistry } from "../src/plugins/index";
 import { UIPlugin } from "../src/plugins/ui_plugin";
-import { Command, CommandTypes, CoreCommand, coreTypes, DispatchResult } from "../src/types";
+import { Command, CommandTypes, CoreCommand, DispatchResult, coreTypes } from "../src/types";
 import { setupCollaborativeEnv } from "./collaborative/collaborative_helpers";
 import { copy, selectCell, setCellContent } from "./test_helpers/commands_helpers";
 import {

@@ -5,7 +5,7 @@ import {
 import { colors, toCartesian, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { Highlight } from "../../src/types";
-import { getClipboardEvent, MockClipboardData } from "../test_helpers/clipboard";
+import { MockClipboardData, getClipboardEvent } from "../test_helpers/clipboard";
 import {
   createSheet,
   createSheetWithName,

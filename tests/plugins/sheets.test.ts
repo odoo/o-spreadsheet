@@ -24,8 +24,8 @@ import {
   resizeRows,
   setCellContent,
   showSheet,
-  undo,
   unMerge,
+  undo,
 } from "../test_helpers/commands_helpers";
 import {
   getCell,

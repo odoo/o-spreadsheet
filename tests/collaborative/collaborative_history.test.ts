@@ -5,6 +5,7 @@ import { featurePluginRegistry } from "../../src/plugins";
 import { CommandResult, UpdateCellCommand } from "../../src/types";
 import { LineChartDefinition } from "../../src/types/chart/line_chart";
 import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
+import { MockTransportService } from "../__mocks__/transport_service";
 import {
   addColumns,
   createSheet,
@@ -21,7 +22,6 @@ import {
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getStyle } from "../test_helpers/getters_helpers";
 import { getPlugin, target } from "../test_helpers/helpers";
-import { MockTransportService } from "../__mocks__/transport_service";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
 describe("Collaborative local history", () => {

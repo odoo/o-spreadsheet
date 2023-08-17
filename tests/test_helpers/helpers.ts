@@ -51,8 +51,8 @@ import {
 import { Image } from "../../src/types/image";
 import { XLSXExport } from "../../src/types/xlsx";
 import { isXLSXExportXMLFile } from "../../src/xlsx/helpers/xlsx_helper";
-import { OWL_TEMPLATES, registerCleanup } from "../setup/jest.setup";
 import { FileStore } from "../__mocks__/mock_file_store";
+import { OWL_TEMPLATES, registerCleanup } from "../setup/jest.setup";
 import { MockClipboard } from "./clipboard";
 import { redo, setCellContent, setFormat, setStyle, undo } from "./commands_helpers";
 import { getCellContent, getEvaluatedCell } from "./getters_helpers";

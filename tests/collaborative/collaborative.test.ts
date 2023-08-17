@@ -5,6 +5,7 @@ import { getDefaultCellHeight, range, toCartesian, toZone } from "../../src/help
 import { featurePluginRegistry } from "../../src/plugins";
 import { Command, CommandResult, CoreCommand } from "../../src/types";
 import { CollaborationMessage } from "../../src/types/collaborative/transport_service";
+import { MockTransportService } from "../__mocks__/transport_service";
 import {
   activateSheet,
   addColumns,
@@ -37,7 +38,6 @@ import {
   getStyle,
 } from "../test_helpers/getters_helpers";
 import { createEqualCF, target, toRangesData } from "../test_helpers/helpers";
-import { MockTransportService } from "../__mocks__/transport_service";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
 describe("Multi users synchronisation", () => {

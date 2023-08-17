@@ -2,6 +2,7 @@ import { Model } from "../../src";
 import { BACKGROUND_CHART_COLOR } from "../../src/constants";
 import { lettersToNumber, numberToLetters, range, toZone } from "../../src/helpers";
 import { BarChartDefinition } from "../../src/types/chart/bar_chart";
+import { MockTransportService } from "../__mocks__/transport_service";
 import {
   activateSheet,
   addColumns,
@@ -28,7 +29,6 @@ import {
 } from "../test_helpers/commands_helpers";
 import { getCellContent, getCellError } from "../test_helpers/getters_helpers";
 import { createEqualCF, toRangesData } from "../test_helpers/helpers";
-import { MockTransportService } from "../__mocks__/transport_service";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
 function toNumbers(letters: string[][]): number[][] {

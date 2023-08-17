@@ -9,10 +9,10 @@ import {
   DEFAULT_LOCALE,
   ErrorCell,
   Format,
-  isMatrix,
   Matrix,
   Maybe,
   ValueAndFormat,
+  isMatrix,
 } from "../../src/types";
 import {
   addColumns,
