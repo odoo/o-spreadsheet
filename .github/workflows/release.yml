@@ -18,7 +18,7 @@ jobs:
         # parse-message will fail on invalid commit title/body
         run: |
           npm i @actions/core @actions/github --no-save &&\
-          echo "data=$(node tools/parse_message.js)" >> $GITHUB_OUTPUT
+          echo "data=$(node tools/parse_message.cjs)" >> $GITHUB_OUTPUT
       # generate all builds
       - name: Build
         run: npm ci && npm run dist
