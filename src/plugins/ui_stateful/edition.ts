@@ -505,11 +505,10 @@ export class EditionPlugin extends UIPlugin {
     switch (type) {
       case CellValueType.text:
       case CellValueType.empty:
+      case CellValueType.error:
         return value;
       case CellValueType.boolean:
         return formattedValue;
-      case CellValueType.error:
-        return cell?.content || "";
       case CellValueType.number:
         if (format && isDateTimeFormat(format)) {
           if (parseDateTime(formattedValue, locale) !== null) {
@@ -841,9 +840,9 @@ export class EditionPlugin extends UIPlugin {
       }
       return CommandResult.Success;
     } catch (e) {
-      // error at formula evaluation
-      const rule = this.getters.getValidationRuleForCell(cellPosition);
-      return rule?.isBlocking ? CommandResult.BlockingValidationRule : CommandResult.Success;
+      // in this case we are in an error because we tried to evaluate a spread formula
+      // whether the rule is blocking or not, we accept to enter formulas which spread
+      return CommandResult.Success;
     }
   }
 }

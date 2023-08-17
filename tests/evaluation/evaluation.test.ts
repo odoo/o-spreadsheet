@@ -1137,12 +1137,12 @@ describe("evaluate formula getter", () => {
 
   test("evaluate a cell in error", () => {
     setCellContent(model, "A1", "=mqsdlkjfqsdf(((--");
-    expect(() => model.getters.evaluateFormula(sheetId, "=A1")).toThrow();
+    expect(model.getters.evaluateFormula(sheetId, "=A1")).toBe("#BAD_EXPR");
   });
 
   test("evaluate an invalid formula", () => {
     setCellContent(model, "A1", "=min(abc)");
-    expect(() => model.getters.evaluateFormula(sheetId, "=A1")).toThrow();
+    expect(model.getters.evaluateFormula(sheetId, "=A1")).toBe("#BAD_EXPR");
   });
 
   test("EVALUATE_CELLS with no argument re-evaluate all the cells", () => {

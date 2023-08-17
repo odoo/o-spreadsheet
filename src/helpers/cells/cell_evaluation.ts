@@ -39,10 +39,7 @@ export function parseLiteral(content: string, locale: Locale): Exclude<CellValue
   return content;
 }
 
-export function createEvaluatedCell(
-  value: CellValue | null,
-  localeFormat: LocaleFormat
-): EvaluatedCell {
+export function createEvaluatedCell(value: CellValue, localeFormat: LocaleFormat): EvaluatedCell {
   const link = detectLink(value);
   if (link) {
     return {
@@ -60,6 +57,9 @@ export function createEvaluatedCell(
 }
 
 function _createEvaluatedCell(value: CellValue, localeFormat: LocaleFormat): EvaluatedCell {
+  if (value instanceof EvaluationError) {
+    return errorCell(value);
+  }
   if (value === "") {
     return emptyCell(localeFormat);
   }
@@ -148,7 +148,7 @@ function booleanCell(value: boolean, localeFormat: LocaleFormat): BooleanCell {
   };
 }
 
-export function errorCell(error: EvaluationError): ErrorCell {
+function errorCell(error: EvaluationError): ErrorCell {
   return {
     type: CellValueType.error,
     value: error.errorType,
