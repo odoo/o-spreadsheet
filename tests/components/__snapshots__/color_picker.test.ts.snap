@@ -444,6 +444,7 @@ exports[`Color Picker buttons Click on '+' button toggle the custom color part 1
         <svg
           class="o-icon"
           viewBox="0 0 18 18"
+          xmlns="http://www.w3.org/2000/svg"
         >
           <path
             d="M8,0 L10,0 L10,8 L18,8 L18,10 L10,10 L10,18 L8,18 L8,10 L0,10 L0,8 L8,8"
