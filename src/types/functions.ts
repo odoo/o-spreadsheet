@@ -65,7 +65,6 @@ export type FunctionDescription = AddFunctionDescription & {
 };
 
 export type EvalContext = {
-  __lastFnCalled?: string;
   __originSheetId: UID;
   __originCellXC: () => string | undefined;
   locale: Locale;

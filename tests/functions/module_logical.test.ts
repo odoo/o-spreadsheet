@@ -92,6 +92,11 @@ describe("IF formula", () => {
     expect(evaluateCell("A1", { A1: "=IF(A2, A3, A4)", A2: "TRUE", A3: "=1/0", A4: "42" })).toBe(
       "#ERROR"
     ); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: "=IF(TRUE, 1/(1/1), 1/(1/0))" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=IF(FALSE, 1/(1/1), 1/(1/0))" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=IF(FALSE, A1, 42)" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=IF(TRUE, A1, 42)" })).toBe("#CYCLE");
+    expect(evaluateCell("A2", { A1: "=IF(TRUE, A1, 42)", A2: "=A1" })).toBe("#CYCLE");
   });
 
   test("casting tests on cell arguments", () => {
@@ -136,20 +141,15 @@ describe("IFERROR formula", () => {
     expect(evaluateCell("A1", { A1: "=IFERROR(A2, 42)", A2: "test" })).toBe("test");
   });
 
-  test("functional tests on cell arguments with errors", () => {
+  test("functional tests on arguments with errors", () => {
     expect(evaluateCell("A1", { A1: "=IFERROR(A2, A3)", A2: "TRUE", A3: "=1/0" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=IFERROR(A2, A3)", A2: "=1/0", A3: "=1/0" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
-  });
-
-  test("Laziness of args is propagated", () => {
     expect(evaluateCell("A1", { A1: "=IFERROR(TRUE, COUNT(1/0))" })).toBe(true);
-    expect(evaluateCell("A1", { A1: "=IFERROR(1/0, COUNT(A1))" })).toBe("#CYCLE");
+    expect(evaluateCell("A1", { A1: "=IFERROR(1/0, COUNT(A1))" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=IFERROR(IFERROR(TRUE, 1/0), 1/0)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=IFERROR(IFERROR(1/0, 1/0), 1)" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=IFERROR(IFERROR(1/0, 1/0), A1)" })).toBe("#CYCLE");
     expect(evaluateCell("A1", { A1: "=IFERROR(1, 1/0) + IFERROR(1, 1/0)" })).toBe(2);
-    expect(evaluateCell("A1", { A1: "=IF(TRUE, 1/(1/1), 1/(1/0))" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=IF(FALSE, 1/(1/1), 1/(1/0))" })).toBe("#ERROR");
   });
 
   test("format is preserved from value", () => {

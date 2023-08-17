@@ -37,7 +37,7 @@ interface EvaluatedCellProperties {
   readonly link?: Link;
 }
 
-export type CellValue = string | number | boolean | null; // We use null to represent an empty cell. This choice is preferred over using undefined because when passing values to a JavaScript function, undefined may be replaced by a default value.
+export type CellValue = string | number | boolean | EvaluationError | null; // We use null to represent an empty cell. This choice is preferred over using undefined because when passing values to a JavaScript function, undefined may be replaced by a default value.
 
 export type EvaluatedCell = NumberCell | TextCell | BooleanCell | EmptyCell | ErrorCell;
 
