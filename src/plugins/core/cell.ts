@@ -594,7 +594,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     content: string,
     format: Format | undefined,
     style: Style | undefined,
-    error: unknown
+    error: Error
   ): FormulaCell {
     return {
       id,

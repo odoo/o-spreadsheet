@@ -1,4 +1,4 @@
-import { Model } from "../../src";
+import { EvaluationError, Model } from "../../src";
 import { toNumber } from "../../src/functions/helpers";
 import { arg, functionRegistry } from "../../src/functions/index";
 import {
@@ -11,8 +11,13 @@ import {
   Maybe,
   ValueAndFormat,
 } from "../../src/types";
+import {
+  BadExpressionError,
+  CircularDependencyError,
+  InvalidReferenceError,
+} from "../../src/types/errors";
 import { setCellContent, setCellFormat } from "../test_helpers/commands_helpers";
-import { getEvaluatedCell } from "../test_helpers/getters_helpers";
+import { getCellError, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { evaluateCell, restoreDefaultFunctions } from "../test_helpers/helpers";
 
 describe("functions", () => {
@@ -73,6 +78,60 @@ describe("functions", () => {
     setCellContent(model, "B2", "=RETURN.VALUE.DEPENDING.ON.INPUT.VALUE(A2)");
     expect(getEvaluatedCell(model, "B1").value).toBe(42);
     expect(getEvaluatedCell(model, "B2").value).toBe(84);
+  });
+
+  test("Function can return value depending on input error", () => {
+    const model = new Model();
+    functionRegistry.add("RETURN.VALUE.DEPENDING.ON.INPUT.ERROR", {
+      description: "return value depending on input error",
+      compute: function (arg: Maybe<CellValue>) {
+        return arg instanceof EvaluationError ? true : false;
+      } as ComputeFunction<ArgValue, CellValue>,
+      args: [arg("arg (any)", "blabla")],
+      returns: ["BOOLEAN"],
+    });
+    setCellContent(model, "A1", "=SQRT(-1)");
+    setCellContent(model, "B1", "=RETURN.VALUE.DEPENDING.ON.INPUT.ERROR(A1)");
+    setCellContent(model, "B2", "=RETURN.VALUE.DEPENDING.ON.INPUT.ERROR(A2)");
+    expect(getEvaluatedCell(model, "B1").value).toBe(true);
+    expect(getEvaluatedCell(model, "B2").value).toBe(false);
+  });
+
+  test("Function can return error depending on input value", () => {
+    const model = new Model();
+    functionRegistry.add("RETURN.ERROR.DEPENDING.ON.INPUT.VALUE", {
+      description: "return value depending on input error",
+      compute: function (arg: Maybe<CellValue>) {
+        const error = new EvaluationError("Les calculs sont pas bons KEVIN !");
+        return arg ? error : "ceci n'est pas une erreur";
+      } as ComputeFunction<ArgValue, CellValue>,
+      args: [arg("arg (any)", "blabla")],
+      returns: ["ANY"],
+    });
+    setCellContent(model, "B1", "=RETURN.ERROR.DEPENDING.ON.INPUT.VALUE(true)");
+    setCellContent(model, "B2", "=RETURN.ERROR.DEPENDING.ON.INPUT.VALUE(false)");
+    expect(getEvaluatedCell(model, "B1")?.value).toBe("#ERROR");
+    expect(getCellError(model, "B1")).toBe("Les calculs sont pas bons KEVIN !");
+    expect(getEvaluatedCell(model, "B2").value).toBe("ceci n'est pas une erreur");
+  });
+
+  test("Function can return error depending on input error", () => {
+    const model = new Model();
+    functionRegistry.add("RETURN.ERROR.DEPENDING.ON.INPUT.ERROR", {
+      description: "return value depending on input error",
+      compute: function (arg: Maybe<CellValue>) {
+        const error1 = new CircularDependencyError();
+        const error2 = new InvalidReferenceError();
+        return arg instanceof BadExpressionError ? error1 : error2;
+      } as ComputeFunction<ArgValue, CellValue>,
+      args: [arg("arg (any)", "blabla")],
+      returns: ["ANY"],
+    });
+    setCellContent(model, "A1", "=ThatDoesNotMeanAnything");
+    setCellContent(model, "B1", "=RETURN.ERROR.DEPENDING.ON.INPUT.ERROR(A1)");
+    setCellContent(model, "B2", "=RETURN.ERROR.DEPENDING.ON.INPUT.ERROR(SQRT(-1))");
+    expect(getEvaluatedCell(model, "B1").value).toBe("#CYCLE");
+    expect(getEvaluatedCell(model, "B2").value).toBe("#REF");
   });
 
   test("Function can return format depending on input format", () => {

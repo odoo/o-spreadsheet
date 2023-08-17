@@ -38,7 +38,7 @@ export function buildCompilationParameters(
 class CompilationParametersBuilder {
   evalContext: EvalContext;
 
-  private rangeCache: Record<string, Matrix<ValueAndFormat> | EvaluationError> = {};
+  private rangeCache: Record<string, Matrix<ValueAndFormat>> = {};
 
   constructor(
     context: ModelConfig["custom"],
@@ -81,7 +81,7 @@ class CompilationParametersBuilder {
 
     // if the formula definition could have accepted a range, we would pass through the _range function and not here
     if (range.zone.bottom !== range.zone.top || range.zone.left !== range.zone.right) {
-      throw new Error(
+      throw new EvaluationError(
         paramNumber
           ? _t(
               "Function %s expects the parameter %s to be a single value or a single cell reference, not a range.",
@@ -95,7 +95,7 @@ class CompilationParametersBuilder {
       );
     }
     if (range.invalidSheetName) {
-      throw new Error(_t("Invalid sheet name: %s", range.invalidSheetName));
+      throw new EvaluationError(_t("Invalid sheet name: %s", range.invalidSheetName));
     }
     const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
     return this.readCell(position);
@@ -103,15 +103,15 @@ class CompilationParametersBuilder {
 
   private readCell(position: CellPosition): ValueAndFormat {
     if (!this.getters.tryGetSheet(position.sheetId)) {
-      throw new Error(_t("Invalid sheet name"));
+      throw new EvaluationError(_t("Invalid sheet name"));
     }
     const evaluatedCell = this.getEvaluatedCellIfNotEmpty(position);
     if (evaluatedCell === undefined) {
       return { value: null, format: this.getters.getCell(position)?.format };
+    } else if (evaluatedCell.type === CellValueType.error) {
+      return { value: evaluatedCell.error, format: evaluatedCell.format };
     }
-    if (evaluatedCell.type === CellValueType.error) {
-      throw evaluatedCell.error;
-    }
+
     return evaluatedCell;
   }
 
@@ -149,11 +149,7 @@ class CompilationParametersBuilder {
     const { top, left, bottom, right } = zone;
     const cacheKey = `${sheetId}-${top}-${left}-${bottom}-${right}`;
     if (cacheKey in this.rangeCache) {
-      const result = this.rangeCache[cacheKey];
-      if (result instanceof EvaluationError) {
-        throw result;
-      }
-      return result;
+      return this.rangeCache[cacheKey];
     }
 
     const height = _zone.bottom - _zone.top + 1;
@@ -164,15 +160,11 @@ class CompilationParametersBuilder {
       const colIndex = col - _zone.left;
       matrix[colIndex] = new Array(height);
       for (let row = _zone.top; row <= _zone.bottom; row++) {
-        const evaluatedCell = this.getEvaluatedCellIfNotEmpty({ sheetId, col, row });
-        if (evaluatedCell?.type === CellValueType.error) {
-          this.rangeCache[cacheKey] = evaluatedCell.error;
-          throw evaluatedCell.error;
-        }
         const rowIndex = row - _zone.top;
         matrix[colIndex][rowIndex] = this.readCell({ sheetId, col, row });
       }
     }
+
     this.rangeCache[cacheKey] = matrix;
     return matrix;
   }
