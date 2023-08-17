@@ -133,7 +133,7 @@ function getMatchingCells(
 
   // 4 - return for each database row corresponding, the cells corresponding to the field parameter
 
-  const fieldCol: (CellValue | null)[] = database[index].map((col) => col);
+  const fieldCol = database[index];
   // Example continuation:: fieldCol = ["C", "j", "k", 7]
   const matchingCells = [...matchingRows].map((x) => fieldCol[x + 1]);
   // Example continuation:: matchingCells = ["j", 7]
