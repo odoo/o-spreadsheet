@@ -240,8 +240,13 @@ exports[`BottomBar component simple rendering 1`] = `
             >
               <svg
                 class="o-icon"
+<<<<<<< HEAD
                 viewBox="0 0 18 18"
                 xmlns="http://www.w3.org/2000/svg"
+||||||| parent of ef810902d (temp)
+=======
+                xmlns="http://www.w3.org/2000/svg"
+>>>>>>> ef810902d (temp)
               >
                 <polygon
                   fill="currentColor"

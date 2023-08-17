@@ -152,8 +152,13 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
       >
         <svg
           class="o-icon"
+<<<<<<< HEAD:tests/menus/__snapshots__/context_menu_component.test.ts.snap
           transform="rotate(-90)"
           xmlns="http://www.w3.org/2000/svg"
+||||||| parent of ef810902d (temp):tests/menus/__snapshots__/context_menu_comonent.test.ts.snap
+=======
+          xmlns="http://www.w3.org/2000/svg"
+>>>>>>> ef810902d (temp):tests/menus/__snapshots__/context_menu_comonent.test.ts.snap
         >
           <svg
             class="o-icon"
@@ -275,8 +280,13 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
       >
         <svg
           class="o-icon"
+<<<<<<< HEAD:tests/menus/__snapshots__/context_menu_component.test.ts.snap
           transform="rotate(-90)"
           xmlns="http://www.w3.org/2000/svg"
+||||||| parent of ef810902d (temp):tests/menus/__snapshots__/context_menu_comonent.test.ts.snap
+=======
+          xmlns="http://www.w3.org/2000/svg"
+>>>>>>> ef810902d (temp):tests/menus/__snapshots__/context_menu_comonent.test.ts.snap
         >
           <svg
             class="o-icon"
@@ -398,8 +408,13 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
       >
         <svg
           class="o-icon"
+<<<<<<< HEAD:tests/menus/__snapshots__/context_menu_component.test.ts.snap
           transform="rotate(-90)"
           xmlns="http://www.w3.org/2000/svg"
+||||||| parent of ef810902d (temp):tests/menus/__snapshots__/context_menu_comonent.test.ts.snap
+=======
+          xmlns="http://www.w3.org/2000/svg"
+>>>>>>> ef810902d (temp):tests/menus/__snapshots__/context_menu_comonent.test.ts.snap
         >
           <svg
             class="o-icon"
