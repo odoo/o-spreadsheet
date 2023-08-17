@@ -15,12 +15,12 @@ import {
   HeaderIndex,
   IconSetRule,
   IconThreshold,
-  invalidateCFEvaluationCommands,
   Lazy,
   NumberCell,
   Style,
   UID,
   Zone,
+  invalidateCFEvaluationCommands,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 import { CoreViewCommand } from "./../../types/commands";

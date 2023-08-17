@@ -4,7 +4,7 @@ import {
   FORBIDDEN_IN_EXCEL_REGEX,
   FORMULA_REF_IDENTIFIER,
 } from "../constants";
-import { getItemId, toXC, toZone, UuidGenerator } from "../helpers/index";
+import { UuidGenerator, getItemId, toXC, toZone } from "../helpers/index";
 import { isValidLocale } from "../helpers/locale";
 import { StateUpdateMessage } from "../types/collaborative/transport_service";
 import {

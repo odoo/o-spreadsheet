@@ -1,4 +1,4 @@
-import type { Chart as ChartType, ChartConfiguration, ChartDataset, LegendOptions } from "chart.js";
+import type { ChartConfiguration, ChartDataset, Chart as ChartType, LegendOptions } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
 import { BACKGROUND_CHART_COLOR, LINE_FILL_TRANSPARENCY } from "../../../constants";
 import {

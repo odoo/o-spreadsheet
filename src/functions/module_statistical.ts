@@ -6,11 +6,11 @@ import {
   Arg,
   ArgValue,
   CellValue,
-  isMatrix,
   Locale,
   Matrix,
   Maybe,
   ValueAndFormat,
+  isMatrix,
 } from "../types";
 import { arg } from "./arguments";
 import {

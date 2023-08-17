@@ -14,7 +14,9 @@ import { buildSheetLink, toCartesian, toHex, toZone, zoneToXc } from "../../src/
 import { createEmptyWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
 import { Align, ClipboardMIMEType, HeaderDimensions, UID } from "../../src/types";
-import { getClipboardEvent, MockClipboardData } from "../test_helpers/clipboard";
+import { FileStore } from "../__mocks__/mock_file_store";
+import { MockTransportService } from "../__mocks__/transport_service";
+import { MockClipboardData, getClipboardEvent } from "../test_helpers/clipboard";
 import {
   copy,
   createChart,
@@ -67,8 +69,6 @@ import {
   target,
   typeInComposerGrid,
 } from "../test_helpers/helpers";
-import { FileStore } from "../__mocks__/mock_file_store";
-import { MockTransportService } from "../__mocks__/transport_service";
 import { mockChart } from "./__mocks__/chart";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")

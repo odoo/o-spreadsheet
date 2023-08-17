@@ -3,10 +3,10 @@ import { _t } from "../translation";
 import {
   AddFunctionDescription,
   CellValue,
-  isMatrix,
   Matrix,
   Maybe,
   ValueAndFormat,
+  isMatrix,
 } from "../types";
 import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";

@@ -5,8 +5,8 @@ import { _t } from "../../src/translation";
 import { registerCleanup } from "../setup/jest.setup";
 import { keyDown, keyUp } from "../test_helpers/dom_helper";
 import {
-  clearFunctions,
   ComposerWrapper,
+  clearFunctions,
   mountComposerWrapper,
   nextTick,
   restoreDefaultFunctions,

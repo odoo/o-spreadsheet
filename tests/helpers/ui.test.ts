@@ -11,9 +11,9 @@ import {
   interactiveAddMerge,
 } from "../../src/helpers/ui/merge_interactive";
 import {
+  PasteInteractiveContent,
   interactivePaste,
   interactivePasteFromOS,
-  PasteInteractiveContent,
 } from "../../src/helpers/ui/paste_interactive";
 import { interactiveRenameSheet } from "../../src/helpers/ui/sheet_interactive";
 import { Model } from "../../src/model";

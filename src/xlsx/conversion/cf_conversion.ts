@@ -12,9 +12,9 @@ import { convertColor, hexaToInt } from "./color_conversion";
 import {
   CF_THRESHOLD_CONVERSION_MAP,
   CF_TYPE_CONVERSION_MAP,
-  convertCFCellIsOperator,
   ICON_SET_CONVERSION_MAP,
   SUPPORTED_CF_TYPES,
+  convertCFCellIsOperator,
 } from "./conversion_maps";
 import { convertStyle } from "./style_conversion";
 

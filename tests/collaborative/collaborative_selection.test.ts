@@ -1,5 +1,6 @@
 import { Client, Model } from "../../src";
 import { DEBOUNCE_TIME } from "../../src/constants";
+import { MockTransportService } from "../__mocks__/transport_service";
 import {
   addColumns,
   createSheet,
@@ -7,7 +8,6 @@ import {
   selectCell,
   selectColumn,
 } from "../test_helpers/commands_helpers";
-import { MockTransportService } from "../__mocks__/transport_service";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
 describe("Collaborative selection", () => {

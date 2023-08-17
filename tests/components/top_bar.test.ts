@@ -6,6 +6,7 @@ import { toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { topbarComponentRegistry, topbarMenuRegistry } from "../../src/registries";
 import { ConditionalFormat, Currency, Pixel, SpreadsheetChildEnv, Style } from "../../src/types";
+import { FileStore } from "../__mocks__/mock_file_store";
 import {
   addCellToSelection,
   createFilter,
@@ -36,7 +37,6 @@ import {
   typeInComposerTopBar,
 } from "../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
-import { FileStore } from "../__mocks__/mock_file_store";
 
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")

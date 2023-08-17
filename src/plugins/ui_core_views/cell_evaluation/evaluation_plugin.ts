@@ -10,15 +10,15 @@ import {
   Format,
   FormattedValue,
   FormulaCell,
-  invalidateDependenciesCommands,
-  isMatrix,
   Range,
   UID,
   Zone,
+  invalidateDependenciesCommands,
+  isMatrix,
 } from "../../../types/index";
 import { UIPlugin, UIPluginConfig } from "../../ui_plugin";
 import { CoreViewCommand } from "./../../../types/commands";
-import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
+import { CompilationParameters, buildCompilationParameters } from "./compilation_parameters";
 import { Evaluator } from "./evaluator";
 
 //#region

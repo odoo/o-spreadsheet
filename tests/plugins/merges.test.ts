@@ -15,8 +15,8 @@ import {
   setAnchorCorner,
   setCellContent,
   setZoneBorders,
-  undo,
   unMerge,
+  undo,
 } from "../test_helpers/commands_helpers";
 import {
   getBorder,
@@ -27,7 +27,7 @@ import {
   getSelectionAnchorCellXc,
   getStyle,
 } from "../test_helpers/getters_helpers";
-import { getMergeCellMap, target, XCToMergeCellMap } from "../test_helpers/helpers";
+import { XCToMergeCellMap, getMergeCellMap, target } from "../test_helpers/helpers";
 
 function getCellsXC(model: Model): string[] {
   return Object.values(model.getters.getCells(model.getters.getActiveSheetId())).map((cell) => {

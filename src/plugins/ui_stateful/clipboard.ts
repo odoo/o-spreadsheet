@@ -13,11 +13,11 @@ import {
   CommandResult,
   Dimension,
   GridRenderingContext,
-  isCoreCommand,
   LAYERS,
   LocalCommand,
   UID,
   Zone,
+  isCoreCommand,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 

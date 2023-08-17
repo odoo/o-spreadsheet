@@ -36,12 +36,12 @@ import {
   getMerges,
 } from "../test_helpers/getters_helpers";
 import {
+  XCToMergeCellMap,
   getCellsObject,
   getMergeCellMap,
   makeTestFixture,
   target,
   testUndoRedo,
-  XCToMergeCellMap,
 } from "../test_helpers/helpers";
 let model: Model;
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));

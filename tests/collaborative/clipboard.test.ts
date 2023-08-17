@@ -1,5 +1,6 @@
 import { Model } from "../../src";
 import { LineChartDefinition } from "../../src/types/chart/";
+import { MockTransportService } from "../__mocks__/transport_service";
 import {
   addColumns,
   copy,
@@ -11,7 +12,6 @@ import {
   setCellContent,
 } from "../test_helpers/commands_helpers";
 import { getCell } from "../test_helpers/getters_helpers";
-import { MockTransportService } from "../__mocks__/transport_service";
 import { setupCollaborativeEnv } from "./collaborative_helpers";
 
 describe("Collaborative range manipulation", () => {

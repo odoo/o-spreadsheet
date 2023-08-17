@@ -22,8 +22,8 @@ import {
   resizeRows,
   setCellContent,
   setStyle,
-  undo,
   unMerge,
+  undo,
 } from "../test_helpers/commands_helpers";
 import { getCell } from "../test_helpers/getters_helpers";
 import { DEFAULT_CELL_HEIGHT } from "./../../src/constants";

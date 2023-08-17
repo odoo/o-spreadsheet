@@ -3,11 +3,11 @@ import { BG_HOVER_COLOR } from "../../constants";
 import {
   BorderPosition,
   BorderStyle,
-  borderStyles,
   Color,
   Pixel,
   Rect,
   SpreadsheetChildEnv,
+  borderStyles,
 } from "../../types/index";
 import { ColorPickerWidget } from "../color_picker/color_picker_widget";
 import { css } from "../helpers/css";

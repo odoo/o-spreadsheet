@@ -23,10 +23,10 @@ import {
 } from "../test_helpers/getters_helpers"; // to have getcontext mocks
 import "../test_helpers/helpers";
 import {
+  XCToMergeCellMap,
   getMergeCellMap,
   getPlugin,
   toRangesData,
-  XCToMergeCellMap,
 } from "../test_helpers/helpers";
 
 let autoFill: AutofillPlugin;

@@ -3,12 +3,12 @@ import { ChartJsComponent } from "../components/figures/chart/chartJs/chartjs";
 import { ScorecardChart as ScorecardChartComponent } from "../components/figures/chart/scorecard/chart_scorecard";
 import { AbstractChart } from "../helpers/figures/charts/abstract_chart";
 import { BarChart, createBarChartRuntime } from "../helpers/figures/charts/bar_chart";
-import { createGaugeChartRuntime, GaugeChart } from "../helpers/figures/charts/gauge_chart";
-import { createLineChartRuntime, LineChart } from "../helpers/figures/charts/line_chart";
-import { createPieChartRuntime, PieChart } from "../helpers/figures/charts/pie_chart";
+import { GaugeChart, createGaugeChartRuntime } from "../helpers/figures/charts/gauge_chart";
+import { LineChart, createLineChartRuntime } from "../helpers/figures/charts/line_chart";
+import { PieChart, createPieChartRuntime } from "../helpers/figures/charts/pie_chart";
 import {
-  createScorecardChartRuntime,
   ScorecardChart,
+  createScorecardChartRuntime,
 } from "../helpers/figures/charts/scorecard_chart";
 import { _t } from "../translation";
 import {

@@ -22,8 +22,8 @@ import {
 import { ColorPickerWidget } from "../../color_picker/color_picker_widget";
 import { getTextDecoration } from "../../helpers";
 import { css, cssPropertiesToCss } from "../../helpers/css";
-import { ICONS, ICON_SETS } from "../../icons/icons";
 import { IconPicker } from "../../icon_picker/icon_picker";
+import { ICONS, ICON_SETS } from "../../icons/icons";
 import { SelectionInput } from "../../selection_input/selection_input";
 import { CellIsOperators } from "../../translations_terms";
 import { CfTerms } from "./../../translations_terms";

@@ -5,8 +5,8 @@ import { selectCell } from "../test_helpers/commands_helpers";
 import { click, keyDown, keyUp, simulateClick } from "../test_helpers/dom_helper";
 import { getCellText } from "../test_helpers/getters_helpers";
 import {
-  clearFunctions,
   ComposerWrapper,
+  clearFunctions,
   mountComposerWrapper,
   nextTick,
   restoreDefaultFunctions,
