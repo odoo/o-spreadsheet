@@ -2,6 +2,7 @@
   "name": "@odoo/o-spreadsheet",
   "version": "16.5.0-alpha.5",
   "description": "A spreadsheet component",
+  "type": "module",
   "main": "dist/o-spreadsheet.cjs.js",
   "browser": "dist/o-spreadsheet.iife.js",
   "module": "dist/o-spreadsheet.es.js",
@@ -13,10 +14,10 @@
   "scripts": {
     "serve-static": "live-server --open=demo --watch=build/o_spreadsheet.js,build/o_spreadsheet.xml,demo",
     "dev": "npm-run-all --print-label build --parallel server serve-static watch:*",
-    "server": "node tools/server/main.js",
+    "server": "node tools/server/main.cjs",
     "build:js": "tsc --module es6 --incremental",
     "build:bundleJs": "rollup -c -m --configDev",
-    "build:bundleXml": "node tools/bundle_xml/main.js",
+    "build:bundleXml": "node tools/bundle_xml/main.cjs",
     "build": "npm-run-all build:js build:bundleJs \"build:bundleXml -- --outDir build\"",
     "doc": "typedoc",
     "precommit": "npm run prettier && npm run doc",
@@ -28,9 +29,9 @@
     "prepare": "husky install",
     "watch:bundle": "npm run build:bundleJs -- --watch",
     "watch:ts": "npm run build:js -- --watch",
-    "watch:xml": "node tools/bundle_xml/watch_xml_templates.js",
-    "unzipXlsx": "node tools/bundle_xlsx/unzip_xlsx_demo.js",
-    "zipXlsx": "node tools/bundle_xlsx/zip_xlsx_demo.js"
+    "watch:xml": "node tools/bundle_xml/watch_xml_templates.cjs",
+    "unzipXlsx": "node tools/bundle_xlsx/unzip_xlsx_demo.cjs",
+    "zipXlsx": "node tools/bundle_xlsx/zip_xlsx_demo.cjs"
   },
   "browserslist": [
     "last 1 Chrome versions"

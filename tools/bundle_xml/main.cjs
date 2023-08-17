@@ -1,6 +1,6 @@
 const { version } = require("../../package.json");
 const git = require("git-rev-sync");
-const bundle = require("./bundle_xml_templates");
+const bundle = require("./bundle_xml_templates.cjs");
 const parseArgs = require("minimist");
 
 const DEFAULT_DIR = "dist";
