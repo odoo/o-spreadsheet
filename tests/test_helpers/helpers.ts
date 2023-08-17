@@ -597,19 +597,6 @@ export function mockUuidV4To(model: Model, value: number | string) {
   return model.uuidGenerator.setNextId(value);
 }
 
-/**
- * Make a test environment for testing interactive actions
- */
-export function makeInteractiveTestEnv(
-  model: Model,
-  env?: Partial<SpreadsheetChildEnv>
-): SpreadsheetChildEnv {
-  return {
-    model,
-    ...env,
-  } as unknown as SpreadsheetChildEnv;
-}
-
 export const mockChart = () => {
   const mockChartData: ChartConfiguration = {
     data: { datasets: [] },
