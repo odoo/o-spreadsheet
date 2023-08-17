@@ -35,7 +35,7 @@ import {
   undo,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getCellText } from "../test_helpers/getters_helpers";
-import { makeInteractiveTestEnv, target } from "../test_helpers/helpers";
+import { makeTestEnv, target } from "../test_helpers/helpers";
 
 function getCellsObject(model: Model, sheetId: UID) {
   const cells = {};
@@ -63,7 +63,7 @@ describe("Interactive rename sheet", () => {
       callback();
     });
     model = new Model({});
-    env = makeInteractiveTestEnv(model, { raiseError: raiseErrorSpy });
+    env = makeTestEnv({ model, raiseError: raiseErrorSpy });
   });
 
   test.each([
@@ -104,7 +104,7 @@ describe("Interactive Freeze columns/rows", () => {
     const model = new Model();
     merge(model, "A1:D4");
     const raiseError = jest.fn();
-    const env = makeInteractiveTestEnv(model, { raiseError });
+    const env = makeTestEnv({ model, raiseError });
     interactiveFreezeColumnsRows(env, dimension as Dimension, 2);
     expect(raiseError).toBeCalled();
   });
@@ -128,7 +128,7 @@ describe("UI Helpers", () => {
     const askConfirmation = (content: string, confirm: () => any, cancel?: () => any) => {
       askConfirmationTextSpy(content.toString());
     };
-    env = makeInteractiveTestEnv(model, { raiseError, askConfirmation });
+    env = makeTestEnv({ model, raiseError, askConfirmation });
   });
 
   describe("Interactive Create Filter", () => {
@@ -173,7 +173,7 @@ describe("UI Helpers", () => {
       model.dispatch("UPDATE_CELL", { sheetId, col: 0, row: 0, style });
 
       copy(model, "A1");
-      const env = makeInteractiveTestEnv(model);
+      const env = makeTestEnv({ model });
       interactivePaste(env, target("B1"), "onlyFormat");
       interactivePaste(env, target("B2"), "onlyValue");
       interactivePaste(env, target("B3"));
@@ -360,7 +360,7 @@ describe("UI Helpers", () => {
       model = new Model(modelData);
       const zone = toZone("A2:A3");
       anchor = toCartesian("A2");
-      const env = makeInteractiveTestEnv(model, { askConfirmation });
+      const env = makeTestEnv({ model, askConfirmation });
       interactiveSortSelection(env, sheetId, anchor, zone, "descending");
       expect(askConfirmation).toHaveBeenCalled();
     });
@@ -369,7 +369,7 @@ describe("UI Helpers", () => {
       model = new Model(modelData);
       const zone = toZone("A2:A3");
       const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
-      const env = makeInteractiveTestEnv(model, { askConfirmation });
+      const env = makeTestEnv({ model, askConfirmation });
       interactiveSortSelection(env, sheetId, anchor, contiguousZone, "descending");
       expect(askConfirmation).not.toHaveBeenCalled();
     });
@@ -379,7 +379,7 @@ describe("UI Helpers", () => {
       model = new Model(modelData);
       const zone = toZone("A3:A4");
       anchor = toCartesian("A3");
-      const env = makeInteractiveTestEnv(model, { askConfirmation });
+      const env = makeTestEnv({ model, askConfirmation });
       interactiveSortSelection(env, sheetId, anchor, zone, "descending");
       expect(getCellsObject(model, sheetId)).toMatchObject({
         A1: { content: "Zulu" },
@@ -399,7 +399,7 @@ describe("UI Helpers", () => {
       model = new Model(modelData);
       const zone = toZone("A3:A4");
       anchor = toCartesian("A3");
-      const env = makeInteractiveTestEnv(model, { askConfirmation });
+      const env = makeTestEnv({ model, askConfirmation });
       interactiveSortSelection(env, sheetId, anchor, zone, "descending");
       expect(getCellsObject(model, sheetId)).toMatchObject({
         A1: { content: "Alpha" },
@@ -462,7 +462,7 @@ describe("UI Helpers", () => {
       const zone = toZone("B2:B8");
       const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
       anchor = toCartesian("B2");
-      const env = makeInteractiveTestEnv(model, { raiseError });
+      const env = makeTestEnv({ model, raiseError });
       interactiveSortSelection(env, sheetId, anchor, contiguousZone, "ascending");
       expect(raiseError).toHaveBeenCalled();
       expect(model.getters.getSelection()).toEqual({
@@ -489,7 +489,7 @@ describe("UI Helpers", () => {
       const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
 
       const anchor = toCartesian("B2");
-      const env = makeInteractiveTestEnv(model, { raiseError });
+      const env = makeTestEnv({ model, raiseError });
       interactiveSortSelection(env, sheetId, anchor, contiguousZone, "ascending");
       expect(raiseError).toHaveBeenCalled();
       expect(model.getters.getSelection()).toEqual({
