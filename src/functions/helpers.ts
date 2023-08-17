@@ -38,10 +38,7 @@ export const expectStringSetError = (stringSet: string[], value: string) => {
   );
 };
 
-export function toNumber(
-  value: string | number | boolean | null | undefined,
-  locale: Locale
-): number {
+export function toNumber(value: CellValue | undefined, locale: Locale): number {
   switch (typeof value) {
     case "number":
       return value;
@@ -61,24 +58,18 @@ export function toNumber(
   }
 }
 
-export function strictToNumber(
-  value: string | number | boolean | null | undefined,
-  locale: Locale
-): number {
+export function strictToNumber(value: CellValue | undefined, locale: Locale): number {
   if (value === "") {
     throw new Error(expectNumberValueError(value));
   }
   return toNumber(value, locale);
 }
 
-export function toInteger(value: string | number | boolean | null | undefined, locale: Locale) {
+export function toInteger(value: CellValue | undefined, locale: Locale) {
   return Math.trunc(toNumber(value, locale));
 }
 
-export function strictToInteger(
-  value: string | number | boolean | null | undefined,
-  locale: Locale
-) {
+export function strictToInteger(value: CellValue | undefined, locale: Locale) {
   return Math.trunc(strictToNumber(value, locale));
 }
 
@@ -92,7 +83,7 @@ export function assertNumberGreaterThanOrEqualToOne(value: number) {
   );
 }
 
-export function toString(value: string | number | boolean | null | undefined): string {
+export function toString(value: CellValue | undefined): string {
   switch (typeof value) {
     case "string":
       return value;
@@ -127,7 +118,7 @@ const expectBooleanValueError = (value: string) =>
     value
   );
 
-export function toBoolean(value: string | number | boolean | null | undefined): boolean {
+export function toBoolean(value: CellValue | undefined): boolean {
   switch (typeof value) {
     case "boolean":
       return value;
@@ -151,17 +142,14 @@ export function toBoolean(value: string | number | boolean | null | undefined): 
   }
 }
 
-function strictToBoolean(value: string | number | boolean | null | undefined): boolean {
+function strictToBoolean(value: CellValue | undefined): boolean {
   if (value === "") {
     throw new Error(expectBooleanValueError(value));
   }
   return toBoolean(value);
 }
 
-export function toJsDate(
-  value: string | number | boolean | null | undefined,
-  locale: Locale
-): Date {
+export function toJsDate(value: CellValue | undefined, locale: Locale): Date {
   return numberToJsDate(toNumber(value, locale));
 }
 

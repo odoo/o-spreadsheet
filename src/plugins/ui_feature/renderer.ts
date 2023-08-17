@@ -670,8 +670,8 @@ export class RendererPlugin extends UIPlugin {
     };
 
     /** Error */
-    if (cell.type === CellValueType.error && cell.error.logLevel > CellErrorLevel.silent) {
-      box.error = cell.error.message;
+    if (cell.type === CellValueType.error && cell.value.logLevel > CellErrorLevel.silent) {
+      box.error = cell.value.message;
     }
 
     /** ClipRect */

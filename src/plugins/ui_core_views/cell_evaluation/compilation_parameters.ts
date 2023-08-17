@@ -110,20 +110,12 @@ class CompilationParametersBuilder {
   }
 
   private getEvaluatedCellIfNotEmpty(position: CellPosition): EvaluatedCell | undefined {
-    const evaluatedCell = this.getEvaluatedCell(position);
+    const evaluatedCell = this.computeCell(position);
     if (evaluatedCell.type === CellValueType.empty) {
       const cell = this.getters.getCell(position);
       if (!cell || cell.content === "") {
         return undefined;
       }
-    }
-    return evaluatedCell;
-  }
-
-  private getEvaluatedCell(position: CellPosition): EvaluatedCell {
-    const evaluatedCell = this.computeCell(position);
-    if (evaluatedCell.type === CellValueType.error) {
-      throw evaluatedCell.error;
     }
     return evaluatedCell;
   }

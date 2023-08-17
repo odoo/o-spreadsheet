@@ -13,6 +13,7 @@ import {
   updateSelectionOnInsertion,
 } from "../../helpers/index";
 import { _t } from "../../translation";
+import { EvaluationError } from "../../types/errors";
 import { SelectionEvent } from "../../types/event_stream";
 import {
   AddColumnsRowsCommand,
@@ -45,7 +46,7 @@ interface SheetInfo {
 
 interface SelectionStatisticFunction {
   name: string;
-  compute: (values: (number | string | boolean)[], locale: Locale) => number;
+  compute: (values: (number | string | boolean | EvaluationError)[], locale: Locale) => number;
   types: CellValueType[];
 }
 
@@ -443,7 +444,7 @@ export class GridSelectionPlugin extends UIPlugin {
     );
 
     let cellsTypes = new Set<CellValueType>();
-    let cellsValues: (string | number | boolean)[] = [];
+    let cellsValues: (string | number | boolean | EvaluationError)[] = [];
     for (let cell of cells) {
       cellsTypes.add(cell.type);
       cellsValues.push(cell.value);

@@ -1,5 +1,5 @@
 import { forEachPositionsInZone, JetSet, lazy, toXC } from "../../../helpers";
-import { createEvaluatedCell, errorCell, evaluateLiteral } from "../../../helpers/cells";
+import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells";
 import { ModelConfig } from "../../../model";
 import { _t } from "../../../translation";
 import {
@@ -14,12 +14,7 @@ import {
   UID,
   ValueAndFormat,
 } from "../../../types";
-import {
-  CellErrorLevel,
-  CellErrorType,
-  CircularDependencyError,
-  EvaluationError,
-} from "../../../types/errors";
+import { CircularDependencyError } from "../../../types/errors";
 import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
 import { SpreadingRelation } from "./spreading_relation";
@@ -205,34 +200,21 @@ export class Evaluator {
 
     const cellId = cell.id;
 
-    try {
-      if (this.cellsBeingComputed.has(cellId)) {
-        throw new CircularDependencyError();
-      }
+    let evaluatedCell: EvaluatedCell;
+
+    if (this.cellsBeingComputed.has(cellId)) {
+      evaluatedCell = createEvaluatedCell(new CircularDependencyError(), {
+        locale: this.getters.getLocale(),
+      });
+    } else {
       this.cellsBeingComputed.add(cellId);
-      return cell.isFormula
+      evaluatedCell = cell.isFormula
         ? this.computeFormulaCell(cell)
         : evaluateLiteral(cell.content, { format: cell.format, locale: this.getters.getLocale() });
-    } catch (e) {
-      return this.handleError(e);
-    } finally {
       this.cellsBeingComputed.delete(cellId);
     }
-  }
 
-  private handleError(e: Error | any): EvaluatedCell {
-    if (!(e instanceof Error)) {
-      e = new Error(e);
-    }
-    const msg = e?.errorType || CellErrorType.GenericError;
-    // apply function name
-    const __lastFnCalled = this.compilationParams[2].__lastFnCalled || "";
-    const error = new EvaluationError(
-      msg,
-      e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled),
-      e.logLevel !== undefined ? e.logLevel : CellErrorLevel.error
-    );
-    return errorCell(error);
+    return evaluatedCell;
   }
 
   private computeFormulaCell(cellData: FormulaCell): EvaluatedCell {

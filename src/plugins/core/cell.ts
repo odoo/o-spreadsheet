@@ -11,6 +11,7 @@ import {
   toCartesian,
   toXC,
 } from "../../helpers/index";
+import { CellErrorLevel, CellErrorType, EvaluationError } from "../../types/errors";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -579,7 +580,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     content: string,
     format: Format | undefined,
     style: Style | undefined,
-    error: unknown
+    error: Error | any
   ): FormulaCell {
     return {
       id,
@@ -591,7 +592,13 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         dependencies: [],
         tokens: tokenize(content),
         execute: function () {
-          throw error;
+          return {
+            value: new EvaluationError(
+              error?.errorType || CellErrorType.GenericError,
+              error.message,
+              error.logLevel !== undefined ? error.logLevel : CellErrorLevel.error
+            ),
+          };
         },
       },
       dependencies: [],

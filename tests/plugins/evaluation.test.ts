@@ -253,7 +253,7 @@ describe("evaluateCells", () => {
     const model = new Model();
     setCellContent(model, "A1", formula);
     let cell = getEvaluatedCell(model, "A1") as ErrorCell;
-    const error = cell.error.message;
+    const error = cell.value.message;
     const value = cell.value;
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
@@ -262,7 +262,7 @@ describe("evaluateCells", () => {
     });
     cell = getEvaluatedCell(model, "A1") as ErrorCell;
     expect(cell.type).toBe(CellValueType.error);
-    expect(cell.error.message).toBe(error);
+    expect(cell.value.message).toBe(error);
     expect(cell.value).toBe(value);
   });
 
@@ -1239,11 +1239,11 @@ describe("evaluate formula getter", () => {
     });
     setCellContent(model, "A1", "=GETVALUE()");
     expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
-    expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe("Error1");
+    expect((getEvaluatedCell(model, "A1") as ErrorCell).value.message).toBe("Error1");
     value = 2;
     model.dispatch("EVALUATE_CELLS");
     expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
-    expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe("Error2");
+    expect((getEvaluatedCell(model, "A1") as ErrorCell).value.message).toBe("Error2");
     functionRegistry.remove("GETVALUE");
   });
 });

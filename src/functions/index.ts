@@ -12,6 +12,7 @@ import {
   Matrix,
   ValueAndFormat,
 } from "../types";
+import { CellErrorLevel, CellErrorType, EvaluationError } from "../types/errors";
 import { addMetaInfoFromArg, validateArguments } from "./arguments";
 import { matrixMap } from "./helpers";
 import * as array from "./module_array";
@@ -74,7 +75,7 @@ class FunctionRegistry extends Registry<FunctionDescription> {
     }
     const descr = addMetaInfoFromArg(addDescr);
     validateArguments(descr.args);
-    this.mapping[name] = createComputeFunctionFromDescription(descr);
+    this.mapping[name] = tryFormula(createComputeFunctionFromDescription(descr), name);
     super.add(name, descr);
     return this;
   }
@@ -105,6 +106,36 @@ function createComputeFunctionFromDescription(
 
   // case computeValue
   return buildComputeFunctionFromDescription(descr);
+}
+
+function tryFormula(
+  computeValueAndFormat: ComputeFunction<Arg, Matrix<ValueAndFormat> | ValueAndFormat>,
+  functionName: string
+): ComputeFunction<Arg, Matrix<ValueAndFormat> | ValueAndFormat> {
+  return function (
+    this: EvalContext,
+    ...args: ComputeFunctionArg<Arg>[]
+  ): Matrix<ValueAndFormat> | ValueAndFormat {
+    try {
+      const computeFormula = computeValueAndFormat.bind(this);
+      return computeFormula(...args);
+    } catch (e) {
+      return handleError(e, functionName);
+    }
+  };
+}
+
+function handleError(e: Error | any, functionName: string): ValueAndFormat {
+  // EvaluatedCell {
+  if (!(e instanceof Error)) {
+    e = new Error(e);
+  }
+  const error = new EvaluationError(
+    e?.errorType || CellErrorType.GenericError,
+    e.message.replace("[[FUNCTION_NAME]]", functionName),
+    e.logLevel !== undefined ? e.logLevel : CellErrorLevel.error
+  );
+  return { value: error };
 }
 
 function buildComputeFunctionFromDescription(descr) {
