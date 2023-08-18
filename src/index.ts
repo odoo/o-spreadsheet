@@ -1,9 +1,11 @@
+import { createAction, createActions } from "./actions/action";
 import { ChartJsComponent } from "./components/figures/chart/chartJs/chartjs";
 import { ScorecardChart } from "./components/figures/chart/scorecard/chart_scorecard";
 import { FigureComponent } from "./components/figures/figure/figure";
 import { ChartFigure } from "./components/figures/figure_chart/figure_chart";
 import { Grid } from "./components/grid/grid";
 import { GridOverlay } from "./components/grid_overlay/grid_overlay";
+import { Menu } from "./components/menu/menu";
 import {
   BarConfigPanel,
   chartSidePanelComponentRegistry,
@@ -204,6 +206,8 @@ export const helpers = {
   isDefined,
   lazy,
   genericRepeat,
+  createAction,
+  createActions,
 };
 
 export const links = {
@@ -229,6 +233,7 @@ export const components = {
   ScorecardChartConfigPanel,
   ScorecardChartDesignPanel,
   FigureComponent,
+  Menu,
 };
 
 export function addFunction(functionName: string, functionDescription: AddFunctionDescription) {
