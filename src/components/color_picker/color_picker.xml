@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-ColorPicker" owl="1">
+  <t t-name="o-spreadsheet-ColorPicker">
     <Popover t-props="popoverProps">
       <div class="o-color-picker" t-on-click.stop="" t-att-style="colorPickerStyle">
         <div class="o-color-picker-section-name">Standard</div>

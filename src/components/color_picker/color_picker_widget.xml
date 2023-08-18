@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-ColorPickerWidget" owl="1">
+  <t t-name="o-spreadsheet-ColorPickerWidget">
     <div class="o-color-picker-widget">
       <span
         class="o-color-picker-button"

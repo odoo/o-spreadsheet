@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-SplitIntoColumnsPanel" owl="1">
+  <t t-name="o-spreadsheet-SplitIntoColumnsPanel">
     <div class="o-split-to-cols-panel">
       <div class="o-section">
         <div class="o-section-title">Separator</div>

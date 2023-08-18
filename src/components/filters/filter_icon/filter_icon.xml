@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-FilterIcon" owl="1">
+  <t t-name="o-spreadsheet-FilterIcon">
     <div class="o-filter-icon" t-att-style="style" t-on-click.stop="props.onClick">
       <t t-if="props.isActive" t-call="o-spreadsheet-Icon.FILTER_ICON_ACTIVE"/>
       <t t-else="" t-call="o-spreadsheet-Icon.FILTER_ICON"/>

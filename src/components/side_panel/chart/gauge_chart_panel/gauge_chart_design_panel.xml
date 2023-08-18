@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-GaugeChartDesignPanel" owl="1">
+  <t t-name="o-spreadsheet-GaugeChartDesignPanel">
     <t t-set="background_color">Background Color</t>
     <div>
       <div class="o-section o-chart-background-color">
@@ -65,7 +65,7 @@
     </div>
   </t>
 
-  <t t-name="o-spreadsheet-GaugeChartColorSectionTemplate" owl="1">
+  <t t-name="o-spreadsheet-GaugeChartColorSectionTemplate">
     <div class="o-gauge-color-set">
       <table>
         <tr>
@@ -110,7 +110,7 @@
     </div>
   </t>
 
-  <t t-name="o-spreadsheet-GaugeChartColorSectionTemplateRow" owl="1">
+  <t t-name="o-spreadsheet-GaugeChartColorSectionTemplateRow">
     <tr>
       <td>
         <ColorPickerWidget

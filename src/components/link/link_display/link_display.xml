@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-LinkDisplay" owl="1">
+  <t t-name="o-spreadsheet-LinkDisplay">
     <div class="o-link-tool d-flex align-items-center">
       <!-- t-key to prevent owl from re-using the previous img element when the link changes.
     The wrong/previous image would be displayed while the new one loads -->

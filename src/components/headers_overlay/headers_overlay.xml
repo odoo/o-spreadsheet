@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-HeadersOverlay" owl="1">
+  <t t-name="o-spreadsheet-HeadersOverlay">
     <div class="o-overlay">
       <ColResizer onOpenContextMenu="props.onOpenContextMenu"/>
       <RowResizer onOpenContextMenu="props.onOpenContextMenu"/>
@@ -7,7 +7,7 @@
     </div>
   </t>
 
-  <t t-name="o-spreadsheet-RowResizer" owl="1">
+  <t t-name="o-spreadsheet-RowResizer">
     <div
       class="o-row-resizer"
       t-on-mousemove.self="onMouseMove"
@@ -64,7 +64,7 @@
     </div>
   </t>
 
-  <t t-name="o-spreadsheet-ColResizer" owl="1">
+  <t t-name="o-spreadsheet-ColResizer">
     <div
       class="o-col-resizer"
       t-on-mousemove.self="onMouseMove"

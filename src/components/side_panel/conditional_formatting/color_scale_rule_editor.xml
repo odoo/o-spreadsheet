@@ -1,9 +1,9 @@
 <templates>
-  <t t-name="o-spreadsheet-ColorScaleRuleEditorPreview" owl="1">
+  <t t-name="o-spreadsheet-ColorScaleRuleEditorPreview">
     <div class="o-cf-preview-gradient" t-attf-style="{{getPreviewGradient()}}">Preview text</div>
   </t>
 
-  <t t-name="o-spreadsheet-ColorScaleRuleEditorThreshold" owl="1">
+  <t t-name="o-spreadsheet-ColorScaleRuleEditorThreshold">
     <t t-set="fill_color">Fill Color</t>
     <div t-attf-class="o-threshold o-threshold-{{thresholdType}}">
       <t t-if="thresholdType === 'midpoint'">
@@ -49,7 +49,7 @@
     </div>
   </t>
 
-  <t t-name="o-spreadsheet-ColorScaleRuleEditor" owl="1">
+  <t t-name="o-spreadsheet-ColorScaleRuleEditor">
     <div class="o-cf-color-scale-editor">
       <div class="o-section-subtitle">Preview</div>
       <t t-call="o-spreadsheet-ColorScaleRuleEditorPreview"/>

@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-ScorecardChart" owl="1">
+  <t t-name="o-spreadsheet-ScorecardChart">
     <div class="o-scorecard w-100 h-100" t-att-style="chartStyle" t-ref="chart">
       <t t-set="textStyles" t-value="getTextStyles()"/>
       <div t-if="title" class="o-title-text" t-esc="title" t-att-style="textStyles.titleStyle"/>

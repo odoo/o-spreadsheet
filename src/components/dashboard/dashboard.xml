@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-SpreadsheetDashboard" owl="1">
+  <t t-name="o-spreadsheet-SpreadsheetDashboard">
     <div
       class="o-grid o-two-columns"
       tabindex="-1"

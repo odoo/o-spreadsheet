@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-SettingsPanel" owl="1">
+  <t t-name="o-spreadsheet-SettingsPanel">
     <div class="o-settings-panel">
       <div class="o-section">
         <div class="o-section-title">Locale</div>

@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-IconSets" owl="1">
+  <t t-name="o-spreadsheet-IconSets">
     <div>
       <div class="o-section-subtitle">Icons</div>
       <div class="o-cf-iconsets">
@@ -23,7 +23,7 @@
     </div>
   </t>
 
-  <t t-name="o-spreadsheet-IconSetInflexionPointRow" owl="1">
+  <t t-name="o-spreadsheet-IconSetInflexionPointRow">
     <tr>
       <td>
         <div t-on-click.stop="(ev) => this.toggleMenu('iconSet-'+icon+'Icon', ev)">
@@ -66,7 +66,7 @@
     </tr>
   </t>
 
-  <t t-name="o-spreadsheet-IconSetInflexionPoints" owl="1">
+  <t t-name="o-spreadsheet-IconSetInflexionPoints">
     <div class="o-inflection">
       <table>
         <tr>
@@ -108,7 +108,7 @@
       </table>
     </div>
   </t>
-  <t t-name="o-spreadsheet-IconSetEditor" owl="1">
+  <t t-name="o-spreadsheet-IconSetEditor">
     <div class="o-cf-iconset-rule">
       <t t-call="o-spreadsheet-IconSets"/>
       <t t-call="o-spreadsheet-IconSetInflexionPoints"/>
