@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-Menu" owl="1">
+  <t t-name="o-spreadsheet-Menu">
     <Popover t-if="menuItemsAndSeparators.length" t-props="popoverProps">
       <div
         t-ref="menu"

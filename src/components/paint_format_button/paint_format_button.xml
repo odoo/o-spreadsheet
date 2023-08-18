@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-PaintFormatButton" owl="1">
+  <t t-name="o-spreadsheet-PaintFormatButton">
     <span
       class="o-menu-item-button"
       title="Paint Format"

@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-BottomBar" owl="1">
+  <t t-name="o-spreadsheet-BottomBar">
     <div
       class="o-spreadsheet-bottom-bar o-two-columns d-flex align-items-center overflow-hidden"
       t-on-click="props.onClick"

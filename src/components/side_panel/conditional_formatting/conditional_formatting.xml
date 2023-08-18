@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-ConditionalFormattingPanel" owl="1">
+  <t t-name="o-spreadsheet-ConditionalFormattingPanel">
     <div class="o-cf">
       <t t-if="state.mode === 'list' || state.mode === 'reorder'">
         <div class="o-cf-preview-list">
@@ -119,7 +119,7 @@
     </div>
   </t>
 
-  <t t-name="o-spreadsheet-ConditionalFormattingPanelPreview" owl="1">
+  <t t-name="o-spreadsheet-ConditionalFormattingPanelPreview">
     <div class="o-cf-preview" t-att-class="{ 'o-cf-cursor-ptr': state.mode !== 'reorder' }">
       <t t-if="cf.rule.type==='IconSetRule'">
         <div class="o-cf-preview-icon">

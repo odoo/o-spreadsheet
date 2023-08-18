@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-IconPicker" owl="1">
+  <t t-name="o-spreadsheet-IconPicker">
     <div class="o-icon-picker">
       <t t-foreach="iconSets" t-as="iconSet" t-key="iconSet">
         <div class="o-cf-icon-line">

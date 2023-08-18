@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-BarConfigPanel" owl="1">
+  <t t-name="o-spreadsheet-BarConfigPanel">
     <div>
       <div class="o-section pt-0">
         <label class="o-checkbox">

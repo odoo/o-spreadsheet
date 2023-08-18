@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-FontSizeEditor" owl="1">
+  <t t-name="o-spreadsheet-FontSizeEditor">
     <div class="o-dropdown" t-ref="FontSizeEditor">
       <div
         class=" o-font-size-editor d-flex align-items-center"
