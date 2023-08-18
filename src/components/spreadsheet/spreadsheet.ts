@@ -3,6 +3,7 @@ import {
   onMounted,
   onPatched,
   onWillUnmount,
+  onWillUpdateProps,
   useExternalListener,
   useState,
   useSubEnv,
@@ -225,6 +226,13 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     useExternalListener(window, "beforeunload", this.unbindModelEvents.bind(this));
 
     this.bindModelEvents();
+
+    onWillUpdateProps((nextProps) => {
+      if (nextProps.model !== this.props.model) {
+        throw new Error("Changing the props model is not supported at the moment.");
+      }
+    });
+
     onMounted(() => {
       this.checkViewportSize();
     });
