@@ -3,6 +3,7 @@ import {
   onMounted,
   onPatched,
   onWillUnmount,
+  onWillUpdateProps,
   useExternalListener,
   useState,
   useSubEnv,
@@ -222,13 +223,19 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     });
 
     useExternalListener(window as any, "resize", () => this.render(true));
-    useExternalListener(window, "beforeunload", this.unbindModelEvents.bind(this));
+    useExternalListener(window, "beforeunload", () => this.unbindModelEvents(this.props.model));
 
-    this.bindModelEvents();
+    this.bindModelEvents(this.props.model);
     onMounted(() => {
       this.checkViewportSize();
     });
-    onWillUnmount(() => this.unbindModelEvents());
+    onWillUpdateProps((nextProps) => {
+      if (nextProps.model !== this.props.model) {
+        this.unbindModelEvents(this.props.model);
+        this.bindModelEvents(nextProps.model);
+      }
+    });
+    onWillUnmount(() => this.unbindModelEvents(this.props.model));
     onPatched(() => {
       this.checkViewportSize();
     });
@@ -246,18 +253,18 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       : this.composer.gridFocusMode;
   }
 
-  private bindModelEvents() {
-    this.model.on("update", this, () => this.render(true));
-    this.model.on("notify-ui", this, (notification: InformationNotification) =>
+  private bindModelEvents(model: Model) {
+    model.on("update", this, () => this.render(true));
+    model.on("notify-ui", this, (notification: InformationNotification) =>
       this.env.notifyUser(notification)
     );
-    this.model.on("raise-error-ui", this, ({ text }) => this.env.raiseError(text));
+    model.on("raise-error-ui", this, ({ text }) => this.env.raiseError(text));
   }
 
-  private unbindModelEvents() {
-    this.model.off("update", this);
-    this.model.off("notify-ui", this);
-    this.model.off("raise-error-ui", this);
+  private unbindModelEvents(model: Model) {
+    model.off("update", this);
+    model.off("notify-ui", this);
+    model.off("raise-error-ui", this);
   }
 
   private checkViewportSize() {
