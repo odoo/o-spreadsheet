@@ -1,11 +1,5 @@
 import { _t } from "../translation";
-import {
-  AddFunctionDescription,
-  ArgValue,
-  PrimitiveArg,
-  PrimitiveArgValue,
-  ValueAndFormat,
-} from "../types";
+import { AddFunctionDescription, ArgValue, CellValue, Maybe, ValueAndFormat } from "../types";
 import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
 import { assert, conditionalVisitBoolean, toBoolean } from "./helpers";
@@ -78,9 +72,9 @@ export const IF = {
   ],
   returns: ["ANY"],
   computeValueAndFormat: function (
-    logicalExpression: PrimitiveArg,
-    valueIfTrue: () => PrimitiveArg,
-    valueIfFalse: () => PrimitiveArg = () => ({ value: false })
+    logicalExpression: Maybe<ValueAndFormat>,
+    valueIfTrue: () => Maybe<ValueAndFormat>,
+    valueIfFalse: () => Maybe<ValueAndFormat> = () => ({ value: false })
   ): ValueAndFormat {
     const result = toBoolean(logicalExpression?.value) ? valueIfTrue() : valueIfFalse();
     if (result === undefined) {
@@ -108,8 +102,8 @@ export const IFERROR = {
   ],
   returns: ["ANY"],
   computeValueAndFormat: function (
-    value: () => PrimitiveArg,
-    valueIfError: () => PrimitiveArg = () => ({ value: "" })
+    value: () => Maybe<ValueAndFormat>,
+    valueIfError: () => Maybe<ValueAndFormat> = () => ({ value: "" })
   ): ValueAndFormat {
     let result;
     try {
@@ -142,8 +136,8 @@ export const IFNA = {
   ],
   returns: ["ANY"],
   computeValueAndFormat: function (
-    value: () => PrimitiveArg,
-    valueIfError: () => PrimitiveArg = () => ({ value: "" })
+    value: () => Maybe<ValueAndFormat>,
+    valueIfError: () => Maybe<ValueAndFormat> = () => ({ value: "" })
   ): ValueAndFormat {
     let result;
     try {
@@ -189,7 +183,7 @@ export const IFS = {
     ),
   ],
   returns: ["ANY"],
-  computeValueAndFormat: function (...values: (() => PrimitiveArg)[]): ValueAndFormat {
+  computeValueAndFormat: function (...values: (() => Maybe<ValueAndFormat>)[]): ValueAndFormat {
     assert(
       () => values.length % 2 === 0,
       _t(`Wrong number of arguments. Expected an even number of arguments.`)
@@ -225,7 +219,7 @@ export const NOT = {
     ),
   ],
   returns: ["BOOLEAN"],
-  compute: function (logicalExpression: PrimitiveArgValue): boolean {
+  compute: function (logicalExpression: Maybe<CellValue>): boolean {
     return !toBoolean(logicalExpression);
   },
   isExported: true,

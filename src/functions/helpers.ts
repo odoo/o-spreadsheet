@@ -2,15 +2,7 @@
 import { numberToJsDate, parseDateTime } from "../helpers/dates";
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _t } from "../translation";
-import {
-  ArgValue,
-  CellValue,
-  isMatrix,
-  Locale,
-  Matrix,
-  PrimitiveArgValue,
-  ValueAndFormat,
-} from "../types";
+import { ArgValue, CellValue, isMatrix, Locale, Matrix, Maybe, ValueAndFormat } from "../types";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
 
@@ -362,7 +354,7 @@ export function transposeMatrix<T>(matrix: Matrix<T>): Matrix<T> {
 function conditionalVisitArgs(
   args: ArgValue[],
   cellCb: (a: CellValue | undefined) => boolean,
-  dataCb: (a: PrimitiveArgValue) => boolean
+  dataCb: (a: Maybe<CellValue>) => boolean
 ): void {
   for (let arg of args) {
     if (isMatrix(arg)) {
@@ -415,7 +407,7 @@ interface Predicate {
 
 function getPredicate(descr: string, isQuery: boolean, locale: Locale): Predicate {
   let operator: Operator;
-  let operand: PrimitiveArgValue;
+  let operand: Maybe<CellValue>;
 
   let subString = descr.substring(0, 2);
 
@@ -570,7 +562,7 @@ export function visitMatchingRanges(
       );
     }
 
-    const description = toString(args[i + 1] as PrimitiveArgValue);
+    const description = toString(args[i + 1] as Maybe<CellValue>);
     predicates.push(getPredicate(description, isQuery, locale));
   }
 
@@ -613,7 +605,7 @@ export function visitMatchingRanges(
  */
 export function dichotomicSearch<T>(
   data: T,
-  target: PrimitiveArgValue,
+  target: Maybe<CellValue>,
   mode: "nextGreater" | "nextSmaller" | "strict",
   sortOrder: "asc" | "desc",
   rangeLength: number,
@@ -717,7 +709,7 @@ export function dichotomicSearch<T>(
  */
 export function linearSearch<T>(
   data: T,
-  target: PrimitiveArgValue | undefined,
+  target: Maybe<CellValue> | undefined,
   mode: "nextSmaller" | "nextGreater" | "strict",
   numberOfValues: number,
   getValueInData: (data: T, index: number) => CellValue | undefined,

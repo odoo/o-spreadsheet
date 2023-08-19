@@ -13,7 +13,7 @@ import {
   parseDateTime,
 } from "../helpers/dates";
 import { _t } from "../translation";
-import { AddFunctionDescription, ArgValue, PrimitiveArgValue } from "../types";
+import { AddFunctionDescription, ArgValue, CellValue, Maybe } from "../types";
 import { arg } from "./arguments";
 import {
   assert,
@@ -51,9 +51,9 @@ export const DATE = {
     return this.locale.dateFormat;
   },
   compute: function (
-    year: PrimitiveArgValue,
-    month: PrimitiveArgValue,
-    day: PrimitiveArgValue
+    year: Maybe<CellValue>,
+    month: Maybe<CellValue>,
+    day: Maybe<CellValue>
   ): number {
     let _year = Math.trunc(toNumber(year, this.locale));
     const _month = Math.trunc(toNumber(month, this.locale));
@@ -110,9 +110,9 @@ export const DATEDIF = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    startDate: PrimitiveArgValue,
-    endDate: PrimitiveArgValue,
-    unit: PrimitiveArgValue
+    startDate: Maybe<CellValue>,
+    endDate: Maybe<CellValue>,
+    unit: Maybe<CellValue>
   ): number {
     const _unit = toString(unit).toUpperCase() as TIME_UNIT;
     assert(
@@ -187,7 +187,7 @@ export const DATEVALUE = {
   description: _t("Converts a date string to a date value."),
   args: [arg("date_string (string)", _t("The string representing the date."))],
   returns: ["NUMBER"],
-  compute: function (dateString: PrimitiveArgValue): number {
+  compute: function (dateString: Maybe<CellValue>): number {
     const _dateString = toString(dateString);
     const internalDate = parseDateTime(_dateString, this.locale);
 
@@ -208,7 +208,7 @@ export const DAY = {
   description: _t("Day of the month that a specific date falls on."),
   args: [arg("date (string)", _t("The date from which to extract the day."))],
   returns: ["NUMBER"],
-  compute: function (date: PrimitiveArgValue): number {
+  compute: function (date: Maybe<CellValue>): number {
     return toJsDate(date, this.locale).getDate();
   },
   isExported: true,
@@ -224,7 +224,7 @@ export const DAYS = {
     arg("start_date (date)", _t("The start of the date range.")),
   ],
   returns: ["NUMBER"],
-  compute: function (endDate: PrimitiveArgValue, startDate: PrimitiveArgValue): number {
+  compute: function (endDate: Maybe<CellValue>, startDate: Maybe<CellValue>): number {
     const _endDate = toJsDate(endDate, this.locale);
     const _startDate = toJsDate(startDate, this.locale);
     const dateDif = _endDate.getTime() - _startDate.getTime();
@@ -249,9 +249,9 @@ export const DAYS360 = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    startDate: PrimitiveArgValue,
-    endDate: PrimitiveArgValue,
-    method: PrimitiveArgValue = DEFAULT_DAY_COUNT_METHOD
+    startDate: Maybe<CellValue>,
+    endDate: Maybe<CellValue>,
+    method: Maybe<CellValue> = DEFAULT_DAY_COUNT_METHOD
   ): number {
     const _startDate = toNumber(startDate, this.locale);
     const _endDate = toNumber(endDate, this.locale);
@@ -279,7 +279,7 @@ export const EDATE = {
   computeFormat: function () {
     return this.locale.dateFormat;
   },
-  compute: function (startDate: PrimitiveArgValue, months: PrimitiveArgValue): number {
+  compute: function (startDate: Maybe<CellValue>, months: Maybe<CellValue>): number {
     const _startDate = toJsDate(startDate, this.locale);
     const _months = Math.trunc(toNumber(months, this.locale));
 
@@ -305,7 +305,7 @@ export const EOMONTH = {
   computeFormat: function () {
     return this.locale.dateFormat;
   },
-  compute: function (startDate: PrimitiveArgValue, months: PrimitiveArgValue): number {
+  compute: function (startDate: Maybe<CellValue>, months: Maybe<CellValue>): number {
     const _startDate = toJsDate(startDate, this.locale);
     const _months = Math.trunc(toNumber(months, this.locale));
 
@@ -324,7 +324,7 @@ export const HOUR = {
   description: _t("Hour component of a specific time."),
   args: [arg("time (date)", _t("The time from which to calculate the hour component."))],
   returns: ["NUMBER"],
-  compute: function (date: PrimitiveArgValue): number {
+  compute: function (date: Maybe<CellValue>): number {
     return toJsDate(date, this.locale).getHours();
   },
   isExported: true,
@@ -344,7 +344,7 @@ export const ISOWEEKNUM = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (date: PrimitiveArgValue): number {
+  compute: function (date: Maybe<CellValue>): number {
     const _date = toJsDate(date, this.locale);
     const y = _date.getFullYear();
 
@@ -426,7 +426,7 @@ export const MINUTE = {
   description: _t("Minute component of a specific time."),
   args: [arg("time (date)", _t("The time from which to calculate the minute component."))],
   returns: ["NUMBER"],
-  compute: function (date: PrimitiveArgValue): number {
+  compute: function (date: Maybe<CellValue>): number {
     return toJsDate(date, this.locale).getMinutes();
   },
   isExported: true,
@@ -439,7 +439,7 @@ export const MONTH = {
   description: _t("Month of the year a specific date falls in"),
   args: [arg("date (date)", _t("The date from which to extract the month."))],
   returns: ["NUMBER"],
-  compute: function (date: PrimitiveArgValue): number {
+  compute: function (date: Maybe<CellValue>): number {
     return toJsDate(date, this.locale).getMonth() + 1;
   },
   isExported: true,
@@ -466,8 +466,8 @@ export const NETWORKDAYS = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    startDate: PrimitiveArgValue,
-    endDate: PrimitiveArgValue,
+    startDate: Maybe<CellValue>,
+    endDate: Maybe<CellValue>,
     holidays: ArgValue
   ): number {
     return NETWORKDAYS_INTL.compute.bind(this)(startDate, endDate, 1, holidays);
@@ -500,7 +500,7 @@ export const NETWORKDAYS = {
  * - 3 return [1,2] (correspond to Monday and Tuesday)
  * - "0101010" return [2,4,6] (correspond to Tuesday, Thursday and Saturday)
  */
-function weekendToDayNumber(weekend: PrimitiveArgValue): number[] {
+function weekendToDayNumber(weekend: Maybe<CellValue>): number[] {
   // case "string"
   if (typeof weekend === "string") {
     assert(() => {
@@ -577,9 +577,9 @@ export const NETWORKDAYS_INTL = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    startDate: PrimitiveArgValue,
-    endDate: PrimitiveArgValue,
-    weekend: PrimitiveArgValue = DEFAULT_WEEKEND,
+    startDate: Maybe<CellValue>,
+    endDate: Maybe<CellValue>,
+    weekend: Maybe<CellValue> = DEFAULT_WEEKEND,
     holidays: ArgValue
   ): number {
     const _startDate = toJsDate(startDate, this.locale);
@@ -642,7 +642,7 @@ export const SECOND = {
   description: _t("Minute component of a specific time."),
   args: [arg("time (date)", _t("The time from which to calculate the second component."))],
   returns: ["NUMBER"],
-  compute: function (date: PrimitiveArgValue): number {
+  compute: function (date: Maybe<CellValue>): number {
     return toJsDate(date, this.locale).getSeconds();
   },
   isExported: true,
@@ -663,9 +663,9 @@ export const TIME = {
     return this.locale.timeFormat;
   },
   compute: function (
-    hour: PrimitiveArgValue,
-    minute: PrimitiveArgValue,
-    second: PrimitiveArgValue
+    hour: Maybe<CellValue>,
+    minute: Maybe<CellValue>,
+    second: Maybe<CellValue>
   ): number {
     let _hour = Math.trunc(toNumber(hour, this.locale));
     let _minute = Math.trunc(toNumber(minute, this.locale));
@@ -693,7 +693,7 @@ export const TIMEVALUE = {
   description: _t("Converts a time string into its serial number representation."),
   args: [arg("time_string (string)", _t("The string that holds the time representation."))],
   returns: ["NUMBER"],
-  compute: function (timeString: PrimitiveArgValue): number {
+  compute: function (timeString: Maybe<CellValue>): number {
     const _timeString = toString(timeString);
     const internalDate = parseDateTime(_timeString, this.locale);
 
@@ -746,7 +746,7 @@ export const WEEKDAY = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (date: PrimitiveArgValue, type: PrimitiveArgValue = DEFAULT_TYPE): number {
+  compute: function (date: Maybe<CellValue>, type: Maybe<CellValue> = DEFAULT_TYPE): number {
     const _date = toJsDate(date, this.locale);
     const _type = Math.round(toNumber(type, this.locale));
     const m = _date.getDay();
@@ -780,7 +780,7 @@ export const WEEKNUM = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (date: PrimitiveArgValue, type: PrimitiveArgValue = DEFAULT_TYPE): number {
+  compute: function (date: Maybe<CellValue>, type: Maybe<CellValue> = DEFAULT_TYPE): number {
     const _date = toJsDate(date, this.locale);
     const _type = Math.round(toNumber(type, this.locale));
     assert(
@@ -841,8 +841,8 @@ export const WORKDAY = {
     return this.locale.dateFormat;
   },
   compute: function (
-    startDate: PrimitiveArgValue,
-    numDays: PrimitiveArgValue,
+    startDate: Maybe<CellValue>,
+    numDays: Maybe<CellValue>,
     holidays: ArgValue | undefined = undefined
   ): number {
     return WORKDAY_INTL.compute.bind(this)(startDate, numDays, 1, holidays ?? null);
@@ -875,9 +875,9 @@ export const WORKDAY_INTL = {
     return this.locale.dateFormat;
   },
   compute: function (
-    startDate: PrimitiveArgValue,
-    numDays: PrimitiveArgValue,
-    weekend: PrimitiveArgValue = DEFAULT_WEEKEND,
+    startDate: Maybe<CellValue>,
+    numDays: Maybe<CellValue>,
+    weekend: Maybe<CellValue> = DEFAULT_WEEKEND,
     holidays: ArgValue
   ): number {
     let _startDate = toJsDate(startDate, this.locale);
@@ -927,7 +927,7 @@ export const YEAR = {
   description: _t("Year specified by a given date."),
   args: [arg("date (date)", _t("The date from which to extract the year."))],
   returns: ["NUMBER"],
-  compute: function (date: PrimitiveArgValue): number {
+  compute: function (date: Maybe<CellValue>): number {
     return toJsDate(date, this.locale).getFullYear();
   },
   isExported: true,
@@ -959,9 +959,9 @@ export const YEARFRAC = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    startDate: PrimitiveArgValue,
-    endDate: PrimitiveArgValue,
-    dayCountConvention: PrimitiveArgValue = DEFAULT_DAY_COUNT_CONVENTION
+    startDate: Maybe<CellValue>,
+    endDate: Maybe<CellValue>,
+    dayCountConvention: Maybe<CellValue> = DEFAULT_DAY_COUNT_CONVENTION
   ): number {
     let _startDate = Math.trunc(toNumber(startDate, this.locale));
     let _endDate = Math.trunc(toNumber(endDate, this.locale));
@@ -997,7 +997,7 @@ export const MONTH_START = {
   computeFormat: function () {
     return this.locale.dateFormat;
   },
-  compute: function (date: PrimitiveArgValue): number {
+  compute: function (date: Maybe<CellValue>): number {
     const _startDate = toJsDate(date, this.locale);
     const yStart = _startDate.getFullYear();
     const mStart = _startDate.getMonth();
@@ -1016,7 +1016,7 @@ export const MONTH_END = {
   computeFormat: function () {
     return this.locale.dateFormat;
   },
-  compute: function (date: PrimitiveArgValue): number {
+  compute: function (date: Maybe<CellValue>): number {
     return EOMONTH.compute.bind(this)(date, 0);
   },
 } satisfies AddFunctionDescription;
@@ -1028,7 +1028,7 @@ export const QUARTER = {
   description: _t("Quarter of the year a specific date falls in"),
   args: [arg("date (date)", _t("The date from which to extract the quarter."))],
   returns: ["NUMBER"],
-  compute: function (date: PrimitiveArgValue): number {
+  compute: function (date: Maybe<CellValue>): number {
     return Math.ceil((toJsDate(date, this.locale).getMonth() + 1) / 3);
   },
 } satisfies AddFunctionDescription;
@@ -1043,7 +1043,7 @@ export const QUARTER_START = {
   computeFormat: function () {
     return this.locale.dateFormat;
   },
-  compute: function (date: PrimitiveArgValue): number {
+  compute: function (date: Maybe<CellValue>): number {
     const quarter = QUARTER.compute.bind(this)(date);
     const year = YEAR.compute.bind(this)(date);
     const jsDate = new Date(year, (quarter - 1) * 3, 1);
@@ -1061,7 +1061,7 @@ export const QUARTER_END = {
   computeFormat: function () {
     return this.locale.dateFormat;
   },
-  compute: function (date: PrimitiveArgValue): number {
+  compute: function (date: Maybe<CellValue>): number {
     const quarter = QUARTER.compute.bind(this)(date);
     const year = YEAR.compute.bind(this)(date);
     const jsDate = new Date(year, quarter * 3, 0);
@@ -1079,7 +1079,7 @@ export const YEAR_START = {
   computeFormat: function () {
     return this.locale.dateFormat;
   },
-  compute: function (date: PrimitiveArgValue): number {
+  compute: function (date: Maybe<CellValue>): number {
     const year = YEAR.compute.bind(this)(date);
     const jsDate = new Date(year, 0, 1);
     return jsDateToRoundNumber(jsDate);
@@ -1096,7 +1096,7 @@ export const YEAR_END = {
   computeFormat: function () {
     return this.locale.dateFormat;
   },
-  compute: function (date: PrimitiveArgValue): number {
+  compute: function (date: Maybe<CellValue>): number {
     const year = YEAR.compute.bind(this)(date);
     const jsDate = new Date(year + 1, 0, 0);
     return jsDateToRoundNumber(jsDate);

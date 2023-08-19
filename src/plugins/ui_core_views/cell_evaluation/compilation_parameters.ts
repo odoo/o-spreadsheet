@@ -10,7 +10,7 @@ import {
   EvaluatedCell,
   Getters,
   Matrix,
-  PrimitiveArg,
+  Maybe,
   Range,
   ReferenceDenormalizer,
   ValueAndFormat,
@@ -66,7 +66,7 @@ class CompilationParametersBuilder {
     isMeta: boolean,
     functionName: string,
     paramNumber?: number
-  ): PrimitiveArg {
+  ): Maybe<ValueAndFormat> {
     if (isMeta) {
       // Use zoneToXc of zone instead of getRangeString to avoid sending unbounded ranges
       return { value: zoneToXc(range.zone) };
