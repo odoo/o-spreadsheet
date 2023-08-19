@@ -8,8 +8,8 @@ import {
   ComputeFunction,
   DEFAULT_LOCALE,
   Format,
-  PrimitiveArg,
-  PrimitiveArgValue,
+  Maybe,
+  ValueAndFormat,
 } from "../../src/types";
 import { setCellContent, setCellFormat } from "../test_helpers/commands_helpers";
 import { getEvaluatedCell } from "../test_helpers/getters_helpers";
@@ -61,7 +61,7 @@ describe("functions", () => {
     const model = new Model();
     functionRegistry.add("RETURN.VALUE.DEPENDING.ON.INPUT.VALUE", {
       description: "return value depending on input value",
-      compute: function (arg: PrimitiveArgValue) {
+      compute: function (arg: Maybe<CellValue>) {
         return toNumber(arg, DEFAULT_LOCALE) * 2;
       } as ComputeFunction<ArgValue, CellValue>,
       args: [arg("number (number)", "blabla")],
@@ -79,10 +79,10 @@ describe("functions", () => {
     const model = new Model();
     functionRegistry.add("RETURN.FORMAT.DEPENDING.ON.INPUT.FORMAT", {
       description: "return format depending on input format",
-      computeFormat: function (arg: PrimitiveArg) {
+      computeFormat: function (arg: Maybe<ValueAndFormat>) {
         return arg?.format;
       } as ComputeFunction<Arg, Format | undefined>,
-      compute: function (arg: PrimitiveArgValue) {
+      compute: function (arg: Maybe<CellValue>) {
         return arg;
       } as ComputeFunction<ArgValue, CellValue>,
       args: [arg("number (number)", "blabla")],
@@ -102,10 +102,10 @@ describe("functions", () => {
     const model = new Model();
     functionRegistry.add("RETURN.FORMAT.DEPENDING.ON.INPUT.VALUE", {
       description: "return format depending on input value",
-      computeFormat: function (arg: PrimitiveArg) {
+      computeFormat: function (arg: Maybe<ValueAndFormat>) {
         return toNumber(arg?.value, DEFAULT_LOCALE) >= 0 ? "0%" : "#,##0.00";
       } as ComputeFunction<Arg, Format | undefined>,
-      compute: function (arg: PrimitiveArgValue) {
+      compute: function (arg: Maybe<CellValue>) {
         return arg;
       } as ComputeFunction<ArgValue, CellValue>,
       args: [arg("number (number)", "blabla")],

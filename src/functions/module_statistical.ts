@@ -9,8 +9,7 @@ import {
   isMatrix,
   Locale,
   Matrix,
-  PrimitiveArg,
-  PrimitiveArgValue,
+  Maybe,
   ValueAndFormat,
 } from "../types";
 import { arg } from "./arguments";
@@ -29,8 +28,8 @@ import {
 
 // Note: dataY and dataX may not have the same dimension
 function covariance(dataY: ArgValue, dataX: ArgValue, isSample: boolean): number {
-  let flatDataY: (PrimitiveArgValue | undefined)[] = [];
-  let flatDataX: (PrimitiveArgValue | undefined)[] = [];
+  let flatDataY: Maybe<CellValue>[] = [];
+  let flatDataX: Maybe<CellValue>[] = [];
   let lenY = 0;
   let lenX = 0;
 
@@ -115,7 +114,7 @@ function variance(args: ArgValue[], isSample: boolean, textAs0: boolean, locale:
 
 function centile(
   data: ArgValue[],
-  percent: PrimitiveArgValue,
+  percent: Maybe<CellValue>,
   isInclusive: boolean,
   locale: Locale
 ): number {
@@ -366,7 +365,7 @@ export const AVERAGEIF = {
   returns: ["NUMBER"],
   compute: function (
     criteriaRange: ArgValue,
-    criterion: PrimitiveArgValue,
+    criterion: Maybe<CellValue>,
     averageRange: ArgValue
   ): number {
     const _criteriaRange = toMatrix(criteriaRange);
@@ -566,7 +565,7 @@ export const LARGE = {
     arg("n (number)", _t("The rank from largest to smallest of the element to return.")),
   ],
   returns: ["NUMBER"],
-  computeValueAndFormat: function (data: Arg, n: PrimitiveArg): ValueAndFormat {
+  computeValueAndFormat: function (data: Arg, n: Maybe<ValueAndFormat>): ValueAndFormat {
     const _n = Math.trunc(toNumber(n?.value, this.locale));
     let largests: ValueAndFormat[] = [];
     let index: number;
@@ -849,7 +848,7 @@ export const PERCENTILE = {
   computeFormat: (data: Arg) => {
     return isMatrix(data) ? data[0][0]?.format : data?.format;
   },
-  compute: function (data: ArgValue, percentile: PrimitiveArgValue): number {
+  compute: function (data: ArgValue, percentile: Maybe<CellValue>): number {
     return PERCENTILE_INC.compute.bind(this)(data, percentile);
   },
   isExported: true,
@@ -873,7 +872,7 @@ export const PERCENTILE_EXC = {
   computeFormat: (data: Arg) => {
     return isMatrix(data) ? data[0][0]?.format : data?.format;
   },
-  compute: function (data: ArgValue, percentile: PrimitiveArgValue): number {
+  compute: function (data: ArgValue, percentile: Maybe<CellValue>): number {
     return centile([data], percentile, false, this.locale);
   },
   isExported: true,
@@ -895,7 +894,7 @@ export const PERCENTILE_INC = {
   computeFormat: (data: Arg) => {
     return isMatrix(data) ? data[0][0]?.format : data?.format;
   },
-  compute: function (data: ArgValue, percentile: PrimitiveArgValue): number {
+  compute: function (data: ArgValue, percentile: Maybe<CellValue>): number {
     return centile([data], percentile, true, this.locale);
   },
   isExported: true,
@@ -914,7 +913,7 @@ export const QUARTILE = {
   computeFormat: (data: Arg) => {
     return isMatrix(data) ? data[0][0]?.format : data?.format;
   },
-  compute: function (data: ArgValue, quartileNumber: PrimitiveArgValue): number {
+  compute: function (data: ArgValue, quartileNumber: Maybe<CellValue>): number {
     return QUARTILE_INC.compute.bind(this)(data, quartileNumber);
   },
   isExported: true,
@@ -933,7 +932,7 @@ export const QUARTILE_EXC = {
   computeFormat: (data: Arg) => {
     return isMatrix(data) ? data[0][0]?.format : data?.format;
   },
-  compute: function (data: ArgValue, quartileNumber: PrimitiveArgValue): number {
+  compute: function (data: ArgValue, quartileNumber: Maybe<CellValue>): number {
     const _quartileNumber = Math.trunc(toNumber(quartileNumber, this.locale));
     return centile([data], 0.25 * _quartileNumber, false, this.locale);
   },
@@ -953,7 +952,7 @@ export const QUARTILE_INC = {
   computeFormat: (data: Arg) => {
     return isMatrix(data) ? data[0][0]?.format : data?.format;
   },
-  compute: function (data: ArgValue, quartileNumber: PrimitiveArgValue): number {
+  compute: function (data: ArgValue, quartileNumber: Maybe<CellValue>): number {
     const _quartileNumber = Math.trunc(toNumber(quartileNumber, this.locale));
     return centile([data], 0.25 * _quartileNumber, true, this.locale);
   },
@@ -970,7 +969,7 @@ export const SMALL = {
     arg("n (number)", _t("The rank from smallest to largest of the element to return.")),
   ],
   returns: ["NUMBER"],
-  computeValueAndFormat: function (data: Arg, n: PrimitiveArg): ValueAndFormat {
+  computeValueAndFormat: function (data: Arg, n: Maybe<ValueAndFormat>): ValueAndFormat {
     const _n = Math.trunc(toNumber(n?.value, this.locale));
     let largests: ValueAndFormat[] = [];
     let index: number;

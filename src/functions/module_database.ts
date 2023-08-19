@@ -1,12 +1,5 @@
 import { _t } from "../translation";
-import {
-  AddFunctionDescription,
-  ArgValue,
-  CellValue,
-  Locale,
-  Matrix,
-  PrimitiveArgValue,
-} from "../types";
+import { AddFunctionDescription, ArgValue, CellValue, Locale, Matrix, Maybe } from "../types";
 import { arg } from "./arguments";
 import { assert, toString, visitMatchingRanges } from "./helpers";
 import { PRODUCT, SUM } from "./module_math";
@@ -14,7 +7,7 @@ import { AVERAGE, COUNT, COUNTA, MAX, MIN, STDEV, STDEVP, VAR, VARP } from "./mo
 
 function getMatchingCells(
   database: Matrix<CellValue>,
-  field: PrimitiveArgValue,
+  field: Maybe<CellValue>,
   criteria: Matrix<CellValue>,
   locale: Locale
 ): any[] {
@@ -169,7 +162,7 @@ export const DAVERAGE = {
   returns: ["NUMBER"],
   compute: function (
     database: Matrix<CellValue>,
-    field: PrimitiveArgValue,
+    field: Maybe<CellValue>,
     criteria: Matrix<CellValue>
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
@@ -187,7 +180,7 @@ export const DCOUNT = {
   returns: ["NUMBER"],
   compute: function (
     database: Matrix<CellValue>,
-    field: PrimitiveArgValue,
+    field: Maybe<CellValue>,
     criteria: Matrix<CellValue>
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
@@ -205,7 +198,7 @@ export const DCOUNTA = {
   returns: ["NUMBER"],
   compute: function (
     database: Matrix<CellValue>,
-    field: PrimitiveArgValue,
+    field: Maybe<CellValue>,
     criteria: Matrix<CellValue>
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
@@ -223,7 +216,7 @@ export const DGET = {
   returns: ["NUMBER"],
   compute: function (
     database: Matrix<CellValue>,
-    field: PrimitiveArgValue,
+    field: Maybe<CellValue>,
     criteria: Matrix<CellValue>
   ): CellValue {
     const cells = getMatchingCells(database, field, criteria, this.locale);
@@ -242,7 +235,7 @@ export const DMAX = {
   returns: ["NUMBER"],
   compute: function (
     database: Matrix<CellValue>,
-    field: PrimitiveArgValue,
+    field: Maybe<CellValue>,
     criteria: Matrix<CellValue>
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
@@ -260,7 +253,7 @@ export const DMIN = {
   returns: ["NUMBER"],
   compute: function (
     database: Matrix<CellValue>,
-    field: PrimitiveArgValue,
+    field: Maybe<CellValue>,
     criteria: Matrix<CellValue>
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
@@ -278,7 +271,7 @@ export const DPRODUCT = {
   returns: ["NUMBER"],
   compute: function (
     database: Matrix<CellValue>,
-    field: PrimitiveArgValue,
+    field: Maybe<CellValue>,
     criteria: Matrix<CellValue>
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
@@ -296,7 +289,7 @@ export const DSTDEV = {
   returns: ["NUMBER"],
   compute: function (
     database: Matrix<CellValue>,
-    field: PrimitiveArgValue,
+    field: Maybe<CellValue>,
     criteria: Matrix<CellValue>
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
@@ -314,7 +307,7 @@ export const DSTDEVP = {
   returns: ["NUMBER"],
   compute: function (
     database: Matrix<CellValue>,
-    field: PrimitiveArgValue,
+    field: Maybe<CellValue>,
     criteria: Matrix<CellValue>
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
@@ -332,7 +325,7 @@ export const DSUM = {
   returns: ["NUMBER"],
   compute: function (
     database: Matrix<CellValue>,
-    field: PrimitiveArgValue,
+    field: Maybe<CellValue>,
     criteria: Matrix<CellValue>
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
@@ -350,7 +343,7 @@ export const DVAR = {
   returns: ["NUMBER"],
   compute: function (
     database: Matrix<CellValue>,
-    field: PrimitiveArgValue,
+    field: Maybe<CellValue>,
     criteria: Matrix<CellValue>
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
@@ -368,7 +361,7 @@ export const DVARP = {
   returns: ["NUMBER"],
   compute: function (
     database: Matrix<CellValue>,
-    field: PrimitiveArgValue,
+    field: Maybe<CellValue>,
     criteria: Matrix<CellValue>
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);

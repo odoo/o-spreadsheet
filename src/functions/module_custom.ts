@@ -1,6 +1,6 @@
 import { createLargeNumberFormat } from "../helpers";
 import { _t } from "../translation";
-import { AddFunctionDescription, PrimitiveArg, PrimitiveArgValue } from "../types";
+import { AddFunctionDescription, CellValue, Maybe, ValueAndFormat } from "../types";
 import { arg } from "./arguments";
 import { toNumber } from "./helpers";
 
@@ -17,7 +17,7 @@ export const FORMAT_LARGE_NUMBER = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: function (arg: PrimitiveArg, unit: PrimitiveArg | undefined) {
+  computeFormat: function (arg: Maybe<ValueAndFormat>, unit: Maybe<ValueAndFormat>) {
     const value = Math.abs(toNumber(arg?.value, this.locale));
     const format = arg?.format;
     if (unit !== undefined) {
@@ -42,7 +42,7 @@ export const FORMAT_LARGE_NUMBER = {
     }
     return createLargeNumberFormat(format, 1e9, "b", this.locale);
   },
-  compute: function (value: PrimitiveArgValue): number {
+  compute: function (value: Maybe<CellValue>): number {
     return toNumber(value, this.locale);
   },
 } satisfies AddFunctionDescription;

@@ -1,12 +1,5 @@
 import { _t } from "../translation";
-import {
-  AddFunctionDescription,
-  Arg,
-  isMatrix,
-  Matrix,
-  PrimitiveArg,
-  ValueAndFormat,
-} from "../types";
+import { AddFunctionDescription, Arg, isMatrix, Matrix, Maybe, ValueAndFormat } from "../types";
 import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import { assert, matrixMap, toBoolean, toMatrix, transposeMatrix } from "./helpers";
@@ -92,8 +85,8 @@ export const UNIQUE = {
   returns: ["RANGE<NUMBER>"],
   computeValueAndFormat: function (
     range: Arg = { value: "" },
-    byColumn: PrimitiveArg,
-    exactlyOnce: PrimitiveArg
+    byColumn: Maybe<ValueAndFormat>,
+    exactlyOnce: Maybe<ValueAndFormat>
   ): Matrix<ValueAndFormat> {
     if (!isMatrix(range)) {
       return [[range]];

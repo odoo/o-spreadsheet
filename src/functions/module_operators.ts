@@ -1,5 +1,5 @@
 import { _t } from "../translation";
-import { AddFunctionDescription, CellValue, PrimitiveArg, PrimitiveArgValue } from "../types";
+import { AddFunctionDescription, CellValue, Maybe, ValueAndFormat } from "../types";
 import { arg } from "./arguments";
 import { assert, toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";
@@ -14,8 +14,9 @@ export const ADD = {
     arg("value2 (number)", _t("The second addend.")),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value1: PrimitiveArg, value2: PrimitiveArg) => value1?.format || value2?.format,
-  compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): number {
+  computeFormat: (value1: Maybe<ValueAndFormat>, value2: Maybe<ValueAndFormat>) =>
+    value1?.format || value2?.format,
+  compute: function (value1: Maybe<CellValue>, value2: Maybe<CellValue>): number {
     return toNumber(value1, this.locale) + toNumber(value2, this.locale);
   },
 } satisfies AddFunctionDescription;
@@ -30,7 +31,7 @@ export const CONCAT = {
     arg("value2 (string)", _t("The value to append to value1.")),
   ],
   returns: ["STRING"],
-  compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): string {
+  compute: function (value1: Maybe<CellValue>, value2: Maybe<CellValue>): string {
     return toString(value1) + toString(value2);
   },
   isExported: true,
@@ -46,9 +47,9 @@ export const DIVIDE = {
     arg("divisor (number)", _t("The number to divide by.")),
   ],
   returns: ["NUMBER"],
-  computeFormat: (dividend: PrimitiveArg, divisor: PrimitiveArg) =>
+  computeFormat: (dividend: Maybe<ValueAndFormat>, divisor: Maybe<ValueAndFormat>) =>
     dividend?.format || divisor?.format,
-  compute: function (dividend: PrimitiveArgValue, divisor: PrimitiveArgValue): number {
+  compute: function (dividend: Maybe<CellValue>, divisor: Maybe<CellValue>): number {
     const _divisor = toNumber(divisor, this.locale);
     assert(() => _divisor !== 0, _t("The divisor must be different from zero."));
     return toNumber(dividend, this.locale) / _divisor;
@@ -58,7 +59,7 @@ export const DIVIDE = {
 // -----------------------------------------------------------------------------
 // EQ
 // -----------------------------------------------------------------------------
-function isEmpty(value: PrimitiveArgValue): boolean {
+function isEmpty(value: Maybe<CellValue>): boolean {
   return value === null || value === undefined;
 }
 
@@ -71,7 +72,7 @@ export const EQ = {
     arg("value2 (any)", _t("The value to test against value1 for equality.")),
   ],
   returns: ["BOOLEAN"],
-  compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): boolean {
+  compute: function (value1: Maybe<CellValue>, value2: Maybe<CellValue>): boolean {
     value1 = isEmpty(value1) ? getNeutral[typeof value2] : value1;
     value2 = isEmpty(value2) ? getNeutral[typeof value1] : value2;
     if (typeof value1 === "string") {
@@ -88,8 +89,8 @@ export const EQ = {
 // GT
 // -----------------------------------------------------------------------------
 function applyRelationalOperator(
-  value1: PrimitiveArgValue,
-  value2: PrimitiveArgValue,
+  value1: Maybe<CellValue>,
+  value2: Maybe<CellValue>,
   cb: (v1: string | number, v2: string | number) => boolean
 ): boolean {
   value1 = isEmpty(value1) ? getNeutral[typeof value2] : value1;
@@ -118,7 +119,7 @@ export const GT = {
     arg("value2 (any)", _t("The second value.")),
   ],
   returns: ["BOOLEAN"],
-  compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): boolean {
+  compute: function (value1: Maybe<CellValue>, value2: Maybe<CellValue>): boolean {
     return applyRelationalOperator(value1, value2, (v1, v2) => {
       return v1 > v2;
     });
@@ -135,7 +136,7 @@ export const GTE = {
     arg("value2 (any)", _t("The second value.")),
   ],
   returns: ["BOOLEAN"],
-  compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): boolean {
+  compute: function (value1: Maybe<CellValue>, value2: Maybe<CellValue>): boolean {
     return applyRelationalOperator(value1, value2, (v1, v2) => {
       return v1 >= v2;
     });
@@ -152,7 +153,7 @@ export const LT = {
     arg("value2 (any)", _t("The second value.")),
   ],
   returns: ["BOOLEAN"],
-  compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): boolean {
+  compute: function (value1: Maybe<CellValue>, value2: Maybe<CellValue>): boolean {
     return !GTE.compute.bind(this)(value1, value2);
   },
 } satisfies AddFunctionDescription;
@@ -167,7 +168,7 @@ export const LTE = {
     arg("value2 (any)", _t("The second value.")),
   ],
   returns: ["BOOLEAN"],
-  compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): boolean {
+  compute: function (value1: Maybe<CellValue>, value2: Maybe<CellValue>): boolean {
     return !GT.compute.bind(this)(value1, value2);
   },
 } satisfies AddFunctionDescription;
@@ -182,8 +183,9 @@ export const MINUS = {
     arg("value2 (number)", _t("The subtrahend, or number to subtract from value1.")),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value1: PrimitiveArg, value2: PrimitiveArg) => value1?.format || value2?.format,
-  compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): number {
+  computeFormat: (value1: Maybe<ValueAndFormat>, value2: Maybe<ValueAndFormat>) =>
+    value1?.format || value2?.format,
+  compute: function (value1: Maybe<CellValue>, value2: Maybe<CellValue>): number {
     return toNumber(value1, this.locale) - toNumber(value2, this.locale);
   },
 } satisfies AddFunctionDescription;
@@ -198,9 +200,9 @@ export const MULTIPLY = {
     arg("factor2 (number)", _t("The second multiplicand.")),
   ],
   returns: ["NUMBER"],
-  computeFormat: (factor1: PrimitiveArg, factor2: PrimitiveArg) =>
+  computeFormat: (factor1: Maybe<ValueAndFormat>, factor2: Maybe<ValueAndFormat>) =>
     factor1?.format || factor2?.format,
-  compute: function (factor1: PrimitiveArgValue, factor2: PrimitiveArgValue): number {
+  compute: function (factor1: Maybe<CellValue>, factor2: Maybe<CellValue>): number {
     return toNumber(factor1, this.locale) * toNumber(factor2, this.locale);
   },
 } satisfies AddFunctionDescription;
@@ -215,7 +217,7 @@ export const NE = {
     arg("value2 (any)", _t("The value to test against value1 for inequality.")),
   ],
   returns: ["BOOLEAN"],
-  compute: function (value1: PrimitiveArgValue, value2: PrimitiveArgValue): boolean {
+  compute: function (value1: Maybe<CellValue>, value2: Maybe<CellValue>): boolean {
     return !EQ.compute.bind(this)(value1, value2);
   },
 } satisfies AddFunctionDescription;
@@ -230,7 +232,7 @@ export const POW = {
     arg("exponent (number)", _t("The exponent to raise base to.")),
   ],
   returns: ["NUMBER"],
-  compute: function (base: PrimitiveArgValue, exponent: PrimitiveArgValue): number {
+  compute: function (base: Maybe<CellValue>, exponent: Maybe<CellValue>): number {
     return POWER.compute.bind(this)(base, exponent);
   },
 } satisfies AddFunctionDescription;
@@ -246,9 +248,9 @@ export const UMINUS = {
       _t("The number to have its sign reversed. Equivalently, the number to multiply by -1.")
     ),
   ],
-  computeFormat: (value: PrimitiveArg) => value?.format,
+  computeFormat: (value: Maybe<ValueAndFormat>) => value?.format,
   returns: ["NUMBER"],
-  compute: function (value: PrimitiveArgValue): number {
+  compute: function (value: Maybe<CellValue>): number {
     return -toNumber(value, this.locale);
   },
 } satisfies AddFunctionDescription;
@@ -260,7 +262,7 @@ export const UNARY_PERCENT = {
   description: _t(`Value interpreted as a percentage.`),
   args: [arg("percentage (number)", _t("The value to interpret as a percentage."))],
   returns: ["NUMBER"],
-  compute: function (percentage: PrimitiveArgValue): number {
+  compute: function (percentage: Maybe<CellValue>): number {
     return toNumber(percentage, this.locale) / 100;
   },
 } satisfies AddFunctionDescription;
@@ -272,8 +274,8 @@ export const UPLUS = {
   description: _t(`A specified number, unchanged.`),
   args: [arg("value (any)", _t("The number to return."))],
   returns: ["ANY"],
-  computeFormat: (value: PrimitiveArg) => value?.format,
-  compute: function (value: PrimitiveArgValue = ""): CellValue {
+  computeFormat: (value: Maybe<ValueAndFormat>) => value?.format,
+  compute: function (value: Maybe<CellValue> = ""): CellValue {
     return value === null ? "" : value;
   },
 } satisfies AddFunctionDescription;

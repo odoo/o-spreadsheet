@@ -180,12 +180,10 @@ export type Matrix<T = unknown> = T[][];
 export type ValueAndFormat = { value: CellValue; format?: Format };
 
 // FORMULA FUNCTION VALUE AND FORMAT INPUT
-export type Arg = PrimitiveArg | Matrix<ValueAndFormat>;
-export type PrimitiveArg = ValueAndFormat | undefined; // undefined corresponds to the lack of argument, e.g. =SUM(1,2,,4)
+export type Arg = Maybe<ValueAndFormat> | Matrix<ValueAndFormat>; // undefined corresponds to the lack of argument, e.g. =SUM(1,2,,4)
 
 // FORMULA FUNCTION ONLY VALUE INPUT
-export type ArgValue = PrimitiveArgValue | Matrix<CellValue>;
-export type PrimitiveArgValue = CellValue | undefined;
+export type ArgValue = Maybe<CellValue> | Matrix<CellValue>;
 
 export function isMatrix(x: any): x is Matrix<any> {
   return Array.isArray(x) && Array.isArray(x[0]);
@@ -307,6 +305,8 @@ export interface Lazy<T> {
    */
   map: <U>(callback: (value: T) => U) => Lazy<U>;
 }
+
+export type Maybe<T> = T | undefined;
 
 export interface Cloneable<T> {
   clone: (args?: Partial<T>) => T;

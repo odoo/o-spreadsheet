@@ -6,8 +6,8 @@ import {
   CellValue,
   isMatrix,
   Matrix,
-  PrimitiveArg,
-  PrimitiveArgValue,
+  Maybe,
+  ValueAndFormat,
 } from "../types";
 import { arg } from "./arguments";
 import {
@@ -38,7 +38,7 @@ export const ABS = {
   description: _t("Absolute value of a number."),
   args: [arg("value (number)", _t("The number of which to return the absolute value."))],
   returns: ["NUMBER"],
-  compute: function (value: PrimitiveArgValue): number {
+  compute: function (value: Maybe<CellValue>): number {
     return Math.abs(toNumber(value, this.locale));
   },
   isExported: true,
@@ -58,7 +58,7 @@ export const ACOS = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (value: PrimitiveArgValue): number {
+  compute: function (value: Maybe<CellValue>): number {
     const _value = toNumber(value, this.locale);
     assert(
       () => Math.abs(_value) <= 1,
@@ -83,7 +83,7 @@ export const ACOSH = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (value: PrimitiveArgValue): number {
+  compute: function (value: Maybe<CellValue>): number {
     const _value = toNumber(value, this.locale);
     assert(
       () => _value >= 1,
@@ -101,7 +101,7 @@ export const ACOT = {
   description: _t("Inverse cotangent of a value."),
   args: [arg("value (number)", _t("The value for which to calculate the inverse cotangent."))],
   returns: ["NUMBER"],
-  compute: function (value: PrimitiveArgValue): number {
+  compute: function (value: Maybe<CellValue>): number {
     const _value = toNumber(value, this.locale);
     const sign = Math.sign(_value) || 1;
     // ACOT has two possible configurations:
@@ -126,7 +126,7 @@ export const ACOTH = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (value: PrimitiveArgValue): number {
+  compute: function (value: Maybe<CellValue>): number {
     const _value = toNumber(value, this.locale);
     assert(
       () => Math.abs(_value) > 1,
@@ -149,7 +149,7 @@ export const ASIN = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (value: PrimitiveArgValue): number {
+  compute: function (value: Maybe<CellValue>): number {
     const _value = toNumber(value, this.locale);
     assert(
       () => Math.abs(_value) <= 1,
@@ -169,7 +169,7 @@ export const ASINH = {
     arg("value (number)", _t("The value for which to calculate the inverse hyperbolic sine.")),
   ],
   returns: ["NUMBER"],
-  compute: function (value: PrimitiveArgValue): number {
+  compute: function (value: Maybe<CellValue>): number {
     return Math.asinh(toNumber(value, this.locale));
   },
   isExported: true,
@@ -182,7 +182,7 @@ export const ATAN = {
   description: _t("Inverse tangent of a value, in radians."),
   args: [arg("value (number)", _t("The value for which to calculate the inverse tangent."))],
   returns: ["NUMBER"],
-  compute: function (value: PrimitiveArgValue): number {
+  compute: function (value: Maybe<CellValue>): number {
     return Math.atan(toNumber(value, this.locale));
   },
   isExported: true,
@@ -208,7 +208,7 @@ export const ATAN2 = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (x: PrimitiveArgValue, y: PrimitiveArgValue): number {
+  compute: function (x: Maybe<CellValue>, y: Maybe<CellValue>): number {
     const _x = toNumber(x, this.locale);
     const _y = toNumber(y, this.locale);
     assert(
@@ -234,7 +234,7 @@ export const ATANH = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (value: PrimitiveArgValue): number {
+  compute: function (value: Maybe<CellValue>): number {
     const _value = toNumber(value, this.locale);
     assert(
       () => Math.abs(_value) < 1,
@@ -258,8 +258,8 @@ export const CEILING = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value: PrimitiveArg) => value?.format,
-  compute: function (value: PrimitiveArgValue, factor: PrimitiveArgValue = DEFAULT_FACTOR): number {
+  computeFormat: (value: Maybe<ValueAndFormat>) => value?.format,
+  compute: function (value: Maybe<CellValue>, factor: Maybe<CellValue> = DEFAULT_FACTOR): number {
     const _value = toNumber(value, this.locale);
     const _factor = toNumber(factor, this.locale);
     assert(
@@ -299,11 +299,11 @@ export const CEILING_MATH = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (number: PrimitiveArg) => number?.format,
+  computeFormat: (number: Maybe<ValueAndFormat>) => number?.format,
   compute: function (
-    number: PrimitiveArgValue,
-    significance: PrimitiveArgValue = DEFAULT_SIGNIFICANCE,
-    mode: PrimitiveArgValue = DEFAULT_MODE
+    number: Maybe<CellValue>,
+    significance: Maybe<CellValue> = DEFAULT_SIGNIFICANCE,
+    mode: Maybe<CellValue> = DEFAULT_MODE
   ): number {
     let _significance = toNumber(significance, this.locale);
     if (_significance === 0) {
@@ -342,8 +342,8 @@ export const CEILING_PRECISE = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (number: PrimitiveArg) => number?.format,
-  compute: function (number: PrimitiveArgValue, significance: PrimitiveArgValue): number {
+  computeFormat: (number: Maybe<ValueAndFormat>) => number?.format,
+  compute: function (number: Maybe<CellValue>, significance: Maybe<CellValue>): number {
     return CEILING_MATH.compute.bind(this)(number, significance, 0);
   },
   isExported: true,
@@ -356,7 +356,7 @@ export const COS = {
   description: _t("Cosine of an angle provided in radians."),
   args: [arg("angle (number)", _t("The angle to find the cosine of, in radians."))],
   returns: ["NUMBER"],
-  compute: function (angle: PrimitiveArgValue): number {
+  compute: function (angle: Maybe<CellValue>): number {
     return Math.cos(toNumber(angle, this.locale));
   },
   isExported: true,
@@ -369,7 +369,7 @@ export const COSH = {
   description: _t("Hyperbolic cosine of any real number."),
   args: [arg("value (number)", _t("Any real value to calculate the hyperbolic cosine of."))],
   returns: ["NUMBER"],
-  compute: function (value: PrimitiveArgValue): number {
+  compute: function (value: Maybe<CellValue>): number {
     return Math.cosh(toNumber(value, this.locale));
   },
   isExported: true,
@@ -382,7 +382,7 @@ export const COT = {
   description: _t("Cotangent of an angle provided in radians."),
   args: [arg("angle (number)", _t("The angle to find the cotangent of, in radians."))],
   returns: ["NUMBER"],
-  compute: function (angle: PrimitiveArgValue): number {
+  compute: function (angle: Maybe<CellValue>): number {
     const _angle = toNumber(angle, this.locale);
     assert(
       () => _angle !== 0,
@@ -400,7 +400,7 @@ export const COTH = {
   description: _t("Hyperbolic cotangent of any real number."),
   args: [arg("value (number)", _t("Any real value to calculate the hyperbolic cotangent of."))],
   returns: ["NUMBER"],
-  compute: function (value: PrimitiveArgValue): number {
+  compute: function (value: Maybe<CellValue>): number {
     const _value = toNumber(value, this.locale);
     assert(
       () => _value !== 0,
@@ -574,7 +574,7 @@ export const CSC = {
   description: _t("Cosecant of an angle provided in radians."),
   args: [arg("angle (number)", _t("The angle to find the cosecant of, in radians."))],
   returns: ["NUMBER"],
-  compute: function (angle: PrimitiveArgValue): number {
+  compute: function (angle: Maybe<CellValue>): number {
     const _angle = toNumber(angle, this.locale);
     assert(
       () => _angle !== 0,
@@ -592,7 +592,7 @@ export const CSCH = {
   description: _t("Hyperbolic cosecant of any real number."),
   args: [arg("value (number)", _t("Any real value to calculate the hyperbolic cosecant of."))],
   returns: ["NUMBER"],
-  compute: function (value: PrimitiveArgValue): number {
+  compute: function (value: Maybe<CellValue>): number {
     const _value = toNumber(value, this.locale);
     assert(
       () => _value !== 0,
@@ -613,7 +613,7 @@ export const DECIMAL = {
     arg(",base (number)", _t("The base to convert the value from.")),
   ],
   returns: ["NUMBER"],
-  compute: function (value: PrimitiveArgValue, base: PrimitiveArgValue): number {
+  compute: function (value: Maybe<CellValue>, base: Maybe<CellValue>): number {
     let _base = toNumber(base, this.locale);
     _base = Math.floor(_base);
 
@@ -654,7 +654,7 @@ export const DEGREES = {
   description: _t(`Converts an angle value in radians to degrees.`),
   args: [arg("angle (number)", _t("The angle to convert from radians to degrees."))],
   returns: ["NUMBER"],
-  compute: function (angle: PrimitiveArgValue): number {
+  compute: function (angle: Maybe<CellValue>): number {
     return (toNumber(angle, this.locale) * 180) / Math.PI;
   },
   isExported: true,
@@ -667,7 +667,7 @@ export const EXP = {
   description: _t(`Euler's number, e (~2.718) raised to a power.`),
   args: [arg("value (number)", _t("The exponent to raise e."))],
   returns: ["NUMBER"],
-  compute: function (value: PrimitiveArgValue): number {
+  compute: function (value: Maybe<CellValue>): number {
     return Math.exp(toNumber(value, this.locale));
   },
   isExported: true,
@@ -686,8 +686,8 @@ export const FLOOR = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value: PrimitiveArg) => value?.format,
-  compute: function (value: PrimitiveArgValue, factor: PrimitiveArgValue = DEFAULT_FACTOR): number {
+  computeFormat: (value: Maybe<ValueAndFormat>) => value?.format,
+  compute: function (value: Maybe<CellValue>, factor: Maybe<CellValue> = DEFAULT_FACTOR): number {
     const _value = toNumber(value, this.locale);
     const _factor = toNumber(factor, this.locale);
     assert(
@@ -727,11 +727,11 @@ export const FLOOR_MATH = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (number: PrimitiveArg) => number?.format,
+  computeFormat: (number: Maybe<ValueAndFormat>) => number?.format,
   compute: function (
-    number: PrimitiveArgValue,
-    significance: PrimitiveArgValue = DEFAULT_SIGNIFICANCE,
-    mode: PrimitiveArgValue = DEFAULT_MODE
+    number: Maybe<CellValue>,
+    significance: Maybe<CellValue> = DEFAULT_SIGNIFICANCE,
+    mode: Maybe<CellValue> = DEFAULT_MODE
   ): number {
     let _significance = toNumber(significance, this.locale);
     if (_significance === 0) {
@@ -769,10 +769,10 @@ export const FLOOR_PRECISE = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (number: PrimitiveArg) => number?.format,
+  computeFormat: (number: Maybe<ValueAndFormat>) => number?.format,
   compute: function (
-    number: PrimitiveArgValue,
-    significance: PrimitiveArgValue = DEFAULT_SIGNIFICANCE
+    number: Maybe<CellValue>,
+    significance: Maybe<CellValue> = DEFAULT_SIGNIFICANCE
   ): number {
     return FLOOR_MATH.compute.bind(this)(number, significance, 0);
   },
@@ -786,7 +786,7 @@ export const ISEVEN = {
   description: _t(`Whether the provided value is even.`),
   args: [arg("value (number)", _t("The value to be verified as even."))],
   returns: ["BOOLEAN"],
-  compute: function (value: PrimitiveArgValue): boolean {
+  compute: function (value: Maybe<CellValue>): boolean {
     const _value = strictToNumber(value, this.locale);
 
     return Math.floor(Math.abs(_value)) & 1 ? false : true;
@@ -810,10 +810,10 @@ export const ISO_CEILING = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (number: PrimitiveArg) => number?.format,
+  computeFormat: (number: Maybe<ValueAndFormat>) => number?.format,
   compute: function (
-    number: PrimitiveArgValue,
-    significance: PrimitiveArgValue = DEFAULT_SIGNIFICANCE
+    number: Maybe<CellValue>,
+    significance: Maybe<CellValue> = DEFAULT_SIGNIFICANCE
   ): number {
     return CEILING_MATH.compute.bind(this)(number, significance, 0);
   },
@@ -827,7 +827,7 @@ export const ISODD = {
   description: _t(`Whether the provided value is even.`),
   args: [arg("value (number)", _t("The value to be verified as even."))],
   returns: ["BOOLEAN"],
-  compute: function (value: PrimitiveArgValue): boolean {
+  compute: function (value: Maybe<CellValue>): boolean {
     const _value = strictToNumber(value, this.locale);
 
     return Math.floor(Math.abs(_value)) & 1 ? true : false;
@@ -842,7 +842,7 @@ export const LN = {
   description: _t(`The logarithm of a number, base e (euler's number).`),
   args: [arg("value (number)", _t("The value for which to calculate the logarithm, base e."))],
   returns: ["NUMBER"],
-  compute: function (value: PrimitiveArgValue): number {
+  compute: function (value: Maybe<CellValue>): number {
     const _value = toNumber(value, this.locale);
     assert(() => _value > 0, _t("The value (%s) must be strictly positive.", _value.toString()));
     return Math.log(_value);
@@ -860,8 +860,8 @@ export const MOD = {
     arg("divisor (number)", _t("The number to divide by.")),
   ],
   returns: ["NUMBER"],
-  computeFormat: (dividend: PrimitiveArg) => dividend?.format,
-  compute: function (dividend: PrimitiveArgValue, divisor: PrimitiveArgValue): number {
+  computeFormat: (dividend: Maybe<ValueAndFormat>) => dividend?.format,
+  compute: function (dividend: Maybe<CellValue>, divisor: Maybe<CellValue>): number {
     const _divisor = toNumber(divisor, this.locale);
 
     assert(() => _divisor !== 0, _t("The divisor must be different from 0."));
@@ -889,7 +889,7 @@ export const MUNIT = {
     ),
   ],
   returns: ["RANGE<NUMBER>"],
-  compute: function (n: PrimitiveArgValue): Matrix<number> {
+  compute: function (n: Maybe<CellValue>): Matrix<number> {
     const _n = toInteger(n, this.locale);
     assertPositive(_t("The argument dimension must be positive"), _n);
     return getUnitMatrix(_n);
@@ -904,8 +904,8 @@ export const ODD = {
   description: _t(`Rounds a number up to the nearest odd integer.`),
   args: [arg("value (number)", _t("The value to round to the next greatest odd number."))],
   returns: ["NUMBER"],
-  computeFormat: (number: PrimitiveArg) => number?.format,
-  compute: function (value: PrimitiveArgValue): number {
+  computeFormat: (number: Maybe<ValueAndFormat>) => number?.format,
+  compute: function (value: Maybe<CellValue>): number {
     const _value = toNumber(value, this.locale);
 
     let temp = Math.ceil(Math.abs(_value));
@@ -938,8 +938,8 @@ export const POWER = {
     arg("exponent (number)", _t("The exponent to raise base to.")),
   ],
   returns: ["NUMBER"],
-  computeFormat: (base: PrimitiveArg) => base?.format,
-  compute: function (base: PrimitiveArgValue, exponent: PrimitiveArgValue): number {
+  computeFormat: (base: Maybe<ValueAndFormat>) => base?.format,
+  compute: function (base: Maybe<CellValue>, exponent: Maybe<CellValue>): number {
     const _base = toNumber(base, this.locale);
     const _exponent = toNumber(exponent, this.locale);
     assert(
@@ -1023,11 +1023,11 @@ export const RANDARRAY = {
   ],
   returns: ["RANGE<NUMBER>"],
   compute: function (
-    rows: PrimitiveArgValue = 1,
-    columns: PrimitiveArgValue = 1,
-    min: PrimitiveArgValue = 0,
-    max: PrimitiveArgValue = 1,
-    whole_number: PrimitiveArgValue = false
+    rows: Maybe<CellValue> = 1,
+    columns: Maybe<CellValue> = 1,
+    min: Maybe<CellValue> = 0,
+    max: Maybe<CellValue> = 1,
+    whole_number: Maybe<CellValue> = false
   ): Matrix<number> {
     const _cols = toInteger(columns, this.locale);
     const _rows = toInteger(rows, this.locale);
@@ -1082,8 +1082,8 @@ export const RANDBETWEEN = {
     arg("high (number)", _t("The high end of the random range.")),
   ],
   returns: ["NUMBER"],
-  computeFormat: (low: PrimitiveArg) => low?.format,
-  compute: function (low: PrimitiveArgValue, high: PrimitiveArgValue): number {
+  computeFormat: (low: Maybe<ValueAndFormat>) => low?.format,
+  compute: function (low: Maybe<CellValue>, high: Maybe<CellValue>): number {
     let _low = toNumber(low, this.locale);
     if (!Number.isInteger(_low)) {
       _low = Math.ceil(_low);
@@ -1120,8 +1120,8 @@ export const ROUND = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value: PrimitiveArg) => value?.format,
-  compute: function (value: PrimitiveArgValue, places: PrimitiveArgValue = DEFAULT_PLACES): number {
+  computeFormat: (value: Maybe<ValueAndFormat>) => value?.format,
+  compute: function (value: Maybe<CellValue>, places: Maybe<CellValue> = DEFAULT_PLACES): number {
     const _value = toNumber(value, this.locale);
     let _places = toNumber(places, this.locale);
 
@@ -1156,8 +1156,8 @@ export const ROUNDDOWN = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value: PrimitiveArg) => value?.format,
-  compute: function (value: PrimitiveArgValue, places: PrimitiveArgValue = DEFAULT_PLACES): number {
+  computeFormat: (value: Maybe<ValueAndFormat>) => value?.format,
+  compute: function (value: Maybe<CellValue>, places: Maybe<CellValue> = DEFAULT_PLACES): number {
     const _value = toNumber(value, this.locale);
     let _places = toNumber(places, this.locale);
 
@@ -1189,8 +1189,8 @@ export const ROUNDUP = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value: PrimitiveArg) => value?.format,
-  compute: function (value: PrimitiveArgValue, places: PrimitiveArgValue = DEFAULT_PLACES): number {
+  computeFormat: (value: Maybe<ValueAndFormat>) => value?.format,
+  compute: function (value: Maybe<CellValue>, places: Maybe<CellValue> = DEFAULT_PLACES): number {
     const _value = toNumber(value, this.locale);
     let _places = toNumber(places, this.locale);
 
@@ -1216,7 +1216,7 @@ export const SEC = {
   description: _t("Secant of an angle provided in radians."),
   args: [arg("angle (number)", _t("The angle to find the secant of, in radians."))],
   returns: ["NUMBER"],
-  compute: function (angle: PrimitiveArgValue): number {
+  compute: function (angle: Maybe<CellValue>): number {
     return 1 / Math.cos(toNumber(angle, this.locale));
   },
   isExported: true,
@@ -1229,7 +1229,7 @@ export const SECH = {
   description: _t("Hyperbolic secant of any real number."),
   args: [arg("value (number)", _t("Any real value to calculate the hyperbolic secant of."))],
   returns: ["NUMBER"],
-  compute: function (value: PrimitiveArgValue): number {
+  compute: function (value: Maybe<CellValue>): number {
     return 1 / Math.cosh(toNumber(value, this.locale));
   },
   isExported: true,
@@ -1242,7 +1242,7 @@ export const SIN = {
   description: _t("Sine of an angle provided in radians."),
   args: [arg("angle (number)", _t("The angle to find the sine of, in radians."))],
   returns: ["NUMBER"],
-  compute: function (angle: PrimitiveArgValue): number {
+  compute: function (angle: Maybe<CellValue>): number {
     return Math.sin(toNumber(angle, this.locale));
   },
   isExported: true,
@@ -1255,7 +1255,7 @@ export const SINH = {
   description: _t("Hyperbolic sine of any real number."),
   args: [arg("value (number)", _t("Any real value to calculate the hyperbolic sine of."))],
   returns: ["NUMBER"],
-  compute: function (value: PrimitiveArgValue): number {
+  compute: function (value: Maybe<CellValue>): number {
     return Math.sinh(toNumber(value, this.locale));
   },
   isExported: true,
@@ -1268,8 +1268,8 @@ export const SQRT = {
   description: _t("Positive square root of a positive number."),
   args: [arg("value (number)", _t("The number for which to calculate the positive square root."))],
   returns: ["NUMBER"],
-  computeFormat: (value: PrimitiveArg) => value?.format,
-  compute: function (value: PrimitiveArgValue): number {
+  computeFormat: (value: Maybe<ValueAndFormat>) => value?.format,
+  compute: function (value: Maybe<CellValue>): number {
     const _value = toNumber(value, this.locale);
     assert(() => _value >= 0, _t("The value (%s) must be positive or null.", _value.toString()));
     return Math.sqrt(_value);
@@ -1315,7 +1315,7 @@ export const SUMIF = {
   returns: ["NUMBER"],
   compute: function (
     criteriaRange: ArgValue,
-    criterion: PrimitiveArgValue,
+    criterion: Maybe<CellValue>,
     sumRange: ArgValue
   ): number {
     if (sumRange === undefined) {
@@ -1375,7 +1375,7 @@ export const TAN = {
   description: _t("Tangent of an angle provided in radians."),
   args: [arg("angle (number)", _t("The angle to find the tangent of, in radians."))],
   returns: ["NUMBER"],
-  compute: function (angle: PrimitiveArgValue): number {
+  compute: function (angle: Maybe<CellValue>): number {
     return Math.tan(toNumber(angle, this.locale));
   },
   isExported: true,
@@ -1388,7 +1388,7 @@ export const TANH = {
   description: _t("Hyperbolic tangent of any real number."),
   args: [arg("value (number)", _t("Any real value to calculate the hyperbolic tangent of."))],
   returns: ["NUMBER"],
-  compute: function (value: PrimitiveArgValue): number {
+  compute: function (value: Maybe<CellValue>): number {
     return Math.tanh(toNumber(value, this.locale));
   },
   isExported: true,
@@ -1407,8 +1407,8 @@ export const TRUNC = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value: PrimitiveArg) => value?.format,
-  compute: function (value: PrimitiveArgValue, places: PrimitiveArgValue = DEFAULT_PLACES): number {
+  computeFormat: (value: Maybe<ValueAndFormat>) => value?.format,
+  compute: function (value: Maybe<CellValue>, places: Maybe<CellValue> = DEFAULT_PLACES): number {
     const _value = toNumber(value, this.locale);
     let _places = toNumber(places, this.locale);
 

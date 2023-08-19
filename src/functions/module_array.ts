@@ -5,7 +5,7 @@ import {
   ArgValue,
   CellValue,
   Matrix,
-  PrimitiveArg,
+  Maybe,
   ValueAndFormat,
 } from "../types";
 import { NotAvailableError } from "../types/errors";
@@ -42,8 +42,8 @@ export const ARRAY_CONSTRAIN = {
   returns: ["RANGE<ANY>"],
   computeValueAndFormat: function (
     array: Arg,
-    rows: PrimitiveArg,
-    columns: PrimitiveArg
+    rows: Maybe<ValueAndFormat>,
+    columns: Maybe<ValueAndFormat>
   ): Matrix<ValueAndFormat> {
     const _array = toMatrix(array);
     const _rowsArg = toInteger(rows?.value, this.locale);
@@ -160,9 +160,9 @@ export const EXPAND = {
   returns: ["RANGE<ANY>"],
   computeValueAndFormat: function (
     arg: Arg,
-    rows: PrimitiveArg,
-    columns?: PrimitiveArg,
-    padWith: PrimitiveArg = { value: 0 } // TODO : Replace with #N/A errors once it's supported
+    rows: Maybe<ValueAndFormat>,
+    columns?: Maybe<ValueAndFormat>,
+    padWith: Maybe<ValueAndFormat> = { value: 0 } // TODO : Replace with #N/A errors once it's supported
   ): Matrix<ValueAndFormat> {
     const _array = toMatrix(arg);
     const _nbRows = toInteger(rows?.value, this.locale);
@@ -590,8 +590,8 @@ export const TOCOL = {
   returns: ["RANGE<ANY>"],
   computeValueAndFormat: function (
     array: Arg,
-    ignore: PrimitiveArg = { value: TO_COL_ROW_DEFAULT_IGNORE },
-    scanByColumn: PrimitiveArg = { value: TO_COL_ROW_DEFAULT_SCAN }
+    ignore: Maybe<ValueAndFormat> = { value: TO_COL_ROW_DEFAULT_IGNORE },
+    scanByColumn: Maybe<ValueAndFormat> = { value: TO_COL_ROW_DEFAULT_SCAN }
   ) {
     const _array = toMatrix(array);
     const _ignore = toInteger(ignore.value, this.locale);
@@ -625,8 +625,8 @@ export const TOROW = {
   returns: ["RANGE<ANY>"],
   computeValueAndFormat: function (
     array: Arg,
-    ignore: PrimitiveArg = { value: TO_COL_ROW_DEFAULT_IGNORE },
-    scanByColumn: PrimitiveArg = { value: TO_COL_ROW_DEFAULT_SCAN }
+    ignore: Maybe<ValueAndFormat> = { value: TO_COL_ROW_DEFAULT_IGNORE },
+    scanByColumn: Maybe<ValueAndFormat> = { value: TO_COL_ROW_DEFAULT_SCAN }
   ): Matrix<ValueAndFormat> {
     const _array = toMatrix(array);
     const _ignore = toInteger(ignore.value, this.locale);
@@ -724,8 +724,8 @@ export const WRAPCOLS = {
   returns: ["RANGE<ANY>"],
   computeValueAndFormat: function (
     range: Arg,
-    wrapCount: PrimitiveArg,
-    padWith: PrimitiveArg = { value: 0 }
+    wrapCount: Maybe<ValueAndFormat>,
+    padWith: Maybe<ValueAndFormat> = { value: 0 }
   ): Matrix<ValueAndFormat> {
     const _array = toMatrix(range);
     const nbRows = toInteger(wrapCount?.value, this.locale);
@@ -764,8 +764,8 @@ export const WRAPROWS = {
   returns: ["RANGE<ANY>"],
   computeValueAndFormat: function (
     range: Arg,
-    wrapCount: PrimitiveArg,
-    padWith: PrimitiveArg = { value: 0 }
+    wrapCount: Maybe<ValueAndFormat>,
+    padWith: Maybe<ValueAndFormat> = { value: 0 }
   ): Matrix<ValueAndFormat> {
     const _array = toMatrix(range);
     const nbColumns = toInteger(wrapCount?.value, this.locale);

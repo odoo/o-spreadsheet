@@ -1,6 +1,6 @@
 import { markdownLink } from "../helpers";
 import { _t } from "../translation";
-import { AddFunctionDescription, PrimitiveArgValue } from "../types";
+import { AddFunctionDescription, CellValue, Maybe } from "../types";
 import { arg } from "./arguments";
 import { toString } from "./helpers";
 
@@ -17,7 +17,7 @@ export const HYPERLINK = {
     ),
   ],
   returns: ["STRING"],
-  compute: function (url: PrimitiveArgValue, linkLabel: PrimitiveArgValue): string {
+  compute: function (url: Maybe<CellValue>, linkLabel: Maybe<CellValue>): string {
     const processedUrl = toString(url).trim();
     const processedLabel = toString(linkLabel) || processedUrl;
     if (processedUrl === "") return processedLabel;

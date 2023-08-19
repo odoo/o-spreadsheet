@@ -1,6 +1,6 @@
 import { escapeRegExp, formatValue } from "../helpers";
 import { _t } from "../translation";
-import { AddFunctionDescription, ArgValue, Matrix, PrimitiveArgValue } from "../types";
+import { AddFunctionDescription, ArgValue, CellValue, Matrix, Maybe } from "../types";
 import { arg } from "./arguments";
 import { assert, reduceAny, toBoolean, toNumber, toString, transposeMatrix } from "./helpers";
 
@@ -21,7 +21,7 @@ export const CHAR = {
     ),
   ],
   returns: ["STRING"],
-  compute: function (tableNumber: PrimitiveArgValue): string {
+  compute: function (tableNumber: Maybe<CellValue>): string {
     const _tableNumber = Math.trunc(toNumber(tableNumber, this.locale));
     assert(
       () => _tableNumber >= 1,
@@ -39,7 +39,7 @@ export const CLEAN = {
   description: _t("Remove non-printable characters from a piece of text."),
   args: [arg("text (string)", _t("The text whose non-printable characters are to be removed."))],
   returns: ["STRING"],
-  compute: function (text: PrimitiveArgValue): string {
+  compute: function (text: Maybe<CellValue>): string {
     const _text = toString(text);
     let cleanedStr = "";
     for (const char of _text) {
@@ -78,7 +78,7 @@ export const EXACT = {
     arg("string2 (string)", _t("The second string to compare.")),
   ],
   returns: ["BOOLEAN"],
-  compute: function (string1: PrimitiveArgValue, string2: PrimitiveArgValue): boolean {
+  compute: function (string1: Maybe<CellValue>, string2: Maybe<CellValue>): boolean {
     return toString(string1) === toString(string2);
   },
   isExported: true,
@@ -102,9 +102,9 @@ export const FIND = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    searchFor: PrimitiveArgValue,
-    textToSearch: PrimitiveArgValue,
-    startingAt: PrimitiveArgValue = DEFAULT_STARTING_AT
+    searchFor: Maybe<CellValue>,
+    textToSearch: Maybe<CellValue>,
+    startingAt: Maybe<CellValue> = DEFAULT_STARTING_AT
   ): number {
     const _searchFor = toString(searchFor);
     const _textToSearch = toString(textToSearch);
@@ -152,7 +152,7 @@ export const JOIN = {
     ),
   ],
   returns: ["STRING"],
-  compute: function (delimiter: PrimitiveArgValue, ...valuesOrArrays: ArgValue[]): string {
+  compute: function (delimiter: Maybe<CellValue>, ...valuesOrArrays: ArgValue[]): string {
     const _delimiter = toString(delimiter);
     return reduceAny(valuesOrArrays, (acc, a) => (acc ? acc + _delimiter : "") + toString(a), "");
   },
@@ -171,7 +171,7 @@ export const LEFT = {
     ),
   ],
   returns: ["STRING"],
-  compute: function (text: PrimitiveArgValue, ...args: PrimitiveArgValue[]): string {
+  compute: function (text: Maybe<CellValue>, ...args: Maybe<CellValue>[]): string {
     const _numberOfCharacters = args.length ? toNumber(args[0], this.locale) : 1;
     assert(
       () => _numberOfCharacters >= 0,
@@ -189,7 +189,7 @@ export const LEN = {
   description: _t("Length of a string."),
   args: [arg("text (string)", _t("The string whose length will be returned."))],
   returns: ["NUMBER"],
-  compute: function (text: PrimitiveArgValue): number {
+  compute: function (text: Maybe<CellValue>): number {
     return toString(text).length;
   },
   isExported: true,
@@ -202,7 +202,7 @@ export const LOWER = {
   description: _t("Converts a specified string to lowercase."),
   args: [arg("text (string)", _t("The string to convert to lowercase."))],
   returns: ["STRING"],
-  compute: function (text: PrimitiveArgValue): string {
+  compute: function (text: Maybe<CellValue>): string {
     return toString(text).toLowerCase();
   },
   isExported: true,
@@ -225,9 +225,9 @@ export const MID = {
   ],
   returns: ["STRING"],
   compute: function (
-    text: PrimitiveArgValue,
-    starting_at: PrimitiveArgValue,
-    extract_length: PrimitiveArgValue
+    text: Maybe<CellValue>,
+    starting_at: Maybe<CellValue>,
+    extract_length: Maybe<CellValue>
   ): string {
     const _text = toString(text);
     const _starting_at = toNumber(starting_at, this.locale);
@@ -264,7 +264,7 @@ export const PROPER = {
     ),
   ],
   returns: ["STRING"],
-  compute: function (text: PrimitiveArgValue): string {
+  compute: function (text: Maybe<CellValue>): string {
     const _text = toString(text);
     return _text.replace(wordRegex, (word): string => {
       return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
@@ -289,10 +289,10 @@ export const REPLACE = {
   ],
   returns: ["STRING"],
   compute: function (
-    text: PrimitiveArgValue,
-    position: PrimitiveArgValue,
-    length: PrimitiveArgValue,
-    newText: PrimitiveArgValue
+    text: Maybe<CellValue>,
+    position: Maybe<CellValue>,
+    length: Maybe<CellValue>,
+    newText: Maybe<CellValue>
   ): string {
     const _position = toNumber(position, this.locale);
     assert(
@@ -321,7 +321,7 @@ export const RIGHT = {
     ),
   ],
   returns: ["STRING"],
-  compute: function (text: PrimitiveArgValue, ...args: PrimitiveArgValue[]): string {
+  compute: function (text: Maybe<CellValue>, ...args: Maybe<CellValue>[]): string {
     const _numberOfCharacters = args.length ? toNumber(args[0], this.locale) : 1;
     assert(
       () => _numberOfCharacters >= 0,
@@ -352,9 +352,9 @@ export const SEARCH = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    searchFor: PrimitiveArgValue,
-    textToSearch: PrimitiveArgValue,
-    startingAt: PrimitiveArgValue = DEFAULT_STARTING_AT
+    searchFor: Maybe<CellValue>,
+    textToSearch: Maybe<CellValue>,
+    startingAt: Maybe<CellValue> = DEFAULT_STARTING_AT
   ): number {
     const _searchFor = toString(searchFor).toLowerCase();
     const _textToSearch = toString(textToSearch).toLowerCase();
@@ -406,10 +406,10 @@ export const SPLIT = {
   ],
   returns: ["RANGE<STRING>"],
   compute: function (
-    text: PrimitiveArgValue,
-    delimiter: PrimitiveArgValue,
-    splitByEach: PrimitiveArgValue = SPLIT_DEFAULT_SPLIT_BY_EACH,
-    removeEmptyText: PrimitiveArgValue = SPLIT_DEFAULT_REMOVE_EMPTY_TEXT
+    text: Maybe<CellValue>,
+    delimiter: Maybe<CellValue>,
+    splitByEach: Maybe<CellValue> = SPLIT_DEFAULT_SPLIT_BY_EACH,
+    removeEmptyText: Maybe<CellValue> = SPLIT_DEFAULT_REMOVE_EMPTY_TEXT
   ): Matrix<string> {
     const _text = toString(text);
     const _delimiter = escapeRegExp(toString(delimiter));
@@ -451,10 +451,10 @@ export const SUBSTITUTE = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    textToSearch: PrimitiveArgValue,
-    searchFor: PrimitiveArgValue,
-    replaceWith: PrimitiveArgValue,
-    occurrenceNumber: PrimitiveArgValue
+    textToSearch: Maybe<CellValue>,
+    searchFor: Maybe<CellValue>,
+    replaceWith: Maybe<CellValue>,
+    occurrenceNumber: Maybe<CellValue>
   ): string {
     const _occurrenceNumber = toNumber(occurrenceNumber, this.locale);
 
@@ -507,8 +507,8 @@ export const TEXTJOIN = {
   ],
   returns: ["STRING"],
   compute: function (
-    delimiter: PrimitiveArgValue,
-    ignoreEmpty: PrimitiveArgValue,
+    delimiter: Maybe<CellValue>,
+    ignoreEmpty: Maybe<CellValue>,
     ...textsOrArrays: ArgValue[]
   ): string {
     const _delimiter = toString(delimiter);
@@ -533,7 +533,7 @@ export const TRIM = {
     arg("text (string)", _t("The text or reference to a cell containing text to be trimmed.")),
   ],
   returns: ["STRING"],
-  compute: function (text: PrimitiveArgValue): string {
+  compute: function (text: Maybe<CellValue>): string {
     return toString(text).trim();
   },
   isExported: true,
@@ -546,7 +546,7 @@ export const UPPER = {
   description: _t("Converts a specified string to uppercase."),
   args: [arg("text (string)", _t("The string to convert to uppercase."))],
   returns: ["STRING"],
-  compute: function (text: PrimitiveArgValue): string {
+  compute: function (text: Maybe<CellValue>): string {
     return toString(text).toUpperCase();
   },
   isExported: true,
@@ -565,7 +565,7 @@ export const TEXT = {
     ),
   ],
   returns: ["STRING"],
-  compute: function (number: PrimitiveArgValue, format: PrimitiveArgValue): string {
+  compute: function (number: Maybe<CellValue>, format: Maybe<CellValue>): string {
     const _number = toNumber(number, this.locale);
     return formatValue(_number, { format: toString(format), locale: this.locale });
   },

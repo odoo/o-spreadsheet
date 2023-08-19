@@ -19,10 +19,10 @@ import {
   CommandResult,
   ComputeFunction,
   Format,
-  PrimitiveArg,
-  PrimitiveArgValue,
+  Maybe,
   SetDecimalStep,
   UID,
+  ValueAndFormat,
 } from "../../src/types";
 import {
   createFilter,
@@ -174,10 +174,10 @@ describe("formatting values (with formatters)", () => {
     functionRegistry.add("SET.DYN.FORMAT", {
       description: "Returns the value set to the provided format",
       args: [arg("value (any)", "value to format"), arg("format (any)", "format to set.")],
-      compute: function (value: PrimitiveArgValue, format: PrimitiveArgValue) {
+      compute: function (value: Maybe<CellValue>, format: Maybe<CellValue>) {
         return value || 0;
       } as ComputeFunction<ArgValue, CellValue>,
-      computeFormat: function (value: PrimitiveArg, format: PrimitiveArg) {
+      computeFormat: function (value: Maybe<ValueAndFormat>, format: Maybe<ValueAndFormat>) {
         return toString(format?.value);
       } as ComputeFunction<Arg, Format>,
       returns: ["ANY"],

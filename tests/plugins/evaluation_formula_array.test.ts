@@ -11,7 +11,7 @@ import {
   Format,
   isMatrix,
   Matrix,
-  PrimitiveArgValue,
+  Maybe,
   ValueAndFormat,
 } from "../../src/types";
 import {
@@ -40,11 +40,7 @@ describe("evaluate formulas that return an array", () => {
         arg("v (number)", "value to fill matrix"),
       ],
       returns: ["RANGE<NUMBER>"],
-      compute: function (
-        n: PrimitiveArgValue,
-        m: PrimitiveArgValue,
-        v: PrimitiveArgValue
-      ): any[][] {
+      compute: function (n: Maybe<CellValue>, m: Maybe<CellValue>, v: Maybe<CellValue>): any[][] {
         return Array.from({ length: toNumber(n, DEFAULT_LOCALE) }, (_, i) =>
           Array.from({ length: toNumber(m, DEFAULT_LOCALE) }, (_, j) => v)
         );

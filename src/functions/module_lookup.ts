@@ -5,8 +5,7 @@ import {
   CellValue,
   isMatrix,
   Matrix,
-  PrimitiveArg,
-  PrimitiveArgValue,
+  Maybe,
   ValueAndFormat,
 } from "../types";
 import { NotAvailableError } from "../types/errors";
@@ -67,11 +66,11 @@ export const ADDRESS = {
   ],
   returns: ["STRING"],
   compute: function (
-    row: PrimitiveArgValue,
-    column: PrimitiveArgValue,
-    absoluteRelativeMode: PrimitiveArgValue = DEFAULT_ABSOLUTE_RELATIVE_MODE,
-    useA1Notation: PrimitiveArgValue = true,
-    sheet: PrimitiveArgValue | undefined
+    row: Maybe<CellValue>,
+    column: Maybe<CellValue>,
+    absoluteRelativeMode: Maybe<CellValue> = DEFAULT_ABSOLUTE_RELATIVE_MODE,
+    useA1Notation: Maybe<CellValue> = true,
+    sheet: Maybe<CellValue> | undefined
   ): string {
     const rowNumber = strictToInteger(row, this.locale);
     const colNumber = strictToInteger(column, this.locale);
@@ -172,10 +171,10 @@ export const HLOOKUP = {
   ],
   returns: ["ANY"],
   computeValueAndFormat: function (
-    searchKey: PrimitiveArg,
+    searchKey: Maybe<ValueAndFormat>,
     range: Matrix<ValueAndFormat>,
-    index: PrimitiveArg,
-    isSorted: PrimitiveArg = { value: DEFAULT_IS_SORTED }
+    index: Maybe<ValueAndFormat>,
+    isSorted: Maybe<ValueAndFormat> = { value: DEFAULT_IS_SORTED }
   ): ValueAndFormat {
     const _index = Math.trunc(toNumber(index?.value, this.locale));
 
@@ -224,8 +223,8 @@ export const INDEX: AddFunctionDescription = {
   returns: ["ANY"],
   computeValueAndFormat: function (
     reference: Matrix<ValueAndFormat>,
-    row: PrimitiveArg = { value: 0 },
-    column: PrimitiveArg = { value: 0 }
+    row: Maybe<ValueAndFormat> = { value: 0 },
+    column: Maybe<ValueAndFormat> = { value: 0 }
   ): any {
     const _reference = isMatrix(reference) ? reference : [[reference]];
     const _row = toNumber(row.value, this.locale);
@@ -275,7 +274,7 @@ export const LOOKUP = {
   ],
   returns: ["ANY"],
   computeValueAndFormat: function (
-    searchKey: PrimitiveArg,
+    searchKey: Maybe<ValueAndFormat>,
     searchArray: Matrix<ValueAndFormat>,
     resultRange: Matrix<ValueAndFormat> | undefined
   ): ValueAndFormat {
@@ -349,9 +348,9 @@ export const MATCH = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    searchKey: PrimitiveArgValue,
+    searchKey: Maybe<CellValue>,
     range: Matrix<CellValue>,
-    searchType: PrimitiveArgValue = DEFAULT_SEARCH_TYPE
+    searchType: Maybe<CellValue> = DEFAULT_SEARCH_TYPE
   ): number {
     let _searchType = toNumber(searchType, this.locale);
     const nbCol = range.length;
@@ -461,10 +460,10 @@ export const VLOOKUP = {
   ],
   returns: ["ANY"],
   computeValueAndFormat: function (
-    searchKey: PrimitiveArg,
+    searchKey: Maybe<ValueAndFormat>,
     range: Matrix<ValueAndFormat>,
-    index: PrimitiveArg,
-    isSorted: PrimitiveArg = { value: DEFAULT_IS_SORTED }
+    index: Maybe<ValueAndFormat>,
+    isSorted: Maybe<ValueAndFormat> = { value: DEFAULT_IS_SORTED }
   ): ValueAndFormat {
     const _index = Math.trunc(toNumber(index?.value, this.locale));
     assert(
@@ -534,12 +533,12 @@ export const XLOOKUP = {
   ],
   returns: ["ANY"],
   computeValueAndFormat: function (
-    searchKey: PrimitiveArg,
+    searchKey: Maybe<ValueAndFormat>,
     lookupRange: Matrix<ValueAndFormat>,
     returnRange: Matrix<ValueAndFormat>,
-    defaultValue?: () => PrimitiveArg,
-    matchMode: PrimitiveArg = { value: DEFAULT_MATCH_MODE },
-    searchMode: PrimitiveArg = { value: DEFAULT_SEARCH_MODE }
+    defaultValue?: () => Maybe<ValueAndFormat>,
+    matchMode: Maybe<ValueAndFormat> = { value: DEFAULT_MATCH_MODE },
+    searchMode: Maybe<ValueAndFormat> = { value: DEFAULT_SEARCH_MODE }
   ): Matrix<ValueAndFormat> {
     const _matchMode = Math.trunc(toNumber(matchMode.value, this.locale));
     const _searchMode = Math.trunc(toNumber(searchMode.value, this.locale));
