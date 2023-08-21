@@ -1163,6 +1163,7 @@ export const enum CommandResult {
   NoActiveSheet,
   InvalidLocale,
   AlreadyInPaintingFormatMode,
+  WrongEditionMode,
 }
 
 export interface CommandHandler<T> {

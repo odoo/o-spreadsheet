@@ -23,7 +23,6 @@ import {
   Command,
   CommandResult,
   Format,
-  HeaderIndex,
   Highlight,
   LocalCommand,
   Locale,
@@ -35,7 +34,7 @@ import {
   Zone,
 } from "../../types";
 import { SelectionEvent } from "../../types/event_stream";
-import { UIPlugin } from "../ui_plugin";
+import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
 export type EditionMode =
   | "editing"
@@ -48,6 +47,42 @@ export interface ComposerSelection {
   start: number;
   end: number;
 }
+
+interface EditingState {
+  col: number;
+  row: number;
+  mode: "editing" | "selecting";
+  sheetId: UID;
+  currentContent: string;
+  currentTokens: EnrichedToken[];
+  selectionStart: number;
+  selectionEnd: number;
+  selectionInitialStart: number;
+  initialContent: string | undefined;
+  previousRef: string;
+  previousRange: Range | undefined;
+  colorIndexByRange: { [xc: string]: number };
+}
+
+interface EmptyState {
+  col: undefined;
+  row: undefined;
+  sheetId: undefined;
+  mode: "inactive";
+  currentContent: "";
+  currentTokens: EnrichedToken[];
+  selectionStart: 0;
+  selectionEnd: 0;
+  selectionInitialStart: 0;
+  initialContent: undefined;
+  previousRef: undefined;
+  previousRange: undefined;
+  colorIndexByRange: {};
+}
+
+type State = EmptyState | EditingState;
+
+export const SelectionIndicator = "␣";
 
 export class EditionPlugin extends UIPlugin {
   static getters = [
@@ -63,16 +98,30 @@ export class EditionPlugin extends UIPlugin {
     "getCycledReference",
   ] as const;
 
-  private col: HeaderIndex = 0;
-  private row: HeaderIndex = 0;
-  private mode: EditionMode = "inactive";
-  private sheetId: UID = "";
-  private currentContent: string = "";
-  private currentTokens: EnrichedToken[] = [];
-  private selectionStart: number = 0;
-  private selectionEnd: number = 0;
-  private initialContent: string | undefined = "";
-  private colorIndexByRange: { [xc: string]: number } = {};
+  private state!: State;
+
+  constructor(config: UIPluginConfig) {
+    super(config);
+    this.setDefaultState();
+  }
+
+  setDefaultState() {
+    this.state = {
+      col: undefined,
+      row: undefined,
+      sheetId: undefined,
+      mode: "inactive",
+      currentContent: "",
+      currentTokens: [],
+      selectionStart: 0,
+      selectionEnd: 0,
+      selectionInitialStart: 0,
+      initialContent: undefined,
+      previousRef: undefined,
+      previousRange: undefined,
+      colorIndexByRange: {},
+    };
+  }
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -81,13 +130,25 @@ export class EditionPlugin extends UIPlugin {
   allowDispatch(cmd: LocalCommand): CommandResult {
     switch (cmd.type) {
       case "CHANGE_COMPOSER_CURSOR_SELECTION":
-        return this.validateSelection(this.currentContent.length, cmd.start, cmd.end);
+        if (this.state.mode === "inactive") {
+          return CommandResult.WrongEditionMode;
+        }
+        return this.validateSelection(this.state.currentContent.length, cmd.start, cmd.end);
       case "SET_CURRENT_CONTENT":
+        if (this.state.mode === "inactive") {
+          return CommandResult.WrongEditionMode;
+        }
         if (cmd.selection) {
           return this.validateSelection(cmd.content.length, cmd.selection.start, cmd.selection.end);
         } else {
           return CommandResult.Success;
         }
+      case "REPLACE_COMPOSER_CURSOR_SELECTION":
+      case "STOP_COMPOSER_RANGE_SELECTION":
+      case "CYCLE_EDITION_REFERENCES":
+        return this.state.mode === "inactive"
+          ? CommandResult.WrongEditionMode
+          : CommandResult.Success;
       case "START_EDITION":
         if (cmd.selection) {
           const content = cmd.text || this.getComposerContent(this.getters.getActivePosition());
@@ -110,12 +171,12 @@ export class EditionPlugin extends UIPlugin {
     }
     switch (event.mode) {
       case "newAnchor":
-        if (this.mode === "selecting") {
+        if (this.state.mode === "selecting") {
           this.insertSelectedRange(unboundedZone);
         }
         break;
       default:
-        if (this.mode === "selecting") {
+        if (this.state.mode === "selecting") {
           this.replaceSelectedRange(unboundedZone);
         } else {
           this.updateComposerRange(event.previousAnchor.zone, unboundedZone);
@@ -127,16 +188,16 @@ export class EditionPlugin extends UIPlugin {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "CHANGE_COMPOSER_CURSOR_SELECTION":
-        this.selectionStart = cmd.start;
-        this.selectionEnd = cmd.end;
+        this.state.selectionStart = cmd.start;
+        this.state.selectionEnd = cmd.end;
         break;
       case "STOP_COMPOSER_RANGE_SELECTION":
         if (this.isSelectingForComposer()) {
-          this.mode = "editing";
+          this.state.mode = "editing";
         }
         break;
       case "START_EDITION":
-        if (this.mode !== "inactive" && cmd.text) {
+        if (this.state.mode !== "inactive" && cmd.text) {
           this.setContent(cmd.text, cmd.selection);
         } else {
           this.startEdition(cmd.text, cmd.selection);
@@ -146,22 +207,19 @@ export class EditionPlugin extends UIPlugin {
       case "STOP_EDITION":
         if (cmd.cancel) {
           this.cancelEditionAndActivateSheet();
-          this.resetContent();
         } else {
           this.stopEdition();
         }
-        this.colorIndexByRange = {};
+        this.state.colorIndexByRange = {};
         break;
       case "SET_CURRENT_CONTENT":
         this.setContent(cmd.content, cmd.selection, true);
-        this.updateRangeColor();
         break;
       case "REPLACE_COMPOSER_CURSOR_SELECTION":
         this.replaceSelection(cmd.text);
         break;
       case "SELECT_FIGURE":
         this.cancelEditionAndActivateSheet();
-        this.resetContent();
         break;
       case "ADD_COLUMNS_ROWS":
         this.onAddElements(cmd);
@@ -177,14 +235,17 @@ export class EditionPlugin extends UIPlugin {
         const { left, top } = cmd.zone;
         // changing the highlight can conflit with the 'selecting' mode
         if (this.isSelectingForComposer()) {
-          this.mode = "editing";
+          this.state.mode = "editing";
         }
         this.selection.resetAnchor(this, { cell: { col: left, row: top }, zone: cmd.zone });
         break;
       case "ACTIVATE_SHEET":
-        if (!this.currentContent.startsWith("=")) {
+        /** TODO: the condition should be more precise:
+         * we either are "selecting" or "editing" a formula while the cursor is targeting a reference.
+         * The 'selecting' mode might need to take this into account
+         */
+        if (!this.state.currentContent.startsWith("=")) {
           this.cancelEdition();
-          this.resetContent();
         }
         if (cmd.sheetIdFrom !== cmd.sheetIdTo) {
           const activePosition = this.getters.getActivePosition();
@@ -200,12 +261,12 @@ export class EditionPlugin extends UIPlugin {
       case "DELETE_SHEET":
       case "UNDO":
       case "REDO":
-        const sheetIdExists = !!this.getters.tryGetSheet(this.sheetId);
-        if (!sheetIdExists && this.mode !== "inactive") {
-          this.sheetId = this.getters.getActiveSheetId();
-          this.cancelEditionAndActivateSheet();
-          this.resetContent();
-          this.ui.raiseBlockingErrorUI(CELL_DELETED_MESSAGE);
+        if (this.state.mode !== "inactive") {
+          const sheetIdExists = !!this.getters.tryGetSheet(this.state.sheetId);
+          if (!sheetIdExists) {
+            this.cancelEdition();
+            this.ui.raiseBlockingErrorUI(CELL_DELETED_MESSAGE);
+          }
         }
         break;
       case "CYCLE_EDITION_REFERENCES":
@@ -219,33 +280,35 @@ export class EditionPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   getEditionMode(): EditionMode {
-    return this.mode;
+    return this.state.mode;
   }
 
   getCurrentContent(): string {
-    if (this.mode === "inactive") {
+    if (this.state.mode === "inactive") {
       return this.getComposerContent(this.getters.getActivePosition());
     }
-    return this.currentContent;
+    return this.state.currentContent;
   }
 
   getComposerSelection(): ComposerSelection {
     return {
-      start: this.selectionStart,
-      end: this.selectionEnd,
+      start: this.state.selectionStart,
+      end: this.state.selectionEnd,
     };
   }
 
-  getCurrentEditedCell(): CellPosition {
-    return {
-      sheetId: this.sheetId,
-      col: this.col,
-      row: this.row,
-    };
+  getCurrentEditedCell(): CellPosition | undefined {
+    return this.state.mode !== "inactive"
+      ? {
+          sheetId: this.state.sheetId,
+          col: this.state.col,
+          row: this.state.row,
+        }
+      : undefined;
   }
 
   isSelectingForComposer(): boolean {
-    return this.mode === "selecting";
+    return this.state.mode === "selecting";
   }
 
   showSelectionIndicator(): boolean {
@@ -253,19 +316,19 @@ export class EditionPlugin extends UIPlugin {
   }
 
   getCurrentTokens(): EnrichedToken[] {
-    return this.currentTokens;
+    return this.state.currentTokens;
   }
 
   /**
    * Return the (enriched) token just before the cursor.
    */
   getTokenAtCursor(): EnrichedToken | undefined {
-    const start = Math.min(this.selectionStart, this.selectionEnd);
-    const end = Math.max(this.selectionStart, this.selectionEnd);
+    const start = Math.min(this.state.selectionStart, this.state.selectionEnd);
+    const end = Math.max(this.state.selectionStart, this.state.selectionEnd);
     if (start === end && end === 0) {
       return undefined;
     } else {
-      return this.currentTokens.find((t) => t.start <= start && t.end >= end);
+      return this.state.currentTokens.find((t) => t.start <= start && t.end >= end);
     }
   }
 
@@ -305,12 +368,34 @@ export class EditionPlugin extends UIPlugin {
     return { content: newContent, selection: newSelection };
   }
 
+  /**
+   * Highlight all ranges that can be found in the composer content.
+   */
+  getComposerHighlights(): Highlight[] {
+    if (!this.state.currentContent.startsWith("=") || this.state.mode === "inactive") {
+      return [];
+    }
+    const editionSheetId = this.state.sheetId;
+    const rangeColor = (rangeString: string) => {
+      const colorIndex = this.state.colorIndexByRange[rangeString];
+      return colors[colorIndex % colors.length];
+    };
+    return this.getReferencedRanges().map((range) => {
+      const rangeString = this.getters.getRangeString(range, editionSheetId);
+      return {
+        zone: range.zone,
+        color: rangeColor(rangeString),
+        sheetId: range.sheetId,
+      };
+    });
+  }
+
   // ---------------------------------------------------------------------------
   // Misc
   // ---------------------------------------------------------------------------
 
   private cycleReferences() {
-    const updated = this.getCycledReference(this.getComposerSelection(), this.currentContent);
+    const updated = this.getCycledReference(this.getComposerSelection(), this.state.currentContent);
     if (updated === undefined) {
       return;
     }
@@ -332,56 +417,78 @@ export class EditionPlugin extends UIPlugin {
   }
 
   private onColumnsRemoved(cmd: RemoveColumnsRowsCommand) {
-    if (cmd.elements.includes(this.col) && this.mode !== "inactive") {
+    if (this.state.mode !== "inactive" && cmd.elements.includes(this.state.col)) {
       this.dispatch("STOP_EDITION", { cancel: true });
       this.ui.raiseBlockingErrorUI(CELL_DELETED_MESSAGE);
       return;
+    } else if (this.state.mode !== "inactive") {
+      const { top, left } = updateSelectionOnDeletion(
+        {
+          left: this.state.col,
+          right: this.state.col,
+          top: this.state.row,
+          bottom: this.state.row,
+        },
+        "left",
+        [...cmd.elements]
+      );
+      this.state.col = left;
+      this.state.row = top;
     }
-    const { top, left } = updateSelectionOnDeletion(
-      { left: this.col, right: this.col, top: this.row, bottom: this.row },
-      "left",
-      [...cmd.elements]
-    );
-    this.col = left;
-    this.row = top;
   }
 
   private onRowsRemoved(cmd: RemoveColumnsRowsCommand) {
-    if (cmd.elements.includes(this.row) && this.mode !== "inactive") {
+    if (this.state.mode !== "inactive" && cmd.elements.includes(this.state.row)) {
       this.dispatch("STOP_EDITION", { cancel: true });
       this.ui.raiseBlockingErrorUI(CELL_DELETED_MESSAGE);
       return;
+    } else if (this.state.mode !== "inactive") {
+      const { top, left } = updateSelectionOnDeletion(
+        {
+          left: this.state.col,
+          right: this.state.col,
+          top: this.state.row,
+          bottom: this.state.row,
+        },
+        "top",
+        [...cmd.elements]
+      );
+      this.state.col = left;
+      this.state.row = top;
     }
-    const { top, left } = updateSelectionOnDeletion(
-      { left: this.col, right: this.col, top: this.row, bottom: this.row },
-      "top",
-      [...cmd.elements]
-    );
-    this.col = left;
-    this.row = top;
   }
 
   private onAddElements(cmd: AddColumnsRowsCommand) {
-    const { top, left } = updateSelectionOnInsertion(
-      { left: this.col, right: this.col, top: this.row, bottom: this.row },
-      cmd.dimension === "COL" ? "left" : "top",
-      cmd.base,
-      cmd.position,
-      cmd.quantity
-    );
-    this.col = left;
-    this.row = top;
+    if (this.state.mode !== "inactive") {
+      const { top, left } = updateSelectionOnInsertion(
+        {
+          left: this.state.col,
+          right: this.state.col,
+          top: this.state.row,
+          bottom: this.state.row,
+        },
+        cmd.dimension === "COL" ? "left" : "top",
+        cmd.base,
+        cmd.position,
+        cmd.quantity
+      );
+      this.state.col = left;
+      this.state.row = top;
+    }
   }
 
   /**
    * Enable the selecting mode
    */
   private startComposerRangeSelection() {
-    if (this.sheetId === this.getters.getActiveSheetId()) {
-      const zone = positionToZone({ col: this.col, row: this.row });
-      this.selection.resetAnchor(this, { cell: { col: this.col, row: this.row }, zone });
+    if (this.state.sheetId === this.getters.getActiveSheetId()) {
+      const zone = positionToZone({ col: this.state.col, row: this.state.row });
+      this.selection.resetAnchor(this, {
+        cell: { col: this.state.col, row: this.state.row },
+        zone,
+      });
     }
-    this.mode = "selecting";
+    this.state.mode = "selecting";
   }
 
   /**
@@ -398,17 +505,18 @@ export class EditionPlugin extends UIPlugin {
       str = `${str}%`;
     }
     const { col, row, sheetId } = this.getters.getActivePosition();
-    this.col = col;
-    this.sheetId = sheetId;
-    this.row = row;
-    this.initialContent = this.getComposerContent({ sheetId, col, row });
-    this.mode = "editing";
-    this.setContent(str || this.initialContent, selection);
-    this.colorIndexByRange = {};
-    const zone = positionToZone({ col: this.col, row: this.row });
+
+    this.state.sheetId = sheetId;
+    this.state.col = col;
+    this.state.row = row;
+    this.state.initialContent = this.getComposerContent({ sheetId, col, row });
+    this.state.mode = "editing";
+    this.state.colorIndexByRange = {};
+
+    const zone = positionToZone({ col, row });
     this.selection.capture(
       this,
-      { cell: { col: this.col, row: this.row }, zone },
+      { cell: { col, row }, zone },
       {
         handleEvent: this.handleEvent.bind(this),
         release: () => {
@@ -416,25 +524,28 @@ export class EditionPlugin extends UIPlugin {
         },
       }
     );
+    this.setContent(str || this.state.initialContent, selection);
   }
 
   private stopEdition() {
-    if (this.mode !== "inactive") {
-      this.cancelEditionAndActivateSheet();
-      const col = this.col;
-      const row = this.row;
-      let content = this.currentContent;
-      const didChange = this.initialContent !== content;
+    if (this.state.mode !== "inactive") {
+      const col = this.state.col;
+      const row = this.state.row;
+      const sheetId = this.state.sheetId;
+      let content = this.state.currentContent;
+      const didChange = this.state.initialContent !== content;
       if (!didChange) {
+        this.cancelEditionAndActivateSheet();
         return;
       }
       if (content) {
+        // this is weird. we have the sheet ID that we are writing on , so why fetch the active sheetId ??
         const sheetId = this.getters.getActiveSheetId();
-        const cell = this.getters.getEvaluatedCell({ sheetId, col: this.col, row: this.row });
+        const cell = this.getters.getEvaluatedCell({ sheetId, col, row });
         content = canonicalizeContent(content, this.getters.getLocale());
         if (content.startsWith("=")) {
-          const left = this.currentTokens.filter((t) => t.type === "LEFT_PAREN").length;
-          const right = this.currentTokens.filter((t) => t.type === "RIGHT_PAREN").length;
+          const left = this.state.currentTokens.filter((t) => t.type === "LEFT_PAREN").length;
+          const right = this.state.currentTokens.filter((t) => t.type === "RIGHT_PAREN").length;
           const missing = left - right;
           if (missing > 0) {
             content += concat(new Array(missing).fill(")"));
@@ -442,36 +553,24 @@ export class EditionPlugin extends UIPlugin {
         } else if (cell.link) {
           content = markdownLink(content, cell.link.url);
         }
-        this.dispatch("UPDATE_CELL", {
-          sheetId: this.sheetId,
-          col,
-          row,
-          content,
-        });
-      } else {
-        this.dispatch("UPDATE_CELL", {
-          sheetId: this.sheetId,
-          content: "",
-          col,
-          row,
-        });
       }
-      this.setContent("");
+      this.dispatch("UPDATE_CELL", { sheetId, col, row, content });
+      this.cancelEditionAndActivateSheet();
     }
   }
 
   private cancelEditionAndActivateSheet() {
-    if (this.mode === "inactive") {
+    if (this.state.mode === "inactive") {
       return;
     }
-    this.cancelEdition();
     const sheetId = this.getters.getActiveSheetId();
-    if (sheetId !== this.sheetId) {
+    if (sheetId !== this.state.sheetId) {
       this.dispatch("ACTIVATE_SHEET", {
         sheetIdFrom: this.getters.getActiveSheetId(),
-        sheetIdTo: this.sheetId,
+        sheetIdTo: this.state.sheetId,
       });
     }
+    this.cancelEdition();
   }
 
   private getComposerContent(position: CellPosition): string {
@@ -505,34 +604,27 @@ export class EditionPlugin extends UIPlugin {
   }
 
   private cancelEdition() {
-    if (this.mode === "inactive") {
+    if (this.state.mode === "inactive") {
       return;
     }
-    this.mode = "inactive";
+    this.setDefaultState();
     this.selection.release(this);
   }
 
-  /**
-   * Reset the current content to the active cell content
-   */
-  private resetContent() {
-    this.setContent(this.initialContent || "");
-  }
-
   private setContent(text: string, selection?: ComposerSelection, raise?: boolean) {
-    const isNewCurrentContent = this.currentContent !== text;
-    this.currentContent = text;
+    const isNewCurrentContent = this.state.currentContent !== text;
+    this.state.currentContent = text;
 
     if (selection) {
-      this.selectionStart = selection.start;
-      this.selectionEnd = selection.end;
+      this.state.selectionStart = selection.start;
+      this.state.selectionEnd = selection.end;
     } else {
-      this.selectionStart = this.selectionEnd = text.length;
+      this.state.selectionStart = this.state.selectionEnd = text.length;
     }
-    if (isNewCurrentContent || this.mode !== "inactive") {
+    if (isNewCurrentContent || this.state.mode !== "inactive") {
       const locale = this.getters.getLocale();
-      this.currentTokens = text.startsWith("=") ? composerTokenize(text, locale) : [];
-      if (this.currentTokens.length > 100) {
+      this.state.currentTokens = text.startsWith("=") ? composerTokenize(text, locale) : [];
+      if (this.state.currentTokens.length > 100) {
         if (raise) {
           this.ui.raiseBlockingErrorUI(
             _t(
@@ -545,11 +637,12 @@ export class EditionPlugin extends UIPlugin {
     if (this.canStartComposerRangeSelection()) {
       this.startComposerRangeSelection();
     }
+    this.updateRangeColor();
   }
 
   private insertSelectedRange(zone: Zone | UnboundedZone) {
     // infer if range selected or selecting range from cursor position
-    const start = Math.min(this.selectionStart, this.selectionEnd);
+    const start = Math.min(this.state.selectionStart, this.state.selectionEnd);
     const ref = this.getZoneReference(zone);
     if (this.canStartComposerRangeSelection()) {
       this.insertText(ref, start);
@@ -564,23 +657,30 @@ export class EditionPlugin extends UIPlugin {
   private replaceSelectedRange(zone: Zone | UnboundedZone) {
     const ref = this.getZoneReference(zone);
     const currentToken = this.getTokenAtCursor();
-    const start = currentToken?.type === "REFERENCE" ? currentToken.start : this.selectionStart;
-    this.replaceText(ref, start, this.selectionEnd);
+    const start =
+      currentToken?.type === "REFERENCE" ? currentToken.start : this.state.selectionStart;
+    this.replaceText(ref, start, this.state.selectionEnd);
   }
 
   /**
    * Replace the reference of the old zone by the new one.
    */
   private updateComposerRange(oldZone: Zone, newZone: Zone | UnboundedZone) {
+    if (this.state.mode === "inactive") {
+      return;
+    }
+    const editedSheetId = this.state.sheetId;
     const activeSheetId = this.getters.getActiveSheetId();
 
     const tokentAtCursor = this.getTokenAtCursor();
-    const tokens = tokentAtCursor ? [tokentAtCursor, ...this.currentTokens] : this.currentTokens;
+    const tokens = tokentAtCursor
+      ? [tokentAtCursor, ...this.state.currentTokens]
+      : this.state.currentTokens;
     const previousRefToken = tokens
       .filter((token) => token.type === "REFERENCE")
       .find((token) => {
         const { xc, sheetName: sheet } = splitReference(token.value);
-        const sheetName = sheet || this.getters.getSheetName(this.sheetId);
+        const sheetName = sheet || this.getters.getSheetName(editedSheetId);
 
         if (this.getters.getSheetName(activeSheetId) !== sheetName) {
           return false;
@@ -596,28 +696,28 @@ export class EditionPlugin extends UIPlugin {
     }
 
     const previousRange = this.getters.getRangeFromSheetXC(activeSheetId, previousRefToken.value);
-    this.selectionStart = previousRefToken!.start;
-    this.selectionEnd = this.selectionStart + previousRefToken!.value.length;
+    this.state.selectionStart = previousRefToken!.start;
+    this.state.selectionEnd = this.state.selectionStart + previousRefToken!.value.length;
 
     const newRange = this.getters.getRangeFromZone(activeSheetId, newZone);
-    const newRef = this.getRangeReference(newRange, previousRange.parts);
+    const newRef = this.getRangeReference(newRange, previousRange.parts, editedSheetId);
     this.replaceSelection(newRef);
   }
 
   private getZoneReference(zone: Zone | UnboundedZone): string {
-    const inputSheetId = this.getters.getCurrentEditedCell().sheetId;
+    const inputSheetId = this.state.sheetId;
+    if (!inputSheetId) {
+      throw new Error("Not in editing mode");
+    }
     const sheetId = this.getters.getActiveSheetId();
     const range = this.getters.getRangeFromZone(sheetId, zone);
     return this.getters.getSelectionRangeString(range, inputSheetId);
   }
 
-  private getRangeReference(range: Range, fixedParts: Readonly<RangePart[]>) {
+  private getRangeReference(range: Range, fixedParts: Readonly<RangePart[]>, sheetId: UID) {
     let _fixedParts = [...fixedParts];
     const newRange = range.clone({ parts: _fixedParts });
-    return this.getters.getSelectionRangeString(
-      newRange,
-      this.getters.getCurrentEditedCell().sheetId
-    );
+    return this.getters.getSelectionRangeString(newRange, sheetId);
   }
 
   /**
@@ -625,24 +725,25 @@ export class EditionPlugin extends UIPlugin {
    * The cursor is then set at the end of the text.
    */
   private replaceSelection(text: string) {
-    const start = Math.min(this.selectionStart, this.selectionEnd);
-    const end = Math.max(this.selectionStart, this.selectionEnd);
+    const start = Math.min(this.state.selectionStart, this.state.selectionEnd);
+    const end = Math.max(this.state.selectionStart, this.state.selectionEnd);
     this.replaceText(text, start, end);
   }
 
   private replaceText(text: string, start: number, end: number) {
-    this.currentContent =
-      this.currentContent.slice(0, start) +
-      this.currentContent.slice(end, this.currentContent.length);
+    this.state.currentContent =
+      this.state.currentContent.slice(0, start) +
+      this.state.currentContent.slice(end, this.state.currentContent.length);
     this.insertText(text, start);
   }
 
   /**
-   * Insert a text at the given position.
+   * Inserts a text at the given position.
    * The cursor is then set at the end of the text.
    */
   private insertText(text: string, start: number) {
-    const content = this.currentContent.slice(0, start) + text + this.currentContent.slice(start);
+    const content =
+      this.state.currentContent.slice(0, start) + text + this.state.currentContent.slice(start);
     const end = start + text.length;
     this.dispatch("SET_CURRENT_CONTENT", {
       content,
@@ -651,17 +752,22 @@ export class EditionPlugin extends UIPlugin {
   }
 
   private updateRangeColor() {
-    if (!this.currentContent.startsWith("=") || this.mode === "inactive") {
+    if (!this.state.currentContent.startsWith("=") || this.state.mode === "inactive") {
       return;
     }
-    const editionSheetId = this.getters.getCurrentEditedCell().sheetId;
+    // implies editing a formula
+    const editionSheetId = this.state.sheetId;
     const XCs = this.getReferencedRanges().map((range) =>
       this.getters.getRangeString(range, editionSheetId)
     );
     const colorsToKeep = {};
+    /**
+     * TODO: Unify - sheet1!A1 has a differnet xc and color than A1 which is then
+     * correctded in highlight plugin drawgrid but not in the actual highlights
+     */
     for (const xc of XCs) {
-      if (this.colorIndexByRange[xc] !== undefined) {
-        colorsToKeep[xc] = this.colorIndexByRange[xc];
+      if (this.state.colorIndexByRange[xc] !== undefined) {
+        colorsToKeep[xc] = this.state.colorIndexByRange[xc];
       }
     }
     const usedIndexes = new Set(Object.values(colorsToKeep));
@@ -675,37 +781,18 @@ export class EditionPlugin extends UIPlugin {
       const colorIndex = xc in colorsToKeep ? colorsToKeep[xc] : nextIndex();
       colorsToKeep[xc] = colorIndex;
     }
-    this.colorIndexByRange = colorsToKeep;
+    this.state.colorIndexByRange = colorsToKeep;
   }
 
   /**
-   * Highlight all ranges that can be found in the composer content.
+   * Returns ranges currently referenced in the composer
    */
-  getComposerHighlights(): Highlight[] {
-    if (!this.currentContent.startsWith("=") || this.mode === "inactive") {
+  private getReferencedRanges(): Range[] {
+    if (!this.state.currentContent.startsWith("=") || this.state.mode === "inactive") {
       return [];
     }
-    const editionSheetId = this.getters.getCurrentEditedCell().sheetId;
-    const rangeColor = (rangeString: string) => {
-      const colorIndex = this.colorIndexByRange[rangeString];
-      return colors[colorIndex % colors.length];
-    };
-    return this.getReferencedRanges().map((range) => {
-      const rangeString = this.getters.getRangeString(range, editionSheetId);
-      return {
-        zone: range.zone,
-        color: rangeColor(rangeString),
-        sheetId: range.sheetId,
-      };
-    });
-  }
-
-  /**
-   * Return ranges currently referenced in the composer
-   */
-  getReferencedRanges(): Range[] {
-    const editionSheetId = this.getters.getCurrentEditedCell().sheetId;
-    return this.currentTokens
+    const editionSheetId = this.state.sheetId;
+    return this.state.currentTokens
       .filter((token) => token.type === "REFERENCE")
       .map((token) => this.getters.getRangeFromSheetXC(editionSheetId, token.value));
   }
@@ -718,30 +805,32 @@ export class EditionPlugin extends UIPlugin {
    * - Previous and next tokens can be separated by spaces
    */
   private canStartComposerRangeSelection(): boolean {
-    if (this.currentContent.startsWith("=")) {
+    if (this.state.currentContent.startsWith("=")) {
       const tokenAtCursor = this.getTokenAtCursor();
       if (!tokenAtCursor) {
         return false;
       }
 
-      const tokenIdex = this.currentTokens.map((token) => token.start).indexOf(tokenAtCursor.start);
+      const tokenIndex = this.state.currentTokens
+        .map((token) => token.start)
+        .indexOf(tokenAtCursor.start);
 
-      let count = tokenIdex;
+      let index = tokenIndex;
       let currentToken = tokenAtCursor;
       // check previous token
       while (
         !["ARG_SEPARATOR", "LEFT_PAREN", "OPERATOR"].includes(currentToken.type) ||
         POSTFIX_UNARY_OPERATORS.includes(currentToken.value)
       ) {
-        if (currentToken.type !== "SPACE" || count < 1) {
+        if (currentToken.type !== "SPACE" || index < 1) {
           return false;
         }
-        count--;
-        currentToken = this.currentTokens[count];
+        index--;
+        currentToken = this.state.currentTokens[index];
       }
 
-      count = tokenIdex + 1;
-      currentToken = this.currentTokens[count];
+      index = tokenIndex + 1;
+      currentToken = this.state.currentTokens[index];
       // check next token
       while (
         currentToken &&
@@ -750,8 +839,8 @@ export class EditionPlugin extends UIPlugin {
         if (currentToken.type !== "SPACE") {
           return false;
         }
-        count++;
-        currentToken = this.currentTokens[count];
+        index++;
+        currentToken = this.state.currentTokens[index];
       }
       return true;
     }
