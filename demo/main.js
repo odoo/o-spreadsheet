@@ -207,7 +207,11 @@ class Demo extends Component {
     });
     useExternalListener(window, "beforeunload", this.leaveCollaborativeSession.bind(this));
     useExternalListener(window, "unhandledrejection", () => {
-      this.raiseError("An unexpected error occurred. Open the developer console for details.");
+      this.notifyUser({
+        text: "An unexpected error occurred. Open the developer console for details.",
+        sticky: true,
+        type: "warning",
+      });
     });
 
     onWillStart(() => this.initiateConnection());
@@ -215,8 +219,12 @@ class Demo extends Component {
     onMounted(() => console.log("Mounted: ", Date.now() - start));
     onWillUnmount(this.leaveCollaborativeSession.bind(this));
     onError((error) => {
-      console.error(error.cause);
-      this.raiseError("An unexpected error occurred. Open the developer console for details.");
+      console.error(error.cause || error);
+      this.notifyUser({
+        text: "An unexpected error occurred. Open the developer console for details.",
+        sticky: true,
+        type: "warning",
+      });
     });
   }
 
