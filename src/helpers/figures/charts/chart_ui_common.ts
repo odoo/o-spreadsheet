@@ -131,13 +131,11 @@ export function getDefaultChartJsRuntime(
       tooltip: {
         callbacks: {
           label: function (tooltipItem) {
-            let xLabel = tooltipItem.label;
+            const xLabel = tooltipItem.dataset?.label || tooltipItem.label;
             // tooltipItem.parsed.y can be an object or a number for pie charts
             const yLabel = tooltipItem.parsed.y ?? tooltipItem.parsed;
-            const yLabelStr =
-              format && typeof yLabel === "number"
-                ? formatValue(yLabel, { format, locale })
-                : yLabel?.toLocaleString() || "";
+            const toolTipFormat = !format && yLabel > 1000 ? "#,##" : format;
+            const yLabelStr = formatValue(yLabel, { format: toolTipFormat, locale });
             return xLabel ? `${xLabel}: ${yLabelStr}` : yLabelStr;
           },
         },

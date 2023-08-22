@@ -25,9 +25,11 @@ import {
   setCellFormat,
   undo,
   updateChart,
+  updateLocale,
 } from "../../test_helpers/commands_helpers";
 import { getPlugin, mockChart, nextTick, target } from "../../test_helpers/helpers";
 import { ChartDefinition } from "./../../../src/types/chart/chart";
+import { FR_LOCALE } from "./../../test_helpers/constants";
 jest.mock("../../../src/helpers/uuid", () => require("../../__mocks__/uuid"));
 
 let model: Model;
@@ -1550,7 +1552,20 @@ describe("Chart design configuration", () => {
         const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
         //@ts-ignore
         expect(runtime.chartJsConfig.options.scales.y?.ticks.callback!(60000000)).toEqual(
-          (60000000).toLocaleString()
+          "60,000,000"
+        );
+      }
+    );
+
+    test.each(["bar", "line"])(
+      "Bar/Line chart Y axis, cell without format: thousand separator is locale dependant",
+      (chartType) => {
+        updateLocale(model, FR_LOCALE);
+        createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
+        const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
+        //@ts-ignore
+        expect(runtime.chartJsConfig.options.scales.y?.ticks.callback!(60000000)).toEqual(
+          "60 000 000"
         );
       }
     );
@@ -1584,7 +1599,7 @@ describe("Chart design configuration", () => {
         expect(
           // @ts-ignore should be binded to the chart tooltip model
           runtime.chartJsConfig.options!.plugins!.tooltip!.callbacks!.label!(tooltipItem)
-        ).toEqual((60000000).toLocaleString());
+        ).toEqual("60,000,000");
       }
     );
 
@@ -1616,7 +1631,7 @@ describe("Chart design configuration", () => {
         expect(
           // @ts-ignore should be binded to the chart tooltip model
           runtime.chartJsConfig.options!.plugins!.tooltip!.callbacks!.label!(tooltipItem)
-        ).toEqual((6000).toLocaleString());
+        ).toEqual("6,000");
       }
     );
   });
