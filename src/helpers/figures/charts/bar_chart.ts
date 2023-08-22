@@ -230,9 +230,10 @@ function getBarConfiguration(
       ticks: {
         color: fontColor,
         callback: (value) => {
-          return localeFormat.format
-            ? formatValue(value, localeFormat)
-            : value?.toLocaleString() || value;
+          value = Number(value);
+          if (isNaN(value)) return value;
+          const { locale, format } = localeFormat;
+          return formatValue(value, { locale, format: !format && value > 1000 ? "#,##" : format });
         },
       },
     },
