@@ -56,9 +56,6 @@ import {
   getFillingMode,
 } from "./chart_ui_common";
 
-// @ts-ignore
-const Chart: typeof ChartType = window.Chart;
-
 export class LineChart extends AbstractChart {
   readonly dataSets: DataSet[];
   readonly labelRange?: Range | undefined;
@@ -295,7 +292,9 @@ function getLineConfiguration(
       generateLabels(chart) {
         // color the legend labels with the dataset color, without any transparency
         const { data } = chart;
-        const labels = Chart.defaults.plugins.legend.labels.generateLabels!(chart);
+        /** @ts-ignore */
+        const labels = (window.Chart as typeof ChartType).defaults.plugins.legend.labels
+          .generateLabels!(chart);
         for (const [index, label] of labels.entries()) {
           label.fillStyle = data.datasets![index].borderColor as string;
         }
