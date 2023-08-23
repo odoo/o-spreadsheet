@@ -1,5 +1,4 @@
 import { ClipboardCellsState } from "../../helpers/clipboard/clipboard_cells_state";
-import { ClipboardFigureState } from "../../helpers/clipboard/clipboard_figure_state";
 import { ClipboardOsState } from "../../helpers/clipboard/clipboard_os_state";
 import { isZoneValid, positions } from "../../helpers/index";
 import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
@@ -17,6 +16,7 @@ import {
   CommandHandler,
   CommandResult,
   Dimension,
+  Figure,
   Getters,
   GridRenderingContext,
   isCoreCommand,
@@ -62,6 +62,7 @@ export class ClipboardPlugin implements CommandHandler<Command> {
   private lastPasteState?: ClipboardState;
   private paintFormatStatus: "inactive" | "oneOff" | "persistent" = "inactive";
   private originSheetId?: UID;
+  private clipboardContent: ClipboardContent | undefined = undefined;
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -82,12 +83,12 @@ export class ClipboardPlugin implements CommandHandler<Command> {
         const state = this.getClipboardState(zones, cmd.type);
         return state.isCutAllowed(zones);
       case "PASTE":
-        if (!this.state) {
+        if (!this.clipboardContent) {
           return CommandResult.EmptyClipboard;
         }
         const pasteOption =
           cmd.pasteOption || (this.paintFormatStatus !== "inactive" ? "onlyFormat" : undefined);
-        return this.state.isPasteAllowed(cmd.target, { pasteOption });
+        return this.state?.isPasteAllowed(cmd.target, { pasteOption }) || CommandResult.Success;
       case "PASTE_FROM_OS_CLIPBOARD": {
         const state = new ClipboardOsState(cmd.text, this.getters, this.dispatch, this.selection);
         return state.isPasteAllowed(cmd.target, { pasteOption: cmd.pasteOption });
@@ -258,11 +259,11 @@ export class ClipboardPlugin implements CommandHandler<Command> {
    * considered as a copy content.
    */
   getClipboardContent(): ClipboardContent {
-    return this.state?.getClipboardContent() || { [ClipboardMIMEType.PlainText]: "\t" };
+    return this.clipboardContent || { [ClipboardMIMEType.PlainText]: "\t" };
   }
 
   getClipboardTextContent(): string {
-    return this.state?.getClipboardContent()[ClipboardMIMEType.PlainText] || "\t";
+    return this.clipboardContent?.[ClipboardMIMEType.PlainText] || "\t";
   }
 
   isCutOperation(): boolean {
@@ -282,14 +283,17 @@ export class ClipboardPlugin implements CommandHandler<Command> {
       return;
     }
     for (const copier of this.copiers) {
-      copier(state, this.isCutOperation());
+      const clipboardContent = copier(this.getters, this.isCutOperation());
+      if (clipboardContent !== undefined) {
+        this.clipboardContent = clipboardContent;
+      }
     }
   }
 
   private callPasteOnAllPlugins(target: Zone[], pasteOption?: ClipboardOptions) {
-    if (this.state instanceof ClipboardFigureState) {
+    if (this.clipboardContent && "copiedFigure" in this.clipboardContent) {
       const sheetId = this.getters.getActiveSheetId();
-      const { width, height } = this.state.copiedFigure;
+      const { width, height } = this.clipboardContent.copiedFigure as Figure;
       const numCols = this.getters.getNumberCols(sheetId);
       const numRows = this.getters.getNumberRows(sheetId);
       const targetX = this.getters.getColDimensions(sheetId, target[0].left).start;
@@ -301,7 +305,7 @@ export class ClipboardPlugin implements CommandHandler<Command> {
         y: maxY < height ? 0 : Math.min(targetY, maxY - height),
       };
       for (const figurePaster of this.figurePasters) {
-        figurePaster(sheetId, position);
+        figurePaster(sheetId, position, this.clipboardContent);
       }
     } else if (this.state instanceof ClipboardCellsState) {
       for (const cellsPaster of this.cellPasters) {
@@ -373,10 +377,6 @@ export class ClipboardPlugin implements CommandHandler<Command> {
    * Get the clipboard state from the given zones.
    */
   private getClipboardState(zones: Zone[], operation: ClipboardOperation): ClipboardState {
-    const selectedFigureId = this.getters.getSelectedFigureId();
-    if (selectedFigureId) {
-      return new ClipboardFigureState(operation, this.getters, this.dispatch);
-    }
     return new ClipboardCellsState(zones, operation, this.getters, this.dispatch, this.selection);
   }
 

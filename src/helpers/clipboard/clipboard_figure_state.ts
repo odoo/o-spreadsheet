@@ -1,67 +1,38 @@
 import {
   CommandDispatcher,
-  CommandResult,
-  Dimension,
-  Figure,
+  //CommandResult,
+  //Dimension,
+  //Figure,
   FigureSize,
   Getters,
-  GridRenderingContext,
-  HeaderIndex,
+  //GridRenderingContext,
+  //HeaderIndex,
   UID,
-  Zone,
 } from "../../types";
 import { Image } from "../../types/image";
 import { AbstractChart } from "../figures/charts";
 import { deepCopy } from "../misc";
-import {
+/*import {
   ClipboardContent,
   ClipboardMIMEType,
   ClipboardOperation,
   ClipboardOptions,
   ClipboardState,
 } from "./../../types/clipboard";
+*/
 
 /** State of the clipboard when copying/cutting figures */
+/*
 export class ClipboardFigureState implements ClipboardState {
-  readonly sheetId: UID;
-  readonly copiedFigure: Figure;
-  readonly copiedFigureContent: ClipboardFigureChart | ClipboardFigureImage;
+  //readonly sheetId: UID;
+  //readonly copiedFigure: Figure;
+  //readonly copiedFigureContent: ClipboardFigureChart | ClipboardFigureImage;
   constructor(
     readonly operation: ClipboardOperation,
     readonly getters: Getters,
     readonly dispatch: CommandDispatcher["dispatch"]
   ) {
-    this.sheetId = getters.getActiveSheetId();
-    const copiedFigureId = getters.getSelectedFigureId();
-    if (!copiedFigureId) {
-      throw new Error(`No figure selected`);
-    }
-    const figure = getters.getFigure(this.sheetId, copiedFigureId);
-    if (!figure) {
-      throw new Error(`No figure for the given id: ${copiedFigureId}`);
-    }
-    this.copiedFigure = { ...figure };
-    switch (figure.tag) {
-      case "chart":
-        this.copiedFigureContent = new ClipboardFigureChart(
-          dispatch,
-          getters,
-          this.sheetId,
-          copiedFigureId
-        );
-        break;
-      case "image":
-        this.copiedFigureContent = new ClipboardFigureImage(
-          dispatch,
-          getters,
-          this.sheetId,
-          copiedFigureId
-        );
-        break;
-      default:
-        throw new Error(`Unknow tag '${figure.tag}' for the given figure id: ${copiedFigureId}`);
-        break;
-    }
+   
   }
 
   isCutAllowed(target: Zone[]): CommandResult {
@@ -88,6 +59,7 @@ export class ClipboardFigureState implements ClipboardState {
 
   drawClipboard(renderingContext: GridRenderingContext): void {}
 }
+*/
 
 export class ClipboardFigureChart {
   private readonly copiedChart: AbstractChart;

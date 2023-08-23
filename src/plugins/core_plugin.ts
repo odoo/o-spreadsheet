@@ -4,7 +4,6 @@ import { StateObserver } from "../state_observer";
 import {
   ApplyRangeChange,
   ClipboardOptions,
-  ClipboardState,
   CoreCommand,
   CoreCommandDispatcher,
   RangeProvider,
@@ -12,7 +11,7 @@ import {
   WorkbookData,
   Zone,
 } from "../types";
-import { CoreGetters } from "../types/getters";
+import { CoreGetters, Getters } from "../types/getters";
 import { BasePlugin } from "./base_plugin";
 import { RangeAdapter } from "./core/range";
 import { ClipboardPlugin } from "./ui_stateful";
@@ -86,8 +85,8 @@ export class CorePlugin<State = any>
    * TODO docstring
    * @param state
    */
-  copy(state: ClipboardState, isCutOperation: boolean): void {}
-  pasteFigure(sheetId: UID, position: { x: number; y: number }): void {}
+  copy(getters: Getters, isCutOperation: boolean): void {}
+  pasteFigure(sheetId: UID, position: { x: number; y: number }, content: any): void {}
   pasteCells(target: Zone[], options?: ClipboardOptions): void {}
 
   /**

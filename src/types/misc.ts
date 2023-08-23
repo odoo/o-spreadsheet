@@ -4,9 +4,10 @@
 import { ComponentConstructor } from "@odoo/owl";
 import { Token } from "../formulas";
 import { Cell, CellValue, EvaluatedCell } from "./cells";
-import { ClipboardOptions, ClipboardState } from "./clipboard";
+import { ClipboardOptions } from "./clipboard";
 import { CommandResult } from "./commands";
 import { Format } from "./format";
+import { Getters } from "./getters";
 import { Range } from "./range";
 
 /**
@@ -298,8 +299,8 @@ export interface RangeProvider {
 }
 
 export interface ClipboardProvider {
-  copy: (state: ClipboardState, isCutOperation: boolean) => void;
-  pasteFigure: (sheetId: UID, position: { x: number; y: number }) => void;
+  copy: (getters: Getters, isCutOperation: boolean) => any;
+  pasteFigure: (sheetId: UID, position: { x: number; y: number }, content) => void;
   pasteCells: (target: Zone[], options?: ClipboardOptions) => void;
 }
 

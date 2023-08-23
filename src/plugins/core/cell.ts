@@ -19,13 +19,13 @@ import {
   CellData,
   CellPosition,
   ClipboardOptions,
-  ClipboardState,
   CommandResult,
   CompiledFormula,
   CoreCommand,
   ExcelWorkbookData,
   Format,
   FormulaCell,
+  Getters,
   HeaderIndex,
   LiteralCell,
   Range,
@@ -87,12 +87,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     }
   }
 
-  copy(state: ClipboardState, isCutOperation: boolean) {
-    if (state instanceof ClipboardCellsState) {
-      this.state = state;
-    } else {
-      this.state = undefined;
-    }
+  copy(getters: Getters, isCutOperation: boolean) {
+    this.state = undefined;
   }
 
   pasteCells(target: Zone[], options?: ClipboardOptions) {
