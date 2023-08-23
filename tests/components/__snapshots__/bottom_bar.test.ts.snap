@@ -13,9 +13,6 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     <div
       class="d-flex w-100"
     >
-      <div
-        class="o-menu-item-icon align-middle"
-      />
       
       <div
         class="o-menu-item-name align-middle text-truncate"
@@ -35,9 +32,6 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     <div
       class="d-flex w-100"
     >
-      <div
-        class="o-menu-item-icon align-middle"
-      />
       
       <div
         class="o-menu-item-name align-middle text-truncate"
@@ -57,9 +51,6 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     <div
       class="d-flex w-100"
     >
-      <div
-        class="o-menu-item-icon align-middle"
-      />
       
       <div
         class="o-menu-item-name align-middle text-truncate"
@@ -79,9 +70,6 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     <div
       class="d-flex w-100"
     >
-      <div
-        class="o-menu-item-icon align-middle"
-      />
       
       <div
         class="o-menu-item-name align-middle text-truncate"
@@ -101,9 +89,6 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     <div
       class="d-flex w-100"
     >
-      <div
-        class="o-menu-item-icon align-middle"
-      />
       
       <div
         class="o-menu-item-name align-middle text-truncate"
@@ -123,9 +108,6 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
     <div
       class="d-flex w-100"
     >
-      <div
-        class="o-menu-item-icon align-middle"
-      />
       
       <div
         class="o-menu-item-name align-middle text-truncate"
