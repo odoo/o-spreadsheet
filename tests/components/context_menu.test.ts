@@ -681,6 +681,25 @@ describe("Context Menu internal tests", () => {
     await nextTick();
     expect(fixture.querySelector("div[data-name='menuItem']")).toBeFalsy();
   });
+
+  test("Menu icon slot is visibile if one of the children has an icon", async () => {
+    let visible = false;
+    const menuItems = createActions([
+      {
+        name: "child1",
+        icon: () => (visible ? "o-spreadsheet-Icon.BOLD" : ""),
+      },
+      {
+        name: "child2",
+      },
+    ]);
+    await renderContextMenu(300, 300, { menuItems });
+    expect(fixture.querySelectorAll(".o-menu-item-icon").length).toBe(0);
+    visible = true;
+    parent.render(true);
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-menu-item-icon").length).toBe(2);
+  });
 });
 
 describe("Context Menu position on large screen 1000px/1000px", () => {

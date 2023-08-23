@@ -166,7 +166,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get childrenHaveIcon(): boolean {
-    return this.props.menuItems.some((menuItem) => !!menuItem.icon || !!menuItem.isActive);
+    return this.props.menuItems.some((menuItem) => !!this.getIconName(menuItem));
   }
 
   getIconName(menu: Action) {
