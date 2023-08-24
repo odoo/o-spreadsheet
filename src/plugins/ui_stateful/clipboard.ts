@@ -68,6 +68,20 @@ export class ClipboardPlugin extends UIPlugin {
         const state = new ClipboardOsState(cmd.text, this.getters, this.dispatch, this.selection);
         return state.isPasteAllowed(cmd.target, { pasteOption: cmd.pasteOption });
       }
+      case "COPY_PASTE_CELLS_ABOVE": {
+        const zones = this.getters.getSelectedZones();
+        if (zones.length > 1 || (zones[0].top === 0 && zones[0].bottom === 0)) {
+          return CommandResult.InvalidCopyPasteSelection;
+        }
+        break;
+      }
+      case "COPY_PASTE_CELLS_ON_LEFT": {
+        const zones = this.getters.getSelectedZones();
+        if (zones.length > 1 || (zones[0].left === 0 && zones[0].right === 0)) {
+          return CommandResult.InvalidCopyPasteSelection;
+        }
+        break;
+      }
       case "INSERT_CELL": {
         const { cut, paste } = this.getInsertCellsTargets(cmd.zone, cmd.shiftDimension);
         const state = this.getClipboardStateForCopyCells(cut, "CUT");
@@ -107,6 +121,40 @@ export class ClipboardPlugin extends UIPlugin {
         if (this.paintFormatStatus === "oneOff") {
           this.paintFormatStatus = "inactive";
           this.status = "invisible";
+        }
+        break;
+      case "COPY_PASTE_CELLS_ABOVE":
+        {
+          const zone = this.getters.getSelectedZone();
+          const multipleRowsInSelection = zone.top !== zone.bottom;
+          const copyTarget = {
+            ...zone,
+            bottom: multipleRowsInSelection ? zone.top : zone.top - 1,
+            top: multipleRowsInSelection ? zone.top : zone.top - 1,
+          };
+          const state = this.getClipboardStateForCopyCells([copyTarget], "COPY");
+          state.paste([zone], {
+            pasteOption: undefined,
+            shouldPasteCF: true,
+            selectTarget: true,
+          });
+        }
+        break;
+      case "COPY_PASTE_CELLS_ON_LEFT":
+        {
+          const zone = this.getters.getSelectedZone();
+          const multipleColsInSelection = zone.left !== zone.right;
+          const copyTarget = {
+            ...zone,
+            right: multipleColsInSelection ? zone.left : zone.left - 1,
+            left: multipleColsInSelection ? zone.left : zone.left - 1,
+          };
+          const state = this.getClipboardStateForCopyCells([copyTarget], "COPY");
+          state.paste([zone], {
+            pasteOption: undefined,
+            shouldPasteCF: true,
+            selectTarget: true,
+          });
         }
         break;
       case "CLEAN_CLIPBOARD_HIGHLIGHT":

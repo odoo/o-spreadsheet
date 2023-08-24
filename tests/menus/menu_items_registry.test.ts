@@ -195,7 +195,7 @@ describe("Menu Item actions", () => {
   });
 
   test("Edit -> paste_special should be hidden after a CUT ", () => {
-    model.dispatch("CUT", { cutTarget: env.model.getters.getSelectedZones() });
+    model.dispatch("CUT");
     expect(getNode(["edit", "paste_special"]).isVisible(env)).toBeFalsy();
   });
 

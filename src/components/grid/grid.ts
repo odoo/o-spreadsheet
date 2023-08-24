@@ -319,6 +319,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       const position = this.env.model.getters.getActivePosition();
       this.env.model.selection.selectZone({ cell: position, zone: newZone });
     },
+    "CTRL+D": async () => this.env.model.dispatch("COPY_PASTE_CELLS_ABOVE"),
+    "CTRL+R": async () => this.env.model.dispatch("COPY_PASTE_CELLS_ON_LEFT"),
     "CTRL+SHIFT+E": () => this.setHorizontalAlign("center"),
     "CTRL+SHIFT+L": () => this.setHorizontalAlign("left"),
     "CTRL+SHIFT+R": () => this.setHorizontalAlign("right"),
