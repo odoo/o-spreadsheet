@@ -158,6 +158,7 @@ export class ScorecardChart extends AbstractChart {
       keyValue: keyValue
         ? this.getters.getRangeString(keyValue, targetSheetId || this.sheetId)
         : undefined,
+      extraData: this.extraData,
     };
   }
 

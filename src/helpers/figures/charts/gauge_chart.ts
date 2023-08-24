@@ -228,6 +228,7 @@ export class GaugeChart extends AbstractChart {
       dataRange: dataRange
         ? this.getters.getRangeString(dataRange, targetSheetId || this.sheetId)
         : undefined,
+      extraData: this.extraData,
     };
   }
 

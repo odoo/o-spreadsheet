@@ -21,11 +21,13 @@ import { Validator } from "../../../types/validator";
 export abstract class AbstractChart {
   readonly sheetId: UID;
   readonly title: string;
+  readonly extraData?: any;
   abstract readonly type: ChartType;
   protected readonly getters: CoreGetters;
 
   constructor(definition: ChartDefinition, sheetId: UID, getters: CoreGetters) {
     this.title = definition.title;
+    this.extraData = definition.extraData;
     this.sheetId = sheetId;
     this.getters = getters;
   }

@@ -141,6 +141,7 @@ export class LineChart extends AbstractChart {
       labelsAsText: this.labelsAsText,
       stacked: this.stacked,
       aggregated: this.aggregated,
+      extraData: this.extraData,
     };
   }
 

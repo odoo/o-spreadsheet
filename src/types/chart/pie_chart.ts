@@ -11,6 +11,7 @@ export interface PieChartDefinition {
   readonly background?: Color;
   readonly legendPosition: LegendPosition;
   readonly aggregated?: boolean;
+  readonly extraData?: any;
 }
 
 export type PieChartRuntime = {

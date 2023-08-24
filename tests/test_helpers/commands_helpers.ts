@@ -149,6 +149,9 @@ export function createChart(
       stacked: ("stacked" in data && data.stacked) || false,
       labelsAsText: ("labelsAsText" in data && data.labelsAsText) || false,
       aggregated: ("aggregated" in data && data.aggregated) || false,
+      extraData: data.extraData || {
+        someKey: "someValue",
+      },
     },
   });
 }
@@ -175,6 +178,9 @@ export function createScorecardChart(
       baselineColorDown: data.baselineColorDown || "#DC6965",
       baselineColorUp: data.baselineColorUp || "#00A04A",
       background: data.background,
+      extraData: {
+        someKey: "someValue",
+      },
     },
   });
 }
@@ -212,6 +218,9 @@ export function createGaugeChart(
           type: "number",
           value: "66",
         },
+      },
+      extraData: {
+        someKey: "someValue",
       },
     },
   });

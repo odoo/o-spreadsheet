@@ -159,6 +159,7 @@ export class BarChart extends AbstractChart {
       title: this.title,
       stacked: this.stacked,
       aggregated: this.aggregated,
+      extraData: this.extraData,
     };
   }
 

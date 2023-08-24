@@ -135,6 +135,7 @@ export class PieChart extends AbstractChart {
         : undefined,
       title: this.title,
       aggregated: this.aggregated,
+      extraData: this.extraData,
     };
   }
 

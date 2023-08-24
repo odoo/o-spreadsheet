@@ -10,6 +10,7 @@ export interface ScorecardChartDefinition {
   readonly background?: Color;
   readonly baselineColorUp: Color;
   readonly baselineColorDown: Color;
+  readonly extraData?: any;
 }
 
 export type BaselineMode = "text" | "difference" | "percentage";
