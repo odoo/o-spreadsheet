@@ -32,7 +32,7 @@ if [ "$HUSKY_PRE_COMMIT" != 0 ]; then
                 exit 1; # THE USER DONT WANT TO CONTINUE SO ROLLBACK
             fi
         else
-            echo -e "\033[1;31mWARNING: Some occurences of forbidden patterns were detected \033[0m"
+            echo "\033[1;31mWARNING: Some occurences of forbidden patterns were detected \033[0m"
             exec git diff --cached --color | grep -nE $consoleregexp -A 2 -B 2
         fi
     fi

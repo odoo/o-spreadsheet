@@ -1,0 +1,40 @@
+name: Spreadsheet CI
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+jobs:
+  "task_trailer":
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: rmacklin/fetch-through-merge-base@v0
+        with:
+          base_ref: ${{ github.event.pull_request.base.sha }}
+          head_ref: ${{ github.event.pull_request.head.sha }}
+      - name: Task trailer
+        id: task_trailer
+        run: |
+          # Check commits 'Task' trailer presence
+          task_regex="^Task:\s"
+          base_ref=${{ github.event.pull_request.base.sha }}
+          head_ref=${{ github.event.pull_request.head.sha }}
+          commits=$(git log $base_ref..$head_ref --pretty=format:"%h")
+          for variable in $commits
+          do
+              message=$(git log "$variable^..$variable" --pretty=format:"%B")
+              if test $(echo "$message" | grep -e $task_regex | wc -l) -eq 0; then
+                  echo "Commit $variable is missing \"Task:\" trailer"
+                  echo "Commit message:"
+                  echo "$message"
+
+                  echo -e "\\n\e[31mThe commit message is missing the task reference.\e[0m"
+                  echo -e "An example of a valid message is:\\n"
+                  echo -e "[IMP] doing Stuff\n"
+                  echo -e "This commit sure does a lot."
+                  echo -e "Here is an indepth descripton of the rationale behind this change (...)\\n"
+                  echo -e "(optional) Co-authored-by: Myself Aswell <never_alone@copium.com>"
+                  echo -e "\e[32m(required) Task: {taskId} or leave empty if there is no related task\e[0m\\n"
+                  exit 1 
+              fi
+          done
+          exit 0
