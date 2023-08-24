@@ -7,6 +7,7 @@ export interface GaugeChartDefinition {
   readonly dataRange?: string;
   readonly sectionRule: SectionRule;
   readonly background?: Color;
+  readonly extraData?: any;
 }
 
 export interface SectionRule {

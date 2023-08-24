@@ -103,6 +103,7 @@ export class BarChart extends AbstractChart {
       type: "bar",
       verticalAxisPosition: "left",
       labelRange: context.auxiliaryRange || undefined,
+      extraData: context.extraData,
     };
   }
 
@@ -116,6 +117,7 @@ export class BarChart extends AbstractChart {
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
         : undefined,
+      extraData: this.extraData,
     };
   }
 
@@ -159,6 +161,7 @@ export class BarChart extends AbstractChart {
       title: this.title,
       stacked: this.stacked,
       aggregated: this.aggregated,
+      extraData: this.extraData,
     };
   }
 

@@ -577,6 +577,9 @@ describe("Collaborative Sheet manipulation", () => {
       verticalAxisPosition: "left",
       legendPosition: "top",
       aggregated: false,
+      extraData: {
+        someNewKey: "someNewValue",
+      },
     };
 
     test(`Concurrently chart creation & update and add columns`, () => {

@@ -13,6 +13,7 @@ export interface BarChartDefinition {
   readonly legendPosition: LegendPosition;
   readonly stacked: boolean;
   readonly aggregated?: boolean;
+  readonly extraData?: any;
 }
 
 export type BarChartRuntime = {

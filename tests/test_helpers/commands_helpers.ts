@@ -149,6 +149,9 @@ export function createChart(
       stacked: ("stacked" in data && data.stacked) || false,
       labelsAsText: ("labelsAsText" in data && data.labelsAsText) || false,
       aggregated: ("aggregated" in data && data.aggregated) || false,
+      extraData: data.extraData || {
+        someKey: "someValue",
+      },
     },
   });
 }

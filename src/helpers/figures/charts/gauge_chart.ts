@@ -198,6 +198,7 @@ export class GaugeChart extends AbstractChart {
           value: "40",
         },
       },
+      extraData: context.extraData,
     };
   }
 
@@ -228,6 +229,7 @@ export class GaugeChart extends AbstractChart {
       dataRange: dataRange
         ? this.getters.getRangeString(dataRange, targetSheetId || this.sheetId)
         : undefined,
+      extraData: this.extraData,
     };
   }
 
@@ -243,6 +245,7 @@ export class GaugeChart extends AbstractChart {
       range: this.dataRange
         ? [this.getters.getRangeString(this.dataRange, this.sheetId)]
         : undefined,
+      extraData: this.extraData,
     };
   }
 

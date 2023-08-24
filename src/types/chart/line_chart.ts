@@ -14,6 +14,7 @@ export interface LineChartDefinition {
   readonly labelsAsText: boolean;
   readonly stacked: boolean;
   readonly aggregated?: boolean;
+  readonly extraData?: any;
 }
 
 export type LineChartRuntime = {

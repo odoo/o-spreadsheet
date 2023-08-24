@@ -113,6 +113,7 @@ export class LineChart extends AbstractChart {
       labelRange: context.auxiliaryRange || undefined,
       stacked: false,
       aggregated: false,
+      extraData: context.extraData,
     };
   }
 
@@ -141,6 +142,7 @@ export class LineChart extends AbstractChart {
       labelsAsText: this.labelsAsText,
       stacked: this.stacked,
       aggregated: this.aggregated,
+      extraData: this.extraData,
     };
   }
 
@@ -154,6 +156,7 @@ export class LineChart extends AbstractChart {
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
         : undefined,
+      extraData: this.extraData,
     };
   }
 

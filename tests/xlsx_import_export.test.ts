@@ -276,7 +276,7 @@ describe("Export data to xlsx then import it", () => {
     const importedModel = exportToXlsxThenImport(model);
     const newChartId = importedModel.getters.getChartIds(sheetId)[0];
     const newChart = importedModel.getters.getChartDefinition(newChartId);
-    expect(newChart).toMatchObject(chartDef);
+    expect(newChart).toMatchObject({ ...chartDef, extraData: undefined });
   });
 
   test("hyperlinks", () => {
