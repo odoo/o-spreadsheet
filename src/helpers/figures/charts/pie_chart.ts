@@ -30,6 +30,7 @@ import { LegendPosition } from "../../../types/chart/common_chart";
 import { PieChartDefinition, PieChartRuntime } from "../../../types/chart/pie_chart";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
+import { toHex } from "../../color";
 import { formatValue } from "../../format";
 import { createRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
@@ -76,7 +77,7 @@ export class PieChart extends AbstractChart {
     this.labelRange = createRange(getters, sheetId, definition.labelRange);
     this.background = definition.background;
     this.legendPosition = definition.legendPosition;
-    this.aggregated = definition.aggregated;
+    this.aggregated = true;
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
   }
 
@@ -206,6 +207,8 @@ function getPieConfiguration(
   const config = getDefaultChartJsRuntime(chart, labels, fontColor, localeFormat);
   const legend: DeepPartial<LegendOptions<"pie">> = {
     labels: { color: fontColor },
+    onHover: handleLegendHover,
+    onLeave: handleLegendLeave,
   };
   if ((!chart.labelRange && chart.dataSets.length === 1) || chart.legendPosition === "none") {
     legend.display = false;
@@ -232,7 +235,56 @@ function getPieConfiguration(
 
     return xLabel ? `${xLabel}: ${yLabelStr} (${percentage}%)` : `${yLabelStr} (${percentage}%)`;
   };
+  config.options.onHover = handlePieHover;
   return config;
+}
+
+let prevItemindex = null;
+
+function handlePieHover(evt, item, legend) {
+  const datasets = legend.legend.legendItems;
+  const isLastIndex = item[0] && prevItemindex === item[0].index;
+
+  if (item[0] && !isLastIndex) {
+    datasets.forEach((dataset, index, colors) => {
+      const hexColor = toHex(dataset.fillStyle);
+      colors[index].fillStyle =
+        index === item[0].index || dataset.fillStyle.length === 9 ? hexColor : hexColor + "4D";
+    });
+  } else {
+    datasets.forEach((dataset, index, colors) => {
+      colors[index].fillStyle =
+        dataset.fillStyle.length === 9 ? dataset.fillStyle.slice(0, -2) : dataset.fillStyle;
+    });
+  }
+
+  prevItemindex = item[0] ? item[0].index : null;
+}
+
+function handleLegendHover(evt, item, legend) {
+  const datasets = legend.chart.data.datasets;
+
+  datasets.forEach((dataset) => {
+    const backgroundColors = dataset.backgroundColor;
+    backgroundColors.forEach((color, index, colors) => {
+      const hexColor = toHex(color);
+      colors[index] = index === item.index || color.length === 9 ? hexColor : hexColor + "4D";
+    });
+  });
+
+  legend.chart.update();
+}
+
+function handleLegendLeave(evt, item, legend) {
+  const datasets = legend.chart.data.datasets;
+
+  datasets.forEach((dataset) => {
+    dataset.backgroundColor.forEach((color, index, colors) => {
+      colors[index] = color.length === 9 ? color.slice(0, -2) : color;
+    });
+  });
+
+  legend.chart.update();
 }
 
 function getPieColors(colors: ChartColors, dataSetsValues: DatasetValues[]): Color[] {
