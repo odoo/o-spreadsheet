@@ -13,6 +13,8 @@ import {
   addRows,
   cleanClipBoardHighlight,
   copy,
+  copyPasteAboveCells,
+  copyPasteCellsOnLeft,
   createSheet,
   createSheetWithName,
   cut,
@@ -1867,6 +1869,128 @@ describe("clipboard: pasting outside of sheet", () => {
     expect(model.getters.getNumberCols(activeSheetId)).toBe(currentColNumber + 1);
     expect(getCellContent(model, "B2")).toBe("txt");
     expect(model.getters.getSelectedZones()).toEqual([toZone("B2:AA2")]);
+  });
+
+  test("fill down on cell(s) of edge row should do nothing", async () => {
+    const model = new Model();
+    setCellContent(model, "B1", "b1");
+    selectCell(model, "B1");
+    copyPasteAboveCells(model);
+    expect(getCellContent(model, "B1")).toBe("b1");
+
+    setCellContent(model, "C1", "c1");
+    setSelection(model, ["B1:C1"]);
+    copyPasteAboveCells(model);
+    expect(getCellContent(model, "B1")).toBe("b1");
+    expect(getCellContent(model, "C1")).toBe("c1");
+  });
+
+  test("fill right on cell(s) of edge column should do nothing", async () => {
+    const model = new Model();
+    setCellContent(model, "A2", "a2");
+    selectCell(model, "A2");
+    copyPasteCellsOnLeft(model);
+    expect(getCellContent(model, "A2")).toBe("a2");
+
+    setCellContent(model, "A3", "a3");
+    setSelection(model, ["A2:A3"]);
+    copyPasteCellsOnLeft(model);
+    expect(getCellContent(model, "A2")).toBe("a2");
+    expect(getCellContent(model, "A3")).toBe("a3");
+  });
+
+  test("fill down selection with single row -> for each cell, replicates the cell above it", async () => {
+    const model = new Model();
+    setCellContent(model, "B2", "b2");
+    selectCell(model, "B2");
+    copyPasteAboveCells(model);
+    expect(getCell(model, "B2")).toBe(undefined);
+
+    setCellContent(model, "B1", "b1");
+    setStyle(model, "B1", { bold: true, fillColor: "red" });
+    setCellContent(model, "B2", "b2");
+    selectCell(model, "B2");
+    copyPasteAboveCells(model);
+    expect(getCellContent(model, "B2")).toBe("b1");
+    expect(getStyle(model, "B2")).toEqual({ bold: true, fillColor: "red" });
+
+    setCellContent(model, "C1", "c1");
+    setCellContent(model, "D1", "d1");
+    setSelection(model, ["B2:D2"]);
+    copyPasteAboveCells(model);
+    expect(getCellContent(model, "B2")).toBe("b1");
+    expect(getStyle(model, "B2")).toEqual({ bold: true, fillColor: "red" });
+    expect(getCellContent(model, "C2")).toBe("c1");
+    expect(getCellContent(model, "D2")).toBe("d1");
+  });
+
+  test("fill right selection with single column -> for each cell, replicates the cell on its left", async () => {
+    const model = new Model();
+    setCellContent(model, "B1", "b1");
+    selectCell(model, "B1");
+    copyPasteCellsOnLeft(model);
+    expect(getCell(model, "B1")).toBe(undefined);
+
+    setCellContent(model, "A1", "a1");
+    setStyle(model, "A1", { bold: true, fillColor: "red" });
+    setCellContent(model, "B1", "b1");
+    selectCell(model, "B1");
+    copyPasteCellsOnLeft(model);
+    expect(getCellContent(model, "B1")).toBe("a1");
+    expect(getStyle(model, "B1")).toEqual({ bold: true, fillColor: "red" });
+
+    setCellContent(model, "A2", "a2");
+    setCellContent(model, "A3", "a3");
+    setSelection(model, ["B1:B3"]);
+    copyPasteCellsOnLeft(model);
+    expect(getCellContent(model, "B1")).toBe("a1");
+    expect(getStyle(model, "B1")).toEqual({ bold: true, fillColor: "red" });
+    expect(getCellContent(model, "B2")).toBe("a2");
+    expect(getCellContent(model, "B3")).toBe("a3");
+  });
+
+  test("fill down selection with multiple rows -> copies first row and pastes in each subsequent row", async () => {
+    const model = new Model();
+    setCellContent(model, "B3", "b3");
+    setSelection(model, ["B2:B3"]);
+    copyPasteAboveCells(model);
+    expect(getCell(model, "B2")).toBe(undefined);
+    expect(getCell(model, "B3")).toBe(undefined);
+
+    setCellContent(model, "B1", "b1");
+    setCellContent(model, "B2", "b2");
+    setStyle(model, "B2", { bold: true, fillColor: "red" });
+    setCellContent(model, "C2", "c2");
+    setSelection(model, ["B2:C3"]);
+    copyPasteAboveCells(model);
+    expect(getCellContent(model, "B2")).toBe("b2");
+    expect(getStyle(model, "B2")).toEqual({ bold: true, fillColor: "red" });
+    expect(getCellContent(model, "B3")).toBe("b2");
+    expect(getStyle(model, "B3")).toEqual({ bold: true, fillColor: "red" });
+    expect(getCellContent(model, "C2")).toBe("c2");
+    expect(getCellContent(model, "C3")).toBe("c2");
+  });
+
+  test("fill right selection with multiple columns -> copies first column and pastes in each subsequent column, ", async () => {
+    const model = new Model();
+    setCellContent(model, "C1", "c1");
+    setSelection(model, ["B1:C1"]);
+    copyPasteCellsOnLeft(model);
+    expect(getCell(model, "B1")).toBe(undefined);
+    expect(getCell(model, "C1")).toBe(undefined);
+
+    setCellContent(model, "A1", "a1");
+    setCellContent(model, "B2", "b2");
+    setCellContent(model, "B1", "b1");
+    setStyle(model, "B1", { bold: true, fillColor: "red" });
+    setSelection(model, ["B1:C2"]);
+    copyPasteCellsOnLeft(model);
+    expect(getCellContent(model, "B1")).toBe("b1");
+    expect(getStyle(model, "B1")).toEqual({ bold: true, fillColor: "red" });
+    expect(getCellContent(model, "B2")).toBe("b2");
+    expect(getCellContent(model, "C1")).toBe("b1");
+    expect(getStyle(model, "C1")).toEqual({ bold: true, fillColor: "red" });
+    expect(getCellContent(model, "C2")).toBe("b2");
   });
 
   test("Copy a formula which lead to #REF", () => {

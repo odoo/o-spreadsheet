@@ -290,6 +290,22 @@ export function pasteFromOSClipboard(
 }
 
 /**
+ * Copy cells above a zone and paste on zone
+ */
+export function copyPasteAboveCells(model: Model): DispatchResult {
+  const result = model.dispatch("COPY_PASTE_CELLS_ABOVE");
+  return result;
+}
+
+/**
+ * Copy cells to the left of a zone and paste on zone
+ */
+export function copyPasteCellsOnLeft(model: Model): DispatchResult {
+  const result = model.dispatch("COPY_PASTE_CELLS_ON_LEFT");
+  return result;
+}
+
+/**
  * Clean clipboard highlight selection.
  */
 export function cleanClipBoardHighlight(model: Model): DispatchResult {

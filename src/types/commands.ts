@@ -619,6 +619,14 @@ export interface PasteCommand {
   pasteOption?: ClipboardPasteOptions;
 }
 
+export interface CopyPasteCellsAboveCommand {
+  type: "COPY_PASTE_CELLS_ABOVE";
+}
+
+export interface CopyPasteCellsOnLeftCommand {
+  type: "COPY_PASTE_CELLS_ON_LEFT";
+}
+
 export interface RepeatPasteCommand {
   type: "REPEAT_PASTE";
   target: Zone[];
@@ -1098,6 +1106,8 @@ export type LocalCommand =
   | CopyCommand
   | CutCommand
   | PasteCommand
+  | CopyPasteCellsAboveCommand
+  | CopyPasteCellsOnLeftCommand
   | RepeatPasteCommand
   | CleanClipBoardHighlightCommand
   | AutoFillCellCommand
@@ -1300,6 +1310,7 @@ export const enum CommandResult {
   InvalidDataValidationCriterionValue = "InvalidDataValidationCriterionValue",
   InvalidNumberOfCriterionValues = "InvalidNumberOfCriterionValues",
   BlockingValidationRule = "BlockingValidationRule",
+  InvalidCopyPasteSelection = "InvalidCopyPasteSelection",
 }
 
 export interface CommandHandler<T> {

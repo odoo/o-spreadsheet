@@ -8,7 +8,7 @@ export const PasteInteractiveContent = {
     "This operation is not possible due to a merge. Please remove the merges first than try again."
   ),
   wrongFigurePasteOption: _t("Cannot do a special paste of a figure."),
-  frozenPaneOverlap: _t("Cannot paste merged cells over a frozen pane."),
+  frozenPaneOverlap: _t("This operation is not allowed due to an overlapping frozen pane."),
 };
 
 export function handlePasteResult(env: SpreadsheetChildEnv, result: DispatchResult) {
