@@ -1,6 +1,13 @@
 import { parsePrimitiveContent } from "../../helpers/cells";
-import { colorNumberString, isInside, recomputeZones, toXC, toZone } from "../../helpers/index";
-import { clip, isDefined } from "../../helpers/misc";
+import {
+  colorNumberString,
+  isInside,
+  recomputeZones,
+  toXC,
+  toZone,
+  UuidGenerator,
+} from "../../helpers/index";
+import { clip, deepEquals, isDefined } from "../../helpers/misc";
 import { Mode } from "../../model";
 import { _lt } from "../../translation";
 import {
@@ -32,6 +39,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
   // stores the computed styles in the format of computedStyles.sheetName[col][row] = Style
   private computedStyles: { [sheet: string]: { [col: number]: (Style | undefined)[] } } = {};
   private computedIcons: { [sheet: string]: { [col: number]: (string | undefined)[] } } = {};
+  private uuidGenerator = new UuidGenerator();
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -484,11 +492,20 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
           if (origin.sheetId === target.sheetId) {
             this.adaptRules(origin.sheetId, cf, [xc], toRemoveRange);
           } else {
-            this.adaptRules(target.sheetId, cf, [xc], []);
             this.adaptRules(origin.sheetId, cf, [], toRemoveRange);
+            const cfToCopyTo = this.getCFToCopyTo(target.sheetId, cf);
+            this.adaptRules(target.sheetId, cfToCopyTo, [xc], []);
           }
         }
       }
     }
+  }
+
+  private getCFToCopyTo(targetSheetId: UID, originCF: ConditionalFormat): ConditionalFormat {
+    const cfInTarget = this.getters
+      .getConditionalFormats(targetSheetId)
+      .find((cf) => cf.stopIfTrue === originCF.stopIfTrue && deepEquals(cf.rule, originCF.rule));
+
+    return cfInTarget ? cfInTarget : { ...originCF, id: this.uuidGenerator.uuidv4(), ranges: [] };
   }
 }
