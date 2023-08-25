@@ -19,7 +19,8 @@ import { ClipboardMIMEType, ClipboardOperation, ClipboardOptions } from "../../t
 import { xmlEscape } from "../../xlsx/helpers/xml_helpers";
 import { toXC } from "../coordinates";
 import { formatValue } from "../format";
-import { range } from "../misc";
+import { deepEquals, range } from "../misc";
+import { UuidGenerator } from "../uuid";
 import { createAdaptedZone, isInside, mergeOverlappingZones, positions, union } from "../zones";
 import { ClipboardCellsAbstractState } from "./clipboard_abstract_cell_state";
 
@@ -33,6 +34,8 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
   private cells: ClipboardCell[][];
   private readonly copiedTables: CopiedTable[];
   private readonly zones: Zone[];
+
+  private readonly uuidGenerator = new UuidGenerator();
 
   constructor(
     zones: Zone[],
@@ -567,8 +570,9 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
           if (origin.sheetId === target.sheetId) {
             this.adaptCFRules(origin.sheetId, cf, [xc], toRemoveRange);
           } else {
-            this.adaptCFRules(target.sheetId, cf, [xc], []);
             this.adaptCFRules(origin.sheetId, cf, [], toRemoveRange);
+            const cfToCopyTo = this.getCFToCopyTo(target.sheetId, cf);
+            this.adaptCFRules(target.sheetId, cfToCopyTo, [xc], []);
           }
         }
       }
@@ -592,5 +596,13 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
       ranges: newRangesXC.map((xc) => this.getters.getRangeDataFromXc(sheetId, xc)),
       sheetId,
     });
+  }
+
+  private getCFToCopyTo(targetSheetId: UID, originCF: ConditionalFormat): ConditionalFormat {
+    const cfInTarget = this.getters
+      .getConditionalFormats(targetSheetId)
+      .find((cf) => cf.stopIfTrue === originCF.stopIfTrue && deepEquals(cf.rule, originCF.rule));
+
+    return cfInTarget ? cfInTarget : { ...originCF, id: this.uuidGenerator.uuidv4(), ranges: [] };
   }
 }
