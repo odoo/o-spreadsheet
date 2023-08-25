@@ -47,6 +47,7 @@ import {
 } from "../test_helpers/getters_helpers";
 import { MockClipboard, mountSpreadsheet, nextTick, Touch } from "../test_helpers/helpers";
 import { MockTransportService } from "../__mocks__/transport_service";
+import { createFigure } from "./figure.test";
 import { mockChart } from "./__mocks__/chart";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
@@ -866,6 +867,18 @@ describe("error tooltip", () => {
     setCellContent(model, "C1", "=1/0");
     await hoverCell(model, "C8", 400);
     expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
+  });
+
+  test("Hovering over a figure should not open popovers", async () => {
+    createFigure(model, { id: "figureId", y: 200, x: 200, width: 200, height: 200 });
+    await nextTick();
+    setCellContent(model, "C3", "[label](url.com)");
+
+    triggerMouseEvent(".o-figure", "mousemove", DEFAULT_CELL_WIDTH * 2, DEFAULT_CELL_HEIGHT * 2);
+    jest.advanceTimersByTime(400);
+    await nextTick();
+
+    expect(fixture.querySelector(".o-popover")).toBeNull();
   });
 
   test("composer content is set when clicking on merged cell (not top left)", async () => {
