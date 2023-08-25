@@ -1663,6 +1663,41 @@ describe("clipboard", () => {
     expect(getStyle(model, "A2", sheet1)).toEqual({});
   });
 
+  test("copy paste CF in another sheet => change CF => copy paste again doesn't overwrite the previously pasted CF", () => {
+    const model = new Model();
+    createSheet(model, {});
+    const sheet1Id = model.getters.getSheetIds()[0];
+    const sheet2Id = model.getters.getSheetIds()[1];
+
+    const cf = createEqualCF("2", { fillColor: "#00FF00" }, "cfId");
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf,
+      ranges: toRangesData(sheet1Id, "A1"),
+      sheetId: sheet1Id,
+    });
+
+    model.dispatch("COPY", { target: target("A1") });
+    activateSheet(model, sheet2Id);
+    model.dispatch("PASTE", { target: target("A1") });
+    expect(model.getters.getConditionalFormats(sheet2Id)).toMatchObject([
+      { ranges: ["A1"], rule: { style: { fillColor: "#00FF00" } } },
+    ]);
+
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("2", { fillColor: "#FF0000" }, "cfId"),
+      ranges: toRangesData(sheet1Id, "A1"),
+      sheetId: sheet1Id,
+    });
+    activateSheet(model, sheet1Id);
+    model.dispatch("COPY", { target: target("A1") });
+    activateSheet(model, sheet2Id);
+    model.dispatch("PASTE", { target: target("B2") });
+    expect(model.getters.getConditionalFormats(sheet2Id)).toMatchObject([
+      { ranges: ["A1"], rule: { style: { fillColor: "#00FF00" } } },
+      { ranges: ["B2"], rule: { style: { fillColor: "#FF0000" } } },
+    ]);
+  });
+
   test("can copy and paste a cell which contains a cross-sheet reference", () => {
     const model = new Model();
     createSheet(model, { sheetId: "42" });
