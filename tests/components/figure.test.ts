@@ -31,7 +31,7 @@ let fixture: HTMLElement;
 let model: Model;
 let sheetId: UID;
 
-function createFigure(
+export function createFigure(
   model: Model,
   figureParameters: Partial<CreateFigureCommand["figure"]> = {},
   sheetId: UID = model.getters.getActiveSheetId()
