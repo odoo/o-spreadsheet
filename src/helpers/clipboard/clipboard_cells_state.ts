@@ -18,7 +18,8 @@ import { ClipboardMIMEType, ClipboardOperation, ClipboardOptions } from "../../t
 import { xmlEscape } from "../../xlsx/helpers/xml_helpers";
 import { toXC } from "../coordinates";
 import { formatValue } from "../format";
-import { range } from "../misc";
+import { areConditionalFormatEquivalents, range } from "../misc";
+import { UuidGenerator } from "../uuid";
 import { createAdaptedZone, isInside, mergeOverlappingZones, positions, union } from "../zones";
 import { ClipboardCellsAbstractState } from "./clipboard_abstract_cell_state";
 
@@ -32,6 +33,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
   private cells: ClipboardCell[][];
   private readonly copiedTables: CopiedTable[];
   private readonly zones: Zone[];
+  private uuidGenerator = new UuidGenerator();
 
   constructor(
     zones: Zone[],
@@ -538,15 +540,10 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
 
   private pasteCf(origin: CellPosition, target: CellPosition) {
     const xc = toXC(target.col, target.row);
-    for (let rule of this.getters.getConditionalFormats(origin.sheetId)) {
-      for (let range of rule.ranges) {
-        if (
-          isInside(
-            origin.col,
-            origin.row,
-            this.getters.getRangeFromSheetXC(origin.sheetId, range).zone
-          )
-        ) {
+    for (const rule of this.getters.getConditionalFormats(origin.sheetId)) {
+      for (const range of rule.ranges) {
+        const ruleZone = this.getters.getRangeFromSheetXC(origin.sheetId, range).zone;
+        if (isInside(origin.col, origin.row, ruleZone)) {
           const cf = rule;
           const toRemoveRange: string[] = [];
           if (this.operation === "CUT") {
@@ -556,12 +553,27 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
           if (origin.sheetId === target.sheetId) {
             this.adaptCFRules(origin.sheetId, cf, [xc], toRemoveRange);
           } else {
-            this.adaptCFRules(target.sheetId, cf, [xc], []);
             this.adaptCFRules(origin.sheetId, cf, [], toRemoveRange);
+            const cfToCopyTo = this.getCFToCopyTo(target.sheetId, cf);
+            this.adaptCFRules(target.sheetId, cfToCopyTo, [xc], []);
           }
         }
       }
     }
+  }
+
+  private getCFToCopyTo(targetSheetId: UID, originCF: ConditionalFormat): ConditionalFormat {
+    const cfInTarget = this.getters
+      .getConditionalFormats(targetSheetId)
+      .find((cf) => areConditionalFormatEquivalents(originCF, cf));
+
+    if (cfInTarget) {
+      return cfInTarget;
+    }
+
+    const cf = { ...originCF, id: this.uuidGenerator.uuidv4(), ranges: [] };
+    this.dispatch("ADD_CONDITIONAL_FORMAT", { cf, ranges: [], sheetId: targetSheetId });
+    return cf;
   }
 
   /**

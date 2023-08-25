@@ -2,7 +2,7 @@
 // Miscellaneous
 //------------------------------------------------------------------------------
 import { NEWLINE } from "../constants";
-import { ConsecutiveIndexes, Lazy, UID } from "../types";
+import { ConditionalFormat, ConsecutiveIndexes, Lazy, UID } from "../types";
 import { Cloneable } from "./../types/misc";
 /**
  * Stringify an object, like JSON.stringify, except that the first level of keys
@@ -486,4 +486,8 @@ export function insertItemsAtIndex<T>(array: readonly T[], items: T[], index: nu
   const newArray = [...array];
   newArray.splice(index, 0, ...items);
   return newArray;
+}
+
+export function areConditionalFormatEquivalents(cf1: ConditionalFormat, cf2: ConditionalFormat) {
+  return cf1.stopIfTrue === cf2.stopIfTrue && deepEquals(cf1.rule, cf2.rule);
 }
