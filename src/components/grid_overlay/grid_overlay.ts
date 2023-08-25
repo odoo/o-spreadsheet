@@ -60,9 +60,11 @@ function useCellHovered(
     }
   }
   function updateMousePosition(e: MouseEvent) {
-    x = e.offsetX;
-    y = e.offsetY;
-    lastMoved = Date.now();
+    if (gridRef.el === e.target) {
+      x = e.offsetX;
+      y = e.offsetY;
+      lastMoved = Date.now();
+    }
   }
 
   function recompute() {
