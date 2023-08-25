@@ -1,6 +1,13 @@
 import { parsePrimitiveContent } from "../../helpers/cells";
-import { colorNumberString, isInside, percentile, recomputeZones, toXC } from "../../helpers/index";
-import { clip, isDefined } from "../../helpers/misc";
+import {
+  colorNumberString,
+  isInside,
+  percentile,
+  recomputeZones,
+  toXC,
+  UuidGenerator,
+} from "../../helpers/index";
+import { clip, deepEquals, isDefined } from "../../helpers/misc";
 import { _lt } from "../../translation";
 import {
   Cell,
@@ -33,6 +40,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
   // stores the computed styles in the format of computedStyles.sheetName[col][row] = Style
   private computedStyles: { [sheet: string]: { [col: HeaderIndex]: (Style | undefined)[] } } = {};
   private computedIcons: { [sheet: string]: { [col: HeaderIndex]: (string | undefined)[] } } = {};
+  private uuidGenerator = new UuidGenerator();
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -490,8 +498,9 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
           if (origin.sheetId === target.sheetId) {
             this.adaptRules(origin.sheetId, cf, [xc], toRemoveRange);
           } else {
-            this.adaptRules(target.sheetId, cf, [xc], []);
             this.adaptRules(origin.sheetId, cf, [], toRemoveRange);
+            const cfToCopyTo = this.getCFToCopyTo(target.sheetId, cf);
+            this.adaptRules(target.sheetId, cfToCopyTo, [xc], []);
           }
         }
       }
@@ -500,5 +509,13 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
 
   private isCellValueNumber(value: CellValue): value is number {
     return typeof value === "number";
+  }
+
+  private getCFToCopyTo(targetSheetId: UID, originCF: ConditionalFormat): ConditionalFormat {
+    const cfInTarget = this.getters
+      .getConditionalFormats(targetSheetId)
+      .find((cf) => cf.stopIfTrue === originCF.stopIfTrue && deepEquals(cf.rule, originCF.rule));
+
+    return cfInTarget ? cfInTarget : { ...originCF, id: this.uuidGenerator.uuidv4(), ranges: [] };
   }
 }
