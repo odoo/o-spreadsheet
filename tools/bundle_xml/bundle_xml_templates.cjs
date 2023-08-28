@@ -44,7 +44,14 @@ function getXmlTemplatesFiles(dir) {
 }
 
 function createOwlTemplateBundle(files, removeRootTags) {
-  const xmls = files.map((file) => fs.readFileSync(file, "utf8"));
+  const xmls = files.map((file) => {
+    const xml = fs.readFileSync(file, "utf8");
+    if (xml.includes('owl="1"')) {
+      const message = `owl="1" is no longer required in xml templates. Please remove it from ${file}`;
+      throw new Error(message);
+    }
+    return xml;
+  });
   let xml = xmls.join("\n");
   // individual xml files need a root tag but we can remove them in the bundle
   if (removeRootTags) {
