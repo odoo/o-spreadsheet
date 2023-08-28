@@ -442,7 +442,11 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     let prevCol = col;
     let prevRow = row;
 
-    const onMouseMove = (col: HeaderIndex, row: HeaderIndex) => {
+    const onMouseMove = (col: HeaderIndex, row: HeaderIndex, ev: MouseEvent) => {
+      // When selecting cells during the edition, we don't want to avoid the default
+      // browser behaviour that will select the text inside the composer
+      // (see related commit msg for more information)
+      ev.preventDefault();
       if ((col !== prevCol && col != -1) || (row !== prevRow && row != -1)) {
         prevCol = col === -1 ? prevCol : col;
         prevRow = row === -1 ? prevRow : row;
