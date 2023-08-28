@@ -5,6 +5,14 @@ describe("Translations", () => {
     expect(_t("Hello %s", "World")).toBe("Hello World");
   });
 
+  test("placeholder can be a number", () => {
+    expect(_t("The answer is %s", 42)).toBe("The answer is 42");
+  });
+
+  test("named placeholder can be a number", () => {
+    expect(_t("The answer is %(answer)s", { answer: 42 })).toBe("The answer is 42");
+  });
+
   test("placeholder can be string Object instead of primitive", () => {
     expect(_t("Hello %s", new String("World"))).toBe("Hello World");
     expect(_t("Hello %s", _t("World"))).toBe("Hello World");
