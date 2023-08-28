@@ -1,4 +1,4 @@
-type SprintfValues = (string | String)[] | [{ [key: string]: string }];
+type SprintfValues = (string | String | number)[] | [{ [key: string]: string | number }];
 
 export type TranslationFunction = (string: string, ...values: SprintfValues) => string;
 
