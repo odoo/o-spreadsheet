@@ -9,35 +9,26 @@ export function startDnd(
   onMouseUp: EventFn,
   onMouseDown: EventFn = () => {}
 ) {
-  const _onMouseDown = (ev: MouseEvent) => {
-    ev.preventDefault();
-    onMouseDown(ev);
-  };
-  const _onMouseMove = (ev: MouseEvent) => {
-    ev.preventDefault();
-    onMouseMove(ev);
-  };
   const _onMouseUp = (ev: MouseEvent) => {
-    ev.preventDefault();
     onMouseUp(ev);
 
-    window.removeEventListener("mousedown", _onMouseDown);
+    window.removeEventListener("mousedown", onMouseDown);
     window.removeEventListener("mouseup", _onMouseUp);
     window.removeEventListener("dragstart", _onDragStart);
-    window.removeEventListener("mousemove", _onMouseMove);
-    window.removeEventListener("wheel", _onMouseMove);
+    window.removeEventListener("mousemove", onMouseMove);
+    window.removeEventListener("wheel", onMouseMove);
   };
   function _onDragStart(ev: DragEvent) {
     ev.preventDefault();
   }
-  window.addEventListener("mousedown", _onMouseDown);
+  window.addEventListener("mousedown", onMouseDown);
   window.addEventListener("mouseup", _onMouseUp);
   window.addEventListener("dragstart", _onDragStart);
-  window.addEventListener("mousemove", _onMouseMove);
+  window.addEventListener("mousemove", onMouseMove);
   // mouse wheel on window is by default a passive event.
   // preventDefault() is not allowed in passive event handler.
   // https://chromestatus.com/feature/6662647093133312
-  window.addEventListener("wheel", _onMouseMove, { passive: false });
+  window.addEventListener("wheel", onMouseMove, { passive: false });
 }
 
 /**
