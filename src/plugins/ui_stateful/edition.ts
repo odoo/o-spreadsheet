@@ -14,7 +14,7 @@ import {
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
 } from "../../helpers/index";
-import { canonicalizeContent, localizeFormula } from "../../helpers/locale";
+import { canonicalizeNumberContent, localizeFormula } from "../../helpers/locale";
 import { loopThroughReferenceType } from "../../helpers/reference_type";
 import { _lt } from "../../translation";
 import {
@@ -448,7 +448,7 @@ export class EditionPlugin extends UIPlugin {
       if (content) {
         const sheetId = this.getters.getActiveSheetId();
         const cell = this.getters.getEvaluatedCell({ sheetId, col: this.col, row: this.row });
-        content = canonicalizeContent(content, this.getters.getLocale());
+        content = canonicalizeNumberContent(content, this.getters.getLocale());
         if (content.startsWith("=")) {
           const left = this.currentTokens.filter((t) => t.type === "LEFT_PAREN").length;
           const right = this.currentTokens.filter((t) => t.type === "RIGHT_PAREN").length;

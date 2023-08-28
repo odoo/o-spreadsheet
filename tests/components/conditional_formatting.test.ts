@@ -77,7 +77,6 @@ const selectors = {
   description: {
     ruletype: {
       rule: ".o-cf-preview-description-rule",
-      values: ".o-cf-preview-description-values",
     },
     range: ".o-cf-preview-range",
   },
@@ -1371,6 +1370,27 @@ describe("UI of conditional formats", () => {
     expect(
       (model.getters.getConditionalFormats(sheetId)[lastCfIndex].rule as CellIsRule).values
     ).toEqual(["3.59"]);
+  });
+
+  test("CF date rule values are canonicalized when sending them to the model", async () => {
+    updateLocale(model, FR_LOCALE);
+    await click(fixture, selectors.buttonAdd);
+    await nextTick();
+
+    setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "Equal", "change");
+    await nextTick();
+    setInputValueAndTrigger(selectors.ruleEditor.editor.valueInput, "01/05/2012", "input");
+
+    await click(fixture, selectors.buttonSave);
+    const sheetId = model.getters.getActiveSheetId();
+
+    const lastCfIndex = model.getters.getConditionalFormats(sheetId).length - 1;
+    expect(
+      (model.getters.getConditionalFormats(sheetId)[lastCfIndex].rule as CellIsRule).values
+    ).toEqual(["5/1/2012"]);
+
+    const description = fixture.querySelector(selectors.description.ruletype.rule);
+    expect(description?.textContent).toContain("01/05/2012");
   });
 });
 

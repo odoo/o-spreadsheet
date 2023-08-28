@@ -1,7 +1,7 @@
 import { Component, onMounted, useRef, useState } from "@odoo/owl";
 import { markdownLink } from "../../../helpers";
 import { detectLink, urlRepresentation } from "../../../helpers/links";
-import { canonicalizeContent } from "../../../helpers/locale";
+import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { linkMenuRegistry } from "../../../registries/menus/link_menu_registry";
 import { DOMCoordinates, Link, Position, SpreadsheetChildEnv } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
@@ -169,7 +169,9 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
   save() {
     const { col, row } = this.props.cellPosition;
     const locale = this.env.model.getters.getLocale();
-    const label = this.link.label ? canonicalizeContent(this.link.label, locale) : this.link.url;
+    const label = this.link.label
+      ? canonicalizeNumberContent(this.link.label, locale)
+      : this.link.url;
     this.env.model.dispatch("UPDATE_CELL", {
       col: col,
       row: row,
