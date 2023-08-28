@@ -1,4 +1,4 @@
-import { toCanonicalNumberString } from "../helpers/locale";
+import { canonicalizeNumberLiteral } from "../helpers/locale";
 import { DEFAULT_LOCALE, Locale } from "../types";
 import { tokenize } from "./tokenizer";
 
@@ -6,7 +6,7 @@ import { tokenize } from "./tokenizer";
 export function canonicalizeNumberValue(content: string, locale: Locale) {
   return content.startsWith("=")
     ? canonicalizeFormula(content, locale)
-    : toCanonicalNumberString(content, locale);
+    : canonicalizeNumberLiteral(content, locale);
 }
 
 /** Change a formula to its canonical form (en_US locale) */
