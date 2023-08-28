@@ -444,7 +444,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     let prevCol = col;
     let prevRow = row;
 
-    const onMouseMove = (col: HeaderIndex, row: HeaderIndex) => {
+    const onMouseMove = (col: HeaderIndex, row: HeaderIndex, ev: MouseEvent) => {
+      ev.preventDefault();
       if ((col !== prevCol && col != -1) || (row !== prevRow && row != -1)) {
         prevCol = col === -1 ? prevCol : col;
         prevRow = row === -1 ? prevRow : row;
