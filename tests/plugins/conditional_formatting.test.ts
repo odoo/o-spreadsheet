@@ -13,7 +13,9 @@ import {
   setCellContent,
   setStyle,
   undo,
+  updateLocale,
 } from "../test_helpers/commands_helpers";
+import { FR_LOCALE } from "../test_helpers/constants";
 import { getStyle } from "../test_helpers/getters_helpers";
 import {
   createColorScale,
@@ -2073,5 +2075,17 @@ describe("conditional formats types", () => {
       expect(getStyle(model, "A2")).toEqual({});
       expect(getStyle(model, "A3")).toEqual({ fillColor: "#FF00FF" });
     });
+  });
+
+  test("CF evaluation uses default locale, and not current locale", () => {
+    updateLocale(model, FR_LOCALE);
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("01/12/2012", { fillColor: "#0000FF" }, "id"),
+      ranges: toRangesData(sheetId, "A1"),
+      sheetId,
+    });
+    setCellContent(model, "A1", "01/12/2012");
+    // Cf is 12 of January (commands should use canonical formatting), but cell is 1 of December (input in french locale)
+    expect(getStyle(model, "A1")).toEqual({});
   });
 });

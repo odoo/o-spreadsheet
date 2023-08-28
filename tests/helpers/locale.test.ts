@@ -21,6 +21,9 @@ describe("Locale helpers", () => {
       expect(canonicalizeContent("1,", FR_LOCALE)).toBe("1.");
       expect(canonicalizeContent("1,1%", FR_LOCALE)).toBe("1.1%");
       expect(canonicalizeContent("$1,1", FR_LOCALE)).toBe("$1.1");
+      expect(canonicalizeContent("01/10/2022", FR_LOCALE)).toBe("10/1/2022");
+      expect(canonicalizeContent("01/10/2022 10:00:00", FR_LOCALE)).toBe("10/1/2022 10:00:00 AM");
+      expect(canonicalizeContent("01-10-2022", FR_LOCALE)).toBe("10/1/2022");
     });
 
     test("Non-number literals aren't canonicalize", () => {
@@ -50,6 +53,9 @@ describe("Locale helpers", () => {
       expect(localizeContent("1.1", FR_LOCALE)).toBe("1,1");
       expect(localizeContent("1.1%", FR_LOCALE)).toBe("1,1%");
       expect(localizeContent("$1.1", FR_LOCALE)).toBe("$1,1");
+      expect(localizeContent("10/1/2022", FR_LOCALE)).toBe("01/10/2022");
+      expect(localizeContent("10/1/2022 10:00:00", FR_LOCALE)).toBe("01/10/2022 10:00:00");
+      expect(localizeContent("10-1-2022", FR_LOCALE)).toBe("01/10/2022");
     });
 
     test("Non-number literals aren't localized", () => {

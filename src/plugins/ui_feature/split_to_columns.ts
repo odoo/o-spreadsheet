@@ -1,6 +1,6 @@
 import { NEWLINE } from "../../constants";
 import { range } from "../../helpers";
-import { canonicalizeContent } from "../../helpers/locale";
+import { canonicalizeNumberContent } from "../../helpers/locale";
 import {
   CellPosition,
   CellValueType,
@@ -82,7 +82,7 @@ export class SplitToColumnsPlugin extends UIPlugin {
           sheetId,
           col: col + index,
           row,
-          content: canonicalizeContent(content, this.getters.getLocale()),
+          content: canonicalizeNumberContent(content, this.getters.getLocale()),
           format: "",
           style: mainCell?.style || null,
         });
