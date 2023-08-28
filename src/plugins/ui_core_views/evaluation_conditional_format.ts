@@ -11,6 +11,7 @@ import {
   ColorScaleMidPointThreshold,
   ColorScaleRule,
   ColorScaleThreshold,
+  DEFAULT_LOCALE,
   EvaluatedCell,
   HeaderIndex,
   IconSetRule,
@@ -407,12 +408,11 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
       if (cell.type === CellValueType.error) {
         return false;
       }
-      const locale = this.getters.getLocale();
       const [value0, value1] = rule.values.map((val) => {
         if (val.startsWith("=")) {
           return this.getters.evaluateFormula(target.sheetId, val);
         }
-        return parseLiteral(val, locale);
+        return parseLiteral(val, DEFAULT_LOCALE);
       });
 
       switch (rule.operator) {

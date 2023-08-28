@@ -1,4 +1,5 @@
 import { tokenize } from "../formulas";
+import { toNumber } from "../functions/helpers";
 import {
   ColorScaleThreshold,
   ConditionalFormatRule,
@@ -6,6 +7,7 @@ import {
   IconThreshold,
   Locale,
 } from "../types";
+import { isDateTime } from "./dates";
 import { formatValue, getDecimalNumberRegex } from "./format";
 import { deepCopy } from "./misc";
 import { isNumber } from "./numbers";
@@ -45,14 +47,60 @@ export function isValidLocale(locale: any): locale is Locale {
   return true;
 }
 
-/** Change a content string to its canonical form (en_US locale) */
+/**
+ * Change a content string from the given locale to its canonical form (en_US locale). Don't convert date string.
+ *
+ * @example
+ * canonicalizeNumberContent("=SUM(1,5; 02/12/2012)", FR_LOCALE) // "=SUM(1.5, 02/12/2012)"
+ * canonicalizeNumberContent("125,9", FR_LOCALE) // "125.9"
+ * canonicalizeNumberContent("02/12/2012", FR_LOCALE) // "02/12/2012"
+ */
+export function canonicalizeNumberContent(content: string, locale: Locale) {
+  return content.startsWith("=")
+    ? canonicalizeFormula(content, locale)
+    : canonicalizeNumberLiteral(content, locale);
+}
+
+/**
+ * Change a content string from the given locale to its canonical form (en_US locale). Also convert date string.
+ * This is destructive and won't preserve the original format.
+ *
+ * @example
+ * canonicalizeContent("=SUM(1,5; 5)", FR_LOCALE) // "=SUM(1.5, 5)"
+ * canonicalizeContent("125,9", FR_LOCALE) // "125.9"
+ * canonicalizeContent("02/12/2012", FR_LOCALE) // "12/02/2012"
+ * canonicalizeContent("02-12-2012", FR_LOCALE) // "12/02/2012"
+ */
 export function canonicalizeContent(content: string, locale: Locale) {
   return content.startsWith("=")
     ? canonicalizeFormula(content, locale)
-    : toCanonicalNumberString(content, locale);
+    : canonicalizeLiteral(content, locale);
 }
 
-/** Change the content of a cell to its canonical form (en_US locale) */
+/**
+ * Change a content string from its canonical form (en_US locale) to the given locale. Don't convert date string.
+ * This is destructive and won't preserve the original format.
+ *
+ * @example
+ * localizeNumberContent("=SUM(1.5, 5)", FR_LOCALE) // "=SUM(1,5; 5)"
+ * localizeNumberContent("125.9", FR_LOCALE) // "125,9"
+ * localizeNumberContent("02/12/2012", FR_LOCALE) // "12/02/2012"
+ * localizeNumberContent("02-12-2012", FR_LOCALE) // "12/02/2012"
+ */
+export function localizeNumberContent(content: string, locale: Locale) {
+  return content.startsWith("=")
+    ? localizeFormula(content, locale)
+    : localizeNumberLiteral(content, locale);
+}
+
+/**
+ * Change a content string from its canonical form (en_US locale) to the given locale. Also convert date string.
+ *
+ * @example
+ * localizeContent("=SUM(1.5, 5)", FR_LOCALE) // "=SUM(1,5; 5)"
+ * localizeContent("125.9", FR_LOCALE) // "125,9"
+ * localizeContent("12/02/2012", FR_LOCALE) // "02/12/2012"
+ */
 export function localizeContent(content: string, locale: Locale) {
   return content.startsWith("=")
     ? localizeFormula(content, locale)
@@ -96,25 +144,78 @@ function _localizeFormula(formula: string, fromLocale: Locale, toLocale: Locale)
 }
 
 /**
- *  Replace localized number with localized decimal separator by a number with "." as decimal separator
+ * Change a literal string from the given locale to its canonical form (en_US locale). Don't convert date string.
+ *
+ * @example
+ * canonicalizeNumberLiteral("125,9", FR_LOCALE) // "125.9"
+ * canonicalizeNumberLiteral("02/12/2012", FR_LOCALE) // "02/12/2012"
  */
-export function toCanonicalNumberString(content: string, locale: Locale): string {
+export function canonicalizeNumberLiteral(content: string, locale: Locale): string {
   if (locale.decimalSeparator === "." || !isNumber(content, locale)) {
     return content;
   }
   return content.replace(locale.decimalSeparator, ".");
 }
 
-function localizeLiteral(content: string, locale: Locale): string {
-  if (locale.decimalSeparator === "." || !isNumber(content, DEFAULT_LOCALE)) {
-    return content;
+/**
+ * Change a content string from the given locale to its canonical form (en_US locale). Also convert date string.
+ * This is destructive and won't preserve the original format.
+ *
+ * @example
+ * canonicalizeLiteral("125,9", FR_LOCALE) // "125.9"
+ * canonicalizeLiteral("02/12/2012", FR_LOCALE) // "12/02/2012"
+ * canonicalizeLiteral("02-12-2012", FR_LOCALE) // "12/02/2012"
+ */
+function canonicalizeLiteral(content: string, locale: Locale) {
+  if (isDateTime(content, locale)) {
+    const dateNumber = toNumber(content, locale);
+    let format = DEFAULT_LOCALE.dateFormat;
+    if (!Number.isInteger(dateNumber)) {
+      format += " " + DEFAULT_LOCALE.timeFormat;
+    }
+    return formatValue(dateNumber, { locale: DEFAULT_LOCALE, format });
+  }
+  return canonicalizeNumberLiteral(content, locale);
+}
+
+/**
+ * Change a literal string from its canonical form (en_US locale) to the given locale. Don't convert date string.
+ * This is destructive and won't preserve the original format.
+ *
+ * @example
+ * localizeNumberLiteral("125.9", FR_LOCALE) // "125,9"
+ * localizeNumberLiteral("12/02/2012", FR_LOCALE) // "12/02/2012"
+ * localizeNumberLiteral("12-02-2012", FR_LOCALE) // "12/02/2012"
+ */
+function localizeNumberLiteral(literal: string, locale: Locale): string {
+  if (locale.decimalSeparator === "." || !isNumber(literal, DEFAULT_LOCALE)) {
+    return literal;
   }
 
   const decimalNumberRegex = getDecimalNumberRegex(DEFAULT_LOCALE);
-  const localized = content.replace(decimalNumberRegex, (match) => {
+  const localized = literal.replace(decimalNumberRegex, (match) => {
     return match.replace(".", locale.decimalSeparator);
   });
   return localized;
+}
+
+/**
+ * Change a literal string from its canonical form (en_US locale) to the given locale. Also convert date string.
+ *
+ * @example
+ * localizeLiteral("125.9", FR_LOCALE) // "125,9"
+ * localizeLiteral("12/02/2012", FR_LOCALE) // "02/12/2012"
+ */
+function localizeLiteral(literal: string, locale: Locale): string {
+  if (isDateTime(literal, DEFAULT_LOCALE)) {
+    const dateNumber = toNumber(literal, DEFAULT_LOCALE);
+    let format = locale.dateFormat;
+    if (!Number.isInteger(dateNumber)) {
+      format += " " + locale.timeFormat;
+    }
+    return formatValue(dateNumber, { locale, format });
+  }
+  return localizeNumberLiteral(literal, locale);
 }
 
 export function canonicalizeCFRule(

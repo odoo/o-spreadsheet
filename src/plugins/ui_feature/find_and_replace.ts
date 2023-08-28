@@ -1,5 +1,5 @@
 import { escapeRegExp } from "../../helpers";
-import { canonicalizeContent } from "../../helpers/locale";
+import { canonicalizeNumberContent } from "../../helpers/locale";
 import {
   CellPosition,
   Color,
@@ -253,7 +253,7 @@ export class FindAndReplacePlugin extends UIPlugin {
     );
     const toReplace: string | null = this.getSearchableString({ sheetId, col, row });
     const content = toReplace.replace(replaceRegex, replaceWith);
-    const canonicalContent = canonicalizeContent(content, this.getters.getLocale());
+    const canonicalContent = canonicalizeNumberContent(content, this.getters.getLocale());
     this.dispatch("UPDATE_CELL", { sheetId, col, row, content: canonicalContent });
   }
 
