@@ -2,12 +2,10 @@ import {
   Command,
   CommandDispatcher,
   CommandResult,
-  Dimension,
   Figure,
   FigureSize,
   Getters,
   GridRenderingContext,
-  HeaderIndex,
   UID,
   Zone,
 } from "../../types";
@@ -114,10 +112,6 @@ export class ClipboardFigureState implements ClipboardState {
   }
 
   isInvalidatedBy(cmd: Command): boolean {
-    return false;
-  }
-
-  isColRowDirtyingClipboard(position: HeaderIndex, dimension: Dimension): boolean {
     return false;
   }
 

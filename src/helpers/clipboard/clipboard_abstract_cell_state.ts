@@ -3,10 +3,8 @@ import {
   Command,
   CommandDispatcher,
   CommandResult,
-  Dimension,
   Getters,
   GridRenderingContext,
-  HeaderIndex,
   UID,
   Zone,
 } from "../../types";
@@ -76,10 +74,6 @@ export abstract class ClipboardCellsAbstractState implements ClipboardState {
   abstract getClipboardContent(): Record<ClipboardMIMEType, string>;
 
   abstract isInvalidatedBy(cmd: Command): boolean;
-
-  isColRowDirtyingClipboard(position: HeaderIndex, dimension: Dimension) {
-    return false;
-  }
 
   drawClipboard(renderingContext: GridRenderingContext) {}
 }

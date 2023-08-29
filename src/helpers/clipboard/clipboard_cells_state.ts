@@ -8,7 +8,6 @@ import {
   CommandDispatcher,
   CommandResult,
   ConditionalFormat,
-  Dimension,
   Getters,
   GridRenderingContext,
   HeaderIndex,
@@ -552,6 +551,35 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
           }
         }
         break;
+      case "ADD_COLUMNS_ROWS":
+        if (!this.zones) {
+          return false;
+        }
+        const position = cmd.position === "before" ? cmd.base : cmd.base + 1;
+        for (let zone of this.zones) {
+          if (cmd.dimension === "COL" && position <= zone.right) {
+            return true;
+          }
+          if (cmd.dimension === "ROW" && position <= zone.bottom) {
+            return true;
+          }
+        }
+        break;
+      case "REMOVE_COLUMNS_ROWS":
+        if (!this.zones) {
+          return false;
+        }
+        for (const zone of this.zones) {
+          for (const position of cmd.elements) {
+            if (cmd.dimension === "COL" && position <= zone.right) {
+              return true;
+            }
+            if (cmd.dimension === "ROW" && position <= zone.bottom) {
+              return true;
+            }
+          }
+        }
+        break;
     }
     return false;
   }
@@ -565,21 +593,6 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
       deepEquals(currentZone, clippedZone)
     ) {
       return true;
-    }
-    return false;
-  }
-
-  isColRowDirtyingClipboard(position: HeaderIndex, dimension: Dimension): boolean {
-    if (!this.zones) {
-      return false;
-    }
-    for (let zone of this.zones) {
-      if (dimension === "COL" && position <= zone.right) {
-        return true;
-      }
-      if (dimension === "ROW" && position <= zone.bottom) {
-        return true;
-      }
     }
     return false;
   }

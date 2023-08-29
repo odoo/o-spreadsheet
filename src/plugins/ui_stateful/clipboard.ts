@@ -90,6 +90,7 @@ export class ClipboardPlugin extends UIPlugin {
   handle(cmd: Command) {
     if (this.state?.operation === "CUT" && this.state?.isInvalidatedBy(cmd)) {
       this.state = undefined;
+      this.status = "invisible";
     }
     switch (cmd.type) {
       case "COPY":
@@ -131,39 +132,6 @@ export class ClipboardPlugin extends UIPlugin {
         const { cut, paste } = this.getInsertCellsTargets(cmd.zone, cmd.shiftDimension);
         const state = this.getClipboardStateForCopyCells(cut, "CUT");
         state.paste(paste);
-        break;
-      }
-      case "ADD_COLUMNS_ROWS": {
-        this.status = "invisible";
-
-        // If we add a col/row inside or before the cut area, we invalidate the clipboard
-        if (this.state?.operation !== "CUT") {
-          return;
-        }
-        const isClipboardDirty = this.state.isColRowDirtyingClipboard(
-          cmd.position === "before" ? cmd.base : cmd.base + 1,
-          cmd.dimension
-        );
-        if (isClipboardDirty) {
-          this.state = undefined;
-        }
-        break;
-      }
-      case "REMOVE_COLUMNS_ROWS": {
-        this.status = "invisible";
-
-        // If we remove a col/row inside or before the cut area, we invalidate the clipboard
-        if (this.state?.operation !== "CUT") {
-          return;
-        }
-        for (let el of cmd.elements) {
-          const isClipboardDirty = this.state.isColRowDirtyingClipboard(el, cmd.dimension);
-          if (isClipboardDirty) {
-            this.state = undefined;
-            break;
-          }
-        }
-        this.status = "invisible";
         break;
       }
       case "PASTE_FROM_OS_CLIPBOARD":
