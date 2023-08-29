@@ -24,7 +24,7 @@ interface ErrorToolTipProps {
   onClosed?: () => void;
 }
 
-class ErrorToolTip extends Component<ErrorToolTipProps> {
+export class ErrorToolTip extends Component<ErrorToolTipProps> {
   static maxSize = { maxHeight: ERROR_TOOLTIP_MAX_HEIGHT };
   static template = "o-spreadsheet-ErrorToolTip";
   static components = {};

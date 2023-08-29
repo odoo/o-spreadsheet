@@ -96,16 +96,3 @@ exports[`Grid component simple rendering snapshot 1`] = `
   />
 </div>
 `;
-
-exports[`error tooltip can display error tooltip 1`] = `
-<div
-  class="o-popover"
-  style="z-index: 19; display: block; max-height: 824px; max-width: 697px; top: 227px; left: 376px;"
->
-  <div
-    class="o-error-tooltip"
-  >
-    The divisor must be different from zero.
-  </div>
-</div>
-`;
