@@ -299,7 +299,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   }
 
   private processEscapeKey() {
-    this.env.model.dispatch("STOP_EDITION", { cancel: true });
+    this.env.model.dispatch("CANCEL_EDITION");
   }
 
   private processF4Key() {
