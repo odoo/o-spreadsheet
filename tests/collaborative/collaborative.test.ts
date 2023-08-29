@@ -426,7 +426,7 @@ describe("Multi users synchronisation", () => {
       (user) => getCellContent(user, "A1"),
       "A1"
     );
-    alice.dispatch("STOP_EDITION", { cancel: true });
+    alice.dispatch("CANCEL_EDITION");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "A1"),
       "A1"

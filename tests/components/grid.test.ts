@@ -462,7 +462,7 @@ describe("Grid component", () => {
       selectCell(model, "B2");
       keyDown({ key: "=", altKey: true });
       expect(model.getters.getCurrentContent()).toBe("=SUM(A1)");
-      model.dispatch("STOP_EDITION", { cancel: true });
+      model.dispatch("CANCEL_EDITION");
       selectCell(model, "B1");
       keyDown({ key: "=", altKey: true });
       expect(model.getters.getCurrentContent()).toBe("=SUM(A1)");

@@ -681,7 +681,10 @@ export interface StartEditionCommand {
 
 export interface StopEditionCommand {
   type: "STOP_EDITION";
-  cancel?: boolean;
+}
+
+export interface CancelEditionCommand {
+  type: "CANCEL_EDITION";
 }
 
 export interface SetCurrentContentCommand {
@@ -1081,6 +1084,7 @@ export type LocalCommand =
   | StopComposerSelectionCommand
   | StartEditionCommand
   | StopEditionCommand
+  | CancelEditionCommand
   | SetCurrentContentCommand
   | ChangeComposerSelectionCommand
   | ReplaceComposerSelectionCommand

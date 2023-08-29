@@ -144,12 +144,12 @@ export class EditionPlugin extends UIPlugin {
         this.updateRangeColor();
         break;
       case "STOP_EDITION":
-        if (cmd.cancel) {
-          this.cancelEditionAndActivateSheet();
-          this.resetContent();
-        } else {
-          this.stopEdition();
-        }
+        this.stopEdition();
+        this.colorIndexByRange = {};
+        break;
+      case "CANCEL_EDITION":
+        this.cancelEditionAndActivateSheet();
+        this.resetContent();
         this.colorIndexByRange = {};
         break;
       case "SET_CURRENT_CONTENT":
@@ -333,7 +333,7 @@ export class EditionPlugin extends UIPlugin {
 
   private onColumnsRemoved(cmd: RemoveColumnsRowsCommand) {
     if (cmd.elements.includes(this.col) && this.mode !== "inactive") {
-      this.dispatch("STOP_EDITION", { cancel: true });
+      this.dispatch("CANCEL_EDITION");
       this.ui.raiseBlockingErrorUI(CELL_DELETED_MESSAGE);
       return;
     }
@@ -348,7 +348,7 @@ export class EditionPlugin extends UIPlugin {
 
   private onRowsRemoved(cmd: RemoveColumnsRowsCommand) {
     if (cmd.elements.includes(this.row) && this.mode !== "inactive") {
-      this.dispatch("STOP_EDITION", { cancel: true });
+      this.dispatch("CANCEL_EDITION");
       this.ui.raiseBlockingErrorUI(CELL_DELETED_MESSAGE);
       return;
     }

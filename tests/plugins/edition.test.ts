@@ -344,7 +344,7 @@ describe("edition", () => {
     model.dispatch("START_EDITION", {
       text: "=SUM(A2:A3, B5)",
     });
-    model.dispatch("STOP_EDITION", { cancel: true });
+    model.dispatch("CANCEL_EDITION");
     expect(model.getters.getCurrentContent()).toBe("");
   });
 
