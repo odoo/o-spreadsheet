@@ -3,23 +3,23 @@ import { evaluateGrid } from "../test_helpers/helpers";
 describe("database formula", () => {
   // prettier-ignore
   const database = {
-        A1:  "NAME"          , B1:  "FILM"                , C1:  "YEAR", D1:  "SCORE", 
-        A2:  "Jean Rochefort", B2:  "Un éléphant ça ..."  , C2:  "1976", D2:  "0.71" , 
-        A3:  "Jean Benguigui", B3:  "Bufffet froid"       , C3:  "1976", D3:  "0.75" , 
-        A4:  "Jean Dujardin" , B4:  "The Artist"          , C4:  "2011", D4:  "0.95" , 
+        A1:  "NAME"          , B1:  "FILM"                , C1:  "YEAR", D1:  "SCORE",
+        A2:  "Jean Rochefort", B2:  "Un éléphant ça ..."  , C2:  "1976", D2:  "0.71" ,
+        A3:  "Jean Benguigui", B3:  "Bufffet froid"       , C3:  "1976", D3:  "0.75" ,
+        A4:  "Jean Dujardin" , B4:  "The Artist"          , C4:  "2011", D4:  "0.95" ,
         A5:  "Jean Ferrat"   , B5:  "Vivre sa vie"        , C5:  "1962", D5:  "0.8"  ,
-        A6:  "Jean Gabin"    , B6:  "Le jour se lève"     , C6:  "1939", D6:  "0.78" , 
+        A6:  "Jean Gabin"    , B6:  "Le jour se lève"     , C6:  "1939", D6:  "0.78" ,
         A7:  "Jean Marais"   , B7:  "Fantômas"            , C7:  "1964", D7:  "0.7"  ,
-        A8:  "Jean Reno"     , B8:  "Le Grand Bleu"       , C8:  "1988", D8:  "0.76" , 
-        A9:  "Jean Rochefort", B9:  "Le Mari de la coi...", C9:  "1990", D9:  "0.73" , 
-        A10: "Jean Benguigui", B10: "Coco"                , C10: "2009", D10: "0.28" , 
-        A11: "Jean Reno"     , B11: "Léon"                , C11: "1994", D11: "0.75" , 
-        A12: "Jean Lassalle" , 
-        A13: "Jean Benguigui", B13: "Astérix et Obélix...", C13: "2002", D13: "0.86" , 
-        A14: "Jean Benguigui", B14: "Les Fugitifs"        , C14: "1986", D14: "0.64" , 
-        A15: "Jean Reno"     , B15: "Les Visiteurs"       , C15: "1993", D15: "0.71" , 
-        A16: "Jean Gabin"    , B16: "La Bête humaine"     , C16: "1938", D16: "0.76" , 
-        A17: "Jean Ferrat"   , B17: "La Vieille dame ..." , C17: "1965", D17: "0.7" 
+        A8:  "Jean Reno"     , B8:  "Le Grand Bleu"       , C8:  "1988", D8:  "0.76" ,
+        A9:  "Jean Rochefort", B9:  "Le Mari de la coi...", C9:  "1990", D9:  "0.73" ,
+        A10: "Jean Benguigui", B10: "Coco"                , C10: "2009", D10: "0.28" ,
+        A11: "Jean Reno"     , B11: "Léon"                , C11: "1994", D11: "0.75" ,
+        A12: "Jean Lassalle" ,
+        A13: "Jean Benguigui", B13: "Astérix et Obélix...", C13: "2002", D13: "0.86" ,
+        A14: "Jean Benguigui", B14: "Les Fugitifs"        , C14: "1986", D14: "0.64" ,
+        A15: "Jean Reno"     , B15: "Les Visiteurs"       , C15: "1993", D15: "0.71" ,
+        A16: "Jean Gabin"    , B16: "La Bête humaine"     , C16: "1938", D16: "0.76" ,
+        A17: "Jean Ferrat"   , B17: "La Vieille dame ..." , C17: "1965", D17: "0.7"
     }
 
   describe("DCOUNT formula", () => {
@@ -120,7 +120,7 @@ describe("database formula", () => {
 
   // prettier-ignore
   const criteria = {
-        F1: "YEAR", 
+        F1: "YEAR",
         F2: "1976",
 
         F4: "FILM",

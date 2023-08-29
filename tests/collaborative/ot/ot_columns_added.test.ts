@@ -7,7 +7,6 @@ import {
   RemoveColumnsRowsCommand,
   ResizeColumnsRowsCommand,
 } from "../../../src/types";
-import { target, toRangesData } from "../../test_helpers/helpers";
 import {
   OT_TESTS_HEADER_GROUP_COMMANDS,
   OT_TESTS_RANGE_DEPENDANT_COMMANDS,
@@ -15,7 +14,8 @@ import {
   OT_TESTS_TARGET_DEPENDANT_COMMANDS,
   OT_TESTS_ZONE_DEPENDANT_COMMANDS,
   TEST_COMMANDS,
-} from "./../../test_helpers/constants";
+} from "../../test_helpers/constants";
+import { target, toRangesData } from "../../test_helpers/helpers";
 
 describe("OT with ADD_COLUMNS_ROWS with dimension COL", () => {
   const sheetId = "Sheet1";

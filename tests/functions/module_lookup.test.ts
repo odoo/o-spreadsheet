@@ -217,8 +217,8 @@ describe("LOOKUP formula", () => {
   test("take format into account", () => {
     // prettier-ignore
     const grid = {
-      A1: "1", B1: "42%",      C1: "3$", 
-      A2: "2", B2: "12/12/12", C2: "24",      
+      A1: "1", B1: "42%",      C1: "3$",
+      A2: "2", B2: "12/12/12", C2: "24",
     };
     expect(evaluateCellFormat("A5", { A5: "=LOOKUP(2, A1:B2)", ...grid })).toBe("m/d/yy");
     expect(evaluateCellFormat("A6", { A6: "=LOOKUP(1, A1:A2, C1:C2)", ...grid })).toBe("#,##0[$$]");
@@ -903,7 +903,7 @@ describe("HLOOKUP formula", () => {
       // prettier-ignore
       const grid = {
         A2: "A2", B2: "B2",
-        A3: "12/12/12", B3: "42%", 
+        A3: "12/12/12", B3: "42%",
         A4: "3€", B4: "3$",
       };
       expect(evaluateCellFormat("D1", { D1: '=HLOOKUP("A2", A2:B4, 3)', ...grid })).toBe(
@@ -1140,8 +1140,8 @@ describe("XLOOKUP formula", () => {
   test("take format into account", () => {
     // prettier-ignore
     const grid = {
-      B1: "24", C1: "42", 
-      B2: "12/12/12", C2: "2$", 
+      B1: "24", C1: "42",
+      B2: "12/12/12", C2: "2$",
     };
     expect(evaluateCellFormat("D1", { D1: "=XLOOKUP(24, B1:C1, B2:C2)", ...grid })).toBe("m/d/yy");
     expect(evaluateCellFormat("E1", { E1: "=XLOOKUP(42, B1:C1, B2:C3)", ...grid })).toBe(
@@ -1298,7 +1298,7 @@ describe("INDEX formula", () => {
   test("take format into account", () => {
     //prettier-ignore
     const grid = {
-      A1: "12/12/12", B1: "42%", 
+      A1: "12/12/12", B1: "42%",
       A2: "3€",       B2: "3%",
     };
     expect(evaluateCellFormat("A4", { A4: "=INDEX(A1:B2, 2, 1)", ...grid })).toBe("#,##0[$€]");
