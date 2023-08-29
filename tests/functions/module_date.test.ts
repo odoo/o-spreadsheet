@@ -1,6 +1,6 @@
 import { Model } from "../../src";
-import {} from "../../src/helpers/dates";
 import { setCellContent, updateLocale } from "../test_helpers/commands_helpers";
+import { FR_LOCALE } from "../test_helpers/constants";
 import { getEvaluatedCell } from "../test_helpers/getters_helpers";
 import {
   evaluateCell,
@@ -8,7 +8,6 @@ import {
   evaluateGrid,
   evaluateGridText,
 } from "../test_helpers/helpers";
-import { FR_LOCALE } from "./../test_helpers/constants";
 
 describe("DATE formula", () => {
   test("functional tests on cell arguments CHECK TIMEZONE IF FAILS", () => {
