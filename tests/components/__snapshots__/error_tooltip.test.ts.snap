@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Grid integration can display error tooltip 1`] = `
+<div
+  class="o-popover"
+  style="z-index: 19; display: block; max-height: 824px; max-width: 697px; top: 187px; left: 336px;"
+>
+  <div
+    class="o-error-tooltip"
+  >
+    The divisor must be different from zero.
+  </div>
+</div>
+`;
