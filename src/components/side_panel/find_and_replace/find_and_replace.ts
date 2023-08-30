@@ -1,5 +1,4 @@
 import { Component, onMounted, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
-import { debounce } from "../../../helpers";
 import { SpreadsheetChildEnv } from "../../../types/index";
 import { css } from "../../helpers/css";
 
@@ -43,7 +42,6 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
   private state: FindAndReplaceState = useState(this.initialState());
   private debounceTimeoutId;
   private showFormulaState: boolean = false;
-  private debouncedUpdateSearch!: Function;
 
   private searchInput = useRef("searchInput");
 
@@ -57,7 +55,6 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
 
   setup() {
     this.showFormulaState = this.env.model.getters.shouldShowFormulas();
-    this.debouncedUpdateSearch = debounce(this.updateSearch.bind(this), 200);
 
     onMounted(() => this.searchInput.el?.focus());
 
@@ -114,6 +111,14 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
       toSearch: this.state.toSearch,
       searchOptions: this.state.searchOptions,
     });
+  }
+
+  debouncedUpdateSearch() {
+    clearTimeout(this.debounceTimeoutId);
+    this.debounceTimeoutId = setTimeout(() => {
+      this.updateSearch();
+      this.debounceTimeoutId = undefined;
+    }, 200);
   }
 
   replace() {
