@@ -45,7 +45,7 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
   private showFormulaState: boolean = false;
   private debouncedUpdateSearch!: Function;
 
-  private findAndReplaceRef = useRef("findAndReplace");
+  private searchInput = useRef("searchInput");
 
   get hasSearchResult() {
     return this.env.model.getters.getCurrentSelectedMatchIndex() !== null;
@@ -59,7 +59,7 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
     this.showFormulaState = this.env.model.getters.shouldShowFormulas();
     this.debouncedUpdateSearch = debounce(this.updateSearch.bind(this), 200);
 
-    onMounted(() => this.focusInput());
+    onMounted(() => this.searchInput.el?.focus());
 
     onWillUnmount(() => {
       this.env.model.dispatch("CLEAR_SEARCH");
@@ -131,13 +131,6 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
   // ---------------------------------------------------------------------------
   // Private
   // ---------------------------------------------------------------------------
-  private focusInput() {
-    const el = this.findAndReplaceRef.el!;
-    const input = el.querySelector(`input`);
-    if (input) {
-      input.focus();
-    }
-  }
 
   private initialState(): FindAndReplaceState {
     return {
