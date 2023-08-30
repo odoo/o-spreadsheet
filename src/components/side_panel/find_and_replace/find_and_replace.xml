@@ -1,11 +1,12 @@
 <templates>
   <t t-name="o-spreadsheet-FindAndReplacePanel">
-    <div class="o-find-and-replace" tabindex="0" t-ref="findAndReplace">
+    <div class="o-find-and-replace">
       <div class="o-section">
         <div class="o-section-title">Search</div>
         <div class="o-input-search-container">
           <input
             type="text"
+            t-ref="searchInput"
             class="o-input o-input-with-count"
             t-on-input="onInput"
             t-on-keydown="onKeydownSearch"
