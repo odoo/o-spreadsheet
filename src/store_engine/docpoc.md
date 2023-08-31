@@ -15,6 +15,10 @@ Stores provide a way to share values like these between components without the n
 
 Using stores also decouples the state and how it changes from individual components, making it easier to manage and update application-wide data.
 
+They can also be used for individual components to decouple their UI and their business logic, allowing to test the business logic separatly.
+
+Read also the ["why"](./why.md).
+
 ## Defining a store
 
 To illustrate how stores work, let's consider a scenario where you want to display notifications from multiple components in the application. To achieve this, you can define a simple store called `NotificationStore`, which holds the notification state and provides methods to show and hide notifications.
@@ -126,7 +130,7 @@ The `handle` method allows you to handle various commands and manage the store's
 
 ## Local store
 
-In addition to application-wide stores, stores also provides a convenient way to manage state that is specific to individual components. These local stores bring the advantages of decoupling the component from its state and how it changes, making it easier to reason about, maintain and test.
+In addition to application-wide stores, stores also provides a convenient way to manage state that is specific to individual components. These local stores bring the advantages of decoupling the component from its business logic and how it changes, making it easier to reason about, maintain and test.
 
 To create a local store, you can use the `useLocalStore` hook. It creates a new store instance bound to the component and automatically disposes of the store when the component unmounts.
 
