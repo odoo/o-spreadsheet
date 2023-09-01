@@ -137,7 +137,6 @@ export function makeTestEnv(mockEnv: Partial<SpreadsheetChildEnv> = {}): Spreads
     notifyUser: mockEnv.notifyUser || (() => {}),
     raiseError: mockEnv.raiseError || (() => {}),
     askConfirmation: mockEnv.askConfirmation || (() => {}),
-    editText: mockEnv.editText || (() => {}),
     startCellEdition: mockEnv.startCellEdition || (() => {}),
     loadCurrencies:
       mockEnv.loadCurrencies ||
