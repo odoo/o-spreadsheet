@@ -5,13 +5,15 @@ export interface StreamCallbacks<Event> {
   release?: () => void;
 }
 
+type Owner = unknown;
+
 interface StreamSubscription<Event> {
-  owner: unknown;
+  owner: Owner;
   callbacks: StreamCallbacks<Event>;
 }
 
 interface SpyStreamSubscription<Event> {
-  owner: unknown;
+  owner: Owner;
   callbacks: StreamCallbacks<Event>;
 }
 
@@ -42,14 +44,14 @@ interface SpyStreamSubscription<Event> {
  *
  */
 export class EventStream<Event> {
-  private observers: SpyStreamSubscription<Event>[] = [];
+  private observers: Map<Owner, SpyStreamSubscription<Event>> = new Map();
   /**
    * the one we default to when someone releases the stream by themeselves
    */
   private defaultSubscription?: StreamSubscription<Event>;
   private mainSubscription?: StreamSubscription<Event>;
 
-  registerAsDefault(owner: unknown, callbacks: StreamCallbacks<Event>) {
+  registerAsDefault(owner: Owner, callbacks: StreamCallbacks<Event>) {
     this.defaultSubscription = { owner, callbacks };
     if (!this.mainSubscription) {
       this.mainSubscription = this.defaultSubscription;
@@ -59,15 +61,15 @@ export class EventStream<Event> {
   /**
    * Register callbacks to observe the stream
    */
-  observe(owner: unknown, callbacks: StreamCallbacks<Event>) {
-    this.observers.push({ owner, callbacks });
+  observe(owner: Owner, callbacks: StreamCallbacks<Event>) {
+    this.observers.set(owner, { owner, callbacks });
   }
 
   /**
    * Capture the stream for yourself
    */
-  capture(owner: unknown, callbacks: StreamCallbacks<Event>) {
-    if (this.observers.find((sub) => sub.owner === owner)) {
+  capture(owner: Owner, callbacks: StreamCallbacks<Event>) {
+    if (this.observers.get(owner)) {
       throw new Error("You are already subscribed forever");
     }
     if (this.mainSubscription?.owner && this.mainSubscription.owner !== owner) {
@@ -76,11 +78,8 @@ export class EventStream<Event> {
     this.mainSubscription = { owner, callbacks };
   }
 
-  release(owner: unknown) {
-    if (
-      this.mainSubscription?.owner !== owner ||
-      this.observers.find((sub) => sub.owner === owner)
-    ) {
+  release(owner: Owner) {
+    if (this.mainSubscription?.owner !== owner || this.observers.get(owner)) {
       return;
     }
     this.mainSubscription = this.defaultSubscription;
@@ -100,7 +99,7 @@ export class EventStream<Event> {
   /**
    * Check if you are currently the main stream consumer
    */
-  isListening(owner: unknown): boolean {
+  isListening(owner: Owner): boolean {
     return this.mainSubscription?.owner === owner;
   }
 
@@ -109,6 +108,6 @@ export class EventStream<Event> {
    */
   send(event: Event): void {
     this.mainSubscription?.callbacks.handleEvent(event);
-    [...this.observers].forEach((sub) => sub.callbacks.handleEvent(event));
+    this.observers.forEach((sub) => sub.callbacks.handleEvent(event));
   }
 }
