@@ -203,7 +203,6 @@ class Demo extends Component {
       notifyUser: this.notifyUser,
       raiseError: this.raiseError,
       askConfirmation: this.askConfirmation,
-      editText: this.editText,
     });
     useExternalListener(window, "beforeunload", this.leaveCollaborativeSession.bind(this));
     useExternalListener(window, "unhandledrejection", () => {
@@ -312,16 +311,6 @@ class Demo extends Component {
   raiseError(content, callback) {
     window.alert(content);
     callback?.();
-  }
-
-  editText(title, callback, options = {}) {
-    let text;
-    if (!options.error) {
-      text = window.prompt(title, options.placeholder);
-    } else {
-      text = window.prompt(options.error, options.placeholder);
-    }
-    callback(text);
   }
 
   /**

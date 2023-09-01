@@ -21,11 +21,6 @@ export interface SpreadsheetEnv {
   notifyUser: (notification: InformationNotification) => any;
   raiseError: (text: string, callback?: () => void) => any;
   askConfirmation: (content: string, confirm: () => any, cancel?: () => any) => any;
-  editText: (
-    title: string,
-    callback: (text: string | null) => any,
-    options?: EditTextOptions
-  ) => any;
 }
 
 export interface SpreadsheetChildEnv extends SpreadsheetEnv {
