@@ -7,7 +7,6 @@ import {
   CellValue,
   ComputeFunction,
   DEFAULT_LOCALE,
-  ErrorCell,
   Format,
   Matrix,
   Maybe,
@@ -25,7 +24,7 @@ import {
   setCellContent,
   setFormat,
 } from "../test_helpers/commands_helpers";
-import { getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
+import { getCellContent, getCellError, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { restoreDefaultFunctions, target } from "../test_helpers/helpers";
 
 let model: Model;
@@ -69,7 +68,7 @@ describe("evaluate formulas that return an array", () => {
 
   test("a simple reference to a range cannot return an array", () => {
     setCellContent(model, "A1", "=A2:A3");
-    expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+    expect(getCellError(model, "A1")?.errorType).toBe("#ERROR");
   });
 
   test("can spread array", () => {
@@ -162,7 +161,7 @@ describe("evaluate formulas that return an array", () => {
       setCellContent(model, "B2", "22");
 
       expect(getCellContent(model, "A1")).toBe("#ERROR");
-      expect((getEvaluatedCell(model, "A1") as ErrorCell).value.message).toBe(
+      expect(getCellError(model, "A1")?.message).toBe(
         "A format matrix should never be associated with a scalar value"
       );
       expect(getCellContent(model, "A2")).toBe("42");
@@ -257,15 +256,15 @@ describe("evaluate formulas that return an array", () => {
     test("throw error on the formula when collide with cell having content", () => {
       setCellContent(model, "B2", "kikou");
       setCellContent(model, "A1", "=MFILL(2,2, 42)");
-      expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
-      expect((getEvaluatedCell(model, "A1") as ErrorCell).value.message).toBe(
+      expect(getCellError(model, "A1")?.errorType).toBe("#ERROR");
+      expect(getCellError(model, "A1")?.message).toBe(
         "Array result was not expanded because it would overwrite data in B2."
       );
 
       setCellContent(model, "A4", "kikou");
       setCellContent(model, "A3", "=MFILL(2,2, 42)");
-      expect(getEvaluatedCell(model, "A3").value).toBe("#ERROR");
-      expect((getEvaluatedCell(model, "A3") as ErrorCell).value.message).toBe(
+      expect(getCellError(model, "A3")?.errorType).toBe("#ERROR");
+      expect(getCellError(model, "A3")?.message).toBe(
         "Array result was not expanded because it would overwrite data in A4."
       );
     });
@@ -273,8 +272,8 @@ describe("evaluate formulas that return an array", () => {
     test("throw error on the formula when collide with other formula ", () => {
       setCellContent(model, "B2", "=SUM(42+24)");
       setCellContent(model, "A1", "=MFILL(2,2, 42)");
-      expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
-      expect((getEvaluatedCell(model, "A1") as ErrorCell).value.message).toBe(
+      expect(getCellError(model, "A1")?.errorType).toBe("#ERROR");
+      expect(getCellError(model, "A1")?.message).toBe(
         "Array result was not expanded because it would overwrite data in B2."
       );
       expect(getEvaluatedCell(model, "A2").value).toBe("");
@@ -286,8 +285,8 @@ describe("evaluate formulas that return an array", () => {
       setCellContent(model, "A1", "=MFILL(1,3, 42)");
       setCellContent(model, "A2", "kikou");
       setCellContent(model, "A3", "kikou");
-      expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
-      expect((getEvaluatedCell(model, "A1") as ErrorCell).value.message).toBe(
+      expect(getCellError(model, "A1")?.errorType).toBe("#ERROR");
+      expect(getCellError(model, "A1")?.message).toBe(
         "Array result was not expanded because it would overwrite data in A2."
       );
     });
@@ -296,8 +295,8 @@ describe("evaluate formulas that return an array", () => {
       setCellContent(model, "A1", "=MFILL(3,1, 42)");
       setCellContent(model, "B1", "kikou");
       setCellContent(model, "C1", "kikou");
-      expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
-      expect((getEvaluatedCell(model, "A1") as ErrorCell).value.message).toBe(
+      expect(getCellError(model, "A1")?.errorType).toBe("#ERROR");
+      expect(getCellError(model, "A1")?.message).toBe(
         "Array result was not expanded because it would overwrite data in B1."
       );
     });
@@ -381,7 +380,7 @@ describe("evaluate formulas that return an array", () => {
         setCellContent(model, "B2", "kikou");
         setCellContent(model, "A1", "=MFILL(2,2, 42)");
         setCellContent(model, "B2", "Aquecoucou");
-        expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+        expect(getCellError(model, "A1")?.errorType).toBe("#ERROR");
         expect(getEvaluatedCell(model, "A2").value).toBe("");
         expect(getEvaluatedCell(model, "B1").value).toBe("");
         expect(getEvaluatedCell(model, "B2").value).toBe("Aquecoucou");
@@ -391,7 +390,7 @@ describe("evaluate formulas that return an array", () => {
         setCellContent(model, "A1", "=MFILL(2,2, 42)");
         setCellContent(model, "B2", "kikou");
         setCellContent(model, "B2", "Aquecoucou");
-        expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+        expect(getCellError(model, "A1")?.errorType).toBe("#ERROR");
         expect(getEvaluatedCell(model, "A2").value).toBe("");
         expect(getEvaluatedCell(model, "B1").value).toBe("");
         expect(getEvaluatedCell(model, "B2").value).toBe("Aquecoucou");
@@ -405,7 +404,7 @@ describe("evaluate formulas that return an array", () => {
         expect(getEvaluatedCell(model, "A1").value).toBe(42);
 
         setCellContent(model, "A3", "kikou");
-        expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+        expect(getCellError(model, "A1")?.errorType).toBe("#ERROR");
       });
 
       test("limit located on the formula row", () => {
@@ -414,7 +413,7 @@ describe("evaluate formulas that return an array", () => {
         expect(getEvaluatedCell(model, "A1").value).toBe(42);
 
         setCellContent(model, "C1", "kikou");
-        expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+        expect(getCellError(model, "A1")?.errorType).toBe("#ERROR");
       });
 
       test("limit located before the formula column", () => {
@@ -435,7 +434,7 @@ describe("evaluate formulas that return an array", () => {
         expect(getEvaluatedCell(model, "A1").value).toBe(42);
 
         setCellContent(model, "A1", "=MFILL(2,3,42)");
-        expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+        expect(getCellError(model, "A1")?.errorType).toBe("#ERROR");
       });
 
       test("limit located after the formula row", () => {
@@ -444,7 +443,7 @@ describe("evaluate formulas that return an array", () => {
         expect(getEvaluatedCell(model, "A1").value).toBe(42);
 
         setCellContent(model, "A1", "=MFILL(3,2,42)");
-        expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+        expect(getCellError(model, "A1")?.errorType).toBe("#ERROR");
       });
 
       test("multiple limit test", () => {
@@ -454,7 +453,7 @@ describe("evaluate formulas that return an array", () => {
         setCellContent(model, "C5", "kikou");
         expect(getEvaluatedCell(model, "A1").value).toBe(42);
         setCellContent(model, "D3", "colision");
-        expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+        expect(getCellError(model, "A1")?.errorType).toBe("#ERROR");
       });
     });
   });
@@ -475,31 +474,31 @@ describe("evaluate formulas that return an array", () => {
 
     test("throw error message concerning the column encountered horizontally", () => {
       setCellContent(model, "B1", "=MFILL(3,3, 42)");
-      expect(getEvaluatedCell(model, "B1").value).toBe("#ERROR");
-      expect((getEvaluatedCell(model, "B1") as ErrorCell).value.message).toBe(
+      expect(getCellError(model, "B1")?.errorType).toBe("#ERROR");
+      expect(getCellError(model, "B1")?.message).toBe(
         "Result couldn't be automatically expanded. Please insert more columns."
       );
     });
 
     test("throw error message concerning the row encountered verticaly", () => {
       setCellContent(model, "A2", "=MFILL(3,3, 42)");
-      expect(getEvaluatedCell(model, "A2").value).toBe("#ERROR");
-      expect((getEvaluatedCell(model, "A2") as ErrorCell).value.message).toBe(
+      expect(getCellError(model, "A2")?.errorType).toBe("#ERROR");
+      expect(getCellError(model, "A2")?.message).toBe(
         "Result couldn't be automatically expanded. Please insert more rows."
       );
     });
 
     test("throw error message concerning the row and column encountered", () => {
       setCellContent(model, "B2", "=MFILL(3,3, 42)");
-      expect(getEvaluatedCell(model, "B2").value).toBe("#ERROR");
-      expect((getEvaluatedCell(model, "B2") as ErrorCell).value.message).toBe(
+      expect(getCellError(model, "B2")?.errorType).toBe("#ERROR");
+      expect(getCellError(model, "B2")?.message).toBe(
         "Result couldn't be automatically expanded. Please insert more columns and rows."
       );
     });
 
     test("do not spread result when collide", () => {
       setCellContent(model, "B2", "=MFILL(3,3, 42)");
-      expect(getEvaluatedCell(model, "B2").value).toBe("#ERROR");
+      expect(getCellError(model, "B2")?.errorType).toBe("#ERROR");
       expect(getEvaluatedCell(model, "B3").value).toBe("");
       expect(getEvaluatedCell(model, "C2").value).toBe("");
       expect(getEvaluatedCell(model, "C3").value).toBe("");
@@ -507,10 +506,10 @@ describe("evaluate formulas that return an array", () => {
 
     test("spread result when add columns", () => {
       setCellContent(model, "C1", "=MFILL(3,3, 42)");
-      expect(getEvaluatedCell(model, "C1").value).toBe("#ERROR");
+      expect(getCellError(model, "C1")?.errorType).toBe("#ERROR");
 
       addColumns(model, "after", "D", 1);
-      expect(getEvaluatedCell(model, "C1").value).toBe("#ERROR");
+      expect(getCellError(model, "C1")?.errorType).toBe("#ERROR");
 
       addColumns(model, "after", "E", 1);
       expect(getEvaluatedCell(model, "C1").value).toBe(42);
@@ -519,10 +518,10 @@ describe("evaluate formulas that return an array", () => {
 
     test("spread result when add rows", () => {
       setCellContent(model, "A3", "=MFILL(3,3, 42)");
-      expect(getEvaluatedCell(model, "A3").value).toBe("#ERROR");
+      expect(getCellError(model, "A3")?.errorType).toBe("#ERROR");
 
       addRows(model, "after", 3, 1);
-      expect(getEvaluatedCell(model, "A3").value).toBe("#ERROR");
+      expect(getCellError(model, "A3")?.errorType).toBe("#ERROR");
 
       addRows(model, "after", 4, 1);
       expect(getEvaluatedCell(model, "A3").value).toBe(42);
@@ -535,7 +534,7 @@ describe("evaluate formulas that return an array", () => {
       expect(getEvaluatedCell(model, "C3").value).toBe(42);
 
       deleteColumns(model, ["B"]);
-      expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+      expect(getCellError(model, "A1")?.errorType).toBe("#ERROR");
       expect(getEvaluatedCell(model, "B1").value).toBe("");
     });
 
@@ -545,7 +544,7 @@ describe("evaluate formulas that return an array", () => {
       expect(getEvaluatedCell(model, "C3").value).toBe(42);
 
       deleteRows(model, [2]);
-      expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+      expect(getCellError(model, "A1")?.errorType).toBe("#ERROR");
       expect(getEvaluatedCell(model, "A2").value).toBe("");
     });
   });
@@ -643,7 +642,7 @@ describe("evaluate formulas that return an array", () => {
       expect(getEvaluatedCell(model, "B2").value).toBe(42);
       expect(getEvaluatedCell(model, "B3").value).toBe(42);
 
-      expect(getEvaluatedCell(model, "A3").value).toBe("#ERROR");
+      expect(getCellError(model, "A3")?.errorType).toBe("#ERROR");
     });
   });
 
@@ -653,8 +652,8 @@ describe("evaluate formulas that return an array", () => {
       setCellContent(model, "B1", formula);
       setCellContent(model, "A2", formula);
       expect(getEvaluatedCell(model, "B1").value).toBe(42);
-      expect(getEvaluatedCell(model, "A2").value).toBe("#ERROR");
-      expect((getEvaluatedCell(model, "A2") as ErrorCell).value.message).toBe(
+      expect(getCellError(model, "A2")?.errorType).toBe("#ERROR");
+      expect(getCellError(model, "A2")?.message).toBe(
         "Array result was not expanded because it would overwrite data in B2."
       );
     });
@@ -662,9 +661,9 @@ describe("evaluate formulas that return an array", () => {
     test("throw error message concerning the first cell encountered vertically", () => {
       setCellContent(model, "A2", "=MFILL(2,2,42)");
       setCellContent(model, "B1", "=MFILL(1,3,42)");
-      expect(getEvaluatedCell(model, "B1").value).toBe("#ERROR");
+      expect(getCellError(model, "B1")?.errorType).toBe("#ERROR");
       expect(getEvaluatedCell(model, "A2").value).toBe(42);
-      expect((getEvaluatedCell(model, "B1") as ErrorCell).value.message).toBe(
+      expect(getCellError(model, "B1")?.message).toBe(
         "Array result was not expanded because it would overwrite data in B2."
       );
     });
@@ -672,9 +671,9 @@ describe("evaluate formulas that return an array", () => {
     test("throw error message concerning the first cell encountered horizontally", () => {
       setCellContent(model, "A2", "=MFILL(3,1,42)");
       setCellContent(model, "B1", "=MFILL(2,2,42)");
-      expect(getEvaluatedCell(model, "B1").value).toBe("#ERROR");
+      expect(getCellError(model, "B1")?.errorType).toBe("#ERROR");
       expect(getEvaluatedCell(model, "A2").value).toBe(42);
-      expect((getEvaluatedCell(model, "B1") as ErrorCell).value.message).toBe(
+      expect(getCellError(model, "B1")?.message).toBe(
         "Array result was not expanded because it would overwrite data in B2."
       );
     });
@@ -685,7 +684,7 @@ describe("evaluate formulas that return an array", () => {
       setCellContent(model, "A2", formula);
       expect(getEvaluatedCell(model, "B1").value).toBe(42);
       expect(getEvaluatedCell(model, "B2").value).toBe(42);
-      expect(getEvaluatedCell(model, "A2").value).toBe("#ERROR");
+      expect(getCellError(model, "A2")?.errorType).toBe("#ERROR");
       expect(getEvaluatedCell(model, "A3").value).toBe("");
       expect(getEvaluatedCell(model, "B3").value).toBe("");
     });
@@ -695,7 +694,7 @@ describe("evaluate formulas that return an array", () => {
       setCellContent(model, "A2", "=MFILL(2,2,42)");
       expect(getEvaluatedCell(model, "B1").value).toBe(24);
       expect(getEvaluatedCell(model, "B2").value).toBe(24);
-      expect(getEvaluatedCell(model, "A2").value).toBe("#ERROR");
+      expect(getCellError(model, "A2")?.errorType).toBe("#ERROR");
       expect(getEvaluatedCell(model, "A3").value).toBe("");
       expect(getEvaluatedCell(model, "B3").value).toBe("");
       setCellContent(model, "B1", "");
@@ -714,14 +713,14 @@ describe("evaluate formulas that return an array", () => {
         setCellContent(model, "B4", formula);
         setCellContent(model, "C3", formula);
         expect(getEvaluatedCell(model, "B4").value).toBe(result);
-        expect(getEvaluatedCell(model, "C3").value).toBe("#ERROR");
+        expect(getCellError(model, "C3")?.errorType).toBe("#ERROR");
       });
 
       test("covering formula located on the covered formula rows", () => {
         setCellContent(model, "C3", formula);
         setCellContent(model, "D2", formula);
         expect(getEvaluatedCell(model, "C3").value).toBe(result);
-        expect(getEvaluatedCell(model, "D2").value).toBe("#ERROR");
+        expect(getCellError(model, "D2")?.errorType).toBe("#ERROR");
       });
 
       test("covering formula located before the covered formula columns", () => {
@@ -760,13 +759,13 @@ describe("evaluate formulas that return an array", () => {
         setCellContent(model, "A2", formula);
         setCellContent(model, "B1", formula);
         expect(getEvaluatedCell(model, "A2").value).toBe(result);
-        expect(getEvaluatedCell(model, "B1").value).toBe("#ERROR");
+        expect(getCellError(model, "B1")?.errorType).toBe("#ERROR");
       });
 
       test("order 2: set B1, set A2 --> error on A2", () => {
         setCellContent(model, "B1", formula);
         setCellContent(model, "A2", formula);
-        expect(getEvaluatedCell(model, "A2").value).toBe("#ERROR");
+        expect(getCellError(model, "A2")?.errorType).toBe("#ERROR");
         expect(getEvaluatedCell(model, "B1").value).toBe(result);
       });
     });
@@ -778,13 +777,13 @@ describe("evaluate formulas that return an array", () => {
         setCellContent(model, "A2", formula);
         setCellContent(model, "B1", formula);
         expect(getEvaluatedCell(model, "A2").value).toBe(result);
-        expect(getEvaluatedCell(model, "B1").value).toBe("#ERROR");
+        expect(getCellError(model, "B1")?.errorType).toBe("#ERROR");
       });
 
       test("order 2: get B1, get A2", () => {
         setCellContent(model, "A2", formula);
         setCellContent(model, "B1", formula);
-        expect(getEvaluatedCell(model, "B1").value).toBe("#ERROR");
+        expect(getCellError(model, "B1")?.errorType).toBe("#ERROR");
         expect(getEvaluatedCell(model, "A2").value).toBe(result);
       });
     });

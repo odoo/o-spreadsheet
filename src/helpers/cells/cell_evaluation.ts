@@ -151,7 +151,8 @@ function booleanCell(value: boolean, localeFormat: LocaleFormat): BooleanCell {
 function errorCell(error: EvaluationError): ErrorCell {
   return {
     type: CellValueType.error,
-    value: error,
+    value: error.errorType,
+    error,
     isAutoSummable: false,
     defaultAlign: "center",
     formattedValue: error.errorType,

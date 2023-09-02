@@ -12,7 +12,7 @@ import {
   Matrix,
   ValueAndFormat,
 } from "../types";
-import { CellErrorLevel, CellErrorType, EvaluationError } from "../types/errors";
+import { CellErrorLevel, EvaluationError } from "../types/errors";
 import { addMetaInfoFromArg, validateArguments } from "./arguments";
 import { matrixMap } from "./helpers";
 import * as array from "./module_array";
@@ -126,13 +126,17 @@ function tryFormula(
 }
 
 function handleError(e: Error | any, functionName: string): ValueAndFormat {
-  // EvaluatedCell {
   if (!(e instanceof Error)) {
     e = new Error(e);
   }
+  if (e instanceof EvaluationError) {
+    e.message = e.message.replace("[[FUNCTION_NAME]]", functionName);
+    return { value: e };
+  }
+  // TODO check this
   const error = new EvaluationError(
-    e?.errorType || CellErrorType.GenericError,
     e.message.replace("[[FUNCTION_NAME]]", functionName),
+    e?.errorType,
     e.logLevel !== undefined ? e.logLevel : CellErrorLevel.error
   );
   return { value: error };

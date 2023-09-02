@@ -32,7 +32,6 @@ import { _t } from "../../src/translation";
 import {
   CellPosition,
   CellValue,
-  CellValueType,
   ChartDefinition,
   ColorScaleMidPointThreshold,
   ColorScaleThreshold,
@@ -243,7 +242,7 @@ function getCellGrid(model: Model): { [xc: string]: EvaluatedCell } {
 export function getGrid(model: Model): GridResult {
   const result: GridResult = {};
   for (const [xc, cell] of Object.entries(getCellGrid(model))) {
-    result[xc] = cell.type === CellValueType.error ? cell.value.errorType : cell.value;
+    result[xc] = cell.value;
   }
   return result;
 }
@@ -305,8 +304,7 @@ export function evaluateGrid(grid: GridDescr): GridResult {
   const result = {};
   for (let xc in grid) {
     const evaluatedCell = getEvaluatedCell(model, xc);
-    result[xc] =
-      evaluatedCell.type === "error" ? evaluatedCell.value.errorType : evaluatedCell.value;
+    result[xc] = evaluatedCell.value;
   }
   return result;
 }
@@ -648,10 +646,7 @@ export function getCellsObject(model: Model, sheetId: UID): Record<string, CellO
     cells[toXC(col, row)] = {
       style: cell.style,
       format: cell.format,
-      value:
-        evaluatedCell.type === CellValueType.error
-          ? evaluatedCell.value.errorType
-          : evaluatedCell.value,
+      value: evaluatedCell.value,
       content: cell.content,
     };
   }

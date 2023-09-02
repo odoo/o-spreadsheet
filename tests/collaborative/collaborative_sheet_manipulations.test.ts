@@ -190,7 +190,7 @@ describe("Collaborative Sheet manipulation", () => {
       setCellContent(bob, "A1", `=${sheetName}!A2`);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCellError(user, "A1"),
+      (user) => getCellError(user, "A1")?.message,
       `Invalid sheet name: ${sheetName}`
     );
   });

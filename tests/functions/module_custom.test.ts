@@ -64,7 +64,7 @@ describe("FORMAT.LARGE.NUMBER formula", () => {
     const model = new Model();
     setCellContent(model, "A1", `=FORMAT.LARGE.NUMBER("a string")`);
     expect(getCellContent(model, "A1")).toBe("#ERROR");
-    expect(getCellError(model, "A1")).toBe(
+    expect(getCellError(model, "A1")?.message).toBe(
       "The function FORMAT.LARGE.NUMBER expects a number value, but 'a string' is a string, and cannot be coerced to a number."
     );
   });

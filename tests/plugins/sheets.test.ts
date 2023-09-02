@@ -30,6 +30,7 @@ import {
 import {
   getCell,
   getCellContent,
+  getCellError,
   getCellText,
   getEvaluatedCell,
   getStyle,
@@ -252,7 +253,7 @@ describe("sheets", () => {
     const model = new Model();
     setCellContent(model, "A1", "=Sheet133!A1");
 
-    expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+    expect(getCellError(model, "A1")?.errorType).toBe("#ERROR");
   });
 
   test("does not throw if invalid sheetId", () => {
@@ -337,7 +338,7 @@ describe("sheets", () => {
     });
 
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("ABC");
-    expect(getEvaluatedCell(model, "B1").value).toBe("#CYCLE");
+    expect(getCellError(model, "B1")?.errorType).toBe("#CYCLE");
     expect(getEvaluatedCell(model, "C3").value).toBe(42);
   });
 
@@ -831,7 +832,7 @@ describe("sheets", () => {
     setCellContent(model, "A1", "42");
     model.dispatch("DELETE_SHEET", { sheetId: sheet2 });
     expect(getCellText(model, "A1")).toBe("=#REF");
-    expect(getEvaluatedCell(model, "A1").value).toBe("#REF");
+    expect(getCellError(model, "A1")?.errorType).toBe("#REF");
     undo(model);
     activateSheet(model, sheet1);
     expect(getCellText(model, "A1")).toBe("=NEW_NAME!A1");

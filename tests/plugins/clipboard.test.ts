@@ -1856,7 +1856,7 @@ describe("clipboard: pasting outside of sheet", () => {
     copy(model, "B3");
     paste(model, "B2");
     expect(getCellContent(model, "B2", "#BAD_EXPR"));
-    expect(getCellError(model, "B2")).toEqual("Invalid reference");
+    expect(getCellError(model, "B2")?.message).toEqual("Invalid reference");
   });
 
   test("Can cut & paste a formula", () => {

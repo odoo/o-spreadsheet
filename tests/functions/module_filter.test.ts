@@ -214,6 +214,6 @@ describe("UNIQUE function", () => {
     const model = createModelFromGrid(grid);
     setCellContent(model, "D1", "=UNIQUE(A1:B3, 0 ,1)");
     expect(getCellContent(model, "D1")).toBe("#ERROR");
-    expect(getCellError(model, "D1")).toBe("No unique values found");
+    expect(getCellError(model, "D1")?.message).toBe("No unique values found");
   });
 });

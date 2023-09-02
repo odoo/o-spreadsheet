@@ -3,6 +3,7 @@ import { numberToJsDate, parseDateTime } from "../helpers/dates";
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _t } from "../translation";
 import { ArgValue, CellValue, Locale, Matrix, Maybe, ValueAndFormat, isMatrix } from "../types";
+import { EvaluationError } from "../types/errors";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
 
@@ -54,6 +55,9 @@ export function toNumber(value: CellValue | undefined, locale: Locale): number {
       }
       throw new Error(expectNumberValueError(value));
     default:
+      if (value instanceof EvaluationError) {
+        throw value;
+      }
       return 0;
   }
 }
@@ -92,6 +96,9 @@ export function toString(value: CellValue | undefined): string {
     case "boolean":
       return value ? "TRUE" : "FALSE";
     default:
+      if (value instanceof EvaluationError) {
+        throw value;
+      }
       return "";
   }
 }
@@ -138,6 +145,9 @@ export function toBoolean(value: CellValue | undefined): boolean {
     case "number":
       return value ? true : false;
     default:
+      if (value instanceof EvaluationError) {
+        throw value;
+      }
       return false;
   }
 }
@@ -258,6 +268,8 @@ export function reduceNumbers(
     (acc, ArgValue) => {
       if (typeof ArgValue === "number") {
         return cb(acc, ArgValue);
+      } else if (ArgValue instanceof EvaluationError) {
+        throw ArgValue;
       }
       return acc;
     },

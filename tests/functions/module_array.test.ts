@@ -1,6 +1,11 @@
 import { Model } from "../../src";
 import { setCellContent, setFormat } from "../test_helpers/commands_helpers";
-import { getCellContent, getEvaluatedCell, getRangeValues } from "../test_helpers/getters_helpers";
+import {
+  getCellContent,
+  getCellError,
+  getEvaluatedCell,
+  getRangeValues,
+} from "../test_helpers/getters_helpers";
 import {
   checkFunctionDoesntSpreadBeyondRange,
   createModelFromGrid,
@@ -967,7 +972,7 @@ describe("SUMX2MY2 function", () => {
     expect(getEvaluatedCell(model, "E1").value).toEqual(-3);
 
     setCellContent(model, "E1", "=SUMX2MY2(A2:A3, B2:B3)");
-    expect(getEvaluatedCell(model, "E1").value).toEqual("#ERROR"); // No valid X/Y pairs
+    expect(getCellError(model, "E1")?.errorType).toEqual("#ERROR"); // No valid X/Y pairs
   });
 });
 
@@ -1008,7 +1013,7 @@ describe("SUMX2PY2 function", () => {
     expect(getEvaluatedCell(model, "E1").value).toEqual(5);
 
     setCellContent(model, "E1", "=SUMX2PY2(A2:A3, B2:B3)");
-    expect(getEvaluatedCell(model, "E1").value).toEqual("#ERROR"); // No valid X/Y pairs
+    expect(getCellError(model, "E1")?.errorType).toEqual("#ERROR"); // No valid X/Y pairs
   });
 });
 
@@ -1048,7 +1053,7 @@ describe("SUMXMY2 function", () => {
     expect(getEvaluatedCell(model, "E1").value).toEqual(1);
 
     setCellContent(model, "E1", "=SUMXMY2(A2:A3, B2:B3)");
-    expect(getEvaluatedCell(model, "E1").value).toEqual("#ERROR"); // No valid X/Y pairs
+    expect(getCellError(model, "E1")?.errorType).toEqual("#ERROR"); // No valid X/Y pairs
   });
 });
 

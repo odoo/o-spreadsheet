@@ -14,7 +14,7 @@ import {
   UID,
   ValueAndFormat,
 } from "../../../types";
-import { CircularDependencyError } from "../../../types/errors";
+import { CircularDependencyError, EvaluationError } from "../../../types/errors";
 import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
 import { SpreadingRelation } from "./spreading_relation";
@@ -199,22 +199,21 @@ export class Evaluator {
     }
 
     const cellId = cell.id;
-
-    let evaluatedCell: EvaluatedCell;
-
-    if (this.cellsBeingComputed.has(cellId)) {
-      evaluatedCell = createEvaluatedCell(new CircularDependencyError(), {
-        locale: this.getters.getLocale(),
-      });
-    } else {
+    const valueAndFormat = { format: cell.format, locale: this.getters.getLocale() };
+    try {
+      if (this.cellsBeingComputed.has(cellId)) {
+        throw new CircularDependencyError();
+      }
       this.cellsBeingComputed.add(cellId);
-      evaluatedCell = cell.isFormula
+      return cell.isFormula
         ? this.computeFormulaCell(cell)
-        : evaluateLiteral(cell.content, { format: cell.format, locale: this.getters.getLocale() });
+        : evaluateLiteral(cell.content, valueAndFormat);
+    } catch (e) {
+      // TODO check if e is EvaluationError (and wrap or throw ?)
+      return createEvaluatedCell(e, valueAndFormat);
+    } finally {
       this.cellsBeingComputed.delete(cellId);
     }
-
-    return evaluatedCell;
   }
 
   private computeFormulaCell(cellData: FormulaCell): EvaluatedCell {
@@ -272,14 +271,18 @@ export class Evaluator {
     }
 
     if (enoughCols) {
-      throw new Error(_t("Result couldn't be automatically expanded. Please insert more rows."));
+      throw new EvaluationError(
+        _t("Result couldn't be automatically expanded. Please insert more rows.")
+      );
     }
 
     if (enoughRows) {
-      throw new Error(_t("Result couldn't be automatically expanded. Please insert more columns."));
+      throw new EvaluationError(
+        _t("Result couldn't be automatically expanded. Please insert more columns.")
+      );
     }
 
-    throw new Error(
+    throw new EvaluationError(
       _t("Result couldn't be automatically expanded. Please insert more columns and rows.")
     );
   }
@@ -307,7 +310,7 @@ export class Evaluator {
         this.getters.getEvaluatedCell(position).type !== CellValueType.empty
       ) {
         this.blockedArrayFormulas.add(formulaPositionId);
-        throw new Error(
+        throw new EvaluationError(
           _t(
             "Array result was not expanded because it would overwrite data in %s.",
             toXC(position.col, position.row)

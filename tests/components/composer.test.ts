@@ -25,6 +25,7 @@ import {
 } from "../test_helpers/dom_helper";
 import {
   getCellContent,
+  getCellError,
   getCellText,
   getEvaluatedCell,
   getSelectionAnchorCellXc,
@@ -484,7 +485,7 @@ describe("composer", () => {
     composerEl = await typeInComposer("=qsdf");
     await keyDown({ key: "Enter" });
     expect(getCellText(model, "A1")).toBe("=qsdf");
-    expect(getEvaluatedCell(model, "A1").value).toBe("#BAD_EXPR");
+    expect(getCellError(model, "A1")?.errorType).toBe("#BAD_EXPR");
   });
 
   test("typing text then enter exits the edit mode and moves to the next cell down", async () => {
@@ -803,7 +804,7 @@ describe("composer", () => {
     // stop editing with enter
     await keyDown({ key: "Enter" });
     expect(getCellText(model, "C8")).toBe("=");
-    expect(getEvaluatedCell(model, "C8").value).toBe("#BAD_EXPR");
+    expect(getCellError(model, "C8")?.errorType).toBe("#BAD_EXPR");
     expect(getSelectionAnchorCellXc(model)).toBe("C9");
     expect(model.getters.getEditionMode()).toBe("inactive");
 

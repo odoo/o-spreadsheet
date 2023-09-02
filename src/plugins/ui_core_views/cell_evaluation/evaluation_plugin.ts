@@ -1,5 +1,6 @@
 import { compile, isExportableToExcel } from "../../../formulas/index";
 import { getItemId, positions, toXC } from "../../../helpers/index";
+import { EvaluationError } from "../../../types/errors";
 import {
   CellPosition,
   CellValue,
@@ -207,6 +208,7 @@ export class EvaluationPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   evaluateFormula(sheetId: UID, formulaString: string): any {
+    // TODO check the any
     const compiledFormula = compile(formulaString);
 
     const ranges: Range[] = [];
@@ -216,6 +218,10 @@ export class EvaluationPlugin extends UIPlugin {
     const array = compiledFormula.execute(ranges, ...this.compilationParams);
     if (isMatrix(array)) {
       return array.map((col) => col.map((row) => row.value));
+    }
+    // TODO check the array case.
+    if (array.value instanceof EvaluationError) {
+      throw array.value;
     }
     return array.value;
   }

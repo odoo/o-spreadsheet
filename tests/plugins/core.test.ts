@@ -167,8 +167,8 @@ describe("core", () => {
       const model = new Model();
       setCellContent(model, "A1", "=TWOARGSNEEDED(42)");
 
-      expect(getEvaluatedCell(model, "A1").value).toBe("#BAD_EXPR");
-      expect(getCellError(model, "A1")).toBe(
+      expect(getCellError(model, "A1")?.errorType).toBe("#BAD_EXPR");
+      expect(getCellError(model, "A1")?.message).toBe(
         `Invalid number of arguments for the TWOARGSNEEDED function. Expected 2 minimum, but got 1 instead.`
       );
       functionRegistry.remove("TWOARGSNEEDED");

@@ -37,10 +37,10 @@ ErrorToolTip.props = {
 export const ErrorToolTipPopoverBuilder: PopoverBuilders = {
   onHover: (position, getters): CellPopoverComponent<typeof ErrorToolTip> => {
     const cell = getters.getEvaluatedCell(position);
-    if (cell.type === CellValueType.error && cell.value.logLevel > CellErrorLevel.silent) {
+    if (cell.type === CellValueType.error && cell.error.logLevel > CellErrorLevel.silent) {
       return {
         isOpen: true,
-        props: { text: cell.value.message },
+        props: { text: cell.error.message },
         Component: ErrorToolTip,
         cellCorner: "TopRight",
       };

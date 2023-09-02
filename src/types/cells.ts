@@ -65,7 +65,8 @@ export interface EmptyCell extends EvaluatedCellProperties {
 
 export interface ErrorCell extends EvaluatedCellProperties {
   readonly type: CellValueType.error;
-  readonly value: EvaluationError;
+  readonly value: string;
+  readonly error: EvaluationError;
 }
 
 export enum CellValueType {
