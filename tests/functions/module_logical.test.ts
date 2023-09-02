@@ -143,6 +143,7 @@ describe("IFERROR formula", () => {
 
   test("Laziness of args is propagated", () => {
     expect(evaluateCell("A1", { A1: "=IFERROR(TRUE, COUNT(1/0))" })).toBe(true);
+    // that's funny, it's working :p it detects the cycle error properly and returns COUNT(A1)
     expect(evaluateCell("A1", { A1: "=IFERROR(1/0, COUNT(A1))" })).toBe("#CYCLE");
     expect(evaluateCell("A1", { A1: "=IFERROR(IFERROR(TRUE, 1/0), 1/0)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=IFERROR(IFERROR(1/0, 1/0), 1)" })).toBe(1);

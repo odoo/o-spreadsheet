@@ -1,8 +1,15 @@
 import { _t } from "../translation";
-import { AddFunctionDescription, ArgValue, CellValue, Maybe, ValueAndFormat } from "../types";
-import { EvaluationError, NotAvailableError } from "../types/errors";
+import {
+  AddFunctionDescription,
+  ArgValue,
+  CellValue,
+  DEFAULT_LOCALE,
+  Maybe,
+  ValueAndFormat,
+} from "../types";
+import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
-import { assert, conditionalVisitBoolean, toBoolean } from "./helpers";
+import { assert, conditionalVisitBoolean, toBoolean, toNumber } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // AND
@@ -71,7 +78,7 @@ export const IF = {
   computeValueAndFormat: function (
     logicalExpression: Maybe<ValueAndFormat>,
     valueIfTrue: Maybe<ValueAndFormat>,
-    valueIfFalse: Maybe<ValueAndFormat> = { value: false }
+    valueIfFalse: Maybe<ValueAndFormat>
   ): ValueAndFormat {
     const result = toBoolean(logicalExpression?.value) ? valueIfTrue : valueIfFalse;
     if (result === undefined) {
@@ -83,6 +90,21 @@ export const IF = {
     return result;
   },
   isExported: true,
+} satisfies AddFunctionDescription;
+
+export const MFILL = {
+  description: "Return an n*n matrix filled with n.",
+  args: [
+    arg("n (number)", "number of column of the matrix"),
+    arg("m (number)", "number of row of the matrix"),
+    arg("v (number)", "value to fill matrix"),
+  ],
+  returns: ["RANGE<NUMBER>"],
+  compute: function (n: Maybe<CellValue>, m: Maybe<CellValue>, v: Maybe<CellValue>): any[][] {
+    return Array.from({ length: toNumber(n, DEFAULT_LOCALE) }, (_, i) =>
+      Array.from({ length: toNumber(m, DEFAULT_LOCALE) }, (_, j) => v)
+    );
+  },
 } satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
@@ -102,7 +124,7 @@ export const IFERROR = {
     value: Maybe<ValueAndFormat>,
     valueIfError: Maybe<ValueAndFormat> = { value: "" }
   ): ValueAndFormat {
-    const result = value?.value instanceof EvaluationError ? valueIfError : value;
+    const result = value?.value instanceof Error ? valueIfError : value;
     if (result === undefined) {
       return { value: "" };
     }

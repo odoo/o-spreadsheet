@@ -199,7 +199,7 @@ export class Evaluator {
     }
 
     const cellId = cell.id;
-    const valueAndFormat = { format: cell.format, locale: this.getters.getLocale() };
+    const localeFormat = { format: cell.format, locale: this.getters.getLocale() };
     try {
       if (this.cellsBeingComputed.has(cellId)) {
         throw new CircularDependencyError();
@@ -207,10 +207,9 @@ export class Evaluator {
       this.cellsBeingComputed.add(cellId);
       return cell.isFormula
         ? this.computeFormulaCell(cell)
-        : evaluateLiteral(cell.content, valueAndFormat);
+        : evaluateLiteral(cell.content, localeFormat);
     } catch (e) {
-      // TODO check if e is EvaluationError (and wrap or throw ?)
-      return createEvaluatedCell(e, valueAndFormat);
+      return createEvaluatedCell(e, localeFormat);
     } finally {
       this.cellsBeingComputed.delete(cellId);
     }

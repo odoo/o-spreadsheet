@@ -151,7 +151,9 @@ describe("evaluateCells", () => {
     expect(getCellError(model, "A1")?.message).toBe("Invalid formula");
 
     setCellContent(model, "A1", "=DECIMAL(1,100)");
-    expect(getCellError(model, "A1")).toBe(`The base (100) must be between 2 and 36 inclusive.`);
+    expect(getCellError(model, "A1")?.message).toBe(
+      `The base (100) must be between 2 and 36 inclusive.`
+    );
   });
 
   test("error in an addition", () => {
