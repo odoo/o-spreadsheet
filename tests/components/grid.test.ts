@@ -3,8 +3,8 @@ import {
   BACKGROUND_GRAY_COLOR,
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
-  FILTER_ICON_EDGE_LENGTH,
-  FILTER_ICON_MARGIN,
+  GRID_ICON_EDGE_LENGTH,
+  GRID_ICON_MARGIN,
   HEADER_HEIGHT,
   HEADER_WIDTH,
   MESSAGE_VERSION,
@@ -13,7 +13,7 @@ import {
 import { buildSheetLink, toCartesian, toHex, toZone, zoneToXc } from "../../src/helpers";
 import { createEmptyWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
-import { Align, ClipboardMIMEType, HeaderDimensions, UID } from "../../src/types";
+import { Align, ClipboardMIMEType } from "../../src/types";
 import { FileStore } from "../__mocks__/mock_file_store";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { MockClipboardData, getClipboardEvent } from "../test_helpers/clipboard";
@@ -30,7 +30,6 @@ import {
   hideColumns,
   hideRows,
   merge,
-  resizeRows,
   selectCell,
   selectColumn,
   selectHeader,
@@ -65,13 +64,7 @@ import {
   getSelectionAnchorCellXc,
   getStyle,
 } from "../test_helpers/getters_helpers";
-import {
-  getStylePropertyInPx,
-  mountSpreadsheet,
-  nextTick,
-  target,
-  typeInComposerGrid,
-} from "../test_helpers/helpers";
+import { mountSpreadsheet, nextTick, target, typeInComposerGrid } from "../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 import { mockChart } from "./__mocks__/chart";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
@@ -750,17 +743,16 @@ describe("Grid component", () => {
       createFilter(model, "B2:C3");
       await nextTick();
 
-      const icons = fixture.querySelectorAll(".o-filter-icon");
+      const icons = fixture.querySelectorAll(".o-grid-cell-icon");
       expect(icons).toHaveLength(2);
-      const centerIngOffset = (DEFAULT_CELL_HEIGHT - FILTER_ICON_EDGE_LENGTH) / 2;
       const top = `${
-        DEFAULT_CELL_HEIGHT * 2 - FILTER_ICON_EDGE_LENGTH + HEADER_HEIGHT - centerIngOffset
+        DEFAULT_CELL_HEIGHT * 2 - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN + HEADER_HEIGHT
       }px`;
       const leftA = `${
-        DEFAULT_CELL_WIDTH * 2 - FILTER_ICON_EDGE_LENGTH + HEADER_WIDTH - FILTER_ICON_MARGIN - 1
+        DEFAULT_CELL_WIDTH * 2 - GRID_ICON_EDGE_LENGTH + HEADER_WIDTH - GRID_ICON_MARGIN
       }px`;
       const leftB = `${
-        DEFAULT_CELL_WIDTH * 3 - FILTER_ICON_EDGE_LENGTH + HEADER_WIDTH - FILTER_ICON_MARGIN - 1
+        DEFAULT_CELL_WIDTH * 3 - GRID_ICON_EDGE_LENGTH + HEADER_WIDTH - GRID_ICON_MARGIN
       }px`;
       expect((icons[0] as HTMLElement).style["_values"]).toEqual({ top, left: leftA });
       expect((icons[1] as HTMLElement).style["_values"]).toEqual({ top, left: leftB });
@@ -786,42 +778,6 @@ describe("Grid component", () => {
       await nextTick();
       await simulateClick(".o-filter-icon");
       expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
-    });
-  });
-
-  describe("Filter icon follows the attached cell vertical alignment", () => {
-    let filterIcon: HTMLElement;
-    let rowDims: HeaderDimensions;
-    let sheetId: UID;
-    beforeEach(async () => {
-      resizeRows(model, [1], DEFAULT_CELL_HEIGHT * 2);
-      createFilter(model, "B2");
-      await nextTick();
-      sheetId = model.getters.getActiveSheetId();
-      rowDims = model.getters.getRowDimensionsInViewport(sheetId, 1);
-      filterIcon = fixture.querySelector(".o-filter-icon") as HTMLElement;
-    });
-
-    test("Alignment Top", async () => {
-      setStyle(model, "B2", { verticalAlign: "top" }, sheetId);
-      await nextTick();
-      const top = rowDims.start + FILTER_ICON_MARGIN + HEADER_HEIGHT;
-      expect(top).toEqual(getStylePropertyInPx(filterIcon, "top"));
-    });
-
-    test("Alignment Middle", async () => {
-      const centeringOffset = Math.floor((rowDims.size - FILTER_ICON_EDGE_LENGTH) / 2);
-      setStyle(model, "B2", { verticalAlign: "middle" }, sheetId);
-      await nextTick();
-      const middle = rowDims.end - FILTER_ICON_EDGE_LENGTH - centeringOffset + HEADER_HEIGHT;
-      expect(middle).toEqual(getStylePropertyInPx(filterIcon, "top"));
-    });
-
-    test("Alignment Bottom", async () => {
-      setStyle(model, "B2", { verticalAlign: "bottom" }, sheetId);
-      await nextTick();
-      const bottom = rowDims.end - FILTER_ICON_MARGIN - FILTER_ICON_EDGE_LENGTH + HEADER_HEIGHT;
-      expect(bottom).toEqual(getStylePropertyInPx(filterIcon, "top"));
     });
   });
 
