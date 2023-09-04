@@ -1,0 +1,10 @@
+<templates>
+  <t t-name="o-spreadsheet-GridCellIcon">
+    <div
+      class="o-grid-cell-icon position-absolute overflow-hidden"
+      t-if="isPositionVisible(this.props.cellPosition)"
+      t-att-style="iconStyle">
+      <t t-slot="default"/>
+    </div>
+  </t>
+</templates>

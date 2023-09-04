@@ -10,10 +10,10 @@ import {
   DEFAULT_FONT,
   DEFAULT_VERTICAL_ALIGN,
   FILTERS_COLOR,
-  FILTER_ICON_EDGE_LENGTH,
-  FILTER_ICON_MARGIN,
   FROZEN_PANE_BORDER_COLOR,
   FROZEN_PANE_HEADER_BORDER_COLOR,
+  GRID_ICON_EDGE_LENGTH,
+  GRID_ICON_MARGIN,
   HEADER_BORDER_COLOR,
   HEADER_FONT_SIZE,
   HEADER_HEIGHT,
@@ -316,7 +316,7 @@ export class RendererPlugin extends UIPlugin {
           x +=
             box.width -
             MIN_CELL_TEXT_MARGIN -
-            (box.isFilterHeader ? ICON_EDGE_LENGTH + FILTER_ICON_MARGIN : 0);
+            (box.isFilterHeader ? ICON_EDGE_LENGTH + GRID_ICON_MARGIN : 0);
         } else {
           x += box.width / 2;
         }
@@ -651,7 +651,7 @@ export class RendererPlugin extends UIPlugin {
 
     /** Filter Header */
     box.isFilterHeader = this.getters.isFilterHeader(position);
-    const headerIconWidth = box.isFilterHeader ? FILTER_ICON_EDGE_LENGTH + FILTER_ICON_MARGIN : 0;
+    const headerIconWidth = box.isFilterHeader ? GRID_ICON_EDGE_LENGTH + GRID_ICON_MARGIN : 0;
 
     /** Content */
     const style = this.getters.getCellComputedStyle(position);

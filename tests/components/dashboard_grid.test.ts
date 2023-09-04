@@ -2,8 +2,8 @@ import { Spreadsheet } from "../../src";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
-  FILTER_ICON_EDGE_LENGTH,
-  FILTER_ICON_MARGIN,
+  GRID_ICON_EDGE_LENGTH,
+  GRID_ICON_MARGIN,
 } from "../../src/constants";
 import { Model } from "../../src/model";
 import { createFilter, selectCell, setCellContent } from "../test_helpers/commands_helpers";
@@ -61,12 +61,11 @@ describe("Grid component in dashboard mode", () => {
     createFilter(model, "B2:C3");
     model.updateMode("dashboard");
     await nextTick();
-    const icons = fixture.querySelectorAll(".o-filter-icon");
+    const icons = fixture.querySelectorAll(".o-grid-cell-icon");
     expect(icons).toHaveLength(2);
-    const centerIngOffset = (DEFAULT_CELL_HEIGHT - FILTER_ICON_EDGE_LENGTH) / 2;
-    const top = `${DEFAULT_CELL_HEIGHT * 2 - FILTER_ICON_EDGE_LENGTH - centerIngOffset}px`;
-    const leftA = `${DEFAULT_CELL_WIDTH * 2 - FILTER_ICON_EDGE_LENGTH - FILTER_ICON_MARGIN - 1}px`;
-    const leftB = `${DEFAULT_CELL_WIDTH * 3 - FILTER_ICON_EDGE_LENGTH - FILTER_ICON_MARGIN - 1}px`;
+    const top = `${DEFAULT_CELL_HEIGHT * 2 - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN}px`;
+    const leftA = `${DEFAULT_CELL_WIDTH * 2 - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN}px`;
+    const leftB = `${DEFAULT_CELL_WIDTH * 3 - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN}px`;
     expect((icons[0] as HTMLElement).style["_values"]).toEqual({ top, left: leftA });
     expect((icons[1] as HTMLElement).style["_values"]).toEqual({ top, left: leftB });
   });

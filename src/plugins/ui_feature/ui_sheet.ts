@@ -1,8 +1,4 @@
-import {
-  FILTER_ICON_MARGIN,
-  ICON_EDGE_LENGTH,
-  PADDING_AUTORESIZE_HORIZONTAL,
-} from "../../constants";
+import { GRID_ICON_MARGIN, ICON_EDGE_LENGTH, PADDING_AUTORESIZE_HORIZONTAL } from "../../constants";
 import {
   computeIconWidth,
   computeTextWidth,
@@ -94,7 +90,7 @@ export class SheetUIPlugin extends UIPlugin {
 
     const isFilterHeader = this.getters.isFilterHeader(position);
     if (isFilterHeader) {
-      contentWidth += ICON_EDGE_LENGTH + FILTER_ICON_MARGIN;
+      contentWidth += ICON_EDGE_LENGTH + GRID_ICON_MARGIN;
     }
 
     if (contentWidth === 0) {

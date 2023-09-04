@@ -1,15 +1,12 @@
 <templates>
   <t t-name="o-spreadsheet-FilterIconsOverlay">
     <t
-      t-foreach="getVisibleFilterHeaders()"
-      t-as="header"
-      t-key="'filter'+header.col + '_' + header.row">
-      <FilterIcon
-        position="getFilterHeaderPosition(header)"
-        isActive="isFilterActive(header)"
-        t-key="'icon_'+header.col + '_' + header.row"
-        onClick="() => this.toggleFilterMenu(header)"
-      />
+      t-foreach="getFilterHeadersPositions()"
+      t-as="position"
+      t-key="'filter'+position.col + '_' + position.row">
+      <GridCellIcon cellPosition="position" offset="props.gridPosition" horizontalAlign="'right'">
+        <FilterIcon cellPosition="position"/>
+      </GridCellIcon>
     </t>
   </t>
 </templates>
