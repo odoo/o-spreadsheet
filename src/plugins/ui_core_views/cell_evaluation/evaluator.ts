@@ -171,7 +171,12 @@ export class Evaluator {
       }
       for (let i = 0; i < positionIds.length; ++i) {
         const cell = positionIds[i];
-        this.setEvaluatedCell(cell, this.computeCell(cell));
+        try {
+          this.setEvaluatedCell(cell, this.computeCell(cell));
+        } catch (e) {
+          // format ?
+          this.setEvaluatedCell(cell, createEvaluatedCell(e, { locale: this.getters.getLocale() }));
+        }
       }
     }
   }
@@ -208,8 +213,6 @@ export class Evaluator {
       return cell.isFormula
         ? this.computeFormulaCell(cell)
         : evaluateLiteral(cell.content, localeFormat);
-    } catch (e) {
-      return createEvaluatedCell(e, localeFormat);
     } finally {
       this.cellsBeingComputed.delete(cellId);
     }
@@ -347,7 +350,9 @@ export class Evaluator {
     if (!this.spreadingRelations.isArrayFormula(positionId)) {
       return;
     }
-    for (const child of this.spreadingRelations.getArrayResultPositionIds(positionId)) {
+    const arrayResultPositionIds = this.spreadingRelations.getArrayResultPositionIds(positionId);
+    this.spreadingRelations.removeNode(positionId);
+    for (const child of arrayResultPositionIds) {
       const content = this.getCell(child)?.content;
       if (content) {
         // there's no point at re-evaluating overlapping array formulas,
@@ -355,10 +360,16 @@ export class Evaluator {
         continue;
       }
       this.evaluatedCells.delete(child);
-      this.nextPositionsToUpdate.add(...this.getCellsDependingOn([child]));
+      const cellsDependendingOnChild = this.getCellsDependingOn([child]);
+      this.nextPositionsToUpdate.add(...cellsDependendingOnChild);
       this.nextPositionsToUpdate.add(...this.getArrayFormulasBlockedByOrSpreadingOn(child));
+      // there's two incompatible behaviors here:
+      // comment/uncomment these 3 lines to switch between
+      // the failing tests showing the behavior
+      for (const c of cellsDependendingOnChild) {
+        this.invalidateSpreading(c);
+      }
     }
-    this.spreadingRelations.removeNode(positionId);
   }
 
   // ----------------------------------------------------------
