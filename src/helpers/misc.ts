@@ -457,11 +457,13 @@ export function getAddHeaderStartIndex(position: "before" | "after", base: numbe
 }
 
 /**
- * Compare two objects.
+ * Compares two objects.
  */
-export function deepEquals<T extends Object>(o1: T, o2: T): boolean {
+export function deepEquals(o1: any, o2: any): boolean {
   if (o1 === o2) return true;
   if ((o1 && !o2) || (o2 && !o1)) return false;
+  if (typeof o1 !== typeof o2) return false;
+  if (typeof o1 !== "object") return o1 === o2;
 
   // Objects can have different keys if the values are undefined
   const keys = new Set<string>();
