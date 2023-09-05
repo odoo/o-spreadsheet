@@ -1,4 +1,4 @@
-import { deepCopy } from "../../src/helpers";
+import { deepCopy, deepEquals } from "../../src/helpers";
 import { groupConsecutive, lazy, range } from "../../src/helpers/misc";
 
 describe("Misc", () => {
@@ -197,4 +197,25 @@ describe("lazy", () => {
   test("map a non-computed lazy value to another value", () => {
     expect(lazy(5).map((n) => n + 1)()).toBe(6);
   });
+});
+
+test.each([
+  [1, 1, true],
+  [1, 5, false],
+  [1, Number(1), true],
+  ["ok", "ok", true],
+  ["ok", "ko", false],
+  [5, "5", false],
+  [true, true, true],
+  [true, false, false],
+  [{}, {}, true],
+  [{ a: 1 }, { a: 1 }, true],
+  [{ a: 1 }, { a: 2 }, false],
+  [{ a: undefined }, {}, true],
+  [{ a: undefined }, { a: null }, false],
+  [{ a: null }, {}, false],
+  [{ a: 1, b: undefined }, { a: 1 }, true],
+  [undefined, undefined, true],
+])("deepEquals %s %s", (o1: any, o2: any, expectedResult) => {
+  expect(deepEquals(o1, o2)).toEqual(expectedResult);
 });
