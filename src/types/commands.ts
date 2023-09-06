@@ -1234,6 +1234,7 @@ export const enum CommandResult {
   InvalidFigureId = "InvalidFigureId",
   InputAlreadyFocused = "InputAlreadyFocused",
   MaximumRangesReached = "MaximumRangesReached",
+  MinimumRangesReached = "MinimumRangesReached",
   InvalidChartDefinition = "InvalidChartDefinition",
   InvalidDataSet = "InvalidDataSet",
   InvalidLabelRange = "InvalidLabelRange",
