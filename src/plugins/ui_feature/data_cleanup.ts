@@ -1,5 +1,6 @@
+import { CellClipboardHandler } from "../../clipboard_handlers/cell";
 import { deepEquals, positions, range, trimContent, zoneToDimension } from "../../helpers";
-import { ClipboardCellsState } from "../../helpers/clipboard/clipboard_cells_state";
+import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
 import { _t } from "../../translation";
 import {
   Command,
@@ -75,13 +76,11 @@ export class DataCleanupPlugin extends UIPlugin {
       bottom: rowIndex,
     }));
 
-    const state = new ClipboardCellsState(
-      rowsToKeep,
-      "COPY",
-      this.getters,
-      this.dispatch,
-      this.selection
-    );
+    const handler = new CellClipboardHandler(this.getters, this.dispatch);
+    const data = handler.copy(getClipboardDataPositions(rowsToKeep));
+    if (!data) {
+      return;
+    }
 
     for (const { col, row } of positions(zone)) {
       this.dispatch("CLEAR_CELL", { col, row, sheetId });
@@ -94,7 +93,7 @@ export class DataCleanupPlugin extends UIPlugin {
       bottom: zone.top,
     };
 
-    state.paste([zonePasted]);
+    handler.paste({ zones: [zonePasted] }, data, { isCutOperation: false });
 
     const remainingZone = {
       left: zone.left,

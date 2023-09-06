@@ -1,4 +1,3 @@
-import { ClipboardCellsState } from "../../src/helpers/clipboard/clipboard_cells_state";
 import { toCartesian, toXC } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui_stateful";
@@ -174,7 +173,7 @@ export function getFilter(
 export function getClipboardVisibleZones(model: Model): Zone[] {
   const clipboardPlugin = getPlugin(model, ClipboardPlugin);
   return clipboardPlugin["status"] === "visible"
-    ? (clipboardPlugin["state"]! as ClipboardCellsState)["zones"]
+    ? clipboardPlugin["copiedData"]?.["zones"] ?? []
     : [];
 }
 

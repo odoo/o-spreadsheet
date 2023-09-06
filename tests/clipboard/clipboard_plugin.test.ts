@@ -1,6 +1,5 @@
 import { DEFAULT_BORDER_DESC } from "../../src/constants";
 import { toCartesian, toZone, zoneToXc } from "../../src/helpers";
-import { ClipboardCellsState } from "../../src/helpers/clipboard/clipboard_cells_state";
 import { Model } from "../../src/model";
 import { ClipboardMIMEType, CommandResult, DEFAULT_LOCALE } from "../../src/types/index";
 import { XMLString } from "../../src/types/xlsx";
@@ -127,20 +126,6 @@ describe("clipboard", () => {
     const model = new Model();
     const result = paste(model, "D2");
     expect(result).toBeCancelledBecause(CommandResult.EmptyClipboard);
-  });
-
-  test("paste zones without copied value", () => {
-    const model = new Model();
-    const target = [toZone("A1"), toZone("B2")];
-    const state = new ClipboardCellsState(
-      [],
-      "COPY",
-      model.getters,
-      model.dispatch,
-      model.selection
-    );
-    const pasteZone = state["getPasteZones"](target);
-    expect(pasteZone).toEqual(target);
   });
 
   test("can cut and paste a cell in different sheets", () => {

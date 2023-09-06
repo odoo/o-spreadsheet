@@ -1,7 +1,8 @@
+import { CellClipboardHandler } from "../../clipboard_handlers/cell";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { sum } from "../../functions/helper_math";
 import { average, countAny, countNumbers, max, min } from "../../functions/helper_statistical";
-import { ClipboardCellsState } from "../../helpers/clipboard/clipboard_cells_state";
+import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
 import {
   clip,
   deepCopy,
@@ -663,13 +664,12 @@ export class GridSelectionPlugin extends UIPlugin {
         bottom: !isCol ? end + deltaRow : this.getters.getNumberRows(cmd.sheetId) - 1,
       },
     ];
-    const state = new ClipboardCellsState(
-      target,
-      "CUT",
-      this.getters,
-      this.dispatch,
-      this.selection
-    );
+
+    const handler = new CellClipboardHandler(this.getters, this.dispatch);
+    const data = handler.copy(getClipboardDataPositions(target));
+    if (!data) {
+      return;
+    }
     const base = isBasedBefore ? cmd.base : cmd.base + 1;
     const pasteTarget = [
       {
@@ -679,7 +679,7 @@ export class GridSelectionPlugin extends UIPlugin {
         bottom: !isCol ? base + thickness - 1 : this.getters.getNumberRows(cmd.sheetId) - 1,
       },
     ];
-    state.paste(pasteTarget, { selectTarget: true });
+    handler.paste({ zones: pasteTarget }, data, { isCutOperation: true });
 
     const toRemove = isBasedBefore ? cmd.elements.map((el) => el + thickness) : cmd.elements;
     let currentIndex = cmd.base;

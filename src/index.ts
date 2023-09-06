@@ -1,4 +1,5 @@
 import { createAction, createActions } from "./actions/action";
+import { clipboardHandlersRegistries } from "./clipboard_handlers/index";
 import { transformRangeData } from "./collaborative/ot/ot_helpers";
 import { ChartJsComponent } from "./components/figures/chart/chartJs/chartjs";
 import { ScorecardChart } from "./components/figures/chart/scorecard/chart_scorecard";
@@ -197,6 +198,7 @@ export const registries = {
   numberFormatMenuRegistry,
   repeatLocalCommandTransformRegistry,
   repeatCommandTransformRegistry,
+  clipboardHandlersRegistries,
 };
 export const helpers = {
   arg,
