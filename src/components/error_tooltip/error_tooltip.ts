@@ -13,6 +13,7 @@ css/* scss */ `
     background-color: white;
     border-left: 3px solid red;
     padding: 10px;
+    overflow-wrap: break-word;
   }
 `;
 
