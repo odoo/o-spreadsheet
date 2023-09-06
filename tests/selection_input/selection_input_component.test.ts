@@ -713,4 +713,30 @@ describe("Selection Input", () => {
       expect(fixture.querySelectorAll("input")[0].value).toBe("$B$1:$B$2");
     });
   });
+
+  test("After confirming an empty selection input, the confirm button should become visible.", async () => {
+    await createSelectionInput();
+
+    await simulateClick(fixture.querySelector("input")!);
+    await simulateClick(fixture.querySelector(".o-selection-ok"));
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-selection-ok").length).toBe(0);
+
+    await simulateClick(fixture.querySelector("input")!);
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-selection-ok").length).toBe(1);
+  });
+
+  test("After confirming two empty selection inputs, the confirm button should become visible.", async () => {
+    await createSelectionInput();
+    await simulateClick(fixture.querySelector("input")!);
+    await simulateClick(".o-add-selection");
+    await simulateClick(fixture.querySelector(".o-selection-ok"));
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-selection-ok").length).toBe(0);
+
+    await simulateClick(fixture.querySelector("input")!);
+    await nextTick();
+    expect(fixture.querySelectorAll(".o-selection-ok").length).toBe(1);
+  });
 });
