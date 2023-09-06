@@ -9,6 +9,7 @@ import {
   SpreadsheetChildEnv,
 } from "../../types";
 import { FiguresContainer } from "../figures/figure_container/figure_container";
+import { useAbsolutePosition } from "../helpers/position_hook";
 import { useInterval } from "../helpers/time_hooks";
 
 function useCellHovered(
@@ -20,7 +21,7 @@ function useCellHovered(
     col: undefined,
     row: undefined,
   };
-  const { Date } = window;
+  const gridPosition = useAbsolutePosition(gridRef);
   let x = 0;
   let y = 0;
   let lastMoved = 0;
@@ -47,8 +48,8 @@ function useCellHovered(
     }
   }
   function updateMousePosition(e: MouseEvent) {
-    x = e.offsetX;
-    y = e.offsetY;
+    x = e.clientX - gridPosition.x;
+    y = e.clientY - gridPosition.y;
     lastMoved = Date.now();
   }
 

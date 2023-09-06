@@ -868,6 +868,32 @@ describe("error tooltip", () => {
     expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
   });
 
+  test("cell hovered uses the clientX/Y position, and not the offsetX/Y", async () => {
+    const zone = toZone("A1");
+    let { x, y } = model.getters.getVisibleRect(zone);
+    x -= HEADER_WIDTH;
+    y -= HEADER_HEIGHT;
+
+    setCellContent(model, "A1", "=1/0");
+    // TODO: we should refactor the helper triggerMouseEvent to accept either clientX/Y or offsetX/Y, instead of
+    // the current implementation that set both clientX/Y and offsetX/Y to the same value.
+    let ev = new MouseEvent("mousemove", { bubbles: true, clientX: 1000, clientY: 1000 });
+    // @ts-ignore
+    ev.offsetX = x;
+    // @ts-ignore
+    ev.offsetY = y;
+    document.querySelector(".o-grid-overlay")!.dispatchEvent(ev);
+    jest.advanceTimersByTime(400);
+    await nextTick();
+    expect(document.querySelector(".o-error-tooltip")).toBeNull();
+
+    ev = new MouseEvent("mousemove", { bubbles: true, clientX: x, clientY: y });
+    document.querySelector(".o-grid-overlay")!.dispatchEvent(ev);
+    jest.advanceTimersByTime(400);
+    await nextTick();
+    expect(document.querySelector(".o-error-tooltip")).not.toBeNull();
+  });
+
   test("composer content is set when clicking on merged cell (not top left)", async () => {
     merge(model, "C1:C8");
     setCellContent(model, "C1", "Hello");
