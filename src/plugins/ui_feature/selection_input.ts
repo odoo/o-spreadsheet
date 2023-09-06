@@ -65,6 +65,11 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
           return CommandResult.MaximumRangesReached;
         }
         break;
+      case "REMOVE_RANGE":
+        if (this.ranges.length === 1) {
+          return CommandResult.MinimumRangesReached;
+        }
+        break;
       case "CHANGE_RANGE":
         if (this.inputHasSingleRange && cmd.value.split(",").length > 1) {
           return CommandResult.MaximumRangesReached;

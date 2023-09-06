@@ -239,16 +239,11 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   }
 
   reset() {
-    const existingSelectionRanges = this.env.model.getters.getSelectionInput(this.id);
-    for (const range of existingSelectionRanges) {
-      this.env.model.dispatch("REMOVE_RANGE", {
-        id: this.id,
-        rangeId: range.id,
-      });
-    }
-    for (const range of this.previousRanges) {
-      this.env.model.dispatch("ADD_RANGE", { id: this.id, value: range });
-    }
+    this.env.model.dispatch("ENABLE_NEW_SELECTION_INPUT", {
+      id: this.id,
+      initialRanges: this.previousRanges,
+      hasSingleRange: this.props.hasSingleRange,
+    });
     this.confirm();
   }
 
@@ -258,11 +253,13 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     const existingSelectionXcs: string[] = [];
     for (const range of existingSelectionRanges) {
       if (range.xc === "") {
-        this.env.model.dispatch("REMOVE_RANGE", {
+        const result = this.env.model.dispatch("REMOVE_RANGE", {
           id: this.id,
           rangeId: range.id,
         });
-        continue;
+        if (result.isSuccessful) {
+          continue;
+        }
       }
       existingSelectionXcs.push(range.xc);
       if (this.env.model.getters.isRangeValid(range.xc)) {
