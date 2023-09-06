@@ -15,6 +15,7 @@ css/* scss */ `
     padding: 10px;
     width: ${ERROR_TOOLTIP_WIDTH}px;
     box-sizing: border-box !important;
+    overflow-wrap: break-word;
   }
 `;
 
