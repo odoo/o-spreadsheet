@@ -1,6 +1,4 @@
-import { CommandResult } from "./commands";
-import { Dimension, HeaderIndex, UID, Zone } from "./misc";
-import { GridRenderingContext } from "./rendering";
+import { HeaderIndex, UID, Zone } from "./misc";
 
 export enum ClipboardMIMEType {
   PlainText = "text/plain",
@@ -11,26 +9,26 @@ export type ClipboardContent = { [type in ClipboardMIMEType]?: string };
 
 export interface ClipboardOptions {
   pasteOption?: ClipboardPasteOptions;
-  shouldPasteCF?: boolean;
   selectTarget?: boolean;
+  isCutOperation?: boolean;
 }
 export type ClipboardPasteOptions = "onlyFormat" | "asValue";
 export type ClipboardOperation = "CUT" | "COPY";
 
-export interface ClipboardState {
-  operation: ClipboardOperation;
-  sheetId: UID;
+export type ClipboardCellData = {
+  zones: Zone[];
+  rowsIndex: HeaderIndex[];
+  columnsIndex: HeaderIndex[];
+  clippedZones: Zone[];
+};
 
-  isCutAllowed(target: Zone[]): CommandResult;
+export type ClipboardFigureData = {
+  figureId: UID;
+};
 
-  isPasteAllowed(target: Zone[], clipboardOption?: ClipboardOptions): CommandResult;
+export type ClipboardData = ClipboardCellData | ClipboardFigureData;
 
-  paste(target: Zone[], options?: ClipboardOptions | undefined): void;
-  getClipboardContent(): ClipboardContent;
-  drawClipboard(renderingContext: GridRenderingContext): void;
-
-  /**
-   * Check if a col/row added/removed at the given position is dirtying the clipboard
-   */
-  isColRowDirtyingClipboard(position: HeaderIndex, dimension: Dimension): boolean;
-}
+export type ClipboardPasteTarget = {
+  zones: Zone[];
+  figureId?: UID;
+};

@@ -2260,7 +2260,7 @@ describe("conditional formats types", () => {
       expect(getStyle(model, "A2")).toEqual({});
     });
 
-    test("CF is not updated with insert/delete cells", () => {
+    test("CF is updated with insert/delete cells", () => {
       model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: createColorScale(
           "1",
@@ -2271,7 +2271,7 @@ describe("conditional formats types", () => {
         sheetId,
       });
       deleteCells(model, "A2:A3", "up");
-      expect(model.getters.getConditionalFormats(sheetId)[0].ranges[0]).toBe("A1:A10");
+      expect(model.getters.getConditionalFormats(sheetId)[0].ranges[0]).toBe("A1:A8");
     });
 
     test("Color scale with error cell in range", () => {
