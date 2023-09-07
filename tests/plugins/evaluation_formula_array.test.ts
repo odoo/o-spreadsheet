@@ -638,29 +638,7 @@ describe("evaluate formulas that return an array", () => {
 
       setCellContent(model, "A1", "2");
 
-      // I think the fail is maybe what we want.
-      // TRANSPOSE is supposed to preserve/ignore errors now ;)
-      // Here when MFILL is re-evaluated, it's blocked by the
-      // TRANSPOSE result. Since B1:B2 changed, transpose is
-      // re-evaluated, and it is perfectly happy with transposing
-      // an error (that's how TRANSPOSE is supposed to work).
-
-      // should the TRANSPOSE result be invalidated when re-evaluating
-      // the MFILL? This is what Excel online seems to do (GSheet is completely broken)
-      // note: use the SEQUENCE function to reproduce this test scenario
-
-      // note: when reproducing this in the real life, when reloading,
-      // the restult is different because of the order of evaluation.
-
-      // Before this commit, A3 would itself become an error (because B1
-      // had a collision error). Which re-trigger an evaluation
-      // of B1, which was no longer blocked by the TRANSPOSE (because it's in error)
-      // and the process stops.
-
-      expect(getEvaluatedCell(model, "B1").value).toBe(42);
-      expect(getEvaluatedCell(model, "B2").value).toBe(42);
-      expect(getEvaluatedCell(model, "B3").value).toBe(42);
-
+      expect(getCellError(model, "B1")?.errorType).toBe("#ERROR");
       expect(getCellError(model, "A3")?.errorType).toBe("#ERROR");
     });
   });

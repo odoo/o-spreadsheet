@@ -363,12 +363,6 @@ export class Evaluator {
       const cellsDependendingOnChild = this.getCellsDependingOn([child]);
       this.nextPositionsToUpdate.add(...cellsDependendingOnChild);
       this.nextPositionsToUpdate.add(...this.getArrayFormulasBlockedByOrSpreadingOn(child));
-      // there's two incompatible behaviors here:
-      // comment/uncomment these 3 lines to switch between
-      // the failing tests showing the behavior
-      for (const c of cellsDependendingOnChild) {
-        this.invalidateSpreading(c);
-      }
     }
   }
 
