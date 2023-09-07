@@ -50,6 +50,7 @@ interface SelectionProcessor {
   ): DispatchResult;
   selectAll(): DispatchResult;
   loopSelection(): DispatchResult;
+  isListening(owner: unknown): boolean;
 }
 
 /**
@@ -392,6 +393,10 @@ export class SelectionStreamProcessor
       mode: "overrideSelection",
       anchor: { zone, cell: this.anchor.cell },
     });
+  }
+
+  isListening(owner: unknown): boolean {
+    return this.stream.isListening(owner);
   }
 
   /**

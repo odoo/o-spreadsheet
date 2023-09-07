@@ -107,6 +107,7 @@ export class GridSelectionPlugin extends UIPlugin {
     "getSheetPosition",
     "isSelected",
     "getElementsFromSelection",
+    "isGridSelectionActive",
   ] as const;
 
   private gridSelection: {
@@ -332,6 +333,10 @@ export class GridSelectionPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
+
+  isGridSelectionActive(): boolean {
+    return this.selection.isListening(this);
+  }
 
   getActiveSheet(): Readonly<Sheet> {
     return this.activeSheet;
