@@ -1,6 +1,6 @@
 import { Model } from "../../src/model";
 import { setCellContent } from "../test_helpers/commands_helpers";
-import { evaluateCell, evaluateGrid } from "../test_helpers/helpers";
+import { evaluateCell, evaluateCellFormat, evaluateGrid } from "../test_helpers/helpers";
 
 describe("COLUMN formula", () => {
   test("functional tests without argument", () => {
@@ -952,5 +952,53 @@ describe("XLOOKUP formula", () => {
       expect(grid.Z6).toBe("#ERROR");
       expect(grid.Z7).toBe("C4");
     });
+  });
+});
+
+describe("INDEX formula", () => {
+  test("Check argument validity", () => {
+    expect(evaluateCell("A1", { A1: "=INDEX()" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=INDEX(B1:C5, 'string')" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=INDEX(B1:C5, -1)" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=INDEX(B1:C5, , -1)" })).toBe("#ERROR");
+  });
+
+  test("Check row/col index in given range", () => {
+    expect(evaluateCell("A1", { A1: "=INDEX(B1:C5, 6)" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=INDEX(B1:C5, , 4)" })).toBe("#ERROR");
+  });
+
+  test("Select single cell", () => {
+    //prettier-ignore
+    const grid = evaluateGrid({
+      A1: "3",    B1: "Hello",  C1: "=SUM(A1:A3)",
+      A2: "333",  B2: "World",  C2: "=GT(A3,A1)",
+      A3: "33",   B3: "!",      C3: "=CONCAT(B3,B2)",
+      A5: "=INDEX(A1:A3, 1, 1)",
+      A6: "=INDEX(B1:B3, 3, 1)",
+      A7: "=INDEX(C1:C3, 2, 1)",
+      A8: "=INDEX(A1:A3, 3, 1)",
+      A9: "=INDEX(A1:A3, 0, 0)",
+      A10: "=INDEX(A1:A3, 4, 1)",
+      A11: "=INDEX(A1:A3, 1, 4)",
+    });
+
+    expect(grid.A5).toBe(grid.A1);
+    expect(grid.A6).toBe(grid.B3);
+    expect(grid.A7).toBe(grid.C2);
+    expect(grid.A8).toBe(grid.A3);
+    expect(grid.A9).toBe("#ERROR");
+    expect(grid.A10).toBe("#ERROR");
+    expect(grid.A11).toBe("#ERROR");
+  });
+
+  test("take format into account", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "1",  B1: "42%",
+      A2: "3$", B2: "2",
+    };
+    expect(evaluateCellFormat("A5", { A5: "=INDEX(A1:B2, 1, 2)", ...grid })).toBe("0%");
+    expect(evaluateCellFormat("A6", { A6: "=INDEX(A1:B2, 2, 1)", ...grid })).toBe("#,##0[$$]");
   });
 });
