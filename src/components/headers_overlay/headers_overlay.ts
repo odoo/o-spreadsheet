@@ -197,7 +197,13 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
       return;
     }
     if (this.state.waitingForMove === true) {
-      this.startMovement(ev);
+      if (!this.env.model.getters.isGridSelectionActive()) {
+        this._selectElement(index, false);
+      } else {
+        // FIXME: Consider reintroducing this feature for all type of selection if we find
+        // a way to have the grid selection follow the other selections evolution
+        this.startMovement(ev);
+      }
       return;
     }
     if (this.env.model.getters.getEditionMode() === "editing") {
