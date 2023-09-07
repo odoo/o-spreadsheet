@@ -96,6 +96,14 @@ describe("evaluate formulas that return an array", () => {
     expect(getEvaluatedCell(model, "D4").value).toBe(0);
   });
 
+  test("can spread array with errors", () => {
+    setCellContent(model, "A1", "42");
+    setCellContent(model, "A2", "=SQRT(-1)");
+    setCellContent(model, "B1", "=TRANSPOSE(A1:A2)");
+    expect(getEvaluatedCell(model, "B1").value).toBe(42);
+    expect(getEvaluatedCell(model, "C1").value).toBe("#ERROR");
+  });
+
   describe("spread matrix with format", () => {
     test("can spread matrix of values with matrix of format", () => {
       functionRegistry.add("MATRIX.2.2", {
