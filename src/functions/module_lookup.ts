@@ -2,8 +2,12 @@ import { toZone } from "../helpers/index";
 import { _lt } from "../translation";
 import {
   AddFunctionDescription,
+  Arg,
+  ArgValue,
   FunctionReturnValue,
+  isMatrix,
   MatrixArgValue,
+  PrimitiveArg,
   PrimitiveArgValue,
 } from "../types";
 import { args } from "./arguments";
@@ -123,6 +127,53 @@ export const HLOOKUP: AddFunctionDescription = {
     );
 
     return range[colIndex][_index - 1] as FunctionReturnValue;
+  },
+  isExported: true,
+};
+
+// -----------------------------------------------------------------------------
+// INDEX
+// -----------------------------------------------------------------------------
+
+export const INDEX: AddFunctionDescription = {
+  description: _lt(`Returns the content of a cell, specified by row and column offset.`),
+  args: args(`
+      reference (any, range) ${_lt("The range of cells from which the value is returned.")}
+      row (number) ${_lt(
+        "The index of the row to be returned from within the reference range of cells."
+      )}
+      column (number) ${_lt(
+        "The index of the column to be returned from within the reference range of cells."
+      )}
+`),
+  returns: ["ANY"],
+  computeFormat: (reference: Arg, row: PrimitiveArg, column: PrimitiveArg) => {
+    const _row = toNumber(row.value);
+    const _column = toNumber(column.value);
+    return reference[_column - 1][_row - 1]?.format;
+  },
+  compute: function (reference: ArgValue, row: PrimitiveArgValue, column: PrimitiveArgValue): any {
+    const _reference = isMatrix(reference) ? reference : [[reference]];
+    const _row = toNumber(row);
+    const _column = toNumber(column);
+
+    assert(
+      () =>
+        _column >= 0 &&
+        _column - 1 < _reference.length &&
+        _row >= 0 &&
+        _row - 1 < _reference[0].length,
+      _lt("Index out of range.")
+    );
+
+    assert(
+      () => row !== 0 && column !== 0,
+      _lt(
+        "This function can only return a single cell value, not an array. Provide valid row and column indices."
+      )
+    );
+
+    return _reference[_column - 1][_row - 1];
   },
   isExported: true,
 };
