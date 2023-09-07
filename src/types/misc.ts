@@ -181,6 +181,10 @@ interface FormulaReturn extends Omit<FunctionReturn, "value"> {
 }
 export type FunctionReturnValue = string | number | boolean;
 
+export function isMatrix(x: any): x is any[][] {
+  return Array.isArray(x) && Array.isArray(x[0]);
+}
+
 export interface ClipboardCell {
   cell?: Cell;
   style?: Style;
