@@ -50,6 +50,7 @@ interface SelectionProcessor {
   selectAll(): DispatchResult;
   loopSelection(): DispatchResult;
   selectTableAroundSelection(): DispatchResult;
+  isListening(owner: unknown): boolean;
 }
 
 /**
@@ -371,6 +372,10 @@ export class SelectionStreamProcessor
       mode: "overrideSelection",
       anchor: { zone, cell: this.anchor.cell },
     });
+  }
+
+  isListening(owner: unknown): boolean {
+    return this.stream.isListening(owner);
   }
 
   /**
