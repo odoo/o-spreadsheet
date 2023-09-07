@@ -16,6 +16,7 @@ import {
   clickCell,
   keyDown,
   keyUp,
+  selectColumnByClicking,
   setInputValueAndTrigger,
   simulateClick,
 } from "../test_helpers/dom_helper";
@@ -368,6 +369,26 @@ describe("Selection Input", () => {
     await nextTick();
     expect(onChanged).toHaveBeenCalled();
     expect(newRanges).toStrictEqual(["B4"]);
+  });
+
+  test("can select full col/row grid selection as selection input data series range", async () => {
+    const { env, model, fixture } = await mountSpreadsheet();
+    await selectColumnByClicking(model, "B");
+    OPEN_CF_SIDEPANEL_ACTION(env);
+    await nextTick();
+    await simulateClick(".o-cf-add");
+    await nextTick();
+    let input = fixture.querySelector(".o-selection-input input") as HTMLInputElement;
+    expect(input.value).toBe("B1:B100");
+
+    await simulateClick(input);
+    await selectColumnByClicking(model, "C");
+    input = fixture.querySelector(".o-selection-input input") as HTMLInputElement;
+    expect(input.value).toBe("C:C");
+
+    await selectColumnByClicking(model, "B");
+    input = fixture.querySelector(".o-selection-input input") as HTMLInputElement;
+    expect(input.value).toBe("B:B");
   });
 
   test("focus is transferred from one input to another", async () => {
