@@ -4,10 +4,6 @@
 export interface FunctionCode {
   readonly returnExpression: string;
   /**
-   * Return the same function code but wrapped in a closure.
-   */
-  wrapInClosure(): FunctionCode;
-  /**
    * Return the same function code but with the return expression assigned to a variable.
    */
   assignResultToVariable(): FunctionCode;
@@ -39,16 +35,6 @@ class FunctionCodeImpl implements FunctionCode {
 
   toString(): string {
     return this.code;
-  }
-
-  wrapInClosure(): FunctionCode {
-    const closureName = this.scope.nextVariableName();
-    const code = new FunctionCodeBuilder(this.scope);
-    code.append(`const ${closureName} = () => {`);
-    code.append(this.code);
-    code.append(`return ${this.returnExpression};`);
-    code.append(`}`);
-    return code.return(closureName);
   }
 
   assignResultToVariable(): FunctionCode {
