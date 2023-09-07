@@ -510,10 +510,7 @@ export const XLOOKUP = {
       "return_range (any, range)",
       _t("The range containing the return value. Should have the same dimensions as lookup_range.")
     ),
-    arg(
-      "if_not_found (any, lazy, optional)",
-      _t("If a valid match is not found, return this value.")
-    ),
+    arg("if_not_found (any, optional)", _t("If a valid match is not found, return this value.")),
     arg(
       `match_mode (any, default=${DEFAULT_MATCH_MODE})`,
       _t(
@@ -536,7 +533,7 @@ export const XLOOKUP = {
     searchKey: Maybe<ValueAndFormat>,
     lookupRange: Matrix<ValueAndFormat>,
     returnRange: Matrix<ValueAndFormat>,
-    defaultValue?: () => Maybe<ValueAndFormat>,
+    defaultValue: Maybe<ValueAndFormat>,
     matchMode: Maybe<ValueAndFormat> = { value: DEFAULT_MATCH_MODE },
     searchMode: Maybe<ValueAndFormat> = { value: DEFAULT_SEARCH_MODE }
   ): Matrix<ValueAndFormat> {
@@ -591,9 +588,8 @@ export const XLOOKUP = {
         : [returnRange[index]];
     }
 
-    const _defaultValue = defaultValue?.();
-    assertAvailable(_defaultValue, searchKey);
-    return [[_defaultValue!]];
+    assertAvailable(defaultValue, searchKey);
+    return [[defaultValue!]];
   },
   isExported: true,
 } satisfies AddFunctionDescription;
