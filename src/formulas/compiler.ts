@@ -115,8 +115,6 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
 
         // detect when an argument need to be evaluated as a meta argument
         const isMeta = argTypes.includes("META");
-        // detect when an argument need to be evaluated as a lazy argument
-        const isLazy = argDefinition.lazy;
 
         const hasRange = argTypes.some((t) => isRangeType(t));
         const isRangeOnly = argTypes.every((t) => isRangeType(t));
@@ -134,11 +132,12 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
           }
         }
 
-        const compiledAST = compileAST(currentArg, isMeta, hasRange, {
-          functionName,
-          paramIndex: i + 1,
-        });
-        compiledArgs.push(isLazy ? compiledAST.wrapInClosure() : compiledAST);
+        compiledArgs.push(
+          compileAST(currentArg, isMeta, hasRange, {
+            functionName,
+            paramIndex: i + 1,
+          })
+        );
       }
 
       return compiledArgs;
