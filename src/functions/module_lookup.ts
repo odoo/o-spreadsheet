@@ -2,8 +2,12 @@ import { getCanonicalSheetName, toXC, toZone } from "../helpers/index";
 import { _lt } from "../translation";
 import {
   AddFunctionDescription,
+  Arg,
+  ArgValue,
   FunctionReturnValue,
+  isMatrix,
   MatrixArgValue,
+  PrimitiveArg,
   PrimitiveArgValue,
 } from "../types";
 import { NotAvailableError } from "../types/errors";
@@ -209,6 +213,55 @@ export const HLOOKUP: AddFunctionDescription = {
     const col = range[colIndex];
     assertAvailable(col, searchKey);
     return col[_index - 1] as FunctionReturnValue;
+  },
+  isExported: true,
+};
+
+// -----------------------------------------------------------------------------
+// INDEX
+// -----------------------------------------------------------------------------
+
+export const INDEX: AddFunctionDescription = {
+  description: _lt(`Returns the content of a cell, specified by row and column offset.`),
+  args: [
+    arg("reference (any, range)", _lt("The range of cells from which the values are returned.")),
+    arg(
+      "row (number)",
+      _lt("The index of the row to be returned from within the reference range of cells.")
+    ),
+    arg(
+      "column (number)",
+      _lt("The index of the column to be returned from within the reference range of cells.")
+    ),
+  ],
+  returns: ["ANY"],
+  computeFormat: function (reference: Arg, row: PrimitiveArg, column: PrimitiveArg) {
+    const _row = toNumber(row.value, this.locale);
+    const _column = toNumber(column.value, this.locale);
+    return reference.format![_column - 1][_row - 1];
+  },
+  compute: function (reference: ArgValue, row: PrimitiveArgValue, column: PrimitiveArgValue): any {
+    const _reference = isMatrix(reference) ? reference : [[reference]];
+    const _row = toNumber(row, this.locale);
+    const _column = toNumber(column, this.locale);
+
+    assert(
+      () =>
+        _column >= 0 &&
+        _column - 1 < _reference.length &&
+        _row >= 0 &&
+        _row - 1 < _reference[0].length,
+      _lt("Index out of range.")
+    );
+
+    assert(
+      () => row !== 0 && column !== 0,
+      _lt(
+        "This function can only return a single cell value, not an array. Provide valid row and column indices."
+      )
+    );
+
+    return _reference[_column - 1][_row - 1];
   },
   isExported: true,
 };
