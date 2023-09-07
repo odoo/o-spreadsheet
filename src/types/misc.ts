@@ -4,8 +4,10 @@
 import { ComponentConstructor } from "@odoo/owl";
 import { Token } from "../formulas";
 import { Cell, CellValue, EvaluatedCell } from "./cells";
+import { ClipboardOptions } from "./clipboard";
 import { CommandResult } from "./commands";
 import { Format } from "./format";
+import { Getters } from "./getters";
 import { Range } from "./range";
 
 /**
@@ -268,6 +270,12 @@ export type ConsecutiveIndexes = HeaderIndex[];
 
 export interface RangeProvider {
   adaptRanges: (applyChange: ApplyRangeChange, sheetId?: UID) => void;
+}
+
+export interface ClipboardProvider {
+  copy: (getters: Getters, isCutOperation: boolean) => any;
+  pasteFigure: (sheetId: UID, position: { x: number; y: number }, content) => void;
+  pasteCells: (target: Zone[], options?: ClipboardOptions) => void;
 }
 
 export type Validation<T> = (toValidate: T) => CommandResult | CommandResult[];

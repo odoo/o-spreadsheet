@@ -1,9 +1,15 @@
-import { isDefined } from "../../helpers/index";
 import {
+  ClipboardFigureChart,
+  ClipboardFigureImage,
+} from "../../helpers/clipboard/clipboard_figure_state";
+import { isDefined, UuidGenerator } from "../../helpers/index";
+import {
+  ClipboardMIMEType,
   CommandResult,
   CoreCommand,
   ExcelWorkbookData,
   Figure,
+  Getters,
   UID,
   WorkbookData,
 } from "../../types/index";
@@ -19,6 +25,7 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   readonly figures: {
     [sheet: string]: Record<UID, Figure | undefined> | undefined;
   } = {};
+
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
@@ -57,6 +64,64 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
       case "REMOVE_COLUMNS_ROWS":
         this.onRowColDelete(cmd.sheetId, cmd.dimension);
     }
+  }
+
+  copy(getters: Getters, isCutOperation: boolean) {
+    const sheetId = getters.getActiveSheetId();
+    const copiedFigureId = getters.getSelectedFigureId();
+    if (!copiedFigureId) {
+      return;
+    }
+    const figure = getters.getFigure(sheetId, copiedFigureId);
+    if (!figure) {
+      throw new Error(`No figure for the given id: ${copiedFigureId}`);
+    }
+    const copiedFigure = { ...figure };
+    let copiedFigureContent: ClipboardFigureChart | ClipboardFigureImage | undefined = undefined;
+    switch (figure.tag) {
+      case "chart":
+        copiedFigureContent = new ClipboardFigureChart(
+          this.dispatch,
+          getters,
+          sheetId,
+          copiedFigureId
+        );
+        break;
+      case "image":
+        copiedFigureContent = new ClipboardFigureImage(
+          this.dispatch,
+          getters,
+          sheetId,
+          copiedFigureId
+        );
+        break;
+      default:
+        throw new Error(`Unknow tag '${figure.tag}' for the given figure id: ${copiedFigureId}`);
+        break;
+    }
+    return {
+      copiedFigure,
+      copiedFigureContent,
+      operation: isCutOperation ? "CUT" : "COPY",
+      [ClipboardMIMEType.PlainText]: "\t",
+    };
+  }
+
+  pasteFigure(sheetId: UID, position: { x: number; y: number }, clippedContent) {
+    if (!clippedContent.copiedFigure || !clippedContent.copiedFigureContent) {
+      return;
+    }
+    const { width, height } = clippedContent.copiedFigure;
+    const newId = new UuidGenerator().uuidv4();
+    clippedContent.copiedFigureContent.paste(sheetId, newId, position, { height, width });
+
+    if (clippedContent.operation === "CUT") {
+      this.dispatch("DELETE_FIGURE", {
+        sheetId: clippedContent.copiedFigureContent.sheetId,
+        id: clippedContent.copiedFigure.id,
+      });
+    }
+    this.dispatch("SELECT_FIGURE", { id: newId });
   }
 
   private onRowColDelete(sheetId: string, dimension: string) {

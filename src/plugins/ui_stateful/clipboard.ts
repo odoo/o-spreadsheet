@@ -1,17 +1,23 @@
 import { ClipboardCellsState } from "../../helpers/clipboard/clipboard_cells_state";
-import { ClipboardFigureState } from "../../helpers/clipboard/clipboard_figure_state";
 import { ClipboardOsState } from "../../helpers/clipboard/clipboard_os_state";
 import { isZoneValid, positions } from "../../helpers/index";
+import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
 import {
   ClipboardContent,
   ClipboardMIMEType,
   ClipboardOperation,
+  ClipboardOptions,
   ClipboardState,
 } from "../../types/clipboard";
 import {
+  ClipboardProvider,
   Command,
+  CommandDispatcher,
+  CommandHandler,
   CommandResult,
   Dimension,
+  Figure,
+  Getters,
   GridRenderingContext,
   LAYERS,
   LocalCommand,
@@ -19,7 +25,6 @@ import {
   Zone,
   isCoreCommand,
 } from "../../types/index";
-import { UIPlugin } from "../ui_plugin";
 
 interface InsertDeleteCellsTargets {
   cut: Zone[];
@@ -32,7 +37,18 @@ interface InsertDeleteCellsTargets {
  * This clipboard manages all cut/copy/paste interactions internal to the
  * application, and with the OS clipboard as well.
  */
-export class ClipboardPlugin extends UIPlugin {
+
+export class ClipboardPlugin implements CommandHandler<Command> {
+  constructor(
+    private getters: Getters,
+    private dispatch: CommandDispatcher["dispatch"],
+    private selection: SelectionStreamProcessor
+  ) {}
+
+  //export class ClipboardPlugin extends UIPlugin {
+  private copiers: Array<ClipboardProvider["copy"]> = [];
+  private figurePasters: Array<ClipboardProvider["pasteFigure"]> = [];
+  private cellPasters: Array<ClipboardProvider["pasteCells"]> = [];
   static layers = [LAYERS.Clipboard];
   static getters = [
     "getClipboardContent",
@@ -46,10 +62,19 @@ export class ClipboardPlugin extends UIPlugin {
   private lastPasteState?: ClipboardState;
   private paintFormatStatus: "inactive" | "oneOff" | "persistent" = "inactive";
   private originSheetId?: UID;
+  private clipboardContent: ClipboardContent | undefined = undefined;
 
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
+
+  beforeHandle(command: LocalCommand): void {
+    return;
+  }
+
+  finalize(): void {
+    return;
+  }
 
   allowDispatch(cmd: LocalCommand): CommandResult {
     switch (cmd.type) {
@@ -58,12 +83,12 @@ export class ClipboardPlugin extends UIPlugin {
         const state = this.getClipboardState(zones, cmd.type);
         return state.isCutAllowed(zones);
       case "PASTE":
-        if (!this.state) {
+        if (!this.clipboardContent) {
           return CommandResult.EmptyClipboard;
         }
         const pasteOption =
           cmd.pasteOption || (this.paintFormatStatus !== "inactive" ? "onlyFormat" : undefined);
-        return this.state.isPasteAllowed(cmd.target, { pasteOption });
+        return this.state?.isPasteAllowed(cmd.target, { pasteOption }) || CommandResult.Success;
       case "PASTE_FROM_OS_CLIPBOARD": {
         const state = new ClipboardOsState(cmd.text, this.getters, this.dispatch, this.selection);
         return state.isPasteAllowed(cmd.target, { pasteOption: cmd.pasteOption });
@@ -93,16 +118,18 @@ export class ClipboardPlugin extends UIPlugin {
       case "CUT":
         const zones = ("cutTarget" in cmd && cmd.cutTarget) || this.getters.getSelectedZones();
         this.state = this.getClipboardState(zones, cmd.type);
+        this.callCopyOnAllPlugins(this.state);
         this.status = "visible";
         this.originSheetId = this.getters.getActiveSheetId();
         break;
       case "PASTE":
-        if (!this.state) {
-          break;
-        }
         const pasteOption =
           cmd.pasteOption || (this.paintFormatStatus !== "inactive" ? "onlyFormat" : undefined);
-        this.state.paste(cmd.target, { pasteOption, shouldPasteCF: true, selectTarget: true });
+        this.callPasteOnAllPlugins(cmd.target, {
+          pasteOption,
+          shouldPasteCF: true,
+          selectTarget: true,
+        });
         this.lastPasteState = this.state;
         if (this.paintFormatStatus === "oneOff") {
           this.paintFormatStatus = "inactive";
@@ -121,13 +148,15 @@ export class ClipboardPlugin extends UIPlugin {
           break;
         }
         const state = this.getClipboardStateForCopyCells(cut, "CUT");
-        state.paste(paste);
+        this.callCopyOnAllPlugins(state);
+        this.callPasteOnAllPlugins(paste);
         break;
       }
       case "INSERT_CELL": {
         const { cut, paste } = this.getInsertCellsTargets(cmd.zone, cmd.shiftDimension);
         const state = this.getClipboardStateForCopyCells(cut, "CUT");
-        state.paste(paste);
+        this.callCopyOnAllPlugins(state);
+        this.callPasteOnAllPlugins(paste);
         break;
       }
       case "ADD_COLUMNS_ROWS": {
@@ -165,12 +194,17 @@ export class ClipboardPlugin extends UIPlugin {
       }
       case "PASTE_FROM_OS_CLIPBOARD":
         this.state = new ClipboardOsState(cmd.text, this.getters, this.dispatch, this.selection);
-        this.state.paste(cmd.target, { pasteOption: cmd.pasteOption });
+        this.callCopyOnAllPlugins(this.state);
+        this.callPasteOnAllPlugins(cmd.target, { pasteOption: cmd.pasteOption });
         this.lastPasteState = this.state;
         this.status = "invisible";
         break;
       case "REPEAT_PASTE": {
-        this.lastPasteState?.paste(cmd.target, {
+        if (!this.lastPasteState) {
+          break;
+        }
+        this.callCopyOnAllPlugins(this.lastPasteState);
+        this.callPasteOnAllPlugins(cmd.target, {
           pasteOption: cmd.pasteOption,
           shouldPasteCF: true,
           selectTarget: true,
@@ -225,11 +259,11 @@ export class ClipboardPlugin extends UIPlugin {
    * considered as a copy content.
    */
   getClipboardContent(): ClipboardContent {
-    return this.state?.getClipboardContent() || { [ClipboardMIMEType.PlainText]: "\t" };
+    return this.clipboardContent || { [ClipboardMIMEType.PlainText]: "\t" };
   }
 
   getClipboardTextContent(): string {
-    return this.state?.getClipboardContent()[ClipboardMIMEType.PlainText] || "\t";
+    return this.clipboardContent?.[ClipboardMIMEType.PlainText] || "\t";
   }
 
   isCutOperation(): boolean {
@@ -243,6 +277,54 @@ export class ClipboardPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
   // Private methods
   // ---------------------------------------------------------------------------
+
+  private callCopyOnAllPlugins(state: ClipboardState) {
+    if (!state) {
+      return;
+    }
+    for (const copier of this.copiers) {
+      const clipboardContent = copier(this.getters, this.isCutOperation());
+      if (clipboardContent !== undefined) {
+        this.clipboardContent = clipboardContent;
+      }
+    }
+  }
+
+  private callPasteOnAllPlugins(target: Zone[], pasteOption?: ClipboardOptions) {
+    if (this.clipboardContent && "copiedFigure" in this.clipboardContent) {
+      const sheetId = this.getters.getActiveSheetId();
+      const { width, height } = this.clipboardContent.copiedFigure as Figure;
+      const numCols = this.getters.getNumberCols(sheetId);
+      const numRows = this.getters.getNumberRows(sheetId);
+      const targetX = this.getters.getColDimensions(sheetId, target[0].left).start;
+      const targetY = this.getters.getRowDimensions(sheetId, target[0].top).start;
+      const maxX = this.getters.getColDimensions(sheetId, numCols - 1).end;
+      const maxY = this.getters.getRowDimensions(sheetId, numRows - 1).end;
+      const position = {
+        x: maxX < width ? 0 : Math.min(targetX, maxX - width),
+        y: maxY < height ? 0 : Math.min(targetY, maxY - height),
+      };
+      for (const figurePaster of this.figurePasters) {
+        figurePaster(sheetId, position, this.clipboardContent);
+      }
+    } else if (this.state instanceof ClipboardCellsState) {
+      for (const cellsPaster of this.cellPasters) {
+        cellsPaster(target, pasteOption);
+      }
+    }
+  }
+
+  addCopyProvider(provider: ClipboardProvider["copy"]) {
+    this.copiers.push(provider);
+  }
+
+  addPasteFigureProvider(provider: ClipboardProvider["pasteFigure"]) {
+    this.figurePasters.push(provider);
+  }
+
+  addPasteCellsProvider(provider: ClipboardProvider["pasteCells"]) {
+    this.cellPasters.push(provider);
+  }
 
   private getDeleteCellsTargets(zone: Zone, dimension: Dimension): InsertDeleteCellsTargets {
     const sheetId = this.getters.getActiveSheetId();
@@ -295,10 +377,6 @@ export class ClipboardPlugin extends UIPlugin {
    * Get the clipboard state from the given zones.
    */
   private getClipboardState(zones: Zone[], operation: ClipboardOperation): ClipboardState {
-    const selectedFigureId = this.getters.getSelectedFigureId();
-    if (selectedFigureId) {
-      return new ClipboardFigureState(operation, this.getters, this.dispatch);
-    }
     return new ClipboardCellsState(zones, operation, this.getters, this.dispatch, this.selection);
   }
 

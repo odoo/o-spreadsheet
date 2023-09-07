@@ -3,15 +3,18 @@ import { ModelConfig } from "../model";
 import { StateObserver } from "../state_observer";
 import {
   ApplyRangeChange,
+  ClipboardOptions,
   CoreCommand,
   CoreCommandDispatcher,
   RangeProvider,
   UID,
   WorkbookData,
+  Zone,
 } from "../types";
-import { CoreGetters } from "../types/getters";
+import { CoreGetters, Getters } from "../types/getters";
 import { BasePlugin } from "./base_plugin";
 import { RangeAdapter } from "./core/range";
+import { ClipboardPlugin } from "./ui_stateful";
 
 export interface CorePluginConfig {
   readonly getters: CoreGetters;
@@ -21,6 +24,7 @@ export interface CorePluginConfig {
   readonly uuidGenerator: UuidGenerator;
   readonly custom: ModelConfig["custom"];
   readonly external: ModelConfig["external"];
+  readonly clipboard: ClipboardPlugin;
 }
 
 export interface CorePluginConstructor {
@@ -41,9 +45,19 @@ export class CorePlugin<State = any>
   protected getters: CoreGetters;
   protected uuidGenerator: UuidGenerator;
 
-  constructor({ getters, stateObserver, range, dispatch, uuidGenerator }: CorePluginConfig) {
+  constructor({
+    getters,
+    stateObserver,
+    range,
+    dispatch,
+    uuidGenerator,
+    clipboard,
+  }: CorePluginConfig) {
     super(stateObserver, dispatch);
     range.addRangeProvider(this.adaptRanges.bind(this));
+    clipboard.addCopyProvider(this.copy.bind(this));
+    clipboard.addPasteFigureProvider(this.pasteFigure.bind(this));
+    clipboard.addPasteCellsProvider(this.pasteCells.bind(this));
     this.getters = getters;
     this.uuidGenerator = uuidGenerator;
   }
@@ -66,6 +80,14 @@ export class CorePlugin<State = any>
    * @param sheetId an optional sheetId to adapt either range of that sheet specifically, or ranges pointing to that sheet
    */
   adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID): void {}
+
+  /**
+   * TODO docstring
+   * @param state
+   */
+  copy(getters: Getters, isCutOperation: boolean): void {}
+  pasteFigure(sheetId: UID, position: { x: number; y: number }, content: any): void {}
+  pasteCells(target: Zone[], options?: ClipboardOptions): void {}
 
   /**
    * Implement this method to clean unused external resources, such as images

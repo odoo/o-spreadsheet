@@ -21,6 +21,7 @@ import {
   statefulUIPluginRegistry,
 } from "./plugins/index";
 import { UIPlugin, UIPluginConfig, UIPluginConstructor } from "./plugins/ui_plugin";
+import { ClipboardPlugin } from "./plugins/ui_stateful";
 import {
   SelectionStreamProcessor,
   SelectionStreamProcessorImpl,
@@ -132,6 +133,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   private range: RangeAdapter;
 
+  private clipboard: ClipboardPlugin;
+
   private session: Session;
 
   /**
@@ -228,6 +231,17 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     this.coreHandlers.push(this.range);
     this.handlers.push(this.range);
+
+    this.clipboard = new ClipboardPlugin(this.getters, this.dispatch, this.selection);
+    this.getters.getClipboardContent = this.clipboard.getClipboardContent.bind(this.clipboard);
+    this.getters.getClipboardTextContent = this.clipboard.getClipboardTextContent.bind(
+      this.clipboard
+    );
+    this.getters.isCutOperation = this.clipboard.isCutOperation.bind(this.clipboard);
+    this.getters.isPaintingFormat = this.clipboard.isPaintingFormat.bind(this.clipboard);
+
+    this.handlers.push(this.clipboard);
+    this.uiHandlers.push(this.clipboard);
 
     this.corePluginConfig = this.setupCorePluginConfig();
     this.uiPluginConfig = this.setupUiPluginConfig();
@@ -418,6 +432,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       uuidGenerator: this.uuidGenerator,
       custom: this.config.custom,
       external: this.config.external,
+      clipboard: this.clipboard,
     };
   }
 

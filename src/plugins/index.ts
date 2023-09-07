@@ -40,7 +40,6 @@ import { HistoryPlugin } from "./ui_feature/local_history";
 import { SplitToColumnsPlugin } from "./ui_feature/split_to_columns";
 import { UIPluginConstructor } from "./ui_plugin";
 import {
-  ClipboardPlugin,
   EditionPlugin,
   FilterEvaluationPlugin,
   GridSelectionPlugin,
@@ -84,7 +83,6 @@ export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()
   .add("selection", GridSelectionPlugin)
   .add("evaluation_filter", FilterEvaluationPlugin)
   .add("viewport", SheetViewPlugin)
-  .add("clipboard", ClipboardPlugin)
   .add("edition", EditionPlugin);
 
 // Plugins which have a derived state from core data
