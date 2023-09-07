@@ -150,30 +150,30 @@ export const IFS = {
   description: _t("Returns a value depending on multiple logical expressions."),
   args: [
     arg(
-      "condition1 (boolean, lazy)",
+      "condition1 (boolean)",
       _t(
         "The first condition to be evaluated. This can be a boolean, a number, an array, or a reference to any of those."
       )
     ),
-    arg("value1 (any, lazy)", _t("The returned value if condition1 is TRUE.")),
+    arg("value1 (any)", _t("The returned value if condition1 is TRUE.")),
     arg(
-      "condition2 (boolean, lazy, repeating)",
+      "condition2 (boolean, repeating)",
       _t("Additional conditions to be evaluated if the previous ones are FALSE.")
     ),
     arg(
-      "value2 (any, lazy, repeating)",
+      "value2 (any, repeating)",
       _t("Additional values to be returned if their corresponding conditions are TRUE.")
     ),
   ],
   returns: ["ANY"],
-  computeValueAndFormat: function (...values: (() => Maybe<ValueAndFormat>)[]): ValueAndFormat {
+  computeValueAndFormat: function (...values: Maybe<ValueAndFormat>[]): ValueAndFormat {
     assert(
       () => values.length % 2 === 0,
       _t("Wrong number of arguments. Expected an even number of arguments.")
     );
     for (let n = 0; n < values.length - 1; n += 2) {
-      if (toBoolean(values[n]()?.value)) {
-        const result = values[n + 1]();
+      if (toBoolean(values[n]?.value)) {
+        const result = values[n + 1];
         if (result === undefined) {
           return { value: "" };
         }
