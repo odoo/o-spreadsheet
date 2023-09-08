@@ -177,7 +177,26 @@ export interface CompiledFormula {
 }
 
 export type Matrix<T = unknown> = T[][];
-export type ValueAndFormat = { value: CellValue; format?: Format };
+
+export interface PrimitiveData {
+  value: CellValue;
+  format?: Format;
+}
+
+export class ValueAndFormat implements PrimitiveData {
+  value: CellValue;
+  format?: Format;
+
+  constructor(primitiveData: PrimitiveData) {
+    const { value, format } = primitiveData;
+    this.value = value;
+    this.format = format;
+  }
+
+  valueOf(): CellValue {
+    return this.value;
+  }
+}
 
 // FORMULA FUNCTION VALUE AND FORMAT INPUT
 export type Arg = Maybe<ValueAndFormat> | Matrix<ValueAndFormat>; // undefined corresponds to the lack of argument, e.g. =SUM(1,2,,4)

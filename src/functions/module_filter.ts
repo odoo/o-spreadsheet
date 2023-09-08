@@ -84,7 +84,7 @@ export const UNIQUE = {
   ],
   returns: ["RANGE<NUMBER>"],
   computeValueAndFormat: function (
-    range: Arg = { value: "" },
+    range: Arg = new ValueAndFormat({ value: "" }),
     byColumn: Maybe<ValueAndFormat>,
     exactlyOnce: Maybe<ValueAndFormat>
   ): Matrix<ValueAndFormat> {

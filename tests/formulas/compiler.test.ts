@@ -3,7 +3,7 @@ import { functionCache } from "../../src/formulas/compiler";
 import { compile } from "../../src/formulas/index";
 import { functionRegistry } from "../../src/functions";
 import { createRange } from "../../src/helpers";
-import { ArgType, CompiledFormula } from "../../src/types";
+import { ArgType, CompiledFormula, ValueAndFormat } from "../../src/types";
 import { evaluateCell, evaluateCellFormat, restoreDefaultFunctions } from "../test_helpers/helpers";
 
 function compiledBaseFunction(formula: string): CompiledFormula {
@@ -209,7 +209,7 @@ describe("compile functions", () => {
         compute: (arg1, arg2 = 42) => {
           return arg2 === 42;
         },
-        computeFormat: (arg1, arg2 = { value: 42, format: "42" }) => {
+        computeFormat: (arg1, arg2 = new ValueAndFormat({ value: 42, format: "42" })) => {
           return !Array.isArray(arg2) &&
             typeof arg2 !== "function" &&
             arg2.value === 42 &&

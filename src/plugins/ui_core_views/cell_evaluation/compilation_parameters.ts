@@ -69,7 +69,7 @@ class CompilationParametersBuilder {
   ): Maybe<ValueAndFormat> {
     if (isMeta) {
       // Use zoneToXc of zone instead of getRangeString to avoid sending unbounded ranges
-      return { value: zoneToXc(range.zone) };
+      return new ValueAndFormat({ value: zoneToXc(range.zone) });
     }
 
     if (!isZoneValid(range.zone)) {
@@ -104,11 +104,11 @@ class CompilationParametersBuilder {
     }
     const evaluatedCell = this.getEvaluatedCellIfNotEmpty(position);
     if (evaluatedCell === undefined) {
-      return { value: null, format: this.getters.getCell(position)?.format };
+      return new ValueAndFormat({ value: null, format: this.getters.getCell(position)?.format });
     } else if (evaluatedCell.type === CellValueType.error) {
-      return { value: evaluatedCell.error, format: evaluatedCell.format };
+      return new ValueAndFormat({ value: evaluatedCell.error, format: evaluatedCell.format });
     }
-    return evaluatedCell;
+    return new ValueAndFormat(evaluatedCell);
   }
 
   private getEvaluatedCellIfNotEmpty(position: CellPosition): EvaluatedCell | undefined {

@@ -131,7 +131,7 @@ function handleError(e: Error | any, functionName: string): ValueAndFormat {
   }
   if (e instanceof EvaluationError) {
     e.message = e.message.replace("[[FUNCTION_NAME]]", functionName);
-    return { value: e };
+    return new ValueAndFormat({ value: e });
   }
   // TODO check this
   const error = new EvaluationError(
@@ -139,7 +139,7 @@ function handleError(e: Error | any, functionName: string): ValueAndFormat {
     e?.errorType,
     e.logLevel !== undefined ? e.logLevel : CellErrorLevel.error
   );
-  return { value: error };
+  return new ValueAndFormat({ value: error });
 }
 
 function buildComputeFunctionFromDescription(descr) {
@@ -155,12 +155,12 @@ function buildComputeFunctionFromDescription(descr) {
     if (isMatrix(value)) {
       if (format === undefined || isMatrix(format)) {
         return value.map((col, i) =>
-          col.map((row, j) => ({ value: row, format: format?.[i]?.[j] }))
+          col.map((row, j) => new ValueAndFormat({ value: row, format: format?.[i]?.[j] }))
         );
       }
     } else {
       if (format === undefined || !isMatrix(format)) {
-        return { value, format };
+        return new ValueAndFormat({ value, format });
       }
     }
     throw new Error("A format matrix should never be associated with a scalar value");

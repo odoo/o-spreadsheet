@@ -1,6 +1,6 @@
 import { EvaluationError } from "./errors";
 import { Format, FormattedValue } from "./format";
-import { CompiledFormula, Link, Style, UID } from "./misc";
+import { CompiledFormula, Link, PrimitiveData, Style, UID } from "./misc";
 import { Range } from "./range";
 
 interface CellAttributes {
@@ -25,8 +25,7 @@ export interface FormulaCell extends CellAttributes {
 
 export type Cell = LiteralCell | FormulaCell;
 
-interface EvaluatedCellProperties {
-  readonly format?: Format;
+interface EvaluatedCellProperties extends PrimitiveData {
   /**
    * Cell value formatted based on the format
    */

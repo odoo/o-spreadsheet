@@ -82,7 +82,7 @@ export const IF = {
   ): ValueAndFormat {
     const result = toBoolean(logicalExpression?.value) ? valueIfTrue : valueIfFalse;
     if (result === undefined) {
-      return { value: "" };
+      return new ValueAndFormat({ value: "" });
     }
     if (result.value === null) {
       result.value = "";
@@ -122,11 +122,11 @@ export const IFERROR = {
   returns: ["ANY"],
   computeValueAndFormat: function (
     value: Maybe<ValueAndFormat>,
-    valueIfError: Maybe<ValueAndFormat> = { value: "" }
+    valueIfError: Maybe<ValueAndFormat> = new ValueAndFormat({ value: "" })
   ): ValueAndFormat {
     const result = value?.value instanceof Error ? valueIfError : value;
     if (result === undefined) {
-      return { value: "" };
+      return new ValueAndFormat({ value: "" });
     }
     if (result.value === null) {
       result.value = "";
@@ -151,11 +151,11 @@ export const IFNA = {
   returns: ["ANY"],
   computeValueAndFormat: function (
     value: Maybe<ValueAndFormat>,
-    valueIfError: Maybe<ValueAndFormat> = { value: "" }
+    valueIfError: Maybe<ValueAndFormat> = new ValueAndFormat({ value: "" })
   ): ValueAndFormat {
     const result = value?.value instanceof NotAvailableError ? valueIfError : value;
     if (result === undefined) {
-      return { value: "" };
+      return new ValueAndFormat({ value: "" });
     }
     if (result.value === null) {
       result.value = "";
@@ -197,7 +197,7 @@ export const IFS = {
       if (toBoolean(values[n]?.value)) {
         const result = values[n + 1];
         if (result === undefined) {
-          return { value: "" };
+          return new ValueAndFormat({ value: "" });
         }
         if (result.value === null) {
           result.value = "";
