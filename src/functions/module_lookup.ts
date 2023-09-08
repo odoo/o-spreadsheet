@@ -1,13 +1,6 @@
 import { getCanonicalSheetName, toXC, toZone } from "../helpers/index";
 import { _t } from "../translation";
-import {
-  AddFunctionDescription,
-  CellValue,
-  Matrix,
-  Maybe,
-  ValueAndFormat,
-  isMatrix,
-} from "../types";
+import { AddFunctionDescription, CellValue, Data, Matrix, Maybe, isMatrix } from "../types";
 import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import {
@@ -171,11 +164,11 @@ export const HLOOKUP = {
   ],
   returns: ["ANY"],
   computeValueAndFormat: function (
-    searchKey: Maybe<ValueAndFormat>,
-    range: Matrix<ValueAndFormat>,
-    index: Maybe<ValueAndFormat>,
-    isSorted: Maybe<ValueAndFormat> = new ValueAndFormat({ value: DEFAULT_IS_SORTED })
-  ): ValueAndFormat {
+    searchKey: Maybe<Data>,
+    range: Matrix<Data>,
+    index: Maybe<Data>,
+    isSorted: Maybe<Data> = new Data({ value: DEFAULT_IS_SORTED })
+  ): Data {
     const _index = Math.trunc(toNumber(index?.value, this.locale));
 
     assert(
@@ -183,8 +176,7 @@ export const HLOOKUP = {
       _t("[[FUNCTION_NAME]] evaluates to an out of bounds range.")
     );
 
-    const getValueFromRange = (range: Matrix<ValueAndFormat>, index: number) =>
-      range[index][0].value;
+    const getValueFromRange = (range: Matrix<Data>, index: number) => range[index][0].value;
 
     const _isSorted = toBoolean(isSorted.value);
     const colIndex = _isSorted
@@ -222,9 +214,9 @@ export const INDEX: AddFunctionDescription = {
   ],
   returns: ["ANY"],
   computeValueAndFormat: function (
-    reference: Matrix<ValueAndFormat>,
-    row: Maybe<ValueAndFormat> = new ValueAndFormat({ value: 0 }),
-    column: Maybe<ValueAndFormat> = new ValueAndFormat({ value: 0 })
+    reference: Matrix<Data>,
+    row: Maybe<Data> = new Data({ value: 0 }),
+    column: Maybe<Data> = new Data({ value: 0 })
   ): any {
     const _reference = isMatrix(reference) ? reference : [[reference]];
     const _row = toNumber(row.value, this.locale);
@@ -274,17 +266,17 @@ export const LOOKUP = {
   ],
   returns: ["ANY"],
   computeValueAndFormat: function (
-    searchKey: Maybe<ValueAndFormat>,
-    searchArray: Matrix<ValueAndFormat>,
-    resultRange: Matrix<ValueAndFormat> | undefined
-  ): ValueAndFormat {
+    searchKey: Maybe<Data>,
+    searchArray: Matrix<Data>,
+    resultRange: Matrix<Data> | undefined
+  ): Data {
     let nbCol = searchArray.length;
     let nbRow = searchArray[0].length;
 
     const verticalSearch = nbRow >= nbCol;
     const getElement = verticalSearch
-      ? (range: Matrix<ValueAndFormat>, index: number) => range[0][index].value
-      : (range: Matrix<ValueAndFormat>, index: number) => range[index][0].value;
+      ? (range: Matrix<Data>, index: number) => range[0][index].value
+      : (range: Matrix<Data>, index: number) => range[index][0].value;
     const rangeLength = verticalSearch ? nbRow : nbCol;
     const index = dichotomicSearch(
       searchArray,
@@ -460,19 +452,18 @@ export const VLOOKUP = {
   ],
   returns: ["ANY"],
   computeValueAndFormat: function (
-    searchKey: Maybe<ValueAndFormat>,
-    range: Matrix<ValueAndFormat>,
-    index: Maybe<ValueAndFormat>,
-    isSorted: Maybe<ValueAndFormat> = new ValueAndFormat({ value: DEFAULT_IS_SORTED })
-  ): ValueAndFormat {
+    searchKey: Maybe<Data>,
+    range: Matrix<Data>,
+    index: Maybe<Data>,
+    isSorted: Maybe<Data> = new Data({ value: DEFAULT_IS_SORTED })
+  ): Data {
     const _index = Math.trunc(toNumber(index?.value, this.locale));
     assert(
       () => 1 <= _index && _index <= range.length,
       _t("[[FUNCTION_NAME]] evaluates to an out of bounds range.")
     );
 
-    const getValueFromRange = (range: Matrix<ValueAndFormat>, index: number) =>
-      range[0][index].value;
+    const getValueFromRange = (range: Matrix<Data>, index: number) => range[0][index].value;
 
     const _isSorted = toBoolean(isSorted.value);
     const rowIndex = _isSorted
@@ -530,13 +521,13 @@ export const XLOOKUP = {
   ],
   returns: ["ANY"],
   computeValueAndFormat: function (
-    searchKey: Maybe<ValueAndFormat>,
-    lookupRange: Matrix<ValueAndFormat>,
-    returnRange: Matrix<ValueAndFormat>,
-    defaultValue: Maybe<ValueAndFormat>,
-    matchMode: Maybe<ValueAndFormat> = new ValueAndFormat({ value: DEFAULT_MATCH_MODE }),
-    searchMode: Maybe<ValueAndFormat> = new ValueAndFormat({ value: DEFAULT_SEARCH_MODE })
-  ): Matrix<ValueAndFormat> {
+    searchKey: Maybe<Data>,
+    lookupRange: Matrix<Data>,
+    returnRange: Matrix<Data>,
+    defaultValue: Maybe<Data>,
+    matchMode: Maybe<Data> = new Data({ value: DEFAULT_MATCH_MODE }),
+    searchMode: Maybe<Data> = new Data({ value: DEFAULT_SEARCH_MODE })
+  ): Matrix<Data> {
     const _matchMode = Math.trunc(toNumber(matchMode.value, this.locale));
     const _searchMode = Math.trunc(toNumber(searchMode.value, this.locale));
 
@@ -562,8 +553,8 @@ export const XLOOKUP = {
 
     const getElement =
       lookupDirection === "col"
-        ? (range: Matrix<ValueAndFormat>, index: number) => range[0][index].value
-        : (range: Matrix<ValueAndFormat>, index: number) => range[index][0].value;
+        ? (range: Matrix<Data>, index: number) => range[0][index].value
+        : (range: Matrix<Data>, index: number) => range[index][0].value;
 
     const rangeLen = lookupDirection === "col" ? lookupRange[0].length : lookupRange.length;
 

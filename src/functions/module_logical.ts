@@ -1,12 +1,5 @@
 import { _t } from "../translation";
-import {
-  AddFunctionDescription,
-  ArgValue,
-  CellValue,
-  DEFAULT_LOCALE,
-  Maybe,
-  ValueAndFormat,
-} from "../types";
+import { AddFunctionDescription, ArgValue, CellValue, DEFAULT_LOCALE, Data, Maybe } from "../types";
 import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import { assert, conditionalVisitBoolean, toBoolean, toNumber } from "./helpers";
@@ -76,13 +69,13 @@ export const IF = {
   ],
   returns: ["ANY"],
   computeValueAndFormat: function (
-    logicalExpression: Maybe<ValueAndFormat>,
-    valueIfTrue: Maybe<ValueAndFormat>,
-    valueIfFalse: Maybe<ValueAndFormat>
-  ): ValueAndFormat {
+    logicalExpression: Maybe<Data>,
+    valueIfTrue: Maybe<Data>,
+    valueIfFalse: Maybe<Data>
+  ): Data {
     const result = toBoolean(logicalExpression?.value) ? valueIfTrue : valueIfFalse;
     if (result === undefined) {
-      return new ValueAndFormat({ value: "" });
+      return new Data({ value: "" });
     }
     if (result.value === null) {
       result.value = "";
@@ -121,12 +114,12 @@ export const IFERROR = {
   ],
   returns: ["ANY"],
   computeValueAndFormat: function (
-    value: Maybe<ValueAndFormat>,
-    valueIfError: Maybe<ValueAndFormat> = new ValueAndFormat({ value: "" })
-  ): ValueAndFormat {
+    value: Maybe<Data>,
+    valueIfError: Maybe<Data> = new Data({ value: "" })
+  ): Data {
     const result = value?.value instanceof Error ? valueIfError : value;
     if (result === undefined) {
-      return new ValueAndFormat({ value: "" });
+      return new Data({ value: "" });
     }
     if (result.value === null) {
       result.value = "";
@@ -150,12 +143,12 @@ export const IFNA = {
   ],
   returns: ["ANY"],
   computeValueAndFormat: function (
-    value: Maybe<ValueAndFormat>,
-    valueIfError: Maybe<ValueAndFormat> = new ValueAndFormat({ value: "" })
-  ): ValueAndFormat {
+    value: Maybe<Data>,
+    valueIfError: Maybe<Data> = new Data({ value: "" })
+  ): Data {
     const result = value?.value instanceof NotAvailableError ? valueIfError : value;
     if (result === undefined) {
-      return new ValueAndFormat({ value: "" });
+      return new Data({ value: "" });
     }
     if (result.value === null) {
       result.value = "";
@@ -188,7 +181,7 @@ export const IFS = {
     ),
   ],
   returns: ["ANY"],
-  computeValueAndFormat: function (...values: Maybe<ValueAndFormat>[]): ValueAndFormat {
+  computeValueAndFormat: function (...values: Maybe<Data>[]): Data {
     assert(
       () => values.length % 2 === 0,
       _t(`Wrong number of arguments. Expected an even number of arguments.`)
@@ -197,7 +190,7 @@ export const IFS = {
       if (toBoolean(values[n]?.value)) {
         const result = values[n + 1];
         if (result === undefined) {
-          return new ValueAndFormat({ value: "" });
+          return new Data({ value: "" });
         }
         if (result.value === null) {
           result.value = "";

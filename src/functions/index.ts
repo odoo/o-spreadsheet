@@ -6,11 +6,11 @@ import {
   ArgValue,
   ComputeFunction,
   ComputeFunctionArg,
+  Data,
   EvalContext,
   FunctionDescription,
-  isMatrix,
   Matrix,
-  ValueAndFormat,
+  isMatrix,
 } from "../types";
 import { CellErrorLevel, EvaluationError } from "../types/errors";
 import { addMetaInfoFromArg, validateArguments } from "./arguments";
@@ -60,7 +60,7 @@ const functionNameRegex = /^[A-Z0-9\_\.]+$/;
 //------------------------------------------------------------------------------
 class FunctionRegistry extends Registry<FunctionDescription> {
   mapping: {
-    [key: string]: ComputeFunction<Arg, Matrix<ValueAndFormat> | ValueAndFormat>;
+    [key: string]: ComputeFunction<Arg, Matrix<Data> | Data>;
   } = {};
 
   add(name: string, addDescr: AddFunctionDescription) {
@@ -83,7 +83,7 @@ class FunctionRegistry extends Registry<FunctionDescription> {
 
 function createComputeFunctionFromDescription(
   descr: FunctionDescription
-): ComputeFunction<Arg, Matrix<ValueAndFormat> | ValueAndFormat> {
+): ComputeFunction<Arg, Matrix<Data> | Data> {
   const computeValueAndFormat = "computeValueAndFormat" in descr;
   const computeValue = "compute" in descr;
   const computeFormat = "computeFormat" in descr;
@@ -109,13 +109,10 @@ function createComputeFunctionFromDescription(
 }
 
 function tryFormula(
-  computeValueAndFormat: ComputeFunction<Arg, Matrix<ValueAndFormat> | ValueAndFormat>,
+  computeValueAndFormat: ComputeFunction<Arg, Matrix<Data> | Data>,
   functionName: string
-): ComputeFunction<Arg, Matrix<ValueAndFormat> | ValueAndFormat> {
-  return function (
-    this: EvalContext,
-    ...args: ComputeFunctionArg<Arg>[]
-  ): Matrix<ValueAndFormat> | ValueAndFormat {
+): ComputeFunction<Arg, Matrix<Data> | Data> {
+  return function (this: EvalContext, ...args: ComputeFunctionArg<Arg>[]): Matrix<Data> | Data {
     try {
       const computeFormula = computeValueAndFormat.bind(this);
       return computeFormula(...args);
@@ -125,13 +122,13 @@ function tryFormula(
   };
 }
 
-function handleError(e: Error | any, functionName: string): ValueAndFormat {
+function handleError(e: Error | any, functionName: string): Data {
   if (!(e instanceof Error)) {
     e = new Error(e);
   }
   if (e instanceof EvaluationError) {
     e.message = e.message.replace("[[FUNCTION_NAME]]", functionName);
-    return new ValueAndFormat({ value: e });
+    return new Data({ value: e });
   }
   // TODO check this
   const error = new EvaluationError(
@@ -139,14 +136,11 @@ function handleError(e: Error | any, functionName: string): ValueAndFormat {
     e?.errorType,
     e.logLevel !== undefined ? e.logLevel : CellErrorLevel.error
   );
-  return new ValueAndFormat({ value: error });
+  return new Data({ value: error });
 }
 
 function buildComputeFunctionFromDescription(descr) {
-  return function (
-    this: EvalContext,
-    ...args: ComputeFunctionArg<Arg>[]
-  ): Matrix<ValueAndFormat> | ValueAndFormat {
+  return function (this: EvalContext, ...args: ComputeFunctionArg<Arg>[]): Matrix<Data> | Data {
     const computeValue = descr.compute.bind(this);
     const computeFormat = descr.computeFormat?.bind(this) || (() => undefined);
     const value = computeValue(...extractArgValuesFromArgs(args));
@@ -155,12 +149,12 @@ function buildComputeFunctionFromDescription(descr) {
     if (isMatrix(value)) {
       if (format === undefined || isMatrix(format)) {
         return value.map((col, i) =>
-          col.map((row, j) => new ValueAndFormat({ value: row, format: format?.[i]?.[j] }))
+          col.map((row, j) => new Data({ value: row, format: format?.[i]?.[j] }))
         );
       }
     } else {
       if (format === undefined || !isMatrix(format)) {
-        return new ValueAndFormat({ value, format });
+        return new Data({ value, format });
       }
     }
     throw new Error("A format matrix should never be associated with a scalar value");

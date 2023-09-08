@@ -1,5 +1,5 @@
 import { _t } from "../translation";
-import { AddFunctionDescription, Arg, isMatrix, Matrix, Maybe, ValueAndFormat } from "../types";
+import { AddFunctionDescription, Arg, Data, Matrix, Maybe, isMatrix } from "../types";
 import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import { assertSameDimensions, assertSingleColOrRow } from "./helper_assert";
@@ -27,7 +27,7 @@ export const FILTER = {
     ),
   ],
   returns: ["RANGE<ANY>"],
-  computeValueAndFormat: function (range: Arg, ...conditions: Arg[]): Matrix<ValueAndFormat> {
+  computeValueAndFormat: function (range: Arg, ...conditions: Arg[]): Matrix<Data> {
     let _array = toMatrix(range);
     const _conditionsMatrices = conditions.map((cond) =>
       matrixMap(toMatrix(cond), (data) => data.value)
@@ -49,7 +49,7 @@ export const FILTER = {
       _t(`FILTER has mismatched sizes on the range and conditions.`)
     );
 
-    const result: Matrix<ValueAndFormat> = [];
+    const result: Matrix<Data> = [];
     for (let i = 0; i < _array.length; i++) {
       const row = _array[i];
       if (_conditions.every((c) => c[i])) {
@@ -84,10 +84,10 @@ export const UNIQUE = {
   ],
   returns: ["RANGE<NUMBER>"],
   computeValueAndFormat: function (
-    range: Arg = new ValueAndFormat({ value: "" }),
-    byColumn: Maybe<ValueAndFormat>,
-    exactlyOnce: Maybe<ValueAndFormat>
-  ): Matrix<ValueAndFormat> {
+    range: Arg = new Data({ value: "" }),
+    byColumn: Maybe<Data>,
+    exactlyOnce: Maybe<Data>
+  ): Matrix<Data> {
     if (!isMatrix(range)) {
       return [[range]];
     }
@@ -98,7 +98,7 @@ export const UNIQUE = {
       range = transposeMatrix(range);
     }
 
-    const map: Map<string, { data: ValueAndFormat[]; count: number }> = new Map();
+    const map: Map<string, { data: Data[]; count: number }> = new Map();
 
     for (const data of range) {
       const key = JSON.stringify(data.map((item) => item.value));
@@ -110,7 +110,7 @@ export const UNIQUE = {
       }
     }
 
-    const result: Matrix<ValueAndFormat> = [];
+    const result: Matrix<Data> = [];
     for (const row of map.values()) {
       if (_exactlyOnce && row.count > 1) {
         continue;

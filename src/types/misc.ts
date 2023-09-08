@@ -159,7 +159,7 @@ export type ReferenceDenormalizer = (
   paramNumber: number
 ) => any | any[][];
 
-export type EnsureRange = (range: Range) => Matrix<ValueAndFormat>;
+export type EnsureRange = (range: Range) => Matrix<Data>;
 
 export type NumberParser = (str: string) => number;
 
@@ -168,7 +168,7 @@ export type _CompiledFormula = (
   refFn: ReferenceDenormalizer,
   range: EnsureRange,
   ctx: {}
-) => Matrix<ValueAndFormat> | ValueAndFormat;
+) => Matrix<Data> | Data;
 
 export interface CompiledFormula {
   execute: _CompiledFormula;
@@ -183,7 +183,7 @@ export interface PrimitiveData {
   format?: Format;
 }
 
-export class ValueAndFormat implements PrimitiveData {
+export class Data implements PrimitiveData {
   value: CellValue;
   format?: Format;
 
@@ -199,7 +199,7 @@ export class ValueAndFormat implements PrimitiveData {
 }
 
 // FORMULA FUNCTION VALUE AND FORMAT INPUT
-export type Arg = Maybe<ValueAndFormat> | Matrix<ValueAndFormat>; // undefined corresponds to the lack of argument, e.g. =SUM(1,2,,4)
+export type Arg = Maybe<Data> | Matrix<Data>; // undefined corresponds to the lack of argument, e.g. =SUM(1,2,,4)
 
 // FORMULA FUNCTION ONLY VALUE INPUT
 export type ArgValue = Maybe<CellValue> | Matrix<CellValue>;

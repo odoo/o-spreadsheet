@@ -5,6 +5,7 @@ import { _t } from "../../../translation";
 import {
   CellPosition,
   CellValueType,
+  Data,
   EnsureRange,
   EvalContext,
   EvaluatedCell,
@@ -13,7 +14,6 @@ import {
   Maybe,
   Range,
   ReferenceDenormalizer,
-  ValueAndFormat,
 } from "../../../types";
 import { EvaluationError, InvalidReferenceError } from "../../../types/errors";
 
@@ -66,10 +66,10 @@ class CompilationParametersBuilder {
     isMeta: boolean,
     functionName: string,
     paramNumber?: number
-  ): Maybe<ValueAndFormat> {
+  ): Maybe<Data> {
     if (isMeta) {
       // Use zoneToXc of zone instead of getRangeString to avoid sending unbounded ranges
-      return new ValueAndFormat({ value: zoneToXc(range.zone) });
+      return new Data({ value: zoneToXc(range.zone) });
     }
 
     if (!isZoneValid(range.zone)) {
@@ -98,17 +98,17 @@ class CompilationParametersBuilder {
     return this.readCell(position);
   }
 
-  private readCell(position: CellPosition): ValueAndFormat {
+  private readCell(position: CellPosition): Data {
     if (!this.getters.tryGetSheet(position.sheetId)) {
       throw new EvaluationError(_t("Invalid sheet name"));
     }
     const evaluatedCell = this.getEvaluatedCellIfNotEmpty(position);
     if (evaluatedCell === undefined) {
-      return new ValueAndFormat({ value: null, format: this.getters.getCell(position)?.format });
+      return new Data({ value: null, format: this.getters.getCell(position)?.format });
     } else if (evaluatedCell.type === CellValueType.error) {
-      return new ValueAndFormat({ value: evaluatedCell.error, format: evaluatedCell.format });
+      return new Data({ value: evaluatedCell.error, format: evaluatedCell.format });
     }
-    return new ValueAndFormat(evaluatedCell);
+    return new Data(evaluatedCell);
   }
 
   private getEvaluatedCellIfNotEmpty(position: CellPosition): EvaluatedCell | undefined {
@@ -130,7 +130,7 @@ class CompilationParametersBuilder {
    * Note that each col is possibly sparse: it only contain the values of cells
    * that are actually present in the grid.
    */
-  private range({ sheetId, zone }: Range): Matrix<ValueAndFormat> {
+  private range({ sheetId, zone }: Range): Matrix<Data> {
     if (!isZoneValid(zone)) {
       throw new InvalidReferenceError();
     }
@@ -145,7 +145,7 @@ class CompilationParametersBuilder {
 
     const height = _zone.bottom - _zone.top + 1;
     const width = _zone.right - _zone.left + 1;
-    const matrix: Matrix<ValueAndFormat> = Array.from({ length: width }, () =>
+    const matrix: Matrix<Data> = Array.from({ length: width }, () =>
       Array.from({ length: height })
     );
     // Performance issue: nested loop is faster than a map here

@@ -18,11 +18,11 @@ import {
   CellValue,
   CommandResult,
   ComputeFunction,
+  Data,
   Format,
   Maybe,
   SetDecimalStep,
   UID,
-  ValueAndFormat,
 } from "../../src/types";
 import {
   createFilter,
@@ -177,7 +177,7 @@ describe("formatting values (with formatters)", () => {
       compute: function (value: Maybe<CellValue>, format: Maybe<CellValue>) {
         return value || 0;
       } as ComputeFunction<ArgValue, CellValue>,
-      computeFormat: function (value: Maybe<ValueAndFormat>, format: Maybe<ValueAndFormat>) {
+      computeFormat: function (value: Maybe<Data>, format: Maybe<Data>) {
         return toString(format?.value);
       } as ComputeFunction<Arg, Format>,
       returns: ["ANY"],

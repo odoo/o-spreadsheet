@@ -1,6 +1,6 @@
 import { createLargeNumberFormat } from "../helpers";
 import { _t } from "../translation";
-import { AddFunctionDescription, CellValue, Maybe, ValueAndFormat } from "../types";
+import { AddFunctionDescription, CellValue, Data, Maybe } from "../types";
 import { arg } from "./arguments";
 import { toNumber } from "./helpers";
 
@@ -17,7 +17,7 @@ export const FORMAT_LARGE_NUMBER = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: function (arg: Maybe<ValueAndFormat>, unit: Maybe<ValueAndFormat>) {
+  computeFormat: function (arg: Maybe<Data>, unit: Maybe<Data>) {
     const value = Math.abs(toNumber(arg?.value, this.locale));
     const format = arg?.format;
     if (unit !== undefined) {

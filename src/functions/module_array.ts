@@ -1,13 +1,5 @@
 import { _t } from "../translation";
-import {
-  AddFunctionDescription,
-  Arg,
-  ArgValue,
-  CellValue,
-  Matrix,
-  Maybe,
-  ValueAndFormat,
-} from "../types";
+import { AddFunctionDescription, Arg, ArgValue, CellValue, Data, Matrix, Maybe } from "../types";
 import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import {
@@ -42,9 +34,9 @@ export const ARRAY_CONSTRAIN = {
   returns: ["RANGE<ANY>"],
   computeValueAndFormat: function (
     array: Arg,
-    rows: Maybe<ValueAndFormat>,
-    columns: Maybe<ValueAndFormat>
-  ): Matrix<ValueAndFormat> {
+    rows: Maybe<Data>,
+    columns: Maybe<Data>
+  ): Matrix<Data> {
     const _array = toMatrix(array);
     const _rowsArg = toInteger(rows?.value, this.locale);
     const _columnsArg = toInteger(columns?.value, this.locale);
@@ -83,7 +75,7 @@ export const CHOOSECOLS = {
     ),
   ],
   returns: ["RANGE<ANY>"],
-  computeValueAndFormat: function (array: Arg, ...columns: Arg[]): Matrix<ValueAndFormat> {
+  computeValueAndFormat: function (array: Arg, ...columns: Arg[]): Matrix<Data> {
     const _array = toMatrix(array);
     const _columns = flattenRowFirst(columns, (item) => toInteger(item?.value, this.locale));
 
@@ -96,7 +88,7 @@ export const CHOOSECOLS = {
       )
     );
 
-    const result: Matrix<ValueAndFormat> = Array(_columns.length);
+    const result: Matrix<Data> = Array(_columns.length);
     for (let col = 0; col < _columns.length; col++) {
       const colIndex = _columns[col] - 1; // -1 because columns arguments are 1-indexed
       result[col] = _array[colIndex];
@@ -121,7 +113,7 @@ export const CHOOSEROWS = {
     ),
   ],
   returns: ["RANGE<ANY>"],
-  computeValueAndFormat: function (array: Arg, ...rows: Arg[]): Matrix<ValueAndFormat> {
+  computeValueAndFormat: function (array: Arg, ...rows: Arg[]): Matrix<Data> {
     const _array = toMatrix(array);
     const _rows = flattenRowFirst(rows, (item) => toInteger(item?.value, this.locale));
     const _nbColumns = _array.length;
@@ -160,10 +152,10 @@ export const EXPAND = {
   returns: ["RANGE<ANY>"],
   computeValueAndFormat: function (
     arg: Arg,
-    rows: Maybe<ValueAndFormat>,
-    columns?: Maybe<ValueAndFormat>,
-    padWith: Maybe<ValueAndFormat> = new ValueAndFormat({ value: 0 }) // TODO : Replace with #N/A errors once it's supported
-  ): Matrix<ValueAndFormat> {
+    rows: Maybe<Data>,
+    columns?: Maybe<Data>,
+    padWith: Maybe<Data> = new Data({ value: 0 }) // TODO : Replace with #N/A errors once it's supported
+  ): Matrix<Data> {
     const _array = toMatrix(arg);
     const _nbRows = toInteger(rows?.value, this.locale);
     const _nbColumns = columns !== undefined ? toInteger(columns.value, this.local) : _array.length;
@@ -200,12 +192,8 @@ export const FLATTEN = {
     arg("range2 (any, range<any>, repeating)", _t("Additional ranges to flatten.")),
   ],
   returns: ["RANGE<ANY>"],
-  computeValueAndFormat: function (...ranges: Arg[]): Matrix<ValueAndFormat> {
-    return [
-      flattenRowFirst(ranges, (val) =>
-        val === undefined ? new ValueAndFormat({ value: "" }) : val
-      ),
-    ];
+  computeValueAndFormat: function (...ranges: Arg[]): Matrix<Data> {
+    return [flattenRowFirst(ranges, (val) => (val === undefined ? new Data({ value: "" }) : val))];
   },
   isExported: false,
 } satisfies AddFunctionDescription;
@@ -278,16 +266,16 @@ export const HSTACK = {
     arg("range2 (any, range<any>, repeating)", _t("Additional ranges to add to range1.")),
   ],
   returns: ["RANGE<ANY>"],
-  computeValueAndFormat: function (...ranges: Arg[]): Matrix<ValueAndFormat> {
+  computeValueAndFormat: function (...ranges: Arg[]): Matrix<Data> {
     const nbRows = Math.max(...ranges.map((r) => r?.[0]?.length ?? 0));
 
-    const result: Matrix<ValueAndFormat> = [];
+    const result: Matrix<Data> = [];
 
     for (const range of ranges) {
       const _range = toMatrix(range);
       for (let col = 0; col < _range.length; col++) {
         //TODO: fill with #N/A for unavailable values instead of zeroes
-        const array: ValueAndFormat[] = Array(nbRows).fill({ value: null });
+        const array: Data[] = Array(nbRows).fill({ value: null });
         for (let row = 0; row < _range[col].length; row++) {
           array[row] = _range[col][row];
         }
@@ -594,8 +582,8 @@ export const TOCOL = {
   returns: ["RANGE<ANY>"],
   computeValueAndFormat: function (
     array: Arg,
-    ignore: Maybe<ValueAndFormat> = new ValueAndFormat({ value: TO_COL_ROW_DEFAULT_IGNORE }),
-    scanByColumn: Maybe<ValueAndFormat> = new ValueAndFormat({ value: TO_COL_ROW_DEFAULT_SCAN })
+    ignore: Maybe<Data> = new Data({ value: TO_COL_ROW_DEFAULT_IGNORE }),
+    scanByColumn: Maybe<Data> = new Data({ value: TO_COL_ROW_DEFAULT_SCAN })
   ) {
     const _array = toMatrix(array);
     const _ignore = toInteger(ignore.value, this.locale);
@@ -629,9 +617,9 @@ export const TOROW = {
   returns: ["RANGE<ANY>"],
   computeValueAndFormat: function (
     array: Arg,
-    ignore: Maybe<ValueAndFormat> = new ValueAndFormat({ value: TO_COL_ROW_DEFAULT_IGNORE }),
-    scanByColumn: Maybe<ValueAndFormat> = new ValueAndFormat({ value: TO_COL_ROW_DEFAULT_SCAN })
-  ): Matrix<ValueAndFormat> {
+    ignore: Maybe<Data> = new Data({ value: TO_COL_ROW_DEFAULT_IGNORE }),
+    scanByColumn: Maybe<Data> = new Data({ value: TO_COL_ROW_DEFAULT_SCAN })
+  ): Matrix<Data> {
     const _array = toMatrix(array);
     const _ignore = toInteger(ignore.value, this.locale);
     const _scanByColumn = toBoolean(scanByColumn.value);
@@ -663,7 +651,7 @@ export const TRANSPOSE = {
   description: _t("Transposes the rows and columns of a range."),
   args: [arg("range (any, range<any>)", _t("The range to be transposed."))],
   returns: ["RANGE"],
-  computeValueAndFormat: function (arg: Arg): Matrix<ValueAndFormat> {
+  computeValueAndFormat: function (arg: Arg): Matrix<Data> {
     const _array = toMatrix(arg);
     const nbColumns = _array[0].length;
     const nbRows = _array.length;
@@ -683,11 +671,11 @@ export const VSTACK = {
     arg("range2 (any, range<any>, repeating)", _t("Additional ranges to add to range1.")),
   ],
   returns: ["RANGE<ANY>"],
-  computeValueAndFormat: function (...ranges: Arg[]): Matrix<ValueAndFormat> {
+  computeValueAndFormat: function (...ranges: Arg[]): Matrix<Data> {
     const nbColumns = Math.max(...ranges.map((range) => toMatrix(range).length));
     const nbRows = ranges.reduce((acc, range) => acc + toMatrix(range)[0].length, 0);
 
-    const result: Matrix<ValueAndFormat> = Array(nbColumns)
+    const result: Matrix<Data> = Array(nbColumns)
       .fill([])
       .map(() => Array(nbRows).fill({ value: 0 })); // TODO fill with #N/A
 
@@ -728,9 +716,9 @@ export const WRAPCOLS = {
   returns: ["RANGE<ANY>"],
   computeValueAndFormat: function (
     range: Arg,
-    wrapCount: Maybe<ValueAndFormat>,
-    padWith: Maybe<ValueAndFormat> = new ValueAndFormat({ value: 0 })
-  ): Matrix<ValueAndFormat> {
+    wrapCount: Maybe<Data>,
+    padWith: Maybe<Data> = new Data({ value: 0 })
+  ): Matrix<Data> {
     const _array = toMatrix(range);
     const nbRows = toInteger(wrapCount?.value, this.locale);
 
@@ -768,9 +756,9 @@ export const WRAPROWS = {
   returns: ["RANGE<ANY>"],
   computeValueAndFormat: function (
     range: Arg,
-    wrapCount: Maybe<ValueAndFormat>,
-    padWith: Maybe<ValueAndFormat> = new ValueAndFormat({ value: 0 })
-  ): Matrix<ValueAndFormat> {
+    wrapCount: Maybe<Data>,
+    padWith: Maybe<Data> = new Data({ value: 0 })
+  ): Matrix<Data> {
     const _array = toMatrix(range);
     const nbColumns = toInteger(wrapCount?.value, this.locale);
 
