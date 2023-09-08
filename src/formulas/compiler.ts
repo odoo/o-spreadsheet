@@ -195,7 +195,6 @@ export function compile(formula: string): CompiledFormula {
           const args = compileFunctionArgs(ast).map((arg) => arg.assignResultToVariable());
           code.append(...args);
           const fnName = ast.value.toUpperCase();
-          code.append(`ctx.__lastFnCalled = '${fnName}';`);
           return code.return(`ctx['${fnName}'](${args.map((arg) => arg.returnExpression)})`);
         case "UNARY_OPERATION": {
           const fnName = UNARY_OPERATOR_MAP[ast.value];
@@ -203,7 +202,6 @@ export function compile(formula: string): CompiledFormula {
             functionName: fnName,
           }).assignResultToVariable();
           code.append(operand);
-          code.append(`ctx.__lastFnCalled = '${fnName}';`);
           return code.return(`ctx['${fnName}'](${operand.returnExpression})`);
         }
         case "BIN_OPERATION": {
@@ -216,7 +214,6 @@ export function compile(formula: string): CompiledFormula {
           }).assignResultToVariable();
           code.append(left);
           code.append(right);
-          code.append(`ctx.__lastFnCalled = '${fnName}';`);
           return code.return(
             `ctx['${fnName}'](${left.returnExpression}, ${right.returnExpression})`
           );

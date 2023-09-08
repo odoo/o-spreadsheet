@@ -5,7 +5,6 @@ exports[`compile functions with meta arguments function call requesting meta par
 ) {
 // =USEMETAARG(|0|)
 const _1 = ref(deps[0], true, "USEMETAARG",  1);
-ctx.__lastFnCalled = 'USEMETAARG';
 return ctx['USEMETAARG'](_1);
 }"
 `;
@@ -15,7 +14,6 @@ exports[`compile functions with meta arguments function call requesting meta par
 ) {
 // =USEMETAARG(|0|)
 const _1 = ref(deps[0], true, "USEMETAARG",  1);
-ctx.__lastFnCalled = 'USEMETAARG';
 return ctx['USEMETAARG'](_1);
 }"
 `;
@@ -25,7 +23,6 @@ exports[`expression compiler cells are converted to ranges if function require a
 ) {
 // =sum(|0|)
 const _1 = range(deps[0]);
-ctx.__lastFnCalled = 'SUM';
 return ctx['SUM'](_1);
 }"
 `;
@@ -36,10 +33,8 @@ exports[`expression compiler expression with $ref 1`] = `
 // =|0|+|1|+|2|
 const _1 = ref(deps[0], false, "ADD",  undefined);
 const _2 = ref(deps[1], false, "ADD",  undefined);
-ctx.__lastFnCalled = 'ADD';
 const _3 = ctx['ADD'](_1, _2);
 const _4 = ref(deps[2], false, "ADD",  undefined);
-ctx.__lastFnCalled = 'ADD';
 return ctx['ADD'](_3, _4);
 }"
 `;
@@ -59,7 +54,6 @@ exports[`expression compiler expressions with a debugger 1`] = `
 debugger;
 const _1 = ref(deps[0], false, "DIVIDE",  undefined);
 const _2 = { value: this.constantValues.numbers[0] };
-ctx.__lastFnCalled = 'DIVIDE';
 return ctx['DIVIDE'](_1, _2);
 }"
 `;
@@ -70,9 +64,7 @@ exports[`expression compiler read some values and functions 1`] = `
 // =|0|+sum(|1|)
 const _1 = ref(deps[0], false, "ADD",  undefined);
 const _2 = range(deps[1]);
-ctx.__lastFnCalled = 'SUM';
 const _3 = ctx['SUM'](_2);
-ctx.__lastFnCalled = 'ADD';
 return ctx['ADD'](_1, _3);
 }"
 `;
@@ -107,7 +99,6 @@ exports[`expression compiler some arithmetic expressions 4`] = `
 // =|N0|+|N1|
 const _1 = { value: this.constantValues.numbers[0] };
 const _2 = { value: this.constantValues.numbers[1] };
-ctx.__lastFnCalled = 'ADD';
 return ctx['ADD'](_1, _2);
 }"
 `;
@@ -118,7 +109,6 @@ exports[`expression compiler some arithmetic expressions 5`] = `
 // =|N0|*|N1|
 const _1 = { value: this.constantValues.numbers[0] };
 const _2 = { value: this.constantValues.numbers[1] };
-ctx.__lastFnCalled = 'MULTIPLY';
 return ctx['MULTIPLY'](_1, _2);
 }"
 `;
@@ -129,7 +119,6 @@ exports[`expression compiler some arithmetic expressions 6`] = `
 // =|N0|-|N1|
 const _1 = { value: this.constantValues.numbers[0] };
 const _2 = { value: this.constantValues.numbers[1] };
-ctx.__lastFnCalled = 'MINUS';
 return ctx['MINUS'](_1, _2);
 }"
 `;
@@ -140,7 +129,6 @@ exports[`expression compiler some arithmetic expressions 7`] = `
 // =|N0|/|N1|
 const _1 = { value: this.constantValues.numbers[0] };
 const _2 = { value: this.constantValues.numbers[1] };
-ctx.__lastFnCalled = 'DIVIDE';
 return ctx['DIVIDE'](_1, _2);
 }"
 `;
@@ -150,7 +138,6 @@ exports[`expression compiler some arithmetic expressions 8`] = `
 ) {
 // =-|N0|
 const _1 = { value: this.constantValues.numbers[0] };
-ctx.__lastFnCalled = 'UMINUS';
 return ctx['UMINUS'](_1);
 }"
 `;
@@ -161,15 +148,11 @@ exports[`expression compiler some arithmetic expressions 9`] = `
 // =(|N0|+|N1|)*(-|N1|+|N2|)
 const _1 = { value: this.constantValues.numbers[0] };
 const _2 = { value: this.constantValues.numbers[1] };
-ctx.__lastFnCalled = 'ADD';
 const _3 = ctx['ADD'](_1, _2);
 const _4 = { value: this.constantValues.numbers[1] };
-ctx.__lastFnCalled = 'UMINUS';
 const _5 = ctx['UMINUS'](_4);
 const _6 = { value: this.constantValues.numbers[2] };
-ctx.__lastFnCalled = 'ADD';
 const _7 = ctx['ADD'](_5, _6);
-ctx.__lastFnCalled = 'MULTIPLY';
 return ctx['MULTIPLY'](_3, _7);
 }"
 `;
@@ -180,7 +163,6 @@ exports[`expression compiler some arithmetic expressions 10`] = `
 // =sum(|N0|,|N1|)
 const _1 = { value: this.constantValues.numbers[0] };
 const _2 = { value: this.constantValues.numbers[1] };
-ctx.__lastFnCalled = 'SUM';
 return ctx['SUM'](_1,_2);
 }"
 `;
@@ -191,7 +173,6 @@ exports[`expression compiler some arithmetic expressions 11`] = `
 // =sum(true,|S0|)
 const _1 = { value: true };
 const _2 = { value: this.constantValues.strings[0] };
-ctx.__lastFnCalled = 'SUM';
 return ctx['SUM'](_1,_2);
 }"
 `;
@@ -203,7 +184,6 @@ exports[`expression compiler some arithmetic expressions 12`] = `
 const _1 = { value: this.constantValues.numbers[0] };
 const _2 = undefined;
 const _3 = { value: this.constantValues.numbers[1] };
-ctx.__lastFnCalled = 'SUM';
 return ctx['SUM'](_1,_2,_3);
 }"
 `;
@@ -213,7 +193,6 @@ exports[`expression compiler some arithmetic expressions 13`] = `
 ) {
 // =|N0|%
 const _1 = { value: this.constantValues.numbers[0] };
-ctx.__lastFnCalled = 'UNARY.PERCENT';
 return ctx['UNARY.PERCENT'](_1);
 }"
 `;
@@ -224,9 +203,7 @@ exports[`expression compiler some arithmetic expressions 14`] = `
 // =(|N0|+|N1|)%
 const _1 = { value: this.constantValues.numbers[0] };
 const _2 = { value: this.constantValues.numbers[1] };
-ctx.__lastFnCalled = 'ADD';
 const _3 = ctx['ADD'](_1, _2);
-ctx.__lastFnCalled = 'UNARY.PERCENT';
 return ctx['UNARY.PERCENT'](_3);
 }"
 `;
@@ -236,7 +213,6 @@ exports[`expression compiler some arithmetic expressions 15`] = `
 ) {
 // =|0|%
 const _1 = ref(deps[0], false, "UNARY.PERCENT",  undefined);
-ctx.__lastFnCalled = 'UNARY.PERCENT';
 return ctx['UNARY.PERCENT'](_1);
 }"
 `;
@@ -248,7 +224,6 @@ exports[`expression compiler with the same reference multiple times 1`] = `
 const _1 = range(deps[0]);
 const _2 = range(deps[0]);
 const _3 = range(deps[2]);
-ctx.__lastFnCalled = 'SUM';
 return ctx['SUM'](_1,_2,_3);
 }"
 `;

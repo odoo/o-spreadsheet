@@ -63,7 +63,6 @@ export type FunctionDescription = AddFunctionDescription & {
 };
 
 export type EvalContext = {
-  __lastFnCalled?: string;
   __originCellXC?: () => string;
   locale: Locale;
   [key: string]: any;
