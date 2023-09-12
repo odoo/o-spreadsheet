@@ -1,27 +1,10 @@
 import { nodeResolve } from "@rollup/plugin-node-resolve";
 import terser from "@rollup/plugin-terser";
-import git from "git-rev-sync";
-import { readFileSync } from "node:fs";
 import dts from "rollup-plugin-dts";
 import typescript from "rollup-plugin-typescript2";
+import { bundle } from "./tools/bundle.cjs";
 
-// Use import.meta.url to make the path relative to the current source
-// file instead of process.cwd(). For more information:
-// https://nodejs.org/docs/latest-v16.x/api/esm.html#importmetaurl
-const packageJson = JSON.parse(readFileSync(new URL("./package.json", import.meta.url)));
-const { version } = packageJson;
-
-let commitHash = "";
-
-try {
-  commitHash = git.short();
-} catch (_) {}
-
-const OUTRO = `
-__info__.version = '${version}';
-__info__.date = '${new Date().toISOString()}';
-__info__.hash = '${commitHash}';
-`;
+const outro = bundle.outro();
 
 /**
  * Get the rollup config based on the arguments
@@ -36,7 +19,7 @@ function getConfigForFormat(format, minified = false) {
     name: "o_spreadsheet",
     extend: true,
     globals: { "@odoo/owl": "owl" },
-    outro: OUTRO,
+    outro,
     plugins: minified ? [terser()] : [],
   };
 }
@@ -56,7 +39,7 @@ export default (commandLineArgs) => {
         format: "iife",
         name: "o_spreadsheet",
         extend: true,
-        outro: OUTRO,
+        outro,
         globals: { "@odoo/owl": "owl" },
       },
     ];
