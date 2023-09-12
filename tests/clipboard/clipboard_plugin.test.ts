@@ -1690,39 +1690,23 @@ describe("clipboard", () => {
     });
   });
 
-  test("can cut and paste a conditional formatted cell to another page", () => {
-    const model = new Model({
-      sheets: [
-        { colNumber: 5, rowNumber: 5 },
-        { colNumber: 5, rowNumber: 5 },
-      ],
-    });
-    const sheet1 = model.getters.getSheetIds()[0];
-    const sheet2 = model.getters.getSheetIds()[1];
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "2");
-    const sheetId = model.getters.getActiveSheetId();
+  test("can cut and paste a conditional formatted zone to another page", () => {
+    const model = new Model({ sheets: [{ id: "sheet1" }, { id: "sheet2" }] });
+    const cf = createEqualCF("1", { fillColor: "#FF0000" }, "id");
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
-      ranges: toRangesData(sheetId, "A1,A2"),
-      sheetId,
+      cf,
+      ranges: toRangesData("sheet1", "A1:A2"),
+      sheetId: "sheet1",
     });
+
     cut(model, "A1:A2");
-    activateSheet(model, sheet2);
+    activateSheet(model, "sheet2");
     paste(model, "A1");
-    expect(getStyle(model, "A1", sheet2)).toEqual({
-      fillColor: "#FF0000",
-    });
-    expect(getStyle(model, "A2", sheet2)).toEqual({});
-    setCellContent(model, "A1", "2");
-    setCellContent(model, "A2", "1");
-    expect(getStyle(model, "A1", sheet2)).toEqual({});
-    expect(getStyle(model, "A2", sheet2)).toEqual({
-      fillColor: "#FF0000",
-    });
-    activateSheet(model, sheet1);
-    expect(getStyle(model, "A1", sheet1)).toEqual({});
-    expect(getStyle(model, "A2", sheet1)).toEqual({});
+
+    expect(model.getters.getConditionalFormats("sheet2")).toMatchObject([
+      { ranges: ["A1:A2"], rule: cf.rule },
+    ]);
+    expect(model.getters.getConditionalFormats("sheet1")).toEqual([]);
   });
 
   test("copy paste CF in another sheet => change CF => copy paste again doesn't overwrite the previously pasted CF", () => {

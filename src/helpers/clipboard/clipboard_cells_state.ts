@@ -587,6 +587,10 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
     if (!newRangesXC) {
       return;
     }
+    if (newRangesXC.length === 0) {
+      this.dispatch("REMOVE_CONDITIONAL_FORMAT", { id: cf.id, sheetId });
+      return;
+    }
     this.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: cf.id,
