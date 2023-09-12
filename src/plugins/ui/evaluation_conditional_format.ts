@@ -467,6 +467,10 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
 
     currentRanges = currentRanges.concat(toAdd);
     const newRangesXC: string[] = recomputeZones(currentRanges, toRemove);
+    if (newRangesXC.length === 0) {
+      this.dispatch("REMOVE_CONDITIONAL_FORMAT", { id: cf.id, sheetId });
+      return;
+    }
     this.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: {
         id: cf.id,
