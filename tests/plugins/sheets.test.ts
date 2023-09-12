@@ -1004,32 +1004,40 @@ describe("sheets", () => {
     );
   });
 
-  test("Cannot delete unexisting columns", () => {
-    const model = new Model();
+  test("Cannot delete non-existing columns", () => {
+    const model = new Model({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
     const sheetId = model.getters.getActiveSheetId();
-    const originalNumberCols = model.getters.getNumberCols(sheetId);
-    const result = deleteColumns(model, [1, 2, originalNumberCols + 10].map(numberToLetters));
+    let result = deleteColumns(model, [1, 2, 12].map(numberToLetters));
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
+    result = deleteColumns(model, [1, 3].map(numberToLetters));
+    expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
+
     deleteColumns(model, [1, 2].map(numberToLetters));
-    expect(model.getters.getNumberCols(sheetId)).toBe(originalNumberCols - 2);
+    expect(model.getters.getNumberCols(sheetId)).toBe(1);
   });
 
-  test("Cannot delete unexisting rows", () => {
-    const model = new Model();
+  test("Cannot delete non-existing rows", () => {
+    const model = new Model({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
     const sheetId = model.getters.getActiveSheetId();
-    const originalNumberRows = model.getters.getNumberRows(sheetId);
-    const result = deleteRows(model, [1, 2, originalNumberRows + 1]);
+    let result = deleteRows(model, [1, 2, 26]);
     expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
+    result = deleteRows(model, [1, 3]);
+    expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
+
     deleteRows(model, [1, 2]);
-    expect(model.getters.getNumberRows(sheetId)).toBe(originalNumberRows - 2);
+    expect(model.getters.getNumberRows(sheetId)).toBe(1);
   });
 
   test("Cannot add cols/row to indexes out of the sheet", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+    const model = new Model({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
     expect(addColumns(model, "after", "Z", 1)).toBeCancelledBecause(
       CommandResult.InvalidHeaderIndex
     );
+    expect(addColumns(model, "after", "D", 1)).toBeCancelledBecause(
+      CommandResult.InvalidHeaderIndex
+    );
     expect(addRows(model, "after", 20, 1)).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
+    expect(addRows(model, "after", 3, 1)).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
   });
 
   test("Cannot add wrong quantity of cols/row", () => {
