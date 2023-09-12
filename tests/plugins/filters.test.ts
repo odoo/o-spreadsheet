@@ -6,6 +6,7 @@ import {
   addRows,
   copy,
   createFilter,
+  createSheet,
   cut,
   deleteColumns,
   deleteFilter,
@@ -618,6 +619,16 @@ describe("Filters plugin", () => {
         model.getters.getFilterValues(sheetId, copiedTable!.zone.left, copiedTable!.zone.top)
       ).toEqual(["thisIsAValue"]);
       expect(model.getters.getFilterTable(sheetId, 3, 8)).toBeTruthy();
+    });
+
+    test("Can cut and paste a filter table in another sheet", () => {
+      createFilter(model, "A1:B4");
+
+      cut(model, "A1:B4");
+      createSheet(model, { sheetId: "42", activate: true });
+      paste(model, "A5");
+      expect(model.getters.getFilterTable(sheetId, 0, 0)).toBeFalsy();
+      expect(model.getters.getFilterTable("42", 0, 4)).toBeTruthy();
     });
 
     test("Don't copy tables that are not entirety in the selection", () => {
