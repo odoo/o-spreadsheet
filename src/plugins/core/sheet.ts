@@ -121,22 +121,16 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           ? CommandResult.Success
           : CommandResult.NotEnoughSheets;
       case "ADD_COLUMNS_ROWS":
-        const elements =
-          cmd.dimension === "COL"
-            ? this.getNumberCols(cmd.sheetId)
-            : this.getNumberRows(cmd.sheetId);
-        if (cmd.base < 0 || cmd.base > elements) {
+        if (!this.doesHeaderExist(cmd.sheetId, cmd.dimension, cmd.base)) {
           return CommandResult.InvalidHeaderIndex;
         } else if (cmd.quantity <= 0) {
           return CommandResult.InvalidQuantity;
         }
         return CommandResult.Success;
       case "REMOVE_COLUMNS_ROWS": {
-        const elements =
-          cmd.dimension === "COL"
-            ? this.getNumberCols(cmd.sheetId)
-            : this.getNumberRows(cmd.sheetId);
-        if (Math.min(...cmd.elements) < 0 || Math.max(...cmd.elements) > elements) {
+        const min = Math.min(...cmd.elements);
+        const max = Math.max(...cmd.elements);
+        if (min < 0 || !this.doesHeaderExist(cmd.sheetId, cmd.dimension, max)) {
           return CommandResult.InvalidHeaderIndex;
         } else if (
           this.checkElementsIncludeAllNonFrozenHeaders(cmd.sheetId, cmd.dimension, cmd.elements)

@@ -693,7 +693,7 @@ describe("Columns", () => {
     test("On multiple col deletion including the last one", () => {
       model = new Model({
         sheets: [
-          { id: "sheet1", colNumber: 3, rowNumber: 3, cells: { A2: { content: "=SUM(A1:D1)" } } },
+          { id: "sheet1", colNumber: 4, rowNumber: 4, cells: { A2: { content: "=SUM(A1:D1)" } } },
         ],
       });
       deleteColumns(model, ["C", "D"]);
