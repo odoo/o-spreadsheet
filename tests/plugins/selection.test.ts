@@ -8,8 +8,7 @@ import {
   zoneToXc,
 } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { CommandResult } from "../../src/types";
-import { SelectionDirection } from "../../src/types/selection";
+import { CommandResult, Direction } from "../../src/types";
 import {
   activateSheet,
   addCellToSelection,
@@ -547,11 +546,11 @@ describe("Alter selection starting from hidden cells", () => {
     [["Y", "Z"], "Y1", "right", "X1:Y1"],
   ])(
     "Alter selection horizontally from hidden col",
-    (hiddenCols, startPosition, direction: SelectionDirection, endPosition) => {
+    (hiddenCols, startPosition, direction, endPosition) => {
       const model = new Model();
       selectCell(model, startPosition);
       hideColumns(model, hiddenCols);
-      resizeAnchorZone(model, direction);
+      resizeAnchorZone(model, direction as Direction);
       expect(model.getters.getSelectedZone()).toEqual(toZone(endPosition));
     }
   );
@@ -586,11 +585,11 @@ describe("Alter selection starting from hidden cells", () => {
     [[98, 99], "A99", "down", "A98:A99"],
   ])(
     "Alter selection vertically from hidden col",
-    (hiddenRows, startPosition, direction: SelectionDirection, endPosition) => {
+    (hiddenRows, startPosition, direction, endPosition) => {
       const model = new Model();
       selectCell(model, startPosition);
       hideRows(model, hiddenRows);
-      resizeAnchorZone(model, direction);
+      resizeAnchorZone(model, direction as Direction);
       expect(model.getters.getSelectedZone()).toEqual(toZone(endPosition));
     }
   );
@@ -618,14 +617,14 @@ describe("Change selection to sheet extremities", () => {
     [["A"], ["B1:C20"], "F10", "left", "B1:C20"],
   ])(
     "Move selection horizontally to sheet extremities",
-    (hiddenCols, merges, selection, direction: SelectionDirection, result) => {
+    (hiddenCols, merges, selection, direction, result) => {
       const model = new Model();
       selectCell(model, selection);
       for (const mergeXc of merges) {
         merge(model, mergeXc);
       }
       hideColumns(model, hiddenCols);
-      moveAnchorCell(model, direction, "end");
+      moveAnchorCell(model, direction as Direction, "end");
       expect(model.getters.getSelectedZone()).toEqual(toZone(result));
     }
   );
@@ -638,14 +637,14 @@ describe("Change selection to sheet extremities", () => {
     [[0], ["A2:G3"], "F10", "up", "A2:G3"],
   ])(
     "Move selection vertically to sheet extremities",
-    (hiddenRows, merges, selection, direction: SelectionDirection, result) => {
+    (hiddenRows, merges, selection, direction, result) => {
       const model = new Model();
       selectCell(model, selection);
       for (const mergeXc of merges) {
         merge(model, mergeXc);
       }
       hideRows(model, hiddenRows);
-      moveAnchorCell(model, direction, "end");
+      moveAnchorCell(model, direction as Direction, "end");
       expect(model.getters.getSelectedZone()).toEqual(toZone(result));
     }
   );
@@ -658,14 +657,14 @@ describe("Change selection to sheet extremities", () => {
     [["A"], ["B1:C20"], "F10", "left", "B1:F20"],
   ])(
     "Alter selection horizontally to sheet extremities",
-    (hiddenCols, merges, selection, direction: SelectionDirection, result) => {
+    (hiddenCols, merges, selection, direction, result) => {
       const model = new Model();
       selectCell(model, selection);
       for (const mergeXc of merges) {
         merge(model, mergeXc);
       }
       hideColumns(model, hiddenCols);
-      resizeAnchorZone(model, direction, "end");
+      resizeAnchorZone(model, direction as Direction, "end");
       expect(model.getters.getSelectedZone()).toEqual(toZone(result));
     }
   );
@@ -678,14 +677,14 @@ describe("Change selection to sheet extremities", () => {
     [[0], ["A2:G3"], "F10", "up", "A2:G10"],
   ])(
     "Alter selection vertically to sheet extremities",
-    (hiddenRows, merges, selection, direction: SelectionDirection, result) => {
+    (hiddenRows, merges, selection, direction, result) => {
       const model = new Model();
       selectCell(model, selection);
       for (const mergeXc of merges) {
         merge(model, mergeXc);
       }
       hideRows(model, hiddenRows);
-      resizeAnchorZone(model, direction, "end");
+      resizeAnchorZone(model, direction as Direction, "end");
       expect(model.getters.getSelectedZone()).toEqual(toZone(result));
     }
   );
@@ -730,16 +729,13 @@ describe("Change selection to next clusters", () => {
     ["I11", "left", ["H11", "G11", "C11", "A11"]],
     ["I13", "left", ["D13", "B13", "A13"]],
     ["A1", "left", ["A1", "A1"]],
-  ])(
-    "Move selection horizontally",
-    (startPosition: string, direction: SelectionDirection, targetXCs: string[]) => {
-      selectCell(model, startPosition);
-      for (let targetXC of targetXCs) {
-        moveAnchorCell(model, direction, "end");
-        expect(model.getters.getSelectedZone()).toEqual(toZone(targetXC));
-      }
+  ])("Move selection horizontally", (startPosition: string, direction, targetXCs: string[]) => {
+    selectCell(model, startPosition);
+    for (let targetXC of targetXCs) {
+      moveAnchorCell(model, direction as Direction, "end");
+      expect(model.getters.getSelectedZone()).toEqual(toZone(targetXC));
     }
-  );
+  });
 
   test.each([
     ["A1", "down", ["A11", "A16"]],
@@ -754,16 +750,13 @@ describe("Change selection to next clusters", () => {
     ["F16", "up", ["F1"]],
     ["G16", "up", ["G11", "G3", "G2", "G1"]],
     ["A1", "up", ["A1", "A1"]],
-  ])(
-    "Move selection vertically",
-    (startPosition: string, direction: SelectionDirection, targetXCs: string[]) => {
-      selectCell(model, startPosition);
-      for (let targetXC of targetXCs) {
-        moveAnchorCell(model, direction, "end");
-        expect(model.getters.getSelectedZone()).toEqual(toZone(targetXC));
-      }
+  ])("Move selection vertically", (startPosition: string, direction, targetXCs: string[]) => {
+    selectCell(model, startPosition);
+    for (let targetXC of targetXCs) {
+      moveAnchorCell(model, direction as Direction, "end");
+      expect(model.getters.getSelectedZone()).toEqual(toZone(targetXC));
     }
-  );
+  });
 
   test.each([
     ["A2", "A2", "right", ["A2:D4", "A2:G4", "A2:I4"]],
@@ -780,10 +773,10 @@ describe("Change selection to next clusters", () => {
     ["I11", "I11", "left", ["H11:I11", "G11:I11", "C11:I11", "A11:I11"]],
   ])(
     "Alter selection horizontally",
-    (anchor: string, selection: string, direction: SelectionDirection, targetXCs: string[]) => {
+    (anchor: string, selection: string, direction, targetXCs: string[]) => {
       setSelection(model, [selection], { anchor });
       for (let targetXC of targetXCs) {
-        resizeAnchorZone(model, direction, "end");
+        resizeAnchorZone(model, direction as Direction, "end");
         expect(model.getters.getSelectedZone()).toEqual(toZone(targetXC));
       }
     }
@@ -806,10 +799,10 @@ describe("Change selection to next clusters", () => {
     ["A1", "A1", "up", ["A1", "A1"]],
   ])(
     "Alter selection vertically",
-    (anchor: string, selection: string, direction: SelectionDirection, targetXCs: string[]) => {
+    (anchor: string, selection: string, direction, targetXCs: string[]) => {
       setSelection(model, [selection], { anchor });
       for (let targetXC of targetXCs) {
-        resizeAnchorZone(model, direction, "end");
+        resizeAnchorZone(model, direction as Direction, "end");
         expect(model.getters.getSelectedZone()).toEqual(toZone(targetXC));
       }
     }
@@ -842,10 +835,10 @@ describe("Alter Selection with content in selection", () => {
     ["D3", "C3:D4", "right", ["D3:D4"]],
   ])(
     "Alter selection horizontally",
-    (anchor: string, selection: string, direction: SelectionDirection, targetXCs: string[]) => {
+    (anchor: string, selection: string, direction, targetXCs: string[]) => {
       setSelection(model, [selection], { anchor });
       for (let targetXC of targetXCs) {
-        resizeAnchorZone(model, direction, "end");
+        resizeAnchorZone(model, direction as Direction, "end");
         expect(model.getters.getSelectedZone()).toEqual(toZone(targetXC));
       }
     }
@@ -860,10 +853,10 @@ describe("Alter Selection with content in selection", () => {
     ["C5", "C2:D5", "down", ["C3:D5", "C4:D5", "C5:D9"]],
   ])(
     "Alter selection vertically",
-    (anchor: string, selection: string, direction: SelectionDirection, targetXCs: string[]) => {
+    (anchor: string, selection: string, direction, targetXCs: string[]) => {
       setSelection(model, [selection], { anchor });
       for (let targetXC of targetXCs) {
-        resizeAnchorZone(model, direction, "end");
+        resizeAnchorZone(model, direction as Direction, "end");
         expect(model.getters.getSelectedZone()).toEqual(toZone(targetXC));
       }
     }

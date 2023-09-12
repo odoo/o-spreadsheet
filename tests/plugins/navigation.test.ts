@@ -1,7 +1,6 @@
 import { toCartesian, toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { CommandResult, Viewport } from "../../src/types";
-import { SelectionDirection } from "../../src/types/selection";
+import { CommandResult, Direction, Viewport } from "../../src/types";
 import {
   hideColumns,
   hideRows,
@@ -322,11 +321,11 @@ describe("Navigation starting from hidden cells", () => {
     [["Y", "Z"], "Y1", "right", "X1"], // move right from Y1 if column Y and Z are hidden => X1
   ])(
     "Move from position horizontally from hidden col",
-    (hiddenCols, startPosition, direction: SelectionDirection, endPosition) => {
+    (hiddenCols, startPosition, direction, endPosition) => {
       const model = new Model();
       selectCell(model, startPosition);
       hideColumns(model, hiddenCols);
-      moveAnchorCell(model, direction);
+      moveAnchorCell(model, direction as Direction);
       expect(getActivePosition(model)).toBe(endPosition);
     }
   );
@@ -344,11 +343,11 @@ describe("Navigation starting from hidden cells", () => {
     [[98, 99], "A99", "down", "A98"], // move bottom from A99 if rows 99 and 100 are hidden => A98
   ])(
     "Move from position vertically from hidden col",
-    (hiddenRows, startPosition, direction: SelectionDirection, endPosition) => {
+    (hiddenRows, startPosition, direction, endPosition) => {
       const model = new Model();
       selectCell(model, startPosition);
       hideRows(model, hiddenRows);
-      moveAnchorCell(model, direction);
+      moveAnchorCell(model, direction as Direction);
       expect(getActivePosition(model)).toBe(endPosition);
     }
   );

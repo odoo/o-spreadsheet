@@ -27,5 +27,4 @@ export * from "./locale";
 export * from "./misc";
 export * from "./range";
 export * from "./rendering";
-export * from "./selection";
 export * from "./workbook_data";

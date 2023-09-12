@@ -13,10 +13,10 @@ import {
   AnchorZone,
   CellValueType,
   CommandResult,
+  Direction,
   DispatchResult,
   Getters,
   Position,
-  SelectionDirection,
   SelectionStep,
   Zone,
 } from "../types";
@@ -42,10 +42,10 @@ type StatefulStream<Event, State> = {
 interface SelectionProcessor {
   selectZone(anchor: AnchorZone, options?: SelectionEventOptions): DispatchResult;
   selectCell(col: number, row: number): DispatchResult;
-  moveAnchorCell(direction: SelectionDirection, step: SelectionStep): DispatchResult;
+  moveAnchorCell(direction: Direction, step: SelectionStep): DispatchResult;
   setAnchorCorner(col: number, row: number): DispatchResult;
   addCellToSelection(col: number, row: number): DispatchResult;
-  resizeAnchorZone(direction: SelectionDirection, step: SelectionStep): DispatchResult;
+  resizeAnchorZone(direction: Direction, step: SelectionStep): DispatchResult;
   selectColumn(index: number, mode: SelectionEvent["mode"]): DispatchResult;
   selectRow(index: number, mode: SelectionEvent["mode"]): DispatchResult;
   selectAll(): DispatchResult;
@@ -162,7 +162,7 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
   /**
    * Set the selection to one of the cells adjacent to the current anchor cell.
    */
-  moveAnchorCell(direction: SelectionDirection, step: SelectionStep = 1): DispatchResult {
+  moveAnchorCell(direction: Direction, step: SelectionStep = 1): DispatchResult {
     if (step !== "end" && step <= 0) {
       return new DispatchResult(CommandResult.InvalidSelectionStep);
     }
@@ -211,7 +211,7 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
    * The anchor cell remains where it is. It's the opposite side
    * of the anchor zone which moves.
    */
-  resizeAnchorZone(direction: SelectionDirection, step: SelectionStep = 1): DispatchResult {
+  resizeAnchorZone(direction: Direction, step: SelectionStep = 1): DispatchResult {
     if (step !== "end" && step <= 0) {
       return new DispatchResult(CommandResult.InvalidSelectionStep);
     }
@@ -446,10 +446,7 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
    * by crossing through merges and skipping hidden cells.
    * Note that the resulting position might be out of the sheet, it needs to be validated.
    */
-  private getNextAvailablePosition(
-    direction: SelectionDirection,
-    step: SelectionStep = 1
-  ): Position {
+  private getNextAvailablePosition(direction: Direction, step: SelectionStep = 1): Position {
     const { col, row } = this.anchor.cell;
     const delta = this.deltaToTarget({ col, row }, direction, step);
     return {
@@ -540,11 +537,7 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
     };
   }
 
-  private deltaToTarget(
-    position: Position,
-    direction: SelectionDirection,
-    step: SelectionStep
-  ): Delta {
+  private deltaToTarget(position: Position, direction: Direction, step: SelectionStep): Delta {
     switch (direction) {
       case "up":
         return step !== "end"
@@ -566,7 +559,7 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
   }
 
   // TODO rename this
-  private getStartingPosition(direction: SelectionDirection): Position {
+  private getStartingPosition(direction: Direction): Position {
     let { col, row } = this.getPosition();
     const zone = this.anchor.zone;
     switch (direction) {
