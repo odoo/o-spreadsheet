@@ -69,7 +69,6 @@
     "express-ws": "^4.0.0",
     "file-saver": "^2.0.5",
     "fs": "^0.0.1-security",
-    "git-rev-sync": "^2.1.0",
     "husky": "^7.0.4",
     "jest": "^29.5.0",
     "jest-environment-jsdom": "^29.5.0",
