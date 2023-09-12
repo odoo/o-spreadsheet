@@ -1378,44 +1378,19 @@ describe("clipboard", () => {
     });
   });
 
-  test("can cut and paste a conditional formatted cell to another page", () => {
-    const model = new Model({
-      sheets: [
-        {
-          colNumber: 5,
-          rowNumber: 5,
-        },
-        {
-          colNumber: 5,
-          rowNumber: 5,
-        },
-      ],
-    });
-    const sheet1 = model.getters.getVisibleSheets()[0];
-    const sheet2 = model.getters.getVisibleSheets()[1];
-    setCellContent(model, "A1", "1");
-    setCellContent(model, "A2", "2");
-    model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF("1", { fillColor: "#FF0000" }, "1"),
-      target: [toZone("A1"), toZone("A2")],
-      sheetId: model.getters.getActiveSheetId(),
-    });
-    model.dispatch("CUT", { target: [toZone("A1:A2")] });
-    activateSheet(model, sheet2);
+  test("can cut and paste a conditional formatted zone to another page", () => {
+    const model = new Model({ sheets: [{ id: "sheet1" }, { id: "sheet2" }] });
+    const cf = createEqualCF("1", { fillColor: "#FF0000" }, "id");
+    model.dispatch("ADD_CONDITIONAL_FORMAT", { cf, target: target("A1:A2"), sheetId: "sheet1" });
+
+    model.dispatch("CUT", { target: target("A1:A2") });
+    activateSheet(model, "sheet2");
     model.dispatch("PASTE", { target: target("A1") });
-    expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
-      fillColor: "#FF0000",
-    });
-    expect(model.getters.getConditionalStyle(...toCartesian("A2"))).toBeUndefined();
-    setCellContent(model, "A1", "2");
-    setCellContent(model, "A2", "1");
-    expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesian("A2"))).toEqual({
-      fillColor: "#FF0000",
-    });
-    activateSheet(model, sheet1);
-    expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toBeUndefined();
-    expect(model.getters.getConditionalStyle(...toCartesian("A2"))).toBeUndefined();
+
+    expect(model.getters.getConditionalFormats("sheet2")).toMatchObject([
+      { ranges: ["A1:A2"], rule: cf.rule },
+    ]);
+    expect(model.getters.getConditionalFormats("sheet1")).toEqual([]);
   });
 
   test("copy paste CF in another sheet => change CF => copy paste again doesn't overwrite the previously pasted CF", () => {
