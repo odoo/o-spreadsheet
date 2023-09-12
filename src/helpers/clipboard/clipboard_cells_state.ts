@@ -203,7 +203,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
 
     for (const filterTable of this.copiedTables) {
       this.dispatch("REMOVE_FILTER_TABLE", {
-        sheetId: this.getters.getActiveSheetId(),
+        sheetId: this.sheetId,
         target: [filterTable.zone],
       });
     }
