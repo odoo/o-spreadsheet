@@ -6,4 +6,4 @@ const DEFAULT_DIR = "dist";
 
 const argv = parseArgs(process.argv.slice(2));
 
-xmlBundle.writeOwlTemplateBundleToFile(argv.outDir || DEFAULT_DIR, bundle.outro());
+xmlBundle.writeOwlTemplateBundleToFile(argv.outDir || DEFAULT_DIR, bundle.xmlBanner());

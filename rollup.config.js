@@ -20,6 +20,7 @@ function getConfigForFormat(format, minified = false) {
     extend: true,
     globals: { "@odoo/owl": "owl" },
     outro,
+    banner: bundle.jsBanner(),
     plugins: minified ? [terser()] : [],
   };
 }
@@ -40,6 +41,7 @@ export default (commandLineArgs) => {
         name: "o_spreadsheet",
         extend: true,
         outro,
+        banner: bundle.jsBanner(),
         globals: { "@odoo/owl": "owl" },
       },
     ];

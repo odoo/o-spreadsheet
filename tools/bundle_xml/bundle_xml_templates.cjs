@@ -64,11 +64,11 @@ function createOwlTemplateBundle(files, removeRootTags) {
 /**
  * Write the xml bundle to the `dist` directory
  */
-async function writeOwlTemplateBundleToFile(dir, outro = "") {
+async function writeOwlTemplateBundleToFile(dir, banner = "") {
   process.stdout.write(`Building xml template bundle in "${dir}/" ...`);
   let templateBundle = await getOwlTemplatesBundle(true);
-  if (outro) {
-    templateBundle += "<!--" + outro + "-->";
+  if (banner) {
+    templateBundle = banner + "\n" + templateBundle;
   }
   templateBundle = prettify(templateBundle);
   writeToFile(path.join(__dirname, `../../${dir}/o_spreadsheet.xml`), templateBundle);
