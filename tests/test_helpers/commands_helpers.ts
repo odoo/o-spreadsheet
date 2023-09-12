@@ -7,8 +7,10 @@ import {
   ClipboardPasteOptions,
   CreateSheetCommand,
   Dimension,
+  Direction,
   DispatchResult,
   Locale,
+  SelectionStep,
   SortDirection,
   SortOptions,
   SplitTextIntoColumnsCommand,
@@ -22,7 +24,6 @@ import { LineChartDefinition } from "../../src/types/chart/line_chart";
 import { PieChartDefinition } from "../../src/types/chart/pie_chart";
 import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart";
 import { Image } from "../../src/types/image";
-import { SelectionDirection, SelectionStep } from "../../src/types/selection";
 import { FigureSize } from "./../../src/types/figure";
 import { target } from "./helpers";
 
@@ -559,7 +560,7 @@ export function selectCell(model: Model, xc: string): DispatchResult {
 
 export function moveAnchorCell(
   model: Model,
-  direction: SelectionDirection,
+  direction: Direction,
   step: SelectionStep = 1
 ): DispatchResult {
   return model.selection.moveAnchorCell(direction, step);
@@ -567,7 +568,7 @@ export function moveAnchorCell(
 
 export function resizeAnchorZone(
   model: Model,
-  direction: SelectionDirection,
+  direction: Direction,
   step: SelectionStep = 1
 ): DispatchResult {
   return model.selection.resizeAnchorZone(direction, step);
