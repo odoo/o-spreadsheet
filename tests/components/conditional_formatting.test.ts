@@ -17,7 +17,6 @@ import {
   createColorScale,
   createEqualCF,
   getPlugin,
-  mockUuidV4To,
   mountComponent,
   mountSpreadsheet,
   nextTick,
@@ -26,7 +25,6 @@ import {
   toRangesData,
 } from "../test_helpers/helpers";
 import { FR_LOCALE } from "./../test_helpers/constants";
-jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 interface ParentProps {
   onCloseSidePanel: () => void;
@@ -73,7 +71,7 @@ const selectors = {
       },
     },
   },
-  previewImage: ".o-cf-preview-image",
+  previewImage: ".o-cf-preview-icon",
   description: {
     ruletype: {
       rule: ".o-cf-preview-description-rule",
@@ -344,7 +342,6 @@ describe("UI of conditional formats", () => {
     });
 
     test("can create a new CellIsRule", async () => {
-      mockUuidV4To(model, "42");
       await click(fixture, selectors.buttonAdd);
       await nextTick();
 
@@ -365,7 +362,7 @@ describe("UI of conditional formats", () => {
       const sheetId = model.getters.getActiveSheetId();
       expect(dispatch).toHaveBeenNthCalledWith(1, "ADD_CONDITIONAL_FORMAT", {
         cf: {
-          id: "43",
+          id: expect.any(String),
           rule: {
             operator: "BeginsWith",
             style: {
@@ -459,7 +456,6 @@ describe("UI of conditional formats", () => {
   });
 
   test("can create a new ColorScaleRule with cell values", async () => {
-    mockUuidV4To(model, "43");
     await click(fixture, selectors.buttonAdd);
     await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
@@ -476,7 +472,7 @@ describe("UI of conditional formats", () => {
 
     expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "44",
+        id: expect.any(String),
         rule: {
           maximum: {
             color: 0xffff00,
@@ -495,7 +491,6 @@ describe("UI of conditional formats", () => {
   });
 
   test("can create a new ColorScaleRule with fixed values", async () => {
-    mockUuidV4To(model, "44");
     await click(fixture, selectors.buttonAdd);
 
     await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
@@ -521,7 +516,7 @@ describe("UI of conditional formats", () => {
     const sheetId = model.getters.getActiveSheetId();
     expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "45",
+        id: expect.any(String),
         rule: {
           maximum: {
             color: 0xffff00,
@@ -542,7 +537,6 @@ describe("UI of conditional formats", () => {
   });
 
   test("can create a new ColorScaleRule with percent values", async () => {
-    mockUuidV4To(model, "44");
     await click(fixture, selectors.buttonAdd);
 
     await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
@@ -568,7 +562,7 @@ describe("UI of conditional formats", () => {
     const sheetId = model.getters.getActiveSheetId();
     expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "45",
+        id: expect.any(String),
         rule: {
           maximum: {
             color: 0xffff00,
@@ -589,7 +583,6 @@ describe("UI of conditional formats", () => {
   });
 
   test("can create a new ColorScaleRule with percentile values", async () => {
-    mockUuidV4To(model, "44");
     await click(fixture, selectors.buttonAdd);
 
     await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
@@ -615,7 +608,7 @@ describe("UI of conditional formats", () => {
     const sheetId = model.getters.getActiveSheetId();
     expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "45",
+        id: expect.any(String),
         rule: {
           maximum: {
             color: 0xffff00,
@@ -636,7 +629,6 @@ describe("UI of conditional formats", () => {
   });
 
   test("can create a new ColorScaleRule with a midpoint", async () => {
-    mockUuidV4To(model, "44");
     await click(fixture, selectors.buttonAdd);
 
     await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
@@ -669,7 +661,7 @@ describe("UI of conditional formats", () => {
     const sheetId = model.getters.getActiveSheetId();
     expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "45",
+        id: expect.any(String),
         rule: {
           maximum: {
             color: 0xffff00,
@@ -1101,7 +1093,6 @@ describe("UI of conditional formats", () => {
     });
 
     test("can create a new IconsetRule", async () => {
-      mockUuidV4To(model, "44");
       await click(fixture, selectors.buttonAdd);
 
       await click(fixture.querySelectorAll(selectors.cfTabSelector)[2]);
@@ -1116,7 +1107,7 @@ describe("UI of conditional formats", () => {
       const sheetId = model.getters.getActiveSheetId();
       expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
         cf: {
-          id: "45",
+          id: expect.any(String),
           rule: {
             type: "IconSetRule",
             icons: {
@@ -1142,7 +1133,6 @@ describe("UI of conditional formats", () => {
     });
 
     test("can change inputs", async () => {
-      mockUuidV4To(model, "44");
       await click(fixture, selectors.buttonAdd);
 
       await click(fixture.querySelectorAll(selectors.cfTabSelector)[2]);
@@ -1175,7 +1165,7 @@ describe("UI of conditional formats", () => {
       const sheetId = model.getters.getActiveSheetId();
       expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
         cf: {
-          id: "45",
+          id: expect.any(String),
           rule: {
             type: "IconSetRule",
             icons: {
@@ -1206,7 +1196,6 @@ describe("UI of conditional formats", () => {
     [1, { lower: "arrowBad", middle: "dotNeutral", upper: "arrowGood" }],
     [2, { lower: "dotNeutral", middle: "arrowNeutral", upper: "arrowGood" }],
   ])("can change each icon individually", async (iconIndex, expectedIcons) => {
-    mockUuidV4To(model, "44");
     await click(fixture, selectors.buttonAdd);
 
     await click(fixture.querySelectorAll(selectors.cfTabSelector)[2]);
@@ -1225,7 +1214,7 @@ describe("UI of conditional formats", () => {
     const sheetId = model.getters.getActiveSheetId();
     expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
       cf: {
-        id: "45",
+        id: expect.any(String),
         rule: {
           type: "IconSetRule",
           icons: expectedIcons,
