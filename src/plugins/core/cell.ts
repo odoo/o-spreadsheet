@@ -1,3 +1,4 @@
+import { DEFAULT_STYLE } from "../../constants";
 import { compile, tokenize } from "../../formulas";
 import { parseLiteral } from "../../helpers/cells";
 import {
@@ -228,9 +229,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       for (const position of positions) {
         const cell = this.getters.getCell(position)!;
         const xc = toXC(position.col, position.row);
-
+        const style = this.removeDefaultStyleValues(cell.style);
         cells[xc] = {
-          style: cell.style ? getItemId<Style>(cell.style, styles) : undefined,
+          style: Object.keys(style).length ? getItemId<Style>(style, styles) : undefined,
           format: cell.format ? getItemId<Format>(cell.format, formats) : undefined,
           content: cell.content || undefined,
         };
@@ -255,6 +256,16 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
   exportForExcel(data: ExcelWorkbookData) {
     this.export(data);
+  }
+
+  private removeDefaultStyleValues(style: Style | undefined): Style {
+    const cleanedStyle = { ...style };
+    for (const [property, defaultValue] of Object.entries(DEFAULT_STYLE)) {
+      if (cleanedStyle[property] === defaultValue) {
+        delete cleanedStyle[property];
+      }
+    }
+    return cleanedStyle;
   }
 
   // ---------------------------------------------------------------------------

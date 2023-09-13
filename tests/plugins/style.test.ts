@@ -1,7 +1,17 @@
-import { DEFAULT_FONT_SIZE, PADDING_AUTORESIZE_HORIZONTAL } from "../../src/constants";
+import {
+  DEFAULT_FONT_SIZE,
+  DEFAULT_STYLE,
+  PADDING_AUTORESIZE_HORIZONTAL,
+} from "../../src/constants";
 import { fontSizeInPixels, toCartesian, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { createSheet, selectCell, setCellContent, undo } from "../test_helpers/commands_helpers";
+import {
+  createSheet,
+  selectCell,
+  setCellContent,
+  setStyle,
+  undo,
+} from "../test_helpers/commands_helpers";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
 import { createEqualCF, target, toRangesData } from "../test_helpers/helpers";
 
@@ -54,6 +64,27 @@ describe("styles", () => {
     });
     expect(getCellContent(model, "B1")).toBe("b1");
     expect(getCell(model, "B1")!.style).not.toBeDefined();
+  });
+
+  test("default style values are not exported", () => {
+    const model = new Model();
+    setStyle(model, "A1", DEFAULT_STYLE);
+    const data = model.exportData();
+    expect(data.sheets[0].cells.A1?.style).toBeUndefined();
+    expect(data.styles).toEqual({});
+  });
+
+  test("only non default style values are exported", () => {
+    const model = new Model();
+    setStyle(model, "A1", {
+      bold: true,
+      italic: false,
+    });
+    const data = model.exportData();
+    expect(data.sheets[0].cells.A1?.style).toBe(1);
+    expect(data.styles).toEqual({
+      1: { bold: true },
+    });
   });
 
   test("clearing format on a cell with no content actually remove it", () => {
