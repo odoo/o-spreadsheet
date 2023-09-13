@@ -1,0 +1,85 @@
+<templates>
+  <t t-name="o-spreadsheet-ConditionalFormattingEditor">
+    <div class="o-cf-ruleEditor">
+      <div class="o-section o-cf-range">
+        <div class="o-section-title">Apply to range</div>
+        <div class="o-selection-cf">
+          <SelectionInput
+            ranges="() => state.currentCF.ranges"
+            class="'o-range'"
+            isInvalid="isRangeValid"
+            onSelectionChanged="(ranges) => this.onRangesChanged(ranges)"
+            required="true"
+          />
+        </div>
+        <div class="o-section-title">Format rules</div>
+        <div class="o_field_radio o_horizontal o_field_widget o-cf-type-selector">
+          <div
+            class="custom-control form-check o_cf_radio_item"
+            t-on-click="() => this.changeRuleType('CellIsRule')">
+            <input
+              class="form-check-input o_radio_input"
+              t-att-checked="state.currentCFType === 'CellIsRule'"
+              type="radio"
+              id="cellIsRule"
+              name="ruleType"
+              value="CellIsRule"
+            />
+            <label for="cellIsRule" class="form-check-label o_form_label">Single color</label>
+          </div>
+          <div
+            class="custom-control form-check o_cf_radio_item"
+            t-on-click="() => this.changeRuleType('ColorScaleRule')">
+            <input
+              class="form-check-input o_radio_input"
+              t-att-checked="state.currentCFType === 'ColorScaleRule'"
+              type="radio"
+              id="colorScaleRule"
+              name="ruleType"
+              value="ColorScaleRule"
+            />
+            <label for="colorScaleRule" class="form-check-label o_form_label">Color scale</label>
+          </div>
+
+          <div
+            class="custom-control form-check o_cf_radio_item"
+            t-on-click="() => this.changeRuleType('IconSetRule')">
+            <input
+              class="form-check-input o_radio_input"
+              t-att-checked="state.currentCFType === 'IconSetRule'"
+              type="radio"
+              id="iconSetRule"
+              name="ruleType"
+              value="IconSetRule"
+            />
+            <label for="iconSetRule" class="form-check-label o_form_label">Icon set</label>
+          </div>
+        </div>
+      </div>
+      <div class="o-section o-cf-editor">
+        <t t-if="state.currentCFType === 'CellIsRule'" t-call="o-spreadsheet-CellIsRuleEditor">
+          <t t-set="rule" t-value="state.rules.cellIs"/>
+        </t>
+        <t
+          t-if="state.currentCFType === 'ColorScaleRule'"
+          t-call="o-spreadsheet-ColorScaleRuleEditor">
+          <t t-set="rule" t-value="state.rules.colorScale"/>
+        </t>
+        <t t-if="state.currentCFType === 'IconSetRule'" t-call="o-spreadsheet-IconSetEditor">
+          <t t-set="rule" t-value="state.rules.iconSet"/>
+        </t>
+        <div class="o-sidePanelButtons">
+          <button t-on-click="props.onExitEdition" class="o-button o-cf-cancel">Cancel</button>
+          <button t-on-click="saveConditionalFormat" class="o-button primary o-cf-save">
+            Save
+          </button>
+        </div>
+      </div>
+      <div class="o-section">
+        <div class="o-cf-error" t-foreach="state.errors || []" t-as="error" t-key="error_index">
+          <t t-esc="errorMessage(error)"/>
+        </div>
+      </div>
+    </div>
+  </t>
+</templates>

@@ -12,14 +12,14 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
     >
       <div>
         <div
-          class="o-cf-preview o-cf-cursor-ptr"
+          class="o-cf-preview d-flex o-cf-cursor-ptr"
         >
           
           <div
-            class="o-cf-preview-image"
-            style="font-weight:normal; text-decoration:none; font-style:normal; color:none; background-color:#FF0000;"
+            class="o-cf-preview-icon d-flex justify-content-around align-items-center me-2"
+            style="background:#FF0000;"
           >
-            123
+             123 
           </div>
           
           <div
@@ -29,13 +29,13 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
               class="o-cf-preview-ruletype"
             >
               <div
-                class="o-cf-preview-description-rule"
+                class="o-cf-preview-description-rule text-truncate"
               >
                 Is equal to 2
               </div>
             </div>
             <div
-              class="o-cf-preview-range"
+              class="o-cf-preview-range text-truncate"
             >
               A1:A2
             </div>
@@ -45,8 +45,8 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
             class="o-cf-delete"
           >
             <div
-              aria-label="Remove rule"
-              class="o-cf-delete-button"
+              class="o-cf-delete-button text-muted"
+              title="Remove rule"
             >
               <svg
                 class="o-cf-icon trash"
@@ -64,14 +64,14 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
       </div>
       <div>
         <div
-          class="o-cf-preview o-cf-cursor-ptr"
+          class="o-cf-preview d-flex o-cf-cursor-ptr"
         >
           
           <div
-            class="o-cf-preview-image"
+            class="o-cf-preview-icon d-flex justify-content-around align-items-center me-2"
             style="background-image: linear-gradient(to right, #FF00FF, #123456)"
           >
-            123
+             123 
           </div>
           
           <div
@@ -81,13 +81,13 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
               class="o-cf-preview-ruletype"
             >
               <div
-                class="o-cf-preview-description-rule"
+                class="o-cf-preview-description-rule text-truncate"
               >
                 Color scale
               </div>
             </div>
             <div
-              class="o-cf-preview-range"
+              class="o-cf-preview-range text-truncate"
             >
               B1:B5
             </div>
@@ -97,8 +97,8 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
             class="o-cf-delete"
           >
             <div
-              aria-label="Remove rule"
-              class="o-cf-delete-button"
+              class="o-cf-delete-button text-muted"
+              title="Remove rule"
             >
               <svg
                 class="o-cf-icon trash"
@@ -115,19 +115,20 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
         </div>
       </div>
       
+      
+      <div
+        class="btn btn-link o-sidePanel-btn-link o-cf-add"
+      >
+         + Add another rule 
+      </div>
+      <div
+        class="btn btn-link o-sidePanel-btn-link o-cf-reorder"
+      >
+         Reorder rules 
+      </div>
+      
+      
     </div>
-    <div
-      class="btn btn-link o-sidePanel-btn-link o-cf-add"
-    >
-       + Add another rule 
-    </div>
-    <div
-      class="btn btn-link o-sidePanel-btn-link o-cf-reorder"
-    >
-       Reorder rules 
-    </div>
-    
-    
     
     
   </div>
