@@ -1,5 +1,5 @@
 import { _t } from "./translation";
-import { BorderDescr, Color } from "./types";
+import { BorderDescr, Color, Style } from "./types";
 import { CellErrorType } from "./types/errors";
 
 export const CANVAS_SHIFT = 0.5;
@@ -147,14 +147,28 @@ export const MENU_SEPARATOR_BORDER_WIDTH = 1;
 export const MENU_SEPARATOR_PADDING = 5;
 export const MENU_SEPARATOR_HEIGHT = MENU_SEPARATOR_BORDER_WIDTH + 2 * MENU_SEPARATOR_PADDING;
 
+// Style
+export const DEFAULT_STYLE = {
+  align: "left",
+  verticalAlign: "bottom",
+  wrapping: "overflow",
+  bold: false,
+  italic: false,
+  strikethrough: false,
+  underline: false,
+  fontSize: 10,
+  fillColor: "",
+  textColor: "#000000",
+} satisfies Required<Style>;
+
+export const DEFAULT_VERTICAL_ALIGN = DEFAULT_STYLE.verticalAlign;
+export const DEFAULT_WRAPPING_MODE = DEFAULT_STYLE.wrapping;
+
 // Fonts
 export const DEFAULT_FONT_WEIGHT = "400";
-export const DEFAULT_FONT_SIZE = 10;
+export const DEFAULT_FONT_SIZE = DEFAULT_STYLE.fontSize;
 export const HEADER_FONT_SIZE = 11;
 export const DEFAULT_FONT = "'Roboto', arial";
-export const DEFAULT_VERTICAL_ALIGN = "bottom";
-export const DEFAULT_HORIZONTAL_ALIGN = "left";
-export const DEFAULT_WRAPPING_MODE = "overflow";
 
 // Borders
 export const DEFAULT_BORDER_DESC: BorderDescr = { style: "thin", color: "#000000" };
