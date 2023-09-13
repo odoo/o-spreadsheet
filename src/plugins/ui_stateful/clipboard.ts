@@ -54,7 +54,7 @@ export class ClipboardPlugin extends UIPlugin {
   allowDispatch(cmd: LocalCommand): CommandResult {
     switch (cmd.type) {
       case "CUT":
-        const zones = cmd.cutTarget || this.getters.getSelectedZones();
+        const zones = this.getters.getSelectedZones();
         const state = this.getClipboardState(zones, cmd.type);
         return state.isCutAllowed(zones);
       case "PASTE":
@@ -91,7 +91,7 @@ export class ClipboardPlugin extends UIPlugin {
     switch (cmd.type) {
       case "COPY":
       case "CUT":
-        const zones = ("cutTarget" in cmd && cmd.cutTarget) || this.getters.getSelectedZones();
+        const zones = this.getters.getSelectedZones();
         this.state = this.getClipboardState(zones, cmd.type);
         this.status = "visible";
         this.originSheetId = this.getters.getActiveSheetId();
