@@ -1,6 +1,7 @@
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { SUM } from "../../functions/module_math";
 import { AVERAGE, COUNT, COUNTA, MAX, MIN } from "../../functions/module_statistical";
+import { ClipboardCellsState } from "../../helpers/clipboard/clipboard_cells_state";
 import {
   clip,
   deepCopy,
@@ -645,27 +646,30 @@ export class GridSelectionPlugin extends UIPlugin {
     const deltaCol = isBasedBefore && isCol ? thickness : 0;
     const deltaRow = isBasedBefore && !isCol ? thickness : 0;
 
-    this.dispatch("CUT", {
-      cutTarget: [
-        {
-          left: isCol ? start + deltaCol : 0,
-          right: isCol ? end + deltaCol : this.getters.getNumberCols(cmd.sheetId) - 1,
-          top: !isCol ? start + deltaRow : 0,
-          bottom: !isCol ? end + deltaRow : this.getters.getNumberRows(cmd.sheetId) - 1,
-        },
-      ],
-    });
-
-    this.dispatch("PASTE", {
-      target: [
-        {
-          left: isCol ? cmd.base : 0,
-          right: isCol ? cmd.base + thickness - 1 : this.getters.getNumberCols(cmd.sheetId) - 1,
-          top: !isCol ? cmd.base : 0,
-          bottom: !isCol ? cmd.base + thickness - 1 : this.getters.getNumberRows(cmd.sheetId) - 1,
-        },
-      ],
-    });
+    const target = [
+      {
+        left: isCol ? start + deltaCol : 0,
+        right: isCol ? end + deltaCol : this.getters.getNumberCols(cmd.sheetId) - 1,
+        top: !isCol ? start + deltaRow : 0,
+        bottom: !isCol ? end + deltaRow : this.getters.getNumberRows(cmd.sheetId) - 1,
+      },
+    ];
+    const state = new ClipboardCellsState(
+      target,
+      "CUT",
+      this.getters,
+      this.dispatch,
+      this.selection
+    );
+    const pasteTarget = [
+      {
+        left: isCol ? cmd.base : 0,
+        right: isCol ? cmd.base + thickness - 1 : this.getters.getNumberCols(cmd.sheetId) - 1,
+        top: !isCol ? cmd.base : 0,
+        bottom: !isCol ? cmd.base + thickness - 1 : this.getters.getNumberRows(cmd.sheetId) - 1,
+      },
+    ];
+    state.paste(pasteTarget, { selectTarget: true });
 
     const toRemove = isBasedBefore ? cmd.elements.map((el) => el + thickness) : cmd.elements;
     let currentIndex = cmd.base;
