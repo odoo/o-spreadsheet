@@ -172,6 +172,17 @@ describe("Functions autocomplete", () => {
       ).toBe("SUM");
     });
 
+    test("Moving the cursor with the arrow keys opens and close the autocomplete ", async () => {
+      await typeInComposer("=S");
+      expect(fixture.querySelector(".o-autocomplete-value")).not.toBeNull();
+      keyDown({ key: "ArrowLeft" });
+      await keyUp({ key: "ArrowLeft" });
+      expect(fixture.querySelector(".o-autocomplete-value")).toBeNull();
+      keyDown({ key: "ArrowRight" });
+      await keyUp({ key: "ArrowRight" });
+      expect(fixture.querySelector(".o-autocomplete-value")).not.toBeNull();
+    });
+
     test("autocomplete restrict number of proposition to 10", async () => {
       for (let i = 0; i < 20; i++) {
         functionRegistry.add(`SUM${i + 1}`, {
@@ -251,9 +262,9 @@ describe("Functions autocomplete", () => {
     });
     test("= and CTRL+Space show autocomplete", async () => {
       await typeInComposer("=");
-      await keyDown({ key: " ", ctrlKey: true });
-      //TODO Need a second nextTick to wait the re-render of SelectionInput (onMounted => uuid assignation). But why not before ?
-      await nextTick();
+      keyDown({ key: " ", ctrlKey: true });
+      await keyUp({ key: " ", ctrlKey: true });
+
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(3);
       await keyDown({ key: "Tab" });
       expect(composerEl.textContent).toBe("=IF(");

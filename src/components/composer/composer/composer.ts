@@ -2,7 +2,13 @@ import { Component, onMounted, onWillUnmount, useEffect, useRef, useState } from
 import { DEFAULT_FONT, NEWLINE } from "../../../constants";
 import { EnrichedToken } from "../../../formulas/index";
 import { functionRegistry } from "../../../functions/index";
-import { fuzzyLookup, getZoneArea, isEqual, splitReference } from "../../../helpers/index";
+import {
+  deepEquals,
+  fuzzyLookup,
+  getZoneArea,
+  isEqual,
+  splitReference,
+} from "../../../helpers/index";
 import { ComposerSelection } from "../../../plugins/ui_stateful/edition";
 
 import {
@@ -109,6 +115,7 @@ interface AutoCompleteState {
   showProvider: boolean;
   selectedIndex: number;
   values: AutocompleteValue[];
+  token: EnrichedToken | undefined;
 }
 
 interface FunctionDescriptionState {
@@ -138,6 +145,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     showProvider: false,
     values: [],
     selectedIndex: 0,
+    token: undefined,
   });
 
   functionDescriptionState: FunctionDescriptionState = useState({
@@ -400,6 +408,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
       return;
     }
     this.autoCompleteState.showProvider = true;
+    this.autoCompleteState.token = this.env.model.getters.getTokenAtCursor();
     let values = Object.entries(functionRegistry.content)
       .filter(([_, { hidden }]) => !hidden)
       .map(([text, { description }]) => {
@@ -643,12 +652,17 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
    * the autocomplete engine otherwise we initialize the formula assistant.
    */
   private processTokenAtCursor(): void {
-    let content = this.env.model.getters.getCurrentContent();
+    const token = this.env.model.getters.getTokenAtCursor();
+    if (token && deepEquals(this.autoCompleteState.token, token)) {
+      return;
+    }
+
     this.autoCompleteState.showProvider = false;
+    this.autoCompleteState.token = undefined;
     this.functionDescriptionState.showDescription = false;
 
+    const content = this.env.model.getters.getCurrentContent();
     if (content.startsWith("=")) {
-      const token = this.env.model.getters.getTokenAtCursor();
       if (!token) {
         return;
       }
