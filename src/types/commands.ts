@@ -474,8 +474,6 @@ export interface CopyCommand {
 
 export interface CutCommand {
   type: "CUT";
-  /** Zones to cut. If none were given, will copy the zones in the selection*/
-  target?: Zone[];
 }
 
 export interface PasteCommand {
