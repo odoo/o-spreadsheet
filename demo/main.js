@@ -343,7 +343,7 @@ Demo.template = xml/* xml */ `
       <Spreadsheet model="model" t-key="state.key"/>
     </div>
   </div>
-  <div t-else="">
+  <div t-else="" class="vh-100">
     <Spreadsheet model="model" t-key="state.key"/>
   </div>
 `;
