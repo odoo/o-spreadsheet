@@ -73,7 +73,11 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
         let sizes = [...this.sizes[cmd.sheetId][cmd.dimension]];
         const addIndex = getAddHeaderStartIndex(cmd.position, cmd.base);
         const baseSize = sizes[cmd.base];
-        sizes.splice(addIndex, 0, ...Array(cmd.quantity).fill(baseSize));
+        const sizesToInsert = range(0, cmd.quantity).map(() => ({
+          manualSize: baseSize.manualSize,
+          computedSize: lazy(baseSize.computedSize()),
+        }));
+        sizes.splice(addIndex, 0, ...sizesToInsert);
         sizes = sizes.map((size, row) => {
           if (cmd.dimension === "ROW" && row > cmd.base + cmd.quantity) {
             // invalidate sizes
