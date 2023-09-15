@@ -30,9 +30,9 @@ export function parseLiteral(content: string, locale: Locale): Exclude<CellValue
     throw new Error(`Cannot parse "${content}" because it's not a literal value. It's a formula`);
   }
   if (isNumber(content, DEFAULT_LOCALE)) {
-    return toNumber(content, DEFAULT_LOCALE);
+    return toNumber({ value: content }, DEFAULT_LOCALE);
   } else if (isDateTime(content, locale)) {
-    return toNumber(content, locale);
+    return toNumber({ value: content }, locale);
   } else if (isBoolean(content)) {
     return content.toUpperCase() === "TRUE" ? true : false;
   }

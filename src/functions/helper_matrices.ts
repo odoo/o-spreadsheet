@@ -1,5 +1,5 @@
 import { _t } from "../translation";
-import { Matrix } from "../types";
+import { Data, Matrix } from "../types";
 
 export function getUnitMatrix(n: number): Matrix<number> {
   const matrix: Matrix<number> = Array(n);
@@ -16,7 +16,7 @@ export function getUnitMatrix(n: number): Matrix<number> {
  * The Matrix should be a square matrix, and should be indexed [col][row] instead of the
  * standard mathematical indexing [row][col].
  */
-export function invertMatrix(M: Matrix<number>): {
+export function invertMatrix(M: Matrix<any>): {
   inverted?: Matrix<number>;
   determinant: number;
 } {
@@ -112,7 +112,7 @@ function swapMatrixRows(matrix: number[][], row1: number, row2: number) {
  *
  * Note: we use indexing [col][row] instead of the standard mathematical notation [row][col]
  */
-export function multiplyMatrices(matrix1: Matrix<number>, matrix2: Matrix<number>): Matrix<number> {
+export function multiplyMatrices(matrix1: Matrix<Data>, matrix2: Matrix<Data>): Matrix<number> {
   if (matrix1.length !== matrix2[0].length) {
     throw new Error(_t("Cannot multiply matrices : incompatible matrices size."));
   }
@@ -127,7 +127,12 @@ export function multiplyMatrices(matrix1: Matrix<number>, matrix2: Matrix<number
     for (let row = 0; row < rowsM1; row++) {
       let sum = 0;
       for (let k = 0; k < n; k++) {
-        sum += matrix1[k][row] * matrix2[col][k];
+        const v1 = matrix1[k][row].value;
+        const v2 = matrix2[col][k].value;
+        if (!(typeof v1 === "number" && typeof v2 === "number")) {
+          throw new Error(_t("The arguments must be matrices of numbers."));
+        }
+        sum += v1 * v2; // sum += matrix1[k][row] .value * matrix2[col][k].value;
       }
       result[col][row] = sum;
     }

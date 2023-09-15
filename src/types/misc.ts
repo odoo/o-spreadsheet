@@ -193,9 +193,17 @@ export class Data implements PrimitiveData {
     this.format = format;
   }
 
-  valueOf(): CellValue {
-    return this.value;
-  }
+  // toNumber(local:Locale): number {
+  //   return toNumber(this.value, local);
+  // }
+
+  // toString(): string {
+  //   return toString(this.value);
+  // }
+
+  // toBoolean(): boolean {
+  //   return toBoolean(this.value);
+  // }
 }
 
 // FORMULA FUNCTION VALUE AND FORMAT INPUT

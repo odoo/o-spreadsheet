@@ -1,7 +1,7 @@
 import { CellValue } from "./cells";
 import { Format } from "./format";
 import { Locale } from "./locale";
-import { Arg, ArgValue, Data, Matrix } from "./misc";
+import { Arg, Data, Matrix } from "./misc";
 
 export type ArgType =
   | "ANY"
@@ -40,7 +40,7 @@ interface AddFunctionDescriptionBase {
 }
 
 interface ComputeValue {
-  compute: ComputeFunction<ArgValue, CellValue | Matrix<CellValue>>;
+  compute: ComputeFunction<Arg, CellValue | Matrix<CellValue>>;
 }
 
 interface ComputeFormat {

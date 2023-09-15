@@ -2,7 +2,7 @@
 import { numberToJsDate, parseDateTime } from "../helpers/dates";
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _t } from "../translation";
-import { ArgValue, CellValue, Data, Locale, Matrix, Maybe, isMatrix } from "../types";
+import { Arg, CellValue, Data, Locale, Matrix, Maybe, isMatrix } from "../types";
 import { EvaluationError } from "../types/errors";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
@@ -39,7 +39,13 @@ export const expectStringSetError = (stringSet: string[], value: string) => {
   );
 };
 
-export function toNumber(value: CellValue | undefined, locale: Locale): number {
+export function toNumber(data: Data | undefined, locale: Locale): number {
+  if (data === undefined) {
+    return 0;
+  }
+
+  const value = data.value;
+
   switch (typeof value) {
     case "number":
       return value;
@@ -55,26 +61,23 @@ export function toNumber(value: CellValue | undefined, locale: Locale): number {
       }
       throw new Error(expectNumberValueError(value));
     default:
-      if (value instanceof EvaluationError) {
-        throw value;
-      }
       return 0;
   }
 }
 
-export function strictToNumber(value: CellValue | undefined, locale: Locale): number {
-  if (value === "") {
-    throw new Error(expectNumberValueError(value));
+export function strictToNumber(data: Data | undefined, locale: Locale): number {
+  if (data?.value === "") {
+    throw new Error(expectNumberValueError(data.value));
   }
-  return toNumber(value, locale);
+  return toNumber(data, locale);
 }
 
-export function toInteger(value: CellValue | undefined, locale: Locale) {
-  return Math.trunc(toNumber(value, locale));
+export function toInteger(data: Data | undefined, locale: Locale) {
+  return Math.trunc(toNumber(data, locale));
 }
 
-export function strictToInteger(value: CellValue | undefined, locale: Locale) {
-  return Math.trunc(strictToNumber(value, locale));
+export function strictToInteger(data: Data | undefined, locale: Locale) {
+  return Math.trunc(strictToNumber(data, locale));
 }
 
 export function assertNumberGreaterThanOrEqualToOne(value: number) {
@@ -87,7 +90,12 @@ export function assertNumberGreaterThanOrEqualToOne(value: number) {
   );
 }
 
-export function toString(value: CellValue | undefined): string {
+export function toString(data: Data | undefined): string {
+  if (data === undefined) {
+    return "";
+  }
+
+  const value = data.value;
   switch (typeof value) {
     case "string":
       return value;
@@ -96,9 +104,6 @@ export function toString(value: CellValue | undefined): string {
     case "boolean":
       return value ? "TRUE" : "FALSE";
     default:
-      if (value instanceof EvaluationError) {
-        throw value;
-      }
       return "";
   }
 }
@@ -125,7 +130,12 @@ const expectBooleanValueError = (value: string) =>
     value
   );
 
-export function toBoolean(value: CellValue | undefined): boolean {
+export function toBoolean(data: Data | undefined): boolean {
+  if (data === undefined) {
+    return false;
+  }
+
+  const value = data.value;
   switch (typeof value) {
     case "boolean":
       return value;
@@ -152,15 +162,15 @@ export function toBoolean(value: CellValue | undefined): boolean {
   }
 }
 
-function strictToBoolean(value: CellValue | undefined): boolean {
-  if (value === "") {
-    throw new Error(expectBooleanValueError(value));
+function strictToBoolean(data: Data | undefined): boolean {
+  if (data?.value === "") {
+    throw new Error(expectBooleanValueError(data.value));
   }
-  return toBoolean(value);
+  return toBoolean(data);
 }
 
-export function toJsDate(value: CellValue | undefined, locale: Locale): Date {
-  return numberToJsDate(toNumber(value, locale));
+export function toJsDate(data: Data | undefined, locale: Locale): Date {
+  return numberToJsDate(toNumber(data, locale));
 }
 
 // -----------------------------------------------------------------------------
@@ -195,16 +205,16 @@ export function visitAny<T extends Data | CellValue>(
   visitArgs(args, cb, cb);
 }
 
-export function visitNumbers(args: ArgValue[], cb: (arg: number) => void, locale: Locale): void {
+export function visitNumbers(args: Arg[], cb: (arg: Data) => void, locale: Locale): void {
   visitArgs(
     args,
-    (cellValue) => {
-      if (typeof cellValue === "number") {
-        cb(cellValue);
+    (dataFromMatrix) => {
+      if (typeof dataFromMatrix.value === "number") {
+        cb(dataFromMatrix);
       }
     },
-    (argValue) => {
-      cb(strictToNumber(argValue, locale));
+    (dataSingle) => {
+      cb({ value: strictToNumber(dataSingle, locale) });
     }
   );
 }
@@ -258,50 +268,50 @@ export function reduceAny<T, M>(
 }
 
 export function reduceNumbers(
-  args: ArgValue[],
+  args: Arg[],
   cb: (acc: number, a: number) => number,
   initialValue: number,
   locale: Locale
 ): number {
   return reduceArgs(
     args,
-    (acc, ArgValue) => {
-      if (typeof ArgValue === "number") {
-        return cb(acc, ArgValue);
-      } else if (ArgValue instanceof EvaluationError) {
-        throw ArgValue;
+    (acc, arg) => {
+      if (typeof arg?.value === "number") {
+        return cb(acc, arg.value);
+      } else if (arg?.value instanceof EvaluationError) {
+        throw arg.value;
       }
       return acc;
     },
-    (acc, argValue) => {
-      return cb(acc, strictToNumber(argValue, locale));
+    (acc, arg) => {
+      return cb(acc, strictToNumber(arg, locale));
     },
     initialValue
   );
 }
 
 export function reduceNumbersTextAs0(
-  args: ArgValue[],
+  args: Arg[],
   cb: (acc: number, a: number) => number,
   initialValue: number,
   locale: Locale
 ): number {
   return reduceArgs(
     args,
-    (acc, ArgValue) => {
-      if (ArgValue !== undefined && ArgValue !== null) {
-        if (typeof ArgValue === "number") {
-          return cb(acc, ArgValue);
-        } else if (typeof ArgValue === "boolean") {
-          return cb(acc, toNumber(ArgValue, locale));
+    (acc, arg) => {
+      if (arg !== undefined && arg.value !== null) {
+        if (typeof arg.value === "number") {
+          return cb(acc, arg.value);
+        } else if (typeof arg.value === "boolean") {
+          return cb(acc, toNumber(arg, locale));
         } else {
           return cb(acc, 0);
         }
       }
       return acc;
     },
-    (acc, argValue) => {
-      return cb(acc, toNumber(argValue, locale));
+    (acc, arg) => {
+      return cb(acc, toNumber(arg, locale));
     },
     initialValue
   );
@@ -352,9 +362,9 @@ export function transposeMatrix<T>(matrix: Matrix<T>): Matrix<T> {
  * It is mainly used to bypass argument evaluation for functions like OR or AND.
  */
 function conditionalVisitArgs(
-  args: ArgValue[],
-  cellCb: (a: CellValue | undefined) => boolean,
-  dataCb: (a: Maybe<CellValue>) => boolean
+  args: Arg[],
+  cellCb: (a: Data | undefined) => boolean,
+  dataCb: (a: Maybe<Data>) => boolean
 ): void {
   for (let arg of args) {
     if (isMatrix(arg)) {
@@ -373,21 +383,21 @@ function conditionalVisitArgs(
   }
 }
 
-export function conditionalVisitBoolean(args: ArgValue[], cb: (a: boolean) => boolean): void {
+export function conditionalVisitBoolean(args: Arg[], cb: (a: boolean) => boolean): void {
   return conditionalVisitArgs(
     args,
-    (ArgValue) => {
-      if (typeof ArgValue === "boolean") {
-        return cb(ArgValue);
+    (arg) => {
+      if (typeof arg?.value === "boolean") {
+        return cb(arg.value);
       }
-      if (typeof ArgValue === "number") {
-        return cb(ArgValue ? true : false);
+      if (typeof arg?.value === "number") {
+        return cb(arg.value ? true : false);
       }
       return true;
     },
-    (argValue) => {
-      if (argValue !== undefined && argValue !== null) {
-        return cb(strictToBoolean(argValue));
+    (arg) => {
+      if (arg !== undefined && arg.value !== null) {
+        return cb(strictToBoolean(arg));
       }
       return true;
     }
@@ -426,9 +436,9 @@ function getPredicate(descr: string, isQuery: boolean, locale: Locale): Predicat
   }
 
   if (isNumber(operand, locale)) {
-    operand = toNumber(operand, locale);
+    operand = toNumber({ value: operand }, locale);
   } else if (operand === "TRUE" || operand === "FALSE") {
-    operand = toBoolean(operand);
+    operand = toBoolean({ value: operand });
   }
 
   const result: Predicate = { operator, operand };
@@ -474,7 +484,7 @@ function evaluatePredicate(value: CellValue | undefined, criterion: Predicate): 
   }
 
   if (typeof operand === "number" && operator === "=") {
-    return toString(value) === toString(operand);
+    return toString({ value }) === toString({ value: operand });
   }
 
   if (operator === "<>" || operator === "=") {
@@ -531,7 +541,7 @@ function evaluatePredicate(value: CellValue | undefined, criterion: Predicate): 
  * (Ex4 isQuery = false, predicate = "abc", element = "abc": predicate match the element).
  */
 export function visitMatchingRanges(
-  args: ArgValue[],
+  args: Arg[],
   cb: (i: number, j: number) => void,
   locale: Locale,
   isQuery: boolean = false
@@ -544,8 +554,8 @@ export function visitMatchingRanges(
     );
   }
 
-  const dimRow = (args[0] as Matrix<CellValue>).length;
-  const dimCol = (args[0] as Matrix<CellValue>)[0].length;
+  const dimRow = (args[0] as Matrix<Data>).length;
+  const dimCol = (args[0] as Matrix<Data>)[0].length;
 
   let predicates: Predicate[] = [];
 
@@ -562,7 +572,7 @@ export function visitMatchingRanges(
       );
     }
 
-    const description = toString(args[i + 1] as Maybe<CellValue>);
+    const description = toString(args[i + 1] as Maybe<Data>);
     predicates.push(getPredicate(description, isQuery, locale));
   }
 
@@ -570,7 +580,7 @@ export function visitMatchingRanges(
     for (let j = 0; j < dimCol; j++) {
       let validatedPredicates = true;
       for (let k = 0; k < countArg - 1; k += 2) {
-        const criteriaValue = (args[k] as Matrix<CellValue>)[i][j];
+        const criteriaValue = (args[k] as Matrix<Data>)[i][j].value;
         const criterion = predicates[k / 2];
         validatedPredicates = evaluatePredicate(criteriaValue ?? undefined, criterion);
         if (!validatedPredicates) {

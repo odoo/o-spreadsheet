@@ -1,5 +1,5 @@
 import { _t } from "../translation";
-import { AddFunctionDescription, Arg, ArgValue, CellValue, Data, Matrix, Maybe } from "../types";
+import { AddFunctionDescription, Arg, Data, Matrix, Maybe } from "../types";
 import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import {
@@ -38,8 +38,8 @@ export const ARRAY_CONSTRAIN = {
     columns: Maybe<Data>
   ): Matrix<Data> {
     const _array = toMatrix(array);
-    const _rowsArg = toInteger(rows?.value, this.locale);
-    const _columnsArg = toInteger(columns?.value, this.locale);
+    const _rowsArg = toInteger(rows, this.locale);
+    const _columnsArg = toInteger(columns, this.locale);
 
     assertPositive(
       _t("The rows argument (%s) must be strictly positive.", _rowsArg.toString()),
@@ -77,7 +77,7 @@ export const CHOOSECOLS = {
   returns: ["RANGE<ANY>"],
   computeValueAndFormat: function (array: Arg, ...columns: Arg[]): Matrix<Data> {
     const _array = toMatrix(array);
-    const _columns = flattenRowFirst(columns, (item) => toInteger(item?.value, this.locale));
+    const _columns = flattenRowFirst(columns, (item) => toInteger(item, this.locale));
 
     assert(
       () => _columns.every((col) => col > 0 && col <= _array.length),
@@ -115,7 +115,7 @@ export const CHOOSEROWS = {
   returns: ["RANGE<ANY>"],
   computeValueAndFormat: function (array: Arg, ...rows: Arg[]): Matrix<Data> {
     const _array = toMatrix(array);
-    const _rows = flattenRowFirst(rows, (item) => toInteger(item?.value, this.locale));
+    const _rows = flattenRowFirst(rows, (item) => toInteger(item, this.locale));
     const _nbColumns = _array.length;
 
     assert(
@@ -157,8 +157,8 @@ export const EXPAND = {
     padWith: Maybe<Data> = new Data({ value: 0 }) // TODO : Replace with #N/A errors once it's supported
   ): Matrix<Data> {
     const _array = toMatrix(arg);
-    const _nbRows = toInteger(rows?.value, this.locale);
-    const _nbColumns = columns !== undefined ? toInteger(columns.value, this.local) : _array.length;
+    const _nbRows = toInteger(rows, this.locale);
+    const _nbColumns = columns !== undefined ? toInteger(columns, this.local) : _array.length;
 
     assert(
       () => _nbRows >= _array[0].length,
@@ -208,11 +208,11 @@ export const FREQUENCY = {
     arg("classes (number, range<number>)", _t("The range containing the set of classes.")),
   ],
   returns: ["RANGE<NUMBER>"],
-  compute: function (data: Matrix<CellValue>, classes: Matrix<CellValue>): CellValue[][] {
-    const _data = flattenRowFirst([data], (val) => val).filter(
+  compute: function (data: Matrix<Data>, classes: Matrix<Data>): number[][] {
+    const _data = flattenRowFirst([data], (val) => val.value).filter(
       (val): val is number => typeof val === "number"
     );
-    const _classes = flattenRowFirst([classes], (val) => val).filter(
+    const _classes = flattenRowFirst([classes], (val) => val.value).filter(
       (val): val is number => typeof val === "number"
     );
 
@@ -301,7 +301,7 @@ export const MDETERM = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (matrix: ArgValue): number {
+  compute: function (matrix: Arg): number {
     const _matrix = toMatrix(matrix);
 
     assertSquareMatrix(
@@ -332,7 +332,7 @@ export const MINVERSE = {
     ),
   ],
   returns: ["RANGE<NUMBER>"],
-  compute: function (matrix: ArgValue): Matrix<number> {
+  compute: function (matrix: Arg): Matrix<number> {
     const _matrix = toMatrix(matrix);
 
     assertSquareMatrix(
@@ -369,7 +369,7 @@ export const MMULT = {
     ),
   ],
   returns: ["RANGE<NUMBER>"],
-  compute: function (matrix1: ArgValue, matrix2: ArgValue): Matrix<number> {
+  compute: function (matrix1: Arg, matrix2: Arg): Matrix<number> {
     const _matrix1 = toMatrix(matrix1);
     const _matrix2 = toMatrix(matrix2);
 
@@ -382,9 +382,6 @@ export const MMULT = {
         _matrix2[0].length.toString()
       )
     );
-    if (!isNumberMatrix(_matrix1) || !isNumberMatrix(_matrix2)) {
-      throw new Error(_t("The arguments matrix1 and matrix2 must be matrices of numbers."));
-    }
 
     return multiplyMatrices(_matrix1, _matrix2);
   },
@@ -413,7 +410,7 @@ export const SUMPRODUCT = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (...args: ArgValue[]): number {
+  compute: function (...args: Arg[]): number {
     assertSameDimensions(_t("All the ranges must have the same dimensions."), ...args);
     const _args = args.map(toMatrix);
     let result = 0;
@@ -443,11 +440,7 @@ export const SUMPRODUCT = {
  *
  * Ignore the pairs X,Y where one of the value isn't a number. Throw an error if no pair of numbers is found.
  */
-function getSumXAndY(
-  arrayX: ArgValue,
-  arrayY: ArgValue,
-  cb: (x: number, y: number) => number
-): number {
+function getSumXAndY(arrayX: Arg, arrayY: Arg, cb: (x: number, y: number) => number): number {
   assertSameDimensions(
     "The arguments array_x and array_y must have the same dimensions.",
     arrayX,
@@ -460,8 +453,8 @@ function getSumXAndY(
   let result = 0;
   for (const col in _arrayX) {
     for (const row in _arrayX[col]) {
-      const arrayXValue = _arrayX[col][row];
-      const arrayYValue = _arrayY[col][row];
+      const arrayXValue = _arrayX[col][row].value;
+      const arrayYValue = _arrayY[col][row].value;
       if (typeof arrayXValue !== "number" || typeof arrayYValue !== "number") {
         continue;
       }
@@ -496,7 +489,7 @@ export const SUMX2MY2 = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (arrayX: ArgValue, arrayY: ArgValue): number {
+  compute: function (arrayX: Arg, arrayY: Arg): number {
     return getSumXAndY(arrayX, arrayY, (x, y) => x ** 2 - y ** 2);
   },
   isExported: true,
@@ -522,7 +515,7 @@ export const SUMX2PY2 = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (arrayX: ArgValue, arrayY: ArgValue): number {
+  compute: function (arrayX: Arg, arrayY: Arg): number {
     return getSumXAndY(arrayX, arrayY, (x, y) => x ** 2 + y ** 2);
   },
   isExported: true,
@@ -548,7 +541,7 @@ export const SUMXMY2 = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (arrayX: ArgValue, arrayY: ArgValue): number {
+  compute: function (arrayX: Arg, arrayY: Arg): number {
     return getSumXAndY(arrayX, arrayY, (x, y) => (x - y) ** 2);
   },
   isExported: true,
@@ -586,8 +579,8 @@ export const TOCOL = {
     scanByColumn: Maybe<Data> = new Data({ value: TO_COL_ROW_DEFAULT_SCAN })
   ) {
     const _array = toMatrix(array);
-    const _ignore = toInteger(ignore.value, this.locale);
-    const _scanByColumn = toBoolean(scanByColumn.value);
+    const _ignore = toInteger(ignore, this.locale);
+    const _scanByColumn = toBoolean(scanByColumn);
 
     assert(() => _ignore >= 0 && _ignore <= 3, _t("Argument ignore must be between 0 and 3"));
 
@@ -621,8 +614,8 @@ export const TOROW = {
     scanByColumn: Maybe<Data> = new Data({ value: TO_COL_ROW_DEFAULT_SCAN })
   ): Matrix<Data> {
     const _array = toMatrix(array);
-    const _ignore = toInteger(ignore.value, this.locale);
-    const _scanByColumn = toBoolean(scanByColumn.value);
+    const _ignore = toInteger(ignore, this.locale);
+    const _scanByColumn = toBoolean(scanByColumn);
 
     assert(() => _ignore >= 0 && _ignore <= 3, _t("Argument ignore must be between 0 and 3"));
 
@@ -720,7 +713,7 @@ export const WRAPCOLS = {
     padWith: Maybe<Data> = new Data({ value: 0 })
   ): Matrix<Data> {
     const _array = toMatrix(range);
-    const nbRows = toInteger(wrapCount?.value, this.locale);
+    const nbRows = toInteger(wrapCount, this.locale);
 
     assertSingleColOrRow(_t("Argument range must be a single row or column."), _array);
 
@@ -760,7 +753,7 @@ export const WRAPROWS = {
     padWith: Maybe<Data> = new Data({ value: 0 })
   ): Matrix<Data> {
     const _array = toMatrix(range);
-    const nbColumns = toInteger(wrapCount?.value, this.locale);
+    const nbColumns = toInteger(wrapCount, this.locale);
 
     assertSingleColOrRow(_t("Argument range must be a single row or column."), _array);
 
