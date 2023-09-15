@@ -12,7 +12,7 @@ import {
   setSelection,
   updateLocale,
 } from "../test_helpers/commands_helpers";
-import { click, keyDown, setInputValueAndTrigger } from "../test_helpers/dom_helper";
+import { click, dragElement, keyDown, setInputValueAndTrigger } from "../test_helpers/dom_helper";
 import {
   createColorScale,
   createEqualCF,
@@ -24,11 +24,13 @@ import {
   textContentAll,
   toRangesData,
 } from "../test_helpers/helpers";
+import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 import { FR_LOCALE } from "./../test_helpers/constants";
 
 interface ParentProps {
   onCloseSidePanel: () => void;
 }
+
 class Parent extends Component<ParentProps, SpreadsheetChildEnv> {
   static components = { ConditionalFormattingPanel };
   static template = xml/*xml*/ `
@@ -95,10 +97,6 @@ const selectors = {
     colorPickerOrange: ".o-color-picker div[data-color='#FF9900']",
     colorPickerYellow: ".o-color-picker div[data-color='#FFFF00']",
   },
-  cfReorder: {
-    buttonUp: ".o-cf-reorder-button-up",
-    buttonDown: ".o-cf-reorder-button-down",
-  },
   cfTabSelector: ".o-cf-type-selector .o_form_label",
   buttonSave: ".o-sidePanelButtons .o-cf-save",
   buttonDelete: ".o-cf-delete-button",
@@ -113,11 +111,26 @@ const selectors = {
 describe("UI of conditional formats", () => {
   let fixture: HTMLElement;
   let model: Model;
+  let sheetId: UID;
+
+  mockGetBoundingClientRect({
+    "o-cf-preview": (el: HTMLElement) => ({
+      y:
+        model.getters.getConditionalFormats(sheetId).findIndex((cf) => cf.id === el.dataset.id) *
+        100,
+      height: 100,
+    }),
+    "o-cf-preview-list": () => ({
+      y: 0,
+      height: model.getters.getConditionalFormats(sheetId).length * 100,
+    }),
+  });
 
   beforeEach(async () => {
     ({ model, fixture } = await mountComponent(Parent, {
       props: { onCloseSidePanel: () => {} },
     }));
+    sheetId = model.getters.getActiveSheetId();
   });
 
   describe("Conditional format list", () => {
@@ -415,43 +428,27 @@ describe("UI of conditional formats", () => {
       });
     });
 
-    test("can the reordering CF Rules menu be opened/closed", async () => {
-      const previews = document.querySelectorAll(selectors.listPreview);
-
-      expect(document.querySelector(selectors.buttonExitReorder)).toBeFalsy();
-      expect(document.querySelector(selectors.cfReorder.buttonUp)).toBeFalsy();
-      expect(document.querySelector(selectors.cfReorder.buttonDown)).toBeFalsy();
-
-      await click(fixture, selectors.buttonReoder);
-
-      expect(document.querySelector(selectors.buttonExitReorder)).toBeTruthy();
-      // Minus one because top rule has no up button, bottom rule no down button
-      expect(document.querySelectorAll(selectors.cfReorder.buttonUp).length).toEqual(
-        previews.length - 1
-      );
-      expect(document.querySelectorAll(selectors.cfReorder.buttonDown).length).toEqual(
-        previews.length - 1
-      );
-
-      await click(fixture, selectors.buttonExitReorder);
-
-      expect(document.querySelector(selectors.buttonExitReorder)).toBeFalsy();
-      expect(document.querySelector(selectors.cfReorder.buttonUp)).toBeFalsy();
-      expect(document.querySelector(selectors.cfReorder.buttonDown)).toBeFalsy();
+    test("can reorder CF rules with drag & drop", async () => {
+      await dragElement(`.o-cf-preview[data-id="1"]`, { x: 0, y: 200 }, undefined, true);
+      expect(model.getters.getConditionalFormats(sheetId)).toMatchObject([
+        { id: "2" },
+        { id: "1" },
+      ]);
     });
 
-    test("can reorder CF rules with up/down buttons", async () => {
-      const sheetId = model.getters.getActiveSheetId();
+    test("Drag & drop is canceled when a CF is modified", async () => {
+      const previewEl = fixture.querySelector<HTMLElement>(`.o-cf-preview[data-id="1"]`)!;
+      await dragElement(previewEl, { x: 0, y: 200 });
 
-      await click(fixture, selectors.buttonReoder);
+      expect(previewEl.style.transition).toBe("top 0s");
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99"),
+        ranges: toRangesData(sheetId, "C1:C5"),
+        sheetId,
+      });
+      await nextTick();
 
-      let previews = document.querySelectorAll(selectors.listPreview);
-      await click(previews[0], selectors.cfReorder.buttonDown);
-      expect(model.getters.getConditionalFormats(sheetId)[0].id).toEqual("2");
-
-      previews = document.querySelectorAll(selectors.listPreview);
-      await click(previews[1], selectors.cfReorder.buttonUp);
-      expect(model.getters.getConditionalFormats(sheetId)[0].id).toEqual("1");
+      expect(previewEl.style.transition).toBe("");
     });
   });
 

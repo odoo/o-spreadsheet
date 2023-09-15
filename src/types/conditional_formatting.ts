@@ -157,5 +157,3 @@ export type ConditionalFormattingOperatorValues =
   | "NotBetween"
   | "NotContains"
   | "NotEqual";
-
-export type UpDown = "up" | "down";

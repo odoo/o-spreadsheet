@@ -707,6 +707,20 @@ describe("BottomBar component", () => {
       expect(model.getters.getVisibleSheetIds()).toEqual(["Sheet1", "Sheet4", "Sheet2", "Sheet3"]);
     });
 
+    test("Sheet position is updated when scrolling", async () => {
+      activateSheet(model, "Sheet0");
+      await nextTick();
+
+      await dragSheet("Sheet1", { mouseMoveX: 0, mouseUp: false, mouseInitialX: 0 });
+      const sheetList = fixture.querySelector(".o-sheet-list")!;
+      sheetList.scrollLeft = 120;
+      sheetList.dispatchEvent(new Event("scroll")); // JSDOm don't trigger scroll event when the scrollLeft is changed...
+
+      triggerMouseEvent(document, "mouseup");
+      const sheetIds = model.getters.getVisibleSheetIds();
+      expect(sheetIds).toEqual(["Sheet2", "Sheet1", "Sheet3", "Sheet4"]);
+    });
+
     test("Can edge scroll to the right", async () => {
       createSheet(model, { sheetId: "Sheet5", position: model.getters.getSheetIds().length });
       createSheet(model, { sheetId: "Sheet6", position: model.getters.getSheetIds().length });
@@ -714,11 +728,14 @@ describe("BottomBar component", () => {
       createSheet(model, { sheetId: "Sheet8", position: model.getters.getSheetIds().length });
       createSheet(model, { sheetId: "Sheet9", position: model.getters.getSheetIds().length });
       createSheet(model, { sheetId: "Sheet10", position: model.getters.getSheetIds().length });
-      activateSheet(model, "Sheet0");
+      activateSheet(model, "Sheet1");
       await nextTick();
 
       await dragSheet("Sheet1", { mouseMoveX: 600, mouseUp: false, mouseInitialX: 0 });
       jest.advanceTimersByTime(5000);
+      const sheetList = fixture.querySelector(".o-sheet-list")!;
+      sheetList.dispatchEvent(new Event("scroll")); // JSDOm don't trigger scroll event when the scrollLeft is changed...
+
       triggerMouseEvent(document, "mouseup");
       const sheetIds = model.getters.getVisibleSheetIds();
       expect(sheetIds[sheetIds.length - 1]).toEqual("Sheet1");
@@ -736,6 +753,9 @@ describe("BottomBar component", () => {
 
       await dragSheet("Sheet10", { mouseMoveX: -500, mouseUp: false, mouseInitialX: 400 });
       jest.advanceTimersByTime(5000);
+      const sheetList = fixture.querySelector(".o-sheet-list")!;
+      sheetList.dispatchEvent(new Event("scroll")); // JSDOm don't trigger scroll event when the scrollLeft is changed...
+
       triggerMouseEvent(document, "mouseup");
       expect(model.getters.getVisibleSheetIds()[0]).toEqual("Sheet10");
     });

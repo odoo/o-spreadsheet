@@ -4,11 +4,11 @@ import {
   activateSheet,
   addColumns,
   addRows,
+  changeCFPriority,
   createSheet,
   deleteCells,
   deleteColumns,
   deleteRows,
-  moveConditionalFormat,
   redo,
   setCellContent,
   setStyle,
@@ -23,6 +23,7 @@ import {
   toCellPosition,
   toRangesData,
 } from "../test_helpers/helpers";
+
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;
@@ -614,101 +615,111 @@ describe("conditional format", () => {
   });
 
   test("cannot send invalid arguments to conditional format rules command", () => {
-    const idRule1 = "1";
-    const idRule2 = "2";
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF("1", { fillColor: "#FF0000" }, idRule1),
+      cf: createEqualCF("1", { fillColor: "#FF0000" }, "idRule1"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF("1", { fillColor: "#0000FF" }, idRule2),
+      cf: createEqualCF("1", { fillColor: "#0000FF" }, "idRule2"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
 
-    expect(moveConditionalFormat(model, "3", "up", sheetId).isSuccessful).toBeFalsy();
-    expect(moveConditionalFormat(model, idRule2, "up", "notAnId").isSuccessful).toBeFalsy();
-    expect(moveConditionalFormat(model, idRule1, "up", sheetId).isSuccessful).toBeFalsy();
-    expect(moveConditionalFormat(model, idRule2, "down", sheetId).isSuccessful).toBeFalsy();
+    expect(changeCFPriority(model, "3", 1, sheetId)).not.toBeSuccessfullyDispatched();
+    expect(changeCFPriority(model, "idRule2", 1, "notAnId")).not.toBeSuccessfullyDispatched();
+    expect(changeCFPriority(model, "idRule1", 1, sheetId)).not.toBeSuccessfullyDispatched();
+    expect(changeCFPriority(model, "idRule2", -1, sheetId)).not.toBeSuccessfullyDispatched();
   });
 
-  test("Reorde conditional format rules command", () => {
-    const idRule1 = "1";
-    const idRule2 = "2";
+  test("Reorder conditional format rules command", () => {
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF("1", { fillColor: "#FF0000" }, idRule1),
+      cf: createEqualCF("1", { fillColor: "#FF0000" }, "idRule1"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF("1", { fillColor: "#0000FF" }, idRule2),
+      cf: createEqualCF("1", { fillColor: "#0000FF" }, "idRule2"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("1", { fillColor: "#00FF00" }, "idRule3"),
+      ranges: toRangesData(sheetId, "A1"),
+      sheetId,
+    });
+
     let formats = model.getters.getConditionalFormats(sheetId);
-    expect(formats[0].id).toEqual(idRule1);
-    expect(formats[1].id).toEqual(idRule2);
+    expect(formats[0].id).toEqual("idRule1");
+    expect(formats[1].id).toEqual("idRule2");
 
-    moveConditionalFormat(model, idRule1, "down", sheetId);
+    changeCFPriority(model, "idRule2", 1);
     formats = model.getters.getConditionalFormats(sheetId);
-    expect(formats[0].id).toEqual(idRule2);
-    expect(formats[1].id).toEqual(idRule1);
+    expect(formats[0].id).toEqual("idRule2");
+    expect(formats[1].id).toEqual("idRule1");
 
-    moveConditionalFormat(model, idRule1, "up", sheetId);
+    changeCFPriority(model, "idRule2", -1);
     formats = model.getters.getConditionalFormats(sheetId);
-    expect(formats[0].id).toEqual(idRule1);
-    expect(formats[1].id).toEqual(idRule2);
+    expect(formats[0].id).toEqual("idRule1");
+    expect(formats[1].id).toEqual("idRule2");
+
+    changeCFPriority(model, "idRule1", -2);
+    formats = model.getters.getConditionalFormats(sheetId);
+    expect(formats[0].id).toEqual("idRule2");
+    expect(formats[1].id).toEqual("idRule3");
+    expect(formats[2].id).toEqual("idRule1");
+
+    changeCFPriority(model, "idRule1", 2);
+    formats = model.getters.getConditionalFormats(sheetId);
+    expect(formats[0].id).toEqual("idRule1");
+    expect(formats[1].id).toEqual("idRule2");
+    expect(formats[2].id).toEqual("idRule3");
   });
 
   test("Reorder format rules command can be undo/redo", () => {
-    const idRule1 = "1";
-    const idRule2 = "2";
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF("1", { fillColor: "#FF0000" }, idRule1),
+      cf: createEqualCF("1", { fillColor: "#FF0000" }, "idRule1"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF("1", { fillColor: "#0000FF" }, idRule2),
+      cf: createEqualCF("1", { fillColor: "#0000FF" }, "idRule2"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
     let formats = model.getters.getConditionalFormats(sheetId);
-    moveConditionalFormat(model, idRule1, "down", sheetId);
+    changeCFPriority(model, "idRule1", -1);
     formats = model.getters.getConditionalFormats(sheetId);
-    expect(formats[0].id).toEqual(idRule2);
-    expect(formats[1].id).toEqual(idRule1);
+    expect(formats[0].id).toEqual("idRule2");
+    expect(formats[1].id).toEqual("idRule1");
 
     undo(model);
     formats = model.getters.getConditionalFormats(sheetId);
-    expect(formats[0].id).toEqual(idRule1);
-    expect(formats[1].id).toEqual(idRule2);
+    expect(formats[0].id).toEqual("idRule1");
+    expect(formats[1].id).toEqual("idRule2");
 
     redo(model);
     formats = model.getters.getConditionalFormats(sheetId);
-    expect(formats[0].id).toEqual(idRule2);
-    expect(formats[1].id).toEqual(idRule1);
+    expect(formats[0].id).toEqual("idRule2");
+    expect(formats[1].id).toEqual("idRule1");
   });
 
   test("conditional format is re-evaluated when order changes", () => {
     setCellContent(model, "A1", "1");
-    const idRule1 = "1";
-    const idRule2 = "2";
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF("1", { fillColor: "#FF0000" }, idRule1),
+      cf: createEqualCF("1", { fillColor: "#FF0000" }, "idRule1"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF("1", { fillColor: "#0000FF" }, idRule2),
+      cf: createEqualCF("1", { fillColor: "#0000FF" }, "idRule2"),
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
     expect(getStyle(model, "A1")).toEqual({
       fillColor: "#FF0000",
     });
-    moveConditionalFormat(model, idRule1, "down", sheetId);
+    changeCFPriority(model, "idRule2", 1, sheetId);
     expect(getStyle(model, "A1")).toEqual({
       fillColor: "#0000FF",
     });

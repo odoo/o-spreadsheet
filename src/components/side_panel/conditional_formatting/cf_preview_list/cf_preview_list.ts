@@ -1,14 +1,16 @@
-import { Component, useState } from "@odoo/owl";
-import { colorNumberString } from "../../../../helpers";
+import { Component, onWillUpdateProps, useRef } from "@odoo/owl";
+import { colorNumberString, deepEquals } from "../../../../helpers";
 import { _t } from "../../../../translation";
 import {
   ColorScaleRule,
   ConditionalFormat,
   SingleColorRules,
   SpreadsheetChildEnv,
-  UpDown,
+  UID,
 } from "../../../../types";
 import { cellStyleToCss, css, cssPropertiesToCss } from "../../../helpers";
+import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
+import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_hook";
 import { ICONS } from "../../../icons/icons";
 import { CellIsOperators, CfTerms } from "../../../translations_terms";
 
@@ -23,9 +25,12 @@ css/* scss */ `
       height: 60px;
       padding: 10px;
       position: relative;
-      &:hover {
-        background-color: rgba(0, 0, 0, 0.08);
+      cursor: pointer;
+      &:hover,
+      &.o-cf-dragging {
+        background-color: #ebebeb;
       }
+
       &:not(:hover) .o-cf-delete-button {
         display: none;
       }
@@ -58,30 +63,16 @@ css/* scss */ `
         top: 39%;
         position: absolute;
       }
-      .o-cf-reorder {
-        color: gray;
-        left: 90%;
-        position: absolute;
-        height: 100%;
-        width: 10%;
+      &:not(:hover):not(.o-cf-dragging) .o-cf-drag-handle {
+        display: none !important;
       }
-      .o-cf-reorder-button:hover {
-        cursor: pointer;
-        background-color: rgba(0, 0, 0, 0.08);
-      }
-      .o-cf-reorder-button-up {
-        width: 15px;
-        height: 20px;
-        padding: 5px;
-        padding-top: 0px;
-      }
-      .o-cf-reorder-button-down {
-        width: 15px;
-        height: 20px;
-        bottom: 20px;
-        padding: 5px;
-        padding-top: 0px;
-        position: absolute;
+      .o-cf-drag-handle {
+        left: -8px;
+        cursor: move;
+        .o-icon {
+          width: 6px;
+          height: 30px;
+        }
       }
     }
   }
@@ -92,20 +83,25 @@ interface Props {
   onAddConditionalFormat: () => void;
 }
 
-type Mode = "list" | "reorder";
-
-interface State {
-  mode: Mode;
-}
-
 export class ConditionalFormatPreviewList extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ConditionalFormatPreviewList";
 
   icons = ICONS;
 
-  state = useState<State>({
-    mode: "list",
-  });
+  private dragAndDrop = useDragAndDropListItems();
+  private cfListRef = useRef("cfList");
+
+  setup() {
+    onWillUpdateProps((nextProps: Props) => {
+      if (!deepEquals(this.props.conditionalFormats, nextProps.conditionalFormats)) {
+        this.dragAndDrop.cancel();
+      }
+    });
+  }
+
+  getPreviewDivStyle(cf: ConditionalFormat): string {
+    return this.dragAndDrop.itemsStyle[cf.id] || "";
+  }
 
   getPreviewImageStyle(rule: SingleColorRules | ColorScaleRule): string {
     if (rule.type === "CellIsRule") {
@@ -147,20 +143,36 @@ export class ConditionalFormatPreviewList extends Component<Props, SpreadsheetCh
     });
   }
 
-  reorderConditionalFormats() {
-    this.state.mode = "reorder";
-  }
+  onMouseDown(cf: ConditionalFormat, event: MouseEvent) {
+    if (event.button !== 0) return;
 
-  reorderRule(cf: ConditionalFormat, direction: UpDown) {
-    this.env.model.dispatch("MOVE_CONDITIONAL_FORMAT", {
-      cfId: cf.id,
-      direction: direction,
-      sheetId: this.env.model.getters.getActiveSheetId(),
+    const previewRects = Array.from(this.cfListRef.el!.children).map((previewEl) =>
+      getBoundingRectAsPOJO(previewEl)
+    );
+    const items = this.props.conditionalFormats.map((cf, index) => ({
+      id: cf.id,
+      size: previewRects[index].height,
+      position: previewRects[index].y,
+    }));
+    this.dragAndDrop.start("vertical", {
+      draggedItemId: cf.id,
+      initialMousePosition: event.clientY,
+      items: items,
+      containerEl: this.cfListRef.el!,
+      onDragEnd: (cfId: UID, finalIndex: number) => this.onDragEnd(cfId, finalIndex),
     });
   }
 
-  stopReorder() {
-    this.state.mode = "list";
+  private onDragEnd(cfId: UID, finalIndex: number) {
+    const originalIndex = this.props.conditionalFormats.findIndex((sheet) => sheet.id === cfId);
+    const delta = originalIndex - finalIndex;
+    if (delta !== 0) {
+      this.env.model.dispatch("CHANGE_CONDITIONAL_FORMAT_PRIORITY", {
+        cfId,
+        delta,
+        sheetId: this.env.model.getters.getActiveSheetId(),
+      });
+    }
   }
 }
 
