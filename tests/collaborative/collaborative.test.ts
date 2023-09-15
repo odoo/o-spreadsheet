@@ -11,6 +11,7 @@ import {
   addColumns,
   addDataValidation,
   addRows,
+  changeCFPriority,
   clearCell,
   copy,
   createChart,
@@ -23,7 +24,6 @@ import {
   hideRows,
   hideSheet,
   merge,
-  moveConditionalFormat,
   paste,
   redo,
   selectCell,
@@ -889,8 +889,8 @@ describe("Multi users synchronisation", () => {
       sheetId,
     });
     network.concurrent(() => {
-      moveConditionalFormat(bob, "3", "up", sheetId);
-      moveConditionalFormat(alice, "3", "up", sheetId);
+      changeCFPriority(bob, "3", 1, sheetId);
+      changeCFPriority(alice, "3", 1, sheetId);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getStyle(user, "A1"), {
       fillColor: "#00FF00",
@@ -923,7 +923,7 @@ describe("Multi users synchronisation", () => {
       sheetId,
     });
     network.concurrent(() => {
-      moveConditionalFormat(bob, "2", "up", sheetId);
+      changeCFPriority(bob, "2", -1, sheetId);
       alice.dispatch("REMOVE_CONDITIONAL_FORMAT", {
         id: "2",
         sheetId: sheetId,

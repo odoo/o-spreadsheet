@@ -3,7 +3,6 @@ import { ComposerSelection } from "../plugins/ui_stateful/edition";
 import { CellPopoverType } from "./cell_popovers";
 import { ChartDefinition } from "./chart/chart";
 import { ClipboardPasteOptions } from "./clipboard";
-import { UpDown } from "./conditional_formatting";
 import { FigureSize } from "./figure";
 import { Image } from "./image";
 import {
@@ -130,7 +129,7 @@ export const invalidateCFEvaluationCommands = new Set<CoreViewCommandTypes>([
   "EVALUATE_CELLS",
   "ADD_CONDITIONAL_FORMAT",
   "REMOVE_CONDITIONAL_FORMAT",
-  "MOVE_CONDITIONAL_FORMAT",
+  "CHANGE_CONDITIONAL_FORMAT_PRIORITY",
 ]);
 
 export const readonlyAllowedCommands = new Set<CommandTypes>([
@@ -198,7 +197,7 @@ export const coreTypes = new Set<CoreCommandTypes>([
   /** CONDITIONAL FORMAT */
   "ADD_CONDITIONAL_FORMAT",
   "REMOVE_CONDITIONAL_FORMAT",
-  "MOVE_CONDITIONAL_FORMAT",
+  "CHANGE_CONDITIONAL_FORMAT_PRIORITY",
 
   /** FIGURES */
   "CREATE_FIGURE",
@@ -429,9 +428,9 @@ export interface RemoveConditionalFormatCommand extends SheetDependentCommand {
 }
 
 export interface MoveConditionalFormatCommand extends SheetDependentCommand {
-  type: "MOVE_CONDITIONAL_FORMAT";
+  type: "CHANGE_CONDITIONAL_FORMAT_PRIORITY";
   cfId: UID;
-  direction: UpDown;
+  delta: number;
 }
 
 //------------------------------------------------------------------------------

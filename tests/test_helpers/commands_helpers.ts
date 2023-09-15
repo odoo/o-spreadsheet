@@ -17,7 +17,6 @@ import {
   SplitTextIntoColumnsCommand,
   Style,
   UID,
-  UpDown,
 } from "../../src/types";
 import { BarChartDefinition } from "../../src/types/chart/bar_chart";
 import { GaugeChartDefinition } from "../../src/types/chart/gauge_chart";
@@ -588,17 +587,13 @@ export function addCellToSelection(model: Model, xc: string): DispatchResult {
 /**
  * Move a conditianal formatting rule
  */
-export function moveConditionalFormat(
+export function changeCFPriority(
   model: Model,
   cfId: UID,
-  direction: UpDown,
-  sheetId: UID
+  delta: number,
+  sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
-  return model.dispatch("MOVE_CONDITIONAL_FORMAT", {
-    cfId: cfId,
-    direction: direction,
-    sheetId,
-  });
+  return model.dispatch("CHANGE_CONDITIONAL_FORMAT_PRIORITY", { cfId, delta, sheetId });
 }
 
 export function setSelection(

@@ -28,7 +28,7 @@
           t-ref="sheetList"
           t-on-wheel="onWheel"
           t-on-scroll="onScroll">
-          <t t-foreach="getSheets()" t-as="sheet" t-key="sheet.id">
+          <t t-foreach="getVisibleSheets()" t-as="sheet" t-key="sheet.id">
             <BottomBarSheet
               style="getSheetStyle(sheet.id)"
               sheetId="sheet.id"

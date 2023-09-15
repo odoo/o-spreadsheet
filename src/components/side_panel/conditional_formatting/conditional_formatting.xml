@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-ConditionalFormattingPanel">
-    <div class="o-cf">
+    <div class="o-cf h-100">
       <t t-if="state.mode === 'list'">
         <ConditionalFormatPreviewList
           conditionalFormats="conditionalFormats"

@@ -5,6 +5,7 @@ import { FigureComponent } from "./components/figures/figure/figure";
 import { ChartFigure } from "./components/figures/figure_chart/figure_chart";
 import { Grid } from "./components/grid/grid";
 import { GridOverlay } from "./components/grid_overlay/grid_overlay";
+import { useDragAndDropListItems } from "./components/helpers/drag_and_drop_hook";
 import { Menu } from "./components/menu/menu";
 import {
   BarConfigPanel,
@@ -234,6 +235,10 @@ export const components = {
   ScorecardChartDesignPanel,
   FigureComponent,
   Menu,
+};
+
+export const hooks = {
+  useDragAndDropListItems,
 };
 
 export function addFunction(functionName: string, functionDescription: AddFunctionDescription) {

@@ -166,11 +166,11 @@ export const TEST_COMMANDS: CommandMapping = {
     id: "cfId",
     sheetId: "sheetId",
   },
-  MOVE_CONDITIONAL_FORMAT: {
-    type: "MOVE_CONDITIONAL_FORMAT",
+  CHANGE_CONDITIONAL_FORMAT_PRIORITY: {
+    type: "CHANGE_CONDITIONAL_FORMAT_PRIORITY",
     sheetId: "sheetId",
     cfId: "cfId",
-    direction: "up",
+    delta: 1,
   },
   CREATE_FIGURE: {
     type: "CREATE_FIGURE",

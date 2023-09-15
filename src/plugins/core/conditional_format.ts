@@ -18,7 +18,6 @@ import {
   IconSetRule,
   IconThreshold,
   UID,
-  UpDown,
   Validation,
   WorkbookData,
   Zone,
@@ -113,8 +112,8 @@ export class ConditionalFormatPlugin
     switch (cmd.type) {
       case "ADD_CONDITIONAL_FORMAT":
         return this.checkValidations(cmd, this.checkCFRule, this.checkEmptyRange);
-      case "MOVE_CONDITIONAL_FORMAT":
-        return this.checkValidReordering(cmd.cfId, cmd.direction, cmd.sheetId);
+      case "CHANGE_CONDITIONAL_FORMAT_PRIORITY":
+        return this.checkValidPriorityChange(cmd.cfId, cmd.delta, cmd.sheetId);
     }
     return CommandResult.Success;
   }
@@ -147,8 +146,8 @@ export class ConditionalFormatPlugin
       case "REMOVE_CONDITIONAL_FORMAT":
         this.removeConditionalFormatting(cmd.id, cmd.sheetId);
         break;
-      case "MOVE_CONDITIONAL_FORMAT":
-        this.reorderConditionalFormatting(cmd.cfId, cmd.direction, cmd.sheetId);
+      case "CHANGE_CONDITIONAL_FORMAT_PRIORITY":
+        this.changeCFPriority(cmd.cfId, cmd.delta, cmd.sheetId);
         break;
     }
   }
@@ -288,12 +287,12 @@ export class ConditionalFormatPlugin
     this.history.update("cfRules", sheet, currentCF);
   }
 
-  private checkValidReordering(cfId: string, direction: string, sheetId: string) {
+  private checkValidPriorityChange(cfId: string, delta: number, sheetId: string) {
     if (!this.cfRules[sheetId]) return CommandResult.InvalidSheetId;
     const ruleIndex = this.cfRules[sheetId].findIndex((cf) => cf.id === cfId);
     if (ruleIndex === -1) return CommandResult.InvalidConditionalFormatId;
 
-    const cfIndex2 = direction === "up" ? ruleIndex - 1 : ruleIndex + 1;
+    const cfIndex2 = ruleIndex - delta;
     if (cfIndex2 < 0 || cfIndex2 >= this.cfRules[sheetId].length) {
       return CommandResult.InvalidConditionalFormatId;
     }
@@ -503,17 +502,14 @@ export class ConditionalFormatPlugin
     }
   }
 
-  private reorderConditionalFormatting(cfId: UID, direction: UpDown, sheetId: UID) {
-    const cfIndex1 = this.cfRules[sheetId].findIndex((s) => s.id === cfId);
-    const cfIndex2 = direction === "up" ? cfIndex1 - 1 : cfIndex1 + 1;
-    if (cfIndex2 < 0 || cfIndex2 >= this.cfRules[sheetId].length) return;
+  private changeCFPriority(cfId: UID, delta: number, sheetId: UID) {
+    const currentIndex = this.cfRules[sheetId].findIndex((s) => s.id === cfId);
+    const cf = this.cfRules[sheetId][currentIndex];
+    const targetIndex = currentIndex - delta; // priority goes up when index goes down
 
-    if (cfIndex1 !== -1 && cfIndex2 !== -1) {
-      const currentCF = [...this.cfRules[sheetId]];
-      const tmp = currentCF[cfIndex1];
-      currentCF[cfIndex1] = currentCF[cfIndex2];
-      currentCF[cfIndex2] = tmp;
-      this.history.update("cfRules", sheetId, currentCF);
-    }
+    const cfRules = [...this.cfRules[sheetId]];
+    cfRules.splice(currentIndex, 1);
+    cfRules.splice(targetIndex, 0, cf);
+    this.history.update("cfRules", sheetId, cfRules);
   }
 }
