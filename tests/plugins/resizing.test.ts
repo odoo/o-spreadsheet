@@ -257,6 +257,15 @@ describe("Model resizer", () => {
       expect(model.getters.getRowSize(sheetId, 3)).toEqual(20);
     });
 
+    test("Remove added row at the end with some content", () => {
+      let lastRow = model.getters.getNumberRows(sheetId) - 1;
+      addRows(model, "after", lastRow, 1);
+      lastRow += 1;
+      setCellContent(model, toXC(0, lastRow), "Hello");
+      deleteRows(model, [lastRow]);
+      expect(model.getters.getRowSize(sheetId, lastRow)).toEqual(DEFAULT_CELL_HEIGHT);
+    });
+
     test("Add row before", () => {
       addRows(model, "after", 0, 2, sheetId);
       expect(model.getters.getRowSize(sheetId, 2)).toEqual(DEFAULT_CELL_HEIGHT);
@@ -271,6 +280,13 @@ describe("Model resizer", () => {
       expect(model.getters.getRowSize(sheetId, 3)).toEqual(20);
       expect(model.getters.getRowSize(sheetId, 4)).toEqual(DEFAULT_CELL_HEIGHT);
       expect(model.getters.getRowSize(sheetId, 5)).toEqual(DEFAULT_CELL_HEIGHT);
+    });
+
+    test("added row is independent from base row", () => {
+      addRows(model, "after", 0, 1, sheetId);
+      setStyle(model, "A1", { fontSize: 36 });
+      expect(model.getters.getRowSize(sheetId, 0)).toEqual(getDefaultCellHeight({ fontSize: 36 }));
+      expect(model.getters.getRowSize(sheetId, 1)).toEqual(DEFAULT_CELL_HEIGHT);
     });
   });
 
