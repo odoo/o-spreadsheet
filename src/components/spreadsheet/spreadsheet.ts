@@ -177,6 +177,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       model: this.model,
       isDashboard: () => this.model.getters.isDashboard(),
       openSidePanel: this.openSidePanel.bind(this),
+      closeSidePanel: this.closeSidePanel.bind(this),
       toggleSidePanel: this.toggleSidePanel.bind(this),
       _t: Spreadsheet._t,
       clipboard: navigator.clipboard,

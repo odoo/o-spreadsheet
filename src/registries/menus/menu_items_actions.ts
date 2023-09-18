@@ -286,6 +286,7 @@ export const REMOVE_COLUMNS_ACTION = (env: SpreadsheetChildEnv) => {
       columns.push(i);
     }
   }
+  env.closeSidePanel!();
   env.model.dispatch("REMOVE_COLUMNS_ROWS", {
     sheetId: env.model.getters.getActiveSheetId(),
     dimension: "COL",
@@ -350,6 +351,7 @@ export const INSERT_ROWS_BEFORE_ACTION = (env: SpreadsheetChildEnv) => {
     row = zone.top;
     quantity = zone.bottom - zone.top + 1;
   }
+  env.closeSidePanel!();
   env.model.dispatch("ADD_COLUMNS_ROWS", {
     sheetId: env.model.getters.getActiveSheetId(),
     position: "before",
@@ -384,6 +386,7 @@ export const INSERT_ROWS_AFTER_ACTION = (env: SpreadsheetChildEnv) => {
     row = zone.bottom;
     quantity = zone.bottom - zone.top + 1;
   }
+  env.closeSidePanel!();
   env.model.dispatch("ADD_COLUMNS_ROWS", {
     sheetId: env.model.getters.getActiveSheetId(),
     position: "after",
@@ -428,6 +431,7 @@ export const INSERT_COLUMNS_BEFORE_ACTION = (env: SpreadsheetChildEnv) => {
     column = zone.left;
     quantity = zone.right - zone.left + 1;
   }
+  env.closeSidePanel!();
   env.model.dispatch("ADD_COLUMNS_ROWS", {
     sheetId: env.model.getters.getActiveSheetId(),
     position: "before",
@@ -464,6 +468,7 @@ export const INSERT_COLUMNS_AFTER_ACTION = (env: SpreadsheetChildEnv) => {
     column = zone.right;
     quantity = zone.right - zone.left + 1;
   }
+  env.closeSidePanel!();
   env.model.dispatch("ADD_COLUMNS_ROWS", {
     sheetId: env.model.getters.getActiveSheetId(),
     position: "after",
