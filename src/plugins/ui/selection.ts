@@ -420,12 +420,19 @@ export class GridSelectionPlugin extends UIPlugin {
   }
 
   getStatisticFnResults(): { [name: string]: number | undefined } {
+    const sheetId = this.getters.getActiveSheetId();
     // get deduplicated cells in zones
     const cells = new Set(
       this.gridSelection.zones
-        .map((zone) => this.getters.getCellsInZone(this.getters.getActiveSheetId(), zone))
+        .map((zone) => this.getters.getCellsInZone(sheetId, zone))
         .flat()
-        .filter((cell) => cell !== undefined)
+        .filter((cell) => {
+          if (!cell) {
+            return false;
+          }
+          const { col, row } = this.getters.getCellPosition(cell?.id!);
+          return !this.getters.isRowHidden(sheetId, row) && !this.getters.isColHidden(sheetId, col);
+        })
     );
 
     let cellsTypes = new Set<CellValueType>();
