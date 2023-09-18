@@ -7,6 +7,7 @@ import {
   addColumns,
   addRows,
   createSheet,
+  hideRows,
   redo,
   resizeColumns,
   resizeRows,
@@ -45,6 +46,21 @@ describe("core", () => {
       // A2 is now present in two selection
       statisticFnResults = model.getters.getStatisticFnResults();
       expect(statisticFnResults["Count"]).toBe(3);
+    });
+
+    test("statistic function should not include hidden rows/columns in calculations", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "A2", "2");
+      setCellContent(model, "A3", "3");
+
+      setSelection(model, ["A1:A4"]);
+      let statisticFnResults = model.getters.getStatisticFnResults();
+      expect(statisticFnResults["Sum"]).toBe(6);
+
+      hideRows(model, [1, 2]);
+      statisticFnResults = model.getters.getStatisticFnResults();
+      expect(statisticFnResults["Sum"]).toBe(1);
     });
 
     describe("return undefined if the types handled by the function are not present among the types of the selected cells", () => {

@@ -422,13 +422,21 @@ export class GridSelectionPlugin extends UIPlugin {
   }
 
   getStatisticFnResults(): { [name: string]: number | undefined } {
-    // get deduplicated cells in zones
-    const cells = new Set(
-      this.gridSelection.zones
-        .map((zone) => this.getters.getEvaluatedCellsInZone(this.getters.getActiveSheetId(), zone))
-        .flat()
-        .filter((cell) => cell.type !== CellValueType.empty)
-    );
+    const sheetId = this.getters.getActiveSheetId();
+    const cells = new Set<EvaluatedCell>();
+
+    for (const zone of this.gridSelection.zones) {
+      for (const { col, row } of positions(zone)) {
+        if (this.getters.isRowHidden(sheetId, row) || this.getters.isColHidden(sheetId, col)) {
+          continue; // Skip hidden cells
+        }
+
+        const evaluatedCell = this.getters.getEvaluatedCell({ sheetId, col, row });
+        if (evaluatedCell.type !== CellValueType.empty) {
+          cells.add(evaluatedCell);
+        }
+      }
+    }
 
     let cellsTypes = new Set<CellValueType>();
     let cellsValues: (string | number | boolean)[] = [];
