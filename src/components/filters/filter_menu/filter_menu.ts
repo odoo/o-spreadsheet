@@ -154,6 +154,10 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
     this.state.values = this.getFilterValues(this.props.filterPosition);
   }
 
+  get isReadonly() {
+    return this.env.model.getters.isReadonly();
+  }
+
   private getFilterValues(position: Position): Value[] {
     const sheetId = this.env.model.getters.getActiveSheetId();
     const filter = this.env.model.getters.getFilter(sheetId, position.col, position.row);
