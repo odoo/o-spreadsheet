@@ -1,9 +1,11 @@
-const { readFileSync } = require("fs");
-const path = require("path");
+import { execSync } from "child_process";
+import { readFileSync } from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
-const { execSync } = require("child_process");
+const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
-function outro() {
+export function outro() {
   return `
 __info__.version = "${BUILD_INFOS.version}";
 __info__.date = "${BUILD_INFOS.date}";
@@ -11,7 +13,7 @@ __info__.hash = "${BUILD_INFOS.hash}";
 `;
 }
 
-function jsBanner() {
+export function jsBanner() {
   return `
 /**
 ${BANNER_MESSAGE.map((line) => ` * ${line}`).join("\n")}
@@ -19,7 +21,7 @@ ${BANNER_MESSAGE.map((line) => ` * ${line}`).join("\n")}
 `;
 }
 
-function xmlBanner() {
+export function xmlBanner() {
   return `
 <!--
 ${BANNER_MESSAGE.map((line) => ` ${line}`).join("\n")}
@@ -29,7 +31,7 @@ ${BANNER_MESSAGE.map((line) => ` ${line}`).join("\n")}
 
 // Use __dirname to make the path relative to the current source
 // file instead of process.cwd()
-const packageJson = JSON.parse(readFileSync(path.join("__dirname", "../package.json")));
+const packageJson = JSON.parse(readFileSync(path.join(__dirname, "../package.json")));
 const version = packageJson.version;
 
 const RED = "\x1b[31m%s\x1b[0m";
@@ -57,9 +59,3 @@ const BANNER_MESSAGE = [
   `@date ${BUILD_INFOS.date}`,
   `@hash ${BUILD_INFOS.hash}`,
 ];
-
-exports.bundle = {
-  outro,
-  jsBanner,
-  xmlBanner,
-};

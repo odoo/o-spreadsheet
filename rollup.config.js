@@ -2,9 +2,7 @@ import { nodeResolve } from "@rollup/plugin-node-resolve";
 import terser from "@rollup/plugin-terser";
 import dts from "rollup-plugin-dts";
 import typescript from "rollup-plugin-typescript2";
-import { bundle } from "./tools/bundle.cjs";
-
-const outro = bundle.outro();
+import { jsBanner, outro } from "./tools/bundle.js";
 
 /**
  * Get the rollup config based on the arguments
@@ -19,8 +17,8 @@ function getConfigForFormat(format, minified = false) {
     name: "o_spreadsheet",
     extend: true,
     globals: { "@odoo/owl": "owl" },
-    outro,
-    banner: bundle.jsBanner(),
+    outro: outro(),
+    banner: jsBanner(),
     plugins: minified ? [terser()] : [],
   };
 }
@@ -41,7 +39,7 @@ export default (commandLineArgs) => {
         name: "o_spreadsheet",
         extend: true,
         outro,
-        banner: bundle.jsBanner(),
+        banner: jsBanner(),
         globals: { "@odoo/owl": "owl" },
       },
     ];

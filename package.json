@@ -14,10 +14,10 @@
   "scripts": {
     "serve-static": "live-server --open=demo --watch=build/o_spreadsheet.js,build/o_spreadsheet.xml,demo",
     "dev": "npm-run-all --print-label build --parallel server serve-static watch:*",
-    "server": "node tools/server/main.cjs",
+    "server": "node tools/server/main.js",
     "build:js": "tsc --module es6 --incremental",
     "build:bundleJs": "rollup -c -m --configDev",
-    "build:bundleXml": "node tools/bundle_xml/main.cjs",
+    "build:bundleXml": "node tools/bundle_xml/main.js",
     "build": "npm-run-all build:js build:bundleJs \"build:bundleXml -- --outDir build\"",
     "doc": "typedoc",
     "precommit": "npm run prettier && npm run doc",
@@ -29,9 +29,9 @@
     "prepare": "husky install",
     "watch:bundle": "npm run build:bundleJs -- --watch",
     "watch:ts": "npm run build:js -- --watch",
-    "watch:xml": "node tools/bundle_xml/watch_xml_templates.cjs",
-    "unzipXlsx": "node tools/bundle_xlsx/unzip_xlsx_demo.cjs",
-    "zipXlsx": "node tools/bundle_xlsx/zip_xlsx_demo.cjs"
+    "watch:xml": "node tools/bundle_xml/watch_xml_templates.js",
+    "unzipXlsx": "node tools/bundle_xlsx/unzip_xlsx_demo.js",
+    "zipXlsx": "node tools/bundle_xlsx/zip_xlsx_demo.js"
   },
   "browserslist": [
     "last 1 Chrome versions"
@@ -53,12 +53,14 @@
   },
   "homepage": "https://github.com/odoo/o-spreadsheet#readme",
   "devDependencies": {
+    "@babel/preset-env": "^7.22.20",
     "@prettier/plugin-xml": "^2.2.0",
     "@rollup/plugin-node-resolve": "^15.2.0",
     "@rollup/plugin-terser": "^0.4.3",
     "@types/jest": "^27.0.1",
     "@types/node": "^13.13.23",
     "babel-eslint": "^10.1.0",
+    "babel-plugin-transform-import-meta": "^2.2.1",
     "body-parser": "^1.19.0",
     "chart.js": "4.3.0",
     "chartjs-adapter-luxon": "^1.3.1",
@@ -107,6 +109,17 @@
       "<rootDir>/tests"
     ],
     "transform": {
+      "^.+\\.(js|jsx)$": [
+        "babel-jest",
+        {
+          "presets": [
+            "@babel/preset-env"
+          ],
+          "plugins": [
+            "babel-plugin-transform-import-meta"
+          ]
+        }
+      ],
       "^.+\\.ts?$": [
         "ts-jest",
         {

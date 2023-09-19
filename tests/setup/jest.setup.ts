@@ -3,7 +3,7 @@
  */
 import { setDefaultSheetViewSize } from "../../src/constants";
 import { setTranslationMethod } from "../../src/translation";
-import { getParsedOwlTemplateBundle } from "../../tools/bundle_xml/bundle_xml_templates.cjs";
+import { getParsedOwlTemplateBundle } from "../../tools/bundle_xml/bundle_xml_templates.js";
 import "./canvas.mock";
 import "./jest_extend";
 import "./resize_observer.mock";

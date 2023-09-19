@@ -1,13 +1,16 @@
-const fs = require("fs");
-const path = require("path");
-const prettier = require("prettier");
+import fs from "fs";
+import path from "path";
+import prettier from "prettier";
+import { fileURLToPath } from "url";
 
-const config = require("../../package.json");
+const __dirname = fileURLToPath(new URL(".", import.meta.url));
+
+const config = JSON.parse(fs.readFileSync(path.join(__dirname, "../../package.json")));
 
 /**
  * Returns a bundle of all the xml templates, as a parsed xml Document
  */
-function getParsedOwlTemplateBundle() {
+export function getParsedOwlTemplateBundle() {
   const xml = getOwlTemplatesBundle();
   const parser = new DOMParser();
   const doc = parser.parseFromString(xml, "text/xml");
@@ -64,7 +67,7 @@ function createOwlTemplateBundle(files, removeRootTags) {
 /**
  * Write the xml bundle to the `dist` directory
  */
-async function writeOwlTemplateBundleToFile(dir, banner = "") {
+export async function writeOwlTemplateBundleToFile(dir, banner = "") {
   process.stdout.write(`Building xml template bundle in "${dir}/" ...`);
   let templateBundle = await getOwlTemplatesBundle(true);
   if (banner) {
@@ -95,6 +98,3 @@ function writeToFile(filepath, data) {
     }
   });
 }
-
-exports.getParsedOwlTemplateBundle = getParsedOwlTemplateBundle;
-exports.writeOwlTemplateBundleToFile = writeOwlTemplateBundleToFile;

@@ -2,12 +2,14 @@
  * This is not suitable for production use!
  * This is only a simplified implementation for demonstration purposes.
  */
-const formData = require("express-form-data");
-const express = require("express");
-const cors = require("cors");
-const fs = require("fs");
-const expressWS = require("express-ws")(express());
-const app = expressWS.app;
+import cors from "cors";
+import express from "express";
+import formData from "express-form-data";
+import expressWs from "express-ws";
+import fs from "fs";
+
+const app = express();
+const wsInstance = expressWs(app);
 
 //add middleware
 app.use(cors());
@@ -52,8 +54,8 @@ if (fs.existsSync(currentSessionFile)) {
 
 // setup the socket connection for the clients to connect
 
-const aWss = expressWS.getWss("/");
-expressWS.getWss().on("connection", (ws) => {
+const aWss = wsInstance.getWss("/");
+wsInstance.getWss().on("connection", (ws) => {
   log(`Connection: ${messages.length} messages have been sent`);
 });
 

@@ -1,6 +1,6 @@
-const { exec } = require("child_process");
+import { exec } from "child_process";
 
-let zipXlsxCommand = "sh ./tools/bundle_xlsx/zip_xlsx_demo.sh";
+let unzipXlsxCommand = "sh ./tools/bundle_xlsx/unzip_xlsx_demo.sh";
 if (process.platform === "win32") {
   exec("where wsl", (error) => {
     if (error !== null) {
@@ -9,10 +9,10 @@ if (process.platform === "win32") {
     }
   });
 
-  zipXlsxCommand = "wsl " + zipXlsxCommand;
+  unzipXlsxCommand = "wsl " + unzipXlsxCommand;
 }
 
-exec(zipXlsxCommand, (error, stdout, stderr) => {
+exec(unzipXlsxCommand, (error, stdout, stderr) => {
   console.log(stdout);
   console.log(stderr);
   if (error !== null) {
