@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-FilterMenu" owl="1">
     <div class="o-filter-menu d-flex flex-column bg-white" t-on-wheel.stop="">
-      <div>
+      <div t-if="!isReadonly">
         <div class="o-filter-menu-item" t-on-click="() => this.sortFilterZone('ascending')">
           Sort ascending (A ⟶ Z)
         </div>
@@ -9,7 +9,7 @@
           Sort descending (Z ⟶ A)
         </div>
       </div>
-      <div class="o-separator"/>
+      <div class="o-separator" t-if="!isReadonly"/>
       <div class="o-filter-menu-actions">
         <div class="o-filter-menu-action-text" t-on-click="selectAll">Select all</div>
         <div class="o-filter-menu-action-text" t-on-click="clearAll">Clear</div>
