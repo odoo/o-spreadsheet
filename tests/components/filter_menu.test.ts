@@ -297,4 +297,18 @@ describe("Filter menu component", () => {
       B15: { content: "ba" },
     });
   });
+
+  test("cannot sort filter table in readonly mode", async () => {
+    createFilter(model, "A10:B15");
+    await nextTick();
+    await openFilterMenu();
+    expect(
+      [...fixture.querySelectorAll(".o-filter-menu-item")].map((el) => el.textContent)
+    ).toEqual([" Sort ascending (A ⟶ Z) ", " Sort descending (Z ⟶ A) ", "✓(Blanks)"]);
+    model.updateMode("readonly");
+    await nextTick();
+    expect(
+      [...fixture.querySelectorAll(".o-filter-menu-item")].map((el) => el.textContent)
+    ).toEqual(["✓(Blanks)"]);
+  });
 });
