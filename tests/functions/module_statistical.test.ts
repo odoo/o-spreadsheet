@@ -1847,6 +1847,117 @@ describe.each([["QUARTILE"], ["QUARTILE.INC"], ["QUARTILE.EXC"]])("%s formula", 
   });
 });
 
+describe("RANK formula", () => {
+  test("functional tests on simple arguments with column data", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "1", B1: "=RANK(1, A1:A6, TRUE)",
+      A2: "3", B2: "=RANK(1, A1:A6, FALSE)",
+      A3: "1", B3: "=RANK(2, A1:A6, TRUE)",
+      A4: "2", B4: "=RANK(3, A1:A6, TRUE)",
+      A5: "4", B5: "=RANK(4, A1:A6, TRUE)",
+      A6: "3", B6: "=RANK(4, A1:A6, FALSE)",
+    };
+    expect(evaluateCell("B1", grid)).toBe(1);
+    expect(evaluateCell("B2", grid)).toBe(5);
+    expect(evaluateCell("B3", grid)).toBe(3);
+    expect(evaluateCell("B4", grid)).toBe(4);
+    expect(evaluateCell("B5", grid)).toBe(6);
+    expect(evaluateCell("B6", grid)).toBe(1);
+  });
+
+  test("functional tests on simple arguments with row data", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "1", B1: "3", C1: "1", D1: "2", E1: "4", F1: "3",
+      A2: "=RANK(1, A1:F1, TRUE)",
+      A3: "=RANK(1, A1:F1, FALSE)",
+      A4: "=RANK(2, A1:F1, TRUE)",
+      A5: "=RANK(3, A1:F1, TRUE)",
+      A6: "=RANK(4, A1:F1, TRUE)",
+      A7: "=RANK(4, A1:F1, FALSE)",
+    };
+    expect(evaluateCell("A2", grid)).toBe(1);
+    expect(evaluateCell("A3", grid)).toBe(5);
+    expect(evaluateCell("A4", grid)).toBe(3);
+    expect(evaluateCell("A5", grid)).toBe(4);
+    expect(evaluateCell("A6", grid)).toBe(6);
+    expect(evaluateCell("A7", grid)).toBe(1);
+  });
+
+  test("functional tests on simple arguments with matrix data", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "1", B1: "3", C1: "1",
+      A2: "2", B2: "4", C2: "3",
+      A3: "=RANK(1, A1:C2, TRUE)",
+      A4: "=RANK(1, A1:C2, FALSE)",
+      A5: "=RANK(2, A1:C2, TRUE)",
+      A6: "=RANK(3, A1:C2, TRUE)",
+      A7: "=RANK(4, A1:C2, TRUE)",
+      A8: "=RANK(4, A1:C2, FALSE)",
+    };
+    expect(evaluateCell("A3", grid)).toBe(1);
+    expect(evaluateCell("A4", grid)).toBe(5);
+    expect(evaluateCell("A5", grid)).toBe(3);
+    expect(evaluateCell("A6", grid)).toBe(4);
+    expect(evaluateCell("A7", grid)).toBe(6);
+    expect(evaluateCell("A8", grid)).toBe(1);
+  });
+
+  test("functional tests on simple arguments with already asc-sorted data", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "1", B1: "=RANK(1, A1:A6, TRUE)",
+      A2: "1", B2: "=RANK(1, A1:A6, FALSE)",
+      A3: "2", B3: "=RANK(2, A1:A6, TRUE)",
+      A4: "3", B4: "=RANK(3, A1:A6, TRUE)",
+      A5: "3", B5: "=RANK(4, A1:A6, TRUE)",
+      A6: "4", B6: "=RANK(4, A1:A6, FALSE)",
+    };
+    expect(evaluateCell("B1", grid)).toBe(1);
+    expect(evaluateCell("B2", grid)).toBe(5);
+    expect(evaluateCell("B3", grid)).toBe(3);
+    expect(evaluateCell("B4", grid)).toBe(4);
+    expect(evaluateCell("B5", grid)).toBe(6);
+    expect(evaluateCell("B6", grid)).toBe(1);
+  });
+
+  test("functional tests on simple arguments with already desc-sorted data", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "4", B1: "=RANK(1, A1:A6, TRUE)",
+      A2: "3", B2: "=RANK(1, A1:A6, FALSE)",
+      A3: "3", B3: "=RANK(2, A1:A6, TRUE)",
+      A4: "2", B4: "=RANK(3, A1:A6, TRUE)",
+      A5: "1", B5: "=RANK(4, A1:A6, TRUE)",
+      A6: "1", B6: "=RANK(4, A1:A6, FALSE)",
+    };
+    expect(evaluateCell("B1", grid)).toBe(1);
+    expect(evaluateCell("B2", grid)).toBe(5);
+    expect(evaluateCell("B3", grid)).toBe(3);
+    expect(evaluateCell("B4", grid)).toBe(4);
+    expect(evaluateCell("B5", grid)).toBe(6);
+    expect(evaluateCell("B6", grid)).toBe(1);
+  });
+
+  test("functional tests with value not in data", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "4", B1: "=RANK(0, A1:A6, TRUE)",
+      A2: "3", B2: "=RANK(0, A1:A6, FALSE)",
+      A3: "3", B3: "=RANK(5, A1:A6, TRUE)",
+      A4: "2", B4: "=RANK(5, A1:A6, FALSE)",
+      A5: "1",
+      A6: "1",
+    };
+    expect(evaluateCell("B1", grid)).toBe("#N/A");
+    expect(evaluateCell("B2", grid)).toBe("#N/A");
+    expect(evaluateCell("B3", grid)).toBe("#N/A");
+    expect(evaluateCell("B4", grid)).toBe("#N/A");
+  });
+});
+
 describe("SMALL formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=SMALL()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
