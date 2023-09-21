@@ -217,3 +217,807 @@ describe("UNIQUE function", () => {
     expect(getCellError(model, "D1")).toBe("No unique values found");
   });
 });
+
+describe("SORT function", () => {
+  test("Sorting a single column of numbers", () => {
+    //prettier-ignore
+    const grid = {
+       A1: "1",
+       A2: "2",
+       A3: "3",
+       A4: "1",
+       A5: "4",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A11", "=SORT(A1:A5)");
+    expect(getRangeValuesAsMatrix(model, "A11:A15")).toEqual([[1], [1], [2], [3], [4]]);
+  });
+
+  test("Full sorting with multiple columns", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "1", B1: "1", C1: "1",
+      A2: "2", B2: "1", C2: "2",
+      A3: "3", B3: "2", C3: "1",
+      A4: "1", B4: "3", C4: "3",
+      A5: "2", B5: "3", C5: "1",
+      A6: "4", B6: "2", C6: "1",
+      A7: "3", B7: "4", C7: "4",
+      A8: "4", B8: "1", C8: "2",
+      A9: "2", B9: "1", C9: "1",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A11", "=SORT(A1:C9)");
+    expect(getRangeValuesAsMatrix(model, "A11:C19")).toEqual([
+      [1, 1, 1],
+      [1, 3, 3],
+      [2, 1, 1],
+      [2, 1, 2],
+      [2, 3, 1],
+      [3, 2, 1],
+      [3, 4, 4],
+      [4, 1, 2],
+      [4, 2, 1],
+    ]);
+  });
+
+  test("Empty cell going last no matter the ascending/descending order", () => {
+    //prettier-ignore
+    const grid = {
+       A1: "1",
+       A2: "2",
+
+       A4: "4",
+
+       A6: "3",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "B1", "=SORT(A1:A6, 1, TRUE)");
+    expect(getRangeValuesAsMatrix(model, "B5:B6")).toEqual([[0], [0]]);
+    setCellContent(model, "B1", "=SORT(A1:A6, 1, FALSE)");
+    expect(getRangeValuesAsMatrix(model, "B5:B6")).toEqual([[0], [0]]);
+  });
+
+  test("Full sorting with multiple columns of string", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "a",    B1: "yihaa",
+      A2: "f",    B2: "aaaah",
+      A3: "a",    B3: "hey",
+      A4: "g",    B4: "coucou",
+      A5: "g",    B5: "salut",
+      A6: "ok",   B6: "a",
+      A7: "ko",   B7: "z",
+      A8: "null", B8: "yep"
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A11", "=SORT(A1:B8)");
+    expect(getRangeValuesAsMatrix(model, "A11:B18")).toEqual([
+      ["a", "hey"],
+      ["a", "yihaa"],
+      ["f", "aaaah"],
+      ["g", "coucou"],
+      ["g", "salut"],
+      ["ko", "z"],
+      ["null", "yep"],
+      ["ok", "a"],
+    ]);
+  });
+
+  test("Full sorting with multiple columns of different data types", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "a",    B1: "1",
+      A2: "f",    B2: "1",
+      A3: "a",    B3: "2",
+      A4: "g",    B4: "24",
+      A5: "g",    B5: "5",
+      A6: "ok",   B6: "0",
+      A7: "ko",   B7: "1",
+      A8: "null", B8: "2"
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A11", "=SORT(A1:B8)");
+    expect(getRangeValuesAsMatrix(model, "A11:B18")).toEqual([
+      ["a", 1],
+      ["a", 2],
+      ["f", 1],
+      ["g", 5],
+      ["g", 24],
+      ["ko", 1],
+      ["null", 2],
+      ["ok", 0],
+    ]);
+  });
+
+  test("Sorting a column of mixed data types", () => {
+    //prettier-ignore
+    const grid = {
+       A1: "1",
+       A2: "f",
+       A3: "10",
+       A4: "=FALSE()",
+       A5: "",
+       A6: "22",
+       A7: "=TRUE()",
+       A8: "test",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A11", "=SORT(A1:A9)");
+    expect(getRangeValuesAsMatrix(model, "A11:A19")).toEqual([
+      [1],
+      [10],
+      [22],
+      ["f"],
+      ["test"],
+      [false],
+      [true],
+      [0],
+      [0],
+    ]);
+  });
+
+  test("Sorting a single column of string", () => {
+    //prettier-ignore
+    const grid = {
+       A1: "a",
+       A2: "f",
+       A3: "aa",
+       A4: "test",
+       A5: "e",
+       A6: "g",
+       A7: "rrrr",
+       A8: "ok",
+       A9: "ko",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A11", "=SORT(A1:A9)");
+    expect(getRangeValuesAsMatrix(model, "A11:A19")).toEqual([
+      ["a"],
+      ["aa"],
+      ["e"],
+      ["f"],
+      ["g"],
+      ["ko"],
+      ["ok"],
+      ["rrrr"],
+      ["test"],
+    ]);
+  });
+
+  test("Ascending Sorting multiple columns specifying column number", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "1", B1: "1", C1: "1",
+      A2: "2", B2: "1", C2: "2",
+      A3: "3", B3: "2", C3: "1",
+      A4: "1", B4: "3", C4: "3",
+      A5: "2", B5: "3", C5: "1",
+      A6: "4", B6: "2", C6: "1",
+      A7: "3", B7: "4", C7: "4",
+      A8: "4", B8: "1", C8: "2",
+      A9: "2", B9: "1", C9: "1",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A11", "=SORT(A1:C9,1,TRUE)");
+    expect(getRangeValuesAsMatrix(model, "A11:C19")).toEqual([
+      [1, 1, 1],
+      [1, 3, 3],
+      [2, 1, 2],
+      [2, 3, 1],
+      [2, 1, 1],
+      [3, 2, 1],
+      [3, 4, 4],
+      [4, 2, 1],
+      [4, 1, 2],
+    ]);
+    setCellContent(model, "A11", "=SORT(A1:C9,2,TRUE)");
+    expect(getRangeValuesAsMatrix(model, "A11:C19")).toEqual([
+      [1, 1, 1],
+      [2, 1, 2],
+      [4, 1, 2],
+      [2, 1, 1],
+      [3, 2, 1],
+      [4, 2, 1],
+      [1, 3, 3],
+      [2, 3, 1],
+      [3, 4, 4],
+    ]);
+    setCellContent(model, "A11", "=SORT(A1:C9,3,TRUE)");
+    expect(getRangeValuesAsMatrix(model, "A11:C19")).toEqual([
+      [1, 1, 1],
+      [3, 2, 1],
+      [2, 3, 1],
+      [4, 2, 1],
+      [2, 1, 1],
+      [2, 1, 2],
+      [4, 1, 2],
+      [1, 3, 3],
+      [3, 4, 4],
+    ]);
+  });
+
+  test("Descending Sorting multiple columns specifying column number", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "1", B1: "1", C1: "1",
+      A2: "2", B2: "1", C2: "2",
+      A3: "3", B3: "2", C3: "1",
+      A4: "1", B4: "3", C4: "3",
+      A5: "2", B5: "3", C5: "1",
+      A6: "4", B6: "2", C6: "1",
+      A7: "3", B7: "4", C7: "4",
+      A8: "4", B8: "1", C8: "2",
+      A9: "2", B9: "1", C9: "1",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A11", "=SORT(A1:C9,1,FALSE)");
+    expect(getRangeValuesAsMatrix(model, "A11:C19")).toEqual([
+      [4, 2, 1],
+      [4, 1, 2],
+      [3, 2, 1],
+      [3, 4, 4],
+      [2, 1, 2],
+      [2, 3, 1],
+      [2, 1, 1],
+      [1, 1, 1],
+      [1, 3, 3],
+    ]);
+    setCellContent(model, "A11", "=SORT(A1:C10,2,FALSE)");
+    expect(getRangeValuesAsMatrix(model, "A11:C19")).toEqual([
+      [3, 4, 4],
+      [1, 3, 3],
+      [2, 3, 1],
+      [3, 2, 1],
+      [4, 2, 1],
+      [1, 1, 1],
+      [2, 1, 2],
+      [4, 1, 2],
+      [2, 1, 1],
+    ]);
+    setCellContent(model, "A11", "=SORT(A1:C10,3,FALSE)");
+    expect(getRangeValuesAsMatrix(model, "A11:C19")).toEqual([
+      [3, 4, 4],
+      [1, 3, 3],
+      [2, 1, 2],
+      [4, 1, 2],
+      [1, 1, 1],
+      [3, 2, 1],
+      [2, 3, 1],
+      [4, 2, 1],
+      [2, 1, 1],
+    ]);
+  });
+
+  test("Sorting multiple columns specifying multiple column numbers", () => {
+    //prettier-ignore
+    const grid = {
+       A1: "1",  B1: "1",  C1: "1",
+       A2: "2",  B2: "1",  C2: "2",
+       A3: "3",  B3: "2",  C3: "1",
+       A4: "1",  B4: "3",  C4: "3",
+       A5: "2",  B5: "3",  C5: "1",
+       A6: "4",  B6: "2",  C6: "1",
+       A7: "3",  B7: "4",  C7: "4",
+       A8: "2",  B8: "1",  C8: "1",
+       A9: "4",  B9: "1",  C9: "2",
+      A10: "2", B10: "1", C10: "1",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A11", "=SORT(A1:C10, 1, TRUE, 2, FALSE)");
+    expect(getRangeValuesAsMatrix(model, "A11:C20")).toEqual([
+      [1, 3, 3],
+      [1, 1, 1],
+      [2, 3, 1],
+      [2, 1, 2],
+      [2, 1, 1],
+      [2, 1, 1],
+      [3, 4, 4],
+      [3, 2, 1],
+      [4, 2, 1],
+      [4, 1, 2],
+    ]);
+    setCellContent(model, "A11", "=SORT(A1:C10, 1, FALSE, 2, TRUE)");
+    expect(getRangeValuesAsMatrix(model, "A11:C20")).toEqual([
+      [4, 1, 2],
+      [4, 2, 1],
+      [3, 2, 1],
+      [3, 4, 4],
+      [2, 1, 2],
+      [2, 1, 1],
+      [2, 1, 1],
+      [2, 3, 1],
+      [1, 1, 1],
+      [1, 3, 3],
+    ]);
+    setCellContent(model, "A11", "=SORT(A1:C10, 1, FALSE, 2, TRUE, 3, TRUE)");
+    expect(getRangeValuesAsMatrix(model, "A11:C20")).toEqual([
+      [4, 1, 2],
+      [4, 2, 1],
+      [3, 2, 1],
+      [3, 4, 4],
+      [2, 1, 1],
+      [2, 1, 1],
+      [2, 1, 2],
+      [2, 3, 1],
+      [1, 1, 1],
+      [1, 3, 3],
+    ]);
+  });
+
+  test("Ascending Sorting multiple columns specifying range", () => {
+    //prettier-ignore
+    const grid = {
+       A1: "1",  B1: "1",  C1: "1",
+       A2: "2",  B2: "1",  C2: "2",
+       A3: "3",  B3: "2",  C3: "1",
+       A4: "1",  B4: "3",  C4: "3",
+       A5: "2",  B5: "3",  C5: "1",
+       A6: "4",  B6: "2",  C6: "1",
+       A7: "3",  B7: "4",  C7: "4",
+       A8: "2",  B8: "1",  C8: "1",
+       A9: "4",  B9: "1",  C9: "2",
+      A10: "2", B10: "1", C10: "1",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A11", "=SORT(A1:C10,A1:A10,TRUE)");
+    expect(getRangeValuesAsMatrix(model, "A11:C20")).toEqual([
+      [1, 1, 1],
+      [1, 3, 3],
+      [2, 1, 2],
+      [2, 3, 1],
+      [2, 1, 1],
+      [2, 1, 1],
+      [3, 2, 1],
+      [3, 4, 4],
+      [4, 2, 1],
+      [4, 1, 2],
+    ]);
+    setCellContent(model, "A11", "=SORT(A1:C10,B1:B10,TRUE)");
+    expect(getRangeValuesAsMatrix(model, "A11:C20")).toEqual([
+      [1, 1, 1],
+      [2, 1, 2],
+      [2, 1, 1],
+      [4, 1, 2],
+      [2, 1, 1],
+      [3, 2, 1],
+      [4, 2, 1],
+      [1, 3, 3],
+      [2, 3, 1],
+      [3, 4, 4],
+    ]);
+    setCellContent(model, "A11", "=SORT(A1:C10,C1:C10,TRUE)");
+    expect(getRangeValuesAsMatrix(model, "A11:C20")).toEqual([
+      [1, 1, 1],
+      [3, 2, 1],
+      [2, 3, 1],
+      [4, 2, 1],
+      [2, 1, 1],
+      [2, 1, 1],
+      [2, 1, 2],
+      [4, 1, 2],
+      [1, 3, 3],
+      [3, 4, 4],
+    ]);
+  });
+
+  test("Descending Sorting multiple columns specifying range", () => {
+    //prettier-ignore
+    const grid = {
+       A1: "1",  B1: "1",  C1: "1",
+       A2: "2",  B2: "1",  C2: "2",
+       A3: "3",  B3: "2",  C3: "1",
+       A4: "1",  B4: "3",  C4: "3",
+       A5: "2",  B5: "3",  C5: "1",
+       A6: "4",  B6: "2",  C6: "1",
+       A7: "3",  B7: "4",  C7: "4",
+       A8: "2",  B8: "1",  C8: "1",
+       A9: "4",  B9: "1",  C9: "2",
+      A10: "2", B10: "1", C10: "1",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A11", "=SORT(A1:C10,A1:A10,FALSE)");
+    expect(getRangeValuesAsMatrix(model, "A11:C20")).toEqual([
+      [4, 2, 1],
+      [4, 1, 2],
+      [3, 2, 1],
+      [3, 4, 4],
+      [2, 1, 2],
+      [2, 3, 1],
+      [2, 1, 1],
+      [2, 1, 1],
+      [1, 1, 1],
+      [1, 3, 3],
+    ]);
+    setCellContent(model, "A11", "=SORT(A1:C10,B1:B10,FALSE)");
+    expect(getRangeValuesAsMatrix(model, "A11:C20")).toEqual([
+      [3, 4, 4],
+      [1, 3, 3],
+      [2, 3, 1],
+      [3, 2, 1],
+      [4, 2, 1],
+      [1, 1, 1],
+      [2, 1, 2],
+      [2, 1, 1],
+      [4, 1, 2],
+      [2, 1, 1],
+    ]);
+    setCellContent(model, "A11", "=SORT(A1:C10,C1:C10,FALSE)");
+    expect(getRangeValuesAsMatrix(model, "A11:C20")).toEqual([
+      [3, 4, 4],
+      [1, 3, 3],
+      [2, 1, 2],
+      [4, 1, 2],
+      [1, 1, 1],
+      [3, 2, 1],
+      [2, 3, 1],
+      [4, 2, 1],
+      [2, 1, 1],
+      [2, 1, 1],
+    ]);
+  });
+
+  test("Sorting multiple columns specifying multiple ranges to base to sorting on", () => {
+    //prettier-ignore
+    const grid = {
+       A1: "1",  B1: "1",  C1: "1",
+       A2: "2",  B2: "1",  C2: "2",
+       A3: "3",  B3: "2",  C3: "1",
+       A4: "1",  B4: "3",  C4: "3",
+       A5: "2",  B5: "3",  C5: "1",
+       A6: "4",  B6: "2",  C6: "1",
+       A7: "3",  B7: "4",  C7: "4",
+       A8: "2",  B8: "1",  C8: "1",
+       A9: "4",  B9: "1",  C9: "2",
+      A10: "2", B10: "1", C10: "1",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A11", "=SORT(A1:C10, A1:A10, TRUE, B1:B10, FALSE)");
+    expect(getRangeValuesAsMatrix(model, "A11:C20")).toEqual([
+      [1, 3, 3],
+      [1, 1, 1],
+      [2, 3, 1],
+      [2, 1, 2],
+      [2, 1, 1],
+      [2, 1, 1],
+      [3, 4, 4],
+      [3, 2, 1],
+      [4, 2, 1],
+      [4, 1, 2],
+    ]);
+    setCellContent(model, "A11", "=SORT(A1:C10, A1:A10, FALSE, B1:B10, TRUE)");
+    expect(getRangeValuesAsMatrix(model, "A11:C20")).toEqual([
+      [4, 1, 2],
+      [4, 2, 1],
+      [3, 2, 1],
+      [3, 4, 4],
+      [2, 1, 2],
+      [2, 1, 1],
+      [2, 1, 1],
+      [2, 3, 1],
+      [1, 1, 1],
+      [1, 3, 3],
+    ]);
+    setCellContent(model, "A11", "=SORT(A1:C10, A1:A10, FALSE, B1:B10, TRUE, C1:C10, TRUE)");
+    expect(getRangeValuesAsMatrix(model, "A11:C20")).toEqual([
+      [4, 1, 2],
+      [4, 2, 1],
+      [3, 2, 1],
+      [3, 4, 4],
+      [2, 1, 1],
+      [2, 1, 1],
+      [2, 1, 2],
+      [2, 3, 1],
+      [1, 1, 1],
+      [1, 3, 3],
+    ]);
+  });
+
+  test.each(["-1", "0", "4"])("Sorting with invalid column index (%s)", (index) => {
+    //prettier-ignore
+    const grid = {
+       A1: "1",  B1: "1",  C1: "1",
+       A2: "2",  B2: "1",  C2: "2",
+       A3: "3",  B3: "2",  C3: "1",
+       A4: "1",  B4: "3",  C4: "3",
+       A5: "2",  B5: "3",  C5: "1",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A11", `=SORT(A1:C5, 5, ${index})`);
+    expect(getRangeValuesAsMatrix(model, "A11:C15")).toEqual([
+      [1, 1, 1],
+      [2, 1, 2],
+      [3, 2, 1],
+      [1, 3, 3],
+      [2, 3, 1],
+    ]);
+  });
+
+  test("Sorting with missing 'order' argument", () => {
+    const model = new Model();
+    setCellContent(model, "B1", "=SORT(A1:A2, 1)");
+    expect(getRangeValuesAsMatrix(model, "B1")).toEqual([["#BAD_EXPR"]]);
+    expect(checkFunctionDoesntSpreadBeyondRange(model, "B1")).toBeTruthy();
+  });
+});
+
+describe("SORTN function", () => {
+  test("Sorting a single column of numbers", () => {
+    //prettier-ignore
+    const grid = {
+       A1: "1",
+       A2: "2",
+       A3: "3",
+       A4: "1",
+       A5: "2",
+       A6: "2",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A11", "=SORTN(A1:A6, 5, 0)");
+    expect(getRangeValuesAsMatrix(model, "A11:A16")).toEqual([[1], [1], [2], [2], [2], [""]]);
+  });
+
+  test("Full sorting with multiple columns", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "1", B1: "1", C1: "1",
+      A2: "2", B2: "1", C2: "2",
+      A3: "1", B3: "3", C3: "3",
+      A4: "2", B4: "3", C4: "1",
+      A5: "2", B5: "1", C5: "1",
+      A6: "2", B6: "1", C6: "1",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A11", "=SORTN(A1:C6, 5, 0)");
+    expect(getRangeValuesAsMatrix(model, "A11:C16")).toEqual([
+      [1, 1, 1],
+      [1, 3, 3],
+      [2, 1, 1],
+      [2, 1, 1],
+      [2, 1, 2],
+      ["", "", ""],
+    ]);
+  });
+
+  test("Full sorting with multiple columns using default parameters", () => {
+    //prettier-ignore
+    const grid = {
+       A1: "1",  B1: "1",  C1: "1",
+       A2: "2",  B2: "1",  C2: "2",
+       A3: "3",  B3: "2",  C3: "1",
+       A4: "1",  B4: "3",  C4: "3",
+       A5: "2",  B5: "3",  C5: "1",
+       A6: "4",  B6: "2",  C6: "1",
+       A7: "3",  B7: "4",  C7: "4",
+       A8: "2",  B8: "1",  C8: "1",
+       A9: "4",  B9: "1",  C9: "2",
+      A10: "2", B10: "1", C10: "1",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A11", "=SORTN(A1:C10)");
+    expect(getRangeValuesAsMatrix(model, "A11:C12")).toEqual([
+      [1, 1, 1],
+      ["", "", ""],
+    ]);
+  });
+
+  test("Full sorting with different display ties modes", () => {
+    //prettier-ignore
+    const grid = {
+       A1: "1",  B1: "1",  C1: "1",
+       A2: "2",  B2: "1",  C2: "2",
+       A3: "3",  B3: "2",  C3: "1",
+       A4: "1",  B4: "3",  C4: "3",
+       A5: "2",  B5: "3",  C5: "1",
+       A6: "2",  B6: "3",  C6: "1",
+       A7: "3",  B7: "4",  C7: "4",
+       A8: "2",  B8: "1",  C8: "1",
+       A9: "4",  B9: "1",  C9: "2",
+      A10: "2", B10: "1", C10: "1",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A11", "=SORTN(A1:C10, 3, 1)");
+    expect(getRangeValuesAsMatrix(model, "A11:C15")).toEqual([
+      [1, 1, 1],
+      [1, 3, 3],
+      [2, 1, 1],
+      [2, 1, 1],
+      ["", "", ""],
+    ]);
+    setCellContent(model, "A11", "=SORTN(A1:C10, 5, 2)");
+    expect(getRangeValuesAsMatrix(model, "A11:C16")).toEqual([
+      [1, 1, 1],
+      [1, 3, 3],
+      [2, 1, 1],
+      [2, 1, 2],
+      [2, 3, 1],
+      ["", "", ""],
+    ]);
+    setCellContent(model, "A11", "=SORTN(A1:C10, 5, 3)");
+    expect(getRangeValuesAsMatrix(model, "A11:C18")).toEqual([
+      [1, 1, 1],
+      [1, 3, 3],
+      [2, 1, 1],
+      [2, 1, 1],
+      [2, 1, 2],
+      [2, 3, 1],
+      [2, 3, 1],
+      ["", "", ""],
+    ]);
+  });
+
+  test("Sorting with bad n argument", () => {
+    const model = new Model();
+    setCellContent(model, "A11", "=SORTN(A1:C10, -1, 0)");
+    expect(getCellContent(model, "A11")).toEqual("#ERROR");
+    expect(getCellError(model, "A11")).toBe(
+      "Wrong value of 'n'. Expected a positive number. Got -1."
+    );
+    expect(checkFunctionDoesntSpreadBeyondRange(model, "A11")).toBeTruthy();
+  });
+
+  test("Sorting with a too big n value returns full sorted range", () => {
+    //prettier-ignore
+    const grid = {
+       A1: "2",
+       A2: "3",
+       A3: "1",
+       A4: "2",
+       A5: "4",
+       A6: "3",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A11", "=SORTN(A1:A6, 30, 0)");
+    expect(getRangeValuesAsMatrix(model, "A11:A16")).toEqual([[1], [2], [2], [3], [3], [4]]);
+  });
+
+  test.each(["-1", "4"])("Sorting with bad display ties mode argument", (mode) => {
+    const model = new Model();
+    setCellContent(model, "A11", `=SORTN(A1:C10, 1, ${mode})`);
+    expect(getCellContent(model, "A11")).toEqual("#ERROR");
+    expect(getCellError(model, "A11")).toBe(
+      `Wrong value of 'display_ties_mode'. Expected a positive number between 0 and 3. Got ${mode}.`
+    );
+    expect(checkFunctionDoesntSpreadBeyondRange(model, "A11")).toBeTruthy();
+  });
+
+  test("Ascending Sorting multiple columns specifying column number", () => {
+    //prettier-ignore
+    const grid = {
+       A1: "1",  B1: "1",  C1: "1",
+       A2: "2",  B2: "1",  C2: "2",
+       A3: "3",  B3: "2",  C3: "1",
+       A4: "1",  B4: "3",  C4: "3",
+       A5: "2",  B5: "3",  C5: "1",
+       A6: "4",  B6: "2",  C6: "1",
+       A7: "3",  B7: "4",  C7: "4",
+       A8: "2",  B8: "1",  C8: "1",
+       A9: "4",  B9: "1",  C9: "2",
+      A10: "2", B10: "1", C10: "1",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A11", "=SORTN(A1:C10,10,0,2,TRUE)");
+    expect(getRangeValuesAsMatrix(model, "A11:C20")).toEqual([
+      [1, 1, 1],
+      [2, 1, 2],
+      [2, 1, 1],
+      [4, 1, 2],
+      [2, 1, 1],
+      [3, 2, 1],
+      [4, 2, 1],
+      [1, 3, 3],
+      [2, 3, 1],
+      [3, 4, 4],
+    ]);
+  });
+
+  test("Descending Sorting multiple columns specifying column number", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "1",  B1: "1",  C1: "1",
+      A2: "2",  B2: "1",  C2: "2",
+      A3: "3",  B3: "2",  C3: "1",
+      A4: "1",  B4: "3",  C4: "3",
+      A5: "3",  B5: "4",  C5: "4",
+      A6: "4",  B6: "1",  C6: "2",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A11", "=SORTN(A1:C6,5,0,3,FALSE)");
+    expect(getRangeValuesAsMatrix(model, "A11:C16")).toEqual([
+      [3, 4, 4],
+      [1, 3, 3],
+      [2, 1, 2],
+      [4, 1, 2],
+      [1, 1, 1],
+      ["", "", ""],
+    ]);
+  });
+
+  test("Sorting multiple columns specifying multiple column numbers", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "2",  B1: "1",  C1: "2",
+      A2: "3",  B2: "2",  C2: "1",
+      A3: "4",  B3: "2",  C3: "1",
+      A4: "3",  B4: "4",  C4: "4",
+      A5: "2",  B5: "1",  C5: "1",
+      A6: "4",  B6: "1",  C6: "2",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A11", "=SORTN(A1:C6, 5, 0, 1, FALSE, 2, TRUE)");
+    expect(getRangeValuesAsMatrix(model, "A11:C16")).toEqual([
+      [4, 1, 2],
+      [4, 2, 1],
+      [3, 2, 1],
+      [3, 4, 4],
+      [2, 1, 2],
+      ["", "", ""],
+    ]);
+  });
+
+  test("Ascending Sorting multiple columns specifying range", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "1", B1: "1", C1: "1",
+      A2: "2", B2: "1", C2: "2",
+      A3: "3", B3: "2", C3: "1",
+      A4: "2", B4: "1", C4: "1",
+      A5: "4", B5: "1", C5: "2",
+      A6: "2", B6: "1", C6: "1",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A11", "=SORTN(A1:C6,5,0,B1:B6,TRUE)");
+    expect(getRangeValuesAsMatrix(model, "A11:C16")).toEqual([
+      [1, 1, 1],
+      [2, 1, 2],
+      [2, 1, 1],
+      [4, 1, 2],
+      [2, 1, 1],
+      ["", "", ""],
+    ]);
+  });
+
+  test("Descending Sorting multiple columns specifying range", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "2", B1: "1", C1: "2",
+      A2: "3", B2: "2", C2: "1",
+      A3: "2", B3: "3", C3: "1",
+      A4: "4", B4: "2", C4: "1",
+      A5: "3", B5: "4", C5: "4",
+      A6: "4", B6: "1", C6: "2",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A11", "=SORTN(A1:C6,5,0,A1:A6,FALSE)");
+    expect(getRangeValuesAsMatrix(model, "A11:C16")).toEqual([
+      [4, 2, 1],
+      [4, 1, 2],
+      [3, 2, 1],
+      [3, 4, 4],
+      [2, 1, 2],
+      ["", "", ""],
+    ]);
+  });
+
+  test("Sorting multiple columns specifying multiple ranges to base to sorting on", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "2", B1: "1", C1: "2",
+      A2: "3", B2: "2", C2: "1",
+      A3: "4", B3: "2", C3: "1",
+      A4: "3", B4: "4", C4: "4",
+      A5: "4", B5: "1", C5: "2",
+      A6: "2", B6: "1", C6: "1",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A11", "=SORTN(A1:C6, 5, 0, A1:A6, FALSE, B1:B6, TRUE)");
+    expect(getRangeValuesAsMatrix(model, "A11:C16")).toEqual([
+      [4, 1, 2],
+      [4, 2, 1],
+      [3, 2, 1],
+      [3, 4, 4],
+      [2, 1, 2],
+      ["", "", ""],
+    ]);
+  });
+});

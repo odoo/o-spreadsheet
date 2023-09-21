@@ -1,5 +1,5 @@
 import { _t } from "../translation";
-import { Matrix } from "../types";
+import { Matrix, isMatrix } from "../types";
 
 export function getUnitMatrix(n: number): Matrix<number> {
   const matrix: Matrix<number> = Array(n);
@@ -133,4 +133,17 @@ export function multiplyMatrices(matrix1: Matrix<number>, matrix2: Matrix<number
     }
   }
   return result;
+}
+
+/**
+ * Return the input if it's a scalar or the first element of the input if it's a matrix.
+ */
+export function toScalar<T>(matrix: Matrix<T> | T): T {
+  if (!isMatrix(matrix)) {
+    return matrix;
+  }
+  if (matrix.length !== 1 || matrix[0].length !== 1) {
+    throw new Error("toScalar: matrix should be a scalar or a 1x1 matrix");
+  }
+  return matrix[0][0];
 }

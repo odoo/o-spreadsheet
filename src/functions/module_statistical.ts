@@ -13,6 +13,7 @@ import {
   ValueAndFormat,
   isMatrix,
 } from "../types";
+import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import { invertMatrix, multiplyMatrices } from "./helper_matrices";
 import { assertSameNumberOfElements } from "./helper_statistical";
@@ -1524,6 +1525,49 @@ export const QUARTILE_INC = {
   },
   isExported: true,
 } satisfies AddFunctionDescription;
+
+// RANK
+// -----------------------------------------------------------------------------
+export const RANK: AddFunctionDescription = {
+  description: _t("Returns the rank of a specified value in a dataset."),
+  args: [
+    arg("value (number)", _t("The value whose rank will be determined.")),
+    arg("data (range)", _t("The range containing the dataset to consider.")),
+    arg(
+      "is_ascending (boolean, default=FALSE)",
+      _t("Whether to consider the values in data in descending or ascending order.")
+    ),
+  ],
+  returns: ["ANY"],
+  compute: function (
+    value: Maybe<CellValue>,
+    data: Matrix<CellValue>,
+    isAscending: Maybe<CellValue> = false
+  ): number {
+    const _isAscending = toBoolean(isAscending);
+    const _value = toNumber(value, this.locale);
+    let rank = 1;
+    let found = false;
+    for (const row of data) {
+      for (const cell of row) {
+        if (typeof cell !== "number") {
+          continue;
+        }
+        const _cell = toNumber(cell, this.locale);
+        if (_cell === _value) {
+          found = true;
+        } else if (_cell > _value !== _isAscending) {
+          rank++;
+        }
+      }
+    }
+    if (!found) {
+      throw new NotAvailableError(_t("Value not found in the given data."));
+    }
+    return rank;
+  },
+  isExported: true,
+};
 
 // -----------------------------------------------------------------------------
 // RSQ
