@@ -49,6 +49,10 @@ numberFormatMenuRegistry
     ...ACTION_FORMAT.formatNumberDuration,
     sequence: 100,
     separator: true,
+  })
+  .add("more_formats", {
+    ...ACTION_FORMAT.moreFormats,
+    sequence: 110,
   });
 
 export const formatNumberMenuItemSpec: ActionSpec = {

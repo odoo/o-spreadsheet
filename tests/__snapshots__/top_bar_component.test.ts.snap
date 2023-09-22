@@ -864,6 +864,32 @@ exports[`TopBar component can set cell format 1`] = `
             
           </div>
         </div>
+        <div
+          class="o-separator"
+        />
+        
+        
+        <div
+          class="o-menu-item"
+          data-name="more_formats"
+          title="More date formats"
+        >
+          <div
+            class="d-flex w-100"
+          >
+            <div
+              class="o-menu-item-icon align-middle"
+            />
+            
+            <div
+              class="o-menu-item-name align-middle text-truncate"
+            >
+              More date formats
+            </div>
+            
+            
+          </div>
+        </div>
         
       </div>
       
