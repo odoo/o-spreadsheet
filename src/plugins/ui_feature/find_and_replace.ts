@@ -80,14 +80,10 @@ export class FindAndReplacePlugin extends UIPlugin {
       case "REPLACE_ALL_SEARCH":
         this.replaceAll(cmd.replaceWith);
         break;
-      case "EVALUATE_CELLS":
-      case "UPDATE_CELL":
-      case "REMOVE_FILTER_TABLE":
-      case "UPDATE_FILTER":
-        this.isSearchDirty = true;
-        break;
       case "UNDO":
       case "REDO":
+      case "REMOVE_FILTER_TABLE":
+      case "UPDATE_FILTER":
       case "REMOVE_COLUMNS_ROWS":
       case "HIDE_COLUMNS_ROWS":
       case "UNHIDE_COLUMNS_ROWS":
