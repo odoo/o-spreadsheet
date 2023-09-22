@@ -37,6 +37,10 @@ css/* scss */ `
       cursor: pointer;
       user-select: none;
 
+      .o-menu-item-name {
+        min-width: 40%;
+      }
+
       &.o-menu-root {
         display: flex;
         justify-content: space-between;

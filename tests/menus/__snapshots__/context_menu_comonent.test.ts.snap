@@ -32,7 +32,7 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
         Cut
       </div>
       <div
-        class="o-menu-item-description ms-auto"
+        class="o-menu-item-description ms-auto text-truncate"
       >
         Ctrl+X
       </div>
@@ -68,7 +68,7 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
         Copy
       </div>
       <div
-        class="o-menu-item-description ms-auto"
+        class="o-menu-item-description ms-auto text-truncate"
       >
         Ctrl+C
       </div>
@@ -104,7 +104,7 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
         Paste
       </div>
       <div
-        class="o-menu-item-description ms-auto"
+        class="o-menu-item-description ms-auto text-truncate"
       >
         Ctrl+V
       </div>
