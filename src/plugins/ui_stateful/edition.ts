@@ -4,6 +4,7 @@ import { parseLiteral } from "../../helpers/cells";
 import {
   colors,
   concat,
+  formatValue,
   fuzzyLookup,
   isDateTimeFormat,
   isEqual,
@@ -11,6 +12,7 @@ import {
   isNumber,
   markdownLink,
   numberToString,
+  parseDateTime,
   positionToZone,
   splitReference,
   updateSelectionOnDeletion,
@@ -505,7 +507,15 @@ export class EditionPlugin extends UIPlugin {
         return cell?.content || "";
       case CellValueType.number:
         if (format && isDateTimeFormat(format)) {
-          return formattedValue;
+          if (parseDateTime(formattedValue, locale) !== null) {
+            // formatted string can be parsed again
+            return formattedValue;
+          }
+          // display a simplified and parsable string otherwise
+          const timeFormat = Number.isInteger(value)
+            ? locale.dateFormat
+            : locale.dateFormat + " " + locale.timeFormat;
+          return formatValue(value, { locale, format: timeFormat });
         }
         return this.numberComposerContent(value, format, locale);
     }

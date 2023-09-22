@@ -822,6 +822,24 @@ describe("edition", () => {
     expect(model.getters.getCurrentContent()).toBe("12:00:00 AM");
   });
 
+  test("non-parsable date format displays a simplified and parsable value", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "1");
+    setFormat(model, "dddd d mmmm yyyy", target("A1"));
+    expect(getEvaluatedCell(model, "A1").formattedValue).toBe("Sunday 31 December 1899");
+    expect(model.getters.getCurrentContent()).toBe("12/31/1899");
+  });
+
+  test("non-parsable date time format displays a simplified and parsable value", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "1.5");
+    setFormat(model, "dddd d mmmm yyyy hh:mm:ss a", target("A1"));
+    expect(getEvaluatedCell(model, "A1").formattedValue).toBe(
+      "Sunday 31 December 1899 12:00:00 PM"
+    );
+    expect(model.getters.getCurrentContent()).toBe("12/31/1899 12:00:00 PM");
+  });
+
   test("write too long formulas raises an error", async () => {
     const model = new Model({});
     const spyNotify = jest.spyOn(model["config"], "raiseBlockingErrorUI");

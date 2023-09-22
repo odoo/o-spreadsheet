@@ -2,6 +2,7 @@ import { ChartPanel } from "../components/side_panel/chart/main_chart_panel/main
 import { ConditionalFormattingPanel } from "../components/side_panel/conditional_formatting/conditional_formatting";
 import { CustomCurrencyPanel } from "../components/side_panel/custom_currency/custom_currency";
 import { FindAndReplacePanel } from "../components/side_panel/find_and_replace/find_and_replace";
+import { MoreFormatsPanel } from "../components/side_panel/more_formats/more_formats";
 import { RemoveDuplicatesPanel } from "../components/side_panel/remove_duplicates/remove_duplicates";
 import { SettingsPanel } from "../components/side_panel/settings/settings_panel";
 import { SplitIntoColumnsPanel } from "../components/side_panel/split_to_columns_panel/split_to_columns_panel";
@@ -59,4 +60,9 @@ sidePanelRegistry.add("RemoveDuplicates", {
 sidePanelRegistry.add("DataValidation", {
   title: _t("Data validation"),
   Body: DataValidationPanel,
+});
+
+sidePanelRegistry.add("MoreFormats", {
+  title: _t("More date formats"),
+  Body: MoreFormatsPanel,
 });
