@@ -1,7 +1,7 @@
 import { Model, setDefaultSheetViewSize } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { Spreadsheet } from "../../src/components";
-import { getDefaultSheetViewSize } from "../../src/constants";
+import { DEBOUNCE_TIME, getDefaultSheetViewSize } from "../../src/constants";
 import { functionRegistry } from "../../src/functions";
 import { toZone } from "../../src/helpers";
 import { SpreadsheetChildEnv } from "../../src/types";
@@ -43,6 +43,14 @@ let fixture: HTMLElement;
 let parent: Spreadsheet;
 let model: Model;
 let env: SpreadsheetChildEnv;
+
+beforeEach(() => {
+  jest.useFakeTimers();
+});
+
+afterEach(() => {
+  jest.useRealTimers();
+});
 
 describe("Simple Spreadsheet Component", () => {
   test("simple rendering snapshot", async () => {
@@ -163,6 +171,55 @@ describe("Simple Spreadsheet Component", () => {
     await keyDown({ key: "F", metaKey: true, bubbles: true });
     expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
     jest.restoreAllMocks();
+  });
+
+  test("Can instantiate a spreadsheet with a given client id-name", async () => {
+    const client = { id: "alice", name: "Alice" };
+    ({ model } = await mountSpreadsheet({ model: new Model({}, { client }) }));
+    expect(model.getters.getClient()).toEqual(client);
+
+    // Validate that after the move debounce has run, the client has a position ad
+    // additional property
+    jest.advanceTimersByTime(DEBOUNCE_TIME + 1);
+    expect(model.getters.getClient()).toEqual({
+      id: "alice",
+      name: "Alice",
+      position: {
+        col: 0,
+        row: 0,
+        sheetId: "Sheet1",
+      },
+    });
+  });
+
+  test("Spreadsheet detects frozen panes that exceed the limit size at start", async () => {
+    const notifyUser = jest.fn();
+    const model = new Model({ sheets: [{ panes: { xSplit: 12, ySplit: 50 } }] });
+    await mountSpreadsheet({ model }, { notifyUser });
+    expect(notifyUser).toHaveBeenCalled();
+  });
+
+  test("Warn user only once when the viewport is too small for its frozen panes", async () => {
+    const notifyUser = jest.fn();
+    ({ model } = await mountSpreadsheet(undefined, { notifyUser }));
+    expect(notifyUser).not.toHaveBeenCalled();
+    freezeRows(model, 51);
+    await nextTick();
+    expect(notifyUser).toHaveBeenCalledTimes(1);
+    //dispatching commands that do not alter the viewport/pane status and rerendering won't notify
+    addRows(model, "after", 0, 1);
+    await nextTick();
+    expect(notifyUser).toHaveBeenCalledTimes(1);
+
+    // resetting the status - the panes no longer exceed limit size
+    freezeRows(model, 3);
+    await nextTick();
+    expect(notifyUser).toHaveBeenCalledTimes(1);
+
+    // dispatching that makes the panes exceed the limit size in viewport notifies again
+    freezeRows(model, 51);
+    await nextTick();
+    expect(notifyUser).toHaveBeenCalledTimes(2);
   });
 
   test("Z-indexes of the various spreadsheet components", async () => {
