@@ -385,7 +385,7 @@ export function getItemId<T>(item: T, itemsDic: { [id: number]: T }) {
  */
 export function debounce(func: Function, wait: number, immediate?: boolean): Function {
   let timeout;
-  return function (this: any) {
+  return function (this: any): void {
     const context = this;
     const args = arguments;
     function later() {
