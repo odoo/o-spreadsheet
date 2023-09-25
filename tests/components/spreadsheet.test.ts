@@ -1,6 +1,6 @@
 import { Model } from "../../src";
 import { Spreadsheet } from "../../src/components";
-import { DEFAULT_CELL_HEIGHT } from "../../src/constants";
+import { DEBOUNCE_TIME, DEFAULT_CELL_HEIGHT } from "../../src/constants";
 import { args, functionRegistry } from "../../src/functions";
 import { toZone } from "../../src/helpers";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/registries";
@@ -52,7 +52,14 @@ Object.defineProperty(navigator, "clipboard", {
   configurable: true,
 });
 
-describe("Spreadsheet", () => {
+beforeEach(() => {
+  jest.useFakeTimers();
+});
+
+afterEach(() => {
+  jest.useRealTimers();
+});
+describe("Simple Spreadsheet Component", () => {
   test("simple rendering snapshot", async () => {
     ({ model, parent, fixture } = await mountSpreadsheet({
       model: new Model({ sheets: [{ id: "sh1" }] }),
@@ -197,6 +204,19 @@ describe("Spreadsheet", () => {
     const client = { id: "alice", name: "Alice" };
     ({ model } = await mountSpreadsheet({ model: new Model({}, { client }) }));
     expect(model.getters.getClient()).toEqual(client);
+
+    // Validate that after the move debounce has run, the client has a position ad
+    // additional property
+    jest.advanceTimersByTime(DEBOUNCE_TIME + 1);
+    expect(model.getters.getClient()).toEqual({
+      id: "alice",
+      name: "Alice",
+      position: {
+        col: 0,
+        row: 0,
+        sheetId: "Sheet1",
+      },
+    });
   });
 
   test("Spreadsheet detects frozen panes that exceed the limit size at start", async () => {
