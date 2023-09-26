@@ -1,4 +1,5 @@
-import { Component, onMounted, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, useEffect, useRef } from "@odoo/owl";
+import { SearchOptions } from "../../../plugins/ui_feature";
 import { SpreadsheetChildEnv } from "../../../types/index";
 import { css } from "../../helpers/css";
 
@@ -27,23 +28,14 @@ interface Props {
   onCloseSidePanel: () => void;
 }
 
-interface FindAndReplaceState {
-  toSearch: string;
-  replaceWith: string;
-  searchOptions: {
-    matchCase: boolean;
-    exactMatch: boolean;
-    searchFormulas: boolean;
-  };
-}
-
 export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FindAndReplacePanel";
-  private state: FindAndReplaceState = useState(this.initialState());
+
   private debounceTimeoutId;
   private showFormulaState: boolean = false;
 
   private searchInput = useRef("searchInput");
+  private replaceInput = useRef("replaceInput");
 
   get hasSearchResult() {
     return this.env.model.getters.getCurrentSelectedMatchIndex() !== null;
@@ -51,6 +43,18 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
 
   get pendingSearch() {
     return this.debounceTimeoutId !== undefined;
+  }
+
+  get searchOptions() {
+    return this.env.model.getters.getSearchOptions();
+  }
+
+  get toSearch() {
+    return (this.searchInput.el as HTMLInputElement)?.value || "";
+  }
+
+  get toReplace() {
+    return (this.replaceInput.el as HTMLInputElement)?.value || "";
   }
 
   setup() {
@@ -66,15 +70,14 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
 
     useEffect(
       () => {
-        this.state.searchOptions.searchFormulas = this.env.model.getters.shouldShowFormulas();
-        this.searchFormulas();
+        const showFormula = this.env.model.getters.shouldShowFormulas();
+        this.updateSearch({ searchFormulas: showFormula });
       },
       () => [this.env.model.getters.shouldShowFormulas()]
     );
   }
 
-  onInput(ev) {
-    this.state.toSearch = ev.target.value;
+  onInput() {
     this.debouncedUpdateSearch();
   }
 
@@ -94,11 +97,22 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  searchFormulas() {
+  searchFormulas(ev) {
+    const showFormula = ev.target.checked;
     this.env.model.dispatch("SET_FORMULA_VISIBILITY", {
-      show: this.state.searchOptions.searchFormulas,
+      show: showFormula,
     });
-    this.updateSearch();
+    this.updateSearch({ searchFormulas: showFormula });
+  }
+
+  searchExactMatch(ev) {
+    const exactMatch = ev.target.checked;
+    this.updateSearch({ exactMatch });
+  }
+
+  searchMatchCase(ev) {
+    const matchCase = ev.target.checked;
+    this.updateSearch({ matchCase });
   }
 
   onSelectPreviousCell() {
@@ -107,10 +121,15 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
   onSelectNextCell() {
     this.env.model.dispatch("SELECT_SEARCH_NEXT_MATCH");
   }
-  updateSearch() {
+
+  updateSearch(updateSearchOptions?: Partial<SearchOptions>) {
+    const searchOptions = {
+      ...this.env.model.getters.getSearchOptions(),
+      ...updateSearchOptions,
+    };
     this.env.model.dispatch("UPDATE_SEARCH", {
-      toSearch: this.state.toSearch,
-      searchOptions: this.state.searchOptions,
+      toSearch: this.toSearch,
+      searchOptions,
     });
   }
 
@@ -124,30 +143,14 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
 
   replace() {
     this.env.model.dispatch("REPLACE_SEARCH", {
-      replaceWith: this.state.replaceWith,
+      replaceWith: this.toReplace,
     });
   }
 
   replaceAll() {
     this.env.model.dispatch("REPLACE_ALL_SEARCH", {
-      replaceWith: this.state.replaceWith,
+      replaceWith: this.toReplace,
     });
-  }
-
-  // ---------------------------------------------------------------------------
-  // Private
-  // ---------------------------------------------------------------------------
-
-  private initialState(): FindAndReplaceState {
-    return {
-      toSearch: "",
-      replaceWith: "",
-      searchOptions: {
-        matchCase: false,
-        exactMatch: false,
-        searchFormulas: false,
-      },
-    };
   }
 }
 
