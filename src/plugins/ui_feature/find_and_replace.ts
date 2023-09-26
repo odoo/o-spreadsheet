@@ -44,7 +44,11 @@ interface SearchMatch {
 
 export class FindAndReplacePlugin extends UIPlugin {
   static layers = [LAYERS.Search];
-  static getters = ["getSearchMatches", "getCurrentSelectedMatchIndex"] as const;
+  static getters = [
+    "getSearchMatches",
+    "getCurrentSelectedMatchIndex",
+    "getSearchOptions",
+  ] as const;
   private searchMatches: SearchMatch[] = [];
   private selectedMatchIndex: number | null = null;
   private currentSearchRegex: RegExp | null = null;
@@ -114,6 +118,9 @@ export class FindAndReplacePlugin extends UIPlugin {
   }
   getCurrentSelectedMatchIndex(): number | null {
     return this.selectedMatchIndex;
+  }
+  getSearchOptions(): SearchOptions {
+    return this.searchOptions;
   }
   // ---------------------------------------------------------------------------
   // Search

@@ -16,29 +16,29 @@
             /
             <t t-esc="env.model.getters.getSearchMatches().length"/>
           </div>
-          <div t-elif="!pendingSearch and state.toSearch !== ''" class="o-input-count">0 / 0</div>
+          <div t-elif="!pendingSearch and toSearch !== ''" class="o-input-count">0 / 0</div>
         </div>
         <div>
           <!-- TODO: go through this css, the group misses a padding and could profit from BootStrap -->
           <label class="o-checkbox mt-1">
             <input
-              t-model="state.searchOptions.matchCase"
-              t-on-change="updateSearch"
+              t-att-checked="searchOptions.matchCase"
+              t-on-change="searchMatchCase"
               type="checkbox"
             />
             <span>Match case</span>
           </label>
           <label class="o-checkbox">
             <input
-              t-model="state.searchOptions.exactMatch"
-              t-on-change="updateSearch"
+              t-att-checked="searchOptions.exactMatch"
+              t-on-change="searchExactMatch"
               type="checkbox"
             />
             <span>Match entire cell content</span>
           </label>
           <label class="o-checkbox">
             <input
-              t-model="state.searchOptions.searchFormulas"
+              t-att-checked="searchOptions.searchFormulas"
               t-on-change="searchFormulas"
               type="checkbox"
             />
@@ -63,7 +63,7 @@
           <input
             type="text"
             class="o-input o-input-without-count"
-            t-model="state.replaceWith"
+            t-ref="replaceInput"
             t-on-keydown="onKeydownReplace"
           />
         </div>
