@@ -71,7 +71,10 @@ export class SelectionInputsManagerPlugin extends UIPlugin {
           this.selection.capture(
             input,
             { cell: { col: 0, row: 0 }, zone: positionToZone({ col: 0, row: 0 }) },
-            { handleEvent: input.handleEvent.bind(input) }
+            {
+              handleEvent: input.handleEvent.bind(input),
+              release: () => (this.focusedInputId = null),
+            }
           );
           this.focusedInputId = cmd.id;
         }
@@ -87,7 +90,10 @@ export class SelectionInputsManagerPlugin extends UIPlugin {
             this.selection.capture(
               input,
               { cell: { col: zone.left, row: zone.top }, zone },
-              { handleEvent: input.handleEvent.bind(input) }
+              {
+                handleEvent: input.handleEvent.bind(input),
+                release: () => (this.focusedInputId = null),
+              }
             );
           }
           this.focusedInputId = cmd.id;
@@ -155,7 +161,10 @@ export class SelectionInputsManagerPlugin extends UIPlugin {
         zone: positionToZone({ col: 0, row: 0 }),
         cell: { col: 0, row: 0 },
       };
-      this.selection.capture(input, anchor, { handleEvent: input.handleEvent.bind(input) });
+      this.selection.capture(input, anchor, {
+        handleEvent: input.handleEvent.bind(input),
+        release: () => (this.focusedInputId = null),
+      });
       this.focusedInputId = id;
     }
   }
