@@ -1,6 +1,10 @@
 import { Model, Spreadsheet } from "../../src";
 import { setCellContent } from "../test_helpers/commands_helpers";
-import { setInputValueAndTrigger, triggerMouseEvent } from "../test_helpers/dom_helper";
+import {
+  setInputValueAndTrigger,
+  simulateClick,
+  triggerMouseEvent,
+} from "../test_helpers/dom_helper";
 import { mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
@@ -126,6 +130,14 @@ describe("find and replace sidePanel component", () => {
         searchOptions: { exactMatch: false, matchCase: false, searchFormulas: false },
         toSearch: "",
       });
+    });
+
+    test("Closing the sidepanel cancels the search", async () => {
+      setInputValueAndTrigger(selectors.inputSearch, "g", "input");
+      await simulateClick(".o-sidePanelClose");
+      jest.runOnlyPendingTimers();
+      await nextTick();
+      expect(dispatch).not.toHaveBeenCalledWith("UPDATE_SEARCH", expect.any(Object));
     });
   });
 
