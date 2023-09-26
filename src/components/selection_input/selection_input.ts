@@ -113,13 +113,11 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     const existingSelectionRanges = this.env.model.getters.getSelectionInput(this.id);
     const ranges = existingSelectionRanges.length
       ? existingSelectionRanges
-      : this.props.ranges()
-      ? this.props.ranges().map((xc, id) => ({
+      : this.props.ranges().map((xc, id) => ({
           xc,
           id,
           isFocused: false,
-        }))
-      : [];
+        }));
     return ranges.map((range) => ({
       ...range,
       isValidRange: range.xc === "" || this.env.model.getters.isRangeValid(range.xc),
