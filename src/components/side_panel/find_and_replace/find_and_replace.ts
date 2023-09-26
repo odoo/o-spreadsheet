@@ -59,6 +59,7 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
     onMounted(() => this.searchInput.el?.focus());
 
     onWillUnmount(() => {
+      clearTimeout(this.debounceTimeoutId);
       this.env.model.dispatch("CLEAR_SEARCH");
       this.env.model.dispatch("SET_FORMULA_VISIBILITY", { show: this.showFormulaState });
     });
