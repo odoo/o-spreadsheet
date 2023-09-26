@@ -7,10 +7,44 @@ import {
 import { formatValue, roundFormat } from "../helpers";
 import { parseLiteral } from "../helpers/cells";
 import { _t } from "../translation";
-import { Align, DEFAULT_LOCALE, SpreadsheetChildEnv, VerticalAlign, Wrapping } from "../types";
+import {
+  Align,
+  CellValue,
+  DEFAULT_LOCALE,
+  Format,
+  SpreadsheetChildEnv,
+  VerticalAlign,
+  Wrapping,
+} from "../types";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 import { setFormatter, setStyle } from "./menu_items_actions";
+
+/**
+ * Create a format action specification for a given format.
+ * The format can be dynamically computed from the environment.
+ */
+function createFormatActionSpec({
+  name,
+  format,
+  descriptionValue,
+}: {
+  name: string;
+  descriptionValue: CellValue;
+  format: Format | ((env: SpreadsheetChildEnv) => Format);
+}): ActionSpec {
+  const formatCallback = typeof format === "function" ? format : () => format;
+  return {
+    name,
+    description: (env) =>
+      formatValue(descriptionValue, {
+        format: formatCallback(env),
+        locale: env.model.getters.getLocale(),
+      }),
+    execute: (env) => setFormatter(env, formatCallback(env)),
+    isActive: (env) => isFormatSelected(env, formatCallback(env)),
+  };
+}
 
 export const formatNumberAutomatic: ActionSpec = {
   name: _t("Automatic"),
@@ -18,16 +52,11 @@ export const formatNumberAutomatic: ActionSpec = {
   isActive: (env) => isAutomaticFormatSelected(env),
 };
 
-export const formatNumberNumber: ActionSpec = {
+export const formatNumberNumber = createFormatActionSpec({
   name: _t("Number"),
-  description: (env) =>
-    formatValue(1000.12, {
-      format: "#,##0.00",
-      locale: env.model.getters.getLocale(),
-    }),
-  execute: (env) => setFormatter(env, "#,##0.00"),
-  isActive: (env) => isFormatSelected(env, "#,##0.00"),
-};
+  descriptionValue: 1000.12,
+  format: "#,##0.00",
+});
 
 export const formatPercent: ActionSpec = {
   name: _t("Format as percent"),
@@ -35,37 +64,24 @@ export const formatPercent: ActionSpec = {
   icon: "o-spreadsheet-Icon.PERCENT",
 };
 
-export const formatNumberPercent: ActionSpec = {
+export const formatNumberPercent = createFormatActionSpec({
   name: _t("Percent"),
-  description: (env) =>
-    formatValue(0.1012, {
-      format: "0.00%",
-      locale: env.model.getters.getLocale(),
-    }),
-  execute: ACTIONS.FORMAT_PERCENT_ACTION,
-  isActive: (env) => isFormatSelected(env, "0.00%"),
-};
+  descriptionValue: 0.1012,
+  format: "0.00%",
+});
 
-export const formatNumberCurrency: ActionSpec = {
+export const formatNumberCurrency = createFormatActionSpec({
   name: _t("Currency"),
-  description: (env) =>
-    formatValue(1000.12, {
-      format: env.model.config.defaultCurrencyFormat,
-      locale: env.model.getters.getLocale(),
-    }),
-  execute: (env) => setFormatter(env, env.model.config.defaultCurrencyFormat),
-  isActive: (env) => isFormatSelected(env, env.model.config.defaultCurrencyFormat),
-};
+  descriptionValue: 1000.12,
+  format: (env) => env.model.config.defaultCurrencyFormat,
+});
 
 export const formatNumberCurrencyRounded: ActionSpec = {
-  name: _t("Currency rounded"),
-  description: (env) =>
-    formatValue(1000, {
-      format: roundFormat(env.model.config.defaultCurrencyFormat),
-      locale: env.model.getters.getLocale(),
-    }),
-  execute: (env) => setFormatter(env, roundFormat(env.model.config.defaultCurrencyFormat)),
-  isActive: (env) => isFormatSelected(env, roundFormat(env.model.config.defaultCurrencyFormat)),
+  ...createFormatActionSpec({
+    name: _t("Currency rounded"),
+    descriptionValue: 1000,
+    format: (env) => roundFormat(env.model.config.defaultCurrencyFormat),
+  }),
   isVisible: (env) => {
     const currencyFormat = env.model.config.defaultCurrencyFormat;
     return currencyFormat !== roundFormat(currencyFormat);
@@ -78,57 +94,32 @@ export const formatCustomCurrency: ActionSpec = {
   execute: (env) => env.openSidePanel("CustomCurrency", {}),
 };
 
-export const formatNumberDate: ActionSpec = {
+export const formatNumberDate = createFormatActionSpec({
   name: _t("Date"),
-  description: (env) => {
-    const locale = env.model.getters.getLocale();
-    return formatValue(parseLiteral("9/26/2023", DEFAULT_LOCALE), {
-      format: locale.dateFormat,
-      locale,
-    });
-  },
-  execute: (env) => setFormatter(env, env.model.getters.getLocale().dateFormat),
-  isActive: (env) => isFormatSelected(env, env.model.getters.getLocale().dateFormat),
-};
+  descriptionValue: parseLiteral("9/26/2023", DEFAULT_LOCALE),
+  format: (env) => env.model.getters.getLocale().dateFormat,
+});
 
-export const formatNumberTime: ActionSpec = {
+export const formatNumberTime = createFormatActionSpec({
   name: _t("Time"),
-  description: (env) => {
-    const locale = env.model.getters.getLocale();
-    return formatValue(parseLiteral("9/26/2023 10:43:00 PM", DEFAULT_LOCALE), {
-      format: locale.timeFormat,
-      locale,
-    });
-  },
-  execute: (env) => setFormatter(env, env.model.getters.getLocale().timeFormat),
-  isActive: (env) => isFormatSelected(env, env.model.getters.getLocale().timeFormat),
-};
+  descriptionValue: parseLiteral("9/26/2023 10:43:00 PM", DEFAULT_LOCALE),
+  format: (env) => env.model.getters.getLocale().timeFormat,
+});
 
-export const formatNumberDateTime: ActionSpec = {
+export const formatNumberDateTime = createFormatActionSpec({
   name: _t("Date time"),
-  description: (env) => {
+  descriptionValue: parseLiteral("9/26/2023 10:43:00 PM", DEFAULT_LOCALE),
+  format: (env) => {
     const locale = env.model.getters.getLocale();
-    return formatValue(parseLiteral("9/26/2023 22:43:00", DEFAULT_LOCALE), {
-      format: locale.dateFormat + " " + locale.timeFormat,
-      locale,
-    });
+    return locale.dateFormat + " " + locale.timeFormat;
   },
-  execute: (env) => {
-    const locale = env.model.getters.getLocale();
-    setFormatter(env, locale.dateFormat + " " + locale.timeFormat);
-  },
-  isActive: (env) => {
-    const locale = env.model.getters.getLocale();
-    return isFormatSelected(env, locale.dateFormat + " " + locale.timeFormat);
-  },
-};
+});
 
-export const formatNumberDuration: ActionSpec = {
+export const formatNumberDuration = createFormatActionSpec({
   name: _t("Duration"),
-  description: "27:51:38",
-  execute: (env) => setFormatter(env, "hhhh:mm:ss"),
-  isActive: (env) => isFormatSelected(env, "hhhh:mm:ss"),
-};
+  descriptionValue: "27:51:38",
+  format: "hhhh:mm:ss",
+});
 
 export const incraseDecimalPlaces: ActionSpec = {
   name: _t("Increase decimal places"),
