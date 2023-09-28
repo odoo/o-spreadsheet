@@ -1,6 +1,6 @@
 import { Component } from "@odoo/owl";
 import { chartComponentRegistry } from "../../../registries/chart_types";
-import { ChartType, Figure, SpreadsheetChildEnv } from "../../../types";
+import { ChartType, SpreadsheetChildEnv, UID } from "../../../types";
 import { css } from "../../helpers/css";
 
 // -----------------------------------------------------------------------------
@@ -17,7 +17,7 @@ css/* scss */ `
 interface Props {
   // props figure is necessary scorecards, we need the chart dimension at render to avoid having to force the
   // style by hand in the useEffect()
-  figure: Figure;
+  figureId: UID;
   onFigureDeleted: () => void;
 }
 
@@ -26,12 +26,12 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   static components = {};
 
   onDoubleClick() {
-    this.env.model.dispatch("SELECT_FIGURE", { id: this.props.figure.id });
+    this.env.model.dispatch("SELECT_FIGURE", { id: this.props.figureId });
     this.env.openSidePanel("ChartPanel");
   }
 
   get chartType(): ChartType {
-    return this.env.model.getters.getChartType(this.props.figure.id);
+    return this.env.model.getters.getChartType(this.props.figureId);
   }
 
   get chartComponent(): new (...args: any) => Component {
@@ -45,6 +45,6 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
 }
 
 ChartFigure.props = {
-  figure: Object,
+  figureId: String,
   onFigureDeleted: Function,
 };

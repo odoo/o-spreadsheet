@@ -15,7 +15,7 @@
           t-component="figureRegistry.get(props.figure.tag).Component"
           t-key="props.figure.id"
           onFigureDeleted="props.onFigureDeleted"
-          figure="props.figure"
+          figureId="props.figure.id"
         />
         <div class="o-figure-menu position-absolute m-2" t-if="!env.isDashboard()">
           <div
