@@ -156,6 +156,9 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
 
   exportForExcel(data: ExcelWorkbookData) {
     for (const sheet of data.sheets) {
+      if (!sheet.images) {
+        sheet.images = [];
+      }
       const figures = this.getters.getFigures(sheet.id);
       const images: FigureData<Image>[] = [];
       for (const figure of figures) {
@@ -169,7 +172,7 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
           }
         }
       }
-      sheet.images = images;
+      sheet.images = [...sheet.images, ...images];
     }
   }
 
