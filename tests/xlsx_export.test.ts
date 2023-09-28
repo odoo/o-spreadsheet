@@ -9,13 +9,16 @@ import { escapeXml, parseXML } from "../src/xlsx/helpers/xml_helpers";
 import {
   createChart,
   createFilter,
+  createGaugeChart,
   createImage,
+  createScorecardChart,
   createSheet,
   merge,
   setCellContent,
   updateFilter,
 } from "./test_helpers/commands_helpers";
-import { exportPrettifiedXlsx, toRangesData } from "./test_helpers/helpers";
+import { TEST_CHART_DATA } from "./test_helpers/constants";
+import { exportPrettifiedXlsx, mockChart, toRangesData } from "./test_helpers/helpers";
 
 function getExportedExcelData(model: Model): ExcelWorkbookData {
   model.dispatch("EVALUATE_CELLS");
@@ -27,6 +30,8 @@ function getExportedExcelData(model: Model): ExcelWorkbookData {
   }
   return data;
 }
+
+mockChart();
 
 const simpleData = {
   sheets: [
@@ -886,7 +891,7 @@ describe("Test XLSX export", () => {
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
 
-    test("charts that aggregate labels", async () => {
+    test("charts that aggregate labels are exported as image", async () => {
       const model = new Model({
         sheets: [
           {
@@ -909,37 +914,38 @@ describe("Test XLSX export", () => {
           },
         ],
       });
-      createChart(
-        model,
-        {
-          dataSets: ["Sheet1!B1:B9"],
-          labelRange: "Sheet1!A2:A9",
-          aggregated: true,
-          type: "bar",
-        },
-        "1"
-      );
-      createChart(
-        model,
-        {
-          dataSets: ["Sheet1!B1:B9"],
-          labelRange: "Sheet1!A2:A9",
-          aggregated: true,
-          type: "line",
-        },
-        "1"
-      );
-      createChart(
-        model,
-        {
-          dataSets: ["Sheet1!B1:B9"],
-          labelRange: "Sheet1!A2:A9",
-          aggregated: true,
-          type: "pie",
-        },
-        "1"
-      );
+      for (const type of ["bar", "line", "pie"]) {
+        createChart(
+          model,
+          {
+            dataSets: ["Sheet1!B1:B9"],
+            labelRange: "Sheet1!A2:A9",
+            aggregated: true,
+            type: type as "bar" | "line" | "pie",
+          },
+          "1"
+        );
+        expect(getExportedExcelData(model).sheets[0].charts.length).toBe(0);
+        expect(getExportedExcelData(model).sheets[0].images.length).toBe(1);
+      }
+    });
+
+    test("Scorecard is exported as an image", () => {
+      const model = new Model({
+        sheets: chartData.sheets,
+      });
+      createScorecardChart(model, TEST_CHART_DATA.scorecard);
       expect(getExportedExcelData(model).sheets[0].charts.length).toBe(0);
+      expect(getExportedExcelData(model).sheets[0].images.length).toBe(1);
+    });
+
+    test("Gauche Chart is exported as an image", () => {
+      const model = new Model({
+        sheets: chartData.sheets,
+      });
+      createGaugeChart(model, TEST_CHART_DATA.gauge);
+      expect(getExportedExcelData(model).sheets[0].charts.length).toBe(0);
+      expect(getExportedExcelData(model).sheets[0].images.length).toBe(1);
     });
 
     test("stacked bar chart", async () => {
