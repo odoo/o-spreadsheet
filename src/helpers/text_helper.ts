@@ -8,7 +8,7 @@ import {
   NEWLINE,
   PADDING_AUTORESIZE_VERTICAL,
 } from "../constants";
-import { Cell, Style } from "../types";
+import { Cell, Pixel, PixelPosition, Style } from "../types";
 
 export function computeTextLinesHeight(textLineHeight: number, numberOfLines: number = 1) {
   return numberOfLines * (textLineHeight + MIN_CELL_TEXT_MARGIN) - MIN_CELL_TEXT_MARGIN;
@@ -207,4 +207,76 @@ export function computeIconWidth(style: Style) {
 /** Transform a string to lower case. If the string is undefined, return an empty string */
 export function toLowerCase(str: string | undefined): string {
   return str ? str.toLowerCase() : "";
+}
+
+/**
+ * Extract the fontSize from a context font string
+ * @param font The (context) font string to parse
+ * @returns The fontSize in pixels
+ */
+const pxRegex = /([0-9\.]*)px/;
+export function getContextFontSize(font: string): Pixel {
+  return Number(font.match(pxRegex)?.[1]);
+}
+
+export function drawDecoratedText(
+  context: CanvasRenderingContext2D,
+  text: string,
+  position: PixelPosition,
+  underline: boolean | undefined = false,
+  strikethrough: boolean | undefined = false,
+  strokeWidth: number = getContextFontSize(context.font) / 10 //This value is defined to get a good looking stroke
+) {
+  context.fillText(text, position.x, position.y);
+  if (!underline && !strikethrough) {
+    return;
+  }
+  const measure = context.measureText(text);
+  const textWidth = measure.width;
+  const textHeight = measure.actualBoundingBoxAscent + measure.actualBoundingBoxDescent;
+  const boxHeight = measure.fontBoundingBoxAscent + measure.fontBoundingBoxDescent;
+  let { x, y } = position;
+  let strikeY = y,
+    underlineY = y;
+  switch (context.textAlign) {
+    case "center":
+      x -= textWidth / 2;
+      break;
+    case "right":
+      x -= textWidth;
+      break;
+  }
+  switch (context.textBaseline) {
+    case "top":
+      underlineY += boxHeight - 2 * strokeWidth;
+      strikeY += boxHeight - textHeight;
+      break;
+    case "middle":
+      underlineY += boxHeight / 2 - strokeWidth;
+      break;
+    case "alphabetic":
+      underlineY += 2 * strokeWidth;
+      strikeY -= textHeight / 2 - strokeWidth / 2;
+      break;
+    case "bottom":
+      underlineY = y;
+      strikeY -= textHeight / 2 - strokeWidth / 2;
+      break;
+  }
+  if (underline) {
+    context.lineWidth = strokeWidth;
+    context.strokeStyle = context.fillStyle;
+    context.beginPath();
+    context.moveTo(x, underlineY);
+    context.lineTo(x + textWidth, underlineY);
+    context.stroke();
+  }
+  if (strikethrough) {
+    context.lineWidth = strokeWidth;
+    context.strokeStyle = context.fillStyle;
+    context.beginPath();
+    context.moveTo(x, strikeY);
+    context.lineTo(x + textWidth, strikeY);
+    context.stroke();
+  }
 }

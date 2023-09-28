@@ -1,12 +1,11 @@
-import { Component, onMounted, onPatched, useRef } from "@odoo/owl";
+import { Component, onMounted, useEffect, useRef } from "@odoo/owl";
 import type { Chart, ChartConfiguration } from "chart.js";
-import { deepEquals } from "../../../../helpers";
-import { Figure, SpreadsheetChildEnv } from "../../../../types";
+import { SpreadsheetChildEnv, UID } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
 import { GaugeChartConfiguration, GaugeChartOptions } from "../../../../types/chart/gauge_chart";
 
 interface Props {
-  figure: Figure;
+  figureId: UID;
 }
 
 export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
@@ -24,7 +23,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get chartRuntime(): ChartJSRuntime {
-    const runtime = this.env.model.getters.getChartRuntime(this.props.figure.id);
+    const runtime = this.env.model.getters.getChartRuntime(this.props.figureId);
     if (!("chartJsConfig" in runtime)) {
       throw new Error("Unsupported chart runtime");
     }
@@ -36,16 +35,10 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
       const runtime = this.chartRuntime;
       this.createChart(runtime.chartJsConfig);
     });
-
-    let previousRuntime = this.chartRuntime;
-    onPatched(() => {
-      const chartRuntime = this.chartRuntime;
-      if (deepEquals(previousRuntime, chartRuntime)) {
-        return;
-      }
-      this.updateChartJs(chartRuntime);
-      previousRuntime = chartRuntime;
-    });
+    useEffect(
+      () => this.updateChartJs(this.chartRuntime),
+      () => [this.chartRuntime]
+    );
   }
 
   private createChart(chartData: ChartConfiguration | GaugeChartConfiguration) {
@@ -80,5 +73,5 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
 }
 
 ChartJsComponent.props = {
-  figure: Object,
+  figureId: String,
 };

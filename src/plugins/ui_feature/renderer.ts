@@ -26,7 +26,7 @@ import {
   computeTextFont,
   computeTextFontSizeInPixels,
   computeTextLinesHeight,
-  computeTextWidth,
+  drawDecoratedText,
   getZonesCols,
   getZonesRows,
   numberToLetters,
@@ -290,7 +290,7 @@ export class RendererPlugin extends UIPlugin {
   }
 
   private drawTexts(renderingContext: GridRenderingContext) {
-    const { ctx, thinLineWidth } = renderingContext;
+    const { ctx } = renderingContext;
     ctx.textBaseline = "top";
     let currentFont;
     for (let box of this.boxes) {
@@ -339,22 +339,13 @@ export class RendererPlugin extends UIPlugin {
         // use the horizontal and the vertical start points to:
         // fill text / fill strikethrough / fill underline
         for (let brokenLine of box.content.textLines) {
-          ctx.fillText(brokenLine, Math.round(x), Math.round(y));
-          if (style.strikethrough || style.underline) {
-            const lineWidth = computeTextWidth(ctx, brokenLine, style);
-            let _x = x;
-            if (align === "right") {
-              _x -= lineWidth;
-            } else if (align === "center") {
-              _x -= lineWidth / 2;
-            }
-            if (style.strikethrough) {
-              ctx.fillRect(_x, y + textLineHeight / 2, lineWidth, 2.6 * thinLineWidth);
-            }
-            if (style.underline) {
-              ctx.fillRect(_x, y + textLineHeight + 1, lineWidth, 1.3 * thinLineWidth);
-            }
-          }
+          drawDecoratedText(
+            ctx,
+            brokenLine,
+            { x: Math.round(x), y: Math.round(y) },
+            style.underline,
+            style.strikethrough
+          );
           y += MIN_CELL_TEXT_MARGIN + textLineHeight;
         }
 

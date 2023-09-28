@@ -27,6 +27,7 @@ import {
 import { Validator } from "../../../types/validator";
 import { createRange } from "../../range";
 import { rangeReference } from "../../references";
+import { drawDecoratedText } from "../../text_helper";
 import { toUnboundedZone, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
 import {
@@ -37,6 +38,7 @@ import {
   getBaselineColor,
   getBaselineText,
 } from "./chart_common";
+import { ScorecardChartConfig } from "./scorecard_chart_config_builder";
 
 function checkKeyValue(definition: ScorecardChartDefinition): CommandResult {
   return definition.keyValue && !rangeReference.test(definition.keyValue)
@@ -174,6 +176,65 @@ export class ScorecardChart extends AbstractChart {
     }
     const definition = this.getDefinitionWithSpecificRanges(baseline, keyValue);
     return new ScorecardChart(definition, this.sheetId, this.getters);
+  }
+}
+
+export function drawScoreChart(structure: ScorecardChartConfig, canvas: HTMLCanvasElement) {
+  const ctx = canvas.getContext("2d")!;
+  canvas.width = structure.canvas.width;
+  canvas.height = structure.canvas.height;
+
+  ctx.fillStyle = structure.canvas.backgroundColor;
+  ctx.fillRect(0, 0, structure.canvas.width, structure.canvas.height);
+
+  if (structure.title) {
+    ctx.font = structure.title.style.font;
+    ctx.fillStyle = structure.title.style.color;
+    ctx.fillText(structure.title.text, structure.title.position.x, structure.title.position.y);
+  }
+
+  if (structure.baseline) {
+    ctx.font = structure.baseline.style.font;
+    ctx.fillStyle = structure.baseline.style.color;
+    drawDecoratedText(
+      ctx,
+      structure.baseline.text,
+      structure.baseline.position,
+      structure.baseline.style.underline,
+      structure.baseline.style.strikethrough
+    );
+  }
+
+  if (structure.baselineArrow) {
+    ctx.font = structure.baselineArrow.style.font;
+    ctx.fillStyle = structure.baselineArrow.style.color;
+    ctx.fillText(
+      structure.baselineArrow.text,
+      structure.baselineArrow.position.x,
+      structure.baselineArrow.position.y
+    );
+  }
+
+  if (structure.baselineDescr) {
+    ctx.font = structure.baselineDescr.style.font;
+    ctx.fillStyle = structure.baselineDescr.style.color;
+    ctx.fillText(
+      structure.baselineDescr.text,
+      structure.baselineDescr.position.x,
+      structure.baselineDescr.position.y
+    );
+  }
+
+  if (structure.key) {
+    ctx.font = structure.key.style.font;
+    ctx.fillStyle = structure.key.style.color;
+    drawDecoratedText(
+      ctx,
+      structure.key.text,
+      structure.key.position,
+      structure.key.style.underline,
+      structure.key.style.strikethrough
+    );
   }
 }
 

@@ -886,7 +886,7 @@ describe("Test XLSX export", () => {
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
 
-    test("charts that aggregate labels", async () => {
+    test.each(["bar", "line", "pie"])("%s chart that aggregate labels", async (type: string) => {
       const model = new Model({
         sheets: [
           {
@@ -915,27 +915,7 @@ describe("Test XLSX export", () => {
           dataSets: ["Sheet1!B1:B9"],
           labelRange: "Sheet1!A2:A9",
           aggregated: true,
-          type: "bar",
-        },
-        "1"
-      );
-      createChart(
-        model,
-        {
-          dataSets: ["Sheet1!B1:B9"],
-          labelRange: "Sheet1!A2:A9",
-          aggregated: true,
-          type: "line",
-        },
-        "1"
-      );
-      createChart(
-        model,
-        {
-          dataSets: ["Sheet1!B1:B9"],
-          labelRange: "Sheet1!A2:A9",
-          aggregated: true,
-          type: "pie",
+          type: type as "bar" | "line" | "pie",
         },
         "1"
       );
