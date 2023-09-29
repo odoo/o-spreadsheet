@@ -1,5 +1,5 @@
 import { Component, onMounted, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
-import { DEFAULT_FONT, NEWLINE } from "../../../constants";
+import { COMPOSER_ASSISTANT_COLOR, DEFAULT_FONT, NEWLINE } from "../../../constants";
 import { EnrichedToken } from "../../../formulas/index";
 import { functionRegistry } from "../../../functions/index";
 import { clip, fuzzyLookup, getZoneArea, isEqual, splitReference } from "../../../helpers/index";
@@ -15,6 +15,7 @@ import {
   SpreadsheetChildEnv,
 } from "../../../types/index";
 import { css, cssPropertiesToCss } from "../../helpers/css";
+import { getHtmlContentFromPattern } from "../../helpers/html_content_helpers";
 import { updateSelectionWithArrowKeys } from "../../helpers/selection_helpers";
 import { ComposerFocusType } from "../../spreadsheet/spreadsheet";
 import { TextValueProvider } from "../autocomplete_dropdown/autocomplete_dropdown";
@@ -24,6 +25,8 @@ import { FunctionDescriptionProvider } from "../formula_assistant/formula_assist
 const functions = functionRegistry.content;
 
 const ASSISTANT_WIDTH = 300;
+
+const AUTOCOMPLETE_ENTRIES = 10;
 
 export const selectionIndicatorClass = "selector-flag";
 const selectionIndicatorColor = "#a9a9a9";
@@ -83,6 +86,13 @@ css/* scss */ `
       position: absolute;
       margin: 1px 4px;
       pointer-events: none;
+
+      .o-semi-bold {
+        /** FIXME: to remove in favor of Bootstrap
+        * 'fw-semibold' when we upgrade to Bootstrap 5.2
+        */
+        font-weight: 600 !important;
+      }
     }
   }
 `;
@@ -111,6 +121,7 @@ interface AutoCompleteState {
   selectedIndex: number | undefined;
   values: AutocompleteValue[];
   type: "function" | "dataValidation";
+  getHtmlContent: (text: string) => HtmlContent[];
 }
 
 interface FunctionDescriptionState {
@@ -141,6 +152,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     values: [],
     selectedIndex: undefined,
     type: "function",
+    getHtmlContent: () => [],
   });
 
   functionDescriptionState: FunctionDescriptionState = useState({
@@ -424,10 +436,13 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
       .sort((a, b) => {
         return a.text.length - b.text.length || a.text.localeCompare(b.text);
       });
+
     if (searchTerm) {
-      values = fuzzyLookup(searchTerm, values, (t) => t.text);
+      values = fuzzyLookup(searchTerm, values, (t) => t.text).slice(0, AUTOCOMPLETE_ENTRIES);
     }
-    this.autoCompleteState.values = values.slice(0, 10);
+    this.autoCompleteState.values = values.slice(0, AUTOCOMPLETE_ENTRIES);
+    this.autoCompleteState.getHtmlContent = (value) =>
+      getHtmlContentFromPattern(searchTerm, value, COMPOSER_ASSISTANT_COLOR, "o-semi-bold");
     this.autoCompleteState.selectedIndex = 0;
   }
 
@@ -441,7 +456,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
    * the callback onClick from the composer will be executed before
    * the selection was updated in the dom, which means we capture an
    * wrong selection which is then forced upon the content helper on
-   * patchContent.
+   * processContent.
    */
   onMousedown(ev: MouseEvent) {
     if (ev.button > 0) {
@@ -744,6 +759,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     this.autoCompleteState.type = "dataValidation";
     this.autoCompleteState.selectedIndex = undefined;
     this.autoCompleteState.values = values.map((value) => ({ text: value, description: "" }));
+    this.autoCompleteState.getHtmlContent = (value) => [{ value }];
   }
 }
 

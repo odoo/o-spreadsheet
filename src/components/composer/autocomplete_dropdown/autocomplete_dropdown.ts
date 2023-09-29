@@ -26,6 +26,7 @@ css/* scss */ `
 interface Props {
   values: AutocompleteValue[];
   selectedIndex: number | undefined;
+  getHtmlContent: (value: string) => string;
   onValueSelected: (value: string) => void;
   onValueHovered: (index: string) => void;
 }
@@ -37,6 +38,7 @@ export class TextValueProvider extends Component<Props> {
 TextValueProvider.props = {
   values: Array,
   selectedIndex: { type: Number, optional: true },
+  getHtmlContent: Function,
   onValueSelected: Function,
   onValueHovered: Function,
 };

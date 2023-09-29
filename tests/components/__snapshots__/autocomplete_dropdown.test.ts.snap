@@ -10,7 +10,18 @@ exports[`Functions autocomplete autocomplete simple snapshot with =S 1`] = `
     <div
       class="o-autocomplete-value text-truncate"
     >
-      SUM
+      <span
+        class="o-semi-bold"
+        style="color: #9B359B;"
+      >
+        S
+      </span>
+      <span
+        style="color: inherit;"
+      >
+        UM
+      </span>
+      
     </div>
     <div
       class="o-autocomplete-description text-truncate"
@@ -25,7 +36,18 @@ exports[`Functions autocomplete autocomplete simple snapshot with =S 1`] = `
     <div
       class="o-autocomplete-value text-truncate"
     >
-      SZZ
+      <span
+        class="o-semi-bold"
+        style="color: #9B359B;"
+      >
+        S
+      </span>
+      <span
+        style="color: inherit;"
+      >
+        ZZ
+      </span>
+      
     </div>
     
   </div>
@@ -47,7 +69,18 @@ exports[`composer Assistant render above the cell when not enough place below 1`
       <div
         class="o-autocomplete-value text-truncate"
       >
-        SUM
+        <span
+          class="o-semi-bold"
+          style="color: #9B359B;"
+        >
+          S
+        </span>
+        <span
+          style="color: inherit;"
+        >
+          UM
+        </span>
+        
       </div>
       <div
         class="o-autocomplete-description text-truncate"
@@ -62,7 +95,18 @@ exports[`composer Assistant render above the cell when not enough place below 1`
       <div
         class="o-autocomplete-value text-truncate"
       >
-        SZZ
+        <span
+          class="o-semi-bold"
+          style="color: #9B359B;"
+        >
+          S
+        </span>
+        <span
+          style="color: inherit;"
+        >
+          ZZ
+        </span>
+        
       </div>
       
     </div>
@@ -87,7 +131,18 @@ exports[`composer Assistant render below the cell by default 1`] = `
       <div
         class="o-autocomplete-value text-truncate"
       >
-        SUM
+        <span
+          class="o-semi-bold"
+          style="color: #9B359B;"
+        >
+          S
+        </span>
+        <span
+          style="color: inherit;"
+        >
+          UM
+        </span>
+        
       </div>
       <div
         class="o-autocomplete-description text-truncate"
@@ -102,7 +157,18 @@ exports[`composer Assistant render below the cell by default 1`] = `
       <div
         class="o-autocomplete-value text-truncate"
       >
-        SZZ
+        <span
+          class="o-semi-bold"
+          style="color: #9B359B;"
+        >
+          S
+        </span>
+        <span
+          style="color: inherit;"
+        >
+          ZZ
+        </span>
+        
       </div>
       
     </div>
