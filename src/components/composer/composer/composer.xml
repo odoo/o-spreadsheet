@@ -34,6 +34,7 @@
           selectedIndex="autoCompleteState.selectedIndex"
           onValueSelected.bind="this.autoComplete"
           onValueHovered.bind="this.updateAutoCompleteIndex"
+          getHtmlContent="autoCompleteState.getHtmlContent"
         />
         <FunctionDescriptionProvider
           t-if="functionDescriptionState.showDescription"

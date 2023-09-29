@@ -1,4 +1,5 @@
 import { Component, onWillUnmount, useState } from "@odoo/owl";
+import { COMPOSER_ASSISTANT_COLOR } from "../../../constants";
 import { FunctionDescription } from "../../../types";
 import { css } from "../../helpers/css";
 
@@ -21,8 +22,8 @@ css/* scss */ `
     .o-formula-assistant-focus {
       div:first-child,
       span {
-        color: purple;
-        text-shadow: 0px 0px 1px purple;
+        color: ${COMPOSER_ASSISTANT_COLOR};
+        text-shadow: 0px 0px 1px ${COMPOSER_ASSISTANT_COLOR};
       }
       div:last-child {
         color: black;

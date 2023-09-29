@@ -29,6 +29,7 @@ export const HEADER_GROUPING_BORDER_COLOR = "#999";
 export const GRID_BORDER_COLOR = "#E2E3E3";
 export const FROZEN_PANE_HEADER_BORDER_COLOR = "#BCBCBC";
 export const FROZEN_PANE_BORDER_COLOR = "#DADFE8";
+export const COMPOSER_ASSISTANT_COLOR = "#9B359B";
 
 // Color picker defaults as upper case HEX to match `toHex`helper
 export const COLOR_PICKER_DEFAULTS: Color[] = [
