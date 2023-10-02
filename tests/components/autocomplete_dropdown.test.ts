@@ -279,6 +279,17 @@ describe("Functions autocomplete", () => {
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
       ).toBe("SUM");
     });
+
+    test("=S and CTRL+Space show autocomplete for S", async () => {
+      await typeInComposer("=S");
+      keyDown({ key: " ", ctrlKey: true });
+      await keyUp({ key: " ", ctrlKey: true });
+
+      const autocompleteValues = fixture.querySelectorAll(".o-autocomplete-value");
+      expect(autocompleteValues).toHaveLength(2);
+      expect(autocompleteValues[0].textContent).toBe("SUM");
+      expect(autocompleteValues[1].textContent).toBe("SZZ");
+    });
   });
 });
 

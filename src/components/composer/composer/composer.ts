@@ -278,7 +278,9 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     if (ev.ctrlKey) {
       ev.preventDefault();
       ev.stopPropagation();
-      this.showAutocomplete("");
+      const token = this.env.model.getters.getTokenAtCursor();
+      const searchTerm = token && token.type === "SYMBOL" ? token.value : "";
+      this.showAutocomplete(searchTerm);
       this.env.model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
     }
   }
