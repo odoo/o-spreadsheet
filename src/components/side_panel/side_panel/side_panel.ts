@@ -85,10 +85,6 @@ css/* scss */ `
       }
     }
 
-    .o-input .o-type-selector {
-      background-position: right 5px top 11px;
-    }
-
     input.o-required,
     select.o-required {
       border-color: #4c4c4c;
