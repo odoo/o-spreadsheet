@@ -76,6 +76,18 @@ css/* scss */ `
       text-align: right;
     }
 
+    .o-sidePanel-btn-link {
+      font-size: 14px;
+      padding: 20px 24px 11px 24px;
+      height: 44px;
+      cursor: pointer;
+      text-decoration: none;
+      &:hover {
+        color: #003a39;
+        text-decoration: none;
+      }
+    }
+
     .o-button.primary:not(.o-disabled) {
       background-color: ${FILTERS_COLOR};
       color: white;
