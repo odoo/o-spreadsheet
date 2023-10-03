@@ -17,7 +17,7 @@ import {
   updateFilter,
 } from "./test_helpers/commands_helpers";
 import { TEST_CHART_DATA } from "./test_helpers/constants";
-import { exportPrettifiedXlsx, mockChart, toRangesData } from "./test_helpers/helpers";
+import { exportPrettifiedXlsx, mockChart, nextTick, toRangesData } from "./test_helpers/helpers";
 
 function getExportedExcelData(model: Model): ExcelWorkbookData {
   model.dispatch("EVALUATE_CELLS");
@@ -854,6 +854,7 @@ describe("Test XLSX export", () => {
     });
 
     test("Scorecard is exported as an image", () => {
+      window.HTMLCanvasElement.prototype.toDataURL = () => "crap_image_data";
       const model = new Model({
         sheets: chartData.sheets,
       });
@@ -862,11 +863,12 @@ describe("Test XLSX export", () => {
       expect(getExportedExcelData(model).sheets[0].images.length).toBe(1);
     });
 
-    test("Gauche Chart is exported as an image", () => {
+    test("Gauche Chart is exported as an image", async () => {
       const model = new Model({
         sheets: chartData.sheets,
       });
       createGaugeChart(model, TEST_CHART_DATA.gauge);
+      await nextTick();
       expect(getExportedExcelData(model).sheets[0].charts.length).toBe(0);
       expect(getExportedExcelData(model).sheets[0].images.length).toBe(1);
     });

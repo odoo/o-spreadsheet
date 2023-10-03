@@ -8,6 +8,7 @@ import { formatValue, isDateTimeFormat } from "../../format";
 import { range } from "../../misc";
 import { recomputeZones, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
+import { ScorecardChartDrawer } from "./scorecard_chart";
 /**
  * This file contains helpers that are common to different runtime charts (mainly
  * line, bar and pie charts)
@@ -252,7 +253,7 @@ export function getFillingMode(index: number): "origin" | number {
   }
 }
 
-export function chartToImage(runtime: ChartRuntime, figure: Figure) {
+export function chartToImage(runtime: ChartRuntime, figure: Figure, type: string) {
   // wrap the canvas in a div with a fixed size because chart.js would
   // fill the whole page otherwise
   const div = document.createElement("div");
@@ -264,12 +265,21 @@ export function chartToImage(runtime: ChartRuntime, figure: Figure) {
   canvas.setAttribute("height", figure.height.toString());
   // we have to add the canvas to the DOM otherwise it won't be rendered
   document.body.append(div);
-  runtime.chartJsConfig.plugins = [backgroundColorPlugin];
-  const chart = new window.Chart(canvas, runtime.chartJsConfig);
-  const img = chart.toBase64Image();
-  chart.destroy();
-  div.remove();
-  return img;
+  if ("chartJsConfig" in runtime) {
+    runtime.chartJsConfig.plugins = [backgroundColorPlugin];
+    const chart = new window.Chart(canvas, runtime.chartJsConfig);
+    const img = chart.toBase64Image();
+    chart.destroy();
+    div.remove();
+    return img;
+  } else if (type === "scorecard") {
+    const drawer = new ScorecardChartDrawer({ figure }, canvas, runtime);
+    drawer.drawChart();
+    const img = canvas.toDataURL();
+    div.remove();
+    return img;
+  }
+  return "";
 }
 
 const backgroundColorPlugin = {

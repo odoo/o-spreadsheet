@@ -105,7 +105,7 @@ export class EvaluationChartPlugin extends UIPlugin {
             }
             const type = this.getters.getChartType(figureId);
             const runtime = chartRegistry.get(type)?.getChartRuntime(chart, this.getters);
-            const img = chartToImage(runtime, figure);
+            const img = chartToImage(runtime, figure, type);
             images.push({
               ...figure,
               tag: "image",

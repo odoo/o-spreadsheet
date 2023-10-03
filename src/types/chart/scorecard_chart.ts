@@ -1,4 +1,3 @@
-import { ChartConfiguration } from "chart.js";
 import { Color, Style } from "../misc";
 
 export interface ScorecardChartDefinition {
@@ -16,7 +15,6 @@ export interface ScorecardChartDefinition {
 export type BaselineMode = "text" | "difference" | "percentage";
 export type BaselineArrowDirection = "neutral" | "up" | "down";
 export interface ScorecardChartRuntime {
-  readonly chartJsConfig: ChartConfiguration;
   readonly title: string;
   readonly keyValue: string;
   readonly baselineDisplay: string;
