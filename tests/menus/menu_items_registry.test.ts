@@ -1063,6 +1063,14 @@ describe("Menu Item actions", () => {
       expect(setAutoFormatAction.isActive?.(env)).toBe(true);
       expect(setNumberFormatAction.isActive?.(env)).toBe(false);
     });
+
+    test("cancel edition when setting a format", () => {
+      model.dispatch("START_EDITION", { text: "hello" });
+      expect(model.getters.getEditionMode()).toBe("editing");
+      doAction(["format", "format_number", "format_number_percent"], env);
+      expect(model.getters.getEditionMode()).toBe("inactive");
+      expect(getCellContent(model, "A1")).toBe("");
+    });
   });
 
   test("Format -> bold", () => {
