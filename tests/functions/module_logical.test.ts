@@ -23,6 +23,7 @@ describe("AND formula", () => {
     expect(evaluateCell("A1", { A1: "=AND(0 , TRUE)" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=AND(42 , TRUE)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=AND(-42 , TRUE)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=AND(TRUE , KABOUM)" })).toBe("#BAD_EXPR");
   });
 
   test("functional tests on cell arguments", () => {
@@ -38,9 +39,10 @@ describe("AND formula", () => {
     expect(evaluateCell("A1", { A1: "=AND(A2:A5)", A2: "test", A3: "TRUE", A4: "1" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=AND(A2:A5)", A2: "test", A3: "TRUE", A4: "0" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=AND(A2:A5)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=AND(A2:A5)", A3: '="TRUE"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=AND(A2:A5)", A3: "42" })).toBe(true);
-    expect(evaluateCell("A1", { A1: "=AND(A2:A5)", A3: '="42"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=AND(A2:A5)", A3: '="FALSE', A4: "1" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=AND(A2:A5)", A3: "0", A4: "1" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=AND(A2:A5)", A3: '="0"', A4: "1" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=AND(A2:A5)", A3: "=kqjsd", A4: "1" })).toBe("#BAD_EXPR");
   });
 });
 
@@ -371,6 +373,7 @@ describe("OR formula", () => {
     expect(evaluateCell("A1", { A1: "=OR(0 , TRUE)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=OR(42 , FALSE)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=OR(-42 , FALSE)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=OR(FALSE , KABOUM)" })).toBe("#BAD_EXPR");
   });
 
   test("functional tests on cell arguments", () => {
@@ -387,9 +390,10 @@ describe("OR formula", () => {
     expect(evaluateCell("A1", { A1: "=OR(A2:A5)", A2: "test", A3: "TRUE", A4: "0" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=OR(A2:A5)", A2: "test", A3: "FALSE", A4: "0" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=OR(A2:A5)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=OR(A2:A5)", A3: '="TRUE"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=OR(A2:A5)", A3: "42" })).toBe(true);
-    expect(evaluateCell("A1", { A1: "=OR(A2:A5)", A3: '="42"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=OR(A2:A5)", A3: '="TRUE"', A4: "0" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=OR(A2:A5)", A3: "42", A4: "0" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=OR(A2:A5)", A3: '="42"', A4: "0" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=OR(A2:A5)", A3: "=kqjsd", A4: "0" })).toBe("#BAD_EXPR");
   });
 });
 
@@ -426,6 +430,7 @@ describe("XOR formula", () => {
     expect(evaluateCell("A1", { A1: "=XOR(0 , TRUE)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=XOR(42 , FALSE)" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=XOR(-42 , FALSE)" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=XOR(TRUE , KABOUM)" })).toBe("#BAD_EXPR");
   });
 
   test("functional tests on cell arguments", () => {
@@ -453,8 +458,9 @@ describe("XOR formula", () => {
     expect(evaluateCell("A1", { A1: "=XOR(A2:A5)", A2: "test", A3: "TRUE", A4: "0" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=XOR(A2:A5)", A2: "test", A3: "FALSE", A4: "0" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=XOR(A2:A5)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=XOR(A2:A5)", A3: '="TRUE"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
-    expect(evaluateCell("A1", { A1: "=XOR(A2:A5)", A3: "42" })).toBe(true);
-    expect(evaluateCell("A1", { A1: "=XOR(A2:A5)", A3: '="42"' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=XOR(A2:A5)", A3: '="TRUE"', A4: "0" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=XOR(A2:A5)", A3: "42", A4: "0" })).toBe(true);
+    expect(evaluateCell("A1", { A1: "=XOR(A2:A5)", A3: '="42"', A4: "0" })).toBe(false);
+    expect(evaluateCell("A1", { A1: "=XOR(A2:A5)", A3: "=kqjsd", A4: "0" })).toBe("#BAD_EXPR");
   });
 });

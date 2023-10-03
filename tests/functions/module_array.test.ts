@@ -100,6 +100,16 @@ describe("ARRAY.CONSTRAIN function", () => {
     setCellContent(model, "D1", '=ARRAY.CONSTRAIN("oi", 2, 2)');
     expect(getRangeValuesAsMatrix(model, "D1")).toEqual([["oi"]]);
   });
+
+  test("ARRAY.CONSTRAIN accepts errors in the first argument", () => {
+    const grid = { A1: "=KABOUM", A2: "42", B1: "=1/0" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "C1", "=ARRAY.CONSTRAIN(A1:B3, 2, 2)");
+    expect(getRangeValuesAsMatrix(model, "C1:D2")).toEqual([
+      ["#BAD_EXPR", "#ERROR"],
+      [42, 0],
+    ]);
+  });
 });
 
 describe("CHOOSECOLS function", () => {
@@ -208,6 +218,13 @@ describe("CHOOSECOLS function", () => {
     setCellContent(model, "D1", "=CHOOSECOLS(A1:A3, 1)");
     expect(getRangeValuesAsMatrix(model, "D1:D3")).toEqual([["A1"], ["A2"], [0]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:D3")).toBeTruthy();
+  });
+
+  test("CHOOSECOLS accepts errors in the first argument", () => {
+    const grid = { A1: "=KABOUM", A2: "42", A3: "=1/0" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "B1", "=CHOOSECOLS(A1:A3, 1)");
+    expect(getRangeValuesAsMatrix(model, "B1:B3")).toEqual([["#BAD_EXPR"], [42], ["#ERROR"]]);
   });
 });
 
@@ -318,6 +335,13 @@ describe("CHOOSEROWS function", () => {
     setCellContent(model, "D1", "=CHOOSEROWS(A1:C1, 1)");
     expect(getRangeValuesAsMatrix(model, "D1:F1")).toEqual([["A1", "B1", 0]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:F1")).toBeTruthy();
+  });
+
+  test("CHOOSEROWS accepts errors in the first argument", () => {
+    const grid = { A1: "=KABOUM", B1: "42", C1: "=1/0" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", "=CHOOSEROWS(A1:C1, 1)");
+    expect(getRangeValuesAsMatrix(model, "A2:C2")).toEqual([["#BAD_EXPR", 42, "#ERROR"]]);
   });
 });
 
@@ -430,6 +454,19 @@ describe("EXPAND function", () => {
       [66, 66, 66],
     ]);
   });
+
+  test("EXPAND accepts errors in the first argument", () => {
+    const grid = { A1: "=KABOUM", B1: "42", C1: "=1/0" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", "=EXPAND(A1:C1, 1, 4, 24)");
+    expect(getRangeValuesAsMatrix(model, "A2:D2")).toEqual([["#BAD_EXPR", 42, "#ERROR", 24]]);
+  });
+
+  test("EXPAND accepts error on the last argument", () => {
+    const model = createModelFromGrid({ A1: "42" });
+    setCellContent(model, "A2", "=EXPAND(A1, 1, 2, 1/0)");
+    expect(getRangeValuesAsMatrix(model, "A2:B2")).toEqual([[42, "#ERROR"]]);
+  });
 });
 
 describe("FLATTEN function", () => {
@@ -507,6 +544,13 @@ describe("FLATTEN function", () => {
       ["A1"],
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "E1:E8")).toBeTruthy();
+  });
+
+  test("FLATTEN accepts errors in arguments", () => {
+    const grid = { A1: "=KABOUM", B1: "42", C1: "=1/0" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", "=FLATTEN(A1, B1:C1)");
+    expect(getRangeValuesAsMatrix(model, "A2:A4")).toEqual([["#BAD_EXPR"], [42], ["#ERROR"]]);
   });
 });
 
@@ -628,6 +672,12 @@ describe("FREQUENCY function", () => {
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:D2")).toBeTruthy();
   });
+
+  test("FREQUENCY accepts errors in the first argument", () => {
+    expect(
+      evaluateCell("D1", { D1: "=FREQUENCY(A1:A3, 42)", A1: "=KABOUM", A2: "42", A3: "=1/0" })
+    ).toBe(1);
+  });
 });
 
 describe("HSTACK function", () => {
@@ -694,6 +744,16 @@ describe("HSTACK function", () => {
       [0, "B2"],
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E2")).toBeTruthy();
+  });
+
+  test("HSTACK accepts errors in arguments", () => {
+    const grid = { A1: "=KABOUM", B1: "42", B2: "=1/0" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "C1", "=HSTACK(A1, B1:B2)");
+    expect(getRangeValuesAsMatrix(model, "C1:D2")).toEqual([
+      ["#BAD_EXPR", 42],
+      [0, "#ERROR"],
+    ]);
   });
 });
 
@@ -927,6 +987,12 @@ describe("SUMPRODUCT function", () => {
     setCellContent(model, "D1", '=SUMPRODUCT("3")');
     expect(getCellContent(model, "D1")).toBe("0");
   });
+
+  test("SUMPRODUCT accepts errors in arguments", () => {
+    // @compatibility: on google sheets and Excel errors are not accepted
+    const grid = { A1: "=KABOUM", A2: "42", B1: "1", B2: "2" };
+    expect(evaluateCell("C1", { C1: "=SUMPRODUCT(A1:A2, B1:B2)", ...grid })).toBe(84);
+  });
 });
 
 describe("SUMX2MY2 function", () => {
@@ -967,6 +1033,12 @@ describe("SUMX2MY2 function", () => {
 
     setCellContent(model, "E1", "=SUMX2MY2(A2:A3, B2:B3)");
     expect(getEvaluatedCell(model, "E1").value).toEqual("#ERROR"); // No valid X/Y pairs
+  });
+
+  test("SUMX2MY2 accepts errors in arguments", () => {
+    // @compatibility: on google sheets and Excel errors are not accepted
+    const grid = { A1: "=KABOUM", A2: "42", B1: "1", B2: "2" };
+    expect(evaluateCell("C1", { C1: "=SUMX2MY2(A1:A2, B1:B2)", ...grid })).toBe(1760);
   });
 });
 
@@ -1009,6 +1081,12 @@ describe("SUMX2PY2 function", () => {
     setCellContent(model, "E1", "=SUMX2PY2(A2:A3, B2:B3)");
     expect(getEvaluatedCell(model, "E1").value).toEqual("#ERROR"); // No valid X/Y pairs
   });
+
+  test("SUMX2PY2 accepts errors in arguments", () => {
+    // @compatibility: on google sheets and Excel errors are not accepted
+    const grid = { A1: "=KABOUM", A2: "42", B1: "1", B2: "2" };
+    expect(evaluateCell("C1", { C1: "=SUMX2PY2(A1:A2, B1:B2)", ...grid })).toBe(1768);
+  });
 });
 
 describe("SUMXMY2 function", () => {
@@ -1048,6 +1126,12 @@ describe("SUMXMY2 function", () => {
 
     setCellContent(model, "E1", "=SUMXMY2(A2:A3, B2:B3)");
     expect(getEvaluatedCell(model, "E1").value).toEqual("#ERROR"); // No valid X/Y pairs
+  });
+
+  test("SUMX2PY2 accepts errors in arguments", () => {
+    // @compatibility: on google sheets and Excel errors are not accepted
+    const grid = { A1: "=KABOUM", A2: "42", B1: "1", B2: "2" };
+    expect(evaluateCell("C1", { C1: "=SUMXMY2(A1:A2, B1:B2)", ...grid })).toBe(1600);
   });
 });
 
@@ -1112,22 +1196,27 @@ describe("TOCOL function", () => {
   });
 
   test("Argument ignore", () => {
-    const grid = { A1: "A1", A2: "A2", B1: "B1", B2: undefined };
+    const grid = { A1: "=KABOUM", B1: "B1", B2: "B2" };
     // ignore=0, keep all
     const model = createModelFromGrid(grid);
     setCellContent(model, "D1", "=TOCOL(A1:B2, 0)");
-    expect(getRangeValuesAsMatrix(model, "D1:D4")).toEqual([["A1"], ["B1"], ["A2"], [0]]);
+    expect(getRangeValuesAsMatrix(model, "D1:D4")).toEqual([["#BAD_EXPR"], ["B1"], [0], ["B2"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:D4")).toBeTruthy();
 
     // ignore=1, ignore empty cells
     setCellContent(model, "D1", "=TOCOL(A1:B2, 1)");
-    expect(getRangeValuesAsMatrix(model, "D1:D4")).toEqual([["A1"], ["B1"], ["A2"], [""]]);
-    expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:D4")).toBeTruthy();
+    expect(getRangeValuesAsMatrix(model, "D1:D4")).toEqual([["#BAD_EXPR"], ["B1"], ["B2"], [""]]);
+    expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:D3")).toBeTruthy();
 
-    // ignore=3, ignore empty cells
+    // ignore=2, ignore error cells
+    setCellContent(model, "D1", "=TOCOL(A1:B2, 2)");
+    expect(getRangeValuesAsMatrix(model, "D1:D4")).toEqual([["B1"], [0], ["B2"], [""]]);
+    expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:D3")).toBeTruthy();
+
+    // ignore=3, ignore empty cells and error cells
     setCellContent(model, "D1", "=TOCOL(A1:B2, 3)");
-    expect(getRangeValuesAsMatrix(model, "D1:D4")).toEqual([["A1"], ["B1"], ["A2"], [""]]);
-    expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:D4")).toBeTruthy();
+    expect(getRangeValuesAsMatrix(model, "D1:D4")).toEqual([["B1"], ["B2"], [""], [""]]);
+    expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:D2")).toBeTruthy();
   });
 
   test("No results returns #N/A", () => {
@@ -1203,22 +1292,27 @@ describe("TOROW function", () => {
   });
 
   test("Argument ignore", () => {
-    const grid = { A1: "A1", A2: "A2", B1: "B1", B2: undefined };
+    const grid = { A1: "=KABOUM", B1: "B1", B2: "B2" };
     // ignore=0, keep all
     const model = createModelFromGrid(grid);
     setCellContent(model, "D1", "=TOROW(A1:B2, 0)");
-    expect(getRangeValuesAsMatrix(model, "D1:G1")).toEqual([["A1", "B1", "A2", 0]]);
+    expect(getRangeValuesAsMatrix(model, "D1:G1")).toEqual([["#BAD_EXPR", "B1", 0, "B2"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:G1")).toBeTruthy();
 
     // ignore=1, ignore empty cells
     setCellContent(model, "D1", "=TOROW(A1:B2, 1)");
-    expect(getRangeValuesAsMatrix(model, "D1:G1")).toEqual([["A1", "B1", "A2", ""]]);
-    expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:G1")).toBeTruthy();
+    expect(getRangeValuesAsMatrix(model, "D1:G1")).toEqual([["#BAD_EXPR", "B1", "B2", ""]]);
+    expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:F1")).toBeTruthy();
 
-    // ignore=3, ignore empty cells
+    // // ignore=2, ignore error cells
+    setCellContent(model, "D1", "=TOROW(A1:B2, 2)");
+    expect(getRangeValuesAsMatrix(model, "D1:G1")).toEqual([["B1", 0, "B2", ""]]);
+    expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:F1")).toBeTruthy();
+
+    // // ignore=3, ignore empty cells and error cells
     setCellContent(model, "D1", "=TOROW(A1:B2, 3)");
-    expect(getRangeValuesAsMatrix(model, "D1:G1")).toEqual([["A1", "B1", "A2", ""]]);
-    expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:G1")).toBeTruthy();
+    expect(getRangeValuesAsMatrix(model, "D1:G1")).toEqual([["B1", "B2", "", ""]]);
+    expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E1")).toBeTruthy();
   });
 
   test("No results returns #N/A", () => {
@@ -1290,6 +1384,16 @@ describe("TRANSPOSE function", () => {
     setCellContent(model, "D1", "=TRANSPOSE(A1:A2)");
     expect(getRangeFormatsAsMatrix(model, "D1:E1")).toEqual([["0.00", "0.000"]]);
   });
+
+  test("TRANSPOSE accepts errors in first arguments", () => {
+    const grid = { A1: "=KABOUM", A2: "42", B1: "24", B2: "=1/0" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "C1", "=TRANSPOSE(A1:B2)");
+    expect(getRangeValuesAsMatrix(model, "C1:D2")).toEqual([
+      ["#BAD_EXPR", 42],
+      [24, "#ERROR"],
+    ]);
+  });
 });
 
 describe("VSTACK function", () => {
@@ -1358,6 +1462,16 @@ describe("VSTACK function", () => {
       [0, "B2"],
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E2")).toBeTruthy();
+  });
+
+  test("VSTACK accepts errors in arguments", () => {
+    const grid = { A1: "=KABOUM", B1: "=1/0", C1: "42" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", "=VSTACK(A1,B1:C1)");
+    expect(getRangeValuesAsMatrix(model, "A2:B3")).toEqual([
+      ["#BAD_EXPR", 0],
+      ["#ERROR", 42],
+    ]);
   });
 });
 
@@ -1451,6 +1565,16 @@ describe("WRAPCOLS function", () => {
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "E1:F2")).toBeTruthy();
   });
+
+  test("WRAPCOLS accepts errors in first argument", () => {
+    const grid = { A1: "=KABOUM", B1: "42", C1: "=1/0" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", "=WRAPCOLS(A1:C1, 2)");
+    expect(getRangeValuesAsMatrix(model, "A2:B3")).toEqual([
+      ["#BAD_EXPR", "#ERROR"],
+      [42, 0],
+    ]);
+  });
 });
 
 describe("WRAPROWS function", () => {
@@ -1541,5 +1665,15 @@ describe("WRAPROWS function", () => {
       [0, "D1"],
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "E1:F2")).toBeTruthy();
+  });
+
+  test("WRAPROWS accepts errors in first argument", () => {
+    const grid = { A1: "=KABOUM", B1: "42", C1: "=1/0" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A2", "=WRAPROWS(A1:C1, 2)");
+    expect(getRangeValuesAsMatrix(model, "A2:B3")).toEqual([
+      ["#BAD_EXPR", 42],
+      ["#ERROR", 0],
+    ]);
   });
 });
