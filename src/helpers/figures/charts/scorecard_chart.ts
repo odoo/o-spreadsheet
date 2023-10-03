@@ -37,6 +37,7 @@ import {
   getBaselineColor,
   getBaselineText,
 } from "./chart_common";
+import { getDefaultChartJsRuntime } from "./chart_ui_common";
 
 function checkKeyValue(definition: ScorecardChartDefinition): CommandResult {
   return definition.keyValue && !rangeReference.test(definition.keyValue)
@@ -205,6 +206,7 @@ export function createScorecardChartRuntime(
     baselineCell = getters.getEvaluatedCell(baselinePosition);
   }
   const background = getters.getBackgroundOfSingleCellChart(chart.background, chart.keyValue);
+  const fontColor = chartFontColor(background);
   return {
     title: _t(chart.title),
     keyValue: formattedKeyValue || keyValue,
@@ -218,7 +220,7 @@ export function createScorecardChartRuntime(
       chart.baselineColorDown
     ),
     baselineDescr: chart.baselineDescr ? _t(chart.baselineDescr) : "",
-    fontColor: chartFontColor(background),
+    fontColor,
     background,
     baselineStyle:
       chart.baselineMode !== "percentage" && baseline
@@ -235,5 +237,6 @@ export function createScorecardChartRuntime(
           row: chart.keyValue.zone.top,
         })
       : undefined,
+    chartJsConfig: getDefaultChartJsRuntime(chart, [], fontColor, ""),
   };
 }
