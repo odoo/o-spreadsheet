@@ -71,6 +71,12 @@ function filterAndFlatData(
       flatDataY.push(valueY);
       flatDataX.push(valueX);
     }
+    if (valueY instanceof Error) {
+      throw valueY;
+    }
+    if (valueX instanceof Error) {
+      throw valueX;
+    }
   }
   return { flatDataX, flatDataY };
 }
@@ -156,6 +162,9 @@ function centile(
       );
       sortedArray.splice(index + 1, 0, d);
       count++;
+    }
+    if (d instanceof Error) {
+      throw d;
     }
   });
   assert(() => count !== 0, _t("[[FUNCTION_NAME]] has no valid input data."));
@@ -862,6 +871,9 @@ export const LARGE = {
           largests.shift();
           count--;
         }
+      }
+      if (d.value instanceof Error) {
+        throw d.value;
       }
     });
     const result = largests.shift();
@@ -1620,6 +1632,9 @@ export const SMALL = {
           largests.pop();
           count--;
         }
+      }
+      if (d.value instanceof Error) {
+        throw d.value;
       }
     });
     const result = largests.pop();

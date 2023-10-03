@@ -8,7 +8,7 @@ import {
   Maybe,
   ValueAndFormat,
 } from "../types";
-import { NotAvailableError } from "../types/errors";
+import { EvaluationError, NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import {
   assertPositive,
@@ -480,7 +480,9 @@ function getSumXAndY(
   }
 
   if (!validPairFound) {
-    throw new Error("The arguments array_x and array_y must contain at least one pair of numbers.");
+    throw new Error(
+      _t("The arguments array_x and array_y must contain at least one pair of numbers.")
+    );
   }
 
   return result;
@@ -585,6 +587,23 @@ const TO_COL_ROW_ARGS = [
   ),
 ];
 
+function shouldKeepValue(ignore: number): (data: ValueAndFormat) => boolean {
+  const _ignore = Math.trunc(ignore);
+  if (_ignore === 0) {
+    return () => true;
+  }
+  if (_ignore === 1) {
+    return (data) => data.value !== null;
+  }
+  if (_ignore === 2) {
+    return (data) => !(data.value instanceof EvaluationError);
+  }
+  if (_ignore === 3) {
+    return (data) => data.value !== null && !(data.value instanceof EvaluationError);
+  }
+  throw new EvaluationError(_t("Argument ignore must be between 0 and 3"));
+}
+
 export const TOCOL = {
   description: _t("Transforms a range of cells into a single column."),
   args: TO_COL_ROW_ARGS,
@@ -595,20 +614,12 @@ export const TOCOL = {
     scanByColumn: Maybe<ValueAndFormat> = { value: TO_COL_ROW_DEFAULT_SCAN }
   ) {
     const _array = toMatrix(array);
-    const _ignore = toInteger(ignore.value, this.locale);
+    const _ignore = toNumber(ignore.value, this.locale);
     const _scanByColumn = toBoolean(scanByColumn.value);
 
-    assert(() => _ignore >= 0 && _ignore <= 3, _t("Argument ignore must be between 0 and 3"));
-
-    // TODO : implement ignore value 2 (ignore error) & 3 (ignore blanks and errors) once we can have errors in
-    // the array w/o crashing
     const result = (_scanByColumn ? _array : transposeMatrix(_array))
       .flat()
-      .filter(
-        (item) =>
-          (_ignore !== 1 && _ignore !== 3) || (item.value !== undefined && item.value !== null)
-      );
-
+      .filter(shouldKeepValue(_ignore));
     if (result.length === 0) {
       throw new NotAvailableError(_t("No results for the given arguments of TOCOL."));
     }
@@ -630,19 +641,11 @@ export const TOROW = {
     scanByColumn: Maybe<ValueAndFormat> = { value: TO_COL_ROW_DEFAULT_SCAN }
   ): Matrix<ValueAndFormat> {
     const _array = toMatrix(array);
-    const _ignore = toInteger(ignore.value, this.locale);
+    const _ignore = toNumber(ignore.value, this.locale);
     const _scanByColumn = toBoolean(scanByColumn.value);
-
-    assert(() => _ignore >= 0 && _ignore <= 3, _t("Argument ignore must be between 0 and 3"));
-
-    // TODO : implement ignore value 2 (ignore error) & 3 (ignore blanks and errors) once we can have errors in
-    // the array w/o crashing
     const result = (_scanByColumn ? _array : transposeMatrix(_array))
       .flat()
-      .filter(
-        (item) =>
-          (_ignore !== 1 && _ignore !== 3) || (item.value !== undefined && item.value !== null)
-      )
+      .filter(shouldKeepValue(_ignore))
       .map((item) => [item]);
 
     if (result.length === 0 || result[0].length === 0) {

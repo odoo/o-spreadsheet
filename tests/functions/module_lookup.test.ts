@@ -106,6 +106,10 @@ describe("COLUMN formula", () => {
     expect(evaluateCell("A1", { A1: "=COLUMN($D$3:$Z$9)" })).toBe(4);
     expect(evaluateCell("A1", { A1: "=COLUMN(Sheet42!$D$3:$Z$9)" })).toBe(4);
   });
+
+  test("COLUMN accepts errors on first argument", () => {
+    expect(evaluateCell("A1", { A1: "=COLUMN(B2)", B2: "=KABOUM" })).toBe(2);
+  });
 });
 
 describe("COLUMNS formula", () => {
@@ -126,6 +130,10 @@ describe("COLUMNS formula", () => {
     expect(evaluateCell("A1", { A1: "=COLUMNS(D3:Z9)" })).toBe(23);
     expect(evaluateCell("A1", { A1: "=COLUMNS($D$3:$Z$9)" })).toBe(23);
     expect(evaluateCell("A1", { A1: "=COLUMNS(Sheet42!$D$3:$Z$9)" })).toBe(23);
+  });
+
+  test("COLUMNS accepts errors on first argument", () => {
+    expect(evaluateCell("A1", { A1: "=COLUMNS(B2:D2)", B2: "=KABOUM" })).toBe(3);
   });
 });
 
@@ -231,6 +239,16 @@ describe("LOOKUP formula", () => {
       A3: "=?LOOKUP(2, A1:A2)",
     };
     expect(evaluateCell("A3", grid)).toBe(2);
+  });
+
+  test("cannot lookup an error values", () => {
+    const grid = {
+      A1: "=1/0",
+      B1: "1",
+      A2: "42",
+      B2: "2",
+    };
+    expect(evaluateCell("A3", { A3: "=LOOKUP(A1, A1:B2)", ...grid })).toBe("#ERROR");
   });
 });
 
@@ -448,6 +466,16 @@ describe("MATCH formula", () => {
   test("Accents and uppercase are ignored", () => {
     expect(evaluateCell("A1", { A1: '=MATCH("epee", B1, 1)', B1: "Épée" })).toBe(1);
   });
+
+  test("MATCH accepts errors in second argument", () => {
+    const grid = { A1: "=KABOUM", B1: "42" };
+    expect(evaluateCell("A3", { A3: "=MATCH(42, A1:B1)", ...grid })).toBe(2);
+  });
+
+  test("cannot match an error", () => {
+    const grid = { A1: "=KABOUM", B1: "42" };
+    expect(evaluateCell("A3", { A3: "=MATCH(A1, A1:B1)", ...grid })).toBe("#BAD_EXPR");
+  });
 });
 
 describe("ROW formula", () => {
@@ -478,6 +506,10 @@ describe("ROW formula", () => {
     expect(evaluateCell("A1", { A1: "=ROW($D$3:$Z$9)" })).toBe(3);
     expect(evaluateCell("A1", { A1: "=ROW(Sheet42!$D$3:$Z$9)" })).toBe(3);
   });
+
+  test("ROW accepts errors on first argument", () => {
+    expect(evaluateCell("A1", { A1: "=ROW(B2)", B2: "=KABOUM" })).toBe(2);
+  });
 });
 
 describe("ROWS formula", () => {
@@ -498,6 +530,10 @@ describe("ROWS formula", () => {
     expect(evaluateCell("A1", { A1: "=ROWS(D3:Z9)" })).toBe(7);
     expect(evaluateCell("A1", { A1: "=ROWS($D$3:$Z$9)" })).toBe(7);
     expect(evaluateCell("A1", { A1: "=ROWS(Sheet42!$D$3:$Z$9)" })).toBe(7);
+  });
+
+  test("ROWS accepts errors on first argument", () => {
+    expect(evaluateCell("A1", { A1: "=ROWS(B2:B4)", B2: "=KABOUM" })).toBe(3);
   });
 });
 
@@ -751,6 +787,26 @@ describe("VLOOKUP formula", () => {
     expect(evaluateCellFormat("D1", { D1: '=VLOOKUP("A2", A2:C3, 3)', ...grid })).toBe("#,##0[$€]");
     expect(evaluateCellFormat("E1", { E1: '=VLOOKUP("B2", A2:C3, 2)', ...grid })).toBe("0%");
   });
+
+  test("VLOOKUP accept errors in the second parameter", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "=KABOUM", B1: "1",
+      A2: "42",      B2: "2", 
+    };
+    expect(evaluateCell("A3", { A3: "=VLOOKUP(42, A1:B2, 2, true)", ...grid })).toBe(2);
+    expect(evaluateCell("A3", { A3: "=VLOOKUP(42, A1:B2, 2, false)", ...grid })).toBe(2);
+  });
+
+  test("VLOOKUP cannot find error values", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "=KABOUM", B1: "1",
+      A2: "42",      B2: "2", 
+    };
+    expect(evaluateCell("A3", { A3: "=VLOOKUP(A1, A1:B2, 2, true)", ...grid })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A3", { A3: "=VLOOKUP(A1, A1:B2, 2, false)", ...grid })).toBe("#BAD_EXPR");
+  });
 });
 
 describe("HLOOKUP formula", () => {
@@ -772,7 +828,7 @@ describe("HLOOKUP formula", () => {
     expect(grid.Z2).toBe("#ERROR"); // @compatibility: on googlesheets, return #VALUE!
   });
 
-  test("if folat index --> index rounded down", () => {
+  test("if float index --> index rounded down", () => {
     const grid = evaluateGrid({
       ...commonGrid,
       Z1: '=HLOOKUP( "B2", A2:F5, 2.9)',
@@ -925,6 +981,26 @@ describe("HLOOKUP formula", () => {
   test("Accents and uppercase are ignored", () => {
     expect(evaluateCell("A1", { A1: '=HLOOKUP("epee", B1, 1)', B1: "Épée" })).toBe("Épée");
   });
+
+  test("HLOOKUP accept errors in the second parameter", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "=KABOUM", B1: "42",
+      A2: "1",       B2: "2", 
+    };
+    expect(evaluateCell("A3", { A3: "=HLOOKUP(42, A1:B2, 2, true)", ...grid })).toBe(2);
+    expect(evaluateCell("A3", { A3: "=HLOOKUP(42, A1:B2, 2, false)", ...grid })).toBe(2);
+  });
+
+  test("HLOOKUP cannot find error values", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "=KABOUM", B1: "42",
+      A2: "1",       B2: "2", 
+    };
+    expect(evaluateCell("A3", { A3: "=HLOOKUP(A1, A1:B2, 2, true)", ...grid })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A3", { A3: "=HLOOKUP(A1, A1:B2, 2, false)", ...grid })).toBe("#BAD_EXPR");
+  });
 });
 
 describe("XLOOKUP formula", () => {
@@ -1063,6 +1139,24 @@ describe("XLOOKUP formula", () => {
       expect(grid.Z2).toBe("B1");
       expect(grid.Z3).toBe(5);
       expect(grid.Z4).toBe("#N/A");
+    });
+
+    test("XLOOKUP accept errors in the second parameter", () => {
+      // prettier-ignore
+      const grid = {
+        A1: "=KABOUM", B1: "42",
+        A2: "1",       B2: "2", 
+      };
+      expect(evaluateCell("A3", { A3: "=XLOOKUP(42, A1:B1, A2:B2)", ...grid })).toBe(2);
+    });
+
+    test("XLOOKUP cannot find error values", () => {
+      // prettier-ignore
+      const grid = {
+        A1: "=KABOUM", B1: "42",
+        A2: "1",       B2: "2", 
+      };
+      expect(evaluateCell("A3", { A3: "=XLOOKUP(A1, A1:B1, A2:B2)", ...grid })).toBe("#BAD_EXPR");
     });
   });
 
@@ -1312,5 +1406,15 @@ describe("INDEX formula", () => {
     };
     expect(evaluateCellFormat("A4", { A4: "=INDEX(A1:B2, 2, 1)", ...grid })).toBe("#,##0[$€]");
     expect(evaluateCellFormat("B4", { B4: "=INDEX(A1:B2, 1, 2)", ...grid })).toBe("0%");
+  });
+
+  test("INDEX accept errors in the first parameter", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "2", B1: "42",
+      A2: "1", B2: "=KABOUM", 
+    };
+    expect(evaluateCell("A3", { A3: "=INDEX(A1:B2, 1, 2)", ...grid })).toBe(42);
+    expect(evaluateCell("A3", { A3: "=INDEX(A1:B2, 2, 2)", ...grid })).toBe("#BAD_EXPR");
   });
 });
