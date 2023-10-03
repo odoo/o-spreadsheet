@@ -1,5 +1,6 @@
 export class MockCanvasRenderingContext2D {
   font: string = "";
+  fillStyle: string = "";
   translate() {}
   scale() {}
   clearRect() {}
@@ -9,7 +10,7 @@ export class MockCanvasRenderingContext2D {
   stroke() {}
   fillRect() {}
   strokeRect() {}
-  fillText() {}
+  fillText(text: string, x: number, y: number) {}
   fill() {}
   save() {}
   rect() {}

@@ -8,6 +8,8 @@ import { formatValue, isDateTimeFormat } from "../../format";
 import { range } from "../../misc";
 import { recomputeZones, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
+import { drawScoreChart } from "./scorecard_chart";
+import { ScorecardChartDesigner } from "./scorecard_chart_designer";
 /**
  * This file contains helpers that are common to different runtime charts (mainly
  * line, bar and pie charts)
@@ -243,7 +245,7 @@ export function getFillingMode(index: number): "origin" | number {
   }
 }
 
-export function chartToImage(runtime: ChartRuntime, figure: Figure) {
+export function chartToImage(runtime: ChartRuntime, figure: Figure, type: string) {
   // wrap the canvas in a div with a fixed size because chart.js would
   // fill the whole page otherwise
   const div = document.createElement("div");
@@ -255,18 +257,31 @@ export function chartToImage(runtime: ChartRuntime, figure: Figure) {
   canvas.setAttribute("height", figure.height.toString());
   // we have to add the canvas to the DOM otherwise it won't be rendered
   document.body.append(div);
-  runtime.chartJsConfig.plugins = [backgroundColorPlugin];
-  // @ts-ignore
-  const chart = new window.Chart(canvas, runtime.chartJsConfig);
-  const img = chart.toBase64Image();
-  chart.destroy();
-  div.remove();
-  return img;
+  if ("chartJsConfig" in runtime) {
+    runtime.chartJsConfig.plugins = [backgroundColorChartJSPlugin];
+    // @ts-ignore
+    const chart = new window.Chart(canvas, runtime.chartJsConfig);
+    const imgContent = chart.toBase64Image();
+    chart.destroy();
+    div.remove();
+    return imgContent;
+  } else if (type === "scorecard") {
+    const design = new ScorecardChartDesigner(figure, runtime).computeDesign();
+    drawScoreChart(design, canvas);
+    const imgContent = canvas.toDataURL();
+    div.remove();
+    return imgContent;
+  }
+  return "";
 }
 
-const backgroundColorPlugin = {
+/**
+ * Custom chart.js plugin to set the background color of the canvas
+ * https://github.com/chartjs/Chart.js/blob/8fdf76f8f02d31684d34704341a5d9217e977491/docs/configuration/canvas-background.md
+ */
+const backgroundColorChartJSPlugin = {
   id: "customCanvasBackgroundColor",
-  beforeDraw: (chart, args, options) => {
+  beforeDraw: (chart) => {
     const { ctx } = chart;
     ctx.save();
     ctx.globalCompositeOperation = "destination-over";

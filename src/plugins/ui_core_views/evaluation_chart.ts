@@ -88,40 +88,41 @@ export class EvaluationChartPlugin extends UIPlugin<EvaluationChartState> {
   }
 
   exportForExcel(data: ExcelWorkbookData) {
-    for (let sheet of data.sheets) {
+    for (const sheet of data.sheets) {
       if (!sheet.images) {
         sheet.images = [];
       }
       const sheetFigures = this.getters.getFigures(sheet.id);
       const figures: FigureData<ExcelChartDefinition>[] = [];
       const images: FigureData<Image>[] = [];
-      for (let figure of sheetFigures) {
-        if (figure && figure.tag === "chart") {
-          const figureId = figure.id;
-          const figureData = this.getters.getChart(figureId)?.getDefinitionForExcel();
-          if (figureData) {
-            figures.push({
-              ...figure,
-              data: figureData,
-            });
-          } else {
-            const chart = this.getters.getChart(figureId);
-            if (!chart) {
-              continue;
-            }
-            const type = this.getters.getChartType(figureId);
-            const runtime = chartRegistry.get(type)?.getChartRuntime(chart, this.getters);
-            const img = chartToImage(runtime, figure);
-            images.push({
-              ...figure,
-              tag: "image",
-              data: {
-                mimetype: "image/png",
-                path: img,
-                size: { width: figure.width, height: figure.height },
-              },
-            });
+      for (const figure of sheetFigures) {
+        if (!figure || figure.tag !== "chart") {
+          continue;
+        }
+        const figureId = figure.id;
+        const figureData = this.getters.getChart(figureId)?.getDefinitionForExcel();
+        if (figureData) {
+          figures.push({
+            ...figure,
+            data: figureData,
+          });
+        } else {
+          const chart = this.getters.getChart(figureId);
+          if (!chart) {
+            continue;
           }
+          const type = this.getters.getChartType(figureId);
+          const runtime = chartRegistry.get(type).getChartRuntime(chart, this.getters);
+          const img = chartToImage(runtime, figure, type);
+          images.push({
+            ...figure,
+            tag: "image",
+            data: {
+              mimetype: "image/png",
+              path: img,
+              size: { width: figure.width, height: figure.height },
+            },
+          });
         }
       }
       sheet.images = [...sheet.images, ...images];

@@ -13,6 +13,7 @@ import {
   CoreGetters,
   EvaluatedCell,
   Getters,
+  PixelPosition,
   Range,
   RemoveColumnsRowsCommand,
   UID,
@@ -37,7 +38,7 @@ import {
   getBaselineColor,
   getBaselineText,
 } from "./chart_common";
-import { getDefaultChartJsRuntime } from "./chart_ui_common";
+import { ScorecardChartDesign } from "./scorecard_chart_designer";
 
 function checkKeyValue(definition: ScorecardChartDefinition): CommandResult {
   return definition.keyValue && !rangeReference.test(definition.keyValue)
@@ -178,6 +179,102 @@ export class ScorecardChart extends AbstractChart {
   }
 }
 
+function drawDecoratedText(
+  context: CanvasRenderingContext2D,
+  text: string,
+  position: PixelPosition,
+  underline: boolean | undefined = false,
+  strikethrough: boolean | undefined = false
+) {
+  context.fillText(text, position.x, position.y);
+  const measure = context.measureText(text);
+  const textWidth = measure.width;
+  const textHeight = measure.actualBoundingBoxAscent + measure.actualBoundingBoxDescent;
+  const lineWidth = Number(context.font.match(/([0-9\.]*)px/)?.[1]) / 10;
+  if (underline) {
+    context.lineWidth = lineWidth;
+    context.strokeStyle = context.fillStyle;
+    context.beginPath();
+    context.moveTo(position.x, position.y + lineWidth);
+    context.lineTo(position.x + textWidth, position.y + lineWidth);
+    context.stroke();
+  }
+  if (strikethrough) {
+    context.lineWidth = lineWidth;
+    context.strokeStyle = context.fillStyle;
+    context.beginPath();
+    context.moveTo(position.x, position.y - textHeight / 2 + lineWidth);
+    context.lineTo(position.x + textWidth, position.y - textHeight / 2 + lineWidth);
+    context.stroke();
+  }
+}
+
+export function drawScoreChart(structure: ScorecardChartDesign, canvas: HTMLCanvasElement) {
+  // Set canvas size
+  const ctx = canvas.getContext("2d")!;
+  canvas.width = structure.canvas.width;
+  canvas.height = structure.canvas.height;
+
+  // Draw background
+  ctx.fillStyle = structure.canvas.backgroundColor;
+  ctx.fillRect(0, 0, structure.canvas.width, structure.canvas.height);
+
+  // Draw  title
+  if (structure.title) {
+    ctx.font = structure.title.style.font;
+    ctx.fillStyle = structure.title.style.color;
+    ctx.fillText(structure.title.text, structure.title.position.x, structure.title.position.y);
+  }
+
+  // Draw baseline
+  if (structure.baseline) {
+    ctx.font = structure.baseline.style.font;
+    ctx.fillStyle = structure.baseline.style.color;
+    drawDecoratedText(
+      ctx,
+      structure.baseline.text,
+      structure.baseline.position,
+      structure.baseline.style.underline,
+      structure.baseline.style.strikethrough
+    );
+  }
+
+  // Draw baseline arrow
+  if (structure.baselineArrow) {
+    ctx.font = structure.baselineArrow.style.font;
+    ctx.fillStyle = structure.baselineArrow.style.color;
+    ctx.fillText(
+      structure.baselineArrow.text,
+      structure.baselineArrow.position.x,
+      structure.baselineArrow.position.y
+    );
+  }
+
+  // Draw baseline description
+  if (structure.baselineDescr) {
+    ctx.font = structure.baselineDescr.style.font;
+    ctx.fillStyle = structure.baselineDescr.style.color;
+    ctx.fillText(
+      structure.baselineDescr.text,
+      structure.baselineDescr.position.x,
+      structure.baselineDescr.position.y
+    );
+  }
+
+  // Draw key value
+  if (structure.key) {
+    ctx.font = structure.key.style.font;
+    ctx.fillStyle = structure.key.style.color;
+    drawDecoratedText(
+      ctx,
+      structure.key.text,
+      structure.key.position,
+      structure.key.style.underline,
+      structure.key.style.strikethrough
+    );
+  }
+}
+
 export function createScorecardChartRuntime(
   chart: ScorecardChart,
   getters: Getters
@@ -207,7 +304,6 @@ export function createScorecardChartRuntime(
   }
   const background = getters.getBackgroundOfSingleCellChart(chart.background, chart.keyValue);
   const locale = getters.getLocale();
-  const fontColor = chartFontColor(background);
   return {
     title: _t(chart.title),
     keyValue: formattedKeyValue || keyValue,
@@ -221,7 +317,7 @@ export function createScorecardChartRuntime(
       chart.baselineColorDown
     ),
     baselineDescr: chart.baselineDescr ? _t(chart.baselineDescr) : "",
-    fontColor,
+    fontColor: chartFontColor(background),
     background,
     baselineStyle:
       chart.baselineMode !== "percentage" && baseline
@@ -238,6 +334,5 @@ export function createScorecardChartRuntime(
           row: chart.keyValue.zone.top,
         })
       : undefined,
-    chartJsConfig: getDefaultChartJsRuntime(chart, [], fontColor, { locale }),
   };
 }

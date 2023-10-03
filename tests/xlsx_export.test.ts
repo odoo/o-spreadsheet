@@ -18,7 +18,7 @@ import {
   updateFilter,
 } from "./test_helpers/commands_helpers";
 import { TEST_CHART_DATA } from "./test_helpers/constants";
-import { exportPrettifiedXlsx, mockChart, toRangesData } from "./test_helpers/helpers";
+import { exportPrettifiedXlsx, mockChart, nextTick, toRangesData } from "./test_helpers/helpers";
 
 function getExportedExcelData(model: Model): ExcelWorkbookData {
   model.dispatch("EVALUATE_CELLS");
@@ -891,46 +891,48 @@ describe("Test XLSX export", () => {
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
 
-    test("charts that aggregate labels are exported as image", async () => {
-      const model = new Model({
-        sheets: [
-          {
-            ...chartData.sheets,
-            cells: {
-              ...chartData.sheets[0].cells,
-              A6: { content: "P1" },
-              A7: { content: "P2" },
-              A8: { content: "P3" },
-              A9: { content: "P4" },
-              B6: { content: "17" },
-              B7: { content: "26" },
-              B8: { content: "13" },
-              B9: { content: "31" },
-              C6: { content: "31" },
-              C7: { content: "18" },
-              C8: { content: "9" },
-              C9: { content: "27" },
+    test.each(["bar", "line", "pie"])(
+      "%s chart that aggregate labels is exported as image",
+      async (chartType: string) => {
+        const model = new Model({
+          sheets: [
+            {
+              ...chartData.sheets,
+              cells: {
+                ...chartData.sheets[0].cells,
+                A6: { content: "P1" },
+                A7: { content: "P2" },
+                A8: { content: "P3" },
+                A9: { content: "P4" },
+                B6: { content: "17" },
+                B7: { content: "26" },
+                B8: { content: "13" },
+                B9: { content: "31" },
+                C6: { content: "31" },
+                C7: { content: "18" },
+                C8: { content: "9" },
+                C9: { content: "27" },
+              },
             },
-          },
-        ],
-      });
-      for (const type of ["bar", "line", "pie"]) {
+          ],
+        });
         createChart(
           model,
           {
             dataSets: ["Sheet1!B1:B9"],
             labelRange: "Sheet1!A2:A9",
             aggregated: true,
-            type: type as "bar" | "line" | "pie",
+            type: chartType as "bar" | "line" | "pie",
           },
           "1"
         );
         expect(getExportedExcelData(model).sheets[0].charts.length).toBe(0);
         expect(getExportedExcelData(model).sheets[0].images.length).toBe(1);
       }
-    });
+    );
 
     test("Scorecard is exported as an image", () => {
+      window.HTMLCanvasElement.prototype.toDataURL = () => "crap_image_data";
       const model = new Model({
         sheets: chartData.sheets,
       });
@@ -939,11 +941,12 @@ describe("Test XLSX export", () => {
       expect(getExportedExcelData(model).sheets[0].images.length).toBe(1);
     });
 
-    test("Gauche Chart is exported as an image", () => {
+    test("Gauche Chart is exported as an image", async () => {
       const model = new Model({
         sheets: chartData.sheets,
       });
       createGaugeChart(model, TEST_CHART_DATA.gauge);
+      await nextTick();
       expect(getExportedExcelData(model).sheets[0].charts.length).toBe(0);
       expect(getExportedExcelData(model).sheets[0].images.length).toBe(1);
     });
