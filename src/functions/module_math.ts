@@ -610,7 +610,7 @@ export const DECIMAL = {
   description: _t("Converts from another base to decimal."),
   args: [
     arg("value (string)", _t("The number to convert.")),
-    arg(",base (number)", _t("The base to convert the value from.")),
+    arg("base (number)", _t("The base to convert the value from.")),
   ],
   returns: ["NUMBER"],
   compute: function (value: Maybe<CellValue>, base: Maybe<CellValue>): number {
@@ -980,6 +980,9 @@ export const PRODUCT = {
             if (typeof j === "number") {
               acc *= j;
               count += 1;
+            }
+            if (j instanceof Error) {
+              throw j;
             }
           }
         }
