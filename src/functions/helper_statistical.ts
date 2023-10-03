@@ -47,7 +47,10 @@ export function countNumbers(values: ArgValue[], locale: Locale) {
           }
         }
       }
-    } else if (typeof n !== "string" || isNumber(n, locale) || parseDateTime(n, locale)) {
+    } else if (
+      !(n instanceof Error) &&
+      (typeof n !== "string" || isNumber(n, locale) || parseDateTime(n, locale))
+    ) {
       count += 1;
     }
   }

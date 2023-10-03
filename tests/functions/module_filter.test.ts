@@ -108,6 +108,18 @@ describe("FILTER function", () => {
     expect(getRangeValuesAsMatrix(model, "D1")).toEqual([["hello"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1")).toBeTruthy();
   });
+
+  test("FILTER accepts errors in first argument", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "=KABOUM", B1: "TRUE",
+      A2: "Peter", B2: "FALSE",
+      A3: "John", B3: "TRUE",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "A6", "=FILTER(A1:A3, B1:B3)");
+    expect(getRangeValuesAsMatrix(model, "A6:A7")).toEqual([["#BAD_EXPR"], ["John"]]);
+  });
 });
 
 describe("UNIQUE function", () => {
@@ -215,6 +227,23 @@ describe("UNIQUE function", () => {
     setCellContent(model, "D1", "=UNIQUE(A1:B3, 0 ,1)");
     expect(getCellContent(model, "D1")).toBe("#ERROR");
     expect(getCellError(model, "D1")).toBe("No unique values found");
+  });
+
+  test("UNIQUE accepts errors in first argument", () => {
+    const grid = {
+      A1: "=KABOUM",
+      A2: "Peter",
+      A3: "=1/0",
+      A4: "=KABOUM_2",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "B1", "=UNIQUE(A1:A4)");
+    expect(getRangeValuesAsMatrix(model, "B1:B4")).toEqual([
+      ["#BAD_EXPR"],
+      ["Peter"],
+      ["#ERROR"],
+      [""],
+    ]);
   });
 });
 

@@ -81,6 +81,12 @@ export const EQ = {
     if (typeof value2 === "string") {
       value2 = value2.toUpperCase();
     }
+    if (value1 instanceof Error) {
+      throw value1;
+    }
+    if (value2 instanceof Error) {
+      throw value2;
+    }
     return value1 === value2;
   },
 } satisfies AddFunctionDescription;
