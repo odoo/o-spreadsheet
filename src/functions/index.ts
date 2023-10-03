@@ -26,6 +26,7 @@ import * as logical from "./module_logical";
 import * as lookup from "./module_lookup";
 import * as math from "./module_math";
 import * as operators from "./module_operators";
+import * as parser from "./module_parser";
 import * as statistical from "./module_statistical";
 import * as text from "./module_text";
 import * as web from "./module_web";
@@ -50,6 +51,7 @@ const categories: Category[] = [
   { name: _t("Text"), functions: text },
   { name: _t("Engineering"), functions: engineering },
   { name: _t("Web"), functions: web },
+  { name: _t("Parser"), functions: parser },
 ];
 
 const functionNameRegex = /^[A-Z0-9\_\.]+$/;
