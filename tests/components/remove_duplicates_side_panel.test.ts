@@ -11,7 +11,7 @@ const selectors = {
   checkBoxColumnsLabel: ".o-sidePanel .o-remove-duplicates .o-section:nth-child(2) label",
   checkBoxColumnsInput: ".o-sidePanel .o-remove-duplicates .o-section:nth-child(2) input",
   sidePanelError: ".o-side-panel-error",
-  removeDuplicateButton: ".o-sidePanel .o-remove-duplicates .o-sidePanelButton",
+  removeDuplicateButton: ".o-sidePanel .o-remove-duplicates .o-button",
 };
 
 let model: Model;
