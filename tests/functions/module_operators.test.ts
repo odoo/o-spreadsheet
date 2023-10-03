@@ -163,6 +163,11 @@ describe("EQ formula", () => {
     expect(evaluateCell("A1", { A1: "=EQ(A2, A3)", A2: "=TRUE", A3: "1" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=EQ(A2, A3)", A2: '="42"', A3: "42" })).toBe(false);
   });
+
+  test("EQ doesn't accept error values", () => {
+    expect(evaluateCell("A1", { A1: "=EQ(A2, 42)", A2: "=KABOUM" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=EQ(KABOUM, KABOUM)" })).toBe("#BAD_EXPR");
+  });
 });
 
 describe("GT formula", () => {
@@ -246,6 +251,11 @@ describe("GT formula", () => {
 
     expect(evaluateCell("A1", { A1: "=GT(A2, A3)", A2: '="1"', A3: "99999" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=GT(A2, A3)", A2: '="1"', A3: '="99999"' })).toBe(false);
+  });
+
+  test("GT doesn't accept error values", () => {
+    expect(evaluateCell("A1", { A1: "=GT(A2, 42)", A2: "=KABOUM" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=GT(KABOUM, KABOUM)" })).toBe("#BAD_EXPR");
   });
 });
 
@@ -332,6 +342,11 @@ describe("GTE formula", () => {
     expect(evaluateCell("A1", { A1: "=GTE(A2, A3)", A2: '="1"', A3: "99999" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=GTE(A2, A3)", A2: '="1"', A3: '="99999"' })).toBe(false);
   });
+
+  test("GTE doesn't accept error values", () => {
+    expect(evaluateCell("A1", { A1: "=GTE(A2, 42)", A2: "=KABOUM" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=GTE(KABOUM, KABOUM)" })).toBe("#BAD_EXPR");
+  });
 });
 
 describe("LT formula", () => {
@@ -415,6 +430,11 @@ describe("LT formula", () => {
 
     expect(evaluateCell("A1", { A1: "=LT(A2, A3)", A2: '="1"', A3: "99999" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=LT(A2, A3)", A2: '="1"', A3: '="99999"' })).toBe(true);
+  });
+
+  test("LT doesn't accept error values", () => {
+    expect(evaluateCell("A1", { A1: "=LT(A2, 42)", A2: "=KABOUM" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=LT(KABOUM, KABOUM)" })).toBe("#BAD_EXPR");
   });
 });
 
@@ -500,6 +520,11 @@ describe("LTE formula", () => {
 
     expect(evaluateCell("A1", { A1: "=LTE(A2, A3)", A2: '="1"', A3: "99999" })).toBe(false);
     expect(evaluateCell("A1", { A1: "=LTE(A2, A3)", A2: '="1"', A3: '="99999"' })).toBe(true);
+  });
+
+  test("LTE doesn't accept error values", () => {
+    expect(evaluateCell("A1", { A1: "=LTE(A2, 42)", A2: "=KABOUM" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=LTE(KABOUM, KABOUM)" })).toBe("#BAD_EXPR");
   });
 });
 
@@ -630,6 +655,11 @@ describe("NE formula", () => {
     expect(evaluateCell("A1", { A1: "=NE(A2, A3)", A2: '=""', A3: "0" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=NE(A2, A3)", A2: "=TRUE", A3: "1" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=NE(A2, A3)", A2: '="42"', A3: "42" })).toBe(true);
+  });
+
+  test("NE doesn't accept error values", () => {
+    expect(evaluateCell("A1", { A1: "=NE(A2, 42)", A2: "=KABOUM" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=NE(KABOUM, KABOUM)" })).toBe("#BAD_EXPR");
   });
 });
 
