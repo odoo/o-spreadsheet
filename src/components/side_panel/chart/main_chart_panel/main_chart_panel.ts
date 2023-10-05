@@ -90,7 +90,7 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
   }
 
   canUpdateChart<T extends ChartDefinition>(figureId: UID, updateDefinition: Partial<T>) {
-    if (figureId !== this.figureId) {
+    if (figureId !== this.figureId || !this.env.model.getters.isChartDefined(figureId)) {
       return;
     }
     const definition: T = {
