@@ -18,6 +18,7 @@ import {
   click,
   doubleClick,
   focusAndKeyDown,
+  keyDown,
   setInputValueAndTrigger,
   simulateClick,
   triggerMouseEvent,
@@ -525,6 +526,23 @@ describe("charts", () => {
       expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeFalsy();
     }
   );
+
+  test("Deleting a chart with active selection input does not produce a traceback", async () => {
+    createTestChart("basicChart");
+    await nextTick();
+
+    await simulateClick(".o-figure");
+    await simulateClick(".o-figure-menu-item");
+    await simulateClick(".o-menu div[data-name='edit']");
+    await simulateClick(".o-data-series .o-add-selection");
+    const element = document.querySelectorAll(".o-data-series input")[0];
+    setInputValueAndTrigger(element, "C1:C4", "input");
+    await nextTick();
+
+    await simulateClick(".o-figure");
+    await keyDown({ key: "Delete" });
+    expect(fixture.querySelector(".o-figure")).toBeFalsy();
+  });
 
   test("double click a chart in readonly mode does not open the side panel", async () => {
     createTestChart("basicChart");
