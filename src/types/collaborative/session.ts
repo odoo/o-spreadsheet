@@ -45,8 +45,8 @@ export interface UnexpectedRevisionIdEvent {
   type: "unexpected-revision-id";
 }
 
-export interface NewLocalStateUpdateEvent {
-  type: "new-local-state-update";
+export interface NewLocalRevisionEvent {
+  type: "new-local-revision";
   id: UID;
 }
 
@@ -60,7 +60,7 @@ export interface SnapshotEvent {
 }
 
 export type CollaborativeEvent =
-  | NewLocalStateUpdateEvent
+  | NewLocalRevisionEvent
   | UnexpectedRevisionIdEvent
   | RemoteRevisionReceivedEvent
   | RevisionAcknowledgedEvent

@@ -28,7 +28,7 @@ export class HistoryPlugin extends UIPlugin {
   constructor(config: UIPluginConfig) {
     super(config);
     this.session = config.session;
-    this.session.on("new-local-state-update", this, this.onNewLocalStateUpdate);
+    this.session.on("new-local-revision", this, this.onNewLocalRevision);
     this.session.on("pending-revisions-dropped", this, ({ revisionIds }) => this.drop(revisionIds));
     this.session.on("snapshot", this, () => {
       this.undoStack = [];
@@ -112,7 +112,7 @@ export class HistoryPlugin extends UIPlugin {
     this.redoStack = [];
   }
 
-  private onNewLocalStateUpdate({ id }: { id: UID }) {
+  private onNewLocalRevision({ id }: { id: UID }) {
     this.undoStack.push(id);
     this.redoStack = [];
     if (this.undoStack.length > MAX_HISTORY_STEPS) {

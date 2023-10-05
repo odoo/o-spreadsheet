@@ -74,7 +74,7 @@ let start;
 class Demo extends Component {
   setup() {
     this.state = useState({ key: 0, displayHeader: false });
-    this.stateUpdateMessages = [];
+    this.initialRevisions = [];
     this.client = {
       id: uuidGenerator.uuidv4(),
       name: "Local",
@@ -241,14 +241,14 @@ class Demo extends Component {
         this.fetchHistory(),
         this.transportService.connect(),
       ]);
-      this.stateUpdateMessages = history;
+      this.initialRevisions = history;
     } catch (error) {
       console.warn(
         "Error while connecting to the collaborative server. Starting the spreadsheet without collaborative mode.",
         error
       );
       this.transportService = undefined;
-      this.stateUpdateMessages = [];
+      this.initialRevisions = [];
     }
     this.createModel(data || demoData);
     // this.createModel(makeLargeDataset(26, 10_000, ["numbers"]));
@@ -268,7 +268,7 @@ class Demo extends Component {
         client: this.client,
         mode: "normal",
       },
-      this.stateUpdateMessages
+      this.initialRevisions
     );
     o_spreadsheet.__DEBUG__ = o_spreadsheet.__DEBUG__ || {};
     o_spreadsheet.__DEBUG__.model = this.model;
