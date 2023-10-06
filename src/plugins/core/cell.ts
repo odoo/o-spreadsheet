@@ -299,11 +299,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     cell: Pick<FormulaCell, "dependencies" | "compiledFormula">,
     dependencies?: Range[]
   ): string {
-    const ranges = dependencies || [...cell.dependencies];
+    const ranges = dependencies || cell.dependencies;
+    let rangeIndex = 0;
     return concat(
       cell.compiledFormula.tokens.map((token) => {
         if (token.type === "REFERENCE") {
-          const range = ranges.shift()!;
+          const range = ranges[rangeIndex++];
           return this.getters.getRangeString(range, sheetId);
         }
         return token.value;
