@@ -52,10 +52,11 @@ export class RangeImpl implements Range {
     return this._zone;
   }
 
-  get zone(): Zone {
+  get zone(): Readonly<Zone> {
     const { left, top, bottom, right } = this._zone;
-    if (right !== undefined && bottom !== undefined) return { left, top, right, bottom };
-    else if (bottom === undefined && right !== undefined) {
+    if (right !== undefined && bottom !== undefined) {
+      return this._zone as Readonly<Zone>;
+    } else if (bottom === undefined && right !== undefined) {
       return { right, top, left, bottom: this.getSheetSize(this.sheetId).height - 1 };
     } else if (right === undefined && bottom !== undefined) {
       return { bottom, left, top, right: this.getSheetSize(this.sheetId).width - 1 };
