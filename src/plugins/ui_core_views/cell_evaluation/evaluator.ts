@@ -45,8 +45,10 @@ export class Evaluator {
 
   constructor(private readonly context: ModelConfig["custom"], getters: Getters) {
     this.getters = getters;
-    this.compilationParams = buildCompilationParameters(context, getters, (position) =>
-      this.computeCell(this.encodePosition(position))
+    this.compilationParams = buildCompilationParameters(
+      this.context,
+      this.getters,
+      this.computeAndSave.bind(this)
     );
   }
 
@@ -85,8 +87,10 @@ export class Evaluator {
   }
 
   updateCompilationParameters() {
-    this.compilationParams = buildCompilationParameters(this.context, this.getters, (position) =>
-      this.computeCell(this.encodePosition(position))
+    this.compilationParams = buildCompilationParameters(
+      this.context,
+      this.getters,
+      this.computeAndSave.bind(this)
     );
   }
 
@@ -218,6 +222,15 @@ export class Evaluator {
     } finally {
       this.cellsBeingComputed.delete(cellId);
     }
+  }
+
+  private computeAndSave(position: CellPosition) {
+    const positionId = this.encodePosition(position);
+    const evaluatedCell = this.computeCell(positionId);
+    if (!this.evaluatedCells.has(positionId)) {
+      this.setEvaluatedCell(positionId, evaluatedCell);
+    }
+    return evaluatedCell;
   }
 
   private handleError(e: Error | any, cell: Cell): EvaluatedCell {
