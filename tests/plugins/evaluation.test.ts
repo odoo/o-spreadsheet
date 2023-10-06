@@ -123,6 +123,30 @@ describe("evaluateCells", () => {
     expect(evaluateCell("C1", grid)).toBe(0);
   });
 
+  test("compute cell only once when references multiple times", () => {
+    const mock = jest.fn().mockReturnValue(42);
+    functionRegistry.add("MY.FUNC", {
+      description: "any function",
+      compute: mock,
+      args: [],
+      returns: ["NUMBER"],
+    });
+    new Model({
+      sheets: [
+        {
+          cells: {
+            A1: { content: "=D1" },
+            A2: { content: "=D1" },
+            A3: { content: "=D1" },
+            D1: { content: "=MY.FUNC()" },
+          },
+        },
+      ],
+    });
+    expect(mock).toHaveBeenCalledTimes(1);
+    functionRegistry.remove("MY.FUNC");
+  });
+
   test("Percent operator", () => {
     const grid = { A1: "1", B1: "=(5+A1)%" };
     expect(evaluateCell("B1", grid)).toBe(0.06);
