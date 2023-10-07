@@ -113,7 +113,7 @@ class CompilationParametersBuilder {
     const evaluatedCell = this.getEvaluatedCell(position);
     if (evaluatedCell.type === CellValueType.empty) {
       const cell = this.getters.getCell(position);
-      if (!cell || cell.content === "") {
+      if (!cell || (!cell.isFormula && cell.content === "")) {
         return undefined;
       }
     }
