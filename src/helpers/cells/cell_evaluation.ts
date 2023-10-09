@@ -71,7 +71,6 @@ function _createEvaluatedCell(value: CellValue | null, localeFormat: LocaleForma
     return textCell((value || "").toString(), localeFormat);
   } catch (error) {
     return errorCell(
-      (value || "").toString(),
       new EvaluationError(CellErrorType.GenericError, error.message || DEFAULT_ERROR_MESSAGE)
     );
   }
@@ -156,7 +155,7 @@ function booleanCell(value: boolean, localeFormat: LocaleFormat): BooleanCell {
   };
 }
 
-export function errorCell(content: string, error: EvaluationError): ErrorCell {
+export function errorCell(error: EvaluationError): ErrorCell {
   return {
     type: CellValueType.error,
     value: error.errorType,
