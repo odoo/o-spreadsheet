@@ -226,7 +226,7 @@ export class Evaluator {
     }
     const __lastFnCalled = this.compilationParams[2].__lastFnCalled || "";
     e.message = e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled);
-    return errorCell(cell.content, e);
+    return errorCell(e);
   }
 
   private computeFormulaCell(cellData: FormulaCell): EvaluatedCell {
