@@ -3,12 +3,13 @@ import { numberToJsDate, parseDateTime } from "../helpers/dates";
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _t } from "../translation";
 import { ArgValue, CellValue, Locale, Matrix, Maybe, ValueAndFormat, isMatrix } from "../types";
+import { CellErrorType, EvaluationError } from "../types/errors";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
 
 export function assert(condition: () => boolean, message: string): void {
   if (!condition()) {
-    throw new Error(message);
+    throw new EvaluationError(CellErrorType.GenericError, message);
   }
 }
 // -----------------------------------------------------------------------------
