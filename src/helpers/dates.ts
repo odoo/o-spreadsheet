@@ -11,9 +11,9 @@ import { isDefined } from "./misc";
  * - format (string), which keep the information on how the date was defined
  */
 export interface InternalDate {
-  value: number;
-  format: Format;
-  jsDate?: Date;
+  readonly value: number;
+  readonly format: Format;
+  readonly jsDate?: ReadonlyDate;
 }
 
 type DateFormatType = "mdy" | "ymd" | "dmy";
@@ -24,6 +24,27 @@ interface DateParts {
   dateString: string;
   type: DateFormatType;
 }
+
+type ReadonlyDate = Readonly<
+  Omit<
+    Date,
+    | "setTime"
+    | "setMilliseconds"
+    | "setUTCMilliseconds"
+    | "setSeconds"
+    | "setUTCSeconds"
+    | "setMinutes"
+    | "setUTCMinutes"
+    | "setHours"
+    | "setUTCHours"
+    | "setDate"
+    | "setUTCDate"
+    | "setMonth"
+    | "setUTCMonth"
+    | "setFullYear"
+    | "setUTCFullYear"
+  >
+>;
 
 // -----------------------------------------------------------------------------
 // Parsing
@@ -49,7 +70,19 @@ export function isDateTime(str: string, locale: Locale): boolean {
   return parseDateTime(str, locale) !== null;
 }
 
+const CACHE: Map<Locale, Map<string, InternalDate | null>> = new Map();
+
 export function parseDateTime(str: string, locale: Locale): InternalDate | null {
+  if (!CACHE.has(locale)) {
+    CACHE.set(locale, new Map());
+  }
+  if (!CACHE.get(locale)!.has(str)) {
+    CACHE.get(locale)!.set(str, _parseDateTime(str, locale));
+  }
+  return CACHE.get(locale)!.get(str)!;
+}
+
+function _parseDateTime(str: string, locale: Locale): InternalDate | null {
   str = str.trim();
 
   let time: InternalDate | null = null;
