@@ -19,12 +19,7 @@ import {
   PrimitiveFormat,
   UID,
 } from "../../../types";
-import {
-  CellErrorLevel,
-  CellErrorType,
-  CircularDependencyError,
-  EvaluationError,
-} from "../../../types/errors";
+import { CellErrorType, CircularDependencyError, EvaluationError } from "../../../types/errors";
 import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
 import { SpreadingRelation } from "./spreading_relation";
@@ -239,18 +234,12 @@ export class Evaluator {
   }
 
   private handleError(e: Error | any, cell: Cell): EvaluatedCell {
-    if (!(e instanceof Error)) {
-      e = new Error(e);
+    if (!(e instanceof EvaluationError)) {
+      e = new EvaluationError(CellErrorType.GenericError, e.message);
     }
-    const msg = e?.errorType || CellErrorType.GenericError;
-    // apply function name
     const __lastFnCalled = this.compilationParams[2].__lastFnCalled || "";
-    const error = new EvaluationError(
-      msg,
-      e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled),
-      e.logLevel !== undefined ? e.logLevel : CellErrorLevel.error
-    );
-    return errorCell(cell.content, error);
+    e.message = e.message.replace("[[FUNCTION_NAME]]", __lastFnCalled);
+    return errorCell(cell.content, e);
   }
 
   private computeFormulaCell(cellData: FormulaCell): EvaluatedCell {

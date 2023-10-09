@@ -11,12 +11,13 @@ import {
   MatrixArgValue,
   PrimitiveArgValue,
 } from "../types";
+import { CellErrorType, EvaluationError } from "../types/errors";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
 
 export function assert(condition: () => boolean, message: string): void {
   if (!condition()) {
-    throw new Error(message);
+    throw new EvaluationError(CellErrorType.GenericError, message);
   }
 }
 // -----------------------------------------------------------------------------
