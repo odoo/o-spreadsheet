@@ -10,10 +10,31 @@ import { Format } from "../types";
  * - format (string), which keep the information on how the date was defined
  */
 export interface InternalDate {
-  value: number;
-  format: Format;
-  jsDate?: Date;
+  readonly value: number;
+  readonly format: Format;
+  readonly jsDate?: ReadonlyDate;
 }
+
+type ReadonlyDate = Readonly<
+  Omit<
+    Date,
+    | "setTime"
+    | "setMilliseconds"
+    | "setUTCMilliseconds"
+    | "setSeconds"
+    | "setUTCSeconds"
+    | "setMinutes"
+    | "setUTCMinutes"
+    | "setHours"
+    | "setUTCHours"
+    | "setDate"
+    | "setUTCDate"
+    | "setMonth"
+    | "setUTCMonth"
+    | "setFullYear"
+    | "setUTCFullYear"
+  >
+>;
 
 // -----------------------------------------------------------------------------
 // Parsing
@@ -30,7 +51,18 @@ export const mdyDateRegexp = /^\d{1,2}(\/|-|\s)\d{1,2}((\/|-|\s)\d{1,4})?$/;
 export const ymdDateRegexp = /^\d{3,4}(\/|-|\s)\d{1,2}(\/|-|\s)\d{1,2}$/;
 export const timeRegexp = /((\d+(:\d+)?(:\d+)?\s*(AM|PM))|(\d+:\d+(:\d+)?))$/;
 
+const CACHE: Record<string, InternalDate | null> = {};
+
 export function parseDateTime(str: string): InternalDate | null {
+  if (CACHE[str]) {
+    return CACHE[str];
+  }
+  const date = _parseDateTime(str);
+  CACHE[str] = date;
+  return date;
+}
+
+function _parseDateTime(str: string): InternalDate | null {
   str = str.trim();
 
   let time;
