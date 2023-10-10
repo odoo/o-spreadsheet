@@ -827,7 +827,9 @@ export const LARGE = {
 // LINEST
 // -----------------------------------------------------------------------------
 export const LINEST: AddFunctionDescription = {
-  description: _t("Compute the intercept of the linear regression."),
+  description: _t(
+    "Given partial data about a linear trend, calculates various parameters about the ideal linear trend using the least-squares method."
+  ),
   args: [
     arg(
       "data_y (range<number>)",
@@ -868,7 +870,9 @@ export const LINEST: AddFunctionDescription = {
 // LOGEST
 // -----------------------------------------------------------------------------
 export const LOGEST: AddFunctionDescription = {
-  description: _t("Compute the intercept of the linear regression."),
+  description: _t(
+    "Given partial data about an exponential growth curve, calculates various parameters about the best fit ideal exponential growth curve."
+  ),
   args: [
     arg(
       "data_y (range<number>)",
