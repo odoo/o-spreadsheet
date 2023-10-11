@@ -1,4 +1,4 @@
-import { getUnquotedSheetName } from "./misc";
+import { getCanonicalSheetName, getUnquotedSheetName } from "./misc";
 
 /** Reference of a cell (eg. A1, $B$5) */
 export const cellReference = new RegExp(/\$?([A-Z]{1,3})\$?([0-9]{1,7})/, "i");
@@ -58,8 +58,16 @@ export function isSingleCellReference(xc: string): boolean {
 }
 
 export function splitReference(ref: string): { sheetName?: string; xc: string } {
+  if (!ref.includes("!")) {
+    return { xc: ref };
+  }
   const parts = ref.split("!");
   const xc = parts.pop()!;
   const sheetName = getUnquotedSheetName(parts.join("!")) || undefined;
   return { sheetName, xc };
+}
+
+/** Return a reference SheetName!xc from the given arguments */
+export function getFullReference(sheetName: string | undefined, xc: string): string {
+  return sheetName !== undefined ? `${getCanonicalSheetName(sheetName)}!${xc}` : xc;
 }

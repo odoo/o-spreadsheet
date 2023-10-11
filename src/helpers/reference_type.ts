@@ -1,7 +1,6 @@
 // Helper file for the reference types in Xcs (the $ symbol, eg. A$1)
 import { Token } from "../formulas";
-import { getCanonicalSheetName } from "./misc";
-import { splitReference } from "./references";
+import { getFullReference, splitReference } from "./references";
 
 type FixedReferenceType = "col" | "row" | "colrow" | "none";
 
@@ -17,10 +16,9 @@ export function loopThroughReferenceType(token: Readonly<Token>): Token {
   const { xc, sheetName } = splitReference(token.value);
   const [left, right] = xc.split(":") as [string, string | undefined];
 
-  const sheetRef = sheetName ? `${getCanonicalSheetName(sheetName)}!` : "";
   const updatedLeft = getTokenNextReferenceType(left);
   const updatedRight = right ? `:${getTokenNextReferenceType(right)}` : "";
-  return { ...token, value: sheetRef + updatedLeft + updatedRight };
+  return { ...token, value: getFullReference(sheetName, updatedLeft + updatedRight) };
 }
 
 /**
@@ -32,25 +30,29 @@ export function loopThroughReferenceType(token: Readonly<Token>): Token {
 function getTokenNextReferenceType(xc: string): string {
   switch (getReferenceType(xc)) {
     case "none":
-      xc = setXcToReferenceType(xc, "colrow");
+      xc = setXcToFixedReferenceType(xc, "colrow");
       break;
     case "colrow":
-      xc = setXcToReferenceType(xc, "row");
+      xc = setXcToFixedReferenceType(xc, "row");
       break;
     case "row":
-      xc = setXcToReferenceType(xc, "col");
+      xc = setXcToFixedReferenceType(xc, "col");
       break;
     case "col":
-      xc = setXcToReferenceType(xc, "none");
+      xc = setXcToFixedReferenceType(xc, "none");
       break;
   }
   return xc;
 }
 
 /**
- * Returns the given XC with the given reference type.
+ * Returns the given XC with the given reference type. The XC string should not contain a sheet name.
  */
-function setXcToReferenceType(xc: string, referenceType: FixedReferenceType): string {
+export function setXcToFixedReferenceType(xc: string, referenceType: FixedReferenceType): string {
+  if (xc.includes("!")) {
+    throw new Error("The given XC should not contain a sheet name");
+  }
+
   xc = xc.replace(/\$/g, "");
   let indexOfNumber: number;
   switch (referenceType) {
@@ -59,7 +61,6 @@ function setXcToReferenceType(xc: string, referenceType: FixedReferenceType): st
     case "row":
       indexOfNumber = xc.search(/[0-9]/);
       return xc.slice(0, indexOfNumber) + "$" + xc.slice(indexOfNumber);
-      break;
     case "colrow":
       indexOfNumber = xc.search(/[0-9]/);
       xc = xc.slice(0, indexOfNumber) + "$" + xc.slice(indexOfNumber);

@@ -1,4 +1,126 @@
-import { evaluateCell } from "../test_helpers/helpers";
+import { Model } from "../../src";
+import { createSheet, setCellContent, setFormat } from "../test_helpers/commands_helpers";
+import { getCellContent } from "../test_helpers/getters_helpers";
+import { createModelFromGrid, evaluateCell, setGrid, target } from "../test_helpers/helpers";
+
+describe("CELL formula", () => {
+  test("CELL takes 2 arguments", () => {
+    expect(evaluateCell("A1", { A1: "=CELL()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: '=CELL("address")' })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(evaluateCell("A1", { A1: '=CELL("address", B1)' })).toBe("$B$1");
+    expect(evaluateCell("A1", { A1: '=CELL("address", B1, 0)' })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+  });
+
+  test("CELL results with address parameter", () => {
+    const grid = {
+      A1: '=CELL("address", B1)',
+      A2: '=CELL("address", C2:D4)',
+      A3: '=CELL("address", Sheet2!C2:D4)',
+      A4: '=CELL("address", Sheet1!E1:E2)',
+    };
+    const model = new Model();
+    createSheet(model, { sheetId: "sh2", name: "Sheet2" });
+    setGrid(model, grid);
+
+    expect(getCellContent(model, "A1")).toBe("$B$1");
+    expect(getCellContent(model, "A2")).toBe("$C$2");
+    expect(getCellContent(model, "A3")).toBe("Sheet2!$C$2");
+    expect(getCellContent(model, "A4")).toBe("$E$1");
+  });
+
+  test("CELL results with col parameter", () => {
+    const grid = {
+      A1: '=CELL("col", B1)',
+      A2: '=CELL("col", C2:D4)',
+      A3: '=CELL("col", Sheet2!D2:D4)',
+    };
+    const model = new Model();
+    createSheet(model, { sheetId: "sh2", name: "Sheet2" });
+    setGrid(model, grid);
+
+    expect(getCellContent(model, "A1")).toBe("2");
+    expect(getCellContent(model, "A2")).toBe("3");
+    expect(getCellContent(model, "A3")).toBe("4");
+  });
+
+  test("CELL results with row parameter", () => {
+    const grid = {
+      A1: '=CELL("row", B1)',
+      A2: '=CELL("row", C2:D4)',
+      A3: '=CELL("row", Sheet2!D5:D9)',
+    };
+    const model = new Model();
+    createSheet(model, { sheetId: "sh2", name: "Sheet2" });
+    setGrid(model, grid);
+
+    expect(getCellContent(model, "A1")).toBe("1");
+    expect(getCellContent(model, "A2")).toBe("2");
+    expect(getCellContent(model, "A3")).toBe("5");
+  });
+
+  test("CELL results with contents parameter", () => {
+    const grid = {
+      A1: '=CELL("contents", B1)',
+      A2: '=CELL("contents", C2:D4)',
+      A3: '=CELL("contents", Sheet2!D5:D9)',
+      B1: "1",
+      C2: "hello",
+    };
+    const model = new Model();
+    createSheet(model, { sheetId: "sh2", name: "Sheet2" });
+    setCellContent(model, "D5", "=1+1", "sh2");
+    setGrid(model, grid);
+
+    expect(getCellContent(model, "A1")).toBe("1");
+    expect(getCellContent(model, "A2")).toBe("hello");
+    expect(getCellContent(model, "A3")).toBe("2");
+  });
+
+  test("CELL results with format parameter", () => {
+    const grid = {
+      A1: '=CELL("format", B1)',
+      A2: '=CELL("format", B2)',
+      A3: '=CELL("format", B3)',
+      B1: "1",
+      B2: "=C1",
+      B3: "9",
+    };
+    const model = new Model();
+    setFormat(model, "d/m/yyyy", target("B1"));
+    setFormat(model, "0.00", target("C1"));
+    setGrid(model, grid);
+
+    expect(getCellContent(model, "A1")).toBe("d/m/yyyy");
+    expect(getCellContent(model, "A2")).toBe("0.00");
+    expect(getCellContent(model, "A3")).toBe("");
+  });
+
+  test("CELL results with type parameter", () => {
+    const grid = {
+      A1: '=CELL("type", B1)',
+      A2: '=CELL("type", B2)',
+      A3: '=CELL("type", B3)',
+      B1: "1",
+      B2: "=C1",
+      C1: "hello",
+    };
+    const model = createModelFromGrid(grid);
+
+    expect(getCellContent(model, "A1")).toBe("v");
+    expect(getCellContent(model, "A2")).toBe("l");
+    expect(getCellContent(model, "A3")).toBe("b");
+  });
+
+  test("CELL can be called without grid context", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    createSheet(model, { sheetId: "sh2", name: "Sh2" });
+    setCellContent(model, "D5", "=1+1", sheetId);
+
+    expect(model.getters.evaluateFormula(sheetId, '=CELL("address", Sh2!B1)')).toBe("Sh2!$B$1");
+    expect(model.getters.evaluateFormula(sheetId, '=CELL("contents", D5)')).toBe(2);
+  });
+});
 
 describe("ISERR formula", () => {
   test("functional tests on cell arguments", () => {

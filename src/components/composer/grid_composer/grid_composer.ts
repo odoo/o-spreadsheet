@@ -3,7 +3,7 @@ import { ComponentsImportance, SELECTION_BORDER_COLOR } from "../../../constants
 import {
   deepEquals,
   fontSizeInPixels,
-  getCanonicalSheetName,
+  getFullReference,
   positionToZone,
   toXC,
 } from "../../../helpers";
@@ -115,9 +115,10 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
   get cellReference(): string {
     const { col, row, sheetId } = this.env.model.getters.getCurrentEditedCell();
     const prefixSheet = sheetId !== this.env.model.getters.getActiveSheetId();
-    return `${
-      prefixSheet ? getCanonicalSheetName(this.env.model.getters.getSheetName(sheetId)) + "!" : ""
-    }${toXC(col, row)}`;
+    return getFullReference(
+      prefixSheet ? this.env.model.getters.getSheetName(sheetId) : undefined,
+      toXC(col, row)
+    );
   }
 
   get cellReferenceStyle(): string {
