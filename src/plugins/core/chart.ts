@@ -1,19 +1,13 @@
 import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH, FIGURE_ID_SPLITTER } from "../../constants";
 import { AbstractChart } from "../../helpers/figures/charts/abstract_chart";
 import { chartFactory, validateChartDefinition } from "../../helpers/figures/charts/chart_factory";
-import {
-  ChartCreationContext,
-  ChartDefinition,
-  ChartType,
-  ExcelChartDefinition,
-} from "../../types/chart/chart";
+import { ChartCreationContext, ChartDefinition, ChartType } from "../../types/chart/chart";
 import {
   ApplyRangeChange,
   Command,
   CommandResult,
   CoreCommand,
   CreateChartCommand,
-  ExcelWorkbookData,
   Figure,
   FigureData,
   Pixel,
@@ -194,25 +188,6 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
         }
         sheet.figures = figures;
       }
-    }
-  }
-
-  exportForExcel(data: ExcelWorkbookData) {
-    for (let sheet of data.sheets) {
-      const sheetFigures = this.getters.getFigures(sheet.id);
-      const figures: FigureData<ExcelChartDefinition>[] = [];
-      for (let figure of sheetFigures) {
-        if (figure && figure.tag === "chart") {
-          const figureData = this.charts[figure.id]?.getDefinitionForExcel();
-          if (figureData) {
-            figures.push({
-              ...figure,
-              data: figureData,
-            });
-          }
-        }
-      }
-      sheet.charts = figures;
     }
   }
 

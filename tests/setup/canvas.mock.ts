@@ -30,6 +30,9 @@ const patch = {
   getContext: function () {
     return new MockCanvasRenderingContext2D() as any as CanvasRenderingContext2D;
   },
+  toDataURL: function () {
+    return "";
+  },
 };
 
 /* js-ignore */

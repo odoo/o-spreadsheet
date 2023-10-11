@@ -2,12 +2,14 @@ import type { ChartConfiguration, ChartOptions, ChartType } from "chart.js";
 import { ChartTerms } from "../../../components/translations_terms";
 import { MAX_CHAR_LABEL } from "../../../constants";
 import { _t } from "../../../translation";
-import { Color, Format, Getters, LocaleFormat, Range } from "../../../types";
-import { DataSet, DatasetValues, LabelValues } from "../../../types/chart/chart";
+import { Color, Figure, Format, Getters, LocaleFormat, Range } from "../../../types";
+import { ChartRuntime, DataSet, DatasetValues, LabelValues } from "../../../types/chart/chart";
 import { formatValue, isDateTimeFormat } from "../../format";
 import { range } from "../../misc";
 import { recomputeZones, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
+import { drawScoreChart } from "./scorecard_chart";
+import { getScorecardConfiguration } from "./scorecard_chart_config_builder";
 /**
  * This file contains helpers that are common to different runtime charts (mainly
  * line, bar and pie charts)
@@ -242,3 +244,49 @@ export function getFillingMode(index: number): "origin" | number {
     return index - 1;
   }
 }
+
+export function chartToImage(runtime: ChartRuntime, figure: Figure, type: string) {
+  // wrap the canvas in a div with a fixed size because chart.js would
+  // fill the whole page otherwise
+  const div = document.createElement("div");
+  div.style.width = `${figure.width}px`;
+  div.style.height = `${figure.height}px`;
+  const canvas = document.createElement("canvas");
+  div.append(canvas);
+  canvas.setAttribute("width", figure.width.toString());
+  canvas.setAttribute("height", figure.height.toString());
+  // we have to add the canvas to the DOM otherwise it won't be rendered
+  document.body.append(div);
+  if ("chartJsConfig" in runtime) {
+    runtime.chartJsConfig.plugins = [backgroundColorChartJSPlugin];
+    // @ts-ignore
+    const chart = new window.Chart(canvas, runtime.chartJsConfig);
+    const imgContent = chart.toBase64Image();
+    chart.destroy();
+    div.remove();
+    return imgContent;
+  } else if (type === "scorecard") {
+    const design = getScorecardConfiguration(figure, runtime);
+    drawScoreChart(design, canvas);
+    const imgContent = canvas.toDataURL();
+    div.remove();
+    return imgContent;
+  }
+  return "";
+}
+
+/**
+ * Custom chart.js plugin to set the background color of the canvas
+ * https://github.com/chartjs/Chart.js/blob/8fdf76f8f02d31684d34704341a5d9217e977491/docs/configuration/canvas-background.md
+ */
+const backgroundColorChartJSPlugin = {
+  id: "customCanvasBackgroundColor",
+  beforeDraw: (chart) => {
+    const { ctx } = chart;
+    ctx.save();
+    ctx.globalCompositeOperation = "destination-over";
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, chart.width, chart.height);
+    ctx.restore();
+  },
+};
