@@ -11,11 +11,11 @@ import {
 } from "../types";
 import { arg } from "./arguments";
 import { assertPositive } from "./helper_assert";
+import { sum } from "./helper_math";
 import { getUnitMatrix } from "./helper_matrices";
 import {
   assert,
   reduceAny,
-  reduceNumbers,
   strictToNumber,
   toBoolean,
   toInteger,
@@ -1294,7 +1294,7 @@ export const SUM = {
     return isMatrix(value1) ? value1[0][0]?.format : value1?.format;
   },
   compute: function (...values: ArgValue[]): number {
-    return reduceNumbers(values, (acc, a) => acc + a, 0, this.locale);
+    return sum(values, this.locale);
   },
   isExported: true,
 } satisfies AddFunctionDescription;

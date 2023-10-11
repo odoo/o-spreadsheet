@@ -166,7 +166,8 @@ export const EXPAND = {
   ): Matrix<ValueAndFormat> {
     const _array = toMatrix(arg);
     const _nbRows = toInteger(rows?.value, this.locale);
-    const _nbColumns = columns !== undefined ? toInteger(columns.value, this.local) : _array.length;
+    const _nbColumns =
+      columns !== undefined ? toInteger(columns.value, this.locale) : _array.length;
 
     assert(
       () => _nbRows >= _array[0].length,

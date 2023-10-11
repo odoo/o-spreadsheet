@@ -1,6 +1,5 @@
 import { range } from "../helpers";
-import { parseDateTime } from "../helpers/dates";
-import { isNumber, percentile } from "../helpers/index";
+import { percentile } from "../helpers/index";
 import { _t } from "../translation";
 import {
   AddFunctionDescription,
@@ -16,12 +15,18 @@ import {
 import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import { invertMatrix, multiplyMatrices } from "./helper_matrices";
-import { assertSameNumberOfElements } from "./helper_statistical";
+import {
+  assertSameNumberOfElements,
+  average,
+  countAny,
+  countNumbers,
+  max,
+  min,
+} from "./helper_statistical";
 import {
   assert,
   dichotomicSearch,
   matrixMap,
-  reduceAny,
   reduceNumbers,
   reduceNumbersTextAs0,
   toBoolean,
@@ -406,21 +411,7 @@ export const AVERAGE = {
     return isMatrix(value1) ? value1[0][0]?.format : value1?.format;
   },
   compute: function (...values: ArgValue[]): number {
-    let count = 0;
-    const sum = reduceNumbers(
-      values,
-      (acc, a) => {
-        count += 1;
-        return acc + a;
-      },
-      0,
-      this.locale
-    );
-    assert(
-      () => count !== 0,
-      _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
-    );
-    return sum / count;
+    return average(values, this.locale);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -652,25 +643,7 @@ export const COUNT = {
   ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
-    let count = 0;
-    for (let n of values) {
-      if (isMatrix(n)) {
-        for (let i of n) {
-          for (let j of i) {
-            if (typeof j === "number") {
-              count += 1;
-            }
-          }
-        }
-      } else if (
-        typeof n !== "string" ||
-        isNumber(n, this.locale) ||
-        parseDateTime(n, this.locale)
-      ) {
-        count += 1;
-      }
-    }
-    return count;
+    return countNumbers(values, this.locale);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -689,7 +662,7 @@ export const COUNTA = {
   ],
   returns: ["NUMBER"],
   compute: function (...values: ArgValue[]): number {
-    return reduceAny(values, (acc, a) => (a !== undefined && a !== null ? acc + 1 : acc), 0);
+    return countAny(values);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1058,8 +1031,7 @@ export const MAX = {
     return isMatrix(value1) ? value1[0][0]?.format : value1?.format;
   },
   compute: function (...values: ArgValue[]): number {
-    const result = reduceNumbers(values, (acc, a) => (acc < a ? a : acc), -Infinity, this.locale);
-    return result === -Infinity ? 0 : result;
+    return max(values, this.locale);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1191,8 +1163,7 @@ export const MIN = {
     return isMatrix(value1) ? value1[0][0]?.format : value1?.format;
   },
   compute: function (...values: ArgValue[]): number {
-    const result = reduceNumbers(values, (acc, a) => (a < acc ? a : acc), Infinity, this.locale);
-    return result === Infinity ? 0 : result;
+    return min(values, this.locale);
   },
   isExported: true,
 } satisfies AddFunctionDescription;

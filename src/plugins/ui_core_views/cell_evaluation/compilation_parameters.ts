@@ -30,7 +30,7 @@ export function buildCompilationParameters(
   context: ModelConfig["custom"],
   getters: Getters,
   computeCell: (position: CellPosition) => EvaluatedCell
-) {
+): CompilationParameters {
   const builder = new CompilationParametersBuilder(context, getters, computeCell);
   return builder.getParameters();
 }

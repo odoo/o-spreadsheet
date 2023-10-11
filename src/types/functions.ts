@@ -1,5 +1,6 @@
 import { CellValue } from "./cells";
 import { Format } from "./format";
+import { Getters } from "./getters";
 import { Locale } from "./locale";
 import { Arg, ArgValue, Matrix, ValueAndFormat } from "./misc";
 
@@ -67,5 +68,6 @@ export type EvalContext = {
   __lastFnCalled?: string;
   __originCellXC?: () => string;
   locale: Locale;
+  getters: Getters;
   [key: string]: any;
 };
