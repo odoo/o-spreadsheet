@@ -1,4 +1,4 @@
-import { getCanonicalSheetName, toXC, toZone } from "../helpers/index";
+import { getFullReference, toXC, toZone } from "../helpers/index";
 import { _t } from "../translation";
 import {
   AddFunctionDescription,
@@ -95,7 +95,7 @@ export const ADDRESS = {
       cellReference = rowPart + colPart;
     }
     if (sheet !== undefined) {
-      return `${getCanonicalSheetName(toString(sheet))}!${cellReference}`;
+      return getFullReference(toString(sheet), cellReference);
     }
     return cellReference;
   },

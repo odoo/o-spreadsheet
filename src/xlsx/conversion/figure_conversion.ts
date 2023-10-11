@@ -1,5 +1,5 @@
 import {
-  getCanonicalSheetName,
+  getFullReference,
   isDefined,
   splitReference,
   toUnboundedZone,
@@ -100,11 +100,6 @@ function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | un
 
 function convertExcelRangeToSheetXC(range: string, dataSetsHaveTitle: boolean): string {
   let { sheetName, xc } = splitReference(range);
-  if (sheetName) {
-    sheetName = getCanonicalSheetName(sheetName) + "!";
-  } else {
-    sheetName = "";
-  }
   let zone = toUnboundedZone(xc);
   if (dataSetsHaveTitle && zone.bottom !== undefined && zone.right !== undefined) {
     const height = zone.bottom - zone.top + 1;
@@ -116,5 +111,5 @@ function convertExcelRangeToSheetXC(range: string, dataSetsHaveTitle: boolean): 
     }
   }
   const dataXC = zoneToXc(zone);
-  return sheetName + dataXC;
+  return getFullReference(sheetName, dataXC);
 }

@@ -1,5 +1,5 @@
 import { functionRegistry } from "../../../functions";
-import { intersection, isZoneValid, zoneToXc } from "../../../helpers";
+import { getFullReference, intersection, isZoneValid, zoneToXc } from "../../../helpers";
 import { ModelConfig } from "../../../model";
 import { _t } from "../../../translation";
 import {
@@ -71,7 +71,8 @@ class CompilationParametersBuilder {
   ): Maybe<ValueAndFormat> {
     if (isMeta) {
       // Use zoneToXc of zone instead of getRangeString to avoid sending unbounded ranges
-      return { value: zoneToXc(range.zone) };
+      const sheetName = this.getters.getSheetName(range.sheetId);
+      return { value: getFullReference(sheetName, zoneToXc(range.zone)) };
     }
 
     if (!isZoneValid(range.zone)) {

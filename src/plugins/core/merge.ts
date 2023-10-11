@@ -1,12 +1,12 @@
 import {
+  RangeImpl,
   clip,
   deepEquals,
-  getCanonicalSheetName,
+  getFullReference,
   isDefined,
   isEqual,
   overlap,
   positions,
-  RangeImpl,
   splitReference,
   toXC,
   toZone,
@@ -177,9 +177,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     const rangeString = this.getters.getRangeString(expandedRange, forSheetId);
     if (this.isSingleCellOrMerge(rangeImpl.sheetId, rangeImpl.zone)) {
       const { sheetName, xc } = splitReference(rangeString);
-      return `${sheetName !== undefined ? getCanonicalSheetName(sheetName) + "!" : ""}${
-        xc.split(":")[0]
-      }`;
+      return getFullReference(sheetName, xc.split(":")[0]);
     }
     return rangeString;
   }

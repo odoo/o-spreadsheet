@@ -1,7 +1,75 @@
+import { getFullReference, splitReference } from "../helpers";
+import { setXcToFixedReferenceType } from "../helpers/reference_type";
 import { _t } from "../translation";
-import { AddFunctionDescription, CellValue, Maybe } from "../types";
+import { AddFunctionDescription, Maybe } from "../types";
 import { CellErrorType, NotAvailableError } from "../types/errors";
+import { CellValue, CellValueType } from "./../types/cells";
 import { arg } from "./arguments";
+import { assert, toString } from "./helpers";
+
+// -----------------------------------------------------------------------------
+// CELL
+// -----------------------------------------------------------------------------
+// NOTE: missing from Excel: "color", "filename", "parentheses", "prefix", "protect" and "width"
+const CELL_INFO_TYPES = ["address", "col", "contents", "format", "row", "type"] as const;
+export const CELL = {
+  description: _t("Gets information about a cell."),
+  args: [
+    arg(
+      "info_type (string)",
+      _t("The type of information requested. Can be one of %s", CELL_INFO_TYPES.join(", "))
+    ),
+    arg("reference (meta)", _t("The reference to the cell.")),
+  ],
+  returns: ["ANY"],
+  compute: function (info: CellValue, reference: string) {
+    const _info = toString(info).toLowerCase() as (typeof CELL_INFO_TYPES)[number];
+    assert(
+      () => CELL_INFO_TYPES.includes(_info),
+      _t("The info_type should be one of %s.", CELL_INFO_TYPES.join(", "))
+    );
+
+    const sheetId = this.__originSheetId;
+
+    const topLeftReference = reference.includes(":") ? reference.split(":")[0] : reference;
+    let { sheetName, xc } = splitReference(topLeftReference);
+    // only put the sheet name if the referenced range is in another sheet than the cell the formula is on
+    sheetName = sheetName === this.getters.getSheetName(sheetId) ? undefined : sheetName;
+    const fixedRef = getFullReference(sheetName, setXcToFixedReferenceType(xc, "colrow"));
+    const range = this.getters.getRangeFromSheetXC(sheetId, fixedRef);
+
+    switch (_info) {
+      case "address":
+        return this.getters.getRangeString(range, sheetId);
+      case "col":
+        return range.zone.left + 1;
+      case "contents": {
+        const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
+        return this.getters.getEvaluatedCell(position).value;
+      }
+      case "format": {
+        const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
+        return this.getters.getEvaluatedCell(position).format || "";
+      }
+      case "row":
+        return range.zone.top + 1;
+      case "type": {
+        const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
+        const type = this.getters.getEvaluatedCell(position).type;
+        if (type === CellValueType.empty) {
+          return "b"; // blank
+        } else if (type === CellValueType.text) {
+          return "l"; // label
+        } else {
+          return "v"; // value
+        }
+      }
+    }
+
+    return "";
+  },
+  isExported: true,
+} satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // ISERR
