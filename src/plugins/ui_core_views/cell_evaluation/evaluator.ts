@@ -15,6 +15,7 @@ import {
   isMatrix,
   Matrix,
   Range,
+  RangeCompiledFormula,
   UID,
   ValueAndFormat,
 } from "../../../types";
@@ -159,11 +160,15 @@ export class Evaluator {
       this.getters.getRangeFromSheetXC(sheetId, xc)
     );
     this.updateCompilationParameters();
-    const array = compiledFormula.execute(ranges, ...this.compilationParams);
-    if (isMatrix(array)) {
-      return matrixMap(array, (cell) => cell.value);
+    const result = updateEvalContextAndExecute(
+      { ...compiledFormula, dependencies: ranges },
+      this.compilationParams,
+      sheetId
+    );
+    if (isMatrix(result)) {
+      return matrixMap(result, (cell) => cell.value);
     }
-    return array.value;
+    return result.value;
   }
 
   private getAllCells(): JetSet<PositionId> {
@@ -224,7 +229,8 @@ export class Evaluator {
       this.invalidateSpreading(positionId);
     }
 
-    const cell = this.getCell(positionId);
+    const cellPosition = this.decodePosition(positionId);
+    const cell = this.getters.getCell(cellPosition);
     if (cell === undefined) {
       return createEvaluatedCell("", { locale: this.getters.getLocale() });
     }
@@ -237,7 +243,7 @@ export class Evaluator {
       }
       this.cellsBeingComputed.add(cellId);
       return cell.isFormula
-        ? this.computeFormulaCell(cell)
+        ? this.computeFormulaCell(cellPosition.sheetId, cell)
         : evaluateLiteral(cell.content, { format: cell.format, locale: this.getters.getLocale() });
     } catch (e) {
       return this.handleError(e, cell);
@@ -264,16 +270,14 @@ export class Evaluator {
     return errorCell(e);
   }
 
-  private computeFormulaCell(cellData: FormulaCell): EvaluatedCell {
+  private computeFormulaCell(sheetId: UID, cellData: FormulaCell): EvaluatedCell {
     const cellId = cellData.id;
-    this.compilationParams[2].__originCellXC = () => {
-      // compute the value lazily for performance reasons
-      const position = this.compilationParams[2].getters.getCellPosition(cellId);
-      return toXC(position.col, position.row);
-    };
-    const formulaReturn = cellData.compiledFormula.execute(
-      cellData.compiledFormula.dependencies,
-      ...this.compilationParams
+
+    const formulaReturn = updateEvalContextAndExecute(
+      cellData.compiledFormula,
+      this.compilationParams,
+      sheetId,
+      cellId
     );
 
     if (!isMatrix(formulaReturn)) {
@@ -531,4 +535,22 @@ class PositionBitsEncoder {
     }
     return sheetId;
   }
+}
+
+export function updateEvalContextAndExecute(
+  compiledFormula: RangeCompiledFormula,
+  compilationParams: CompilationParameters,
+  sheetId: UID,
+  cellId?: UID
+) {
+  compilationParams[2].__originCellXC = lazy(() => {
+    if (!cellId) {
+      return undefined;
+    }
+    // compute the value lazily for performance reasons
+    const position = compilationParams[2].getters.getCellPosition(cellId);
+    return toXC(position.col, position.row);
+  });
+  compilationParams[2].__originSheetId = sheetId;
+  return compiledFormula.execute(compiledFormula.dependencies, ...compilationParams);
 }

@@ -2,7 +2,7 @@ import { CellValue } from "./cells";
 import { Format } from "./format";
 import { Getters } from "./getters";
 import { Locale } from "./locale";
-import { Arg, ArgValue, Matrix, ValueAndFormat } from "./misc";
+import { Arg, ArgValue, Matrix, UID, ValueAndFormat } from "./misc";
 
 export type ArgType =
   | "ANY"
@@ -66,7 +66,8 @@ export type FunctionDescription = AddFunctionDescription & {
 
 export type EvalContext = {
   __lastFnCalled?: string;
-  __originCellXC?: () => string;
+  __originSheetId: UID;
+  __originCellXC: () => string | undefined;
   locale: Locale;
   getters: Getters;
   [key: string]: any;

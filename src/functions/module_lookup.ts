@@ -118,7 +118,7 @@ export const COLUMN = {
   ],
   returns: ["NUMBER"],
   compute: function (cellReference: string): number {
-    const _cellReference = cellReference || this.__originCellXC?.();
+    const _cellReference = cellReference || this.__originCellXC();
     assert(
       () => !!_cellReference,
       "In this context, the function [[FUNCTION_NAME]] needs to have a cell or range in parameter."
@@ -405,7 +405,7 @@ export const ROW = {
   ],
   returns: ["NUMBER"],
   compute: function (cellReference?: string): number {
-    cellReference = cellReference || this.__originCellXC?.();
+    cellReference = cellReference || this.__originCellXC();
     assert(
       () => !!cellReference,
       "In this context, the function [[FUNCTION_NAME]] needs to have a cell or range in parameter."
