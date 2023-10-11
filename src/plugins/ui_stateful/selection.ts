@@ -1,6 +1,6 @@
 import { SELECTION_BORDER_COLOR } from "../../constants";
-import { SUM } from "../../functions/module_math";
-import { AVERAGE, COUNT, COUNTA, MAX, MIN } from "../../functions/module_statistical";
+import { sum } from "../../functions/helper_math";
+import { average, countAny, countNumbers, max, min } from "../../functions/helper_statistical";
 import { ClipboardCellsState } from "../../helpers/clipboard/clipboard_cells_state";
 import {
   clip,
@@ -54,32 +54,32 @@ const selectionStatisticFunctions: SelectionStatisticFunction[] = [
   {
     name: _t("Sum"),
     types: [CellValueType.number],
-    compute: (values, locale) => SUM.compute.bind({ locale })([values]),
+    compute: (values, locale) => sum([[values]], locale),
   },
   {
     name: _t("Avg"),
     types: [CellValueType.number],
-    compute: (values, locale) => AVERAGE.compute.bind({ locale })([values]),
+    compute: (values, locale) => average([[values]], locale),
   },
   {
     name: _t("Min"),
     types: [CellValueType.number],
-    compute: (values, locale) => MIN.compute.bind({ locale })([values]),
+    compute: (values, locale) => min([[values]], locale),
   },
   {
     name: _t("Max"),
     types: [CellValueType.number],
-    compute: (values, locale) => MAX.compute.bind({ locale })([values]),
+    compute: (values, locale) => max([[values]], locale),
   },
   {
     name: _t("Count"),
     types: [CellValueType.number, CellValueType.text, CellValueType.boolean, CellValueType.error],
-    compute: (values, locale) => COUNTA.compute.bind({ locale })([values]),
+    compute: (values) => countAny([[values]]),
   },
   {
     name: _t("Count Numbers"),
     types: [CellValueType.number, CellValueType.text, CellValueType.boolean, CellValueType.error],
-    compute: (values, locale) => COUNT.compute.bind({ locale })([values]),
+    compute: (values, locale) => countNumbers([[values]], locale),
   },
 ];
 
