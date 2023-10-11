@@ -1,7 +1,7 @@
 import { BACKGROUND_CHART_COLOR } from "../../constants";
-import { chartRuntimeFactory } from "../../helpers/figures/charts";
-import { Color, Immutable, Range, UID } from "../../types";
-import { ChartRuntime } from "../../types/chart/chart";
+import { chartRuntimeFactory, chartToImage } from "../../helpers/figures/charts";
+import { Color, ExcelWorkbookData, FigureData, Immutable, Range, UID } from "../../types";
+import { ChartRuntime, ExcelChartDefinition } from "../../types/chart/chart";
 import {
   CoreViewCommand,
   invalidateCFEvaluationCommands,
@@ -83,5 +83,46 @@ export class EvaluationChartPlugin extends UIPlugin<EvaluationChartState> {
     const sheetId = mainRange.sheetId;
     const style = this.getters.getCellComputedStyle({ sheetId, col, row });
     return style.fillColor || BACKGROUND_CHART_COLOR;
+  }
+
+  exportForExcel(data: ExcelWorkbookData) {
+    for (const sheet of data.sheets) {
+      if (!sheet.images) {
+        sheet.images = [];
+      }
+      const sheetFigures = this.getters.getFigures(sheet.id);
+      const figures: FigureData<ExcelChartDefinition>[] = [];
+      for (const figure of sheetFigures) {
+        if (!figure || figure.tag !== "chart") {
+          continue;
+        }
+        const figureId = figure.id;
+        const figureData = this.getters.getChart(figureId)?.getDefinitionForExcel();
+        if (figureData) {
+          figures.push({
+            ...figure,
+            data: figureData,
+          });
+        } else {
+          const chart = this.getters.getChart(figureId);
+          if (!chart) {
+            continue;
+          }
+          const type = this.getters.getChartType(figureId);
+          const runtime = this.getters.getChartRuntime(figureId);
+          const img = chartToImage(runtime, figure, type);
+          sheet.images.push({
+            ...figure,
+            tag: "image",
+            data: {
+              mimetype: "image/png",
+              path: img,
+              size: { width: figure.width, height: figure.height },
+            },
+          });
+        }
+      }
+      sheet.charts = figures;
+    }
   }
 }
