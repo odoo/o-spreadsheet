@@ -22,6 +22,7 @@ import {
   UID,
   Zone,
   invalidateCFEvaluationCommands,
+  isMatrix,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 import { CoreViewCommand } from "./../../types/commands";
@@ -194,7 +195,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
         return percentile(rangeValues, Number(threshold.value) / 100, true);
       case "formula":
         const value = threshold.value && this.getters.evaluateFormula(sheetId, threshold.value);
-        return !(value instanceof Promise) ? value : null;
+        return typeof value === "number" ? value : null;
       default:
         return null;
     }
@@ -410,10 +411,13 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
       }
       const [value0, value1] = rule.values.map((val) => {
         if (val.startsWith("=")) {
-          return this.getters.evaluateFormula(target.sheetId, val);
+          return this.getters.evaluateFormula(target.sheetId, val) ?? "";
         }
         return parseLiteral(val, DEFAULT_LOCALE);
       });
+      if (isMatrix(value0) || isMatrix(value1)) {
+        return false;
+      }
 
       switch (rule.operator) {
         case "IsEmpty":

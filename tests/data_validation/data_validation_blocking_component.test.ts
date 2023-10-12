@@ -113,4 +113,13 @@ describe("Data validation with blocking rule", () => {
     expect(result).toBeCancelledBecause(CommandResult.BlockingValidationRule);
     expect(getCellContent(model, "A1")).toBe("");
   });
+
+  test("User can input spreading formula in blocking DV rule", async () => {
+    addDataValidation(model, "A1", "id", { type: "textContains", values: ["hi"] }, "blocking");
+    model.dispatch("START_EDITION", { text: "=MUNIT(6)" });
+    const result = model.dispatch("STOP_EDITION");
+
+    expect(result).toBeSuccessfullyDispatched();
+    expect(getCellContent(model, "A1")).toBe("1");
+  });
 });

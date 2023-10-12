@@ -1098,6 +1098,24 @@ describe("conditional formats types", () => {
       });
     });
 
+    test("CF with spreading formula is disabled", () => {
+      model.dispatch("ADD_CONDITIONAL_FORMAT", {
+        cf: {
+          rule: {
+            type: "CellIsRule",
+            operator: "NotContains",
+            values: ["=MUNIT(3)"],
+            style: { fillColor: "#ff0f0f" },
+          },
+          id: "11",
+        },
+        ranges: toRangesData(sheetId, "A1"),
+        sheetId,
+      });
+
+      expect(getStyle(model, "A1")).toEqual({});
+    });
+
     test("Operator GreaterThanOrEqual", () => {
       model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: {
