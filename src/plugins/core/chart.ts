@@ -177,7 +177,7 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   export(data: WorkbookData) {
     if (data.sheets) {
       for (let sheet of data.sheets) {
-        // TODO This code is false, if two plugins want ot insert figures on the sheet, it will crash !
+        // TODO This code is false, if two plugins want to insert figures on the sheet, it will crash !
         const sheetFigures = this.getters.getFigures(sheet.id);
         const figures: FigureData<any>[] = [];
         for (let sheetFigure of sheetFigures) {
