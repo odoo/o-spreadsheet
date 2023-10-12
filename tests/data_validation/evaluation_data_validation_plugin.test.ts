@@ -66,6 +66,16 @@ describe("Data validation evaluation", () => {
       expect(model.getters.isDataValidationInvalid(A1)).toEqual(false);
     });
 
+    test("Criterion with spreading formula values is ignored ", () => {
+      addDataValidation(model, "A1", "id", {
+        type: "isGreaterThan",
+        values: ["=MUNIT(3)"],
+      });
+
+      setCellContent(model, "A1", "8");
+      expect(model.getters.isDataValidationInvalid(A1)).toEqual(false);
+    });
+
     test("Can use references in formula values", () => {
       addDataValidation(model, "A1", "id", {
         type: "isBetween",

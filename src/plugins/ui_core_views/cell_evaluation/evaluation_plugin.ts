@@ -10,6 +10,7 @@ import {
   Format,
   FormattedValue,
   FormulaCell,
+  Matrix,
   Range,
   UID,
   Zone,
@@ -206,7 +207,7 @@ export class EvaluationPlugin extends UIPlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  evaluateFormula(sheetId: UID, formulaString: string): any {
+  evaluateFormula(sheetId: UID, formulaString: string): CellValue | Matrix<CellValue> {
     const compiledFormula = compile(formulaString);
 
     const ranges: Range[] = [];

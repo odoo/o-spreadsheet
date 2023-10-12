@@ -12,6 +12,7 @@ import {
   Lazy,
   Offset,
   UID,
+  isMatrix,
 } from "../../types";
 import { CoreViewCommand, invalidateEvaluationCommands } from "../../types/commands";
 import { CellErrorType, EvaluationError } from "../../types/errors";
@@ -223,7 +224,7 @@ export class EvaluationDataValidationPlugin extends UIPlugin {
         );
 
         const evaluated = this.getters.evaluateFormula(sheetId, translatedFormula);
-        return evaluated ? evaluated.toString() : "";
+        return evaluated && !isMatrix(evaluated) ? evaluated.toString() : "";
       } catch (e) {
         return e instanceof EvaluationError ? e.errorType : CellErrorType.GenericError;
       }

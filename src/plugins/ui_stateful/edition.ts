@@ -28,6 +28,7 @@ import {
   Format,
   HeaderIndex,
   Highlight,
+  isMatrix,
   LocalCommand,
   Locale,
   Range,
@@ -812,6 +813,10 @@ export class EditionPlugin extends UIPlugin {
       const cellValue = content.startsWith("=")
         ? this.getters.evaluateFormula(this.sheetId, content)
         : parseLiteral(content, this.getters.getLocale());
+
+      if (isMatrix(cellValue)) {
+        return CommandResult.Success;
+      }
 
       const validationResult = this.getters.getValidationResultForCellValue(
         cellValue,
