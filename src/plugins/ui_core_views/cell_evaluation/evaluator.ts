@@ -54,6 +54,16 @@ export class Evaluator {
     );
   }
 
+  getSpreadPositionsOf(position: CellPosition): CellPosition[] {
+    const positionId = this.encodePosition(position);
+    if (!this.spreadingRelations.isArrayFormula(positionId)) {
+      return [];
+    }
+    return Array.from(this.spreadingRelations.getArrayResultPositionIds(positionId)).map(
+      this.decodePosition.bind(this)
+    );
+  }
+
   getArrayFormulaSpreadingOn(position: CellPosition): CellPosition | undefined {
     const positionId = this.encodePosition(position);
     const formulaPosition = this.getArrayFormulaSpreadingOnId(positionId);
