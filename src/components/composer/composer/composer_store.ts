@@ -438,6 +438,7 @@ export class ComposerStore extends SpreadsheetStore {
         } else if (cell.link) {
           content = markdownLink(content, cell.link.url);
         }
+        this.addHeadersForSpreadingFormula(content);
         this.model.dispatch("UPDATE_CELL", {
           sheetId: this.sheetId,
           col,
@@ -678,6 +679,43 @@ export class ComposerStore extends SpreadsheetStore {
       colorsToKeep[xc] = colorIndex;
     }
     this.colorIndexByRange = colorsToKeep;
+  }
+
+  /** Add headers at the end of the sheet so the formula in the composer has enough space to spread */
+  private addHeadersForSpreadingFormula(content: string) {
+    if (!content.startsWith("=")) {
+      return;
+    }
+
+    const evaluated = this.getters.evaluateFormula(this.sheetId, content);
+    if (!isMatrix(evaluated)) {
+      return;
+    }
+
+    const numberOfRows = this.getters.getNumberRows(this.sheetId);
+    const numberOfCols = this.getters.getNumberCols(this.sheetId);
+
+    const missingRows = this.row + evaluated[0].length - numberOfRows;
+    const missingCols = this.col + evaluated.length - numberOfCols;
+
+    if (missingCols > 0) {
+      this.model.dispatch("ADD_COLUMNS_ROWS", {
+        sheetId: this.sheetId,
+        dimension: "COL",
+        base: numberOfCols - 1,
+        position: "after",
+        quantity: missingCols + 20,
+      });
+    }
+    if (missingRows > 0) {
+      this.model.dispatch("ADD_COLUMNS_ROWS", {
+        sheetId: this.sheetId,
+        dimension: "ROW",
+        base: numberOfRows - 1,
+        position: "after",
+        quantity: missingRows + 50,
+      });
+    }
   }
 
   /**
