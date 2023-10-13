@@ -1,4 +1,4 @@
-import { buildSheetLink } from "../src/helpers";
+import { buildSheetLink, toXC } from "../src/helpers";
 import { createEmptyExcelWorkbookData } from "../src/migrations/data";
 import { Model } from "../src/model";
 import { BasePlugin } from "../src/plugins/base_plugin";
@@ -1140,6 +1140,14 @@ describe("Test XLSX export", () => {
 
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
+  });
+
+  test("Invalid ASCII characters are escaped in XML", async () => {
+    const model = new Model({ sheets: [{ rowNumber: 200 }] });
+    for (let i = 0; i < 127; i++) {
+      setCellContent(model, toXC(0, i), String.fromCharCode(i));
+    }
+    expect(() => exportPrettifiedXlsx(model)).not.toThrow();
   });
 });
 
