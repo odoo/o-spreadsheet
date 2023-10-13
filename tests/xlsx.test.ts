@@ -1,4 +1,4 @@
-import { buildSheetLink } from "../src/helpers";
+import { buildSheetLink, toXC } from "../src/helpers";
 import { Model } from "../src/model";
 import { ChartTypes } from "../src/types";
 import { adaptFormulaToExcel } from "../src/xlsx/functions/cells";
@@ -862,6 +862,14 @@ describe("Test XLSX export", () => {
       `[Sheet1](${buildSheetLink("invalid id because the sheet was deleted")})`
     );
     expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+  });
+
+  test("Invalid ASCII characters are escaped in XML", async () => {
+    const model = new Model({ sheets: [{ rowNumber: 200 }] });
+    for (let i = 0; i < 127; i++) {
+      setCellContent(model, toXC(0, i), String.fromCharCode(i));
+    }
+    expect(() => exportPrettifiedXlsx(model)).not.toThrow();
   });
 });
 
