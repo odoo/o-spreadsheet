@@ -72,114 +72,72 @@ import { SheetViewPlugin } from "../plugins/ui_stateful/sheetview";
  */
 type GetterNames<Plugin extends { getters: readonly string[] }> = Plugin["getters"][number];
 
-type SheetGetters = Pick<SheetPlugin, GetterNames<typeof SheetPlugin>>;
-type HeaderSizeGetters = Pick<HeaderSizePlugin, GetterNames<typeof HeaderSizePlugin>>;
-type HeaderVisibilityGetters = Pick<
-  HeaderVisibilityPlugin,
-  GetterNames<typeof HeaderVisibilityPlugin>
->;
-type CellGetters = Pick<CellPlugin, GetterNames<typeof CellPlugin>>;
-type MergeGetters = Pick<MergePlugin, GetterNames<typeof MergePlugin>>;
-type BordersGetters = Pick<BordersPlugin, GetterNames<typeof BordersPlugin>>;
-type ChartGetters = Pick<ChartPlugin, GetterNames<typeof ChartPlugin>>;
-type ImageGetters = Pick<ImagePlugin, GetterNames<typeof ImagePlugin>>;
-type FigureGetters = Pick<FigurePlugin, GetterNames<typeof FigurePlugin>>;
+/**
+ * Extract getter methods from a plugin, based on its `getters` static array.
+ * @example
+ * class MyPlugin {
+ *   static getters = [
+ *     "getCell",
+ *     "getCellValue",
+ *   ] as const;
+ *   getCell() { ... }
+ *   getCellValue() { ... }
+ * }
+ * type MyPluginGetters = PluginGetters<typeof MyPlugin>;
+ * // MyPluginGetters is equivalent to:
+ * // {
+ * //   getCell: () => ...,
+ * //   getCellValue: () => ...,
+ * // }
+ */
+type PluginGetters<Plugin extends { new (...args: unknown[]): any; getters: readonly string[] }> =
+  Pick<InstanceType<Plugin>, GetterNames<Plugin>>;
+
 type RangeAdapterGetters = Pick<RangeAdapter, GetterNames<typeof RangeAdapter>>;
-type ConditionalFormatGetters = Pick<
-  ConditionalFormatPlugin,
-  GetterNames<typeof ConditionalFormatPlugin>
->;
-type LocalHistoryGetters = Pick<HistoryPlugin, GetterNames<typeof HistoryPlugin>>;
-type FiltersGetters = Pick<FiltersPlugin, GetterNames<typeof FiltersPlugin>>;
-type SettingsGetters = Pick<SettingsPlugin, GetterNames<typeof SettingsPlugin>>;
-type HeaderGroupingGetters = Pick<HeaderGroupingPlugin, GetterNames<typeof HeaderGroupingPlugin>>;
-type DataValidationGetters = Pick<DataValidationPlugin, GetterNames<typeof DataValidationPlugin>>;
 
-export type CoreGetters = SheetGetters &
-  HeaderSizeGetters &
-  HeaderVisibilityGetters &
-  CellGetters &
-  MergeGetters &
-  BordersGetters &
-  ChartGetters &
-  ImageGetters &
-  ConditionalFormatGetters &
-  FigureGetters &
+export type CoreGetters = PluginGetters<typeof SheetPlugin> &
+  PluginGetters<typeof HeaderSizePlugin> &
+  PluginGetters<typeof HeaderVisibilityPlugin> &
+  PluginGetters<typeof CellPlugin> &
+  PluginGetters<typeof MergePlugin> &
+  PluginGetters<typeof BordersPlugin> &
+  PluginGetters<typeof ChartPlugin> &
+  PluginGetters<typeof ImagePlugin> &
+  PluginGetters<typeof FigurePlugin> &
   RangeAdapterGetters &
-  FiltersGetters &
-  SettingsGetters &
-  HeaderGroupingGetters &
-  DataValidationGetters;
-
-type AutofillGetters = Pick<AutofillPlugin, GetterNames<typeof AutofillPlugin>>;
-type AutomaticSumGetters = Pick<AutomaticSumPlugin, GetterNames<typeof AutomaticSumPlugin>>;
-type ClipboardGetters = Pick<ClipboardPlugin, GetterNames<typeof ClipboardPlugin>>;
-type EditionGetters = Pick<EditionPlugin, GetterNames<typeof EditionPlugin>>;
-type EvaluationGetters = Pick<EvaluationPlugin, GetterNames<typeof EvaluationPlugin>>;
-type EvaluationChartGetters = Pick<
-  EvaluationChartPlugin,
-  GetterNames<typeof EvaluationChartPlugin>
->;
-type EvaluationConditionalFormatGetters = Pick<
-  EvaluationConditionalFormatPlugin,
-  GetterNames<typeof EvaluationConditionalFormatPlugin>
->;
-type FindAndReplaceGetters = Pick<FindAndReplacePlugin, GetterNames<typeof FindAndReplacePlugin>>;
-type HeaderVisibilityIUIGetters = Pick<
-  HeaderVisibilityUIPlugin,
-  GetterNames<typeof HeaderVisibilityUIPlugin>
->;
-type HighlightGetters = Pick<HighlightPlugin, GetterNames<typeof HighlightPlugin>>;
-type CustomColorsGetters = Pick<CustomColorsPlugin, GetterNames<typeof CustomColorsPlugin>>;
-type RendererGetters = Pick<RendererPlugin, GetterNames<typeof RendererPlugin>>;
-type SelectionGetters = Pick<GridSelectionPlugin, GetterNames<typeof GridSelectionPlugin>>;
-type SelectionInputGetters = Pick<
-  SelectionInputsManagerPlugin,
-  GetterNames<typeof SelectionInputsManagerPlugin>
->;
-type CollaborativeGetters = Pick<CollaborativePlugin, GetterNames<typeof CollaborativePlugin>>;
-type SortGetters = Pick<SortPlugin, GetterNames<typeof SortPlugin>>;
-type UIOptionsGetters = Pick<UIOptionsPlugin, GetterNames<typeof UIOptionsPlugin>>;
-type SheetUIGetters = Pick<SheetUIPlugin, GetterNames<typeof SheetUIPlugin>>;
-type ViewportGetters = Pick<SheetViewPlugin, GetterNames<typeof SheetViewPlugin>>;
-type CellPopoverPluginGetters = Pick<CellPopoverPlugin, GetterNames<typeof CellPopoverPlugin>>;
-type FilterEvaluationGetters = Pick<
-  FilterEvaluationPlugin,
-  GetterNames<typeof FilterEvaluationPlugin>
->;
-type SplitToColumnsGetters = Pick<SplitToColumnsPlugin, GetterNames<typeof SplitToColumnsPlugin>>;
-type UIRowSizeGetters = Pick<UIRowSizePlugin, GetterNames<typeof UIRowSizePlugin>>;
-type EvaluationDataValidationPluginGetters = Pick<
-  EvaluationDataValidationPlugin,
-  GetterNames<typeof EvaluationDataValidationPlugin>
->;
+  PluginGetters<typeof ConditionalFormatPlugin> &
+  PluginGetters<typeof FiltersPlugin> &
+  PluginGetters<typeof SettingsPlugin> &
+  PluginGetters<typeof HeaderGroupingPlugin> &
+  PluginGetters<typeof DataValidationPlugin>;
 
 export type Getters = {
   isReadonly: () => boolean;
   isDashboard: () => boolean;
-} & LocalHistoryGetters &
-  CoreGetters &
-  AutofillGetters &
-  AutomaticSumGetters &
-  ClipboardGetters &
-  EditionGetters &
-  EvaluationGetters &
-  EvaluationChartGetters &
-  EvaluationConditionalFormatGetters &
-  FindAndReplaceGetters &
-  HighlightGetters &
-  CustomColorsGetters &
-  RendererGetters &
-  SelectionGetters &
-  SelectionInputGetters &
-  CollaborativeGetters &
-  SortGetters &
-  UIOptionsGetters &
-  SheetUIGetters &
-  ViewportGetters &
-  CellPopoverPluginGetters &
-  FilterEvaluationGetters &
-  HeaderVisibilityIUIGetters &
-  SplitToColumnsGetters &
-  UIRowSizeGetters &
-  EvaluationDataValidationPluginGetters;
+} & CoreGetters &
+  PluginGetters<typeof AutofillPlugin> &
+  PluginGetters<typeof AutomaticSumPlugin> &
+  PluginGetters<typeof HistoryPlugin> &
+  PluginGetters<typeof ClipboardPlugin> &
+  PluginGetters<typeof EditionPlugin> &
+  PluginGetters<typeof EvaluationPlugin> &
+  PluginGetters<typeof EvaluationChartPlugin> &
+  PluginGetters<typeof EvaluationConditionalFormatPlugin> &
+  PluginGetters<typeof FindAndReplacePlugin> &
+  PluginGetters<typeof HeaderVisibilityUIPlugin> &
+  PluginGetters<typeof HighlightPlugin> &
+  PluginGetters<typeof CustomColorsPlugin> &
+  PluginGetters<typeof AutomaticSumPlugin> &
+  PluginGetters<typeof RendererPlugin> &
+  PluginGetters<typeof GridSelectionPlugin> &
+  PluginGetters<typeof SelectionInputsManagerPlugin> &
+  PluginGetters<typeof CollaborativePlugin> &
+  PluginGetters<typeof SortPlugin> &
+  PluginGetters<typeof UIOptionsPlugin> &
+  PluginGetters<typeof SheetUIPlugin> &
+  PluginGetters<typeof SheetViewPlugin> &
+  PluginGetters<typeof CellPopoverPlugin> &
+  PluginGetters<typeof FilterEvaluationPlugin> &
+  PluginGetters<typeof SplitToColumnsPlugin> &
+  PluginGetters<typeof UIRowSizePlugin> &
+  PluginGetters<typeof EvaluationDataValidationPlugin>;
