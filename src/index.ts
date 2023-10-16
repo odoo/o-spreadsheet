@@ -19,6 +19,7 @@ import {
   chartSidePanelComponentRegistry,
 } from "./components/side_panel/chart";
 import { ChartPanel } from "./components/side_panel/chart/main_chart_panel/main_chart_panel";
+import { SettingsPanel } from "./components/side_panel/settings/settings_panel";
 import {
   BOTTOMBAR_HEIGHT,
   DEFAULT_CELL_HEIGHT,
@@ -235,6 +236,7 @@ export const components = {
   ScorecardChartDesignPanel,
   FigureComponent,
   Menu,
+  SettingsPanel,
 };
 
 export const hooks = {
