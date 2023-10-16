@@ -492,15 +492,9 @@ describe("Filters plugin", () => {
         ]);
       });
 
-      test("On the left part of the zone", () => {
+      test("Removing rows with filter table should remove the filter table", () => {
         deleteRows(model, [2]);
-        expect(model.getters.getFilterTables(sheetId)[0].zone).toEqual(toZone("C3:F5"));
-        expect(getFilterValues(model)).toEqual([
-          { zone: "C3:C5", value: ["C"] },
-          { zone: "D3:D5", value: ["D"] },
-          { zone: "E3:E5", value: ["E"] },
-          { zone: "F3:F5", value: ["F"] },
-        ]);
+        expect(model.getters.getFilterTables(sheetId)).toEqual([]);
       });
 
       test("Inside the zone", () => {
