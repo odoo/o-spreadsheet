@@ -431,6 +431,16 @@ describe("Composer / selectionInput interactions", () => {
     await clickCell(model, "D1");
     expect(model.getters.getSelectedZones()).toEqual([toZone("D1")]);
   });
+
+  test("switching to selection input deactivates the autofill", async () => {
+    selectCell(model, "B2");
+    OPEN_CF_SIDEPANEL_ACTION(env);
+    await nextTick();
+
+    expect(fixture.querySelector(".o-autofill")).not.toBeNull();
+    await simulateClick(".o-selection-input input");
+    expect(fixture.querySelector(".o-autofill")).toBeNull();
+  });
 });
 test("cell popovers to be closed on clicking outside grid", async () => {
   jest.useFakeTimers();

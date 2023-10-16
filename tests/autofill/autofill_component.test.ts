@@ -6,6 +6,7 @@ import { setCellContent, setSelection, setViewportOffset } from "../test_helpers
 import {
   clickCell,
   edgeScrollDelay,
+  keyDown,
   triggerMouseEvent,
   triggerWheelEvent,
 } from "../test_helpers/dom_helper";
@@ -249,6 +250,16 @@ describe("Autofill component", () => {
     triggerMouseEvent(autofill, "mouseup", newX, HEADER_HEIGHT + 4);
     await nextTick();
     expect(firstViewport).toMatchObject(parent.model.getters.getActiveMainViewport());
+  });
+
+  test("Autofill is not loaded when the grid selection does not have the focus", async () => {
+    const autofill = fixture.querySelector(".o-autofill");
+    triggerMouseEvent(autofill, "mousedown", 4, 4);
+    await nextTick();
+    expect(fixture.querySelector(".o-autofill")).not.toBeNull();
+    // force composer to capture the selection
+    await keyDown({ key: "Enter" });
+    expect(fixture.querySelector(".o-autofill")).toBeNull();
   });
 });
 
