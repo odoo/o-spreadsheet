@@ -2,8 +2,10 @@ import { Model } from "../../src";
 import { toZone } from "../../src/helpers";
 import { UID } from "../../src/types";
 import {
+  addRows,
   createFilter,
   deleteFilter,
+  deleteRows,
   hideColumns,
   hideRows,
   setCellContent,
@@ -163,5 +165,40 @@ describe("Filter Evaluation Plugin", () => {
       sheetIdTo: "sh2",
     });
     expect(model.getters.getFilter({ sheetId: "sh2", col: 0, row: 0 })).toBeTruthy();
+  });
+
+  test("Inserting rows above or below the data filter header updates the filtered rows", () => {
+    const model = new Model();
+
+    createFilter(model, "A1:A2");
+    setCellContent(model, "A2", "Hi");
+
+    updateFilter(model, "A1", ["Hi"]);
+    expect(model.getters.isRowFiltered(sheetId, 1)).toEqual(true);
+
+    addRows(model, "before", 0, 1);
+    expect(model.getters.isRowFiltered(sheetId, 1)).toEqual(false);
+    expect(model.getters.isRowFiltered(sheetId, 2)).toEqual(true);
+
+    addRows(model, "after", 1, 1);
+    expect(model.getters.isRowFiltered(sheetId, 2)).toEqual(false);
+    expect(model.getters.isRowFiltered(sheetId, 3)).toEqual(true);
+  });
+
+  test("Removing rows above the data filter header updates the filtered rows", () => {
+    const model = new Model();
+
+    createFilter(model, "A4:A6");
+    setCellContent(model, "A5", "Hi");
+    setCellContent(model, "A6", "Hi");
+
+    updateFilter(model, "A4", ["Hi"]);
+    expect(model.getters.isRowFiltered(sheetId, 4)).toEqual(true);
+    expect(model.getters.isRowFiltered(sheetId, 5)).toEqual(true);
+
+    deleteRows(model, [0, 1, 2]);
+
+    expect(model.getters.isRowFiltered(sheetId, 1)).toEqual(true);
+    expect(model.getters.isRowFiltered(sheetId, 2)).toEqual(true);
   });
 });
