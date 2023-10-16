@@ -74,6 +74,8 @@ export class FilterEvaluationPlugin extends UIPlugin {
         break;
       case "HIDE_COLUMNS_ROWS":
       case "UNHIDE_COLUMNS_ROWS":
+      case "ADD_COLUMNS_ROWS":
+      case "REMOVE_COLUMNS_ROWS":
         this.updateHiddenRows();
         break;
       case "UPDATE_FILTER":
