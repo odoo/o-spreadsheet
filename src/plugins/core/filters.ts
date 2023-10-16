@@ -223,6 +223,14 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
 
   private onDeleteColumnsRows(cmd: RemoveColumnsRowsCommand) {
     for (const table of this.getFilterTables(cmd.sheetId)) {
+      // Remove the filter tables whose data filter headers are in the removed rows.
+      if (cmd.dimension === "ROW" && cmd.elements.includes(table.zone.top)) {
+        const tables = { ...this.tables[cmd.sheetId] };
+        delete tables[table.id];
+        this.history.update("tables", cmd.sheetId, tables);
+        continue;
+      }
+
       const zone = reduceZoneOnDeletion(
         table.zone,
         cmd.dimension === "COL" ? "left" : "top",
