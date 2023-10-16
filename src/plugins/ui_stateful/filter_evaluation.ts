@@ -56,6 +56,8 @@ export class FilterEvaluationPlugin extends UIPlugin {
       case "EVALUATE_CELLS":
       case "ACTIVATE_SHEET":
       case "REMOVE_FILTER_TABLE":
+      case "ADD_COLUMNS_ROWS":
+      case "REMOVE_COLUMNS_ROWS":
         this.isEvaluationDirty = true;
         break;
       case "START":
