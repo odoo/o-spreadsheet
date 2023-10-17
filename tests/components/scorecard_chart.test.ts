@@ -4,11 +4,12 @@ import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart"
 import {
   createScorecardChart as createScorecardChartHelper,
   setCellContent,
+  setStyle,
   updateChart,
 } from "../test_helpers/commands_helpers";
 import { dragElement, getElStyle, simulateClick } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
-import { mountSpreadsheet, nextTick, target } from "../test_helpers/helpers";
+import { mountSpreadsheet, nextTick, target, toRangesData } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
 let model: Model;
@@ -387,5 +388,27 @@ describe("Scorecard charts", () => {
     updateChart(model, chartId, { baselineDescr: "" }, sheetId);
     await nextTick();
     expect(getElementFontSize(getChartBaselineElement())).toBeGreaterThan(baselineFontSize);
+  });
+
+  test("Scorecard chart adapts CF font color properly while prioritizing user set values", async () => {
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        rule: {
+          type: "CellIsRule",
+          values: [],
+          operator: "IsNotEmpty",
+          style: { textColor: "#FF0000", fillColor: "#00FF00" },
+        },
+        id: "cfId",
+      },
+      ranges: toRangesData(sheetId, "A1"),
+      sheetId,
+    });
+    setCellContent(model, "A1", "30");
+    await createScorecardChart(model, { keyValue: "A1" }, chartId);
+    expect(getChartKeyElement()!.style["color"]).toBeSameColorAs("#FF0000");
+    setStyle(model, "A1", { textColor: "#FFAAAA" });
+    await nextTick();
+    expect(getChartKeyElement()!.style["color"]).toBeSameColorAs("#FFAAAA");
   });
 });
