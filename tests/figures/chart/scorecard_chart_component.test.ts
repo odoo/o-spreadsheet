@@ -16,7 +16,7 @@ import {
   updateChart,
 } from "../../test_helpers/commands_helpers";
 import { getCellContent } from "../../test_helpers/getters_helpers";
-import { target } from "../../test_helpers/helpers";
+import { target, toRangesData } from "../../test_helpers/helpers";
 
 let model: Model;
 let chartId: string;
@@ -360,6 +360,29 @@ describe("Scorecard charts computation", () => {
     expect(getContextFontSize(chartDesign2.baseline!.style.font)).toBeGreaterThan(
       getContextFontSize(chartDesign1.baseline!.style.font)
     );
+  });
+
+  test("Scorecard chart adapts CF font color properly while prioritizing user set values", async () => {
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        rule: {
+          type: "CellIsRule",
+          values: [],
+          operator: "IsNotEmpty",
+          style: { textColor: "#FF0000", fillColor: "#00FF00" },
+        },
+        id: "cfId",
+      },
+      ranges: toRangesData(sheetId, "A1"),
+      sheetId,
+    });
+    setCellContent(model, "A1", "30");
+    createScorecardChart(model, { keyValue: "A1" }, chartId);
+    let chartDesign = getChartDesign(model, chartId, sheetId);
+    expect(chartDesign.key?.style.color).toBeSameColorAs("#FF0000");
+    setStyle(model, "A1", { textColor: "#FFAAAA" });
+    chartDesign = getChartDesign(model, chartId, sheetId);
+    expect(chartDesign.key?.style.color).toBeSameColorAs("#FFAAAA");
   });
 });
 
