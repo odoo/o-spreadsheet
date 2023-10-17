@@ -381,6 +381,6 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
 
   return {
     chartJsConfig: config,
-    background: getters.getBackgroundOfSingleCellChart(chart.background, dataRange),
+    background: getters.getStyleOfSingleCellChart(chart.background, dataRange).background,
   };
 }
