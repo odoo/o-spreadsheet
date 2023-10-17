@@ -210,6 +210,8 @@ export class FindAndReplacePlugin extends UIPlugin {
     //modulo of negative value to be able to cycle in both directions with previous and next
     nextIndex = ((nextIndex % matches.length) + matches.length) % matches.length;
     this.selectedMatchIndex = nextIndex;
+    // we want grid selection to capture the selection stream
+    this.selection.getBackToDefault();
     this.selection.selectCell(matches[nextIndex].col, matches[nextIndex].row);
     for (let index = 0; index < this.searchMatches.length; index++) {
       this.searchMatches[index].selected = index === this.selectedMatchIndex;
