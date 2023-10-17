@@ -163,7 +163,10 @@ export class SelectionInputsManagerPlugin extends UIPlugin {
       };
       this.selection.capture(input, anchor, {
         handleEvent: input.handleEvent.bind(input),
-        release: () => (this.focusedInputId = null),
+        release: () => {
+          this.focusedInputId = null;
+          input.focusedRangeIndex = null;
+        },
       });
       this.focusedInputId = id;
     }

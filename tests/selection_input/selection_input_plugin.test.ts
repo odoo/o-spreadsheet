@@ -4,13 +4,16 @@ import { CommandResult } from "../../src/types";
 import {
   activateSheet,
   addCellToSelection,
+  copy,
   createSheet,
   createSheetWithName,
   merge,
   moveAnchorCell,
+  paste,
   resizeAnchorZone,
   selectCell,
   setAnchorCorner,
+  setCellContent,
   setSelection,
 } from "../test_helpers/commands_helpers";
 
@@ -675,5 +678,22 @@ describe("selection input plugin", () => {
     const selectionInput = model.getters.getSelectionInput(id);
     expect(selectionInput.length).toEqual(4);
     expect(selectionInput.map((input) => input.id)).toStrictEqual([1, 2, 4, 5]);
+  });
+
+  test("Selection input is deactivated/ falls back on grid selection on a PASTE", () => {
+    setCellContent(model, "A1", "1");
+    setSelection(model, ["A1:A2"]);
+    copy(model, "A1:A2");
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, initialRanges: ["B1:B2"] });
+    model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
+    let input = model.getters.getSelectionInput(id);
+    expect(input.length).toBe(1);
+    expect(input[0]).toMatchObject({ xc: "B1:B2", isFocused: true });
+    expect(model.getters.isGridSelectionActive()).toBe(false);
+    paste(model, "C1:C2");
+    input = model.getters.getSelectionInput(id);
+    expect(input.length).toBe(1);
+    expect(input[0]).toMatchObject({ xc: "B1:B2", isFocused: false });
+    expect(model.getters.isGridSelectionActive()).toBe(true);
   });
 });

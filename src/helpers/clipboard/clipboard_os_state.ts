@@ -64,6 +64,8 @@ export class ClipboardOsState extends ClipboardCellsAbstractState {
       right: activeCol + numberOfCols - 1,
       bottom: activeRow + numberOfRows - 1,
     };
+    // we want grid selection to capture the selection stream
+    this.selection.getBackToDefault();
     this.selection.selectZone(
       { cell: { col: activeCol, row: activeRow }, zone },
       { scrollIntoView: false }
