@@ -27,7 +27,6 @@ import { toUnboundedZone, zoneToXc } from "../zones";
 import { AbstractChart } from "./abstract_chart";
 import {
   adaptChartRange,
-  chartFontColor,
   copyLabelRangeWithNewSheetId,
   getBaselineArrowDirection,
   getBaselineColor,
@@ -207,7 +206,10 @@ function createScorecardChartRuntime(
     const baselineZone = chart.baseline.zone;
     baselineCell = getters.getCell(chart.baseline.sheetId, baselineZone.left, baselineZone.top);
   }
-  const background = getters.getBackgroundOfSingleCellChart(chart.background, chart.keyValue);
+  const { background, fontColor } = getters.getStyleOfSingleCellChart(
+    chart.background,
+    chart.keyValue
+  );
   return {
     title: _t(chart.title),
     keyValue: formattedKeyValue || keyValue,
@@ -225,7 +227,7 @@ function createScorecardChartRuntime(
       chart.baselineColorDown
     ),
     baselineDescr: chart.baselineDescr ? _t(chart.baselineDescr) : "",
-    fontColor: chartFontColor(background),
+    fontColor,
     background,
     baselineStyle: chart.baselineMode !== "percentage" ? baselineCell?.style : undefined,
     keyValueStyle: keyValueCell?.style,
