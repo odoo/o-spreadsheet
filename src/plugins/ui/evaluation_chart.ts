@@ -1,5 +1,5 @@
 import { BACKGROUND_CHART_COLOR } from "../../constants";
-import { chartRuntimeFactory } from "../../helpers/charts";
+import { chartFontColor, chartRuntimeFactory } from "../../helpers/charts";
 import { Color, Range, UID } from "../../types";
 import { ChartRuntime } from "../../types/chart/chart";
 import {
@@ -9,8 +9,13 @@ import {
 } from "../../types/commands";
 import { UIPlugin } from "../ui_plugin";
 
+interface EvaluationChartStyle {
+  background: Color;
+  fontColor: Color;
+}
+
 export class EvaluationChartPlugin extends UIPlugin {
-  static getters = ["getChartRuntime", "getBackgroundOfSingleCellChart"] as const;
+  static getters = ["getChartRuntime", "getStyleOfSingleCellChart"] as const;
 
   readonly charts: Record<UID, ChartRuntime | undefined> = {};
 
@@ -56,25 +61,28 @@ export class EvaluationChartPlugin extends UIPlugin {
   }
 
   /**
-   * Get the background color of a chart based on the color of the first cell of the main range
-   * of the chart. In order of priority, it will return :
-   *
-   *  - the chart background color if one is defined
-   *  - the fill color of the cell if one is defined
-   *  - the fill color of the cell from conditional formats if one is defined
-   *  - the default chart color if no other color is defined
+   * Get the background and textColor of a chart based on the color of the first cell of the main range of the chart.
    */
-  getBackgroundOfSingleCellChart(
+  getStyleOfSingleCellChart(
     chartBackground: Color | undefined,
     mainRange: Range | undefined
-  ): Color {
-    if (chartBackground) return chartBackground;
+  ): EvaluationChartStyle {
+    if (chartBackground)
+      return { background: chartBackground, fontColor: chartFontColor(chartBackground) };
     if (!mainRange) {
-      return BACKGROUND_CHART_COLOR;
+      return {
+        background: BACKGROUND_CHART_COLOR,
+        fontColor: chartFontColor(BACKGROUND_CHART_COLOR),
+      };
     }
     const col = mainRange.zone.left;
     const row = mainRange.zone.top;
-    const style = this.getters.getCellComputedStyle(mainRange.sheetId, col, row);
-    return style.fillColor || BACKGROUND_CHART_COLOR;
+    const sheetId = mainRange.sheetId;
+    const style = this.getters.getCellComputedStyle(sheetId, col, row);
+    const background = style.fillColor || BACKGROUND_CHART_COLOR;
+    return {
+      background,
+      fontColor: style.textColor || chartFontColor(background),
+    };
   }
 }
