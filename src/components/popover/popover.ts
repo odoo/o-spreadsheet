@@ -43,16 +43,17 @@ export class Popover extends Component<Props, SpreadsheetChildEnv> {
 
   private spreadsheetPosition = useSpreadsheetPosition();
 
+  get maxHeight(): Pixel {
+    return Math.max(0, this.viewportDimension.height - BOTTOMBAR_HEIGHT - SCROLLBAR_WIDTH);
+  }
+
   get style() {
     // the props's position is expressed relative to the "body" element
     // but we teleport the element in ".o-spreadsheet" to keep everything
     // within our control and to avoid leaking into external DOM
     const horizontalPosition = `left:${this.horizontalPosition() - this.spreadsheetPosition.x}`;
     const verticalPosition = `top:${this.verticalPosition() - this.spreadsheetPosition.y}`;
-    const maxHeight = Math.max(
-      0,
-      this.viewportDimension.height - BOTTOMBAR_HEIGHT - SCROLLBAR_WIDTH
-    );
+    const maxHeight = this.maxHeight;
     const height = `max-height:${maxHeight}`;
     const shadow = maxHeight !== 0 ? "box-shadow: 1px 2px 5px 2px rgb(51 51 51 / 15%);" : "";
     return `
@@ -80,7 +81,7 @@ export class Popover extends Component<Props, SpreadsheetChildEnv> {
   private get shouldRenderBottom(): boolean {
     const { y } = this.props.position;
     return (
-      y + this.props.childHeight <
+      y + Math.min(this.props.childHeight, this.maxHeight) <
       this.viewportDimension.height + (this.env.isDashboard() ? 0 : TOPBAR_HEIGHT)
     );
   }

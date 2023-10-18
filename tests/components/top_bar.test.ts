@@ -434,6 +434,21 @@ describe("TopBar component", () => {
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
   });
 
+  test("Opened menu with too much items is still correctly positioned", async () => {
+    for (let i = 0; i < 100; i++) {
+      topbarMenuRegistry.addChild(`testaction-${i}`, ["file"], {
+        name: `TestAction ${i}`,
+        sequence: 1,
+        action: () => {},
+      });
+    }
+    await mountParent();
+    triggerMouseEvent(".o-topbar-menu[data-id='file']", "click");
+    await nextTick();
+    const menuElement = fixture.querySelector(".o-popover")! as HTMLElement;
+    expect(menuElement.style.top).toBe("0px");
+  });
+
   test("Can add a custom component to topbar", async () => {
     const compDefinitions = Object.assign({}, topbarComponentRegistry.content);
     class Comp extends Component {
