@@ -28,8 +28,7 @@ import {
   isRangeDependant,
   isZoneDependent,
 } from "./../../types/commands";
-import { RangeData } from "./../../types/range";
-import { transformZone } from "./ot_helpers";
+import { transformRangeData, transformZone } from "./ot_helpers";
 import "./ot_specific";
 
 type TransformResult = "SKIP_TRANSFORMATION" | "IGNORE_COMMAND";
@@ -43,7 +42,7 @@ const transformations: {
   { match: isZoneDependent, fn: transformZoneDependentCommand },
   { match: isPositionDependent, fn: transformPosition },
   { match: isHeadersDependant, fn: transformHeaders },
-  { match: isRangeDependant, fn: transformRangeData },
+  { match: isRangeDependant, fn: transformRangesDependentCommand },
 ];
 
 /**
@@ -162,26 +161,16 @@ function transformZoneDependentCommand(
   }
   return "IGNORE_COMMAND";
 }
-function transformRangeData(
+function transformRangesDependentCommand(
   toTransform: Extract<CoreCommand, RangesDependentCommand>,
   executed: CoreCommand
 ): Extract<CoreCommand, RangesDependentCommand> | TransformResult {
   if (!("sheetId" in executed)) {
     return toTransform;
   }
-
-  const ranges: RangeData[] = [];
-  const deletedSheet = executed.type === "DELETE_SHEET" && executed.sheetId;
-  for (const range of toTransform.ranges) {
-    if (range._sheetId !== executed.sheetId) {
-      ranges.push({ ...range, _zone: range._zone });
-    } else {
-      const newZone = transformZone(range._zone, executed);
-      if (newZone && deletedSheet !== range._sheetId) {
-        ranges.push({ ...range, _zone: newZone });
-      }
-    }
-  }
+  const ranges = toTransform.ranges
+    .map((range) => transformRangeData(range, executed))
+    .filter(isDefined);
   if (!ranges.length) {
     return "IGNORE_COMMAND";
   }
