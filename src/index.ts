@@ -1,4 +1,5 @@
 import { createAction, createActions } from "./actions/action";
+import { transformRangeData } from "./collaborative/ot/ot_helpers";
 import { ChartJsComponent } from "./components/figures/chart/chartJs/chartjs";
 import { ScorecardChart } from "./components/figures/chart/scorecard/chart_scorecard";
 import { FigureComponent } from "./components/figures/figure/figure";
@@ -209,6 +210,7 @@ export const helpers = {
   genericRepeat,
   createAction,
   createActions,
+  transformRangeData,
 };
 
 export const links = {
