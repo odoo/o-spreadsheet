@@ -8,6 +8,7 @@ import { Grid } from "./components/grid/grid";
 import { GridOverlay } from "./components/grid_overlay/grid_overlay";
 import { useDragAndDropListItems } from "./components/helpers/drag_and_drop_hook";
 import { Menu } from "./components/menu/menu";
+import { SelectionInput } from "./components/selection_input/selection_input";
 import {
   BarConfigPanel,
   GaugeChartConfigPanel,
@@ -55,6 +56,7 @@ import {
   positionToZone,
   rgbaToHex,
   toCartesian,
+  toUnboundedZone,
   toXC,
   toZone,
 } from "./helpers/index";
@@ -188,6 +190,7 @@ export const helpers = {
   toString,
   toXC,
   toZone,
+  toUnboundedZone,
   toCartesian,
   numberToLetters,
   lettersToNumber,
@@ -239,6 +242,7 @@ export const components = {
   ScorecardChartDesignPanel,
   FigureComponent,
   Menu,
+  SelectionInput,
 };
 
 export const hooks = {
