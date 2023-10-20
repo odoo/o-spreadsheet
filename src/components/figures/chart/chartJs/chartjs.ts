@@ -1,11 +1,11 @@
 import { Component, onMounted, useEffect, useRef } from "@odoo/owl";
 import type { Chart, ChartConfiguration } from "chart.js";
-import { SpreadsheetChildEnv, UID } from "../../../../types";
+import { Figure, SpreadsheetChildEnv } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
 import { GaugeChartConfiguration, GaugeChartOptions } from "../../../../types/chart/gauge_chart";
 
 interface Props {
-  figureId: UID;
+  figure: Figure;
 }
 
 export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
@@ -23,7 +23,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get chartRuntime(): ChartJSRuntime {
-    const runtime = this.env.model.getters.getChartRuntime(this.props.figureId);
+    const runtime = this.env.model.getters.getChartRuntime(this.props.figure.id);
     if (!("chartJsConfig" in runtime)) {
       throw new Error("Unsupported chart runtime");
     }
@@ -73,5 +73,5 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
 }
 
 ChartJsComponent.props = {
-  figureId: String,
+  figure: Object,
 };
