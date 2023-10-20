@@ -18,7 +18,7 @@ import { EvaluationPlugin } from "../plugins/ui_core_views/cell_evaluation";
 import { CustomColorsPlugin } from "../plugins/ui_core_views/custom_colors";
 import { EvaluationChartPlugin } from "../plugins/ui_core_views/evaluation_chart";
 import { EvaluationConditionalFormatPlugin } from "../plugins/ui_core_views/evaluation_conditional_format";
-import { UIRowSizePlugin } from "../plugins/ui_core_views/row_size";
+import { HeaderSizeUIPlugin } from "../plugins/ui_core_views/header_sizes_ui";
 import { AutofillPlugin } from "../plugins/ui_feature/autofill";
 import { AutomaticSumPlugin } from "../plugins/ui_feature/automatic_sum";
 import { CellPopoverPlugin } from "../plugins/ui_feature/cell_popovers";
@@ -139,5 +139,5 @@ export type Getters = {
   PluginGetters<typeof CellPopoverPlugin> &
   PluginGetters<typeof FilterEvaluationPlugin> &
   PluginGetters<typeof SplitToColumnsPlugin> &
-  PluginGetters<typeof UIRowSizePlugin> &
+  PluginGetters<typeof HeaderSizeUIPlugin> &
   PluginGetters<typeof EvaluationDataValidationPlugin>;

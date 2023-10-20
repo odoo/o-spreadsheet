@@ -9,7 +9,7 @@ import {
   removeIndexesFromArray,
 } from "../../helpers";
 import { Command } from "../../types";
-import { CellPosition, HeaderIndex, Immutable, Pixel, UID } from "../../types/misc";
+import { CellPosition, Dimension, HeaderIndex, Immutable, Pixel, UID } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 interface HeaderSizeState {
@@ -21,8 +21,8 @@ interface CellWithSize {
   size: Pixel;
 }
 
-export class UIRowSizePlugin extends UIPlugin<HeaderSizeState> implements HeaderSizeState {
-  static getters = ["getRowSize"] as const;
+export class HeaderSizeUIPlugin extends UIPlugin<HeaderSizeState> implements HeaderSizeState {
+  static getters = ["getRowSize", "getHeaderSize"] as const;
 
   readonly tallestCellInRow: Immutable<Record<UID, Array<CellWithSize | undefined>>> = {};
 
@@ -112,6 +112,12 @@ export class UIRowSizePlugin extends UIPlugin<HeaderSizeState> implements Header
         this.tallestCellInRow[sheetId][row]?.size ??
         DEFAULT_CELL_HEIGHT
     );
+  }
+
+  getHeaderSize(sheetId: UID, dimension: Dimension, index: HeaderIndex): Pixel {
+    return dimension === "ROW"
+      ? this.getRowSize(sheetId, index)
+      : this.getters.getColSize(sheetId, index);
   }
 
   private updateRowSizeForCellChange(sheetId: UID, row: HeaderIndex, col: HeaderIndex) {

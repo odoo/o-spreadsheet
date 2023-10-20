@@ -288,10 +288,7 @@ export class InternalViewport {
       if (this.getters.isHeaderHidden(sheetId, dimension, i) || isHiddenInViewport) {
         continue;
       }
-      size +=
-        dimension === "COL"
-          ? this.getters.getColSize(sheetId, i)
-          : this.getters.getRowSize(sheetId, i);
+      size += this.getters.getHeaderSize(sheetId, dimension, i);
       if (size > position) {
         return i;
       }

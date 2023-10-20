@@ -178,10 +178,7 @@ export class SheetUIPlugin extends UIPlugin {
       if (this.getters.isHeaderHidden(sheetId, dimension, i)) {
         continue;
       }
-      offset +=
-        dimension === "COL"
-          ? this.getters.getColSize(sheetId, i)
-          : this.getters.getRowSize(sheetId, i);
+      offset += this.getters.getHeaderSize(sheetId, dimension, i);
     }
     return offset;
   }
