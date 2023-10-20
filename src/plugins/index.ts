@@ -23,7 +23,7 @@ import {
   EvaluationDataValidationPlugin,
   EvaluationPlugin,
 } from "./ui_core_views";
-import { UIRowSizePlugin } from "./ui_core_views/row_size";
+import { HeaderSizeUIPlugin } from "./ui_core_views/header_sizes_ui";
 import {
   AutofillPlugin,
   AutomaticSumPlugin,
@@ -99,6 +99,6 @@ export const coreViewsPluginRegistry = new Registry<UIPluginConstructor>()
   .add("evaluation", EvaluationPlugin)
   .add("evaluation_chart", EvaluationChartPlugin)
   .add("evaluation_cf", EvaluationConditionalFormatPlugin)
-  .add("row_size", UIRowSizePlugin)
+  .add("row_size", HeaderSizeUIPlugin)
   .add("custom_colors", CustomColorsPlugin)
   .add("data_validation_ui", EvaluationDataValidationPlugin);

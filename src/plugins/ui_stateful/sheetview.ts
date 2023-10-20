@@ -378,10 +378,7 @@ export class SheetViewPlugin extends UIPlugin {
       if (!visibleIndexes.includes(i)) {
         continue;
       }
-      offset +=
-        dimension === "COL"
-          ? this.getters.getColSize(sheetId, i)
-          : this.getters.getRowSize(sheetId, i);
+      offset += this.getters.getHeaderSize(sheetId, dimension, i);
     }
     return offset;
   }
