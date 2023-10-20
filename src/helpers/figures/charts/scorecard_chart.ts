@@ -52,6 +52,13 @@ function checkBaseline(definition: ScorecardChartDefinition): CommandResult {
     : CommandResult.Success;
 }
 
+const arrowDownPath = new window.Path2D(
+  "M8.6 4.8a.5.5 0 0 1 0 .75l-3.9 3.9a.5 .5 0 0 1 -.75 0l-3.8 -3.9a.5 .5 0 0 1 0 -.75l.4-.4a.5.5 0 0 1 .75 0l2.3 2.4v-5.7c0-.25.25-.5.5-.5h.6c.25 0 .5.25.5.5v5.8l2.3 -2.4a.5.5 0 0 1 .75 0z"
+);
+const arrowUpPath = new window.Path2D(
+  "M8.7 5.5a.5.5 0 0 0 0-.75l-3.8-4a.5.5 0 0 0-.75 0l-3.8 4a.5.5 0 0 0 0 .75l.4.4a.5.5 0 0 0 .75 0l2.3-2.4v5.8c0 .25.25.5.5.5h.6c.25 0 .5-.25.5-.5v-5.8l2.2 2.4a.5.5 0 0 0 .75 0z"
+);
+
 export class ScorecardChart extends AbstractChart {
   readonly keyValue?: Range;
   readonly baseline?: Range;
@@ -205,14 +212,24 @@ export function drawScoreChart(structure: ScorecardChartConfig, canvas: HTMLCanv
     );
   }
 
-  if (structure.baselineArrow) {
-    ctx.font = structure.baselineArrow.style.font;
+  if (structure.baselineArrow && structure.baselineArrow.style.size > 0) {
+    ctx.save();
     ctx.fillStyle = structure.baselineArrow.style.color;
-    ctx.fillText(
-      structure.baselineArrow.text,
-      structure.baselineArrow.position.x,
-      structure.baselineArrow.position.y
-    );
+    ctx.translate(structure.baselineArrow.position.x, structure.baselineArrow.position.y);
+    // This ratio is computed according to the original svg size and the final size we want
+    const ratio = structure.baselineArrow.style.size / 10;
+    ctx.scale(ratio, ratio);
+    switch (structure.baselineArrow.direction) {
+      case "down": {
+        ctx.fill(arrowDownPath);
+        break;
+      }
+      case "up": {
+        ctx.fill(arrowUpPath);
+        break;
+      }
+    }
+    ctx.restore();
   }
 
   if (structure.baselineDescr) {

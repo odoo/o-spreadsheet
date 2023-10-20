@@ -37,3 +37,19 @@ const patch = {
 
 /* js-ignore */
 Object.assign(HTMLCanvasElement.prototype, patch);
+
+if (!window.Path2D) {
+  window.Path2D = class Path2D {
+    addPath() {}
+    closePath() {}
+    moveTo() {}
+    lineTo() {}
+    bezierCurveTo() {}
+    quadraticCurveTo() {}
+    arc() {}
+    arcTo() {}
+    ellipse() {}
+    rect() {}
+    roundRect() {}
+  };
+}
