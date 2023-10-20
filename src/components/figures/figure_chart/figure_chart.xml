@@ -3,8 +3,8 @@
     <div class="o-chart-container w-100 h-100" t-on-dblclick="onDoubleClick">
       <t
         t-component="chartComponent"
-        figureId="this.props.figureId"
-        t-key="this.props.figureId + '-' + chartType"
+        figure="this.props.figure"
+        t-key="this.props.figure.id + '-' + chartType"
       />
     </div>
   </t>

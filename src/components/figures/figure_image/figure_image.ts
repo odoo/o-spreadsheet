@@ -1,8 +1,8 @@
 import { Component } from "@odoo/owl";
-import { SpreadsheetChildEnv, UID } from "../../../types";
+import { Figure, SpreadsheetChildEnv, UID } from "../../../types";
 
 interface Props {
-  figureId: UID;
+  figure: Figure;
   onFigureDeleted: () => void;
 }
 
@@ -15,7 +15,7 @@ export class ImageFigure extends Component<Props, SpreadsheetChildEnv> {
   // ---------------------------------------------------------------------------
 
   get figureId(): UID {
-    return this.props.figureId;
+    return this.props.figure.id;
   }
 
   get getImagePath(): string {
@@ -24,6 +24,6 @@ export class ImageFigure extends Component<Props, SpreadsheetChildEnv> {
 }
 
 ImageFigure.props = {
-  figureId: String,
+  figure: Object,
   onFigureDeleted: Function,
 };

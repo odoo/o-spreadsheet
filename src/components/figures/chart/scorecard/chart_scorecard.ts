@@ -1,11 +1,11 @@
 import { Component, useEffect, useRef } from "@odoo/owl";
 import { drawScoreChart } from "../../../../helpers/figures/charts/scorecard_chart";
 import { getScorecardConfiguration } from "../../../../helpers/figures/charts/scorecard_chart_config_builder";
-import { SpreadsheetChildEnv, UID } from "../../../../types";
+import { Figure, SpreadsheetChildEnv } from "../../../../types";
 import { ScorecardChartRuntime } from "../../../../types/chart/scorecard_chart";
 
 interface Props {
-  figureId: UID;
+  figure: Figure;
 }
 
 export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
@@ -13,7 +13,7 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
   private canvas = useRef("chartContainer");
 
   get runtime(): ScorecardChartRuntime {
-    return this.env.model.getters.getChartRuntime(this.props.figureId) as ScorecardChartRuntime;
+    return this.env.model.getters.getChartRuntime(this.props.figure.id) as ScorecardChartRuntime;
   }
 
   setup() {
@@ -32,5 +32,5 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
 }
 
 ScorecardChart.props = {
-  figureId: String,
+  figure: Object,
 };
