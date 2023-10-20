@@ -50,6 +50,7 @@ import {
   GridSelectionPlugin,
   SheetViewPlugin,
 } from "./ui_stateful";
+import { HeaderPositionsUIPlugin } from "./ui_stateful/header_positions";
 
 export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("settings", SettingsPlugin)
@@ -70,7 +71,6 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
 // Plugins which handle a specific feature, without handling any core commands
 export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("ui_sheet", SheetUIPlugin)
-  .add("header_visibility_ui", HeaderVisibilityUIPlugin)
   .add("ui_options", UIOptionsPlugin)
   .add("selectionInputManager", SelectionInputsManagerPlugin)
   .add("highlight", HighlightPlugin)
@@ -90,6 +90,8 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
 export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()
   .add("selection", GridSelectionPlugin)
   .add("evaluation_filter", FilterEvaluationPlugin)
+  .add("header_visibility_ui", HeaderVisibilityUIPlugin)
+  .add("header_positions", HeaderPositionsUIPlugin)
   .add("viewport", SheetViewPlugin)
   .add("clipboard", ClipboardPlugin)
   .add("edition", EditionPlugin);

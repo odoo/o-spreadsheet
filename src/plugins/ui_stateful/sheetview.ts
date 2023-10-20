@@ -24,6 +24,7 @@ import {
   UID,
   Viewport,
   Zone,
+  invalidateEvaluationCommands,
 } from "../../types/index";
 import { PixelPosition } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
@@ -114,6 +115,8 @@ export class SheetViewPlugin extends UIPlugin {
   private gridOffsetY: Pixel = 0;
 
   private sheetsWithDirtyViewports: Set<UID> = new Set();
+  private shouldAdjustViewports: boolean = false;
+
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
@@ -150,12 +153,20 @@ export class SheetViewPlugin extends UIPlugin {
       const sheetId = this.getters.getActiveSheetId();
       col = Math.min(col, this.getters.getNumberCols(sheetId) - 1);
       row = Math.min(row, this.getters.getNumberRows(sheetId) - 1);
-      this.refreshViewport(this.getters.getActiveSheetId(), { col, row });
+      if (!this.sheetsWithDirtyViewports.has(sheetId)) {
+        this.refreshViewport(this.getters.getActiveSheetId(), { col, row });
+      }
     }
   }
 
   handle(cmd: Command) {
     this.cleanViewports();
+    // changing the evaluation can hide/show rows because of data filters
+    if (invalidateEvaluationCommands.has(cmd.type)) {
+      for (const sheetId of this.getters.getSheetIds()) {
+        this.sheetsWithDirtyViewports.add(sheetId);
+      }
+    }
 
     switch (cmd.type) {
       case "START":
@@ -166,7 +177,10 @@ export class SheetViewPlugin extends UIPlugin {
         break;
       case "UNDO":
       case "REDO":
-        this.resetSheetViews();
+        for (const sheetId of this.getters.getSheetIds()) {
+          this.sheetsWithDirtyViewports.add(sheetId);
+        }
+        this.shouldAdjustViewports = true;
         break;
       case "RESIZE_SHEETVIEW":
         this.resizeSheetView(cmd.height, cmd.width, cmd.gridOffsetX, cmd.gridOffsetY);
@@ -191,12 +205,17 @@ export class SheetViewPlugin extends UIPlugin {
         this.shiftVertically(shiftedOffsetY);
         break;
       }
+      case "REMOVE_FILTER_TABLE":
+      case "UPDATE_FILTER":
+        this.sheetsWithDirtyViewports.add(cmd.sheetId);
+        break;
       case "REMOVE_COLUMNS_ROWS":
       case "RESIZE_COLUMNS_ROWS":
       case "HIDE_COLUMNS_ROWS":
       case "ADD_COLUMNS_ROWS":
       case "UNHIDE_COLUMNS_ROWS":
-      case "UPDATE_FILTER":
+      case "UNGROUP_HEADERS":
+      case "GROUP_HEADERS":
       case "FOLD_HEADER_GROUP":
       case "UNFOLD_HEADER_GROUP":
       case "FOLD_HEADER_GROUPS_IN_ZONE":
@@ -210,12 +229,13 @@ export class SheetViewPlugin extends UIPlugin {
       case "UPDATE_CELL":
         // update cell content or format can change hidden rows because of data filters
         if ("content" in cmd || "format" in cmd || cmd.style?.fontSize !== undefined) {
-          this.sheetsWithDirtyViewports.add(cmd.sheetId);
+          for (const sheetId of this.getters.getSheetIds()) {
+            this.sheetsWithDirtyViewports.add(sheetId);
+          }
         }
         break;
       case "ACTIVATE_SHEET":
-        this.setViewports();
-        this.refreshViewport(cmd.sheetIdTo);
+        this.sheetsWithDirtyViewports.add(cmd.sheetIdTo);
         break;
       case "UNFREEZE_ROWS":
       case "UNFREEZE_COLUMNS":
@@ -237,8 +257,16 @@ export class SheetViewPlugin extends UIPlugin {
   finalize() {
     for (const sheetId of this.sheetsWithDirtyViewports) {
       this.resetViewports(sheetId);
+      if (this.shouldAdjustViewports) {
+        const position = this.getters.getSheetPosition(sheetId);
+        const viewports = this.getSubViewports(sheetId);
+        Object.values(viewports).forEach((viewport) => {
+          viewport.adjustPosition(position);
+        });
+      }
     }
     this.sheetsWithDirtyViewports = new Set();
+    this.shouldAdjustViewports = false;
     this.setViewports();
   }
 
@@ -573,17 +601,6 @@ export class SheetViewPlugin extends UIPlugin {
       if (!sheetIds.includes(sheetId)) {
         delete this.viewports[sheetId];
       }
-    }
-  }
-
-  private resetSheetViews() {
-    for (let sheetId of Object.keys(this.viewports)) {
-      const position = this.getters.getSheetPosition(sheetId);
-      this.resetViewports(sheetId);
-      const viewports = this.getSubViewports(sheetId);
-      Object.values(viewports).forEach((viewport) => {
-        viewport.adjustPosition(position);
-      });
     }
   }
 

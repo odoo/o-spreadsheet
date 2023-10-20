@@ -7,14 +7,7 @@ import {
 } from "../../helpers/index";
 import { localizeFormula } from "../../helpers/locale";
 import { Command, CommandResult, LocalCommand, UID } from "../../types";
-import {
-  CellPosition,
-  Dimension,
-  HeaderDimensions,
-  HeaderIndex,
-  Pixel,
-  Style,
-} from "../../types/misc";
+import { CellPosition, HeaderIndex, Pixel, Style } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 export class SheetUIPlugin extends UIPlugin {
@@ -24,9 +17,6 @@ export class SheetUIPlugin extends UIPlugin {
     "getTextWidth",
     "getCellText",
     "getCellMultiLineText",
-    "getColDimensions",
-    "getRowDimensions",
-    "getColRowOffset",
   ] as const;
 
   private ctx = document.createElement("canvas").getContext("2d")!;
@@ -127,60 +117,6 @@ export class SheetUIPlugin extends UIPlugin {
     const style = this.getters.getCellStyle(position);
     const text = this.getters.getCellText(position, this.getters.shouldShowFormulas());
     return splitTextToWidth(this.ctx, text, style, width);
-  }
-
-  /**
-   * Returns the size, start and end coordinates of a column on an unfolded sheet
-   */
-  getColDimensions(sheetId: UID, col: HeaderIndex): HeaderDimensions {
-    const start = this.getColRowOffset("COL", 0, col, sheetId);
-    const size = this.getters.getColSize(sheetId, col);
-    const isColHidden = this.getters.isColHidden(sheetId, col);
-    return {
-      start,
-      size,
-      end: start + (isColHidden ? 0 : size),
-    };
-  }
-
-  /**
-   * Returns the size, start and end coordinates of a row an unfolded sheet
-   */
-  getRowDimensions(sheetId: UID, row: HeaderIndex): HeaderDimensions {
-    const start = this.getColRowOffset("ROW", 0, row, sheetId);
-    const size = this.getters.getRowSize(sheetId, row);
-    const isRowHidden = this.getters.isRowHidden(sheetId, row);
-    return {
-      start,
-      size: size,
-      end: start + (isRowHidden ? 0 : size),
-    };
-  }
-
-  /**
-   * Returns the offset of a header (determined by the dimension) at the given index
-   * based on the referenceIndex given. If start === 0, this method will return
-   * the start attribute of the header.
-   *
-   * i.e. The size from A to B is the distance between A.start and B.end
-   */
-  getColRowOffset(
-    dimension: Dimension,
-    referenceIndex: HeaderIndex,
-    index: HeaderIndex,
-    sheetId: UID = this.getters.getActiveSheetId()
-  ): Pixel {
-    if (index < referenceIndex) {
-      return -this.getColRowOffset(dimension, index, referenceIndex);
-    }
-    let offset = 0;
-    for (let i = referenceIndex; i < index; i++) {
-      if (this.getters.isHeaderHidden(sheetId, dimension, i)) {
-        continue;
-      }
-      offset += this.getters.getHeaderSize(sheetId, dimension, i);
-    }
-    return offset;
   }
 
   doesCellHaveGridIcon(position: CellPosition): boolean {

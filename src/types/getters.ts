@@ -36,6 +36,7 @@ import { SheetUIPlugin } from "../plugins/ui_feature/ui_sheet";
 import { ClipboardPlugin } from "../plugins/ui_stateful/clipboard";
 import { EditionPlugin } from "../plugins/ui_stateful/edition";
 import { FilterEvaluationPlugin } from "../plugins/ui_stateful/filter_evaluation";
+import { HeaderPositionsUIPlugin } from "../plugins/ui_stateful/header_positions";
 import { GridSelectionPlugin } from "../plugins/ui_stateful/selection";
 import { SheetViewPlugin } from "../plugins/ui_stateful/sheetview";
 // -----------------------------------------------------------------------------
@@ -140,4 +141,5 @@ export type Getters = {
   PluginGetters<typeof FilterEvaluationPlugin> &
   PluginGetters<typeof SplitToColumnsPlugin> &
   PluginGetters<typeof HeaderSizeUIPlugin> &
-  PluginGetters<typeof EvaluationDataValidationPlugin>;
+  PluginGetters<typeof EvaluationDataValidationPlugin> &
+  PluginGetters<typeof HeaderPositionsUIPlugin>;
