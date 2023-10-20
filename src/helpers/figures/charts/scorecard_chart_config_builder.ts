@@ -1,7 +1,7 @@
 import { Color } from "chart.js";
 import { DEFAULT_FONT } from "../../../constants";
 import { DOMDimension, Pixel, PixelPosition, Style } from "../../../types";
-import { ScorecardChartRuntime } from "../../../types/chart";
+import { BaselineArrowDirection, ScorecardChartRuntime } from "../../../types/chart";
 import { relativeLuminance } from "../../color";
 import { getFontSizeMatchingWidth } from "../../text_helper";
 
@@ -41,7 +41,14 @@ export type ScorecardChartConfig = {
     backgroundColor: Color;
   };
   title?: ScorecardChartElement;
-  baselineArrow?: ScorecardChartElement;
+  baselineArrow?: {
+    direction: BaselineArrowDirection;
+    style: {
+      size: Pixel;
+      color: Color;
+    };
+    position: PixelPosition;
+  };
   baseline?: ScorecardChartElement;
   baselineDescr?: ScorecardChartElement;
   key?: ScorecardChartElement;
@@ -110,10 +117,7 @@ class ScorecardChartConfigBuilder {
       };
     }
 
-    const { height: baselineArrowHeight, width: baselineArrowWidth } = this.getTextDimensions(
-      this.baselineArrow,
-      style.baselineArrow.font
-    );
+    const baselineArrowSize = style.baselineArrow?.size ?? 0;
 
     const { height: baselineHeight, width: baselineWidth } = this.getTextDimensions(
       this.baseline,
@@ -128,19 +132,23 @@ class ScorecardChartConfigBuilder {
       text: this.baseline,
       style: style.baselineValue,
       position: {
-        x: (this.width - baselineWidth - baselineDescrWidth + baselineArrowWidth) / 2,
-        y: this.height - 2 * this.chartPadding,
+        x: (this.width - baselineWidth - baselineDescrWidth + baselineArrowSize) / 2,
+        y: this.keyValue
+          ? this.height - 2 * this.chartPadding
+          : this.height - (this.height - titleHeight - baselineHeight) / 2 - this.chartPadding,
       },
     };
 
-    structure.baselineArrow = {
-      text: this.baselineArrow,
-      style: style.baselineArrow,
-      position: {
-        x: structure.baseline.position.x - baselineArrowWidth,
-        y: structure.baseline.position.y - (baselineHeight - baselineArrowHeight) / 2,
-      },
-    };
+    if (style.baselineArrow) {
+      structure.baselineArrow = {
+        direction: this.baselineArrow,
+        style: style.baselineArrow,
+        position: {
+          x: structure.baseline.position.x - baselineArrowSize,
+          y: structure.baseline.position.y - (baselineHeight + baselineArrowSize) / 2,
+        },
+      };
+    }
 
     if (this.baselineDescr) {
       structure.baselineDescr = {
@@ -187,13 +195,7 @@ class ScorecardChartConfigBuilder {
   }
 
   get baselineArrow() {
-    switch (this.runtime.baselineArrow) {
-      case "up":
-        return "\u{1F871}";
-      case "down":
-        return "\u{1F873}";
-    }
-    return "";
+    return this.runtime.baselineArrow;
   }
 
   private get backgroundColor() {
@@ -273,10 +275,13 @@ class ScorecardChartConfigBuilder {
         font: getDefaultContextFont(baselineFontSize * BASELINE_DESCR_FONT_RATIO),
         color: this.secondaryFontColor,
       },
-      baselineArrow: {
-        font: getDefaultContextFont(0.8 * baselineFontSize),
-        color: this.runtime.baselineColor || this.secondaryFontColor,
-      },
+      baselineArrow:
+        this.baselineArrow === "neutral"
+          ? undefined
+          : {
+              size: this.keyValue ? 0.8 * baselineFontSize : 0,
+              color: this.runtime.baselineColor || this.secondaryFontColor,
+            },
     };
   }
 
@@ -337,7 +342,7 @@ class BaselineElement extends ScorecardScalableElement {
     }
     const baselineStr = chart.baseline;
     // Put mock text to simulate the width of the up/down arrow
-    const largeText = chart.baselineArrow !== "" ? "A " + baselineStr : baselineStr;
+    const largeText = chart.baselineArrow !== "neutral" ? "A " + baselineStr : baselineStr;
     let textWidth = this.measureTextWidth(ctx, largeText, fontSize);
     // Baseline descr font size should be smaller than baseline font size
     textWidth += this.measureTextWidth(

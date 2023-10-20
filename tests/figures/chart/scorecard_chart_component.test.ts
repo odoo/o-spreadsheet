@@ -139,7 +139,7 @@ describe("Scorecard charts computation", () => {
     expect(chartDesign.key?.text).toEqual("0");
     expect(chartDesign.baseline?.text).toEqual("0");
     expect(chartDesign.baselineDescr).toBeUndefined();
-    expect(chartDesign.baselineArrow?.text).toEqual("");
+    expect(chartDesign.baselineArrow).toBeUndefined();
   });
 
   test("Percentage baseline display a percentage", () => {
@@ -165,7 +165,7 @@ describe("Scorecard charts computation", () => {
     createScorecardChart(model, { keyValue: "A1", baseline: "B3" }, chartId);
     const chartDesign = getChartDesign(model, chartId, sheetId);
 
-    expect(chartDesign.baselineArrow?.text).toBe("\u{1F873}");
+    expect(chartDesign.baselineArrow?.direction).toBe("down");
     expect(chartDesign.baselineArrow?.style.color).toBeSameColorAs("#DC6965");
     expect(chartDesign.baseline?.style.color).toBeSameColorAs("#DC6965");
     expect(chartDesign.baseline?.text).toEqual("1");
@@ -175,7 +175,7 @@ describe("Scorecard charts computation", () => {
     createScorecardChart(model, { keyValue: "A1", baseline: "B1" }, chartId);
     const chartDesign = getChartDesign(model, chartId, sheetId);
 
-    expect(chartDesign.baselineArrow?.text).toBe("\u{1F871}");
+    expect(chartDesign.baselineArrow?.direction).toBe("up");
     expect(chartDesign.baselineArrow?.style.color).toBeSameColorAs("#00A04A");
     expect(chartDesign.baseline?.style.color).toBeSameColorAs("#00A04A");
     expect(chartDesign.baseline?.text).toEqual("1");
@@ -185,7 +185,7 @@ describe("Scorecard charts computation", () => {
     createScorecardChart(model, { keyValue: "A1", baseline: "B2" }, chartId);
     const chartDesign = getChartDesign(model, chartId, sheetId);
 
-    expect(chartDesign.baselineArrow?.text).toBe("");
+    expect(chartDesign.baselineArrow).toBeUndefined();
     expect(chartDesign.baseline?.style.color).toBeSameColorAs("#525252");
     expect(chartDesign.baseline?.text).toEqual("0");
   });
