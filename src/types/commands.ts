@@ -106,7 +106,7 @@ export function isPositionDependent(cmd: CoreCommand): boolean {
   return "col" in cmd && "row" in cmd && "sheetId" in cmd;
 }
 
-export const invalidateEvaluationCommands = new Set<CoreViewCommandTypes>([
+export const invalidateEvaluationCommands = new Set<CommandTypes>([
   "RENAME_SHEET",
   "DELETE_SHEET",
   "CREATE_SHEET",
@@ -123,7 +123,7 @@ export const invalidateDependenciesCommands = new Set<CommandTypes>([
   "MOVE_RANGES",
 ]);
 
-export const invalidateCFEvaluationCommands = new Set<CoreViewCommandTypes>([
+export const invalidateCFEvaluationCommands = new Set<CommandTypes>([
   ...invalidateEvaluationCommands,
   "DUPLICATE_SHEET",
   "EVALUATE_CELLS",
