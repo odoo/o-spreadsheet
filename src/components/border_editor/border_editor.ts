@@ -59,6 +59,7 @@ export interface BorderEditorProps {
 css/* scss */ `
   .o-border-selector {
     padding: 4px;
+    background-color: white;
   }
   .o-divider {
     border-right: 1px solid #e0e2e4;
