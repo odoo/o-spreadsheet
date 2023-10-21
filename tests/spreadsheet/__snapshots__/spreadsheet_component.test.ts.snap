@@ -7,7 +7,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
 >
   
   <div
-    class="o-spreadsheet-topbar o-two-columns bg-white d-flex flex-column user-select-none"
+    class="o-spreadsheet-topbar o-two-columns d-flex flex-column user-select-none"
   >
     <div
       class="o-topbar-top d-flex justify-content-between"
