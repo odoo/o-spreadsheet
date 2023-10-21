@@ -6,7 +6,7 @@ exports[`TopBar component can set cell format 1`] = `
     class="o-spreadsheet"
   >
     <div
-      class="o-spreadsheet-topbar o-two-columns bg-white d-flex flex-column user-select-none"
+      class="o-spreadsheet-topbar o-two-columns d-flex flex-column user-select-none"
     >
       <div
         class="o-topbar-top d-flex justify-content-between"
@@ -899,7 +899,7 @@ exports[`TopBar component can set cell format 1`] = `
 
 exports[`TopBar component simple rendering 1`] = `
 <div
-  class="o-spreadsheet-topbar o-two-columns bg-white d-flex flex-column user-select-none"
+  class="o-spreadsheet-topbar o-two-columns d-flex flex-column user-select-none"
 >
   <div
     class="o-topbar-top d-flex justify-content-between"
