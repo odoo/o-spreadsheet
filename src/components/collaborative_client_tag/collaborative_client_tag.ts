@@ -39,7 +39,7 @@ export class ClientTag extends Component<ClientTagProps, SpreadsheetChildEnv> {
       left: `${x - 1}px`,
       border: `1px solid ${color}`,
       "background-color": color,
-      opacity: this.props.active ? "opacity:1 !important" : undefined,
+      opacity: this.props.active ? "1 !important" : undefined,
     });
   }
 }
