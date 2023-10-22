@@ -1018,6 +1018,20 @@ describe("Multi User selection", () => {
     ({ parent, fixture } = await mountSpreadsheet({ model }));
   });
 
+  test("Render collaborative user when hovering the position", async () => {
+    const sheetId = model.getters.getActiveSheetId();
+    transportService.sendMessage({
+      type: "CLIENT_JOINED",
+      version: MESSAGE_VERSION,
+      client: { id: "david", name: "David", position: { sheetId, col: 1, row: 1 } },
+    });
+    await nextTick();
+    expect(getElComputedStyle(".o-client-tag", "opacity")).toBe("0");
+    await hoverCell(model, "B2", 400);
+    expect(getElComputedStyle(".o-client-tag", "opacity")).toBe("1");
+    expect(document.querySelector(".o-client-tag")?.textContent).toBe("David");
+  });
+
   test("Do not render multi user selection with invalid sheet", async () => {
     transportService.sendMessage({
       type: "CLIENT_JOINED",
