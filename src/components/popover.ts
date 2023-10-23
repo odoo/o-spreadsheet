@@ -44,12 +44,14 @@ export class Popover extends Component<Props, SpreadsheetEnv> {
   };
   private getters = this.env.getters;
 
+  get maxHeight(): number {
+    return Math.max(0, this.viewportDimension.height - BOTTOMBAR_HEIGHT - SCROLLBAR_WIDTH);
+  }
+
   get style() {
     const horizontalPosition = `left:${this.horizontalPosition()}`;
     const verticalPosition = `top:${this.verticalPosition()}`;
-    const height = `max-height:${
-      this.viewportDimension.height - BOTTOMBAR_HEIGHT - SCROLLBAR_WIDTH
-    }`;
+    const height = `max-height:${this.maxHeight}`;
     return `
       position: absolute;
       z-index: 5;
@@ -74,7 +76,10 @@ export class Popover extends Component<Props, SpreadsheetEnv> {
 
   private get shouldRenderBottom(): boolean {
     const { y } = this.props.position;
-    return y + this.props.childHeight < this.viewportDimension.height + TOPBAR_HEIGHT;
+    return (
+      y + Math.min(this.props.childHeight, this.maxHeight) <
+      this.viewportDimension.height + TOPBAR_HEIGHT
+    );
   }
 
   private horizontalPosition(): number {
