@@ -60,6 +60,7 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
   private currentPosition: PopoverPosition | undefined = undefined;
   private currentDisplayValue: DisplayValue | undefined = undefined;
 
+<<<<<<< HEAD
   private spreadsheetRect = useSpreadsheetRect();
   private containerRect: Rect | undefined;
 
@@ -106,8 +107,59 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
       }
       this.currentPosition = newPosition;
     });
+||||||| parent of 001ef308b (temp)
+  get style() {
+    // the props's position is expressed relative to the "body" element
+    // but we teleport the element in ".o-spreadsheet" to keep everything
+    // within our control and to avoid leaking into external DOM
+    const horizontalPosition = `left:${this.horizontalPosition() - this.spreadsheetPosition.x}`;
+    const verticalPosition = `top:${this.verticalPosition() - this.spreadsheetPosition.y}`;
+    const maxHeight = Math.max(
+      0,
+      this.viewportDimension.height - BOTTOMBAR_HEIGHT - SCROLLBAR_WIDTH
+    );
+    const height = `max-height:${maxHeight}`;
+    const shadow = maxHeight !== 0 ? "box-shadow: 1px 2px 5px 2px rgb(51 51 51 / 15%);" : "";
+    return `
+      position: absolute;
+      z-index: ${this.props.zIndex};
+      ${verticalPosition}px;
+      ${horizontalPosition}px;
+      ${height}px;
+      width:${this.props.childWidth}px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      ${shadow}
+    `;
+=======
+  get maxHeight(): number {
+    return Math.max(0, this.viewportDimension.height - BOTTOMBAR_HEIGHT - SCROLLBAR_WIDTH);
   }
 
+  get style() {
+    // the props's position is expressed relative to the "body" element
+    // but we teleport the element in ".o-spreadsheet" to keep everything
+    // within our control and to avoid leaking into external DOM
+    const horizontalPosition = `left:${this.horizontalPosition() - this.spreadsheetPosition.x}`;
+    const verticalPosition = `top:${this.verticalPosition() - this.spreadsheetPosition.y}`;
+    const maxHeight = this.maxHeight;
+    const height = `max-height:${maxHeight}`;
+    const shadow = maxHeight !== 0 ? "box-shadow: 1px 2px 5px 2px rgb(51 51 51 / 15%);" : "";
+    return `
+      position: absolute;
+      z-index: ${this.props.zIndex};
+      ${verticalPosition}px;
+      ${horizontalPosition}px;
+      ${height}px;
+      width:${this.props.childWidth}px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      ${shadow}
+    `;
+>>>>>>> 001ef308b (temp)
+  }
+
+<<<<<<< HEAD
   get popoverStyle(): string {
     return cssPropertiesToCss({
       "z-index": `${this.props.zIndex}`,
@@ -283,5 +335,76 @@ class TopRightPopoverContext extends PopoverPositionContext {
     } else {
       return this.anchorRect.x - elementWidth;
     }
+||||||| parent of 001ef308b (temp)
+  private get viewportDimension(): DOMDimension {
+    return this.env.model.getters.getSheetViewDimensionWithHeaders();
+  }
+
+  private get shouldRenderRight(): boolean {
+    const { x } = this.props.position;
+    return x + this.props.childWidth < this.viewportDimension.width;
+  }
+
+  private get shouldRenderBottom(): boolean {
+    const { y } = this.props.position;
+    return (
+      y + this.props.childHeight <
+      this.viewportDimension.height + (this.env.isDashboard() ? 0 : TOPBAR_HEIGHT)
+    );
+  }
+
+  private horizontalPosition(): Pixel {
+    const { x } = this.props.position;
+    if (this.shouldRenderRight) {
+      return x;
+    }
+    return x - this.props.childWidth - this.props.flipHorizontalOffset;
+  }
+
+  private verticalPosition(): Pixel {
+    const { y } = this.props.position;
+    if (this.shouldRenderBottom) {
+      return y;
+    }
+    return Math.max(
+      y - this.props.childHeight + this.props.flipVerticalOffset,
+      this.props.marginTop
+    );
+=======
+  private get viewportDimension(): DOMDimension {
+    return this.env.model.getters.getSheetViewDimensionWithHeaders();
+  }
+
+  private get shouldRenderRight(): boolean {
+    const { x } = this.props.position;
+    return x + this.props.childWidth < this.viewportDimension.width;
+  }
+
+  private get shouldRenderBottom(): boolean {
+    const { y } = this.props.position;
+    return (
+      y + Math.min(this.props.childHeight, this.maxHeight) <
+      this.viewportDimension.height + (this.env.isDashboard() ? 0 : TOPBAR_HEIGHT)
+    );
+  }
+
+  private horizontalPosition(): Pixel {
+    const { x } = this.props.position;
+    if (this.shouldRenderRight) {
+      return x;
+    }
+    return x - this.props.childWidth - this.props.flipHorizontalOffset;
+  }
+
+  private verticalPosition(): Pixel {
+    const { y } = this.props.position;
+    if (this.shouldRenderBottom) {
+      return y;
+    }
+    return Math.max(
+      y - this.props.childHeight + this.props.flipVerticalOffset,
+      this.props.marginTop
+    );
+>>>>>>> 001ef308b (temp)
   }
 }
