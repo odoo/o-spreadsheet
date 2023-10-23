@@ -151,8 +151,7 @@ describe("Selection Input", () => {
     await simulateClick(fixture.querySelector("input")!);
     expect(fixture.querySelectorAll(".o-selection-ok").length).toBe(1);
     expect(fixture.querySelectorAll(".o-selection-ko").length).toBe(0);
-    setInputValueAndTrigger(fixture.querySelector("input")!, "A1", "input");
-    await nextTick();
+    await setInputValueAndTrigger(fixture.querySelector("input")!, "A1");
     expect(fixture.querySelectorAll(".o-selection-ok").length).toBe(1);
     expect(fixture.querySelectorAll(".o-selection-ko").length).toBe(1);
     await simulateClick(".o-selection-ok");
@@ -161,8 +160,7 @@ describe("Selection Input", () => {
     expect(fixture.querySelectorAll(".o-selection-ko").length).toBe(0);
 
     await simulateClick("input");
-    setInputValueAndTrigger(fixture.querySelector("input")!, "this is not valid", "input");
-    await nextTick();
+    await setInputValueAndTrigger(fixture.querySelector("input")!, "this is not valid");
     expect(fixture.querySelectorAll(".o-selection-ok").length).toBe(0);
     expect(fixture.querySelectorAll(".o-selection-ko").length).toBe(1);
   });

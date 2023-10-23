@@ -195,14 +195,20 @@ function dispatchEvent(selector: string | EventTarget, ev: Event) {
   }
 }
 
-export function setInputValueAndTrigger(
+export async function setInputValueAndTrigger(
   selector: DOMTarget,
   value: string,
-  eventType: string
-): void {
+  mode?: "onlyInput" | "onlyChange"
+) {
   const input = getTarget(selector) as HTMLInputElement;
   input.value = value;
-  input.dispatchEvent(new Event(eventType));
+  if (mode !== "onlyChange") {
+    input.dispatchEvent(new Event("input"));
+  }
+  if (mode !== "onlyInput") {
+    input.dispatchEvent(new Event("change"));
+  }
+  await nextTick();
 }
 
 export function setCheckboxValueAndTrigger(

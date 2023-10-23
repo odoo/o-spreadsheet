@@ -194,11 +194,9 @@ describe("Filter menu component", () => {
 
     test("Clear all work on the displayed values", async () => {
       await openFilterMenu();
-      setInputValueAndTrigger(".o-filter-menu input", "1", "input");
-      await nextTick();
+      await setInputValueAndTrigger(".o-filter-menu input", "1");
       await simulateClick(".o-filter-menu-action-text:nth-of-type(2)");
-      setInputValueAndTrigger(".o-filter-menu input", "", "input");
-      await nextTick();
+      await setInputValueAndTrigger(".o-filter-menu input", "");
       expect(getFilterMenuValues()).toEqual([
         { value: "(Blanks)", isChecked: true },
         { value: "1", isChecked: false },
@@ -209,11 +207,9 @@ describe("Filter menu component", () => {
     test("Select all work on the displayed values", async () => {
       await openFilterMenu();
       await simulateClick(".o-filter-menu-action-text:nth-of-type(2)");
-      setInputValueAndTrigger(".o-filter-menu input", "1", "input");
-      await nextTick();
+      await setInputValueAndTrigger(".o-filter-menu input", "1");
       await simulateClick(".o-filter-menu-action-text:nth-of-type(1)");
-      setInputValueAndTrigger(".o-filter-menu input", "", "input");
-      await nextTick();
+      await setInputValueAndTrigger(".o-filter-menu input", "");
       expect(getFilterMenuValues()).toEqual([
         { value: "(Blanks)", isChecked: false },
         { value: "1", isChecked: true },
@@ -231,8 +227,7 @@ describe("Filter menu component", () => {
     describe("Search bar", () => {
       test("Can filter values with the search bar", async () => {
         await openFilterMenu();
-        setInputValueAndTrigger(".o-filter-menu input", "1", "input");
-        await nextTick();
+        await setInputValueAndTrigger(".o-filter-menu input", "1");
         expect(getFilterMenuValues().map((v) => v.value)).toEqual(["1"]);
       });
 
@@ -251,8 +246,7 @@ describe("Filter menu component", () => {
         setCellContent(model, "A5", "Illinois");
 
         await openFilterMenu();
-        setInputValueAndTrigger(".o-filter-menu input", "lo", "input");
-        await nextTick();
+        await setInputValueAndTrigger(".o-filter-menu input", "lo");
         expect(getFilterMenuValues().map((v) => v.value)).toEqual(["Florida", "Illinois"]);
       });
 

@@ -41,7 +41,7 @@ describe("settings sidePanel component", () => {
 
     test("Can change locale", async () => {
       await mountSettingsSidePanel();
-      setInputValueAndTrigger(".o-settings-panel select", "fr_FR", "change");
+      setInputValueAndTrigger(".o-settings-panel select", "fr_FR");
       expect(model.getters.getLocale().code).toEqual("fr_FR");
     });
 
@@ -64,8 +64,7 @@ describe("settings sidePanel component", () => {
         dateTimePreview: "12/31/1899 02:24:00 PM",
       });
 
-      setInputValueAndTrigger(".o-settings-panel select", "fr_FR", "change");
-      await nextTick();
+      await setInputValueAndTrigger(".o-settings-panel select", "fr_FR");
       expect(getLocalePreview()).toEqual({
         numberPreview: "1 234 567,89",
         datePreview: "31/12/1899",

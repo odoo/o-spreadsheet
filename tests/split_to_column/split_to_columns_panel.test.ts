@@ -57,14 +57,14 @@ describe("split to columns sidePanel component", () => {
   });
 
   test("Selected separator is dispatched on confirm", () => {
-    setInputValueAndTrigger(".o-split-to-cols-panel select", ",", "change");
+    setInputValueAndTrigger(".o-split-to-cols-panel select", ",");
     click(confirmButton);
     expect(dispatch).toHaveBeenCalledWith("SPLIT_TEXT_INTO_COLUMNS", {
       separator: ",",
       addNewColumns: expect.any(Boolean),
     });
 
-    setInputValueAndTrigger(".o-split-to-cols-panel select", ";", "change");
+    setInputValueAndTrigger(".o-split-to-cols-panel select", ";");
     click(confirmButton);
     expect(dispatch).toHaveBeenCalledWith("SPLIT_TEXT_INTO_COLUMNS", {
       separator: ";",
@@ -75,12 +75,11 @@ describe("split to columns sidePanel component", () => {
   test("Custom separator", async () => {
     let input = fixture.querySelector('.o-split-to-cols-panel input[type="text"]')!;
     expect(input).toBeFalsy();
-    setInputValueAndTrigger(".o-split-to-cols-panel select", "custom", "change");
-    await nextTick();
+    await setInputValueAndTrigger(".o-split-to-cols-panel select", "custom");
 
     input = fixture.querySelector('.o-split-to-cols-panel input[type="text"]')!;
     expect(input).toBeTruthy();
-    setInputValueAndTrigger(input, "customSeparator", "input");
+    setInputValueAndTrigger(input, "customSeparator");
     click(confirmButton);
     expect(dispatch).toHaveBeenCalledWith("SPLIT_TEXT_INTO_COLUMNS", {
       separator: "customSeparator",
@@ -113,8 +112,7 @@ describe("split to columns sidePanel component", () => {
   });
 
   test("Empty custom separator : confirm button disabled but no error message", async () => {
-    setInputValueAndTrigger(".o-split-to-cols-panel select", "custom", "change");
-    await nextTick();
+    await setInputValueAndTrigger(".o-split-to-cols-panel select", "custom");
 
     expect(confirmButton.classList).toContain("o-disabled");
     expect(fixture.querySelectorAll(".o-validation-error")).toHaveLength(0);
@@ -123,7 +121,7 @@ describe("split to columns sidePanel component", () => {
   test("No separator in selection : confirm button disabled + error message", async () => {
     setSelection(model, ["A1"]);
     setCellContent(model, "A1", "hello");
-    setInputValueAndTrigger(".o-split-to-cols-panel select", " ", "change");
+    setInputValueAndTrigger(".o-split-to-cols-panel select", " ");
     setCheckboxValueAndTrigger(checkBox, false, "change");
     await nextTick();
 
@@ -134,7 +132,7 @@ describe("split to columns sidePanel component", () => {
   test("Warning if we will overwrite some content", async () => {
     setSelection(model, ["A1"]);
     setGrid(model, { A1: "hello there", B1: "content" });
-    setInputValueAndTrigger(".o-split-to-cols-panel select", " ", "change");
+    setInputValueAndTrigger(".o-split-to-cols-panel select", " ");
     setCheckboxValueAndTrigger(checkBox, false, "change");
     await nextTick();
 
@@ -145,7 +143,7 @@ describe("split to columns sidePanel component", () => {
   test("Warning not displayed if there's an error", async () => {
     setSelection(model, ["A1:B1"]);
     setGrid(model, { A1: "hello there", B1: "content" });
-    setInputValueAndTrigger(".o-split-to-cols-panel select", " ", "change");
+    setInputValueAndTrigger(".o-split-to-cols-panel select", " ");
     setCheckboxValueAndTrigger(checkBox, false, "change");
     await nextTick();
 
@@ -156,13 +154,11 @@ describe("split to columns sidePanel component", () => {
   test("Errors updated on separator selection change", async () => {
     setSelection(model, ["A1"]);
     setCellContent(model, "A1", "hello there");
-    setInputValueAndTrigger(".o-split-to-cols-panel select", " ", "change");
-    await nextTick();
+    await setInputValueAndTrigger(".o-split-to-cols-panel select", " ");
 
     expect(fixture.querySelectorAll(".o-validation-error")).toHaveLength(0);
 
-    setInputValueAndTrigger(".o-split-to-cols-panel select", ";", "change");
-    await nextTick();
+    await setInputValueAndTrigger(".o-split-to-cols-panel select", ";");
 
     expect(fixture.querySelectorAll(".o-validation-error")).toHaveLength(1);
   });

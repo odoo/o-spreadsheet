@@ -9,7 +9,7 @@ import {
   setInputValueAndTrigger,
   simulateClick,
 } from "../test_helpers/dom_helper";
-import { mountComponent, nextTick } from "../test_helpers/helpers";
+import { mountComponent } from "../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 mockGetBoundingClientRect({
@@ -94,8 +94,7 @@ describe("Color Picker buttons", () => {
     await simulateClick(".o-color-picker-toggler");
     await simulateClick(".o-gradient");
     const color = "#12EF78";
-    setInputValueAndTrigger(".o-custom-input-preview input", color, "input");
-    await nextTick();
+    await setInputValueAndTrigger(".o-custom-input-preview input", color);
     const previewColor = toHex(getElComputedStyle(".o-color-preview", "backgroundColor"));
     // hex <-> hsla is not a bijection, this specific color
     // is not exactly the same when processed
@@ -110,8 +109,7 @@ describe("Color Picker buttons", () => {
     await simulateClick(".o-color-picker-toggler");
     await simulateClick(".o-gradient");
     const color = "12ef78";
-    setInputValueAndTrigger(".o-custom-input-preview input", color, "input");
-    await nextTick();
+    await setInputValueAndTrigger(".o-custom-input-preview input", color);
     await simulateClick(".o-add-button");
     expect(onColorPicked).toHaveBeenCalledWith(toHex(color));
   });
@@ -121,8 +119,7 @@ describe("Color Picker buttons", () => {
     await mountColorPicker({ onColorPicked });
     await simulateClick(".o-color-picker-toggler");
     const target = document.querySelector(".o-custom-input-preview input");
-    setInputValueAndTrigger(target, "this is not a color", "input");
-    await nextTick();
+    await setInputValueAndTrigger(target, "this is not a color");
 
     expect(fixture.querySelector(".o-wrong-color")).not.toBeNull();
     const addButton = fixture.querySelector(".o-add-button")!;
@@ -135,8 +132,7 @@ describe("Color Picker buttons", () => {
     const onColorPicked = jest.fn();
     await mountColorPicker({ onColorPicked });
     await simulateClick(".o-color-picker-toggler");
-    setInputValueAndTrigger(".o-custom-input-preview input", "this is not a color", "input");
-    await nextTick();
+    await setInputValueAndTrigger(".o-custom-input-preview input", "this is not a color");
     await simulateClick(".o-add-button");
     expect(fixture.querySelector(".o-wrong-color")).not.toBeNull();
     await simulateClick(".o-gradient");
@@ -181,8 +177,7 @@ describe("Color Picker buttons", () => {
     await simulateClick(".o-color-picker-toggler");
 
     const inputTarget = fixture.querySelector(".o-custom-input-preview input")!;
-    setInputValueAndTrigger(inputTarget, hexCode as Color, "input");
-    await nextTick();
+    await setInputValueAndTrigger(inputTarget, hexCode as Color);
     expect((inputTarget as HTMLInputElement).value).toBeSameColorAs(hexCode.slice(0, 7));
     const addButton = fixture.querySelector(".o-add-button")!;
     expect(addButton.classList).not.toContain("o-disabled");
@@ -196,8 +191,7 @@ describe("Color Picker buttons", () => {
     await simulateClick(".o-color-picker-toggler");
 
     const inputTarget = fixture.querySelector(".o-custom-input-preview input")!;
-    setInputValueAndTrigger(inputTarget, hexCode as Color, "input");
-    await nextTick();
+    await setInputValueAndTrigger(inputTarget, hexCode as Color);
     expect((inputTarget as HTMLInputElement).value).toBe(hexCode.slice(0, 7));
     const addButton = fixture.querySelector(".o-add-button")!;
     expect(addButton.classList).toContain("o-disabled");

@@ -330,7 +330,7 @@ describe("Adding rows footer at the end of sheet", () => {
     const sheetId = model.getters.getActiveSheetId();
     const numberOfRows = model.getters.getNumberRows(sheetId);
     const input = fixture.querySelector(".o-grid-add-rows input");
-    setInputValueAndTrigger(input, "10", "input");
+    setInputValueAndTrigger(input, "10");
     await click(fixture, ".o-grid-add-rows button");
     expect(model.getters.getNumberRows(sheetId)).toEqual(numberOfRows + 10);
   });
@@ -340,7 +340,7 @@ describe("Adding rows footer at the end of sheet", () => {
     const sheetId = model.getters.getActiveSheetId();
     const numberOfRows = model.getters.getNumberRows(sheetId);
     const input = fixture.querySelector(".o-grid-add-rows input")! as HTMLInputElement;
-    setInputValueAndTrigger(input, "10", "input");
+    setInputValueAndTrigger(input, "10");
     input.focus();
     await keyDown({ key: "Enter" });
     expect(model.getters.getNumberRows(sheetId)).toEqual(numberOfRows + 10);
@@ -351,7 +351,7 @@ describe("Adding rows footer at the end of sheet", () => {
     const sheetId = model.getters.getActiveSheetId();
     const numberOfRows = model.getters.getNumberRows(sheetId);
     const input = fixture.querySelector(".o-grid-add-rows input")!;
-    setInputValueAndTrigger(input, "0", "input");
+    setInputValueAndTrigger(input, "0");
     await click(fixture, ".o-grid-add-rows button");
     expect(fixture.querySelector(".o-validation-error")).toBeTruthy();
     expect(model.getters.getNumberRows(sheetId)).toEqual(numberOfRows);
@@ -362,7 +362,7 @@ describe("Adding rows footer at the end of sheet", () => {
     const sheetId = model.getters.getActiveSheetId();
     const numberOfRows = model.getters.getNumberRows(sheetId);
     const input = fixture.querySelector(".o-grid-add-rows input")!;
-    setInputValueAndTrigger(input, "10001", "input");
+    setInputValueAndTrigger(input, "10001");
     await click(fixture, ".o-grid-add-rows button");
     expect(fixture.querySelector(".o-validation-error")).toBeTruthy();
     expect(model.getters.getNumberRows(sheetId)).toEqual(numberOfRows);
@@ -373,7 +373,7 @@ describe("Adding rows footer at the end of sheet", () => {
     const sheetId = model.getters.getActiveSheetId();
     const numberOfRows = model.getters.getNumberRows(sheetId);
     const input = fixture.querySelector(".o-grid-add-rows input")!;
-    setInputValueAndTrigger(input, "abc", "input");
+    setInputValueAndTrigger(input, "abc");
     await click(fixture, ".o-grid-add-rows button");
     expect(fixture.querySelector(".o-validation-error")).toBeTruthy();
     expect(model.getters.getNumberRows(sheetId)).toEqual(numberOfRows);
@@ -382,7 +382,7 @@ describe("Adding rows footer at the end of sheet", () => {
   test("will scroll down to the new last row after adding new rows", async () => {
     await scrollGrid({ deltaY: 10000 });
     const input = fixture.querySelector(".o-grid-add-rows input");
-    setInputValueAndTrigger(input, "1000", "input");
+    setInputValueAndTrigger(input, "1000");
     await click(fixture, ".o-grid-add-rows button");
     const sheetId = model.getters.getActiveSheetId();
     const numberOfRows = model.getters.getNumberRows(sheetId);
@@ -393,7 +393,7 @@ describe("Adding rows footer at the end of sheet", () => {
     createSheet(model, { sheetId: "sheet2" });
     await scrollGrid({ deltaY: 10000 });
     const input = fixture.querySelector(".o-grid-add-rows input");
-    setInputValueAndTrigger(input, "1000", "input");
+    setInputValueAndTrigger(input, "1000");
     activateSheet(model, "sheet2");
     await nextTick();
     expect(fixture.querySelector<HTMLInputElement>(".o-grid-add-rows input")!.value).toBe("100");

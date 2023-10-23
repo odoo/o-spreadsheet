@@ -84,12 +84,11 @@ describe("data validation sidePanel component", () => {
     await nextTick();
     await changeCriterionType(type);
 
-    setInputValueAndTrigger(".o-selection-input input", "A1:A5", "input");
+    setInputValueAndTrigger(".o-selection-input input", "A1:A5");
 
     const valuesInputs = fixture.querySelectorAll(".o-dv-settings input");
     for (let i = 0; i < criterion.values.length; i++) {
-      setInputValueAndTrigger(valuesInputs[i], criterion.values[i], "input");
-      await nextTick();
+      await setInputValueAndTrigger(valuesInputs[i], criterion.values[i]);
     }
 
     await simulateClick(".o-dv-save");
@@ -109,11 +108,11 @@ describe("data validation sidePanel component", () => {
   test("Date criteria have a dateValue select input", async () => {
     await simulateClick(".o-dv-add");
     await nextTick();
-    setInputValueAndTrigger(".o-selection-input input", "A1:A5", "input");
+    setInputValueAndTrigger(".o-selection-input input", "A1:A5");
     await changeCriterionType("dateIs");
 
     expect(fixture.querySelector(".o-dv-date-value")).toBeTruthy();
-    setInputValueAndTrigger(".o-dv-date-value", "tomorrow", "change");
+    setInputValueAndTrigger(".o-dv-date-value", "tomorrow");
 
     await simulateClick(".o-dv-save");
     expect(getDataValidationRules(model, sheetId)).toEqual([
@@ -130,11 +129,10 @@ describe("data validation sidePanel component", () => {
     await nextTick();
     await changeCriterionType("dateIs");
 
-    setInputValueAndTrigger(".o-selection-input input", "A1:A5", "input");
+    setInputValueAndTrigger(".o-selection-input input", "A1:A5");
 
     const valuesInput = fixture.querySelector(".o-dv-settings input");
-    setInputValueAndTrigger(valuesInput, "thisIsNotADate", "input");
-    await nextTick();
+    await setInputValueAndTrigger(valuesInput, "thisIsNotADate");
 
     expect(fixture.querySelector(".o-input.o-invalid")).toBeTruthy();
     expect(fixture.querySelector(".o-dv-save")!.classList).toContain("o-disabled");
@@ -145,13 +143,11 @@ describe("data validation sidePanel component", () => {
     await nextTick();
     await changeCriterionType("isBetween");
 
-    setInputValueAndTrigger(".o-selection-input input", "A1:A5", "input");
+    setInputValueAndTrigger(".o-selection-input input", "A1:A5");
 
     const valuesInputs = fixture.querySelectorAll(".o-dv-settings input");
-    setInputValueAndTrigger(valuesInputs[0], "Not a number", "input");
-    await nextTick();
-    setInputValueAndTrigger(valuesInputs[1], "Neither is this", "input");
-    await nextTick();
+    await setInputValueAndTrigger(valuesInputs[0], "Not a number");
+    await setInputValueAndTrigger(valuesInputs[1], "Neither is this");
 
     expect(fixture.querySelectorAll(".o-input.o-invalid")).toHaveLength(2);
     expect(fixture.querySelector(".o-dv-save")!.classList).toContain("o-disabled");
@@ -161,8 +157,8 @@ describe("data validation sidePanel component", () => {
     await simulateClick(".o-dv-add");
     await nextTick();
 
-    setInputValueAndTrigger(".o-dv-settings input", "Random text", "input");
-    setInputValueAndTrigger(".o-dv-reject-input", "true", "change");
+    setInputValueAndTrigger(".o-dv-settings input", "Random text");
+    setInputValueAndTrigger(".o-dv-reject-input", "true");
     simulateClick(".o-dv-save");
 
     expect(model.getters.getDataValidationRules(sheetId)).toMatchObject([{ isBlocking: true }]);
@@ -205,8 +201,7 @@ describe("data validation sidePanel component", () => {
       await changeCriterionType("isEqual");
 
       const valuesInput = fixture.querySelector(".o-dv-settings input");
-      setInputValueAndTrigger(valuesInput, "5,5", "input");
-      await nextTick();
+      await setInputValueAndTrigger(valuesInput, "5,5");
 
       expect(fixture.querySelector(".o-input.o-invalid")).toBeFalsy();
       expect(fixture.querySelector(".o-dv-save")!.classList).not.toContain("o-disabled");
@@ -228,8 +223,7 @@ describe("data validation sidePanel component", () => {
       await changeCriterionType("dateIs");
 
       const valuesInput = fixture.querySelector(".o-dv-settings input");
-      setInputValueAndTrigger(valuesInput, "30/03/2022", "input");
-      await nextTick();
+      await setInputValueAndTrigger(valuesInput, "30/03/2022");
 
       expect(fixture.querySelector(".o-input.o-invalid")).toBeFalsy();
       expect(fixture.querySelector(".o-dv-save")!.classList).not.toContain("o-disabled");
@@ -251,8 +245,7 @@ describe("data validation sidePanel component", () => {
       await changeCriterionType("textIs");
 
       const valuesInput = fixture.querySelector(".o-dv-settings input");
-      setInputValueAndTrigger(valuesInput, "=SUM(5,5; 3)", "input");
-      await nextTick();
+      await setInputValueAndTrigger(valuesInput, "=SUM(5,5; 3)");
 
       expect(fixture.querySelector(".o-input.o-invalid")).toBeFalsy();
       expect(fixture.querySelector(".o-dv-save")!.classList).not.toContain("o-disabled");
