@@ -57,8 +57,7 @@ describe("find and replace sidePanel component", () => {
     });
 
     test("disable next/previous/replace/replaceAll if searching on empty string", async () => {
-      setInputValueAndTrigger(selectors.inputSearch, "", "input");
-      await nextTick();
+      await setInputValueAndTrigger(selectors.inputSearch, "");
       expect((document.querySelector(selectors.previousButton) as HTMLButtonElement).disabled).toBe(
         true
       );
@@ -90,7 +89,7 @@ describe("find and replace sidePanel component", () => {
 
     test("simple search", async () => {
       /** Fake timers use to control debounceSearch in Find and Replace */
-      setInputValueAndTrigger(selectors.inputSearch, "1", "input");
+      setInputValueAndTrigger(selectors.inputSearch, "1");
       jest.runOnlyPendingTimers();
       await nextTick();
       expect(dispatch).toHaveBeenCalledWith("UPDATE_SEARCH", {
@@ -100,25 +99,25 @@ describe("find and replace sidePanel component", () => {
     });
 
     test("clicking on next", async () => {
-      setInputValueAndTrigger(selectors.inputSearch, "1", "input");
+      setInputValueAndTrigger(selectors.inputSearch, "1");
       await click(fixture, selectors.nextButton);
       expect(dispatch).toHaveBeenCalledWith("SELECT_SEARCH_NEXT_MATCH");
     });
 
     test("Going to next with Enter key", async () => {
-      setInputValueAndTrigger(selectors.inputSearch, "1", "input");
+      setInputValueAndTrigger(selectors.inputSearch, "1");
       await focusAndKeyDown(selectors.inputSearch, { key: "Enter" });
       expect(dispatch).toHaveBeenCalledWith("SELECT_SEARCH_NEXT_MATCH");
     });
 
     test("clicking on previous", async () => {
-      setInputValueAndTrigger(selectors.inputSearch, "1", "input");
+      setInputValueAndTrigger(selectors.inputSearch, "1");
       await click(fixture, selectors.previousButton);
       expect(dispatch).toHaveBeenCalledWith("SELECT_SEARCH_PREVIOUS_MATCH");
     });
 
     test("search on empty string", async () => {
-      setInputValueAndTrigger(selectors.inputSearch, "", "input");
+      setInputValueAndTrigger(selectors.inputSearch, "");
       jest.runOnlyPendingTimers();
       await nextTick();
       expect(dispatch).toHaveBeenCalledWith("UPDATE_SEARCH", {
@@ -128,7 +127,7 @@ describe("find and replace sidePanel component", () => {
     });
 
     test("Closing the sidepanel cancels the search", async () => {
-      setInputValueAndTrigger(selectors.inputSearch, "g", "input");
+      setInputValueAndTrigger(selectors.inputSearch, "g");
       await simulateClick(".o-sidePanelClose");
       jest.runOnlyPendingTimers();
       await nextTick();
@@ -150,7 +149,7 @@ describe("find and replace sidePanel component", () => {
     test("search match count is displayed", async () => {
       setCellContent(model, "A1", "Hello");
       expect(fixture.querySelector(".o-input-count")).toBeNull();
-      setInputValueAndTrigger(selectors.inputSearch, "Hel", "input");
+      setInputValueAndTrigger(selectors.inputSearch, "Hel");
       jest.runOnlyPendingTimers();
       await nextTick();
       expect(fixture.querySelector(".o-input-count")?.innerHTML).toBe("1 / 1");
@@ -158,13 +157,12 @@ describe("find and replace sidePanel component", () => {
 
     test("search match count is removed when input is cleared", async () => {
       setCellContent(model, "A1", "Hello");
-      setInputValueAndTrigger(selectors.inputSearch, "Hel", "input");
-      await nextTick(); // wait the next render to check if the count is displayed
+      await setInputValueAndTrigger(selectors.inputSearch, "Hel"); // wait the next render to check if the count is displayed
       expect(fixture.querySelector(".o-input-count")).toBeNull();
       jest.runOnlyPendingTimers();
       await nextTick();
       expect(fixture.querySelector(".o-input-count")?.innerHTML).toBe("1 / 1");
-      setInputValueAndTrigger(selectors.inputSearch, "", "input");
+      setInputValueAndTrigger(selectors.inputSearch, "");
       jest.runOnlyPendingTimers();
       await nextTick();
       expect(fixture.querySelector(".o-input-count")).toBeNull();
@@ -172,7 +170,7 @@ describe("find and replace sidePanel component", () => {
 
     test("search without match displays no match count", async () => {
       expect(fixture.querySelector(".o-input-count")).toBeNull();
-      setInputValueAndTrigger(selectors.inputSearch, "a search term", "input");
+      setInputValueAndTrigger(selectors.inputSearch, "a search term");
       jest.runOnlyPendingTimers();
       await nextTick();
       expect(fixture.querySelector(".o-input-count")?.innerHTML).toBe("0 / 0");
@@ -188,7 +186,7 @@ describe("find and replace sidePanel component", () => {
     test("Can search matching case", async () => {
       const dispatch = spyDispatch(parent);
 
-      setInputValueAndTrigger(selectors.inputSearch, "Hell", "input");
+      setInputValueAndTrigger(selectors.inputSearch, "Hell");
       await click(fixture, selectors.checkBoxMatchingCase);
       expect(dispatch).toHaveBeenCalledWith("UPDATE_SEARCH", {
         searchOptions: { exactMatch: false, matchCase: true, searchFormulas: false },
@@ -199,7 +197,7 @@ describe("find and replace sidePanel component", () => {
     test("Can search matching entire cell", async () => {
       const dispatch = spyDispatch(parent);
 
-      setInputValueAndTrigger(selectors.inputSearch, "Hell", "input");
+      setInputValueAndTrigger(selectors.inputSearch, "Hell");
       await click(fixture, selectors.checkBoxExactMatch);
       expect(dispatch).toHaveBeenCalledWith("UPDATE_SEARCH", {
         searchOptions: { exactMatch: true, matchCase: false, searchFormulas: false },
@@ -210,7 +208,7 @@ describe("find and replace sidePanel component", () => {
     test("can search in formulas", async () => {
       const dispatch = spyDispatch(parent);
 
-      setInputValueAndTrigger(selectors.inputSearch, "Hell", "input");
+      setInputValueAndTrigger(selectors.inputSearch, "Hell");
       await click(fixture, selectors.checkBoxSearchFormulas);
       expect(dispatch).toHaveBeenCalledWith("UPDATE_SEARCH", {
         searchOptions: { exactMatch: false, matchCase: false, searchFormulas: true },
@@ -250,41 +248,41 @@ describe("find and replace sidePanel component", () => {
       await nextTick();
     });
     test("Can replace a simple text value", async () => {
-      setInputValueAndTrigger(document.querySelector(selectors.inputSearch), "hello", "input");
-      setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "kikou", "input");
+      setInputValueAndTrigger(document.querySelector(selectors.inputSearch), "hello");
+      setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "kikou");
       const dispatch = spyDispatch(parent);
       await click(fixture, selectors.replaceButton);
       expect(dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", { replaceWith: "kikou" });
     });
 
     test("Can replace a value in a formula", async () => {
-      setInputValueAndTrigger(document.querySelector(selectors.inputSearch), "2", "input");
+      setInputValueAndTrigger(document.querySelector(selectors.inputSearch), "2");
       await click(fixture, selectors.checkBoxSearchFormulas);
-      setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "4", "input");
+      setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "4");
       const dispatch = spyDispatch(parent);
       await click(fixture, selectors.replaceButton);
       expect(dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", { replaceWith: "4" });
     });
 
     test("formulas wont be modified if not looking in formulas or not modifying formulas", async () => {
-      setInputValueAndTrigger(document.querySelector(selectors.inputSearch), "4", "input");
-      setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "2", "input");
+      setInputValueAndTrigger(document.querySelector(selectors.inputSearch), "4");
+      setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "2");
       const dispatch = spyDispatch(parent);
       await click(fixture, selectors.replaceButton);
       expect(dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", { replaceWith: "2" });
     });
 
     test("can replace all", async () => {
-      setInputValueAndTrigger(document.querySelector(selectors.inputSearch), "hell", "input");
-      setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "kikou", "input");
+      setInputValueAndTrigger(document.querySelector(selectors.inputSearch), "hell");
+      setInputValueAndTrigger(document.querySelector(selectors.inputReplace), "kikou");
       const dispatch = spyDispatch(parent);
       await click(fixture, selectors.replaceAllButton);
       expect(dispatch).toHaveBeenCalledWith("REPLACE_ALL_SEARCH", { replaceWith: "kikou" });
     });
 
     test("Can replace with Enter key", async () => {
-      setInputValueAndTrigger(selectors.inputSearch, "hell", "input");
-      setInputValueAndTrigger(selectors.inputReplace, "kikou", "input");
+      setInputValueAndTrigger(selectors.inputSearch, "hell");
+      setInputValueAndTrigger(selectors.inputReplace, "kikou");
       const dispatch = spyDispatch(parent);
       await focusAndKeyDown(selectors.inputReplace, { key: "Enter" });
       expect(dispatch).toHaveBeenCalledWith("REPLACE_SEARCH", { replaceWith: "kikou" });

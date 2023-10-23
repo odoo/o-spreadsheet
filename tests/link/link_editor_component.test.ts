@@ -131,8 +131,8 @@ describe("link editor component", () => {
 
   test("insert link with an url and a label", async () => {
     await openLinkEditor(model, "A1");
-    setInputValueAndTrigger(labelInput(), "my label", "input");
-    setInputValueAndTrigger(urlInput(), "https://url.com", "input");
+    setInputValueAndTrigger(labelInput(), "my label");
+    setInputValueAndTrigger(urlInput(), "https://url.com");
     await simulateClick("button.o-save");
     const link = getEvaluatedCell(model, "A1").link;
     expect(link?.label).toBe("my label");
@@ -141,7 +141,7 @@ describe("link editor component", () => {
 
   test("insert link with only an url and no label", async () => {
     await openLinkEditor(model, "A1");
-    setInputValueAndTrigger(urlInput(), "https://url.com", "input");
+    setInputValueAndTrigger(urlInput(), "https://url.com");
     await simulateClick("button.o-save");
     const link = getEvaluatedCell(model, "A1").link;
     expect(link?.label).toBe("https://url.com");
@@ -163,8 +163,8 @@ describe("link editor component", () => {
   test("label is changed to canonical form in model", async () => {
     updateLocale(model, { ...DEFAULT_LOCALE, formulaArgSeparator: ";", decimalSeparator: "," });
     await openLinkEditor(model, "A1");
-    setInputValueAndTrigger(labelInput(), "3,15", "input");
-    setInputValueAndTrigger(urlInput(), "https://url.com", "input");
+    setInputValueAndTrigger(labelInput(), "3,15");
+    setInputValueAndTrigger(urlInput(), "https://url.com");
     await simulateClick("button.o-save");
     const evaluatedCell = getEvaluatedCell(model, "A1");
     expect(evaluatedCell).toMatchObject({
@@ -209,11 +209,9 @@ describe("link editor component", () => {
     await openLinkEditor(model, "A1");
     const saveButton = fixture.querySelector("button.o-save")!;
     expect(saveButton.hasAttribute("disabled")).toBe(true);
-    setInputValueAndTrigger(labelInput(), "my label", "input");
-    await nextTick();
+    await setInputValueAndTrigger(labelInput(), "my label");
     expect(saveButton.hasAttribute("disabled")).toBe(true);
-    setInputValueAndTrigger(urlInput(), "https://url.com", "input");
-    await nextTick();
+    await setInputValueAndTrigger(urlInput(), "https://url.com");
     expect(saveButton.hasAttribute("disabled")).toBe(false);
   });
 
@@ -258,14 +256,12 @@ describe("link editor component", () => {
       expect(fixture.querySelector(".o-link-editor")).toBeTruthy();
       expect(getCell(model, "A1")).toBeUndefined();
 
-      setInputValueAndTrigger(labelInput(), "my label", "input");
-      await nextTick();
+      await setInputValueAndTrigger(labelInput(), "my label");
       await keyDown({ key: "Enter" });
       expect(fixture.querySelector(".o-link-editor")).toBeTruthy();
       expect(getCell(model, "A1")).toBeUndefined();
 
-      setInputValueAndTrigger(urlInput(), "https://url.com", "input");
-      await nextTick();
+      await setInputValueAndTrigger(urlInput(), "https://url.com");
       await keyDown({ key: "Enter" });
       expect(fixture.querySelector(".o-link-editor")).toBeFalsy();
       expect(getCell(model, "A1")).toBeDefined();

@@ -60,7 +60,7 @@ describe("Edit criterion in side panel", () => {
       const inputs = fixture.querySelectorAll<HTMLInputElement>(".o-dv-list-values .o-input");
       expect(inputs).toHaveLength(4);
 
-      setInputValueAndTrigger(inputs[3], "new value", "input");
+      setInputValueAndTrigger(inputs[3], "new value");
       await click(fixture, ".o-dv-save");
 
       expect(getDataValidationRules(model)[0].criterion.values).toEqual([
@@ -105,7 +105,7 @@ describe("Edit criterion in side panel", () => {
 
     test("Can change display style", () => {
       const displayStyleInput = fixture.querySelector<HTMLInputElement>(".o-dv-display-style");
-      setInputValueAndTrigger(displayStyleInput, "plainText", "change");
+      setInputValueAndTrigger(displayStyleInput, "plainText");
       click(fixture, ".o-dv-save");
       expect(
         (getDataValidationRules(model)[0].criterion as IsValueInListCriterion).displayStyle
@@ -142,14 +142,14 @@ describe("Edit criterion in side panel", () => {
       const rangeInput = fixture.querySelector<HTMLInputElement>(
         ".o-dv-settings .o-selection-input input"
       )!;
-      setInputValueAndTrigger(rangeInput, "B1:B9", "input");
+      setInputValueAndTrigger(rangeInput, "B1:B9");
       await click(fixture, ".o-dv-save");
       expect(getDataValidationRules(model)[0].criterion.values).toEqual(["B1:B9"]);
     });
 
     test("Can change display style", () => {
       const displayStyleInput = fixture.querySelector<HTMLInputElement>(".o-dv-display-style");
-      setInputValueAndTrigger(displayStyleInput, "plainText", "change");
+      setInputValueAndTrigger(displayStyleInput, "plainText");
       click(fixture, ".o-dv-save");
       expect(
         (getDataValidationRules(model)[0].criterion as IsValueInListCriterion).displayStyle

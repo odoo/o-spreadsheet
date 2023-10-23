@@ -75,8 +75,7 @@ describe("custom currency sidePanel component", () => {
       expect((document.querySelector(selectors.inputCode) as HTMLInputElement).value).toBe("");
       expect((document.querySelector(selectors.inputSymbol) as HTMLInputElement).value).toBe("");
 
-      setInputValueAndTrigger(selectors.availableCurrencies, "1", "change");
-      await nextTick();
+      await setInputValueAndTrigger(selectors.availableCurrencies, "1");
 
       expect((document.querySelector(selectors.inputCode) as HTMLInputElement).value).toBe(code1);
       expect((document.querySelector(selectors.inputSymbol) as HTMLInputElement).value).toBe(
@@ -85,42 +84,35 @@ describe("custom currency sidePanel component", () => {
     });
 
     test("select currency in available currencies selector --> changes currency proposals", async () => {
-      setInputValueAndTrigger(selectors.availableCurrencies, "1", "change");
-      await nextTick();
+      await setInputValueAndTrigger(selectors.availableCurrencies, "1");
       expect(document.querySelector(selectors.formatProposals)).toMatchSnapshot();
 
-      setInputValueAndTrigger(selectors.availableCurrencies, "2", "change");
-      await nextTick();
+      await setInputValueAndTrigger(selectors.availableCurrencies, "2");
       expect(document.querySelector(selectors.formatProposals)).toMatchSnapshot();
     });
 
     test("select currency in available currencies selector --> does not change proposal selected index", async () => {
-      setInputValueAndTrigger(selectors.availableCurrencies, "1", "change");
-      await nextTick();
-      setInputValueAndTrigger(selectors.formatProposals, "6", "change");
-      await nextTick();
+      await setInputValueAndTrigger(selectors.availableCurrencies, "1");
+      await setInputValueAndTrigger(selectors.formatProposals, "6");
       expect((document.querySelector(selectors.formatProposals) as HTMLSelectElement).value).toBe(
         "6"
       );
 
-      setInputValueAndTrigger(selectors.availableCurrencies, "2", "change");
-      await nextTick();
+      await setInputValueAndTrigger(selectors.availableCurrencies, "2");
       expect((document.querySelector(selectors.formatProposals) as HTMLSelectElement).value).toBe(
         "6"
       );
     });
 
     test("select first currency in available currencies selector --> remove code input and symbol input", async () => {
-      setInputValueAndTrigger(selectors.availableCurrencies, "1", "change");
-      await nextTick();
+      await setInputValueAndTrigger(selectors.availableCurrencies, "1");
 
       expect((document.querySelector(selectors.inputCode) as HTMLInputElement).value).toBe(code1);
       expect((document.querySelector(selectors.inputSymbol) as HTMLInputElement).value).toBe(
         symbol1
       );
 
-      setInputValueAndTrigger(selectors.availableCurrencies, "0", "change");
-      await nextTick();
+      await setInputValueAndTrigger(selectors.availableCurrencies, "0");
 
       expect((document.querySelector(selectors.inputCode) as HTMLInputElement).value).toBe("");
       expect((document.querySelector(selectors.inputSymbol) as HTMLInputElement).value).toBe("");
@@ -131,9 +123,8 @@ describe("custom currency sidePanel component", () => {
     // -------------------------------------------------------------------------
 
     test("disable formatProposals/applyFormat if inputSymbol and inputCode are empty", async () => {
-      setInputValueAndTrigger(selectors.inputSymbol, "$", "input");
-      setInputValueAndTrigger(selectors.inputCode, "", "input");
-      await nextTick();
+      setInputValueAndTrigger(selectors.inputSymbol, "$");
+      await setInputValueAndTrigger(selectors.inputCode, "");
       expect(
         (document.querySelector(selectors.formatProposals) as HTMLSelectElement).disabled
       ).toBe(false);
@@ -141,9 +132,8 @@ describe("custom currency sidePanel component", () => {
         false
       );
 
-      setInputValueAndTrigger(selectors.inputSymbol, "", "input");
-      setInputValueAndTrigger(selectors.inputCode, "USD", "input");
-      await nextTick();
+      setInputValueAndTrigger(selectors.inputSymbol, "");
+      await setInputValueAndTrigger(selectors.inputCode, "USD");
       expect(
         (document.querySelector(selectors.formatProposals) as HTMLSelectElement).disabled
       ).toBe(false);
@@ -151,9 +141,8 @@ describe("custom currency sidePanel component", () => {
         false
       );
 
-      setInputValueAndTrigger(selectors.inputSymbol, "  ", "input");
-      setInputValueAndTrigger(selectors.inputCode, "", "input");
-      await nextTick();
+      setInputValueAndTrigger(selectors.inputSymbol, "  ");
+      await setInputValueAndTrigger(selectors.inputCode, "");
       expect(
         (document.querySelector(selectors.formatProposals) as HTMLSelectElement).disabled
       ).toBe(true);
@@ -165,8 +154,7 @@ describe("custom currency sidePanel component", () => {
     test("disable formatProposals/applyFormat if selected cells formats are same that the select currency format", async () => {
       setSelection(model, ["A1", "A2"]);
       await nextTick();
-      setInputValueAndTrigger(selectors.inputSymbol, "$", "input");
-      await nextTick();
+      await setInputValueAndTrigger(selectors.inputSymbol, "$");
       expect((document.querySelector(selectors.applyFormat) as HTMLButtonElement).disabled).toBe(
         false
       );
@@ -180,8 +168,7 @@ describe("custom currency sidePanel component", () => {
       expect((document.querySelector(selectors.applyFormat) as HTMLButtonElement).disabled).toBe(
         true
       );
-      setInputValueAndTrigger(selectors.inputSymbol, "€", "input");
-      await nextTick();
+      await setInputValueAndTrigger(selectors.inputSymbol, "€");
       await click(fixture, selectors.applyFormat);
       setSelection(model, ["A1", "A2"]);
 
@@ -192,45 +179,38 @@ describe("custom currency sidePanel component", () => {
     });
 
     test("not disable formatProposals/applyFormat if apply proposal and select other proposal", async () => {
-      setInputValueAndTrigger(selectors.inputSymbol, "$", "input");
-      setInputValueAndTrigger(selectors.inputCode, "USD", "input");
-      await nextTick();
-      setInputValueAndTrigger(selectors.formatProposals, "1", "change");
-      await nextTick();
+      setInputValueAndTrigger(selectors.inputSymbol, "$");
+      await setInputValueAndTrigger(selectors.inputCode, "USD");
+      await setInputValueAndTrigger(selectors.formatProposals, "1");
       await click(fixture, selectors.applyFormat);
       expect((document.querySelector(selectors.applyFormat) as HTMLButtonElement).disabled).toBe(
         true
       );
 
-      setInputValueAndTrigger(selectors.formatProposals, "2", "change");
-      await nextTick();
+      await setInputValueAndTrigger(selectors.formatProposals, "2");
       expect((document.querySelector(selectors.applyFormat) as HTMLButtonElement).disabled).toBe(
         false
       );
 
-      setInputValueAndTrigger(selectors.formatProposals, "1", "change");
-      await nextTick();
+      await setInputValueAndTrigger(selectors.formatProposals, "1");
       expect((document.querySelector(selectors.applyFormat) as HTMLButtonElement).disabled).toBe(
         true
       );
     });
 
     test("not disable formatProposals/applyFormat if apply proposal and select other currency", async () => {
-      setInputValueAndTrigger(selectors.availableCurrencies, "1", "change");
-      await nextTick();
+      await setInputValueAndTrigger(selectors.availableCurrencies, "1");
       await click(fixture, selectors.applyFormat);
       expect((document.querySelector(selectors.applyFormat) as HTMLButtonElement).disabled).toBe(
         true
       );
 
-      setInputValueAndTrigger(selectors.availableCurrencies, "2", "change");
-      await nextTick();
+      await setInputValueAndTrigger(selectors.availableCurrencies, "2");
       expect((document.querySelector(selectors.applyFormat) as HTMLButtonElement).disabled).toBe(
         false
       );
 
-      setInputValueAndTrigger(selectors.availableCurrencies, "1", "change");
-      await nextTick();
+      await setInputValueAndTrigger(selectors.availableCurrencies, "1");
       expect((document.querySelector(selectors.applyFormat) as HTMLButtonElement).disabled).toBe(
         true
       );
@@ -239,14 +219,12 @@ describe("custom currency sidePanel component", () => {
     test.each([selectors.inputCode, selectors.inputSymbol])(
       "change code input or symbol input --> init available currencies",
       async (selector) => {
-        setInputValueAndTrigger(selectors.availableCurrencies, "1", "change");
-        await nextTick();
+        await setInputValueAndTrigger(selectors.availableCurrencies, "1");
         expect(
           (document.querySelector(selectors.availableCurrencies) as HTMLSelectElement).value
         ).toBe("1");
 
-        setInputValueAndTrigger(selector, "test", "input");
-        await nextTick();
+        await setInputValueAndTrigger(selector, "test");
         expect(
           (document.querySelector(selectors.availableCurrencies) as HTMLSelectElement).value
         ).toBe("0");
@@ -256,21 +234,17 @@ describe("custom currency sidePanel component", () => {
     test.each([selectors.inputCode, selectors.inputSymbol])(
       "change code input or symbol input --> change currency proposals",
       async (selector) => {
-        setInputValueAndTrigger(selectors.inputCode, "CODE", "input");
-        await nextTick();
-        setInputValueAndTrigger(selectors.inputSymbol, "SYMBOL", "input");
-        await nextTick();
+        await setInputValueAndTrigger(selectors.inputCode, "CODE");
+        await setInputValueAndTrigger(selectors.inputSymbol, "SYMBOL");
         expect(document.querySelector(selectors.formatProposals)).toMatchSnapshot();
 
-        setInputValueAndTrigger(selector, "TEST", "input");
-        await nextTick();
+        await setInputValueAndTrigger(selector, "TEST");
         expect(document.querySelector(selectors.formatProposals)).toMatchSnapshot();
       }
     );
 
     test("currency proposals uses locale format", async () => {
-      setInputValueAndTrigger(selectors.availableCurrencies, "1", "change");
-      await nextTick();
+      await setInputValueAndTrigger(selectors.availableCurrencies, "1");
       const proposals = [...document.querySelectorAll(selectors.formatProposalOptions)];
       expect(proposals.map((el) => el.textContent)).toEqual([
         "1,000µ",
@@ -299,16 +273,13 @@ describe("custom currency sidePanel component", () => {
     test.each([selectors.inputCode, selectors.inputSymbol])(
       "change code input or symbol input --> does not change proposal selected index",
       async (selector) => {
-        setInputValueAndTrigger(selectors.availableCurrencies, "1", "change");
-        await nextTick();
-        setInputValueAndTrigger(selectors.formatProposals, "6", "change");
-        await nextTick();
+        await setInputValueAndTrigger(selectors.availableCurrencies, "1");
+        await setInputValueAndTrigger(selectors.formatProposals, "6");
         expect((document.querySelector(selectors.formatProposals) as HTMLSelectElement).value).toBe(
           "6"
         );
 
-        setInputValueAndTrigger(selector, "TEST", "input");
-        await nextTick();
+        await setInputValueAndTrigger(selector, "TEST");
         expect((document.querySelector(selectors.formatProposals) as HTMLSelectElement).value).toBe(
           "6"
         );
@@ -318,12 +289,10 @@ describe("custom currency sidePanel component", () => {
     test.each([selectors.inputCode, selectors.inputSymbol])(
       "have only one input filled --> display 4 proposals instead of 8",
       async (selector) => {
-        setInputValueAndTrigger(selectors.availableCurrencies, "1", "change");
-        await nextTick();
+        await setInputValueAndTrigger(selectors.availableCurrencies, "1");
         expect(document.querySelectorAll(selectors.formatProposals + " option").length).toBe(8);
 
-        setInputValueAndTrigger(selector, "  ", "input");
-        await nextTick();
+        await setInputValueAndTrigger(selector, "  ");
 
         expect(document.querySelectorAll(selectors.formatProposals + " option").length).toBe(4);
       }
@@ -342,12 +311,9 @@ describe("custom currency sidePanel component", () => {
       ["6", "[$USD $]#,##0"],
       ["7", "[$USD $]#,##0.00"],
     ])("format applied depends on selected proposal", async (proposalIndex, formatResult) => {
-      setInputValueAndTrigger(selectors.inputSymbol, "$", "input");
-      await nextTick();
-      setInputValueAndTrigger(selectors.inputCode, "USD", "input");
-      await nextTick();
-      setInputValueAndTrigger(selectors.formatProposals, proposalIndex, "change");
-      await nextTick();
+      await setInputValueAndTrigger(selectors.inputSymbol, "$");
+      await setInputValueAndTrigger(selectors.inputCode, "USD");
+      await setInputValueAndTrigger(selectors.formatProposals, proposalIndex);
       await click(fixture, selectors.applyFormat);
       expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
@@ -376,10 +342,8 @@ describe("custom currency sidePanel component", () => {
       ])(
         "odd currency proposals depend on decimal places property",
         async (concernedIndex, decimalPlacesRegexp) => {
-          setInputValueAndTrigger(selectors.availableCurrencies, availableCurrencyIndex, "change");
-          await nextTick();
-          setInputValueAndTrigger(selectors.formatProposals, concernedIndex, "change");
-          await nextTick();
+          await setInputValueAndTrigger(selectors.availableCurrencies, availableCurrencyIndex);
+          await setInputValueAndTrigger(selectors.formatProposals, concernedIndex);
           await click(fixture, selectors.applyFormat);
           expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
             sheetId: model.getters.getActiveSheetId(),
@@ -410,10 +374,8 @@ describe("custom currency sidePanel component", () => {
       ])(
         "currency proposals depend on position property",
         async (concernedIndex, positionExpressionRegexp) => {
-          setInputValueAndTrigger(selectors.availableCurrencies, availableCurrencyIndex, "change");
-          await nextTick();
-          setInputValueAndTrigger(selectors.formatProposals, concernedIndex, "change");
-          await nextTick();
+          await setInputValueAndTrigger(selectors.availableCurrencies, availableCurrencyIndex);
+          await setInputValueAndTrigger(selectors.formatProposals, concernedIndex);
           await click(fixture, selectors.applyFormat);
           expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
             sheetId: model.getters.getActiveSheetId(),
@@ -428,14 +390,10 @@ describe("custom currency sidePanel component", () => {
       test.each([["1"], ["3"], ["5"], ["7"]])(
         "odd currency proposals have two decimal places when no available currency is selected",
         async (concernedIndex) => {
-          setInputValueAndTrigger(selectors.availableCurrencies, "0", "change");
-          await nextTick();
-          setInputValueAndTrigger(selectors.inputCode, "CODE", "input");
-          await nextTick();
-          setInputValueAndTrigger(selectors.inputSymbol, "SYMBOL", "input");
-          await nextTick();
-          setInputValueAndTrigger(selectors.formatProposals, concernedIndex, "change");
-          await nextTick();
+          await setInputValueAndTrigger(selectors.availableCurrencies, "0");
+          await setInputValueAndTrigger(selectors.inputCode, "CODE");
+          await setInputValueAndTrigger(selectors.inputSymbol, "SYMBOL");
+          await setInputValueAndTrigger(selectors.formatProposals, concernedIndex);
           await click(fixture, selectors.applyFormat);
           expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
             sheetId: model.getters.getActiveSheetId(),
@@ -457,14 +415,10 @@ describe("custom currency sidePanel component", () => {
       ])(
         "currency first four proposals start by expression placed after digits when no available currency is selected",
         async (concernedIndex, positionExpressionRegexp) => {
-          setInputValueAndTrigger(selectors.availableCurrencies, "0", "change");
-          await nextTick();
-          setInputValueAndTrigger(selectors.inputCode, "CODE", "input");
-          await nextTick();
-          setInputValueAndTrigger(selectors.inputSymbol, "SYMBOL", "input");
-          await nextTick();
-          setInputValueAndTrigger(selectors.formatProposals, concernedIndex, "change");
-          await nextTick();
+          await setInputValueAndTrigger(selectors.availableCurrencies, "0");
+          await setInputValueAndTrigger(selectors.inputCode, "CODE");
+          await setInputValueAndTrigger(selectors.inputSymbol, "SYMBOL");
+          await setInputValueAndTrigger(selectors.formatProposals, concernedIndex);
           await click(fixture, selectors.applyFormat);
           expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
             sheetId: model.getters.getActiveSheetId(),
