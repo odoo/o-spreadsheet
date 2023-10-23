@@ -995,9 +995,9 @@ describe("Multi User selection", () => {
       client: { id: "david", name: "David", position: { sheetId, col: 1, row: 1 } },
     });
     await nextTick();
-    expect(getElComputedStyle(".o-client-tag", "opacity")).toBe("0");
+    expect(fixture.querySelector(".o-client-tag")).toBeNull();
     await hoverCell(model, "B2", 400);
-    expect(getElComputedStyle(".o-client-tag", "opacity")).toBe("1");
+    expect(document.querySelectorAll(".o-client-tag")).toHaveLength(1);
     expect(document.querySelector(".o-client-tag")?.textContent).toBe("David");
   });
 
@@ -1008,6 +1008,7 @@ describe("Multi User selection", () => {
       client: { id: "david", name: "David", position: { sheetId: "invalid", col: 1, row: 1 } },
     });
     await nextTick();
+    await hoverCell(model, "B2", 400);
     expect(document.querySelectorAll(".o-client-tag")).toHaveLength(0);
   });
 

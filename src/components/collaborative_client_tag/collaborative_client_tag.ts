@@ -18,7 +18,6 @@ css/* scss */ `
     border-top-right-radius: 4px;
     font-size: ${DEFAULT_FONT_SIZE};
     color: white;
-    opacity: 0;
     pointer-events: none;
   }
 `;
@@ -39,7 +38,6 @@ export class ClientTag extends Component<ClientTagProps, SpreadsheetChildEnv> {
       left: `${x - 1}px`,
       border: `1px solid ${color}`,
       "background-color": color,
-      opacity: this.props.active ? "1 !important" : undefined,
     });
   }
 }
