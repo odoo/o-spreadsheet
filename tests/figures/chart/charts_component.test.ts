@@ -56,6 +56,17 @@ function errorMessages(): string[] {
   return textContentAll(".o-validation-error");
 }
 
+async function openChartConfigSidePanel(id = chartId) {
+  model.dispatch("SELECT_FIGURE", { id });
+  parent.env.openSidePanel("ChartPanel");
+  await nextTick();
+}
+
+async function openChartDesignSidePanel(id = chartId) {
+  await openChartConfigSidePanel(id);
+  await simulateClick(".o-panel-element.inactive");
+}
+
 let fixture: HTMLElement;
 let model: Model;
 let mockChartData = mockChart();
@@ -116,6 +127,7 @@ describe("charts", () => {
       },
     ]);
   });
+
   test.each(["basicChart", "scorecard", "gauge"])(
     "charts have a menu button",
     async (chartType: string) => {
@@ -152,13 +164,8 @@ describe("charts", () => {
     "Click on Edit button will prefill sidepanel",
     async (chartType: string) => {
       createTestChart(chartType);
-      await nextTick();
+      await openChartConfigSidePanel();
 
-      await simulateClick(".o-figure");
-      await simulateClick(".o-figure-menu-item");
-      const editButton = fixture.querySelector(".o-menu div[data-name='edit']")!;
-      expect(editButton.textContent).toBe("Edit");
-      await simulateClick(".o-menu div[data-name='edit']");
       expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
       const panelChartType = fixture.querySelectorAll(".o-sidePanel .o-input")[0];
       switch (chartType) {
@@ -199,7 +206,7 @@ describe("charts", () => {
   );
 
   test.each(["scorecard", "basicChart", "gauge"])(
-    "Double click on graph will open sidepanel",
+    "Double click on chart will open sidepanel",
     async (chartType: string) => {
       createTestChart(chartType);
       await nextTick();
@@ -214,15 +221,8 @@ describe("charts", () => {
     "can edit charts %s",
     async (chartType: string) => {
       createTestChart(chartType);
-      await nextTick();
+      await openChartConfigSidePanel();
 
-      await simulateClick(".o-figure");
-      await simulateClick(".o-figure-menu-item");
-      const editButton = fixture.querySelector(".o-menu div[data-name='edit']")!;
-      expect(editButton.textContent).toBe("Edit");
-      await simulateClick(".o-menu div[data-name='edit']");
-      await nextTick();
-      expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
       const dataSeries = fixture.querySelectorAll(
         ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
       )[0] as HTMLInputElement;
@@ -262,7 +262,7 @@ describe("charts", () => {
     }
   );
 
-  test("changing property and selecting another chart doesn't change first chart", async () => {
+  test("changing property and selecting another chart does not change first chart", async () => {
     createChart(
       model,
       {
@@ -273,7 +273,6 @@ describe("charts", () => {
       },
       "1"
     );
-    await nextTick();
     createChart(
       model,
       {
@@ -284,16 +283,12 @@ describe("charts", () => {
       },
       "2"
     );
-    await nextTick();
+    await openChartDesignSidePanel("1");
 
-    const figures = fixture.querySelectorAll(".o-figure");
-    await simulateClick(figures[0] as HTMLElement);
-    await simulateClick(".o-figure-menu-item");
-    await simulateClick(".o-menu div[data-name='edit']");
-    await simulateClick(".o-panel .inactive");
     await simulateClick(".o-chart-title input");
     setInputValueAndTrigger(".o-chart-title input", "first_title", "input");
 
+    const figures = fixture.querySelectorAll(".o-figure");
     await simulateClick(figures[1] as HTMLElement);
     expect(model.getters.getChartDefinition("1").title).toBe("old_title_1");
     expect(model.getters.getChartDefinition("2").title).toBe("old_title_2");
@@ -310,7 +305,6 @@ describe("charts", () => {
       },
       "1"
     );
-    await nextTick();
     createChart(
       model,
       {
@@ -321,13 +315,9 @@ describe("charts", () => {
       },
       "2"
     );
-    await nextTick();
+    await openChartDesignSidePanel("1");
 
     const figures = fixture.querySelectorAll(".o-figure");
-    await simulateClick(figures[0] as HTMLElement);
-    await simulateClick(".o-figure-menu-item");
-    await simulateClick(".o-menu div[data-name='edit']");
-    await simulateClick(".o-panel .inactive");
     await simulateClick(figures[1] as HTMLElement);
     await simulateClick(".o-chart-title input");
     setInputValueAndTrigger(".o-chart-title input", "new_title", "input");
@@ -341,16 +331,12 @@ describe("charts", () => {
     "defocusing sidepanel after modifying chart title w/o saving should maintain the new title %s",
     async (chartType: string) => {
       createTestChart(chartType);
-      await nextTick();
-      await simulateClick(".o-figure");
-      await simulateClick(".o-figure-menu-item");
-      await simulateClick(".o-menu div[data-name='edit']");
-      await simulateClick(".o-panel .inactive");
+      await openChartDesignSidePanel();
+
       await simulateClick(".o-chart-title input");
       const chartTitle = document.querySelector(".o-chart-title input") as HTMLInputElement;
       expect(chartTitle.value).toBe("hello");
       setInputValueAndTrigger(".o-chart-title input", "hello_new_title", "input");
-      await nextTick();
       await simulateClick(".o-grid-overlay");
       expect(chartTitle.value).toBe("hello_new_title");
     }
@@ -361,23 +347,13 @@ describe("charts", () => {
     async (chartType: string) => {
       createTestChart(chartType);
       const dispatch = spyDispatch(parent);
+      await openChartDesignSidePanel();
 
-      await nextTick();
-
-      await simulateClick(".o-figure");
-      await simulateClick(".o-figure-menu-item");
-      const editButton = fixture.querySelector(".o-menu div[data-name='edit']")!;
-      expect(editButton.textContent).toBe("Edit");
-      await simulateClick(".o-menu div[data-name='edit']");
-      await nextTick();
-      await simulateClick(".o-panel-element.inactive");
-      await nextTick();
       expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
       const colorpickerButton = fixture.querySelector(
         ".o-chart-background-color .o-color-picker-widget .o-color-picker-button"
       );
       await simulateClick(colorpickerButton);
-      await nextTick();
       const colorpickerItems = fixture.querySelectorAll(
         ".o-color-picker-line-item"
       ) as NodeListOf<HTMLElement>;
@@ -407,11 +383,8 @@ describe("charts", () => {
     "can close color picker when click elsewhere %s",
     async (chartType: string) => {
       createTestChart(chartType);
-      await nextTick();
-      await simulateClick(".o-figure");
-      await simulateClick(".o-figure-menu-item");
-      await simulateClick(".o-menu div[data-name='edit']");
-      await simulateClick(".o-panel-element.inactive");
+      openChartDesignSidePanel();
+
       await simulateClick(".o-color-picker-widget .o-color-picker-button");
       expect(fixture.querySelector(".o-color-picker")).toBeTruthy();
       await simulateClick(".o-section-title");
@@ -424,15 +397,13 @@ describe("charts", () => {
     ["scorecard", [".o-data-labels"], ["baseline"]],
   ])("remove ranges in chart %s", async (chartType: string, rangesDomClasses, nameInChartDef) => {
     createTestChart(chartType);
-    await nextTick();
+    await openChartConfigSidePanel();
 
     for (let i = 0; i < rangesDomClasses.length; i++) {
       const domClass = rangesDomClasses[i];
       const attrName = nameInChartDef[i];
       expect(model.getters.getChartDefinition(chartId)?.[attrName]).not.toBeUndefined();
-      model.dispatch("SELECT_FIGURE", { id: chartId });
-      parent.env.openSidePanel("ChartPanel");
-      await nextTick();
+
       await simulateClick(domClass + " input");
       setInputValueAndTrigger(domClass + " input", "", "input");
       await nextTick();
@@ -445,14 +416,8 @@ describe("charts", () => {
 
   test("drawing of chart will receive new data after update", async () => {
     createTestChart("basicChart");
-    await nextTick();
-    await simulateClick(".o-figure");
-    await simulateClick(".o-figure-menu-item");
-    const editButton = fixture.querySelector(".o-menu div[data-name='edit']")!;
-    expect(editButton.textContent).toBe("Edit");
-    await simulateClick(".o-menu div[data-name='edit']");
-    await nextTick();
-    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
+    await openChartConfigSidePanel();
+
     const chartType = fixture.querySelectorAll(".o-sidePanel .o-input")[0] as HTMLSelectElement;
     const dataSeries = fixture.querySelectorAll(
       ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
@@ -478,15 +443,9 @@ describe("charts", () => {
 
   test("updating a chart from another sheet does not change it s sheetId", async () => {
     createTestChart("basicChart");
-    await nextTick();
-
-    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeFalsy();
-    await simulateClick(".o-figure");
-    await simulateClick(".o-figure-menu-item");
-    await simulateClick(".o-menu div[data-name='edit']");
+    await openChartConfigSidePanel();
 
     createSheet(model, { sheetId: "42", activate: true });
-    await nextTick();
     const chartType = fixture.querySelectorAll(".o-sidePanel .o-input")[0] as HTMLSelectElement;
     setInputValueAndTrigger(chartType, "pie", "change");
     await nextTick();
@@ -501,8 +460,7 @@ describe("charts", () => {
       ".o-use-row-as-headers input[type=checkbox]"
     ) as HTMLInputElement;
     setInputValueAndTrigger(dataSeriesValues, "B2:B5", "change");
-    triggerMouseEvent(hasTitle, "click");
-    await nextTick();
+    await simulateClick(hasTitle);
     expect(model.getters.getChart(chartId)?.sheetId).toBe(sheetId);
   });
 
@@ -510,14 +468,8 @@ describe("charts", () => {
     "deleting chart %s will close sidePanel",
     async (chartType: string) => {
       createTestChart(chartType);
-      await nextTick();
+      await openChartConfigSidePanel();
 
-      expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeFalsy();
-      await simulateClick(".o-figure");
-      await simulateClick(".o-figure-menu-item");
-      await simulateClick(".o-menu div[data-name='edit']");
-      await nextTick();
-      expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
       await simulateClick(".o-figure");
       await simulateClick(".o-figure-menu-item");
       await simulateClick(".o-menu div[data-name='delete']");
@@ -529,11 +481,8 @@ describe("charts", () => {
 
   test("Deleting a chart with active selection input does not produce a traceback", async () => {
     createTestChart("basicChart");
-    await nextTick();
+    await openChartConfigSidePanel();
 
-    await simulateClick(".o-figure");
-    await simulateClick(".o-figure-menu-item");
-    await simulateClick(".o-menu div[data-name='edit']");
     await simulateClick(".o-data-series .o-add-selection");
     const element = document.querySelectorAll(".o-data-series input")[0];
     setInputValueAndTrigger(element, "C1:C4", "input");
@@ -563,8 +512,6 @@ describe("charts", () => {
         "when using %s",
         async (selectMethod: string) => {
           createTestChart(chartType);
-          await nextTick();
-
           createChart(
             model,
             {
@@ -575,14 +522,10 @@ describe("charts", () => {
             },
             "secondChartId"
           );
-          await nextTick();
-          const figures = fixture.querySelectorAll(".o-figure");
-          await simulateClick(figures[0] as HTMLElement);
-          await simulateClick(".o-figure-menu-item");
-          await simulateClick(".o-menu div[data-name='edit']");
-          await nextTick();
+          await openChartConfigSidePanel();
           expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
 
+          const figures = fixture.querySelectorAll(".o-figure");
           if (selectMethod === "click") {
             await simulateClick(figures[1]);
           } else {
@@ -617,11 +560,8 @@ describe("charts", () => {
 
   test("Can remove the last data series", async () => {
     createTestChart("basicChart");
-    await nextTick();
+    await openChartConfigSidePanel();
 
-    await simulateClick(".o-figure");
-    await simulateClick(".o-figure-menu-item");
-    await simulateClick(".o-menu div[data-name='edit']");
     await simulateClick(".o-data-series .o-add-selection");
     const element = document.querySelectorAll(".o-data-series input")[1];
     setInputValueAndTrigger(element, "C1:C4", "input");
@@ -640,11 +580,8 @@ describe("charts", () => {
 
   test("Can add multiple ranges all in once", async () => {
     createTestChart("basicChart");
-    await nextTick();
+    await openChartConfigSidePanel();
 
-    await simulateClick(".o-figure");
-    await simulateClick(".o-figure-menu-item");
-    await simulateClick(".o-menu div[data-name='edit']");
     await simulateClick(".o-data-series .o-add-selection");
     const element = document.querySelectorAll(".o-data-series input")[1];
     setInputValueAndTrigger(element, "C1:D4", "input");
@@ -678,11 +615,8 @@ describe("charts", () => {
       },
       chartId
     );
-    await nextTick();
+    await openChartConfigSidePanel();
 
-    await simulateClick(".o-figure");
-    await simulateClick(".o-figure-menu-item");
-    await simulateClick(".o-menu div[data-name='edit']");
     await simulateClick(".o-data-series .o-add-selection");
     const element = document.querySelectorAll(".o-data-series input")[1];
     setInputValueAndTrigger(element, "1:2", "input");
@@ -705,11 +639,8 @@ describe("charts", () => {
       },
       chartId
     );
-    await nextTick();
+    await openChartConfigSidePanel();
 
-    await simulateClick(".o-figure");
-    await simulateClick(".o-figure-menu-item");
-    await simulateClick(".o-menu div[data-name='edit']");
     await simulateClick(".o-data-series .o-add-selection");
     const element = document.querySelectorAll(".o-data-series input")[1];
     setInputValueAndTrigger(element, "A:B", "input");
@@ -729,11 +660,7 @@ describe("charts", () => {
       "update %s with empty labels/baseline",
       async (chartType: string, expectedResults: CommandResult[]) => {
         createTestChart(chartType);
-        await nextTick();
-
-        await simulateClick(".o-figure");
-        await simulateClick(".o-figure-menu-item");
-        await simulateClick(".o-menu div[data-name='edit']");
+        await openChartConfigSidePanel();
 
         await simulateClick(".o-data-labels input");
         setInputValueAndTrigger(".o-data-labels input", "", "input");
@@ -751,11 +678,8 @@ describe("charts", () => {
       "update chart with valid dataset/keyValue/dataRange show confirm button",
       async (chartType: string) => {
         createTestChart(chartType);
-        await nextTick();
+        await openChartConfigSidePanel();
 
-        await simulateClick(".o-figure");
-        await simulateClick(".o-figure-menu-item");
-        await simulateClick(".o-menu div[data-name='edit']");
         await simulateClick(".o-data-series input");
         setInputValueAndTrigger(".o-data-series input", "A1", "input");
         await nextTick();
@@ -767,11 +691,8 @@ describe("charts", () => {
       "update chart with invalid dataset/keyValue/dataRange hide confirm button",
       async (chartType: string) => {
         createTestChart(chartType);
-        await nextTick();
+        await openChartConfigSidePanel();
 
-        await simulateClick(".o-figure");
-        await simulateClick(".o-figure-menu-item");
-        await simulateClick(".o-menu div[data-name='edit']");
         await simulateClick(".o-data-series input");
         setInputValueAndTrigger(".o-data-series input", "This is not valid", "input");
         await nextTick();
@@ -781,11 +702,8 @@ describe("charts", () => {
 
     test("does not update the chart with an invalid dataset", async () => {
       createTestChart("basicChart");
-      await nextTick();
+      await openChartConfigSidePanel();
 
-      await simulateClick(".o-figure");
-      await simulateClick(".o-figure-menu-item");
-      await simulateClick(".o-menu div[data-name='edit']");
       await simulateClick(".o-data-series input");
       setInputValueAndTrigger(".o-data-series input", "A1:A10--", "input");
       await nextTick();
@@ -798,11 +716,8 @@ describe("charts", () => {
       "Clicking on reset button on dataset/keyValue/dataRange put back the last valid dataset/keyValue/dataRange",
       async (chartType: string) => {
         createTestChart(chartType);
-        await nextTick();
+        await openChartConfigSidePanel();
 
-        await simulateClick(".o-figure");
-        await simulateClick(".o-figure-menu-item");
-        await simulateClick(".o-menu div[data-name='edit']");
         await simulateClick(".o-data-series input");
         setInputValueAndTrigger(".o-data-series input", "A1", "input");
         await nextTick();
@@ -823,11 +738,8 @@ describe("charts", () => {
       "resetting chart label works as expected",
       async (chartType: string) => {
         createTestChart(chartType);
-        await nextTick();
+        await openChartConfigSidePanel();
 
-        await simulateClick(".o-figure");
-        await simulateClick(".o-figure-menu-item");
-        await simulateClick(".o-menu div[data-name='edit']");
         await simulateClick(".o-data-labels input");
         setInputValueAndTrigger(".o-data-labels input", "A1", "input");
         await nextTick();
@@ -851,16 +763,10 @@ describe("charts", () => {
     describe("update chart with invalid section rule", () => {
       beforeEach(async () => {
         createTestChart("gauge");
-        await nextTick();
-        await simulateClick(".o-figure");
-        await simulateClick(".o-figure-menu-item");
-        await simulateClick(".o-menu div[data-name='edit']");
-        // change configuration panel to design panel
-        await simulateClick(".o-panel-design");
+        await openChartDesignSidePanel();
       });
 
       test("empty rangeMin", async () => {
-        await simulateClick(".o-data-range-min");
         setInputValueAndTrigger(".o-data-range-min", "", "input");
         setInputValueAndTrigger(".o-data-range-min", "", "change");
         await nextTick();
@@ -870,7 +776,6 @@ describe("charts", () => {
       });
 
       test("NaN rangeMin", async () => {
-        await simulateClick(".o-data-range-min");
         setInputValueAndTrigger(".o-data-range-min", "I'm not a number", "input");
         setInputValueAndTrigger(".o-data-range-min", "I'm not a number", "change");
         await nextTick();
@@ -880,7 +785,6 @@ describe("charts", () => {
       });
 
       test("empty rangeMax", async () => {
-        await simulateClick(".o-data-range-max");
         setInputValueAndTrigger(".o-data-range-max", "", "input");
         setInputValueAndTrigger(".o-data-range-max", "", "change");
         await nextTick();
@@ -890,7 +794,6 @@ describe("charts", () => {
       });
 
       test("NaN rangeMax", async () => {
-        await simulateClick(".o-data-range-max");
         setInputValueAndTrigger(".o-data-range-max", "I'm not a number", "input");
         setInputValueAndTrigger(".o-data-range-max", "I'm not a number", "change");
         await nextTick();
@@ -900,10 +803,9 @@ describe("charts", () => {
       });
 
       test("rangeMin > rangeMax", async () => {
-        await simulateClick(".o-data-range-min");
         setInputValueAndTrigger(".o-data-range-min", "100", "input");
         setInputValueAndTrigger(".o-data-range-min", "100", "change");
-        await simulateClick(".o-data-range-max");
+
         setInputValueAndTrigger(".o-data-range-max", "0", "input");
         setInputValueAndTrigger(".o-data-range-max", "0", "change");
         await nextTick();
@@ -935,11 +837,7 @@ describe("charts", () => {
 
     test("Scorecard > error displayed on input fields", async () => {
       createTestChart("scorecard");
-      await nextTick();
-
-      parent.env.model.dispatch("SELECT_FIGURE", { id: chartId });
-      parent.env.openSidePanel("ChartPanel");
-      await nextTick();
+      await openChartConfigSidePanel();
 
       // empty dataset/key value
       await simulateClick(".o-data-series input");
@@ -960,10 +858,7 @@ describe("charts", () => {
     describe("gauge > error displayed on input fields", () => {
       beforeEach(async () => {
         createTestChart("gauge");
-        await nextTick();
-        parent.env.model.dispatch("SELECT_FIGURE", { id: chartId });
-        parent.env.openSidePanel("ChartPanel");
-        await nextTick();
+        await openChartConfigSidePanel();
       });
 
       test("empty dataRange", async () => {
@@ -977,7 +872,6 @@ describe("charts", () => {
 
       test("empty rangeMin", async () => {
         await simulateClick(".o-panel-design");
-        await simulateClick(".o-data-range-min");
         setInputValueAndTrigger(".o-data-range-min", "", "input");
         setInputValueAndTrigger(".o-data-range-min", "", "change");
         await nextTick();
@@ -986,7 +880,6 @@ describe("charts", () => {
 
       test("NaN rangeMin", async () => {
         await simulateClick(".o-panel-design");
-        await simulateClick(".o-data-range-min");
         setInputValueAndTrigger(".o-data-range-min", "bla bla bla", "input");
         setInputValueAndTrigger(".o-data-range-min", "bla bla bla", "change");
         await nextTick();
@@ -995,7 +888,6 @@ describe("charts", () => {
 
       test("empty rangeMax", async () => {
         await simulateClick(".o-panel-design");
-        await simulateClick(".o-data-range-max");
         setInputValueAndTrigger(".o-data-range-max", "", "input");
         setInputValueAndTrigger(".o-data-range-max", "", "change");
         await nextTick();
@@ -1004,7 +896,6 @@ describe("charts", () => {
 
       test("NaN rangeMax", async () => {
         await simulateClick(".o-panel-design");
-        await simulateClick(".o-data-range-max");
         setInputValueAndTrigger(".o-data-range-max", "bla bla bla", "input");
         setInputValueAndTrigger(".o-data-range-max", "bla bla bla", "change");
         await nextTick();
@@ -1013,10 +904,9 @@ describe("charts", () => {
 
       test("rangeMin > rangeMax", async () => {
         await simulateClick(".o-panel-design");
-        await simulateClick(".o-data-range-min");
         setInputValueAndTrigger(".o-data-range-min", "100", "input");
         setInputValueAndTrigger(".o-data-range-min", "100", "change");
-        await simulateClick(".o-data-range-max");
+
         setInputValueAndTrigger(".o-data-range-max", "0", "input");
         setInputValueAndTrigger(".o-data-range-max", "0", "change");
         await nextTick();
@@ -1026,7 +916,6 @@ describe("charts", () => {
 
       test("NaN LowerInflectionPoint", async () => {
         await simulateClick(".o-panel-design");
-        await simulateClick(".o-input-lowerInflectionPoint");
         setInputValueAndTrigger(".o-input-lowerInflectionPoint", "bla bla bla", "input");
         setInputValueAndTrigger(".o-input-lowerInflectionPoint", "bla bla bla", "change");
         await nextTick();
@@ -1037,7 +926,6 @@ describe("charts", () => {
 
       test("NaN UpperInflectionPoint", async () => {
         await simulateClick(".o-panel-design");
-        await simulateClick(".o-input-upperInflectionPoint");
         setInputValueAndTrigger(".o-input-upperInflectionPoint", "bla bla bla", "input");
         setInputValueAndTrigger(".o-input-upperInflectionPoint", "bla bla bla", "change");
         await nextTick();
@@ -1064,15 +952,11 @@ describe("charts", () => {
     async (chartType: string) => {
       createTestChart(chartType);
       updateChart(model, chartId, { keyValue: undefined, dataRange: undefined, dataSets: [] });
-      await nextTick();
-      await simulateClick(".o-figure");
-      await simulateClick(".o-figure-menu-item");
-      await simulateClick(".o-menu div[data-name='edit']");
+      await openChartConfigSidePanel();
       await nextTick();
 
       const input = fixture.querySelector("input.o-required");
       await simulateClick(input);
-      await nextTick();
       expect(fixture.querySelector(".o-figure")).toBeTruthy();
     }
   );
@@ -1081,23 +965,13 @@ describe("charts", () => {
     test("can edit chart baseline colors", async () => {
       createTestChart("scorecard");
       const dispatch = spyDispatch(parent);
-      await nextTick();
-      await simulateClick(".o-figure");
-      await simulateClick(".o-figure-menu-item");
-      const editButton = fixture.querySelector(".o-menu div[data-name='edit']")!;
-      expect(editButton.textContent).toBe("Edit");
-      await simulateClick(".o-menu div[data-name='edit']");
-      await nextTick();
-      await simulateClick(".o-panel-element.inactive");
-      await nextTick();
-      expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
+      await openChartDesignSidePanel();
 
       // Change color of "up" value of baseline
       const colorpickerUpButton = fixture.querySelectorAll(
         ".o-chart-baseline-color .o-color-picker-button"
       )[0];
       await simulateClick(colorpickerUpButton);
-      await nextTick();
       const colorpickerUpItems = fixture.querySelectorAll(
         ".o-color-picker-line-item"
       ) as NodeListOf<HTMLElement>;
@@ -1121,7 +995,6 @@ describe("charts", () => {
         ".o-chart-baseline-color .o-color-picker-button"
       )[1];
       await simulateClick(colorpickerDownButton);
-      await nextTick();
       const colorpickerDownItems = fixture.querySelectorAll(
         ".o-color-picker-line-item"
       ) as NodeListOf<HTMLElement>;
@@ -1146,31 +1019,24 @@ describe("charts", () => {
     test("labelAsText checkbox displayed for line charts with number dataset and labels", async () => {
       createTestChart("basicChart");
       updateChart(model, chartId, { type: "line", labelRange: "C2:C4", dataSets: ["B2:B4"] });
-      await nextTick();
-      await simulateClick(".o-figure");
-      await simulateClick(".o-figure-menu-item");
-      await simulateClick(".o-menu div[data-name='edit']");
-      await nextTick();
+      await openChartConfigSidePanel();
+
       expect(document.querySelector("input[name='labelsAsText']")).toBeTruthy();
     });
 
     test("labelAsText checkbox not displayed for pie charts", async () => {
       createTestChart("basicChart");
       updateChart(model, chartId, { type: "pie" });
-      await nextTick();
-      await simulateClick(".o-figure");
-      await simulateClick(".o-figure-menu-item");
-      await simulateClick(".o-menu div[data-name='edit']");
+      await openChartConfigSidePanel();
+
       expect(document.querySelector("input[name='labelsAsText']")).toBeFalsy();
     });
 
     test("labelAsText checkbox not displayed for bar charts", async () => {
       createTestChart("basicChart");
       updateChart(model, chartId, { type: "bar" });
-      await nextTick();
-      await simulateClick(".o-figure");
-      await simulateClick(".o-figure-menu-item");
-      await simulateClick(".o-menu div[data-name='edit']");
+      await openChartConfigSidePanel();
+
       expect(document.querySelector("input[name='labelsAsText']")).toBeFalsy();
     });
 
@@ -1178,10 +1044,8 @@ describe("charts", () => {
       createTestChart("basicChart");
       updateChart(model, chartId, { type: "line" });
       updateChart(model, chartId, { labelRange: "A2:A4", dataSets: ["B2:B4"] });
-      await nextTick();
-      await simulateClick(".o-figure");
-      await simulateClick(".o-figure-menu-item");
-      await simulateClick(".o-menu div[data-name='edit']");
+      await openChartConfigSidePanel();
+
       expect(document.querySelector("input[name='labelsAsText']")).toBeFalsy();
     });
 
@@ -1193,23 +1057,20 @@ describe("charts", () => {
       });
       createTestChart("basicChart");
       updateChart(model, chartId, { type: "line", labelRange: "C2:C4", dataSets: ["B2:B4"] });
-      await nextTick();
-      await simulateClick(".o-figure");
-      await simulateClick(".o-figure-menu-item");
-      await simulateClick(".o-menu div[data-name='edit']");
+      await openChartConfigSidePanel();
+
       expect(document.querySelector("input[name='labelsAsText']")).toBeTruthy();
     });
 
     test("labelAsText checkbox updates the chart", async () => {
       createTestChart("basicChart");
       updateChart(model, chartId, { type: "line", labelRange: "C2:C4", dataSets: ["B2:B4"] });
-      await nextTick();
+      await openChartConfigSidePanel();
+
       expect(
         (model.getters.getChartDefinition(chartId) as LineChartDefinition).labelsAsText
       ).toBeFalsy();
-      await simulateClick(".o-figure");
-      await simulateClick(".o-figure-menu-item");
-      await simulateClick(".o-menu div[data-name='edit']");
+
       await simulateClick("input[name='labelsAsText']");
       expect(
         (model.getters.getChartDefinition(chartId) as LineChartDefinition).labelsAsText
@@ -1218,26 +1079,22 @@ describe("charts", () => {
 
     test("labelAsText checkbox not displayed for text labels with date format", async () => {
       createTestChart("basicChart");
-      await nextTick();
       model.dispatch("SET_FORMATTING", {
         sheetId: model.getters.getActiveSheetId(),
         target: [toZone("A2:A4")],
         format: "m/d/yyyy",
       });
       updateChart(model, chartId, { type: "line", labelRange: "A2:A4", dataSets: ["B2:B4"] });
-      await simulateClick(".o-figure");
-      await simulateClick(".o-figure-menu-item");
-      await simulateClick(".o-menu div[data-name='edit']");
+      await openChartConfigSidePanel();
+
       expect(document.querySelector("input[name='labelsAsText']")).toBeFalsy();
     });
 
     test("labelAsText checkbox not displayed for charts with empty labels", async () => {
       createTestChart("basicChart");
-      await nextTick();
       updateChart(model, chartId, { type: "line", labelRange: "F2:F4", dataSets: ["B2:B4"] });
-      await simulateClick(".o-figure");
-      await simulateClick(".o-figure-menu-item");
-      await simulateClick(".o-menu div[data-name='edit']");
+      await openChartConfigSidePanel();
+
       expect(document.querySelector("input[name='labelsAsText']")).toBeFalsy();
     });
   });
