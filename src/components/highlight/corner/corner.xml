@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-Corner" owl="1">
     <div
       class="o-corner"
-      t-on-mousedown="onMouseDown"
+      t-on-mousedown.prevent="onMouseDown"
       t-att-style="style"
       t-att-class="{
           'o-resizing': props.isResizing,

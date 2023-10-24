@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-Border" owl="1">
     <div
       class="o-border"
-      t-on-mousedown="onMouseDown"
+      t-on-mousedown.prevent="onMouseDown"
       t-att-style="style"
       t-att-class="{
           'o-moving': props.isMoving,
