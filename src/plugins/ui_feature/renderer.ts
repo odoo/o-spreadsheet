@@ -128,7 +128,7 @@ export class RendererPlugin extends UIPlugin {
         this.drawFrozenPanes(renderingContext);
         break;
       case LAYERS.Headers:
-        if (!this.getters.isDashboard()) {
+        if (this.getters.visibleHeaders()) {
           this.drawHeaders(renderingContext);
           this.drawFrozenPanesHeaders(renderingContext);
         }
@@ -504,8 +504,8 @@ export class RendererPlugin extends UIPlugin {
 
     const { x: offsetCorrectionX, y: offsetCorrectionY } =
       this.getters.getMainViewportCoordinates();
-    const widthCorrection = this.getters.isDashboard() ? 0 : HEADER_WIDTH;
-    const heightCorrection = this.getters.isDashboard() ? 0 : HEADER_HEIGHT;
+    const widthCorrection = this.getters.visibleHeaders() ? 0 : HEADER_WIDTH;
+    const heightCorrection = this.getters.visibleHeaders() ? 0 : HEADER_HEIGHT;
     ctx.lineWidth = 6 * thinLineWidth;
     ctx.strokeStyle = FROZEN_PANE_HEADER_BORDER_COLOR;
     ctx.beginPath();
@@ -535,8 +535,8 @@ export class RendererPlugin extends UIPlugin {
     const viewport = { left, right, top, bottom };
 
     const rect = this.getters.getVisibleRect(viewport);
-    const widthCorrection = this.getters.isDashboard() ? 0 : HEADER_WIDTH;
-    const heightCorrection = this.getters.isDashboard() ? 0 : HEADER_HEIGHT;
+    const widthCorrection = this.getters.visibleHeaders() ? 0 : HEADER_WIDTH;
+    const heightCorrection = this.getters.visibleHeaders() ? 0 : HEADER_HEIGHT;
     ctx.lineWidth = 6 * thinLineWidth;
     ctx.strokeStyle = FROZEN_PANE_BORDER_COLOR;
     ctx.beginPath();

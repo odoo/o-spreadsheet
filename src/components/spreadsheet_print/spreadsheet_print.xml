@@ -1,0 +1,8 @@
+<templates>
+  <t t-name="o-spreadsheet-SpreadsheetPrint">
+    <div class="o-spreadsheet-print" t-ref="container">
+      <canvas t-ref="canvas"/>
+      <FiguresContainer onFigureDeleted="() => {}"/>
+    </div>
+  </t>
+</templates>

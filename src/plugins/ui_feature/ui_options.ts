@@ -2,8 +2,9 @@ import { Command } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 export class UIOptionsPlugin extends UIPlugin {
-  static getters = ["shouldShowFormulas"] as const;
+  static getters = ["shouldShowFormulas", "visibleHeaders", "isPrintMode"] as const;
   private showFormulas: boolean = false;
+  private printMode: boolean = false;
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -14,6 +15,9 @@ export class UIOptionsPlugin extends UIPlugin {
       case "SET_FORMULA_VISIBILITY":
         this.showFormulas = cmd.show;
         break;
+      case "SET_PRINT_MODE":
+        this.printMode = cmd.active;
+        break;
     }
   }
 
@@ -23,5 +27,13 @@ export class UIOptionsPlugin extends UIPlugin {
 
   shouldShowFormulas(): boolean {
     return this.showFormulas;
+  }
+
+  visibleHeaders(): boolean {
+    return !this.getters.isDashboard() && !this.printMode;
+  }
+
+  isPrintMode(): boolean {
+    return this.printMode;
   }
 }

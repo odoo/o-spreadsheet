@@ -91,7 +91,7 @@ export async function doubleClick(el: Element, selector: string = "") {
 export async function hoverCell(model: Model, xc: string, delay: number) {
   const zone = toZone(xc);
   let { x, y } = model.getters.getVisibleRect(zone);
-  if (!model.getters.isDashboard()) {
+  if (model.getters.visibleHeaders()) {
     x -= HEADER_WIDTH;
     y -= HEADER_HEIGHT;
   }
@@ -111,7 +111,7 @@ export async function clickCell(
     throw new Error(`You can't click on ${xc} because it is not visible`);
   }
   let { x, y } = model.getters.getVisibleRect(zone);
-  if (!model.getters.isDashboard()) {
+  if (model.getters.visibleHeaders()) {
     x -= HEADER_WIDTH;
     y -= HEADER_HEIGHT;
   }
@@ -126,7 +126,7 @@ export async function gridMouseEvent(
 ) {
   const zone = toZone(xc);
   let { x, y } = model.getters.getVisibleRect(zone);
-  if (!model.getters.isDashboard()) {
+  if (model.getters.visibleHeaders()) {
     x -= HEADER_WIDTH;
     y -= HEADER_HEIGHT;
   }

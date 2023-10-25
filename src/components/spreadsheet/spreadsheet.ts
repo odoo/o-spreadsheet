@@ -32,13 +32,20 @@ import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Model } from "../../model";
 import { ComposerSelection } from "../../plugins/ui_stateful/edition";
 import { _t } from "../../translation";
-import { HeaderGroup, InformationNotification, Pixel, SpreadsheetChildEnv } from "../../types";
+import {
+  HeaderGroup,
+  InformationNotification,
+  Pixel,
+  Rect,
+  SpreadsheetChildEnv,
+} from "../../types";
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
 import { Grid } from "../grid/grid";
 import { HeaderGroupContainer } from "../header_group/header_group_container";
 import { css, cssPropertiesToCss } from "../helpers/css";
 import { SidePanel } from "../side_panel/side_panel/side_panel";
+import { SpreadsheetPrint } from "../spreadsheet_print/spreadsheet_print";
 import { TopBar } from "../top_bar/top_bar";
 import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipboard_wrapper";
 
@@ -56,6 +63,7 @@ const HOVERED_FONT_COLOR = "#000";
 
 css/* scss */ `
   .o-spreadsheet {
+    height: 100%;
     position: relative;
     display: grid;
     grid-template-columns: auto 350px;
@@ -242,6 +250,11 @@ interface ComposerState {
   gridFocusMode: ComposerFocusType;
 }
 
+interface FrozenPrintState {
+  viewRect: Rect;
+  offset: { scrollX: number; scrollY: number };
+}
+
 export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Spreadsheet";
   static components = {
@@ -251,6 +264,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     SidePanel,
     SpreadsheetDashboard,
     HeaderGroupContainer,
+    SpreadsheetPrint,
   };
 
   sidePanel!: SidePanelState;
@@ -262,6 +276,8 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
   private isViewportTooSmall: boolean = false;
 
+  private frozenPrintState: FrozenPrintState | undefined;
+
   get model(): Model {
     return this.props.model;
   }
@@ -271,6 +287,39 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       return `grid-template-rows: auto;`;
     }
     return `grid-template-rows: ${TOPBAR_HEIGHT}px auto ${BOTTOMBAR_HEIGHT + 1}px`;
+  }
+
+  getPrintRect(): Rect {
+    const { x, y } = this.env.model.getters.getFullSheetViewRect();
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const { bottom, right } = this.env.model.getters.getSheetZone(sheetId);
+    const { end: width } = this.env.model.getters.getColDimensions(sheetId, right);
+    const { end: height } = this.env.model.getters.getRowDimensions(sheetId, bottom);
+    return { x, y, width, height };
+  }
+
+  print() {
+    this.frozenPrintState = {
+      //remove fullSheetViewRect or keep in favor of printRect?
+      viewRect: this.env.model.getters.getVisibleSheetViewRect(),
+      offset: this.env.model.getters.getActiveSheetDOMScrollInfo(),
+    };
+    this.env.model.dispatch("SET_PRINT_MODE", { active: true });
+    // reset the viewport to A1 visibility
+    this.env.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 0, offsetY: 0 });
+    this.env.model.dispatch("RESIZE_SHEETVIEW", {
+      ...this.getPrintRect(),
+    });
+  }
+
+  afterPrint() {
+    if (this.frozenPrintState) {
+      this.env.model.dispatch("SET_PRINT_MODE", { active: false });
+      this.env.model.dispatch("RESIZE_SHEETVIEW", this.frozenPrintState.viewRect);
+      const { scrollX: offsetX, scrollY: offsetY } = this.frozenPrintState.offset;
+      this.env.model.dispatch("SET_VIEWPORT_OFFSET", { offsetX, offsetY });
+      this.frozenPrintState = undefined;
+    }
   }
 
   setup() {
@@ -298,7 +347,19 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
     useExternalListener(window as any, "resize", () => this.render(true));
     useExternalListener(window, "beforeunload", this.unbindModelEvents.bind(this));
-
+    useExternalListener(window, "afterprint", () => this.afterPrint());
+    useExternalListener(
+      window,
+      "keydown",
+      (ev: KeyboardEvent) => {
+        if (ev.key === "p" && ev.ctrlKey) {
+          ev.preventDefault();
+          ev.stopImmediatePropagation();
+          this.print();
+        }
+      },
+      { capture: true }
+    );
     this.bindModelEvents();
 
     onWillUpdateProps((nextProps) => {

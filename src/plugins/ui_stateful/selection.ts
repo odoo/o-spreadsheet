@@ -764,7 +764,7 @@ export class GridSelectionPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   drawGrid(renderingContext: GridRenderingContext) {
-    if (this.getters.isDashboard()) {
+    if (this.getters.isDashboard() || this.getters.isPrintMode()) {
       return;
     }
     const { ctx, thinLineWidth } = renderingContext;
