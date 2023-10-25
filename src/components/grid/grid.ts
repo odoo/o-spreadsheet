@@ -638,13 +638,14 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       const content = clipboardData.getData(ClipboardMIMEType.PlainText);
       const target = this.env.model.getters.getSelectedZones();
       const clipboardString = this.env.model.getters.getClipboardTextContent();
+      const isCutOperation = this.env.model.getters.isCutOperation();
       if (clipboardString === content) {
         // the paste actually comes from o-spreadsheet itself
         interactivePaste(this.env, target);
       } else {
         interactivePasteFromOS(this.env, target, content);
       }
-      if (this.env.model.getters.isCutOperation()) {
+      if (isCutOperation) {
         await this.env.clipboard.write({ [ClipboardMIMEType.PlainText]: "" });
       }
     }
