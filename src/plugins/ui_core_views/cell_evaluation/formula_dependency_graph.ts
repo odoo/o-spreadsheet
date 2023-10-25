@@ -61,10 +61,10 @@ export class FormulaDependencyGraph {
    */
   getCellsDependingOn(positionIds: Iterable<PositionId>): Set<PositionId> {
     const visited: JetSet<PositionId> = new JetSet<PositionId>();
-    const queue: PositionId[] = Array.from(positionIds);
+    const queue: PositionId[] = Array.from(positionIds).reverse();
 
     while (queue.length > 0) {
-      const node = queue.shift()!;
+      const node = queue.pop()!;
       visited.add(node);
 
       const adjacentNodes = this.inverseDependencies.get(node) || new Set<PositionId>();
