@@ -13,6 +13,7 @@ import {
   freezeRows,
   hideColumns,
   hideRows,
+  selectAll,
   selectCell,
   selectColumn,
   selectRow,
@@ -468,6 +469,11 @@ describe("Menu Item actions", () => {
       selectRow(model, 6, "newAnchor");
       expect(getNode(addRowBeforePath, rowMenuRegistry).isVisible(env)).toBeFalsy();
     });
+
+    test("Full sheet selected", () => {
+      selectAll(model);
+      expect(getNode(addRowBeforePath, rowMenuRegistry).isVisible(env)).toBeTruthy();
+    });
   });
 
   describe("Insert -> Row below", () => {
@@ -555,6 +561,11 @@ describe("Menu Item actions", () => {
       selectRow(model, 4, "overrideSelection");
       selectRow(model, 6, "newAnchor");
       expect(getNode(addRowAfterPath, rowMenuRegistry).isVisible(env)).toBeFalsy();
+    });
+
+    test("Full sheet selected", () => {
+      selectAll(model);
+      expect(getNode(addRowAfterPath, rowMenuRegistry).isVisible(env)).toBeTruthy();
     });
   });
 
@@ -644,6 +655,11 @@ describe("Menu Item actions", () => {
       selectColumn(model, 6, "newAnchor");
       expect(getNode(addColBeforePath, colMenuRegistry).isVisible(env)).toBeFalsy();
     });
+
+    test("Full sheet selected", () => {
+      selectAll(model);
+      expect(getNode(addColBeforePath, colMenuRegistry).isVisible(env)).toBeTruthy();
+    });
   });
 
   describe("Insert -> Column right", () => {
@@ -731,6 +747,11 @@ describe("Menu Item actions", () => {
       selectColumn(model, 4, "overrideSelection");
       selectColumn(model, 6, "newAnchor");
       expect(getNode(addColAfterPath, colMenuRegistry).isVisible(env)).toBeFalsy();
+    });
+
+    test("Full sheet selected", () => {
+      selectAll(model);
+      expect(getNode(addColAfterPath, colMenuRegistry).isVisible(env)).toBeTruthy();
     });
   });
 

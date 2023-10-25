@@ -1,5 +1,5 @@
 import { functionRegistry } from "../functions";
-import { isConsecutive, isDefined } from "../helpers";
+import { isDefined } from "../helpers";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
 import { _lt } from "../translation";
 import { ActionBuilder, ActionSpec } from "./action";
@@ -10,10 +10,7 @@ export const insertRow: ActionSpec = {
     const number = getRowsNumber(env);
     return number === 1 ? _lt("Insert row") : _lt("Insert %s rows", number.toString());
   },
-  isVisible: (env) =>
-    isConsecutive(env.model.getters.getActiveRows()) &&
-    ACTIONS.IS_ONLY_ONE_RANGE(env) &&
-    env.model.getters.getActiveCols().size === 0,
+  isVisible: (env) => ACTIONS.CAN_INSERT_HEADER(env, "ROW"),
   icon: "o-spreadsheet-Icon.INSERT_ROW",
 };
 
@@ -23,10 +20,7 @@ export const rowInsertRowBefore: ActionSpec = {
     return number === 1 ? _lt("Insert row above") : _lt("Insert %s rows above", number.toString());
   },
   execute: ACTIONS.INSERT_ROWS_BEFORE_ACTION,
-  isVisible: (env) =>
-    isConsecutive(env.model.getters.getActiveRows()) &&
-    ACTIONS.IS_ONLY_ONE_RANGE(env) &&
-    env.model.getters.getActiveCols().size === 0,
+  isVisible: (env) => ACTIONS.CAN_INSERT_HEADER(env, "ROW"),
   icon: "o-spreadsheet-Icon.INSERT_ROW_BEFORE",
 };
 
@@ -60,10 +54,7 @@ export const rowInsertRowsAfter: ActionSpec = {
     const number = getRowsNumber(env);
     return number === 1 ? _lt("Insert row below") : _lt("Insert %s rows below", number.toString());
   },
-  isVisible: (env) =>
-    isConsecutive(env.model.getters.getActiveRows()) &&
-    ACTIONS.IS_ONLY_ONE_RANGE(env) &&
-    env.model.getters.getActiveCols().size === 0,
+  isVisible: (env) => ACTIONS.CAN_INSERT_HEADER(env, "ROW"),
   icon: "o-spreadsheet-Icon.INSERT_ROW_AFTER",
 };
 
@@ -83,10 +74,7 @@ export const insertCol: ActionSpec = {
     const number = getColumnsNumber(env);
     return number === 1 ? _lt("Insert column") : _lt("Insert %s columns", number.toString());
   },
-  isVisible: (env) =>
-    isConsecutive(env.model.getters.getActiveCols()) &&
-    ACTIONS.IS_ONLY_ONE_RANGE(env) &&
-    env.model.getters.getActiveRows().size === 0,
+  isVisible: (env) => ACTIONS.CAN_INSERT_HEADER(env, "COL"),
   icon: "o-spreadsheet-Icon.INSERT_COL",
 };
 
@@ -98,10 +86,7 @@ export const colInsertColsBefore: ActionSpec = {
       : _lt("Insert %s columns left", number.toString());
   },
   execute: ACTIONS.INSERT_COLUMNS_BEFORE_ACTION,
-  isVisible: (env) =>
-    isConsecutive(env.model.getters.getActiveCols()) &&
-    ACTIONS.IS_ONLY_ONE_RANGE(env) &&
-    env.model.getters.getActiveRows().size === 0,
+  isVisible: (env) => ACTIONS.CAN_INSERT_HEADER(env, "COL"),
   icon: "o-spreadsheet-Icon.INSERT_COL_BEFORE",
 };
 
@@ -137,10 +122,7 @@ export const colInsertColsAfter: ActionSpec = {
       : _lt("Insert %s columns right", number.toString());
   },
   execute: ACTIONS.INSERT_COLUMNS_AFTER_ACTION,
-  isVisible: (env) =>
-    isConsecutive(env.model.getters.getActiveCols()) &&
-    ACTIONS.IS_ONLY_ONE_RANGE(env) &&
-    env.model.getters.getActiveRows().size === 0,
+  isVisible: (env) => ACTIONS.CAN_INSERT_HEADER(env, "COL"),
   icon: "o-spreadsheet-Icon.INSERT_COL_AFTER",
 };
 
