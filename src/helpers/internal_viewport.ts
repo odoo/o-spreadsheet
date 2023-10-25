@@ -281,11 +281,7 @@ export class InternalViewport {
     const sheetId = this.sheetId;
     const headers = this.getters.getNumberHeaders(sheetId, dimension);
     for (let i = startIndex; i <= headers - 1; i++) {
-      const isHiddenInViewport =
-        !absolute && dimension === "COL"
-          ? i < this.left && i > this.right
-          : i < this.top && i > this.bottom;
-      if (this.getters.isHeaderHidden(sheetId, dimension, i) || isHiddenInViewport) {
+      if (this.getters.isHeaderHidden(sheetId, dimension, i)) {
         continue;
       }
       size += this.getters.getHeaderSize(sheetId, dimension, i);
