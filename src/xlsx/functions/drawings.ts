@@ -102,13 +102,13 @@ function figureCoordinates(
   position: number
 ): { index: number; offset: number } {
   let currentPosition = 0;
-  for (const [headerIndex, header] of Object.entries(headers)) {
+  for (const [headerIndex, header] of headers.entries()) {
     if (currentPosition <= position && position < currentPosition + header.size!) {
       return {
-        index: parseInt(headerIndex),
+        index: headerIndex,
         offset: convertDotValueToEMU(position - currentPosition + FIGURE_BORDER_WIDTH),
       };
-    } else {
+    } else if (headerIndex < headers.length - 1) {
       currentPosition += header.size!;
     }
   }
