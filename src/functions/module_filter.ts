@@ -27,7 +27,7 @@ function sortMatrix(
     assert(
       () => value !== undefined,
       _t(
-        `Value for parameter %d is missing, while the function [[FUNCTION_NAME]] expect a number or a range.`,
+        "Value for parameter %d is missing, while the function [[FUNCTION_NAME]] expect a number or a range.",
         i + 1
       )
     );
@@ -42,8 +42,8 @@ function sortMatrix(
       assert(
         () => sortColumn.length === 1 && sortColumn[0].length === nRows,
         _t(
-          `Wrong size for %s. Expected a range of size 1x%s. Got %sx%s.`,
-          `sort_column{i + 1}`,
+          "Wrong size for %s. Expected a range of size 1x%s. Got %sx%s.",
+          `sort_column${i + 1}`,
           nRows,
           sortColumn.length,
           sortColumn[0].length
@@ -142,7 +142,7 @@ export const FILTER = {
 
     assert(
       () => _conditions.every((cond) => cond.length === _array.length),
-      _t(`FILTER has mismatched sizes on the range and conditions.`)
+      _t("FILTER has mismatched sizes on the range and conditions.")
     );
 
     const result: Matrix<ValueAndFormat> = [];
@@ -226,12 +226,12 @@ export const SORTN: AddFunctionDescription = {
     ...sortingCriteria: (ValueAndFormat | Matrix<ValueAndFormat>)[]
   ): any {
     const _n = toNumber(n?.value ?? 1, this.locale);
-    assert(() => _n >= 0, _t(`Wrong value of 'n'. Expected a positive number. Got %s.`, _n));
+    assert(() => _n >= 0, _t("Wrong value of 'n'. Expected a positive number. Got %s.", _n));
     const _displayTiesMode = toNumber(displayTiesMode?.value ?? 0, this.locale);
     assert(
       () => _displayTiesMode >= 0 && _displayTiesMode <= 3,
       _t(
-        `Wrong value of 'display_ties_mode'. Expected a positive number between 0 and 3. Got %s.`,
+        "Wrong value of 'display_ties_mode'. Expected a positive number between 0 and 3. Got %s.",
         _displayTiesMode
       )
     );

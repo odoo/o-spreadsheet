@@ -110,7 +110,7 @@ export const FIND = {
     const _textToSearch = toString(textToSearch);
     const _startingAt = toNumber(startingAt, this.locale);
 
-    assert(() => _textToSearch !== "", _t(`The text_to_search must be non-empty.`));
+    assert(() => _textToSearch !== "", _t("The text_to_search must be non-empty."));
     assert(
       () => _startingAt >= 1,
       _t("The starting_at (%s) must be greater than or equal to 1.", _startingAt.toString())
@@ -360,7 +360,7 @@ export const SEARCH = {
     const _textToSearch = toString(textToSearch).toLowerCase();
     const _startingAt = toNumber(startingAt, this.locale);
 
-    assert(() => _textToSearch !== "", _t(`The text_to_search must be non-empty.`));
+    assert(() => _textToSearch !== "", _t("The text_to_search must be non-empty."));
     assert(
       () => _startingAt >= 1,
       _t("The starting_at (%s) must be greater than or equal to 1.", _startingAt.toString())

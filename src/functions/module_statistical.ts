@@ -77,7 +77,7 @@ function covariance(dataY: ArgValue, dataX: ArgValue, isSample: boolean): number
 
   assert(
     () => count !== 0 && (!isSample || count !== 1),
-    _t(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+    _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
   );
 
   let sumY = 0;
@@ -115,7 +115,7 @@ function variance(args: ArgValue[], isSample: boolean, textAs0: boolean, locale:
 
   assert(
     () => count !== 0 && (!isSample || count !== 1),
-    _t(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+    _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
   );
 
   const average = sum / count;
@@ -134,7 +134,7 @@ function centile(
   const _percent = toNumber(percent, locale);
   assert(
     () => (isInclusive ? 0 <= _percent && _percent <= 1 : 0 < _percent && _percent < 1),
-    _t(`Function [[FUNCTION_NAME]] parameter 2 value is out of range.`)
+    _t("Function [[FUNCTION_NAME]] parameter 2 value is out of range.")
   );
   let sortedArray: number[] = [];
   let index: number;
@@ -153,13 +153,13 @@ function centile(
       count++;
     }
   });
-  assert(() => count !== 0, _t(`[[FUNCTION_NAME]] has no valid input data.`));
+  assert(() => count !== 0, _t("[[FUNCTION_NAME]] has no valid input data."));
 
   if (!isInclusive) {
     // 2nd argument must be between 1/(n+1) and n/(n+1) with n the number of data
     assert(
       () => 1 / (count + 1) <= _percent && _percent <= count / (count + 1),
-      _t(`Function [[FUNCTION_NAME]] parameter 2 value is out of range.`)
+      _t("Function [[FUNCTION_NAME]] parameter 2 value is out of range.")
     );
   }
 
@@ -291,7 +291,7 @@ function polynomialRegression(
   assertSameNumberOfElements(flatX, flatY);
   assert(
     () => order >= 1,
-    _t(`Function [[FUNCTION_NAME]] A regression of order less than 1 cannot be possible.`)
+    _t("Function [[FUNCTION_NAME]] A regression of order less than 1 cannot be possible.")
   );
 
   const yMatrix = [flatY];
@@ -378,7 +378,7 @@ export const AVEDEV = {
     );
     assert(
       () => count !== 0,
-      _t(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+      _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
     );
     const average = sum / count;
     return reduceNumbers(values, (acc, a) => acc + Math.abs(average - a), 0, this.locale) / count;
@@ -390,7 +390,7 @@ export const AVEDEV = {
 // AVERAGE
 // -----------------------------------------------------------------------------
 export const AVERAGE = {
-  description: _t(`Numerical average value in a dataset, ignoring text.`),
+  description: _t("Numerical average value in a dataset, ignoring text."),
   args: [
     arg(
       "value1 (number, range<number>)",
@@ -418,7 +418,7 @@ export const AVERAGE = {
     );
     assert(
       () => count !== 0,
-      _t(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+      _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
     );
     return sum / count;
   },
@@ -428,13 +428,13 @@ export const AVERAGE = {
 // -----------------------------------------------------------------------------
 // AVERAGE.WEIGHTED
 // -----------------------------------------------------------------------------
-const rangeError = _t(`[[FUNCTION_NAME]] has mismatched range sizes.`);
+const rangeError = _t("[[FUNCTION_NAME]] has mismatched range sizes.");
 const negativeWeightError = _t(
-  `[[FUNCTION_NAME]] expects the weight to be positive or equal to 0.`
+  "[[FUNCTION_NAME]] expects the weight to be positive or equal to 0."
 );
 
 export const AVERAGE_WEIGHTED = {
-  description: _t(`Weighted average.`),
+  description: _t("Weighted average."),
   args: [
     arg("values (number, range<number>)", _t("Values to average.")),
     arg("weights (number, range<number>)", _t("Weights for each corresponding value.")),
@@ -455,7 +455,7 @@ export const AVERAGE_WEIGHTED = {
     let weight;
     assert(
       () => values.length % 2 === 0,
-      _t(`Wrong number of Argument[]. Expected an even number of Argument[].`)
+      _t("Wrong number of Argument[]. Expected an even number of Argument[].")
     );
     for (let n = 0; n < values.length - 1; n += 2) {
       value = values[n];
@@ -479,7 +479,7 @@ export const AVERAGE_WEIGHTED = {
             // typeof subValue or subWeight can be 'number' or 'undefined'
             assert(
               () => subValueIsNumber === subWeightIsNumber,
-              _t(`[[FUNCTION_NAME]] expects number values.`)
+              _t("[[FUNCTION_NAME]] expects number values.")
             );
 
             if (subWeightIsNumber) {
@@ -502,7 +502,7 @@ export const AVERAGE_WEIGHTED = {
 
     assert(
       () => count !== 0,
-      _t(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+      _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
     );
 
     return sum / count;
@@ -513,7 +513,7 @@ export const AVERAGE_WEIGHTED = {
 // AVERAGEA
 // -----------------------------------------------------------------------------
 export const AVERAGEA = {
-  description: _t(`Numerical average value in a dataset.`),
+  description: _t("Numerical average value in a dataset."),
   args: [
     arg(
       "value1 (number, range<number>)",
@@ -541,7 +541,7 @@ export const AVERAGEA = {
     );
     assert(
       () => count !== 0,
-      _t(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+      _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
     );
     return sum / count;
   },
@@ -552,7 +552,7 @@ export const AVERAGEA = {
 // AVERAGEIF
 // -----------------------------------------------------------------------------
 export const AVERAGEIF = {
-  description: _t(`Average of values depending on criteria.`),
+  description: _t("Average of values depending on criteria."),
   args: [
     arg("criteria_range (number, range<number>)", _t("The range to check against criterion.")),
     arg("criterion (string)", _t("The pattern or test to apply to criteria_range.")),
@@ -587,7 +587,7 @@ export const AVERAGEIF = {
 
     assert(
       () => count !== 0,
-      _t(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+      _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
     );
 
     return sum / count;
@@ -599,7 +599,7 @@ export const AVERAGEIF = {
 // AVERAGEIFS
 // -----------------------------------------------------------------------------
 export const AVERAGEIFS = {
-  description: _t(`Average of values depending on multiple criteria.`),
+  description: _t("Average of values depending on multiple criteria."),
   args: [
     arg("average_range (range)", _t("The range to average.")),
     arg("criteria_range1 (range)", _t("The range to check against criterion1.")),
@@ -628,7 +628,7 @@ export const AVERAGEIFS = {
     );
     assert(
       () => count !== 0,
-      _t(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+      _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
     );
     return sum / count;
   },
@@ -639,7 +639,7 @@ export const AVERAGEIFS = {
 // COUNT
 // -----------------------------------------------------------------------------
 export const COUNT = {
-  description: _t(`The number of numeric values in dataset.`),
+  description: _t("The number of numeric values in dataset."),
   args: [
     arg(
       "value1 (number, range<number>)",
@@ -679,7 +679,7 @@ export const COUNT = {
 // COUNTA
 // -----------------------------------------------------------------------------
 export const COUNTA = {
-  description: _t(`The number of values in a dataset.`),
+  description: _t("The number of values in a dataset."),
   args: [
     arg("value1 (any, range)", _t("The first value or range to consider when counting.")),
     arg(
@@ -701,7 +701,7 @@ export const COUNTA = {
 // Note: Unlike the VAR function which corresponds to the variance over a sample (VAR.S),
 // the COVAR function corresponds to the covariance over an entire population (COVAR.P)
 export const COVAR = {
-  description: _t(`The covariance of a dataset.`),
+  description: _t("The covariance of a dataset."),
   args: [
     arg("data_y (any, range)", _t("The range representing the array or matrix of dependent data.")),
     arg(
@@ -720,7 +720,7 @@ export const COVAR = {
 // COVARIANCE.P
 // -----------------------------------------------------------------------------
 export const COVARIANCE_P = {
-  description: _t(`The covariance of a dataset.`),
+  description: _t("The covariance of a dataset."),
   args: [
     arg("data_y (any, range)", _t("The range representing the array or matrix of dependent data.")),
     arg(
@@ -739,7 +739,7 @@ export const COVARIANCE_P = {
 // COVARIANCE.S
 // -----------------------------------------------------------------------------
 export const COVARIANCE_S = {
-  description: _t(`The sample covariance of a dataset.`),
+  description: _t("The sample covariance of a dataset."),
   args: [
     arg("data_y (any, range)", _t("The range representing the array or matrix of dependent data.")),
     arg(
@@ -892,7 +892,7 @@ export const LARGE = {
       }
     });
     const result = largests.shift();
-    assert(() => result !== undefined, _t(`[[FUNCTION_NAME]] has no valid input data.`));
+    assert(() => result !== undefined, _t("[[FUNCTION_NAME]] has no valid input data."));
     assert(
       () => count >= _n,
       _t("Function [[FUNCTION_NAME]] parameter 2 value (%s) is out of range.", _n)
@@ -1652,7 +1652,7 @@ export const SMALL = {
       }
     });
     const result = largests.pop();
-    assert(() => result !== undefined, _t(`[[FUNCTION_NAME]] has no valid input data.`));
+    assert(() => result !== undefined, _t("[[FUNCTION_NAME]] has no valid input data."));
     assert(
       () => count >= _n,
       _t("Function [[FUNCTION_NAME]] parameter 2 value (%s) is out of range.", _n)

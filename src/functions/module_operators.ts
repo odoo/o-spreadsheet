@@ -8,7 +8,7 @@ import { POWER } from "./module_math";
 // ADD
 // -----------------------------------------------------------------------------
 export const ADD = {
-  description: _t(`Sum of two numbers.`),
+  description: _t("Sum of two numbers."),
   args: [
     arg("value1 (number)", _t("The first addend.")),
     arg("value2 (number)", _t("The second addend.")),
@@ -25,7 +25,7 @@ export const ADD = {
 // CONCAT
 // -----------------------------------------------------------------------------
 export const CONCAT = {
-  description: _t(`Concatenation of two values.`),
+  description: _t("Concatenation of two values."),
   args: [
     arg("value1 (string)", _t("The value to which value2 will be appended.")),
     arg("value2 (string)", _t("The value to append to value1.")),
@@ -41,7 +41,7 @@ export const CONCAT = {
 // DIVIDE
 // -----------------------------------------------------------------------------
 export const DIVIDE = {
-  description: _t(`One number divided by another.`),
+  description: _t("One number divided by another."),
   args: [
     arg("dividend (number)", _t("The number to be divided.")),
     arg("divisor (number)", _t("The number to divide by.")),
@@ -66,7 +66,7 @@ function isEmpty(value: Maybe<CellValue>): boolean {
 const getNeutral = { number: 0, string: "", boolean: false };
 
 export const EQ = {
-  description: _t(`Equal.`),
+  description: _t("Equal."),
   args: [
     arg("value1 (any)", _t("The first value.")),
     arg("value2 (any)", _t("The value to test against value1 for equality.")),
@@ -113,7 +113,7 @@ function applyRelationalOperator(
 }
 
 export const GT = {
-  description: _t(`Strictly greater than.`),
+  description: _t("Strictly greater than."),
   args: [
     arg("value1 (any)", _t("The value to test as being greater than value2.")),
     arg("value2 (any)", _t("The second value.")),
@@ -130,7 +130,7 @@ export const GT = {
 // GTE
 // -----------------------------------------------------------------------------
 export const GTE = {
-  description: _t(`Greater than or equal to.`),
+  description: _t("Greater than or equal to."),
   args: [
     arg("value1 (any)", _t("The value to test as being greater than or equal to value2.")),
     arg("value2 (any)", _t("The second value.")),
@@ -147,7 +147,7 @@ export const GTE = {
 // LT
 // -----------------------------------------------------------------------------
 export const LT = {
-  description: _t(`Less than.`),
+  description: _t("Less than."),
   args: [
     arg("value1 (any)", _t("The value to test as being less than value2.")),
     arg("value2 (any)", _t("The second value.")),
@@ -162,7 +162,7 @@ export const LT = {
 // LTE
 // -----------------------------------------------------------------------------
 export const LTE = {
-  description: _t(`Less than or equal to.`),
+  description: _t("Less than or equal to."),
   args: [
     arg("value1 (any)", _t("The value to test as being less than or equal to value2.")),
     arg("value2 (any)", _t("The second value.")),
@@ -177,7 +177,7 @@ export const LTE = {
 // MINUS
 // -----------------------------------------------------------------------------
 export const MINUS = {
-  description: _t(`Difference of two numbers.`),
+  description: _t("Difference of two numbers."),
   args: [
     arg("value1 (number)", _t("The minuend, or number to be subtracted from.")),
     arg("value2 (number)", _t("The subtrahend, or number to subtract from value1.")),
@@ -194,7 +194,7 @@ export const MINUS = {
 // MULTIPLY
 // -----------------------------------------------------------------------------
 export const MULTIPLY = {
-  description: _t(`Product of two numbers`),
+  description: _t("Product of two numbers"),
   args: [
     arg("factor1 (number)", _t("The first multiplicand.")),
     arg("factor2 (number)", _t("The second multiplicand.")),
@@ -211,7 +211,7 @@ export const MULTIPLY = {
 // NE
 // -----------------------------------------------------------------------------
 export const NE = {
-  description: _t(`Not equal.`),
+  description: _t("Not equal."),
   args: [
     arg("value1 (any)", _t("The first value.")),
     arg("value2 (any)", _t("The value to test against value1 for inequality.")),
@@ -226,7 +226,7 @@ export const NE = {
 // POW
 // -----------------------------------------------------------------------------
 export const POW = {
-  description: _t(`A number raised to a power.`),
+  description: _t("A number raised to a power."),
   args: [
     arg("base (number)", _t("The number to raise to the exponent power.")),
     arg("exponent (number)", _t("The exponent to raise base to.")),
@@ -241,7 +241,7 @@ export const POW = {
 // UMINUS
 // -----------------------------------------------------------------------------
 export const UMINUS = {
-  description: _t(`A number with the sign reversed.`),
+  description: _t("A number with the sign reversed."),
   args: [
     arg(
       "value (number)",
@@ -259,7 +259,7 @@ export const UMINUS = {
 // UNARY_PERCENT
 // -----------------------------------------------------------------------------
 export const UNARY_PERCENT = {
-  description: _t(`Value interpreted as a percentage.`),
+  description: _t("Value interpreted as a percentage."),
   args: [arg("percentage (number)", _t("The value to interpret as a percentage."))],
   returns: ["NUMBER"],
   compute: function (percentage: Maybe<CellValue>): number {
@@ -271,7 +271,7 @@ export const UNARY_PERCENT = {
 // UPLUS
 // -----------------------------------------------------------------------------
 export const UPLUS = {
-  description: _t(`A specified number, unchanged.`),
+  description: _t("A specified number, unchanged."),
   args: [arg("value (any)", _t("The number to return."))],
   returns: ["ANY"],
   computeFormat: (value: Maybe<ValueAndFormat>) => value?.format,

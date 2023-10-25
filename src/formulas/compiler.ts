@@ -164,7 +164,7 @@ export function compile(formula: string): CompiledFormula {
       const code = new FunctionCodeBuilder(scope);
       if (ast.type !== "REFERENCE" && !(ast.type === "BIN_OPERATION" && ast.value === ":")) {
         if (isMeta) {
-          throw new BadExpressionError(_t(`Argument must be a reference to a cell or range.`));
+          throw new BadExpressionError(_t("Argument must be a reference to a cell or range."));
         }
       }
       if (ast.debug) {

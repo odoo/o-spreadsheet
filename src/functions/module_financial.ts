@@ -113,7 +113,7 @@ function newtonMethod(
     if (isNaN(y)) {
       assert(
         () => count < maxIterations && nanFallback !== undefined,
-        _t(`Function [[FUNCTION_NAME]] didn't find any result.`)
+        _t("Function [[FUNCTION_NAME]] didn't find any result.")
       );
       count++;
       x = nanFallback!(previousFallback);
@@ -124,7 +124,7 @@ function newtonMethod(
     xDelta = Math.abs(newX - x);
     x = newX;
     yEqual0 = xDelta < epsMax || Math.abs(y) < epsMax;
-    assert(() => count < maxIterations, _t(`Function [[FUNCTION_NAME]] didn't find any result.`));
+    assert(() => count < maxIterations, _t("Function [[FUNCTION_NAME]] didn't find any result."));
     count++;
   } while (!yEqual0);
   return x;

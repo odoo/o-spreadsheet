@@ -75,7 +75,7 @@ export const DATE = {
 
     assert(
       () => result >= 0,
-      _t(`The function [[FUNCTION_NAME]] result must be greater than or equal 01/01/1900.`)
+      _t("The function [[FUNCTION_NAME]] result must be greater than or equal 01/01/1900.")
     );
 
     return result;
@@ -104,7 +104,7 @@ export const DATEDIF = {
     arg(
       "unit (string)",
       _t(
-        `A text abbreviation for unit of time. Accepted values are "Y" (the number of whole years between start_date and end_date), "M" (the number of whole months between start_date and end_date), "D" (the number of days between start_date and end_date), "MD" (the number of days between start_date and end_date after subtracting whole months), "YM" (the number of whole months between start_date and end_date after subtracting whole years), "YD" (the number of days between start_date and end_date, assuming start_date and end_date were no more than one year apart).`
+        'A text abbreviation for unit of time. Accepted values are "Y" (the number of whole years between start_date and end_date), "M" (the number of whole months between start_date and end_date), "D" (the number of days between start_date and end_date), "MD" (the number of days between start_date and end_date after subtracting whole months), "YM" (the number of whole months between start_date and end_date after subtracting whole years), "YD" (the number of days between start_date and end_date, assuming start_date and end_date were no more than one year apart).'
       )
     ),
   ],
@@ -679,7 +679,7 @@ export const TIME = {
 
     _hour %= 24;
 
-    assert(() => _hour >= 0, _t(`The function [[FUNCTION_NAME]] result cannot be negative`));
+    assert(() => _hour >= 0, _t("The function [[FUNCTION_NAME]] result cannot be negative"));
 
     return _hour / 24 + _minute / (24 * 60) + _second / (24 * 60 * 60);
   },
