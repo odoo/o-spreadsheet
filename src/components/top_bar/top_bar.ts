@@ -54,6 +54,7 @@ css/* scss */ `
     line-height: 1.2;
     font-size: 13px;
     font-weight: 500;
+    background-color: #fff;
 
     .o-topbar-top {
       border-bottom: 1px solid ${SEPARATOR_COLOR};
