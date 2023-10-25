@@ -147,6 +147,7 @@ export class EvaluationPlugin extends UIPlugin {
     "getEvaluatedCells",
     "getEvaluatedCellsInZone",
     "getSpreadPositionsOf",
+    "getArrayFormulaSpreadingOn",
   ] as const;
 
   private shouldRebuildDependenciesGraph = true;
@@ -259,6 +260,10 @@ export class EvaluationPlugin extends UIPlugin {
     return this.evaluator.getSpreadPositionsOf(position);
   }
 
+  getArrayFormulaSpreadingOn(position: CellPosition): CellPosition | undefined {
+    return this.evaluator.getArrayFormulaSpreadingOn(position);
+  }
+
   // ---------------------------------------------------------------------------
   // Export
   // ---------------------------------------------------------------------------
@@ -311,7 +316,7 @@ export class EvaluationPlugin extends UIPlugin {
       return undefined;
     }
 
-    const spreadingFormulaPosition = this.evaluator.getArrayFormulaSpreadingOn(position);
+    const spreadingFormulaPosition = this.getArrayFormulaSpreadingOn(position);
 
     if (spreadingFormulaPosition === undefined) {
       return undefined;
