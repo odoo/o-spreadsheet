@@ -213,7 +213,7 @@ export const ATAN2 = {
     const _y = toNumber(y, this.locale);
     assert(
       () => _x !== 0 || _y !== 0,
-      _t(`Function [[FUNCTION_NAME]] caused a divide by zero error.`)
+      _t("Function [[FUNCTION_NAME]] caused a divide by zero error.")
     );
     return Math.atan2(_y, _x);
   },
@@ -249,7 +249,7 @@ export const ATANH = {
 // CEILING
 // -----------------------------------------------------------------------------
 export const CEILING = {
-  description: _t(`Rounds number up to nearest multiple of factor.`),
+  description: _t("Rounds number up to nearest multiple of factor."),
   args: [
     arg("value (number)", _t("The value to round up to the nearest integer multiple of factor.")),
     arg(
@@ -279,7 +279,7 @@ export const CEILING = {
 // CEILING.MATH
 // -----------------------------------------------------------------------------
 export const CEILING_MATH = {
-  description: _t(`Rounds number up to nearest multiple of factor.`),
+  description: _t("Rounds number up to nearest multiple of factor."),
   args: [
     arg(
       "number (number)",
@@ -330,7 +330,7 @@ export const CEILING_MATH = {
 // CEILING.PRECISE
 // -----------------------------------------------------------------------------
 export const CEILING_PRECISE = {
-  description: _t(`Rounds number up to nearest multiple of factor.`),
+  description: _t("Rounds number up to nearest multiple of factor."),
   args: [
     arg(
       "number (number)",
@@ -386,7 +386,7 @@ export const COT = {
     const _angle = toNumber(angle, this.locale);
     assert(
       () => _angle !== 0,
-      _t(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+      _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
     );
     return 1 / Math.tan(_angle);
   },
@@ -404,7 +404,7 @@ export const COTH = {
     const _value = toNumber(value, this.locale);
     assert(
       () => _value !== 0,
-      _t(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+      _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
     );
     return 1 / Math.tanh(_value);
   },
@@ -578,7 +578,7 @@ export const CSC = {
     const _angle = toNumber(angle, this.locale);
     assert(
       () => _angle !== 0,
-      _t(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+      _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
     );
     return 1 / Math.sin(_angle);
   },
@@ -596,7 +596,7 @@ export const CSCH = {
     const _value = toNumber(value, this.locale);
     assert(
       () => _value !== 0,
-      _t(`Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.`)
+      _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
     );
     return 1 / Math.sinh(_value);
   },
@@ -651,7 +651,7 @@ export const DECIMAL = {
 // DEGREES
 // -----------------------------------------------------------------------------
 export const DEGREES = {
-  description: _t(`Converts an angle value in radians to degrees.`),
+  description: _t("Converts an angle value in radians to degrees."),
   args: [arg("angle (number)", _t("The angle to convert from radians to degrees."))],
   returns: ["NUMBER"],
   compute: function (angle: Maybe<CellValue>): number {
@@ -664,7 +664,7 @@ export const DEGREES = {
 // EXP
 // -----------------------------------------------------------------------------
 export const EXP = {
-  description: _t(`Euler's number, e (~2.718) raised to a power.`),
+  description: _t("Euler's number, e (~2.718) raised to a power."),
   args: [arg("value (number)", _t("The exponent to raise e."))],
   returns: ["NUMBER"],
   compute: function (value: Maybe<CellValue>): number {
@@ -677,7 +677,7 @@ export const EXP = {
 // FLOOR
 // -----------------------------------------------------------------------------
 export const FLOOR = {
-  description: _t(`Rounds number down to nearest multiple of factor.`),
+  description: _t("Rounds number down to nearest multiple of factor."),
   args: [
     arg("value (number)", _t("The value to round down to the nearest integer multiple of factor.")),
     arg(
@@ -707,7 +707,7 @@ export const FLOOR = {
 // FLOOR.MATH
 // -----------------------------------------------------------------------------
 export const FLOOR_MATH = {
-  description: _t(`Rounds number down to nearest multiple of factor.`),
+  description: _t("Rounds number down to nearest multiple of factor."),
   args: [
     arg(
       "number (number)",
@@ -757,7 +757,7 @@ export const FLOOR_MATH = {
 // FLOOR.PRECISE
 // -----------------------------------------------------------------------------
 export const FLOOR_PRECISE = {
-  description: _t(`Rounds number down to nearest multiple of factor.`),
+  description: _t("Rounds number down to nearest multiple of factor."),
   args: [
     arg(
       "number (number)",
@@ -783,7 +783,7 @@ export const FLOOR_PRECISE = {
 // ISEVEN
 // -----------------------------------------------------------------------------
 export const ISEVEN = {
-  description: _t(`Whether the provided value is even.`),
+  description: _t("Whether the provided value is even."),
   args: [arg("value (number)", _t("The value to be verified as even."))],
   returns: ["BOOLEAN"],
   compute: function (value: Maybe<CellValue>): boolean {
@@ -798,7 +798,7 @@ export const ISEVEN = {
 // ISO.CEILING
 // -----------------------------------------------------------------------------
 export const ISO_CEILING = {
-  description: _t(`Rounds number up to nearest multiple of factor.`),
+  description: _t("Rounds number up to nearest multiple of factor."),
   args: [
     arg(
       "number (number)",
@@ -824,7 +824,7 @@ export const ISO_CEILING = {
 // ISODD
 // -----------------------------------------------------------------------------
 export const ISODD = {
-  description: _t(`Whether the provided value is even.`),
+  description: _t("Whether the provided value is even."),
   args: [arg("value (number)", _t("The value to be verified as even."))],
   returns: ["BOOLEAN"],
   compute: function (value: Maybe<CellValue>): boolean {
@@ -839,7 +839,7 @@ export const ISODD = {
 // LN
 // -----------------------------------------------------------------------------
 export const LN = {
-  description: _t(`The logarithm of a number, base e (euler's number).`),
+  description: _t("The logarithm of a number, base e (euler's number)."),
   args: [arg("value (number)", _t("The value for which to calculate the logarithm, base e."))],
   returns: ["NUMBER"],
   compute: function (value: Maybe<CellValue>): number {
@@ -854,7 +854,7 @@ export const LN = {
 // MOD
 // -----------------------------------------------------------------------------
 export const MOD = {
-  description: _t(`Modulo (remainder) operator.`),
+  description: _t("Modulo (remainder) operator."),
   args: [
     arg("dividend (number)", _t("The number to be divided to find the remainder.")),
     arg("divisor (number)", _t("The number to divide by.")),
@@ -901,7 +901,7 @@ export const MUNIT = {
 // ODD
 // -----------------------------------------------------------------------------
 export const ODD = {
-  description: _t(`Rounds a number up to the nearest odd integer.`),
+  description: _t("Rounds a number up to the nearest odd integer."),
   args: [arg("value (number)", _t("The value to round to the next greatest odd number."))],
   returns: ["NUMBER"],
   computeFormat: (number: Maybe<ValueAndFormat>) => number?.format,
@@ -919,7 +919,7 @@ export const ODD = {
 // PI
 // -----------------------------------------------------------------------------
 export const PI = {
-  description: _t(`The number pi.`),
+  description: _t("The number pi."),
   args: [],
   returns: ["NUMBER"],
   compute: function (): number {
@@ -932,7 +932,7 @@ export const PI = {
 // POWER
 // -----------------------------------------------------------------------------
 export const POWER = {
-  description: _t(`A number raised to a power.`),
+  description: _t("A number raised to a power."),
   args: [
     arg("base (number)", _t("The number to raise to the exponent power.")),
     arg("exponent (number)", _t("The exponent to raise base to.")),
@@ -1144,7 +1144,7 @@ export const ROUND = {
 // ROUNDDOWN
 // -----------------------------------------------------------------------------
 export const ROUNDDOWN = {
-  description: _t(`Rounds down a number.`),
+  description: _t("Rounds down a number."),
   args: [
     arg(
       "value (number)",
@@ -1180,7 +1180,7 @@ export const ROUNDDOWN = {
 // ROUNDUP
 // -----------------------------------------------------------------------------
 export const ROUNDUP = {
-  description: _t(`Rounds up a number.`),
+  description: _t("Rounds up a number."),
   args: [
     arg("value (number)", _t("The value to round to places number of places, always rounding up.")),
     arg(

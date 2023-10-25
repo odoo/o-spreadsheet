@@ -149,7 +149,7 @@ export const COLUMNS = {
 // -----------------------------------------------------------------------------
 
 export const HLOOKUP = {
-  description: _t(`Horizontal lookup`),
+  description: _t("Horizontal lookup"),
   args: [
     arg("search_key (any)", _t("The value to search for. For example, 42, 'Cats', or I24.")),
     arg(
@@ -256,7 +256,7 @@ export const INDEX: AddFunctionDescription = {
 // -----------------------------------------------------------------------------
 
 export const LOOKUP = {
-  description: _t(`Look up a value.`),
+  description: _t("Look up a value."),
   args: [
     arg("search_key (any)", _t("The value to search for. For example, 42, 'Cats', or I24.")),
     arg(
@@ -335,7 +335,7 @@ export const LOOKUP = {
 // -----------------------------------------------------------------------------
 const DEFAULT_SEARCH_TYPE = 1;
 export const MATCH = {
-  description: _t(`Position of item in range that matches value.`),
+  description: _t("Position of item in range that matches value."),
   args: [
     arg("search_key (any)", _t("The value to search for. For example, 42, 'Cats', or I24.")),
     arg("range (any, range)", _t("The one-dimensional array to be searched.")),
@@ -436,7 +436,7 @@ export const ROWS = {
 // -----------------------------------------------------------------------------
 
 export const VLOOKUP = {
-  description: _t(`Vertical lookup.`),
+  description: _t("Vertical lookup."),
   args: [
     arg("search_key (any)", _t("The value to search for. For example, 42, 'Cats', or I24.")),
     arg(
@@ -498,7 +498,7 @@ export const VLOOKUP = {
 // -----------------------------------------------------------------------------
 export const XLOOKUP = {
   description: _t(
-    `Search a range for a match and return the corresponding item from a second range.`
+    "Search a range for a match and return the corresponding item from a second range."
   ),
   args: [
     arg("search_key (any)", _t("The value to search for.")),

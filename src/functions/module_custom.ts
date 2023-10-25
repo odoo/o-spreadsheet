@@ -8,7 +8,7 @@ import { toNumber } from "./helpers";
 // FORMAT.LARGE.NUMBER
 // -----------------------------------------------------------------------------
 export const FORMAT_LARGE_NUMBER = {
-  description: _t(`Apply a large number format`),
+  description: _t("Apply a large number format"),
   args: [
     arg("value (number)", _t("The number.")),
     arg(

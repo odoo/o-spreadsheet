@@ -569,7 +569,7 @@ export function visitMatchingRanges(
 
   if (countArg % 2 === 1) {
     throw new Error(
-      _t(`Function [[FUNCTION_NAME]] expects criteria_range and criterion to be in pairs.`)
+      _t("Function [[FUNCTION_NAME]] expects criteria_range and criterion to be in pairs.")
     );
   }
 
@@ -587,7 +587,7 @@ export function visitMatchingRanges(
       criteriaRange[0].length !== dimCol
     ) {
       throw new Error(
-        _t(`Function [[FUNCTION_NAME]] expects criteria_range to have the same dimension`)
+        _t("Function [[FUNCTION_NAME]] expects criteria_range to have the same dimension")
       );
     }
 
