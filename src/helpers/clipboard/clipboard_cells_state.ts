@@ -38,7 +38,7 @@ interface CopiedTable {
 
 /** State of the clipboard when copying/cutting cells */
 export class ClipboardCellsState extends ClipboardCellsAbstractState {
-  private cells: ClipboardCell[][];
+  private readonly cells: ClipboardCell[][];
   private readonly copiedTables: CopiedTable[];
   private readonly zones: Zone[];
   private readonly uuidGenerator = new UuidGenerator();
@@ -82,11 +82,27 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
       let cellsInRow: ClipboardCell[] = [];
       for (let col of columnsIndex) {
         const position = { col, row, sheetId };
+        const spreader = getters.getArrayFormulaSpreadingOn(position);
+        let cell = getters.getCell(position);
+        const evaluatedCell = getters.getEvaluatedCell(position);
+        if (spreader) {
+          const isSpreaderCopied =
+            rowsIndex.includes(spreader.row) && columnsIndex.includes(spreader.col);
+          const content = isSpreaderCopied
+            ? ""
+            : formatValue(evaluatedCell.value, { locale: getters.getLocale() });
+          cell = {
+            id: cell?.id || "",
+            style: cell?.style,
+            format: evaluatedCell.format,
+            content,
+            isFormula: false,
+          };
+        }
         cellsInRow.push({
-          cell: getters.getCell(position),
-          style: getters.getCellComputedStyle(position),
-          evaluatedCell: getters.getEvaluatedCell(position),
+          cell,
           border: getters.getCellBorder(position) || undefined,
+          evaluatedCell,
           position,
         });
       }
@@ -219,13 +235,6 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
       });
     }
     this.pasteCopiedTables(target);
-    this.cells.forEach((row) => {
-      row.forEach((c) => {
-        if (c.cell) {
-          c.cell = undefined;
-        }
-      });
-    });
   }
 
   /**
@@ -309,7 +318,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
   private clearClippedZones() {
     for (const row of this.cells) {
       for (const cell of row) {
-        if (cell.cell) {
+        if (cell?.cell) {
           this.dispatch("CLEAR_CELL", cell.position);
         }
       }
@@ -339,6 +348,9 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
       const rowCells = this.cells[r];
       for (let c = 0; c < width; c++) {
         const origin = rowCells[c];
+        if (!origin) {
+          continue;
+        }
         const position = { col: col + c, row: row + r, sheetId: sheetId };
         // TODO: refactor this part. the "Paste merge" action is also executed with
         // MOVE_RANGES in pasteFromCut. Adding a condition on the operation type here
@@ -369,57 +381,50 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
     const { sheetId, col, row } = target;
     const targetCell = this.getters.getEvaluatedCell(target);
 
-    if (clipboardOption?.pasteOption !== "onlyValue") {
-      const targetBorders = this.getters.getCellBorder(target);
-      const originBorders = origin.border;
-      const border = {
-        top: targetBorders?.top || originBorders?.top,
-        bottom: targetBorders?.bottom || originBorders?.bottom,
-        left: targetBorders?.left || originBorders?.left,
-        right: targetBorders?.right || originBorders?.right,
-      };
-      this.dispatch("SET_BORDER", { sheetId, col, row, border });
+    if (clipboardOption?.pasteOption === "onlyValue") {
+      const locale = this.getters.getLocale();
+      const content = formatValue(origin.evaluatedCell.value, { locale });
+      this.dispatch("UPDATE_CELL", { ...target, content });
+      return;
     }
-    if (origin.cell) {
-      if (clipboardOption?.pasteOption === "onlyFormat") {
-        this.dispatch("UPDATE_CELL", {
-          ...target,
-          style: origin.cell.style,
-          format: origin.evaluatedCell.format,
-        });
-        return;
-      }
 
-      if (clipboardOption?.pasteOption === "onlyValue") {
-        const locale = this.getters.getLocale();
-        const content = formatValue(origin.evaluatedCell.value, { locale });
-        this.dispatch("UPDATE_CELL", { ...target, content });
-        return;
-      }
-      let content = origin.cell.content;
+    const targetBorders = this.getters.getCellBorder(target);
+    const originBorders = origin.border;
+    const border = {
+      top: targetBorders?.top || originBorders?.top,
+      bottom: targetBorders?.bottom || originBorders?.bottom,
+      left: targetBorders?.left || originBorders?.left,
+      right: targetBorders?.right || originBorders?.right,
+    };
+    this.dispatch("SET_BORDER", { sheetId, col, row, border });
 
-      if (origin.cell.isFormula && operation === "COPY") {
-        content = this.getters.getTranslatedCellFormula(
-          sheetId,
-          col - origin.position.col,
-          row - origin.position.row,
-          origin.cell.compiledFormula
-        );
-      }
+    if (clipboardOption?.pasteOption === "onlyFormat") {
+      this.dispatch("UPDATE_CELL", {
+        ...target,
+        style: origin.cell?.style ?? null,
+        format: origin.cell?.format ?? origin.evaluatedCell.format ?? targetCell.format,
+      });
+      return;
+    }
+
+    const content =
+      origin.cell && origin.cell.isFormula && operation === "COPY"
+        ? this.getters.getTranslatedCellFormula(
+            sheetId,
+            col - origin.position.col,
+            row - origin.position.row,
+            origin.cell.compiledFormula
+          )
+        : origin.cell?.content;
+    if (content !== "" || origin.cell?.format || origin.cell?.style) {
       this.dispatch("UPDATE_CELL", {
         ...target,
         content,
-        style: origin.cell.style || null,
-        format: origin.cell.format,
+        style: origin.cell?.style || null,
+        format: origin.cell?.format,
       });
     } else if (targetCell) {
-      if (clipboardOption?.pasteOption === "onlyValue") {
-        this.dispatch("UPDATE_CELL", { ...target, content: "" });
-      } else if (clipboardOption?.pasteOption === "onlyFormat") {
-        this.dispatch("UPDATE_CELL", { ...target, style: null, format: "" });
-      } else {
-        this.dispatch("CLEAR_CELL", target);
-      }
+      this.dispatch("CLEAR_CELL", target);
     }
   }
 
@@ -489,9 +494,9 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
         .map((cells) => {
           return cells
             .map((c) =>
-              this.getters.shouldShowFormulas() && c.cell?.isFormula
+              this.getters.shouldShowFormulas() && c?.cell?.isFormula
                 ? c.cell?.content || ""
-                : c.evaluatedCell?.formattedValue || ""
+                : c?.evaluatedCell?.formattedValue || ""
             )
             .join("\t");
         })
@@ -501,6 +506,9 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
 
   private getHTMLContent(): string {
     if (this.cells.length === 1 && this.cells[0].length === 1) {
+      if (!this.cells[0][0]) {
+        return "";
+      }
       return this.getters.getCellText(this.cells[0][0].position);
     }
 
@@ -508,7 +516,12 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
     for (const row of this.cells) {
       htmlTable += "<tr>";
       for (const cell of row) {
-        const cssStyle = cssPropertiesToCss(cellStyleToCss(cell.style));
+        if (!cell) {
+          continue;
+        }
+        const cssStyle = cssPropertiesToCss(
+          cellStyleToCss(this.getters.getCellComputedStyle(cell.position))
+        );
         const cellText = this.getters.getCellText(cell.position);
         htmlTable += `<td style="${cssStyle}">` + xmlEscape(cellText) + "</td>";
       }

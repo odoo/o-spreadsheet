@@ -117,6 +117,9 @@ export class ClipboardPlugin extends UIPlugin {
         const pasteOption =
           cmd.pasteOption || (this.paintFormatStatus !== "inactive" ? "onlyFormat" : undefined);
         this.state.paste(cmd.target, { pasteOption, shouldPasteCF: true, selectTarget: true });
+        if (this.state.operation === "CUT") {
+          this.state = undefined;
+        }
         this.lastPasteState = this.state;
         if (this.paintFormatStatus === "oneOff") {
           this.paintFormatStatus = "inactive";
