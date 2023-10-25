@@ -112,11 +112,11 @@ export class InternalViewport {
    * visible cell.
    * It returns -1 if no column is found.
    */
-  getColIndex(x: Pixel, absolute = false): HeaderIndex {
+  getColIndex(x: Pixel): HeaderIndex {
     if (x < this.offsetCorrectionX || x > this.offsetCorrectionX + this.viewportWidth) {
       return -1;
     }
-    return this.searchHeaderIndex("COL", x - this.offsetCorrectionX, this.left, absolute);
+    return this.searchHeaderIndex("COL", x - this.offsetCorrectionX, this.left);
   }
 
   /**
@@ -124,11 +124,11 @@ export class InternalViewport {
    * visible cell.
    * It returns -1 if no row is found.
    */
-  getRowIndex(y: Pixel, absolute = false): HeaderIndex {
+  getRowIndex(y: Pixel): HeaderIndex {
     if (y < this.offsetCorrectionY || y > this.offsetCorrectionY + this.viewportHeight) {
       return -1;
     }
-    return this.searchHeaderIndex("ROW", y - this.offsetCorrectionY, this.top, absolute);
+    return this.searchHeaderIndex("ROW", y - this.offsetCorrectionY, this.top);
   }
 
   /**
@@ -166,8 +166,7 @@ export class InternalViewport {
       const startIndex = this.searchHeaderIndex(
         "COL",
         finalTargetEnd - this.viewportWidth - this.offsetCorrectionX,
-        this.boundaries.left,
-        true
+        this.boundaries.left
       );
       this.offsetX =
         this.getters.getColDimensions(sheetId, startIndex).end - this.offsetCorrectionX;
@@ -198,8 +197,7 @@ export class InternalViewport {
       const startIndex = this.searchHeaderIndex(
         "ROW",
         finalTargetEnd - this.viewportHeight - this.offsetCorrectionY,
-        this.boundaries.top,
-        true
+        this.boundaries.top
       );
       this.offsetY =
         this.getters.getRowDimensions(sheetId, startIndex).end - this.offsetCorrectionY;
@@ -274,8 +272,7 @@ export class InternalViewport {
   private searchHeaderIndex(
     dimension: Dimension,
     position: Pixel,
-    startIndex: HeaderIndex = 0,
-    absolute = false
+    startIndex: HeaderIndex = 0
   ): HeaderIndex {
     let size = 0;
     const sheetId = this.sheetId;
@@ -321,8 +318,8 @@ export class InternalViewport {
         this.offsetScrollbarX = Math.max(0, viewportWidth - this.viewportWidth);
       }
     }
-    this.left = this.getColIndex(this.offsetScrollbarX, true);
-    this.right = this.getColIndex(this.offsetScrollbarX + this.viewportWidth, true);
+    this.left = this.getColIndex(this.offsetScrollbarX);
+    this.right = this.getColIndex(this.offsetScrollbarX + this.viewportWidth);
     if (this.right === -1) {
       this.right = this.boundaries.right;
     }
@@ -339,8 +336,8 @@ export class InternalViewport {
         this.offsetScrollbarY = Math.max(0, paneHeight - this.viewportHeight);
       }
     }
-    this.top = this.getRowIndex(this.offsetScrollbarY, true);
-    this.bottom = this.getRowIndex(this.offsetScrollbarY + this.viewportHeight, true);
+    this.top = this.getRowIndex(this.offsetScrollbarY);
+    this.bottom = this.getRowIndex(this.offsetScrollbarY + this.viewportHeight);
     if (this.bottom === -1) {
       this.bottom = this.boundaries.bottom;
     }
