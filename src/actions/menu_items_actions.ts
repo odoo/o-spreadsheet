@@ -4,7 +4,7 @@ import {
   getSmartChartDefinition,
 } from "../helpers/figures/charts";
 import { centerFigurePosition, getMaxFigureSize } from "../helpers/figures/figure/figure";
-import { getZoneArea, numberToLetters } from "../helpers/index";
+import { getZoneArea, isConsecutive, isEqual, numberToLetters } from "../helpers/index";
 import { interactivePaste, interactivePasteFromOS } from "../helpers/ui/paste_interactive";
 import { _t } from "../translation";
 import { ClipboardMIMEType, ClipboardPasteOptions } from "../types/clipboard";
@@ -456,4 +456,18 @@ export const SELECTION_CONTAINS_FILTER = (env: SpreadsheetChildEnv): boolean => 
 
 export const IS_ONLY_ONE_RANGE = (env: SpreadsheetChildEnv): boolean => {
   return env.model.getters.getSelectedZones().length === 1;
+};
+
+export const CAN_INSERT_HEADER = (env: SpreadsheetChildEnv, dimension: Dimension): boolean => {
+  if (!IS_ONLY_ONE_RANGE(env)) {
+    return false;
+  }
+  const activeHeaders =
+    dimension === "COL" ? env.model.getters.getActiveCols() : env.model.getters.getActiveRows();
+  const ortogonalActiveHeaders =
+    dimension === "COL" ? env.model.getters.getActiveRows() : env.model.getters.getActiveCols();
+  const sheetId = env.model.getters.getActiveSheetId();
+  const zone = env.model.getters.getSelectedZone();
+  const allSheetSelected = isEqual(zone, env.model.getters.getSheetZone(sheetId));
+  return isConsecutive(activeHeaders) && (ortogonalActiveHeaders.size === 0 || allSheetSelected);
 };
