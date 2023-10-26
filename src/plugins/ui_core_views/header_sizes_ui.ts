@@ -115,6 +115,9 @@ export class HeaderSizeUIPlugin extends UIPlugin<HeaderSizeState> implements Hea
   }
 
   getHeaderSize(sheetId: UID, dimension: Dimension, index: HeaderIndex): Pixel {
+    if (this.getters.isHeaderHidden(sheetId, dimension, index)) {
+      return 0;
+    }
     return dimension === "ROW"
       ? this.getRowSize(sheetId, index)
       : this.getters.getColSize(sheetId, index);
