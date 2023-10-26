@@ -1,0 +1,47 @@
+<templates>
+  <t t-name="o-spreadsheet-ConditionalFormatPreview">
+    <t t-set="cf" t-value="props.conditionalFormat"/>
+    <div
+      class="o-cf-preview w-100"
+      t-att-class="props.class"
+      t-att-data-id="cf.id"
+      t-on-click="props.onPreviewClick"
+      t-on-mousedown="(ev) => this.onMouseDown(ev)">
+      <div class="position-relative h-100 w-100 d-flex align-items-center">
+        <div class="o-cf-drag-handle h-100 position-absolute d-flex align-items-center text-muted">
+          <t t-call="o-spreadsheet-Icon.THIN_DRAG_HANDLE"/>
+        </div>
+        <t t-if="cf.rule.type==='IconSetRule'">
+          <div class="o-cf-preview-icon d-flex justify-content-around align-items-center me-2">
+            <t t-call="o-spreadsheet-Icon.{{icons[cf.rule.icons.upper].template}}"/>
+            <t t-call="o-spreadsheet-Icon.{{icons[cf.rule.icons.middle].template}}"/>
+            <t t-call="o-spreadsheet-Icon.{{icons[cf.rule.icons.lower].template}}"/>
+          </div>
+        </t>
+        <t t-else="">
+          <div
+            t-att-style="getPreviewImageStyle(cf.rule)"
+            class="o-cf-preview-icon d-flex justify-content-around align-items-center me-2">
+            123
+          </div>
+        </t>
+        <div class="o-cf-preview-description">
+          <div class="o-cf-preview-ruletype">
+            <div class="o-cf-preview-description-rule text-truncate">
+              <t t-esc="getDescription(cf)"/>
+            </div>
+          </div>
+          <div class="o-cf-preview-range text-truncate" t-esc="cf.ranges"/>
+        </div>
+        <div class="o-cf-delete">
+          <div
+            class="o-cf-delete-button text-muted"
+            t-on-click.stop="(ev) => this.deleteConditionalFormat(cf, ev)"
+            title="Remove rule">
+            <t t-call="o-spreadsheet-Icon.TRASH"/>
+          </div>
+        </div>
+      </div>
+    </div>
+  </t>
+</templates>
