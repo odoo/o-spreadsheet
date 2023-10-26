@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-SpreadsheetPrint">
-    <div class="o-spreadsheet-print" t-ref="container">
+    <div class="o-spreadsheet-print" t-ref="container" t-att-style="containerStyle">
       <canvas t-ref="canvas"/>
       <FiguresContainer onFigureDeleted="() => {}"/>
     </div>
