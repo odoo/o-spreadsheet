@@ -11,173 +11,181 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
       class="o-cf-preview-list h-100 overflow-auto"
     >
       <div
-        class="o-cf-preview d-flex position-relative"
-        data-id="1"
+        class="o-cf-preview-container d-flex position-relative"
         style=""
       >
         <div
-          class="position-relative h-100 w-100 d-flex align-items-center"
+          class="o-cf-preview w-100"
+          data-id="1"
         >
           <div
-            class="o-cf-drag-handle h-100 position-absolute d-flex align-items-center text-muted"
-          >
-            <svg
-              class="o-icon"
-              fill="currentColor"
-              viewBox="0 0 4 16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle
-                cx="2"
-                cy="3.5"
-                r="1"
-              />
-              <circle
-                cx="2"
-                cy="6.5"
-                r="1"
-              />
-              <circle
-                cx="2"
-                cy="9.5"
-                r="1"
-              />
-              <circle
-                cx="2"
-                cy="12.5"
-                r="1"
-              />
-            </svg>
-          </div>
-          
-          <div
-            class="o-cf-preview-icon d-flex justify-content-around align-items-center me-2"
-            style="background:#FF0000;"
-          >
-             123 
-          </div>
-          
-          <div
-            class="o-cf-preview-description"
+            class="position-relative h-100 w-100 d-flex align-items-center"
           >
             <div
-              class="o-cf-preview-ruletype"
+              class="o-cf-drag-handle h-100 position-absolute d-flex align-items-center text-muted"
+            >
+              <svg
+                class="o-icon"
+                fill="currentColor"
+                viewBox="0 0 4 16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle
+                  cx="2"
+                  cy="3.5"
+                  r="1"
+                />
+                <circle
+                  cx="2"
+                  cy="6.5"
+                  r="1"
+                />
+                <circle
+                  cx="2"
+                  cy="9.5"
+                  r="1"
+                />
+                <circle
+                  cx="2"
+                  cy="12.5"
+                  r="1"
+                />
+              </svg>
+            </div>
+            
+            <div
+              class="o-cf-preview-icon d-flex justify-content-around align-items-center me-2"
+              style="background:#FF0000;"
+            >
+               123 
+            </div>
+            
+            <div
+              class="o-cf-preview-description"
             >
               <div
-                class="o-cf-preview-description-rule text-truncate"
+                class="o-cf-preview-ruletype"
               >
-                Is equal to 2
+                <div
+                  class="o-cf-preview-description-rule text-truncate"
+                >
+                  Is equal to 2
+                </div>
+              </div>
+              <div
+                class="o-cf-preview-range text-truncate"
+              >
+                A1:A2
               </div>
             </div>
             <div
-              class="o-cf-preview-range text-truncate"
+              class="o-cf-delete"
             >
-              A1:A2
-            </div>
-          </div>
-          <div
-            class="o-cf-delete"
-          >
-            <div
-              class="o-cf-delete-button text-muted"
-              title="Remove rule"
-            >
-              <svg
-                class="o-cf-icon trash"
-                viewBox="0 0 448 512"
-                xmlns="http://www.w3.org/2000/svg"
+              <div
+                class="o-cf-delete-button text-muted"
+                title="Remove rule"
               >
-                <path
-                  d="M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z"
-                  fill="currentColor"
-                />
-              </svg>
+                <svg
+                  class="o-cf-icon trash"
+                  viewBox="0 0 448 512"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </div>
             </div>
           </div>
         </div>
       </div>
       <div
-        class="o-cf-preview d-flex position-relative"
-        data-id="2"
+        class="o-cf-preview-container d-flex position-relative"
         style=""
       >
         <div
-          class="position-relative h-100 w-100 d-flex align-items-center"
+          class="o-cf-preview w-100"
+          data-id="2"
         >
           <div
-            class="o-cf-drag-handle h-100 position-absolute d-flex align-items-center text-muted"
-          >
-            <svg
-              class="o-icon"
-              fill="currentColor"
-              viewBox="0 0 4 16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle
-                cx="2"
-                cy="3.5"
-                r="1"
-              />
-              <circle
-                cx="2"
-                cy="6.5"
-                r="1"
-              />
-              <circle
-                cx="2"
-                cy="9.5"
-                r="1"
-              />
-              <circle
-                cx="2"
-                cy="12.5"
-                r="1"
-              />
-            </svg>
-          </div>
-          
-          <div
-            class="o-cf-preview-icon d-flex justify-content-around align-items-center me-2"
-            style="background-image: linear-gradient(to right, #FF00FF, #123456)"
-          >
-             123 
-          </div>
-          
-          <div
-            class="o-cf-preview-description"
+            class="position-relative h-100 w-100 d-flex align-items-center"
           >
             <div
-              class="o-cf-preview-ruletype"
+              class="o-cf-drag-handle h-100 position-absolute d-flex align-items-center text-muted"
+            >
+              <svg
+                class="o-icon"
+                fill="currentColor"
+                viewBox="0 0 4 16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle
+                  cx="2"
+                  cy="3.5"
+                  r="1"
+                />
+                <circle
+                  cx="2"
+                  cy="6.5"
+                  r="1"
+                />
+                <circle
+                  cx="2"
+                  cy="9.5"
+                  r="1"
+                />
+                <circle
+                  cx="2"
+                  cy="12.5"
+                  r="1"
+                />
+              </svg>
+            </div>
+            
+            <div
+              class="o-cf-preview-icon d-flex justify-content-around align-items-center me-2"
+              style="background-image: linear-gradient(to right, #FF00FF, #123456)"
+            >
+               123 
+            </div>
+            
+            <div
+              class="o-cf-preview-description"
             >
               <div
-                class="o-cf-preview-description-rule text-truncate"
+                class="o-cf-preview-ruletype"
               >
-                Color scale
+                <div
+                  class="o-cf-preview-description-rule text-truncate"
+                >
+                  Color scale
+                </div>
+              </div>
+              <div
+                class="o-cf-preview-range text-truncate"
+              >
+                B1:B5
               </div>
             </div>
             <div
-              class="o-cf-preview-range text-truncate"
+              class="o-cf-delete"
             >
-              B1:B5
-            </div>
-          </div>
-          <div
-            class="o-cf-delete"
-          >
-            <div
-              class="o-cf-delete-button text-muted"
-              title="Remove rule"
-            >
-              <svg
-                class="o-cf-icon trash"
-                viewBox="0 0 448 512"
-                xmlns="http://www.w3.org/2000/svg"
+              <div
+                class="o-cf-delete-button text-muted"
+                title="Remove rule"
               >
-                <path
-                  d="M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z"
-                  fill="currentColor"
-                />
-              </svg>
+                <svg
+                  class="o-cf-icon trash"
+                  viewBox="0 0 448 512"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </div>
             </div>
           </div>
         </div>
