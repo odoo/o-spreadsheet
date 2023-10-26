@@ -1,6 +1,7 @@
 import { Component, onMounted, onWillUnmount, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { ConditionalFormattingPanel } from "../../src/components/side_panel/conditional_formatting/conditional_formatting";
+import { HIGHLIGHT_COLOR } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { ConditionalFormatPlugin } from "../../src/plugins/core/conditional_format";
 import { CellIsRule, CommandResult, SpreadsheetChildEnv, UID } from "../../src/types";
@@ -12,7 +13,13 @@ import {
   setSelection,
   updateLocale,
 } from "../test_helpers/commands_helpers";
-import { click, dragElement, keyDown, setInputValueAndTrigger } from "../test_helpers/dom_helper";
+import {
+  click,
+  dragElement,
+  keyDown,
+  setInputValueAndTrigger,
+  triggerMouseEvent,
+} from "../test_helpers/dom_helper";
 import {
   createColorScale,
   createEqualCF,
@@ -193,6 +200,23 @@ describe("UI of conditional formats", () => {
       expect(previews[2].querySelector(selectors.description.ruletype.rule)!.textContent).toBe(
         "Is equal to 1,5"
       );
+    });
+
+    test("Ranges of hovered previews are highlighted", async () => {
+      expect(model.getters.getHighlights()).toEqual([]);
+      triggerMouseEvent(selectors.listPreview, "mouseenter");
+      expect(model.getters.getHighlights()).toMatchObject([
+        { zone: toZone("A1:A2"), color: HIGHLIGHT_COLOR },
+      ]);
+      triggerMouseEvent(selectors.listPreview, "mouseleave");
+      expect(model.getters.getHighlights()).toEqual([]);
+    });
+
+    test("Highlights are removed when cf preview is unmounted", async () => {
+      triggerMouseEvent(selectors.listPreview, "mouseenter");
+      expect(model.getters.getHighlights()).not.toEqual([]);
+      await click(fixture.querySelectorAll(selectors.listPreview)[0]);
+      expect(model.getters.getHighlights()).toEqual([]);
     });
 
     test("can edit an existing CellIsRule", async () => {

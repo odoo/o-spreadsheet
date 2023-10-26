@@ -1,4 +1,5 @@
 import { isEqual, zoneToDimension } from "../../helpers/index";
+import { highlightRegistry } from "../../registries/highlight_registry";
 import { GridRenderingContext, Highlight, LAYERS } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
@@ -15,7 +16,10 @@ export class HighlightPlugin extends UIPlugin {
 
   getHighlights(): Highlight[] {
     return this.prepareHighlights(
-      this.getters.getComposerHighlights().concat(this.getters.getSelectionInputHighlights())
+      highlightRegistry
+        .getAll()
+        .map((highlightGetter) => highlightGetter())
+        .flat()
     );
   }
 
@@ -75,8 +79,10 @@ export class HighlightPlugin extends UIPlugin {
         ctx.strokeStyle = h.color!;
         ctx.strokeRect(x + lineWidth / 2, y + lineWidth / 2, width - lineWidth, height - lineWidth);
         ctx.globalCompositeOperation = "source-over";
-        ctx.fillStyle = h.color! + "20";
-        ctx.fillRect(x + lineWidth, y + lineWidth, width - 2 * lineWidth, height - 2 * lineWidth);
+        if (!h.noFill) {
+          ctx.fillStyle = h.color! + "20";
+          ctx.fillRect(x + lineWidth, y + lineWidth, width - 2 * lineWidth, height - 2 * lineWidth);
+        }
       }
     }
   }

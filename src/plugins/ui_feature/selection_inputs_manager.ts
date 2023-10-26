@@ -1,4 +1,5 @@
 import { positionToZone, rangeReference, splitReference } from "../../helpers/index";
+import { highlightRegistry } from "../../registries/highlight_registry";
 import { Command, CommandResult, Highlight, LAYERS, LocalCommand, UID } from "../../types/index";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 import { RangeInputValue, SelectionInputPlugin } from "./selection_input";
@@ -12,12 +13,7 @@ import { RangeInputValue, SelectionInputPlugin } from "./selection_input";
  */
 export class SelectionInputsManagerPlugin extends UIPlugin {
   static layers = [LAYERS.Highlights];
-  static getters = [
-    "getSelectionInput",
-    "getSelectionInputValue",
-    "isRangeValid",
-    "getSelectionInputHighlights",
-  ] as const;
+  static getters = ["getSelectionInput", "getSelectionInputValue", "isRangeValid"] as const;
 
   private inputs: Record<UID, SelectionInputPlugin> = {};
   private focusedInputId: UID | null = null;
@@ -28,7 +24,9 @@ export class SelectionInputsManagerPlugin extends UIPlugin {
 
   constructor(private config: UIPluginConfig) {
     super(config);
+    highlightRegistry.add("selection_input", this.getSelectionInputHighlights.bind(this));
   }
+
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
@@ -142,7 +140,7 @@ export class SelectionInputsManagerPlugin extends UIPlugin {
     return this.inputs[id].getSelectionInputValue();
   }
 
-  getSelectionInputHighlights(): Highlight[] {
+  private getSelectionInputHighlights(): Highlight[] {
     if (!this.focusedInputId) {
       return [];
     }

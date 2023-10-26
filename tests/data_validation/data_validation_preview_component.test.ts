@@ -1,10 +1,13 @@
+import { Component } from "@odoo/owl";
 import { Model } from "../../src";
 import { DataValidationPreview } from "../../src/components/side_panel/data_validation/dv_preview/dv_preview";
+import { HIGHLIGHT_COLOR } from "../../src/constants";
+import { toZone } from "../../src/helpers";
 import { dataValidationEvaluatorRegistry } from "../../src/registries/data_validation_registry";
 import { DataValidationRuleData, DEFAULT_LOCALE } from "../../src/types";
 import { DataValidationCriterion } from "../../src/types/data_validation";
 import { updateLocale } from "../test_helpers/commands_helpers";
-import { click } from "../test_helpers/dom_helper";
+import { click, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { mountComponent, spyModelDispatch } from "../test_helpers/helpers";
 
 const testDataValidationRule: DataValidationRuleData = {
@@ -16,6 +19,7 @@ const testDataValidationRule: DataValidationRuleData = {
 describe("Data validation preview", () => {
   let fixture: HTMLElement;
   let model: Model;
+  let parent: Component;
 
   async function mountDataValidationPreview(ruleData: DataValidationRuleData, onClick = () => {}) {
     model = new Model();
@@ -25,7 +29,7 @@ describe("Data validation preview", () => {
       id: "1",
       ranges: ruleData.ranges.map((range) => model.getters.getRangeFromSheetXC(sheetId, range)),
     };
-    ({ fixture, model } = await mountComponent(DataValidationPreview, {
+    ({ fixture, model, parent } = await mountComponent(DataValidationPreview, {
       props: { rule, onClick },
     }));
   }
@@ -62,6 +66,27 @@ describe("Data validation preview", () => {
       id: "1",
       sheetId,
     });
+  });
+
+  test("Ranges of hovered previews are highlighted", async () => {
+    const rule = { ...testDataValidationRule, ranges: ["A1", "A3"] };
+    await mountDataValidationPreview(rule);
+    expect(model.getters.getHighlights()).toEqual([]);
+    triggerMouseEvent(".o-dv-preview", "mouseenter");
+    expect(model.getters.getHighlights()).toMatchObject([
+      { zone: toZone("A1"), color: HIGHLIGHT_COLOR },
+      { zone: toZone("A3"), color: HIGHLIGHT_COLOR },
+    ]);
+    triggerMouseEvent(".o-dv-preview", "mouseleave");
+    expect(model.getters.getHighlights()).toEqual([]);
+  });
+
+  test("Highlights disappear when preview is unmounted", async () => {
+    await mountDataValidationPreview(testDataValidationRule);
+    triggerMouseEvent(".o-dv-preview", "mouseenter");
+    expect(model.getters.getHighlights()).not.toEqual([]);
+    parent.__owl__.destroy();
+    expect(model.getters.getHighlights()).toEqual([]);
   });
 
   describe("Date rules previews", () => {

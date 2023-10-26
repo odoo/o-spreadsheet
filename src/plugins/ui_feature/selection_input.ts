@@ -274,6 +274,7 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
         zone: this.getters.getRangeFromSheetXC(this.inputSheetId, xc).zone,
         sheetId: (sheetName && this.getters.getSheetIdByName(sheetName)) || this.inputSheetId,
         color,
+        interactive: true,
       };
     });
   }
