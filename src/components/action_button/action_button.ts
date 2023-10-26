@@ -32,7 +32,11 @@ export class ActionButton extends Component<Props, SpreadsheetChildEnv> {
   private actionButton = createAction(this.props.action);
 
   setup() {
-    onWillUpdateProps(() => (this.actionButton = createAction(this.props.action)));
+    onWillUpdateProps((nextProps) => {
+      if (nextProps.action !== this.props.action) {
+        this.actionButton = createAction(this.props.action);
+      }
+    });
   }
 
   get isVisible() {
