@@ -71,6 +71,12 @@ export class FilterEvaluationPlugin extends UIPlugin {
         break;
       case "HIDE_COLUMNS_ROWS":
       case "UNHIDE_COLUMNS_ROWS":
+      case "GROUP_HEADERS":
+      case "UNGROUP_HEADERS":
+      case "FOLD_HEADER_GROUP":
+      case "UNFOLD_HEADER_GROUP":
+      case "FOLD_ALL_HEADER_GROUPS":
+      case "UNFOLD_ALL_HEADER_GROUPS":
         this.updateHiddenRows();
         break;
       case "UPDATE_FILTER":

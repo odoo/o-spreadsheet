@@ -5,6 +5,8 @@ import { UID } from "../../src/types";
 import {
   createFilter,
   deleteFilter,
+  foldHeaderGroup,
+  groupHeaders,
   hideColumns,
   hideRows,
   setCellContent,
@@ -163,5 +165,39 @@ describe("Filter Evaluation Plugin", () => {
       sheetIdTo: "sh2",
     });
     expect(model.getters.getFilter({ sheetId: "sh2", col: 0, row: 0 })).toBeTruthy();
+  });
+
+  test("Folding a group after filtering some rows doesn't hide all rows of the sheet", () => {
+    const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
+    const sheetId = model.getters.getActiveSheetId();
+
+    groupHeaders(model, "ROW", 0, 3);
+
+    createFilter(model, "A4:A5");
+    setCellContent(model, "A5", "Hi");
+    updateFilter(model, "A4", ["Hi"]);
+
+    expect(model.getters.isRowFiltered(sheetId, 4)).toEqual(true);
+    foldHeaderGroup(model, "ROW", 0, 3);
+    expect(model.getters.isRowFiltered(sheetId, 4)).toEqual(false);
+  });
+
+  test("Grouping headers after filtering some rows doesn't break the data filter state", () => {
+    const model = new Model({ sheets: [{ colNumber: 8, rowNumber: 8 }] });
+    const sheetId = model.getters.getActiveSheetId();
+
+    groupHeaders(model, "ROW", 0, 5);
+
+    createFilter(model, "A6:A8");
+    setCellContent(model, "A7", "Hi");
+    setCellContent(model, "A8", "Hi");
+    updateFilter(model, "A6", ["Hi"]);
+
+    foldHeaderGroup(model, "ROW", 0, 5);
+    groupHeaders(model, "ROW", 6, 7);
+
+    expect(model.getters.getHeaderGroups(sheetId, "ROW")).toMatchObject([{ start: 0, end: 7 }]);
+    expect(model.getters.isRowFiltered(sheetId, 6)).toEqual(true);
+    expect(model.getters.isRowFiltered(sheetId, 7)).toEqual(true);
   });
 });
