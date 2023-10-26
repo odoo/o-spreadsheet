@@ -274,16 +274,21 @@ export class InternalViewport {
     position: Pixel,
     startIndex: HeaderIndex = 0
   ): HeaderIndex {
-    let size = 0;
     const sheetId = this.sheetId;
     const headers = this.getters.getNumberHeaders(sheetId, dimension);
-    for (let i = startIndex; i <= headers - 1; i++) {
-      if (this.getters.isHeaderHidden(sheetId, dimension, i)) {
-        continue;
-      }
-      size += this.getters.getHeaderSize(sheetId, dimension, i);
-      if (size > position) {
-        return i;
+    // using a binary search:
+    let start = startIndex;
+    let end = headers;
+    while (start <= end && start !== headers && end !== -1) {
+      const mid = Math.floor((start + end) / 2);
+      const offset = this.getters.getColRowOffset(dimension, startIndex, mid);
+      const size = this.getters.getHeaderSize(sheetId, dimension, mid);
+      if (position >= offset && position < offset + size) {
+        return mid;
+      } else if (position >= offset + size) {
+        start = mid + 1;
+      } else {
+        end = mid - 1;
       }
     }
     return -1;

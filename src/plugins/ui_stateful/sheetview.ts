@@ -223,7 +223,7 @@ export class SheetViewPlugin extends UIPlugin {
       case "UNFOLD_ALL_HEADER_GROUPS":
       case "FOLD_ALL_HEADER_GROUPS": {
         const sheetId = "sheetId" in cmd ? cmd.sheetId : this.getters.getActiveSheetId();
-        this.resetViewports(sheetId);
+        this.sheetsWithDirtyViewports.add(sheetId);
         break;
       }
       case "UPDATE_CELL":
