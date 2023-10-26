@@ -1,5 +1,16 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
-import { Dimension, Getters, HeaderIndex, Pixel, Position, Rect, UID, Zone } from "../types";
+import {
+  Dimension,
+  DOMCoordinates,
+  DOMDimension,
+  Getters,
+  HeaderIndex,
+  Pixel,
+  Position,
+  Rect,
+  UID,
+  Zone,
+} from "../types";
 import { intersection, isInside } from "./zones";
 
 export class InternalViewport {
@@ -22,9 +33,9 @@ export class InternalViewport {
     private getters: Getters,
     private sheetId: UID,
     private boundaries: Zone,
-    sizeInGrid: { width: Pixel; height: Pixel },
+    sizeInGrid: DOMDimension,
     options: { canScrollVertically: boolean; canScrollHorizontally: boolean },
-    offsets: { x: Pixel; y: Pixel }
+    offsets: DOMCoordinates
   ) {
     this.viewportWidth = sizeInGrid.width;
     this.viewportHeight = sizeInGrid.height;
@@ -49,7 +60,7 @@ export class InternalViewport {
    * When the viewport grid size is smaller than its client width (resp. height), it will return
    * the client width (resp. height).
    */
-  getMaxSize(): { width: Pixel; height: Pixel } {
+  getMaxSize(): DOMDimension {
     const lastCol = this.getters.findLastVisibleColRowIndex(this.sheetId, "COL", {
       first: this.boundaries.left,
       last: this.boundaries.right,
@@ -98,11 +109,11 @@ export class InternalViewport {
    * visible cell.
    * It returns -1 if no column is found.
    */
-  getColIndex(x: Pixel, absolute = false): HeaderIndex {
+  getColIndex(x: Pixel): HeaderIndex {
     if (x < this.offsetCorrectionX || x > this.offsetCorrectionX + this.viewportWidth) {
       return -1;
     }
-    return this.searchHeaderIndex("COL", x - this.offsetCorrectionX, this.left, absolute);
+    return this.searchHeaderIndex("COL", x - this.offsetCorrectionX, this.left);
   }
 
   /**
@@ -110,11 +121,11 @@ export class InternalViewport {
    * visible cell.
    * It returns -1 if no row is found.
    */
-  getRowIndex(y: Pixel, absolute = false): HeaderIndex {
+  getRowIndex(y: Pixel): HeaderIndex {
     if (y < this.offsetCorrectionY || y > this.offsetCorrectionY + this.viewportHeight) {
       return -1;
     }
-    return this.searchHeaderIndex("ROW", y - this.offsetCorrectionY, this.top, absolute);
+    return this.searchHeaderIndex("ROW", y - this.offsetCorrectionY, this.top);
   }
 
   /**
@@ -122,11 +133,8 @@ export class InternalViewport {
    * the pane that is actually displayed on the client. We therefore adjust the offset of the pane
    * until it contains the cell completely.
    */
-  adjustPosition(position?: Position) {
+  adjustPosition(position: Position) {
     const sheetId = this.sheetId;
-    if (!position) {
-      position = this.getters.getSheetPosition(sheetId);
-    }
     const mainCellPosition = this.getters.getMainCellPosition(sheetId, position.col, position.row);
 
     const { col, row } = this.getters.getNextVisibleCellPosition(
@@ -156,8 +164,7 @@ export class InternalViewport {
       const startIndex = this.searchHeaderIndex(
         "COL",
         finalTargetEnd - this.viewportWidth - this.offsetCorrectionX,
-        this.boundaries.left,
-        true
+        this.boundaries.left
       );
       this.offsetX =
         this.getters.getColDimensions(sheetId, startIndex).end - this.offsetCorrectionX;
@@ -188,8 +195,7 @@ export class InternalViewport {
       const startIndex = this.searchHeaderIndex(
         "ROW",
         finalTargetEnd - this.viewportHeight - this.offsetCorrectionY,
-        this.boundaries.top,
-        true
+        this.boundaries.top
       );
       this.offsetY =
         this.getters.getRowDimensions(sheetId, startIndex).end - this.offsetCorrectionY;
@@ -223,14 +229,13 @@ export class InternalViewport {
    * @returns Computes the absolute coordinate of a given zone inside the viewport
    */
   getRect(zone: Zone): Rect | undefined {
-    const targetZone = intersection(zone, this.zone);
+    const targetZone = intersection(zone, this);
     if (targetZone) {
       const x =
-        this.getters.getColRowOffset("COL", this.zone.left, targetZone.left) +
-        this.offsetCorrectionX;
+        this.getters.getColRowOffset("COL", this.left, targetZone.left) + this.offsetCorrectionX;
 
       const y =
-        this.getters.getColRowOffset("ROW", this.zone.top, targetZone.top) + this.offsetCorrectionY;
+        this.getters.getColRowOffset("ROW", this.top, targetZone.top) + this.offsetCorrectionY;
 
       const width = Math.min(
         this.getters.getColRowOffset("COL", targetZone.left, targetZone.right + 1),
@@ -246,9 +251,8 @@ export class InternalViewport {
         width,
         height,
       };
-    } else {
-      return undefined;
     }
+    return undefined;
   }
 
   isVisible(col: HeaderIndex, row: HeaderIndex) {
@@ -264,33 +268,22 @@ export class InternalViewport {
   private searchHeaderIndex(
     dimension: Dimension,
     position: Pixel,
-    startIndex: HeaderIndex = 0,
-    absolute = false
+    startIndex: HeaderIndex = 0
   ): HeaderIndex {
     let size = 0;
     const sheetId = this.sheetId;
     const headers = this.getters.getNumberHeaders(sheetId, dimension);
+    const getSize = dimension === "COL" ? this.getters.getColSize : this.getters.getRowSize;
     for (let i = startIndex; i <= headers - 1; i++) {
-      const isHiddenInViewport =
-        !absolute && dimension === "COL"
-          ? i < this.left && i > this.right
-          : i < this.top && i > this.bottom;
-      if (this.getters.isHeaderHidden(sheetId, dimension, i) || isHiddenInViewport) {
+      if (this.getters.isHeaderHidden(sheetId, dimension, i)) {
         continue;
       }
-      size +=
-        dimension === "COL"
-          ? this.getters.getColSize(sheetId, i)
-          : this.getters.getRowSize(sheetId, i);
+      size += getSize(sheetId, i);
       if (size > position) {
         return i;
       }
     }
     return -1;
-  }
-
-  private get zone() {
-    return { left: this.left, right: this.right, top: this.top, bottom: this.bottom };
   }
 
   private setViewportOffsetX(offsetX: Pixel) {
@@ -300,6 +293,7 @@ export class InternalViewport {
     this.offsetScrollbarX = offsetX;
     this.adjustViewportZoneX();
   }
+
   private setViewportOffsetY(offsetY: Pixel) {
     if (!this.canScrollVertically) {
       return;
@@ -318,11 +312,6 @@ export class InternalViewport {
         this.offsetScrollbarX = Math.max(0, viewportWidth - this.viewportWidth);
       }
     }
-    this.left = this.getColIndex(this.offsetScrollbarX, true);
-    this.right = this.getColIndex(this.offsetScrollbarX + this.viewportWidth, true);
-    if (this.right === -1) {
-      this.right = this.boundaries.right;
-    }
     this.adjustViewportZoneX();
   }
 
@@ -335,11 +324,6 @@ export class InternalViewport {
       if (this.viewportHeight + this.offsetScrollbarY > paneHeight) {
         this.offsetScrollbarY = Math.max(0, paneHeight - this.viewportHeight);
       }
-    }
-    this.top = this.getRowIndex(this.offsetScrollbarY, true);
-    this.bottom = this.getRowIndex(this.offsetScrollbarY + this.viewportWidth, true);
-    if (this.bottom === -1) {
-      this.bottom = this.boundaries.bottom;
     }
     this.adjustViewportZoneY();
   }

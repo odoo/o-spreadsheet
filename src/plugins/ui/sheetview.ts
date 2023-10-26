@@ -208,7 +208,8 @@ export class SheetViewPlugin extends UIPlugin {
         break;
       case "ACTIVATE_SHEET":
         this.setViewports();
-        this.refreshViewport(cmd.sheetIdTo);
+        const position = this.getters.getSheetPosition(cmd.sheetIdTo);
+        this.refreshViewport(cmd.sheetIdTo, position);
         break;
       case "UNFREEZE_ROWS":
       case "UNFREEZE_COLUMNS":
@@ -691,7 +692,7 @@ export class SheetViewPlugin extends UIPlugin {
   /**
    * Adjust the viewport such that the anchor position is visible
    */
-  private refreshViewport(sheetId: UID, anchorPosition?: Position) {
+  private refreshViewport(sheetId: UID, anchorPosition: Position) {
     Object.values(this.getSubViewports(sheetId)).forEach((viewport) => {
       viewport.adjustViewportZone();
       viewport.adjustPosition(anchorPosition);
