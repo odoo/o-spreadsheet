@@ -114,10 +114,11 @@ describe("UI of conditional formats", () => {
   let sheetId: UID;
 
   mockGetBoundingClientRect({
-    "o-cf-preview": (el: HTMLElement) => ({
+    "o-cf-preview-container": (el: HTMLElement) => ({
       y:
-        model.getters.getConditionalFormats(sheetId).findIndex((cf) => cf.id === el.dataset.id) *
-        100,
+        model.getters
+          .getConditionalFormats(sheetId)
+          .findIndex((cf) => cf.id === (el.firstChild as HTMLElement).dataset.id) * 100,
       height: 100,
     }),
     "o-cf-preview-list": () => ({
@@ -438,7 +439,7 @@ describe("UI of conditional formats", () => {
       const previewEl = fixture.querySelector<HTMLElement>(`.o-cf-preview[data-id="1"]`)!;
       await dragElement(previewEl, { x: 0, y: 200 });
 
-      expect(previewEl.style.transition).toBe("top 0s");
+      expect(previewEl.parentElement!.style.transition).toBe("top 0s");
       model.dispatch("ADD_CONDITIONAL_FORMAT", {
         cf: createEqualCF("2", { bold: true, fillColor: "#ff0000" }, "99"),
         ranges: toRangesData(sheetId, "C1:C5"),
