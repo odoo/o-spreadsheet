@@ -2,58 +2,21 @@
   <t t-name="o-spreadsheet-ConditionalFormatPreviewList">
     <div class="o-cf-preview-list h-100 overflow-auto" t-ref="cfList">
       <t t-foreach="props.conditionalFormats" t-as="cf" t-key="cf.id">
-        <t t-call="o-spreadsheet-ConditionalFormattingPanelPreview"/>
+        <div
+          class="o-cf-preview-container d-flex position-relative"
+          t-att-style="getPreviewDivStyle(cf)">
+          <ConditionalFormatPreview
+            conditionalFormat="cf"
+            class="dragAndDrop.draggedItemId === cf.id ? 'o-cf-dragging' : ''"
+            onMouseDown="(ev) => this.onPreviewMouseDown(cf, ev)"
+            onPreviewClick="() => props.onPreviewClick(cf)"
+          />
+        </div>
       </t>
       <div
         class="btn btn-link o-sidePanel-btn-link o-cf-add float-end"
         t-on-click.prevent.stop="props.onAddConditionalFormat">
         + Add another rule
-      </div>
-    </div>
-  </t>
-
-  <t t-name="o-spreadsheet-ConditionalFormattingPanelPreview">
-    <div
-      class="o-cf-preview d-flex position-relative"
-      t-att-class="{ 'o-cf-dragging': dragAndDrop.draggedItemId === cf.id }"
-      t-att-style="getPreviewDivStyle(cf)"
-      t-att-data-id="cf.id"
-      t-on-click="(ev) => props.onPreviewClick(cf)"
-      t-on-mousedown="(ev) => this.onMouseDown(cf, ev)">
-      <div class="position-relative h-100 w-100 d-flex align-items-center">
-        <div class="o-cf-drag-handle h-100 position-absolute d-flex align-items-center text-muted">
-          <t t-call="o-spreadsheet-Icon.THIN_DRAG_HANDLE"/>
-        </div>
-        <t t-if="cf.rule.type==='IconSetRule'">
-          <div class="o-cf-preview-icon d-flex justify-content-around align-items-center me-2">
-            <t t-call="o-spreadsheet-Icon.{{icons[cf.rule.icons.upper].template}}"/>
-            <t t-call="o-spreadsheet-Icon.{{icons[cf.rule.icons.middle].template}}"/>
-            <t t-call="o-spreadsheet-Icon.{{icons[cf.rule.icons.lower].template}}"/>
-          </div>
-        </t>
-        <t t-else="">
-          <div
-            t-att-style="getPreviewImageStyle(cf.rule)"
-            class="o-cf-preview-icon d-flex justify-content-around align-items-center me-2">
-            123
-          </div>
-        </t>
-        <div class="o-cf-preview-description">
-          <div class="o-cf-preview-ruletype">
-            <div class="o-cf-preview-description-rule text-truncate">
-              <t t-esc="getDescription(cf)"/>
-            </div>
-          </div>
-          <div class="o-cf-preview-range text-truncate" t-esc="cf.ranges"/>
-        </div>
-        <div class="o-cf-delete">
-          <div
-            class="o-cf-delete-button text-muted"
-            t-on-click.stop="(ev) => this.deleteConditionalFormat(cf, ev)"
-            title="Remove rule">
-            <t t-call="o-spreadsheet-Icon.TRASH"/>
-          </div>
-        </div>
       </div>
     </div>
   </t>
