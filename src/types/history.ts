@@ -9,8 +9,7 @@ export interface CreateRevisionOptions {
 }
 
 export interface HistoryChange {
-  root: any;
-  path: (string | number)[];
+  path: [any, ...(number | string)[]];
   before: any;
   after: any;
 }
