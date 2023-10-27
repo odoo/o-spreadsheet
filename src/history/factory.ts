@@ -59,9 +59,9 @@ function revertChanges(revisions: readonly Revision[]) {
  * Apply the changes of the given HistoryChange to the state
  */
 function applyChange(change: HistoryChange, target: "before" | "after") {
-  let val = change.root as any;
-  let key = change.path[change.path.length - 1];
-  for (let pathIndex = 0; pathIndex < change.path.slice(0, -1).length; pathIndex++) {
+  let val = change.path[0];
+  const key = change.path[change.path.length - 1];
+  for (let pathIndex = 1; pathIndex < change.path.slice(0, -1).length; pathIndex++) {
     const p = change.path[pathIndex];
     if (val[p] === undefined) {
       const nextPath = change.path[pathIndex + 1];
