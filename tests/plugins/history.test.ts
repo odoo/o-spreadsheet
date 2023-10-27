@@ -144,6 +144,7 @@ describe("history", () => {
       A: {},
     };
     expect(() => {
+      // @ts-expect-error
       history.addChange(state, "A", "B", true, 5);
     }).toThrow();
   });
@@ -154,6 +155,7 @@ describe("history", () => {
       A: {},
     };
     expect(() => {
+      // @ts-expect-error
       history.addChange(state, "A", "B", true, "C", 5);
     }).toThrow();
   });
