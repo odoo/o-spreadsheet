@@ -20,15 +20,16 @@ export class StateObserver {
     this.commands.push(command);
   }
 
-  addChange(...args: any[]) {
+  addChange(...args: [...HistoryChange["path"], any]) {
     const val: any = args.pop();
-    const [root, ...path] = args as [any, string | number];
+    const root = args[0];
     let value = root as any;
-    let key = path[path.length - 1];
-    for (let pathIndex = 0; pathIndex <= path.length - 2; pathIndex++) {
-      const p = path[pathIndex];
+    let key = args.at(-1);
+    const pathLength = args.length - 2;
+    for (let pathIndex = 1; pathIndex <= pathLength; pathIndex++) {
+      const p = args[pathIndex];
       if (value[p] === undefined) {
-        const nextPath = path[pathIndex + 1];
+        const nextPath = args[pathIndex + 1];
         value[p] = createEmptyStructure(nextPath);
       }
       value = value[p];
@@ -37,8 +38,7 @@ export class StateObserver {
       return;
     }
     this.changes.push({
-      root,
-      path,
+      path: args,
       before: value[key],
       after: val,
     });
