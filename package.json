@@ -1,6 +1,6 @@
 {
   "name": "@odoo/o-spreadsheet",
-  "version": "16.5.0-alpha.13",
+  "version": "17.0.0",
   "description": "A spreadsheet component",
   "type": "module",
   "main": "dist/o-spreadsheet.cjs.js",
@@ -134,6 +134,6 @@
     "*": "prettier --write"
   },
   "publishConfig": {
-    "tag": "alpha"
+    "tag": "latest"
   }
 }
