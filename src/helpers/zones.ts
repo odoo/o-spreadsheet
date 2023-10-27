@@ -164,11 +164,16 @@ export function isZoneValid(zone: Zone | UnboundedZone): boolean {
   ) {
     return false;
   }
+  return isZoneOrdered(zone) && zone.top >= 0 && zone.left >= 0;
+}
+
+/**
+ * Check that the zone properties are in the correct order.
+ */
+export function isZoneOrdered(zone: Zone | UnboundedZone): boolean {
   return (
     (zone.bottom === undefined || (zone.bottom >= zone.top && zone.bottom >= 0)) &&
-    (zone.right === undefined || (zone.right >= zone.left && zone.right >= 0)) &&
-    zone.top >= 0 &&
-    zone.left >= 0
+    (zone.right === undefined || (zone.right >= zone.left && zone.right >= 0))
   );
 }
 

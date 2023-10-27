@@ -12,7 +12,7 @@ import {
   ZoneDimension,
 } from "../types";
 import { isRowReference, splitReference } from "./references";
-import { getZoneArea, positions, toUnboundedZone, zoneToXc } from "./zones";
+import { getZoneArea, isZoneOrdered, positions, toUnboundedZone, zoneToXc } from "./zones";
 
 interface ConstructorArgs {
   readonly zone: Readonly<Zone | UnboundedZone>;
@@ -128,6 +128,9 @@ export class RangeImpl implements Range {
    * If it's not the case, simply invert them, and invert the linked parts
    */
   orderZone(): RangeImpl {
+    if (isZoneOrdered(this._zone)) {
+      return this;
+    }
     const zone = { ...this._zone };
     let parts = this.parts;
     if (zone.right !== undefined && zone.right < zone.left) {
