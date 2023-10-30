@@ -18,7 +18,11 @@ import {
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
 } from "../../helpers/index";
-import { canonicalizeNumberContent, localizeFormula } from "../../helpers/locale";
+import {
+  canonicalizeNumberContent,
+  getDateTimeFormat,
+  localizeFormula,
+} from "../../helpers/locale";
 import { loopThroughReferenceType } from "../../helpers/reference_type";
 import { _t } from "../../translation";
 import {
@@ -515,7 +519,7 @@ export class EditionPlugin extends UIPlugin {
           // display a simplified and parsable string otherwise
           const timeFormat = Number.isInteger(value)
             ? locale.dateFormat
-            : locale.dateFormat + " " + locale.timeFormat;
+            : getDateTimeFormat(locale);
           return formatValue(value, { locale, format: timeFormat });
         }
         return this.numberComposerContent(value, format, locale);
