@@ -1,4 +1,4 @@
-import { tokenize } from "../formulas";
+import { tokenize } from "../formulas/tokenizer";
 import { toNumber } from "../functions/helpers";
 import {
   ColorScaleThreshold,
@@ -295,4 +295,8 @@ function changeCFRuleThresholdLocale<T extends IconThreshold | ColorScaleThresho
   const modified = changeContentLocale(value);
   const newValue = threshold.type === "formula" ? modified.slice(1) : modified;
   return { ...threshold, value: newValue };
+}
+
+export function getDateTimeFormat(locale: Locale) {
+  return locale.dateFormat + " " + locale.timeFormat;
 }
