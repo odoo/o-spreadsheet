@@ -99,6 +99,7 @@ export class SheetViewPlugin extends UIPlugin {
     "getSheetViewVisibleRows",
     "getFrozenSheetViewRatio",
     "isPositionVisible",
+    "getVisibleSheetViewRect",
   ] as const;
 
   readonly viewports: Record<UID, SheetViewports | undefined> = {};
@@ -311,6 +312,15 @@ export class SheetViewPlugin extends UIPlugin {
 
   getSheetViewDimension(): DOMDimension {
     return {
+      width: this.sheetViewWidth,
+      height: this.sheetViewHeight,
+    };
+  }
+
+  getVisibleSheetViewRect(): Rect {
+    return {
+      x: this.gridOffsetX,
+      y: this.gridOffsetY,
       width: this.sheetViewWidth,
       height: this.sheetViewHeight,
     };
