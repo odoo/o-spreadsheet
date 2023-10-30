@@ -12,6 +12,7 @@ import {
   numberToJsDate,
   parseDateTime,
 } from "../helpers/dates";
+import { getDateTimeFormat } from "../helpers/locale";
 import { _t } from "../translation";
 import { AddFunctionDescription, ArgValue, CellValue, Maybe } from "../types";
 import { arg } from "./arguments";
@@ -623,7 +624,7 @@ export const NOW = {
   args: [],
   returns: ["DATE"],
   computeFormat: function () {
-    return this.locale.dateFormat + " " + this.locale.timeFormat;
+    return getDateTimeFormat(this.locale);
   },
   compute: function (): number {
     let today = new Date();
