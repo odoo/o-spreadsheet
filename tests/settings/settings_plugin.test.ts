@@ -1,4 +1,5 @@
 import { CommandResult, Model } from "../../src";
+import { getDateTimeFormat } from "../../src/helpers/locale";
 import { DEFAULT_LOCALE, Locale } from "../../src/types/locale";
 import {
   redo,
@@ -8,7 +9,7 @@ import {
   updateLocale,
 } from "../test_helpers/commands_helpers";
 import { CUSTOM_LOCALE, FR_LOCALE } from "../test_helpers/constants";
-import { getCellContent } from "../test_helpers/getters_helpers";
+import { getCell, getCellContent } from "../test_helpers/getters_helpers";
 import { target } from "../test_helpers/helpers";
 
 describe("Settings plugin", () => {
@@ -101,6 +102,18 @@ describe("Settings plugin", () => {
       const locale = { ...CUSTOM_LOCALE, decimalSeparator: "♥" };
       updateLocale(model, locale);
       expect(getCellContent(model, "A1")).toEqual("9♥89");
+    });
+
+    test("Changing the locale changes the format of the cells that are formatted with the locale date(time) format", () => {
+      setFormat(model, DEFAULT_LOCALE.dateFormat, target("A1"));
+      setFormat(model, DEFAULT_LOCALE.timeFormat, target("A2"));
+      setFormat(model, getDateTimeFormat(DEFAULT_LOCALE), target("A3"));
+
+      const locale = { ...CUSTOM_LOCALE, dateFormat: "yyyy/mm/dd", timeFormat: "hh:mm" };
+      updateLocale(model, locale);
+      expect(getCell(model, "A1")?.format).toEqual("yyyy/mm/dd");
+      expect(getCell(model, "A2")?.format).toEqual("hh:mm");
+      expect(getCell(model, "A3")?.format).toEqual("yyyy/mm/dd hh:mm");
     });
   });
 });

@@ -1,6 +1,6 @@
 import { Component, onWillStart } from "@odoo/owl";
 import { deepEquals, formatValue } from "../../../helpers";
-import { isValidLocale } from "../../../helpers/locale";
+import { getDateTimeFormat, isValidLocale } from "../../../helpers/locale";
 import { Locale, LocaleCode, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers";
 
@@ -47,7 +47,7 @@ export class SettingsPanel extends Component<Props, SpreadsheetChildEnv> {
 
   get dateTimeFormatPreview() {
     const locale = this.env.model.getters.getLocale();
-    const dateTimeFormat = locale.dateFormat + " " + locale.timeFormat;
+    const dateTimeFormat = getDateTimeFormat(locale);
     return formatValue(1.6, { format: dateTimeFormat, locale });
   }
 

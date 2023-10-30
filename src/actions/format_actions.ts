@@ -6,6 +6,7 @@ import {
 } from "../constants";
 import { formatValue, roundFormat } from "../helpers";
 import { parseLiteral } from "../helpers/cells";
+import { getDateTimeFormat } from "../helpers/locale";
 import { _t } from "../translation";
 import {
   Align,
@@ -113,7 +114,7 @@ export const formatNumberDateTime = createFormatActionSpec({
   descriptionValue: EXAMPLE_DATE,
   format: (env) => {
     const locale = env.model.getters.getLocale();
-    return locale.dateFormat + " " + locale.timeFormat;
+    return getDateTimeFormat(locale);
   },
 });
 
