@@ -11,3 +11,4 @@ debug.log
 .git.cache
 *.xlsx
 tests/__xlsx__/xlsx_demo_data/xl/printerSettings
+tools/owl_templates/_compiled/*
