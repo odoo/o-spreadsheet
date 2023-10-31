@@ -52,7 +52,7 @@ import { Image } from "../../src/types/image";
 import { XLSXExport } from "../../src/types/xlsx";
 import { isXLSXExportXMLFile } from "../../src/xlsx/helpers/xlsx_helper";
 import { FileStore } from "../__mocks__/mock_file_store";
-import { OWL_TEMPLATES, registerCleanup } from "../setup/jest.setup";
+import { registerCleanup } from "../setup/jest.setup";
 import { MockClipboard } from "./clipboard";
 import { redo, setCellContent, setFormat, setStyle, undo } from "./commands_helpers";
 import { getCellContent, getEvaluatedCell } from "./getters_helpers";
@@ -178,7 +178,6 @@ export async function mountComponent<Props extends { [key: string]: any }>(
   const env = makeTestEnv({ ...optionalArgs.env, model: model });
   const props = optionalArgs.props || ({} as Props);
   const app = new App(component, { props, env, test: true, translateFn: _t });
-  app.addTemplates(OWL_TEMPLATES);
   const fixture = optionalArgs?.fixture || makeTestFixture();
   const parent = await app.mount(fixture);
 

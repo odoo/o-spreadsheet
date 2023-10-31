@@ -1,17 +1,23 @@
 /**
  * This file will be run before each test file
  */
+import { App } from "@odoo/owl";
 import { setDefaultSheetViewSize } from "../../src/constants";
 import { setTranslationMethod } from "../../src/translation";
-import { getParsedOwlTemplateBundle } from "../../tools/bundle_xml/bundle_xml_templates.cjs";
+import { getCompiledTemplates } from "../../tools/owl_templates/compile_templates.cjs";
 import "./canvas.mock";
 import "./jest_extend";
 import "./resize_observer.mock";
 
-export let OWL_TEMPLATES: Document;
+function registerOwlTemplates() {
+  const templates = getCompiledTemplates();
+  for (const tName in templates) {
+    App.registerTemplate(tName, templates[tName]);
+  }
+}
 
 beforeAll(() => {
-  OWL_TEMPLATES = getParsedOwlTemplateBundle();
+  registerOwlTemplates();
   setDefaultSheetViewSize(1000);
   setTranslationMethod(
     (str, ...values) => str,
