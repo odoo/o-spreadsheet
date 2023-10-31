@@ -19,16 +19,22 @@ const NOTIFICATION_STYLE =
 topbarMenuRegistry.addChild("xlsx", ["file"], {
   name: "Save as XLSX",
   sequence: 20,
-  action: async (env) => {
+  execute: async (env) => {
     const doc = await env.model.exportXLSX();
     const zip = new JSZip();
     for (const file of doc.files) {
-      zip.file(file.path, file.content.replaceAll(` xmlns=""`, ""));
+      if (file.imageSrc) {
+        const fetchedImage = await fetch(file.imageSrc).then((response) => response.blob());
+        zip.file(file.path, fetchedImage);
+      } else {
+        zip.file(file.path, file.content.replaceAll(` xmlns=""`, ""));
+      }
     }
     zip.generateAsync({ type: "blob" }).then(function (blob) {
       saveAs(blob, doc.name);
     });
   },
+  icon: "o-spreadsheet-Icon.EXPORT_XLSX",
 });
 
 class Demo extends Component {
@@ -38,44 +44,65 @@ class Demo extends Component {
     topbarMenuRegistry.addChild("readonly", ["file"], {
       name: "Open in read-only",
       sequence: 11,
-      action: () => this.model.updateMode("readonly"),
+      isVisible: () => this.model.config.mode !== "readonly",
+      execute: () => this.model.updateMode("readonly"),
+      icon: "o-spreadsheet-Icon.OPEN_READ_ONLY",
     });
 
     topbarMenuRegistry.addChild("dashboard", ["file"], {
       name: "Open in dashboard",
       sequence: 12,
       isReadonlyAllowed: true,
-      action: () => this.model.updateMode("dashboard"),
+      isVisible: () => this.model.config.mode !== "dashboard",
+      execute: () => this.model.updateMode("dashboard"),
+      icon: "o-spreadsheet-Icon.OPEN_DASHBOARD",
     });
 
     topbarMenuRegistry.addChild("read_write", ["file"], {
       name: "Open with write access",
       sequence: 13,
       isReadonlyAllowed: true,
-      action: () => this.model.updateMode("normal"),
+      isVisible: () => this.model.config.mode !== "normal",
+      execute: () => this.model.updateMode("normal"),
+      icon: "o-spreadsheet-Icon.OPEN_READ_WRITE",
     });
 
     topbarMenuRegistry.addChild("xlsxImport", ["file"], {
       name: "Import XLSX",
       sequence: 25,
-      action: async (env) => {
+      execute: async (env) => {
         const input = document.createElement("input");
         input.setAttribute("type", "file");
         input.setAttribute("style", "display: none");
         document.body.appendChild(input);
-        input.onchange = async () => {
+        input.addEventListener("change", async () => {
           if (input.files.length <= 0) {
             return false;
           }
           const myjszip = new JSZip();
           const zip = await myjszip.loadAsync(input.files[0]);
           const files = Object.keys(zip.files);
+          const images = [];
           const contents = await Promise.all(
-            files.map((file) => zip.files[file].async("text"))
+            files.map((file) => {
+              if (file.includes("media/image")) {
+                images.push(file);
+                return zip.files[file].async("blob");
+              }
+              return zip.files[file].async("text");
+            })
           );
           const inputFiles = {};
           for (let i = 0; i < contents.length; i++) {
             inputFiles[files[i]] = contents[i];
+          }
+          this.leaveCollaborativeSession();
+          await fetch("http://localhost:9090/clear");
+          for (let i = 0; i < images.length; i++) {
+            const blob = inputFiles[images[i]];
+            const file = new File([blob], images[i].split("/").at(-1));
+            const imageSrc = await this.fileStore.upload(file);
+            inputFiles[images[i]] = { imageSrc };
           }
           await this.initiateConnection(inputFiles);
           this.state.key = this.state.key + 1;
@@ -83,9 +110,10 @@ class Demo extends Component {
           // note : the onchange won't be called if we cancel the dialog w/o selecting a file, so this won't be called.
           // It's kinda annoying (or not possible?) to fire an event on close, so the hidden input will just stay there
           input.remove();
-        };
+        });
         input.click();
       },
+      icon: "o-spreadsheet-Icon.IMPORT_XLSX",
     });
 
     useSubEnv({
