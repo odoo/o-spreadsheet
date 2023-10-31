@@ -127,6 +127,8 @@
       "node"
     ],
     "workerIdleMemoryLimit": "800MB",
+    "globalSetup": "<rootDir>/tests/setup/jest_global_setup.ts",
+    "globalTeardown": "<rootDir>/tests/setup/jest_global_teardown.ts",
     "setupFilesAfterEnv": [
       "<rootDir>/tests/setup/jest.setup.ts"
     ]
