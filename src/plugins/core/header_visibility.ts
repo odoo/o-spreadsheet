@@ -162,9 +162,19 @@ export class HeaderVisibilityPlugin extends CorePlugin {
   }
 
   private getAllVisibleHeaders(sheetId: UID, dimension: Dimension): HeaderIndex[] {
-    return range(0, this.hiddenHeaders[sheetId][dimension].length).filter(
-      (i) => !this.hiddenHeaders[sheetId][dimension][i]
+    const headers: HeaderIndex[] = range(0, this.getters.getNumberHeaders(sheetId, dimension));
+    const hiddenHeaders: HeaderIndex[] = headers.filter(
+      (i) => this.hiddenHeaders[sheetId][dimension][i]
     );
+
+    const foldedHeaders: HeaderIndex[] = [];
+    this.getters.getHeaderGroups(sheetId, dimension).forEach((group) => {
+      if (group.isFolded) {
+        foldedHeaders.push(...range(group.start, group.end + 1));
+      }
+    });
+
+    return headers.filter((i) => !hiddenHeaders.includes(i) && !foldedHeaders.includes(i));
   }
 
   import(data: WorkbookData) {

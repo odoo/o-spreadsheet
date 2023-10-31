@@ -9,9 +9,11 @@ import { DEFAULT_LOCALES } from "../../src/types/locale";
 import {
   copy,
   createFilter,
+  foldHeaderGroup,
   freezeColumns,
   freezeRows,
   groupColumns,
+  groupHeaders,
   groupRows,
   hideColumns,
   hideRows,
@@ -309,6 +311,17 @@ describe("Menu Item actions", () => {
       selectRow(model, 4, "newAnchor");
       selectRow(model, lastRow, "updateAnchor");
 
+      expect(getNode(path).isVisible(env)).toBeFalsy();
+    });
+
+    test("Delete row option unavailable when selecting all rows with folded row grouping", () => {
+      const lastRow = model.getters.getNumberRows(sheetId) - 1;
+
+      groupHeaders(model, "ROW", 0, 2, sheetId);
+      foldHeaderGroup(model, "ROW", 0, 2, sheetId);
+
+      selectRow(model, 3, "newAnchor");
+      selectRow(model, lastRow, "updateAnchor");
       expect(getNode(path).isVisible(env)).toBeFalsy();
     });
   });
@@ -1398,6 +1411,17 @@ describe("Menu Item actions", () => {
         elements: Array.from(Array(model.getters.getNumberRows(sheetId)).keys()),
         dimension: "ROW",
       });
+    });
+
+    test("Hide row option unavailable when selecting all rows with folded row grouping", () => {
+      const lastRow = model.getters.getNumberRows(sheetId) - 1;
+
+      groupHeaders(model, "ROW", 0, 2, sheetId);
+      foldHeaderGroup(model, "ROW", 0, 2, sheetId);
+
+      selectRow(model, 3, "newAnchor");
+      selectRow(model, lastRow, "updateAnchor");
+      expect(getNode(hidePath, rowMenuRegistry).isVisible(env)).toBeFalsy();
     });
 
     describe("Filters", () => {
