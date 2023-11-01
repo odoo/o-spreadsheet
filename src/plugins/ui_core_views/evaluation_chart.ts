@@ -1,6 +1,6 @@
 import { BACKGROUND_CHART_COLOR } from "../../constants";
 import { chartRuntimeFactory, chartToImage } from "../../helpers/figures/charts";
-import { Color, ExcelWorkbookData, FigureData, Immutable, Range, UID } from "../../types";
+import { Color, ExcelWorkbookData, FigureData, Range, UID } from "../../types";
 import { ChartRuntime, ExcelChartDefinition } from "../../types/chart/chart";
 import {
   CoreViewCommand,
@@ -10,12 +10,12 @@ import {
 import { UIPlugin } from "../ui_plugin";
 
 interface EvaluationChartState {
-  readonly charts: Immutable<Record<UID, ChartRuntime | undefined>>;
+  charts: Record<UID, ChartRuntime | undefined>;
 }
 export class EvaluationChartPlugin extends UIPlugin<EvaluationChartState> {
   static getters = ["getChartRuntime", "getBackgroundOfSingleCellChart"] as const;
 
-  readonly charts: Immutable<Record<UID, ChartRuntime | undefined>> = {};
+  charts: Record<UID, ChartRuntime | undefined> = {};
 
   private createRuntimeChart = chartRuntimeFactory(this.getters);
 
@@ -26,10 +26,8 @@ export class EvaluationChartPlugin extends UIPlugin<EvaluationChartState> {
       cmd.type === "EVALUATE_CELLS" ||
       cmd.type === "UPDATE_CELL"
     ) {
-      if (cmd.type !== "UNDO" && cmd.type !== "REDO") {
-        for (const chartId in this.charts) {
-          this.history.update("charts", chartId, undefined);
-        }
+      for (const chartId in this.charts) {
+        this.charts[chartId] = undefined;
       }
     }
 
@@ -37,12 +35,12 @@ export class EvaluationChartPlugin extends UIPlugin<EvaluationChartState> {
       case "UPDATE_CHART":
       case "CREATE_CHART":
       case "DELETE_FIGURE":
-        this.history.update("charts", cmd.id, undefined);
+        this.charts[cmd.id] = undefined;
         break;
       case "DELETE_SHEET":
         for (let chartId in this.charts) {
           if (!this.getters.isChartDefined(chartId)) {
-            this.history.update("charts", chartId, undefined);
+            this.charts[chartId] = undefined;
           }
         }
         break;
@@ -55,8 +53,7 @@ export class EvaluationChartPlugin extends UIPlugin<EvaluationChartState> {
       if (!chart) {
         throw new Error(`No chart for the given id: ${figureId}`);
       }
-      const runtime = this.createRuntimeChart(chart) as Immutable<ChartRuntime>;
-      this.history.update("charts", figureId, runtime);
+      this.charts[figureId] = this.createRuntimeChart(chart);
     }
     return this.charts[figureId] as ChartRuntime;
   }
