@@ -9,7 +9,8 @@
   "types": "dist/o-spreadsheet.d.ts",
   "files": [
     "dist/*.js",
-    "dist/*.d.ts"
+    "dist/*.d.ts",
+    "dist/*.xml"
   ],
   "scripts": {
     "serve-static": "live-server --open=demo --watch=build/o_spreadsheet.js,build/o_spreadsheet.xml,demo",
