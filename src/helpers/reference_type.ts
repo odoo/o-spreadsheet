@@ -30,6 +30,7 @@ export function loopThroughReferenceType(token: Readonly<Token>): Token {
  * A1 => $A$1 => A$1 => $A1 => A1
  */
 function getTokenNextReferenceType(xc: string): string {
+  if (xc.length === 1) return setXcToReferenceType(xc, "row");
   switch (getReferenceType(xc)) {
     case "none":
       xc = setXcToReferenceType(xc, "colrow");

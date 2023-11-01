@@ -87,20 +87,20 @@ export class RangeImpl implements Range {
     const isFullCol = zone.bottom === undefined;
     const isFullRow = zone.right === undefined;
     if (isFullCol) {
-      parts[0].rowFixed = parts[0].rowFixed || parts[1].rowFixed;
-      parts[1].rowFixed = parts[0].rowFixed || parts[1].rowFixed;
+      parts[0].rowFixed = parts[0].rowFixed;
+      parts[1].rowFixed = parts[1].rowFixed;
       if (zone.left === zone.right) {
-        parts[0].colFixed = parts[0].colFixed || parts[1].colFixed;
-        parts[1].colFixed = parts[0].colFixed || parts[1].colFixed;
+        parts[0].colFixed = parts[0].colFixed;
+        parts[1].colFixed = parts[1].colFixed;
       }
     }
     if (isFullRow) {
-      parts[0].colFixed = parts[0].colFixed || parts[1].colFixed;
-      parts[1].colFixed = parts[0].colFixed || parts[1].colFixed;
+      parts[0].colFixed = parts[0].colFixed;
+      parts[1].colFixed = parts[1].colFixed;
 
       if (zone.top === zone.bottom) {
-        parts[0].rowFixed = parts[0].rowFixed || parts[1].rowFixed;
-        parts[1].rowFixed = parts[0].rowFixed || parts[1].rowFixed;
+        parts[0].rowFixed = parts[0].rowFixed;
+        parts[1].rowFixed = parts[1].rowFixed;
       }
     }
 

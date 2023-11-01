@@ -2,6 +2,7 @@ import {
   concat,
   isColHeader,
   isColReference,
+  isRowHeader,
   isRowReference,
   isSingleCellReference,
 } from "../helpers";
@@ -104,6 +105,7 @@ const machine: Machine = {
   [State.RightRowRef]: {
     SPACE: goTo(State.RightRowRef),
     NUMBER: goTo(State.Found),
+    SYMBOL: goTo(State.Found, (token) => isRowHeader(token.value)),
     REFERENCE: goTo(State.Found, (token) => isSingleCellReference(token.value)),
   },
   [State.Found]: {},
