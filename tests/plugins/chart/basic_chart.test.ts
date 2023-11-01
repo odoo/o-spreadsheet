@@ -1962,6 +1962,23 @@ describe("Chart evaluation", () => {
         .data![0]
     ).toBe("#REF");
   });
+
+  test("undo/redo invalidates the chart runtime", () => {
+    const chartId = "test";
+    setCellContent(model, "A1", "oui");
+    setCellContent(model, "A2", "non");
+    createChart(model, {}, chartId);
+
+    updateChart(model, chartId, { labelRange: "A1:A2" });
+    const chartRuntime1 = model.getters.getChartRuntime(chartId) as BarChartRuntime;
+    undo(model);
+    const chartRuntime2 = model.getters.getChartRuntime(chartId) as BarChartRuntime;
+    redo(model);
+    const chartRuntime3 = model.getters.getChartRuntime(chartId) as BarChartRuntime;
+    expect(chartRuntime1.chartJsConfig.data?.labels).toEqual(["oui", "non"]);
+    expect(chartRuntime2.chartJsConfig.data?.labels).toEqual([]);
+    expect(chartRuntime3.chartJsConfig.data?.labels).toEqual(["oui", "non"]);
+  });
 });
 
 describe("Cumulative Data line chart", () => {
