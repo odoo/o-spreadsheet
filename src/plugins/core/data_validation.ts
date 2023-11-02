@@ -134,6 +134,9 @@ export class DataValidationPlugin
   }
 
   getValidationRuleForCell({ sheetId, col, row }: CellPosition): DataValidationRule | undefined {
+    if (!this.rules[sheetId]) {
+      return undefined;
+    }
     for (const rule of this.rules[sheetId]) {
       for (const range of rule.ranges) {
         if (isInside(col, row, range.zone)) {
