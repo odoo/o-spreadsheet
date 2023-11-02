@@ -240,6 +240,23 @@ describe("clipboard", () => {
     expect(getCell(model, "A2", sheet2Id)).toBe(undefined);
   });
 
+  test("can paste even if sheet containing copy zone has been deleted", () => {
+    const model = new Model();
+    const sheet1Id = model.getters.getActiveSheetId();
+    const sheet2Id = "sheet2";
+    createSheet(model, { sheetId: sheet2Id });
+
+    setCellContent(model, "A1", "Apple", sheet1Id);
+    setStyle(model, "A1", { bold: true });
+    copy(model, "A1");
+
+    activateSheet(model, sheet2Id);
+    deleteSheet(model, sheet1Id);
+    paste(model, "A2");
+    expect(getCellContent(model, "A2", sheet2Id)).toBe("Apple");
+    expect(getCell(model, "A2", sheet2Id)!.style).toEqual({ bold: true });
+  });
+
   test("can copy into a cell with style", () => {
     const model = new Model();
     // set value and style in B2
