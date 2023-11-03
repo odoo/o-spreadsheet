@@ -249,14 +249,14 @@ export function drawDecoratedText(
   switch (context.textBaseline) {
     case "top":
       underlineY += boxHeight - 2 * strokeWidth;
-      strikeY += boxHeight - textHeight;
+      strikeY += boxHeight / 2 - strokeWidth;
       break;
     case "middle":
       underlineY += boxHeight / 2 - strokeWidth;
       break;
     case "alphabetic":
       underlineY += 2 * strokeWidth;
-      strikeY -= textHeight / 2 - strokeWidth / 2;
+      strikeY -= 3 * strokeWidth;
       break;
     case "bottom":
       underlineY = y;
