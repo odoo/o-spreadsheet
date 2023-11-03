@@ -181,9 +181,6 @@ export class Evaluator {
   }
 
   private setEvaluatedCell(positionId: PositionId, evaluatedCell: EvaluatedCell) {
-    if (this.nextPositionsToUpdate.has(positionId)) {
-      this.nextPositionsToUpdate.delete(positionId);
-    }
     this.evaluatedCells.set(positionId, evaluatedCell);
   }
 
