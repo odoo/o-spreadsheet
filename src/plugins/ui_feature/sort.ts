@@ -6,7 +6,6 @@ import {
   CellValueType,
   Command,
   CommandResult,
-  EvaluatedCell,
   HeaderIndex,
   LocalCommand,
   Position,
@@ -20,8 +19,6 @@ import {
 import { UIPlugin } from "../ui_plugin";
 
 export class SortPlugin extends UIPlugin {
-  static getters = ["getContiguousZone"] as const;
-
   allowDispatch(cmd: LocalCommand): CommandResult | CommandResult[] {
     switch (cmd.type) {
       case "SORT_CELLS":
@@ -75,147 +72,6 @@ export class SortPlugin extends UIPlugin {
       return CommandResult.InvalidSortZone;
     }
     return CommandResult.Success;
-  }
-
-  // getContiguousZone helpers
-
-  /**
-   * safe-version of expandZone to make sure we don't get out of the grid
-   */
-  private expand(sheetId: UID, z: Zone) {
-    const { left, right, top, bottom } = this.getters.expandZone(sheetId, z);
-    return {
-      left: Math.max(0, left),
-      right: Math.min(this.getters.getNumberCols(sheetId) - 1, right),
-      top: Math.max(0, top),
-      bottom: Math.min(this.getters.getNumberRows(sheetId) - 1, bottom),
-    };
-  }
-
-  /**
-   * verifies the presence of at least one non-empty cell in the given zone
-   */
-  private checkExpandedValues(sheetId: UID, z: Zone): boolean {
-    const expandedZone = this.expand(sheetId, z);
-    let cell: EvaluatedCell | undefined;
-    if (this.getters.doesIntersectMerge(sheetId, expandedZone)) {
-      const { left, right, top, bottom } = expandedZone;
-      for (let c = left; c <= right; c++) {
-        for (let r = top; r <= bottom; r++) {
-          const { col, row } = this.getters.getMainCellPosition({ sheetId, col: c, row: r });
-          cell = this.getters.getEvaluatedCell({ sheetId, col, row });
-          if (cell.formattedValue) {
-            return true;
-          }
-        }
-      }
-    } else {
-      for (let cell of this.getters.getEvaluatedCellsInZone(sheetId, expandedZone)) {
-        if (cell.formattedValue) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  /**
-   * This function will expand the provided zone in directions (top, bottom, left, right) for which there
-   * are non-null cells on the external boundary of the zone in the given direction.
-   *
-   * Example:
-   *          A     B     C     D     E
-   *         ___   ___   ___   ___   ___
-   *    1  |     |  D  |     |     |     |
-   *         ___   ___   ___   ___   ___
-   *    2  |  5  |     |  1  |  D  |     |
-   *         ___   ___   ___   ___   ___
-   *    3  |     |     |  A  |  X  |     |
-   *         ___   ___   ___   ___   ___
-   *    4  |     |     |     |     |     |
-   *         ___   ___   ___   ___   ___
-   *
-   *  Let's consider a provided zone corresponding to (C2:D3) - (left:2, right: 3, top:1, bottom:2)
-   *  - the top external boundary is (B1:E1)
-   *    Since we have B1='D' != "", we expand to the top: => (C1:D3)
-   *    The top boundary having reached the top of the grid, we cannot expand in that direction anymore
-   *
-   *  - the left boundary is (B1:B4)
-   *    since we have B1 again, we expand to the left  => (B1:D3)
-   *
-   *  - the right and bottom boundaries are a dead end for now as (E1:E4) and (A4:E4) are empty.
-   *
-   *  - the left boundary is now (A1:A4)
-   *    Since we have A2=5 != "", we can therefore expand to the left => (A1:D3)
-   *
-   *  This will be the final zone as left and top have reached the boundaries of the grid and
-   *  the other boundaries (E1:E4) and (A4:E4) are empty.
-   *
-   * @param sheetId UID of concerned sheet
-   * @param zone Zone
-   *
-   */
-  getContiguousZone(sheetId: UID, zone: Zone): Zone {
-    let { top, bottom, left, right } = zone;
-    let canExpand: boolean;
-
-    let stop: boolean = false;
-    while (!stop) {
-      stop = true;
-      /** top row external boundary */
-      if (top > 0) {
-        canExpand = this.checkExpandedValues(sheetId, {
-          left: left - 1,
-          right: right + 1,
-          top: top - 1,
-          bottom: top - 1,
-        });
-        if (canExpand) {
-          stop = false;
-          top--;
-        }
-      }
-      /** left column external boundary */
-      if (left > 0) {
-        canExpand = this.checkExpandedValues(sheetId, {
-          left: left - 1,
-          right: left - 1,
-          top: top - 1,
-          bottom: bottom + 1,
-        });
-        if (canExpand) {
-          stop = false;
-          left--;
-        }
-      }
-      /** right column external boundary */
-      if (right < this.getters.getNumberCols(sheetId) - 1) {
-        canExpand = this.checkExpandedValues(sheetId, {
-          left: right + 1,
-          right: right + 1,
-          top: top - 1,
-          bottom: bottom + 1,
-        });
-        if (canExpand) {
-          stop = false;
-          right++;
-        }
-      }
-      /** bottom row external boundary */
-      if (bottom < this.getters.getNumberRows(sheetId) - 1) {
-        canExpand = this.checkExpandedValues(sheetId, {
-          left: left - 1,
-          right: right + 1,
-          top: bottom + 1,
-          bottom: bottom + 1,
-        });
-        if (canExpand) {
-          stop = false;
-          bottom++;
-        }
-      }
-    }
-    return { left, right, top, bottom };
   }
 
   /**
