@@ -622,8 +622,8 @@ describe("evaluate formulas that return an array", () => {
       setCellContent(model, "C1", "=MFILL(2,1,B1+1)");
       expect(getEvaluatedCell(model, "A1").value).toBe(31);
       expect(getEvaluatedCell(model, "B1").value).toBe(31);
-      expect(getEvaluatedCell(model, "C1").value).toBe(30);
-      expect(getEvaluatedCell(model, "D1").value).toBe(30);
+      expect(getEvaluatedCell(model, "C1").value).toBe(32);
+      expect(getEvaluatedCell(model, "D1").value).toBe(32);
     });
 
     test("have collision when spread size zone change", () => {
@@ -644,6 +644,26 @@ describe("evaluate formulas that return an array", () => {
       expect(getEvaluatedCell(model, "B3").value).toBe(42);
 
       expect(getEvaluatedCell(model, "A3").value).toBe("#ERROR");
+    });
+
+    test("recompute cell depending on spread values computed in between", () => {
+      const model = new Model({
+        sheets: [
+          {
+            name: "sheet1",
+            cells: { A1: { content: "=sheet2!A4" } },
+          },
+          {
+            name: "sheet2",
+            cells: {
+              A1: { content: "=MFILL(1,3,42)" },
+              A4: { content: "=MEDIAN(A2:A3)" }, // depends only on spread values (not on sheet2!A1)
+            },
+          },
+        ],
+      });
+      // initially, cells are evaluated in this order: [sheet1!A1, sheet2!A1, sheet2!A4]
+      expect(getEvaluatedCell(model, "A1").value).toBe(42);
     });
   });
 
