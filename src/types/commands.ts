@@ -7,6 +7,7 @@ import { FigureSize } from "./figure";
 import { Image } from "./image";
 import {
   ConditionalFormat,
+  DOMCoordinates,
   DataValidationRule,
   Figure,
   Format,
@@ -459,7 +460,7 @@ export interface DeleteFigureCommand extends SheetDependentCommand {
 export interface CreateChartCommand extends SheetDependentCommand {
   type: "CREATE_CHART";
   id: UID;
-  position?: { x: Pixel; y: Pixel };
+  position?: DOMCoordinates;
   size?: FigureSize;
   definition: ChartDefinition;
 }
@@ -477,7 +478,7 @@ export interface UpdateChartCommand extends SheetDependentCommand {
 export interface CreateImageOverCommand extends SheetDependentCommand {
   type: "CREATE_IMAGE";
   figureId: UID;
-  position: { x: Pixel; y: Pixel };
+  position: DOMCoordinates;
   size: FigureSize;
   definition: Image;
 }

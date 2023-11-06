@@ -418,7 +418,7 @@ export class SheetViewPlugin extends UIPlugin {
     return this.getSubViewports(sheetId).some((pane) => pane.isVisible(col, row));
   }
 
-  // => return s the new offset
+  // => returns the new offset
   getEdgeScrollCol(x: number, previousX: number, startingX: number): EdgeScrollInfo {
     let canEdgeScroll = false;
     let direction: ScrollDirection = 0;
@@ -720,7 +720,7 @@ export class SheetViewPlugin extends UIPlugin {
   /**
    * Adjust the viewport such that the anchor position is visible
    */
-  private refreshViewport(sheetId: UID, anchorPosition?: Position) {
+  private refreshViewport(sheetId: UID, anchorPosition: Position) {
     Object.values(this.getSubViewports(sheetId)).forEach((viewport) => {
       viewport.adjustViewportZone();
       viewport.adjustPosition(anchorPosition);

@@ -5,11 +5,11 @@ import { Image } from "../../types/image";
 import {
   CommandResult,
   CoreCommand,
+  DOMCoordinates,
   ExcelWorkbookData,
   Figure,
   FigureData,
   FigureSize,
-  Pixel,
   UID,
   WorkbookData,
 } from "../../types/index";
@@ -123,7 +123,7 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
   // Private
   // ---------------------------------------------------------------------------
 
-  private addImage(id: UID, sheetId: UID, position: { x: Pixel; y: Pixel }, size: FigureSize) {
+  private addImage(id: UID, sheetId: UID, position: DOMCoordinates, size: FigureSize) {
     const figure: Figure = {
       id,
       x: position.x,

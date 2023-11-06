@@ -8,9 +8,10 @@ import {
   CommandResult,
   CoreCommand,
   CreateChartCommand,
+  DOMCoordinates,
+  DOMDimension,
   Figure,
   FigureData,
-  Pixel,
   UID,
   UpdateChartCommand,
   WorkbookData,
@@ -201,8 +202,8 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
   private addFigure(
     id: UID,
     sheetId: UID,
-    position: { x: Pixel; y: Pixel } = { x: 0, y: 0 },
-    size: { width: Pixel; height: Pixel } = {
+    position: DOMCoordinates = { x: 0, y: 0 },
+    size: DOMDimension = {
       width: DEFAULT_FIGURE_WIDTH,
       height: DEFAULT_FIGURE_HEIGHT,
     }
