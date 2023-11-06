@@ -7,6 +7,7 @@
         t-on-scroll="onScroll"
         t-on-wheel.stop=""
         t-on-click.stop=""
+        t-on-mouseover="onMouseOverMainMenu"
         t-on-contextmenu.prevent="">
         <t t-foreach="menuItemsAndSeparators" t-as="menuItem" t-key="menuItem_index">
           <div t-if="menuItem === 'separator'" class="o-separator"/>
@@ -18,9 +19,10 @@
               t-att-data-name="menuItem.id"
               t-on-click="(ev) => this.onClickMenu(menuItem, ev)"
               t-on-mouseenter="(ev) => this.onMouseEnter(menuItem, ev)"
+              t-on-mouseover="(ev) => this.onMouseOver(menuItem, ev)"
               t-on-mouseleave="(ev) => this.onMouseLeave(menuItem)"
-              class="o-menu-item d-flex align-items-center"
-              t-att-class="{ 'o-menu-root': isMenuRoot, 'disabled': !isMenuEnabled, 'o-menu-item-active': isParentMenu(subMenu, menuItem)}"
+              class="o-menu-item d-flex justify-content-between align-items-center"
+              t-att-class="{'disabled': !isMenuEnabled, 'o-menu-item-active': isActive(menuItem)}"
               t-att-style="getColor(menuItem)">
               <div class="d-flex w-100">
                 <div t-if="childrenHaveIcon" class="o-menu-item-icon align-middle">
@@ -56,8 +58,9 @@
         depth="props.depth + 1"
         maxHeight="props.maxHeight"
         onMenuClicked="props.onMenuClicked"
-        onClose="() => this.close()"
+        onClose.bind="close"
         menuId="props.menuId"
+        onMouseOver.bind="onMouseOverChildMenu"
       />
     </Popover>
   </t>

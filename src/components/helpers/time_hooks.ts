@@ -1,8 +1,13 @@
-import { useEffect } from "@odoo/owl";
+import { onWillUnmount, useEffect } from "@odoo/owl";
 
 interface IntervalTimer {
   pause: () => void;
   resume: () => void;
+}
+
+interface Timeout {
+  clear: () => void;
+  schedule: (callback: () => void, delay: number) => void;
 }
 
 /**
@@ -28,5 +33,27 @@ export function useInterval(callback: () => void, delay: number): IntervalTimer 
         intervalId = setInterval(callback, delay);
       }
     },
+  };
+}
+
+/**
+ * Calls a callback function with a time delay
+ */
+export function useTimeOut(): Timeout {
+  let timeOutId: NodeJS.Timeout | undefined;
+  function clear() {
+    if (timeOutId !== undefined) {
+      clearTimeout(timeOutId);
+      timeOutId = undefined;
+    }
+  }
+  function schedule(callback: () => void, delay: number) {
+    clear();
+    timeOutId = setTimeout(callback, delay);
+  }
+  onWillUnmount(clear);
+  return {
+    clear,
+    schedule,
   };
 }

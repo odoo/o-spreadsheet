@@ -12,7 +12,9 @@ import { Model } from "../../src/model";
 import { cellMenuRegistry } from "../../src/registries/menus/cell_menu_registry";
 import { setCellContent } from "../test_helpers/commands_helpers";
 import {
+  DOMTarget,
   click,
+  getTarget,
   rightClickCell,
   simulateClick,
   triggerMouseEvent,
@@ -32,6 +34,28 @@ import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 let fixture: HTMLElement;
 let model: Model;
 let parent: Component;
+
+jest.useFakeTimers();
+
+async function mouseOverMenuElement(target: DOMTarget) {
+  const element = getTarget(target);
+  triggerMouseEvent(element, "mouseenter");
+  triggerMouseEvent(element, "mouseover");
+  jest.runAllTimers();
+  await nextTick();
+}
+
+function makeTestMenuItem(name: string, params?: Partial<ActionSpec>): ActionSpec {
+  const item = {
+    id: name,
+    ...params,
+    name,
+  };
+  if (!params?.children) {
+    item.execute = () => {};
+  }
+  return item;
+}
 
 mockGetBoundingClientRect({
   "o-menu": (el) => getElPosition(el),
@@ -155,24 +179,9 @@ function getSelectionAnchorCellXc(model: Model): string {
 }
 
 const subMenu: Action[] = createActions([
-  {
-    id: "root",
-    name: "root",
-    children: [
-      () => [
-        {
-          id: "subMenu1",
-          name: "subMenu1",
-          execute() {},
-        },
-        {
-          id: "subMenu2",
-          name: "subMenu2",
-          execute() {},
-        },
-      ],
-    ],
-  },
+  makeTestMenuItem("root", {
+    children: [makeTestMenuItem("subMenu1"), makeTestMenuItem("subMenu2")],
+  }),
 ]);
 
 class ContextMenuParent extends Component {
@@ -199,15 +208,7 @@ class ContextMenuParent extends Component {
       width: this.props.width,
       height: this.props.height,
     };
-    this.menus =
-      this.props.config.menuItems ||
-      createActions([
-        {
-          id: "Action",
-          name: "Action",
-          execute() {},
-        },
-      ]);
+    this.menus = this.props.config.menuItems || createActions([makeTestMenuItem("Action")]);
     this.env.model.dispatch("RESIZE_SHEETVIEW", {
       height: this.props.height,
       width: this.props.width,
@@ -379,31 +380,16 @@ describe("Context Menu integration tests", () => {
 describe("Context Menu internal tests", () => {
   test("submenu opens and close when (un)hovered", async () => {
     const menuItems = createActions([
-      {
-        id: "action",
-        name: "action",
-        execute() {},
-      },
-      {
-        id: "root",
-        name: "root",
-        children: [
-          () => [
-            {
-              id: "subMenu",
-              name: "subMenu",
-              execute() {},
-            },
-          ],
-        ],
-      },
+      makeTestMenuItem("action"),
+      makeTestMenuItem("root", {
+        children: [makeTestMenuItem("subMenu")],
+      }),
     ]);
     await renderContextMenu(300, 300, { menuItems });
-    triggerMouseEvent(".o-menu div[data-name='root']", "mouseenter");
-    await nextTick();
+    await mouseOverMenuElement(".o-menu div[data-name='root']");
     expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeTruthy();
-    triggerMouseEvent(".o-menu div[data-name='action']", "mouseenter");
-    await nextTick();
+    triggerMouseEvent(".o-menu div[data-name='root']", "mouseleave");
+    await mouseOverMenuElement(".o-menu div[data-name='action']");
     expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeFalsy();
   });
 
@@ -411,28 +397,20 @@ describe("Context Menu internal tests", () => {
     await renderContextMenu(300, 300, { menuItems: cellMenuRegistry.getMenuItems() });
     const menuItem = fixture.querySelector(".o-menu div[data-name='paste_special']");
     expect(menuItem?.classList).not.toContain("o-menu-item-active");
-    triggerMouseEvent(menuItem, "mouseenter");
-    await nextTick();
-    expect(menuItem?.classList).toContain("o-menu-item-active");
-    triggerMouseEvent(".o-menu div[data-name='paste_value_only']", "mouseenter");
-    await nextTick();
-    expect(menuItem?.classList).toContain("o-menu-item-active");
+
+    await mouseOverMenuElement(menuItem);
+    triggerMouseEvent(menuItem, "mouseleave");
+    await mouseOverMenuElement(".o-menu div[data-name='paste_value_only']");
+    const menuItem2 = fixture.querySelector(".o-menu div[data-name='paste_special']");
+    expect(menuItem2?.classList).toContain("o-menu-item-active");
   });
 
   test("submenu does not open when disabled", async () => {
     const menuItems: Action[] = createActions([
-      {
-        id: "root",
-        name: "root",
+      makeTestMenuItem("root", {
         isEnabled: () => false,
-        children: [
-          {
-            name: "subMenu",
-            id: "subMenu",
-            execute() {},
-          },
-        ],
-      },
+        children: [makeTestMenuItem("subMenu")],
+      }),
     ]);
     await renderContextMenu(300, 300, { menuItems });
     expect(fixture.querySelector(".o-menu div[data-name='root']")!.classList).toContain("disabled");
@@ -442,36 +420,25 @@ describe("Context Menu internal tests", () => {
 
   test("submenu does not open when hovering write only parent", async () => {
     const menuItems: Action[] = createActions([
-      {
-        id: "root",
-        name: "root",
-        isEnabled: () => true,
+      makeTestMenuItem("root", {
         isReadonlyAllowed: false,
-        children: [
-          {
-            name: "subMenu",
-            id: "subMenu",
-            execute() {},
-          },
-        ],
-      },
+        isEnabled: () => true,
+        children: [makeTestMenuItem("subMenu")],
+      }),
     ]);
     await renderContextMenu(300, 300, { menuItems });
     model.updateMode("readonly");
     await nextTick();
     expect(fixture.querySelector(".o-menu div[data-name='root']")!.classList).toContain("disabled");
-    triggerMouseEvent(".o-menu div[data-name='root']", "mouseenter");
-    await nextTick();
+    await mouseOverMenuElement(".o-menu div[data-name='root']");
     expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeFalsy();
   });
 
   test("submenu does not close when sub item hovered", async () => {
     await renderContextMenu(300, 300, { menuItems: subMenu });
-    triggerMouseEvent(".o-menu div[data-name='root']", "mouseenter");
-    await nextTick();
+    await mouseOverMenuElement(".o-menu div[data-name='root']");
     expect(fixture.querySelector(".o-menu div[data-name='subMenu1']")).toBeTruthy();
-    triggerMouseEvent(".o-menu div[data-name='subMenu1']", "mouseenter");
-    await nextTick();
+    await mouseOverMenuElement(".o-menu div[data-name='subMenu1']");
     expect(fixture.querySelector(".o-menu div[data-name='subMenu1']")).toBeTruthy();
   });
 
@@ -496,27 +463,13 @@ describe("Context Menu internal tests", () => {
 
   test("it renders subsubmenus", async () => {
     const menuItems = createActions([
-      {
-        id: "root1",
-        name: "root1",
+      makeTestMenuItem("root1", {
         children: [
-          () => [
-            {
-              id: "root2",
-              name: "root2",
-              children: [
-                () => [
-                  {
-                    id: "subMenu",
-                    name: "subMenu",
-                    execute() {},
-                  },
-                ],
-              ],
-            },
-          ],
+          makeTestMenuItem("root2", {
+            children: [makeTestMenuItem("subMenu")],
+          }),
         ],
-      },
+      }),
     ]);
     await renderContextMenu(300, 990, { menuItems });
     await simulateClick("div[data-name='root1']");
@@ -526,17 +479,8 @@ describe("Context Menu internal tests", () => {
 
   test("Can color menu items", async () => {
     const menuItems: Action[] = createActions([
-      {
-        id: "black",
-        name: "black",
-        execute() {},
-      },
-      {
-        id: "orange",
-        name: "orange",
-        execute() {},
-        textColor: "orange",
-      },
+      makeTestMenuItem("black"),
+      makeTestMenuItem("orange", { textColor: "orange" }),
     ]);
     await renderContextMenu(0, 0, { menuItems });
     expect((fixture.querySelector("div[data-name='black']") as HTMLElement).style.color).toEqual(
@@ -549,99 +493,74 @@ describe("Context Menu internal tests", () => {
 
   test("Only submenus of the current parent are visible", async () => {
     const menuItems = createActions([
-      {
-        id: "root_1",
-        name: "root_1",
+      makeTestMenuItem("root_1", {
         children: [
-          () => [
-            {
-              id: "root_1_1",
-              name: "root_1_1",
-              children: [
-                () => [
-                  {
-                    id: "subMenu_1",
-                    name: "subMenu_1",
-                    execute() {},
-                  },
-                ],
-              ],
-            },
-          ],
+          makeTestMenuItem("root_1_1", {
+            children: [makeTestMenuItem("subMenu_1")],
+          }),
         ],
-      },
-      {
-        id: "root_2",
-        name: "root_2",
+      }),
+      makeTestMenuItem("root_2", {
         children: [
-          () => [
-            {
-              id: "root_2_1",
-              name: "root_2_1",
-              children: [
-                () => [
-                  {
-                    id: "subMenu_2",
-                    name: "subMenu_2",
-                    execute() {},
-                  },
-                ],
-              ],
-            },
-          ],
+          makeTestMenuItem("root_2_1", {
+            children: [makeTestMenuItem("subMenu_2")],
+          }),
         ],
-      },
+      }),
     ]);
     await renderContextMenu(300, 300, { menuItems });
 
-    triggerMouseEvent(".o-menu div[data-name='root_1']", "mouseenter");
-    await nextTick();
-    triggerMouseEvent(".o-menu div[data-name='root_1_1']", "mouseenter");
-    await nextTick();
+    await mouseOverMenuElement(".o-menu div[data-name='root_1']");
+    await mouseOverMenuElement(".o-menu div[data-name='root_1_1']");
     expect(fixture.querySelector(".o-menu div[data-name='subMenu_1']")).toBeTruthy();
-    triggerMouseEvent(".o-menu div[data-name='root_2']", "mouseenter");
-    await nextTick();
+    await mouseOverMenuElement(".o-menu div[data-name='root_2']");
     expect(fixture.querySelector(".o-menu div[data-name='subMenu_1']")).toBeFalsy();
     expect(fixture.querySelector(".o-menu div[data-name='root_2_1']")).toBeTruthy();
   });
 
-  test("Submenu visibility is taken into account", async () => {
+  test("Submenus don't close immediately", async () => {
     const menuItems = createActions([
-      {
-        id: "root",
-        name: "root_1",
-        children: [
-          () => [
-            {
-              id: "menu_1",
-              name: "root_1_1",
-              children: [
-                () => [
-                  {
-                    id: "visible_submenu_1",
-                    name: "visible_submenu_1",
-                    execute() {},
-                    isVisible: () => true,
-                  },
-                  {
-                    id: "invisible_submenu_1",
-                    name: "invisible_submenu_1",
-                    execute() {},
-                    isVisible: () => false,
-                  },
-                ],
-              ],
-            },
-          ],
-        ],
-      },
+      makeTestMenuItem("root_1", {
+        children: [makeTestMenuItem("root_1_1")],
+      }),
+      makeTestMenuItem("root_2", {
+        children: [makeTestMenuItem("root_2_1")],
+      }),
     ]);
     await renderContextMenu(300, 300, { menuItems });
-    triggerMouseEvent(".o-menu div[data-name='root']", "mouseenter");
+
+    await mouseOverMenuElement(".o-menu div[data-name='root_1']");
+    expect(fixture.querySelector(".o-menu div[data-name='root_1_1']")).toBeTruthy();
+
+    triggerMouseEvent(".o-menu div[data-name='root_2']", "mouseover");
+    jest.advanceTimersByTime(100);
+    triggerMouseEvent(".o-menu div[data-name='root_2']", "mouseleave");
     await nextTick();
+    expect(fixture.querySelector(".o-menu div[data-name='root_1_1']")).toBeTruthy();
+    expect(fixture.querySelector(".o-menu div[data-name='root_2_1']")).toBeFalsy();
+  });
+
+  test("Submenu visibility is taken into account", async () => {
+    const menuItems = createActions([
+      makeTestMenuItem("root", {
+        children: [
+          makeTestMenuItem("menu_1", {
+            children: [
+              makeTestMenuItem("visible_submenu_1", {
+                isVisible: () => true,
+              }),
+              makeTestMenuItem("invisible_submenu_1", {
+                isVisible: () => false,
+              }),
+            ],
+          }),
+        ],
+      }),
+    ]);
+    await renderContextMenu(300, 300, { menuItems });
+    await mouseOverMenuElement(".o-menu div[data-name='root']");
     expect(fixture.querySelector(".o-menu div[data-name='menu_1']")).toBeTruthy();
-    triggerMouseEvent(".o-menu div[data-name='menu_1']", "mouseenter");
-    await nextTick();
+    await mouseOverMenuElement(".o-menu div[data-name='menu_1']");
     expect(fixture.querySelector(".o-menu div[data-name='visible_submenu_1']")).toBeTruthy();
     expect(fixture.querySelector(".o-menu div[data-name='invisible_submenu_1']")).toBeFalsy();
   });
@@ -649,11 +568,7 @@ describe("Context Menu internal tests", () => {
   test("Enabled menus are updated at each render", async () => {
     let enabled = true;
     const menuItems: Action[] = createActions([
-      {
-        id: "menuItem",
-        name: "menuItem",
-        isEnabled: () => enabled,
-      },
+      makeTestMenuItem("menuItem", { isEnabled: () => enabled }),
     ]);
     await renderContextMenu(300, 300, { menuItems });
     expect(fixture.querySelector("div[data-name='menuItem']")?.classList).not.toContain("disabled");
@@ -667,11 +582,7 @@ describe("Context Menu internal tests", () => {
   test("Visible menus are updated at each render", async () => {
     let visible = true;
     const menuItems: Action[] = createActions([
-      {
-        id: "menuItem",
-        name: "menuItem",
-        isVisible: () => visible,
-      },
+      makeTestMenuItem("menuItem", { isVisible: () => visible }),
     ]);
     await renderContextMenu(300, 300, { menuItems });
     expect(fixture.querySelector("div[data-name='menuItem']")).toBeTruthy();
@@ -685,13 +596,8 @@ describe("Context Menu internal tests", () => {
   test("Menu icon slot is visible if one of the children has an icon", async () => {
     let visible = false;
     const menuItems = createActions([
-      {
-        name: "child1",
-        icon: () => (visible ? "o-spreadsheet-Icon.BOLD" : ""),
-      },
-      {
-        name: "child2",
-      },
+      makeTestMenuItem("child1", { icon: () => (visible ? "o-spreadsheet-Icon.BOLD" : "") }),
+      makeTestMenuItem("child2"),
     ]);
     await renderContextMenu(300, 300, { menuItems });
     expect(fixture.querySelectorAll(".o-menu-item-icon").length).toBe(0);
@@ -843,23 +749,13 @@ describe("Context Menu position on large screen 1000px/1000px", () => {
 
   test("multi depth menu is properly placed on the screen", async () => {
     const subMenus: Action[] = createActions([
-      {
-        id: "root",
-        name: "root",
+      makeTestMenuItem("root", {
         children: [
-          {
-            id: "subMenu",
-            name: "subMenu",
-            children: [
-              {
-                id: "subSubMenu",
-                name: "subSubMenu",
-                execute() {},
-              },
-            ],
-          },
+          makeTestMenuItem("subMenu", {
+            children: [makeTestMenuItem("subSubMenu")],
+          }),
         ],
-      },
+      }),
     ]);
     const [clickX] = await renderContextMenu(100, 100, { menuItems: subMenus });
     await simulateClick("div[data-name='root']");
