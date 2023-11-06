@@ -85,10 +85,7 @@ class ScorecardChartConfigBuilder {
   private width: number;
   private height: number;
 
-  constructor(
-    { width, height }: { width: Pixel; height: Pixel },
-    readonly runtime: ScorecardChartRuntime
-  ) {
+  constructor({ width, height }: DOMDimension, readonly runtime: ScorecardChartRuntime) {
     const canvas = document.createElement("canvas");
     this.width = canvas.width = width;
     this.height = canvas.height = height;

@@ -1,7 +1,7 @@
 import { Model } from "../../src";
 import { HEADER_HEIGHT, HEADER_WIDTH } from "../../src/constants";
 import { MIN_DELAY, lettersToNumber, scrollDelay, toZone } from "../../src/helpers";
-import { Pixel } from "../../src/types";
+import { DOMCoordinates, Pixel } from "../../src/types";
 import { nextTick } from "./helpers";
 
 type DOMTarget = string | Element | Document | Window | null;
@@ -288,8 +288,8 @@ export async function selectColumnByClicking(model: Model, letter: string, extra
 
 export async function dragElement(
   element: Element | string,
-  dragOffset: { x: Pixel; y: Pixel },
-  startingPosition: { x: Pixel; y: Pixel } = { x: 0, y: 0 },
+  dragOffset: DOMCoordinates,
+  startingPosition: DOMCoordinates = { x: 0, y: 0 },
   mouseUp = false
 ) {
   const { x: startX, y: startY } = startingPosition;
