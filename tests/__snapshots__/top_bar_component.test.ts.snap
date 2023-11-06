@@ -639,7 +639,7 @@ exports[`TopBar component can set cell format 1`] = `
       >
         
         <div
-          class="o-menu-item d-flex align-items-center"
+          class="o-menu-item d-flex justify-content-between align-items-center"
           data-name="format_number_automatic"
           title="Automatic"
         >
@@ -673,7 +673,7 @@ exports[`TopBar component can set cell format 1`] = `
         </div>
         
         <div
-          class="o-menu-item d-flex align-items-center"
+          class="o-menu-item d-flex justify-content-between align-items-center"
           data-name="format_number_plain_text"
           title="Plain text"
         >
@@ -700,7 +700,7 @@ exports[`TopBar component can set cell format 1`] = `
         
         
         <div
-          class="o-menu-item d-flex align-items-center"
+          class="o-menu-item d-flex justify-content-between align-items-center"
           data-name="format_number_number"
           title="Number"
         >
@@ -728,7 +728,7 @@ exports[`TopBar component can set cell format 1`] = `
         </div>
         
         <div
-          class="o-menu-item d-flex align-items-center"
+          class="o-menu-item d-flex justify-content-between align-items-center"
           data-name="format_number_percent"
           title="Percent"
         >
@@ -760,7 +760,7 @@ exports[`TopBar component can set cell format 1`] = `
         
         
         <div
-          class="o-menu-item d-flex align-items-center"
+          class="o-menu-item d-flex justify-content-between align-items-center"
           data-name="format_number_currency"
           title="Currency"
         >
@@ -788,7 +788,7 @@ exports[`TopBar component can set cell format 1`] = `
         </div>
         
         <div
-          class="o-menu-item d-flex align-items-center"
+          class="o-menu-item d-flex justify-content-between align-items-center"
           data-name="format_number_currency_rounded"
           title="Currency rounded"
         >
@@ -816,7 +816,7 @@ exports[`TopBar component can set cell format 1`] = `
         </div>
         
         <div
-          class="o-menu-item d-flex align-items-center"
+          class="o-menu-item d-flex justify-content-between align-items-center"
           data-name="format_custom_currency"
           title="Custom currency"
         >
@@ -843,7 +843,7 @@ exports[`TopBar component can set cell format 1`] = `
         
         
         <div
-          class="o-menu-item d-flex align-items-center"
+          class="o-menu-item d-flex justify-content-between align-items-center"
           data-name="format_number_date"
           title="Date"
         >
@@ -871,7 +871,7 @@ exports[`TopBar component can set cell format 1`] = `
         </div>
         
         <div
-          class="o-menu-item d-flex align-items-center"
+          class="o-menu-item d-flex justify-content-between align-items-center"
           data-name="format_number_time"
           title="Time"
         >
@@ -899,7 +899,7 @@ exports[`TopBar component can set cell format 1`] = `
         </div>
         
         <div
-          class="o-menu-item d-flex align-items-center"
+          class="o-menu-item d-flex justify-content-between align-items-center"
           data-name="format_number_date_time"
           title="Date time"
         >
@@ -927,7 +927,7 @@ exports[`TopBar component can set cell format 1`] = `
         </div>
         
         <div
-          class="o-menu-item d-flex align-items-center"
+          class="o-menu-item d-flex justify-content-between align-items-center"
           data-name="format_number_duration"
           title="Duration"
         >
@@ -959,7 +959,7 @@ exports[`TopBar component can set cell format 1`] = `
         
         
         <div
-          class="o-menu-item d-flex align-items-center"
+          class="o-menu-item d-flex justify-content-between align-items-center"
           data-name="more_formats"
           title="More date formats"
         >

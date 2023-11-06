@@ -4,7 +4,7 @@ import { MIN_DELAY, lettersToNumber, scrollDelay, toZone } from "../../src/helpe
 import { DOMCoordinates, Pixel } from "../../src/types";
 import { nextTick } from "./helpers";
 
-type DOMTarget = string | Element | Document | Window | null;
+export type DOMTarget = string | Element | Document | Window | null;
 
 export async function simulateClick(
   selector: DOMTarget,
@@ -38,7 +38,7 @@ export async function simulateClick(
   await nextTick();
 }
 
-function getTarget(target: DOMTarget): Element | Document | Window {
+export function getTarget(target: DOMTarget): Element | Document | Window {
   if (target === null) {
     throw new Error("Target is null");
   }
