@@ -111,8 +111,14 @@ export const __info__ = {};
 export { Revision } from "./collaborative/revisions";
 export { Spreadsheet } from "./components/index";
 export { setDefaultSheetViewSize } from "./constants";
-export { compile, functionCache } from "./formulas/compiler";
-export { astToFormula, convertAstNodes, iterateAstNodes, parse } from "./formulas/parser";
+export { compile, compileTokens, functionCache } from "./formulas/compiler";
+export {
+  astToFormula,
+  convertAstNodes,
+  iterateAstNodes,
+  parse,
+  parseTokens,
+} from "./formulas/parser";
 export { tokenize } from "./formulas/tokenizer";
 export { AbstractChart } from "./helpers/figures/charts";
 export { findCellInNewZone } from "./helpers/zones";
