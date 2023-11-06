@@ -1,4 +1,5 @@
-import { compile, isExportableToExcel } from "../../../formulas/index";
+import { compileTokens } from "../../../formulas/compiler";
+import { Token, compile, isExportableToExcel } from "../../../formulas/index";
 import { getItemId, positions, toXC } from "../../../helpers/index";
 import {
   CellPosition,
@@ -317,10 +318,9 @@ export class EvaluationPlugin extends UIPlugin {
   getCorrespondingFormulaCell(position: CellPosition): FormulaCell | undefined {
     const cell = this.getters.getCell(position);
 
-    if (cell && cell.content) {
-      if (cell.isFormula && !isBadExpression(cell.content)) {
-        return cell;
-      }
+    if (cell && cell.isFormula) {
+      return isBadExpression(cell.compiledFormula.tokens) ? undefined : cell;
+    } else if (cell && cell.content) {
       return undefined;
     }
 
@@ -345,9 +345,9 @@ export class EvaluationPlugin extends UIPlugin {
   }
 }
 
-function isBadExpression(formula: string): boolean {
+function isBadExpression(tokens: Token[]): boolean {
   try {
-    compile(formula);
+    compileTokens(tokens);
     return false;
   } catch (error) {
     return true;
