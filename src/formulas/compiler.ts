@@ -53,6 +53,10 @@ export const functionCache: { [key: string]: Omit<CompiledFormula, "dependencies
 
 export function compile(formula: string): CompiledFormula {
   const tokens = rangeTokenize(formula);
+  return compileTokens(tokens);
+}
+
+export function compileTokens(tokens: Token[]): CompiledFormula {
   const { dependencies, constantValues } = formulaArguments(tokens);
   const cacheKey = compilationCacheKey(tokens, dependencies, constantValues);
   if (!functionCache[cacheKey]) {
