@@ -301,8 +301,7 @@ export class SortPlugin extends UIPlugin {
               sheetId,
               0,
               newRow - position.row,
-              cell.compiledFormula,
-              cell.dependencies
+              cell.compiledFormula
             );
           }
           newCellValues.style = cell.style;

@@ -176,6 +176,10 @@ export interface CompiledFormula {
   dependencies: string[];
 }
 
+export interface RangeCompiledFormula extends Omit<CompiledFormula, "dependencies"> {
+  dependencies: Range[];
+}
+
 export type Matrix<T = unknown> = T[][];
 export type ValueAndFormat = { value: CellValue; format?: Format };
 

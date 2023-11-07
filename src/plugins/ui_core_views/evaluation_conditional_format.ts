@@ -130,10 +130,12 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
                         sheetId,
                         col - zone.left,
                         row - zone.top,
-                        compiledFormula,
-                        compiledFormula.dependencies.map((d) =>
-                          this.getters.getRangeFromSheetXC(sheetId, d)
-                        )
+                        {
+                          ...compiledFormula,
+                          dependencies: compiledFormula.dependencies.map((d) =>
+                            this.getters.getRangeFromSheetXC(sheetId, d)
+                          ),
+                        }
                       );
                     }
                     return value;
