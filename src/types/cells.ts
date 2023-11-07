@@ -1,7 +1,6 @@
 import { EvaluationError } from "./errors";
 import { Format, FormattedValue } from "./format";
-import { CompiledFormula, Link, Style, UID } from "./misc";
-import { Range } from "./range";
+import { Link, RangeCompiledFormula, Style, UID } from "./misc";
 
 interface CellAttributes {
   readonly id: UID;
@@ -19,8 +18,7 @@ export interface LiteralCell extends CellAttributes {
 
 export interface FormulaCell extends CellAttributes {
   readonly isFormula: true;
-  readonly compiledFormula: CompiledFormula;
-  readonly dependencies: Range[];
+  readonly compiledFormula: RangeCompiledFormula;
 }
 
 export type Cell = LiteralCell | FormulaCell;
