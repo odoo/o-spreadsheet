@@ -242,7 +242,7 @@ export class Evaluator {
       return toXC(position.col, position.row);
     };
     const formulaReturn = cellData.compiledFormula.execute(
-      cellData.dependencies,
+      cellData.compiledFormula.dependencies,
       ...this.compilationParams
     );
 
@@ -386,7 +386,7 @@ export class Evaluator {
       return [];
     }
     const dependencies: PositionId[] = [];
-    for (const range of cell.dependencies) {
+    for (const range of cell.compiledFormula.dependencies) {
       if (range.invalidSheetName || range.invalidXc) {
         continue;
       }

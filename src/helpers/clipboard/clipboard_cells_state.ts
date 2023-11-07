@@ -403,8 +403,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
           sheetId,
           col - origin.position.col,
           row - origin.position.row,
-          origin.cell.compiledFormula,
-          origin.cell.dependencies
+          origin.cell.compiledFormula
         );
       }
       this.dispatch("UPDATE_CELL", {

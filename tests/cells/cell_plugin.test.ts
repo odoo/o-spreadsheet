@@ -1,11 +1,15 @@
 import { Model } from "../../src";
 import { LINK_COLOR } from "../../src/constants";
-import { buildSheetLink } from "../../src/helpers";
+import { buildSheetLink, toZone } from "../../src/helpers";
 import { urlRepresentation } from "../../src/helpers/links";
 import { CellValueType, CommandResult } from "../../src/types";
 import {
+  addColumns,
+  addRows,
   copy,
   createSheet,
+  deleteColumns,
+  deleteRows,
   deleteSheet,
   paste,
   renameSheet,
@@ -399,3 +403,75 @@ test.each([
     expect(exportedData.formats["1"]).toEqual(format);
   }
 );
+
+describe("Cell dependencies and tokens are updated", () => {
+  let model: Model;
+
+  beforeEach(() => {
+    model = new Model();
+  });
+
+  test("on row addition", () => {
+    setCellContent(model, "A1", "=C3");
+    addRows(model, "before", 2, 1);
+
+    expect(getCell(model, "A1")).toMatchObject({
+      content: "=C4",
+      compiledFormula: {
+        dependencies: [{ zone: toZone("C4") }],
+        tokens: [
+          { type: "OPERATOR", value: "=" },
+          { type: "REFERENCE", value: "C4" },
+        ],
+      },
+    });
+  });
+
+  test("on row removed", () => {
+    setCellContent(model, "A1", "=C3");
+    deleteRows(model, [1]);
+
+    expect(getCell(model, "A1")).toMatchObject({
+      content: "=C2",
+      compiledFormula: {
+        dependencies: [{ zone: toZone("C2") }],
+        tokens: [
+          { type: "OPERATOR", value: "=" },
+          { type: "REFERENCE", value: "C2" },
+        ],
+      },
+    });
+  });
+
+  test("on column added", () => {
+    setCellContent(model, "A1", "=C3");
+    addColumns(model, "before", "B", 1);
+
+    expect(getCell(model, "A1")).toMatchObject({
+      content: "=D3",
+      compiledFormula: {
+        dependencies: [{ zone: toZone("D3") }],
+        tokens: [
+          { type: "OPERATOR", value: "=" },
+          { type: "REFERENCE", value: "D3" },
+        ],
+      },
+    });
+  });
+
+  test("on column removed", () => {
+    setCellContent(model, "A1", "=C3");
+    deleteColumns(model, ["B"]);
+
+    expect(getCell(model, "A1")).toMatchObject({
+      content: "=B3",
+      compiledFormula: {
+        dependencies: [{ zone: toZone("B3") }],
+        tokens: [
+          { type: "OPERATOR", value: "=" },
+          { type: "REFERENCE", value: "B3" },
+        ],
+      },
+    });
+  });
+});
