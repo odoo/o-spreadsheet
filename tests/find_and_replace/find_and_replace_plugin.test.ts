@@ -315,6 +315,27 @@ describe("basic search", () => {
     expect(matches[3]).toStrictEqual({ col: 0, row: 5, selected: false });
   });
 });
+
+test("simple search with array formula", () => {
+  model = new Model();
+  setCellContent(model, "A1", "hell0");
+  setCellContent(model, "A2", "hello");
+  setCellContent(model, "A3", "=1");
+  setCellContent(model, "B1", "=TRANSPOSE(A1:A3)");
+  searchOptions = {
+    matchCase: false,
+    exactMatch: false,
+    searchFormulas: false,
+  };
+  model.dispatch("UPDATE_SEARCH", { toSearch: "hello", searchOptions });
+  const matches = model.getters.getSearchMatches();
+  const matchIndex = model.getters.getCurrentSelectedMatchIndex();
+  expect(matches).toHaveLength(2);
+  expect(matchIndex).toStrictEqual(0);
+  expect(matches[0]).toStrictEqual({ col: 2, row: 0, selected: true });
+  expect(matches[1]).toStrictEqual({ col: 0, row: 1, selected: false });
+});
+
 describe("next/previous cycle", () => {
   beforeEach(() => {
     model = new Model({ sheets: [{ id: "s1" }] });
@@ -696,4 +717,31 @@ describe("replace", () => {
     expect(matchIndex).toStrictEqual(null);
     expect(getActivePosition(model)).toBe("A1");
   });
+});
+
+test("replace don't replace value resulting from array formula", () => {
+  model = new Model();
+  setCellContent(model, "A1", "hell0");
+  setCellContent(model, "A2", "hello");
+  setCellContent(model, "A3", "=1");
+  setCellContent(model, "B1", "=TRANSPOSE(A1:A3)");
+  searchOptions = {
+    matchCase: false,
+    exactMatch: false,
+    searchFormulas: false,
+  };
+  model.dispatch("UPDATE_SEARCH", { toSearch: "hello", searchOptions });
+  model.dispatch("REPLACE_ALL_SEARCH", { replaceWith: "kikou" });
+  const matches = model.getters.getSearchMatches();
+  const matchIndex = model.getters.getCurrentSelectedMatchIndex();
+  expect(matches).toHaveLength(0);
+  expect(matchIndex).toStrictEqual(null);
+  // Check that the original value has correctly been replaced
+  expect(getCellContent(model, "A2")).toBe("kikou");
+  // Check that the array formula has not been modified : If nothing has
+  // been written in C1, B1 should still be an array formula (not errored)
+  expect(getCellContent(model, "B1")).not.toBe("#ERROR");
+  expect(getCell(model, "C1")?.content).toBe(undefined);
+  // Check that the spread value has been updated according to the modified value of A2
+  expect(getCellContent(model, "C1")).toBe("kikou");
 });
