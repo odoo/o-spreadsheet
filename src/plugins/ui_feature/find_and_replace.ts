@@ -159,21 +159,28 @@ export class FindAndReplacePlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     const cells = this.getters.getCells(sheetId);
     const matches: SearchMatch[] = [];
-    if (this.toSearch) {
+    if (this.toSearch && this.currentSearchRegex) {
       for (const cell of Object.values(cells)) {
         const { col, row } = this.getters.getCellPosition(cell.id);
+        const cellPosition = { sheetId, col, row };
         const isColHidden = this.getters.isColHidden(sheetId, col);
         const isRowHidden = this.getters.isRowHidden(sheetId, row);
         if (isColHidden || isRowHidden) {
           continue;
         }
-        if (
-          cell &&
-          this.currentSearchRegex &&
-          this.currentSearchRegex.test(this.getSearchableString({ sheetId, col, row }))
-        ) {
+        if (this.currentSearchRegex.test(this.getSearchableString(cellPosition))) {
           const match: SearchMatch = { col, row, selected: false };
           matches.push(match);
+        }
+        for (const spreadPosition of this.getters.getSpreadPositionsOf(cellPosition)) {
+          if (this.currentSearchRegex.test(this.getSearchableString(spreadPosition))) {
+            const match: SearchMatch = {
+              col: spreadPosition.col,
+              row: spreadPosition.row,
+              selected: false,
+            };
+            matches.push(match);
+          }
         }
       }
     }
@@ -237,8 +244,12 @@ export class FindAndReplacePlugin extends UIPlugin {
     }
 
     const sheetId = this.getters.getActiveSheetId();
-    const cell = this.getters.getCell({ sheetId, ...selectedMatch });
-    const { col, row } = selectedMatch;
+    const position = { sheetId, ...selectedMatch };
+
+    const cell = this.getters.getCell(position);
+    if (!cell?.content) {
+      return;
+    }
 
     if (cell?.isFormula && !this.searchOptions.searchFormulas) {
       return;
@@ -247,10 +258,10 @@ export class FindAndReplacePlugin extends UIPlugin {
       this.currentSearchRegex.source,
       this.currentSearchRegex.flags + "g"
     );
-    const toReplace: string | null = this.getSearchableString({ sheetId, col, row });
+    const toReplace: string | null = this.getSearchableString(position);
     const content = toReplace.replace(replaceRegex, replaceWith);
     const canonicalContent = canonicalizeNumberContent(content, this.getters.getLocale());
-    this.dispatch("UPDATE_CELL", { sheetId, col, row, content: canonicalContent });
+    this.dispatch("UPDATE_CELL", { ...position, content: canonicalContent });
   }
 
   /**

@@ -147,6 +147,7 @@ export class EvaluationPlugin extends UIPlugin {
     "getEvaluatedCell",
     "getEvaluatedCells",
     "getEvaluatedCellsInZone",
+    "getSpreadPositionsOf",
   ] as const;
 
   private shouldRebuildDependenciesGraph = true;
@@ -269,6 +270,10 @@ export class EvaluationPlugin extends UIPlugin {
     return positions(zone).map(({ col, row }) =>
       this.getters.getEvaluatedCell({ sheetId, col, row })
     );
+  }
+
+  getSpreadPositionsOf(position: CellPosition): CellPosition[] {
+    return this.evaluator.getSpreadPositionsOf(position);
   }
 
   // ---------------------------------------------------------------------------
