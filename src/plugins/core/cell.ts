@@ -275,14 +275,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    */
   getCellById(cellId: UID): Cell | undefined {
     // this must be as fast as possible
-    for (const sheetId in this.cells) {
-      const sheet = this.cells[sheetId];
-      const cell = sheet[cellId];
-      if (cell) {
-        return cell;
-      }
-    }
-    return undefined;
+    const position = this.getters.getCellPosition(cellId);
+    const sheet = this.cells[position.sheetId];
+    return sheet[cellId];
   }
 
   /*
