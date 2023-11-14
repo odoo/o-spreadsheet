@@ -14,10 +14,6 @@ enum Direction {
   next = 1,
 }
 
-interface SearchMatch extends CellPosition {
-  selected: boolean;
-}
-
 /**
  * Find and Replace Plugin
  *
@@ -39,9 +35,9 @@ export class FindAndReplacePlugin extends UIPlugin {
     "getSpecificRangeMatchesCount",
   ] as const;
 
-  private allSheetsMatches: SearchMatch[] = [];
-  private activeSheetMatches: SearchMatch[] = [];
-  private specificRangeMatches: SearchMatch[] = [];
+  private allSheetsMatches: CellPosition[] = [];
+  private activeSheetMatches: CellPosition[] = [];
+  private specificRangeMatches: CellPosition[] = [];
 
   // fixme: why do we make selectedMatchIndex on top of a selected
   // property in the matches?
@@ -57,7 +53,7 @@ export class FindAndReplacePlugin extends UIPlugin {
   private toSearch: string = "";
   private isSearchDirty = false;
 
-  get searchMatches(): SearchMatch[] {
+  get searchMatches(): CellPosition[] {
     switch (this.searchOptions.searchScope) {
       case "allSheets":
         return this.allSheetsMatches;
@@ -125,7 +121,7 @@ export class FindAndReplacePlugin extends UIPlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  getSearchMatches(): SearchMatch[] {
+  getSearchMatches(): CellPosition[] {
     return this.searchMatches;
   }
 
@@ -214,7 +210,7 @@ export class FindAndReplacePlugin extends UIPlugin {
    * Find matches using the current regex
    */
   private findMatches() {
-    const matches: SearchMatch[] = [];
+    const matches: CellPosition[] = [];
     if (this.toSearch) {
       for (const sheetId of this.getters.getSheetIds()) {
         matches.push(...this.findMatchesInSheet(sheetId));
@@ -237,7 +233,7 @@ export class FindAndReplacePlugin extends UIPlugin {
   }
 
   private findMatchesInSheet(sheetId: string) {
-    const matches: SearchMatch[] = [];
+    const matches: CellPosition[] = [];
 
     const { left, right, top, bottom } = this.getters.getSheetZone(sheetId);
 
@@ -250,7 +246,7 @@ export class FindAndReplacePlugin extends UIPlugin {
         }
         const cellPosition: CellPosition = { sheetId, col, row };
         if (this.currentSearchRegex?.test(this.getSearchableString(cellPosition))) {
-          const match: SearchMatch = { sheetId, col, row, selected: false };
+          const match: CellPosition = { sheetId, col, row };
           matches.push(match);
         }
       }
@@ -272,7 +268,6 @@ export class FindAndReplacePlugin extends UIPlugin {
       this.selectedMatchIndex = null;
       return;
     }
-    let previousSelectedIndex = this.selectedMatchIndex;
     let nextIndex: number;
     if (this.selectedMatchIndex === null) {
       let nextMatchIndex = -1;
@@ -302,11 +297,6 @@ export class FindAndReplacePlugin extends UIPlugin {
     // we want grid selection to capture the selection stream
     this.selection.getBackToDefault();
     this.selection.selectCell(selectedMatch.col, selectedMatch.row);
-
-    if (previousSelectedIndex !== null) {
-      this.searchMatches[previousSelectedIndex].selected = false;
-    }
-    this.searchMatches[this.selectedMatchIndex].selected = true;
   }
 
   private clearSearch() {
@@ -328,7 +318,7 @@ export class FindAndReplacePlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
   // Replace
   // ---------------------------------------------------------------------------
-  private replaceMatch(selectedMatch: SearchMatch, replaceWith: string) {
+  private replaceMatch(selectedMatch: CellPosition, replaceWith: string) {
     if (!this.currentSearchRegex) {
       return;
     }
@@ -386,7 +376,7 @@ export class FindAndReplacePlugin extends UIPlugin {
     const { ctx } = renderingContext;
     const sheetId = this.getters.getActiveSheetId();
 
-    for (const match of this.searchMatches) {
+    for (const [index, match] of this.searchMatches.entries()) {
       if (match.sheetId !== sheetId) {
         continue; // Skip drawing matches from other sheets
       }
@@ -400,7 +390,7 @@ export class FindAndReplacePlugin extends UIPlugin {
       if (width > 0 && height > 0) {
         ctx.fillStyle = BACKGROUND_COLOR;
         ctx.fillRect(x, y, width, height);
-        if (match.selected) {
+        if (index === this.selectedMatchIndex) {
           ctx.strokeStyle = BORDER_COLOR;
           ctx.strokeRect(x, y, width, height);
         }
