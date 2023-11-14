@@ -1,4 +1,5 @@
 // HELPERS
+import { memoize } from "../helpers";
 import { numberToJsDate, parseDateTime } from "../helpers/dates";
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _lt } from "../translation";
@@ -123,12 +124,12 @@ export function normalizeRange<T>(range: T[]) {
 }
 
 /** Normalize string by setting it to lowercase and replacing accent letters with plain letters */
-export function normalizeString(str: string) {
+const normalizeString = memoize(function normalizeString(str: string) {
   return str
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
-}
+});
 
 /**
  * Normalize a value.
