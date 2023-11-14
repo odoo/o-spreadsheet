@@ -31,7 +31,7 @@ css/* scss */ `
       }
       .o-input-count {
         width: fit-content;
-        padding: 4 0 4 4;
+        padding: 4px 0 4px 4px;
       }
     }
   }
