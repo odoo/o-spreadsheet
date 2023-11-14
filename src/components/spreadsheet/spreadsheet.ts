@@ -394,7 +394,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   }
   focusGrid() {
     if (!this._focusGrid) {
-      throw new Error("_focusGrid should be exposed by the grid component");
+      return;
     }
     this._focusGrid();
   }
