@@ -42,6 +42,7 @@ import {
 } from "./ui_feature";
 import { HistoryPlugin } from "./ui_feature/local_history";
 import { SplitToColumnsPlugin } from "./ui_feature/split_to_columns";
+import { TopBarPlugin } from "./ui_feature/topbar";
 import { UIPluginConstructor } from "./ui_plugin";
 import {
   ClipboardPlugin,
@@ -81,6 +82,7 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("automatic_sum", AutomaticSumPlugin)
   .add("format", FormatPlugin)
   .add("split_to_columns", SplitToColumnsPlugin)
+  .add("top_bar", TopBarPlugin)
   .add("cell_popovers", CellPopoverPlugin)
   .add("collaborative", CollaborativePlugin)
   .add("history", HistoryPlugin)
