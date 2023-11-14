@@ -1,5 +1,6 @@
 // HELPERS
 import { numberToJsDate, parseDateTime } from "../helpers/dates";
+import { memoize } from "../helpers/misc";
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _t } from "../translation";
 import { ArgValue, CellValue, Locale, Matrix, Maybe, ValueAndFormat, isMatrix } from "../types";
@@ -143,12 +144,12 @@ export function normalizeRange<T>(range: T[]) {
 }
 
 /** Normalize string by setting it to lowercase and replacing accent letters with plain letters */
-export function normalizeString(str: string) {
+const normalizeString = memoize(function normalizeString(str: string) {
   return str
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
-}
+});
 
 const expectBooleanValueError = (value: string) =>
   _t(
