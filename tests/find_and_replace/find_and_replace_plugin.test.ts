@@ -40,8 +40,8 @@ function p(xc: string) {
   return { col: z.left, row: z.top };
 }
 
-function match(sheetId: UID, xc: string, selected: boolean) {
-  return { sheetId, ...p(xc), selected };
+function match(sheetId: UID, xc: string) {
+  return { sheetId, ...p(xc) };
 }
 
 function getMatches(model: Model) {
@@ -71,10 +71,10 @@ describe("basic search", () => {
     setCellContent(model, "A1", "test");
     setCellContent(model, "A2", "test");
     updateSearch(model, "test", { searchScope: "activeSheet" });
-    expect(getMatches(model)).toEqual([match("sh2", "A1", true), match("sh2", "A2", false)]);
+    expect(getMatches(model)).toEqual([match("sh2", "A1"), match("sh2", "A2")]);
     expect(getMatchIndex(model)).toStrictEqual(0);
     activateSheet(model, sheetId1);
-    expect(getMatches(model)).toStrictEqual([match(sheetId1, "A2", true)]);
+    expect(getMatches(model)).toStrictEqual([match(sheetId1, "A2")]);
     expect(getMatchIndex(model)).toStrictEqual(0);
   });
 
@@ -84,7 +84,7 @@ describe("basic search", () => {
     setCellContent(model, "A2", "test", "sh2");
     updateSearch(model, "test");
     expect(getMatchIndex(model)).toStrictEqual(0);
-    expect(getMatches(model)).toEqual([match(sheetId1, "A2", true), match("sh2", "A2", false)]);
+    expect(getMatches(model)).toEqual([match(sheetId1, "A2"), match("sh2", "A2")]);
   });
 
   test("simple search for search scope specificRange", () => {
@@ -95,13 +95,13 @@ describe("basic search", () => {
       specificRange: toRangeData(sheetId1, "A1:B1"),
     });
     expect(getMatchIndex(model)).toStrictEqual(0);
-    expect(getMatches(model)).toStrictEqual([match(sheetId1, "A1", true)]);
+    expect(getMatches(model)).toStrictEqual([match(sheetId1, "A1")]);
   });
 
   test("search with a regexp characters", () => {
     setCellContent(model, "A1", "hello (world).*");
     updateSearch(model, "hello (world).*");
-    expect(getMatches(model)).toStrictEqual([match(sheetId1, "A1", true)]);
+    expect(getMatches(model)).toStrictEqual([match(sheetId1, "A1")]);
   });
 
   test("Update search automatically select the first match", () => {
@@ -118,16 +118,10 @@ describe("basic search", () => {
     updateSearch(model, "hello", { searchScope: "activeSheet" });
     model.dispatch("SELECT_SEARCH_NEXT_MATCH");
     expect(getMatchIndex(model)).toStrictEqual(1);
-    expect(getMatches(model)).toStrictEqual([
-      match(sheetId1, "A1", false),
-      match(sheetId1, "A2", true),
-    ]);
+    expect(getMatches(model)).toStrictEqual([match(sheetId1, "A1"), match(sheetId1, "A2")]);
     updateSearch(model, "1", { searchScope: "activeSheet" });
     expect(getMatchIndex(model)).toStrictEqual(0);
-    expect(getMatches(model)).toStrictEqual([
-      match(sheetId1, "A2", true),
-      match(sheetId1, "A3", false),
-    ]);
+    expect(getMatches(model)).toStrictEqual([match(sheetId1, "A2"), match(sheetId1, "A3")]);
   });
 
   test("change the search for allSheet searchScope", () => {
@@ -139,16 +133,10 @@ describe("basic search", () => {
     updateSearch(model, "hello");
     model.dispatch("SELECT_SEARCH_NEXT_MATCH");
     expect(getMatchIndex(model)).toStrictEqual(1);
-    expect(getMatches(model)).toStrictEqual([
-      match(sheetId1, "A1", false),
-      match(sheetId1, "A2", true),
-    ]);
+    expect(getMatches(model)).toStrictEqual([match(sheetId1, "A1"), match(sheetId1, "A2")]);
     updateSearch(model, "1");
     expect(getMatchIndex(model)).toStrictEqual(0);
-    expect(getMatches(model)).toStrictEqual([
-      match(sheetId1, "A2", true),
-      match(sheetId2, "A1", false),
-    ]);
+    expect(getMatches(model)).toStrictEqual([match(sheetId1, "A2"), match(sheetId2, "A1")]);
   });
 
   test("change the search for specificRange searchScope", () => {
@@ -165,21 +153,21 @@ describe("basic search", () => {
     updateSearch(model, "1");
     expect(model.getters.getActiveSheetId()).toBe(sheetId2);
     expect(getMatchIndex(model)).toStrictEqual(0);
-    expect(getMatches(model)).toStrictEqual([match(sheetId2, "A2", true)]);
+    expect(getMatches(model)).toStrictEqual([match(sheetId2, "A2")]);
   });
 
   test("refresh search when cell is updated", async () => {
     setCellContent(model, "A1", "hello");
     updateSearch(model, "hello");
     expect(getMatchIndex(model)).toStrictEqual(0);
-    expect(getMatches(model)).toStrictEqual([match(sheetId1, "A1", true)]);
+    expect(getMatches(model)).toStrictEqual([match(sheetId1, "A1")]);
     setCellContent(model, "B1", "hello");
     setCellContent(model, "B2", '="hello"');
     expect(getMatchIndex(model)).toStrictEqual(0);
     expect(getMatches(model)).toStrictEqual([
-      match(sheetId1, "A1", true),
-      match(sheetId1, "B1", false),
-      match(sheetId1, "B2", false),
+      match(sheetId1, "A1"),
+      match(sheetId1, "B1"),
+      match(sheetId1, "B2"),
     ]);
   });
 
@@ -195,15 +183,12 @@ describe("basic search", () => {
     setCellContent(model, "B1", "=GETVALUE()");
     updateSearch(model, "hello");
     expect(getMatchIndex(model)).toStrictEqual(0);
-    expect(getMatches(model)).toStrictEqual([match(sheetId1, "A1", true)]);
+    expect(getMatches(model)).toStrictEqual([match(sheetId1, "A1")]);
     value = "hello";
     model.dispatch("EVALUATE_CELLS", { sheetId: model.getters.getActiveSheetId() });
     expect(getCellContent(model, "B1")).toBe(value);
     expect(getMatchIndex(model)).toStrictEqual(0);
-    expect(getMatches(model)).toStrictEqual([
-      match(sheetId1, "A1", true),
-      match(sheetId1, "B1", false),
-    ]);
+    expect(getMatches(model)).toStrictEqual([match(sheetId1, "A1"), match(sheetId1, "B1")]);
   });
 
   test("search on empty string does not match anything", () => {
@@ -241,9 +226,9 @@ describe("basic search", () => {
     expect(getActivePosition(model)).toBe("A2");
     expect(getMatchIndex(model)).toStrictEqual(2);
     expect(getMatches(model)).toStrictEqual([
-      match(sheetId1, "A2", false),
-      match(sheetId1, "A3", false),
-      match(sheetId2, "A2", true),
+      match(sheetId1, "A2"),
+      match(sheetId1, "A3"),
+      match(sheetId2, "A2"),
     ]);
   });
 
@@ -253,10 +238,10 @@ describe("basic search", () => {
     setCellContent(model, "A2", "=111", sheetId2);
     updateSearch(model, "1", { searchScope: "activeSheet" });
     expect(getActivePosition(model)).toBe("A3");
-    expect(getMatches(model)).toStrictEqual([match(sheetId1, "A3", true)]);
+    expect(getMatches(model)).toStrictEqual([match(sheetId1, "A3")]);
     activateSheet(model, "s2");
     expect(getActivePosition(model)).toBe("A2");
-    expect(getMatches(model)).toStrictEqual([match(sheetId2, "A2", true)]);
+    expect(getMatches(model)).toStrictEqual([match(sheetId2, "A2")]);
   });
 
   test("Update search if column or row is added", () => {
@@ -264,16 +249,10 @@ describe("basic search", () => {
     setCellContent(model, "A4", "1");
     updateSearch(model, "1");
     expect(getMatchIndex(model)).toStrictEqual(0);
-    expect(getMatches(model)).toStrictEqual([
-      match(sheetId1, "A3", true),
-      match(sheetId1, "A4", false),
-    ]);
+    expect(getMatches(model)).toStrictEqual([match(sheetId1, "A3"), match(sheetId1, "A4")]);
     addRows(model, "after", 1, 1);
     expect(getMatchIndex(model)).toStrictEqual(0);
-    expect(getMatches(model)).toStrictEqual([
-      match(sheetId1, "A4", true),
-      match(sheetId1, "A5", false),
-    ]);
+    expect(getMatches(model)).toStrictEqual([match(sheetId1, "A4"), match(sheetId1, "A5")]);
   });
 
   test("Search is updated if column or row is removed", () => {
@@ -282,13 +261,10 @@ describe("basic search", () => {
     updateSearch(model, "1");
     model.dispatch("SELECT_SEARCH_NEXT_MATCH");
     expect(getMatchIndex(model)).toStrictEqual(1);
-    expect(getMatches(model)).toStrictEqual([
-      match(sheetId1, "A2", false),
-      match(sheetId1, "A3", true),
-    ]);
+    expect(getMatches(model)).toStrictEqual([match(sheetId1, "A2"), match(sheetId1, "A3")]);
     deleteRows(model, [1]);
     expect(getMatchIndex(model)).toStrictEqual(0);
-    expect(getMatches(model)).toStrictEqual([match(sheetId1, "A2", true)]);
+    expect(getMatches(model)).toStrictEqual([match(sheetId1, "A2")]);
   });
 
   test("Update search upon undo/redo operations, which can update the cell", () => {
@@ -346,7 +322,7 @@ test("simple search with array formula", () => {
   setCellContent(model, "B1", "=TRANSPOSE(A1:A3)");
   updateSearch(model, "hello");
   expect(getMatchIndex(model)).toStrictEqual(0);
-  expect(getMatches(model)).toStrictEqual([match("sh1", "C1", true), match("sh1", "A2", false)]);
+  expect(getMatches(model)).toStrictEqual([match("sh1", "C1"), match("sh1", "A2")]);
 });
 
 test("replace don't replace value resulting from array formula", () => {
@@ -381,9 +357,9 @@ describe("next/previous cycle", () => {
     updateSearch(model, "1");
     model.dispatch("SELECT_SEARCH_NEXT_MATCH");
     expect(getMatches(model)).toStrictEqual([
-      match(sheetId1, "A1", false),
-      match(sheetId1, "A2", true),
-      match(sheetId1, "A3", false),
+      match(sheetId1, "A1"),
+      match(sheetId1, "A2"),
+      match(sheetId1, "A3"),
     ]);
   });
   test("Next than previous will cancel each other", () => {
@@ -391,9 +367,9 @@ describe("next/previous cycle", () => {
     model.dispatch("SELECT_SEARCH_NEXT_MATCH");
     model.dispatch("SELECT_SEARCH_PREVIOUS_MATCH");
     expect(getMatches(model)).toStrictEqual([
-      match(sheetId1, "A1", true),
-      match(sheetId1, "A2", false),
-      match(sheetId1, "A3", false),
+      match(sheetId1, "A1"),
+      match(sheetId1, "A2"),
+      match(sheetId1, "A3"),
     ]);
   });
 
@@ -401,44 +377,44 @@ describe("next/previous cycle", () => {
     updateSearch(model, "1");
     expect(getActivePosition(model)).toBe("A1");
     expect(getMatches(model)).toStrictEqual([
-      match(sheetId1, "A1", true),
-      match(sheetId1, "A2", false),
-      match(sheetId1, "A3", false),
+      match(sheetId1, "A1"),
+      match(sheetId1, "A2"),
+      match(sheetId1, "A3"),
     ]);
     model.dispatch("SELECT_SEARCH_NEXT_MATCH");
     expect(getActivePosition(model)).toBe("A2");
     expect(getMatchIndex(model)).toStrictEqual(1);
     expect(getMatches(model)).toStrictEqual([
-      match(sheetId1, "A1", false),
-      match(sheetId1, "A2", true),
-      match(sheetId1, "A3", false),
+      match(sheetId1, "A1"),
+      match(sheetId1, "A2"),
+      match(sheetId1, "A3"),
     ]);
 
     model.dispatch("SELECT_SEARCH_NEXT_MATCH");
     expect(getActivePosition(model)).toBe("A3");
     expect(getMatchIndex(model)).toStrictEqual(2);
     expect(getMatches(model)).toStrictEqual([
-      match(sheetId1, "A1", false),
-      match(sheetId1, "A2", false),
-      match(sheetId1, "A3", true),
+      match(sheetId1, "A1"),
+      match(sheetId1, "A2"),
+      match(sheetId1, "A3"),
     ]);
 
     model.dispatch("SELECT_SEARCH_NEXT_MATCH");
     expect(getActivePosition(model)).toBe("A1");
     expect(getMatchIndex(model)).toStrictEqual(0);
     expect(getMatches(model)).toStrictEqual([
-      match(sheetId1, "A1", true),
-      match(sheetId1, "A2", false),
-      match(sheetId1, "A3", false),
+      match(sheetId1, "A1"),
+      match(sheetId1, "A2"),
+      match(sheetId1, "A3"),
     ]);
 
     model.dispatch("SELECT_SEARCH_NEXT_MATCH");
     expect(getActivePosition(model)).toBe("A2");
     expect(getMatchIndex(model)).toStrictEqual(1);
     expect(getMatches(model)).toStrictEqual([
-      match(sheetId1, "A1", false),
-      match(sheetId1, "A2", true),
-      match(sheetId1, "A3", false),
+      match(sheetId1, "A1"),
+      match(sheetId1, "A2"),
+      match(sheetId1, "A3"),
     ]);
   });
   test("search will cycle with previous", () => {
@@ -446,45 +422,45 @@ describe("next/previous cycle", () => {
     expect(getActivePosition(model)).toBe("A1");
     expect(getMatchIndex(model)).toStrictEqual(0);
     expect(getMatches(model)).toStrictEqual([
-      match(sheetId1, "A1", true),
-      match(sheetId1, "A2", false),
-      match(sheetId1, "A3", false),
+      match(sheetId1, "A1"),
+      match(sheetId1, "A2"),
+      match(sheetId1, "A3"),
     ]);
 
     model.dispatch("SELECT_SEARCH_PREVIOUS_MATCH");
     expect(getActivePosition(model)).toBe("A3");
     expect(getMatchIndex(model)).toStrictEqual(2);
     expect(getMatches(model)).toStrictEqual([
-      match(sheetId1, "A1", false),
-      match(sheetId1, "A2", false),
-      match(sheetId1, "A3", true),
+      match(sheetId1, "A1"),
+      match(sheetId1, "A2"),
+      match(sheetId1, "A3"),
     ]);
 
     model.dispatch("SELECT_SEARCH_PREVIOUS_MATCH");
     expect(getActivePosition(model)).toBe("A2");
     expect(getMatchIndex(model)).toStrictEqual(1);
     expect(getMatches(model)).toStrictEqual([
-      match(sheetId1, "A1", false),
-      match(sheetId1, "A2", true),
-      match(sheetId1, "A3", false),
+      match(sheetId1, "A1"),
+      match(sheetId1, "A2"),
+      match(sheetId1, "A3"),
     ]);
 
     model.dispatch("SELECT_SEARCH_PREVIOUS_MATCH");
     expect(getActivePosition(model)).toBe("A1");
     expect(getMatchIndex(model)).toStrictEqual(0);
     expect(getMatches(model)).toStrictEqual([
-      match(sheetId1, "A1", true),
-      match(sheetId1, "A2", false),
-      match(sheetId1, "A3", false),
+      match(sheetId1, "A1"),
+      match(sheetId1, "A2"),
+      match(sheetId1, "A3"),
     ]);
 
     model.dispatch("SELECT_SEARCH_PREVIOUS_MATCH");
     expect(getActivePosition(model)).toBe("A3");
     expect(getMatchIndex(model)).toStrictEqual(2);
     expect(getMatches(model)).toStrictEqual([
-      match(sheetId1, "A1", false),
-      match(sheetId1, "A2", false),
-      match(sheetId1, "A3", true),
+      match(sheetId1, "A1"),
+      match(sheetId1, "A2"),
+      match(sheetId1, "A3"),
     ]);
   });
 });
@@ -546,35 +522,29 @@ describe("search options", () => {
   test("Can search matching case", () => {
     updateSearch(model, "Hell", { matchCase: true });
     expect(getMatchIndex(model)).toStrictEqual(0);
-    expect(getMatches(model)).toStrictEqual([
-      match("Sheet1", "A2", true),
-      match("Sheet1", "A5", false),
-    ]);
+    expect(getMatches(model)).toStrictEqual([match("Sheet1", "A2"), match("Sheet1", "A5")]);
   });
 
   test("Can search matching entire cell", () => {
     updateSearch(model, "Hell", { exactMatch: true });
-    expect(getMatches(model)).toStrictEqual([
-      match("Sheet1", "A4", true),
-      match("Sheet1", "A5", false),
-    ]);
+    expect(getMatches(model)).toStrictEqual([match("Sheet1", "A4"), match("Sheet1", "A5")]);
   });
 
   test("Can search in formulas", () => {
     updateSearch(model, "Hell", { searchFormulas: true });
     expect(getMatchIndex(model)).toStrictEqual(0);
     expect(getMatches(model)).toStrictEqual([
-      match("Sheet1", "A1", true),
-      match("Sheet1", "A2", false),
-      match("Sheet1", "A4", false),
-      match("Sheet1", "A5", false),
+      match("Sheet1", "A1"),
+      match("Sheet1", "A2"),
+      match("Sheet1", "A4"),
+      match("Sheet1", "A5"),
     ]);
   });
 
   test("Can search in formulas(2)", () => {
     updateSearch(model, "4", { searchFormulas: false });
     expect(getMatchIndex(model)).toStrictEqual(0);
-    expect(getMatches(model)).toStrictEqual([match("Sheet1", "A3", true)]);
+    expect(getMatches(model)).toStrictEqual([match("Sheet1", "A3")]);
     updateSearch(model, "4", { searchFormulas: true });
     expect(getMatches(model)).toStrictEqual([]);
     expect(getMatchIndex(model)).toBe(null);
@@ -584,38 +554,32 @@ describe("search options", () => {
     updateSearch(model, "hell");
     expect(getMatchIndex(model)).toStrictEqual(0);
     expect(getMatches(model)).toStrictEqual([
-      match("Sheet1", "A1", true),
-      match("Sheet1", "A2", false),
-      match("Sheet1", "A4", false),
-      match("Sheet1", "A5", false),
+      match("Sheet1", "A1"),
+      match("Sheet1", "A2"),
+      match("Sheet1", "A4"),
+      match("Sheet1", "A5"),
     ]);
     //match case
     updateSearch(model, "hell", { matchCase: true });
     expect(getMatchIndex(model)).toStrictEqual(0);
-    expect(getMatches(model)).toStrictEqual([
-      match("Sheet1", "A1", true),
-      match("Sheet1", "A4", false),
-    ]);
+    expect(getMatches(model)).toStrictEqual([match("Sheet1", "A1"), match("Sheet1", "A4")]);
 
     //match case + exact match
     updateSearch(model, "hell", { matchCase: true, exactMatch: true });
     expect(getMatchIndex(model)).toStrictEqual(0);
-    expect(getMatches(model)).toStrictEqual([match("Sheet1", "A4", true)]);
+    expect(getMatches(model)).toStrictEqual([match("Sheet1", "A4")]);
 
     //change input and remove match case + exact match and add look in formula
     updateSearch(model, "hell", { matchCase: false, exactMatch: false, searchFormulas: true });
     model.dispatch("UPDATE_SEARCH", { toSearch: "SUM", searchOptions: getSearchOptions() });
     expect(getMatchIndex(model)).toStrictEqual(0);
-    expect(getMatches(model)).toStrictEqual([
-      match("Sheet1", "A1", true),
-      match("Sheet1", "A3", false),
-    ]);
+    expect(getMatches(model)).toStrictEqual([match("Sheet1", "A1"), match("Sheet1", "A3")]);
 
     //add match case
     updateSearch(model, "hell", { matchCase: true, searchFormulas: true });
     model.dispatch("UPDATE_SEARCH", { toSearch: "SUM", searchOptions: getSearchOptions() });
     expect(getMatchIndex(model)).toStrictEqual(0);
-    expect(getMatches(model)).toStrictEqual([match("Sheet1", "A3", true)]);
+    expect(getMatches(model)).toStrictEqual([match("Sheet1", "A3")]);
   });
 });
 
