@@ -505,3 +505,20 @@ export function transpose2dArray<T>(matrix: T[][]): T[][] {
   if (!matrix.length) return matrix;
   return matrix[0].map((_, i) => matrix.map((row) => row[i]));
 }
+
+/**
+ * Creates a version of the function that's memoized on the value of its first
+ * argument, if any.
+ */
+export function memoize<T extends any[], U>(func: (...args: T) => U): (...args: T) => U {
+  const cache = new Map<any, U>();
+  const funcName = func.name ? func.name + " (memoized)" : "memoized";
+  return {
+    [funcName](...args: T) {
+      if (!cache.has(args[0])) {
+        cache.set(args[0], func(...args));
+      }
+      return cache.get(args[0])!;
+    },
+  }[funcName];
+}
