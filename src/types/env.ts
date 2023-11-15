@@ -1,5 +1,6 @@
 import { Model } from "..";
 import { ClipboardInterface } from "../helpers/clipboard/navigator_clipboard_wrapper";
+import { ComposerSelection } from "../plugins/ui_stateful";
 import { Currency } from "./currency";
 import { ImageProviderInterface } from "./files";
 import { Locale } from "./locale";
@@ -30,7 +31,7 @@ export interface SpreadsheetChildEnv extends SpreadsheetEnv {
   openSidePanel: (panel: string, panelProps?: any) => void;
   toggleSidePanel: (panel: string, panelProps?: any) => void;
   clipboard: ClipboardInterface;
-  startCellEdition: (content?: string) => void;
+  startCellEdition: (content?: string, selection?: ComposerSelection) => void;
   loadCurrencies?: () => Promise<Currency[]>;
   loadLocales: () => Promise<Locale[]>;
 }

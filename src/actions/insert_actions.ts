@@ -2,6 +2,7 @@ import { functionRegistry } from "../functions";
 import { isDefined } from "../helpers";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
 import { _t } from "../translation";
+import { SpreadsheetChildEnv } from "../types";
 import { ActionBuilder, ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 
@@ -192,27 +193,42 @@ export const insertFunction: ActionSpec = {
 
 export const insertFunctionSum: ActionSpec = {
   name: _t("SUM"),
-  execute: (env) => env.startCellEdition(`=SUM(`),
+  execute: (env) => {
+    const { content, selection } = getNewEditionState(env, "SUM");
+    env.startCellEdition(content, selection);
+  },
 };
 
 export const insertFunctionAverage: ActionSpec = {
   name: _t("AVERAGE"),
-  execute: (env) => env.startCellEdition(`=AVERAGE(`),
+  execute: (env) => {
+    const { content, selection } = getNewEditionState(env, "AVERAGE");
+    env.startCellEdition(content, selection);
+  },
 };
 
 export const insertFunctionCount: ActionSpec = {
   name: _t("COUNT"),
-  execute: (env) => env.startCellEdition(`=COUNT(`),
+  execute: (env) => {
+    const { content, selection } = getNewEditionState(env, "COUNT");
+    env.startCellEdition(content, selection);
+  },
 };
 
 export const insertFunctionMax: ActionSpec = {
   name: _t("MAX"),
-  execute: (env) => env.startCellEdition(`=MAX(`),
+  execute: (env) => {
+    const { content, selection } = getNewEditionState(env, "MAX");
+    env.startCellEdition(content, selection);
+  },
 };
 
 export const insertFunctionMin: ActionSpec = {
   name: _t("MIN"),
-  execute: (env) => env.startCellEdition(`=MIN(`),
+  execute: (env) => {
+    const { content, selection } = getNewEditionState(env, "MIN");
+    env.startCellEdition(content, selection);
+  },
 };
 
 export const categorieFunctionAll: ActionSpec = {
@@ -265,9 +281,36 @@ function createFormulaFunctions(fnNames: string[]): ActionSpec[] {
     return {
       name: fnName,
       sequence: i * 10,
-      execute: (env) => env.startCellEdition(`=${fnName}(`),
+      execute: (env) => {
+        const { content, selection } = getNewEditionState(env, fnName);
+        env.startCellEdition(content, selection);
+      },
     };
   });
+}
+
+function getNewEditionState(
+  env: SpreadsheetChildEnv,
+  fnName: string
+): { content: string; selection: { start: number; end: number } } {
+  const { start, end } = env.model.getters.getComposerSelection();
+  const content = env.model.getters.getCurrentContent();
+  const isFormula = content.startsWith("=");
+  if (!isFormula) {
+    const position = fnName.length + 2;
+    return {
+      content: `=${fnName}(`,
+      selection: { start: position, end: position },
+    };
+  }
+  const position = start + fnName.length + 1;
+  return {
+    content: `${content.slice(0, start)}${fnName}(${content.slice(end)}`,
+    selection: {
+      start: position,
+      end: position,
+    },
+  };
 }
 
 function getRowsNumber(env): number {

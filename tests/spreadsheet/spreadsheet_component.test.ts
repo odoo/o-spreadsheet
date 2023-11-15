@@ -242,10 +242,12 @@ describe("Simple Spreadsheet Component", () => {
     doAction(["insert", "insert_function", "insert_function_sum"], env);
     expect(dispatch).toHaveBeenCalledWith("START_EDITION", {
       text: "=SUM(",
+      selection: { start: 5, end: 5 },
     });
     doAction(["insert", "insert_function", "insert_function_sum"], env);
     expect(dispatch).toHaveBeenCalledWith("SET_CURRENT_CONTENT", {
-      content: "=SUM(",
+      content: "=SUM(SUM(",
+      selection: { start: 9, end: 9 },
     });
   });
 });

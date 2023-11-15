@@ -472,8 +472,8 @@ export class EditionPlugin extends UIPlugin {
           col,
           row,
         });
+        this.setContent("");
       }
-      this.setContent("");
     }
   }
 
