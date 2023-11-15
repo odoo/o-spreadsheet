@@ -145,12 +145,17 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
       >
         <svg
           class="o-icon"
+          transform="rotate(-90)"
         >
-          <polygon
-            fill="currentColor"
-            points="0 0 4 4 0 8"
-            transform="translate(5 5)"
-          />
+          <svg
+            class="o-icon"
+            viewBox="0 0 18 18"
+          >
+            <polygon
+              fill="currentColor"
+              points="5 7 9 11 13 7"
+            />
+          </svg>
         </svg>
       </div>
       
@@ -255,12 +260,17 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
       >
         <svg
           class="o-icon"
+          transform="rotate(-90)"
         >
-          <polygon
-            fill="currentColor"
-            points="0 0 4 4 0 8"
-            transform="translate(5 5)"
-          />
+          <svg
+            class="o-icon"
+            viewBox="0 0 18 18"
+          >
+            <polygon
+              fill="currentColor"
+              points="5 7 9 11 13 7"
+            />
+          </svg>
         </svg>
       </div>
       
@@ -365,12 +375,17 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
       >
         <svg
           class="o-icon"
+          transform="rotate(-90)"
         >
-          <polygon
-            fill="currentColor"
-            points="0 0 4 4 0 8"
-            transform="translate(5 5)"
-          />
+          <svg
+            class="o-icon"
+            viewBox="0 0 18 18"
+          >
+            <polygon
+              fill="currentColor"
+              points="5 7 9 11 13 7"
+            />
+          </svg>
         </svg>
       </div>
       

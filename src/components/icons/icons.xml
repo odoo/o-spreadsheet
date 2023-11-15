@@ -303,23 +303,23 @@
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.TRIANGLE_DOWN">
-    <svg class="o-icon">
-      <polygon fill="currentColor" points="0 0 4 4 8 0" transform="translate(5 7)"/>
+    <svg class="o-icon" viewBox="0 0 18 18">
+      <polygon fill="currentColor" points="5 7 9 11 13 7"/>
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.TRIANGLE_UP">
-    <svg class="o-icon">
-      <polygon fill="currentColor" points="4 0 0 4 8 4" transform="translate(5 7)"/>
+    <svg class="o-icon" transform="rotate(180)">
+      <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.TRIANGLE_RIGHT">
-    <svg class="o-icon">
-      <polygon fill="currentColor" points="0 0 4 4 0 8" transform="translate(5 5)"/>
+    <svg class="o-icon" transform="rotate(-90)">
+      <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.TRIANGLE_LEFT">
-    <svg class="o-icon">
-      <polygon fill="currentColor" points="4 0 0 4 4 8" transform="translate(5 5)"/>
+    <svg class="o-icon" transform="rotate(90)" viewBox="0 0 18 18">
+      <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.BOLD">

@@ -485,12 +485,17 @@ exports[`Color Picker buttons Full component rendering 1`] = `
       >
         <svg
           class="o-icon"
+          transform="rotate(180)"
         >
-          <polygon
-            fill="currentColor"
-            points="4 0 0 4 8 4"
-            transform="translate(5 7)"
-          />
+          <svg
+            class="o-icon"
+            viewBox="0 0 18 18"
+          >
+            <polygon
+              fill="currentColor"
+              points="5 7 9 11 13 7"
+            />
+          </svg>
         </svg>
       </div>
     </div>
