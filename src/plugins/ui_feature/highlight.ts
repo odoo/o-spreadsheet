@@ -2,6 +2,7 @@ import { isEqual, zoneToDimension } from "../../helpers/index";
 import { highlightRegistry } from "../../registries/highlight_registry";
 import { GridRenderingContext, Highlight, LAYERS } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
+import { RendererPlugin } from "./renderer";
 
 /**
  * HighlightPlugin
@@ -55,10 +56,10 @@ export class HighlightPlugin extends UIPlugin {
 
   drawGrid(renderingContext: GridRenderingContext) {
     // rendering selection highlights
-    const { ctx, thinLineWidth } = renderingContext;
+    const { ctx } = renderingContext;
 
     const sheetId = this.getters.getActiveSheetId();
-    const lineWidth = 3 * thinLineWidth;
+    const lineWidth = 2;
     ctx.lineWidth = lineWidth;
     /**
      * We only need to draw the highlights of the current sheet.
@@ -77,11 +78,12 @@ export class HighlightPlugin extends UIPlugin {
       const { x, y, width, height } = this.getters.getVisibleRect(h.zone);
       if (width > 0 && height > 0) {
         ctx.strokeStyle = h.color!;
-        ctx.strokeRect(x + lineWidth / 2, y + lineWidth / 2, width - lineWidth, height - lineWidth);
+        /** + 0.5 offset to have sharp lines. See comment in {@link RendererPlugin#drawBorders} for more details */
+        ctx.strokeRect(x + 0.5, y + 0.5, width, height);
         ctx.globalCompositeOperation = "source-over";
         if (!h.noFill) {
           ctx.fillStyle = h.color! + "20";
-          ctx.fillRect(x + lineWidth, y + lineWidth, width - 2 * lineWidth, height - 2 * lineWidth);
+          ctx.fillRect(x, y, width, height);
         }
       }
     }
