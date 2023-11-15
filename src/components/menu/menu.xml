@@ -18,7 +18,7 @@
               t-att-data-name="menuItem.id"
               t-on-click="(ev) => this.onClickMenu(menuItem, menuItem_index, ev)"
               t-on-mouseover="(ev) => this.onMouseOver(menuItem, menuItem_index, ev)"
-              class="o-menu-item"
+              class="o-menu-item d-flex align-items-center"
               t-att-class="{ 'o-menu-root': isMenuRoot, 'disabled': !isMenuEnabled, 'o-menu-item-active': isParentMenu(subMenu, menuItem)}"
               t-att-style="getColor(menuItem)">
               <div class="d-flex w-100">
@@ -32,10 +32,16 @@
                   class="o-menu-item-description ms-auto text-truncate"
                   t-esc="description"
                 />
+                <t t-set="secondaryIcon" t-value="menuItem.secondaryIcon(env)"/>
                 <div
                   t-if="isMenuRoot"
                   class="o-menu-item-root align-middle ms-auto"
                   t-call="o-spreadsheet-Icon.TRIANGLE_RIGHT"
+                />
+                <div
+                  t-elif="secondaryIcon"
+                  class="o-menu-item-root align-middle ms-auto"
+                  t-call="{{secondaryIcon}}"
                 />
               </div>
             </div>
