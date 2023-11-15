@@ -31,6 +31,7 @@ import { RendererPlugin } from "../plugins/ui_feature/renderer";
 import { SelectionInputsManagerPlugin } from "../plugins/ui_feature/selection_inputs_manager";
 import { SortPlugin } from "../plugins/ui_feature/sort";
 import { SplitToColumnsPlugin } from "../plugins/ui_feature/split_to_columns";
+import { TopBarPlugin } from "../plugins/ui_feature/topbar";
 import { UIOptionsPlugin } from "../plugins/ui_feature/ui_options";
 import { SheetUIPlugin } from "../plugins/ui_feature/ui_sheet";
 import { ClipboardPlugin } from "../plugins/ui_stateful/clipboard";
@@ -140,6 +141,7 @@ export type Getters = {
   PluginGetters<typeof CellPopoverPlugin> &
   PluginGetters<typeof FilterEvaluationPlugin> &
   PluginGetters<typeof SplitToColumnsPlugin> &
+  PluginGetters<typeof TopBarPlugin> &
   PluginGetters<typeof HeaderSizeUIPlugin> &
   PluginGetters<typeof EvaluationDataValidationPlugin> &
   PluginGetters<typeof HeaderPositionsUIPlugin>;

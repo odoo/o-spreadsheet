@@ -266,6 +266,10 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     setStyle(this.env, { [target]: color });
     this.onClick();
   }
+
+  get isEnabled(): boolean {
+    return this.env.model.getters.isTopBarEnabled();
+  }
 }
 
 TopBar.props = {
