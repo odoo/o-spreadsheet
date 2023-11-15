@@ -26,11 +26,9 @@ css/* scss */ `
     padding: ${MENU_VERTICAL_PADDING}px 0px;
     width: ${MENU_WIDTH}px;
     box-sizing: border-box !important;
+    user-select: none;
 
     .o-menu-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
       box-sizing: border-box;
       height: ${MENU_ITEM_HEIGHT}px;
       padding: ${MENU_ITEM_PADDING_VERTICAL}px ${MENU_ITEM_PADDING_HORIZONTAL}px;
@@ -41,19 +39,11 @@ css/* scss */ `
         min-width: 40%;
       }
 
-      &.o-menu-root {
-        display: flex;
-        justify-content: space-between;
-      }
-
       .o-menu-item-icon {
         display: inline-block;
         margin: 0px 8px 0px 0px;
         width: ${MENU_ITEM_HEIGHT - 2 * MENU_ITEM_PADDING_VERTICAL}px;
         line-height: ${MENU_ITEM_HEIGHT - 2 * MENU_ITEM_PADDING_VERTICAL}px;
-      }
-      .o-menu-item-root {
-        width: 10px;
       }
 
       &:not(.disabled) {

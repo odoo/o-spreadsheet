@@ -6,7 +6,7 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
 >
   
   <div
-    class="o-menu-item"
+    class="o-menu-item d-flex align-items-center"
     data-name="Sum"
     title="Sum: 24"
   >
@@ -21,11 +21,12 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
       </div>
       
       
+      
     </div>
   </div>
   
   <div
-    class="o-menu-item"
+    class="o-menu-item d-flex align-items-center"
     data-name="Avg"
     title="Avg: 24"
   >
@@ -40,11 +41,12 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
       </div>
       
       
+      
     </div>
   </div>
   
   <div
-    class="o-menu-item"
+    class="o-menu-item d-flex align-items-center"
     data-name="Min"
     title="Min: 24"
   >
@@ -59,11 +61,12 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
       </div>
       
       
+      
     </div>
   </div>
   
   <div
-    class="o-menu-item"
+    class="o-menu-item d-flex align-items-center"
     data-name="Max"
     title="Max: 24"
   >
@@ -78,11 +81,12 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
       </div>
       
       
+      
     </div>
   </div>
   
   <div
-    class="o-menu-item"
+    class="o-menu-item d-flex align-items-center"
     data-name="Count"
     title="Count: 1"
   >
@@ -97,11 +101,12 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
       </div>
       
       
+      
     </div>
   </div>
   
   <div
-    class="o-menu-item"
+    class="o-menu-item d-flex align-items-center"
     data-name="Count Numbers"
     title="Count Numbers: 1"
   >
@@ -114,6 +119,7 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
       >
         Count Numbers: 1
       </div>
+      
       
       
     </div>

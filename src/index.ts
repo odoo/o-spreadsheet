@@ -21,6 +21,7 @@ import {
   chartSidePanelComponentRegistry,
 } from "./components/side_panel/chart";
 import { ChartPanel } from "./components/side_panel/chart/main_chart_panel/main_chart_panel";
+import { ValidationMessages } from "./components/validation_messages/validation_messages";
 import {
   BOTTOMBAR_HEIGHT,
   DEFAULT_CELL_HEIGHT,
@@ -249,6 +250,7 @@ export const components = {
   FigureComponent,
   Menu,
   SelectionInput,
+  ValidationMessages,
 };
 
 export const hooks = {

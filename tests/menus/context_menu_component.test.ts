@@ -682,7 +682,7 @@ describe("Context Menu internal tests", () => {
     expect(fixture.querySelector("div[data-name='menuItem']")).toBeFalsy();
   });
 
-  test("Menu icon slot is visibile if one of the children has an icon", async () => {
+  test("Menu icon slot is visible if one of the children has an icon", async () => {
     let visible = false;
     const menuItems = createActions([
       {
@@ -699,6 +699,23 @@ describe("Context Menu internal tests", () => {
     parent.render(true);
     await nextTick();
     expect(fixture.querySelectorAll(".o-menu-item-icon").length).toBe(2);
+  });
+
+  test("Can display a secondary icon", async () => {
+    let visible = true;
+    const menuItems = createActions([
+      {
+        name: "child1",
+        secondaryIcon: () => (visible ? "o-spreadsheet-Icon.SEARCH" : ""),
+        execute: () => {},
+      },
+    ]);
+    await renderContextMenu(300, 300, { menuItems });
+    expect(fixture.querySelector(".search-icon")).not.toBeNull();
+    visible = false;
+    parent.render(true);
+    await nextTick();
+    expect(fixture.querySelector(".search-icon")).toBeNull();
   });
 });
 
