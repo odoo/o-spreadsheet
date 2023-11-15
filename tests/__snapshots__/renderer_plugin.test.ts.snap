@@ -1309,7 +1309,7 @@ exports[`renderer snapshot for a simple grid rendering 1`] = `
   "context.save()",
   "context.restore()",
   "context.save()",
-  "context.lineWidth=1.2000000000000002;",
+  "context.lineWidth=2;",
   "context.restore()",
   "context.save()",
   "context.restore()",
