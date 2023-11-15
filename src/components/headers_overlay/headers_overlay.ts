@@ -3,11 +3,9 @@ import {
   ComponentsImportance,
   HEADER_HEIGHT,
   HEADER_WIDTH,
-  ICON_EDGE_LENGTH,
   MIN_COL_WIDTH,
   MIN_ROW_HEIGHT,
   SELECTION_BORDER_COLOR,
-  UNHIDE_ICON_EDGE_LENGTH,
 } from "../../constants";
 import {
   CommandResult,
@@ -19,7 +17,7 @@ import {
   SpreadsheetChildEnv,
 } from "../../types/index";
 import { ContextMenuType } from "../grid/grid";
-import { css } from "../helpers/css";
+import { css, cssPropertiesToCss } from "../helpers/css";
 import { dragAndDropBeyondTheViewport, startDnd } from "../helpers/drag_and_drop";
 import { MergeErrorMessage } from "../translations_terms";
 
@@ -334,21 +332,14 @@ css/* scss */ `
       height: 10000px;
       background-color: ${SELECTION_BORDER_COLOR};
     }
-    .o-unhide {
-      width: ${UNHIDE_ICON_EDGE_LENGTH}px;
-      height: ${UNHIDE_ICON_EDGE_LENGTH}px;
-      position: absolute;
-      overflow: hidden;
-      border-radius: 2px;
-      top: calc(${HEADER_HEIGHT}px / 2 - ${UNHIDE_ICON_EDGE_LENGTH}px / 2);
+    .o-unhide-buttons {
+      width: fit-content;
+      gap: 5px;
+      transform: translate(-50%, 0);
     }
     .o-unhide:hover {
       z-index: ${ComponentsImportance.Grid + 1};
       background-color: lightgrey;
-    }
-    .o-unhide > svg {
-      position: relative;
-      top: calc(${UNHIDE_ICON_EDGE_LENGTH}px / 2 - ${ICON_EDGE_LENGTH}px / 2);
     }
   }
 `;
@@ -486,8 +477,8 @@ export class ColResizer extends AbstractResizer {
     });
   }
 
-  unhideStyleValue(hiddenIndex: HeaderIndex): Pixel {
-    return this._getDimensionsInViewport(hiddenIndex).start;
+  getUnhideButtonStyle(hiddenIndex: HeaderIndex): string {
+    return cssPropertiesToCss({ left: this._getDimensionsInViewport(hiddenIndex).start + "px" });
   }
 }
 
@@ -534,18 +525,9 @@ css/* scss */ `
       height: 1px;
       background-color: ${SELECTION_BORDER_COLOR};
     }
-    .o-unhide {
-      width: ${UNHIDE_ICON_EDGE_LENGTH}px;
-      height: ${UNHIDE_ICON_EDGE_LENGTH}px;
-      position: absolute;
-      overflow: hidden;
-      border-radius: 2px;
-      left: calc(${HEADER_WIDTH}px - ${UNHIDE_ICON_EDGE_LENGTH}px - 2px);
-    }
-    .o-unhide > svg {
-      position: relative;
-      left: calc(${UNHIDE_ICON_EDGE_LENGTH}px / 2 - ${ICON_EDGE_LENGTH}px / 2);
-      top: calc(${UNHIDE_ICON_EDGE_LENGTH}px / 2 - ${ICON_EDGE_LENGTH}px / 2);
+    .o-unhide-buttons {
+      height: fit-content;
+      transform: translate(0, -50%);
     }
     .o-unhide:hover {
       z-index: ${ComponentsImportance.Grid + 1};
@@ -687,8 +669,8 @@ export class RowResizer extends AbstractResizer {
     });
   }
 
-  unhideStyleValue(hiddenIndex: HeaderIndex): Pixel {
-    return this._getDimensionsInViewport(hiddenIndex).start;
+  getUnhideButtonStyle(hiddenIndex: HeaderIndex): string {
+    return cssPropertiesToCss({ top: this._getDimensionsInViewport(hiddenIndex).start + "px" });
   }
 }
 

@@ -222,11 +222,11 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
             
             <svg
               class="o-icon"
+              viewBox="0 0 18 18"
             >
               <polygon
                 fill="currentColor"
-                points="0 0 4 4 8 0"
-                transform="translate(5 7)"
+                points="5 7 9 11 13 7"
               />
             </svg>
             
@@ -251,11 +251,11 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
               <span>
                 <svg
                   class="o-icon"
+                  viewBox="0 0 18 18"
                 >
                   <polygon
                     fill="currentColor"
-                    points="0 0 4 4 8 0"
-                    transform="translate(5 7)"
+                    points="5 7 9 11 13 7"
                   />
                 </svg>
               </span>
@@ -441,11 +441,11 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
               
               <svg
                 class="o-icon"
+                viewBox="0 0 18 18"
               >
                 <polygon
                   fill="currentColor"
-                  points="0 0 4 4 8 0"
-                  transform="translate(5 7)"
+                  points="5 7 9 11 13 7"
                 />
               </svg>
               
@@ -476,11 +476,11 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
               
               <svg
                 class="o-icon"
+                viewBox="0 0 18 18"
               >
                 <polygon
                   fill="currentColor"
-                  points="0 0 4 4 8 0"
-                  transform="translate(5 7)"
+                  points="5 7 9 11 13 7"
                 />
               </svg>
               
@@ -511,11 +511,11 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
               
               <svg
                 class="o-icon"
+                viewBox="0 0 18 18"
               >
                 <polygon
                   fill="currentColor"
-                  points="0 0 4 4 8 0"
-                  transform="translate(5 7)"
+                  points="5 7 9 11 13 7"
                 />
               </svg>
               
@@ -826,11 +826,11 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
               >
                 <svg
                   class="o-icon"
+                  viewBox="0 0 18 18"
                 >
                   <polygon
                     fill="currentColor"
-                    points="0 0 4 4 8 0"
-                    transform="translate(5 7)"
+                    points="5 7 9 11 13 7"
                   />
                 </svg>
               </span>
