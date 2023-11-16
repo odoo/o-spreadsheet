@@ -426,7 +426,10 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    */
   private checkDispatchAllowed(command: Command): DispatchResult {
     const results = this.handlers.map((handler) => handler.allowDispatch(command));
-    return new DispatchResult(results.flat());
+    if (results.some((r) => r !== CommandResult.Success)) {
+      return new DispatchResult(results.flat());
+    }
+    return DispatchResult.Success;
   }
 
   private finalize() {
