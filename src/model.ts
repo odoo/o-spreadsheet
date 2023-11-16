@@ -442,21 +442,24 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * Check if the given command is allowed by all the plugins and the history.
    */
   private checkDispatchAllowed(command: Command): DispatchResult {
-    if (isCoreCommand(command)) {
-      return this.checkDispatchAllowedCoreCommand(command);
+    const results = isCoreCommand(command)
+      ? this.checkDispatchAllowedCoreCommand(command)
+      : this.checkDispatchAllowedLocalCommand(command);
+    if (results.some((r) => r !== CommandResult.Success)) {
+      return new DispatchResult(results.flat());
     }
-    return this.checkDispatchAllowedLocalCommand(command);
+    return DispatchResult.Success;
   }
 
-  private checkDispatchAllowedCoreCommand(command: CoreCommand): DispatchResult {
+  private checkDispatchAllowedCoreCommand(command: CoreCommand) {
     const results = this.corePlugins.map((handler) => handler.allowDispatch(command));
     results.push(this.range.allowDispatch(command));
-    return new DispatchResult(results.flat());
+    return results;
   }
 
-  private checkDispatchAllowedLocalCommand(command: LocalCommand): DispatchResult {
+  private checkDispatchAllowedLocalCommand(command: LocalCommand) {
     const results = this.uiHandlers.map((handler) => handler.allowDispatch(command));
-    return new DispatchResult(results.flat());
+    return results;
   }
 
   private finalize() {
