@@ -23,7 +23,7 @@ export function getDefaultCellHeight(
   colSize: number
 ) {
   if (!cell || !cell.content) return DEFAULT_CELL_HEIGHT;
-  const maxWidth = cell.style?.wrapping ? colSize - 2 * MIN_CELL_TEXT_MARGIN : undefined;
+  const maxWidth = cell.style?.wrapping === "wrap" ? colSize - 2 * MIN_CELL_TEXT_MARGIN : undefined;
 
   const numberOfLines = cell.isFormula
     ? 1
