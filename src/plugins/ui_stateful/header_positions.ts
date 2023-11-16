@@ -23,9 +23,11 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
         }
         break;
       case "UPDATE_CELL":
-        if ("content" in cmd || "format" in cmd || cmd.style?.fontSize !== undefined) {
+        if ("content" in cmd || "format" in cmd) {
           this.headerPositions = {};
           this.isDirty = true;
+        } else {
+          this.headerPositions[cmd.sheetId] = this.computeHeaderPositionsOfSheet(cmd.sheetId);
         }
         break;
       case "UPDATE_FILTER":
