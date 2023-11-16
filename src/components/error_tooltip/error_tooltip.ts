@@ -19,10 +19,6 @@ css/* scss */ `
 
     .o-error-tooltip-message {
       overflow: hidden;
-      display: -webkit-box; /* Limit to 3 lines */
-      -webkit-line-clamp: 3;
-      line-clamp: 3;
-      -webkit-box-orient: vertical;
     }
   }
 `;
