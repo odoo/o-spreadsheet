@@ -309,6 +309,8 @@ export class EvaluationPlugin extends UIPlugin {
       return evaluatedCell;
     };
 
+    const rangeCache = {};
+
     /**
      * Return the values of the cell(s) used in reference, but always in the format of a range even
      * if a single cell is referenced. It is a list of col values. This is useful for the formulas that describe parameters as
@@ -333,6 +335,12 @@ export class EvaluationPlugin extends UIPlugin {
         return [[]];
       }
       const { top, left, bottom, right } = zone;
+
+      const cacheKey = `${sheetId}-${top}-${left}-${bottom}-${right}`;
+      if (cacheKey in rangeCache) {
+        return rangeCache[cacheKey];
+      }
+
       const result: MatrixArg = new Array(right - left + 1);
 
       // Performance issue: nested loop is faster than a map here
@@ -346,6 +354,7 @@ export class EvaluationPlugin extends UIPlugin {
         }
         result[col - left] = rowValues;
       }
+      rangeCache[cacheKey] = result;
       return result;
     }
 
