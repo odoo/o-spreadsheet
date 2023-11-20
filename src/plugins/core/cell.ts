@@ -7,12 +7,14 @@ import {
   ApplyRangeChange,
   Cell,
   CellData,
+  ClearCellCommand,
   CommandResult,
   CoreCommand,
   ExcelWorkbookData,
   Format,
   FormulaCell,
   HeaderIndex,
+  PositionDependentCommand,
   Range,
   RangePart,
   Style,
@@ -79,11 +81,15 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: CoreCommand): CommandResult {
+  allowDispatch(cmd: CoreCommand): CommandResult | CommandResult[] {
     switch (cmd.type) {
       case "UPDATE_CELL":
+        return this.checkCellOutOfSheet(cmd);
       case "CLEAR_CELL":
-        return this.checkCellOutOfSheet(cmd.sheetId, cmd.col, cmd.row);
+        return this.checkValidations(
+          cmd,
+          this.chainValidations(this.checkCellOutOfSheet, this.checkUselessClearCell)
+        );
       default:
         return CommandResult.Success;
     }
@@ -471,10 +477,20 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     this.dispatch("UPDATE_CELL_POSITION", { cellId: cell.id, col, row, sheetId });
   }
 
-  private checkCellOutOfSheet(sheetId: UID, col: HeaderIndex, row: HeaderIndex): CommandResult {
+  private checkCellOutOfSheet(cmd: PositionDependentCommand): CommandResult {
+    const { sheetId, col, row } = cmd;
     const sheet = this.getters.tryGetSheet(sheetId);
     if (!sheet) return CommandResult.InvalidSheetId;
     const sheetZone = this.getters.getSheetZone(sheetId);
     return isInside(col, row, sheetZone) ? CommandResult.Success : CommandResult.TargetOutOfSheet;
+  }
+
+  private checkUselessClearCell(cmd: ClearCellCommand): CommandResult {
+    const cell = this.getters.getCell(cmd.sheetId, cmd.col, cmd.row);
+    if (!cell) return CommandResult.NoChanges;
+    if (!cell.content && !cell.style && !cell.format) {
+      return CommandResult.NoChanges;
+    }
+    return CommandResult.Success;
   }
 }
