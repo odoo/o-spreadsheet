@@ -1,6 +1,6 @@
 import { DEFAULT_BORDER_DESC } from "../../src/constants";
 import { Model } from "../../src/model";
-import { BorderDescr } from "../../src/types/index";
+import { BorderDescr, CommandResult } from "../../src/types/index";
 import {
   addColumns,
   addRows,
@@ -9,6 +9,7 @@ import {
   paste,
   selectCell,
   setAnchorCorner,
+  setBorders,
   setCellContent,
   setZoneBorders,
   undo,
@@ -97,6 +98,21 @@ describe("borders", () => {
     setZoneBorders(model, { position: "clear" });
 
     expect(getCell(model, "C3")).toBeUndefined();
+  });
+
+  test("set the same border twice is cancelled", () => {
+    const model = new Model();
+    const border = { top: DEFAULT_BORDER_DESC };
+    setBorders(model, "A1", border);
+    expect(setBorders(model, "A1", border)).toBeCancelledBecause(CommandResult.NoChanges);
+  });
+
+  test("reset border when there is no border is cancelled", () => {
+    const model = new Model();
+    expect(setBorders(model, "A1", undefined)).toBeCancelledBecause(CommandResult.NoChanges);
+    expect(setBorders(model, "A1", { top: undefined })).toBeCancelledBecause(
+      CommandResult.NoChanges
+    );
   });
 
   test("can set all borders in a zone", () => {

@@ -6,6 +6,7 @@ import { CellValueType, CommandResult } from "../../src/types";
 import {
   addColumns,
   addRows,
+  clearCell,
   copy,
   createSheet,
   deleteColumns,
@@ -15,6 +16,7 @@ import {
   renameSheet,
   setCellContent,
   setCellFormat,
+  setStyle,
   undo,
 } from "../test_helpers/commands_helpers";
 import {
@@ -67,15 +69,46 @@ describe("getCellText", () => {
     expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
   });
 
+  test("clear content", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "hello");
+    clearCell(model, "A1");
+    expect(getCell(model, "A1")).toBeUndefined();
+  });
+
+  test("clear style", () => {
+    const model = new Model();
+    setStyle(model, "A1", { bold: true });
+    clearCell(model, "A1");
+    expect(getCell(model, "A1")).toBeUndefined();
+  });
+
+  test("clear format", () => {
+    const model = new Model();
+    setCellFormat(model, "A1", "#,##0.0");
+    clearCell(model, "A1");
+    expect(getCell(model, "A1")).toBeUndefined();
+  });
+
+  test("clear content, style and format", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "hello");
+    setStyle(model, "A1", { bold: true });
+    setCellFormat(model, "A1", "#,##0.0");
+    clearCell(model, "A1");
+    expect(getCell(model, "A1")).toBeUndefined();
+  });
+
   test("clear cell outside of sheet", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
-    const result = model.dispatch("CLEAR_CELL", {
-      sheetId,
-      col: 9999,
-      row: 9999,
-    });
+    const result = clearCell(model, "AAA999");
     expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
+  });
+
+  test("clear cell is cancelled if there is nothing on the cell", () => {
+    const model = new Model();
+    const result = clearCell(model, "A1");
+    expect(result).toBeCancelledBecause(CommandResult.NoChanges);
   });
 });
 

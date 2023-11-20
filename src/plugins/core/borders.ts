@@ -1,5 +1,13 @@
 import { DEFAULT_BORDER_DESC } from "../../constants";
-import { isDefined, range, stringify, toCartesian, toXC, toZone } from "../../helpers/index";
+import {
+  deepEquals,
+  isDefined,
+  range,
+  stringify,
+  toCartesian,
+  toXC,
+  toZone,
+} from "../../helpers/index";
 import {
   AddColumnsRowsCommand,
   Border,
@@ -8,9 +16,11 @@ import {
   BorderPosition,
   CellPosition,
   Color,
-  Command,
+  CommandResult,
+  CoreCommand,
   ExcelWorkbookData,
   HeaderIndex,
+  SetBorderCommand,
   UID,
   WorkbookData,
   Zone,
@@ -35,7 +45,16 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  handle(cmd: Command) {
+  allowDispatch(cmd: CoreCommand) {
+    switch (cmd.type) {
+      case "SET_BORDER":
+        return this.checkBordersUnchanged(cmd);
+      default:
+        return CommandResult.Success;
+    }
+  }
+
+  handle(cmd: CoreCommand) {
     switch (cmd.type) {
       case "ADD_MERGE":
         for (const zone of cmd.target) {
@@ -517,6 +536,16 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
     } else if (bordersTopLeft?.right) {
       this.setBorders(sheetId, [{ ...zone, left: right }], "right", bordersTopLeft.right);
     }
+  }
+
+  private checkBordersUnchanged(cmd: SetBorderCommand) {
+    const currentBorder = this.getCellBorder(cmd);
+    const areAllNewBordersUndefined =
+      !cmd.border?.bottom && !cmd.border?.left && !cmd.border?.right && !cmd.border?.top;
+    if ((!currentBorder && areAllNewBordersUndefined) || deepEquals(currentBorder, cmd.border)) {
+      return CommandResult.NoChanges;
+    }
+    return CommandResult.Success;
   }
 
   // ---------------------------------------------------------------------------

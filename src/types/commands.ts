@@ -1312,6 +1312,7 @@ export const enum CommandResult {
   InvalidNumberOfCriterionValues = "InvalidNumberOfCriterionValues",
   BlockingValidationRule = "BlockingValidationRule",
   InvalidCopyPasteSelection = "InvalidCopyPasteSelection",
+  NoChanges = "NoChanges",
 }
 
 export interface CommandHandler<T> {
