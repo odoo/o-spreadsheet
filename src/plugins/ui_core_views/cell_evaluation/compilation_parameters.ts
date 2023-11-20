@@ -38,6 +38,8 @@ export function buildCompilationParameters(
 class CompilationParametersBuilder {
   evalContext: EvalContext;
 
+  private rangeCache: Record<string, Matrix<ValueAndFormat>> = {};
+
   constructor(
     context: ModelConfig["custom"],
     private getters: Getters,
@@ -148,6 +150,11 @@ class CompilationParametersBuilder {
     if (!_zone) {
       return [[]];
     }
+    const { top, left, bottom, right } = zone;
+    const cacheKey = `${sheetId}-${top}-${left}-${bottom}-${right}`;
+    if (cacheKey in this.rangeCache) {
+      return this.rangeCache[cacheKey];
+    }
 
     const height = _zone.bottom - _zone.top + 1;
     const width = _zone.right - _zone.left + 1;
@@ -162,6 +169,7 @@ class CompilationParametersBuilder {
         matrix[colIndex][rowIndex] = this.readCell({ sheetId, col, row });
       }
     }
+    this.rangeCache[cacheKey] = matrix;
     return matrix;
   }
 }
