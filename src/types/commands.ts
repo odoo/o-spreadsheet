@@ -1162,6 +1162,7 @@ export const enum CommandResult {
   SplitWillOverwriteContent,
   NoSplitSeparatorInSelection,
   NoActiveSheet,
+  NoChanges,
 }
 
 export interface CommandHandler<T> {
