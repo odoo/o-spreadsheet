@@ -95,7 +95,8 @@ export class Evaluator {
     this.formulaDependencies().addDependencies(positionId, dependencies);
   }
 
-  updateCompilationParameters() {
+  private updateCompilationParameters() {
+    // rebuild the compilation parameters (with a clean cache)
     this.compilationParams = buildCompilationParameters(
       this.context,
       this.getters,
@@ -157,6 +158,7 @@ export class Evaluator {
     const ranges: Range[] = compiledFormula.dependencies.map((xc) =>
       this.getters.getRangeFromSheetXC(sheetId, xc)
     );
+    this.updateCompilationParameters();
     const array = compiledFormula.execute(ranges, ...this.compilationParams);
     if (isMatrix(array)) {
       return matrixMap(array, (cell) => cell.value);
@@ -194,6 +196,7 @@ export class Evaluator {
 
     let currentIteration = 0;
     while (this.nextPositionsToUpdate.size && currentIteration++ < MAX_ITERATION) {
+      this.updateCompilationParameters();
       const positionIds = Array.from(this.nextPositionsToUpdate);
       this.nextPositionsToUpdate.clear();
       for (let i = 0; i < positionIds.length; ++i) {

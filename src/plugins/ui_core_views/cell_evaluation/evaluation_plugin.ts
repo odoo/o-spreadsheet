@@ -184,9 +184,6 @@ export class EvaluationPlugin extends UIPlugin {
       case "EVALUATE_CELLS":
         this.evaluator.evaluateAllCells();
         break;
-      case "UPDATE_LOCALE":
-        this.evaluator.updateCompilationParameters();
-        break;
     }
   }
 
