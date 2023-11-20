@@ -2,6 +2,7 @@ import { isInside, lettersToNumber, toCartesian, toZone } from "../../src/helper
 import { Model } from "../../src/model";
 import {
   AnchorZone,
+  Border,
   BorderData,
   ChartDefinition,
   ClipboardPasteOptions,
@@ -497,6 +498,21 @@ export function setZoneBorders(model: Model, border: BorderData, xcs?: string[])
   });
 }
 
+export function setBorders(
+  model: Model,
+  xc: string,
+  border?: Border,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  const { col, row } = toCartesian(xc);
+  return model.dispatch("SET_BORDER", {
+    sheetId,
+    col,
+    row,
+    border,
+  });
+}
+
 /**
  * Clear a cell
  */
@@ -506,7 +522,7 @@ export function clearCell(
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
   const { col, row } = toCartesian(xc);
-  model.dispatch("CLEAR_CELL", { col, row, sheetId });
+  return model.dispatch("CLEAR_CELL", { col, row, sheetId });
 }
 
 /**
