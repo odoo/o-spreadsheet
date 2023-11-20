@@ -1,3 +1,4 @@
+import { compile } from "../../../formulas";
 import { forEachPositionsInZone, JetSet, lazy, toXC } from "../../../helpers";
 import { createEvaluatedCell, errorCell, evaluateLiteral } from "../../../helpers/cells";
 import { ModelConfig } from "../../../model";
@@ -17,6 +18,7 @@ import {
   MatrixArgFormat,
   MatrixFunctionReturn,
   PrimitiveFormat,
+  Range,
   UID,
 } from "../../../types";
 import { CellErrorType, CircularDependencyError, EvaluationError } from "../../../types/errors";
@@ -140,6 +142,16 @@ export class Evaluator {
   evaluateAllCells() {
     this.evaluatedCells = new Map();
     this.evaluate(this.getAllCells());
+  }
+
+  evaluateFormula(sheetId: UID, formulaString: string): any {
+    const compiledFormula = compile(formulaString);
+
+    const ranges: Range[] = [];
+    for (let xc of compiledFormula.dependencies) {
+      ranges.push(this.getters.getRangeFromSheetXC(sheetId, xc));
+    }
+    return compiledFormula.execute(ranges, ...this.compilationParams).value;
   }
 
   private getAllCells(): JetSet<PositionId> {

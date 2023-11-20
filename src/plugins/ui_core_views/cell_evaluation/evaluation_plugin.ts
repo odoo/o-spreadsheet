@@ -17,7 +17,6 @@ import {
 } from "../../../types/index";
 import { UIPlugin, UIPluginConfig } from "../../ui_plugin";
 import { CoreViewCommand } from "./../../../types/commands";
-import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
 import { Evaluator } from "./evaluator";
 
 //#region
@@ -149,12 +148,10 @@ export class EvaluationPlugin extends UIPlugin {
   private shouldRebuildDependenciesGraph = true;
 
   private evaluator: Evaluator;
-  private compilationParams: CompilationParameters;
   private positionsToUpdate: CellPosition[] = [];
 
-  constructor(private config: UIPluginConfig) {
+  constructor(config: UIPluginConfig) {
     super(config);
-    this.compilationParams = this.getCompilationParameters();
     this.evaluator = new Evaluator(config.custom, this.getters);
   }
 
@@ -184,7 +181,6 @@ export class EvaluationPlugin extends UIPlugin {
         this.evaluator.evaluateAllCells();
         break;
       case "UPDATE_LOCALE":
-        this.compilationParams = this.getCompilationParameters();
         this.evaluator.updateCompilationParameters();
         break;
     }
@@ -206,13 +202,7 @@ export class EvaluationPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   evaluateFormula(sheetId: UID, formulaString: string): any {
-    const compiledFormula = compile(formulaString);
-
-    const ranges: Range[] = [];
-    for (let xc of compiledFormula.dependencies) {
-      ranges.push(this.getters.getRangeFromSheetXC(sheetId, xc));
-    }
-    return compiledFormula.execute(ranges, ...this.compilationParams).value;
+    return this.evaluator.evaluateFormula(sheetId, formulaString);
   }
 
   /**
@@ -329,12 +319,6 @@ export class EvaluationPlugin extends UIPlugin {
       return spreadingFormulaCell;
     }
     return undefined;
-  }
-
-  private getCompilationParameters() {
-    return buildCompilationParameters(this.config.custom, this.getters, (position) =>
-      this.evaluator.getEvaluatedCell(position)
-    );
   }
 }
 
