@@ -1138,6 +1138,7 @@ export const enum CommandResult {
   ChartDoesNotExist,
   InvalidHeaderIndex,
   InvalidQuantity,
+  NoChanges,
 }
 
 export interface CommandHandler<T> {
