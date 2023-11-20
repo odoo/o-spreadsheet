@@ -39,6 +39,8 @@ export function buildCompilationParameters(
 class CompilationParametersBuilder {
   evalContext: EvalContext;
 
+  private rangeCache: Record<string, MatrixArg> = {};
+
   constructor(
     context: ModelConfig["custom"],
     private getters: Getters,
@@ -150,6 +152,11 @@ class CompilationParametersBuilder {
     if (!_zone) {
       return { value: [[]], format: [[]] };
     }
+    const { top, left, bottom, right } = zone;
+    const cacheKey = `${sheetId}-${top}-${left}-${bottom}-${right}`;
+    if (cacheKey in this.rangeCache) {
+      return this.rangeCache[cacheKey];
+    }
 
     const height = _zone.bottom - _zone.top + 1;
     const width = _zone.right - _zone.left + 1;
@@ -172,6 +179,8 @@ class CompilationParametersBuilder {
         }
       }
     }
-    return { value, format };
+    const result = { value, format };
+    this.rangeCache[cacheKey] = result;
+    return result;
   }
 }

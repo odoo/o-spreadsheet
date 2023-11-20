@@ -88,7 +88,8 @@ export class Evaluator {
     this.formulaDependencies().addDependencies(positionId, dependencies);
   }
 
-  updateCompilationParameters() {
+  private updateCompilationParameters() {
+    // rebuild the compilation parameters (with a clean cache)
     this.compilationParams = buildCompilationParameters(
       this.context,
       this.getters,
@@ -151,6 +152,7 @@ export class Evaluator {
     for (let xc of compiledFormula.dependencies) {
       ranges.push(this.getters.getRangeFromSheetXC(sheetId, xc));
     }
+    this.updateCompilationParameters();
     return compiledFormula.execute(ranges, ...this.compilationParams).value;
   }
 
@@ -184,6 +186,7 @@ export class Evaluator {
 
     let currentIteration = 0;
     while (this.nextPositionsToUpdate.size && currentIteration++ < MAX_ITERATION) {
+      this.updateCompilationParameters();
       const positionIds = Array.from(this.nextPositionsToUpdate);
       this.nextPositionsToUpdate.clear();
       for (let i = 0; i < positionIds.length; ++i) {
