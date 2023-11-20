@@ -1,3 +1,5 @@
+import { compile } from "../../../formulas";
+import { matrixMap } from "../../../functions/helpers";
 import { forEachPositionsInZone, JetSet, lazy, toXC } from "../../../helpers";
 import { createEvaluatedCell, errorCell, evaluateLiteral } from "../../../helpers/cells";
 import { ModelConfig } from "../../../model";
@@ -5,12 +7,14 @@ import { _t } from "../../../translation";
 import {
   Cell,
   CellPosition,
+  CellValue,
   CellValueType,
   EvaluatedCell,
   FormulaCell,
   Getters,
   isMatrix,
   Matrix,
+  Range,
   UID,
   ValueAndFormat,
 } from "../../../types";
@@ -145,6 +149,19 @@ export class Evaluator {
   evaluateAllCells() {
     this.evaluatedCells = new Map();
     this.evaluate(this.getAllCells());
+  }
+
+  evaluateFormula(sheetId: UID, formulaString: string): CellValue | Matrix<CellValue> {
+    const compiledFormula = compile(formulaString);
+
+    const ranges: Range[] = compiledFormula.dependencies.map((xc) =>
+      this.getters.getRangeFromSheetXC(sheetId, xc)
+    );
+    const array = compiledFormula.execute(ranges, ...this.compilationParams);
+    if (isMatrix(array)) {
+      return matrixMap(array, (cell) => cell.value);
+    }
+    return array.value;
   }
 
   private getAllCells(): JetSet<PositionId> {
