@@ -55,7 +55,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   static getters = [
     "zoneToXC",
     "getCells",
-    "getFormulaCellContent",
     "getTranslatedCellFormula",
     "getCellStyle",
     "getCellById",
@@ -297,17 +296,16 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   /*
    * Reconstructs the original formula string based on a normalized form and its dependencies
    */
-  getFormulaCellContent(
+  private getFormulaCellContent(
     sheetId: UID,
     compiledFormula: RangeCompiledFormula,
-    dependencies?: Range[]
+    dependencies: Range[]
   ): string {
-    const ranges = dependencies || compiledFormula.dependencies;
     let rangeIndex = 0;
     return concat(
       compiledFormula.tokens.map((token) => {
         if (token.type === "REFERENCE") {
-          const range = ranges[rangeIndex++];
+          const range = dependencies[rangeIndex++];
           return this.getters.getRangeString(range, sheetId);
         }
         return token.value;
