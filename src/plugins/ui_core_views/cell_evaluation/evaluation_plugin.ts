@@ -1,5 +1,5 @@
 import { compileTokens } from "../../../formulas/compiler";
-import { Token, compile, isExportableToExcel } from "../../../formulas/index";
+import { Token, isExportableToExcel } from "../../../formulas/index";
 import { getItemId, positions, toXC } from "../../../helpers/index";
 import {
   CellPosition,
@@ -16,11 +16,9 @@ import {
   UID,
   Zone,
   invalidateDependenciesCommands,
-  isMatrix,
 } from "../../../types/index";
 import { UIPlugin, UIPluginConfig } from "../../ui_plugin";
 import { CoreViewCommand } from "./../../../types/commands";
-import { CompilationParameters, buildCompilationParameters } from "./compilation_parameters";
 import { Evaluator } from "./evaluator";
 
 //#region
@@ -154,12 +152,10 @@ export class EvaluationPlugin extends UIPlugin {
   private shouldRebuildDependenciesGraph = true;
 
   private evaluator: Evaluator;
-  private compilationParams: CompilationParameters;
   private positionsToUpdate: CellPosition[] = [];
 
-  constructor(private config: UIPluginConfig) {
+  constructor(config: UIPluginConfig) {
     super(config);
-    this.compilationParams = this.getCompilationParameters();
     this.evaluator = new Evaluator(config.custom, this.getters);
   }
 
@@ -189,7 +185,6 @@ export class EvaluationPlugin extends UIPlugin {
         this.evaluator.evaluateAllCells();
         break;
       case "UPDATE_LOCALE":
-        this.compilationParams = this.getCompilationParameters();
         this.evaluator.updateCompilationParameters();
         break;
     }
@@ -211,17 +206,7 @@ export class EvaluationPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   evaluateFormula(sheetId: UID, formulaString: string): CellValue | Matrix<CellValue> {
-    const compiledFormula = compile(formulaString);
-
-    const ranges: Range[] = [];
-    for (let xc of compiledFormula.dependencies) {
-      ranges.push(this.getters.getRangeFromSheetXC(sheetId, xc));
-    }
-    const array = compiledFormula.execute(ranges, ...this.compilationParams);
-    if (isMatrix(array)) {
-      return array.map((col) => col.map((row) => row.value));
-    }
-    return array.value;
+    return this.evaluator.evaluateFormula(sheetId, formulaString);
   }
 
   /**
@@ -341,12 +326,6 @@ export class EvaluationPlugin extends UIPlugin {
       return spreadingFormulaCell;
     }
     return undefined;
-  }
-
-  private getCompilationParameters() {
-    return buildCompilationParameters(this.config.custom, this.getters, (position) =>
-      this.evaluator.getEvaluatedCell(position)
-    );
   }
 }
 
