@@ -522,6 +522,18 @@ describe("Autofill", () => {
     expect(getCell(model, "A5")).toBeUndefined();
   });
 
+  test("Auto-autofill considers cells with a content", () => {
+    setCellContent(model, "B2", "1");
+    setCellContent(model, "B3", '=""');
+    setCellContent(model, "B4", '=""');
+    setCellContent(model, "A2", "2");
+    setSelection(model, ["A2"]);
+    model.dispatch("AUTOFILL_AUTO");
+    expect(getCellContent(model, "A3")).toBe("2");
+    expect(getCellContent(model, "A4")).toBe("2");
+    expect(getCell(model, "A5")).toBeUndefined();
+  });
+
   test("autofill with merge in selection", () => {
     merge(model, "A1:A2");
     setCellContent(model, "A1", "1");
