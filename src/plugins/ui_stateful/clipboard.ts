@@ -120,8 +120,8 @@ export class ClipboardPlugin extends UIPlugin {
         this.lastPasteState = this.state;
         if (this.paintFormatStatus === "oneOff") {
           this.paintFormatStatus = "inactive";
-          this.status = "invisible";
         }
+        this.status = "invisible";
         break;
       case "COPY_PASTE_CELLS_ABOVE":
         {
