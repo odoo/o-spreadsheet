@@ -277,19 +277,25 @@ export class AutofillPlugin extends UIPlugin {
     let col: HeaderIndex = zone.left;
     let row: HeaderIndex = zone.bottom;
     if (col > 0) {
-      let left = this.getters.getEvaluatedCell({ sheetId, col: col - 1, row });
-      while (left.type !== CellValueType.empty) {
+      let leftPosition = { sheetId, col: col - 1, row };
+      while (
+        this.getters.getEvaluatedCell(leftPosition).type !== CellValueType.empty ||
+        this.getters.getCell(leftPosition)?.content
+      ) {
         row += 1;
-        left = this.getters.getEvaluatedCell({ sheetId, col: col - 1, row });
+        leftPosition = { sheetId, col: col - 1, row };
       }
     }
     if (row === zone.bottom) {
       col = zone.right;
       if (col <= this.getters.getNumberCols(sheetId)) {
-        let right = this.getters.getEvaluatedCell({ sheetId, col: col + 1, row });
-        while (right.type !== CellValueType.empty) {
+        let rightPosition = { sheetId, col: col + 1, row };
+        while (
+          this.getters.getEvaluatedCell(rightPosition).type !== CellValueType.empty ||
+          this.getters.getCell(rightPosition)?.content
+        ) {
           row += 1;
-          right = this.getters.getEvaluatedCell({ sheetId, col: col + 1, row });
+          rightPosition = { sheetId, col: col + 1, row };
         }
       }
     }
