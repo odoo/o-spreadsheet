@@ -17,6 +17,7 @@ import {
   clickCell,
   getElComputedStyle,
   hoverCell,
+  keyDown,
   rightClickCell,
   simulateClick,
   triggerMouseEvent,
@@ -158,6 +159,22 @@ describe("Simple Spreadsheet Component", () => {
     );
     await nextTick();
     expect(document.querySelectorAll(".o-sidePanel").length).toBe(0);
+  });
+
+  test("Mac user use metaKey, not CtrlKey", async () => {
+    ({ model, parent, fixture } = await mountSpreadsheet({
+      model: new Model({ sheets: [{ id: "sh1" }] }),
+    }));
+    const mockUserAgent = jest.spyOn(navigator, "userAgent", "get");
+    mockUserAgent.mockImplementation(
+      () => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/119.0"
+    );
+    await keyDown("F", { ctrlKey: true, bubbles: true });
+    expect(document.querySelectorAll(".o-sidePanel").length).toBe(0);
+    await nextTick();
+    await keyDown("F", { metaKey: true, bubbles: true });
+    expect(document.querySelectorAll(".o-sidePanel").length).toBe(1);
+    jest.restoreAllMocks();
   });
 
   test("Z-indexes of the various spreadsheet components", async () => {

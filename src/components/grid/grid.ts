@@ -42,6 +42,7 @@ import { FilterIconsOverlay } from "../filters/filter_icons_overlay/filter_icons
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { HeadersOverlay } from "../headers_overlay/headers_overlay";
+import { isCtrlKey } from "../helpers/dom_helpers";
 import { dragAndDropBeyondTheViewport } from "../helpers/drag_and_drop";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useAbsoluteBoundingRect } from "../helpers/position_hook";
@@ -452,8 +453,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     }
 
     let keyDownString = "";
-    if (ev.ctrlKey) keyDownString += "CTRL+";
-    if (ev.metaKey) keyDownString += "CTRL+";
+    if (isCtrlKey(ev)) keyDownString += "CTRL+";
     if (ev.altKey) keyDownString += "ALT+";
     if (ev.shiftKey) keyDownString += "SHIFT+";
     keyDownString += ev.key.toUpperCase();
