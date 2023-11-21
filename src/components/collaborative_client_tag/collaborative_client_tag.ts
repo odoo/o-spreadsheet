@@ -23,6 +23,13 @@ css/* scss */ `
 `;
 export class ClientTag extends Component<ClientTagProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ClientTag";
+  static props = {
+    active: Boolean,
+    name: String,
+    color: String,
+    col: Number,
+    row: Number,
+  };
   get tagStyle(): string {
     const { col, row, color } = this.props;
     const { height } = this.env.model.getters.getSheetViewDimensionWithHeaders();
@@ -41,11 +48,3 @@ export class ClientTag extends Component<ClientTagProps, SpreadsheetChildEnv> {
     });
   }
 }
-
-ClientTag.props = {
-  active: Boolean,
-  name: String,
-  color: String,
-  col: Number,
-  row: Number,
-};

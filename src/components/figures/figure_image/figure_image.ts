@@ -8,6 +8,10 @@ interface Props {
 
 export class ImageFigure extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ImageFigure";
+  static props = {
+    figure: Object,
+    onFigureDeleted: Function,
+  };
   static components = {};
 
   // ---------------------------------------------------------------------------
@@ -22,8 +26,3 @@ export class ImageFigure extends Component<Props, SpreadsheetChildEnv> {
     return this.env.model.getters.getImagePath(this.figureId);
   }
 }
-
-ImageFigure.props = {
-  figure: Object,
-  onFigureDeleted: Function,
-};

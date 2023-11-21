@@ -19,6 +19,13 @@ interface State {
 
 export class BorderEditorWidget extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-BorderEditorWidget";
+  static props = {
+    toggleBorderEditor: Function,
+    showBorderEditor: Boolean,
+    disabled: { type: Boolean, optional: true },
+    dropdownMaxHeight: { type: Number, optional: true },
+    class: { type: String, optional: true },
+  };
   static components = { BorderEditor };
 
   borderEditorButtonRef = useRef("borderEditorButton");
@@ -69,11 +76,3 @@ export class BorderEditorWidget extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 }
-
-BorderEditorWidget.props = {
-  toggleBorderEditor: Function,
-  showBorderEditor: Boolean,
-  disabled: { type: Boolean, optional: true },
-  dropdownMaxHeight: { type: Number, optional: true },
-  class: { type: String, optional: true },
-};

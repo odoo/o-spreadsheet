@@ -15,6 +15,11 @@ interface Props {
 export class ChartColor extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet.ChartColor";
   static components = { ColorPickerWidget, Section };
+  static props = {
+    currentColor: { type: String, optional: true },
+    onColorPicked: Function,
+  };
+
   private state!: State;
 
   setup() {
@@ -30,8 +35,3 @@ export class ChartColor extends Component<Props, SpreadsheetChildEnv> {
     this.state.pickerOpened = !this.state.pickerOpened;
   }
 }
-
-ChartColor.props = {
-  currentColor: { type: String, optional: true },
-  onColorPicked: Function,
-};

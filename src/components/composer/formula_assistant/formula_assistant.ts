@@ -47,6 +47,11 @@ interface AssistantState {
 
 export class FunctionDescriptionProvider extends Component<Props> {
   static template = "o-spreadsheet-FunctionDescriptionProvider";
+  static props = {
+    functionName: String,
+    functionDescription: Object,
+    argToFocus: Number,
+  };
   assistantState: AssistantState = useState({
     allowCellSelectionBehind: false,
   });
@@ -75,9 +80,3 @@ export class FunctionDescriptionProvider extends Component<Props> {
     }, 2000) as unknown as number;
   }
 }
-
-FunctionDescriptionProvider.props = {
-  functionName: String,
-  functionDescription: Object,
-  argToFocus: Number,
-};

@@ -37,6 +37,10 @@ interface Props {
 
 export class DataValidationPreview extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-DataValidationPreview";
+  static props = {
+    onClick: Function,
+    rule: Object,
+  };
 
   deleteDataValidation() {
     const sheetId = this.env.model.getters.getActiveSheetId();
@@ -56,8 +60,3 @@ export class DataValidationPreview extends Component<Props, SpreadsheetChildEnv>
       .getPreview(this.props.rule.criterion, this.env.model.getters);
   }
 }
-
-DataValidationPreview.props = {
-  onClick: Function,
-  rule: Object,
-};

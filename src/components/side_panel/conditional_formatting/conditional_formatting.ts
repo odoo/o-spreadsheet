@@ -18,6 +18,10 @@ interface State {
 
 export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ConditionalFormattingPanel";
+  static props = {
+    selection: { type: Object, optional: true },
+    onCloseSidePanel: Function,
+  };
   static components = {
     ConditionalFormatPreviewList,
     ConditionalFormattingEditor,
@@ -82,8 +86,3 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
     this.state.editedCf = cf;
   }
 }
-
-ConditionalFormattingPanel.props = {
-  selection: { type: Object, optional: true },
-  onCloseSidePanel: Function,
-};

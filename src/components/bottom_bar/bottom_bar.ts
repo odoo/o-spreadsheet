@@ -76,6 +76,9 @@ interface BottomBarMenuState extends MenuState {
 
 export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-BottomBar";
+  static props = {
+    onClick: Function,
+  };
   static components = { Menu, Ripple, BottomBarSheet, BottomBarStatistic };
 
   private bottomBarRef = useRef("bottomBar");
@@ -281,7 +284,3 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
     return this.sheetListRef.el.scrollWidth - this.sheetListRef.el.clientWidth;
   }
 }
-
-BottomBar.props = {
-  onClick: Function,
-};

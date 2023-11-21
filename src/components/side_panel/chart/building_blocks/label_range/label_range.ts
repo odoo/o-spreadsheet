@@ -23,19 +23,19 @@ interface Props {
 export class ChartLabelRange extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet.ChartLabelRange";
   static components = { SelectionInput, Checkbox, Section };
+  static props = {
+    title: { type: String, optional: true },
+    range: Function,
+    isInvalid: Boolean,
+    required: { type: Boolean, optional: true },
+    onSelectionChanged: Function,
+    onSelectionConfirmed: Function,
+    options: { type: Array, optional: true },
+  };
+
   static defaultProps: Partial<Props> = {
     title: _t("Categories / Labels"),
     options: [],
     required: false,
   };
 }
-
-ChartLabelRange.props = {
-  title: { type: String, optional: true },
-  range: Function,
-  isInvalid: Boolean,
-  required: { type: Boolean, optional: true },
-  onSelectionChanged: Function,
-  onSelectionConfirmed: Function,
-  options: { type: Array, optional: true },
-};

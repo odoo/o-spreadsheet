@@ -62,6 +62,12 @@ interface State {
 
 export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-BottomBarSheet";
+  static props = {
+    sheetId: String,
+    openContextMenu: Function,
+    style: { type: String, optional: true },
+    onMouseDown: { type: Function, optional: true },
+  };
   static components = { Ripple };
   static defaultProps = {
     onMouseDown: () => {},
@@ -208,9 +214,3 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
     return this.env.model.getters.getSheetName(this.props.sheetId);
   }
 }
-BottomBarSheet.props = {
-  sheetId: String,
-  openContextMenu: Function,
-  style: { type: String, optional: true },
-  onMouseDown: { type: Function, optional: true },
-};

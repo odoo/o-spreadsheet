@@ -1,5 +1,5 @@
 import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
-import { MENU_ITEM_HEIGHT, MENU_WIDTH } from "../../../constants";
+import { MENU_ITEM_HEIGHT } from "../../../constants";
 import { deepEquals, positions, toLowerCase } from "../../../helpers";
 import { fuzzyLookup } from "../../../helpers/search";
 import { Position, SortDirection, SpreadsheetChildEnv } from "../../../types";
@@ -123,8 +123,11 @@ interface State {
 }
 
 export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
-  static size = { width: MENU_WIDTH, height: FILTER_MENU_HEIGHT };
   static template = "o-spreadsheet-FilterMenu";
+  static props = {
+    filterPosition: Object,
+    onClosed: { type: Function, optional: true },
+  };
   static style = CSS;
   static components = { FilterMenuValueItem };
 
@@ -308,10 +311,6 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
     this.props.onClosed?.();
   }
 }
-FilterMenu.props = {
-  filterPosition: Object,
-  onClosed: { type: Function, optional: true },
-};
 
 export const FilterMenuPopoverBuilder: PopoverBuilders = {
   onOpen: (position, getters): CellPopoverComponent<typeof FilterMenu> => {

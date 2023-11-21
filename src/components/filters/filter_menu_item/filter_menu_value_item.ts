@@ -24,6 +24,14 @@ css/*SCSS*/ `
 
 export class FilterMenuValueItem extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FilterMenuValueItem";
+  static props = {
+    value: String,
+    isChecked: Boolean,
+    isSelected: Boolean,
+    onMouseMove: Function,
+    onClick: Function,
+    scrolledTo: { type: String, optional: true },
+  };
 
   private itemRef = useRef("menuValueItem");
 
@@ -44,12 +52,3 @@ export class FilterMenuValueItem extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 }
-
-FilterMenuValueItem.props = {
-  value: String,
-  isChecked: Boolean,
-  isSelected: Boolean,
-  onMouseMove: Function,
-  onClick: Function,
-  scrolledTo: { type: String, optional: true },
-};

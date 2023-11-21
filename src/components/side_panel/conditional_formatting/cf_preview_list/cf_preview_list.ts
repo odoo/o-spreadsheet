@@ -85,6 +85,11 @@ interface Props {
 
 export class ConditionalFormatPreviewList extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ConditionalFormatPreviewList";
+  static props = {
+    conditionalFormats: Array,
+    onPreviewClick: Function,
+    onAddConditionalFormat: Function,
+  };
 
   icons = ICONS;
 
@@ -175,9 +180,3 @@ export class ConditionalFormatPreviewList extends Component<Props, SpreadsheetCh
     }
   }
 }
-
-ConditionalFormatPreviewList.props = {
-  conditionalFormats: Array,
-  onPreviewClick: Function,
-  onAddConditionalFormat: Function,
-};

@@ -39,6 +39,13 @@ interface Props {
 
 export class Corner extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Corner";
+  static props = {
+    zone: Object,
+    color: String,
+    orientation: String,
+    isResizing: Boolean,
+    onResizeHighlight: Function,
+  };
   private isTop = this.props.orientation[0] === "n";
   private isLeft = this.props.orientation[1] === "w";
 
@@ -73,11 +80,3 @@ export class Corner extends Component<Props, SpreadsheetChildEnv> {
     this.props.onResizeHighlight(this.isLeft, this.isTop);
   }
 }
-
-Corner.props = {
-  zone: Object,
-  color: String,
-  orientation: String,
-  isResizing: Boolean,
-  onResizeHighlight: Function,
-};

@@ -46,6 +46,12 @@ interface Props {
 
 export class TopBarComposer extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TopBarComposer";
+  static props = {
+    focus: {
+      validate: (value: string) => ["inactive", "cellFocus", "contentFocus"].includes(value),
+    },
+    onComposerContentFocused: Function,
+  };
   static components = { Composer };
 
   get composerStyle(): string {
@@ -70,8 +76,3 @@ export class TopBarComposer extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 }
-
-TopBarComposer.props = {
-  focus: { validate: (value: string) => ["inactive", "cellFocus", "contentFocus"].includes(value) },
-  onComposerContentFocused: Function,
-};

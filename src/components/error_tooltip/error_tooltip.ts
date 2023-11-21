@@ -36,12 +36,11 @@ interface ErrorToolTipProps {
 export class ErrorToolTip extends Component<ErrorToolTipProps> {
   static maxSize = { maxHeight: ERROR_TOOLTIP_MAX_HEIGHT };
   static template = "o-spreadsheet-ErrorToolTip";
+  static props = {
+    errors: Array,
+    onClosed: { type: Function, optional: true },
+  };
 }
-
-ErrorToolTip.props = {
-  errors: Array,
-  onClosed: { type: Function, optional: true },
-};
 
 export const ErrorToolTipPopoverBuilder: PopoverBuilders = {
   onHover: (position, getters): CellPopoverComponent<typeof ErrorToolTip> => {

@@ -10,8 +10,5 @@ interface Props {
 export class ChartErrorSection extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet.ChartErrorSection";
   static components = { Section, ValidationMessages };
+  static props = { messages: { type: Array, element: String } };
 }
-
-ChartErrorSection.props = {
-  messages: { type: Array, element: String },
-};

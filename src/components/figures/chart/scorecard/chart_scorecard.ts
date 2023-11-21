@@ -10,6 +10,9 @@ interface Props {
 
 export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ScorecardChart";
+  static props = {
+    figure: Object,
+  };
   private canvas = useRef("chartContainer");
 
   get runtime(): ScorecardChartRuntime {
@@ -30,7 +33,3 @@ export class ScorecardChart extends Component<Props, SpreadsheetChildEnv> {
     drawScoreChart(config, canvas);
   }
 }
-
-ScorecardChart.props = {
-  figure: Object,
-};

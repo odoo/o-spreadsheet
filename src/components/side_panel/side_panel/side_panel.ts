@@ -164,6 +164,11 @@ interface State {
 
 export class SidePanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SidePanel";
+  static props = {
+    component: String,
+    panelProps: { type: Object, optional: true },
+    onCloseSidePanel: Function,
+  };
   state!: State;
 
   setup() {
@@ -181,9 +186,3 @@ export class SidePanel extends Component<Props, SpreadsheetChildEnv> {
       : this.state.panel.title;
   }
 }
-
-SidePanel.props = {
-  component: String,
-  panelProps: { type: Object, optional: true },
-  onCloseSidePanel: Function,
-};

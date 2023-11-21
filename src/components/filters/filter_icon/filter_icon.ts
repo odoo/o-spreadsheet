@@ -3,7 +3,7 @@ import { FILTERS_COLOR, GRID_ICON_EDGE_LENGTH } from "../../../constants";
 import { CellPosition, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
 
-const CSS = css/* scss */ `
+css/* scss */ `
   .o-filter-icon {
     color: ${FILTERS_COLOR};
     display: flex;
@@ -23,8 +23,10 @@ interface Props {
 }
 
 export class FilterIcon extends Component<Props, SpreadsheetChildEnv> {
-  static style = CSS;
   static template = "o-spreadsheet-FilterIcon";
+  static props = {
+    cellPosition: Object,
+  };
 
   onClick() {
     const position = this.props.cellPosition;
@@ -45,7 +47,3 @@ export class FilterIcon extends Component<Props, SpreadsheetChildEnv> {
     return this.env.model.getters.isFilterActive(this.props.cellPosition);
   }
 }
-
-FilterIcon.props = {
-  cellPosition: Object,
-};

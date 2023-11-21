@@ -42,6 +42,9 @@ interface Props {
 export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FindAndReplacePanel";
   static components = { SelectionInput, Section, Checkbox };
+  static props = {
+    onCloseSidePanel: Function,
+  };
 
   private debounceTimeoutId;
   private initialShowFormulaState: boolean = false;
@@ -212,7 +215,3 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 }
-
-FindAndReplacePanel.props = {
-  onCloseSidePanel: Function,
-};

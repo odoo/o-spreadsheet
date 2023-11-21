@@ -52,6 +52,17 @@ css/* scss */ `
 
 export class ColorPickerWidget extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ColorPickerWidget";
+  static props = {
+    currentColor: { type: String, optional: true },
+    toggleColorPicker: Function,
+    showColorPicker: Boolean,
+    onColorPicked: Function,
+    icon: String,
+    title: { type: String, optional: true },
+    disabled: { type: Boolean, optional: true },
+    dropdownMaxHeight: { type: Number, optional: true },
+    class: { type: String, optional: true },
+  };
   static components = { ColorPicker };
 
   colorPickerButtonRef = useRef("colorPickerButton");
@@ -73,15 +84,3 @@ export class ColorPickerWidget extends Component<Props, SpreadsheetChildEnv> {
     };
   }
 }
-
-ColorPickerWidget.props = {
-  currentColor: { type: String, optional: true },
-  toggleColorPicker: Function,
-  showColorPicker: Boolean,
-  onColorPicked: Function,
-  icon: String,
-  title: { type: String, optional: true },
-  disabled: { type: Boolean, optional: true },
-  dropdownMaxHeight: { type: Number, optional: true },
-  class: { type: String, optional: true },
-};

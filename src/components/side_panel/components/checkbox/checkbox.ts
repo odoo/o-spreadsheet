@@ -22,21 +22,17 @@ css/* scss */ `
 
 export class Checkbox extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet.Checkbox";
+  static props = {
+    label: { type: String, optional: true },
+    value: { type: Boolean, optional: true },
+    className: { type: String, optional: true },
+    name: { type: String, optional: true },
+    onChange: Function,
+  };
+  static defaultProps = { value: false };
 
   onChange(ev: InputEvent) {
     const value = (ev.target as HTMLInputElement).checked;
     this.props.onChange(value);
   }
 }
-
-Checkbox.props = {
-  label: { type: String, optional: true },
-  value: { type: Boolean, optional: true },
-  className: { type: String, optional: true },
-  name: { type: String, optional: true },
-  onChange: Function,
-};
-
-Checkbox.defaultProps = {
-  value: false,
-};

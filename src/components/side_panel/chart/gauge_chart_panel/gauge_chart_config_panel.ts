@@ -20,6 +20,12 @@ interface PanelState {
 export class GaugeChartConfigPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GaugeChartConfigPanel";
   static components = { SelectionInput, ChartErrorSection, ChartDataSeries };
+  static props = {
+    figureId: String,
+    definition: Object,
+    updateChart: Function,
+    canUpdateChart: Function,
+  };
 
   private state: PanelState = useState({
     dataRangeDispatchResult: undefined,
@@ -57,10 +63,3 @@ export class GaugeChartConfigPanel extends Component<Props, SpreadsheetChildEnv>
     return this.dataRange || "";
   }
 }
-
-GaugeChartConfigPanel.props = {
-  figureId: String,
-  definition: Object,
-  updateChart: Function,
-  canUpdateChart: Function,
-};

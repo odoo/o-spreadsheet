@@ -44,6 +44,12 @@ export class LineBarPieConfigPanel extends Component<Props, SpreadsheetChildEnv>
     Checkbox,
     ChartErrorSection,
   };
+  static props = {
+    figureId: String,
+    definition: Object,
+    updateChart: Function,
+    canUpdateChart: Function,
+  };
 
   private state: ChartPanelState = useState({
     datasetDispatchResult: undefined,
@@ -167,10 +173,3 @@ export class LineBarPieConfigPanel extends Component<Props, SpreadsheetChildEnv>
     return undefined;
   }
 }
-
-LineBarPieConfigPanel.props = {
-  figureId: String,
-  definition: Object,
-  updateChart: Function,
-  canUpdateChart: Function,
-};

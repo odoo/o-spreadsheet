@@ -10,6 +10,9 @@ interface Props {
 
 export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartJsComponent";
+  static props = {
+    figure: Object,
+  };
 
   private canvas = useRef("graphContainer");
   private chart?: Chart;
@@ -71,7 +74,3 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     this.chart!.update("active");
   }
 }
-
-ChartJsComponent.props = {
-  figure: Object,
-};

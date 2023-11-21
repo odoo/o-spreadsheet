@@ -28,6 +28,15 @@ css/* scss */ `
 
 export class DataValidationInput extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-DataValidationInput";
+  static props = {
+    value: { type: String, optional: true },
+    criterionType: String,
+    onValueChanged: Function,
+    onKeyDown: { type: Function, optional: true },
+    focused: { type: Boolean, optional: true },
+    onBlur: { type: Function, optional: true },
+    onFocus: { type: Function, optional: true },
+  };
   static defaultProps = {
     value: "",
     onKeyDown: () => {},
@@ -79,13 +88,3 @@ export class DataValidationInput extends Component<Props, SpreadsheetChildEnv> {
     );
   }
 }
-
-DataValidationInput.props = {
-  value: { type: String, optional: true },
-  criterionType: String,
-  onValueChanged: Function,
-  onKeyDown: { type: Function, optional: true },
-  focused: { type: Boolean, optional: true },
-  onBlur: { type: Function, optional: true },
-  onFocus: { type: Function, optional: true },
-};

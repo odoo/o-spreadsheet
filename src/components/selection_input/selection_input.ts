@@ -100,6 +100,15 @@ interface SelectionRange extends Omit<RangeInputValue, "color"> {
  */
 export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SelectionInput";
+  static props = {
+    ranges: Function,
+    hasSingleRange: { type: Boolean, optional: true },
+    required: { type: Boolean, optional: true },
+    isInvalid: { type: Boolean, optional: true },
+    class: { type: String, optional: true },
+    onSelectionChanged: { type: Function, optional: true },
+    onSelectionConfirmed: { type: Function, optional: true },
+  };
   private id = uuidGenerator.uuidv4();
   private previousRanges: string[] = this.props.ranges() || [];
   private originSheet = this.env.model.getters.getActiveSheetId();
@@ -283,13 +292,3 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     this.env.model.dispatch("UNFOCUS_SELECTION_INPUT");
   }
 }
-
-SelectionInput.props = {
-  ranges: Function,
-  hasSingleRange: { type: Boolean, optional: true },
-  required: { type: Boolean, optional: true },
-  isInvalid: { type: Boolean, optional: true },
-  class: { type: String, optional: true },
-  onSelectionChanged: { type: Function, optional: true },
-  onSelectionConfirmed: { type: Function, optional: true },
-};

@@ -223,6 +223,12 @@ interface State {
 
 export class ColorPicker extends Component<ColorPickerProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ColorPicker";
+  static props = {
+    onColorPicked: Function,
+    currentColor: { type: String, optional: true },
+    maxHeight: { type: Number, optional: true },
+    anchorRect: Object,
+  };
   static defaultProps = { currentColor: "" };
   static components = { Popover };
 
@@ -384,10 +390,3 @@ export class ColorPicker extends Component<ColorPickerProps, SpreadsheetChildEnv
     return isSameColor(color1, color2);
   }
 }
-
-ColorPicker.props = {
-  onColorPicked: Function,
-  currentColor: { type: String, optional: true },
-  maxHeight: { type: Number, optional: true },
-  anchorRect: Object,
-};

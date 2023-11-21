@@ -38,6 +38,10 @@ css/* scss */ `
 
 export class HeaderGroupContainer extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-HeaderGroupContainer";
+  static props = {
+    dimension: String,
+    layers: Array,
+  };
   static components = { RowGroup, ColGroup, Menu };
 
   menu: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
@@ -109,8 +113,3 @@ export class HeaderGroupContainer extends Component<Props, SpreadsheetChildEnv> 
     }
   }
 }
-
-HeaderGroupContainer.props = {
-  dimension: String,
-  layers: Array,
-};

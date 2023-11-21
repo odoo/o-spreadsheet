@@ -8,6 +8,9 @@ interface Props {
 }
 
 export class VerticalScrollBar extends Component<Props, SpreadsheetChildEnv> {
+  static props = {
+    topOffset: { type: Number, optional: true },
+  };
   static components = { ScrollBar };
   static template = xml/*xml*/ `
     <ScrollBar
@@ -55,7 +58,3 @@ export class VerticalScrollBar extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 }
-
-VerticalScrollBar.props = {
-  topOffset: { type: Number, optional: true },
-};

@@ -58,6 +58,14 @@ interface Props {
  */
 export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GridComposer";
+  static props = {
+    focus: {
+      validate: (value: string) => ["inactive", "cellFocus", "contentFocus"].includes(value),
+    },
+    onComposerUnmounted: Function,
+    onComposerContentFocused: Function,
+    gridDims: Object,
+  };
   static components = { Composer };
 
   private gridComposerRef!: Ref<HTMLElement>;
@@ -188,10 +196,3 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 }
-
-GridComposer.props = {
-  focus: { validate: (value: string) => ["inactive", "cellFocus", "contentFocus"].includes(value) },
-  onComposerUnmounted: Function,
-  onComposerContentFocused: Function,
-  gridDims: Object,
-};

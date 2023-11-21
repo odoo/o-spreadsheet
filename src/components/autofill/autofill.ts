@@ -56,6 +56,10 @@ interface State {
 
 export class Autofill extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Autofill";
+  static props = {
+    position: Object,
+    isVisible: Boolean,
+  };
   state: State = useState({
     position: { left: 0, top: 0 },
     handler: false,
@@ -132,17 +136,11 @@ export class Autofill extends Component<Props, SpreadsheetChildEnv> {
   }
 }
 
-Autofill.props = {
-  position: Object,
-  isVisible: Boolean,
-};
-
 class TooltipComponent extends Component<Props> {
+  static props = {
+    content: String,
+  };
   static template = xml/* xml */ `
     <div t-esc="props.content"/>
   `;
 }
-
-TooltipComponent.props = {
-  content: String,
-};

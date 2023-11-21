@@ -52,12 +52,11 @@ const DATE_FORMAT_ACTIONS = createActions([
 
 export class MoreFormatsPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-MoreFormatsPanel";
+  static props = {
+    onCloseSidePanel: Function,
+  };
 
   get dateFormatsActions() {
     return DATE_FORMAT_ACTIONS;
   }
 }
-
-MoreFormatsPanel.props = {
-  onCloseSidePanel: Function,
-};

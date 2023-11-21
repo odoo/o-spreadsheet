@@ -121,6 +121,13 @@ interface Props {
 
 export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FigureComponent";
+  static props = {
+    figure: Object,
+    style: { type: String, optional: true },
+    onFigureDeleted: { type: Function, optional: true },
+    onMouseDown: { type: Function, optional: true },
+    onClickAnchor: { type: Function, optional: true },
+  };
   static components = { Menu };
   static defaultProps = {
     onFigureDeleted: () => {},
@@ -278,11 +285,3 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
       .menuBuilder(this.props.figure.id, this.props.onFigureDeleted, this.env);
   }
 }
-
-FigureComponent.props = {
-  figure: Object,
-  style: { type: String, optional: true },
-  onFigureDeleted: { type: Function, optional: true },
-  onMouseDown: { type: Function, optional: true },
-  onClickAnchor: { type: Function, optional: true },
-};

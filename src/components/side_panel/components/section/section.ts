@@ -7,9 +7,8 @@ interface Props {
 
 export class Section extends Component<Props, SpreadsheetChildEnv> {
   static template = "o_spreadsheet.Section";
+  static props = {
+    class: { type: String, optional: true },
+    slots: Object,
+  };
 }
-
-Section.props = {
-  class: { type: String, optional: true },
-  slots: Object,
-};
