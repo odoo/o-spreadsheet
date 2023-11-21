@@ -225,7 +225,7 @@ topbarMenuRegistry
   })
   .addChild("insert_cell", ["insert"], {
     ...ACTION_INSERT.insertCell,
-    sequence: 43,
+    sequence: 30,
   })
   .addChild("insert_cell_down", ["insert", "insert_cell"], {
     ...ACTION_INSERT.insertCellShiftDown,
@@ -239,7 +239,7 @@ topbarMenuRegistry
   })
   .addChild("insert_sheet", ["insert"], {
     ...ACTION_INSERT.insertSheet,
-    sequence: 80,
+    sequence: 40,
     separator: true,
   })
   .addChild("insert_chart", ["insert"], {
@@ -288,6 +288,15 @@ topbarMenuRegistry
     ...ACTION_INSERT.insertLink,
     separator: true,
     sequence: 70,
+  })
+  .addChild("insert_checkbox", ["insert"], {
+    ...ACTION_INSERT.insertCheckbox,
+    sequence: 80,
+  })
+  .addChild("insert_dropdown", ["insert"], {
+    ...ACTION_INSERT.insertDropdown,
+    separator: true,
+    sequence: 90,
   })
 
   // ---------------------------------------------------------------------

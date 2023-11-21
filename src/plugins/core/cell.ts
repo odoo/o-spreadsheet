@@ -141,6 +141,28 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           format: "",
         });
         break;
+
+      case "DELETE_CONTENT":
+        this.clearZones(cmd.sheetId, cmd.target);
+        break;
+    }
+  }
+
+  private clearZones(sheetId: UID, zones: Zone[]) {
+    for (let zone of zones) {
+      for (let col = zone.left; col <= zone.right; col++) {
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          const cell = this.getters.getCell({ sheetId, col, row });
+          if (cell) {
+            this.dispatch("UPDATE_CELL", {
+              sheetId: sheetId,
+              content: "",
+              col,
+              row,
+            });
+          }
+        }
+      }
     }
   }
 

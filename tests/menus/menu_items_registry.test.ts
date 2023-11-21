@@ -929,6 +929,15 @@ describe("Menu Item actions", () => {
     restoreDefaultFunctions();
   });
 
+  test("Insert -> Checkbox", () => {
+    selectCell(model, "A1");
+    doAction(["insert", "insert_checkbox"], env);
+    expect(model.getters.getDataValidationCheckBoxCellPositions()).toEqual([
+      { sheetId, col: 0, row: 0 },
+    ]);
+    expect(getCellContent(model, "A1")).toEqual("FALSE");
+  });
+
   describe("Format -> numbers", () => {
     test("Automatic", () => {
       const action = getNode(["format", "format_number", "format_number_automatic"]);

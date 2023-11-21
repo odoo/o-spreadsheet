@@ -136,4 +136,15 @@ describe("Data validation", () => {
       { criterion: { values: ["5"] }, ranges: ["B2"] },
     ]);
   });
+
+  test("Can copy/paste empty cell to clear data validation rule", () => {
+    const criterion: DataValidationCriterion = { type: "textContains", values: ["1"] };
+    addDataValidation(model, "A1:A5", "id", criterion);
+    copy(model, "A6");
+    paste(model, "A1");
+
+    expect(getDataValidationRules(model, sheetId)).toMatchObject([
+      { id: expect.any(String), criterion, ranges: ["A2:A5"] },
+    ]);
+  });
 });
