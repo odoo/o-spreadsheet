@@ -22,7 +22,12 @@ jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("./__mocks__/content_editable_helper")
 );
 // As we test an isolated component, grid and gridOverlay won't exist
-jest.mock("../../src/components/helpers/dom_helpers", () => require("./__mocks__/dom_helpers"));
+jest.mock("../../src/components/helpers/dom_helpers", () => {
+  return {
+    ...jest.requireActual("../../src/components/helpers/dom_helpers"),
+    ...jest.requireActual("./__mocks__/dom_helpers"),
+  };
+});
 
 function getColStartPosition(col: number) {
   return model.getters.getColDimensions(model.getters.getActiveSheetId(), col).start;
