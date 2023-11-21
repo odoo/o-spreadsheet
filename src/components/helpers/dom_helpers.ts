@@ -67,3 +67,7 @@ export function keyboardEventToShortcutString(
   keyDownString += letterRegex.test(key) ? key.toUpperCase() : key;
   return keyDownString;
 }
+
+export function isMacOS(): boolean {
+  return navigator.userAgent.toUpperCase().indexOf("MAC") >= 0;
+}
