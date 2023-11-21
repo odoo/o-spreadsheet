@@ -1011,10 +1011,10 @@ describe("sheets", () => {
 
   test("Cannot add cols/row to indexes out of the sheet", () => {
     const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
-    expect(addColumns(model, "after", "Z", 1)).toBeCancelledBecause(
+    expect(addColumns(model, "after", "K", 1)).toBeCancelledBecause(
       CommandResult.InvalidHeaderIndex
     );
-    expect(addRows(model, "after", 20, 1)).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
+    expect(addRows(model, "after", 10, 1)).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
   });
 
   test("Cannot add wrong quantity of cols/row", () => {
