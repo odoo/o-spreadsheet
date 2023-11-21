@@ -142,7 +142,7 @@ interface Props {
   onCellClicked: (
     col: HeaderIndex,
     row: HeaderIndex,
-    modifiers: { ctrlKey: boolean; shiftKey: boolean }
+    modifiers: { addZone: boolean; expandZone: boolean }
   ) => void;
   onCellRightClicked: (col: HeaderIndex, row: HeaderIndex, coordinates: DOMCoordinates) => void;
   onGridResized: (dimension: DOMDimension) => void;
@@ -197,8 +197,8 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     }
     const [col, row] = this.getCartesianCoordinates(ev);
     this.props.onCellClicked(col, row, {
-      shiftKey: ev.shiftKey,
-      ctrlKey: isCtrlKey(ev),
+      expandZone: ev.shiftKey,
+      addZone: isCtrlKey(ev),
     });
   }
 
