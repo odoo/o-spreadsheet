@@ -870,8 +870,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     // Move the cells.
     this.moveCellsOnAddition(sheet, index, quantity, "rows");
 
-    // Recompute the left-right/top-bottom.
-    this.updateRowsStructureOnAddition(sheet, row, quantity);
     if (index < sheet.panes.ySplit) {
       this.setPaneDivisions(sheet.id, sheet.panes.ySplit + quantity, "ROW");
     }
@@ -1001,25 +999,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         cells: cellsQueue.pop()!,
       });
     }
-    this.history.update("sheets", sheet.id, "rows", rows);
-  }
-
-  /**
-   * Update the rows of the sheet after an addition:
-   * - Rename the rows
-   *
-   * @param sheet Sheet on which the deletion occurs
-   * @param addedRow Index of the added row
-   * @param rowsToAdd Number of the rows to add
-   */
-  private updateRowsStructureOnAddition(sheet: Sheet, addedRow: HeaderIndex, rowsToAdd: number) {
-    const rows: Row[] = [];
-    const cellsQueue = sheet.rows.map((row) => row.cells);
-    sheet.rows.forEach(() =>
-      rows.push({
-        cells: cellsQueue.shift()!,
-      })
-    );
     this.history.update("sheets", sheet.id, "rows", rows);
   }
 
