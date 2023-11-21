@@ -139,6 +139,12 @@ css/* scss */ `
 
 export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TopBar";
+  static props = {
+    onClick: Function,
+    focusComposer: String,
+    onComposerContentFocused: Function,
+    dropdownMaxHeight: Number,
+  };
   get dropdownStyle() {
     return `max-height:${this.props.dropdownMaxHeight}px`;
   }
@@ -267,10 +273,3 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     this.onClick();
   }
 }
-
-TopBar.props = {
-  onClick: Function,
-  focusComposer: String,
-  onComposerContentFocused: Function,
-  dropdownMaxHeight: Number,
-};

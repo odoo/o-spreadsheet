@@ -135,6 +135,16 @@ interface FunctionDescriptionState {
 
 export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Composer";
+  static props = {
+    focus: {
+      validate: (value: string) => ["inactive", "cellFocus", "contentFocus"].includes(value),
+    },
+    onComposerContentFocused: Function,
+    inputStyle: { type: String, optional: true },
+    rect: { type: Object, optional: true },
+    delimitation: { type: Object, optional: true },
+    onComposerUnmounted: { type: Function, optional: true },
+  };
   static components = { TextValueProvider, FunctionDescriptionProvider };
   static defaultProps = {
     inputStyle: "",
@@ -770,12 +780,3 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     this.autoCompleteState.getHtmlContent = (value) => [{ value }];
   }
 }
-
-Composer.props = {
-  focus: { validate: (value: string) => ["inactive", "cellFocus", "contentFocus"].includes(value) },
-  onComposerContentFocused: Function,
-  inputStyle: { type: String, optional: true },
-  rect: { type: Object, optional: true },
-  delimitation: { type: Object, optional: true },
-  onComposerUnmounted: { type: Function, optional: true },
-};

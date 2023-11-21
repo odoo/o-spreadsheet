@@ -60,6 +60,20 @@ interface RectWithMargins extends Rect {
 
 class RippleEffect extends Component<RippleEffectProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-RippleEffect";
+  static props = {
+    x: String,
+    y: String,
+    color: String,
+    opacity: Number,
+    duration: Number,
+    width: Number,
+    height: Number,
+    offsetY: Number,
+    offsetX: Number,
+    allowOverflow: Boolean,
+    onAnimationEnd: Function,
+    style: String,
+  };
   private rippleRef = useRef("ripple");
 
   setup() {
@@ -97,23 +111,23 @@ class RippleEffect extends Component<RippleEffectProps, SpreadsheetChildEnv> {
   }
 }
 
-RippleEffect.props = {
-  x: String,
-  y: String,
-  color: String,
-  opacity: Number,
-  duration: Number,
-  width: Number,
-  height: Number,
-  offsetY: Number,
-  offsetX: Number,
-  allowOverflow: Boolean,
-  onAnimationEnd: Function,
-  style: String,
-};
-
 export class Ripple extends Component<RippleProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Ripple";
+  static props = {
+    color: { type: String, optional: true },
+    opacity: { type: Number, optional: true },
+    duration: { type: Number, optional: true },
+    ignoreClickPosition: { type: Boolean, optional: true },
+    width: { type: Number, optional: true },
+    height: { type: Number, optional: true },
+    offsetY: { type: Number, optional: true },
+    offsetX: { type: Number, optional: true },
+    allowOverflow: { type: Boolean, optional: true },
+    enabled: { type: Boolean, optional: true },
+    onAnimationEnd: { type: Function, optional: true },
+    slots: Object,
+    class: { type: String, optional: true },
+  };
   static components = { RippleEffect };
   static defaultProps = {
     color: "#aaaaaa",
@@ -209,19 +223,3 @@ export class Ripple extends Component<RippleProps, SpreadsheetChildEnv> {
     };
   }
 }
-
-Ripple.props = {
-  color: { type: String, optional: true },
-  opacity: { type: Number, optional: true },
-  duration: { type: Number, optional: true },
-  ignoreClickPosition: { type: Boolean, optional: true },
-  width: { type: Number, optional: true },
-  height: { type: Number, optional: true },
-  offsetY: { type: Number, optional: true },
-  offsetX: { type: Number, optional: true },
-  allowOverflow: { type: Boolean, optional: true },
-  enabled: { type: Boolean, optional: true },
-  onAnimationEnd: { type: Function, optional: true },
-  slots: Object,
-  class: { type: String, optional: true },
-};

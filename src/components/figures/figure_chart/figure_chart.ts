@@ -23,6 +23,10 @@ interface Props {
 
 export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartFigure";
+  static props = {
+    figure: Object,
+    onFigureDeleted: Function,
+  };
   static components = {};
 
   onDoubleClick() {
@@ -43,8 +47,3 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
     return component;
   }
 }
-
-ChartFigure.props = {
-  figure: Object,
-  onFigureDeleted: Function,
-};

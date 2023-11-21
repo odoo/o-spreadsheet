@@ -33,6 +33,14 @@ css/* scss */ `
 `;
 
 export class ScrollBar extends Component<Props> {
+  static props = {
+    width: { type: Number, optional: true },
+    height: { type: Number, optional: true },
+    direction: String,
+    position: Object,
+    offset: Number,
+    onScroll: Function,
+  };
   static template = xml/*xml*/ `
     <div
         t-attf-class="o-scrollbar {{props.direction}}"
@@ -83,12 +91,3 @@ export class ScrollBar extends Component<Props> {
     }
   }
 }
-
-ScrollBar.props = {
-  width: { type: Number, optional: true },
-  height: { type: Number, optional: true },
-  direction: String,
-  position: Object,
-  offset: Number,
-  onScroll: Function,
-};

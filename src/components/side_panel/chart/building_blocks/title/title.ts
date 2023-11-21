@@ -11,13 +11,9 @@ interface Props {
 export class ChartTitle extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet.ChartTitle";
   static components = { ColorPickerWidget, Section };
+  static props = { title: String, update: Function };
 
   updateTitle(ev: InputEvent) {
     this.props.update((ev.target as HTMLInputElement).value);
   }
 }
-
-ChartTitle.props = {
-  title: String,
-  update: Function,
-};

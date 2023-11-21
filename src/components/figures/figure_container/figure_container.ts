@@ -122,6 +122,9 @@ css/*SCSS*/ `
  */
 export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FiguresContainer";
+  static props = {
+    onFigureDeleted: Function,
+  };
   static components = { FigureComponent };
 
   dnd = useState<DndState>({
@@ -442,7 +445,3 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 }
-
-FiguresContainer.props = {
-  onFigureDeleted: Function,
-};

@@ -128,6 +128,17 @@ css/* scss */ `
 
 export class BorderEditor extends Component<BorderEditorProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-BorderEditor";
+  static props = {
+    class: { type: String, optional: true },
+    currentBorderColor: { type: String, optional: false },
+    currentBorderStyle: { type: String, optional: false },
+    currentBorderPosition: { type: String, optional: true },
+    onBorderColorPicked: Function,
+    onBorderStylePicked: Function,
+    onBorderPositionPicked: Function,
+    maxHeight: { type: Number, optional: true },
+    anchorRect: Object,
+  };
   static components = { ColorPickerWidget, Popover };
   BORDER_POSITIONS = BORDER_POSITIONS;
 
@@ -192,15 +203,3 @@ export class BorderEditor extends Component<BorderEditorProps, SpreadsheetChildE
     };
   }
 }
-
-BorderEditor.props = {
-  class: { type: String, optional: true },
-  currentBorderColor: { type: String, optional: false },
-  currentBorderStyle: { type: String, optional: false },
-  currentBorderPosition: { type: String, optional: true },
-  onBorderColorPicked: Function,
-  onBorderStylePicked: Function,
-  onBorderPositionPicked: Function,
-  maxHeight: { type: Number, optional: true },
-  anchorRect: Object,
-};

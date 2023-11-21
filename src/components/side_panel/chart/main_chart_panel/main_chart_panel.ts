@@ -46,6 +46,7 @@ interface State {
 export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartPanel";
   static components = { Section };
+  static props = { onCloseSidePanel: Function };
 
   private state!: State;
 
@@ -143,7 +144,3 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
     this.state.panel = panel;
   }
 }
-
-ChartPanel.props = {
-  onCloseSidePanel: Function,
-};

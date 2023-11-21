@@ -24,6 +24,12 @@ interface Props {
 export class LineBarPieDesignPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-LineBarPieDesignPanel";
   static components = { ChartColor, ColorPickerWidget, ChartTitle, Section };
+  static props = {
+    figureId: String,
+    definition: Object,
+    updateChart: Function,
+    canUpdateChart: Function,
+  };
 
   get title() {
     return _t(this.props.definition.title);
@@ -45,10 +51,3 @@ export class LineBarPieDesignPanel extends Component<Props, SpreadsheetChildEnv>
     });
   }
 }
-
-LineBarPieDesignPanel.props = {
-  figureId: String,
-  definition: Object,
-  updateChart: Function,
-  canUpdateChart: Function,
-};

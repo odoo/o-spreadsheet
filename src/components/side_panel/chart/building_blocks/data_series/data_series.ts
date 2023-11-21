@@ -14,15 +14,14 @@ interface Props {
 export class ChartDataSeries extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet.ChartDataSeries";
   static components = { SelectionInput, Section };
+  static props = {
+    ranges: Function,
+    hasSingleRange: { type: Boolean, optional: true },
+    onSelectionChanged: Function,
+    onSelectionConfirmed: Function,
+  };
 
   get title() {
     return this.props.hasSingleRange ? _t("Data range") : _t("Data series");
   }
 }
-
-ChartDataSeries.props = {
-  ranges: Function,
-  hasSingleRange: { type: Boolean, optional: true },
-  onSelectionChanged: Function,
-  onSelectionConfirmed: Function,
-};

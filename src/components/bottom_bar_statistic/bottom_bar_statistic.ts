@@ -29,6 +29,10 @@ interface Props {
 
 export class BottomBarStatistic extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-BottomBarStatisic";
+  static props = {
+    openContextMenu: Function,
+    closeContextMenu: Function,
+  };
   static components = { Ripple };
 
   selectedStatisticFn: string = "";
@@ -86,8 +90,3 @@ export class BottomBarStatistic extends Component<Props, SpreadsheetChildEnv> {
     return fnName + ": " + (fnValue !== undefined ? formatValue(fnValue, { locale }) : "__");
   }
 }
-
-BottomBarStatistic.props = {
-  openContextMenu: Function,
-  closeContextMenu: Function,
-};

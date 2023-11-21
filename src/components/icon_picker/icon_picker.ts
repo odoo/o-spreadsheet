@@ -31,6 +31,9 @@ css/* scss */ `
 
 export class IconPicker extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-IconPicker";
+  static props = {
+    onIconPicked: Function,
+  };
   icons = ICONS;
   iconSets = ICON_SETS;
 
@@ -40,7 +43,3 @@ export class IconPicker extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 }
-
-IconPicker.props = {
-  onIconPicked: Function,
-};

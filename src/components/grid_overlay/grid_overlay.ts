@@ -170,6 +170,16 @@ interface Props {
 
 export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GridOverlay";
+  static props = {
+    onCellHovered: { type: Function, optional: true },
+    onCellDoubleClicked: { type: Function, optional: true },
+    onCellClicked: { type: Function, optional: true },
+    onCellRightClicked: { type: Function, optional: true },
+    onGridResized: { type: Function, optional: true },
+    onFigureDeleted: { type: Function, optional: true },
+    onGridMoved: Function,
+    gridOverlayDimensions: String,
+  };
   static components = { FiguresContainer, DataValidationOverlay, GridAddRowsFooter };
   static defaultProps = {
     onCellHovered: () => {},
@@ -252,14 +262,3 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     return [colIndex, rowIndex];
   }
 }
-
-GridOverlay.props = {
-  onCellHovered: { type: Function, optional: true },
-  onCellDoubleClicked: { type: Function, optional: true },
-  onCellClicked: { type: Function, optional: true },
-  onCellRightClicked: { type: Function, optional: true },
-  onGridResized: { type: Function, optional: true },
-  onFigureDeleted: { type: Function, optional: true },
-  onGridMoved: Function,
-  gridOverlayDimensions: String,
-};

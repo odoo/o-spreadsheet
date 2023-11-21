@@ -30,6 +30,9 @@ interface Props {
 
 export class DataValidationListIcon extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-DataValidationListIcon";
+  static props = {
+    cellPosition: Object,
+  };
 
   onClick() {
     const { col, row } = this.props.cellPosition;
@@ -37,7 +40,3 @@ export class DataValidationListIcon extends Component<Props, SpreadsheetChildEnv
     this.env.startCellEdition();
   }
 }
-
-DataValidationListIcon.props = {
-  cellPosition: Object,
-};

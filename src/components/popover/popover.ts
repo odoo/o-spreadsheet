@@ -47,6 +47,19 @@ css/* scss */ `
 
 export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Popover";
+  static props = {
+    anchorRect: Object,
+    containerRect: { type: Object, optional: true },
+    positioning: { type: String, optional: true },
+    maxWidth: { type: Number, optional: true },
+    maxHeight: { type: Number, optional: true },
+    verticalOffset: { type: Number, optional: true },
+    onMouseWheel: { type: Function, optional: true },
+    onPopoverHidden: { type: Function, optional: true },
+    onPopoverMoved: { type: Function, optional: true },
+    zIndex: { type: Number, optional: true },
+    slots: Object,
+  };
   static defaultProps = {
     positioning: "BottomLeft",
     verticalOffset: 0,
@@ -114,20 +127,6 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
     });
   }
 }
-
-Popover.props = {
-  anchorRect: Object,
-  containerRect: { type: Object, optional: true },
-  positioning: { type: String, optional: true },
-  maxWidth: { type: Number, optional: true },
-  maxHeight: { type: Number, optional: true },
-  verticalOffset: { type: Number, optional: true },
-  onMouseWheel: { type: Function, optional: true },
-  onPopoverHidden: { type: Function, optional: true },
-  onPopoverMoved: { type: Function, optional: true },
-  zIndex: { type: Number, optional: true },
-  slots: Object,
-};
 
 abstract class PopoverPositionContext {
   constructor(

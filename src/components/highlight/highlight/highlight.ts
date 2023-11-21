@@ -24,6 +24,10 @@ interface HighlightState {
 }
 export class Highlight extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Highlight";
+  static props = {
+    zone: Object,
+    color: String,
+  };
   static components = {
     Corner,
     Border,
@@ -142,8 +146,3 @@ export class Highlight extends Component<Props, SpreadsheetChildEnv> {
     dragAndDropBeyondTheViewport(this.env, mouseMove, mouseUp);
   }
 }
-
-Highlight.props = {
-  zone: Object,
-  color: String,
-};

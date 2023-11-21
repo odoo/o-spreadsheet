@@ -8,6 +8,9 @@ interface Props {
 }
 
 export class HorizontalScrollBar extends Component<Props, SpreadsheetChildEnv> {
+  static props = {
+    leftOffset: { type: Number, optional: true },
+  };
   static components = { ScrollBar };
   static template = xml/*xml*/ `
       <ScrollBar
@@ -55,7 +58,3 @@ export class HorizontalScrollBar extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 }
-
-HorizontalScrollBar.props = {
-  leftOffset: { type: Number, optional: true },
-};

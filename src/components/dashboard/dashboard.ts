@@ -41,6 +41,7 @@ let tKey = 1;
 
 export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SpreadsheetDashboard";
+  static props = {};
   static components = {
     GridOverlay,
     GridPopover,
@@ -172,5 +173,3 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
     return { ...this.canvasPosition, ...this.env.model.getters.getSheetViewDimensionWithHeaders() };
   }
 }
-
-SpreadsheetDashboard.props = {};

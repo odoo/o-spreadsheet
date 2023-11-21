@@ -15,6 +15,9 @@ interface State {
 
 export class DataValidationPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-DataValidationPanel";
+  static props = {
+    onCloseSidePanel: Function,
+  };
   static components = { DataValidationPreview, DataValidationEditor };
 
   state = useState<State>({ mode: "list", activeRule: undefined });
@@ -49,7 +52,3 @@ export class DataValidationPanel extends Component<Props, SpreadsheetChildEnv> {
     return this.env.model.getters.getDataValidationRules(sheetId);
   }
 }
-
-DataValidationPanel.props = {
-  onCloseSidePanel: Function,
-};

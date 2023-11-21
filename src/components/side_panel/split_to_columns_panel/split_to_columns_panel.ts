@@ -38,6 +38,7 @@ interface State {
 export class SplitIntoColumnsPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SplitIntoColumnsPanel";
   static components = { ValidationMessages, Section, Checkbox };
+  static props = { onCloseSidePanel: Function };
 
   state = useState<State>({ separatorValue: "auto", addNewColumns: false, customSeparator: "" });
 
@@ -133,7 +134,3 @@ export class SplitIntoColumnsPanel extends Component<Props, SpreadsheetChildEnv>
     return !this.separatorValue || this.errorMessages.length > 0;
   }
 }
-
-SplitIntoColumnsPanel.props = {
-  onCloseSidePanel: Function,
-};

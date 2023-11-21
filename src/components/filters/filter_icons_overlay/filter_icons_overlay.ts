@@ -9,6 +9,9 @@ interface Props {
 
 export class FilterIconsOverlay extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FilterIconsOverlay";
+  static props = {
+    gridPosition: { type: Object, optional: true },
+  };
   static components = {
     GridCellIcon,
     FilterIcon,
@@ -23,7 +26,3 @@ export class FilterIconsOverlay extends Component<Props, SpreadsheetChildEnv> {
     return headerPositions.map((position) => ({ sheetId, ...position }));
   }
 }
-
-FilterIconsOverlay.props = {
-  gridPosition: { type: Object, optional: true },
-};

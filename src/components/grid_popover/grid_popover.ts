@@ -12,6 +12,12 @@ interface Props {
 }
 export class GridPopover extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GridPopover";
+  static props = {
+    hoveredCell: Object,
+    onClosePopover: Function,
+    onMouseWheel: Function,
+    gridRect: Object,
+  };
   static components = { Popover };
   zIndex = ComponentsImportance.GridPopover;
 
@@ -32,10 +38,3 @@ export class GridPopover extends Component<Props, SpreadsheetChildEnv> {
     };
   }
 }
-
-GridPopover.props = {
-  hoveredCell: Object,
-  onClosePopover: Function,
-  onMouseWheel: Function,
-  gridRect: Object,
-};

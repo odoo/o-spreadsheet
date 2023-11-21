@@ -21,6 +21,10 @@ css/* scss */ `
 `;
 export class ValidationMessages extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ValidationMessages";
+  static props = {
+    messages: Array,
+    msgType: String,
+  };
 
   get divClasses() {
     if (this.props.msgType === "warning") {
@@ -29,8 +33,3 @@ export class ValidationMessages extends Component<Props, SpreadsheetChildEnv> {
     return "o-validation-error text-danger";
   }
 }
-
-ValidationMessages.props = {
-  messages: Array,
-  msgType: String,
-};

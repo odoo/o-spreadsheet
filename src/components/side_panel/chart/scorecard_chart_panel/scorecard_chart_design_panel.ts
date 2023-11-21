@@ -23,6 +23,12 @@ interface PanelState {
 export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ScorecardChartDesignPanel";
   static components = { ColorPickerWidget, ChartColor, ChartTitle, Section };
+  static props = {
+    figureId: String,
+    definition: Object,
+    updateChart: Function,
+    canUpdateChart: Function,
+  };
 
   private state: PanelState = useState({
     openedColorPicker: undefined,
@@ -75,10 +81,3 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
     this.state.openedColorPicker = undefined;
   }
 }
-
-ScorecardChartDesignPanel.props = {
-  figureId: String,
-  definition: Object,
-  updateChart: Function,
-  canUpdateChart: Function,
-};

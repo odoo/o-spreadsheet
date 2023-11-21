@@ -10,7 +10,7 @@ import {
 } from "../../types";
 import { css, cssPropertiesToCss } from "../helpers";
 
-const CSS = css/* scss */ `
+css/* scss */ `
   .o-grid-cell-icon {
     width: ${GRID_ICON_EDGE_LENGTH}px;
     height: ${GRID_ICON_EDGE_LENGTH}px;
@@ -25,8 +25,14 @@ export interface GridCellIconProps {
 }
 
 export class GridCellIcon extends Component<GridCellIconProps, SpreadsheetChildEnv> {
-  static style = CSS;
   static template = "o-spreadsheet-GridCellIcon";
+  static props = {
+    cellPosition: Object,
+    horizontalAlign: { type: String, optional: true },
+    verticalAlign: { type: String, optional: true },
+    offset: { type: Object, optional: true },
+    slots: Object,
+  };
 
   get iconStyle() {
     const x = this.getIconHorizontalPosition();
@@ -89,11 +95,3 @@ export class GridCellIcon extends Component<GridCellIconProps, SpreadsheetChildE
     return !(rect.width === 0 || rect.height === 0);
   }
 }
-
-GridCellIcon.props = {
-  cellPosition: Object,
-  horizontalAlign: { type: String, optional: true },
-  verticalAlign: { type: String, optional: true },
-  offset: { type: Object, optional: true },
-  slots: Object,
-};

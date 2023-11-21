@@ -26,6 +26,9 @@ interface Props {
 
 export class GridAddRowsFooter extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GridAddRowsFooter";
+  static props = {
+    focusGrid: Function,
+  };
   static components = { ValidationMessages };
   inputRef = useRef<HTMLInputElement>("inputRef");
   state = useState({
@@ -103,7 +106,3 @@ export class GridAddRowsFooter extends Component<Props, SpreadsheetChildEnv> {
     this.props.focusGrid();
   }
 }
-
-GridAddRowsFooter.props = {
-  focusGrid: Function,
-};

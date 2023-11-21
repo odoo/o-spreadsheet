@@ -64,8 +64,12 @@ interface LinkDisplayProps {
 }
 
 export class LinkDisplay extends Component<LinkDisplayProps, SpreadsheetChildEnv> {
-  static components = { Menu };
   static template = "o-spreadsheet-LinkDisplay";
+  static props = {
+    cellPosition: Object,
+    onClosed: { type: Function, optional: true },
+  };
+  static components = { Menu };
 
   get cell(): EvaluatedCell {
     const { col, row } = this.props.cellPosition;
@@ -128,9 +132,4 @@ export const LinkCellPopoverBuilder: PopoverBuilders = {
       cellCorner: "BottomLeft",
     };
   },
-};
-
-LinkDisplay.props = {
-  cellPosition: Object,
-  onClosed: { type: Function, optional: true },
 };

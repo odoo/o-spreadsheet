@@ -52,6 +52,11 @@ css/* scss */ `
 
 abstract class AbstractHeaderGroup extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-HeaderGroup";
+  static props = {
+    group: Object,
+    layerOffset: Number,
+    openContextMenu: Function,
+  };
 
   abstract dimension: Dimension;
 
@@ -102,11 +107,6 @@ abstract class AbstractHeaderGroup extends Component<Props, SpreadsheetChildEnv>
     this.props.openContextMenu(position, menuItems);
   }
 }
-AbstractHeaderGroup.props = {
-  group: Object,
-  layerOffset: Number,
-  openContextMenu: Function,
-};
 
 export class RowGroup extends AbstractHeaderGroup {
   dimension: Dimension = "ROW";

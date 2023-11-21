@@ -6,6 +6,7 @@ import { DataValidationListIcon } from "./dv_list_icon/dv_list_icon";
 
 export class DataValidationOverlay extends Component<{}, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-DataValidationOverlay";
+  static props = {};
   static components = { GridCellIcon, DataValidationCheckbox, DataValidationListIcon };
 
   get checkBoxCellPositions(): CellPosition[] {
@@ -18,5 +19,3 @@ export class DataValidationOverlay extends Component<{}, SpreadsheetChildEnv> {
       : this.env.model.getters.getDataValidationListCellsPositions();
   }
 }
-
-DataValidationOverlay.props = {};

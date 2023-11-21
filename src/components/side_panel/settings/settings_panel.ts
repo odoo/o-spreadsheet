@@ -18,6 +18,7 @@ css/* scss */ `
 export class SettingsPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SettingsPanel";
   static components = { Section };
+  static props = { onCloseSidePanel: Function };
 
   loadedLocales: Locale[] = [];
 
@@ -77,7 +78,3 @@ export class SettingsPanel extends Component<Props, SpreadsheetChildEnv> {
     return this.loadedLocales;
   }
 }
-
-SettingsPanel.props = {
-  onCloseSidePanel: Function,
-};

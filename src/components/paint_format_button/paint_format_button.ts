@@ -7,6 +7,9 @@ interface Props {
 
 export class PaintFormatButton extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PaintFormatButton";
+  static props = {
+    class: { type: String, optional: true },
+  };
 
   get isActive() {
     return this.env.model.getters.isPaintingFormat();
@@ -24,6 +27,3 @@ export class PaintFormatButton extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 }
-PaintFormatButton.props = {
-  class: { type: String, optional: true },
-};

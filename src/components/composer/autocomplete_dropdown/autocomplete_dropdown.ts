@@ -33,12 +33,11 @@ interface Props {
 
 export class TextValueProvider extends Component<Props> {
   static template = "o-spreadsheet-TextValueProvider";
+  static props = {
+    values: Array,
+    selectedIndex: { type: Number, optional: true },
+    getHtmlContent: Function,
+    onValueSelected: Function,
+    onValueHovered: Function,
+  };
 }
-
-TextValueProvider.props = {
-  values: Array,
-  selectedIndex: { type: Number, optional: true },
-  getHtmlContent: Function,
-  onValueSelected: Function,
-  onValueHovered: Function,
-};

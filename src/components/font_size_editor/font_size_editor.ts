@@ -44,6 +44,11 @@ css/* scss */ `
 
 export class FontSizeEditor extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FontSizeEditor";
+  static props = {
+    onToggle: Function,
+    dropdownStyle: String,
+    class: String,
+  };
   static components = {};
   fontSizes = FONT_SIZES;
 
@@ -111,9 +116,3 @@ export class FontSizeEditor extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 }
-
-FontSizeEditor.props = {
-  onToggle: Function,
-  dropdownStyle: String,
-  class: String,
-};
