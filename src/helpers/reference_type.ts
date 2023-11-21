@@ -59,9 +59,12 @@ function setXcToReferenceType(xc: string, referenceType: FixedReferenceType): st
     case "row":
       indexOfNumber = xc.search(/[0-9]/);
       return xc.slice(0, indexOfNumber) + "$" + xc.slice(indexOfNumber);
-      break;
     case "colrow":
       indexOfNumber = xc.search(/[0-9]/);
+      if (indexOfNumber === -1 || indexOfNumber === 0) {
+        // no row number (eg. A) or no column (eg. 1)
+        return "$" + xc;
+      }
       xc = xc.slice(0, indexOfNumber) + "$" + xc.slice(indexOfNumber);
       return "$" + xc;
     case "none":
