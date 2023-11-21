@@ -337,9 +337,9 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   onCellClicked(
     col: HeaderIndex,
     row: HeaderIndex,
-    { ctrlKey, shiftKey }: { ctrlKey: boolean; shiftKey: boolean }
+    { addZone, expandZone }: { addZone: boolean; expandZone: boolean }
   ) {
-    if (ctrlKey) {
+    if (addZone) {
       this.env.model.dispatch("PREPARE_SELECTION_INPUT_EXPANSION");
     }
 
@@ -347,9 +347,9 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     if (this.env.model.getters.getEditionMode() === "editing") {
       this.env.model.dispatch("STOP_EDITION");
     }
-    if (shiftKey) {
+    if (expandZone) {
       this.env.model.selection.setAnchorCorner(col, row);
-    } else if (ctrlKey) {
+    } else if (addZone) {
       this.env.model.selection.addCellToSelection(col, row);
     } else {
       this.env.model.selection.selectCell(col, row);
