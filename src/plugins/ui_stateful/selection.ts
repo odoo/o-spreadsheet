@@ -719,6 +719,11 @@ export class GridSelectionPlugin extends UIPlugin {
     ) {
       return CommandResult.WillRemoveExistingMerge;
     }
+    const headers = [cmd.base, ...cmd.elements];
+    const maxHeaderValue = isCol ? this.getters.getNumberCols(id) : this.getters.getNumberRows(id);
+    if (headers.some((h) => h < 0 || h >= maxHeaderValue)) {
+      return CommandResult.InvalidHeaderIndex;
+    }
     return CommandResult.Success;
   }
 
