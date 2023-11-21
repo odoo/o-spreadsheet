@@ -540,10 +540,10 @@ describe("evaluate formulas that return an array", () => {
       setCellContent(model, "C1", "=MFILL(3,3, 42)");
       expect(getEvaluatedCell(model, "C1").value).toBe("#ERROR");
 
-      addColumns(model, "after", "D", 1);
+      addColumns(model, "after", "C", 1);
       expect(getEvaluatedCell(model, "C1").value).toBe("#ERROR");
 
-      addColumns(model, "after", "E", 1);
+      addColumns(model, "after", "D", 1);
       expect(getEvaluatedCell(model, "C1").value).toBe(42);
       expect(getEvaluatedCell(model, "E3").value).toBe(42);
     });
@@ -552,10 +552,10 @@ describe("evaluate formulas that return an array", () => {
       setCellContent(model, "A3", "=MFILL(3,3, 42)");
       expect(getEvaluatedCell(model, "A3").value).toBe("#ERROR");
 
-      addRows(model, "after", 3, 1);
+      addRows(model, "after", 2, 1);
       expect(getEvaluatedCell(model, "A3").value).toBe("#ERROR");
 
-      addRows(model, "after", 4, 1);
+      addRows(model, "after", 3, 1);
       expect(getEvaluatedCell(model, "A3").value).toBe(42);
       expect(getEvaluatedCell(model, "C5").value).toBe(42);
     });
