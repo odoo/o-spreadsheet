@@ -59,7 +59,7 @@ describe("rangeTokenizer", () => {
     ]);
   });
 
-  test.each(["A:A", "A1:A", "A:A1"])("full column", (xc) => {
+  test.each(["A:A", "A1:A", "A:A1", "$A:$A", "A:$A", "$A:A", "$B$2:$C"])("full column", (xc) => {
     expect(rangeTokenize(`=${xc}`)).toEqual([
       { type: "OPERATOR", value: "=" },
       { type: "REFERENCE", value: xc },
@@ -76,7 +76,7 @@ describe("rangeTokenizer", () => {
     ]);
   });
 
-  test.each(["1:1", "A1:1", "1:A1"])("full row", (xc) => {
+  test.each(["1:1", "A1:1", "1:A1", "$1:$1", "1:$1", "$1:1", "$B$1:$2"])("full row", (xc) => {
     expect(rangeTokenize(`=${xc}`)).toEqual([
       { type: "OPERATOR", value: "=" },
       { type: "REFERENCE", value: xc },
@@ -99,10 +99,30 @@ describe("rangeTokenizer", () => {
       { type: "OPERATOR", value: ":" },
       { type: "SYMBOL", value: "A" },
     ]);
+    expect(rangeTokenize("1:$A")).toEqual([
+      { type: "NUMBER", value: "1" },
+      { type: "OPERATOR", value: ":" },
+      { type: "SYMBOL", value: "$A" },
+    ]);
     expect(rangeTokenize("A:1")).toEqual([
       { type: "SYMBOL", value: "A" },
       { type: "OPERATOR", value: ":" },
       { type: "NUMBER", value: "1" },
+    ]);
+    expect(rangeTokenize("A:$1")).toEqual([
+      { type: "SYMBOL", value: "A" },
+      { type: "OPERATOR", value: ":" },
+      { type: "SYMBOL", value: "$1" },
+    ]);
+    expect(rangeTokenize("1:Sheet1!2")).toEqual([
+      { type: "NUMBER", value: "1" },
+      { type: "OPERATOR", value: ":" },
+      { type: "SYMBOL", value: "Sheet1!2" },
+    ]);
+    expect(rangeTokenize("A:Sheet1!A")).toEqual([
+      { type: "SYMBOL", value: "A" },
+      { type: "OPERATOR", value: ":" },
+      { type: "SYMBOL", value: "Sheet1!A" },
     ]);
   });
 });
