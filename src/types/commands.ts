@@ -289,6 +289,7 @@ export interface MoveColumnsRowsCommand extends HeadersDependentCommand {
   type: "MOVE_COLUMNS_ROWS";
   base: HeaderIndex;
   elements: HeaderIndex[];
+  position: "before" | "after";
 }
 
 export interface ResizeColumnsRowsCommand extends HeadersDependentCommand {
