@@ -930,6 +930,31 @@ describe("move elements(s)", () => {
     moveRows(model, 99, [0], "after");
     expect(getCellContent(model, "A100")).toEqual("5");
   });
+
+  test("cannot move column out of bound", () => {
+    const model = new Model();
+    let result = moveColumns(model, "AAA", ["A"]);
+    expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
+    result = moveColumns(model, "A", ["AAA"]);
+    expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
+    result = model.dispatch("MOVE_COLUMNS_ROWS", {
+      sheetId: model.getters.getActiveSheetId(),
+      base: -1,
+      elements: [0],
+      position: "after",
+      dimension: "COL",
+    });
+  });
+
+  test("cannot move row out of bound", () => {
+    const model = new Model();
+    let result = moveRows(model, 100, [0]);
+    expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
+    result = moveRows(model, 19, [100]);
+    expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
+    result = moveRows(model, -1, [0]);
+    expect(result).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
+  });
 });
 
 describe("Selection loop (ctrl + a)", () => {
