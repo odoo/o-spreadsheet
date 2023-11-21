@@ -11,6 +11,7 @@ import {
   EvaluatedCell,
   Format,
   Getters,
+  Matrix,
   MatrixArg,
   PrimitiveArg,
   Range,
@@ -160,22 +161,20 @@ class CompilationParametersBuilder {
 
     const height = _zone.bottom - _zone.top + 1;
     const width = _zone.right - _zone.left + 1;
-    const value: CellValue[][] = Array.from({ length: width }, () =>
-      Array.from({ length: height })
-    );
-    const format: Format[][] = Array.from({ length: width }, () => Array.from({ length: height }));
+    const value: Matrix<CellValue | undefined> = new Array(width);
+    const format: Matrix<Format> = new Array(width);
 
     // Performance issue: nested loop is faster than a map here
     for (let col = _zone.left; col <= _zone.right; col++) {
+      const colIndex = col - _zone.left;
+      value[colIndex] = new Array(height);
+      format[colIndex] = new Array(height);
       for (let row = _zone.top; row <= _zone.bottom; row++) {
-        const evaluatedCell = this.getEvaluatedCellIfNotEmpty({ sheetId: sheetId, col, row });
-        if (evaluatedCell) {
-          const colIndex = col - _zone.left;
-          const rowIndex = row - _zone.top;
-          value[colIndex][rowIndex] = evaluatedCell.value;
-          if (evaluatedCell.format !== undefined) {
-            format[colIndex][rowIndex] = evaluatedCell.format;
-          }
+        const evaluatedCell = this.getEvaluatedCellIfNotEmpty({ sheetId, col, row });
+        const rowIndex = row - _zone.top;
+        value[colIndex][rowIndex] = evaluatedCell?.value;
+        if (evaluatedCell?.format !== undefined) {
+          format[colIndex][rowIndex] = evaluatedCell.format;
         }
       }
     }
