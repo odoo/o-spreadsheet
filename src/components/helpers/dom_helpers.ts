@@ -1,4 +1,7 @@
 import { Rect } from "./../../types/rendering";
+
+const macRegex = /Mac/i;
+
 /**
  * Return true if the event was triggered from
  * a child element.
@@ -59,7 +62,7 @@ export function keyboardEventToShortcutString(
   mode: "key" | "code" = "key"
 ): string {
   let keyDownString = "";
-  if (ev.ctrlKey && ev.key !== "Ctrl") keyDownString += "Ctrl+";
+  if (isCtrlKey(ev) && ev.key !== "Ctrl") keyDownString += "Ctrl+";
   if (ev.metaKey) keyDownString += "Ctrl+";
   if (ev.altKey && ev.key !== "Alt") keyDownString += "Alt+";
   if (ev.shiftKey && ev.key !== "Shift") keyDownString += "Shift+";
@@ -69,5 +72,14 @@ export function keyboardEventToShortcutString(
 }
 
 export function isMacOS(): boolean {
-  return navigator.userAgent.toUpperCase().indexOf("MAC") >= 0;
+  return Boolean(macRegex.test(navigator.userAgent));
+}
+
+/**
+ * @param {KeyboardEvent | MouseEvent} ev
+ * @returns Returns true if the event was triggered with the "ctrl" modifier pressed.
+ * On Mac, this is the "meta" or "command" key.
+ */
+export function isCtrlKey(ev: KeyboardEvent | MouseEvent): boolean {
+  return isMacOS() ? ev.metaKey : ev.ctrlKey;
 }
