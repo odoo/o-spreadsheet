@@ -10,6 +10,7 @@ import {
 } from "../../types";
 import { FiguresContainer } from "../figures/figure_container/figure_container";
 import { css } from "../helpers";
+import { isCtrlKey } from "../helpers/dom_helpers";
 import { useRefListener } from "../helpers/listener_hook";
 import { useInterval } from "../helpers/time_hooks";
 
@@ -198,7 +199,10 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
       return;
     }
     const [col, row] = this.getCartesianCoordinates(ev);
-    this.props.onCellClicked(col, row, { shiftKey: ev.shiftKey, ctrlKey: ev.ctrlKey });
+    this.props.onCellClicked(col, row, {
+      shiftKey: ev.shiftKey,
+      ctrlKey: isCtrlKey(ev),
+    });
   }
 
   onDoubleClick(ev: MouseEvent) {
