@@ -1,4 +1,5 @@
 import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
+import { isCtrlKey } from "./dom_helpers";
 
 const arrowMap = {
   ArrowDown: "down",
@@ -13,8 +14,8 @@ export function updateSelectionWithArrowKeys(
 ) {
   const direction = arrowMap[ev.key];
   if (ev.shiftKey) {
-    selection.resizeAnchorZone(direction, ev.ctrlKey ? "end" : 1);
+    selection.resizeAnchorZone(direction, isCtrlKey(ev) ? "end" : 1);
   } else {
-    selection.moveAnchorCell(direction, ev.ctrlKey ? "end" : 1);
+    selection.moveAnchorCell(direction, isCtrlKey(ev) ? "end" : 1);
   }
 }

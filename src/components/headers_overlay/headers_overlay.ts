@@ -18,6 +18,7 @@ import {
 } from "../../types/index";
 import { ContextMenuType } from "../grid/grid";
 import { css, cssPropertiesToCss } from "../helpers/css";
+import { isCtrlKey } from "../helpers/dom_helpers";
 import { dragAndDropBeyondTheViewport, startDnd } from "../helpers/drag_and_drop";
 import { MergeErrorMessage } from "../translations_terms";
 
@@ -259,7 +260,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
     if (ev.shiftKey) {
       this._increaseSelection(index);
     } else {
-      this._selectElement(index, ev.ctrlKey);
+      this._selectElement(index, isCtrlKey(ev));
     }
     this.lastSelectedElementIndex = index;
 
