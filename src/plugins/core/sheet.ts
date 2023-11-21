@@ -126,7 +126,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           cmd.dimension === "COL"
             ? this.getNumberCols(cmd.sheetId)
             : this.getNumberRows(cmd.sheetId);
-        if (cmd.base < 0 || cmd.base > elements) {
+        if (cmd.base < 0 || cmd.base >= elements) {
           return CommandResult.InvalidHeaderIndex;
         } else if (cmd.quantity <= 0) {
           return CommandResult.InvalidQuantity;
