@@ -37,6 +37,7 @@ interface ResizerState {
   draggerShadowThickness: number;
   delta: number;
   base: number;
+  position: "before" | "after";
 }
 
 interface ResizerProps {
@@ -61,6 +62,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
     draggerShadowThickness: 0,
     delta: 0,
     base: 0,
+    position: "before",
   });
 
   abstract _getEvOffset(ev: MouseEvent): Pixel;
@@ -229,10 +231,12 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
           this.state.draggerLinePosition = dimensions.start;
           this.state.draggerShadowPosition = dimensions.start;
           this.state.base = elementIndex;
+          this.state.position = "before";
         } else if (this._getSelectedZoneEnd() < elementIndex) {
           this.state.draggerLinePosition = dimensions.end;
           this.state.draggerShadowPosition = dimensions.end - this.state.draggerShadowThickness;
-          this.state.base = elementIndex + 1;
+          this.state.base = elementIndex;
+          this.state.position = "after";
         } else {
           this.state.draggerLinePosition = startDimensions.start;
           this.state.draggerShadowPosition = startDimensions.start;
@@ -428,6 +432,7 @@ export class ColResizer extends AbstractResizer {
       dimension: "COL",
       base: this.state.base,
       elements,
+      position: this.state.position,
     });
     if (!result.isSuccessful && result.reasons.includes(CommandResult.WillRemoveExistingMerge)) {
       this.env.raiseError(MergeErrorMessage);
@@ -620,6 +625,7 @@ export class RowResizer extends AbstractResizer {
       dimension: "ROW",
       base: this.state.base,
       elements,
+      position: this.state.position,
     });
     if (!result.isSuccessful && result.reasons.includes(CommandResult.WillRemoveExistingMerge)) {
       this.env.raiseError(MergeErrorMessage);
