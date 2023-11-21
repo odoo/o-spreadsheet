@@ -158,13 +158,12 @@ class CompilationParametersBuilder {
 
     const height = _zone.bottom - _zone.top + 1;
     const width = _zone.right - _zone.left + 1;
-    const matrix: Matrix<ValueAndFormat> = Array.from({ length: width }, () =>
-      Array.from({ length: height })
-    );
+    const matrix: Matrix<ValueAndFormat> = new Array(width);
     // Performance issue: nested loop is faster than a map here
     for (let col = _zone.left; col <= _zone.right; col++) {
+      const colIndex = col - _zone.left;
+      matrix[colIndex] = new Array(height);
       for (let row = _zone.top; row <= _zone.bottom; row++) {
-        const colIndex = col - _zone.left;
         const rowIndex = row - _zone.top;
         matrix[colIndex][rowIndex] = this.readCell({ sheetId, col, row });
       }
