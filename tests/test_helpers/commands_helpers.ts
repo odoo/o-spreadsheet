@@ -669,6 +669,7 @@ export function moveColumns(
   model: Model,
   target: string,
   columns: string[],
+  position: "before" | "after" = "before",
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
   return model.dispatch("MOVE_COLUMNS_ROWS", {
@@ -676,6 +677,7 @@ export function moveColumns(
     base: lettersToNumber(target),
     dimension: "COL",
     elements: columns.map(lettersToNumber),
+    position,
   });
 }
 
@@ -683,6 +685,7 @@ export function moveRows(
   model: Model,
   target: number,
   rows: number[],
+  position: "before" | "after" = "before",
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
   return model.dispatch("MOVE_COLUMNS_ROWS", {
@@ -690,6 +693,7 @@ export function moveRows(
     base: target,
     dimension: "ROW",
     elements: rows,
+    position,
   });
 }
 

@@ -32,11 +32,12 @@ import {
   selectColumn,
   selectRow,
   setAnchorCorner,
+  setCellContent,
   setSelection,
   setViewportOffset,
   undo,
 } from "../test_helpers/commands_helpers";
-import { getActiveXc } from "../test_helpers/getters_helpers";
+import { getActiveXc, getCellContent } from "../test_helpers/getters_helpers";
 
 let model: Model;
 const hiddenContent = { content: "hidden content to be skipped" };
@@ -1047,7 +1048,7 @@ describe("move elements(s)", () => {
     expect(result).toBeCancelledBecause(CommandResult.WillRemoveExistingMerge);
   });
 
-  test("Move a resized column preserve the size", () => {
+  test("Move a resized column preserves its size", () => {
     const model = new Model();
     resizeColumns(model, ["A"], 10);
     resizeColumns(model, ["C"], 20);
@@ -1058,7 +1059,7 @@ describe("move elements(s)", () => {
     expect(model.getters.getColSize(sheetId, 2)).toEqual(10);
   });
 
-  test("Move a resized row preserve the size", () => {
+  test("Move a resized row preserves its size", () => {
     const model = new Model();
     resizeRows(model, [0], 10);
     resizeRows(model, [2], 20);
@@ -1067,6 +1068,20 @@ describe("move elements(s)", () => {
     expect(model.getters.getRowSize(sheetId, 0)).toEqual(DEFAULT_CELL_HEIGHT);
     expect(model.getters.getRowSize(sheetId, 1)).toEqual(20);
     expect(model.getters.getRowSize(sheetId, 2)).toEqual(10);
+  });
+
+  test("Can move a column to the end of the sheet", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "5");
+    moveColumns(model, "Z", ["A"], "after");
+    expect(getCellContent(model, "Z1")).toEqual("5");
+  });
+
+  test("Can move a row to the end of the sheet", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "5");
+    moveRows(model, 99, [0], "after");
+    expect(getCellContent(model, "A100")).toEqual("5");
   });
 });
 
