@@ -41,3 +41,7 @@ export function* iterateChildren(el: Node): Generator<Node> {
 export function getOpenedMenus(): HTMLElement[] {
   return Array.from(document.querySelectorAll<HTMLElement>(".o-spreadsheet .o-menu"));
 }
+
+export function isMacOS(): boolean {
+  return navigator.userAgent.toUpperCase().indexOf("MAC") >= 0;
+}
