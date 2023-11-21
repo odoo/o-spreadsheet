@@ -58,6 +58,7 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("header grouping", HeaderGroupingPlugin)
   .add("header visibility", HeaderVisibilityPlugin)
   .add("filters", FiltersPlugin)
+  .add("dataValidation", DataValidationPlugin)
   .add("cell", CellPlugin)
   .add("merge", MergePlugin)
   .add("headerSize", HeaderSizePlugin)
@@ -65,8 +66,7 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("conditional formatting", ConditionalFormatPlugin)
   .add("figures", FigurePlugin)
   .add("chart", ChartPlugin)
-  .add("image", ImagePlugin)
-  .add("dataValidation", DataValidationPlugin);
+  .add("image", ImagePlugin);
 
 // Plugins which handle a specific feature, without handling any core commands
 export const featurePluginRegistry = new Registry<UIPluginConstructor>()

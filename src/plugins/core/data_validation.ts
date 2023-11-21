@@ -4,6 +4,7 @@ import {
   getCellPositionsInRanges,
   isInside,
   recomputeZones,
+  toXC,
 } from "../../helpers";
 import { dataValidationEvaluatorRegistry } from "../../registries/data_validation_registry";
 import {
@@ -122,6 +123,30 @@ export class DataValidationPlugin
         this.addDataValidationRule(cmd.sheetId, { ...cmd.rule, ranges });
         break;
       }
+      case "DELETE_CONTENT": {
+        const zones = cmd.target;
+        const sheetId = cmd.sheetId;
+        for (const zone of zones) {
+          for (let row = zone.top; row <= zone.bottom; row++) {
+            for (let col = zone.left; col <= zone.right; col++) {
+              const dataValidation = this.getValidationRuleForCell({ sheetId, col, row });
+              if (!dataValidation) {
+                continue;
+              }
+              if (
+                dataValidation.criterion.type === "isBoolean" ||
+                (dataValidation.criterion.type === "isValueInList" &&
+                  !this.getters.getCell({ sheetId, col, row })?.content)
+              ) {
+                const rules = this.rules[sheetId];
+                const ranges = [this.getters.getRangeFromSheetXC(sheetId, toXC(col, row))];
+                const adaptedRules = this.removeRangesFromRules(sheetId, ranges, rules);
+                this.history.update("rules", sheetId, adaptedRules);
+              }
+            }
+          }
+        }
+      }
     }
   }
 
@@ -195,13 +220,12 @@ export class DataValidationPlugin
   private setCenterStyleToBooleanCells(rule: DataValidationRule) {
     for (const position of getCellPositionsInRanges(rule.ranges)) {
       const cell = this.getters.getCell(position);
-      const { sheetId, col, row } = position;
       const style: Style = {
         ...cell?.style,
         align: cell?.style?.align ?? "center",
         verticalAlign: cell?.style?.verticalAlign ?? "middle",
       };
-      this.dispatch("UPDATE_CELL", { sheetId, col, row, style });
+      this.dispatch("UPDATE_CELL", { ...position, style });
     }
   }
 

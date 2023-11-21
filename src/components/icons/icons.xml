@@ -270,6 +270,22 @@
       />
     </svg>
   </t>
+  <t t-name="o-spreadsheet-Icon.INSERT_CHECKBOX">
+    <svg class="o-icon">
+      <path
+        fill="currentColor"
+        d="M.5 2A1.5 1.5 0 0 1 2 .5h14A1.5 1.5 0 0 1 17.5 2v14a1.5 1.5 0 0 1-1.5 1.5H2A1.5 1.5 0 0 1 .5 16V2H2v14h14V2H2m13 4-1.4-1.4L7 11.2 4.4 8.6 3 10l4 4z"
+      />
+    </svg>
+  </t>
+  <t t-name="o-spreadsheet-Icon.INSERT_DROPDOWN">
+    <svg class="o-icon">
+      <path
+        fill="currentColor"
+        d="M6 3.5a5 5.5 0 0 0 0 11h6a5 5.5 0 0 0 0-11H6V5h6a3.5 4 0 0 1 0 8H6a3.5 4 0 0 1 0-8m5 6 3-3H8"
+      />
+    </svg>
+  </t>
   <t t-name="o-spreadsheet-Icon.INSERT_SHEET">
     <svg class="o-icon" fill="currentColor">
       <path

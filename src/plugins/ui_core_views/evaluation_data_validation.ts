@@ -58,9 +58,24 @@ export class EvaluationDataValidationPlugin extends UIPlugin {
     }
     switch (cmd.type) {
       case "ADD_DATA_VALIDATION_RULE":
+        const ranges = cmd.ranges.map((range) => this.getters.getRangeFromRangeData(range));
+        if (cmd.rule.criterion.type === "isBoolean") {
+          this.setContentToBooleanCells({ ...cmd.rule, ranges });
+        }
+        delete this.validationResults[cmd.sheetId];
+        break;
       case "REMOVE_DATA_VALIDATION_RULE":
         delete this.validationResults[cmd.sheetId];
         break;
+    }
+  }
+
+  private setContentToBooleanCells(rule: DataValidationRule) {
+    for (const position of getCellPositionsInRanges(rule.ranges)) {
+      const evaluatedCell = this.getters.getEvaluatedCell(position);
+      if (evaluatedCell.type !== CellValueType.boolean) {
+        this.dispatch("UPDATE_CELL", { ...position, content: "FALSE" });
+      }
     }
   }
 

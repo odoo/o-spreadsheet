@@ -165,9 +165,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
       case "SET_GRID_LINES_VISIBILITY":
         this.setGridLinesVisibility(cmd.sheetId, cmd.areGridLinesVisible);
         break;
-      case "DELETE_CONTENT":
-        this.clearZones(cmd.sheetId, cmd.target);
-        break;
       case "CREATE_SHEET":
         const sheet = this.createSheet(
           cmd.sheetId,
@@ -589,24 +586,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   private setGridLinesVisibility(sheetId: UID, areGridLinesVisible: boolean) {
     this.history.update("sheets", sheetId, "areGridLinesVisible", areGridLinesVisible);
-  }
-
-  private clearZones(sheetId: UID, zones: Zone[]) {
-    for (let zone of zones) {
-      for (let col = zone.left; col <= zone.right; col++) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          const cell = this.sheets[sheetId]!.rows[row].cells[col];
-          if (cell) {
-            this.dispatch("UPDATE_CELL", {
-              sheetId: sheetId,
-              content: "",
-              col,
-              row,
-            });
-          }
-        }
-      }
-    }
   }
 
   private createSheet(
