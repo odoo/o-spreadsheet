@@ -838,11 +838,13 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     rows.sort((a, b) => b - a);
 
     for (let group of groupConsecutive(rows)) {
+      // indexes are sorted in the descending order
+      const from = group[group.length - 1];
+      const to = group[0];
       // Move the cells.
-      this.moveCellOnRowsDeletion(sheet, group[group.length - 1], group[0]);
-
-      // Effectively delete the element and recompute the left-right/top-bottom.
-      group.map((row) => this.updateRowsStructureOnDeletion(row, sheet));
+      this.moveCellOnRowsDeletion(sheet, from, to);
+      // Effectively delete the rows
+      this.updateRowsStructureOnDeletion(sheet, from, to);
     }
     const count = rows.filter((row) => row < sheet.panes.ySplit).length;
     if (count) {
@@ -989,15 +991,20 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     }
   }
 
-  private updateRowsStructureOnDeletion(index: HeaderIndex, sheet: Sheet) {
+  private updateRowsStructureOnDeletion(
+    sheet: Sheet,
+    deleteFromRow: HeaderIndex,
+    deleteToRow: HeaderIndex
+  ) {
     const rows: Row[] = [];
-    const cellsQueue = sheet.rows.map((row) => row.cells);
+    const cellsQueue = sheet.rows.map((row) => row.cells).reverse();
     for (let i in sheet.rows) {
-      if (Number(i) === index) {
+      const row = Number(i);
+      if (row >= deleteFromRow && row <= deleteToRow) {
         continue;
       }
       rows.push({
-        cells: cellsQueue.shift()!,
+        cells: cellsQueue.pop()!,
       });
     }
     this.history.update("sheets", sheet.id, "rows", rows);
