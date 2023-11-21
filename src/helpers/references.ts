@@ -6,8 +6,11 @@ export const cellReference = new RegExp(/\$?([A-Z]{1,3})\$?([0-9]{1,7})/, "i");
 // Same as above, but matches the exact string (nothing before or after)
 const singleCellReference = new RegExp(/^\$?([A-Z]{1,3})\$?([0-9]{1,7})$/, "i");
 
-/** Reference of a column header (eg. A, AB) */
-const colHeader = new RegExp(/^([A-Z]{1,3})+$/, "i");
+/** Reference of a column header (eg. A, AB, $A) */
+const colHeader = new RegExp(/^\$?([A-Z]{1,3})+$/, "i");
+
+/** Reference of a row header (eg. 1, $1) */
+const rowHeader = new RegExp(/^\$?([0-9]{1,7})+$/, "i");
 
 /** Reference of a column (eg. A, $CA, Sheet1!B) */
 const colReference = new RegExp(/^\s*('.+'!|[^']+!)?\$?([A-Z]{1,3})$/, "i");
@@ -47,6 +50,10 @@ export function isRowReference(xc: string): boolean {
 
 export function isColHeader(str: string): boolean {
   return colHeader.test(str);
+}
+
+export function isRowHeader(str: string): boolean {
+  return rowHeader.test(str);
 }
 
 /**
