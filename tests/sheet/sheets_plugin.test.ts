@@ -1036,8 +1036,8 @@ describe("sheets", () => {
     expect(addColumns(model, "after", "D", 1)).toBeCancelledBecause(
       CommandResult.InvalidHeaderIndex
     );
-    expect(addRows(model, "after", 20, 1)).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
     expect(addRows(model, "after", 3, 1)).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
+    expect(addRows(model, "after", 20, 1)).toBeCancelledBecause(CommandResult.InvalidHeaderIndex);
   });
 
   test("Cannot add wrong quantity of cols/row", () => {
