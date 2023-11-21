@@ -20,6 +20,7 @@ import {
 } from "../../types/index";
 import { ContextMenuType } from "../grid/grid";
 import { css } from "../helpers/css";
+import { isCtrlKey } from "../helpers/dom_helpers";
 import { dragAndDropBeyondTheViewport, startDnd } from "../helpers/drag_and_drop";
 import { MergeErrorMessage } from "../translations_terms";
 
@@ -261,7 +262,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
     if (ev.shiftKey) {
       this._increaseSelection(index);
     } else {
-      this._selectElement(index, ev.ctrlKey);
+      this._selectElement(index, isCtrlKey(ev));
     }
     this.lastSelectedElementIndex = index;
 
@@ -276,7 +277,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
       this.state.isSelecting = false;
       this.lastSelectedElementIndex = null;
       this.env.model.dispatch(
-        ev.ctrlKey ? "PREPARE_SELECTION_INPUT_EXPANSION" : "STOP_SELECTION_INPUT"
+        isCtrlKey(ev) ? "PREPARE_SELECTION_INPUT_EXPANSION" : "STOP_SELECTION_INPUT"
       );
       this._computeGrabDisplay(ev);
     };
