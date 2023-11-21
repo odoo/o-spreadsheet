@@ -17,7 +17,12 @@ import { edgeScrollDelay, triggerMouseEvent } from "../test_helpers/dom_helper";
 import { mountComponent, nextTick } from "../test_helpers/helpers";
 
 // As we test an isolated component, grid and gridOverlay won't exist
-jest.mock("../../src/components/helpers/dom_helpers", () => require("./__mocks__/dom_helpers"));
+jest.mock("../../src/components/helpers/dom_helpers", () => {
+  return {
+    ...jest.requireActual("../../src/components/helpers/dom_helpers"),
+    ...jest.requireActual("./__mocks__/dom_helpers"),
+  };
+});
 
 let model: Model;
 let sheetId: UID;

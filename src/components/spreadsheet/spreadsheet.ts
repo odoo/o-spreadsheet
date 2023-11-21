@@ -27,6 +27,7 @@ import { BottomBar } from "../bottom_bar/bottom_bar";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
 import { Grid } from "../grid/grid";
 import { css } from "../helpers/css";
+import { isCtrlKey } from "../helpers/dom_helpers";
 import { SidePanel } from "../side_panel/side_panel/side_panel";
 import { TopBar } from "../top_bar/top_bar";
 
@@ -277,7 +278,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
   onKeydown(ev: KeyboardEvent) {
     let keyDownString = "";
-    if (ev.ctrlKey || ev.metaKey) {
+    if (isCtrlKey(ev)) {
       keyDownString += "CTRL+";
     }
     keyDownString += ev.key.toUpperCase();
