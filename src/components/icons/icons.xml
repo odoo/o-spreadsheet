@@ -579,10 +579,9 @@
       />
     </svg>
   </t>
-  /** Font Awesome by Dave Gandy
- *  http://fontawesome.io/
- *  https://fontawesome.com/license
- */
+  <!-- Font Awesome by Dave Gandy
+http://fontawesome.io/
+https://fontawesome.com/license -->
   <t t-name="o-spreadsheet-Icon.CARET_UP">
     <svg class="caret-up" viewBox="0 0 320 512">
       <path
