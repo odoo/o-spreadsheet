@@ -74,7 +74,7 @@ export class FormulaDependencyGraph {
         }
       }
     }
-    visited.delete(...positionIds);
+    visited.deleteMany(positionIds);
     return visited;
   }
 }

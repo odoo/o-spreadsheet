@@ -108,9 +108,9 @@ export class Evaluator {
     const cells: PositionId[] = positions.map(this.encodePosition.bind(this));
     const cellsToCompute = new JetSet<PositionId>(cells);
     const arrayFormulas = this.getArrayFormulasImpactedByChangesOf(cells);
-    cellsToCompute.add(...this.getCellsDependingOn(cells));
-    cellsToCompute.add(...arrayFormulas);
-    cellsToCompute.add(...this.getCellsDependingOn(arrayFormulas));
+    cellsToCompute.addMany(this.getCellsDependingOn(cells));
+    cellsToCompute.addMany(arrayFormulas);
+    cellsToCompute.addMany(this.getCellsDependingOn(arrayFormulas));
     this.evaluate(cellsToCompute);
   }
 
@@ -128,7 +128,7 @@ export class Evaluator {
       }
       if (!content) {
         // The previous content could have blocked some array formulas
-        impactedPositionIds.add(...this.getArrayFormulasBlockedByOrSpreadingOn(positionId));
+        impactedPositionIds.addMany(this.getArrayFormulasBlockedByOrSpreadingOn(positionId));
       }
     }
     return impactedPositionIds;
@@ -183,7 +183,7 @@ export class Evaluator {
     }
     const arrayFormulas = this.spreadingRelations.getFormulaPositionsSpreadingOn(positionId);
     const cells = new JetSet<PositionId>(arrayFormulas);
-    cells.add(...this.getCellsDependingOn(arrayFormulas));
+    cells.addMany(this.getCellsDependingOn(arrayFormulas));
     return cells;
   }
 
@@ -384,7 +384,7 @@ export class Evaluator {
 
       // check if formula dependencies present in the spread zone
       // if so, they need to be recomputed
-      this.nextPositionsToUpdate.add(...this.getCellsDependingOn([positionId]));
+      this.nextPositionsToUpdate.addMany(this.getCellsDependingOn([positionId]));
     };
   }
 
@@ -400,8 +400,8 @@ export class Evaluator {
         continue;
       }
       this.evaluatedCells.delete(child);
-      this.nextPositionsToUpdate.add(...this.getCellsDependingOn([child]));
-      this.nextPositionsToUpdate.add(...this.getArrayFormulasBlockedByOrSpreadingOn(child));
+      this.nextPositionsToUpdate.addMany(this.getCellsDependingOn([child]));
+      this.nextPositionsToUpdate.addMany(this.getArrayFormulasBlockedByOrSpreadingOn(child));
     }
     this.spreadingRelations.removeNode(positionId);
   }

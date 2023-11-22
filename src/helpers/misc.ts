@@ -452,13 +452,13 @@ export function isConsecutive(iterable: Iterable<number>): boolean {
 }
 
 export class JetSet<T> extends Set<T> {
-  add(...iterable: T[]): this {
+  addMany(iterable: Iterable<T>): this {
     for (const element of iterable) {
       super.add(element);
     }
     return this;
   }
-  delete(...iterable: T[]): boolean {
+  deleteMany(iterable: Iterable<T>): boolean {
     let deleted = false;
     for (const element of iterable) {
       deleted ||= super.delete(element);
