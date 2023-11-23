@@ -1,7 +1,7 @@
 import { FORMULA_REF_IDENTIFIER, NULL_FORMAT } from "../../constants";
 import { cellFactory } from "../../helpers/cells/cell_factory";
 import { FormulaCell } from "../../helpers/cells/index";
-import { isInside, range, stringify, toCartesian, toXC } from "../../helpers/index";
+import { deepEquals, isInside, range, toCartesian, toXC } from "../../helpers/index";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -218,7 +218,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
      */
     function getStyleId(style: Style) {
       for (let [key, value] of Object.entries(styles)) {
-        if (stringify(value) === stringify(style)) {
+        if (deepEquals(value, style)) {
           return parseInt(key, 10);
         }
       }
