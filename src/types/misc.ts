@@ -159,7 +159,7 @@ export type ReferenceDenormalizer = (
   paramNumber: number
 ) => any | any[][];
 
-export type EnsureRange = (range: Range) => Matrix<ValueAndFormat>;
+export type EnsureRange = (range: Range) => Matrix<FPayload>;
 
 export type NumberParser = (str: string) => number;
 
@@ -168,7 +168,7 @@ export type _CompiledFormula = (
   refFn: ReferenceDenormalizer,
   range: EnsureRange,
   ctx: {}
-) => Matrix<ValueAndFormat> | ValueAndFormat;
+) => Matrix<FPayload> | FPayload;
 
 export interface CompiledFormula {
   execute: _CompiledFormula;
@@ -181,10 +181,10 @@ export interface RangeCompiledFormula extends Omit<CompiledFormula, "dependencie
 }
 
 export type Matrix<T = unknown> = T[][];
-export type ValueAndFormat = { value: CellValue; format?: Format };
+export type FPayload = { value: CellValue; format?: Format };
 
 // FORMULA FUNCTION VALUE AND FORMAT INPUT
-export type Arg = Maybe<ValueAndFormat> | Matrix<ValueAndFormat>; // undefined corresponds to the lack of argument, e.g. =SUM(1,2,,4)
+export type Arg = Maybe<FPayload> | Matrix<FPayload>; // undefined corresponds to the lack of argument, e.g. =SUM(1,2,,4)
 
 // FORMULA FUNCTION ONLY VALUE INPUT
 export type ArgValue = Maybe<CellValue> | Matrix<CellValue>;

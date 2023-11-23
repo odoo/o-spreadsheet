@@ -9,7 +9,7 @@ import {
   Locale,
   Matrix,
   Maybe,
-  ValueAndFormat,
+  FPayload,
   isMatrix,
 } from "../types";
 import { NotAvailableError } from "../types/errors";
@@ -850,9 +850,9 @@ export const LARGE = {
     arg("n (number)", _t("The rank from largest to smallest of the element to return.")),
   ],
   returns: ["NUMBER"],
-  computeValueAndFormat: function (data: Arg, n: Maybe<ValueAndFormat>): ValueAndFormat {
+  computeValueAndFormat: function (data: Arg, n: Maybe<FPayload>): FPayload {
     const _n = Math.trunc(toNumber(n?.value, this.locale));
-    let largests: ValueAndFormat[] = [];
+    let largests: FPayload[] = [];
     let index: number;
     let count = 0;
     visitAny([data], (d) => {
@@ -1611,9 +1611,9 @@ export const SMALL = {
     arg("n (number)", _t("The rank from smallest to largest of the element to return.")),
   ],
   returns: ["NUMBER"],
-  computeValueAndFormat: function (data: Arg, n: Maybe<ValueAndFormat>): ValueAndFormat {
+  computeValueAndFormat: function (data: Arg, n: Maybe<FPayload>): FPayload {
     const _n = Math.trunc(toNumber(n?.value, this.locale));
-    let largests: ValueAndFormat[] = [];
+    let largests: FPayload[] = [];
     let index: number;
     let count = 0;
     visitAny([data], (d) => {
