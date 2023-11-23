@@ -269,7 +269,7 @@ export const DEBUG: { [key: string]: any } = {};
  */
 export function getItemId<T>(item: T, itemsDic: { [id: number]: T }) {
   for (let [key, value] of Object.entries(itemsDic)) {
-    if (stringify(value) === stringify(item)) {
+    if (deepEquals(value, item)) {
       return parseInt(key, 10);
     }
   }
