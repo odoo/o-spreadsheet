@@ -1,5 +1,5 @@
 import { _t } from "../translation";
-import { AddFunctionDescription, ArgValue, CellValue, Maybe, ValueAndFormat } from "../types";
+import { AddFunctionDescription, ArgValue, CellValue, Maybe, FPayload } from "../types";
 import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import { assert, conditionalVisitBoolean, toBoolean } from "./helpers";
@@ -69,10 +69,10 @@ export const IF = {
   ],
   returns: ["ANY"],
   computeValueAndFormat: function (
-    logicalExpression: Maybe<ValueAndFormat>,
-    valueIfTrue: Maybe<ValueAndFormat>,
-    valueIfFalse: Maybe<ValueAndFormat>
-  ): ValueAndFormat {
+    logicalExpression: Maybe<FPayload>,
+    valueIfTrue: Maybe<FPayload>,
+    valueIfFalse: Maybe<FPayload>
+  ): FPayload {
     const result = toBoolean(logicalExpression?.value) ? valueIfTrue : valueIfFalse;
     if (result === undefined) {
       return { value: "" };
@@ -99,9 +99,9 @@ export const IFERROR = {
   ],
   returns: ["ANY"],
   computeValueAndFormat: function (
-    value: Maybe<ValueAndFormat>,
-    valueIfError: Maybe<ValueAndFormat> = { value: "" }
-  ): ValueAndFormat {
+    value: Maybe<FPayload>,
+    valueIfError: Maybe<FPayload> = { value: "" }
+  ): FPayload {
     const result = value?.value instanceof Error ? valueIfError : value;
     if (result === undefined) {
       return { value: "" };
@@ -128,9 +128,9 @@ export const IFNA = {
   ],
   returns: ["ANY"],
   computeValueAndFormat: function (
-    value: Maybe<ValueAndFormat>,
-    valueIfError: Maybe<ValueAndFormat> = { value: "" }
-  ): ValueAndFormat {
+    value: Maybe<FPayload>,
+    valueIfError: Maybe<FPayload> = { value: "" }
+  ): FPayload {
     const result = value?.value instanceof NotAvailableError ? valueIfError : value;
     if (result === undefined) {
       return { value: "" };
@@ -166,7 +166,7 @@ export const IFS = {
     ),
   ],
   returns: ["ANY"],
-  computeValueAndFormat: function (...values: Maybe<ValueAndFormat>[]): ValueAndFormat {
+  computeValueAndFormat: function (...values: Maybe<FPayload>[]): FPayload {
     assert(
       () => values.length % 2 === 0,
       _t("Wrong number of arguments. Expected an even number of arguments.")

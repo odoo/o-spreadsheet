@@ -10,7 +10,7 @@ import {
   Format,
   Matrix,
   Maybe,
-  ValueAndFormat,
+  FPayload,
   isMatrix,
 } from "../../src/types";
 import {
@@ -183,7 +183,7 @@ describe("evaluate formulas that return an array", () => {
         args: [arg("matrix (range<number>)", "a matrix")],
         returns: ["RANGE<NUMBER>"],
         compute: ((matrix) => matrix) as ComputeFunction<ArgValue, Matrix<CellValue>>,
-        computeFormat: ((matrix: Matrix<ValueAndFormat>) =>
+        computeFormat: ((matrix: Matrix<FPayload>) =>
           matrix.map((row) => row.map((item) => item?.format))) as ComputeFunction<
           Arg,
           Matrix<Format | undefined>
