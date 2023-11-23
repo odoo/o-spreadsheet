@@ -3,7 +3,7 @@ import { numberToJsDate, parseDateTime } from "../helpers/dates";
 import { memoize } from "../helpers/misc";
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _t } from "../translation";
-import { ArgValue, CellValue, Locale, Matrix, Maybe, ValueAndFormat, isMatrix } from "../types";
+import { ArgValue, CellValue, Locale, Matrix, Maybe, FPayload, isMatrix } from "../types";
 import { CellErrorType, EvaluationError } from "../types/errors";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
@@ -195,7 +195,7 @@ export function toJsDate(value: CellValue | undefined, locale: Locale): Date {
 // -----------------------------------------------------------------------------
 // VISIT FUNCTIONS
 // -----------------------------------------------------------------------------
-function visitArgs<T extends ValueAndFormat | CellValue>(
+function visitArgs<T extends FPayload | CellValue>(
   args: (T | Matrix<T> | undefined)[],
   cellCb: (a: T) => void,
   dataCb: (a: T | undefined) => void
@@ -217,7 +217,7 @@ function visitArgs<T extends ValueAndFormat | CellValue>(
   }
 }
 
-export function visitAny<T extends ValueAndFormat | CellValue>(
+export function visitAny<T extends FPayload | CellValue>(
   args: (T | Matrix<T> | undefined)[],
   cb: (a: T) => void
 ): void {

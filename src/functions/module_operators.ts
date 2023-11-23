@@ -1,5 +1,5 @@
 import { _t } from "../translation";
-import { AddFunctionDescription, CellValue, Maybe, ValueAndFormat } from "../types";
+import { AddFunctionDescription, CellValue, Maybe, FPayload } from "../types";
 import { arg } from "./arguments";
 import { assert, toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";
@@ -14,7 +14,7 @@ export const ADD = {
     arg("value2 (number)", _t("The second addend.")),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value1: Maybe<ValueAndFormat>, value2: Maybe<ValueAndFormat>) =>
+  computeFormat: (value1: Maybe<FPayload>, value2: Maybe<FPayload>) =>
     value1?.format || value2?.format,
   compute: function (value1: Maybe<CellValue>, value2: Maybe<CellValue>): number {
     return toNumber(value1, this.locale) + toNumber(value2, this.locale);
@@ -47,7 +47,7 @@ export const DIVIDE = {
     arg("divisor (number)", _t("The number to divide by.")),
   ],
   returns: ["NUMBER"],
-  computeFormat: (dividend: Maybe<ValueAndFormat>, divisor: Maybe<ValueAndFormat>) =>
+  computeFormat: (dividend: Maybe<FPayload>, divisor: Maybe<FPayload>) =>
     dividend?.format || divisor?.format,
   compute: function (dividend: Maybe<CellValue>, divisor: Maybe<CellValue>): number {
     const _divisor = toNumber(divisor, this.locale);
@@ -189,7 +189,7 @@ export const MINUS = {
     arg("value2 (number)", _t("The subtrahend, or number to subtract from value1.")),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value1: Maybe<ValueAndFormat>, value2: Maybe<ValueAndFormat>) =>
+  computeFormat: (value1: Maybe<FPayload>, value2: Maybe<FPayload>) =>
     value1?.format || value2?.format,
   compute: function (value1: Maybe<CellValue>, value2: Maybe<CellValue>): number {
     return toNumber(value1, this.locale) - toNumber(value2, this.locale);
@@ -206,7 +206,7 @@ export const MULTIPLY = {
     arg("factor2 (number)", _t("The second multiplicand.")),
   ],
   returns: ["NUMBER"],
-  computeFormat: (factor1: Maybe<ValueAndFormat>, factor2: Maybe<ValueAndFormat>) =>
+  computeFormat: (factor1: Maybe<FPayload>, factor2: Maybe<FPayload>) =>
     factor1?.format || factor2?.format,
   compute: function (factor1: Maybe<CellValue>, factor2: Maybe<CellValue>): number {
     return toNumber(factor1, this.locale) * toNumber(factor2, this.locale);
@@ -254,7 +254,7 @@ export const UMINUS = {
       _t("The number to have its sign reversed. Equivalently, the number to multiply by -1.")
     ),
   ],
-  computeFormat: (value: Maybe<ValueAndFormat>) => value?.format,
+  computeFormat: (value: Maybe<FPayload>) => value?.format,
   returns: ["NUMBER"],
   compute: function (value: Maybe<CellValue>): number {
     return -toNumber(value, this.locale);
@@ -280,7 +280,7 @@ export const UPLUS = {
   description: _t("A specified number, unchanged."),
   args: [arg("value (any)", _t("The number to return."))],
   returns: ["ANY"],
-  computeFormat: (value: Maybe<ValueAndFormat>) => value?.format,
+  computeFormat: (value: Maybe<FPayload>) => value?.format,
   compute: function (value: Maybe<CellValue> = ""): CellValue {
     return value === null ? "" : value;
   },

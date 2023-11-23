@@ -18,7 +18,7 @@ import {
   Range,
   RangeCompiledFormula,
   UID,
-  ValueAndFormat,
+  FPayload,
 } from "../../../types";
 import { CircularDependencyError, EvaluationError } from "../../../types/errors";
 import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
@@ -310,7 +310,7 @@ export class Evaluator {
 
   private assertSheetHasEnoughSpaceToSpreadFormulaResult(
     { sheetId, col, row }: CellPosition,
-    matrixResult: Matrix<ValueAndFormat>
+    matrixResult: Matrix<FPayload>
   ) {
     const numberOfCols = this.getters.getNumberCols(sheetId);
     const numberOfRows = this.getters.getNumberRows(sheetId);
@@ -374,7 +374,7 @@ export class Evaluator {
 
   private spreadValues(
     { sheetId, col, row }: CellPosition,
-    matrixResult: Matrix<ValueAndFormat>
+    matrixResult: Matrix<FPayload>
   ): (i: number, j: number) => void {
     return (i: number, j: number) => {
       const position = { sheetId, col: i + col, row: j + row };
