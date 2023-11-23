@@ -14,13 +14,6 @@ import {
 import { Cell, ConsecutiveIndexes, Lazy, Style, UID } from "../types";
 import { Cloneable, Pixel } from "./../types/misc";
 import { parseDateTime } from "./dates";
-/**
- * Stringify an object, like JSON.stringify, except that the first level of keys
- * is ordered.
- */
-export function stringify(obj: any): string {
-  return JSON.stringify(obj, Object.keys(obj).sort());
-}
 
 /**
  * Remove quotes from a quoted string
@@ -360,7 +353,7 @@ export function isObjectEmptyRecursive<T extends object>(argument: T | undefined
  */
 export function getItemId<T>(item: T, itemsDic: { [id: number]: T }) {
   for (let [key, value] of Object.entries(itemsDic)) {
-    if (stringify(value) === stringify(item)) {
+    if (deepEquals(value, item)) {
       return parseInt(key, 10);
     }
   }
