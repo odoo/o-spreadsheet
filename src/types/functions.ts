@@ -2,7 +2,7 @@ import { CellValue } from "./cells";
 import { Format } from "./format";
 import { Getters } from "./getters";
 import { Locale } from "./locale";
-import { Arg, ArgValue, Matrix, UID, ValueAndFormat } from "./misc";
+import { Arg, ArgValue, Matrix, UID, FPayload } from "./misc";
 
 export type ArgType =
   | "ANY"
@@ -49,7 +49,7 @@ interface ComputeFormat {
 }
 
 interface ComputeValueAndFormat {
-  computeValueAndFormat: ComputeFunction<Arg, Matrix<ValueAndFormat> | ValueAndFormat>;
+  computeValueAndFormat: ComputeFunction<Arg, Matrix<FPayload> | FPayload>;
 }
 
 export type AddFunctionDescription =
