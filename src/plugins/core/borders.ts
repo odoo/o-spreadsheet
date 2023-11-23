@@ -1,13 +1,5 @@
 import { DEFAULT_BORDER_DESC } from "../../constants";
-import {
-  deepEquals,
-  isDefined,
-  range,
-  stringify,
-  toCartesian,
-  toXC,
-  toZone,
-} from "../../helpers/index";
+import { deepEquals, isDefined, range, toCartesian, toXC, toZone } from "../../helpers/index";
 import {
   AddColumnsRowsCommand,
   Border,
@@ -586,7 +578,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
      */
     function getBorderId(border: Border) {
       for (let [key, value] of Object.entries(borders)) {
-        if (stringify(value) === stringify(border)) {
+        if (deepEquals(value, border)) {
           return parseInt(key, 10);
         }
       }

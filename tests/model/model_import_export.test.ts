@@ -550,11 +550,11 @@ test("complete import, then export", () => {
           1: { size: 13 },
         },
         cells: {
-          A1: { content: "hello" },
+          A1: { content: "hello", border: 1 },
           B1: {
             content: "=A1",
             style: 1,
-            border: 1,
+            border: 2,
             format: 1,
           },
           C1: { content: "=mqdlskjfqmslfkj(++%//@@@)" },
@@ -601,6 +601,9 @@ test("complete import, then export", () => {
     borders: {
       1: {
         top: { style: "thin", color: "#000" } as BorderDescr,
+      },
+      2: {
+        top: { style: "medium", color: "#000" } as BorderDescr,
       },
     },
     uniqueFigureIds: true,
