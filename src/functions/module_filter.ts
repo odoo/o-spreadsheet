@@ -10,7 +10,7 @@ import {
   Locale,
   Matrix,
   Maybe,
-  ValueAndFormat,
+  FPayload,
 } from "../types";
 import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
@@ -19,10 +19,10 @@ import { toScalar } from "./helper_matrices";
 import { assert, matrixMap, toBoolean, toMatrix, toNumber, transposeMatrix } from "./helpers";
 
 function sortMatrix(
-  matrix: Matrix<ValueAndFormat>,
+  matrix: Matrix<FPayload>,
   locale: Locale,
   ...criteria: Arg[]
-): Matrix<ValueAndFormat> {
+): Matrix<FPayload> {
   for (const [i, value] of criteria.entries()) {
     assert(
       () => value !== undefined,
@@ -123,7 +123,7 @@ export const FILTER = {
     ),
   ],
   returns: ["RANGE<ANY>"],
-  computeValueAndFormat: function (range: Arg, ...conditions: Arg[]): Matrix<ValueAndFormat> {
+  computeValueAndFormat: function (range: Arg, ...conditions: Arg[]): Matrix<FPayload> {
     let _array = toMatrix(range);
     const _conditionsMatrices = conditions.map((cond) =>
       matrixMap(toMatrix(cond), (data) => data.value)
@@ -145,7 +145,7 @@ export const FILTER = {
       _t("FILTER has mismatched sizes on the range and conditions.")
     );
 
-    const result: Matrix<ValueAndFormat> = [];
+    const result: Matrix<FPayload> = [];
     for (let i = 0; i < _array.length; i++) {
       const row = _array[i];
       if (_conditions.every((c) => c[i])) {
@@ -184,9 +184,9 @@ export const SORT: AddFunctionDescription = {
   ],
   returns: ["RANGE"],
   computeValueAndFormat: function (
-    range: Matrix<ValueAndFormat>,
+    range: Matrix<FPayload>,
     ...sortingCriteria: Arg[]
-  ): Matrix<ValueAndFormat> {
+  ): Matrix<FPayload> {
     const _range = transposeMatrix(range);
     return transposeMatrix(sortMatrix(_range, this.locale, ...sortingCriteria));
   },
@@ -220,10 +220,10 @@ export const SORTN: AddFunctionDescription = {
   ],
   returns: ["RANGE"],
   computeValueAndFormat: function (
-    range: Matrix<ValueAndFormat>,
-    n: Maybe<ValueAndFormat>,
-    displayTiesMode: Maybe<ValueAndFormat>,
-    ...sortingCriteria: (ValueAndFormat | Matrix<ValueAndFormat>)[]
+    range: Matrix<FPayload>,
+    n: Maybe<FPayload>,
+    displayTiesMode: Maybe<FPayload>,
+    ...sortingCriteria: (FPayload | Matrix<FPayload>)[]
   ): any {
     const _n = toNumber(n?.value ?? 1, this.locale);
     assert(() => _n >= 0, _t("Wrong value of 'n'. Expected a positive number. Got %s.", _n));
@@ -308,9 +308,9 @@ export const UNIQUE = {
   returns: ["RANGE<NUMBER>"],
   computeValueAndFormat: function (
     range: Arg = { value: "" },
-    byColumn: Maybe<ValueAndFormat>,
-    exactlyOnce: Maybe<ValueAndFormat>
-  ): Matrix<ValueAndFormat> {
+    byColumn: Maybe<FPayload>,
+    exactlyOnce: Maybe<FPayload>
+  ): Matrix<FPayload> {
     if (!isMatrix(range)) {
       return [[range]];
     }
@@ -321,7 +321,7 @@ export const UNIQUE = {
       range = transposeMatrix(range);
     }
 
-    const map: Map<string, { data: ValueAndFormat[]; count: number }> = new Map();
+    const map: Map<string, { data: FPayload[]; count: number }> = new Map();
 
     for (const data of range) {
       const key = JSON.stringify(data.map((item) => item.value));
@@ -333,7 +333,7 @@ export const UNIQUE = {
       }
     }
 
-    const result: Matrix<ValueAndFormat> = [];
+    const result: Matrix<FPayload> = [];
     for (const row of map.values()) {
       if (_exactlyOnce && row.count > 1) {
         continue;

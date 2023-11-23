@@ -13,7 +13,7 @@ import {
   Maybe,
   Range,
   ReferenceDenormalizer,
-  ValueAndFormat,
+  FPayload,
 } from "../../../types";
 import { EvaluationError, InvalidReferenceError } from "../../../types/errors";
 
@@ -38,7 +38,7 @@ export function buildCompilationParameters(
 class CompilationParametersBuilder {
   evalContext: EvalContext;
 
-  private rangeCache: Record<string, Matrix<ValueAndFormat>> = {};
+  private rangeCache: Record<string, Matrix<FPayload>> = {};
 
   constructor(
     context: ModelConfig["custom"],
@@ -68,7 +68,7 @@ class CompilationParametersBuilder {
     isMeta: boolean,
     functionName: string,
     paramNumber?: number
-  ): Maybe<ValueAndFormat> {
+  ): Maybe<FPayload> {
     if (isMeta) {
       // Use zoneToXc of zone instead of getRangeString to avoid sending unbounded ranges
       const sheetName = this.getters.getSheetName(range.sheetId);
@@ -101,7 +101,7 @@ class CompilationParametersBuilder {
     return this.readCell(position);
   }
 
-  private readCell(position: CellPosition): ValueAndFormat {
+  private readCell(position: CellPosition): FPayload {
     if (!this.getters.tryGetSheet(position.sheetId)) {
       throw new EvaluationError(_t("Invalid sheet name"));
     }
@@ -134,7 +134,7 @@ class CompilationParametersBuilder {
    * Note that each col is possibly sparse: it only contain the values of cells
    * that are actually present in the grid.
    */
-  private range({ sheetId, zone }: Range): Matrix<ValueAndFormat> {
+  private range({ sheetId, zone }: Range): Matrix<FPayload> {
     if (!isZoneValid(zone)) {
       throw new InvalidReferenceError();
     }
@@ -154,7 +154,7 @@ class CompilationParametersBuilder {
 
     const height = _zone.bottom - _zone.top + 1;
     const width = _zone.right - _zone.left + 1;
-    const matrix: Matrix<ValueAndFormat> = new Array(width);
+    const matrix: Matrix<FPayload> = new Array(width);
     // Performance issue: nested loop is faster than a map here
     for (let col = _zone.left; col <= _zone.right; col++) {
       const colIndex = col - _zone.left;

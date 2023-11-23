@@ -7,7 +7,7 @@ import {
   isMatrix,
   Matrix,
   Maybe,
-  ValueAndFormat,
+  FPayload,
 } from "../types";
 import { arg } from "./arguments";
 import { assertPositive } from "./helper_assert";
@@ -258,7 +258,7 @@ export const CEILING = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value: Maybe<ValueAndFormat>) => value?.format,
+  computeFormat: (value: Maybe<FPayload>) => value?.format,
   compute: function (value: Maybe<CellValue>, factor: Maybe<CellValue> = DEFAULT_FACTOR): number {
     const _value = toNumber(value, this.locale);
     const _factor = toNumber(factor, this.locale);
@@ -299,7 +299,7 @@ export const CEILING_MATH = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (number: Maybe<ValueAndFormat>) => number?.format,
+  computeFormat: (number: Maybe<FPayload>) => number?.format,
   compute: function (
     number: Maybe<CellValue>,
     significance: Maybe<CellValue> = DEFAULT_SIGNIFICANCE,
@@ -342,7 +342,7 @@ export const CEILING_PRECISE = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (number: Maybe<ValueAndFormat>) => number?.format,
+  computeFormat: (number: Maybe<FPayload>) => number?.format,
   compute: function (number: Maybe<CellValue>, significance: Maybe<CellValue>): number {
     return CEILING_MATH.compute.bind(this)(number, significance, 0);
   },
@@ -686,7 +686,7 @@ export const FLOOR = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value: Maybe<ValueAndFormat>) => value?.format,
+  computeFormat: (value: Maybe<FPayload>) => value?.format,
   compute: function (value: Maybe<CellValue>, factor: Maybe<CellValue> = DEFAULT_FACTOR): number {
     const _value = toNumber(value, this.locale);
     const _factor = toNumber(factor, this.locale);
@@ -727,7 +727,7 @@ export const FLOOR_MATH = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (number: Maybe<ValueAndFormat>) => number?.format,
+  computeFormat: (number: Maybe<FPayload>) => number?.format,
   compute: function (
     number: Maybe<CellValue>,
     significance: Maybe<CellValue> = DEFAULT_SIGNIFICANCE,
@@ -769,7 +769,7 @@ export const FLOOR_PRECISE = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (number: Maybe<ValueAndFormat>) => number?.format,
+  computeFormat: (number: Maybe<FPayload>) => number?.format,
   compute: function (
     number: Maybe<CellValue>,
     significance: Maybe<CellValue> = DEFAULT_SIGNIFICANCE
@@ -810,7 +810,7 @@ export const ISO_CEILING = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (number: Maybe<ValueAndFormat>) => number?.format,
+  computeFormat: (number: Maybe<FPayload>) => number?.format,
   compute: function (
     number: Maybe<CellValue>,
     significance: Maybe<CellValue> = DEFAULT_SIGNIFICANCE
@@ -860,7 +860,7 @@ export const MOD = {
     arg("divisor (number)", _t("The number to divide by.")),
   ],
   returns: ["NUMBER"],
-  computeFormat: (dividend: Maybe<ValueAndFormat>) => dividend?.format,
+  computeFormat: (dividend: Maybe<FPayload>) => dividend?.format,
   compute: function (dividend: Maybe<CellValue>, divisor: Maybe<CellValue>): number {
     const _divisor = toNumber(divisor, this.locale);
 
@@ -904,7 +904,7 @@ export const ODD = {
   description: _t("Rounds a number up to the nearest odd integer."),
   args: [arg("value (number)", _t("The value to round to the next greatest odd number."))],
   returns: ["NUMBER"],
-  computeFormat: (number: Maybe<ValueAndFormat>) => number?.format,
+  computeFormat: (number: Maybe<FPayload>) => number?.format,
   compute: function (value: Maybe<CellValue>): number {
     const _value = toNumber(value, this.locale);
 
@@ -938,7 +938,7 @@ export const POWER = {
     arg("exponent (number)", _t("The exponent to raise base to.")),
   ],
   returns: ["NUMBER"],
-  computeFormat: (base: Maybe<ValueAndFormat>) => base?.format,
+  computeFormat: (base: Maybe<FPayload>) => base?.format,
   compute: function (base: Maybe<CellValue>, exponent: Maybe<CellValue>): number {
     const _base = toNumber(base, this.locale);
     const _exponent = toNumber(exponent, this.locale);
@@ -1085,7 +1085,7 @@ export const RANDBETWEEN = {
     arg("high (number)", _t("The high end of the random range.")),
   ],
   returns: ["NUMBER"],
-  computeFormat: (low: Maybe<ValueAndFormat>) => low?.format,
+  computeFormat: (low: Maybe<FPayload>) => low?.format,
   compute: function (low: Maybe<CellValue>, high: Maybe<CellValue>): number {
     let _low = toNumber(low, this.locale);
     if (!Number.isInteger(_low)) {
@@ -1123,7 +1123,7 @@ export const ROUND = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value: Maybe<ValueAndFormat>) => value?.format,
+  computeFormat: (value: Maybe<FPayload>) => value?.format,
   compute: function (value: Maybe<CellValue>, places: Maybe<CellValue> = DEFAULT_PLACES): number {
     const _value = toNumber(value, this.locale);
     let _places = toNumber(places, this.locale);
@@ -1159,7 +1159,7 @@ export const ROUNDDOWN = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value: Maybe<ValueAndFormat>) => value?.format,
+  computeFormat: (value: Maybe<FPayload>) => value?.format,
   compute: function (value: Maybe<CellValue>, places: Maybe<CellValue> = DEFAULT_PLACES): number {
     const _value = toNumber(value, this.locale);
     let _places = toNumber(places, this.locale);
@@ -1192,7 +1192,7 @@ export const ROUNDUP = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value: Maybe<ValueAndFormat>) => value?.format,
+  computeFormat: (value: Maybe<FPayload>) => value?.format,
   compute: function (value: Maybe<CellValue>, places: Maybe<CellValue> = DEFAULT_PLACES): number {
     const _value = toNumber(value, this.locale);
     let _places = toNumber(places, this.locale);
@@ -1271,7 +1271,7 @@ export const SQRT = {
   description: _t("Positive square root of a positive number."),
   args: [arg("value (number)", _t("The number for which to calculate the positive square root."))],
   returns: ["NUMBER"],
-  computeFormat: (value: Maybe<ValueAndFormat>) => value?.format,
+  computeFormat: (value: Maybe<FPayload>) => value?.format,
   compute: function (value: Maybe<CellValue>): number {
     const _value = toNumber(value, this.locale);
     assert(() => _value >= 0, _t("The value (%s) must be positive or null.", _value.toString()));
@@ -1410,7 +1410,7 @@ export const TRUNC = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value: Maybe<ValueAndFormat>) => value?.format,
+  computeFormat: (value: Maybe<FPayload>) => value?.format,
   compute: function (value: Maybe<CellValue>, places: Maybe<CellValue> = DEFAULT_PLACES): number {
     const _value = toNumber(value, this.locale);
     let _places = toNumber(places, this.locale);

@@ -10,7 +10,7 @@ import {
   FunctionDescription,
   isMatrix,
   Matrix,
-  ValueAndFormat,
+  FPayload,
 } from "../types";
 import { CellErrorType, EvaluationError } from "../types/errors";
 import { addMetaInfoFromArg, validateArguments } from "./arguments";
@@ -60,7 +60,7 @@ const functionNameRegex = /^[A-Z0-9\_\.]+$/;
 //------------------------------------------------------------------------------
 class FunctionRegistry extends Registry<FunctionDescription> {
   mapping: {
-    [key: string]: ComputeFunction<Arg, Matrix<ValueAndFormat> | ValueAndFormat>;
+    [key: string]: ComputeFunction<Arg, Matrix<FPayload> | FPayload>;
   } = {};
 
   add(name: string, addDescr: AddFunctionDescription) {
@@ -83,7 +83,7 @@ class FunctionRegistry extends Registry<FunctionDescription> {
 
 function createComputeFunctionFromDescription(
   descr: FunctionDescription
-): ComputeFunction<Arg, Matrix<ValueAndFormat> | ValueAndFormat> {
+): ComputeFunction<Arg, Matrix<FPayload> | FPayload> {
   const computeValueAndFormat = "computeValueAndFormat" in descr;
   const computeValue = "compute" in descr;
   const computeFormat = "computeFormat" in descr;
@@ -109,13 +109,13 @@ function createComputeFunctionFromDescription(
 }
 
 function addErrorHandling(
-  computeValueAndFormat: ComputeFunction<Arg, Matrix<ValueAndFormat> | ValueAndFormat>,
+  computeValueAndFormat: ComputeFunction<Arg, Matrix<FPayload> | FPayload>,
   functionName: string
-): ComputeFunction<Arg, Matrix<ValueAndFormat> | ValueAndFormat> {
+): ComputeFunction<Arg, Matrix<FPayload> | FPayload> {
   return function (
     this: EvalContext,
     ...args: ComputeFunctionArg<Arg>[]
-  ): Matrix<ValueAndFormat> | ValueAndFormat {
+  ): Matrix<FPayload> | FPayload {
     try {
       const computeFormula = computeValueAndFormat.bind(this);
       return computeFormula(...args);
@@ -125,7 +125,7 @@ function addErrorHandling(
   };
 }
 
-function handleError(e: Error | any, functionName: string): ValueAndFormat {
+function handleError(e: Error | any, functionName: string): FPayload {
   if (!(e instanceof EvaluationError)) {
     e = new EvaluationError(e.message, CellErrorType.GenericError);
   }
@@ -137,7 +137,7 @@ function buildComputeFunctionFromDescription(descr) {
   return function (
     this: EvalContext,
     ...args: ComputeFunctionArg<Arg>[]
-  ): Matrix<ValueAndFormat> | ValueAndFormat {
+  ): Matrix<FPayload> | FPayload {
     const computeValue = descr.compute.bind(this);
     const computeFormat = descr.computeFormat?.bind(this) || (() => undefined);
     const value = computeValue(...extractArgValuesFromArgs(args));
