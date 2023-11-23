@@ -9,7 +9,7 @@ import {
   DEFAULT_LOCALE,
   Format,
   Maybe,
-  ValueAndFormat,
+  FPayload,
 } from "../../src/types";
 import {
   BadExpressionError,
@@ -138,7 +138,7 @@ describe("functions", () => {
     const model = new Model();
     functionRegistry.add("RETURN.FORMAT.DEPENDING.ON.INPUT.FORMAT", {
       description: "return format depending on input format",
-      computeFormat: function (arg: Maybe<ValueAndFormat>) {
+      computeFormat: function (arg: Maybe<FPayload>) {
         return arg?.format;
       } as ComputeFunction<Arg, Format | undefined>,
       compute: function (arg: Maybe<CellValue>) {
@@ -161,7 +161,7 @@ describe("functions", () => {
     const model = new Model();
     functionRegistry.add("RETURN.FORMAT.DEPENDING.ON.INPUT.VALUE", {
       description: "return format depending on input value",
-      computeFormat: function (arg: Maybe<ValueAndFormat>) {
+      computeFormat: function (arg: Maybe<FPayload>) {
         return toNumber(arg?.value, DEFAULT_LOCALE) >= 0 ? "0%" : "#,##0.00";
       } as ComputeFunction<Arg, Format | undefined>,
       compute: function (arg: Maybe<CellValue>) {
