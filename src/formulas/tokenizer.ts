@@ -68,7 +68,7 @@ export function tokenize(str: string, locale = DEFAULT_LOCALE): Token[] {
 }
 
 function tokenizeDebugger(chars: TokenizingChars): Token | null {
-  if (chars.current() === "?") {
+  if (chars.current === "?") {
     chars.shift();
     return { type: "DEBUGGER", value: "?" };
   }
@@ -81,7 +81,7 @@ const misc = {
 } as const;
 
 function tokenizeMisc(chars: TokenizingChars): Token | null {
-  if (chars.current() in misc) {
+  if (chars.current in misc) {
     const value = chars.shift();
     const type = misc[value];
     return { type, value };
@@ -91,7 +91,7 @@ function tokenizeMisc(chars: TokenizingChars): Token | null {
 }
 
 function tokenizeArgsSeparator(chars: TokenizingChars, locale: Locale): Token | null {
-  if (chars.current() === locale.formulaArgSeparator) {
+  if (chars.current === locale.formulaArgSeparator) {
     const value = chars.shift();
     const type = "ARG_SEPARATOR";
     return { type, value };
@@ -120,16 +120,13 @@ function tokenizeNumber(chars: TokenizingChars, locale: Locale): Token | null {
 }
 
 function tokenizeString(chars: TokenizingChars): Token | null {
-  if (chars.current() === '"') {
+  if (chars.current === '"') {
     const startChar = chars.shift();
     let letters: string = startChar;
-    while (
-      chars.current() &&
-      (chars.current() !== startChar || letters[letters.length - 1] === "\\")
-    ) {
+    while (chars.current && (chars.current !== startChar || letters[letters.length - 1] === "\\")) {
       letters += chars.shift();
     }
-    if (chars.current() === '"') {
+    if (chars.current === '"') {
       letters += chars.shift();
     }
     return {
@@ -158,14 +155,14 @@ function tokenizeSymbol(chars: TokenizingChars): Token | null {
   let result: string = "";
   // there are two main cases to manage: either something which starts with
   // a ', like 'Sheet 2'A2, or a word-like element.
-  if (chars.current() === "'") {
+  if (chars.current === "'") {
     let lastChar = chars.shift();
     result += lastChar;
-    while (chars.current()) {
+    while (chars.current) {
       lastChar = chars.shift();
       result += lastChar;
       if (lastChar === "'") {
-        if (chars.current() && chars.current() === "'") {
+        if (chars.current && chars.current === "'") {
           lastChar = chars.shift();
           result += lastChar;
         } else {
@@ -181,7 +178,7 @@ function tokenizeSymbol(chars: TokenizingChars): Token | null {
       };
     }
   }
-  while (chars.current() && separatorRegexp.test(chars.current())) {
+  while (chars.current && separatorRegexp.test(chars.current)) {
     result += chars.shift();
   }
   if (result.length) {
@@ -197,7 +194,7 @@ function tokenizeSymbol(chars: TokenizingChars): Token | null {
 
 function tokenizeSpace(chars: TokenizingChars): Token | null {
   let length = 0;
-  while (chars.current() === NEWLINE) {
+  while (chars.current === NEWLINE) {
     length++;
     chars.shift();
   }
@@ -205,7 +202,7 @@ function tokenizeSpace(chars: TokenizingChars): Token | null {
     return { type: "SPACE", value: NEWLINE.repeat(length) };
   }
 
-  while (chars.current() === " ") {
+  while (chars.current === " ") {
     length++;
     chars.shift();
   }
@@ -227,21 +224,23 @@ function tokenizeInvalidRange(chars: TokenizingChars): Token | null {
 class TokenizingChars {
   private text: string;
   private currentIndex: number = 0;
+  current: string;
 
   constructor(text: string) {
     this.text = text;
-  }
-
-  current() {
-    return this.text[this.currentIndex];
+    this.current = text[0];
   }
 
   shift() {
-    return this.text[this.currentIndex++];
+    const current = this.current;
+    const next = this.text[++this.currentIndex];
+    this.current = next;
+    return current;
   }
 
   advanceBy(length: number) {
     this.currentIndex += length;
+    this.current = this.text[this.currentIndex];
   }
 
   isOver() {
