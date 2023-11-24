@@ -180,7 +180,7 @@ describe("UI Helpers", () => {
       copy(model, "A1");
       const env = makeTestEnv({ model });
       interactivePaste(env, target("B1"), "onlyFormat");
-      interactivePaste(env, target("B2"), "onlyValue");
+      interactivePaste(env, target("B2"), "asValue");
       interactivePaste(env, target("B3"));
 
       expect(getCellText(model, "B1")).toBe("");

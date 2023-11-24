@@ -37,7 +37,7 @@ export function setStyle(env: SpreadsheetChildEnv, style: Style) {
 //------------------------------------------------------------------------------
 
 export const PASTE_ACTION = async (env: SpreadsheetChildEnv) => paste(env);
-export const PASTE_VALUE_ACTION = async (env: SpreadsheetChildEnv) => paste(env, "onlyValue");
+export const PASTE_AS_VALUE_ACTION = async (env: SpreadsheetChildEnv) => paste(env, "asValue");
 
 async function paste(env: SpreadsheetChildEnv, pasteOption?: ClipboardPasteOptions) {
   const spreadsheetClipboard = env.model.getters.getClipboardTextContent();
@@ -51,7 +51,7 @@ async function paste(env: SpreadsheetChildEnv, pasteOption?: ClipboardPasteOptio
       } else {
         interactivePaste(env, target, pasteOption);
       }
-      if (env.model.getters.isCutOperation() && pasteOption !== "onlyValue") {
+      if (env.model.getters.isCutOperation() && pasteOption !== "asValue") {
         await env.clipboard.write({ [ClipboardMIMEType.PlainText]: "" });
       }
       break;

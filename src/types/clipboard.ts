@@ -14,7 +14,7 @@ export interface ClipboardOptions {
   shouldPasteCF?: boolean;
   selectTarget?: boolean;
 }
-export type ClipboardPasteOptions = "onlyFormat" | "onlyValue";
+export type ClipboardPasteOptions = "onlyFormat" | "asValue";
 export type ClipboardOperation = "CUT" | "COPY";
 
 export interface ClipboardState {

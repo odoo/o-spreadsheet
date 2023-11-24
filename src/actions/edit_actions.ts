@@ -60,9 +60,9 @@ export const pasteSpecial: ActionSpec = {
 };
 
 export const pasteSpecialValue: ActionSpec = {
-  name: _t("Paste value only"),
+  name: _t("Paste as value"),
   description: "Ctrl+Shift+V",
-  execute: ACTIONS.PASTE_VALUE_ACTION,
+  execute: ACTIONS.PASTE_AS_VALUE_ACTION,
 };
 
 export const pasteSpecialFormat: ActionSpec = {

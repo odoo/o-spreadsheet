@@ -678,7 +678,7 @@ describe("Filters plugin", () => {
       expect(getFilterTable(model, "D3")).toBeFalsy();
     });
 
-    test.each(["onlyFormat", "onlyValue"] as ClipboardPasteOptions[])(
+    test.each(["onlyFormat", "asValue"] as ClipboardPasteOptions[])(
       "Special paste %s don't paste filter tables",
       (pasteOption: ClipboardPasteOptions) => {
         createFilter(model, "A1:B4");

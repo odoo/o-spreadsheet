@@ -135,7 +135,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
   isPasteAllowed(target: Zone[], clipboardOption?: ClipboardOptions): CommandResult {
     const sheetId = this.getters.getActiveSheetId();
     if (this.operation === "CUT" && clipboardOption?.pasteOption !== undefined) {
-      // cannot paste only format or only value if the previous operation is a CUT
+      // cannot paste only format or as value if the previous operation is a CUT
       return CommandResult.WrongPasteOption;
     }
     if (target.length > 1) {
@@ -339,7 +339,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
     // or "DELETE_CELL". So, the state should be the local state
 
     const shouldPasteCF =
-      clipboardOptions?.pasteOption !== "onlyValue" && clipboardOptions?.shouldPasteCF;
+      clipboardOptions?.pasteOption !== "asValue" && clipboardOptions?.shouldPasteCF;
     const shouldPasteDV = !clipboardOptions?.pasteOption;
 
     const sheetId = this.getters.getActiveSheetId();
@@ -382,11 +382,12 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
   ) {
     const { sheetId, col, row } = target;
     const targetCell = this.getters.getEvaluatedCell(target);
+    const originFormat = origin.cell?.format ?? origin.evaluatedCell.format;
 
-    if (clipboardOption?.pasteOption === "onlyValue") {
+    if (clipboardOption?.pasteOption === "asValue") {
       const locale = this.getters.getLocale();
       const content = formatValue(origin.evaluatedCell.value, { locale });
-      this.dispatch("UPDATE_CELL", { ...target, content });
+      this.dispatch("UPDATE_CELL", { ...target, content, format: originFormat });
       return;
     }
 
@@ -404,7 +405,7 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
       this.dispatch("UPDATE_CELL", {
         ...target,
         style: origin.cell?.style ?? null,
-        format: origin.cell?.format ?? origin.evaluatedCell.format ?? targetCell.format,
+        format: originFormat ?? targetCell.format,
       });
       return;
     }
