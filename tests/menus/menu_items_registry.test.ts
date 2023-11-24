@@ -212,7 +212,7 @@ describe("Menu Item actions", () => {
     await doAction(["edit", "paste_special", "paste_special_value"], env);
     expect(dispatch).toHaveBeenCalledWith("PASTE", {
       target: env.model.getters.getSelectedZones(),
-      pasteOption: "onlyValue",
+      pasteOption: "asValue",
     });
   });
 
@@ -223,7 +223,7 @@ describe("Menu Item actions", () => {
     expect(dispatch).toHaveBeenCalledWith("PASTE_FROM_OS_CLIPBOARD", {
       target: target("A1"),
       text,
-      pasteOption: "onlyValue",
+      pasteOption: "asValue",
     });
   });
 

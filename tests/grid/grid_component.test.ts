@@ -1453,7 +1453,7 @@ describe("Copy paste keyboard shortcut", () => {
     expect(getCellContent(model, "B2")).toEqual("1");
   });
 
-  test("can paste value only with CTRL+SHIFT+V", async () => {
+  test("can paste as value with CTRL+SHIFT+V", async () => {
     const content = "things";
     setCellContent(model, "A1", content);
     model.dispatch("SET_FORMATTING", {
@@ -1465,7 +1465,7 @@ describe("Copy paste keyboard shortcut", () => {
     document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
     // Fake OS clipboard should have the same content
     // to make paste come from spreadsheet clipboard
-    // which support paste values only
+    // which support paste as values
     parent.env.clipboard.writeText(content);
     selectCell(model, "A2");
     document.activeElement!.dispatchEvent(
