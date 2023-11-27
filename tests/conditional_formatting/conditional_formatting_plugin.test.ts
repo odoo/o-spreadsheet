@@ -11,6 +11,7 @@ import {
   deleteRows,
   redo,
   setCellContent,
+  setFormat,
   setStyle,
   undo,
   updateLocale,
@@ -20,6 +21,7 @@ import { getStyle } from "../test_helpers/getters_helpers";
 import {
   createColorScale,
   createEqualCF,
+  target,
   toCellPosition,
   toRangesData,
 } from "../test_helpers/helpers";
@@ -393,6 +395,20 @@ describe("conditional format", () => {
     setCellContent(model, "A1", "1");
     expect(getStyle(model, "A1")).toEqual({});
     setCellContent(model, "A1", "=A2");
+    expect(getStyle(model, "A1")).toEqual({
+      fillColor: "#FF0000",
+    });
+  });
+
+  test("works after format update that updates a value", () => {
+    setCellContent(model, "A1", '=CELL("format", A2)');
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("mm/dd/yyyy", { fillColor: "#FF0000" }, "1"),
+      ranges: toRangesData(sheetId, "A1"),
+      sheetId,
+    });
+    expect(getStyle(model, "A1")).toEqual({});
+    setFormat(model, "mm/dd/yyyy", target("A2"));
     expect(getStyle(model, "A1")).toEqual({
       fillColor: "#FF0000",
     });

@@ -44,7 +44,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
   handle(cmd: CoreViewCommand) {
     if (
       invalidateCFEvaluationCommands.has(cmd.type) ||
-      (cmd.type === "UPDATE_CELL" && "content" in cmd)
+      (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd))
     ) {
       this.isStale = true;
     }

@@ -52,7 +52,7 @@ export class EvaluationDataValidationPlugin extends UIPlugin {
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
       cmd.type === "EVALUATE_CELLS" ||
-      (cmd.type === "UPDATE_CELL" && "content" in cmd)
+      (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd))
     ) {
       this.validationResults = {};
       return;
