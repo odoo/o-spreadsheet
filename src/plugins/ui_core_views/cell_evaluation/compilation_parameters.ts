@@ -17,7 +17,7 @@ import {
   Range,
   ReferenceDenormalizer,
 } from "../../../types";
-import { InvalidReferenceError } from "../../../types/errors";
+import { EvaluationError, InvalidReferenceError } from "../../../types/errors";
 
 export type CompilationParameters = [ReferenceDenormalizer, EnsureRange, EvalContext];
 const functionMap = functionRegistry.mapping;
@@ -40,7 +40,7 @@ export function buildCompilationParameters(
 class CompilationParametersBuilder {
   evalContext: EvalContext;
 
-  private rangeCache: Record<string, MatrixArg> = {};
+  private rangeCache: Record<string, MatrixArg | EvaluationError> = {};
 
   constructor(
     context: ModelConfig["custom"],
@@ -111,24 +111,19 @@ class CompilationParametersBuilder {
     if (evaluatedCell === undefined) {
       return { value: null, format: this.getters.getCell(position)?.format };
     }
+    if (evaluatedCell.type === CellValueType.error) {
+      throw evaluatedCell.error;
+    }
     return evaluatedCell;
   }
 
   private getEvaluatedCellIfNotEmpty(position: CellPosition): EvaluatedCell | undefined {
-    const evaluatedCell = this.getEvaluatedCell(position);
+    const evaluatedCell = this.computeCell(position);
     if (evaluatedCell.type === CellValueType.empty) {
       const cell = this.getters.getCell(position);
       if (!cell || (!cell.isFormula && cell.content === "")) {
         return undefined;
       }
-    }
-    return evaluatedCell;
-  }
-
-  private getEvaluatedCell(position: CellPosition): EvaluatedCell {
-    const evaluatedCell = this.computeCell(position);
-    if (evaluatedCell.type === CellValueType.error) {
-      throw evaluatedCell.error;
     }
     return evaluatedCell;
   }
@@ -156,7 +151,11 @@ class CompilationParametersBuilder {
     const { top, left, bottom, right } = zone;
     const cacheKey = `${sheetId}-${top}-${left}-${bottom}-${right}`;
     if (cacheKey in this.rangeCache) {
-      return this.rangeCache[cacheKey];
+      const result = this.rangeCache[cacheKey];
+      if (result instanceof EvaluationError) {
+        throw result;
+      }
+      return result;
     }
 
     const height = _zone.bottom - _zone.top + 1;
@@ -171,6 +170,10 @@ class CompilationParametersBuilder {
       format[colIndex] = new Array(height);
       for (let row = _zone.top; row <= _zone.bottom; row++) {
         const evaluatedCell = this.getEvaluatedCellIfNotEmpty({ sheetId, col, row });
+        if (evaluatedCell?.type === CellValueType.error) {
+          this.rangeCache[cacheKey] = evaluatedCell.error;
+          throw evaluatedCell.error;
+        }
         const rowIndex = row - _zone.top;
         value[colIndex][rowIndex] = evaluatedCell?.value;
         if (evaluatedCell?.format !== undefined) {
