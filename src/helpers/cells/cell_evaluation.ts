@@ -1,5 +1,5 @@
 import { DEFAULT_ERROR_MESSAGE } from "../../constants";
-import { toNumber } from "../../functions/helpers";
+import { toNumber, toString } from "../../functions/helpers";
 import {
   BooleanCell,
   CellValue,
@@ -11,6 +11,7 @@ import {
   Locale,
   LocaleFormat,
   NumberCell,
+  PLAIN_TEXT_FORMAT,
 } from "../../types";
 import { CellErrorType, EvaluationError } from "../../types/errors";
 import { isDateTime } from "../dates";
@@ -23,6 +24,9 @@ export function evaluateLiteral(
   content: string | undefined,
   localeFormat: LocaleFormat
 ): EvaluatedCell {
+  if (localeFormat.format === PLAIN_TEXT_FORMAT) {
+    return textCell(content || "", localeFormat);
+  }
   return createEvaluatedCell(parseLiteral(content || "", localeFormat.locale), localeFormat);
 }
 
@@ -62,6 +66,10 @@ export function createEvaluatedCell(
 
 function _createEvaluatedCell(value: CellValue | null, localeFormat: LocaleFormat): EvaluatedCell {
   try {
+    if (localeFormat.format === PLAIN_TEXT_FORMAT) {
+      return textCell(toString(value), localeFormat);
+    }
+
     for (const builder of builders) {
       const evaluateCell = builder(value, localeFormat);
       if (evaluateCell) {

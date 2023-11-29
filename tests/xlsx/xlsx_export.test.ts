@@ -3,7 +3,8 @@ import { buildSheetLink, toXC } from "../../src/helpers";
 import { createEmptyExcelWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
 import { BasePlugin } from "../../src/plugins/base_plugin";
-import { ExcelWorkbookData } from "../../src/types";
+import { ExcelWorkbookData, PLAIN_TEXT_FORMAT } from "../../src/types";
+import { XLSXExportXMLFile } from "../../src/types/xlsx";
 import { adaptFormulaToExcel } from "../../src/xlsx/functions/cells";
 import { escapeXml, parseXML } from "../../src/xlsx/helpers/xml_helpers";
 import {
@@ -15,9 +16,11 @@ import {
   createSheet,
   merge,
   setCellContent,
+  setFormat,
   updateFilter,
 } from "../test_helpers/commands_helpers";
 import { TEST_CHART_DATA } from "../test_helpers/constants";
+import { getCellContent } from "../test_helpers/getters_helpers";
 import { exportPrettifiedXlsx, mockChart, toRangesData } from "../test_helpers/helpers";
 
 function getExportedExcelData(model: Model): ExcelWorkbookData {
@@ -1349,6 +1352,19 @@ describe("Test XLSX export", () => {
       setCellContent(model, toXC(0, i), String.fromCharCode(i));
     }
     expect(() => exportPrettifiedXlsx(model)).not.toThrow();
+  });
+
+  test("Cells with plain text format are exported in the shared strings", async () => {
+    const model = new Model();
+    setFormat(model, "A1", PLAIN_TEXT_FORMAT);
+    setCellContent(model, "A1", "0006");
+
+    expect(getCellContent(model, "A1")).toEqual("0006");
+    const exportedXlsx = await exportPrettifiedXlsx(model);
+    const sharedStrings = exportedXlsx.files.find(
+      (file) => file.path === "xl/sharedStrings.xml"
+    ) as XLSXExportXMLFile;
+    expect(sharedStrings.content).toContain("0006");
   });
 });
 

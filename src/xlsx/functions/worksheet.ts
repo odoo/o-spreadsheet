@@ -9,7 +9,7 @@ import {
   toZone,
 } from "../../helpers";
 import { withHttps } from "../../helpers/links";
-import { ExcelSheetData, ExcelWorkbookData, HeaderData } from "../../types";
+import { ExcelSheetData, ExcelWorkbookData, HeaderData, PLAIN_TEXT_FORMAT } from "../../types";
 import { XLSXStructure, XMLAttributes, XMLString } from "../../types/xlsx";
 import { XLSX_RELATION_TYPE } from "../constants";
 import {
@@ -84,10 +84,11 @@ export function addRows(
           ({ attrs: additionalAttrs, node: cellNode } = addContent(label, construct.sharedStrings));
         } else if (cell.content && cell.content !== "") {
           const isTableHeader = isCellTableHeader(c, r, sheet);
+          const isPlainText = !!(cell.format && data.formats[cell.format] === PLAIN_TEXT_FORMAT);
           ({ attrs: additionalAttrs, node: cellNode } = addContent(
             cell.content,
             construct.sharedStrings,
-            isTableHeader
+            isTableHeader || isPlainText
           ));
         }
         attributes.push(...additionalAttrs);

@@ -6,7 +6,14 @@ import {
   markdownLink,
   toZone,
 } from "../../src/helpers";
-import { Border, CellIsRule, DEFAULT_LOCALE, IconSetRule, Style } from "../../src/types";
+import {
+  Border,
+  CellIsRule,
+  DEFAULT_LOCALE,
+  IconSetRule,
+  PLAIN_TEXT_FORMAT,
+  Style,
+} from "../../src/types";
 import { BarChartDefinition } from "../../src/types/chart/bar_chart";
 import { LineChartDefinition } from "../../src/types/chart/line_chart";
 import { PieChartDefinition } from "../../src/types/chart/pie_chart";
@@ -861,6 +868,7 @@ test.each([
   ["#,##0.00[$MM/DD/YYYY]", "#,##0.00[$MM/DD/YYYY]", "0.00MM/DD/YYYY"],
   ["[$₪-40D] #,##0.00", "[$₪] #,##0.00", "₪0.00"],
   ['"€"#,##0.00 "€"', undefined, "0"],
+  ["@", PLAIN_TEXT_FORMAT, "0"],
 ])("convert format %s", async (excelFormat, convertedFormat, expectedValue) => {
   expect(
     convertXlsxFormat(80, [{ id: 80, format: excelFormat }], new XLSXImportWarningManager())
