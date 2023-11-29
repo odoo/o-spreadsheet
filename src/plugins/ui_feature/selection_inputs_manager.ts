@@ -154,6 +154,9 @@ export class SelectionInputsManagerPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   private initInput(id: UID, initialRanges: string[], inputHasSingleRange: boolean = false) {
+    if (this.inputs[id]) {
+      this.unfocus();
+    }
     this.inputs[id] = new SelectionInputPlugin(this.config, initialRanges, inputHasSingleRange);
     if (initialRanges.length === 0) {
       const input = this.inputs[id];
