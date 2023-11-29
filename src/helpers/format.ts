@@ -1,5 +1,14 @@
+import { toString } from "../functions/helpers";
 import { _t } from "../translation";
-import { CellValue, Currency, Format, FormattedValue, Locale, LocaleFormat } from "../types";
+import {
+  CellValue,
+  Currency,
+  Format,
+  FormattedValue,
+  Locale,
+  LocaleFormat,
+  PLAIN_TEXT_FORMAT,
+} from "../types";
 import { DEFAULT_LOCALE } from "./../types/locale";
 import { INITIAL_1900_DAY, isDateTime, numberToJsDate, parseDateTime } from "./dates";
 import { escapeRegExp, memoize } from "./misc";
@@ -112,6 +121,9 @@ function parseFormat(formatString: Format): InternalFormat {
  * Formats a cell value with its format.
  */
 export function formatValue(value: CellValue, { format, locale }: LocaleFormat): FormattedValue {
+  if (format === PLAIN_TEXT_FORMAT) {
+    return toString(value) || "";
+  }
   switch (typeof value) {
     case "string":
       return value;

@@ -4,6 +4,7 @@ import {
   BorderStyle,
   ConditionalFormattingOperatorValues,
   ExcelChartType,
+  PLAIN_TEXT_FORMAT,
   ThresholdType,
   VerticalAlign,
 } from "../../types";
@@ -260,7 +261,7 @@ export const XLSX_FORMATS_CONVERSION_MAP: Record<number, string | undefined> = {
   46: "hhhh:mm:ss",
   47: "hhhh:mm:ss",
   48: undefined,
-  49: undefined,
+  49: PLAIN_TEXT_FORMAT,
 };
 
 /**

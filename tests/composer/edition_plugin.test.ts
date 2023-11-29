@@ -1167,6 +1167,21 @@ describe("edition", () => {
           jsDateToRoundNumber(new Date(2020, 0, 30)).toString()
         );
       });
+
+      test("Changing the locale after inputting a localized date does not change the date value", () => {
+        updateLocale(model, FR_LOCALE);
+        editCell(model, "A1", "30/01/2020");
+        expect(getCell(model, "A1")?.format).toBe("dd/mm/yyyy");
+        expect(getEvaluatedCell(model, "A1").value).toBe(
+          jsDateToRoundNumber(new Date(2020, 0, 30))
+        );
+
+        updateLocale(model, DEFAULT_LOCALE);
+        expect(getCell(model, "A1")?.format).toBe("m/d/yyyy");
+        expect(getEvaluatedCell(model, "A1").value).toBe(
+          jsDateToRoundNumber(new Date(2020, 0, 30))
+        );
+      });
     });
   });
 });

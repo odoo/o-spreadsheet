@@ -9,6 +9,10 @@ numberFormatMenuRegistry
   .add("format_number_automatic", {
     ...ACTION_FORMAT.formatNumberAutomatic,
     sequence: 10,
+  })
+  .add("format_number_plain_text", {
+    ...ACTION_FORMAT.formatNumberPlainText,
+    sequence: 15,
     separator: true,
   })
   .add("format_number_number", {
