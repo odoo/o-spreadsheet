@@ -62,7 +62,7 @@
         </label>
       </div>
       <div class="o-section o-use-row-as-headers" t-if="calculateHeaderPosition()">
-        <label>
+        <label class="o-checkbox">
           <input
             type="checkbox"
             t-att-checked="props.definition.dataSetsHaveTitle"
