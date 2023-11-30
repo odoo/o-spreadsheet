@@ -97,7 +97,7 @@ function getFormatMinDisplayUnit(format: LuxonFormat): TimeUnit {
     return "minute";
   } else if (format.includes("h") || format.includes("H")) {
     return "hour";
-  } else if (format.includes("D")) {
+  } else if (format.includes("d")) {
     return "day";
   } else if (format.includes("M")) {
     return "month";
