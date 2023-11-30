@@ -479,6 +479,22 @@ describe("Selection Input", () => {
     expect(model.getters.getSelectionInput(id)[0].xc).toBe("C2");
   });
 
+  test("Should allow range selection after invalid range in selection input", async () => {
+    const { env, model, fixture } = await mountSpreadsheet();
+    selectCell(model, "D1");
+    OPEN_CF_SIDEPANEL_ACTION(env);
+    await nextTick();
+    await simulateClick(".o-cf-add");
+    await nextTick();
+    let input = fixture.querySelector(".o-selection-input input") as HTMLInputElement;
+    input.value = "test";
+    input.dispatchEvent(new Event("input"));
+    await nextTick();
+    selectCell(model, "E5");
+    await nextTick();
+    expect(input.value).toBe("E5");
+  });
+
   describe("change highlight position in the grid", () => {
     test("change the associated range in the composer ", async () => {
       const { model, fixture } = await createSelectionInput({ initialRanges: ["B2"] });
