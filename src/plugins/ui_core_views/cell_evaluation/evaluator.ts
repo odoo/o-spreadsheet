@@ -20,6 +20,7 @@ import {
   PrimitiveFormat,
   Range,
   UID,
+  Zone,
 } from "../../../types";
 import { CellErrorType, CircularDependencyError, EvaluationError } from "../../../types/errors";
 import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
@@ -69,6 +70,24 @@ export class Evaluator {
 
   getEvaluatedPositions(): CellPosition[] {
     return [...this.evaluatedCells.keys()].map(this.decodePosition.bind(this));
+  }
+
+  getResultZone(position: CellPosition): Zone {
+    const arrayFormulaPositionId = this.encodePosition(position);
+    let top = position.row;
+    let bottom = position.row;
+    let left = position.col;
+    let right = position.col;
+    for (const positionId of this.spreadingRelations.getArrayResultPositionIds(
+      arrayFormulaPositionId
+    )) {
+      const position = this.decodePosition(positionId);
+      bottom = Math.max(bottom, position.row);
+      top = Math.min(top, position.row);
+      left = Math.min(left, position.col);
+      right = Math.max(right, position.col);
+    }
+    return { top, bottom, left, right };
   }
 
   private getArrayFormulaSpreadingOnId(positionId: PositionId): PositionId | undefined {

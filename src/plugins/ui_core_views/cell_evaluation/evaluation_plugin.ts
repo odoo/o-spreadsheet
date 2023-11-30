@@ -1,5 +1,5 @@
 import { compile, isExportableToExcel } from "../../../formulas/index";
-import { getItemId, positions, toXC } from "../../../helpers/index";
+import { getItemId, positions, toXC, toZone, zoneToXc } from "../../../helpers/index";
 import {
   CellPosition,
   CellValue,
@@ -266,12 +266,12 @@ export class EvaluationPlugin extends UIPlugin {
       let newContent: string | undefined = undefined;
       let newFormat: string | undefined = undefined;
       let isExported: boolean = true;
-
+      let resultSpanningCells: Zone = toZone(xc);
       const formulaCell = this.getCorrespondingFormulaCell(position);
       if (formulaCell) {
         isExported = isExportableToExcel(formulaCell.compiledFormula.tokens);
         isFormula = isExported;
-
+        resultSpanningCells = this.evaluator.getResultZone(position);
         if (!isExported) {
           newContent = value.toString();
           newFormat = evaluatedCell.format;
@@ -285,7 +285,15 @@ export class EvaluationPlugin extends UIPlugin {
         ? getItemId<Format>(newFormat, data.formats)
         : exportedCellData.format;
       const content = !isExported ? newContent : exportedCellData.content;
-      exportedSheetData.cells[xc] = { ...exportedCellData, value, isFormula, content, format };
+      // OpenXml §18.17.6.3
+      exportedSheetData.cells[xc] = {
+        ...exportedCellData,
+        value,
+        isFormula,
+        content,
+        format,
+        resultSpanningCells: zoneToXc(resultSpanningCells),
+      };
     }
   }
 

@@ -14650,7 +14650,7 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
         </row>
         <row r="168" ht="17.25" customHeight="1" hidden="0">
             <c r="A168" s="1">
-                <f>
+                <f t="array" ref="A168:B169">
                     RANDARRAY(2,2)
                 </f>
             </c>
@@ -17133,7 +17133,7 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
         </row>
         <row r="168" ht="17.25" customHeight="1" hidden="0">
             <c r="A168" s="1">
-                <f>
+                <f t="array" ref="A168:B169">
                     RANDARRAY(2,2)
                 </f>
             </c>
