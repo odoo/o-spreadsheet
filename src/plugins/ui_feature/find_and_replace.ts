@@ -108,7 +108,7 @@ export class FindAndReplacePlugin extends UIPlugin {
 
   finalize() {
     if (this.isSearchDirty) {
-      this.refreshSearch();
+      this.refreshSearch(false);
       this.isSearchDirty = false;
     }
   }
@@ -161,10 +161,10 @@ export class FindAndReplacePlugin extends UIPlugin {
   /**
    * refresh the matches according to the current search options
    */
-  private refreshSearch() {
+  private refreshSearch(jumpToMatchSheet = true) {
     this.selectedMatchIndex = null;
     this.findMatches();
-    this.selectNextCell(Direction.current);
+    this.selectNextCell(Direction.current, jumpToMatchSheet);
   }
 
   /**
@@ -258,7 +258,7 @@ export class FindAndReplacePlugin extends UIPlugin {
    * It is also used to keep coherence between the selected searchMatch
    * and selectedMatchIndex.
    */
-  private selectNextCell(indexChange: Direction) {
+  private selectNextCell(indexChange: Direction, jumpToMatchSheet = true) {
     const matches = this.searchMatches;
     if (!matches.length) {
       this.selectedMatchIndex = null;
@@ -284,7 +284,7 @@ export class FindAndReplacePlugin extends UIPlugin {
     const selectedMatch = matches[nextIndex];
 
     // Switch to the sheet where the match is located
-    if (this.getters.getActiveSheetId() !== selectedMatch.sheetId) {
+    if (jumpToMatchSheet && this.getters.getActiveSheetId() !== selectedMatch.sheetId) {
       this.dispatch("ACTIVATE_SHEET", {
         sheetIdFrom: this.getters.getActiveSheetId(),
         sheetIdTo: selectedMatch.sheetId,
