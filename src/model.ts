@@ -468,6 +468,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       h.finalize();
     }
     this.status = Status.Ready;
+    this.trigger("command-finalized");
   }
 
   /**
@@ -572,6 +573,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       }
       handler.handle(command);
     }
+    this.trigger("command-dispatched", command);
   }
 
   // ---------------------------------------------------------------------------
