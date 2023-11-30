@@ -198,10 +198,10 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for date char
           },
           "time": {
             "displayFormats": {
-              "month": "M/d/yyyy",
+              "day": "M/d/yyyy",
             },
             "parser": "M/d/yyyy",
-            "unit": "month",
+            "unit": "day",
           },
           "type": "time",
         },
