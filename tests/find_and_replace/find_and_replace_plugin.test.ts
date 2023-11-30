@@ -362,6 +362,17 @@ test("replace don't replace value resulting from array formula", () => {
   expect(getCellContent(model, "C1")).toBe("kikou");
 });
 
+test("Only change sheet on search related command", () => {
+  model = new Model();
+  setCellContent(model, "A1", "hello");
+  updateSearch(model, "hello");
+  createSheet(model, { sheetId: "sh2", activate: true });
+  expect(getMatches(model)).toHaveLength(1);
+  expect(getMatchIndex(model)).toStrictEqual(0);
+  setCellContent(model, "A1", "test");
+  expect(model.getters.getActiveSheetId()).toBe("sh2");
+});
+
 describe("next/previous cycle", () => {
   const sheetId1 = "s1";
   beforeEach(() => {
