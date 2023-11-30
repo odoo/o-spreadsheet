@@ -1,10 +1,6 @@
 import { ChartType, TooltipItem } from "chart.js";
 import { CommandResult, Model } from "../../../src";
-import { ChartTerms } from "../../../src/components/translations_terms";
-import { FIGURE_ID_SPLITTER } from "../../../src/constants";
 import { toZone, zoneToXc } from "../../../src/helpers";
-import { BarChart } from "../../../src/helpers/figures/charts";
-import { ChartPlugin } from "../../../src/plugins/core";
 import { ChartDefinition, UID } from "../../../src/types";
 import {
   BarChartDefinition,
@@ -28,12 +24,19 @@ import {
   selectCell,
   setCellContent,
   setCellFormat,
+  setFormat,
   undo,
   updateChart,
   updateLocale,
 } from "../../test_helpers/commands_helpers";
-import { FR_LOCALE } from "../../test_helpers/constants";
 import { getPlugin, mockChart, nextTick, target } from "../../test_helpers/helpers";
+
+import { ChartTerms } from "../../../src/components/translations_terms";
+import { FIGURE_ID_SPLITTER } from "../../../src/constants";
+import { BarChart } from "../../../src/helpers/figures/charts";
+import { ChartPlugin } from "../../../src/plugins/core";
+import { FR_LOCALE } from "../../test_helpers/constants";
+
 jest.mock("../../../src/helpers/uuid", () => require("../../__mocks__/uuid"));
 
 let model: Model;
@@ -1855,6 +1858,47 @@ describe("Linear/Time charts", () => {
     updateChart(model, chartId, { type: "bar" });
     model.getters.getChartRuntime(chartId)!;
     expect(chart.chartJsConfig.options?.scales?.x?.type).toEqual("time");
+  });
+
+  test("time axis: the axis unit are correct", () => {
+    createChart(
+      model,
+      {
+        type: "line",
+        dataSets: ["B2:B5"],
+        labelRange: "C2:C3",
+        labelsAsText: false,
+      },
+      chartId
+    );
+    setFormat(model, "mm/dd/yyyy", target("C2:C3"));
+    setCellContent(model, "C2", "1/1/2022");
+
+    setCellContent(model, "C3", "1/1/2025");
+    let chart = (model.getters.getChartRuntime(chartId) as any).chartJsConfig;
+    expect(chart.options!.scales!.x!.time!.unit).toEqual("year");
+
+    setCellContent(model, "C3", "5/1/2022");
+    chart = (model.getters.getChartRuntime(chartId) as any).chartJsConfig;
+    expect(chart.options!.scales!.x!.time!.unit).toEqual("month");
+
+    setCellContent(model, "C3", "1/10/2022");
+    chart = (model.getters.getChartRuntime(chartId) as any).chartJsConfig;
+    expect(chart.options!.scales!.x!.time!.unit).toEqual("day");
+
+    setFormat(model, "hh:mm:ss", target("C2:C3"));
+
+    setCellContent(model, "C3", "1/1/2022 00:00:15");
+    chart = (model.getters.getChartRuntime(chartId) as any).chartJsConfig;
+    expect(chart.options!.scales!.x!.time!.unit).toEqual("second");
+
+    setCellContent(model, "C3", "1/1/2022 00:15:00");
+    chart = (model.getters.getChartRuntime(chartId) as any).chartJsConfig;
+    expect(chart.options!.scales!.x!.time!.unit).toEqual("minute");
+
+    setCellContent(model, "C3", "1/1/2022 15:00:00");
+    chart = (model.getters.getChartRuntime(chartId) as any).chartJsConfig;
+    expect(chart.options!.scales!.x!.time!.unit).toEqual("hour");
   });
 
   test("date chart: empty label with a value is replaced by arbitrary label with no value", () => {
