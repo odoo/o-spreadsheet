@@ -5,22 +5,25 @@ import { LegendPosition, VerticalAxisPosition } from "./common_chart";
 import { GaugeChartDefinition, GaugeChartRuntime } from "./gauge_chart";
 import { LineChartDefinition, LineChartRuntime } from "./line_chart";
 import { PieChartDefinition, PieChartRuntime } from "./pie_chart";
+import { ScatterChartDefinition, ScatterChartRuntime } from "./scatter_chart";
 import { ScorecardChartDefinition, ScorecardChartRuntime } from "./scorecard_chart";
 
-export type ChartType = "line" | "bar" | "pie" | "scorecard" | "gauge";
+export type ChartType = "line" | "bar" | "pie" | "scorecard" | "gauge" | "scatter";
 
 export type ChartDefinition =
   | LineChartDefinition
   | PieChartDefinition
   | BarChartDefinition
   | ScorecardChartDefinition
-  | GaugeChartDefinition;
+  | GaugeChartDefinition
+  | ScatterChartDefinition;
 
 export type ChartJSRuntime =
   | LineChartRuntime
   | PieChartRuntime
   | BarChartRuntime
-  | GaugeChartRuntime;
+  | GaugeChartRuntime
+  | ScatterChartRuntime;
 
 export type ChartRuntime = ChartJSRuntime | ScorecardChartRuntime;
 

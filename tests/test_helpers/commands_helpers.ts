@@ -23,6 +23,7 @@ import { BarChartDefinition } from "../../src/types/chart/bar_chart";
 import { GaugeChartDefinition } from "../../src/types/chart/gauge_chart";
 import { LineChartDefinition } from "../../src/types/chart/line_chart";
 import { PieChartDefinition } from "../../src/types/chart/pie_chart";
+import { ScatterChartDefinition } from "../../src/types/chart/scatter_chart";
 import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart";
 import { Image } from "../../src/types/image";
 import { FigureSize } from "./../../src/types/figure";
@@ -130,7 +131,9 @@ export function createImage(
  */
 export function createChart(
   model: Model,
-  data: Partial<LineChartDefinition | BarChartDefinition | PieChartDefinition>,
+  data: Partial<
+    LineChartDefinition | BarChartDefinition | PieChartDefinition | ScatterChartDefinition
+  >,
   chartId?: UID,
   sheetId?: UID
 ) {

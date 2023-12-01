@@ -6,6 +6,7 @@ import { BarChart, createBarChartRuntime } from "../helpers/figures/charts/bar_c
 import { GaugeChart, createGaugeChartRuntime } from "../helpers/figures/charts/gauge_chart";
 import { LineChart, createLineChartRuntime } from "../helpers/figures/charts/line_chart";
 import { PieChart, createPieChartRuntime } from "../helpers/figures/charts/pie_chart";
+import { ScatterChart, createScatterChartRuntime } from "../helpers/figures/charts/scatter_chart";
 import {
   ScorecardChart,
   createScorecardChartRuntime,
@@ -32,6 +33,7 @@ import {
   ChartRuntime,
   ChartType,
 } from "../types/chart/chart";
+import { ScatterChartDefinition } from "../types/chart/scatter_chart";
 import { Validator } from "../types/validator";
 import { Registry } from "./registry";
 
@@ -147,10 +149,27 @@ chartRegistry.add("gauge", {
   name: _t("Gauge"),
   sequence: 50,
 });
+chartRegistry.add("scatter", {
+  match: (type) => type === "scatter",
+  createChart: (definition, sheetId, getters) =>
+    new ScatterChart(definition as ScatterChartDefinition, sheetId, getters),
+  getChartRuntime: createScatterChartRuntime,
+  validateChartDefinition: (validator, definition) =>
+    ScatterChart.validateChartDefinition(validator, definition as ScatterChartDefinition),
+  transformDefinition: (
+    definition: ScatterChartDefinition,
+    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
+  ) => ScatterChart.transformDefinition(definition, executed),
+  getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
+    ScatterChart.getDefinitionFromContextCreation(context),
+  name: _t("Scatter"),
+  sequence: 60,
+});
 
 export const chartComponentRegistry = new Registry<new (...args: any) => Component>();
 chartComponentRegistry.add("line", ChartJsComponent);
 chartComponentRegistry.add("bar", ChartJsComponent);
 chartComponentRegistry.add("pie", ChartJsComponent);
 chartComponentRegistry.add("gauge", ChartJsComponent);
+chartComponentRegistry.add("scatter", ChartJsComponent);
 chartComponentRegistry.add("scorecard", ScorecardChartComponent);

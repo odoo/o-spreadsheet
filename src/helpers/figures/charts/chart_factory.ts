@@ -23,7 +23,7 @@ import { CoreGetters, Getters } from "../../../types/getters";
 import { Validator } from "../../../types/validator";
 import { getZoneArea, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
-import { canChartParseLabels } from "./line_chart";
+import { canChartParseLabels } from "./chart_common_line_scatter";
 
 /**
  * Create a function used to create a Chart based on the definition

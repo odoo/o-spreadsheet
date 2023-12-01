@@ -261,6 +261,21 @@ export const demoData = {
             dataRange: "Sheet1!B29",
           },
         },
+        {
+          id: "6",
+          tag: "chart",
+          width: 500,
+          height: 300,
+          x: 100,
+          y: 850,
+          data: {
+            type: "scatter",
+            title: "Scatter",
+            labelRange: "Sheet1!B27:B35",
+            dataSets: ["Sheet1!C26:C35"],
+            dataSetsHaveTitle: true,
+          },
+        },
       ],
     },
     {
