@@ -82,6 +82,8 @@ css/* scss */ `
     *:before,
     *:after {
       box-sizing: content-box;
+      /** rtl not supported ATM */
+      direction: ltr;
     }
     .o-separator {
       border-bottom: ${MENU_SEPARATOR_BORDER_WIDTH}px solid ${SEPARATOR_COLOR};
