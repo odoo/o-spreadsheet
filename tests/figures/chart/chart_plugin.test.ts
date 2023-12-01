@@ -10,6 +10,7 @@ import {
   LineChartRuntime,
   PieChartRuntime,
 } from "../../../src/types/chart";
+import { ScatterChartRuntime } from "../../../src/types/chart/scatter_chart";
 import {
   activateSheet,
   addColumns,
@@ -1535,17 +1536,18 @@ describe("Chart design configuration", () => {
   });
 
   function getTooltipLabel(chart: ChartJSRuntime, datasetIndex: number, dataIndex: number): string {
+    const point =
+      chart.chartJsConfig.type === "pie"
+        ? (chart.chartJsConfig!.data!.datasets![datasetIndex].data![dataIndex] as number)
+        : {
+            x: 0,
+            y: chart.chartJsConfig!.data!.datasets![datasetIndex].data![dataIndex] as number,
+          };
     const tooltipItem: TooltipItem<ChartType> = {
       label: "",
       // @ts-ignore chart.js type is wrong
-      parsed:
-        // @ts-ignore
-        chart.type === "pie"
-          ? (chart.chartJsConfig!.data!.datasets![datasetIndex].data![dataIndex] as number)
-          : {
-              x: 0,
-              y: chart.chartJsConfig!.data!.datasets![datasetIndex].data![dataIndex] as number,
-            },
+      parsed: point,
+      raw: point,
       //@ts-ignore chartjs dataset type is wrong
       dataset: chart.chartJsConfig.data!.datasets[datasetIndex],
       datasetIndex,
@@ -1556,7 +1558,7 @@ describe("Chart design configuration", () => {
   }
 
   describe("Format of Y values at Runtime", () => {
-    test.each(["bar", "line"])(
+    test.each(["bar", "line", "scatter"])(
       "Bar/Line chart Y axis, cell without format: thousand separator",
       (chartType) => {
         createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
@@ -1568,7 +1570,7 @@ describe("Chart design configuration", () => {
       }
     );
 
-    test.each(["bar", "line"])(
+    test.each(["bar", "line", "scatter"])(
       "Bar/Line chart Y axis, cell without format: thousand separator is locale dependant",
       (chartType) => {
         updateLocale(model, FR_LOCALE);
@@ -1581,23 +1583,29 @@ describe("Chart design configuration", () => {
       }
     );
 
-    test.each(["bar", "line"])("Bar/Line chart Y axis, cell with format", (chartType) => {
-      setCellFormat(model, "A2", "[$$]#,##0.00");
-      createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
-      const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
-      //@ts-ignore
-      expect(runtime.chartJsConfig.options.scales.y?.ticks.callback!(60000000)).toEqual(
-        "$60,000,000.00"
-      );
-    });
+    test.each(["bar", "line", "scatter"])(
+      "Bar/Line chart Y axis, cell with format",
+      (chartType) => {
+        setCellFormat(model, "A2", "[$$]#,##0.00");
+        createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
+        const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
+        //@ts-ignore
+        expect(runtime.chartJsConfig.options.scales.y?.ticks.callback!(60000000)).toEqual(
+          "$60,000,000.00"
+        );
+      }
+    );
 
-    test.each(["bar", "line"])("Bar/Line chart Y axis, date format is ignored", (chartType) => {
-      setCellFormat(model, "A2", "m/d/yyyy");
-      createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
-      const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
-      //@ts-ignore
-      expect(runtime.chartJsConfig.options.scales.y?.ticks.callback!(600)).toEqual("600");
-    });
+    test.each(["bar", "line", "scatter"])(
+      "Bar/Line chart Y axis, date format is ignored",
+      (chartType) => {
+        setCellFormat(model, "A2", "m/d/yyyy");
+        createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
+        const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
+        //@ts-ignore
+        expect(runtime.chartJsConfig.options.scales.y?.ticks.callback!(600)).toEqual("600");
+      }
+    );
 
     test.each(["bar", "line"])(
       "Basic chart tooltip label, cell without format: thousand separator",
@@ -1669,6 +1677,28 @@ describe("Chart design configuration", () => {
       expect(label).toBe("P1: $6,000.00 (100.00%)");
     });
   });
+
+  test("scatter chart tooltip label", () => {
+    setCellContent(model, "A2", "5");
+    setCellFormat(model, "A2", "0%");
+    setCellContent(model, "B1", "Dataset 1");
+    setCellContent(model, "B2", "6000");
+    setCellFormat(model, "B2", "[$$]#,##0.00");
+    createChart(
+      model,
+      {
+        labelRange: "A2",
+        dataSets: ["B1:B2"],
+        type: "scatter",
+        dataSetsHaveTitle: true,
+      },
+      "1"
+    );
+    const chart = model.getters.getChartRuntime("1") as ScatterChartRuntime;
+    const label = getTooltipLabel(chart, 0, 0);
+
+    expect(label).toBe("Dataset 1: (500%, $6,000.00)");
+  });
 });
 
 describe("Chart aggregate labels", () => {
@@ -1728,18 +1758,21 @@ describe("Chart aggregate labels", () => {
     });
   });
 
-  test.each(["bar", "line", "pie"] as const)("One dataset: all data complete", (type) => {
-    createChart(aggregatedModel, aggregatedChart, "42");
-    updateChart(aggregatedModel, "42", { type });
-    let chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
-    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13, 14, 15, 16, 17]);
-    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4", "P1", "P2", "P3", "P4"]);
+  test.each(["bar", "line", "pie", "scatter"] as const)(
+    "One dataset: all data complete",
+    (type) => {
+      createChart(aggregatedModel, aggregatedChart, "42");
+      updateChart(aggregatedModel, "42", { type });
+      let chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+      expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13, 14, 15, 16, 17]);
+      expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4", "P1", "P2", "P3", "P4"]);
 
-    updateChart(aggregatedModel, "42", { aggregated: true });
-    chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
-    expect(chart.data!.datasets![0].data).toEqual([24, 26, 28, 30]);
-    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
-  });
+      updateChart(aggregatedModel, "42", { aggregated: true });
+      chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+      expect(chart.data!.datasets![0].data).toEqual([24, 26, 28, 30]);
+      expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
+    }
+  );
 
   test("Empty cells are ignored when aggregating data", () => {
     createChart(aggregatedModel, aggregatedChart, "42");
@@ -1771,24 +1804,27 @@ describe("Chart aggregate labels", () => {
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
   });
 
-  test.each(["bar", "line", "pie"] as const)("Multiple datasets: all data complete", (type) => {
-    aggregatedChart = {
-      ...aggregatedChart,
-      dataSets: ["B2:B9", "C2:C9"],
-    };
-    createChart(aggregatedModel, aggregatedChart, "42");
-    updateChart(aggregatedModel, "42", { type });
-    let chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
-    expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13, 14, 15, 16, 17]);
-    expect(chart.data!.datasets![1].data).toEqual([31, 32, 33, 34, 21, 22, 23, 24]);
-    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4", "P1", "P2", "P3", "P4"]);
+  test.each(["bar", "line", "pie", "scatter"] as const)(
+    "Multiple datasets: all data complete",
+    (type) => {
+      aggregatedChart = {
+        ...aggregatedChart,
+        dataSets: ["B2:B9", "C2:C9"],
+      };
+      createChart(aggregatedModel, aggregatedChart, "42");
+      updateChart(aggregatedModel, "42", { type });
+      let chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+      expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13, 14, 15, 16, 17]);
+      expect(chart.data!.datasets![1].data).toEqual([31, 32, 33, 34, 21, 22, 23, 24]);
+      expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4", "P1", "P2", "P3", "P4"]);
 
-    updateChart(aggregatedModel, "42", { aggregated: true });
-    chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
-    expect(chart.data!.datasets![0].data).toEqual([24, 26, 28, 30]);
-    expect(chart.data!.datasets![1].data).toEqual([52, 54, 56, 58]);
-    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
-  });
+      updateChart(aggregatedModel, "42", { aggregated: true });
+      chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+      expect(chart.data!.datasets![0].data).toEqual([24, 26, 28, 30]);
+      expect(chart.data!.datasets![1].data).toEqual([52, 54, 56, 58]);
+      expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
+    }
+  );
 });
 
 describe("Linear/Time charts", () => {

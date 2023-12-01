@@ -1,26 +1,24 @@
-import { LineChart } from "../../../../helpers/figures/charts";
 import { canChartParseLabels } from "../../../../helpers/figures/charts/chart_common_line_scatter";
+import { ScatterChart } from "../../../../helpers/figures/charts/scatter_chart";
 import { _t } from "../../../../translation";
 import { LineChartDefinition } from "../../../../types/chart";
 import { LineBarPieConfigPanel } from "../line_bar_pie_panel/config_panel";
 
-export class LineConfigPanel extends LineBarPieConfigPanel {
-  static template = "o-spreadsheet-LineConfigPanel";
+export class ScatterConfigPanel extends LineBarPieConfigPanel {
+  static template = "o-spreadsheet-ScatterConfigPanel";
 
   get canTreatLabelsAsText() {
     const chart = this.env.model.getters.getChart(this.props.figureId);
-    if (chart && chart instanceof LineChart) {
+    if (chart && chart instanceof ScatterChart) {
       return canChartParseLabels(chart.labelRange, this.env.model.getters);
     }
     return false;
   }
 
-  get stackedLabel(): string {
-    return _t("Stacked linechart");
-  }
-
-  get cumulativeLabel(): string {
-    return _t("Cumulative data");
+  onUpdateLabelsAsText(labelsAsText: boolean) {
+    this.props.updateChart(this.props.figureId, {
+      labelsAsText,
+    });
   }
 
   getLabelRangeOptions() {
@@ -34,29 +32,5 @@ export class LineConfigPanel extends LineBarPieConfigPanel {
       });
     }
     return options;
-  }
-
-  onUpdateLabelsAsText(labelsAsText: boolean) {
-    this.props.updateChart(this.props.figureId, {
-      labelsAsText,
-    });
-  }
-
-  onUpdateStacked(stacked: boolean) {
-    this.props.updateChart(this.props.figureId, {
-      stacked,
-    });
-  }
-
-  onUpdateAggregated(aggregated: boolean) {
-    this.props.updateChart(this.props.figureId, {
-      aggregated,
-    });
-  }
-
-  onUpdateCumulative(cumulative: boolean) {
-    this.props.updateChart(this.props.figureId, {
-      cumulative,
-    });
   }
 }
