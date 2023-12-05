@@ -3,6 +3,7 @@ import { BorderDescr, Color, Style } from "./types";
 export const CANVAS_SHIFT = 0.5;
 
 // Colors
+export const SECONDARY_COLOR = "#017E84";
 export const BACKGROUND_GRAY_COLOR = "#f5f5f5";
 export const BACKGROUND_HEADER_COLOR = "#F8F9FA";
 export const BACKGROUND_HEADER_SELECTED_COLOR = "#E8EAED";

@@ -1,8 +1,10 @@
-import { Component } from "@odoo/owl";
+import { Component, useRef } from "@odoo/owl";
+import { SECONDARY_COLOR } from "../../../../constants";
 import { colorNumberString } from "../../../../helpers";
 import { _t } from "../../../../translation";
-import { ConditionalFormat, SpreadsheetChildEnv } from "../../../../types";
+import { ConditionalFormat, Highlight, SpreadsheetChildEnv } from "../../../../types";
 import { cellStyleToCss, css, cssPropertiesToCss } from "../../../helpers";
+import { useHighlightsOnHover } from "../../../helpers/highlight_hook";
 import { ICONS } from "../../../icons/icons";
 import { CellIsOperators, CfTerms } from "../../../translations_terms";
 
@@ -79,6 +81,12 @@ export class ConditionalFormatPreview extends Component<Props, SpreadsheetChildE
 
   icons = ICONS;
 
+  private ref = useRef("cfPreview");
+
+  setup() {
+    useHighlightsOnHover(this.ref, this);
+  }
+
   getPreviewImageStyle(): string {
     const rule = this.props.conditionalFormat.rule;
     if (rule.type === "CellIsRule") {
@@ -123,6 +131,16 @@ export class ConditionalFormatPreview extends Component<Props, SpreadsheetChildE
 
   onMouseDown(event: MouseEvent) {
     this.props.onMouseDown(event);
+  }
+
+  get highlights(): Highlight[] {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    return this.props.conditionalFormat.ranges.map((range) => ({
+      sheetId,
+      zone: this.env.model.getters.getRangeFromSheetXC(sheetId, range).zone,
+      color: SECONDARY_COLOR,
+      noFill: true,
+    }));
   }
 }
 

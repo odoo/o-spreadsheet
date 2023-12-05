@@ -1,4 +1,4 @@
-import { useEffect } from "@odoo/owl";
+import { useEffect, useState } from "@odoo/owl";
 import { Ref } from "../../types";
 
 /**
@@ -20,4 +20,11 @@ export function useRefListener(
     },
     () => [ref.el]
   );
+}
+
+export function useHoveredElement(ref: Ref<HTMLElement>) {
+  const state = useState({ hovered: false });
+  useRefListener(ref, "mouseenter", () => (state.hovered = true));
+  useRefListener(ref, "mouseleave", () => (state.hovered = false));
+  return state;
 }

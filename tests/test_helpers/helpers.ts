@@ -29,6 +29,9 @@ import { topbarMenuRegistry } from "../../src/registries";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import { Registry } from "../../src/registries/registry";
 import { DependencyContainer } from "../../src/store_engine";
+import { ModelStore } from "../../src/stores";
+import { HighlightProvider, HighlightStore } from "../../src/stores/highlight_store";
+import { RendererStore } from "../../src/stores/renderer_store";
 import { _t } from "../../src/translation";
 import {
   CellPosition,
@@ -43,6 +46,7 @@ import {
   EvaluatedCell,
   Format,
   GridRenderingContext,
+  Highlight,
   Matrix,
   RENDERING_LAYERS,
   RangeData,
@@ -128,9 +132,11 @@ export function makeTestFixture() {
 }
 
 export function makeTestEnv(mockEnv: Partial<SpreadsheetChildEnv> = {}): SpreadsheetChildEnv {
+  const model = mockEnv.model || new Model();
   const container = new DependencyContainer();
+  container.inject(ModelStore, model);
   return {
-    model: mockEnv.model || new Model(),
+    model,
     isDashboard: mockEnv.isDashboard || (() => false),
     openSidePanel: mockEnv.openSidePanel || (() => {}),
     toggleSidePanel: mockEnv.toggleSidePanel || (() => {}),
@@ -798,4 +804,13 @@ export function drawGrid(model: Model, ctx: GridRenderingContext) {
   for (const layer of RENDERING_LAYERS) {
     model.drawGrid(ctx, layer);
   }
+}
+
+export function getHighlightsFromStore(env: SpreadsheetChildEnv): Highlight[] {
+  const rendererStore = env.getStore(RendererStore);
+  return (Object.values(rendererStore["renderers"]) as any)
+    .flat()
+    .filter((renderer) => renderer instanceof HighlightStore)
+    .flatMap((store: HighlightStore) => store["providers"])
+    .flatMap((getter: HighlightProvider) => getter.highlights);
 }
