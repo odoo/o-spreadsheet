@@ -33,6 +33,7 @@ import {
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Model } from "../../model";
 import { ComposerSelection } from "../../plugins/ui_stateful/edition";
+import { cellPopoverRegistry } from "../../registries/cell_popovers_registry";
 import { ModelStore, useStore, useStoreProvider } from "../../store_engine";
 import { SpreadFormulaHighlight } from "../../stores/spread_formula_highlight";
 import { _t } from "../../translation";
@@ -42,6 +43,7 @@ import { SpreadsheetDashboard } from "../dashboard/dashboard";
 import { Grid } from "../grid/grid";
 import { HeaderGroupContainer } from "../header_group/header_group_container";
 import { css, cssPropertiesToCss } from "../helpers/css";
+import { LinkCellPopoverBuilder, LinkEditorPopoverBuilder } from "../link";
 import { SidePanel } from "../side_panel/side_panel/side_panel";
 import { TopBar } from "../top_bar/top_bar";
 import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipboard_wrapper";
@@ -515,3 +517,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 Spreadsheet.props = {
   model: Object,
 };
+
+cellPopoverRegistry.add("LinkEditor", LinkEditorPopoverBuilder);
+cellPopoverRegistry.add("LinkCell", LinkCellPopoverBuilder);

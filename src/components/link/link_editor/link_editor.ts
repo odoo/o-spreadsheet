@@ -1,13 +1,12 @@
 import { Component, onMounted, useRef, useState } from "@odoo/owl";
-import { markdownLink } from "../../../helpers";
-import { detectLink, urlRepresentation } from "../../../helpers/links";
-import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { linkMenuRegistry } from "../../../registries/menus/link_menu_registry";
-import { DOMCoordinates, Link, Position, SpreadsheetChildEnv } from "../../../types";
+import { useLocalStore } from "../../../store_engine";
+import { DOMCoordinates, Position, SpreadsheetChildEnv } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { css } from "../../helpers/css";
 import { useAbsoluteBoundingRect } from "../../helpers/position_hook";
 import { Menu } from "../../menu/menu";
+import { LinkEditorStore } from "./link_editor_store";
 
 const MENU_OFFSET_X = 320;
 const MENU_OFFSET_Y = 100;
@@ -75,44 +74,22 @@ interface LinkEditorProps {
   onClosed?: () => void;
 }
 
-interface State {
-  label: string;
-  url: string;
-  isUrlEditable: boolean;
-}
-
 export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-LinkEditor";
   static components = { Menu };
   menuItems = linkMenuRegistry.getMenuItems();
-  private link: State = useState(this.defaultState);
   private menu = useState({
     isOpen: false,
   });
   private linkEditorRef = useRef("linkEditor");
   private position: DOMCoordinates = useAbsoluteBoundingRect(this.linkEditorRef);
   urlInput = useRef("urlInput");
+  store!: LinkEditorStore;
 
   setup() {
     onMounted(() => this.urlInput.el?.focus());
-  }
-
-  get defaultState(): State {
-    const { col, row } = this.props.cellPosition;
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    const cell = this.env.model.getters.getEvaluatedCell({ sheetId, col, row });
-    if (cell.link) {
-      return {
-        url: cell.link.url,
-        label: cell.formattedValue,
-        isUrlEditable: cell.link.isUrlEditable,
-      };
-    }
-    return {
-      label: cell.formattedValue,
-      url: "",
-      isUrlEditable: true,
-    };
+    // @ts-ignore
+    this.store = useLocalStore(LinkEditorStore, this.props.cellPosition, this.props.onClosed);
   }
 
   get menuPosition(): DOMCoordinates {
@@ -122,62 +99,8 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
     };
   }
 
-  onSpecialLink(ev: CustomEvent<string>) {
-    const { detail: markdownLink } = ev;
-    const link = detectLink(markdownLink);
-    if (!link) {
-      return;
-    }
-    this.link.url = link.url;
-    this.link.label = link.label;
-    this.link.isUrlEditable = link.isUrlEditable;
-  }
-
-  getUrlRepresentation(link: Link): string {
-    return urlRepresentation(link, this.env.model.getters);
-  }
-
   openMenu() {
     this.menu.isOpen = true;
-  }
-
-  removeLink() {
-    this.link.url = "";
-    this.link.isUrlEditable = true;
-  }
-
-  save() {
-    const { col, row } = this.props.cellPosition;
-    const locale = this.env.model.getters.getLocale();
-    const label = this.link.label
-      ? canonicalizeNumberContent(this.link.label, locale)
-      : this.link.url;
-    this.env.model.dispatch("UPDATE_CELL", {
-      col: col,
-      row: row,
-      sheetId: this.env.model.getters.getActiveSheetId(),
-      content: markdownLink(label, this.link.url),
-    });
-    this.props.onClosed?.();
-  }
-
-  cancel() {
-    this.props.onClosed?.();
-  }
-
-  onKeyDown(ev: KeyboardEvent) {
-    switch (ev.key) {
-      case "Enter":
-        if (this.link.url) {
-          this.save();
-        }
-        ev.stopPropagation();
-        break;
-      case "Escape":
-        this.cancel();
-        ev.stopPropagation();
-        break;
-    }
   }
 }
 

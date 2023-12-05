@@ -47,6 +47,7 @@ import {
   Format,
   GridRenderingContext,
   Highlight,
+  LAYERS,
   Matrix,
   RENDERING_LAYERS,
   RangeData,
@@ -807,7 +808,7 @@ export function drawGrid(model: Model, ctx: GridRenderingContext) {
 
 export function getHighlightsFromStore(env: SpreadsheetChildEnv): Highlight[] {
   const rendererStore = env.getStore(RenderersManagerStore);
-  return rendererStore["renderers"]
+  return rendererStore["renderers"][LAYERS.Highlights]
     .filter((renderer: RendererStore) => renderer instanceof HighlightStore)
     .flatMap((store: HighlightStore) => store["highlightGetters"])
     .flatMap((getter: HighlightGetter) => getter.getHighlights());

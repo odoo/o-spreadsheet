@@ -9,6 +9,10 @@ export interface HighlightGetter {
 export class HighlightStore extends RendererStore {
   private highlightGetters: HighlightGetter[] = [];
 
+  get layers(): LAYERS[] {
+    return [LAYERS.Highlights];
+  }
+
   register(highlightGetter: HighlightGetter) {
     this.highlightGetters.push(highlightGetter);
     this.triggerRender();
@@ -20,6 +24,7 @@ export class HighlightStore extends RendererStore {
   }
 
   dispose() {
+    super.dispose();
     this.highlightGetters = [];
     this.triggerRender();
   }
