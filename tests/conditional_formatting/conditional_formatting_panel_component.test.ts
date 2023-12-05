@@ -1,6 +1,7 @@
 import { Component, onMounted, onWillUnmount, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { ConditionalFormattingPanel } from "../../src/components/side_panel/conditional_formatting/conditional_formatting";
+import { SECONDARY_COLOR } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { ConditionalFormatPlugin } from "../../src/plugins/core/conditional_format";
 import { CellIsRule, CommandResult, SpreadsheetChildEnv, UID } from "../../src/types";
@@ -12,10 +13,17 @@ import {
   setSelection,
   updateLocale,
 } from "../test_helpers/commands_helpers";
-import { click, dragElement, keyDown, setInputValueAndTrigger } from "../test_helpers/dom_helper";
+import {
+  click,
+  dragElement,
+  keyDown,
+  setInputValueAndTrigger,
+  triggerMouseEvent,
+} from "../test_helpers/dom_helper";
 import {
   createColorScale,
   createEqualCF,
+  getHighlightsFromStore,
   getPlugin,
   mountComponent,
   mountSpreadsheet,
@@ -112,6 +120,7 @@ describe("UI of conditional formats", () => {
   let fixture: HTMLElement;
   let model: Model;
   let sheetId: UID;
+  let env: SpreadsheetChildEnv;
 
   mockGetBoundingClientRect({
     "o-cf-preview-container": (el: HTMLElement) => ({
@@ -128,7 +137,7 @@ describe("UI of conditional formats", () => {
   });
 
   beforeEach(async () => {
-    ({ model, fixture } = await mountComponent(Parent, {
+    ({ model, fixture, env } = await mountComponent(Parent, {
       props: { onCloseSidePanel: () => {} },
     }));
     sheetId = model.getters.getActiveSheetId();
@@ -193,6 +202,23 @@ describe("UI of conditional formats", () => {
       expect(previews[2].querySelector(selectors.description.ruletype.rule)!.textContent).toBe(
         "Is equal to 1,5"
       );
+    });
+
+    test("Ranges of hovered previews are highlighted", async () => {
+      expect(getHighlightsFromStore(env)).toEqual([]);
+      triggerMouseEvent(selectors.listPreview, "mouseenter");
+      expect(getHighlightsFromStore(env)).toMatchObject([
+        { zone: toZone("A1:A2"), color: SECONDARY_COLOR },
+      ]);
+      triggerMouseEvent(selectors.listPreview, "mouseleave");
+      expect(getHighlightsFromStore(env)).toEqual([]);
+    });
+
+    test("Highlights are removed when cf preview is unmounted", async () => {
+      triggerMouseEvent(selectors.listPreview, "mouseenter");
+      expect(getHighlightsFromStore(env)).not.toEqual([]);
+      await click(fixture.querySelectorAll(selectors.listPreview)[0]);
+      expect(getHighlightsFromStore(env)).toEqual([]);
     });
 
     test("can edit an existing CellIsRule", async () => {

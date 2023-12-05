@@ -16,8 +16,9 @@
             <div
               t-att-title="getName(menuItem)"
               t-att-data-name="menuItem.id"
-              t-on-click="(ev) => this.onClickMenu(menuItem, menuItem_index, ev)"
-              t-on-mouseover="(ev) => this.onMouseOver(menuItem, menuItem_index, ev)"
+              t-on-click="(ev) => this.onClickMenu(menuItem, ev)"
+              t-on-mouseenter="(ev) => this.onMouseEnter(menuItem, ev)"
+              t-on-mouseleave="(ev) => this.onMouseLeave(menuItem)"
               class="o-menu-item d-flex align-items-center"
               t-att-class="{ 'o-menu-root': isMenuRoot, 'disabled': !isMenuEnabled, 'o-menu-item-active': isParentMenu(subMenu, menuItem)}"
               t-att-style="getColor(menuItem)">

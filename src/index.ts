@@ -8,6 +8,7 @@ import { ChartFigure } from "./components/figures/figure_chart/figure_chart";
 import { Grid } from "./components/grid/grid";
 import { GridOverlay } from "./components/grid_overlay/grid_overlay";
 import { useDragAndDropListItems } from "./components/helpers/drag_and_drop_hook";
+import { useHighlights, useHighlightsOnHover } from "./components/helpers/highlight_hook";
 import { Menu } from "./components/menu/menu";
 import { SelectionInput } from "./components/selection_input/selection_input";
 import {
@@ -39,6 +40,7 @@ import {
   MIN_COL_WIDTH,
   MIN_ROW_HEIGHT,
   SCROLLBAR_WIDTH,
+  SECONDARY_COLOR,
   TOPBAR_HEIGHT,
 } from "./constants";
 import { isEvaluationError, toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
@@ -54,6 +56,7 @@ import {
   colorToRGBA,
   computeTextWidth,
   createCurrencyFormat,
+  deepEquals,
   formatValue,
   isDefined,
   isMarkdownLink,
@@ -61,6 +64,7 @@ import {
   lettersToNumber,
   markdownLink,
   numberToLetters,
+  overlap,
   parseMarkdownLink,
   positionToZone,
   rgbaToHex,
@@ -68,6 +72,7 @@ import {
   toUnboundedZone,
   toXC,
   toZone,
+  union,
 } from "./helpers/index";
 import { openLink, urlRegistry, urlRepresentation } from "./helpers/links";
 import {
@@ -96,7 +101,6 @@ import {
   numberFormatMenuRegistry,
   otRegistry,
   rowMenuRegistry,
-  sidePanelRegistry,
   topbarComponentRegistry,
   topbarMenuRegistry,
 } from "./registries/index";
@@ -105,6 +109,7 @@ import {
   repeatCommandTransformRegistry,
   repeatLocalCommandTransformRegistry,
 } from "./registries/repeat_commands_registry";
+import { sidePanelRegistry } from "./registries/side_panel_registry";
 import { AddFunctionDescription, isMatrix } from "./types";
 import { errorTypes } from "./types/errors";
 import { DEFAULT_LOCALE } from "./types/locale";
@@ -234,6 +239,9 @@ export const helpers = {
   createAction,
   createActions,
   transformRangeData,
+  deepEquals,
+  overlap,
+  union,
 };
 
 export const links = {
@@ -273,6 +281,8 @@ export const components = {
 
 export const hooks = {
   useDragAndDropListItems,
+  useHighlights,
+  useHighlightsOnHover,
 };
 
 export function addFunction(functionName: string, functionDescription: AddFunctionDescription) {
@@ -285,6 +295,7 @@ export function addFunction(functionName: string, functionDescription: AddFuncti
 
 export const constants = {
   DEFAULT_LOCALE,
+  SECONDARY_COLOR,
 };
 
 export type { EnrichedToken } from "./formulas/composer_tokenizer";
