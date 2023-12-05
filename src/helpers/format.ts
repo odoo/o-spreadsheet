@@ -457,7 +457,7 @@ function formatJSTime(jsDate: Date, format: Format): FormattedValue {
         switch (p) {
           case "hhhh":
             const helapsedHours = Math.floor(
-              (jsDate.getTime() - INITIAL_1900_DAY) / (60 * 60 * 1000)
+              (jsDate.getTime() - INITIAL_1900_DAY.getTime()) / (60 * 60 * 1000)
             );
             return helapsedHours.toString();
           case "hh":
