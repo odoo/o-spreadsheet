@@ -230,6 +230,7 @@ export interface Highlight {
   sheetId: UID;
   color: Color;
   noFill?: boolean;
+  thinLine?: boolean;
 }
 
 export interface PaneDivision {

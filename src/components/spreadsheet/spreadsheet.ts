@@ -33,7 +33,8 @@ import {
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Model } from "../../model";
 import { ComposerSelection } from "../../plugins/ui_stateful/edition";
-import { ModelStore, useStoreProvider } from "../../store_engine";
+import { ModelStore, useStore, useStoreProvider } from "../../store_engine";
+import { SpreadFormulaHighlight } from "../../stores/spread_formula_highlight";
 import { _t } from "../../translation";
 import { HeaderGroup, InformationNotification, Pixel, SpreadsheetChildEnv } from "../../types";
 import { BottomBar } from "../bottom_bar/bottom_bar";
@@ -340,6 +341,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       this.checkViewportSize();
     });
     stores.inject(ModelStore, this.model);
+    useStore(SpreadFormulaHighlight);
   }
 
   get focusTopBarComposer(): Omit<ComposerFocusType, "cellFocus"> {

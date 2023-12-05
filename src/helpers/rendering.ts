@@ -12,8 +12,14 @@ export function drawHighlight(
 
   const { ctx } = renderingContext;
   ctx.strokeStyle = highlight.color;
-  /** + 0.5 offset to have sharp lines. See comment in {@link RendererPlugin#drawBorders} for more details */
-  ctx.strokeRect(x + 0.5, y + 0.5, width, height);
+  if (highlight.thinLine) {
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x, y, width, height);
+  } else {
+    ctx.lineWidth = 2;
+    /** + 0.5 offset to have sharp lines. See comment in {@link RendererPlugin#drawBorders} for more details */
+    ctx.strokeRect(x + 0.5, y + 0.5, width, height);
+  }
   ctx.globalCompositeOperation = "source-over";
   if (!highlight.noFill) {
     ctx.fillStyle = highlight.color! + "20";
