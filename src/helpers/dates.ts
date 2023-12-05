@@ -50,13 +50,13 @@ type ReadonlyDate = Readonly<
 // Parsing
 // -----------------------------------------------------------------------------
 
-export const INITIAL_1900_DAY = new Date(1899, 11, 30) as any;
+export const INITIAL_1900_DAY = new Date(1899, 11, 30);
 export const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const CURRENT_MILLENIAL = 2000; // note: don't forget to update this in 2999
 const CURRENT_YEAR = new Date().getFullYear();
 const CURRENT_MONTH = new Date().getMonth();
-const INITIAL_JS_DAY = new Date(0) as any;
-const DATE_JS_1900_OFFSET = INITIAL_JS_DAY - INITIAL_1900_DAY;
+const INITIAL_JS_DAY = new Date(0);
+const DATE_JS_1900_OFFSET = INITIAL_JS_DAY.getTime() - INITIAL_1900_DAY.getTime();
 
 export const mdyDateRegexp = /^\d{1,2}(\/|-|\s)\d{1,2}((\/|-|\s)\d{1,4})?$/;
 export const ymdDateRegexp = /^\d{3,4}(\/|-|\s)\d{1,2}(\/|-|\s)\d{1,2}$/;
@@ -231,7 +231,7 @@ function parseDate(parts: DateParts, separator: string): InternalDate | null {
     // invalid date
     return null;
   }
-  const delta = (jsDate as any) - INITIAL_1900_DAY;
+  const delta = jsDate.getTime() - INITIAL_1900_DAY.getTime();
 
   const format = getFormatFromDateParts(parts, separator, leadingZero, fullYear);
 
