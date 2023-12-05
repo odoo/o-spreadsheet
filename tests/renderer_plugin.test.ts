@@ -36,7 +36,7 @@ import {
   setZoneBorders,
 } from "./test_helpers/commands_helpers";
 import { getCell } from "./test_helpers/getters_helpers";
-import { createEqualCF, getPlugin, target, toRangesData } from "./test_helpers/helpers";
+import { createEqualCF, drawGrid, getPlugin, target, toRangesData } from "./test_helpers/helpers";
 import { watchClipboardOutline } from "./test_helpers/renderer_helpers";
 
 MockCanvasRenderingContext2D.prototype.measureText = function (text: string) {
@@ -118,7 +118,7 @@ describe("renderer", () => {
       },
     });
 
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(instructions).toMatchSnapshot();
   });
 
@@ -173,7 +173,7 @@ describe("renderer", () => {
 
     test("Color of headers containing the selection", () => {
       setSelection(model, ["A1"]);
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
       const fillColHeaderInstr = getFirstColHeaderFillColor();
       expect(fillColHeaderInstr).toEqual(BACKGROUND_HEADER_SELECTED_COLOR);
       const fillRowHeaderInstr = getFirstRowHeaderFillColor();
@@ -182,7 +182,7 @@ describe("renderer", () => {
 
     test("Color of active headers", () => {
       setSelection(model, ["A1:B2"]);
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
       const fillColHeaderInstr = getFirstColHeaderFillColor();
       expect(fillColHeaderInstr).toEqual(BACKGROUND_HEADER_ACTIVE_COLOR);
       const fillRowHeaderInstr = getFirstRowHeaderFillColor();
@@ -192,7 +192,7 @@ describe("renderer", () => {
     test("Color of headers that contains a filter", () => {
       createFilter(model, "A1:B2");
       setSelection(model, ["B2"]); // by default the cell A1 was selected
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
       const fillColHeaderInstr = getFirstColHeaderFillColor();
       expect(fillColHeaderInstr).toEqual(BACKGROUND_HEADER_FILTER_COLOR);
       const fillRowHeaderInstr = getFirstRowHeaderFillColor();
@@ -202,7 +202,7 @@ describe("renderer", () => {
     test("Color of headers that contain a filter + are selected", () => {
       createFilter(model, "A1:B2");
       setSelection(model, ["A1"]);
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
       const fillColHeaderInstr = getFirstColHeaderFillColor();
       expect(fillColHeaderInstr).toEqual(BACKGROUND_HEADER_SELECTED_FILTER_COLOR);
       const fillRowHeaderInstr = getFirstRowHeaderFillColor();
@@ -212,7 +212,7 @@ describe("renderer", () => {
     test("Headers that contain a filter + are selected", () => {
       createFilter(model, "A1:B2");
       setSelection(model, ["A1"]);
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
       const fillColHeaderInstr = getFirstColHeaderFillColor();
       expect(fillColHeaderInstr).toEqual(BACKGROUND_HEADER_SELECTED_FILTER_COLOR);
       const fillRowHeaderInstr = getFirstRowHeaderFillColor();
@@ -222,7 +222,7 @@ describe("renderer", () => {
     test("Headers that contain a filter + are active", () => {
       createFilter(model, "A1:B2");
       setSelection(model, ["A1:B2"]);
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
       const fillColHeaderInstr = getFirstColHeaderFillColor();
       expect(fillColHeaderInstr).toEqual(FILTERS_COLOR);
       const fillRowHeaderInstr = getFirstRowHeaderFillColor();
@@ -245,12 +245,12 @@ describe("renderer", () => {
       },
     });
 
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(textAligns).toEqual(["right", "right", "center"]); // center for headers
 
     textAligns = [];
     setCellContent(model, "A1", "asdf");
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(textAligns).toEqual(["left", "left", "center"]); // center for headers
   });
 
@@ -268,7 +268,7 @@ describe("renderer", () => {
       },
     });
 
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(textAligns).toEqual(["right", "center"]); // center for headers
   });
 
@@ -287,7 +287,7 @@ describe("renderer", () => {
       },
     });
 
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(textAligns).toEqual(["right", "center"]); // center for headers
   });
 
@@ -329,13 +329,13 @@ describe("renderer", () => {
       },
     });
 
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(textAligns).toEqual(["left", "left", "left", "left", "center"]); // A1-C1-A2-C2 and center for headers
 
     textAligns = [];
     setCellContent(model, "A1", "1");
     setCellContent(model, "C1", "1");
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(textAligns).toEqual(["right", "right", "right", "right", "center"]); // A1-C1-A2-C2 and center for headers
   });
 
@@ -372,12 +372,12 @@ describe("renderer", () => {
       },
     });
 
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23, w: 96, x: 0, y: 0 }]);
 
     fillStyle = [];
     setStyle(model, "A1", { fillColor: "#DC6CDE" });
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(fillStyle).toEqual([{ color: "#DC6CDE", h: 23, w: 96, x: 0, y: 0 }]);
   });
 
@@ -414,12 +414,12 @@ describe("renderer", () => {
       },
     });
 
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 3 * 23, w: 96, x: 0, y: 0 }]);
 
     fillStyle = [];
     setStyle(model, "A1", { fillColor: "#DC6CDE" });
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(fillStyle).toEqual([{ color: "#DC6CDE", h: 3 * 23, w: 96, x: 0, y: 0 }]);
   });
 
@@ -448,12 +448,12 @@ describe("renderer", () => {
       },
     });
 
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(fillStyle).toEqual([]);
 
     fillStyle = [];
     setCellContent(model, "A1", "1");
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23, w: 96, x: 0, y: 0 }]);
   });
 
@@ -482,12 +482,12 @@ describe("renderer", () => {
       },
     });
 
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(fillStyle).toEqual([]);
 
     fillStyle = [];
     setCellContent(model, "A1", "1");
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23 * 3, w: 96, x: 0, y: 0 }]);
   });
 
@@ -506,14 +506,14 @@ describe("renderer", () => {
         }
       },
     });
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
 
     expect(textAligns).toEqual(["right", "right", "center"]); // center for headers
 
     setCellContent(model, "A1", "asdf");
 
     textAligns = [];
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(textAligns).toEqual(["left", "left", "center"]); // center for headers
   });
 
@@ -531,12 +531,12 @@ describe("renderer", () => {
         }
       },
     });
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(textAligns).toEqual(["right", "right", "center"]); // center for headers
 
     textAligns = [];
     setCellContent(model, "A1", "true");
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(textAligns).toEqual(["center", "center", "center"]); // center for headers
   });
 
@@ -584,13 +584,13 @@ describe("renderer", () => {
       },
     });
 
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(textAligns).toEqual(["left", "left", "left", "left", "center"]); // A1-C1-A2:B2-C2:D2 and center for headers
 
     textAligns = [];
     setCellContent(model, "A1", "1");
     setCellContent(model, "C1", "1");
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(textAligns).toEqual(["right", "left", "right", "right", "center"]); // A1-C1-A2:B2-C2:D2 and center for headers. C1 is stil lin overflow
   });
 
@@ -609,14 +609,14 @@ describe("renderer", () => {
         }
       },
     });
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
 
     expect(textAligns).toEqual(["right", "right", "center"]); // center for headers
 
     setCellContent(model, "A1", "false");
 
     textAligns = [];
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(textAligns).toEqual(["center", "center", "center"]); // center for headers
   });
 
@@ -634,7 +634,7 @@ describe("renderer", () => {
         }
       },
     });
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
 
     // 1 center for headers, 1 for cell content
     expect(textAligns).toEqual(["center", "center"]);
@@ -654,7 +654,7 @@ describe("renderer", () => {
         }
       },
     });
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
 
     // 1 center for headers, 1 for cell content
     expect(textAligns).toEqual(["right", "center"]);
@@ -678,7 +678,7 @@ describe("renderer", () => {
     const getCellTextMock = jest.fn(() => "=SUM(1,2)");
     model.getters.getCellText = getCellTextMock;
 
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
 
     // 1 center for headers, 1 for cell content
     expect(textAligns).toEqual(["left", "center"]);
@@ -707,7 +707,7 @@ describe("renderer", () => {
     const getCellTextMock = jest.fn(() => "=SUM(1,2)");
     model.getters.getCellText = getCellTextMock;
 
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
 
     // 1 center for headers, 1 for cell content
     expect(textAligns).toEqual(["left", "center"]);
@@ -734,7 +734,7 @@ describe("renderer", () => {
       },
     });
 
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(fillStyle).toEqual([]);
     fillStyle = [];
     const sheetId = model.getters.getActiveSheetId();
@@ -744,7 +744,7 @@ describe("renderer", () => {
       sheetId,
     });
     expect(result).toBeSuccessfullyDispatched();
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23, w: 96, x: 0, y: 0 }]);
   });
 
@@ -766,7 +766,7 @@ describe("renderer", () => {
       });
 
       let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
 
       box = getBoxFromText(model, overflowingContent);
       // no clip
@@ -775,14 +775,14 @@ describe("renderer", () => {
 
       // no clipping at the left
       setCellContent(model, "A1", "Content at the left");
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
       box = getBoxFromText(model, overflowingContent);
       expect(box.clipRect).toBeUndefined();
       expect(box.isOverflow).toBeTruthy();
 
       // clipping at the right
       setCellContent(model, "C1", "Content at the right");
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
       box = getBoxFromText(model, overflowingContent);
       expect(box.clipRect).toEqual({
         x: DEFAULT_CELL_WIDTH,
@@ -812,7 +812,7 @@ describe("renderer", () => {
       });
 
       let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
 
       box = getBoxFromText(model, overflowingNumber);
       // no clip
@@ -821,14 +821,14 @@ describe("renderer", () => {
 
       // no clipping at the left
       setCellContent(model, "A1", "Content at the left");
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
       box = getBoxFromText(model, overflowingNumber);
       expect(box.clipRect).toBeUndefined();
       expect(box.isOverflow).toBeTruthy();
 
       // clipping at the right
       setCellContent(model, "C1", "Content at the right");
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
       box = getBoxFromText(model, overflowingNumber);
       expect(box.clipRect).toEqual({
         x: DEFAULT_CELL_WIDTH,
@@ -856,7 +856,7 @@ describe("renderer", () => {
     });
 
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
 
     box = getBoxFromText(model, overflowingText);
     // no clip
@@ -865,14 +865,14 @@ describe("renderer", () => {
 
     // no clipping at the right
     setCellContent(model, "C1", "Content at the left");
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     box = getBoxFromText(model, overflowingText);
     expect(box.clipRect).toBeUndefined();
     expect(box.isOverflow).toBeTruthy();
 
     // clipping at the left
     setCellContent(model, "A1", "Content at the right");
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     box = getBoxFromText(model, overflowingText);
     expect(box.clipRect).toEqual({
       x: DEFAULT_CELL_WIDTH,
@@ -899,7 +899,7 @@ describe("renderer", () => {
       styles: { 1: { align: "center" } },
     });
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
 
     const centeredBox = getBoxFromText(model, overflowingContent);
     expect(centeredBox.clipRect).toEqual({
@@ -927,7 +927,7 @@ describe("renderer", () => {
       styles: { 2: { align: "center" } },
     });
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
 
     const centeredBox = getBoxFromText(model, overflowingContent);
     const cell = getCell(model, "C1")!;
@@ -962,7 +962,7 @@ describe("renderer", () => {
       });
 
       let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
 
       box = getBoxFromText(model, overflowingText);
       expect(box.clipRect).toEqual({
@@ -995,7 +995,7 @@ describe("renderer", () => {
     });
 
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
 
     const box = getBoxFromText(model, overflowingText);
     expect(box.clipRect).toEqual({
@@ -1025,7 +1025,7 @@ describe("renderer", () => {
       });
 
       let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
 
       box = getBoxFromText(model, overflowingText);
       expect(box.clipRect).toEqual({
@@ -1056,7 +1056,7 @@ describe("renderer", () => {
       });
 
       let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
 
       box = getBoxFromText(model, overflowingText);
       expect(box.clipRect).toEqual({
@@ -1086,13 +1086,13 @@ describe("renderer", () => {
     });
 
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
 
     box = getBoxFromText(model, overflowingText);
     expect(box.clipRect).toBeUndefined();
 
     resizeRows(model, [0], Math.floor(fontSizeInPixels(fontSize) / 2));
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     box = getBoxFromText(model, overflowingText);
     expect(box.clipRect).toEqual({
       x: 0,
@@ -1113,7 +1113,7 @@ describe("renderer", () => {
     resizeColumns(model, ["A"], 10);
 
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
 
     expect(getBoxFromText(model, overflowingText).clipRect).toEqual({
       x: 0,
@@ -1150,7 +1150,7 @@ describe("renderer", () => {
     });
 
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     box = getBoxFromText(model, cellContent);
     const maxIconBoxWidth = box.image!.size + MIN_CF_ICON_MARGIN;
     expect(box.image!.clipIcon).toEqual({
@@ -1167,7 +1167,7 @@ describe("renderer", () => {
     });
 
     resizeColumns(model, ["A"], maxIconBoxWidth - 3);
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     box = getBoxFromText(model, cellContent);
     expect(box.image!.clipIcon).toEqual({
       x: 0,
@@ -1193,7 +1193,7 @@ describe("renderer", () => {
     addDataValidation(model, "B1", "id", { type: "isBoolean", values: [] });
 
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     box = getBoxFromText(model, cellContent);
     const expectedClipRect = { x: 0, y: 0, width: 10, height: DEFAULT_CELL_HEIGHT };
     expect(box.clipRect).toEqual(expectedClipRect);
@@ -1203,7 +1203,7 @@ describe("renderer", () => {
       values: ["a"],
       displayStyle: "arrow",
     });
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     box = getBoxFromText(model, cellContent);
     expect(box.clipRect).toEqual(expectedClipRect);
   });
@@ -1242,7 +1242,7 @@ describe("renderer", () => {
       }
 
       let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
       const box = getBoxFromText(model, cellContent);
       expect(box.clipRect).toEqual(
         expectedClipRectZone ? model.getters.getVisibleRect(expectedClipRectZone) : undefined
@@ -1267,7 +1267,7 @@ describe("renderer", () => {
       }
 
       let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
       const box = getBoxFromText(model, cellContent);
       const cell = getCell(model, "B2")!;
       const textWidth = model.getters.getTextWidth(cell.content, cell.style || {});
@@ -1311,7 +1311,7 @@ describe("renderer", () => {
       setZoneBorders(model, { position: "left" }, ["E1"]);
 
       let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
       const box = getBoxFromText(model, cellContent);
       expect(box.clipRect).toEqual(
         expectedClipRectZone ? model.getters.getVisibleRect(expectedClipRectZone) : undefined
@@ -1327,7 +1327,7 @@ describe("renderer", () => {
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     let text = "a".repeat(10 - MIN_CELL_TEXT_MARGIN);
     setCellContent(model, "A1", text);
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     box = getBoxFromText(model, text);
     expect(box.clipRect).toBeUndefined();
 
@@ -1335,7 +1335,7 @@ describe("renderer", () => {
     ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     text = "a".repeat(10);
     setCellContent(model, "A1", text);
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     box = getBoxFromText(model, text);
     expect(box.clipRect).toEqual({ x: 0, y: 0, width: 10, height: DEFAULT_CELL_HEIGHT });
   });
@@ -1346,12 +1346,12 @@ describe("renderer", () => {
       const model = new Model();
       copy(model, ...targetXc.split(","));
       const { ctx, isDotOutlined, reset } = watchClipboardOutline(model);
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
       const copiedTarget = target(targetXc);
       expect(isDotOutlined(copiedTarget)).toBeTruthy();
       paste(model, "A10");
       reset();
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
       expect(isDotOutlined(copiedTarget)).toBeFalsy();
     }
   );
@@ -1362,13 +1362,13 @@ describe("renderer", () => {
       const model = new Model();
       copy(model, ...targetXc.split(","));
       const { ctx, isDotOutlined, reset } = watchClipboardOutline(model);
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
       const copiedTarget = target(targetXc);
       const expectedOutlinedZone = copiedTarget.slice(-1);
       expect(isDotOutlined(expectedOutlinedZone)).toBeTruthy();
       paste(model, "A10");
       reset();
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
       expect(isDotOutlined(expectedOutlinedZone)).toBeFalsy();
     }
   );
@@ -1381,12 +1381,12 @@ describe("renderer", () => {
     const model = new Model();
     copy(model, "A1:A2");
     const { ctx, isDotOutlined, reset } = watchClipboardOutline(model);
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     const copiedTarget = target("A1:A2");
     expect(isDotOutlined(copiedTarget)).toBeTruthy();
     coreOperation(model);
     reset();
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(isDotOutlined(copiedTarget)).toBeFalsy();
   });
 
@@ -1433,7 +1433,7 @@ describe("renderer", () => {
         }
       },
     });
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     const boxA1 = getBoxFromText(model, "#N/A"); //NotAvailableError => Shouldn't display
     expect(boxA1.isError).toBeFalsy();
     const boxB1 = getBoxFromText(model, "#CYCLE"); //CycleError => Should display
@@ -1472,14 +1472,14 @@ describe("renderer", () => {
 
     // Default Model displaying grid lines
     strokeColors = [];
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(strokeColors).toContain(CELL_BORDER_COLOR);
     expect(strokeColors).toContain(SELECTION_BORDER_COLOR);
 
     // dashboard mode
     model.updateMode("dashboard");
     strokeColors = [];
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(strokeColors).toEqual([]);
   });
 
@@ -1501,14 +1501,14 @@ describe("renderer", () => {
 
     // Default Model displaying grid lines
     strokeColors = [];
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(strokeColors).toContain(CELL_BORDER_COLOR);
     expect(strokeColors).toContain(SELECTION_BORDER_COLOR);
 
     // model without grid lines
     model.dispatch("SET_GRID_LINES_VISIBILITY", { sheetId: "Sheet1", areGridLinesVisible: false });
     strokeColors = [];
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(strokeColors).toEqual([
       SELECTION_BORDER_COLOR, // selection drawGrid
       SELECTION_BORDER_COLOR, // selection drawGrid
@@ -1539,19 +1539,19 @@ describe("renderer", () => {
     // vertical top point
     let verticalStartPoints: any[] = [];
     setStyle(model, "A1", { verticalAlign: "top" });
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(verticalStartPoints[0]).toEqual(5);
 
     // vertical middle point
     verticalStartPoints = [];
     setStyle(model, "A1", { verticalAlign: "middle" });
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(verticalStartPoints[0]).toEqual(18);
 
     // vertical bottom point
     verticalStartPoints = [];
     setStyle(model, "A1", { verticalAlign: "bottom" });
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(verticalStartPoints[0]).toEqual(30);
   });
 
@@ -1586,19 +1586,19 @@ describe("renderer", () => {
     // with verticalAlign top
     let verticalStartPoints: any[] = [];
     setStyle(model, "A1", { verticalAlign: "top" });
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(verticalStartPoints[0]).toEqual(5);
 
     // with verticalAlign middle
     verticalStartPoints = [];
     setStyle(model, "A1", { verticalAlign: "middle" });
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(verticalStartPoints[0]).toEqual(5);
 
     // with verticalAlign bottom
     verticalStartPoints = [];
     setStyle(model, "A1", { verticalAlign: "bottom" });
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(verticalStartPoints[0]).toEqual(5);
   });
 
@@ -1636,7 +1636,7 @@ describe("renderer", () => {
 
     test("Non-overflowing cell have no overflowing background", () => {
       setCellContent(model, "A1", "Short text");
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
       expect(getCellOverflowingBackgroundDims()).toBeUndefined();
     });
 
@@ -1644,7 +1644,7 @@ describe("renderer", () => {
       const overflowingText = "Text longer than a column";
       setCellContent(model, "A1", overflowingText);
       resizeColumns(model, ["A"], 10);
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
       const box = getBoxFromText(model, overflowingText);
       expect(getCellOverflowingBackgroundDims()).toMatchObject({
         x: box.x + ctx.thinLineWidth / 2,
@@ -1660,7 +1660,7 @@ describe("renderer", () => {
 
       setCellContent(model, "A1", longLine + NEWLINE + longerLine);
       resizeColumns(model, ["A"], 10);
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
       const box = getBoxFromText(model, longLine + " " + longerLine);
       expect(getCellOverflowingBackgroundDims()).toMatchObject({
         x: box.x + ctx.thinLineWidth / 2,
@@ -1676,7 +1676,7 @@ describe("renderer", () => {
       setCellContent(model, "A1", overflowingText);
       setStyle(model, "A1", { fontSize });
       resizeRows(model, [0], Math.floor(fontSizeInPixels(fontSize) / 2));
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
       const box = getBoxFromText(model, overflowingText);
       expect(getCellOverflowingBackgroundDims()).toMatchObject({
         x: box.x + ctx.thinLineWidth / 2,
@@ -1713,7 +1713,7 @@ describe("renderer", () => {
       // Split length = 14 - 2*MIN_CELL_TEXT_MARGIN = 6 letters (1 letter = 1px in the tests)
       const splittedText = ["ThisIs", "AVeryV", "eryLon", "gText"];
 
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
       expect(renderedTexts.slice(0, 4)).toEqual(splittedText);
     });
 
@@ -1723,13 +1723,13 @@ describe("renderer", () => {
       setStyle(model, "A1", { wrapping: "wrap" });
       resizeColumns(model, ["A"], 16);
 
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
       expect(renderedTexts.slice(0, 5)).toEqual(["W Word2", "W3", "WordThat", "IsTooLon", "g"]);
     });
 
     test("Texts with newlines are displayed over multiple lines", () => {
       setCellContent(model, "A1", "Line1\nLine2\rLine3\r\nLine4");
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
       expect(renderedTexts.slice(0, 4)).toEqual(["Line1", "Line2", "Line3", "Line4"]);
     });
 
@@ -1739,7 +1739,7 @@ describe("renderer", () => {
 
       setCellContent(model, "A1", longLine + NEWLINE + longerLine);
       resizeColumns(model, ["A"], 10);
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
       const box = getBoxFromText(model, longLine + " " + longerLine);
       expect(box.isOverflow).toBeTruthy();
       expect(box.content?.width).toEqual(longerLine.length + MIN_CELL_TEXT_MARGIN);
@@ -1785,7 +1785,7 @@ describe("renderer", () => {
         }
       },
     });
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(renderedBorders).toEqual({
       [colors.left]: {
         start: [0, 0],
@@ -1843,7 +1843,7 @@ describe("renderer", () => {
         }
       },
     });
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(borderRenderingContext).toEqual([[1, []]]);
   });
 
@@ -1885,7 +1885,7 @@ describe("renderer", () => {
         }
       },
     });
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(borderRenderingContext).toEqual([[2, []]]);
   });
 
@@ -1926,7 +1926,7 @@ describe("renderer", () => {
         }
       },
     });
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(borderRenderingContext).toEqual([[3, []]]);
   });
 
@@ -1967,7 +1967,7 @@ describe("renderer", () => {
         }
       },
     });
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(borderRenderingContext).toEqual([[1, [[1, 3]]]]);
   });
 
@@ -2008,7 +2008,7 @@ describe("renderer", () => {
         }
       },
     });
-    model.drawGrid(ctx);
+    drawGrid(model, ctx);
     expect(borderRenderingContext).toEqual([[1, [[1, 1]]]]);
   });
 });

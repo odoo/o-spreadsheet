@@ -6,6 +6,7 @@ import {
   setStyle,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getStyle } from "../test_helpers/getters_helpers";
+import { drawGrid } from "../test_helpers/helpers";
 import { MockGridRenderingContext } from "../test_helpers/renderer_helpers";
 
 describe("Checkbox in model", () => {
@@ -110,14 +111,14 @@ describe("Checkbox in model", () => {
     test("Valid checkbox value is not rendered", () => {
       addDataValidation(model, "B2", "id", { type: "isBoolean", values: [] });
       setCellContent(model, "B2", "TRUE");
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
       expect(renderedTexts).not.toContain("TRUE");
     });
 
     test("Invalid checkbox value is rendered", () => {
       addDataValidation(model, "B2", "id", { type: "isBoolean", values: [] });
       setCellContent(model, "B2", "hello");
-      model.drawGrid(ctx);
+      drawGrid(model, ctx);
       expect(renderedTexts).toContain("hello");
     });
   });

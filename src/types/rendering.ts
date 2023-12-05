@@ -90,6 +90,16 @@ export const enum LAYERS {
   Selection,
   Headers, // Probably keep this at the end
 }
+export const RENDERING_LAYERS: LAYERS[] = [
+  LAYERS.Background,
+  LAYERS.Highlights,
+  LAYERS.Clipboard,
+  LAYERS.Search,
+  LAYERS.Chart,
+  LAYERS.Autofill,
+  LAYERS.Selection,
+  LAYERS.Headers,
+];
 
 export interface EdgeScrollInfo {
   canEdgeScroll: boolean;

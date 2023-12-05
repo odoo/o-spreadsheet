@@ -1,5 +1,6 @@
 import { Model } from "..";
 import { ClipboardInterface } from "../helpers/clipboard/navigator_clipboard_wrapper";
+import { Get } from "../store_engine";
 import { Currency } from "./currency";
 import { ImageProviderInterface } from "./files";
 import { Locale } from "./locale";
@@ -33,4 +34,5 @@ export interface SpreadsheetChildEnv extends SpreadsheetEnv {
   startCellEdition: (content?: string) => void;
   loadCurrencies?: () => Promise<Currency[]>;
   loadLocales: () => Promise<Locale[]>;
+  getStore: Get;
 }
