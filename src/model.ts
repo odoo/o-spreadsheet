@@ -28,7 +28,6 @@ import {
 import { StateObserver } from "./state_observer";
 import { _t } from "./translation";
 import { StateUpdateMessage, TransportService } from "./types/collaborative/transport_service";
-import { CommandTypes } from "./types/commands";
 import { FileStore } from "./types/files";
 import {
   canExecuteInReadonly,
@@ -38,6 +37,7 @@ import {
   CommandDispatcher,
   CommandHandler,
   CommandResult,
+  CommandTypes,
   CoreCommand,
   CoreGetters,
   Currency,
@@ -147,7 +147,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * This list simply keeps the renderers+layer information so the drawing code
    * can just iterate on it
    */
-  private renderers: [UIPlugin, LAYERS][] = [];
+  private renderers: Partial<Record<LAYERS, UIPlugin[]>> = {};
 
   /**
    * Internal status of the model. Important for command handling coordination
@@ -302,9 +302,12 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       }
       this.getters[name] = plugin[name].bind(plugin);
     }
-    const layers = Plugin.layers.map((l) => [plugin, l] as [UIPlugin, LAYERS]);
-    this.renderers.push(...layers);
-    this.renderers.sort((p1, p2) => p1[1] - p2[1]);
+    for (const layer of Plugin.layers) {
+      if (!this.renderers[layer]) {
+        this.renderers[layer] = [];
+      }
+      this.renderers[layer]!.push(plugin);
+    }
     return plugin;
   }
 
@@ -590,10 +593,12 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * context. This is probably the way we should do if we want to be able to
    * freeze a part of the grid (so, we would need to render different zones)
    */
-  drawGrid(context: GridRenderingContext) {
-    // we make sure here that the viewport is properly positioned: the offsets
-    // correspond exactly to a cell
-    for (let [renderer, layer] of this.renderers) {
+  drawGrid(context: GridRenderingContext, layer: LAYERS) {
+    const renderers = this.renderers[layer];
+    if (!renderers) {
+      return;
+    }
+    for (const renderer of renderers) {
       context.ctx.save();
       renderer.drawGrid(context, layer);
       context.ctx.restore();
