@@ -28,6 +28,7 @@ import { ComposerSelection } from "../../src/plugins/ui_stateful";
 import { topbarMenuRegistry } from "../../src/registries";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import { Registry } from "../../src/registries/registry";
+import { DependencyContainer } from "../../src/store_engine";
 import { _t } from "../../src/translation";
 import {
   CellPosition,
@@ -41,7 +42,9 @@ import {
   DEFAULT_LOCALES,
   EvaluatedCell,
   Format,
+  GridRenderingContext,
   Matrix,
+  RENDERING_LAYERS,
   RangeData,
   SpreadsheetChildEnv,
   Style,
@@ -125,6 +128,7 @@ export function makeTestFixture() {
 }
 
 export function makeTestEnv(mockEnv: Partial<SpreadsheetChildEnv> = {}): SpreadsheetChildEnv {
+  const container = new DependencyContainer();
   return {
     model: mockEnv.model || new Model(),
     isDashboard: mockEnv.isDashboard || (() => false),
@@ -144,6 +148,9 @@ export function makeTestEnv(mockEnv: Partial<SpreadsheetChildEnv> = {}): Spreads
         return [] as Currency[];
       }),
     loadLocales: mockEnv.loadLocales || (async () => DEFAULT_LOCALES),
+    getStore: container.get.bind(container),
+    // @ts-ignore
+    __spreadsheet_stores__: container,
   };
 }
 
@@ -785,4 +792,10 @@ export function getDataValidationRules(model: Model, sheetId = model.getters.get
     ...rule,
     ranges: rule.ranges.map((range) => model.getters.getRangeString(range, sheetId)),
   }));
+}
+
+export function drawGrid(model: Model, ctx: GridRenderingContext) {
+  for (const layer of RENDERING_LAYERS) {
+    model.drawGrid(ctx, layer);
+  }
 }

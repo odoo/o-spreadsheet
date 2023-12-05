@@ -1004,6 +1004,10 @@ export interface SplitTextIntoColumnsCommand {
   force?: boolean;
 }
 
+export interface RenderCanvasCommand {
+  type: "RENDER_CANVAS";
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -1155,7 +1159,8 @@ export type LocalCommand =
   | UpdateFilterCommand
   | SplitTextIntoColumnsCommand
   | RemoveDuplicatesCommand
-  | TrimWhitespaceCommand;
+  | TrimWhitespaceCommand
+  | RenderCanvasCommand;
 
 export type Command = CoreCommand | LocalCommand;
 

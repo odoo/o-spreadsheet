@@ -1,11 +1,14 @@
 import { useEffect, useRef } from "@odoo/owl";
 import { Model } from "../..";
 import { CANVAS_SHIFT } from "../../constants";
-import { DOMDimension } from "../../types";
+import { useStore } from "../../store_engine";
+import { RendererStore } from "../../stores/renderer_store";
+import { DOMDimension, RENDERING_LAYERS } from "../../types";
 
 export function useGridDrawing(refName: string, model: Model, canvasSize: () => DOMDimension) {
   const canvasRef = useRef(refName);
   useEffect(drawGrid);
+  const rendererManager = useStore(RendererStore);
 
   function drawGrid() {
     const canvas = canvasRef.el as HTMLCanvasElement;
@@ -31,6 +34,9 @@ export function useGridDrawing(refName: string, model: Model, canvasSize: () => 
     // http://diveintohtml5.info/canvas.html#pixel-madness
     ctx.translate(-CANVAS_SHIFT, -CANVAS_SHIFT);
     ctx.scale(dpr, dpr);
-    model.drawGrid(renderingContext);
+    for (const layer of RENDERING_LAYERS) {
+      model.drawGrid(renderingContext, layer);
+      rendererManager.drawLayer(renderingContext, layer);
+    }
   }
 }
