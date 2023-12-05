@@ -9,7 +9,7 @@ export function interactiveRenameSheet(env: SpreadsheetChildEnv, sheetId: UID, e
     if (name === null || name === placeholder) {
       return;
     }
-    if (name === "") {
+    if (name.trim() === "") {
       interactiveRenameSheet(env, sheetId, _lt("The sheet name cannot be empty."));
     }
     const result = env.model.dispatch("RENAME_SHEET", { sheetId, name });

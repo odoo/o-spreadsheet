@@ -61,6 +61,7 @@ function getCellsObject(model: Model, sheetId: UID) {
 describe("Interactive rename sheet", () => {
   test.each([
     ["", "The sheet name cannot be empty."],
+    ["   ", "The sheet name cannot be empty."],
     [
       "hééélo///",
       "Some used characters are not allowed in a sheet name (Forbidden characters are ' * ? / \\ [ ]).",
