@@ -19,9 +19,9 @@ export interface InternalDate {
 
 const CURRENT_MILLENIAL = 2000; // note: don't forget to update this in 2999
 const CURRENT_YEAR = new Date().getFullYear();
-const INITIAL_1900_DAY = new Date(1899, 11, 30) as any;
-const INITIAL_JS_DAY = new Date(0) as any;
-const DATE_JS_1900_OFFSET = INITIAL_JS_DAY - INITIAL_1900_DAY;
+const INITIAL_1900_DAY = new Date(1899, 11, 30);
+const INITIAL_JS_DAY = new Date(0);
+const DATE_JS_1900_OFFSET = INITIAL_JS_DAY.getTime() - INITIAL_1900_DAY.getTime();
 
 export const mdyDateRegexp = /^\d{1,2}(\/|-|\s)\d{1,2}((\/|-|\s)\d{1,4})?$/;
 export const ymdDateRegexp = /^\d{3,4}(\/|-|\s)\d{1,2}(\/|-|\s)\d{1,2}$/;
@@ -99,7 +99,7 @@ function parseDate(str: string, dateFormat: string): InternalDate | null {
       // invalid date
       return null;
     }
-    const delta = (jsDate as any) - INITIAL_1900_DAY;
+    const delta = jsDate.getTime() - INITIAL_1900_DAY.getTime();
 
     let format = leadingZero ? `mm${sep}dd` : `m${sep}d`;
     if (parts[yearIndex]) {
@@ -266,7 +266,7 @@ function formatJSTime(jsDate: Date, format: string): string {
         switch (p) {
           case "hhhh":
             const helapsedHours = Math.floor(
-              (jsDate.getTime() - INITIAL_1900_DAY) / (60 * 60 * 1000)
+              (jsDate.getTime() - INITIAL_1900_DAY.getTime()) / (60 * 60 * 1000)
             );
             return helapsedHours.toString();
           case "hh":
