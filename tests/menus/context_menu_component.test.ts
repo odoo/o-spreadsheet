@@ -399,10 +399,10 @@ describe("Context Menu internal tests", () => {
       },
     ]);
     await renderContextMenu(300, 300, { menuItems });
-    triggerMouseEvent(".o-menu div[data-name='root']", "mouseover");
+    triggerMouseEvent(".o-menu div[data-name='root']", "mouseenter");
     await nextTick();
     expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeTruthy();
-    triggerMouseEvent(".o-menu div[data-name='action']", "mouseover");
+    triggerMouseEvent(".o-menu div[data-name='action']", "mouseenter");
     await nextTick();
     expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeFalsy();
   });
@@ -411,10 +411,10 @@ describe("Context Menu internal tests", () => {
     await renderContextMenu(300, 300, { menuItems: cellMenuRegistry.getMenuItems() });
     const menuItem = fixture.querySelector(".o-menu div[data-name='paste_special']");
     expect(menuItem?.classList).not.toContain("o-menu-item-active");
-    triggerMouseEvent(menuItem, "mouseover");
+    triggerMouseEvent(menuItem, "mouseenter");
     await nextTick();
     expect(menuItem?.classList).toContain("o-menu-item-active");
-    triggerMouseEvent(".o-menu div[data-name='paste_value_only']", "mouseover");
+    triggerMouseEvent(".o-menu div[data-name='paste_value_only']", "mouseenter");
     await nextTick();
     expect(menuItem?.classList).toContain("o-menu-item-active");
   });
@@ -460,17 +460,17 @@ describe("Context Menu internal tests", () => {
     model.updateMode("readonly");
     await nextTick();
     expect(fixture.querySelector(".o-menu div[data-name='root']")!.classList).toContain("disabled");
-    triggerMouseEvent(".o-menu div[data-name='root']", "mouseover");
+    triggerMouseEvent(".o-menu div[data-name='root']", "mouseenter");
     await nextTick();
     expect(fixture.querySelector(".o-menu div[data-name='subMenu']")).toBeFalsy();
   });
 
   test("submenu does not close when sub item hovered", async () => {
     await renderContextMenu(300, 300, { menuItems: subMenu });
-    triggerMouseEvent(".o-menu div[data-name='root']", "mouseover");
+    triggerMouseEvent(".o-menu div[data-name='root']", "mouseenter");
     await nextTick();
     expect(fixture.querySelector(".o-menu div[data-name='subMenu1']")).toBeTruthy();
-    triggerMouseEvent(".o-menu div[data-name='subMenu1']", "mouseover");
+    triggerMouseEvent(".o-menu div[data-name='subMenu1']", "mouseenter");
     await nextTick();
     expect(fixture.querySelector(".o-menu div[data-name='subMenu1']")).toBeTruthy();
   });
@@ -594,12 +594,12 @@ describe("Context Menu internal tests", () => {
     ]);
     await renderContextMenu(300, 300, { menuItems });
 
-    triggerMouseEvent(".o-menu div[data-name='root_1']", "mouseover");
+    triggerMouseEvent(".o-menu div[data-name='root_1']", "mouseenter");
     await nextTick();
-    triggerMouseEvent(".o-menu div[data-name='root_1_1']", "mouseover");
+    triggerMouseEvent(".o-menu div[data-name='root_1_1']", "mouseenter");
     await nextTick();
     expect(fixture.querySelector(".o-menu div[data-name='subMenu_1']")).toBeTruthy();
-    triggerMouseEvent(".o-menu div[data-name='root_2']", "mouseover");
+    triggerMouseEvent(".o-menu div[data-name='root_2']", "mouseenter");
     await nextTick();
     expect(fixture.querySelector(".o-menu div[data-name='subMenu_1']")).toBeFalsy();
     expect(fixture.querySelector(".o-menu div[data-name='root_2_1']")).toBeTruthy();
@@ -637,10 +637,10 @@ describe("Context Menu internal tests", () => {
       },
     ]);
     await renderContextMenu(300, 300, { menuItems });
-    triggerMouseEvent(".o-menu div[data-name='root']", "mouseover");
+    triggerMouseEvent(".o-menu div[data-name='root']", "mouseenter");
     await nextTick();
     expect(fixture.querySelector(".o-menu div[data-name='menu_1']")).toBeTruthy();
-    triggerMouseEvent(".o-menu div[data-name='menu_1']", "mouseover");
+    triggerMouseEvent(".o-menu div[data-name='menu_1']", "mouseenter");
     await nextTick();
     expect(fixture.querySelector(".o-menu div[data-name='visible_submenu_1']")).toBeTruthy();
     expect(fixture.querySelector(".o-menu div[data-name='invisible_submenu_1']")).toBeFalsy();
@@ -716,6 +716,41 @@ describe("Context Menu internal tests", () => {
     parent.render(true);
     await nextTick();
     expect(fixture.querySelector(".search-icon")).toBeNull();
+  });
+
+  test("Menu hover callbacks are called", async () => {
+    const onStartHover = jest.fn(() => {});
+    const onStopHover = jest.fn(() => {});
+    const menuItems: Action[] = createActions([
+      {
+        id: "menuItem",
+        name: "menuItem",
+        onStartHover,
+        onStopHover,
+      },
+    ]);
+    await renderContextMenu(300, 300, { menuItems });
+
+    triggerMouseEvent("div[data-name='menuItem']", "mouseenter");
+    expect(onStartHover).toHaveBeenCalled();
+    triggerMouseEvent("div[data-name='menuItem']", "mouseleave");
+    expect(onStopHover).toHaveBeenCalled();
+  });
+
+  test("Callback onStopHover is called when the component is unmounted", async () => {
+    const onStopHover = jest.fn(() => {});
+    const menuItems: Action[] = createActions([
+      {
+        id: "menuItem",
+        name: "menuItem",
+        onStopHover,
+      },
+    ]);
+    await renderContextMenu(300, 300, { menuItems });
+
+    triggerMouseEvent("div[data-name='menuItem']", "mouseenter");
+    parent.__owl__.destroy();
+    expect(onStopHover).toHaveBeenCalled();
   });
 });
 

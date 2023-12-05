@@ -1,7 +1,6 @@
 import { Component, xml } from "@odoo/owl";
 import { Spreadsheet } from "../../src";
-import { sidePanelRegistry } from "../../src/registries/index";
-import { SidePanelContent } from "../../src/registries/side_panel_registry";
+import { SidePanelContent, sidePanelRegistry } from "../../src/registries/side_panel_registry";
 import { createSheet } from "../test_helpers/commands_helpers";
 import { simulateClick } from "../test_helpers/dom_helper";
 import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";

@@ -3,6 +3,7 @@
     <t t-set="cf" t-value="props.conditionalFormat"/>
     <div
       class="o-cf-preview w-100"
+      t-ref="cfPreview"
       t-att-class="props.class"
       t-att-data-id="cf.id"
       t-on-click="props.onPreviewClick"
