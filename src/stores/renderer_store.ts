@@ -11,6 +11,7 @@ export abstract class RendererStore extends SpreadsheetStore {
   }
 
   dispose() {
+    super.dispose();
     this.rendererManager.unRegister(this);
   }
 

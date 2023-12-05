@@ -24,6 +24,7 @@ export class HighlightStore extends RendererStore {
   }
 
   dispose() {
+    super.dispose();
     this.highlightGetters = [];
     this.triggerRender();
   }
