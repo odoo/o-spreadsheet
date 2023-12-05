@@ -887,8 +887,13 @@ export function drawGrid(model: Model, ctx: GridRenderingContext) {
   }
 }
 
-export function getHighlightsFromStore(env: SpreadsheetChildEnv): Highlight[] {
-  const rendererStore = env.getStore(RendererStore);
+export function getHighlightsFromStore(
+  storeGetter: SpreadsheetChildEnv | DependencyContainer
+): Highlight[] {
+  const rendererStore =
+    "getStore" in storeGetter
+      ? storeGetter.getStore(RendererStore)
+      : storeGetter.get(RendererStore);
   return (Object.values(rendererStore["renderers"]) as any)
     .flat()
     .filter((renderer) => renderer instanceof HighlightStore)
