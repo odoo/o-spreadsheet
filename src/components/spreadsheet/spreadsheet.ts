@@ -33,8 +33,7 @@ import {
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Model } from "../../model";
 import { ComposerSelection } from "../../plugins/ui_stateful/edition";
-import { ModelStore } from "../../store_engine/spreadsheet_store";
-import { useStoreProvider } from "../../store_engine/store_hooks";
+import { ModelStore, useStoreProvider } from "../../store_engine";
 import { _t } from "../../translation";
 import { HeaderGroup, InformationNotification, Pixel, SpreadsheetChildEnv } from "../../types";
 import { BottomBar } from "../bottom_bar/bottom_bar";
