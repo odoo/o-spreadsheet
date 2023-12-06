@@ -18,6 +18,7 @@ import {
 } from "../../../types/chart/chart";
 import { LegendPosition, VerticalAxisPosition } from "../../../types/chart/common_chart";
 import { LineChartDefinition, LineChartRuntime } from "../../../types/chart/line_chart";
+import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { createRange } from "../../range";
@@ -161,7 +162,7 @@ export class LineChart extends AbstractChart {
     if (this.aggregated) return undefined;
     const dataSets: ExcelChartDataset[] = this.dataSets
       .map((ds: DataSet) => toExcelDataset(this.getters, ds))
-      .filter((ds) => ds.range !== ""); // && range !== CellErrorType.InvalidReference ? show incorrect #ref ?
+      .filter((ds) => ds.range !== "" && ds.range !== CellErrorType.InvalidReference);
     const labelRange = toExcelLabelRange(
       this.getters,
       this.labelRange,
