@@ -1,6 +1,10 @@
 import type { ChartConfiguration, ChartDataset, Chart as ChartType, LegendOptions } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
-import { BACKGROUND_CHART_COLOR, LINE_FILL_TRANSPARENCY } from "../../../constants";
+import {
+  BACKGROUND_CHART_COLOR,
+  INCORRECT_RANGE_STRING,
+  LINE_FILL_TRANSPARENCY,
+} from "../../../constants";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -180,7 +184,7 @@ export class LineChart extends AbstractChart {
     if (this.aggregated) return undefined;
     const dataSets: ExcelChartDataset[] = this.dataSets
       .map((ds: DataSet) => toExcelDataset(this.getters, ds))
-      .filter((ds) => ds.range !== ""); // && range !== INCORRECT_RANGE_STRING ? show incorrect #ref ?
+      .filter((ds) => ds.range !== "" && ds.range !== INCORRECT_RANGE_STRING);
     const labelRange = toExcelLabelRange(
       this.getters,
       this.labelRange,
