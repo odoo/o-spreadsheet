@@ -894,9 +894,21 @@ exports[`datasource tests create chart with only the dataset title (no data) 1`]
   "background": "#FFFFFF",
   "chartJsConfig": {
     "data": {
-      "datasets": [],
+      "datasets": [
+        {
+          "backgroundColor": "#1F77B4",
+          "borderColor": "rgb(31,119,180)",
+          "data": [
+            undefined,
+            undefined,
+          ],
+          "fill": false,
+          "label": "30",
+          "lineTension": 0,
+          "pointBackgroundColor": "rgb(31,119,180)",
+        },
+      ],
       "labels": [
-        "P4",
         "P5",
         "P6",
       ],
