@@ -3,7 +3,7 @@
     <Section class="'o-data-labels'">
       <t t-set-slot="title" t-esc="props.title"/>
       <SelectionInput
-        ranges="() => [props.range()]"
+        ranges="[props.range]"
         isInvalid="props.isInvalid"
         hasSingleRange="true"
         required="props.required"

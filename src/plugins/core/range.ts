@@ -43,6 +43,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     "getRangeDataFromZone",
     "getRangeFromRangeData",
     "getRangeFromZone",
+    "isRangeValid",
   ] as const;
 
   // ---------------------------------------------------------------------------
@@ -416,6 +417,17 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     };
 
     return new RangeImpl(rangeInterface, this.getters.getSheetSize);
+  }
+
+  isRangeValid(rangeStr: string): boolean {
+    if (!rangeStr) {
+      return false;
+    }
+    const { xc, sheetName } = splitReference(rangeStr);
+    return (
+      xc.match(rangeReference) !== null &&
+      (!sheetName || this.getters.getSheetIdByName(sheetName) !== undefined)
+    );
   }
 
   // ---------------------------------------------------------------------------

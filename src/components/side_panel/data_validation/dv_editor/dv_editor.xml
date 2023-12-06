@@ -4,7 +4,7 @@
       <Section class="'o-dv-range'">
         <t t-set-slot="title">Apply to range</t>
         <SelectionInput
-          ranges="() => state.rule.ranges"
+          ranges="state.rule.ranges"
           onSelectionChanged="(ranges) => this.onRangesChanged(ranges)"
           required="true"
         />

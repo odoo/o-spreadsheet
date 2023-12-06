@@ -28,7 +28,6 @@ import { HeaderVisibilityUIPlugin } from "../plugins/ui_feature/header_visibilit
 import { HighlightPlugin } from "../plugins/ui_feature/highlight";
 import { HistoryPlugin } from "../plugins/ui_feature/local_history";
 import { RendererPlugin } from "../plugins/ui_feature/renderer";
-import { SelectionInputsManagerPlugin } from "../plugins/ui_feature/selection_inputs_manager";
 import { SortPlugin } from "../plugins/ui_feature/sort";
 import { SplitToColumnsPlugin } from "../plugins/ui_feature/split_to_columns";
 import { UIOptionsPlugin } from "../plugins/ui_feature/ui_options";
@@ -131,7 +130,6 @@ export type Getters = {
   PluginGetters<typeof AutomaticSumPlugin> &
   PluginGetters<typeof RendererPlugin> &
   PluginGetters<typeof GridSelectionPlugin> &
-  PluginGetters<typeof SelectionInputsManagerPlugin> &
   PluginGetters<typeof CollaborativePlugin> &
   PluginGetters<typeof SortPlugin> &
   PluginGetters<typeof UIOptionsPlugin> &

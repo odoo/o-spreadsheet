@@ -4,7 +4,7 @@
       <Section class="'o-data-series'">
         <t t-set-slot="title">Key value</t>
         <SelectionInput
-          ranges="() => [this.getKeyValueRange()]"
+          ranges="[this.getKeyValueRange()]"
           isInvalid="isKeyValueInvalid"
           hasSingleRange="true"
           required="true"
@@ -16,7 +16,7 @@
         <t t-set-slot="title">Baseline configuration</t>
         <div class="o-section-subtitle">Baseline value</div>
         <SelectionInput
-          ranges="() => [this.getBaselineRange()]"
+          ranges="[this.getBaselineRange()]"
           isInvalid="isBaselineInvalid"
           hasSingleRange="true"
           onSelectionChanged="(ranges) => this.onBaselineRangeChanged(ranges)"

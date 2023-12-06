@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-GaugeChartConfigPanel">
     <div>
       <ChartDataSeries
-        ranges="() => [this.getDataRange()]"
+        ranges="[this.getDataRange()]"
         onSelectionChanged="(ranges) => this.onDataRangeChanged(ranges)"
         onSelectionConfirmed="() => this.updateDataRange()"
         hasSingleRange="true"

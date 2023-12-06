@@ -16,12 +16,12 @@
         />
       </Section>
       <ChartDataSeries
-        ranges="() => this.getDataSeriesRanges()"
+        ranges="this.getDataSeriesRanges()"
         onSelectionChanged="(ranges) => this.onDataSeriesRangesChanged(ranges)"
         onSelectionConfirmed="() => this.onDataSeriesConfirmed()"
       />
       <ChartLabelRange
-        range="() => this.getLabelRange()"
+        range="this.getLabelRange()"
         isInvalid="isLabelInvalid"
         onSelectionChanged="(ranges) => this.onLabelRangeChanged(ranges)"
         onSelectionConfirmed="() => this.onLabelRangeConfirmed()"

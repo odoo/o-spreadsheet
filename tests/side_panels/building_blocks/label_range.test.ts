@@ -23,7 +23,7 @@ async function mountLabelRange(props: Props) {
 describe("Label range", () => {
   test("Can render a label range component", async () => {
     await mountLabelRange({
-      range: () => "A1:B1",
+      range: "A1:B1",
       isInvalid: false,
       onSelectionChanged: () => {},
       onSelectionConfirmed: () => {},
@@ -33,7 +33,7 @@ describe("Label range", () => {
 
   test("Can add options to the label range component", async () => {
     await mountLabelRange({
-      range: () => "A1:B1",
+      range: "A1:B1",
       isInvalid: false,
       onSelectionChanged: () => {},
       onSelectionConfirmed: () => {},
@@ -51,7 +51,7 @@ describe("Label range", () => {
 
   test("Can make the label range required", async () => {
     await mountLabelRange({
-      range: () => "A1:B1",
+      range: "A1:B1",
       isInvalid: false,
       onSelectionChanged: () => {},
       onSelectionConfirmed: () => {},

@@ -724,6 +724,7 @@ export class EditionPlugin extends UIPlugin {
         zone: range.zone,
         color: rangeColor(rangeString),
         sheetId: range.sheetId,
+        interactive: true,
       };
     });
   }
