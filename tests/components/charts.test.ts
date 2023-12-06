@@ -1035,6 +1035,53 @@ describe("charts", () => {
       await simulateClick(".o-menu div[data-name='edit']");
       expect(document.querySelector("input[name='labelsAsText']")).toBeFalsy();
     });
+
+    test("Side panel correctly reacts to has_header checkbox check/uncheck (with only one point)", async () => {
+      createTestChart("basicChart");
+      updateChart(model, chartId, { type: "line", labelRange: "C2", dataSets: ["A1"] });
+      await nextTick();
+      await simulateClick(".o-figure");
+      await simulateClick(".o-figure-menu-item");
+      await simulateClick(".o-menu div[data-name='edit']");
+
+      const checkbox = document.querySelector("input[name='labelsAsText']") as HTMLInputElement;
+      expect(checkbox.checked).toBe(false);
+
+      await simulateClick(checkbox);
+      expect(checkbox.checked).toBe(true);
+    });
+
+    test("Side panel correctly reacts to has_header checkbox check/uncheck (with two datasets)", async () => {
+      createTestChart("basicChart");
+      updateChart(model, chartId, { type: "line", labelRange: "C2", dataSets: ["A1:A2", "A1"] });
+      await nextTick();
+      await simulateClick(".o-figure");
+      await simulateClick(".o-figure-menu-item");
+      await simulateClick(".o-menu div[data-name='edit']");
+
+      const checkbox = document.querySelector("input[name='labelsAsText']") as HTMLInputElement;
+      expect(checkbox.checked).toBe(false);
+
+      expect(checkbox.checked).toBe(false);
+      expect((model.getters.getChartDefinition(chartId) as LineChartDefinition).dataSets).toEqual([
+        "A1:A2",
+        "A1",
+      ]);
+
+      await simulateClick(checkbox);
+      expect(checkbox.checked).toBe(true);
+      expect((model.getters.getChartDefinition(chartId) as LineChartDefinition).dataSets).toEqual([
+        "A1:A2",
+        "A1",
+      ]);
+
+      await simulateClick(checkbox);
+      expect(checkbox.checked).toBe(false);
+      expect((model.getters.getChartDefinition(chartId) as LineChartDefinition).dataSets).toEqual([
+        "A1:A2",
+        "A1",
+      ]);
+    });
   });
 });
 
