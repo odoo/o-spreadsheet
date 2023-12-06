@@ -2,6 +2,7 @@ import { CommandResult, Model, Spreadsheet } from "../../../src";
 import { ChartTerms } from "../../../src/components/translations_terms";
 import { BACKGROUND_CHART_COLOR } from "../../../src/constants";
 import { toHex } from "../../../src/helpers";
+import { ScorecardChart } from "../../../src/helpers/figures/charts";
 import { ChartDefinition } from "../../../src/types";
 import { BarChartDefinition } from "../../../src/types/chart/bar_chart";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
@@ -243,11 +244,10 @@ describe("charts", () => {
           break;
         case "scorecard":
           setInputValueAndTrigger(dataSeriesValues, "B2:B4");
-          expect(dispatch).toHaveBeenLastCalledWith("CHANGE_RANGE", {
-            value: "B2:B4",
-            id: expect.anything(),
-            rangeId: expect.anything(),
-          });
+          await nextTick();
+          await simulateClick(".o-data-series .o-selection-ok");
+          const definition = model.getters.getChartDefinition(chartId) as ScorecardChart;
+          expect(definition.keyValue).toEqual("B2:B4");
           break;
       }
       await simulateClick(".o-panel .inactive");

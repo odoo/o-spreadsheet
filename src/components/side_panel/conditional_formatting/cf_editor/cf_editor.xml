@@ -5,7 +5,7 @@
         <t t-set-slot="title">Apply to range</t>
         <div class="o-selection-cf">
           <SelectionInput
-            ranges="() => state.currentCF.ranges"
+            ranges="state.currentCF.ranges"
             class="'o-range'"
             isInvalid="isRangeValid"
             onSelectionChanged="(ranges) => this.onRangesChanged(ranges)"

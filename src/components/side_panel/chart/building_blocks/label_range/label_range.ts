@@ -7,7 +7,7 @@ import { Section } from "../../../components/section/section";
 
 interface Props {
   title?: string;
-  range: () => string;
+  range: string;
   isInvalid: boolean;
   required?: boolean;
   onSelectionChanged: (range: string) => void;
@@ -25,7 +25,7 @@ export class ChartLabelRange extends Component<Props, SpreadsheetChildEnv> {
   static components = { SelectionInput, Checkbox, Section };
   static props = {
     title: { type: String, optional: true },
-    range: Function,
+    range: String,
     isInvalid: Boolean,
     required: { type: Boolean, optional: true },
     onSelectionChanged: Function,

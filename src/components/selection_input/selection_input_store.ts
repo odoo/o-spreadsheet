@@ -1,8 +1,11 @@
+import { toRaw } from "@odoo/owl";
 import { colors, isEqual, positionToZone, splitReference } from "../../helpers/index";
-import { StreamCallbacks } from "../../selection_stream/event_stream";
+import { Get } from "../../store_engine";
+import { SpreadsheetStore } from "../../stores";
+import { HighlightStore } from "../../stores/highlight_store";
 import { SelectionEvent } from "../../types/event_stream";
-import { Color, Command, Highlight, LAYERS, UID } from "../../types/index";
-import { UIPlugin, UIPluginConfig } from "../ui_plugin";
+import { Color, Command, Highlight, UID } from "../../types/index";
+import { FocusStore } from "../focus_store";
 
 export interface RangeInputValue {
   id: number;
@@ -17,36 +20,32 @@ export interface RangeInputValue {
  * it requires an intermediary internal state to work.
  * This plugin handles this internal state.
  */
-export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<SelectionEvent> {
-  static layers = [LAYERS.Highlights];
-  static getters = [];
-
+export class SelectionInputStore extends SpreadsheetStore {
   ranges: RangeInputValue[] = [];
   focusedRangeIndex: number | null = null;
   private inputSheetId: UID;
+  private focusStore = this.get(FocusStore);
+  protected highlightStore = this.get(HighlightStore);
 
   constructor(
-    config: UIPluginConfig,
-    initialRanges: string[],
-    readonly inputHasSingleRange: boolean
+    get: Get,
+    private initialRanges: string[] = [],
+    private readonly inputHasSingleRange: boolean = false
   ) {
+    super(get);
     if (inputHasSingleRange && initialRanges.length > 1) {
       throw new Error(
         "Input with a single range cannot be instantiated with several range references."
       );
     }
-    super(config);
-    this.insertNewRange(0, initialRanges);
     this.inputSheetId = this.getters.getActiveSheetId();
-    if (this.ranges.length === 0) {
-      this.insertNewRange(this.ranges.length, [""]);
-      this.focusLast();
-    }
+    this.resetWithRanges(initialRanges);
+    this.highlightStore.register(this);
+    this.onDispose(() => {
+      this.unfocus();
+      this.highlightStore.unRegister(this);
+    });
   }
-
-  // ---------------------------------------------------------------------------
-  // Command Handling
-  // ---------------------------------------------------------------------------
 
   handleEvent(event: SelectionEvent) {
     if (this.focusedRangeIndex === null) {
@@ -83,38 +82,6 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "UNFOCUS_SELECTION_INPUT":
-        this.unfocus();
-        break;
-      case "FOCUS_RANGE":
-        this.focus(this.getIndex(cmd.rangeId));
-        break;
-      case "CHANGE_RANGE": {
-        const index = this.getIndex(cmd.rangeId);
-        if (index !== null && this.focusedRangeIndex !== index) {
-          this.focus(index);
-        }
-        if (index !== null) {
-          const valueWithoutLeadingComma = cmd.value.replace(/^,+/, "");
-          const values = valueWithoutLeadingComma.split(",").map((reference) => reference.trim());
-          this.setRange(index, values);
-        }
-        break;
-      }
-      case "ADD_EMPTY_RANGE":
-        this.insertNewRange(this.ranges.length, [""]);
-        this.focusLast();
-        break;
-      case "ADD_RANGE":
-        this.insertNewRange(this.ranges.length, [cmd.value]);
-        this.focusLast();
-        break;
-      case "REMOVE_RANGE":
-        const index = this.getIndex(cmd.rangeId);
-        if (index !== null) {
-          this.removeRange(index);
-        }
-        break;
       case "ACTIVATE_SHEET": {
         if (cmd.sheetIdFrom !== cmd.sheetIdTo) {
           const { col, row } = this.getters.getNextVisibleCellPosition({
@@ -123,7 +90,7 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
             row: 0,
           });
           const zone = this.getters.expandZone(cmd.sheetIdTo, positionToZone({ col, row }));
-          this.selection.resetAnchor(this, { cell: { col, row }, zone });
+          this.model.selection.resetAnchor(toRaw(this), { cell: { col, row }, zone });
         }
         break;
       }
@@ -143,17 +110,75 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
         if (focusIndex !== -1) {
           this.focus(focusIndex);
           const { left, top } = newZone;
-          this.selection.resetAnchor(this, { cell: { col: left, row: top }, zone: newZone });
+          this.model.selection.resetAnchor(toRaw(this), {
+            cell: { col: left, row: top },
+            zone: newZone,
+          });
         }
         break;
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Getters || only callable by the parent
-  // ---------------------------------------------------------------------------
+  changeRange(rangeId: number, value: string) {
+    if (this.inputHasSingleRange && value.split(",").length > 1) {
+      return;
+    }
+    const index = this.getIndex(rangeId);
+    if (index !== null && this.focusedRangeIndex !== index) {
+      this.focus(index);
+    }
+    if (index !== null) {
+      const valueWithoutLeadingComma = value.replace(/^,+/, "");
+      const values = valueWithoutLeadingComma.split(",").map((reference) => reference.trim());
+      this.setRange(index, values);
+      this.captureSelection();
+    }
+  }
 
-  getSelectionInputValue(): string[] {
+  addEmptyRange() {
+    if (this.inputHasSingleRange && this.ranges.length === 1) {
+      return;
+    }
+    this.insertNewRange(this.ranges.length, [""]);
+    this.focusLast();
+  }
+
+  removeRange(rangeId: number) {
+    if (this.ranges.length === 1) {
+      return;
+    }
+    const index = this.getIndex(rangeId);
+    if (index !== null) {
+      this.removeRangeByIndex(index);
+    }
+  }
+
+  confirm() {
+    for (const range of this.selectionInputs) {
+      if (range.xc === "") {
+        this.removeRange(range.id);
+      }
+    }
+    const activeSheetId = this.getters.getActiveSheetId();
+    if (this.inputSheetId !== activeSheetId) {
+      this.model.dispatch("ACTIVATE_SHEET", {
+        sheetIdFrom: activeSheetId,
+        sheetIdTo: this.inputSheetId,
+      });
+    }
+    if (this.selectionInputValues.join() !== this.initialRanges.join()) {
+      this.resetWithRanges(this.selectionInputValues);
+    }
+    this.initialRanges = this.selectionInputValues;
+    this.unfocus();
+  }
+
+  reset() {
+    this.resetWithRanges(this.initialRanges);
+    this.confirm();
+  }
+
+  get selectionInputValues(): string[] {
     return this.cleanInputs(
       this.ranges.map((range) => {
         return range.xc ? range.xc : "";
@@ -161,7 +186,44 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
     );
   }
 
-  getSelectionInputHighlights(): Highlight[] {
+  /**
+   * Return a list of all valid XCs.
+   * e.g. ["A1", "Sheet2!B3", "E12"]
+   */
+  get selectionInputs(): (RangeInputValue & { isFocused: boolean; isValidRange: boolean })[] {
+    return this.ranges.map((input, index) =>
+      Object.assign({}, input, {
+        color:
+          this.hasMainFocus &&
+          this.focusedRangeIndex !== null &&
+          this.getters.isRangeValid(input.xc)
+            ? input.color
+            : null,
+        isFocused: this.hasMainFocus && this.focusedRangeIndex === index,
+        isValidRange: input.xc === "" || this.getters.isRangeValid(input.xc),
+      })
+    );
+  }
+
+  get isResettable(): boolean {
+    return this.initialRanges.join() !== this.ranges.map((r) => r.xc).join();
+  }
+
+  get isConfirmable(): boolean {
+    const hasFocus = this.selectionInputs.some((i) => i.isFocused);
+    return hasFocus && this.selectionInputs.every((range) => range.isValidRange);
+  }
+
+  private get hasMainFocus() {
+    const focusedElement = this.focusStore.focusedElement;
+    return !!focusedElement && toRaw(focusedElement) === toRaw(this);
+  }
+
+  get highlights(): Highlight[] {
+    if (!this.hasMainFocus) {
+      return [];
+    }
+    // TODO expand zone globally
     return this.ranges.map((input) => this.inputToHighlights(input)).flat();
   }
 
@@ -169,19 +231,53 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
   // Other
   // ---------------------------------------------------------------------------
 
+  focusById(rangeId: number) {
+    this.focus(this.getIndex(rangeId));
+  }
+
   /**
    * Focus a given range or remove the focus.
    */
   private focus(index: number | null) {
+    this.focusStore.focus(this);
     this.focusedRangeIndex = index;
+    this.captureSelection();
   }
 
   private focusLast() {
     this.focus(this.ranges.length - 1);
   }
 
-  private unfocus() {
+  unfocus() {
     this.focusedRangeIndex = null;
+    this.focusStore.unfocus(this);
+    this.model.selection.release(toRaw(this));
+  }
+
+  private captureSelection() {
+    if (this.focusedRangeIndex === null) {
+      return;
+    }
+    const range = this.ranges[this.focusedRangeIndex];
+    const sheetId = this.getters.getActiveSheetId();
+    const zone = this.getters.getRangeFromSheetXC(sheetId, range?.xc || "A1").zone;
+    this.model.selection.capture(
+      toRaw(this),
+      { cell: { col: zone.left, row: zone.top }, zone },
+      {
+        handleEvent: this.handleEvent.bind(this),
+        release: this.unfocus.bind(this),
+      }
+    );
+  }
+
+  resetWithRanges(ranges: string[]) {
+    this.ranges = [];
+    this.insertNewRange(0, ranges);
+    if (this.ranges.length === 0) {
+      this.insertNewRange(this.ranges.length, [""]);
+      this.focusLast();
+    }
   }
 
   private setContent(index: number, xc: string) {
@@ -221,7 +317,7 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
     }
   }
 
-  private removeRange(index: number) {
+  private removeRangeByIndex(index: number) {
     this.ranges.splice(index, 1);
     if (this.focusedRangeIndex !== null) {
       this.focusLast();
@@ -244,6 +340,7 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
         zone: this.getters.getRangeFromSheetXC(this.inputSheetId, xc).zone,
         sheetId: (sheetName && this.getters.getSheetIdByName(sheetName)) || this.inputSheetId,
         color,
+        interactive: true,
       };
     });
   }

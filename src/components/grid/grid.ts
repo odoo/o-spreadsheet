@@ -33,6 +33,8 @@ import {
   unGroupHeadersMenuRegistry,
 } from "../../registries/menus/header_group_registry";
 import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
+import { Store, useStore } from "../../store_engine";
+import { HighlightStore } from "../../stores/highlight_store";
 import { _t } from "../../translation";
 import {
   Align,
@@ -136,12 +138,14 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   private menuState!: MenuState;
   private gridRef!: Ref<HTMLElement>;
   private hiddenInput!: Ref<HTMLElement>;
+  private highlightStore!: Store<HighlightStore>;
 
   onMouseWheel!: (ev: WheelEvent) => void;
   canvasPosition!: DOMCoordinates;
   hoveredCell!: Partial<Position>;
 
   setup() {
+    this.highlightStore = useStore(HighlightStore);
     this.menuState = useState({
       isOpen: false,
       position: null,
@@ -172,6 +176,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   onCellHovered({ col, row }) {
     this.hoveredCell.col = col;
     this.hoveredCell.row = row;
+  }
+
+  get highlights() {
+    return this.highlightStore.highlights;
   }
 
   get gridOverlayDimensions() {

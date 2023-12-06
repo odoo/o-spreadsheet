@@ -15,9 +15,7 @@ export class HighlightPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   getHighlights(): Highlight[] {
-    return this.prepareHighlights(
-      this.getters.getComposerHighlights().concat(this.getters.getSelectionInputHighlights())
-    );
+    return this.prepareHighlights(this.getters.getComposerHighlights());
   }
 
   // ---------------------------------------------------------------------------

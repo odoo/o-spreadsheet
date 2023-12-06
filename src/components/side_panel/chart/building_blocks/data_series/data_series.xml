@@ -3,7 +3,7 @@
     <Section class="'o-data-series'">
       <t t-set-slot="title" t-esc="title"/>
       <SelectionInput
-        ranges="() => props.ranges()"
+        ranges="props.ranges"
         required="true"
         hasSingleRange="props.hasSingleRange"
         onSelectionChanged="(ranges) => props.onSelectionChanged(ranges)"

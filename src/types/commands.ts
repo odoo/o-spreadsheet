@@ -789,101 +789,6 @@ export interface AutofillAutoCommand {
   type: "AUTOFILL_AUTO";
 }
 
-/**
- * Create a new state for a SelectionInput component
- */
-export interface NewInputCommand {
-  type: "ENABLE_NEW_SELECTION_INPUT";
-  /**
-   * Identifier to use to reference this state.
-   */
-  id: string;
-  /**
-   * Initial ranges for the state.
-   * e.g. ["B4", "A1:A3"]
-   */
-  initialRanges?: string[];
-  /**
-   * is the input limited to one range or has no limit ?
-   */
-  hasSingleRange?: boolean;
-}
-
-/**
- * Delete an identified SelectionInput state.
- */
-export interface RemoveInputCommand {
-  type: "DISABLE_SELECTION_INPUT";
-  /** SelectionComponent id */
-  id: string;
-}
-
-export interface UnfocusInputCommand {
-  type: "UNFOCUS_SELECTION_INPUT";
-}
-
-/**
- * Set the focus on a given range of a SelectionComponent state.
- */
-export interface FocusInputCommand {
-  type: "FOCUS_RANGE";
-  /** SelectionComponent id */
-  id: string;
-  /**
-   * Range to focus
-   */
-  rangeId: number;
-}
-
-/**
- * Add an empty range at the end of a SelectionComponent state
- * and focus it.
- */
-export interface AddEmptyRangeCommand {
-  type: "ADD_EMPTY_RANGE";
-  /** SelectionComponent id */
-  id: string;
-}
-
-/**
- * Add an range at the end of a SelectionComponent state
- * and focus it.
- */
-export interface AddRangeCommand {
-  type: "ADD_RANGE";
-  /** SelectionComponent id */
-  id: string;
-  /** The range to be added */
-  value: string;
-}
-
-/**
- * Remove a given range in a SelectionComponent state
- */
-export interface RemoveRangeCommand {
-  type: "REMOVE_RANGE";
-  /** SelectionComponent id */
-  id: string;
-  /** The range to be removed */
-  rangeId: number;
-}
-
-/**
- * Set a new value for a given range of a SelectionComponent state.
- */
-export interface ChangeRangeCommand {
-  type: "CHANGE_RANGE";
-  /** SelectionComponent id */
-  id: string;
-  /** The range to be changed */
-  rangeId: number;
-  /**
-   * Range to set in the input. Invalid ranges are also accepted.
-   * e.g. "B2:B3" or the invalid "A5:"
-   */
-  value: string;
-}
-
 export interface SelectFigureCommand {
   type: "SELECT_FIGURE";
   id: UID;
@@ -1097,14 +1002,6 @@ export type LocalCommand =
   | RequestRedoCommand
   | UndoCommand
   | RedoCommand
-  | NewInputCommand
-  | RemoveInputCommand
-  | UnfocusInputCommand
-  | FocusInputCommand
-  | AddEmptyRangeCommand
-  | AddRangeCommand
-  | RemoveRangeCommand
-  | ChangeRangeCommand
   | CopyCommand
   | CutCommand
   | PasteCommand

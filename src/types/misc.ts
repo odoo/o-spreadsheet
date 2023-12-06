@@ -225,6 +225,7 @@ export interface Highlight {
   zone: Zone;
   sheetId: UID;
   color: Color;
+  interactive?: boolean;
   noFill?: boolean;
 }
 
