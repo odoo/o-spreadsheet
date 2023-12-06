@@ -19,7 +19,7 @@ import {
   invalidateDependenciesCommands,
 } from "../../../types/index";
 import { UIPlugin, UIPluginConfig } from "../../ui_plugin";
-import { CoreViewCommand } from "./../../../types/commands";
+import { CoreViewCommand, invalidateEvaluationCommands } from "./../../../types/commands";
 import { Evaluator } from "./evaluator";
 
 //#region
@@ -166,7 +166,10 @@ export class EvaluationPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   beforeHandle(cmd: Command) {
-    if (invalidateDependenciesCommands.has(cmd.type)) {
+    if (
+      invalidateEvaluationCommands.has(cmd.type) ||
+      invalidateDependenciesCommands.has(cmd.type)
+    ) {
       this.shouldRebuildDependenciesGraph = true;
     }
   }

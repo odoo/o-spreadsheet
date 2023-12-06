@@ -25,7 +25,7 @@ import {
   isMatrix,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
-import { CoreViewCommand } from "./../../types/commands";
+import { CoreViewCommand, invalidateEvaluationCommands } from "./../../types/commands";
 
 type ComputedStyles = { [col: HeaderIndex]: (Style | undefined)[] };
 type ComputedIcons = { [col: HeaderIndex]: (string | undefined)[] };
@@ -43,6 +43,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
 
   handle(cmd: CoreViewCommand) {
     if (
+      invalidateEvaluationCommands.has(cmd.type) ||
       invalidateCFEvaluationCommands.has(cmd.type) ||
       (cmd.type === "UPDATE_CELL" && ("content" in cmd || "format" in cmd))
     ) {

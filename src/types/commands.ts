@@ -119,13 +119,9 @@ export const invalidateEvaluationCommands = new Set<CommandTypes>([
   "UPDATE_LOCALE",
 ]);
 
-export const invalidateDependenciesCommands = new Set<CommandTypes>([
-  ...invalidateEvaluationCommands,
-  "MOVE_RANGES",
-]);
+export const invalidateDependenciesCommands = new Set<CommandTypes>(["MOVE_RANGES"]);
 
 export const invalidateCFEvaluationCommands = new Set<CommandTypes>([
-  ...invalidateEvaluationCommands,
   "DUPLICATE_SHEET",
   "EVALUATE_CELLS",
   "ADD_CONDITIONAL_FORMAT",
