@@ -293,7 +293,7 @@ class Demo extends Component {
     const text = document.createTextNode(notification.text);
     div.appendChild(text);
     div.style = NOTIFICATION_STYLE;
-    const element = document.querySelector(".o-spreadsheet");
+    const element = document.querySelector(".o-spreadsheet") || document.body; // if we crash on launch, the spreadsheet is not mounted yet
     div.onclick = () => {
       element.removeChild(div);
     };
