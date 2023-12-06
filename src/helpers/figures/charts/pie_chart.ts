@@ -28,6 +28,7 @@ import {
 } from "../../../types/chart/chart";
 import { LegendPosition } from "../../../types/chart/common_chart";
 import { PieChartDefinition, PieChartRuntime } from "../../../types/chart/pie_chart";
+import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { formatValue } from "../../format";
@@ -166,7 +167,7 @@ export class PieChart extends AbstractChart {
     if (this.aggregated) return undefined;
     const dataSets: ExcelChartDataset[] = this.dataSets
       .map((ds: DataSet) => toExcelDataset(this.getters, ds))
-      .filter((ds) => ds.range !== ""); // && range !== CellErrorType.InvalidReference ? show incorrect #ref ?
+      .filter((ds) => ds.range !== "" && ds.range !== CellErrorType.InvalidReference);
     const labelRange = toExcelLabelRange(
       this.getters,
       this.labelRange,
