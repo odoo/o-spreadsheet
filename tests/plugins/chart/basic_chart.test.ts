@@ -231,12 +231,14 @@ describe("datasource tests", function () {
     );
     const chart = model.getters.getChartRuntime("1") as LineChartRuntime;
     expect(model.getters.getChartDefinition("1")).toMatchObject({
-      dataSets: [],
+      dataSets: ["B8"],
       labelRange: "Sheet1!B7:D7",
       title: "test",
       type: "line",
     });
-    expect(chart.chartJsConfig.data?.datasets).toHaveLength(0);
+    expect(chart.chartJsConfig.data?.datasets?.[0].data).toEqual(
+      expect.arrayContaining([undefined, undefined])
+    );
     expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
   });
 
@@ -574,7 +576,8 @@ describe("datasource tests", function () {
     );
     deleteRows(model, [1, 2, 3, 4]);
     const chart = (model.getters.getChartRuntime("1") as LineChartRuntime).chartJsConfig;
-    expect(chart.data!.datasets).toHaveLength(0);
+    expect(chart.data!.datasets?.[0].data).toHaveLength(0);
+    expect(chart.data!.datasets?.[1].data).toHaveLength(0);
     expect(chart.data!.labels).toEqual([]);
   });
 
