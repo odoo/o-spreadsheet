@@ -1307,8 +1307,6 @@ exports[`renderer snapshot for a simple grid rendering 1`] = `
   "context.stroke()",
   "context.restore()",
   "context.save()",
-  "context.restore()",
-  "context.save()",
   "context.lineWidth=2;",
   "context.restore()",
   "context.save()",

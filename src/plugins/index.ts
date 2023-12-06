@@ -35,7 +35,6 @@ import {
   HeaderVisibilityUIPlugin,
   HighlightPlugin,
   RendererPlugin,
-  SelectionInputsManagerPlugin,
   SheetUIPlugin,
   SortPlugin,
   UIOptionsPlugin,
@@ -72,7 +71,6 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
 export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("ui_sheet", SheetUIPlugin)
   .add("ui_options", UIOptionsPlugin)
-  .add("selectionInputManager", SelectionInputsManagerPlugin)
   .add("highlight", HighlightPlugin)
   .add("grid renderer", RendererPlugin)
   .add("autofill", AutofillPlugin)

@@ -4,7 +4,7 @@
       <div class="o-section o-dv-range">
         <div class="o-section-title">Apply to range</div>
         <SelectionInput
-          ranges="() => state.rule.ranges"
+          ranges="state.rule.ranges"
           onSelectionChanged="(ranges) => this.onRangesChanged(ranges)"
           required="true"
         />

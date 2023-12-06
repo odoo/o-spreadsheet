@@ -15,10 +15,6 @@ export abstract class RendererStore extends SpreadsheetStore {
     this.rendererManager.unRegister(this);
   }
 
-  triggerRender() {
-    this.rendererManager.triggerRender();
-  }
-
   abstract get layers(): LAYERS[];
   abstract draw(ctx: GridRenderingContext, layer: LAYERS): void;
 }

@@ -21,10 +21,6 @@ export class RenderersManagerStore extends ReactiveStore {
     }
   }
 
-  triggerRender() {
-    this.model.dispatch("RENDER_CANVAS", {});
-  }
-
   drawLayer(ctx: GridRenderingContext, layer: LAYERS) {
     const renderers = this.renderers[layer];
     if (renderers) {

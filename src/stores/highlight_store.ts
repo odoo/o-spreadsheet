@@ -1,3 +1,4 @@
+import { zoneToDimension } from "../helpers";
 import { drawHighlight } from "../helpers/rendering";
 import { GridRenderingContext, Highlight, LAYERS } from "../types";
 import { RendererStore } from "./renderer_store";
@@ -13,29 +14,42 @@ export class HighlightStore extends RendererStore {
     return [LAYERS.Highlights];
   }
 
+  get highlights(): Highlight[] {
+    return this.highlightGetters
+      .flatMap((h) => h.getHighlights())
+      .concat(this.model.getters.getHighlights())
+      .map((highlight) => {
+        // FIXME duplicated from the highlight plugin
+        const { numberOfRows, numberOfCols } = zoneToDimension(highlight.zone);
+        const zone =
+          numberOfRows * numberOfCols === 1
+            ? this.getters.expandZone(highlight.sheetId, highlight.zone)
+            : highlight.zone;
+        return {
+          ...highlight,
+          zone,
+        };
+      });
+  }
+
   register(highlightGetter: HighlightGetter) {
     this.highlightGetters.push(highlightGetter);
-    this.triggerRender();
   }
 
   unRegister(highlightGetter: HighlightGetter) {
     this.highlightGetters = this.highlightGetters.filter((h) => h !== highlightGetter);
-    this.triggerRender();
   }
 
   dispose() {
     super.dispose();
     this.highlightGetters = [];
-    this.triggerRender();
   }
 
   draw(ctx: GridRenderingContext, layer: LAYERS): void {
     if (layer === LAYERS.Highlights) {
-      for (const highlightGetters of this.highlightGetters) {
-        for (const highlight of highlightGetters.getHighlights()) {
-          const rect = this.getters.getVisibleRect(highlight.zone);
-          drawHighlight(ctx, highlight, rect);
-        }
+      for (const highlight of this.highlights) {
+        const rect = this.getters.getVisibleRect(highlight.zone);
+        drawHighlight(ctx, highlight, rect);
       }
     }
   }

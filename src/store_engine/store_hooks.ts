@@ -36,9 +36,9 @@ export function useLocalStore<T extends DisposableStoreConstructor>(
 ): Store<InstanceType<T>> {
   const env = useEnv();
   const container = getDependencyContainer(env);
-  const store = container.instantiate(Store, ...args);
+  const store = useState(container.instantiate(Store, ...args));
   onWillUnmount(() => store.dispose());
-  return useState(store);
+  return store;
 }
 
 function getDependencyContainer(env: Env) {

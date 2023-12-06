@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-DataValidationValueInRangeCriterionForm">
     <SelectionInput
-      ranges="() => [props.criterion.values[0] || '']"
+      ranges="[props.criterion.values[0] || '']"
       onSelectionChanged="(ranges) => this.onRangeChanged(ranges[0])"
       required="true"
       hasSingleRange="true"

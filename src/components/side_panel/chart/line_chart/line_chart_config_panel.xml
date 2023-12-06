@@ -26,7 +26,7 @@
       <div class="o-section o-data-series">
         <div class="o-section-title">Data Series</div>
         <SelectionInput
-          ranges="() => this.getDataSeriesRanges()"
+          ranges="this.getDataSeriesRanges()"
           required="true"
           onSelectionChanged="(ranges) => this.onDataSeriesRangesChanged(ranges)"
           onSelectionConfirmed="() => this.onDataSeriesConfirmed()"
@@ -35,7 +35,7 @@
       <div class="o-section o-data-labels">
         <div class="o-section-title">Categories / Labels</div>
         <SelectionInput
-          ranges="() => [this.getLabelRange()]"
+          ranges="[this.getLabelRange()]"
           isInvalid="isLabelInvalid"
           hasSingleRange="true"
           onSelectionChanged="(ranges) => this.onLabelRangeChanged(ranges)"
