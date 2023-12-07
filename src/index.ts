@@ -88,7 +88,6 @@ import {
   numberFormatMenuRegistry,
   otRegistry,
   rowMenuRegistry,
-  sidePanelRegistry,
   topbarComponentRegistry,
   topbarMenuRegistry,
 } from "./registries/index";
@@ -97,6 +96,7 @@ import {
   repeatCommandTransformRegistry,
   repeatLocalCommandTransformRegistry,
 } from "./registries/repeat_commands_registry";
+import { sidePanelRegistry } from "./registries/side_panel_registry";
 import { AddFunctionDescription } from "./types";
 import { CellErrorLevel, EvaluationError } from "./types/errors";
 import { DEFAULT_LOCALE } from "./types/locale";
