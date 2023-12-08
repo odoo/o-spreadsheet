@@ -75,6 +75,17 @@ export function assertCostStrictlyPositive(cost: number) {
   assert(() => cost > 0, _t("The cost (%s) must be strictly positive.", cost.toString()));
 }
 
+export function assertPurchaseDatePositiveOrZero(purchaseDate: number) {
+  assert(
+    () => purchaseDate >= 0,
+    _t("The purchase_date (%s) must be positive or null.", purchaseDate.toString())
+  );
+}
+
+export function assertIssuePositiveOrZero(issue: number) {
+  assert(() => issue >= 0, _t("The issue (%s) must be positive or null.", issue.toString()));
+}
+
 export function assertCostPositiveOrZero(cost: number) {
   assert(() => cost >= 0, _t("The cost (%s) must be positive or null.", cost.toString()));
 }

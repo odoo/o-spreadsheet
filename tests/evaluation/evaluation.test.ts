@@ -1,13 +1,7 @@
 import { arg, functionRegistry } from "../../src/functions";
+import { toMatrix } from "../../src/functions/helpers";
 import { Model } from "../../src/model";
-import {
-  ArgValue,
-  CellValue,
-  CellValueType,
-  ComputeFunction,
-  ErrorCell,
-  Matrix,
-} from "../../src/types";
+import { CellValueType, ErrorCell } from "../../src/types";
 import { CellErrorType } from "../../src/types/errors";
 import {
   activateSheet,
@@ -294,10 +288,9 @@ describe("evaluateCells", () => {
   test("Evaluate only existing cells from a range partially outside of sheet", () => {
     functionRegistry.add("RANGE.COUNT.FUNCTION", {
       description: "any function",
-      compute: ((range: Matrix<CellValue>) => range.flat().length) as ComputeFunction<
-        ArgValue,
-        CellValue
-      >,
+      compute: function (range) {
+        return toMatrix(range).flat().length;
+      },
       args: [{ name: "range", description: "", type: ["RANGE"] }],
       returns: ["NUMBER"],
     });

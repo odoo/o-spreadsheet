@@ -6,11 +6,11 @@ import {
   Arg,
   CellValue,
   CellValueType,
-  isMatrix,
+  FPayload,
   Locale,
   Matrix,
   Maybe,
-  FPayload,
+  isMatrix,
 } from "../types";
 import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
@@ -123,7 +123,7 @@ export const FILTER = {
     ),
   ],
   returns: ["RANGE<ANY>"],
-  computeValueAndFormat: function (range: Arg, ...conditions: Arg[]): Matrix<FPayload> {
+  compute: function (range: Arg, ...conditions: Arg[]): Matrix<FPayload> {
     let _array = toMatrix(range);
     const _conditionsMatrices = conditions.map((cond) =>
       matrixMap(toMatrix(cond), (data) => data.value)
@@ -133,13 +133,12 @@ export const FILTER = {
     );
     assertSameDimensions(
       _t("The arguments conditions must have the same dimensions."),
-      ..._conditionsMatrices
+      ...conditions
     );
     const _conditions = _conditionsMatrices.map((c) => c.flat());
 
     const mode = _conditionsMatrices[0].length === 1 ? "row" : "col";
     _array = mode === "row" ? transposeMatrix(_array) : _array;
-
     assert(
       () => _conditions.every((cond) => cond.length === _array.length),
       _t("FILTER has mismatched sizes on the range and conditions.")
@@ -183,10 +182,7 @@ export const SORT: AddFunctionDescription = {
     ),
   ],
   returns: ["RANGE"],
-  computeValueAndFormat: function (
-    range: Matrix<FPayload>,
-    ...sortingCriteria: Arg[]
-  ): Matrix<FPayload> {
+  compute: function (range: Matrix<FPayload>, ...sortingCriteria: Arg[]): Matrix<FPayload> {
     const _range = transposeMatrix(range);
     return transposeMatrix(sortMatrix(_range, this.locale, ...sortingCriteria));
   },
@@ -219,7 +215,7 @@ export const SORTN: AddFunctionDescription = {
     ),
   ],
   returns: ["RANGE"],
-  computeValueAndFormat: function (
+  compute: function (
     range: Matrix<FPayload>,
     n: Maybe<FPayload>,
     displayTiesMode: Maybe<FPayload>,
@@ -306,7 +302,7 @@ export const UNIQUE = {
     ),
   ],
   returns: ["RANGE<NUMBER>"],
-  computeValueAndFormat: function (
+  compute: function (
     range: Arg = { value: "" },
     byColumn: Maybe<FPayload>,
     exactlyOnce: Maybe<FPayload>

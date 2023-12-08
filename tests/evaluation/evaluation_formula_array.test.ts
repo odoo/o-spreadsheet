@@ -1,18 +1,8 @@
 import { arg, functionRegistry } from "../../src/functions";
-import { toNumber } from "../../src/functions/helpers";
+import { toScalar } from "../../src/functions/helper_matrices";
+import { toMatrix, toNumber } from "../../src/functions/helpers";
 import { Model } from "../../src/model";
-import {
-  Arg,
-  ArgValue,
-  CellValue,
-  ComputeFunction,
-  DEFAULT_LOCALE,
-  Format,
-  Matrix,
-  Maybe,
-  FPayload,
-  isMatrix,
-} from "../../src/types";
+import { DEFAULT_LOCALE } from "../../src/types";
 import {
   addColumns,
   addRows,
@@ -39,26 +29,12 @@ describe("evaluate formulas that return an array", () => {
         arg("v (number)", "value to fill matrix"),
       ],
       returns: ["RANGE<NUMBER>"],
-      compute: function (n: Maybe<CellValue>, m: Maybe<CellValue>, v: Maybe<CellValue>): any[][] {
-        return Array.from({ length: toNumber(n, DEFAULT_LOCALE) }, (_, i) =>
-          Array.from({ length: toNumber(m, DEFAULT_LOCALE) }, (_, j) => v)
-        );
-      } as ComputeFunction<ArgValue, CellValue | Matrix<CellValue>>,
-    });
-
-    functionRegistry.add("TRANSPOSE", {
-      description: "Transpose a matrix.",
-      args: [arg("matrix (range<number>)", "The matrix to be transposed.")],
-      returns: ["NUMBER"],
-      compute: function (values) {
-        if (isMatrix(values)) {
-          return Array.from({ length: values[0].length }, (_, i) =>
-            Array.from({ length: values.length }, (_, j) => values[j][i])
-          );
-        }
-        return [[values]];
-      } as ComputeFunction<ArgValue, CellValue | Matrix<CellValue>>,
-      isExported: true,
+      compute: function (n, m, v): number[][] {
+        const _n = toNumber(toScalar(n), DEFAULT_LOCALE);
+        const _m = toNumber(toScalar(m), DEFAULT_LOCALE);
+        const _v = toNumber(toScalar(v), DEFAULT_LOCALE);
+        return Array.from({ length: _n }, (_, i) => Array.from({ length: _m }, (_, j) => _v));
+      },
     });
   });
 
@@ -110,14 +86,12 @@ describe("evaluate formulas that return an array", () => {
         description: "Return an 2*2 matrix with some values",
         args: [],
         returns: ["RANGE<NUMBER>"],
-        compute: () => [
-          [1, 2],
-          [3, 4],
-        ],
-        computeFormat: () => [
-          ["0.00", undefined],
-          ["0.00", undefined],
-        ],
+        compute: function () {
+          return [
+            [{ value: 1, format: "0.00" }, { value: 2 }],
+            [{ value: 3, format: "0.00" }, { value: 4 }],
+          ];
+        },
       });
 
       setFormat(model, "A1:A2", "0%");
@@ -130,64 +104,14 @@ describe("evaluate formulas that return an array", () => {
       expect(getCellContent(model, "B2")).toBe("4");
     });
 
-    test("can spread matrix of values with scalar format returns an error", () => {
-      functionRegistry.add("MATRIX.2.2", {
-        description: "Return an 2*2 matrix with some values",
-        args: [],
-        returns: ["RANGE<NUMBER>"],
-        compute: () => [
-          [1, 2],
-          [3, 4],
-        ],
-        computeFormat: () => "0.00",
-      });
-
-      setFormat(model, "A1:A2", "0%");
-      setCellContent(model, "A1", "=MATRIX.2.2()");
-
-      expect(getCellContent(model, "A1")).toBe("#ERROR");
-      expect(getCellContent(model, "A2")).toBe("");
-      expect(getCellContent(model, "B1")).toBe("");
-      expect(getCellContent(model, "B2")).toBe("");
-    });
-
-    test("cannot spread simple value with matrix of format", () => {
-      functionRegistry.add("SIMPLE.VALUE", {
-        description: "Return an 2*2 matrix with some values",
-        args: [],
-        returns: ["NUMBER"],
-        compute: () => 1,
-        computeFormat: () => [
-          ["0.00", undefined],
-          ["0.00", undefined],
-        ],
-      });
-
-      setCellContent(model, "A1", "=SIMPLE.VALUE()");
-      setCellContent(model, "A2", "42");
-      setCellContent(model, "B1", "24");
-      setCellContent(model, "B2", "22");
-
-      expect(getCellContent(model, "A1")).toBe("#ERROR");
-      expect(getCellError(model, "A1")).toBe(
-        "A format matrix should never be associated with a scalar value"
-      );
-      expect(getCellContent(model, "A2")).toBe("42");
-      expect(getCellContent(model, "B1")).toBe("24");
-      expect(getCellContent(model, "B2")).toBe("22");
-    });
-
     test("can spread matrix of format depending on matrix of format", () => {
       functionRegistry.add("MATRIX", {
         description: "Return the matrix passed as argument",
         args: [arg("matrix (range<number>)", "a matrix")],
         returns: ["RANGE<NUMBER>"],
-        compute: ((matrix) => matrix) as ComputeFunction<ArgValue, Matrix<CellValue>>,
-        computeFormat: ((matrix: Matrix<FPayload>) =>
-          matrix.map((row) => row.map((item) => item?.format))) as ComputeFunction<
-          Arg,
-          Matrix<Format | undefined>
-        >,
+        compute: function (matrix) {
+          return toMatrix(matrix);
+        },
       });
 
       setCellContent(model, "A1", "42");
