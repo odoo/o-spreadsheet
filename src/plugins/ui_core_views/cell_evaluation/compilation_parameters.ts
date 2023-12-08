@@ -8,12 +8,11 @@ import {
   EnsureRange,
   EvalContext,
   EvaluatedCell,
+  FPayload,
   Getters,
   Matrix,
-  Maybe,
   Range,
   ReferenceDenormalizer,
-  FPayload,
 } from "../../../types";
 import { EvaluationError, InvalidReferenceError } from "../../../types/errors";
 
@@ -68,7 +67,7 @@ class CompilationParametersBuilder {
     isMeta: boolean,
     functionName: string,
     paramNumber?: number
-  ): Maybe<FPayload> {
+  ): FPayload {
     if (isMeta) {
       // Use zoneToXc of zone instead of getRangeString to avoid sending unbounded ranges
       const sheetName = this.getters.getSheetName(range.sheetId);
@@ -111,8 +110,8 @@ class CompilationParametersBuilder {
     } else if (evaluatedCell.type === CellValueType.error) {
       return { value: evaluatedCell.error, format: evaluatedCell.format };
     }
-
-    return evaluatedCell;
+    const { value, format } = evaluatedCell;
+    return { value, format };
   }
 
   private getEvaluatedCellIfNotEmpty(position: CellPosition): EvaluatedCell | undefined {

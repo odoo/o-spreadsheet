@@ -1,8 +1,7 @@
 import { CellValue } from "./cells";
-import { Format } from "./format";
 import { Getters } from "./getters";
 import { Locale } from "./locale";
-import { Arg, ArgValue, Matrix, UID, FPayload } from "./misc";
+import { Arg, FPayload, Matrix, UID } from "./misc";
 
 export type ArgType =
   | "ANY"
@@ -28,10 +27,10 @@ export interface ArgDefinition {
   defaultValue?: any;
 }
 
-export type ComputeFunctionArg<T> = T | (() => T);
-export type ComputeFunction<T, R> = (this: EvalContext, ...args: ComputeFunctionArg<T>[]) => R;
+export type ComputeFunction<R> = (this: EvalContext, ...args: Arg[]) => R;
 
-interface AddFunctionDescriptionBase {
+export interface AddFunctionDescription {
+  compute: ComputeFunction<FPayload | Matrix<FPayload> | CellValue | Matrix<CellValue>>;
   description: string;
   category?: string;
   args: ArgDefinition[];
@@ -39,22 +38,6 @@ interface AddFunctionDescriptionBase {
   isExported?: boolean;
   hidden?: boolean;
 }
-
-interface ComputeValue {
-  compute: ComputeFunction<ArgValue, CellValue | Matrix<CellValue>>;
-}
-
-interface ComputeFormat {
-  computeFormat: ComputeFunction<Arg, Format | undefined | Matrix<Format | undefined>>;
-}
-
-interface ComputeValueAndFormat {
-  computeValueAndFormat: ComputeFunction<Arg, Matrix<FPayload> | FPayload>;
-}
-
-export type AddFunctionDescription =
-  | (AddFunctionDescriptionBase & ComputeValue & Partial<ComputeFormat>)
-  | (AddFunctionDescriptionBase & ComputeValueAndFormat);
 
 export type FunctionDescription = AddFunctionDescription & {
   minArgRequired: number;

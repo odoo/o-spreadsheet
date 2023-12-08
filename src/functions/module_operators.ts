@@ -1,5 +1,5 @@
 import { _t } from "../translation";
-import { AddFunctionDescription, CellValue, Maybe, FPayload } from "../types";
+import { AddFunctionDescription, FPayload, FPayloadNumber, Maybe } from "../types";
 import { arg } from "./arguments";
 import { assert, toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";
@@ -14,10 +14,11 @@ export const ADD = {
     arg("value2 (number)", _t("The second addend.")),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value1: Maybe<FPayload>, value2: Maybe<FPayload>) =>
-    value1?.format || value2?.format,
-  compute: function (value1: Maybe<CellValue>, value2: Maybe<CellValue>): number {
-    return toNumber(value1, this.locale) + toNumber(value2, this.locale);
+  compute: function (value1: Maybe<FPayload>, value2: Maybe<FPayload>): FPayloadNumber {
+    return {
+      value: toNumber(value1, this.locale) + toNumber(value2, this.locale),
+      format: value1?.format || value2?.format,
+    };
   },
 } satisfies AddFunctionDescription;
 
@@ -31,7 +32,7 @@ export const CONCAT = {
     arg("value2 (string)", _t("The value to append to value1.")),
   ],
   returns: ["STRING"],
-  compute: function (value1: Maybe<CellValue>, value2: Maybe<CellValue>): string {
+  compute: function (value1: Maybe<FPayload>, value2: Maybe<FPayload>): string {
     return toString(value1) + toString(value2);
   },
   isExported: true,
@@ -47,20 +48,21 @@ export const DIVIDE = {
     arg("divisor (number)", _t("The number to divide by.")),
   ],
   returns: ["NUMBER"],
-  computeFormat: (dividend: Maybe<FPayload>, divisor: Maybe<FPayload>) =>
-    dividend?.format || divisor?.format,
-  compute: function (dividend: Maybe<CellValue>, divisor: Maybe<CellValue>): number {
+  compute: function (dividend: Maybe<FPayload>, divisor: Maybe<FPayload>): FPayloadNumber {
     const _divisor = toNumber(divisor, this.locale);
     assert(() => _divisor !== 0, _t("The divisor must be different from zero."));
-    return toNumber(dividend, this.locale) / _divisor;
+    return {
+      value: toNumber(dividend, this.locale) / _divisor,
+      format: dividend?.format || divisor?.format,
+    };
   },
 } satisfies AddFunctionDescription;
 
 // -----------------------------------------------------------------------------
 // EQ
 // -----------------------------------------------------------------------------
-function isEmpty(value: Maybe<CellValue>): boolean {
-  return value === null || value === undefined;
+function isEmpty(data: Maybe<FPayload>): boolean {
+  return data === undefined || data.value === null;
 }
 
 const getNeutral = { number: 0, string: "", boolean: false };
@@ -72,22 +74,22 @@ export const EQ = {
     arg("value2 (any)", _t("The value to test against value1 for equality.")),
   ],
   returns: ["BOOLEAN"],
-  compute: function (value1: Maybe<CellValue>, value2: Maybe<CellValue>): boolean {
-    value1 = isEmpty(value1) ? getNeutral[typeof value2] : value1;
-    value2 = isEmpty(value2) ? getNeutral[typeof value1] : value2;
-    if (typeof value1 === "string") {
-      value1 = value1.toUpperCase();
+  compute: function (value1: Maybe<FPayload>, value2: Maybe<FPayload>): boolean {
+    let _value1 = isEmpty(value1) ? getNeutral[typeof value2?.value] : value1?.value;
+    let _value2 = isEmpty(value2) ? getNeutral[typeof value1?.value] : value2?.value;
+    if (typeof _value1 === "string") {
+      _value1 = _value1.toUpperCase();
     }
-    if (typeof value2 === "string") {
-      value2 = value2.toUpperCase();
+    if (typeof _value2 === "string") {
+      _value2 = _value2.toUpperCase();
     }
-    if (value1 instanceof Error) {
-      throw value1;
+    if (_value1 instanceof Error) {
+      throw _value1;
     }
-    if (value2 instanceof Error) {
-      throw value2;
+    if (_value2 instanceof Error) {
+      throw _value2;
     }
-    return value1 === value2;
+    return _value1 === _value2;
   },
 } satisfies AddFunctionDescription;
 
@@ -95,27 +97,27 @@ export const EQ = {
 // GT
 // -----------------------------------------------------------------------------
 function applyRelationalOperator(
-  value1: Maybe<CellValue>,
-  value2: Maybe<CellValue>,
+  value1: Maybe<FPayload>,
+  value2: Maybe<FPayload>,
   cb: (v1: string | number, v2: string | number) => boolean
 ): boolean {
-  value1 = isEmpty(value1) ? getNeutral[typeof value2] : value1;
-  value2 = isEmpty(value2) ? getNeutral[typeof value1] : value2;
-  if (typeof value1 !== "number") {
-    value1 = toString(value1).toUpperCase();
+  let _value1 = isEmpty(value1) ? getNeutral[typeof value2?.value] : value1?.value;
+  let _value2 = isEmpty(value2) ? getNeutral[typeof value1?.value] : value2?.value;
+  if (typeof _value1 !== "number") {
+    _value1 = toString(_value1).toUpperCase();
   }
-  if (typeof value2 !== "number") {
-    value2 = toString(value2).toUpperCase();
+  if (typeof _value2 !== "number") {
+    _value2 = toString(_value2).toUpperCase();
   }
-  const tV1 = typeof value1;
-  const tV2 = typeof value2;
+  const tV1 = typeof _value1;
+  const tV2 = typeof _value2;
   if (tV1 === "string" && tV2 === "number") {
     return true;
   }
   if (tV2 === "string" && tV1 === "number") {
     return false;
   }
-  return cb(value1, value2);
+  return cb(_value1, _value2);
 }
 
 export const GT = {
@@ -125,7 +127,7 @@ export const GT = {
     arg("value2 (any)", _t("The second value.")),
   ],
   returns: ["BOOLEAN"],
-  compute: function (value1: Maybe<CellValue>, value2: Maybe<CellValue>): boolean {
+  compute: function (value1: Maybe<FPayload>, value2: Maybe<FPayload>): boolean {
     return applyRelationalOperator(value1, value2, (v1, v2) => {
       return v1 > v2;
     });
@@ -142,7 +144,7 @@ export const GTE = {
     arg("value2 (any)", _t("The second value.")),
   ],
   returns: ["BOOLEAN"],
-  compute: function (value1: Maybe<CellValue>, value2: Maybe<CellValue>): boolean {
+  compute: function (value1: Maybe<FPayload>, value2: Maybe<FPayload>): boolean {
     return applyRelationalOperator(value1, value2, (v1, v2) => {
       return v1 >= v2;
     });
@@ -159,7 +161,7 @@ export const LT = {
     arg("value2 (any)", _t("The second value.")),
   ],
   returns: ["BOOLEAN"],
-  compute: function (value1: Maybe<CellValue>, value2: Maybe<CellValue>): boolean {
+  compute: function (value1: Maybe<FPayload>, value2: Maybe<FPayload>): boolean {
     return !GTE.compute.bind(this)(value1, value2);
   },
 } satisfies AddFunctionDescription;
@@ -174,7 +176,7 @@ export const LTE = {
     arg("value2 (any)", _t("The second value.")),
   ],
   returns: ["BOOLEAN"],
-  compute: function (value1: Maybe<CellValue>, value2: Maybe<CellValue>): boolean {
+  compute: function (value1: Maybe<FPayload>, value2: Maybe<FPayload>): boolean {
     return !GT.compute.bind(this)(value1, value2);
   },
 } satisfies AddFunctionDescription;
@@ -189,10 +191,11 @@ export const MINUS = {
     arg("value2 (number)", _t("The subtrahend, or number to subtract from value1.")),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value1: Maybe<FPayload>, value2: Maybe<FPayload>) =>
-    value1?.format || value2?.format,
-  compute: function (value1: Maybe<CellValue>, value2: Maybe<CellValue>): number {
-    return toNumber(value1, this.locale) - toNumber(value2, this.locale);
+  compute: function (value1: Maybe<FPayload>, value2: Maybe<FPayload>): FPayloadNumber {
+    return {
+      value: toNumber(value1, this.locale) - toNumber(value2, this.locale),
+      format: value1?.format || value2?.format,
+    };
   },
 } satisfies AddFunctionDescription;
 
@@ -206,10 +209,11 @@ export const MULTIPLY = {
     arg("factor2 (number)", _t("The second multiplicand.")),
   ],
   returns: ["NUMBER"],
-  computeFormat: (factor1: Maybe<FPayload>, factor2: Maybe<FPayload>) =>
-    factor1?.format || factor2?.format,
-  compute: function (factor1: Maybe<CellValue>, factor2: Maybe<CellValue>): number {
-    return toNumber(factor1, this.locale) * toNumber(factor2, this.locale);
+  compute: function (factor1: Maybe<FPayload>, factor2: Maybe<FPayload>): FPayloadNumber {
+    return {
+      value: toNumber(factor1, this.locale) * toNumber(factor2, this.locale),
+      format: factor1?.format || factor2?.format,
+    };
   },
 } satisfies AddFunctionDescription;
 
@@ -223,7 +227,7 @@ export const NE = {
     arg("value2 (any)", _t("The value to test against value1 for inequality.")),
   ],
   returns: ["BOOLEAN"],
-  compute: function (value1: Maybe<CellValue>, value2: Maybe<CellValue>): boolean {
+  compute: function (value1: Maybe<FPayload>, value2: Maybe<FPayload>): boolean {
     return !EQ.compute.bind(this)(value1, value2);
   },
 } satisfies AddFunctionDescription;
@@ -238,7 +242,7 @@ export const POW = {
     arg("exponent (number)", _t("The exponent to raise base to.")),
   ],
   returns: ["NUMBER"],
-  compute: function (base: Maybe<CellValue>, exponent: Maybe<CellValue>): number {
+  compute: function (base: Maybe<FPayload>, exponent: Maybe<FPayload>): FPayloadNumber {
     return POWER.compute.bind(this)(base, exponent);
   },
 } satisfies AddFunctionDescription;
@@ -254,10 +258,12 @@ export const UMINUS = {
       _t("The number to have its sign reversed. Equivalently, the number to multiply by -1.")
     ),
   ],
-  computeFormat: (value: Maybe<FPayload>) => value?.format,
   returns: ["NUMBER"],
-  compute: function (value: Maybe<CellValue>): number {
-    return -toNumber(value, this.locale);
+  compute: function (value: Maybe<FPayload>): FPayloadNumber {
+    return {
+      value: -toNumber(value, this.locale),
+      format: value?.format,
+    };
   },
 } satisfies AddFunctionDescription;
 
@@ -268,7 +274,7 @@ export const UNARY_PERCENT = {
   description: _t("Value interpreted as a percentage."),
   args: [arg("percentage (number)", _t("The value to interpret as a percentage."))],
   returns: ["NUMBER"],
-  compute: function (percentage: Maybe<CellValue>): number {
+  compute: function (percentage: Maybe<FPayload>): number {
     return toNumber(percentage, this.locale) / 100;
   },
 } satisfies AddFunctionDescription;
@@ -280,8 +286,10 @@ export const UPLUS = {
   description: _t("A specified number, unchanged."),
   args: [arg("value (any)", _t("The number to return."))],
   returns: ["ANY"],
-  computeFormat: (value: Maybe<FPayload>) => value?.format,
-  compute: function (value: Maybe<CellValue> = ""): CellValue {
-    return value === null ? "" : value;
+  compute: function (value: Maybe<FPayload> = { value: "" }): FPayload {
+    return {
+      value: value.value === null ? "" : value.value,
+      format: value?.format,
+    };
   },
 } satisfies AddFunctionDescription;
