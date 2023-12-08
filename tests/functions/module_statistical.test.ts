@@ -4426,7 +4426,7 @@ describe("GROWTH formula", () => {
        A7: "7", B7: "4", C7: "30.00",
        A8: "8", B8: "4", C8: "34.01",
        A9: "9", B9: "5", C9: "36.47",
-      A10: "=GROWTH(C1:C9, A1:B9)",
+      A10: "=?GROWTH(C1:C9, A1:B9)",
     };
     const model = createModelFromGrid(grid);
     expect(getEvaluatedCell(model, "A10").value).toBeCloseTo(16.34947771);
