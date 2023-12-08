@@ -1,7 +1,8 @@
 import { Component, onMounted, onWillUnmount, xml } from "@odoo/owl";
 import { BottomBar } from "../../src/components/bottom_bar/bottom_bar";
+import { interactiveRenameSheet } from "../../src/helpers/ui/sheet_interactive";
 import { Model } from "../../src/model";
-import { SpreadsheetChildEnv } from "../../src/types";
+import { EditTextOptions, SpreadsheetChildEnv } from "../../src/types";
 import {
   createSheet,
   hideSheet,
@@ -9,7 +10,12 @@ import {
   setCellContent,
 } from "../test_helpers/commands_helpers";
 import { triggerMouseEvent } from "../test_helpers/dom_helper";
-import { mockUuidV4To, mountComponent, nextTick } from "../test_helpers/helpers";
+import {
+  makeInteractiveTestEnv,
+  mockUuidV4To,
+  mountComponent,
+  nextTick,
+} from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let fixture: HTMLElement;
@@ -236,6 +242,25 @@ describe("BottomBar component", () => {
     triggerMouseEvent(".o-sheet-name", "dblclick");
     await nextTick();
     expect(model.getters.getActiveSheet().name).toEqual("new_name");
+  });
+
+  test("Can't rename a sheet with dblclick in readonly mode", async () => {
+    const titleTextSpy = jest.fn();
+    const editText = (
+      title: string,
+      callback: (text: string | null) => any,
+      options?: EditTextOptions
+    ) => {
+      titleTextSpy(title.toString());
+      callback("new_name");
+    };
+
+    const model = new Model({}, { mode: "readonly" });
+    const env = makeInteractiveTestEnv(model, { editText });
+    interactiveRenameSheet(env, model.getters.getActiveSheetId());
+
+    expect(titleTextSpy).not.toHaveBeenCalled();
+    expect(model.getters.getActiveSheet().name).toEqual("Sheet1");
   });
 
   test("Can duplicate a sheet", async () => {
