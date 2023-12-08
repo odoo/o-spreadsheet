@@ -3,17 +3,21 @@ import { _lt } from "../../translation";
 import { CommandResult, SpreadsheetChildEnv, UID } from "../../types";
 
 export function interactiveRenameSheet(env: SpreadsheetChildEnv, sheetId: UID, errorText?: string) {
+  if (env.model.getters.isReadonly()) {
+    return;
+  }
+
   const placeholder = env.model.getters.getSheetName(sheetId);
   const title = _lt("Rename Sheet");
   const callback = (name: string | null) => {
     if (name === null || name === placeholder) {
       return;
     }
-    if (name.trim() === "") {
-      interactiveRenameSheet(env, sheetId, _lt("The sheet name cannot be empty."));
-    }
     const result = env.model.dispatch("RENAME_SHEET", { sheetId, name });
     if (!result.isSuccessful) {
+      if (result.reasons.includes(CommandResult.MissingSheetName)) {
+        interactiveRenameSheet(env, sheetId, _lt("The sheet name cannot be empty."));
+      }
       if (result.reasons.includes(CommandResult.DuplicatedSheetName)) {
         interactiveRenameSheet(
           env,
