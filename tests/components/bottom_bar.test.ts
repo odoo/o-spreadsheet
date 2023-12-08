@@ -1,5 +1,6 @@
 import { Component, onMounted, onWillUnmount, xml } from "@odoo/owl";
 import { BottomBar } from "../../src/components/bottom_bar/bottom_bar";
+import { interactiveRenameSheet } from "../../src/helpers/ui/sheet_interactive";
 import { Model } from "../../src/model";
 import { Pixel, SpreadsheetChildEnv, UID } from "../../src/types";
 import {
@@ -24,7 +25,12 @@ import {
   triggerMouseEvent,
   triggerWheelEvent,
 } from "../test_helpers/dom_helper";
-import { mockUuidV4To, mountComponent, nextTick } from "../test_helpers/helpers";
+import {
+  makeInteractiveTestEnv,
+  mockUuidV4To,
+  mountComponent,
+  nextTick,
+} from "../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
@@ -256,6 +262,16 @@ describe("BottomBar component", () => {
       expect(document.activeElement).toEqual(sheetName);
     });
 
+    test("Double click on the sheet name in readonly mode doesn't make it editable", async () => {
+      model.updateMode("readonly");
+      await nextTick();
+      const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
+      expect(sheetName.getAttribute("contenteditable")).toEqual("false");
+      triggerMouseEvent(sheetName, "dblclick");
+      await nextTick();
+      expect(sheetName.getAttribute("contenteditable")).toEqual("false");
+    });
+
     test("Rename sheet with context menu makes sheet name editable and give it the focus", async () => {
       triggerMouseEvent(".o-sheet", "contextmenu");
       await nextTick();
@@ -321,6 +337,16 @@ describe("BottomBar component", () => {
       expect(window.getSelection()?.toString()).toEqual("ThisIsASheet");
       expect(document.activeElement).toEqual(sheetName);
     });
+  });
+
+  test("Can't rename a sheet in readonly mode", async () => {
+    const sheetName = "New name";
+    const raiseError = jest.fn();
+    const model = new Model({}, { mode: "readonly" });
+    const env = makeInteractiveTestEnv(model, { raiseError });
+    interactiveRenameSheet(env, model.getters.getActiveSheetId(), sheetName, raiseError);
+    expect(raiseError).not.toHaveBeenCalled();
+    expect(model.getters.getActiveSheet().name).toEqual("Sheet1");
   });
 
   test("Can duplicate a sheet", async () => {
