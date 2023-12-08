@@ -8,16 +8,18 @@
             type="text"
             t-ref="searchInput"
             class="o-input o-input-with-count"
-            t-on-input="onInput"
+            t-on-input="onSearchInput"
             t-on-focus="onFocusSearch"
             t-on-keydown="onKeydownSearch"
           />
           <div class="o-input-count" t-if="hasSearchResult">
-            <t t-esc="env.model.getters.getCurrentSelectedMatchIndex()+1"/>
+            <t t-esc="store.selectedMatchIndex+1"/>
             /
-            <t t-esc="env.model.getters.getSearchMatches().length"/>
+            <t t-esc="store.searchMatches.length"/>
           </div>
-          <div t-elif="!pendingSearch and toSearch !== ''" class="o-input-count">0 / 0</div>
+          <div t-elif="!store.pendingSearch and store.toSearch !== ''" class="o-input-count">
+            0 / 0
+          </div>
         </div>
         <select
           class="o-input o-type-selector o-type-range-selector mt-3 mb-3"
@@ -56,7 +58,7 @@
             onChange.bind="searchFormulas"
           />
         </div>
-        <div class="o-matches-count mt-4" t-if="toSearch !== ''">
+        <div class="o-matches-count mt-4" t-if="store.toSearch !== ''">
           <div t-if="searchOptions.searchScope === 'specificRange' and dataRange != ''">
             <t t-esc="specificRangeMatchesCount"/>
           </div>
@@ -71,11 +73,14 @@
       <div class="o-sidePanelButtons">
         <button
           t-att-disabled="!hasSearchResult"
-          t-on-click="onSelectPreviousCell"
+          t-on-click="() => store.selectPreviousMatch()"
           class="o-button">
           Previous
         </button>
-        <button t-att-disabled="!hasSearchResult" t-on-click="onSelectNextCell" class="o-button">
+        <button
+          t-att-disabled="!hasSearchResult"
+          t-on-click="() => store.selectNextMatch()"
+          class="o-button">
           Next
         </button>
       </div>
@@ -85,22 +90,22 @@
           <input
             type="text"
             class="o-input o-input-without-count"
-            t-ref="replaceInput"
             t-on-keydown="onKeydownReplace"
+            t-model="store.toReplace"
           />
         </div>
       </Section>
 
       <div class="o-sidePanelButtons" t-if="!env.model.getters.isReadonly()">
         <button
-          t-att-disabled="env.model.getters.getCurrentSelectedMatchIndex() === null"
-          t-on-click="replace"
+          t-att-disabled="store.selectedMatchIndex === null"
+          t-on-click="() => store.replace()"
           class="o-button">
           Replace
         </button>
         <button
-          t-att-disabled="env.model.getters.getCurrentSelectedMatchIndex() === null"
-          t-on-click="replaceAll"
+          t-att-disabled="store.selectedMatchIndex === null"
+          t-on-click="() => store.replaceAll()"
           class="o-button">
           Replace all
         </button>

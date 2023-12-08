@@ -1567,6 +1567,19 @@ describe("Menu Item actions", () => {
     });
   });
 
+  test("View -> show formulas", async () => {
+    const path_gridlines = ["view", "view_formulas"];
+    expect(model.getters.shouldShowFormulas()).toBe(false);
+
+    expect(getName(path_gridlines, env)).toBe("Show formulas");
+    doAction(path_gridlines, env);
+    expect(model.getters.shouldShowFormulas()).toBe(true);
+
+    expect(getName(path_gridlines, env)).toBe("Hide formulas");
+    doAction(path_gridlines, env);
+    expect(model.getters.shouldShowFormulas()).toBe(false);
+  });
+
   describe("View -> group headers", () => {
     const groupColsPath = ["view", "group_headers", "group_columns"];
     const groupRowsPath = ["view", "group_headers", "group_rows"];
