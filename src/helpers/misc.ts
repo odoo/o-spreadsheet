@@ -3,7 +3,8 @@
 //------------------------------------------------------------------------------
 import { NEWLINE } from "../constants";
 import { ConsecutiveIndexes, Lazy, UID } from "../types";
-import { Cloneable } from "./../types/misc";
+import { SearchOptions } from "../types/find_and_replace";
+import { Cloneable, DebouncedFunction } from "./../types/misc";
 
 /**
  * Remove quotes from a quoted string
@@ -267,22 +268,26 @@ export function getItemId<T>(item: T, itemsDic: { [id: number]: T }) {
 }
 
 /**
- * This method comes from owl 1 as it was removed in owl 2
- *
  * Returns a function, that, as long as it continues to be invoked, will not
  * be triggered. The function will be called after it stops being called for
  * N milliseconds. If `immediate` is passed, trigger the function on the
  * leading edge, instead of the trailing.
  *
+ * Also decorate the argument function with two methods: stopDebounce and isDebouncePending.
+ *
  * Inspired by https://davidwalsh.name/javascript-debounce-function
  */
-export function debounce(func: Function, wait: number, immediate?: boolean): Function {
-  let timeout;
-  return function (this: any): void {
+export function debounce<T extends (...args: any) => void>(
+  func: T,
+  wait: number,
+  immediate?: boolean
+): DebouncedFunction<T> {
+  let timeout: any | undefined = undefined;
+  const debounced = function (this: any): void {
     const context = this;
     const args = arguments;
     function later() {
-      timeout = null;
+      timeout = undefined;
       if (!immediate) {
         func.apply(context, args);
       }
@@ -294,6 +299,11 @@ export function debounce(func: Function, wait: number, immediate?: boolean): Fun
       func.apply(context, args);
     }
   };
+  debounced.isDebouncePending = () => timeout !== undefined;
+  debounced.stopDebounce = () => {
+    clearTimeout(timeout);
+  };
+  return debounced as DebouncedFunction<T>;
 }
 
 /*
@@ -494,4 +504,16 @@ export function isNumberBetween(value: number, min: number, max: number): boolea
     return isNumberBetween(value, max, min);
   }
   return value >= min && value <= max;
+}
+
+/**
+ * Get a Regex for the find & replace that matches the given search string and options.
+ */
+export function getSearchRegex(searchStr: string, searchOptions: SearchOptions): RegExp {
+  let searchValue = escapeRegExp(searchStr);
+  const flags = !searchOptions.matchCase ? "i" : "";
+  if (searchOptions.exactMatch) {
+    searchValue = `^${searchValue}$`;
+  }
+  return RegExp(searchValue, flags);
 }

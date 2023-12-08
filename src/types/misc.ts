@@ -355,3 +355,8 @@ export interface Offset {
   col: number;
   row: number;
 }
+
+export type DebouncedFunction<T> = T & {
+  stopDebounce: () => void;
+  isDebouncePending: () => boolean;
+};

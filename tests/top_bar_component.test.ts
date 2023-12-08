@@ -829,25 +829,6 @@ describe("TopBar - CF", () => {
     ).toBeFalsy();
   });
 });
-describe("Topbar - View", () => {
-  test("Setting show formula from topbar should retain its state even it's changed via f&r side panel upon closing", async () => {
-    const { model, fixture, env } = await mountSpreadsheet();
-    await click(fixture, ".o-topbar-menu[data-id='view']");
-    await click(fixture, ".o-menu-item[data-name='view_formulas']");
-    expect(model.getters.shouldShowFormulas()).toBe(true);
-    env.openSidePanel("FindAndReplace");
-    await nextTick();
-    expect(model.getters.shouldShowFormulas()).toBe(true);
-    await nextTick();
-    await click(
-      fixture,
-      ".o-sidePanel .o-sidePanelBody .o-find-and-replace .o-section:nth-child(1) .o-checkbox:nth-child(3) input"
-    );
-    expect(model.getters.shouldShowFormulas()).toBe(false);
-    await click(fixture, ".o-sidePanel .o-sidePanelHeader .o-sidePanelClose");
-    expect(model.getters.shouldShowFormulas()).toBe(true);
-  });
-});
 
 describe("Topbar - menu item resizing with viewport", () => {
   test("color picker of fill color in top bar is resized with screen size change", async () => {
