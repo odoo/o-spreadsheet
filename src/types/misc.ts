@@ -157,11 +157,9 @@ export type ReferenceDenormalizer = (
   isMeta: boolean,
   functionName: string,
   paramNumber: number
-) => any | any[][];
+) => FPayload;
 
 export type EnsureRange = (range: Range) => Matrix<FPayload>;
-
-export type NumberParser = (str: string) => number;
 
 export type _CompiledFormula = (
   deps: Range[],
@@ -182,12 +180,10 @@ export interface RangeCompiledFormula extends Omit<CompiledFormula, "dependencie
 
 export type Matrix<T = unknown> = T[][];
 export type FPayload = { value: CellValue; format?: Format };
+export type FPayloadNumber = { value: number; format?: string };
 
 // FORMULA FUNCTION VALUE AND FORMAT INPUT
 export type Arg = Maybe<FPayload> | Matrix<FPayload>; // undefined corresponds to the lack of argument, e.g. =SUM(1,2,,4)
-
-// FORMULA FUNCTION ONLY VALUE INPUT
-export type ArgValue = Maybe<CellValue> | Matrix<CellValue>;
 
 export function isMatrix(x: any): x is Matrix<any> {
   return Array.isArray(x) && Array.isArray(x[0]);

@@ -2,12 +2,11 @@ import { _t } from "../translation";
 import {
   AddFunctionDescription,
   Arg,
-  ArgValue,
-  CellValue,
-  isMatrix,
+  FPayload,
+  FPayloadNumber,
   Matrix,
   Maybe,
-  FPayload,
+  isMatrix,
 } from "../types";
 import { arg } from "./arguments";
 import { assertPositive } from "./helper_assert";
@@ -15,6 +14,7 @@ import { sum } from "./helper_math";
 import { getUnitMatrix } from "./helper_matrices";
 import {
   assert,
+  inferFormat,
   reduceAny,
   strictToNumber,
   toBoolean,
@@ -38,7 +38,7 @@ export const ABS = {
   description: _t("Absolute value of a number."),
   args: [arg("value (number)", _t("The number of which to return the absolute value."))],
   returns: ["NUMBER"],
-  compute: function (value: Maybe<CellValue>): number {
+  compute: function (value: Maybe<FPayload>): number {
     return Math.abs(toNumber(value, this.locale));
   },
   isExported: true,
@@ -58,7 +58,7 @@ export const ACOS = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (value: Maybe<CellValue>): number {
+  compute: function (value: Maybe<FPayload>): number {
     const _value = toNumber(value, this.locale);
     assert(
       () => Math.abs(_value) <= 1,
@@ -83,7 +83,7 @@ export const ACOSH = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (value: Maybe<CellValue>): number {
+  compute: function (value: Maybe<FPayload>): number {
     const _value = toNumber(value, this.locale);
     assert(
       () => _value >= 1,
@@ -101,7 +101,7 @@ export const ACOT = {
   description: _t("Inverse cotangent of a value."),
   args: [arg("value (number)", _t("The value for which to calculate the inverse cotangent."))],
   returns: ["NUMBER"],
-  compute: function (value: Maybe<CellValue>): number {
+  compute: function (value: Maybe<FPayload>): number {
     const _value = toNumber(value, this.locale);
     const sign = Math.sign(_value) || 1;
     // ACOT has two possible configurations:
@@ -126,7 +126,7 @@ export const ACOTH = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (value: Maybe<CellValue>): number {
+  compute: function (value: Maybe<FPayload>): number {
     const _value = toNumber(value, this.locale);
     assert(
       () => Math.abs(_value) > 1,
@@ -149,7 +149,7 @@ export const ASIN = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (value: Maybe<CellValue>): number {
+  compute: function (value: Maybe<FPayload>): number {
     const _value = toNumber(value, this.locale);
     assert(
       () => Math.abs(_value) <= 1,
@@ -169,7 +169,7 @@ export const ASINH = {
     arg("value (number)", _t("The value for which to calculate the inverse hyperbolic sine.")),
   ],
   returns: ["NUMBER"],
-  compute: function (value: Maybe<CellValue>): number {
+  compute: function (value: Maybe<FPayload>): number {
     return Math.asinh(toNumber(value, this.locale));
   },
   isExported: true,
@@ -182,7 +182,7 @@ export const ATAN = {
   description: _t("Inverse tangent of a value, in radians."),
   args: [arg("value (number)", _t("The value for which to calculate the inverse tangent."))],
   returns: ["NUMBER"],
-  compute: function (value: Maybe<CellValue>): number {
+  compute: function (value: Maybe<FPayload>): number {
     return Math.atan(toNumber(value, this.locale));
   },
   isExported: true,
@@ -208,7 +208,7 @@ export const ATAN2 = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (x: Maybe<CellValue>, y: Maybe<CellValue>): number {
+  compute: function (x: Maybe<FPayload>, y: Maybe<FPayload>): number {
     const _x = toNumber(x, this.locale);
     const _y = toNumber(y, this.locale);
     assert(
@@ -234,7 +234,7 @@ export const ATANH = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (value: Maybe<CellValue>): number {
+  compute: function (value: Maybe<FPayload>): number {
     const _value = toNumber(value, this.locale);
     assert(
       () => Math.abs(_value) < 1,
@@ -258,8 +258,10 @@ export const CEILING = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value: Maybe<FPayload>) => value?.format,
-  compute: function (value: Maybe<CellValue>, factor: Maybe<CellValue> = DEFAULT_FACTOR): number {
+  compute: function (
+    value: Maybe<FPayload>,
+    factor: Maybe<FPayload> = { value: DEFAULT_FACTOR }
+  ): FPayloadNumber {
     const _value = toNumber(value, this.locale);
     const _factor = toNumber(factor, this.locale);
     assert(
@@ -270,7 +272,10 @@ export const CEILING = {
         _value.toString()
       )
     );
-    return _factor ? Math.ceil(_value / _factor) * _factor : 0;
+    return {
+      value: _factor ? Math.ceil(_value / _factor) * _factor : 0,
+      format: value?.format,
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -278,6 +283,20 @@ export const CEILING = {
 // -----------------------------------------------------------------------------
 // CEILING.MATH
 // -----------------------------------------------------------------------------
+function ceilingMath(number: number, significance: number, mode: number = 0): number {
+  if (significance === 0) {
+    return 0;
+  }
+  significance = Math.abs(significance);
+  if (number >= 0) {
+    return Math.ceil(number / significance) * significance;
+  }
+  if (mode === 0) {
+    return -Math.floor(Math.abs(number) / significance) * significance;
+  }
+  return -Math.ceil(Math.abs(number) / significance) * significance;
+}
+
 export const CEILING_MATH = {
   description: _t("Rounds number up to nearest multiple of factor."),
   args: [
@@ -299,29 +318,18 @@ export const CEILING_MATH = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (number: Maybe<FPayload>) => number?.format,
   compute: function (
-    number: Maybe<CellValue>,
-    significance: Maybe<CellValue> = DEFAULT_SIGNIFICANCE,
-    mode: Maybe<CellValue> = DEFAULT_MODE
-  ): number {
-    let _significance = toNumber(significance, this.locale);
-    if (_significance === 0) {
-      return 0;
-    }
-
+    number: Maybe<FPayload>,
+    significance: Maybe<FPayload> = { value: DEFAULT_SIGNIFICANCE },
+    mode: Maybe<FPayload> = { value: DEFAULT_MODE }
+  ): FPayloadNumber {
+    const _significance = toNumber(significance, this.locale);
     const _number = toNumber(number, this.locale);
-    _significance = Math.abs(_significance);
-    if (_number >= 0) {
-      return Math.ceil(_number / _significance) * _significance;
-    }
-
     const _mode = toNumber(mode, this.locale);
-    if (_mode === 0) {
-      return -Math.floor(Math.abs(_number) / _significance) * _significance;
-    }
-
-    return -Math.ceil(Math.abs(_number) / _significance) * _significance;
+    return {
+      value: ceilingMath(_number, _significance, _mode),
+      format: number?.format,
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -342,9 +350,16 @@ export const CEILING_PRECISE = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (number: Maybe<FPayload>) => number?.format,
-  compute: function (number: Maybe<CellValue>, significance: Maybe<CellValue>): number {
-    return CEILING_MATH.compute.bind(this)(number, significance, 0);
+  compute: function (
+    number: Maybe<FPayload>,
+    significance: Maybe<FPayload> = { value: DEFAULT_SIGNIFICANCE }
+  ): FPayloadNumber {
+    const _significance = toNumber(significance, this.locale);
+    const _number = toNumber(number, this.locale);
+    return {
+      value: ceilingMath(_number, _significance),
+      format: number?.format,
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -356,7 +371,7 @@ export const COS = {
   description: _t("Cosine of an angle provided in radians."),
   args: [arg("angle (number)", _t("The angle to find the cosine of, in radians."))],
   returns: ["NUMBER"],
-  compute: function (angle: Maybe<CellValue>): number {
+  compute: function (angle: Maybe<FPayload>): number {
     return Math.cos(toNumber(angle, this.locale));
   },
   isExported: true,
@@ -369,7 +384,7 @@ export const COSH = {
   description: _t("Hyperbolic cosine of any real number."),
   args: [arg("value (number)", _t("Any real value to calculate the hyperbolic cosine of."))],
   returns: ["NUMBER"],
-  compute: function (value: Maybe<CellValue>): number {
+  compute: function (value: Maybe<FPayload>): number {
     return Math.cosh(toNumber(value, this.locale));
   },
   isExported: true,
@@ -382,7 +397,7 @@ export const COT = {
   description: _t("Cotangent of an angle provided in radians."),
   args: [arg("angle (number)", _t("The angle to find the cotangent of, in radians."))],
   returns: ["NUMBER"],
-  compute: function (angle: Maybe<CellValue>): number {
+  compute: function (angle: Maybe<FPayload>): number {
     const _angle = toNumber(angle, this.locale);
     assert(
       () => _angle !== 0,
@@ -400,7 +415,7 @@ export const COTH = {
   description: _t("Hyperbolic cotangent of any real number."),
   args: [arg("value (number)", _t("Any real value to calculate the hyperbolic cotangent of."))],
   returns: ["NUMBER"],
-  compute: function (value: Maybe<CellValue>): number {
+  compute: function (value: Maybe<FPayload>): number {
     const _value = toNumber(value, this.locale);
     assert(
       () => _value !== 0,
@@ -427,10 +442,21 @@ export const COUNTBLANK = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (...argsValues: ArgValue[]): number {
+  compute: function (...args: Arg[]): number {
     return reduceAny(
-      argsValues,
-      (acc, a) => (a === null || a === undefined || a === "" ? acc + 1 : acc),
+      args,
+      (acc, a) => {
+        if (a === undefined) {
+          return acc + 1;
+        }
+        if (a.value === null) {
+          return acc + 1;
+        }
+        if (a.value === "") {
+          return acc + 1;
+        }
+        return acc;
+      },
       0
     );
   },
@@ -447,10 +473,10 @@ export const COUNTIF = {
     arg("criterion (string)", _t("The pattern or test to apply to range.")),
   ],
   returns: ["NUMBER"],
-  compute: function (...argsValues: ArgValue[]): number {
+  compute: function (...args: Arg[]): number {
     let count = 0;
     visitMatchingRanges(
-      argsValues,
+      args,
       (i, j) => {
         count += 1;
       },
@@ -478,10 +504,10 @@ export const COUNTIFS = {
     arg("criterion2 (string, repeating)", _t("Additional criteria to check.")),
   ],
   returns: ["NUMBER"],
-  compute: function (...argsValues: ArgValue[]): number {
+  compute: function (...args: Arg[]): number {
     let count = 0;
     visitMatchingRanges(
-      argsValues,
+      args,
       (i, j) => {
         count += 1;
       },
@@ -496,17 +522,15 @@ export const COUNTIFS = {
 // COUNTUNIQUE
 // -----------------------------------------------------------------------------
 
-function isDefined(value: any): boolean {
-  switch (value) {
-    case undefined:
-      return false;
-    case "":
-      return false;
-    case null:
-      return false;
-    default:
-      return true;
+function isDefined(data: FPayload | undefined): boolean {
+  if (data === undefined) {
+    return false;
   }
+  const { value } = data;
+  if (value === null || value === "") {
+    return false;
+  }
+  return true;
 }
 
 export const COUNTUNIQUE = {
@@ -519,8 +543,8 @@ export const COUNTUNIQUE = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (...argsValues: ArgValue[]): number {
-    return reduceAny(argsValues, (acc, a) => (isDefined(a) ? acc.add(a) : acc), new Set()).size;
+  compute: function (...args: Arg[]): number {
+    return reduceAny(args, (acc, a) => (isDefined(a) ? acc.add(a?.value) : acc), new Set()).size;
   },
 } satisfies AddFunctionDescription;
 
@@ -551,14 +575,14 @@ export const COUNTUNIQUEIFS = {
     arg("criterion2 (string, repeating)", _t("The pattern or test to apply to criteria_range2.")),
   ],
   returns: ["NUMBER"],
-  compute: function (range: Matrix<CellValue>, ...argsValues: ArgValue[]): number {
+  compute: function (range: Matrix<FPayload>, ...args: Arg[]): number {
     let uniqueValues = new Set();
     visitMatchingRanges(
-      argsValues,
+      args,
       (i, j) => {
-        const value = range[i][j];
-        if (isDefined(value)) {
-          uniqueValues.add(value);
+        const data = range[i][j];
+        if (isDefined(data)) {
+          uniqueValues.add(data.value);
         }
       },
       this.locale
@@ -574,7 +598,7 @@ export const CSC = {
   description: _t("Cosecant of an angle provided in radians."),
   args: [arg("angle (number)", _t("The angle to find the cosecant of, in radians."))],
   returns: ["NUMBER"],
-  compute: function (angle: Maybe<CellValue>): number {
+  compute: function (angle: Maybe<FPayload>): number {
     const _angle = toNumber(angle, this.locale);
     assert(
       () => _angle !== 0,
@@ -592,7 +616,7 @@ export const CSCH = {
   description: _t("Hyperbolic cosecant of any real number."),
   args: [arg("value (number)", _t("Any real value to calculate the hyperbolic cosecant of."))],
   returns: ["NUMBER"],
-  compute: function (value: Maybe<CellValue>): number {
+  compute: function (value: Maybe<FPayload>): number {
     const _value = toNumber(value, this.locale);
     assert(
       () => _value !== 0,
@@ -613,7 +637,7 @@ export const DECIMAL = {
     arg("base (number)", _t("The base to convert the value from.")),
   ],
   returns: ["NUMBER"],
-  compute: function (value: Maybe<CellValue>, base: Maybe<CellValue>): number {
+  compute: function (value: Maybe<FPayload>, base: Maybe<FPayload>): number {
     let _base = toNumber(base, this.locale);
     _base = Math.floor(_base);
 
@@ -654,7 +678,7 @@ export const DEGREES = {
   description: _t("Converts an angle value in radians to degrees."),
   args: [arg("angle (number)", _t("The angle to convert from radians to degrees."))],
   returns: ["NUMBER"],
-  compute: function (angle: Maybe<CellValue>): number {
+  compute: function (angle: Maybe<FPayload>): number {
     return (toNumber(angle, this.locale) * 180) / Math.PI;
   },
   isExported: true,
@@ -667,7 +691,7 @@ export const EXP = {
   description: _t("Euler's number, e (~2.718) raised to a power."),
   args: [arg("value (number)", _t("The exponent to raise e."))],
   returns: ["NUMBER"],
-  compute: function (value: Maybe<CellValue>): number {
+  compute: function (value: Maybe<FPayload>): number {
     return Math.exp(toNumber(value, this.locale));
   },
   isExported: true,
@@ -686,8 +710,10 @@ export const FLOOR = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value: Maybe<FPayload>) => value?.format,
-  compute: function (value: Maybe<CellValue>, factor: Maybe<CellValue> = DEFAULT_FACTOR): number {
+  compute: function (
+    value: Maybe<FPayload>,
+    factor: Maybe<FPayload> = { value: DEFAULT_FACTOR }
+  ): FPayloadNumber {
     const _value = toNumber(value, this.locale);
     const _factor = toNumber(factor, this.locale);
     assert(
@@ -698,7 +724,10 @@ export const FLOOR = {
         _value.toString()
       )
     );
-    return _factor ? Math.floor(_value / _factor) * _factor : 0;
+    return {
+      value: _factor ? Math.floor(_value / _factor) * _factor : 0,
+      format: value?.format,
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -706,6 +735,21 @@ export const FLOOR = {
 // -----------------------------------------------------------------------------
 // FLOOR.MATH
 // -----------------------------------------------------------------------------
+
+function floorMath(number: number, significance: number, mode: number = 0): number {
+  if (significance === 0) {
+    return 0;
+  }
+  significance = Math.abs(significance);
+  if (number >= 0) {
+    return Math.floor(number / significance) * significance;
+  }
+  if (mode === 0) {
+    return -Math.ceil(Math.abs(number) / significance) * significance;
+  }
+  return -Math.floor(Math.abs(number) / significance) * significance;
+}
+
 export const FLOOR_MATH = {
   description: _t("Rounds number down to nearest multiple of factor."),
   args: [
@@ -727,28 +771,18 @@ export const FLOOR_MATH = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (number: Maybe<FPayload>) => number?.format,
   compute: function (
-    number: Maybe<CellValue>,
-    significance: Maybe<CellValue> = DEFAULT_SIGNIFICANCE,
-    mode: Maybe<CellValue> = DEFAULT_MODE
-  ): number {
-    let _significance = toNumber(significance, this.locale);
-    if (_significance === 0) {
-      return 0;
-    }
-
+    number: Maybe<FPayload>,
+    significance: Maybe<FPayload> = { value: DEFAULT_SIGNIFICANCE },
+    mode: Maybe<FPayload> = { value: DEFAULT_MODE }
+  ): FPayloadNumber {
+    const _significance = toNumber(significance, this.locale);
     const _number = toNumber(number, this.locale);
-    _significance = Math.abs(_significance);
-    if (_number >= 0) {
-      return Math.floor(_number / _significance) * _significance;
-    }
-
     const _mode = toNumber(mode, this.locale);
-    if (_mode === 0) {
-      return -Math.ceil(Math.abs(_number) / _significance) * _significance;
-    }
-    return -Math.floor(Math.abs(_number) / _significance) * _significance;
+    return {
+      value: floorMath(_number, _significance, _mode),
+      format: number?.format,
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -769,12 +803,16 @@ export const FLOOR_PRECISE = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (number: Maybe<FPayload>) => number?.format,
   compute: function (
-    number: Maybe<CellValue>,
-    significance: Maybe<CellValue> = DEFAULT_SIGNIFICANCE
-  ): number {
-    return FLOOR_MATH.compute.bind(this)(number, significance, 0);
+    number: Maybe<FPayload>,
+    significance: Maybe<FPayload> = { value: DEFAULT_SIGNIFICANCE }
+  ): FPayloadNumber {
+    const _significance = toNumber(significance, this.locale);
+    const _number = toNumber(number, this.locale);
+    return {
+      value: floorMath(_number, _significance),
+      format: number?.format,
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -786,7 +824,7 @@ export const ISEVEN = {
   description: _t("Whether the provided value is even."),
   args: [arg("value (number)", _t("The value to be verified as even."))],
   returns: ["BOOLEAN"],
-  compute: function (value: Maybe<CellValue>): boolean {
+  compute: function (value: Maybe<FPayload>): boolean {
     const _value = strictToNumber(value, this.locale);
 
     return Math.floor(Math.abs(_value)) & 1 ? false : true;
@@ -810,12 +848,16 @@ export const ISO_CEILING = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (number: Maybe<FPayload>) => number?.format,
   compute: function (
-    number: Maybe<CellValue>,
-    significance: Maybe<CellValue> = DEFAULT_SIGNIFICANCE
-  ): number {
-    return CEILING_MATH.compute.bind(this)(number, significance, 0);
+    number: Maybe<FPayload>,
+    significance: Maybe<FPayload> = { value: DEFAULT_SIGNIFICANCE }
+  ): FPayloadNumber {
+    const _number = toNumber(number, this.locale);
+    const _significance = toNumber(significance, this.locale);
+    return {
+      value: ceilingMath(_number, _significance),
+      format: number?.format,
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -827,7 +869,7 @@ export const ISODD = {
   description: _t("Whether the provided value is even."),
   args: [arg("value (number)", _t("The value to be verified as even."))],
   returns: ["BOOLEAN"],
-  compute: function (value: Maybe<CellValue>): boolean {
+  compute: function (value: Maybe<FPayload>): boolean {
     const _value = strictToNumber(value, this.locale);
 
     return Math.floor(Math.abs(_value)) & 1 ? true : false;
@@ -842,7 +884,7 @@ export const LN = {
   description: _t("The logarithm of a number, base e (euler's number)."),
   args: [arg("value (number)", _t("The value for which to calculate the logarithm, base e."))],
   returns: ["NUMBER"],
-  compute: function (value: Maybe<CellValue>): number {
+  compute: function (value: Maybe<FPayload>): number {
     const _value = toNumber(value, this.locale);
     assert(() => _value > 0, _t("The value (%s) must be strictly positive.", _value.toString()));
     return Math.log(_value);
@@ -853,6 +895,16 @@ export const LN = {
 // -----------------------------------------------------------------------------
 // MOD
 // -----------------------------------------------------------------------------
+function mod(dividend: number, divisor: number): number {
+  assert(() => divisor !== 0, _t("The divisor must be different from 0."));
+  const modulus = dividend % divisor;
+  // -42 % 10 = -2 but we want 8, so need the code below
+  if ((modulus > 0 && divisor < 0) || (modulus < 0 && divisor > 0)) {
+    return modulus + divisor;
+  }
+  return modulus;
+}
+
 export const MOD = {
   description: _t("Modulo (remainder) operator."),
   args: [
@@ -860,19 +912,13 @@ export const MOD = {
     arg("divisor (number)", _t("The number to divide by.")),
   ],
   returns: ["NUMBER"],
-  computeFormat: (dividend: Maybe<FPayload>) => dividend?.format,
-  compute: function (dividend: Maybe<CellValue>, divisor: Maybe<CellValue>): number {
+  compute: function (dividend: Maybe<FPayload>, divisor: Maybe<FPayload>): FPayloadNumber {
     const _divisor = toNumber(divisor, this.locale);
-
-    assert(() => _divisor !== 0, _t("The divisor must be different from 0."));
-
     const _dividend = toNumber(dividend, this.locale);
-    const modulus = _dividend % _divisor;
-    // -42 % 10 = -2 but we want 8, so need the code below
-    if ((modulus > 0 && _divisor < 0) || (modulus < 0 && _divisor > 0)) {
-      return modulus + _divisor;
-    }
-    return modulus;
+    return {
+      value: mod(_dividend, _divisor),
+      format: dividend?.format,
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -889,7 +935,7 @@ export const MUNIT = {
     ),
   ],
   returns: ["RANGE<NUMBER>"],
-  compute: function (n: Maybe<CellValue>): Matrix<number> {
+  compute: function (n: Maybe<FPayload>): Matrix<number> {
     const _n = toInteger(n, this.locale);
     assertPositive(_t("The argument dimension must be positive"), _n);
     return getUnitMatrix(_n);
@@ -904,13 +950,15 @@ export const ODD = {
   description: _t("Rounds a number up to the nearest odd integer."),
   args: [arg("value (number)", _t("The value to round to the next greatest odd number."))],
   returns: ["NUMBER"],
-  computeFormat: (number: Maybe<FPayload>) => number?.format,
-  compute: function (value: Maybe<CellValue>): number {
+  compute: function (value: Maybe<FPayload>): FPayloadNumber {
     const _value = toNumber(value, this.locale);
 
     let temp = Math.ceil(Math.abs(_value));
     temp = temp & 1 ? temp : temp + 1;
-    return _value < 0 ? -temp : temp;
+    return {
+      value: _value < 0 ? -temp : temp,
+      format: value?.format,
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -938,15 +986,14 @@ export const POWER = {
     arg("exponent (number)", _t("The exponent to raise base to.")),
   ],
   returns: ["NUMBER"],
-  computeFormat: (base: Maybe<FPayload>) => base?.format,
-  compute: function (base: Maybe<CellValue>, exponent: Maybe<CellValue>): number {
+  compute: function (base: Maybe<FPayload>, exponent: Maybe<FPayload>): FPayloadNumber {
     const _base = toNumber(base, this.locale);
     const _exponent = toNumber(exponent, this.locale);
     assert(
       () => _base >= 0 || Number.isInteger(_exponent),
       _t("The exponent (%s) must be an integer when the base is negative.", _exponent.toString())
     );
-    return Math.pow(_base, _exponent);
+    return { value: Math.pow(_base, _exponent), format: base?.format };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -967,34 +1014,32 @@ export const PRODUCT = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (factor1: Arg) => {
-    return isMatrix(factor1) ? factor1[0][0]?.format : factor1?.format;
-  },
-  compute: function (...factors: ArgValue[]): number {
+  compute: function (...factors: Arg[]): FPayloadNumber {
     let count = 0;
     let acc = 1;
     for (let n of factors) {
       if (isMatrix(n)) {
         for (let i of n) {
           for (let j of i) {
-            if (typeof j === "number") {
-              acc *= j;
+            const f = j.value;
+            if (typeof f === "number") {
+              acc *= f;
               count += 1;
             }
-            if (j instanceof Error) {
-              throw j;
+            if (f instanceof Error) {
+              throw f;
             }
           }
         }
-      } else if (n !== null && n !== undefined) {
+      } else if (n !== undefined && n.value !== null) {
         acc *= strictToNumber(n, this.locale);
         count += 1;
       }
     }
-    if (count === 0) {
-      return 0;
-    }
-    return acc;
+    return {
+      value: count === 0 ? 0 : acc,
+      format: inferFormat(factors[0]),
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1026,17 +1071,17 @@ export const RANDARRAY = {
   ],
   returns: ["RANGE<NUMBER>"],
   compute: function (
-    rows: Maybe<CellValue> = 1,
-    columns: Maybe<CellValue> = 1,
-    min: Maybe<CellValue> = 0,
-    max: Maybe<CellValue> = 1,
-    whole_number: Maybe<CellValue> = false
+    rows: Maybe<FPayload> = { value: 1 },
+    columns: Maybe<FPayload> = { value: 1 },
+    min: Maybe<FPayload> = { value: 0 },
+    max: Maybe<FPayload> = { value: 1 },
+    wholeNumber: Maybe<FPayload> = { value: false }
   ): Matrix<number> {
     const _cols = toInteger(columns, this.locale);
     const _rows = toInteger(rows, this.locale);
     const _min = toNumber(min, this.locale);
     const _max = toNumber(max, this.locale);
-    const _whole_number = toBoolean(whole_number);
+    const _whole_number = toBoolean(wholeNumber);
 
     assertPositive(_t("The number columns (%s) must be positive.", _cols.toString()), _cols);
     assertPositive(_t("The number rows (%s) must be positive.", _rows.toString()), _rows);
@@ -1085,8 +1130,7 @@ export const RANDBETWEEN = {
     arg("high (number)", _t("The high end of the random range.")),
   ],
   returns: ["NUMBER"],
-  computeFormat: (low: Maybe<FPayload>) => low?.format,
-  compute: function (low: Maybe<CellValue>, high: Maybe<CellValue>): number {
+  compute: function (low: Maybe<FPayload>, high: Maybe<FPayload>): FPayloadNumber {
     let _low = toNumber(low, this.locale);
     if (!Number.isInteger(_low)) {
       _low = Math.ceil(_low);
@@ -1105,7 +1149,10 @@ export const RANDBETWEEN = {
         _low.toString()
       )
     );
-    return _low + Math.ceil((_high - _low + 1) * Math.random()) - 1;
+    return {
+      value: _low + Math.ceil((_high - _low + 1) * Math.random()) - 1,
+      format: low?.format,
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1123,8 +1170,10 @@ export const ROUND = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value: Maybe<FPayload>) => value?.format,
-  compute: function (value: Maybe<CellValue>, places: Maybe<CellValue> = DEFAULT_PLACES): number {
+  compute: function (
+    value: Maybe<FPayload>,
+    places: Maybe<FPayload> = { value: DEFAULT_PLACES }
+  ): FPayloadNumber {
     const _value = toNumber(value, this.locale);
     let _places = toNumber(places, this.locale);
 
@@ -1138,7 +1187,10 @@ export const ROUND = {
       }
       tempResult = Math.round(absValue * Math.pow(10, _places)) / Math.pow(10, _places);
     }
-    return _value >= 0 ? tempResult : -tempResult;
+    return {
+      value: _value >= 0 ? tempResult : -tempResult,
+      format: value?.format,
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1159,8 +1211,10 @@ export const ROUNDDOWN = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value: Maybe<FPayload>) => value?.format,
-  compute: function (value: Maybe<CellValue>, places: Maybe<CellValue> = DEFAULT_PLACES): number {
+  compute: function (
+    value: Maybe<FPayload>,
+    places: Maybe<FPayload> = { value: DEFAULT_PLACES }
+  ): FPayloadNumber {
     const _value = toNumber(value, this.locale);
     let _places = toNumber(places, this.locale);
 
@@ -1174,7 +1228,10 @@ export const ROUNDDOWN = {
       }
       tempResult = Math.floor(absValue * Math.pow(10, _places)) / Math.pow(10, _places);
     }
-    return _value >= 0 ? tempResult : -tempResult;
+    return {
+      value: _value >= 0 ? tempResult : -tempResult,
+      format: value?.format,
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1192,8 +1249,10 @@ export const ROUNDUP = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value: Maybe<FPayload>) => value?.format,
-  compute: function (value: Maybe<CellValue>, places: Maybe<CellValue> = DEFAULT_PLACES): number {
+  compute: function (
+    value: Maybe<FPayload>,
+    places: Maybe<FPayload> = { value: DEFAULT_PLACES }
+  ): FPayloadNumber {
     const _value = toNumber(value, this.locale);
     let _places = toNumber(places, this.locale);
 
@@ -1207,7 +1266,10 @@ export const ROUNDUP = {
       }
       tempResult = Math.ceil(absValue * Math.pow(10, _places)) / Math.pow(10, _places);
     }
-    return _value >= 0 ? tempResult : -tempResult;
+    return {
+      value: _value >= 0 ? tempResult : -tempResult,
+      format: value?.format,
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1219,7 +1281,7 @@ export const SEC = {
   description: _t("Secant of an angle provided in radians."),
   args: [arg("angle (number)", _t("The angle to find the secant of, in radians."))],
   returns: ["NUMBER"],
-  compute: function (angle: Maybe<CellValue>): number {
+  compute: function (angle: Maybe<FPayload>): number {
     return 1 / Math.cos(toNumber(angle, this.locale));
   },
   isExported: true,
@@ -1232,7 +1294,7 @@ export const SECH = {
   description: _t("Hyperbolic secant of any real number."),
   args: [arg("value (number)", _t("Any real value to calculate the hyperbolic secant of."))],
   returns: ["NUMBER"],
-  compute: function (value: Maybe<CellValue>): number {
+  compute: function (value: Maybe<FPayload>): number {
     return 1 / Math.cosh(toNumber(value, this.locale));
   },
   isExported: true,
@@ -1245,7 +1307,7 @@ export const SIN = {
   description: _t("Sine of an angle provided in radians."),
   args: [arg("angle (number)", _t("The angle to find the sine of, in radians."))],
   returns: ["NUMBER"],
-  compute: function (angle: Maybe<CellValue>): number {
+  compute: function (angle: Maybe<FPayload>): number {
     return Math.sin(toNumber(angle, this.locale));
   },
   isExported: true,
@@ -1258,7 +1320,7 @@ export const SINH = {
   description: _t("Hyperbolic sine of any real number."),
   args: [arg("value (number)", _t("Any real value to calculate the hyperbolic sine of."))],
   returns: ["NUMBER"],
-  compute: function (value: Maybe<CellValue>): number {
+  compute: function (value: Maybe<FPayload>): number {
     return Math.sinh(toNumber(value, this.locale));
   },
   isExported: true,
@@ -1271,11 +1333,10 @@ export const SQRT = {
   description: _t("Positive square root of a positive number."),
   args: [arg("value (number)", _t("The number for which to calculate the positive square root."))],
   returns: ["NUMBER"],
-  computeFormat: (value: Maybe<FPayload>) => value?.format,
-  compute: function (value: Maybe<CellValue>): number {
+  compute: function (value: Maybe<FPayload>): FPayloadNumber {
     const _value = toNumber(value, this.locale);
     assert(() => _value >= 0, _t("The value (%s) must be positive or null.", _value.toString()));
-    return Math.sqrt(_value);
+    return { value: Math.sqrt(_value), format: value?.format };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1293,11 +1354,12 @@ export const SUM = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value1: Arg) => {
-    return isMatrix(value1) ? value1[0][0]?.format : value1?.format;
-  },
-  compute: function (...values: ArgValue[]): number {
-    return sum(values, this.locale);
+  compute: function (...values: Arg[]): FPayloadNumber {
+    const v1 = values[0];
+    return {
+      value: sum(values, this.locale),
+      format: inferFormat(v1),
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1316,11 +1378,7 @@ export const SUMIF = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (
-    criteriaRange: ArgValue,
-    criterion: Maybe<CellValue>,
-    sumRange: ArgValue
-  ): number {
+  compute: function (criteriaRange: Arg, criterion: Maybe<FPayload>, sumRange: Arg): number {
     if (sumRange === undefined) {
       sumRange = criteriaRange;
     }
@@ -1329,7 +1387,7 @@ export const SUMIF = {
     visitMatchingRanges(
       [criteriaRange, criterion],
       (i, j) => {
-        const value = sumRange![i][j];
+        const value = sumRange![i][j].value;
         if (typeof value === "number") {
           sum += value;
         }
@@ -1354,12 +1412,12 @@ export const SUMIFS = {
     arg("criterion2 (string, repeating)", _t("Additional criteria to check.")),
   ],
   returns: ["NUMBER"],
-  compute: function (sumRange: Matrix<CellValue>, ...criters: ArgValue[]): number {
+  compute: function (sumRange: Matrix<FPayload>, ...criters: Arg[]): number {
     let sum = 0;
     visitMatchingRanges(
       criters,
       (i, j) => {
-        const value = sumRange[i][j];
+        const value = sumRange[i][j].value;
         if (typeof value === "number") {
           sum += value;
         }
@@ -1378,7 +1436,7 @@ export const TAN = {
   description: _t("Tangent of an angle provided in radians."),
   args: [arg("angle (number)", _t("The angle to find the tangent of, in radians."))],
   returns: ["NUMBER"],
-  compute: function (angle: Maybe<CellValue>): number {
+  compute: function (angle: Maybe<FPayload>): number {
     return Math.tan(toNumber(angle, this.locale));
   },
   isExported: true,
@@ -1391,7 +1449,7 @@ export const TANH = {
   description: _t("Hyperbolic tangent of any real number."),
   args: [arg("value (number)", _t("Any real value to calculate the hyperbolic tangent of."))],
   returns: ["NUMBER"],
-  compute: function (value: Maybe<CellValue>): number {
+  compute: function (value: Maybe<FPayload>): number {
     return Math.tanh(toNumber(value, this.locale));
   },
   isExported: true,
@@ -1400,6 +1458,16 @@ export const TANH = {
 // -----------------------------------------------------------------------------
 // TRUNC
 // -----------------------------------------------------------------------------
+function trunc(value: number, places: number): number {
+  if (places === 0) {
+    return Math.trunc(value);
+  }
+  if (!Number.isInteger(places)) {
+    places = Math.trunc(places);
+  }
+  return Math.trunc(value * Math.pow(10, places)) / Math.pow(10, places);
+}
+
 export const TRUNC = {
   description: _t("Truncates a number."),
   args: [
@@ -1410,18 +1478,13 @@ export const TRUNC = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value: Maybe<FPayload>) => value?.format,
-  compute: function (value: Maybe<CellValue>, places: Maybe<CellValue> = DEFAULT_PLACES): number {
+  compute: function (
+    value: Maybe<FPayload>,
+    places: Maybe<FPayload> = { value: DEFAULT_PLACES }
+  ): FPayloadNumber {
     const _value = toNumber(value, this.locale);
-    let _places = toNumber(places, this.locale);
-
-    if (_places === 0) {
-      return Math.trunc(_value);
-    }
-    if (!Number.isInteger(_places)) {
-      _places = Math.trunc(_places);
-    }
-    return Math.trunc(_value * Math.pow(10, _places)) / Math.pow(10, _places);
+    const _places = toNumber(places, this.locale);
+    return { value: trunc(_value, _places), format: value?.format };
   },
   isExported: true,
 } satisfies AddFunctionDescription;

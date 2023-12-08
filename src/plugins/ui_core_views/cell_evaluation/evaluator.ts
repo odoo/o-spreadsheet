@@ -12,13 +12,13 @@ import {
   DEFAULT_LOCALE,
   EvaluatedCell,
   FormulaCell,
+  FPayload,
   Getters,
   isMatrix,
   Matrix,
   Range,
   RangeCompiledFormula,
   UID,
-  FPayload,
 } from "../../../types";
 import { CircularDependencyError, EvaluationError } from "../../../types/errors";
 import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";

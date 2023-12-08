@@ -1,5 +1,5 @@
 import { _t } from "../translation";
-import { AddFunctionDescription, ArgValue, CellValue, Maybe, FPayload } from "../types";
+import { AddFunctionDescription, Arg, FPayload, Maybe } from "../types";
 import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import { assert, conditionalVisitBoolean, toBoolean } from "./helpers";
@@ -22,7 +22,7 @@ export const AND = {
     ),
   ],
   returns: ["BOOLEAN"],
-  compute: function (...logicalExpressions: ArgValue[]): boolean {
+  compute: function (...logicalExpressions: Arg[]): boolean {
     let foundBoolean = false;
     let acc = true;
     conditionalVisitBoolean(logicalExpressions, (arg) => {
@@ -68,7 +68,7 @@ export const IF = {
     ),
   ],
   returns: ["ANY"],
-  computeValueAndFormat: function (
+  compute: function (
     logicalExpression: Maybe<FPayload>,
     valueIfTrue: Maybe<FPayload>,
     valueIfFalse: Maybe<FPayload>
@@ -98,7 +98,7 @@ export const IFERROR = {
     ),
   ],
   returns: ["ANY"],
-  computeValueAndFormat: function (
+  compute: function (
     value: Maybe<FPayload>,
     valueIfError: Maybe<FPayload> = { value: "" }
   ): FPayload {
@@ -127,7 +127,7 @@ export const IFNA = {
     ),
   ],
   returns: ["ANY"],
-  computeValueAndFormat: function (
+  compute: function (
     value: Maybe<FPayload>,
     valueIfError: Maybe<FPayload> = { value: "" }
   ): FPayload {
@@ -166,7 +166,7 @@ export const IFS = {
     ),
   ],
   returns: ["ANY"],
-  computeValueAndFormat: function (...values: Maybe<FPayload>[]): FPayload {
+  compute: function (...values: Maybe<FPayload>[]): FPayload {
     assert(
       () => values.length % 2 === 0,
       _t("Wrong number of arguments. Expected an even number of arguments.")
@@ -202,7 +202,7 @@ export const NOT = {
     ),
   ],
   returns: ["BOOLEAN"],
-  compute: function (logicalExpression: Maybe<CellValue>): boolean {
+  compute: function (logicalExpression: Maybe<FPayload>): boolean {
     return !toBoolean(logicalExpression);
   },
   isExported: true,
@@ -226,7 +226,7 @@ export const OR = {
     ),
   ],
   returns: ["BOOLEAN"],
-  compute: function (...logicalExpressions: ArgValue[]): boolean {
+  compute: function (...logicalExpressions: Arg[]): boolean {
     let foundBoolean = false;
     let acc = false;
     conditionalVisitBoolean(logicalExpressions, (arg) => {
@@ -271,7 +271,7 @@ export const XOR = {
     ),
   ],
   returns: ["BOOLEAN"],
-  compute: function (...logicalExpressions: ArgValue[]): boolean {
+  compute: function (...logicalExpressions: Arg[]): boolean {
     let foundBoolean = false;
     let acc = false;
     conditionalVisitBoolean(logicalExpressions, (arg) => {
