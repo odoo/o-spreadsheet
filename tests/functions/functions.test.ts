@@ -1,16 +1,8 @@
 import { EvaluationError, Model } from "../../src";
-import { toNumber } from "../../src/functions/helpers";
+import { toScalar } from "../../src/functions/helper_matrices";
+import { toBoolean, toNumber } from "../../src/functions/helpers";
 import { arg, functionRegistry } from "../../src/functions/index";
-import {
-  Arg,
-  ArgValue,
-  CellValue,
-  ComputeFunction,
-  DEFAULT_LOCALE,
-  Format,
-  Maybe,
-  FPayload,
-} from "../../src/types";
+import { DEFAULT_LOCALE } from "../../src/types";
 import {
   BadExpressionError,
   CircularDependencyError,
@@ -29,7 +21,9 @@ describe("functions", () => {
     expect(val).toBe("#NAME?");
     functionRegistry.add("DOUBLEDOUBLE", {
       description: "Double the first argument",
-      compute: ((arg: number) => 2 * arg) as ComputeFunction<ArgValue, CellValue>,
+      compute: function (arg) {
+        return 2 * toNumber(toScalar(arg), DEFAULT_LOCALE);
+      },
       args: [arg("number (number)", "my number")],
       returns: ["NUMBER"],
     });
@@ -66,9 +60,9 @@ describe("functions", () => {
     const model = new Model();
     functionRegistry.add("RETURN.VALUE.DEPENDING.ON.INPUT.VALUE", {
       description: "return value depending on input value",
-      compute: function (arg: Maybe<CellValue>) {
-        return toNumber(arg, DEFAULT_LOCALE) * 2;
-      } as ComputeFunction<ArgValue, CellValue>,
+      compute: function (arg) {
+        return toNumber(toScalar(arg), DEFAULT_LOCALE) * 2;
+      },
       args: [arg("number (number)", "blabla")],
       returns: ["NUMBER"],
     });
@@ -84,9 +78,9 @@ describe("functions", () => {
     const model = new Model();
     functionRegistry.add("RETURN.VALUE.DEPENDING.ON.INPUT.ERROR", {
       description: "return value depending on input error",
-      compute: function (arg: Maybe<CellValue>) {
-        return arg instanceof EvaluationError ? true : false;
-      } as ComputeFunction<ArgValue, CellValue>,
+      compute: function (arg) {
+        return toScalar(arg)?.value instanceof EvaluationError ? true : false;
+      },
       args: [arg("arg (any)", "blabla")],
       returns: ["BOOLEAN"],
     });
@@ -101,10 +95,10 @@ describe("functions", () => {
     const model = new Model();
     functionRegistry.add("RETURN.ERROR.DEPENDING.ON.INPUT.VALUE", {
       description: "return value depending on input error",
-      compute: function (arg: Maybe<CellValue>) {
+      compute: function (arg) {
         const error = new EvaluationError("Les calculs sont pas bons KEVIN !");
-        return arg ? error : "ceci n'est pas une erreur";
-      } as ComputeFunction<ArgValue, CellValue>,
+        return toBoolean(toScalar(arg)) ? error : "ceci n'est pas une erreur";
+      },
       args: [arg("arg (any)", "blabla")],
       returns: ["ANY"],
     });
@@ -119,11 +113,11 @@ describe("functions", () => {
     const model = new Model();
     functionRegistry.add("RETURN.ERROR.DEPENDING.ON.INPUT.ERROR", {
       description: "return value depending on input error",
-      compute: function (arg: Maybe<CellValue>) {
+      compute: function (arg) {
         const error1 = new CircularDependencyError();
         const error2 = new InvalidReferenceError();
-        return arg instanceof BadExpressionError ? error1 : error2;
-      } as ComputeFunction<ArgValue, CellValue>,
+        return toScalar(arg)?.value instanceof BadExpressionError ? error1 : error2;
+      },
       args: [arg("arg (any)", "blabla")],
       returns: ["ANY"],
     });
@@ -138,12 +132,9 @@ describe("functions", () => {
     const model = new Model();
     functionRegistry.add("RETURN.FORMAT.DEPENDING.ON.INPUT.FORMAT", {
       description: "return format depending on input format",
-      computeFormat: function (arg: Maybe<FPayload>) {
-        return arg?.format;
-      } as ComputeFunction<Arg, Format | undefined>,
-      compute: function (arg: Maybe<CellValue>) {
-        return arg;
-      } as ComputeFunction<ArgValue, CellValue>,
+      compute: function (arg) {
+        return { value: 42, format: toScalar(arg)?.format };
+      },
       args: [arg("number (number)", "blabla")],
       returns: ["NUMBER"],
     });
@@ -161,12 +152,13 @@ describe("functions", () => {
     const model = new Model();
     functionRegistry.add("RETURN.FORMAT.DEPENDING.ON.INPUT.VALUE", {
       description: "return format depending on input value",
-      computeFormat: function (arg: Maybe<FPayload>) {
-        return toNumber(arg?.value, DEFAULT_LOCALE) >= 0 ? "0%" : "#,##0.00";
-      } as ComputeFunction<Arg, Format | undefined>,
-      compute: function (arg: Maybe<CellValue>) {
-        return arg;
-      } as ComputeFunction<ArgValue, CellValue>,
+      compute: function (arg) {
+        const value = toNumber(toScalar(arg), DEFAULT_LOCALE);
+        return {
+          value,
+          format: value >= 0 ? "0%" : "#,##0.00",
+        };
+      },
       args: [arg("number (number)", "blabla")],
       returns: ["NUMBER"],
     });
