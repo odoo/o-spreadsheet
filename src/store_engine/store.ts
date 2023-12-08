@@ -68,7 +68,7 @@ export type Store<T> = CQS<T>;
  * [2] https://en.wikipedia.org/wiki/Command%E2%80%93query_separation
  * [3] in an ideal world, they would be deeply read-only, but that's not possible natively in TypeScript
  */
-type CQS<T> = {
+export type CQS<T> = {
   readonly [key in keyof T]: NeverReturns<T[key]>;
 };
 

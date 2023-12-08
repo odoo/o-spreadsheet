@@ -18,6 +18,7 @@ import {
 import {
   Border,
   BorderData,
+  CellPosition,
   Color,
   Dimension,
   HeaderIndex,
@@ -141,11 +142,6 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
 
   "RESIZE_SHEETVIEW",
   "SET_VIEWPORT_OFFSET",
-
-  "SELECT_SEARCH_NEXT_MATCH",
-  "SELECT_SEARCH_PREVIOUS_MATCH",
-  "UPDATE_SEARCH",
-  "CLEAR_SEARCH",
 
   "EVALUATE_CELLS",
 
@@ -893,31 +889,12 @@ export interface SelectFigureCommand {
   id: UID;
 }
 
-export interface UpdateSearchCommand {
-  type: "UPDATE_SEARCH";
-  toSearch: string;
-  searchOptions: SearchOptions;
-}
-
-export interface ClearSearchCommand {
-  type: "CLEAR_SEARCH";
-}
-
-export interface SelectSearchPreviousCommand {
-  type: "SELECT_SEARCH_PREVIOUS_MATCH";
-}
-
-export interface SelectSearchNextCommand {
-  type: "SELECT_SEARCH_NEXT_MATCH";
-}
-
 export interface ReplaceSearchCommand {
   type: "REPLACE_SEARCH";
+  searchString: string;
   replaceWith: string;
-}
-export interface ReplaceAllSearchCommand {
-  type: "REPLACE_ALL_SEARCH";
-  replaceWith: string;
+  searchOptions: SearchOptions;
+  matches: CellPosition[];
 }
 
 export interface SortCommand {
@@ -1141,12 +1118,7 @@ export type LocalCommand =
   | ShowFormulaCommand
   | AutofillAutoCommand
   | SelectFigureCommand
-  | UpdateSearchCommand
-  | ClearSearchCommand
-  | SelectSearchPreviousCommand
-  | SelectSearchNextCommand
   | ReplaceSearchCommand
-  | ReplaceAllSearchCommand
   | SortCommand
   | SetDecimalCommand
   | ResizeViewportCommand
