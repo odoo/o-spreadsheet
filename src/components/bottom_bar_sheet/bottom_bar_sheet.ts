@@ -134,6 +134,9 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onDblClick() {
+    if (this.env.model.getters.isReadonly()) {
+      return;
+    }
     this.startEdition();
   }
 
