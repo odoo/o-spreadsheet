@@ -18,9 +18,12 @@ describe("ACCRINTM formula", () => {
   });
 
   test("settlement > issue", () => {
-    expect(evaluateCell("A1", { A1: "=ACCRINTM(-1, 0, 1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
     expect(evaluateCell("A1", { A1: "=ACCRINTM(1, 1, 1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
     expect(evaluateCell("A1", { A1: "=ACCRINTM(2, 1, 1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
+
+  test("issue >=0", () => {
+    expect(evaluateCell("A1", { A1: "=ACCRINTM(-1, 0, 1, 1)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
   });
 
   test("rate > 0", () => {
@@ -103,10 +106,12 @@ describe("AMORLINC formula", () => {
   });
 
   test("purchase date <= first period date", () => {
-    expect(evaluateCell("A1", { A1: "=AMORLINC(1, -1, 0, 0, 0, 0.1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
     expect(evaluateCell("A1", { A1: "=AMORLINC(1, 2, 1, 0, 0, 0.1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
   });
 
+  test("purchaseDate >= 0 ", () => {
+    expect(evaluateCell("A1", { A1: "=AMORLINC(1, -1, 0, 0, 0, 0.1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
+  });
   test("salvage >= 0", () => {
     expect(evaluateCell("A1", { A1: "=AMORLINC(1, 0, 0, -1, 0, 0.1, 0)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #NUM!
   });

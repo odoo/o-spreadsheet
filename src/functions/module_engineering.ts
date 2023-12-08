@@ -1,5 +1,5 @@
 import { _t } from "../translation";
-import { AddFunctionDescription, CellValue, Maybe } from "../types";
+import { AddFunctionDescription, FPayload, Maybe } from "../types";
 import { arg } from "./arguments";
 import { toNumber } from "./helpers";
 
@@ -16,8 +16,8 @@ export const DELTA = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    number1: Maybe<CellValue>,
-    number2: Maybe<CellValue> = DEFAULT_DELTA_ARG
+    number1: Maybe<FPayload>,
+    number2: Maybe<FPayload> = { value: DEFAULT_DELTA_ARG }
   ): number {
     const _number1 = toNumber(number1, this.locale);
     const _number2 = toNumber(number2, this.locale);

@@ -19,7 +19,6 @@ import {
   AddColumnsRowsCommand,
   AnchorZone,
   CellPosition,
-  CellValue,
   CellValueType,
   ClientPosition,
   Command,
@@ -47,7 +46,7 @@ interface SheetInfo {
 
 interface SelectionStatisticFunction {
   name: string;
-  compute: (values: CellValue[], locale: Locale) => number;
+  compute: (data: EvaluatedCell[], locale: Locale) => number;
   types: CellValueType[];
 }
 
@@ -438,10 +437,10 @@ export class GridSelectionPlugin extends UIPlugin {
     }
 
     let cellsTypes = new Set<CellValueType>();
-    let cellsValues: CellValue[] = [];
+    let evaluatedCells: EvaluatedCell[] = [];
     for (let cell of cells) {
       cellsTypes.add(cell.type);
-      cellsValues.push(cell.value);
+      evaluatedCells.push(cell);
     }
 
     const locale = this.getters.getLocale();
@@ -455,7 +454,7 @@ export class GridSelectionPlugin extends UIPlugin {
       // be displayed as undefined rather than 0.
       let fnResult: number | undefined = undefined;
       if (fn.types.some((t) => cellsTypes.has(t))) {
-        fnResult = fn.compute(cellsValues, locale);
+        fnResult = fn.compute(evaluatedCells, locale);
       }
       statisticFnResults[fn.name] = fnResult;
     }

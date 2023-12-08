@@ -193,10 +193,10 @@ describe("compile functions", () => {
           { name: "arg2", description: "", type: ["ANY"] },
         ],
         compute: (arg1, arg2) => {
-          return arg2 === undefined;
-        },
-        computeFormat: (arg1, arg2) => {
-          return arg2 === undefined ? "TRUE" : "FALSE";
+          return {
+            value: arg2 === undefined,
+            format: arg2 === undefined ? "TRUE" : "FALSE",
+          };
         },
         returns: ["BOOLEAN"],
       });
@@ -207,16 +207,10 @@ describe("compile functions", () => {
           { name: "arg1", description: "", type: ["ANY"] },
           { name: "arg2", description: "", type: ["ANY"], default: true, defaultValue: 42 },
         ],
-        compute: (arg1, arg2 = 42) => {
-          return arg2 === 42;
-        },
-        computeFormat: (arg1, arg2 = { value: 42, format: "42" }) => {
-          return !Array.isArray(arg2) &&
-            typeof arg2 !== "function" &&
-            arg2.value === 42 &&
-            arg2.format === "42"
-            ? "TRUE"
-            : "FALSE";
+        compute: (arg1, arg2 = { value: 42, format: "42" }) => {
+          return !Array.isArray(arg2) && arg2.value === 42 && arg2.format === "42"
+            ? { value: true, format: "TRUE" }
+            : { value: false, format: "FALSE" };
         },
         returns: ["ANY"],
       });

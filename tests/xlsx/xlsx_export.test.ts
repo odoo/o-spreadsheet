@@ -689,11 +689,8 @@ describe("Test XLSX export", () => {
         description: "a non exportable formula",
         args: [],
         returns: ["NUMBER"],
-        compute: function (): number {
-          return 42;
-        },
-        computeFormat: function (): string {
-          return "0.00%";
+        compute: function () {
+          return { value: 42, format: "0.00%" };
         },
         isExported: false,
       });
@@ -717,16 +714,16 @@ describe("Test XLSX export", () => {
         description: "a non exportable formula that spread",
         args: [],
         returns: ["RANGE<NUMBER>"],
-        compute: function (): number[][] {
+        compute: function () {
           return [
-            [1, 2],
-            [3, 4],
-          ];
-        },
-        computeFormat: function (): string[][] {
-          return [
-            ["0.00%", "0"],
-            ["0.00", "0%"],
+            [
+              { value: 1, format: "0.00%" },
+              { value: 2, format: "0" },
+            ],
+            [
+              { value: 3, format: "0.00" },
+              { value: 4, format: "0%" },
+            ],
           ];
         },
         isExported: false,

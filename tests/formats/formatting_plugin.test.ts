@@ -9,21 +9,11 @@ import {
   PADDING_AUTORESIZE_VERTICAL,
 } from "../../src/constants";
 import { arg, functionRegistry } from "../../src/functions";
+import { toScalar } from "../../src/functions/helper_matrices";
 import { toString } from "../../src/functions/helpers";
 import { fontSizeInPixels, toCartesian } from "../../src/helpers";
 import { Model } from "../../src/model";
-import {
-  Arg,
-  ArgValue,
-  CellValue,
-  CommandResult,
-  ComputeFunction,
-  Format,
-  Maybe,
-  SetDecimalStep,
-  UID,
-  FPayload,
-} from "../../src/types";
+import { CommandResult, SetDecimalStep, UID } from "../../src/types";
 import {
   createFilter,
   createSheet,
@@ -160,12 +150,12 @@ describe("formatting values (with formatters)", () => {
     functionRegistry.add("SET.DYN.FORMAT", {
       description: "Returns the value set to the provided format",
       args: [arg("value (any)", "value to format"), arg("format (any)", "format to set.")],
-      compute: function (value: Maybe<CellValue>, format: Maybe<CellValue>) {
-        return value || 0;
-      } as ComputeFunction<ArgValue, CellValue>,
-      computeFormat: function (value: Maybe<FPayload>, format: Maybe<FPayload>) {
-        return toString(format?.value);
-      } as ComputeFunction<Arg, Format>,
+      compute: function (value, format) {
+        return {
+          value: toScalar(value)?.value || 0,
+          format: toString(toScalar(format)),
+        };
+      },
       returns: ["ANY"],
     });
     const model = new Model();

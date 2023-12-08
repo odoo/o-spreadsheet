@@ -1,6 +1,6 @@
 import { isNumber, parseDateTime } from "../helpers";
 import { _t } from "../translation";
-import { ArgValue, Locale, isMatrix } from "../types";
+import { Arg, Locale, isMatrix } from "../types";
 import { assert, reduceAny, reduceNumbers } from "./helpers";
 
 export function assertSameNumberOfElements(...args: any[][]) {
@@ -18,7 +18,7 @@ export function assertSameNumberOfElements(...args: any[][]) {
   );
 }
 
-export function average(values: ArgValue[], locale: Locale) {
+export function average(values: Arg[], locale: Locale) {
   let count = 0;
   const sum = reduceNumbers(
     values,
@@ -36,37 +36,40 @@ export function average(values: ArgValue[], locale: Locale) {
   return sum / count;
 }
 
-export function countNumbers(values: ArgValue[], locale: Locale) {
+export function countNumbers(values: Arg[], locale: Locale) {
   let count = 0;
   for (let n of values) {
     if (isMatrix(n)) {
       for (let i of n) {
         for (let j of i) {
-          if (typeof j === "number") {
+          if (typeof j.value === "number") {
             count += 1;
           }
         }
       }
-    } else if (
-      !(n instanceof Error) &&
-      (typeof n !== "string" || isNumber(n, locale) || parseDateTime(n, locale))
-    ) {
-      count += 1;
+    } else {
+      const value = n?.value;
+      if (
+        !(value instanceof Error) &&
+        (typeof value !== "string" || isNumber(value, locale) || parseDateTime(value, locale))
+      ) {
+        count += 1;
+      }
     }
   }
   return count;
 }
 
-export function countAny(values: ArgValue[]): number {
-  return reduceAny(values, (acc, a) => (a !== undefined && a !== null ? acc + 1 : acc), 0);
+export function countAny(values: Arg[]): number {
+  return reduceAny(values, (acc, a) => (a !== undefined && a.value !== null ? acc + 1 : acc), 0);
 }
 
-export function max(values: ArgValue[], locale: Locale) {
+export function max(values: Arg[], locale: Locale) {
   const result = reduceNumbers(values, (acc, a) => (acc < a ? a : acc), -Infinity, locale);
   return result === -Infinity ? 0 : result;
 }
 
-export function min(values: ArgValue[], locale: Locale): number {
+export function min(values: Arg[], locale: Locale): number {
   const result = reduceNumbers(values, (acc, a) => (a < acc ? a : acc), Infinity, locale);
   return result === Infinity ? 0 : result;
 }

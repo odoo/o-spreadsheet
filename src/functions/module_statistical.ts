@@ -4,16 +4,16 @@ import { _t } from "../translation";
 import {
   AddFunctionDescription,
   Arg,
-  ArgValue,
-  CellValue,
+  FPayload,
+  FPayloadNumber,
   Locale,
   Matrix,
   Maybe,
-  FPayload,
   isMatrix,
 } from "../types";
 import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
+import { assertSameDimensions } from "./helper_assert";
 import { invertMatrix, multiplyMatrices } from "./helper_matrices";
 import {
   assertSameNumberOfElements,
@@ -26,25 +26,23 @@ import {
 import {
   assert,
   dichotomicSearch,
+  inferFormat,
   matrixMap,
   reduceNumbers,
   reduceNumbersTextAs0,
   toBoolean,
   toMatrix,
   toNumber,
+  toNumberMatrix,
   transposeMatrix,
-  tryCastAsNumberMatrix,
   visitAny,
   visitMatchingRanges,
   visitNumbers,
 } from "./helpers";
 
-function filterAndFlatData(
-  dataY: ArgValue,
-  dataX: ArgValue
-): { flatDataY: number[]; flatDataX: number[] } {
-  const _flatDataY: Maybe<CellValue>[] = [];
-  const _flatDataX: Maybe<CellValue>[] = [];
+function filterAndFlatData(dataY: Arg, dataX: Arg): { flatDataY: number[]; flatDataX: number[] } {
+  const _flatDataY: Maybe<FPayload>[] = [];
+  const _flatDataX: Maybe<FPayload>[] = [];
   let lenY = 0;
   let lenX = 0;
 
@@ -65,24 +63,18 @@ function filterAndFlatData(
   const flatDataX: number[] = [];
   const flatDataY: number[] = [];
   for (let i = 0; i < lenY; i++) {
-    const valueY = _flatDataY[i];
-    const valueX = _flatDataX[i];
+    const valueY = _flatDataY[i]?.value;
+    const valueX = _flatDataX[i]?.value;
     if (typeof valueY === "number" && typeof valueX === "number") {
       flatDataY.push(valueY);
       flatDataX.push(valueX);
-    }
-    if (valueY instanceof Error) {
-      throw valueY;
-    }
-    if (valueX instanceof Error) {
-      throw valueX;
     }
   }
   return { flatDataX, flatDataY };
 }
 
 // Note: dataY and dataX may not have the same dimension
-function covariance(dataY: ArgValue, dataX: ArgValue, isSample: boolean): number {
+function covariance(dataY: Arg, dataX: Arg, isSample: boolean): number {
   const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
   const count = flatDataY.length;
 
@@ -109,7 +101,7 @@ function covariance(dataY: ArgValue, dataX: ArgValue, isSample: boolean): number
   return acc / (count - (isSample ? 1 : 0));
 }
 
-function variance(args: ArgValue[], isSample: boolean, textAs0: boolean, locale: Locale): number {
+function variance(args: Arg[], isSample: boolean, textAs0: boolean, locale: Locale): number {
   let count = 0;
   let sum = 0;
   const reduceFunction = textAs0 ? reduceNumbersTextAs0 : reduceNumbers;
@@ -137,8 +129,8 @@ function variance(args: ArgValue[], isSample: boolean, textAs0: boolean, locale:
 }
 
 function centile(
-  data: ArgValue[],
-  percent: Maybe<CellValue>,
+  data: Arg[],
+  percent: Maybe<FPayload>,
   isInclusive: boolean,
   locale: Locale
 ): number {
@@ -151,20 +143,18 @@ function centile(
   let index: number;
   let count = 0;
   visitAny(data, (d) => {
-    if (typeof d === "number") {
+    const value = d?.value;
+    if (typeof value === "number") {
       index = dichotomicSearch(
         sortedArray,
-        d,
+        value,
         "nextSmaller",
         "asc",
         sortedArray.length,
         (array, i) => array[i]
       );
-      sortedArray.splice(index + 1, 0, d);
+      sortedArray.splice(index + 1, 0, value);
       count++;
-    }
-    if (d instanceof Error) {
-      throw d;
     }
   });
   assert(() => count !== 0, _t("[[FUNCTION_NAME]] has no valid input data."));
@@ -181,9 +171,9 @@ function centile(
 }
 
 function prepareDataForRegression(X: Matrix<number>, Y: Matrix<number>, newX: Matrix<number>) {
-  const _X = X.length ? X : [range(1, Y.flat().length + 1)];
+  const _X = X[0].length ? X : [range(1, Y.flat().length + 1)];
   const nVar = _X.length;
-  let _newX = newX.length ? newX : _X;
+  let _newX = newX[0].length ? newX : _X;
   _newX = _newX.length === nVar ? transposeMatrix(_newX) : _newX;
   return { _X, _newX };
 }
@@ -208,7 +198,7 @@ function fullLinearRegression(
 ) {
   const y = Y.flat();
   const n = y.length;
-  let { _X } = prepareDataForRegression(X, Y, []);
+  let { _X } = prepareDataForRegression(X, Y, [[]]);
   _X = _X.length === n ? transposeMatrix(_X) : _X.slice();
   assertSameNumberOfElements(_X[0], y);
   const nVar = _X.length;
@@ -379,7 +369,7 @@ export const AVEDEV = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (...values: ArgValue[]): number {
+  compute: function (...values: Arg[]): number {
     let count = 0;
     const sum = reduceNumbers(
       values,
@@ -416,11 +406,11 @@ export const AVERAGE = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value1: Arg) => {
-    return isMatrix(value1) ? value1[0][0]?.format : value1?.format;
-  },
-  compute: function (...values: ArgValue[]): number {
-    return average(values, this.locale);
+  compute: function (...values: Arg[]): FPayloadNumber {
+    return {
+      value: average(values, this.locale),
+      format: inferFormat(values[0]),
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -445,58 +435,42 @@ export const AVERAGE_WEIGHTED = {
     arg("additional_weights (number, range<number>, repeating)", _t("Additional weights.")),
   ],
   returns: ["NUMBER"],
-  computeFormat: (values: Arg) => {
-    return isMatrix(values) ? values[0][0]?.format : values?.format;
-  },
-  compute: function (...values: ArgValue[]): number {
+  compute: function (...args: Arg[]): FPayloadNumber {
     let sum = 0;
     let count = 0;
-    let value;
-    let weight;
-    assert(
-      () => values.length % 2 === 0,
-      _t("Wrong number of Argument[]. Expected an even number of Argument[].")
-    );
-    for (let n = 0; n < values.length - 1; n += 2) {
-      value = values[n];
-      weight = values[n + 1];
-      // if (typeof value != typeof weight) {
-      //   throw new Error(rangeError);
-      // }
-      if (isMatrix(value)) {
-        assert(() => isMatrix(weight), rangeError);
+    for (let n = 0; n < args.length - 1; n += 2) {
+      const argN = args[n];
+      const argN1 = args[n + 1];
+      assertSameDimensions(rangeError, argN, argN1);
 
-        let dimColValue = value.length;
-        let dimLinValue = value[0].length;
-        assert(() => dimColValue === weight.length && dimLinValue === weight[0].length, rangeError);
+      if (isMatrix(argN)) {
+        for (let i = 0; i < argN.length; i++) {
+          for (let j = 0; j < argN[0].length; j++) {
+            const value = argN[i][j].value;
+            const weight = isMatrix(argN1) ? argN1?.[i][j].value : toNumber(argN1, this.locale);
+            const valueIsNumber = typeof value === "number";
+            const weightIsNumber = typeof weight === "number";
 
-        for (let i = 0; i < dimColValue; i++) {
-          for (let j = 0; j < dimLinValue; j++) {
-            let subValue = value[i][j];
-            let subWeight = weight[i][j];
-            let subValueIsNumber = typeof subValue === "number";
-            let subWeightIsNumber = typeof subWeight === "number";
-            // typeof subValue or subWeight can be 'number' or 'undefined'
+            if (valueIsNumber && weightIsNumber) {
+              assert(() => weight >= 0, negativeWeightError);
+              sum += value * weight;
+              count += weight;
+              continue;
+            }
             assert(
-              () => subValueIsNumber === subWeightIsNumber,
+              () => valueIsNumber === weightIsNumber,
               _t("[[FUNCTION_NAME]] expects number values.")
             );
-
-            if (subWeightIsNumber) {
-              assert(() => subWeight >= 0, negativeWeightError);
-
-              sum += subValue * subWeight;
-              count += subWeight;
-            }
           }
         }
       } else {
-        weight = toNumber(weight, this.locale);
-        value = toNumber(value, this.locale);
-        assert(() => weight >= 0, negativeWeightError);
-
-        sum += value * weight;
-        count += weight;
+        const value = toNumber(argN, this.locale);
+        const weight = isMatrix(argN1) ? argN1?.[0][0].value : toNumber(argN1, this.locale);
+        if (typeof weight === "number") {
+          assert(() => weight >= 0, negativeWeightError);
+          sum += value * weight;
+          count += weight;
+        }
       }
     }
 
@@ -505,7 +479,7 @@ export const AVERAGE_WEIGHTED = {
       _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
     );
 
-    return sum / count;
+    return { value: sum / count, format: inferFormat(args[0]) };
   },
 } satisfies AddFunctionDescription;
 
@@ -525,13 +499,10 @@ export const AVERAGEA = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value1: Arg) => {
-    return isMatrix(value1) ? value1[0][0]?.format : value1?.format;
-  },
-  compute: function (...values: ArgValue[]): number {
+  compute: function (...args: Arg[]): FPayloadNumber {
     let count = 0;
     const sum = reduceNumbersTextAs0(
-      values,
+      args,
       (acc, a) => {
         count += 1;
         return acc + a;
@@ -543,7 +514,10 @@ export const AVERAGEA = {
       () => count !== 0,
       _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
     );
-    return sum / count;
+    return {
+      value: sum / count,
+      format: inferFormat(args[0]),
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -562,13 +536,9 @@ export const AVERAGEIF = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (
-    criteriaRange: ArgValue,
-    criterion: Maybe<CellValue>,
-    averageRange: ArgValue
-  ): number {
-    const _criteriaRange = toMatrix(criteriaRange);
-    const _averageRange = averageRange === undefined ? _criteriaRange : toMatrix(averageRange);
+  compute: function (criteriaRange: Arg, criterion: Maybe<FPayload>, averageRange: Arg): number {
+    const _averageRange =
+      averageRange === undefined ? toMatrix(criteriaRange) : toMatrix(averageRange);
 
     let count = 0;
     let sum = 0;
@@ -576,7 +546,7 @@ export const AVERAGEIF = {
     visitMatchingRanges(
       [criteriaRange, criterion],
       (i, j) => {
-        const value = _averageRange[i][j];
+        const value = _averageRange[i][j].value;
         if (typeof value === "number") {
           count += 1;
           sum += value;
@@ -611,14 +581,14 @@ export const AVERAGEIFS = {
     arg("criterion2 (string, repeating)", _t("The pattern or test to apply to criteria_range2.")),
   ],
   returns: ["NUMBER"],
-  compute: function (averageRange: Matrix<CellValue>, ...values: ArgValue[]): number {
+  compute: function (averageRange: Matrix<FPayload>, ...args: Arg[]): number {
     const _averageRange = toMatrix(averageRange);
     let count = 0;
     let sum = 0;
     visitMatchingRanges(
-      values,
+      args,
       (i, j) => {
-        const value = _averageRange[i][j];
+        const value = _averageRange[i][j].value;
         if (typeof value === "number") {
           count += 1;
           sum += value;
@@ -651,7 +621,7 @@ export const COUNT = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (...values: ArgValue[]): number {
+  compute: function (...values: Arg[]): number {
     return countNumbers(values, this.locale);
   },
   isExported: true,
@@ -670,7 +640,7 @@ export const COUNTA = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (...values: ArgValue[]): number {
+  compute: function (...values: Arg[]): number {
     return countAny(values);
   },
   isExported: true,
@@ -692,7 +662,7 @@ export const COVAR = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (dataY: ArgValue, dataX: ArgValue): number {
+  compute: function (dataY: Arg, dataX: Arg): number {
     return covariance(dataY, dataX, false);
   },
   isExported: true,
@@ -711,7 +681,7 @@ export const COVARIANCE_P = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (dataY: ArgValue, dataX: ArgValue): number {
+  compute: function (dataY: Arg, dataX: Arg): number {
     return covariance(dataY, dataX, false);
   },
   isExported: true,
@@ -730,7 +700,7 @@ export const COVARIANCE_S = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (dataY: ArgValue, dataX: ArgValue): number {
+  compute: function (dataY: Arg, dataX: Arg): number {
     return covariance(dataY, dataX, true);
   },
   isExported: true,
@@ -756,9 +726,9 @@ export const FORECAST: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    x: ArgValue,
-    dataY: Matrix<CellValue>,
-    dataX: Matrix<CellValue>
+    x: Arg,
+    dataY: Matrix<FPayload>,
+    dataX: Matrix<FPayload>
   ): number | Matrix<number> {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
     return predictLinearValues(
@@ -800,16 +770,16 @@ export const GROWTH: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    knownDataY: Matrix<CellValue>,
-    knownDataX: Matrix<CellValue> = [],
-    newDataX: Matrix<CellValue> = [],
-    b: Maybe<CellValue> = true
+    knownDataY: Matrix<FPayload>,
+    knownDataX: Matrix<FPayload> = [[]],
+    newDataX: Matrix<FPayload> = [[]],
+    b: Maybe<FPayload> = { value: true }
   ): Matrix<number> {
     return expM(
       predictLinearValues(
-        logM(tryCastAsNumberMatrix(knownDataY, "the first argument (known_data_y)")),
-        tryCastAsNumberMatrix(knownDataX, "the second argument (known_data_x)"),
-        tryCastAsNumberMatrix(newDataX, "the third argument (new_data_y)"),
+        logM(toNumberMatrix(knownDataY, "the first argument (known_data_y)")),
+        toNumberMatrix(knownDataX, "the second argument (known_data_x)"),
+        toNumberMatrix(newDataX, "the third argument (new_data_y)"),
         toBoolean(b)
       )
     );
@@ -832,7 +802,7 @@ export const INTERCEPT: AddFunctionDescription = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (dataY: Matrix<CellValue>, dataX: Matrix<CellValue>): number {
+  compute: function (dataY: Matrix<FPayload>, dataX: Matrix<FPayload>): number {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
     const [[], [intercept]] = fullLinearRegression([flatDataX], [flatDataY]);
     return intercept as number;
@@ -850,13 +820,13 @@ export const LARGE = {
     arg("n (number)", _t("The rank from largest to smallest of the element to return.")),
   ],
   returns: ["NUMBER"],
-  computeValueAndFormat: function (data: Arg, n: Maybe<FPayload>): FPayload {
+  compute: function (data: Arg, n: Maybe<FPayload>): FPayload {
     const _n = Math.trunc(toNumber(n?.value, this.locale));
     let largests: FPayload[] = [];
     let index: number;
     let count = 0;
     visitAny([data], (d) => {
-      if (typeof d.value === "number") {
+      if (typeof d?.value === "number") {
         index = dichotomicSearch(
           largests,
           d.value,
@@ -871,9 +841,6 @@ export const LARGE = {
           largests.shift();
           count--;
         }
-      }
-      if (d.value instanceof Error) {
-        throw d.value;
       }
     });
     const result = largests.shift();
@@ -914,14 +881,14 @@ export const LINEST: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    dataY: Matrix<CellValue>,
-    dataX: Matrix<CellValue> = [],
-    calculateB: Maybe<CellValue> = true,
-    verbose: Maybe<CellValue> = false
+    dataY: Matrix<FPayload>,
+    dataX: Matrix<FPayload> = [[]],
+    calculateB: Maybe<FPayload> = { value: true },
+    verbose: Maybe<FPayload> = { value: false }
   ): (number | string)[][] {
     return fullLinearRegression(
-      tryCastAsNumberMatrix(dataX, "the first argument (data_y)"),
-      tryCastAsNumberMatrix(dataY, "the second argument (data_x)"),
+      toNumberMatrix(dataX, "the first argument (data_y)"),
+      toNumberMatrix(dataY, "the second argument (data_x)"),
       toBoolean(calculateB),
       toBoolean(verbose)
     );
@@ -956,14 +923,14 @@ export const LOGEST: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    dataY: Matrix<CellValue>,
-    dataX: Matrix<CellValue> = [],
-    calculateB: Maybe<CellValue> = true,
-    verbose: Maybe<CellValue> = false
+    dataY: Matrix<FPayload>,
+    dataX: Matrix<FPayload> = [[]],
+    calculateB: Maybe<FPayload> = { value: true },
+    verbose: Maybe<FPayload> = { value: false }
   ): (number | string)[][] {
     const coeffs = fullLinearRegression(
-      tryCastAsNumberMatrix(dataX, "the second argument (data_x)"),
-      logM(tryCastAsNumberMatrix(dataY, "the first argument (data_y)")),
+      toNumberMatrix(dataX, "the second argument (data_x)"),
+      logM(toNumberMatrix(dataY, "the first argument (data_y)")),
       toBoolean(calculateB),
       toBoolean(verbose)
     );
@@ -985,7 +952,7 @@ export const MATTHEWS: AddFunctionDescription = {
     arg("data_y (range)", _t("The range representing the array or matrix of predicted data.")),
   ],
   returns: ["NUMBER"],
-  compute: function (dataX: Matrix<CellValue>, dataY: Matrix<CellValue>): number {
+  compute: function (dataX: Matrix<FPayload>, dataY: Matrix<FPayload>): number {
     const flatX = dataX.flat();
     const flatY = dataY.flat();
     assertSameNumberOfElements(flatX, flatY);
@@ -1039,11 +1006,11 @@ export const MAX = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value1: Arg) => {
-    return isMatrix(value1) ? value1[0][0]?.format : value1?.format;
-  },
-  compute: function (...values: ArgValue[]): number {
-    return max(values, this.locale);
+  compute: function (...values: Arg[]): FPayloadNumber {
+    return {
+      value: max(values, this.locale),
+      format: inferFormat(values[0]),
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1064,19 +1031,16 @@ export const MAXA = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value1: Arg) => {
-    return isMatrix(value1) ? value1[0][0]?.format : value1?.format;
-  },
-  compute: function (...values: ArgValue[]): number {
+  compute: function (...args: Arg[]): FPayloadNumber {
     const maxa = reduceNumbersTextAs0(
-      values,
+      args,
       (acc, a) => {
         return Math.max(a, acc);
       },
       -Infinity,
       this.locale
     );
-    return maxa === -Infinity ? 0 : maxa;
+    return { value: maxa === -Infinity ? 0 : maxa, format: inferFormat(args[0]) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1104,13 +1068,12 @@ export const MAXIFS = {
     arg("criterion2 (string, repeating)", _t("The pattern or test to apply to criteria_range2.")),
   ],
   returns: ["NUMBER"],
-  compute: function (range: Matrix<CellValue>, ...args: ArgValue[]): number {
+  compute: function (range: Matrix<FPayload>, ...args: Arg[]): number {
     let result = -Infinity;
-    const _range = toMatrix(range);
     visitMatchingRanges(
       args,
       (i, j) => {
-        const value = _range[i][j];
+        const value = range[i][j].value;
         if (typeof value === "number") {
           result = result < value ? value : result;
         }
@@ -1138,19 +1101,19 @@ export const MEDIAN = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value1: Arg) => {
-    return isMatrix(value1) ? value1[0][0]?.format : value1?.format;
-  },
-  compute: function (...values: ArgValue[]): number {
-    let data: ArgValue[] = [];
+  compute: function (...values: Arg[]): FPayloadNumber {
+    let data: FPayloadNumber[] = [];
     visitNumbers(
       values,
-      (arg) => {
-        data.push(arg);
+      (value) => {
+        data.push({ value });
       },
       this.locale
     );
-    return centile(data, 0.5, true, this.locale);
+    return {
+      value: centile(data, { value: 0.5 }, true, this.locale),
+      format: inferFormat(values[0]),
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1171,11 +1134,11 @@ export const MIN = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value1: Arg) => {
-    return isMatrix(value1) ? value1[0][0]?.format : value1?.format;
-  },
-  compute: function (...values: ArgValue[]): number {
-    return min(values, this.locale);
+  compute: function (...values: Arg[]): FPayloadNumber {
+    return {
+      value: min(values, this.locale),
+      format: inferFormat(values[0]),
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1196,19 +1159,16 @@ export const MINA = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (value1: Arg) => {
-    return isMatrix(value1) ? value1[0][0]?.format : value1?.format;
-  },
-  compute: function (...values: ArgValue[]): number {
+  compute: function (...args: Arg[]): FPayloadNumber {
     const mina: number = reduceNumbersTextAs0(
-      values,
+      args,
       (acc, a) => {
         return Math.min(a, acc);
       },
       Infinity,
       this.locale
     );
-    return mina === Infinity ? 0 : mina;
+    return { value: mina === Infinity ? 0 : mina, format: inferFormat(args[0]) };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1236,13 +1196,12 @@ export const MINIFS = {
     arg("criterion2 (string, repeating)", _t("The pattern or test to apply to criteria_range2.")),
   ],
   returns: ["NUMBER"],
-  compute: function (range: Matrix<CellValue>, ...args: ArgValue[]): number {
+  compute: function (range: Matrix<FPayload>, ...args: Arg[]): number {
     let result = Infinity;
-    const _range = toMatrix(range);
     visitMatchingRanges(
       args,
       (i, j) => {
-        const value = _range[i][j];
+        const value = range[i][j].value;
         if (typeof value === "number") {
           result = result > value ? value : result;
         }
@@ -1257,6 +1216,37 @@ export const MINIFS = {
 // -----------------------------------------------------------------------------
 // PEARSON
 // -----------------------------------------------------------------------------
+function pearson(dataY: Matrix<FPayload>, dataX: Matrix<FPayload>): number {
+  const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
+  if (flatDataX.length === 0) {
+    throw new Error(_t("[[FUNCTION_NAME]] expects non-empty ranges for both parameters."));
+  }
+  if (flatDataX.length < 2) {
+    throw new Error(_t("[[FUNCTION_NAME]] needs at least two values for both parameters"));
+  }
+  const n = flatDataX.length;
+
+  let sumX = 0,
+    sumY = 0,
+    sumXY = 0,
+    sumXX = 0,
+    sumYY = 0;
+  for (let i = 0; i < n; i++) {
+    const xij = flatDataX[i];
+    const yij = flatDataY[i];
+
+    sumX += xij;
+    sumY += yij;
+
+    sumXY += xij * yij;
+    sumXX += xij * xij;
+    sumYY += yij * yij;
+  }
+  return (
+    (n * sumXY - sumX * sumY) / Math.sqrt((n * sumXX - sumX * sumX) * (n * sumYY - sumY * sumY))
+  );
+}
+
 export const PEARSON: AddFunctionDescription = {
   description: _t("Compute the Pearson product-moment correlation coefficient of a dataset."),
   args: [
@@ -1270,35 +1260,8 @@ export const PEARSON: AddFunctionDescription = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (dataY: Matrix<CellValue>, dataX: Matrix<CellValue>): number {
-    const { flatDataX, flatDataY } = filterAndFlatData(dataX, dataY);
-    if (flatDataX.length === 0) {
-      throw new Error(_t("[[FUNCTION_NAME]] expects non-empty ranges for both parameters."));
-    }
-    if (flatDataX.length < 2) {
-      throw new Error(_t("[[FUNCTION_NAME]] needs at least two values for both parameters"));
-    }
-    const n = flatDataX.length;
-
-    let sumX = 0,
-      sumY = 0,
-      sumXY = 0,
-      sumXX = 0,
-      sumYY = 0;
-    for (let i = 0; i < n; i++) {
-      const xij = flatDataX[i];
-      const yij = flatDataY[i];
-
-      sumX += xij;
-      sumY += yij;
-
-      sumXY += xij * yij;
-      sumXX += xij * xij;
-      sumYY += yij * yij;
-    }
-    return (
-      (n * sumXY - sumX * sumY) / Math.sqrt((n * sumXX - sumX * sumX) * (n * sumYY - sumY * sumY))
-    );
+  compute: function (dataY: Matrix<FPayload>, dataX: Matrix<FPayload>): number {
+    return pearson(dataY, dataX);
   },
   isExported: true,
 };
@@ -1318,10 +1281,7 @@ export const PERCENTILE = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (data: Arg) => {
-    return isMatrix(data) ? data[0][0]?.format : data?.format;
-  },
-  compute: function (data: ArgValue, percentile: Maybe<CellValue>): number {
+  compute: function (data: Arg, percentile: Maybe<FPayload>): FPayloadNumber {
     return PERCENTILE_INC.compute.bind(this)(data, percentile);
   },
   isExported: true,
@@ -1342,11 +1302,11 @@ export const PERCENTILE_EXC = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (data: Arg) => {
-    return isMatrix(data) ? data[0][0]?.format : data?.format;
-  },
-  compute: function (data: ArgValue, percentile: Maybe<CellValue>): number {
-    return centile([data], percentile, false, this.locale);
+  compute: function (data: Arg, percentile: Maybe<FPayload>): FPayloadNumber {
+    return {
+      value: centile([data], percentile, false, this.locale),
+      format: inferFormat(data),
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1364,11 +1324,11 @@ export const PERCENTILE_INC = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: (data: Arg) => {
-    return isMatrix(data) ? data[0][0]?.format : data?.format;
-  },
-  compute: function (data: ArgValue, percentile: Maybe<CellValue>): number {
-    return centile([data], percentile, true, this.locale);
+  compute: function (data: Arg, percentile: Maybe<FPayload>): FPayloadNumber {
+    return {
+      value: centile([data], percentile, true, this.locale),
+      format: inferFormat(data),
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1395,10 +1355,10 @@ export const POLYFIT_COEFFS: AddFunctionDescription = {
   ],
   returns: ["RANGE<NUMBER>"],
   compute: function (
-    dataY: Matrix<CellValue>,
-    dataX: Matrix<CellValue>,
-    order: Maybe<CellValue>,
-    intercept: Maybe<CellValue> = true
+    dataY: Matrix<FPayload>,
+    dataX: Matrix<FPayload>,
+    order: Maybe<FPayload>,
+    intercept: Maybe<FPayload> = { value: true }
   ): Matrix<number> {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
     return polynomialRegression(
@@ -1434,12 +1394,12 @@ export const POLYFIT_FORECAST: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    x: ArgValue,
-    dataY: Matrix<CellValue>,
-    dataX: Matrix<CellValue>,
-    order: Maybe<CellValue>,
-    intercept: Maybe<CellValue> = true
-  ): number | Matrix<number> {
+    x: Arg,
+    dataY: Matrix<FPayload>,
+    dataX: Matrix<FPayload>,
+    order: Maybe<FPayload>,
+    intercept: Maybe<FPayload> = { value: true }
+  ): Matrix<number> {
     const _order = toNumber(order, this.locale);
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
     const coeffs = polynomialRegression(flatDataY, flatDataX, _order, toBoolean(intercept)).flat();
@@ -1460,10 +1420,7 @@ export const QUARTILE = {
     arg("quartile_number (number)", _t("Which quartile value to return.")),
   ],
   returns: ["NUMBER"],
-  computeFormat: (data: Arg) => {
-    return isMatrix(data) ? data[0][0]?.format : data?.format;
-  },
-  compute: function (data: ArgValue, quartileNumber: Maybe<CellValue>): number {
+  compute: function (data: Arg, quartileNumber: Maybe<FPayload>): FPayloadNumber {
     return QUARTILE_INC.compute.bind(this)(data, quartileNumber);
   },
   isExported: true,
@@ -1479,12 +1436,13 @@ export const QUARTILE_EXC = {
     arg("quartile_number (number)", _t("Which quartile value, exclusive of 0 and 4, to return.")),
   ],
   returns: ["NUMBER"],
-  computeFormat: (data: Arg) => {
-    return isMatrix(data) ? data[0][0]?.format : data?.format;
-  },
-  compute: function (data: ArgValue, quartileNumber: Maybe<CellValue>): number {
+  compute: function (data: Arg, quartileNumber: Maybe<FPayload>): FPayloadNumber {
     const _quartileNumber = Math.trunc(toNumber(quartileNumber, this.locale));
-    return centile([data], 0.25 * _quartileNumber, false, this.locale);
+    const percent = { value: 0.25 * _quartileNumber };
+    return {
+      value: centile([data], percent, false, this.locale),
+      format: inferFormat(data),
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1499,12 +1457,12 @@ export const QUARTILE_INC = {
     arg("quartile_number (number)", _t("Which quartile value to return.")),
   ],
   returns: ["NUMBER"],
-  computeFormat: (data: Arg) => {
-    return isMatrix(data) ? data[0][0]?.format : data?.format;
-  },
-  compute: function (data: ArgValue, quartileNumber: Maybe<CellValue>): number {
-    const _quartileNumber = Math.trunc(toNumber(quartileNumber, this.locale));
-    return centile([data], 0.25 * _quartileNumber, true, this.locale);
+  compute: function (data: Arg, quartileNumber: Maybe<FPayload>): FPayloadNumber {
+    const percent = { value: 0.25 * Math.trunc(toNumber(quartileNumber, this.locale)) };
+    return {
+      value: centile([data], percent, true, this.locale),
+      format: inferFormat(data),
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1523,9 +1481,9 @@ export const RANK: AddFunctionDescription = {
   ],
   returns: ["ANY"],
   compute: function (
-    value: Maybe<CellValue>,
-    data: Matrix<CellValue>,
-    isAscending: Maybe<CellValue> = false
+    value: Maybe<FPayload>,
+    data: Matrix<FPayload>,
+    isAscending: Maybe<FPayload> = { value: false }
   ): number {
     const _isAscending = toBoolean(isAscending);
     const _value = toNumber(value, this.locale);
@@ -1533,7 +1491,7 @@ export const RANK: AddFunctionDescription = {
     let found = false;
     for (const row of data) {
       for (const cell of row) {
-        if (typeof cell !== "number") {
+        if (typeof cell.value !== "number") {
           continue;
         }
         const _cell = toNumber(cell, this.locale);
@@ -1570,9 +1528,8 @@ export const RSQ: AddFunctionDescription = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (dataY: Matrix<CellValue>, dataX: Matrix<CellValue>): number {
-    const pearson = PEARSON.compute.bind(this);
-    return Math.pow(pearson(dataX, dataY) as number, 2.0);
+  compute: function (dataY: Matrix<FPayload>, dataX: Matrix<FPayload>): number {
+    return Math.pow(pearson(dataX, dataY), 2.0);
   },
   isExported: true,
 };
@@ -1593,7 +1550,7 @@ export const SLOPE: AddFunctionDescription = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (dataY: Matrix<CellValue>, dataX: Matrix<CellValue>): number {
+  compute: function (dataY: Matrix<FPayload>, dataX: Matrix<FPayload>): number {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
     const [[slope]] = fullLinearRegression([flatDataX], [flatDataY]);
     return slope as number;
@@ -1611,13 +1568,13 @@ export const SMALL = {
     arg("n (number)", _t("The rank from smallest to largest of the element to return.")),
   ],
   returns: ["NUMBER"],
-  computeValueAndFormat: function (data: Arg, n: Maybe<FPayload>): FPayload {
+  compute: function (data: Arg, n: Maybe<FPayload>): FPayload {
     const _n = Math.trunc(toNumber(n?.value, this.locale));
     let largests: FPayload[] = [];
     let index: number;
     let count = 0;
     visitAny([data], (d) => {
-      if (typeof d.value === "number") {
+      if (typeof d?.value === "number") {
         index = dichotomicSearch(
           largests,
           d.value,
@@ -1632,9 +1589,6 @@ export const SMALL = {
           largests.pop();
           count--;
         }
-      }
-      if (d.value instanceof Error) {
-        throw d.value;
       }
     });
     const result = largests.pop();
@@ -1664,7 +1618,7 @@ export const SPEARMAN: AddFunctionDescription = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (dataX: Matrix<CellValue>, dataY: Matrix<CellValue>): number {
+  compute: function (dataX: Matrix<FPayload>, dataY: Matrix<FPayload>): number {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
     const n = flatDataX.length;
 
@@ -1698,8 +1652,8 @@ export const STDEV = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (...values: ArgValue[]): number {
-    return Math.sqrt(VAR.compute.bind(this)(...values));
+  compute: function (...args: Arg[]): number {
+    return Math.sqrt(VAR.compute.bind(this)(...args));
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1717,8 +1671,8 @@ export const STDEV_P = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (...values: ArgValue[]): number {
-    return Math.sqrt(VAR_P.compute.bind(this)(...values));
+  compute: function (...args: Arg[]): number {
+    return Math.sqrt(VAR_P.compute.bind(this)(...args));
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1736,8 +1690,8 @@ export const STDEV_S = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (...values: ArgValue[]): number {
-    return Math.sqrt(VAR_S.compute.bind(this)(...values));
+  compute: function (...args: Arg[]): number {
+    return Math.sqrt(VAR_S.compute.bind(this)(...args));
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1755,8 +1709,8 @@ export const STDEVA = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (...values: ArgValue[]): number {
-    return Math.sqrt(VARA.compute.bind(this)(...values));
+  compute: function (...args: Arg[]): number {
+    return Math.sqrt(VARA.compute.bind(this)(...args));
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1774,8 +1728,8 @@ export const STDEVP = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (...values: ArgValue[]): number {
-    return Math.sqrt(VARP.compute.bind(this)(...values));
+  compute: function (...args: Arg[]): number {
+    return Math.sqrt(VARP.compute.bind(this)(...args));
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1793,8 +1747,8 @@ export const STDEVPA = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (...values: ArgValue[]): number {
-    return Math.sqrt(VARPA.compute.bind(this)(...values));
+  compute: function (...args: Arg[]): number {
+    return Math.sqrt(VARPA.compute.bind(this)(...args));
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1817,7 +1771,7 @@ export const STEYX: AddFunctionDescription = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (dataY: Matrix<CellValue>, dataX: Matrix<CellValue>): number {
+  compute: function (dataY: Matrix<FPayload>, dataX: Matrix<FPayload>): number {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
     const data = fullLinearRegression([flatDataX], [flatDataY], true, true);
     return data[1][2] as number;
@@ -1854,15 +1808,15 @@ export const TREND: AddFunctionDescription = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    knownDataY: Matrix<CellValue>,
-    knownDataX: Matrix<CellValue> = [],
-    newDataX: Matrix<CellValue> = [],
-    b: Maybe<CellValue> = true
+    knownDataY: Matrix<FPayload>,
+    knownDataX: Matrix<FPayload> = [[]],
+    newDataX: Matrix<FPayload> = [[]],
+    b: Maybe<FPayload> = { value: true }
   ): Matrix<number> {
     return predictLinearValues(
-      tryCastAsNumberMatrix(knownDataY, "the first argument (known_data_y)"),
-      tryCastAsNumberMatrix(knownDataX, "the second argument (known_data_x)"),
-      tryCastAsNumberMatrix(newDataX, "the third argument (new_data_y)"),
+      toNumberMatrix(knownDataY, "the first argument (known_data_y)"),
+      toNumberMatrix(knownDataX, "the second argument (known_data_x)"),
+      toNumberMatrix(newDataX, "the third argument (new_data_y)"),
       toBoolean(b)
     );
   },
@@ -1881,8 +1835,8 @@ export const VAR = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (...values: ArgValue[]): number {
-    return variance(values, true, false, this.locale);
+  compute: function (...args: Arg[]): number {
+    return variance(args, true, false, this.locale);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1900,8 +1854,8 @@ export const VAR_P = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (...values: ArgValue[]): number {
-    return variance(values, false, false, this.locale);
+  compute: function (...args: Arg[]): number {
+    return variance(args, false, false, this.locale);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1919,8 +1873,8 @@ export const VAR_S = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (...values: ArgValue[]): number {
-    return variance(values, true, false, this.locale);
+  compute: function (...args: Arg[]): number {
+    return variance(args, true, false, this.locale);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1938,8 +1892,8 @@ export const VARA = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (...values: ArgValue[]): number {
-    return variance(values, true, true, this.locale);
+  compute: function (...args: Arg[]): number {
+    return variance(args, true, true, this.locale);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1957,8 +1911,8 @@ export const VARP = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (...values: ArgValue[]): number {
-    return variance(values, false, false, this.locale);
+  compute: function (...args: Arg[]): number {
+    return variance(args, false, false, this.locale);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1976,8 +1930,8 @@ export const VARPA = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (...values: ArgValue[]): number {
-    return variance(values, false, true, this.locale);
+  compute: function (...args: Arg[]): number {
+    return variance(args, false, true, this.locale);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
