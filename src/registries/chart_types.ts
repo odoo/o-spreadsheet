@@ -147,6 +147,22 @@ chartRegistry.add("gauge", {
   name: _t("Gauge"),
   sequence: 50,
 });
+chartRegistry.add("choropleth", {
+  match: (type) => type === "choropleth",
+  createChart: (definition, sheetId, getters) =>
+    new GaugeChart(definition as GaugeChartDefinition, sheetId, getters),
+  getChartRuntime: createGaugeChartRuntime,
+  validateChartDefinition: (validator, definition) =>
+    GaugeChart.validateChartDefinition(validator, definition as GaugeChartDefinition),
+  transformDefinition: (
+    definition: GaugeChartDefinition,
+    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
+  ) => GaugeChart.transformDefinition(definition, executed),
+  getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
+    GaugeChart.getDefinitionFromContextCreation(context),
+  name: _t("Choropleth"), //TODOPRO Name this chart with a better name
+  sequence: 60,
+});
 
 export const chartComponentRegistry = new Registry<new (...args: any) => Component>();
 chartComponentRegistry.add("line", ChartJsComponent);

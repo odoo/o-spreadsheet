@@ -7,7 +7,7 @@ import { LineChartDefinition, LineChartRuntime } from "./line_chart";
 import { PieChartDefinition, PieChartRuntime } from "./pie_chart";
 import { ScorecardChartDefinition, ScorecardChartRuntime } from "./scorecard_chart";
 
-export type ChartType = "line" | "bar" | "pie" | "scorecard" | "gauge";
+export type ChartType = "line" | "bar" | "pie" | "scorecard" | "gauge" | "choropleth";
 
 export type ChartDefinition =
   | LineChartDefinition
