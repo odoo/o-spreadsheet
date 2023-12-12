@@ -8,13 +8,13 @@ import {
   EnsureRange,
   EvalContext,
   EvaluatedCell,
+  FPayload,
   Getters,
   Matrix,
   Range,
   ReferenceDenormalizer,
-  FPayload,
 } from "../../../types";
-import { EvaluationError, InvalidReferenceError } from "../../../types/errors";
+import { CellErrorType } from "../../../types/errors";
 
 export type CompilationParameters = [ReferenceDenormalizer, EnsureRange, EvalContext];
 const functionMap = functionRegistry.mapping;
@@ -75,13 +75,14 @@ class CompilationParametersBuilder {
     }
 
     if (!isZoneValid(range.zone)) {
-      throw new InvalidReferenceError();
+      throw { value: CellErrorType.InvalidReference };
     }
 
     // if the formula definition could have accepted a range, we would pass through the _range function and not here
     if (range.zone.bottom !== range.zone.top || range.zone.left !== range.zone.right) {
-      throw new EvaluationError(
-        paramNumber
+      throw {
+        value: CellErrorType.GenericError,
+        message: paramNumber
           ? _t(
               "Function %s expects the parameter %s to be a single value or a single cell reference, not a range.",
               functionName.toString(),
@@ -90,11 +91,14 @@ class CompilationParametersBuilder {
           : _t(
               "Function %s expects its parameters to be single values or single cell references, not ranges.",
               functionName.toString()
-            )
-      );
+            ),
+      };
     }
     if (range.invalidSheetName) {
-      throw new EvaluationError(_t("Invalid sheet name: %s", range.invalidSheetName));
+      throw {
+        value: CellErrorType.GenericError,
+        message: _t("Invalid sheet name: %s", range.invalidSheetName),
+      };
     }
     const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
     return this.readCell(position);
@@ -102,16 +106,13 @@ class CompilationParametersBuilder {
 
   private readCell(position: CellPosition): FPayload {
     if (!this.getters.tryGetSheet(position.sheetId)) {
-      throw new EvaluationError(_t("Invalid sheet name"));
+      throw { value: CellErrorType.GenericError, message: _t("Invalid sheet name: %s") };
     }
     const evaluatedCell = this.getEvaluatedCellIfNotEmpty(position);
     if (evaluatedCell === undefined) {
       return { value: null, format: this.getters.getCell(position)?.format };
-    } else if (evaluatedCell.type === CellValueType.error) {
-      return { value: evaluatedCell.error, format: evaluatedCell.format };
     }
-    const { value, format } = evaluatedCell;
-    return { value, format };
+    return evaluatedCell;
   }
 
   private getEvaluatedCellIfNotEmpty(position: CellPosition): EvaluatedCell | undefined {
@@ -135,7 +136,7 @@ class CompilationParametersBuilder {
    */
   private range({ sheetId, zone }: Range): Matrix<FPayload> {
     if (!isZoneValid(zone)) {
-      throw new InvalidReferenceError();
+      throw { value: CellErrorType.InvalidReference };
     }
 
     // Performance issue: Avoid fetching data on positions that are out of the spreadsheet

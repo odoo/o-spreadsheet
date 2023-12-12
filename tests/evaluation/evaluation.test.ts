@@ -270,18 +270,15 @@ describe("evaluateCells", () => {
   ])("setting a format on an error cell keeps the error", (formula) => {
     const model = new Model();
     setCellContent(model, "A1", formula);
-    let cell = getEvaluatedCell(model, "A1") as ErrorCell;
-    const error = cell.error.message;
-    const value = cell.value;
+    const message = getCellError(model, "A1");
+    const value = getEvaluatedCell(model, "A1").value;
     model.dispatch("SET_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
       target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
       format: "#,##0",
     });
-    cell = getEvaluatedCell(model, "A1") as ErrorCell;
-    expect(cell.type).toBe(CellValueType.error);
-    expect(cell.error.message).toBe(error);
-    expect(cell.value).toBe(value);
+    expect(getCellError(model, "A1")).toBe(message);
+    expect(getEvaluatedCell(model, "A1").value).toBe(value);
   });
 
   test("range", () => {
@@ -1249,18 +1246,18 @@ describe("evaluate formula getter", () => {
     functionRegistry.add("GETVALUE", {
       description: "Get value",
       compute: () => {
-        throw new Error(`Error${value}`);
+        throw { value: CellErrorType.GenericError, message: "Error" + value };
       },
       args: [],
       returns: ["ANY"],
     });
     setCellContent(model, "A1", "=GETVALUE()");
     expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
-    expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe("Error1");
+    expect((getEvaluatedCell(model, "A1") as ErrorCell).message).toBe("Error1");
     value = 2;
     model.dispatch("EVALUATE_CELLS");
     expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
-    expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe("Error2");
+    expect((getEvaluatedCell(model, "A1") as ErrorCell).message).toBe("Error2");
     functionRegistry.remove("GETVALUE");
   });
 });

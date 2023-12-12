@@ -6,13 +6,13 @@ import {
   Arg,
   CellValue,
   CellValueType,
-  isMatrix,
+  FPayload,
   Locale,
   Matrix,
   Maybe,
-  FPayload,
+  isMatrix,
 } from "../types";
-import { NotAvailableError } from "../types/errors";
+import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
 import { assertSameDimensions, assertSingleColOrRow } from "./helper_assert";
 import { toScalar } from "./helper_matrices";
@@ -153,7 +153,10 @@ export const FILTER = {
     }
 
     if (!result.length) {
-      throw new NotAvailableError(_t("No match found in FILTER evaluation"));
+      throw {
+        value: CellErrorType.NotAvailable,
+        message: _t("No match found in FILTER evaluation"),
+      };
     }
 
     return mode === "row" ? transposeMatrix(result) : result;
@@ -337,7 +340,8 @@ export const UNIQUE = {
       result.push(row.data);
     }
 
-    if (!result.length) throw new Error(_t("No unique values found"));
+    if (!result.length)
+      throw { value: CellErrorType.GenericError, message: _t("No unique values found") };
 
     return _byColumn ? result : transposeMatrix(result);
   },

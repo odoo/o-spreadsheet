@@ -1,6 +1,6 @@
 import { escapeRegExp, formatValue, trimContent } from "../helpers";
 import { _t } from "../translation";
-import { AddFunctionDescription, Arg, Matrix, Maybe, FPayload } from "../types";
+import { AddFunctionDescription, Arg, FPayload, Matrix, Maybe } from "../types";
 import { arg } from "./arguments";
 import { assert, reduceAny, toBoolean, toNumber, toString, transposeMatrix } from "./helpers";
 

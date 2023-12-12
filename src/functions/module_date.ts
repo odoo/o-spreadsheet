@@ -14,7 +14,8 @@ import {
 } from "../helpers/dates";
 import { getDateTimeFormat } from "../helpers/locale";
 import { _t } from "../translation";
-import { AddFunctionDescription, Arg, Maybe, FPayload, FPayloadNumber } from "../types";
+import { AddFunctionDescription, Arg, FPayload, FPayloadNumber, Maybe } from "../types";
+import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
 import {
   assert,
@@ -551,7 +552,10 @@ function weekendToDayNumber(data: Maybe<FPayload>): number[] {
     return [weekend - 11];
   }
 
-  throw Error(_t("The weekend must be a number or a string."));
+  throw {
+    value: CellErrorType.GenericError,
+    message: _t("The weekend must be a number or a string."),
+  };
 }
 
 export const NETWORKDAYS_INTL = {

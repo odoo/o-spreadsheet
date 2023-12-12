@@ -1,6 +1,7 @@
 import { createLargeNumberFormat } from "../helpers";
 import { _t } from "../translation";
-import { AddFunctionDescription, Locale, Maybe, FPayload, FPayloadNumber } from "../types";
+import { AddFunctionDescription, FPayload, FPayloadNumber, Locale, Maybe } from "../types";
+import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
 import { toNumber } from "./helpers";
 
@@ -21,7 +22,10 @@ function formatLargeNumber(arg: Maybe<FPayload>, unit: Maybe<FPayload>, locale: 
       case "b":
         return createLargeNumberFormat(format, 1e9, "b", locale);
       default:
-        throw new Error(_t("The formatting unit should be 'k', 'm' or 'b'."));
+        throw {
+          value: CellErrorType.GenericError,
+          message: _t("The formatting unit should be 'k', 'm' or 'b'."),
+        };
     }
   }
   if (value < 1e5) {

@@ -1,5 +1,6 @@
 import { _t } from "../translation";
 import { Matrix, isMatrix } from "../types";
+import { CellErrorType } from "../types/errors";
 
 export function getUnitMatrix(n: number): Matrix<number> {
   const matrix: Matrix<number> = Array(n);
@@ -31,9 +32,12 @@ export function invertMatrix(M: Matrix<number>): {
   // (c) Add to a row a multiple of another row. This does not change the determinant.
 
   if (M.length !== M[0].length) {
-    throw new Error(
-      `Function [[FUNCTION_NAME]] invert matrix error, only square matrices are invertible`
-    );
+    throw {
+      value: CellErrorType.GenericError,
+      message: _t(
+        "Function [[FUNCTION_NAME]] invert matrix error, only square matrices are invertible"
+      ),
+    };
   }
 
   let determinant = 1;
@@ -114,7 +118,10 @@ function swapMatrixRows(matrix: number[][], row1: number, row2: number) {
  */
 export function multiplyMatrices(matrix1: Matrix<number>, matrix2: Matrix<number>): Matrix<number> {
   if (matrix1.length !== matrix2[0].length) {
-    throw new Error(_t("Cannot multiply matrices : incompatible matrices size."));
+    throw {
+      value: CellErrorType.GenericError,
+      message: _t("Cannot multiply matrices : incompatible matrices size."),
+    };
   }
 
   const rowsM1 = matrix1[0].length;
@@ -143,7 +150,10 @@ export function toScalar<T>(matrix: Matrix<T> | T): T {
     return matrix;
   }
   if (matrix.length !== 1 || matrix[0].length !== 1) {
-    throw new Error("toScalar: matrix should be a scalar or a 1x1 matrix");
+    throw {
+      value: CellErrorType.GenericError,
+      message: "toScalar: matrix should be a scalar or a 1x1 matrix",
+    };
   }
   return matrix[0][0];
 }

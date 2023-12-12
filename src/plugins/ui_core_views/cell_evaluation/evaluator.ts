@@ -3,6 +3,7 @@ import { matrixMap } from "../../../functions/helpers";
 import { forEachPositionsInZone, JetSet, lazy, toXC } from "../../../helpers";
 import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells";
 import { ModelConfig } from "../../../model";
+import { evaluationErrorRegistry } from "../../../registries/evaluation_errors";
 import { _t } from "../../../translation";
 import {
   Cell,
@@ -12,15 +13,15 @@ import {
   DEFAULT_LOCALE,
   EvaluatedCell,
   FormulaCell,
+  FPayload,
   Getters,
   isMatrix,
   Matrix,
   Range,
   RangeCompiledFormula,
   UID,
-  FPayload,
 } from "../../../types";
-import { CircularDependencyError, EvaluationError } from "../../../types/errors";
+import { CellErrorType } from "../../../types/errors";
 import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
 import { SpreadingRelation } from "./spreading_relation";
@@ -33,7 +34,11 @@ type PositionDict<T> = Map<PositionId, T>;
 export type PositionId = bigint;
 
 const MAX_ITERATION = 30;
-const ERROR_CYCLE = createEvaluatedCell(new CircularDependencyError(), { locale: DEFAULT_LOCALE });
+const ERROR_CYCLE_CELL = createEvaluatedCell(
+  CellErrorType.CircularDependency,
+  { locale: DEFAULT_LOCALE },
+  evaluationErrorRegistry.get(CellErrorType.CircularDependency).toString()
+);
 
 export class Evaluator {
   private readonly getters: Getters;
@@ -170,9 +175,6 @@ export class Evaluator {
     if (isMatrix(result)) {
       return matrixMap(result, (cell) => cell.value);
     }
-    if (result.value instanceof EvaluationError) {
-      return result.value.errorType;
-    }
     if (result.value === null) {
       return 0;
     }
@@ -247,14 +249,18 @@ export class Evaluator {
     const localeFormat = { format: cell.format, locale: this.getters.getLocale() };
     try {
       if (this.cellsBeingComputed.has(cellId)) {
-        return ERROR_CYCLE;
+        return ERROR_CYCLE_CELL;
       }
       this.cellsBeingComputed.add(cellId);
       return cell.isFormula
         ? this.computeFormulaCell(cellPosition.sheetId, cell)
         : evaluateLiteral(cell.content, localeFormat);
     } catch (e) {
-      return createEvaluatedCell(e, localeFormat);
+      return createEvaluatedCell(
+        e.value,
+        localeFormat,
+        e.message || evaluationErrorRegistry.get(e.value).toString()
+      );
     } finally {
       this.cellsBeingComputed.delete(cellId);
     }
@@ -280,10 +286,14 @@ export class Evaluator {
     );
 
     if (!isMatrix(formulaReturn)) {
-      return createEvaluatedCell(formulaReturn.value, {
-        format: cellData.format || formulaReturn.format,
-        locale: this.getters.getLocale(),
-      });
+      return createEvaluatedCell(
+        formulaReturn.value,
+        {
+          format: cellData.format || formulaReturn.format,
+          locale: this.getters.getLocale(),
+        },
+        formulaReturn.message
+      );
     }
 
     const formulaPosition = this.getters.getCellPosition(cellId);
@@ -302,10 +312,14 @@ export class Evaluator {
       this.spreadValues(formulaPosition, formulaReturn)
     );
 
-    return createEvaluatedCell(formulaReturn[0][0].value, {
-      format: cellData.format || formulaReturn[0][0]?.format,
-      locale: this.getters.getLocale(),
-    });
+    return createEvaluatedCell(
+      formulaReturn[0][0].value,
+      {
+        format: cellData.format || formulaReturn[0][0]?.format,
+        locale: this.getters.getLocale(),
+      },
+      formulaReturn[0][0].message
+    );
   }
 
   private assertSheetHasEnoughSpaceToSpreadFormulaResult(
@@ -322,20 +336,25 @@ export class Evaluator {
     }
 
     if (enoughCols) {
-      throw new EvaluationError(
-        _t("Result couldn't be automatically expanded. Please insert more rows.")
-      );
+      throw {
+        value: CellErrorType.GenericError,
+        message: _t("Result couldn't be automatically expanded. Please insert more rows."),
+      };
     }
 
     if (enoughRows) {
-      throw new EvaluationError(
-        _t("Result couldn't be automatically expanded. Please insert more columns.")
-      );
+      throw {
+        value: CellErrorType.GenericError,
+        message: _t("Result couldn't be automatically expanded. Please insert more columns."),
+      };
     }
 
-    throw new EvaluationError(
-      _t("Result couldn't be automatically expanded. Please insert more columns and rows.")
-    );
+    throw {
+      value: CellErrorType.GenericError,
+      message: _t(
+        "Result couldn't be automatically expanded. Please insert more columns and rows."
+      ),
+    };
   }
 
   private updateSpreadRelation({
@@ -361,12 +380,13 @@ export class Evaluator {
         this.getters.getEvaluatedCell(position).type !== CellValueType.empty
       ) {
         this.blockedArrayFormulas.add(formulaPositionId);
-        throw new EvaluationError(
-          _t(
+        throw {
+          value: CellErrorType.GenericError,
+          message: _t(
             "Array result was not expanded because it would overwrite data in %s.",
             toXC(position.col, position.row)
-          )
-        );
+          ),
+        };
       }
       this.blockedArrayFormulas.delete(formulaPositionId);
     };
@@ -380,10 +400,14 @@ export class Evaluator {
       const position = { sheetId, col: i + col, row: j + row };
       const cell = this.getters.getCell(position);
       const format = cell?.format;
-      const evaluatedCell = createEvaluatedCell(matrixResult[i][j].value, {
-        format: format || matrixResult[i][j]?.format,
-        locale: this.getters.getLocale(),
-      });
+      const evaluatedCell = createEvaluatedCell(
+        matrixResult[i][j].value,
+        {
+          format: format || matrixResult[i][j]?.format,
+          locale: this.getters.getLocale(),
+        },
+        matrixResult[i][j].message
+      );
 
       const positionId = this.encodePosition(position);
 

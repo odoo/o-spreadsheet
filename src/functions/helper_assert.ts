@@ -1,4 +1,5 @@
-import { Arg, isMatrix, Matrix, FPayload, FPayloadNumber } from "../types";
+import { Arg, FPayload, FPayloadNumber, Matrix, isMatrix } from "../types";
+import { CellErrorType } from "../types/errors";
 import { assert } from "./helpers";
 
 export function assertSingleColOrRow(errorStr: string, arg: Matrix) {
@@ -15,7 +16,7 @@ export function assertSameDimensions(errorStr: string, ...args: Arg[]) {
     return;
   }
   if (args.some((arg) => Array.isArray(arg) && (arg.length !== 1 || arg[0].length !== 1))) {
-    throw new Error(errorStr);
+    throw { value: CellErrorType.GenericError, message: errorStr };
   }
 }
 

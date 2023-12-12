@@ -1,7 +1,7 @@
 import { CellValue } from "./cells";
 import { Getters } from "./getters";
 import { Locale } from "./locale";
-import { Arg, Matrix, UID, FPayload } from "./misc";
+import { Arg, FPayload, Matrix, UID } from "./misc";
 
 export type ArgType =
   | "ANY"

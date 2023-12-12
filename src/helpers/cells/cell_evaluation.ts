@@ -1,4 +1,4 @@
-import { toNumber } from "../../functions/helpers";
+import { isEvaluationError, toNumber } from "../../functions/helpers";
 import {
   BooleanCell,
   CellValue,
@@ -11,7 +11,6 @@ import {
   LocaleFormat,
   NumberCell,
 } from "../../types";
-import { EvaluationError } from "../../types/errors";
 import { isDateTime } from "../dates";
 import { detectDateFormat, detectNumberFormat, formatValue, isDateTimeFormat } from "../format";
 import { detectLink } from "../links";
@@ -39,26 +38,38 @@ export function parseLiteral(content: string, locale: Locale): Exclude<CellValue
   return content;
 }
 
-export function createEvaluatedCell(value: CellValue, localeFormat: LocaleFormat): EvaluatedCell {
+export function createEvaluatedCell(
+  value: CellValue,
+  localeFormat: LocaleFormat,
+  message?: string
+): EvaluatedCell {
   const link = detectLink(value);
   if (link) {
     return {
-      ..._createEvaluatedCell(parseLiteral(link.label, localeFormat.locale), {
-        format:
-          localeFormat.format ||
-          detectDateFormat(link.label, localeFormat.locale) ||
-          detectNumberFormat(link.label),
-        locale: localeFormat.locale,
-      }),
+      ..._createEvaluatedCell(
+        parseLiteral(link.label, localeFormat.locale),
+        {
+          format:
+            localeFormat.format ||
+            detectDateFormat(link.label, localeFormat.locale) ||
+            detectNumberFormat(link.label),
+          locale: localeFormat.locale,
+        },
+        message
+      ),
       link,
     };
   }
-  return _createEvaluatedCell(value, localeFormat);
+  return _createEvaluatedCell(value, localeFormat, message);
 }
 
-function _createEvaluatedCell(value: CellValue, localeFormat: LocaleFormat): EvaluatedCell {
-  if (value instanceof EvaluationError) {
-    return errorCell(value);
+function _createEvaluatedCell(
+  value: CellValue,
+  localeFormat: LocaleFormat,
+  message?: string
+): EvaluatedCell {
+  if (isEvaluationError(value)) {
+    return errorCell(value as string, message);
   }
   if (value === "") {
     return emptyCell(localeFormat);
@@ -148,13 +159,13 @@ function booleanCell(value: boolean, localeFormat: LocaleFormat): BooleanCell {
   };
 }
 
-function errorCell(error: EvaluationError): ErrorCell {
+function errorCell(value: string, message?: string): ErrorCell {
   return {
     type: CellValueType.error,
-    value: error.errorType,
-    error,
+    value,
+    message,
     isAutoSummable: false,
     defaultAlign: "center",
-    formattedValue: error.errorType,
+    formattedValue: value,
   };
 }

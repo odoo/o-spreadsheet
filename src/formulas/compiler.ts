@@ -3,7 +3,7 @@ import { functionRegistry } from "../functions/index";
 import { concat, parseNumber, removeStringQuotes } from "../helpers";
 import { _t } from "../translation";
 import { CompiledFormula, DEFAULT_LOCALE } from "../types";
-import { BadExpressionError, UnknownFunctionError } from "../types/errors";
+import { CellErrorType } from "../types/errors";
 import { FunctionCode, FunctionCodeBuilder, Scope } from "./code_builder";
 import { AST, ASTFuncall, parseTokens } from "./parser";
 import { rangeTokenize } from "./range_tokenizer";
@@ -64,10 +64,10 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
     const scope = new Scope();
 
     if (ast.type === "BIN_OPERATION" && ast.value === ":") {
-      throw new BadExpressionError(_t("Invalid formula"));
+      throw { value: CellErrorType.BadExpression, message: _t("Invalid formula") };
     }
     if (ast.type === "EMPTY") {
-      throw new BadExpressionError(_t("Invalid formula"));
+      throw { value: CellErrorType.BadExpression, message: _t("Invalid formula") };
     }
     const compiledAST = compileAST(ast);
     const code = new FunctionCodeBuilder();
@@ -100,7 +100,10 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
       const functionDefinition = functions[functionName];
 
       if (!functionDefinition) {
-        throw new UnknownFunctionError(ast.value);
+        throw {
+          value: CellErrorType.UnknownFunction,
+          message: _t('Unknown function: "%s"', ast.value),
+        };
       }
 
       assertEnoughArgs(ast);
@@ -121,14 +124,15 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
 
         if (isRangeOnly) {
           if (!isRangeInput(currentArg)) {
-            throw new BadExpressionError(
-              _t(
+            throw {
+              value: CellErrorType.BadExpression,
+              message: _t(
                 "Function %s expects the parameter %s to be reference to a cell or range, not a %s.",
                 functionName,
                 (i + 1).toString(),
                 currentArg.type.toLowerCase()
-              )
-            );
+              ),
+            };
           }
         }
 
@@ -167,7 +171,10 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
       const code = new FunctionCodeBuilder(scope);
       if (ast.type !== "REFERENCE" && !(ast.type === "BIN_OPERATION" && ast.value === ":")) {
         if (isMeta) {
-          throw new BadExpressionError(_t("Argument must be a reference to a cell or range."));
+          throw {
+            value: CellErrorType.BadExpression,
+            message: _t("Argument must be a reference to a cell or range."),
+          };
         }
       }
       if (ast.debug) {
@@ -316,25 +323,27 @@ function assertEnoughArgs(ast: ASTFuncall) {
   const functionDefinition = functions[functionName];
 
   if (nbrArg < functionDefinition.minArgRequired) {
-    throw new BadExpressionError(
-      _t(
+    throw {
+      value: CellErrorType.BadExpression,
+      message: _t(
         "Invalid number of arguments for the %s function. Expected %s minimum, but got %s instead.",
         functionName,
         functionDefinition.minArgRequired.toString(),
         nbrArg.toString()
-      )
-    );
+      ),
+    };
   }
 
   if (nbrArg > functionDefinition.maxArgPossible) {
-    throw new BadExpressionError(
-      _t(
+    throw {
+      value: CellErrorType.BadExpression,
+      message: _t(
         "Invalid number of arguments for the %s function. Expected %s maximum, but got %s instead.",
         functionName,
         functionDefinition.maxArgPossible.toString(),
         nbrArg.toString()
-      )
-    );
+      ),
+    };
   }
 
   const repeatableArgs = functionDefinition.nbrArgRepeating;
@@ -342,14 +351,15 @@ function assertEnoughArgs(ast: ASTFuncall) {
     const unrepeatableArgs = functionDefinition.args.length - repeatableArgs;
     const repeatingArgs = nbrArg - unrepeatableArgs;
     if (repeatingArgs % repeatableArgs !== 0) {
-      throw new BadExpressionError(
-        _t(
+      throw {
+        value: CellErrorType.BadExpression,
+        message: _t(
           "Invalid number of arguments for the %s function. Expected all arguments after position %s to be supplied by groups of %s arguments",
           functionName,
           unrepeatableArgs.toString(),
           repeatableArgs.toString()
-        )
-      );
+        ),
+      };
     }
   }
 }

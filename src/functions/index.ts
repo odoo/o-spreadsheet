@@ -6,12 +6,12 @@ import {
   CellValue,
   ComputeFunction,
   EvalContext,
-  FunctionDescription,
-  isMatrix,
-  Matrix,
   FPayload,
+  FunctionDescription,
+  Matrix,
+  isMatrix,
 } from "../types";
-import { CellErrorType, EvaluationError } from "../types/errors";
+import { CellErrorType } from "../types/errors";
 import { addMetaInfoFromArg, validateArguments } from "./arguments";
 import { matrixMap } from "./helpers";
 import * as array from "./module_array";
@@ -94,12 +94,18 @@ function addErrorHandling(
   };
 }
 
-function handleError(e: Error | any, functionName: string): FPayload {
-  if (!(e instanceof EvaluationError)) {
-    e = new EvaluationError(e.message, CellErrorType.GenericError);
+function handleError(e: FPayload | Error, functionName: string): FPayload {
+  // the error could be an user error in the shape of {value, message}
+  // or an implementation error in the shape of a javascript error
+  // we don't want block the user with an implementation error
+  // so we fallback to a generic error
+  if (e instanceof Error) {
+    return { value: CellErrorType.GenericError, message: e.message };
   }
-  e.message = e.message.replace("[[FUNCTION_NAME]]", functionName);
-  return { value: e };
+  if (e.message?.includes("[[FUNCTION_NAME]]")) {
+    e.message = e.message.replace("[[FUNCTION_NAME]]", functionName);
+  }
+  return e;
 }
 
 function addResultHandling(

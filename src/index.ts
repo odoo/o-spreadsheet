@@ -74,6 +74,7 @@ import {
   statefulUIPluginRegistry,
 } from "./plugins/index";
 import { clickableCellRegistry } from "./registries/cell_clickable_registry";
+import { evaluationErrorRegistry } from "./registries/evaluation_errors";
 import {
   autofillModifiersRegistry,
   autofillRulesRegistry,
@@ -98,7 +99,6 @@ import {
   repeatLocalCommandTransformRegistry,
 } from "./registries/repeat_commands_registry";
 import { AddFunctionDescription, isMatrix } from "./types";
-import { CellErrorLevel, EvaluationError } from "./types/errors";
 import { DEFAULT_LOCALE } from "./types/locale";
 
 /**
@@ -148,7 +148,8 @@ export {
   invalidateEvaluationCommands,
   readonlyAllowedCommands,
 } from "./types/commands";
-export { EvaluationError } from "./types/errors";
+export { CellErrorType } from "./types/errors";
+
 export const SPREADSHEET_DIMENSIONS = {
   MIN_ROW_HEIGHT,
   MIN_COL_WIDTH,
@@ -188,6 +189,7 @@ export const registries = {
   numberFormatMenuRegistry,
   repeatLocalCommandTransformRegistry,
   repeatCommandTransformRegistry,
+  evaluationErrorRegistry,
 };
 export const helpers = {
   arg,
@@ -211,8 +213,6 @@ export const helpers = {
   getDefaultChartJsRuntime,
   chartFontColor,
   ChartColors,
-  EvaluationError,
-  CellErrorLevel,
   getFillingMode,
   rgbaToHex,
   colorToRGBA,

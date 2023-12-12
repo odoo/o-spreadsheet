@@ -1,6 +1,6 @@
 import { markdownLink } from "../helpers";
 import { _t } from "../translation";
-import { AddFunctionDescription, Maybe, FPayload } from "../types";
+import { AddFunctionDescription, FPayload, Maybe } from "../types";
 import { arg } from "./arguments";
 import { toString } from "./helpers";
 

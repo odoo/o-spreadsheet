@@ -1,8 +1,7 @@
-import { DEFAULT_ERROR_MESSAGE } from "../constants";
 import { parseNumber, removeStringQuotes } from "../helpers/index";
 import { _t } from "../translation";
 import { DEFAULT_LOCALE } from "../types";
-import { BadExpressionError, InvalidReferenceError } from "../types/errors";
+import { CellErrorType } from "../types/errors";
 import { Token, tokenize } from "./tokenizer";
 
 const functionRegex = /[a-zA-Z0-9\_]+(\.[a-zA-Z0-9\_]+)*/;
@@ -100,7 +99,7 @@ const OP_PRIORITY = {
 function parseOperand(tokens: Token[]): AST {
   const current = tokens.shift();
   if (!current) {
-    throw new BadExpressionError(DEFAULT_ERROR_MESSAGE);
+    throw { value: CellErrorType.BadExpression };
   }
   switch (current.type) {
     case "DEBUGGER":
@@ -112,7 +111,7 @@ function parseOperand(tokens: Token[]): AST {
     case "STRING":
       return { type: "STRING", value: removeStringQuotes(current.value) };
     case "INVALID_REFERENCE":
-      throw new InvalidReferenceError();
+      throw { value: CellErrorType.InvalidReference };
     case "REFERENCE":
       if (tokens[0]?.value === ":" && tokens[1]?.type === "REFERENCE") {
         tokens.shift();
@@ -137,7 +136,7 @@ function parseOperand(tokens: Token[]): AST {
       if (upperCaseValue === "TRUE" || upperCaseValue === "FALSE") {
         return { type: "BOOLEAN", value: upperCaseValue === "TRUE" };
       }
-      throw new BadExpressionError(_t("Invalid formula"));
+      throw { value: CellErrorType.BadExpression, message: _t("Invalid formula") };
 
     case "LEFT_PAREN":
       const result = parseExpression(tokens);
@@ -152,9 +151,15 @@ function parseOperand(tokens: Token[]): AST {
           operand: parseExpression(tokens, OP_PRIORITY[operator]),
         };
       }
-      throw new BadExpressionError(_t("Unexpected token: %s", current.value));
+      throw {
+        value: CellErrorType.BadExpression,
+        message: _t("Unexpected token: %s", current.value),
+      };
     default:
-      throw new BadExpressionError(_t("Unexpected token: %s", current.value));
+      throw {
+        value: CellErrorType.BadExpression,
+        message: _t("Unexpected token: %s", current.value),
+      };
   }
 }
 
@@ -184,16 +189,16 @@ function parseOneFunctionArg(tokens: Token[]): AST {
   return parseExpression(tokens);
 }
 
-function consumeOrThrow(tokens, type, message = DEFAULT_ERROR_MESSAGE) {
+function consumeOrThrow(tokens, type, message?) {
   const token = tokens.shift();
   if (!token || token.type !== type) {
-    throw new BadExpressionError(message);
+    throw { value: CellErrorType.BadExpression, message };
   }
 }
 
 function parseExpression(tokens: Token[], parent_priority: number = 0): AST {
   if (tokens.length === 0) {
-    throw new BadExpressionError(DEFAULT_ERROR_MESSAGE);
+    throw { value: CellErrorType.BadExpression };
   }
   let left = parseOperand(tokens);
   // as long as we have operators with higher priority than the parent one,
@@ -234,7 +239,7 @@ export function parseTokens(tokens: Token[]): AST {
   }
   const result = parseExpression(tokens);
   if (tokens.length) {
-    throw new BadExpressionError(DEFAULT_ERROR_MESSAGE);
+    throw { value: CellErrorType.BadExpression };
   }
   return result;
 }

@@ -9,11 +9,11 @@ import { _t } from "../translation";
 import {
   AddFunctionDescription,
   Arg,
+  FPayload,
+  FPayloadNumber,
   Locale,
   Matrix,
   Maybe,
-  FPayload,
-  FPayloadNumber,
   isMatrix,
 } from "../types";
 import { arg } from "./arguments";

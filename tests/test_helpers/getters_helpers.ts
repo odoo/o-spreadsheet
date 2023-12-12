@@ -57,7 +57,7 @@ export function getCellError(
   sheetId: UID = model.getters.getActiveSheetId()
 ): string | undefined {
   const cell = getEvaluatedCell(model, xc, sheetId);
-  return cell.type === CellValueType.error ? cell.error.message : undefined;
+  return cell.type === CellValueType.error ? cell.message : undefined;
 }
 
 /**
