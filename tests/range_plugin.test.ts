@@ -1,8 +1,8 @@
 import { CorePlugin, coreTypes, Model } from "../src";
-import { INCORRECT_RANGE_STRING } from "../src/constants";
 import { copyRangeWithNewSheetId } from "../src/helpers";
 import { corePluginRegistry } from "../src/plugins";
 import { ApplyRangeChange, Command, Range, UID } from "../src/types";
+import { CellErrorType } from "../src/types/errors";
 import {
   addColumns,
   addRows,
@@ -535,7 +535,7 @@ describe("range plugin", () => {
     });
 
     test("requesting a range that doesn't exist", () => {
-      expect(m.getters.getRangeString(undefined, "not there")).toBe(INCORRECT_RANGE_STRING);
+      expect(m.getters.getRangeString(undefined, "not there")).toBe(CellErrorType.InvalidReference);
     });
 
     test.each(["Sheet 0", "<Sheet1>", "&Sheet2", "Sheet4;", "Sheet5🐻"])(

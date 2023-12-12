@@ -11,7 +11,7 @@ import {
   Maybe,
   isMatrix,
 } from "../types";
-import { NotAvailableError } from "../types/errors";
+import { EvaluationError, NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import { assertSameDimensions } from "./helper_assert";
 import { invertMatrix, multiplyMatrices } from "./helper_matrices";
@@ -147,7 +147,7 @@ function centile(
     if (typeof value === "number") {
       index = dichotomicSearch(
         sortedArray,
-        value,
+        d,
         "nextSmaller",
         "asc",
         sortedArray.length,
@@ -236,7 +236,7 @@ function fullLinearRegression(
   const dot1 = multiplyMatrices(redX, transposeMatrix(redX));
   const { inverted: dotInv } = invertMatrix(dot1);
   if (dotInv === undefined) {
-    throw new Error(_t("Matrix is not invertible"));
+    throw new EvaluationError(_t("Matrix is not invertible"));
   }
   let SSE = 0,
     SSR = 0;
@@ -318,7 +318,7 @@ function getLMSCoefficients(xMatrix: Matrix<number>, yMatrix: Matrix<number>): M
   const dot1 = multiplyMatrices(xMatrix, xMatrixT);
   const { inverted: dotInv } = invertMatrix(dot1);
   if (dotInv === undefined) {
-    throw new Error(_t("Matrix is not invertible"));
+    throw new EvaluationError(_t("Matrix is not invertible"));
   }
   const dot2 = multiplyMatrices(xMatrix, yMatrix);
   return transposeMatrix(multiplyMatrices(dotInv, dot2));
@@ -826,7 +826,7 @@ export const LARGE = {
       if (typeof d?.value === "number") {
         index = dichotomicSearch(
           largests,
-          d.value,
+          d,
           "nextSmaller",
           "asc",
           largests.length,
@@ -954,7 +954,9 @@ export const MATTHEWS: AddFunctionDescription = {
     const flatY = dataY.flat();
     assertSameNumberOfElements(flatX, flatY);
     if (flatX.length === 0) {
-      throw new Error(_t("[[FUNCTION_NAME]] expects non-empty ranges for both parameters."));
+      throw new EvaluationError(
+        _t("[[FUNCTION_NAME]] expects non-empty ranges for both parameters.")
+      );
     }
     const n = flatX.length;
 
@@ -1216,10 +1218,14 @@ export const MINIFS = {
 function pearson(dataY: Matrix<FPayload>, dataX: Matrix<FPayload>): number {
   const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
   if (flatDataX.length === 0) {
-    throw new Error(_t("[[FUNCTION_NAME]] expects non-empty ranges for both parameters."));
+    throw new EvaluationError(
+      _t("[[FUNCTION_NAME]] expects non-empty ranges for both parameters.")
+    );
   }
   if (flatDataX.length < 2) {
-    throw new Error(_t("[[FUNCTION_NAME]] needs at least two values for both parameters"));
+    throw new EvaluationError(
+      _t("[[FUNCTION_NAME]] needs at least two values for both parameters.")
+    );
   }
   const n = flatDataX.length;
 
@@ -1574,7 +1580,7 @@ export const SMALL = {
       if (typeof d?.value === "number") {
         index = dichotomicSearch(
           largests,
-          d.value,
+          d,
           "nextSmaller",
           "asc",
           largests.length,

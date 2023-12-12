@@ -33,7 +33,7 @@ import {
   SCROLLBAR_WIDTH,
   TOPBAR_HEIGHT,
 } from "./constants";
-import { toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
+import { isEvaluationError, toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
 import { arg, functionRegistry } from "./functions/index";
 import {
   ChartColors,
@@ -98,7 +98,6 @@ import {
   repeatLocalCommandTransformRegistry,
 } from "./registries/repeat_commands_registry";
 import { AddFunctionDescription, isMatrix } from "./types";
-import { CellErrorLevel, EvaluationError } from "./types/errors";
 import { DEFAULT_LOCALE } from "./types/locale";
 
 /**
@@ -148,7 +147,8 @@ export {
   invalidateEvaluationCommands,
   readonlyAllowedCommands,
 } from "./types/commands";
-export { EvaluationError } from "./types/errors";
+export { CellErrorType } from "./types/errors";
+
 export const SPREADSHEET_DIMENSIONS = {
   MIN_ROW_HEIGHT,
   MIN_COL_WIDTH,
@@ -191,6 +191,7 @@ export const registries = {
 };
 export const helpers = {
   arg,
+  isEvaluationError,
   toBoolean,
   toJsDate,
   toNumber,
@@ -211,8 +212,6 @@ export const helpers = {
   getDefaultChartJsRuntime,
   chartFontColor,
   ChartColors,
-  EvaluationError,
-  CellErrorLevel,
   getFillingMode,
   rgbaToHex,
   colorToRGBA,

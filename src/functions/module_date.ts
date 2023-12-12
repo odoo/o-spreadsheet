@@ -15,6 +15,7 @@ import {
 import { getDateTimeFormat } from "../helpers/locale";
 import { _t } from "../translation";
 import { AddFunctionDescription, Arg, FPayload, FPayloadNumber, Maybe } from "../types";
+import { EvaluationError } from "../types/errors";
 import { arg } from "./arguments";
 import {
   assert,
@@ -551,7 +552,7 @@ function weekendToDayNumber(data: Maybe<FPayload>): number[] {
     return [weekend - 11];
   }
 
-  throw Error(_t("The weekend must be a number or a string."));
+  throw new EvaluationError(_t("The weekend must be a number or a string."));
 }
 
 export const NETWORKDAYS_INTL = {

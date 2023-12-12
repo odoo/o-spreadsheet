@@ -1,11 +1,10 @@
 import { getFullReference, splitReference } from "../helpers";
 import { setXcToFixedReferenceType } from "../helpers/reference_type";
 import { _t } from "../translation";
-import { AddFunctionDescription, FPayload, Maybe } from "../types";
-import { CellErrorType, EvaluationError, NotAvailableError } from "../types/errors";
-import { CellValueType } from "./../types/cells";
+import { AddFunctionDescription, CellValueType, FPayload, Maybe } from "../types";
+import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
-import { assert, toString } from "./helpers";
+import { assert, isEvaluationError, toString } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // CELL
@@ -78,10 +77,9 @@ export const ISERR = {
   description: _t("Whether a value is an error other than #N/A."),
   args: [arg("value (any)", _t("The value to be verified as an error type."))],
   returns: ["BOOLEAN"],
-  compute: function (value: Maybe<FPayload>): boolean {
-    const isErr = value?.value instanceof EvaluationError;
-    const isNa = value?.value instanceof NotAvailableError;
-    return isErr && !isNa;
+  compute: function (data: Maybe<FPayload>): boolean {
+    const value = data?.value;
+    return isEvaluationError(value) && value !== CellErrorType.NotAvailable;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -93,8 +91,9 @@ export const ISERROR = {
   description: _t("Whether a value is an error."),
   args: [arg("value (any)", _t("The value to be verified as an error type."))],
   returns: ["BOOLEAN"],
-  compute: function (value: Maybe<FPayload>): boolean {
-    return value?.value instanceof EvaluationError;
+  compute: function (data: Maybe<FPayload>): boolean {
+    const value = data?.value;
+    return isEvaluationError(value);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -119,11 +118,8 @@ export const ISNA = {
   description: _t("Whether a value is the error #N/A."),
   args: [arg("value (any)", _t("The value to be verified as an error type."))],
   returns: ["BOOLEAN"],
-  compute: function (value: Maybe<FPayload>): boolean {
-    return (
-      value?.value instanceof EvaluationError &&
-      value?.value.errorType === CellErrorType.NotAvailable
-    );
+  compute: function (data: Maybe<FPayload>): boolean {
+    return data?.value === CellErrorType.NotAvailable;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -136,7 +132,7 @@ export const ISNONTEXT = {
   args: [arg("value (any)", _t("The value to be checked."))],
   returns: ["BOOLEAN"],
   compute: function (value: Maybe<FPayload>): boolean {
-    return typeof value?.value !== "string";
+    return !ISTEXT.compute.bind(this)(value);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -163,7 +159,7 @@ export const ISTEXT = {
   args: [arg("value (any)", _t("The value to be verified as text."))],
   returns: ["BOOLEAN"],
   compute: function (value: Maybe<FPayload>): boolean {
-    return typeof value?.value === "string";
+    return typeof value?.value === "string" && isEvaluationError(value?.value) === false;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -188,8 +184,8 @@ export const NA = {
   description: _t("Returns the error value #N/A."),
   args: [],
   returns: ["BOOLEAN"],
-  compute: function (): never {
-    throw new NotAvailableError();
+  compute: function (): FPayload {
+    return { value: CellErrorType.NotAvailable };
   },
   isExported: true,
 } satisfies AddFunctionDescription;

@@ -1,5 +1,12 @@
 import { astToFormula, parse } from "../../src";
-import { InvalidReferenceError } from "../../src/types/errors";
+
+function tryCatchSpreadError(fn: () => any) {
+  try {
+    return fn();
+  } catch (e) {
+    return e;
+  }
+}
 
 describe("parser", () => {
   test("can parse a function call with no argument", () => {
@@ -32,23 +39,35 @@ describe("parser", () => {
   });
 
   test("function without a opening parenthesis", () => {
-    expect(() => parse(`SUM 5`)).toThrow("Invalid formula");
+    expect(tryCatchSpreadError(() => parse(`SUM 5`))).toEqual({
+      value: "#BAD_EXPR",
+      message: "Invalid formula",
+    });
   });
 
   test("function without closing parenthesis", () => {
-    expect(() => parse(`SUM(5,`)).toThrow("Invalid expression");
+    expect(tryCatchSpreadError(() => parse(`SUM(5,`))).toEqual({
+      value: "#BAD_EXPR",
+    });
   });
 
   test("function without a closing parenthesis", () => {
-    expect(() => parse(`SUM(5`)).toThrow("Wrong function call");
+    expect(tryCatchSpreadError(() => parse(`SUM(5`))).toEqual({
+      value: "#BAD_EXPR",
+      message: "Wrong function call",
+    });
   });
 
   test("function without argument nor a closing parenthesis", () => {
-    expect(() => parse(`SUM(`)).toThrow("Invalid expression");
+    expect(tryCatchSpreadError(() => parse(`SUM(`))).toEqual({
+      value: "#BAD_EXPR",
+    });
   });
 
   test("function with empty first argument nor a closing parenthesis", () => {
-    expect(() => parse(`SUM(,`)).toThrow("Invalid expression");
+    expect(tryCatchSpreadError(() => parse(`SUM(,`))).toEqual({
+      value: "#BAD_EXPR",
+    });
   });
 
   test("add a EMPTY token for empty arguments", () => {
@@ -155,7 +174,10 @@ describe("parser", () => {
   });
 
   test("binary operation without a closing parenthesis", () => {
-    expect(() => parse("(2+3")).toThrow("Missing closing parenthesis");
+    expect(tryCatchSpreadError(() => parse("(2+3"))).toEqual({
+      value: "#BAD_EXPR",
+      message: "Missing closing parenthesis",
+    });
   });
 
   test("can parse concat operator", () => {
@@ -168,7 +190,9 @@ describe("parser", () => {
   });
 
   test("Can parse invalid references", () => {
-    expect(() => parse("#REF")).toThrowError(new InvalidReferenceError().message);
+    expect(tryCatchSpreadError(() => parse("#REF"))).toEqual({
+      value: "#REF",
+    });
   });
 
   test("AND", () => {
@@ -193,7 +217,10 @@ describe("parser", () => {
 
 describe("parsing other stuff", () => {
   test("arbitrary text", () => {
-    expect(() => parse("=undefined")).toThrow();
+    expect(tryCatchSpreadError(() => parse("=undefined"))).toEqual({
+      value: "#BAD_EXPR",
+      message: "Invalid formula",
+    });
   });
 });
 describe("Converting AST to string", () => {

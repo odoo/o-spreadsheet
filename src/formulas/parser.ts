@@ -1,4 +1,3 @@
-import { DEFAULT_ERROR_MESSAGE } from "../constants";
 import { parseNumber, removeStringQuotes } from "../helpers/index";
 import { _t } from "../translation";
 import { DEFAULT_LOCALE } from "../types";
@@ -100,7 +99,7 @@ const OP_PRIORITY = {
 function parseOperand(tokens: Token[]): AST {
   const current = tokens.shift();
   if (!current) {
-    throw new BadExpressionError(DEFAULT_ERROR_MESSAGE);
+    throw new BadExpressionError();
   }
   switch (current.type) {
     case "DEBUGGER":
@@ -184,7 +183,7 @@ function parseOneFunctionArg(tokens: Token[]): AST {
   return parseExpression(tokens);
 }
 
-function consumeOrThrow(tokens, type, message = DEFAULT_ERROR_MESSAGE) {
+function consumeOrThrow(tokens, type, message?) {
   const token = tokens.shift();
   if (!token || token.type !== type) {
     throw new BadExpressionError(message);
@@ -193,7 +192,7 @@ function consumeOrThrow(tokens, type, message = DEFAULT_ERROR_MESSAGE) {
 
 function parseExpression(tokens: Token[], parent_priority: number = 0): AST {
   if (tokens.length === 0) {
-    throw new BadExpressionError(DEFAULT_ERROR_MESSAGE);
+    throw new BadExpressionError();
   }
   let left = parseOperand(tokens);
   // as long as we have operators with higher priority than the parent one,
@@ -234,7 +233,7 @@ export function parseTokens(tokens: Token[]): AST {
   }
   const result = parseExpression(tokens);
   if (tokens.length) {
-    throw new BadExpressionError(DEFAULT_ERROR_MESSAGE);
+    throw new BadExpressionError();
   }
   return result;
 }
