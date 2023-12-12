@@ -1030,7 +1030,7 @@ describe("COUNTUNIQUE formula", () => {
       A1: "=KABOUM_1", B1: "=KABOUM_2",
       A2: "42",        B2: "=KABOUM_3",
     };
-    expect(evaluateCell("A3", { A3: "=COUNTUNIQUE(A1:B2)", ...grid })).toBe(4); // @compatibility: should be 2
+    expect(evaluateCell("A3", { A3: "=COUNTUNIQUE(A1:B2)", ...grid })).toBe(2);
   });
 });
 
@@ -1072,7 +1072,7 @@ describe("COUNTUNIQUEIFS formula", () => {
       A2: "=KABOUM_2", B2: "1",
       A3: "42"       , B3: "1",
     };
-    expect(evaluateCell("A4", { A4: "=COUNTUNIQUEIFS(A1:A3, B1:B3, 1)", ...grid })).toBe(3); // @compatibility: should be 2
+    expect(evaluateCell("A4", { A4: "=COUNTUNIQUEIFS(A1:A3, B1:B3, 1)", ...grid })).toBe(2);
   });
 
   // @compatibility: should be able to accept errors !

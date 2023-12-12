@@ -13,6 +13,7 @@ import {
   assert,
   flattenRowFirst,
   generateMatrix,
+  isEvaluationError,
   toBoolean,
   toInteger,
   toMatrix,
@@ -335,7 +336,7 @@ export const MINVERSE = {
     );
     const { inverted } = invertMatrix(_matrix);
     if (!inverted) {
-      throw new Error(_t("The matrix is not invertible."));
+      throw new EvaluationError(_t("The matrix is not invertible."));
     }
     return inverted;
   },
@@ -453,7 +454,7 @@ function getSumXAndY(arrayX: Arg, arrayY: Arg, cb: (x: number, y: number) => num
   }
 
   if (!validPairFound) {
-    throw new Error(
+    throw new EvaluationError(
       _t("The arguments array_x and array_y must contain at least one pair of numbers.")
     );
   }
@@ -569,10 +570,10 @@ function shouldKeepValue(ignore: number): (data: FPayload) => boolean {
     return (data) => data.value !== null;
   }
   if (_ignore === 2) {
-    return (data) => !(data.value instanceof EvaluationError);
+    return (data) => !isEvaluationError(data.value);
   }
   if (_ignore === 3) {
-    return (data) => data.value !== null && !(data.value instanceof EvaluationError);
+    return (data) => data.value !== null && !isEvaluationError(data.value);
   }
   throw new EvaluationError(_t("Argument ignore must be between 0 and 3"));
 }

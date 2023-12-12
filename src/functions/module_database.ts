@@ -8,6 +8,7 @@ import {
   Matrix,
   Maybe,
 } from "../types";
+import { EvaluationError } from "../types/errors";
 import { arg } from "./arguments";
 import { assert, toString, visitMatchingRanges } from "./helpers";
 import { PRODUCT, SUM } from "./module_math";
@@ -47,18 +48,20 @@ function getMatchingCells(
   const fieldValue = field?.value;
 
   if (typeof fieldValue !== "number" && typeof fieldValue !== "string") {
-    throw new Error(_t("The field must be a number or a string"));
+    throw new EvaluationError(_t("The field must be a number or a string"));
   }
 
   let index: number;
   if (typeof fieldValue === "number") {
     index = Math.trunc(fieldValue) - 1;
     if (index < 0 || dimRowDB - 1 < index) {
-      throw new Error(
+      throw new EvaluationError(
         _t(
-          "The field (%s) must be one of %s or must be a number between 1 and %s inclusive.",
-          fieldValue.toString(),
-          dimRowDB.toString()
+          "The field (%(fieldValue)s) must be one of %(dimRowDB)s or must be a number between 1 and %s inclusive.",
+          {
+            fieldValue: fieldValue.toString(),
+            dimRowDB: dimRowDB.toString(),
+          }
         )
       );
     }
@@ -66,7 +69,7 @@ function getMatchingCells(
     const colName = toString(field).toUpperCase();
     index = indexColNameDB.get(colName) ?? -1;
     if (index === -1) {
-      throw new Error(
+      throw new EvaluationError(
         _t(
           "The field (%s) must be one of %s.",
           toString(field),
@@ -83,7 +86,7 @@ function getMatchingCells(
   const dimColCriteria = criteria[0].length;
 
   if (dimColCriteria < 2) {
-    throw new Error(
+    throw new EvaluationError(
       _t(
         "The criteria range contains %s row, it must be at least 2 rows.",
         dimColCriteria.toString()

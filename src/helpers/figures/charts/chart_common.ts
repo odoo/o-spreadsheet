@@ -1,5 +1,4 @@
 import { transformZone } from "../../../collaborative/ot/ot_helpers";
-import { INCORRECT_RANGE_STRING } from "../../../constants";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -23,6 +22,7 @@ import { DataSet, ExcelChartDataset } from "../../../types/chart/chart";
 import { LineChartDefinition } from "../../../types/chart/line_chart";
 import { PieChartDefinition } from "../../../types/chart/pie_chart";
 import { BaselineArrowDirection, BaselineMode } from "../../../types/chart/scorecard_chart";
+import { CellErrorType } from "../../../types/errors";
 import { relativeLuminance } from "../../color";
 import { formatValue } from "../../format";
 import { isDefined } from "../../misc";
@@ -61,7 +61,7 @@ export function updateChartRangesWithDataSets(
     const dataRange = adaptChartRange(ds.dataRange, applyChange);
     if (
       dataRange === undefined ||
-      getters.getRangeString(dataRange, dataRange.sheetId) === INCORRECT_RANGE_STRING
+      getters.getRangeString(dataRange, dataRange.sheetId) === CellErrorType.InvalidReference
     ) {
       isStale = true;
       ds = undefined;
