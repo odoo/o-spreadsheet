@@ -1,7 +1,7 @@
 import { _t } from "../translation";
 import { AddFunctionDescription, FPayload, FPayloadNumber, Maybe } from "../types";
 import { arg } from "./arguments";
-import { assert, toNumber, toString } from "./helpers";
+import { assert, isEvaluationError, toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";
 
 // -----------------------------------------------------------------------------
@@ -83,11 +83,11 @@ export const EQ = {
     if (typeof _value2 === "string") {
       _value2 = _value2.toUpperCase();
     }
-    if (_value1 instanceof Error) {
-      throw _value1;
+    if (isEvaluationError(_value1)) {
+      throw value1;
     }
-    if (_value2 instanceof Error) {
-      throw _value2;
+    if (isEvaluationError(_value2)) {
+      throw value2;
     }
     return _value1 === _value2;
   },
@@ -103,6 +103,12 @@ function applyRelationalOperator(
 ): boolean {
   let _value1 = isEmpty(value1) ? getNeutral[typeof value2?.value] : value1?.value;
   let _value2 = isEmpty(value2) ? getNeutral[typeof value1?.value] : value2?.value;
+  if (isEvaluationError(_value1)) {
+    throw value1;
+  }
+  if (isEvaluationError(_value2)) {
+    throw value2;
+  }
   if (typeof _value1 !== "number") {
     _value1 = toString(_value1).toUpperCase();
   }

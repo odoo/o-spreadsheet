@@ -1,4 +1,3 @@
-import { INCORRECT_RANGE_STRING } from "../../constants";
 import {
   createAdaptedZone,
   getCanonicalSheetName,
@@ -11,6 +10,7 @@ import {
   splitReference,
   toUnboundedZone,
 } from "../../helpers/index";
+import { CellErrorType } from "../../types/errors";
 import {
   ApplyRangeChange,
   ApplyRangeChangeResult,
@@ -332,16 +332,16 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
    */
   getRangeString(range: Range, forSheetId: UID): string {
     if (!range) {
-      return INCORRECT_RANGE_STRING;
+      return CellErrorType.InvalidReference;
     }
     if (range.invalidXc) {
       return range.invalidXc;
     }
     if (range.zone.bottom - range.zone.top < 0 || range.zone.right - range.zone.left < 0) {
-      return INCORRECT_RANGE_STRING;
+      return CellErrorType.InvalidReference;
     }
     if (range.zone.left < 0 || range.zone.top < 0) {
-      return INCORRECT_RANGE_STRING;
+      return CellErrorType.InvalidReference;
     }
     const rangeImpl = RangeImpl.fromRange(range, this.getters);
     let prefixSheet =
@@ -356,7 +356,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     }
 
     if (prefixSheet && !sheetName) {
-      return INCORRECT_RANGE_STRING;
+      return CellErrorType.InvalidReference;
     }
 
     let rangeString = this.getRangePartString(rangeImpl, 0);
@@ -455,7 +455,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
       prefixSheet: false,
       zone: { left: -1, top: -1, right: -1, bottom: -1 },
       sheetId: "",
-      invalidXc: INCORRECT_RANGE_STRING,
+      invalidXc: CellErrorType.InvalidReference,
     };
   }
 }

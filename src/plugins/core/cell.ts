@@ -1,6 +1,6 @@
 import { DEFAULT_STYLE } from "../../constants";
 import { Token, compile, tokenize } from "../../formulas";
-import { toString } from "../../functions/helpers";
+import { isEvaluationError, toString } from "../../functions/helpers";
 import { parseLiteral } from "../../helpers/cells";
 import {
   concat,
@@ -528,7 +528,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     style: Style | undefined
   ): LiteralCell {
     const locale = this.getters.getLocale();
-    if (format !== PLAIN_TEXT_FORMAT) {
+    if (format !== PLAIN_TEXT_FORMAT && !isEvaluationError(content)) {
       content = toString(parseLiteral(content, locale));
     }
     return {

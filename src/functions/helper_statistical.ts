@@ -1,7 +1,7 @@
 import { isNumber, parseDateTime } from "../helpers";
 import { _t } from "../translation";
 import { Arg, Locale, isMatrix } from "../types";
-import { assert, reduceAny, reduceNumbers } from "./helpers";
+import { assert, isEvaluationError, reduceAny, reduceNumbers } from "./helpers";
 
 export function assertSameNumberOfElements(...args: any[][]) {
   const dims = args[0].length;
@@ -50,7 +50,7 @@ export function countNumbers(values: Arg[], locale: Locale) {
     } else {
       const value = n?.value;
       if (
-        !(value instanceof Error) &&
+        !isEvaluationError(value) &&
         (typeof value !== "string" || isNumber(value, locale) || parseDateTime(value, locale))
       ) {
         count += 1;

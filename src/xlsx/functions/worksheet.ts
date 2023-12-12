@@ -1,4 +1,4 @@
-import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, INCORRECT_RANGE_STRING } from "../../constants";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
 import {
   isInside,
   isMarkdownLink,
@@ -10,6 +10,7 @@ import {
 } from "../../helpers";
 import { withHttps } from "../../helpers/links";
 import { ExcelSheetData, ExcelWorkbookData, HeaderData, PLAIN_TEXT_FORMAT } from "../../types";
+import { CellErrorType } from "../../types/errors";
 import { XLSXStructure, XMLAttributes, XMLString } from "../../types/xlsx";
 import { XLSX_RELATION_TYPE } from "../constants";
 import {
@@ -137,10 +138,10 @@ export function addHyperlinks(
       if (isSheetUrl(url)) {
         const sheetId = parseSheetUrl(url);
         const sheet = data.sheets.find((sheet) => sheet.id === sheetId);
-        const location = sheet ? `${sheet.name}!A1` : INCORRECT_RANGE_STRING;
+        const position = sheet ? `${sheet.name}!A1` : CellErrorType.InvalidReference;
         const hyperlinkAttributes: XMLAttributes = [
           ["display", label],
-          ["location", location],
+          ["location", position],
           ["ref", xc],
         ];
         linkNodes.push(escapeXml/*xml*/ `

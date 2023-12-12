@@ -1,8 +1,8 @@
 import { _t } from "../translation";
 import { AddFunctionDescription, Arg, FPayload, Maybe } from "../types";
-import { NotAvailableError } from "../types/errors";
+import { CellErrorType, EvaluationError } from "../types/errors";
 import { arg } from "./arguments";
-import { assert, conditionalVisitBoolean, toBoolean } from "./helpers";
+import { assert, conditionalVisitBoolean, isEvaluationError, toBoolean } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // AND
@@ -102,7 +102,7 @@ export const IFERROR = {
     value: Maybe<FPayload>,
     valueIfError: Maybe<FPayload> = { value: "" }
   ): FPayload {
-    const result = value?.value instanceof Error ? valueIfError : value;
+    const result = isEvaluationError(value?.value) ? valueIfError : value;
     if (result === undefined) {
       return { value: "" };
     }
@@ -131,7 +131,7 @@ export const IFNA = {
     value: Maybe<FPayload>,
     valueIfError: Maybe<FPayload> = { value: "" }
   ): FPayload {
-    const result = value?.value instanceof NotAvailableError ? valueIfError : value;
+    const result = value?.value === CellErrorType.NotAvailable ? valueIfError : value;
     if (result === undefined) {
       return { value: "" };
     }
@@ -183,7 +183,7 @@ export const IFS = {
         return result;
       }
     }
-    throw new Error(_t("No match."));
+    throw new EvaluationError(_t("No match."));
   },
   isExported: true,
 } satisfies AddFunctionDescription;

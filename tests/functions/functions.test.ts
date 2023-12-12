@@ -1,13 +1,9 @@
-import { EvaluationError, Model } from "../../src";
+import { Model } from "../../src";
 import { toScalar } from "../../src/functions/helper_matrices";
-import { toBoolean, toNumber } from "../../src/functions/helpers";
+import { isEvaluationError, toBoolean, toNumber } from "../../src/functions/helpers";
 import { arg, functionRegistry } from "../../src/functions/index";
-import { DEFAULT_LOCALE } from "../../src/types";
-import {
-  BadExpressionError,
-  CircularDependencyError,
-  InvalidReferenceError,
-} from "../../src/types/errors";
+import { Arg, DEFAULT_LOCALE } from "../../src/types";
+import { CellErrorType, EvaluationError } from "../../src/types/errors";
 import { setCellContent, setCellFormat } from "../test_helpers/commands_helpers";
 import { getCellError, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { evaluateCell, restoreDefaultFunctions } from "../test_helpers/helpers";
@@ -78,8 +74,8 @@ describe("functions", () => {
     const model = new Model();
     functionRegistry.add("RETURN.VALUE.DEPENDING.ON.INPUT.ERROR", {
       description: "return value depending on input error",
-      compute: function (arg) {
-        return toScalar(arg)?.value instanceof EvaluationError ? true : false;
+      compute: function (arg: Arg) {
+        return isEvaluationError(toScalar(arg)?.value) ? true : false;
       },
       args: [arg("arg (any)", "blabla")],
       returns: ["BOOLEAN"],
@@ -114,9 +110,9 @@ describe("functions", () => {
     functionRegistry.add("RETURN.ERROR.DEPENDING.ON.INPUT.ERROR", {
       description: "return value depending on input error",
       compute: function (arg) {
-        const error1 = new CircularDependencyError();
-        const error2 = new InvalidReferenceError();
-        return toScalar(arg)?.value instanceof BadExpressionError ? error1 : error2;
+        return toScalar(arg)?.value === CellErrorType.BadExpression
+          ? CellErrorType.CircularDependency
+          : CellErrorType.InvalidReference;
       },
       args: [arg("arg (any)", "blabla")],
       returns: ["ANY"],

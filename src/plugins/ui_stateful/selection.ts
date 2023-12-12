@@ -436,13 +436,6 @@ export class GridSelectionPlugin extends UIPlugin {
       }
     }
 
-    let cellsTypes = new Set<CellValueType>();
-    let evaluatedCells: EvaluatedCell[] = [];
-    for (let cell of cells) {
-      cellsTypes.add(cell.type);
-      evaluatedCells.push(cell);
-    }
-
     const locale = this.getters.getLocale();
 
     let statisticFnResults: { [name: string]: number | undefined } = {};
@@ -453,7 +446,8 @@ export class GridSelectionPlugin extends UIPlugin {
       // Ex: if there are only texts in the selection, we prefer that the SUM result
       // be displayed as undefined rather than 0.
       let fnResult: number | undefined = undefined;
-      if (fn.types.some((t) => cellsTypes.has(t))) {
+      const evaluatedCells = [...cells].filter((c) => fn.types.includes(c.type));
+      if (evaluatedCells.length) {
         fnResult = fn.compute(evaluatedCells, locale);
       }
       statisticFnResults[fn.name] = fnResult;
