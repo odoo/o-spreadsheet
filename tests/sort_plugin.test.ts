@@ -1,8 +1,8 @@
-import { INCORRECT_RANGE_STRING } from "../src/constants";
 import { parseDateTime } from "../src/helpers/dates";
 import { toZone, zoneToXc } from "../src/helpers/index";
 import { Model } from "../src/model";
 import { CellValueType, DEFAULT_LOCALE, UID } from "../src/types";
+import { CellErrorType } from "../src/types/errors";
 import { redo, setCellContent, sort, undo } from "./test_helpers/commands_helpers";
 import { getEvaluatedCell } from "./test_helpers/getters_helpers";
 import { getCellsObject } from "./test_helpers/helpers";
@@ -146,7 +146,7 @@ describe("Basic Sorting", () => {
       C2: { content: "=A4*10" },
       C3: { content: "=BADBUNNY" },
       C4: {
-        content: `=${INCORRECT_RANGE_STRING}/${INCORRECT_RANGE_STRING}`,
+        content: `=${CellErrorType.InvalidReference}/${CellErrorType.InvalidReference}`,
       },
       C5: { content: '=CONCAT("ki", "kou")' },
       C6: { content: "=EQ(A4, 4)" },
@@ -184,12 +184,12 @@ describe("Basic Sorting", () => {
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "4" },
       A2: { content: "23" },
-      A3: { content: `=SUM(4, ${INCORRECT_RANGE_STRING})` },
+      A3: { content: `=SUM(4, ${CellErrorType.InvalidReference})` },
       A4: { content: "=DATE(2012, 12, 21)" },
       A5: { value: parseDateTime("2020/09/01", locale)!.value },
       A6: { content: "=BADBUNNY" },
       A7: {
-        content: `=${INCORRECT_RANGE_STRING}/${INCORRECT_RANGE_STRING}`,
+        content: `=${CellErrorType.InvalidReference}/${CellErrorType.InvalidReference}`,
       },
       A8: { content: "Kills" },
       A9: { content: "Machette" },
@@ -214,12 +214,12 @@ describe("Basic Sorting", () => {
     expect(getCellsObject(model, sheetId)).toMatchObject({
       A1: { content: "4" },
       A2: { content: "23" },
-      A3: { content: `=SUM(4, ${INCORRECT_RANGE_STRING})` },
+      A3: { content: `=SUM(4, ${CellErrorType.InvalidReference})` },
       A4: { content: "=DATE(2012, 12, 21)" },
       A5: { value: parseDateTime("2020/09/01", locale)!.value },
       A6: { content: "=BADBUNNY" },
       A7: {
-        content: `=${INCORRECT_RANGE_STRING}/${INCORRECT_RANGE_STRING}`,
+        content: `=${CellErrorType.InvalidReference}/${CellErrorType.InvalidReference}`,
       },
       A8: { content: "Kills" },
       A9: { content: "Machette" },

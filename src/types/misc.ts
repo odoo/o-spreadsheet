@@ -179,7 +179,7 @@ export interface RangeCompiledFormula extends Omit<CompiledFormula, "dependencie
 }
 
 export type Matrix<T = unknown> = T[][];
-export type FPayload = { value: CellValue; format?: Format };
+export type FPayload = { value: CellValue; format?: Format; message?: string };
 export type FPayloadNumber = { value: number; format?: string };
 
 // FORMULA FUNCTION VALUE AND FORMAT INPUT

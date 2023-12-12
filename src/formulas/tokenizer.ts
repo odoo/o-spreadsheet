@@ -1,6 +1,7 @@
-import { INCORRECT_RANGE_STRING, NEWLINE } from "../constants";
+import { NEWLINE } from "../constants";
 import { getFormulaNumberRegex, rangeReference, replaceSpecialSpaces } from "../helpers/index";
 import { DEFAULT_LOCALE, Locale } from "../types";
+import { CellErrorType } from "../types/errors";
 
 /**
  * Tokenizer
@@ -214,9 +215,9 @@ function tokenizeSpace(chars: TokenizingChars): Token | null {
 }
 
 function tokenizeInvalidRange(chars: TokenizingChars): Token | null {
-  if (chars.currentStartsWith(INCORRECT_RANGE_STRING)) {
-    chars.advanceBy(INCORRECT_RANGE_STRING.length);
-    return { type: "INVALID_REFERENCE", value: INCORRECT_RANGE_STRING };
+  if (chars.currentStartsWith(CellErrorType.InvalidReference)) {
+    chars.advanceBy(CellErrorType.InvalidReference.length);
+    return { type: "INVALID_REFERENCE", value: CellErrorType.InvalidReference };
   }
   return null;
 }

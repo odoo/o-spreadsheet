@@ -12,7 +12,7 @@ import {
   Maybe,
   isMatrix,
 } from "../types";
-import { NotAvailableError } from "../types/errors";
+import { EvaluationError, NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import { assertSameDimensions, assertSingleColOrRow } from "./helper_assert";
 import { toScalar } from "./helper_matrices";
@@ -337,7 +337,7 @@ export const UNIQUE = {
       result.push(row.data);
     }
 
-    if (!result.length) throw new Error(_t("No unique values found"));
+    if (!result.length) throw new EvaluationError(_t("No unique values found"));
 
     return _byColumn ? result : transposeMatrix(result);
   },

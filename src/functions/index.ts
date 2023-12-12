@@ -11,9 +11,9 @@ import {
   Matrix,
   isMatrix,
 } from "../types";
-import { CellErrorType, EvaluationError } from "../types/errors";
+import { EvaluationError } from "../types/errors";
 import { addMetaInfoFromArg, validateArguments } from "./arguments";
-import { matrixMap } from "./helpers";
+import { isEvaluationError, matrixMap } from "./helpers";
 import * as array from "./module_array";
 import * as misc from "./module_custom";
 import * as database from "./module_database";
@@ -94,12 +94,41 @@ function addErrorHandling(
   };
 }
 
-function handleError(e: Error | any, functionName: string): FPayload {
-  if (!(e instanceof EvaluationError)) {
-    e = new EvaluationError(e.message, CellErrorType.GenericError);
+const implementationErrorMessage = _t(
+  "An unexpected error occurred. Submit a support ticket at odoo.com/help."
+);
+
+function handleError(e: unknown, functionName: string): FPayload {
+  // the error could be an user error (instance of EvaluationError)
+  // or a javascript error (instance of Error)
+  // we don't want block the user with an implementation error
+  // so we fallback to a generic error
+  if (hasStringValue(e) && isEvaluationError(e.value)) {
+    if (hasStringMessage(e)) {
+      if (e.message?.includes("[[FUNCTION_NAME]]")) {
+        e.message = e.message.replace("[[FUNCTION_NAME]]", functionName);
+      }
+    }
+    return e;
   }
-  e.message = e.message.replace("[[FUNCTION_NAME]]", functionName);
-  return { value: e };
+  console.error(e);
+  return new EvaluationError(
+    implementationErrorMessage + (hasStringMessage(e) ? " " + e.message : "")
+  );
+}
+
+function hasStringValue(obj: unknown): obj is { value: string } {
+  return (
+    (obj as { value: string })?.value !== undefined &&
+    typeof (obj as { value: string }).value === "string"
+  );
+}
+
+function hasStringMessage(obj: unknown): obj is { message: string } {
+  return (
+    (obj as { message: string })?.message !== undefined &&
+    typeof (obj as { message: string }).message === "string"
+  );
 }
 
 function addResultHandling(

@@ -1,12 +1,30 @@
-import { dichotomicSearch } from "../../src/functions/helpers";
+import { dichotomicSearch as dichotomicSearchUniteData } from "../../src/functions/helpers";
 import { isValidLocale } from "../../src/helpers/locale";
-import { DEFAULT_LOCALE } from "../../src/types";
+import { CellValue, DEFAULT_LOCALE } from "../../src/types";
 
 function getItem(arr: any[], i: number) {
   return arr[i];
 }
 
 const u = undefined;
+
+function dichotomicSearch<T>(
+  data: T,
+  target: CellValue,
+  mode: "nextGreater" | "nextSmaller" | "strict",
+  sortOrder: "asc" | "desc",
+  rangeLength: number,
+  getValueInData: (range: T, index: number) => CellValue | undefined
+): number {
+  return dichotomicSearchUniteData(
+    data,
+    { value: target },
+    mode,
+    sortOrder,
+    rangeLength,
+    getValueInData
+  );
+}
 
 describe("Function helpers", () => {
   describe("dichotomicSearch with array sorted in ascending order", () => {

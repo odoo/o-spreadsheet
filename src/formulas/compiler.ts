@@ -100,7 +100,7 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
       const functionDefinition = functions[functionName];
 
       if (!functionDefinition) {
-        throw new UnknownFunctionError(ast.value);
+        throw new UnknownFunctionError(_t('Unknown function: "%s"', ast.value));
       }
 
       assertEnoughArgs(ast);

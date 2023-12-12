@@ -629,7 +629,7 @@ export class RendererPlugin extends UIPlugin {
       style: this.getters.getCellComputedStyle(position),
       verticalAlign,
       isError:
-        (cell.type === CellValueType.error && cell.error.isVerbose) ||
+        (cell.type === CellValueType.error && !!cell.message) ||
         this.getters.isDataValidationInvalid(position),
     };
 
