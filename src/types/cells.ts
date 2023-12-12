@@ -1,4 +1,3 @@
-import { EvaluationError } from "./errors";
 import { Format, FormattedValue } from "./format";
 import { Link, RangeCompiledFormula, Style, UID } from "./misc";
 
@@ -37,7 +36,7 @@ interface EvaluatedCellProperties {
   readonly link?: Link;
 }
 
-export type CellValue = string | number | boolean | EvaluationError | null; // We use null to represent an empty cell. This choice is preferred over using undefined because when passing values to a JavaScript function, undefined may be replaced by a default value.
+export type CellValue = string | number | boolean | null; // We use null to represent an empty cell. This choice is preferred over using undefined because when passing values to a JavaScript function, undefined may be replaced by a default value.
 
 export type EvaluatedCell = NumberCell | TextCell | BooleanCell | EmptyCell | ErrorCell;
 
@@ -64,7 +63,7 @@ export interface EmptyCell extends EvaluatedCellProperties {
 export interface ErrorCell extends EvaluatedCellProperties {
   readonly type: CellValueType.error;
   readonly value: string;
-  readonly error: EvaluationError;
+  readonly message?: string;
 }
 
 export enum CellValueType {

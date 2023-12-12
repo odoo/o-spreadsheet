@@ -182,15 +182,8 @@ export const HLOOKUP = {
 
     const _isSorted = toBoolean(isSorted.value);
     const colIndex = _isSorted
-      ? dichotomicSearch(
-          range,
-          searchKey?.value,
-          "nextSmaller",
-          "asc",
-          range.length,
-          getValueFromRange
-        )
-      : linearSearch(range, searchKey?.value, "strict", range.length, getValueFromRange);
+      ? dichotomicSearch(range, searchKey, "nextSmaller", "asc", range.length, getValueFromRange)
+      : linearSearch(range, searchKey, "strict", range.length, getValueFromRange);
     const col = range[colIndex];
     assertAvailable(col, searchKey?.value);
     return col[_index - 1];
@@ -282,7 +275,7 @@ export const LOOKUP = {
     const rangeLength = verticalSearch ? nbRow : nbCol;
     const index = dichotomicSearch(
       searchArray,
-      searchKey?.value,
+      searchKey,
       "nextSmaller",
       "asc",
       rangeLength,
@@ -366,27 +359,13 @@ export const MATCH = {
     _searchType = Math.sign(_searchType);
     switch (_searchType) {
       case 1:
-        index = dichotomicSearch(
-          range,
-          searchKey?.value,
-          "nextSmaller",
-          "asc",
-          rangeLen,
-          getElement
-        );
+        index = dichotomicSearch(range, searchKey, "nextSmaller", "asc", rangeLen, getElement);
         break;
       case 0:
-        index = linearSearch(range, searchKey?.value, "strict", rangeLen, getElement);
+        index = linearSearch(range, searchKey, "strict", rangeLen, getElement);
         break;
       case -1:
-        index = dichotomicSearch(
-          range,
-          searchKey?.value,
-          "nextGreater",
-          "desc",
-          rangeLen,
-          getElement
-        );
+        index = dichotomicSearch(range, searchKey, "nextGreater", "desc", rangeLen, getElement);
         break;
     }
 
@@ -484,15 +463,8 @@ export const VLOOKUP = {
 
     const _isSorted = toBoolean(isSorted.value);
     const rowIndex = _isSorted
-      ? dichotomicSearch(
-          range,
-          searchKey?.value,
-          "nextSmaller",
-          "asc",
-          range[0].length,
-          getValueFromRange
-        )
-      : linearSearch(range, searchKey?.value, "strict", range[0].length, getValueFromRange);
+      ? dichotomicSearch(range, searchKey, "nextSmaller", "asc", range[0].length, getValueFromRange)
+      : linearSearch(range, searchKey, "strict", range[0].length, getValueFromRange);
 
     const value = range[_index - 1][rowIndex];
     assertAvailable(value, searchKey);
@@ -582,13 +554,13 @@ export const XLOOKUP = {
       _searchMode === 2 || _searchMode === -2
         ? dichotomicSearch(
             lookupRange,
-            searchKey?.value,
+            searchKey,
             mode,
             _searchMode === 2 ? "asc" : "desc",
             rangeLen,
             getElement
           )
-        : linearSearch(lookupRange, searchKey?.value, mode, rangeLen, getElement, reverseSearch);
+        : linearSearch(lookupRange, searchKey, mode, rangeLen, getElement, reverseSearch);
 
     if (index !== -1) {
       return lookupDirection === "col"

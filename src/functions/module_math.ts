@@ -15,6 +15,7 @@ import { getUnitMatrix } from "./helper_matrices";
 import {
   assert,
   inferFormat,
+  isEvaluationError,
   reduceAny,
   strictToNumber,
   toBoolean,
@@ -1026,8 +1027,8 @@ export const PRODUCT = {
               acc *= f;
               count += 1;
             }
-            if (f instanceof Error) {
-              throw f;
+            if (isEvaluationError(f)) {
+              throw j;
             }
           }
         }
