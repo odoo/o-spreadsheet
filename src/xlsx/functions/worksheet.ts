@@ -93,11 +93,10 @@ export function addRows(
           ));
         }
         attributes.push(...additionalAttrs);
-        cellNodes.push(escapeXml/*xml*/ `
-          <c ${formatAttributes(attributes)}>
-            ${cellNode}
-          </c>
-        `);
+        // prettier-ignore
+        cellNodes.push(escapeXml/*xml*/ `<c ${formatAttributes(attributes)}>
+  ${cellNode}
+</c>`);
       }
     }
     if (cellNodes.length || row.size !== DEFAULT_CELL_HEIGHT || row.isHidden) {
