@@ -5,7 +5,6 @@ import {
   AutofillModifier,
   AutofillResult,
   Cell,
-  CellValueType,
   Command,
   CommandResult,
   DIRECTION,
@@ -277,7 +276,7 @@ export class AutofillPlugin extends UIPlugin {
     if (col > 0) {
       let leftPosition = { sheetId, col: col - 1, row };
       while (
-        this.getters.getEvaluatedCell(leftPosition).type !== CellValueType.empty ||
+        this.getters.getCorrespondingFormulaCell(leftPosition) ||
         this.getters.getCell(leftPosition)?.content
       ) {
         row += 1;
@@ -289,7 +288,7 @@ export class AutofillPlugin extends UIPlugin {
       if (col <= this.getters.getNumberCols(sheetId)) {
         let rightPosition = { sheetId, col: col + 1, row };
         while (
-          this.getters.getEvaluatedCell(rightPosition).type !== CellValueType.empty ||
+          this.getters.getCorrespondingFormulaCell(rightPosition) ||
           this.getters.getCell(rightPosition)?.content
         ) {
           row += 1;
