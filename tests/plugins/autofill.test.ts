@@ -1,4 +1,5 @@
 import { Model } from "../../src";
+import { functionRegistry } from "../../src/functions";
 import { buildSheetLink, toCartesian, toZone } from "../../src/helpers";
 import { AutofillPlugin } from "../../src/plugins/ui_feature/autofill";
 import { Border, ConditionalFormat, Style } from "../../src/types";
@@ -517,6 +518,29 @@ describe("Autofill", () => {
     expect(getCellContent(model, "A3")).toBe("2");
     expect(getCellContent(model, "A4")).toBe("2");
     expect(getCell(model, "A5")).toBeUndefined();
+  });
+
+  test("Auto-autofill considers formula spreaded value", () => {
+    functionRegistry.add("SPREAD.EMPTY", {
+      description: "spreads empty values",
+      args: [],
+      returns: ["NUMBER"],
+      compute: function (): string[][] {
+        return [
+          ["", "", ""], // return 2 col, 3 row matrix
+          ["", "", ""],
+        ];
+      },
+      isExported: false,
+    });
+    setCellContent(model, "A1", "=SPREAD.EMPTY()");
+    setCellContent(model, "C1", "2");
+    setSelection(model, ["C1"]);
+    model.dispatch("AUTOFILL_AUTO");
+    expect(getCellContent(model, "C1")).toBe("2");
+    expect(getCellContent(model, "C2")).toBe("2");
+    expect(getCellContent(model, "C3")).toBe("2");
+    expect(getCell(model, "C4")).toBeUndefined();
   });
 
   test("autofill with merge in selection", () => {

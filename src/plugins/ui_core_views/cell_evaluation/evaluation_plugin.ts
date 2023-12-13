@@ -137,6 +137,7 @@ import { Evaluator } from "./evaluator";
 export class EvaluationPlugin extends UIPlugin {
   static getters = [
     "evaluateFormula",
+    "getCorrespondingFormulaCell",
     "getRangeFormattedValues",
     "getRangeValues",
     "getRangeFormats",
@@ -294,7 +295,7 @@ export class EvaluationPlugin extends UIPlugin {
    * It could be the formula present in the cell itself or the
    * formula of the array formula that spreads to the cell
    */
-  private getCorrespondingFormulaCell(position: CellPosition): FormulaCell | undefined {
+  getCorrespondingFormulaCell(position: CellPosition): FormulaCell | undefined {
     const cell = this.getters.getCell(position);
 
     if (cell && cell.content) {
