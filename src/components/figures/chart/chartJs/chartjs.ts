@@ -2,7 +2,6 @@ import { Component, onMounted, useEffect, useRef } from "@odoo/owl";
 import type { Chart, ChartConfiguration } from "chart.js";
 import { Figure, SpreadsheetChildEnv } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
-import { GaugeChartConfiguration, GaugeChartOptions } from "../../../../types/chart/gauge_chart";
 
 interface Props {
   figure: Figure;
@@ -44,7 +43,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     );
   }
 
-  private createChart(chartData: ChartConfiguration | GaugeChartConfiguration) {
+  private createChart(chartData: ChartConfiguration) {
     const canvas = this.canvas.el as HTMLCanvasElement;
     const ctx = canvas.getContext("2d")!;
     // @ts-ignore
@@ -57,12 +56,6 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
       this.chart!.data = chartData.data;
       if (chartData.options?.plugins?.title) {
         this.chart!.config.options!.plugins!.title = chartData.options.plugins.title;
-      }
-      if (chartData.options && "valueLabel" in chartData.options) {
-        if (chartData.options?.valueLabel) {
-          (this.chart!.config.options! as GaugeChartOptions).valueLabel =
-            chartData.options.valueLabel;
-        }
       }
     } else {
       this.chart!.data.datasets = [];

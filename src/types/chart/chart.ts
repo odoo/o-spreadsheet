@@ -23,10 +23,9 @@ export type ChartJSRuntime =
   | LineChartRuntime
   | PieChartRuntime
   | BarChartRuntime
-  | GaugeChartRuntime
   | ScatterChartRuntime;
 
-export type ChartRuntime = ChartJSRuntime | ScorecardChartRuntime;
+export type ChartRuntime = ChartJSRuntime | ScorecardChartRuntime | GaugeChartRuntime;
 
 export interface LabelValues {
   readonly values: string[];

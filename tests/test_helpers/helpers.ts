@@ -646,7 +646,7 @@ export const mockChart = () => {
     get data() {
       return mockChartData.data;
     }
-    toBase64Image = () => "";
+    toBase64Image = () => "data:image/png;base64,randomDataThatIsActuallyABase64Image";
     destroy = () => {};
     update = () => {};
     options = mockChartData.options;

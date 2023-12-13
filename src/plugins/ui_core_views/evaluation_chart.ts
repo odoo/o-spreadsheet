@@ -116,15 +116,17 @@ export class EvaluationChartPlugin extends UIPlugin<EvaluationChartState> {
           const type = this.getters.getChartType(figureId);
           const runtime = this.getters.getChartRuntime(figureId);
           const img = chartToImage(runtime, figure, type);
-          sheet.images.push({
-            ...figure,
-            tag: "image",
-            data: {
-              mimetype: "image/png",
-              path: img,
-              size: { width: figure.width, height: figure.height },
-            },
-          });
+          if (img) {
+            sheet.images.push({
+              ...figure,
+              tag: "image",
+              data: {
+                mimetype: "image/png",
+                path: img,
+                size: { width: figure.width, height: figure.height },
+              },
+            });
+          }
         }
       }
       sheet.charts = figures;
