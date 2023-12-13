@@ -1,5 +1,6 @@
 import { canChartParseLabels, LineChart } from "../../../../helpers/figures/charts";
 import { LineChartDefinition } from "../../../../types/chart";
+import { SelectionInput } from "../../../selection_input/selection_input";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { Property } from "../../components/property/property";
 import { Section } from "../../components/section/section";
@@ -18,57 +19,72 @@ export class LineConfigPanel extends LineBarPieConfigPanel {
   }
 
   get def() {
+    //TODO Type this properly
     return {
       stacked: {
-        name: "stacked",
-        type: "boolean",
-        label: "Stacked linechart",
-        value: (this.props.definition as LineChartDefinition).stacked,
-        update: this.onUpdateStacked.bind(this),
+        component: Checkbox,
+        props: {
+          name: "stacked",
+          label: "Stacked linechart",
+          value: (this.props.definition as LineChartDefinition).stacked,
+          update: this.onUpdateStacked.bind(this),
+        },
       },
       aggregated: {
-        name: "aggregated",
-        type: "boolean",
-        label: "Aggregated",
-        value: (this.props.definition as LineChartDefinition).aggregated,
-        update: this.onUpdateAggregated.bind(this),
+        component: Checkbox,
+        props: {
+          name: "aggregated",
+          label: "Aggregated",
+          value: (this.props.definition as LineChartDefinition).aggregated,
+          update: this.onUpdateAggregated.bind(this),
+        },
       },
       cumulative: {
-        name: "cumulative",
-        type: "boolean",
-        label: "Cumulative",
-        value: (this.props.definition as LineChartDefinition).cumulative,
-        update: this.onUpdateCumulative.bind(this),
+        component: Checkbox,
+        props: {
+          name: "cumulative",
+          label: "Cumulative",
+          value: (this.props.definition as LineChartDefinition).cumulative,
+          update: this.onUpdateCumulative.bind(this),
+        },
       },
       labelsAsText: {
-        name: "labelsAsText",
-        type: "boolean",
-        label: "Labels as text",
-        value: (this.props.definition as LineChartDefinition).labelsAsText,
-        hidden: !this.canTreatLabelsAsText,
-        update: this.onUpdateLabelsAsText.bind(this),
+        component: Checkbox,
+        props: {
+          name: "labelsAsText",
+          label: "Labels as text",
+          value: (this.props.definition as LineChartDefinition).labelsAsText,
+          hidden: !this.canTreatLabelsAsText,
+          update: this.onUpdateLabelsAsText.bind(this),
+        },
       },
       dataSetsHaveTitle: {
-        name: "dataSetsHaveTitle",
-        type: "boolean",
-        label: `Use row ${this.calculateHeaderPosition()} as headers`,
-        value: (this.props.definition as LineChartDefinition).dataSetsHaveTitle,
-        update: this.onUpdateDataSetsHaveTitle.bind(this),
+        component: Checkbox,
+        props: {
+          name: "dataSetsHaveTitle",
+          label: `Use row ${this.calculateHeaderPosition()} as headers`,
+          value: (this.props.definition as LineChartDefinition).dataSetsHaveTitle,
+          update: this.onUpdateDataSetsHaveTitle.bind(this),
+        },
       },
       dataSeries: {
-        type: "range",
-        ranges: () => this.getDataSeriesRanges(),
-        required: true,
-        onSelectionChanged: (ranges) => this.onDataSeriesRangesChanged(ranges),
-        onSelectionConfirmed: () => this.onDataSeriesConfirmed(),
+        component: SelectionInput,
+        props: {
+          ranges: () => this.getDataSeriesRanges(),
+          required: true,
+          onSelectionChanged: (ranges) => this.onDataSeriesRangesChanged(ranges),
+          onSelectionConfirmed: () => this.onDataSeriesConfirmed(),
+        },
       },
       labelRange: {
-        type: "range",
-        ranges: () => [this.getLabelRange()],
-        isInvalid: this.isLabelInvalid,
-        hasSingleRange: true,
-        onSelectionChanged: (ranges) => this.onLabelRangeChanged(ranges),
-        onSelectionConfirmed: () => this.onLabelRangeConfirmed(),
+        component: SelectionInput,
+        props: {
+          ranges: () => [this.getLabelRange()],
+          isInvalid: this.isLabelInvalid,
+          hasSingleRange: true,
+          onSelectionChanged: (ranges) => this.onLabelRangeChanged(ranges),
+          onSelectionConfirmed: () => this.onLabelRangeConfirmed(),
+        },
       },
     };
   }
