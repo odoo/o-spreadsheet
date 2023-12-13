@@ -100,12 +100,8 @@ export class FindAndReplacePlugin extends UIPlugin {
       case "ADD_COLUMNS_ROWS":
       case "EVALUATE_CELLS":
       case "UPDATE_CELL":
-        this.isSearchDirty = true;
-        break;
       case "ACTIVATE_SHEET":
-        if (this.searchOptions.searchScope === "activeSheet") {
-          this.isSearchDirty = true;
-        }
+        this.isSearchDirty = true;
         break;
     }
   }
