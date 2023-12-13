@@ -1,8 +1,11 @@
 import { canChartParseLabels, LineChart } from "../../../../helpers/figures/charts";
+import { Checkbox } from "../../components/checkbox/checkbox";
+import { Section } from "../../components/section/section";
 import { LineBarPieConfigPanel } from "../line_bar_pie_panel/config_panel";
 
 export class LineConfigPanel extends LineBarPieConfigPanel {
   static template = "o-spreadsheet-LineConfigPanel";
+  static components = { ...LineBarPieConfigPanel.components, Section, Checkbox };
 
   get canTreatLabelsAsText() {
     const chart = this.env.model.getters.getChart(this.props.figureId);

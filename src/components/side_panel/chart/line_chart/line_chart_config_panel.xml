@@ -1,39 +1,29 @@
 <templates>
   <t t-name="o-spreadsheet-LineConfigPanel">
     <div>
-      <div class="o-section pt-0">
-        <label class="o-checkbox">
-          <input
-            type="checkbox"
-            name="stacked"
-            t-att-checked="props.definition.stacked"
-            t-on-change="onUpdateStacked"
-            class="align-middle"
-          />
-          Stacked linechart
-        </label>
-        <label class="o-checkbox">
-          <input
-            type="checkbox"
-            name="cumulative"
-            t-att-checked="props.definition.cumulative"
-            t-on-change="onUpdateCumulative"
-            class="align-middle"
-          />
-          Cumulative data
-        </label>
-      </div>
-      <div class="o-section o-data-series">
-        <div class="o-section-title">Data Series</div>
+      <Section className="'pt-0'">
+        <Checkbox
+          name="'stacked'"
+          value="props.definition.stacked"
+          update.bind="onUpdateStacked"
+          label="'Stacked linechart'"
+        />
+        <Checkbox
+          name="'cumulative'"
+          value="props.definition.cumulative"
+          update.bind="onUpdateCumulative"
+          label="'Cumulative data'"
+        />
+      </Section>
+      <Section title="'Data Series'" className="'o-data-series'">
         <SelectionInput
           ranges="() => this.getDataSeriesRanges()"
           required="true"
           onSelectionChanged="(ranges) => this.onDataSeriesRangesChanged(ranges)"
           onSelectionConfirmed="() => this.onDataSeriesConfirmed()"
         />
-      </div>
-      <div class="o-section o-data-labels">
-        <div class="o-section-title">Categories / Labels</div>
+      </Section>
+      <Section title="'Categories / Labels'" className="'o-data-labels'">
         <SelectionInput
           ranges="() => [this.getLabelRange()]"
           isInvalid="isLabelInvalid"
@@ -41,45 +31,32 @@
           onSelectionChanged="(ranges) => this.onLabelRangeChanged(ranges)"
           onSelectionConfirmed="() => this.onLabelRangeConfirmed()"
         />
-        <label class="o-checkbox">
-          <input
-            type="checkbox"
-            name="aggregated"
-            t-att-checked="props.definition.aggregated"
-            t-on-change="onUpdateAggregated"
-            class="align-middle"
-          />
-          Aggregate
-        </label>
-        <label t-if="canTreatLabelsAsText" class="o-checkbox">
-          <input
-            type="checkbox"
-            name="labelsAsText"
-            t-att-checked="props.definition.labelsAsText"
-            t-on-change="onUpdateLabelsAsText"
-          />
-          Treat labels as text
-        </label>
-      </div>
-      <div class="o-section o-use-row-as-headers" t-if="calculateHeaderPosition()">
-        <label class="o-checkbox">
-          <input
-            type="checkbox"
-            t-att-checked="props.definition.dataSetsHaveTitle"
-            t-on-change="onUpdateDataSetsHaveTitle"
-            class="align-middle"
-          />
-          <span>
-            Use row
-            <t t-esc="calculateHeaderPosition()"/>
-            as headers
-          </span>
-        </label>
-      </div>
+        <Checkbox
+          name="'aggregated'"
+          value="props.definition.aggregated"
+          update.bind="onUpdateAggregated"
+          label="'Aggregate'"
+        />
+        <Checkbox
+          t-if="canTreatLabelsAsText"
+          name="'labelsAsText'"
+          value="props.definition.labelsAsText"
+          update.bind="onUpdateLabelsAsText"
+          label="'Treat labels as text'"
+        />
+      </Section>
+      <Section className="'o-use-row-as-headers'" t-if="calculateHeaderPosition()">
+        <Checkbox
+          name="'dataSetsHaveTitle'"
+          value="props.definition.dataSetsHaveTitle"
+          update.bind="onUpdateDataSetsHaveTitle"
+          label="'Use row ' + calculateHeaderPosition() + ' as headers'"
+        />
+      </Section>
 
-      <div class="o-section" t-if="errorMessages.length">
+      <Section t-if="errorMessages.length">
         <ValidationMessages messages="errorMessages" msgType="'error'"/>
-      </div>
+      </Section>
     </div>
   </t>
 </templates>
