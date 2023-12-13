@@ -252,7 +252,7 @@ describe("BottomBar component", () => {
       expect(sheetName.getAttribute("contenteditable")).toEqual("false");
       triggerMouseEvent(sheetName, "dblclick");
       await nextTick();
-      expect(sheetName.getAttribute("contenteditable")).toEqual("true");
+      expect(sheetName.getAttribute("contenteditable")).toEqual("plaintext-only");
       expect(document.activeElement).toEqual(sheetName);
     });
 
@@ -261,7 +261,7 @@ describe("BottomBar component", () => {
       await nextTick();
       await click(fixture, ".o-menu-item[data-name='rename'");
       const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
-      expect(sheetName.getAttribute("contenteditable")).toEqual("true");
+      expect(sheetName.getAttribute("contenteditable")).toEqual("plaintext-only");
       expect(document.activeElement).toEqual(sheetName);
     });
 
