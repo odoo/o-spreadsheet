@@ -312,6 +312,23 @@ describe("basic search", () => {
     expect(getMatches(model)).toHaveLength(2);
     expect(getMatchIndex(model)).toStrictEqual(0);
   });
+
+  test("Switching sheet properly recomputes search results and shows them in the viewport", () => {
+    setCellContent(model, "A2", "Hello");
+    setCellContent(model, "A3", "Hello");
+    createSheet(model, { sheetId: "s2" });
+    setCellContent(model, "Z100", "hello", "s2");
+    updateSearch(model, "hello", { searchScope: "allSheets" });
+    expect(model.getters.getActiveSheetMatchesCount()).toBe(2);
+    expect(model.getters.getAllSheetMatchesCount()).toBe(3);
+    expect(model.getters.getSpecificRangeMatchesCount()).toBe(0);
+    expect(model.getters.getActiveMainViewport()).toMatchObject(toZone("A1:K44"));
+    activateSheet(model, "s2");
+    expect(model.getters.getActiveSheetMatchesCount()).toBe(1);
+    expect(model.getters.getAllSheetMatchesCount()).toBe(3);
+    expect(model.getters.getSpecificRangeMatchesCount()).toBe(0);
+    expect(model.getters.getActiveMainViewport()).toMatchObject(toZone("Q58:Z100"));
+  });
 });
 
 test("simple search with array formula", () => {
@@ -696,7 +713,6 @@ describe("number of match counts", () => {
     createSheet(model, { sheetId: sheet2 });
     setCellContent(model, "A1", "hello", sheet2);
     setCellContent(model, "A2", "=SUM(2,2)", sheet2);
-    setCellContent(model, "A3", "hell", sheet2);
   });
 
   test.each(["allSheets", "activeSheet"] as const)(
@@ -704,7 +720,7 @@ describe("number of match counts", () => {
     (scope) => {
       updateSearch(model, "hell", { searchScope: scope });
       expect(model.getters.getActiveSheetMatchesCount()).toBe(2);
-      expect(model.getters.getAllSheetMatchesCount()).toBe(4);
+      expect(model.getters.getAllSheetMatchesCount()).toBe(3);
     }
   );
 
@@ -714,7 +730,7 @@ describe("number of match counts", () => {
       specificRange: toRangeData("s1", "A1:B2"),
     });
     expect(model.getters.getActiveSheetMatchesCount()).toBe(2);
-    expect(model.getters.getAllSheetMatchesCount()).toBe(4);
+    expect(model.getters.getAllSheetMatchesCount()).toBe(3);
     expect(model.getters.getSpecificRangeMatchesCount()).toBe(1);
   });
 });
