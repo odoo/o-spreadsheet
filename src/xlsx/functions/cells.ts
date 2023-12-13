@@ -41,12 +41,7 @@ export function addFormula(cell: ExcelCellData): {
       attrs.push(["t", "str"]);
       cycle = escapeXml/*xml*/ `<v>${cell.value}</v>`;
     }
-    node = escapeXml/*xml*/ `
-      <f>
-        ${XlsxFormula}
-      </f>
-      ${cycle}
-    `;
+    node = escapeXml/*xml*/ `<f> ${XlsxFormula} </f> ${cycle}`;
     return { attrs, node };
   } else {
     // Shouldn't we always output the value then ?
