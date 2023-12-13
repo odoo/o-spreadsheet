@@ -1,57 +1,21 @@
 <templates>
   <t t-name="o-spreadsheet-LineConfigPanel">
     <div>
+      <t t-set="d" t-value="def"/>
       <Section className="'pt-0'">
-        <Checkbox
-          name="'stacked'"
-          value="props.definition.stacked"
-          update.bind="onUpdateStacked"
-          label="'Stacked linechart'"
-        />
-        <Checkbox
-          name="'cumulative'"
-          value="props.definition.cumulative"
-          update.bind="onUpdateCumulative"
-          label="'Cumulative data'"
-        />
+        <Property property="d.stacked"/>
+        <Property property="d.cumulative"/>
       </Section>
       <Section title="'Data Series'" className="'o-data-series'">
-        <SelectionInput
-          ranges="() => this.getDataSeriesRanges()"
-          required="true"
-          onSelectionChanged="(ranges) => this.onDataSeriesRangesChanged(ranges)"
-          onSelectionConfirmed="() => this.onDataSeriesConfirmed()"
-        />
+        <Property property="d.dataSeries"/>
       </Section>
       <Section title="'Categories / Labels'" className="'o-data-labels'">
-        <SelectionInput
-          ranges="() => [this.getLabelRange()]"
-          isInvalid="isLabelInvalid"
-          hasSingleRange="true"
-          onSelectionChanged="(ranges) => this.onLabelRangeChanged(ranges)"
-          onSelectionConfirmed="() => this.onLabelRangeConfirmed()"
-        />
-        <Checkbox
-          name="'aggregated'"
-          value="props.definition.aggregated"
-          update.bind="onUpdateAggregated"
-          label="'Aggregate'"
-        />
-        <Checkbox
-          t-if="canTreatLabelsAsText"
-          name="'labelsAsText'"
-          value="props.definition.labelsAsText"
-          update.bind="onUpdateLabelsAsText"
-          label="'Treat labels as text'"
-        />
+        <Property property="d.labelRange"/>
+        <Property property="d.aggregated"/>
+        <Property t-if="canTreatLabelsAsText" property="d.labelsAsText"/>
       </Section>
       <Section className="'o-use-row-as-headers'" t-if="calculateHeaderPosition()">
-        <Checkbox
-          name="'dataSetsHaveTitle'"
-          value="props.definition.dataSetsHaveTitle"
-          update.bind="onUpdateDataSetsHaveTitle"
-          label="'Use row ' + calculateHeaderPosition() + ' as headers'"
-        />
+        <Property property="d.dataSetsHaveTitle"/>
       </Section>
 
       <Section t-if="errorMessages.length">
