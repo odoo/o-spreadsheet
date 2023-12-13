@@ -1,6 +1,7 @@
 import { Range } from "../../types";
 import { XlsxHexColor } from "../xlsx";
 import { BarChartDefinition, BarChartRuntime } from "./bar_chart";
+import { ChoroplethChartDefinition, ChoroplethChartRuntime } from "./choropleth_chart";
 import { LegendPosition, VerticalAxisPosition } from "./common_chart";
 import { GaugeChartDefinition, GaugeChartRuntime } from "./gauge_chart";
 import { LineChartDefinition, LineChartRuntime } from "./line_chart";
@@ -14,13 +15,15 @@ export type ChartDefinition =
   | PieChartDefinition
   | BarChartDefinition
   | ScorecardChartDefinition
-  | GaugeChartDefinition;
+  | GaugeChartDefinition
+  | ChoroplethChartDefinition;
 
 export type ChartJSRuntime =
   | LineChartRuntime
   | PieChartRuntime
   | BarChartRuntime
-  | GaugeChartRuntime;
+  | GaugeChartRuntime
+  | ChoroplethChartRuntime;
 
 export type ChartRuntime = ChartJSRuntime | ScorecardChartRuntime;
 

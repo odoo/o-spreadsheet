@@ -335,6 +335,7 @@ Demo.template = xml/* xml */ `
   <div t-else="" class="vh-100">
     <Spreadsheet model="model" t-key="state.key"/>
   </div>
+  <!-- <canvas id="canvas"/> -->
 `;
 Demo.components = { Spreadsheet };
 
@@ -343,44 +344,48 @@ async function setup() {
   const templates = await (await fetch("../build/o_spreadsheet.xml")).text();
   start = Date.now();
 
+  const result = await fetch("https://unpkg.com/world-atlas/countries-110m.json");
+  const countries = await result.json();
+  window.countries = countries;
   const rootApp = new owl.App(Demo);
   rootApp.addTemplates(templates);
   await rootApp.mount(document.body, { dev: true });
-  const result = await fetch("https://unpkg.com/world-atlas/countries-50m.json");
-  const countries = await result.json();
-  window.countries = countries;
-  fetch("https://unpkg.com/world-atlas/countries-50m.json")
-    .then((r) => r.json())
-    .then((data) => {
-      const countries = ChartGeo.topojson.feature(data, data.objects.countries).features;
-
-      const chart = new Chart(document.getElementById("canvas").getContext("2d"), {
-        type: "choropleth",
-        data: {
-          labels: countries.map((d) => d.properties.name),
-          datasets: [
-            {
-              label: "Countries",
-              data: countries.map((d) => ({ feature: d, value: Math.random() })),
-            },
-          ],
-        },
-        options: {
-          showOutline: true,
-          showGraticule: true,
-          plugins: {
-            legend: {
-              display: false,
-            },
-          },
-          scales: {
-            projection: {
-              axis: "x",
-              projection: "equalEarth",
-            },
-          },
-        },
-      });
-    });
+  // fetch("https://unpkg.com/world-atlas/countries-110m.json")
+  //   .then((r) => r.json())
+  //   .then((data) => {
+  //     const countries = ChartGeo.topojson.feature(data, data.objects.countries).features;
+  //     // console.log(countries.map(d => d.properties.name));
+  //     const chart = new Chart(document.getElementById("canvas").getContext("2d"), {
+  //       type: "choropleth",
+  //       data: {
+  //         labels: countries.map((d) => d.properties.name === "Belgium" ? "Belgique" : d.properties.name),
+  //         datasets: [
+  //           {
+  //             label: "Countries",
+  //             data: countries.map((d) => ({ feature: d, value: Math.random() })),
+  //           },
+  //         ],
+  //       },
+  //       options: {
+  //         showOutline: true,
+  //         showGraticule: true,
+  //         plugins: {
+  //           legend: {
+  //             display: false,
+  //           },
+  //         },
+  //         scales: {
+  //           projection: {
+  //             axis: "x",
+  //             projection: "equalEarth",
+  //           },
+  //           color: {
+  //             axis: "x",
+  //             interpolate: "oranges",
+  //           },
+  //         },
+  //       },
+  //     });
+  //   });
 }
 whenReady(setup);

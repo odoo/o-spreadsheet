@@ -20,6 +20,7 @@ import {
 } from "../../../types";
 import { BarChartDefinition } from "../../../types/chart/bar_chart";
 import { DataSet, ExcelChartDataset } from "../../../types/chart/chart";
+import { ChoroplethChartDefinition } from "../../../types/chart/choropleth_chart";
 import { LineChartDefinition } from "../../../types/chart/line_chart";
 import { PieChartDefinition } from "../../../types/chart/pie_chart";
 import { BaselineArrowDirection, BaselineMode } from "../../../types/chart/scorecard_chart";
@@ -280,7 +281,11 @@ export function toExcelLabelRange(
  * with an executed command
  */
 export function transformChartDefinitionWithDataSetsWithZone<
-  T extends LineChartDefinition | BarChartDefinition | PieChartDefinition
+  T extends
+    | LineChartDefinition
+    | BarChartDefinition
+    | PieChartDefinition
+    | ChoroplethChartDefinition
 >(definition: T, executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand): T {
   let labelRange: string | undefined;
   if (definition.labelRange) {
@@ -343,7 +348,11 @@ export function chartFontColor(backgroundColor: Color | undefined): Color {
 }
 
 export function checkDataset(
-  definition: LineChartDefinition | BarChartDefinition | PieChartDefinition
+  definition:
+    | LineChartDefinition
+    | BarChartDefinition
+    | PieChartDefinition
+    | ChoroplethChartDefinition
 ): CommandResult {
   if (definition.dataSets) {
     const invalidRanges =
@@ -360,7 +369,11 @@ export function checkDataset(
 }
 
 export function checkLabelRange(
-  definition: LineChartDefinition | BarChartDefinition | PieChartDefinition
+  definition:
+    | LineChartDefinition
+    | BarChartDefinition
+    | PieChartDefinition
+    | ChoroplethChartDefinition
 ): CommandResult {
   if (definition.labelRange) {
     const invalidLabels = !rangeReference.test(definition.labelRange || "");

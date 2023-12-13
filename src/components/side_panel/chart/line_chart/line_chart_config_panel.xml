@@ -82,4 +82,40 @@
       </div>
     </div>
   </t>
+  <!-- 
+  <t t-name="o-spreadsheet-PROLinePanel">
+    <SidePanel>
+      <tab name="Config" icon="'fa-cog'">
+        <group>
+          <property name="stacked" widget="checkbox"/>
+          <property name="cumulative" widget="checkbox"/>
+        </group>
+        <group>
+          <property name="dataSeries" widget="selection_input"/>
+        </group>
+        <group>
+          <property name="labels" widget="selection_input"/>
+          <property name="aggregated" widget="checkbox"/>
+          <property name="labelsAsText" widget="checkbox"/>
+        </group>
+        <group t-if="calculateHeaderPosition()">
+          <property name="dataSetsHaveTitle" widget="checkbox" title="textHeaderPosition"/>
+        </group>
+        <group>
+          <property name="errorMessages" widget="validation_messages"/>
+        </group>
+      </tab>
+      <tab name="Design" icon="'fa-paint-brush'">
+        <group>
+          <property name="background" widget="color_picker"/>
+        </group>
+        <group>
+          <property name="title" widget="text"/>
+        </group>
+        <group>
+          <property name="verticalAxisPosition" widget="select" options="verticalAxisPositionOptions"/>
+          <property name="legendPosition" widget="select" options="legendPositionOptions"/>
+        </group>
+    </SidePanel>
+  </t> -->
 </templates>

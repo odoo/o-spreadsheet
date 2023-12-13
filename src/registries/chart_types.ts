@@ -3,6 +3,10 @@ import { ChartJsComponent } from "../components/figures/chart/chartJs/chartjs";
 import { ScorecardChart as ScorecardChartComponent } from "../components/figures/chart/scorecard/chart_scorecard";
 import { AbstractChart } from "../helpers/figures/charts/abstract_chart";
 import { BarChart, createBarChartRuntime } from "../helpers/figures/charts/bar_chart";
+import {
+  ChoroplethChart,
+  createChoroplethChartRuntime,
+} from "../helpers/figures/charts/choropleth_chart";
 import { GaugeChart, createGaugeChartRuntime } from "../helpers/figures/charts/gauge_chart";
 import { LineChart, createLineChartRuntime } from "../helpers/figures/charts/line_chart";
 import { PieChart, createPieChartRuntime } from "../helpers/figures/charts/pie_chart";
@@ -32,6 +36,7 @@ import {
   ChartRuntime,
   ChartType,
 } from "../types/chart/chart";
+import { ChoroplethChartDefinition } from "../types/chart/choropleth_chart";
 import { Validator } from "../types/validator";
 import { Registry } from "./registry";
 
@@ -150,16 +155,16 @@ chartRegistry.add("gauge", {
 chartRegistry.add("choropleth", {
   match: (type) => type === "choropleth",
   createChart: (definition, sheetId, getters) =>
-    new GaugeChart(definition as GaugeChartDefinition, sheetId, getters),
-  getChartRuntime: createGaugeChartRuntime,
+    new ChoroplethChart(definition as ChoroplethChartDefinition, sheetId, getters),
+  getChartRuntime: createChoroplethChartRuntime,
   validateChartDefinition: (validator, definition) =>
-    GaugeChart.validateChartDefinition(validator, definition as GaugeChartDefinition),
+    ChoroplethChart.validateChartDefinition(validator, definition as ChoroplethChartDefinition),
   transformDefinition: (
-    definition: GaugeChartDefinition,
+    definition: ChoroplethChartDefinition,
     executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ) => GaugeChart.transformDefinition(definition, executed),
+  ) => ChoroplethChart.transformDefinition(definition, executed),
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
-    GaugeChart.getDefinitionFromContextCreation(context),
+    ChoroplethChart.getDefinitionFromContextCreation(context),
   name: _t("Choropleth"), //TODOPRO Name this chart with a better name
   sequence: 60,
 });
@@ -169,4 +174,5 @@ chartComponentRegistry.add("line", ChartJsComponent);
 chartComponentRegistry.add("bar", ChartJsComponent);
 chartComponentRegistry.add("pie", ChartJsComponent);
 chartComponentRegistry.add("gauge", ChartJsComponent);
+chartComponentRegistry.add("choropleth", ChartJsComponent);
 chartComponentRegistry.add("scorecard", ScorecardChartComponent);

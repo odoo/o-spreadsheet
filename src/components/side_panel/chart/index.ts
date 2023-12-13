@@ -2,6 +2,8 @@ import { Component } from "@odoo/owl";
 import { Registry } from "../../../registries/registry";
 import { BarConfigPanel } from "./bar_chart/bar_chart_config_panel";
 import { BarChartDesignPanel } from "./bar_chart/bar_chart_design_panel";
+import { ChoroplethConfigPanel } from "./choropleth_chart_panel/choropleth_chart_config_panel";
+import { ChoroplethChartDesignPanel } from "./choropleth_chart_panel/choropleth_chart_design_panel";
 import { GaugeChartConfigPanel } from "./gauge_chart_panel/gauge_chart_config_panel";
 import { GaugeChartDesignPanel } from "./gauge_chart_panel/gauge_chart_design_panel";
 import { LineBarPieConfigPanel } from "./line_bar_pie_panel/config_panel";
@@ -45,6 +47,10 @@ chartSidePanelComponentRegistry
   .add("gauge", {
     configuration: GaugeChartConfigPanel,
     design: GaugeChartDesignPanel,
+  })
+  .add("choropleth", {
+    configuration: ChoroplethConfigPanel,
+    design: ChoroplethChartDesignPanel,
   })
   .add("scorecard", {
     configuration: ScorecardChartConfigPanel,

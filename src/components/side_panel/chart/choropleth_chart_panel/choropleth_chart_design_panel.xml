@@ -1,0 +1,5 @@
+<templates>
+  <t t-name="o-spreadsheet-ChoroplethChartDesignPanel">
+    <div>Salut</div>
+  </t>
+</templates>
