@@ -12,8 +12,8 @@ import {
   Color,
   CommandResult,
   CoreGetters,
+  Format,
   Getters,
-  Locale,
   Range,
   RemoveColumnsRowsCommand,
   UID,
@@ -22,19 +22,19 @@ import {
 } from "../../../types";
 import { ChartCreationContext } from "../../../types/chart/chart";
 import {
-  GaugeChartConfiguration,
   GaugeChartDefinition,
   GaugeChartRuntime,
+  GaugeValue,
   SectionRule,
+  SectionThreshold,
 } from "../../../types/chart/gauge_chart";
 import { Validator } from "../../../types/validator";
-import { clip } from "../../index";
+import { clip, formatValue } from "../../index";
 import { createRange } from "../../range";
 import { rangeReference } from "../../references";
 import { toUnboundedZone, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
-import { adaptChartRange, chartFontColor, copyLabelRangeWithNewSheetId } from "./chart_common";
-import { getDefaultChartJsRuntime } from "./chart_ui_common";
+import { adaptChartRange, copyLabelRangeWithNewSheetId } from "./chart_common";
 
 type RangeLimitsValidation = (rangeLimit: string, rangeLimitName: string) => CommandResult;
 type InflectionPointValueValidation = (
@@ -256,94 +256,15 @@ export class GaugeChart extends AbstractChart {
   }
 }
 
-function getGaugeConfiguration(chart: GaugeChart, locale: Locale): GaugeChartConfiguration {
-  const fontColor = chartFontColor(chart.background);
-  const config: GaugeChartConfiguration = getDefaultChartJsRuntime(chart, [], fontColor, {
-    locale,
-  }) as GaugeChartConfiguration;
-  config.options.hover = undefined;
-  config.options.events = [];
-  config.options.layout = {
-    padding: { left: 30, right: 30, top: chart.title ? 10 : 25, bottom: 25 },
-  };
-  config.options.needle = {
-    width: 10,
-    borderColor: "#000000",
-    backgroundColor: "#000000",
-  };
-  config.options.valueLabel = {
-    display: false,
-    font: {
-      size: 30,
-      color: "#FFFFFF",
-    },
-    backgroundColor: "#000000",
-    borderColor: "#000000",
-    borderRadius: 5,
-    padding: {
-      top: 5,
-      right: 5,
-      bottom: 5,
-      left: 5,
-    },
-  };
-  return config;
-}
-
 export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): GaugeChartRuntime {
   const locale = getters.getLocale();
-  const config = getGaugeConfiguration(chart, locale);
-  const colors = chart.sectionRule.colors;
+  const chartColors = chart.sectionRule.colors;
 
-  const lowerPoint = chart.sectionRule.lowerInflectionPoint;
-  const upperPoint = chart.sectionRule.upperInflectionPoint;
-  const lowerPointValue = Number(lowerPoint.value);
-  const upperPointValue = Number(upperPoint.value);
-  const minNeedleValue = Number(chart.sectionRule.rangeMin);
-  const maxNeedleValue = Number(chart.sectionRule.rangeMax);
-  const needleCoverage = maxNeedleValue - minNeedleValue;
-
-  const needleInflectionPoint: { value: number; color: string }[] = [];
-
-  if (lowerPoint.value !== "") {
-    const lowerPointNeedleValue =
-      lowerPoint.type === "number"
-        ? lowerPointValue
-        : minNeedleValue + (needleCoverage * lowerPointValue) / 100;
-    needleInflectionPoint.push({
-      value: clip(lowerPointNeedleValue, minNeedleValue, maxNeedleValue),
-      color: colors.lowerColor,
-    });
-  }
-
-  if (upperPoint.value !== "") {
-    const upperPointNeedleValue =
-      upperPoint.type === "number"
-        ? upperPointValue
-        : minNeedleValue + (needleCoverage * upperPointValue) / 100;
-    needleInflectionPoint.push({
-      value: clip(upperPointNeedleValue, minNeedleValue, maxNeedleValue),
-      color: colors.middleColor,
-    });
-  }
-
-  const data: number[] = [];
-  const backgroundColor: Color[] = [];
-  needleInflectionPoint
-    .sort((a, b) => a.value - b.value)
-    .map((point) => {
-      data.push(point.value);
-      backgroundColor.push(point.color);
-    });
-  data.push(maxNeedleValue);
-  backgroundColor.push(colors.upperColor);
+  let gaugeValue: number | undefined = undefined;
+  let formattedValue: string | undefined = undefined;
+  let format: Format | undefined = undefined;
 
   const dataRange = chart.dataRange;
-  const deltaBeyondRangeLimit = needleCoverage / 30;
-  let needleValue = minNeedleValue - deltaBeyondRangeLimit; // make needle value always at the minimum by default
-  let cellFormatter: (() => string) | undefined = undefined;
-  let displayValue = false;
-
   if (dataRange !== undefined) {
     const cell = getters.getEvaluatedCell({
       sheetId: dataRange.sheetId,
@@ -351,33 +272,81 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
       row: dataRange.zone.top,
     });
     if (cell.type === CellValueType.number) {
-      // in gauge graph "datasets.value" is used to calculate the angle of the
-      // needle in the graph. To prevent the needle from making 360° turns, we
-      // clip the value between a min and a max. This min and this max are slightly
-      // smaller and slightly larger than minRange and maxRange to mark the fact
-      // that the needle is out of the range limits
-      needleValue = clip(
-        cell.value,
-        minNeedleValue - deltaBeyondRangeLimit,
-        maxNeedleValue + deltaBeyondRangeLimit
-      );
-      // show the original value, not the clipped one
-      cellFormatter = () => getters.getRangeFormattedValues(dataRange)[0];
-      displayValue = true;
+      gaugeValue = cell.value;
+      formattedValue = cell.formattedValue;
+      format = cell.format;
     }
   }
 
-  config.options.valueLabel!.display = displayValue;
-  config.options.valueLabel!.formatter = cellFormatter;
-  config.data!.datasets!.push({
-    data,
-    minValue: Number(chart.sectionRule.rangeMin),
-    value: needleValue,
-    backgroundColor,
-  });
+  const minValue = Number(chart.sectionRule.rangeMin);
+  const maxValue = Number(chart.sectionRule.rangeMax);
+  const lowerPoint = chart.sectionRule.lowerInflectionPoint;
+  const upperPoint = chart.sectionRule.upperInflectionPoint;
+  const lowerPointValue = getSectionThresholdValue(lowerPoint, minValue, maxValue);
+  const upperPointValue = getSectionThresholdValue(upperPoint, minValue, maxValue);
+
+  const inflectionValues: GaugeValue[] = [];
+  const colors: Color[] = [];
+
+  if (lowerPointValue !== undefined) {
+    inflectionValues.push({
+      value: lowerPointValue,
+      label: formatValue(lowerPointValue, { locale, format }),
+    });
+    colors.push(chartColors.lowerColor);
+  }
+
+  if (upperPointValue !== undefined && upperPointValue !== lowerPointValue) {
+    inflectionValues.push({
+      value: upperPointValue,
+      label: formatValue(upperPointValue, { locale, format }),
+    });
+    colors.push(chartColors.middleColor);
+  }
+
+  if (
+    upperPointValue !== undefined &&
+    lowerPointValue !== undefined &&
+    lowerPointValue > upperPointValue
+  ) {
+    inflectionValues.reverse();
+    colors.reverse();
+  }
+
+  colors.push(chartColors.upperColor);
 
   return {
-    chartJsConfig: config,
     background: getters.getStyleOfSingleCellChart(chart.background, dataRange).background,
+    title: chart.title,
+    minValue: {
+      value: minValue,
+      label: formatValue(minValue, { locale, format }),
+    },
+    maxValue: {
+      value: maxValue,
+      label: formatValue(maxValue, { locale, format }),
+    },
+    gaugeValue:
+      gaugeValue !== undefined && formattedValue
+        ? { value: gaugeValue, label: formattedValue }
+        : undefined,
+    inflectionValues,
+    colors,
   };
+}
+
+function getSectionThresholdValue(
+  threshold: SectionThreshold,
+  minValue: number,
+  maxValue: number
+): number | undefined {
+  if (threshold.value === "" || isNaN(Number(threshold.value))) {
+    return undefined;
+  }
+  const numberValue = Number(threshold.value);
+  const value =
+    threshold.type === "number"
+      ? numberValue
+      : minValue + ((maxValue - minValue) * numberValue) / 100;
+  return clip(value, minValue, maxValue);
 }

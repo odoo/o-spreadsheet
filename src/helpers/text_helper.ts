@@ -36,8 +36,13 @@ export function getDefaultCellHeight(
 
 const textWidthCache: Record<string, Record<string, number>> = {};
 
-export function computeTextWidth(context: CanvasRenderingContext2D, text: string, style: Style) {
-  const font = computeTextFont(style);
+export function computeTextWidth(
+  context: CanvasRenderingContext2D,
+  text: string,
+  style: Style,
+  fontUnit: "px" | "pt" = "pt"
+) {
+  const font = computeTextFont(style, fontUnit);
   if (!textWidthCache[font]) {
     textWidthCache[font] = {};
   }
@@ -55,11 +60,11 @@ export function fontSizeInPixels(fontSize: number) {
   return Math.round((fontSize * 96) / 72);
 }
 
-export function computeTextFont(style: Style): string {
+export function computeTextFont(style: Style, fontUnit: "px" | "pt" = "pt"): string {
   const italic = style.italic ? "italic " : "";
   const weight = style.bold ? "bold" : DEFAULT_FONT_WEIGHT;
-  const size = computeTextFontSizeInPixels(style);
-  return `${italic}${weight} ${size}px ${DEFAULT_FONT}`;
+  const size = fontUnit === "pt" ? computeTextFontSizeInPixels(style) : style.fontSize;
+  return `${italic}${weight} ${size ?? DEFAULT_FONT_SIZE}px ${DEFAULT_FONT}`;
 }
 
 export function computeTextFontSizeInPixels(style?: Style): number {

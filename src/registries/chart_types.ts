@@ -1,5 +1,6 @@
 import { Component } from "@odoo/owl";
 import { ChartJsComponent } from "../components/figures/chart/chartJs/chartjs";
+import { GaugeChartComponent } from "../components/figures/chart/gauge/gauge_chart_component";
 import { ScorecardChart as ScorecardChartComponent } from "../components/figures/chart/scorecard/chart_scorecard";
 import { AbstractChart } from "../helpers/figures/charts/abstract_chart";
 import { BarChart, createBarChartRuntime } from "../helpers/figures/charts/bar_chart";
@@ -170,6 +171,6 @@ export const chartComponentRegistry = new Registry<new (...args: any) => Compone
 chartComponentRegistry.add("line", ChartJsComponent);
 chartComponentRegistry.add("bar", ChartJsComponent);
 chartComponentRegistry.add("pie", ChartJsComponent);
-chartComponentRegistry.add("gauge", ChartJsComponent);
+chartComponentRegistry.add("gauge", GaugeChartComponent);
 chartComponentRegistry.add("scatter", ChartJsComponent);
 chartComponentRegistry.add("scorecard", ScorecardChartComponent);

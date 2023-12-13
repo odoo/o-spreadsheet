@@ -3,187 +3,61 @@
 exports[`datasource tests create a gauge chart 1`] = `
 {
   "background": "#FFFFFF",
-  "chartJsConfig": {
-    "data": {
-      "datasets": [
-        {
-          "backgroundColor": [
-            "#999999",
-            "#111111",
-            "#dddddd",
-          ],
-          "data": [
-            70,
-            150,
-            500,
-          ],
-          "minValue": -200,
-          "value": -223.33333333333334,
-        },
-      ],
-      "labels": [],
+  "colors": [
+    "#999999",
+    "#111111",
+    "#dddddd",
+  ],
+  "gaugeValue": undefined,
+  "inflectionValues": [
+    {
+      "label": "70",
+      "value": 70,
     },
-    "options": {
-      "animation": false,
-      "elements": {
-        "line": {
-          "fill": false,
-        },
-        "point": {
-          "hitRadius": 15,
-        },
-      },
-      "events": [],
-      "hover": undefined,
-      "layout": {
-        "padding": {
-          "bottom": 25,
-          "left": 30,
-          "right": 30,
-          "top": 10,
-        },
-      },
-      "maintainAspectRatio": false,
-      "needle": {
-        "backgroundColor": "#000000",
-        "borderColor": "#000000",
-        "width": 10,
-      },
-      "plugins": {
-        "legend": {
-          "onClick": [Function],
-        },
-        "title": {
-          "color": "#000000",
-          "display": true,
-          "font": {
-            "size": 22,
-            "weight": "normal",
-          },
-          "text": "Title",
-        },
-        "tooltip": {
-          "callbacks": {
-            "label": [Function],
-          },
-        },
-      },
-      "responsive": true,
-      "valueLabel": {
-        "backgroundColor": "#000000",
-        "borderColor": "#000000",
-        "borderRadius": 5,
-        "display": false,
-        "font": {
-          "color": "#FFFFFF",
-          "size": 30,
-        },
-        "formatter": undefined,
-        "padding": {
-          "bottom": 5,
-          "left": 5,
-          "right": 5,
-          "top": 5,
-        },
-      },
+    {
+      "label": "150",
+      "value": 150,
     },
-    "platform": undefined,
-    "plugins": [],
-    "type": "gauge",
+  ],
+  "maxValue": {
+    "label": "500",
+    "value": 500,
   },
+  "minValue": {
+    "label": "-200",
+    "value": -200,
+  },
+  "title": "Title",
 }
 `;
 
 exports[`datasource tests create empty gauge chart 1`] = `
 {
   "background": "#FFFFFF",
-  "chartJsConfig": {
-    "data": {
-      "datasets": [
-        {
-          "backgroundColor": [
-            "#6aa84f",
-            "#f1c232",
-            "#cc0000",
-          ],
-          "data": [
-            33,
-            66,
-            100,
-          ],
-          "minValue": 0,
-          "value": -3.3333333333333335,
-        },
-      ],
-      "labels": [],
+  "colors": [
+    "#6aa84f",
+    "#f1c232",
+    "#cc0000",
+  ],
+  "gaugeValue": undefined,
+  "inflectionValues": [
+    {
+      "label": "33",
+      "value": 33,
     },
-    "options": {
-      "animation": false,
-      "elements": {
-        "line": {
-          "fill": false,
-        },
-        "point": {
-          "hitRadius": 15,
-        },
-      },
-      "events": [],
-      "hover": undefined,
-      "layout": {
-        "padding": {
-          "bottom": 25,
-          "left": 30,
-          "right": 30,
-          "top": 25,
-        },
-      },
-      "maintainAspectRatio": false,
-      "needle": {
-        "backgroundColor": "#000000",
-        "borderColor": "#000000",
-        "width": 10,
-      },
-      "plugins": {
-        "legend": {
-          "onClick": [Function],
-        },
-        "title": {
-          "color": "#000000",
-          "display": false,
-          "font": {
-            "size": 22,
-            "weight": "normal",
-          },
-          "text": "",
-        },
-        "tooltip": {
-          "callbacks": {
-            "label": [Function],
-          },
-        },
-      },
-      "responsive": true,
-      "valueLabel": {
-        "backgroundColor": "#000000",
-        "borderColor": "#000000",
-        "borderRadius": 5,
-        "display": false,
-        "font": {
-          "color": "#FFFFFF",
-          "size": 30,
-        },
-        "formatter": undefined,
-        "padding": {
-          "bottom": 5,
-          "left": 5,
-          "right": 5,
-          "top": 5,
-        },
-      },
+    {
+      "label": "66",
+      "value": 66,
     },
-    "platform": undefined,
-    "plugins": [],
-    "type": "gauge",
+  ],
+  "maxValue": {
+    "label": "100",
+    "value": 100,
   },
+  "minValue": {
+    "label": "0",
+    "value": 0,
+  },
+  "title": "",
 }
 `;

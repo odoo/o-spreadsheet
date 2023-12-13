@@ -3,11 +3,13 @@ import { ChartTerms } from "../../../components/translations_terms";
 import { MAX_CHAR_LABEL } from "../../../constants";
 import { _t } from "../../../translation";
 import { Color, Figure, Format, Getters, LocaleFormat, Range } from "../../../types";
+import { GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
 import { ChartRuntime, DataSet, DatasetValues, LabelValues } from "../../../types/chart/chart";
 import { formatValue, isDateTimeFormat } from "../../format";
 import { range } from "../../misc";
 import { recomputeZones, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
+import { drawGaugeChart } from "./gauge_chart_rendering";
 import { drawScoreChart } from "./scorecard_chart";
 import { getScorecardConfiguration } from "./scorecard_chart_config_builder";
 /**
@@ -246,7 +248,11 @@ export function getFillingMode(index: number): "origin" | number {
   }
 }
 
-export function chartToImage(runtime: ChartRuntime, figure: Figure, type: string) {
+export function chartToImage(
+  runtime: ChartRuntime,
+  figure: Figure,
+  type: string
+): string | undefined {
   // wrap the canvas in a div with a fixed size because chart.js would
   // fill the whole page otherwise
   const div = document.createElement("div");
@@ -262,18 +268,23 @@ export function chartToImage(runtime: ChartRuntime, figure: Figure, type: string
     runtime.chartJsConfig.plugins = [backgroundColorChartJSPlugin];
     // @ts-ignore
     const chart = new window.Chart(canvas, runtime.chartJsConfig);
-    const imgContent = chart.toBase64Image();
+    const imgContent = chart.toBase64Image() as string;
     chart.destroy();
     div.remove();
     return imgContent;
   } else if (type === "scorecard") {
-    const design = getScorecardConfiguration(figure, runtime);
+    const design = getScorecardConfiguration(figure, runtime as ScorecardChartRuntime);
     drawScoreChart(design, canvas);
     const imgContent = canvas.toDataURL();
     div.remove();
     return imgContent;
+  } else if (type === "gauge") {
+    drawGaugeChart(canvas, runtime as GaugeChartRuntime);
+    const imgContent = canvas.toDataURL();
+    div.remove();
+    return imgContent;
   }
-  return "";
+  return undefined;
 }
 
 /**

@@ -1,4 +1,4 @@
-import type { ChartConfiguration, ChartData, ChartDataset, ChartOptions } from "chart.js";
+import type { ChartOptions } from "chart.js";
 import { Color } from "../misc";
 
 export interface GaugeChartDefinition {
@@ -23,34 +23,32 @@ interface ColorSet {
   readonly upperColor: Color;
 }
 
-interface SectionThreshold {
+export interface SectionThreshold {
   readonly type: "number" | "percentage";
   readonly value: string;
 }
 
-export interface GaugeChartConfiguration extends Omit<ChartConfiguration, "data" | "options"> {
-  data?: GaugeChartData;
-  options: GaugeChartOptions;
+export interface GaugeValue {
+  value: number;
+  label: string;
 }
 
 export interface GaugeChartRuntime {
-  chartJsConfig: GaugeChartConfiguration;
   background: Color;
-}
-
-interface GaugeChartData extends Omit<ChartData, "datasets"> {
-  datasets: GaugeChartDataSets[];
-}
-
-interface GaugeChartDataSets extends ChartDataset<"doughnut"> {
-  readonly minValue?: number;
-  readonly value?: number | undefined;
-  readonly backgroundColor?: string[];
+  title: string;
+  minValue: GaugeValue;
+  maxValue: GaugeValue;
+  gaugeValue?: GaugeValue;
+  inflectionValues: GaugeValue[];
+  colors: Color[];
 }
 
 export interface GaugeChartOptions extends ChartOptions {
   needle?: NeedleOptions;
   valueLabel?: ValueLabelOptions;
+  inflectionValues: InflectionValuesOptions[];
+  minValue: string;
+  maxValue: string;
 }
 
 export interface NeedleOptions {
@@ -61,6 +59,12 @@ export interface NeedleOptions {
    * Needle width as the percentage of the chart area width
    */
   width?: number;
+}
+
+export interface InflectionValuesOptions {
+  value: number;
+  color: Color;
+  label: string;
 }
 
 export interface ValueLabelOptions {
