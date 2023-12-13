@@ -19,7 +19,7 @@
           t-on-dblclick="() => this.onDblClick()"
           t-on-focusout="() => this.onFocusOut()"
           t-on-keydown="(ev) => this.onKeyDown(ev)"
-          t-att-contenteditable="state.isEditing.toString()"
+          t-att-contenteditable="state.isEditing ? 'plaintext-only': 'false'"
         />
         <span class="o-sheet-icon ms-1" t-on-click.stop="(ev) => this.onIconClick(ev)">
           <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
