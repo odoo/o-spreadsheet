@@ -106,11 +106,10 @@ export function addRows(
           ));
         }
         attributes.push(...additionalAttrs);
-        cellNodes.push(escapeXml/*xml*/ `
-          <c ${formatAttributes(attributes)}>
-            ${cellNode}
-          </c>
-        `);
+        // prettier-ignore
+        cellNodes.push(escapeXml/*xml*/ `<c ${formatAttributes(attributes)}>
+  ${cellNode}
+</c>`);
       }
     }
     if (
