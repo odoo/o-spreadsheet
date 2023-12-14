@@ -186,10 +186,7 @@ export const freezeCurrentCol: ActionSpec = {
 };
 
 export const viewGridlines: ActionSpec = {
-  name: (env: SpreadsheetChildEnv) =>
-    env.model.getters.getGridLinesVisibility(env.model.getters.getActiveSheetId())
-      ? _t("Hide gridlines")
-      : _t("Show gridlines"),
+  name: _t("Gridlines"),
   execute: (env) => {
     const sheetId = env.model.getters.getActiveSheetId();
     env.model.dispatch("SET_GRID_LINES_VISIBILITY", {
@@ -197,16 +194,18 @@ export const viewGridlines: ActionSpec = {
       areGridLinesVisible: !env.model.getters.getGridLinesVisibility(sheetId),
     });
   },
-  icon: "o-spreadsheet-Icon.SHOW_HIDE_GRID",
+  isActive: (env) => {
+    const sheetId = env.model.getters.getActiveSheetId();
+    return env.model.getters.getGridLinesVisibility(sheetId);
+  },
 };
 
 export const viewFormulas: ActionSpec = {
-  name: (env: SpreadsheetChildEnv) =>
-    env.model.getters.shouldShowFormulas() ? "Hide formulas" : _t("Show formulas"),
+  name: _t("Formulas"),
+  isActive: (env: SpreadsheetChildEnv) => env.model.getters.shouldShowFormulas(),
   execute: (env) =>
     env.model.dispatch("SET_FORMULA_VISIBILITY", { show: !env.model.getters.shouldShowFormulas() }),
   isReadonlyAllowed: true,
-  icon: "o-spreadsheet-Icon.SHOW_HIDE_FORMULA",
 };
 
 export const createRemoveFilter: ActionSpec = {

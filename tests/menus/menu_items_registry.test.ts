@@ -1534,7 +1534,7 @@ describe("Menu Item actions", () => {
   });
 
   test("View -> Set gridlines visibility", () => {
-    const path_gridlines = ["view", "view_gridlines"];
+    const path_gridlines = ["view", "show", "view_gridlines"];
     const sheetId = model.getters.getActiveSheetId();
 
     model.dispatch("SET_GRID_LINES_VISIBILITY", {
@@ -1542,15 +1542,17 @@ describe("Menu Item actions", () => {
       areGridLinesVisible: true,
     });
 
-    expect(getName(path_gridlines, env)).toBe("Hide gridlines");
+    expect(getName(path_gridlines, env)).toBe("Gridlines");
     expect(getNode(path_gridlines).isVisible(env)).toBeTruthy();
+    expect(getNode(path_gridlines).isActive?.(env)).toBeTruthy();
 
     model.dispatch("SET_GRID_LINES_VISIBILITY", {
       sheetId,
       areGridLinesVisible: false,
     });
-    expect(getName(path_gridlines, env)).toBe("Show gridlines");
+    expect(getName(path_gridlines, env)).toBe("Gridlines");
     expect(getNode(path_gridlines).isVisible(env)).toBeTruthy();
+    expect(getNode(path_gridlines).isActive?.(env)).toBeFalsy();
 
     doAction(path_gridlines, env);
     expect(dispatch).toHaveBeenCalledWith("SET_GRID_LINES_VISIBILITY", {
@@ -1570,15 +1572,19 @@ describe("Menu Item actions", () => {
   });
 
   test("View -> show formulas", async () => {
-    const path_gridlines = ["view", "view_formulas"];
+    const path_formulas = ["view", "show", "view_formulas"];
     expect(model.getters.shouldShowFormulas()).toBe(false);
 
-    expect(getName(path_gridlines, env)).toBe("Show formulas");
-    doAction(path_gridlines, env);
+    expect(getName(path_formulas, env)).toBe("Formulas");
+    expect(getNode(path_formulas).isVisible(env)).toBeTruthy();
+    expect(getNode(path_formulas).isActive?.(env)).toBeFalsy();
+    doAction(path_formulas, env);
     expect(model.getters.shouldShowFormulas()).toBe(true);
 
-    expect(getName(path_gridlines, env)).toBe("Hide formulas");
-    doAction(path_gridlines, env);
+    expect(getName(path_formulas, env)).toBe("Formulas");
+    expect(getNode(path_formulas).isVisible(env)).toBeTruthy();
+    expect(getNode(path_formulas).isActive?.(env)).toBeTruthy();
+    doAction(path_formulas, env);
     expect(model.getters.shouldShowFormulas()).toBe(false);
   });
 

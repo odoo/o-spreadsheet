@@ -182,13 +182,18 @@ topbarMenuRegistry
     isVisible: (env) => ACTION_VIEW.canUngroupHeaders(env, "ROW"),
     sequence: 20,
   })
-  .addChild("view_gridlines", ["view"], {
-    ...ACTION_VIEW.viewGridlines,
-    sequence: 15,
+  .addChild("show", ["view"], {
+    name: _t("Show"),
+    sequence: 1,
+    icon: "o-spreadsheet-Icon.SHOW",
   })
-  .addChild("view_formulas", ["view"], {
+  .addChild("view_gridlines", ["view", "show"], {
+    ...ACTION_VIEW.viewGridlines,
+    sequence: 5,
+  })
+  .addChild("view_formulas", ["view", "show"], {
     ...ACTION_VIEW.viewFormulas,
-    sequence: 20,
+    sequence: 10,
   })
 
   // ---------------------------------------------------------------------
