@@ -238,6 +238,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           format: cell.format ? getItemId<Format>(cell.format, formats) : undefined,
           content: cell.content || undefined,
         };
+
+        // if there is a formula but no dependencies (maybe because the cell is in error), no need to recompute the formula text
+        if (cell.isFormula && cell.dependencies.length) {
+          cells[xc].content = this.buildFormulaContent(_sheet.id, cell, cell.dependencies, true);
+        }
       }
       _sheet.cells = cells;
     }
@@ -285,7 +290,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   buildFormulaContent(
     sheetId: UID,
     cell: Pick<FormulaCell, "dependencies" | "compiledFormula">,
-    dependencies?: Range[]
+    dependencies?: Range[],
+    useFixedZone: boolean = false
   ): string {
     const ranges = dependencies || cell.dependencies;
     let rangeIndex = 0;
@@ -293,7 +299,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       cell.compiledFormula.tokens.map((token) => {
         if (token.type === "REFERENCE") {
           const range = ranges[rangeIndex++];
-          return this.getters.getRangeString(range, sheetId);
+          return this.getters.getRangeString(range, sheetId, useFixedZone);
         }
         return token.value;
       })
