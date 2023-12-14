@@ -76,6 +76,7 @@ import {
   overlap,
   parseMarkdownLink,
   positionToZone,
+  reduceZoneOnDeletion,
   rgbaToHex,
   toCartesian,
   toUnboundedZone,
@@ -260,6 +261,7 @@ export const helpers = {
   union,
   deepCopy,
   expandZoneOnInsertion,
+  reduceZoneOnDeletion,
 };
 
 export const links = {
