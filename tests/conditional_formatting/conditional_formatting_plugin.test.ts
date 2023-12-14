@@ -84,7 +84,7 @@ describe("conditional format", () => {
           },
         },
         id: "2",
-        ranges: ["A1:A100"],
+        ranges: ["A:A"],
       },
       {
         rule: {
@@ -96,7 +96,7 @@ describe("conditional format", () => {
           },
         },
         id: "3",
-        ranges: ["A3:A100"],
+        ranges: ["A3:A"],
       },
       {
         rule: {
@@ -108,7 +108,7 @@ describe("conditional format", () => {
           },
         },
         id: "4",
-        ranges: ["C3:Z3"],
+        ranges: ["C3:3"],
       },
     ]);
     expect(getStyle(model, "A1")).toEqual({});

@@ -329,9 +329,10 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
    *
    * @param range the range (received from getRangeFromXC or getRangeFromZone)
    * @param forSheetId the id of the sheet where the range string is supposed to be used.
-   * @param [useFixedZone=false] if true, the range will be returned with fixed row and column
+   * @param options
+   * @param options.useFixedReference if true, the range will be returned with fixed row and column
    */
-  getRangeString(range: Range, forSheetId: UID, useFixedZone: boolean = false): string {
+  getRangeString(range: Range, forSheetId: UID, options = { useFixedReference: false }): string {
     if (!range) {
       return INCORRECT_RANGE_STRING;
     }
@@ -360,7 +361,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
       return INCORRECT_RANGE_STRING;
     }
 
-    let rangeString = this.getRangePartString(rangeImpl, 0, useFixedZone);
+    let rangeString = this.getRangePartString(rangeImpl, 0, options);
     if (rangeImpl.parts && rangeImpl.parts.length === 2) {
       // this if converts A2:A2 into A2 except if any part of the original range had fixed row or column (with $)
       if (
@@ -372,7 +373,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
         rangeImpl.parts[1].colFixed
       ) {
         rangeString += ":";
-        rangeString += this.getRangePartString(rangeImpl, 1, useFixedZone);
+        rangeString += this.getRangePartString(rangeImpl, 1, options);
       }
     }
 
@@ -424,20 +425,24 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   /**
    * Get a Xc string that represent a part of a range
    */
-  private getRangePartString(range: RangeImpl, part: 0 | 1, useFixedZone: boolean = false): string {
+  private getRangePartString(
+    range: RangeImpl,
+    part: 0 | 1,
+    options: { useFixedReference: boolean } = { useFixedReference: false }
+  ): string {
     const colFixed = range.parts && range.parts[part]?.colFixed ? "$" : "";
     const col = part === 0 ? numberToLetters(range.zone.left) : numberToLetters(range.zone.right);
     const rowFixed = range.parts && range.parts[part]?.rowFixed ? "$" : "";
     const row = part === 0 ? String(range.zone.top + 1) : String(range.zone.bottom + 1);
 
     let str = "";
-    if (range.isFullCol && !useFixedZone) {
+    if (range.isFullCol && !options.useFixedReference) {
       if (part === 0 && range.unboundedZone.hasHeader) {
         str = colFixed + col + rowFixed + row;
       } else {
         str = colFixed + col;
       }
-    } else if (range.isFullRow && !useFixedZone) {
+    } else if (range.isFullRow && !options.useFixedReference) {
       if (part === 0 && range.unboundedZone.hasHeader) {
         str = colFixed + col + rowFixed + row;
       } else {
