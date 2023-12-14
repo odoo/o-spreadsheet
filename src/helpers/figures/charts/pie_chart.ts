@@ -161,6 +161,9 @@ export class PieChart extends AbstractChart {
       .filter((ds) => ds.range !== ""); // && range !== INCORRECT_RANGE_STRING ? show incorrect #ref ?
     return {
       ...this.getDefinition(),
+      labelRange: this.labelRange
+        ? this.getters.getRangeString(this.labelRange, this.sheetId, true)
+        : undefined,
       backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
       verticalAxisPosition: "left", //TODO ExcelChartDefinition should be adapted, but can be done later
