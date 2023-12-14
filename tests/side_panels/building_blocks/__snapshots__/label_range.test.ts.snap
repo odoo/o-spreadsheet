@@ -1,0 +1,112 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Label range Can add options to the label range component 1`] = `
+<div>
+  <div
+    class="container"
+  >
+    <div
+      class="o-section o-data-labels"
+    >
+      <div
+        class="o-section-title"
+      >
+        Categories / Labels
+      </div>
+      
+      <div
+        class="o-selection"
+      >
+        <div
+          class="o-selection-input d-flex flex-row"
+        >
+          <div
+            class="position-relative w-100"
+          >
+            <input
+              class="w-100 o-optional"
+              spellcheck="false"
+              style="color: #000;"
+              type="text"
+            />
+            
+          </div>
+          
+        </div>
+        
+        
+        <div
+          class="o-selection-input d-flex flex-row"
+        >
+          
+          
+          
+        </div>
+      </div>
+      <label
+        class="o-checkbox"
+      >
+        <input
+          class="align-middle"
+          name="my_option"
+          type="checkbox"
+        />
+        My option
+        
+      </label>
+      
+      
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Label range Can render a label range component 1`] = `
+<div>
+  <div
+    class="container"
+  >
+    <div
+      class="o-section o-data-labels"
+    >
+      <div
+        class="o-section-title"
+      >
+        Categories / Labels
+      </div>
+      
+      <div
+        class="o-selection"
+      >
+        <div
+          class="o-selection-input d-flex flex-row"
+        >
+          <div
+            class="position-relative w-100"
+          >
+            <input
+              class="w-100 o-optional"
+              spellcheck="false"
+              style="color: #000;"
+              type="text"
+            />
+            
+          </div>
+          
+        </div>
+        
+        
+        <div
+          class="o-selection-input d-flex flex-row"
+        >
+          
+          
+          
+        </div>
+      </div>
+      
+      
+    </div>
+  </div>
+</div>
+`;
