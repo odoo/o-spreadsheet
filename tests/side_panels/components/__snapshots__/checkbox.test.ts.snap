@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Checkbox Can render a checkbox 1`] = `
+<div>
+  <div
+    class="container"
+  >
+    <label
+      class="o-checkbox"
+    >
+      <input
+        class="align-middle"
+        type="checkbox"
+      />
+      
+    </label>
+  </div>
+</div>
+`;
