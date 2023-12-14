@@ -173,7 +173,15 @@ export class ConditionalFormatPlugin
   }
 
   exportForExcel(data: ExcelWorkbookData) {
-    this.export(data);
+    if (data.sheets) {
+      for (let sheet of data.sheets) {
+        if (this.cfRules[sheet.id]) {
+          sheet.conditionalFormats = this.cfRules[sheet.id].map((rule) =>
+            this.mapToConditionalFormat(sheet.id, rule, { useFixedReference: true })
+          );
+        }
+      }
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -250,11 +258,15 @@ export class ConditionalFormatPlugin
   // Private
   // ---------------------------------------------------------------------------
 
-  private mapToConditionalFormat(sheetId: UID, cf: ConditionalFormatInternal): ConditionalFormat {
+  private mapToConditionalFormat(
+    sheetId: UID,
+    cf: ConditionalFormatInternal,
+    { useFixedReference } = { useFixedReference: false }
+  ): ConditionalFormat {
     return {
       ...cf,
       ranges: cf.ranges.map((range) => {
-        return this.getters.getRangeString(range, sheetId, true);
+        return this.getters.getRangeString(range, sheetId, { useFixedReference });
       }),
     };
   }
@@ -452,6 +464,7 @@ export class ConditionalFormatPlugin
     }
     return CommandResult.Success;
   }
+
   private checkMinBiggerThanMax(rule: ColorScaleRule): CommandResult {
     const minValue = rule.minimum.value;
     const maxValue = rule.maximum.value;

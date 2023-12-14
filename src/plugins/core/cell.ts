@@ -326,14 +326,15 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   private getFormulaCellContent(
     sheetId: UID,
     compiledFormula: RangeCompiledFormula,
-    dependencies: Range[]
+    dependencies: Range[],
+    useFixedReference: boolean = false
   ): string {
     let rangeIndex = 0;
     return concat(
       compiledFormula.tokens.map((token) => {
         if (token.type === "REFERENCE") {
           const range = dependencies[rangeIndex++];
-          return this.getters.getRangeString(range, sheetId);
+          return this.getters.getRangeString(range, sheetId, { useFixedReference });
         }
         return token.value;
       })
@@ -665,14 +666,18 @@ class FormulaCellWithDependencies implements FormulaCell {
     readonly style: Style | undefined,
     dependencies: Range[],
     private readonly sheetId: UID,
-    private readonly getRangeString: (range: Range, sheetId: UID, boolean) => string
+    private readonly getRangeString: (
+      range: Range,
+      sheetId: UID,
+      option?: { useFixedReference: boolean }
+    ) => string
   ) {
     let rangeIndex = 0;
     const tokens = compiledFormula.tokens.map((token) => {
       if (token.type === "REFERENCE") {
         const index = rangeIndex++;
         return new RangeReferenceToken(() =>
-          this.getRangeString(dependencies[index], this.sheetId, false)
+          this.getRangeString(dependencies[index], this.sheetId)
         );
       }
       return token;
@@ -694,7 +699,9 @@ class FormulaCellWithDependencies implements FormulaCell {
       this.compiledFormula.tokens.map((token) => {
         if (token.type === "REFERENCE") {
           const index = rangeIndex++;
-          return this.getRangeString(this.compiledFormula.dependencies[index], this.sheetId, true);
+          return this.getRangeString(this.compiledFormula.dependencies[index], this.sheetId, {
+            useFixedReference: true,
+          });
         }
         return token.value;
       })
