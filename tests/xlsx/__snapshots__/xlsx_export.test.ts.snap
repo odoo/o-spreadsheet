@@ -15004,6 +15004,56 @@ exports[`Test XLSX export formulas All non-exportable formulas 1`] = `
                     1
                 </v>
             </c>
+            <c r="B3" s="1">
+            </c>
+            <c r="C3" s="1">
+            </c>
+            <c r="D3" s="1">
+            </c>
+            <c r="E3" s="1">
+            </c>
+            <c r="F3" s="1">
+            </c>
+            <c r="G3" s="1">
+            </c>
+            <c r="H3" s="1">
+            </c>
+            <c r="I3" s="1">
+            </c>
+            <c r="J3" s="1">
+            </c>
+            <c r="K3" s="1">
+            </c>
+            <c r="L3" s="1">
+            </c>
+            <c r="M3" s="1">
+            </c>
+            <c r="N3" s="1">
+            </c>
+            <c r="O3" s="1">
+            </c>
+            <c r="P3" s="1">
+            </c>
+            <c r="Q3" s="1">
+            </c>
+            <c r="R3" s="1">
+            </c>
+            <c r="S3" s="1">
+            </c>
+            <c r="T3" s="1">
+            </c>
+            <c r="U3" s="1">
+            </c>
+            <c r="V3" s="1">
+            </c>
+            <c r="W3" s="1">
+            </c>
+            <c r="X3" s="1">
+            </c>
+            <c r="Y3" s="1">
+            </c>
+            <c r="Z3" s="1">
+            </c>
         </row>
         <row r="4" ht="17.25" customHeight="1" hidden="0">
             <c r="A4" s="1">
@@ -15129,6 +15179,328 @@ exports[`Test XLSX export formulas All non-exportable formulas 1`] = `
                 <v>
                     1000
                 </v>
+            </c>
+        </row>
+        <row r="22" ht="17.25" customHeight="1" hidden="0">
+            <c r="A22" s="1">
+                <f>
+                    SUM(A3:Z3)
+                </f>
+            </c>
+        </row>
+        <row r="23" ht="17.25" customHeight="1" hidden="0">
+            <c r="A23" s="1">
+                <f>
+                    SUM(A3:A100)
+                </f>
+            </c>
+        </row>
+        <row r="24" ht="17.25" customHeight="1" hidden="0">
+            <c r="A24" s="1">
+            </c>
+        </row>
+        <row r="25" ht="17.25" customHeight="1" hidden="0">
+            <c r="A25" s="1">
+            </c>
+        </row>
+        <row r="26" ht="17.25" customHeight="1" hidden="0">
+            <c r="A26" s="1">
+            </c>
+        </row>
+        <row r="27" ht="17.25" customHeight="1" hidden="0">
+            <c r="A27" s="1">
+            </c>
+        </row>
+        <row r="28" ht="17.25" customHeight="1" hidden="0">
+            <c r="A28" s="1">
+            </c>
+        </row>
+        <row r="29" ht="17.25" customHeight="1" hidden="0">
+            <c r="A29" s="1">
+            </c>
+        </row>
+        <row r="30" ht="17.25" customHeight="1" hidden="0">
+            <c r="A30" s="1">
+            </c>
+        </row>
+        <row r="31" ht="17.25" customHeight="1" hidden="0">
+            <c r="A31" s="1">
+            </c>
+        </row>
+        <row r="32" ht="17.25" customHeight="1" hidden="0">
+            <c r="A32" s="1">
+            </c>
+        </row>
+        <row r="33" ht="17.25" customHeight="1" hidden="0">
+            <c r="A33" s="1">
+            </c>
+        </row>
+        <row r="34" ht="17.25" customHeight="1" hidden="0">
+            <c r="A34" s="1">
+            </c>
+        </row>
+        <row r="35" ht="17.25" customHeight="1" hidden="0">
+            <c r="A35" s="1">
+            </c>
+        </row>
+        <row r="36" ht="17.25" customHeight="1" hidden="0">
+            <c r="A36" s="1">
+            </c>
+        </row>
+        <row r="37" ht="17.25" customHeight="1" hidden="0">
+            <c r="A37" s="1">
+            </c>
+        </row>
+        <row r="38" ht="17.25" customHeight="1" hidden="0">
+            <c r="A38" s="1">
+            </c>
+        </row>
+        <row r="39" ht="17.25" customHeight="1" hidden="0">
+            <c r="A39" s="1">
+            </c>
+        </row>
+        <row r="40" ht="17.25" customHeight="1" hidden="0">
+            <c r="A40" s="1">
+            </c>
+        </row>
+        <row r="41" ht="17.25" customHeight="1" hidden="0">
+            <c r="A41" s="1">
+            </c>
+        </row>
+        <row r="42" ht="17.25" customHeight="1" hidden="0">
+            <c r="A42" s="1">
+            </c>
+        </row>
+        <row r="43" ht="17.25" customHeight="1" hidden="0">
+            <c r="A43" s="1">
+            </c>
+        </row>
+        <row r="44" ht="17.25" customHeight="1" hidden="0">
+            <c r="A44" s="1">
+            </c>
+        </row>
+        <row r="45" ht="17.25" customHeight="1" hidden="0">
+            <c r="A45" s="1">
+            </c>
+        </row>
+        <row r="46" ht="17.25" customHeight="1" hidden="0">
+            <c r="A46" s="1">
+            </c>
+        </row>
+        <row r="47" ht="17.25" customHeight="1" hidden="0">
+            <c r="A47" s="1">
+            </c>
+        </row>
+        <row r="48" ht="17.25" customHeight="1" hidden="0">
+            <c r="A48" s="1">
+            </c>
+        </row>
+        <row r="49" ht="17.25" customHeight="1" hidden="0">
+            <c r="A49" s="1">
+            </c>
+        </row>
+        <row r="50" ht="17.25" customHeight="1" hidden="0">
+            <c r="A50" s="1">
+            </c>
+        </row>
+        <row r="51" ht="17.25" customHeight="1" hidden="0">
+            <c r="A51" s="1">
+            </c>
+        </row>
+        <row r="52" ht="17.25" customHeight="1" hidden="0">
+            <c r="A52" s="1">
+            </c>
+        </row>
+        <row r="53" ht="17.25" customHeight="1" hidden="0">
+            <c r="A53" s="1">
+            </c>
+        </row>
+        <row r="54" ht="17.25" customHeight="1" hidden="0">
+            <c r="A54" s="1">
+            </c>
+        </row>
+        <row r="55" ht="17.25" customHeight="1" hidden="0">
+            <c r="A55" s="1">
+            </c>
+        </row>
+        <row r="56" ht="17.25" customHeight="1" hidden="0">
+            <c r="A56" s="1">
+            </c>
+        </row>
+        <row r="57" ht="17.25" customHeight="1" hidden="0">
+            <c r="A57" s="1">
+            </c>
+        </row>
+        <row r="58" ht="17.25" customHeight="1" hidden="0">
+            <c r="A58" s="1">
+            </c>
+        </row>
+        <row r="59" ht="17.25" customHeight="1" hidden="0">
+            <c r="A59" s="1">
+            </c>
+        </row>
+        <row r="60" ht="17.25" customHeight="1" hidden="0">
+            <c r="A60" s="1">
+            </c>
+        </row>
+        <row r="61" ht="17.25" customHeight="1" hidden="0">
+            <c r="A61" s="1">
+            </c>
+        </row>
+        <row r="62" ht="17.25" customHeight="1" hidden="0">
+            <c r="A62" s="1">
+            </c>
+        </row>
+        <row r="63" ht="17.25" customHeight="1" hidden="0">
+            <c r="A63" s="1">
+            </c>
+        </row>
+        <row r="64" ht="17.25" customHeight="1" hidden="0">
+            <c r="A64" s="1">
+            </c>
+        </row>
+        <row r="65" ht="17.25" customHeight="1" hidden="0">
+            <c r="A65" s="1">
+            </c>
+        </row>
+        <row r="66" ht="17.25" customHeight="1" hidden="0">
+            <c r="A66" s="1">
+            </c>
+        </row>
+        <row r="67" ht="17.25" customHeight="1" hidden="0">
+            <c r="A67" s="1">
+            </c>
+        </row>
+        <row r="68" ht="17.25" customHeight="1" hidden="0">
+            <c r="A68" s="1">
+            </c>
+        </row>
+        <row r="69" ht="17.25" customHeight="1" hidden="0">
+            <c r="A69" s="1">
+            </c>
+        </row>
+        <row r="70" ht="17.25" customHeight="1" hidden="0">
+            <c r="A70" s="1">
+            </c>
+        </row>
+        <row r="71" ht="17.25" customHeight="1" hidden="0">
+            <c r="A71" s="1">
+            </c>
+        </row>
+        <row r="72" ht="17.25" customHeight="1" hidden="0">
+            <c r="A72" s="1">
+            </c>
+        </row>
+        <row r="73" ht="17.25" customHeight="1" hidden="0">
+            <c r="A73" s="1">
+            </c>
+        </row>
+        <row r="74" ht="17.25" customHeight="1" hidden="0">
+            <c r="A74" s="1">
+            </c>
+        </row>
+        <row r="75" ht="17.25" customHeight="1" hidden="0">
+            <c r="A75" s="1">
+            </c>
+        </row>
+        <row r="76" ht="17.25" customHeight="1" hidden="0">
+            <c r="A76" s="1">
+            </c>
+        </row>
+        <row r="77" ht="17.25" customHeight="1" hidden="0">
+            <c r="A77" s="1">
+            </c>
+        </row>
+        <row r="78" ht="17.25" customHeight="1" hidden="0">
+            <c r="A78" s="1">
+            </c>
+        </row>
+        <row r="79" ht="17.25" customHeight="1" hidden="0">
+            <c r="A79" s="1">
+            </c>
+        </row>
+        <row r="80" ht="17.25" customHeight="1" hidden="0">
+            <c r="A80" s="1">
+            </c>
+        </row>
+        <row r="81" ht="17.25" customHeight="1" hidden="0">
+            <c r="A81" s="1">
+            </c>
+        </row>
+        <row r="82" ht="17.25" customHeight="1" hidden="0">
+            <c r="A82" s="1">
+            </c>
+        </row>
+        <row r="83" ht="17.25" customHeight="1" hidden="0">
+            <c r="A83" s="1">
+            </c>
+        </row>
+        <row r="84" ht="17.25" customHeight="1" hidden="0">
+            <c r="A84" s="1">
+            </c>
+        </row>
+        <row r="85" ht="17.25" customHeight="1" hidden="0">
+            <c r="A85" s="1">
+            </c>
+        </row>
+        <row r="86" ht="17.25" customHeight="1" hidden="0">
+            <c r="A86" s="1">
+            </c>
+        </row>
+        <row r="87" ht="17.25" customHeight="1" hidden="0">
+            <c r="A87" s="1">
+            </c>
+        </row>
+        <row r="88" ht="17.25" customHeight="1" hidden="0">
+            <c r="A88" s="1">
+            </c>
+        </row>
+        <row r="89" ht="17.25" customHeight="1" hidden="0">
+            <c r="A89" s="1">
+            </c>
+        </row>
+        <row r="90" ht="17.25" customHeight="1" hidden="0">
+            <c r="A90" s="1">
+            </c>
+        </row>
+        <row r="91" ht="17.25" customHeight="1" hidden="0">
+            <c r="A91" s="1">
+            </c>
+        </row>
+        <row r="92" ht="17.25" customHeight="1" hidden="0">
+            <c r="A92" s="1">
+            </c>
+        </row>
+        <row r="93" ht="17.25" customHeight="1" hidden="0">
+            <c r="A93" s="1">
+            </c>
+        </row>
+        <row r="94" ht="17.25" customHeight="1" hidden="0">
+            <c r="A94" s="1">
+            </c>
+        </row>
+        <row r="95" ht="17.25" customHeight="1" hidden="0">
+            <c r="A95" s="1">
+            </c>
+        </row>
+        <row r="96" ht="17.25" customHeight="1" hidden="0">
+            <c r="A96" s="1">
+            </c>
+        </row>
+        <row r="97" ht="17.25" customHeight="1" hidden="0">
+            <c r="A97" s="1">
+            </c>
+        </row>
+        <row r="98" ht="17.25" customHeight="1" hidden="0">
+            <c r="A98" s="1">
+            </c>
+        </row>
+        <row r="99" ht="17.25" customHeight="1" hidden="0">
+            <c r="A99" s="1">
+            </c>
+        </row>
+        <row r="100" ht="17.25" customHeight="1" hidden="0">
+            <c r="A100" s="1">
             </c>
         </row>
     </sheetData>

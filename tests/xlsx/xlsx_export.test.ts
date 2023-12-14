@@ -407,6 +407,8 @@ const allNonExportableFormulasData = {
         A19: { content: "=JOIN(1,2,3)" },
         A20: { content: "=MULTIPLY(42,0)" },
         A21: { content: '=FORMAT.LARGE.NUMBER(1000, "k")' },
+        A22: { content: "=SUM(A3:3)" }, // should be adapted to SUM(A3:Z3)
+        A23: { content: "=SUM(A3:A)" }, // should be adapted to SUM(A3:A100)
       },
     },
   ],
