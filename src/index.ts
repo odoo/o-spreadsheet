@@ -65,6 +65,7 @@ import {
   createCurrencyFormat,
   deepCopy,
   deepEquals,
+  expandZoneOnInsertion,
   formatValue,
   isDefined,
   isMarkdownLink,
@@ -258,6 +259,7 @@ export const helpers = {
   overlap,
   union,
   deepCopy,
+  expandZoneOnInsertion,
 };
 
 export const links = {
