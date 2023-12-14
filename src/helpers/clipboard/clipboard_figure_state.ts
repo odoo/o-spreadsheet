@@ -136,7 +136,16 @@ export class ClipboardFigureChart {
   }
 
   paste(sheetId: UID, figureId: UID, position: { x: number; y: number }, size: FigureSize) {
-    const copy = this.copiedChart.copyInSheetId(sheetId);
+    let copy;
+    try {
+      copy = this.copiedChart.copyInSheetId(sheetId);
+    } catch (e) {
+      copy = this.copiedChart;
+      copy.dataSets = [];
+      copy.labelRange = "";
+      copy.title = "";
+    }
+
     this.dispatch("CREATE_CHART", {
       id: figureId,
       sheetId,
