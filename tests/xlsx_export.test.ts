@@ -399,6 +399,8 @@ const allNonExportableFormulasData = {
         A19: { content: "=JOIN(1,2,3)" },
         A20: { content: "=MULTIPLY(42,0)" },
         A21: { content: '=FORMAT.LARGE.NUMBER(1000, "k")' },
+        A22: { content: "=SUM(A3:3)" }, // should be adapted to SUM(A3:Z3)
+        A23: { content: "=SUM(A3:A)" }, // should be adapted to SUM(A3:A100)
       },
     },
   ],
@@ -653,6 +655,58 @@ describe("Test XLSX export", () => {
       expect(console.warn).toHaveBeenCalledWith(
         "Conditional formats with formula rules are not supported at the moment. The rule is therefore skipped."
       );
+    });
+  });
+
+  describe("references with headers should be converted to references with fixed coordinates", () => {
+    test("Conditional formatting and formula", async () => {
+      const style = { fillColor: "#90EE90" };
+      const model = new Model({
+        sheets: [
+          {
+            colNumber: 2,
+            rowNumber: 5,
+            cells: {
+              A2: { content: "=sum(B3:B)" },
+            },
+            conditionalFormats: [
+              {
+                id: "1",
+                ranges: ["B2:5"],
+                rule: { type: "CellIsRule", operator: "ContainsText", values: ["1"], style },
+              },
+              {
+                id: "2",
+                ranges: ["B2:B"],
+                rule: { type: "CellIsRule", operator: "ContainsText", values: ["1"], style },
+              },
+            ],
+          },
+        ],
+      });
+      expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+    });
+
+    test("Chart", async () => {
+      const model = new Model({});
+
+      createChart(
+        model,
+        { dataSets: ["Sheet1!B2:B", "Sheet1!C4:4"], labelRange: "Sheet1!A2:A", type: "line" },
+        "1"
+      );
+      createChart(
+        model,
+        { dataSets: ["Sheet1!B2:B", "Sheet1!C4:4"], labelRange: "Sheet1!A2:A", type: "bar" },
+        "2"
+      );
+      createChart(
+        model,
+        { dataSets: ["Sheet1!B2:B", "Sheet1!C4:4"], labelRange: "Sheet1!A2:A", type: "pie" },
+        "3"
+      );
+
+      expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
   });
 
