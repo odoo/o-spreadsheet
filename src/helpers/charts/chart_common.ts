@@ -251,8 +251,10 @@ export function toExcelDataset(getters: CoreGetters, ds: DataSet): ExcelChartDat
   const dataRange = ds.dataRange.clone({ zone: dataZone });
 
   return {
-    label: ds.labelCell ? getters.getRangeString(ds.labelCell, "forceSheetReference") : undefined,
-    range: getters.getRangeString(dataRange, "forceSheetReference"),
+    label: ds.labelCell
+      ? getters.getRangeString(ds.labelCell, "forceSheetReference", true)
+      : undefined,
+    range: getters.getRangeString(dataRange, "forceSheetReference", true),
   };
 }
 

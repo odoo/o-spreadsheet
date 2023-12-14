@@ -46,6 +46,17 @@ describe("conditional format", () => {
       ranges: toRangesData(sheetId, "A:A"),
       sheetId,
     });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("5", { fillColor: "#0000FF" }, "3"),
+      ranges: toRangesData(sheetId, "A3:A"),
+      sheetId,
+    });
+
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("6", { fillColor: "#0000FF" }, "4"),
+      ranges: toRangesData(sheetId, "C3:3"),
+      sheetId,
+    });
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toEqual([
       {
         rule: {
@@ -70,6 +81,30 @@ describe("conditional format", () => {
         },
         id: "2",
         ranges: ["A:A"],
+      },
+      {
+        rule: {
+          values: ["5"],
+          operator: "Equal",
+          type: "CellIsRule",
+          style: {
+            fillColor: "#0000FF",
+          },
+        },
+        id: "3",
+        ranges: ["A3:A"],
+      },
+      {
+        rule: {
+          values: ["6"],
+          operator: "Equal",
+          type: "CellIsRule",
+          style: {
+            fillColor: "#0000FF",
+          },
+        },
+        id: "4",
+        ranges: ["C3:3"],
       },
     ]);
     expect(model.getters.getCellComputedStyle(sheetId, ...toCartesianArray("A1"))).toEqual({});
