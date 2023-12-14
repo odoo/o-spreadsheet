@@ -1,16 +1,17 @@
 import { Component, onMounted, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
 import { COMPOSER_ASSISTANT_COLOR, DEFAULT_FONT, NEWLINE } from "../../../constants";
-import { EnrichedToken } from "../../../formulas/index";
 import { functionRegistry } from "../../../functions/index";
 import { clip, fuzzyLookup, getZoneArea, isEqual, splitReference } from "../../../helpers/index";
 import { interactiveStopEdition } from "../../../helpers/ui/stop_edition_interactive";
-import { ComposerSelection } from "../../../plugins/ui_stateful/edition";
+import { ComposerSelection, ComposerStore } from "./composer_store";
 
+import { EnrichedToken } from "../../../formulas/composer_tokenizer";
+import { Store, useStore } from "../../../store_engine";
 import {
-  Color,
   CSSProperties,
-  Direction,
+  Color,
   DOMDimension,
+  Direction,
   FunctionDescription,
   Rect,
   SpreadsheetChildEnv,
@@ -19,8 +20,8 @@ import { css, cssPropertiesToCss } from "../../helpers/css";
 import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { getHtmlContentFromPattern } from "../../helpers/html_content_helpers";
 import { updateSelectionWithArrowKeys } from "../../helpers/selection_helpers";
-import { ComposerFocusType } from "../../spreadsheet/spreadsheet";
 import { TextValueProvider } from "../autocomplete_dropdown/autocomplete_dropdown";
+import { ComposerFocusType } from "../composer_focus_store";
 import { ContentEditableHelper } from "../content_editable_helper";
 import { FunctionDescriptionProvider } from "../formula_assistant/formula_assistant";
 
@@ -150,6 +151,8 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     inputStyle: "",
   };
 
+  private composerStore!: Store<ComposerStore>;
+
   composerRef = useRef("o_composer");
 
   contentHelper: ContentEditableHelper = new ContentEditableHelper(this.composerRef.el!);
@@ -222,6 +225,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   };
 
   setup() {
+    this.composerStore = useStore(ComposerStore);
     onMounted(() => {
       const el = this.composerRef.el!;
       this.contentHelper.updateEl(el);
@@ -242,7 +246,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   // ---------------------------------------------------------------------------
 
   private processArrowKeys(ev: KeyboardEvent) {
-    if (this.env.model.getters.isSelectingForComposer()) {
+    if (this.composerStore.isSelectingForComposer) {
       this.functionDescriptionState.showDescription = false;
       // Prevent the default content editable behavior which moves the cursor
       ev.preventDefault();
@@ -250,7 +254,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
       updateSelectionWithArrowKeys(ev, this.env.model.selection);
       return;
     }
-    const content = this.env.model.getters.getCurrentContent();
+    const content = this.composerStore.currentContent;
     if (
       this.props.focus === "cellFocus" &&
       !this.autoCompleteState.showProvider &&
@@ -305,7 +309,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     ev.preventDefault();
     ev.stopPropagation();
     this.showFunctionAutocomplete("");
-    this.env.model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
+    this.composerStore.stopComposerRangeSelection();
   }
 
   private processEnterKey(ev: KeyboardEvent, direction: Direction) {
@@ -332,20 +336,20 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     const start = Math.min(selection.start, selection.end);
     const end = Math.max(selection.start, selection.end);
 
-    this.env.model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
-    this.env.model.dispatch("SET_CURRENT_CONTENT", {
-      content: content.slice(0, start) + NEWLINE + content.slice(end),
-      selection: { start: start + 1, end: start + 1 },
+    this.composerStore.stopComposerRangeSelection();
+    this.composerStore.setCurrentContent(content.slice(0, start) + NEWLINE + content.slice(end), {
+      start: start + 1,
+      end: start + 1,
     });
     this.processContent();
   }
 
   private processEscapeKey() {
-    this.env.model.dispatch("CANCEL_EDITION");
+    this.composerStore.cancelEdition();
   }
 
   private processF4Key() {
-    this.env.model.dispatch("CYCLE_EDITION_REFERENCES");
+    this.composerStore.cycleReferences();
     this.processContent();
   }
 
@@ -354,7 +358,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     ev.preventDefault();
     const locale = this.env.model.getters.getLocale();
     const selection = this.contentHelper.getCurrentSelection();
-    const currentContent = this.env.model.getters.getCurrentContent();
+    const currentContent = this.composerStore.currentContent;
     const content =
       currentContent.slice(0, selection.start) +
       locale.decimalSeparator +
@@ -362,9 +366,9 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
 
     // Update composer even by hand rather than dispatching an InputEvent because untrusted inputs
     // events aren't handled natively by contentEditable
-    this.env.model.dispatch("SET_CURRENT_CONTENT", {
-      content,
-      selection: { start: selection.start + 1, end: selection.start + 1 },
+    this.composerStore.setCurrentContent(content, {
+      start: selection.start + 1,
+      end: selection.start + 1,
     });
 
     // We need to do the process content here in case there is no render between the keyDown and the
@@ -403,11 +407,8 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     }
     let content = this.contentHelper.getText();
     let selection = this.contentHelper.getCurrentSelection();
-    this.env.model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
-    this.env.model.dispatch("SET_CURRENT_CONTENT", {
-      content,
-      selection,
-    });
+    this.composerStore.stopComposerRangeSelection();
+    this.composerStore.setCurrentContent(content, selection);
     this.processTokenAtCursor();
   }
 
@@ -417,15 +418,15 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
         return;
       }
 
-      if (this.env.model.getters.isSelectingForComposer() && ev.key?.startsWith("Arrow")) {
+      if (this.composerStore.isSelectingForComposer && ev.key?.startsWith("Arrow")) {
         return;
       }
 
-      const { start: oldStart, end: oldEnd } = this.env.model.getters.getComposerSelection();
+      const { start: oldStart, end: oldEnd } = this.composerStore.composerSelection;
       const { start, end } = this.contentHelper.getCurrentSelection();
 
       if (start !== oldStart || end !== oldEnd) {
-        this.env.model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start, end });
+        this.composerStore.changeComposerCursorSelection(start, end);
       }
 
       this.processTokenAtCursor();
@@ -435,7 +436,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   showFunctionAutocomplete(searchTerm: string) {
     const searchTermUpperCase = searchTerm.toUpperCase();
     if (
-      !this.env.model.getters.getCurrentContent().startsWith("=") ||
+      !this.composerStore.currentContent.startsWith("=") ||
       searchTermUpperCase === "TRUE" ||
       searchTermUpperCase === "FALSE"
     ) {
@@ -490,11 +491,11 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     }
     const newSelection = this.contentHelper.getCurrentSelection();
 
-    this.env.model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
+    this.composerStore.stopComposerRangeSelection();
     if (this.props.focus === "inactive") {
       this.props.onComposerContentFocused(newSelection);
     }
-    this.env.model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", newSelection);
+    this.composerStore.changeComposerCursorSelection(newSelection.start, newSelection.end);
     this.processTokenAtCursor();
   }
 
@@ -502,11 +503,11 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     if (this.env.model.getters.isReadonly()) {
       return;
     }
-    const composerContent = this.env.model.getters.getCurrentContent();
+    const composerContent = this.composerStore.currentContent;
     const isValidFormula = composerContent.startsWith("=");
 
     if (isValidFormula) {
-      const tokens = this.env.model.getters.getCurrentTokens();
+      const tokens = this.composerStore.currentTokens;
       const currentSelection = this.contentHelper.getCurrentSelection();
       if (currentSelection.start === currentSelection.end) return;
 
@@ -524,10 +525,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
         return;
       }
       if (token.type === "REFERENCE") {
-        this.env.model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", {
-          start: token.start,
-          end: token.end,
-        });
+        this.composerStore.changeComposerCursorSelection(token.start, token.end);
       }
     }
   }
@@ -550,7 +548,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     if (content.length !== 0 && content.length[0] !== 0) {
       if (this.props.focus !== "inactive") {
         // Put the cursor back where it was before the rendering
-        const { start, end } = this.env.model.getters.getComposerSelection();
+        const { start, end } = this.composerStore.composerSelection;
         this.contentHelper.selectRange(start, end);
       }
       this.contentHelper.scrollSelectionIntoView();
@@ -563,7 +561,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
    * Get the HTML content corresponding to the current composer token, divided by lines.
    */
   private getContentLines(): HtmlContent[][] {
-    let value = this.env.model.getters.getCurrentContent();
+    let value = this.composerStore.currentContent;
     const isValidFormula = value.startsWith("=");
 
     if (value === "") {
@@ -575,10 +573,10 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   }
 
   private getColoredTokens(): HtmlContent[] {
-    const tokens = this.env.model.getters.getCurrentTokens();
-    const tokenAtCursor = this.env.model.getters.getTokenAtCursor();
+    const tokens = this.composerStore.currentTokens;
+    const tokenAtCursor = this.composerStore.tokenAtCursor;
     const result: HtmlContent[] = [];
-    const { end, start } = this.env.model.getters.getComposerSelection();
+    const { end, start } = this.composerStore.composerSelection;
     for (const token of tokens) {
       switch (token.type) {
         case "OPERATOR":
@@ -620,7 +618,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
           result.push({ value: token.value, color: "#000" });
           break;
       }
-      if (this.env.model.getters.showSelectionIndicator() && end === start && end === token.end) {
+      if (this.composerStore.showSelectionIndicator && end === start && end === token.end) {
         result[result.length - 1].class = selectionIndicatorClass;
       }
     }
@@ -674,10 +672,10 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     if (this.props.focus === "inactive") {
       return undefined;
     }
-    const highlights = this.env.model.getters.getHighlights();
+    const highlights = this.composerStore.highlights;
     const refSheet = sheetName
       ? this.env.model.getters.getSheetIdByName(sheetName)
-      : this.env.model.getters.getCurrentEditedCell().sheetId;
+      : this.composerStore.currentEditedCell.sheetId;
 
     const highlight = highlights.find((highlight) => {
       if (highlight.sheetId !== refSheet) return false;
@@ -696,18 +694,17 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
    * the autocomplete engine otherwise we initialize the formula assistant.
    */
   private processTokenAtCursor(): void {
-    let content = this.env.model.getters.getCurrentContent();
+    let content = this.composerStore.currentContent;
     this.autoCompleteState.showProvider = false;
     this.functionDescriptionState.showDescription = false;
 
-    const dataValidationAutocompleteValues =
-      this.env.model.getters.getAutoCompleteDataValidationValues();
+    const dataValidationAutocompleteValues = this.composerStore.autoCompleteDataValidationValues;
     if (!content.startsWith("=") && dataValidationAutocompleteValues.length) {
       this.showDataValidationAutocomplete(dataValidationAutocompleteValues);
     }
 
     if (content.startsWith("=")) {
-      const token = this.env.model.getters.getTokenAtCursor();
+      const token = this.composerStore.tokenAtCursor;
       if (!token) {
         return;
       }
@@ -741,7 +738,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
       return;
     }
     if (this.autoCompleteState.type === "function") {
-      const tokenAtCursor = this.env.model.getters.getTokenAtCursor();
+      const tokenAtCursor = this.composerStore.tokenAtCursor;
       if (tokenAtCursor) {
         let start = tokenAtCursor.end;
         let end = tokenAtCursor.end;
@@ -751,7 +748,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
           start = tokenAtCursor.start;
         }
 
-        const tokens = this.env.model.getters.getCurrentTokens();
+        const tokens = this.composerStore.currentTokens;
         if (tokens.length) {
           value += "(";
 
@@ -764,13 +761,13 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
           }
         }
 
-        this.env.model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start, end });
+        this.composerStore.changeComposerCursorSelection(start, end);
       }
 
-      this.env.model.dispatch("REPLACE_COMPOSER_CURSOR_SELECTION", { text: value });
+      this.composerStore.replaceComposerCursorSelection(value);
     } else {
-      this.env.model.dispatch("SET_CURRENT_CONTENT", { content: value });
-      this.env.model.dispatch("STOP_EDITION");
+      this.composerStore.setCurrentContent(value);
+      this.composerStore.stopEdition();
     }
     this.processTokenAtCursor();
   }

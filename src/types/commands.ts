@@ -1,4 +1,3 @@
-import { ComposerSelection } from "../plugins/ui_stateful/edition";
 import { ChartDefinition } from "./chart/chart";
 import { ClipboardPasteOptions } from "./clipboard";
 import { FigureSize } from "./figure";
@@ -139,8 +138,6 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
   "SET_VIEWPORT_OFFSET",
 
   "EVALUATE_CELLS",
-
-  "SET_CURRENT_CONTENT",
 
   "SET_FORMULA_VISIBILITY",
 
@@ -691,45 +688,6 @@ export interface StartChangeHighlightCommand {
   zone: Zone;
 }
 
-export interface StopComposerSelectionCommand {
-  type: "STOP_COMPOSER_RANGE_SELECTION";
-}
-
-export interface StartEditionCommand {
-  type: "START_EDITION";
-  text?: string;
-  selection?: ComposerSelection;
-}
-
-export interface StopEditionCommand {
-  type: "STOP_EDITION";
-}
-
-export interface CancelEditionCommand {
-  type: "CANCEL_EDITION";
-}
-
-export interface SetCurrentContentCommand {
-  type: "SET_CURRENT_CONTENT";
-  content: string;
-  selection?: ComposerSelection;
-}
-
-export interface ChangeComposerSelectionCommand {
-  type: "CHANGE_COMPOSER_CURSOR_SELECTION";
-  start: number;
-  end: number;
-}
-
-export interface ReplaceComposerSelectionCommand {
-  type: "REPLACE_COMPOSER_CURSOR_SELECTION";
-  text: string;
-}
-
-export interface CycleEditionReferencesCommand {
-  type: "CYCLE_EDITION_REFERENCES";
-}
-
 export interface ShowFormulaCommand {
   type: "SET_FORMULA_VISIBILITY";
   show: boolean;
@@ -783,7 +741,7 @@ export interface AutofillAutoCommand {
 
 export interface SelectFigureCommand {
   type: "SELECT_FIGURE";
-  id: UID;
+  id: UID | null;
 }
 
 export interface ReplaceSearchCommand {
@@ -832,6 +790,12 @@ export interface MoveViewportDownCommand {
  */
 export interface MoveViewportUpCommand {
   type: "SHIFT_VIEWPORT_UP";
+}
+
+export interface MoveViewportToCellCommand {
+  type: "SCROLL_TO_CELL";
+  col: HeaderIndex;
+  row: HeaderIndex;
 }
 
 /**
@@ -982,14 +946,6 @@ export type LocalCommand =
   | EvaluateCellsCommand
   | StartChangeHighlightCommand
   | SetColorCommand
-  | StopComposerSelectionCommand
-  | StartEditionCommand
-  | StopEditionCommand
-  | CancelEditionCommand
-  | SetCurrentContentCommand
-  | ChangeComposerSelectionCommand
-  | ReplaceComposerSelectionCommand
-  | CycleEditionReferencesCommand
   | StartCommand
   | AutofillCommand
   | AutofillSelectCommand
@@ -1006,6 +962,7 @@ export type LocalCommand =
   | SetViewportOffsetCommand
   | MoveViewportDownCommand
   | MoveViewportUpCommand
+  | MoveViewportToCellCommand
   | ActivateNextSheetCommand
   | ActivatePreviousSheetCommand
   | UpdateFilterCommand
@@ -1105,7 +1062,6 @@ export const enum CommandResult {
   GaugeUpperInflectionPointNaN = "GaugeUpperInflectionPointNaN",
   GaugeLowerBiggerThanUpper = "GaugeLowerBiggerThanUpper",
   InvalidAutofillSelection = "InvalidAutofillSelection",
-  WrongComposerSelection = "WrongComposerSelection",
   MinBiggerThanMax = "MinBiggerThanMax",
   LowerBiggerThanUpper = "LowerBiggerThanUpper",
   MidBiggerThanMax = "MidBiggerThanMax",
@@ -1165,7 +1121,6 @@ export const enum CommandResult {
   UnknownDataValidationCriterionType = "UnknownDataValidationCriterionType",
   InvalidDataValidationCriterionValue = "InvalidDataValidationCriterionValue",
   InvalidNumberOfCriterionValues = "InvalidNumberOfCriterionValues",
-  BlockingValidationRule = "BlockingValidationRule",
   InvalidCopyPasteSelection = "InvalidCopyPasteSelection",
   NoChanges = "NoChanges",
   InvalidInputId = "InvalidInputId",

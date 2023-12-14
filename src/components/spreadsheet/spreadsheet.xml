@@ -9,12 +9,7 @@
         <SpreadsheetDashboard/>
       </t>
       <t t-else="">
-        <TopBar
-          onClick="() => this.focusGrid()"
-          onComposerContentFocused="(selection) => this.onTopBarComposerFocused(selection)"
-          focusComposer="focusTopBarComposer"
-          dropdownMaxHeight="gridHeight"
-        />
+        <TopBar onClick="() => this.focusGrid()" dropdownMaxHeight="gridHeight"/>
         <div
           class="o-grid-container"
           t-att-class="{'o-two-columns': !sidePanel.isOpen}"
@@ -30,10 +25,7 @@
           <div class="o-group-grid overflow-hidden">
             <Grid
               sidePanelIsOpen="sidePanel.isOpen"
-              focusComposer="focusGridComposer"
               exposeFocus="(focus) => this._focusGrid = focus"
-              onComposerContentFocused="() => this.onGridComposerContentFocused()"
-              onGridComposerCellFocused="(content, selection) => this.onGridComposerCellFocused(content, selection)"
             />
           </div>
         </div>

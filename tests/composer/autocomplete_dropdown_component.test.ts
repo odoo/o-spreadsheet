@@ -1,6 +1,8 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
+import { ComposerStore } from "../../src/plugins/ui_stateful";
+import { Store } from "../../src/store_engine";
 import { ContentEditableHelper } from "../__mocks__/content_editable_helper";
 import { selectCell } from "../test_helpers/commands_helpers";
 import {
@@ -28,6 +30,7 @@ let composerEl: Element;
 let fixture: HTMLElement;
 let cehMock: ContentEditableHelper;
 let parent: ComposerWrapper;
+let composerStore: Store<ComposerStore>;
 
 async function typeInComposer(text: string, fromScratch: boolean = true) {
   if (fromScratch) {
@@ -80,6 +83,7 @@ describe("Functions autocomplete", () => {
     parent.startComposition();
     await nextTick();
     composerEl = fixture.querySelector("div.o-composer")!;
+    composerStore = parent.env.getStore(ComposerStore);
   });
 
   describe("autocomplete", () => {
@@ -305,6 +309,7 @@ describe("Autocomplete parenthesis", () => {
     parent.startComposition();
     await nextTick();
     composerEl = fixture.querySelector("div.o-composer")!;
+    composerStore = parent.env.getStore(ComposerStore);
   });
 
   test("=sum(1,2 + enter adds closing parenthesis", async () => {
@@ -319,23 +324,23 @@ describe("Autocomplete parenthesis", () => {
     selectCell(model, "A1");
     //edit A1
     parent.setEdition({});
-    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 1, end: 4 });
+    composerStore.changeComposerCursorSelection(1, 4);
     await nextTick();
 
     await typeInComposer("if", false);
-    expect(model.getters.getCurrentContent()).toBe("=if(1,2)");
+    expect(composerStore.currentContent).toBe("=if(1,2)");
   });
 
   test("=S( + edit S with autocomplete does not add left parenthesis", async () => {
     await typeInComposer("=S(");
     // go behind the letter "S"
-    model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
-    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 2, end: 2 });
+    composerStore.stopComposerRangeSelection();
+    composerStore.changeComposerCursorSelection(2, 2);
     await nextTick();
     // show autocomplete
     await typeInComposer("U", false);
-    expect(model.getters.getCurrentContent()).toBe("=SU(");
-    expect(model.getters.getComposerSelection()).toEqual({ start: 3, end: 3 });
+    expect(composerStore.currentContent).toBe("=SU(");
+    expect(composerStore.composerSelection).toEqual({ start: 3, end: 3 });
     expect(document.activeElement).toBe(composerEl);
     expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(1);
     // select the SUM function
@@ -343,7 +348,7 @@ describe("Autocomplete parenthesis", () => {
     expect(composerEl.textContent).toBe("=SUM(");
     expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
     expect(cehMock.selectionState.position).toBe(5);
-    expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
+    expect(composerStore.composerSelection).toEqual({ start: 5, end: 5 });
   });
 
   test("=sum(sum(1,2 + enter add 2 closing parenthesis", async () => {
@@ -367,7 +372,7 @@ describe("Autocomplete parenthesis", () => {
   test("=s + tab should allow to select a ref", async () => {
     await typeInComposer("=s");
     await keyDown({ key: "Tab" });
-    expect(model.getters.getEditionMode()).toBe("selecting");
+    expect(composerStore.editionMode).toBe("selecting");
   });
 });
 

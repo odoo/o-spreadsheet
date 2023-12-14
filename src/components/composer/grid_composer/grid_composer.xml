@@ -8,12 +8,12 @@
     />
     <div class="o-grid-composer" t-att-style="containerStyle" t-ref="gridComposer">
       <Composer
-        focus="props.focus"
+        focus="composerFocusStore.gridFocusMode"
         inputStyle="composerStyle"
         rect="composerState.rect"
         delimitation="composerState.delimitation"
         onComposerUnmounted="props.onComposerUnmounted"
-        onComposerContentFocused="props.onComposerContentFocused"
+        onComposerContentFocused.bind="onFocus"
       />
     </div>
   </t>

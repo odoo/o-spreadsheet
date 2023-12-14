@@ -5,7 +5,6 @@ export * from "./data_cleanup";
 export * from "./find_and_replace";
 export * from "./format";
 export * from "./header_visibility_ui";
-export * from "./highlight";
 export * from "./renderer";
 export * from "./sort";
 export * from "./ui_options";

@@ -24,7 +24,6 @@ import { AutomaticSumPlugin } from "../plugins/ui_feature/automatic_sum";
 import { CollaborativePlugin } from "../plugins/ui_feature/collaborative";
 import { FindAndReplacePlugin } from "../plugins/ui_feature/find_and_replace";
 import { HeaderVisibilityUIPlugin } from "../plugins/ui_feature/header_visibility_ui";
-import { HighlightPlugin } from "../plugins/ui_feature/highlight";
 import { HistoryPlugin } from "../plugins/ui_feature/local_history";
 import { RendererPlugin } from "../plugins/ui_feature/renderer";
 import { SortPlugin } from "../plugins/ui_feature/sort";
@@ -32,7 +31,6 @@ import { SplitToColumnsPlugin } from "../plugins/ui_feature/split_to_columns";
 import { UIOptionsPlugin } from "../plugins/ui_feature/ui_options";
 import { SheetUIPlugin } from "../plugins/ui_feature/ui_sheet";
 import { ClipboardPlugin } from "../plugins/ui_stateful/clipboard";
-import { EditionPlugin } from "../plugins/ui_stateful/edition";
 import { FilterEvaluationPlugin } from "../plugins/ui_stateful/filter_evaluation";
 import { HeaderPositionsUIPlugin } from "../plugins/ui_stateful/header_positions";
 import { GridSelectionPlugin } from "../plugins/ui_stateful/selection";
@@ -118,13 +116,11 @@ export type Getters = {
   PluginGetters<typeof AutomaticSumPlugin> &
   PluginGetters<typeof HistoryPlugin> &
   PluginGetters<typeof ClipboardPlugin> &
-  PluginGetters<typeof EditionPlugin> &
   PluginGetters<typeof EvaluationPlugin> &
   PluginGetters<typeof EvaluationChartPlugin> &
   PluginGetters<typeof EvaluationConditionalFormatPlugin> &
   PluginGetters<typeof FindAndReplacePlugin> &
   PluginGetters<typeof HeaderVisibilityUIPlugin> &
-  PluginGetters<typeof HighlightPlugin> &
   PluginGetters<typeof CustomColorsPlugin> &
   PluginGetters<typeof AutomaticSumPlugin> &
   PluginGetters<typeof RendererPlugin> &

@@ -627,9 +627,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 
   updateMode(mode: Mode) {
-    if (mode !== "normal") {
-      this.dispatch("CANCEL_EDITION");
-    }
     // @ts-ignore For testing purposes only
     this.config.mode = mode;
     this.trigger("update");

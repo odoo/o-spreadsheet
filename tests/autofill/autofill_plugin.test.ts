@@ -29,6 +29,7 @@ import {
   getDataValidationRules,
   getMergeCellMap,
   getPlugin,
+  makeTestComposerStore,
   toRangesData,
 } from "../test_helpers/helpers";
 
@@ -143,10 +144,11 @@ describe("Autofill", () => {
   });
 
   test("Autofill a date displays a date in the composer", () => {
+    const composerStore = makeTestComposerStore(model);
     setCellContent(model, "A1", "1/1/2017");
     autofill("A1", "A2");
     selectCell(model, "A2");
-    expect(model.getters.getCurrentContent()).toBe("1/2/2017");
+    expect(composerStore.currentContent).toBe("1/2/2017");
   });
 
   test("Autofill add CF to target cell if present in origin cell", () => {

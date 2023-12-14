@@ -25,7 +25,7 @@ import { openLink } from "../../helpers/links";
 import { interactiveCut } from "../../helpers/ui/cut_interactive";
 import { interactivePaste, interactivePasteFromOS } from "../../helpers/ui/paste_interactive";
 import { interactiveStopEdition } from "../../helpers/ui/stop_edition_interactive";
-import { ComposerSelection } from "../../plugins/ui_stateful";
+import { ComposerSelection, ComposerStore } from "../../plugins/ui_stateful";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
 import {
@@ -53,6 +53,7 @@ import {
 } from "../../types/index";
 import { Autofill } from "../autofill/autofill";
 import { ClientTag } from "../collaborative_client_tag/collaborative_client_tag";
+import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { GridComposer } from "../composer/grid_composer/grid_composer";
 import { FilterIconsOverlay } from "../filters/filter_icons_overlay/filter_icons_overlay";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
@@ -70,7 +71,6 @@ import { Menu, MenuState } from "../menu/menu";
 import { CellPopoverStore } from "../popover";
 import { Popover } from "../popover/popover";
 import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
-import { ComposerFocusType } from "../spreadsheet/spreadsheet";
 import { HoveredCellStore } from "./hovered_cell_store";
 
 /**
@@ -103,9 +103,6 @@ const registries = {
 interface Props {
   sidePanelIsOpen: boolean;
   exposeFocus: (focus: () => void) => void;
-  focusComposer: ComposerFocusType;
-  onComposerContentFocused: () => void;
-  onGridComposerCellFocused: (content?: string, selection?: ComposerSelection) => void;
 }
 
 // -----------------------------------------------------------------------------
@@ -116,9 +113,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   static props = {
     sidePanelIsOpen: Boolean,
     exposeFocus: Function,
-    focusComposer: String,
-    onComposerContentFocused: Function,
-    onGridComposerCellFocused: Function,
   };
   static components = {
     GridComposer,
@@ -141,6 +135,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   private hiddenInput!: Ref<HTMLElement>;
   private highlightStore!: Store<HighlightStore>;
   private cellPopovers!: Store<CellPopoverStore>;
+  private composerStore!: Store<ComposerStore>;
+  private composerFocusStore!: Store<ComposerFocusStore>;
 
   onMouseWheel!: (ev: WheelEvent) => void;
   canvasPosition!: DOMCoordinates;
@@ -157,6 +153,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.hiddenInput = useRef("hiddenInput");
     this.canvasPosition = useAbsoluteBoundingRect(this.gridRef);
     this.hoveredCell = useStore(HoveredCellStore);
+    this.composerStore = useStore(ComposerStore);
+    this.composerFocusStore = useStore(ComposerFocusStore);
 
     useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
@@ -204,16 +202,16 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     Enter: () => {
       const cell = this.env.model.getters.getActiveCell();
       cell.type === CellValueType.empty
-        ? this.props.onGridComposerCellFocused()
-        : this.props.onComposerContentFocused();
+        ? this.onComposerCellFocused()
+        : this.onComposerContentFocused();
     },
     Tab: () => this.env.model.selection.moveAnchorCell("right", 1),
     "Shift+Tab": () => this.env.model.selection.moveAnchorCell("left", 1),
     F2: () => {
       const cell = this.env.model.getters.getActiveCell();
       cell.type === CellValueType.empty
-        ? this.props.onGridComposerCellFocused()
-        : this.props.onComposerContentFocused();
+        ? this.onComposerCellFocused()
+        : this.onComposerContentFocused();
     },
     Delete: () => {
       this.env.model.dispatch("DELETE_CONTENT", {
@@ -275,7 +273,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         const zone = sums[0]?.zone;
         const zoneXc = zone ? this.env.model.getters.zoneToXC(sheetId, sums[0].zone) : "";
         const formula = `=SUM(${zoneXc})`;
-        this.props.onGridComposerCellFocused(formula, { start: 5, end: 5 + zoneXc.length });
+        this.onComposerCellFocused(formula, { start: 5, end: 5 + zoneXc.length });
       } else {
         this.env.model.dispatch("SUM_SELECTION");
       }
@@ -389,7 +387,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   focus() {
     if (
       !this.env.model.getters.getSelectedFigureId() &&
-      this.env.model.getters.getEditionMode() === "inactive"
+      this.composerStore.editionMode === "inactive"
     ) {
       this.hiddenInput.el?.focus();
     }
@@ -463,7 +461,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     if (this.cellPopovers.isOpen) {
       this.cellPopovers.close();
     }
-    if (this.env.model.getters.getEditionMode() === "editing") {
+    if (this.composerStore.editionMode === "editing") {
       interactiveStopEdition(this.env);
     }
     if (expandZone) {
@@ -502,9 +500,9 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     ({ col, row } = this.env.model.getters.getMainCellPosition({ sheetId, col, row }));
     const cell = this.env.model.getters.getEvaluatedCell({ sheetId, col, row });
     if (cell.type === CellValueType.empty) {
-      this.props.onGridComposerCellFocused();
+      this.onComposerCellFocused();
     } else {
-      this.props.onComposerContentFocused();
+      this.onComposerContentFocused();
     }
   }
 
@@ -554,7 +552,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       // character
       ev.preventDefault();
       ev.stopPropagation();
-      this.props.onGridComposerCellFocused(ev.data);
+      this.onComposerCellFocused(ev.data);
     }
   }
 
@@ -616,7 +614,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     }
 
     /* If we are currently editing a cell, let the default behavior */
-    if (this.env.model.getters.getEditionMode() !== "inactive") {
+    if (this.composerStore.editionMode !== "inactive") {
       return;
     }
     if (cut) {
@@ -780,5 +778,13 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         break;
       }
     }
+  }
+
+  onComposerCellFocused(content?: string, selection?: ComposerSelection) {
+    this.composerFocusStore.focusGridComposer(content, selection);
+  }
+
+  onComposerContentFocused() {
+    this.composerFocusStore.focusGridComposerContent();
   }
 }

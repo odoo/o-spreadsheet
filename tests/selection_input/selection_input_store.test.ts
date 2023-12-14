@@ -1,5 +1,6 @@
 import { SelectionInputStore } from "../../src/components/selection_input/selection_input_store";
 import { toZone, zoneToXc } from "../../src/helpers";
+import { ComposerStore } from "../../src/plugins/ui_stateful";
 import { DependencyContainer } from "../../src/store_engine";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import {
@@ -99,9 +100,10 @@ describe("selection input plugin", () => {
   });
 
   test("focused input should not change when selecting a zone for composer", () => {
-    const { store, model } = makeStore(SelectionInputStore);
+    const { store, model, container } = makeStore(SelectionInputStore);
+    const composerStore = container.get(ComposerStore);
     store.focusById(idOfRange(store, 0));
-    model.dispatch("START_EDITION", { text: "=" });
+    composerStore.startEdition("=");
     selectCell(model, "C2");
     expect(store.selectionInputs[0].xc).toBe("");
   });

@@ -7,6 +7,8 @@ import {
   MIN_ROW_HEIGHT,
   SELECTION_BORDER_COLOR,
 } from "../../constants";
+import { ComposerStore } from "../../plugins/ui_stateful";
+import { Store, useStore } from "../../store_engine";
 import {
   CommandResult,
   EdgeScrollInfo,
@@ -49,6 +51,8 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
   static props = {
     onOpenContextMenu: Function,
   };
+  private composerStore!: Store<ComposerStore>;
+
   PADDING: number = 0;
   MAX_SIZE_MARGIN: number = 0;
   MIN_ELEMENT_SIZE: number = 0;
@@ -104,6 +108,10 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
   abstract _getActiveElements(): Set<HeaderIndex>;
 
   abstract _getPreviousVisibleElement(index: HeaderIndex): HeaderIndex;
+
+  setup(): void {
+    this.composerStore = useStore(ComposerStore);
+  }
 
   _computeHandleDisplay(ev: MouseEvent) {
     const position = this._getEvOffset(ev);
@@ -210,7 +218,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
       }
       return;
     }
-    if (this.env.model.getters.getEditionMode() === "editing") {
+    if (this.composerStore.editionMode === "editing") {
       this.env.model.selection.getBackToDefault();
     }
     this.startSelection(ev, index);

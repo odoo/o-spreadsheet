@@ -11,11 +11,8 @@ import type { ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
 import { Action } from "../../src/actions/action";
 import { Composer, ComposerProps } from "../../src/components/composer/composer/composer";
-import {
-  ComposerFocusType,
-  Spreadsheet,
-  SpreadsheetProps,
-} from "../../src/components/spreadsheet/spreadsheet";
+import { ComposerFocusType } from "../../src/components/composer/composer_focus_store";
+import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/spreadsheet";
 import { matrixMap } from "../../src/functions/helpers";
 import { functionRegistry } from "../../src/functions/index";
 import { ImageProvider } from "../../src/helpers/figures/images/image_provider";
@@ -24,11 +21,11 @@ import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
 import { CorePluginConstructor } from "../../src/plugins/core_plugin";
 import { UIPluginConstructor } from "../../src/plugins/ui_plugin";
-import { ComposerSelection } from "../../src/plugins/ui_stateful";
+import { ComposerSelection, ComposerStore } from "../../src/plugins/ui_stateful";
 import { topbarMenuRegistry } from "../../src/registries";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import { Registry } from "../../src/registries/registry";
-import { DependencyContainer } from "../../src/store_engine";
+import { DependencyContainer, Store, useStore } from "../../src/store_engine";
 import { ModelStore } from "../../src/stores";
 import { HighlightProvider, HighlightStore } from "../../src/stores/highlight_store";
 import { NotificationStore } from "../../src/stores/notification_store";
@@ -747,8 +744,10 @@ export class ComposerWrapper extends Component<ComposerWrapperProps, Spreadsheet
     <Composer t-props="composerProps"/>
   `;
   state = useState({ focusComposer: <ComposerFocusType>"inactive" });
+  composerStore!: Store<ComposerStore>;
   setup() {
     this.state.focusComposer = this.props.focusComposer;
+    this.composerStore = useStore(ComposerStore);
     onMounted(() => this.env.model.on("update", this, () => this.render(true)));
     onWillUnmount(() => this.env.model.off("update", this));
   }
@@ -758,7 +757,7 @@ export class ComposerWrapper extends Component<ComposerWrapperProps, Spreadsheet
       onComposerContentFocused: (selection) => {
         this.state.focusComposer = "contentFocus";
         this.setEdition({ selection });
-        this.env.model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", selection);
+        this.composerStore.changeComposerCursorSelection(selection.start, selection.end);
       },
       focus: this.state.focusComposer,
       ...this.props.composerProps,
@@ -766,10 +765,10 @@ export class ComposerWrapper extends Component<ComposerWrapperProps, Spreadsheet
   }
 
   setEdition({ text, selection }: { text?: string; selection?: ComposerSelection }) {
-    if (this.env.model.getters.getEditionMode() === "inactive") {
-      this.env.model.dispatch("START_EDITION", { text, selection });
+    if (this.composerStore.editionMode === "inactive") {
+      this.composerStore.startEdition(text, selection);
     } else if (text) {
-      this.env.model.dispatch("SET_CURRENT_CONTENT", { content: text, selection });
+      this.composerStore.setCurrentContent(text, selection);
     }
   }
 
@@ -783,13 +782,18 @@ export async function mountComposerWrapper(
   model: Model = new Model(),
   composerProps: Partial<ComposerProps> = {},
   focusComposer: ComposerFocusType = "inactive"
-): Promise<{ parent: ComposerWrapper; model: Model; fixture: HTMLElement }> {
-  const { parent, fixture } = await mountComponent(ComposerWrapper, {
+): Promise<{
+  parent: ComposerWrapper;
+  model: Model;
+  fixture: HTMLElement;
+  env: SpreadsheetChildEnv;
+}> {
+  const { parent, fixture, env } = await mountComponent(ComposerWrapper, {
     props: { composerProps, focusComposer },
     model,
   });
 
-  return { parent: parent as ComposerWrapper, model, fixture };
+  return { parent: parent as ComposerWrapper, model, fixture, env };
 }
 
 export function toCellPosition(sheetId: UID, xc: string): CellPosition {
@@ -818,4 +822,23 @@ export function getHighlightsFromStore(env: SpreadsheetChildEnv): Highlight[] {
     .filter((renderer) => renderer instanceof HighlightStore)
     .flatMap((store: HighlightStore) => store["providers"])
     .flatMap((getter: HighlightProvider) => getter.highlights);
+}
+
+export function makeTestNotificationStore(): NotificationStore {
+  return {
+    notifyUser: () => {},
+    raiseError: () => {},
+    askConfirmation: () => {},
+  };
+}
+
+export function makeTestComposerStore(
+  model: Model,
+  notificationStore?: NotificationStore
+): ComposerStore {
+  const container = new DependencyContainer();
+  container.inject(ModelStore, model);
+  notificationStore = notificationStore || makeTestNotificationStore();
+  container.inject(NotificationStore, notificationStore);
+  return container.get(ComposerStore);
 }

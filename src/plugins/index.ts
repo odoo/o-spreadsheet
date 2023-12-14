@@ -32,7 +32,6 @@ import {
   FindAndReplacePlugin,
   FormatPlugin,
   HeaderVisibilityUIPlugin,
-  HighlightPlugin,
   RendererPlugin,
   SheetUIPlugin,
   SortPlugin,
@@ -43,7 +42,6 @@ import { SplitToColumnsPlugin } from "./ui_feature/split_to_columns";
 import { UIPluginConstructor } from "./ui_plugin";
 import {
   ClipboardPlugin,
-  EditionPlugin,
   FilterEvaluationPlugin,
   GridSelectionPlugin,
   SheetViewPlugin,
@@ -70,7 +68,6 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
 export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("ui_sheet", SheetUIPlugin)
   .add("ui_options", UIOptionsPlugin)
-  .add("highlight", HighlightPlugin)
   .add("grid renderer", RendererPlugin)
   .add("autofill", AutofillPlugin)
   .add("find_and_replace", FindAndReplacePlugin)
@@ -89,8 +86,7 @@ export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()
   .add("header_visibility_ui", HeaderVisibilityUIPlugin)
   .add("header_positions", HeaderPositionsUIPlugin)
   .add("viewport", SheetViewPlugin)
-  .add("clipboard", ClipboardPlugin)
-  .add("edition", EditionPlugin);
+  .add("clipboard", ClipboardPlugin);
 
 // Plugins which have a derived state from core data
 export const coreViewsPluginRegistry = new Registry<UIPluginConstructor>()

@@ -5,11 +5,12 @@ import {
   SEPARATOR_COLOR,
   TOPBAR_TOOLBAR_HEIGHT,
 } from "../../../constants";
-import { ComposerSelection } from "../../../plugins/ui_stateful/edition";
+import { ComposerSelection } from "../../../plugins/ui_stateful";
+import { Store, useStore } from "../../../store_engine";
 import { CSSProperties, SpreadsheetChildEnv } from "../../../types/index";
 import { css, cssPropertiesToCss } from "../../helpers/css";
-import { ComposerFocusType } from "../../spreadsheet/spreadsheet";
 import { Composer } from "../composer/composer";
+import { ComposerFocusStore } from "../composer_focus_store";
 
 const COMPOSER_MAX_HEIGHT = 100;
 
@@ -39,20 +40,20 @@ css/* scss */ `
   }
 `;
 
-interface Props {
-  focus: ComposerFocusType;
-  onComposerContentFocused: (selection: ComposerSelection) => void;
-}
-
-export class TopBarComposer extends Component<Props, SpreadsheetChildEnv> {
+export class TopBarComposer extends Component<any, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TopBarComposer";
-  static props = {
-    focus: {
-      validate: (value: string) => ["inactive", "cellFocus", "contentFocus"].includes(value),
-    },
-    onComposerContentFocused: Function,
-  };
+  static props = {};
   static components = { Composer };
+
+  private composerFocusStore!: Store<ComposerFocusStore>;
+
+  setup() {
+    this.composerFocusStore = useStore(ComposerFocusStore);
+  }
+
+  get focus() {
+    return this.composerFocusStore.topBarComposerFocus;
+  }
 
   get composerStyle(): string {
     const style: CSSProperties = {
@@ -60,12 +61,12 @@ export class TopBarComposer extends Component<Props, SpreadsheetChildEnv> {
       "max-height": `${COMPOSER_MAX_HEIGHT}px`,
       "line-height": "24px",
     };
-    style.height = this.props.focus === "inactive" ? `${TOPBAR_TOOLBAR_HEIGHT}px` : "fit-content";
+    style.height = this.focus === "inactive" ? `${TOPBAR_TOOLBAR_HEIGHT}px` : "fit-content";
     return cssPropertiesToCss(style);
   }
 
   get containerStyle(): string {
-    if (this.props.focus === "inactive") {
+    if (this.focus === "inactive") {
       return cssPropertiesToCss({
         "border-color": SEPARATOR_COLOR,
         "border-right": "none",
@@ -74,5 +75,9 @@ export class TopBarComposer extends Component<Props, SpreadsheetChildEnv> {
     return cssPropertiesToCss({
       "border-color": SELECTION_BORDER_COLOR,
     });
+  }
+
+  onFocus(selection: ComposerSelection) {
+    this.composerFocusStore.focusTopBarComposer(selection);
   }
 }

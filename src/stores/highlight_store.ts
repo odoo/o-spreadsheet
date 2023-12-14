@@ -26,7 +26,6 @@ export class HighlightStore extends SpreadsheetStore {
   get highlights(): Highlight[] {
     return this.providers
       .flatMap((h) => h.highlights)
-      .concat(this.model.getters.getHighlights())
       .map((highlight) => {
         const { numberOfRows, numberOfCols } = zoneToDimension(highlight.zone);
         const zone =
