@@ -254,7 +254,7 @@ export class ConditionalFormatPlugin
     return {
       ...cf,
       ranges: cf.ranges.map((range) => {
-        return this.getters.getRangeString(range, sheetId);
+        return this.getters.getRangeString(range, sheetId, true);
       }),
     };
   }
