@@ -253,8 +253,10 @@ export function toExcelDataset(getters: CoreGetters, ds: DataSet): ExcelChartDat
   const dataRange = ds.dataRange.clone({ zone: dataZone });
 
   return {
-    label: ds.labelCell ? getters.getRangeString(ds.labelCell, "forceSheetReference") : undefined,
-    range: getters.getRangeString(dataRange, "forceSheetReference"),
+    label: ds.labelCell
+      ? getters.getRangeString(ds.labelCell, "forceSheetReference", true)
+      : undefined,
+    range: getters.getRangeString(dataRange, "forceSheetReference", true),
   };
 }
 
@@ -271,7 +273,7 @@ export function toExcelLabelRange(
     zone.top = zone.top + 1;
   }
   const range = labelRange.clone({ zone });
-  return getters.getRangeString(range, "forceSheetReference");
+  return getters.getRangeString(range, "forceSheetReference", true);
 }
 
 /**
