@@ -1,17 +1,12 @@
 <templates>
   <t t-name="o-spreadsheet-GaugeChartConfigPanel">
     <div>
-      <div class="o-section o-data-series">
-        <div class="o-section-title">Data range</div>
-        <SelectionInput
-          ranges="() => [this.getDataRange()]"
-          isInvalid="isDataRangeInvalid"
-          hasSingleRange="true"
-          required="true"
-          onSelectionChanged="(ranges) => this.onDataRangeChanged(ranges)"
-          onSelectionConfirmed="() => this.updateDataRange()"
-        />
-      </div>
+      <ChartDataSeries
+        ranges="() => [this.getDataRange()]"
+        onSelectionChanged="(ranges) => this.onDataRangeChanged(ranges)"
+        onSelectionConfirmed="() => this.updateDataRange()"
+        hasSingleRange="true"
+      />
 
       <div class="o-section" t-if="configurationErrorMessages.length">
         <ValidationMessages messages="configurationErrorMessages" msgType="'error'"/>

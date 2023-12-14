@@ -33,9 +33,7 @@
         </select>
       </div>
 
-      <div class="o-section" t-if="errorMessages.length">
-        <ValidationMessages messages="errorMessages" msgType="'error'"/>
-      </div>
+      <ChartErrorSection t-if="errorMessages.length" messages="errorMessages"/>
     </div>
   </t>
 </templates>

@@ -1,54 +1,28 @@
 <templates>
   <t t-name="o-spreadsheet-LineBarPieConfigPanel">
     <div>
-      <div class="o-section o-data-series">
-        <div class="o-section-title">Data Series</div>
-        <SelectionInput
-          ranges="() => this.getDataSeriesRanges()"
-          required="true"
-          onSelectionChanged="(ranges) => this.onDataSeriesRangesChanged(ranges)"
-          onSelectionConfirmed="() => this.onDataSeriesConfirmed()"
+      <ChartDataSeries
+        ranges="() => this.getDataSeriesRanges()"
+        onSelectionChanged="(ranges) => this.onDataSeriesRangesChanged(ranges)"
+        onSelectionConfirmed="() => this.onDataSeriesConfirmed()"
+      />
+      <ChartLabelRange
+        range="() => this.getLabelRange()"
+        isInvalid="isLabelInvalid"
+        onSelectionChanged="(ranges) => this.onLabelRangeChanged(ranges)"
+        onSelectionConfirmed="() => this.onLabelRangeConfirmed()"
+        options="this.getLabelRangeOptions()"
+      />
+      <Section class="'o-use-row-as-headers'" t-if="calculateHeaderPosition()">
+        <Checkbox
+          name="'dataSetsHaveTitle'"
+          label="dataSetsHaveTitleLabel"
+          value="props.definition.dataSetsHaveTitle"
+          onChange.bind="onUpdateDataSetsHaveTitle"
         />
-      </div>
-      <div class="o-section o-data-labels">
-        <div class="o-section-title">Categories / Labels</div>
-        <SelectionInput
-          ranges="() => [this.getLabelRange()]"
-          isInvalid="isLabelInvalid"
-          hasSingleRange="true"
-          onSelectionChanged="(ranges) => this.onLabelRangeChanged(ranges)"
-          onSelectionConfirmed="() => this.onLabelRangeConfirmed()"
-        />
-        <label class="o-checkbox">
-          <input
-            type="checkbox"
-            name="aggregated"
-            t-att-checked="props.definition.aggregated"
-            t-on-change="onUpdateAggregated"
-            class="align-middle"
-          />
-          Aggregate
-        </label>
-      </div>
-      <div class="o-section o-use-row-as-headers" t-if="calculateHeaderPosition()">
-        <label class="o-checkbox">
-          <input
-            type="checkbox"
-            t-att-checked="props.definition.dataSetsHaveTitle"
-            t-on-change="onUpdateDataSetsHaveTitle"
-            class="align-middle"
-          />
-          <span>
-            Use row
-            <t t-esc="calculateHeaderPosition()"/>
-            as headers
-          </span>
-        </label>
-      </div>
+      </Section>
 
-      <div class="o-section" t-if="errorMessages.length">
-        <ValidationMessages messages="errorMessages" msgType="'error'"/>
-      </div>
+      <ChartErrorSection t-if="errorMessages.length" messages="errorMessages"/>
     </div>
   </t>
 </templates>

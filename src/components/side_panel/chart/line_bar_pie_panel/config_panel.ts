@@ -1,6 +1,7 @@
 import { Component, useState } from "@odoo/owl";
 import { createRange, spreadRange } from "../../../../helpers";
 import { createDataSets } from "../../../../helpers/figures/charts";
+import { _t } from "../../../../translation";
 import { BarChartDefinition } from "../../../../types/chart/bar_chart";
 import { LineChartDefinition } from "../../../../types/chart/line_chart";
 import { PieChartDefinition } from "../../../../types/chart/pie_chart";
@@ -8,6 +9,11 @@ import { CommandResult, DispatchResult, SpreadsheetChildEnv, UID } from "../../.
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { ChartTerms } from "../../../translations_terms";
 import { ValidationMessages } from "../../../validation_messages/validation_messages";
+import { Checkbox } from "../../components/checkbox/checkbox";
+import { Section } from "../../components/section/section";
+import { ChartDataSeries } from "../building_blocks/data_series/data_series";
+import { ChartErrorSection } from "../building_blocks/error_section/error_section";
+import { ChartLabelRange } from "../building_blocks/label_range/label_range";
 
 interface Props {
   figureId: UID;
@@ -29,7 +35,15 @@ interface ChartPanelState {
 
 export class LineBarPieConfigPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-LineBarPieConfigPanel";
-  static components = { SelectionInput, ValidationMessages };
+  static components = {
+    SelectionInput,
+    ValidationMessages,
+    ChartDataSeries,
+    ChartLabelRange,
+    Section,
+    Checkbox,
+    ChartErrorSection,
+  };
 
   private state: ChartPanelState = useState({
     datasetDispatchResult: undefined,
@@ -62,9 +76,24 @@ export class LineBarPieConfigPanel extends Component<Props, SpreadsheetChildEnv>
     return !!this.state.labelsDispatchResult?.isCancelledBecause(CommandResult.InvalidLabelRange);
   }
 
-  onUpdateDataSetsHaveTitle(ev) {
+  get dataSetsHaveTitleLabel(): string {
+    return _t("Use row %s as headers", this.calculateHeaderPosition() || "");
+  }
+
+  getLabelRangeOptions() {
+    return [
+      {
+        name: "aggregated",
+        label: _t("Aggregate"),
+        value: this.props.definition.aggregated,
+        onChange: this.onUpdateAggregated.bind(this),
+      },
+    ];
+  }
+
+  onUpdateDataSetsHaveTitle(dataSetsHaveTitle: boolean) {
     this.props.updateChart(this.props.figureId, {
-      dataSetsHaveTitle: ev.target.checked,
+      dataSetsHaveTitle,
     });
   }
 
@@ -111,9 +140,9 @@ export class LineBarPieConfigPanel extends Component<Props, SpreadsheetChildEnv>
     return this.labelRange || "";
   }
 
-  onUpdateAggregated(ev) {
+  onUpdateAggregated(aggregated: boolean) {
     this.props.updateChart(this.props.figureId, {
-      aggregated: ev.target.checked,
+      aggregated,
     });
   }
 
