@@ -3,6 +3,7 @@ import { FONT_SIZES } from "../../src/constants";
 import { functionRegistry } from "../../src/functions";
 import { zoneToXc } from "../../src/helpers";
 import { interactivePaste } from "../../src/helpers/ui/paste_interactive";
+import { ComposerStore } from "../../src/plugins/ui_stateful";
 import { colMenuRegistry, rowMenuRegistry, topbarMenuRegistry } from "../../src/registries/index";
 import { SpreadsheetChildEnv, UID } from "../../src/types";
 import { DEFAULT_LOCALES } from "../../src/types/locale";
@@ -1108,10 +1109,11 @@ describe("Menu Item actions", () => {
     });
 
     test("cancel edition when setting a format", () => {
-      model.dispatch("START_EDITION", { text: "hello" });
-      expect(model.getters.getEditionMode()).toBe("editing");
+      const composerStore = env.getStore(ComposerStore);
+      composerStore.startEdition("hello");
+      expect(composerStore.editionMode).toBe("editing");
       doAction(["format", "format_number", "format_number_percent"], env);
-      expect(model.getters.getEditionMode()).toBe("inactive");
+      expect(composerStore.editionMode).toBe("inactive");
       expect(getCellContent(model, "A1")).toBe("");
     });
   });

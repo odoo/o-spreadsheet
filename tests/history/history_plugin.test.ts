@@ -21,7 +21,7 @@ import {
   getEvaluatedCell,
 } from "../test_helpers/getters_helpers"; // to have getcontext mocks
 import "../test_helpers/helpers";
-import { addTestPlugin, getPlugin } from "../test_helpers/helpers";
+import { addTestPlugin, getPlugin, makeTestComposerStore } from "../test_helpers/helpers";
 
 // we test here the undo/redo feature
 
@@ -228,14 +228,15 @@ describe("Model history", () => {
 
   test("undo steps are dropped at some point", () => {
     const model = new Model();
+    const composerStore = makeTestComposerStore(model);
     expect(model.getters.canUndo()).toBe(false);
     for (let i = 0; i < MAX_HISTORY_STEPS; i++) {
-      model.dispatch("START_EDITION", { text: String(i) });
-      model.dispatch("STOP_EDITION");
+      composerStore.startEdition(String(i));
+      composerStore.stopEdition();
       expect(getCellContent(model, "A1")).toBe(String(i));
     }
-    model.dispatch("START_EDITION", { text: "abc" });
-    model.dispatch("STOP_EDITION");
+    composerStore.startEdition("abc");
+    composerStore.stopEdition();
     expect(getCellContent(model, "A1")).toBe("abc");
     undo(model);
     expect(getCellContent(model, "A1")).toBe(String(MAX_HISTORY_STEPS - 1));

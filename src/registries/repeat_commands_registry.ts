@@ -1,4 +1,4 @@
-import { deepCopy, isDefined } from "../helpers";
+import { deepCopy } from "../helpers";
 import {
   genericRepeatsTransforms,
   repeatZoneDependantCommand,
@@ -71,7 +71,6 @@ repeatCommandTransformRegistry.add("UNFOLD_HEADER_GROUPS_IN_ZONE", repeatZoneDep
 repeatCommandTransformRegistry.add("FOLD_HEADER_GROUPS_IN_ZONE", repeatZoneDependantCommand);
 
 export const repeatLocalCommandTransformRegistry = new Registry<LocalRepeatTransform>();
-repeatLocalCommandTransformRegistry.add("STOP_EDITION", repeatLocalCommandChildren);
 repeatLocalCommandTransformRegistry.add("PASTE", repeatPasteCommand);
 repeatLocalCommandTransformRegistry.add("INSERT_CELL", repeatInsertOrDeleteCellCommand);
 repeatLocalCommandTransformRegistry.add("DELETE_CELL", repeatInsertOrDeleteCellCommand);
@@ -120,14 +119,4 @@ export function repeatLocalCommand(
 
   const repeatTransform = repeatLocalCommandTransformRegistry.get(command.type);
   return repeatTransform(getters, command, childCommands);
-}
-
-export function repeatLocalCommandChildren<T extends LocalCommand>(
-  getters: Getters,
-  cmd: T,
-  childCommands: readonly CoreCommand[]
-): CoreCommand[] | undefined {
-  return childCommands
-    .map((childCommand) => repeatCoreCommand(getters, childCommand))
-    .filter(isDefined);
 }

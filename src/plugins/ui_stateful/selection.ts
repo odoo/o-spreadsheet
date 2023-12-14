@@ -187,7 +187,6 @@ export class GridSelectionPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "START_EDITION":
       case "ACTIVATE_SHEET":
         this.selectedFigureId = null;
         break;

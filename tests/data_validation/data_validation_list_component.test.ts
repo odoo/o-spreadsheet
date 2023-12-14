@@ -5,7 +5,8 @@ import {
   GRID_ICON_EDGE_LENGTH,
   GRID_ICON_MARGIN,
 } from "../../src/constants";
-import { IsValueInListCriterion, UID } from "../../src/types";
+import { ComposerStore } from "../../src/plugins/ui_stateful";
+import { IsValueInListCriterion, SpreadsheetChildEnv, UID } from "../../src/types";
 import { addDataValidation, setCellContent, setSelection } from "../test_helpers/commands_helpers";
 import { click, keyDown, setInputValueAndTrigger } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
@@ -26,6 +27,7 @@ jest.mock("../../src/components/composer/content_editable_helper", () =>
 let model: Model;
 let fixture: HTMLElement;
 let sheetId: UID;
+let env: SpreadsheetChildEnv;
 
 beforeEach(async () => {
   model = new Model();
@@ -203,9 +205,10 @@ describe("autocomplete in composer", () => {
 
     test("Values displayed are not filtered when the user opens the composer with a valid value", async () => {
       setCellContent(model, "A1", "hello");
-      model.dispatch("START_EDITION", {});
-      ({ fixture, parent } = await mountComposerWrapper(model, { focus: "cellFocus" }));
-      await nextTick();
+      ({ fixture, parent } = await mountComposerWrapper(model));
+      const composerStore = parent.env.getStore(ComposerStore);
+      await typeInComposer("");
+      expect(composerStore.currentContent).toBe("hello");
       expect(fixture.querySelectorAll<HTMLElement>(".o-autocomplete-value")).toHaveLength(3);
     });
 
@@ -226,12 +229,13 @@ describe("autocomplete in composer", () => {
 
     test("Enter overwrite composer content with selected value and stops edition", async () => {
       ({ fixture, parent } = await mountComposerWrapper(model));
+      const composerStore = parent.env.getStore(ComposerStore);
       await typeInComposer("hel");
       await keyDown({ key: "ArrowDown" });
       await keyDown({ key: "Enter" });
       expect(fixture.querySelector(".o-autocomplete-value")).toBeNull();
       expect(getCellContent(model, "A1")).toBe("hello");
-      expect(model.getters.getEditionMode()).toBe("inactive");
+      expect(composerStore.editionMode).toBe("inactive");
     });
   });
 
@@ -280,10 +284,11 @@ describe("Selection arrow icon in grid", () => {
 
   test("Clicking on the icon opens the composer", async () => {
     setSelection(model, ["B2"]);
-    ({ fixture } = await mountSpreadsheet({ model }));
+    ({ fixture, env } = await mountSpreadsheet({ model }));
+    const composerStore = env.getStore(ComposerStore);
     await click(fixture, ".o-dv-list-icon");
-    expect(model.getters.getEditionMode()).toBe("editing");
-    expect(model.getters.getCurrentEditedCell()).toEqual({ sheetId, col: 0, row: 0 });
+    expect(composerStore.editionMode).toBe("editing");
+    expect(composerStore.currentEditedCell).toEqual({ sheetId, col: 0, row: 0 });
   });
 
   test("Icon is not displayed when display style is plainText", async () => {

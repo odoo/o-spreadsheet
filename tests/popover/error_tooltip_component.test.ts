@@ -18,7 +18,13 @@ import {
   triggerMouseEvent,
   triggerWheelEvent,
 } from "../test_helpers/dom_helper";
-import { mockChart, mountComponent, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
+import {
+  makeTestComposerStore,
+  mockChart,
+  mountComponent,
+  mountSpreadsheet,
+  nextTick,
+} from "../test_helpers/helpers";
 
 mockChart();
 
@@ -149,11 +155,12 @@ describe("Grid integration", () => {
   });
 
   test("composer content is set when clicking on merged cell (not top left)", async () => {
+    const composerStore = makeTestComposerStore(model);
     merge(model, "C1:C8");
     setCellContent(model, "C1", "Hello");
     await nextTick();
     await clickCell(model, "C8");
-    expect(model.getters.getCurrentContent()).toBe("Hello");
+    expect(composerStore.currentContent).toBe("Hello");
   });
 
   test("Wheel events on error tooltip are scrolling the grid", async () => {

@@ -5,6 +5,8 @@ import { SelectionInput } from "../../src/components/selection_input/selection_i
 import { toCartesian, toZone } from "../../src/helpers";
 import { useStoreProvider } from "../../src/store_engine";
 import { ModelStore } from "../../src/stores";
+import { HighlightStore } from "../../src/stores/highlight_store";
+import { SpreadsheetChildEnv } from "../../src/types";
 import {
   activateSheet,
   addCellToSelection,
@@ -134,6 +136,7 @@ async function createSelectionInput(
   const id = (parent as Parent).id;
   return {
     parent: parent as Parent,
+    env: parent.env as SpreadsheetChildEnv,
     model,
     id,
     app,
@@ -191,18 +194,18 @@ describe("Selection Input", () => {
     expect(isConfirmed).toBeTruthy();
   });
 
-  test.skip("input is filled when new cells are selected", async () => {
-    // TODO expose all highlights from the highlight store
-    const { model } = await createSelectionInput();
+  test("input is filled when new cells are selected", async () => {
+    const { model, env } = await createSelectionInput();
+    const highlightStore = env.getStore(HighlightStore);
     selectCell(model, "B4");
     await nextTick();
     expect(fixture.querySelector("input")!.value).toBe("B4");
-    const color = model.getters.getHighlights()[0].color;
+    const color = highlightStore.highlights[0].color;
     expect(fixture.querySelector("input")!.getAttribute("style")).toBe(`color: ${color};`);
     simulateClick(".o-add-selection");
     selectCell(model, "B5");
     await nextTick();
-    const color2 = model.getters.getHighlights()[1].color;
+    const color2 = highlightStore.highlights[1].color;
     expect(fixture.querySelectorAll("input")[0].value).toBe("B4");
     expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe(`color: ${color};`);
     expect(fixture.querySelectorAll("input")[1].value).toBe("B5");

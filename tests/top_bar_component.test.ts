@@ -1,9 +1,9 @@
-import { Component, onMounted, onWillUnmount, useState, xml } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, xml } from "@odoo/owl";
 import { Model } from "../src";
-import { ComposerFocusType } from "../src/components/spreadsheet/spreadsheet";
 import { TopBar } from "../src/components/top_bar/top_bar";
 import { DEFAULT_FONT_SIZE } from "../src/constants";
 import { toZone, zoneToXc } from "../src/helpers";
+import { ComposerStore } from "../src/plugins/ui_stateful";
 import { topbarComponentRegistry, topbarMenuRegistry } from "../src/registries";
 import { ConditionalFormat, Currency, Pixel, SpreadsheetChildEnv, Style } from "../src/types";
 import { FileStore } from "./__mocks__/mock_file_store";
@@ -52,27 +52,19 @@ mockGetBoundingClientRect({
 });
 
 let fixture: HTMLElement;
+let parent: Parent;
 
-type Props = {
-  focusComposer: ComposerFocusType;
-};
-
-class Parent extends Component<Props, SpreadsheetChildEnv> {
+class Parent extends Component<any, SpreadsheetChildEnv> {
   static template = xml/* xml */ `
     <div class="o-spreadsheet">
       <TopBar
-        focusComposer="state.focusComposer"
         onClick="() => {}"
-        onComposerContentFocused="() => this.setFocusComposer('contentFocus')"
         dropdownMaxHeight="gridHeight"/>
     </div>
   `;
   static components = { TopBar };
 
-  state = useState({ focusComposer: <ComposerFocusType>"inactive" });
-
   setup() {
-    this.state.focusComposer = this.props.focusComposer;
     onMounted(() => this.env.model.on("update", this, () => this.render(true)));
     onWillUnmount(() => this.env.model.off("update", this));
   }
@@ -81,22 +73,17 @@ class Parent extends Component<Props, SpreadsheetChildEnv> {
     const { height } = this.env.model.getters.getSheetViewDimension();
     return height;
   }
-
-  setFocusComposer(type: ComposerFocusType) {
-    this.state.focusComposer = type;
-  }
 }
 
 async function mountParent(
-  model: Model = new Model(),
-  focusComposer: ComposerFocusType = "inactive"
+  model: Model = new Model()
 ): Promise<{ parent: Parent; model: Model; fixture: HTMLElement }> {
   const env = makeTestEnv({
     model,
     isDashboard: () => model.getters.isDashboard(),
   });
   let parent: Component;
-  ({ parent, fixture } = await mountComponent(Parent, { props: { focusComposer }, env }));
+  ({ parent, fixture } = await mountComponent(Parent, { env }));
   return { parent: parent as Parent, model, fixture };
 }
 
@@ -573,17 +560,18 @@ describe("TopBar component", () => {
 
   test("Cannot edit cell in a readonly spreadsheet", async () => {
     const model = new Model({}, { mode: "readonly" });
-    ({ fixture } = await mountParent(model));
+    ({ fixture, parent } = await mountParent(model));
+    const composerStore = parent.env.getStore(ComposerStore);
 
     let composerEl = fixture.querySelector(".o-spreadsheet-topbar div.o-composer")!;
     expect(composerEl.attributes.getNamedItem("contentEditable")!.value).toBe("false");
     await simulateClick(composerEl);
 
     // Won't update the current content
-    const content = model.getters.getCurrentContent();
+    const content = composerStore.currentContent;
     expect(content).toBe("");
     composerEl = await typeInComposerTopBar("tabouret", false);
-    expect(model.getters.getCurrentContent()).toBe(content);
+    expect(composerStore.currentContent).toBe(content);
   });
 
   test("Keep focus on the composer when clicked in readonly mode", async () => {
@@ -863,12 +851,13 @@ describe("Topbar - menu item resizing with viewport", () => {
 });
 
 test("The composer helper should be closed on toggle topbar context menu", async () => {
-  const { model, fixture } = await mountSpreadsheet();
+  const { parent, fixture } = await mountSpreadsheet();
+  const composerStore = parent.env.getStore(ComposerStore);
   await typeInComposerTopBar("=sum(");
-  expect(model.getters.getEditionMode()).not.toBe("inactive");
+  expect(composerStore.editionMode).not.toBe("inactive");
   expect(fixture.querySelectorAll(".o-composer-assistant")).toHaveLength(1);
   await simulateClick(".o-topbar-topleft .o-topbar-menu");
-  expect(model.getters.getEditionMode()).toBe("inactive");
+  expect(composerStore.editionMode).toBe("inactive");
   expect(fixture.querySelectorAll(".o-composer-assistant")).toHaveLength(0);
 });
 

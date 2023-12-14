@@ -19,11 +19,9 @@
       />
       <HeadersOverlay onOpenContextMenu="(type, x, y) => this.toggleContextMenu(type, x, y)"/>
 
-      <t t-if="env.model.getters.getEditionMode() !== 'inactive'">
+      <t t-if="composerStore.editionMode !== 'inactive'">
         <GridComposer
           onComposerUnmounted="() => this.focus()"
-          onComposerContentFocused="props.onComposerContentFocused"
-          focus="props.focusComposer"
           gridDims="env.model.getters.getSheetViewDimensionWithHeaders()"
         />
       </t>

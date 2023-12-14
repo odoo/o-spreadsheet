@@ -1,6 +1,7 @@
 import { Component, onMounted, onWillUnmount, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { SplitIntoColumnsPanel } from "../../src/components/side_panel/split_to_columns_panel/split_to_columns_panel";
+import { ComposerStore } from "../../src/plugins/ui_stateful";
 import { SpreadsheetChildEnv } from "../../src/types";
 import { setCellContent, setSelection } from "../test_helpers/commands_helpers";
 import {
@@ -31,10 +32,11 @@ describe("split to columns sidePanel component", () => {
   let confirmButton: HTMLButtonElement;
   let checkBox: HTMLInputElement;
   let onCloseSidePanel: jest.Mock;
+  let parent: Component<ParentProps, SpreadsheetChildEnv>;
 
   beforeEach(async () => {
     onCloseSidePanel = jest.fn();
-    ({ model, fixture } = await mountComponent(Parent, {
+    ({ model, fixture, parent } = await mountComponent(Parent, {
       props: { onCloseSidePanel: () => onCloseSidePanel() },
     }));
     dispatch = spyModelDispatch(model);
@@ -164,7 +166,8 @@ describe("split to columns sidePanel component", () => {
   });
 
   test("Panel is closed if the user starts to edit a cell", async () => {
-    model.dispatch("START_EDITION");
+    const composerStore = parent.env.getStore(ComposerStore);
+    composerStore.startEdition();
     await nextTick();
     expect(onCloseSidePanel).toHaveBeenCalled();
   });

@@ -8,7 +8,6 @@ import { CollaborationMessage } from "../../src/types/collaborative/transport_se
 import { MockTransportService } from "../__mocks__/transport_service";
 import {
   activateSheet,
-  addColumns,
   addDataValidation,
   addRows,
   changeCFPriority,
@@ -17,7 +16,6 @@ import {
   createChart,
   createFilter,
   createSheet,
-  deleteColumns,
   deleteRows,
   deleteSheet,
   groupHeaders,
@@ -25,8 +23,6 @@ import {
   hideSheet,
   merge,
   paste,
-  redo,
-  selectCell,
   setCellContent,
   setStyle,
   undo,
@@ -390,55 +386,6 @@ describe("Multi users synchronisation", () => {
     });
   });
 
-  test("Updatecell & composer on different cells", () => {
-    alice.dispatch("START_EDITION");
-    setCellContent(bob, "A2", "A2");
-    alice.dispatch("SET_CURRENT_CONTENT", {
-      content: "Hi",
-    });
-    alice.dispatch("STOP_EDITION");
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCellContent(user, "A2"),
-      "A2"
-    );
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCellContent(user, "A1"),
-      "Hi"
-    );
-  });
-
-  test("Updatecell & composer on the same cell", () => {
-    alice.dispatch("START_EDITION");
-    alice.dispatch("SET_CURRENT_CONTENT", { content: "bla" });
-    setCellContent(bob, "A1", "A1");
-    expect(alice.getters.getEditionMode()).toBe("editing");
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCellContent(user, "A1"),
-      "A1"
-    );
-    alice.dispatch("STOP_EDITION");
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCellContent(user, "A1"),
-      "bla"
-    );
-  });
-
-  test("Updatecell & composer on the same cell when cancelling edition", () => {
-    alice.dispatch("START_EDITION");
-    alice.dispatch("SET_CURRENT_CONTENT", { content: "bla" });
-    setCellContent(bob, "A1", "A1");
-    expect(alice.getters.getEditionMode()).toBe("editing");
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCellContent(user, "A1"),
-      "A1"
-    );
-    alice.dispatch("CANCEL_EDITION");
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCellContent(user, "A1"),
-      "A1"
-    );
-  });
-
   test("duplicate sheet does not activate sheet", () => {
     const firstSheetId = alice.getters.getActiveSheetId();
     alice.dispatch("DUPLICATE_SHEET", {
@@ -498,31 +445,9 @@ describe("Multi users synchronisation", () => {
     network.concurrent(() => {
       setCellContent(alice, "A1", "hello");
       const spy = jest.spyOn(network, "sendMessage");
-      alice.dispatch("START_EDITION");
+      alice.dispatch("COPY");
       expect(spy).not.toHaveBeenCalled();
     });
-  });
-
-  test("Composer is moved when column is added before it", () => {
-    selectCell(alice, "D2");
-    alice.dispatch("START_EDITION", { text: "hello" });
-    addColumns(bob, "after", "B", 1);
-    alice.dispatch("STOP_EDITION");
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCellContent(user, "E2"),
-      "hello"
-    );
-  });
-
-  test("Composer is not moved when column is added after it", () => {
-    selectCell(alice, "A2");
-    alice.dispatch("START_EDITION", { text: "hello" });
-    addColumns(bob, "after", "B", 1);
-    alice.dispatch("STOP_EDITION");
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCellContent(user, "A2"),
-      "hello"
-    );
   });
 
   test("duplicated chart are the same", () => {
@@ -540,142 +465,6 @@ describe("Multi users synchronisation", () => {
       sheetIdTo: "Sheet2",
     });
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
-  });
-
-  test("Composer is moved when column is removed before it", () => {
-    selectCell(alice, "D2");
-    alice.dispatch("START_EDITION", { text: "hello" });
-    deleteColumns(bob, ["B"]);
-    alice.dispatch("STOP_EDITION");
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCellContent(user, "C2"),
-      "hello"
-    );
-  });
-
-  test("Composer is not moved when column is removed after it", () => {
-    selectCell(alice, "D2");
-    alice.dispatch("START_EDITION", { text: "hello" });
-    deleteColumns(bob, ["E"]);
-    alice.dispatch("STOP_EDITION");
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCellContent(user, "D2"),
-      "hello"
-    );
-  });
-
-  test("Composer is moved when column is removed on it", () => {
-    selectCell(alice, "D2");
-    const spy = jest.spyOn(alice["config"], "raiseBlockingErrorUI");
-    alice.dispatch("START_EDITION", { text: "hello" });
-    deleteColumns(bob, ["D"]);
-    expect(spy).toHaveBeenCalled();
-    expect(alice.getters.getEditionMode()).toBe("inactive");
-  });
-
-  test("Composer is moved when row is added before it", () => {
-    selectCell(alice, "A4");
-    alice.dispatch("START_EDITION", { text: "hello" });
-    addRows(bob, "after", 1, 1);
-    alice.dispatch("STOP_EDITION");
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCellContent(user, "A5"),
-      "hello"
-    );
-  });
-
-  test("Composer is not moved when row is added after it", () => {
-    selectCell(alice, "A2");
-    alice.dispatch("START_EDITION", { text: "hello" });
-    addRows(bob, "after", 5, 1);
-    alice.dispatch("STOP_EDITION");
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCellContent(user, "A2"),
-      "hello"
-    );
-  });
-
-  test("Composer is moved when row is removed before it", () => {
-    selectCell(alice, "A4");
-    alice.dispatch("START_EDITION", { text: "hello" });
-    deleteRows(bob, [1]);
-    alice.dispatch("STOP_EDITION");
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCellContent(user, "A3"),
-      "hello"
-    );
-  });
-
-  test("Composer is not moved when row is removed after it", () => {
-    selectCell(alice, "A4");
-    alice.dispatch("START_EDITION", { text: "hello" });
-    deleteRows(bob, [10]);
-    alice.dispatch("STOP_EDITION");
-    expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => getCellContent(user, "A4"),
-      "hello"
-    );
-  });
-
-  test("Delete row & Don't notify cell is deleted when composer is active", () => {
-    selectCell(alice, "A4");
-    alice.dispatch("START_EDITION", { text: "hello" });
-    const spy = jest.spyOn(alice["config"], "raiseBlockingErrorUI");
-    deleteRows(bob, [3]);
-    expect(spy).toHaveBeenCalled();
-    expect(alice.getters.getEditionMode()).toBe("inactive");
-  });
-
-  test("Delete col & Don't notify cell is deleted when composer is active", () => {
-    selectCell(alice, "A4");
-    alice.dispatch("START_EDITION", { text: "hello" });
-    const spy = jest.spyOn(alice["config"], "raiseBlockingErrorUI");
-    deleteColumns(bob, ["A"]);
-    expect(spy).toHaveBeenCalled();
-    expect(alice.getters.getEditionMode()).toBe("inactive");
-  });
-
-  test("Delete sheet & Don't notify cell is deleted when composer is active", () => {
-    const activeSheetId = alice.getters.getActiveSheetId();
-    createSheet(alice, { sheetId: "42" });
-    selectCell(alice, "A4");
-    alice.dispatch("START_EDITION", { text: "hello" });
-    const spy = jest.spyOn(alice["config"], "raiseBlockingErrorUI");
-    alice.dispatch("DELETE_SHEET", { sheetId: activeSheetId });
-    expect(spy).toHaveBeenCalled();
-    expect(alice.getters.getEditionMode()).toBe("inactive");
-  });
-
-  test("Delete row & Don't notify cell is deleted when composer is not active", () => {
-    selectCell(alice, "A4");
-    alice.dispatch("START_EDITION", { text: "hello" });
-    alice.dispatch("STOP_EDITION");
-    const spy = jest.spyOn(alice["config"], "raiseBlockingErrorUI");
-    deleteRows(bob, [3]);
-    expect(spy).not.toHaveBeenCalled();
-    expect(alice.getters.getEditionMode()).toBe("inactive");
-  });
-
-  test("Delete col & Don't notify cell is deleted when composer is not active", () => {
-    selectCell(alice, "A4");
-    alice.dispatch("START_EDITION", { text: "hello" });
-    alice.dispatch("STOP_EDITION");
-    const spy = jest.spyOn(alice["config"], "raiseBlockingErrorUI");
-    deleteColumns(bob, ["A"]);
-    expect(spy).not.toHaveBeenCalled();
-    expect(alice.getters.getEditionMode()).toBe("inactive");
-  });
-
-  test("Delete sheet & Don't notify cell is deleted when composer is not active", () => {
-    const activeSheetId = alice.getters.getActiveSheetId();
-    createSheet(alice, { sheetId: "42" });
-    selectCell(alice, "A4");
-    alice.dispatch("START_EDITION", { text: "hello" });
-    alice.dispatch("STOP_EDITION");
-    const spy = jest.spyOn(alice["config"], "raiseBlockingErrorUI");
-    alice.dispatch("DELETE_SHEET", { sheetId: activeSheetId });
-    expect(spy).not.toHaveBeenCalled();
-    expect(alice.getters.getEditionMode()).toBe("inactive");
   });
 
   test("Delete the same figure concurrently", () => {
@@ -704,41 +493,6 @@ describe("Multi users synchronisation", () => {
       (user) => user.getters.getFigures(sheetId),
       []
     );
-  });
-
-  test("Composing in a sheet when the sheet is deleted", () => {
-    createSheet(alice, { sheetId: "42" });
-    activateSheet(alice, "42");
-    selectCell(alice, "A4");
-    const spy = jest.spyOn(alice["config"], "raiseBlockingErrorUI");
-    alice.dispatch("START_EDITION", { text: "hello" });
-    bob.dispatch("DELETE_SHEET", { sheetId: "42" });
-    expect(spy).toHaveBeenCalled();
-    expect(alice.getters.getEditionMode()).toBe("inactive");
-  });
-
-  test("Composing in a sheet when a sheet deletion is redone", () => {
-    createSheet(alice, { sheetId: "42" });
-    selectCell(alice, "A4");
-    const spy = jest.spyOn(alice["config"], "raiseBlockingErrorUI");
-    bob.dispatch("DELETE_SHEET", { sheetId: "42" });
-    undo(bob);
-    activateSheet(alice, "42");
-    alice.dispatch("START_EDITION", { text: "hello" });
-    redo(bob);
-    expect(spy).toHaveBeenCalled();
-    expect(alice.getters.getEditionMode()).toBe("inactive");
-  });
-
-  test("Composing in a sheet when a sheet creation is undone", () => {
-    createSheet(bob, { sheetId: "42" });
-    selectCell(alice, "A4");
-    const spy = jest.spyOn(alice["config"], "raiseBlockingErrorUI");
-    activateSheet(alice, "42");
-    alice.dispatch("START_EDITION", { text: "hello" });
-    undo(bob);
-    expect(spy).toHaveBeenCalled();
-    expect(alice.getters.getEditionMode()).toBe("inactive");
   });
 
   test("Do not handle duplicated message", () => {

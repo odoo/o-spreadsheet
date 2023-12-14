@@ -4,11 +4,7 @@
       class="o-topbar-composer bg-white user-select-text"
       t-on-click.stop=""
       t-att-style="containerStyle">
-      <Composer
-        focus="props.focus"
-        inputStyle="composerStyle"
-        onComposerContentFocused="props.onComposerContentFocused"
-      />
+      <Composer focus="focus" inputStyle="composerStyle" onComposerContentFocused.bind="onFocus"/>
     </div>
   </t>
 </templates>

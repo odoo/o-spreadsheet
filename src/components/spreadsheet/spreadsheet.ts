@@ -32,13 +32,13 @@ import {
 } from "../../constants";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Model } from "../../model";
-import { ComposerSelection } from "../../plugins/ui_stateful/edition";
 import { Store, useStore, useStoreProvider } from "../../store_engine";
 import { ModelStore } from "../../stores";
 import { NotificationStore } from "../../stores/notification_store";
 import { _t } from "../../translation";
 import { HeaderGroup, InformationNotification, Pixel, SpreadsheetChildEnv } from "../../types";
 import { BottomBar } from "../bottom_bar/bottom_bar";
+import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
 import { Grid } from "../grid/grid";
 import { HeaderGroupContainer } from "../header_group/header_group_container";
@@ -51,8 +51,6 @@ import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipbo
 // -----------------------------------------------------------------------------
 // SpreadSheet
 // -----------------------------------------------------------------------------
-
-export type ComposerFocusType = "inactive" | "cellFocus" | "contentFocus";
 
 // If we ever change these colors, make sure the filter tool stays green to match the icon in the grid
 const ACTIVE_BG_COLOR = BACKGROUND_HEADER_FILTER_COLOR;
@@ -245,11 +243,6 @@ interface SidePanelState {
   panelProps: any;
 }
 
-interface ComposerState {
-  topBarFocus: Exclude<ComposerFocusType, "cellFocus">;
-  gridFocusMode: ComposerFocusType;
-}
-
 export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Spreadsheet";
   static props = {
@@ -265,7 +258,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   };
 
   sidePanel!: SidePanelState;
-  composer!: ComposerState;
   spreadsheetRef = useRef("spreadsheet");
 
   private _focusGrid?: () => void;
@@ -274,6 +266,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
   private isViewportTooSmall: boolean = false;
   private notificationStore!: Store<NotificationStore>;
+  private composerFocusStore!: Store<ComposerFocusStore>;
 
   get model(): Model {
     return this.props.model;
@@ -288,12 +281,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
   setup() {
     const stores = useStoreProvider();
-    this.notificationStore = useStore(NotificationStore);
     this.sidePanel = useState({ isOpen: false, panelProps: {} });
-    this.composer = useState({
-      topBarFocus: "inactive",
-      gridFocusMode: "inactive",
-    });
     this.keyDownMapping = {
       "CTRL+H": () => this.toggleSidePanel("FindAndReplace", {}),
       "CTRL+F": () => this.toggleSidePanel("FindAndReplace", {}),
@@ -308,7 +296,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       openSidePanel: this.openSidePanel.bind(this),
       toggleSidePanel: this.toggleSidePanel.bind(this),
       clipboard: this.env.clipboard || instantiateClipboard(),
-      startCellEdition: (content?: string) => this.onGridComposerCellFocused(content),
+      startCellEdition: (content?: string) => this.composerFocusStore.focusGridComposer(content),
     });
 
     useEffect(
@@ -348,18 +336,8 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       this.checkViewportSize();
     });
     stores.inject(ModelStore, this.model);
-  }
-
-  get focusTopBarComposer(): Omit<ComposerFocusType, "cellFocus"> {
-    return this.model.getters.getEditionMode() === "inactive"
-      ? "inactive"
-      : this.composer.topBarFocus;
-  }
-
-  get focusGridComposer(): ComposerFocusType {
-    return this.model.getters.getEditionMode() === "inactive"
-      ? "inactive"
-      : this.composer.gridFocusMode;
+    this.notificationStore = useStore(NotificationStore);
+    this.composerFocusStore = useStore(ComposerFocusStore);
   }
 
   private bindModelEvents() {
@@ -446,50 +424,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       ev.stopPropagation();
       handler();
       return;
-    }
-  }
-
-  onTopBarComposerFocused(selection: ComposerSelection) {
-    if (this.model.getters.isReadonly()) {
-      return;
-    }
-    this.composer.topBarFocus = "contentFocus";
-    this.composer.gridFocusMode = "inactive";
-    this.setComposerContent({ selection } || {});
-  }
-
-  onGridComposerContentFocused() {
-    if (this.model.getters.isReadonly()) {
-      return;
-    }
-    this.composer.topBarFocus = "inactive";
-    this.composer.gridFocusMode = "contentFocus";
-    this.setComposerContent({});
-  }
-
-  onGridComposerCellFocused(content?: string, selection?: ComposerSelection) {
-    if (this.model.getters.isReadonly()) {
-      return;
-    }
-    this.composer.topBarFocus = "inactive";
-    this.composer.gridFocusMode = "cellFocus";
-    this.setComposerContent({ content, selection } || {});
-  }
-
-  /**
-   * Start the edition or update the content if it's already started.
-   */
-  private setComposerContent({
-    content,
-    selection,
-  }: {
-    content?: string | undefined;
-    selection?: ComposerSelection;
-  }) {
-    if (this.model.getters.getEditionMode() === "inactive") {
-      this.model.dispatch("START_EDITION", { text: content, selection });
-    } else if (content) {
-      this.model.dispatch("SET_CURRENT_CONTENT", { content, selection });
     }
   }
 

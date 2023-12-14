@@ -3,6 +3,7 @@ import { CancelledReason, CommandResult } from "../../../..";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../../constants";
 import { colorNumberString, rangeReference } from "../../../../helpers";
 import { canonicalizeCFRule } from "../../../../helpers/locale";
+import { cycleFixedReference } from "../../../../helpers/reference_type";
 import {
   CellIsRule,
   Color,
@@ -412,11 +413,11 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
   onKeydown(event: KeyboardEvent) {
     if (event.key === "F4") {
       const target = event.target as HTMLInputElement;
-      const update = this.env.model.getters.getCycledReference(
+      const update = cycleFixedReference(
         { start: target.selectionStart ?? 0, end: target.selectionEnd ?? 0 },
-        target.value
+        target.value,
+        this.env.model.getters.getLocale()
       );
-
       if (!update) {
         return;
       }

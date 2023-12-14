@@ -17,7 +17,6 @@ import { Dimension, Format, SpreadsheetChildEnv, Style } from "../types/index";
 //------------------------------------------------------------------------------
 
 export function setFormatter(env: SpreadsheetChildEnv, format: Format) {
-  env.model.dispatch("CANCEL_EDITION");
   env.model.dispatch("SET_FORMATTING", {
     sheetId: env.model.getters.getActiveSheetId(),
     target: env.model.getters.getSelectedZones(),

@@ -7,6 +7,9 @@ import {
   HEADER_WIDTH,
 } from "../../src/constants";
 import { colors, toHex, toZone } from "../../src/helpers";
+import { ComposerStore } from "../../src/plugins/ui_stateful";
+import { Store } from "../../src/store_engine";
+import { SpreadsheetChildEnv } from "../../src/types";
 import { ContentEditableHelper } from "../__mocks__/content_editable_helper";
 import {
   activateSheet,
@@ -52,6 +55,7 @@ jest.mock("../../src/components/composer/content_editable_helper.ts", () =>
 let fixture: HTMLElement;
 let model: Model;
 let cehMock: ContentEditableHelper;
+let composerStore: Store<ComposerStore>;
 
 async function startComposition(key?: string) {
   const composerEl = await startGridComposition(key);
@@ -78,9 +82,9 @@ const modelData = { sheets: [{ id: "sh1" }] };
 
 describe("Composer interactions", () => {
   beforeEach(async () => {
-    ({ model, fixture } = await mountSpreadsheet({
-      model: new Model(modelData),
-    }));
+    let env: SpreadsheetChildEnv;
+    ({ model, fixture, env } = await mountSpreadsheet({ model: new Model(modelData) }));
+    composerStore = env.getStore(ComposerStore);
   });
 
   test("type in grid composer adds text to topbar composer", async () => {
@@ -203,7 +207,7 @@ describe("Composer interactions", () => {
     expect(composerEl.textContent).toBe("=");
     expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
     expect(cehMock.selectionState.position).toBe(1);
-    expect(model.getters.getEditionMode()).toBe("selecting");
+    expect(composerStore.editionMode).toBe("selecting");
     await clickCell(model, "C8");
     expect(composerEl.textContent).toBe("=C8");
     expect(cehMock.colors["C8"]).toBe(colors[0]);
@@ -230,7 +234,7 @@ describe("Composer interactions", () => {
 
   test("starting the edition with enter, the composer should have the focus", async () => {
     await startComposition();
-    expect(model.getters.getEditionMode()).toBe("editing");
+    expect(composerStore.editionMode).toBe("editing");
     expect(getActivePosition(model)).toBe("A1");
     expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer")!);
   });
@@ -287,7 +291,7 @@ describe("Composer interactions", () => {
 
   test("type '=', backspace and select a cell should not add it", async () => {
     const composerEl = await typeInComposerGrid("=");
-    model.dispatch("SET_CURRENT_CONTENT", { content: "" });
+    composerStore.setCurrentContent("");
     cehMock.removeAll();
     composerEl.dispatchEvent(new Event("input"));
     composerEl.dispatchEvent(new Event("keyup"));
@@ -328,7 +332,7 @@ describe("Composer interactions", () => {
     await typeInComposerGrid(`"`);
     expect(composerEl.textContent).toBe(`=""`);
     await keyDown({ key: "ArrowLeft" });
-    expect(model.getters.getEditionMode()).not.toBe("inactive");
+    expect(composerStore.editionMode).not.toBe("inactive");
   });
 
   test("ArrowKeys will move to neighbour cell, if not in contentFocus mode (up/down)", async () => {
@@ -359,7 +363,7 @@ describe("Composer interactions", () => {
   test("The composer should be closed before opening the context menu", async () => {
     await typeInComposerGrid("=");
     await rightClickCell(model, "C8");
-    expect(model.getters.getEditionMode()).toBe("inactive");
+    expect(composerStore.editionMode).toBe("inactive");
     expect(fixture.querySelectorAll(".o-grid div.o-composer")).toHaveLength(0);
   });
 
@@ -379,7 +383,7 @@ describe("Composer interactions", () => {
 
   test("typing CTRL+C in grid does not type C in the cell", async () => {
     await keyDown({ key: "c", ctrlKey: true });
-    expect(model.getters.getCurrentContent()).toBe("");
+    expect(composerStore.currentContent).toBe("");
   });
 
   test("Hitting enter on topbar composer will properly update it", async () => {

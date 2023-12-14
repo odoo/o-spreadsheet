@@ -247,9 +247,8 @@ export class SheetViewPlugin extends UIPlugin {
       case "DELETE_SHEET":
         this.sheetsWithDirtyViewports.delete(cmd.sheetId);
         break;
-      case "START_EDITION":
-        const { col, row } = this.getters.getActivePosition();
-        this.refreshViewport(this.getters.getActiveSheetId(), { col, row });
+      case "SCROLL_TO_CELL":
+        this.refreshViewport(this.getters.getActiveSheetId(), { col: cmd.col, row: cmd.row });
         break;
     }
   }

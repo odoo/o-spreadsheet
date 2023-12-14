@@ -1,7 +1,9 @@
-import { Component, onMounted, onWillUpdateProps, useState } from "@odoo/owl";
+import { Component, onMounted, useEffect, useState } from "@odoo/owl";
 import { NEWLINE } from "../../../constants";
 import { interactiveSplitToColumns } from "../../../helpers/ui/split_to_columns_interactive";
 import { interactiveStopEdition } from "../../../helpers/ui/stop_edition_interactive";
+import { ComposerStore } from "../../../plugins/ui_stateful";
+import { useStore } from "../../../store_engine";
 import { _t } from "../../../translation";
 import { CommandResult, SpreadsheetChildEnv } from "../../../types/index";
 import { SplitToColumnsTerms } from "../../translations_terms";
@@ -43,13 +45,10 @@ export class SplitIntoColumnsPanel extends Component<Props, SpreadsheetChildEnv>
   state = useState<State>({ separatorValue: "auto", addNewColumns: false, customSeparator: "" });
 
   setup() {
-    onWillUpdateProps(() => {
-      // The feature makes no sense if we are editing a cell, because then the selection isn't active
-      // Stop the edition when the panel is mounted, and close the panel if the user start editing a cell
-      if (this.env.model.getters.getEditionMode() !== "inactive") {
-        this.props.onCloseSidePanel();
-      }
-    });
+    const composerStore = useStore(ComposerStore);
+    // The feature makes no sense if we are editing a cell, because then the selection isn't active
+    // Stop the edition when the panel is mounted, and close the panel if the user start editing a cell
+    useEffect(this.props.onCloseSidePanel, () => [composerStore.editionMode]);
 
     onMounted(() => {
       interactiveStopEdition(this.env);

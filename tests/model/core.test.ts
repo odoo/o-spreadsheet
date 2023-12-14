@@ -30,7 +30,7 @@ import {
   getRangeFormattedValues,
   getRangeValues,
 } from "../test_helpers/getters_helpers";
-import { toRangesData } from "../test_helpers/helpers";
+import { makeTestComposerStore, toRangesData } from "../test_helpers/helpers";
 
 let model: Model;
 describe("core", () => {
@@ -392,13 +392,14 @@ describe("core", () => {
 
   test("does not reevaluate cells if edition does not change content", () => {
     const model = new Model();
+    const composerStore = makeTestComposerStore(model);
     setCellContent(model, "A1", "=rand()");
 
     expect(getEvaluatedCell(model, "A1").value).toBeDefined();
     const val = getEvaluatedCell(model, "A1").value;
 
-    model.dispatch("START_EDITION");
-    model.dispatch("STOP_EDITION");
+    composerStore.startEdition();
+    composerStore.stopEdition();
     expect(getEvaluatedCell(model, "A1").value).toBe(val);
   });
 
@@ -546,11 +547,12 @@ describe("history", () => {
     const model = new Model({
       sheets: [{ colNumber: 10, rowNumber: 10, cells: { A1: { content: "1" } } }],
     });
+    const composerStore = makeTestComposerStore(model);
 
     expect(model.getters.canUndo()).toBe(false);
 
-    model.dispatch("START_EDITION", { text: "abc" });
-    model.dispatch("STOP_EDITION");
+    composerStore.startEdition("abc");
+    composerStore.stopEdition();
 
     expect(getCellContent(model, "A1")).toBe("abc");
     expect(model.getters.canUndo()).toBe(true);

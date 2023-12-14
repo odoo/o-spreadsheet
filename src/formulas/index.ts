@@ -8,7 +8,6 @@
  */
 
 export { compile } from "./compiler";
-export { EnrichedToken, composerTokenize } from "./composer_tokenizer";
 export * from "./helpers";
 export { parse } from "./parser";
 export { rangeTokenize } from "./range_tokenizer";

@@ -1,4 +1,5 @@
 import { Spreadsheet, TransportService } from "../../src";
+import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { CellPopoverStore } from "../../src/components/popover";
 import {
   BACKGROUND_GRAY_COLOR,
@@ -14,6 +15,8 @@ import {
 import { buildSheetLink, toCartesian, toHex, toZone, zoneToXc } from "../../src/helpers";
 import { createEmptyWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
+import { ComposerStore } from "../../src/plugins/ui_stateful";
+import { Store } from "../../src/store_engine";
 import { Align, ClipboardMIMEType, SpreadsheetChildEnv } from "../../src/types";
 import { FileStore } from "../__mocks__/mock_file_store";
 import { MockTransportService } from "../__mocks__/transport_service";
@@ -89,14 +92,18 @@ mockGetBoundingClientRect({
 
 let fixture: HTMLElement;
 let model: Model;
-let parent: Spreadsheet;
 let env: SpreadsheetChildEnv;
+let parent: Spreadsheet;
+let composerStore: Store<ComposerStore>;
+let composerFocusStore: Store<ComposerFocusStore>;
 
 jest.useFakeTimers();
 
 describe("Grid component", () => {
   beforeEach(async () => {
     ({ parent, model, fixture, env } = await mountSpreadsheet());
+    composerStore = env.getStore(ComposerStore);
+    composerFocusStore = env.getStore(ComposerFocusStore);
   });
 
   test("simple rendering snapshot", async () => {
@@ -187,14 +194,14 @@ describe("Grid component", () => {
       // change this
       await keyDown({ key: "Enter" });
       expect(getSelectionAnchorCellXc(model)).toBe("A1");
-      expect(model.getters.getEditionMode()).toBe("editing");
+      expect(composerStore.editionMode).toBe("editing");
     });
 
     test("pressing ENTER in edit mode stop editing and move one cell down", async () => {
       await typeInComposerGrid("a");
       keyDown({ key: "Enter" });
       expect(getSelectionAnchorCellXc(model)).toBe("A2");
-      expect(model.getters.getEditionMode()).toBe("inactive");
+      expect(composerStore.editionMode).toBe("inactive");
       expect(getCellContent(model, "A1")).toBe("a");
     });
 
@@ -203,7 +210,7 @@ describe("Grid component", () => {
       await nextTick();
       keyDown({ key: "Backspace" });
       expect(getSelectionAnchorCellXc(model)).toBe("A1");
-      expect(model.getters.getEditionMode()).toBe("inactive");
+      expect(composerStore.editionMode).toBe("inactive");
       expect(getCellContent(model, "A1")).toBe("");
     });
 
@@ -213,7 +220,7 @@ describe("Grid component", () => {
       await typeInComposerGrid("a");
       keyDown({ key: "Enter", shiftKey: true });
       expect(getSelectionAnchorCellXc(model)).toBe("A1");
-      expect(model.getters.getEditionMode()).toBe("inactive");
+      expect(composerStore.editionMode).toBe("inactive");
       expect(getCellContent(model, "A2")).toBe("a");
     });
 
@@ -221,7 +228,7 @@ describe("Grid component", () => {
       await typeInComposerGrid("a");
       keyDown({ key: "Enter", shiftKey: true });
       expect(getSelectionAnchorCellXc(model)).toBe("A1");
-      expect(model.getters.getEditionMode()).toBe("inactive");
+      expect(composerStore.editionMode).toBe("inactive");
       expect(getCellContent(model, "A1")).toBe("a");
     });
 
@@ -403,26 +410,26 @@ describe("Grid component", () => {
       selectCell(model, "B5");
       await keyDown({ key: "=", altKey: true });
       expect(document.activeElement).toBe(document.querySelector(".o-grid-composer .o-composer"));
-      expect(model.getters.getEditionMode()).toBe("editing");
-      expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 10 });
-      expect(model.getters.getCurrentContent()).toBe("=SUM(B2:B4)");
-      expect(model.getters.getHighlights()[0]?.zone).toEqual(toZone("B2:B4"));
+      expect(composerStore.editionMode).toBe("editing");
+      expect(composerStore.composerSelection).toEqual({ start: 5, end: 10 });
+      expect(composerStore.currentContent).toBe("=SUM(B2:B4)");
+      expect(composerStore.highlights[0]?.zone).toEqual(toZone("B2:B4"));
     });
 
     test("can automatically sum in an empty sheet with ALT+=", () => {
       selectCell(model, "B5");
       keyDown({ key: "=", altKey: true });
-      expect(model.getters.getEditionMode()).toBe("selecting");
-      expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
-      expect(model.getters.getCurrentContent()).toBe("=SUM()");
+      expect(composerStore.editionMode).toBe("selecting");
+      expect(composerStore.composerSelection).toEqual({ start: 5, end: 5 });
+      expect(composerStore.currentContent).toBe("=SUM()");
     });
 
     test("can automatically sum multiple zones in an empty sheet with ALT+=", () => {
       setSelection(model, ["A1:B2", "C4:C6"]);
       keyDown({ key: "=", altKey: true });
-      expect(model.getters.getEditionMode()).toBe("selecting");
-      expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
-      expect(model.getters.getCurrentContent()).toBe("=SUM()");
+      expect(composerStore.editionMode).toBe("selecting");
+      expect(composerStore.composerSelection).toEqual({ start: 5, end: 5 });
+      expect(composerStore.currentContent).toBe("=SUM()");
     });
 
     test("automatically sum zoned xc is merged", () => {
@@ -430,7 +437,7 @@ describe("Grid component", () => {
       merge(model, "B2:B4");
       selectCell(model, "B5");
       keyDown({ key: "=", altKey: true });
-      expect(model.getters.getCurrentContent()).toBe("=SUM(B2)");
+      expect(composerStore.currentContent).toBe("=SUM(B2)");
     });
 
     test("automatically sum from merged cell", () => {
@@ -438,11 +445,11 @@ describe("Grid component", () => {
       merge(model, "B1:B2");
       selectCell(model, "B2");
       keyDown({ key: "=", altKey: true });
-      expect(model.getters.getCurrentContent()).toBe("=SUM(A1)");
-      model.dispatch("CANCEL_EDITION");
+      expect(composerStore.currentContent).toBe("=SUM(A1)");
+      composerStore.cancelEdition();
       selectCell(model, "B1");
       keyDown({ key: "=", altKey: true });
-      expect(model.getters.getCurrentContent()).toBe("=SUM(A1)");
+      expect(composerStore.currentContent).toBe("=SUM(A1)");
     });
 
     test("automatic sum does not open composer when multiple zones are summed", () => {
@@ -451,7 +458,7 @@ describe("Grid component", () => {
       setSelection(model, ["A2:B2"]);
 
       keyDown({ key: "=", altKey: true });
-      expect(model.getters.getEditionMode()).toBe("inactive");
+      expect(composerStore.editionMode).toBe("inactive");
       expect(getCellText(model, "A2")).toBe("=SUM(A1)");
       expect(getCellText(model, "B2")).toBe("=SUM(B1)");
     });
@@ -462,7 +469,7 @@ describe("Grid component", () => {
       setSelection(model, ["A1:A2"]);
 
       keyDown({ key: "=", altKey: true });
-      expect(model.getters.getEditionMode()).toBe("inactive");
+      expect(composerStore.editionMode).toBe("inactive");
       expect(getCellText(model, "A3")).toBe("=SUM(A1:A2)");
     });
 
@@ -470,8 +477,8 @@ describe("Grid component", () => {
       setCellContent(model, "A2", "2");
       selectCell(model, "A2");
       keyDown({ key: "=", altKey: true });
-      expect(model.getters.getEditionMode()).toBe("selecting");
-      expect(model.getters.getCurrentContent()).toBe("=SUM()");
+      expect(composerStore.editionMode).toBe("selecting");
+      expect(composerStore.currentContent).toBe("=SUM()");
     });
 
     test("automatic sum opens composer if selection is one merge even if it's not empty", () => {
@@ -479,8 +486,8 @@ describe("Grid component", () => {
       merge(model, "A2:A3");
       selectCell(model, "A2");
       keyDown({ key: "=", altKey: true });
-      expect(model.getters.getEditionMode()).toBe("selecting");
-      expect(model.getters.getCurrentContent()).toBe("=SUM()");
+      expect(composerStore.editionMode).toBe("selecting");
+      expect(composerStore.currentContent).toBe("=SUM()");
     });
 
     test("Pressing CTRL+HOME moves you to first visible top-left cell", () => {
@@ -924,7 +931,7 @@ describe("Grid component", () => {
       })
     );
     await nextTick();
-    expect(model.getters.getEditionMode()).toBe("inactive");
+    expect(composerStore.editionMode).toBe("inactive");
   });
 
   test("Mac user use metaKey, not CtrlKey", async () => {
@@ -1338,6 +1345,8 @@ describe("Copy paste keyboard shortcut", () => {
     clipboardData = new MockClipboardData();
     ({ parent, model, fixture } = await mountSpreadsheet());
     sheetId = model.getters.getActiveSheetId();
+    composerStore = parent.env.getStore(ComposerStore);
+    composerFocusStore = parent.env.getStore(ComposerFocusStore);
   });
   test("Can paste from OS", async () => {
     selectCell(model, "A1");
@@ -1547,12 +1556,12 @@ describe("Copy paste keyboard shortcut", () => {
     expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
     // double click on child
     await doubleClick(fixture, ".o-figure");
-    expect(model.getters.getEditionMode()).toBe("inactive");
+    expect(composerStore.editionMode).toBe("inactive");
     expect(document.activeElement).toBe(fixture.querySelector(".o-figure"));
 
     // double click on grid overlay
     await doubleClick(fixture, ".o-grid-overlay");
-    expect(model.getters.getEditionMode()).toBe("editing");
+    expect(composerStore.editionMode).toBe("editing");
     expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer"));
   });
 
@@ -1568,11 +1577,11 @@ describe("Copy paste keyboard shortcut", () => {
       0.5 * DEFAULT_CELL_HEIGHT
     );
     await nextTick();
-    expect(parent.focusGridComposer).toBe("contentFocus");
+    expect(composerFocusStore.gridComposerFocus).toBe("contentFocus");
 
-    model.dispatch("STOP_EDITION");
+    composerStore.stopEdition();
     await nextTick();
-    expect(parent.focusGridComposer).toBe("inactive");
+    expect(composerFocusStore.gridComposerFocus).toBe("inactive");
 
     // double click A2 - still in a non empty cell (in merge)
     triggerMouseEvent(
@@ -1582,11 +1591,11 @@ describe("Copy paste keyboard shortcut", () => {
       1.5 * DEFAULT_CELL_HEIGHT
     );
     await nextTick();
-    expect(parent.focusGridComposer).toBe("contentFocus");
+    expect(composerFocusStore.gridComposerFocus).toBe("contentFocus");
 
-    model.dispatch("STOP_EDITION");
+    composerStore.stopEdition();
     await nextTick();
-    expect(parent.focusGridComposer).toBe("inactive");
+    expect(composerFocusStore.gridComposerFocus).toBe("inactive");
 
     // double click B2
     triggerMouseEvent(
@@ -1596,7 +1605,7 @@ describe("Copy paste keyboard shortcut", () => {
       1.5 * DEFAULT_CELL_HEIGHT
     );
     await nextTick();
-    expect(parent.focusGridComposer).toBe("cellFocus");
+    expect(composerFocusStore.gridComposerFocus).toBe("cellFocus");
   });
 });
 

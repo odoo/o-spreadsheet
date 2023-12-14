@@ -18,7 +18,6 @@ import {
   TOPBAR_TOOLBAR_HEIGHT,
 } from "../../constants";
 import { interactiveStopEdition } from "../../helpers/ui/stop_edition_interactive";
-import { ComposerSelection } from "../../plugins/ui_stateful/edition";
 import { formatNumberMenuItemSpec, topbarComponentRegistry } from "../../registries/index";
 import { topbarMenuRegistry } from "../../registries/menus/topbar_menu_registry";
 import { Color, Pixel, SpreadsheetChildEnv } from "../../types/index";
@@ -30,7 +29,6 @@ import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
 import { FontSizeEditor } from "../font_size_editor/font_size_editor";
 import { css } from "../helpers/css";
 import { Menu, MenuState } from "../menu/menu";
-import { ComposerFocusType } from "../spreadsheet/spreadsheet";
 import { PaintFormatButton } from "./../paint_format_button/paint_format_button";
 
 interface State {
@@ -42,8 +40,6 @@ interface State {
 
 interface Props {
   onClick: () => void;
-  focusComposer: Omit<ComposerFocusType, "cellFocus">;
-  onComposerContentFocused: (selection: ComposerSelection) => void;
   dropdownMaxHeight: Pixel;
 }
 
@@ -141,8 +137,6 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TopBar";
   static props = {
     onClick: Function,
-    focusComposer: String,
-    onComposerContentFocused: Function,
     dropdownMaxHeight: Number,
   };
   get dropdownStyle() {

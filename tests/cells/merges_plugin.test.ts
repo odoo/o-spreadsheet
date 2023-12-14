@@ -28,7 +28,12 @@ import {
   getSelectionAnchorCellXc,
   getStyle,
 } from "../test_helpers/getters_helpers";
-import { XCToMergeCellMap, getMergeCellMap, target } from "../test_helpers/helpers";
+import {
+  XCToMergeCellMap,
+  getMergeCellMap,
+  makeTestComposerStore,
+  target,
+} from "../test_helpers/helpers";
 
 function getCellsXC(model: Model): string[] {
   return Object.values(model.getters.getCells(model.getters.getActiveSheetId())).map((cell) => {
@@ -132,13 +137,14 @@ describe("merges", () => {
         { colNumber: 10, rowNumber: 10, cells: { B2: { content: "b2" } }, merges: ["B2:C3"] },
       ],
     });
+    const composerStore = makeTestComposerStore(model);
 
     selectCell(model, "C3");
     expect(getSelectionAnchorCellXc(model)).toBe("C3");
-    model.dispatch("START_EDITION");
-    expect(model.getters.getCurrentContent()).toBe("b2");
-    model.dispatch("SET_CURRENT_CONTENT", { content: "new value" });
-    model.dispatch("STOP_EDITION");
+    composerStore.startEdition();
+    expect(composerStore.currentContent).toBe("b2");
+    composerStore.setCurrentContent("new value");
+    composerStore.stopEdition();
     expect(getCellContent(model, "B2")).toBe("new value");
   });
 

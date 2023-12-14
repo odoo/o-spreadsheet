@@ -44,7 +44,7 @@ import {
   getEvaluatedCell,
   getStyle,
 } from "./test_helpers/getters_helpers";
-import { target, toRangesData } from "./test_helpers/helpers";
+import { makeTestComposerStore, target, toRangesData } from "./test_helpers/helpers";
 
 let model: Model;
 let sheetId: UID;
@@ -87,7 +87,6 @@ describe("Repeat commands basics", () => {
 
   test("Repeatable local command list", () => {
     const repeatableCommands = [
-      "STOP_EDITION",
       "PASTE",
       "INSERT_CELL",
       "DELETE_CELL",
@@ -459,9 +458,10 @@ describe("Repeat local commands", () => {
   });
 
   test("Repeat stop edition", () => {
-    model.dispatch("START_EDITION");
-    model.dispatch("SET_CURRENT_CONTENT", { content: "kikou" });
-    model.dispatch("STOP_EDITION");
+    const composerStore = makeTestComposerStore(model);
+    composerStore.startEdition();
+    composerStore.setCurrentContent("kikou");
+    composerStore.stopEdition();
     expect(getCellContent(model, "A1")).toEqual("kikou");
 
     setSelection(model, ["B1"]);

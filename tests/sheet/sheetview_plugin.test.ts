@@ -6,6 +6,7 @@ import {
 } from "../../src/constants";
 import { isDefined, numberToLetters, range, toXC, toZone, zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
+import { ComposerStore } from "../../src/plugins/ui_stateful";
 import { SheetViewPlugin } from "../../src/plugins/ui_stateful/sheetview";
 import { Zone } from "../../src/types";
 import {
@@ -43,6 +44,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import { getActiveSheetFullScrollInfo } from "../test_helpers/getters_helpers";
 import { getPlugin } from "../test_helpers/helpers";
+import { makeStore } from "../test_helpers/stores";
 
 let model: Model;
 
@@ -1426,6 +1428,7 @@ describe("shift viewport up/down", () => {
   );
 
   test("Ensure the cell is in the viewport when starting the edition of a cell", async () => {
+    const { store: composerStore, model } = makeStore(ComposerStore);
     model.dispatch("RESIZE_SHEETVIEW", {
       width: 100,
       height: 100,
@@ -1438,7 +1441,7 @@ describe("shift viewport up/down", () => {
     const { col, row } = model.getters.getActivePosition();
     model.dispatch("SET_VIEWPORT_OFFSET", { offsetX: 0, offsetY: 200 });
     expect(model.getters.isVisibleInViewport({ sheetId, col, row })).toBeFalsy();
-    model.dispatch("START_EDITION");
+    composerStore.startEdition();
     expect(model.getters.isVisibleInViewport({ sheetId, col, row })).toBeTruthy();
   });
 });

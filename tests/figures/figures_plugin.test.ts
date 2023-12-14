@@ -13,6 +13,7 @@ import {
   setViewportOffset,
   undo,
 } from "../test_helpers/commands_helpers";
+import { makeTestComposerStore } from "../test_helpers/helpers";
 
 describe("figure plugin", () => {
   test("can create a simple figure", () => {
@@ -347,8 +348,9 @@ describe("figure plugin", () => {
     expect(model.getters.getSelectedFigureId()).toBeNull();
   });
 
-  test("Selecting a cell cancel the edition of a cell", () => {
+  test("Selecting a figure cancel the edition of a cell", () => {
     const model = new Model();
+    const composerStore = makeTestComposerStore(model);
     model.dispatch("CREATE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
       figure: {
@@ -360,11 +362,11 @@ describe("figure plugin", () => {
         height: 10,
       },
     });
-    model.dispatch("START_EDITION");
-    model.dispatch("SET_CURRENT_CONTENT", { content: "hello" });
-    expect(model.getters.getEditionMode()).toBe("editing");
+    composerStore.startEdition();
+    composerStore.setCurrentContent("hello");
+    expect(composerStore.editionMode).toBe("editing");
     model.dispatch("SELECT_FIGURE", { id: "someuuid" });
-    expect(model.getters.getEditionMode()).toBe("inactive");
+    expect(composerStore.editionMode).toBe("inactive");
     expect(model.getters.getActiveCell().value).toBe("");
   });
 
