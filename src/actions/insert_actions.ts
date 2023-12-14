@@ -188,7 +188,7 @@ export const insertImage: ActionSpec = {
 
 export const insertFunction: ActionSpec = {
   name: _t("Function"),
-  icon: "o-spreadsheet-Icon.SHOW_HIDE_FORMULA",
+  icon: "o-spreadsheet-Icon.FORMULA",
 };
 
 export const insertFunctionSum: ActionSpec = {

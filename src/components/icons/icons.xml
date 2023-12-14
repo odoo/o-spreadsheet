@@ -128,15 +128,15 @@
       />
     </svg>
   </t>
-  <t t-name="o-spreadsheet-Icon.SHOW_HIDE_GRID">
-    <svg class="o-icon">
-      <path
-        fill="currentColor"
-        d="M.5 2A1.5 1.5 0 0 1 2 .5h14A1.5 1.5 0 0 1 17.5 2v7H11V7H7v4s-.5 0-1.5 1h-1v5h-3a1.5 1.5 0 0 1-1-1M6 6V2H2v4m9 0V2H7v4m9 0V2h-4v4m-6 5V7H2v4m14-2V7h-4v2m-7.5 6.5V12H2v3.5 M14 10.5c1 0 1 .5 1 1-1.5 2.5-3.5 4.5-5 6.5-.5 0-1-.5-1-1-1-.5-1.5-1-2.5-2 0 0-.5-.5 0-1 1.5-2 4-3 7-3m-1 1.5C13.5 12 4 14 10 16c0 0-1.5-2 2.5-3.5m5 1.5c.5.5.5 1 .5 1-1.5 2-3.5 3-6 2.5.5-.5.5-1 1-1s5.5-1 2-3.5l1-1"
-      />
+  <t t-name="o-spreadsheet-Icon.SHOW">
+    <svg class="o-icon" viewBox="0 0 24 24" fill="none" stroke="currentcolor">
+      <path stroke-width="1.35" d="M1,12 S11.5,0 23,12 M1,12 S11.5,24 23,12"/>
+      <path d="M1.26,11.7 A .4 .3 1 0 0 1.2,12.3"/>
+      <path d="M22.8,11.7 A .4 .3 1 0 1 22.75,12.3"/>
+      <circle stroke-width="1.35" stroke="currentcolor" cx="12" cy="12" r="3"/>
     </svg>
   </t>
-  <t t-name="o-spreadsheet-Icon.SHOW_HIDE_FORMULA">
+  <t t-name="o-spreadsheet-Icon.FORMULA">
     <svg class="o-icon">
       <path
         fill="currentColor"
