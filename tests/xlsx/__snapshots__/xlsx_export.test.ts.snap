@@ -15131,6 +15131,20 @@ exports[`Test XLSX export formulas All non-exportable formulas 1`] = `
                 </v>
             </c>
         </row>
+        <row r="22" ht="17.25" customHeight="1" hidden="0">
+            <c r="A22" s="1">
+                <f>
+                    SUM(A3:Z3)
+                </f>
+            </c>
+        </row>
+        <row r="23" ht="17.25" customHeight="1" hidden="0">
+            <c r="A23" s="1">
+                <f>
+                    SUM(A3:A100)
+                </f>
+            </c>
+        </row>
     </sheetData>
 </worksheet>",
       "contentType": "sheet",

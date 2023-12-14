@@ -243,6 +243,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           format: cell.format ? getItemId<Format>(cell.format, formats) : undefined,
           content: cell.content || undefined,
         };
+        if (cell instanceof FormulaCellWithDependencies) {
+          cells[xc].content = cell.contentWithFixedReferences || undefined;
+        }
       }
       _sheet.cells = cells;
     }
@@ -638,14 +641,14 @@ class FormulaCellWithDependencies implements FormulaCell {
     readonly style: Style | undefined,
     dependencies: Range[],
     private readonly sheetId: UID,
-    private readonly getRangeString: (range: Range, sheetId: UID) => string
+    private readonly getRangeString: (range: Range, sheetId: UID, boolean) => string
   ) {
     let rangeIndex = 0;
     const tokens = compiledFormula.tokens.map((token) => {
       if (token.type === "REFERENCE") {
         const index = rangeIndex++;
         return new RangeReferenceToken(() =>
-          this.getRangeString(dependencies[index], this.sheetId)
+          this.getRangeString(dependencies[index], this.sheetId, false)
         );
       }
       return token;
@@ -659,6 +662,19 @@ class FormulaCellWithDependencies implements FormulaCell {
 
   get content() {
     return concat(this.compiledFormula.tokens.map((token) => token.value));
+  }
+
+  get contentWithFixedReferences() {
+    let rangeIndex = 0;
+    return concat(
+      this.compiledFormula.tokens.map((token) => {
+        if (token.type === "REFERENCE") {
+          const index = rangeIndex++;
+          return this.getRangeString(this.compiledFormula.dependencies[index], this.sheetId, true);
+        }
+        return token.value;
+      })
+    );
   }
 }
 
