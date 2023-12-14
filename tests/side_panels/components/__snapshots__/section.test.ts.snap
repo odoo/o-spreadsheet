@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Section Can add a content to a section 1`] = `
+<div>
+  <div
+    class="container"
+  >
+    <div
+      class="o-section my-class"
+    >
+      <div
+        class="o-section-title"
+      >
+        My title
+      </div>
+      
+      <div
+        class="content"
+      >
+        My content
+      </div>
+      
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Section Can render a section 1`] = `
+<div>
+  <div
+    class="container"
+  >
+    <div
+      class="o-section my-class"
+    >
+      <div
+        class="o-section-title"
+      >
+        My title
+      </div>
+      
+      
+      
+    </div>
+  </div>
+</div>
+`;
