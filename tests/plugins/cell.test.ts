@@ -156,15 +156,22 @@ describe("link cell", () => {
       const cell = getCell(model, "A1");
       expect(cell?.evaluated.value).toBe(markdown);
       expect(cell?.evaluated.type).toBe(CellValueType.text);
+      expect(cell?.isLink()).toBeFalsy();
     }
   );
 
-  test("a markdown link in a markdown link", () => {
+  test.each([
+    ["[label](url)", "label", "https://url"],
+    ["[[label](link)](http://odoo.com)", "[label](link)", "http://odoo.com"],
+    ["[lab[el](url)", "lab[el", "https://url"],
+    ["[lab]el](url)", "lab]el", "https://url"],
+    ["[[label]](url)", "[label]", "https://url"],
+  ])("valid markdown %s is recognized as link", (markdown, label, link) => {
     const model = new Model();
-    setCellContent(model, "A1", `[[label](link)](http://odoo.com)`);
-    const cell = getCell(model, "A1");
-    expect(cell?.evaluated.type).toBe(CellValueType.text);
-    expect(cell?.content).toBe("[[label](link)](http://odoo.com)");
+    setCellContent(model, "A1", markdown);
+    const cell = getCell(model, "A1") as LinkCell;
+    expect(cell.link.label).toBe(label);
+    expect(cell.link.url).toBe(link);
   });
 
   test("can create a sheet link", () => {

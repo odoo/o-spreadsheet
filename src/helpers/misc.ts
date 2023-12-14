@@ -272,7 +272,7 @@ export function isDateTime(str: string): boolean {
   return parseDateTime(str) !== null;
 }
 
-const MARKDOWN_LINK_REGEX = /^\[([^\[]+)\]\((.+)\)$/;
+const MARKDOWN_LINK_REGEX = /^\[(.+)\]\((.+)\)$/;
 //link must start with http or https
 //https://stackoverflow.com/a/3809435/4760614
 const WEB_LINK_REGEX =
