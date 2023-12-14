@@ -4,6 +4,7 @@ import { CommandResult, DispatchResult, SpreadsheetChildEnv, UID } from "../../.
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { ChartTerms } from "../../../translations_terms";
 import { ValidationMessages } from "../../../validation_messages/validation_messages";
+import { ChartDataSeries } from "../building_blocks/data_series/data_series";
 
 interface Props {
   figureId: UID;
@@ -18,7 +19,7 @@ interface PanelState {
 
 export class GaugeChartConfigPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GaugeChartConfigPanel";
-  static components = { SelectionInput, ValidationMessages };
+  static components = { SelectionInput, ValidationMessages, ChartDataSeries };
 
   private state: PanelState = useState({
     dataRangeDispatchResult: undefined,
