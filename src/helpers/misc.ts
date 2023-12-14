@@ -167,7 +167,7 @@ export function isBoolean(str: string): boolean {
   return upperCased === "TRUE" || upperCased === "FALSE";
 }
 
-const MARKDOWN_LINK_REGEX = /^\[([^\[]+)\]\((.+)\)$/;
+const MARKDOWN_LINK_REGEX = /^\[(.+)\]\((.+)\)$/;
 //link must start with http or https
 //https://stackoverflow.com/a/3809435/4760614
 const WEB_LINK_REGEX =
