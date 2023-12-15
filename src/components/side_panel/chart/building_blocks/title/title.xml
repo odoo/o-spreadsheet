@@ -1,0 +1,15 @@
+<templates>
+  <t t-name="o-spreadsheet.ChartTitle">
+    <t t-set="sectionTitle">Title</t>
+    <t t-set="placeholder">New Chart</t>
+    <Section class="'o-chart-title'" title="sectionTitle">
+      <input
+        type="text"
+        class="o-input o-optional"
+        t-att-value="props.title"
+        t-on-change="updateTitle"
+        t-att-placeholder="placeholder"
+      />
+    </Section>
+  </t>
+</templates>

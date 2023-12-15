@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Chart title Can render a chart title component 1`] = `
+<div>
+  <div
+    class="container"
+  >
+    <div
+      class="o-section o-chart-title"
+    >
+      <div
+        class="o-section-title"
+      >
+        Title
+      </div>
+      
+      <input
+        class="o-input o-optional"
+        placeholder="New Chart"
+        type="text"
+      />
+      
+    </div>
+  </div>
+</div>
+`;

@@ -5,16 +5,7 @@
         currentColor="props.definition.background"
         onColorPicked.bind="updateBackgroundColor"
       />
-      <div class="o-section o-chart-title">
-        <div class="o-section-title">Title</div>
-        <input
-          type="text"
-          t-model="state.title"
-          t-on-change="updateTitle"
-          class="o-input o-optional"
-          placeholder="New Chart"
-        />
-      </div>
+      <ChartTitle title="title" update.bind="updateTitle"/>
       <div class="o-section">
         <div class="o-section-title">Legend position</div>
         <select
