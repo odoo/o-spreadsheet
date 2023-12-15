@@ -1,0 +1,18 @@
+<templates>
+  <t t-name="o-spreadsheet.ChartColor">
+    <t t-set="background_color">Background color</t>
+    <Section class="'o-chart-background-color'" title="background_color">
+      <div class="d-flex align-items-center">
+        <span class="pe-1">Select a color...</span>
+        <ColorPickerWidget
+          currentColor="props.currentColor"
+          showColorPicker="state.pickerOpened"
+          toggleColorPicker.bind="togglePicker"
+          onColorPicked="props.onColorPicked"
+          title="background_color"
+          icon="'o-spreadsheet-Icon.FILL_COLOR'"
+        />
+      </div>
+    </Section>
+  </t>
+</templates>

@@ -1,23 +1,12 @@
 <templates>
   <t t-name="o-spreadsheet-ScorecardChartDesignPanel">
-    <t t-set="background_color">Background Color</t>
     <t t-set="color_up">Color Up</t>
     <t t-set="color_down">Color Down</t>
     <div>
-      <div class="o-section o-chart-background-color">
-        <div class="o-section-title">Background color</div>
-        <div class="d-flex align-items-center">
-          <span class="pe-1">Select a color...</span>
-          <ColorPickerWidget
-            currentColor="props.definition.background"
-            toggleColorPicker="() => this.toggleColorPicker('backgroundColor')"
-            showColorPicker="state.openedColorPicker === 'backgroundColor'"
-            onColorPicked="(color) => this.setColor(color, 'backgroundColor')"
-            title="background_color"
-            icon="'o-spreadsheet-Icon.FILL_COLOR'"
-          />
-        </div>
-      </div>
+      <ChartColor
+        currentColor="props.definition.background"
+        onColorPicked="(color) => this.setColor(color, 'backgroundColor')"
+      />
 
       <div class="o-section o-chart-title">
         <div class="o-section-title">Title</div>

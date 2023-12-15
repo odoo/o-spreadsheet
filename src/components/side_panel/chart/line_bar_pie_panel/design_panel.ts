@@ -1,10 +1,11 @@
-import { Component, useExternalListener, useState } from "@odoo/owl";
+import { Component, useState } from "@odoo/owl";
 import { _t } from "../../../../translation";
 import { BarChartDefinition } from "../../../../types/chart/bar_chart";
 import { LineChartDefinition } from "../../../../types/chart/line_chart";
 import { PieChartDefinition } from "../../../../types/chart/pie_chart";
 import { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
+import { ChartColor } from "../building_blocks/color/color";
 
 interface Props {
   figureId: UID;
@@ -20,29 +21,18 @@ interface Props {
 
 interface State {
   title: string;
-  fillColorTool: boolean;
 }
 
 export class LineBarPieDesignPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-LineBarPieDesignPanel";
-  static components = { ColorPickerWidget };
+  static components = { ChartColor, ColorPickerWidget };
 
   private state: State = useState({
     title: "",
-    fillColorTool: false,
   });
-
-  onClick(ev: MouseEvent) {
-    this.state.fillColorTool = false;
-  }
 
   setup() {
     this.state.title = _t(this.props.definition.title);
-    useExternalListener(window as any, "click", this.onClick);
-  }
-
-  toggleColorPicker() {
-    this.state.fillColorTool = !this.state.fillColorTool;
   }
 
   updateBackgroundColor(color: Color) {
