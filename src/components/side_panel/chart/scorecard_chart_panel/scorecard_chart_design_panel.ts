@@ -4,6 +4,7 @@ import { ScorecardChartDefinition } from "../../../../types/chart/scorecard_char
 import { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
 import { ChartColor } from "../building_blocks/color/color";
+import { ChartTitle } from "../building_blocks/title/title";
 
 type ColorPickerId = undefined | "backgroundColor" | "baselineColorUp" | "baselineColorDown";
 
@@ -15,28 +16,27 @@ interface Props {
 }
 
 interface PanelState {
-  title: string;
   openedColorPicker: ColorPickerId;
 }
 
 export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ScorecardChartDesignPanel";
-  static components = { ColorPickerWidget, ChartColor };
+  static components = { ColorPickerWidget, ChartColor, ChartTitle };
 
   private state: PanelState = useState({
-    title: "",
     openedColorPicker: undefined,
   });
 
   setup() {
-    this.state.title = _t(this.props.definition.title);
     useExternalListener(window, "click", this.closeMenus);
   }
 
-  updateTitle() {
-    this.props.updateChart(this.props.figureId, {
-      title: this.state.title,
-    });
+  get title(): string {
+    return _t(this.props.definition.title);
+  }
+
+  updateTitle(title: string) {
+    this.props.updateChart(this.props.figureId, { title });
   }
 
   translate(term) {

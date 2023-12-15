@@ -1,4 +1,4 @@
-import { Component, useState } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { _t } from "../../../../translation";
 import { BarChartDefinition } from "../../../../types/chart/bar_chart";
 import { LineChartDefinition } from "../../../../types/chart/line_chart";
@@ -6,6 +6,7 @@ import { PieChartDefinition } from "../../../../types/chart/pie_chart";
 import { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
 import { ChartColor } from "../building_blocks/color/color";
+import { ChartTitle } from "../building_blocks/title/title";
 
 interface Props {
   figureId: UID;
@@ -19,20 +20,12 @@ interface Props {
   ) => DispatchResult;
 }
 
-interface State {
-  title: string;
-}
-
 export class LineBarPieDesignPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-LineBarPieDesignPanel";
-  static components = { ChartColor, ColorPickerWidget };
+  static components = { ChartColor, ColorPickerWidget, ChartTitle };
 
-  private state: State = useState({
-    title: "",
-  });
-
-  setup() {
-    this.state.title = _t(this.props.definition.title);
+  get title() {
+    return _t(this.props.definition.title);
   }
 
   updateBackgroundColor(color: Color) {
@@ -41,10 +34,8 @@ export class LineBarPieDesignPanel extends Component<Props, SpreadsheetChildEnv>
     });
   }
 
-  updateTitle() {
-    this.props.updateChart(this.props.figureId, {
-      title: this.state.title,
-    });
+  updateTitle(title: string) {
+    this.props.updateChart(this.props.figureId, { title });
   }
 
   updateSelect(attr: string, ev) {

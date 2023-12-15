@@ -13,6 +13,7 @@ import { css } from "../../../helpers/css";
 import { ChartTerms } from "../../../translations_terms";
 import { ValidationMessages } from "../../../validation_messages/validation_messages";
 import { ChartColor } from "../building_blocks/color/color";
+import { ChartTitle } from "../building_blocks/title/title";
 import { ColorPickerWidget } from "./../../../color_picker/color_picker_widget";
 
 css/* scss */ `
@@ -57,7 +58,6 @@ interface Props {
 }
 
 interface PanelState {
-  title: string;
   openedMenu?: GaugeMenu;
   sectionRuleDispatchResult?: DispatchResult;
   sectionRule: SectionRule;
@@ -65,18 +65,20 @@ interface PanelState {
 
 export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GaugeChartDesignPanel";
-  static components = { ColorPickerWidget, ValidationMessages, ChartColor };
+  static components = { ColorPickerWidget, ValidationMessages, ChartColor, ChartTitle };
 
   private state: PanelState = useState({
-    title: "",
     openedMenu: undefined,
     sectionRuleDispatchResult: undefined,
     sectionRule: deepCopy(this.props.definition.sectionRule),
   });
 
   setup() {
-    this.state.title = _t(this.props.definition.title);
     useExternalListener(window, "click", this.closeMenus);
+  }
+
+  get title() {
+    return _t(this.props.definition.title);
   }
 
   get designErrorMessages(): string[] {
@@ -92,10 +94,8 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
     });
   }
 
-  updateTitle() {
-    this.props.updateChart(this.props.figureId, {
-      title: this.state.title,
-    });
+  updateTitle(title: string) {
+    this.props.updateChart(this.props.figureId, { title });
   }
 
   isRangeMinInvalid() {
