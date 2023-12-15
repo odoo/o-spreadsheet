@@ -12,6 +12,7 @@ import {
 import { css } from "../../../helpers/css";
 import { ChartTerms } from "../../../translations_terms";
 import { ValidationMessages } from "../../../validation_messages/validation_messages";
+import { ChartColor } from "../building_blocks/color/color";
 import { ColorPickerWidget } from "./../../../color_picker/color_picker_widget";
 
 css/* scss */ `
@@ -46,11 +47,7 @@ css/* scss */ `
   }
 `;
 
-type GaugeMenu =
-  | "backgroundColor"
-  | "sectionColor-lowerColor"
-  | "sectionColor-middleColor"
-  | "sectionColor-upperColor";
+type GaugeMenu = "sectionColor-lowerColor" | "sectionColor-middleColor" | "sectionColor-upperColor";
 
 interface Props {
   figureId: UID;
@@ -68,7 +65,7 @@ interface PanelState {
 
 export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GaugeChartDesignPanel";
-  static components = { ColorPickerWidget, ValidationMessages };
+  static components = { ColorPickerWidget, ValidationMessages, ChartColor };
 
   private state: PanelState = useState({
     title: "",
@@ -90,7 +87,6 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
   }
 
   updateBackgroundColor(color: Color) {
-    this.state.openedMenu = undefined;
     this.props.updateChart(this.props.figureId, {
       background: color,
     });

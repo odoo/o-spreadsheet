@@ -1,21 +1,10 @@
 <templates>
   <t t-name="o-spreadsheet-LineBarPieDesignPanel">
-    <t t-set="background_color">Background Color</t>
     <div>
-      <div class="o-section o-chart-background-color">
-        <div class="o-section-title">Background color</div>
-        <div class="d-flex align-items-center">
-          <span class="pe-1">Select a color...</span>
-          <ColorPickerWidget
-            currentColor="props.definition.background"
-            toggleColorPicker="() => this.toggleColorPicker()"
-            showColorPicker="state.fillColorTool"
-            onColorPicked="(color) => this.updateBackgroundColor(color)"
-            title="background_color"
-            icon="'o-spreadsheet-Icon.FILL_COLOR'"
-          />
-        </div>
-      </div>
+      <ChartColor
+        currentColor="props.definition.background"
+        onColorPicked.bind="updateBackgroundColor"
+      />
       <div class="o-section o-chart-title">
         <div class="o-section-title">Title</div>
         <input

@@ -3,6 +3,7 @@ import { _t } from "../../../../translation";
 import { ScorecardChartDefinition } from "../../../../types/chart/scorecard_chart";
 import { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
+import { ChartColor } from "../building_blocks/color/color";
 
 type ColorPickerId = undefined | "backgroundColor" | "baselineColorUp" | "baselineColorDown";
 
@@ -20,7 +21,7 @@ interface PanelState {
 
 export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ScorecardChartDesignPanel";
-  static components = { ColorPickerWidget };
+  static components = { ColorPickerWidget, ChartColor };
 
   private state: PanelState = useState({
     title: "",

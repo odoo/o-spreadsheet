@@ -1,0 +1,53 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Chart color Can render a chart color component 1`] = `
+<div>
+  <div
+    class="o-spreadsheet"
+  >
+    <div
+      class="o-section o-chart-background-color"
+    >
+      <div
+        class="o-section-title"
+      >
+        Background color
+      </div>
+      
+      <div
+        class="d-flex align-items-center"
+      >
+        <span
+          class="pe-1"
+        >
+          Select a color...
+        </span>
+        <div
+          class="o-color-picker-widget"
+        >
+          <span
+            class="o-color-picker-button o-color-picker-button-style"
+            title="Background color"
+          >
+            <span
+              style="border-bottom-style: hidden"
+            >
+              <svg
+                class="o-icon"
+              >
+                <path
+                  d="M14.5 8.87S13 10.49 13 11.49c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5c0-.99-1.5-2.62-1.5-2.62m-1.79-2.08L5.91 0 4.85 1.06l1.59 1.59-4.15 4.14a.996.996 0 0 0 0 1.41l4.5 4.5c.2.2.45.3.71.3.26 0 .51-.1.71-.29l4.5-4.5c.39-.39.39-1.03 0-1.42M4.21 7 7.5 3.71 10.79 7H4.21"
+                  fill="currentColor"
+                />
+              </svg>
+            </span>
+          </span>
+          
+        </div>
+        
+      </div>
+      
+    </div>
+  </div>
+</div>
+`;
