@@ -350,42 +350,46 @@ async function setup() {
   const rootApp = new owl.App(Demo);
   rootApp.addTemplates(templates);
   await rootApp.mount(document.body, { dev: true });
-  // fetch("https://unpkg.com/world-atlas/countries-110m.json")
-  //   .then((r) => r.json())
-  //   .then((data) => {
-  //     const countries = ChartGeo.topojson.feature(data, data.objects.countries).features;
-  //     // console.log(countries.map(d => d.properties.name));
-  //     const chart = new Chart(document.getElementById("canvas").getContext("2d"), {
-  //       type: "choropleth",
-  //       data: {
-  //         labels: countries.map((d) => d.properties.name === "Belgium" ? "Belgique" : d.properties.name),
-  //         datasets: [
-  //           {
-  //             label: "Countries",
-  //             data: countries.map((d) => ({ feature: d, value: Math.random() })),
-  //           },
-  //         ],
-  //       },
-  //       options: {
-  //         showOutline: true,
-  //         showGraticule: true,
-  //         plugins: {
-  //           legend: {
-  //             display: false,
-  //           },
-  //         },
-  //         scales: {
-  //           projection: {
-  //             axis: "x",
-  //             projection: "equalEarth",
-  //           },
-  //           color: {
-  //             axis: "x",
-  //             interpolate: "oranges",
-  //           },
-  //         },
-  //       },
-  //     });
-  //   });
+  fetch("https://unpkg.com/world-atlas/countries-110m.json")
+    .then((r) => r.json())
+    .then((data) => {
+      const countries = ChartGeo.topojson.feature(data, data.objects.countries).features;
+      // console.log(countries.map(d => d.properties.name));
+      const config = {
+        type: "choropleth",
+        data: {
+          labels: countries.map((d) =>
+            d.properties.name === "Belgium" ? "Belgique" : d.properties.name
+          ),
+          datasets: [
+            {
+              label: "Countries",
+              data: countries.map((d) => ({ feature: d, value: Math.random() })),
+            },
+          ],
+        },
+        options: {
+          showOutline: true,
+          showGraticule: true,
+          plugins: {
+            legend: {
+              display: false,
+            },
+          },
+          scales: {
+            projection: {
+              axis: "x",
+              projection: "equalEarth",
+            },
+            color: {
+              axis: "x",
+              interpolate: "oranges",
+            },
+          },
+        },
+      };
+      console.log(config);
+      // const chart = new Chart(document.getElementById("canvas").getContext("2d"), config);
+    });
 }
 whenReady(setup);

@@ -1,5 +1,10 @@
 <templates>
   <t t-name="o-spreadsheet-ChartJsComponent">
-    <canvas class="o-figure-canvas w-100 h-100" t-att-style="canvasStyle" t-ref="graphContainer"/>
+    <canvas
+      class="o-figure-canvas"
+      t-att-class="sizeClass"
+      t-att-style="canvasStyle"
+      t-ref="graphContainer"
+    />
   </t>
 </templates>

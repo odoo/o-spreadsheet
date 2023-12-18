@@ -186,7 +186,9 @@ export function createChoroplethChartRuntime(
   let config = getChoroplethConfiguration(chart, labelValues.formattedValues, localeFormat);
   //@ts-ignore
   const countries = ChartGeo.topojson.feature(
+    //@ts-ignore
     window.countries,
+    //@ts-ignore
     window.countries.objects.countries
   ).features;
   const data = {
@@ -203,6 +205,7 @@ export function createChoroplethChartRuntime(
     ],
   };
   config.data = data;
+
   config = {
     //@ts-ignore
     type: "choropleth",
@@ -235,17 +238,12 @@ export function createChoroplethChartRuntime(
           axis: "x",
           //@ts-ignore
           interpolate: "oranges",
-          quantize: 5,
-          legend: {
-            position: "bottom-right",
-            align: "bottom",
-          },
         },
       },
     },
   };
 
-  debugger;
+  // debugger;
   // const data: number[] = [];
 
   // config.data!.datasets!.push({
