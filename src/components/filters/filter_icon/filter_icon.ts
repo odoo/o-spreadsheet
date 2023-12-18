@@ -1,7 +1,10 @@
 import { Component } from "@odoo/owl";
 import { FILTERS_COLOR, GRID_ICON_EDGE_LENGTH } from "../../../constants";
+import { Store } from "../../../store_engine/store";
+import { useStore } from "../../../store_engine/store_hooks";
 import { CellPosition, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
+import { CellPopoverStore } from "../../popover";
 
 css/* scss */ `
   .o-filter-icon {
@@ -21,26 +24,31 @@ css/* scss */ `
 interface Props {
   cellPosition: CellPosition;
 }
-
 export class FilterIcon extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FilterIcon";
   static props = {
     cellPosition: Object,
   };
+  protected cellPopovers!: Store<CellPopoverStore>;
+
+  setup() {
+    this.cellPopovers = useStore(CellPopoverStore);
+  }
 
   onClick() {
     const position = this.props.cellPosition;
-    const activePopoverType = this.env.model.getters.getPersistentPopoverTypeAtPosition(position);
-    if (activePopoverType && activePopoverType === "FilterMenu") {
-      this.env.model.dispatch("CLOSE_CELL_POPOVER");
+    const activePopover = this.cellPopovers.persistentCellPopover;
+    const { col, row } = position;
+    if (
+      activePopover.isOpen &&
+      activePopover.col === col &&
+      activePopover.row === row &&
+      activePopover.type === "FilterMenu"
+    ) {
+      this.cellPopovers.close();
       return;
     }
-    const { col, row } = position;
-    this.env.model.dispatch("OPEN_CELL_POPOVER", {
-      col,
-      row,
-      popoverType: "FilterMenu",
-    });
+    this.cellPopovers.open({ col, row }, "FilterMenu");
   }
 
   get isFilterActive(): boolean {

@@ -1,4 +1,5 @@
 import { Spreadsheet, TransportService } from "../../src";
+import { CellPopoverStore } from "../../src/components/popover";
 import {
   BACKGROUND_GRAY_COLOR,
   DEFAULT_CELL_HEIGHT,
@@ -13,7 +14,7 @@ import {
 import { buildSheetLink, toCartesian, toHex, toZone, zoneToXc } from "../../src/helpers";
 import { createEmptyWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
-import { Align, ClipboardMIMEType } from "../../src/types";
+import { Align, ClipboardMIMEType, SpreadsheetChildEnv } from "../../src/types";
 import { FileStore } from "../__mocks__/mock_file_store";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { MockClipboardData, getClipboardEvent } from "../test_helpers/clipboard";
@@ -89,12 +90,13 @@ mockGetBoundingClientRect({
 let fixture: HTMLElement;
 let model: Model;
 let parent: Spreadsheet;
+let env: SpreadsheetChildEnv;
 
 jest.useFakeTimers();
 
 describe("Grid component", () => {
   beforeEach(async () => {
-    ({ parent, model, fixture } = await mountSpreadsheet());
+    ({ parent, model, fixture, env } = await mountSpreadsheet());
   });
 
   test("simple rendering snapshot", async () => {
@@ -789,11 +791,8 @@ describe("Grid component", () => {
     });
 
     test("Scrolling the grid remove persistent popovers if the cell is outside the viewport", async () => {
-      model.dispatch("OPEN_CELL_POPOVER", {
-        col: 0,
-        row: 0,
-        popoverType: "LinkEditor",
-      });
+      const cellPopovers = env.getStore(CellPopoverStore);
+      cellPopovers.open({ col: 0, row: 0 }, "LinkEditor");
       await nextTick();
       expect(fixture.querySelector(".o-link-editor")).not.toBeNull();
       await scrollGrid({ deltaY: DEFAULT_CELL_HEIGHT });
@@ -803,11 +802,8 @@ describe("Grid component", () => {
     });
 
     test("Scrolling the grid don't remove persistent popovers if the cell is inside the viewport", async () => {
-      model.dispatch("OPEN_CELL_POPOVER", {
-        col: 0,
-        row: 0,
-        popoverType: "LinkEditor",
-      });
+      const cellPopovers = env.getStore(CellPopoverStore);
+      cellPopovers.open({ col: 0, row: 0 }, "LinkEditor");
       await nextTick();
       expect(fixture.querySelector(".o-link-editor")).not.toBeNull();
       await scrollGrid({ deltaY: DEFAULT_CELL_HEIGHT - 5 });
@@ -1498,7 +1494,6 @@ describe("Copy paste keyboard shortcut", () => {
     await simulateClick(".o-filter-icon");
     expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
     expect(getClipboardVisibleZones(model).length).toBe(1);
-
     await keyDown({ key: "Escape" });
     expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(0);
     expect(getClipboardVisibleZones(model).length).toBe(1);
