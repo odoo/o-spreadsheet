@@ -1,11 +1,13 @@
 import { Component } from "@odoo/owl";
 import { ComponentsImportance } from "../../constants";
-import { Position, Rect, SpreadsheetChildEnv } from "../../types";
-import { ClosedCellPopover, PositionedCellPopover } from "../../types/cell_popovers";
+import { Store } from "../../store_engine/store";
+import { useStore } from "../../store_engine/store_hooks";
+import { Rect, SpreadsheetChildEnv } from "../../types";
+import { ClosedCellPopover, PositionedCellPopoverComponent } from "../../types/cell_popovers";
+import { CellPopoverStore } from "../popover";
 import { Popover } from "../popover/popover";
 
 interface Props {
-  hoveredCell: Partial<Position>;
   gridRect: Rect;
   onClosePopover: () => void;
   onMouseWheel: (ev: WheelEvent) => void;
@@ -13,16 +15,20 @@ interface Props {
 export class GridPopover extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GridPopover";
   static props = {
-    hoveredCell: Object,
     onClosePopover: Function,
     onMouseWheel: Function,
     gridRect: Object,
   };
   static components = { Popover };
+  protected cellPopovers!: Store<CellPopoverStore>;
   zIndex = ComponentsImportance.GridPopover;
 
-  get cellPopover(): PositionedCellPopover | ClosedCellPopover {
-    const popover = this.env.model.getters.getCellPopover(this.props.hoveredCell);
+  setup() {
+    this.cellPopovers = useStore(CellPopoverStore);
+  }
+
+  get cellPopover(): PositionedCellPopoverComponent | ClosedCellPopover {
+    const popover = this.cellPopovers.cellPopover;
     if (!popover.isOpen) {
       return { isOpen: false };
     }

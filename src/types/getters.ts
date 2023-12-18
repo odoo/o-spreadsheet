@@ -21,7 +21,6 @@ import { EvaluationConditionalFormatPlugin } from "../plugins/ui_core_views/eval
 import { HeaderSizeUIPlugin } from "../plugins/ui_core_views/header_sizes_ui";
 import { AutofillPlugin } from "../plugins/ui_feature/autofill";
 import { AutomaticSumPlugin } from "../plugins/ui_feature/automatic_sum";
-import { CellPopoverPlugin } from "../plugins/ui_feature/cell_popovers";
 import { CollaborativePlugin } from "../plugins/ui_feature/collaborative";
 import { FindAndReplacePlugin } from "../plugins/ui_feature/find_and_replace";
 import { HeaderVisibilityUIPlugin } from "../plugins/ui_feature/header_visibility_ui";
@@ -135,7 +134,6 @@ export type Getters = {
   PluginGetters<typeof UIOptionsPlugin> &
   PluginGetters<typeof SheetUIPlugin> &
   PluginGetters<typeof SheetViewPlugin> &
-  PluginGetters<typeof CellPopoverPlugin> &
   PluginGetters<typeof FilterEvaluationPlugin> &
   PluginGetters<typeof SplitToColumnsPlugin> &
   PluginGetters<typeof HeaderSizeUIPlugin> &
