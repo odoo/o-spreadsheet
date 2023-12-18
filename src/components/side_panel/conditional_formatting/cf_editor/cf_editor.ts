@@ -19,6 +19,7 @@ import { IconPicker } from "../../../icon_picker/icon_picker";
 import { ICONS, ICON_SETS } from "../../../icons/icons";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { CellIsOperators, CfTerms } from "../../../translations_terms";
+import { Section } from "../../components/section/section";
 import { ConditionalFormatPreviewList } from "../cf_preview_list/cf_preview_list";
 
 css/* scss */ `
@@ -228,6 +229,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     IconPicker,
     ColorPickerWidget,
     ConditionalFormatPreviewList,
+    Section,
   };
 
   icons = ICONS;

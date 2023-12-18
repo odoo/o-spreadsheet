@@ -7,6 +7,7 @@ import {
 } from "../../../../helpers/figures/charts";
 import { ChartDefinition, ChartType, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { css } from "../../../helpers/css";
+import { Section } from "../../components/section/section";
 
 css/* scss */ `
   .o-chart {
@@ -44,6 +45,7 @@ interface State {
 
 export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartPanel";
+  static components = { Section };
 
   private state!: State;
 

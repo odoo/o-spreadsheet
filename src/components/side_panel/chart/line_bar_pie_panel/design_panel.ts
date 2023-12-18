@@ -5,6 +5,7 @@ import { LineChartDefinition } from "../../../../types/chart/line_chart";
 import { PieChartDefinition } from "../../../../types/chart/pie_chart";
 import { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
+import { Section } from "../../components/section/section";
 import { ChartColor } from "../building_blocks/color/color";
 import { ChartTitle } from "../building_blocks/title/title";
 
@@ -22,7 +23,7 @@ interface Props {
 
 export class LineBarPieDesignPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-LineBarPieDesignPanel";
-  static components = { ChartColor, ColorPickerWidget, ChartTitle };
+  static components = { ChartColor, ColorPickerWidget, ChartTitle, Section };
 
   get title() {
     return _t(this.props.definition.title);

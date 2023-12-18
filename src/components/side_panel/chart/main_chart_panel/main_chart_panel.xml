@@ -20,8 +20,8 @@
 
       <t t-set="definition" t-value="getChartDefinition()"/>
       <t t-if="state.panel === 'configuration'">
-        <div class="o-section">
-          <div class="o-section-title">Chart type</div>
+        <t t-set="__title1__">Chart type</t>
+        <Section title="__title1__">
           <t t-set="types" t-value="chartTypes"/>
           <select
             class="o-input o-type-selector"
@@ -35,7 +35,7 @@
               t-att-selected="definition.type === type"
             />
           </select>
-        </div>
+        </Section>
         <t
           t-component="chartPanel.configuration"
           definition="definition"

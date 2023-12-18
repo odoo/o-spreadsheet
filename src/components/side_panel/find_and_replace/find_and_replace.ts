@@ -5,6 +5,7 @@ import { SearchOptions } from "../../../types/find_and_replace";
 import { SpreadsheetChildEnv } from "../../../types/index";
 import { css } from "../../helpers/css";
 import { SelectionInput } from "../../selection_input/selection_input";
+import { Section } from "../components/section/section";
 
 css/* scss */ `
   .o-find-and-replace {
@@ -39,7 +40,7 @@ interface Props {
 
 export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FindAndReplacePanel";
-  static components = { SelectionInput };
+  static components = { SelectionInput, Section };
 
   private debounceTimeoutId;
   private initialShowFormulaState: boolean = false;

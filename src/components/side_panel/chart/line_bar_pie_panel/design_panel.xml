@@ -6,8 +6,8 @@
         onColorPicked.bind="updateBackgroundColor"
       />
       <ChartTitle title="title" update.bind="updateTitle"/>
-      <div class="o-section">
-        <div class="o-section-title">Legend position</div>
+      <t t-set="__title1__">Legend position</t>
+      <Section title="__title1__">
         <select
           t-att-value="props.definition.legendPosition"
           class="o-input o-type-selector"
@@ -18,7 +18,7 @@
           <option value="left">Left</option>
           <option value="right">Right</option>
         </select>
-      </div>
+      </Section>
     </div>
   </t>
 </templates>

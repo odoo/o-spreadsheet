@@ -6,9 +6,8 @@
         onColorPicked.bind="updateBackgroundColor"
       />
       <ChartTitle title="title" update.bind="updateTitle"/>
-
-      <div class="o-section">
-        <div class="o-section-title">Range</div>
+      <t t-set="__title1__">Range</t>
+      <Section title="__title1__">
         <div class="o-subsection-left">
           <input
             type="text"
@@ -29,14 +28,14 @@
             t-att-class="{ 'o-invalid': isRangeMaxInvalid() }"
           />
         </div>
-      </div>
+      </Section>
 
-      <div class="o-section">
-        <div class="o-section-title">Thresholds</div>
+      <t t-set="__title2__">Thresholds</t>
+      <Section title="__title2__">
         <t t-call="o-spreadsheet-GaugeChartColorSectionTemplate">
           <t t-set="sectionRule" t-value="state.sectionRule"/>
         </t>
-      </div>
+      </Section>
 
       <div class="o-section" t-if="designErrorMessages.length">
         <ValidationMessages messages="designErrorMessages" msgType="'error'"/>

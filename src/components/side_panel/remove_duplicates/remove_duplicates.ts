@@ -5,6 +5,7 @@ import { HeaderIndex, SpreadsheetChildEnv } from "../../../types/index";
 import { css } from "../../helpers";
 import { RemoveDuplicateTerms } from "../../translations_terms";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
+import { Section } from "../components/section/section";
 
 css/* scss */ `
   .o-checkbox-selection {
@@ -22,7 +23,7 @@ interface RemoveDuplicatesState {
 }
 export class RemoveDuplicatesPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-RemoveDuplicatesPanel";
-  static components = { ValidationMessages };
+  static components = { ValidationMessages, Section };
 
   state: RemoveDuplicatesState = useState({
     hasHeader: false,
