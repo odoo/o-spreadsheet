@@ -2,10 +2,12 @@ import { Component } from "@odoo/owl";
 import { LINK_COLOR } from "../../../constants";
 import { toXC } from "../../../helpers";
 import { openLink, urlRepresentation } from "../../../helpers/links";
+import { Store, useStore } from "../../../store_engine";
 import { EvaluatedCell, Link, Position, SpreadsheetChildEnv } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { css } from "../../helpers/css";
 import { Menu } from "../../menu/menu";
+import { CellPopoverStore } from "../../popover/cell_popover_store";
 
 const LINK_TOOLTIP_HEIGHT = 32;
 const LINK_TOOLTIP_WIDTH = 220;
@@ -67,6 +69,12 @@ export class LinkDisplay extends Component<LinkDisplayProps, SpreadsheetChildEnv
   static components = { Menu };
   static template = "o-spreadsheet-LinkDisplay";
 
+  protected cellPopovers!: Store<CellPopoverStore>;
+
+  setup() {
+    this.cellPopovers = useStore(CellPopoverStore);
+  }
+
   get cell(): EvaluatedCell {
     const { col, row } = this.props.cellPosition;
     const sheetId = this.env.model.getters.getActiveSheetId();
@@ -93,11 +101,7 @@ export class LinkDisplay extends Component<LinkDisplayProps, SpreadsheetChildEnv
 
   edit() {
     const { col, row } = this.props.cellPosition;
-    this.env.model.dispatch("OPEN_CELL_POPOVER", {
-      col,
-      row,
-      popoverType: "LinkEditor",
-    });
+    this.cellPopovers.open({ col, row }, "LinkEditor");
   }
 
   unlink() {

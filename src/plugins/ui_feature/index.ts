@@ -1,6 +1,5 @@
 export * from "./autofill";
 export * from "./automatic_sum";
-export * from "./cell_popovers";
 export * from "./collaborative";
 export * from "./data_cleanup";
 export * from "./find_and_replace";

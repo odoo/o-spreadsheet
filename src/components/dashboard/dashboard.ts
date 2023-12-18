@@ -1,6 +1,7 @@
-import { Component, useChildSubEnv, useRef, useState } from "@odoo/owl";
+import { Component, useChildSubEnv, useRef } from "@odoo/owl";
 import { positionToZone } from "../../helpers/zones";
 import { clickableCellRegistry } from "../../registries/cell_clickable_registry";
+import { Store, useStore } from "../../store_engine";
 import {
   CellPosition,
   DOMCoordinates,
@@ -12,12 +13,14 @@ import {
   Zone,
 } from "../../types/index";
 import { FilterIconsOverlay } from "../filters/filter_icons_overlay/filter_icons_overlay";
+import { HoveredCellStore } from "../grid/hovered_cell_store";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { css, cssPropertiesToCss } from "../helpers/css";
 import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { useWheelHandler } from "../helpers/wheel_hook";
+import { CellPopoverStore } from "../popover";
 import { Popover } from "../popover/popover";
 import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
 
@@ -50,27 +53,28 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
     FilterIconsOverlay,
   };
 
+  protected cellPopovers!: Store<CellPopoverStore>;
+
   onMouseWheel!: (ev: WheelEvent) => void;
   canvasPosition!: DOMCoordinates;
-  hoveredCell!: Partial<Position>;
+  hoveredCell!: Store<HoveredCellStore>;
 
   setup() {
     const gridRef = useRef("grid");
     this.canvasPosition = useAbsoluteBoundingRect(gridRef);
-    this.hoveredCell = useState({ col: undefined, row: undefined });
+    this.hoveredCell = useStore(HoveredCellStore);
 
     useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
     useGridDrawing("canvas", this.env.model, () => this.env.model.getters.getSheetViewDimension());
     this.onMouseWheel = useWheelHandler((deltaX, deltaY) => {
       this.moveCanvas(deltaX, deltaY);
-      this.hoveredCell.col = undefined;
-      this.hoveredCell.row = undefined;
+      this.hoveredCell.clear();
     });
+    this.cellPopovers = useStore(CellPopoverStore);
   }
 
   onCellHovered({ col, row }) {
-    this.hoveredCell.col = col;
-    this.hoveredCell.row = row;
+    this.hoveredCell.hover({ col, row });
   }
 
   get gridContainer() {
@@ -148,7 +152,7 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
   }
 
   onClosePopover() {
-    this.env.model.dispatch("CLOSE_CELL_POPOVER");
+    this.cellPopovers.close();
   }
 
   onGridResized({ height, width }: DOMDimension) {

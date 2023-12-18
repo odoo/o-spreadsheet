@@ -27,7 +27,6 @@ import { HeaderSizeUIPlugin } from "./ui_core_views/header_sizes_ui";
 import {
   AutofillPlugin,
   AutomaticSumPlugin,
-  CellPopoverPlugin,
   CollaborativePlugin,
   DataCleanupPlugin,
   FindAndReplacePlugin,
@@ -81,7 +80,6 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("automatic_sum", AutomaticSumPlugin)
   .add("format", FormatPlugin)
   .add("split_to_columns", SplitToColumnsPlugin)
-  .add("cell_popovers", CellPopoverPlugin)
   .add("collaborative", CollaborativePlugin)
   .add("history", HistoryPlugin)
   .add("data_cleanup", DataCleanupPlugin);

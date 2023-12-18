@@ -1,3 +1,4 @@
+import { CellPopoverStore } from "../components/popover";
 import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH } from "../constants";
 import {
   getChartPositionAtCenterOfViewport,
@@ -437,7 +438,7 @@ export const OPEN_CF_SIDEPANEL_ACTION = (env: SpreadsheetChildEnv) => {
 
 export const INSERT_LINK = (env: SpreadsheetChildEnv) => {
   let { col, row } = env.model.getters.getActivePosition();
-  env.model.dispatch("OPEN_CELL_POPOVER", { col, row, popoverType: "LinkEditor" });
+  env.getStore(CellPopoverStore).open({ col, row }, "LinkEditor");
 };
 
 //------------------------------------------------------------------------------

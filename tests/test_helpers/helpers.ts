@@ -28,6 +28,7 @@ import { ComposerSelection } from "../../src/plugins/ui_stateful";
 import { topbarMenuRegistry } from "../../src/registries";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import { Registry } from "../../src/registries/registry";
+import { DependencyContainer, ModelStore } from "../../src/store_engine";
 import { _t } from "../../src/translation";
 import {
   CellPosition,
@@ -125,6 +126,9 @@ export function makeTestFixture() {
 }
 
 export function makeTestEnv(mockEnv: Partial<SpreadsheetChildEnv> = {}): SpreadsheetChildEnv {
+  const model = mockEnv.model || new Model();
+  const container = new DependencyContainer();
+  container.inject(ModelStore, model);
   return {
     model: mockEnv.model || new Model(),
     isDashboard: mockEnv.isDashboard || (() => false),
@@ -144,6 +148,9 @@ export function makeTestEnv(mockEnv: Partial<SpreadsheetChildEnv> = {}): Spreads
         return [] as Currency[];
       }),
     loadLocales: mockEnv.loadLocales || (async () => DEFAULT_LOCALES),
+    getStore: container.get.bind(container),
+    // @ts-ignore
+    __spreadsheet_stores__: container,
   };
 }
 

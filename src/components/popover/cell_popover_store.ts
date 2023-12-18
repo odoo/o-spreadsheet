@@ -1,59 +1,50 @@
 import { positionToZone } from "../../helpers";
 import { cellPopoverRegistry } from "../../registries/cell_popovers_registry";
-import { CellPosition, Command, CommandResult, LocalCommand, Position, Rect } from "../../types";
+import { SpreadsheetStore } from "../../store_engine/spreadsheet_store";
+import { CellPosition, Command, Position, Rect } from "../../types";
 import {
   CellPopoverType,
   ClosedCellPopover,
-  PositionedCellPopover,
+  OpenCellPopover,
+  PositionedCellPopoverComponent,
 } from "../../types/cell_popovers";
-import { UIPlugin } from "../ui_plugin";
+import { HoveredCellStore } from "../grid/hovered_cell_store";
 
-/**
- * Plugin managing the display of components next to cells.
- */
-export class CellPopoverPlugin extends UIPlugin {
-  static getters = [
-    "getCellPopover",
-    "getPersistentPopoverTypeAtPosition",
-    "hasOpenedPopover",
-  ] as const;
-
+export class CellPopoverStore extends SpreadsheetStore {
   private persistentPopover?: CellPosition & { type: CellPopoverType };
 
-  allowDispatch(cmd: LocalCommand): CommandResult {
-    switch (cmd.type) {
-      case "OPEN_CELL_POPOVER":
-        try {
-          cellPopoverRegistry.get(cmd.popoverType);
-        } catch (error) {
-          return CommandResult.InvalidCellPopover;
-        }
-        return CommandResult.Success;
-      default:
-        return CommandResult.Success;
-    }
-  }
+  protected hoveredCell = this.get(HoveredCellStore);
 
   handle(cmd: Command) {
     switch (cmd.type) {
       case "ACTIVATE_SHEET":
-        this.persistentPopover = undefined;
-        break;
-      case "OPEN_CELL_POPOVER":
-        this.persistentPopover = {
-          col: cmd.col,
-          row: cmd.row,
-          sheetId: this.getters.getActiveSheetId(),
-          type: cmd.popoverType,
-        };
-        break;
-      case "CLOSE_CELL_POPOVER":
-        this.persistentPopover = undefined;
-        break;
+        this.close();
     }
   }
 
-  getCellPopover({ col, row }: Partial<Position>): ClosedCellPopover | PositionedCellPopover {
+  open({ col, row }: Position, type: CellPopoverType): void {
+    const sheetId = this.getters.getActiveSheetId();
+    if (!cellPopoverRegistry.contains(type)) {
+      return;
+    }
+    this.persistentPopover = { col, row, sheetId, type };
+  }
+
+  close() {
+    this.persistentPopover = undefined;
+  }
+
+  get persistentCellPopover(): OpenCellPopover | ClosedCellPopover {
+    return (
+      (this.persistentPopover && { isOpen: true, ...this.persistentPopover }) || { isOpen: false }
+    );
+  }
+
+  get isOpen() {
+    return this.persistentPopover !== undefined;
+  }
+
+  get cellPopover(): ClosedCellPopover | PositionedCellPopoverComponent {
     const sheetId = this.getters.getActiveSheetId();
 
     if (this.persistentPopover && this.getters.isVisibleInViewport(this.persistentPopover)) {
@@ -68,6 +59,7 @@ export class CellPopoverPlugin extends UIPlugin {
             anchorRect: this.computePopoverAnchorRect(this.persistentPopover),
           };
     }
+    const { col, row } = this.hoveredCell;
     if (
       col === undefined ||
       row === undefined ||
@@ -86,21 +78,6 @@ export class CellPopoverPlugin extends UIPlugin {
           ...popover,
           anchorRect: this.computePopoverAnchorRect(position),
         };
-  }
-
-  hasOpenedPopover() {
-    return this.persistentPopover !== undefined;
-  }
-
-  getPersistentPopoverTypeAtPosition({ col, row }: Position): CellPopoverType | undefined {
-    if (
-      this.persistentPopover &&
-      this.persistentPopover.col === col &&
-      this.persistentPopover.row === row
-    ) {
-      return this.persistentPopover.type;
-    }
-    return undefined;
   }
 
   private computePopoverAnchorRect({ col, row }: Position): Rect {
