@@ -4,6 +4,7 @@ import { CommandResult, DispatchResult, SpreadsheetChildEnv, UID } from "../../.
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { ChartTerms } from "../../../translations_terms";
 import { ValidationMessages } from "../../../validation_messages/validation_messages";
+import { Section } from "../../components/section/section";
 import { ChartErrorSection } from "../building_blocks/error_section/error_section";
 
 interface Props {
@@ -20,7 +21,7 @@ interface PanelState {
 
 export class ScorecardChartConfigPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ScorecardChartConfigPanel";
-  static components = { SelectionInput, ValidationMessages, ChartErrorSection };
+  static components = { SelectionInput, ValidationMessages, ChartErrorSection, Section };
 
   private state: PanelState = useState({
     keyValueDispatchResult: undefined,

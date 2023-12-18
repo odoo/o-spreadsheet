@@ -12,6 +12,7 @@ import {
 import { css } from "../../../helpers/css";
 import { ChartTerms } from "../../../translations_terms";
 import { ValidationMessages } from "../../../validation_messages/validation_messages";
+import { Section } from "../../components/section/section";
 import { ChartColor } from "../building_blocks/color/color";
 import { ChartTitle } from "../building_blocks/title/title";
 import { ColorPickerWidget } from "./../../../color_picker/color_picker_widget";
@@ -65,7 +66,7 @@ interface PanelState {
 
 export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GaugeChartDesignPanel";
-  static components = { ColorPickerWidget, ValidationMessages, ChartColor, ChartTitle };
+  static components = { ColorPickerWidget, ValidationMessages, ChartColor, ChartTitle, Section };
 
   private state: PanelState = useState({
     openedMenu: undefined,

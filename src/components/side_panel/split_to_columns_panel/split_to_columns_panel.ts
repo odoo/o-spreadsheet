@@ -6,6 +6,7 @@ import { _t } from "../../../translation";
 import { CommandResult, SpreadsheetChildEnv } from "../../../types/index";
 import { SplitToColumnsTerms } from "../../translations_terms";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
+import { Section } from "../components/section/section";
 
 type SeparatorValue = "auto" | "custom" | " " | "," | ";" | typeof NEWLINE;
 
@@ -35,7 +36,7 @@ interface State {
 
 export class SplitIntoColumnsPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SplitIntoColumnsPanel";
-  static components = { ValidationMessages };
+  static components = { ValidationMessages, Section };
 
   state = useState<State>({ separatorValue: "auto", addNewColumns: false, customSeparator: "" });
 

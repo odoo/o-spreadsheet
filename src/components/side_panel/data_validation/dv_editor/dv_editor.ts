@@ -13,6 +13,7 @@ import {
 } from "../../../../types";
 import { css } from "../../../helpers";
 import { SelectionInput } from "../../../selection_input/selection_input";
+import { Section } from "../../components/section/section";
 import { SelectMenu } from "../../select_menu/select_menu";
 import {
   dataValidationPanelCriteriaRegistry,
@@ -37,7 +38,7 @@ interface State {
 
 export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-DataValidationEditor";
-  static components = { SelectionInput, SelectMenu };
+  static components = { SelectionInput, SelectMenu, Section };
 
   state = useState<State>({ rule: this.defaultDataValidationRule });
 

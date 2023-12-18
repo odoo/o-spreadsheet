@@ -3,6 +3,7 @@ import { deepEquals, formatValue } from "../../../helpers";
 import { getDateTimeFormat, isValidLocale } from "../../../helpers/locale";
 import { Locale, LocaleCode, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers";
+import { Section } from "../components/section/section";
 
 interface Props {
   onCloseSidePanel: () => void;
@@ -16,6 +17,7 @@ css/* scss */ `
 
 export class SettingsPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SettingsPanel";
+  static components = { Section };
 
   loadedLocales: Locale[] = [];
 

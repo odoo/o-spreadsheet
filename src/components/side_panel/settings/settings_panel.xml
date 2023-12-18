@@ -1,8 +1,8 @@
 <templates>
   <t t-name="o-spreadsheet-SettingsPanel">
     <div class="o-settings-panel">
-      <div class="o-section">
-        <div class="o-section-title">Locale</div>
+      <t t-set="__title1__">Locale</t>
+      <Section title="__title1__">
         <select
           class="o-input o-type-selector"
           t-on-change="(ev) => this.onLocaleChange(ev.target.value)">
@@ -29,7 +29,7 @@
             <span t-esc="dateTimeFormatPreview"/>
           </div>
         </div>
-      </div>
+      </Section>
     </div>
   </t>
 </templates>

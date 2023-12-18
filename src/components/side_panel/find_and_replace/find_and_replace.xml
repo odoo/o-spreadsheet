@@ -1,8 +1,8 @@
 <templates>
   <t t-name="o-spreadsheet-FindAndReplacePanel">
     <div class="o-find-and-replace">
-      <div class="o-section">
-        <div class="o-section-title">Search</div>
+      <t t-set="__title1__">Search</t>
+      <Section title="__title1__">
         <div class="o-input-search-container">
           <input
             type="text"
@@ -73,7 +73,7 @@
             <t t-esc="allSheetsMatchesCount"/>
           </div>
         </div>
-      </div>
+      </Section>
       <div class="o-sidePanelButtons">
         <button
           t-att-disabled="!hasSearchResult"
@@ -85,8 +85,8 @@
           Next
         </button>
       </div>
-      <div class="o-section" t-if="!env.model.getters.isReadonly()">
-        <div class="o-section-title">Replace</div>
+      <t t-set="__title2__">Replace</t>
+      <Section title="__title2__" t-if="!env.model.getters.isReadonly()">
         <div class="o-input-search-container">
           <input
             type="text"
@@ -95,7 +95,7 @@
             t-on-keydown="onKeydownReplace"
           />
         </div>
-      </div>
+      </Section>
 
       <div class="o-sidePanelButtons" t-if="!env.model.getters.isReadonly()">
         <button

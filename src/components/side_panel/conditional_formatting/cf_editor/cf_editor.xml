@@ -1,8 +1,8 @@
 <templates>
   <t t-name="o-spreadsheet-ConditionalFormattingEditor">
     <div class="o-cf-ruleEditor">
-      <div class="o-section o-cf-range">
-        <div class="o-section-title">Apply to range</div>
+      <t t-set="__title1__">Apply to range</t>
+      <Section title="__title1__" class="'o-cf-range'">
         <div class="o-selection-cf">
           <SelectionInput
             ranges="() => state.currentCF.ranges"
@@ -55,8 +55,8 @@
             <label for="iconSetRule" class="form-check-label o_form_label">Icon set</label>
           </div>
         </div>
-      </div>
-      <div class="o-section o-cf-editor">
+      </Section>
+      <Section class="'o-cf-editor'">
         <t t-if="state.currentCFType === 'CellIsRule'" t-call="o-spreadsheet-CellIsRuleEditor">
           <t t-set="rule" t-value="state.rules.cellIs"/>
         </t>
@@ -74,12 +74,12 @@
             Save
           </button>
         </div>
-      </div>
-      <div class="o-section">
+      </Section>
+      <Section>
         <div class="o-cf-error" t-foreach="state.errors || []" t-as="error" t-key="error_index">
           <t t-esc="errorMessage(error)"/>
         </div>
-      </div>
+      </Section>
     </div>
   </t>
 </templates>

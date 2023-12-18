@@ -1,8 +1,8 @@
 <templates>
   <t t-name="o-spreadsheet-SplitIntoColumnsPanel">
     <div class="o-split-to-cols-panel">
-      <div class="o-section">
-        <div class="o-section-title">Separator</div>
+      <t t-set="__title1__">Separator</t>
+      <Section title="__title1__">
         <select
           class="o-input o-type-selector"
           t-on-change="(ev) => this.onSeparatorChange(ev.target.value)">
@@ -46,7 +46,7 @@
 
         <ValidationMessages messages="errorMessages" msgType="'error'"/>
         <ValidationMessages messages="warningMessages" msgType="'warning'"/>
-      </div>
+      </Section>
     </div>
   </t>
 </templates>

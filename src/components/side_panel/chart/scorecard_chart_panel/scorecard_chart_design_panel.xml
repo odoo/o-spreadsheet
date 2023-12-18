@@ -8,19 +8,18 @@
         onColorPicked="(color) => this.setColor(color, 'backgroundColor')"
       />
       <ChartTitle title="title" update.bind="updateTitle"/>
-
-      <div class="o-section">
-        <div class="o-section-title">Baseline description</div>
+      <t t-set="__title1__">Baseline description</t>
+      <Section title="__title1__">
         <input
           type="text"
           t-att-value="translate(props.definition.baselineDescr)"
           t-on-change="updateBaselineDescr"
           class="o-input o-optional"
         />
-      </div>
+      </Section>
     </div>
-    <div class="o-section o-chart-baseline-color">
-      <div class="o-section-title">Baseline color</div>
+    <t t-set="__title2__">Baseline color</t>
+    <Section title="__title2__" class="'o-chart-baseline-color'">
       <div class="d-flex align-items-center">
         <span class="pe-1">Color on value increase</span>
         <ColorPickerWidget
@@ -43,6 +42,6 @@
           icon="'o-spreadsheet-Icon.FILL_COLOR'"
         />
       </div>
-    </div>
+    </Section>
   </t>
 </templates>
