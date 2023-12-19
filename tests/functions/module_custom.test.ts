@@ -1,7 +1,7 @@
 import { Model } from "../../src";
-import { setCellContent, setCellFormat } from "../test_helpers/commands_helpers";
+import { setCellContent, setCellFormat, setFormat } from "../test_helpers/commands_helpers";
 import { getCellContent, getCellError } from "../test_helpers/getters_helpers";
-import { evaluateCellText } from "../test_helpers/helpers";
+import { evaluateCellText, target } from "../test_helpers/helpers";
 
 describe("FORMAT.LARGE.NUMBER formula", () => {
   test("large positive numbers", () => {
@@ -128,5 +128,46 @@ describe("FORMAT.LARGE.NUMBER formula", () => {
     expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(10000000000, "b")' })).toBe("10b");
 
     expect(evaluateCellText("A1", { A1: '=FORMAT.LARGE.NUMBER(100, "something")' })).toBe("#ERROR");
+  });
+
+  test("Original currency format is kept", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "100000");
+    setFormat(model, "#,##0[$€]", target("A1"));
+    setCellContent(model, "A2", "=FORMAT.LARGE.NUMBER(A1)");
+    expect(getCellContent(model, "A2")).toBe("100k€");
+  });
+
+  test("Chaining FORMAT.LARGE.NUMBER does nothing with automatic/same unit", () => {
+    const model = new Model();
+
+    setCellContent(model, "A1", "500000");
+    setCellContent(model, "A2", "=FORMAT.LARGE.NUMBER(A1)");
+    setCellContent(model, "A3", "=FORMAT.LARGE.NUMBER(A2)");
+    expect(getCellContent(model, "A2")).toBe("500k");
+    expect(getCellContent(model, "A3")).toBe("500k");
+
+    setCellContent(model, "B1", "=FORMAT.LARGE.NUMBER(FORMAT.LARGE.NUMBER(500000))");
+    expect(getCellContent(model, "B1")).toBe("500k");
+  });
+
+  test("Chaining FORMAT.LARGE.NUMBER with different units", () => {
+    const model = new Model();
+
+    setCellContent(model, "A1", "5000000000");
+    setCellContent(model, "A2", '=FORMAT.LARGE.NUMBER(A1, "m")');
+    setCellContent(model, "A3", '=FORMAT.LARGE.NUMBER(A2, "b")');
+    expect(getCellContent(model, "A2")).toBe("5,000m");
+    expect(getCellContent(model, "A3")).toBe("5b");
+  });
+
+  test("FORMAT.LARGE.NUMBER breaks with custom currency that have the same look as the unit", () => {
+    const model = new Model();
+
+    setFormat(model, "#,##0[$k]", target("A1"));
+    setCellContent(model, "A1", "5000000000");
+    setCellContent(model, "A2", '=FORMAT.LARGE.NUMBER(A1, "m")');
+    // should be "5,000mk" in a perfect world. But we cannot tell the difference between a custom currency and a unit in a format.
+    expect(getCellContent(model, "A2")).toBe("5,000m");
   });
 });
