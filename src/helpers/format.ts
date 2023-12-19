@@ -513,27 +513,32 @@ export function createLargeNumberFormat(
   postFix: string
 ): Format {
   const internalFormat = parseFormat(format || "#,##0");
-  const largeNumberFormat = internalFormat
-    .map((formatPart) => {
-      if (formatPart.type === "NUMBER") {
-        return [
-          {
-            ...formatPart,
-            format: {
-              ...formatPart.format,
-              magnitude,
-              decimalPart: undefined,
-            },
-          },
-          {
-            type: "STRING" as const,
-            format: postFix,
-          },
-        ];
-      }
-      return formatPart;
-    })
-    .flat();
+  const largeNumberFormat: InternalFormat = [];
+  for (let i = 0; i < internalFormat.length; i++) {
+    const formatPart = internalFormat[i];
+    if (formatPart.type !== "NUMBER") {
+      largeNumberFormat.push(formatPart);
+      continue;
+    }
+
+    largeNumberFormat.push({
+      ...formatPart,
+      format: {
+        ...formatPart.format,
+        magnitude,
+        decimalPart: undefined,
+      },
+    });
+    largeNumberFormat.push({
+      type: "STRING" as const,
+      format: postFix,
+    });
+
+    const nextFormatPart = internalFormat[i + 1];
+    if (nextFormatPart?.type === "STRING" && ["k", "m", "b"].includes(nextFormatPart.format)) {
+      i++;
+    }
+  }
   return convertInternalFormatToFormat(largeNumberFormat);
 }
 
