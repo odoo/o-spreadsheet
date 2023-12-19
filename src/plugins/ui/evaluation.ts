@@ -240,6 +240,9 @@ export class EvaluationPlugin extends UIPlugin {
      */
     function range(range: Range): MatrixArg {
       const sheetId = range.sheetId;
+      if (range.invalidSheetName) {
+        throw new Error(_lt("Invalid sheet name: %s", range.invalidSheetName));
+      }
 
       if (!isZoneValid(range.zone)) {
         throw new InvalidReferenceError();
@@ -291,7 +294,7 @@ export class EvaluationPlugin extends UIPlugin {
       functionName: string,
       paramNumber?: number
     ): PrimitiveArg {
-      if (isMeta) {
+      if (isMeta && !range.invalidSheetName) {
         // Use zoneToXc of zone instead of getRangeString to avoid sending unbounded ranges
         return { value: zoneToXc(range.zone) };
       }
