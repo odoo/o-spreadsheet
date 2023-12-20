@@ -3,8 +3,8 @@ import { GaugeChartDefinition } from "../../../../types/chart/gauge_chart";
 import { CommandResult, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { ChartTerms } from "../../../translations_terms";
-import { ValidationMessages } from "../../../validation_messages/validation_messages";
 import { ChartDataSeries } from "../building_blocks/data_series/data_series";
+import { ChartErrorSection } from "../building_blocks/error_section/error_section";
 
 interface Props {
   figureId: UID;
@@ -19,7 +19,7 @@ interface PanelState {
 
 export class GaugeChartConfigPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GaugeChartConfigPanel";
-  static components = { SelectionInput, ValidationMessages, ChartDataSeries };
+  static components = { SelectionInput, ChartErrorSection, ChartDataSeries };
 
   private state: PanelState = useState({
     dataRangeDispatchResult: undefined,
