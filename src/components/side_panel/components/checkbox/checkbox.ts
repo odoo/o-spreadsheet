@@ -1,5 +1,6 @@
 import { Component } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../../../../types";
+import { css } from "../../../helpers/css";
 
 interface Props {
   label?: string;
@@ -8,6 +9,16 @@ interface Props {
   name?: string;
   onChange: (value: boolean) => void;
 }
+
+css/* scss */ `
+  .o-checkbox {
+    display: flex;
+    justify-items: center;
+    input {
+      margin-right: 5px;
+    }
+  }
+`;
 
 export class Checkbox extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet.Checkbox";

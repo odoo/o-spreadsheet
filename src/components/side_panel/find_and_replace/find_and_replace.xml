@@ -37,30 +37,24 @@
         </div>
         <div>
           <!-- TODO: go through this css, the group misses a padding and could profit from BootStrap -->
-          <label class="o-checkbox mt-1">
-            <input
-              t-att-checked="searchOptions.matchCase"
-              t-on-change="searchMatchCase"
-              type="checkbox"
-            />
-            <span>Match case</span>
-          </label>
-          <label class="o-checkbox">
-            <input
-              t-att-checked="searchOptions.exactMatch"
-              t-on-change="searchExactMatch"
-              type="checkbox"
-            />
-            <span>Match entire cell content</span>
-          </label>
-          <label class="o-checkbox">
-            <input
-              t-att-checked="searchOptions.searchFormulas"
-              t-on-change="searchFormulas"
-              type="checkbox"
-            />
-            <span>Search in formulas</span>
-          </label>
+          <t t-set="matchCaseLabel">Match case</t>
+          <Checkbox
+            value="searchOptions.matchCase"
+            label="matchCaseLabel"
+            onChange.bind="searchMatchCase"
+          />
+          <t t-set="exactMatchLabel">Match entire cell content</t>
+          <Checkbox
+            value="searchOptions.exactMatch"
+            label="exactMatchLabel"
+            onChange.bind="searchExactMatch"
+          />
+          <t t-set="searchFormulasLabel">Search in formulas</t>
+          <Checkbox
+            value="searchOptions.searchFormulas"
+            label="searchFormulasLabel"
+            onChange.bind="searchFormulas"
+          />
         </div>
         <div class="o-matches-count mt-4" t-if="toSearch !== ''">
           <div t-if="searchOptions.searchScope === 'specificRange' and dataRange != ''">

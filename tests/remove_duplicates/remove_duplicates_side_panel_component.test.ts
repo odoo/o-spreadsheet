@@ -38,7 +38,7 @@ describe("remove duplicates", () => {
     await nextTick();
     const nodeList = fixture.querySelectorAll(selectors.checkBoxColumnsLabel);
     expect(nodeList.length).toBe(3);
-    expect(nodeList[0].textContent).toBe(" Select all ");
+    expect(nodeList[0].textContent).toBe("Select all");
     expect(nodeList[1].textContent).toBe("Column B");
     expect(nodeList[2].textContent).toBe("Column C");
   });
@@ -50,7 +50,7 @@ describe("remove duplicates", () => {
     await click(fixture, selectors.checkBoxHasHeaderRow);
     const checkBox = fixture.querySelectorAll(selectors.checkBoxColumnsLabel);
     expect(checkBox.length).toBe(4);
-    expect(checkBox[0].textContent?.trim()).toBe("Select all"); // trim because of the space added by prettier in the template
+    expect(checkBox[0].textContent).toBe("Select all");
     expect(checkBox[1].textContent).toBe("Column B - Bachibouzouk");
     expect(checkBox[2].textContent).toBe("Column C - Cucurbitacee");
     expect(checkBox[3].textContent).toBe("Column D");

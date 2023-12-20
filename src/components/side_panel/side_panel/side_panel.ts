@@ -113,14 +113,6 @@ css/* scss */ `
       text-align: left;
     }
 
-    .o-checkbox {
-      display: flex;
-      justify-items: center;
-      input {
-        margin-right: 5px;
-      }
-    }
-
     .o-inflection {
       table {
         table-layout: fixed;

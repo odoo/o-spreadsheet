@@ -6,6 +6,7 @@ import { _t } from "../../../translation";
 import { CommandResult, SpreadsheetChildEnv } from "../../../types/index";
 import { SplitToColumnsTerms } from "../../translations_terms";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
+import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
 
 type SeparatorValue = "auto" | "custom" | " " | "," | ";" | typeof NEWLINE;
@@ -36,7 +37,7 @@ interface State {
 
 export class SplitIntoColumnsPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SplitIntoColumnsPanel";
-  static components = { ValidationMessages, Section };
+  static components = { ValidationMessages, Section, Checkbox };
 
   state = useState<State>({ separatorValue: "auto", addNewColumns: false, customSeparator: "" });
 
@@ -63,9 +64,8 @@ export class SplitIntoColumnsPanel extends Component<Props, SpreadsheetChildEnv>
     this.state.customSeparator = (ev.target as HTMLInputElement).value;
   }
 
-  updateAddNewColumnsCheckbox(ev: Event) {
-    if (!ev.target) return;
-    this.state.addNewColumns = (ev.target as HTMLInputElement).checked;
+  updateAddNewColumnsCheckbox(addNewColumns: boolean) {
+    this.state.addNewColumns = addNewColumns;
   }
 
   confirm() {
