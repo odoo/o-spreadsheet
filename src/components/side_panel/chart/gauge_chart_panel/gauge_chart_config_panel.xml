@@ -8,9 +8,10 @@
         hasSingleRange="true"
       />
 
-      <div class="o-section" t-if="configurationErrorMessages.length">
-        <ValidationMessages messages="configurationErrorMessages" msgType="'error'"/>
-      </div>
+      <ChartErrorSection
+        t-if="configurationErrorMessages.length"
+        messages="configurationErrorMessages"
+      />
     </div>
   </t>
 </templates>

@@ -37,9 +37,7 @@
         </t>
       </Section>
 
-      <div class="o-section" t-if="designErrorMessages.length">
-        <ValidationMessages messages="designErrorMessages" msgType="'error'"/>
-      </div>
+      <ChartErrorSection t-if="designErrorMessages.length" messages="designErrorMessages"/>
     </div>
   </t>
 
