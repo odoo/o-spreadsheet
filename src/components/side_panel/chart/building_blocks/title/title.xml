@@ -1,8 +1,8 @@
 <templates>
   <t t-name="o-spreadsheet.ChartTitle">
-    <t t-set="sectionTitle">Title</t>
     <t t-set="placeholder">New Chart</t>
-    <Section class="'o-chart-title'" title="sectionTitle">
+    <Section class="'o-chart-title'">
+      <t t-set-slot="title">Title</t>
       <input
         type="text"
         class="o-input o-optional"

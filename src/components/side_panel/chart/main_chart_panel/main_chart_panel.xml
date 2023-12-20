@@ -20,8 +20,8 @@
 
       <t t-set="definition" t-value="getChartDefinition()"/>
       <t t-if="state.panel === 'configuration'">
-        <t t-set="__title1__">Chart type</t>
-        <Section title="__title1__">
+        <Section>
+          <t t-set-slot="title">Chart type</t>
           <t t-set="types" t-value="chartTypes"/>
           <select
             class="o-input o-type-selector"

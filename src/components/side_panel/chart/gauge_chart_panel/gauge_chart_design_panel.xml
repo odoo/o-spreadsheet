@@ -6,8 +6,8 @@
         onColorPicked.bind="updateBackgroundColor"
       />
       <ChartTitle title="title" update.bind="updateTitle"/>
-      <t t-set="__title1__">Range</t>
-      <Section title="__title1__">
+      <Section>
+        <t t-set-slot="title">Range</t>
         <div class="o-subsection-left">
           <input
             type="text"
@@ -30,8 +30,8 @@
         </div>
       </Section>
 
-      <t t-set="__title2__">Thresholds</t>
-      <Section title="__title2__">
+      <Section>
+        <t t-set-slot="title">Thresholds</t>
         <t t-call="o-spreadsheet-GaugeChartColorSectionTemplate">
           <t t-set="sectionRule" t-value="state.sectionRule"/>
         </t>

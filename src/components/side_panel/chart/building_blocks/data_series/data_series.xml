@@ -1,6 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet.ChartDataSeries">
-    <Section class="'o-data-series'" title="title">
+    <Section class="'o-data-series'">
+      <t t-set-slot="title" t-esc="title"/>
       <SelectionInput
         ranges="() => props.ranges()"
         required="true"

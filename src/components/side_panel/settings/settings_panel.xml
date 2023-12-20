@@ -1,8 +1,8 @@
 <templates>
   <t t-name="o-spreadsheet-SettingsPanel">
     <div class="o-settings-panel">
-      <t t-set="__title1__">Locale</t>
-      <Section title="__title1__">
+      <Section>
+        <t t-set-slot="title">Locale</t>
         <select
           class="o-input o-type-selector"
           t-on-change="(ev) => this.onLocaleChange(ev.target.value)">

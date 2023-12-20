@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Section Can add a content to a section 1`] = `
+exports[`Section Can render a section with a title 1`] = `
 <div>
   <div
     class="container"
@@ -25,7 +25,7 @@ exports[`Section Can add a content to a section 1`] = `
 </div>
 `;
 
-exports[`Section Can render a section 1`] = `
+exports[`Section Can render a section without a title 1`] = `
 <div>
   <div
     class="container"
@@ -33,13 +33,12 @@ exports[`Section Can render a section 1`] = `
     <div
       class="o-section my-class"
     >
+      
       <div
-        class="o-section-title"
+        class="content"
       >
-        My title
+        My content
       </div>
-      
-      
       
     </div>
   </div>
