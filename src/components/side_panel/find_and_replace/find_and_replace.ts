@@ -5,6 +5,7 @@ import { SearchOptions } from "../../../types/find_and_replace";
 import { SpreadsheetChildEnv } from "../../../types/index";
 import { css } from "../../helpers/css";
 import { SelectionInput } from "../../selection_input/selection_input";
+import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
 
 css/* scss */ `
@@ -40,7 +41,7 @@ interface Props {
 
 export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FindAndReplacePanel";
-  static components = { SelectionInput, Section };
+  static components = { SelectionInput, Section, Checkbox };
 
   private debounceTimeoutId;
   private initialShowFormulaState: boolean = false;
@@ -135,21 +136,18 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  searchFormulas(ev) {
-    const showFormula = ev.target.checked;
+  searchFormulas(showFormula: boolean) {
     this.env.model.dispatch("SET_FORMULA_VISIBILITY", {
       show: showFormula,
     });
     this.updateSearch({ searchFormulas: showFormula });
   }
 
-  searchExactMatch(ev) {
-    const exactMatch = ev.target.checked;
+  searchExactMatch(exactMatch: boolean) {
     this.updateSearch({ exactMatch });
   }
 
-  searchMatchCase(ev) {
-    const matchCase = ev.target.checked;
+  searchMatchCase(matchCase: boolean) {
     this.updateSearch({ matchCase });
   }
 

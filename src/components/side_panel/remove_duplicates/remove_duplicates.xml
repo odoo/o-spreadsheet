@@ -3,33 +3,30 @@
     <div class="o-remove-duplicates">
       <Section>
         <div class="o-section-subtitle" t-esc="selectionStatisticalInformation"/>
-        <label class="o-checkbox">
-          <input type="checkbox" t-att-checked="state.hasHeader" t-on-change="toggleHasHeader"/>
-          Data has header row
-        </label>
+        <t t-set="dataHasHeaderLabel">Data has header row</t>
+        <Checkbox
+          value="state.hasHeader"
+          label="dataHasHeaderLabel"
+          onChange.bind="toggleHasHeader"
+        />
       </Section>
 
       <Section>
         <t t-set-slot="title">Columns to analyze</t>
         <div class="o-checkbox-selection overflow-auto p-3 vh-50 border rounded">
-          <label class="o-checkbox">
-            <input
-              t-att-checked="isEveryColumnSelected"
-              t-on-change="toggleAllColumns"
-              type="checkbox"
-            />
-            Select all
-          </label>
+          <t t-set="selectAllLabel">Select all</t>
+          <Checkbox
+            value="isEveryColumnSelected"
+            label="selectAllLabel"
+            onChange.bind="toggleAllColumns"
+          />
 
           <t t-foreach="Object.keys(state.columns)" t-as="colIndex" t-key="colIndex">
-            <label class="o-checkbox">
-              <input
-                type="checkbox"
-                t-att-checked="state.columns[colIndex]"
-                t-on-change="() => this.toggleColumn(colIndex)"
-              />
-              <t t-esc="getColLabel(colIndex)"/>
-            </label>
+            <Checkbox
+              value="state.columns[colIndex]"
+              label="getColLabel(colIndex)"
+              onChange="() => this.toggleColumn(colIndex)"
+            />
           </t>
         </div>
       </Section>
