@@ -1,8 +1,8 @@
 <templates>
   <t t-name="o-spreadsheet-ScorecardChartConfigPanel">
     <div>
-      <t t-set="__title1__">Key value</t>
-      <Section title="__title1__" class="'o-data-series'">
+      <Section class="'o-data-series'">
+        <t t-set-slot="title">Key value</t>
         <SelectionInput
           ranges="() => [this.getKeyValueRange()]"
           isInvalid="isKeyValueInvalid"
@@ -12,8 +12,8 @@
           onSelectionConfirmed="() => this.updateKeyValueRange()"
         />
       </Section>
-      <t t-set="__title2__">Baseline configuration</t>
-      <Section title="__title2__" class="'o-data-labels'">
+      <Section class="'o-data-labels'">
+        <t t-set-slot="title">Baseline configuration</t>
         <div class="o-section-subtitle">Baseline value</div>
         <SelectionInput
           ranges="() => [this.getBaselineRange()]"

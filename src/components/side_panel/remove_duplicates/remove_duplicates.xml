@@ -9,8 +9,8 @@
         </label>
       </Section>
 
-      <t t-set="__title1__">Columns to analyze</t>
-      <Section title="__title1__">
+      <Section>
+        <t t-set-slot="title">Columns to analyze</t>
         <div class="o-checkbox-selection overflow-auto p-3 vh-50 border rounded">
           <label class="o-checkbox">
             <input

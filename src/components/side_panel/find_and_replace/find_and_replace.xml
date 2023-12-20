@@ -1,8 +1,8 @@
 <templates>
   <t t-name="o-spreadsheet-FindAndReplacePanel">
     <div class="o-find-and-replace">
-      <t t-set="__title1__">Search</t>
-      <Section title="__title1__">
+      <Section>
+        <t t-set-slot="title">Search</t>
         <div class="o-input-search-container">
           <input
             type="text"
@@ -85,8 +85,8 @@
           Next
         </button>
       </div>
-      <t t-set="__title2__">Replace</t>
-      <Section title="__title2__" t-if="!env.model.getters.isReadonly()">
+      <Section t-if="!env.model.getters.isReadonly()">
+        <t t-set-slot="title">Replace</t>
         <div class="o-input-search-container">
           <input
             type="text"

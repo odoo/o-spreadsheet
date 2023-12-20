@@ -8,21 +8,7 @@ let fixture: HTMLElement;
 type Props = Section["props"];
 
 describe("Section", () => {
-  test("Can render a section", async () => {
-    class SectionContainer extends Component<Props, SpreadsheetChildEnv> {
-      static template = xml/* xml */ `
-    <div class="container">
-      <Section t-props="props"/>
-    </div>
-  `;
-      static components = { Section };
-    }
-    const props = { title: "My title", class: "my-class" };
-    ({ fixture } = await mountComponent(SectionContainer, { props }));
-    expect(fixture).toMatchSnapshot();
-  });
-
-  test("Can add a content to a section", async () => {
+  test("Can render a section without a title", async () => {
     class SectionContainer extends Component<Props, SpreadsheetChildEnv> {
       static template = xml/* xml */ `
     <div class="container">
@@ -33,7 +19,24 @@ describe("Section", () => {
   `;
       static components = { Section };
     }
-    const props = { title: "My title", class: "my-class" };
+    const props = { class: "my-class" };
+    ({ fixture } = await mountComponent(SectionContainer, { props }));
+    expect(fixture).toMatchSnapshot();
+  });
+
+  test("Can render a section with a title", async () => {
+    class SectionContainer extends Component<Props, SpreadsheetChildEnv> {
+      static template = xml/* xml */ `
+    <div class="container">
+      <Section t-props="props">
+        <t t-set-slot="title">My title</t>
+        <div class="content">My content</div>
+      </Section>
+    </div>
+  `;
+      static components = { Section };
+    }
+    const props = { class: "my-class" };
     ({ fixture } = await mountComponent(SectionContainer, { props }));
     expect(fixture).toMatchSnapshot();
   });
