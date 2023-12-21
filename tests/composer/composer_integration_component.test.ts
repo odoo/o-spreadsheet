@@ -16,6 +16,7 @@ import {
   resizeRows,
   selectCell,
   setCellContent,
+  setStyle,
 } from "../test_helpers/commands_helpers";
 import {
   click,
@@ -516,19 +517,15 @@ describe("Grid composer", () => {
     test("Inherits the style of the cell", async () => {
       const fontSize = FONT_SIZES[0];
       const color = "#123456";
-      model.dispatch("SET_FORMATTING", {
-        sheetId: model.getters.getActiveSheetId(),
-        target: [toZone("A1")],
-        style: {
-          textColor: color,
-          fillColor: color,
-          fontSize,
-          bold: true,
-          italic: true,
-          strikethrough: true,
-          underline: true,
-          align: "right",
-        },
+      setStyle(model, "A1", {
+        textColor: color,
+        fillColor: color,
+        fontSize,
+        bold: true,
+        italic: true,
+        strikethrough: true,
+        underline: true,
+        align: "right",
       });
       await typeInComposerGrid("Hello");
       const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;
@@ -573,19 +570,15 @@ describe("Grid composer", () => {
     test("Does not inherit style of the cell", async () => {
       const fontSize = FONT_SIZES[0];
       const color = "#123456";
-      model.dispatch("SET_FORMATTING", {
-        sheetId: model.getters.getActiveSheetId(),
-        target: [toZone("A1")],
-        style: {
-          textColor: color,
-          fillColor: color,
-          fontSize,
-          bold: true,
-          italic: true,
-          strikethrough: true,
-          underline: true,
-          align: "right",
-        },
+      setStyle(model, "A1", {
+        textColor: color,
+        fillColor: color,
+        fontSize,
+        bold: true,
+        italic: true,
+        strikethrough: true,
+        underline: true,
+        align: "right",
       });
       await typeInComposerGrid("=");
       const gridComposer = fixture.querySelector(".o-grid-composer")! as HTMLElement;

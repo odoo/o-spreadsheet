@@ -22,9 +22,11 @@ import {
   resizeColumns,
   resizeRows,
   setCellContent,
+  setFormat,
+  setStyle,
 } from "../test_helpers/commands_helpers";
 import { getBorder, getCell, getEvaluatedCell } from "../test_helpers/getters_helpers";
-import { target, toRangesData } from "../test_helpers/helpers";
+import { toRangesData } from "../test_helpers/helpers";
 
 /**
  * Testing to export a model to xlsx then import this xlsx
@@ -120,7 +122,7 @@ describe("Export data to xlsx then import it", () => {
     { fillColor: "#151515" },
     { wrapping: "wrap" as Wrapping },
   ])("Cell style %s", (style: Style) => {
-    model.dispatch("SET_FORMATTING", { sheetId, target: target("A1"), style });
+    setStyle(model, "A1", style);
     const importedModel = exportToXlsxThenImport(model);
     expect(getCell(importedModel, "A1")!.style).toMatchObject(style);
   });
@@ -141,7 +143,7 @@ describe("Export data to xlsx then import it", () => {
   test.each(["0.00%", "#,##0.00", "m/d/yyyy", "m/d/yyyy hh:mm:ss", "#,##0.00 [$€]"])(
     "Cell format %s",
     (format: string) => {
-      model.dispatch("SET_FORMATTING", { sheetId, target: target("A1"), format });
+      setFormat(model, "A1", format);
       const importedModel = exportToXlsxThenImport(model);
       expect(importedModel.getters.getEvaluatedCell({ sheetId, col: 0, row: 0 }).format).toEqual(
         format

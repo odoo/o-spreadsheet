@@ -3,12 +3,13 @@ import {
   DEFAULT_STYLE,
   PADDING_AUTORESIZE_HORIZONTAL,
 } from "../../src/constants";
-import { fontSizeInPixels, toCartesian, toZone } from "../../src/helpers";
+import { fontSizeInPixels, toCartesian } from "../../src/helpers";
 import { Model } from "../../src/model";
 import {
   createSheet,
   selectCell,
   setCellContent,
+  setFormat,
   setStyle,
   undo,
 } from "../test_helpers/commands_helpers";
@@ -18,12 +19,7 @@ import { createEqualCF, target, toRangesData } from "../test_helpers/helpers";
 describe("styles", () => {
   test("can undo and redo a setStyle operation on an empty cell", () => {
     const model = new Model();
-    selectCell(model, "B1");
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
-      style: { fillColor: "red" },
-    });
+    setStyle(model, "B1", { fillColor: "red" });
 
     expect(getCellContent(model, "B1")).toBe("");
     expect(getCell(model, "B1")!.style).toBeDefined();
@@ -34,12 +30,7 @@ describe("styles", () => {
   test("can undo and redo a setStyle operation on an non empty cell", () => {
     const model = new Model();
     setCellContent(model, "B1", "some content");
-    selectCell(model, "B1");
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
-      style: { fillColor: "red" },
-    });
+    setStyle(model, "B1", { fillColor: "red" });
     expect(getCellContent(model, "B1")).toBe("some content");
     expect(getCell(model, "B1")!.style).toBeDefined();
     undo(model);
@@ -49,14 +40,9 @@ describe("styles", () => {
 
   test("can clear formatting (style)", () => {
     const model = new Model();
-    const sheet1 = model.getters.getSheetIds()[0];
     setCellContent(model, "B1", "b1");
     selectCell(model, "B1");
-    model.dispatch("SET_FORMATTING", {
-      sheetId: sheet1,
-      target: model.getters.getSelectedZones(),
-      style: { fillColor: "red" },
-    });
+    setStyle(model, "B1", { fillColor: "red" });
     expect(getCell(model, "B1")!.style).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
@@ -89,18 +75,13 @@ describe("styles", () => {
 
   test("clearing format on a cell with no content actually remove it", () => {
     const model = new Model();
-    selectCell(model, "B1");
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
-      style: { fillColor: "red" },
-      format: "#,##0.0",
-    });
+    setStyle(model, "B1", { fillColor: "red" });
+    setFormat(model, "B1", "#,##0.0");
     expect(getCell(model, "B1")!.style).toBeDefined();
     expect(getCell(model, "B1")!.format).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
+      target: target("B1"),
     });
     expect(getCell(model, "B1")).toBeUndefined();
   });
@@ -108,17 +89,13 @@ describe("styles", () => {
   test("clearing format operation can be undone", () => {
     const model = new Model();
     setCellContent(model, "B1", "b1");
-    selectCell(model, "B1");
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
-      style: { fillColor: "red" },
-      format: "#,##0.0",
-    });
+    setStyle(model, "B1", { fillColor: "red" });
+    setFormat(model, "B1", "#,##0.0");
     expect(getCell(model, "B1")!.style).toBeDefined();
+    expect(getCell(model, "B1")!.format).toBeDefined();
     model.dispatch("CLEAR_FORMATTING", {
       sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
+      target: target("B1"),
     });
     expect(getCell(model, "B1")!.style).not.toBeDefined();
     undo(model);
@@ -129,11 +106,7 @@ describe("styles", () => {
   test("clear formatting should remove format", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("SET_FORMATTING", {
-      sheetId: sheetId,
-      target: target("A1"),
-      format: "#,##0.0",
-    });
+    setFormat(model, "A1", "#,##0.0");
     model.dispatch("CLEAR_FORMATTING", {
       sheetId,
       target: target("A1"),
@@ -144,11 +117,7 @@ describe("styles", () => {
   test("Can set a format in another than the active one", () => {
     const model = new Model();
     createSheet(model, { sheetId: "42" });
-    model.dispatch("SET_FORMATTING", {
-      sheetId: "42",
-      target: [toZone("A1")],
-      style: { fillColor: "red" },
-    });
+    setStyle(model, "A1", { fillColor: "red" }, "42");
     expect(getCell(model, "A1")).toBeUndefined();
     expect(getCell(model, "A1", "42")!.style).toBeDefined();
   });

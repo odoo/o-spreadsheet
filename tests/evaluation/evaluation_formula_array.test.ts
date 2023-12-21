@@ -26,7 +26,7 @@ import {
   setFormat,
 } from "../test_helpers/commands_helpers";
 import { getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
-import { restoreDefaultFunctions, target } from "../test_helpers/helpers";
+import { restoreDefaultFunctions } from "../test_helpers/helpers";
 
 let model: Model;
 describe("evaluate formulas that return an array", () => {
@@ -113,7 +113,7 @@ describe("evaluate formulas that return an array", () => {
         ],
       });
 
-      setFormat(model, "0%", target("A1:A2"));
+      setFormat(model, "A1:A2", "0%");
       setCellContent(model, "A1", "=MATRIX.2.2()");
 
       expect(getCellContent(model, "A1")).toBe("100%");
@@ -135,7 +135,7 @@ describe("evaluate formulas that return an array", () => {
         computeFormat: () => "0.00",
       });
 
-      setFormat(model, "0%", target("A1:A2"));
+      setFormat(model, "A1:A2", "0%");
       setCellContent(model, "A1", "=MATRIX.2.2()");
 
       expect(getCellContent(model, "A1")).toBe("#ERROR");
@@ -186,8 +186,8 @@ describe("evaluate formulas that return an array", () => {
       setCellContent(model, "A1", "42");
       setCellContent(model, "A2", "24");
 
-      setFormat(model, "0%", target("A1"));
-      setFormat(model, "0.00", target("A2"));
+      setFormat(model, "A1", "0%");
+      setFormat(model, "A2", "0.00");
 
       setCellContent(model, "B1", "=MATRIX(A1:A2)");
 

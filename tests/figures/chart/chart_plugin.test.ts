@@ -1,6 +1,6 @@
 import { ChartType, TooltipItem } from "chart.js";
 import { CommandResult, Model } from "../../../src";
-import { toZone, zoneToXc } from "../../../src/helpers";
+import { zoneToXc } from "../../../src/helpers";
 import { ChartDefinition, UID } from "../../../src/types";
 import {
   BarChartDefinition,
@@ -1814,11 +1814,7 @@ describe("Linear/Time charts", () => {
   });
 
   test("time axis for line/bar chart with date labels", () => {
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: [toZone("C2:C5")],
-      format: "m/d/yyyy",
-    });
+    setFormat(model, "C2:C5", "m/d/yyyy");
     createChart(
       model,
       {
@@ -1871,7 +1867,7 @@ describe("Linear/Time charts", () => {
       },
       chartId
     );
-    setFormat(model, "mm/dd/yyyy", target("C2:C3"));
+    setFormat(model, "C2:C3", "mm/dd/yyyy");
     setCellContent(model, "C2", "1/1/2022");
 
     setCellContent(model, "C3", "1/1/2025");
@@ -1886,7 +1882,7 @@ describe("Linear/Time charts", () => {
     chart = (model.getters.getChartRuntime(chartId) as any).chartJsConfig;
     expect(chart.options!.scales!.x!.time!.unit).toEqual("day");
 
-    setFormat(model, "hh:mm:ss", target("C2:C3"));
+    setFormat(model, "C2:C3", "hh:mm:ss");
 
     setCellContent(model, "C3", "1/1/2022 00:00:15");
     chart = (model.getters.getChartRuntime(chartId) as any).chartJsConfig;
@@ -1902,11 +1898,7 @@ describe("Linear/Time charts", () => {
   });
 
   test("date chart: empty label with a value is replaced by arbitrary label with no value", () => {
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: [toZone("C2:C5")],
-      format: "m/d/yyyy",
-    });
+    setFormat(model, "C2:C5", "m/d/yyyy");
     createChart(
       model,
       {
@@ -1983,11 +1975,7 @@ describe("Linear/Time charts", () => {
   });
 
   test("snapshot test of chartJS configuration for date chart", () => {
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: [toZone("C2:C5")],
-      format: "m/d/yyyy",
-    });
+    setFormat(model, "C2:C5", "m/d/yyyy");
     createChart(
       model,
       {

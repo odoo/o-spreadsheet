@@ -17,6 +17,8 @@ import {
   deleteColumns,
   paste,
   setCellContent,
+  setFormat,
+  setStyle,
   updateLocale,
 } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
@@ -26,12 +28,7 @@ import {
   getCellError,
   getEvaluatedCell,
 } from "../test_helpers/getters_helpers";
-import {
-  evaluateCell,
-  evaluateGrid,
-  restoreDefaultFunctions,
-  target,
-} from "../test_helpers/helpers";
+import { evaluateCell, evaluateGrid, restoreDefaultFunctions } from "../test_helpers/helpers";
 import resetAllMocks = jest.resetAllMocks;
 
 describe("evaluateCells", () => {
@@ -279,11 +276,7 @@ describe("evaluateCells", () => {
     let cell = getEvaluatedCell(model, "A1") as ErrorCell;
     const error = cell.error.message;
     const value = cell.value;
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
-      format: "#,##0",
-    });
+    setFormat(model, "A1", "#,##0");
     cell = getEvaluatedCell(model, "A1") as ErrorCell;
     expect(cell.type).toBe(CellValueType.error);
     expect(cell.error.message).toBe(error);
@@ -1043,15 +1036,10 @@ describe("evaluateCells", () => {
 
   test("evaluate empty colored cell", () => {
     const model = new Model();
-    const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A2", "=A1");
     expect(getEvaluatedCell(model, "A2").value).toBe(0);
-    model.dispatch("SET_FORMATTING", {
-      sheetId,
-      target: target("A1"),
-      style: {
-        fillColor: "#a7d08c",
-      },
+    setStyle(model, "A1", {
+      fillColor: "#a7d08c",
     });
     setCellContent(model, "A12", "this re-evaluates cells");
     expect(getCellContent(model, "A2")).toBe("0");

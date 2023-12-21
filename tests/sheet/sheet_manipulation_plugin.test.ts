@@ -23,6 +23,7 @@ import {
   selectCell,
   setCellContent,
   setSelection,
+  setStyle,
   setZoneBorders,
   undo,
   unfreezeColumns,
@@ -40,7 +41,6 @@ import {
   getCellsObject,
   getMergeCellMap,
   makeTestFixture,
-  target,
   testUndoRedo,
 } from "../test_helpers/helpers";
 let model: Model;
@@ -1555,12 +1555,7 @@ describe("Delete cell", () => {
 
   test("Undo/redo is correctly supported", () => {
     setCellContent(model, "A2", "=A3");
-    const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("SET_FORMATTING", {
-      sheetId,
-      target: target("A3"),
-      style: { fillColor: "orange" },
-    });
+    setStyle(model, "A3", { fillColor: "orange" });
     testUndoRedo(model, expect, "DELETE_CELL", { zone: toZone("A1"), dimension: "ROW" });
   });
 
@@ -1653,12 +1648,7 @@ describe("Insert cell", () => {
 
   test("Undo/redo is correctly supported", () => {
     setCellContent(model, "A2", "=A3");
-    const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("SET_FORMATTING", {
-      sheetId,
-      target: target("A3"),
-      style: { fillColor: "orange" },
-    });
+    setStyle(model, "A3", { fillColor: "orange" });
     testUndoRedo(model, expect, "INSERT_CELL", { zone: toZone("A1"), dimension: "ROW" });
   });
 });

@@ -16,6 +16,7 @@ import {
   redo,
   setCellContent,
   setSelection,
+  setStyle,
   snapshot,
   undo,
   unfreezeColumns,
@@ -141,11 +142,7 @@ describe("Collaborative local history", () => {
   test("Add a column and set a formatting on it", () => {
     addColumns(alice, "before", "C", 4);
     undo(alice);
-    bob.dispatch("SET_FORMATTING", {
-      sheetId: bob.getters.getActiveSheetId(),
-      target: [toZone("H2:J6")],
-      style: { fillColor: "#121212" },
-    });
+    setStyle(bob, "H2:J6", { fillColor: "#121212" });
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getStyle(user, "H2"), {
       fillColor: "#121212",
@@ -894,11 +891,7 @@ describe("Collaborative local history", () => {
     addColumns(charlie, "before", "B", 1);
     network.concurrent(() => {
       undo(charlie);
-      bob.dispatch("SET_FORMATTING", {
-        sheetId: "Sheet1",
-        target: target("A1"),
-        style: { bold: true },
-      });
+      setStyle(bob, "A1", { bold: true });
     });
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "A1")?.style, { bold: true });
     expect(all).toHaveSynchronizedValue((user) => getCell(user, "B1")?.style, undefined);

@@ -8,8 +8,9 @@ import {
   createScorecardChart,
   createSheet,
   setCellContent,
+  setStyle,
 } from "../../test_helpers/commands_helpers";
-import { createEqualCF, target, toRangesData } from "../../test_helpers/helpers";
+import { createEqualCF, toRangesData } from "../../test_helpers/helpers";
 
 describe("Single cell chart background color", () => {
   let model: Model;
@@ -31,11 +32,7 @@ describe("Single cell chart background color", () => {
   }
 
   function addFillToA1(color: Color) {
-    model.dispatch("SET_FORMATTING", {
-      sheetId,
-      target: target("A1"),
-      style: { fillColor: color },
-    });
+    setStyle(model, "A1", { fillColor: color });
   }
 
   function createTestChart(chartType: string, mainCell: string, background?: Color) {

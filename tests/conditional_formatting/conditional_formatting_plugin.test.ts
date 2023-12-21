@@ -21,7 +21,6 @@ import { getStyle } from "../test_helpers/getters_helpers";
 import {
   createColorScale,
   createEqualCF,
-  target,
   toCellPosition,
   toRangesData,
 } from "../test_helpers/helpers";
@@ -408,7 +407,7 @@ describe("conditional format", () => {
       sheetId,
     });
     expect(getStyle(model, "A1")).toEqual({});
-    setFormat(model, "mm/dd/yyyy", target("A2"));
+    setFormat(model, "A2", "mm/dd/yyyy");
     expect(getStyle(model, "A1")).toEqual({
       fillColor: "#FF0000",
     });

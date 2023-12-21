@@ -28,7 +28,6 @@ import {
   getEvaluatedCell,
 } from "../test_helpers/getters_helpers"; // to have getcontext mocks
 import "../test_helpers/helpers";
-import { target } from "../test_helpers/helpers";
 
 describe("edition", () => {
   test("adding and removing a cell (by setting its content to empty string", () => {
@@ -693,11 +692,7 @@ describe("edition", () => {
 
   test("type a number in percent formatted empty cell", () => {
     const model = new Model();
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: target("A1"),
-      format: "0.00%",
-    });
+    setFormat(model, "A1", "0.00%");
     model.dispatch("START_EDITION", { text: "12" });
     expect(model.getters.getCurrentContent()).toBe("12%");
     expect(model.getters.getComposerSelection()).toEqual({ start: 2, end: 2 });
@@ -729,11 +724,7 @@ describe("edition", () => {
 
   test("empty cell with percent format is displayed empty", () => {
     const model = new Model();
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: target("A1"),
-      format: "0.00%",
-    });
+    setFormat(model, "A1", "0.00%");
     model.dispatch("START_EDITION");
     expect(model.getters.getCurrentContent()).toBe("");
     expect(model.getters.getComposerSelection()).toEqual({ start: 0, end: 0 });
@@ -756,7 +747,7 @@ describe("edition", () => {
   test("Numbers in the composer are displayed without number of digit format", () => {
     const model = new Model();
     setCellContent(model, "A1", "0.123456789123");
-    setFormat(model, "#,##0.00", target("A1"));
+    setFormat(model, "A1", "#,##0.00");
     selectCell(model, "A1");
     expect(model.getters.getCurrentContent()).toBe("0.123456789123");
   });
@@ -825,7 +816,7 @@ describe("edition", () => {
   test("non-parsable date format displays a simplified and parsable value", () => {
     const model = new Model();
     setCellContent(model, "A1", "1");
-    setFormat(model, "dddd d mmmm yyyy", target("A1"));
+    setFormat(model, "A1", "dddd d mmmm yyyy");
     expect(getEvaluatedCell(model, "A1").formattedValue).toBe("Sunday 31 December 1899");
     expect(model.getters.getCurrentContent()).toBe("12/31/1899");
   });
@@ -833,7 +824,7 @@ describe("edition", () => {
   test("non-parsable date time format displays a simplified and parsable value", () => {
     const model = new Model();
     setCellContent(model, "A1", "1.5");
-    setFormat(model, "dddd d mmmm yyyy hh:mm:ss a", target("A1"));
+    setFormat(model, "A1", "dddd d mmmm yyyy hh:mm:ss a");
     expect(getEvaluatedCell(model, "A1").formattedValue).toBe(
       "Sunday 31 December 1899 12:00:00 PM"
     );

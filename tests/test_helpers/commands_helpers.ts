@@ -915,13 +915,13 @@ export function deleteFilter(
 
 export function setFormat(
   model: Model,
+  targetXc: string,
   format: string,
-  target = model.getters.getSelectedZones(),
   sheetId = model.getters.getActiveSheetId()
 ) {
-  model.dispatch("SET_FORMATTING", {
+  return model.dispatch("SET_FORMATTING", {
     sheetId,
-    target,
+    target: target(targetXc),
     format,
   });
 }

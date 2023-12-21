@@ -12,11 +12,12 @@ import { MockCanvasRenderingContext2D } from "../../setup/canvas.mock";
 import {
   createScorecardChart,
   setCellContent,
+  setFormat,
   setStyle,
   updateChart,
 } from "../../test_helpers/commands_helpers";
 import { getCellContent } from "../../test_helpers/getters_helpers";
-import { target, toRangesData } from "../../test_helpers/helpers";
+import { toRangesData } from "../../test_helpers/helpers";
 
 let model: Model;
 let chartId: string;
@@ -193,11 +194,7 @@ describe("Scorecard charts computation", () => {
   test("Key value is displayed with the cell evaluated format", () => {
     createScorecardChart(model, { keyValue: "C1" }, chartId);
     setCellContent(model, "C1", "=A1");
-    model.dispatch("SET_FORMATTING", {
-      sheetId,
-      target: target("A1"),
-      format: "0%",
-    });
+    setFormat(model, "A1", "0%");
     const chartDesign = getChartDesign(model, chartId, sheetId);
     expect(chartDesign.key?.text).toEqual("200%");
   });
@@ -208,11 +205,7 @@ describe("Scorecard charts computation", () => {
     let chartDesign = getChartDesign(model, chartId, sheetId);
     expect(chartDesign.baseline?.text).toEqual((0.12).toLocaleString());
 
-    model.dispatch("SET_FORMATTING", {
-      sheetId,
-      target: target("B2"),
-      format: "[$$]#,##0.00",
-    });
+    setFormat(model, "B2", "[$$]#,##0.00");
     chartDesign = getChartDesign(model, chartId, sheetId);
     expect(chartDesign.baseline?.text).toEqual("$0.12");
   });
@@ -227,11 +220,7 @@ describe("Scorecard charts computation", () => {
 
   test("Baseline with lot of decimal isn't truncated if the cell has a format", () => {
     createScorecardChart(model, { keyValue: "A3", baseline: "B2" }, chartId);
-    model.dispatch("SET_FORMATTING", {
-      sheetId,
-      target: target("B2"),
-      format: "[$$]#,####0.0000",
-    });
+    setFormat(model, "B2", "[$$]#,####0.0000");
     const chartDesign = getChartDesign(model, chartId, sheetId);
     expect(chartDesign.baseline?.text).toEqual("$0.1234");
   });
@@ -242,27 +231,19 @@ describe("Scorecard charts computation", () => {
       { keyValue: "A1", baseline: "B1", baselineMode: "percentage" },
       chartId
     );
-    model.dispatch("SET_FORMATTING", {
-      sheetId,
-      target: target("B1"),
-      format: "[$$]#,####0.0000",
-    });
+    setFormat(model, "B2", "[$$]#,####0.0000");
     const chartDesign = getChartDesign(model, chartId, sheetId);
     expect(chartDesign.baseline?.text).toEqual("100%");
   });
 
   test("Key value and baseline are displayed with the cell style", () => {
     createScorecardChart(model, { keyValue: "A1", baseline: "A1" }, chartId);
-    model.dispatch("SET_FORMATTING", {
-      sheetId,
-      target: target("A1"),
-      style: {
-        textColor: "#FF0000",
-        bold: true,
-        italic: true,
-        strikethrough: true,
-        underline: true,
-      },
+    setStyle(model, "A1", {
+      textColor: "#FF0000",
+      bold: true,
+      italic: true,
+      strikethrough: true,
+      underline: true,
     });
     const chartDesign = getChartDesign(model, chartId, sheetId);
     for (const style of [chartDesign.key?.style, chartDesign.baseline?.style]) {
@@ -293,12 +274,8 @@ describe("Scorecard charts computation", () => {
       { keyValue: "A1", baseline: "B1", baselineMode: "percentage" },
       chartId
     );
-    model.dispatch("SET_FORMATTING", {
-      sheetId,
-      target: target("A1"),
-      style: { bold: true },
-      format: "0.0",
-    });
+    setStyle(model, "A1", { bold: true });
+    setFormat(model, "A1", "0.0");
     const chartDesign = getChartDesign(model, chartId, sheetId);
     expect(chartDesign.baseline?.style.font.includes("bold")).toBeFalsy();
     expect(chartDesign.baseline?.text).toEqual("100%");
@@ -482,14 +459,10 @@ describe("Scorecard charts rendering", () => {
   });
 
   test("Key value and baseline are displayed with the cell style", () => {
-    model.dispatch("SET_FORMATTING", {
-      sheetId,
-      target: target("A1"),
-      style: {
-        textColor: "#FF0000",
-        bold: true,
-        italic: true,
-      },
+    setStyle(model, "A1", {
+      textColor: "#FF0000",
+      bold: true,
+      italic: true,
     });
     createScorecardChart(model, { keyValue: "A1", baseline: "A1" }, chartId);
     renderScorecardChart(model, chartId, sheetId, canvas);
@@ -501,12 +474,8 @@ describe("Scorecard charts rendering", () => {
   });
 
   test("Baseline mode percentage don't inherit of the style of the cell", () => {
-    model.dispatch("SET_FORMATTING", {
-      sheetId,
-      target: target("A1"),
-      style: { bold: true },
-      format: "0.0",
-    });
+    setStyle(model, "A1", { bold: true });
+    setFormat(model, "A1", "0.0");
     createScorecardChart(
       model,
       { keyValue: "A1", baseline: "B1", baselineMode: "percentage" },

@@ -14,6 +14,7 @@ import {
   selectCell,
   setAnchorCorner,
   setCellContent,
+  setStyle,
   setZoneBorders,
   unMerge,
   undo,
@@ -152,13 +153,8 @@ describe("merges", () => {
     expect(getSelectionAnchorCellXc(model)).toBe("C3");
     expect(getCellsXC(model)).toEqual(["B2"]);
     expect(getCell(model, "B2")!.style).not.toBeDefined();
-    const sheet1 = model.getters.getSheetIds()[0];
 
-    model.dispatch("SET_FORMATTING", {
-      sheetId: sheet1,
-      target: model.getters.getSelectedZones(),
-      style: { fillColor: "#333" },
-    });
+    setStyle(model, "B2:C3", { fillColor: "#333" });
 
     expect(getCellsXC(model)).toEqual(["B2", "B3", "C2", "C3"]);
     expect(getCell(model, "B2")!.style).toBeDefined();
@@ -305,11 +301,8 @@ describe("merges", () => {
   test("merging => unmerging  : cell styles are overridden even if the top left cell had no style", () => {
     const model = new Model();
 
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: target("B1"),
-      style: { fillColor: "red" },
-    });
+    setStyle(model, "B1", { fillColor: "red" });
+
     merge(model, "A1:B1");
     expect(getStyle(model, "A1")).toEqual({});
     expect(getStyle(model, "B1")).toEqual({});
@@ -320,18 +313,12 @@ describe("merges", () => {
 
   test("merging => setting background color => unmerging", () => {
     const model = new Model();
-    const sheet1 = model.getters.getSheetIds()[0];
 
     setAnchorCorner(model, "B1");
-
     expect(model.getters.getSelectedZones()[0]).toEqual({ top: 0, left: 0, right: 1, bottom: 0 });
 
     merge(model, "A1:B1");
-    model.dispatch("SET_FORMATTING", {
-      sheetId: sheet1,
-      target: [{ left: 0, right: 1, top: 0, bottom: 0 }],
-      style: { fillColor: "red" },
-    });
+    setStyle(model, "A1:B1", { fillColor: "red" });
 
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
@@ -343,13 +330,8 @@ describe("merges", () => {
 
   test("setting background color => merging => unmerging", () => {
     const model = new Model();
-    const sheet1 = model.getters.getSheetIds()[0];
     setAnchorCorner(model, "B1");
-    model.dispatch("SET_FORMATTING", {
-      sheetId: sheet1,
-      target: [{ left: 0, right: 1, top: 0, bottom: 0 }],
-      style: { fillColor: "red" },
-    });
+    setStyle(model, "A1:B1", { fillColor: "red" });
 
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
     expect(getStyle(model, "B1")).toEqual({ fillColor: "red" });
@@ -365,12 +347,7 @@ describe("merges", () => {
 
   test("setting background color to topleft => merging => unmerging", () => {
     const model = new Model();
-    const sheet1 = model.getters.getSheetIds()[0];
-    model.dispatch("SET_FORMATTING", {
-      sheetId: sheet1,
-      target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
-      style: { fillColor: "red" },
-    });
+    setStyle(model, "A1", { fillColor: "red" });
     setAnchorCorner(model, "B1");
 
     expect(getStyle(model, "A1")).toEqual({ fillColor: "red" });
@@ -470,14 +447,10 @@ describe("merges", () => {
 
   test("setting border to topleft => setting style => merging => unmerging", () => {
     const model = new Model();
-    const sheet1 = model.getters.getSheetIds()[0];
     setZoneBorders(model, { position: "external" }, ["A1"]);
-    model.dispatch("SET_FORMATTING", {
-      sheetId: sheet1,
-      target: [toZone("A1")],
-      style: { fillColor: "red" },
-    });
+    setStyle(model, "A1", { fillColor: "red" });
     merge(model, "A1:B1");
+
     expect(getBorder(model, "A1")).toEqual({
       left: DEFAULT_BORDER_DESC,
       bottom: DEFAULT_BORDER_DESC,

@@ -1,7 +1,7 @@
 import { CommandResult, Model, Spreadsheet } from "../../../src";
 import { ChartTerms } from "../../../src/components/translations_terms";
 import { BACKGROUND_CHART_COLOR } from "../../../src/constants";
-import { toHex, toZone } from "../../../src/helpers";
+import { toHex } from "../../../src/helpers";
 import { ChartDefinition } from "../../../src/types";
 import { BarChartDefinition } from "../../../src/types/chart/bar_chart";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
@@ -10,6 +10,7 @@ import {
   createGaugeChart,
   createScorecardChart,
   createSheet,
+  setFormat,
   setStyle,
   updateChart,
 } from "../../test_helpers/commands_helpers";
@@ -1000,11 +1001,7 @@ describe("charts", () => {
     });
 
     test("labelAsText checkbox displayed for date labels", async () => {
-      model.dispatch("SET_FORMATTING", {
-        sheetId: model.getters.getActiveSheetId(),
-        target: [toZone("C2:C4")],
-        format: "m/d/yyyy",
-      });
+      setFormat(model, "C2:C4", "m/d/yyyy");
       createTestChart("basicChart");
       updateChart(model, chartId, { type: "line", labelRange: "C2:C4", dataSets: ["B2:B4"] });
       await openChartConfigSidePanel();
@@ -1029,11 +1026,7 @@ describe("charts", () => {
 
     test("labelAsText checkbox not displayed for text labels with date format", async () => {
       createTestChart("basicChart");
-      model.dispatch("SET_FORMATTING", {
-        sheetId: model.getters.getActiveSheetId(),
-        target: [toZone("A2:A4")],
-        format: "m/d/yyyy",
-      });
+      setFormat(model, "C2:C4", "m/d/yyyy");
       updateChart(model, chartId, { type: "line", labelRange: "A2:A4", dataSets: ["B2:B4"] });
       await openChartConfigSidePanel();
 

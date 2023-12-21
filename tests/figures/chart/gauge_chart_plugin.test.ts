@@ -12,8 +12,8 @@ import {
   createSheet,
   deleteSheet,
   redo,
-  selectCell,
   setCellContent,
+  setFormat,
   undo,
   updateChart,
 } from "../../test_helpers/commands_helpers";
@@ -573,12 +573,7 @@ describe("Chart design configuration", () => {
 
   test("displayed value respect dataRange format value", () => {
     setCellContent(model, "A1", "0.42");
-    selectCell(model, "A1");
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: model.getters.getSelectedZones(),
-      format: "0.00%",
-    });
+    setFormat(model, "A1", "0.00%");
     createGaugeChart(model, defaultChart, "1");
     const chart = (model.getters.getChartRuntime("1") as GaugeChartRuntime)!.chartJsConfig;
     const displayedValue = chart.options!.valueLabel!.formatter!;

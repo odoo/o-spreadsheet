@@ -273,7 +273,7 @@ export function setGrid(model: Model, grid: GridDescr) {
 export function setGridFormat(model: Model, grid: GridFormatDescr) {
   for (const [xc, format] of Object.entries(grid)) {
     if (format === undefined) continue;
-    setFormat(model, format, target(xc));
+    setFormat(model, xc, format);
   }
 }
 

@@ -276,11 +276,7 @@ describe("renderer", () => {
     const model = new Model();
 
     setCellContent(model, "A1", "1");
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: target("A1"),
-      style: { fontSize: 36 },
-    });
+    setStyle(model, "A1", { fontSize: 36 });
 
     let textAligns: string[] = [];
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {
@@ -345,11 +341,8 @@ describe("renderer", () => {
 
   test("fillstyle of cell will be rendered", () => {
     const model = new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] });
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: [toZone("A1")],
-      style: { fillColor: "#DC6CDF" },
-    });
+
+    setStyle(model, "A1", { fillColor: "#DC6CDF" });
 
     let fillStyle: any[] = [];
     let fillStyleColor1Called = false;
@@ -383,23 +376,14 @@ describe("renderer", () => {
     expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 23, w: 96, x: 0, y: 0 }]);
 
     fillStyle = [];
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: [toZone("A1")],
-      style: { fillColor: "#DC6CDE" },
-    });
+    setStyle(model, "A1", { fillColor: "#DC6CDE" });
     model.drawGrid(ctx);
     expect(fillStyle).toEqual([{ color: "#DC6CDE", h: 23, w: 96, x: 0, y: 0 }]);
   });
 
   test("fillstyle of merge will be rendered for all cells in merge", () => {
     const model = new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] });
-    const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("SET_FORMATTING", {
-      sheetId,
-      target: [toZone("A1")],
-      style: { fillColor: "#DC6CDF" },
-    });
+    setStyle(model, "A1", { fillColor: "#DC6CDF" });
     merge(model, "A1:A3");
 
     let fillStyle: any[] = [];
@@ -434,11 +418,7 @@ describe("renderer", () => {
     expect(fillStyle).toEqual([{ color: "#DC6CDF", h: 3 * 23, w: 96, x: 0, y: 0 }]);
 
     fillStyle = [];
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: [toZone("A1")],
-      style: { fillColor: "#DC6CDE" },
-    });
+    setStyle(model, "A1", { fillColor: "#DC6CDE" });
     model.drawGrid(ctx);
     expect(fillStyle).toEqual([{ color: "#DC6CDE", h: 3 * 23, w: 96, x: 0, y: 0 }]);
   });
@@ -710,11 +690,8 @@ describe("renderer", () => {
 
   test("functions with centered content are aligned to the left", () => {
     const model = new Model();
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: target("A1"),
-      style: { align: "center" },
-    });
+    setStyle(model, "A1", { align: "center" });
+
     setCellContent(model, "A1", "=SUM(1,2)");
     model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
     let textAligns: string[] = [];
@@ -1561,31 +1538,19 @@ describe("renderer", () => {
 
     // vertical top point
     let verticalStartPoints: any[] = [];
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: target("A1"),
-      style: { verticalAlign: "top" },
-    });
+    setStyle(model, "A1", { verticalAlign: "top" });
     model.drawGrid(ctx);
     expect(verticalStartPoints[0]).toEqual(5);
 
     // vertical middle point
     verticalStartPoints = [];
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: target("A1"),
-      style: { verticalAlign: "middle" },
-    });
+    setStyle(model, "A1", { verticalAlign: "middle" });
     model.drawGrid(ctx);
     expect(verticalStartPoints[0]).toEqual(18);
 
     // vertical bottom point
     verticalStartPoints = [];
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: target("A1"),
-      style: { verticalAlign: "bottom" },
-    });
+    setStyle(model, "A1", { verticalAlign: "bottom" });
     model.drawGrid(ctx);
     expect(verticalStartPoints[0]).toEqual(30);
   });
@@ -1616,39 +1581,23 @@ describe("renderer", () => {
       },
     });
 
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: target("A1"),
-      style: { wrapping: "wrap" },
-    });
+    setStyle(model, "A1", { wrapping: "wrap" });
 
     // with verticalAlign top
     let verticalStartPoints: any[] = [];
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: target("A1"),
-      style: { verticalAlign: "top" },
-    });
+    setStyle(model, "A1", { verticalAlign: "top" });
     model.drawGrid(ctx);
     expect(verticalStartPoints[0]).toEqual(5);
 
     // with verticalAlign middle
     verticalStartPoints = [];
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: target("A1"),
-      style: { verticalAlign: "middle" },
-    });
+    setStyle(model, "A1", { verticalAlign: "middle" });
     model.drawGrid(ctx);
     expect(verticalStartPoints[0]).toEqual(5);
 
     // with verticalAlign bottom
     verticalStartPoints = [];
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: target("A1"),
-      style: { verticalAlign: "bottom" },
-    });
+    setStyle(model, "A1", { verticalAlign: "bottom" });
     model.drawGrid(ctx);
     expect(verticalStartPoints[0]).toEqual(5);
   });
