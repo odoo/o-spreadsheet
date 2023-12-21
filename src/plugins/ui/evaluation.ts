@@ -218,11 +218,8 @@ export class EvaluationPlugin extends UIPlugin {
      * that are actually present in the grid.
      */
     function _range(range: Range): (CellValue | undefined)[][] {
+      assertRangeValid(range);
       const sheetId = range.sheetId;
-
-      if (!isZoneValid(range.zone)) {
-        throw new Error(_lt("Invalid reference"));
-      }
 
       // Performance issue: Avoid fetching data on positions that are out of the spreadsheet
       // e.g. A1:ZZZ9999 in a sheet with 10 cols and 10 rows should ignore everything past J10 and return a 10x10 array
@@ -272,13 +269,10 @@ export class EvaluationPlugin extends UIPlugin {
       paramNumber?: number
     ): any | any[][] {
       const range: Range = references[position];
+      assertRangeValid(range);
 
       if (isMeta) {
         return evalContext.getters.getRangeString(range, sheetId);
-      }
-
-      if (!isZoneValid(range.zone)) {
-        throw new Error(_lt("Invalid reference"));
       }
 
       // if the formula definition could have accepted a range, we would pass through the _range function and not here
@@ -297,10 +291,6 @@ export class EvaluationPlugin extends UIPlugin {
         );
       }
 
-      if (range.invalidSheetName) {
-        throw new Error(_lt("Invalid sheet name: %s", range.invalidSheetName));
-      }
-
       return readCell(range);
     }
 
@@ -313,6 +303,15 @@ export class EvaluationPlugin extends UIPlugin {
      */
     function range(position: number, references: Range[], sheetId: UID): any[][] {
       return _range(references[position]);
+    }
+
+    function assertRangeValid(range: Range): void {
+      if (!isZoneValid(range.zone)) {
+        throw new Error(_lt("Invalid reference"));
+      }
+      if (range.invalidSheetName) {
+        throw new Error(_lt("Invalid sheet name: %s", range.invalidSheetName));
+      }
     }
 
     return [refFn, range, evalContext];
