@@ -8,6 +8,7 @@ const MARGIN = (GRID_ICON_EDGE_LENGTH - CHECKBOX_WIDTH) / 2;
 
 css/* scss */ `
   .o-dv-checkbox {
+    box-sizing: border-box !important;
     width: ${CHECKBOX_WIDTH}px;
     height: ${CHECKBOX_WIDTH}px;
     accent-color: #808080;
