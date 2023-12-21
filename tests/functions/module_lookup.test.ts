@@ -96,14 +96,18 @@ describe("COLUMN formula", () => {
     expect(evaluateCell("A1", { A1: "=COLUMN(G2)" })).toBe(7);
     expect(evaluateCell("A1", { A1: "=COLUMN(ABC2)" })).toBe(731);
     expect(evaluateCell("A1", { A1: "=COLUMN($ABC$2)" })).toBe(731);
-    expect(evaluateCell("A1", { A1: "=COLUMN(Sheet42!$ABC$2)" })).toBe(731);
+    expect(evaluateCell("A1", { A1: "=COLUMN(Sheet1!$ABC$2)" })).toBe(731);
   });
 
   test("functional tests on range arguments", () => {
     expect(evaluateCell("A1", { A1: "=COLUMN(B3:C40)" })).toBe(2);
     expect(evaluateCell("A1", { A1: "=COLUMN(D3:Z9)" })).toBe(4);
     expect(evaluateCell("A1", { A1: "=COLUMN($D$3:$Z$9)" })).toBe(4);
-    expect(evaluateCell("A1", { A1: "=COLUMN(Sheet42!$D$3:$Z$9)" })).toBe(4);
+    expect(evaluateCell("A1", { A1: "=COLUMN(Sheet1!$D$3:$Z$9)" })).toBe(4);
+  });
+
+  test("functional tests on range arguments with invalid sheet name", () => {
+    expect(evaluateCell("A1", { A1: "=COLUMN(Sheet42!ABC2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #REF!
   });
 });
 
@@ -117,14 +121,18 @@ describe("COLUMNS formula", () => {
     expect(evaluateCell("A1", { A1: "=COLUMNS(H2)" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=COLUMNS(ABC2)" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=COLUMNS($ABC$2)" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=COLUMNS(Sheet42!$ABC$2)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=COLUMNS(Sheet1!$ABC$2)" })).toBe(1);
   });
 
   test("functional tests on range arguments", () => {
     expect(evaluateCell("A1", { A1: "=COLUMNS(B3:C40)" })).toBe(2);
     expect(evaluateCell("A1", { A1: "=COLUMNS(D3:Z9)" })).toBe(23);
     expect(evaluateCell("A1", { A1: "=COLUMNS($D$3:$Z$9)" })).toBe(23);
-    expect(evaluateCell("A1", { A1: "=COLUMNS(Sheet42!$D$3:$Z$9)" })).toBe(23);
+    expect(evaluateCell("A1", { A1: "=COLUMNS(Sheet1!$D$3:$Z$9)" })).toBe(23);
+  });
+
+  test("functional tests on range arguments with invalid sheet name", () => {
+    expect(evaluateCell("A1", { A1: "=COLUMNS(Sheet42!ABC2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #REF!
   });
 });
 
@@ -449,14 +457,18 @@ describe("ROW formula", () => {
     expect(evaluateCell("A1", { A1: "=ROW(H2)" })).toBe(2);
     expect(evaluateCell("A1", { A1: "=ROW(A234)" })).toBe(234);
     expect(evaluateCell("A1", { A1: "=ROW($A$234)" })).toBe(234);
-    expect(evaluateCell("A1", { A1: "=ROW(Sheet42!$A$234)" })).toBe(234);
+    expect(evaluateCell("A1", { A1: "=ROW(Sheet1!$A$234)" })).toBe(234);
   });
 
   test("functional tests on range arguments", () => {
     expect(evaluateCell("A1", { A1: "=ROW(B3:C40)" })).toBe(3);
     expect(evaluateCell("A1", { A1: "=ROW(D3:Z9)" })).toBe(3);
     expect(evaluateCell("A1", { A1: "=ROW($D$3:$Z$9)" })).toBe(3);
-    expect(evaluateCell("A1", { A1: "=ROW(Sheet42!$D$3:$Z$9)" })).toBe(3);
+    expect(evaluateCell("A1", { A1: "=ROW(Sheet1!$D$3:$Z$9)" })).toBe(3);
+  });
+
+  test("functional tests on range arguments with invalid sheet name", () => {
+    expect(evaluateCell("A1", { A1: "=ROW(Sheet42!A234)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #REF!
   });
 });
 
@@ -470,14 +482,18 @@ describe("ROWS formula", () => {
     expect(evaluateCell("A1", { A1: "=ROWS(H2)" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=ROWS(ABC2)" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=ROWS($ABC$2)" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=ROWS(Sheet42!$ABC$2)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=ROWS(Sheet1!$ABC$2)" })).toBe(1);
   });
 
   test("functional tests on range arguments", () => {
     expect(evaluateCell("A1", { A1: "=ROWS(B3:C40)" })).toBe(38);
     expect(evaluateCell("A1", { A1: "=ROWS(D3:Z9)" })).toBe(7);
     expect(evaluateCell("A1", { A1: "=ROWS($D$3:$Z$9)" })).toBe(7);
-    expect(evaluateCell("A1", { A1: "=ROWS(Sheet42!$D$3:$Z$9)" })).toBe(7);
+    expect(evaluateCell("A1", { A1: "=ROWS(Sheet1!$D$3:$Z$9)" })).toBe(7);
+  });
+
+  test("functional tests on range arguments with invalid sheet name", () => {
+    expect(evaluateCell("A1", { A1: "=ROWS(Sheet42!ABC2)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #REF!
   });
 });
 
