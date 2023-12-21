@@ -68,14 +68,11 @@ class CompilationParametersBuilder {
     functionName: string,
     paramNumber?: number
   ): FPayload {
+    this.assertRangeValid(range);
     if (isMeta) {
       // Use zoneToXc of zone instead of getRangeString to avoid sending unbounded ranges
       const sheetName = this.getters.getSheetName(range.sheetId);
       return { value: getFullReference(sheetName, zoneToXc(range.zone)) };
-    }
-
-    if (!isZoneValid(range.zone)) {
-      throw new InvalidReferenceError();
     }
 
     // if the formula definition could have accepted a range, we would pass through the _range function and not here
@@ -92,9 +89,6 @@ class CompilationParametersBuilder {
               functionName.toString()
             )
       );
-    }
-    if (range.invalidSheetName) {
-      throw new EvaluationError(_t("Invalid sheet name: %s", range.invalidSheetName));
     }
     const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
     return this.readCell(position);
@@ -130,10 +124,10 @@ class CompilationParametersBuilder {
    * Note that each col is possibly sparse: it only contain the values of cells
    * that are actually present in the grid.
    */
-  private range({ sheetId, zone }: Range): Matrix<FPayload> {
-    if (!isZoneValid(zone)) {
-      throw new InvalidReferenceError();
-    }
+  private range(range: Range): Matrix<FPayload> {
+    this.assertRangeValid(range);
+    const sheetId = range.sheetId;
+    const zone = range.zone;
 
     // Performance issue: Avoid fetching data on positions that are out of the spreadsheet
     // e.g. A1:ZZZ9999 in a sheet with 10 cols and 10 rows should ignore everything past J10 and return a 10x10 array
@@ -163,5 +157,14 @@ class CompilationParametersBuilder {
 
     this.rangeCache[cacheKey] = matrix;
     return matrix;
+  }
+
+  private assertRangeValid(range: Range): void {
+    if (!isZoneValid(range.zone)) {
+      throw new InvalidReferenceError();
+    }
+    if (range.invalidSheetName) {
+      throw new EvaluationError(_t("Invalid sheet name: %s", range.invalidSheetName));
+    }
   }
 }
