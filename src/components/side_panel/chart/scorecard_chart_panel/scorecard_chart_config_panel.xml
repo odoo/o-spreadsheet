@@ -25,7 +25,7 @@
         <div class="o-section-subtitle">Baseline format</div>
         <select
           t-att-value="props.definition.baselineMode"
-          class="o-input o-type-selector o-optional"
+          class="o-input o-optional"
           t-on-change="(ev) => this.updateBaselineMode(ev)">
           <option value="text">Absolute value</option>
           <option value="difference">Value change from key value</option>

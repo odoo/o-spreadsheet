@@ -3,9 +3,7 @@
     <div class="o-settings-panel">
       <Section>
         <t t-set-slot="title">Locale</t>
-        <select
-          class="o-input o-type-selector"
-          t-on-change="(ev) => this.onLocaleChange(ev.target.value)">
+        <select class="o-input" t-on-change="(ev) => this.onLocaleChange(ev.target.value)">
           <option
             t-foreach="supportedLocales"
             t-as="locale"
