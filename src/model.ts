@@ -33,6 +33,7 @@ import {
   canExecuteInReadonly,
   Client,
   ClientPosition,
+  Color,
   Command,
   CommandDispatcher,
   CommandHandler,
@@ -106,6 +107,7 @@ export interface ModelConfig {
   readonly snapshotRequested: boolean;
   readonly notifyUI: (payload: InformationNotification) => void;
   readonly raiseBlockingErrorUI: (text: string) => void;
+  readonly customColors: Color[];
 }
 
 export interface ModelExternalConfig {
@@ -401,6 +403,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       snapshotRequested: false,
       notifyUI: (payload) => this.trigger("notify-ui", payload),
       raiseBlockingErrorUI: (text) => this.trigger("raise-error-ui", { text }),
+      customColors: config.customColors || [],
     };
   }
 
@@ -435,6 +438,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       uiActions: this.config,
       session: this.session,
       defaultCurrencyFormat: this.config.defaultCurrencyFormat,
+      customColors: this.config.customColors || [],
     };
   }
 
