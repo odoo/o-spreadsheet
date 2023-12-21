@@ -42,7 +42,7 @@ import {
   updateFilter,
 } from "../test_helpers/commands_helpers";
 import { getActiveSheetFullScrollInfo } from "../test_helpers/getters_helpers";
-import { getPlugin, target } from "../test_helpers/helpers";
+import { getPlugin } from "../test_helpers/helpers";
 
 let model: Model;
 
@@ -856,7 +856,7 @@ describe("Viewport of Simple sheet", () => {
     setCellContent(model, "B1", "5");
     expect(model.getters.getActiveMainViewport()).not.toEqual(oldViewport);
     oldViewport = { ...model.getters.getActiveMainViewport() };
-    setFormat(model, "0.00%", target("A5"));
+    setFormat(model, "A5", "0.00%");
     expect(model.getters.getActiveMainViewport()).not.toEqual(oldViewport);
   });
 

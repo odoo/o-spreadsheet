@@ -65,13 +65,7 @@ import {
   getSelectionAnchorCellXc,
   getStyle,
 } from "../test_helpers/getters_helpers";
-import {
-  mockChart,
-  mountSpreadsheet,
-  nextTick,
-  target,
-  typeInComposerGrid,
-} from "../test_helpers/helpers";
+import { mockChart, mountSpreadsheet, nextTick, typeInComposerGrid } from "../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("../__mocks__/content_editable_helper")
@@ -245,11 +239,7 @@ describe("Grid component", () => {
       { key: "F4", ctrlKey: false },
       { key: "Y", ctrlKey: true },
     ])("can undo/redo with keyboard CTRL+Z/%s", async (redoKey) => {
-      model.dispatch("SET_FORMATTING", {
-        sheetId: model.getters.getActiveSheetId(),
-        target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
-        style: { fillColor: "red" },
-      });
+      setStyle(model, "A1", { fillColor: "red" });
       expect(getCell(model, "A1")!.style).toBeDefined();
       keyDown({ key: "z", ctrlKey: true });
       expect(getCell(model, "A1")).toBeUndefined();
@@ -259,11 +249,7 @@ describe("Grid component", () => {
     });
 
     test("can undo/redo with keyboard (uppercase version)", async () => {
-      model.dispatch("SET_FORMATTING", {
-        sheetId: model.getters.getActiveSheetId(),
-        target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
-        style: { fillColor: "red" },
-      });
+      setStyle(model, "A1", { fillColor: "red" });
       expect(getCell(model, "A1")!.style).toBeDefined();
       keyDown({ key: "Z", ctrlKey: true });
       expect(getCell(model, "A1")).toBeUndefined();
@@ -366,11 +352,7 @@ describe("Grid component", () => {
     test("clean formatting with CTRL+SHIFT+<", async () => {
       const style = { fillColor: "red", align: "right" as Align, bold: true };
       setCellContent(model, "A1", "hello");
-      model.dispatch("SET_FORMATTING", {
-        sheetId: model.getters.getActiveSheetId(),
-        target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
-        style,
-      });
+      setStyle(model, "A1", style);
       expect(getCell(model, "A1")!.style).toEqual(style);
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "<", ctrlKey: true, shiftKey: true, bubbles: true })
@@ -382,11 +364,7 @@ describe("Grid component", () => {
     test("clean formatting with CTRL+<", async () => {
       const style = { fillColor: "red", align: "right" as Align, bold: true };
       setCellContent(model, "A1", "hello");
-      model.dispatch("SET_FORMATTING", {
-        sheetId: model.getters.getActiveSheetId(),
-        target: [{ left: 0, right: 0, top: 0, bottom: 0 }],
-        style,
-      });
+      setStyle(model, "A1", style);
       expect(getCell(model, "A1")!.style).toEqual(style);
       document.activeElement!.dispatchEvent(
         new KeyboardEvent("keydown", { key: "<", ctrlKey: true, bubbles: true })
@@ -843,11 +821,7 @@ describe("Grid component", () => {
     test("can paste format with mouse once", async () => {
       setCellContent(model, "B2", "b2");
       selectCell(model, "B2");
-      model.dispatch("SET_FORMATTING", {
-        sheetId: model.getters.getActiveSheetId(),
-        target: target("B2"),
-        style: { bold: true },
-      });
+      setStyle(model, "B2", { bold: true });
       model.dispatch("ACTIVATE_PAINT_FORMAT", { persistent: false });
       gridMouseEvent(model, "mousedown", "C8");
       expect(getCell(model, "C8")).toBeUndefined();
@@ -863,11 +837,7 @@ describe("Grid component", () => {
     test("can keep the paint format mode persistently", async () => {
       setCellContent(model, "B2", "b2");
       selectCell(model, "B2");
-      model.dispatch("SET_FORMATTING", {
-        sheetId: model.getters.getActiveSheetId(),
-        target: target("B2"),
-        style: { bold: true },
-      });
+      setStyle(model, "B2", { bold: true });
       model.dispatch("ACTIVATE_PAINT_FORMAT", { persistent: true });
       gridMouseEvent(model, "mousedown", "C8");
       expect(getCell(model, "C8")).toBeUndefined();
@@ -883,11 +853,7 @@ describe("Grid component", () => {
     test("can paste format with key", async () => {
       setCellContent(model, "B2", "b2");
       selectCell(model, "B2");
-      model.dispatch("SET_FORMATTING", {
-        sheetId: model.getters.getActiveSheetId(),
-        target: target("B2"),
-        style: { bold: true },
-      });
+      setStyle(model, "B2", { bold: true });
       model.dispatch("ACTIVATE_PAINT_FORMAT", { persistent: false });
       expect(getCell(model, "C2")).toBeUndefined();
       keyDown({ key: "ArrowRight" });
@@ -897,11 +863,7 @@ describe("Grid component", () => {
     test("can exit the paint format mode via ESC key", async () => {
       setCellContent(model, "B2", "b2");
       selectCell(model, "B2");
-      model.dispatch("SET_FORMATTING", {
-        sheetId: model.getters.getActiveSheetId(),
-        target: target("B2"),
-        style: { bold: true },
-      });
+      setStyle(model, "B2", { bold: true });
       model.dispatch("ACTIVATE_PAINT_FORMAT", { persistent: false });
       keyDown({ key: "Escape" });
       gridMouseEvent(model, "mousedown", "C8");
@@ -913,17 +875,9 @@ describe("Grid component", () => {
     test("in persistent mode, updating the style of origin cell won't change the copied style", async () => {
       setCellContent(model, "B2", "b2");
       selectCell(model, "B2");
-      model.dispatch("SET_FORMATTING", {
-        sheetId: model.getters.getActiveSheetId(),
-        target: target("B2"),
-        style: { bold: true },
-      });
+      setStyle(model, "B2", { bold: true });
       model.dispatch("ACTIVATE_PAINT_FORMAT", { persistent: true });
-      model.dispatch("SET_FORMATTING", {
-        sheetId: model.getters.getActiveSheetId(),
-        target: target("B2"),
-        style: { bold: false },
-      });
+      setStyle(model, "B2", { bold: false });
 
       gridMouseEvent(model, "mousedown", "D8");
       expect(getCell(model, "D8")).toBeUndefined();
@@ -1456,11 +1410,7 @@ describe("Copy paste keyboard shortcut", () => {
   test("can paste as value with CTRL+SHIFT+V", async () => {
     const content = "things";
     setCellContent(model, "A1", content);
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: target("A1"),
-      style: { fillColor: "red", align: "right", bold: true },
-    });
+    setStyle(model, "A1", { fillColor: "red", align: "right", bold: true });
     selectCell(model, "A1");
     document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
     // Fake OS clipboard should have the same content

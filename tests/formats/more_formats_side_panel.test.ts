@@ -31,7 +31,7 @@ describe("more formats side panel component", () => {
 
   test("format is active when mounting panel", async () => {
     const model = new Model();
-    setFormat(model, "dddd d mmmm yyyy");
+    setFormat(model, "A1", "dddd d mmmm yyyy");
     await mountFormatPanel(model);
     const button = fixture.querySelector('div[data-name="Full week day and month"]');
     expect(fixture.querySelectorAll(".check-icon svg")).toHaveLength(1);

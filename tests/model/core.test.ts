@@ -16,7 +16,9 @@ import {
   setAnchorCorner,
   setCellContent,
   setCellFormat,
+  setFormat,
   setSelection,
+  setStyle,
   setZoneBorders,
   undo,
 } from "../test_helpers/commands_helpers";
@@ -210,30 +212,17 @@ describe("core", () => {
       const model = new Model();
       setCellContent(model, "A1", "0");
       selectCell(model, "A1");
-      model.dispatch("SET_FORMATTING", {
-        sheetId: model.getters.getActiveSheetId(),
-        target: model.getters.getSelectedZones(),
-        format: "0.00000",
-      });
+      setFormat(model, "A1", "0.00000");
       expect(getCellContent(model, "A1")).toBe("0.00000");
       setCellContent(model, "A2", "0");
-      selectCell(model, "A2");
-      model.dispatch("SET_FORMATTING", {
-        sheetId: model.getters.getActiveSheetId(),
-        target: model.getters.getSelectedZones(),
-        format: "0.00%",
-      });
+      setFormat(model, "A2", "0.00%");
       expect(getCellContent(model, "A2")).toBe("0.00%");
     });
 
     test("evaluate properly a cell with a style just recently applied", () => {
       const model = new Model();
       setCellContent(model, "A1", "=sum(A2) + 1");
-      model.dispatch("SET_FORMATTING", {
-        sheetId: model.getters.getActiveSheetId(),
-        target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
-        style: { bold: true },
-      });
+      setStyle(model, "A1", { bold: true });
       expect(getCellContent(model, "A1")).toEqual("1");
     });
 
@@ -597,12 +586,7 @@ describe("history", () => {
   test("can delete a cell with a style", () => {
     const model = new Model();
     setCellContent(model, "A1", "3");
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
-      style: { bold: true },
-    });
-
+    setStyle(model, "A1", { bold: true });
     expect(getCellContent(model, "A1")).toBe("3");
 
     model.dispatch("DELETE_CONTENT", {
@@ -629,11 +613,7 @@ describe("history", () => {
   test("can delete a cell with a format", () => {
     const model = new Model();
     setCellContent(model, "A1", "3");
-    model.dispatch("SET_FORMATTING", {
-      sheetId: model.getters.getActiveSheetId(),
-      target: [{ left: 0, top: 0, right: 0, bottom: 0 }],
-      format: "#,##0.00",
-    });
+    setFormat(model, "A1", "#,##0.00");
 
     expect(getCellContent(model, "A1")).toBe("3.00");
 

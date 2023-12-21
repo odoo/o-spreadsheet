@@ -16,7 +16,6 @@ import {
   setZoneBorders,
   updateFilter,
 } from "../test_helpers/commands_helpers";
-import { target } from "../test_helpers/helpers";
 
 describe("Filter Evaluation Plugin", () => {
   let model: Model;
@@ -25,6 +24,7 @@ describe("Filter Evaluation Plugin", () => {
   beforeEach(() => {
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
+
     setCellContent(model, "A1", "A1");
     setCellContent(model, "A2", "A2");
     setCellContent(model, "A3", "A3");
@@ -52,7 +52,7 @@ describe("Filter Evaluation Plugin", () => {
 
   test("Filters use the formatted value of the cells", () => {
     setCellContent(model, "A2", "2");
-    setFormat(model, "m/d/yyyy", target("A2"));
+    setFormat(model, "A2", "m/d/yyyy");
     updateFilter(model, "A2", ["1/1/1900"]);
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
   });

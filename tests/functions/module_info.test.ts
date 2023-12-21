@@ -1,7 +1,7 @@
 import { Model } from "../../src";
 import { createSheet, setCellContent, setFormat } from "../test_helpers/commands_helpers";
 import { getCellContent } from "../test_helpers/getters_helpers";
-import { createModelFromGrid, evaluateCell, setGrid, target } from "../test_helpers/helpers";
+import { createModelFromGrid, evaluateCell, setGrid } from "../test_helpers/helpers";
 
 describe("CELL formula", () => {
   test("CELL takes 2 arguments", () => {
@@ -86,8 +86,8 @@ describe("CELL formula", () => {
       B3: "9",
     };
     const model = new Model();
-    setFormat(model, "d/m/yyyy", target("B1"));
-    setFormat(model, "0.00", target("C1"));
+    setFormat(model, "B1", "d/m/yyyy");
+    setFormat(model, "C1", "0.00");
     setGrid(model, grid);
 
     expect(getCellContent(model, "A1")).toBe("d/m/yyyy");

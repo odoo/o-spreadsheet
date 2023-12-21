@@ -13,7 +13,7 @@ import {
   setInputValueAndTrigger,
   simulateClick,
 } from "../test_helpers/dom_helper";
-import { getCellsObject, mountSpreadsheet, nextTick, target } from "../test_helpers/helpers";
+import { getCellsObject, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
 async function openFilterMenu() {
   await simulateClick(".o-filter-icon");
@@ -102,7 +102,7 @@ describe("Filter menu component", () => {
     });
 
     test("We display the formated value of the cells", async () => {
-      setFormat(model, "m/d/yyyy", target("A4"));
+      setFormat(model, "A4", "m/d/yyyy");
       await openFilterMenu();
       const values = getFilterMenuValues();
       expect(values.map((val) => val.value)).toEqual(["(Blanks)", "1", "1/1/1900"]);
@@ -153,7 +153,7 @@ describe("Filter menu component", () => {
     });
 
     test("Confirm button updates the filter with formatted cell value", async () => {
-      setFormat(model, "m/d/yyyy", target("A4"));
+      setFormat(model, "A4", "m/d/yyyy");
       expect(model.getters.getFilterValues({ sheetId, col: 0, row: 0 })).toEqual([]);
       await openFilterMenu();
       await simulateClick(".o-filter-menu-value:nth-of-type(2)");

@@ -6,7 +6,6 @@ import {
   setCellContent,
   setFormat,
 } from "../test_helpers/commands_helpers";
-import { target } from "../test_helpers/helpers";
 
 describe("Data validation evaluation", () => {
   let model: Model;
@@ -128,13 +127,13 @@ describe("Data validation evaluation", () => {
   });
 
   test("data validation is updated on cell format change", () => {
-    setFormat(model, "0.00", target("A2"));
+    setFormat(model, "A2", "0.00");
     addDataValidation(model, "A1", "id", { type: "textContains", values: ["m"] });
 
     setCellContent(model, "A1", '=CELL("format", A2)');
     expect(model.getters.isDataValidationInvalid(A1)).toEqual(true);
 
-    setFormat(model, "mm/dd/yyyy", target("A2"));
+    setFormat(model, "A2", "mm/dd/yyyy");
     expect(model.getters.isDataValidationInvalid(A1)).toEqual(false);
   });
 });

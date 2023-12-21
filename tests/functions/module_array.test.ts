@@ -7,7 +7,6 @@ import {
   evaluateCell,
   getRangeFormatsAsMatrix,
   getRangeValuesAsMatrix,
-  target,
 } from "../test_helpers/helpers";
 
 describe("ARRAY.CONSTRAIN function", () => {
@@ -1286,8 +1285,8 @@ describe("TRANSPOSE function", () => {
   test("Format is transposed", () => {
     const grid = { A1: "1", A2: "5" };
     const model = createModelFromGrid(grid);
-    setFormat(model, "0.00", target("A1"));
-    setFormat(model, "0.000", target("A2"));
+    setFormat(model, "A1", "0.00");
+    setFormat(model, "A2", "0.000");
     setCellContent(model, "D1", "=TRANSPOSE(A1:A2)");
     expect(getRangeFormatsAsMatrix(model, "D1:E1")).toEqual([["0.00", "0.000"]]);
   });

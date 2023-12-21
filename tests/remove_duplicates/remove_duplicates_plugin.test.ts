@@ -1,7 +1,7 @@
 import { CommandResult } from "../../src";
 import { toZone } from "../../src/helpers";
 import { getCell, getEvaluatedCell } from "../test_helpers";
-import { merge, selectCell, setFormat, setSelection } from "../test_helpers/commands_helpers";
+import { merge, setFormat, setSelection } from "../test_helpers/commands_helpers";
 import {
   createModelFromGrid,
   getRangeFormatsAsMatrix,
@@ -100,11 +100,8 @@ describe("remove duplicates", () => {
       B4: "42",
     };
     const model = createModelFromGrid(grid);
-    selectCell(model, "B2");
-    setFormat(model, "0.00%");
-
-    selectCell(model, "B4");
-    setFormat(model, "#,##0[$€]");
+    setFormat(model, "B2", "0.00%");
+    setFormat(model, "B4", "#,##0[$€]");
 
     expect(getRangeValuesAsMatrix(model, "B2:B4")).toEqual([[42], [42], [42]]);
     expect(getRangeFormatsAsMatrix(model, "B2:B4")).toEqual([["0.00%"], [""], ["#,##0[$€]"]]);

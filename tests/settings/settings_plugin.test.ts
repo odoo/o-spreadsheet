@@ -10,7 +10,6 @@ import {
 } from "../test_helpers/commands_helpers";
 import { CUSTOM_LOCALE, FR_LOCALE } from "../test_helpers/constants";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
-import { target } from "../test_helpers/helpers";
 
 describe("Settings plugin", () => {
   let model: Model;
@@ -66,7 +65,7 @@ describe("Settings plugin", () => {
 
     test("locale thousand separator", () => {
       setCellContent(model, "A1", "1000000");
-      setFormat(model, "#,##0", target("A1"));
+      setFormat(model, "A1", "#,##0");
       expect(getCellContent(model, "A1")).toEqual("1,000,000");
 
       const locale = { ...CUSTOM_LOCALE, thousandsSeparator: "¤" };
@@ -76,7 +75,7 @@ describe("Settings plugin", () => {
 
     test("locale decimal separator", () => {
       setCellContent(model, "A1", "9.89");
-      setFormat(model, "#,##0.00", target("A1"));
+      setFormat(model, "A1", "#,##0.00");
       expect(getCellContent(model, "A1")).toEqual("9.89");
 
       const locale = { ...CUSTOM_LOCALE, decimalSeparator: "♥" };
@@ -86,7 +85,7 @@ describe("Settings plugin", () => {
 
     test("locale thousand separator", () => {
       setCellContent(model, "A1", "1000000");
-      setFormat(model, "#,##0", target("A1"));
+      setFormat(model, "A1", "#,##0");
       expect(getCellContent(model, "A1")).toEqual("1,000,000");
 
       const locale = { ...CUSTOM_LOCALE, thousandsSeparator: "¤" };
@@ -96,7 +95,7 @@ describe("Settings plugin", () => {
 
     test("locale decimal separator", () => {
       setCellContent(model, "A1", "9.89");
-      setFormat(model, "#,##0.00", target("A1"));
+      setFormat(model, "A1", "#,##0.00");
       expect(getCellContent(model, "A1")).toEqual("9.89");
 
       const locale = { ...CUSTOM_LOCALE, decimalSeparator: "♥" };
@@ -105,9 +104,9 @@ describe("Settings plugin", () => {
     });
 
     test("Changing the locale changes the format of the cells that are formatted with the locale date(time) format", () => {
-      setFormat(model, DEFAULT_LOCALE.dateFormat, target("A1"));
-      setFormat(model, DEFAULT_LOCALE.timeFormat, target("A2"));
-      setFormat(model, getDateTimeFormat(DEFAULT_LOCALE), target("A3"));
+      setFormat(model, "A1", DEFAULT_LOCALE.dateFormat);
+      setFormat(model, "A2", DEFAULT_LOCALE.timeFormat);
+      setFormat(model, "A3", getDateTimeFormat(DEFAULT_LOCALE));
 
       const locale = { ...CUSTOM_LOCALE, dateFormat: "yyyy/mm/dd", timeFormat: "hh:mm" };
       updateLocale(model, locale);
