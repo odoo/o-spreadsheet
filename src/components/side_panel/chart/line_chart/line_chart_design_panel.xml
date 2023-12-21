@@ -10,7 +10,7 @@
         <t t-set-slot="title">Vertical axis position</t>
         <select
           t-att-value="props.definition.verticalAxisPosition"
-          class="o-input o-type-selector"
+          class="o-input"
           t-on-change="(ev) => this.updateSelect('verticalAxisPosition', ev)">
           <option value="left">Left</option>
           <option value="right">Right</option>
@@ -20,7 +20,7 @@
         <t t-set-slot="title">Legend position</t>
         <select
           t-att-value="props.definition.legendPosition"
-          class="o-input o-type-selector"
+          class="o-input"
           t-on-change="(ev) => this.updateSelect('legendPosition', ev)">
           <option value="none">None</option>
           <option value="top">Top</option>
