@@ -185,3 +185,9 @@ describe("custom colors are correctly handled when editing charts", () => {
     expect(model.getters.getCustomColors()).toEqual(["#123456"]);
   });
 });
+
+test("custom colors from config", () => {
+  const data = {};
+  const model = new Model(data, { customColors: ["#875A7B", "not a valid color"] });
+  expect(model.getters.getCustomColors()).toEqual(["#875A7B"]);
+});

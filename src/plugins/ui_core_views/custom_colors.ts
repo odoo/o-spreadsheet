@@ -11,7 +11,7 @@ import {
 } from "../../helpers";
 import { GaugeChart, ScorecardChart } from "../../helpers/figures/charts";
 import { Color, CoreViewCommand, Immutable, RGBA, UID } from "../../types";
-import { UIPlugin } from "../ui_plugin";
+import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
 /**
  * https://tomekdev.com/posts/sorting-colors-in-js
@@ -71,8 +71,14 @@ interface CustomColorState {
  */
 export class CustomColorsPlugin extends UIPlugin<CustomColorState> {
   private readonly customColors: Immutable<Record<Color, true>> = {};
+  private readonly configCustomColors: Color[];
   private readonly shouldUpdateColors = false;
   static getters = ["getCustomColors"] as const;
+
+  constructor(config: UIPluginConfig) {
+    super(config);
+    this.configCustomColors = config.customColors;
+  }
 
   handle(cmd: CoreViewCommand) {
     switch (cmd.type) {
@@ -97,7 +103,7 @@ export class CustomColorsPlugin extends UIPlugin<CustomColorState> {
   }
 
   getCustomColors(): Color[] {
-    let usedColors: Color[] = [];
+    let usedColors: Color[] = this.configCustomColors;
     for (const sheetId of this.getters.getSheetIds()) {
       usedColors = usedColors.concat(
         this.getColorsFromCells(sheetId),
