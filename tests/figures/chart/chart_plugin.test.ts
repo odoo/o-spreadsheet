@@ -2052,6 +2052,56 @@ describe("Cumulative Data line chart", () => {
   });
 });
 
+describe("Pie chart negative values", () => {
+  test("Pie chart to exclude negative values and labels in single dataset", () => {
+    setCellContent(model, "D6", "-23");
+    createChart(
+      model,
+      {
+        dataSets: ["D5:D10"],
+        labelRange: "A2:A6",
+        type: "pie",
+      },
+      "1"
+    );
+    const expectedData = ["P6", 32, 42]; // -23 is filtered out from dataset
+    const expectedLabels = ["P2", "P3", "P4"];
+
+    expect(
+      (model.getters.getChartRuntime("1") as PieChartRuntime).chartJsConfig.data.datasets[0].data
+    ).toEqual(expectedData);
+    expect(
+      (model.getters.getChartRuntime("1") as PieChartRuntime).chartJsConfig.data.labels
+    ).toEqual(expectedLabels);
+  });
+
+  test("Pie chart to replace negative values with 0 in multiple dataset", () => {
+    setCellContent(model, "D6", "-23");
+    setCellContent(model, "D8", "-3");
+    createChart(
+      model,
+      {
+        dataSets: ["D5:D9", "B1:B5"],
+        labelRange: "A2:A6",
+        type: "pie",
+      },
+      "1"
+    );
+    const expectedData = [0, "P6", 0, 42]; // -23 and -3 are replaced by 0
+    const expectedLabels = ["P2", "P3", "P4", ""];
+
+    expect(
+      (model.getters.getChartRuntime("1") as PieChartRuntime).chartJsConfig.data.datasets[0].data
+    ).toEqual(expectedData);
+    expect(
+      (model.getters.getChartRuntime("1") as PieChartRuntime).chartJsConfig.data.datasets[1].data
+    ).toEqual([10, 11, 12, 13]);
+    expect(
+      (model.getters.getChartRuntime("1") as PieChartRuntime).chartJsConfig.data.labels
+    ).toEqual(expectedLabels);
+  });
+});
+
 test("creating chart with single dataset should have legend position set as none, followed by changing it to top", async () => {
   createChart(
     model,
