@@ -510,6 +510,20 @@ describe("Autofill", () => {
     expect(getCell(model, "B5")).toBeUndefined();
   });
 
+  test("Auto-autofill multiple cells left", () => {
+    setCellContent(model, "A2", "1");
+    setCellContent(model, "A3", "1");
+    setCellContent(model, "A4", "1");
+    setCellContent(model, "A5", "1");
+    setCellContent(model, "B2", "2");
+    setCellContent(model, "B3", "3");
+    setSelection(model, ["B2:B3"]);
+    model.dispatch("AUTOFILL_AUTO");
+    expect(getCellContent(model, "B4")).toBe("4");
+    expect(getCellContent(model, "B5")).toBe("5");
+    expect(getCell(model, "B6")).toBeUndefined();
+  });
+
   test("Auto-autofill right", () => {
     setCellContent(model, "B2", "1");
     setCellContent(model, "B3", "1");
@@ -522,6 +536,20 @@ describe("Autofill", () => {
     expect(getCell(model, "A5")).toBeUndefined();
   });
 
+  test("Auto-autofill multiple cells right", () => {
+    setCellContent(model, "B2", "1");
+    setCellContent(model, "B3", "1");
+    setCellContent(model, "B4", "1");
+    setCellContent(model, "B5", "1");
+    setCellContent(model, "A2", "2");
+    setCellContent(model, "A3", "3");
+    setSelection(model, ["A2:A3"]);
+    model.dispatch("AUTOFILL_AUTO");
+    expect(getCellContent(model, "A4")).toBe("4");
+    expect(getCellContent(model, "A5")).toBe("5");
+    expect(getCell(model, "A6")).toBeUndefined();
+  });
+
   test("Auto-autofill considers cells with a content", () => {
     setCellContent(model, "B2", "1");
     setCellContent(model, "B3", '=""');
@@ -532,6 +560,20 @@ describe("Autofill", () => {
     expect(getCellContent(model, "A3")).toBe("2");
     expect(getCellContent(model, "A4")).toBe("2");
     expect(getCell(model, "A5")).toBeUndefined();
+  });
+
+  test("Auto-autofill of multiple cells considers cells with a content", () => {
+    setCellContent(model, "B2", "1");
+    setCellContent(model, "B3", '=""');
+    setCellContent(model, "B4", '=""');
+    setCellContent(model, "B5", '=""');
+    setCellContent(model, "A2", "2");
+    setCellContent(model, "A3", "3");
+    setSelection(model, ["A2:A3"]);
+    model.dispatch("AUTOFILL_AUTO");
+    expect(getCellContent(model, "A4")).toBe("4");
+    expect(getCellContent(model, "A5")).toBe("5");
+    expect(getCell(model, "A6")).toBeUndefined();
   });
 
   test("autofill with merge in selection", () => {

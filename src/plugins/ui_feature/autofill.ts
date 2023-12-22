@@ -111,11 +111,6 @@ export class AutofillPlugin extends UIPlugin {
           return CommandResult.Success;
         }
         return CommandResult.InvalidAutofillSelection;
-      case "AUTOFILL_AUTO":
-        const zone = this.getters.getSelectedZone();
-        return zone.top === zone.bottom
-          ? CommandResult.Success
-          : CommandResult.CancelledForUnknownReason;
     }
     return CommandResult.Success;
   }
