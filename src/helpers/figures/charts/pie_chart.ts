@@ -260,6 +260,35 @@ function calculatePercentage(
   return percentage.toFixed(2);
 }
 
+function filterNegativeValues(
+  labels: readonly string[],
+  datasets: readonly DatasetValues[]
+): { labels: string[]; dataSetsValues: DatasetValues[] } {
+  const dataPointsIndexes = labels.reduce<number[]>((indexes, label, i) => {
+    const shouldKeep = datasets.some((dataset) => {
+      const dataPoint = dataset.data[i];
+      return typeof dataPoint !== "number" || dataPoint >= 0;
+    });
+
+    if (shouldKeep) {
+      indexes.push(i);
+    }
+
+    return indexes;
+  }, []);
+
+  const filteredLabels = dataPointsIndexes.map((i) => labels[i] || "");
+  const filteredDatasets = datasets.map((dataset) => ({
+    ...dataset,
+    data: dataPointsIndexes.map((i) => {
+      const dataPoint = dataset.data[i];
+      return typeof dataPoint !== "number" || dataPoint >= 0 ? dataPoint : 0;
+    }),
+  }));
+
+  return { labels: filteredLabels, dataSetsValues: filteredDatasets };
+}
+
 export function createPieChartRuntime(chart: PieChart, getters: Getters): PieChartRuntime {
   const labelValues = getChartLabelValues(getters, chart.dataSets, chart.labelRange);
   let labels = labelValues.formattedValues;
@@ -277,6 +306,9 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
   if (chart.aggregated) {
     ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
   }
+
+  ({ dataSetsValues, labels } = filterNegativeValues(labels, dataSetsValues));
+
   const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
   const locale = getters.getLocale();
   const config = getPieConfiguration(chart, labels, { format: dataSetFormat, locale });
