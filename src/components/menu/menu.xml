@@ -29,7 +29,7 @@
                 <t t-set="description" t-value="menuItem.description(env)"/>
                 <div
                   t-if="description"
-                  class="o-menu-item-description ms-auto"
+                  class="o-menu-item-description ms-auto text-truncate"
                   t-esc="description"
                 />
                 <div

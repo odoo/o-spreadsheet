@@ -658,7 +658,7 @@ exports[`TopBar component can set cell format 1`] = `
               Number
             </div>
             <div
-              class="o-menu-item-description ms-auto"
+              class="o-menu-item-description ms-auto text-truncate"
             >
               1,000.12
             </div>
@@ -685,7 +685,7 @@ exports[`TopBar component can set cell format 1`] = `
               Percent
             </div>
             <div
-              class="o-menu-item-description ms-auto"
+              class="o-menu-item-description ms-auto text-truncate"
             >
               10.12%
             </div>
@@ -716,7 +716,7 @@ exports[`TopBar component can set cell format 1`] = `
               Currency
             </div>
             <div
-              class="o-menu-item-description ms-auto"
+              class="o-menu-item-description ms-auto text-truncate"
             >
               $1,000.12
             </div>
@@ -743,7 +743,7 @@ exports[`TopBar component can set cell format 1`] = `
               Currency rounded
             </div>
             <div
-              class="o-menu-item-description ms-auto"
+              class="o-menu-item-description ms-auto text-truncate"
             >
               $1,000
             </div>
@@ -796,7 +796,7 @@ exports[`TopBar component can set cell format 1`] = `
               Date
             </div>
             <div
-              class="o-menu-item-description ms-auto"
+              class="o-menu-item-description ms-auto text-truncate"
             >
               9/26/2023
             </div>
@@ -823,7 +823,7 @@ exports[`TopBar component can set cell format 1`] = `
               Time
             </div>
             <div
-              class="o-menu-item-description ms-auto"
+              class="o-menu-item-description ms-auto text-truncate"
             >
               10:43:00 PM
             </div>
@@ -850,7 +850,7 @@ exports[`TopBar component can set cell format 1`] = `
               Date time
             </div>
             <div
-              class="o-menu-item-description ms-auto"
+              class="o-menu-item-description ms-auto text-truncate"
             >
               9/26/2023 10:43:00 PM
             </div>
@@ -877,7 +877,7 @@ exports[`TopBar component can set cell format 1`] = `
               Duration
             </div>
             <div
-              class="o-menu-item-description ms-auto"
+              class="o-menu-item-description ms-auto text-truncate"
             >
               27:51:38
             </div>

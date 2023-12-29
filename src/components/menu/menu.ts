@@ -42,6 +42,10 @@ css/* scss */ `
         justify-content: space-between;
       }
 
+      .o-menu-item-name {
+        min-width: 40%;
+      }
+
       .o-menu-item-icon {
         display: inline-block;
         margin: 0px 8px 0px 0px;
