@@ -1,15 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" xmlns:xr2="http://schemas.microsoft.com/office/spreadsheetml/2015/revision2" xmlns:xr3="http://schemas.microsoft.com/office/spreadsheetml/2016/revision3" mc:Ignorable="x14ac xr xr2 xr3" xr:uid="{36512477-1430-4815-A265-D41BD5674A3A}">
   <dimension ref="A1:H5"/>
+  <sheetPr>
+    <outlinePr summaryBelow="1" summaryRight="0"/>
+  </sheetPr>
   <sheetViews>
     <sheetView workbookViewId="0">
       <selection activeCell="H2" sqref="H2"/>
     </sheetView>
   </sheetViews>
-  <sheetFormatPr defaultColWidth="9.140625" defaultRowHeight="12.75" x14ac:dyDescent="0.2"/>
+  <sheetFormatPr defaultColWidth="9.140625" defaultRowHeight="12.75" x14ac:dyDescent="0.2" outlineLevelRow="2" outlineLevelCol="2" />
   <cols>
     <col min="3" max="3" width="0" hidden="1" customWidth="1"/>
     <col min="6" max="6" width="14.28515625" customWidth="1"/>
+    <col min="10" max="10" width="9.140625" outlineLevel="1"/>
+    <col min="11" max="11" width="9.140625" outlineLevel="1" collapsed="1"/>
+    <col min="12" max="14" width="0" hidden="1" outlineLevel="2"/>
+    <col min="15" max="15" width="9.140625" outlineLevel="1"/>
+    <col min="16" max="18" width="9.140625" outlineLevel="1"/>
   </cols>
   <sheetData>
     <row r="1" spans="1:8" x14ac:dyDescent="0.2">
@@ -60,6 +68,15 @@
         <v>360</v>
       </c>
     </row>
+    <row r="10" outlineLevel="1" x14ac:dyDescent="0.2"/>
+    <row r="11" outlineLevel="1" x14ac:dyDescent="0.2"/>
+    <row r="12" hidden="1" outlineLevel="2" x14ac:dyDescent="0.2"/>
+    <row r="13" hidden="1" outlineLevel="2" x14ac:dyDescent="0.2"/>
+    <row r="14" hidden="1" outlineLevel="2" x14ac:dyDescent="0.2"/>
+    <row r="15" outlineLevel="1" collapsed="1" x14ac:dyDescent="0.2"/>
+    <row r="16" outlineLevel="1" x14ac:dyDescent="0.2"/>
+    <row r="17" outlineLevel="1" x14ac:dyDescent="0.2"/>
+    <row r="18" outlineLevel="1" x14ac:dyDescent="0.2"/>
   </sheetData>
   <mergeCells count="1">
     <mergeCell ref="D1:E2"/>

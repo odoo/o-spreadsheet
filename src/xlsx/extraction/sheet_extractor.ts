@@ -7,8 +7,10 @@ import {
   XLSXFormula,
   XLSXHyperLink,
   XLSXImportFile,
+  XLSXOutlineProperties,
   XLSXRow,
   XLSXSheetFormat,
+  XLSXSheetProperties,
   XLSXSheetState,
   XLSXSheetView,
   XLSXSheetWorkbookInfo,
@@ -48,6 +50,7 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
           sheetName: this.extractSheetName(),
           sheetViews: this.extractSheetViews(sheetElement),
           sheetFormat: this.extractSheetFormat(sheetElement),
+          sheetProperties: this.extractSheetProperties(sheetElement),
           cols: this.extractCols(sheetElement),
           rows: this.extractRows(sheetElement),
           sharedFormulas: this.extractSharedFormulas(sheetElement),
@@ -227,6 +230,26 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
     };
   }
 
+  private extractSheetProperties(worksheet: Element): XLSXSheetProperties | undefined {
+    const propertiesElement = this.querySelector(worksheet, "sheetPr");
+    if (!propertiesElement) return undefined;
+
+    return {
+      outlinePr: this.extractSheetOutlineProperties(propertiesElement),
+    };
+  }
+
+  private extractSheetOutlineProperties(
+    sheetProperties: Element
+  ): XLSXOutlineProperties | undefined {
+    const properties = this.querySelector(sheetProperties, "outlinePr");
+    if (!properties) return undefined;
+
+    return {
+      summaryBelow: this.extractAttr(properties, "summaryBelow", { default: true }).asBool()!,
+      summaryRight: this.extractAttr(properties, "summaryRight", { default: true }).asBool()!,
+    };
+  }
   private extractCols(worksheet: Element): XLSXColumn[] {
     return this.mapOnElements(
       { parent: worksheet, query: "cols col" },
@@ -239,6 +262,8 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
           min: this.extractAttr(colElement, "min", { required: true })?.asNum()!,
           max: this.extractAttr(colElement, "max", { required: true })?.asNum()!,
           styleIndex: this.extractAttr(colElement, "style")?.asNum(),
+          outlineLevel: this.extractAttr(colElement, "outlineLevel")?.asNum(),
+          collapsed: this.extractAttr(colElement, "collapsed")?.asBool(),
         };
       }
     );
@@ -255,6 +280,8 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
           customHeight: this.extractAttr(rowElement, "customHeight")?.asBool(),
           hidden: this.extractAttr(rowElement, "hidden")?.asBool(),
           styleIndex: this.extractAttr(rowElement, "s")?.asNum(),
+          outlineLevel: this.extractAttr(rowElement, "outlineLevel")?.asNum(),
+          collapsed: this.extractAttr(rowElement, "collapsed")?.asBool(),
         };
       }
     );

@@ -850,6 +850,19 @@ describe("Import xlsx data", () => {
       expect(testSheet.isVisible).toEqual(false);
     });
   });
+
+  test("Import header groups", () => {
+    const testSheet = getWorkbookSheet("jestSheet", convertedData)!;
+    expect(testSheet.headerGroups?.ROW).toMatchObject([
+      { start: 9, end: 17, isFolded: false },
+      { start: 11, end: 13, isFolded: true },
+    ]);
+
+    expect(testSheet.headerGroups?.COL).toMatchObject([
+      { start: 9, end: 17, isFolded: false },
+      { start: 11, end: 13, isFolded: true },
+    ]);
+  });
 });
 
 test.each([

@@ -9,7 +9,7 @@ import {
   toZone,
 } from "../../helpers";
 import { withHttps } from "../../helpers/links";
-import { ExcelSheetData, ExcelWorkbookData, HeaderData, PLAIN_TEXT_FORMAT } from "../../types";
+import { ExcelHeaderData, ExcelSheetData, ExcelWorkbookData, PLAIN_TEXT_FORMAT } from "../../types";
 import { CellErrorType } from "../../types/errors";
 import { XLSXStructure, XMLAttributes, XMLString } from "../../types/xlsx";
 import { XLSX_RELATION_TYPE } from "../constants";
@@ -24,7 +24,7 @@ import { escapeXml, formatAttributes, joinXmlNodes } from "../helpers/xml_helper
 import { HeaderIndex } from "./../../types/misc";
 import { addContent, addFormula } from "./cells";
 
-export function addColumns(cols: { [key: number]: HeaderData }): XMLString {
+export function addColumns(cols: { [key: number]: ExcelHeaderData }): XMLString {
   if (!Object.values(cols).length) {
     return escapeXml``;
   }
@@ -38,6 +38,12 @@ export function addColumns(cols: { [key: number]: HeaderData }): XMLString {
       ["customWidth", 1],
       ["hidden", col.isHidden ? 1 : 0],
     ];
+    if (col.outlineLevel) {
+      attributes.push(["outlineLevel", col.outlineLevel]);
+    }
+    if (col.collapsed) {
+      attributes.push(["collapsed", 1]);
+    }
     colNodes.push(escapeXml/*xml*/ `
       <col ${formatAttributes(attributes)}/>
     `);
@@ -64,6 +70,13 @@ export function addRows(
     if (row.isHidden) {
       rowAttrs.push(["hidden", 1]);
     }
+    if (row.outlineLevel) {
+      rowAttrs.push(["outlineLevel", row.outlineLevel]);
+    }
+    if (row.collapsed) {
+      rowAttrs.push(["collapsed", 1]);
+    }
+
     const cellNodes: XMLString[] = [];
     for (let c = 0; c < sheet.colNumber; c++) {
       const xc = toXC(c, r);
@@ -100,7 +113,13 @@ export function addRows(
         `);
       }
     }
-    if (cellNodes.length || row.size !== DEFAULT_CELL_HEIGHT || row.isHidden) {
+    if (
+      cellNodes.length ||
+      row.size !== DEFAULT_CELL_HEIGHT ||
+      row.isHidden ||
+      row.outlineLevel ||
+      row.collapsed
+    ) {
       rowNodes.push(escapeXml/*xml*/ `
         <row ${formatAttributes(rowAttrs)}>
           ${joinXmlNodes(cellNodes)}

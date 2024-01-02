@@ -6,7 +6,8 @@ import {
   moveHeaderIndexesOnHeaderDeletion,
   range,
 } from "../../helpers";
-import { CommandResult, CoreCommand, UID, WorkbookData } from "../../types";
+import { CommandResult, CoreCommand, ExcelWorkbookData, UID, WorkbookData } from "../../types";
+import { getSheetDataHeader } from "../../xlsx/helpers/misc";
 import { Dimension, HeaderGroup, HeaderIndex, Zone } from "./../../types/misc";
 import { CorePlugin } from "./../core_plugin";
 
@@ -473,6 +474,44 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
   export(data: WorkbookData) {
     for (const sheet of data.sheets) {
       sheet.headerGroups = this.groups[sheet.id];
+    }
+  }
+
+  exportForExcel(data: ExcelWorkbookData) {
+    /**
+     * Example of header groups in the XLSX file:
+     *
+     * 0. |        <row index="1" outlineLevel="1">
+     * 1. | |      <row index="2" outlineLevel="2">
+     * 2. | |      <row index="3" outlineLevel="2">
+     * 3. | |_     <row index="4" outlineLevel="2">
+     * 4. |_       <row index="5" outlineLevel="1" collapsed="0">
+     * 5.          <row index="6" collapsed="0">
+     *
+     * The collapsed flag can be on the header before or after the group (or can be missing). Default is after.
+     */
+    for (const sheet of data.sheets) {
+      for (const dim of ["ROW", "COL"] as const) {
+        const layers = this.getGroupsLayers(sheet.id, dim);
+
+        for (let layerIndex = 0; layerIndex < layers.length; layerIndex++) {
+          const layer = layers[layerIndex];
+
+          for (const group of layer) {
+            for (let headerIndex = group.start; headerIndex <= group.end; headerIndex++) {
+              const header = getSheetDataHeader(sheet, dim, headerIndex);
+              header.outlineLevel = layerIndex + 1;
+              if (group.isFolded) {
+                header.isHidden = true;
+              }
+            }
+            if (group.isFolded) {
+              const header = getSheetDataHeader(sheet, dim, group.end + 1);
+              header.collapsed = true;
+            }
+          }
+        }
+      }
     }
   }
 }
