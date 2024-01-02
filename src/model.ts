@@ -57,31 +57,6 @@ import { WorkbookData } from "./types/workbook_data";
 import { XLSXExport } from "./types/xlsx";
 import { getXLSX } from "./xlsx/xlsx_writer";
 
-/**
- * Model
- *
- * The Model class is the owner of the state of the Spreadsheet. However, it
- * has more a coordination role: it defers the actual state manipulation work to
- * plugins.
- *
- * At creation, the Model instantiates all necessary plugins. They each have
- * a private state (for example, the Selection plugin has the current selection).
- *
- * State changes are then performed through commands.  Commands are dispatched
- * to the model, which will then relay them to each plugins (and the history
- * handler). Then, the model will trigger an 'update' event to notify whoever
- * is concerned that the command was applied (if it was not cancelled).
- *
- * Also, the model has an unconventional responsibility: it actually renders the
- * visible viewport on a canvas. This is because each plugins actually manage a
- * specific concern about the content of the spreadsheet, and it is more natural
- * if they are able to read data from their internal state to represent it on the
- * screen.
- *
- * Note that the Model can be used in a standalone way to manipulate
- * programmatically a spreadsheet.
- */
-
 export type Mode = "normal" | "readonly" | "dashboard";
 
 export interface ModelConfig {
@@ -121,6 +96,30 @@ const enum Status {
   Finalizing,
 }
 
+/**
+ * Model
+ *
+ * The Model class is the owner of the state of the Spreadsheet. However, it
+ * has more a coordination role: it defers the actual state manipulation work to
+ * plugins.
+ *
+ * At creation, the Model instantiates all necessary plugins. They each have
+ * a private state (for example, the Selection plugin has the current selection).
+ *
+ * State changes are then performed through commands.  Commands are dispatched
+ * to the model, which will then relay them to each plugins (and the history
+ * handler). Then, the model will trigger an 'update' event to notify whoever
+ * is concerned that the command was applied (if it was not cancelled).
+ *
+ * Also, the model has an unconventional responsibility: it actually renders the
+ * visible viewport on a canvas. This is because each plugins actually manage a
+ * specific concern about the content of the spreadsheet, and it is more natural
+ * if they are able to read data from their internal state to represent it on the
+ * screen.
+ *
+ * Note that the Model can be used in a standalone way to manipulate
+ * programmatically a spreadsheet.
+ */
 export class Model extends EventBus<any> implements CommandDispatcher {
   private corePlugins: CorePlugin[] = [];
 
@@ -185,6 +184,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private readonly coreHandlers: CommandHandler<CoreCommand>[] = [];
 
   constructor(
+    /** default data */
     data: any = {},
     config: Partial<ModelConfig> = {},
     stateUpdateMessages: StateUpdateMessage[] = [],

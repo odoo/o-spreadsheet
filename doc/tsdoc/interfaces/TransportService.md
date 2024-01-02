@@ -1,6 +1,6 @@
 [o-spreadsheet API](../README.md) / TransportService
 
-# Interface: TransportService<T\>
+# Interface: TransportService\<T\>
 
 The transport service allows to communicate between multiple clients.
 A client can send any message to others.
@@ -14,27 +14,33 @@ The service will handle all networking details internally.
 
 ## Table of contents
 
-### Methods
+### Properties
 
 - [leave](TransportService.md#leave)
 - [onNewMessage](TransportService.md#onnewmessage)
 - [sendMessage](TransportService.md#sendmessage)
 
-## Methods
+## Properties
 
 ### leave
 
-▸ **leave**(`id`): `void`
+• **leave**: (`id`: `UID`) => `void`
 
 Unregister a callback linked to the given id
 
-#### Parameters
+#### Type declaration
+
+▸ (`id`): `void`
+
+Unregister a callback linked to the given id
+
+##### Parameters
 
 | Name | Type |
 | :------ | :------ |
 | `id` | `UID` |
 
-#### Returns
+##### Returns
 
 `void`
 
@@ -42,7 +48,7 @@ ___
 
 ### onNewMessage
 
-▸ **onNewMessage**(`id`, `callback`): `void`
+• **onNewMessage**: (`id`: `UID`, `callback`: `NewMessageCallback`\<`T`\>) => `void`
 
 Register a callback function which will be called each time
 a new message is received.
@@ -55,14 +61,29 @@ transportService.onNewMessage(id, (message) => {
 ```
 The `id` is used to unregister this callback when the session is closed.
 
-#### Parameters
+#### Type declaration
+
+▸ (`id`, `callback`): `void`
+
+Register a callback function which will be called each time
+a new message is received.
+The new message is given to the callback.
+
+```js
+transportService.onNewMessage(id, (message) => {
+  // ... handle the new message
+})
+```
+The `id` is used to unregister this callback when the session is closed.
+
+##### Parameters
 
 | Name | Type |
 | :------ | :------ |
 | `id` | `UID` |
-| `callback` | `NewMessageCallback`<`T`\> |
+| `callback` | `NewMessageCallback`\<`T`\> |
 
-#### Returns
+##### Returns
 
 `void`
 
@@ -70,16 +91,22 @@ ___
 
 ### sendMessage
 
-▸ **sendMessage**(`message`): `void`
+• **sendMessage**: (`message`: `T`) => `void`
 
 Send a message to all clients
 
-#### Parameters
+#### Type declaration
+
+▸ (`message`): `void`
+
+Send a message to all clients
+
+##### Parameters
 
 | Name | Type |
 | :------ | :------ |
 | `message` | `T` |
 
-#### Returns
+##### Returns
 
 `void`

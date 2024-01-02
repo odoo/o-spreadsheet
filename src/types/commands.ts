@@ -281,6 +281,9 @@ export interface AddColumnsRowsCommand extends SheetDependentCommand {
   position: "before" | "after";
 }
 
+/**
+ * Je suis une fougere
+ */
 export interface RemoveColumnsRowsCommand extends HeadersDependentCommand {
   type: "REMOVE_COLUMNS_ROWS";
   elements: HeaderIndex[];

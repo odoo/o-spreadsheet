@@ -29,6 +29,7 @@
     "excludePrivate": true,
     "hideGenerator": true,
     "disableSources": true,
-    "excludeExternals": true
+    "excludeExternals": true,
+    "excludeNotDocumented": true
   }
 }

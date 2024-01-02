@@ -7,17 +7,6 @@ The role of this class is to maintain the state of each chart.
 
 ## Table of contents
 
-### Constructors
-
-- [constructor](AbstractChart.md#constructor)
-
-### Properties
-
-- [getters](AbstractChart.md#getters)
-- [sheetId](AbstractChart.md#sheetid)
-- [title](AbstractChart.md#title)
-- [type](AbstractChart.md#type)
-
 ### Methods
 
 - [copyForSheetId](AbstractChart.md#copyforsheetid)
@@ -30,49 +19,11 @@ The role of this class is to maintain the state of each chart.
 - [transformDefinition](AbstractChart.md#transformdefinition)
 - [validateChartDefinition](AbstractChart.md#validatechartdefinition)
 
-## Constructors
-
-### constructor
-
-• **new AbstractChart**(`definition`, `sheetId`, `getters`)
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `definition` | `ChartDefinition` |
-| `sheetId` | `UID` |
-| `getters` | `CoreGetters` |
-
-## Properties
-
-### getters
-
-• `Protected` `Readonly` **getters**: `CoreGetters`
-
-___
-
-### sheetId
-
-• `Readonly` **sheetId**: `UID`
-
-___
-
-### title
-
-• `Readonly` **title**: `string`
-
-___
-
-### type
-
-• `Readonly` `Abstract` **type**: `ChartType`
-
 ## Methods
 
 ### copyForSheetId
 
-▸ `Abstract` **copyForSheetId**(`sheetId`): [`AbstractChart`](AbstractChart.md)
+▸ **copyForSheetId**(`sheetId`): [`AbstractChart`](AbstractChart.md)
 
 Get a copy a the chart adapted to the given sheetId.
 The ranges that are in the same sheet as the chart will be adapted to the given sheetId.
@@ -91,7 +42,7 @@ ___
 
 ### copyInSheetId
 
-▸ `Abstract` **copyInSheetId**(`sheetId`): [`AbstractChart`](AbstractChart.md)
+▸ **copyInSheetId**(`sheetId`): [`AbstractChart`](AbstractChart.md)
 
 Get a copy a the chart in the given sheetId.
 The ranges of the chart will stay the same as the copied chart.
@@ -110,7 +61,7 @@ ___
 
 ### getContextCreation
 
-▸ `Abstract` **getContextCreation**(): `ChartCreationContext`
+▸ **getContextCreation**(): `ChartCreationContext`
 
 Extract the ChartCreationContext of the chart
 
@@ -122,7 +73,7 @@ ___
 
 ### getDefinition
 
-▸ `Abstract` **getDefinition**(): `ChartDefinition`
+▸ **getDefinition**(): `ChartDefinition`
 
 Get the definition of the chart
 
@@ -134,7 +85,7 @@ ___
 
 ### getDefinitionForExcel
 
-▸ `Abstract` **getDefinitionForExcel**(): `undefined` \| `ExcelChartDefinition`
+▸ **getDefinitionForExcel**(): `undefined` \| `ExcelChartDefinition`
 
 Get the definition of the chart that will be used for excel export.
 If the chart is not supported by Excel, this function returns undefined.
@@ -147,7 +98,7 @@ ___
 
 ### updateRanges
 
-▸ `Abstract` **updateRanges**(`applyChange`): [`AbstractChart`](AbstractChart.md)
+▸ **updateRanges**(`applyChange`): [`AbstractChart`](AbstractChart.md)
 
 This function should be used to update all the ranges of the chart after
 a grid change (add/remove col/row, rename sheet, ...)
@@ -166,7 +117,7 @@ ___
 
 ### getDefinitionFromContextCreation
 
-▸ `Static` **getDefinitionFromContextCreation**(`context`): `ChartDefinition`
+▸ **getDefinitionFromContextCreation**(`context`): `ChartDefinition`
 
 Get an empty definition based on the given context
 
@@ -184,7 +135,7 @@ ___
 
 ### transformDefinition
 
-▸ `Static` **transformDefinition**(`definition`, `executed`): `ChartDefinition`
+▸ **transformDefinition**(`definition`, `executed`): `ChartDefinition`
 
 Get a new chart definition transformed with the executed command. This
 functions will be called during operational transform process
@@ -204,7 +155,7 @@ ___
 
 ### validateChartDefinition
 
-▸ `Static` **validateChartDefinition**(`validator`, `definition`): [`CommandResult`](../enums/CommandResult.md) \| [`CommandResult`](../enums/CommandResult.md)[]
+▸ **validateChartDefinition**(`validator`, `definition`): `Success` \| `CancelledForUnknownReason` \| `WillRemoveExistingMerge` \| `MergeIsDestructive` \| `CellIsMerged` \| `InvalidTarget` \| `EmptyUndoStack` \| `EmptyRedoStack` \| `NotEnoughElements` \| `NotEnoughSheets` \| `MissingSheetName` \| `UnchangedSheetName` \| `DuplicatedSheetName` \| `DuplicatedSheetId` \| `ForbiddenCharactersInSheetName` \| `WrongSheetMove` \| `WrongSheetPosition` \| `InvalidAnchorZone` \| `SelectionOutOfBound` \| `TargetOutOfSheet` \| `WrongCutSelection` \| `WrongPasteSelection` \| `WrongPasteOption` \| `WrongFigurePasteOption` \| `EmptyClipboard` \| `EmptyRange` \| `InvalidRange` \| `InvalidZones` \| `InvalidSheetId` \| `InvalidFigureId` \| `InputAlreadyFocused` \| `MaximumRangesReached` \| `MinimumRangesReached` \| `InvalidChartDefinition` \| `InvalidDataSet` \| `InvalidLabelRange` \| `InvalidScorecardKeyValue` \| `InvalidScorecardBaseline` \| `InvalidGaugeDataRange` \| `EmptyGaugeRangeMin` \| `GaugeRangeMinNaN` \| `EmptyGaugeRangeMax` \| `GaugeRangeMaxNaN` \| `GaugeRangeMinBiggerThanRangeMax` \| `GaugeLowerInflectionPointNaN` \| `GaugeUpperInflectionPointNaN` \| `GaugeLowerBiggerThanUpper` \| `InvalidAutofillSelection` \| `WrongComposerSelection` \| `MinBiggerThanMax` \| `LowerBiggerThanUpper` \| `MidBiggerThanMax` \| `MinBiggerThanMid` \| `FirstArgMissing` \| `SecondArgMissing` \| `MinNaN` \| `MidNaN` \| `MaxNaN` \| `ValueUpperInflectionNaN` \| `ValueLowerInflectionNaN` \| `MinInvalidFormula` \| `MidInvalidFormula` \| `MaxInvalidFormula` \| `ValueUpperInvalidFormula` \| `ValueLowerInvalidFormula` \| `InvalidSortZone` \| `WaitingSessionConfirmation` \| `MergeOverlap` \| `TooManyHiddenElements` \| `Readonly` \| `InvalidViewportSize` \| `InvalidScrollingDirection` \| `FigureDoesNotExist` \| `InvalidConditionalFormatId` \| `InvalidCellPopover` \| `EmptyTarget` \| `InvalidFreezeQuantity` \| `FrozenPaneOverlap` \| `ValuesNotChanged` \| `InvalidFilterZone` \| `FilterOverlap` \| `FilterNotFound` \| `MergeInFilter` \| `NonContinuousTargets` \| `DuplicatedFigureId` \| `InvalidSelectionStep` \| `DuplicatedChartId` \| `ChartDoesNotExist` \| `InvalidHeaderIndex` \| `InvalidQuantity` \| `MoreThanOneColumnSelected` \| `EmptySplitSeparator` \| `SplitWillOverwriteContent` \| `NoSplitSeparatorInSelection` \| `NoActiveSheet` \| `InvalidLocale` \| `AlreadyInPaintingFormatMode` \| `MoreThanOneRangeSelected` \| `NoColumnsProvided` \| `ColumnsNotIncludedInZone` \| `DuplicatesColumnsSelected` \| `InvalidHeaderGroupStartEnd` \| `HeaderGroupAlreadyExists` \| `UnknownHeaderGroup` \| `UnknownDataValidationRule` \| `UnknownDataValidationCriterionType` \| `InvalidDataValidationCriterionValue` \| `InvalidNumberOfCriterionValues` \| `BlockingValidationRule` \| `InvalidCopyPasteSelection` \| `NoChanges` \| `CommandResult`[]
 
 Validate the chart definition given as arguments. This function will be
 called from allowDispatch function
@@ -218,4 +169,4 @@ called from allowDispatch function
 
 #### Returns
 
-[`CommandResult`](../enums/CommandResult.md) \| [`CommandResult`](../enums/CommandResult.md)[]
+`Success` \| `CancelledForUnknownReason` \| `WillRemoveExistingMerge` \| `MergeIsDestructive` \| `CellIsMerged` \| `InvalidTarget` \| `EmptyUndoStack` \| `EmptyRedoStack` \| `NotEnoughElements` \| `NotEnoughSheets` \| `MissingSheetName` \| `UnchangedSheetName` \| `DuplicatedSheetName` \| `DuplicatedSheetId` \| `ForbiddenCharactersInSheetName` \| `WrongSheetMove` \| `WrongSheetPosition` \| `InvalidAnchorZone` \| `SelectionOutOfBound` \| `TargetOutOfSheet` \| `WrongCutSelection` \| `WrongPasteSelection` \| `WrongPasteOption` \| `WrongFigurePasteOption` \| `EmptyClipboard` \| `EmptyRange` \| `InvalidRange` \| `InvalidZones` \| `InvalidSheetId` \| `InvalidFigureId` \| `InputAlreadyFocused` \| `MaximumRangesReached` \| `MinimumRangesReached` \| `InvalidChartDefinition` \| `InvalidDataSet` \| `InvalidLabelRange` \| `InvalidScorecardKeyValue` \| `InvalidScorecardBaseline` \| `InvalidGaugeDataRange` \| `EmptyGaugeRangeMin` \| `GaugeRangeMinNaN` \| `EmptyGaugeRangeMax` \| `GaugeRangeMaxNaN` \| `GaugeRangeMinBiggerThanRangeMax` \| `GaugeLowerInflectionPointNaN` \| `GaugeUpperInflectionPointNaN` \| `GaugeLowerBiggerThanUpper` \| `InvalidAutofillSelection` \| `WrongComposerSelection` \| `MinBiggerThanMax` \| `LowerBiggerThanUpper` \| `MidBiggerThanMax` \| `MinBiggerThanMid` \| `FirstArgMissing` \| `SecondArgMissing` \| `MinNaN` \| `MidNaN` \| `MaxNaN` \| `ValueUpperInflectionNaN` \| `ValueLowerInflectionNaN` \| `MinInvalidFormula` \| `MidInvalidFormula` \| `MaxInvalidFormula` \| `ValueUpperInvalidFormula` \| `ValueLowerInvalidFormula` \| `InvalidSortZone` \| `WaitingSessionConfirmation` \| `MergeOverlap` \| `TooManyHiddenElements` \| `Readonly` \| `InvalidViewportSize` \| `InvalidScrollingDirection` \| `FigureDoesNotExist` \| `InvalidConditionalFormatId` \| `InvalidCellPopover` \| `EmptyTarget` \| `InvalidFreezeQuantity` \| `FrozenPaneOverlap` \| `ValuesNotChanged` \| `InvalidFilterZone` \| `FilterOverlap` \| `FilterNotFound` \| `MergeInFilter` \| `NonContinuousTargets` \| `DuplicatedFigureId` \| `InvalidSelectionStep` \| `DuplicatedChartId` \| `ChartDoesNotExist` \| `InvalidHeaderIndex` \| `InvalidQuantity` \| `MoreThanOneColumnSelected` \| `EmptySplitSeparator` \| `SplitWillOverwriteContent` \| `NoSplitSeparatorInSelection` \| `NoActiveSheet` \| `InvalidLocale` \| `AlreadyInPaintingFormatMode` \| `MoreThanOneRangeSelected` \| `NoColumnsProvided` \| `ColumnsNotIncludedInZone` \| `DuplicatesColumnsSelected` \| `InvalidHeaderGroupStartEnd` \| `HeaderGroupAlreadyExists` \| `UnknownHeaderGroup` \| `UnknownDataValidationRule` \| `UnknownDataValidationCriterionType` \| `InvalidDataValidationCriterionValue` \| `InvalidNumberOfCriterionValues` \| `BlockingValidationRule` \| `InvalidCopyPasteSelection` \| `NoChanges` \| `CommandResult`[]

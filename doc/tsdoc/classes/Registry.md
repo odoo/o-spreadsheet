@@ -1,6 +1,6 @@
 [o-spreadsheet API](../README.md) / Registry
 
-# Class: Registry<T\>
+# Class: Registry\<T\>
 
 Registry
 
@@ -21,49 +21,20 @@ following reasons:
 
 ## Table of contents
 
-### Constructors
-
-- [constructor](Registry.md#constructor)
-
-### Properties
-
-- [content](Registry.md#content)
-
 ### Methods
 
 - [add](Registry.md#add)
+- [contains](Registry.md#contains)
 - [get](Registry.md#get)
 - [getAll](Registry.md#getall)
 - [getKeys](Registry.md#getkeys)
 - [remove](Registry.md#remove)
 
-## Constructors
-
-### constructor
-
-• **new Registry**<`T`\>()
-
-#### Type parameters
-
-| Name |
-| :------ |
-| `T` |
-
-## Properties
-
-### content
-
-• **content**: `Object` = `{}`
-
-#### Index signature
-
-▪ [key: `string`]: `T`
-
 ## Methods
 
 ### add
 
-▸ **add**(`key`, `value`): [`Registry`](Registry.md)<`T`\>
+▸ **add**(`key`, `value`): [`Registry`](Registry.md)\<`T`\>
 
 Add an item to the registry
 
@@ -79,7 +50,25 @@ be chained
 
 #### Returns
 
-[`Registry`](Registry.md)<`T`\>
+[`Registry`](Registry.md)\<`T`\>
+
+___
+
+### contains
+
+▸ **contains**(`key`): `boolean`
+
+Check if the key is already in the registry
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `key` | `string` |
+
+#### Returns
+
+`boolean`
 
 ___
 

@@ -22,11 +22,11 @@ a.k.a. "[Owly](https://github.com/odoo/owl) Sheet" 🦉
 3. [Model creation](doc/integrating/integration.md#model-creation)
 4. [Collaborative edition](doc/integrating/integration.md#collaborative-edition)
 5. [Translation](doc/integrating/integration.md#translation)
-<!--
 
+<!---
 - use with other UI library
 - use with Typescript
-  -->
+--->
 
 ## Extending the functionalities of o-spreadsheet
 

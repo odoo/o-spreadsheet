@@ -1,6 +1,6 @@
 [o-spreadsheet API](../README.md) / CorePlugin
 
-# Class: CorePlugin<State, C\>
+# Class: CorePlugin\<State\>
 
 Core plugins handle spreadsheet data.
 They are responsible to import, export and maintain the spreadsheet
@@ -12,11 +12,10 @@ They should not be concerned about UI parts or transient state.
 | Name | Type |
 | :------ | :------ |
 | `State` | `any` |
-| `C` | `CoreCommand` |
 
 ## Hierarchy
 
-- `BasePlugin`<`State`, `C`\>
+- `BasePlugin`\<`State`, `CoreCommand`\>
 
   ↳ **`CorePlugin`**
 
@@ -26,19 +25,6 @@ They should not be concerned about UI parts or transient state.
 
 ## Table of contents
 
-### Constructors
-
-- [constructor](CorePlugin.md#constructor)
-
-### Properties
-
-- [dispatch](CorePlugin.md#dispatch)
-- [getters](CorePlugin.md#getters)
-- [history](CorePlugin.md#history)
-- [range](CorePlugin.md#range)
-- [uuidGenerator](CorePlugin.md#uuidgenerator)
-- [getters](CorePlugin.md#getters)
-
 ### Methods
 
 - [adaptRanges](CorePlugin.md#adaptranges)
@@ -46,129 +32,10 @@ They should not be concerned about UI parts or transient state.
 - [batchValidations](CorePlugin.md#batchvalidations)
 - [beforeHandle](CorePlugin.md#beforehandle)
 - [chainValidations](CorePlugin.md#chainvalidations)
-- [checkValidations](CorePlugin.md#checkvalidations)
-- [export](CorePlugin.md#export)
 - [exportForExcel](CorePlugin.md#exportforexcel)
 - [finalize](CorePlugin.md#finalize)
+- [garbageCollectExternalResources](CorePlugin.md#garbagecollectexternalresources)
 - [handle](CorePlugin.md#handle)
-- [import](CorePlugin.md#import)
-
-## Constructors
-
-### constructor
-
-• **new CorePlugin**<`State`, `C`\>(`getters`, `stateObserver`, `range`, `dispatch`, `config`, `uuidGenerator`)
-
-#### Type parameters
-
-| Name | Type |
-| :------ | :------ |
-| `State` | `any` |
-| `C` | `CoreCommand` |
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `getters` | `CoreGetters` |
-| `stateObserver` | `StateObserver` |
-| `range` | `RangeAdapter` |
-| `dispatch` | <T, C\>(`type`: {} extends `Omit`<`C`, ``"type"``\> ? `T` : `never`) => [`DispatchResult`](DispatchResult.md)<T, C\>(`type`: `T`, `r`: `Omit`<`C`, ``"type"``\>) => [`DispatchResult`](DispatchResult.md) |
-| `config` | `ModelConfig` |
-| `uuidGenerator` | `UuidGenerator` |
-
-#### Overrides
-
-BasePlugin&lt;State, C\&gt;.constructor
-
-## Properties
-
-### dispatch
-
-• `Protected` **dispatch**: <T, C\>(`type`: {} extends `Omit`<`C`, ``"type"``\> ? `T` : `never`) => [`DispatchResult`](DispatchResult.md)<T, C\>(`type`: `T`, `r`: `Omit`<`C`, ``"type"``\>) => [`DispatchResult`](DispatchResult.md)
-
-#### Type declaration
-
-▸ <`T`, `C`\>(`type`): [`DispatchResult`](DispatchResult.md)
-
-##### Type parameters
-
-| Name | Type |
-| :------ | :------ |
-| `T` | extends ``"UPDATE_CELL"`` \| ``"UPDATE_CELL_POSITION"`` \| ``"CLEAR_CELL"`` \| ``"DELETE_CONTENT"`` \| ``"SET_DECIMAL"`` \| ``"ADD_COLUMNS_ROWS"`` \| ``"REMOVE_COLUMNS_ROWS"`` \| ``"RESIZE_COLUMNS_ROWS"`` \| ``"HIDE_COLUMNS_ROWS"`` \| ``"UNHIDE_COLUMNS_ROWS"`` \| ``"SET_GRID_LINES_VISIBILITY"`` \| ``"FREEZE_COLUMNS"`` \| ``"FREEZE_ROWS"`` \| ``"UNFREEZE_COLUMNS_ROWS"`` \| ``"UNFREEZE_COLUMNS"`` \| ``"UNFREEZE_ROWS"`` \| ``"ADD_MERGE"`` \| ``"REMOVE_MERGE"`` \| ``"CREATE_SHEET"`` \| ``"DELETE_SHEET"`` \| ``"DUPLICATE_SHEET"`` \| ``"MOVE_SHEET"`` \| ``"RENAME_SHEET"`` \| ``"HIDE_SHEET"`` \| ``"SHOW_SHEET"`` \| ``"MOVE_RANGES"`` \| ``"ADD_CONDITIONAL_FORMAT"`` \| ``"REMOVE_CONDITIONAL_FORMAT"`` \| ``"MOVE_CONDITIONAL_FORMAT"`` \| ``"CREATE_FIGURE"`` \| ``"DELETE_FIGURE"`` \| ``"UPDATE_FIGURE"`` \| ``"SET_FORMATTING"`` \| ``"CLEAR_FORMATTING"`` \| ``"SET_BORDER"`` \| ``"CREATE_CHART"`` \| ``"UPDATE_CHART"`` |
-| `C` | extends { `type`: `T`  } & `UpdateCellCommand` \| { `type`: `T`  } & `UpdateCellPositionCommand` \| { `type`: `T`  } & `ClearCellCommand` \| { `type`: `T`  } & `DeleteContentCommand` \| { `type`: `T`  } & `SetDecimalCommand` \| { `type`: `T`  } & `AddColumnsRowsCommand` \| { `type`: `T`  } & `RemoveColumnsRowsCommand` \| { `type`: `T`  } & `ResizeColumnsRowsCommand` \| { `type`: `T`  } & `HideColumnsRowsCommand` \| { `type`: `T`  } & `UnhideColumnsRowsCommand` \| { `type`: `T`  } & `SetGridLinesVisibilityCommand` \| { `type`: `T`  } & `FreezeColumnsCommand` \| { `type`: `T`  } & `FreezeRowsCommand` \| { `type`: `T`  } & `UnfreezeColumnsRowsCommand` \| { `type`: `T`  } & `UnfreezeColumnsCommand` \| { `type`: `T`  } & `UnfreezeRowsCommand` \| { `type`: `T`  } & `AddMergeCommand` \| { `type`: `T`  } & `RemoveMergeCommand` \| { `type`: `T`  } & `CreateSheetCommand` \| { `type`: `T`  } & `DeleteSheetCommand` \| { `type`: `T`  } & `DuplicateSheetCommand` \| { `type`: `T`  } & `MoveSheetCommand` \| { `type`: `T`  } & `RenameSheetCommand` \| { `type`: `T`  } & `HideSheetCommand` \| { `type`: `T`  } & `ShowSheetCommand` \| { `type`: `T`  } & `MoveRangeCommand` \| { `type`: `T`  } & `AddConditionalFormatCommand` \| { `type`: `T`  } & `RemoveConditionalFormatCommand` \| { `type`: `T`  } & `MoveConditionalFormatCommand` \| { `type`: `T`  } & `CreateFigureCommand` \| { `type`: `T`  } & `DeleteFigureCommand` \| { `type`: `T`  } & `UpdateFigureCommand` \| { `type`: `T`  } & `SetFormattingCommand` \| { `type`: `T`  } & `ClearFormattingCommand` \| { `type`: `T`  } & `SetBorderCommand` \| { `type`: `T`  } & `CreateChartCommand` \| { `type`: `T`  } & `UpdateChartCommand` |
-
-##### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `type` | {} extends `Omit`<`C`, ``"type"``\> ? `T` : `never` |
-
-##### Returns
-
-[`DispatchResult`](DispatchResult.md)
-
-▸ <`T`, `C`\>(`type`, `r`): [`DispatchResult`](DispatchResult.md)
-
-##### Type parameters
-
-| Name | Type |
-| :------ | :------ |
-| `T` | extends ``"UPDATE_CELL"`` \| ``"UPDATE_CELL_POSITION"`` \| ``"CLEAR_CELL"`` \| ``"DELETE_CONTENT"`` \| ``"SET_DECIMAL"`` \| ``"ADD_COLUMNS_ROWS"`` \| ``"REMOVE_COLUMNS_ROWS"`` \| ``"RESIZE_COLUMNS_ROWS"`` \| ``"HIDE_COLUMNS_ROWS"`` \| ``"UNHIDE_COLUMNS_ROWS"`` \| ``"SET_GRID_LINES_VISIBILITY"`` \| ``"FREEZE_COLUMNS"`` \| ``"FREEZE_ROWS"`` \| ``"UNFREEZE_COLUMNS_ROWS"`` \| ``"UNFREEZE_COLUMNS"`` \| ``"UNFREEZE_ROWS"`` \| ``"ADD_MERGE"`` \| ``"REMOVE_MERGE"`` \| ``"CREATE_SHEET"`` \| ``"DELETE_SHEET"`` \| ``"DUPLICATE_SHEET"`` \| ``"MOVE_SHEET"`` \| ``"RENAME_SHEET"`` \| ``"HIDE_SHEET"`` \| ``"SHOW_SHEET"`` \| ``"MOVE_RANGES"`` \| ``"ADD_CONDITIONAL_FORMAT"`` \| ``"REMOVE_CONDITIONAL_FORMAT"`` \| ``"MOVE_CONDITIONAL_FORMAT"`` \| ``"CREATE_FIGURE"`` \| ``"DELETE_FIGURE"`` \| ``"UPDATE_FIGURE"`` \| ``"SET_FORMATTING"`` \| ``"CLEAR_FORMATTING"`` \| ``"SET_BORDER"`` \| ``"CREATE_CHART"`` \| ``"UPDATE_CHART"`` |
-| `C` | extends { `type`: `T`  } & `UpdateCellCommand` \| { `type`: `T`  } & `UpdateCellPositionCommand` \| { `type`: `T`  } & `ClearCellCommand` \| { `type`: `T`  } & `DeleteContentCommand` \| { `type`: `T`  } & `SetDecimalCommand` \| { `type`: `T`  } & `AddColumnsRowsCommand` \| { `type`: `T`  } & `RemoveColumnsRowsCommand` \| { `type`: `T`  } & `ResizeColumnsRowsCommand` \| { `type`: `T`  } & `HideColumnsRowsCommand` \| { `type`: `T`  } & `UnhideColumnsRowsCommand` \| { `type`: `T`  } & `SetGridLinesVisibilityCommand` \| { `type`: `T`  } & `FreezeColumnsCommand` \| { `type`: `T`  } & `FreezeRowsCommand` \| { `type`: `T`  } & `UnfreezeColumnsRowsCommand` \| { `type`: `T`  } & `UnfreezeColumnsCommand` \| { `type`: `T`  } & `UnfreezeRowsCommand` \| { `type`: `T`  } & `AddMergeCommand` \| { `type`: `T`  } & `RemoveMergeCommand` \| { `type`: `T`  } & `CreateSheetCommand` \| { `type`: `T`  } & `DeleteSheetCommand` \| { `type`: `T`  } & `DuplicateSheetCommand` \| { `type`: `T`  } & `MoveSheetCommand` \| { `type`: `T`  } & `RenameSheetCommand` \| { `type`: `T`  } & `HideSheetCommand` \| { `type`: `T`  } & `ShowSheetCommand` \| { `type`: `T`  } & `MoveRangeCommand` \| { `type`: `T`  } & `AddConditionalFormatCommand` \| { `type`: `T`  } & `RemoveConditionalFormatCommand` \| { `type`: `T`  } & `MoveConditionalFormatCommand` \| { `type`: `T`  } & `CreateFigureCommand` \| { `type`: `T`  } & `DeleteFigureCommand` \| { `type`: `T`  } & `UpdateFigureCommand` \| { `type`: `T`  } & `SetFormattingCommand` \| { `type`: `T`  } & `ClearFormattingCommand` \| { `type`: `T`  } & `SetBorderCommand` \| { `type`: `T`  } & `CreateChartCommand` \| { `type`: `T`  } & `UpdateChartCommand` |
-
-##### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `type` | `T` |
-| `r` | `Omit`<`C`, ``"type"``\> |
-
-##### Returns
-
-[`DispatchResult`](DispatchResult.md)
-
-#### Inherited from
-
-BasePlugin.dispatch
-
-___
-
-### getters
-
-• `Protected` **getters**: `CoreGetters`
-
-___
-
-### history
-
-• `Protected` **history**: `WorkbookHistory`<`State`\>
-
-#### Inherited from
-
-BasePlugin.history
-
-___
-
-### range
-
-• `Protected` **range**: `RangeAdapter`
-
-___
-
-### uuidGenerator
-
-• `Protected` **uuidGenerator**: `UuidGenerator`
-
-___
-
-### getters
-
-▪ `Static` **getters**: readonly `string`[] = `[]`
-
-#### Inherited from
-
-BasePlugin.getters
 
 ## Methods
 
@@ -201,7 +68,7 @@ ___
 
 ### allowDispatch
 
-▸ **allowDispatch**(`command`): [`CommandResult`](../enums/CommandResult.md) \| [`CommandResult`](../enums/CommandResult.md)[]
+▸ **allowDispatch**(`command`): `Success` \| `CancelledForUnknownReason` \| `WillRemoveExistingMerge` \| `MergeIsDestructive` \| `CellIsMerged` \| `InvalidTarget` \| `EmptyUndoStack` \| `EmptyRedoStack` \| `NotEnoughElements` \| `NotEnoughSheets` \| `MissingSheetName` \| `UnchangedSheetName` \| `DuplicatedSheetName` \| `DuplicatedSheetId` \| `ForbiddenCharactersInSheetName` \| `WrongSheetMove` \| `WrongSheetPosition` \| `InvalidAnchorZone` \| `SelectionOutOfBound` \| `TargetOutOfSheet` \| `WrongCutSelection` \| `WrongPasteSelection` \| `WrongPasteOption` \| `WrongFigurePasteOption` \| `EmptyClipboard` \| `EmptyRange` \| `InvalidRange` \| `InvalidZones` \| `InvalidSheetId` \| `InvalidFigureId` \| `InputAlreadyFocused` \| `MaximumRangesReached` \| `MinimumRangesReached` \| `InvalidChartDefinition` \| `InvalidDataSet` \| `InvalidLabelRange` \| `InvalidScorecardKeyValue` \| `InvalidScorecardBaseline` \| `InvalidGaugeDataRange` \| `EmptyGaugeRangeMin` \| `GaugeRangeMinNaN` \| `EmptyGaugeRangeMax` \| `GaugeRangeMaxNaN` \| `GaugeRangeMinBiggerThanRangeMax` \| `GaugeLowerInflectionPointNaN` \| `GaugeUpperInflectionPointNaN` \| `GaugeLowerBiggerThanUpper` \| `InvalidAutofillSelection` \| `WrongComposerSelection` \| `MinBiggerThanMax` \| `LowerBiggerThanUpper` \| `MidBiggerThanMax` \| `MinBiggerThanMid` \| `FirstArgMissing` \| `SecondArgMissing` \| `MinNaN` \| `MidNaN` \| `MaxNaN` \| `ValueUpperInflectionNaN` \| `ValueLowerInflectionNaN` \| `MinInvalidFormula` \| `MidInvalidFormula` \| `MaxInvalidFormula` \| `ValueUpperInvalidFormula` \| `ValueLowerInvalidFormula` \| `InvalidSortZone` \| `WaitingSessionConfirmation` \| `MergeOverlap` \| `TooManyHiddenElements` \| `Readonly` \| `InvalidViewportSize` \| `InvalidScrollingDirection` \| `FigureDoesNotExist` \| `InvalidConditionalFormatId` \| `InvalidCellPopover` \| `EmptyTarget` \| `InvalidFreezeQuantity` \| `FrozenPaneOverlap` \| `ValuesNotChanged` \| `InvalidFilterZone` \| `FilterOverlap` \| `FilterNotFound` \| `MergeInFilter` \| `NonContinuousTargets` \| `DuplicatedFigureId` \| `InvalidSelectionStep` \| `DuplicatedChartId` \| `ChartDoesNotExist` \| `InvalidHeaderIndex` \| `InvalidQuantity` \| `MoreThanOneColumnSelected` \| `EmptySplitSeparator` \| `SplitWillOverwriteContent` \| `NoSplitSeparatorInSelection` \| `NoActiveSheet` \| `InvalidLocale` \| `AlreadyInPaintingFormatMode` \| `MoreThanOneRangeSelected` \| `NoColumnsProvided` \| `ColumnsNotIncludedInZone` \| `DuplicatesColumnsSelected` \| `InvalidHeaderGroupStartEnd` \| `HeaderGroupAlreadyExists` \| `UnknownHeaderGroup` \| `UnknownDataValidationRule` \| `UnknownDataValidationCriterionType` \| `InvalidDataValidationCriterionValue` \| `InvalidNumberOfCriterionValues` \| `BlockingValidationRule` \| `InvalidCopyPasteSelection` \| `NoChanges` \| `CommandResult`[]
 
 Before a command is accepted, the model will ask each plugin if the command
 is allowed.  If all of then return true, then we can proceed. Otherwise,
@@ -213,11 +80,11 @@ There should not be any side effects in this method.
 
 | Name | Type |
 | :------ | :------ |
-| `command` | `C` |
+| `command` | `CoreCommand` |
 
 #### Returns
 
-[`CommandResult`](../enums/CommandResult.md) \| [`CommandResult`](../enums/CommandResult.md)[]
+`Success` \| `CancelledForUnknownReason` \| `WillRemoveExistingMerge` \| `MergeIsDestructive` \| `CellIsMerged` \| `InvalidTarget` \| `EmptyUndoStack` \| `EmptyRedoStack` \| `NotEnoughElements` \| `NotEnoughSheets` \| `MissingSheetName` \| `UnchangedSheetName` \| `DuplicatedSheetName` \| `DuplicatedSheetId` \| `ForbiddenCharactersInSheetName` \| `WrongSheetMove` \| `WrongSheetPosition` \| `InvalidAnchorZone` \| `SelectionOutOfBound` \| `TargetOutOfSheet` \| `WrongCutSelection` \| `WrongPasteSelection` \| `WrongPasteOption` \| `WrongFigurePasteOption` \| `EmptyClipboard` \| `EmptyRange` \| `InvalidRange` \| `InvalidZones` \| `InvalidSheetId` \| `InvalidFigureId` \| `InputAlreadyFocused` \| `MaximumRangesReached` \| `MinimumRangesReached` \| `InvalidChartDefinition` \| `InvalidDataSet` \| `InvalidLabelRange` \| `InvalidScorecardKeyValue` \| `InvalidScorecardBaseline` \| `InvalidGaugeDataRange` \| `EmptyGaugeRangeMin` \| `GaugeRangeMinNaN` \| `EmptyGaugeRangeMax` \| `GaugeRangeMaxNaN` \| `GaugeRangeMinBiggerThanRangeMax` \| `GaugeLowerInflectionPointNaN` \| `GaugeUpperInflectionPointNaN` \| `GaugeLowerBiggerThanUpper` \| `InvalidAutofillSelection` \| `WrongComposerSelection` \| `MinBiggerThanMax` \| `LowerBiggerThanUpper` \| `MidBiggerThanMax` \| `MinBiggerThanMid` \| `FirstArgMissing` \| `SecondArgMissing` \| `MinNaN` \| `MidNaN` \| `MaxNaN` \| `ValueUpperInflectionNaN` \| `ValueLowerInflectionNaN` \| `MinInvalidFormula` \| `MidInvalidFormula` \| `MaxInvalidFormula` \| `ValueUpperInvalidFormula` \| `ValueLowerInvalidFormula` \| `InvalidSortZone` \| `WaitingSessionConfirmation` \| `MergeOverlap` \| `TooManyHiddenElements` \| `Readonly` \| `InvalidViewportSize` \| `InvalidScrollingDirection` \| `FigureDoesNotExist` \| `InvalidConditionalFormatId` \| `InvalidCellPopover` \| `EmptyTarget` \| `InvalidFreezeQuantity` \| `FrozenPaneOverlap` \| `ValuesNotChanged` \| `InvalidFilterZone` \| `FilterOverlap` \| `FilterNotFound` \| `MergeInFilter` \| `NonContinuousTargets` \| `DuplicatedFigureId` \| `InvalidSelectionStep` \| `DuplicatedChartId` \| `ChartDoesNotExist` \| `InvalidHeaderIndex` \| `InvalidQuantity` \| `MoreThanOneColumnSelected` \| `EmptySplitSeparator` \| `SplitWillOverwriteContent` \| `NoSplitSeparatorInSelection` \| `NoActiveSheet` \| `InvalidLocale` \| `AlreadyInPaintingFormatMode` \| `MoreThanOneRangeSelected` \| `NoColumnsProvided` \| `ColumnsNotIncludedInZone` \| `DuplicatesColumnsSelected` \| `InvalidHeaderGroupStartEnd` \| `HeaderGroupAlreadyExists` \| `UnknownHeaderGroup` \| `UnknownDataValidationRule` \| `UnknownDataValidationCriterionType` \| `InvalidDataValidationCriterionValue` \| `InvalidNumberOfCriterionValues` \| `BlockingValidationRule` \| `InvalidCopyPasteSelection` \| `NoChanges` \| `CommandResult`[]
 
 #### Inherited from
 
@@ -227,7 +94,7 @@ ___
 
 ### batchValidations
 
-▸ **batchValidations**<`T`\>(...`validations`): `Validation`<`T`\>
+▸ **batchValidations**\<`T`\>(`...validations`): `Validation`\<`T`\>
 
 Combine multiple validation functions into a single function
 returning the list of result of every validation.
@@ -242,11 +109,11 @@ returning the list of result of every validation.
 
 | Name | Type |
 | :------ | :------ |
-| `...validations` | `Validation`<`T`\>[] |
+| `...validations` | `Validation`\<`T`\>[] |
 
 #### Returns
 
-`Validation`<`T`\>
+`Validation`\<`T`\>
 
 #### Inherited from
 
@@ -266,7 +133,7 @@ possible to do the work in the handle method.
 
 | Name | Type |
 | :------ | :------ |
-| `command` | `C` |
+| `command` | `CoreCommand` |
 
 #### Returns
 
@@ -280,7 +147,7 @@ ___
 
 ### chainValidations
 
-▸ **chainValidations**<`T`\>(...`validations`): `Validation`<`T`\>
+▸ **chainValidations**\<`T`\>(`...validations`): `Validation`\<`T`\>
 
 Combine multiple validation functions. Every validation is executed one after
 the other. As soon as one validation fails, it stops and the cancelled reason
@@ -296,58 +163,15 @@ is returned.
 
 | Name | Type |
 | :------ | :------ |
-| `...validations` | `Validation`<`T`\>[] |
+| `...validations` | `Validation`\<`T`\>[] |
 
 #### Returns
 
-`Validation`<`T`\>
+`Validation`\<`T`\>
 
 #### Inherited from
 
 BasePlugin.chainValidations
-
-___
-
-### checkValidations
-
-▸ **checkValidations**<`T`\>(`command`, ...`validations`): [`CommandResult`](../enums/CommandResult.md) \| [`CommandResult`](../enums/CommandResult.md)[]
-
-#### Type parameters
-
-| Name |
-| :------ |
-| `T` |
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `command` | `T` |
-| `...validations` | `Validation`<`T`\>[] |
-
-#### Returns
-
-[`CommandResult`](../enums/CommandResult.md) \| [`CommandResult`](../enums/CommandResult.md)[]
-
-#### Inherited from
-
-BasePlugin.checkValidations
-
-___
-
-### export
-
-▸ **export**(`data`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `data` | `WorkbookData` |
-
-#### Returns
-
-`void`
 
 ___
 
@@ -393,6 +217,19 @@ BasePlugin.finalize
 
 ___
 
+### garbageCollectExternalResources
+
+▸ **garbageCollectExternalResources**(): `void`
+
+Implement this method to clean unused external resources, such as images
+stored on a server which have been deleted.
+
+#### Returns
+
+`void`
+
+___
+
 ### handle
 
 ▸ **handle**(`command`): `void`
@@ -404,7 +241,7 @@ command handling work should take place here.
 
 | Name | Type |
 | :------ | :------ |
-| `command` | `C` |
+| `command` | `CoreCommand` |
 
 #### Returns
 
@@ -413,19 +250,3 @@ command handling work should take place here.
 #### Inherited from
 
 BasePlugin.handle
-
-___
-
-### import
-
-▸ **import**(`data`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `data` | `WorkbookData` |
-
-#### Returns
-
-`void`
