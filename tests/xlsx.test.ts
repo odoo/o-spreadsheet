@@ -441,12 +441,12 @@ describe("Test XLSX export", () => {
               {
                 id: "14",
                 ranges: ["A1:A5"],
-                rule: { type: "CellIsRule", operator: "IsEmpty", style },
+                rule: { type: "CellIsRule", operator: "IsEmpty", values: [], style },
               },
               {
                 id: "15",
                 ranges: ["A1:A5"],
-                rule: { type: "CellIsRule", operator: "IsNotEmpty", style },
+                rule: { type: "CellIsRule", operator: "IsNotEmpty", values: [], style },
               },
               {
                 id: "16",

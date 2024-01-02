@@ -87,14 +87,18 @@ export class EvaluationPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   evaluateFormula(formulaString: string, sheetId: UID = this.getters.getActiveSheetId()): any {
-    const compiledFormula = compile(formulaString);
-    const params = this.getFormulaParameters(() => {});
+    try {
+      const compiledFormula = compile(formulaString);
+      const params = this.getFormulaParameters(() => {});
 
-    const ranges: Range[] = [];
-    for (let xc of compiledFormula.dependencies) {
-      ranges.push(this.getters.getRangeFromSheetXC(sheetId, xc));
+      const ranges: Range[] = [];
+      for (let xc of compiledFormula.dependencies) {
+        ranges.push(this.getters.getRangeFromSheetXC(sheetId, xc));
+      }
+      return compiledFormula.execute(ranges, sheetId, ...params);
+    } catch {
+      return "#ERROR";
     }
-    return compiledFormula.execute(ranges, sheetId, ...params);
   }
 
   /**

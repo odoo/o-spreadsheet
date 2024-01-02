@@ -128,41 +128,37 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
     this.computedIcons[activeSheetId] = {};
     const computedStyle = this.computedStyles[activeSheetId];
     for (let cf of this.getters.getConditionalFormats(activeSheetId)) {
-      try {
-        switch (cf.rule.type) {
-          case "ColorScaleRule":
-            for (let range of cf.ranges) {
-              this.applyColorScale(range, cf.rule);
-            }
-            break;
-          case "IconSetRule":
-            for (let range of cf.ranges) {
-              this.applyIcon(range, cf.rule);
-            }
-            break;
-          default:
-            for (let ref of cf.ranges) {
-              const zone: Zone = toZone(ref);
-              for (let row = zone.top; row <= zone.bottom; row++) {
-                for (let col = zone.left; col <= zone.right; col++) {
-                  const pr: (cell: Cell | undefined, rule: CellIsRule) => boolean =
-                    this.rulePredicate[cf.rule.type];
-                  let cell = this.getters.getCell(activeSheetId, col, row);
-                  if (pr && pr(cell, cf.rule)) {
-                    if (!computedStyle[col]) computedStyle[col] = [];
-                    // we must combine all the properties of all the CF rules applied to the given cell
-                    computedStyle[col][row] = Object.assign(
-                      computedStyle[col]?.[row] || {},
-                      cf.rule.style
-                    );
-                  }
+      switch (cf.rule.type) {
+        case "ColorScaleRule":
+          for (let range of cf.ranges) {
+            this.applyColorScale(range, cf.rule);
+          }
+          break;
+        case "IconSetRule":
+          for (let range of cf.ranges) {
+            this.applyIcon(range, cf.rule);
+          }
+          break;
+        default:
+          for (let ref of cf.ranges) {
+            const zone: Zone = toZone(ref);
+            for (let row = zone.top; row <= zone.bottom; row++) {
+              for (let col = zone.left; col <= zone.right; col++) {
+                const pr: (cell: Cell | undefined, rule: CellIsRule) => boolean =
+                  this.rulePredicate[cf.rule.type];
+                let cell = this.getters.getCell(activeSheetId, col, row);
+                if (pr && pr(cell, cf.rule)) {
+                  if (!computedStyle[col]) computedStyle[col] = [];
+                  // we must combine all the properties of all the CF rules applied to the given cell
+                  computedStyle[col][row] = Object.assign(
+                    computedStyle[col]?.[row] || {},
+                    cf.rule.style
+                  );
                 }
               }
             }
-            break;
-        }
-      } catch (_) {
-        // we don't care about the errors within the evaluation of a rule
+          }
+          break;
       }
     }
   }
@@ -188,7 +184,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
         );
       case "formula":
         const value = threshold.value && this.getters.evaluateFormula(threshold.value);
-        return !(value instanceof Promise) ? value : null;
+        return typeof value === "number" ? value : null;
       default:
         return null;
     }
@@ -383,21 +379,21 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
       const values = rule.values.map(parsePrimitiveContent);
       switch (rule.operator) {
         case "IsEmpty":
-          return !isDefined(cell) || cell.evaluated.value.toString().trim() === "";
+          return !isDefined(cell) || cell.evaluated.value?.toString().trim() === "";
         case "IsNotEmpty":
-          return isDefined(cell) && cell.evaluated.value.toString().trim() !== "";
+          return isDefined(cell) && cell.evaluated.value?.toString().trim() !== "";
         case "BeginsWith":
           if (!cell && values[0] === "") {
             return false;
           }
           return (
-            isDefined(cell) && cell?.evaluated.value.toString().startsWith(values[0].toString())
+            isDefined(cell) && cell.evaluated.value?.toString().startsWith(values[0].toString())
           );
         case "EndsWith":
           if (!cell && values[0] === "") {
             return false;
           }
-          return isDefined(cell) && cell.evaluated.value.toString().endsWith(values[0].toString());
+          return isDefined(cell) && cell.evaluated.value?.toString().endsWith(values[0].toString());
         case "Between":
           return (
             isDefined(cell) &&
@@ -412,13 +408,13 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
           );
         case "ContainsText":
           return (
-            isDefined(cell) && cell.evaluated.value.toString().indexOf(values[0].toString()) > -1
+            isDefined(cell) && cell.evaluated.value?.toString().indexOf(values[0].toString()) > -1
           );
         case "NotContains":
           return (
             !isDefined(cell) ||
             !cell.evaluated.value ||
-            cell.evaluated.value.toString().indexOf(values[0].toString()) == -1
+            cell.evaluated.value?.toString().indexOf(values[0].toString()) == -1
           );
         case "GreaterThan":
           return isDefined(cell) && cell.evaluated.value > values[0];

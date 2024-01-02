@@ -4,6 +4,8 @@ import { compile } from "../../src/formulas/index";
 import { functionRegistry } from "../../src/functions/index";
 import { toZone } from "../../src/helpers";
 import { ArgType, ArgValue, CompiledFormula, Range, ReturnFormatType } from "../../src/types";
+import { setCellContent } from "../test_helpers/commands_helpers";
+import { getCellError } from "../test_helpers/getters_helpers";
 import { evaluateCell } from "../test_helpers/helpers";
 
 function compiledBaseFunction(formula: string): CompiledFormula {
@@ -572,47 +574,61 @@ describe("compile functions", () => {
 
       const m = new Model();
 
-      expect(() => m.getters.evaluateFormula("=?ANYEXPECTED(A1:A2)")).toThrowError(
+      setCellContent(m, "B1", "=?ANYEXPECTED(A1:A2)");
+      setCellContent(m, "B2", "=BOOLEANEXPECTED(A1:A2)");
+      setCellContent(m, "B3", "=DATEEXPECTED(A1:A2)");
+      setCellContent(m, "B4", "=NUMBEREXPECTED(A1:A2)");
+      setCellContent(m, "B5", "=STRINGEXPECTED(A1:A2)");
+      setCellContent(m, "B6", "=ANYEXPECTED(A1:A$2)");
+      setCellContent(m, "B7", "=ANYEXPECTED(sheet2!A1:A$2)");
+      setCellContent(m, "B8", "=A2:A3");
+      setCellContent(m, "B9", "=+A2:A3");
+      setCellContent(m, "B10", "=A1+A2:A3");
+      setCellContent(m, "B11", "=-A2:A3");
+      setCellContent(m, "B12", "=A1-A2:A3");
+      setCellContent(m, "B13", "=A1+A4*A5:A6-A2");
+      setCellContent(m, "B14", "=ANYEXPECTED(A1:A1)");
+
+      expect(getCellError(m, "B1")).toBe(
         "Function ANYEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
       );
-      expect(() => m.getters.evaluateFormula("=BOOLEANEXPECTED(A1:A2)")).toThrowError(
+      expect(getCellError(m, "B2")).toBe(
         "Function BOOLEANEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
       );
-      expect(() => m.getters.evaluateFormula("=DATEEXPECTED(A1:A2)")).toThrowError(
+      expect(getCellError(m, "B3")).toBe(
         "Function DATEEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
       );
-      expect(() => m.getters.evaluateFormula("=NUMBEREXPECTED(A1:A2)")).toThrowError(
+      expect(getCellError(m, "B4")).toBe(
         "Function NUMBEREXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
       );
-      expect(() => m.getters.evaluateFormula("=STRINGEXPECTED(A1:A2)")).toThrowError(
+      expect(getCellError(m, "B5")).toBe(
         "Function STRINGEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
       );
-
-      expect(() => m.getters.evaluateFormula("=ANYEXPECTED(A1:A$2)")).toThrowError(
+      expect(getCellError(m, "B6")).toBe(
         "Function ANYEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
       );
-      expect(() => m.getters.evaluateFormula("=ANYEXPECTED(sheet2!A1:A$2)")).toThrowError(
+      expect(getCellError(m, "B7")).toBe(
         "Function ANYEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
       );
-      expect(() => m.getters.evaluateFormula("=A2:A3")).toThrowError(
+      expect(getCellError(m, "B8")).toBe(
         "Function EQ expects its parameters to be single values or single cell references, not ranges."
       );
-      expect(() => m.getters.evaluateFormula("=+A2:A3")).toThrowError(
+      expect(getCellError(m, "B9")).toBe(
         "Function UPLUS expects its parameters to be single values or single cell references, not ranges."
       );
-      expect(() => m.getters.evaluateFormula("=A1+A2:A3")).toThrowError(
+      expect(getCellError(m, "B10")).toBe(
         "Function ADD expects its parameters to be single values or single cell references, not ranges."
       );
-      expect(() => m.getters.evaluateFormula("=-A2:A3")).toThrowError(
+      expect(getCellError(m, "B11")).toBe(
         "Function UMINUS expects its parameters to be single values or single cell references, not ranges."
       );
-      expect(() => m.getters.evaluateFormula("=A1-A2:A3")).toThrowError(
+      expect(getCellError(m, "B12")).toBe(
         "Function MINUS expects its parameters to be single values or single cell references, not ranges."
       );
-      expect(() => m.getters.evaluateFormula("=A1+A4*A5:A6-A2")).toThrowError(
+      expect(getCellError(m, "B13")).toBe(
         "Function MULTIPLY expects its parameters to be single values or single cell references, not ranges."
       );
-      expect(() => m.getters.evaluateFormula("=ANYEXPECTED(A1:A1)")).not.toThrow();
+      expect(getCellError(m, "B14")).toBeUndefined();
     });
   });
 });
