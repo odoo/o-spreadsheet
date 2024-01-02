@@ -88,8 +88,8 @@ describe("COLUMN formula", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "kikoulol");
-    expect(() => model.getters.evaluateFormula(sheetId, "=COLUMN()")).toThrow();
-    expect(() => model.getters.evaluateFormula(sheetId, "=COLUMN(A1)")).not.toThrow();
+    expect(model.getters.evaluateFormula(sheetId, "=COLUMN()")).toBe("#ERROR");
+    expect(model.getters.evaluateFormula(sheetId, "=COLUMN(A1)")).toBe(1);
   });
 
   test("functional tests on cell arguments", () => {
@@ -441,8 +441,8 @@ describe("ROW formula", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "kikoulol");
-    expect(() => model.getters.evaluateFormula(sheetId, "=ROW()")).toThrow();
-    expect(() => model.getters.evaluateFormula(sheetId, "=ROW(A1)")).not.toThrow();
+    expect(model.getters.evaluateFormula(sheetId, "=ROW()")).toBe("#ERROR");
+    expect(model.getters.evaluateFormula(sheetId, "=ROW(A1)")).toBe(1);
   });
 
   test("functional tests on cell arguments", () => {

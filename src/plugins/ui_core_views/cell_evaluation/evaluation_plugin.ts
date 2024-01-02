@@ -1,5 +1,6 @@
 import { compile, isExportableToExcel } from "../../../formulas/index";
 import { getItemId, positions, toXC } from "../../../helpers/index";
+import { CellErrorType, EvaluationError } from "../../../types/errors";
 import {
   CellPosition,
   CellValue,
@@ -200,7 +201,11 @@ export class EvaluationPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   evaluateFormula(sheetId: UID, formulaString: string): any {
-    return this.evaluator.evaluateFormula(sheetId, formulaString);
+    try {
+      return this.evaluator.evaluateFormula(sheetId, formulaString);
+    } catch (error) {
+      return error instanceof EvaluationError ? error.errorType : CellErrorType.GenericError;
+    }
   }
 
   /**
