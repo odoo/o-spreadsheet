@@ -1,3 +1,4 @@
+export * from "./auto_completes/index";
 export * from "./autofill_modifiers";
 export * from "./autofill_rules";
 export * from "./cell_popovers_registry";

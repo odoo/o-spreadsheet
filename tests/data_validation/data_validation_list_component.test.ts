@@ -186,12 +186,19 @@ describe("autocomplete in composer", () => {
       expect(values[2].textContent).toBe("okay");
     });
 
-    test("Data validation autocomplete is not show when editing formula", async () => {
+    test("Data validation autocomplete is not shown when editing formula", async () => {
       ({ fixture, parent } = await mountComposerWrapper(model));
       await typeInComposer("=S");
       const values = fixture.querySelectorAll<HTMLElement>(".o-autocomplete-value");
       expect(values.length).toBeGreaterThan(3);
       expect(values[0].textContent).not.toBe("ok");
+    });
+
+    test("Data validation autocomplete is not shown with only =", async () => {
+      ({ fixture, parent } = await mountComposerWrapper(model));
+      await typeInComposer("=");
+      const values = fixture.querySelectorAll<HTMLElement>(".o-autocomplete-value");
+      expect(values.length).toBe(0);
     });
 
     test("Values displayed are filtered based on composer content", async () => {
@@ -212,10 +219,10 @@ describe("autocomplete in composer", () => {
       expect(fixture.querySelectorAll<HTMLElement>(".o-autocomplete-value")).toHaveLength(3);
     });
 
-    test("Values displayed are not filtered when the input has no match in valid values", async () => {
+    test("Values displayed are filtered when the input has no match in valid values", async () => {
       ({ fixture, parent } = await mountComposerWrapper(model));
       await typeInComposer("this is not a valid value");
-      expect(fixture.querySelectorAll<HTMLElement>(".o-autocomplete-value")).toHaveLength(3);
+      expect(fixture.querySelectorAll<HTMLElement>(".o-autocomplete-value")).toHaveLength(0);
     });
 
     test("Can select values with arrows", async () => {

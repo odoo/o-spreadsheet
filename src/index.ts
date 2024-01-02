@@ -84,6 +84,7 @@ import {
   toXC,
   toZone,
   union,
+  unquote,
 } from "./helpers/index";
 import { openLink, urlRegistry, urlRepresentation } from "./helpers/links";
 import {
@@ -99,6 +100,7 @@ import {
 } from "./plugins/index";
 import { clickableCellRegistry } from "./registries/cell_clickable_registry";
 import {
+  autoCompleteProviders,
   autofillModifiersRegistry,
   autofillRulesRegistry,
   cellMenuRegistry,
@@ -141,6 +143,7 @@ import { DEFAULT_LOCALE } from "./types/locale";
 
 export const __info__ = {};
 export { Revision } from "./collaborative/revisions";
+export { tokenColors } from "./components/composer/composer/composer";
 export { Spreadsheet } from "./components/index";
 export { setDefaultSheetViewSize } from "./constants";
 export { compile, compileTokens, functionCache } from "./formulas/compiler";
@@ -194,6 +197,7 @@ export const SPREADSHEET_DIMENSIONS = {
 };
 
 export const registries = {
+  autoCompleteProviders,
   autofillModifiersRegistry,
   autofillRulesRegistry,
   cellMenuRegistry,
@@ -264,6 +268,7 @@ export const helpers = {
   deepCopy,
   expandZoneOnInsertion,
   reduceZoneOnDeletion,
+  unquote,
 };
 
 export const links = {
@@ -325,6 +330,8 @@ export const stores = {
   useLocalStore,
   SidePanelStore,
 };
+
+export type { StoreConstructor, StoreParams } from "./store_engine";
 
 export function addFunction(functionName: string, functionDescription: AddFunctionDescription) {
   functionRegistry.add(functionName, functionDescription);
