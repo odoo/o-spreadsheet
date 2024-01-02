@@ -32,6 +32,7 @@ import {
   Format,
   FormattedValue,
   FormulaCell,
+  FunctionReturnValue,
   HeaderIndex,
   invalidateEvaluationCommands,
   Lazy,
@@ -108,17 +109,24 @@ export class EvaluationPlugin extends UIPlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  evaluateFormula(formulaString: string, sheetId: UID = this.getters.getActiveSheetId()): any {
-    const compiledFormula = compile(formulaString);
-    const params = this.getCompilationParameters((cell) =>
-      this.getEvaluatedCell(this.getters.getCellPosition(cell.id))
-    );
+  evaluateFormula(
+    formulaString: string,
+    sheetId: UID = this.getters.getActiveSheetId()
+  ): FunctionReturnValue | null {
+    try {
+      const compiledFormula = compile(formulaString);
+      const params = this.getCompilationParameters((cell) =>
+        this.getEvaluatedCell(this.getters.getCellPosition(cell.id))
+      );
 
-    const ranges: Range[] = [];
-    for (let xc of compiledFormula.dependencies) {
-      ranges.push(this.getters.getRangeFromSheetXC(sheetId, xc));
+      const ranges: Range[] = [];
+      for (let xc of compiledFormula.dependencies) {
+        ranges.push(this.getters.getRangeFromSheetXC(sheetId, xc));
+      }
+      return compiledFormula.execute(ranges, ...params).value;
+    } catch (error) {
+      return error instanceof EvaluationError ? error.errorType : CellErrorType.GenericError;
     }
-    return compiledFormula.execute(ranges, ...params).value;
   }
 
   /**
