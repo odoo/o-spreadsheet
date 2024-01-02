@@ -150,7 +150,7 @@ export class Evaluator {
     this.evaluate(this.getAllCells());
   }
 
-  evaluateFormula(sheetId: UID, formulaString: string): any {
+  evaluateFormula(sheetId: UID, formulaString: string): CellValue | Matrix<CellValue> | null {
     const compiledFormula = compile(formulaString);
 
     const ranges: Range[] = [];

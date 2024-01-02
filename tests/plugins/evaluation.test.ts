@@ -391,12 +391,10 @@ describe("evaluateCells", () => {
     expect(evaluateCell("A1", { A1: "=IF(A2<>0,1+1,sum(A2,A3))", A2: "0", A3: "10" })).toBe(10);
   });
 
-  test("evaluate formula throws when we pass an invalid formula", () => {
-    const model = new Model();
+  test("evaluate formula returns the cell error value when we pass an invalid formula", () => {
+    let model = new Model();
     const sheetId = model.getters.getActiveSheetId();
-    expect(() => {
-      model.getters.evaluateFormula(sheetId, "=min(abc)");
-    }).toThrow();
+    expect(model.getters.evaluateFormula(sheetId, "=min(abc)")).toBe("#BAD_EXPR");
   });
 
   test("various expressions with boolean", () => {
@@ -1130,19 +1128,18 @@ describe("evaluate formula getter", () => {
     expect(model.getters.evaluateFormula(sheetId, "=Sheet2!A1")).toBe(11);
   });
 
-  // i think these formulas should throw
   test("in a not existing sheet", () => {
-    expect(() => model.getters.evaluateFormula(sheetId, "=Sheet99!A1")).toThrow();
+    expect(model.getters.evaluateFormula(sheetId, "=Sheet99!A1")).toBe("#ERROR");
   });
 
   test("evaluate a cell in error", () => {
     setCellContent(model, "A1", "=mqsdlkjfqsdf(((--");
-    expect(() => model.getters.evaluateFormula(sheetId, "=A1")).toThrow();
+    expect(model.getters.evaluateFormula(sheetId, "=A1")).toBe("#BAD_EXPR");
   });
 
   test("evaluate an invalid formula", () => {
     setCellContent(model, "A1", "=min(abc)");
-    expect(() => model.getters.evaluateFormula(sheetId, "=A1")).toThrow();
+    expect(model.getters.evaluateFormula(sheetId, "=A1")).toBe("#BAD_EXPR");
   });
 
   test("EVALUATE_CELLS with no argument re-evaluate all the cells", () => {
