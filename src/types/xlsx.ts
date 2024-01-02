@@ -34,9 +34,11 @@ import { ExcelFigureSize } from "./figure";
  *  - images (XLSXImageFile): §20.2.2.5 (pic)
  *  - merge (string): §18.3.1.55 (mergeCell)
  *  - number format (XLSXNumFormat) : §18.8.30 (numFmt)
+ *  - outline properties (XLSXOutlineProperties): §18.3.1.31 (outlinePr)
  *  - rows (XLSXRow): §18.3.1.73 (row)
  *  - sheet (XLSXWorksheet): §18.3.1.99 (worksheet)
  *  - sheet format (XLSXSheetFormat): §18.3.1.81 (sheetFormatPr)
+ *  - sheet properties (XLSXSheetProperties): §18.3.1.82 (sheetPr)
  *  - sheet view (XLSXSheetView): §18.3.1.87 (sheetFormatPr)
  *  - sheet workbook info (XLSXSheetWorkbookInfo): §18.2.19 (sheet)
  *  - style, for cell (XLSXStyle): §18.8.45 (xf)
@@ -219,6 +221,7 @@ export interface XLSXWorksheet {
   isVisible: boolean;
   sheetViews: XLSXSheetView[];
   sheetFormat?: XLSXSheetFormat;
+  sheetProperties?: XLSXSheetProperties;
   cols: XLSXColumn[];
   rows: XLSXRow[];
   cfs: XLSXConditionalFormat[];
@@ -251,6 +254,8 @@ export interface XLSXColumn {
   bestFit?: boolean;
   hidden?: boolean;
   styleIndex?: number;
+  outlineLevel?: number;
+  collapsed?: boolean;
 }
 export interface XLSXRow {
   index: number;
@@ -259,6 +264,8 @@ export interface XLSXRow {
   hidden?: boolean;
   cells: XLSXCell[];
   styleIndex?: number;
+  outlineLevel?: number;
+  collapsed?: boolean;
 }
 
 export interface XLSXFormula {
@@ -621,4 +628,13 @@ export interface XLSXSheetWorkbookInfo {
   sheetId: string;
   sheetName: string;
   state: XLSXSheetState;
+}
+
+export interface XLSXSheetProperties {
+  outlinePr?: XLSXOutlineProperties;
+}
+
+export interface XLSXOutlineProperties {
+  summaryBelow: boolean;
+  summaryRight: boolean;
 }

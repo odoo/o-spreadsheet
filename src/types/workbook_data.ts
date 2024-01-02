@@ -76,11 +76,18 @@ export interface ExcelCellData extends CellData {
   isFormula: Boolean;
   computedFormat?: Format;
 }
-export interface ExcelSheetData extends Omit<SheetData, "figureTables"> {
+export interface ExcelSheetData extends Omit<SheetData, "figureTables" | "cols" | "rows"> {
   cells: { [key: string]: ExcelCellData | undefined };
   charts: FigureData<ExcelChartDefinition>[];
   images: FigureData<Image>[];
   filterTables: ExcelFilterTableData[];
+  cols: { [key: number]: ExcelHeaderData };
+  rows: { [key: number]: ExcelHeaderData };
+}
+
+export interface ExcelHeaderData extends HeaderData {
+  outlineLevel?: number;
+  collapsed?: boolean;
 }
 
 export interface FilterTableData {

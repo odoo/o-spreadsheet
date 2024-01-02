@@ -1,6 +1,13 @@
 import { buildSheetLink, markdownLink, splitReference, toCartesian, toXC } from "../../helpers";
-import { CellData, HeaderData, SheetData } from "../../types";
-import { XLSXCell, XLSXHyperLink, XLSXImportData, XLSXWorksheet } from "../../types/xlsx";
+import { CellData, Dimension, HeaderData, HeaderGroup, SheetData } from "../../types";
+import {
+  XLSXCell,
+  XLSXColumn,
+  XLSXHyperLink,
+  XLSXImportData,
+  XLSXRow,
+  XLSXWorksheet,
+} from "../../types/xlsx";
 import {
   EXCEL_DEFAULT_COL_WIDTH,
   EXCEL_DEFAULT_ROW_HEIGHT,
@@ -24,6 +31,8 @@ export function convertSheets(
     convertFormulasContent(sheet, data);
     const sheetDims = getSheetDims(sheet);
     const sheetOptions = sheet.sheetViews[0];
+    const rowHeaderGroups = convertHeaderGroup(sheet, "ROW", sheetDims[1]);
+    const colHeaderGroups = convertHeaderGroup(sheet, "COL", sheetDims[0]);
     return {
       id: sheet.sheetName,
       areGridLinesVisible: sheetOptions ? sheetOptions.showGridLines : true,
@@ -32,8 +41,8 @@ export function convertSheets(
       rowNumber: sheetDims[1],
       cells: convertCells(sheet, data, sheetDims, warningManager),
       merges: sheet.merges,
-      cols: convertCols(sheet, sheetDims[0]),
-      rows: convertRows(sheet, sheetDims[1]),
+      cols: convertCols(sheet, sheetDims[0], colHeaderGroups),
+      rows: convertRows(sheet, sheetDims[1], rowHeaderGroups),
       conditionalFormats: convertConditionalFormats(sheet.cfs, data.dxfs, warningManager),
       figures: convertFigures(sheet),
       isVisible: sheet.isVisible,
@@ -41,11 +50,16 @@ export function convertSheets(
         ? { xSplit: sheetOptions.pane.xSplit, ySplit: sheetOptions.pane.ySplit }
         : { xSplit: 0, ySplit: 0 },
       filterTables: [],
+      headerGroups: { COL: colHeaderGroups, ROW: rowHeaderGroups },
     };
   });
 }
 
-function convertCols(sheet: XLSXWorksheet, numberOfCols: number): Record<number, HeaderData> {
+function convertCols(
+  sheet: XLSXWorksheet,
+  numberOfCols: number,
+  headerGroups: HeaderGroup[]
+): Record<number, HeaderData> {
   const cols: Record<number, HeaderData> = {};
   // Excel begins indexes at 1
   for (let i = 1; i < numberOfCols + 1; i++) {
@@ -54,12 +68,25 @@ function convertCols(sheet: XLSXWorksheet, numberOfCols: number): Record<number,
     if (col && col.width) colSize = col.width;
     else if (sheet.sheetFormat?.defaultColWidth) colSize = sheet.sheetFormat.defaultColWidth;
     else colSize = EXCEL_DEFAULT_COL_WIDTH;
-    cols[i - 1] = { size: convertWidthFromExcel(colSize), isHidden: col?.hidden };
+    // In xlsx there is no difference between hidden columns and columns inside a folded group.
+    // But in o-spreadsheet folded columns are not considered hidden.
+    const colIndex = i - 1;
+    const isColFolded = headerGroups.some(
+      (group) => group.isFolded && group.start <= colIndex && colIndex <= group.end
+    );
+    cols[colIndex] = {
+      size: convertWidthFromExcel(colSize),
+      isHidden: !isColFolded && col?.hidden,
+    };
   }
   return cols;
 }
 
-function convertRows(sheet: XLSXWorksheet, numberOfRows: number): Record<number, HeaderData> {
+function convertRows(
+  sheet: XLSXWorksheet,
+  numberOfRows: number,
+  headerGroups: HeaderGroup[]
+): Record<number, HeaderData> {
   const rows: Record<number, HeaderData> = {};
   // Excel begins indexes at 1
   for (let i = 1; i < numberOfRows + 1; i++) {
@@ -68,7 +95,16 @@ function convertRows(sheet: XLSXWorksheet, numberOfRows: number): Record<number,
     if (row && row.height) rowSize = row.height;
     else if (sheet.sheetFormat?.defaultRowHeight) rowSize = sheet.sheetFormat.defaultRowHeight;
     else rowSize = EXCEL_DEFAULT_ROW_HEIGHT;
-    rows[i - 1] = { size: convertHeightFromExcel(rowSize), isHidden: row?.hidden };
+    // In xlsx there is no difference between hidden rows and rows inside a folded group.
+    // But in o-spreadsheet folded rows are not considered hidden.
+    const rowIndex = i - 1;
+    const isRowFolded = headerGroups.some(
+      (group) => group.isFolded && group.start <= rowIndex && rowIndex <= group.end
+    );
+    rows[rowIndex] = {
+      size: convertHeightFromExcel(rowSize),
+      isHidden: !isRowFolded && row?.hidden,
+    };
   }
   return rows;
 }
@@ -201,4 +237,73 @@ function getSheetDims(sheet: XLSXWorksheet): number[] {
   dims[1] = Math.max(dims[1], EXCEL_IMPORT_DEFAULT_NUMBER_OF_ROWS);
 
   return dims;
+}
+
+/**
+ * Get the header groups from the XLS file.
+ *
+ * See ASCII art in HeaderGroupingPlugin.exportForExcel() for details on how the groups are defined in the xlsx.
+ */
+function convertHeaderGroup(
+  sheet: XLSXWorksheet,
+  dim: Dimension,
+  numberOfHeaders: number
+): HeaderGroup[] {
+  const outlineProperties = sheet?.sheetProperties?.outlinePr;
+  const headerGroups: HeaderGroup[] = [];
+  let currentLayer = 0;
+  for (let i = 0; i < numberOfHeaders; i++) {
+    const header = getHeader(sheet, dim, i);
+    const headerLayer = header?.outlineLevel || 0;
+    if (headerLayer > currentLayer) {
+      // Whether the flag indicating if the group is collapsed is on the header before or after the group. Default is after.
+      const collapseFlagAfter =
+        (dim === "ROW" ? outlineProperties?.summaryBelow : outlineProperties?.summaryRight) ?? true;
+      const group = computeHeaderGroup(sheet, dim, i, collapseFlagAfter);
+      if (group) {
+        headerGroups.push(group);
+      }
+    }
+    currentLayer = headerLayer;
+  }
+  return headerGroups;
+}
+
+function computeHeaderGroup(
+  sheet: XLSXWorksheet,
+  dim: Dimension,
+  startIndex: number,
+  collapseFlagAfter: boolean
+): HeaderGroup | undefined {
+  const startHeader = getHeader(sheet, dim, startIndex);
+  const startLayer = startHeader?.outlineLevel;
+  if (!startLayer || !startLayer) {
+    return undefined;
+  }
+  let currentLayer = startLayer;
+  let currentIndex = startIndex;
+  let currentHeader: XLSXRow | XLSXColumn | undefined = startHeader;
+
+  while (currentHeader && currentLayer >= startLayer) {
+    currentIndex++;
+    currentHeader = getHeader(sheet, dim, currentIndex);
+    currentLayer = currentHeader?.outlineLevel || 0;
+  }
+  const start = startIndex;
+  const end = currentIndex - 1;
+  const collapseFlagHeader = collapseFlagAfter
+    ? getHeader(sheet, dim, end + 1)
+    : getHeader(sheet, dim, start - 1);
+  const isFolded = collapseFlagHeader?.collapsed || false;
+  return { start: start - 1, end: end - 1, isFolded }; // -1 because indices start at 1 in excel and 0 in o-spreadsheet
+}
+
+function getHeader(
+  sheet: XLSXWorksheet,
+  dim: Dimension,
+  index: number
+): XLSXRow | XLSXColumn | undefined {
+  return "COL" === dim
+    ? sheet.cols.find((col) => col.min <= index && index <= col.max)
+    : sheet.rows.find((row) => row.index === index);
 }

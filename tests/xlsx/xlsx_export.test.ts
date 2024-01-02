@@ -3,7 +3,7 @@ import { buildSheetLink, toXC } from "../../src/helpers";
 import { createEmptyExcelWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
 import { BasePlugin } from "../../src/plugins/base_plugin";
-import { ExcelWorkbookData, PLAIN_TEXT_FORMAT } from "../../src/types";
+import { Dimension, ExcelWorkbookData, PLAIN_TEXT_FORMAT } from "../../src/types";
 import { XLSXExportXMLFile } from "../../src/types/xlsx";
 import { adaptFormulaToExcel } from "../../src/xlsx/functions/cells";
 import { escapeXml, parseXML } from "../../src/xlsx/helpers/xml_helpers";
@@ -14,6 +14,8 @@ import {
   createImage,
   createScorecardChart,
   createSheet,
+  foldHeaderGroup,
+  groupHeaders,
   merge,
   setCellContent,
   setFormat,
@@ -1362,6 +1364,44 @@ describe("Test XLSX export", () => {
       (file) => file.path === "xl/sharedStrings.xml"
     ) as XLSXExportXMLFile;
     expect(sharedStrings.content).toContain("0006");
+  });
+
+  describe("Header grouping export", () => {
+    test.each<Dimension>(["ROW", "COL"])("Simple grouped headers", async (dim) => {
+      const model = new Model();
+      groupHeaders(model, dim, 0, 2);
+      foldHeaderGroup(model, dim, 0, 2);
+
+      const xlsxExport = getExportedExcelData(model);
+      const headers = dim === "COL" ? xlsxExport.sheets[0].cols : xlsxExport.sheets[0].rows;
+      expect(headers).toMatchObject({
+        0: { isHidden: true, outlineLevel: 1 },
+        1: { isHidden: true, outlineLevel: 1 },
+        2: { isHidden: true, outlineLevel: 1 },
+        3: { isHidden: false, collapsed: true },
+      });
+      expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+    });
+
+    test.each<Dimension>(["COL", "ROW"])("Nested grouped headers", async (dim) => {
+      const model = new Model();
+      groupHeaders(model, dim, 0, 6);
+      groupHeaders(model, dim, 1, 3);
+      foldHeaderGroup(model, dim, 1, 3);
+
+      const xlsxExport = getExportedExcelData(model);
+      const headers = dim === "COL" ? xlsxExport.sheets[0].cols : xlsxExport.sheets[0].rows;
+      expect(headers).toMatchObject({
+        0: { isHidden: false, outlineLevel: 1 },
+        1: { isHidden: true, outlineLevel: 2 },
+        2: { isHidden: true, outlineLevel: 2 },
+        3: { isHidden: true, outlineLevel: 2 },
+        4: { isHidden: false, outlineLevel: 1, collapsed: true },
+        5: { isHidden: false, outlineLevel: 1 },
+        6: { isHidden: false, outlineLevel: 1 },
+      });
+      expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+    });
   });
 });
 

@@ -1,3 +1,5 @@
+import { Dimension, ExcelHeaderData, ExcelSheetData } from "../../types";
+
 /**
  * Get the relative path between two files
  *
@@ -59,4 +61,22 @@ export function fixXlsxUnicode(str: string): string {
   return str.replace(/_x([0-9a-zA-Z]{4})_/g, (match, code) => {
     return String.fromCharCode(parseInt(code, 16));
   });
+}
+
+/** Get a header in the SheetData. Create the header if it doesn't exist in the SheetData */
+export function getSheetDataHeader(
+  sheetData: ExcelSheetData,
+  dimension: Dimension,
+  index: number
+): ExcelHeaderData {
+  if (dimension === "COL") {
+    if (!sheetData.cols[index]) {
+      sheetData.cols[index] = {};
+    }
+    return sheetData.cols[index];
+  }
+  if (!sheetData.rows[index]) {
+    sheetData.rows[index] = {};
+  }
+  return sheetData.rows[index];
 }
