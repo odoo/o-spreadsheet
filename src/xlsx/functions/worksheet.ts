@@ -58,12 +58,12 @@ export function addRows(
   for (let r = 0; r < sheet.rowNumber; r++) {
     const rowAttrs: XMLAttributes = [["r", r + 1]];
     const row = sheet.rows[r] || {};
-    // Always force our own row height
-    rowAttrs.push(
-      ["ht", convertHeightToExcel(row.size || DEFAULT_CELL_HEIGHT)],
-      ["customHeight", 1],
-      ["hidden", row.isHidden ? 1 : 0]
-    );
+    if (row.size && row.size !== DEFAULT_CELL_HEIGHT) {
+      rowAttrs.push(["ht", convertHeightToExcel(row.size)], ["customHeight", 1]);
+    }
+    if (row.isHidden) {
+      rowAttrs.push(["hidden", 1]);
+    }
     const cellNodes: XMLString[] = [];
     for (let c = 0; c < sheet.colNumber; c++) {
       const xc = toXC(c, r);
