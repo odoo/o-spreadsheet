@@ -1,10 +1,11 @@
 import { Component, onMounted, useEffect, useRef, useState } from "@odoo/owl";
-import { COMPOSER_ASSISTANT_COLOR, DEFAULT_FONT, NEWLINE } from "../../../constants";
+import { DEFAULT_FONT, NEWLINE } from "../../../constants";
 import { functionRegistry } from "../../../functions/index";
-import { clip, fuzzyLookup, getZoneArea, isEqual, splitReference } from "../../../helpers/index";
+import { clip, getZoneArea, isEqual, splitReference } from "../../../helpers/index";
 import { ComposerStore } from "./composer_store";
 
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
+import { AutoCompleteProvider } from "../../../registries";
 import { Store, useStore } from "../../../store_engine";
 import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
 import {
@@ -18,7 +19,6 @@ import {
 } from "../../../types/index";
 import { css, cssPropertiesToCss } from "../../helpers/css";
 import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
-import { getHtmlContentFromPattern } from "../../helpers/html_content_helpers";
 import { updateSelectionWithArrowKeys } from "../../helpers/selection_helpers";
 import { TextValueProvider } from "../autocomplete_dropdown/autocomplete_dropdown";
 import { ComposerFocusType } from "../composer_focus_store";
@@ -28,8 +28,6 @@ import { FunctionDescriptionProvider } from "../formula_assistant/formula_assist
 const functions = functionRegistry.content;
 
 const ASSISTANT_WIDTH = 300;
-
-const AUTOCOMPLETE_ENTRIES = 10;
 
 export const selectionIndicatorClass = "selector-flag";
 const selectionIndicatorColor = "#a9a9a9";
@@ -54,7 +52,7 @@ export const tokenColors = {
   RIGHT_PAREN: functionColor,
   ARG_SEPARATOR: functionColor,
   MATCHING_PAREN: "#000000",
-};
+} as const;
 
 css/* scss */ `
   .o-composer-container {
@@ -101,11 +99,6 @@ css/* scss */ `
   }
 `;
 
-export interface AutocompleteValue {
-  text: string;
-  description: string;
-}
-
 export interface ComposerProps {
   focus: ComposerFocusType;
   inputStyle?: string;
@@ -122,11 +115,8 @@ interface ComposerState {
 }
 
 interface AutoCompleteState {
-  showProvider: boolean;
+  provider: AutoCompleteProvider | undefined;
   selectedIndex: number | undefined;
-  values: AutocompleteValue[];
-  type: "function" | "dataValidation";
-  getHtmlContent: (text: string) => HtmlContent[];
 }
 
 interface FunctionDescriptionState {
@@ -168,11 +158,8 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   });
 
   autoCompleteState: AutoCompleteState = useState({
-    showProvider: false,
-    values: [],
+    provider: undefined,
     selectedIndex: undefined,
-    type: "function",
-    getHtmlContent: () => [],
   });
 
   functionDescriptionState: FunctionDescriptionState = useState({
@@ -187,7 +174,9 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     const assistantStyle: CSSProperties = {};
 
     assistantStyle["min-width"] = `${this.props.rect?.width || ASSISTANT_WIDTH}px`;
-    if (this.autoCompleteState.type === "function") {
+    const proposals = this.autoCompleteState.provider?.proposals;
+    const proposalsHaveDescription = proposals?.some((proposal) => proposal.description);
+    if (this.functionDescriptionState.showDescription || proposalsHaveDescription) {
       assistantStyle.width = `${ASSISTANT_WIDTH}px`;
     }
 
@@ -253,8 +242,17 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   // ---------------------------------------------------------------------------
 
   private processArrowKeys(ev: KeyboardEvent) {
-    if (this.composerStore.isSelectingRange || this.composerStore.editionMode === "inactive") {
+    const tokenAtCursor = this.composerStore.tokenAtCursor;
+    if (
+      (this.composerStore.isSelectingRange || this.composerStore.editionMode === "inactive") &&
+      !(
+        ["ArrowUp", "ArrowDown"].includes(ev.key) &&
+        this.autoCompleteState.provider &&
+        tokenAtCursor?.type !== "REFERENCE"
+      )
+    ) {
       this.functionDescriptionState.showDescription = false;
+      this.autoCompleteState.provider = undefined;
       // Prevent the default content editable behavior which moves the cursor
       ev.preventDefault();
       ev.stopPropagation();
@@ -264,7 +262,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     const content = this.composerStore.currentContent;
     if (
       this.props.focus === "cellFocus" &&
-      !this.autoCompleteState.showProvider &&
+      !this.autoCompleteState.provider &&
       !content.startsWith("=")
     ) {
       this.composerStore.stopEdition();
@@ -278,7 +276,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
 
   private handleArrowKeysForAutocomplete(ev: KeyboardEvent) {
     // only for arrow up and down
-    if (["ArrowUp", "ArrowDown"].includes(ev.key) && this.autoCompleteState.showProvider) {
+    if (["ArrowUp", "ArrowDown"].includes(ev.key) && this.autoCompleteState.provider) {
       ev.preventDefault();
       if (this.autoCompleteState.selectedIndex === undefined) {
         this.autoCompleteState.selectedIndex = 0;
@@ -287,11 +285,13 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
       if (ev.key === "ArrowUp") {
         this.autoCompleteState.selectedIndex--;
         if (this.autoCompleteState.selectedIndex < 0) {
-          this.autoCompleteState.selectedIndex = this.autoCompleteState.values.length - 1;
+          this.autoCompleteState.selectedIndex =
+            this.autoCompleteState.provider.proposals.length - 1;
         }
       } else {
         this.autoCompleteState.selectedIndex =
-          (this.autoCompleteState.selectedIndex + 1) % this.autoCompleteState.values.length;
+          (this.autoCompleteState.selectedIndex + 1) %
+          this.autoCompleteState.provider.proposals.length;
       }
     }
   }
@@ -301,8 +301,8 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     ev.stopPropagation();
     if (this.composerStore.editionMode !== "inactive") {
       const state = this.autoCompleteState;
-      if (state.showProvider && state.selectedIndex !== undefined) {
-        const autoCompleteValue = this.autoCompleteState.values[state.selectedIndex]?.text;
+      if (state.provider && state.selectedIndex !== undefined) {
+        const autoCompleteValue = state.provider.proposals[state.selectedIndex]?.text;
         if (autoCompleteValue) {
           this.autoComplete(autoCompleteValue);
           return;
@@ -318,8 +318,8 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     ev.stopPropagation();
 
     const state = this.autoCompleteState;
-    if (state.showProvider && state.selectedIndex !== undefined) {
-      const autoCompleteValue = this.autoCompleteState.values[state.selectedIndex]?.text;
+    if (state.provider && state.selectedIndex !== undefined) {
+      const autoCompleteValue = state.provider.proposals[state.selectedIndex]?.text;
       if (autoCompleteValue) {
         this.autoComplete(autoCompleteValue);
         return;
@@ -436,7 +436,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
 
   onKeyup(ev: KeyboardEvent) {
     if (this.contentHelper.el === document.activeElement) {
-      if (this.autoCompleteState.showProvider && ["ArrowUp", "ArrowDown"].includes(ev.key)) {
+      if (this.autoCompleteState.provider && ["ArrowUp", "ArrowDown"].includes(ev.key)) {
         return;
       }
 
@@ -455,36 +455,9 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     }
   }
 
-  showFunctionAutocomplete(searchTerm: string) {
-    const searchTermUpperCase = searchTerm.toUpperCase();
-    if (
-      !this.composerStore.currentContent.startsWith("=") ||
-      searchTermUpperCase === "TRUE" ||
-      searchTermUpperCase === "FALSE"
-    ) {
-      return;
-    }
-    this.autoCompleteState.showProvider = true;
-    this.autoCompleteState.type = "function";
-    let values = Object.entries(functionRegistry.content)
-      .filter(([_, { hidden }]) => !hidden)
-      .map(([text, { description }]) => {
-        return {
-          text,
-          description,
-        };
-      })
-      .sort((a, b) => {
-        return a.text.length - b.text.length || a.text.localeCompare(b.text);
-      });
-
-    if (searchTerm) {
-      values = fuzzyLookup(searchTerm, values, (t) => t.text).slice(0, AUTOCOMPLETE_ENTRIES);
-    }
-    this.autoCompleteState.values = values.slice(0, AUTOCOMPLETE_ENTRIES);
-    this.autoCompleteState.getHtmlContent = (value) =>
-      getHtmlContentFromPattern(searchTerm, value, COMPOSER_ASSISTANT_COLOR, "o-semi-bold");
-    this.autoCompleteState.selectedIndex = 0;
+  showAutoComplete(provider: AutoCompleteProvider) {
+    this.autoCompleteState.provider = provider;
+    this.autoCompleteState.selectedIndex = provider.autoSelectFirstProposal ? 0 : undefined;
   }
 
   updateAutoCompleteIndex(index: number) {
@@ -716,24 +689,16 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
    */
   private processTokenAtCursor(): void {
     let content = this.composerStore.currentContent;
-    this.autoCompleteState.showProvider = false;
+    this.autoCompleteState.provider = undefined;
     this.functionDescriptionState.showDescription = false;
-
-    const dataValidationAutocompleteValues = this.composerStore.autoCompleteDataValidationValues;
-    if (!content.startsWith("=") && dataValidationAutocompleteValues.length) {
-      this.showDataValidationAutocomplete(dataValidationAutocompleteValues);
+    const autoCompleteProvider = this.composerStore.autocompleteProvider;
+    if (autoCompleteProvider) {
+      this.showAutoComplete(autoCompleteProvider);
+      return;
     }
+    const token = this.composerStore.tokenAtCursor;
 
-    if (content.startsWith("=")) {
-      const token = this.composerStore.tokenAtCursor;
-      if (!token) {
-        return;
-      }
-      if (token.type === "SYMBOL") {
-        // initialize Autocomplete Dropdown
-        this.showFunctionAutocomplete(token.value);
-        return;
-      }
+    if (content.startsWith("=") && token && token.type !== "SYMBOL") {
       const tokenContext = token.functionContext;
       const parentFunction = tokenContext?.parent.toUpperCase();
       if (
@@ -758,46 +723,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     if (!value) {
       return;
     }
-    if (this.autoCompleteState.type === "function") {
-      const tokenAtCursor = this.composerStore.tokenAtCursor;
-      if (tokenAtCursor) {
-        let start = tokenAtCursor.end;
-        let end = tokenAtCursor.end;
-
-        // shouldn't it be REFERENCE ?
-        if (["SYMBOL", "FUNCTION"].includes(tokenAtCursor.type)) {
-          start = tokenAtCursor.start;
-        }
-
-        const tokens = this.composerStore.currentTokens;
-        if (tokens.length) {
-          value += "(";
-
-          const currentTokenIndex = tokens.map((token) => token.start).indexOf(tokenAtCursor.start);
-          if (currentTokenIndex + 1 < tokens.length) {
-            const nextToken = tokens[currentTokenIndex + 1];
-            if (nextToken.type === "LEFT_PAREN") {
-              end++;
-            }
-          }
-        }
-
-        this.composerStore.changeComposerCursorSelection(start, end);
-      }
-
-      this.composerStore.replaceComposerCursorSelection(value);
-    } else {
-      this.composerStore.setCurrentContent(value);
-      this.composerStore.stopEdition();
-    }
+    this.autoCompleteState.provider?.selectProposal(value);
     this.processTokenAtCursor();
-  }
-
-  private showDataValidationAutocomplete(values: string[]) {
-    this.autoCompleteState.showProvider = true;
-    this.autoCompleteState.type = "dataValidation";
-    this.autoCompleteState.selectedIndex = undefined;
-    this.autoCompleteState.values = values.map((value) => ({ text: value, description: "" }));
-    this.autoCompleteState.getHtmlContent = (value) => [{ value }];
   }
 }

@@ -9,7 +9,6 @@ import {
   fuzzyLookup,
   isDateTimeFormat,
   isEqual,
-  isNotNull,
   isNumber,
   markdownLink,
   numberToString,
@@ -27,6 +26,10 @@ import {
   localizeFormula,
 } from "../../../helpers/locale";
 import { cycleFixedReference } from "../../../helpers/reference_type";
+import {
+  AutoCompleteProvider,
+  autoCompleteProviders,
+} from "../../../registries/auto_completes/auto_complete_registry";
 import { dataValidationEvaluatorRegistry } from "../../../registries/data_validation_registry";
 import { Get } from "../../../store_engine";
 import { SpreadsheetStore } from "../../../stores";
@@ -717,37 +720,60 @@ export class ComposerStore extends SpreadsheetStore {
     return referenceRanges.filter((range) => !range.invalidSheetName && !range.invalidXc);
   }
 
-  get autoCompleteDataValidationValues(): string[] {
-    if (this.editionMode === "inactive") {
-      return [];
+  get autocompleteProvider(): AutoCompleteProvider | undefined {
+    const content = this.currentContent;
+    const tokenAtCursor = content.startsWith("=")
+      ? this.tokenAtCursor
+      : { type: "STRING", value: content };
+    if (this.editionMode === "inactive" || !tokenAtCursor) {
+      return;
     }
 
-    const rule = this.getters.getValidationRuleForCell(this.currentEditedCell);
-    if (
-      !rule ||
-      (rule.criterion.type !== "isValueInList" && rule.criterion.type !== "isValueInRange")
-    ) {
-      return [];
+    const thisCtx = { composer: this, getters: this.getters };
+    const providers = autoCompleteProviders
+      .getAll()
+      .sort((a, b) => (a.sequence ?? Infinity) - (b.sequence ?? Infinity))
+      .map((provider) => ({
+        ...provider,
+        getProposals: provider.getProposals.bind(thisCtx, tokenAtCursor, content),
+        selectProposal: provider.selectProposal.bind(thisCtx, tokenAtCursor),
+      }));
+    for (const provider of providers) {
+      let proposals = provider.getProposals();
+      const exactMatch = proposals?.find((p) => p.text === tokenAtCursor.value);
+      // remove tokens that are likely to be other parts of the formula that slipped in the token if it's a string
+      const searchTerm = tokenAtCursor.value.replace(/[ ,\(\)]/g, "");
+      const initialContent = this.initialContent;
+      if (exactMatch && exactMatch.text !== initialContent) {
+        // this means the user has chosen a proposal
+        return;
+      }
+      if (
+        searchTerm &&
+        proposals &&
+        !["ARG_SEPARATOR", "LEFT_PAREN"].includes(tokenAtCursor.type)
+      ) {
+        const filteredProposals = fuzzyLookup(
+          searchTerm,
+          proposals,
+          (p) => p.fuzzySearchKey || p.text
+        );
+        if (!exactMatch) {
+          proposals = filteredProposals;
+        }
+      }
+      if (provider.maxDisplayedProposals) {
+        proposals = proposals?.slice(0, provider.maxDisplayedProposals);
+      }
+      if (proposals?.length) {
+        return {
+          proposals,
+          selectProposal: provider.selectProposal,
+          autoSelectFirstProposal: provider.autoSelectFirstProposal ?? false,
+        };
+      }
     }
-
-    let values: string[];
-    if (rule.criterion.type === "isValueInList") {
-      values = rule.criterion.values;
-    } else {
-      const range = this.getters.getRangeFromSheetXC(this.sheetId, rule.criterion.values[0]);
-      values = this.getters
-        .getRangeValues(range)
-        .filter(isNotNull)
-        .map((value) => value.toString())
-        .filter((val) => val !== "");
-    }
-    const composerContent = this.currentContent;
-    if (composerContent && composerContent !== this.initialContent) {
-      const filteredValues = fuzzyLookup(composerContent, values, (val) => val);
-      values = filteredValues.length ? filteredValues : values;
-    }
-
-    return values;
+    return;
   }
 
   /**

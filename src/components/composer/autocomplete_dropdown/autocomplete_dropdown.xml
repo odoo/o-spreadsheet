@@ -3,15 +3,15 @@
     <div
       t-ref="autoCompleteList"
       t-att-class="{
-          'o-autocomplete-dropdown':props.values.length }">
-      <t t-foreach="props.values" t-as="v" t-key="v.text">
+          'o-autocomplete-dropdown': props.proposals.length}">
+      <t t-foreach="props.proposals" t-as="proposal" t-key="proposal.text">
         <div
           class="d-flex flex-column text-start"
-          t-att-class="{'o-autocomplete-value-focus': props.selectedIndex === v_index}"
-          t-on-click="() => this.props.onValueSelected(v.text)"
-          t-on-pointermove="() => this.props.onValueHovered(v_index)">
+          t-att-class="{'o-autocomplete-value-focus': props.selectedIndex === proposal_index}"
+          t-on-click="() => this.props.onValueSelected(proposal.text)"
+          t-on-pointermove="() => this.props.onValueHovered(proposal_index)">
           <div class="o-autocomplete-value text-truncate">
-            <t t-set="htmlContent" t-value="props.getHtmlContent(v.text)"/>
+            <t t-set="htmlContent" t-value="proposal.htmlContent || [{ value: proposal.text}]"/>
             <span
               t-foreach="htmlContent"
               t-as="content"
@@ -23,8 +23,8 @@
           </div>
           <div
             class="o-autocomplete-description text-truncate"
-            t-esc="v.description"
-            t-if="props.selectedIndex === v_index"
+            t-esc="proposal.description"
+            t-if="props.selectedIndex === proposal_index"
           />
         </div>
       </t>

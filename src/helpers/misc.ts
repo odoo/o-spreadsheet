@@ -79,10 +79,17 @@ function isPlainObject(obj: unknown): boolean {
  * @param sheetName name of the sheet, potentially quoted with single quotes
  */
 export function getUnquotedSheetName(sheetName: string): string {
-  if (sheetName.startsWith("'")) {
-    sheetName = sheetName.slice(1, -1).replace(/''/g, "'");
+  return unquote(sheetName, "'");
+}
+
+export function unquote(string: string, quoteChar: "'" | '"' = '"'): string {
+  if (string.startsWith(quoteChar)) {
+    string = string.slice(1);
   }
-  return sheetName;
+  if (string.endsWith(quoteChar)) {
+    string = string.slice(0, -1);
+  }
+  return string;
 }
 
 /**
