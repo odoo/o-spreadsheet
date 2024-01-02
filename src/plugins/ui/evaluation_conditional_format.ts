@@ -125,41 +125,37 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
     this.computedIcons[activeSheetId] = {};
     const computedStyle = this.computedStyles[activeSheetId];
     for (let cf of this.getters.getConditionalFormats(activeSheetId).reverse()) {
-      try {
-        switch (cf.rule.type) {
-          case "ColorScaleRule":
-            for (let range of cf.ranges) {
-              this.applyColorScale(range, cf.rule);
-            }
-            break;
-          case "IconSetRule":
-            for (let range of cf.ranges) {
-              this.applyIcon(range, cf.rule);
-            }
-            break;
-          default:
-            for (let ref of cf.ranges) {
-              const zone: Zone = this.getters.getRangeFromSheetXC(activeSheetId, ref).zone;
-              for (let row = zone.top; row <= zone.bottom; row++) {
-                for (let col = zone.left; col <= zone.right; col++) {
-                  const pr: (cell: Cell | undefined, rule: CellIsRule) => boolean =
-                    this.rulePredicate[cf.rule.type];
-                  let cell = this.getters.getCell(activeSheetId, col, row);
-                  if (pr && pr(cell, cf.rule)) {
-                    if (!computedStyle[col]) computedStyle[col] = [];
-                    // we must combine all the properties of all the CF rules applied to the given cell
-                    computedStyle[col][row] = Object.assign(
-                      computedStyle[col]?.[row] || {},
-                      cf.rule.style
-                    );
-                  }
+      switch (cf.rule.type) {
+        case "ColorScaleRule":
+          for (let range of cf.ranges) {
+            this.applyColorScale(range, cf.rule);
+          }
+          break;
+        case "IconSetRule":
+          for (let range of cf.ranges) {
+            this.applyIcon(range, cf.rule);
+          }
+          break;
+        default:
+          for (let ref of cf.ranges) {
+            const zone: Zone = this.getters.getRangeFromSheetXC(activeSheetId, ref).zone;
+            for (let row = zone.top; row <= zone.bottom; row++) {
+              for (let col = zone.left; col <= zone.right; col++) {
+                const pr: (cell: Cell | undefined, rule: CellIsRule) => boolean =
+                  this.rulePredicate[cf.rule.type];
+                let cell = this.getters.getCell(activeSheetId, col, row);
+                if (pr && pr(cell, cf.rule)) {
+                  if (!computedStyle[col]) computedStyle[col] = [];
+                  // we must combine all the properties of all the CF rules applied to the given cell
+                  computedStyle[col][row] = Object.assign(
+                    computedStyle[col]?.[row] || {},
+                    cf.rule.style
+                  );
                 }
               }
             }
-            break;
-        }
-      } catch (_) {
-        // we don't care about the errors within the evaluation of a rule
+          }
+          break;
       }
     }
   }
@@ -188,7 +184,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
         return percentile(rangeValues, Number(threshold.value) / 100, true);
       case "formula":
         const value = threshold.value && this.getters.evaluateFormula(threshold.value);
-        return !(value instanceof Promise) ? value : null;
+        return typeof value === "number" ? value : null;
       default:
         return null;
     }
