@@ -22,6 +22,7 @@ import {
   EvalContext,
   Format,
   FormattedValue,
+  FunctionReturnValue,
   Getters,
   invalidateEvaluationCommands,
   MatrixArg,
@@ -83,15 +84,22 @@ export class EvaluationPlugin extends UIPlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  evaluateFormula(formulaString: string, sheetId: UID = this.getters.getActiveSheetId()): any {
-    const compiledFormula = compile(formulaString);
-    const params = this.getCompilationParameters(() => {});
+  evaluateFormula(
+    formulaString: string,
+    sheetId: UID = this.getters.getActiveSheetId()
+  ): FunctionReturnValue | null {
+    try {
+      const compiledFormula = compile(formulaString);
+      const params = this.getCompilationParameters(() => {});
 
-    const ranges: Range[] = [];
-    for (let xc of compiledFormula.dependencies) {
-      ranges.push(this.getters.getRangeFromSheetXC(sheetId, xc));
+      const ranges: Range[] = [];
+      for (let xc of compiledFormula.dependencies) {
+        ranges.push(this.getters.getRangeFromSheetXC(sheetId, xc));
+      }
+      return compiledFormula.execute(ranges, ...params).value;
+    } catch (error) {
+      return error instanceof EvaluationError ? error.errorType : CellErrorType.GenericError;
     }
-    return compiledFormula.execute(ranges, ...params).value;
   }
 
   /**
