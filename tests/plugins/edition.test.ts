@@ -1018,4 +1018,13 @@ describe("edition", () => {
     model.dispatch("CYCLE_EDITION_REFERENCES");
     expect(model.getters.getCurrentContent()).toBe(`=${composerSheetName}!A1`);
   });
+
+  test("Invalid references are filtered out from the highlights", () => {
+    const model = new Model({});
+    const fakeSheetName = "louloulou";
+    model.dispatch("START_EDITION", { text: `=${fakeSheetName}!A1+A2+ZZZZZZZZZ1000000` });
+    const highlights = model.getters.getComposerHighlights();
+    expect(highlights).toHaveLength(1);
+    expect(highlights[0].zone).toMatchObject(toZone("A2"));
+  });
 });
