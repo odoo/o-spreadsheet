@@ -1,6 +1,7 @@
 import { DVTerms } from "../components/translations_terms";
 import { tryToNumber } from "../functions/helpers";
 import {
+  DateTime,
   areDatesSameDay,
   formatValue,
   getCriterionValuesAsNumber,
@@ -172,7 +173,7 @@ dataValidationEvaluatorRegistry.add("dateIs", {
     }
 
     if (["lastWeek", "lastMonth", "lastYear"].includes(criterion.dateValue)) {
-      const today = jsDateToRoundNumber(new Date());
+      const today = jsDateToRoundNumber(DateTime.now());
       return isDateBetween(dateValue, today, criterionValue);
     }
 
