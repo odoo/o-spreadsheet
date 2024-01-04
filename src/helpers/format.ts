@@ -1,7 +1,7 @@
 import { DATETIME_FORMAT } from "../constants";
 import { _lt } from "../translation";
 import { CellValue, Format, FormattedValue } from "../types";
-import { INITIAL_1900_DAY, numberToJsDate, parseDateTime } from "./dates";
+import { DateTime, INITIAL_1900_DAY, numberToJsDate, parseDateTime } from "./dates";
 import { isDateTime } from "./misc";
 import { isNumber } from "./numbers";
 
@@ -379,7 +379,7 @@ export function applyDateTimeFormat(value: number, format: Format): FormattedVal
   return strDate + (strDate && strTime ? " " : "") + strTime;
 }
 
-function formatJSDate(jsDate: Date, format: Format): FormattedValue {
+function formatJSDate(jsDate: DateTime, format: Format): FormattedValue {
   const sep = format.match(/\/|-|\s/)?.[0];
   const parts = sep ? format.split(sep) : [format];
   return parts
@@ -415,7 +415,7 @@ function formatJSDate(jsDate: Date, format: Format): FormattedValue {
     .join(sep);
 }
 
-function formatJSTime(jsDate: Date, format: Format): FormattedValue {
+function formatJSTime(jsDate: DateTime, format: Format): FormattedValue {
   let parts = format.split(/:|\s/);
 
   const dateHours = jsDate.getHours();
