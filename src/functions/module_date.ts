@@ -1,6 +1,7 @@
 import {
   addMonthsToDate,
   areTwoDatesWithinOneYear,
+  DateTime,
   getDaysInMonth,
   getTimeDifferenceInWholeDays,
   getTimeDifferenceInWholeMonths,
@@ -70,7 +71,7 @@ export const DATE: AddFunctionDescription = {
       _year += 1900;
     }
 
-    const jsDate = new Date(_year, _month - 1, _day);
+    const jsDate = new DateTime(_year, _month - 1, _day);
     const result = jsDateToRoundNumber(jsDate);
 
     assert(
@@ -150,7 +151,7 @@ export const DATEDIF: AddFunctionDescription = {
         // See: https://support.microsoft.com/en-us/office/datedif-function-25dba1a4-2812-480b-84dd-8b32a451b35c
         let days = jsEndDate.getDate() - jsStartDate.getDate();
         if (days < 0) {
-          const monthBeforeEndMonth = new Date(
+          const monthBeforeEndMonth = new DateTime(
             jsEndDate.getFullYear(),
             jsEndDate.getMonth() - 1,
             1
@@ -163,7 +164,7 @@ export const DATEDIF: AddFunctionDescription = {
         if (areTwoDatesWithinOneYear(_startDate, _endDate)) {
           return getTimeDifferenceInWholeDays(jsStartDate, jsEndDate);
         }
-        const endDateWithinOneYear = new Date(
+        const endDateWithinOneYear = new DateTime(
           jsStartDate.getFullYear(),
           jsEndDate.getMonth(),
           jsEndDate.getDate()
@@ -311,7 +312,7 @@ export const EOMONTH: AddFunctionDescription = {
 
     const yStart = _startDate.getFullYear();
     const mStart = _startDate.getMonth();
-    const jsDate = new Date(yStart, mStart + _months + 1, 0);
+    const jsDate = new DateTime(yStart, mStart + _months + 1, 0);
     return jsDateToRoundNumber(jsDate);
   },
   isExported: true,
@@ -359,19 +360,19 @@ export const ISOWEEKNUM: AddFunctionDescription = {
     // Thursday of the year.
 
     let firstThursday = 1;
-    while (new Date(y, 0, firstThursday).getDay() !== 4) {
+    while (new DateTime(y, 0, firstThursday).getDay() !== 4) {
       firstThursday += 1;
     }
-    const firstDayOfFirstWeek = new Date(y, 0, firstThursday - 3);
+    const firstDayOfFirstWeek = new DateTime(y, 0, firstThursday - 3);
 
     // The last week of the year is the week that contains the last Thursday of
     // the year.
 
     let lastThursday = 31;
-    while (new Date(y, 11, lastThursday).getDay() !== 4) {
+    while (new DateTime(y, 11, lastThursday).getDay() !== 4) {
       lastThursday -= 1;
     }
-    const lastDayOfLastWeek = new Date(y, 11, lastThursday + 3);
+    const lastDayOfLastWeek = new DateTime(y, 11, lastThursday + 3);
 
     // B - If our date > lastDayOfLastWeek then it's in the weeks of the year after
     // If our date < firstDayOfFirstWeek then it's in the weeks of the year before
@@ -391,7 +392,7 @@ export const ISOWEEKNUM: AddFunctionDescription = {
     // the first day of this year and the date. The difference in days divided by
     // 7 gives us the week number
 
-    let firstDay: Date;
+    let firstDay: DateTime;
     switch (offsetYear) {
       case 0:
         firstDay = firstDayOfFirstWeek;
@@ -399,17 +400,17 @@ export const ISOWEEKNUM: AddFunctionDescription = {
       case 1:
         // firstDay is the 1st day of the 1st week of the year after
         // firstDay = lastDayOfLastWeek + 1 Day
-        firstDay = new Date(y, 11, lastThursday + 3 + 1);
+        firstDay = new DateTime(y, 11, lastThursday + 3 + 1);
         break;
       case -1:
         // firstDay is the 1st day of the 1st week of the previous year.
         // The first week of the previous year is the week that contains the
         // first Thursday of the previous year.
         let firstThursdayPreviousYear = 1;
-        while (new Date(y - 1, 0, firstThursdayPreviousYear).getDay() !== 4) {
+        while (new DateTime(y - 1, 0, firstThursdayPreviousYear).getDay() !== 4) {
           firstThursdayPreviousYear += 1;
         }
-        firstDay = new Date(y - 1, 0, firstThursdayPreviousYear - 3);
+        firstDay = new DateTime(y - 1, 0, firstThursdayPreviousYear - 3);
         break;
     }
 
@@ -594,8 +595,8 @@ export const NETWORKDAYS_INTL: AddFunctionDescription = {
     }
 
     const invertDate = _startDate.getTime() > _endDate.getTime();
-    const stopDate = new Date((invertDate ? _startDate : _endDate).getTime());
-    let stepDate = new Date((invertDate ? _endDate : _startDate).getTime());
+    const stopDate = DateTime.fromTimestamp((invertDate ? _startDate : _endDate).getTime());
+    let stepDate = DateTime.fromTimestamp((invertDate ? _endDate : _startDate).getTime());
     const timeStopDate = stopDate.getTime();
     let timeStepDate = stepDate.getTime();
 
@@ -626,8 +627,7 @@ export const NOW: AddFunctionDescription = {
     return this.locale.dateFormat + " " + this.locale.timeFormat;
   },
   compute: function (): number {
-    let today = new Date();
-    today.setMilliseconds(0);
+    let today = DateTime.now();
     const delta = today.getTime() - INITIAL_1900_DAY.getTime();
     const time = today.getHours() / 24 + today.getMinutes() / 1440 + today.getSeconds() / 86400;
     return Math.floor(delta / MS_PER_DAY) + time;
@@ -719,8 +719,8 @@ export const TODAY: AddFunctionDescription = {
     return this.locale.dateFormat;
   },
   compute: function (): number {
-    const today = new Date();
-    const jsDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const today = DateTime.now();
+    const jsDate = new DateTime(today.getFullYear(), today.getMonth(), today.getDate());
     return jsDateToRoundNumber(jsDate);
   },
   isExported: true,
@@ -803,11 +803,11 @@ export const WEEKNUM: AddFunctionDescription = {
     const y = _date.getFullYear();
 
     let dayStart = 1;
-    let startDayOfFirstWeek = new Date(y, 0, dayStart);
+    let startDayOfFirstWeek = new DateTime(y, 0, dayStart);
 
     while (startDayOfFirstWeek.getDay() !== startDayOfWeek) {
       dayStart += 1;
-      startDayOfFirstWeek = new Date(y, 0, dayStart);
+      startDayOfFirstWeek = new DateTime(y, 0, dayStart);
     }
 
     const dif = (_date.getTime() - startDayOfFirstWeek.getTime()) / MS_PER_DAY;
@@ -899,7 +899,7 @@ export const WORKDAY_INTL: AddFunctionDescription = {
       });
     }
 
-    let stepDate = new Date(_startDate.getTime());
+    let stepDate = DateTime.fromTimestamp(_startDate.getTime());
     let timeStepDate = stepDate.getTime();
 
     const unitDay = Math.sign(_numDays);
@@ -1001,7 +1001,7 @@ export const MONTH_START: AddFunctionDescription = {
     const _startDate = toJsDate(date, this.locale);
     const yStart = _startDate.getFullYear();
     const mStart = _startDate.getMonth();
-    const jsDate = new Date(yStart, mStart, 1);
+    const jsDate = new DateTime(yStart, mStart, 1);
     return jsDateToRoundNumber(jsDate);
   },
 };
@@ -1046,7 +1046,7 @@ export const QUARTER_START: AddFunctionDescription = {
   compute: function (date: PrimitiveArgValue): number {
     const quarter = QUARTER.compute.bind(this)(date) as number;
     const year = YEAR.compute.bind(this)(date) as number;
-    const jsDate = new Date(year, (quarter - 1) * 3, 1);
+    const jsDate = new DateTime(year, (quarter - 1) * 3, 1);
     return jsDateToRoundNumber(jsDate);
   },
 };
@@ -1064,7 +1064,7 @@ export const QUARTER_END: AddFunctionDescription = {
   compute: function (date: PrimitiveArgValue): number {
     const quarter = QUARTER.compute.bind(this)(date) as number;
     const year = YEAR.compute.bind(this)(date) as number;
-    const jsDate = new Date(year, quarter * 3, 0);
+    const jsDate = new DateTime(year, quarter * 3, 0);
     return jsDateToRoundNumber(jsDate);
   },
 };
@@ -1081,7 +1081,7 @@ export const YEAR_START: AddFunctionDescription = {
   },
   compute: function (date: PrimitiveArgValue): number {
     const year = YEAR.compute.bind(this)(date) as number;
-    const jsDate = new Date(year, 0, 1);
+    const jsDate = new DateTime(year, 0, 1);
     return jsDateToRoundNumber(jsDate);
   },
 };
@@ -1098,7 +1098,7 @@ export const YEAR_END: AddFunctionDescription = {
   },
   compute: function (date: PrimitiveArgValue): number {
     const year = YEAR.compute.bind(this)(date) as number;
-    const jsDate = new Date(year + 1, 0, 0);
+    const jsDate = new DateTime(year + 1, 0, 0);
     return jsDateToRoundNumber(jsDate);
   },
 };
