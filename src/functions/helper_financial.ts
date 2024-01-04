@@ -146,7 +146,7 @@ export function assertSettlementLessThanOneYearBeforeMaturity(
   const startDate = toJsDate(settlement, locale);
   const endDate = toJsDate(maturity, locale);
 
-  const startDatePlusOneYear = new Date(startDate);
+  const startDatePlusOneYear = toJsDate(settlement, locale);
   startDatePlusOneYear.setFullYear(startDate.getFullYear() + 1);
 
   assert(
