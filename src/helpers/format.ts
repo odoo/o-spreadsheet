@@ -1,6 +1,6 @@
 import { DATETIME_FORMAT } from "../constants";
 import { CellValue, Format, FormattedValue } from "../types";
-import { INITIAL_1900_DAY, numberToJsDate } from "./dates";
+import { DateTime, INITIAL_1900_DAY, numberToJsDate } from "./dates";
 
 /**
  *  Constant used to indicate the maximum of digits that is possible to display
@@ -337,7 +337,7 @@ export function applyDateTimeFormat(value: number, format: Format): FormattedVal
   return strDate + (strDate && strTime ? " " : "") + strTime;
 }
 
-function formatJSDate(jsDate: Date, format: Format): FormattedValue {
+function formatJSDate(jsDate: DateTime, format: Format): FormattedValue {
   const sep = format.match(/\/|-|\s/)![0];
   const parts = format.split(sep);
   return parts
@@ -360,7 +360,7 @@ function formatJSDate(jsDate: Date, format: Format): FormattedValue {
     .join(sep);
 }
 
-function formatJSTime(jsDate: Date, format: Format): FormattedValue {
+function formatJSTime(jsDate: DateTime, format: Format): FormattedValue {
   let parts = format.split(/:|\s/);
 
   const dateHours = jsDate.getHours();

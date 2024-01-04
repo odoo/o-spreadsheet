@@ -1,6 +1,6 @@
 // HELPERS
 import { memoize } from "../helpers";
-import { numberToJsDate, parseDateTime } from "../helpers/dates";
+import { DateTime, numberToJsDate, parseDateTime } from "../helpers/dates";
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _lt } from "../translation";
 import { ArgValue, CellValue, MatrixArgValue, PrimitiveArgValue } from "../types";
@@ -123,7 +123,7 @@ function strictToBoolean(value: string | number | boolean | null | undefined): b
   return toBoolean(value);
 }
 
-export function toJsDate(value: string | number | boolean | null | undefined): Date {
+export function toJsDate(value: string | number | boolean | null | undefined): DateTime {
   return numberToJsDate(toNumber(value));
 }
 
