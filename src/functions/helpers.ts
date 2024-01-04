@@ -1,5 +1,5 @@
 // HELPERS
-import { numberToJsDate, parseDateTime } from "../helpers/dates";
+import { DateTime, numberToJsDate, parseDateTime } from "../helpers/dates";
 import { memoize } from "../helpers/misc";
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _t } from "../translation";
@@ -191,7 +191,7 @@ function strictToBoolean(value: string | number | boolean | null | undefined): b
 export function toJsDate(
   value: string | number | boolean | null | undefined,
   locale: Locale
-): Date {
+): DateTime {
   return numberToJsDate(toNumber(value, locale));
 }
 
