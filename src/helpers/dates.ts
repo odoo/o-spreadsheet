@@ -13,21 +13,27 @@ export interface InternalDate {
   jsDate?: DateTime;
 }
 
+/**
+ * A DateTime object that can be used to manipulate spreadsheet dates.
+ * Conceptually, a spreadsheet date is simply a number with a date format,
+ * and it is timezone-agnostic.
+ * This DateTime object consistently uses UTC time to represent a naive date and time.
+ */
 export class DateTime {
   private jsDate: Date;
   constructor(year: number, month: number, day: number, hours = 0, minutes = 0, seconds = 0) {
-    this.jsDate = new Date(year, month, day, hours, minutes, seconds, 0);
+    this.jsDate = new Date(Date.UTC(year, month, day, hours, minutes, seconds, 0));
   }
 
   static fromTimestamp(timestamp: number) {
     const date = new Date(timestamp);
     return new DateTime(
-      date.getFullYear(),
-      date.getMonth(),
-      date.getDate(),
-      date.getHours(),
-      date.getMinutes(),
-      date.getSeconds()
+      date.getUTCFullYear(),
+      date.getUTCMonth(),
+      date.getUTCDate(),
+      date.getUTCHours(),
+      date.getUTCMinutes(),
+      date.getUTCSeconds()
     );
   }
 
@@ -52,47 +58,47 @@ export class DateTime {
   }
 
   getFullYear() {
-    return this.jsDate.getFullYear();
+    return this.jsDate.getUTCFullYear();
   }
 
   getMonth() {
-    return this.jsDate.getMonth();
+    return this.jsDate.getUTCMonth();
   }
 
   getDate() {
-    return this.jsDate.getDate();
+    return this.jsDate.getUTCDate();
   }
 
   getDay() {
-    return this.jsDate.getDay();
+    return this.jsDate.getUTCDay();
   }
 
   getHours() {
-    return this.jsDate.getHours();
+    return this.jsDate.getUTCHours();
   }
 
   getMinutes() {
-    return this.jsDate.getMinutes();
+    return this.jsDate.getUTCMinutes();
   }
 
   getSeconds() {
-    return this.jsDate.getSeconds();
+    return this.jsDate.getUTCSeconds();
   }
 
   setDate(date: number) {
-    this.jsDate.setDate(date);
+    this.jsDate.setUTCDate(date);
   }
 
   setHours(hours: number) {
-    this.jsDate.setHours(hours);
+    this.jsDate.setUTCHours(hours);
   }
 
   setMinutes(minutes: number) {
-    this.jsDate.setMinutes(minutes);
+    this.jsDate.setUTCMinutes(minutes);
   }
 
   setSeconds(seconds: number) {
-    this.jsDate.setSeconds(seconds);
+    this.jsDate.setUTCSeconds(seconds);
   }
 }
 
