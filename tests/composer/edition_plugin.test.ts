@@ -1,4 +1,4 @@
-import { getCanonicalSheetName, jsDateToRoundNumber, toZone } from "../../src/helpers";
+import { DateTime, getCanonicalSheetName, jsDateToRoundNumber, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CellValueType, CommandResult, DEFAULT_LOCALE } from "../../src/types";
 import {
@@ -1164,7 +1164,7 @@ describe("edition", () => {
         editCell(model, "A1", "30/01/2020");
         expect(getCell(model, "A1")?.format).toBe("dd/mm/yyyy");
         expect(getCell(model, "A1")?.content).toBe(
-          jsDateToRoundNumber(new Date(2020, 0, 30)).toString()
+          jsDateToRoundNumber(new DateTime(2020, 0, 30)).toString()
         );
       });
 
@@ -1173,13 +1173,13 @@ describe("edition", () => {
         editCell(model, "A1", "30/01/2020");
         expect(getCell(model, "A1")?.format).toBe("dd/mm/yyyy");
         expect(getEvaluatedCell(model, "A1").value).toBe(
-          jsDateToRoundNumber(new Date(2020, 0, 30))
+          jsDateToRoundNumber(new DateTime(2020, 0, 30))
         );
 
         updateLocale(model, DEFAULT_LOCALE);
         expect(getCell(model, "A1")?.format).toBe("m/d/yyyy");
         expect(getEvaluatedCell(model, "A1").value).toBe(
-          jsDateToRoundNumber(new Date(2020, 0, 30))
+          jsDateToRoundNumber(new DateTime(2020, 0, 30))
         );
       });
     });
