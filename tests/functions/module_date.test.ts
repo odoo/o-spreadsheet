@@ -6,8 +6,10 @@ import {
   evaluateGridText,
 } from "../test_helpers/helpers";
 
+// All these tests should pass no matter the machine timezone.
+
 describe("DATE formula", () => {
-  test("functional tests on cell arguments CHECK TIMEZONE IF FAILS", () => {
+  test("functional tests on cell arguments", () => {
     // prettier-ignore
     const grid = {
       // YEAR / MONTH / DAY
