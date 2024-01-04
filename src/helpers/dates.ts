@@ -13,7 +13,7 @@ import { isDefined } from "./misc";
 export interface InternalDate {
   readonly value: number;
   readonly format: Format;
-  readonly jsDate?: ReadonlyDate;
+  readonly jsDate?: ReadonlyDateTime;
 }
 
 type DateFormatType = "mdy" | "ymd" | "dmy";
@@ -25,37 +25,111 @@ interface DateParts {
   type: DateFormatType;
 }
 
-type ReadonlyDate = Readonly<
-  Omit<
-    Date,
-    | "setTime"
-    | "setMilliseconds"
-    | "setUTCMilliseconds"
-    | "setSeconds"
-    | "setUTCSeconds"
-    | "setMinutes"
-    | "setUTCMinutes"
-    | "setHours"
-    | "setUTCHours"
-    | "setDate"
-    | "setUTCDate"
-    | "setMonth"
-    | "setUTCMonth"
-    | "setFullYear"
-    | "setUTCFullYear"
-  >
+export class DateTime {
+  private jsDate: Date;
+  constructor(year: number, month: number, day: number, hours = 0, minutes = 0, seconds = 0) {
+    this.jsDate = new Date(year, month, day, hours, minutes, seconds, 0);
+  }
+
+  static fromTimestamp(timestamp: number) {
+    const date = new Date(timestamp);
+    return new DateTime(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      date.getHours(),
+      date.getMinutes(),
+      date.getSeconds()
+    );
+  }
+
+  static now() {
+    const now = new Date();
+    return new DateTime(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      now.getHours(),
+      now.getMinutes(),
+      now.getSeconds()
+    );
+  }
+
+  toString() {
+    return this.jsDate.toString();
+  }
+
+  toLocaleDateString() {
+    return this.jsDate.toLocaleDateString();
+  }
+
+  getTime() {
+    return this.jsDate.getTime();
+  }
+
+  getFullYear() {
+    return this.jsDate.getFullYear();
+  }
+
+  getMonth() {
+    return this.jsDate.getMonth();
+  }
+
+  getDate() {
+    return this.jsDate.getDate();
+  }
+
+  getDay() {
+    return this.jsDate.getDay();
+  }
+
+  getHours() {
+    return this.jsDate.getHours();
+  }
+
+  getMinutes() {
+    return this.jsDate.getMinutes();
+  }
+
+  getSeconds() {
+    return this.jsDate.getSeconds();
+  }
+
+  setFullYear(year: number) {
+    this.jsDate.setFullYear(year);
+  }
+
+  setDate(date: number) {
+    this.jsDate.setDate(date);
+  }
+
+  setHours(hours: number) {
+    this.jsDate.setHours(hours);
+  }
+
+  setMinutes(minutes: number) {
+    this.jsDate.setMinutes(minutes);
+  }
+
+  setSeconds(seconds: number) {
+    this.jsDate.setSeconds(seconds);
+  }
+}
+
+type ReadonlyDateTime = Readonly<
+  Omit<DateTime, "setSeconds" | "setMinutes" | "setHours" | "setDate" | "setFullYear">
 >;
 
 // -----------------------------------------------------------------------------
 // Parsing
 // -----------------------------------------------------------------------------
 
-export const INITIAL_1900_DAY = new Date(1899, 11, 30);
+export const INITIAL_1900_DAY = new DateTime(1899, 11, 30);
 export const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const CURRENT_MILLENIAL = 2000; // note: don't forget to update this in 2999
-const CURRENT_YEAR = new Date().getFullYear();
-const CURRENT_MONTH = new Date().getMonth();
-const INITIAL_JS_DAY = new Date(0);
+const CURRENT_YEAR = DateTime.now().getFullYear();
+const CURRENT_MONTH = DateTime.now().getMonth();
+const INITIAL_JS_DAY = DateTime.fromTimestamp(0);
 const DATE_JS_1900_OFFSET = INITIAL_JS_DAY.getTime() - INITIAL_1900_DAY.getTime();
 
 export const mdyDateRegexp = /^\d{1,2}(\/|-|\s)\d{1,2}((\/|-|\s)\d{1,4})?$/;
@@ -114,7 +188,7 @@ function _parseDateTime(str: string, locale: Locale): InternalDate | null {
     return {
       value: date.value + time.value,
       format: date.format + " " + (time.format === "hhhh:mm:ss" ? "hh:mm:ss" : time.format),
-      jsDate: new Date(
+      jsDate: new DateTime(
         date.jsDate.getFullYear() + time.jsDate.getFullYear() - 1899,
         date.jsDate.getMonth() + time.jsDate.getMonth() - 11,
         date.jsDate.getDate() + time.jsDate.getDate() - 30,
@@ -207,7 +281,7 @@ function parseDate(parts: DateParts, separator: string): InternalDate | null {
     (monthStr?.length === 2 && month + 1 < 10) || (dayStr?.length === 2 && day < 10);
   const fullYear = yearStr?.length !== 2;
 
-  const jsDate = new Date(year, month, day);
+  const jsDate = new DateTime(year, month, day);
   if (jsDate.getMonth() !== month || jsDate.getDate() !== day) {
     // invalid date
     return null;
@@ -319,7 +393,7 @@ function parseTime(str: string): InternalDate | null {
       format = "hhhh:mm:ss";
     }
 
-    const jsDate = new Date(1899, 11, 30, hours, minutes, seconds);
+    const jsDate = new DateTime(1899, 11, 30, hours, minutes, seconds);
 
     return {
       value: hours / 24 + minutes / 1440 + seconds / 86400,
@@ -334,9 +408,9 @@ function parseTime(str: string): InternalDate | null {
 // Conversion
 // -----------------------------------------------------------------------------
 
-export function numberToJsDate(value: number): Date {
+export function numberToJsDate(value: number): DateTime {
   const truncValue = Math.trunc(value);
-  let date = new Date(truncValue * MS_PER_DAY - DATE_JS_1900_OFFSET);
+  let date = DateTime.fromTimestamp(truncValue * MS_PER_DAY - DATE_JS_1900_OFFSET);
 
   let time = value - truncValue;
   time = time < 0 ? 1 + time : time;
@@ -348,21 +422,20 @@ export function numberToJsDate(value: number): Date {
   date.setHours(hours);
   date.setMinutes(minutes);
   date.setSeconds(seconds);
-
   return date;
 }
 
-export function jsDateToRoundNumber(date: Date): number {
+export function jsDateToRoundNumber(date: DateTime): number {
   const delta = date.getTime() - INITIAL_1900_DAY.getTime();
   return Math.round(delta / MS_PER_DAY);
 }
 
 /** Return the number of days in the current month of the given date */
-export function getDaysInMonth(date: Date): number {
-  return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+export function getDaysInMonth(date: DateTime): number {
+  return new DateTime(date.getFullYear(), date.getMonth() + 1, 0).getDate();
 }
 
-export function isLastDayOfMonth(date: Date): boolean {
+export function isLastDayOfMonth(date: DateTime): boolean {
   return getDaysInMonth(date) === date.getDate();
 }
 
@@ -375,11 +448,11 @@ export function isLastDayOfMonth(date: Date): boolean {
  * @param keepEndOfMonth if true, if the given date was the last day of a month, the returned date will
  *          also always be the last day of a month.
  */
-export function addMonthsToDate(date: Date, months: number, keepEndOfMonth: boolean): Date {
+export function addMonthsToDate(date: DateTime, months: number, keepEndOfMonth: boolean): DateTime {
   const yStart = date.getFullYear();
   const mStart = date.getMonth();
   const dStart = date.getDate();
-  const jsDate = new Date(yStart, mStart + months);
+  const jsDate = new DateTime(yStart, mStart + months, 1);
 
   if (keepEndOfMonth && dStart === getDaysInMonth(date)) {
     jsDate.setDate(getDaysInMonth(jsDate));
@@ -530,7 +603,7 @@ export function getYearFrac(startDate: number, endDate: number, _dayCountConvent
  * @param endDate
  * @returns
  */
-export function getTimeDifferenceInWholeMonths(startDate: Date, endDate: Date) {
+export function getTimeDifferenceInWholeMonths(startDate: DateTime, endDate: DateTime) {
   const months =
     (endDate.getFullYear() - startDate.getFullYear()) * 12 +
     endDate.getMonth() -
@@ -538,13 +611,13 @@ export function getTimeDifferenceInWholeMonths(startDate: Date, endDate: Date) {
   return startDate.getDate() > endDate.getDate() ? months - 1 : months;
 }
 
-export function getTimeDifferenceInWholeDays(startDate: Date, endDate: Date) {
+export function getTimeDifferenceInWholeDays(startDate: DateTime, endDate: DateTime) {
   const startUtc = startDate.getTime();
   const endUtc = endDate.getTime();
   return Math.floor((endUtc - startUtc) / MS_PER_DAY);
 }
 
-export function getTimeDifferenceInWholeYears(startDate: Date, endDate: Date) {
+export function getTimeDifferenceInWholeYears(startDate: DateTime, endDate: DateTime) {
   const years = endDate.getFullYear() - startDate.getFullYear();
   const monthStart = startDate.getMonth();
   const monthEnd = endDate.getMonth();
