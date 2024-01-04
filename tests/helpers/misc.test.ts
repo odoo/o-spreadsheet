@@ -1,4 +1,4 @@
-import { deepCopy, deepEquals } from "../../src/helpers";
+import { DateTime, deepCopy, deepEquals } from "../../src/helpers";
 import { groupConsecutive, lazy, range } from "../../src/helpers/misc";
 
 describe("Misc", () => {
@@ -61,7 +61,7 @@ describe("deepCopy", () => {
     expect(deepCopy(obj)).toEqual(obj);
   });
 
-  test.each([new Set(), new Map(), new Set([1]), new Date()])(
+  test.each([new Set(), new Map(), new Set([1]), new Date(), new DateTime(2023, 10, 30)])(
     "unsupported type %s throws an error",
     (obj) => {
       expect(() => deepCopy(obj)).toThrow();
