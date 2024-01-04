@@ -10,7 +10,90 @@
 export interface InternalDate {
   value: number;
   format: string;
-  jsDate?: Date;
+  jsDate?: DateTime;
+}
+
+export class DateTime {
+  private jsDate: Date;
+  constructor(year: number, month: number, day: number, hours = 0, minutes = 0, seconds = 0) {
+    this.jsDate = new Date(year, month, day, hours, minutes, seconds, 0);
+  }
+
+  static fromTimestamp(timestamp: number) {
+    const date = new Date(timestamp);
+    return new DateTime(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      date.getHours(),
+      date.getMinutes(),
+      date.getSeconds()
+    );
+  }
+
+  static now() {
+    const now = new Date();
+    return new DateTime(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      now.getHours(),
+      now.getMinutes(),
+      now.getSeconds()
+    );
+  }
+
+  toString() {
+    return this.jsDate.toString();
+  }
+
+  getTime() {
+    return this.jsDate.getTime();
+  }
+
+  getFullYear() {
+    return this.jsDate.getFullYear();
+  }
+
+  getMonth() {
+    return this.jsDate.getMonth();
+  }
+
+  getDate() {
+    return this.jsDate.getDate();
+  }
+
+  getDay() {
+    return this.jsDate.getDay();
+  }
+
+  getHours() {
+    return this.jsDate.getHours();
+  }
+
+  getMinutes() {
+    return this.jsDate.getMinutes();
+  }
+
+  getSeconds() {
+    return this.jsDate.getSeconds();
+  }
+
+  setDate(date: number) {
+    this.jsDate.setDate(date);
+  }
+
+  setHours(hours: number) {
+    this.jsDate.setHours(hours);
+  }
+
+  setMinutes(minutes: number) {
+    this.jsDate.setMinutes(minutes);
+  }
+
+  setSeconds(seconds: number) {
+    this.jsDate.setSeconds(seconds);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -18,9 +101,9 @@ export interface InternalDate {
 // -----------------------------------------------------------------------------
 
 const CURRENT_MILLENIAL = 2000; // note: don't forget to update this in 2999
-const CURRENT_YEAR = new Date().getFullYear();
-const INITIAL_1900_DAY = new Date(1899, 11, 30);
-const INITIAL_JS_DAY = new Date(0);
+const CURRENT_YEAR = DateTime.now().getFullYear();
+const INITIAL_1900_DAY = new DateTime(1899, 11, 30);
+const INITIAL_JS_DAY = DateTime.fromTimestamp(0);
 const DATE_JS_1900_OFFSET = INITIAL_JS_DAY.getTime() - INITIAL_1900_DAY.getTime();
 
 export const mdyDateRegexp = /^\d{1,2}(\/|-|\s)\d{1,2}((\/|-|\s)\d{1,4})?$/;
@@ -66,7 +149,7 @@ export function parseDateTime(str: string): InternalDate | null {
     return {
       value: date.value + time.value,
       format: date.format + " " + (time.format === "hhhh:mm:ss" ? "hh:mm:ss" : time.format),
-      jsDate: new Date(
+      jsDate: new DateTime(
         date.jsDate.getFullYear() + time.jsDate.getFullYear() - 1899,
         date.jsDate.getMonth() + time.jsDate.getMonth() - 11,
         date.jsDate.getDate() + time.jsDate.getDate() - 30,
@@ -93,7 +176,7 @@ function parseDate(str: string, dateFormat: string): InternalDate | null {
     const leadingZero =
       (parts[monthIndex].length === 2 && month < 10) || (parts[dayIndex].length === 2 && day < 10);
     const year = parts[yearIndex] ? inferYear(parts[yearIndex]) : CURRENT_YEAR;
-    const jsDate = new Date(year, month - 1, day);
+    const jsDate = new DateTime(year, month - 1, day);
     const sep = str.match(/\/|-|\s/)![0];
     if (jsDate.getMonth() !== month - 1 || jsDate.getDate() !== day) {
       // invalid date
@@ -165,7 +248,7 @@ function parseTime(str: string): InternalDate | null {
       format = "hhhh:mm:ss";
     }
 
-    const jsDate = new Date(1899, 11, 30, hours, minutes, seconds);
+    const jsDate = new DateTime(1899, 11, 30, hours, minutes, seconds);
 
     return {
       value: hours / 24 + minutes / 1440 + seconds / 86400,
@@ -180,9 +263,9 @@ function parseTime(str: string): InternalDate | null {
 // Conversion
 // -----------------------------------------------------------------------------
 
-export function numberToJsDate(value: number): Date {
+export function numberToJsDate(value: number): DateTime {
   const truncValue = Math.trunc(value);
-  let date = new Date(truncValue * 86400 * 1000 - DATE_JS_1900_OFFSET);
+  let date = DateTime.fromTimestamp(truncValue * 86400 * 1000 - DATE_JS_1900_OFFSET);
 
   let time = value - truncValue;
   time = time < 0 ? 1 + time : time;
@@ -194,7 +277,6 @@ export function numberToJsDate(value: number): Date {
   date.setHours(hours);
   date.setMinutes(minutes);
   date.setSeconds(seconds);
-
   return date;
 }
 
@@ -224,7 +306,7 @@ export function formatDateTime(internalDate: InternalDate): string {
   return strDate + (strDate && strTime ? " " : "") + strTime;
 }
 
-function formatJSDate(jsDate: Date, format: string): string {
+function formatJSDate(jsDate: DateTime, format: string): string {
   const sep = format.match(/\/|-|\s/)![0];
   const parts = format.split(sep);
   return parts
@@ -247,7 +329,7 @@ function formatJSDate(jsDate: Date, format: string): string {
     .join(sep);
 }
 
-function formatJSTime(jsDate: Date, format: string): string {
+function formatJSTime(jsDate: DateTime, format: string): string {
   let parts = format.split(/:|\s/);
 
   const dateHours = jsDate.getHours();

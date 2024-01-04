@@ -1,5 +1,5 @@
 // HELPERS
-import { numberToJsDate, parseDateTime } from "../helpers/dates";
+import { DateTime, numberToJsDate, parseDateTime } from "../helpers/dates";
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _lt } from "../translation";
 import { ArgRange, Argument, ArgValue, CellValue } from "../types";
@@ -96,7 +96,7 @@ export function strictToBoolean(value: ArgValue): boolean {
   return toBoolean(value);
 }
 
-export function toJsDate(value: ArgValue): Date {
+export function toJsDate(value: ArgValue): DateTime {
   return numberToJsDate(toNumber(value));
 }
 
