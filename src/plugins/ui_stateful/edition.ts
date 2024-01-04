@@ -733,9 +733,10 @@ export class EditionPlugin extends UIPlugin {
    */
   getReferencedRanges(): Range[] {
     const editionSheetId = this.getters.getCurrentEditedCell().sheetId;
-    return this.currentTokens
+    const referenceRanges = this.currentTokens
       .filter((token) => token.type === "REFERENCE")
       .map((token) => this.getters.getRangeFromSheetXC(editionSheetId, token.value));
+    return referenceRanges.filter((range) => !range.invalidSheetName && !range.invalidXc);
   }
 
   getAutoCompleteDataValidationValues(): string[] {
