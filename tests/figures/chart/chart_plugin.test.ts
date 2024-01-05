@@ -1443,8 +1443,8 @@ describe("Chart design configuration", () => {
     createChart(model, { labelRange: "A2:A6", dataSets: ["B1:B15", "C1:C15"] }, "1");
     const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
     expect(chart.data!.labels).toEqual(["P1", "", ""]);
-    expect(chart.data!.datasets![0].data).toEqual([undefined, 10, undefined]);
-    expect(chart.data!.datasets![1].data).toEqual([undefined, undefined, 20]);
+    expect(chart.data!.datasets![0].data).toEqual([null, 10, null]);
+    expect(chart.data!.datasets![1].data).toEqual([null, null, 20]);
   });
 
   test("value without matching index in the label set", () => {
@@ -1522,7 +1522,7 @@ describe("Chart design configuration", () => {
     createChart(model, { labelRange: "A2:A3", dataSets: ["B1:B3"] }, "1");
     const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
     expect(chart.data!.labels).toEqual(["0"]);
-    expect(chart.data!.datasets![0].data).toEqual([undefined]);
+    expect(chart.data!.datasets![0].data).toEqual([null]);
   });
 
   test("Changing the format of a cell reevaluates a chart runtime", () => {

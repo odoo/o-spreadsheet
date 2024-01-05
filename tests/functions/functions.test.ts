@@ -203,7 +203,7 @@ describe("functions", () => {
     );
   });
 
-  test("undefined fallback to an empty string in a function", () => {
+  test("undefined fallback to the zero value in a function", () => {
     functionRegistry.add("UNDEFINED", {
       description: "undefined",
       // @ts-expect-error can happen in a vanilla javascript code base
@@ -213,6 +213,6 @@ describe("functions", () => {
       args: [],
       returns: ["STRING"],
     });
-    expect(evaluateCell("A1", { A1: "=UNDEFINED()" })).toBe("");
+    expect(evaluateCell("A1", { A1: "=UNDEFINED()" })).toBe(0);
   });
 });

@@ -178,7 +178,7 @@ export function getChartLabelValues(
     if (!labelRange.invalidXc && !labelRange.invalidSheetName) {
       labels = {
         formattedValues: getters.getRangeFormattedValues(labelRange),
-        values: getters.getRangeValues(labelRange).map((val) => String(val)),
+        values: getters.getRangeValues(labelRange).map((val) => String(val ?? "")),
       };
     }
   } else if (dataSets.length === 1) {

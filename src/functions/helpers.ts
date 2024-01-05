@@ -25,7 +25,7 @@ export function inferFormat(data: Arg | undefined): string | undefined {
   return data.format;
 }
 
-export function isEvaluationError(error: Maybe<CellValue>): boolean {
+export function isEvaluationError(error: Maybe<CellValue>): error is string {
   return typeof error === "string" && errorTypes.has(error);
 }
 

@@ -3588,7 +3588,7 @@ describe("LINEST formula", () => {
     const model = createModelFromGrid(grid);
     expect(getEvaluatedCell(model, "A10").value).toBeCloseTo(2.655839489);
     expect(getEvaluatedCell(model, "B10").value).toBe(0);
-    expect(getEvaluatedCell(model, "A11").value).toBe("");
+    expect(getEvaluatedCell(model, "A11").value).toBe(null);
   });
 
   test("1-variable : no-intercept regression (verbose)", () => {
@@ -3609,7 +3609,7 @@ describe("LINEST formula", () => {
     expect(getEvaluatedCell(model, "A10").value).toBeCloseTo(2.655839489);
     expect(getEvaluatedCell(model, "B10").value).toBe(0);
     expect(getEvaluatedCell(model, "A11").value).toBeCloseTo(0.131197596);
-    expect(getEvaluatedCell(model, "B11").value).toBe("");
+    expect(getEvaluatedCell(model, "B11").value).toBe(0);
     expect(getEvaluatedCell(model, "A12").value).toBeCloseTo(0.980851215);
     expect(getEvaluatedCell(model, "B12").value).toBeCloseTo(2.076282277);
     expect(getEvaluatedCell(model, "A13").value).toBeCloseTo(409.7810683);
@@ -3635,7 +3635,7 @@ describe("LINEST formula", () => {
     const model = createModelFromGrid(grid);
     expect(getEvaluatedCell(model, "A10").value).toBeCloseTo(1.997074937);
     expect(getEvaluatedCell(model, "B10").value).toBeCloseTo(3.863877797);
-    expect(getEvaluatedCell(model, "A11").value).toBe("");
+    expect(getEvaluatedCell(model, "A11").value).toBe(null);
   });
 
   test("1-variable : classical regression (verbose)", () => {
@@ -3683,7 +3683,7 @@ describe("LINEST formula", () => {
     expect(getEvaluatedCell(model, "A10").value).toBeCloseTo(0.476184886);
     expect(getEvaluatedCell(model, "B10").value).toBeCloseTo(1.321970426);
     expect(getEvaluatedCell(model, "C10").value).toBe(0);
-    expect(getEvaluatedCell(model, "A11").value).toBe("");
+    expect(getEvaluatedCell(model, "A11").value).toBe(null);
   });
 
   test("multiple-variables : no-intercept regression (verbose)", () => {
@@ -3736,7 +3736,7 @@ describe("LINEST formula", () => {
     expect(getEvaluatedCell(model, "A10").value).toBeCloseTo(1.151703005);
     expect(getEvaluatedCell(model, "B10").value).toBeCloseTo(0.4252874858);
     expect(getEvaluatedCell(model, "C10").value).toBeCloseTo(-5.839238736);
-    expect(getEvaluatedCell(model, "A11").value).toBe("");
+    expect(getEvaluatedCell(model, "A11").value).toBe(null);
   });
 
   test("multiple-variables : classical regression (verbose)", () => {
@@ -3808,7 +3808,7 @@ describe("LOGEST formula", () => {
     const model = createModelFromGrid(grid);
     expect(getEvaluatedCell(model, "A10").value).toBeCloseTo(1.650030078);
     expect(getEvaluatedCell(model, "B10").value).toBe(1);
-    expect(getEvaluatedCell(model, "A11").value).toBe("");
+    expect(getEvaluatedCell(model, "A11").value).toBe(null);
   });
 
   test("1-variable : no-intercept regression (verbose)", () => {
@@ -3829,7 +3829,7 @@ describe("LOGEST formula", () => {
     expect(getEvaluatedCell(model, "A10").value).toBeCloseTo(1.650030078);
     expect(getEvaluatedCell(model, "B10").value).toBe(1);
     expect(getEvaluatedCell(model, "A11").value).toBeCloseTo(0.05045293016);
-    expect(getEvaluatedCell(model, "B11").value).toBe("");
+    expect(getEvaluatedCell(model, "B11").value).toBe(0);
     expect(getEvaluatedCell(model, "A12").value).toBeCloseTo(0.9248999647);
     expect(getEvaluatedCell(model, "B12").value).toBeCloseTo(0.7925286566);
     expect(getEvaluatedCell(model, "A13").value).toBeCloseTo(98.52458373);
@@ -3855,7 +3855,7 @@ describe("LOGEST formula", () => {
     const model = createModelFromGrid(grid);
     expect(getEvaluatedCell(model, "A10").value).toBeCloseTo(1.234958605);
     expect(getEvaluatedCell(model, "B10").value).toBeCloseTo(5.420801689);
-    expect(getEvaluatedCell(model, "A11").value).toBe("");
+    expect(getEvaluatedCell(model, "A11").value).toBe(null);
   });
 
   test("1-variable : classical regression (verbose)", () => {
@@ -3903,7 +3903,7 @@ describe("LOGEST formula", () => {
     expect(getEvaluatedCell(model, "A10").value).toBeCloseTo(1.212565933);
     expect(getEvaluatedCell(model, "B10").value).toBeCloseTo(0.9587796002);
     expect(getEvaluatedCell(model, "C10").value).toBe(1);
-    expect(getEvaluatedCell(model, "A11").value).toBe("");
+    expect(getEvaluatedCell(model, "A11").value).toBe(null);
   });
 
   test("multiple-variables : no-intercept regression (verbose)", () => {
@@ -3956,7 +3956,7 @@ describe("LOGEST formula", () => {
     expect(getEvaluatedCell(model, "A10").value).toBeCloseTo(0.9543419384);
     expect(getEvaluatedCell(model, "B10").value).toBeCloseTo(1.317559421);
     expect(getEvaluatedCell(model, "C10").value).toBeCloseTo(7.924957718);
-    expect(getEvaluatedCell(model, "A11").value).toBe("");
+    expect(getEvaluatedCell(model, "A11").value).toBe(null);
   });
 
   test("multiple-variables : classical regression (verbose)", () => {

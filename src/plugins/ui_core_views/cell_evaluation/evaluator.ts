@@ -9,7 +9,6 @@ import {
   CellPosition,
   CellValue,
   CellValueType,
-  DEFAULT_LOCALE,
   EvaluatedCell,
   FormulaCell,
   FPayload,
@@ -34,12 +33,8 @@ type PositionDict<T> = Map<PositionId, T>;
 export type PositionId = bigint;
 
 const MAX_ITERATION = 30;
-const ERROR_CYCLE = new CircularDependencyError();
-const ERROR_CYCLE_CELL = createEvaluatedCell(
-  ERROR_CYCLE.value,
-  { locale: DEFAULT_LOCALE },
-  ERROR_CYCLE.message
-);
+const ERROR_CYCLE_CELL = createEvaluatedCell(new CircularDependencyError());
+const EMPTY_CELL = createEvaluatedCell({ value: null });
 
 export class Evaluator {
   private readonly getters: Getters;
@@ -61,10 +56,7 @@ export class Evaluator {
   }
 
   getEvaluatedCell(position: CellPosition): EvaluatedCell {
-    return (
-      this.evaluatedCells.get(this.encoder.encode(position)) ||
-      createEvaluatedCell("", { locale: this.getters.getLocale() })
-    );
+    return this.evaluatedCells.get(this.encoder.encode(position)) || EMPTY_CELL;
   }
 
   getSpreadPositionsOf(position: CellPosition): CellPosition[] {
@@ -247,7 +239,7 @@ export class Evaluator {
     const cellPosition = this.encoder.decode(positionId);
     const cell = this.getters.getCell(cellPosition);
     if (cell === undefined) {
-      return createEvaluatedCell("", { locale: this.getters.getLocale() });
+      return EMPTY_CELL;
     }
 
     const cellId = cell.id;
@@ -261,7 +253,7 @@ export class Evaluator {
         ? this.computeFormulaCell(cellPosition.sheetId, cell)
         : evaluateLiteral(cell.content, localeFormat);
     } catch (e) {
-      return createEvaluatedCell(e.value, localeFormat, e.message);
+      return createEvaluatedCell(e);
     } finally {
       this.cellsBeingComputed.delete(cellId);
     }
@@ -288,12 +280,9 @@ export class Evaluator {
 
     if (!isMatrix(formulaReturn)) {
       return createEvaluatedCell(
-        formulaReturn.value,
-        {
-          format: cellData.format || formulaReturn.format,
-          locale: this.getters.getLocale(),
-        },
-        formulaReturn.message
+        nullValueToZeroValue(formulaReturn),
+        this.getters.getLocale(),
+        cellData
       );
     }
 
@@ -314,12 +303,9 @@ export class Evaluator {
     );
 
     return createEvaluatedCell(
-      formulaReturn[0][0].value,
-      {
-        format: cellData.format || formulaReturn[0][0]?.format,
-        locale: this.getters.getLocale(),
-      },
-      formulaReturn[0][0].message
+      nullValueToZeroValue(formulaReturn[0][0]),
+      this.getters.getLocale(),
+      cellData
     );
   }
 
@@ -394,16 +380,11 @@ export class Evaluator {
     return (i: number, j: number) => {
       const position = { sheetId, col: i + col, row: j + row };
       const cell = this.getters.getCell(position);
-      const format = cell?.format;
       const evaluatedCell = createEvaluatedCell(
-        matrixResult[i][j].value,
-        {
-          format: format || matrixResult[i][j]?.format,
-          locale: this.getters.getLocale(),
-        },
-        matrixResult[i][j].message
+        nullValueToZeroValue(matrixResult[i][j]),
+        this.getters.getLocale(),
+        cell
       );
-
       const positionId = this.encoder.encode(position);
 
       this.setEvaluatedCell(positionId, evaluatedCell);
@@ -470,6 +451,21 @@ function forEachSpreadPositionInMatrix(
       callback(i, j);
     }
   }
+}
+
+/**
+ * This function replaces null payload values with 0.
+ * This aids in the UI by ensuring that a cell with a
+ * formula referencing an empty cell displays a value (0),
+ * rather than appearing empty. This indicates that the
+ * cell is the result of a non-empty content.
+ */
+function nullValueToZeroValue(fPayload: FPayload): FPayload {
+  if (fPayload.value === null || fPayload.value === undefined) {
+    // 'fPayload.value === undefined' is supposed to never happen, it's a safety net for javascript use
+    return { ...fPayload, value: 0 };
+  }
+  return fPayload;
 }
 
 /**

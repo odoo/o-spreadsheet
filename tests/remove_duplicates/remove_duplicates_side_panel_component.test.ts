@@ -95,7 +95,7 @@ describe("remove duplicates", () => {
     await click(fixture, selectors.checkBoxHasHeaderRow);
     await click(fixture, selectors.removeDuplicateButton);
 
-    expect(getRangeValuesAsMatrix(model, "A1:A5")).toEqual([[11], [88], [11], [""], [""]]);
+    expect(getRangeValuesAsMatrix(model, "A1:A5")).toEqual([[11], [88], [11], [null], [null]]);
   });
 
   test("checkboxes columns evolve with correct state ", async () => {

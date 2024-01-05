@@ -812,7 +812,7 @@ describe("UPLUS formula", () => {
   });
 
   test("functional tests on cell arguments", () => {
-    expect(evaluateCell("A1", { A1: "=UPLUS(A2)" })).toBe("");
+    expect(evaluateCell("A1", { A1: "=UPLUS(A2)" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=UPLUS(A2)", A2: "0" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=UPLUS(A2)", A2: "-2" })).toBe(-2);
     expect(evaluateCell("A1", { A1: "=UPLUS(A2)", A2: "3" })).toBe(3);

@@ -294,7 +294,7 @@ export class EvaluationPlugin extends UIPlugin {
         isFormula = isExported;
 
         if (!isExported) {
-          newContent = value.toString();
+          newContent = (value ?? "").toString();
           newFormat = evaluatedCell.format;
         }
       }

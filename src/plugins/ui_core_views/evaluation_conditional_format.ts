@@ -408,7 +408,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
       if (cell.type === CellValueType.error) {
         return false;
       }
-      const [value0, value1] = rule.values.map((val) => {
+      let [value0, value1] = rule.values.map((val) => {
         if (val.startsWith("=")) {
           return this.getters.evaluateFormula(target.sheetId, val) ?? "";
         }
@@ -418,47 +418,50 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
         return false;
       }
 
+      const cellValue = cell.value ?? "";
+      value0 = value0 ?? "";
+      value1 = value1 ?? "";
       switch (rule.operator) {
         case "IsEmpty":
-          return cell.value.toString().trim() === "";
+          return cellValue.toString().trim() === "";
         case "IsNotEmpty":
-          return cell.value.toString().trim() !== "";
+          return cellValue.toString().trim() !== "";
         case "BeginsWith":
           if (value0 === "") {
             return false;
           }
-          return cell.value.toString().startsWith(value0.toString());
+          return cellValue.toString().startsWith(value0.toString());
         case "EndsWith":
           if (value0 === "") {
             return false;
           }
-          return cell.value.toString().endsWith(value0.toString());
+          return cellValue.toString().endsWith(value0.toString());
         case "Between":
-          return cell.value >= value0 && cell.value <= value1;
+          return cellValue >= value0 && cellValue <= value1;
         case "NotBetween":
-          return !(cell.value >= value0 && cell.value <= value1);
+          return !(cellValue >= value0 && cellValue <= value1);
         case "ContainsText":
-          return cell.value.toString().indexOf(value0.toString()) > -1;
+          return cellValue.toString().indexOf(value0.toString()) > -1;
         case "NotContains":
-          return !cell.value || cell.value.toString().indexOf(value0.toString()) === -1;
+          return !cellValue || cellValue.toString().indexOf(value0.toString()) === -1;
         case "GreaterThan":
-          return cell.value > value0;
+          return cellValue > value0;
         case "GreaterThanOrEqual":
-          return cell.value >= value0;
+          return cellValue >= value0;
         case "LessThan":
-          return cell.value < value0;
+          return cellValue < value0;
         case "LessThanOrEqual":
-          return cell.value <= value0;
+          return cellValue <= value0;
         case "NotEqual":
           if (value0 === "") {
             return false;
           }
-          return cell.value !== value0;
+          return cellValue !== value0;
         case "Equal":
           if (value0 === "") {
             return true;
           }
-          return cell.value === value0;
+          return cellValue === value0;
         default:
           console.warn(
             _t(
