@@ -4,7 +4,6 @@ import { ModelConfig } from "../../../model";
 import { _t } from "../../../translation";
 import {
   CellPosition,
-  CellValueType,
   EnsureRange,
   EvalContext,
   EvaluatedCell,
@@ -98,22 +97,7 @@ class CompilationParametersBuilder {
     if (!this.getters.tryGetSheet(position.sheetId)) {
       throw new EvaluationError(_t("Invalid sheet name"));
     }
-    const evaluatedCell = this.getEvaluatedCellIfNotEmpty(position);
-    if (evaluatedCell === undefined) {
-      return { value: null, format: this.getters.getCell(position)?.format };
-    }
-    return evaluatedCell;
-  }
-
-  private getEvaluatedCellIfNotEmpty(position: CellPosition): EvaluatedCell | undefined {
-    const evaluatedCell = this.computeCell(position);
-    if (evaluatedCell.type === CellValueType.empty) {
-      const cell = this.getters.getCell(position);
-      if (!cell || (!cell.isFormula && cell.content === "")) {
-        return undefined;
-      }
-    }
-    return evaluatedCell;
+    return this.computeCell(position);
   }
 
   /**

@@ -760,11 +760,11 @@ describe("history", () => {
           },
         ],
       });
-      expect(getRangeValues(model, "A1:A3", sheet1Id)).toEqual([1000, "", 2000]);
-      expect(getRangeValues(model, "$A$1:$A$3", sheet1Id)).toEqual([1000, "", 2000]);
-      expect(getRangeValues(model, "Sheet1!A1:A3", sheet1Id)).toEqual([1000, "", 2000]);
-      expect(getRangeValues(model, "Sheet2!A1:A3", sheet2Id)).toEqual([21000, "", 44196]);
-      expect(getRangeValues(model, "Sheet2!A1:A3", sheet1Id)).toEqual([21000, "", 44196]);
+      expect(getRangeValues(model, "A1:A3", sheet1Id)).toEqual([1000, null, 2000]);
+      expect(getRangeValues(model, "$A$1:$A$3", sheet1Id)).toEqual([1000, null, 2000]);
+      expect(getRangeValues(model, "Sheet1!A1:A3", sheet1Id)).toEqual([1000, null, 2000]);
+      expect(getRangeValues(model, "Sheet2!A1:A3", sheet2Id)).toEqual([21000, null, 44196]);
+      expect(getRangeValues(model, "Sheet2!A1:A3", sheet1Id)).toEqual([21000, null, 44196]);
       expect(getRangeValues(model, "B2", sheet1Id)).toEqual([true]);
       expect(getRangeValues(model, "Sheet1!B2", sheet1Id)).toEqual([true]);
       expect(getRangeValues(model, "Sheet2!B2", sheet2Id)).toEqual([true]);

@@ -268,7 +268,7 @@ export function createScorecardChartRuntime(
       row: chart.keyValue.zone.top,
     };
     keyValueCell = getters.getEvaluatedCell(keyValuePosition);
-    keyValue = String(keyValueCell.value);
+    keyValue = String(keyValueCell.value ?? "");
     formattedKeyValue = keyValueCell.formattedValue;
   }
   let baselineCell: EvaluatedCell | undefined;

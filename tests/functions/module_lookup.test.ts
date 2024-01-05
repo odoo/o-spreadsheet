@@ -1363,7 +1363,7 @@ describe("INDEX formula", () => {
     expect(getEvaluatedCell(model, "A6").value).toBe("A3");
     expect(getEvaluatedCell(model, "B6").value).toBe("B3");
     expect(getEvaluatedCell(model, "C6").value).toBe("C3");
-    expect(getEvaluatedCell(model, "A7").value).toBe("");
+    expect(getEvaluatedCell(model, "A7").value).toBe(null);
   });
 
   test("select a full row (with 0 as col parameter)", () => {
@@ -1386,7 +1386,7 @@ describe("INDEX formula", () => {
     expect(getEvaluatedCell(model, "A6").value).toBe("A3");
     expect(getEvaluatedCell(model, "B6").value).toBe("B3");
     expect(getEvaluatedCell(model, "C6").value).toBe("C3");
-    expect(getEvaluatedCell(model, "A7").value).toBe("");
+    expect(getEvaluatedCell(model, "A7").value).toBe(null);
   });
 
   test("select a full column (with empty row parameter", () => {
@@ -1409,7 +1409,7 @@ describe("INDEX formula", () => {
     expect(getEvaluatedCell(model, "C4").value).toBe("C1");
     expect(getEvaluatedCell(model, "C5").value).toBe("C2");
     expect(getEvaluatedCell(model, "C6").value).toBe("C3");
-    expect(getEvaluatedCell(model, "D5").value).toBe("");
+    expect(getEvaluatedCell(model, "D5").value).toBe(null);
   });
 
   test("select a full column (with 0 as row parameter", () => {
@@ -1432,7 +1432,7 @@ describe("INDEX formula", () => {
     expect(getEvaluatedCell(model, "C4").value).toBe("C1");
     expect(getEvaluatedCell(model, "C5").value).toBe("C2");
     expect(getEvaluatedCell(model, "C6").value).toBe("C3");
-    expect(getEvaluatedCell(model, "D5").value).toBe("");
+    expect(getEvaluatedCell(model, "D5").value).toBe(null);
   });
 
   test("select the whole range", () => {
@@ -1452,14 +1452,14 @@ describe("INDEX formula", () => {
     expect(getEvaluatedCell(model, "A4").value).toBe("A1");
     expect(getEvaluatedCell(model, "B4").value).toBe("B1");
     expect(getEvaluatedCell(model, "C4").value).toBe("C1");
-    expect(getEvaluatedCell(model, "D4").value).toBe("");
+    expect(getEvaluatedCell(model, "D4").value).toBe(null);
     expect(getEvaluatedCell(model, "A5").value).toBe("A2");
     expect(getEvaluatedCell(model, "B5").value).toBe("B2");
     expect(getEvaluatedCell(model, "C5").value).toBe("C2");
     expect(getEvaluatedCell(model, "A6").value).toBe("A3");
     expect(getEvaluatedCell(model, "B6").value).toBe("B3");
     expect(getEvaluatedCell(model, "C6").value).toBe("C3");
-    expect(getEvaluatedCell(model, "A7").value).toBe("");
+    expect(getEvaluatedCell(model, "A7").value).toBe(null);
   });
 
   test("take format into account", () => {

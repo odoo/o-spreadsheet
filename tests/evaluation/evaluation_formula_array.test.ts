@@ -208,8 +208,8 @@ describe("evaluate formulas that return an array", () => {
       expect(getCellError(model, "A1")).toBe(
         "Array result was not expanded because it would overwrite data in B2."
       );
-      expect(getEvaluatedCell(model, "A2").value).toBe("");
-      expect(getEvaluatedCell(model, "B1").value).toBe("");
+      expect(getEvaluatedCell(model, "A2").value).toBe(null);
+      expect(getEvaluatedCell(model, "B1").value).toBe(null);
       expect(getEvaluatedCell(model, "B2").value).toBe(66);
     });
 
@@ -237,16 +237,16 @@ describe("evaluate formulas that return an array", () => {
       test("write collision first", () => {
         setCellContent(model, "B2", "kikou");
         setCellContent(model, "A1", "=MFILL(2,2, 42)");
-        expect(getEvaluatedCell(model, "A2").value).toBe("");
-        expect(getEvaluatedCell(model, "B1").value).toBe("");
+        expect(getEvaluatedCell(model, "A2").value).toBe(null);
+        expect(getEvaluatedCell(model, "B1").value).toBe(null);
         expect(getEvaluatedCell(model, "B2").value).toBe("kikou");
       });
 
       test("write formula first", () => {
         setCellContent(model, "A1", "=MFILL(2,2, 42)");
         setCellContent(model, "B2", "kikou");
-        expect(getEvaluatedCell(model, "A2").value).toBe("");
-        expect(getEvaluatedCell(model, "B1").value).toBe("");
+        expect(getEvaluatedCell(model, "A2").value).toBe(null);
+        expect(getEvaluatedCell(model, "B1").value).toBe(null);
         expect(getEvaluatedCell(model, "B2").value).toBe("kikou");
       });
 
@@ -255,8 +255,8 @@ describe("evaluate formulas that return an array", () => {
         setCellContent(model, "B2", "kikou");
         setCellContent(model, "B2", "");
         setCellContent(model, "B2", "kikou");
-        expect(getEvaluatedCell(model, "A2").value).toBe("");
-        expect(getEvaluatedCell(model, "B1").value).toBe("");
+        expect(getEvaluatedCell(model, "A2").value).toBe(null);
+        expect(getEvaluatedCell(model, "B1").value).toBe(null);
         expect(getEvaluatedCell(model, "B2").value).toBe("kikou");
       });
     });
@@ -313,8 +313,8 @@ describe("evaluate formulas that return an array", () => {
         setCellContent(model, "A1", "=MFILL(2,2, 42)");
         setCellContent(model, "B2", "Aquecoucou");
         expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
-        expect(getEvaluatedCell(model, "A2").value).toBe("");
-        expect(getEvaluatedCell(model, "B1").value).toBe("");
+        expect(getEvaluatedCell(model, "A2").value).toBe(null);
+        expect(getEvaluatedCell(model, "B1").value).toBe(null);
         expect(getEvaluatedCell(model, "B2").value).toBe("Aquecoucou");
       });
 
@@ -323,8 +323,8 @@ describe("evaluate formulas that return an array", () => {
         setCellContent(model, "B2", "kikou");
         setCellContent(model, "B2", "Aquecoucou");
         expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
-        expect(getEvaluatedCell(model, "A2").value).toBe("");
-        expect(getEvaluatedCell(model, "B1").value).toBe("");
+        expect(getEvaluatedCell(model, "A2").value).toBe(null);
+        expect(getEvaluatedCell(model, "B1").value).toBe(null);
         expect(getEvaluatedCell(model, "B2").value).toBe("Aquecoucou");
       });
     });
@@ -431,9 +431,9 @@ describe("evaluate formulas that return an array", () => {
     test("do not spread result when collide", () => {
       setCellContent(model, "B2", "=MFILL(3,3, 42)");
       expect(getEvaluatedCell(model, "B2").value).toBe("#ERROR");
-      expect(getEvaluatedCell(model, "B3").value).toBe("");
-      expect(getEvaluatedCell(model, "C2").value).toBe("");
-      expect(getEvaluatedCell(model, "C3").value).toBe("");
+      expect(getEvaluatedCell(model, "B3").value).toBe(null);
+      expect(getEvaluatedCell(model, "C2").value).toBe(null);
+      expect(getEvaluatedCell(model, "C3").value).toBe(null);
     });
 
     test("spread result when add columns", () => {
@@ -467,7 +467,7 @@ describe("evaluate formulas that return an array", () => {
 
       deleteColumns(model, ["B"]);
       expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
-      expect(getEvaluatedCell(model, "B1").value).toBe("");
+      expect(getEvaluatedCell(model, "B1").value).toBe(null);
     });
 
     test("do not spread result when delete rows", () => {
@@ -477,7 +477,7 @@ describe("evaluate formulas that return an array", () => {
 
       deleteRows(model, [2]);
       expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
-      expect(getEvaluatedCell(model, "A2").value).toBe("");
+      expect(getEvaluatedCell(model, "A2").value).toBe(null);
     });
   });
 
@@ -637,8 +637,8 @@ describe("evaluate formulas that return an array", () => {
       expect(getEvaluatedCell(model, "B1").value).toBe(42);
       expect(getEvaluatedCell(model, "B2").value).toBe(42);
       expect(getEvaluatedCell(model, "A2").value).toBe("#ERROR");
-      expect(getEvaluatedCell(model, "A3").value).toBe("");
-      expect(getEvaluatedCell(model, "B3").value).toBe("");
+      expect(getEvaluatedCell(model, "A3").value).toBe(null);
+      expect(getEvaluatedCell(model, "B3").value).toBe(null);
     });
 
     test("spread result when remove collision", () => {
@@ -647,10 +647,10 @@ describe("evaluate formulas that return an array", () => {
       expect(getEvaluatedCell(model, "B1").value).toBe(24);
       expect(getEvaluatedCell(model, "B2").value).toBe(24);
       expect(getEvaluatedCell(model, "A2").value).toBe("#ERROR");
-      expect(getEvaluatedCell(model, "A3").value).toBe("");
-      expect(getEvaluatedCell(model, "B3").value).toBe("");
+      expect(getEvaluatedCell(model, "A3").value).toBe(null);
+      expect(getEvaluatedCell(model, "B3").value).toBe(null);
       setCellContent(model, "B1", "");
-      expect(getEvaluatedCell(model, "B1").value).toBe("");
+      expect(getEvaluatedCell(model, "B1").value).toBe(null);
       expect(getEvaluatedCell(model, "A2").value).toBe(42);
       expect(getEvaluatedCell(model, "A3").value).toBe(42);
       expect(getEvaluatedCell(model, "B2").value).toBe(42);

@@ -39,9 +39,9 @@ describe("ARRAY.CONSTRAIN function", () => {
     const model = createModelFromGrid(grid);
     setCellContent(model, "D1", "=ARRAY.CONSTRAIN(A1:C3, 2, 2)");
     expect(getRangeValuesAsMatrix(model, "D1:F3")).toEqual([
-      ["A1", "B1", ""],
-      ["A2", "B2", ""],
-      ["", "", ""],
+      ["A1", "B1", null],
+      ["A2", "B2", null],
+      [null, null, null],
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:F3")).toBeTruthy();
   });
@@ -70,10 +70,10 @@ describe("ARRAY.CONSTRAIN function", () => {
     const model = createModelFromGrid(grid);
     setCellContent(model, "D1", "=ARRAY.CONSTRAIN(A1:C3, 11, 569)");
     expect(getRangeValuesAsMatrix(model, "D1:G4")).toEqual([
-      ["A1", "B1", "C1", ""],
-      ["A2", "B2", "C2", ""],
-      ["A3", "B3", "C3", ""],
-      ["", "", "", ""],
+      ["A1", "B1", "C1", null],
+      ["A2", "B2", "C2", null],
+      ["A3", "B3", "C3", null],
+      [null, null, null, null],
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:G4")).toBeTruthy();
   });
@@ -83,9 +83,9 @@ describe("ARRAY.CONSTRAIN function", () => {
     const model = createModelFromGrid(grid);
     setCellContent(model, "D1", "=ARRAY.CONSTRAIN(A1:B2, 2, 2)");
     expect(getRangeValuesAsMatrix(model, "D1:F3")).toEqual([
-      ["A1", "B1", ""],
-      [0, 0, ""],
-      ["", "", ""],
+      ["A1", "B1", null],
+      [0, 0, null],
+      [null, null, null],
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:F3")).toBeTruthy();
   });
@@ -148,9 +148,9 @@ describe("CHOOSECOLS function", () => {
     const model = createModelFromGrid(grid);
     setCellContent(model, "D1", "=CHOOSECOLS(A1:B3, 1)");
     expect(getRangeValuesAsMatrix(model, "D1:E3")).toEqual([
-      ["A1", ""],
-      ["A2", ""],
-      ["A3", ""],
+      ["A1", null],
+      ["A2", null],
+      ["A3", null],
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E3")).toBeTruthy();
   });
@@ -265,7 +265,7 @@ describe("CHOOSEROWS function", () => {
     setCellContent(model, "D1", "=CHOOSEROWS(A1:C2, 1)");
     expect(getRangeValuesAsMatrix(model, "D1:F2")).toEqual([
       ["A1", "B1", "C1"],
-      ["", "", ""],
+      [null, null, null],
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:F2")).toBeTruthy();
   });
@@ -277,7 +277,7 @@ describe("CHOOSEROWS function", () => {
     expect(getRangeValuesAsMatrix(model, "D1:E3")).toEqual([
       ["A1", "B1"],
       ["A2", "B2"],
-      ["", ""],
+      [null, null],
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E3")).toBeTruthy();
   });
@@ -289,7 +289,7 @@ describe("CHOOSEROWS function", () => {
     expect(getRangeValuesAsMatrix(model, "D1:E3")).toEqual([
       ["A1", "B1"],
       ["A2", "B2"],
-      ["", ""],
+      [null, null],
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E3")).toBeTruthy();
   });
@@ -374,9 +374,9 @@ describe("EXPAND function", () => {
     const model = createModelFromGrid(grid);
     setCellContent(model, "D1", "=EXPAND(A1:B2, 3)");
     expect(getRangeValuesAsMatrix(model, "D1:F3")).toEqual([
-      ["A1", "B1", ""],
-      ["A2", "B2", ""],
-      [0, 0, ""],
+      ["A1", "B1", null],
+      ["A2", "B2", null],
+      [0, 0, null],
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:F3")).toBeTruthy();
   });
@@ -392,7 +392,7 @@ describe("EXPAND function", () => {
     expect(getRangeValuesAsMatrix(model, "D1:F3")).toEqual([
       ["A1", "B1", 0],
       ["A2", "B2", 0],
-      ["", "", ""],
+      [null, null, null],
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:F3")).toBeTruthy();
   });
@@ -918,17 +918,17 @@ describe("MMULT function", () => {
 
     setCellContent(model, "D1", "=MMULT(A1:C3, A1:A3)");
     expect(getRangeValuesAsMatrix(model, "D1:F3")).toEqual([
-      [30, "", ""],
-      [66, "", ""],
-      [102, "", ""],
+      [30, null, null],
+      [66, null, null],
+      [102, null, null],
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:F3")).toBeTruthy();
 
     setCellContent(model, "D1", "=MMULT(A1:B1, A1:C2)");
     expect(getRangeValuesAsMatrix(model, "D1:F3")).toEqual([
       [9, 12, 15],
-      ["", "", ""],
-      ["", "", ""],
+      [null, null, null],
+      [null, null, null],
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:F3")).toBeTruthy();
 
@@ -1205,17 +1205,17 @@ describe("TOCOL function", () => {
 
     // ignore=1, ignore empty cells
     setCellContent(model, "D1", "=TOCOL(A1:B2, 1)");
-    expect(getRangeValuesAsMatrix(model, "D1:D4")).toEqual([["#BAD_EXPR"], ["B1"], ["B2"], [""]]);
+    expect(getRangeValuesAsMatrix(model, "D1:D4")).toEqual([["#BAD_EXPR"], ["B1"], ["B2"], [null]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:D3")).toBeTruthy();
 
     // ignore=2, ignore error cells
     setCellContent(model, "D1", "=TOCOL(A1:B2, 2)");
-    expect(getRangeValuesAsMatrix(model, "D1:D4")).toEqual([["B1"], [0], ["B2"], [""]]);
+    expect(getRangeValuesAsMatrix(model, "D1:D4")).toEqual([["B1"], [0], ["B2"], [null]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:D3")).toBeTruthy();
 
     // ignore=3, ignore empty cells and error cells
     setCellContent(model, "D1", "=TOCOL(A1:B2, 3)");
-    expect(getRangeValuesAsMatrix(model, "D1:D4")).toEqual([["B1"], ["B2"], [""], [""]]);
+    expect(getRangeValuesAsMatrix(model, "D1:D4")).toEqual([["B1"], ["B2"], [null], [null]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:D2")).toBeTruthy();
   });
 
@@ -1301,17 +1301,17 @@ describe("TOROW function", () => {
 
     // ignore=1, ignore empty cells
     setCellContent(model, "D1", "=TOROW(A1:B2, 1)");
-    expect(getRangeValuesAsMatrix(model, "D1:G1")).toEqual([["#BAD_EXPR", "B1", "B2", ""]]);
+    expect(getRangeValuesAsMatrix(model, "D1:G1")).toEqual([["#BAD_EXPR", "B1", "B2", null]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:F1")).toBeTruthy();
 
     // // ignore=2, ignore error cells
     setCellContent(model, "D1", "=TOROW(A1:B2, 2)");
-    expect(getRangeValuesAsMatrix(model, "D1:G1")).toEqual([["B1", 0, "B2", ""]]);
+    expect(getRangeValuesAsMatrix(model, "D1:G1")).toEqual([["B1", 0, "B2", null]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:F1")).toBeTruthy();
 
     // // ignore=3, ignore empty cells and error cells
     setCellContent(model, "D1", "=TOROW(A1:B2, 3)");
-    expect(getRangeValuesAsMatrix(model, "D1:G1")).toEqual([["B1", "B2", "", ""]]);
+    expect(getRangeValuesAsMatrix(model, "D1:G1")).toEqual([["B1", "B2", null, null]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E1")).toBeTruthy();
   });
 

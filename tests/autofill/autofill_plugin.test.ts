@@ -584,10 +584,10 @@ describe("Autofill", () => {
       description: "spreads empty values",
       args: [],
       returns: ["NUMBER"],
-      compute: function (): string[][] {
+      compute: function (): null[][] {
         return [
-          ["", "", ""], // return 2 col, 3 row matrix
-          ["", "", ""],
+          [null, null, null], // return 2 col, 3 row matrix
+          [null, null, null],
         ];
       },
       isExported: false,

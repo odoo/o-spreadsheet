@@ -1986,17 +1986,17 @@ describe("RANDARRAY function", () => {
     setCellContent(model, "A1", "=RANDARRAY(2)");
     expect(getEvaluatedCell(model, "A1").value).toBeBetween(0, 1);
     expect(getEvaluatedCell(model, "A2").value).toBeBetween(0, 1);
-    expect(getEvaluatedCell(model, "B1").value).toBe("");
-    expect(getEvaluatedCell(model, "B21").value).toBe("");
+    expect(getEvaluatedCell(model, "B1").value).toBe(null);
+    expect(getEvaluatedCell(model, "B21").value).toBe(null);
   });
 
   test("Random columns", () => {
     const model = new Model();
     setCellContent(model, "A1", "=RANDARRAY(1, 2)");
     expect(getEvaluatedCell(model, "A1").value).toBeBetween(0, 1);
-    expect(getEvaluatedCell(model, "A2").value).toBe("");
+    expect(getEvaluatedCell(model, "A2").value).toBe(null);
     expect(getEvaluatedCell(model, "B1").value).toBeBetween(0, 1);
-    expect(getEvaluatedCell(model, "B2").value).toBe("");
+    expect(getEvaluatedCell(model, "B2").value).toBe(null);
   });
 
   test("Random rows and columns", () => {

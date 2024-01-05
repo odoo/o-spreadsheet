@@ -367,7 +367,7 @@ describe("figure plugin", () => {
     expect(composerStore.editionMode).toBe("editing");
     model.dispatch("SELECT_FIGURE", { id: "someuuid" });
     expect(composerStore.editionMode).toBe("inactive");
-    expect(model.getters.getActiveCell().value).toBe("");
+    expect(model.getters.getActiveCell().value).toBe(null);
   });
 
   test("cannot duplicate figure ids", () => {

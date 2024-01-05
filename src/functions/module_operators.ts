@@ -292,10 +292,7 @@ export const UPLUS = {
   description: _t("A specified number, unchanged."),
   args: [arg("value (any)", _t("The number to return."))],
   returns: ["ANY"],
-  compute: function (value: Maybe<FPayload> = { value: "" }): FPayload {
-    return {
-      value: value.value === null ? "" : value.value,
-      format: value?.format,
-    };
+  compute: function (value: Maybe<FPayload> = { value: null }): FPayload {
+    return value;
   },
 } satisfies AddFunctionDescription;

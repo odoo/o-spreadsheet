@@ -139,8 +139,8 @@ export function formatValue(value: CellValue, { format, locale }: LocaleFormat):
       }
       const internalFormat = parseFormat(format);
       return applyInternalFormat(value, internalFormat, locale);
-    case "object":
-      return "0";
+    case "object": // case value === null
+      return "";
   }
 }
 

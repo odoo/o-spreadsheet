@@ -255,7 +255,7 @@ function getCellGrid(model: Model): { [xc: string]: EvaluatedCell } {
 export function getGrid(model: Model): GridResult {
   const result: GridResult = {};
   for (const [xc, cell] of Object.entries(getCellGrid(model))) {
-    result[xc] = cell.value;
+    result[xc] = cell.value ?? "";
   }
   return result;
 }
@@ -656,7 +656,7 @@ export function getCellsObject(model: Model, sheetId: UID): Record<string, CellO
     cells[toXC(col, row)] = {
       style: cell.style,
       format: cell.format,
-      value: model.getters.getEvaluatedCell({ sheetId, col, row }).value,
+      value: model.getters.getEvaluatedCell({ sheetId, col, row }).value ?? "",
       content: cell.content,
     };
   }

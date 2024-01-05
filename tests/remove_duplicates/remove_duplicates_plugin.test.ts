@@ -14,7 +14,7 @@ describe("remove duplicates", () => {
     const model = createModelFromGrid(grid);
     setSelection(model, ["A2:A5"]);
     model.dispatch("REMOVE_DUPLICATES", { columns: [0], hasHeader: false });
-    expect(getRangeValuesAsMatrix(model, "A2:A5")).toEqual([[1], [2], [""], [""]]);
+    expect(getRangeValuesAsMatrix(model, "A2:A5")).toEqual([[1], [2], [null], [null]]);
   });
 
   test("selection is updated after removing duplicates", () => {
@@ -30,7 +30,7 @@ describe("remove duplicates", () => {
     const model = createModelFromGrid(grid);
     setSelection(model, ["A2:A4"]);
     model.dispatch("REMOVE_DUPLICATES", { columns: [0], hasHeader: false });
-    expect(getRangeValuesAsMatrix(model, "A2:A5")).toEqual([[1], [2], [""], [2]]);
+    expect(getRangeValuesAsMatrix(model, "A2:A5")).toEqual([[1], [2], [null], [2]]);
   });
 
   test("remove duplicates based on columns provided", () => {
@@ -47,7 +47,7 @@ describe("remove duplicates", () => {
     expect(getRangeValuesAsMatrix(model, "A2:B4")).toEqual([
       [1, "la"],
       [1, "land"],
-      ["", ""],
+      [null, null],
     ]);
   });
 
@@ -62,7 +62,7 @@ describe("remove duplicates", () => {
     setSelection(model, ["A2:B4"]);
     // provide column A to analyze
     model.dispatch("REMOVE_DUPLICATES", { columns: [0], hasHeader: false });
-    expect(getRangeValuesAsMatrix(model, "B2:B4")).toEqual([["B2"], [""], [""]]);
+    expect(getRangeValuesAsMatrix(model, "B2:B4")).toEqual([["B2"], [null], [null]]);
   });
 
   test("For formula, take into account the evaluated cell value", () => {
@@ -75,7 +75,7 @@ describe("remove duplicates", () => {
     model.dispatch("REMOVE_DUPLICATES", { columns: [0], hasHeader: false });
 
     expect(getEvaluatedCell(model, "A2").value).toBe(42);
-    expect(getEvaluatedCell(model, "A3").value).toBe("");
+    expect(getEvaluatedCell(model, "A3").value).toBe(null);
   });
 
   test("For formula, update the references", () => {
@@ -109,7 +109,7 @@ describe("remove duplicates", () => {
     setSelection(model, ["B2:B4"]);
     model.dispatch("REMOVE_DUPLICATES", { columns: [1], hasHeader: false });
 
-    expect(getRangeValuesAsMatrix(model, "B2:B4")).toEqual([[42], [""], [""]]);
+    expect(getRangeValuesAsMatrix(model, "B2:B4")).toEqual([[42], [null], [null]]);
     expect(getRangeFormatsAsMatrix(model, "B2:B4")).toEqual([["0.00%"], [""], [""]]);
   });
 
@@ -121,7 +121,14 @@ describe("remove duplicates", () => {
     });
     setSelection(model, ["A1:A6"]);
     model.dispatch("REMOVE_DUPLICATES", { columns: [0], hasHeader: false });
-    expect(getRangeValuesAsMatrix(model, "A1:A6")).toEqual([[24], [""], [42], [242], [""], [""]]);
+    expect(getRangeValuesAsMatrix(model, "A1:A6")).toEqual([
+      [24],
+      [null],
+      [42],
+      [242],
+      [null],
+      [null],
+    ]);
   });
 
   test("can remove duplicates with header", () => {
@@ -136,7 +143,7 @@ describe("remove duplicates", () => {
     const model = createModelFromGrid(grid);
     setSelection(model, ["A1:A4"]);
     model.dispatch("REMOVE_DUPLICATES", { columns: [0], hasHeader: true });
-    expect(getRangeValuesAsMatrix(model, "A1:A4")).toEqual([[42], [24], [42], [""]]);
+    expect(getRangeValuesAsMatrix(model, "A1:A4")).toEqual([[42], [24], [42], [null]]);
 
     setSelection(model, ["B1:B4"]);
     model.dispatch("REMOVE_DUPLICATES", { columns: [1], hasHeader: true });
@@ -144,7 +151,7 @@ describe("remove duplicates", () => {
       ["Michel Blanc"],
       ["Michel Noir"],
       ["Michel Blanc"],
-      [""],
+      [null],
     ]);
   });
 });
