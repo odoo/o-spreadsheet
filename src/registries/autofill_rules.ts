@@ -104,8 +104,8 @@ autofillRulesRegistry
           evaluatedCell.type === CellValueType.text &&
           alphaNumericValueRegExp.test(evaluatedCell.value)
       ) // get consecutive alphanumeric cells, no matter what the prefix is
-        .filter((cell) => prefix === cell.value.toString().match(stringPrefixRegExp)![0])
-        .map((cell) => parseInt(cell.value.toString().match(numberPostfixRegExp)![0]));
+        .filter((cell) => prefix === (cell.value ?? "").toString().match(stringPrefixRegExp)![0])
+        .map((cell) => parseInt((cell.value ?? "").toString().match(numberPostfixRegExp)![0]));
       const increment = calculateIncrementBasedOnGroup(group);
       return {
         type: "ALPHANUMERIC_INCREMENT_MODIFIER",

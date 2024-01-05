@@ -10,7 +10,6 @@ import {
   CellPosition,
   CellValue,
   CellValueType,
-  DEFAULT_LOCALE,
   EvaluatedCell,
   FormulaCell,
   FPayload,
@@ -34,11 +33,11 @@ type PositionDict<T> = Map<PositionId, T>;
 export type PositionId = bigint;
 
 const MAX_ITERATION = 30;
-const ERROR_CYCLE_CELL = createEvaluatedCell(
-  CellErrorType.CircularDependency,
-  { locale: DEFAULT_LOCALE },
-  evaluationErrorRegistry.get(CellErrorType.CircularDependency).toString()
-);
+const ERROR_CYCLE_CELL = createEvaluatedCell({
+  value: CellErrorType.CircularDependency,
+  message: evaluationErrorRegistry.get(CellErrorType.CircularDependency).toString(),
+});
+const EMPTY_CELL = createEvaluatedCell({ value: "" });
 
 export class Evaluator {
   private readonly getters: Getters;
@@ -60,10 +59,7 @@ export class Evaluator {
   }
 
   getEvaluatedCell(position: CellPosition): EvaluatedCell {
-    return (
-      this.evaluatedCells.get(this.encodePosition(position)) ||
-      createEvaluatedCell("", { locale: this.getters.getLocale() })
-    );
+    return this.evaluatedCells.get(this.encodePosition(position)) || EMPTY_CELL;
   }
 
   getSpreadPositionsOf(position: CellPosition): CellPosition[] {
@@ -242,7 +238,7 @@ export class Evaluator {
     const cellPosition = this.decodePosition(positionId);
     const cell = this.getters.getCell(cellPosition);
     if (cell === undefined) {
-      return createEvaluatedCell("", { locale: this.getters.getLocale() });
+      return EMPTY_CELL;
     }
 
     const cellId = cell.id;
@@ -256,11 +252,7 @@ export class Evaluator {
         ? this.computeFormulaCell(cellPosition.sheetId, cell)
         : evaluateLiteral(cell.content, localeFormat);
     } catch (e) {
-      return createEvaluatedCell(
-        e.value,
-        localeFormat,
-        e.message || evaluationErrorRegistry.get(e.value).toString()
-      );
+      return createEvaluatedCell(e);
     } finally {
       this.cellsBeingComputed.delete(cellId);
     }
@@ -286,14 +278,7 @@ export class Evaluator {
     );
 
     if (!isMatrix(formulaReturn)) {
-      return createEvaluatedCell(
-        formulaReturn.value,
-        {
-          format: cellData.format || formulaReturn.format,
-          locale: this.getters.getLocale(),
-        },
-        formulaReturn.message
-      );
+      return createEvaluatedCell(formulaReturn, this.getters.getLocale());
     }
 
     const formulaPosition = this.getters.getCellPosition(cellId);
@@ -312,14 +297,7 @@ export class Evaluator {
       this.spreadValues(formulaPosition, formulaReturn)
     );
 
-    return createEvaluatedCell(
-      formulaReturn[0][0].value,
-      {
-        format: cellData.format || formulaReturn[0][0]?.format,
-        locale: this.getters.getLocale(),
-      },
-      formulaReturn[0][0].message
-    );
+    return createEvaluatedCell(formulaReturn[0][0], this.getters.getLocale());
   }
 
   private assertSheetHasEnoughSpaceToSpreadFormulaResult(
@@ -398,17 +376,7 @@ export class Evaluator {
   ): (i: number, j: number) => void {
     return (i: number, j: number) => {
       const position = { sheetId, col: i + col, row: j + row };
-      const cell = this.getters.getCell(position);
-      const format = cell?.format;
-      const evaluatedCell = createEvaluatedCell(
-        matrixResult[i][j].value,
-        {
-          format: format || matrixResult[i][j]?.format,
-          locale: this.getters.getLocale(),
-        },
-        matrixResult[i][j].message
-      );
-
+      const evaluatedCell = createEvaluatedCell(matrixResult[i][j], this.getters.getLocale());
       const positionId = this.encodePosition(position);
 
       this.setEvaluatedCell(positionId, evaluatedCell);

@@ -503,8 +503,9 @@ export class EditionPlugin extends UIPlugin {
     }
     const { format, value, type, formattedValue } = this.getters.getEvaluatedCell(position);
     switch (type) {
-      case CellValueType.text:
       case CellValueType.empty:
+        return "";
+      case CellValueType.text:
       case CellValueType.error:
         return value;
       case CellValueType.boolean:

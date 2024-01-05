@@ -1,18 +1,15 @@
-import { isEvaluationError, toNumber } from "../../functions/helpers";
+import { toNumber } from "../../functions/helpers";
 import {
-  BooleanCell,
   CellValue,
-  CellValueType,
   DEFAULT_LOCALE,
-  EmptyCell,
-  ErrorCell,
   EvaluatedCell,
+  FPayload,
   Locale,
   LocaleFormat,
-  NumberCell,
+  getEvaluatedCellProperties,
 } from "../../types";
 import { isDateTime } from "../dates";
-import { detectDateFormat, detectNumberFormat, formatValue, isDateTimeFormat } from "../format";
+import { detectDateFormat, detectNumberFormat, formatValue } from "../format";
 import { detectLink } from "../links";
 import { isBoolean } from "../misc";
 import { isNumber } from "../numbers";
@@ -21,7 +18,11 @@ export function evaluateLiteral(
   content: string | undefined,
   localeFormat: LocaleFormat
 ): EvaluatedCell {
-  return createEvaluatedCell(parseLiteral(content || "", localeFormat.locale), localeFormat);
+  const fPayload = {
+    value: parseLiteral(content || "", localeFormat.locale),
+    format: localeFormat.format,
+  };
+  return createEvaluatedCell(fPayload, localeFormat.locale);
 }
 
 export function parseLiteral(content: string, locale: Locale): Exclude<CellValue, null> {
@@ -30,142 +31,39 @@ export function parseLiteral(content: string, locale: Locale): Exclude<CellValue
   }
   if (isNumber(content, DEFAULT_LOCALE)) {
     return toNumber(content, DEFAULT_LOCALE);
-  } else if (isDateTime(content, locale)) {
+  }
+  if (isDateTime(content, locale)) {
     return toNumber(content, locale);
-  } else if (isBoolean(content)) {
+  }
+  if (isBoolean(content)) {
     return content.toUpperCase() === "TRUE" ? true : false;
   }
   return content;
 }
 
 export function createEvaluatedCell(
-  value: CellValue,
-  localeFormat: LocaleFormat,
-  message?: string
+  fPayload: FPayload,
+  locale: Locale = DEFAULT_LOCALE
 ): EvaluatedCell {
-  const link = detectLink(value);
-  if (link) {
-    return {
-      ..._createEvaluatedCell(
-        parseLiteral(link.label, localeFormat.locale),
-        {
-          format:
-            localeFormat.format ||
-            detectDateFormat(link.label, localeFormat.locale) ||
-            detectNumberFormat(link.label),
-          locale: localeFormat.locale,
-        },
-        message
-      ),
-      link,
-    };
+  const link = detectLink(fPayload.value);
+  if (!link) {
+    return _createEvaluatedCell(fPayload, locale);
   }
-  return _createEvaluatedCell(value, localeFormat, message);
-}
-
-function _createEvaluatedCell(
-  value: CellValue,
-  localeFormat: LocaleFormat,
-  message?: string
-): EvaluatedCell {
-  if (isEvaluationError(value)) {
-    return errorCell(value as string, message);
-  }
-  if (value === "") {
-    return emptyCell(localeFormat);
-  }
-  if (typeof value === "number") {
-    if (isDateTimeFormat(localeFormat.format || "")) {
-      return dateTimeCell(value, localeFormat);
-    }
-    return numberCell(value, localeFormat);
-  }
-  if (value === null) {
-    return numberCell(0, localeFormat);
-  }
-  if (typeof value === "boolean") {
-    return booleanCell(value, localeFormat);
-  }
-  return textCell((value || "").toString(), localeFormat);
-}
-
-function textCell(value: string, localeFormat: LocaleFormat): EvaluatedCell {
+  const linkPayload = {
+    value: parseLiteral(link.label, locale),
+    format:
+      fPayload.format || detectDateFormat(link.label, locale) || detectNumberFormat(link.label),
+  };
   return {
-    type: CellValueType.text,
-    value,
-    format: localeFormat.format,
-    isAutoSummable: true,
-    defaultAlign: "left",
-    formattedValue: formatValue(value, localeFormat),
+    ..._createEvaluatedCell(linkPayload, locale),
+    link,
   };
 }
 
-function numberCell(value: number, localeFormat: LocaleFormat): NumberCell {
+function _createEvaluatedCell(fPayload: FPayload, locale: Locale): EvaluatedCell {
   return {
-    type: CellValueType.number,
-    value: value || 0, // necessary to avoid "-0" and NaN values,
-    format: localeFormat.format,
-    isAutoSummable: true,
-    defaultAlign: "right",
-    formattedValue: formatValue(value, localeFormat),
-  };
-}
-
-const EMPTY_EVALUATED_CELL: EmptyCell = {
-  type: CellValueType.empty,
-  value: "",
-  format: undefined,
-  isAutoSummable: true,
-  defaultAlign: "left",
-  formattedValue: "",
-};
-
-function emptyCell(localeFormat: LocaleFormat): EmptyCell {
-  if (localeFormat.format === undefined) {
-    // share the same object to save memory
-    return EMPTY_EVALUATED_CELL;
-  }
-  return {
-    type: CellValueType.empty,
-    value: "",
-    format: localeFormat.format,
-    isAutoSummable: true,
-    defaultAlign: "left",
-    formattedValue: "",
-  };
-}
-
-function dateTimeCell(value: number, localeFormat: LocaleFormat): NumberCell {
-  const formattedValue = formatValue(value, localeFormat);
-  return {
-    type: CellValueType.number,
-    value,
-    format: localeFormat.format,
-    isAutoSummable: false,
-    defaultAlign: "right",
-    formattedValue,
-  };
-}
-
-function booleanCell(value: boolean, localeFormat: LocaleFormat): BooleanCell {
-  const formattedValue = value ? "TRUE" : "FALSE";
-  return {
-    type: CellValueType.boolean,
-    value,
-    format: localeFormat.format,
-    isAutoSummable: false,
-    defaultAlign: "center",
-    formattedValue,
-  };
-}
-
-function errorCell(value: string, message?: string): ErrorCell {
-  return {
-    type: CellValueType.error,
-    value,
-    message,
-    isAutoSummable: false,
-    defaultAlign: "center",
-    formattedValue: value,
+    ...fPayload,
+    ...getEvaluatedCellProperties(fPayload),
+    formattedValue: formatValue(fPayload.value, { format: fPayload.format, locale }),
   };
 }
