@@ -1,4 +1,4 @@
-import type { ChartConfiguration, ChartOptions, ChartType } from "chart.js";
+import type { BasePlatform, ChartConfiguration, ChartOptions, ChartType } from "chart.js";
 import { ChartTerms } from "../../../components/translations_terms";
 import { MAX_CHAR_LABEL } from "../../../constants";
 import { _t } from "../../../translation";
@@ -151,6 +151,7 @@ export function getDefaultChartJsRuntime(
       labels: labels.map(truncateLabel),
       datasets: [],
     },
+    platform: undefined as unknown as typeof BasePlatform, // This key is optional and will be set by chart.js
     plugins: [],
   };
 }
