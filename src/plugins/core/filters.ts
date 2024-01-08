@@ -14,7 +14,7 @@ import {
   zoneToDimension,
   zoneToXc,
 } from "../../helpers";
-import { Filter, FilterTable } from "../../helpers/filters";
+import { Filter, FilterTable, createFilter, createFilterTable } from "../../helpers/filters";
 import {
   AddColumnsRowsCommand,
   CellPosition,
@@ -223,7 +223,7 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
           cmd.position,
           cmd.quantity
         );
-        filters.push(new Filter(filter.id, filterZone));
+        filters.push(createFilter(filter.id, filterZone));
       }
 
       // Add filters for new columns
@@ -231,7 +231,7 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
         for (let col = zone.left; col <= zone.right; col++) {
           if (!filters.find((filter) => filter.col === col)) {
             filters.push(
-              new Filter(this.uuidGenerator.uuidv4(), { ...zone, left: col, right: col })
+              createFilter(this.uuidGenerator.uuidv4(), { ...zone, left: col, right: col })
             );
           }
         }
@@ -271,7 +271,7 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
               cmd.elements
             );
             if (newFilterZone) {
-              filters.push(new Filter(filter.id, newFilterZone));
+              filters.push(createFilter(filter.id, newFilterZone));
             }
           }
           this.history.update("tables", cmd.sheetId, table.id, "zone", zone);
@@ -282,7 +282,8 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
   }
 
   private createFilterTable(zone: Zone): FilterTable {
-    return new FilterTable(zone);
+    const uuid = this.uuidGenerator.uuidv4();
+    return createFilterTable(uuid, zone);
   }
 
   /** Extend a table down one row */
