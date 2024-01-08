@@ -1,61 +1,44 @@
-import { range, UuidGenerator } from ".";
-import { Cloneable, FilterTableId, UID, Zone } from "../types/misc";
+import { FilterTableId, UID, Zone } from "../types/misc";
+import { range } from "./misc";
+import { UuidGenerator } from "./uuid";
 
-export class FilterTable implements Cloneable<FilterTable> {
+export interface FilterTable {
   readonly id: FilterTableId;
   readonly zone: Zone;
   readonly filters: Filter[];
-
-  constructor(zone: Zone) {
-    this.filters = [];
-    this.zone = zone;
-    const uuid = new UuidGenerator();
-    this.id = uuid.uuidv4();
-    for (const i of range(zone.left, zone.right + 1)) {
-      const filterZone = { ...this.zone, left: i, right: i };
-      this.filters.push(new Filter(uuid.uuidv4(), filterZone));
-    }
-  }
-
-  /** Get zone of the table without the headers */
-  get contentZone(): Zone | undefined {
-    if (this.zone.bottom === this.zone.top) {
-      return undefined;
-    }
-    return { ...this.zone, top: this.zone.top + 1 };
-  }
-
-  getFilterId(col: number): string | undefined {
-    return this.filters.find((filter) => filter.col === col)?.id;
-  }
-
-  clone(): FilterTable {
-    return new FilterTable(this.zone);
-  }
+  readonly contentZone: Zone | undefined;
 }
 
-export class Filter {
+export interface Filter {
   readonly id: UID;
   readonly zoneWithHeaders: Zone;
+  readonly col: number;
+  readonly filteredZone: Zone | undefined;
+}
 
-  constructor(id: UID, zone: Zone) {
-    if (zone.left !== zone.right) {
-      throw new Error("Can only define a filter on a single column");
-    }
-    this.id = id;
-    this.zoneWithHeaders = zone;
+export function createFilterTable(id: UID, zone: Zone): FilterTable {
+  const filters: Filter[] = [];
+  const uuid = new UuidGenerator();
+  for (const i of range(zone.left, zone.right + 1)) {
+    const filterZone = { ...zone, left: i, right: i };
+    filters.push(createFilter(uuid.uuidv4(), filterZone));
   }
+  return {
+    id,
+    zone,
+    filters,
+    contentZone: zone.bottom === zone.top ? undefined : { ...zone, top: zone.top + 1 },
+  };
+}
 
-  get col() {
-    return this.zoneWithHeaders.left;
+export function createFilter(id: UID, zone: Zone): Filter {
+  if (zone.left !== zone.right) {
+    throw new Error("Can only define a filter on a single column");
   }
-
-  /** Filtered zone, ie. zone of the filter without the header */
-  get filteredZone(): Zone | undefined {
-    const zone = this.zoneWithHeaders;
-    if (zone.bottom === zone.top) {
-      return undefined;
-    }
-    return { ...zone, top: zone.top + 1 };
-  }
+  return {
+    id,
+    zoneWithHeaders: zone,
+    col: zone.left,
+    filteredZone: zone.bottom === zone.top ? undefined : { ...zone, top: zone.top + 1 },
+  };
 }

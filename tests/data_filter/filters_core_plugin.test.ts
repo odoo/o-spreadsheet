@@ -107,6 +107,8 @@ describe("Filters plugin", () => {
 
       expect(getFilter(model, "A1")).toEqual({
         zoneWithHeaders: toZone("A1:A5"),
+        filteredZone: toZone("A2:A5"),
+        col: 0,
         id: expect.any(String),
       });
     });
