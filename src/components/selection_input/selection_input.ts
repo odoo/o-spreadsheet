@@ -122,7 +122,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
       : [];
     return ranges.map((range) => ({
       ...range,
-      isValidRange: range.xc === "" || this.env.model.getters.isRangeValid(range.xc),
+      isValidRange: range.xc !== "" && this.env.model.getters.isRangeValid(range.xc),
     }));
   }
 

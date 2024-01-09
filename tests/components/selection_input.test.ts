@@ -401,10 +401,14 @@ describe("Selection Input", () => {
     expect(fixture.querySelectorAll("input")[0].value).toBe("B1");
     expect(fixture.querySelectorAll("input")[0].getAttribute("style")).not.toBe("color: #000;");
     expect(fixture.querySelectorAll("input")[0].classList).not.toContain("o-invalid");
-  });
-  test("don't show red border initially", async () => {
-    await createSelectionInput();
-    expect(fixture.querySelectorAll("input")[0].classList).not.toContain("o-invalid");
+    await writeInput(0, "");
+    expect(fixture.querySelectorAll("input")[0].value).toBe("");
+    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color: #000;");
+    expect(fixture.querySelectorAll("input")[0].classList).toContain("o-invalid");
+    await writeInput(0, "s!A1");
+    expect(fixture.querySelectorAll("input")[0].value).toBe("s!A1");
+    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color: #000;");
+    expect(fixture.querySelectorAll("input")[0].classList).toContain("o-invalid");
   });
 
   test("pressing and releasing control has no effect on future clicks", async () => {
