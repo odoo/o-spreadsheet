@@ -218,12 +218,12 @@ export const MID: AddFunctionDescription = {
   args: [
     arg("text (string)", _lt("The string to extract a segment from.")),
     arg(
-      " (number)",
+      "starting_at (number)",
       _lt(
         "The index from the left of string from which to begin extracting. The first character in string has the index 1."
       )
     ),
-    arg(" (number)", _lt("The length of the segment to extract.")),
+    arg("extract_length (number)", _lt("The length of the segment to extract.")),
   ],
   returns: ["STRING"],
   compute: function (
