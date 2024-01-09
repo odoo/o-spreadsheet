@@ -1,4 +1,4 @@
-import { Component } from "@odoo/owl";
+import { Component, useEffect, useRef } from "@odoo/owl";
 import { css } from "../../helpers/css";
 import { AutocompleteValue } from "../composer/composer";
 
@@ -33,6 +33,21 @@ interface Props {
 
 export class TextValueProvider extends Component<Props> {
   static template = "o-spreadsheet-TextValueProvider";
+  private autoCompleteListRef = useRef("autoCompleteList");
+
+  setup() {
+    useEffect(
+      () => {
+        const selectedIndex = this.props.selectedIndex;
+        if (selectedIndex === undefined) {
+          return;
+        }
+        const selectedElement = this.autoCompleteListRef.el?.children[selectedIndex];
+        selectedElement?.scrollIntoView?.({ block: "nearest" });
+      },
+      () => [this.props.selectedIndex, this.autoCompleteListRef.el]
+    );
+  }
 }
 
 TextValueProvider.props = {
