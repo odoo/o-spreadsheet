@@ -216,12 +216,12 @@ export const MID = {
   args: [
     arg("text (string)", _t("The string to extract a segment from.")),
     arg(
-      " (number)",
+      "starting_at (number)",
       _t(
         "The index from the left of string from which to begin extracting. The first character in string has the index 1."
       )
     ),
-    arg(" (number)", _t("The length of the segment to extract.")),
+    arg("extract_length (number)", _t("The length of the segment to extract.")),
   ],
   returns: ["STRING"],
   compute: function (

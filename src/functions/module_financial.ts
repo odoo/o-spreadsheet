@@ -186,7 +186,10 @@ export const AMORLINC = {
       _t("The single period within life for which to calculate depreciation.")
     ),
     arg("rate (number)", _t("The deprecation rate.")),
-    arg(" (number, optional)", _t("An indicator of what day count method to use.")),
+    arg(
+      "day_count_convention (number, optional)",
+      _t("An indicator of what day count method to use.")
+    ),
   ],
   returns: ["NUMBER"],
   compute: function (
