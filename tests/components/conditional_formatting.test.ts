@@ -378,7 +378,36 @@ describe("UI of conditional formats", () => {
       expect(dispatch).not.toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT");
       const errorString = document.querySelector(selectors.error);
       expect(errorString!.textContent).toBe("The range is invalid");
+
+      setInputValueAndTrigger(selectors.ruleEditor.range, "s!A1", "change");
+      await click(fixture, selectors.buttonSave);
+      expect(dispatch).not.toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT");
+      const errorString2 = document.querySelector(selectors.error);
+      expect(errorString2!.textContent).toBe("The range is invalid");
     });
+
+    test("display error message if and only if invalid range", async () => {
+      await click(fixture, selectors.buttonAdd);
+      await nextTick();
+      const dispatch = spyDispatch(parent);
+
+      setInputValueAndTrigger(selectors.ruleEditor.range, "", "input");
+      await click(fixture, selectors.buttonSave);
+      expect(dispatch).not.toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT");
+      const errorString = document.querySelector(selectors.error);
+      expect(errorString!.textContent).toBe("A range needs to be defined");
+
+      setInputValueAndTrigger(selectors.ruleEditor.range, "A1", "input");
+      await nextTick();
+      expect(document.querySelector(selectors.error)).toBe(null);
+
+      setInputValueAndTrigger(selectors.ruleEditor.range, "s!A1", "input");
+      await click(fixture, selectors.buttonSave);
+      expect(dispatch).not.toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT");
+      const errorString1 = document.querySelector(selectors.error);
+      expect(errorString1!.textContent).toBe("The range is invalid");
+    });
+
     test("displayed range is updated if range changes", async () => {
       const previews = document.querySelectorAll(selectors.listPreview);
       expect(previews[0].querySelector(selectors.description.range)!.textContent).toBe("A1:A2");
@@ -690,7 +719,6 @@ describe("UI of conditional formats", () => {
     await nextTick();
     setInputValueAndTrigger(selectors.ruleEditor.range, "", "input");
     await nextTick();
-    await click(fixture, selectors.buttonSave);
     expect(errorMessages()).toEqual(["A range needs to be defined"]);
     expect(fixture.querySelector(selectors.ruleEditor.range)?.className).toContain("o-invalid");
   });

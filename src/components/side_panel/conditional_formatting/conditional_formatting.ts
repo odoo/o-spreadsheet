@@ -1,7 +1,13 @@
 import { Component, onWillUpdateProps, useExternalListener, useState } from "@odoo/owl";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../constants";
+<<<<<<< HEAD
 import { colorNumberString, rangeReference } from "../../../helpers/index";
 import { canonicalizeCFRule, localizeCFRule } from "../../../helpers/locale";
+||||||| parent of ffad4ad1a (temp)
+import { colorNumberString, rangeReference } from "../../../helpers/index";
+=======
+import { colorNumberString } from "../../../helpers/index";
+>>>>>>> ffad4ad1a (temp)
 import { _t } from "../../../translation";
 import {
   CancelledReason,
@@ -392,10 +398,6 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
     }));
   }
 
-  get isRangeValid(): boolean {
-    return this.state.errors.includes(CommandResult.EmptyRange);
-  }
-
   errorMessage(error: CancelledReason): string {
     return CfTerms.Errors[error] || CfTerms.Errors.Unexpected;
   }
@@ -454,9 +456,10 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
 
   saveConditionalFormat() {
     if (this.state.currentCF) {
-      const invalidRanges = this.state.currentCF.ranges.some((xc) => !xc.match(rangeReference));
-      if (invalidRanges) {
-        this.state.errors = [CommandResult.InvalidRange];
+      if (
+        this.state.errors.includes(CommandResult.EmptyRange) ||
+        this.state.errors.includes(CommandResult.InvalidRange)
+      ) {
         return;
       }
       const sheetId = this.env.model.getters.getActiveSheetId();
@@ -604,6 +607,15 @@ export class ConditionalFormattingPanel extends Component<Props, SpreadsheetChil
   }
 
   onRangesChanged(ranges: string[]) {
+    if (ranges.length === 0) {
+      this.state.errors = [CommandResult.EmptyRange];
+      return;
+    }
+    if (ranges.some((xc) => !this.env.model.getters.isRangeValid(xc))) {
+      this.state.errors = [CommandResult.InvalidRange];
+      return;
+    }
+    this.state.errors = [];
     if (this.state.currentCF) {
       this.state.currentCF.ranges = ranges;
     }
