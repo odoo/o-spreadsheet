@@ -85,6 +85,7 @@ css/* scss */ `
       position: absolute;
       margin: 1px 4px;
       pointer-events: none;
+      overflow: auto;
 
       .o-semi-bold {
         /** FIXME: to remove in favor of Bootstrap
@@ -175,7 +176,10 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     if (this.props.delimitation && this.props.rect) {
       const { x: cellX, y: cellY, height: cellHeight } = this.props.rect;
       const remainingHeight = this.props.delimitation.height - (cellY + cellHeight);
+      assistantStyle["max-height"] = `${remainingHeight}px`;
       if (cellY > remainingHeight) {
+        const availableSpaceAbove = cellY;
+        assistantStyle["max-height"] = `${availableSpaceAbove}px`;
         // render top
         // We compensate 2 px of margin on the assistant style + 1px for design reasons
         assistantStyle.top = `-3px`;

@@ -25,6 +25,7 @@
         t-if="props.focus !== 'inactive' and (autoCompleteState.showProvider or functionDescriptionState.showDescription)"
         class="o-composer-assistant"
         t-att-style="assistantStyle"
+        t-on-wheel.stop=""
         t-on-mousedown.prevent.stop=""
         t-on-click.prevent.stop=""
         t-on-mouseup.prevent.stop="">
