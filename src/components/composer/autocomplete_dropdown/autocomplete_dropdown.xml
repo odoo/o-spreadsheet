@@ -1,6 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-TextValueProvider">
     <div
+      t-ref="autoCompleteList"
       t-att-class="{
           'o-autocomplete-dropdown':props.values.length,
           'shadow':props.values.length}">
