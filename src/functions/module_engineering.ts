@@ -11,8 +11,8 @@ const DEFAULT_DELTA_ARG = 0;
 export const DELTA: AddFunctionDescription = {
   description: _lt("Compare two numeric values, returning 1 if they're equal."),
   args: [
-    arg(" (number)", _lt("The first number to compare.")),
-    arg(` (number, default=${DEFAULT_DELTA_ARG})`, _lt("The second number to compare.")),
+    arg("number1 (number)", _lt("The first number to compare.")),
+    arg(`number2 (number, default=${DEFAULT_DELTA_ARG})`, _lt("The second number to compare.")),
   ],
   returns: ["NUMBER"],
   compute: function (
