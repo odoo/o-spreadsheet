@@ -37,7 +37,6 @@
               <SelectionInput
                 ranges="state.currentCF.ranges"
                 class="'o-range'"
-                isInvalid="isRangeValid"
                 onSelectionChanged="(ranges) => this.onRangesChanged(ranges)"
                 required="true"
               />
