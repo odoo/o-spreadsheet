@@ -538,6 +538,12 @@ describe("range plugin", () => {
       expect(m.getters.getRangeString(undefined, "not there")).toBe(CellErrorType.InvalidReference);
     });
 
+    test("requesting a range without parts", () => {
+      const r = m.getters.getRangeFromSheetXC("s1", "A1");
+      const rNoParts = r.clone({ parts: [] });
+      expect(m.getters.getRangeString(rNoParts, "forceSheetName")).toBe("s1!A1");
+    });
+
     test.each(["Sheet 0", "<Sheet1>", "&Sheet2", "Sheet4;", "Sheet5🐻"])(
       "sheet name with special character %s",
       (name) => {
