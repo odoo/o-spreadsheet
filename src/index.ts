@@ -110,6 +110,8 @@ import {
   repeatLocalCommandTransformRegistry,
 } from "./registries/repeat_commands_registry";
 import { sidePanelRegistry } from "./registries/side_panel_registry";
+import { useStoreProvider } from "./store_engine";
+import { NotificationStore } from "./stores/notification_store";
 import { AddFunctionDescription, isMatrix } from "./types";
 import { errorTypes } from "./types/errors";
 import { DEFAULT_LOCALE } from "./types/locale";
@@ -283,6 +285,11 @@ export const hooks = {
   useDragAndDropListItems,
   useHighlights,
   useHighlightsOnHover,
+};
+
+export const stores = {
+  useStoreProvider,
+  NotificationStore,
 };
 
 export function addFunction(functionName: string, functionDescription: AddFunctionDescription) {
