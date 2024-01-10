@@ -429,9 +429,9 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
    * Get a Xc string that represent a part of a range
    */
   private getRangePartString(range: RangeImpl, part: 0 | 1): string {
-    const colFixed = range.parts && range.parts[part].colFixed ? "$" : "";
+    const colFixed = range.parts && range.parts[part]?.colFixed ? "$" : "";
     const col = part === 0 ? numberToLetters(range.zone.left) : numberToLetters(range.zone.right);
-    const rowFixed = range.parts && range.parts[part].rowFixed ? "$" : "";
+    const rowFixed = range.parts && range.parts[part]?.rowFixed ? "$" : "";
     const row = part === 0 ? String(range.zone.top + 1) : String(range.zone.bottom + 1);
 
     let str = "";
