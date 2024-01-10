@@ -33,8 +33,9 @@ import {
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Model } from "../../model";
 import { ComposerSelection } from "../../plugins/ui_stateful/edition";
-import { useStoreProvider } from "../../store_engine";
+import { Store, useStore, useStoreProvider } from "../../store_engine";
 import { ModelStore } from "../../stores";
+import { NotificationStore } from "../../stores/notification_store";
 import { _t } from "../../translation";
 import { HeaderGroup, InformationNotification, Pixel, SpreadsheetChildEnv } from "../../types";
 import { BottomBar } from "../bottom_bar/bottom_bar";
@@ -272,6 +273,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   private keyDownMapping!: { [key: string]: Function };
 
   private isViewportTooSmall: boolean = false;
+  private notificationStore!: Store<NotificationStore>;
 
   get model(): Model {
     return this.props.model;
@@ -286,6 +288,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
   setup() {
     const stores = useStoreProvider();
+    this.notificationStore = useStore(NotificationStore);
     this.sidePanel = useState({ isOpen: false, panelProps: {} });
     this.composer = useState({
       topBarFocus: "inactive",
@@ -362,7 +365,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   private bindModelEvents() {
     this.model.on("update", this, () => this.render(true));
     this.model.on("notify-ui", this, (notification: InformationNotification) =>
-      this.env.notifyUser(notification)
+      this.notificationStore.notifyUser(notification)
     );
     this.model.on("raise-error-ui", this, ({ text }) => this.env.raiseError(text));
   }
@@ -387,7 +390,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       if (this.isViewportTooSmall) {
         return;
       }
-      this.env.notifyUser({
+      this.notificationStore.notifyUser({
         text: _t(
           "The current window is too small to display this sheet properly. Consider resizing your browser window or adjusting frozen rows and columns."
         ),

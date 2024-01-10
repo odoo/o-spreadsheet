@@ -31,6 +31,7 @@ import { Registry } from "../../src/registries/registry";
 import { DependencyContainer } from "../../src/store_engine";
 import { ModelStore } from "../../src/stores";
 import { HighlightProvider, HighlightStore } from "../../src/stores/highlight_store";
+import { NotificationStore } from "../../src/stores/notification_store";
 import { RendererStore } from "../../src/stores/renderer_store";
 import { _t } from "../../src/translation";
 import {
@@ -135,6 +136,12 @@ export function makeTestEnv(mockEnv: Partial<SpreadsheetChildEnv> = {}): Spreads
   const model = mockEnv.model || new Model();
   const container = new DependencyContainer();
   container.inject(ModelStore, model);
+  const notificationStore = {
+    notifyUser: mockEnv.notifyUser || (() => {}),
+    raiseError: mockEnv.raiseError || (() => {}),
+    askConfirmation: mockEnv.askConfirmation || (() => {}),
+  };
+  container.inject(NotificationStore, notificationStore);
   return {
     model,
     isDashboard: mockEnv.isDashboard || (() => false),
@@ -144,9 +151,7 @@ export function makeTestEnv(mockEnv: Partial<SpreadsheetChildEnv> = {}): Spreads
     //FIXME : image provider is not built on top of the file store of the model if provided
     // and imageProvider is defined even when there is no file store on the model
     imageProvider: new ImageProvider(new FileStore()),
-    notifyUser: mockEnv.notifyUser || (() => {}),
-    raiseError: mockEnv.raiseError || (() => {}),
-    askConfirmation: mockEnv.askConfirmation || (() => {}),
+    ...notificationStore,
     startCellEdition: mockEnv.startCellEdition || (() => {}),
     loadCurrencies:
       mockEnv.loadCurrencies ||
