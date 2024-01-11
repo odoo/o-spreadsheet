@@ -1,7 +1,7 @@
 import { getFullReference, toXC, toZone } from "../helpers/index";
 import { _t } from "../translation";
-import { AddFunctionDescription, FPayload, Matrix, Maybe } from "../types";
-import { NotAvailableError } from "../types/errors";
+import { AddFunctionDescription, CellPosition, CellValue, FPayload, Matrix, Maybe } from "../types";
+import { EvaluationError, InvalidReferenceError, NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import {
   LinearSearchMode,
@@ -239,6 +239,79 @@ export const INDEX: AddFunctionDescription = {
       return _reference.map((col) => [col[_row - 1]]);
     }
     return _reference[_column - 1][_row - 1];
+  },
+  isExported: true,
+};
+
+// -----------------------------------------------------------------------------
+// INDEX
+// -----------------------------------------------------------------------------
+export const INDIRECT: AddFunctionDescription = {
+  description: _t("Returns the content of a cell, specified by a string."),
+  args: [
+    arg("reference (string)", _t("The range of cells from which the values are returned.")),
+    arg(
+      "use_a1_notation (boolean, default=TRUE)",
+      _t(
+        "A boolean indicating whether to use A1 style notation (TRUE) or R1C1 style notation (FALSE)."
+      )
+    ),
+  ],
+  returns: ["ANY"],
+  compute: function (
+    reference: Maybe<FPayload>,
+    useA1Notation: Maybe<FPayload> = { value: true }
+  ): FPayload | Matrix<FPayload> {
+    let _reference = reference?.value?.toString();
+    if (!_reference) {
+      throw new InvalidReferenceError(_t("Reference should be defined."));
+    }
+    const _useA1Notation = toBoolean(useA1Notation);
+    if (!_useA1Notation) {
+      throw new EvaluationError(_t("R1C1 notation is not supported."));
+    }
+    const sheetId = this.__originSheetId;
+    let originPosition: CellPosition | undefined;
+    const __originCellXC = this.__originCellXC?.();
+    if (__originCellXC) {
+      const cellZone = toZone(__originCellXC);
+      originPosition = {
+        sheetId,
+        col: cellZone.left,
+        row: cellZone.top,
+      };
+      // The following line is used to reset the dependencies of the cell, to avoid
+      // keeping dependencies from previous evaluation of the INDIRECT formula (i.e.
+      // in case the reference has been changed).
+      this.updateDependencies?.(originPosition);
+    }
+
+    const range = this.getters.getRangeFromSheetXC(sheetId, _reference);
+    if (range === undefined || range.invalidXc || range.invalidSheetName) {
+      throw new InvalidReferenceError();
+    }
+    if (originPosition) {
+      this.addDependencies?.(originPosition, [range]);
+    }
+
+    const values: FPayload[][] = [];
+    for (let col = range.zone.left; col <= range.zone.right; col++) {
+      const colValues: FPayload[] = [];
+      for (let row = range.zone.top; row <= range.zone.bottom; row++) {
+        const position = { sheetId: range.sheetId, col, row };
+        // The below 'value' is typed as CellValue because the evaluateFormula will have to
+        // evaluate a string containing the A1 reference of a single cell, so this will
+        // return a CellValue.
+        const value = this.getters.evaluateFormula(range.sheetId, toXC(col, row)) as CellValue;
+        const evaluatedCell = this.getters.getEvaluatedCell(position);
+        colValues.push({
+          ...evaluatedCell,
+          value,
+        });
+      }
+      values.push(colValues);
+    }
+    return values.length === 1 && values[0].length === 1 ? values[0][0] : values;
   },
   isExported: true,
 };
