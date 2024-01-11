@@ -1,6 +1,5 @@
 import { Component } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../../../../../types";
-import { ColorPickerWidget } from "../../../../color_picker/color_picker_widget";
 import { Section } from "../../../components/section/section";
 
 interface Props {
@@ -10,7 +9,7 @@ interface Props {
 
 export class ChartTitle extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet.ChartTitle";
-  static components = { ColorPickerWidget, Section };
+  static components = { Section };
   static props = { title: String, update: Function };
 
   updateTitle(ev: InputEvent) {
