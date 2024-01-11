@@ -1,7 +1,8 @@
 import { CellValue } from "./cells";
 import { Getters } from "./getters";
 import { Locale } from "./locale";
-import { Arg, FPayload, Matrix, UID } from "./misc";
+import { Arg, CellPosition, FPayload, Matrix, UID } from "./misc";
+import { Range } from "./range";
 
 export type ArgType =
   | "ANY"
@@ -52,4 +53,6 @@ export type EvalContext = {
   locale: Locale;
   getters: Getters;
   [key: string]: any;
+  updateDependencies?: (position: CellPosition) => void;
+  addDependencies?: (position: CellPosition, ranges: Range[]) => void;
 };
