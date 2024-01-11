@@ -5,7 +5,6 @@ import { openLink, urlRepresentation } from "../../../helpers/links";
 import { EvaluatedCell, Link, Position, SpreadsheetChildEnv } from "../../../types";
 import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { css } from "../../helpers/css";
-import { Menu } from "../../menu/menu";
 
 const LINK_TOOLTIP_HEIGHT = 32;
 const LINK_TOOLTIP_WIDTH = 220;
@@ -69,7 +68,6 @@ export class LinkDisplay extends Component<LinkDisplayProps, SpreadsheetChildEnv
     cellPosition: Object,
     onClosed: { type: Function, optional: true },
   };
-  static components = { Menu };
 
   get cell(): EvaluatedCell {
     const { col, row } = this.props.cellPosition;

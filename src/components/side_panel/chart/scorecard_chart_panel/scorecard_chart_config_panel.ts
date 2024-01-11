@@ -3,7 +3,6 @@ import { ScorecardChartDefinition } from "../../../../types/chart/scorecard_char
 import { CommandResult, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { ChartTerms } from "../../../translations_terms";
-import { ValidationMessages } from "../../../validation_messages/validation_messages";
 import { Section } from "../../components/section/section";
 import { ChartErrorSection } from "../building_blocks/error_section/error_section";
 
@@ -21,7 +20,7 @@ interface PanelState {
 
 export class ScorecardChartConfigPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ScorecardChartConfigPanel";
-  static components = { SelectionInput, ValidationMessages, ChartErrorSection, Section };
+  static components = { SelectionInput, ChartErrorSection, Section };
   static props = {
     figureId: String,
     definition: Object,
