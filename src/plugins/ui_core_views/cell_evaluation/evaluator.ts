@@ -96,6 +96,11 @@ export class Evaluator {
     this.formulaDependencies().addDependencies(positionId, dependencies);
   }
 
+  addDependencies(position: CellPosition, dependencies: Range[]) {
+    const positionId = this.encoder.encode(position);
+    this.formulaDependencies().addDependencies(positionId, dependencies);
+  }
+
   private updateCompilationParameters() {
     // rebuild the compilation parameters (with a clean cache)
     this.compilationParams = buildCompilationParameters(
@@ -103,6 +108,8 @@ export class Evaluator {
       this.getters,
       this.computeAndSave.bind(this)
     );
+    this.compilationParams[2].updateDependencies = this.updateDependencies.bind(this);
+    this.compilationParams[2].addDependencies = this.addDependencies.bind(this);
   }
 
   evaluateCells(positions: CellPosition[]) {

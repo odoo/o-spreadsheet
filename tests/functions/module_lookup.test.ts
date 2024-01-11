@@ -1,6 +1,6 @@
 import { Model } from "../../src/model";
-import { setCellContent } from "../test_helpers/commands_helpers";
-import { getEvaluatedCell } from "../test_helpers/getters_helpers";
+import { activateSheet, createSheet, setCellContent } from "../test_helpers/commands_helpers";
+import { getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import {
   createModelFromGrid,
   evaluateCell,
@@ -1480,5 +1480,128 @@ describe("INDEX formula", () => {
     };
     expect(evaluateCell("A3", { A3: "=INDEX(A1:B2, 1, 2)", ...grid })).toBe(42);
     expect(evaluateCell("A3", { A3: "=INDEX(A1:B2, 2, 2)", ...grid })).toBe("#BAD_EXPR");
+  });
+});
+
+describe("INDIRECT formula", () => {
+  test("Check argument validity", () => {
+    expect(evaluateCell("A1", { A1: "=INDIRECT()" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: '=INDIRECT("B1", "string")' })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: '=INDIRECT("B1", false)' })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: '=INDIRECT("R1C1", true)' })).toBe("#REF");
+    expect(evaluateCell("A1", { A1: '=INDIRECT("wrong_reference")' })).toBe("#REF");
+    expect(evaluateCell("A1", { A1: "=INDIRECT(,true)" })).toBe("#REF");
+  });
+
+  test("INDIRECT detect circular error", () => {
+    const grid = evaluateGrid({
+      A1: "A2",
+      A2: "=INDIRECT(A1)",
+      A3: '=INDIRECT("A3")',
+    });
+    expect(grid.A2).toBe("#CYCLE");
+    expect(grid.A3).toBe("#CYCLE");
+  });
+
+  test("functional test without grid context", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "kikoulol");
+    expect(model.getters.evaluateFormula(sheetId, "=INDIRECT()")).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
+    expect(model.getters.evaluateFormula(sheetId, '=INDIRECT("A1")')).toBe("kikoulol");
+  });
+
+  test("Using address string as reference (A1 notation)", () => {
+    const grid = evaluateGrid({
+      A1: "1",
+      A2: "A2",
+      A4: '=INDIRECT("A1")',
+      A5: '=INDIRECT("A2")',
+    });
+    expect(grid.A4).toBe(1);
+    expect(grid.A5).toBe("A2");
+  });
+
+  test("Using cell content as reference (A1 notation)", () => {
+    const grid = evaluateGrid({
+      A1: "1",
+      A2: "A1",
+      A3: "A2",
+      A4: "=INDIRECT(A2)",
+      A5: "=INDIRECT(A3)",
+    });
+    expect(grid.A4).toBe(1);
+    expect(grid.A5).toBe("A1");
+  });
+
+  test("Using computation result as reference (A1 notation)", () => {
+    const grid = evaluateGrid({
+      A1: "1",
+      A2: "A2",
+      A4: '=INDIRECT("A"&ROW(B1))',
+      A5: '=INDIRECT(CONCAT("A","2"))',
+    });
+    expect(grid.A4).toBe(1);
+    expect(grid.A5).toBe("A2");
+  });
+
+  test("Reference to a cell as a function argument (A1 notation)", () => {
+    const grid = evaluateGrid({
+      A1: "1",
+      A2: "2",
+      A3: "3",
+      A4: '=MAX(INDIRECT("A1"),0)',
+      A5: '=INDIRECT("A2")*INDIRECT("A3")',
+    });
+    expect(grid.A4).toBe(1);
+    expect(grid.A5).toBe(6);
+  });
+
+  test("Reference to a range as a function argument (A1 notation)", () => {
+    const grid = evaluateGrid({
+      A1: "1",
+      A2: "2",
+      A3: "3",
+      A4: '=SUM(INDIRECT("A1:A3"))',
+    });
+    expect(grid.A4).toBe(6);
+  });
+
+  test("Reference to a cell and range of a different sheet (A1 notation)", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    createSheet(model, { sheetId: "sheet2", activate: true });
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "2");
+    activateSheet(model, sheetId);
+    setCellContent(model, "A1", '=INDIRECT("sheet2!A1")');
+    setCellContent(model, "A2", '=SUM(INDIRECT("sheet2!A1:A2"))');
+    expect(getCellContent(model, "A1")).toBe("1");
+    expect(getCellContent(model, "A2")).toBe("3");
+  });
+
+  test("Cell are correctly updated when changing referenced cells value", () => {
+    const model = new Model();
+    setCellContent(model, "A2", '=INDIRECT("A1")');
+    setCellContent(model, "A3", '=INDIRECT("A"&A1)');
+    expect(getCellContent(model, "A2")).toBe("0");
+    expect(getCellContent(model, "A3")).toBe("#REF");
+    setCellContent(model, "A1", "1");
+    expect(getCellContent(model, "A2")).toBe("1");
+    expect(getCellContent(model, "A3")).toBe("1");
+  });
+
+  test("Error are correctly propagated", () => {
+    const grid = evaluateGrid({
+      A1: "=WRONG_FUNCTION_NAME()",
+      A2: "=A2",
+      A3: "=SQRT(-1)",
+      A4: '=INDIRECT("A1")',
+      A5: '=INDIRECT("A2")',
+      A6: '=INDIRECT("A3")',
+    });
+    expect(grid.A4).toBe("#NAME?");
+    expect(grid.A5).toBe("#CYCLE");
+    expect(grid.A6).toBe("#ERROR");
   });
 });

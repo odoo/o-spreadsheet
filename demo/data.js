@@ -1388,6 +1388,10 @@ export const demoData = {
         B223: { content: '=ADDRESS(27, 53, 1, TRUE, "sheet!")' },
         C223: { content: "'sheet!'!$BA$27" },
         D223: { content: "=IF(B223=C223, 1, 0)" },
+        A224: { content: "INDIRECT" },
+        B224: { content: '=INDIRECT("A1")' },
+        C224: { content: "=A1" },
+        D224: { content: "=IF(B224=C224, 1, 0)" },
 
         // DATA
         G1: { content: "Name", style: 8 },
