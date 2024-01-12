@@ -63,3 +63,21 @@ function executeCleanups() {
     cleanupFn();
   }
 }
+
+let error = null;
+
+beforeEach(() => {
+  error = null;
+  jest.spyOn(console, "error").mockImplementation((e) => {
+    error = e;
+  });
+  jest.spyOn(console, "warn").mockImplementation((e) => {
+    error = e;
+  });
+});
+
+afterEach(() => {
+  if (error) {
+    throw error;
+  }
+});
