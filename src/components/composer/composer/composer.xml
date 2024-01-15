@@ -23,7 +23,7 @@
 
       <div
         t-if="props.focus !== 'inactive' and (autoCompleteState.showProvider or functionDescriptionState.showDescription)"
-        class="o-composer-assistant"
+        class="o-composer-assistant shadow"
         t-att-style="assistantStyle"
         t-on-wheel.stop=""
         t-on-mousedown.prevent.stop=""

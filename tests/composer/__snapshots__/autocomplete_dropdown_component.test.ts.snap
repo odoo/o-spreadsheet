@@ -2,7 +2,7 @@
 
 exports[`Functions autocomplete autocomplete simple snapshot with =S 1`] = `
 <div
-  class="o-autocomplete-dropdown shadow"
+  class="o-autocomplete-dropdown"
 >
   <div
     class="d-flex flex-column text-start o-autocomplete-value-focus"
@@ -57,11 +57,11 @@ exports[`Functions autocomplete autocomplete simple snapshot with =S 1`] = `
 
 exports[`composer Assistant render above the cell when not enough place below 1`] = `
 <div
-  class="o-composer-assistant"
+  class="o-composer-assistant shadow"
   style="min-width:96px; width:300px; max-height:150px; top:-3px; transform:translate(0, -100%); right:0px;"
 >
   <div
-    class="o-autocomplete-dropdown shadow"
+    class="o-autocomplete-dropdown"
   >
     <div
       class="d-flex flex-column text-start o-autocomplete-value-focus"
@@ -119,11 +119,11 @@ exports[`composer Assistant render above the cell when not enough place below 1`
 
 exports[`composer Assistant render below the cell by default 1`] = `
 <div
-  class="o-composer-assistant"
+  class="o-composer-assistant shadow"
   style="min-width:300px; width:300px;"
 >
   <div
-    class="o-autocomplete-dropdown shadow"
+    class="o-autocomplete-dropdown"
   >
     <div
       class="d-flex flex-column text-start o-autocomplete-value-focus"
