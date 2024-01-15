@@ -1155,4 +1155,23 @@ describe("Double click selection in composer", () => {
       end: 14,
     });
   });
+
+  test("Double click on function parameters does not produce a traceback", async () => {
+    const composerEl = await typeInComposer("=A1+A2+A3");
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", {
+      start: 1,
+      end: 6,
+    });
+    await nextTick();
+    expect(model.getters.getComposerSelection()).toEqual({
+      start: 1,
+      end: 6,
+    });
+    triggerMouseEvent(composerEl, "dblclick");
+    await nextTick();
+    expect(model.getters.getComposerSelection()).toEqual({
+      start: 1,
+      end: 6,
+    });
+  });
 });

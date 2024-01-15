@@ -470,6 +470,9 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
           token.start <= currentSelection.start &&
           token.end >= currentSelection.end
       )[0];
+      if (!token) {
+        return;
+      }
       if (token.type === "REFERENCE") {
         this.env.model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", {
           start: token.start,
