@@ -1,63 +1,47 @@
 import { _t } from "../translation";
 
-export enum CellErrorType {
-  NotAvailable = "#N/A",
-  InvalidReference = "#REF",
-  BadExpression = "#BAD_EXPR",
-  CircularDependency = "#CYCLE",
-  UnknownFunction = "#NAME?",
-  GenericError = "#ERROR",
-}
+export const CellErrorType = {
+  NotAvailable: "#N/A",
+  InvalidReference: "#REF",
+  BadExpression: "#BAD_EXPR",
+  CircularDependency: "#CYCLE",
+  UnknownFunction: "#NAME?",
+  GenericError: "#ERROR",
+} as const;
 
-export enum CellErrorLevel {
-  silent = 0,
-  error = 1,
-}
+export const errorTypes: Set<string> = new Set(Object.values(CellErrorType));
 
 export class EvaluationError extends Error {
-  constructor(
-    readonly errorType: string,
-    message: string,
-    readonly logLevel: number = CellErrorLevel.error
-  ) {
-    super(message);
-  }
-
-  get isVerbose(): boolean {
-    return this.logLevel > CellErrorLevel.silent;
+  constructor(message?: string, readonly value: string = CellErrorType.GenericError) {
+    super(message || _t("Error"));
   }
 }
 
 export class BadExpressionError extends EvaluationError {
-  constructor(errorMessage: string) {
-    super(CellErrorType.BadExpression, errorMessage);
+  constructor(message?: string) {
+    super(message || _t("Invalid expression"), CellErrorType.BadExpression);
   }
 }
-
 export class CircularDependencyError extends EvaluationError {
-  constructor() {
-    super(CellErrorType.CircularDependency, _t("Circular reference"));
+  constructor(message?: string) {
+    super(message || _t("Circular reference"), CellErrorType.CircularDependency);
   }
 }
 
 export class InvalidReferenceError extends EvaluationError {
-  constructor() {
-    super(CellErrorType.InvalidReference, _t("Invalid reference"));
+  constructor(message?: string) {
+    super(message || _t("Invalid reference"), CellErrorType.InvalidReference);
   }
 }
 
 export class NotAvailableError extends EvaluationError {
-  constructor(errorMessage: string | undefined = undefined) {
-    super(
-      CellErrorType.NotAvailable,
-      errorMessage || _t("Data not available"),
-      errorMessage ? CellErrorLevel.error : CellErrorLevel.silent
-    );
+  constructor(message?: string) {
+    super(message || _t("Data not available"), CellErrorType.NotAvailable);
   }
 }
 
 export class UnknownFunctionError extends EvaluationError {
-  constructor(fctName: string) {
-    super(CellErrorType.UnknownFunction, _t('Unknown function: "%s"', fctName));
+  constructor(message?: string) {
+    super(message || _t("Unknown function"), CellErrorType.UnknownFunction);
   }
 }

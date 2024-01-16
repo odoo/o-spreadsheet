@@ -1,17 +1,16 @@
 import { getFullReference, splitReference } from "../helpers";
 import { setXcToFixedReferenceType } from "../helpers/reference_type";
 import { _t } from "../translation";
-import { AddFunctionDescription, Maybe } from "../types";
-import { CellErrorType, NotAvailableError } from "../types/errors";
-import { CellValue, CellValueType } from "./../types/cells";
+import { AddFunctionDescription, CellValueType, FPayload, Maybe } from "../types";
+import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
-import { assert, toString } from "./helpers";
+import { assert, isEvaluationError, toString } from "./helpers";
 
 // -----------------------------------------------------------------------------
 // CELL
 // -----------------------------------------------------------------------------
 // NOTE: missing from Excel: "color", "filename", "parentheses", "prefix", "protect" and "width"
-const CELL_INFO_TYPES = ["address", "col", "contents", "format", "row", "type"] as const;
+const CELL_INFO_TYPES = ["address", "col", "contents", "format", "row", "type"];
 export const CELL = {
   description: _t("Gets information about a cell."),
   args: [
@@ -22,16 +21,16 @@ export const CELL = {
     arg("reference (meta)", _t("The reference to the cell.")),
   ],
   returns: ["ANY"],
-  compute: function (info: CellValue, reference: string) {
-    const _info = toString(info).toLowerCase() as (typeof CELL_INFO_TYPES)[number];
+  compute: function (info: Maybe<FPayload>, reference: Maybe<{ value: string }>) {
+    const _info = toString(info).toLowerCase();
     assert(
       () => CELL_INFO_TYPES.includes(_info),
       _t("The info_type should be one of %s.", CELL_INFO_TYPES.join(", "))
     );
 
     const sheetId = this.__originSheetId;
-
-    const topLeftReference = reference.includes(":") ? reference.split(":")[0] : reference;
+    const _reference = toString(reference);
+    const topLeftReference = _reference.includes(":") ? _reference.split(":")[0] : _reference;
     let { sheetName, xc } = splitReference(topLeftReference);
     // only put the sheet name if the referenced range is in another sheet than the cell the formula is on
     sheetName = sheetName === this.getters.getSheetName(sheetId) ? undefined : sheetName;
@@ -76,15 +75,11 @@ export const CELL = {
 // -----------------------------------------------------------------------------
 export const ISERR = {
   description: _t("Whether a value is an error other than #N/A."),
-  args: [arg("value (any, lazy)", _t("The value to be verified as an error type."))],
+  args: [arg("value (any)", _t("The value to be verified as an error type."))],
   returns: ["BOOLEAN"],
-  compute: function (value: () => Maybe<CellValue>): boolean {
-    try {
-      value();
-      return false;
-    } catch (e) {
-      return e?.errorType != CellErrorType.NotAvailable;
-    }
+  compute: function (data: Maybe<FPayload>): boolean {
+    const value = data?.value;
+    return isEvaluationError(value) && value !== CellErrorType.NotAvailable;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -94,15 +89,11 @@ export const ISERR = {
 // -----------------------------------------------------------------------------
 export const ISERROR = {
   description: _t("Whether a value is an error."),
-  args: [arg("value (any, lazy)", _t("The value to be verified as an error type."))],
+  args: [arg("value (any)", _t("The value to be verified as an error type."))],
   returns: ["BOOLEAN"],
-  compute: function (value: () => Maybe<CellValue>): boolean {
-    try {
-      value();
-      return false;
-    } catch (e) {
-      return true;
-    }
+  compute: function (data: Maybe<FPayload>): boolean {
+    const value = data?.value;
+    return isEvaluationError(value);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -112,14 +103,10 @@ export const ISERROR = {
 // -----------------------------------------------------------------------------
 export const ISLOGICAL = {
   description: _t("Whether a value is `true` or `false`."),
-  args: [arg("value (any, lazy)", _t("The value to be verified as a logical TRUE or FALSE."))],
+  args: [arg("value (any)", _t("The value to be verified as a logical TRUE or FALSE."))],
   returns: ["BOOLEAN"],
-  compute: function (value: () => Maybe<CellValue>): boolean {
-    try {
-      return typeof value() === "boolean";
-    } catch (e) {
-      return false;
-    }
+  compute: function (value: Maybe<FPayload>): boolean {
+    return typeof value?.value === "boolean";
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -129,15 +116,10 @@ export const ISLOGICAL = {
 // -----------------------------------------------------------------------------
 export const ISNA = {
   description: _t("Whether a value is the error #N/A."),
-  args: [arg("value (any, lazy)", _t("The value to be verified as an error type."))],
+  args: [arg("value (any)", _t("The value to be verified as an error type."))],
   returns: ["BOOLEAN"],
-  compute: function (value: () => Maybe<CellValue>): boolean {
-    try {
-      value();
-      return false;
-    } catch (e) {
-      return e?.errorType === CellErrorType.NotAvailable;
-    }
+  compute: function (data: Maybe<FPayload>): boolean {
+    return data?.value === CellErrorType.NotAvailable;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -147,14 +129,10 @@ export const ISNA = {
 // -----------------------------------------------------------------------------
 export const ISNONTEXT = {
   description: _t("Whether a value is non-textual."),
-  args: [arg("value (any, lazy)", _t("The value to be checked."))],
+  args: [arg("value (any)", _t("The value to be checked."))],
   returns: ["BOOLEAN"],
-  compute: function (value: () => Maybe<CellValue>): boolean {
-    try {
-      return typeof value() !== "string";
-    } catch (e) {
-      return true;
-    }
+  compute: function (value: Maybe<FPayload>): boolean {
+    return !ISTEXT.compute.bind(this)(value);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -165,14 +143,10 @@ export const ISNONTEXT = {
 
 export const ISNUMBER = {
   description: _t("Whether a value is a number."),
-  args: [arg("value (any, lazy)", _t("The value to be verified as a number."))],
+  args: [arg("value (any)", _t("The value to be verified as a number."))],
   returns: ["BOOLEAN"],
-  compute: function (value: () => Maybe<CellValue>): boolean {
-    try {
-      return typeof value() === "number";
-    } catch (e) {
-      return false;
-    }
+  compute: function (value: Maybe<FPayload>): boolean {
+    return typeof value?.value === "number";
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -182,14 +156,10 @@ export const ISNUMBER = {
 // -----------------------------------------------------------------------------
 export const ISTEXT = {
   description: _t("Whether a value is text."),
-  args: [arg("value (any, lazy)", _t("The value to be verified as text."))],
+  args: [arg("value (any)", _t("The value to be verified as text."))],
   returns: ["BOOLEAN"],
-  compute: function (value: () => Maybe<CellValue>): boolean {
-    try {
-      return typeof value() === "string";
-    } catch (e) {
-      return false;
-    }
+  compute: function (value: Maybe<FPayload>): boolean {
+    return typeof value?.value === "string" && isEvaluationError(value?.value) === false;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -199,15 +169,10 @@ export const ISTEXT = {
 // -----------------------------------------------------------------------------
 export const ISBLANK = {
   description: _t("Whether the referenced cell is empty"),
-  args: [arg("value (any, lazy)", _t("Reference to the cell that will be checked for emptiness."))],
+  args: [arg("value (any)", _t("Reference to the cell that will be checked for emptiness."))],
   returns: ["BOOLEAN"],
-  compute: function (value: () => Maybe<CellValue>): boolean {
-    try {
-      const val = value();
-      return val === null;
-    } catch (e) {
-      return false;
-    }
+  compute: function (value: Maybe<FPayload>): boolean {
+    return value?.value === null;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -219,8 +184,8 @@ export const NA = {
   description: _t("Returns the error value #N/A."),
   args: [],
   returns: ["BOOLEAN"],
-  compute: function (value: Maybe<CellValue>): boolean {
-    throw new NotAvailableError();
+  compute: function (): FPayload {
+    return { value: CellErrorType.NotAvailable };
   },
   isExported: true,
 } satisfies AddFunctionDescription;

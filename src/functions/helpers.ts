@@ -3,16 +3,32 @@ import { DateTime, numberToJsDate, parseDateTime } from "../helpers/dates";
 import { memoize } from "../helpers/misc";
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _t } from "../translation";
-import { ArgValue, CellValue, Locale, Matrix, Maybe, ValueAndFormat, isMatrix } from "../types";
-import { CellErrorType, EvaluationError } from "../types/errors";
+import { Arg, CellValue, FPayload, Locale, Matrix, Maybe, isMatrix } from "../types";
+import { EvaluationError, errorTypes } from "../types/errors";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
 
 export function assert(condition: () => boolean, message: string): void {
   if (!condition()) {
-    throw new EvaluationError(CellErrorType.GenericError, message);
+    throw new EvaluationError(message);
   }
 }
+
+export function inferFormat(data: Arg | undefined): string | undefined {
+  if (data === undefined) {
+    return undefined;
+  }
+
+  if (isMatrix(data)) {
+    return data[0][0]?.format;
+  }
+  return data.format;
+}
+
+export function isEvaluationError(error: Maybe<CellValue>): boolean {
+  return typeof error === "string" && errorTypes.has(error);
+}
+
 // -----------------------------------------------------------------------------
 // FORMAT FUNCTIONS
 // -----------------------------------------------------------------------------
@@ -40,10 +56,8 @@ export const expectStringSetError = (stringSet: string[], value: string) => {
   );
 };
 
-export function toNumber(
-  value: string | number | boolean | null | undefined,
-  locale: Locale
-): number {
+export function toNumber(data: FPayload | CellValue | undefined, locale: Locale): number {
+  const value = toValue(data);
   switch (typeof value) {
     case "number":
       return value;
@@ -57,7 +71,7 @@ export function toNumber(
       if (internalDate) {
         return internalDate.value;
       }
-      throw new Error(expectNumberValueError(value));
+      throw new EvaluationError(expectNumberValueError(value));
     default:
       return 0;
   }
@@ -74,41 +88,36 @@ export function tryToNumber(
   }
 }
 
-export function tryCastAsNumberMatrix(data: Matrix<any>, argName: string): Matrix<number> {
-  data.forEach((row) => {
-    row.forEach((cell) => {
-      if (typeof cell !== "number") {
-        throw new Error(
+export function toNumberMatrix(data: Arg, argName: string): Matrix<number> {
+  return toMatrix(data).map((row) => {
+    return row.map((cell) => {
+      if (typeof cell.value !== "number") {
+        throw new EvaluationError(
           _t(
             "Function [[FUNCTION_NAME]] expects number values for %s, but got a %s.",
-            typeof cell,
-            argName
+            argName,
+            typeof cell.value
           )
         );
       }
+      return cell.value;
     });
   });
-  return data as Matrix<number>;
 }
 
-export function strictToNumber(
-  value: string | number | boolean | null | undefined,
-  locale: Locale
-): number {
+export function strictToNumber(data: FPayload | CellValue | undefined, locale: Locale): number {
+  const value = toValue(data);
   if (value === "") {
-    throw new Error(expectNumberValueError(value));
+    throw new EvaluationError(expectNumberValueError(value));
   }
   return toNumber(value, locale);
 }
 
-export function toInteger(value: string | number | boolean | null | undefined, locale: Locale) {
+export function toInteger(value: FPayload | CellValue | undefined, locale: Locale) {
   return Math.trunc(toNumber(value, locale));
 }
 
-export function strictToInteger(
-  value: string | number | boolean | null | undefined,
-  locale: Locale
-) {
+export function strictToInteger(value: FPayload | CellValue | undefined, locale: Locale) {
   return Math.trunc(strictToNumber(value, locale));
 }
 
@@ -122,7 +131,8 @@ export function assertNumberGreaterThanOrEqualToOne(value: number) {
   );
 }
 
-export function toString(value: string | number | boolean | null | undefined): string {
+export function toString(data: FPayload | CellValue | undefined): string {
+  const value = toValue(data);
   switch (typeof value) {
     case "string":
       return value;
@@ -157,7 +167,8 @@ const expectBooleanValueError = (value: string) =>
     value
   );
 
-export function toBoolean(value: string | number | boolean | null | undefined): boolean {
+export function toBoolean(data: FPayload | CellValue | undefined): boolean {
+  const value = toValue(data);
   switch (typeof value) {
     case "boolean":
       return value;
@@ -170,7 +181,7 @@ export function toBoolean(value: string | number | boolean | null | undefined): 
         if (uppercaseVal === "FALSE") {
           return false;
         }
-        throw new Error(expectBooleanValueError(value));
+        throw new EvaluationError(expectBooleanValueError(value));
       } else {
         return false;
       }
@@ -181,24 +192,35 @@ export function toBoolean(value: string | number | boolean | null | undefined): 
   }
 }
 
-function strictToBoolean(value: string | number | boolean | null | undefined): boolean {
+function strictToBoolean(data: FPayload | CellValue | undefined): boolean {
+  const value = toValue(data);
   if (value === "") {
-    throw new Error(expectBooleanValueError(value));
+    throw new EvaluationError(expectBooleanValueError(value));
   }
   return toBoolean(value);
 }
 
-export function toJsDate(
-  value: string | number | boolean | null | undefined,
-  locale: Locale
-): DateTime {
+export function toJsDate(data: FPayload | CellValue | undefined, locale: Locale): DateTime {
+  const value = toValue(data);
   return numberToJsDate(toNumber(value, locale));
 }
 
+function toValue(data: FPayload | CellValue | undefined): CellValue | undefined {
+  if (typeof data === "object" && data !== null && "value" in data) {
+    if (isEvaluationError(data.value)) {
+      throw data;
+    }
+    return data.value;
+  }
+  if (isEvaluationError(data)) {
+    throw new EvaluationError("", data as string);
+  }
+  return data;
+}
 // -----------------------------------------------------------------------------
 // VISIT FUNCTIONS
 // -----------------------------------------------------------------------------
-function visitArgs<T extends ValueAndFormat | CellValue>(
+function visitArgs<T extends FPayload | CellValue>(
   args: (T | Matrix<T> | undefined)[],
   cellCb: (a: T) => void,
   dataCb: (a: T | undefined) => void
@@ -220,23 +242,38 @@ function visitArgs<T extends ValueAndFormat | CellValue>(
   }
 }
 
-export function visitAny<T extends ValueAndFormat | CellValue>(
-  args: (T | Matrix<T> | undefined)[],
-  cb: (a: T) => void
-): void {
-  visitArgs(args, cb, cb);
-}
-
-export function visitNumbers(args: ArgValue[], cb: (arg: number) => void, locale: Locale): void {
+export function visitAny(args: Arg[], cb: (a: Maybe<FPayload>) => void): void {
   visitArgs(
     args,
-    (cellValue) => {
+    (cell) => {
+      if (isEvaluationError(cell.value)) {
+        throw cell;
+      }
+      cb(cell);
+    },
+    (arg) => {
+      if (isEvaluationError(arg?.value)) {
+        throw arg;
+      }
+      cb(arg);
+    }
+  );
+}
+
+export function visitNumbers(args: Arg[], cb: (arg: number) => void, locale: Locale): void {
+  visitArgs(
+    args,
+    (cell) => {
+      const cellValue = cell?.value;
       if (typeof cellValue === "number") {
         cb(cellValue);
       }
+      if (isEvaluationError(cellValue)) {
+        throw cell;
+      }
     },
-    (argValue) => {
-      cb(strictToNumber(argValue, locale));
+    (arg) => {
+      cb(strictToNumber(arg, locale));
     }
   );
 }
@@ -290,48 +327,54 @@ export function reduceAny<T, M>(
 }
 
 export function reduceNumbers(
-  args: ArgValue[],
+  args: Arg[],
   cb: (acc: number, a: number) => number,
   initialValue: number,
   locale: Locale
 ): number {
   return reduceArgs(
     args,
-    (acc, ArgValue) => {
-      if (typeof ArgValue === "number") {
-        return cb(acc, ArgValue);
+    (acc, arg) => {
+      const argValue = arg?.value;
+      if (typeof argValue === "number") {
+        return cb(acc, argValue);
+      } else if (isEvaluationError(argValue)) {
+        throw arg;
       }
       return acc;
     },
-    (acc, argValue) => {
-      return cb(acc, strictToNumber(argValue, locale));
+    (acc, arg) => {
+      return cb(acc, strictToNumber(arg, locale));
     },
     initialValue
   );
 }
 
 export function reduceNumbersTextAs0(
-  args: ArgValue[],
+  args: Arg[],
   cb: (acc: number, a: number) => number,
   initialValue: number,
   locale: Locale
 ): number {
   return reduceArgs(
     args,
-    (acc, ArgValue) => {
-      if (ArgValue !== undefined && ArgValue !== null) {
-        if (typeof ArgValue === "number") {
-          return cb(acc, ArgValue);
-        } else if (typeof ArgValue === "boolean") {
-          return cb(acc, toNumber(ArgValue, locale));
+    (acc, arg) => {
+      const argValue = arg?.value;
+      if (argValue !== undefined && argValue !== null) {
+        if (typeof argValue === "number") {
+          return cb(acc, argValue);
+        } else if (typeof argValue === "boolean") {
+          return cb(acc, toNumber(argValue, locale));
+        } else if (isEvaluationError(argValue)) {
+          throw arg;
         } else {
           return cb(acc, 0);
         }
       }
       return acc;
     },
-    (acc, argValue) => {
-      return cb(acc, toNumber(argValue, locale));
+    (acc, arg) => {
+      return cb(acc, toNumber(arg, locale));
     },
     initialValue
   );
@@ -382,9 +425,9 @@ export function transposeMatrix<T>(matrix: Matrix<T>): Matrix<T> {
  * It is mainly used to bypass argument evaluation for functions like OR or AND.
  */
 function conditionalVisitArgs(
-  args: ArgValue[],
-  cellCb: (a: CellValue | undefined) => boolean,
-  dataCb: (a: Maybe<CellValue>) => boolean
+  args: Arg[],
+  cellCb: (a: FPayload | undefined) => boolean,
+  dataCb: (a: Maybe<FPayload>) => boolean
 ): void {
   for (let arg of args) {
     if (isMatrix(arg)) {
@@ -403,21 +446,25 @@ function conditionalVisitArgs(
   }
 }
 
-export function conditionalVisitBoolean(args: ArgValue[], cb: (a: boolean) => boolean): void {
+export function conditionalVisitBoolean(args: Arg[], cb: (a: boolean) => boolean): void {
   return conditionalVisitArgs(
     args,
-    (ArgValue) => {
-      if (typeof ArgValue === "boolean") {
-        return cb(ArgValue);
+    (arg) => {
+      const argValue = arg?.value;
+      if (typeof argValue === "boolean") {
+        return cb(argValue);
       }
-      if (typeof ArgValue === "number") {
-        return cb(ArgValue ? true : false);
+      if (typeof argValue === "number") {
+        return cb(argValue ? true : false);
+      }
+      if (isEvaluationError(argValue)) {
+        throw arg;
       }
       return true;
     },
-    (argValue) => {
-      if (argValue !== undefined && argValue !== null) {
-        return cb(strictToBoolean(argValue));
+    (arg) => {
+      if (arg !== undefined && arg.value !== null) {
+        return cb(strictToBoolean(arg));
       }
       return true;
     }
@@ -561,7 +608,7 @@ function evaluatePredicate(value: CellValue | undefined, criterion: Predicate): 
  * (Ex4 isQuery = false, predicate = "abc", element = "abc": predicate match the element).
  */
 export function visitMatchingRanges(
-  args: ArgValue[],
+  args: Arg[],
   cb: (i: number, j: number) => void,
   locale: Locale,
   isQuery: boolean = false
@@ -569,13 +616,13 @@ export function visitMatchingRanges(
   const countArg = args.length;
 
   if (countArg % 2 === 1) {
-    throw new Error(
+    throw new EvaluationError(
       _t("Function [[FUNCTION_NAME]] expects criteria_range and criterion to be in pairs.")
     );
   }
 
-  const dimRow = (args[0] as Matrix<CellValue>).length;
-  const dimCol = (args[0] as Matrix<CellValue>)[0].length;
+  const dimRow = (args[0] as Matrix<FPayload>).length;
+  const dimCol = (args[0] as Matrix<FPayload>)[0].length;
 
   let predicates: Predicate[] = [];
 
@@ -587,12 +634,12 @@ export function visitMatchingRanges(
       criteriaRange.length !== dimRow ||
       criteriaRange[0].length !== dimCol
     ) {
-      throw new Error(
+      throw new EvaluationError(
         _t("Function [[FUNCTION_NAME]] expects criteria_range to have the same dimension")
       );
     }
 
-    const description = toString(args[i + 1] as Maybe<CellValue>);
+    const description = toString(args[i + 1] as Maybe<FPayload>);
     predicates.push(getPredicate(description, isQuery, locale));
   }
 
@@ -600,7 +647,7 @@ export function visitMatchingRanges(
     for (let j = 0; j < dimCol; j++) {
       let validatedPredicates = true;
       for (let k = 0; k < countArg - 1; k += 2) {
-        const criteriaValue = (args[k] as Matrix<CellValue>)[i][j];
+        const criteriaValue = (args[k] as Matrix<FPayload>)[i][j].value;
         const criterion = predicates[k / 2];
         validatedPredicates = evaluatePredicate(criteriaValue ?? undefined, criterion);
         if (!validatedPredicates) {
@@ -635,16 +682,19 @@ export function visitMatchingRanges(
  */
 export function dichotomicSearch<T>(
   data: T,
-  target: Maybe<CellValue>,
+  target: Maybe<FPayload>,
   mode: "nextGreater" | "nextSmaller" | "strict",
   sortOrder: "asc" | "desc",
   rangeLength: number,
   getValueInData: (range: T, index: number) => CellValue | undefined
 ): number {
-  if (target === null || target === undefined) {
+  if (target === undefined || target.value === null) {
     return -1;
   }
-  const _target = normalizeValue(target);
+  if (isEvaluationError(target.value)) {
+    throw target;
+  }
+  const _target = normalizeValue(target.value);
   const targetType = typeof _target;
 
   let matchVal: CellValue | undefined = undefined;
@@ -739,15 +789,19 @@ export function dichotomicSearch<T>(
  */
 export function linearSearch<T>(
   data: T,
-  target: Maybe<CellValue> | undefined,
+  target: Maybe<FPayload> | undefined,
   mode: "nextSmaller" | "nextGreater" | "strict",
   numberOfValues: number,
   getValueInData: (data: T, index: number) => CellValue | undefined,
   reverseSearch = false
 ): number {
-  if (target === null || target === undefined) return -1;
-
-  const _target = normalizeValue(target);
+  if (target === undefined || target.value === null) {
+    return -1;
+  }
+  if (isEvaluationError(target.value)) {
+    throw target;
+  }
+  const _target = normalizeValue(target.value);
   const getValue = reverseSearch
     ? (data: T, i: number) => getValueInData(data, numberOfValues - i - 1)
     : getValueInData;

@@ -15,7 +15,8 @@ import {
 } from "../helpers/dates";
 import { getDateTimeFormat } from "../helpers/locale";
 import { _t } from "../translation";
-import { AddFunctionDescription, ArgValue, CellValue, Maybe } from "../types";
+import { AddFunctionDescription, Arg, FPayload, FPayloadNumber, Maybe } from "../types";
+import { EvaluationError } from "../types/errors";
 import { arg } from "./arguments";
 import {
   assert,
@@ -49,14 +50,11 @@ export const DATE = {
     arg("day (number)", _t("The day component of the date.")),
   ],
   returns: ["DATE"],
-  computeFormat: function () {
-    return this.locale.dateFormat;
-  },
   compute: function (
-    year: Maybe<CellValue>,
-    month: Maybe<CellValue>,
-    day: Maybe<CellValue>
-  ): number {
+    year: Maybe<FPayload>,
+    month: Maybe<FPayload>,
+    day: Maybe<FPayload>
+  ): FPayloadNumber {
     let _year = Math.trunc(toNumber(year, this.locale));
     const _month = Math.trunc(toNumber(month, this.locale));
     const _day = Math.trunc(toNumber(day, this.locale));
@@ -80,7 +78,10 @@ export const DATE = {
       _t("The function [[FUNCTION_NAME]] result must be greater than or equal 01/01/1900.")
     );
 
-    return result;
+    return {
+      value: result,
+      format: this.locale.dateFormat,
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -112,9 +113,9 @@ export const DATEDIF = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    startDate: Maybe<CellValue>,
-    endDate: Maybe<CellValue>,
-    unit: Maybe<CellValue>
+    startDate: Maybe<FPayload>,
+    endDate: Maybe<FPayload>,
+    unit: Maybe<FPayload>
   ): number {
     const _unit = toString(unit).toUpperCase() as TIME_UNIT;
     assert(
@@ -189,7 +190,7 @@ export const DATEVALUE = {
   description: _t("Converts a date string to a date value."),
   args: [arg("date_string (string)", _t("The string representing the date."))],
   returns: ["NUMBER"],
-  compute: function (dateString: Maybe<CellValue>): number {
+  compute: function (dateString: Maybe<FPayload>): number {
     const _dateString = toString(dateString);
     const internalDate = parseDateTime(_dateString, this.locale);
 
@@ -210,7 +211,7 @@ export const DAY = {
   description: _t("Day of the month that a specific date falls on."),
   args: [arg("date (string)", _t("The date from which to extract the day."))],
   returns: ["NUMBER"],
-  compute: function (date: Maybe<CellValue>): number {
+  compute: function (date: Maybe<FPayload>): number {
     return toJsDate(date, this.locale).getDate();
   },
   isExported: true,
@@ -219,6 +220,7 @@ export const DAY = {
 // -----------------------------------------------------------------------------
 // DAYS
 // -----------------------------------------------------------------------------
+
 export const DAYS = {
   description: _t("Number of days between two dates."),
   args: [
@@ -226,7 +228,7 @@ export const DAYS = {
     arg("start_date (date)", _t("The start of the date range.")),
   ],
   returns: ["NUMBER"],
-  compute: function (endDate: Maybe<CellValue>, startDate: Maybe<CellValue>): number {
+  compute: function (endDate: Maybe<FPayload>, startDate: Maybe<FPayload>): number {
     const _endDate = toJsDate(endDate, this.locale);
     const _startDate = toJsDate(startDate, this.locale);
     const dateDif = _endDate.getTime() - _startDate.getTime();
@@ -251,15 +253,15 @@ export const DAYS360 = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    startDate: Maybe<CellValue>,
-    endDate: Maybe<CellValue>,
-    method: Maybe<CellValue> = DEFAULT_DAY_COUNT_METHOD
+    startDate: Maybe<FPayload>,
+    endDate: Maybe<FPayload>,
+    method: Maybe<FPayload> = { value: DEFAULT_DAY_COUNT_METHOD }
   ): number {
-    const _startDate = toNumber(startDate, this.locale);
-    const _endDate = toNumber(endDate, this.locale);
+    const _startDate = Math.trunc(toNumber(startDate, this.locale));
+    const _endDate = Math.trunc(toNumber(endDate, this.locale));
     const dayCountConvention = toBoolean(method) ? 4 : 0;
 
-    const yearFrac = YEARFRAC.compute.bind(this)(startDate, endDate, dayCountConvention);
+    const yearFrac = getYearFrac(_startDate, _endDate, dayCountConvention);
     return Math.sign(_endDate - _startDate) * Math.round(yearFrac * 360);
   },
   isExported: true,
@@ -278,15 +280,15 @@ export const EDATE = {
     ),
   ],
   returns: ["DATE"],
-  computeFormat: function () {
-    return this.locale.dateFormat;
-  },
-  compute: function (startDate: Maybe<CellValue>, months: Maybe<CellValue>): number {
+  compute: function (startDate: Maybe<FPayload>, months: Maybe<FPayload>): FPayloadNumber {
     const _startDate = toJsDate(startDate, this.locale);
     const _months = Math.trunc(toNumber(months, this.locale));
 
     const jsDate = addMonthsToDate(_startDate, _months, false);
-    return jsDateToRoundNumber(jsDate);
+    return {
+      value: jsDateToRoundNumber(jsDate),
+      format: this.locale.dateFormat,
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -304,17 +306,17 @@ export const EOMONTH = {
     ),
   ],
   returns: ["DATE"],
-  computeFormat: function () {
-    return this.locale.dateFormat;
-  },
-  compute: function (startDate: Maybe<CellValue>, months: Maybe<CellValue>): number {
+  compute: function (startDate: Maybe<FPayload>, months: Maybe<FPayload>): FPayloadNumber {
     const _startDate = toJsDate(startDate, this.locale);
     const _months = Math.trunc(toNumber(months, this.locale));
 
     const yStart = _startDate.getFullYear();
     const mStart = _startDate.getMonth();
     const jsDate = new DateTime(yStart, mStart + _months + 1, 0);
-    return jsDateToRoundNumber(jsDate);
+    return {
+      value: jsDateToRoundNumber(jsDate),
+      format: this.locale.dateFormat,
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -326,7 +328,7 @@ export const HOUR = {
   description: _t("Hour component of a specific time."),
   args: [arg("time (date)", _t("The time from which to calculate the hour component."))],
   returns: ["NUMBER"],
-  compute: function (date: Maybe<CellValue>): number {
+  compute: function (date: Maybe<FPayload>): number {
     return toJsDate(date, this.locale).getHours();
   },
   isExported: true,
@@ -346,7 +348,7 @@ export const ISOWEEKNUM = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (date: Maybe<CellValue>): number {
+  compute: function (date: Maybe<FPayload>): number {
     const _date = toJsDate(date, this.locale);
     const y = _date.getFullYear();
 
@@ -428,7 +430,7 @@ export const MINUTE = {
   description: _t("Minute component of a specific time."),
   args: [arg("time (date)", _t("The time from which to calculate the minute component."))],
   returns: ["NUMBER"],
-  compute: function (date: Maybe<CellValue>): number {
+  compute: function (date: Maybe<FPayload>): number {
     return toJsDate(date, this.locale).getMinutes();
   },
   isExported: true,
@@ -441,7 +443,7 @@ export const MONTH = {
   description: _t("Month of the year a specific date falls in"),
   args: [arg("date (date)", _t("The date from which to extract the month."))],
   returns: ["NUMBER"],
-  compute: function (date: Maybe<CellValue>): number {
+  compute: function (date: Maybe<FPayload>): number {
     return toJsDate(date, this.locale).getMonth() + 1;
   },
   isExported: true,
@@ -467,12 +469,8 @@ export const NETWORKDAYS = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (
-    startDate: Maybe<CellValue>,
-    endDate: Maybe<CellValue>,
-    holidays: ArgValue
-  ): number {
-    return NETWORKDAYS_INTL.compute.bind(this)(startDate, endDate, 1, holidays);
+  compute: function (startDate: Maybe<FPayload>, endDate: Maybe<FPayload>, holidays: Arg): number {
+    return NETWORKDAYS_INTL.compute.bind(this)(startDate, endDate, { value: 1 }, holidays);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -502,7 +500,8 @@ export const NETWORKDAYS = {
  * - 3 return [1,2] (correspond to Monday and Tuesday)
  * - "0101010" return [2,4,6] (correspond to Tuesday, Thursday and Saturday)
  */
-function weekendToDayNumber(weekend: Maybe<CellValue>): number[] {
+function weekendToDayNumber(data: Maybe<FPayload>): number[] {
+  const weekend = data?.value;
   // case "string"
   if (typeof weekend === "string") {
     assert(() => {
@@ -554,7 +553,7 @@ function weekendToDayNumber(weekend: Maybe<CellValue>): number[] {
     return [weekend - 11];
   }
 
-  throw Error(_t("The weekend must be a number or a string."));
+  throw new EvaluationError(_t("The weekend must be a number or a string."));
 }
 
 export const NETWORKDAYS_INTL = {
@@ -579,10 +578,10 @@ export const NETWORKDAYS_INTL = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    startDate: Maybe<CellValue>,
-    endDate: Maybe<CellValue>,
-    weekend: Maybe<CellValue> = DEFAULT_WEEKEND,
-    holidays: ArgValue
+    startDate: Maybe<FPayload>,
+    endDate: Maybe<FPayload>,
+    weekend: Maybe<FPayload> = { value: DEFAULT_WEEKEND },
+    holidays: Arg
   ): number {
     const _startDate = toJsDate(startDate, this.locale);
     const _endDate = toJsDate(endDate, this.locale);
@@ -624,14 +623,14 @@ export const NOW = {
   description: _t("Current date and time as a date value."),
   args: [],
   returns: ["DATE"],
-  computeFormat: function () {
-    return getDateTimeFormat(this.locale);
-  },
-  compute: function (): number {
-    let today = DateTime.now();
+  compute: function (): FPayloadNumber {
+    const today = DateTime.now();
     const delta = today.getTime() - INITIAL_1900_DAY.getTime();
     const time = today.getHours() / 24 + today.getMinutes() / 1440 + today.getSeconds() / 86400;
-    return Math.floor(delta / MS_PER_DAY) + time;
+    return {
+      value: Math.floor(delta / MS_PER_DAY) + time,
+      format: getDateTimeFormat(this.locale),
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -643,7 +642,7 @@ export const SECOND = {
   description: _t("Minute component of a specific time."),
   args: [arg("time (date)", _t("The time from which to calculate the second component."))],
   returns: ["NUMBER"],
-  compute: function (date: Maybe<CellValue>): number {
+  compute: function (date: Maybe<FPayload>): number {
     return toJsDate(date, this.locale).getSeconds();
   },
   isExported: true,
@@ -660,14 +659,11 @@ export const TIME = {
     arg("second (number)", _t("The second component of the time.")),
   ],
   returns: ["DATE"],
-  computeFormat: function () {
-    return this.locale.timeFormat;
-  },
   compute: function (
-    hour: Maybe<CellValue>,
-    minute: Maybe<CellValue>,
-    second: Maybe<CellValue>
-  ): number {
+    hour: Maybe<FPayload>,
+    minute: Maybe<FPayload>,
+    second: Maybe<FPayload>
+  ): FPayloadNumber {
     let _hour = Math.trunc(toNumber(hour, this.locale));
     let _minute = Math.trunc(toNumber(minute, this.locale));
     let _second = Math.trunc(toNumber(second, this.locale));
@@ -682,7 +678,10 @@ export const TIME = {
 
     assert(() => _hour >= 0, _t("The function [[FUNCTION_NAME]] result cannot be negative"));
 
-    return _hour / 24 + _minute / (24 * 60) + _second / (24 * 60 * 60);
+    return {
+      value: _hour / 24 + _minute / (24 * 60) + _second / (24 * 60 * 60),
+      format: this.locale.timeFormat,
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -694,7 +693,7 @@ export const TIMEVALUE = {
   description: _t("Converts a time string into its serial number representation."),
   args: [arg("time_string (string)", _t("The string that holds the time representation."))],
   returns: ["NUMBER"],
-  compute: function (timeString: Maybe<CellValue>): number {
+  compute: function (timeString: Maybe<FPayload>): number {
     const _timeString = toString(timeString);
     const internalDate = parseDateTime(_timeString, this.locale);
 
@@ -716,13 +715,13 @@ export const TODAY = {
   description: _t("Current date as a date value."),
   args: [],
   returns: ["DATE"],
-  computeFormat: function () {
-    return this.locale.dateFormat;
-  },
-  compute: function (): number {
+  compute: function (): FPayloadNumber {
     const today = DateTime.now();
     const jsDate = new DateTime(today.getFullYear(), today.getMonth(), today.getDate());
-    return jsDateToRoundNumber(jsDate);
+    return {
+      value: jsDateToRoundNumber(jsDate),
+      format: this.locale.dateFormat,
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -747,7 +746,10 @@ export const WEEKDAY = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (date: Maybe<CellValue>, type: Maybe<CellValue> = DEFAULT_TYPE): number {
+  compute: function (
+    date: Maybe<FPayload>,
+    type: Maybe<FPayload> = { value: DEFAULT_TYPE }
+  ): number {
     const _date = toJsDate(date, this.locale);
     const _type = Math.round(toNumber(type, this.locale));
     const m = _date.getDay();
@@ -781,7 +783,10 @@ export const WEEKNUM = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (date: Maybe<CellValue>, type: Maybe<CellValue> = DEFAULT_TYPE): number {
+  compute: function (
+    date: Maybe<FPayload>,
+    type: Maybe<FPayload> = { value: DEFAULT_TYPE }
+  ): number {
     const _date = toJsDate(date, this.locale);
     const _type = Math.round(toNumber(type, this.locale));
     assert(
@@ -838,15 +843,12 @@ export const WORKDAY = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: function () {
-    return this.locale.dateFormat;
-  },
   compute: function (
-    startDate: Maybe<CellValue>,
-    numDays: Maybe<CellValue>,
-    holidays: ArgValue | undefined = undefined
-  ): number {
-    return WORKDAY_INTL.compute.bind(this)(startDate, numDays, 1, holidays ?? null);
+    startDate: Maybe<FPayload>,
+    numDays: Maybe<FPayload>,
+    holidays: Arg = { value: null }
+  ): FPayloadNumber {
+    return WORKDAY_INTL.compute.bind(this)(startDate, numDays, { value: 1 }, holidays);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -872,21 +874,18 @@ export const WORKDAY_INTL = {
     ),
   ],
   returns: ["DATE"],
-  computeFormat: function () {
-    return this.locale.dateFormat;
-  },
   compute: function (
-    startDate: Maybe<CellValue>,
-    numDays: Maybe<CellValue>,
-    weekend: Maybe<CellValue> = DEFAULT_WEEKEND,
-    holidays: ArgValue
-  ): number {
+    startDate: Maybe<FPayload>,
+    numDays: Maybe<FPayload>,
+    weekend: Maybe<FPayload> = { value: DEFAULT_WEEKEND },
+    holidays: Arg
+  ): FPayloadNumber {
     let _startDate = toJsDate(startDate, this.locale);
     let _numDays = Math.trunc(toNumber(numDays, this.locale));
-    if (typeof weekend === "string") {
+    if (typeof weekend.value === "string") {
       assert(
-        () => weekend !== "1111111",
-        _t("The weekend (%s) must be different from '1111111'.", weekend)
+        () => weekend.value !== "1111111",
+        _t("The weekend must be different from '1111111'.")
       );
     }
 
@@ -916,7 +915,10 @@ export const WORKDAY_INTL = {
     }
 
     const delta = timeStepDate - INITIAL_1900_DAY.getTime();
-    return Math.round(delta / MS_PER_DAY);
+    return {
+      value: Math.round(delta / MS_PER_DAY),
+      format: this.locale.dateFormat,
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -928,7 +930,7 @@ export const YEAR = {
   description: _t("Year specified by a given date."),
   args: [arg("date (date)", _t("The date from which to extract the year."))],
   returns: ["NUMBER"],
-  compute: function (date: Maybe<CellValue>): number {
+  compute: function (date: Maybe<FPayload>): number {
     return toJsDate(date, this.locale).getFullYear();
   },
   isExported: true,
@@ -960,9 +962,9 @@ export const YEARFRAC = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    startDate: Maybe<CellValue>,
-    endDate: Maybe<CellValue>,
-    dayCountConvention: Maybe<CellValue> = DEFAULT_DAY_COUNT_CONVENTION
+    startDate: Maybe<FPayload>,
+    endDate: Maybe<FPayload>,
+    dayCountConvention: Maybe<FPayload> = { value: DEFAULT_DAY_COUNT_CONVENTION }
   ): number {
     let _startDate = Math.trunc(toNumber(startDate, this.locale));
     let _endDate = Math.trunc(toNumber(endDate, this.locale));
@@ -995,15 +997,15 @@ export const MONTH_START = {
   description: _t("First day of the month preceding a date."),
   args: [arg("date (date)", _t("The date from which to calculate the result."))],
   returns: ["DATE"],
-  computeFormat: function () {
-    return this.locale.dateFormat;
-  },
-  compute: function (date: Maybe<CellValue>): number {
+  compute: function (date: Maybe<FPayload>): FPayloadNumber {
     const _startDate = toJsDate(date, this.locale);
     const yStart = _startDate.getFullYear();
     const mStart = _startDate.getMonth();
     const jsDate = new DateTime(yStart, mStart, 1);
-    return jsDateToRoundNumber(jsDate);
+    return {
+      value: jsDateToRoundNumber(jsDate),
+      format: this.locale.dateFormat,
+    };
   },
 } satisfies AddFunctionDescription;
 
@@ -1014,11 +1016,8 @@ export const MONTH_END = {
   description: _t("Last day of the month following a date."),
   args: [arg("date (date)", _t("The date from which to calculate the result."))],
   returns: ["DATE"],
-  computeFormat: function () {
-    return this.locale.dateFormat;
-  },
-  compute: function (date: Maybe<CellValue>): number {
-    return EOMONTH.compute.bind(this)(date, 0);
+  compute: function (date: Maybe<FPayload>): FPayloadNumber {
+    return EOMONTH.compute.bind(this)(date, { value: 0 });
   },
 } satisfies AddFunctionDescription;
 
@@ -1029,7 +1028,7 @@ export const QUARTER = {
   description: _t("Quarter of the year a specific date falls in"),
   args: [arg("date (date)", _t("The date from which to extract the quarter."))],
   returns: ["NUMBER"],
-  compute: function (date: Maybe<CellValue>): number {
+  compute: function (date: Maybe<FPayload>): number {
     return Math.ceil((toJsDate(date, this.locale).getMonth() + 1) / 3);
   },
 } satisfies AddFunctionDescription;
@@ -1041,14 +1040,14 @@ export const QUARTER_START = {
   description: _t("First day of the quarter of the year a specific date falls in."),
   args: [arg("date (date)", _t("The date from which to calculate the start of quarter."))],
   returns: ["DATE"],
-  computeFormat: function () {
-    return this.locale.dateFormat;
-  },
-  compute: function (date: Maybe<CellValue>): number {
+  compute: function (date: Maybe<FPayload>): FPayloadNumber {
     const quarter = QUARTER.compute.bind(this)(date);
     const year = YEAR.compute.bind(this)(date);
     const jsDate = new DateTime(year, (quarter - 1) * 3, 1);
-    return jsDateToRoundNumber(jsDate);
+    return {
+      value: jsDateToRoundNumber(jsDate),
+      format: this.locale.dateFormat,
+    };
   },
 } satisfies AddFunctionDescription;
 
@@ -1059,14 +1058,14 @@ export const QUARTER_END = {
   description: _t("Last day of the quarter of the year a specific date falls in."),
   args: [arg("date (date)", _t("The date from which to calculate the end of quarter."))],
   returns: ["DATE"],
-  computeFormat: function () {
-    return this.locale.dateFormat;
-  },
-  compute: function (date: Maybe<CellValue>): number {
+  compute: function (date: Maybe<FPayload>): FPayloadNumber {
     const quarter = QUARTER.compute.bind(this)(date);
     const year = YEAR.compute.bind(this)(date);
     const jsDate = new DateTime(year, quarter * 3, 0);
-    return jsDateToRoundNumber(jsDate);
+    return {
+      value: jsDateToRoundNumber(jsDate),
+      format: this.locale.dateFormat,
+    };
   },
 } satisfies AddFunctionDescription;
 
@@ -1077,13 +1076,13 @@ export const YEAR_START = {
   description: _t("First day of the year a specific date falls in."),
   args: [arg("date (date)", _t("The date from which to calculate the start of the year."))],
   returns: ["DATE"],
-  computeFormat: function () {
-    return this.locale.dateFormat;
-  },
-  compute: function (date: Maybe<CellValue>): number {
+  compute: function (date: Maybe<FPayload>): FPayloadNumber {
     const year = YEAR.compute.bind(this)(date);
     const jsDate = new DateTime(year, 0, 1);
-    return jsDateToRoundNumber(jsDate);
+    return {
+      value: jsDateToRoundNumber(jsDate),
+      format: this.locale.dateFormat,
+    };
   },
 } satisfies AddFunctionDescription;
 
@@ -1094,12 +1093,12 @@ export const YEAR_END = {
   description: _t("Last day of the year a specific date falls in."),
   args: [arg("date (date)", _t("The date from which to calculate the end of the year."))],
   returns: ["DATE"],
-  computeFormat: function () {
-    return this.locale.dateFormat;
-  },
-  compute: function (date: Maybe<CellValue>): number {
+  compute: function (date: Maybe<FPayload>): FPayloadNumber {
     const year = YEAR.compute.bind(this)(date);
     const jsDate = new DateTime(year + 1, 0, 0);
-    return jsDateToRoundNumber(jsDate);
+    return {
+      value: jsDateToRoundNumber(jsDate),
+      format: this.locale.dateFormat,
+    };
   },
 } satisfies AddFunctionDescription;

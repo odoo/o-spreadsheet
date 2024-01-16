@@ -1,7 +1,7 @@
 import { compileTokens } from "../../../formulas/compiler";
 import { Token, isExportableToExcel } from "../../../formulas/index";
 import { getItemId, positions, toXC } from "../../../helpers/index";
-import { CellErrorType, EvaluationError } from "../../../types/errors";
+import { CellErrorType } from "../../../types/errors";
 import {
   CellPosition,
   CellValue,
@@ -211,7 +211,7 @@ export class EvaluationPlugin extends UIPlugin {
     try {
       return this.evaluator.evaluateFormula(sheetId, formulaString);
     } catch (error) {
-      return error instanceof EvaluationError ? error.errorType : CellErrorType.GenericError;
+      return error.value || CellErrorType.GenericError;
     }
   }
 

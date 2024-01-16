@@ -1,14 +1,8 @@
 import { arg, functionRegistry } from "../../src/functions";
+import { toMatrix } from "../../src/functions/helpers";
 import { Model } from "../../src/model";
-import {
-  ArgValue,
-  CellValue,
-  CellValueType,
-  ComputeFunction,
-  ErrorCell,
-  Matrix,
-} from "../../src/types";
-import { CellErrorType } from "../../src/types/errors";
+import { CellValueType, ErrorCell } from "../../src/types";
+import { CellErrorType, EvaluationError } from "../../src/types/errors";
 import {
   activateSheet,
   addColumns,
@@ -273,14 +267,20 @@ describe("evaluateCells", () => {
   ])("setting a format on an error cell keeps the error", (formula) => {
     const model = new Model();
     setCellContent(model, "A1", formula);
-    let cell = getEvaluatedCell(model, "A1") as ErrorCell;
-    const error = cell.error.message;
-    const value = cell.value;
+    const message = getCellError(model, "A1");
+    const value = getEvaluatedCell(model, "A1").value;
     setFormat(model, "A1", "#,##0");
-    cell = getEvaluatedCell(model, "A1") as ErrorCell;
-    expect(cell.type).toBe(CellValueType.error);
-    expect(cell.error.message).toBe(error);
-    expect(cell.value).toBe(value);
+    expect(getCellError(model, "A1")).toBe(message);
+    expect(getEvaluatedCell(model, "A1").value).toBe(value);
+  });
+
+  test("string representation of an error is stored as an error", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "#ERROR");
+    expect(getCell(model, "A1")?.content).toBe("#ERROR");
+    expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
+    expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+    expect(getCellError(model, "A1")).toBeUndefined();
   });
 
   test("range", () => {
@@ -294,10 +294,9 @@ describe("evaluateCells", () => {
   test("Evaluate only existing cells from a range partially outside of sheet", () => {
     functionRegistry.add("RANGE.COUNT.FUNCTION", {
       description: "any function",
-      compute: ((range: Matrix<CellValue>) => range.flat().length) as ComputeFunction<
-        ArgValue,
-        CellValue
-      >,
+      compute: function (range) {
+        return toMatrix(range).flat().length;
+      },
       args: [{ name: "range", description: "", type: ["RANGE"] }],
       returns: ["NUMBER"],
     });
@@ -1241,18 +1240,18 @@ describe("evaluate formula getter", () => {
     functionRegistry.add("GETVALUE", {
       description: "Get value",
       compute: () => {
-        throw new Error(`Error${value}`);
+        throw new EvaluationError("Error" + value);
       },
       args: [],
       returns: ["ANY"],
     });
     setCellContent(model, "A1", "=GETVALUE()");
     expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
-    expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe("Error1");
+    expect((getEvaluatedCell(model, "A1") as ErrorCell).message).toBe("Error1");
     value = 2;
     model.dispatch("EVALUATE_CELLS");
     expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
-    expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe("Error2");
+    expect((getEvaluatedCell(model, "A1") as ErrorCell).message).toBe("Error2");
     functionRegistry.remove("GETVALUE");
   });
 });

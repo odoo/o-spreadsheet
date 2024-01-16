@@ -1,18 +1,11 @@
 import { Model } from "../../src";
-import { toNumber } from "../../src/functions/helpers";
+import { toScalar } from "../../src/functions/helper_matrices";
+import { isEvaluationError, toBoolean, toNumber } from "../../src/functions/helpers";
 import { arg, functionRegistry } from "../../src/functions/index";
-import {
-  Arg,
-  ArgValue,
-  CellValue,
-  ComputeFunction,
-  DEFAULT_LOCALE,
-  Format,
-  Maybe,
-  ValueAndFormat,
-} from "../../src/types";
+import { Arg, DEFAULT_LOCALE } from "../../src/types";
+import { CellErrorType, EvaluationError } from "../../src/types/errors";
 import { setCellContent, setCellFormat } from "../test_helpers/commands_helpers";
-import { getEvaluatedCell } from "../test_helpers/getters_helpers";
+import { getCellError, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { evaluateCell, restoreDefaultFunctions } from "../test_helpers/helpers";
 
 describe("functions", () => {
@@ -24,7 +17,9 @@ describe("functions", () => {
     expect(val).toBe("#NAME?");
     functionRegistry.add("DOUBLEDOUBLE", {
       description: "Double the first argument",
-      compute: ((arg: number) => 2 * arg) as ComputeFunction<ArgValue, CellValue>,
+      compute: function (arg) {
+        return 2 * toNumber(toScalar(arg), DEFAULT_LOCALE);
+      },
       args: [arg("number (number)", "my number")],
       returns: ["NUMBER"],
     });
@@ -61,9 +56,9 @@ describe("functions", () => {
     const model = new Model();
     functionRegistry.add("RETURN.VALUE.DEPENDING.ON.INPUT.VALUE", {
       description: "return value depending on input value",
-      compute: function (arg: Maybe<CellValue>) {
-        return toNumber(arg, DEFAULT_LOCALE) * 2;
-      } as ComputeFunction<ArgValue, CellValue>,
+      compute: function (arg) {
+        return toNumber(toScalar(arg), DEFAULT_LOCALE) * 2;
+      },
       args: [arg("number (number)", "blabla")],
       returns: ["NUMBER"],
     });
@@ -75,16 +70,67 @@ describe("functions", () => {
     expect(getEvaluatedCell(model, "B2").value).toBe(84);
   });
 
+  test("Function can return value depending on input error", () => {
+    const model = new Model();
+    functionRegistry.add("RETURN.VALUE.DEPENDING.ON.INPUT.ERROR", {
+      description: "return value depending on input error",
+      compute: function (arg: Arg) {
+        return isEvaluationError(toScalar(arg)?.value) ? true : false;
+      },
+      args: [arg("arg (any)", "blabla")],
+      returns: ["BOOLEAN"],
+    });
+    setCellContent(model, "A1", "=SQRT(-1)");
+    setCellContent(model, "B1", "=RETURN.VALUE.DEPENDING.ON.INPUT.ERROR(A1)");
+    setCellContent(model, "B2", "=RETURN.VALUE.DEPENDING.ON.INPUT.ERROR(A2)");
+    expect(getEvaluatedCell(model, "B1").value).toBe(true);
+    expect(getEvaluatedCell(model, "B2").value).toBe(false);
+  });
+
+  test("Function can return error depending on input value", () => {
+    const model = new Model();
+    functionRegistry.add("RETURN.ERROR.DEPENDING.ON.INPUT.VALUE", {
+      description: "return value depending on input error",
+      compute: function (arg) {
+        const error = new EvaluationError("Les calculs sont pas bons KEVIN !");
+        return toBoolean(toScalar(arg)) ? error : "ceci n'est pas une erreur";
+      },
+      args: [arg("arg (any)", "blabla")],
+      returns: ["ANY"],
+    });
+    setCellContent(model, "B1", "=RETURN.ERROR.DEPENDING.ON.INPUT.VALUE(true)");
+    setCellContent(model, "B2", "=RETURN.ERROR.DEPENDING.ON.INPUT.VALUE(false)");
+    expect(getEvaluatedCell(model, "B1")?.value).toBe("#ERROR");
+    expect(getCellError(model, "B1")).toBe("Les calculs sont pas bons KEVIN !");
+    expect(getEvaluatedCell(model, "B2").value).toBe("ceci n'est pas une erreur");
+  });
+
+  test("Function can return error depending on input error", () => {
+    const model = new Model();
+    functionRegistry.add("RETURN.ERROR.DEPENDING.ON.INPUT.ERROR", {
+      description: "return value depending on input error",
+      compute: function (arg) {
+        return toScalar(arg)?.value === CellErrorType.BadExpression
+          ? CellErrorType.CircularDependency
+          : CellErrorType.InvalidReference;
+      },
+      args: [arg("arg (any)", "blabla")],
+      returns: ["ANY"],
+    });
+    setCellContent(model, "A1", "=ThatDoesNotMeanAnything");
+    setCellContent(model, "B1", "=RETURN.ERROR.DEPENDING.ON.INPUT.ERROR(A1)");
+    setCellContent(model, "B2", "=RETURN.ERROR.DEPENDING.ON.INPUT.ERROR(SQRT(-1))");
+    expect(getEvaluatedCell(model, "B1").value).toBe("#CYCLE");
+    expect(getEvaluatedCell(model, "B2").value).toBe("#REF");
+  });
+
   test("Function can return format depending on input format", () => {
     const model = new Model();
     functionRegistry.add("RETURN.FORMAT.DEPENDING.ON.INPUT.FORMAT", {
       description: "return format depending on input format",
-      computeFormat: function (arg: Maybe<ValueAndFormat>) {
-        return arg?.format;
-      } as ComputeFunction<Arg, Format | undefined>,
-      compute: function (arg: Maybe<CellValue>) {
-        return arg;
-      } as ComputeFunction<ArgValue, CellValue>,
+      compute: function (arg) {
+        return { value: 42, format: toScalar(arg)?.format };
+      },
       args: [arg("number (number)", "blabla")],
       returns: ["NUMBER"],
     });
@@ -102,12 +148,13 @@ describe("functions", () => {
     const model = new Model();
     functionRegistry.add("RETURN.FORMAT.DEPENDING.ON.INPUT.VALUE", {
       description: "return format depending on input value",
-      computeFormat: function (arg: Maybe<ValueAndFormat>) {
-        return toNumber(arg?.value, DEFAULT_LOCALE) >= 0 ? "0%" : "#,##0.00";
-      } as ComputeFunction<Arg, Format | undefined>,
-      compute: function (arg: Maybe<CellValue>) {
-        return arg;
-      } as ComputeFunction<ArgValue, CellValue>,
+      compute: function (arg) {
+        const value = toNumber(toScalar(arg), DEFAULT_LOCALE);
+        return {
+          value,
+          format: value >= 0 ? "0%" : "#,##0.00",
+        };
+      },
       args: [arg("number (number)", "blabla")],
       returns: ["NUMBER"],
     });

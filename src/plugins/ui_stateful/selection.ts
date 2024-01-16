@@ -46,7 +46,7 @@ interface SheetInfo {
 
 interface SelectionStatisticFunction {
   name: string;
-  compute: (values: (number | string | boolean)[], locale: Locale) => number;
+  compute: (data: EvaluatedCell[], locale: Locale) => number;
   types: CellValueType[];
 }
 
@@ -436,13 +436,6 @@ export class GridSelectionPlugin extends UIPlugin {
       }
     }
 
-    let cellsTypes = new Set<CellValueType>();
-    let cellsValues: (string | number | boolean)[] = [];
-    for (let cell of cells) {
-      cellsTypes.add(cell.type);
-      cellsValues.push(cell.value);
-    }
-
     const locale = this.getters.getLocale();
 
     let statisticFnResults: { [name: string]: number | undefined } = {};
@@ -453,8 +446,9 @@ export class GridSelectionPlugin extends UIPlugin {
       // Ex: if there are only texts in the selection, we prefer that the SUM result
       // be displayed as undefined rather than 0.
       let fnResult: number | undefined = undefined;
-      if (fn.types.some((t) => cellsTypes.has(t))) {
-        fnResult = fn.compute(cellsValues, locale);
+      const evaluatedCells = [...cells].filter((c) => fn.types.includes(c.type));
+      if (evaluatedCells.length) {
+        fnResult = fn.compute(evaluatedCells, locale);
       }
       statisticFnResults[fn.name] = fnResult;
     }

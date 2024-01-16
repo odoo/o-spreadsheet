@@ -1,19 +1,8 @@
 import { arg, functionRegistry } from "../../src/functions";
-import { toNumber } from "../../src/functions/helpers";
+import { toScalar } from "../../src/functions/helper_matrices";
+import { toMatrix, toNumber } from "../../src/functions/helpers";
 import { Model } from "../../src/model";
-import {
-  Arg,
-  ArgValue,
-  CellValue,
-  ComputeFunction,
-  DEFAULT_LOCALE,
-  ErrorCell,
-  Format,
-  Matrix,
-  Maybe,
-  ValueAndFormat,
-  isMatrix,
-} from "../../src/types";
+import { DEFAULT_LOCALE } from "../../src/types";
 import {
   addColumns,
   addRows,
@@ -25,7 +14,7 @@ import {
   setCellContent,
   setFormat,
 } from "../test_helpers/commands_helpers";
-import { getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
+import { getCellContent, getCellError, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { restoreDefaultFunctions } from "../test_helpers/helpers";
 
 let model: Model;
@@ -40,26 +29,12 @@ describe("evaluate formulas that return an array", () => {
         arg("v (number)", "value to fill matrix"),
       ],
       returns: ["RANGE<NUMBER>"],
-      compute: function (n: Maybe<CellValue>, m: Maybe<CellValue>, v: Maybe<CellValue>): any[][] {
-        return Array.from({ length: toNumber(n, DEFAULT_LOCALE) }, (_, i) =>
-          Array.from({ length: toNumber(m, DEFAULT_LOCALE) }, (_, j) => v)
-        );
-      } as ComputeFunction<ArgValue, CellValue | Matrix<CellValue>>,
-    });
-
-    functionRegistry.add("TRANSPOSE", {
-      description: "Transpose a matrix.",
-      args: [arg("matrix (range<number>)", "The matrix to be transposed.")],
-      returns: ["NUMBER"],
-      compute: function (values) {
-        if (isMatrix(values)) {
-          return Array.from({ length: values[0].length }, (_, i) =>
-            Array.from({ length: values.length }, (_, j) => values[j][i])
-          );
-        }
-        return [[values]];
-      } as ComputeFunction<ArgValue, CellValue | Matrix<CellValue>>,
-      isExported: true,
+      compute: function (n, m, v): number[][] {
+        const _n = toNumber(toScalar(n), DEFAULT_LOCALE);
+        const _m = toNumber(toScalar(m), DEFAULT_LOCALE);
+        const _v = toNumber(toScalar(v), DEFAULT_LOCALE);
+        return Array.from({ length: _n }, (_, i) => Array.from({ length: _m }, (_, j) => _v));
+      },
     });
   });
 
@@ -97,20 +72,26 @@ describe("evaluate formulas that return an array", () => {
     expect(getEvaluatedCell(model, "D4").value).toBe(0);
   });
 
+  test("can spread array with errors", () => {
+    setCellContent(model, "A1", "42");
+    setCellContent(model, "A2", "=SQRT(-1)");
+    setCellContent(model, "B1", "=TRANSPOSE(A1:A2)");
+    expect(getEvaluatedCell(model, "B1").value).toBe(42);
+    expect(getEvaluatedCell(model, "C1").value).toBe("#ERROR");
+  });
+
   describe("spread matrix with format", () => {
     test("can spread matrix of values with matrix of format", () => {
       functionRegistry.add("MATRIX.2.2", {
         description: "Return an 2*2 matrix with some values",
         args: [],
         returns: ["RANGE<NUMBER>"],
-        compute: () => [
-          [1, 2],
-          [3, 4],
-        ],
-        computeFormat: () => [
-          ["0.00", undefined],
-          ["0.00", undefined],
-        ],
+        compute: function () {
+          return [
+            [{ value: 1, format: "0.00" }, { value: 2 }],
+            [{ value: 3, format: "0.00" }, { value: 4 }],
+          ];
+        },
       });
 
       setFormat(model, "A1:A2", "0%");
@@ -123,64 +104,14 @@ describe("evaluate formulas that return an array", () => {
       expect(getCellContent(model, "B2")).toBe("4");
     });
 
-    test("can spread matrix of values with scalar format returns an error", () => {
-      functionRegistry.add("MATRIX.2.2", {
-        description: "Return an 2*2 matrix with some values",
-        args: [],
-        returns: ["RANGE<NUMBER>"],
-        compute: () => [
-          [1, 2],
-          [3, 4],
-        ],
-        computeFormat: () => "0.00",
-      });
-
-      setFormat(model, "A1:A2", "0%");
-      setCellContent(model, "A1", "=MATRIX.2.2()");
-
-      expect(getCellContent(model, "A1")).toBe("#ERROR");
-      expect(getCellContent(model, "A2")).toBe("");
-      expect(getCellContent(model, "B1")).toBe("");
-      expect(getCellContent(model, "B2")).toBe("");
-    });
-
-    test("cannot spread simple value with matrix of format", () => {
-      functionRegistry.add("SIMPLE.VALUE", {
-        description: "Return an 2*2 matrix with some values",
-        args: [],
-        returns: ["NUMBER"],
-        compute: () => 1,
-        computeFormat: () => [
-          ["0.00", undefined],
-          ["0.00", undefined],
-        ],
-      });
-
-      setCellContent(model, "A1", "=SIMPLE.VALUE()");
-      setCellContent(model, "A2", "42");
-      setCellContent(model, "B1", "24");
-      setCellContent(model, "B2", "22");
-
-      expect(getCellContent(model, "A1")).toBe("#ERROR");
-      expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe(
-        "A format matrix should never be associated with a scalar value"
-      );
-      expect(getCellContent(model, "A2")).toBe("42");
-      expect(getCellContent(model, "B1")).toBe("24");
-      expect(getCellContent(model, "B2")).toBe("22");
-    });
-
     test("can spread matrix of format depending on matrix of format", () => {
       functionRegistry.add("MATRIX", {
         description: "Return the matrix passed as argument",
         args: [arg("matrix (range<number>)", "a matrix")],
         returns: ["RANGE<NUMBER>"],
-        compute: ((matrix) => matrix) as ComputeFunction<ArgValue, Matrix<CellValue>>,
-        computeFormat: ((matrix: Matrix<ValueAndFormat>) =>
-          matrix.map((row) => row.map((item) => item?.format))) as ComputeFunction<
-          Arg,
-          Matrix<Format | undefined>
-        >,
+        compute: function (matrix) {
+          return toMatrix(matrix);
+        },
       });
 
       setCellContent(model, "A1", "42");
@@ -258,14 +189,14 @@ describe("evaluate formulas that return an array", () => {
       setCellContent(model, "B2", "kikou");
       setCellContent(model, "A1", "=MFILL(2,2, 42)");
       expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
-      expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe(
+      expect(getCellError(model, "A1")).toBe(
         "Array result was not expanded because it would overwrite data in B2."
       );
 
       setCellContent(model, "A4", "kikou");
       setCellContent(model, "A3", "=MFILL(2,2, 42)");
       expect(getEvaluatedCell(model, "A3").value).toBe("#ERROR");
-      expect((getEvaluatedCell(model, "A3") as ErrorCell).error.message).toBe(
+      expect(getCellError(model, "A3")).toBe(
         "Array result was not expanded because it would overwrite data in A4."
       );
     });
@@ -274,7 +205,7 @@ describe("evaluate formulas that return an array", () => {
       setCellContent(model, "B2", "=SUM(42+24)");
       setCellContent(model, "A1", "=MFILL(2,2, 42)");
       expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
-      expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe(
+      expect(getCellError(model, "A1")).toBe(
         "Array result was not expanded because it would overwrite data in B2."
       );
       expect(getEvaluatedCell(model, "A2").value).toBe("");
@@ -287,7 +218,7 @@ describe("evaluate formulas that return an array", () => {
       setCellContent(model, "A2", "kikou");
       setCellContent(model, "A3", "kikou");
       expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
-      expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe(
+      expect(getCellError(model, "A1")).toBe(
         "Array result was not expanded because it would overwrite data in A2."
       );
     });
@@ -297,7 +228,7 @@ describe("evaluate formulas that return an array", () => {
       setCellContent(model, "B1", "kikou");
       setCellContent(model, "C1", "kikou");
       expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
-      expect((getEvaluatedCell(model, "A1") as ErrorCell).error.message).toBe(
+      expect(getCellError(model, "A1")).toBe(
         "Array result was not expanded because it would overwrite data in B1."
       );
     });
@@ -476,7 +407,7 @@ describe("evaluate formulas that return an array", () => {
     test("throw error message concerning the column encountered horizontally", () => {
       setCellContent(model, "B1", "=MFILL(3,3, 42)");
       expect(getEvaluatedCell(model, "B1").value).toBe("#ERROR");
-      expect((getEvaluatedCell(model, "B1") as ErrorCell).error.message).toBe(
+      expect(getCellError(model, "B1")).toBe(
         "Result couldn't be automatically expanded. Please insert more columns."
       );
     });
@@ -484,7 +415,7 @@ describe("evaluate formulas that return an array", () => {
     test("throw error message concerning the row encountered verticaly", () => {
       setCellContent(model, "A2", "=MFILL(3,3, 42)");
       expect(getEvaluatedCell(model, "A2").value).toBe("#ERROR");
-      expect((getEvaluatedCell(model, "A2") as ErrorCell).error.message).toBe(
+      expect(getCellError(model, "A2")).toBe(
         "Result couldn't be automatically expanded. Please insert more rows."
       );
     });
@@ -492,7 +423,7 @@ describe("evaluate formulas that return an array", () => {
     test("throw error message concerning the row and column encountered", () => {
       setCellContent(model, "B2", "=MFILL(3,3, 42)");
       expect(getEvaluatedCell(model, "B2").value).toBe("#ERROR");
-      expect((getEvaluatedCell(model, "B2") as ErrorCell).error.message).toBe(
+      expect(getCellError(model, "B2")).toBe(
         "Result couldn't be automatically expanded. Please insert more columns and rows."
       );
     });
@@ -674,7 +605,7 @@ describe("evaluate formulas that return an array", () => {
       setCellContent(model, "A2", formula);
       expect(getEvaluatedCell(model, "B1").value).toBe(42);
       expect(getEvaluatedCell(model, "A2").value).toBe("#ERROR");
-      expect((getEvaluatedCell(model, "A2") as ErrorCell).error.message).toBe(
+      expect(getCellError(model, "A2")).toBe(
         "Array result was not expanded because it would overwrite data in B2."
       );
     });
@@ -684,7 +615,7 @@ describe("evaluate formulas that return an array", () => {
       setCellContent(model, "B1", "=MFILL(1,3,42)");
       expect(getEvaluatedCell(model, "B1").value).toBe("#ERROR");
       expect(getEvaluatedCell(model, "A2").value).toBe(42);
-      expect((getEvaluatedCell(model, "B1") as ErrorCell).error.message).toBe(
+      expect(getCellError(model, "B1")).toBe(
         "Array result was not expanded because it would overwrite data in B2."
       );
     });
@@ -694,7 +625,7 @@ describe("evaluate formulas that return an array", () => {
       setCellContent(model, "B1", "=MFILL(2,2,42)");
       expect(getEvaluatedCell(model, "B1").value).toBe("#ERROR");
       expect(getEvaluatedCell(model, "A2").value).toBe(42);
-      expect((getEvaluatedCell(model, "B1") as ErrorCell).error.message).toBe(
+      expect(getCellError(model, "B1")).toBe(
         "Array result was not expanded because it would overwrite data in B2."
       );
     });

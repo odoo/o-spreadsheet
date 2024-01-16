@@ -46,10 +46,10 @@ export const ErrorToolTipPopoverBuilder: PopoverBuilders = {
   onHover: (position, getters): CellPopoverComponent<typeof ErrorToolTip> => {
     const cell = getters.getEvaluatedCell(position);
     const errors: ErrorToolTipMessage[] = [];
-    if (cell.type === CellValueType.error && cell.error.isVerbose) {
+    if (cell.type === CellValueType.error && !!cell.message) {
       errors.push({
         title: _t("Error"),
-        message: cell.error.message,
+        message: cell.message,
       });
     }
 

@@ -8,12 +8,11 @@ import {
   EnsureRange,
   EvalContext,
   EvaluatedCell,
+  FPayload,
   Getters,
   Matrix,
-  Maybe,
   Range,
   ReferenceDenormalizer,
-  ValueAndFormat,
 } from "../../../types";
 import { EvaluationError, InvalidReferenceError } from "../../../types/errors";
 
@@ -38,7 +37,7 @@ export function buildCompilationParameters(
 class CompilationParametersBuilder {
   evalContext: EvalContext;
 
-  private rangeCache: Record<string, Matrix<ValueAndFormat> | EvaluationError> = {};
+  private rangeCache: Record<string, Matrix<FPayload>> = {};
 
   constructor(
     context: ModelConfig["custom"],
@@ -68,7 +67,7 @@ class CompilationParametersBuilder {
     isMeta: boolean,
     functionName: string,
     paramNumber?: number
-  ): Maybe<ValueAndFormat> {
+  ): FPayload {
     if (isMeta) {
       // Use zoneToXc of zone instead of getRangeString to avoid sending unbounded ranges
       const sheetName = this.getters.getSheetName(range.sheetId);
@@ -81,7 +80,7 @@ class CompilationParametersBuilder {
 
     // if the formula definition could have accepted a range, we would pass through the _range function and not here
     if (range.zone.bottom !== range.zone.top || range.zone.left !== range.zone.right) {
-      throw new Error(
+      throw new EvaluationError(
         paramNumber
           ? _t(
               "Function %s expects the parameter %s to be a single value or a single cell reference, not a range.",
@@ -95,22 +94,19 @@ class CompilationParametersBuilder {
       );
     }
     if (range.invalidSheetName) {
-      throw new Error(_t("Invalid sheet name: %s", range.invalidSheetName));
+      throw new EvaluationError(_t("Invalid sheet name: %s", range.invalidSheetName));
     }
     const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
     return this.readCell(position);
   }
 
-  private readCell(position: CellPosition): ValueAndFormat {
+  private readCell(position: CellPosition): FPayload {
     if (!this.getters.tryGetSheet(position.sheetId)) {
-      throw new Error(_t("Invalid sheet name"));
+      throw new EvaluationError(_t("Invalid sheet name"));
     }
     const evaluatedCell = this.getEvaluatedCellIfNotEmpty(position);
     if (evaluatedCell === undefined) {
       return { value: null, format: this.getters.getCell(position)?.format };
-    }
-    if (evaluatedCell.type === CellValueType.error) {
-      throw evaluatedCell.error;
     }
     return evaluatedCell;
   }
@@ -134,7 +130,7 @@ class CompilationParametersBuilder {
    * Note that each col is possibly sparse: it only contain the values of cells
    * that are actually present in the grid.
    */
-  private range({ sheetId, zone }: Range): Matrix<ValueAndFormat> {
+  private range({ sheetId, zone }: Range): Matrix<FPayload> {
     if (!isZoneValid(zone)) {
       throw new InvalidReferenceError();
     }
@@ -149,30 +145,22 @@ class CompilationParametersBuilder {
     const { top, left, bottom, right } = zone;
     const cacheKey = `${sheetId}-${top}-${left}-${bottom}-${right}`;
     if (cacheKey in this.rangeCache) {
-      const result = this.rangeCache[cacheKey];
-      if (result instanceof EvaluationError) {
-        throw result;
-      }
-      return result;
+      return this.rangeCache[cacheKey];
     }
 
     const height = _zone.bottom - _zone.top + 1;
     const width = _zone.right - _zone.left + 1;
-    const matrix: Matrix<ValueAndFormat> = new Array(width);
+    const matrix: Matrix<FPayload> = new Array(width);
     // Performance issue: nested loop is faster than a map here
     for (let col = _zone.left; col <= _zone.right; col++) {
       const colIndex = col - _zone.left;
       matrix[colIndex] = new Array(height);
       for (let row = _zone.top; row <= _zone.bottom; row++) {
-        const evaluatedCell = this.getEvaluatedCellIfNotEmpty({ sheetId, col, row });
-        if (evaluatedCell?.type === CellValueType.error) {
-          this.rangeCache[cacheKey] = evaluatedCell.error;
-          throw evaluatedCell.error;
-        }
         const rowIndex = row - _zone.top;
         matrix[colIndex][rowIndex] = this.readCell({ sheetId, col, row });
       }
     }
+
     this.rangeCache[cacheKey] = matrix;
     return matrix;
   }
