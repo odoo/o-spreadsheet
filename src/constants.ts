@@ -1,6 +1,4 @@
-import { _t } from "./translation";
 import { BorderDescr, Color, Style } from "./types";
-import { CellErrorType } from "./types/errors";
 
 export const CANVAS_SHIFT = 0.5;
 
@@ -178,9 +176,6 @@ export const DEFAULT_FONT = "'Roboto', arial";
 export const DEFAULT_BORDER_DESC: BorderDescr = { style: "thin", color: "#000000" };
 export const DEFAULT_FILTER_BORDER_DESC: BorderDescr = { style: "thin", color: FILTERS_COLOR };
 
-// Ranges
-export const INCORRECT_RANGE_STRING = CellErrorType.InvalidReference;
-
 // Max Number of history steps kept in memory
 export const MAX_HISTORY_STEPS = 99;
 
@@ -219,7 +214,6 @@ export const FORBIDDEN_IN_EXCEL_REGEX = /'|\*|\?|\/|\\|\[|\]/;
 // Cells
 export const FORMULA_REF_IDENTIFIER = "|";
 export const LOADING = "Loading...";
-export const DEFAULT_ERROR_MESSAGE = _t("Invalid expression");
 
 // Components
 export enum ComponentsImportance {

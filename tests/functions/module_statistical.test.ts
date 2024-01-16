@@ -178,6 +178,13 @@ describe("AVERAGE.WEIGHTED formula", () => {
     ).toBe(2.5);
     expect(
       evaluateCell("A1", {
+        A1: "=average.weighted(A2, 1, 3, A5)",
+        A2: "1",
+        A5: "3",
+      })
+    ).toBe(2.5);
+    expect(
+      evaluateCell("A1", {
         A1: "=average.weighted(A2, A3, A4, A5)",
         A2: "",
         A3: "1",
@@ -424,6 +431,15 @@ describe("AVERAGEA formula", () => {
     expect(evaluateCellFormat("A1", { A1: "=AVERAGEA(A2:A3)", A2: "42%", A3: "1" })).toBe("0%");
     expect(evaluateCellFormat("A1", { A1: "=AVERAGEA(A2:A3)", A2: "1", A3: "42%" })).toBe("");
   });
+
+  test("AVERAGEA doesn't accept error values", () => {
+    // prettier-ignore
+    const grid = {
+        A1: "40", B1: "42",
+        A2: "41", B2: "=KABOUM", 
+      };
+    expect(evaluateCell("A3", { A3: "=AVERAGEA(A1:A2, B1:B2)", ...grid })).toBe("#BAD_EXPR");
+  });
 });
 
 describe("AVERAGEIF formula", () => {
@@ -451,6 +467,29 @@ describe("AVERAGEIF formula", () => {
     expect(gridResult.A13).toBe(28.25);
     expect(gridResult.A14).toBe(28.25);
     expect(gridResult.A15).toBe(36);
+  });
+
+  test("AVERAGEIF accepts errors in first parameter", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "=KABOUM",
+      A2: "41",
+      A3: "43",
+    };
+    expect(evaluateCell("A4", { A4: '=AVERAGEIF(A1:A3, ">1")', ...grid })).toBe(42);
+  });
+
+  // @compatibility: should be able to accept errors !
+  test("AVERAGEIF doesn't accept error on second parameter", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "=KABOUM", B1: "42",
+      A2: "41",      B2: "43", 
+      A3: "44",      B3: "45", 
+    };
+    expect(evaluateCell("A4", { A4: "=AVERAGEIF(A1:A3, KABOUM, B1:B3)", ...grid })).toBe(
+      "#BAD_EXPR"
+    ); // @compatibility: should be 42
   });
 });
 
@@ -483,6 +522,29 @@ describe("AVERAGEIFS formula", () => {
     expect(gridResult.A14).toBe(21.2);
     expect(gridResult.A15).toBe(30);
   });
+
+  test("AVERAGEIFS accepts errors in first and in 2n parameter", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "=KABOUM",
+      A2: "41",
+      A3: "43",
+    };
+    expect(evaluateCell("A4", { A4: '=AVERAGEIFS(A1:A3, A1:A3, ">1")', ...grid })).toBe(42);
+  });
+
+  // @compatibility: should be able to accept errors !
+  test("AVERAGEIFS doesn't accept error on 2n+1 parameter", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "=KABOUM", B1: "42",
+      A2: "41",      B2: "43", 
+      A3: "44",      B3: "45", 
+    };
+    expect(evaluateCell("A4", { A4: "=AVERAGEIFS(B1:B3, A1:A3, KABOUM)", ...grid })).toBe(
+      "#BAD_EXPR"
+    ); // @compatibility: should be 43.5
+  });
 });
 
 describe("COUNT formula", () => {
@@ -505,6 +567,7 @@ describe("COUNT formula", () => {
     expect(evaluateCell("A1", { A1: '=count(1, 2, "3%")' })).toBe(3);
     expect(evaluateCell("A1", { A1: '=count(1, 2, "3@")' })).toBe(2);
     expect(evaluateCell("A1", { A1: '=count(1, 2, "2020-03-26")' })).toBe(3);
+    expect(evaluateCell("A1", { A1: "=count(1/0)" })).toBe(0);
   });
 
   test("functional tests on cell arguments", () => {
@@ -514,6 +577,7 @@ describe("COUNT formula", () => {
     expect(evaluateCell("A1", { A1: "=count(A2, A3)", A2: "-1", A3: "4.2" })).toBe(2);
     expect(evaluateCell("A1", { A1: "=count(A2, A3)", A2: "1", A3: "" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=count(A2, A3)", A2: "1", A3: "3%" })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=count(A1)" })).toBe(0);
   });
 
   test("casting tests on cell arguments", () => {
@@ -547,6 +611,15 @@ describe("COUNT formula", () => {
     expect(evaluateCell("A1", grid)).toEqual(5);
     expect(evaluateCell("A2", grid)).toEqual(5);
   });
+
+  test("COUNT accepts errors in parameters", () => {
+    // prettier-ignore
+    const grid = {
+        A1: "=KABOUM", B1: "42",
+        A2: "42",      B2: "=1/0", 
+      };
+    expect(evaluateCell("A3", { A3: "=COUNT(A1:B2)", ...grid })).toBe(2);
+  });
 });
 
 describe("COUNTA formula", () => {
@@ -557,6 +630,7 @@ describe("COUNTA formula", () => {
     expect(evaluateCell("A1", { A1: "=COUNTA(1, 2, -3, 4.4)" })).toBe(4);
     expect(evaluateCell("A1", { A1: "=COUNTA(1, 2, 3,  , 4)" })).toBe(4);
     expect(evaluateCell("A1", { A1: "=COUNTA(1 ,2, 3%)" })).toBe(3);
+    expect(evaluateCell("A1", { A1: "=COUNTA(1/0)" })).toBe(1);
   });
 
   test("casting tests on simple arguments", () => {
@@ -577,6 +651,8 @@ describe("COUNTA formula", () => {
     expect(evaluateCell("A1", { A1: "=COUNTA(A2, A3)", A2: "-1", A3: "4.2" })).toBe(2);
     expect(evaluateCell("A1", { A1: "=COUNTA(A2, A3)", A2: "1", A3: "" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=COUNTA(A2, A3)", A2: "1", A3: "3%" })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=COUNTA(A2)", A2: "=1/0" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=COUNTA(A1)" })).toBe(1);
   });
 
   test("casting tests on cell arguments", () => {
@@ -608,6 +684,15 @@ describe("COUNTA formula", () => {
     };
     expect(evaluateCell("A1", grid)).toBe(8);
     expect(evaluateCell("A2", grid)).toBe(8);
+  });
+
+  test("COUNTA accepts errors in parameters", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "=KABOUM", B1: "42",
+      A2: "42",      B2: "=1/0", 
+    };
+    expect(evaluateCell("A3", { A3: "=COUNTA(A1:B2)", ...grid })).toBe(4);
   });
 });
 
@@ -643,6 +728,16 @@ describe("COVAR formula", () => {
     expect(gridResult.A14).toEqual(0.25);
     expect(gridResult.A15).toEqual(0);
   });
+
+  test("COVAR doesn't accept errors in parameters", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "=KABOUM", B1: "42",
+      A2: "42",      B2: "1", 
+      A3: "44",      B3: "2", 
+    };
+    expect(evaluateCell("A4", { A4: "=COVAR(A1:A3, B1:B3)", ...grid })).toBe("#BAD_EXPR");
+  });
 });
 
 describe("COVARIANCE.P formula", () => {
@@ -677,6 +772,16 @@ describe("COVARIANCE.P formula", () => {
     expect(gridResult.A14).toEqual(0.25);
     expect(gridResult.A15).toEqual(0);
   });
+
+  test("COVARIANCE.P doesn't accept errors in parameters", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "=KABOUM", B1: "42",
+      A2: "42",      B2: "1", 
+      A3: "44",      B3: "2", 
+    };
+    expect(evaluateCell("A4", { A4: "=COVARIANCE.P(A1:A3, B1:B3)", ...grid })).toBe("#BAD_EXPR");
+  });
 });
 
 describe("COVARIANCE.S formula", () => {
@@ -710,6 +815,16 @@ describe("COVARIANCE.S formula", () => {
     expect(gridResult.A13).toEqual(0.5);
     expect(gridResult.A14).toEqual(0.5);
     expect(gridResult.A15).toEqual("#ERROR"); //@compatibility: on google sheet, return #NUM
+  });
+
+  test("COVARIANCE.S doesn't accept errors in parameters", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "=KABOUM", B1: "42",
+      A2: "42",      B2: "1", 
+      A3: "44",      B3: "2", 
+    };
+    expect(evaluateCell("A4", { A4: "=COVARIANCE.S(A1:A3, B1:B3)", ...grid })).toBe("#BAD_EXPR");
   });
 });
 
@@ -790,6 +905,16 @@ describe("LARGE formula", () => {
     expect(evaluateCellFormat("A1", { A1: "=LARGE(A2, 2)", A2: "42" })).toBe("");
     expect(evaluateCellFormat("A1", { A1: "=LARGE(A2:A3, 1)", A2: "42%", A3: "1" })).toBe("");
     expect(evaluateCellFormat("A1", { A1: "=LARGE(A2:A3, 2)", A2: "7", A3: "600%" })).toBe("0%");
+  });
+
+  test("LARGE doesn't accept errors in first parameter", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "=KABOUM",
+      A2: "42",
+      A3: "44",
+    };
+    expect(evaluateCell("A4", { A4: "=LARGE(A1:A3, 2)", ...grid })).toBe("#BAD_EXPR");
   });
 });
 
@@ -1077,6 +1202,38 @@ describe("MAXIFS formula", () => {
     expect(gridResult.A14).toBe(31);
     expect(gridResult.A15).toBe(24);
   });
+
+  test("MAXIFS accepts error in first parameter", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "=KABOUM_1", B1: "1",
+      A2: "=KABOUM_2", B2: "1",
+      A3: "42"       , B3: "24",
+    };
+    expect(evaluateCell("A4", { A4: "=MAXIFS(A1:A3, B1:B3, 24)", ...grid })).toBe(42);
+  });
+
+  // @compatibility: should be able to accept errors !
+  test("MAXIFS doesn't accept errors in 2n+2 parameters", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "40", B1: "1",
+      A2: "41", B2: "1",
+      A3: "42", B3: "=KABOUM",
+    };
+    expect(evaluateCell("A4", { A4: "=MAXIFS(A1:A3, B1:B3, 1)", ...grid })).toBe("#BAD_EXPR"); // @compatibility: should be 41
+  });
+
+  // @compatibility: should be able to count errors !
+  test("MAXIFS doesn't accept errors on 2n+3 parameters", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "40", B1: "1",
+      A2: "41", B2: "1",
+      A3: "42", B3: "1",
+    };
+    expect(evaluateCell("A4", { A4: "=MAXIFS(A1:A3, B1:B3, KABOUM)", ...grid })).toBe("#BAD_EXPR"); // @compatibility: should be 0
+  });
 });
 
 describe("MEDIAN formula", () => {
@@ -1150,6 +1307,12 @@ describe("MEDIAN formula", () => {
     expect(evaluateCellFormat("A1", { A1: "=MEDIAN(A2, 2)", A2: "42" })).toBe("");
     expect(evaluateCellFormat("A1", { A1: "=MEDIAN(A2:A3)", A2: "42%", A3: "1" })).toBe("0%");
     expect(evaluateCellFormat("A1", { A1: "=MEDIAN(A2:A3)", A2: "1", A3: "42%" })).toBe("");
+  });
+
+  test("MEDIAN doesn't accept errors", () => {
+    expect(evaluateCell("A1", { A1: "=MEDIAN(1, 2, KABOUM1, A2)", A2: "=KABOUM2" })).toBe(
+      "#BAD_EXPR"
+    );
   });
 });
 
@@ -1439,6 +1602,38 @@ describe("MINIFS formula", () => {
     expect(gridResult.A14).toBe(9);
     expect(gridResult.A15).toBe(24);
   });
+
+  test("MINIFS accepts error in first parameter", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "=KABOUM_1", B1: "1",
+      A2: "=KABOUM_2", B2: "1",
+      A3: "42"       , B3: "24",
+    };
+    expect(evaluateCell("A4", { A4: "=MINIFS(A1:A3, B1:B3, 24)", ...grid })).toBe(42);
+  });
+
+  // @compatibility: should be able to accept errors !
+  test("MINIFS doesn't accept errors in 2n+2 parameters", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "40", B1: "1",
+      A2: "41", B2: "1",
+      A3: "42", B3: "=KABOUM",
+    };
+    expect(evaluateCell("A4", { A4: "=MINIFS(A1:A3, B1:B3, 1)", ...grid })).toBe("#BAD_EXPR"); // @compatibility: should be 40
+  });
+
+  // @compatibility: should be able to count errors !
+  test("MINIFS doesn't accept errors on 2n+3 parameters", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "40", B1: "1",
+      A2: "41", B2: "1",
+      A3: "42", B3: "1",
+    };
+    expect(evaluateCell("A4", { A4: "=MINIFS(A1:A3, B1:B3, KABOUM)", ...grid })).toBe("#BAD_EXPR"); // @compatibility: should be 0
+  });
 });
 
 describe.each([["PERCENTILE"], ["PERCENTILE.INC"], ["PERCENTILE.EXC"]])(
@@ -1644,6 +1839,16 @@ describe.each([["PERCENTILE"], ["PERCENTILE.INC"], ["PERCENTILE.EXC"]])(
         evaluateCellFormat("A1", { A1: percentile + "(A2:A3, 0.5)", A2: "1", A3: "42%" })
       ).toBe("");
     });
+
+    test("doesn't accept error in first parameter", () => {
+      // prettier-ignore
+      const grid = {
+        A1: "=KABOUM_1",
+        A2: "=KABOUM_2",
+        A3: "42",
+      };
+      expect(evaluateCell("A4", { A4: percentile + "(A1:A3, 0.9)", ...grid })).toBe("#BAD_EXPR");
+    });
   }
 );
 
@@ -1845,6 +2050,17 @@ describe.each([["QUARTILE"], ["QUARTILE.INC"], ["QUARTILE.EXC"]])("%s formula", 
     );
     expect(evaluateCellFormat("A1", { A1: quartile + "(A2:A3, 2)", A2: "1", A3: "42%" })).toBe("");
   });
+
+  test("doesn't accept error in first parameter", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "=KABOUM_1",
+      A2: "=KABOUM_2",
+      A3: "42",
+      A4: "42",
+    };
+    expect(evaluateCell("A5", { A5: quartile + "(A1:A4, 1)", ...grid })).toBe("#BAD_EXPR");
+  });
 });
 
 describe("RANK formula", () => {
@@ -2036,6 +2252,16 @@ describe("SMALL formula", () => {
     expect(evaluateCellFormat("A1", { A1: "=SMALL(A2:A3, 1)", A2: "600%", A3: "7" })).toBe("0%");
     expect(evaluateCellFormat("A1", { A1: "=SMALL(A2:A3, 2)", A2: "1", A3: "42%" })).toBe("");
   });
+
+  test("SMALL doesn't accept errors in first parameter", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "=KABOUM",
+      A2: "42",
+      A3: "44",
+    };
+    expect(evaluateCell("A4", { A4: "=SMALL(A1:A3, 2)", ...grid })).toBe("#BAD_EXPR");
+  });
 });
 
 describe("STDEV formula", () => {
@@ -2197,6 +2423,16 @@ describe("STDEV.S formula", () => {
       evaluateCell("A1", { A1: "=STDEV.S(A2, A3)", A2: "8/8/2008", A3: "10/10/2010" })
     ).toBeCloseTo(560.73568, 5);
   });
+
+  test("STDEV doesn't accept errors in parameters", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "=KABOUM",
+      A2: "42",
+      A3: "44",
+    };
+    expect(evaluateCell("A4", { A4: "=STDEV(A1:A3)", ...grid })).toBe("#BAD_EXPR");
+  });
 });
 
 describe("STDEVA formula", () => {
@@ -2245,6 +2481,16 @@ describe("STDEVA formula", () => {
       evaluateCell("A1", { A1: "=STDEVA(A2, A3)", A2: "8/8/2008", A3: "10/10/2010" })
     ).toBeCloseTo(560.73568, 5);
   });
+
+  test("STDEVA doesn't accept errors in parameters", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "=KABOUM",
+      A2: "42",
+      A3: "44",
+    };
+    expect(evaluateCell("A4", { A4: "=STDEVA(A1:A3)", ...grid })).toBe("#BAD_EXPR");
+  });
 });
 
 describe("STDEVP formula", () => {
@@ -2291,6 +2537,16 @@ describe("STDEVP formula", () => {
     expect(evaluateCell("A1", { A1: "=STDEVP(A2, A3)", A2: "8/8/2008", A3: "10/10/2010" })).toBe(
       396.5
     );
+  });
+
+  test("STDEVP doesn't accept errors in parameters", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "=KABOUM",
+      A2: "42",
+      A3: "44",
+    };
+    expect(evaluateCell("A4", { A4: "=STDEVP(A1:A3)", ...grid })).toBe("#BAD_EXPR");
   });
 });
 
@@ -2347,6 +2603,16 @@ describe("STDEVPA formula", () => {
       396.5
     );
   });
+
+  test("STDEVPA doesn't accept errors in parameters", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "=KABOUM",
+      A2: "42",
+      A3: "44",
+    };
+    expect(evaluateCell("A4", { A4: "=STDEVPA(A1:A3)", ...grid })).toBe("#BAD_EXPR");
+  });
 });
 
 describe("VAR formula", () => {
@@ -2389,6 +2655,16 @@ describe("VAR formula", () => {
     expect(evaluateCell("A1", { A1: "=VAR(A2, A3)", A2: "8/8/2008", A3: "10/10/2010" })).toBe(
       314424.5
     );
+  });
+
+  test("VAR doesn't accept errors in parameters", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "=KABOUM",
+      A2: "42",
+      A3: "44",
+    };
+    expect(evaluateCell("A4", { A4: "=VAR(A1:A3)", ...grid })).toBe("#BAD_EXPR");
   });
 });
 
@@ -2433,6 +2709,16 @@ describe("VAR.P formula", () => {
       evaluateCell("A1", { A1: "=VAR.P(A2, A3, A4)", A2: "1/11/1900", A3: "1/8/1900", A4: "FALSE" })
     ).toBe(2.25);
   });
+
+  test("VAR.P doesn't accept errors in parameters", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "=KABOUM",
+      A2: "42",
+      A3: "44",
+    };
+    expect(evaluateCell("A4", { A4: "=VAR.P(A1:A3)", ...grid })).toBe("#BAD_EXPR");
+  });
 });
 
 describe("VAR.S formula", () => {
@@ -2475,6 +2761,16 @@ describe("VAR.S formula", () => {
     expect(
       evaluateCell("A1", { A1: "=VAR.S(A2, A3, A4)", A2: "1/11/1900", A3: "1/8/1900", A4: "FALSE" })
     ).toBe(4.5);
+  });
+
+  test("VAR.S doesn't accept errors in parameters", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "=KABOUM",
+      A2: "42",
+      A3: "44",
+    };
+    expect(evaluateCell("A4", { A4: "=VAR.S(A1:A3)", ...grid })).toBe("#BAD_EXPR");
   });
 });
 
@@ -2519,6 +2815,16 @@ describe("VARA formula", () => {
       evaluateCell("A1", { A1: "=VARA(A2, A3, A4)", A2: "1/11/1900", A3: "1/8/1900", A4: "test" })
     ).toBe(39);
   });
+
+  test("VARA doesn't accept errors in parameters", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "=KABOUM",
+      A2: "42",
+      A3: "44",
+    };
+    expect(evaluateCell("A4", { A4: "=VARA(A1:A3)", ...grid })).toBe("#BAD_EXPR");
+  });
 });
 
 describe("VARP formula", () => {
@@ -2559,6 +2865,16 @@ describe("VARP formula", () => {
     expect(evaluateCell("A1", { A1: "=VARP(A2, A3, A4)", A2: "test", A3: "3", A4: "5" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=VARP(A2, A3, A4)", A2: "2", A3: "4", A4: '=""' })).toBe(1);
     expect(evaluateCell("A1", { A1: "=VARP(A2, A3)", A2: "1/11/1900", A3: "1/8/1900" })).toBe(2.25);
+  });
+
+  test("VARP doesn't accept errors in parameters", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "=KABOUM",
+      A2: "42",
+      A3: "44",
+    };
+    expect(evaluateCell("A4", { A4: "=VARP(A1:A3)", ...grid })).toBe("#BAD_EXPR");
   });
 });
 
@@ -2602,6 +2918,16 @@ describe("VARPA formula", () => {
     expect(
       evaluateCell("A1", { A1: "=VARPA(A2, A3, A4)", A2: "1/11/1900", A3: "1/8/1900", A4: "test" })
     ).toBe(26);
+  });
+
+  test("VARPA doesn't accept errors in parameters", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "=KABOUM",
+      A2: "42",
+      A3: "44",
+    };
+    expect(evaluateCell("A4", { A4: "=VARPA(A1:A3)", ...grid })).toBe("#BAD_EXPR");
   });
 });
 
@@ -4107,7 +4433,7 @@ describe("GROWTH formula", () => {
        A7: "7", B7: "4", C7: "30.00",
        A8: "8", B8: "4", C8: "34.01",
        A9: "9", B9: "5", C9: "36.47",
-      A10: "=GROWTH(C1:C9, A1:B9)",
+      A10: "=?GROWTH(C1:C9, A1:B9)",
     };
     const model = createModelFromGrid(grid);
     expect(getEvaluatedCell(model, "A10").value).toBeCloseTo(16.34947771);

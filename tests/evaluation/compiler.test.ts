@@ -193,10 +193,10 @@ describe("compile functions", () => {
           { name: "arg2", description: "", type: ["ANY"] },
         ],
         compute: (arg1, arg2) => {
-          return arg2 === undefined;
-        },
-        computeFormat: (arg1, arg2) => {
-          return arg2 === undefined ? "TRUE" : "FALSE";
+          return {
+            value: arg2 === undefined,
+            format: arg2 === undefined ? "TRUE" : "FALSE",
+          };
         },
         returns: ["BOOLEAN"],
       });
@@ -207,16 +207,10 @@ describe("compile functions", () => {
           { name: "arg1", description: "", type: ["ANY"] },
           { name: "arg2", description: "", type: ["ANY"], default: true, defaultValue: 42 },
         ],
-        compute: (arg1, arg2 = 42) => {
-          return arg2 === 42;
-        },
-        computeFormat: (arg1, arg2 = { value: 42, format: "42" }) => {
-          return !Array.isArray(arg2) &&
-            typeof arg2 !== "function" &&
-            arg2.value === 42 &&
-            arg2.format === "42"
-            ? "TRUE"
-            : "FALSE";
+        compute: (arg1, arg2 = { value: 42, format: "42" }) => {
+          return !Array.isArray(arg2) && arg2.value === 42 && arg2.format === "42"
+            ? { value: true, format: "TRUE" }
+            : { value: false, format: "FALSE" };
         },
         returns: ["ANY"],
       });
@@ -364,70 +358,6 @@ describe("compile functions", () => {
         "Function MULTIPLY expects its parameters to be single values or single cell references, not ranges."
       );
       expect(getCellError(m, "B14")).toBeUndefined();
-    });
-  });
-
-  describe("with lazy arguments", () => {
-    // this tests performs controls inside formula functions. For this reason, we
-    // don't use mocked functions. Errors would be caught during evaluation of
-    // formulas and not during the tests. So here we use a simple counter
-
-    let count = 0;
-
-    beforeAll(() => {
-      functionRegistry.add("ANYFUNCTION", {
-        description: "any function",
-        args: [],
-        compute: () => {
-          count += 1;
-          return true;
-        },
-        returns: ["ANY"],
-      });
-
-      functionRegistry.add("USELAZYARG", {
-        description: "function with a lazy argument",
-        args: [{ name: "lazyArg", description: "", type: ["ANY"], lazy: true }],
-        compute: (arg) => {
-          count *= 42;
-          (arg as Function)();
-          return true;
-        },
-        returns: ["ANY"],
-      });
-
-      functionRegistry.add("NOTUSELAZYARG", {
-        description: "any function",
-        args: [{ name: "any", description: "", type: ["ANY"] }],
-        compute: () => {
-          count *= 42;
-          return true;
-        },
-        returns: ["ANY"],
-      });
-    });
-
-    afterAll(() => {
-      restoreDefaultFunctions();
-    });
-
-    test("with function as argument --> change the order in which functions are evaluated ", () => {
-      count = 0;
-      evaluateCell("A1", { A1: "=USELAZYARG(ANYFUNCTION())" });
-      expect(count).toBe(1);
-      count = 0;
-      evaluateCell("A2", { A2: "=NOTUSELAZYARG(ANYFUNCTION())" });
-      expect(count).toBe(42);
-    });
-
-    test.each([
-      "=USELAZYARG(24)",
-      "=USELAZYARG(1/0)",
-      "=USELAZYARG(1/1/0)",
-      "=USELAZYARG(USELAZYARG(24))",
-    ])("functions call requesting lazy parameters", (formula) => {
-      const compiledFormula = compiledBaseFunction(formula);
-      expect(compiledFormula.execute.toString()).toMatchSnapshot();
     });
   });
 

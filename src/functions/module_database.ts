@@ -1,14 +1,23 @@
 import { _t } from "../translation";
-import { AddFunctionDescription, ArgValue, CellValue, Locale, Matrix, Maybe } from "../types";
+import {
+  AddFunctionDescription,
+  Arg,
+  FPayload,
+  FPayloadNumber,
+  Locale,
+  Matrix,
+  Maybe,
+} from "../types";
+import { EvaluationError } from "../types/errors";
 import { arg } from "./arguments";
 import { assert, toString, visitMatchingRanges } from "./helpers";
 import { PRODUCT, SUM } from "./module_math";
 import { AVERAGE, COUNT, COUNTA, MAX, MIN, STDEV, STDEVP, VAR, VARP } from "./module_statistical";
 
 function getMatchingCells(
-  database: Matrix<CellValue>,
-  field: Maybe<CellValue>,
-  criteria: Matrix<CellValue>,
+  database: Matrix<FPayload>,
+  field: Maybe<FPayload>,
+  criteria: Matrix<FPayload>,
   locale: Locale
 ): any[] {
   // Example
@@ -36,20 +45,23 @@ function getMatchingCells(
   // field may either be a text label corresponding to a column header in the
   // first row of database or a numeric index indicating which column to consider,
   // where the first column has the value 1.
+  const fieldValue = field?.value;
 
-  if (typeof field !== "number" && typeof field !== "string") {
-    throw new Error(_t("The field must be a number or a string"));
+  if (typeof fieldValue !== "number" && typeof fieldValue !== "string") {
+    throw new EvaluationError(_t("The field must be a number or a string"));
   }
 
   let index: number;
-  if (typeof field === "number") {
-    index = Math.trunc(field) - 1;
+  if (typeof fieldValue === "number") {
+    index = Math.trunc(fieldValue) - 1;
     if (index < 0 || dimRowDB - 1 < index) {
-      throw new Error(
+      throw new EvaluationError(
         _t(
-          "The field (%s) must be one of %s or must be a number between 1 and %s inclusive.",
-          field.toString(),
-          dimRowDB.toString()
+          "The field (%(fieldValue)s) must be one of %(dimRowDB)s or must be a number between 1 and %s inclusive.",
+          {
+            fieldValue: fieldValue.toString(),
+            dimRowDB: dimRowDB.toString(),
+          }
         )
       );
     }
@@ -57,7 +69,7 @@ function getMatchingCells(
     const colName = toString(field).toUpperCase();
     index = indexColNameDB.get(colName) ?? -1;
     if (index === -1) {
-      throw new Error(
+      throw new EvaluationError(
         _t(
           "The field (%s) must be one of %s.",
           toString(field),
@@ -74,7 +86,7 @@ function getMatchingCells(
   const dimColCriteria = criteria[0].length;
 
   if (dimColCriteria < 2) {
-    throw new Error(
+    throw new EvaluationError(
       _t(
         "The criteria range contains %s row, it must be at least 2 rows.",
         dimColCriteria.toString()
@@ -85,13 +97,13 @@ function getMatchingCells(
   let matchingRows: Set<number> = new Set();
   const dimColDB = database[0].length;
   for (let indexRow = 1; indexRow < dimColCriteria; indexRow++) {
-    let args: ArgValue[] = [];
+    let args: Arg[] = [];
     let existColNameDB = true;
     for (let indexCol = 0; indexCol < criteria.length; indexCol++) {
       const currentName = toString(criteria[indexCol][0]).toUpperCase();
       const indexColDB = indexColNameDB.get(currentName);
       const criter = criteria[indexCol][indexRow];
-      if (criter !== null) {
+      if (criter.value !== null) {
         if (indexColDB !== undefined) {
           args.push([database[indexColDB].slice(1, dimColDB)]);
           args.push(criter);
@@ -161,10 +173,10 @@ export const DAVERAGE = {
   args: databaseArgs,
   returns: ["NUMBER"],
   compute: function (
-    database: Matrix<CellValue>,
-    field: Maybe<CellValue>,
-    criteria: Matrix<CellValue>
-  ): number {
+    database: Matrix<FPayload>,
+    field: Maybe<FPayload>,
+    criteria: Matrix<FPayload>
+  ): FPayloadNumber {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     return AVERAGE.compute.bind(this)([cells]);
   },
@@ -179,9 +191,9 @@ export const DCOUNT = {
   args: databaseArgs,
   returns: ["NUMBER"],
   compute: function (
-    database: Matrix<CellValue>,
-    field: Maybe<CellValue>,
-    criteria: Matrix<CellValue>
+    database: Matrix<FPayload>,
+    field: Maybe<FPayload>,
+    criteria: Matrix<FPayload>
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     return COUNT.compute.bind(this)([cells]);
@@ -197,9 +209,9 @@ export const DCOUNTA = {
   args: databaseArgs,
   returns: ["NUMBER"],
   compute: function (
-    database: Matrix<CellValue>,
-    field: Maybe<CellValue>,
-    criteria: Matrix<CellValue>
+    database: Matrix<FPayload>,
+    field: Maybe<FPayload>,
+    criteria: Matrix<FPayload>
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     return COUNTA.compute.bind(this)([cells]);
@@ -215,10 +227,10 @@ export const DGET = {
   args: databaseArgs,
   returns: ["NUMBER"],
   compute: function (
-    database: Matrix<CellValue>,
-    field: Maybe<CellValue>,
-    criteria: Matrix<CellValue>
-  ): CellValue {
+    database: Matrix<FPayload>,
+    field: Maybe<FPayload>,
+    criteria: Matrix<FPayload>
+  ): FPayload {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     assert(() => cells.length === 1, _t("More than one match found in DGET evaluation."));
     return cells[0];
@@ -234,10 +246,10 @@ export const DMAX = {
   args: databaseArgs,
   returns: ["NUMBER"],
   compute: function (
-    database: Matrix<CellValue>,
-    field: Maybe<CellValue>,
-    criteria: Matrix<CellValue>
-  ): number {
+    database: Matrix<FPayload>,
+    field: Maybe<FPayload>,
+    criteria: Matrix<FPayload>
+  ): FPayloadNumber {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     return MAX.compute.bind(this)([cells]);
   },
@@ -252,10 +264,10 @@ export const DMIN = {
   args: databaseArgs,
   returns: ["NUMBER"],
   compute: function (
-    database: Matrix<CellValue>,
-    field: Maybe<CellValue>,
-    criteria: Matrix<CellValue>
-  ): number {
+    database: Matrix<FPayload>,
+    field: Maybe<FPayload>,
+    criteria: Matrix<FPayload>
+  ): FPayloadNumber {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     return MIN.compute.bind(this)([cells]);
   },
@@ -270,10 +282,10 @@ export const DPRODUCT = {
   args: databaseArgs,
   returns: ["NUMBER"],
   compute: function (
-    database: Matrix<CellValue>,
-    field: Maybe<CellValue>,
-    criteria: Matrix<CellValue>
-  ): number {
+    database: Matrix<FPayload>,
+    field: Maybe<FPayload>,
+    criteria: Matrix<FPayload>
+  ): FPayloadNumber {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     return PRODUCT.compute.bind(this)([cells]);
   },
@@ -288,9 +300,9 @@ export const DSTDEV = {
   args: databaseArgs,
   returns: ["NUMBER"],
   compute: function (
-    database: Matrix<CellValue>,
-    field: Maybe<CellValue>,
-    criteria: Matrix<CellValue>
+    database: Matrix<FPayload>,
+    field: Maybe<FPayload>,
+    criteria: Matrix<FPayload>
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     return STDEV.compute.bind(this)([cells]);
@@ -306,9 +318,9 @@ export const DSTDEVP = {
   args: databaseArgs,
   returns: ["NUMBER"],
   compute: function (
-    database: Matrix<CellValue>,
-    field: Maybe<CellValue>,
-    criteria: Matrix<CellValue>
+    database: Matrix<FPayload>,
+    field: Maybe<FPayload>,
+    criteria: Matrix<FPayload>
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     return STDEVP.compute.bind(this)([cells]);
@@ -324,10 +336,10 @@ export const DSUM = {
   args: databaseArgs,
   returns: ["NUMBER"],
   compute: function (
-    database: Matrix<CellValue>,
-    field: Maybe<CellValue>,
-    criteria: Matrix<CellValue>
-  ): number {
+    database: Matrix<FPayload>,
+    field: Maybe<FPayload>,
+    criteria: Matrix<FPayload>
+  ): FPayloadNumber {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     return SUM.compute.bind(this)([cells]);
   },
@@ -342,9 +354,9 @@ export const DVAR = {
   args: databaseArgs,
   returns: ["NUMBER"],
   compute: function (
-    database: Matrix<CellValue>,
-    field: Maybe<CellValue>,
-    criteria: Matrix<CellValue>
+    database: Matrix<FPayload>,
+    field: Maybe<FPayload>,
+    criteria: Matrix<FPayload>
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     return VAR.compute.bind(this)([cells]);
@@ -360,9 +372,9 @@ export const DVARP = {
   args: databaseArgs,
   returns: ["NUMBER"],
   compute: function (
-    database: Matrix<CellValue>,
-    field: Maybe<CellValue>,
-    criteria: Matrix<CellValue>
+    database: Matrix<FPayload>,
+    field: Maybe<FPayload>,
+    criteria: Matrix<FPayload>
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     return VARP.compute.bind(this)([cells]);

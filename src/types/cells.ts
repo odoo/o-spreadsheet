@@ -1,4 +1,3 @@
-import { EvaluationError } from "./errors";
 import { Format, FormattedValue } from "./format";
 import { Link, RangeCompiledFormula, Style, UID } from "./misc";
 
@@ -64,7 +63,7 @@ export interface EmptyCell extends EvaluatedCellProperties {
 export interface ErrorCell extends EvaluatedCellProperties {
   readonly type: CellValueType.error;
   readonly value: string;
-  readonly error: EvaluationError;
+  readonly message?: string;
 }
 
 export enum CellValueType {

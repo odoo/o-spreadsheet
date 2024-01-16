@@ -100,7 +100,7 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
       const functionDefinition = functions[functionName];
 
       if (!functionDefinition) {
-        throw new UnknownFunctionError(ast.value);
+        throw new UnknownFunctionError(_t('Unknown function: "%s"', ast.value));
       }
 
       assertEnoughArgs(ast);
@@ -115,8 +115,6 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
 
         // detect when an argument need to be evaluated as a meta argument
         const isMeta = argTypes.includes("META");
-        // detect when an argument need to be evaluated as a lazy argument
-        const isLazy = argDefinition.lazy;
 
         const hasRange = argTypes.some((t) => isRangeType(t));
         const isRangeOnly = argTypes.every((t) => isRangeType(t));
@@ -134,11 +132,12 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
           }
         }
 
-        const compiledAST = compileAST(currentArg, isMeta, hasRange, {
-          functionName,
-          paramIndex: i + 1,
-        });
-        compiledArgs.push(isLazy ? compiledAST.wrapInClosure() : compiledAST);
+        compiledArgs.push(
+          compileAST(currentArg, isMeta, hasRange, {
+            functionName,
+            paramIndex: i + 1,
+          })
+        );
       }
 
       return compiledArgs;
@@ -200,7 +199,6 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
           const args = compileFunctionArgs(ast).map((arg) => arg.assignResultToVariable());
           code.append(...args);
           const fnName = ast.value.toUpperCase();
-          code.append(`ctx.__lastFnCalled = '${fnName}';`);
           return code.return(`ctx['${fnName}'](${args.map((arg) => arg.returnExpression)})`);
         case "UNARY_OPERATION": {
           const fnName = UNARY_OPERATOR_MAP[ast.value];
@@ -208,7 +206,6 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
             functionName: fnName,
           }).assignResultToVariable();
           code.append(operand);
-          code.append(`ctx.__lastFnCalled = '${fnName}';`);
           return code.return(`ctx['${fnName}'](${operand.returnExpression})`);
         }
         case "BIN_OPERATION": {
@@ -221,7 +218,6 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
           }).assignResultToVariable();
           code.append(left);
           code.append(right);
-          code.append(`ctx.__lastFnCalled = '${fnName}';`);
           return code.return(
             `ctx['${fnName}'](${left.returnExpression}, ${right.returnExpression})`
           );

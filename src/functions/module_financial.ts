@@ -8,8 +8,9 @@ import {
 import { _t } from "../translation";
 import {
   AddFunctionDescription,
-  ArgValue,
-  CellValue,
+  Arg,
+  FPayload,
+  FPayloadNumber,
   Locale,
   Matrix,
   Maybe,
@@ -29,6 +30,7 @@ import {
   assertEveryDateGreaterThanFirstDateOfCashFlowDates,
   assertFirstAndLastPeriodsAreValid,
   assertInvestmentStrictlyPositive,
+  assertIssuePositiveOrZero,
   assertLifeStrictlyPositive,
   assertMaturityAndSettlementDatesAreValid,
   assertNumberOfPeriodsStrictlyPositive,
@@ -37,6 +39,7 @@ import {
   assertPeriodStrictlyPositive,
   assertPresentValueStrictlyPositive,
   assertPriceStrictlyPositive,
+  assertPurchaseDatePositiveOrZero,
   assertRateGuessStrictlyGreaterThanMinusOne,
   assertRateStrictlyPositive,
   assertRedemptionStrictlyPositive,
@@ -57,7 +60,7 @@ import {
   transposeMatrix,
   visitNumbers,
 } from "./helpers";
-import { DAYS, YEARFRAC } from "./module_date";
+import { DAYS } from "./module_date";
 
 const DEFAULT_DAY_COUNT_CONVENTION = 0;
 const DEFAULT_END_OR_BEGINNING = 0;
@@ -147,25 +150,25 @@ export const ACCRINTM = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    issue: Maybe<CellValue>,
-    maturity: Maybe<CellValue>,
-    rate: Maybe<CellValue>,
-    redemption: Maybe<CellValue>,
-    dayCountConvention: Maybe<CellValue> = DEFAULT_DAY_COUNT_CONVENTION
+    issue: Maybe<FPayload>,
+    maturity: Maybe<FPayload>,
+    rate: Maybe<FPayload>,
+    redemption: Maybe<FPayload>,
+    dayCountConvention: Maybe<FPayload> = { value: DEFAULT_DAY_COUNT_CONVENTION }
   ): number {
-    dayCountConvention = dayCountConvention || 0;
     const start = Math.trunc(toNumber(issue, this.locale));
     const end = Math.trunc(toNumber(maturity, this.locale));
     const _redemption = toNumber(redemption, this.locale);
     const _rate = toNumber(rate, this.locale);
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
+    assertIssuePositiveOrZero(start);
     assertSettlementAndIssueDatesAreValid(end, start);
     assertDayCountConventionIsValid(_dayCountConvention);
     assertRedemptionStrictlyPositive(_redemption);
     assertRateStrictlyPositive(_rate);
 
-    const yearFrac = YEARFRAC.compute.bind(this)(start, end, dayCountConvention);
+    const yearFrac = getYearFrac(start, end, _dayCountConvention);
     return _redemption * _rate * yearFrac;
   },
   isExported: true,
@@ -193,13 +196,13 @@ export const AMORLINC = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    cost: Maybe<CellValue>,
-    purchaseDate: Maybe<CellValue>,
-    firstPeriodEnd: Maybe<CellValue>,
-    salvage: Maybe<CellValue>,
-    period: Maybe<CellValue>,
-    rate: Maybe<CellValue>,
-    dayCountConvention: Maybe<CellValue> = DEFAULT_DAY_COUNT_CONVENTION
+    cost: Maybe<FPayload>,
+    purchaseDate: Maybe<FPayload>,
+    firstPeriodEnd: Maybe<FPayload>,
+    salvage: Maybe<FPayload>,
+    period: Maybe<FPayload>,
+    rate: Maybe<FPayload>,
+    dayCountConvention: Maybe<FPayload> = { value: DEFAULT_DAY_COUNT_CONVENTION }
   ): number {
     dayCountConvention = dayCountConvention || 0;
     const _cost = toNumber(cost, this.locale);
@@ -211,6 +214,7 @@ export const AMORLINC = {
     const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
     assertCostStrictlyPositive(_cost);
+    assertPurchaseDatePositiveOrZero(_purchaseDate);
     assertSalvagePositiveOrZero(_salvage);
     assertSalvageSmallerOrEqualThanCost(_salvage, _cost);
     assertPeriodPositiveOrZero(_period);
@@ -242,11 +246,7 @@ export const AMORLINC = {
     const roundedPeriod = _period < 1 && _period > 0 ? 1 : Math.trunc(_period);
 
     const deprec = _cost * _rate;
-    const yearFrac = YEARFRAC.compute.bind(this)(
-      _purchaseDate,
-      _firstPeriodEnd,
-      _dayCountConvention
-    );
+    const yearFrac = getYearFrac(_purchaseDate, _firstPeriodEnd, _dayCountConvention);
     const firstDeprec = _purchaseDate === _firstPeriodEnd ? deprec : deprec * yearFrac;
 
     const valueAtPeriod = _cost - firstDeprec - deprec * roundedPeriod;
@@ -267,10 +267,10 @@ export const COUPDAYS = {
   args: COUPON_FUNCTION_ARGS,
   returns: ["NUMBER"],
   compute: function (
-    settlement: Maybe<CellValue>,
-    maturity: Maybe<CellValue>,
-    frequency: Maybe<CellValue>,
-    dayCountConvention: Maybe<CellValue> = DEFAULT_DAY_COUNT_CONVENTION
+    settlement: Maybe<FPayload>,
+    maturity: Maybe<FPayload>,
+    frequency: Maybe<FPayload>,
+    dayCountConvention: Maybe<FPayload> = { value: DEFAULT_DAY_COUNT_CONVENTION }
   ): number {
     dayCountConvention = dayCountConvention || 0;
     const start = Math.trunc(toNumber(settlement, this.locale));
@@ -289,8 +289,13 @@ export const COUPDAYS = {
         maturity,
         frequency,
         dayCountConvention
-      );
-      const after = COUPNCD.compute.bind(this)(settlement, maturity, frequency, dayCountConvention);
+      ).value;
+      const after = COUPNCD.compute.bind(this)(
+        settlement,
+        maturity,
+        frequency,
+        dayCountConvention
+      ).value;
       return after - before;
     }
 
@@ -308,10 +313,10 @@ export const COUPDAYBS = {
   args: COUPON_FUNCTION_ARGS,
   returns: ["NUMBER"],
   compute: function (
-    settlement: Maybe<CellValue>,
-    maturity: Maybe<CellValue>,
-    frequency: Maybe<CellValue>,
-    dayCountConvention: Maybe<CellValue> = DEFAULT_DAY_COUNT_CONVENTION
+    settlement: Maybe<FPayload>,
+    maturity: Maybe<FPayload>,
+    frequency: Maybe<FPayload>,
+    dayCountConvention: Maybe<FPayload> = { value: DEFAULT_DAY_COUNT_CONVENTION }
   ): number {
     dayCountConvention = dayCountConvention || 0;
     const start = Math.trunc(toNumber(settlement, this.locale));
@@ -323,7 +328,12 @@ export const COUPDAYBS = {
     assertCouponFrequencyIsValid(_frequency);
     assertDayCountConventionIsValid(_dayCountConvention);
 
-    const couponBeforeStart = COUPPCD.compute.bind(this)(start, end, frequency, dayCountConvention);
+    const couponBeforeStart = COUPPCD.compute.bind(this)(
+      settlement,
+      maturity,
+      frequency,
+      dayCountConvention
+    ).value;
     if ([1, 2, 3].includes(_dayCountConvention)) {
       return start - couponBeforeStart;
     }
@@ -380,10 +390,10 @@ export const COUPDAYSNC = {
   args: COUPON_FUNCTION_ARGS,
   returns: ["NUMBER"],
   compute: function (
-    settlement: Maybe<CellValue>,
-    maturity: Maybe<CellValue>,
-    frequency: Maybe<CellValue>,
-    dayCountConvention: Maybe<CellValue> = DEFAULT_DAY_COUNT_CONVENTION
+    settlement: Maybe<FPayload>,
+    maturity: Maybe<FPayload>,
+    frequency: Maybe<FPayload>,
+    dayCountConvention: Maybe<FPayload> = { value: DEFAULT_DAY_COUNT_CONVENTION }
   ): number {
     dayCountConvention = dayCountConvention || 0;
     const start = Math.trunc(toNumber(settlement, this.locale));
@@ -395,7 +405,12 @@ export const COUPDAYSNC = {
     assertCouponFrequencyIsValid(_frequency);
     assertDayCountConventionIsValid(_dayCountConvention);
 
-    const couponAfterStart = COUPNCD.compute.bind(this)(start, end, frequency, dayCountConvention);
+    const couponAfterStart = COUPNCD.compute.bind(this)(
+      settlement,
+      maturity,
+      frequency,
+      dayCountConvention
+    ).value;
     if ([1, 2, 3].includes(_dayCountConvention)) {
       return couponAfterStart - start;
     }
@@ -409,13 +424,13 @@ export const COUPDAYSNC = {
       settlement,
       maturity,
       frequency,
-      _dayCountConvention
+      dayCountConvention
     );
     const coupDays = COUPDAYS.compute.bind(this)(
       settlement,
       maturity,
       frequency,
-      _dayCountConvention
+      dayCountConvention
     );
     return coupDays - coupDayBs;
   },
@@ -429,15 +444,12 @@ export const COUPNCD = {
   description: _t("Next coupon date after the settlement date."),
   args: COUPON_FUNCTION_ARGS,
   returns: ["NUMBER"],
-  computeFormat: function () {
-    return this.locale.dateFormat;
-  },
   compute: function (
-    settlement: Maybe<CellValue>,
-    maturity: Maybe<CellValue>,
-    frequency: Maybe<CellValue>,
-    dayCountConvention: Maybe<CellValue> = DEFAULT_DAY_COUNT_CONVENTION
-  ): number {
+    settlement: Maybe<FPayload>,
+    maturity: Maybe<FPayload>,
+    frequency: Maybe<FPayload>,
+    dayCountConvention: Maybe<FPayload> = { value: DEFAULT_DAY_COUNT_CONVENTION }
+  ): FPayloadNumber {
     dayCountConvention = dayCountConvention || 0;
     const start = Math.trunc(toNumber(settlement, this.locale));
     const end = Math.trunc(toNumber(maturity, this.locale));
@@ -456,7 +468,10 @@ export const COUPNCD = {
       -(coupNum - 1) * monthsPerPeriod,
       true
     );
-    return jsDateToRoundNumber(date);
+    return {
+      value: jsDateToRoundNumber(date),
+      format: this.locale.dateFormat,
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -469,10 +484,10 @@ export const COUPNUM = {
   args: COUPON_FUNCTION_ARGS,
   returns: ["NUMBER"],
   compute: function (
-    settlement: Maybe<CellValue>,
-    maturity: Maybe<CellValue>,
-    frequency: Maybe<CellValue>,
-    dayCountConvention: Maybe<CellValue> = DEFAULT_DAY_COUNT_CONVENTION
+    settlement: Maybe<FPayload>,
+    maturity: Maybe<FPayload>,
+    frequency: Maybe<FPayload>,
+    dayCountConvention: Maybe<FPayload> = { value: DEFAULT_DAY_COUNT_CONVENTION }
   ): number {
     dayCountConvention = dayCountConvention || 0;
     const start = Math.trunc(toNumber(settlement, this.locale));
@@ -506,15 +521,12 @@ export const COUPPCD = {
   description: _t("Last coupon date prior to or on the settlement date."),
   args: COUPON_FUNCTION_ARGS,
   returns: ["NUMBER"],
-  computeFormat: function () {
-    return this.locale.dateFormat;
-  },
   compute: function (
-    settlement: Maybe<CellValue>,
-    maturity: Maybe<CellValue>,
-    frequency: Maybe<CellValue>,
-    dayCountConvention: Maybe<CellValue> = DEFAULT_DAY_COUNT_CONVENTION
-  ): number {
+    settlement: Maybe<FPayload>,
+    maturity: Maybe<FPayload>,
+    frequency: Maybe<FPayload>,
+    dayCountConvention: Maybe<FPayload> = { value: DEFAULT_DAY_COUNT_CONVENTION }
+  ): FPayloadNumber {
     dayCountConvention = dayCountConvention || 0;
     const start = Math.trunc(toNumber(settlement, this.locale));
     const end = Math.trunc(toNumber(maturity, this.locale));
@@ -529,7 +541,10 @@ export const COUPPCD = {
 
     const coupNum = COUPNUM.compute.bind(this)(settlement, maturity, frequency, dayCountConvention);
     const date = addMonthsToDate(toJsDate(end, this.locale), -coupNum * monthsPerPeriod, true);
-    return jsDateToRoundNumber(date);
+    return {
+      value: jsDateToRoundNumber(date),
+      format: this.locale.dateFormat,
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -558,27 +573,27 @@ export const CUMIPMT = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    rate: Maybe<CellValue>,
-    numberOfPeriods: Maybe<CellValue>,
-    presentValue: Maybe<CellValue>,
-    firstPeriod: Maybe<CellValue>,
-    lastPeriod: Maybe<CellValue>,
-    endOrBeginning: Maybe<CellValue> = DEFAULT_END_OR_BEGINNING
+    rate: Maybe<FPayload>,
+    numberOfPeriods: Maybe<FPayload>,
+    presentValue: Maybe<FPayload>,
+    firstPeriod: Maybe<FPayload>,
+    lastPeriod: Maybe<FPayload>,
+    endOrBeginning: Maybe<FPayload> = { value: DEFAULT_END_OR_BEGINNING }
   ): number {
     const first = toNumber(firstPeriod, this.locale);
     const last = toNumber(lastPeriod, this.locale);
-    const _rate = toNumber(rate, this.locale);
+    const r = toNumber(rate, this.locale);
     const pv = toNumber(presentValue, this.locale);
-    const nOfPeriods = toNumber(numberOfPeriods, this.locale);
+    const n = toNumber(numberOfPeriods, this.locale);
+    const type = toBoolean(endOrBeginning) ? 1 : 0;
 
-    assertFirstAndLastPeriodsAreValid(first, last, nOfPeriods);
-    assertRateStrictlyPositive(_rate);
+    assertFirstAndLastPeriodsAreValid(first, last, n);
+    assertRateStrictlyPositive(r);
     assertPresentValueStrictlyPositive(pv);
 
     let cumSum = 0;
     for (let i = first; i <= last; i++) {
-      const impt = IPMT.compute.bind(this)(rate, i, nOfPeriods, presentValue, 0, endOrBeginning);
-      cumSum += impt;
+      cumSum += impt(r, i, n, pv, 0, type);
     }
 
     return cumSum;
@@ -610,27 +625,27 @@ export const CUMPRINC = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    rate: Maybe<CellValue>,
-    numberOfPeriods: Maybe<CellValue>,
-    presentValue: Maybe<CellValue>,
-    firstPeriod: Maybe<CellValue>,
-    lastPeriod: Maybe<CellValue>,
-    endOrBeginning: Maybe<CellValue> = DEFAULT_END_OR_BEGINNING
+    rate: Maybe<FPayload>,
+    numberOfPeriods: Maybe<FPayload>,
+    presentValue: Maybe<FPayload>,
+    firstPeriod: Maybe<FPayload>,
+    lastPeriod: Maybe<FPayload>,
+    endOrBeginning: Maybe<FPayload> = { value: DEFAULT_END_OR_BEGINNING }
   ): number {
     const first = toNumber(firstPeriod, this.locale);
     const last = toNumber(lastPeriod, this.locale);
-    const _rate = toNumber(rate, this.locale);
+    const r = toNumber(rate, this.locale);
     const pv = toNumber(presentValue, this.locale);
-    const nOfPeriods = toNumber(numberOfPeriods, this.locale);
+    const n = toNumber(numberOfPeriods, this.locale);
+    const type = toBoolean(endOrBeginning) ? 1 : 0;
 
-    assertFirstAndLastPeriodsAreValid(first, last, nOfPeriods);
-    assertRateStrictlyPositive(_rate);
+    assertFirstAndLastPeriodsAreValid(first, last, n);
+    assertRateStrictlyPositive(r);
     assertPresentValueStrictlyPositive(pv);
 
     let cumSum = 0;
     for (let i = first; i <= last; i++) {
-      const ppmt = PPMT.compute.bind(this)(rate, i, nOfPeriods, presentValue, 0, endOrBeginning);
-      cumSum += ppmt;
+      cumSum += ppmt(r, i, n, pv, 0, type);
     }
 
     return cumSum;
@@ -655,14 +670,13 @@ export const DB = {
   ],
   returns: ["NUMBER"],
   // to do: replace by dollar format
-  computeFormat: () => "#,##0.00",
   compute: function (
-    cost: Maybe<CellValue>,
-    salvage: Maybe<CellValue>,
-    life: Maybe<CellValue>,
-    period: Maybe<CellValue>,
-    ...args: Maybe<CellValue>[]
-  ): number {
+    cost: Maybe<FPayload>,
+    salvage: Maybe<FPayload>,
+    life: Maybe<FPayload>,
+    period: Maybe<FPayload>,
+    ...args: Maybe<FPayload>[]
+  ): FPayloadNumber {
     const _cost = toNumber(cost, this.locale);
     const _salvage = toNumber(salvage, this.locale);
     const _life = toNumber(life, this.locale);
@@ -704,7 +718,10 @@ export const DB = {
       }
     }
 
-    return before - after;
+    return {
+      value: before - after,
+      format: "#,##0.00",
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -713,6 +730,31 @@ export const DB = {
 // DDB
 // -----------------------------------------------------------------------------
 const DEFAULT_DDB_DEPRECIATION_FACTOR = 2;
+function ddb(cost: number, salvage: number, life: number, period: number, factor: number): number {
+  assertCostPositiveOrZero(cost);
+  assertSalvagePositiveOrZero(salvage);
+  assertPeriodStrictlyPositive(period);
+  assertLifeStrictlyPositive(life);
+  assertPeriodSmallerOrEqualToLife(period, life);
+  assertDeprecationFactorStrictlyPositive(factor);
+
+  if (cost === 0 || salvage >= cost) return 0;
+
+  const deprecFactor = factor / life;
+  if (deprecFactor > 1) {
+    return period === 1 ? cost - salvage : 0;
+  }
+
+  if (period <= 1) {
+    return cost * deprecFactor;
+  }
+
+  const previousCost = cost * Math.pow(1 - deprecFactor, period - 1);
+  const nextCost = cost * Math.pow(1 - deprecFactor, period);
+
+  const deprec = nextCost < salvage ? previousCost - salvage : previousCost - nextCost;
+  return Math.max(deprec, 0);
+}
 export const DDB = {
   description: _t("Depreciation via double-declining balance method."),
   args: [
@@ -729,44 +771,22 @@ export const DDB = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: () => "#,##0.00",
   compute: function (
-    cost: Maybe<CellValue>,
-    salvage: Maybe<CellValue>,
-    life: Maybe<CellValue>,
-    period: Maybe<CellValue>,
-    factor: Maybe<CellValue> = DEFAULT_DDB_DEPRECIATION_FACTOR
-  ): number {
-    factor = factor || 0;
+    cost: Maybe<FPayload>,
+    salvage: Maybe<FPayload>,
+    life: Maybe<FPayload>,
+    period: Maybe<FPayload>,
+    factor: Maybe<FPayload> = { value: DEFAULT_DDB_DEPRECIATION_FACTOR }
+  ): FPayloadNumber {
     const _cost = toNumber(cost, this.locale);
     const _salvage = toNumber(salvage, this.locale);
     const _life = toNumber(life, this.locale);
     const _period = toNumber(period, this.locale);
     const _factor = toNumber(factor, this.locale);
-
-    assertCostPositiveOrZero(_cost);
-    assertSalvagePositiveOrZero(_salvage);
-    assertPeriodStrictlyPositive(_period);
-    assertLifeStrictlyPositive(_life);
-    assertPeriodSmallerOrEqualToLife(_period, _life);
-    assertDeprecationFactorStrictlyPositive(_factor);
-
-    if (_cost === 0 || _salvage >= _cost) return 0;
-
-    const deprecFactor = _factor / _life;
-    if (deprecFactor > 1) {
-      return period === 1 ? _cost - _salvage : 0;
-    }
-
-    if (_period <= 1) {
-      return _cost * deprecFactor;
-    }
-
-    const previousCost = _cost * Math.pow(1 - deprecFactor, _period - 1);
-    const nextCost = _cost * Math.pow(1 - deprecFactor, _period);
-
-    const deprec = nextCost < _salvage ? previousCost - _salvage : previousCost - nextCost;
-    return Math.max(deprec, 0);
+    return {
+      value: ddb(_cost, _salvage, _life, _period, _factor),
+      format: "#,##0.00",
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -796,11 +816,11 @@ export const DISC = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    settlement: Maybe<CellValue>,
-    maturity: Maybe<CellValue>,
-    price: Maybe<CellValue>,
-    redemption: Maybe<CellValue>,
-    dayCountConvention: Maybe<CellValue> = DEFAULT_DAY_COUNT_CONVENTION
+    settlement: Maybe<FPayload>,
+    maturity: Maybe<FPayload>,
+    price: Maybe<FPayload>,
+    redemption: Maybe<FPayload>,
+    dayCountConvention: Maybe<FPayload> = { value: DEFAULT_DAY_COUNT_CONVENTION }
   ): number {
     dayCountConvention = dayCountConvention || 0;
     const _settlement = Math.trunc(toNumber(settlement, this.locale));
@@ -824,7 +844,7 @@ export const DISC = {
      * DISC = ____________________  *    ____
      *            redemption             DSM
      */
-    const yearsFrac = YEARFRAC.compute.bind(this)(_settlement, _maturity, _dayCountConvention);
+    const yearsFrac = getYearFrac(_settlement, _maturity, _dayCountConvention);
     return (_redemption - _price) / _redemption / yearsFrac;
   },
   isExported: true,
@@ -843,7 +863,7 @@ export const DOLLARDE = {
     arg("unit (number)", _t("The units of the fraction, e.g. 8 for 1/8ths or 32 for 1/32nds.")),
   ],
   returns: ["NUMBER"],
-  compute: function (fractionalPrice: Maybe<CellValue>, unit: Maybe<CellValue>): number {
+  compute: function (fractionalPrice: Maybe<FPayload>, unit: Maybe<FPayload>): number {
     const price = toNumber(fractionalPrice, this.locale);
     const _unit = Math.trunc(toNumber(unit, this.locale));
 
@@ -872,7 +892,7 @@ export const DOLLARFR = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (decimalPrice: Maybe<CellValue>, unit: Maybe<CellValue>): number {
+  compute: function (decimalPrice: Maybe<FPayload>, unit: Maybe<FPayload>): number {
     const price = toNumber(decimalPrice, this.locale);
     const _unit = Math.trunc(toNumber(unit, this.locale));
 
@@ -917,14 +937,13 @@ export const DURATION = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    settlement: Maybe<CellValue>,
-    maturity: Maybe<CellValue>,
-    rate: Maybe<CellValue>,
-    securityYield: Maybe<CellValue>,
-    frequency: Maybe<CellValue>,
-    dayCountConvention: Maybe<CellValue> = DEFAULT_DAY_COUNT_CONVENTION
+    settlement: Maybe<FPayload>,
+    maturity: Maybe<FPayload>,
+    rate: Maybe<FPayload>,
+    securityYield: Maybe<FPayload>,
+    frequency: Maybe<FPayload>,
+    dayCountConvention: Maybe<FPayload> = { value: DEFAULT_DAY_COUNT_CONVENTION }
   ): number {
-    dayCountConvention = dayCountConvention || 0;
     const start = Math.trunc(toNumber(settlement, this.locale));
     const end = Math.trunc(toNumber(maturity, this.locale));
     const _rate = toNumber(rate, this.locale);
@@ -939,7 +958,7 @@ export const DURATION = {
     assert(() => _rate >= 0, _t("The rate (%s) must be positive or null.", _rate.toString()));
     assert(() => _yield >= 0, _t("The yield (%s) must be positive or null.", _yield.toString()));
 
-    const years = YEARFRAC.compute.bind(this)(start, end, _dayCountConvention);
+    const years = getYearFrac(start, end, _dayCountConvention);
     const timeFirstYear = years - Math.trunc(years) || 1 / _frequency;
     const nbrCoupons = Math.ceil(years * _frequency);
 
@@ -974,7 +993,7 @@ export const EFFECT = {
     arg("periods_per_year (number)", _t("The number of compounding periods per year.")),
   ],
   returns: ["NUMBER"],
-  compute: function (nominal_rate: Maybe<CellValue>, periods_per_year: Maybe<CellValue>): number {
+  compute: function (nominal_rate: Maybe<FPayload>, periods_per_year: Maybe<FPayload>): number {
     const nominal = toNumber(nominal_rate, this.locale);
     const periods = Math.trunc(toNumber(periods_per_year, this.locale));
 
@@ -997,6 +1016,14 @@ export const EFFECT = {
 // FV
 // -----------------------------------------------------------------------------
 const DEFAULT_PRESENT_VALUE = 0;
+
+function fv(r: number, n: number, p: number, pv: number, t: number): number {
+  if (r === 0) {
+    return -(pv + p * n);
+  }
+  return -pv * (1 + r) ** n - (p * (1 + r * t) * ((1 + r) ** n - 1)) / r;
+}
+
 export const FV = {
   description: _t("Future value of an annuity investment."),
   args: [
@@ -1014,14 +1041,13 @@ export const FV = {
   ],
   returns: ["NUMBER"],
   // to do: replace by dollar format
-  computeFormat: () => "#,##0.00",
   compute: function (
-    rate: Maybe<CellValue>,
-    numberOfPeriods: Maybe<CellValue>,
-    paymentAmount: Maybe<CellValue>,
-    presentValue: Maybe<CellValue> = DEFAULT_PRESENT_VALUE,
-    endOrBeginning: Maybe<CellValue> = DEFAULT_END_OR_BEGINNING
-  ): number {
+    rate: Maybe<FPayload>,
+    numberOfPeriods: Maybe<FPayload>,
+    paymentAmount: Maybe<FPayload>,
+    presentValue: Maybe<FPayload> = { value: DEFAULT_PRESENT_VALUE },
+    endOrBeginning: Maybe<FPayload> = { value: DEFAULT_END_OR_BEGINNING }
+  ): FPayloadNumber {
     presentValue = presentValue || 0;
     endOrBeginning = endOrBeginning || 0;
     const r = toNumber(rate, this.locale);
@@ -1029,7 +1055,10 @@ export const FV = {
     const p = toNumber(paymentAmount, this.locale);
     const pv = toNumber(presentValue, this.locale);
     const type = toBoolean(endOrBeginning) ? 1 : 0;
-    return r ? -pv * (1 + r) ** n - (p * (1 + r * type) * ((1 + r) ** n - 1)) / r : -(pv + p * n);
+    return {
+      value: fv(r, n, p, pv, type),
+      format: "#,##0.00",
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1047,7 +1076,7 @@ export const FVSCHEDULE = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (principalAmount: Maybe<CellValue>, rateSchedule: ArgValue): number {
+  compute: function (principalAmount: Maybe<FPayload>, rateSchedule: Arg): number {
     const principal = toNumber(principalAmount, this.locale);
     return reduceAny(
       [rateSchedule],
@@ -1083,20 +1112,22 @@ export const INTRATE = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    settlement: Maybe<CellValue>,
-    maturity: Maybe<CellValue>,
-    investment: Maybe<CellValue>,
-    redemption: Maybe<CellValue>,
-    dayCountConvention: Maybe<CellValue> = DEFAULT_DAY_COUNT_CONVENTION
+    settlement: Maybe<FPayload>,
+    maturity: Maybe<FPayload>,
+    investment: Maybe<FPayload>,
+    redemption: Maybe<FPayload>,
+    dayCountConvention: Maybe<FPayload> = { value: DEFAULT_DAY_COUNT_CONVENTION }
   ): number {
     const _settlement = Math.trunc(toNumber(settlement, this.locale));
     const _maturity = Math.trunc(toNumber(maturity, this.locale));
     const _redemption = toNumber(redemption, this.locale);
     const _investment = toNumber(investment, this.locale);
+    const _dayCountConvention = Math.trunc(toNumber(dayCountConvention, this.locale));
 
     assertMaturityAndSettlementDatesAreValid(_settlement, _maturity);
     assertInvestmentStrictlyPositive(_investment);
     assertRedemptionStrictlyPositive(_redemption);
+    assertDayCountConventionIsValid(_dayCountConvention);
 
     /**
      * https://wiki.documentfoundation.org/Documentation/Calc_Functions/INTRATE
@@ -1105,7 +1136,7 @@ export const INTRATE = {
      * INTRATE =  _________________________________________
      *              YEARFRAC(settlement, maturity, basis)
      */
-    const yearFrac = YEARFRAC.compute.bind(this)(_settlement, _maturity, dayCountConvention);
+    const yearFrac = getYearFrac(_settlement, _maturity, _dayCountConvention);
     return (_redemption - _investment) / _investment / yearFrac;
   },
   isExported: true,
@@ -1114,6 +1145,10 @@ export const INTRATE = {
 // -----------------------------------------------------------------------------
 // IPMT
 // -----------------------------------------------------------------------------
+function impt(r: number, per: number, n: number, pv: number, fv: number, type: number): number {
+  return pmt(r, n, pv, fv, type) - ppmt(r, per, n, pv, fv, type);
+}
+
 export const IPMT = {
   description: _t("Payment on the principal of an investment."),
   args: [
@@ -1131,31 +1166,24 @@ export const IPMT = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: () => "#,##0.00",
   compute: function (
-    rate: Maybe<CellValue>,
-    currentPeriod: Maybe<CellValue>,
-    numberOfPeriods: Maybe<CellValue>,
-    presentValue: Maybe<CellValue>,
-    futureValue: Maybe<CellValue> = DEFAULT_FUTURE_VALUE,
-    endOrBeginning: Maybe<CellValue> = DEFAULT_END_OR_BEGINNING
-  ): number {
-    const payment = PMT.compute.bind(this)(
-      rate,
-      numberOfPeriods,
-      presentValue,
-      futureValue,
-      endOrBeginning
-    );
-    const ppmt = PPMT.compute.bind(this)(
-      rate,
-      currentPeriod,
-      numberOfPeriods,
-      presentValue,
-      futureValue,
-      endOrBeginning
-    );
-    return payment - ppmt;
+    rate: Maybe<FPayload>,
+    currentPeriod: Maybe<FPayload>,
+    numberOfPeriods: Maybe<FPayload>,
+    presentValue: Maybe<FPayload>,
+    futureValue: Maybe<FPayload> = { value: DEFAULT_FUTURE_VALUE },
+    endOrBeginning: Maybe<FPayload> = { value: DEFAULT_END_OR_BEGINNING }
+  ): FPayloadNumber {
+    const r = toNumber(rate, this.locale);
+    const period = toNumber(currentPeriod, this.locale);
+    const n = toNumber(numberOfPeriods, this.locale);
+    const pv = toNumber(presentValue, this.locale);
+    const fv = toNumber(futureValue, this.locale);
+    const type = toBoolean(endOrBeginning) ? 1 : 0;
+    return {
+      value: impt(r, period, n, pv, fv, type),
+      format: "#,##0.00",
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1177,11 +1205,10 @@ export const IRR = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: () => "0%",
   compute: function (
-    cashFlowAmounts: Matrix<CellValue>,
-    rateGuess: Maybe<CellValue> = DEFAULT_RATE_GUESS
-  ): number {
+    cashFlowAmounts: Matrix<FPayload>,
+    rateGuess: Maybe<FPayload> = { value: DEFAULT_RATE_GUESS }
+  ): FPayloadNumber {
     const _rateGuess = toNumber(rateGuess, this.locale);
 
     assertRateGuessStrictlyGreaterThanMinusOne(_rateGuess);
@@ -1241,7 +1268,10 @@ export const IRR = {
       return npvNumeratorDeriv(x, firstAmount!, amounts);
     }
 
-    return newtonMethod(func, derivFunc, _rateGuess + 1, 20, 1e-5) - 1;
+    return {
+      value: newtonMethod(func, derivFunc, _rateGuess + 1, 20, 1e-5) - 1,
+      format: "0%",
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1259,10 +1289,10 @@ export const ISPMT = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    rate: Maybe<CellValue>,
-    currentPeriod: Maybe<CellValue>,
-    numberOfPeriods: Maybe<CellValue>,
-    presentValue: Maybe<CellValue>
+    rate: Maybe<FPayload>,
+    currentPeriod: Maybe<FPayload>,
+    numberOfPeriods: Maybe<FPayload>,
+    presentValue: Maybe<FPayload>
   ): number {
     const interestRate = toNumber(rate, this.locale);
     const period = toNumber(currentPeriod, this.locale);
@@ -1309,12 +1339,12 @@ export const MDURATION = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    settlement: Maybe<CellValue>,
-    maturity: Maybe<CellValue>,
-    rate: Maybe<CellValue>,
-    securityYield: Maybe<CellValue>,
-    frequency: Maybe<CellValue>,
-    dayCountConvention: Maybe<CellValue> = DEFAULT_DAY_COUNT_CONVENTION
+    settlement: Maybe<FPayload>,
+    maturity: Maybe<FPayload>,
+    rate: Maybe<FPayload>,
+    securityYield: Maybe<FPayload>,
+    frequency: Maybe<FPayload>,
+    dayCountConvention: Maybe<FPayload> = { value: DEFAULT_DAY_COUNT_CONVENTION }
   ): number {
     const duration = DURATION.compute.bind(this)(
       settlement,
@@ -1353,15 +1383,15 @@ export const MIRR = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    cashflowAmount: Matrix<CellValue>,
-    financingRate: Maybe<CellValue>,
-    reinvestmentRate: Maybe<CellValue>
+    cashflowAmount: Matrix<FPayload>,
+    financingRate: Maybe<FPayload>,
+    reinvestmentRate: Maybe<FPayload>
   ): number {
     const fRate = toNumber(financingRate, this.locale);
     const rRate = toNumber(reinvestmentRate, this.locale);
     const cashFlow = transposeMatrix(cashflowAmount)
       .flat()
-      .filter((t) => t !== null)
+      .filter((t) => t.value !== null)
       .map((val) => toNumber(val, this.locale));
     const n = cashFlow.length;
 
@@ -1416,7 +1446,7 @@ export const NOMINAL = {
     arg("periods_per_year (number)", _t("The number of compounding periods per year.")),
   ],
   returns: ["NUMBER"],
-  compute: function (effective_rate: Maybe<CellValue>, periods_per_year: Maybe<CellValue>): number {
+  compute: function (effective_rate: Maybe<FPayload>, periods_per_year: Maybe<FPayload>): number {
     const effective = toNumber(effective_rate, this.locale);
     const periods = Math.trunc(toNumber(periods_per_year, this.locale));
 
@@ -1455,11 +1485,11 @@ export const NPER = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    rate: Maybe<CellValue>,
-    paymentAmount: Maybe<CellValue>,
-    presentValue: Maybe<CellValue>,
-    futureValue: Maybe<CellValue> = DEFAULT_FUTURE_VALUE,
-    endOrBeginning: Maybe<CellValue> = DEFAULT_END_OR_BEGINNING
+    rate: Maybe<FPayload>,
+    paymentAmount: Maybe<FPayload>,
+    presentValue: Maybe<FPayload>,
+    futureValue: Maybe<FPayload> = { value: DEFAULT_FUTURE_VALUE },
+    endOrBeginning: Maybe<FPayload> = { value: DEFAULT_END_OR_BEGINNING }
   ): number {
     futureValue = futureValue || 0;
     endOrBeginning = endOrBeginning || 0;
@@ -1496,7 +1526,7 @@ export const NPER = {
 // NPV
 // -----------------------------------------------------------------------------
 
-function npvResult(r: number, startValue: number, values: ArgValue[], locale: Locale): number {
+function npvResult(r: number, startValue: number, values: Arg[], locale: Locale): number {
   let i = 0;
   return reduceNumbers(
     values,
@@ -1520,8 +1550,7 @@ export const NPV = {
   ],
   returns: ["NUMBER"],
   // to do: replace by dollar format
-  computeFormat: () => "#,##0.00",
-  compute: function (discount: Maybe<CellValue>, ...values: ArgValue[]): number {
+  compute: function (discount: Maybe<FPayload>, ...values: Arg[]): FPayloadNumber {
     const _discount = toNumber(discount, this.locale);
 
     assert(
@@ -1529,7 +1558,10 @@ export const NPV = {
       _t("The discount (%s) must be different from -1.", _discount.toString())
     );
 
-    return npvResult(_discount, 0, values, this.locale);
+    return {
+      value: npvResult(_discount, 0, values, this.locale),
+      format: "#,##0.00",
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1546,9 +1578,9 @@ export const PDURATION = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    rate: Maybe<CellValue>,
-    presentValue: Maybe<CellValue>,
-    futureValue: Maybe<CellValue>
+    rate: Maybe<FPayload>,
+    presentValue: Maybe<FPayload>,
+    futureValue: Maybe<FPayload>
   ): number {
     const _rate = toNumber(rate, this.locale);
     const _presentValue = toNumber(presentValue, this.locale);
@@ -1572,6 +1604,24 @@ export const PDURATION = {
 // -----------------------------------------------------------------------------
 // PMT
 // -----------------------------------------------------------------------------
+function pmt(r: number, n: number, pv: number, fv: number, t: number): number {
+  assertNumberOfPeriodsStrictlyPositive(n);
+  /**
+   * https://wiki.documentfoundation.org/Documentation/Calc_Functions/PMT
+   *
+   * 0 = pv * (1 + r)^N + fv + [ p * (1 + r * t) * ((1 + r)^N - 1) ] / r
+   *
+   * We simply the equation for p
+   */
+  if (r === 0) {
+    return -(fv + pv) / n;
+  }
+  let payment = -(pv * (1 + r) ** n + fv);
+  payment = (payment * r) / ((1 + r * t) * ((1 + r) ** n - 1));
+
+  return payment;
+}
+
 export const PMT = {
   description: _t("Periodic payment for an annuity investment."),
   args: [
@@ -1588,38 +1638,20 @@ export const PMT = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: () => "#,##0.00",
   compute: function (
-    rate: Maybe<CellValue>,
-    numberOfPeriods: Maybe<CellValue>,
-    presentValue: Maybe<CellValue>,
-    futureValue: Maybe<CellValue> = DEFAULT_FUTURE_VALUE,
-    endOrBeginning: Maybe<CellValue> = DEFAULT_END_OR_BEGINNING
-  ): number {
-    futureValue = futureValue || 0;
-    endOrBeginning = endOrBeginning || 0;
+    rate: Maybe<FPayload>,
+    numberOfPeriods: Maybe<FPayload>,
+    presentValue: Maybe<FPayload>,
+    futureValue: Maybe<FPayload> = { value: DEFAULT_FUTURE_VALUE },
+    endOrBeginning: Maybe<FPayload> = { value: DEFAULT_END_OR_BEGINNING }
+  ): FPayloadNumber {
     const n = toNumber(numberOfPeriods, this.locale);
     const r = toNumber(rate, this.locale);
     const t = toBoolean(endOrBeginning) ? 1 : 0;
-    let fv = toNumber(futureValue, this.locale);
-    let pv = toNumber(presentValue, this.locale);
+    const fv = toNumber(futureValue, this.locale);
+    const pv = toNumber(presentValue, this.locale);
 
-    assertNumberOfPeriodsStrictlyPositive(n);
-
-    /**
-     * https://wiki.documentfoundation.org/Documentation/Calc_Functions/PMT
-     *
-     * 0 = pv * (1 + r)^N + fv + [ p * (1 + r * t) * ((1 + r)^N - 1) ] / r
-     *
-     * We simply the equation for p
-     */
-    if (r === 0) {
-      return -(fv + pv) / n;
-    }
-    let payment = -(pv * (1 + r) ** n + fv);
-    payment = (payment * r) / ((1 + r * t) * ((1 + r) ** n - 1));
-
-    return payment;
+    return { value: pmt(r, n, pv, fv, t), format: "#,##0.00" };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1627,6 +1659,28 @@ export const PMT = {
 // -----------------------------------------------------------------------------
 // PPMT
 // -----------------------------------------------------------------------------
+function ppmt(
+  r: number,
+  per: number,
+  n: number,
+  pValue: number,
+  fValue: number,
+  t: number
+): number {
+  assertNumberOfPeriodsStrictlyPositive(n);
+  assert(
+    () => per > 0 && per <= n,
+    _t("The period must be between 1 and number_of_periods (%s)", n)
+  );
+  const payment = pmt(r, n, pValue, fValue, t);
+  if (t === 1 && per === 1) return payment;
+  const eqPeriod = t === 0 ? per - 1 : per - 2;
+  const eqPv = pValue + payment * t;
+  const capitalAtPeriod = -fv(r, eqPeriod, payment, eqPv, 0);
+  const currentInterest = capitalAtPeriod * r;
+  return payment + currentInterest;
+}
+
 export const PPMT = {
   description: _t("Payment on the principal of an investment."),
   args: [
@@ -1644,39 +1698,24 @@ export const PPMT = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: () => "#,##0.00",
   compute: function (
-    rate: Maybe<CellValue>,
-    currentPeriod: Maybe<CellValue>,
-    numberOfPeriods: Maybe<CellValue>,
-    presentValue: Maybe<CellValue>,
-    futureValue: Maybe<CellValue> = DEFAULT_FUTURE_VALUE,
-    endOrBeginning: Maybe<CellValue> = DEFAULT_END_OR_BEGINNING
-  ): number {
-    futureValue = futureValue || 0;
-    endOrBeginning = endOrBeginning || 0;
+    rate: Maybe<FPayload>,
+    currentPeriod: Maybe<FPayload>,
+    numberOfPeriods: Maybe<FPayload>,
+    presentValue: Maybe<FPayload>,
+    futureValue: Maybe<FPayload> = { value: DEFAULT_FUTURE_VALUE },
+    endOrBeginning: Maybe<FPayload> = { value: DEFAULT_END_OR_BEGINNING }
+  ): FPayloadNumber {
     const n = toNumber(numberOfPeriods, this.locale);
     const r = toNumber(rate, this.locale);
     const period = toNumber(currentPeriod, this.locale);
     const type = toBoolean(endOrBeginning) ? 1 : 0;
     const fv = toNumber(futureValue, this.locale);
     const pv = toNumber(presentValue, this.locale);
-
-    assertNumberOfPeriodsStrictlyPositive(n);
-    assert(
-      () => period > 0 && period <= n,
-      _t("The period must be between 1 and number_of_periods", n.toString())
-    );
-
-    const payment = PMT.compute.bind(this)(r, n, pv, fv, endOrBeginning);
-
-    if (type === 1 && period === 1) return payment;
-    const eqPeriod = type === 0 ? period - 1 : period - 2;
-    const eqPv = pv + payment * type;
-
-    const capitalAtPeriod = -FV.compute.bind(this)(r, eqPeriod, payment, eqPv, 0);
-    const currentInterest = capitalAtPeriod * r;
-    return payment + currentInterest;
+    return {
+      value: ppmt(r, period, n, pv, fv, type),
+      format: "#,##0.00",
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1701,14 +1740,13 @@ export const PV = {
   ],
   returns: ["NUMBER"],
   // to do: replace by dollar format
-  computeFormat: () => "#,##0.00",
   compute: function (
-    rate: Maybe<CellValue>,
-    numberOfPeriods: Maybe<CellValue>,
-    paymentAmount: Maybe<CellValue>,
-    futureValue: Maybe<CellValue> = DEFAULT_FUTURE_VALUE,
-    endOrBeginning: Maybe<CellValue> = DEFAULT_END_OR_BEGINNING
-  ): number {
+    rate: Maybe<FPayload>,
+    numberOfPeriods: Maybe<FPayload>,
+    paymentAmount: Maybe<FPayload>,
+    futureValue: Maybe<FPayload> = { value: DEFAULT_FUTURE_VALUE },
+    endOrBeginning: Maybe<FPayload> = { value: DEFAULT_END_OR_BEGINNING }
+  ): FPayloadNumber {
     futureValue = futureValue || 0;
     endOrBeginning = endOrBeginning || 0;
     const r = toNumber(rate, this.locale);
@@ -1717,7 +1755,12 @@ export const PV = {
     const fv = toNumber(futureValue, this.locale);
     const type = toBoolean(endOrBeginning) ? 1 : 0;
     // https://wiki.documentfoundation.org/Documentation/Calc_Functions/PV
-    return r ? -((p * (1 + r * type) * ((1 + r) ** n - 1)) / r + fv) / (1 + r) ** n : -(fv + p * n);
+    return {
+      value: r
+        ? -((p * (1 + r * type) * ((1 + r) ** n - 1)) / r + fv) / (1 + r) ** n
+        : -(fv + p * n),
+      format: "#,##0.00",
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -1752,13 +1795,13 @@ export const PRICE = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    settlement: Maybe<CellValue>,
-    maturity: Maybe<CellValue>,
-    rate: Maybe<CellValue>,
-    securityYield: Maybe<CellValue>,
-    redemption: Maybe<CellValue>,
-    frequency: Maybe<CellValue>,
-    dayCountConvention: Maybe<CellValue> = DEFAULT_DAY_COUNT_CONVENTION
+    settlement: Maybe<FPayload>,
+    maturity: Maybe<FPayload>,
+    rate: Maybe<FPayload>,
+    securityYield: Maybe<FPayload>,
+    redemption: Maybe<FPayload>,
+    frequency: Maybe<FPayload>,
+    dayCountConvention: Maybe<FPayload> = { value: DEFAULT_DAY_COUNT_CONVENTION }
   ): number {
     dayCountConvention = dayCountConvention || 0;
     const _settlement = Math.trunc(toNumber(settlement, this.locale));
@@ -1777,7 +1820,7 @@ export const PRICE = {
     assert(() => _yield >= 0, _t("The yield (%s) must be positive or null.", _yield.toString()));
     assertRedemptionStrictlyPositive(_redemption);
 
-    const years = YEARFRAC.compute.bind(this)(_settlement, _maturity, _dayCountConvention);
+    const years = getYearFrac(_settlement, _maturity, _dayCountConvention);
     const nbrRealCoupons = years * _frequency;
     const nbrFullCoupons = Math.ceil(nbrRealCoupons);
     const timeFirstCoupon = nbrRealCoupons - Math.floor(nbrRealCoupons) || 1;
@@ -1833,11 +1876,11 @@ export const PRICEDISC = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    settlement: Maybe<CellValue>,
-    maturity: Maybe<CellValue>,
-    discount: Maybe<CellValue>,
-    redemption: Maybe<CellValue>,
-    dayCountConvention: Maybe<CellValue> = DEFAULT_DAY_COUNT_CONVENTION
+    settlement: Maybe<FPayload>,
+    maturity: Maybe<FPayload>,
+    discount: Maybe<FPayload>,
+    redemption: Maybe<FPayload>,
+    dayCountConvention: Maybe<FPayload> = { value: DEFAULT_DAY_COUNT_CONVENTION }
   ): number {
     dayCountConvention = dayCountConvention || 0;
     const _settlement = Math.trunc(toNumber(settlement, this.locale));
@@ -1860,7 +1903,7 @@ export const PRICEDISC = {
      *
      * PRICEDISC = redemption - discount * redemption * (DSM/B)
      */
-    const yearsFrac = YEARFRAC.compute.bind(this)(_settlement, _maturity, _dayCountConvention);
+    const yearsFrac = getYearFrac(_settlement, _maturity, _dayCountConvention);
     return _redemption - _discount * _redemption * yearsFrac;
   },
   isExported: true,
@@ -1894,12 +1937,12 @@ export const PRICEMAT = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    settlement: Maybe<CellValue>,
-    maturity: Maybe<CellValue>,
-    issue: Maybe<CellValue>,
-    rate: Maybe<CellValue>,
-    securityYield: Maybe<CellValue>,
-    dayCountConvention: Maybe<CellValue> = DEFAULT_DAY_COUNT_CONVENTION
+    settlement: Maybe<FPayload>,
+    maturity: Maybe<FPayload>,
+    issue: Maybe<FPayload>,
+    rate: Maybe<FPayload>,
+    securityYield: Maybe<FPayload>,
+    dayCountConvention: Maybe<FPayload> = { value: DEFAULT_DAY_COUNT_CONVENTION }
   ): number {
     dayCountConvention = dayCountConvention || 0;
     const _settlement = Math.trunc(toNumber(settlement, this.locale));
@@ -1942,9 +1985,9 @@ export const PRICEMAT = {
      * from the results of Excel/LibreOffice, thus we get different values with PRICEMAT.
      *
      */
-    const settlementToMaturity = YEARFRAC.compute.bind(this)(_settlement, _maturity, _dayCount);
-    const issueToSettlement = YEARFRAC.compute.bind(this)(_settlement, _issue, _dayCount);
-    const issueToMaturity = YEARFRAC.compute.bind(this)(_issue, _maturity, _dayCount);
+    const settlementToMaturity = getYearFrac(_settlement, _maturity, _dayCount);
+    const issueToSettlement = getYearFrac(_settlement, _issue, _dayCount);
+    const issueToMaturity = getYearFrac(_issue, _maturity, _dayCount);
 
     const numerator = 100 + issueToMaturity * _rate * 100;
     const denominator = 1 + settlementToMaturity * _yield;
@@ -1978,22 +2021,18 @@ export const RATE = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: () => "0%",
   compute: function (
-    numberOfPeriods: Maybe<CellValue>,
-    paymentPerPeriod: Maybe<CellValue>,
-    presentValue: Maybe<CellValue>,
-    futureValue: Maybe<CellValue> = DEFAULT_FUTURE_VALUE,
-    endOrBeginning: Maybe<CellValue> = DEFAULT_END_OR_BEGINNING,
-    rateGuess: Maybe<CellValue> = RATE_GUESS_DEFAULT
-  ): number {
-    futureValue = futureValue || 0;
-    endOrBeginning = endOrBeginning || 0;
-    rateGuess = rateGuess || RATE_GUESS_DEFAULT;
+    numberOfPeriods: Maybe<FPayload>,
+    paymentPerPeriod: Maybe<FPayload>,
+    presentValue: Maybe<FPayload>,
+    futureValue: Maybe<FPayload> = { value: DEFAULT_FUTURE_VALUE },
+    endOrBeginning: Maybe<FPayload> = { value: DEFAULT_END_OR_BEGINNING },
+    rateGuess: Maybe<FPayload> = { value: RATE_GUESS_DEFAULT }
+  ): FPayloadNumber {
     const n = toNumber(numberOfPeriods, this.locale);
     const payment = toNumber(paymentPerPeriod, this.locale);
     const type = toBoolean(endOrBeginning) ? 1 : 0;
-    const guess = toNumber(rateGuess, this.locale);
+    const guess = toNumber(rateGuess, this.locale) || RATE_GUESS_DEFAULT;
     let fv = toNumber(futureValue, this.locale);
     let pv = toNumber(presentValue, this.locale);
 
@@ -2025,7 +2064,10 @@ export const RATE = {
       return fTermDerivation;
     };
 
-    return newtonMethod(func, derivFunc, guess, 40, 1e-5);
+    return {
+      value: newtonMethod(func, derivFunc, guess, 40, 1e-5),
+      format: "0%",
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -2058,11 +2100,11 @@ export const RECEIVED = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    settlement: Maybe<CellValue>,
-    maturity: Maybe<CellValue>,
-    investment: Maybe<CellValue>,
-    discount: Maybe<CellValue>,
-    dayCountConvention: Maybe<CellValue> = DEFAULT_DAY_COUNT_CONVENTION
+    settlement: Maybe<FPayload>,
+    maturity: Maybe<FPayload>,
+    investment: Maybe<FPayload>,
+    discount: Maybe<FPayload>,
+    dayCountConvention: Maybe<FPayload> = { value: DEFAULT_DAY_COUNT_CONVENTION }
   ): number {
     dayCountConvention = dayCountConvention || 0;
     const _settlement = Math.trunc(toNumber(settlement, this.locale));
@@ -2087,7 +2129,7 @@ export const RECEIVED = {
      *
      * The ratio DSM/B can be computed with the YEARFRAC function to take the dayCountConvention into account.
      */
-    const yearsFrac = YEARFRAC.compute.bind(this)(_settlement, _maturity, _dayCountConvention);
+    const yearsFrac = getYearFrac(_settlement, _maturity, _dayCountConvention);
     return _investment / (1 - _discount * yearsFrac);
   },
   isExported: true,
@@ -2107,9 +2149,9 @@ export const RRI = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    numberOfPeriods: Maybe<CellValue>,
-    presentValue: Maybe<CellValue>,
-    futureValue: Maybe<CellValue>
+    numberOfPeriods: Maybe<FPayload>,
+    presentValue: Maybe<FPayload>,
+    futureValue: Maybe<FPayload>
   ): number {
     const n = toNumber(numberOfPeriods, this.locale);
     const pv = toNumber(presentValue, this.locale);
@@ -2138,12 +2180,11 @@ export const SLN = {
     arg("life (number)", _t("The number of periods over which the asset is depreciated.")),
   ],
   returns: ["NUMBER"],
-  computeFormat: () => "#,##0.00",
   compute: function (
-    cost: Maybe<CellValue>,
-    salvage: Maybe<CellValue>,
-    life: Maybe<CellValue>
-  ): number {
+    cost: Maybe<FPayload>,
+    salvage: Maybe<FPayload>,
+    life: Maybe<FPayload>
+  ): FPayloadNumber {
     const _cost = toNumber(cost, this.locale);
     const _salvage = toNumber(salvage, this.locale);
     const _life = toNumber(life, this.locale);
@@ -2151,7 +2192,10 @@ export const SLN = {
     // No assertion is done on the values of the arguments to be compatible with Excel/Gsheet that don't check the values.
     // It's up to the user to make sure the arguments make sense, which is good design because the user is smart.
 
-    return (_cost - _salvage) / _life;
+    return {
+      value: (_cost - _salvage) / _life,
+      format: "#,##0.00",
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -2171,13 +2215,12 @@ export const SYD = {
     ),
   ],
   returns: ["NUMBER"],
-  computeFormat: () => "#,##0.00",
   compute: function (
-    cost: Maybe<CellValue>,
-    salvage: Maybe<CellValue>,
-    life: Maybe<CellValue>,
-    period: Maybe<CellValue>
-  ): number {
+    cost: Maybe<FPayload>,
+    salvage: Maybe<FPayload>,
+    life: Maybe<FPayload>,
+    period: Maybe<FPayload>
+  ): FPayloadNumber {
     const _cost = toNumber(cost, this.locale);
     const _salvage = toNumber(salvage, this.locale);
     const _life = toNumber(life, this.locale);
@@ -2199,7 +2242,10 @@ export const SYD = {
     const deprecFactor = (_life * (_life + 1)) / 2;
     const remainingPeriods = _life - _period + 1;
 
-    return (_cost - _salvage) * (remainingPeriods / deprecFactor);
+    return {
+      value: (_cost - _salvage) * (remainingPeriods / deprecFactor),
+      format: "#,##0.00",
+    };
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -2207,6 +2253,21 @@ export const SYD = {
 // -----------------------------------------------------------------------------
 // TBILLPRICE
 // -----------------------------------------------------------------------------
+
+function tBillPrice(start: number, end: number, disc: number): number {
+  /**
+   * https://support.microsoft.com/en-us/office/tbillprice-function-eacca992-c29d-425a-9eb8-0513fe6035a2
+   *
+   * TBILLPRICE = 100 * (1 - discount * DSM / 360)
+   *
+   * with DSM = number of days from settlement to maturity
+   *
+   * The ratio DSM/360 can be computed with the YEARFRAC function with dayCountConvention = 2 (actual/360).
+   */
+  const yearFrac = getYearFrac(start, end, 2);
+  return 100 * (1 - disc * yearFrac);
+}
+
 export const TBILLPRICE = {
   description: _t("Price of a US Treasury bill."),
   args: [
@@ -2224,9 +2285,9 @@ export const TBILLPRICE = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    settlement: Maybe<CellValue>,
-    maturity: Maybe<CellValue>,
-    discount: Maybe<CellValue>
+    settlement: Maybe<FPayload>,
+    maturity: Maybe<FPayload>,
+    discount: Maybe<FPayload>
   ): number {
     const start = Math.trunc(toNumber(settlement, this.locale));
     const end = Math.trunc(toNumber(maturity, this.locale));
@@ -2237,17 +2298,7 @@ export const TBILLPRICE = {
     assertDiscountStrictlyPositive(disc);
     assertDiscountStrictlySmallerThanOne(disc);
 
-    /**
-     * https://support.microsoft.com/en-us/office/tbillprice-function-eacca992-c29d-425a-9eb8-0513fe6035a2
-     *
-     * TBILLPRICE = 100 * (1 - discount * DSM / 360)
-     *
-     * with DSM = number of days from settlement to maturity
-     *
-     * The ratio DSM/360 can be computed with the YEARFRAC function with dayCountConvention = 2 (actual/360).
-     */
-    const yearFrac = YEARFRAC.compute.bind(this)(start, end, 2);
-    return 100 * (1 - disc * yearFrac);
+    return tBillPrice(start, end, disc);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -2272,9 +2323,9 @@ export const TBILLEQ = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    settlement: Maybe<CellValue>,
-    maturity: Maybe<CellValue>,
-    discount: Maybe<CellValue>
+    settlement: Maybe<FPayload>,
+    maturity: Maybe<FPayload>,
+    discount: Maybe<FPayload>
   ): number {
     const start = Math.trunc(toNumber(settlement, this.locale));
     const end = Math.trunc(toNumber(maturity, this.locale));
@@ -2312,12 +2363,12 @@ export const TBILLEQ = {
      *
      */
 
-    const nDays = DAYS.compute.bind(this)(end, start);
+    const nDays = DAYS.compute.bind(this)({ value: end }, { value: start });
     if (nDays <= 182) {
       return (365 * disc) / (360 - disc * nDays);
     }
 
-    const p = TBILLPRICE.compute.bind(this)(start, end, disc) / 100;
+    const p = tBillPrice(start, end, disc) / 100;
 
     const daysInYear = nDays === 366 ? 366 : 365;
     const x = nDays / daysInYear;
@@ -2349,9 +2400,9 @@ export const TBILLYIELD = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    settlement: Maybe<CellValue>,
-    maturity: Maybe<CellValue>,
-    price: Maybe<CellValue>
+    settlement: Maybe<FPayload>,
+    maturity: Maybe<FPayload>,
+    price: Maybe<FPayload>
   ): number {
     const start = Math.trunc(toNumber(settlement, this.locale));
     const end = Math.trunc(toNumber(maturity, this.locale));
@@ -2374,7 +2425,7 @@ export const TBILLYIELD = {
      *
      */
 
-    const yearFrac = YEARFRAC.compute.bind(this)(start, end, 2);
+    const yearFrac = getYearFrac(start, end, 2);
     return ((100 - p) / p) * (1 / yearFrac);
   },
   isExported: true,
@@ -2405,13 +2456,13 @@ export const VDB = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    cost: Maybe<CellValue>,
-    salvage: Maybe<CellValue>,
-    life: Maybe<CellValue>,
-    startPeriod: Maybe<CellValue>,
-    endPeriod: Maybe<CellValue>,
-    factor: Maybe<CellValue> = DEFAULT_DDB_DEPRECIATION_FACTOR,
-    noSwitch: Maybe<CellValue> = DEFAULT_VDB_NO_SWITCH
+    cost: Maybe<FPayload>,
+    salvage: Maybe<FPayload>,
+    life: Maybe<FPayload>,
+    startPeriod: Maybe<FPayload>,
+    endPeriod: Maybe<FPayload>,
+    factor: Maybe<FPayload> = { value: DEFAULT_DDB_DEPRECIATION_FACTOR },
+    noSwitch: Maybe<FPayload> = { value: DEFAULT_VDB_NO_SWITCH }
   ): number {
     factor = factor || 0;
     const _cost = toNumber(cost, this.locale);
@@ -2494,11 +2545,10 @@ export const XIRR = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    cashflowAmounts: Matrix<CellValue>,
-    cashflowDates: Matrix<CellValue>,
-    rateGuess: Maybe<CellValue> = RATE_GUESS_DEFAULT
+    cashflowAmounts: Matrix<FPayload>,
+    cashflowDates: Matrix<FPayload>,
+    rateGuess: Maybe<FPayload> = { value: RATE_GUESS_DEFAULT }
   ): number {
-    rateGuess = rateGuess || 0;
     const guess = toNumber(rateGuess, this.locale);
 
     const _cashFlows = cashflowAmounts.flat().map((val) => toNumber(val, this.locale));
@@ -2578,18 +2628,14 @@ export const XNPV = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (
-    discount: Maybe<CellValue>,
-    cashflowAmounts: ArgValue,
-    cashflowDates: ArgValue
-  ): number {
+  compute: function (discount: Maybe<FPayload>, cashflowAmounts: Arg, cashflowDates: Arg): number {
     const rate = toNumber(discount, this.locale);
 
     const _cashFlows = isMatrix(cashflowAmounts)
-      ? cashflowAmounts.flat().map((val) => strictToNumber(val, this.locale))
+      ? cashflowAmounts.flat().map((data) => strictToNumber(data, this.locale))
       : [strictToNumber(cashflowAmounts, this.locale)];
     const _dates = isMatrix(cashflowDates)
-      ? cashflowDates.flat().map((val) => strictToNumber(val, this.locale))
+      ? cashflowDates.flat().map((data) => strictToNumber(data, this.locale))
       : [strictToNumber(cashflowDates, this.locale)];
 
     if (isMatrix(cashflowDates) && isMatrix(cashflowAmounts)) {
@@ -2670,13 +2716,13 @@ export const YIELD = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    settlement: Maybe<CellValue>,
-    maturity: Maybe<CellValue>,
-    rate: Maybe<CellValue>,
-    price: Maybe<CellValue>,
-    redemption: Maybe<CellValue>,
-    frequency: Maybe<CellValue>,
-    dayCountConvention: Maybe<CellValue> = DEFAULT_DAY_COUNT_CONVENTION
+    settlement: Maybe<FPayload>,
+    maturity: Maybe<FPayload>,
+    rate: Maybe<FPayload>,
+    price: Maybe<FPayload>,
+    redemption: Maybe<FPayload>,
+    frequency: Maybe<FPayload>,
+    dayCountConvention: Maybe<FPayload> = { value: DEFAULT_DAY_COUNT_CONVENTION }
   ): number {
     dayCountConvention = dayCountConvention || 0;
     const _settlement = Math.trunc(toNumber(settlement, this.locale));
@@ -2695,7 +2741,7 @@ export const YIELD = {
     assertPriceStrictlyPositive(_price);
     assertRedemptionStrictlyPositive(_redemption);
 
-    const years = YEARFRAC.compute.bind(this)(_settlement, _maturity, _dayCountConvention);
+    const years = getYearFrac(_settlement, _maturity, _dayCountConvention);
     const nbrRealCoupons = years * _frequency;
     const nbrFullCoupons = Math.ceil(nbrRealCoupons);
     const timeFirstCoupon = nbrRealCoupons - Math.floor(nbrRealCoupons) || 1;
@@ -2802,11 +2848,11 @@ export const YIELDDISC = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    settlement: Maybe<CellValue>,
-    maturity: Maybe<CellValue>,
-    price: Maybe<CellValue>,
-    redemption: Maybe<CellValue>,
-    dayCountConvention: Maybe<CellValue> = DEFAULT_DAY_COUNT_CONVENTION
+    settlement: Maybe<FPayload>,
+    maturity: Maybe<FPayload>,
+    price: Maybe<FPayload>,
+    redemption: Maybe<FPayload>,
+    dayCountConvention: Maybe<FPayload> = { value: DEFAULT_DAY_COUNT_CONVENTION }
   ): number {
     dayCountConvention = dayCountConvention || 0;
     const _settlement = Math.trunc(toNumber(settlement, this.locale));
@@ -2827,7 +2873,7 @@ export const YIELDDISC = {
      * YIELDDISC = _____________________________________
      *             YEARFRAC(settlement, maturity, basis)
      */
-    const yearFrac = YEARFRAC.compute.bind(this)(settlement, maturity, dayCountConvention);
+    const yearFrac = getYearFrac(_settlement, _maturity, _dayCountConvention);
     return (_redemption / _price - 1) / yearFrac;
   },
   isExported: true,
@@ -2860,12 +2906,12 @@ export const YIELDMAT = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    settlement: Maybe<CellValue>,
-    maturity: Maybe<CellValue>,
-    issue: Maybe<CellValue>,
-    rate: Maybe<CellValue>,
-    price: Maybe<CellValue>,
-    dayCountConvention: Maybe<CellValue> = DEFAULT_DAY_COUNT_CONVENTION
+    settlement: Maybe<FPayload>,
+    maturity: Maybe<FPayload>,
+    issue: Maybe<FPayload>,
+    rate: Maybe<FPayload>,
+    price: Maybe<FPayload>,
+    dayCountConvention: Maybe<FPayload> = { value: DEFAULT_DAY_COUNT_CONVENTION }
   ): number {
     dayCountConvention = dayCountConvention || 0;
     const _settlement = Math.trunc(toNumber(settlement, this.locale));
@@ -2889,13 +2935,9 @@ export const YIELDMAT = {
     assert(() => _rate >= 0, _t("The rate (%s) must be positive or null.", _rate.toString()));
     assertPriceStrictlyPositive(_price);
 
-    const issueToMaturity = YEARFRAC.compute.bind(this)(_issue, _maturity, _dayCountConvention);
-    const issueToSettlement = YEARFRAC.compute.bind(this)(_issue, _settlement, _dayCountConvention);
-    const settlementToMaturity = YEARFRAC.compute.bind(this)(
-      _settlement,
-      _maturity,
-      _dayCountConvention
-    );
+    const issueToMaturity = getYearFrac(_issue, _maturity, _dayCountConvention);
+    const issueToSettlement = getYearFrac(_issue, _settlement, _dayCountConvention);
+    const settlementToMaturity = getYearFrac(_settlement, _maturity, _dayCountConvention);
 
     const numerator =
       (100 * (1 + _rate * issueToMaturity)) / (_price + 100 * _rate * issueToSettlement) - 1;

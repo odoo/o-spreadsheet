@@ -1,6 +1,6 @@
-import { INCORRECT_RANGE_STRING } from "../../constants";
 import { deepEquals, positions, toCartesian, toXC, toZone, zoneToXc } from "../../helpers";
 import { BorderDescr, CellData, Style, WorkbookData, Zone } from "../../types";
+import { CellErrorType } from "../../types/errors";
 import { SheetData } from "../../types/workbook_data";
 import { XLSXImportData, XLSXTable, XLSXWorksheet } from "../../types/xlsx";
 import { arrayToObject, objectToArray } from "../helpers/misc";
@@ -262,7 +262,7 @@ function convertTableReference(expr: string, table: XLSXTable, cellXc: string) {
   }
 
   if (!isReferencedZoneValid) {
-    return INCORRECT_RANGE_STRING;
+    return CellErrorType.InvalidReference;
   }
   return refZone.top !== refZone.bottom ? zoneToXc(refZone) : toXC(refZone.left, refZone.top);
 }

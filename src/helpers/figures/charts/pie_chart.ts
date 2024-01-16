@@ -166,7 +166,7 @@ export class PieChart extends AbstractChart {
     if (this.aggregated) return undefined;
     const dataSets: ExcelChartDataset[] = this.dataSets
       .map((ds: DataSet) => toExcelDataset(this.getters, ds))
-      .filter((ds) => ds.range !== ""); // && range !== INCORRECT_RANGE_STRING ? show incorrect #ref ?
+      .filter((ds) => ds.range !== ""); // && range !== CellErrorType.InvalidReference ? show incorrect #ref ?
     const labelRange = toExcelLabelRange(
       this.getters,
       this.labelRange,

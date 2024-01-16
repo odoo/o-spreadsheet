@@ -1,13 +1,6 @@
 import { getFullReference, toXC, toZone } from "../helpers/index";
 import { _t } from "../translation";
-import {
-  AddFunctionDescription,
-  CellValue,
-  Matrix,
-  Maybe,
-  ValueAndFormat,
-  isMatrix,
-} from "../types";
+import { AddFunctionDescription, FPayload, Matrix, Maybe } from "../types";
 import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import {
@@ -18,6 +11,7 @@ import {
   linearSearch,
   strictToInteger,
   toBoolean,
+  toMatrix,
   toNumber,
   toString,
 } from "./helpers";
@@ -66,11 +60,11 @@ export const ADDRESS = {
   ],
   returns: ["STRING"],
   compute: function (
-    row: Maybe<CellValue>,
-    column: Maybe<CellValue>,
-    absoluteRelativeMode: Maybe<CellValue> = DEFAULT_ABSOLUTE_RELATIVE_MODE,
-    useA1Notation: Maybe<CellValue> = true,
-    sheet: Maybe<CellValue> | undefined
+    row: Maybe<FPayload>,
+    column: Maybe<FPayload>,
+    absoluteRelativeMode: Maybe<FPayload> = { value: DEFAULT_ABSOLUTE_RELATIVE_MODE },
+    useA1Notation: Maybe<FPayload> = { value: true },
+    sheet: Maybe<FPayload> | undefined
   ): string {
     const rowNumber = strictToInteger(row, this.locale);
     const colNumber = strictToInteger(column, this.locale);
@@ -117,8 +111,9 @@ export const COLUMN = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (cellReference: string): number {
-    const _cellReference = cellReference || this.__originCellXC();
+  compute: function (cellReference: Maybe<{ value: string }>): number {
+    const _cellReference =
+      cellReference === undefined ? this.__originCellXC?.() : cellReference.value;
     assert(
       () => !!_cellReference,
       "In this context, the function [[FUNCTION_NAME]] needs to have a cell or range in parameter."
@@ -137,8 +132,8 @@ export const COLUMNS = {
   description: _t("Number of columns in a specified array or range."),
   args: [arg("range (meta)", _t("The range whose column count will be returned."))],
   returns: ["NUMBER"],
-  compute: function (range: string): number {
-    const zone = toZone(range);
+  compute: function (range: { value: string }): number {
+    const zone = toZone(range.value);
     return zone.right - zone.left + 1;
   },
   isExported: true,
@@ -170,12 +165,12 @@ export const HLOOKUP = {
     ),
   ],
   returns: ["ANY"],
-  computeValueAndFormat: function (
-    searchKey: Maybe<ValueAndFormat>,
-    range: Matrix<ValueAndFormat>,
-    index: Maybe<ValueAndFormat>,
-    isSorted: Maybe<ValueAndFormat> = { value: DEFAULT_IS_SORTED }
-  ): ValueAndFormat {
+  compute: function (
+    searchKey: Maybe<FPayload>,
+    range: Matrix<FPayload>,
+    index: Maybe<FPayload>,
+    isSorted: Maybe<FPayload> = { value: DEFAULT_IS_SORTED }
+  ): FPayload {
     const _index = Math.trunc(toNumber(index?.value, this.locale));
 
     assert(
@@ -183,20 +178,12 @@ export const HLOOKUP = {
       _t("[[FUNCTION_NAME]] evaluates to an out of bounds range.")
     );
 
-    const getValueFromRange = (range: Matrix<ValueAndFormat>, index: number) =>
-      range[index][0].value;
+    const getValueFromRange = (range: Matrix<FPayload>, index: number) => range[index][0].value;
 
     const _isSorted = toBoolean(isSorted.value);
     const colIndex = _isSorted
-      ? dichotomicSearch(
-          range,
-          searchKey?.value,
-          "nextSmaller",
-          "asc",
-          range.length,
-          getValueFromRange
-        )
-      : linearSearch(range, searchKey?.value, "strict", range.length, getValueFromRange);
+      ? dichotomicSearch(range, searchKey, "nextSmaller", "asc", range.length, getValueFromRange)
+      : linearSearch(range, searchKey, "strict", range.length, getValueFromRange);
     const col = range[colIndex];
     assertAvailable(col, searchKey?.value);
     return col[_index - 1];
@@ -221,12 +208,12 @@ export const INDEX: AddFunctionDescription = {
     ),
   ],
   returns: ["ANY"],
-  computeValueAndFormat: function (
-    reference: Matrix<ValueAndFormat>,
-    row: Maybe<ValueAndFormat> = { value: 0 },
-    column: Maybe<ValueAndFormat> = { value: 0 }
-  ): any {
-    const _reference = isMatrix(reference) ? reference : [[reference]];
+  compute: function (
+    reference: Matrix<FPayload>,
+    row: Maybe<FPayload> = { value: 0 },
+    column: Maybe<FPayload> = { value: 0 }
+  ): FPayload | Matrix<FPayload> {
+    const _reference = toMatrix(reference);
     const _row = toNumber(row.value, this.locale);
     const _column = toNumber(column.value, this.locale);
     assert(
@@ -273,22 +260,22 @@ export const LOOKUP = {
     ),
   ],
   returns: ["ANY"],
-  computeValueAndFormat: function (
-    searchKey: Maybe<ValueAndFormat>,
-    searchArray: Matrix<ValueAndFormat>,
-    resultRange: Matrix<ValueAndFormat> | undefined
-  ): ValueAndFormat {
+  compute: function (
+    searchKey: Maybe<FPayload>,
+    searchArray: Matrix<FPayload>,
+    resultRange: Matrix<FPayload> | undefined
+  ): FPayload {
     let nbCol = searchArray.length;
     let nbRow = searchArray[0].length;
 
     const verticalSearch = nbRow >= nbCol;
     const getElement = verticalSearch
-      ? (range: Matrix<ValueAndFormat>, index: number) => range[0][index].value
-      : (range: Matrix<ValueAndFormat>, index: number) => range[index][0].value;
+      ? (range: Matrix<FPayload>, index: number) => range[0][index].value
+      : (range: Matrix<FPayload>, index: number) => range[index][0].value;
     const rangeLength = verticalSearch ? nbRow : nbCol;
     const index = dichotomicSearch(
       searchArray,
-      searchKey?.value,
+      searchKey,
       "nextSmaller",
       "asc",
       rangeLength,
@@ -348,9 +335,9 @@ export const MATCH = {
   ],
   returns: ["NUMBER"],
   compute: function (
-    searchKey: Maybe<CellValue>,
-    range: Matrix<CellValue>,
-    searchType: Maybe<CellValue> = DEFAULT_SEARCH_TYPE
+    searchKey: Maybe<FPayload>,
+    range: Matrix<FPayload>,
+    searchType: Maybe<FPayload> = { value: DEFAULT_SEARCH_TYPE }
   ): number {
     let _searchType = toNumber(searchType, this.locale);
     const nbCol = range.length;
@@ -365,8 +352,8 @@ export const MATCH = {
 
     const getElement =
       nbCol === 1
-        ? (range: Matrix<CellValue>, index: number) => range[0][index]
-        : (range: Matrix<CellValue>, index: number) => range[index][0];
+        ? (range: Matrix<FPayload>, index: number) => range[0][index].value
+        : (range: Matrix<FPayload>, index: number) => range[index][0].value;
 
     const rangeLen = nbCol === 1 ? range[0].length : range.length;
     _searchType = Math.sign(_searchType);
@@ -404,13 +391,14 @@ export const ROW = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (cellReference?: string): number {
-    cellReference = cellReference || this.__originCellXC();
+  compute: function (cellReference: Maybe<{ value: string }>): number {
+    const _cellReference =
+      cellReference === undefined ? this.__originCellXC?.() : cellReference.value;
     assert(
-      () => !!cellReference,
+      () => !!_cellReference,
       "In this context, the function [[FUNCTION_NAME]] needs to have a cell or range in parameter."
     );
-    const zone = toZone(cellReference!);
+    const zone = toZone(_cellReference!);
     return zone.top + 1;
   },
   isExported: true,
@@ -424,8 +412,8 @@ export const ROWS = {
   description: _t("Number of rows in a specified array or range."),
   args: [arg("range (meta)", _t("The range whose row count will be returned."))],
   returns: ["NUMBER"],
-  compute: function (range: string): number {
-    const zone = toZone(range);
+  compute: function (range: { value: string }): number {
+    const zone = toZone(range.value);
     return zone.bottom - zone.top + 1;
   },
   isExported: true,
@@ -459,32 +447,24 @@ export const VLOOKUP = {
     ),
   ],
   returns: ["ANY"],
-  computeValueAndFormat: function (
-    searchKey: Maybe<ValueAndFormat>,
-    range: Matrix<ValueAndFormat>,
-    index: Maybe<ValueAndFormat>,
-    isSorted: Maybe<ValueAndFormat> = { value: DEFAULT_IS_SORTED }
-  ): ValueAndFormat {
+  compute: function (
+    searchKey: Maybe<FPayload>,
+    range: Matrix<FPayload>,
+    index: Maybe<FPayload>,
+    isSorted: Maybe<FPayload> = { value: DEFAULT_IS_SORTED }
+  ): FPayload {
     const _index = Math.trunc(toNumber(index?.value, this.locale));
     assert(
       () => 1 <= _index && _index <= range.length,
       _t("[[FUNCTION_NAME]] evaluates to an out of bounds range.")
     );
 
-    const getValueFromRange = (range: Matrix<ValueAndFormat>, index: number) =>
-      range[0][index].value;
+    const getValueFromRange = (range: Matrix<FPayload>, index: number) => range[0][index].value;
 
     const _isSorted = toBoolean(isSorted.value);
     const rowIndex = _isSorted
-      ? dichotomicSearch(
-          range,
-          searchKey?.value,
-          "nextSmaller",
-          "asc",
-          range[0].length,
-          getValueFromRange
-        )
-      : linearSearch(range, searchKey?.value, "strict", range[0].length, getValueFromRange);
+      ? dichotomicSearch(range, searchKey, "nextSmaller", "asc", range[0].length, getValueFromRange)
+      : linearSearch(range, searchKey, "strict", range[0].length, getValueFromRange);
 
     const value = range[_index - 1][rowIndex];
     assertAvailable(value, searchKey);
@@ -510,10 +490,7 @@ export const XLOOKUP = {
       "return_range (any, range)",
       _t("The range containing the return value. Should have the same dimensions as lookup_range.")
     ),
-    arg(
-      "if_not_found (any, lazy, optional)",
-      _t("If a valid match is not found, return this value.")
-    ),
+    arg("if_not_found (any, optional)", _t("If a valid match is not found, return this value.")),
     arg(
       `match_mode (any, default=${DEFAULT_MATCH_MODE})`,
       _t(
@@ -532,14 +509,14 @@ export const XLOOKUP = {
     ),
   ],
   returns: ["ANY"],
-  computeValueAndFormat: function (
-    searchKey: Maybe<ValueAndFormat>,
-    lookupRange: Matrix<ValueAndFormat>,
-    returnRange: Matrix<ValueAndFormat>,
-    defaultValue?: () => Maybe<ValueAndFormat>,
-    matchMode: Maybe<ValueAndFormat> = { value: DEFAULT_MATCH_MODE },
-    searchMode: Maybe<ValueAndFormat> = { value: DEFAULT_SEARCH_MODE }
-  ): Matrix<ValueAndFormat> {
+  compute: function (
+    searchKey: Maybe<FPayload>,
+    lookupRange: Matrix<FPayload>,
+    returnRange: Matrix<FPayload>,
+    defaultValue: Maybe<FPayload>,
+    matchMode: Maybe<FPayload> = { value: DEFAULT_MATCH_MODE },
+    searchMode: Maybe<FPayload> = { value: DEFAULT_SEARCH_MODE }
+  ): Matrix<FPayload> {
     const _matchMode = Math.trunc(toNumber(matchMode.value, this.locale));
     const _searchMode = Math.trunc(toNumber(searchMode.value, this.locale));
 
@@ -565,8 +542,8 @@ export const XLOOKUP = {
 
     const getElement =
       lookupDirection === "col"
-        ? (range: Matrix<ValueAndFormat>, index: number) => range[0][index].value
-        : (range: Matrix<ValueAndFormat>, index: number) => range[index][0].value;
+        ? (range: Matrix<FPayload>, index: number) => range[0][index].value
+        : (range: Matrix<FPayload>, index: number) => range[index][0].value;
 
     const rangeLen = lookupDirection === "col" ? lookupRange[0].length : lookupRange.length;
 
@@ -577,13 +554,13 @@ export const XLOOKUP = {
       _searchMode === 2 || _searchMode === -2
         ? dichotomicSearch(
             lookupRange,
-            searchKey?.value,
+            searchKey,
             mode,
             _searchMode === 2 ? "asc" : "desc",
             rangeLen,
             getElement
           )
-        : linearSearch(lookupRange, searchKey?.value, mode, rangeLen, getElement, reverseSearch);
+        : linearSearch(lookupRange, searchKey, mode, rangeLen, getElement, reverseSearch);
 
     if (index !== -1) {
       return lookupDirection === "col"
@@ -591,9 +568,8 @@ export const XLOOKUP = {
         : [returnRange[index]];
     }
 
-    const _defaultValue = defaultValue?.();
-    assertAvailable(_defaultValue, searchKey);
-    return [[_defaultValue!]];
+    assertAvailable(defaultValue, searchKey);
+    return [[defaultValue!]];
   },
   isExported: true,
 } satisfies AddFunctionDescription;

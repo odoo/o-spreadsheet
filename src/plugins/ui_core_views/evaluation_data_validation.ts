@@ -15,7 +15,6 @@ import {
   isMatrix,
 } from "../../types";
 import { CoreViewCommand, invalidateEvaluationCommands } from "../../types/commands";
-import { CellErrorType, EvaluationError } from "../../types/errors";
 import { UIPlugin } from "../ui_plugin";
 import { _t } from "./../../translation";
 
@@ -213,25 +212,21 @@ export class EvaluationDataValidationPlugin extends UIPlugin {
         return value;
       }
 
-      try {
-        const formula = compile(value);
-        const translatedFormula = this.getters.getTranslatedCellFormula(
-          sheetId,
-          offset.col,
-          offset.row,
-          {
-            ...formula,
-            dependencies: formula.dependencies.map((d) =>
-              this.getters.getRangeFromSheetXC(sheetId, d)
-            ),
-          }
-        );
+      const formula = compile(value);
+      const translatedFormula = this.getters.getTranslatedCellFormula(
+        sheetId,
+        offset.col,
+        offset.row,
+        {
+          ...formula,
+          dependencies: formula.dependencies.map((d) =>
+            this.getters.getRangeFromSheetXC(sheetId, d)
+          ),
+        }
+      );
 
-        const evaluated = this.getters.evaluateFormula(sheetId, translatedFormula);
-        return evaluated && !isMatrix(evaluated) ? evaluated.toString() : "";
-      } catch (e) {
-        return e instanceof EvaluationError ? e.errorType : CellErrorType.GenericError;
-      }
+      const evaluated = this.getters.evaluateFormula(sheetId, translatedFormula);
+      return evaluated && !isMatrix(evaluated) ? evaluated.toString() : "";
     });
   }
 }
