@@ -1,9 +1,27 @@
 import { Locale } from "../types";
 import { Token } from "./index";
+import { AST, parseTokens } from "./parser";
 import { rangeTokenize } from "./range_tokenizer";
+
 interface FunctionContext {
+  /**
+   * The parent function name of the token.
+   */
   parent: string;
+  /**
+   * The position of the token within the argument list of its parent function.
+   */
   argPosition: number;
+  /**
+   * An array of parsed arguments, possibly containing undefined values if the argument
+   * is empty or is an invalid expression.
+   */
+  args: (AST | undefined)[];
+  /**
+   * Array of token arrays representing the tokens for each argument.
+   * Needed as an intermediate step to parse the arguments AST (see `args` property).
+   */
+  argsTokens?: Token[][];
 }
 
 /**
@@ -77,6 +95,21 @@ function mapParenthesis(tokens: EnrichedToken[]): EnrichedToken[] {
 function mapParentFunction(tokens: EnrichedToken[]): EnrichedToken[] {
   let stack: FunctionContext[] = [];
   let functionStarted = "";
+
+  function pushTokenToFunctionContext(token: Token) {
+    if (stack.length === 0) {
+      return;
+    }
+    const functionContext = stack.at(-1);
+    if (functionContext && functionContext.argsTokens) {
+      const { argsTokens, argPosition } = functionContext;
+      if (!argsTokens[argPosition]) {
+        argsTokens[argPosition] = [];
+      }
+      argsTokens[argPosition].push({ value: token.value, type: token.type });
+    }
+  }
+
   const res = tokens.map((token, i) => {
     if (!["SPACE", "LEFT_PAREN"].includes(token.type)) {
       functionStarted = "";
@@ -84,20 +117,28 @@ function mapParentFunction(tokens: EnrichedToken[]): EnrichedToken[] {
 
     switch (token.type) {
       case "SYMBOL":
+        pushTokenToFunctionContext(token);
         functionStarted = token.value;
         break;
       case "LEFT_PAREN":
-        stack.push({ parent: functionStarted, argPosition: 0 });
+        stack.push({ parent: functionStarted, argPosition: 0, argsTokens: [], args: [] });
+        pushTokenToFunctionContext(token);
         functionStarted = "";
         break;
       case "RIGHT_PAREN":
-        stack.pop();
+        const child = stack.pop();
+        child?.argsTokens?.flat().forEach(pushTokenToFunctionContext);
+        pushTokenToFunctionContext(token);
         break;
       case "ARG_SEPARATOR":
+        pushTokenToFunctionContext(token);
         if (stack.length) {
           // increment position on current function
           stack[stack.length - 1].argPosition++;
         }
+        break;
+      default:
+        pushTokenToFunctionContext(token);
         break;
     }
 
@@ -113,6 +154,44 @@ function mapParentFunction(tokens: EnrichedToken[]): EnrichedToken[] {
 }
 
 /**
+ * Parse the list of tokens that compose the arguments of a function to
+ * their AST representation.
+ */
+function addArgsAST(tokens: EnrichedToken[]): EnrichedToken[] {
+  for (const token of tokens) {
+    if (token.functionContext) {
+      const { argsTokens, args } = token.functionContext;
+
+      // remove argsTokens from the context to remove noise
+      // The business logic should not need it, it is only used temporarily
+      // to build the arguments ASTs.
+      delete token.functionContext.argsTokens;
+
+      if (args.length || !argsTokens) {
+        // function context already process at a previous token
+        continue;
+      }
+      if (argsTokens[0]?.[0]?.type === "LEFT_PAREN") {
+        // remove the parenthesis leading the first argument
+        argsTokens[0] = argsTokens[0].slice(1);
+      }
+      for (const argTokens of argsTokens) {
+        let tokens = argTokens;
+        if (tokens.at(-1)?.type === "ARG_SEPARATOR") {
+          tokens = tokens.slice(0, -1);
+        }
+        try {
+          args.push(parseTokens(tokens));
+        } catch (error) {
+          args.push(undefined);
+        }
+      }
+    }
+  }
+  return tokens;
+}
+
+/**
  * Take the result of the tokenizer and transform it to be usable in the composer.
  *
  * @param formula
@@ -120,5 +199,5 @@ function mapParentFunction(tokens: EnrichedToken[]): EnrichedToken[] {
 export function composerTokenize(formula: string, locale: Locale): EnrichedToken[] {
   const tokens = rangeTokenize(formula, locale);
 
-  return mapParentFunction(mapParenthesis(enrichTokens(tokens)));
+  return addArgsAST(mapParentFunction(mapParenthesis(enrichTokens(tokens))));
 }
