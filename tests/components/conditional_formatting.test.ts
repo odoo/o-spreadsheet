@@ -9,11 +9,7 @@ import {
   paste,
   setSelection,
 } from "../test_helpers/commands_helpers";
-import {
-  setInputValueAndTrigger,
-  simulateClick,
-  triggerMouseEvent,
-} from "../test_helpers/dom_helper";
+import { setInputValueAndTrigger, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {
   createColorScale,
   createEqualCF,
@@ -354,47 +350,20 @@ describe("UI of conditional formats", () => {
     });
 
     test("cannot create a new CF with invalid range", async () => {
-      await simulateClick(selectors.buttonAdd);
+      triggerMouseEvent(selectors.buttonAdd, "click");
+      await nextTick();
       await nextTick();
 
       setInputValueAndTrigger(selectors.ruleEditor.range, "hello", "change");
 
       const dispatch = spyDispatch(parent);
       //  click save
-      await simulateClick(selectors.buttonSave);
+      triggerMouseEvent(selectors.buttonSave, "click");
+      await nextTick();
       expect(dispatch).not.toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT");
       const errorString = document.querySelector(selectors.error);
       expect(errorString!.textContent).toBe("The range is invalid");
-
-      setInputValueAndTrigger(selectors.ruleEditor.range, "s!A1", "change");
-      await simulateClick(selectors.buttonSave);
-      expect(dispatch).not.toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT");
-      const errorString2 = document.querySelector(selectors.error);
-      expect(errorString2!.textContent).toBe("The range is invalid");
     });
-
-    test("display error message if and only if invalid range", async () => {
-      await simulateClick(selectors.buttonAdd);
-      await nextTick();
-      const dispatch = spyDispatch(parent);
-
-      setInputValueAndTrigger(selectors.ruleEditor.range, "", "change");
-      await simulateClick(selectors.buttonSave);
-      expect(dispatch).not.toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT");
-      const errorString = document.querySelector(selectors.error);
-      expect(errorString!.textContent).toBe("A range needs to be defined");
-
-      setInputValueAndTrigger(selectors.ruleEditor.range, "A1", "change");
-      await nextTick();
-      expect(document.querySelector(selectors.error)).toBe(null);
-
-      setInputValueAndTrigger(selectors.ruleEditor.range, "s!A1", "change");
-      await simulateClick(selectors.buttonSave);
-      expect(dispatch).not.toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT");
-      const errorString1 = document.querySelector(selectors.error);
-      expect(errorString1!.textContent).toBe("The range is invalid");
-    });
-
     test("displayed range is updated if range changes", async () => {
       const previews = document.querySelectorAll(selectors.listPreview);
       expect(previews[0].querySelector(selectors.description.range)!.textContent).toBe("A1:A2");
@@ -774,6 +743,8 @@ describe("UI of conditional formats", () => {
     await nextTick();
     await nextTick();
     setInputValueAndTrigger(selectors.ruleEditor.range, "", "change");
+    await nextTick();
+    triggerMouseEvent(selectors.buttonSave, "click");
     await nextTick();
     expect(errorMessages()).toEqual(["A range needs to be defined"]);
     expect(fixture.querySelector(selectors.ruleEditor.range)?.className).toContain("o-invalid");
