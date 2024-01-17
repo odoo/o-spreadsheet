@@ -1056,6 +1056,7 @@ export const enum CommandResult {
   InvalidSheetId,
   InputAlreadyFocused,
   MaximumRangesReached,
+  InvalidInputId,
   InvalidChartDefinition,
   InvalidDataSet,
   InvalidLabelRange,
