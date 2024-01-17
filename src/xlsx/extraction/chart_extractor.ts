@@ -32,9 +32,13 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
           title: chartTitle,
           type: CHART_TYPE_CONVERSION_MAP[chartType]!,
           dataSets: this.extractChartDatasets(
-            this.querySelector(rootChartElement, `c:${chartType}`)!
+            this.querySelector(rootChartElement, `c:${chartType}`)!,
+            chartType
           ),
-          labelRange: this.extractChildTextContent(rootChartElement, "c:ser c:cat c:f"),
+          labelRange: this.extractChildTextContent(
+            rootChartElement,
+            `c:ser ${chartType === "scatterChart" ? "c:numRef" : "c:cat"} c:f`
+          ),
           backgroundColor: this.extractChildAttr(
             rootChartElement,
             "c:chartSpace > c:spPr a:srgbClr",
@@ -78,8 +82,11 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
       title: chartTitle,
       type: "combo",
       dataSets: [
-        ...this.extractChartDatasets(this.querySelector(chartElement, `c:barChart`)!),
-        ...this.extractChartDatasets(this.querySelector(chartElement, `c:lineChart`)!),
+        ...this.extractChartDatasets(this.querySelector(chartElement, `c:barChart`)!, "comboChart"),
+        ...this.extractChartDatasets(
+          this.querySelector(chartElement, `c:lineChart`)!,
+          "comboChart"
+        ),
       ],
       labelRange: this.extractChildTextContent(chartElement, "c:ser c:cat c:f"),
       backgroundColor: this.extractChildAttr(
@@ -107,13 +114,31 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
     };
   }
 
-  private extractChartDatasets(chartElement: Element): ExcelChartDataset[] {
+  private extractChartDatasets(
+    chartElement: Element,
+    chartType: XLSXChartType
+  ): ExcelChartDataset[] {
+    if (chartType === "scatterChart") {
+      return this.extractScatterChartDatasets(chartElement);
+    }
     return this.mapOnElements(
       { parent: chartElement, query: "c:ser" },
       (chartDataElement): ExcelChartDataset => {
         return {
           label: this.extractChildTextContent(chartDataElement, "c:tx c:f"),
           range: this.extractChildTextContent(chartDataElement, "c:val c:f", { required: true })!,
+        };
+      }
+    );
+  }
+
+  private extractScatterChartDatasets(chartElement: Element): ExcelChartDataset[] {
+    return this.mapOnElements(
+      { parent: chartElement, query: "c:ser" },
+      (chartDataElement): ExcelChartDataset => {
+        return {
+          label: this.extractChildTextContent(chartDataElement, "c:xVal c:f", { required: false }),
+          range: this.extractChildTextContent(chartDataElement, "c:yVal c:f", { required: true })!,
         };
       }
     );
