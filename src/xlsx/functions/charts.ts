@@ -74,6 +74,9 @@ export function createChart(
     case "line":
       plot = addLineChart(chart.data);
       break;
+    case "scatter":
+      plot = addScatterChart(chart.data);
+      break;
     case "pie":
       plot = addDoughnutChart(chart.data, chartSheetIndex, data, { holeSize: 0 });
       break;
@@ -384,6 +387,56 @@ function addLineChart(chart: ExcelChartDefinition): XMLString {
       <c:axId val="${valAxId}" />
     </c:lineChart>
     ${addAx("b", "c:catAx", catAxId, valAxId, { fontColor: chart.fontColor })}
+    ${addAx(axisPos, "c:valAx", valAxId, catAxId, { fontColor: chart.fontColor })}
+  `;
+}
+
+function addScatterChart(chart: ExcelChartDefinition): XMLString {
+  const colors = new ChartColors();
+  const dataSetsNodes: XMLString[] = [];
+  for (const [dsIndex, dataset] of Object.entries(chart.dataSets)) {
+    dataSetsNodes.push(escapeXml/*xml*/ `
+      <c:ser>
+        <c:idx val="${dsIndex}"/>
+        <c:order val="${dsIndex}"/>
+        <c:smooth val="0"/>
+        <c:spPr>
+          <a:ln w="19050" cap="rnd">
+            <a:noFill/>
+            <a:round/>
+          </a:ln>
+          <a:effectLst/>
+        </c:spPr>
+        <c:marker>
+          <c:symbol val="circle" />
+          <c:size val="5"/>
+          ${shapeProperty({ backgroundColor: toXlsxHexColor(colors.next()) })}
+        </c:marker>
+        ${
+          chart.labelRange
+            ? escapeXml/*xml*/ `<c:xVal> <!-- x-coordinate values -->
+              ${numberRef(chart.labelRange)}
+            </c:xVal>`
+            : ""
+        }
+        <c:yVal> <!-- y-coordinate values -->
+          ${numberRef(dataset.range)}
+        </c:yVal>
+      </c:ser>
+    `);
+  }
+
+  const axisPos = chart.verticalAxisPosition === "left" ? "l" : "r";
+  return escapeXml/*xml*/ `
+    <c:scatterChart>
+      <!-- each data marker in the series does not have a different color -->
+      <c:varyColors val="0"/>
+      <c:scatterStyle val="lineMarker"/>
+      ${joinXmlNodes(dataSetsNodes)}
+      <c:axId val="${catAxId}" />
+      <c:axId val="${valAxId}" />
+    </c:scatterChart>
+    ${addAx("b", "c:valAx", catAxId, valAxId, { fontColor: chart.fontColor })}
     ${addAx(axisPos, "c:valAx", valAxId, catAxId, { fontColor: chart.fontColor })}
   `;
 }

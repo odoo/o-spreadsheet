@@ -1,7 +1,7 @@
 import { functionRegistry } from "../../src/functions";
 import { buildSheetLink, toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { Dimension, PLAIN_TEXT_FORMAT } from "../../src/types";
+import { Dimension, ExcelChartType, PLAIN_TEXT_FORMAT } from "../../src/types";
 import { XLSXExportXMLFile } from "../../src/types/xlsx";
 import { adaptFormulaToExcel } from "../../src/xlsx/functions/cells";
 import { escapeXml, parseXML } from "../../src/xlsx/helpers/xml_helpers";
@@ -874,10 +874,12 @@ describe("Test XLSX export", () => {
 
     test.each([
       ["line", ["Sheet1!B1:B4", "Sheet1!C1:C4"]],
+      ["scatter", ["Sheet1!B1:B4", "Sheet1!C1:C4"]],
       ["bar", ["Sheet1!B1:B4", "Sheet1!C1:C4"]],
       ["combo", ["Sheet1!B1:B4", "Sheet1!C1:C4"]],
       ["pie", ["Sheet1!B1:B4", "Sheet1!C1:C4"]],
       ["line", ["Sheet1!B1:B4"]],
+      ["scatter", ["Sheet1!B1:B4"]],
       ["bar", ["Sheet1!B1:B4"]],
       ["combo", ["Sheet1!B1:B4"]],
       ["pie", ["Sheet1!B1:B4"]],
@@ -942,9 +944,9 @@ describe("Test XLSX export", () => {
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
 
-    test.each(["bar", "line", "pie"] as const)(
+    test.each(["bar", "line", "pie", "scatter"] as const)(
       "%s chart that aggregate labels is exported as image",
-      async (type: "bar" | "line" | "pie") => {
+      async (type: ExcelChartType) => {
         const model = new Model({
           sheets: [
             {

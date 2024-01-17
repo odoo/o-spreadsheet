@@ -60,7 +60,7 @@ export interface ExcelChartDataset {
   readonly range: string;
 }
 
-export type ExcelChartType = "line" | "bar" | "pie" | "combo";
+export type ExcelChartType = "line" | "bar" | "pie" | "combo" | "scatter";
 
 export interface ExcelChartDefinition {
   readonly title?: string;
