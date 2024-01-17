@@ -17,6 +17,7 @@ import {
 import { BarChartDefinition } from "../../src/types/chart/bar_chart";
 import { LineChartDefinition } from "../../src/types/chart/line_chart";
 import { PieChartDefinition } from "../../src/types/chart/pie_chart";
+import { ScatterChartDefinition } from "../../src/types/chart/scatter_chart";
 import { Image } from "../../src/types/image";
 import { SheetData, WorkbookData } from "../../src/types/workbook_data";
 import { XLSXCfOperatorType, XLSXSharedFormula } from "../../src/types/xlsx";
@@ -729,6 +730,7 @@ describe("Import xlsx data", () => {
   test.each([
     ["line chart", "C5:G18"],
     ["bar chart", "H5:L18"],
+    ["scatter chart", "M5:Q18"],
     ["pie chart", "C38:L56"],
     ["doughnut chart", "C19:L37"],
   ])("Can import figures ", (chartTitle, figureZone) => {
@@ -799,6 +801,17 @@ describe("Import xlsx data", () => {
       expect(chartData.dataSetsHaveTitle).toBeTruthy();
     }
   );
+
+  test("Can import scatter plot", () => {
+    const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
+    const figure = testSheet.figures.find((figure) => figure.data.title === "scatter chart")!;
+    const chartData = figure.data as ScatterChartDefinition;
+    expect(chartData.title).toEqual("scatter chart");
+    expect(chartData.type).toEqual("scatter");
+    expect(standardizeColor(chartData.background!)).toEqual(standardizeColor("#fff"));
+    expect(chartData.dataSets).toEqual(["Sheet1!C26:C35"]);
+    expect(chartData.dataSetsHaveTitle).toBeTruthy();
+  });
 
   test.each([
     ["chart", "A1:F19"],

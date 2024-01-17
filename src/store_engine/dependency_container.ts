@@ -32,6 +32,10 @@ export class DependencyContainer {
   instantiate<T>(Store: StoreConstructor<T>, ...args: StoreParams<StoreConstructor<T>>): T {
     return this.factory.build(Store, ...args);
   }
+
+  resetStores() {
+    this.dependencies.clear();
+  }
 }
 
 class StoreFactory {

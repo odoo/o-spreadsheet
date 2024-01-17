@@ -1,4 +1,5 @@
 import { ChartDataset } from "chart.js";
+import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import { toNumber } from "../../../functions/helpers";
 import {
   AddColumnsRowsCommand,
@@ -11,20 +12,30 @@ import {
   RemoveColumnsRowsCommand,
   UID,
 } from "../../../types";
-import { ChartCreationContext, DataSet, ExcelChartDefinition } from "../../../types/chart/chart";
+import {
+  ChartCreationContext,
+  DataSet,
+  ExcelChartDataset,
+  ExcelChartDefinition,
+} from "../../../types/chart/chart";
 import { LegendPosition, VerticalAxisPosition } from "../../../types/chart/common_chart";
 import { ScatterChartDefinition, ScatterChartRuntime } from "../../../types/chart/scatter_chart";
 import { Validator } from "../../../types/validator";
+import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { formatValue } from "../../format";
 import { isNumber } from "../../numbers";
 import { createRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
+  chartFontColor,
   checkDataset,
   checkLabelRange,
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
+  shouldRemoveFirstLabel,
+  toExcelDataset,
+  toExcelLabelRange,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
@@ -143,7 +154,25 @@ export class ScatterChart extends AbstractChart {
   }
 
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
-    return undefined; // TODO
+    // Excel does not support aggregating labels
+    if (this.aggregated) {
+      return undefined;
+    }
+    const dataSets: ExcelChartDataset[] = this.dataSets
+      .map((ds: DataSet) => toExcelDataset(this.getters, ds))
+      .filter((ds) => ds.range !== "");
+    const labelRange = toExcelLabelRange(
+      this.getters,
+      this.labelRange,
+      shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], this.dataSetsHaveTitle)
+    );
+    return {
+      ...this.getDefinition(),
+      backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
+      fontColor: toXlsxHexColor(chartFontColor(this.background)),
+      dataSets,
+      labelRange,
+    };
   }
 
   copyForSheetId(sheetId: UID): ScatterChart {

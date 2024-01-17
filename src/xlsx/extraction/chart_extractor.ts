@@ -29,7 +29,8 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
           title: chartTitle,
           type: CHART_TYPE_CONVERSION_MAP[chartType]!,
           dataSets: this.extractChartDatasets(
-            this.querySelector(rootChartElement, `c:${chartType}`)!
+            this.querySelector(rootChartElement, `c:${chartType}`)!,
+            chartType
           ),
           labelRange: this.extractChildTextContent(rootChartElement, "c:ser c:cat c:f"),
           backgroundColor: this.extractChildAttr(
@@ -59,13 +60,31 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
     )[0];
   }
 
-  private extractChartDatasets(chartElement: Element): ExcelChartDataset[] {
+  private extractChartDatasets(
+    chartElement: Element,
+    chartType: XLSXChartType
+  ): ExcelChartDataset[] {
+    if (chartType === "scatterChart") {
+      return this.extractScatterChartDatasets(chartElement);
+    }
     return this.mapOnElements(
       { parent: chartElement, query: "c:ser" },
       (chartDataElement): ExcelChartDataset => {
         return {
           label: this.extractChildTextContent(chartDataElement, "c:tx c:f"),
           range: this.extractChildTextContent(chartDataElement, "c:val c:f", { required: true })!,
+        };
+      }
+    );
+  }
+
+  private extractScatterChartDatasets(chartElement: Element): ExcelChartDataset[] {
+    return this.mapOnElements(
+      { parent: chartElement, query: "c:ser" },
+      (chartDataElement): ExcelChartDataset => {
+        return {
+          label: this.extractChildTextContent(chartDataElement, "c:xVal c:f", { required: false }),
+          range: this.extractChildTextContent(chartDataElement, "c:yVal c:f", { required: true })!,
         };
       }
     );
