@@ -696,4 +696,38 @@ describe("selection input plugin", () => {
     expect(input[0]).toMatchObject({ xc: "B1:B2", isFocused: false });
     expect(model.getters.isGridSelectionActive()).toBe(true);
   });
+
+  test("Cannot update ranges of inexisting input", () => {
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id });
+    const rangeId = idOfRange(model, id, 0);
+    let result = model.dispatch("FOCUS_RANGE", { id: "fakeId", rangeId });
+    expect(result).toBeCancelledBecause(CommandResult.InvalidInputId);
+    result = model.dispatch("CHANGE_RANGE", { id: "fakeId", rangeId, value: "A1" });
+    expect(result).toBeCancelledBecause(CommandResult.InvalidInputId);
+    result = model.dispatch("ADD_EMPTY_RANGE", { id: "fakeId" });
+    expect(result).toBeCancelledBecause(CommandResult.InvalidInputId);
+    result = model.dispatch("REMOVE_RANGE", { id: "fakeId", rangeId });
+    expect(result).toBeCancelledBecause(CommandResult.InvalidInputId);
+  });
+
+  test("Can add a empty range to a second input without pre-focusing", () => {
+    const id2 = "2";
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, hasSingleRange: true });
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id: id2 });
+    model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
+    model.dispatch("ADD_EMPTY_RANGE", { id: id2 });
+    expect(model.getters.getSelectionInput("2")).toHaveLength(2);
+  });
+
+  test("Can change the range of a second input without pre-focusing", () => {
+    const id2 = "2";
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, hasSingleRange: true });
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id: id2 });
+    model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
+    model.dispatch("CHANGE_RANGE", { id: id2, rangeId: idOfRange(model, id2, 0), value: "F1,F2" });
+    expect(model.getters.getSelectionInput(id2)).toHaveLength(2);
+    expect(model.getters.getSelectionInput(id2)[0].xc).toBe("F1");
+    expect(model.getters.getSelectionInput(id2)[1].xc).toBe("F2");
+    expect(model.getters.getSelectionInput(id2)[1].isFocused).toBe(true);
+  });
 });
