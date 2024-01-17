@@ -7,15 +7,7 @@ import {
 } from "../../helpers/index";
 import { StreamCallbacks } from "../../selection_stream/event_stream";
 import { SelectionEvent } from "../../types/event_stream";
-import {
-  Color,
-  Command,
-  CommandResult,
-  Highlight,
-  LAYERS,
-  LocalCommand,
-  UID,
-} from "../../types/index";
+import { Color, Command, Highlight, LAYERS, UID } from "../../types/index";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
 export interface RangeInputValue {
@@ -43,7 +35,7 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
   constructor(
     config: UIPluginConfig,
     initialRanges: string[],
-    private readonly inputHasSingleRange: boolean
+    readonly inputHasSingleRange: boolean
   ) {
     if (inputHasSingleRange && initialRanges.length > 1) {
       throw new Error(
@@ -62,22 +54,6 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
-
-  allowDispatch(cmd: LocalCommand): CommandResult {
-    switch (cmd.type) {
-      case "ADD_EMPTY_RANGE":
-        if (this.inputHasSingleRange && this.ranges.length === 1) {
-          return CommandResult.MaximumRangesReached;
-        }
-        break;
-      case "CHANGE_RANGE":
-        if (this.inputHasSingleRange && cmd.value.split(",").length > 1) {
-          return CommandResult.MaximumRangesReached;
-        }
-        break;
-    }
-    return CommandResult.Success;
-  }
 
   handleEvent(event: SelectionEvent) {
     const xc = zoneToXc(event.anchor.zone);
