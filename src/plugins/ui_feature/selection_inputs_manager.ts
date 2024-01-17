@@ -36,15 +36,42 @@ export class SelectionInputsManagerPlugin extends UIPlugin {
   allowDispatch(cmd: LocalCommand): CommandResult {
     switch (cmd.type) {
       case "FOCUS_RANGE":
+      case "CHANGE_RANGE":
+      case "ADD_EMPTY_RANGE":
+      case "REMOVE_RANGE":
+        if (!this.inputs[cmd.id]) {
+          return CommandResult.InvalidInputId;
+        }
+    }
+
+    switch (cmd.type) {
+      case "FOCUS_RANGE":
         const index = this.currentInput?.getIndex(cmd.rangeId);
         if (this.focusedInputId === cmd.id && this.currentInput?.focusedRangeIndex === index) {
           return CommandResult.InputAlreadyFocused;
         }
         break;
+      case "ADD_RANGE":
+      case "ADD_EMPTY_RANGE":
+        const input = this.inputs[cmd.id];
+        if (input.inputHasSingleRange && input.ranges.length === 1) {
+          return CommandResult.MaximumRangesReached;
+        }
+        break;
+      case "REMOVE_RANGE":
+        if (this.inputs[cmd.id].ranges.length === 1) {
+          return CommandResult.MinimumRangesReached;
+        }
+        break;
+      case "CHANGE_RANGE": {
+        const input = this.inputs[cmd.id];
+        if (input.inputHasSingleRange && cmd.value.split(",").length > 1) {
+          return CommandResult.MaximumRangesReached;
+        }
+        break;
+      }
     }
-    if (this.currentInput) {
-      return this.currentInput.allowDispatch(cmd);
-    }
+
     return CommandResult.Success;
   }
 
