@@ -74,6 +74,10 @@ export function getChildFromComponent<T extends new (...args: any) => any>(
     ?.component as unknown as InstanceType<T>;
 }
 
+export function spyModelDispatch(model: Model): jest.SpyInstance {
+  return jest.spyOn(model, "dispatch");
+}
+
 export function makeTestFixture() {
   let fixture = document.createElement("div");
   document.body.appendChild(fixture);

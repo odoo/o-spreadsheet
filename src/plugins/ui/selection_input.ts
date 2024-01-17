@@ -15,7 +15,6 @@ import {
   Color,
   Command,
   CommandDispatcher,
-  CommandResult,
   Getters,
   Highlight,
   LAYERS,
@@ -54,7 +53,7 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
     config: ModelConfig,
     selection: SelectionStreamProcessor,
     initialRanges: string[],
-    private readonly inputHasSingleRange: boolean
+    readonly inputHasSingleRange: boolean
   ) {
     if (inputHasSingleRange && initialRanges.length > 1) {
       throw new Error(
@@ -73,22 +72,6 @@ export class SelectionInputPlugin extends UIPlugin implements StreamCallbacks<Se
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
-
-  allowDispatch(cmd: Command): CommandResult {
-    switch (cmd.type) {
-      case "ADD_EMPTY_RANGE":
-        if (this.inputHasSingleRange && this.ranges.length === 1) {
-          return CommandResult.MaximumRangesReached;
-        }
-        break;
-      case "CHANGE_RANGE":
-        if (this.inputHasSingleRange && cmd.value.split(",").length > 1) {
-          return CommandResult.MaximumRangesReached;
-        }
-        break;
-    }
-    return CommandResult.Success;
-  }
 
   handleEvent(event: SelectionEvent) {
     const xc = zoneToXc(event.anchor.zone);
