@@ -138,6 +138,8 @@ export class GridSelectionPlugin extends UIPlugin {
   ) {
     super(getters, state, dispatch, config, selection);
     this.moveClient = config.moveClient;
+    // @ts-ignore
+    window.selection = this;
   }
 
   // ---------------------------------------------------------------------------
