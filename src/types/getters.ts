@@ -12,7 +12,7 @@ import { MergePlugin } from "../plugins/core/merge";
 import { RangeAdapter } from "../plugins/core/range";
 import { SettingsPlugin } from "../plugins/core/settings";
 import { SheetPlugin } from "../plugins/core/sheet";
-import { FiltersPlugin } from "../plugins/core/tables";
+import { TablePlugin } from "../plugins/core/tables";
 import { EvaluationDataValidationPlugin } from "../plugins/ui_core_views";
 import { EvaluationPlugin } from "../plugins/ui_core_views/cell_evaluation";
 import { CustomColorsPlugin } from "../plugins/ui_core_views/custom_colors";
@@ -102,7 +102,7 @@ export type CoreGetters = PluginGetters<typeof SheetPlugin> &
   PluginGetters<typeof FigurePlugin> &
   RangeAdapterGetters &
   PluginGetters<typeof ConditionalFormatPlugin> &
-  PluginGetters<typeof FiltersPlugin> &
+  PluginGetters<typeof TablePlugin> &
   PluginGetters<typeof SettingsPlugin> &
   PluginGetters<typeof HeaderGroupingPlugin> &
   PluginGetters<typeof DataValidationPlugin>;

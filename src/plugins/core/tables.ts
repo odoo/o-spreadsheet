@@ -36,7 +36,7 @@ interface TableState {
   tables: Record<UID, Record<TableId, Table | undefined>>;
 }
 
-export class FiltersPlugin extends CorePlugin<TableState> implements TableState {
+export class TablePlugin extends CorePlugin<TableState> implements TableState {
   static getters = [
     "doesZonesContainFilter",
     "getFilter",
