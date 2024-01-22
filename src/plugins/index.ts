@@ -6,12 +6,12 @@ import {
   ConditionalFormatPlugin,
   DataValidationPlugin,
   FigurePlugin,
-  FiltersPlugin,
   HeaderSizePlugin,
   HeaderVisibilityPlugin,
   ImagePlugin,
   MergePlugin,
   SheetPlugin,
+  TablePlugin,
 } from "./core";
 import { HeaderGroupingPlugin } from "./core/header_grouping";
 import { SettingsPlugin } from "./core/settings";
@@ -52,7 +52,7 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("sheet", SheetPlugin)
   .add("header grouping", HeaderGroupingPlugin)
   .add("header visibility", HeaderVisibilityPlugin)
-  .add("filters", FiltersPlugin)
+  .add("tables", TablePlugin)
   .add("dataValidation", DataValidationPlugin)
   .add("cell", CellPlugin)
   .add("merge", MergePlugin)
