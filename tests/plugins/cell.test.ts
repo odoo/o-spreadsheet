@@ -62,6 +62,12 @@ describe("getCellText", () => {
     });
     expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
   });
+
+  test("escape character is not display when formatting string", () => {
+    const model = new Model();
+    setCellContent(model, "A1", '="hello \\"world\\""');
+    expect(getCell(model, "A1")?.formattedValue).toBe('hello "world"');
+  });
 });
 
 describe("link cell", () => {
