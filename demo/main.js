@@ -266,8 +266,8 @@ async function setup() {
   const templates = await (await fetch("../build/o_spreadsheet.xml")).text();
   start = Date.now();
 
-  const rootApp = new owl.App(Demo);
+  const rootApp = new owl.App(Demo, { dev: true });
   rootApp.addTemplates(templates);
-  rootApp.mount(document.body, { dev: true });
+  rootApp.mount(document.body);
 }
 whenReady(setup);
