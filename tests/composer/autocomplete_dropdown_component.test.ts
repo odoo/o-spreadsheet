@@ -276,25 +276,6 @@ describe("Functions autocomplete", () => {
       expect(document.activeElement).toBe(composerEl);
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(2);
     });
-    test("= and CTRL+Space show autocomplete", async () => {
-      await typeInComposer("=");
-      await keyDown({ key: " ", ctrlKey: true });
-      //TODO Need a second nextTick to wait the re-render of SelectionInput (onMounted => uuid assignation). But why not before ?
-      await nextTick();
-      expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(3);
-      await keyDown({ key: "Tab" });
-      expect(composerEl.textContent).toBe("=IF(");
-      expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
-      expect(cehMock.selectionState.position).toBe(4);
-    });
-    test("= and CTRL+Space & DOWN move to next autocomplete", async () => {
-      await typeInComposer("=");
-      await keyDown({ key: " ", ctrlKey: true });
-      await keyDown({ key: "ArrowDown" });
-      expect(
-        fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
-      ).toBe("SUM");
-    });
   });
 });
 

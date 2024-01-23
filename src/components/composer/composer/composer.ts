@@ -202,7 +202,6 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     F2: () => console.warn("Not implemented"),
     F4: this.processF4Key,
     Tab: (ev: KeyboardEvent) => this.processTabKey(ev),
-    " ": (ev: KeyboardEvent) => this.processSpaceKey(ev),
   };
 
   keyCodeMapping: { [keyCode: string]: Function } = {
@@ -288,15 +287,6 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     const direction = ev.shiftKey ? "left" : "right";
     interactiveStopEdition(this.env);
     this.env.model.selection.moveAnchorCell(direction, 1);
-  }
-
-  processSpaceKey(ev: KeyboardEvent) {
-    if (ev.ctrlKey) {
-      ev.preventDefault();
-      ev.stopPropagation();
-      this.showFunctionAutocomplete("");
-      this.env.model.dispatch("STOP_COMPOSER_RANGE_SELECTION");
-    }
   }
 
   private processEnterKey(ev: KeyboardEvent) {
