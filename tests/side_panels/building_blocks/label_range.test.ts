@@ -42,7 +42,7 @@ describe("Label range", () => {
           name: "my_option",
           label: "My option",
           value: true,
-          update: () => {},
+          onChange: () => {},
         },
       ],
     });

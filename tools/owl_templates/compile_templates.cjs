@@ -43,7 +43,7 @@ function slugify(str) {
 function compileTemplates() {
   const owl = importOwl();
   const parsedXMl = getParsedOwlTemplateBundle();
-  const app = new owl.App(owl.Component, {});
+  const app = new owl.App(owl.Component, { test: true });
   const compiledTemplates = {};
   for (const template of parsedXMl.querySelectorAll("[t-name]")) {
     const name = template.getAttribute("t-name");
