@@ -16,7 +16,7 @@ interface Props {
     name: string;
     label: string;
     value: boolean;
-    update: (value: boolean) => void;
+    onChange: (value: boolean) => void;
   }>;
 }
 
