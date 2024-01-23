@@ -1,6 +1,18 @@
 import { parseDateTime } from "../../src/helpers";
 import { formatValue, isDateTimeFormat } from "../../src/helpers/format";
 
+describe("formatValue on string", () => {
+  test("apply on regular strings", () => {
+    expect(formatValue("")).toBe("");
+    expect(formatValue("test")).toBe("test");
+    expect(formatValue("test", "#,###.0")).toBe("test");
+  });
+
+  test("apply on strings with escape characters", () => {
+    expect(formatValue('Hello \\"world\\"')).toBe('Hello "world"');
+  });
+});
+
 describe("formatValue on number", () => {
   test("apply default format ", () => {
     expect(formatValue(1)).toBe("1");
