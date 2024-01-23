@@ -10,6 +10,18 @@ import { FR_LOCALE } from "../test_helpers/constants";
 
 const locale = DEFAULT_LOCALE;
 
+describe("formatValue on string", () => {
+  test("apply on regular strings", () => {
+    expect(formatValue("", { locale })).toBe("");
+    expect(formatValue("test", { locale })).toBe("test");
+    expect(formatValue("test", { locale, format: "#,###.0" })).toBe("test");
+  });
+
+  test("apply on strings with escape characters", () => {
+    expect(formatValue('Hello \\"world\\"', { locale })).toBe('Hello "world"');
+  });
+});
+
 describe("formatValue on number", () => {
   test("apply default format ", () => {
     expect(formatValue(1, { locale })).toBe("1");
