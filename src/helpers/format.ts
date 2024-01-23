@@ -114,6 +114,9 @@ function parseFormat(formatString: Format): InternalFormat {
 export function formatValue(value: CellValue, { format, locale }: LocaleFormat): FormattedValue {
   switch (typeof value) {
     case "string":
+      if (value.includes('\\"')) {
+        return value.replace(/\\"/g, '"');
+      }
       return value;
     case "boolean":
       return value ? "TRUE" : "FALSE";
