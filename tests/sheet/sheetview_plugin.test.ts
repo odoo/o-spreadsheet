@@ -41,6 +41,7 @@ import {
   unfreezeColumns,
   unfreezeRows,
   updateFilter,
+  updateTableZone,
 } from "../test_helpers/commands_helpers";
 import { getActiveSheetFullScrollInfo } from "../test_helpers/getters_helpers";
 import { getPlugin } from "../test_helpers/helpers";
@@ -837,12 +838,13 @@ describe("Viewport of Simple sheet", () => {
     createTable(model, "A1:A10");
     setCellContent(model, "A2", "5");
     setCellContent(model, "A2", "5");
-    setCellContent(model, "A3", "5");
-    setCellContent(model, "A4", "5");
-    setCellContent(model, "A5", "5");
-    const oldViewport = { ...model.getters.getActiveMainViewport() };
+
+    const initialViewport = { ...model.getters.getActiveMainViewport() };
     updateFilter(model, "A1", ["5"]);
-    expect(model.getters.getActiveMainViewport()).not.toEqual(oldViewport);
+    expect(model.getters.getActiveMainViewport()).not.toEqual(initialViewport);
+
+    updateTableZone(model, "A1:A10", "B3:B10");
+    expect(model.getters.getActiveMainViewport()).toEqual(initialViewport);
   });
 
   test("Viewport is updated when updating a cell that change the evaluation of filtered rows", () => {

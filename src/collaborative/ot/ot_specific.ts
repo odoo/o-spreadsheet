@@ -12,7 +12,6 @@ import {
   AddMergeCommand,
   CreateChartCommand,
   CreateSheetCommand,
-  CreateTableCommand,
   DeleteFigureCommand,
   DeleteSheetCommand,
   FoldHeaderGroupCommand,
@@ -27,8 +26,10 @@ import {
   UnfoldHeaderGroupCommand,
   UpdateChartCommand,
   UpdateFigureCommand,
+  UpdateTableCommand,
   Zone,
 } from "../../types";
+import { transformRangeData, transformZone } from "./ot_helpers";
 
 /*
  * This file contains the specifics transformations
@@ -50,11 +51,7 @@ otRegistry.addTransformation(
 otRegistry.addTransformation("DELETE_SHEET", ["MOVE_RANGES"], transformTargetSheetId);
 otRegistry.addTransformation("DELETE_FIGURE", ["UPDATE_FIGURE", "UPDATE_CHART"], updateChartFigure);
 otRegistry.addTransformation("CREATE_SHEET", ["CREATE_SHEET"], createSheetTransformation);
-otRegistry.addTransformation(
-  "ADD_MERGE",
-  ["ADD_MERGE", "REMOVE_MERGE", "CREATE_TABLE"],
-  mergeTransformation
-);
+otRegistry.addTransformation("ADD_MERGE", ["ADD_MERGE", "REMOVE_MERGE"], mergeTransformation);
 otRegistry.addTransformation(
   "ADD_COLUMNS_ROWS",
   ["FREEZE_COLUMNS", "FREEZE_ROWS"],
@@ -65,11 +62,8 @@ otRegistry.addTransformation(
   ["FREEZE_COLUMNS", "FREEZE_ROWS"],
   freezeTransformation
 );
-otRegistry.addTransformation(
-  "CREATE_TABLE",
-  ["CREATE_TABLE", "ADD_MERGE"],
-  createTableTransformation
-);
+otRegistry.addTransformation("ADD_COLUMNS_ROWS", ["UPDATE_TABLE"], updateTableTransformation);
+otRegistry.addTransformation("REMOVE_COLUMNS_ROWS", ["UPDATE_TABLE"], updateTableTransformation);
 otRegistry.addTransformation(
   "ADD_COLUMNS_ROWS",
   ["GROUP_HEADERS", "UNGROUP_HEADERS", "FOLD_HEADER_GROUP", "UNFOLD_HEADER_GROUP"],
@@ -129,12 +123,13 @@ function createSheetTransformation(
 }
 
 function mergeTransformation(
-  toTransform: AddMergeCommand | RemoveMergeCommand | CreateTableCommand,
+  toTransform: AddMergeCommand | RemoveMergeCommand,
   executed: AddMergeCommand
-): AddMergeCommand | RemoveMergeCommand | CreateTableCommand | undefined {
+): AddMergeCommand | RemoveMergeCommand | undefined {
   if (toTransform.sheetId !== executed.sheetId) {
     return toTransform;
   }
+
   const target: Zone[] = [];
   for (const zone1 of toTransform.target) {
     for (const zone2 of executed.target) {
@@ -177,24 +172,23 @@ function freezeTransformation(
 }
 
 /**
- * Cancel CREATE_TABLE and ADD_MERGE commands if they overlap a filter
+ * Update the zones of an UPDATE_TABLE command if some headers were added/removed
  */
-function createTableTransformation(
-  toTransform: CreateTableCommand | AddMergeCommand,
-  executed: CreateTableCommand
-): CreateTableCommand | AddMergeCommand | undefined {
+function updateTableTransformation(
+  toTransform: UpdateTableCommand,
+  executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
+): UpdateTableCommand | undefined {
   if (toTransform.sheetId !== executed.sheetId) {
     return toTransform;
   }
-
-  for (const cmdTarget of toTransform.target) {
-    for (const executedCmdTarget of executed.target) {
-      if (overlap(executedCmdTarget, cmdTarget)) {
-        return undefined;
-      }
-    }
+  const newCmdZone = transformZone(toTransform.zone, executed);
+  if (!newCmdZone) {
+    return undefined;
   }
-  return toTransform;
+  const newTableRange = toTransform.newTableRange
+    ? transformRangeData(toTransform.newTableRange, executed)
+    : undefined;
+  return { ...toTransform, newTableRange, zone: newCmdZone };
 }
 
 /**

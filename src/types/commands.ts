@@ -5,8 +5,8 @@ import { SearchOptions } from "./find_and_replace";
 import { Image } from "./image";
 import {
   ConditionalFormat,
-  DOMCoordinates,
   DataValidationRule,
+  DOMCoordinates,
   Figure,
   Format,
   Locale,
@@ -26,6 +26,7 @@ import {
   UID,
 } from "./misc";
 import { RangeData } from "./range";
+import { TableConfig } from "./table";
 
 // -----------------------------------------------------------------------------
 // Grid commands
@@ -203,6 +204,7 @@ export const coreTypes = new Set<CoreCommandTypes>([
   /** FILTERS */
   "CREATE_TABLE",
   "REMOVE_TABLE",
+  "UPDATE_TABLE",
 
   /** IMAGE */
   "CREATE_IMAGE",
@@ -473,12 +475,22 @@ export interface CreateImageOverCommand extends SheetDependentCommand {
 // Filters
 //------------------------------------------------------------------------------
 
-export interface CreateTableCommand extends TargetDependentCommand {
+export interface CreateTableCommand extends RangesDependentCommand {
   type: "CREATE_TABLE";
+  sheetId: UID;
+  config?: TableConfig;
 }
 
 export interface RemoveTableCommand extends TargetDependentCommand {
   type: "REMOVE_TABLE";
+}
+
+export interface UpdateTableCommand {
+  type: "UPDATE_TABLE";
+  zone: Zone;
+  sheetId: UID;
+  newTableRange?: RangeData;
+  config?: Partial<TableConfig>;
 }
 
 export interface UpdateFilterCommand extends PositionDependentCommand {
@@ -905,6 +917,7 @@ export type CoreCommand =
   /** FILTERS */
   | CreateTableCommand
   | RemoveTableCommand
+  | UpdateTableCommand
 
   /** HEADER GROUP */
   | GroupHeadersCommand
@@ -1095,9 +1108,11 @@ export const enum CommandResult {
   FrozenPaneOverlap = "FrozenPaneOverlap",
   ValuesNotChanged = "ValuesNotChanged",
   InvalidFilterZone = "InvalidFilterZone",
-  FilterOverlap = "FilterOverlap",
+  TableNotFound = "TableNotFound",
+  TableOverlap = "TableOverlap",
+  InvalidTableConfig = "InvalidTableConfig",
   FilterNotFound = "FilterNotFound",
-  MergeInFilter = "MergeInFilter",
+  MergeInTable = "MergeInTable",
   NonContinuousTargets = "NonContinuousTargets",
   DuplicatedFigureId = "DuplicatedFigureId",
   InvalidSelectionStep = "InvalidSelectionStep",

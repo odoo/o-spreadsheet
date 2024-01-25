@@ -76,9 +76,11 @@ class Parent extends Component<any, SpreadsheetChildEnv> {
 }
 
 async function mountParent(
-  model: Model = new Model()
+  model: Model = new Model(),
+  testEnv?: Partial<SpreadsheetChildEnv>
 ): Promise<{ parent: Parent; model: Model; fixture: HTMLElement }> {
   const env = makeTestEnv({
+    ...testEnv,
     model,
     isDashboard: () => model.getters.isDashboard(),
   });
@@ -237,7 +239,7 @@ describe("TopBar component", () => {
 
   describe("Filter Tool", () => {
     let model: Model;
-    const createFilterTool = '.o-menu-item-button[title="Create filter"]';
+    const createFilterTool = '.o-menu-item-button[title="Add filters"]';
     const removeFilterTool = '.o-menu-item-button[title="Remove selected filters"]';
 
     beforeEach(async () => {
@@ -290,7 +292,7 @@ describe("TopBar component", () => {
       await nextTick();
       const selection = model.getters.getSelectedZone();
       expect(zoneToXc(selection)).toEqual("A1:D4");
-      expect(getTable(model, "A1")!.zone).toEqual(toZone("A1:D4"));
+      expect(getTable(model, "A1")!.range.zone).toEqual(toZone("A1:D4"));
     });
   });
 

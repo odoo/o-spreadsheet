@@ -38,6 +38,7 @@ import {
 } from "./ui_feature";
 import { HistoryPlugin } from "./ui_feature/local_history";
 import { SplitToColumnsPlugin } from "./ui_feature/split_to_columns";
+import { TableStylePlugin } from "./ui_feature/table_style";
 import { UIPluginConstructor } from "./ui_plugin";
 import {
   ClipboardPlugin,
@@ -82,6 +83,7 @@ export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()
   .add("selection", GridSelectionPlugin)
   .add("evaluation_filter", FilterEvaluationPlugin)
   .add("header_visibility_ui", HeaderVisibilityUIPlugin)
+  .add("table_style", TableStylePlugin)
   .add("header_positions", HeaderPositionsUIPlugin)
   .add("viewport", SheetViewPlugin)
   .add("clipboard", ClipboardPlugin);

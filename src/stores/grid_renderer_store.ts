@@ -538,7 +538,7 @@ export class GridRenderer {
     while (col < max) {
       const position = { sheetId, col: col + 1, row };
       const nextCell = this.getters.getEvaluatedCell(position);
-      const nextCellBorder = this.getters.getCellBorderWithTableBorder(position);
+      const nextCellBorder = this.getters.getCellComputedBorder(position);
       const cellHasIcon = this.getters.doesCellHaveGridIcon(position);
       const cellHasCheckbox = this.getters.isCellValidCheckbox(position);
       if (
@@ -561,7 +561,7 @@ export class GridRenderer {
     while (col > min) {
       const position = { sheetId, col: col - 1, row };
       const previousCell = this.getters.getEvaluatedCell(position);
-      const previousCellBorder = this.getters.getCellBorderWithTableBorder(position);
+      const previousCellBorder = this.getters.getCellComputedBorder(position);
       const cellHasIcon = this.getters.doesCellHaveGridIcon(position);
       const cellHasCheckbox = this.getters.isCellValidCheckbox(position);
       if (
@@ -606,7 +606,7 @@ export class GridRenderer {
       y,
       width,
       height,
-      border: this.getters.getCellBorderWithTableBorder(position) || undefined,
+      border: this.getters.getCellComputedBorder(position) || undefined,
       style: this.getters.getCellComputedStyle(position),
       verticalAlign,
       isError:
@@ -757,7 +757,7 @@ export class GridRenderer {
       }
       if (overlap(merge, viewport)) {
         const box = this.createZoneBox(sheetId, merge, viewport);
-        const borderBottomRight = this.getters.getCellBorder({
+        const borderBottomRight = this.getters.getCellComputedBorder({
           sheetId,
           col: merge.right,
           row: merge.bottom,

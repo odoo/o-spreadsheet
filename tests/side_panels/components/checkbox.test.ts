@@ -50,4 +50,15 @@ describe("Checkbox", () => {
     await mountCheckbox({ value: true, onChange: () => {}, title: "my title" });
     expect(fixture.querySelector("label")?.getAttribute("title")).toEqual("my title");
   });
+
+  test("Can render a checkbox with a tooltip", async () => {
+    await mountCheckbox({ value: true, onChange: () => {}, title: "myTooltip" });
+    expect(fixture.querySelector("label")!.getAttribute("title")).toEqual("myTooltip");
+  });
+
+  test("Can render a disabled checkbox", async () => {
+    await mountCheckbox({ value: true, onChange: () => {}, disabled: true });
+    expect(fixture.querySelector("input")!.disabled).toEqual(true);
+    expect(fixture.querySelector("label")!.classList).toContain("text-muted");
+  });
 });

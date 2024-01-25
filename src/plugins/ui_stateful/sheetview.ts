@@ -208,6 +208,7 @@ export class SheetViewPlugin extends UIPlugin {
         break;
       }
       case "REMOVE_TABLE":
+      case "UPDATE_TABLE":
       case "UPDATE_FILTER":
         this.sheetsWithDirtyViewports.add(cmd.sheetId);
         break;

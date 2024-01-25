@@ -106,13 +106,18 @@ export const TEST_COMMANDS: CommandMapping = {
   },
   CREATE_TABLE: {
     type: "CREATE_TABLE",
-    target: target("A1"),
+    ranges: toRangesData("sheetId", "A1"),
     sheetId: "sheetId",
   },
   REMOVE_TABLE: {
     type: "REMOVE_TABLE",
     target: target("A1"),
     sheetId: "sheetId",
+  },
+  UPDATE_TABLE: {
+    type: "UPDATE_TABLE",
+    sheetId: "sheetId",
+    zone: { top: 0, left: 0, bottom: 1, right: 1 },
   },
   HIDE_SHEET: {
     type: "HIDE_SHEET",
@@ -374,13 +379,13 @@ export const OT_TESTS_TARGET_DEPENDANT_COMMANDS = [
   TEST_COMMANDS.DELETE_CONTENT,
   TEST_COMMANDS.SET_FORMATTING,
   TEST_COMMANDS.CLEAR_FORMATTING,
-  TEST_COMMANDS.CREATE_TABLE,
   TEST_COMMANDS.REMOVE_TABLE,
 ];
 
 export const OT_TESTS_ZONE_DEPENDANT_COMMANDS = [
   TEST_COMMANDS.UNFOLD_HEADER_GROUPS_IN_ZONE,
   TEST_COMMANDS.FOLD_HEADER_GROUPS_IN_ZONE,
+  TEST_COMMANDS.UPDATE_TABLE,
 ];
 
 export const OT_TESTS_HEADER_GROUP_COMMANDS = [
@@ -393,6 +398,7 @@ export const OT_TESTS_HEADER_GROUP_COMMANDS = [
 export const OT_TESTS_RANGE_DEPENDANT_COMMANDS = [
   TEST_COMMANDS.ADD_CONDITIONAL_FORMAT,
   TEST_COMMANDS.ADD_DATA_VALIDATION_RULE,
+  TEST_COMMANDS.CREATE_TABLE,
 ];
 
 export const EN_LOCALE = DEFAULT_LOCALE;

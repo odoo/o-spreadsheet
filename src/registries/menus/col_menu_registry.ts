@@ -2,6 +2,7 @@ import * as ACTION_DATA from "../../actions/data_actions";
 import * as ACTION_EDIT from "../../actions/edit_actions";
 import * as ACTION_FORMAT from "../../actions/format_actions";
 import * as ACTION_INSERT from "../../actions/insert_actions";
+import * as ACTIONS from "../../actions/menu_items_actions";
 import * as ACTION_VIEW from "../../actions/view_actions";
 import { _t } from "../../translation";
 import { MenuItemRegistry } from "../menu_items_registry";
@@ -82,12 +83,23 @@ colMenuRegistry
     sequence: 110,
     separator: true,
   })
-  .add("group_columns", {
+  .add("edit_table", {
+    ...ACTION_EDIT.editTable,
+    isVisible: ACTIONS.SELECTION_CONTAINS_SINGLE_TABLE,
     sequence: 120,
+  })
+  .add("delete_table", {
+    ...ACTION_EDIT.deleteTable,
+    isVisible: ACTIONS.SELECTION_CONTAINS_SINGLE_TABLE,
+    sequence: 125,
+    separator: true,
+  })
+  .add("group_columns", {
+    sequence: 150,
     ...ACTION_VIEW.groupColumns,
   })
   .add("ungroup_columns", {
-    sequence: 130,
+    sequence: 155,
     ...ACTION_VIEW.ungroupColumns,
     isVisible: (env) => ACTION_VIEW.canUngroupHeaders(env, "COL"),
   });

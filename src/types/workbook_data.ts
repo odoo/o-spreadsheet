@@ -3,6 +3,7 @@ import { ExcelChartDefinition } from "./chart/chart";
 import { ConditionalFormat } from "./conditional_formatting";
 import { Image } from "./image";
 import { Border, Dimension, HeaderGroup, PaneDivision, Pixel, Style, UID } from "./misc";
+import { TableConfig } from "./table";
 
 export interface Dependencies {
   references: string[];
@@ -91,6 +92,7 @@ export interface ExcelHeaderData extends HeaderData {
 
 export interface TableData {
   range: string;
+  config?: TableConfig;
 }
 
 export interface DataValidationRuleData extends Omit<DataValidationRule, "ranges"> {

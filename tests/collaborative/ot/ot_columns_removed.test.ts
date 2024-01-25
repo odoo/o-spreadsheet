@@ -6,6 +6,7 @@ import {
   FreezeRowsCommand,
   RemoveColumnsRowsCommand,
   ResizeColumnsRowsCommand,
+  UpdateTableCommand,
 } from "../../../src/types";
 import {
   OT_TESTS_HEADER_GROUP_COMMANDS,
@@ -15,7 +16,7 @@ import {
   OT_TESTS_ZONE_DEPENDANT_COMMANDS,
   TEST_COMMANDS,
 } from "../../test_helpers/constants";
-import { target, toRangesData } from "../../test_helpers/helpers";
+import { target, toRangeData, toRangesData } from "../../test_helpers/helpers";
 
 describe("OT with REMOVE_COLUMN", () => {
   const sheetId = "Sheet1";
@@ -480,3 +481,48 @@ describe.each(OT_TESTS_HEADER_GROUP_COMMANDS)(
     });
   }
 );
+
+describe("Transform of UPDATE_TABLE when removing cols", () => {
+  const sheetId = TEST_COMMANDS.UPDATE_TABLE.sheetId;
+  const removeColsCmd: RemoveColumnsRowsCommand = {
+    ...TEST_COMMANDS.REMOVE_COLUMNS_ROWS,
+    dimension: "COL",
+  };
+  const updateFilterCmd: UpdateTableCommand = {
+    ...TEST_COMMANDS.UPDATE_TABLE,
+    zone: toZone("B2:C3"),
+    newTableRange: toRangeData(sheetId, "B2:D4"),
+  };
+
+  test("Add cols before the zones", () => {
+    const executed: RemoveColumnsRowsCommand = { ...removeColsCmd, elements: [0] };
+    const result = transform(updateFilterCmd, executed);
+    expect(result).toEqual({
+      ...updateFilterCmd,
+      zone: toZone("A2:B3"),
+      newTableRange: toRangeData(sheetId, "A2:C4"),
+    });
+  });
+
+  test("Add cols inside the zones", () => {
+    const executed: RemoveColumnsRowsCommand = { ...removeColsCmd, elements: [2] };
+    const result = transform(updateFilterCmd, executed);
+    expect(result).toEqual({
+      ...updateFilterCmd,
+      zone: toZone("B2:B3"),
+      newTableRange: toRangeData(sheetId, "B2:C4"),
+    });
+  });
+
+  test("Add cols after the zones", () => {
+    const executed: RemoveColumnsRowsCommand = { ...removeColsCmd, elements: [7] };
+    const result = transform(updateFilterCmd, executed);
+    expect(result).toEqual(updateFilterCmd);
+  });
+
+  test("Add cols in another sheet", () => {
+    const executed: RemoveColumnsRowsCommand = { ...removeColsCmd, elements: [0], sheetId: "42" };
+    const result = transform(updateFilterCmd, executed);
+    expect(result).toEqual(updateFilterCmd);
+  });
+});

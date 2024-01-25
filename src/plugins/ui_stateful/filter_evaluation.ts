@@ -1,33 +1,21 @@
-import { DEFAULT_FILTER_BORDER_DESC } from "../../constants";
+import { positions, range, toLowerCase, toXC, toZone, zoneToDimension } from "../../helpers";
 import {
-  isInside,
-  isObjectEmptyRecursive,
-  positions,
-  range,
-  removeFalsyAttributes,
-  toLowerCase,
-  toXC,
-  toZone,
-  zoneToDimension,
-} from "../../helpers";
-import {
-  Border,
   CellPosition,
   Command,
   CommandResult,
   ExcelFilterData,
   ExcelWorkbookData,
   FilterId,
+  Table,
   UID,
-  Zone,
 } from "../../types";
 import { LocalCommand, UpdateFilterCommand } from "../../types/commands";
 import { UIPlugin } from "../ui_plugin";
 
 export class FilterEvaluationPlugin extends UIPlugin {
   static getters = [
-    "getCellBorderWithTableBorder",
-    "getFilterValues",
+    "getFilterHiddenValues",
+    "getFirstTableInSelection",
     "isRowFiltered",
     "isFilterActive",
   ] as const;
@@ -58,6 +46,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
       case "REMOVE_TABLE":
       case "ADD_COLUMNS_ROWS":
       case "REMOVE_COLUMNS_ROWS":
+      case "UPDATE_TABLE":
         this.isEvaluationDirty = true;
         break;
       case "START":
@@ -88,8 +77,8 @@ export class FilterEvaluationPlugin extends UIPlugin {
       case "DUPLICATE_SHEET":
         const filterValues: Record<FilterId, string[]> = {};
         for (const newFilter of this.getters.getFilters(cmd.sheetIdTo)) {
-          const zone = newFilter.zoneWithHeaders;
-          filterValues[newFilter.id] = this.getFilterValues({
+          const zone = newFilter.rangeWithHeaders.zone;
+          filterValues[newFilter.id] = this.getFilterHiddenValues({
             sheetId: cmd.sheetId,
             col: zone.left,
             row: zone.top,
@@ -117,32 +106,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
     return this.hiddenRows.has(row);
   }
 
-  getCellBorderWithTableBorder(position: CellPosition): Border | null {
-    const { sheetId, col, row } = position;
-    let filterBorder: Border | undefined = undefined;
-    for (let tables of this.getters.getTables(sheetId)) {
-      const zone = tables.zone;
-      if (isInside(col, row, zone)) {
-        // The borders should be at the edges of the visible zone of the table
-        const visibleZone = this.intersectZoneWithViewport(sheetId, zone);
-        filterBorder = {
-          top: row === visibleZone.top ? DEFAULT_FILTER_BORDER_DESC : undefined,
-          bottom: row === visibleZone.bottom ? DEFAULT_FILTER_BORDER_DESC : undefined,
-          left: col === visibleZone.left ? DEFAULT_FILTER_BORDER_DESC : undefined,
-          right: col === visibleZone.right ? DEFAULT_FILTER_BORDER_DESC : undefined,
-        };
-      }
-    }
-
-    const cellBorder = this.getters.getCellBorder(position);
-
-    // Use removeFalsyAttributes to avoid overwriting table borders with undefined values
-    const border = { ...filterBorder, ...removeFalsyAttributes(cellBorder || {}) };
-
-    return isObjectEmptyRecursive(border) ? null : border;
-  }
-
-  getFilterValues(position: CellPosition): string[] {
+  getFilterHiddenValues(position: CellPosition): string[] {
     const id = this.getters.getFilterId(position);
     const sheetId = position.sheetId;
     if (!id || !this.filterValues[sheetId]) return [];
@@ -155,13 +119,10 @@ export class FilterEvaluationPlugin extends UIPlugin {
     return Boolean(id && this.filterValues[sheetId]?.[id]?.length);
   }
 
-  private intersectZoneWithViewport(sheetId: UID, zone: Zone) {
-    return {
-      left: this.getters.findVisibleHeader(sheetId, "COL", zone.left, zone.right),
-      right: this.getters.findVisibleHeader(sheetId, "COL", zone.right, zone.left),
-      top: this.getters.findVisibleHeader(sheetId, "ROW", zone.top, zone.bottom),
-      bottom: this.getters.findVisibleHeader(sheetId, "ROW", zone.bottom, zone.top),
-    };
+  getFirstTableInSelection(): Table | undefined {
+    const sheetId = this.getters.getActiveSheetId();
+    const selection = this.getters.getSelectedZones();
+    return this.getters.getTablesOverlappingZones(sheetId, selection)[0];
   }
 
   private updateFilter({ col, row, hiddenValues, sheetId }: UpdateFilterCommand) {
@@ -175,20 +136,23 @@ export class FilterEvaluationPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     const filters = this.getters
       .getFilters(sheetId)
-      .sort((filter1, filter2) => filter1.zoneWithHeaders.top - filter2.zoneWithHeaders.top);
+      .sort(
+        (filter1, filter2) => filter1.rangeWithHeaders.zone.top - filter2.rangeWithHeaders.zone.top
+      );
 
     const hiddenRows = new Set<number>();
     for (let filter of filters) {
       // Disable filters whose header are hidden
       if (
-        hiddenRows.has(filter.zoneWithHeaders.top) ||
-        this.getters.isRowHiddenByUser(sheetId, filter.zoneWithHeaders.top)
+        hiddenRows.has(filter.rangeWithHeaders.zone.top) ||
+        this.getters.isRowHiddenByUser(sheetId, filter.rangeWithHeaders.zone.top)
       ) {
         continue;
       }
       const filteredValues = this.filterValues[sheetId]?.[filter.id]?.map(toLowerCase);
-      if (!filteredValues || !filter.filteredZone) continue;
-      for (let row = filter.filteredZone.top; row <= filter.filteredZone.bottom; row++) {
+      const filteredZone = filter.filteredRange?.zone;
+      if (!filteredValues || !filteredZone) continue;
+      for (let row = filteredZone.top; row <= filteredZone.bottom; row++) {
         const value = this.getCellValueAsString(sheetId, filter.col, row);
         if (filteredValues.includes(value)) {
           hiddenRows.add(row);
@@ -216,13 +180,13 @@ export class FilterEvaluationPlugin extends UIPlugin {
             col: tableZone.left + i,
             row: tableZone.top,
           };
-          const filteredValues: string[] = this.getFilterValues(position);
+          const filteredValues: string[] = this.getFilterHiddenValues(position);
 
           const filter = this.getters.getFilter(position);
           if (!filter) continue;
 
-          const valuesInFilterZone = filter.filteredZone
-            ? positions(filter.filteredZone).map(
+          const valuesInFilterZone = filter.filteredRange
+            ? positions(filter.filteredRange.zone).map(
                 (position) => this.getters.getEvaluatedCell({ sheetId, ...position }).formattedValue
               )
             : [];
@@ -239,7 +203,11 @@ export class FilterEvaluationPlugin extends UIPlugin {
           }
 
           // In xlsx, filter header should ALWAYS be a string and should be unique in the table
-          const headerPosition = { col: filter.col, row: filter.zoneWithHeaders.top, sheetId };
+          const headerPosition = {
+            col: filter.col,
+            row: filter.rangeWithHeaders.zone.top,
+            sheetId,
+          };
           const headerString = this.getters.getEvaluatedCell(headerPosition).formattedValue;
           const headerName = this.getUniqueColNameForExcel(i, headerString, headerNames);
           headerNames.push(headerName);

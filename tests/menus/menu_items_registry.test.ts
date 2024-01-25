@@ -2,9 +2,14 @@ import { Model } from "../../src";
 import { ComposerStore } from "../../src/components/composer/composer/composer_store";
 import { FONT_SIZES } from "../../src/constants";
 import { functionRegistry } from "../../src/functions";
-import { zoneToXc } from "../../src/helpers";
+import { toUnboundedZone, toZone, zoneToXc } from "../../src/helpers";
 import { interactivePaste } from "../../src/helpers/ui/paste_interactive";
-import { colMenuRegistry, rowMenuRegistry, topbarMenuRegistry } from "../../src/registries/index";
+import {
+  cellMenuRegistry,
+  colMenuRegistry,
+  rowMenuRegistry,
+  topbarMenuRegistry,
+} from "../../src/registries/index";
 import { SpreadsheetChildEnv, UID } from "../../src/types";
 import { DEFAULT_LOCALES } from "../../src/types/locale";
 import {
@@ -27,6 +32,7 @@ import {
   setSelection,
   setStyle,
   updateLocale,
+  updateTableConfig,
 } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
 import { getCell, getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
@@ -1456,79 +1462,153 @@ describe("Menu Item actions", () => {
       expect(getNode(hidePath, rowMenuRegistry).isVisible(env)).toBeFalsy();
     });
 
-    describe("Filters", () => {
-      const createFilterPath = ["data", "add_data_filter"];
-      const removeFilterPath = ["data", "remove_data_filter"];
+    describe("Table and filters", () => {
+      const filterPath = ["data", "add_remove_data_filter"];
+      const insertTablePath = ["insert", "insert_table"];
+      const editTablePath = ["edit", "edit_table"];
+
+      test("Insert -> Table", () => {
+        setSelection(model, ["A1:A5"]);
+        expect(getName(insertTablePath, env)).toBe("Table");
+        doAction(insertTablePath, env);
+        expect(model.getters.getTable({ sheetId, row: 0, col: 0 })).toMatchObject({
+          range: { zone: toZone("A1:A5") },
+        });
+      });
+
+      test("Insert -> Table on a whole column make it into an unbounded zone", () => {
+        setSelection(model, ["A1:A100"]);
+        expect(getName(insertTablePath, env)).toBe("Table");
+        doAction(insertTablePath, env);
+        expect(model.getters.getTable({ sheetId, row: 0, col: 0 })).toMatchObject({
+          range: { unboundedZone: toUnboundedZone("A:A") },
+        });
+      });
+
+      test("Insert -> Table is not visible if there is already a table in the selection, or if the selection is not continuous", () => {
+        setSelection(model, ["A1", "B2"]);
+        expect(getNode(insertTablePath).isVisible(env)).toBeFalsy();
+
+        setSelection(model, ["A1:A5"]);
+        expect(getNode(insertTablePath).isVisible(env)).toBeTruthy();
+
+        createTable(model, "A1:A5");
+        expect(getNode(insertTablePath).isVisible(env)).toBeFalsy();
+      });
+
+      test("Edit -> Table (topbar)", () => {
+        const spyOpenSidePanel = jest.spyOn(env, "openSidePanel");
+        createTable(model, "A1:A5");
+        expect(getName(editTablePath, env)).toBe("Edit table");
+        doAction(editTablePath, env);
+        expect(spyOpenSidePanel).toHaveBeenCalledWith("TableSidePanel", {});
+      });
+
+      test("Edit -> Table (topbar) is not visible if there is no table in the selection", () => {
+        expect(getNode(editTablePath).isVisible(env)).toBeFalsy();
+        createTable(model, "A1:A5");
+        expect(getNode(editTablePath).isVisible(env)).toBeTruthy();
+      });
+
+      test("Edit table (cellRegistry)", () => {
+        const spyOpenSidePanel = jest.spyOn(env, "openSidePanel");
+        createTable(model, "A1:A5");
+        expect(getName(["edit_table"], env, cellMenuRegistry)).toBe("Edit table");
+        doAction(["edit_table"], env, cellMenuRegistry);
+        expect(spyOpenSidePanel).toHaveBeenCalledWith("TableSidePanel", {});
+      });
+
+      test("Delete table (cellRegistry)", () => {
+        createTable(model, "A1:A5");
+        expect(getName(["delete_table"], env, cellMenuRegistry)).toBe("Delete table");
+        doAction(["delete_table"], env, cellMenuRegistry);
+        expect(model.getters.getTable({ sheetId, row: 0, col: 0 })).toBeUndefined();
+      });
+
+      test("Edit/delete table (cellRegistry) visible only with a single table in the selection", () => {
+        expect(getNode(["edit_table"], cellMenuRegistry).isVisible(env)).toBeFalsy();
+        expect(getNode(["delete_table"], cellMenuRegistry).isVisible(env)).toBeFalsy();
+
+        createTable(model, "A1:A5");
+        expect(getNode(["edit_table"], cellMenuRegistry).isVisible(env)).toBeTruthy();
+        expect(getNode(["delete_table"], cellMenuRegistry).isVisible(env)).toBeTruthy();
+
+        setSelection(model, ["A1:B5"]);
+        expect(getNode(["edit_table"], cellMenuRegistry).isVisible(env)).toBeTruthy();
+        expect(getNode(["delete_table"], cellMenuRegistry).isVisible(env)).toBeTruthy();
+
+        createTable(model, "B1:B5");
+        expect(getNode(["edit_table"], cellMenuRegistry).isVisible(env)).toBeFalsy();
+        expect(getNode(["delete_table"], cellMenuRegistry).isVisible(env)).toBeFalsy();
+      });
 
       test("Filters -> Create filter", () => {
         setSelection(model, ["A1:A5"]);
-        expect(getName(createFilterPath, env)).toBe("Create filter");
-        expect(getNode(createFilterPath).isVisible(env)).toBeTruthy();
-        expect(getNode(removeFilterPath).isVisible(env)).toBeFalsy();
-        doAction(createFilterPath, env);
-        expect(dispatch).toHaveBeenCalledWith("CREATE_TABLE", {
-          sheetId: model.getters.getActiveSheetId(),
-          target: target("A1:A5"),
+        expect(getName(filterPath, env)).toBe("Add filters");
+        doAction(filterPath, env);
+        expect(model.getters.getTable({ sheetId, row: 0, col: 0 })).toMatchObject({
+          range: { zone: toZone("A1:A5") },
+          config: { hasFilters: true },
         });
+      });
+
+      test("Filters -> Add filters on existing table", () => {
+        createTable(model, "A1:A5");
+        updateTableConfig(model, "A1:A5", { hasFilters: false });
+        doAction(filterPath, env);
+        expect(model.getters.getTable({ sheetId, row: 0, col: 0 })?.config.hasFilters).toBe(true);
       });
 
       test("Filters -> Remove filter", () => {
         createTable(model, "A1:A5");
         setSelection(model, ["A1:A5"]);
-        expect(getName(removeFilterPath, env)).toBe("Remove filter");
-        expect(getNode(removeFilterPath).isVisible(env)).toBeTruthy();
-        expect(getNode(createFilterPath).isVisible(env)).toBeFalsy();
-        doAction(removeFilterPath, env);
-        expect(dispatch).toHaveBeenCalledWith("REMOVE_TABLE", {
-          sheetId: model.getters.getActiveSheetId(),
-          target: target("A1:A5"),
-        });
+        expect(getName(filterPath, env)).toBe("Remove selected filters");
+        doAction(filterPath, env);
+        const table = model.getters.getTable({ sheetId, row: 0, col: 0 });
+        expect(table?.config.hasFilters).toBe(false);
       });
 
-      test("Filters -> Create filter is disabled when the selection isn't continuous", () => {
+      test("Filters -> Add/Remove filters with multiple table in the selection works only on first table", () => {
+        createTable(model, "A1:A5");
+        createTable(model, "B1:B5");
+        updateTableConfig(model, "A1:A5", { hasFilters: false });
+        updateTableConfig(model, "B1:B5", { hasFilters: false });
+
+        setSelection(model, ["A1:B5"]);
+        doAction(filterPath, env);
+        expect(model.getters.getTables(sheetId)).toMatchObject([
+          { range: { zone: toZone("A1:A5") }, config: { hasFilters: true } },
+          { range: { zone: toZone("B1:B5") }, config: { hasFilters: false } },
+        ]);
+
+        doAction(filterPath, env);
+        expect(model.getters.getTables(sheetId)).toMatchObject([
+          { range: { zone: toZone("A1:A5") }, config: { hasFilters: false } },
+          { range: { zone: toZone("B1:B5") }, config: { hasFilters: false } },
+        ]);
+      });
+
+      test("Filters -> Create filter is disabled when the selection is not continuous", () => {
         setSelection(model, ["A1", "B6"]);
-        expect(getNode(createFilterPath).isVisible(env)).toBeTruthy();
-        expect(getNode(createFilterPath).isEnabled(env)).toBeFalsy();
+        expect(getNode(filterPath).isVisible(env)).toBeTruthy();
+        expect(getNode(filterPath).isEnabled(env)).toBeFalsy();
       });
 
       test("Filters -> Create filter is enabled for continuous selection of multiple zones", () => {
         setSelection(model, ["A1", "A2:A5", "B1:B5"]);
-        expect(getNode(createFilterPath).isVisible(env)).toBeTruthy();
-        expect(getNode(createFilterPath).isEnabled(env)).toBeTruthy();
+        expect(getNode(filterPath).isVisible(env)).toBeTruthy();
+        expect(getNode(filterPath).isEnabled(env)).toBeTruthy();
       });
 
       test("Filters -> Remove filter is displayed instead of add filter when the selection contains a filter", () => {
         setSelection(model, ["A1:A5"]);
-        expect(getNode(removeFilterPath).isVisible(env)).toBeFalsy();
-        expect(getNode(createFilterPath).isVisible(env)).toBeTruthy();
+        expect(getName(filterPath, env)).toBe("Add filters");
 
         createTable(model, "A1:B5");
-        expect(getNode(removeFilterPath).isVisible(env)).toBeTruthy();
-        expect(getNode(createFilterPath).isVisible(env)).toBeFalsy();
+        expect(getName(filterPath, env)).toBe("Remove selected filters");
 
         setSelection(model, ["A1:B9"]);
-        expect(getNode(removeFilterPath).isVisible(env)).toBeTruthy();
-        expect(getNode(createFilterPath).isVisible(env)).toBeFalsy();
-
-        setSelection(model, ["A1"]);
-        expect(getNode(removeFilterPath).isVisible(env)).toBeTruthy();
-        expect(getNode(createFilterPath).isVisible(env)).toBeFalsy();
-
-        setSelection(model, ["B5"]);
-        expect(getNode(removeFilterPath).isVisible(env)).toBeTruthy();
-        expect(getNode(createFilterPath).isVisible(env)).toBeFalsy();
-
-        setSelection(model, ["C3", "A3"]);
-        expect(getNode(removeFilterPath).isVisible(env)).toBeTruthy();
-        expect(getNode(createFilterPath).isVisible(env)).toBeFalsy();
-
-        setSelection(model, ["C3"]);
-        expect(getNode(removeFilterPath).isVisible(env)).toBeFalsy();
-        expect(getNode(createFilterPath).isVisible(env)).toBeTruthy();
-
-        setSelection(model, ["C3", "D3"]);
-        expect(getNode(removeFilterPath).isVisible(env)).toBeFalsy();
-        expect(getNode(createFilterPath).isVisible(env)).toBeTruthy();
+        expect(getName(filterPath, env)).toBe("Remove selected filters");
       });
     });
   });

@@ -231,6 +231,16 @@ css/* scss */ `
     width: 100%;
     height: 28px;
   }
+
+  .o-number-input {
+    /* Remove number input arrows */
+    -moz-appearance: textfield;
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  }
 `;
 
 export interface SpreadsheetProps {

@@ -6,6 +6,7 @@ import {
   FreezeRowsCommand,
   RemoveColumnsRowsCommand,
   ResizeColumnsRowsCommand,
+  UpdateTableCommand,
 } from "../../../src/types";
 import {
   OT_TESTS_HEADER_GROUP_COMMANDS,
@@ -15,7 +16,7 @@ import {
   OT_TESTS_ZONE_DEPENDANT_COMMANDS,
   TEST_COMMANDS,
 } from "../../test_helpers/constants";
-import { target, toRangesData } from "../../test_helpers/helpers";
+import { target, toRangeData, toRangesData } from "../../test_helpers/helpers";
 
 describe("OT with ADD_COLUMNS_ROWS with dimension ROW", () => {
   const sheetId = "Sheet1";
@@ -462,3 +463,49 @@ describe.each(OT_TESTS_HEADER_GROUP_COMMANDS)(
     });
   }
 );
+
+describe("Transform of UPDATE_TABLE when adding rows", () => {
+  const sheetId = TEST_COMMANDS.UPDATE_TABLE.sheetId;
+  const addRowsCmd: AddColumnsRowsCommand = {
+    ...TEST_COMMANDS.ADD_COLUMNS_ROWS,
+    dimension: "ROW",
+    quantity: 1,
+  };
+  const updateFilterCmd: UpdateTableCommand = {
+    ...TEST_COMMANDS.UPDATE_TABLE,
+    zone: toZone("A1:B2"),
+    newTableRange: toRangeData(sheetId, "A1:C3"),
+  };
+
+  test("Add rows before the zones", () => {
+    const executed: AddColumnsRowsCommand = { ...addRowsCmd, base: 0, position: "before" };
+    const result = transform(updateFilterCmd, executed);
+    expect(result).toEqual({
+      ...updateFilterCmd,
+      zone: toZone("A2:B3"),
+      newTableRange: toRangeData(sheetId, "A2:C4"),
+    });
+  });
+
+  test("Add rows inside the zones", () => {
+    const executed: AddColumnsRowsCommand = { ...addRowsCmd, base: 0, position: "after" };
+    const result = transform(updateFilterCmd, executed);
+    expect(result).toEqual({
+      ...updateFilterCmd,
+      zone: toZone("A1:B3"),
+      newTableRange: toRangeData(sheetId, "A1:C4"),
+    });
+  });
+
+  test("Add rows after the zones", () => {
+    const executed: AddColumnsRowsCommand = { ...addRowsCmd, base: 7, position: "after" };
+    const result = transform(updateFilterCmd, executed);
+    expect(result).toEqual(updateFilterCmd);
+  });
+
+  test("Add rows in another sheet", () => {
+    const executed: AddColumnsRowsCommand = { ...addRowsCmd, base: 0, sheetId: "42" };
+    const result = transform(updateFilterCmd, executed);
+    expect(result).toEqual(updateFilterCmd);
+  });
+});

@@ -1,6 +1,5 @@
-import { areZonesContinuous, getZoneArea } from "../helpers/index";
+import { getZoneArea } from "../helpers/index";
 import { interactiveSortSelection } from "../helpers/sort";
-import { interactiveCreateTable } from "../helpers/ui/table_interactive";
 import { _t } from "../translation";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
@@ -53,32 +52,13 @@ export const sortDescending: ActionSpec = {
   icon: "o-spreadsheet-Icon.SORT_DESCENDING",
 };
 
-export const addDataFilter: ActionSpec = {
-  name: _t("Create filter"),
-  execute: (env) => {
-    const sheetId = env.model.getters.getActiveSheetId();
-    const selection = env.model.getters.getSelection().zones;
-    interactiveCreateTable(env, sheetId, selection);
-  },
-  isVisible: (env) => !ACTIONS.SELECTION_CONTAINS_FILTER(env),
-  isEnabled: (env): boolean => {
-    const selectedZones = env.model.getters.getSelectedZones();
-    return areZonesContinuous(...selectedZones);
-  },
-  icon: "o-spreadsheet-Icon.MENU_FILTER_ICON",
+export const createRemoveFilter: ActionSpec = {
+  ...ACTIONS.CREATE_OR_REMOVE_FILTER_ACTION,
 };
 
-export const removeDataFilter: ActionSpec = {
-  name: _t("Remove filter"),
-  execute: (env) => {
-    const sheetId = env.model.getters.getActiveSheetId();
-    env.model.dispatch("REMOVE_TABLE", {
-      sheetId,
-      target: env.model.getters.getSelectedZones(),
-    });
-  },
-  isVisible: ACTIONS.SELECTION_CONTAINS_FILTER,
-  icon: "o-spreadsheet-Icon.MENU_FILTER_ICON",
+export const createRemoveFilterTool: ActionSpec = {
+  ...ACTIONS.CREATE_OR_REMOVE_FILTER_ACTION,
+  isActive: (env) => ACTIONS.SELECTED_TABLE_HAS_FILTERS(env),
 };
 
 export const splitToColumns: ActionSpec = {

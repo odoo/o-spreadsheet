@@ -1,3 +1,4 @@
+import { TableTerms } from "../../src/components/translations_terms";
 import { toCartesian, toXC, toZone, zoneToXc } from "../../src/helpers/index";
 import { interactiveSortSelection } from "../../src/helpers/sort";
 import { interactiveCut } from "../../src/helpers/ui/cut_interactive";
@@ -12,10 +13,7 @@ import {
   interactivePasteFromOS,
 } from "../../src/helpers/ui/paste_interactive";
 import { interactiveRenameSheet } from "../../src/helpers/ui/sheet_interactive";
-import {
-  AddFilterInteractiveContent,
-  interactiveCreateTable,
-} from "../../src/helpers/ui/table_interactive";
+import { interactiveCreateTable } from "../../src/helpers/ui/table_interactive";
 import {
   ToggleGroupInteractiveContent,
   interactiveToggleGroup,
@@ -138,30 +136,34 @@ describe("UI Helpers", () => {
 
   describe("Interactive Create table", () => {
     test("Successfully create a table", () => {
-      interactiveCreateTable(env, sheetId, target("A1:B5"));
+      setSelection(model, ["A1:B5"]);
+      interactiveCreateTable(env, sheetId);
       expect(notifyUserTextSpy).toHaveBeenCalledTimes(0);
     });
 
     test("Create a table across a merge", () => {
-      merge(model, "A1:A2");
-      interactiveCreateTable(env, sheetId, target("A1:B1"));
-      expect(notifyUserTextSpy).toHaveBeenCalledWith(
-        AddFilterInteractiveContent.mergeInFilter.toString()
-      );
+      merge(model, "A1:B1");
+      setSelection(model, ["A1:B1"]);
+      interactiveCreateTable(env, sheetId);
+      expect(notifyUserTextSpy).not.toHaveBeenCalled();
+      expect(model.getters.getMerges(sheetId)).toEqual([]);
+      expect(model.getters.getTables(sheetId)).toMatchObject([
+        { range: { zone: toZone("A1:B1") } },
+      ]);
     });
 
     test("Create a table across another table", () => {
       createTable(model, "A1:A2");
-      interactiveCreateTable(env, sheetId, target("A1:B5"));
-      expect(notifyUserTextSpy).toHaveBeenCalledWith(
-        AddFilterInteractiveContent.filterOverlap.toString()
-      );
+      setSelection(model, ["A1:B5"]);
+      interactiveCreateTable(env, sheetId);
+      expect(notifyUserTextSpy).toHaveBeenCalledWith(TableTerms.Errors.TableOverlap.toString());
     });
 
     test("Create table with non-continuous zones", () => {
-      interactiveCreateTable(env, sheetId, target("A1:A2,C3"));
+      setSelection(model, ["A1:A2", "C3"]);
+      interactiveCreateTable(env, sheetId);
       expect(notifyUserTextSpy).toHaveBeenCalledWith(
-        AddFilterInteractiveContent.nonContinuousTargets.toString()
+        TableTerms.Errors.NonContinuousTargets.toString()
       );
     });
   });

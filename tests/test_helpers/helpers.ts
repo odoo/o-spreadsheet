@@ -16,11 +16,19 @@ import {
   ComposerStore,
 } from "../../src/components/composer/composer/composer_store";
 import { ComposerFocusType } from "../../src/components/composer/composer_focus_store";
+import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/spreadsheet";
 import { matrixMap } from "../../src/functions/helpers";
 import { functionRegistry } from "../../src/functions/index";
 import { ImageProvider } from "../../src/helpers/figures/images/image_provider";
-import { range, toCartesian, toUnboundedZone, toXC, toZone } from "../../src/helpers/index";
+import {
+  range,
+  toCartesian,
+  toUnboundedZone,
+  toXC,
+  toZone,
+  zoneToXc,
+} from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { MergePlugin } from "../../src/plugins/core/merge";
 import { CorePluginConstructor } from "../../src/plugins/core_plugin";
@@ -153,10 +161,12 @@ export function makeTestEnv(mockEnv: Partial<SpreadsheetChildEnv> = {}): Spreads
 
   container.inject(NotificationStore, notificationStore);
   container.inject(RendererStore, new FakeRendererStore(container.get));
+
+  const sidePanelStore = container.get(SidePanelStore);
   return {
     model,
     isDashboard: mockEnv.isDashboard || (() => false),
-    openSidePanel: mockEnv.openSidePanel || (() => {}),
+    openSidePanel: mockEnv.openSidePanel || sidePanelStore.open.bind(sidePanelStore),
     toggleSidePanel: mockEnv.toggleSidePanel || (() => {}),
     clipboard: mockEnv.clipboard || new MockClipboard(),
     //FIXME : image provider is not built on top of the file store of the model if provided
@@ -856,4 +866,17 @@ export function makeTestComposerStore(
   notificationStore = notificationStore || makeTestNotificationStore();
   container.inject(NotificationStore, notificationStore);
   return container.get(ComposerStore);
+}
+
+/** Return the values of the first filter found in the sheet */
+export function getFilterHiddenValues(model: Model, sheetId = model.getters.getActiveSheetId()) {
+  const table = model.getters.getTables(sheetId)[0];
+  return table.filters.map((filter) => ({
+    zone: zoneToXc(filter.rangeWithHeaders.zone),
+    value: model.getters.getFilterHiddenValues({
+      sheetId,
+      col: filter.col,
+      row: table.range.zone.top,
+    }),
+  }));
 }

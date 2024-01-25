@@ -10,7 +10,7 @@
           type="number"
           min="1"
           max="400"
-          class="o-font-size bg-transparent border-0"
+          class="o-font-size o-number-input bg-transparent border-0"
           t-on-keydown="onInputKeydown"
           t-on-click.stop=""
           t-on-focus.stop="onInputFocused"

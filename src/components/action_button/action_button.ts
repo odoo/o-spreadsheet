@@ -8,7 +8,8 @@ css/* scss */ `
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 2px;
+    margin: 2px 1px;
+    padding: 0px 1px;
     border-radius: 2px;
     min-width: 20px;
   }

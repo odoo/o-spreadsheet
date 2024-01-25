@@ -1,32 +1,35 @@
 import {
   areZonesContinuous,
   deepCopy,
-  expandZoneOnInsertion,
+  deepEquals,
   intersection,
   isDefined,
   isInside,
   isZoneInside,
   overlap,
+  positions,
   range,
-  reduceZoneOnDeletion,
-  toZone,
-  union,
   zoneToDimension,
   zoneToXc,
 } from "../../helpers";
-import { Filter, Table, createFilter, createTable } from "../../helpers/filters";
+import { DEFAULT_TABLE_CONFIG, TABLE_PRESETS } from "../../helpers/table_presets";
 import {
-  AddColumnsRowsCommand,
+  ApplyRangeChange,
   CellPosition,
   CommandResult,
   CoreCommand,
   ExcelWorkbookData,
+  Filter,
   FilterId,
   Position,
-  RemoveColumnsRowsCommand,
+  Range,
+  Table,
+  TableConfig,
+  TableData,
   TableId,
   UID,
   UpdateCellCommand,
+  UpdateTableCommand,
   WorkbookData,
   Zone,
 } from "../../types/index";
@@ -44,6 +47,7 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
     "getTable",
     "getTables",
     "getTablesInZone",
+    "getTablesOverlappingZones",
     "getFilterId",
     "getFilterHeaders",
     "isFilterHeader",
@@ -51,39 +55,47 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
 
   readonly tables: Record<UID, Record<TableId, Table | undefined>> = {};
 
-  // ---------------------------------------------------------------------------
-  // Command Handling
-  // ---------------------------------------------------------------------------
+  adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
+    const sheetIds = sheetId ? [sheetId] : this.getters.getSheetIds();
+    for (const sheetId of sheetIds) {
+      for (const table of this.getTables(sheetId)) {
+        this.applyRangeChangeOnTable(sheetId, table, applyChange);
+      }
+    }
+  }
 
   allowDispatch(cmd: CoreCommand): CommandResult | CommandResult[] {
     switch (cmd.type) {
       case "CREATE_TABLE":
-        if (!areZonesContinuous(...cmd.target)) {
+        const zones = cmd.ranges.map(
+          (rangeData) => this.getters.getRangeFromRangeData(rangeData).zone
+        );
+        if (!areZonesContinuous(zones)) {
           return CommandResult.NonContinuousTargets;
         }
-        const zone = union(...cmd.target);
-        const checkTableOverlap = () => {
-          if (this.getTables(cmd.sheetId).some((table) => overlap(table.zone, zone))) {
-            return CommandResult.FilterOverlap;
-          }
-          return CommandResult.Success;
-        };
-        const checkMergeInFilter = () => {
-          const mergesInTarget = this.getters.getMergesInZone(cmd.sheetId, zone);
-          for (let merge of mergesInTarget) {
-            if (overlap(zone, merge)) {
-              return CommandResult.MergeInFilter;
-            }
-          }
-          return CommandResult.Success;
-        };
-        return this.checkValidations(cmd, checkTableOverlap, checkMergeInFilter);
-        break;
+        return this.checkValidations(
+          cmd,
+          (cmd) =>
+            this.getTablesOverlappingZones(cmd.sheetId, zones).length
+              ? CommandResult.TableOverlap
+              : CommandResult.Success,
+          (cmd) => this.checkTableConfigUpdateIsValid(cmd.config)
+        );
+      case "UPDATE_TABLE":
+        const updatedTable = this.getTables(cmd.sheetId).find((table) =>
+          deepEquals(table.range.zone, cmd.zone)
+        );
+        if (!updatedTable) {
+          return CommandResult.TableNotFound;
+        }
+        return this.checkValidations(cmd, this.checkUpdatedTableZoneIsValid, (cmd) =>
+          this.checkTableConfigUpdateIsValid(cmd.config)
+        );
       case "ADD_MERGE":
-        for (let merge of cmd.target) {
-          for (let table of this.getTables(cmd.sheetId)) {
-            if (overlap(table.zone, merge)) {
-              return CommandResult.MergeInFilter;
+        for (const merge of cmd.target) {
+          for (const table of this.getTables(cmd.sheetId)) {
+            if (overlap(table.range.zone, merge)) {
+              return CommandResult.MergeInTable;
             }
           }
         }
@@ -104,45 +116,73 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
         break;
       }
       case "DUPLICATE_SHEET": {
-        const tables: Record<TableId, Table | undefined> = {};
-        for (const table of Object.values(this.tables[cmd.sheetId] || {})) {
-          if (table) {
-            const newTable = deepCopy(table);
-            tables[newTable.id] = newTable;
-          }
+        const newTables: Record<UID, Table | undefined> = {};
+        for (const table of this.getTables(cmd.sheetId)) {
+          newTables[table.id] = this.copyTableForSheet(cmd.sheetIdTo, table);
         }
-        this.history.update("tables", cmd.sheetIdTo, tables);
+        this.history.update("tables", cmd.sheetIdTo, newTables);
         break;
       }
-      case "ADD_COLUMNS_ROWS":
-        this.onAddColumnsRows(cmd);
-        break;
-      case "REMOVE_COLUMNS_ROWS":
-        this.onDeleteColumnsRows(cmd);
-        break;
       case "CREATE_TABLE": {
-        const zone = union(...cmd.target);
-        const newTable = this.createTable(zone);
+        const ranges = cmd.ranges.map((rangeData) => this.getters.getRangeFromRangeData(rangeData));
+        const union = this.getters.getRangesUnion(ranges);
+        const mergesInTarget = this.getters.getMergesInZone(cmd.sheetId, union.zone);
+        this.dispatch("REMOVE_MERGE", { sheetId: cmd.sheetId, target: mergesInTarget });
+
+        const id = this.uuidGenerator.uuidv4();
+        const newTable = this.createTable(id, union, cmd.config || DEFAULT_TABLE_CONFIG);
         this.history.update("tables", cmd.sheetId, newTable.id, newTable);
         break;
       }
       case "REMOVE_TABLE": {
         const tables: Record<UID, Table> = {};
         for (const table of this.getTables(cmd.sheetId)) {
-          if (cmd.target.every((zone) => !intersection(zone, table.zone))) {
+          if (cmd.target.every((zone) => !intersection(zone, table.range.zone))) {
             tables[table.id] = table;
           }
         }
         this.history.update("tables", cmd.sheetId, tables);
         break;
       }
+      case "UPDATE_TABLE": {
+        const table = this.getTables(cmd.sheetId).find((table) =>
+          deepEquals(table.range.zone, cmd.zone)
+        );
+        if (table) {
+          const newTableRange = cmd.newTableRange
+            ? this.getters.getRangeFromRangeData(cmd.newTableRange)
+            : undefined;
+          if (newTableRange) {
+            const mergesInTarget = this.getters.getMergesInZone(cmd.sheetId, newTableRange.zone);
+            this.dispatch("REMOVE_MERGE", { sheetId: cmd.sheetId, target: mergesInTarget });
+          }
+
+          const newTable = this.updateTable(table, newTableRange, cmd.config);
+          this.history.update("tables", cmd.sheetId, table.id, newTable);
+        }
+        break;
+      }
       case "UPDATE_CELL": {
         const sheetId = cmd.sheetId;
-        for (let table of this.getTables(sheetId)) {
-          if (this.canUpdateCellCmdExtendTable(cmd, table)) {
+        for (const table of this.getTables(sheetId)) {
+          const direction = this.canUpdateCellCmdExtendTable(cmd, table);
+          if (direction === "down") {
             this.extendTableDown(sheetId, table);
+          } else if (direction === "right") {
+            this.extendTableRight(sheetId, table);
           }
         }
+        break;
+      }
+      case "DELETE_CONTENT": {
+        const tables: Record<TableId, Table | undefined> = { ...this.tables[cmd.sheetId] };
+        for (const tableId in tables) {
+          const table = tables[tableId];
+          if (table && cmd.target.some((zone) => isZoneInside(table.range.zone, zone))) {
+            delete tables[tableId];
+          }
+        }
+        this.history.update("tables", cmd.sheetId, tables);
         break;
       }
     }
@@ -150,6 +190,7 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
 
   getFilters(sheetId: UID): Filter[] {
     return this.getTables(sheetId)
+      .filter((table) => table.config.hasFilters)
       .map((table) => table.filters)
       .flat();
   }
@@ -159,7 +200,11 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
   }
 
   getFilter(position: CellPosition): Filter | undefined {
-    return this.getTable(position)?.filters.find((table) => table.col === position.col);
+    const table = this.getTable(position);
+    if (!table || !table.config.hasFilters) {
+      return undefined;
+    }
+    return table.filters.find((filter) => filter.col === position.col);
   }
 
   getFilterId(position: CellPosition): FilterId | undefined {
@@ -167,29 +212,34 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
   }
 
   getTable({ sheetId, col, row }: CellPosition): Table | undefined {
-    return this.getTables(sheetId).find((table) => isInside(col, row, table.zone));
+    return this.getTables(sheetId).find((table) => isInside(col, row, table.range.zone));
   }
 
-  /** Get the tables that are fully inside the given zone */
+  /** Get the filter tables that are fully inside the given zone */
   getTablesInZone(sheetId: UID, zone: Zone): Table[] {
-    return this.getTables(sheetId).filter((table) => isZoneInside(table.zone, zone));
+    return this.getTables(sheetId).filter((table) => isZoneInside(table.range.zone, zone));
+  }
+
+  getTablesOverlappingZones(sheetId: UID, zones: Zone[]): Table[] {
+    return this.getTables(sheetId).filter((table) =>
+      zones.some((zone) => overlap(table.range.zone, zone))
+    );
   }
 
   doesZonesContainFilter(sheetId: UID, zones: Zone[]): boolean {
-    for (const zone of zones) {
-      for (const table of this.getTables(sheetId)) {
-        if (intersection(zone, table.zone)) {
-          return true;
-        }
-      }
-    }
-    return false;
+    return (
+      this.getTablesOverlappingZones(sheetId, zones).filter((table) => table.config.hasFilters)
+        .length > 0
+    );
   }
 
   getFilterHeaders(sheetId: UID): Position[] {
     const headers: Position[] = [];
-    for (let table of this.getTables(sheetId)) {
-      const zone = table.zone;
+    for (const table of this.getTables(sheetId)) {
+      if (!table.config.hasFilters) {
+        continue;
+      }
+      const zone = table.range.zone;
       const row = zone.top;
       for (let col = zone.left; col <= zone.right; col++) {
         headers.push({ col, row });
@@ -203,151 +253,248 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
     return headers.some((header) => header.col === col && header.row === row);
   }
 
-  private onAddColumnsRows(cmd: AddColumnsRowsCommand) {
-    for (const table of this.getTables(cmd.sheetId)) {
-      const zone = expandZoneOnInsertion(
-        table.zone,
-        cmd.dimension === "COL" ? "left" : "top",
-        cmd.base,
-        cmd.position,
-        cmd.quantity
-      );
-      const filters: Filter[] = [];
-      for (const filter of table.filters) {
-        const filterZone = expandZoneOnInsertion(
-          filter.zoneWithHeaders,
-          cmd.dimension === "COL" ? "left" : "top",
-          cmd.base,
-          cmd.position,
-          cmd.quantity
-        );
-        filters.push(createFilter(filter.id, filterZone));
-      }
-
-      // Add filters for new columns
-      if (filters.length < zoneToDimension(zone).numberOfCols) {
-        for (let col = zone.left; col <= zone.right; col++) {
-          if (!filters.find((filter) => filter.col === col)) {
-            filters.push(
-              createFilter(this.uuidGenerator.uuidv4(), { ...zone, left: col, right: col })
-            );
-          }
-        }
-        filters.sort((f1, f2) => f1.col - f2.col);
-      }
-      this.history.update("tables", cmd.sheetId, table.id, "zone", zone);
-      this.history.update("tables", cmd.sheetId, table.id, "filters", filters);
-    }
-  }
-
-  private onDeleteColumnsRows(cmd: RemoveColumnsRowsCommand) {
-    for (const table of this.getTables(cmd.sheetId)) {
-      // Remove the tables whose data filter headers are in the removed rows.
-      if (cmd.dimension === "ROW" && cmd.elements.includes(table.zone.top)) {
-        const tables = { ...this.tables[cmd.sheetId] };
-        delete tables[table.id];
-        this.history.update("tables", cmd.sheetId, tables);
-        continue;
-      }
-
-      const zone = reduceZoneOnDeletion(
-        table.zone,
-        cmd.dimension === "COL" ? "left" : "top",
-        cmd.elements
-      );
-      if (!zone) {
-        const tables = { ...this.tables[cmd.sheetId] };
-        delete tables[table.id];
-        this.history.update("tables", cmd.sheetId, tables);
-      } else {
-        if (zoneToXc(zone) !== zoneToXc(table.zone)) {
-          const filters: Filter[] = [];
-          for (const filter of table.filters) {
-            const newFilterZone = reduceZoneOnDeletion(
-              filter.zoneWithHeaders,
-              cmd.dimension === "COL" ? "left" : "top",
-              cmd.elements
-            );
-            if (newFilterZone) {
-              filters.push(createFilter(filter.id, newFilterZone));
-            }
-          }
-          this.history.update("tables", cmd.sheetId, table.id, "zone", zone);
-          this.history.update("tables", cmd.sheetId, table.id, "filters", filters);
-        }
-      }
-    }
-  }
-
-  private createTable(zone: Zone): Table {
-    const uuid = this.uuidGenerator.uuidv4();
-    return createTable(uuid, zone);
-  }
-
   /** Extend a table down one row */
   private extendTableDown(sheetId: UID, table: Table) {
-    const newZone = { ...table.zone, bottom: table.zone.bottom + 1 };
-    this.history.update("tables", sheetId, table.id, "zone", newZone);
-    for (let filterIndex = 0; filterIndex < table.filters.length; filterIndex++) {
-      const filter = table.filters[filterIndex];
-      const newFilterZone = {
-        ...filter.zoneWithHeaders,
-        bottom: filter.zoneWithHeaders.bottom + 1,
-      };
-      this.history.update(
-        "tables",
-        sheetId,
-        table.id,
-        "filters",
-        filterIndex,
-        "zoneWithHeaders",
-        newFilterZone
-      );
-    }
-    return;
+    const newRange = this.getters.extendRange(table.range, "ROW", 1);
+    this.history.update("tables", sheetId, table.id, this.updateTable(table, newRange));
+  }
+
+  /** Extend a table right one col */
+  private extendTableRight(sheetId: UID, table: Table) {
+    const newRange = this.getters.extendRange(table.range, "COL", 1);
+    this.history.update("tables", sheetId, table.id, this.updateTable(table, newRange));
   }
 
   /**
-   * Check if an UpdateCell command should cause the given table to be extended by one row.
+   * Check if an UpdateCell command should cause the given table to be extended by one row or col.
    *
    * The table should be extended if all of these conditions are true:
-   * 1) The updated cell is right below the table
+   * 1) The updated cell is right below/right of the table
    * 2) The command adds a content to the cell
-   * 3) No cell right below the table had any content before the command
-   * 4) Extending the table down would not overlap with another table
-   * 5) Extending the table down would not overlap with a merge
+   * 3) No cell right below/right next to the table had any content before the command
+   * 4) Extending the table down/right would not overlap with another table
+   * 5) Extending the table down/right would not overlap with a merge
    *
    */
   private canUpdateCellCmdExtendTable(
     { content: newCellContent, sheetId, col, row }: UpdateCellCommand,
     table: Table
-  ) {
+  ): "down" | "right" | "none" {
     if (!newCellContent) {
-      return;
+      return "none";
     }
 
-    const zone = table.zone;
-    if (!(zone.bottom + 1 === row && col >= zone.left && col <= zone.right)) {
-      return false;
+    const zone = table.range.zone;
+    let direction: "down" | "right" | "none" = "none";
+    if (zone.bottom + 1 === row && col >= zone.left && col <= zone.right) {
+      direction = "down";
+    } else if (zone.right + 1 === col && row >= zone.top && row <= zone.bottom) {
+      direction = "right";
     }
 
-    for (const col of range(zone.left, zone.right + 1)) {
-      const position = { sheetId, col, row };
+    if (direction === "none") {
+      return "none";
+    }
+    const zoneToCheckIfEmpty =
+      direction === "down"
+        ? { ...zone, bottom: zone.bottom + 1, top: zone.bottom + 1 }
+        : { ...zone, right: zone.right + 1, left: zone.right + 1 };
+
+    for (const position of positions(zoneToCheckIfEmpty)) {
+      const cellPosition = { sheetId, ...position };
       // Since this plugin is loaded before CellPlugin, the getters still give us the old cell content
-      const cellContent = this.getters.getCell(position)?.content;
-      if (cellContent) {
-        return false;
-      }
+      const cellContent = this.getters.getCell(cellPosition)?.content;
 
-      if (this.getters.getFilter(position)) {
-        return false;
-      }
-
-      if (this.getters.isInMerge(position)) {
-        return false;
+      if (
+        cellContent ||
+        this.getters.isInMerge(cellPosition) ||
+        this.getters.getTable(cellPosition)
+      ) {
+        return "none";
       }
     }
-    return true;
+    return direction;
+  }
+
+  private checkUpdatedTableZoneIsValid(cmd: UpdateTableCommand): CommandResult {
+    if (!cmd.newTableRange) {
+      return CommandResult.Success;
+    }
+    const newTableZone = this.getters.getRangeFromRangeData(cmd.newTableRange).zone;
+    const zoneIsInSheet = this.getters.checkZonesExistInSheet(cmd.sheetId, [newTableZone]);
+    if (zoneIsInSheet !== CommandResult.Success) {
+      return zoneIsInSheet;
+    }
+    const overlappingTables = this.getTablesOverlappingZones(cmd.sheetId, [newTableZone]).filter(
+      (table) => !deepEquals(table.range.zone, cmd.zone)
+    );
+
+    return overlappingTables.length ? CommandResult.TableOverlap : CommandResult.Success;
+  }
+
+  private checkTableConfigUpdateIsValid(config: Partial<TableConfig> | undefined): CommandResult {
+    if (!config) {
+      return CommandResult.Success;
+    }
+    if (config.numberOfHeaders !== undefined && config.numberOfHeaders < 0) {
+      return CommandResult.InvalidTableConfig;
+    }
+    if (config.styleId && !TABLE_PRESETS[config.styleId]) {
+      return CommandResult.InvalidTableConfig;
+    }
+
+    if (config.hasFilters && config.numberOfHeaders === 0) {
+      return CommandResult.InvalidTableConfig;
+    }
+
+    return CommandResult.Success;
+  }
+
+  private createTable(id: UID, tableRange: Range, config: TableConfig, filters?: Filter[]): Table {
+    const zone = tableRange.zone;
+    if (!filters) {
+      filters = [];
+      for (const i of range(zone.left, zone.right + 1)) {
+        const filterZone = { ...zone, left: i, right: i };
+        const uid = this.uuidGenerator.uuidv4();
+        filters.push(this.createFilterFromZone(uid, tableRange.sheetId, filterZone, config));
+      }
+    }
+
+    return {
+      id,
+      range: tableRange,
+      filters,
+      config,
+    };
+  }
+
+  private updateTable(table: Table, newRange?: Range, configUpdate?: Partial<TableConfig>): Table {
+    const tableRange = newRange ? newRange : table.range;
+    const tableZone = tableRange.zone;
+    const newConfig = this.updateTableConfig(configUpdate, table.config);
+    const config = newConfig ? newConfig : table.config;
+
+    const filters: Filter[] = [];
+    if (newRange || (newConfig && "numberOfHeaders" in newConfig)) {
+      for (const i of range(tableZone.left, tableZone.right + 1)) {
+        const oldFilter =
+          tableZone.top === table.range.zone.top
+            ? table.filters.find((f) => f.col === i)
+            : undefined;
+        const filterZone = { ...tableZone, left: i, right: i };
+        const filterId = oldFilter?.id || this.uuidGenerator.uuidv4();
+        filters.push(this.createFilterFromZone(filterId, tableRange.sheetId, filterZone, config));
+      }
+    }
+
+    return {
+      ...table,
+      range: tableRange,
+      config,
+      filters: filters.length ? filters : table.filters,
+    };
+  }
+
+  /**
+   * Update the old config of a table with the new partial config from an UpdateTable command.
+   *
+   * Make sure the new config make sense (e.g. if the table has no header, it should not have
+   * filters and number of headers should be 0)
+   */
+  private updateTableConfig(
+    update: Partial<TableConfig> | undefined,
+    oldConfig: TableConfig
+  ): TableConfig {
+    if (!update) {
+      return oldConfig;
+    }
+    const saneConfig = { ...oldConfig, ...update };
+    if (update.numberOfHeaders === 0) {
+      saneConfig.hasFilters = false;
+    } else if (update.hasFilters === true) {
+      saneConfig.numberOfHeaders ||= 1;
+    }
+    return saneConfig;
+  }
+
+  private createFilterFromZone(id: UID, sheetId: UID, zone: Zone, config: TableConfig): Filter {
+    const range = this.getters.getRangeFromZone(sheetId, zone);
+    return this.createFilter(id, range, config);
+  }
+
+  private createFilter(id: UID, range: Range, config: TableConfig): Filter {
+    const zone = range.zone;
+    if (zone.left !== zone.right) {
+      throw new Error("Can only define a filter on a single column");
+    }
+    const filteredZone = { ...zone, top: zone.top + config.numberOfHeaders };
+    const filteredRange = this.getters.getRangeFromZone(range.sheetId, filteredZone);
+    return {
+      id,
+      rangeWithHeaders: range,
+      col: zone.left,
+      filteredRange: filteredZone.top > filteredZone.bottom ? undefined : filteredRange,
+    };
+  }
+
+  private copyTableForSheet(sheetId: UID, table: Table): Table {
+    const newRange = this.getters.getRangeFromZone(sheetId, table.range.zone);
+    const newFilters = table.filters.map((filter) => {
+      const newFilterRange = this.getters.getRangeFromZone(sheetId, filter.rangeWithHeaders.zone);
+      return this.createFilter(filter.id, newFilterRange, table.config);
+    });
+    return {
+      id: table.id,
+      range: newRange,
+      filters: newFilters,
+      config: deepCopy(table.config),
+    };
+  }
+
+  private applyRangeChangeOnTable(sheetId: UID, table: Table, applyChange: ApplyRangeChange) {
+    const tableRangeChange = applyChange(table.range);
+    let newTableRange: Range;
+    switch (tableRangeChange.changeType) {
+      case "REMOVE":
+        this.history.update("tables", sheetId, table.id, undefined);
+        return;
+      case "NONE":
+        return;
+      default:
+        newTableRange = tableRangeChange.range;
+    }
+
+    const filters: Filter[] = [];
+    for (const filter of table.filters) {
+      const filterRangeChange = applyChange(filter.rangeWithHeaders);
+      switch (filterRangeChange.changeType) {
+        case "REMOVE":
+          continue;
+        case "NONE":
+          filters.push(filter);
+          break;
+        default:
+          const newFilterRange = filterRangeChange.range;
+          const newFilter = this.createFilter(filter.id, newFilterRange, table.config);
+          filters.push(newFilter);
+      }
+    }
+
+    const tableZone = newTableRange.zone;
+    if (filters.length < zoneToDimension(tableZone).numberOfCols) {
+      for (let col = tableZone.left; col <= tableZone.right; col++) {
+        if (!filters.find((filter) => filter.col === col)) {
+          const uid = this.uuidGenerator.uuidv4();
+          const filterZone = { ...tableZone, left: col, right: col };
+          filters.push(this.createFilterFromZone(uid, sheetId, filterZone, table.config));
+        }
+      }
+      filters.sort((f1, f2) => f1.col - f2.col);
+    }
+
+    const newTable = this.createTable(table.id, newTableRange, table.config, filters);
+    this.history.update("tables", sheetId, table.id, newTable);
   }
 
   // ---------------------------------------------------------------------------
@@ -357,7 +504,10 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
   import(data: WorkbookData) {
     for (const sheet of data.sheets) {
       for (const tableData of sheet.tables || []) {
-        const table = this.createTable(toZone(tableData.range));
+        const uuid = this.uuidGenerator.uuidv4();
+        const tableConfig = tableData.config || DEFAULT_TABLE_CONFIG;
+        const tableRange = this.getters.getRangeFromSheetXC(sheet.id, tableData.range);
+        const table = this.createTable(uuid, tableRange, tableConfig);
         this.history.update("tables", sheet.id, table.id, table);
       }
     }
@@ -366,9 +516,11 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
   export(data: WorkbookData) {
     for (const sheet of data.sheets) {
       for (const table of this.getTables(sheet.id)) {
-        sheet.tables.push({
-          range: zoneToXc(table.zone),
-        });
+        const tableData: TableData = { range: zoneToXc(table.range.zone) };
+        if (!deepEquals(table.config, DEFAULT_TABLE_CONFIG)) {
+          tableData.config = table.config;
+        }
+        sheet.tables.push(tableData);
       }
     }
   }

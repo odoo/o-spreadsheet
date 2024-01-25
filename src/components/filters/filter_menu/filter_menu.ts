@@ -142,32 +142,32 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
   setup() {
     onWillUpdateProps((nextProps: Props) => {
       if (!deepEquals(nextProps.filterPosition, this.props.filterPosition)) {
-        this.state.values = this.getFilterValues(nextProps.filterPosition);
+        this.state.values = this.getFilterHiddenValues(nextProps.filterPosition);
       }
     });
 
-    this.state.values = this.getFilterValues(this.props.filterPosition);
+    this.state.values = this.getFilterHiddenValues(this.props.filterPosition);
   }
 
   get isReadonly() {
     return this.env.model.getters.isReadonly();
   }
 
-  private getFilterValues(position: Position): Value[] {
+  private getFilterHiddenValues(position: Position): Value[] {
     const sheetId = this.env.model.getters.getActiveSheetId();
     const filter = this.env.model.getters.getFilter({ sheetId, ...position });
     if (!filter) {
       return [];
     }
 
-    const cellValues = (filter.filteredZone ? positions(filter.filteredZone) : [])
+    const cellValues = (filter.filteredRange ? positions(filter.filteredRange.zone) : [])
       .filter(({ row }) => !this.env.model.getters.isRowHidden(sheetId, row))
       .map(
         ({ col, row }) =>
           this.env.model.getters.getEvaluatedCell({ sheetId, col, row }).formattedValue
       );
 
-    const filterValues = this.env.model.getters.getFilterValues({ sheetId, ...position });
+    const filterValues = this.env.model.getters.getFilterHiddenValues({ sheetId, ...position });
 
     const strValues = [...cellValues, ...filterValues];
     const normalizedFilteredValues = filterValues.map(toLowerCase);
@@ -296,15 +296,17 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
   sortFilterZone(sortDirection: SortDirection) {
     const filterPosition = this.props.filterPosition;
     const table = this.table;
-    if (!filterPosition || !table || !table.contentZone) {
+    const tableZone = table?.range.zone;
+    if (!filterPosition || !tableZone || tableZone.top === tableZone.bottom) {
       return;
     }
     const sheetId = this.env.model.getters.getActiveSheetId();
+    const contentZone = { ...tableZone, top: tableZone.top + 1 };
     this.env.model.dispatch("SORT_CELLS", {
       sheetId,
       col: filterPosition.col,
-      row: table.contentZone.top,
-      zone: table.contentZone,
+      row: contentZone.top,
+      zone: contentZone,
       sortDirection,
       sortOptions: { emptyCellAsZero: true, sortHeaders: true },
     });

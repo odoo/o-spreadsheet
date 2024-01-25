@@ -317,6 +317,22 @@ export function union(...zones: Zone[]): Zone {
 }
 
 /**
+ * Compute the union of multiple unbounded zones.
+ */
+export function unionUnboundedZones(...zones: UnboundedZone[]): UnboundedZone {
+  return {
+    top: Math.min(...zones.map((zone) => zone.top)),
+    left: Math.min(...zones.map((zone) => zone.left)),
+    bottom: zones.some((zone) => zone.bottom === undefined)
+      ? undefined
+      : Math.max(...zones.map((zone) => zone.bottom!)),
+    right: zones.some((zone) => zone.right === undefined)
+      ? undefined
+      : Math.max(...zones.map((zone) => zone.right!)),
+  };
+}
+
+/**
  * Compute the intersection of two zones. Returns nothing if the two zones don't overlap
  */
 export function intersection(z1: Zone, z2: Zone): Zone | undefined {
@@ -673,7 +689,7 @@ export function getZoneArea(zone: Zone): number {
  * Check if the zones are continuous, ie. if they can be merged into a single zone without
  * including cells outside the zones
  * */
-export function areZonesContinuous(...zones: Zone[]): boolean {
+export function areZonesContinuous(zones: Zone[]): boolean {
   if (zones.length < 2) return true;
   return recomputeZones(zones.map(zoneToXc), []).length === 1;
 }

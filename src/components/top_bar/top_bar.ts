@@ -6,10 +6,10 @@ import {
   useState,
 } from "@odoo/owl";
 import { Action, ActionSpec, createAction } from "../../actions/action";
+import * as ACTION_DATA from "../../actions/data_actions";
 import * as ACTION_EDIT from "../../actions/edit_actions";
 import * as ACTION_FORMAT from "../../actions/format_actions";
 import { setStyle } from "../../actions/menu_items_actions";
-import * as ACTION_VIEW from "../../actions/view_actions";
 import {
   BACKGROUND_HEADER_COLOR,
   BG_HOVER_COLOR,
@@ -30,6 +30,7 @@ import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
 import { FontSizeEditor } from "../font_size_editor/font_size_editor";
 import { css } from "../helpers/css";
 import { Menu, MenuState } from "../menu/menu";
+import { TableDropdownButton } from "../tables/table_dropdown_button/table_dropdown_button";
 import { PaintFormatButton } from "./../paint_format_button/paint_format_button";
 
 interface State {
@@ -152,6 +153,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     ActionButton,
     PaintFormatButton,
     BorderEditorWidget,
+    TableDropdownButton,
   };
 
   state: State = useState({
@@ -165,7 +167,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   menus: Action[] = [];
   EDIT = ACTION_EDIT;
   FORMAT = ACTION_FORMAT;
-  VIEW = ACTION_VIEW;
+  DATA = ACTION_DATA;
   formatNumberMenuItemSpec = formatNumberMenuItemSpec;
   isntToolbarMenu = false;
   composerStore!: Store<ComposerStore>;

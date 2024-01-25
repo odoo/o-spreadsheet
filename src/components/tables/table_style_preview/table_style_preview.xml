@@ -1,0 +1,5 @@
+<templates>
+  <t t-name="o-spreadsheet-TableStylePreview">
+    <canvas t-ref="canvas" class="w-100 h-100"/>
+  </t>
+</templates>

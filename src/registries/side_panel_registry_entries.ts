@@ -8,6 +8,7 @@ import { MoreFormatsPanel } from "../components/side_panel/more_formats/more_for
 import { RemoveDuplicatesPanel } from "../components/side_panel/remove_duplicates/remove_duplicates";
 import { SettingsPanel } from "../components/side_panel/settings/settings_panel";
 import { SplitIntoColumnsPanel } from "../components/side_panel/split_to_columns_panel/split_to_columns_panel";
+import { TablePanel } from "../components/side_panel/table_panel/table_panel";
 import { _t } from "../translation";
 import { Getters, UID } from "../types";
 import { sidePanelRegistry } from "./side_panel_registry";
@@ -71,4 +72,15 @@ sidePanelRegistry.add("DataValidationEditor", {
 sidePanelRegistry.add("MoreFormats", {
   title: _t("More date formats"),
   Body: MoreFormatsPanel,
+});
+sidePanelRegistry.add("TableSidePanel", {
+  title: _t("Edit table"),
+  Body: TablePanel,
+  computeState: (getters: Getters) => {
+    const table = getters.getFirstTableInSelection();
+    if (!table) {
+      return { isOpen: false };
+    }
+    return { isOpen: true, props: { table } };
+  },
 });

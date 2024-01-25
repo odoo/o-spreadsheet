@@ -10,7 +10,7 @@ export const AddMergeInteractiveContent = {
 
 export function interactiveAddMerge(env: SpreadsheetChildEnv, sheetId: UID, target: Zone[]) {
   const result = env.model.dispatch("ADD_MERGE", { sheetId, target });
-  if (result.isCancelledBecause(CommandResult.MergeInFilter)) {
+  if (result.isCancelledBecause(CommandResult.MergeInTable)) {
     env.raiseError(AddMergeInteractiveContent.MergeInFilter);
   } else if (result.isCancelledBecause(CommandResult.MergeIsDestructive)) {
     env.askConfirmation(AddMergeInteractiveContent.MergeIsDestructive, () => {

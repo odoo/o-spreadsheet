@@ -5,6 +5,7 @@ export const genericRepeatsTransforms = [
   repeatSheetDependantCommand,
   repeatTargetDependantCommand,
   repeatPositionDependantCommand,
+  repeatRangeDependantCommand,
 ];
 
 export function repeatSheetDependantCommand<T extends Command>(getters: Getters, command: T): T {
@@ -36,4 +37,15 @@ export function repeatPositionDependantCommand<T extends Command>(getters: Gette
 
   const { col, row } = getters.getActivePosition();
   return { ...deepCopy(command), col, row };
+}
+
+export function repeatRangeDependantCommand<T extends Command>(getters: Getters, command: T): T {
+  if (!("ranges" in command)) return command;
+
+  return {
+    ...deepCopy(command),
+    ranges: getters
+      .getSelectedZones()
+      .map((zone) => getters.getRangeDataFromZone(getters.getActiveSheetId(), zone)),
+  };
 }
