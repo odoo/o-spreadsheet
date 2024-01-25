@@ -33,7 +33,7 @@ import {
   addColumns,
   addDataValidation,
   copy,
-  createFilter,
+  createTable,
   deleteColumns,
   merge,
   paste,
@@ -218,7 +218,7 @@ describe("renderer", () => {
     });
 
     test("Color of headers that contains a filter", () => {
-      createFilter(model, "A1:B2");
+      createTable(model, "A1:B2");
       setSelection(model, ["B2"]); // by default the cell A1 was selected
       drawGridRenderer(ctx);
 
@@ -229,7 +229,7 @@ describe("renderer", () => {
     });
 
     test("Color of headers that contain a filter + are selected", () => {
-      createFilter(model, "A1:B2");
+      createTable(model, "A1:B2");
       setSelection(model, ["A1"]);
       drawGridRenderer(ctx);
 
@@ -240,7 +240,7 @@ describe("renderer", () => {
     });
 
     test("Headers that contain a filter + are selected", () => {
-      createFilter(model, "A1:B2");
+      createTable(model, "A1:B2");
       setSelection(model, ["A1"]);
       drawGridRenderer(ctx);
 
@@ -251,7 +251,7 @@ describe("renderer", () => {
     });
 
     test("Headers that contain a filter + are active", () => {
-      createFilter(model, "A1:B2");
+      createTable(model, "A1:B2");
       setSelection(model, ["A1:B2"]);
       drawGridRenderer(ctx);
 

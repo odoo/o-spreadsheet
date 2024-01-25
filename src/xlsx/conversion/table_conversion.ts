@@ -22,7 +22,7 @@ export const TABLE_BORDER_STYLE: BorderDescr = { style: "thin", color: "#000000F
 /**
  * Convert the imported XLSX tables.
  *
- * We will create a FilterTable if the imported table have filters, then apply a style in all the cells of the table
+ * We will create a Table if the imported table have filters, then apply a style in all the cells of the table
  * and convert the table-specific formula references into standard references.
  *
  * Change the converted data in-place.
@@ -32,8 +32,8 @@ export function convertTables(convertedData: WorkbookData, xlsxData: XLSXImportD
     for (const table of xlsxSheet.tables) {
       const sheet = convertedData.sheets.find((sheet) => sheet.name === xlsxSheet.sheetName);
       if (!sheet || !table.autoFilter) continue;
-      if (!sheet.filterTables) sheet.filterTables = [];
-      sheet.filterTables.push({ range: table.ref });
+      if (!sheet.tables) sheet.tables = [];
+      sheet.tables.push({ range: table.ref });
     }
   }
 

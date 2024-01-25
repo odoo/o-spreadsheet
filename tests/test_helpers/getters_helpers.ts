@@ -152,13 +152,13 @@ export function automaticSumMulti(
   return model.dispatch("SUM_SELECTION");
 }
 
-export function getFilterTable(
+export function getTable(
   model: Model,
   xc: string,
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
   const { col, row } = toCartesian(xc);
-  return model.getters.getFilterTable({ sheetId, col, row });
+  return model.getters.getTable({ sheetId, col, row });
 }
 
 export function getFilter(

@@ -6,10 +6,10 @@ import { CellClipboardHandler } from "./cell_clipboard";
 import { ChartClipboardHandler } from "./chart_clipboard";
 import { ConditionalFormatClipboardHandler } from "./conditional_format_clipboard";
 import { DataValidationClipboardHandler } from "./data_validation_clipboard";
-import { FilterClipboardHandler } from "./filter_clipboard";
 import { ImageClipboardHandler } from "./image_clipboard";
 import { MergeClipboardHandler } from "./merge_clipboard";
 import { SheetClipboardHandler } from "./sheet_clipboard";
+import { TableClipboardHandler } from "./tables_clipboard";
 
 export const clipboardHandlersRegistries = {
   figureHandlers: new Registry<typeof AbstractFigureClipboardHandler<any>>(),
@@ -26,5 +26,5 @@ clipboardHandlersRegistries.cellHandlers
   .add("sheet", SheetClipboardHandler)
   .add("merge", MergeClipboardHandler)
   .add("border", BorderClipboardHandler)
-  .add("filter", FilterClipboardHandler)
+  .add("table", TableClipboardHandler)
   .add("conditionalFormat", ConditionalFormatClipboardHandler);

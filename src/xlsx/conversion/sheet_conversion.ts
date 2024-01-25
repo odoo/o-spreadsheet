@@ -49,7 +49,7 @@ export function convertSheets(
       panes: sheetOptions
         ? { xSplit: sheetOptions.pane.xSplit, ySplit: sheetOptions.pane.ySplit }
         : { xSplit: 0, ySplit: 0 },
-      filterTables: [],
+      tables: [],
       headerGroups: { COL: colHeaderGroups, ROW: rowHeaderGroups },
     };
   });

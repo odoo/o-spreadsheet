@@ -26,7 +26,7 @@ export type UID = string & Alias;
 
 export type SetDecimalStep = 1 | -1;
 export type FilterId = UID & Alias;
-export type FilterTableId = UID & Alias;
+export type TableId = UID & Alias;
 
 /**
  * CSS style color string

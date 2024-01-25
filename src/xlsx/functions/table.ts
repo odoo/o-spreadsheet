@@ -1,5 +1,5 @@
 import { range, toXC, toZone, zoneToDimension } from "../../helpers";
-import { ExcelFilterData, ExcelFilterTableData, ExcelSheetData } from "../../types";
+import { ExcelFilterData, ExcelSheetData, ExcelTableData } from "../../types";
 import { XMLAttributes, XMLString } from "../../types/xlsx";
 import { NAMESPACE } from "../constants";
 import { escapeXml, formatAttributes, joinXmlNodes, parseXML } from "../helpers/xml_helpers";
@@ -16,7 +16,7 @@ const TABLE_DEFAULT_STYLE = escapeXml/*xml*/ `<tableStyleInfo ${formatAttributes
 )}/>`;
 
 export function createTable(
-  table: ExcelFilterTableData,
+  table: ExcelTableData,
   tableId: number,
   sheetData: ExcelSheetData
 ): XMLDocument {
@@ -41,7 +41,7 @@ export function createTable(
   return parseXML(xml);
 }
 
-function addAutoFilter(table: ExcelFilterTableData): XMLString {
+function addAutoFilter(table: ExcelTableData): XMLString {
   const autoFilterAttributes: XMLAttributes = [["ref", table.range]];
   return escapeXml/*xml*/ `
   <autoFilter ${formatAttributes(autoFilterAttributes)}>
@@ -50,7 +50,7 @@ function addAutoFilter(table: ExcelFilterTableData): XMLString {
   `;
 }
 
-function addFilterColumns(table: ExcelFilterTableData): XMLString[] {
+function addFilterColumns(table: ExcelTableData): XMLString[] {
   const columns: XMLString[] = [];
   for (const filter of table.filters) {
     const colXml = escapeXml/*xml*/ `
@@ -75,7 +75,7 @@ function addFilter(filter: ExcelFilterData): XMLString {
 `;
 }
 
-function addTableColumns(table: ExcelFilterTableData, sheetData: ExcelSheetData): XMLString {
+function addTableColumns(table: ExcelTableData, sheetData: ExcelSheetData): XMLString {
   const tableZone = toZone(table.range);
   const columns: XMLString[] = [];
   for (const i of range(0, zoneToDimension(tableZone).numberOfCols)) {

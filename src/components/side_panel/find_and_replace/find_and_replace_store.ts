@@ -95,7 +95,7 @@ export class FindAndReplaceStore extends SpreadsheetStore {
         break;
       case "UNDO":
       case "REDO":
-      case "REMOVE_FILTER_TABLE":
+      case "REMOVE_TABLE":
       case "UPDATE_FILTER":
       case "REMOVE_COLUMNS_ROWS":
       case "HIDE_COLUMNS_ROWS":

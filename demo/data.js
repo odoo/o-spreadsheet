@@ -108,7 +108,7 @@ export const demoData = {
         I33: { content: "0" },
       },
       merges: ["H2:I5", "K3:K8"],
-      filterTables: [{ range: "H22:I33" }],
+      tables: [{ range: "H22:I33" }],
       conditionalFormats: [
         {
           id: "1",

@@ -6,7 +6,7 @@ import {
   DEFAULT_REVISION_ID,
   FORBIDDEN_SHEET_CHARS,
 } from "../../src/constants";
-import { toCartesian } from "../../src/helpers";
+import { toCartesian, toZone } from "../../src/helpers";
 import { CURRENT_VERSION } from "../../src/migrations/data";
 import { BorderDescr, ColorScaleRule, DEFAULT_LOCALE, IconSetRule } from "../../src/types";
 import {
@@ -419,13 +419,29 @@ describe("Migrations", () => {
       ],
     });
     const data = model.exportData();
-    expect(data.sheets[0].filterTables).toEqual([{ range: "A1:C2" }]);
+    expect(data.sheets[0].tables).toEqual([{ range: "A1:C2" }]);
   });
 
   test("migrate version 14: set locale of spreadsheet to en_US", () => {
     let model = new Model({ version: 13 });
     let data = model.exportData();
     expect(data.settings).toEqual({ locale: DEFAULT_LOCALE });
+  });
+
+  test("migrate version 15: filterTables are renamed into tables", () => {
+    const model = new Model({
+      version: 14,
+      sheets: [
+        {
+          id: "1",
+          filterTables: [{ range: "A1:B2" }],
+        },
+      ],
+    });
+    expect(model.getters.getTables("1")).toMatchObject([{ zone: toZone("A1:B2") }]);
+    let data = model.exportData();
+    expect(data.version).toBe(CURRENT_VERSION);
+    expect(data.sheets[0].tables).toEqual([{ range: "A1:B2" }]);
   });
 });
 
@@ -584,7 +600,7 @@ test("complete import, then export", () => {
         conditionalFormats: [],
         dataValidationRules: [],
         figures: [],
-        filterTables: [],
+        tables: [],
         areGridLinesVisible: true,
         isVisible: true,
         panes: { ySplit: 1, xSplit: 5 },
@@ -604,7 +620,7 @@ test("complete import, then export", () => {
         conditionalFormats: [],
         dataValidationRules: [],
         figures: [],
-        filterTables: [],
+        tables: [],
         areGridLinesVisible: false,
         isVisible: true,
         headerGroups: { COL: [], ROW: [] },
@@ -688,7 +704,7 @@ test("import then export (figures)", () => {
         conditionalFormats: [],
         dataValidationRules: [],
         figures: [{ id: "otheruuid", x: 100, y: 100, width: 100, height: 100 }],
-        filterTables: [],
+        tables: [],
         areGridLinesVisible: true,
         isVisible: true,
         headerGroups: { COL: [], ROW: [] },

@@ -207,7 +207,7 @@ export class SheetViewPlugin extends UIPlugin {
         this.shiftVertically(shiftedOffsetY);
         break;
       }
-      case "REMOVE_FILTER_TABLE":
+      case "REMOVE_TABLE":
       case "UPDATE_FILTER":
         this.sheetsWithDirtyViewports.add(cmd.sheetId);
         break;

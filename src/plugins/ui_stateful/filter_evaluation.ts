@@ -26,7 +26,7 @@ import { UIPlugin } from "../ui_plugin";
 
 export class FilterEvaluationPlugin extends UIPlugin {
   static getters = [
-    "getCellBorderWithFilterBorder",
+    "getCellBorderWithTableBorder",
     "getFilterValues",
     "isRowFiltered",
     "isFilterActive",
@@ -55,7 +55,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
       case "UPDATE_CELL":
       case "EVALUATE_CELLS":
       case "ACTIVATE_SHEET":
-      case "REMOVE_FILTER_TABLE":
+      case "REMOVE_TABLE":
       case "ADD_COLUMNS_ROWS":
       case "REMOVE_COLUMNS_ROWS":
         this.isEvaluationDirty = true;
@@ -117,13 +117,13 @@ export class FilterEvaluationPlugin extends UIPlugin {
     return this.hiddenRows.has(row);
   }
 
-  getCellBorderWithFilterBorder(position: CellPosition): Border | null {
+  getCellBorderWithTableBorder(position: CellPosition): Border | null {
     const { sheetId, col, row } = position;
     let filterBorder: Border | undefined = undefined;
-    for (let filters of this.getters.getFilterTables(sheetId)) {
-      const zone = filters.zone;
+    for (let tables of this.getters.getTables(sheetId)) {
+      const zone = tables.zone;
       if (isInside(col, row, zone)) {
-        // The borders should be at the edges of the visible zone of the filter
+        // The borders should be at the edges of the visible zone of the table
         const visibleZone = this.intersectZoneWithViewport(sheetId, zone);
         filterBorder = {
           top: row === visibleZone.top ? DEFAULT_FILTER_BORDER_DESC : undefined,
@@ -136,7 +136,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
 
     const cellBorder = this.getters.getCellBorder(position);
 
-    // Use removeFalsyAttributes to avoid overwriting filter borders with undefined values
+    // Use removeFalsyAttributes to avoid overwriting table borders with undefined values
     const border = { ...filterBorder, ...removeFalsyAttributes(cellBorder || {}) };
 
     return isObjectEmptyRecursive(border) ? null : border;
@@ -206,7 +206,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
   exportForExcel(data: ExcelWorkbookData) {
     for (const sheetData of data.sheets) {
       const sheetId = sheetData.id;
-      for (const tableData of sheetData.filterTables) {
+      for (const tableData of sheetData.tables) {
         const tableZone = toZone(tableData.range);
         const filters: ExcelFilterData[] = [];
         const headerNames: string[] = [];

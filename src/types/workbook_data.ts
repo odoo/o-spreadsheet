@@ -44,7 +44,7 @@ export interface SheetData {
   rows: { [key: number]: HeaderData };
   conditionalFormats: ConditionalFormat[];
   dataValidationRules?: DataValidationRuleData[];
-  filterTables: FilterTableData[];
+  tables: TableData[];
   areGridLinesVisible?: boolean;
   isVisible: boolean;
   panes?: PaneDivision;
@@ -79,7 +79,7 @@ export interface ExcelSheetData extends Omit<SheetData, "figureTables" | "cols" 
   cells: { [key: string]: ExcelCellData | undefined };
   charts: FigureData<ExcelChartDefinition>[];
   images: FigureData<Image>[];
-  filterTables: ExcelFilterTableData[];
+  tables: ExcelTableData[];
   cols: { [key: number]: ExcelHeaderData };
   rows: { [key: number]: ExcelHeaderData };
 }
@@ -89,7 +89,7 @@ export interface ExcelHeaderData extends HeaderData {
   collapsed?: boolean;
 }
 
-export interface FilterTableData {
+export interface TableData {
   range: string;
 }
 
@@ -97,7 +97,7 @@ export interface DataValidationRuleData extends Omit<DataValidationRule, "ranges
   ranges: string[];
 }
 
-export interface ExcelFilterTableData {
+export interface ExcelTableData {
   range: string;
   filters: ExcelFilterData[];
 }

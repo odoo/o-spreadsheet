@@ -4,7 +4,7 @@ import { toZone } from "../../src/helpers";
 import { UID } from "../../src/types";
 import {
   addRows,
-  createFilter,
+  createTable,
   deleteFilter,
   deleteRows,
   foldHeaderGroup,
@@ -30,14 +30,14 @@ describe("Filter Evaluation Plugin", () => {
     setCellContent(model, "A3", "A3");
     setCellContent(model, "A4", "A4");
     setCellContent(model, "A5", "A5");
-    createFilter(model, "A1:A5");
+    createTable(model, "A1:A5");
 
     setCellContent(model, "B1", "Header");
     setCellContent(model, "B2", "1");
     setCellContent(model, "B3", "1");
     setCellContent(model, "B4", "2");
     setCellContent(model, "B5", "2");
-    createFilter(model, "B1:B5");
+    createTable(model, "B1:B5");
   });
 
   test.each(["normal", "readonly", "dashboard"] as const)("Can filter a row", (mode) => {
@@ -57,9 +57,9 @@ describe("Filter Evaluation Plugin", () => {
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
   });
 
-  test("deleting a filter table show rows again", () => {
+  test("deleting a table show rows again", () => {
     const model = new Model();
-    createFilter(model, "A1:A3");
+    createTable(model, "A1:A3");
     setCellContent(model, "A2", "Hi");
     updateFilter(model, "A2", ["Hi"]);
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
@@ -108,11 +108,11 @@ describe("Filter Evaluation Plugin", () => {
   });
 
   test("Filters borders are correct", () => {
-    createFilter(model, "A7:B9");
+    createTable(model, "A7:B9");
     const zone = toZone("A7:B9");
     for (let row = zone.top; row <= zone.bottom; row++) {
       for (let col = zone.left; col <= zone.right; col++) {
-        const filterBorder = model.getters.getCellBorderWithFilterBorder({ sheetId, col, row });
+        const filterBorder = model.getters.getCellBorderWithTableBorder({ sheetId, col, row });
         const expected = {};
         expected["top"] = row === zone.top ? DEFAULT_FILTER_BORDER_DESC : undefined;
         expected["bottom"] = row === zone.bottom ? DEFAULT_FILTER_BORDER_DESC : undefined;
@@ -125,10 +125,10 @@ describe("Filter Evaluation Plugin", () => {
 
   test("Filters borders don't overwrite cell borders", () => {
     setZoneBorders(model, { position: "left" }, ["A7:A9"]);
-    createFilter(model, "A7:A9");
+    createTable(model, "A7:A9");
     const zone = toZone("A7:A9");
     for (let row = zone.top; row <= zone.bottom; row++) {
-      const filterBorder = model.getters.getCellBorderWithFilterBorder({ sheetId, col: 0, row });
+      const filterBorder = model.getters.getCellBorderWithTableBorder({ sheetId, col: 0, row });
       const expected = {
         top: row === zone.top ? DEFAULT_FILTER_BORDER_DESC : undefined,
         bottom: row === zone.bottom ? DEFAULT_FILTER_BORDER_DESC : undefined,
@@ -139,15 +139,15 @@ describe("Filter Evaluation Plugin", () => {
     }
   });
 
-  test("Filters borders are correct when cols and rows of the filter are hidden", () => {
-    createFilter(model, "A7:E14");
+  test("Table borders are correct when cols and rows of the table are hidden", () => {
+    createTable(model, "A7:E14");
     hideColumns(model, ["E", "A", "B"]);
     hideRows(model, [6, 12, 13]);
 
     const zone = toZone("C8:D12");
     for (let row = zone.top; row <= zone.bottom; row++) {
       for (let col = zone.left; col <= zone.right; col++) {
-        const filterBorder = model.getters.getCellBorderWithFilterBorder({ sheetId, col, row });
+        const filterBorder = model.getters.getCellBorderWithTableBorder({ sheetId, col, row });
         const expected = {};
         expected["top"] = row === zone.top ? DEFAULT_FILTER_BORDER_DESC : undefined;
         expected["bottom"] = row === zone.bottom ? DEFAULT_FILTER_BORDER_DESC : undefined;
@@ -158,8 +158,8 @@ describe("Filter Evaluation Plugin", () => {
     }
   });
 
-  test("Sheet duplication after importing filter don't break", () => {
-    const model = new Model({ sheets: [{ id: "sh1", filterTables: [{ range: "A1:A8" }] }] });
+  test("Sheet duplication after importing table don't break", () => {
+    const model = new Model({ sheets: [{ id: "sh1", tables: [{ range: "A1:A8" }] }] });
     expect(model.getters.getFilter({ sheetId: "sh1", col: 0, row: 0 })).toBeTruthy();
 
     model.dispatch("DUPLICATE_SHEET", {
@@ -169,10 +169,10 @@ describe("Filter Evaluation Plugin", () => {
     expect(model.getters.getFilter({ sheetId: "sh2", col: 0, row: 0 })).toBeTruthy();
   });
 
-  test("Inserting rows above or below the data filter header updates the filtered rows", () => {
+  test("Inserting rows above or below the table header updates the filtered rows", () => {
     const model = new Model();
 
-    createFilter(model, "A1:A2");
+    createTable(model, "A1:A2");
     setCellContent(model, "A2", "Hi");
 
     updateFilter(model, "A1", ["Hi"]);
@@ -187,10 +187,10 @@ describe("Filter Evaluation Plugin", () => {
     expect(model.getters.isRowFiltered(sheetId, 3)).toEqual(true);
   });
 
-  test("Removing rows above the data filter header updates the filtered rows", () => {
+  test("Removing rows above the table header updates the filtered rows", () => {
     const model = new Model();
 
-    createFilter(model, "A4:A6");
+    createTable(model, "A4:A6");
     setCellContent(model, "A5", "Hi");
     setCellContent(model, "A6", "Hi");
 
@@ -210,7 +210,7 @@ describe("Filter Evaluation Plugin", () => {
 
     groupHeaders(model, "ROW", 0, 3);
 
-    createFilter(model, "A4:A5");
+    createTable(model, "A4:A5");
     setCellContent(model, "A5", "Hi");
     updateFilter(model, "A4", ["Hi"]);
 
@@ -225,7 +225,7 @@ describe("Filter Evaluation Plugin", () => {
 
     groupHeaders(model, "ROW", 0, 5);
 
-    createFilter(model, "A6:A8");
+    createTable(model, "A6:A8");
     setCellContent(model, "A7", "Hi");
     setCellContent(model, "A8", "Hi");
     updateFilter(model, "A6", ["Hi"]);

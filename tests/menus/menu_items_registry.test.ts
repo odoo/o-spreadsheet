@@ -9,7 +9,7 @@ import { SpreadsheetChildEnv, UID } from "../../src/types";
 import { DEFAULT_LOCALES } from "../../src/types/locale";
 import {
   copy,
-  createFilter,
+  createTable,
   foldHeaderGroup,
   freezeColumns,
   freezeRows,
@@ -1466,20 +1466,20 @@ describe("Menu Item actions", () => {
         expect(getNode(createFilterPath).isVisible(env)).toBeTruthy();
         expect(getNode(removeFilterPath).isVisible(env)).toBeFalsy();
         doAction(createFilterPath, env);
-        expect(dispatch).toHaveBeenCalledWith("CREATE_FILTER_TABLE", {
+        expect(dispatch).toHaveBeenCalledWith("CREATE_TABLE", {
           sheetId: model.getters.getActiveSheetId(),
           target: target("A1:A5"),
         });
       });
 
       test("Filters -> Remove filter", () => {
-        createFilter(model, "A1:A5");
+        createTable(model, "A1:A5");
         setSelection(model, ["A1:A5"]);
         expect(getName(removeFilterPath, env)).toBe("Remove filter");
         expect(getNode(removeFilterPath).isVisible(env)).toBeTruthy();
         expect(getNode(createFilterPath).isVisible(env)).toBeFalsy();
         doAction(removeFilterPath, env);
-        expect(dispatch).toHaveBeenCalledWith("REMOVE_FILTER_TABLE", {
+        expect(dispatch).toHaveBeenCalledWith("REMOVE_TABLE", {
           sheetId: model.getters.getActiveSheetId(),
           target: target("A1:A5"),
         });
@@ -1502,7 +1502,7 @@ describe("Menu Item actions", () => {
         expect(getNode(removeFilterPath).isVisible(env)).toBeFalsy();
         expect(getNode(createFilterPath).isVisible(env)).toBeTruthy();
 
-        createFilter(model, "A1:B5");
+        createTable(model, "A1:B5");
         expect(getNode(removeFilterPath).isVisible(env)).toBeTruthy();
         expect(getNode(createFilterPath).isVisible(env)).toBeFalsy();
 

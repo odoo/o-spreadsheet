@@ -1,6 +1,6 @@
 import { transform } from "../../../src/collaborative/ot/ot";
 import { toZone } from "../../../src/helpers";
-import { AddMergeCommand, CreateFilterTableCommand } from "../../../src/types";
+import { AddMergeCommand, CreateTableCommand } from "../../../src/types";
 import { OT_TESTS_SINGLE_CELL_COMMANDS, TEST_COMMANDS } from "../../test_helpers/constants";
 import { target } from "../../test_helpers/helpers";
 
@@ -69,20 +69,20 @@ describe("OT with ADD_MERGE", () => {
     }
   );
 
-  const createTable: Omit<CreateFilterTableCommand, "target"> = {
-    type: "CREATE_FILTER_TABLE",
+  const createTable: Omit<CreateTableCommand, "target"> = {
+    type: "CREATE_TABLE",
     sheetId,
   };
 
-  describe("ADD_MERGE with CREATE_FILTER_TABLE", () => {
-    test("Merge overlapping filter table", () => {
+  describe("ADD_MERGE with CREATE_TABLE", () => {
+    test("Merge overlapping table", () => {
       const zones = target("A1");
       const addMergeCmd = { ...TEST_COMMANDS.ADD_MERGE, sheetId, target: zones };
       const createTableCmd = { ...createTable, target: zones };
       expect(transform(addMergeCmd, createTableCmd)).toBeUndefined();
     });
 
-    test("Merge not overlapping filter table", () => {
+    test("Merge not overlapping table", () => {
       const addMergeCmd = { ...TEST_COMMANDS.ADD_MERGE, sheetId, target: target("A1") };
       const createTableCmd = { ...createTable, target: target("B2") };
       expect(transform(addMergeCmd, createTableCmd)).toEqual(addMergeCmd);

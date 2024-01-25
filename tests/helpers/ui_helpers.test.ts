@@ -1,10 +1,6 @@
 import { toCartesian, toXC, toZone, zoneToXc } from "../../src/helpers/index";
 import { interactiveSortSelection } from "../../src/helpers/sort";
 import { interactiveCut } from "../../src/helpers/ui/cut_interactive";
-import {
-  AddFilterInteractiveContent,
-  interactiveAddFilter,
-} from "../../src/helpers/ui/filter_interactive";
 import { interactiveFreezeColumnsRows } from "../../src/helpers/ui/freeze_interactive";
 import {
   AddMergeInteractiveContent,
@@ -17,6 +13,10 @@ import {
 } from "../../src/helpers/ui/paste_interactive";
 import { interactiveRenameSheet } from "../../src/helpers/ui/sheet_interactive";
 import {
+  AddFilterInteractiveContent,
+  interactiveCreateTable,
+} from "../../src/helpers/ui/table_interactive";
+import {
   ToggleGroupInteractiveContent,
   interactiveToggleGroup,
 } from "../../src/helpers/ui/toggle_group_interactive";
@@ -26,8 +26,8 @@ import {
   addCellToSelection,
   copy,
   createChart,
-  createFilter,
   createSheet,
+  createTable,
   cut,
   freezeColumns,
   freezeRows,
@@ -136,30 +136,30 @@ describe("UI Helpers", () => {
     env = makeTestEnv({ model, raiseError, askConfirmation });
   });
 
-  describe("Interactive Create Filter", () => {
-    test("Successfully create a filter", () => {
-      interactiveAddFilter(env, sheetId, target("A1:B5"));
+  describe("Interactive Create table", () => {
+    test("Successfully create a table", () => {
+      interactiveCreateTable(env, sheetId, target("A1:B5"));
       expect(notifyUserTextSpy).toHaveBeenCalledTimes(0);
     });
 
-    test("Create a filter across a merge", () => {
+    test("Create a table across a merge", () => {
       merge(model, "A1:A2");
-      interactiveAddFilter(env, sheetId, target("A1:B1"));
+      interactiveCreateTable(env, sheetId, target("A1:B1"));
       expect(notifyUserTextSpy).toHaveBeenCalledWith(
         AddFilterInteractiveContent.mergeInFilter.toString()
       );
     });
 
-    test("Create a filter across another filter", () => {
-      createFilter(model, "A1:A2");
-      interactiveAddFilter(env, sheetId, target("A1:B5"));
+    test("Create a table across another table", () => {
+      createTable(model, "A1:A2");
+      interactiveCreateTable(env, sheetId, target("A1:B5"));
       expect(notifyUserTextSpy).toHaveBeenCalledWith(
         AddFilterInteractiveContent.filterOverlap.toString()
       );
     });
 
-    test("Create filters with non-continuous zones", () => {
-      interactiveAddFilter(env, sheetId, target("A1:A2,C3"));
+    test("Create table with non-continuous zones", () => {
+      interactiveCreateTable(env, sheetId, target("A1:A2,C3"));
       expect(notifyUserTextSpy).toHaveBeenCalledWith(
         AddFilterInteractiveContent.nonContinuousTargets.toString()
       );
@@ -316,16 +316,16 @@ describe("UI Helpers", () => {
       );
     });
 
-    test("Create a merge inside a filter", () => {
-      createFilter(model, "A1:A2");
+    test("Create a merge inside a table", () => {
+      createTable(model, "A1:A2");
       interactiveAddMerge(env, sheetId, target("A1:B5"));
       expect(notifyUserTextSpy).toHaveBeenCalledWith(
         AddMergeInteractiveContent.MergeInFilter.toString()
       );
     });
 
-    test("Destructive merge inside a filter", () => {
-      createFilter(model, "A1:A2");
+    test("Destructive merge inside a table", () => {
+      createTable(model, "A1:A2");
       setCellContent(model, "A2", ":)");
       interactiveAddMerge(env, sheetId, target("A1:B5"));
       expect(notifyUserTextSpy).toHaveBeenCalledWith(

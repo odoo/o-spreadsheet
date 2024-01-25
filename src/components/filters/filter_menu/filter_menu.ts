@@ -208,10 +208,10 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
     this.displayedValues.forEach((value) => (value.checked = false));
   }
 
-  get filterTable() {
+  get table() {
     const sheetId = this.env.model.getters.getActiveSheetId();
     const position = this.props.filterPosition;
-    return this.env.model.getters.getFilterTable({ sheetId, ...position });
+    return this.env.model.getters.getTable({ sheetId, ...position });
   }
 
   get displayedValues() {
@@ -295,16 +295,16 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
 
   sortFilterZone(sortDirection: SortDirection) {
     const filterPosition = this.props.filterPosition;
-    const filterTable = this.filterTable;
-    if (!filterPosition || !filterTable || !filterTable.contentZone) {
+    const table = this.table;
+    if (!filterPosition || !table || !table.contentZone) {
       return;
     }
     const sheetId = this.env.model.getters.getActiveSheetId();
     this.env.model.dispatch("SORT_CELLS", {
       sheetId,
       col: filterPosition.col,
-      row: filterTable.contentZone.top,
-      zone: filterTable.contentZone,
+      row: table.contentZone.top,
+      zone: table.contentZone,
       sortDirection,
       sortOptions: { emptyCellAsZero: true, sortHeaders: true },
     });
