@@ -25,6 +25,7 @@ export class MockCanvasRenderingContext2D {
     return { width: fontSize * text.length || 0 };
   }
   drawImage() {}
+  resetTransform() {}
 }
 
 const patch = {

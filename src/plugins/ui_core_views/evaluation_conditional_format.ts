@@ -1,8 +1,7 @@
-import { LINK_COLOR } from "../../constants";
 import { compile } from "../../formulas";
 import { parseLiteral } from "../../helpers/cells";
 import { colorNumberString, percentile } from "../../helpers/index";
-import { clip, lazy, removeFalsyAttributes } from "../../helpers/misc";
+import { clip, lazy } from "../../helpers/misc";
 import { _t } from "../../translation";
 import {
   CellIsRule,
@@ -31,7 +30,7 @@ type ComputedStyles = { [col: HeaderIndex]: (Style | undefined)[] };
 type ComputedIcons = { [col: HeaderIndex]: (string | undefined)[] };
 
 export class EvaluationConditionalFormatPlugin extends UIPlugin {
-  static getters = ["getConditionalIcon", "getCellComputedStyle"] as const;
+  static getters = ["getConditionalIcon", "getCellConditionalFormatStyle"] as const;
   private isStale: boolean = true;
   // stores the computed styles in the format of computedStyles.sheetName[col][row] = Style
   private computedStyles: { [sheet: string]: Lazy<ComputedStyles> } = {};
@@ -65,25 +64,10 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
   // Getters
   // ---------------------------------------------------------------------------
 
-  getCellComputedStyle(position: CellPosition): Style {
-    // TODO move this getter out of CF: it also depends on filters and link
+  getCellConditionalFormatStyle(position: CellPosition): Style | undefined {
     const { sheetId, col, row } = position;
-    const cell = this.getters.getCell(position);
     const styles = this.computedStyles[sheetId]();
-    const cfStyle = styles && styles[col]?.[row];
-    const computedStyle = {
-      ...removeFalsyAttributes(cell?.style),
-      ...removeFalsyAttributes(cfStyle),
-    };
-    const evaluatedCell = this.getters.getEvaluatedCell(position);
-    if (evaluatedCell.link && !computedStyle.textColor) {
-      computedStyle.textColor = LINK_COLOR;
-    }
-
-    if (this.getters.isFilterHeader(position)) {
-      computedStyle.bold = true;
-    }
-    return computedStyle;
+    return styles && styles[col]?.[row];
   }
 
   getConditionalIcon({ sheetId, col, row }: CellPosition): string | undefined {

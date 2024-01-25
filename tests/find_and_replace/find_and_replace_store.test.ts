@@ -10,8 +10,8 @@ import {
   addRows,
   createSheet,
   createTable,
-  deleteFilter,
   deleteRows,
+  deleteTable,
   hideRows,
   redo,
   setCellContent,
@@ -309,7 +309,7 @@ describe("basic search", () => {
     updateFilter(model, "A1", ["1"]);
     expect(store.searchMatches).toHaveLength(1);
     expect(store.selectedMatchIndex).toStrictEqual(0);
-    deleteFilter(model, "A1:A6");
+    deleteTable(model, "A1:A6");
     expect(store.searchMatches).toHaveLength(2);
     expect(store.selectedMatchIndex).toStrictEqual(0);
   });

@@ -1,5 +1,6 @@
 import { Component } from "@odoo/owl";
 import { FILTERS_COLOR, GRID_ICON_EDGE_LENGTH } from "../../../constants";
+import { relativeLuminance } from "../../../helpers";
 import { Store } from "../../../store_engine/store";
 import { useStore } from "../../../store_engine/store_hooks";
 import { CellPosition, SpreadsheetChildEnv } from "../../../types";
@@ -14,6 +15,19 @@ css/* scss */ `
     justify-content: center;
     width: ${GRID_ICON_EDGE_LENGTH}px;
     height: ${GRID_ICON_EDGE_LENGTH}px;
+
+    &:hover {
+      background: ${FILTERS_COLOR};
+      color: #fff;
+    }
+
+    &.o-high-contrast {
+      color: #defade;
+    }
+    &.o-high-contrast:hover {
+      color: ${FILTERS_COLOR};
+      background: #fff;
+    }
   }
   .o-filter-icon:hover {
     background: ${FILTERS_COLOR};
@@ -53,5 +67,11 @@ export class FilterIcon extends Component<Props, SpreadsheetChildEnv> {
 
   get isFilterActive(): boolean {
     return this.env.model.getters.isFilterActive(this.props.cellPosition);
+  }
+
+  get iconClass(): string {
+    const cellStyle = this.env.model.getters.getCellComputedStyle(this.props.cellPosition);
+    const luminance = relativeLuminance(cellStyle.fillColor || "#fff");
+    return luminance < 0.45 ? "o-high-contrast" : "";
   }
 }

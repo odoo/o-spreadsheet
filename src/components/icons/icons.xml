@@ -767,12 +767,7 @@ https://fontawesome.com/license -->
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.FILTER_ICON">
-    <svg
-      class="o-cf-icon filter-icon"
-      width="10"
-      height="10"
-      focusable="false"
-      viewBox="0 0 850 850">
+    <svg class="o-cf-icon filter-icon" viewBox="0 0 850 850">
       <path
         fill="currentColor"
         d="M 339.667 681 L 510.333 681 L 510.333 595.667 L 339.667 595.667 L 339.667 681 Z M 41 169 L 41 254.333 L 809 254.333 L 809 169 L 41 169 Z M 169 467.667 L 681 467.667 L 681 382.333 L 169 382.333 L 169 467.667 Z"
@@ -780,33 +775,7 @@ https://fontawesome.com/license -->
     </svg>
   </t>
   <t t-name="o-spreadsheet-Icon.FILTER_ICON_ACTIVE">
-    <svg
-      class="o-cf-icon filter-icon-active"
-      width="10"
-      height="10"
-      focusable="false"
-      viewBox="0 0 512 512">
-      <path
-        fill="currentColor"
-        d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
-      />
-    </svg>
-  </t>
-  <t t-name="o-spreadsheet-Icon.FILTER_ICON_INACTIVE">
-    <svg
-      class="o-cf-icon filter-icon-inactive"
-      width="10"
-      height="10"
-      focusable="false"
-      viewBox="0 0 512 512">
-      <path
-        fill="currentColor"
-        d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
-      />
-    </svg>
-  </t>
-  <t t-name="o-spreadsheet-Icon.MENU_FILTER_ICON">
-    <svg class="o-icon">
+    <svg class="o-cf-icon filter-icon-active" viewBox="0 0 18 18">
       <path
         fill="currentColor"
         d="M16.6.5H1.29C.59.5.23 1.35.73 1.85l6.1 6.1v6.8c0 .26.13.5.34.65l2.64 1.85a.79.79 0 0 0 1.25-.65V7.96l6.1-6.1A.79.79 0 0 0 16.6.51"
@@ -953,6 +922,30 @@ https://fontawesome.com/license -->
       <circle cx="2" cy="6.5" r="1"/>
       <circle cx="2" cy="9.5" r="1"/>
       <circle cx="2" cy="12.5" r="1"/>
+    </svg>
+  </t>
+  <t t-name="o-spreadsheet-Icon.EDIT_TABLE">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18">
+      <path
+        fill="currentColor"
+        d="M2.5 1A1.5 1.5 0 0 0 1 2.5v11A1.5 1.5 0 0 0 2.5 15H7l1.5-1.5H7v-2.75h3.5v.75l2.25-2.25H12v-2.5h3.5v.75c.1-.2.45-.05.5.02l1 1V2.5A1.5 1.5 0 0 0 15.5 1m-13 1.5h13v2.75h-13m0 1.5h3v2.5h-3M7 6.75h3.5v2.5H7m-4.5 1.5h3v2.75h-3 M8.2 15.7v1.8h1.8l5.4-5.4-1.8-1.8-5.4 5.4Zm8.8-5.2a.5.5 0 0 0 0-.7l-1.1-1.1a.5.5 0 0 0-.7 0l-.9.9 1.8 1.8.9-.9Z"
+      />
+    </svg>
+  </t>
+  <t t-name="o-spreadsheet-Icon.DELETE_TABLE">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18">
+      <path
+        fill="currentColor"
+        d="M2.5 1A1.5 1.5 0 0 0 1 2.5v11A1.5 1.5 0 0 0 2.5 15H7l1.5-1.5H7V6.75h3.5v.75L12 9V6.75h3.5l1.5 1.5V2.5A1.5 1.5 0 0 0 15.5 1m-13 1.5h13v2.75h-13m0 1.5h3v2.5h-3m0 1.5h3v2.75h-3m10-2.25 3-3 1.5 1.5-3 3 3 3-1.5 1.5-3-3-3 3-1.5-1.5 3-3-3-3 1.5-1.5"
+      />
+    </svg>
+  </t>
+  <t t-name="o-spreadsheet-Icon.PAINT_TABLE">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18">
+      <path
+        fill="currentColor"
+        d="M2.5 1A1.5 1.5 0 0 0 1 2.5v11A1.5 1.5 0 0 0 2.5 15h5c0-.5 0-1 .5-1.5H7v-2.75h3.5v.75l2.25-2.25H12v-2.5h3.5v.75c1-.7 1.5-.4 1.5-.4V2.5A1.5 1.5 0 0 0 15.5 1m-13 1.5h13v2.75h-13m0 1.5h3v2.5h-3M7 6.75h3.5v2.5H7m-4.5 1.5h3v2.75h-3m7.5-.3c.7-.3 1.5-.1 2.1.6.6.7.8 1.4.5 1.9-.6 1.4-3.7 1.6-4 1.7l-.6.1.3-.5s.5-.8.5-2.1c0-.7.5-1.4 1.1-1.7Zm6.7-5.1a.9.9 0 0 1 1 1c-.1 1.3-2.5 3.7-4.3 5.3a3.9 3.9 0 0 0-.6-1.1c-.4-.4-.8-.7-1.3-.8 1.5-1.7 4-4.3 5.4-4.4"
+      />
     </svg>
   </t>
 </templates>

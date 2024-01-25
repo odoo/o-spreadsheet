@@ -9,6 +9,7 @@ import {
   rangeReference,
   splitReference,
   toUnboundedZone,
+  unionUnboundedZones,
 } from "../../helpers/index";
 import { CellErrorType } from "../../types/errors";
 import {
@@ -20,6 +21,7 @@ import {
   CommandResult,
   CoreCommand,
   CoreGetters,
+  Dimension,
   Range,
   RangeData,
   RangeProvider,
@@ -36,6 +38,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   }
 
   static getters = [
+    "extendRange",
     "getRangeString",
     "getRangeFromSheetXC",
     "createAdaptedRanges",
@@ -43,6 +46,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     "getRangeDataFromZone",
     "getRangeFromRangeData",
     "getRangeFromZone",
+    "getRangesUnion",
     "isRangeValid",
   ] as const;
 
@@ -284,6 +288,19 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     });
   }
 
+  extendRange(range: Range, dimension: Dimension, quantity: number): Range {
+    const rangeImpl = RangeImpl.fromRange(range, this.getters);
+    const right = dimension === "COL" ? rangeImpl.zone.right + quantity : rangeImpl.zone.right;
+    const bottom = dimension === "ROW" ? rangeImpl.zone.bottom + quantity : rangeImpl.zone.bottom;
+    const zone = {
+      left: rangeImpl.zone.left,
+      top: rangeImpl.zone.top,
+      right: rangeImpl.isFullRow ? undefined : right,
+      bottom: rangeImpl.isFullCol ? undefined : bottom,
+    };
+    return new RangeImpl({ ...rangeImpl, zone }, this.getters.getSheetSize).orderZone();
+  }
+
   /**
    * Creates a range from a XC reference that can contain a sheet reference
    * @param defaultSheetId the sheet to default to if the sheetXC parameter does not contain a sheet reference (usually the active sheet Id)
@@ -386,6 +403,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   }
 
   getRangeDataFromZone(sheetId: UID, zone: Zone | UnboundedZone): RangeData {
+    zone = this.getters.getUnboundedZone(sheetId, zone);
     return { _sheetId: sheetId, _zone: zone };
   }
 
@@ -428,6 +446,12 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
       xc.match(rangeReference) !== null &&
       (!sheetName || this.getters.getSheetIdByName(sheetName) !== undefined)
     );
+  }
+
+  getRangesUnion(ranges: Range[]): Range {
+    const zones = ranges.map((range) => RangeImpl.fromRange(range, this.getters).unboundedZone);
+    const unionOfZones = unionUnboundedZones(...zones);
+    return this.getRangeFromZone(ranges[0].sheetId, unionOfZones);
   }
 
   // ---------------------------------------------------------------------------

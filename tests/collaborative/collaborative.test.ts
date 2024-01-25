@@ -700,8 +700,8 @@ describe("Multi users synchronisation", () => {
       1
     );
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getTables(sheetId).map((table) => table.zone),
-      alice.getters.getTables(sheetId).map((table) => table.zone)
+      (user) => user.getters.getTables(sheetId).map((table) => table.range.zone),
+      alice.getters.getTables(sheetId).map((table) => table.range.zone)
     );
   });
 
@@ -728,12 +728,12 @@ describe("Multi users synchronisation", () => {
       createTable(alice, "A1:B4");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getMerges(sheetId),
-      bob.getters.getMerges(sheetId)
+      (user) => user.getters.getMerges(sheetId).length,
+      0
     );
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getTables(sheetId).length,
-      0
+      1
     );
   });
 
@@ -744,14 +744,14 @@ describe("Multi users synchronisation", () => {
         sheetId: "Sheet1",
         sheetIdTo: "sheet2",
       });
-      createTable(charlie, "A1:B4", firstSheetId);
+      createTable(charlie, "A1:B4", undefined, firstSheetId);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getTables("sheet2"),
       []
     );
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getFilterValues({ sheetId: "sheet2", col: 0, row: 0 }),
+      (user) => user.getters.getFilterHiddenValues({ sheetId: "sheet2", col: 0, row: 0 }),
       []
     );
   });

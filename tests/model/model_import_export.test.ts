@@ -438,7 +438,7 @@ describe("Migrations", () => {
         },
       ],
     });
-    expect(model.getters.getTables("1")).toMatchObject([{ zone: toZone("A1:B2") }]);
+    expect(model.getters.getTables("1")).toMatchObject([{ range: { zone: toZone("A1:B2") } }]);
     let data = model.exportData();
     expect(data.version).toBe(CURRENT_VERSION);
     expect(data.sheets[0].tables).toEqual([{ range: "A1:B2" }]);

@@ -5,12 +5,22 @@ import {
   getSmartChartDefinition,
 } from "../helpers/figures/charts";
 import { centerFigurePosition, getMaxFigureSize } from "../helpers/figures/figure/figure";
-import { getZoneArea, isConsecutive, isEqual, numberToLetters } from "../helpers/index";
+import {
+  areZonesContinuous,
+  getZoneArea,
+  isConsecutive,
+  isEqual,
+  numberToLetters,
+  positionToZone,
+} from "../helpers/index";
+import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
 import { interactivePaste, interactivePasteFromOS } from "../helpers/ui/paste_interactive";
+import { interactiveCreateTable } from "../helpers/ui/table_interactive";
 import { _t } from "../translation";
 import { ClipboardMIMEType, ClipboardPasteOptions } from "../types/clipboard";
 import { Image } from "../types/image";
 import { Dimension, Format, SpreadsheetChildEnv, Style } from "../types/index";
+import { ActionSpec } from "./action";
 
 //------------------------------------------------------------------------------
 // Helpers
@@ -452,10 +462,69 @@ export const INSERT_LINK_NAME = (env: SpreadsheetChildEnv) => {
 // Filters action
 //------------------------------------------------------------------------------
 
-export const SELECTION_CONTAINS_FILTER = (env: SpreadsheetChildEnv): boolean => {
+export const SELECTED_TABLE_HAS_FILTERS = (env: SpreadsheetChildEnv): boolean => {
+  const table = env.model.getters.getFirstTableInSelection();
+  return table?.config.hasFilters || false;
+};
+
+export const SELECTION_CONTAINS_SINGLE_TABLE = (env: SpreadsheetChildEnv): boolean => {
   const sheetId = env.model.getters.getActiveSheetId();
   const selectedZones = env.model.getters.getSelectedZones();
-  return env.model.getters.doesZonesContainFilter(sheetId, selectedZones);
+  return env.model.getters.getTablesOverlappingZones(sheetId, selectedZones).length === 1;
+};
+
+export const IS_SELECTION_CONTINUOUS = (env: SpreadsheetChildEnv): boolean => {
+  return areZonesContinuous(env.model.getters.getSelectedZones());
+};
+
+export const ADD_DATA_FILTER = (env: SpreadsheetChildEnv) => {
+  const sheetId = env.model.getters.getActiveSheetId();
+  const table = env.model.getters.getFirstTableInSelection();
+  if (table) {
+    env.model.dispatch("UPDATE_TABLE", {
+      sheetId,
+      zone: table.range.zone,
+      config: { hasFilters: true },
+    });
+  } else {
+    const tableConfig = {
+      ...DEFAULT_TABLE_CONFIG,
+      hasFilters: true,
+      bandedRows: false,
+      styleId: "TableStyleLight11",
+    };
+    interactiveCreateTable(env, sheetId, tableConfig);
+  }
+};
+
+export const REMOVE_DATA_FILTER = (env: SpreadsheetChildEnv) => {
+  const sheetId = env.model.getters.getActiveSheetId();
+  const table = env.model.getters.getFirstTableInSelection();
+  if (!table) {
+    return;
+  }
+  env.model.dispatch("UPDATE_TABLE", {
+    sheetId,
+    zone: table.range.zone,
+    config: { hasFilters: false },
+  });
+};
+
+export const INSERT_TABLE = (env: SpreadsheetChildEnv) => {
+  const sheetId = env.model.getters.getActiveSheetId();
+
+  const result = interactiveCreateTable(env, sheetId);
+  if (result.isSuccessful) {
+    env.openSidePanel("TableSidePanel", {});
+  }
+};
+
+export const DELETE_SELECTED_TABLE = (env: SpreadsheetChildEnv) => {
+  const position = env.model.getters.getActivePosition();
+  env.model.dispatch("REMOVE_TABLE", {
+    sheetId: position.sheetId,
+    target: [positionToZone(position)],
+  });
 };
 
 //------------------------------------------------------------------------------
@@ -478,4 +547,13 @@ export const CAN_INSERT_HEADER = (env: SpreadsheetChildEnv, dimension: Dimension
   const zone = env.model.getters.getSelectedZone();
   const allSheetSelected = isEqual(zone, env.model.getters.getSheetZone(sheetId));
   return isConsecutive(activeHeaders) && (ortogonalActiveHeaders.size === 0 || allSheetSelected);
+};
+
+export const CREATE_OR_REMOVE_FILTER_ACTION: ActionSpec = {
+  name: (env) =>
+    SELECTED_TABLE_HAS_FILTERS(env) ? _t("Remove selected filters") : _t("Add filters"),
+  isEnabled: (env) => IS_SELECTION_CONTINUOUS(env),
+  execute: (env) =>
+    SELECTED_TABLE_HAS_FILTERS(env) ? REMOVE_DATA_FILTER(env) : ADD_DATA_FILTER(env),
+  icon: "o-spreadsheet-Icon.FILTER_ICON_ACTIVE",
 };

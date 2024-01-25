@@ -163,7 +163,6 @@ describe("Repeat command transform generics", () => {
   test.each([
     TEST_COMMANDS.ADD_MERGE,
     TEST_COMMANDS.REMOVE_MERGE,
-    TEST_COMMANDS.CREATE_TABLE,
     TEST_COMMANDS.REMOVE_TABLE,
     TEST_COMMANDS.SET_FORMATTING,
     TEST_COMMANDS.CLEAR_FORMATTING,
@@ -184,6 +183,19 @@ describe("Repeat command transform generics", () => {
       expect(transformed).toMatchObject({ zone: toZone("B2:C4") });
     }
   );
+
+  test("Repeat create table", () => {
+    const toRepeat = TEST_COMMANDS.CREATE_TABLE;
+    createSheet(model, { sheetId: "42" });
+    activateSheet(model, "42");
+    setSelection(model, ["B2:C4"]);
+    const transformed = repeatCoreCommand(model.getters, toRepeat);
+    expect(transformed).toMatchObject({
+      ...TEST_COMMANDS.CREATE_TABLE,
+      sheetId: "42",
+      ranges: toRangesData("42", "B2:C4"),
+    });
+  });
 
   test("Commands not in repeatCommandRegistry aren't repeated", () => {
     const command = { type: "RANDOM_COMMAND", col: 0, row: 0, sheetId } as unknown as CoreCommand;
@@ -387,7 +399,7 @@ describe("Repeat local commands", () => {
     redo(model);
     expect(getCellContent(model, "C1")).toEqual("A1");
     expect(getCellContent(model, "C2")).toEqual("A2");
-    expect(getStyle(model, "C2")).toEqual({ fillColor: "red" });
+    expect(getStyle(model, "C2")).toMatchObject({ fillColor: "red" });
     expect(model.getters.isFilterHeader({ sheetId, col: 2, row: 0 })).toEqual(true);
     expect(model.getters.getRulesByCell(sheetId, 2, 0)).toBeTruthy();
   });

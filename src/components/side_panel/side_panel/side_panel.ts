@@ -154,7 +154,7 @@ css/* scss */ `
   }
 `;
 
-export class SidePanel extends Component<never, SpreadsheetChildEnv> {
+export class SidePanel extends Component<{}, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SidePanel";
   static props = {};
   sidePanelStore!: Store<SidePanelStore>;

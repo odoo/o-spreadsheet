@@ -186,6 +186,14 @@ export const insertImage: ActionSpec = {
   icon: "o-spreadsheet-Icon.INSERT_IMAGE",
 };
 
+export const insertTable: ActionSpec = {
+  name: () => _t("Table"),
+  execute: ACTIONS.INSERT_TABLE,
+  isVisible: (env) =>
+    ACTIONS.IS_SELECTION_CONTINUOUS(env) && !env.model.getters.getFirstTableInSelection(),
+  icon: "o-spreadsheet-Icon.PAINT_TABLE",
+};
+
 export const insertFunction: ActionSpec = {
   name: _t("Function"),
   icon: "o-spreadsheet-Icon.FORMULA",

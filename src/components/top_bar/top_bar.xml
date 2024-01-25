@@ -164,7 +164,8 @@
 
             <div class="o-divider"/>
 
-            <ActionButton action="VIEW.createRemoveFilter" class="'o-hoverable-button'"/>
+            <TableDropdownButton/>
+            <ActionButton action="DATA.createRemoveFilterTool" class="'o-hoverable-button'"/>
           </div>
         </div>
         <TopBarComposer/>

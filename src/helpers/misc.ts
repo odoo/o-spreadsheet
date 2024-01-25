@@ -393,7 +393,7 @@ export function includesAll<T>(arr: T[], values: T[]): boolean {
 /**
  * Return an object with all the keys in the object that have a falsy value removed.
  */
-export function removeFalsyAttributes<T extends Object | undefined>(obj: T): T {
+export function removeFalsyAttributes<T extends Object | undefined | null>(obj: T): T {
   if (!obj) return obj;
   const cleanObject = { ...obj };
   Object.keys(cleanObject).forEach((key) => !cleanObject[key] && delete cleanObject[key]);

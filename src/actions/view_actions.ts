@@ -1,6 +1,5 @@
-import { areZonesContinuous, numberToLetters } from "../helpers";
+import { numberToLetters } from "../helpers";
 import { interactiveFreezeColumnsRows } from "../helpers/ui/freeze_interactive";
-import { interactiveCreateTable } from "../helpers/ui/table_interactive";
 import { _t } from "../translation";
 import { SpreadsheetChildEnv } from "../types";
 import { Dimension } from "./../types/misc";
@@ -208,15 +207,6 @@ export const viewFormulas: ActionSpec = {
   isReadonlyAllowed: true,
 };
 
-export const createRemoveFilter: ActionSpec = {
-  name: (env) =>
-    selectionContainsFilter(env) ? _t("Remove selected filters") : _t("Create filter"),
-  isActive: (env) => selectionContainsFilter(env),
-  isEnabled: (env) => !cannotCreateFilter(env),
-  execute: (env) => createRemoveFilterAction(env),
-  icon: "o-spreadsheet-Icon.FILTER_ICON_INACTIVE",
-};
-
 export const groupColumns: ActionSpec = {
   name: (env) => {
     const selection = env.model.getters.getSelectedZone();
@@ -292,34 +282,6 @@ export const ungroupRows: ActionSpec = {
   execute: (env) => ungroupHeaders(env, "ROW"),
   icon: "o-spreadsheet-Icon.UNGROUP_ROWS",
 };
-
-function selectionContainsFilter(env: SpreadsheetChildEnv): boolean {
-  const sheetId = env.model.getters.getActiveSheetId();
-  const selectedZones = env.model.getters.getSelectedZones();
-  return env.model.getters.doesZonesContainFilter(sheetId, selectedZones);
-}
-
-function cannotCreateFilter(env: SpreadsheetChildEnv): boolean {
-  return !areZonesContinuous(...env.model.getters.getSelectedZones());
-}
-
-function createRemoveFilterAction(env: SpreadsheetChildEnv) {
-  if (selectionContainsFilter(env)) {
-    env.model.dispatch("REMOVE_TABLE", {
-      sheetId: env.model.getters.getActiveSheetId(),
-      target: env.model.getters.getSelectedZones(),
-    });
-    return;
-  }
-
-  if (cannotCreateFilter(env)) {
-    return;
-  }
-  env.model.selection.selectTableAroundSelection();
-  const sheetId = env.model.getters.getActiveSheetId();
-  const selection = env.model.getters.getSelectedZones();
-  interactiveCreateTable(env, sheetId, selection);
-}
 
 function groupHeadersAction(env: SpreadsheetChildEnv, dim: Dimension) {
   const selection = env.model.getters.getSelectedZone();

@@ -26,8 +26,9 @@ import { PieChartDefinition } from "../../src/types/chart/pie_chart";
 import { ScatterChartDefinition } from "../../src/types/chart/scatter_chart";
 import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart";
 import { Image } from "../../src/types/image";
+import { TableConfig } from "../../src/types/table";
 import { FigureSize } from "./../../src/types/figure";
-import { target, toRangesData } from "./helpers";
+import { target, toRangeData, toRangesData } from "./helpers";
 
 /**
  * Dispatch an UNDO to the model
@@ -889,12 +890,50 @@ export function unfreezeColumns(model: Model, sheetId: UID = model.getters.getAc
 export function createTable(
   model: Model,
   range: string,
+  config?: TableConfig,
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
   model.selection.selectTableAroundSelection();
   return model.dispatch("CREATE_TABLE", {
     sheetId,
-    target: target(range),
+    ranges: toRangesData(sheetId, range),
+    config,
+  });
+}
+
+export function updateTableConfig(
+  model: Model,
+  range: string,
+  config: Partial<TableConfig>,
+  sheetId: UID = model.getters.getActiveSheetId()
+): DispatchResult {
+  const zone = toZone(range);
+  const table = model.getters.getTable({ sheetId, col: zone.left, row: zone.top });
+  if (!table) {
+    throw new Error(`No table found at ${range}`);
+  }
+  return model.dispatch("UPDATE_TABLE", {
+    sheetId,
+    zone: table.range.zone,
+    config,
+  });
+}
+
+export function updateTableZone(
+  model: Model,
+  range: string,
+  newZone: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+): DispatchResult {
+  const zone = toZone(range);
+  const table = model.getters.getTable({ sheetId, col: zone.left, row: zone.top });
+  if (!table) {
+    throw new Error(`No table found at ${range}`);
+  }
+  return model.dispatch("UPDATE_TABLE", {
+    sheetId,
+    zone: table.range.zone,
+    newTableRange: toRangeData(sheetId, newZone),
   });
 }
 
@@ -908,7 +947,7 @@ export function updateFilter(
   return model.dispatch("UPDATE_FILTER", { col, row, sheetId, hiddenValues });
 }
 
-export function deleteFilter(
+export function deleteTable(
   model: Model,
   range: string,
   sheetId: UID = model.getters.getActiveSheetId()

@@ -69,6 +69,11 @@ topbarMenuRegistry
     ...ACTION_EDIT.pasteSpecialFormat,
     sequence: 20,
   })
+  .addChild("edit_table", ["edit"], {
+    ...ACTION_EDIT.editTable,
+    isVisible: ACTIONS.SELECTION_CONTAINS_SINGLE_TABLE,
+    sequence: 60,
+  })
   .addChild("find_and_replace", ["edit"], {
     ...ACTION_EDIT.findAndReplace,
     sequence: 65,
@@ -254,6 +259,10 @@ topbarMenuRegistry
   .addChild("insert_image", ["insert"], {
     ...ACTION_INSERT.insertImage,
     sequence: 55,
+  })
+  .addChild("insert_table", ["insert"], {
+    ...ACTION_INSERT.insertTable,
+    sequence: 57,
   })
   .addChild("insert_function", ["insert"], {
     ...ACTION_INSERT.insertFunction,
@@ -441,13 +450,8 @@ topbarMenuRegistry
     sequence: 30,
     separator: true,
   })
-  .addChild("add_data_filter", ["data"], {
-    ...ACTION_DATA.addDataFilter,
-    sequence: 40,
-    separator: true,
-  })
-  .addChild("remove_data_filter", ["data"], {
-    ...ACTION_DATA.removeDataFilter,
+  .addChild("add_remove_data_filter", ["data"], {
+    ...ACTION_DATA.createRemoveFilter,
     sequence: 40,
     separator: true,
   });

@@ -1,0 +1,85 @@
+<templates>
+  <t t-name="o-spreadsheet-TablePanel">
+    <div class="o-table-panel">
+      <Section>
+        <t t-set-slot="title">Style options</t>
+        <div class="d-flex flex-row">
+          <div class="w-50">
+            <div class="d-flex align-items-center">
+              <Checkbox
+                label="getCheckboxLabel('headerRow')"
+                name="'headerRow'"
+                value="tableConfig.numberOfHeaders > 0"
+                onChange.bind="this.updateHasHeaders"
+              />
+              <input
+                t-if="tableConfig.numberOfHeaders > 0"
+                t-att-value="tableConfig.numberOfHeaders"
+                type="number"
+                class="o-table-n-of-headers ms-2 o-number-input"
+                t-on-change="onChangeNumberOfHeaders"
+              />
+            </div>
+            <Checkbox
+              label="getCheckboxLabel('totalRow')"
+              name="'totalRow'"
+              value="tableConfig.totalRow"
+              onChange="(val) => this.updateTableConfig('totalRow', val)"
+            />
+            <Checkbox
+              label="getCheckboxLabel('bandedRows')"
+              name="'bandedRows'"
+              value="tableConfig.bandedRows"
+              onChange="(val) => this.updateTableConfig('bandedRows', val)"
+            />
+            <Checkbox
+              label="getCheckboxLabel('hasFilters')"
+              name="'hasFilters'"
+              value="tableConfig.hasFilters"
+              title="hasFilterCheckboxTooltip"
+              disabled="!this.canHaveFilters"
+              onChange.bind="this.updateHasFilters"
+            />
+          </div>
+          <div>
+            <Checkbox
+              label="getCheckboxLabel('firstColumn')"
+              name="'firstColumn'"
+              value="tableConfig.firstColumn"
+              onChange="(val) => this.updateTableConfig('firstColumn', val)"
+            />
+            <Checkbox
+              label="getCheckboxLabel('lastColumn')"
+              name="'lastColumn'"
+              value="tableConfig.lastColumn"
+              onChange="(val) => this.updateTableConfig('lastColumn', val)"
+            />
+            <Checkbox
+              label="getCheckboxLabel('bandedColumns')"
+              name="'bandedColumns'"
+              value="tableConfig.bandedColumns"
+              onChange="(val) => this.updateTableConfig('bandedColumns', val)"
+            />
+          </div>
+        </div>
+      </Section>
+      <Section>
+        <TableStylePicker table="props.table"/>
+      </Section>
+      <Section>
+        <t t-set-slot="title">Data range</t>
+        <SelectionInput
+          t-key="props.table.id"
+          ranges="[this.state.tableXc]"
+          hasSingleRange="true"
+          onSelectionChanged="(ranges) => this.onRangeChanged(ranges)"
+          onSelectionConfirmed.bind="this.onRangeConfirmed"
+        />
+        <ValidationMessages messages="errorMessages" msgType="'error'"/>
+      </Section>
+      <div class="o-sidePanelButtons">
+        <button t-on-click="deleteTable" class="o-table-delete o-button">Delete table</button>
+      </div>
+    </div>
+  </t>
+</templates>

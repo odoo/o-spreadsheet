@@ -3,7 +3,7 @@ import { MenuItemRegistry } from "../menu_items_registry";
 
 import * as ACTION_EDIT from "../../actions/edit_actions";
 import * as ACTION_INSERT from "../../actions/insert_actions";
-import { INSERT_LINK_NAME } from "../../actions/menu_items_actions";
+import * as ACTIONS from "../../actions/menu_items_actions";
 
 //------------------------------------------------------------------------------
 // Context Menu Registry
@@ -88,9 +88,20 @@ cellMenuRegistry
     sequence: 20,
     icon: "o-spreadsheet-Icon.DELETE_CELL_SHIFT_LEFT",
   })
+  .add("edit_table", {
+    ...ACTION_EDIT.editTable,
+    isVisible: ACTIONS.SELECTION_CONTAINS_SINGLE_TABLE,
+    sequence: 140,
+  })
+  .add("delete_table", {
+    ...ACTION_EDIT.deleteTable,
+    isVisible: ACTIONS.SELECTION_CONTAINS_SINGLE_TABLE,
+    sequence: 145,
+    separator: true,
+  })
   .add("insert_link", {
     ...ACTION_INSERT.insertLink,
-    name: INSERT_LINK_NAME,
+    name: ACTIONS.INSERT_LINK_NAME,
     sequence: 150,
     separator: true,
   });

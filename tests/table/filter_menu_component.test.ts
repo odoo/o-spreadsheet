@@ -154,21 +154,24 @@ describe("Filter menu component", () => {
 
     test("Confirm button updates the filter with formatted cell value", async () => {
       setFormat(model, "A4", "m/d/yyyy");
-      expect(model.getters.getFilterValues({ sheetId, col: 0, row: 0 })).toEqual([]);
+      expect(model.getters.getFilterHiddenValues({ sheetId, col: 0, row: 0 })).toEqual([]);
       await openFilterMenu();
       await simulateClick(".o-filter-menu-value:nth-of-type(2)");
       await simulateClick(".o-filter-menu-value:nth-of-type(3)");
       await simulateClick(".o-filter-menu-button-primary");
-      expect(model.getters.getFilterValues({ sheetId, col: 0, row: 0 })).toEqual(["1", "1/1/1900"]);
+      expect(model.getters.getFilterHiddenValues({ sheetId, col: 0, row: 0 })).toEqual([
+        "1",
+        "1/1/1900",
+      ]);
     });
 
     test("Cancel button don't save the changes", async () => {
-      expect(model.getters.getFilterValues({ sheetId, col: 0, row: 0 })).toEqual([]);
+      expect(model.getters.getFilterHiddenValues({ sheetId, col: 0, row: 0 })).toEqual([]);
       await openFilterMenu();
       await simulateClick(".o-filter-menu-value:nth-of-type(1)");
       await simulateClick(".o-filter-menu-value:nth-of-type(2)");
       await simulateClick(".o-filter-menu-button-cancel");
-      expect(model.getters.getFilterValues({ sheetId, col: 0, row: 0 })).toEqual([]);
+      expect(model.getters.getFilterHiddenValues({ sheetId, col: 0, row: 0 })).toEqual([]);
     });
 
     test("Can clear and select all", async () => {

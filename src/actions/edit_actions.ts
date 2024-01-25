@@ -152,6 +152,18 @@ export const mergeCells: ActionSpec = {
   icon: "o-spreadsheet-Icon.MERGE_CELL",
 };
 
+export const editTable: ActionSpec = {
+  name: () => _t("Edit table"),
+  execute: (env) => env.openSidePanel("TableSidePanel", {}),
+  icon: "o-spreadsheet-Icon.EDIT_TABLE",
+};
+
+export const deleteTable: ActionSpec = {
+  name: () => _t("Delete table"),
+  execute: ACTIONS.DELETE_SELECTED_TABLE,
+  icon: "o-spreadsheet-Icon.DELETE_TABLE",
+};
+
 function cannotMerge(env: SpreadsheetChildEnv): boolean {
   const zones = env.model.getters.getSelectedZones();
   const { top, left, right, bottom } = env.model.getters.getSelectedZone();

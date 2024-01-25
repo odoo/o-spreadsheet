@@ -1,4 +1,5 @@
 import { Color, HSLA, RGBA } from "../types";
+
 import { concat } from "./misc";
 
 const RBA_REGEX = /rgba?\(|\s+|\)/gi;
@@ -322,4 +323,22 @@ export function isSameColor(color1: Color, color2: Color, tolerance: number = 0)
 
 export function setColorAlpha(color: Color, alpha: number): string {
   return alpha === 1 ? toHex(color).slice(0, 7) : rgbaToHex({ ...colorToRGBA(color), a: alpha });
+}
+
+export function lightenColor(color: Color, percentage: number): Color {
+  const hsla = hexToHSLA(color);
+  if (percentage === 1) {
+    return "#fff";
+  }
+  hsla.l = percentage * (100 - hsla.l) + hsla.l;
+  return hslaToHex(hsla);
+}
+
+export function darkenColor(color: Color, percentage: number): Color {
+  const hsla = hexToHSLA(color);
+  if (percentage === 1) {
+    return "#000";
+  }
+  hsla.l = hsla.l - percentage * hsla.l;
+  return hslaToHex(hsla);
 }

@@ -43,6 +43,7 @@ import {
   setSelection,
   setStyle,
   updateFilter,
+  updateTableConfig,
 } from "../test_helpers/commands_helpers";
 import {
   clickCell,
@@ -764,6 +765,22 @@ describe("Grid component", () => {
       expect(model.getters.isFilterActive({ sheetId, ...toCartesian("A1") })).toBeTruthy();
       expect(grid.querySelectorAll(".filter-icon")).toHaveLength(0);
       expect(grid.querySelectorAll(".filter-icon-active")).toHaveLength(1);
+    });
+
+    test("Filter icon changes color on high contrast background", async () => {
+      createTable(model, "A1:A2");
+      updateTableConfig(model, "A1", { styleId: "None" });
+      await nextTick();
+      const icon = fixture.querySelector(".o-grid .o-filter-icon");
+      expect(icon?.classList).not.toContain(".o-high-contrast");
+
+      updateTableConfig(model, "A1", { styleId: "TableStyleLight8" });
+      await nextTick();
+      expect(icon?.classList).toContain("o-high-contrast");
+
+      setStyle(model, "A1", { fillColor: "#fff" });
+      await nextTick();
+      expect(icon?.classList).not.toContain(".o-high-contrast");
     });
 
     test("Clicking on a filter icon correctly open context menu", async () => {

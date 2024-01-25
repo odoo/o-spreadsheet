@@ -1,23 +1,104 @@
 import { Model } from "../../src";
-import { DEFAULT_BORDER_DESC, DEFAULT_FILTER_BORDER_DESC } from "../../src/constants";
-import { toZone } from "../../src/helpers";
-import { UID } from "../../src/types";
+import { CommandResult, UID } from "../../src/types";
 import {
   addRows,
   createTable,
-  deleteFilter,
+  deleteColumns,
   deleteRows,
+  deleteTable,
   foldHeaderGroup,
   groupHeaders,
-  hideColumns,
   hideRows,
   setCellContent,
   setFormat,
-  setZoneBorders,
+  unhideRows,
   updateFilter,
+  updateTableConfig,
+  updateTableZone,
 } from "../test_helpers/commands_helpers";
+import { getFilterHiddenValues } from "../test_helpers/helpers";
 
-describe("Filter Evaluation Plugin", () => {
+describe("Simple filter test", () => {
+  let model: Model;
+  let sheetId: UID;
+
+  beforeEach(() => {
+    model = new Model();
+    sheetId = model.getters.getActiveSheetId();
+  });
+
+  test("Can update  a filter", () => {
+    createTable(model, "A1:A5");
+    updateFilter(model, "A1", ["2", "A"]);
+    expect(model.getters.getFilterHiddenValues({ sheetId, col: 0, row: 0 })).toEqual(["2", "A"]);
+  });
+
+  test("Can update  a filter in readonly mode", () => {
+    createTable(model, "A1:A5");
+    model.updateMode("readonly");
+    updateFilter(model, "A1", ["2", "A"]);
+    expect(model.getters.getFilterHiddenValues({ sheetId, col: 0, row: 0 })).toEqual(["2", "A"]);
+  });
+
+  test("Update filter is correctly rejected when target is not inside a table", () => {
+    createTable(model, "A1:A10");
+    expect(updateFilter(model, "B1", [])).toBeCancelledBecause(CommandResult.FilterNotFound);
+  });
+
+  test("Filter is disabled if its header row is hidden by the user", () => {
+    createTable(model, "A1:A3");
+    setCellContent(model, "A2", "28");
+    updateFilter(model, "A1", ["28"]);
+    expect(model.getters.isRowHidden(sheetId, 1)).toBe(true);
+
+    hideRows(model, [0]);
+    expect(model.getters.isRowHidden(sheetId, 1)).toBe(false);
+  });
+
+  test("Filter is disabled if its header row is hidden by another filter", () => {
+    createTable(model, "A2:A3");
+    setCellContent(model, "A3", "15");
+    updateFilter(model, "A2", ["15"]);
+    expect(model.getters.isRowHidden(sheetId, 2)).toBe(true);
+
+    createTable(model, "B1:B2");
+    setCellContent(model, "B2", "28");
+    updateFilter(model, "B1", ["28"]);
+    expect(model.getters.isRowHidden(sheetId, 1)).toBe(true);
+    expect(model.getters.isRowHidden(sheetId, 2)).toBe(false);
+  });
+
+  test("Filtered rows should persist after hiding and unhiding multiple rows", () => {
+    const model = new Model();
+
+    setCellContent(model, "A4", "D");
+
+    createTable(model, "A3:A4");
+    updateFilter(model, "A3", ["D"]);
+    expect(model.getters.isRowFiltered(sheetId, 3)).toEqual(true);
+    hideRows(model, [2, 3]);
+    unhideRows(model, [2, 3]);
+    expect(model.getters.isRowFiltered(sheetId, 3)).toEqual(true);
+  });
+
+  test("Can delete row/columns on duplicated sheet with filters", () => {
+    createTable(model, "B1:B3");
+    updateFilter(model, "B1", ["C"]);
+
+    const sheet2Id = "42";
+    model.dispatch("DUPLICATE_SHEET", {
+      sheetId: sheetId,
+      sheetIdTo: sheet2Id,
+    });
+    expect(getFilterHiddenValues(model, sheet2Id)).toMatchObject([{ zone: "B1:B3", value: ["C"] }]);
+    deleteColumns(model, ["A"], sheet2Id);
+
+    expect(getFilterHiddenValues(model, sheetId)).toMatchObject([{ zone: "B1:B3", value: ["C"] }]);
+    expect(getFilterHiddenValues(model, sheet2Id)).toMatchObject([{ zone: "A1:A3", value: ["C"] }]);
+  });
+});
+
+describe("Filter Evaluation", () => {
   let model: Model;
   let sheetId: UID;
 
@@ -25,19 +106,19 @@ describe("Filter Evaluation Plugin", () => {
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
 
+    createTable(model, "A1:A5");
     setCellContent(model, "A1", "A1");
     setCellContent(model, "A2", "A2");
     setCellContent(model, "A3", "A3");
     setCellContent(model, "A4", "A4");
     setCellContent(model, "A5", "A5");
-    createTable(model, "A1:A5");
 
+    createTable(model, "B1:B5");
     setCellContent(model, "B1", "Header");
     setCellContent(model, "B2", "1");
     setCellContent(model, "B3", "1");
     setCellContent(model, "B4", "2");
     setCellContent(model, "B5", "2");
-    createTable(model, "B1:B5");
   });
 
   test.each(["normal", "readonly", "dashboard"] as const)("Can filter a row", (mode) => {
@@ -63,7 +144,7 @@ describe("Filter Evaluation Plugin", () => {
     setCellContent(model, "A2", "Hi");
     updateFilter(model, "A2", ["Hi"]);
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
-    deleteFilter(model, "A1:A3");
+    deleteTable(model, "A1:A3");
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(false);
   });
 
@@ -75,7 +156,7 @@ describe("Filter Evaluation Plugin", () => {
     expect(model.getters.isRowHidden(sheetId, 2)).toEqual(true);
   });
 
-  test("Header isn't filtered", () => {
+  test("Header is not filtered", () => {
     updateFilter(model, "A1", ["A1"]);
     expect(model.getters.isRowHidden(sheetId, 0)).toEqual(false);
   });
@@ -107,55 +188,44 @@ describe("Filter Evaluation Plugin", () => {
     expect(model.getters.isRowHidden(sheetId, 1)).toEqual(false);
   });
 
-  test("Filters borders are correct", () => {
-    createTable(model, "A7:B9");
-    const zone = toZone("A7:B9");
-    for (let row = zone.top; row <= zone.bottom; row++) {
-      for (let col = zone.left; col <= zone.right; col++) {
-        const filterBorder = model.getters.getCellBorderWithTableBorder({ sheetId, col, row });
-        const expected = {};
-        expected["top"] = row === zone.top ? DEFAULT_FILTER_BORDER_DESC : undefined;
-        expected["bottom"] = row === zone.bottom ? DEFAULT_FILTER_BORDER_DESC : undefined;
-        expected["left"] = col === zone.left ? DEFAULT_FILTER_BORDER_DESC : undefined;
-        expected["right"] = col === zone.right ? DEFAULT_FILTER_BORDER_DESC : undefined;
-        expect(filterBorder).toEqual(expected);
-      }
-    }
+  test("Updating a table zone keep the filtered values if the filter header did not move", () => {
+    updateFilter(model, "A1", ["A2"]);
+    expect(getFilterHiddenValues(model, sheetId)).toMatchObject([{ zone: "A1:A5", value: ["A2"] }]);
+    expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
+
+    updateTableZone(model, "A1:A5", "A1:A6");
+    expect(getFilterHiddenValues(model, sheetId)).toMatchObject([{ zone: "A1:A6", value: ["A2"] }]);
+    expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
   });
 
-  test("Filters borders don't overwrite cell borders", () => {
-    setZoneBorders(model, { position: "left" }, ["A7:A9"]);
-    createTable(model, "A7:A9");
-    const zone = toZone("A7:A9");
-    for (let row = zone.top; row <= zone.bottom; row++) {
-      const filterBorder = model.getters.getCellBorderWithTableBorder({ sheetId, col: 0, row });
-      const expected = {
-        top: row === zone.top ? DEFAULT_FILTER_BORDER_DESC : undefined,
-        bottom: row === zone.bottom ? DEFAULT_FILTER_BORDER_DESC : undefined,
-        left: DEFAULT_BORDER_DESC,
-        right: DEFAULT_FILTER_BORDER_DESC,
-      };
-      expect(filterBorder).toEqual(expected);
-    }
+  test("Updating a table zone drops the filtered values if the filter header moved", () => {
+    updateFilter(model, "A1", ["A3"]);
+    expect(getFilterHiddenValues(model, sheetId)).toMatchObject([{ zone: "A1:A5", value: ["A3"] }]);
+    expect(model.getters.isRowHidden(sheetId, 2)).toEqual(true);
+
+    updateTableZone(model, "A1:A5", "A2:A5");
+    expect(getFilterHiddenValues(model, sheetId)).toMatchObject([{ zone: "A2:A5", value: [] }]);
+    expect(model.getters.isRowHidden(sheetId, 2)).toEqual(false);
   });
 
-  test("Table borders are correct when cols and rows of the table are hidden", () => {
-    createTable(model, "A7:E14");
-    hideColumns(model, ["E", "A", "B"]);
-    hideRows(model, [6, 12, 13]);
+  test("Updating a table zone updates the hidden rows", () => {
+    updateFilter(model, "A1", ["A2"]);
+    expect(getFilterHiddenValues(model, sheetId)).toMatchObject([{ zone: "A1:A5", value: ["A2"] }]);
+    expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
 
-    const zone = toZone("C8:D12");
-    for (let row = zone.top; row <= zone.bottom; row++) {
-      for (let col = zone.left; col <= zone.right; col++) {
-        const filterBorder = model.getters.getCellBorderWithTableBorder({ sheetId, col, row });
-        const expected = {};
-        expected["top"] = row === zone.top ? DEFAULT_FILTER_BORDER_DESC : undefined;
-        expected["bottom"] = row === zone.bottom ? DEFAULT_FILTER_BORDER_DESC : undefined;
-        expected["left"] = col === zone.left ? DEFAULT_FILTER_BORDER_DESC : undefined;
-        expected["right"] = col === zone.right ? DEFAULT_FILTER_BORDER_DESC : undefined;
-        expect(filterBorder).toEqual(expected);
-      }
-    }
+    updateTableZone(model, "A1:A5", "E1:E3");
+    expect(getFilterHiddenValues(model, sheetId)).toMatchObject([{ zone: "E1:E3", value: [] }]);
+    expect(model.getters.isRowHidden(sheetId, 1)).toEqual(false);
+  });
+
+  test("Removing the filters from a table updates the hidden rows", () => {
+    updateFilter(model, "A1", ["A2"]);
+    expect(getFilterHiddenValues(model, sheetId)).toMatchObject([{ zone: "A1:A5", value: ["A2"] }]);
+    expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
+
+    updateTableConfig(model, "A1:A5", { hasFilters: false });
+    expect(model.getters.getFilter({ sheetId, col: 0, row: 0 })).toBeUndefined();
+    expect(model.getters.isRowHidden(sheetId, 1)).toEqual(false);
   });
 
   test("Sheet duplication after importing table don't break", () => {
@@ -204,7 +274,7 @@ describe("Filter Evaluation Plugin", () => {
     expect(model.getters.isRowFiltered(sheetId, 2)).toEqual(true);
   });
 
-  test("Folding a group after filtering some rows doesn't hide all rows of the sheet", () => {
+  test("Folding a group after filtering some rows does not hide all rows of the sheet", () => {
     const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
     const sheetId = model.getters.getActiveSheetId();
 
@@ -219,7 +289,7 @@ describe("Filter Evaluation Plugin", () => {
     expect(model.getters.isRowFiltered(sheetId, 4)).toEqual(false);
   });
 
-  test("Grouping headers after filtering some rows doesn't break the data filter state", () => {
+  test("Grouping headers after filtering some rows does not break the data filter state", () => {
     const model = new Model({ sheets: [{ colNumber: 8, rowNumber: 8 }] });
     const sheetId = model.getters.getActiveSheetId();
 
