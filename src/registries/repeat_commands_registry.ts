@@ -49,8 +49,8 @@ repeatCommandTransformRegistry.add("SET_FORMATTING", genericRepeat);
 repeatCommandTransformRegistry.add("CLEAR_FORMATTING", genericRepeat);
 repeatCommandTransformRegistry.add("SET_BORDER", genericRepeat);
 
-repeatCommandTransformRegistry.add("CREATE_FILTER_TABLE", genericRepeat);
-repeatCommandTransformRegistry.add("REMOVE_FILTER_TABLE", genericRepeat);
+repeatCommandTransformRegistry.add("CREATE_TABLE", genericRepeat);
+repeatCommandTransformRegistry.add("REMOVE_TABLE", genericRepeat);
 
 repeatCommandTransformRegistry.add("HIDE_SHEET", genericRepeat);
 

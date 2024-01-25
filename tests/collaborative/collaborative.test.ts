@@ -14,8 +14,8 @@ import {
   clearCell,
   copy,
   createChart,
-  createFilter,
   createSheet,
+  createTable,
   deleteRows,
   deleteSheet,
   groupHeaders,
@@ -688,31 +688,31 @@ describe("Multi users synchronisation", () => {
     });
   });
 
-  test("Create overlapping data filter concurrently", () => {
+  test("Create overlapping tables concurrently", () => {
     const sheetId = alice.getters.getActiveSheetId();
     network.concurrent(() => {
-      createFilter(alice, "A1:B4");
-      createFilter(bob, "B1:C4");
+      createTable(alice, "A1:B4");
+      createTable(bob, "B1:C4");
     });
 
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getFilterTables(sheetId).length,
+      (user) => user.getters.getTables(sheetId).length,
       1
     );
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getFilterTables(sheetId).map((table) => table.zone),
-      alice.getters.getFilterTables(sheetId).map((table) => table.zone)
+      (user) => user.getters.getTables(sheetId).map((table) => table.zone),
+      alice.getters.getTables(sheetId).map((table) => table.zone)
     );
   });
 
-  test("Create overlapping data filter then merges concurrently", () => {
+  test("Create overlapping tables then merges concurrently", () => {
     const sheetId = alice.getters.getActiveSheetId();
     network.concurrent(() => {
-      createFilter(alice, "A1:B4");
+      createTable(alice, "A1:B4");
       merge(bob, "B1:C4");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getFilterTables(sheetId).length,
+      (user) => user.getters.getTables(sheetId).length,
       1
     );
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
@@ -721,33 +721,33 @@ describe("Multi users synchronisation", () => {
     );
   });
 
-  test("Create overlapping merges then data filter concurrently", () => {
+  test("Create overlapping merges then tables concurrently", () => {
     const sheetId = alice.getters.getActiveSheetId();
     network.concurrent(() => {
       merge(bob, "B1:C4");
-      createFilter(alice, "A1:B4");
+      createTable(alice, "A1:B4");
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getMerges(sheetId),
       bob.getters.getMerges(sheetId)
     );
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getFilterTables(sheetId).length,
+      (user) => user.getters.getTables(sheetId).length,
       0
     );
   });
 
-  test("duplicate sheet and create data filter concurrently", () => {
+  test("duplicate sheet and create tables concurrently", () => {
     const firstSheetId = alice.getters.getActiveSheetId();
     network.concurrent(() => {
       alice.dispatch("DUPLICATE_SHEET", {
         sheetId: "Sheet1",
         sheetIdTo: "sheet2",
       });
-      createFilter(charlie, "A1:B4", firstSheetId);
+      createTable(charlie, "A1:B4", firstSheetId);
     });
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => user.getters.getFilterTables("sheet2"),
+      (user) => user.getters.getTables("sheet2"),
       []
     );
     expect([alice, bob, charlie]).toHaveSynchronizedValue(

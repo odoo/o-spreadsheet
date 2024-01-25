@@ -9,7 +9,7 @@ import { ConditionalFormat, Currency, Pixel, SpreadsheetChildEnv, Style } from "
 import { FileStore } from "./__mocks__/mock_file_store";
 import {
   addCellToSelection,
-  createFilter,
+  createTable,
   selectCell,
   setAnchorCorner,
   setCellContent,
@@ -24,7 +24,7 @@ import {
   simulateClick,
   triggerMouseEvent,
 } from "./test_helpers/dom_helper";
-import { getBorder, getCell, getFilterTable, getStyle } from "./test_helpers/getters_helpers";
+import { getBorder, getCell, getStyle, getTable } from "./test_helpers/getters_helpers";
 import {
   getFigureIds,
   getNode,
@@ -266,7 +266,7 @@ describe("TopBar component", () => {
     });
 
     test("Filter tool change from create filter to remove filter when a filter is selected", async () => {
-      createFilter(model, "A2:B3");
+      createTable(model, "A2:B3");
       await nextTick();
       expect(fixture.querySelectorAll(removeFilterTool).length).toEqual(0);
       expect(fixture.querySelectorAll(createFilterTool).length).toEqual(1);
@@ -277,7 +277,7 @@ describe("TopBar component", () => {
       expect(fixture.querySelectorAll(createFilterTool).length).toEqual(0);
     });
 
-    test("Adjacent cells selection while applying filter on single cell", async () => {
+    test("Adjacent cells selection while creating table on single cell", async () => {
       setCellContent(model, "A1", "A");
       setCellContent(model, "A2", "A3");
       setCellContent(model, "B2", "B");
@@ -290,7 +290,7 @@ describe("TopBar component", () => {
       await nextTick();
       const selection = model.getters.getSelectedZone();
       expect(zoneToXc(selection)).toEqual("A1:D4");
-      expect(getFilterTable(model, "A1")!.zone).toEqual(toZone("A1:D4"));
+      expect(getTable(model, "A1")!.zone).toEqual(toZone("A1:D4"));
     });
   });
 

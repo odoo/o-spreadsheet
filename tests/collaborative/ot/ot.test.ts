@@ -31,19 +31,19 @@ describe("OT with DELETE_FIGURE", () => {
   });
 });
 
-describe("OT with CREATE_FILTER_TABLE", () => {
-  describe.each([TEST_COMMANDS.CREATE_FILTER_TABLE, TEST_COMMANDS.ADD_MERGE])(
-    "CREATE_FILTER_TABLE with CREATE_FILTER_TABLE & ADD_MERGE",
+describe("OT with CREATE_TABLE", () => {
+  describe.each([TEST_COMMANDS.CREATE_TABLE, TEST_COMMANDS.ADD_MERGE])(
+    "CREATE_TABLE with CREATE_TABLE & ADD_MERGE",
     (cmd) => {
       test("Overlapping target", () => {
         const zones = target("A1");
-        const createTableCmd = { ...TEST_COMMANDS.CREATE_FILTER_TABLE, target: zones };
+        const createTableCmd = { ...TEST_COMMANDS.CREATE_TABLE, target: zones };
         const executed = { ...cmd, target: zones };
         expect(transform(createTableCmd, executed)).toBeUndefined();
       });
 
       test("distinct targets", () => {
-        const createTableCommand = { ...TEST_COMMANDS.CREATE_FILTER_TABLE, target: target("A1") };
+        const createTableCommand = { ...TEST_COMMANDS.CREATE_TABLE, target: target("A1") };
         const executed = { ...cmd, target: target("B2") };
         expect(transform(createTableCommand, executed)).toEqual(createTableCommand);
       });

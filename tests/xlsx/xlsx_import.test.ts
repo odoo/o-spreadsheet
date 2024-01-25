@@ -502,17 +502,17 @@ describe("Import xlsx data", () => {
     }
   });
 
-  test("tables with headers are imported as FilterTables", () => {
+  test("tables with headers are imported as tables", () => {
     const sheet = getWorkbookSheet("jestTable", convertedData)!;
-    expect(sheet.filterTables).toHaveLength(3);
-    expect(sheet.filterTables[0]).toEqual({ range: "C3:J6" });
-    expect(sheet.filterTables[1]).toEqual({ range: "C11:D12" });
-    expect(sheet.filterTables[2]).toEqual({ range: "C30:D32" });
+    expect(sheet.tables).toHaveLength(3);
+    expect(sheet.tables[0]).toEqual({ range: "C3:J6" });
+    expect(sheet.tables[1]).toEqual({ range: "C11:D12" });
+    expect(sheet.tables[2]).toEqual({ range: "C30:D32" });
   });
 
   test("rows filtered by a table filter are hidden", () => {
     const sheet = getWorkbookSheet("jestTable", convertedData)!;
-    expect(sheet.filterTables[2]).toEqual({ range: "C30:D32" });
+    expect(sheet.tables[2]).toEqual({ range: "C30:D32" });
     expect(sheet.cells["C31"]?.content).toEqual("Hidden");
     expect(sheet.rows[30].isHidden).toBeTruthy();
   });

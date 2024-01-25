@@ -9,11 +9,11 @@ import { adaptFormulaToExcel } from "../../src/xlsx/functions/cells";
 import { escapeXml, parseXML } from "../../src/xlsx/helpers/xml_helpers";
 import {
   createChart,
-  createFilter,
   createGaugeChart,
   createImage,
   createScorecardChart,
   createSheet,
+  createTable,
   foldHeaderGroup,
   groupHeaders,
   merge,
@@ -1294,7 +1294,7 @@ describe("Test XLSX export", () => {
   describe("Export data filters", () => {
     test("Table headers formula are replaced with their evaluated formatted value", () => {
       const model = new Model();
-      createFilter(model, "A1:A4");
+      createTable(model, "A1:A4");
       setCellContent(model, "A1", "=DATE(1,1,1)");
       setCellContent(model, "A2", "=DATE(1,1,1)");
       const exported = getExportedExcelData(model);
@@ -1309,7 +1309,7 @@ describe("Test XLSX export", () => {
 
     test("Table headers are replaced by unique value", () => {
       const model = new Model();
-      createFilter(model, "A1:B4");
+      createTable(model, "A1:B4");
       setCellContent(model, "A1", "Hello");
       setCellContent(model, "B1", "Hello");
       const exported = getExportedExcelData(model);
@@ -1322,63 +1322,60 @@ describe("Test XLSX export", () => {
 
     test("Filtered values are exported and rows are hidden", () => {
       const model = new Model();
-      createFilter(model, "A1:B4");
+      createTable(model, "A1:B4");
       setCellContent(model, "A2", "Hello");
       setCellContent(model, "A3", "Konnichiwa");
       setCellContent(model, "A4", '=CONCAT("Bon", "jour")');
       updateFilter(model, "A1", ["Konnichiwa"]);
       const exported = getExportedExcelData(model);
       // Filtered values are the values that are displayed in xlsx, not the values that are hidden
-      expect(exported.sheets[0].filterTables[0].filters[0].displayedValues).toEqual([
-        "Hello",
-        "Bonjour",
-      ]);
+      expect(exported.sheets[0].tables[0].filters[0].displayedValues).toEqual(["Hello", "Bonjour"]);
       expect(exported.sheets[0].rows[2].isHidden).toBeTruthy();
     });
 
     test("Empty filters aren't exported", () => {
       const model = new Model();
-      createFilter(model, "A1:B4");
+      createTable(model, "A1:B4");
       setCellContent(model, "A2", "Hello");
       setCellContent(model, "B2", "Hello");
       const exported = getExportedExcelData(model);
-      expect(exported.sheets[0].filterTables[0].filters).toHaveLength(0);
+      expect(exported.sheets[0].tables[0].filters).toHaveLength(0);
     });
 
     test("Filtered values are not duplicated", () => {
       const model = new Model();
-      createFilter(model, "A1:B4");
+      createTable(model, "A1:B4");
       setCellContent(model, "A2", "Konnichiwa");
       setCellContent(model, "A3", "Konnichiwa");
       setCellContent(model, "A4", "5");
       updateFilter(model, "A1", ["5"]);
       const exported = getExportedExcelData(model);
-      expect(exported.sheets[0].filterTables[0].filters[0].displayedValues).toEqual(["Konnichiwa"]);
+      expect(exported.sheets[0].tables[0].filters[0].displayedValues).toEqual(["Konnichiwa"]);
     });
 
     test("Empty cells are not added to displayedValues", () => {
       const model = new Model();
-      createFilter(model, "A1:B4");
+      createTable(model, "A1:B4");
       setCellContent(model, "A2", "5");
       updateFilter(model, "A1", ["5"]);
       const exported = getExportedExcelData(model);
-      expect(exported.sheets[0].filterTables[0].filters[0].displayedValues).toEqual([]);
+      expect(exported.sheets[0].tables[0].filters[0].displayedValues).toEqual([]);
     });
 
     test("Formulas evaluated to empty string are not added to displayedValues", () => {
       const model = new Model();
-      createFilter(model, "A1:B4");
+      createTable(model, "A1:B4");
       setCellContent(model, "A2", "5");
       updateFilter(model, "A1", ["5"]);
       setCellContent(model, "A3", '=""');
       const exported = getExportedExcelData(model);
-      expect(exported.sheets[0].filterTables[0].filters[0].displayedValues).toEqual([]);
-      expect(exported.sheets[0].filterTables[0].filters[0].displayBlanks).toEqual(true);
+      expect(exported.sheets[0].tables[0].filters[0].displayedValues).toEqual([]);
+      expect(exported.sheets[0].tables[0].filters[0].displayBlanks).toEqual(true);
     });
 
     test("Export data filters snapshot", async () => {
       const model = new Model();
-      createFilter(model, "A1:C4");
+      createTable(model, "A1:C4");
 
       setCellContent(model, "A1", "Hello");
       setCellContent(model, "A2", "5");

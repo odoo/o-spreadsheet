@@ -201,8 +201,8 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "UPDATE_CHART",
 
   /** FILTERS */
-  "CREATE_FILTER_TABLE",
-  "REMOVE_FILTER_TABLE",
+  "CREATE_TABLE",
+  "REMOVE_TABLE",
 
   /** IMAGE */
   "CREATE_IMAGE",
@@ -473,12 +473,12 @@ export interface CreateImageOverCommand extends SheetDependentCommand {
 // Filters
 //------------------------------------------------------------------------------
 
-export interface CreateFilterTableCommand extends TargetDependentCommand {
-  type: "CREATE_FILTER_TABLE";
+export interface CreateTableCommand extends TargetDependentCommand {
+  type: "CREATE_TABLE";
 }
 
-export interface RemoveFilterTableCommand extends TargetDependentCommand {
-  type: "REMOVE_FILTER_TABLE";
+export interface RemoveTableCommand extends TargetDependentCommand {
+  type: "REMOVE_TABLE";
 }
 
 export interface UpdateFilterCommand extends PositionDependentCommand {
@@ -903,8 +903,8 @@ export type CoreCommand =
   | CreateImageOverCommand
 
   /** FILTERS */
-  | CreateFilterTableCommand
-  | RemoveFilterTableCommand
+  | CreateTableCommand
+  | RemoveTableCommand
 
   /** HEADER GROUP */
   | GroupHeadersCommand

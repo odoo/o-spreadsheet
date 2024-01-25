@@ -23,8 +23,8 @@ import {
 import {
   activateSheet,
   copy,
-  createFilter,
   createSheet,
+  createTable,
   deleteCells,
   insertCells,
   paste,
@@ -65,8 +65,8 @@ describe("Repeat commands basics", () => {
       "SET_FORMATTING",
       "CLEAR_FORMATTING",
       "SET_BORDER",
-      "CREATE_FILTER_TABLE",
-      "REMOVE_FILTER_TABLE",
+      "CREATE_TABLE",
+      "REMOVE_TABLE",
       "ADD_COLUMNS_ROWS",
       "REMOVE_COLUMNS_ROWS",
       "HIDE_COLUMNS_ROWS",
@@ -141,8 +141,8 @@ describe("Repeat command transform generics", () => {
     TEST_COMMANDS.SET_FORMATTING,
     TEST_COMMANDS.CLEAR_FORMATTING,
     TEST_COMMANDS.SET_BORDER,
-    TEST_COMMANDS.CREATE_FILTER_TABLE,
-    TEST_COMMANDS.REMOVE_FILTER_TABLE,
+    TEST_COMMANDS.CREATE_TABLE,
+    TEST_COMMANDS.REMOVE_TABLE,
     TEST_COMMANDS.HIDE_SHEET,
   ])("Sheet dependant command are adapted to current sheet %s", (command: CoreCommand) => {
     createSheet(model, { sheetId: "42" });
@@ -163,8 +163,8 @@ describe("Repeat command transform generics", () => {
   test.each([
     TEST_COMMANDS.ADD_MERGE,
     TEST_COMMANDS.REMOVE_MERGE,
-    TEST_COMMANDS.CREATE_FILTER_TABLE,
-    TEST_COMMANDS.REMOVE_FILTER_TABLE,
+    TEST_COMMANDS.CREATE_TABLE,
+    TEST_COMMANDS.REMOVE_TABLE,
     TEST_COMMANDS.SET_FORMATTING,
     TEST_COMMANDS.CLEAR_FORMATTING,
   ])(
@@ -377,7 +377,7 @@ describe("Repeat local commands", () => {
       ...TEST_COMMANDS.ADD_CONDITIONAL_FORMAT,
       ranges: toRangesData(sheetId, "A1:A2"),
     });
-    createFilter(model, "A1:A2");
+    createTable(model, "A1:A2");
 
     setSelection(model, ["A1:A2"]);
     copy(model);

@@ -24,8 +24,8 @@ import { MockClipboardData, getClipboardEvent } from "../test_helpers/clipboard"
 import {
   copy,
   createChart,
-  createFilter,
   createSheet,
+  createTable,
   cut,
   foldHeaderGroup,
   freezeColumns,
@@ -733,7 +733,7 @@ describe("Grid component", () => {
     });
 
     test("Filter icon is correctly rendered", async () => {
-      createFilter(model, "B2:C3");
+      createTable(model, "B2:C3");
       await nextTick();
 
       const icons = fixture.querySelectorAll(".o-grid-cell-icon");
@@ -752,7 +752,7 @@ describe("Grid component", () => {
     });
 
     test("Filter icon change when filter is active", async () => {
-      createFilter(model, "A1:A2");
+      createTable(model, "A1:A2");
       await nextTick();
       const grid = fixture.querySelector(".o-grid")!;
       expect(grid.querySelectorAll(".filter-icon")).toHaveLength(1);
@@ -767,7 +767,7 @@ describe("Grid component", () => {
     });
 
     test("Clicking on a filter icon correctly open context menu", async () => {
-      createFilter(model, "A1:A2");
+      createTable(model, "A1:A2");
       await nextTick();
       await simulateClick(".o-filter-icon");
       expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
@@ -1495,7 +1495,7 @@ describe("Copy paste keyboard shortcut", () => {
 
   test("When there is a opened cell popover, hitting esc key will only close the popover and not clean the clipboard visible zones", async () => {
     setCellContent(model, "A1", "things");
-    createFilter(model, "A1:A2");
+    createTable(model, "A1:A2");
     selectCell(model, "A1");
     copy(model, "A1");
     selectCell(model, "A2");

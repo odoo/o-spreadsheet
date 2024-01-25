@@ -1,9 +1,9 @@
-import { FilterTableId, UID, Zone } from "../types/misc";
+import { TableId, UID, Zone } from "../types/misc";
 import { range } from "./misc";
 import { UuidGenerator } from "./uuid";
 
-export interface FilterTable {
-  readonly id: FilterTableId;
+export interface Table {
+  readonly id: TableId;
   readonly zone: Zone;
   readonly filters: Filter[];
   readonly contentZone: Zone | undefined;
@@ -16,7 +16,7 @@ export interface Filter {
   readonly filteredZone: Zone | undefined;
 }
 
-export function createFilterTable(id: UID, zone: Zone): FilterTable {
+export function createTable(id: UID, zone: Zone): Table {
   const filters: Filter[] = [];
   const uuid = new UuidGenerator();
   for (const i of range(zone.left, zone.right + 1)) {

@@ -13,7 +13,7 @@ interface ClipboardContent {
   sheetId: UID;
 }
 
-export class FilterClipboardHandler extends AbstractCellClipboardHandler<ClipboardContent, any> {
+export class TableClipboardHandler extends AbstractCellClipboardHandler<ClipboardContent, any> {
   copy(data: ClipboardCellData): ClipboardContent | undefined {
     if (!data.zones.length) {
       return;
@@ -31,7 +31,7 @@ export class FilterClipboardHandler extends AbstractCellClipboardHandler<Clipboa
 
     const tables: CopiedTable[] = [];
     for (const zone of zones) {
-      for (const table of this.getters.getFilterTablesInZone(sheetId, zone)) {
+      for (const table of this.getters.getTablesInZone(sheetId, zone)) {
         const values: Array<string[]> = [];
         for (const col of range(table.zone.left, table.zone.right + 1)) {
           values.push(this.getters.getFilterValues({ sheetId, col, row: table.zone.top }));
@@ -69,16 +69,16 @@ export class FilterClipboardHandler extends AbstractCellClipboardHandler<Clipboa
   }
 
   private pasteFromCut(sheetId: UID, target: Zone[], content: ClipboardContent) {
-    for (const filterTable of content.tables) {
-      this.dispatch("REMOVE_FILTER_TABLE", {
+    for (const table of content.tables) {
+      this.dispatch("REMOVE_TABLE", {
         sheetId: content.sheetId,
-        target: [filterTable.zone],
+        target: [table.zone],
       });
     }
     this.pasteCopiedTables(sheetId, target, content);
   }
 
-  /** Paste the filter tables that are in the state */
+  /** Paste the tables that are in the state */
   private pasteCopiedTables(sheetId: UID, target: Zone[], content: ClipboardContent) {
     const selection = target[0];
     const cutZone = content.zones[0];
@@ -88,7 +88,7 @@ export class FilterClipboardHandler extends AbstractCellClipboardHandler<Clipboa
     ];
     for (const table of content.tables) {
       const newTableZone = createAdaptedZone(table.zone, "both", "MOVE", cutOffset);
-      this.dispatch("CREATE_FILTER_TABLE", { sheetId, target: [newTableZone] });
+      this.dispatch("CREATE_TABLE", { sheetId, target: [newTableZone] });
       for (const i of range(0, table.filtersValues.length)) {
         this.dispatch("UPDATE_FILTER", {
           sheetId,

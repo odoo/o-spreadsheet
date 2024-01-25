@@ -116,7 +116,7 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
     ];
 
     const tablesNode = createTablesForSheet(sheet, sheetIndex, currentTableIndex, construct, files);
-    currentTableIndex += sheet.filterTables.length;
+    currentTableIndex += sheet.tables.length;
 
     // Figures and Charts
     let drawingNode = escapeXml``;
@@ -224,12 +224,12 @@ function createTablesForSheet(
   files: XLSXExportFile[]
 ): XMLString {
   let currentTableId = startingTableId;
-  if (!sheetData.filterTables.length) return new XMLString("");
+  if (!sheetData.tables.length) return new XMLString("");
 
   const sheetRelFile = `xl/worksheets/_rels/sheet${sheetId}.xml.rels`;
 
   const tableParts: XMLString[] = [];
-  for (const table of sheetData.filterTables) {
+  for (const table of sheetData.tables) {
     const tableRelId = addRelsToFile(construct.relsFiles, sheetRelFile, {
       target: `../tables/table${currentTableId}.xml`,
       type: XLSX_RELATION_TYPE.table,
@@ -247,7 +247,7 @@ function createTablesForSheet(
     currentTableId++;
   }
   return escapeXml/*xml*/ `
-    <tableParts count="${sheetData.filterTables.length}">
+    <tableParts count="${sheetData.tables.length}">
       ${joinXmlNodes(tableParts)}
     </tableParts>
 `;

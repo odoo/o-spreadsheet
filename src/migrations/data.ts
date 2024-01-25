@@ -26,7 +26,7 @@ import { normalizeV9 } from "./legacy_tools";
  * a breaking change is made in the way the state is handled, and an upgrade
  * function should be defined
  */
-export const CURRENT_VERSION = 14;
+export const CURRENT_VERSION = 15;
 const INITIAL_SHEET_ID = "Sheet1";
 
 /**
@@ -367,6 +367,18 @@ const MIGRATIONS: Migration[] = [
       return data;
     },
   },
+  {
+    description: "Rename filterTable to tables",
+    from: 14,
+    to: 15,
+    applyMigration(data: any): any {
+      for (const sheetData of data.sheets || []) {
+        sheetData.tables = sheetData.tables || sheetData.filterTables || [];
+        delete sheetData.filterTables;
+      }
+      return data;
+    },
+  },
 ];
 
 /**
@@ -555,7 +567,7 @@ export function createEmptySheet(sheetId: UID, name: string): SheetData {
     merges: [],
     conditionalFormats: [],
     figures: [],
-    filterTables: [],
+    tables: [],
     isVisible: true,
   };
 }

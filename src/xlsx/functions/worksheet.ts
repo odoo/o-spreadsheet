@@ -134,7 +134,7 @@ export function addRows(
 }
 
 function isCellTableHeader(col: HeaderIndex, row: HeaderIndex, sheet: ExcelSheetData): boolean {
-  return sheet.filterTables.some((table) => {
+  return sheet.tables.some((table) => {
     const zone = toZone(table.range);
     const headerZone = { ...zone, bottom: zone.top };
     return isInside(col, row, headerZone);

@@ -1,6 +1,6 @@
 import { areZonesContinuous, numberToLetters } from "../helpers";
-import { interactiveAddFilter } from "../helpers/ui/filter_interactive";
 import { interactiveFreezeColumnsRows } from "../helpers/ui/freeze_interactive";
+import { interactiveCreateTable } from "../helpers/ui/table_interactive";
 import { _t } from "../translation";
 import { SpreadsheetChildEnv } from "../types";
 import { Dimension } from "./../types/misc";
@@ -305,7 +305,7 @@ function cannotCreateFilter(env: SpreadsheetChildEnv): boolean {
 
 function createRemoveFilterAction(env: SpreadsheetChildEnv) {
   if (selectionContainsFilter(env)) {
-    env.model.dispatch("REMOVE_FILTER_TABLE", {
+    env.model.dispatch("REMOVE_TABLE", {
       sheetId: env.model.getters.getActiveSheetId(),
       target: env.model.getters.getSelectedZones(),
     });
@@ -318,7 +318,7 @@ function createRemoveFilterAction(env: SpreadsheetChildEnv) {
   env.model.selection.selectTableAroundSelection();
   const sheetId = env.model.getters.getActiveSheetId();
   const selection = env.model.getters.getSelectedZones();
-  interactiveAddFilter(env, sheetId, selection);
+  interactiveCreateTable(env, sheetId, selection);
 }
 
 function groupHeadersAction(env: SpreadsheetChildEnv, dim: Dimension) {

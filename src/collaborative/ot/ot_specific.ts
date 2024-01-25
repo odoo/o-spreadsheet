@@ -11,8 +11,8 @@ import {
   AddColumnsRowsCommand,
   AddMergeCommand,
   CreateChartCommand,
-  CreateFilterTableCommand,
   CreateSheetCommand,
+  CreateTableCommand,
   DeleteFigureCommand,
   DeleteSheetCommand,
   FoldHeaderGroupCommand,
@@ -52,7 +52,7 @@ otRegistry.addTransformation("DELETE_FIGURE", ["UPDATE_FIGURE", "UPDATE_CHART"],
 otRegistry.addTransformation("CREATE_SHEET", ["CREATE_SHEET"], createSheetTransformation);
 otRegistry.addTransformation(
   "ADD_MERGE",
-  ["ADD_MERGE", "REMOVE_MERGE", "CREATE_FILTER_TABLE"],
+  ["ADD_MERGE", "REMOVE_MERGE", "CREATE_TABLE"],
   mergeTransformation
 );
 otRegistry.addTransformation(
@@ -66,8 +66,8 @@ otRegistry.addTransformation(
   freezeTransformation
 );
 otRegistry.addTransformation(
-  "CREATE_FILTER_TABLE",
-  ["CREATE_FILTER_TABLE", "ADD_MERGE"],
+  "CREATE_TABLE",
+  ["CREATE_TABLE", "ADD_MERGE"],
   createTableTransformation
 );
 otRegistry.addTransformation(
@@ -129,9 +129,9 @@ function createSheetTransformation(
 }
 
 function mergeTransformation(
-  toTransform: AddMergeCommand | RemoveMergeCommand | CreateFilterTableCommand,
+  toTransform: AddMergeCommand | RemoveMergeCommand | CreateTableCommand,
   executed: AddMergeCommand
-): AddMergeCommand | RemoveMergeCommand | CreateFilterTableCommand | undefined {
+): AddMergeCommand | RemoveMergeCommand | CreateTableCommand | undefined {
   if (toTransform.sheetId !== executed.sheetId) {
     return toTransform;
   }
@@ -177,12 +177,12 @@ function freezeTransformation(
 }
 
 /**
- * Cancel CREATE_FILTER_TABLE and ADD_MERGE commands if they overlap a filter
+ * Cancel CREATE_TABLE and ADD_MERGE commands if they overlap a filter
  */
 function createTableTransformation(
-  toTransform: CreateFilterTableCommand | AddMergeCommand,
-  executed: CreateFilterTableCommand
-): CreateFilterTableCommand | AddMergeCommand | undefined {
+  toTransform: CreateTableCommand | AddMergeCommand,
+  executed: CreateTableCommand
+): CreateTableCommand | AddMergeCommand | undefined {
   if (toTransform.sheetId !== executed.sheetId) {
     return toTransform;
   }

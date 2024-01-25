@@ -886,13 +886,13 @@ export function unfreezeColumns(model: Model, sheetId: UID = model.getters.getAc
   });
 }
 
-export function createFilter(
+export function createTable(
   model: Model,
   range: string,
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
   model.selection.selectTableAroundSelection();
-  return model.dispatch("CREATE_FILTER_TABLE", {
+  return model.dispatch("CREATE_TABLE", {
     sheetId,
     target: target(range),
   });
@@ -913,7 +913,7 @@ export function deleteFilter(
   range: string,
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
-  return model.dispatch("REMOVE_FILTER_TABLE", { sheetId, target: target(range) });
+  return model.dispatch("REMOVE_TABLE", { sheetId, target: target(range) });
 }
 
 export function setFormat(

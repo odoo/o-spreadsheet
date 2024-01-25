@@ -1,7 +1,7 @@
 import { Model } from "../../src";
 import { UID } from "../../src/types";
 import {
-  createFilter,
+  createTable,
   hideRows,
   setCellContent,
   setFormat,
@@ -43,13 +43,13 @@ describe("Filter menu component", () => {
 
   describe("Filter Tests", () => {
     beforeEach(async () => {
-      createFilter(model, "A1:A5");
+      createTable(model, "A1:A5");
       setCellContent(model, "A1", "header");
       setCellContent(model, "A2", "1");
       setCellContent(model, "A3", "1");
       setCellContent(model, "A4", "2");
 
-      createFilter(model, "B1:B4");
+      createTable(model, "B1:B4");
       setCellContent(model, "B2", "B2");
       setCellContent(model, "B3", "B3");
       setCellContent(model, "B4", "B4");
@@ -278,7 +278,7 @@ describe("Filter menu component", () => {
   });
 
   test("Sort filter", async () => {
-    createFilter(model, "A10:B15");
+    createTable(model, "A10:B15");
     setCellContent(model, "A10", "header");
     setCellContent(model, "A11", "olà");
     setCellContent(model, "A12", "1");
@@ -323,7 +323,7 @@ describe("Filter menu component", () => {
   });
 
   test("cannot sort filter table in readonly mode", async () => {
-    createFilter(model, "A10:B15");
+    createTable(model, "A10:B15");
     await nextTick();
     await openFilterMenu();
     expect(

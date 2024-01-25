@@ -1,6 +1,6 @@
 import { areZonesContinuous, getZoneArea } from "../helpers/index";
 import { interactiveSortSelection } from "../helpers/sort";
-import { interactiveAddFilter } from "../helpers/ui/filter_interactive";
+import { interactiveCreateTable } from "../helpers/ui/table_interactive";
 import { _t } from "../translation";
 import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
@@ -58,7 +58,7 @@ export const addDataFilter: ActionSpec = {
   execute: (env) => {
     const sheetId = env.model.getters.getActiveSheetId();
     const selection = env.model.getters.getSelection().zones;
-    interactiveAddFilter(env, sheetId, selection);
+    interactiveCreateTable(env, sheetId, selection);
   },
   isVisible: (env) => !ACTIONS.SELECTION_CONTAINS_FILTER(env),
   isEnabled: (env): boolean => {
@@ -72,7 +72,7 @@ export const removeDataFilter: ActionSpec = {
   name: _t("Remove filter"),
   execute: (env) => {
     const sheetId = env.model.getters.getActiveSheetId();
-    env.model.dispatch("REMOVE_FILTER_TABLE", {
+    env.model.dispatch("REMOVE_TABLE", {
       sheetId,
       target: env.model.getters.getSelectedZones(),
     });

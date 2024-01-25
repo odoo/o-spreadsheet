@@ -7,8 +7,8 @@ export const AddFilterInteractiveContent = {
   mergeInFilter: _t("You can't create a filter over a range that contains a merge."),
 };
 
-export function interactiveAddFilter(env: SpreadsheetChildEnv, sheetId: UID, target: Zone[]) {
-  const result = env.model.dispatch("CREATE_FILTER_TABLE", { target, sheetId });
+export function interactiveCreateTable(env: SpreadsheetChildEnv, sheetId: UID, target: Zone[]) {
+  const result = env.model.dispatch("CREATE_TABLE", { target, sheetId });
   if (result.isCancelledBecause(CommandResult.FilterOverlap)) {
     env.raiseError(AddFilterInteractiveContent.filterOverlap);
   } else if (result.isCancelledBecause(CommandResult.MergeInFilter)) {
