@@ -41,7 +41,7 @@ import {
   TOPBAR_HEIGHT,
 } from "./constants";
 import { isEvaluationError, toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
-import { arg, functionRegistry } from "./functions/index";
+import { FunctionRegistry, arg, functionRegistry } from "./functions/index";
 import {
   ChartColors,
   chartFontColor,
@@ -284,3 +284,16 @@ export function addFunction(functionName: string, functionDescription: AddFuncti
 export const constants = {
   DEFAULT_LOCALE,
 };
+
+export type { EnrichedToken } from "./formulas/composer_tokenizer";
+export type { AST, ASTFuncall } from "./formulas/parser";
+export type { Token } from "./formulas/tokenizer";
+export type {
+  AddFunctionDescription,
+  Arg,
+  Cell,
+  CellPosition,
+  EvalContext,
+  FPayload,
+} from "./types";
+export type { FunctionRegistry };
