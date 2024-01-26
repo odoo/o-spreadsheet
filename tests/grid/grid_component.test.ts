@@ -297,7 +297,7 @@ describe("Grid component", () => {
       expect(getStyle(model, "A1")).toEqual({ bold: true });
       await keyDown({ key: "B", ctrlKey: true });
       expect(getCell(model, "A1")!.style).toEqual({ bold: false });
-      expect(getStyle(model, "A1")).toEqual({ bold: false });
+      expect(getStyle(model, "A1")).toEqual({});
     });
 
     test("toggle Italic with Ctrl+I", async () => {
@@ -308,7 +308,7 @@ describe("Grid component", () => {
       expect(getStyle(model, "A1")).toEqual({ italic: true });
       await keyDown({ key: "I", ctrlKey: true });
       expect(getCell(model, "A1")!.style).toEqual({ italic: false });
-      expect(getStyle(model, "A1")).toEqual({ italic: false });
+      expect(getStyle(model, "A1")).toEqual({});
     });
 
     test("open inserting image window with CTRL+O", async () => {
