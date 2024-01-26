@@ -2,7 +2,7 @@ import { LINK_COLOR } from "../../constants";
 import { compile } from "../../formulas";
 import { parseLiteral } from "../../helpers/cells";
 import { colorNumberString, percentile } from "../../helpers/index";
-import { clip, lazy } from "../../helpers/misc";
+import { clip, lazy, removeFalsyAttributes } from "../../helpers/misc";
 import { _t } from "../../translation";
 import {
   CellIsRule,
@@ -72,8 +72,8 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
     const styles = this.computedStyles[sheetId]();
     const cfStyle = styles && styles[col]?.[row];
     const computedStyle = {
-      ...cell?.style,
-      ...cfStyle,
+      ...removeFalsyAttributes(cell?.style),
+      ...removeFalsyAttributes(cfStyle),
     };
     const evaluatedCell = this.getters.getEvaluatedCell(position);
     if (evaluatedCell.link && !computedStyle.textColor) {

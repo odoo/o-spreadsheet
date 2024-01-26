@@ -146,6 +146,17 @@ describe("conditional format", () => {
     expect(getStyle(model, "A4")).toEqual({});
   });
 
+  test("falsy CF attributes do not overwrite cell style in getCellComputedStyle", () => {
+    setCellContent(model, "A1", "1");
+    setStyle(model, "A1", { bold: true, fillColor: "#FF0000" });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: createEqualCF("1", { bold: false, fillColor: undefined }, "cfId"),
+      ranges: toRangesData(sheetId, "A1"),
+      sheetId,
+    });
+    expect(getStyle(model, "A1")).toEqual({ bold: true, fillColor: "#FF0000" });
+  });
+
   test("Add conditional formatting on inactive sheet", () => {
     model = new Model();
     createSheet(model, { sheetId: "42" });
