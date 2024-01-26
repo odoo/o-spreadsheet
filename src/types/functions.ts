@@ -34,7 +34,7 @@ export interface AddFunctionDescription {
   description: string;
   category?: string;
   args: ArgDefinition[];
-  returns: [ArgType];
+  returns: ArgType[];
   isExported?: boolean;
   hidden?: boolean;
 }
