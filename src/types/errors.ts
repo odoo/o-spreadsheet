@@ -12,36 +12,36 @@ export const CellErrorType = {
 export const errorTypes: Set<string> = new Set(Object.values(CellErrorType));
 
 export class EvaluationError extends Error {
-  constructor(message?: string, readonly value: string = CellErrorType.GenericError) {
-    super(message || _t("Error"));
+  constructor(message = _t("Error"), readonly value: string = CellErrorType.GenericError) {
+    super(message);
   }
 }
 
 export class BadExpressionError extends EvaluationError {
-  constructor(message?: string) {
-    super(message || _t("Invalid expression"), CellErrorType.BadExpression);
+  constructor(message = _t("Invalid expression")) {
+    super(message, CellErrorType.BadExpression);
   }
 }
 export class CircularDependencyError extends EvaluationError {
-  constructor(message?: string) {
-    super(message || _t("Circular reference"), CellErrorType.CircularDependency);
+  constructor(message = _t("Circular reference")) {
+    super(message, CellErrorType.CircularDependency);
   }
 }
 
 export class InvalidReferenceError extends EvaluationError {
-  constructor(message?: string) {
-    super(message || _t("Invalid reference"), CellErrorType.InvalidReference);
+  constructor(message = _t("Invalid reference")) {
+    super(message, CellErrorType.InvalidReference);
   }
 }
 
 export class NotAvailableError extends EvaluationError {
-  constructor(message?: string) {
-    super(message || _t("Data not available"), CellErrorType.NotAvailable);
+  constructor(message = _t("Data not available")) {
+    super(message, CellErrorType.NotAvailable);
   }
 }
 
 export class UnknownFunctionError extends EvaluationError {
-  constructor(message?: string) {
-    super(message || _t("Unknown function"), CellErrorType.UnknownFunction);
+  constructor(message = _t("Unknown function")) {
+    super(message, CellErrorType.UnknownFunction);
   }
 }
