@@ -2,6 +2,8 @@ import { Rect } from "./../../types/rendering";
 
 const macRegex = /Mac/i;
 
+const MODIFIER_KEYS = ["Shift", "Control", "Alt", "Meta"];
+
 /**
  * Return true if the event was triggered from
  * a child element.
@@ -62,10 +64,11 @@ export function keyboardEventToShortcutString(
   mode: "key" | "code" = "key"
 ): string {
   let keyDownString = "";
-  if (isCtrlKey(ev) && ev.key !== "Ctrl") keyDownString += "Ctrl+";
-  if (ev.metaKey) keyDownString += "Ctrl+";
-  if (ev.altKey && ev.key !== "Alt") keyDownString += "Alt+";
-  if (ev.shiftKey && ev.key !== "Shift") keyDownString += "Shift+";
+  if (!MODIFIER_KEYS.includes(ev.key)) {
+    if (isCtrlKey(ev)) keyDownString += "Ctrl+";
+    if (ev.altKey) keyDownString += "Alt+";
+    if (ev.shiftKey) keyDownString += "Shift+";
+  }
   const key = mode === "key" ? ev.key : ev.code;
   keyDownString += letterRegex.test(key) ? key.toUpperCase() : key;
   return keyDownString;
