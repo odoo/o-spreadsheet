@@ -1,6 +1,6 @@
 import { CommandResult } from "..";
 import { canonicalizeNumberValue } from "../formulas/formula_locale";
-import { formatValue } from "../helpers";
+import { deepEquals, formatValue } from "../helpers";
 import { getPasteZones } from "../helpers/clipboard/clipboard_helpers";
 import {
   CellPosition,
@@ -55,7 +55,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
         const spreader = this.getters.getArrayFormulaSpreadingOn(position);
         let cell = this.getters.getCell(position);
         const evaluatedCell = this.getters.getEvaluatedCell(position);
-        if (spreader) {
+        if (spreader && !deepEquals(spreader, position)) {
           const isSpreaderCopied =
             rowsIndexes.includes(spreader.row) && columnsIndexes.includes(spreader.col);
           const content = isSpreaderCopied

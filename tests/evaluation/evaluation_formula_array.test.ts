@@ -2,7 +2,7 @@ import { arg, functionRegistry } from "../../src/functions";
 import { toScalar } from "../../src/functions/helper_matrices";
 import { toMatrix, toNumber } from "../../src/functions/helpers";
 import { Model } from "../../src/model";
-import { DEFAULT_LOCALE } from "../../src/types";
+import { DEFAULT_LOCALE, UID } from "../../src/types";
 import {
   addColumns,
   addRows,
@@ -18,9 +18,12 @@ import { getCellContent, getCellError, getEvaluatedCell } from "../test_helpers/
 import { restoreDefaultFunctions } from "../test_helpers/helpers";
 
 let model: Model;
+let sheetId: UID;
+
 describe("evaluate formulas that return an array", () => {
   beforeEach(() => {
     model = new Model();
+    sheetId = model.getters.getActiveSheetId();
     functionRegistry.add("MFILL", {
       description: "Return an n*n matrix filled with n.",
       args: [
@@ -756,6 +759,49 @@ describe("evaluate formulas that return an array", () => {
         expect(getEvaluatedCell(model, "B1").value).toBe("#ERROR");
         expect(getEvaluatedCell(model, "A2").value).toBe(result);
       });
+    });
+  });
+
+  describe("Spread formula getters", () => {
+    test("getArrayFormulaSpreadingOn works on the root of an array formula", () => {
+      setCellContent(model, "A1", "=MFILL(2,2,42)");
+      expect(model.getters.getArrayFormulaSpreadingOn({ sheetId, col: 0, row: 0 })).toEqual({
+        sheetId,
+        col: 0,
+        row: 0,
+      });
+    });
+
+    test("getSpreadPositionsOf getter returns the cells the formula spread on, as well as the cell the formula is on", () => {
+      setCellContent(model, "A1", "=MFILL(2,2,42)");
+      const sheetId = model.getters.getActiveSheetId();
+      expect(model.getters.getSpreadPositionsOf({ sheetId, col: 0, row: 0 })).toEqual([
+        { sheetId, col: 0, row: 0 },
+        { sheetId, col: 0, row: 1 },
+        { sheetId, col: 1, row: 0 },
+        { sheetId, col: 1, row: 1 },
+      ]);
+    });
+
+    test("getSpreadPositionsOf does only return self if the formula could not spread", () => {
+      setCellContent(model, "A1", "=MFILL(2,2,42)");
+      setCellContent(model, "A2", "(ツ)_/¯");
+      expect(model.getters.getSpreadPositionsOf({ sheetId, col: 0, row: 0 })).toEqual([
+        { sheetId, col: 0, row: 0 },
+      ]);
+    });
+
+    test("getSpreadPositionsOf is correct after the evaluation changed so the formula can spread again", () => {
+      setCellContent(model, "H1", "5");
+      setCellContent(model, "A1", "=MFILL(H1,H1,42)");
+
+      expect(model.getters.getSpreadPositionsOf({ sheetId, col: 0, row: 0 })).toHaveLength(25);
+
+      setCellContent(model, "A4", "Block spread");
+      expect(model.getters.getSpreadPositionsOf({ sheetId, col: 0, row: 0 })).toHaveLength(1);
+
+      setCellContent(model, "H1", "2");
+      expect(model.getters.getSpreadPositionsOf({ sheetId, col: 0, row: 0 })).toHaveLength(4);
     });
   });
 });
