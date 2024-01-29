@@ -4,6 +4,7 @@ import { AddFunctionDescription, FPayload, Matrix, Maybe } from "../types";
 import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import {
+  LinearSearchMode,
   assert,
   assertNumberGreaterThanOrEqualToOne,
   dichotomicSearch,
@@ -183,7 +184,7 @@ export const HLOOKUP = {
     const _isSorted = toBoolean(isSorted.value);
     const colIndex = _isSorted
       ? dichotomicSearch(range, searchKey, "nextSmaller", "asc", range.length, getValueFromRange)
-      : linearSearch(range, searchKey, "strict", range.length, getValueFromRange);
+      : linearSearch(range, searchKey, "wildcard", range.length, getValueFromRange);
     const col = range[colIndex];
     assertAvailable(col, searchKey?.value);
     return col[_index - 1];
@@ -362,7 +363,7 @@ export const MATCH = {
         index = dichotomicSearch(range, searchKey, "nextSmaller", "asc", rangeLen, getElement);
         break;
       case 0:
-        index = linearSearch(range, searchKey, "strict", rangeLen, getElement);
+        index = linearSearch(range, searchKey, "wildcard", rangeLen, getElement);
         break;
       case -1:
         index = dichotomicSearch(range, searchKey, "nextGreater", "desc", rangeLen, getElement);
@@ -464,7 +465,7 @@ export const VLOOKUP = {
     const _isSorted = toBoolean(isSorted.value);
     const rowIndex = _isSorted
       ? dichotomicSearch(range, searchKey, "nextSmaller", "asc", range[0].length, getValueFromRange)
-      : linearSearch(range, searchKey, "strict", range[0].length, getValueFromRange);
+      : linearSearch(range, searchKey, "wildcard", range[0].length, getValueFromRange);
 
     const value = range[_index - 1][rowIndex];
     assertAvailable(value, searchKey);
@@ -476,6 +477,14 @@ export const VLOOKUP = {
 // -----------------------------------------------------------------------------
 // XLOOKUP
 // -----------------------------------------------------------------------------
+
+const MATCH_MODE: { [mode: number]: LinearSearchMode } = {
+  "0": "strict",
+  "1": "nextGreater",
+  "-1": "nextSmaller",
+  "2": "wildcard",
+};
+
 export const XLOOKUP = {
   description: _t(
     "Search a range for a match and return the corresponding item from a second range."
@@ -494,7 +503,10 @@ export const XLOOKUP = {
     arg(
       `match_mode (any, default=${DEFAULT_MATCH_MODE})`,
       _t(
-        "(0) Exact match. (-1) Return next smaller item if no match. (1) Return next greater item if no match."
+        "(0) Exact match. \
+        (-1) Return next smaller item if no match. \
+        (1) Return next greater item if no match. \
+        (2) Wildcard match."
       )
     ),
     arg(
@@ -526,11 +538,19 @@ export const XLOOKUP = {
     );
     assert(
       () => [-1, 1, -2, 2].includes(_searchMode),
-      _t("searchMode should be a value in [-1, 1, -2, 2].")
+      _t("search_mode should be a value in [-1, 1, -2, 2].")
     );
-    assert(() => [-1, 0, 1].includes(_matchMode), _t("matchMode should be a value in [-1, 0, 1]."));
+    assert(
+      () => [-1, 0, 1, 2].includes(_matchMode),
+      _t("match_mode should be a value in [-1, 0, 1, 2].")
+    );
 
     const lookupDirection = lookupRange.length === 1 ? "col" : "row";
+
+    assert(
+      () => !(_matchMode === 2 && [-2, 2].includes(_searchMode)),
+      _t("the search and match mode combination is not supported for XLOOKUP evaluation.")
+    );
 
     assert(
       () =>
@@ -546,8 +566,7 @@ export const XLOOKUP = {
         : (range: Matrix<FPayload>, index: number) => range[index][0].value;
 
     const rangeLen = lookupDirection === "col" ? lookupRange[0].length : lookupRange.length;
-
-    const mode = _matchMode === 0 ? "strict" : _matchMode === 1 ? "nextGreater" : "nextSmaller";
+    const mode = MATCH_MODE[_matchMode];
     const reverseSearch = _searchMode === -1;
 
     const index =
@@ -555,7 +574,7 @@ export const XLOOKUP = {
         ? dichotomicSearch(
             lookupRange,
             searchKey,
-            mode,
+            mode as "strict" | "nextGreater" | "nextSmaller",
             _searchMode === 2 ? "asc" : "desc",
             rangeLen,
             getElement
