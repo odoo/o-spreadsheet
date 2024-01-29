@@ -479,10 +479,9 @@ type Operator = ">" | ">=" | "<" | "<=" | "<>" | "=";
 interface Predicate {
   operator: Operator;
   operand: number | string | boolean;
-  regexp?: RegExp;
 }
 
-function getPredicate(descr: string, isQuery: boolean, locale: Locale): Predicate {
+function getPredicate(descr: string, locale: Locale): Predicate {
   let operator: Operator;
   let operand: Maybe<CellValue>;
 
@@ -508,19 +507,18 @@ function getPredicate(descr: string, isQuery: boolean, locale: Locale): Predicat
     operand = toBoolean(operand);
   }
 
-  const result: Predicate = { operator, operand };
-
-  if (typeof operand === "string") {
-    if (isQuery) {
-      operand += "*";
-    }
-    result.regexp = operandToRegExp(operand);
-  }
-
-  return result;
+  return { operator, operand };
 }
 
-function operandToRegExp(operand: string): RegExp {
+/**
+ * Converts a search string containing wildcard characters to a regular expression.
+ *
+ * The function iterates over each character in the input string. If the character is a wildcard
+ * character ("?" or "*") and is not preceded by a "~", it is replaced by the corresponding regular
+ * expression.
+ * If the character is a special regular expression character, it is escaped with "\\".
+ */
+const wildcardToRegExp = memoize(function wildcardToRegExp(operand: string): RegExp {
   let exp = "";
   let predecessor = "";
   for (let char of operand) {
@@ -541,7 +539,7 @@ function operandToRegExp(operand: string): RegExp {
     predecessor = char;
   }
   return new RegExp("^" + exp + "$", "i");
-}
+});
 
 function evaluatePredicate(value: CellValue | undefined, criterion: Predicate): boolean {
   const { operator, operand } = criterion;
@@ -557,8 +555,8 @@ function evaluatePredicate(value: CellValue | undefined, criterion: Predicate): 
   if (operator === "<>" || operator === "=") {
     let result: boolean;
     if (typeof value === typeof operand) {
-      if (typeof value === "string" && criterion.regexp) {
-        result = criterion.regexp.test(value);
+      if (typeof value === "string" && typeof operand === "string") {
+        result = wildcardToRegExp(operand).test(value);
       } else {
         result = value === operand;
       }
@@ -640,7 +638,11 @@ export function visitMatchingRanges(
     }
 
     const description = toString(args[i + 1] as Maybe<FPayload>);
-    predicates.push(getPredicate(description, isQuery, locale));
+    const predicate = getPredicate(description, locale);
+    if (isQuery && typeof predicate.operand === "string") {
+      predicate.operand += "*";
+    }
+    predicates.push(predicate);
   }
 
   for (let i = 0; i < dimRow; i++) {
@@ -768,6 +770,8 @@ export function dichotomicSearch<T>(
   return matchValIndex !== undefined ? matchValIndex : -1;
 }
 
+export type LinearSearchMode = "nextSmaller" | "nextGreater" | "strict" | "wildcard";
+
 /**
  * Perform a linear search and return the index of the match.
  * -1 is returned if no value is found.
@@ -790,7 +794,7 @@ export function dichotomicSearch<T>(
 export function linearSearch<T>(
   data: T,
   target: Maybe<FPayload> | undefined,
-  mode: "nextSmaller" | "nextGreater" | "strict",
+  mode: LinearSearchMode,
   numberOfValues: number,
   getValueInData: (data: T, index: number) => CellValue | undefined,
   reverseSearch = false
@@ -806,14 +810,31 @@ export function linearSearch<T>(
     ? (data: T, i: number) => getValueInData(data, numberOfValues - i - 1)
     : getValueInData;
 
+  let indexMatchTarget: (index: number) => boolean = (i) => {
+    return normalizeValue(getValue(data, i)) === _target;
+  };
+
+  if (
+    mode === "wildcard" &&
+    typeof _target === "string" &&
+    (_target.includes("*") || _target.includes("?"))
+  ) {
+    const regExp = wildcardToRegExp(_target);
+    indexMatchTarget = (i) => {
+      const value = normalizeValue(getValue(data, i));
+      if (typeof value === "string") {
+        return regExp.test(value);
+      }
+      return false;
+    };
+  }
+
   let closestMatch: CellValue | undefined = undefined;
   let closestMatchIndex = -1;
-  for (let i = 0; i < numberOfValues; i++) {
-    const value = normalizeValue(getValue(data, i));
-    if (value === _target) {
-      return reverseSearch ? numberOfValues - i - 1 : i;
-    }
-    if (mode === "nextSmaller") {
+
+  if (mode === "nextSmaller") {
+    indexMatchTarget = (i) => {
+      const value = normalizeValue(getValue(data, i));
       if (
         (!closestMatch && compareCellValues(_target, value) >= 0) ||
         (compareCellValues(_target, value) >= 0 && compareCellValues(value, closestMatch) > 0)
@@ -821,7 +842,13 @@ export function linearSearch<T>(
         closestMatch = value;
         closestMatchIndex = i;
       }
-    } else if (mode === "nextGreater") {
+      return value === _target;
+    };
+  }
+
+  if (mode === "nextGreater") {
+    indexMatchTarget = (i) => {
+      const value = normalizeValue(getValue(data, i));
       if (
         (!closestMatch && compareCellValues(_target, value) <= 0) ||
         (compareCellValues(_target, value) <= 0 && compareCellValues(value, closestMatch) < 0)
@@ -829,9 +856,15 @@ export function linearSearch<T>(
         closestMatch = value;
         closestMatchIndex = i;
       }
-    }
+      return value === _target;
+    };
   }
 
+  for (let i = 0; i < numberOfValues; i++) {
+    if (indexMatchTarget(i)) {
+      return reverseSearch ? numberOfValues - i - 1 : i;
+    }
+  }
   return reverseSearch ? numberOfValues - closestMatchIndex - 1 : closestMatchIndex;
 }
 

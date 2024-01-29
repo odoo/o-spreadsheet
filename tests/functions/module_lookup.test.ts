@@ -475,6 +475,11 @@ describe("MATCH formula", () => {
     expect(evaluateCell("A1", { A1: '=MATCH("epee", B1, 1)', B1: "Épée" })).toBe(1);
   });
 
+  test("Find the exact value perform a wildcard search", () => {
+    const grid = { A1: "YODAA", B1: "YOPLAA" };
+    expect(evaluateCell("A3", { A3: '=MATCH("YO?L*", A1:B1, 0)', ...grid })).toBe(2);
+  });
+
   test("MATCH accepts errors in second argument", () => {
     const grid = { A1: "=KABOUM", B1: "42" };
     expect(evaluateCell("A3", { A3: "=MATCH(42, A1:B1)", ...grid })).toBe(2);
@@ -794,6 +799,22 @@ describe("VLOOKUP formula", () => {
     expect(evaluateCell("A1", { A1: '=VLOOKUP("epee", B1, 1)', B1: "Épée" })).toBe("Épée");
   });
 
+  test("perform a wildcard search when values are evaluated as unsorted", () => {
+    // prettier-ignore
+    const grid = evaluateGrid({
+      A1: "abbc", B1: "1111",
+      A2: "abc",  B2: "222",
+      A3: "ba",   B3: "33",
+      A4: "abcd", B4: "4444",
+      A5: "=A2",  B5: "555",
+      A6: "=A3",  B6: "666",
+      Z1: '=VLOOKUP("a?c", A1:B6, 2, FALSE )',
+      Z2: '=VLOOKUP("a*d", A1:B6, 2, FALSE )',
+    });
+    expect(grid.Z1).toBe(222);
+    expect(grid.Z2).toBe(4444);
+  });
+
   test("take format into account", () => {
     // prettier-ignore
     const grid = {
@@ -998,6 +1019,18 @@ describe("HLOOKUP formula", () => {
     expect(evaluateCell("A1", { A1: '=HLOOKUP("epee", B1, 1)', B1: "Épée" })).toBe("Épée");
   });
 
+  test("perform a wildcard search when values are evaluated as unsorted", () => {
+    // prettier-ignore
+    const grid = evaluateGrid({
+      A1: "abbc", B1: "abc", C1: "ba", D1: "abcd", E1: "=B1", F1: "=C1",
+      A2: "1111", B2: "222", C2: "33", D2: "4444", E2: "555", F2: "666",
+      Z1: '=HLOOKUP("a?c", A1:F2, 2, FALSE )',
+      Z2: '=HLOOKUP("a*d", A1:F2, 2, FALSE )',
+    });
+    expect(grid.Z1).toBe(222);
+    expect(grid.Z2).toBe(4444);
+  });
+
   test("HLOOKUP accept errors in the second parameter", () => {
     // prettier-ignore
     const grid = {
@@ -1048,9 +1081,12 @@ describe("XLOOKUP formula", () => {
     expect(evaluateCell("A1", { A1: "=XLOOKUP(5, D1:F1, D1:E3, 0)" })).toBe("#ERROR");
   });
 
-  test("match_mode should be between -1 and 1", () => {
+  test("match_mode should be between -1, 1 and 2", () => {
     expect(evaluateCell("A1", { A1: "=XLOOKUP(5, D1:D3, D1:D3, 0, -2)" })).toBe("#ERROR");
-    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, D1:D3, D1:D3, 0, 2)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, D1:D3, D1:D3, 0, -1)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, D1:D3, D1:D3, 0, 1)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, D1:D3, D1:D3, 0, 2)" })).toBe(0);
+    expect(evaluateCell("A1", { A1: "=XLOOKUP(5, D1:D3, D1:D3, 0, 3)" })).toBe("#ERROR");
   });
 
   test("search_mode should be in [-2, -1, 1, 2]", () => {
@@ -1155,6 +1191,18 @@ describe("XLOOKUP formula", () => {
       expect(grid.Z2).toBe("B1");
       expect(grid.Z3).toBe(5);
       expect(grid.Z4).toBe("#N/A");
+    });
+
+    test("Wildcard match", () => {
+      const grid = evaluateGrid({
+        ...commonGrid,
+        Z1: '=XLOOKUP("*inar*", B1:B6, B1:B6,, 2 )',
+        Z2: '=XLOOKUP("hel?", B1:B6, B1:B6,, 2 )',
+        Z3: '=XLOOKUP("hel??", B1:B6, B1:B6,, 2 )',
+      });
+      expect(grid.Z1).toBe("épinards");
+      expect(grid.Z2).toBe("help");
+      expect(grid.Z3).toBe("#N/A");
     });
 
     test("XLOOKUP accept errors in the second parameter", () => {
