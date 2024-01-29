@@ -98,6 +98,8 @@ const registries = {
   UNGROUP_HEADERS: unGroupHeadersMenuRegistry,
 };
 
+const MODIFIER_KEYS = ["Shift", "Control", "Alt", "Meta"];
+
 interface Props {
   sidePanelIsOpen: boolean;
   exposeFocus: (focus: () => void) => void;
@@ -521,12 +523,12 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onKeydown(ev: KeyboardEvent) {
-    const eventKey = ev.key.toUpperCase();
     let keyDownString = "";
-    if (isCtrlKey(ev) && eventKey !== "CTRL") keyDownString += "CTRL+";
-    if (ev.metaKey) keyDownString += "CTRL+";
-    if (ev.altKey && eventKey !== "ALT") keyDownString += "ALT+";
-    if (ev.shiftKey && eventKey !== "SHIFT") keyDownString += "SHIFT+";
+    if (!MODIFIER_KEYS.includes(ev.key)) {
+      if (isCtrlKey(ev)) keyDownString += "CTRL+";
+      if (ev.altKey) keyDownString += "ALT+";
+      if (ev.shiftKey) keyDownString += "SHIFT+";
+    }
     keyDownString += ev.key.toUpperCase();
 
     let handler = this.keyDownMapping[keyDownString];
