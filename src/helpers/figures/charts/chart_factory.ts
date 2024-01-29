@@ -3,6 +3,7 @@ import {
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
   DEFAULT_SCORECARD_BASELINE_MODE,
 } from "../../../constants";
+import { isEvaluationError } from "../../../functions/helpers";
 import { chartRegistry } from "../../../registries/chart_types";
 import { _t } from "../../../translation";
 import {
@@ -21,9 +22,11 @@ import {
 } from "../../../types/chart/chart";
 import { CoreGetters, Getters } from "../../../types/getters";
 import { Validator } from "../../../types/validator";
-import { getZoneArea, zoneToXc } from "../../zones";
+import { getZoneArea, zoneToDimension, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
+import { createDataSets } from "./chart_common";
 import { canChartParseLabels } from "./chart_common_line_scatter";
+import { getData } from "./chart_ui_common";
 
 /**
  * Create a function used to create a Chart based on the definition
@@ -118,7 +121,8 @@ export function getChartTypes(): Record<string, string> {
  */
 export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefinition {
   let dataSetZone = zone;
-  if (zone.left !== zone.right) {
+  const singleColumn = zoneToDimension(zone).numberOfCols === 1;
+  if (!singleColumn) {
     dataSetZone = { ...zone, left: zone.left + 1 };
   }
   const dataSets = [zoneToXc(dataSetZone)];
@@ -159,7 +163,7 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
   }
 
   let labelRangeXc: string | undefined;
-  if (zone.left !== zone.right) {
+  if (!singleColumn) {
     labelRangeXc = zoneToXc({
       ...zone,
       right: zone.left,
@@ -182,6 +186,21 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
       dataSetsHaveTitle,
       verticalAxisPosition: "left",
       legendPosition: newLegendPos,
+    };
+  }
+  const _dataSets = createDataSets(getters, dataSets, sheetId, dataSetsHaveTitle);
+  if (
+    singleColumn &&
+    getData(getters, _dataSets[0]).every((e) => typeof e === "string" && !isEvaluationError(e))
+  ) {
+    return {
+      title: "",
+      dataSets,
+      aggregated: true,
+      labelRange: dataSets[0],
+      type: "pie",
+      legendPosition: "top",
+      dataSetsHaveTitle: false,
     };
   }
   return {

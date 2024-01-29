@@ -91,7 +91,7 @@ export class LineBarPieConfigPanel extends Component<Props, SpreadsheetChildEnv>
       {
         name: "aggregated",
         label: _t("Aggregate"),
-        value: this.props.definition.aggregated,
+        value: this.props.definition.aggregated ?? false,
         onChange: this.onUpdateAggregated.bind(this),
       },
     ];
