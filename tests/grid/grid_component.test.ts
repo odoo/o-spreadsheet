@@ -930,6 +930,19 @@ describe("Grid component", () => {
     await nextTick();
     expect(model.getters.getEditionMode()).toBe("inactive");
   });
+
+  test("Mac user use metaKey, not CtrlKey", async () => {
+    const mockUserAgent = jest.spyOn(navigator, "userAgent", "get");
+    mockUserAgent.mockImplementation(
+      () => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/119.0"
+    );
+    await keyDown({ key: "A", ctrlKey: true, bubbles: true });
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A1"));
+    await nextTick();
+    await keyDown({ key: "A", metaKey: true, bubbles: true });
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A1:Z100"));
+    jest.restoreAllMocks();
+  });
 });
 
 describe("Multi User selection", () => {
