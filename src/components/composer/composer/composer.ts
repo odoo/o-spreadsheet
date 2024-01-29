@@ -150,6 +150,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     inputStyle: "",
   };
 
+  observer!: MutationObserver;
   composerRef = useRef("o_composer");
 
   contentHelper: ContentEditableHelper = new ContentEditableHelper(this.composerRef.el!);
@@ -222,10 +223,14 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   };
 
   setup() {
+    this.observer = new MutationObserver((blagg) => {
+      console.log(blagg);
+    });
     onMounted(() => {
       const el = this.composerRef.el!;
       this.contentHelper.updateEl(el);
       this.processTokenAtCursor();
+      this.observer.observe(el, { childList: true, subtree: true });
     });
 
     onWillUnmount(() => {

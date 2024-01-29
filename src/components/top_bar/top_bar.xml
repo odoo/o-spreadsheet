@@ -167,10 +167,10 @@
             <ActionButton action="VIEW.createRemoveFilter" class="'o-hoverable-button'"/>
           </div>
         </div>
-        <TopBarComposer
+        <!-- <TopBarComposer
           focus="props.focusComposer"
           onComposerContentFocused="props.onComposerContentFocused"
-        />
+        /> -->
       </div>
     </div>
     <Menu
