@@ -59,7 +59,11 @@ export class Evaluator {
     if (!this.spreadingRelations.isArrayFormula(position)) {
       return [];
     }
-    return Array.from(this.spreadingRelations.getArrayResultPositions(position));
+    if (this.evaluatedCells.get(position)?.type === CellValueType.error) {
+      return [position];
+    }
+    const spreadPositions = Array.from(this.spreadingRelations.getArrayResultPositions(position));
+    return [position, ...spreadPositions];
   }
 
   getEvaluatedPositions(): CellPosition[] {
@@ -68,7 +72,7 @@ export class Evaluator {
 
   getArrayFormulaSpreadingOn(position: CellPosition): CellPosition | undefined {
     if (!this.spreadingRelations.hasArrayFormulaResult(position)) {
-      return undefined;
+      return this.spreadingRelations.isArrayFormula(position) ? position : undefined;
     }
     const arrayFormulas = this.spreadingRelations.getFormulaPositionsSpreadingOn(position);
     return Array.from(arrayFormulas).find((position) => !this.blockedArrayFormulas.has(position));
@@ -229,6 +233,7 @@ export class Evaluator {
     if (!this.blockedArrayFormulas.has(position)) {
       this.invalidateSpreading(position);
     }
+    this.spreadingRelations.removeNode(position);
 
     const cell = this.getters.getCell(position);
     if (cell === undefined) {
@@ -401,7 +406,6 @@ export class Evaluator {
       this.nextPositionsToUpdate.addMany(this.getCellsDependingOn([child]));
       this.nextPositionsToUpdate.addMany(this.getArrayFormulasBlockedByOrSpreadingOn(child));
     }
-    this.spreadingRelations.removeNode(position);
   }
 
   // ----------------------------------------------------------
