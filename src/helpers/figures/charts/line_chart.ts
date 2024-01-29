@@ -96,7 +96,7 @@ export class LineChart extends AbstractChart {
       verticalAxisPosition: "left",
       labelRange: context.auxiliaryRange || undefined,
       stacked: false,
-      aggregated: false,
+      aggregated: context.aggregated ?? false,
       cumulative: false,
     };
   }
@@ -140,6 +140,7 @@ export class LineChart extends AbstractChart {
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
         : undefined,
+      aggregated: this.aggregated,
     };
   }
 

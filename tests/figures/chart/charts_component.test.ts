@@ -11,6 +11,7 @@ import {
   createGaugeChart,
   createScorecardChart,
   createSheet,
+  setCellContent,
   setFormat,
   setStyle,
   undo,
@@ -1122,6 +1123,51 @@ describe("charts", () => {
         "A1:A2",
         "A1",
       ]);
+    });
+  });
+
+  describe("aggregate", () => {
+    beforeEach(async () => {
+      ({ parent, fixture, model } = await mountSpreadsheet({ model: new Model() }));
+    });
+    test.each(["bar", "pie", "line", "scatter"] as const)(
+      "aggregate checkbox is checked for string-count charts",
+      async (type: "bar" | "pie" | "line" | "scatter") => {
+        setCellContent(model, "A1", "London");
+        setCellContent(model, "A2", "Berlin");
+        setCellContent(model, "A3", "Paris");
+        setCellContent(model, "A4", "Paris");
+        createChart(
+          model,
+          {
+            dataSets: ["K1:K6"],
+            labelRange: "K1:K6",
+            aggregated: true,
+            legendPosition: "top",
+            type,
+            dataSetsHaveTitle: false,
+            title: "",
+          },
+          chartId,
+          sheetId
+        );
+        await openChartConfigSidePanel();
+
+        const checkbox = document.querySelector("input[name='aggregated']") as HTMLInputElement;
+        expect(checkbox.checked).toBe(true);
+      }
+    );
+
+    test("aggregate value is kept when changing chart type", async () => {
+      createTestChart("basicChart");
+      updateChart(model, chartId, { aggregated: true, type: "pie" });
+      await openChartConfigSidePanel();
+
+      for (const chartType of ["bar", "line", "scatter", "pie"] as const) {
+        await setInputValueAndTrigger(".o-type-selector", chartType);
+        const checkbox = document.querySelector("input[name='aggregated']") as HTMLInputElement;
+        expect(checkbox.checked).toBe(true);
+      }
     });
   });
 });

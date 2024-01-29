@@ -508,4 +508,29 @@ describe("Insert chart menu item", () => {
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
     expect(zoneToXc(model.getters.getSelectedZone())).toBe("K1:L3");
   });
+
+  test("Chart with only one column of text cells is a count pie chart", () => {
+    setCellContent(model, "K1", "London");
+    setCellContent(model, "K2", "Berlin");
+    setCellContent(model, "K3", "Paris");
+    setCellContent(model, "K4", "Paris");
+    setCellContent(model, "K5", "Paris");
+    setCellContent(model, "K6", "London");
+
+    setSelection(model, ["K1:K6"]);
+    insertChart();
+    const payload = {
+      ...defaultPayload,
+      definition: {
+        dataSets: ["K1:K6"],
+        labelRange: "K1:K6",
+        aggregated: true,
+        legendPosition: "top",
+        type: "pie",
+        dataSetsHaveTitle: false,
+        title: "",
+      },
+    };
+    expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
+  });
 });

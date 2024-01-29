@@ -68,4 +68,5 @@ export interface ChartCreationContext {
   readonly title?: string;
   readonly background?: string;
   readonly auxiliaryRange?: string;
+  readonly aggregated?: boolean;
 }

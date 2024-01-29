@@ -83,7 +83,7 @@ export class ScatterChart extends AbstractChart {
       type: "scatter",
       verticalAxisPosition: "left",
       labelRange: context.auxiliaryRange || undefined,
-      aggregated: false,
+      aggregated: context.aggregated ?? false,
     };
   }
 
@@ -124,6 +124,7 @@ export class ScatterChart extends AbstractChart {
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
         : undefined,
+      aggregated: this.aggregated,
     };
   }
 

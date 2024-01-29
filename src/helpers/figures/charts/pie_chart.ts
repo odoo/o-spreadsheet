@@ -104,7 +104,7 @@ export class PieChart extends AbstractChart {
       title: context.title || "",
       type: "pie",
       labelRange: context.auxiliaryRange || undefined,
-      aggregated: false,
+      aggregated: context.aggregated ?? false,
     };
   }
 
@@ -122,6 +122,7 @@ export class PieChart extends AbstractChart {
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
         : undefined,
+      aggregated: this.aggregated,
     };
   }
 

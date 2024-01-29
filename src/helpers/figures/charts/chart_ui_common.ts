@@ -1,6 +1,7 @@
 import type { BasePlatform, ChartConfiguration, ChartOptions, ChartType } from "chart.js";
 import { ChartTerms } from "../../../components/translations_terms";
 import { MAX_CHAR_LABEL } from "../../../constants";
+import { isEvaluationError } from "../../../functions/helpers";
 import { _t } from "../../../translation";
 import { Color, Figure, Format, Getters, LocaleFormat, Range } from "../../../types";
 import { GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
@@ -231,9 +232,15 @@ export function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): Da
           ? truncateLabel(cell.formattedValue)
           : (label = `${ChartTerms.Series} ${parseInt(dsIndex) + 1}`);
     } else {
-      label = label = `${ChartTerms.Series} ${parseInt(dsIndex) + 1}`;
+      label = `${ChartTerms.Series} ${parseInt(dsIndex) + 1}`;
     }
     let data = ds.dataRange ? getData(getters, ds) : [];
+    if (data.every((e) => typeof e === "string" && !isEvaluationError(e))) {
+      // In this case, we want a chart based on the string occurrences count
+      // This will be done by associating each string with a value of 1 and
+      // the using the classical aggregation method to sum the values.
+      data.fill(1);
+    }
     datasetValues.push({ data, label });
   }
   return datasetValues;
