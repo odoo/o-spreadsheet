@@ -851,14 +851,14 @@ describe("Change selection to next clusters", () => {
           rows: { 8: { isHidden: true } },
           // prettier-ignore
           cells: {
-                                    B2: { content: "content" },                                                E2: hiddenContent,                     G2: { content: "same line as merge topLeft" },
+                                     B2: { content: "content" },                                                E2: hiddenContent,                     G2: { content: "same line as merge topLeft" },
                                                                                                                E3: hiddenContent,                     G3: { content: "line of merge but aligned with topLeft" },
-                                    B6: { content: "content on same line as empty merge topLeft" },            E6: hiddenContent,
-                                    B7: { content: "line of empty merge but aligned with topLeft" },           E7: hiddenContent,
-            A9: hiddenContent,      B9: hiddenContent,       C9: hiddenContent,       D9: hiddenContent,       E9: hiddenContent,  F9: hiddenContent, G9: hiddenContent,
-            A11: { content: "A11" }, B11: { content: "B9" },  C11: { content: "C9" },                           E11: hiddenContent, F11: { style: 1 }, G11: { content: "F9" }, H11: { content: "G9" },
-                                    B13: { content: "B11" }, C13: { content: "C11" }, D13: { content: "D11" },
-                                    B14: { content: "B12" }, C14: { content: "C12" },
+                                     B6: { content: "content on same line as empty merge topLeft" },            E6: hiddenContent,
+                                     B7: { content: "line of empty merge but aligned with topLeft" },           E7: hiddenContent,
+            A9: hiddenContent,       B9: hiddenContent,       C9: hiddenContent,       D9: hiddenContent,       E9: hiddenContent,  F9: hiddenContent, G9: hiddenContent,
+            A11: { content: "11" },  B11: { content: "B9" },  C11: { content: "C9" },                           E11: hiddenContent, F11: { style: 1 }, G11: { content: "F9" }, H11: { content: "G9" },
+            A13: { content: '=""' }, B13: { content: "B11" }, C13: { content: "C11" }, D13: { content: "D11" },
+                                     B14: { content: "B12" }, C14: { content: "C12" },
           },
           merges: ["B2:D4", "C6:D7"],
           styles: { 1: { textColor: "#fe0000" } },
@@ -951,7 +951,7 @@ describe("Change selection to next clusters", () => {
     ["C16", "C16", "up", ["C14:C16", "C13:C16", "C11:C16", "B2:D16", "B1:D16"]],
     ["F16", "F16", "up", ["F1:F16"]],
     ["B13", "B13:D15", "up", ["B13:D14", "B13:D13"]],
-    // ["D13", "B13:D15", "up", ["B13:D13"]], //TODO
+    ["D13", "B13:D15", "up", ["B13:D13"]],
     ["A1", "A1", "up", ["A1", "A1"]],
   ])(
     "Alter selection vertically",
@@ -1127,7 +1127,8 @@ describe("Selection loop (ctrl + a)", () => {
                       B2: { content: "a" }, C2: { content: "a" },
                                             C3: { content: "merged" }, D3: { content: "merged" }, E3: { content: "a" },
                                             C4: { content: "a"},
-            A6: { content : "a" }
+            A6: { content : "a" },
+                                            C8: { content: '=""'},
           },
           merges: ["C3:D3"],
           styles: { 1: { textColor: "#fe0000" } },
@@ -1143,6 +1144,7 @@ describe("Selection loop (ctrl + a)", () => {
     ["E3", ["B2:E4", "A1:J10", "E3"]],
     ["A1", ["A1:J10", "A1"]],
     ["A6", ["A1:J10", "A6"]],
+    ["C7", ["C7:C8", "A1:J10", "C7"]],
   ])("Selection loop with anchor %s", (anchor: string, expectedZones: string[]) => {
     selectCell(model, anchor);
     for (const zone of expectedZones) {
