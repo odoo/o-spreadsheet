@@ -6,6 +6,7 @@ import {
   ClientPosition,
   Command,
   CommandDispatcher,
+  Format,
   Getters,
   GridRenderingContext,
   LAYERS,
@@ -23,6 +24,7 @@ export interface UIPluginConfig {
   readonly uiActions: UIActions;
   readonly custom: ModelConfig["custom"];
   readonly session: Session;
+  readonly defaultCurrencyFormat?: Format;
 }
 
 export interface UIPluginConstructor {
