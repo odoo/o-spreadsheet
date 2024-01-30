@@ -94,7 +94,7 @@ export interface ModelConfig {
   readonly custom: Readonly<{
     [key: string]: any;
   }>;
-  readonly defaultCurrencyFormat: Format;
+  readonly defaultCurrencyFormat?: Format;
   /**
    * External dependencies required to enable some features
    * such as uploading images.
@@ -390,7 +390,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       ...config,
       mode: config.mode || "normal",
       custom: config.custom || {},
-      defaultCurrencyFormat: config.defaultCurrencyFormat || "[$$]#,##0.00",
       external: this.setupExternalConfig(config.external || {}),
       transportService,
       client,
@@ -431,6 +430,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       custom: this.config.custom,
       uiActions: this.config,
       session: this.session,
+      defaultCurrencyFormat: this.config.defaultCurrencyFormat,
     };
   }
 
