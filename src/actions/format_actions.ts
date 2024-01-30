@@ -81,20 +81,22 @@ export const formatNumberPercent = createFormatActionSpec({
 export const formatNumberCurrency = createFormatActionSpec({
   name: _t("Currency"),
   descriptionValue: 1000.12,
-  format: (env) => env.model.config.defaultCurrencyFormat,
+  format: (env) => env.model.config.defaultCurrencyFormat ?? DEFAULT_CURRENCY_FORMAT,
 });
 
 export const formatNumberCurrencyRounded: ActionSpec = {
   ...createFormatActionSpec({
     name: _t("Currency rounded"),
     descriptionValue: 1000,
-    format: (env) => roundFormat(env.model.config.defaultCurrencyFormat),
+    format: (env) => roundFormat(env.model.config.defaultCurrencyFormat ?? DEFAULT_CURRENCY_FORMAT),
   }),
   isVisible: (env) => {
     const currencyFormat = env.model.config.defaultCurrencyFormat;
-    return currencyFormat !== roundFormat(currencyFormat);
+    return currencyFormat !== roundFormat(currencyFormat ?? DEFAULT_CURRENCY_FORMAT);
   },
 };
+
+const DEFAULT_CURRENCY_FORMAT = "[$$]#,##0.00";
 
 const EXAMPLE_DATE = parseLiteral("2023/09/26 10:43:00 PM", DEFAULT_LOCALE);
 
