@@ -440,6 +440,14 @@ export const INSERT_LINK = (env: SpreadsheetChildEnv) => {
   env.getStore(CellPopoverStore).open({ col, row }, "LinkEditor");
 };
 
+export const INSERT_LINK_NAME = (env: SpreadsheetChildEnv) => {
+  const sheetId = env.model.getters.getActiveSheetId();
+  const { col, row } = env.model.getters.getActivePosition();
+  const cell = env.model.getters.getEvaluatedCell({ sheetId, col, row });
+
+  return cell && cell.link ? _t("Edit link") : _t("Insert link");
+};
+
 //------------------------------------------------------------------------------
 // Filters action
 //------------------------------------------------------------------------------
