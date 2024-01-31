@@ -22,12 +22,12 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
     if (data.zones.length === 0) {
       return;
     }
-    const { rowsIndex, columnsIndex } = data;
+    const { rowsIndexes, columnsIndexes } = data;
     const borders: (Border | null)[][] = [];
 
-    for (const row of rowsIndex) {
+    for (const row of rowsIndexes) {
       const bordersInRow: (Border | null)[] = [];
-      for (const col of columnsIndex) {
+      for (const col of columnsIndexes) {
         const position = { col, row, sheetId };
         bordersInRow.push(this.getters.getCellBorder(position));
       }

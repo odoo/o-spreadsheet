@@ -26,10 +26,10 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
       return;
     }
 
-    const { rowsIndex, columnsIndex } = data;
+    const { rowsIndexes, columnsIndexes } = data;
     const sheetId = this.getters.getActiveSheetId();
-    const cellPositions = rowsIndex.map((row) =>
-      columnsIndex.map((col) => ({ col, row, sheetId }))
+    const cellPositions = rowsIndexes.map((row) =>
+      columnsIndexes.map((col) => ({ col, row, sheetId }))
     );
 
     return {
