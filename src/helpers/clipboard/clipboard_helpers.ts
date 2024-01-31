@@ -17,9 +17,9 @@ export function getClipboardDataPositions(zones: Zone[]): ClipboardCellData {
     : [zones[zones.length - 1]];
 
   const cellsPosition = clippedZones.map((zone) => positions(zone)).flat();
-  const columnsIndex = [...new Set(cellsPosition.map((p) => p.col))].sort((a, b) => a - b);
-  const rowsIndex = [...new Set(cellsPosition.map((p) => p.row))].sort((a, b) => a - b);
-  return { zones, clippedZones, columnsIndex, rowsIndex };
+  const columnsIndexes = [...new Set(cellsPosition.map((p) => p.col))].sort((a, b) => a - b);
+  const rowsIndexes = [...new Set(cellsPosition.map((p) => p.row))].sort((a, b) => a - b);
+  return { zones, clippedZones, columnsIndexes, rowsIndexes };
 }
 
 /**

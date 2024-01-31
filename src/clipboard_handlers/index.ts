@@ -1,15 +1,15 @@
 import { Registry } from "../registries/registry";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 import { AbstractFigureClipboardHandler } from "./abstract_figure_clipboard_handler";
-import { BorderClipboardHandler } from "./borders";
-import { CellClipboardHandler } from "./cell";
-import { ChartClipboardHandler } from "./chart";
-import { ConditionalFormatClipboardHandler } from "./conditional_format";
-import { DataValidationClipboardHandler } from "./data_validation";
-import { FilterClipboardHandler } from "./filters";
-import { ImageClipboardHandler } from "./image";
-import { MergeClipboardHandler } from "./merge";
-import { SheetClipboardHandler } from "./sheet";
+import { BorderClipboardHandler } from "./borders_clipboard";
+import { CellClipboardHandler } from "./cell_clipboard";
+import { ChartClipboardHandler } from "./chart_clipboard";
+import { ConditionalFormatClipboardHandler } from "./conditional_format_clipboard";
+import { DataValidationClipboardHandler } from "./data_validation_clipboard";
+import { FilterClipboardHandler } from "./filter_clipboard";
+import { ImageClipboardHandler } from "./image_clipboard";
+import { MergeClipboardHandler } from "./merge_clipboard";
+import { SheetClipboardHandler } from "./sheet_clipboard";
 
 export const clipboardHandlersRegistries = {
   figureHandlers: new Registry<typeof AbstractFigureClipboardHandler<any>>(),

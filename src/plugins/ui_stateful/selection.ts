@@ -1,4 +1,4 @@
-import { CellClipboardHandler } from "../../clipboard_handlers/cell";
+import { CellClipboardHandler } from "../../clipboard_handlers/cell_clipboard";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { sum } from "../../functions/helper_math";
 import { average, countAny, countNumbers, max, min } from "../../functions/helper_statistical";

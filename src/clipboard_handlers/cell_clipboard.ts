@@ -45,19 +45,19 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
       };
     }
 
-    const { clippedZones, rowsIndex, columnsIndex } = data;
+    const { clippedZones, rowsIndexes, columnsIndexes } = data;
     const clippedCells: ClipboardCell[][] = [];
 
-    for (let row of rowsIndex) {
+    for (let row of rowsIndexes) {
       let cellsInRow: ClipboardCell[] = [];
-      for (let col of columnsIndex) {
+      for (let col of columnsIndexes) {
         const position = { col, row, sheetId };
         const spreader = this.getters.getArrayFormulaSpreadingOn(position);
         let cell = this.getters.getCell(position);
         const evaluatedCell = this.getters.getEvaluatedCell(position);
         if (spreader) {
           const isSpreaderCopied =
-            rowsIndex.includes(spreader.row) && columnsIndex.includes(spreader.col);
+            rowsIndexes.includes(spreader.row) && columnsIndexes.includes(spreader.col);
           const content = isSpreaderCopied
             ? ""
             : formatValue(evaluatedCell.value, { locale: this.getters.getLocale() });

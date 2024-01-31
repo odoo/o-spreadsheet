@@ -1,4 +1,4 @@
-import { CellClipboardHandler } from "../../clipboard_handlers/cell";
+import { CellClipboardHandler } from "../../clipboard_handlers/cell_clipboard";
 import { deepEquals, positions, range, trimContent, zoneToDimension } from "../../helpers";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
 import { _t } from "../../translation";

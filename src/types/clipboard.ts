@@ -17,8 +17,8 @@ export type ClipboardOperation = "CUT" | "COPY";
 
 export type ClipboardCellData = {
   zones: Zone[];
-  rowsIndex: HeaderIndex[];
-  columnsIndex: HeaderIndex[];
+  rowsIndexes: HeaderIndex[];
+  columnsIndexes: HeaderIndex[];
   clippedZones: Zone[];
 };
 
