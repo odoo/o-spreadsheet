@@ -85,6 +85,20 @@ describe("link display component", () => {
     expect(fixture.querySelector(".o-link-tool")).toBeFalsy();
   });
 
+  test("right-click on a linked cell should show 'Edit Link' instead of 'Insert Link' in the context menu", async () => {
+    setCellContent(model, "A1", "HELLO");
+    await rightClickCell(model, "A1");
+    expect(
+      fixture.querySelector(".o-menu .o-menu-item[data-name='insert_link']")?.textContent
+    ).toBe("Insert link");
+
+    setCellContent(model, "A1", "[label](url.com)");
+    await rightClickCell(model, "A1");
+    expect(
+      fixture.querySelector(".o-menu .o-menu-item[data-name='insert_link']")?.textContent
+    ).toBe("Edit link");
+  });
+
   test("component is closed when cell is deleted", async () => {
     setCellContent(model, "A1", "[label](url.com)");
     await hoverCell(model, "A1", 400);
