@@ -596,13 +596,12 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
    * next cluster if the given cell is outside a cluster or at the border of a cluster in the given direction.
    */
   private getEndOfCluster(startPosition: Position, dim: "cols" | "rows", dir: -1 | 1): HeaderIndex {
-    const sheet = this.getters.getActiveSheet();
     let currentPosition = startPosition;
 
     // If both the current cell and the next cell are not empty, we want to go to the end of the cluster
     const nextCellPosition = this.getNextCellPosition(startPosition, dim, dir);
     let mode: "endOfCluster" | "nextCluster" =
-      !this.isCellEmpty(currentPosition, sheet.id) && !this.isCellEmpty(nextCellPosition, sheet.id)
+      !this.isEvaluatedCellEmpty(currentPosition) && !this.isEvaluatedCellEmpty(nextCellPosition)
         ? "endOfCluster"
         : "nextCluster";
 
@@ -615,7 +614,7 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
       ) {
         break;
       }
-      const isNextCellEmpty = this.isCellEmpty(nextCellPosition, sheet.id);
+      const isNextCellEmpty = this.isEvaluatedCellEmpty(nextCellPosition);
       if (mode === "endOfCluster" && isNextCellEmpty) {
         break;
       } else if (mode === "nextCluster" && !isNextCellEmpty) {
@@ -629,10 +628,23 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
   }
 
   /**
-   * Check if a cell is empty or undefined in the model. If the cell is part of a merge,
-   * check if the merge containing the cell is empty.
+   * Checks if a cell is empty (i.e. does not have a content). If the cell is part of a merge,
+   * the check applies to the main cell of the merge.
    */
-  private isCellEmpty({ col, row }: Position, sheetId = this.getters.getActiveSheetId()): boolean {
+  private isCellEmpty({ col, row }: Position): boolean {
+    const sheetId = this.getters.getActiveSheetId();
+    const position = this.getters.getMainCellPosition({ sheetId, col, row });
+    return !(
+      this.getters.getCorrespondingFormulaCell(position) || this.getters.getCell(position)?.content
+    );
+  }
+
+  /**
+   * Checks if a cell evaluated value is empty. If the cell is part of a merge,
+   * the check applies to the main cell of the merge.
+   */
+  private isEvaluatedCellEmpty({ col, row }: Position): boolean {
+    const sheetId = this.getters.getActiveSheetId();
     const position = this.getters.getMainCellPosition({ sheetId, col, row });
     const cell = this.getters.getEvaluatedCell(position);
     return cell.type === CellValueType.empty;
