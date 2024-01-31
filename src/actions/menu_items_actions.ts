@@ -724,6 +724,14 @@ export const INSERT_LINK = (env: SpreadsheetChildEnv) => {
   env.model.dispatch("OPEN_CELL_POPOVER", { col, row, popoverType: "LinkEditor" });
 };
 
+export const INSERT_LINK_NAME = (env: SpreadsheetChildEnv) => {
+  const sheetId = env.model.getters.getActiveSheetId();
+  const { col, row } = env.model.getters.getActivePosition();
+  const cell = env.model.getters.getEvaluatedCell({ sheetId, col, row });
+
+  return cell && cell.link ? _lt("Edit link") : _lt("Insert link");
+};
+
 //------------------------------------------------------------------------------
 // Filters action
 //------------------------------------------------------------------------------
