@@ -594,8 +594,8 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
     // If both the current cell and the next cell are not empty, we want to go to the end of the cluster
     const nextCellPosition = this.getNextCellPosition(startPosition, dim, dir);
     let mode: "endOfCluster" | "nextCluster" =
-      !this.getters.isCellEmpty({ ...currentPosition, sheetId }) &&
-      !this.getters.isCellEmpty({ ...nextCellPosition, sheetId })
+      !this.getters.isEvaluatedCellEmpty({ ...currentPosition, sheetId }) &&
+      !this.getters.isEvaluatedCellEmpty({ ...nextCellPosition, sheetId })
         ? "endOfCluster"
         : "nextCluster";
 
@@ -608,7 +608,7 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
       ) {
         break;
       }
-      const isNextCellEmpty = this.getters.isCellEmpty({ ...nextCellPosition, sheetId });
+      const isNextCellEmpty = this.getters.isEvaluatedCellEmpty({ ...nextCellPosition, sheetId });
       if (mode === "endOfCluster" && isNextCellEmpty) {
         break;
       } else if (mode === "nextCluster" && !isNextCellEmpty) {

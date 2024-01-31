@@ -20,7 +20,7 @@ export class SheetUIPlugin extends UIPlugin {
     "getCellText",
     "getCellMultiLineText",
     "getContiguousZone",
-    "isCellEmpty",
+    "isEvaluatedCellEmpty",
   ] as const;
 
   private ctx = document.createElement("canvas").getContext("2d")!;
@@ -171,13 +171,25 @@ export class SheetUIPlugin extends UIPlugin {
   }
 
   /**
-   * Check if a cell is empty. If the cell is part of a merge,
-   * check if the merge containing the cell is empty.
+   * Checks if a cell evaluated value is empty. If the cell is part of a merge,
+   * the check applies to the main cell of the merge.
    */
-  isCellEmpty(position: CellPosition): boolean {
+  isEvaluatedCellEmpty(position: CellPosition): boolean {
     const mainPosition = this.getters.getMainCellPosition(position);
     const cell = this.getters.getEvaluatedCell(mainPosition);
     return cell.type === CellValueType.empty;
+  }
+
+  /**
+   * Checks if a cell is empty (i.e. does not have a content or a formula does not spread over it).
+   * If the cell is part of a merge, the check applies to the main cell of the merge.
+   */
+  private isCellEmpty(position: CellPosition): boolean {
+    const mainPosition = this.getters.getMainCellPosition(position);
+    return !(
+      this.getters.getCorrespondingFormulaCell(mainPosition) ||
+      this.getters.getCell(mainPosition)?.content
+    );
   }
 
   private getColMaxWidth(sheetId: UID, index: HeaderIndex): number {
