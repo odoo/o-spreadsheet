@@ -3,6 +3,7 @@ import { MenuItemRegistry } from "../menu_items_registry";
 
 import * as ACTION_EDIT from "../../actions/edit_actions";
 import * as ACTION_INSERT from "../../actions/insert_actions";
+import { INSERT_LINK_NAME } from "../../actions/menu_items_actions";
 
 //------------------------------------------------------------------------------
 // Context Menu Registry
@@ -89,7 +90,7 @@ cellMenuRegistry
   })
   .add("insert_link", {
     ...ACTION_INSERT.insertLink,
-    name: _t("Insert link"),
+    name: INSERT_LINK_NAME,
     sequence: 150,
     separator: true,
   });
