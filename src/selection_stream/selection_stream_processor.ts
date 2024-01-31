@@ -10,6 +10,7 @@ import {
 import { _t } from "../translation";
 import {
   AnchorZone,
+  CellValueType,
   CommandResult,
   Direction,
   DispatchResult,
@@ -19,7 +20,7 @@ import {
   Zone,
 } from "../types";
 import { SelectionEvent, SelectionEventOptions } from "../types/event_stream";
-import { Dimension, HeaderIndex } from "./../types/misc";
+import { CellPosition, Dimension, HeaderIndex } from "./../types/misc";
 import { EventStream, StreamCallbacks } from "./event_stream";
 
 type Delta = [number, number];
@@ -594,8 +595,8 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
     // If both the current cell and the next cell are not empty, we want to go to the end of the cluster
     const nextCellPosition = this.getNextCellPosition(startPosition, dim, dir);
     let mode: "endOfCluster" | "nextCluster" =
-      !this.getters.isCellEmpty({ ...currentPosition, sheetId }) &&
-      !this.getters.isCellEmpty({ ...nextCellPosition, sheetId })
+      !this.isCellSkippableInCluster({ ...currentPosition, sheetId }) &&
+      !this.isCellSkippableInCluster({ ...nextCellPosition, sheetId })
         ? "endOfCluster"
         : "nextCluster";
 
@@ -608,7 +609,7 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
       ) {
         break;
       }
-      const isNextCellEmpty = this.getters.isCellEmpty({ ...nextCellPosition, sheetId });
+      const isNextCellEmpty = this.isCellSkippableInCluster({ ...nextCellPosition, sheetId });
       if (mode === "endOfCluster" && isNextCellEmpty) {
         break;
       } else if (mode === "nextCluster" && !isNextCellEmpty) {
@@ -646,5 +647,13 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
 
   private getPosition(): Position {
     return { ...this.anchor.cell };
+  }
+
+  private isCellSkippableInCluster(position: CellPosition): boolean {
+    const mainPosition = this.getters.getMainCellPosition(position);
+    const cell = this.getters.getEvaluatedCell(mainPosition);
+    return (
+      cell.type === CellValueType.empty || (cell.type === CellValueType.text && cell.value === "")
+    );
   }
 }
