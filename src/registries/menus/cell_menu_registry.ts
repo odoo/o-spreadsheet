@@ -100,7 +100,7 @@ cellMenuRegistry
     action: ACTIONS.DELETE_CELL_SHIFT_LEFT,
   })
   .add("insert_link", {
-    name: _lt("Insert link"),
+    name: ACTIONS.INSERT_LINK_NAME,
     separator: true,
     sequence: 150,
     action: ACTIONS.INSERT_LINK,
