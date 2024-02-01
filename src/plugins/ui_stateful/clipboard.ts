@@ -1,5 +1,7 @@
 import { clipboardHandlersRegistries } from "../../clipboard_handlers";
+import { AbstractCellClipboardHandler } from "../../clipboard_handlers/abstract_cell_clipboard_handler";
 import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
+import { AbstractFigureClipboardHandler } from "../../clipboard_handlers/abstract_figure_clipboard_handler";
 import { cellStyleToCss, cssPropertiesToCss } from "../../components/helpers";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
@@ -12,7 +14,6 @@ import {
   ClipboardPasteTarget,
 } from "../../types/clipboard";
 import {
-  ClipboardCell,
   Command,
   CommandResult,
   Dimension,
@@ -32,12 +33,18 @@ interface InsertDeleteCellsTargets {
   paste: Zone[];
 }
 
-type MinimalClipboardData = {
-  cells?: ClipboardCell[][];
-  zones?: Zone[];
-  figureId?: UID;
-  [key: string]: unknown;
-};
+// type MinimalClipboardData = {
+//   cells?: ClipboardCell[][];
+//   zones?: Zone[];
+//   figureId?: UID;
+//   [key: string]: unknown;
+// };
+
+interface CopiedData {
+  copiedZones?: Zone[];
+  content: Map<ClipboardHandler<any>, any>;
+}
+
 /**
  * Clipboard Plugin
  *
@@ -56,8 +63,10 @@ export class ClipboardPlugin extends UIPlugin {
   private status: "visible" | "invisible" = "invisible";
   private paintFormatStatus: "inactive" | "oneOff" | "persistent" = "inactive";
   private originSheetId?: UID;
-  private copiedData?: MinimalClipboardData;
+  private copiedData?: CopiedData;
   private _isCutOperation?: boolean;
+  private cellHandlers: AbstractCellClipboardHandler<any, any>[] = [];
+  private figureHandlers: AbstractFigureClipboardHandler<any>[] = [];
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -118,6 +127,9 @@ export class ClipboardPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
+      case "START":
+        this.initializeHandlers();
+        break;
       case "COPY":
       case "CUT":
         const zones = this.getters.getSelectedZones();
@@ -279,31 +291,18 @@ export class ClipboardPlugin extends UIPlugin {
     }
   }
 
-  private convertOSClipboardData(clipboardData: string): {} {
+  private convertOSClipboardData(clipboardData: string): CopiedData {
     this._isCutOperation = false;
-    const handlers: ClipboardHandler<any>[] = clipboardHandlersRegistries.figureHandlers
-      .getAll()
-      .map((handler) => new handler(this.getters, this.dispatch));
-    clipboardHandlersRegistries.cellHandlers
-      .getAll()
-      .forEach((handler) => handlers.push(new handler(this.getters, this.dispatch)));
-    let copiedData = {};
-    for (const handler of handlers) {
+    const copiedContent: Map<ClipboardHandler<any>, any> = new Map();
+    for (const handler of this.cellHandlers) {
       const data = handler.convertOSClipboardData(clipboardData);
-      copiedData = { ...copiedData, ...data };
+      copiedContent.set(handler, data);
     }
-    return copiedData;
+    return { content: copiedContent };
   }
 
   private selectClipboardHandlers(data: {}): ClipboardHandler<any>[] {
-    if ("figureId" in data) {
-      return clipboardHandlersRegistries.figureHandlers
-        .getAll()
-        .map((handler) => new handler(this.getters, this.dispatch));
-    }
-    return clipboardHandlersRegistries.cellHandlers
-      .getAll()
-      .map((handler) => new handler(this.getters, this.dispatch));
+    return "figureId" in data ? this.figureHandlers : this.cellHandlers;
   }
 
   private isCutAllowedOn(zones: Zone[]) {
@@ -331,11 +330,11 @@ export class ClipboardPlugin extends UIPlugin {
   }
 
   private isColRowDirtyingClipboard(position: HeaderIndex, dimension: Dimension): boolean {
-    if (!this.copiedData || !this.copiedData.zones) {
+    if (!this.copiedData || !this.copiedData.copiedZones) {
       return false;
     }
-    const { zones } = this.copiedData;
-    for (let zone of zones) {
+    const { copiedZones } = this.copiedData;
+    for (let zone of copiedZones) {
       if (dimension === "COL" && position <= zone.right) {
         return true;
       }
@@ -346,15 +345,14 @@ export class ClipboardPlugin extends UIPlugin {
     return false;
   }
 
-  private copy(operation: "COPY" | "CUT", zones: Zone[]): MinimalClipboardData {
-    let copiedData = {};
+  private copy(operation: "COPY" | "CUT", zones: Zone[]): CopiedData {
+    const copiedContent = new Map<ClipboardHandler<any>, any>();
     this._isCutOperation = operation === "CUT";
     const clipboardData = this.getClipboardData(zones);
     for (const handler of this.selectClipboardHandlers(clipboardData)) {
-      const data = handler.copy(clipboardData);
-      copiedData = { ...copiedData, ...data };
+      copiedContent.set(handler, handler.copy(clipboardData));
     }
-    return copiedData;
+    return { copiedZones: zones, content: copiedContent };
   }
 
   private paste(zones: Zone[], options: ClipboardOptions | undefined) {
@@ -440,6 +438,16 @@ export class ClipboardPlugin extends UIPlugin {
         position: "after",
       });
     }
+  }
+
+  private initializeHandlers() {
+    this.figureHandlers = clipboardHandlersRegistries.figureHandlers
+      .getAll()
+      .map((handler) => new handler(this.getters, this.dispatch));
+
+    this.cellHandlers = clipboardHandlersRegistries.cellHandlers
+      .getAll()
+      .map((handler) => new handler(this.getters, this.dispatch));
   }
 
   // ---------------------------------------------------------------------------

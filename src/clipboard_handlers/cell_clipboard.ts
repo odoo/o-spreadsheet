@@ -24,26 +24,8 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
   ClipboardContent,
   ClipboardCell
 > {
-  isCutAllowed(data: ClipboardCellData) {
-    if (data.zones.length !== 1) {
-      return CommandResult.WrongCutSelection;
-    }
-    return CommandResult.Success;
-  }
-
   copy(data: ClipboardCellData): ClipboardContent | undefined {
-    if (!("zones" in data) || !data.zones.length) {
-      return;
-    }
     const sheetId = this.getters.getActiveSheetId();
-    const zones = data.zones;
-    if (!zones.length) {
-      return {
-        cells: [[]],
-        zones: [],
-        sheetId,
-      };
-    }
 
     const { clippedZones, rowsIndexes, columnsIndexes } = data;
     const clippedCells: ClipboardCell[][] = [];
@@ -117,7 +99,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     content: ClipboardContent,
     options?: ClipboardOptions | undefined
   ) {
-    if (!("cells" in content) || !("zones" in target) || !target.zones.length) {
+    if (!("cells" in content)) {
       return;
     }
     const zones = target.zones;

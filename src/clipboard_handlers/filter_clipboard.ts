@@ -15,19 +15,9 @@ interface ClipboardContent {
 
 export class FilterClipboardHandler extends AbstractCellClipboardHandler<ClipboardContent, any> {
   copy(data: ClipboardCellData): ClipboardContent | undefined {
-    if (!data.zones.length) {
-      return;
-    }
     const sheetId = this.getters.getActiveSheetId();
 
     const zones = data.zones;
-    if (!zones.length) {
-      return {
-        zones: data.clippedZones,
-        tables: [],
-        sheetId,
-      };
-    }
 
     const tables: CopiedTable[] = [];
     for (const zone of zones) {
@@ -54,7 +44,7 @@ export class FilterClipboardHandler extends AbstractCellClipboardHandler<Clipboa
     content: ClipboardContent,
     options?: ClipboardOptions | undefined
   ) {
-    if (!("tables" in content) || !target.zones.length) {
+    if (!("tables" in content)) {
       return;
     }
     const zones = target.zones;

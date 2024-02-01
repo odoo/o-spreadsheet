@@ -815,12 +815,27 @@ describe("clipboard", () => {
     });
   });
 
-  describe("cut/paste several zones", () => {
-    test("cutting is not allowed if multiple selection", () => {
-      const model = new Model();
-      const result = cut(model, "A1", "A2");
-      expect(result).toBeCancelledBecause(CommandResult.WrongCutSelection);
-    });
+  test("cut/paste several compatibles zones", () => {
+    model = new Model();
+    setCellContent(model, "A1", "a1");
+    setCellContent(model, "A2", "a2");
+    cut(model, "A1", "A2");
+    paste(model, "C1");
+    expect(getCellContent(model, "C1")).toBe("a1");
+    expect(getCellContent(model, "C2")).toBe("a2");
+    expect(getCellContent(model, "A1")).toBe("");
+    expect(getCellContent(model, "A2")).toBe("");
+  });
+
+  test("cut/paste non compatible zones: only the last zone is cut", () => {
+    model = new Model();
+    setCellContent(model, "A1", "a1");
+    setCellContent(model, "C2", "a2");
+    cut(model, "A1", "C2");
+    paste(model, "D1");
+    expect(getCellContent(model, "A1")).toBe("a1");
+    expect(getCellContent(model, "C2")).toBe("");
+    expect(getCellContent(model, "D1")).toBe("a2");
   });
 
   describe("copy/paste several zones", () => {

@@ -22,10 +22,6 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
   private readonly uuidGenerator = new UuidGenerator();
 
   copy(data: ClipboardCellData): ClipboardContent | undefined {
-    if (!data.zones.length) {
-      return;
-    }
-
     const { rowsIndexes, columnsIndexes } = data;
     const sheetId = this.getters.getActiveSheetId();
     const cellPositions = rowsIndexes.map((row) =>
@@ -42,12 +38,7 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
     clippedContent: ClipboardContent,
     options?: ClipboardOptions
   ) {
-    if (
-      !clippedContent?.cellPositions ||
-      options?.pasteOption === "asValue" ||
-      !("zones" in target) ||
-      !target.zones.length
-    ) {
+    if (!clippedContent?.cellPositions || options?.pasteOption === "asValue") {
       return;
     }
     const zones = target.zones;

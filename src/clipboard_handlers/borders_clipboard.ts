@@ -19,9 +19,6 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
 > {
   copy(data: ClipboardCellData): ClipboardContent | undefined {
     const sheetId = this.getters.getActiveSheetId();
-    if (data.zones.length === 0) {
-      return;
-    }
     const { rowsIndexes, columnsIndexes } = data;
     const borders: (Border | null)[][] = [];
 
@@ -37,16 +34,10 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
   }
 
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
-    if (!content) {
+    if (!("borders" in content) || options?.pasteOption === "asValue") {
       return;
     }
     const sheetId = this.getters.getActiveSheetId();
-    if (options?.pasteOption === "asValue") {
-      return;
-    }
-    if (!("borders" in content) || !("zones" in target) || !target.zones.length) {
-      return;
-    }
     const zones = target.zones;
     if (!options?.isCutOperation) {
       this.pasteFromCopy(sheetId, zones, content.borders);
