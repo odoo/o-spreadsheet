@@ -12,9 +12,7 @@ import {
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 
 interface ClipboardContent {
-  cells: ClipboardCell[][];
-  zones: Zone[];
-  sheetId: UID;
+  merges: Merge[];
 }
 
 export class MergeClipboardHandler extends AbstractCellClipboardHandler<
