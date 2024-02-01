@@ -2,6 +2,7 @@
   <t t-name="o-spreadsheet-Spreadsheet">
     <div
       class="o-spreadsheet"
+      t-if="!env.model.getters.isPrintMode()"
       t-on-keydown="(ev) => !env.isDashboard() and this.onKeydown(ev)"
       t-ref="spreadsheet"
       t-att-style="getStyle()">
@@ -46,5 +47,8 @@
         <BottomBar onClick="() => this.focusGrid()"/>
       </t>
     </div>
+    <t t-else="">
+      <SpreadsheetPrint canvasSize="() => this.getPrintRect()"/>
+    </t>
   </t>
 </templates>

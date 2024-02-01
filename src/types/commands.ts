@@ -153,6 +153,8 @@ export const readonlyAllowedCommands = new Set<CommandTypes>([
   "CLOSE_CELL_POPOVER",
 
   "UPDATE_FILTER",
+
+  "SET_PRINT_MODE",
 ]);
 
 export const coreTypes = new Set<CoreCommandTypes>([
@@ -1004,6 +1006,11 @@ export interface SplitTextIntoColumnsCommand {
   force?: boolean;
 }
 
+export interface SetPrintModeCommand {
+  type: "SET_PRINT_MODE";
+  active: boolean;
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -1155,7 +1162,8 @@ export type LocalCommand =
   | UpdateFilterCommand
   | SplitTextIntoColumnsCommand
   | RemoveDuplicatesCommand
-  | TrimWhitespaceCommand;
+  | TrimWhitespaceCommand
+  | SetPrintModeCommand;
 
 export type Command = CoreCommand | LocalCommand;
 

@@ -1,4 +1,4 @@
-import { getDefaultSheetViewSize } from "../../constants";
+import { getDefaultSheetViewSize, HEADER_HEIGHT, HEADER_WIDTH } from "../../constants";
 import { clip, findCellInNewZone, isDefined, range } from "../../helpers";
 import { scrollDelay } from "../../helpers/index";
 import { InternalViewport } from "../../helpers/internal_viewport";
@@ -7,9 +7,9 @@ import {
   CellPosition,
   Command,
   CommandResult,
+  Dimension,
   DOMCoordinates,
   DOMDimension,
-  Dimension,
   EdgeScrollInfo,
   Figure,
   HeaderIndex,
@@ -99,6 +99,8 @@ export class SheetViewPlugin extends UIPlugin {
     "getSheetViewVisibleRows",
     "getFrozenSheetViewRatio",
     "isPositionVisible",
+    "getFullSheetViewRect",
+    "getVisibleSheetViewRect",
   ] as const;
 
   readonly viewports: Record<UID, SheetViewports | undefined> = {};
@@ -377,6 +379,33 @@ export class SheetViewPlugin extends UIPlugin {
     const x = this.getters.getColDimensions(sheetId, xSplit).start;
     const y = this.getters.getRowDimensions(sheetId, ySplit).start;
     return { x, y, width, height };
+  }
+
+  getFullSheetViewRect(): Rect {
+    const sheetId = this.getters.getActiveSheetId();
+    this.ensureMainViewportExist(sheetId);
+    const width =
+      this.viewports[sheetId]!.bottomRight.getMaxSize().width +
+      (this.viewports[sheetId]!.bottomLeft?.getMaxSize().width || 0);
+    const height =
+      this.viewports[sheetId]!.bottomRight.getMaxSize().height +
+      (this.viewports[sheetId]!.topRight?.getMaxSize().height || 0);
+    const x =
+      this.getters.getColDimensions(sheetId, 0).start +
+      (this.getters.visibleHeaders() ? 0 : HEADER_WIDTH);
+    const y =
+      this.getters.getRowDimensions(sheetId, 0).start +
+      (this.getters.visibleHeaders() ? 0 : HEADER_HEIGHT);
+    return { x, y, width, height };
+  }
+
+  getVisibleSheetViewRect(): Rect {
+    return {
+      x: this.gridOffsetX,
+      y: this.gridOffsetY,
+      width: this.sheetViewWidth,
+      height: this.sheetViewHeight,
+    };
   }
 
   private getMaximumSheetOffset(): { maxOffsetX: Pixel; maxOffsetY: Pixel } {

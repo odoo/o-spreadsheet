@@ -7,6 +7,11 @@ body {
     "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
     "Noto Color Emoji" !important;
 }
-.o-spreadsheet {
-  height: 100%;
+
+@media print {
+  .o-spreadsheet-print {
+    top: 0;
+    left: 0;
+    position: absolute;
+  }
 }
