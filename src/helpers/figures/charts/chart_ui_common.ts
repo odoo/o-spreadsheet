@@ -182,9 +182,10 @@ export function getChartLabelValues(
       };
     }
   } else if (dataSets.length === 1) {
-    for (let i = 0; i < getData(getters, dataSets[0]).length; i++) {
-      labels.formattedValues.push("");
-      labels.values.push("");
+    if (getData(getters, dataSets[0]).every((e) => typeof e === "string")) {
+      const uniqueLabels = Array.from(new Set(getData(getters, dataSets[0])));
+      labels.values.push(...uniqueLabels);
+      labels.formattedValues.push(...uniqueLabels);
     }
   } else {
     if (dataSets[0]) {
@@ -211,6 +212,20 @@ export function getChartDatasetFormat(getters: Getters, dataSets: DataSet[]): Fo
   return undefined;
 }
 
+function countStringOccurrences(data) {
+  const stringCounts = {};
+  for (let value of data) {
+    if (stringCounts[value]) {
+      stringCounts[value]++;
+    } else {
+      stringCounts[value] = 1;
+    }
+  }
+  return Object.entries(stringCounts).map(([value, count]) => {
+    return count;
+  });
+}
+
 export function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetValues[] {
   const datasetValues: DatasetValues[] = [];
   for (const [dsIndex, ds] of Object.entries(dataSets)) {
@@ -232,6 +247,10 @@ export function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): Da
       label = label = `${ChartTerms.Series} ${parseInt(dsIndex) + 1}`;
     }
     let data = ds.dataRange ? getData(getters, ds) : [];
+    if (data.every((e) => typeof e === "string" && !e.startsWith("#"))) {
+      data = countStringOccurrences(data);
+    }
+
     datasetValues.push({ data, label });
   }
   return datasetValues;
