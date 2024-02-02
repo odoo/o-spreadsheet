@@ -25,7 +25,7 @@ import { ComposerSelection, ComposerStore } from "../../src/plugins/ui_stateful"
 import { topbarMenuRegistry } from "../../src/registries";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import { Registry } from "../../src/registries/registry";
-import { DependencyContainer, Store, useStore } from "../../src/store_engine";
+import { DependencyContainer, Get, Store, useStore } from "../../src/store_engine";
 import { ModelStore } from "../../src/stores";
 import { HighlightProvider, HighlightStore } from "../../src/stores/highlight_store";
 import { NotificationStore } from "../../src/stores/notification_store";
@@ -45,6 +45,7 @@ import {
   Format,
   GridRenderingContext,
   Highlight,
+  LAYERS,
   Matrix,
   RENDERING_LAYERS,
   RangeData,
@@ -129,6 +130,14 @@ export function makeTestFixture() {
   return fixture;
 }
 
+class FakeRendererStore extends RendererStore {
+  constructor(get: Get) {
+    super(get);
+  }
+  // we don't want to actually draw anything on the canvas as it cannot be tested
+  drawLayer(renderingContext: GridRenderingContext, layer: LAYERS) {}
+}
+
 export function makeTestEnv(mockEnv: Partial<SpreadsheetChildEnv> = {}): SpreadsheetChildEnv {
   const model = mockEnv.model || new Model();
   const container = new DependencyContainer();
@@ -138,7 +147,9 @@ export function makeTestEnv(mockEnv: Partial<SpreadsheetChildEnv> = {}): Spreads
     raiseError: mockEnv.raiseError || (() => {}),
     askConfirmation: mockEnv.askConfirmation || (() => {}),
   };
+
   container.inject(NotificationStore, notificationStore);
+  container.inject(RendererStore, new FakeRendererStore(container.get));
   return {
     model,
     isDashboard: mockEnv.isDashboard || (() => false),

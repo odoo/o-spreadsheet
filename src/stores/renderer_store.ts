@@ -1,14 +1,12 @@
 import { ReactiveStore } from "../store_engine";
 import { GridRenderingContext, LAYERS } from "../types";
-import { ModelStore } from "./model_store";
 
-interface Renderer {
+export interface Renderer {
   drawLayer(ctx: GridRenderingContext, layer: LAYERS): void;
-  renderingLayers: LAYERS[];
+  renderingLayers: Readonly<LAYERS[]>;
 }
 
 export class RendererStore extends ReactiveStore {
-  protected model = this.get(ModelStore);
   private renderers: Partial<Record<LAYERS, Renderer[]>> = {};
 
   register(renderer: Renderer) {
@@ -29,13 +27,15 @@ export class RendererStore extends ReactiveStore {
     }
   }
 
-  drawLayer(ctx: GridRenderingContext, layer: LAYERS) {
+  drawLayer(context: GridRenderingContext, layer: LAYERS) {
     const renderers = this.renderers[layer];
     if (!renderers) {
       return;
     }
     for (const renderer of renderers) {
-      renderer.drawLayer(ctx, layer);
+      context.ctx.save();
+      renderer.drawLayer(context, layer);
+      context.ctx.restore();
     }
   }
 }

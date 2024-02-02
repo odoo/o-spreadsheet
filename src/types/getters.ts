@@ -25,7 +25,6 @@ import { CollaborativePlugin } from "../plugins/ui_feature/collaborative";
 import { FindAndReplacePlugin } from "../plugins/ui_feature/find_and_replace";
 import { HeaderVisibilityUIPlugin } from "../plugins/ui_feature/header_visibility_ui";
 import { HistoryPlugin } from "../plugins/ui_feature/local_history";
-import { RendererPlugin } from "../plugins/ui_feature/renderer";
 import { SortPlugin } from "../plugins/ui_feature/sort";
 import { SplitToColumnsPlugin } from "../plugins/ui_feature/split_to_columns";
 import { UIOptionsPlugin } from "../plugins/ui_feature/ui_options";
@@ -123,7 +122,6 @@ export type Getters = {
   PluginGetters<typeof HeaderVisibilityUIPlugin> &
   PluginGetters<typeof CustomColorsPlugin> &
   PluginGetters<typeof AutomaticSumPlugin> &
-  PluginGetters<typeof RendererPlugin> &
   PluginGetters<typeof GridSelectionPlugin> &
   PluginGetters<typeof CollaborativePlugin> &
   PluginGetters<typeof SortPlugin> &

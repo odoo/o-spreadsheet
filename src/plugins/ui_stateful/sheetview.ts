@@ -26,7 +26,7 @@ import {
   Zone,
   invalidateEvaluationCommands,
 } from "../../types/index";
-import { PixelPosition } from "../../types/misc";
+import { HeaderDimensions, PixelPosition } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 type SheetViewports = {
@@ -99,6 +99,8 @@ export class SheetViewPlugin extends UIPlugin {
     "getSheetViewVisibleRows",
     "getFrozenSheetViewRatio",
     "isPositionVisible",
+    "getColDimensionsInViewport",
+    "getRowDimensionsInViewport",
   ] as const;
 
   readonly viewports: Record<UID, SheetViewports | undefined> = {};
@@ -524,6 +526,38 @@ export class SheetViewPlugin extends UIPlugin {
     const x = this.getters.getColDimensions(sheetId, xSplit).start;
     const y = this.getters.getRowDimensions(sheetId, ySplit).start;
     return { x, y };
+  }
+
+  /**
+   * Returns the size, start and end coordinates of a column relative to the left
+   * column of the current viewport
+   */
+  getColDimensionsInViewport(sheetId: UID, col: HeaderIndex): HeaderDimensions {
+    const left = Math.min(...this.getters.getSheetViewVisibleCols());
+    const start = this.getters.getColRowOffsetInViewport("COL", left, col);
+    const size = this.getters.getColSize(sheetId, col);
+    const isColHidden = this.getters.isColHidden(sheetId, col);
+    return {
+      start,
+      size: size,
+      end: start + (isColHidden ? 0 : size),
+    };
+  }
+
+  /**
+   * Returns the size, start and end coordinates of a row relative to the top row
+   * of the current viewport
+   */
+  getRowDimensionsInViewport(sheetId: UID, row: HeaderIndex): HeaderDimensions {
+    const top = Math.min(...this.getters.getSheetViewVisibleRows());
+    const start = this.getters.getColRowOffsetInViewport("ROW", top, row);
+    const size = this.getters.getRowSize(sheetId, row);
+    const isRowHidden = this.getters.isRowHidden(sheetId, row);
+    return {
+      start,
+      size: size,
+      end: start + (isRowHidden ? 0 : size),
+    };
   }
 
   // ---------------------------------------------------------------------------

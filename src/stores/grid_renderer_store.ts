@@ -1,4 +1,6 @@
-import { ICONS } from "../../components/icons/icons";
+import { markRaw } from "@odoo/owl";
+import { ModelStore } from ".";
+import { ICONS } from "../components/icons/icons";
 import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
   BACKGROUND_HEADER_COLOR,
@@ -21,7 +23,7 @@ import {
   MIN_CELL_TEXT_MARGIN,
   MIN_CF_ICON_MARGIN,
   TEXT_HEADER_COLOR,
-} from "../../constants";
+} from "../constants";
 import {
   computeTextFont,
   computeTextFontSizeInPixels,
@@ -33,70 +35,49 @@ import {
   overlap,
   positionToZone,
   union,
-} from "../../helpers/index";
+} from "../helpers/index";
+import { Get, Store } from "../store_engine";
 import {
   Align,
   Box,
   CellPosition,
   CellValueType,
   Dimension,
+  Getters,
   GridRenderingContext,
-  HeaderDimensions,
   HeaderIndex,
   LAYERS,
   Pixel,
   UID,
   Viewport,
   Zone,
-} from "../../types/index";
-import { UIPlugin } from "../ui_plugin";
-
+} from "../types/index";
+import { RendererStore } from "./renderer_store";
 // -----------------------------------------------------------------------------
 // Constants, types, helpers, ...
 // -----------------------------------------------------------------------------
 
 export const CELL_BACKGROUND_GRIDLINE_STROKE_STYLE = "#111";
 
-export class RendererPlugin extends UIPlugin {
-  static layers = [LAYERS.Background, LAYERS.Headers];
-  static getters = ["getColDimensionsInViewport", "getRowDimensionsInViewport"] as const;
+export class GridRenderer {
+  private getters: Getters;
+  private renderer: Store<RendererStore>;
 
-  private boxes: Box[] = [];
-
-  // ---------------------------------------------------------------------------
-  // Getters
-  // ---------------------------------------------------------------------------
-
-  /**
-   * Returns the size, start and end coordinates of a column relative to the left
-   * column of the current viewport
-   */
-  getColDimensionsInViewport(sheetId: UID, col: HeaderIndex): HeaderDimensions {
-    const left = Math.min(...this.getters.getSheetViewVisibleCols());
-    const start = this.getters.getColRowOffsetInViewport("COL", left, col);
-    const size = this.getters.getColSize(sheetId, col);
-    const isColHidden = this.getters.isColHidden(sheetId, col);
-    return {
-      start,
-      size: size,
-      end: start + (isColHidden ? 0 : size),
-    };
+  constructor(get: Get) {
+    this.getters = get(ModelStore).getters;
+    this.renderer = get(RendererStore);
+    this.renderer.register(this);
+    /**
+     * Mark the instance as raw to avoid reactivity as this class is instanciated
+     * as a Store by `useGridDrawing` (which casts it as reactive).
+     *
+     * Calling `this.` on a reactive instance is significantly slower than on a raw object.
+     */
+    markRaw(this);
   }
 
-  /**
-   * Returns the size, start and end coordinates of a row relative to the top row
-   * of the current viewport
-   */
-  getRowDimensionsInViewport(sheetId: UID, row: HeaderIndex): HeaderDimensions {
-    const top = Math.min(...this.getters.getSheetViewVisibleRows());
-    const start = this.getters.getColRowOffsetInViewport("ROW", top, row);
-    const size = this.getters.getRowSize(sheetId, row);
-    const isRowHidden = this.getters.isRowHidden(sheetId, row);
-    return {
-      start,
-      size: size,
-      end: start + (isRowHidden ? 0 : size),
-    };
+  get renderingLayers() {
+    return [LAYERS.Background, LAYERS.Headers];
   }
 
   /**
@@ -118,13 +99,13 @@ export class RendererPlugin extends UIPlugin {
   drawLayer(renderingContext: GridRenderingContext, layer: LAYERS) {
     switch (layer) {
       case LAYERS.Background:
-        this.boxes = this.getGridBoxes();
-        this.drawBackground(renderingContext);
-        this.drawOverflowingCellBackground(renderingContext);
-        this.drawCellBackground(renderingContext);
-        this.drawBorders(renderingContext);
-        this.drawTexts(renderingContext);
-        this.drawIcon(renderingContext);
+        const boxes = this.getGridBoxes();
+        this.drawBackground(renderingContext, boxes);
+        this.drawOverflowingCellBackground(renderingContext, boxes);
+        this.drawCellBackground(renderingContext, boxes);
+        this.drawBorders(renderingContext, boxes);
+        this.drawTexts(renderingContext, boxes);
+        this.drawIcon(renderingContext, boxes);
         this.drawFrozenPanes(renderingContext);
         break;
       case LAYERS.Headers:
@@ -136,7 +117,7 @@ export class RendererPlugin extends UIPlugin {
     }
   }
 
-  private drawBackground(renderingContext: GridRenderingContext) {
+  private drawBackground(renderingContext: GridRenderingContext, boxes: Box[]) {
     const { ctx, thinLineWidth } = renderingContext;
     const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
 
@@ -150,7 +131,7 @@ export class RendererPlugin extends UIPlugin {
     const inset = areGridLinesVisible ? 0.1 * thinLineWidth : 0;
 
     if (areGridLinesVisible) {
-      for (const box of this.boxes) {
+      for (const box of boxes) {
         ctx.strokeStyle = CELL_BORDER_COLOR;
         ctx.lineWidth = thinLineWidth;
         ctx.strokeRect(box.x + inset, box.y + inset, box.width - 2 * inset, box.height - 2 * inset);
@@ -158,9 +139,9 @@ export class RendererPlugin extends UIPlugin {
     }
   }
 
-  private drawCellBackground(renderingContext: GridRenderingContext) {
+  private drawCellBackground(renderingContext: GridRenderingContext, boxes: Box[]) {
     const { ctx } = renderingContext;
-    for (const box of this.boxes) {
+    for (const box of boxes) {
       let style = box.style;
       if (style.fillColor && style.fillColor !== "#ffffff") {
         ctx.fillStyle = style.fillColor || "#ffffff";
@@ -177,9 +158,9 @@ export class RendererPlugin extends UIPlugin {
     }
   }
 
-  private drawOverflowingCellBackground(renderingContext: GridRenderingContext) {
+  private drawOverflowingCellBackground(renderingContext: GridRenderingContext, boxes: Box[]) {
     const { ctx, thinLineWidth } = renderingContext;
-    for (const box of this.boxes) {
+    for (const box of boxes) {
       if (box.content && box.isOverflow) {
         const align = box.content.align || "left";
         let x: number;
@@ -204,9 +185,9 @@ export class RendererPlugin extends UIPlugin {
     }
   }
 
-  private drawBorders(renderingContext: GridRenderingContext) {
+  private drawBorders(renderingContext: GridRenderingContext, boxes: Box[]) {
     const { ctx } = renderingContext;
-    for (let box of this.boxes) {
+    for (let box of boxes) {
       const border = box.border;
       if (border) {
         const { x, y, width, height } = box;
@@ -289,11 +270,11 @@ export class RendererPlugin extends UIPlugin {
     }
   }
 
-  private drawTexts(renderingContext: GridRenderingContext) {
+  private drawTexts(renderingContext: GridRenderingContext, boxes: Box[]) {
     const { ctx } = renderingContext;
     ctx.textBaseline = "top";
     let currentFont;
-    for (let box of this.boxes) {
+    for (let box of boxes) {
       if (box.content) {
         const style = box.style || {};
         const align = box.content.align || "left";
@@ -356,9 +337,9 @@ export class RendererPlugin extends UIPlugin {
     }
   }
 
-  private drawIcon(renderingContext: GridRenderingContext) {
+  private drawIcon(renderingContext: GridRenderingContext, boxes: Box[]) {
     const { ctx } = renderingContext;
-    for (const box of this.boxes) {
+    for (const box of boxes) {
       if (box.image) {
         const icon: HTMLImageElement = box.image.image;
         if (box.image.clipIcon) {
@@ -632,7 +613,6 @@ export class RendererPlugin extends UIPlugin {
         (cell.type === CellValueType.error && !!cell.message) ||
         this.getters.isDataValidationInvalid(position),
     };
-
     if (cell.type === CellValueType.empty || this.getters.isCellValidCheckbox(position)) {
       return box;
     }
