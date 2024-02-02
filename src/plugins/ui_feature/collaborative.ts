@@ -105,7 +105,7 @@ export class CollaborativePlugin extends UIPlugin {
     return clients;
   }
 
-  drawGrid(renderingContext: GridRenderingContext) {
+  drawLayer(renderingContext: GridRenderingContext) {
     if (this.getters.isDashboard()) {
       return;
     }

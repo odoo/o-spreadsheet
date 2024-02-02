@@ -149,7 +149,7 @@ class PartyPlugin extends CorePlugin {
 
 As our core plugin is now able to handle its proper state, we need a way to reflect this state in the UI. This can be done with mainly two different ways:
 
-- Using the `drawGrid` method on UIPlugin
+- Using the `drawLayer` method on UIPlugin
 
 This method will be called in order to draw content directly on the canvas.
 
@@ -160,7 +160,7 @@ This method is explained [here](./ui_extension.md)
 ```typescript
 class PartyDrawerPlugin extends UIPlugin {
 
-  drawGrid(renderingContext: GridRenderingContext, layer: LAYERS) {
+  drawLayer(renderingContext: GridRenderingContext, layer: LAYERS) {
     if (layer === LAYERS.Headers) {
       // TODO
       for (const cell of )

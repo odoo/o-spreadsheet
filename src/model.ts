@@ -594,14 +594,14 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * context. This is probably the way we should do if we want to be able to
    * freeze a part of the grid (so, we would need to render different zones)
    */
-  drawGrid(context: GridRenderingContext, layer: LAYERS) {
+  drawLayer(context: GridRenderingContext, layer: LAYERS) {
     const renderers = this.renderers[layer];
     if (!renderers) {
       return;
     }
     for (const renderer of renderers) {
       context.ctx.save();
-      renderer.drawGrid(context, layer);
+      renderer.drawLayer(context, layer);
       context.ctx.restore();
     }
   }

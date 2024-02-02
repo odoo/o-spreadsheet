@@ -585,7 +585,7 @@ export class ClipboardPlugin extends UIPlugin {
   // Grid rendering
   // ---------------------------------------------------------------------------
 
-  drawGrid(renderingContext: GridRenderingContext) {
+  drawLayer(renderingContext: GridRenderingContext) {
     if (this.status !== "visible" || !this.copiedData) {
       return;
     }

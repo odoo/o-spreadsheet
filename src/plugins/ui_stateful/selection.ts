@@ -761,7 +761,7 @@ export class GridSelectionPlugin extends UIPlugin {
   // Grid rendering
   // ---------------------------------------------------------------------------
 
-  drawGrid(renderingContext: GridRenderingContext) {
+  drawLayer(renderingContext: GridRenderingContext) {
     if (this.getters.isDashboard()) {
       return;
     }

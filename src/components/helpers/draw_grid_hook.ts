@@ -35,7 +35,7 @@ export function useGridDrawing(refName: string, model: Model, canvasSize: () => 
     ctx.translate(-CANVAS_SHIFT, -CANVAS_SHIFT);
     ctx.scale(dpr, dpr);
     for (const layer of RENDERING_LAYERS) {
-      model.drawGrid(renderingContext, layer);
+      model.drawLayer(renderingContext, layer);
       rendererManager.drawLayer(renderingContext, layer);
     }
   }
