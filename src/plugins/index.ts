@@ -32,7 +32,6 @@ import {
   FindAndReplacePlugin,
   FormatPlugin,
   HeaderVisibilityUIPlugin,
-  RendererPlugin,
   SheetUIPlugin,
   SortPlugin,
   UIOptionsPlugin,
@@ -68,7 +67,6 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
 export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("ui_sheet", SheetUIPlugin)
   .add("ui_options", UIOptionsPlugin)
-  .add("grid renderer", RendererPlugin)
   .add("autofill", AutofillPlugin)
   .add("find_and_replace", FindAndReplacePlugin)
   .add("sort", SortPlugin)

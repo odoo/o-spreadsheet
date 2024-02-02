@@ -1,8 +1,6 @@
 import { Model } from "../../src";
-import { addDataValidation, setCellContent, setStyle } from "../test_helpers/commands_helpers";
+import { addDataValidation, setStyle } from "../test_helpers/commands_helpers";
 import { getStyle } from "../test_helpers/getters_helpers";
-import { drawGrid } from "../test_helpers/helpers";
-import { MockGridRenderingContext } from "../test_helpers/renderer_helpers";
 
 describe("Checkbox in model", () => {
   let model: Model;
@@ -26,36 +24,6 @@ describe("Checkbox in model", () => {
       fillColor: "#FF0000",
       align: "center",
       verticalAlign: "middle",
-    });
-  });
-
-  describe("renderer", () => {
-    let renderedTexts: string[];
-    let ctx: MockGridRenderingContext;
-
-    beforeEach(() => {
-      renderedTexts = [];
-      ctx = new MockGridRenderingContext(model, 1000, 1000, {
-        onFunctionCall: (fn, args) => {
-          if (fn === "fillText") {
-            renderedTexts.push(args[0]);
-          }
-        },
-      });
-    });
-
-    test("Valid checkbox value is not rendered", () => {
-      addDataValidation(model, "B2", "id", { type: "isBoolean", values: [] });
-      setCellContent(model, "B2", "TRUE");
-      drawGrid(model, ctx);
-      expect(renderedTexts).not.toContain("TRUE");
-    });
-
-    test("Invalid checkbox value is rendered", () => {
-      addDataValidation(model, "B2", "id", { type: "isBoolean", values: [] });
-      setCellContent(model, "B2", "hello");
-      drawGrid(model, ctx);
-      expect(renderedTexts).toContain("hello");
     });
   });
 });

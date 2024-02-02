@@ -1,3 +1,5 @@
+import { markRaw } from "@odoo/owl";
+
 import { Model } from "../model";
 import { DisposableStore, Get } from "../store_engine";
 import { Command, GridRenderingContext, LAYERS } from "../types";
@@ -7,7 +9,7 @@ import { RendererStore } from "./renderer_store";
 export class SpreadsheetStore extends DisposableStore {
   // cast the model store as Model to allow model.dispatch to return the DispatchResult
   protected model = this.get(ModelStore) as Model;
-  protected getters = this.model.getters;
+  protected getters = markRaw(this.model.getters);
   private renderer = this.get(RendererStore);
 
   constructor(get: Get) {
