@@ -472,7 +472,7 @@ export class AutofillPlugin extends UIPlugin {
   // Grid rendering
   // ---------------------------------------------------------------------------
 
-  drawGrid(renderingContext: GridRenderingContext) {
+  drawLayer(renderingContext: GridRenderingContext) {
     if (!this.autofillZone) {
       return;
     }

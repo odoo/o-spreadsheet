@@ -189,7 +189,7 @@ export async function mountComponent<Props extends { [key: string]: any }>(
   env: SpreadsheetChildEnv;
 }> {
   const model = optionalArgs.model || optionalArgs?.env?.model || new Model();
-  model.drawGrid = () => {};
+  model.drawLayer = () => {};
   const env = makeTestEnv({ ...optionalArgs.env, model: model });
   const props = optionalArgs.props || ({} as Props);
   const app = new App(component, { props, env, test: true, translateFn: _t });
@@ -811,7 +811,7 @@ export function getDataValidationRules(model: Model, sheetId = model.getters.get
 
 export function drawGrid(model: Model, ctx: GridRenderingContext) {
   for (const layer of RENDERING_LAYERS) {
-    model.drawGrid(ctx, layer);
+    model.drawLayer(ctx, layer);
   }
 }
 

@@ -115,7 +115,7 @@ export class RendererPlugin extends UIPlugin {
   // Grid rendering
   // ---------------------------------------------------------------------------
 
-  drawGrid(renderingContext: GridRenderingContext, layer: LAYERS) {
+  drawLayer(renderingContext: GridRenderingContext, layer: LAYERS) {
     switch (layer) {
       case LAYERS.Background:
         this.boxes = this.getGridBoxes();
