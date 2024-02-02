@@ -36,6 +36,7 @@ import { ChartPanel } from "./components/side_panel/chart/main_chart_panel/main_
 import { Checkbox } from "./components/side_panel/components/checkbox/checkbox";
 import { Section } from "./components/side_panel/components/section/section";
 import { FindAndReplaceStore } from "./components/side_panel/find_and_replace/find_and_replace_store";
+import { SidePanelStore } from "./components/side_panel/side_panel/side_panel_store";
 import { ValidationMessages } from "./components/validation_messages/validation_messages";
 import {
   BOTTOMBAR_HEIGHT,
@@ -117,7 +118,7 @@ import {
   repeatLocalCommandTransformRegistry,
 } from "./registries/repeat_commands_registry";
 import { sidePanelRegistry } from "./registries/side_panel_registry";
-import { useStoreProvider } from "./store_engine";
+import { useLocalStore, useStore, useStoreProvider } from "./store_engine";
 import { DependencyContainer } from "./store_engine/dependency_container";
 import { SpreadsheetStore } from "./stores";
 import { HighlightStore } from "./stores/highlight_store";
@@ -314,6 +315,9 @@ export const stores = {
   RendererStore,
   SelectionInputStore,
   SpreadsheetStore,
+  useStore,
+  useLocalStore,
+  SidePanelStore,
 };
 
 export function addFunction(functionName: string, functionDescription: AddFunctionDescription) {

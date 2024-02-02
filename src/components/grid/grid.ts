@@ -2,6 +2,7 @@ import {
   Component,
   onMounted,
   useChildSubEnv,
+  useEffect,
   useExternalListener,
   useRef,
   useState,
@@ -71,6 +72,7 @@ import { Menu, MenuState } from "../menu/menu";
 import { CellPopoverStore } from "../popover";
 import { Popover } from "../popover/popover";
 import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
+import { SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { HoveredCellStore } from "./hovered_cell_store";
 
 /**
@@ -101,7 +103,6 @@ const registries = {
 };
 
 interface Props {
-  sidePanelIsOpen: boolean;
   exposeFocus: (focus: () => void) => void;
 }
 
@@ -111,7 +112,6 @@ interface Props {
 export class Grid extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Grid";
   static props = {
-    sidePanelIsOpen: Boolean,
     exposeFocus: Function,
   };
   static components = {
@@ -141,6 +141,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   onMouseWheel!: (ev: WheelEvent) => void;
   canvasPosition!: DOMCoordinates;
   hoveredCell!: Store<HoveredCellStore>;
+  sidePanel!: Store<SidePanelStore>;
 
   setup() {
     this.highlightStore = useStore(HighlightStore);
@@ -155,6 +156,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.composerStore = useStore(ComposerStore);
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
+    this.sidePanel = useStore(SidePanelStore);
 
     useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
@@ -170,6 +172,15 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       this.hoveredCell.clear();
     });
     this.cellPopovers = useStore(CellPopoverStore);
+
+    useEffect(
+      () => {
+        if (!this.sidePanel.isOpen) {
+          this.DOMFocusableElementStore.focus();
+        }
+      },
+      () => [this.sidePanel.isOpen]
+    );
   }
 
   onCellHovered({ col, row }) {

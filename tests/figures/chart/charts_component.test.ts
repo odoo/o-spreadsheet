@@ -41,22 +41,22 @@ mockGetBoundingClientRect({
 });
 type AllChartType = ChartType | "basicChart";
 
-function createTestChart(type: AllChartType) {
+function createTestChart(type: AllChartType, newChartId = chartId) {
   switch (type) {
     case "scorecard":
-      createScorecardChart(model, TEST_CHART_DATA.scorecard, chartId);
+      createScorecardChart(model, TEST_CHART_DATA.scorecard, newChartId);
       break;
     case "gauge":
-      createGaugeChart(model, TEST_CHART_DATA.gauge, chartId);
+      createGaugeChart(model, TEST_CHART_DATA.gauge, newChartId);
       break;
     case "basicChart":
-      createChart(model, TEST_CHART_DATA.basicChart, chartId);
+      createChart(model, TEST_CHART_DATA.basicChart, newChartId);
       break;
     case "line":
     case "bar":
     case "pie":
     case "scatter":
-      createChart(model, { ...TEST_CHART_DATA.basicChart, type }, chartId);
+      createChart(model, { ...TEST_CHART_DATA.basicChart, type }, newChartId);
       break;
   }
 }
@@ -489,6 +489,19 @@ describe("charts", () => {
     }
   );
 
+  test("deleting another chart does not close the side panel", async () => {
+    const figureId1 = "figureId1";
+    const figureId2 = "figureId2";
+    createTestChart("basicChart", figureId1);
+    createTestChart("basicChart", figureId2);
+    const sheetId = model.getters.getActiveSheetId();
+    await openChartConfigSidePanel(figureId1);
+    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
+    model.dispatch("DELETE_FIGURE", { id: figureId2, sheetId }); // could be deleted by another user
+    await nextTick();
+    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
+  });
+
   test("Deleting a chart with active selection input does not produce a traceback", async () => {
     createTestChart("basicChart");
     await openChartConfigSidePanel();
@@ -511,6 +524,7 @@ describe("charts", () => {
     expect(model.getters.getSelectedFigureId()).toBeNull();
     await nextTick();
     await doubleClick(fixture, ".o-chart-container");
+    expect(fixture.querySelector(".o-sidePanel")).toBeFalsy();
     expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeFalsy();
   });
 
