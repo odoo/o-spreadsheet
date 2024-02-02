@@ -23,18 +23,10 @@
             <HeaderGroupContainer layers="rowLayers" dimension="'ROW'"/>
           </div>
           <div class="o-group-grid overflow-hidden">
-            <Grid
-              sidePanelIsOpen="sidePanel.isOpen"
-              exposeFocus="(focus) => this._focusGrid = focus"
-            />
+            <Grid exposeFocus="(focus) => this._focusGrid = focus"/>
           </div>
         </div>
-        <SidePanel
-          t-if="sidePanel.isOpen"
-          onCloseSidePanel="() => this.closeSidePanel()"
-          component="sidePanel.component"
-          panelProps="sidePanel.panelProps"
-        />
+        <SidePanel t-if="sidePanel.isOpen"/>
         <BottomBar onClick="() => this.focusGrid()"/>
       </t>
     </div>

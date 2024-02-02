@@ -1,8 +1,10 @@
-import { Component, onWillUpdateProps, useState } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { BACKGROUND_HEADER_COLOR, FILTERS_COLOR } from "../../../constants";
-import { SidePanelContent, sidePanelRegistry } from "../../../registries/side_panel_registry";
+import { sidePanelRegistry } from "../../../registries/side_panel_registry";
+import { Store, useStore } from "../../../store_engine";
 import { SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
+import { SidePanelStore } from "./side_panel_store";
 
 css/* scss */ `
   .o-sidePanel {
@@ -152,37 +154,25 @@ css/* scss */ `
   }
 `;
 
-interface Props {
-  component: string;
-  panelProps: any;
-  onCloseSidePanel: () => void;
-}
-
-interface State {
-  panel: SidePanelContent;
-}
-
-export class SidePanel extends Component<Props, SpreadsheetChildEnv> {
+export class SidePanel extends Component<never, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SidePanel";
-  static props = {
-    component: String,
-    panelProps: { type: Object, optional: true },
-    onCloseSidePanel: Function,
-  };
-  state!: State;
+  static props = {};
+  sidePanelStore!: Store<SidePanelStore>;
 
   setup() {
-    this.state = useState({
-      panel: sidePanelRegistry.get(this.props.component),
-    });
-    onWillUpdateProps(
-      (nextProps: Props) => (this.state.panel = sidePanelRegistry.get(nextProps.component))
-    );
+    this.sidePanelStore = useStore(SidePanelStore);
+  }
+
+  get panel() {
+    return sidePanelRegistry.get(this.sidePanelStore.componentTag);
+  }
+
+  close() {
+    this.sidePanelStore.close();
   }
 
   getTitle() {
-    return typeof this.state.panel.title === "function"
-      ? this.state.panel.title(this.env)
-      : this.state.panel.title;
+    const panel = this.panel;
+    return typeof panel.title === "function" ? panel.title(this.env) : panel.title;
   }
 }

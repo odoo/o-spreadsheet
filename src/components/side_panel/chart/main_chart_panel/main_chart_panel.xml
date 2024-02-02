@@ -1,25 +1,25 @@
 <templates>
   <t t-name="o-spreadsheet-ChartPanel">
-    <div class="o-chart">
+    <div class="o-chart" t-if="figureId">
       <div class="o-panel">
         <div
           class="o-panel-element o-panel-configuration"
-          t-att-class="state.panel !== 'configuration' ? 'inactive' : ''"
-          t-on-click="() => this.activatePanel('configuration')">
+          t-att-class="store.panel !== 'configuration' ? 'inactive' : ''"
+          t-on-click="() => this.store.activatePanel('configuration')">
           <i class="fa fa-sliders"/>
           Configuration
         </div>
         <div
           class="o-panel-element o-panel-design"
-          t-att-class="state.panel !== 'design' ? 'inactive' : ''"
-          t-on-click="() => this.activatePanel('design')">
+          t-att-class="store.panel !== 'design' ? 'inactive' : ''"
+          t-on-click="() => this.store.activatePanel('design')">
           <i class="fa fa-paint-brush"/>
           Design
         </div>
       </div>
 
-      <t t-set="definition" t-value="getChartDefinition()"/>
-      <t t-if="state.panel === 'configuration'">
+      <t t-set="definition" t-value="getChartDefinition(this.figureId)"/>
+      <t t-if="store.panel === 'configuration'">
         <Section>
           <t t-set-slot="title">Chart type</t>
           <t t-set="types" t-value="chartTypes"/>

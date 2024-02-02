@@ -30,8 +30,10 @@ export class ChartFigure extends Component<Props, SpreadsheetChildEnv> {
   static components = {};
 
   onDoubleClick() {
-    this.env.model.dispatch("SELECT_FIGURE", { id: this.props.figure.id });
-    this.env.openSidePanel("ChartPanel");
+    const result = this.env.model.dispatch("SELECT_FIGURE", { id: this.props.figure.id });
+    if (result.isSuccessful) {
+      this.env.openSidePanel("ChartPanel");
+    }
   }
 
   get chartType(): ChartType {

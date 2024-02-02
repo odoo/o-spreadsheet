@@ -7,7 +7,6 @@ import {
   useEffect,
   useExternalListener,
   useRef,
-  useState,
   useSubEnv,
 } from "@odoo/owl";
 import {
@@ -45,6 +44,7 @@ import { HeaderGroupContainer } from "../header_group/header_group_container";
 import { css, cssPropertiesToCss } from "../helpers/css";
 import { isCtrlKey } from "../helpers/dom_helpers";
 import { SidePanel } from "../side_panel/side_panel/side_panel";
+import { SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { TopBar } from "../top_bar/top_bar";
 import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipboard_wrapper";
 
@@ -237,12 +237,6 @@ export interface SpreadsheetProps {
   model: Model;
 }
 
-interface SidePanelState {
-  isOpen: boolean;
-  component?: string;
-  panelProps: any;
-}
-
 export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Spreadsheet";
   static props = {
@@ -257,7 +251,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     HeaderGroupContainer,
   };
 
-  sidePanel!: SidePanelState;
+  sidePanel!: Store<SidePanelStore>;
   spreadsheetRef = useRef("spreadsheet");
 
   private _focusGrid?: () => void;
@@ -281,10 +275,13 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
   setup() {
     const stores = useStoreProvider();
-    this.sidePanel = useState({ isOpen: false, panelProps: {} });
+    stores.inject(ModelStore, this.model);
+    this.notificationStore = useStore(NotificationStore);
+    this.composerFocusStore = useStore(ComposerFocusStore);
+    this.sidePanel = useStore(SidePanelStore);
     this.keyDownMapping = {
-      "CTRL+H": () => this.toggleSidePanel("FindAndReplace", {}),
-      "CTRL+F": () => this.toggleSidePanel("FindAndReplace", {}),
+      "CTRL+H": () => this.sidePanel.toggle("FindAndReplace", {}),
+      "CTRL+F": () => this.sidePanel.toggle("FindAndReplace", {}),
     };
     const fileStore = this.model.config.external.fileStore;
     useSubEnv({
@@ -293,8 +290,8 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       loadCurrencies: this.model.config.external.loadCurrencies,
       loadLocales: this.model.config.external.loadLocales,
       isDashboard: () => this.model.getters.isDashboard(),
-      openSidePanel: this.openSidePanel.bind(this),
-      toggleSidePanel: this.toggleSidePanel.bind(this),
+      openSidePanel: this.sidePanel.open.bind(this.sidePanel),
+      toggleSidePanel: this.sidePanel.toggle.bind(this.sidePanel),
       clipboard: this.env.clipboard || instantiateClipboard(),
       startCellEdition: (content?: string) =>
         this.composerFocusStore.focusGridComposerCell(content),
@@ -336,9 +333,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     onPatched(() => {
       this.checkViewportSize();
     });
-    stores.inject(ModelStore, this.model);
-    this.notificationStore = useStore(NotificationStore);
-    this.composerFocusStore = useStore(ComposerFocusStore);
   }
 
   private bindModelEvents() {
@@ -382,29 +376,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     }
   }
 
-  openSidePanel(panel: string, panelProps: any) {
-    if (this.sidePanel.isOpen && panel !== this.sidePanel.component) {
-      this.sidePanel.panelProps?.onCloseSidePanel?.();
-    }
-    this.sidePanel.component = panel;
-    this.sidePanel.panelProps = panelProps;
-    this.sidePanel.isOpen = true;
-  }
-
-  closeSidePanel() {
-    this.sidePanel.isOpen = false;
-    this.focusGrid();
-    this.sidePanel.panelProps?.onCloseSidePanel?.();
-  }
-
-  toggleSidePanel(panel: string, panelProps: any) {
-    if (this.sidePanel.isOpen && panel === this.sidePanel.component) {
-      this.sidePanel.isOpen = false;
-      this.focusGrid();
-    } else {
-      this.openSidePanel(panel, panelProps);
-    }
-  }
   focusGrid() {
     if (!this._focusGrid) {
       return;
