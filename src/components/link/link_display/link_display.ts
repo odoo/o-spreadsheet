@@ -31,7 +31,7 @@ css/* scss */ `
     }
 
     a.o-link {
-      color: #01666b;
+      color: ${LINK_COLOR};
       text-decoration: none;
       flex-grow: 2;
       white-space: nowrap;
