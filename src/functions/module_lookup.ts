@@ -8,6 +8,7 @@ import {
   assertNumberGreaterThanOrEqualToOne,
   dichotomicSearch,
   expectNumberRangeError,
+  isEvaluationError,
   linearSearch,
   strictToInteger,
   toBoolean,
@@ -177,6 +178,9 @@ export const HLOOKUP = {
       () => 1 <= _index && _index <= range[0].length,
       _t("[[FUNCTION_NAME]] evaluates to an out of bounds range.")
     );
+    if (searchKey && isEvaluationError(searchKey.value)) {
+      return searchKey;
+    }
 
     const getValueFromRange = (range: Matrix<FPayload>, index: number) => range[index][0].value;
 
@@ -458,6 +462,9 @@ export const VLOOKUP = {
       () => 1 <= _index && _index <= range.length,
       _t("[[FUNCTION_NAME]] evaluates to an out of bounds range.")
     );
+    if (searchKey && isEvaluationError(searchKey.value)) {
+      return searchKey;
+    }
 
     const getValueFromRange = (range: Matrix<FPayload>, index: number) => range[0][index].value;
 
@@ -539,6 +546,10 @@ export const XLOOKUP = {
           : returnRange.length === lookupRange.length,
       _t("return_range should have the same dimensions as lookup_range.")
     );
+
+    if (searchKey && isEvaluationError(searchKey.value)) {
+      return [[searchKey]];
+    }
 
     const getElement =
       lookupDirection === "col"
