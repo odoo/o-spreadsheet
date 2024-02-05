@@ -1,10 +1,11 @@
+import { Cell, CellValue, EvaluatedCell } from "./cells";
+
+import { CommandResult } from "./commands";
 // -----------------------------------------------------------------------------
 // MISC
 // -----------------------------------------------------------------------------
 import { ComponentConstructor } from "@odoo/owl";
 import { Token } from "../formulas";
-import { Cell, CellValue, EvaluatedCell } from "./cells";
-import { CommandResult } from "./commands";
 import { Format } from "./format";
 import { Range } from "./range";
 
@@ -226,9 +227,11 @@ export interface Highlight {
   sheetId: UID;
   color: Color;
   interactive?: boolean;
+  thinLine?: boolean;
   noFill?: boolean;
   /** transparency of the fill color (0-1) */
   fillAlpha?: number;
+  noBorder?: boolean;
 }
 
 export interface PaneDivision {
