@@ -107,7 +107,7 @@ export class SelectionInputsManagerPlugin extends UIPlugin {
       case "CHANGE_RANGE":
         const input = this.inputs[cmd.id];
         const range = input.ranges.find((range) => range.id === cmd.rangeId);
-        if (this.isRangeValid(range?.xc || "A1")) {
+        if (range) {
           const sheetId = this.getters.getActiveSheetId();
           const zone = this.getters.getRangeFromSheetXC(sheetId, range?.xc || "A1").zone;
           this.selection.capture(

@@ -523,4 +523,18 @@ describe("Selection Input", () => {
 
     expect(model.getters.isGridSelectionActive()).toBeTruthy();
   });
+
+  test("Ensure responsive behavior of selection input after entering an invalid range", async () => {
+    const { model, id } = await createSelectionInput({
+      hasSingleRange: true,
+      initialRanges: ["TEST"],
+    });
+    expect(model.getters.getSelectionInput(id)[0].xc).toBe("TEST");
+
+    await keyDown({ key: "Enter" });
+    await simulateClick("input");
+
+    selectCell(model, "B4");
+    expect(model.getters.getSelectionInput(id)[0].xc).toBe("B4");
+  });
 });
