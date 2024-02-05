@@ -653,9 +653,7 @@ class FormulaCellWithDependencies implements FormulaCell {
     const tokens = compiledFormula.tokens.map((token) => {
       if (token.type === "REFERENCE") {
         const index = rangeIndex++;
-        return new RangeReferenceToken(() =>
-          this.getRangeString(dependencies[index], this.sheetId)
-        );
+        return new RangeReferenceToken(dependencies, index, this.sheetId, this.getRangeString);
       }
       return token;
     });
@@ -689,9 +687,15 @@ class FormulaCellWithDependencies implements FormulaCell {
 class RangeReferenceToken implements Token {
   type = "REFERENCE" as const;
 
-  constructor(private getValue: () => string) {}
+  constructor(
+    private ranges: Range[],
+    private rangeIndex: number,
+    private sheetId,
+    private getRangeString: (range: Range, sheetId: UID) => string
+  ) {}
 
   get value() {
-    return this.getValue();
+    const range = this.ranges[this.rangeIndex];
+    return this.getRangeString(range, this.sheetId);
   }
 }
