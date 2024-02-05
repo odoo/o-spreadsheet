@@ -1,7 +1,7 @@
 import { getSearchRegex } from "../../helpers";
 import { canonicalizeNumberContent } from "../../helpers/locale";
 import { SearchOptions } from "../../types/find_and_replace";
-import { CellPosition, Command, LAYERS } from "../../types/index";
+import { CellPosition, Command } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 /**
@@ -15,7 +15,7 @@ import { UIPlugin } from "../ui_plugin";
  */
 
 export class FindAndReplacePlugin extends UIPlugin {
-  static layers = [LAYERS.Search];
+  static layers = ["Search"] as const;
   static getters = [] as const;
 
   handle(cmd: Command) {

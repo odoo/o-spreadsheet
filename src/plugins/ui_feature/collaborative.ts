@@ -1,6 +1,6 @@
 import { ClientDisconnectedError } from "../../collaborative/session";
 import { DEFAULT_FONT, DEFAULT_FONT_SIZE } from "../../constants";
-import { Client, ClientPosition, Color, GridRenderingContext, LAYERS, UID } from "../../types";
+import { Client, ClientPosition, Color, GridRenderingContext, UID } from "../../types";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
 function randomChoice(arr: string[]): string {
@@ -33,7 +33,7 @@ export class CollaborativePlugin extends UIPlugin {
     "getConnectedClients",
     "isFullySynchronized",
   ] as const;
-  static layers = [LAYERS.Selection];
+  static layers = ["Selection"] as const;
   private availableColors = new Set(colors);
   private colors: Record<UID, Color> = {};
   private session: UIPluginConfig["session"];

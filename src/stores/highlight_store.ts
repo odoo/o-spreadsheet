@@ -2,7 +2,7 @@ import { toRaw } from "@odoo/owl";
 import { zoneToDimension } from "../helpers";
 import { drawHighlight } from "../helpers/rendering";
 import { Get } from "../store_engine";
-import { GridRenderingContext, Highlight, LAYERS } from "../types";
+import { GridRenderingContext, Highlight, LayerName } from "../types";
 import { SpreadsheetStore } from "./spreadsheet_store";
 
 export interface HighlightProvider {
@@ -20,7 +20,7 @@ export class HighlightStore extends SpreadsheetStore {
   }
 
   get renderingLayers() {
-    return [LAYERS.Highlights];
+    return ["Highlights"] as const;
   }
 
   get highlights(): Highlight[] {
@@ -47,8 +47,8 @@ export class HighlightStore extends SpreadsheetStore {
     this.providers = this.providers.filter((h) => toRaw(h) !== toRaw(highlightProvider));
   }
 
-  drawLayer(ctx: GridRenderingContext, layer: LAYERS): void {
-    if (layer === LAYERS.Highlights) {
+  drawLayer(ctx: GridRenderingContext, layer: LayerName): void {
+    if (layer === "Highlights") {
       for (const highlight of this.highlights) {
         const rect = this.getters.getVisibleRect(highlight.zone);
         drawHighlight(ctx, highlight, rect);

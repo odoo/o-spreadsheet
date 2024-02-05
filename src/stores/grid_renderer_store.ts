@@ -46,7 +46,7 @@ import {
   Getters,
   GridRenderingContext,
   HeaderIndex,
-  LAYERS,
+  LayerName,
   Pixel,
   UID,
   Viewport,
@@ -77,7 +77,7 @@ export class GridRenderer {
   }
 
   get renderingLayers() {
-    return [LAYERS.Background, LAYERS.Headers];
+    return ["Background", "Headers"] as const;
   }
 
   /**
@@ -96,9 +96,9 @@ export class GridRenderer {
   // Grid rendering
   // ---------------------------------------------------------------------------
 
-  drawLayer(renderingContext: GridRenderingContext, layer: LAYERS) {
+  drawLayer(renderingContext: GridRenderingContext, layer: LayerName) {
     switch (layer) {
-      case LAYERS.Background:
+      case "Background":
         const boxes = this.getGridBoxes();
         this.drawBackground(renderingContext, boxes);
         this.drawOverflowingCellBackground(renderingContext, boxes);
@@ -108,7 +108,7 @@ export class GridRenderer {
         this.drawIcon(renderingContext, boxes);
         this.drawFrozenPanes(renderingContext);
         break;
-      case LAYERS.Headers:
+      case "Headers":
         if (!this.getters.isDashboard()) {
           this.drawHeaders(renderingContext);
           this.drawFrozenPanesHeaders(renderingContext);
@@ -360,7 +360,7 @@ export class GridRenderer {
     }
   }
 
-  /** Compute the vertical start point from which a text line should be draw.
+  /** Computes the vertical start point from which a text line should be draw.
    *
    * Note that in case the cell does not have enough spaces to display its text lines,
    * (wrapping cell case) then the vertical align should be at the top.

@@ -28,7 +28,6 @@ import {
   EvaluatedCell,
   GridRenderingContext,
   HeaderIndex,
-  LAYERS,
   LocalCommand,
   Locale,
   MoveColumnsRowsCommand,
@@ -88,7 +87,7 @@ const selectionStatisticFunctions: SelectionStatisticFunction[] = [
  * SelectionPlugin
  */
 export class GridSelectionPlugin extends UIPlugin {
-  static layers = [LAYERS.Selection];
+  static layers = ["Selection"] as const;
   static getters = [
     "getActiveSheet",
     "getActiveSheetId",

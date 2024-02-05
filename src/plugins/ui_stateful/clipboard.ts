@@ -18,7 +18,6 @@ import {
   Dimension,
   GridRenderingContext,
   HeaderIndex,
-  LAYERS,
   LocalCommand,
   UID,
   Zone,
@@ -45,7 +44,7 @@ type MinimalClipboardData = {
  * application, and with the OS clipboard as well.
  */
 export class ClipboardPlugin extends UIPlugin {
-  static layers = [LAYERS.Clipboard];
+  static layers = ["Clipboard"] as const;
   static getters = [
     "getClipboardContent",
     "getClipboardTextContent",
