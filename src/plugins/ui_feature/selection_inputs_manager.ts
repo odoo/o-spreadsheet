@@ -108,23 +108,22 @@ export class SelectionInputsManagerPlugin extends UIPlugin {
         break;
       case "FOCUS_RANGE":
       case "CHANGE_RANGE":
-        if (cmd.id !== this.focusedInputId) {
-          const input = this.inputs[cmd.id];
-          const range = input.ranges.find((range) => range.id === cmd.rangeId);
-          if (this.isRangeValid(range?.xc || "A1")) {
-            const sheetId = this.getters.getActiveSheetId();
-            const zone = this.getters.getRangeFromSheetXC(sheetId, range?.xc || "A1").zone;
-            this.selection.capture(
-              input,
-              { cell: { col: zone.left, row: zone.top }, zone },
-              {
-                handleEvent: input.handleEvent.bind(input),
-                release: () => (this.focusedInputId = null),
-              }
-            );
-          }
-          this.focusedInputId = cmd.id;
+        const input = this.inputs[cmd.id];
+        const range = input.ranges.find((range) => range.id === cmd.rangeId);
+        if (range) {
+          const sheetId = this.getters.getActiveSheetId();
+          const zone = this.getters.getRangeFromSheetXC(sheetId, range?.xc || "A1").zone;
+          this.selection.capture(
+            input,
+            { cell: { col: zone.left, row: zone.top }, zone },
+            {
+              handleEvent: input.handleEvent.bind(input),
+              release: () => (this.focusedInputId = null),
+            }
+          );
         }
+        this.focusedInputId = cmd.id;
+
         break;
     }
     this.currentInput?.handle(cmd);

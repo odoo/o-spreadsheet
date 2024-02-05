@@ -115,7 +115,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
       ? existingSelectionRanges
       : this.props.ranges().map((xc, id) => ({
           xc,
-          id,
+          id: id + 1,
           isFocused: false,
         }));
     return ranges.map((range) => ({
