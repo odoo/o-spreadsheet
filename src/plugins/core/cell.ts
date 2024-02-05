@@ -612,7 +612,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       style,
       dependencies,
       sheetId,
-      this.getters.getRangeString.bind(this)
+      this.getters.getRangeString
     );
   }
 
