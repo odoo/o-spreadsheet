@@ -4,7 +4,7 @@ import { CANVAS_SHIFT } from "../../constants";
 import { useStore } from "../../store_engine";
 import { GridRenderer } from "../../stores/grid_renderer_store";
 import { RendererStore } from "../../stores/renderer_store";
-import { DOMDimension, RENDERING_LAYERS } from "../../types";
+import { DOMDimension, OrderedLayers } from "../../types";
 
 export function useGridDrawing(refName: string, model: Model, canvasSize: () => DOMDimension) {
   const canvasRef = useRef(refName);
@@ -36,7 +36,8 @@ export function useGridDrawing(refName: string, model: Model, canvasSize: () => 
     // http://diveintohtml5.info/canvas.html#pixel-madness
     ctx.translate(-CANVAS_SHIFT, -CANVAS_SHIFT);
     ctx.scale(dpr, dpr);
-    for (const layer of RENDERING_LAYERS) {
+
+    for (const layer of OrderedLayers()) {
       model.drawLayer(renderingContext, layer);
       rendererManager.drawLayer(renderingContext, layer);
     }

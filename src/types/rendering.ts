@@ -1,3 +1,4 @@
+import { memoize } from "../helpers/misc";
 import { Alias, Align, Border, Pixel, Style, VerticalAlign, Zone } from "./misc";
 
 /**
@@ -80,26 +81,34 @@ export interface GridRenderingContext {
   thinLineWidth: number;
 }
 
-export const enum LAYERS {
-  Background,
-  Highlights,
-  Clipboard,
-  Search,
-  Chart,
-  Autofill,
-  Selection,
-  Headers, // Probably keep this at the end
+const LAYERS = {
+  Background: 0,
+  Highlights: 1,
+  Clipboard: 2,
+  Search: 3,
+  Chart: 4,
+  Autofill: 5,
+  Selection: 6,
+  Headers: 100, // ensure that we end up on  top
+} as const;
+
+export type LayerName = keyof typeof LAYERS;
+
+export const OrderedLayers = memoize(
+  () => Object.keys(LAYERS).sort((a, b) => LAYERS[a] - LAYERS[b]) as LayerName[]
+);
+
+/**
+ *
+ * @param layer New layer name
+ * @param priority The lower priorities are rendered first
+ */
+export function AddRenderingLayer(layer: string, priority: number) {
+  if (LAYERS[layer]) {
+    throw new Error(`Layer ${layer} already exists`);
+  }
+  LAYERS[layer] = priority;
 }
-export const RENDERING_LAYERS: LAYERS[] = [
-  LAYERS.Background,
-  LAYERS.Highlights,
-  LAYERS.Clipboard,
-  LAYERS.Search,
-  LAYERS.Chart,
-  LAYERS.Autofill,
-  LAYERS.Selection,
-  LAYERS.Headers,
-];
 
 export interface EdgeScrollInfo {
   canEdgeScroll: boolean;

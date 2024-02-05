@@ -1,13 +1,13 @@
 import { ReactiveStore } from "../store_engine";
-import { GridRenderingContext, LAYERS } from "../types";
+import { GridRenderingContext, LayerName } from "../types";
 
 export interface Renderer {
-  drawLayer(ctx: GridRenderingContext, layer: LAYERS): void;
-  renderingLayers: Readonly<LAYERS[]>;
+  drawLayer(ctx: GridRenderingContext, layer: LayerName): void;
+  renderingLayers: Readonly<LayerName[]>;
 }
 
 export class RendererStore extends ReactiveStore {
-  private renderers: Partial<Record<LAYERS, Renderer[]>> = {};
+  private renderers: Partial<Record<LayerName, Renderer[]>> = {};
 
   register(renderer: Renderer) {
     if (!renderer.renderingLayers.length) {
@@ -27,7 +27,7 @@ export class RendererStore extends ReactiveStore {
     }
   }
 
-  drawLayer(context: GridRenderingContext, layer: LAYERS) {
+  drawLayer(context: GridRenderingContext, layer: LayerName) {
     const renderers = this.renderers[layer];
     if (!renderers) {
       return;

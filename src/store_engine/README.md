@@ -141,7 +141,7 @@ class MyStore extends SpreadsheetStore {
   finalize() {
     // called after the command (and all its sub-commands) have been handled.
   }
-  drawLayer(ctx: GridRenderingContext, layer: LAYERS) {
+  drawLayer(ctx: GridRenderingContext, layer: LayerName) {
     // draw on the canvas, at a specific layer.
   }
 }

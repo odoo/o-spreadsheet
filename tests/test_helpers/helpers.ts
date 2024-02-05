@@ -45,9 +45,9 @@ import {
   Format,
   GridRenderingContext,
   Highlight,
-  LAYERS,
+  LayerName,
   Matrix,
-  RENDERING_LAYERS,
+  OrderedLayers,
   RangeData,
   SpreadsheetChildEnv,
   Style,
@@ -135,7 +135,7 @@ class FakeRendererStore extends RendererStore {
     super(get);
   }
   // we don't want to actually draw anything on the canvas as it cannot be tested
-  drawLayer(renderingContext: GridRenderingContext, layer: LAYERS) {}
+  drawLayer(renderingContext: GridRenderingContext, layer: LayerName) {}
 }
 
 export function makeTestEnv(mockEnv: Partial<SpreadsheetChildEnv> = {}): SpreadsheetChildEnv {
@@ -821,7 +821,7 @@ export function getDataValidationRules(model: Model, sheetId = model.getters.get
 }
 
 export function drawGrid(model: Model, ctx: GridRenderingContext) {
-  for (const layer of RENDERING_LAYERS) {
+  for (const layer of OrderedLayers()) {
     model.drawLayer(ctx, layer);
   }
 }

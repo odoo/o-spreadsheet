@@ -2,7 +2,7 @@ import { markRaw } from "@odoo/owl";
 
 import { Model } from "../model";
 import { DisposableStore, Get } from "../store_engine";
-import { Command, GridRenderingContext, LAYERS } from "../types";
+import { Command, GridRenderingContext, LayerName } from "../types";
 import { ModelStore } from "./model_store";
 import { RendererStore } from "./renderer_store";
 
@@ -25,12 +25,12 @@ export class SpreadsheetStore extends DisposableStore {
     });
   }
 
-  get renderingLayers(): LAYERS[] {
+  get renderingLayers(): Readonly<LayerName[]> {
     return [];
   }
 
   protected handle(cmd: Command) {}
   protected finalize() {}
 
-  drawLayer(ctx: GridRenderingContext, layer: LAYERS) {}
+  drawLayer(ctx: GridRenderingContext, layer: LayerName) {}
 }

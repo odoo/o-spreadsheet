@@ -24,7 +24,7 @@ import {
   BorderPosition,
   Box,
   GridRenderingContext,
-  RENDERING_LAYERS,
+  OrderedLayers,
   Viewport,
   Zone,
 } from "../src/types";
@@ -70,7 +70,7 @@ function setRenderer(model: Model = new Model()) {
   const { container, store: gridRendererStore } = makeStoreWithModel(model, GridRenderer);
   const rendererManager = container.get(RendererStore);
   const drawGridRenderer = (ctx: GridRenderingContext) => {
-    for (const layer of RENDERING_LAYERS) {
+    for (const layer of OrderedLayers()) {
       model.drawLayer(ctx, layer);
       rendererManager.drawLayer(ctx, layer);
     }

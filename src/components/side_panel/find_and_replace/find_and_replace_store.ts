@@ -1,7 +1,7 @@
 import { debounce, getSearchRegex, isInside, positionToZone } from "../../../helpers";
 import { Get } from "../../../store_engine";
 import { SpreadsheetStore } from "../../../stores";
-import { CellPosition, Color, Command, GridRenderingContext, LAYERS } from "../../../types";
+import { CellPosition, Color, Command, GridRenderingContext } from "../../../types";
 import { SearchOptions } from "../../../types/find_and_replace";
 
 const BORDER_COLOR: Color = "#8B008B";
@@ -49,7 +49,7 @@ export class FindAndReplaceStore extends SpreadsheetStore {
   }
 
   get renderingLayers() {
-    return [LAYERS.Search];
+    return ["Search"] as const;
   }
 
   get searchMatches(): CellPosition[] {

@@ -12,7 +12,6 @@ import {
   Getters,
   GridRenderingContext,
   HeaderIndex,
-  LAYERS,
   LocalCommand,
   Tooltip,
   Zone,
@@ -81,7 +80,7 @@ class AutofillGenerator {
  *
  */
 export class AutofillPlugin extends UIPlugin {
-  static layers = [LAYERS.Autofill];
+  static layers = ["Autofill"] as const;
   static getters = ["getAutofillTooltip"] as const;
 
   private autofillZone: Zone | undefined;

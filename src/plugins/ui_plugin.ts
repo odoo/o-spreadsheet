@@ -9,7 +9,7 @@ import {
   Format,
   Getters,
   GridRenderingContext,
-  LAYERS,
+  LayerName,
 } from "../types/index";
 import { BasePlugin } from "./base_plugin";
 
@@ -29,7 +29,7 @@ export interface UIPluginConfig {
 
 export interface UIPluginConstructor {
   new (config: UIPluginConfig): UIPlugin;
-  layers: LAYERS[];
+  layers: Readonly<LayerName[]>;
   getters: readonly string[];
 }
 
@@ -38,7 +38,7 @@ export interface UIPluginConstructor {
  * They can draw on the grid canvas.
  */
 export class UIPlugin<State = any> extends BasePlugin<State, Command> {
-  static layers: LAYERS[] = [];
+  static layers: Readonly<LayerName[]> = [];
 
   protected getters: Getters;
   protected ui: UIActions;
@@ -54,5 +54,5 @@ export class UIPlugin<State = any> extends BasePlugin<State, Command> {
   // Grid rendering
   // ---------------------------------------------------------------------------
 
-  drawLayer(ctx: GridRenderingContext, layer: LAYERS) {}
+  drawLayer(ctx: GridRenderingContext, layer: LayerName) {}
 }

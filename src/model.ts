@@ -48,7 +48,7 @@ import {
   GridRenderingContext,
   InformationNotification,
   isCoreCommand,
-  LAYERS,
+  LayerName,
   LocalCommand,
   Locale,
   UID,
@@ -147,7 +147,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * This list simply keeps the renderers+layer information so the drawing code
    * can just iterate on it
    */
-  private renderers: Partial<Record<LAYERS, UIPlugin[]>> = {};
+  private renderers: Partial<Record<LayerName, UIPlugin[]>> = {};
 
   /**
    * Internal status of the model. Important for command handling coordination
@@ -594,7 +594,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * context. This is probably the way we should do if we want to be able to
    * freeze a part of the grid (so, we would need to render different zones)
    */
-  drawLayer(context: GridRenderingContext, layer: LAYERS) {
+  drawLayer(context: GridRenderingContext, layer: LayerName) {
     const renderers = this.renderers[layer];
     if (!renderers) {
       return;
