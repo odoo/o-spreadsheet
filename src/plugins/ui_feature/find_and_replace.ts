@@ -15,7 +15,6 @@ import { UIPlugin } from "../ui_plugin";
  */
 
 export class FindAndReplacePlugin extends UIPlugin {
-  static layers = ["Search"] as const;
   static getters = [] as const;
 
   handle(cmd: Command) {

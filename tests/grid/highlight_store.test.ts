@@ -1,8 +1,9 @@
-import { Model } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, HIGHLIGHT_COLOR } from "../../src/constants";
-import { toZone } from "../../src/helpers";
 import { HighlightProvider, HighlightStore } from "../../src/stores/highlight_store";
 import { Highlight, UID } from "../../src/types";
+
+import { Model } from "../../src";
+import { toZone } from "../../src/helpers";
 import { MockGridRenderingContext } from "../test_helpers/renderer_helpers";
 import { makeStoreWithModel } from "../test_helpers/stores";
 
@@ -82,6 +83,16 @@ describe("Highlight store", () => {
     expect(ctxInstructions).toContain('context.fillStyle="#FF00001F";');
   });
 
+  test("Can change highlight line width", () => {
+    const testHighlight = { zone: toZone("A1"), sheetId, color: "#FF0000" };
+    drawHighlight(testHighlight);
+    expect(ctxInstructions).toContain(`context.lineWidth=2;`);
+
+    ctxInstructions = [];
+    drawHighlight({ ...testHighlight, thinLine: true });
+    expect(ctxInstructions).toContain(`context.lineWidth=1;`);
+  });
+
   test("Can draw highlights without fill", () => {
     const testHighlight = { zone: toZone("A1"), sheetId, color: "#FF0000", noFill: true };
     drawHighlight(testHighlight);
@@ -89,6 +100,15 @@ describe("Highlight store", () => {
     expect(ctxInstructions).not.toContain('context.fillStyle="#FF00001F";');
     expect(ctxInstructions).not.toContain(
       `context.fillRect(0, 0, ${DEFAULT_CELL_WIDTH}, ${DEFAULT_CELL_HEIGHT})`
+    );
+  });
+
+  test("Can draw highlights without border", () => {
+    const testHighlight = { zone: toZone("A1"), sheetId, color: "#FF0000", noBorder: true };
+    drawHighlight(testHighlight);
+
+    expect(ctxInstructions).not.toContain(
+      `context.strokeRect(0.5, 0.5, ${DEFAULT_CELL_WIDTH}, ${DEFAULT_CELL_HEIGHT})`
     );
   });
 

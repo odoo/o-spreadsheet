@@ -341,6 +341,21 @@ describe("basic search", () => {
     expect(store.specificRangeMatchesCount).toBe(0);
     expect(model.getters.getActiveMainViewport()).toMatchObject(toZone("Q58:Z100"));
   });
+
+  test("Search results and range are highlighted", () => {
+    setCellContent(model, "A2", "Hello");
+    setCellContent(model, "A3", "Hello");
+    updateSearch(model, "hello", {
+      searchScope: "specificRange",
+      specificRange: model.getters.getRangeFromSheetXC(sheetId1, "A1:A3"),
+    });
+
+    expect(store.highlights).toMatchObject([
+      { zone: toZone("A2") },
+      { zone: toZone("A3"), noBorder: true }, // Not selected, we don't show a border
+      { zone: toZone("A1:A3"), noFill: true }, // Searched range
+    ]);
+  });
 });
 
 test("simple search with array formula", () => {

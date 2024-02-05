@@ -85,7 +85,6 @@ const LAYERS = {
   Background: 0,
   Highlights: 1,
   Clipboard: 2,
-  Search: 3,
   Chart: 4,
   Autofill: 5,
   Selection: 6,

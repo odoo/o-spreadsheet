@@ -1,11 +1,13 @@
 import { debounce, getSearchRegex, isInside, positionToZone } from "../../../helpers";
+import { HighlightProvider, HighlightStore } from "../../../stores/highlight_store";
+import { CellPosition, Color, Command, Highlight } from "../../../types";
+
+import { toRaw } from "@odoo/owl";
 import { Get } from "../../../store_engine";
 import { SpreadsheetStore } from "../../../stores";
-import { CellPosition, Color, Command, GridRenderingContext } from "../../../types";
 import { SearchOptions } from "../../../types/find_and_replace";
 
-const BORDER_COLOR: Color = "#8B008B";
-const BACKGROUND_COLOR: Color = "#8B008B33";
+const FIND_AND_REPLACE_HIGHLIGHT_COLOR: Color = "#8B008B";
 
 enum Direction {
   previous = -1,
@@ -13,7 +15,7 @@ enum Direction {
   next = 1,
 }
 
-export class FindAndReplaceStore extends SpreadsheetStore {
+export class FindAndReplaceStore extends SpreadsheetStore implements HighlightProvider {
   private allSheetsMatches: CellPosition[] = [];
   private activeSheetMatches: CellPosition[] = [];
   private specificRangeMatches: CellPosition[] = [];
@@ -36,20 +38,18 @@ export class FindAndReplaceStore extends SpreadsheetStore {
   };
 
   updateSearchContent = debounce(this._updateSearchContent.bind(this), 200);
-
   constructor(get: Get) {
     super(get);
     this.initialShowFormulaState = this.model.getters.shouldShowFormulas();
     this.searchOptions.searchFormulas = this.initialShowFormulaState;
 
+    const highlightStore = get(HighlightStore);
+    highlightStore.register(toRaw(this));
     this.onDispose(() => {
       this.model.dispatch("SET_FORMULA_VISIBILITY", { show: this.initialShowFormulaState });
       this.updateSearchContent.stopDebounce();
+      highlightStore.unRegister(toRaw(this));
     });
-  }
-
-  get renderingLayers() {
-    return ["Search"] as const;
   }
 
   get searchMatches(): CellPosition[] {
@@ -308,8 +308,8 @@ export class FindAndReplaceStore extends SpreadsheetStore {
   // Grid rendering
   // ---------------------------------------------------------------------------
 
-  draw(renderingContext: GridRenderingContext) {
-    const { ctx } = renderingContext;
+  get highlights(): Highlight[] {
+    const highlights: Highlight[] = [];
     const sheetId = this.getters.getActiveSheetId();
 
     for (const [index, match] of this.searchMatches.entries()) {
@@ -320,26 +320,32 @@ export class FindAndReplaceStore extends SpreadsheetStore {
       const zone = positionToZone(match);
       const zoneWithMerge = this.getters.expandZone(sheetId, zone);
 
-      const { x, y, width, height } = this.getters.getVisibleRect(zoneWithMerge);
+      const { width, height } = this.getters.getVisibleRect(zoneWithMerge);
       if (width > 0 && height > 0) {
-        ctx.fillStyle = BACKGROUND_COLOR;
-        ctx.fillRect(x, y, width, height);
-        if (index === this.selectedMatchIndex) {
-          ctx.strokeStyle = BORDER_COLOR;
-          ctx.strokeRect(x, y, width, height);
-        }
+        highlights.push({
+          sheetId,
+          zone: zoneWithMerge,
+          color: FIND_AND_REPLACE_HIGHLIGHT_COLOR,
+          noBorder: index !== this.selectedMatchIndex,
+          thinLine: true,
+          fillAlpha: 0.2,
+        });
       }
     }
 
-    // TODO: use Highlights helpers/stores when the Highlight PR is merged
     if (this.searchOptions.searchScope === "specificRange") {
       const range = this.searchOptions.specificRange;
-      if (!range || range.sheetId !== sheetId) {
-        return;
+      if (range && range.sheetId === sheetId) {
+        highlights.push({
+          sheetId,
+          zone: range.zone,
+          color: FIND_AND_REPLACE_HIGHLIGHT_COLOR,
+          noFill: true,
+          thinLine: true,
+        });
       }
-      const { x, y, width, height } = this.getters.getVisibleRect(range.zone);
-      ctx.strokeStyle = BORDER_COLOR;
-      ctx.strokeRect(x, y, width, height);
     }
+
+    return highlights;
   }
 }

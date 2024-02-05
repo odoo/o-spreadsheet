@@ -1311,8 +1311,6 @@ exports[`renderer snapshot for a simple grid rendering 1`] = `
   "context.save()",
   "context.restore()",
   "context.save()",
-  "context.restore()",
-  "context.save()",
   "context.fillStyle="#f3f7fe";",
   "context.fillStyle="#f3f7fe";",
   "context.strokeStyle="#3266ca";",
