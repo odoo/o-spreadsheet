@@ -577,9 +577,10 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     style: Style | undefined,
     sheetId: UID
   ): FormulaCell {
-    const dependencies = compiledFormula.dependencies.map((xc) =>
-      this.getters.getRangeFromSheetXC(sheetId, xc)
-    );
+    const dependencies: Range[] = [];
+    for (const xc of compiledFormula.dependencies) {
+      dependencies.push(this.getters.getRangeFromSheetXC(sheetId, xc));
+    }
     return new FormulaCellWithDependencies(
       id,
       compiledFormula,
