@@ -29,8 +29,8 @@ function getGroup(cell: Cell, cells: (Cell | undefined)[]): number[] {
     if (x === cell) {
       found = true;
     }
-    const cellValue = evaluateLiteral(x?.content);
-    if (cellValue.type === CellValueType.number) {
+    const cellValue = x?.isFormula ? undefined : evaluateLiteral(x?.content);
+    if (cellValue?.type === CellValueType.number) {
       group.push(cellValue.value);
     } else {
       if (found) {
