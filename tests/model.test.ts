@@ -197,4 +197,19 @@ describe("Model", () => {
     uiPluginRegistry.remove("myUIPlugin");
     corePluginRegistry.remove("myCorePlugin");
   });
+
+  test("export formula with unbound zone stays unbound", () => {
+    const modelData = {
+      sheets: [
+        {
+          cells: {
+            A1: { content: "=SUM(A3:3)" },
+            A2: { content: "=SUM(A3:A)" },
+          },
+        },
+      ],
+    };
+    const model = new Model(modelData);
+    expect(model.exportData()).toMatchSnapshot();
+  });
 });
