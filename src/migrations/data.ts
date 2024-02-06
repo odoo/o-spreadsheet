@@ -4,7 +4,7 @@ import {
   FORBIDDEN_IN_EXCEL_REGEX,
   FORMULA_REF_IDENTIFIER,
 } from "../constants";
-import { UuidGenerator, getItemId, toXC, toZone } from "../helpers/index";
+import { UuidGenerator, getItemId, overlap, toXC, toZone, zoneToXc } from "../helpers/index";
 import { isValidLocale } from "../helpers/locale";
 import { StateUpdateMessage } from "../types/collaborative/transport_service";
 import {
@@ -16,6 +16,7 @@ import {
   SheetData,
   UID,
   WorkbookData,
+  Zone,
 } from "../types/index";
 import { XlsxReader } from "../xlsx/xlsx_reader";
 import { normalizeV9 } from "./legacy_tools";
@@ -302,6 +303,33 @@ const MIGRATIONS: Migration[] = [
     applyMigration(data: any): any {
       for (let sheet of data.sheets || []) {
         sheet.isVisible = true;
+      }
+      return data;
+    },
+  },
+  {
+    description: "Fix datafilter duplication",
+    from: 12,
+    to: 12.5,
+    applyMigration(data: any): any {
+      for (let sheet of data.sheets || []) {
+        let knownDataFilterZones: Zone[] = [];
+        for (let filterTable of sheet.filterTables || []) {
+          const zone = toZone(filterTable.range);
+          // See commit message for the details
+          const intersectZoneIndex = knownDataFilterZones.findIndex((knownZone) =>
+            overlap(knownZone, zone)
+          );
+          if (intersectZoneIndex !== -1) {
+            knownDataFilterZones[intersectZoneIndex] = zone;
+          } else {
+            knownDataFilterZones.push(zone);
+          }
+        }
+
+        sheet.filterTables = knownDataFilterZones.map((zone) => ({
+          range: zoneToXc(zone),
+        }));
       }
       return data;
     },
