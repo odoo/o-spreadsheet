@@ -18,6 +18,7 @@ import {
   Zone,
   invalidateDependenciesCommands,
 } from "../../../types/index";
+import { FormulaCellWithDependencies } from "../../core";
 import { UIPlugin, UIPluginConfig } from "../../ui_plugin";
 import { CoreViewCommand } from "./../../../types/commands";
 import { Evaluator } from "./evaluator";
@@ -278,7 +279,6 @@ export class EvaluationPlugin extends UIPlugin {
       const evaluatedCell = this.evaluator.getEvaluatedCell(position);
 
       const xc = toXC(position.col, position.row);
-
       const value = evaluatedCell.value;
       let isFormula = false;
       let newContent: string | undefined = undefined;
@@ -302,7 +302,17 @@ export class EvaluationPlugin extends UIPlugin {
       const format = newFormat
         ? getItemId<Format>(newFormat, data.formats)
         : exportedCellData.format;
-      const content = !isExported ? newContent : exportedCellData.content;
+      let content;
+      if (formulaCell instanceof FormulaCellWithDependencies) {
+        content = this.getters.getFormulaCellContent(
+          exportedSheetData.id,
+          formulaCell.compiledFormula,
+          formulaCell.compiledFormula.dependencies,
+          true
+        );
+      } else {
+        content = !isExported ? newContent : exportedCellData.content;
+      }
       exportedSheetData.cells[xc] = { ...exportedCellData, value, isFormula, content, format };
     }
   }
