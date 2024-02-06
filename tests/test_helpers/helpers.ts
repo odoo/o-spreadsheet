@@ -29,7 +29,9 @@ import {
   toZone,
   zoneToXc,
 } from "../../src/helpers/index";
+import { createEmptyExcelWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
+import { BasePlugin } from "../../src/plugins/base_plugin";
 import { MergePlugin } from "../../src/plugins/core/merge";
 import { CorePluginConstructor } from "../../src/plugins/core_plugin";
 import { UIPluginConstructor } from "../../src/plugins/ui_plugin";
@@ -53,6 +55,7 @@ import {
   Currency,
   DEFAULT_LOCALES,
   EvaluatedCell,
+  ExcelWorkbookData,
   Format,
   GridRenderingContext,
   Highlight,
@@ -629,6 +632,17 @@ export async function exportPrettifiedXlsx(model: Model): Promise<XLSXExport> {
       return { ...file };
     }),
   };
+}
+
+export function getExportedExcelData(model: Model): ExcelWorkbookData {
+  model.dispatch("EVALUATE_CELLS");
+  let data = createEmptyExcelWorkbookData();
+  for (let handler of model["handlers"]) {
+    if (handler instanceof BasePlugin) {
+      handler.exportForExcel(data);
+    }
+  }
+  return data;
 }
 
 export function mockUuidV4To(model: Model, value: number | string) {

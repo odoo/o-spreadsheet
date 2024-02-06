@@ -1,9 +1,4 @@
-import { Model } from "../../src";
-import { ComposerStore } from "../../src/components/composer/composer/composer_store";
-import { FONT_SIZES } from "../../src/constants";
-import { functionRegistry } from "../../src/functions";
 import { toUnboundedZone, toZone, zoneToXc } from "../../src/helpers";
-import { interactivePaste } from "../../src/helpers/ui/paste_interactive";
 import {
   cellMenuRegistry,
   colMenuRegistry,
@@ -11,9 +6,9 @@ import {
   topbarMenuRegistry,
 } from "../../src/registries/index";
 import { SpreadsheetChildEnv, UID } from "../../src/types";
-import { DEFAULT_LOCALES } from "../../src/types/locale";
 import {
   copy,
+  createDynamicTable,
   createTable,
   foldHeaderGroup,
   freezeColumns,
@@ -34,7 +29,6 @@ import {
   updateLocale,
   updateTableConfig,
 } from "../test_helpers/commands_helpers";
-import { FR_LOCALE } from "../test_helpers/constants";
 import { getCell, getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import {
   clearFunctions,
@@ -48,6 +42,15 @@ import {
   spyModelDispatch,
   target,
 } from "../test_helpers/helpers";
+
+import { Model } from "../../src";
+import { ComposerStore } from "../../src/components/composer/composer/composer_store";
+import { FONT_SIZES } from "../../src/constants";
+import { functionRegistry } from "../../src/functions";
+import { interactivePaste } from "../../src/helpers/ui/paste_interactive";
+import { DEFAULT_LOCALES } from "../../src/types/locale";
+import { FR_LOCALE } from "../test_helpers/constants";
+
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 describe("Menu Item Registry", () => {
@@ -1518,6 +1521,46 @@ describe("Menu Item actions", () => {
         expect(getNode(insertTablePath).isVisible(env)).toBeFalsy();
       });
 
+      test("Insert -> Table creates a dynamic table if it's called on a spreading cell", () => {
+        setCellContent(model, "A1", "=MUNIT(5)");
+        setSelection(model, ["A1"]);
+        doAction(insertTablePath, env);
+        expect(model.getters.getCoreTable({ sheetId, row: 0, col: 0 })).toMatchObject({
+          range: { zone: toZone("A1") },
+          type: "dynamic",
+        });
+        expect(model.getters.getTable({ sheetId, row: 0, col: 0 })).toMatchObject({
+          range: { zone: toZone("A1:E5") },
+        });
+      });
+
+      test("Insert -> select the whole spreading zone and create a dynamic if it is called on a single spreaded cell", () => {
+        setCellContent(model, "A1", "=MUNIT(5)");
+        setSelection(model, ["B1"]);
+        doAction(insertTablePath, env);
+        expect(model.getters.getSelectedZone()).toEqual(toZone("A1:E5"));
+        expect(model.getters.getCoreTable({ sheetId, row: 0, col: 0 })).toMatchObject({
+          range: { zone: toZone("A1") },
+          type: "dynamic",
+        });
+        expect(model.getters.getTable({ sheetId, row: 0, col: 0 })).toMatchObject({
+          range: { zone: toZone("A1:E5") },
+        });
+      });
+
+      test("Insert -> Table creates a dynamic table if it's called on all the spreading cells of a formula", () => {
+        setCellContent(model, "A1", "=MUNIT(5)");
+        setSelection(model, ["A1:E5"]);
+        doAction(insertTablePath, env);
+        expect(model.getters.getCoreTable({ sheetId, row: 0, col: 0 })).toMatchObject({
+          range: { zone: toZone("A1") },
+          type: "dynamic",
+        });
+        expect(model.getters.getTable({ sheetId, row: 0, col: 0 })).toMatchObject({
+          range: { zone: toZone("A1:E5") },
+        });
+      });
+
       test("Edit -> Table (topbar)", () => {
         const spyOpenSidePanel = jest.spyOn(env, "openSidePanel");
         createTable(model, "A1:A5");
@@ -1543,6 +1586,14 @@ describe("Menu Item actions", () => {
       test("Delete table (cellRegistry)", () => {
         createTable(model, "A1:A5");
         expect(getName(["delete_table"], env, cellMenuRegistry)).toBe("Delete table");
+        doAction(["delete_table"], env, cellMenuRegistry);
+        expect(model.getters.getTable({ sheetId, row: 0, col: 0 })).toBeUndefined();
+      });
+
+      test("Delete table (cellRegistry) on a dynamic table", () => {
+        setCellContent(model, "A1", "=MUNIT(5)");
+        createDynamicTable(model, "A1");
+        setSelection(model, ["C3"]);
         doAction(["delete_table"], env, cellMenuRegistry);
         expect(model.getters.getTable({ sheetId, row: 0, col: 0 })).toBeUndefined();
       });

@@ -1,5 +1,5 @@
 import { BACKGROUND_CHART_COLOR, DEFAULT_BORDER_DESC } from "../../src/constants";
-import { CoreCommand, CoreCommandTypes, DEFAULT_LOCALE, Locale } from "../../src/types";
+import { CoreCommand, CoreCommandTypes, DEFAULT_LOCALE, Locale, TableStyle } from "../../src/types";
 import { target, toRangesData } from "./helpers";
 
 export const TEST_CHART_DATA = {
@@ -108,6 +108,7 @@ export const TEST_COMMANDS: CommandMapping = {
     type: "CREATE_TABLE",
     ranges: toRangesData("sheetId", "A1"),
     sheetId: "sheetId",
+    tableType: "static",
   },
   REMOVE_TABLE: {
     type: "REMOVE_TABLE",
@@ -421,4 +422,10 @@ export const CUSTOM_LOCALE: Locale = {
   dateFormat: "dd/mm/yyyy",
   timeFormat: "hh:mm:ss a",
   formulaArgSeparator: ";",
+};
+
+export const TABLE_STYLE_ALL_RED: TableStyle = {
+  category: "dark",
+  colorName: "Red",
+  wholeTable: { style: { fillColor: "#FF0000" }, border: { top: DEFAULT_BORDER_DESC } },
 };

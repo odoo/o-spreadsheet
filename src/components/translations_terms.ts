@@ -151,8 +151,10 @@ export const TableTerms = {
     bandedColumns: _t("Banded columns"),
     automaticAutofill: _t("Automatically autofill formulas"),
     totalRow: _t("Total row"),
+    isDynamic: _t("Auto-adjust to formula result"),
   },
   Tooltips: {
     filterWithoutHeader: _t("Cannot have filters without a header row"),
+    isDynamic: _t("For tables based on array formulas only"),
   },
 };

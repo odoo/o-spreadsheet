@@ -1,6 +1,7 @@
+import { Border, BorderDescr, CellPosition, Range, Style, UID, Zone } from "../types";
+import { CoreTable, Filter, Table, TableConfig, TableStyle } from "../types/table";
+
 import { generateMatrix } from "../functions/helpers";
-import { Border, BorderDescr, Style, Zone } from "../types";
-import { TableConfig, TableStyle } from "../types/table";
 import { ComputedTableStyle } from "./../types/table";
 import { TABLE_PRESETS } from "./table_presets";
 
@@ -22,6 +23,31 @@ export function getTableContentZone(tableZone: Zone, tableConfig: TableConfig): 
   const numberOfHeaders = tableConfig.numberOfHeaders;
   const contentZone = { ...tableZone, top: tableZone.top + numberOfHeaders };
   return contentZone.top <= contentZone.bottom ? contentZone : undefined;
+}
+
+export function getTableTopLeft(table: Table | CoreTable): CellPosition {
+  const range = table.range;
+  return { row: range.zone.top, col: range.zone.left, sheetId: range.sheetId };
+}
+
+export function createFilter(
+  id: UID,
+  range: Range,
+  config: TableConfig,
+  createRange: (sheetId: UID, zone: Zone) => Range
+): Filter {
+  const zone = range.zone;
+  if (zone.left !== zone.right) {
+    throw new Error("Can only define a filter on a single column");
+  }
+  const filteredZone = { ...zone, top: zone.top + config.numberOfHeaders };
+  const filteredRange = createRange(range.sheetId, filteredZone);
+  return {
+    id,
+    rangeWithHeaders: range,
+    col: zone.left,
+    filteredRange: filteredZone.top > filteredZone.bottom ? undefined : filteredRange,
+  };
 }
 
 export function getComputedTableStyle(
