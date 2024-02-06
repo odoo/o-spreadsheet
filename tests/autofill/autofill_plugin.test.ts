@@ -383,6 +383,19 @@ describe("Autofill", () => {
       });
     });
 
+    test("Autofill number and formulas", () => {
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "A2", "2");
+      setCellContent(model, "A3", "=A1 + 10");
+      autofill("A1:A3", "A9");
+      expect(getCellContent(model, "A4")).toBe("3");
+      expect(getCellContent(model, "A5")).toBe("4");
+      expect(getCellContent(model, "A6")).toBe("13");
+      expect(getCellContent(model, "A7")).toBe("5");
+      expect(getCellContent(model, "A8")).toBe("6");
+      expect(getCellContent(model, "A9")).toBe("15");
+    });
+
     test.each([
       ["=A1", "=#REF"],
       ["=SUM(A1:B1)", "=SUM(#REF)"],
