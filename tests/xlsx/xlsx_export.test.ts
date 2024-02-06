@@ -1,9 +1,7 @@
 import { functionRegistry } from "../../src/functions";
 import { buildSheetLink, toXC } from "../../src/helpers";
-import { createEmptyExcelWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
-import { BasePlugin } from "../../src/plugins/base_plugin";
-import { Dimension, ExcelWorkbookData, PLAIN_TEXT_FORMAT } from "../../src/types";
+import { Dimension, PLAIN_TEXT_FORMAT } from "../../src/types";
 import { XLSXExportXMLFile } from "../../src/types/xlsx";
 import { adaptFormulaToExcel } from "../../src/xlsx/functions/cells";
 import { escapeXml, parseXML } from "../../src/xlsx/helpers/xml_helpers";
@@ -23,18 +21,12 @@ import {
 } from "../test_helpers/commands_helpers";
 import { TEST_CHART_DATA } from "../test_helpers/constants";
 import { getCellContent } from "../test_helpers/getters_helpers";
-import { exportPrettifiedXlsx, mockChart, toRangesData } from "../test_helpers/helpers";
-
-function getExportedExcelData(model: Model): ExcelWorkbookData {
-  model.dispatch("EVALUATE_CELLS");
-  let data = createEmptyExcelWorkbookData();
-  for (let handler of model["handlers"]) {
-    if (handler instanceof BasePlugin) {
-      handler.exportForExcel(data);
-    }
-  }
-  return data;
-}
+import {
+  exportPrettifiedXlsx,
+  getExportedExcelData,
+  mockChart,
+  toRangesData,
+} from "../test_helpers/helpers";
 
 mockChart();
 

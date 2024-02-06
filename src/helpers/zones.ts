@@ -672,6 +672,11 @@ export function positionToZone(position: Position) {
   return { left: position.col, right: position.col, top: position.row, bottom: position.row };
 }
 
+/** Transform a zone into a zone with only its top-left position */
+export function zoneToTopLeft(zone: Zone): Zone {
+  return { ...zone, right: zone.left, bottom: zone.top };
+}
+
 export function isFullRow(zone: UnboundedZone): boolean {
   return zone.right === undefined;
 }
@@ -714,4 +719,15 @@ export function getZonesRows(zones: Zone[]): Set<number> {
     }
   }
   return set;
+}
+
+export function unionPositionsToZone(positions: Position[]): Zone {
+  const zone = { top: Infinity, left: Infinity, bottom: -Infinity, right: -Infinity };
+  for (const { col, row } of positions) {
+    zone.top = Math.min(zone.top, row);
+    zone.left = Math.min(zone.left, col);
+    zone.bottom = Math.max(zone.bottom, row);
+    zone.right = Math.max(zone.right, col);
+  }
+  return zone;
 }

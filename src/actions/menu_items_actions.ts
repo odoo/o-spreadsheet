@@ -11,7 +11,6 @@ import {
   isConsecutive,
   isEqual,
   numberToLetters,
-  positionToZone,
 } from "../helpers/index";
 import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
 import { interactivePaste, interactivePasteFromOS } from "../helpers/ui/paste_interactive";
@@ -521,9 +520,13 @@ export const INSERT_TABLE = (env: SpreadsheetChildEnv) => {
 
 export const DELETE_SELECTED_TABLE = (env: SpreadsheetChildEnv) => {
   const position = env.model.getters.getActivePosition();
+  const table = env.model.getters.getTable(position);
+  if (!table) {
+    return;
+  }
   env.model.dispatch("REMOVE_TABLE", {
     sheetId: position.sheetId,
-    target: [positionToZone(position)],
+    target: [table.range.zone],
   });
 };
 

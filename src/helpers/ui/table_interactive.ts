@@ -1,5 +1,6 @@
-import { TableTerms } from "../../components/translations_terms";
 import { CommandResult, DispatchResult, SpreadsheetChildEnv, UID } from "../../types";
+
+import { TableTerms } from "../../components/translations_terms";
 import { TableConfig } from "../../types/table";
 import { getZoneArea } from "../zones";
 
@@ -12,14 +13,22 @@ export function interactiveCreateTable(
   sheetId: UID,
   tableConfig?: TableConfig
 ): DispatchResult {
-  const selection = env.model.getters.getSelectedZones();
-  if (selection.length === 1 && getZoneArea(selection[0]) === 1) {
-    env.model.selection.selectTableAroundSelection();
-  }
-  const target = env.model.getters.getSelectedZones();
-  const ranges = target.map((zone) => env.model.getters.getRangeDataFromZone(sheetId, zone));
+  let target = env.model.getters.getSelectedZones();
+  let isDynamic = env.model.getters.canCreateDynamicTableOnZones(sheetId, target);
 
-  const result = env.model.dispatch("CREATE_TABLE", { ranges, sheetId, config: tableConfig });
+  if (target.length === 1 && !isDynamic && getZoneArea(target[0]) === 1) {
+    env.model.selection.selectTableAroundSelection();
+    target = env.model.getters.getSelectedZones();
+    isDynamic = env.model.getters.canCreateDynamicTableOnZones(sheetId, target);
+  }
+
+  const ranges = target.map((zone) => env.model.getters.getRangeDataFromZone(sheetId, zone));
+  const result = env.model.dispatch("CREATE_TABLE", {
+    ranges,
+    sheetId,
+    config: tableConfig,
+    tableType: isDynamic ? "dynamic" : "static",
+  });
   if (result.isCancelledBecause(CommandResult.TableOverlap)) {
     env.raiseError(TableTerms.Errors.TableOverlap);
   } else if (result.isCancelledBecause(CommandResult.NonContinuousTargets)) {

@@ -23,6 +23,7 @@ import {
   EvaluationDataValidationPlugin,
   EvaluationPlugin,
 } from "./ui_core_views";
+import { DynamicTablesPlugin } from "./ui_core_views/dynamic_tables";
 import { HeaderSizeUIPlugin } from "./ui_core_views/header_sizes_ui";
 import {
   AutofillPlugin,
@@ -96,5 +97,6 @@ export const coreViewsPluginRegistry = new Registry<UIPluginConstructor>()
   .add("evaluation_chart", EvaluationChartPlugin)
   .add("evaluation_cf", EvaluationConditionalFormatPlugin)
   .add("row_size", HeaderSizeUIPlugin)
-  .add("custom_colors", CustomColorsPlugin)
-  .add("data_validation_ui", EvaluationDataValidationPlugin);
+  .add("data_validation_ui", EvaluationDataValidationPlugin)
+  .add("dynamic_tables", DynamicTablesPlugin)
+  .add("custom_colors", CustomColorsPlugin);

@@ -7,9 +7,11 @@ export class TableAutofillPlugin extends UIPlugin {
   handle(cmd: Command) {
     switch (cmd.type) {
       case "AUTOFILL_TABLE_COLUMN":
-        const table = this.getters.getTable(cmd);
+        const table = this.getters.getCoreTable(cmd);
         const cell = this.getters.getCell(cmd);
-        if (!table || !table.config.automaticAutofill || !cell?.isFormula) return;
+        if (!table?.config.automaticAutofill || table.type === "dynamic" || !cell?.isFormula) {
+          return;
+        }
 
         const { col, row } = cmd;
         const tableContentZone = getTableContentZone(table.range.zone, table.config);

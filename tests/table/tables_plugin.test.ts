@@ -1,7 +1,5 @@
 import { CommandResult, Model } from "../../src";
-import { DEFAULT_BORDER_DESC } from "../../src/constants";
 import { toUnboundedZone, toZone, zoneToXc } from "../../src/helpers";
-import { TABLE_PRESETS } from "../../src/helpers/table_presets";
 import { ClipboardPasteOptions, UID } from "../../src/types";
 import {
   addColumns,
@@ -33,15 +31,15 @@ import {
   getTable,
 } from "../test_helpers/getters_helpers";
 import { getFilterHiddenValues, toRangeData } from "../test_helpers/helpers";
+
+import { DEFAULT_BORDER_DESC } from "../../src/constants";
+import { TABLE_PRESETS } from "../../src/helpers/table_presets";
+import { TABLE_STYLE_ALL_RED } from "../test_helpers/constants";
 import { DEFAULT_TABLE_CONFIG } from "./../../src/helpers/table_presets";
 
 const oldTablePresets = { ...TABLE_PRESETS };
 beforeEach(() => {
-  TABLE_PRESETS.TestStyleAllRed = {
-    category: "dark",
-    colorName: "Red",
-    wholeTable: { style: { fillColor: "#FF0000" }, border: { top: DEFAULT_BORDER_DESC } },
-  };
+  TABLE_PRESETS.TestStyleAllRed = TABLE_STYLE_ALL_RED;
 });
 
 afterEach(() => {
@@ -64,6 +62,7 @@ describe("Table plugin", () => {
         model.dispatch("CREATE_TABLE", {
           sheetId: model.getters.getActiveSheetId(),
           ranges: [{ _sheetId: sheetId, _zone: { top: -1, bottom: 0, right: 5, left: 9 } }],
+          tableType: "static",
         })
       ).toBeCancelledBecause(CommandResult.InvalidRange);
     });
@@ -668,9 +667,9 @@ describe("Table plugin", () => {
 
   describe("Copy/Cut/Paste tables", () => {
     test("Can copy and paste a whole table", () => {
+      // Note: copying filter values is not possible since the introduction of dynamic tables
       createTable(model, "A1:B4");
       updateTableConfig(model, "A1", { bandedColumns: true, styleId: "TableStyleDark2" });
-      updateFilter(model, "A1", ["thisIsAValue"]);
 
       copy(model, "A1:B4");
       paste(model, "A5");
@@ -682,13 +681,6 @@ describe("Table plugin", () => {
         bandedColumns: true,
         styleId: "TableStyleDark2",
       });
-      expect(
-        model.getters.getFilterHiddenValues({
-          sheetId,
-          col: copiedTable!.range.zone.left,
-          row: copiedTable!.range.zone.top,
-        })
-      ).toEqual(["thisIsAValue"]);
     });
 
     test("Can cut and paste a whole table", () => {

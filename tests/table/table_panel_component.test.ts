@@ -1,17 +1,19 @@
 import { Component, xml } from "@odoo/owl";
-import { Model } from "../../src";
-import { SidePanel } from "../../src/components/side_panel/side_panel/side_panel";
-import { TableTerms } from "../../src/components/translations_terms";
 import { RangeImpl, toUnboundedZone, toZone, zoneToXc } from "../../src/helpers";
 import { SpreadsheetChildEnv, Table, UID } from "../../src/types";
 import {
   createTable,
   deleteTable,
+  setCellContent,
   setSelection,
   updateTableConfig,
 } from "../test_helpers/commands_helpers";
 import { click, setInputValueAndTrigger, simulateClick } from "../test_helpers/dom_helper";
 import { mountComponent, nextTick } from "../test_helpers/helpers";
+
+import { Model } from "../../src";
+import { SidePanel } from "../../src/components/side_panel/side_panel/side_panel";
+import { TableTerms } from "../../src/components/translations_terms";
 
 class Parent extends Component<{}, SpreadsheetChildEnv> {
   static components = { SidePanel };
@@ -40,7 +42,7 @@ describe("Table side panel", () => {
   beforeEach(async () => {
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
-    createTable(model, "A1:C4");
+    createTable(model, "A1:C3");
     ({ fixture, env } = await mountComponent(Parent, { model }));
     env.openSidePanel("TableSidePanel", {});
     await nextTick();
@@ -63,7 +65,7 @@ describe("Table side panel", () => {
   });
 
   test("Cannot add filters to a table without headers", async () => {
-    updateTableConfig(model, "A1:C4", { numberOfHeaders: 0 });
+    updateTableConfig(model, "A1:C3", { numberOfHeaders: 0 });
     await nextTick();
     const checkbox = fixture.querySelector("input[name='hasFilters']") as HTMLInputElement;
     expect(checkbox.checked).toBe(false);
@@ -72,7 +74,7 @@ describe("Table side panel", () => {
   });
 
   test("Can change number of headers", async () => {
-    updateTableConfig(model, "A1:C4", { numberOfHeaders: 0 });
+    updateTableConfig(model, "A1:C3", { numberOfHeaders: 0 });
     await nextTick();
     expect(fixture.querySelector("input.o-table-n-of-headers")).toBeNull();
     await click(fixture, "input[name='headerRow']");
@@ -107,6 +109,16 @@ describe("Table side panel", () => {
     expect(model.getters.getSelectedZone()).toEqual(toZone("D5"));
   });
 
+  test("Updating table zone does the equivalent of a ctrl+a if selecting a single cell", async () => {
+    setCellContent(model, "D4", "5");
+    setCellContent(model, "D5", "6");
+    await simulateClick(".o-selection input");
+    await setInputValueAndTrigger(".o-selection input", "D5");
+    await click(fixture, ".o-selection .o-selection-ok");
+    expect(zoneToXc(getTable(model, sheetId).range.zone)).toEqual("D4:D5");
+    expect(model.getters.getSelectedZone()).toEqual(toZone("D4"));
+  });
+
   test("Side panel works with unbounded table zones", async () => {
     await simulateClick(".o-selection input");
     await setInputValueAndTrigger(".o-selection input", "D2:E");
@@ -117,6 +129,20 @@ describe("Table side panel", () => {
     expect(model.getters.getSelectedZone()).toEqual(toZone("D2"));
   });
 
+  test("Changing the table zone to an array formula cell make the table dynamic", async () => {
+    setCellContent(model, "E1", "=MUNIT(2)");
+    await simulateClick(".o-selection input");
+    await setInputValueAndTrigger(".o-selection input", "E1");
+    await click(fixture, ".o-selection .o-selection-ok");
+    expect(model.getters.getCoreTables(sheetId)[0]).toMatchObject({
+      range: { zone: toZone("E1") },
+      type: "dynamic",
+    });
+    expect(zoneToXc(getTable(model, sheetId).range.zone)).toEqual("E1:F2");
+    expect(model.getters.getSelectedZone()).toEqual(toZone("E1"));
+    expect(fixture.querySelector<HTMLInputElement>(".o-selection input")?.value).toBe("E1");
+  });
+
   test("Errors messages are displayed when wrong zone is entered and input is reset on confirm", async () => {
     createTable(model, "D1:D2");
     await simulateClick(".o-selection input");
@@ -125,7 +151,7 @@ describe("Table side panel", () => {
 
     await click(fixture, ".o-selection .o-selection-ok");
     expect(fixture.querySelector(".o-side-panel-error")).toBeNull();
-    expect(fixture.querySelector<HTMLInputElement>(".o-selection input")!.value).toBe("A1:C4");
+    expect(fixture.querySelector<HTMLInputElement>(".o-selection input")!.value).toBe("A1:C3");
   });
 
   test("Changing the selection changes the edited table", async () => {
@@ -133,7 +159,7 @@ describe("Table side panel", () => {
     updateTableConfig(model, "D1:D2", { numberOfHeaders: 0 });
 
     expect(fixture.querySelector<HTMLInputElement>("input[name='headerRow']")!.checked).toBe(true);
-    expect(fixture.querySelector<HTMLInputElement>(".o-selection input")!.value).toBe("A1:C4");
+    expect(fixture.querySelector<HTMLInputElement>(".o-selection input")!.value).toBe("A1:C3");
 
     setSelection(model, ["D1"]);
     await nextTick();
@@ -185,8 +211,48 @@ describe("Table side panel", () => {
   });
 
   test("Panel is closed when the table is deleted", async () => {
-    deleteTable(model, "A1:C4");
+    deleteTable(model, "A1:C3");
     await nextTick();
     expect(fixture.querySelector(".o-table-panel")).toBeNull();
+  });
+
+  test("IsDynamic checkbox is disabled when the table cannot be dynamic", async () => {
+    expect(
+      fixture.querySelector<HTMLInputElement>(`input[name="isDynamic"]`)?.disabled
+    ).toBeTruthy();
+    expect(model.getters.getCoreTable({ sheetId, col: 0, row: 0 })?.type).toBe("static");
+
+    setCellContent(model, "A1", "=MUNIT(3)");
+    await nextTick();
+    expect(
+      fixture.querySelector<HTMLInputElement>(`input[name="isDynamic"]`)?.disabled
+    ).toBeFalsy();
+  });
+
+  test("Can change the table to be dynamic or not", async () => {
+    expect(model.getters.getCoreTable({ sheetId, col: 0, row: 0 })?.type).toBe("static");
+    expect(fixture.querySelector<HTMLInputElement>(".o-selection input")!.value).toBe("A1:C3");
+
+    setCellContent(model, "A1", "=MUNIT(3)");
+    await nextTick();
+    const checkbox = fixture.querySelector(`input[name="isDynamic"]`) as HTMLInputElement;
+    expect(checkbox.checked).toBe(false);
+
+    await click(checkbox);
+    expect(checkbox.checked).toBe(true);
+    expect(model.getters.getCoreTable({ sheetId, col: 0, row: 0 })).toMatchObject({
+      type: "dynamic",
+    });
+
+    expect(fixture.querySelector<HTMLInputElement>(".o-selection input")!.value).toBe("A1");
+    expect(fixture.querySelector(".o-selection-input button")).toBeNull(); // check that the selection input didn't start editing
+
+    await click(checkbox);
+    expect(checkbox.checked).toBe(false);
+    expect(model.getters.getCoreTable({ sheetId, col: 0, row: 0 })).toMatchObject({
+      type: "forceStatic",
+    });
+    expect(fixture.querySelector<HTMLInputElement>(".o-selection input")!.value).toBe("A1:C3");
+    expect(fixture.querySelector(".o-selection-input button")).toBeNull();
   });
 });

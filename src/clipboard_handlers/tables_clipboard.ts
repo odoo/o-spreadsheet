@@ -5,6 +5,7 @@ import {
   ClipboardCellData,
   ClipboardOptions,
   ClipboardPasteTarget,
+  CoreTableType,
   HeaderIndex,
   Range,
   Style,
@@ -22,7 +23,7 @@ interface TableStyle {
 interface CopiedTable {
   range: Range;
   config: TableConfig;
-  filtersValues: Array<string[]>;
+  type: CoreTableType;
 }
 
 interface TableCell {
@@ -59,21 +60,25 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
           tableCellsInRow.push({});
           continue;
         }
+        const coreTable = this.getters.getCoreTable(position);
+        const tableZone = coreTable?.range.zone;
         // Copy whole table
-        if (zones.some((z) => isZoneInside(table.range.zone, z))) {
-          copiedTablesIds.add(table.id);
+        if (coreTable && tableZone && zones.some((z) => isZoneInside(tableZone, z))) {
+          copiedTablesIds.add(coreTable.id);
           const values: Array<string[]> = [];
-          for (const col of range(table.range.zone.left, table.range.zone.right + 1)) {
-            values.push(
-              this.getters.getFilterHiddenValues({ sheetId, col, row: table.range.zone.top })
-            );
+          for (const col of range(tableZone.left, tableZone.right + 1)) {
+            values.push(this.getters.getFilterHiddenValues({ sheetId, col, row: tableZone.top }));
           }
           tableCellsInRow.push({
-            table: { filtersValues: values, range: table.range, config: table.config },
+            table: {
+              range: coreTable.range,
+              config: coreTable.config,
+              type: coreTable.type,
+            },
           });
         }
         // Copy only style of cell
-        else {
+        else if (table) {
           tableCellsInRow.push({ style: this.getTableStyleToCopy(position) });
         }
       }
@@ -168,7 +173,7 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
     options?: ClipboardOptions
   ) {
     if (tableCell.table && !options?.pasteOption) {
-      const { range: tableRange, filtersValues } = tableCell.table;
+      const { range: tableRange } = tableCell.table;
       const zoneDims = zoneToDimension(tableRange.zone);
       const newTableZone = {
         left: position.col,
@@ -180,19 +185,14 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
         sheetId: position.sheetId,
         ranges: [this.getters.getRangeDataFromZone(sheetId, newTableZone)],
         config: tableCell.table.config,
+        tableType: tableCell.table.type,
       });
-      for (const i of range(0, filtersValues.length)) {
-        this.dispatch("UPDATE_FILTER", {
-          sheetId: position.sheetId,
-          col: newTableZone.left + i,
-          row: newTableZone.top,
-          hiddenValues: filtersValues[i],
-        });
-      }
     }
 
     // Do not paste table style if we're inside another table
-    if (!this.getters.getTable(position)) {
+    // We cannot check for dynamic tables, because at this point the paste can have changed the evaluation, and the
+    // dynamic tables are not yet computed
+    if (!this.getters.getCoreTable(position)) {
       if (tableCell.style?.style && options?.pasteOption !== "asValue") {
         this.dispatch("UPDATE_CELL", { ...position, style: tableCell.style.style });
       }

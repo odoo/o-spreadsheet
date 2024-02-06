@@ -20,6 +20,8 @@ import {
   Style,
   UID,
 } from "../../src/types";
+import { target, toRangeData, toRangesData } from "./helpers";
+
 import { BarChartDefinition } from "../../src/types/chart/bar_chart";
 import { GaugeChartDefinition } from "../../src/types/chart/gauge_chart";
 import { LineChartDefinition } from "../../src/types/chart/line_chart";
@@ -27,9 +29,8 @@ import { PieChartDefinition } from "../../src/types/chart/pie_chart";
 import { ScatterChartDefinition } from "../../src/types/chart/scatter_chart";
 import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart";
 import { Image } from "../../src/types/image";
-import { TableConfig } from "../../src/types/table";
+import { CoreTableType, TableConfig } from "../../src/types/table";
 import { FigureSize } from "./../../src/types/figure";
-import { target, toRangeData, toRangesData } from "./helpers";
 
 /**
  * Dispatch an UNDO to the model
@@ -892,6 +893,7 @@ export function createTable(
   model: Model,
   range: string,
   config?: Partial<TableConfig>,
+  tableType: CoreTableType = "static",
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
   model.selection.selectTableAroundSelection();
@@ -899,13 +901,24 @@ export function createTable(
     sheetId,
     ranges: toRangesData(sheetId, range),
     config: { ...DEFAULT_TABLE_CONFIG, ...config },
+    tableType,
   });
+}
+
+export function createDynamicTable(
+  model: Model,
+  range: string,
+  config?: Partial<TableConfig>,
+  sheetId: UID = model.getters.getActiveSheetId()
+): DispatchResult {
+  return createTable(model, range, config, "dynamic", sheetId);
 }
 
 export function updateTableConfig(
   model: Model,
   range: string,
   config: Partial<TableConfig>,
+  tableType?: CoreTableType,
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
   const zone = toZone(range);
@@ -917,6 +930,7 @@ export function updateTableConfig(
     sheetId,
     zone: table.range.zone,
     config,
+    tableType,
   });
 }
 
@@ -924,6 +938,7 @@ export function updateTableZone(
   model: Model,
   range: string,
   newZone: string,
+  tableType?: CoreTableType,
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
   const zone = toZone(range);
@@ -935,6 +950,7 @@ export function updateTableZone(
     sheetId,
     zone: table.range.zone,
     newTableRange: toRangeData(sheetId, newZone),
+    tableType,
   });
 }
 

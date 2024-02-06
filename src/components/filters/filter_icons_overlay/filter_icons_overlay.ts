@@ -22,7 +22,6 @@ export class FilterIconsOverlay extends Component<Props, SpreadsheetChildEnv> {
 
   getFilterHeadersPositions(): CellPosition[] {
     const sheetId = this.env.model.getters.getActiveSheetId();
-    const headerPositions = this.env.model.getters.getFilterHeaders(sheetId);
-    return headerPositions.map((position) => ({ sheetId, ...position }));
+    return this.env.model.getters.getFilterHeaders(sheetId);
   }
 }

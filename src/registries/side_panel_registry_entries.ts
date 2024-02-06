@@ -9,6 +9,7 @@ import { RemoveDuplicatesPanel } from "../components/side_panel/remove_duplicate
 import { SettingsPanel } from "../components/side_panel/settings/settings_panel";
 import { SplitIntoColumnsPanel } from "../components/side_panel/split_to_columns_panel/split_to_columns_panel";
 import { TablePanel } from "../components/side_panel/table_panel/table_panel";
+import { getTableTopLeft } from "../helpers/table_helpers";
 import { _t } from "../translation";
 import { Getters, UID } from "../types";
 import { sidePanelRegistry } from "./side_panel_registry";
@@ -81,10 +82,8 @@ sidePanelRegistry.add("TableSidePanel", {
     if (!table) {
       return { isOpen: false };
     }
-    return {
-      isOpen: true,
-      props: { table },
-      key: table.id,
-    };
+
+    const coreTable = getters.getCoreTable(getTableTopLeft(table));
+    return { isOpen: true, props: { table: coreTable }, key: table.id };
   },
 });

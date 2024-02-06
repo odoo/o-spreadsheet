@@ -69,7 +69,7 @@
       <Section>
         <t t-set-slot="title">Data range</t>
         <SelectionInput
-          t-key="props.table.id"
+          t-key="props.table.type"
           ranges="[this.state.tableXc]"
           hasSingleRange="true"
           onSelectionChanged="(ranges) => this.onRangeChanged(ranges)"
@@ -82,6 +82,20 @@
           value="tableConfig.automaticAutofill"
           onChange="(val) => this.updateTableConfig('automaticAutofill', val)"
         />
+        <div class="d-flex flex-row align-items-center">
+          <Checkbox
+            label="getCheckboxLabel('isDynamic')"
+            name="'isDynamic'"
+            value="props.table.type === 'dynamic'"
+            onChange.bind="this.updateTableIsDynamic"
+            disabled="!this.canBeDynamic"
+          />
+          <div
+            class="o-info-icon d-flex flex-row align-items-center text-muted ps-1"
+            t-att-title="dynamicTableTooltip">
+            <t t-call="o-spreadsheet-Icon.CIRCLE_INFO"/>
+          </div>
+        </div>
       </Section>
       <div class="o-sidePanelButtons">
         <button t-on-click="deleteTable" class="o-table-delete o-button">Delete table</button>

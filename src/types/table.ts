@@ -8,6 +8,17 @@ export interface Table {
   readonly config: TableConfig;
 }
 
+export interface StaticTable extends Table {
+  readonly type: "static" | "forceStatic";
+}
+
+export interface DynamicTable extends Omit<Table, "filters"> {
+  readonly type: "dynamic";
+}
+
+export type CoreTable = StaticTable | DynamicTable;
+export type CoreTableType = Extract<CoreTable, { type: string }>["type"];
+
 export interface Filter {
   readonly id: UID;
   readonly rangeWithHeaders: Range;

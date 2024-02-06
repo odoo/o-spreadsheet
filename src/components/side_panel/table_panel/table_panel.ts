@@ -1,12 +1,16 @@
 import { Component, useState } from "@odoo/owl";
-import { positionToZone, rangeReference } from "../../../helpers";
+import { getZoneArea, positionToZone, rangeReference } from "../../../helpers";
 import {
   CommandResult,
+  CoreTable,
   DispatchResult,
+  Range,
   SpreadsheetChildEnv,
-  Table,
   TableConfig,
+  Zone,
 } from "../../../types";
+
+import { getTableTopLeft } from "../../../helpers/table_helpers";
 import { css } from "../../helpers";
 import { SelectionInput } from "../../selection_input/selection_input";
 import { TableStylePicker } from "../../tables/table_style_picker/table_style_picker";
@@ -16,7 +20,7 @@ import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
 
 interface Props {
-  table: Table;
+  table: CoreTable;
   onCloseSidePanel: () => void;
 }
 
@@ -46,6 +50,11 @@ css/* scss */ `
     .o-sidePanelButtons .o-table-delete:hover {
       color: #ffffff;
       background: #d94b4b;
+    }
+
+    .o-info-icon {
+      width: 14px;
+      height: 14px;
     }
   }
 `;
@@ -85,6 +94,30 @@ export class TablePanel extends Component<Props, SpreadsheetChildEnv> {
     this.updateNumberOfHeaders(numberOfHeaders);
   }
 
+  updateTableIsDynamic(isDynamic: boolean) {
+    const newTableType = isDynamic ? "dynamic" : "forceStatic";
+    if (newTableType === this.props.table.type) {
+      return;
+    }
+    const uiTable = this.env.model.getters.getTable(getTableTopLeft(this.props.table));
+    if (!uiTable) {
+      return;
+    }
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    const result = this.env.model.dispatch("UPDATE_TABLE", {
+      sheetId,
+      zone: this.props.table.range.zone,
+      newTableRange: uiTable.range.rangeData,
+      tableType: newTableType,
+    });
+    const updatedTable = this.env.model.getters.getCoreTable(getTableTopLeft(this.props.table));
+    if (result.isSuccessful && updatedTable) {
+      const newTableRange = updatedTable.range;
+      this.state.tableXc = this.env.model.getters.getRangeString(newTableRange, sheetId);
+      this.state.tableZoneErrors = [];
+    }
+  }
+
   onChangeNumberOfHeaders(ev: Event) {
     const input = ev.target as HTMLInputElement;
     const numberOfHeaders = parseInt(input.value);
@@ -113,38 +146,63 @@ export class TablePanel extends Component<Props, SpreadsheetChildEnv> {
     const sheetId = this.env.model.getters.getActiveSheetId();
 
     this.state.tableXc = ranges[0];
+    const newTableRange = this.env.model.getters.getRangeFromSheetXC(sheetId, this.state.tableXc);
     this.state.tableZoneErrors = this.env.model.canDispatch("UPDATE_TABLE", {
       sheetId,
       zone: this.props.table.range.zone,
       newTableRange: this.env.model.getters.getRangeDataFromXc(sheetId, this.state.tableXc),
+      tableType: this.getNewTableType(newTableRange.zone),
     }).reasons;
   }
 
   onRangeConfirmed() {
     const sheetId = this.env.model.getters.getActiveSheetId();
-    const newRange = this.env.model.getters.getRangeFromSheetXC(sheetId, this.state.tableXc);
+    let newRange: Range = this.env.model.getters.getRangeFromSheetXC(sheetId, this.state.tableXc);
+    if (getZoneArea(newRange.zone) === 1) {
+      const extendedZone = this.env.model.getters.getContiguousZone(sheetId, newRange.zone);
+      newRange = this.env.model.getters.getRangeFromZone(sheetId, extendedZone);
+    }
     const result = this.env.model.dispatch("UPDATE_TABLE", {
       sheetId,
       zone: this.props.table.range.zone,
       newTableRange: newRange.rangeData,
+      tableType: this.getNewTableType(newRange.zone),
     });
 
-    if (result.isSuccessful) {
-      const position = { col: newRange.zone.left, row: newRange.zone.top };
+    const position = { sheetId, col: newRange.zone.left, row: newRange.zone.top };
+    const updatedTable = this.env.model.getters.getCoreTable(position);
+
+    if (result.isSuccessful && updatedTable) {
+      const newTopLeft = getTableTopLeft(updatedTable);
       this.env.model.selection.selectZone({
-        zone: positionToZone(position),
-        cell: position,
+        zone: positionToZone(newTopLeft),
+        cell: newTopLeft,
       });
+      const newTableRange = updatedTable.range;
+      this.state.tableXc = this.env.model.getters.getRangeString(newTableRange, sheetId);
+    } else {
+      const oldTableRange = this.props.table.range;
+      this.state.tableXc = this.env.model.getters.getRangeString(oldTableRange, sheetId);
     }
     this.state.tableZoneErrors = [];
-    this.state.tableXc = result.isSuccessful
-      ? this.state.tableXc
-      : this.env.model.getters.getRangeString(this.props.table.range, sheetId);
   }
 
   deleteTable() {
     const sheetId = this.env.model.getters.getActiveSheetId();
-    this.env.model.dispatch("REMOVE_TABLE", { sheetId, target: [this.props.table.range.zone] });
+    this.env.model.dispatch("REMOVE_TABLE", {
+      sheetId,
+      target: [this.props.table.range.zone],
+    });
+  }
+
+  private getNewTableType(newTableZone: Zone) {
+    if (this.props.table.type === "forceStatic") {
+      return "forceStatic";
+    }
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    return this.env.model.getters.canCreateDynamicTableOnZones(sheetId, [newTableZone])
+      ? "dynamic"
+      : "static";
   }
 
   get tableConfig(): TableConfig {
@@ -168,5 +226,17 @@ export class TablePanel extends Component<Props, SpreadsheetChildEnv> {
 
   get hasFilterCheckboxTooltip() {
     return this.canHaveFilters ? undefined : TableTerms.Tooltips.filterWithoutHeader;
+  }
+
+  get canBeDynamic() {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    return (
+      this.props.table.type === "dynamic" ||
+      this.env.model.getters.canCreateDynamicTableOnZones(sheetId, [this.props.table.range.zone])
+    );
+  }
+
+  get dynamicTableTooltip() {
+    return TableTerms.Tooltips.isDynamic;
   }
 }

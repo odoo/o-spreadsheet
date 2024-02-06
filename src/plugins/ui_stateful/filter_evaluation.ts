@@ -1,4 +1,12 @@
-import { positions, range, toLowerCase, toXC, toZone, zoneToDimension } from "../../helpers";
+import {
+  deepCopy,
+  positions,
+  range,
+  toLowerCase,
+  toXC,
+  toZone,
+  zoneToDimension,
+} from "../../helpers";
 import {
   CellPosition,
   Command,
@@ -52,9 +60,6 @@ export class FilterEvaluationPlugin extends UIPlugin {
       case "START":
         for (const sheetId of this.getters.getSheetIds()) {
           this.filterValues[sheetId] = {};
-          for (const filter of this.getters.getFilters(sheetId)) {
-            this.filterValues[sheetId][filter.id] = [];
-          }
         }
         break;
       case "CREATE_SHEET":
@@ -75,16 +80,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
         this.updateHiddenRows();
         break;
       case "DUPLICATE_SHEET":
-        const filterValues: Record<FilterId, string[]> = {};
-        for (const newFilter of this.getters.getFilters(cmd.sheetIdTo)) {
-          const zone = newFilter.rangeWithHeaders.zone;
-          filterValues[newFilter.id] = this.getFilterHiddenValues({
-            sheetId: cmd.sheetId,
-            col: zone.left,
-            row: zone.top,
-          });
-        }
-        this.filterValues[cmd.sheetIdTo] = filterValues;
+        this.filterValues[cmd.sheetIdTo] = deepCopy(this.filterValues[cmd.sheetId]);
         break;
       // If we don't handle DELETE_SHEET, on one hand we will have some residual data, on the other hand we keep the data
       // on DELETE_SHEET followed by undo

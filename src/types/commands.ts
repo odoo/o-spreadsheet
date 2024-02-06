@@ -1,12 +1,7 @@
-import { ChartDefinition } from "./chart/chart";
-import { ClipboardPasteOptions } from "./clipboard";
-import { FigureSize } from "./figure";
-import { SearchOptions } from "./find_and_replace";
-import { Image } from "./image";
 import {
   ConditionalFormat,
-  DataValidationRule,
   DOMCoordinates,
+  DataValidationRule,
   Figure,
   Format,
   Locale,
@@ -25,8 +20,14 @@ import {
   SortOptions,
   UID,
 } from "./misc";
+
+import { ChartDefinition } from "./chart/chart";
+import { ClipboardPasteOptions } from "./clipboard";
+import { FigureSize } from "./figure";
+import { SearchOptions } from "./find_and_replace";
+import { Image } from "./image";
 import { RangeData } from "./range";
-import { TableConfig } from "./table";
+import { CoreTableType, TableConfig } from "./table";
 
 // -----------------------------------------------------------------------------
 // Grid commands
@@ -479,6 +480,7 @@ export interface CreateTableCommand extends RangesDependentCommand {
   type: "CREATE_TABLE";
   sheetId: UID;
   config?: TableConfig;
+  tableType: CoreTableType;
 }
 
 export interface RemoveTableCommand extends TargetDependentCommand {
@@ -490,6 +492,7 @@ export interface UpdateTableCommand {
   zone: Zone;
   sheetId: UID;
   newTableRange?: RangeData;
+  tableType?: CoreTableType;
   config?: Partial<TableConfig>;
 }
 
