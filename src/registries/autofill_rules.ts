@@ -38,8 +38,10 @@ function getGroup(
     if (x === cell) {
       found = true;
     }
-    const cellValue = evaluateLiteral(x?.content, { locale: DEFAULT_LOCALE });
-    if (filter(cellValue)) {
+    const cellValue = x?.isFormula
+      ? undefined
+      : evaluateLiteral(x?.content, { locale: DEFAULT_LOCALE });
+    if (cellValue && filter(cellValue)) {
       group.push(cellValue);
     } else {
       if (found) {
