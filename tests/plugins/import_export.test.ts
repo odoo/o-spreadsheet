@@ -31,7 +31,7 @@ describe("data", () => {
 });
 
 describe("Migrations", () => {
-  test("Can upgrade from 1 to 12", () => {
+  test("Can upgrade from 1 to 13", () => {
     const model = new Model({
       version: 1,
       sheets: [
@@ -401,6 +401,20 @@ describe("Migrations", () => {
         },
       },
     });
+  });
+
+  test("migrate version 12.5: Fix Overlapping datafilters", () => {
+    const model = new Model({
+      version: 12,
+      sheets: [
+        {
+          id: "1",
+          filterTables: [{ range: "A1:B2" }, { range: "A1:C2" }],
+        },
+      ],
+    });
+    const data = model.exportData();
+    expect(data.sheets[0].filterTables).toEqual([{ range: "A1:C2" }]);
   });
 });
 
