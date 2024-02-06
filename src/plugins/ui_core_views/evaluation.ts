@@ -430,6 +430,16 @@ export class EvaluationPlugin extends UIPlugin {
           if (cell.format !== evaluatedCell.format) {
             exportedCellData.computedFormat = evaluatedCell.format;
           }
+
+          // if there is a formula but no dependencies (maybe because the cell is in error), no need to recompute the formula text
+          if (cell.isFormula && cell.dependencies.length) {
+            exportedCellData.content = this.getters.buildFormulaContent(
+              sheet.id,
+              cell,
+              cell.dependencies,
+              true
+            );
+          }
         }
       }
     }
