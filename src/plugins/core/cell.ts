@@ -244,9 +244,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           format: cell.format ? getItemId<Format>(cell.format, formats) : undefined,
           content: cell.content || undefined,
         };
-        if (cell instanceof FormulaCellWithDependencies) {
-          cells[xc].content = cell.contentWithFixedReferences || undefined;
-        }
       }
       _sheet.cells = cells;
     }
@@ -635,7 +632,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 }
 
-class FormulaCellWithDependencies implements FormulaCell {
+export class FormulaCellWithDependencies implements FormulaCell {
   readonly isFormula = true;
   readonly compiledFormula: RangeCompiledFormula;
   constructor(
