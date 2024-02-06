@@ -232,10 +232,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           format: cell.format ? getItemId<Format>(cell.format, formats) : undefined,
           content: cell.content || undefined,
         };
-
-        if (cell.isFormula()) {
-          cells[xc].content = this.buildFormulaContent(_sheet.id, cell, cell.dependencies, true);
-        }
       }
       _sheet.cells = cells;
     }
@@ -265,6 +261,15 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         const exportedCellData = sheet.cells[xc]!;
         exportedCellData.value = cell.evaluated.value;
         exportedCellData.isFormula = cell.isFormula();
+
+        if (cell.isFormula()) {
+          exportedCellData.content = this.buildFormulaContent(
+            sheet.id,
+            cell,
+            cell.dependencies,
+            true
+          );
+        }
         if (cell.format !== cell.evaluated.format) {
           exportedCellData.computedFormat = cell.evaluated.format;
         }
