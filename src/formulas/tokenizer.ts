@@ -34,7 +34,8 @@ type TokenType =
   | "RIGHT_PAREN"
   | "REFERENCE"
   | "INVALID_REFERENCE"
-  | "UNKNOWN";
+  | "UNKNOWN"
+  | "RANGE_REFERENCE_PLACEHOLDER";
 
 export interface Token {
   type: TokenType;
@@ -51,6 +52,7 @@ export function tokenize(str: string, locale = DEFAULT_LOCALE): Token[] {
       tokenizeSpace(chars) ||
       tokenizeArgsSeparator(chars, locale) ||
       tokenizeMisc(chars) ||
+      tokenizeKnownReference(chars) ||
       tokenizeOperator(chars) ||
       tokenizeString(chars) ||
       tokenizeDebugger(chars) ||
@@ -79,6 +81,18 @@ const misc = {
   "(": "LEFT_PAREN",
   ")": "RIGHT_PAREN",
 } as const;
+
+function tokenizeKnownReference(chars: TokenizingChars): Token | null {
+  if (chars.currentStartsWith("~")) {
+    chars.advanceBy(1);
+    const match = chars.remaining().match(/\d*/);
+    if (match) {
+      chars.advanceBy(match[0].length);
+      return { type: "RANGE_REFERENCE_PLACEHOLDER", value: match[0] };
+    }
+  }
+  return null;
+}
 
 function tokenizeMisc(chars: TokenizingChars): Token | null {
   if (chars.current in misc) {

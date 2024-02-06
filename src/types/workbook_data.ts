@@ -3,7 +3,6 @@ import { ExcelChartDefinition } from "./chart/chart";
 import { ConditionalFormat } from "./conditional_formatting";
 import { Image } from "./image";
 import { Border, Dimension, HeaderGroup, PaneDivision, Pixel, Style, UID } from "./misc";
-
 export interface Dependencies {
   references: string[];
   numbers: number[];
@@ -12,6 +11,7 @@ export interface Dependencies {
 
 export interface CellData {
   content?: string;
+  formulaTokens?: string[];
   style?: number;
   border?: number;
   format?: number;

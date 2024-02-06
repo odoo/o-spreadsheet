@@ -22,13 +22,55 @@ exports[`Model export formula with unbound zone stays unbound 1`] = `
       "areGridLinesVisible": true,
       "cells": {
         "A1": {
-          "content": "=SUM(A3:3)",
           "format": undefined,
+          "formulaTokens": [
+            {
+              "type": "OPERATOR",
+              "value": "=",
+            },
+            {
+              "type": "SYMBOL",
+              "value": "SUM",
+            },
+            {
+              "type": "LEFT_PAREN",
+              "value": "(",
+            },
+            {
+              "type": "RANGE_REFERENCE_PLACEHOLDER",
+              "value": "A3:3",
+            },
+            {
+              "type": "RIGHT_PAREN",
+              "value": ")",
+            },
+          ],
           "style": undefined,
         },
         "A2": {
-          "content": "=SUM(A3:A)",
           "format": undefined,
+          "formulaTokens": [
+            {
+              "type": "OPERATOR",
+              "value": "=",
+            },
+            {
+              "type": "SYMBOL",
+              "value": "SUM",
+            },
+            {
+              "type": "LEFT_PAREN",
+              "value": "(",
+            },
+            {
+              "type": "RANGE_REFERENCE_PLACEHOLDER",
+              "value": "A3:A",
+            },
+            {
+              "type": "RIGHT_PAREN",
+              "value": ")",
+            },
+          ],
           "style": undefined,
         },
       },

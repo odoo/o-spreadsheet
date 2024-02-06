@@ -1,5 +1,6 @@
 import { DEFAULT_STYLE } from "../../constants";
 import { Token, compile, tokenize } from "../../formulas";
+import { compileFast } from "../../formulas/compiler";
 import { parseLiteral } from "../../helpers/cells";
 import {
   concat,
@@ -211,7 +212,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       for (let xc in sheet.cells) {
         const cellData = sheet.cells[xc];
         const { col, row } = toCartesian(xc);
-        if (cellData?.content || cellData?.format || cellData?.style) {
+        if (cellData?.content || cellData?.format || cellData?.style || cellData?.formulaTokens) {
           const cell = this.importCell(sheet.id, cellData, data.styles, data.formats);
           this.history.update("cells", sheet.id, cell.id, cell);
           this.dispatch("UPDATE_CELL_POSITION", {
@@ -241,8 +242,20 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         cells[xc] = {
           style: Object.keys(style).length ? getItemId<Style>(style, styles) : undefined,
           format: cell.format ? getItemId<Format>(cell.format, formats) : undefined,
-          content: cell.content || undefined,
         };
+        if (cell instanceof FormulaCellWithDependencies) {
+          let referenceIndex = 0;
+          cells[xc].content = cell.compiledFormula.tokens
+            .map((token) =>
+              token instanceof RangeReferenceToken ? "~" + referenceIndex++ : token.value
+            )
+            .join("");
+          cells[xc].formulaTokens = cell.compiledFormula.tokens
+            .filter((token) => token instanceof RangeReferenceToken)
+            .map((token) => token.value);
+        } else {
+          cells[xc].content = cell.content || undefined;
+        }
       }
       _sheet.cells = cells;
     }
@@ -259,7 +272,14 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     const style = (cellData.style && normalizedStyles[cellData.style]) || undefined;
     const format = (cellData.format && normalizedFormats[cellData.format]) || undefined;
     const cellId = this.getNextUid();
-    return this.createCell(cellId, cellData?.content || "", format, style, sheetId);
+    return this.createCell(
+      cellId,
+      cellData?.content || "",
+      format,
+      style,
+      sheetId,
+      cellData?.formulaTokens
+    );
   }
 
   exportForExcel(data: ExcelWorkbookData) {
@@ -510,15 +530,17 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     content: string,
     format: Format | undefined,
     style: Style | undefined,
-    sheetId: UID
+    sheetId: UID,
+    formulaTokens?: string[]
   ): Cell {
-    if (!content.startsWith("=")) {
+    if (content.startsWith("=") || formulaTokens?.length) {
+      try {
+        return this.createFormulaCell(id, content, format, style, sheetId, formulaTokens);
+      } catch (error) {
+        return this.createErrorFormula(id, content, format, style, error);
+      }
+    } else {
       return this.createLiteralCell(id, content, format, style);
-    }
-    try {
-      return this.createFormulaCell(id, content, format, style, sheetId);
-    } catch (error) {
-      return this.createErrorFormula(id, content, format, style, error);
     }
   }
 
@@ -544,9 +566,15 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     content: string,
     format: Format | undefined,
     style: Style | undefined,
-    sheetId: UID
+    sheetId: UID,
+    formulaTokens?: string[]
   ): FormulaCell {
-    const compiledFormula = compile(content);
+    let compiledFormula;
+    if (formulaTokens?.length) {
+      compiledFormula = compileFast(content, formulaTokens);
+    } else {
+      compiledFormula = compile(content);
+    }
     if (compiledFormula.dependencies.length) {
       return this.createFormulaCellWithDependencies(id, compiledFormula, format, style, sheetId);
     }
@@ -633,6 +661,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 export class FormulaCellWithDependencies implements FormulaCell {
   readonly isFormula = true;
   readonly compiledFormula: RangeCompiledFormula;
+
   constructor(
     readonly id: UID,
     compiledFormula: CompiledFormula,
@@ -682,6 +711,7 @@ export class FormulaCellWithDependencies implements FormulaCell {
 }
 
 class RangeReferenceToken implements Token {
+  //, Cloneable<RangeReferenceToken> {
   type = "REFERENCE" as const;
 
   constructor(
@@ -690,6 +720,10 @@ class RangeReferenceToken implements Token {
     private sheetId,
     private getRangeString: (range: Range, sheetId: UID) => string
   ) {}
+
+  // clone (args?: Partial<RangeReferenceToken> | undefined) {
+  //   return new RangeReferenceToken(this.ranges, this.rangeIndex, this.sheetId, this.getRangeString)
+  // }
 
   get value() {
     const range = this.ranges[this.rangeIndex];
