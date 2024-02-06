@@ -238,11 +238,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           format: cell.format ? getItemId<Format>(cell.format, formats) : undefined,
           content: cell.content || undefined,
         };
-
-        // if there is a formula but no dependencies (maybe because the cell is in error), no need to recompute the formula text
-        if (cell.isFormula && cell.dependencies.length) {
-          cells[xc].content = this.buildFormulaContent(_sheet.id, cell, cell.dependencies, true);
-        }
       }
       _sheet.cells = cells;
     }
