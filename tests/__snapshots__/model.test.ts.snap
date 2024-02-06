@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Model export formula with unbound zone stays unbound 1`] = `
+Object {
+  "borders": Object {},
+  "entities": Object {},
+  "formats": Object {},
+  "revisionId": "START_REVISION",
+  "sheets": Array [
+    Object {
+      "areGridLinesVisible": true,
+      "cells": Object {
+        "A1": Object {
+          "content": "=SUM(A3:3)",
+          "format": undefined,
+          "style": undefined,
+        },
+        "A2": Object {
+          "content": "=SUM(A3:A)",
+          "format": undefined,
+          "style": undefined,
+        },
+      },
+      "colNumber": 26,
+      "cols": Object {},
+      "conditionalFormats": Array [],
+      "figures": Array [],
+      "filterTables": Array [],
+      "id": "Sheet1",
+      "isVisible": true,
+      "merges": Array [],
+      "name": "Sheet1",
+      "rowNumber": 100,
+      "rows": Object {},
+    },
+  ],
+  "styles": Object {},
+  "uniqueFigureIds": true,
+  "version": 13,
+}
+`;
