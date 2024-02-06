@@ -33,7 +33,7 @@ describe("data", () => {
 });
 
 describe("Migrations", () => {
-  test("Can upgrade from 1 to 12", () => {
+  test("Can upgrade from 1 to 12.5", () => {
     const model = new Model({
       version: 1,
       sheets: [
@@ -53,7 +53,7 @@ describe("Migrations", () => {
       ],
     });
     const data = model.exportData();
-    expect(data.version).toBe(12);
+    expect(data.version).toBe(12.5);
     expect(data.sheets[0].id).toBeDefined();
     expect(data.sheets[0].figures).toBeDefined();
     expect(data.sheets[0].cells.A1!.content).toBe("=A1");
@@ -76,7 +76,7 @@ describe("Migrations", () => {
     });
     const data = model.exportData();
     const cells = data.sheets[0].cells;
-    expect(data.version).toBe(12);
+    expect(data.version).toBe(12.5);
     // formulas are de-normalized with version 9
     expect(cells.A1?.content).toBe("=A1");
     expect(cells.A2?.content).toBe("=1");
@@ -396,6 +396,20 @@ describe("Migrations", () => {
     expect(data.sheets[0].cells["A2"]?.format).toBeUndefined();
     expect(data.sheets[1].cells["A1"]?.format).toEqual(1);
     expect(data.sheets[1].cells["A2"]?.format).toEqual(2);
+  });
+
+  test("migrate version 12.5: Fix Overlapping datafilters", () => {
+    const model = new Model({
+      version: 12,
+      sheets: [
+        {
+          id: "1",
+          filterTables: [{ range: "A1:B2" }, { range: "A1:C2" }],
+        },
+      ],
+    });
+    const data = model.exportData();
+    expect(data.sheets[0].filterTables).toEqual([{ range: "A1:C2" }]);
   });
 });
 
