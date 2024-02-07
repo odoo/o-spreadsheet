@@ -1,7 +1,6 @@
 import { Component, onMounted, onWillUnmount, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { ConditionalFormattingPanel } from "../../src/components/side_panel/conditional_formatting/conditional_formatting";
-import { SECONDARY_COLOR } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { ConditionalFormatPlugin } from "../../src/plugins/core/conditional_format";
 import { CellIsRule, CommandResult, SpreadsheetChildEnv, UID } from "../../src/types";
@@ -207,9 +206,7 @@ describe("UI of conditional formats", () => {
     test("Ranges of hovered previews are highlighted", async () => {
       expect(getHighlightsFromStore(env)).toEqual([]);
       triggerMouseEvent(selectors.listPreview, "mouseenter");
-      expect(getHighlightsFromStore(env)).toMatchObject([
-        { zone: toZone("A1:A2"), color: SECONDARY_COLOR },
-      ]);
+      expect(getHighlightsFromStore(env)).toMatchObject([{ zone: toZone("A1:A2") }]);
       triggerMouseEvent(selectors.listPreview, "mouseleave");
       expect(getHighlightsFromStore(env)).toEqual([]);
     });

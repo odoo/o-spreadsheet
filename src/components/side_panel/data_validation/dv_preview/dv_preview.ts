@@ -1,5 +1,5 @@
 import { Component, useRef } from "@odoo/owl";
-import { FIGURE_BORDER_COLOR, SECONDARY_COLOR } from "../../../../constants";
+import { FIGURE_BORDER_COLOR } from "../../../../constants";
 import { dataValidationEvaluatorRegistry } from "../../../../registries/data_validation_registry";
 import { DataValidationRule, Highlight, SpreadsheetChildEnv } from "../../../../types";
 import { css } from "../../../helpers";
@@ -58,8 +58,7 @@ export class DataValidationPreview extends Component<Props, SpreadsheetChildEnv>
     return this.props.rule.ranges.map((range) => ({
       sheetId: this.env.model.getters.getActiveSheetId(),
       zone: range.zone,
-      color: SECONDARY_COLOR,
-      noFill: true,
+      fillAlpha: 0.025,
     }));
   }
 

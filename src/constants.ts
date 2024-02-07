@@ -3,7 +3,7 @@ import { BorderDescr, Color, Style } from "./types";
 export const CANVAS_SHIFT = 0.5;
 
 // Colors
-export const SECONDARY_COLOR = "#017E84";
+export const HIGHLIGHT_COLOR = "#37A850";
 export const BACKGROUND_GRAY_COLOR = "#f5f5f5";
 export const BACKGROUND_HEADER_COLOR = "#F8F9FA";
 export const BACKGROUND_HEADER_SELECTED_COLOR = "#E8EAED";
@@ -17,7 +17,7 @@ export const BACKGROUND_CHART_COLOR = "#FFFFFF";
 export const BG_HOVER_COLOR = "#EBEBEB";
 export const DISABLED_TEXT_COLOR = "#CACACA";
 export const DEFAULT_COLOR_SCALE_MIDPOINT_COLOR = 0xb6d7a8;
-export const LINK_COLOR = SECONDARY_COLOR;
+export const LINK_COLOR = HIGHLIGHT_COLOR;
 export const FILTERS_COLOR = "#188038";
 export const BACKGROUND_HEADER_FILTER_COLOR = "#E6F4EA";
 export const BACKGROUND_HEADER_SELECTED_FILTER_COLOR = "#CEEAD6";

@@ -319,3 +319,7 @@ export function isSameColor(color1: Color, color2: Color, tolerance: number = 0)
   );
   return diff <= tolerance;
 }
+
+export function changeColorAlpha(color: Color, alpha: number): string {
+  return alpha === 1 ? toHex(color).slice(0, 7) : rgbaToHex({ ...colorToRGBA(color), a: alpha });
+}

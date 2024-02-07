@@ -1,7 +1,6 @@
 import { Component } from "@odoo/owl";
 import { Model } from "../../src";
 import { DataValidationPreview } from "../../src/components/side_panel/data_validation/dv_preview/dv_preview";
-import { SECONDARY_COLOR } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { dataValidationEvaluatorRegistry } from "../../src/registries/data_validation_registry";
 import { DataValidationRuleData, DEFAULT_LOCALE, SpreadsheetChildEnv } from "../../src/types";
@@ -75,8 +74,8 @@ describe("Data validation preview", () => {
     expect(getHighlightsFromStore(env)).toEqual([]);
     triggerMouseEvent(".o-dv-preview", "mouseenter");
     expect(getHighlightsFromStore(env)).toMatchObject([
-      { zone: toZone("A1"), color: SECONDARY_COLOR },
-      { zone: toZone("A3"), color: SECONDARY_COLOR },
+      { zone: toZone("A1") },
+      { zone: toZone("A3") },
     ]);
     triggerMouseEvent(".o-dv-preview", "mouseleave");
     expect(getHighlightsFromStore(env)).toEqual([]);
