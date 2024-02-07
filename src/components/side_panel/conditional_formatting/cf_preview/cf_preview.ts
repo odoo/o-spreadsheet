@@ -1,5 +1,5 @@
 import { Component, useRef } from "@odoo/owl";
-import { SECONDARY_COLOR } from "../../../../constants";
+import { HIGHLIGHT_COLOR } from "../../../../constants";
 import { colorNumberString } from "../../../../helpers";
 import { _t } from "../../../../translation";
 import { ConditionalFormat, Highlight, SpreadsheetChildEnv } from "../../../../types";
@@ -138,8 +138,8 @@ export class ConditionalFormatPreview extends Component<Props, SpreadsheetChildE
     return this.props.conditionalFormat.ranges.map((range) => ({
       sheetId,
       zone: this.env.model.getters.getRangeFromSheetXC(sheetId, range).zone,
-      color: SECONDARY_COLOR,
-      noFill: true,
+      color: HIGHLIGHT_COLOR,
+      fillAlpha: 0.06,
     }));
   }
 }
