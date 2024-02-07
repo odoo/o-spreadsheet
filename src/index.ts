@@ -37,10 +37,10 @@ import {
   DEFAULT_CELL_WIDTH,
   HEADER_HEIGHT,
   HEADER_WIDTH,
+  HIGHLIGHT_COLOR,
   MIN_COL_WIDTH,
   MIN_ROW_HEIGHT,
   SCROLLBAR_WIDTH,
-  SECONDARY_COLOR,
   TOPBAR_HEIGHT,
 } from "./constants";
 import { isEvaluationError, toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
@@ -302,7 +302,7 @@ export function addFunction(functionName: string, functionDescription: AddFuncti
 
 export const constants = {
   DEFAULT_LOCALE,
-  SECONDARY_COLOR,
+  HIGHLIGHT_COLOR,
 };
 
 export type { EnrichedToken } from "./formulas/composer_tokenizer";

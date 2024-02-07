@@ -227,6 +227,8 @@ export interface Highlight {
   color: Color;
   interactive?: boolean;
   noFill?: boolean;
+  /** transparency of the fill color (0-1) */
+  fillAlpha?: number;
 }
 
 export interface PaneDivision {
