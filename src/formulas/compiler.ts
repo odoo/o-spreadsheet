@@ -50,9 +50,38 @@ export const functionCache: { [key: string]: Omit<CompiledFormula, "dependencies
 // -----------------------------------------------------------------------------
 // COMPILER
 // -----------------------------------------------------------------------------
+let hit = 0;
+let miss = 0;
+let countNew = 0;
+
+setInterval(() => {
+  console.log(`hit ${hit} miss ${miss} ration ${miss / hit} new ${countNew}`);
+}, 5000);
 
 export function compile(formula: string): CompiledFormula {
+  countNew++;
+  console.log(formula);
   const tokens = rangeTokenize(formula);
+  return compileTokens(tokens);
+}
+
+const rangeTokenizerCache: { [key: string]: Token[] } = {};
+
+export function compileFast(formula: string, references: string[]) {
+  if (!(formula in rangeTokenizerCache)) {
+    rangeTokenizerCache[formula] = rangeTokenize(formula);
+    miss++;
+  } else {
+    hit++;
+  }
+  const tokens: Token[] = rangeTokenizerCache[formula].map((token) =>
+    token.type === "RANGE_REFERENCE_PLACEHOLDER"
+      ? {
+          type: "REFERENCE",
+          value: references[token.value],
+        }
+      : token
+  );
   return compileTokens(tokens);
 }
 
@@ -86,6 +115,7 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
       // @ts-ignore
       execute: baseFunction,
     };
+
     /**
      * This function compile the function arguments. It is mostly straightforward,
      * except that there is a non trivial transformation in one situation:
@@ -288,6 +318,7 @@ function formulaArguments(tokens: Token[]) {
     switch (token.type) {
       case "INVALID_REFERENCE":
       case "REFERENCE":
+      case "RANGE_REFERENCE_PLACEHOLDER":
         dependencies.push(token.value);
         break;
       case "STRING":

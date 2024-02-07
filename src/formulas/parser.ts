@@ -126,6 +126,8 @@ function parseOperand(tokens: Token[]): AST {
         type: "REFERENCE",
         value: current.value,
       };
+    case "RANGE_REFERENCE_PLACEHOLDER":
+      return { type: "REFERENCE", value: current.value };
     case "SYMBOL":
       const value = current.value;
       const nextToken = tokens[0];

@@ -304,12 +304,7 @@ export class EvaluationPlugin extends UIPlugin {
         : exportedCellData.format;
       let content;
       if (formulaCell instanceof FormulaCellWithDependencies) {
-        content = this.getters.getFormulaCellContent(
-          exportedSheetData.id,
-          formulaCell.compiledFormula,
-          formulaCell.compiledFormula.dependencies,
-          true
-        );
+        content = formulaCell.contentWithFixedReferences;
       } else {
         content = !isExported ? newContent : exportedCellData.content;
       }
