@@ -1,16 +1,20 @@
 import { createAction, createActions } from "./actions/action";
 import { clipboardHandlersRegistries } from "./clipboard_handlers/index";
 import { transformRangeData } from "./collaborative/ot/ot_helpers";
+import { ComposerFocusStore } from "./components/composer/composer_focus_store";
 import { ChartJsComponent } from "./components/figures/chart/chartJs/chartjs";
 import { ScorecardChart } from "./components/figures/chart/scorecard/chart_scorecard";
 import { FigureComponent } from "./components/figures/figure/figure";
 import { ChartFigure } from "./components/figures/figure_chart/figure_chart";
 import { Grid } from "./components/grid/grid";
+import { HoveredCellStore } from "./components/grid/hovered_cell_store";
 import { GridOverlay } from "./components/grid_overlay/grid_overlay";
 import { useDragAndDropListItems } from "./components/helpers/drag_and_drop_hook";
 import { useHighlights, useHighlightsOnHover } from "./components/helpers/highlight_hook";
 import { Menu } from "./components/menu/menu";
+import { CellPopoverStore } from "./components/popover/cell_popover_store";
 import { SelectionInput } from "./components/selection_input/selection_input";
+import { SelectionInputStore } from "./components/selection_input/selection_input_store";
 import {
   BarConfigPanel,
   GaugeChartConfigPanel,
@@ -30,6 +34,7 @@ import { ChartTitle } from "./components/side_panel/chart/building_blocks/title/
 import { ChartPanel } from "./components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { Checkbox } from "./components/side_panel/components/checkbox/checkbox";
 import { Section } from "./components/side_panel/components/section/section";
+import { FindAndReplaceStore } from "./components/side_panel/find_and_replace/find_and_replace_store";
 import { ValidationMessages } from "./components/validation_messages/validation_messages";
 import {
   BOTTOMBAR_HEIGHT,
@@ -86,6 +91,7 @@ import {
   featurePluginRegistry,
   statefulUIPluginRegistry,
 } from "./plugins/index";
+import { ComposerStore } from "./plugins/ui_stateful";
 import { clickableCellRegistry } from "./registries/cell_clickable_registry";
 import {
   autofillModifiersRegistry,
@@ -111,7 +117,12 @@ import {
 } from "./registries/repeat_commands_registry";
 import { sidePanelRegistry } from "./registries/side_panel_registry";
 import { useStoreProvider } from "./store_engine";
+import { DependencyContainer } from "./store_engine/dependency_container";
+import { SpreadsheetStore } from "./stores";
+import { HighlightStore } from "./stores/highlight_store";
+import { ModelStore } from "./stores/model_store";
 import { NotificationStore } from "./stores/notification_store";
+import { RendererStore } from "./stores/renderer_store";
 import { AddFunctionDescription, isMatrix } from "./types";
 import { errorTypes } from "./types/errors";
 import { DEFAULT_LOCALE } from "./types/locale";
@@ -289,7 +300,18 @@ export const hooks = {
 
 export const stores = {
   useStoreProvider,
+  DependencyContainer,
+  CellPopoverStore,
+  ComposerFocusStore,
+  ComposerStore,
+  FindAndReplaceStore,
+  HighlightStore,
+  HoveredCellStore,
+  ModelStore,
   NotificationStore,
+  RendererStore,
+  SelectionInputStore,
+  SpreadsheetStore,
 };
 
 export function addFunction(functionName: string, functionDescription: AddFunctionDescription) {
