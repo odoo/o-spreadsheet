@@ -138,7 +138,7 @@ function tokenizeString(chars: TokenizingChars): Token | null {
   return null;
 }
 
-const separatorRegexp = /\w|\.|!|\$/;
+const separatorRegexp = /^[\w\.!\$]+/;
 
 /**
  * A "Symbol" is just basically any word-like element that can appear in a
@@ -179,8 +179,11 @@ function tokenizeSymbol(chars: TokenizingChars): Token | null {
       };
     }
   }
-  while (chars.current && separatorRegexp.test(chars.current)) {
-    result += chars.shift();
+  const match = chars.remaining().match(separatorRegexp);
+  if (match) {
+    const value = match[0];
+    result += value;
+    chars.advanceBy(value.length);
   }
   if (result.length) {
     const value = result;
