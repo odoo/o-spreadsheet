@@ -220,12 +220,17 @@ test.each([
   [{ a: 1 }, { a: 1 }, true],
   [{ a: 1 }, { a: 2 }, false],
   [{ a: undefined }, {}, true],
+  [{ a: undefined }, { a: undefined }, true],
   [{ a: undefined }, { a: null }, false],
   [{ a: null }, {}, false],
   [{ a: 1, b: undefined }, { a: 1 }, true],
   [undefined, undefined, true],
+  [[1], [1], true],
+  [[1], [], false],
+  [[], [], true],
 ])("deepEquals %s %s", (o1: any, o2: any, expectedResult) => {
   expect(deepEquals(o1, o2)).toEqual(expectedResult);
+  expect(deepEquals(o2, o1)).toEqual(expectedResult);
 });
 
 describe("isConsecutive", () => {
