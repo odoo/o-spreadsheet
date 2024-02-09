@@ -261,7 +261,10 @@ class TokenizingChars {
   }
 
   currentStartsWith(str: string) {
-    for (let j = 0; j < str.length; j++) {
+    if (this.current !== str[0]) {
+      return false;
+    }
+    for (let j = 1; j < str.length; j++) {
       if (this.text[this.currentIndex + j] !== str[j]) {
         return false;
       }
