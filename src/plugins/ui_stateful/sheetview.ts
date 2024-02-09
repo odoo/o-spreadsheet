@@ -26,7 +26,7 @@ import {
   Zone,
   invalidateEvaluationCommands,
 } from "../../types/index";
-import { HeaderDimensions, PixelPosition } from "../../types/misc";
+import { HeaderDimensions, PixelPosition, RectBorder } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 type SheetViewports = {
@@ -98,6 +98,7 @@ export class SheetViewPlugin extends UIPlugin {
     "getSheetViewVisibleCols",
     "getSheetViewVisibleRows",
     "getFrozenSheetViewRatio",
+    "getZoneVisibleBorders",
     "isPositionVisible",
     "getColDimensionsInViewport",
     "getRowDimensionsInViewport",
@@ -558,6 +559,31 @@ export class SheetViewPlugin extends UIPlugin {
       size: size,
       end: start + (isRowHidden ? 0 : size),
     };
+  }
+
+  getZoneVisibleBorders(zone: Zone): RectBorder[] {
+    const sheetId = this.getters.getActiveSheetId();
+    const visibleBorders: RectBorder[] = [];
+
+    const viewports = this.getSubViewports(sheetId);
+    const isLeftVisible = viewports.some((v) => v.left <= zone.left && v.right >= zone.left);
+    const isTopVisible = viewports.some((v) => v.top <= zone.top && v.bottom >= zone.top);
+    const isRightVisible = viewports.some(
+      (v) => v.left <= zone.right + 1 && v.right >= zone.right + 1
+    );
+    const isBottomVisible = viewports.some(
+      (v) => v.top <= zone.bottom + 1 && v.bottom >= zone.bottom + 1
+    );
+
+    if ((!isLeftVisible && !isRightVisible) || (!isTopVisible && !isBottomVisible)) {
+      return visibleBorders;
+    }
+    if (isLeftVisible) visibleBorders.push("left");
+    if (isTopVisible) visibleBorders.push("top");
+    if (isRightVisible) visibleBorders.push("right");
+    if (isBottomVisible) visibleBorders.push("bottom");
+
+    return visibleBorders;
   }
 
   // ---------------------------------------------------------------------------

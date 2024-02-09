@@ -1,26 +1,54 @@
-import { HIGHLIGHT_COLOR } from "../constants";
-import { GridRenderingContext, Highlight, Rect } from "../types";
-import { changeColorAlpha } from "./color";
+import { Color, Rect, RectBorder } from "../types";
 
-export function drawHighlight(
-  renderingContext: GridRenderingContext,
-  highlight: Highlight,
-  rect: Rect
+export function drawRectBorders(
+  ctx: CanvasRenderingContext2D,
+  rect: Rect,
+  borders: RectBorder[],
+  lineWidth: number,
+  color: Color
 ) {
-  const { x, y, width, height } = rect;
-  if (width < 0 || height < 0) {
-    return;
-  }
-  const color = highlight.color || HIGHLIGHT_COLOR;
+  ctx.save();
+  /**
+   * Reset the transformation applied in draw_grid_hook, and re-apply the scaling without the translation
+   * The translation makes the following computation more complex.
+   *
+   * TODO
+   * The final goal would be to remove the translation from draw_grid_hook, as it is wrong ATM. It applies a translation
+   * in both directions, but to draw a sharp line we need to apply a translation only in one direction (and only if the
+   * line have an odd with).
+   */
+  ctx.resetTransform();
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
 
-  const { ctx } = renderingContext;
-  ctx.lineWidth = 2;
+  ctx.lineWidth = lineWidth;
   ctx.strokeStyle = color;
-  /** + 0.5 offset to have sharp lines. See comment in {@link RendererPlugin#drawBorders} for more details */
-  ctx.strokeRect(x + 0.5, y + 0.5, width, height);
-  ctx.globalCompositeOperation = "source-over";
-  if (!highlight.noFill) {
-    ctx.fillStyle = changeColorAlpha(color, highlight.fillAlpha ?? 0.12);
-    ctx.fillRect(x, y, width, height);
+
+  // /** + 0.5 offset to have sharp lines. See comment in {@link RendererPlugin#drawBorders} for more details */
+  const offset = lineWidth % 2 === 1 ? -0.5 : 0;
+
+  const { x, y, width, height } = rect;
+  ctx.beginPath();
+  if (borders.includes("top")) {
+    const startOffset = borders.includes("left") ? Math.ceil(lineWidth / 2) : 0;
+    ctx.moveTo(x - startOffset, y + offset);
+    const endOffset = borders.includes("right") ? Math.floor(lineWidth / 2) : 0;
+    ctx.lineTo(x + width + endOffset, y + offset);
   }
+  if (borders.includes("right")) {
+    ctx.moveTo(x + width + offset, y);
+    ctx.lineTo(x + width + offset, y + height);
+  }
+  if (borders.includes("bottom")) {
+    const startOffset = borders.includes("left") ? Math.ceil(lineWidth / 2) : 0;
+    ctx.moveTo(x - startOffset, y + height + offset);
+    const endOffset = borders.includes("right") ? Math.floor(lineWidth / 2) : 0;
+    ctx.lineTo(x + width + endOffset, y + height + offset);
+  }
+  if (borders.includes("left")) {
+    ctx.moveTo(x + offset, y);
+    ctx.lineTo(x + offset, y + height);
+  }
+  ctx.stroke();
+
+  ctx.restore();
 }

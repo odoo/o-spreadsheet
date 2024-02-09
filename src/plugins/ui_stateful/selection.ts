@@ -14,6 +14,7 @@ import {
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
 } from "../../helpers/index";
+import { drawRectBorders } from "../../helpers/rendering";
 import { _t } from "../../translation";
 import { SelectionEvent } from "../../types/event_stream";
 import {
@@ -764,38 +765,41 @@ export class GridSelectionPlugin extends UIPlugin {
     if (this.getters.isDashboard()) {
       return;
     }
-    const { ctx, thinLineWidth } = renderingContext;
+    const { ctx } = renderingContext;
     // selection
     const zones = this.getSelectedZones();
     ctx.fillStyle = "#f3f7fe";
     const onlyOneCell =
       zones.length === 1 && zones[0].left === zones[0].right && zones[0].top === zones[0].bottom;
     ctx.fillStyle = onlyOneCell ? "#f3f7fe" : "#e9f0ff";
-    ctx.strokeStyle = SELECTION_BORDER_COLOR;
-    ctx.lineWidth = 1.5 * thinLineWidth;
+    const lineWidth = 1;
     for (const zone of zones) {
-      const { x, y, width, height } = this.getters.getVisibleRect(zone);
+      const rect = this.getters.getVisibleRect(zone);
+      const visibleBorders = this.getters.getZoneVisibleBorders(zone);
       ctx.globalCompositeOperation = "multiply";
-      ctx.fillRect(x, y, width, height);
+      ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
       ctx.globalCompositeOperation = "source-over";
-      ctx.strokeRect(x, y, width, height);
+      drawRectBorders(ctx, rect, visibleBorders, lineWidth, SELECTION_BORDER_COLOR);
     }
 
     ctx.globalCompositeOperation = "source-over";
     // active zone
     const position = this.getActivePosition();
 
-    ctx.strokeStyle = SELECTION_BORDER_COLOR;
-    ctx.lineWidth = 3 * thinLineWidth;
     let zone: Zone;
     if (this.getters.isInMerge(position)) {
       zone = this.getters.getMerge(position)!;
     } else {
       zone = positionToZone(position);
     }
-    const { x, y, width, height } = this.getters.getVisibleRect(zone);
-    if (width > 0 && height > 0) {
-      ctx.strokeRect(x, y, width, height);
+    const rect = this.getters.getVisibleRect(zone);
+    const visibleBorders = this.getters.getZoneVisibleBorders(zone);
+    if (rect.width > 0 && rect.height > 0) {
+      const lineWidth = 2;
+      // Reduce the size of the rect to draw the selection border in the inside of the cell
+      rect.width -= 1;
+      rect.height -= 1;
+      drawRectBorders(ctx, rect, visibleBorders, lineWidth, SELECTION_BORDER_COLOR);
     }
   }
 }

@@ -1,6 +1,7 @@
 import { toRaw } from "@odoo/owl";
-import { zoneToDimension } from "../helpers";
-import { drawHighlight } from "../helpers/rendering";
+import { HIGHLIGHT_COLOR } from "../constants";
+import { changeColorAlpha, zoneToDimension } from "../helpers";
+import { drawRectBorders } from "../helpers/rendering";
 import { Get } from "../store_engine";
 import { GridRenderingContext, Highlight, LayerName } from "../types";
 import { SpreadsheetStore } from "./spreadsheet_store";
@@ -50,9 +51,29 @@ export class HighlightStore extends SpreadsheetStore {
   drawLayer(ctx: GridRenderingContext, layer: LayerName): void {
     if (layer === "Highlights") {
       for (const highlight of this.highlights) {
-        const rect = this.getters.getVisibleRect(highlight.zone);
-        drawHighlight(ctx, highlight, rect);
+        this.drawHighlight(ctx, highlight);
       }
+    }
+  }
+
+  drawHighlight(renderingContext: GridRenderingContext, highlight: Highlight) {
+    const visibleRect = this.getters.getVisibleRect(highlight.zone);
+    const visibleBorders = this.getters.getZoneVisibleBorders(highlight.zone);
+
+    const { x, y, width, height } = visibleRect;
+    if (width < 0 || height < 0) {
+      return;
+    }
+    const color = highlight.color || HIGHLIGHT_COLOR;
+    const lineWidth = 2;
+
+    const { ctx } = renderingContext;
+
+    drawRectBorders(ctx, visibleRect, visibleBorders, lineWidth, color);
+    ctx.globalCompositeOperation = "source-over";
+    if (!highlight.noFill) {
+      ctx.fillStyle = changeColorAlpha(color, highlight.fillAlpha ?? 0.12);
+      ctx.fillRect(x, y, width, height);
     }
   }
 }

@@ -30,13 +30,20 @@ import {
   SEPARATOR_COLOR,
   TOPBAR_HEIGHT,
 } from "../../constants";
+import { toZone } from "../../helpers";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Model } from "../../model";
 import { Store, useStore, useStoreProvider } from "../../store_engine";
 import { ModelStore } from "../../stores";
 import { NotificationStore } from "../../stores/notification_store";
 import { _t } from "../../translation";
-import { HeaderGroup, InformationNotification, Pixel, SpreadsheetChildEnv } from "../../types";
+import {
+  HeaderGroup,
+  Highlight,
+  InformationNotification,
+  Pixel,
+  SpreadsheetChildEnv,
+} from "../../types";
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
@@ -44,6 +51,7 @@ import { Grid } from "../grid/grid";
 import { HeaderGroupContainer } from "../header_group/header_group_container";
 import { css, cssPropertiesToCss } from "../helpers/css";
 import { isCtrlKey } from "../helpers/dom_helpers";
+import { useHighlights } from "../helpers/highlight_hook";
 import { SidePanel } from "../side_panel/side_panel/side_panel";
 import { TopBar } from "../top_bar/top_bar";
 import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipboard_wrapper";
@@ -338,6 +346,28 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     stores.inject(ModelStore, this.model);
     this.notificationStore = useStore(NotificationStore);
     this.composerFocusStore = useStore(ComposerFocusStore);
+    useHighlights(this);
+  }
+
+  get highlights(): Highlight[] {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    return [
+      {
+        zone: toZone("C4:D9"),
+        color: "#FF0000",
+        sheetId,
+      },
+      {
+        zone: toZone("F1:F60"),
+        color: "#ff00ff",
+        sheetId,
+      },
+      {
+        zone: toZone("P1:Z2"),
+        color: "#0000ff",
+        sheetId,
+      },
+    ];
   }
 
   private bindModelEvents() {

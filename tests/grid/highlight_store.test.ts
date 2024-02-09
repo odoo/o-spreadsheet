@@ -2,7 +2,8 @@ import { Model } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, HIGHLIGHT_COLOR } from "../../src/constants";
 import { toZone } from "../../src/helpers";
 import { HighlightProvider, HighlightStore } from "../../src/stores/highlight_store";
-import { Highlight, UID } from "../../src/types";
+import { Color, Highlight, Rect, RectBorder, UID } from "../../src/types";
+import { MockCanvasRenderingContext2D } from "../setup/canvas.mock";
 import { MockGridRenderingContext } from "../test_helpers/renderer_helpers";
 import { makeStoreWithModel } from "../test_helpers/stores";
 
@@ -11,6 +12,23 @@ let ctx: MockGridRenderingContext;
 let ctxInstructions: string[];
 let model: Model;
 let sheetId: UID;
+
+// Mock drawRectBorders, it will now call a mocked method on the canvas context for easier testing
+jest.mock("../../src/helpers/rendering.ts", () => {
+  return {
+    ...jest.requireActual("../../src/helpers/rendering.ts"),
+    drawHighlight() {},
+    drawRectBorders(
+      canvasContext: MockCanvasRenderingContext2D,
+      rect: Rect,
+      borders: RectBorder[],
+      lineWidth: number,
+      color: Color
+    ) {
+      canvasContext.drawRectBorders(rect, borders, lineWidth, color);
+    },
+  };
+});
 
 function drawHighlight(highlight: Highlight) {
   const provider: HighlightProvider = { highlights: [highlight] };
@@ -30,7 +48,7 @@ describe("Highlight store", () => {
         ctxInstructions.push(`context.${key}=${JSON.stringify(value)};`);
       },
       onFunctionCall: (key, args) => {
-        ctxInstructions.push(`context.${key}(${args.map((a) => JSON.stringify(a)).join(", ")})`);
+        ctxInstructions.push(`context.${key}(${args.map((a) => JSON.stringify(a)).join(", ")});`);
       },
     });
   });
@@ -62,15 +80,14 @@ describe("Highlight store", () => {
     const testHighlight = { zone: toZone("A1"), sheetId };
     drawHighlight(testHighlight);
 
-    expect(ctxInstructions).toContain(`context.strokeStyle="${HIGHLIGHT_COLOR}";`);
-    expect(ctxInstructions).toContain("context.lineWidth=2;");
-    // 0.5 offset for sharp lines (compensate 0.5 global offset of drawGridHook )
+    const rect = { x: 0, y: 0, width: DEFAULT_CELL_WIDTH, height: DEFAULT_CELL_HEIGHT };
+    const rectStr = JSON.stringify(rect);
     expect(ctxInstructions).toContain(
-      `context.strokeRect(0.5, 0.5, ${DEFAULT_CELL_WIDTH}, ${DEFAULT_CELL_HEIGHT})`
+      `context.drawRectBorders(${rectStr}, ["left","top","right","bottom"], 2, "${HIGHLIGHT_COLOR}");`
     );
     expect(ctxInstructions).toContain(`context.fillStyle="${HIGHLIGHT_COLOR}1F";`);
     expect(ctxInstructions).toContain(
-      `context.fillRect(0, 0, ${DEFAULT_CELL_WIDTH}, ${DEFAULT_CELL_HEIGHT})`
+      `context.fillRect(0, 0, ${DEFAULT_CELL_WIDTH}, ${DEFAULT_CELL_HEIGHT});`
     );
   });
 
@@ -78,7 +95,7 @@ describe("Highlight store", () => {
     const testHighlight = { zone: toZone("A1"), sheetId, color: "#FF0000" };
     drawHighlight(testHighlight);
 
-    expect(ctxInstructions).toContain(`context.strokeStyle="#FF0000";`);
+    expect(ctxInstructions.join()).toContain("#FF0000");
     expect(ctxInstructions).toContain('context.fillStyle="#FF00001F";');
   });
 

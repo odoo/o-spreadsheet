@@ -1,4 +1,6 @@
+import { Color } from "chart.js";
 import { getContextFontSize } from "../../src/helpers/text_helper";
+import { Rect, RectBorder } from "../../src/types";
 
 export class MockCanvasRenderingContext2D {
   font: string = "";
@@ -24,6 +26,9 @@ export class MockCanvasRenderingContext2D {
     return { width: fontSize * text.length || 0 };
   }
   drawImage() {}
+  resetTransform() {}
+  /** Not a real canvas functions, but defining it here makes the testing easier */
+  drawRectBorders(rect: Rect, borders: RectBorder[], lineWidth: number, color: Color) {}
 }
 
 const patch = {

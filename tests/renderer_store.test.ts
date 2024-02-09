@@ -23,8 +23,11 @@ import {
   Align,
   BorderPosition,
   Box,
+  Color,
   GridRenderingContext,
   OrderedLayers,
+  Rect,
+  RectBorder,
   Viewport,
   Zone,
 } from "../src/types";
@@ -53,6 +56,22 @@ MockCanvasRenderingContext2D.prototype.measureText = function (text: string) {
   return { width: text.length };
 };
 jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
+
+// Mock drawRectBorders, it will now call a mocked method on the canvas context for easier testing
+jest.mock("../src/helpers/rendering.ts", () => {
+  return {
+    ...jest.requireActual("../src/helpers/rendering.ts"),
+    drawRectBorders(
+      canvasContext: MockCanvasRenderingContext2D,
+      rect: Rect,
+      borders: RectBorder[],
+      lineWidth: number,
+      color: Color
+    ) {
+      canvasContext.drawRectBorders(rect, borders, lineWidth, color);
+    },
+  };
+});
 
 function getBoxFromText(gridRenderer: GridRenderer, text: string): Box {
   return (gridRenderer["getGridBoxes"]()! as Box[]).find(
@@ -1587,9 +1606,11 @@ describe("renderer", () => {
 
     let strokeColors: string[];
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {
-      onFunctionCall: (val, _, renderingContext) => {
+      onFunctionCall: (val, args, renderingContext) => {
         if (val === "strokeRect") {
           strokeColors.push(renderingContext.ctx.strokeStyle as string);
+        } else if (val === "drawRectBorders") {
+          strokeColors.push(args[3] as string);
         }
       },
     });
@@ -1620,9 +1641,11 @@ describe("renderer", () => {
 
     let strokeColors: string[];
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {
-      onFunctionCall: (val, _, renderingContext) => {
+      onFunctionCall: (val, args, renderingContext) => {
         if (val === "strokeRect") {
           strokeColors.push(renderingContext.ctx.strokeStyle as string);
+        } else if (val === "drawRectBorders") {
+          strokeColors.push(args[3] as string);
         }
       },
     });

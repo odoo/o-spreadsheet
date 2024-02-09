@@ -362,3 +362,5 @@ export type DebouncedFunction<T> = T & {
   stopDebounce: () => void;
   isDebouncePending: () => boolean;
 };
+
+export type RectBorder = "top" | "right" | "bottom" | "left";
