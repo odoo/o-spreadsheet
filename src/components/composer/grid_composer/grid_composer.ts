@@ -183,7 +183,11 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private updateCellReferenceVisibility() {
-    if (this.isCellReferenceVisible || this.env.model.getters.getEditionMode() === "inactive") {
+    if (this.env.model.getters.getEditionMode() === "inactive") {
+      this.isCellReferenceVisible = false;
+      return;
+    }
+    if (this.isCellReferenceVisible) {
       return;
     }
     const sheetId = this.env.model.getters.getActiveSheetId();
