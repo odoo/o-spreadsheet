@@ -280,6 +280,23 @@ describe("Composer interactions", () => {
     expect(reference!.textContent).toBe("'My beautiful name'!A1");
   });
 
+  test("Stopping the edition resets the cell reference visibility", async () => {
+    await startComposition();
+    model.dispatch("SET_VIEWPORT_OFFSET", {
+      offsetX: 0,
+      offsetY: DEFAULT_CELL_HEIGHT * 5,
+    });
+    await nextTick();
+    const referenceSelector = ".o-grid div.o-cell-reference";
+    const reference = fixture.querySelector(referenceSelector);
+    expect(reference).not.toBeNull();
+    expect(reference!.textContent).toBe("A1");
+    await keyDown({ key: "Escape" });
+    expect(fixture.querySelector(referenceSelector)).toBeNull();
+    await startComposition();
+    expect(fixture.querySelector(referenceSelector)).toBeNull();
+  });
+
   test("starting the edition with a key stroke =, the composer should have the focus after the key input", async () => {
     const composerEl = await startComposition("=");
     expect(composerEl.textContent).toBe("=");
