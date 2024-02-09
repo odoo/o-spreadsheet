@@ -45,14 +45,20 @@ export function computeTextWidth(
   fontUnit: "px" | "pt" = "pt"
 ) {
   const font = computeTextFont(style, fontUnit);
+  context.save();
+  context.font = font;
+  const width = computeCachedTextWidth(context, text);
+  context.restore();
+  return width;
+}
+
+export function computeCachedTextWidth(context: CanvasRenderingContext2D, text: string) {
+  const font = context.font;
   if (!textWidthCache[font]) {
     textWidthCache[font] = {};
   }
   if (textWidthCache[font][text] === undefined) {
-    context.save();
-    context.font = font;
     const textWidth = context.measureText(text).width;
-    context.restore();
     textWidthCache[font][text] = textWidth;
   }
   return textWidthCache[font][text];
@@ -224,6 +230,48 @@ export function toLowerCase(str: string | undefined): string {
 const pxRegex = /([0-9\.]*)px/;
 export function getContextFontSize(font: string): Pixel {
   return Number(font.match(pxRegex)?.[1]);
+}
+
+// Inspired from https://stackoverflow.com/a/10511598
+export function clipTextWithEllipsis(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number
+) {
+  let width = computeCachedTextWidth(ctx, text);
+  if (width <= maxWidth) {
+    return text;
+  }
+  const ellipsis = "…";
+  const ellipsisWidth = computeCachedTextWidth(ctx, text);
+  if (width <= ellipsisWidth) {
+    return text;
+  }
+  let len = text.length;
+  while (width >= maxWidth - ellipsisWidth && len-- > 0) {
+    text = text.substring(0, len);
+    width = computeCachedTextWidth(ctx, text);
+  }
+  return text + ellipsis;
+}
+
+export function splitTextInTwoLines(text: string): [string, string] {
+  let spaces = "";
+  while (text[0] === " ") {
+    spaces += " ";
+    text = text.slice(1);
+  }
+  const length = text.length;
+  const middle = Math.floor(length / 2);
+  const leftSpace = text.substring(0, middle).lastIndexOf(" ");
+  const rightSpace = text.substring(middle).indexOf(" ") + middle;
+  if (leftSpace === -1 && rightSpace === middle - 1) {
+    return [spaces + text, ""];
+  }
+  if (leftSpace > length - rightSpace || rightSpace === middle - 1) {
+    return [spaces + text.slice(0, leftSpace), spaces + text.slice(leftSpace + 1)];
+  }
+  return [spaces + text.slice(0, rightSpace), spaces + text.slice(rightSpace + 1)];
 }
 
 export function drawDecoratedText(

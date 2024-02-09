@@ -1,14 +1,17 @@
-import { toString } from "../functions/helpers";
+import { toNumber, toString } from "../functions/helpers";
 import { _t } from "../translation";
 import {
   CellValue,
   Currency,
+  FPayload,
   Format,
   FormattedValue,
   Locale,
   LocaleFormat,
+  Maybe,
   PLAIN_TEXT_FORMAT,
 } from "../types";
+import { EvaluationError } from "../types/errors";
 import { DEFAULT_LOCALE } from "./../types/locale";
 import { DateTime, INITIAL_1900_DAY, isDateTime, numberToJsDate, parseDateTime } from "./dates";
 import { escapeRegExp, memoize } from "./misc";
@@ -168,6 +171,9 @@ function applyInternalFormat(
 }
 
 function applyInternalNumberFormat(value: number, format: InternalNumberFormat, locale: Locale) {
+  if (value === Infinity) {
+    return "∞" + (format.isPercent ? "%" : "");
+  }
   if (format.isPercent) {
     value = value * 100;
   }
@@ -576,6 +582,53 @@ export function roundFormat(format: Format): Format {
     return formatPart;
   });
   return convertInternalFormatToFormat(roundedFormat);
+}
+
+export function humanizeNumber({ value, format }: FPayload, locale: Locale): string {
+  const numberFormat = formatLargeNumber(
+    {
+      value,
+      format,
+    },
+    undefined,
+    locale
+  );
+  return formatValue(value, { format: numberFormat, locale });
+}
+
+export function formatLargeNumber(
+  arg: Maybe<FPayload>,
+  unit: Maybe<FPayload>,
+  locale: Locale
+): string {
+  let value = 0;
+  try {
+    value = Math.abs(toNumber(arg?.value, locale));
+  } catch (e) {
+    return "";
+  }
+  const format = arg?.format;
+  if (unit !== undefined) {
+    const postFix = unit?.value;
+    switch (postFix) {
+      case "k":
+        return createLargeNumberFormat(format, 1e3, "k", locale);
+      case "m":
+        return createLargeNumberFormat(format, 1e6, "m", locale);
+      case "b":
+        return createLargeNumberFormat(format, 1e9, "b", locale);
+      default:
+        throw new EvaluationError(_t("The formatting unit should be 'k', 'm' or 'b'."));
+    }
+  }
+  if (value < 1e5) {
+    return createLargeNumberFormat(format, 0, "", locale);
+  } else if (value < 1e8) {
+    return createLargeNumberFormat(format, 1e3, "k", locale);
+  } else if (value < 1e11) {
+    return createLargeNumberFormat(format, 1e6, "m", locale);
+  }
+  return createLargeNumberFormat(format, 1e9, "b", locale);
 }
 
 export function createLargeNumberFormat(

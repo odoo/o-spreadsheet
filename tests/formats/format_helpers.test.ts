@@ -38,6 +38,7 @@ describe("formatValue on number", () => {
     expect(formatValue(0.0000000001, { locale })).toBe("0");
     expect(formatValue(0.00000000001, { locale })).toBe("0");
     expect(formatValue(0.000000000001, { locale })).toBe("0");
+    expect(formatValue(Infinity, { locale })).toBe("∞");
 
     expect(formatValue(-1, { locale })).toBe("-1");
     expect(formatValue(-0.1, { locale })).toBe("-0.1");
@@ -52,6 +53,7 @@ describe("formatValue on number", () => {
     expect(formatValue(-0.0000000001, { locale })).toBe("-0");
     expect(formatValue(-0.00000000001, { locale })).toBe("-0");
     expect(formatValue(-0.000000000001, { locale })).toBe("-0");
+    expect(formatValue(-Infinity, { locale })).toBe("-∞");
 
     expect(formatValue(0.9999999, { locale })).toBe("0.9999999");
     expect(formatValue(0.99999999, { locale })).toBe("0.99999999");
@@ -72,6 +74,13 @@ describe("formatValue on number", () => {
 
     expect(formatValue(123.10000000001, { locale })).toBe("123.1");
     expect(formatValue(123.10000000000000001, { locale })).toBe("123.1");
+  });
+
+  test("format is ignored with infinity value", () => {
+    const format = "#,##0.00";
+    expect(formatValue(Infinity, { format, locale })).toBe("∞");
+    expect(formatValue(-Infinity, { format, locale })).toBe("-∞");
+    expect(formatValue(Infinity, { format, locale: FR_LOCALE })).toBe("∞");
   });
 
   test.each([
@@ -278,6 +287,13 @@ describe("formatValue on number", () => {
     expect(() => formatValue(0.1234, { format: "0.%0%", locale })).toThrow(
       "A format can only contain a single '%' symbol"
     );
+  });
+
+  test("various percent format give the same result for infinity", () => {
+    expect(formatValue(Infinity, { format: "0%", locale })).toBe("∞%");
+    expect(formatValue(Infinity, { format: "0.0%", locale })).toBe("∞%");
+    expect(formatValue(-Infinity, { format: "0%", locale })).toBe("-∞%");
+    expect(formatValue(-Infinity, { format: "0.0%", locale })).toBe("-∞%");
   });
 
   test("can apply format with custom currencies", () => {

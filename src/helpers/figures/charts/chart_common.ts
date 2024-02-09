@@ -2,15 +2,12 @@ import { transformZone } from "../../../collaborative/ot/ot_helpers";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
-  CellValueType,
   Color,
   CommandResult,
   CoreGetters,
   DOMCoordinates,
   DOMDimension,
-  EvaluatedCell,
   Getters,
-  Locale,
   Range,
   RemoveColumnsRowsCommand,
   UID,
@@ -23,10 +20,8 @@ import { ComboChartDefinition } from "../../../types/chart/combo_chart";
 import { LineChartDefinition } from "../../../types/chart/line_chart";
 import { PieChartDefinition } from "../../../types/chart/pie_chart";
 import { ScatterChartDefinition } from "../../../types/chart/scatter_chart";
-import { BaselineArrowDirection, BaselineMode } from "../../../types/chart/scorecard_chart";
 import { CellErrorType } from "../../../types/errors";
 import { relativeLuminance } from "../../color";
-import { formatValue } from "../../format";
 import { isDefined } from "../../misc";
 import { copyRangeWithNewSheetId } from "../../range";
 import { rangeReference } from "../../references";
@@ -399,84 +394,6 @@ export function shouldRemoveFirstLabel(
     return false;
   }
   return true;
-}
-
-// ---------------------------------------------------------------------------
-// Scorecard
-// ---------------------------------------------------------------------------
-
-export function getBaselineText(
-  baseline: EvaluatedCell | undefined,
-  keyValue: EvaluatedCell | undefined,
-  baselineMode: BaselineMode,
-  locale: Locale
-): string {
-  if (!baseline) {
-    return "";
-  } else if (
-    baselineMode === "text" ||
-    keyValue?.type !== CellValueType.number ||
-    baseline.type !== CellValueType.number
-  ) {
-    return baseline.formattedValue;
-  } else {
-    let diff = keyValue.value - baseline.value;
-    if (baselineMode === "percentage" && diff !== 0) {
-      diff = (diff / baseline.value) * 100;
-    }
-
-    if (baselineMode !== "percentage" && baseline.format) {
-      return formatValue(diff, { format: baseline.format, locale });
-    }
-
-    const baselineStr = Math.abs(parseFloat(diff.toFixed(2))).toLocaleString();
-    return baselineMode === "percentage" ? baselineStr + "%" : baselineStr;
-  }
-}
-
-export function getBaselineColor(
-  baseline: EvaluatedCell | undefined,
-  baselineMode: BaselineMode,
-  keyValue: EvaluatedCell | undefined,
-  colorUp: Color,
-  colorDown: Color
-): Color | undefined {
-  if (
-    baselineMode === "text" ||
-    baseline?.type !== CellValueType.number ||
-    keyValue?.type !== CellValueType.number
-  ) {
-    return undefined;
-  }
-  const diff = keyValue.value - baseline.value;
-  if (diff > 0) {
-    return colorUp;
-  } else if (diff < 0) {
-    return colorDown;
-  }
-  return undefined;
-}
-
-export function getBaselineArrowDirection(
-  baseline: EvaluatedCell | undefined,
-  keyValue: EvaluatedCell | undefined,
-  baselineMode: BaselineMode
-): BaselineArrowDirection {
-  if (
-    baselineMode === "text" ||
-    baseline?.type !== CellValueType.number ||
-    keyValue?.type !== CellValueType.number
-  ) {
-    return "neutral";
-  }
-
-  const diff = keyValue.value - baseline.value;
-  if (diff > 0) {
-    return "up";
-  } else if (diff < 0) {
-    return "down";
-  }
-  return "neutral";
 }
 
 export function getChartPositionAtCenterOfViewport(

@@ -1,4 +1,8 @@
 import { CommandResult, Model } from "../../../src";
+import {
+  DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
+  DEFAULT_SCORECARD_BASELINE_COLOR_UP,
+} from "../../../src/constants";
 import { zoneToXc } from "../../../src/helpers";
 import { ScorecardChart } from "../../../src/helpers/figures/charts";
 import {
@@ -215,7 +219,7 @@ describe("datasource tests", function () {
     const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
     expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
       baselineArrow: "down",
-      baselineColor: "#E06666",
+      baselineColor: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
       baselineDisplay: "60%",
       keyValue: "40",
     });
@@ -232,7 +236,7 @@ describe("datasource tests", function () {
     const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
     expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
       baselineArrow: "up",
-      baselineColor: "#6AA84F",
+      baselineColor: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
       baselineDisplay: "40%",
       keyValue: "140",
     });
@@ -313,7 +317,7 @@ describe("datasource tests", function () {
     const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
     expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
       baselineArrow: "up",
-      baselineColor: "#6AA84F",
+      baselineColor: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
       baselineDisplay: "∞%",
     });
   });
@@ -358,8 +362,8 @@ describe("multiple sheets", () => {
                 title: "demo chart",
                 keyValue: "Sheet2!A1",
                 baselineMode: "difference",
-                baselineColorDown: "#E06666",
-                baselineColorUp: "#6AA84F",
+                baselineColorDown: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
+                baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
               },
             },
           ],
