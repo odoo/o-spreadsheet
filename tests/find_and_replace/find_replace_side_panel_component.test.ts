@@ -132,12 +132,24 @@ describe("find and replace sidePanel component", () => {
       expect(getSelectedMatchIndex()).toBe(2);
     });
 
-    test("Going to next with Enter key", async () => {
+    test("Going to the next match with Enter key", async () => {
       setCellContent(model, "A1", "1");
       setCellContent(model, "A2", "1");
       await inputSearchValue("1");
       expect(getSelectedMatchIndex()).toBe(1);
       await focusAndKeyDown(selectors.inputSearch, { key: "Enter" });
+      expect(getSelectedMatchIndex()).toBe(2);
+    });
+
+    test("Going to the previous match with Shift+Enter key", async () => {
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "A2", "1");
+      setCellContent(model, "A3", "1");
+      await inputSearchValue("1");
+      expect(getSelectedMatchIndex()).toBe(1);
+      await focusAndKeyDown(selectors.inputSearch, { key: "Enter", shiftKey: true });
+      expect(getSelectedMatchIndex()).toBe(3);
+      await focusAndKeyDown(selectors.inputSearch, { key: "Enter", shiftKey: true });
       expect(getSelectedMatchIndex()).toBe(2);
     });
 
