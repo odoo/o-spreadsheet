@@ -357,11 +357,13 @@ export function deepEquals(o1: any, o2: any): boolean {
   if (typeof o1 !== "object") return o1 === o2;
 
   // Objects can have different keys if the values are undefined
-  const keys = new Set<string>();
-  Object.keys(o1).forEach((key) => keys.add(key));
-  Object.keys(o2).forEach((key) => keys.add(key));
+  for (const key in o2) {
+    if (!(key in o1) && o2[key] !== undefined) {
+      return false;
+    }
+  }
 
-  for (let key of keys) {
+  for (const key in o1) {
     if (typeof o1[key] !== typeof o1[key]) return false;
     if (typeof o1[key] === "object") {
       if (!deepEquals(o1[key], o2[key])) return false;
