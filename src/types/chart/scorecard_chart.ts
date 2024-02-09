@@ -10,10 +10,12 @@ export interface ScorecardChartDefinition {
   readonly background?: Color;
   readonly baselineColorUp: Color;
   readonly baselineColorDown: Color;
+  readonly humanize?: boolean;
 }
 
 export type BaselineMode = "text" | "difference" | "percentage";
 export type BaselineArrowDirection = "neutral" | "up" | "down";
+
 export interface ScorecardChartRuntime {
   readonly title: string;
   readonly keyValue: string;

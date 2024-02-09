@@ -8,11 +8,13 @@ import { _t } from "../../../translation";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
+  CellValueType,
   Color,
   CommandResult,
   CoreGetters,
   EvaluatedCell,
   Getters,
+  Locale,
   Range,
   RemoveColumnsRowsCommand,
   UID,
@@ -20,24 +22,126 @@ import {
 } from "../../../types";
 import { ChartCreationContext } from "../../../types/chart/chart";
 import {
+  BaselineArrowDirection,
   BaselineMode,
   ScorecardChartDefinition,
   ScorecardChartRuntime,
 } from "../../../types/chart/scorecard_chart";
 import { Validator } from "../../../types/validator";
+import { formatValue } from "../../format";
 import { createRange } from "../../range";
 import { rangeReference } from "../../references";
-import { drawDecoratedText } from "../../text_helper";
+import {
+  drawDecoratedText,
+  drawSplittedText,
+  fittingString,
+  formatLargeNumber,
+} from "../../text_helper";
 import { toUnboundedZone, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
-import {
-  adaptChartRange,
-  copyLabelRangeWithNewSheetId,
-  getBaselineArrowDirection,
-  getBaselineColor,
-  getBaselineText,
-} from "./chart_common";
+import { adaptChartRange, copyLabelRangeWithNewSheetId } from "./chart_common";
 import { ScorecardChartConfig } from "./scorecard_chart_config_builder";
+
+function getBaselineText(
+  baseline: EvaluatedCell | undefined,
+  keyValue: EvaluatedCell | undefined,
+  baselineMode: BaselineMode,
+  humanize: boolean,
+  locale: Locale
+): string {
+  if (!baseline) {
+    return "";
+  } else if (
+    baselineMode === "text" ||
+    keyValue?.type !== CellValueType.number ||
+    baseline.type !== CellValueType.number
+  ) {
+    if (humanize) {
+      const format = formatLargeNumber(baseline, undefined, locale);
+      return formatValue(baseline.value, { format, locale });
+    }
+    return baseline.formattedValue;
+  } else {
+    let diff = keyValue.value - baseline.value;
+    if (baselineMode === "percentage" && diff !== 0) {
+      diff = (diff / baseline.value) * 100;
+    }
+
+    if (baselineMode !== "percentage" && baseline.format) {
+      const format = humanize
+        ? formatLargeNumber(
+            {
+              value: diff,
+              format: baseline.format,
+            },
+            undefined,
+            locale
+          )
+        : baseline.format;
+      return formatValue(diff, { format, locale });
+    }
+
+    const baselineValue = Math.abs(parseFloat(diff.toFixed(2)));
+    const suffix = baselineMode === "percentage" ? "%" : "";
+    if (!humanize) {
+      return baselineValue.toLocaleString() + suffix;
+    }
+    const format = formatLargeNumber(
+      {
+        value: baselineValue,
+        format: baseline.format,
+      },
+      undefined,
+      locale
+    );
+    return formatValue(baselineValue, { format, locale }) + suffix;
+  }
+}
+
+function getBaselineColor(
+  baseline: EvaluatedCell | undefined,
+  baselineMode: BaselineMode,
+  keyValue: EvaluatedCell | undefined,
+  colorUp: Color,
+  colorDown: Color
+): Color | undefined {
+  if (
+    baselineMode === "text" ||
+    baseline?.type !== CellValueType.number ||
+    keyValue?.type !== CellValueType.number
+  ) {
+    return undefined;
+  }
+  const diff = keyValue.value - baseline.value;
+  if (diff > 0) {
+    return colorUp;
+  } else if (diff < 0) {
+    return colorDown;
+  }
+  return undefined;
+}
+
+function getBaselineArrowDirection(
+  baseline: EvaluatedCell | undefined,
+  keyValue: EvaluatedCell | undefined,
+  baselineMode: BaselineMode
+): BaselineArrowDirection {
+  if (
+    baselineMode === "text" ||
+    baseline?.type !== CellValueType.number ||
+    keyValue?.type !== CellValueType.number
+  ) {
+    return "neutral";
+  }
+
+  const diff = keyValue.value - baseline.value;
+  if (diff > 0) {
+    return "up";
+  } else if (diff < 0) {
+    return "down";
+  }
+  return "neutral";
+}
 
 function checkKeyValue(definition: ScorecardChartDefinition): CommandResult {
   return definition.keyValue && !rangeReference.test(definition.keyValue)
@@ -67,6 +171,7 @@ export class ScorecardChart extends AbstractChart {
   readonly baselineColorUp: Color;
   readonly baselineColorDown: Color;
   readonly fontColor?: Color;
+  readonly humanize?: boolean;
   readonly type = "scorecard";
 
   constructor(definition: ScorecardChartDefinition, sheetId: UID, getters: CoreGetters) {
@@ -78,6 +183,7 @@ export class ScorecardChart extends AbstractChart {
     this.background = definition.background;
     this.baselineColorUp = definition.baselineColorUp;
     this.baselineColorDown = definition.baselineColorDown;
+    this.humanize = definition.humanize ?? false;
   }
 
   static validateChartDefinition(
@@ -166,6 +272,7 @@ export class ScorecardChart extends AbstractChart {
       keyValue: keyValue
         ? this.getters.getRangeString(keyValue, targetSheetId || this.sheetId)
         : undefined,
+      humanize: this.humanize,
     };
   }
 
@@ -196,7 +303,11 @@ export function drawScoreChart(structure: ScorecardChartConfig, canvas: HTMLCanv
   if (structure.title) {
     ctx.font = structure.title.style.font;
     ctx.fillStyle = structure.title.style.color;
-    ctx.fillText(structure.title.text, structure.title.position.x, structure.title.position.y);
+    ctx.fillText(
+      fittingString(ctx, structure.title.text, canvas.width - structure.title.position.x),
+      structure.title.position.x,
+      structure.title.position.y
+    );
   }
 
   if (structure.baseline) {
@@ -234,11 +345,19 @@ export function drawScoreChart(structure: ScorecardChartConfig, canvas: HTMLCanv
   if (structure.baselineDescr) {
     ctx.font = structure.baselineDescr.style.font;
     ctx.fillStyle = structure.baselineDescr.style.color;
-    ctx.fillText(
-      structure.baselineDescr.text,
-      structure.baselineDescr.position.x,
-      structure.baselineDescr.position.y
-    );
+    if (structure.baselineDescr.splitted) {
+      drawSplittedText(ctx, structure.baselineDescr.text, structure.baselineDescr.position);
+    } else {
+      ctx.fillText(
+        fittingString(
+          ctx,
+          structure.baselineDescr.text,
+          canvas.width - structure.baselineDescr.position.x
+        ),
+        structure.baselineDescr.position.x,
+        structure.baselineDescr.position.y
+      );
+    }
   }
 
   if (structure.key) {
@@ -268,8 +387,17 @@ export function createScorecardChartRuntime(
       row: chart.keyValue.zone.top,
     };
     keyValueCell = getters.getEvaluatedCell(keyValuePosition);
-    keyValue = String(keyValueCell.value ?? "");
-    formattedKeyValue = keyValueCell.formattedValue;
+    if (chart.humanize) {
+      const format = formatLargeNumber(keyValueCell, undefined, getters.getLocale());
+      keyValue = formatValue(keyValueCell.value, {
+        format: format,
+        locale: getters.getLocale(),
+      });
+      formattedKeyValue = "";
+    } else {
+      keyValue = String(keyValueCell.value ?? "");
+      formattedKeyValue = keyValueCell.formattedValue;
+    }
   }
   let baselineCell: EvaluatedCell | undefined;
   const baseline = chart.baseline;
@@ -287,10 +415,17 @@ export function createScorecardChartRuntime(
   );
 
   const locale = getters.getLocale();
+  const baselineDisplay = getBaselineText(
+    baselineCell,
+    keyValueCell,
+    chart.baselineMode,
+    chart.humanize ?? false,
+    locale
+  );
   return {
     title: _t(chart.title),
     keyValue: formattedKeyValue || keyValue,
-    baselineDisplay: getBaselineText(baselineCell, keyValueCell, chart.baselineMode, locale),
+    baselineDisplay,
     baselineArrow: getBaselineArrowDirection(baselineCell, keyValueCell, chart.baselineMode),
     baselineColor: getBaselineColor(
       baselineCell,
