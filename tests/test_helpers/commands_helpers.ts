@@ -1,3 +1,7 @@
+import {
+  DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
+  DEFAULT_SCORECARD_BASELINE_COLOR_UP,
+} from "../../src/constants";
 import { isInside, lettersToNumber, toCartesian, toZone } from "../../src/helpers/index";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { Model } from "../../src/model";
@@ -217,9 +221,10 @@ export function createScorecardChart(
       keyValue: data.keyValue || "",
       baselineDescr: data.baselineDescr || "",
       baselineMode: data.baselineMode || "difference",
-      baselineColorDown: data.baselineColorDown || "#E06666",
-      baselineColorUp: data.baselineColorUp || "#6AA84F",
+      baselineColorDown: data.baselineColorDown || DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
+      baselineColorUp: data.baselineColorUp || DEFAULT_SCORECARD_BASELINE_COLOR_UP,
       background: data.background,
+      humanize: data.humanize || false,
     },
   });
 }

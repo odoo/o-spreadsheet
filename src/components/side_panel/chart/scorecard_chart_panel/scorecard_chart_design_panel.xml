@@ -44,5 +44,14 @@
         <span class="ps-2">Color on value decrease</span>
       </div>
     </Section>
+    <Section class="'pt-1'">
+      <t t-set-slot="title">Number formatting</t>
+      <Checkbox
+        name="'humanizeNumbers'"
+        label="humanizeNumbersLabel"
+        value="props.definition.humanize"
+        onChange.bind="updateHumanizeNumbers"
+      />
+    </Section>
   </t>
 </templates>

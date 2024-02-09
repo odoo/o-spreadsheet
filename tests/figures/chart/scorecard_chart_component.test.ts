@@ -1,10 +1,14 @@
 import { Model } from "../../../src";
+import {
+  DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
+  DEFAULT_SCORECARD_BASELINE_COLOR_UP,
+} from "../../../src/constants";
 import { getContextFontSize } from "../../../src/helpers";
 import { drawScoreChart } from "../../../src/helpers/figures/charts";
 import {
+  ScorecardChartConfig,
   formatBaselineDescr,
   getScorecardConfiguration,
-  ScorecardChartConfig,
 } from "../../../src/helpers/figures/charts/scorecard_chart_config_builder";
 import { Pixel, UID } from "../../../src/types";
 import { ScorecardChartRuntime } from "../../../src/types/chart/scorecard_chart";
@@ -14,7 +18,6 @@ import {
   setCellContent,
   setFormat,
   setStyle,
-  updateChart,
 } from "../../test_helpers/commands_helpers";
 import { getCellContent } from "../../test_helpers/getters_helpers";
 import { toRangesData } from "../../test_helpers/helpers";
@@ -120,15 +123,31 @@ describe("Scorecard charts computation", () => {
   test("Chart display correct info", () => {
     createScorecardChart(
       model,
-      { keyValue: "A1", baseline: "B1", title: "hello", baselineDescr: "description" },
+      { keyValue: "A1", baseline: "B1", title: "hello", baselineDescr: "desc" },
       chartId
     );
     const chartDesign = getChartDesign(model, chartId, sheetId);
 
     expect(chartDesign.title?.text).toEqual("hello");
     expect(chartDesign.baseline?.text).toEqual("1");
-    expect(chartDesign.baselineDescr?.text).toEqual(" description");
+    expect(chartDesign.baselineDescr?.[0].text).toEqual(" desc");
     expect(chartDesign.key?.text).toEqual("2");
+    expect(chartDesign.baselineDescr?.length).toEqual(1);
+  });
+
+  test("Too long baseline description is splitted", () => {
+    createScorecardChart(
+      model,
+      {
+        keyValue: "A1",
+        baseline: "B1",
+        title: "hello",
+        baselineDescr: "description really really too long to stay in only one line",
+      },
+      chartId
+    );
+    const chartDesign = getChartDesign(model, chartId, sheetId);
+    expect(chartDesign.baselineDescr?.length).toEqual(2);
   });
 
   test("Baseline = 0 correctly displayed", () => {
@@ -162,13 +181,27 @@ describe("Scorecard charts computation", () => {
     expect(chartDesign.baseline?.style.color).toBeSameColorAs("#525252");
   });
 
+  test("Number are humanized if stipulated in the chart definition", () => {
+    setCellContent(model, "A1", "123456789");
+    setCellContent(model, "B1", "10.5");
+    createScorecardChart(model, { keyValue: "A1", baseline: "B1", humanize: true }, chartId);
+    const chartDesign = getChartDesign(model, chartId, sheetId);
+
+    expect(chartDesign.key?.text).toBe("123m");
+    expect(chartDesign.baseline?.text).toBe("123m");
+  });
+
   test("Key < baseline display in red with down arrow", () => {
     createScorecardChart(model, { keyValue: "A1", baseline: "B3" }, chartId);
     const chartDesign = getChartDesign(model, chartId, sheetId);
 
     expect(chartDesign.baselineArrow?.direction).toBe("down");
-    expect(chartDesign.baselineArrow?.style.color).toBeSameColorAs("#E06666");
-    expect(chartDesign.baseline?.style.color).toBeSameColorAs("#E06666");
+    expect(chartDesign.baselineArrow?.style.color).toBeSameColorAs(
+      DEFAULT_SCORECARD_BASELINE_COLOR_DOWN
+    );
+    expect(chartDesign.baseline?.style.color).toBeSameColorAs(
+      DEFAULT_SCORECARD_BASELINE_COLOR_DOWN
+    );
     expect(chartDesign.baseline?.text).toEqual("1");
   });
 
@@ -177,8 +210,10 @@ describe("Scorecard charts computation", () => {
     const chartDesign = getChartDesign(model, chartId, sheetId);
 
     expect(chartDesign.baselineArrow?.direction).toBe("up");
-    expect(chartDesign.baselineArrow?.style.color).toBeSameColorAs("#6AA84F");
-    expect(chartDesign.baseline?.style.color).toBeSameColorAs("#6AA84F");
+    expect(chartDesign.baselineArrow?.style.color).toBeSameColorAs(
+      DEFAULT_SCORECARD_BASELINE_COLOR_UP
+    );
+    expect(chartDesign.baseline?.style.color).toBeSameColorAs(DEFAULT_SCORECARD_BASELINE_COLOR_UP);
     expect(chartDesign.baseline?.text).toEqual("1");
   });
 
@@ -297,7 +332,7 @@ describe("Scorecard charts computation", () => {
 
     expect(chartDesign.title?.style.color).toBeSameColorAs("#C8C8C8");
     expect(chartDesign.baseline?.style.color).toBeSameColorAs("#C8C8C8");
-    expect(chartDesign.baselineDescr?.style.color).toBeSameColorAs("#C8C8C8");
+    expect(chartDesign.baselineDescr?.[0].style.color).toBeSameColorAs("#C8C8C8");
     expect(chartDesign.key?.style.color).toBeSameColorAs("#FFFFFF");
   });
 
@@ -318,24 +353,6 @@ describe("Scorecard charts computation", () => {
     );
     expect(getContextFontSize(chartDesign2.key!.style.font)).toBeLessThan(
       getContextFontSize(chartDesign1.key!.style.font)
-    );
-  });
-
-  test("Font size scale up if we remove a long description", () => {
-    createScorecardChart(
-      model,
-      {
-        keyValue: "A1",
-        baseline: "B2",
-        baselineDescr: "This is a very very very very long description",
-      },
-      chartId
-    );
-    const chartDesign1 = getChartDesign(model, chartId, sheetId);
-    updateChart(model, chartId, { baselineDescr: "" }, sheetId);
-    const chartDesign2 = getChartDesign(model, chartId, sheetId);
-    expect(getContextFontSize(chartDesign2.baseline!.style.font)).toBeGreaterThan(
-      getContextFontSize(chartDesign1.baseline!.style.font)
     );
   });
 
@@ -443,13 +460,15 @@ describe("Scorecard charts rendering", () => {
   test("Key < baseline display in red with down arrow", () => {
     createScorecardChart(model, { keyValue: "A1", baseline: "B3" }, chartId);
     renderScorecardChart(model, chartId, sheetId, canvas);
-    expect(scorecardChartStyle.baseline.color).toBeSameColorAs("#E06666");
+    expect(scorecardChartStyle.baseline.color).toBeSameColorAs(
+      DEFAULT_SCORECARD_BASELINE_COLOR_DOWN
+    );
   });
 
   test("Key > baseline display in green with up arrow", () => {
     createScorecardChart(model, { keyValue: "A1", baseline: "B1" }, chartId);
     renderScorecardChart(model, chartId, sheetId, canvas);
-    expect(scorecardChartStyle.baseline.color).toBeSameColorAs("#6AA84F");
+    expect(scorecardChartStyle.baseline.color).toBeSameColorAs(DEFAULT_SCORECARD_BASELINE_COLOR_UP);
   });
 
   test("Key = baseline display default font color with no arrow", () => {
@@ -559,27 +578,10 @@ describe("Scorecard charts rendering", () => {
     const baselineFontSize = scorecardChartStyle.baseline.fontSize!;
     const titleFontSize = scorecardChartStyle.title.fontSize!;
     const keyFontSize = scorecardChartStyle.key.fontSize!;
-    setCellContent(model, "A1", "123456789123456789123456789");
+    setCellContent(model, "A1", "123456789");
     renderScorecardChart(model, chartId, sheetId, canvas);
     expect(scorecardChartStyle.baseline.fontSize).toBeLessThan(baselineFontSize);
     expect(scorecardChartStyle.title.fontSize).toEqual(titleFontSize);
     expect(scorecardChartStyle.key.fontSize).toBeLessThan(keyFontSize);
-  });
-
-  test("Font size scale up if we remove a long description", () => {
-    createScorecardChart(
-      model,
-      {
-        keyValue: "A1",
-        baseline: "B2",
-        baselineDescr: "This is a very very very very long description",
-      },
-      chartId
-    );
-    renderScorecardChart(model, chartId, sheetId, canvas);
-    const baselineFontSize = scorecardChartStyle.baseline.fontSize!;
-    updateChart(model, chartId, { baselineDescr: "" }, sheetId);
-    renderScorecardChart(model, chartId, sheetId, canvas);
-    expect(scorecardChartStyle.baseline.fontSize).toBeGreaterThan(baselineFontSize);
   });
 });
