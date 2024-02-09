@@ -36,6 +36,7 @@ import {
   positionToZone,
   union,
 } from "../helpers/index";
+import { drawRectBorders } from "../helpers/rendering";
 import { Get, Store } from "../store_engine";
 import {
   Align,
@@ -47,7 +48,6 @@ import {
   GridRenderingContext,
   HeaderIndex,
   LayerName,
-  Pixel,
   UID,
   Viewport,
   Zone,
@@ -188,85 +188,9 @@ export class GridRenderer {
   private drawBorders(renderingContext: GridRenderingContext, boxes: Box[]) {
     const { ctx } = renderingContext;
     for (let box of boxes) {
-      const border = box.border;
-      if (border) {
-        const { x, y, width, height } = box;
-        if (border.left) {
-          drawBorder(border.left, x, y, x, y + height);
-        }
-        if (border.top) {
-          drawBorder(border.top, x, y, x + width, y);
-        }
-        if (border.right) {
-          drawBorder(border.right, x + width, y, x + width, y + height);
-        }
-        if (border.bottom) {
-          drawBorder(border.bottom, x, y + height, x + width, y + height);
-        }
+      if (box.border) {
+        drawRectBorders(ctx, box, box.border);
       }
-    }
-
-    /**
-     * Following https://usefulangle.com/post/17/html5-canvas-drawing-1px-crisp-straight-lines,
-     * we need to make sure that a "single" pixel line is drawn on a "half" pixel coordinate,
-     * while a "double" pixel line is drawn on a "full" pixel coordinate. As, in the rendering
-     * process, we always had 0.5 before rendering line (to make sure it is drawn on a "half"
-     * pixel), we need to correct this behavior for the "medium" and the "dotted" styles, as
-     * they are drawing a two pixels width line.
-     * We also adapt here the coordinates of the line to make sure corner are correctly drawn,
-     * avoiding a "round corners" effect. This is done by subtracting 1 pixel to the origin of
-     * each line and adding 1 pixel to the end of each line (depending on the direction of the
-     * line).
-     */
-    function drawBorder({ style, color }, x1: Pixel, y1: Pixel, x2: Pixel, y2: Pixel) {
-      ctx.strokeStyle = color;
-      switch (style) {
-        case "medium":
-          ctx.lineWidth = 2;
-          x1 += y1 === y2 ? -0.5 : 0.5;
-          x2 += y1 === y2 ? 1.5 : 0.5;
-          y1 += x1 === x2 ? -0.5 : 0.5;
-          y2 += x1 === x2 ? 1.5 : 0.5;
-          break;
-        case "thick":
-          ctx.lineWidth = 3;
-          if (y1 === y2) {
-            x1--;
-            x2++;
-          }
-          if (x1 === x2) {
-            y1--;
-            y2++;
-          }
-          break;
-        case "dashed":
-          ctx.lineWidth = 1;
-          ctx.setLineDash([1, 3]);
-          break;
-        case "dotted":
-          ctx.lineWidth = 1;
-          if (y1 === y2) {
-            x1 += 0.5;
-            x2 += 0.5;
-          }
-          if (x1 === x2) {
-            y1 += 0.5;
-            y2 += 0.5;
-          }
-          ctx.setLineDash([1, 1]);
-          break;
-        case "thin":
-        default:
-          ctx.lineWidth = 1;
-          break;
-      }
-      ctx.beginPath();
-      ctx.moveTo(x1, y1);
-      ctx.lineTo(x2, y2);
-      ctx.stroke();
-
-      ctx.lineWidth = 1;
-      ctx.setLineDash([]);
     }
   }
 

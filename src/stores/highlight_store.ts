@@ -3,7 +3,7 @@ import { HIGHLIGHT_COLOR } from "../constants";
 import { changeColorAlpha, zoneToDimension } from "../helpers";
 import { drawRectBorders } from "../helpers/rendering";
 import { Get } from "../store_engine";
-import { GridRenderingContext, Highlight, LayerName } from "../types";
+import { BorderDescr, GridRenderingContext, Highlight, LayerName } from "../types";
 import { SpreadsheetStore } from "./spreadsheet_store";
 
 export interface HighlightProvider {
@@ -57,19 +57,20 @@ export class HighlightStore extends SpreadsheetStore {
   }
 
   drawHighlight(renderingContext: GridRenderingContext, highlight: Highlight) {
+    const color = highlight.color || HIGHLIGHT_COLOR;
+    const borderDescr: BorderDescr = { style: "medium", color };
+
     const visibleRect = this.getters.getVisibleRect(highlight.zone);
-    const visibleBorders = this.getters.getZoneVisibleBorders(highlight.zone);
+    const visibleBorders = this.getters.getZoneVisibleBorders(highlight.zone, borderDescr);
 
     const { x, y, width, height } = visibleRect;
     if (width < 0 || height < 0) {
       return;
     }
-    const color = highlight.color || HIGHLIGHT_COLOR;
-    const lineWidth = 2;
 
     const { ctx } = renderingContext;
 
-    drawRectBorders(ctx, visibleRect, visibleBorders, lineWidth, color);
+    drawRectBorders(ctx, visibleRect, visibleBorders);
     ctx.globalCompositeOperation = "source-over";
     if (!highlight.noFill) {
       ctx.fillStyle = changeColorAlpha(color, highlight.fillAlpha ?? 0.12);

@@ -26,7 +26,7 @@ import {
   Zone,
   invalidateEvaluationCommands,
 } from "../../types/index";
-import { HeaderDimensions, PixelPosition, RectBorder } from "../../types/misc";
+import { Border, BorderDescr, HeaderDimensions, PixelPosition } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 type SheetViewports = {
@@ -561,9 +561,9 @@ export class SheetViewPlugin extends UIPlugin {
     };
   }
 
-  getZoneVisibleBorders(zone: Zone): RectBorder[] {
+  getZoneVisibleBorders(zone: Zone, borderDescr: BorderDescr): Border {
     const sheetId = this.getters.getActiveSheetId();
-    const visibleBorders: RectBorder[] = [];
+    const border: Border = {};
 
     const viewports = this.getSubViewports(sheetId);
     const isLeftVisible = viewports.some((v) => v.left <= zone.left && v.right >= zone.left);
@@ -576,14 +576,14 @@ export class SheetViewPlugin extends UIPlugin {
     );
 
     if ((!isLeftVisible && !isRightVisible) || (!isTopVisible && !isBottomVisible)) {
-      return visibleBorders;
+      return border;
     }
-    if (isLeftVisible) visibleBorders.push("left");
-    if (isTopVisible) visibleBorders.push("top");
-    if (isRightVisible) visibleBorders.push("right");
-    if (isBottomVisible) visibleBorders.push("bottom");
+    if (isLeftVisible) border.left = borderDescr;
+    if (isRightVisible) border.right = borderDescr;
+    if (isTopVisible) border.top = borderDescr;
+    if (isBottomVisible) border.bottom = borderDescr;
 
-    return visibleBorders;
+    return border;
   }
 
   // ---------------------------------------------------------------------------

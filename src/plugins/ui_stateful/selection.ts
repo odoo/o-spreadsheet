@@ -20,6 +20,7 @@ import { SelectionEvent } from "../../types/event_stream";
 import {
   AddColumnsRowsCommand,
   AnchorZone,
+  BorderDescr,
   CellPosition,
   CellValueType,
   ClientPosition,
@@ -772,14 +773,14 @@ export class GridSelectionPlugin extends UIPlugin {
     const onlyOneCell =
       zones.length === 1 && zones[0].left === zones[0].right && zones[0].top === zones[0].bottom;
     ctx.fillStyle = onlyOneCell ? "#f3f7fe" : "#e9f0ff";
-    const lineWidth = 1;
     for (const zone of zones) {
       const rect = this.getters.getVisibleRect(zone);
-      const visibleBorders = this.getters.getZoneVisibleBorders(zone);
+      const borderDescr: BorderDescr = { style: "thin", color: SELECTION_BORDER_COLOR };
+      const visibleBorders = this.getters.getZoneVisibleBorders(zone, borderDescr);
       ctx.globalCompositeOperation = "multiply";
       ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
       ctx.globalCompositeOperation = "source-over";
-      drawRectBorders(ctx, rect, visibleBorders, lineWidth, SELECTION_BORDER_COLOR);
+      drawRectBorders(ctx, rect, visibleBorders);
     }
 
     ctx.globalCompositeOperation = "source-over";
@@ -793,13 +794,13 @@ export class GridSelectionPlugin extends UIPlugin {
       zone = positionToZone(position);
     }
     const rect = this.getters.getVisibleRect(zone);
-    const visibleBorders = this.getters.getZoneVisibleBorders(zone);
+    const borderDescr: BorderDescr = { style: "medium", color: SELECTION_BORDER_COLOR };
+    const visibleBorders = this.getters.getZoneVisibleBorders(zone, borderDescr);
     if (rect.width > 0 && rect.height > 0) {
-      const lineWidth = 2;
       // Reduce the size of the rect to draw the selection border in the inside of the cell
       rect.width -= 1;
       rect.height -= 1;
-      drawRectBorders(ctx, rect, visibleBorders, lineWidth, SELECTION_BORDER_COLOR);
+      drawRectBorders(ctx, rect, visibleBorders);
     }
   }
 }
