@@ -37,8 +37,8 @@ type TokenType =
   | "UNKNOWN";
 
 export interface Token {
-  type: TokenType;
-  value: string;
+  readonly type: TokenType;
+  readonly value: string;
 }
 
 export function tokenize(str: string, locale = DEFAULT_LOCALE): Token[] {
@@ -50,7 +50,7 @@ export function tokenize(str: string, locale = DEFAULT_LOCALE): Token[] {
     let token =
       tokenizeSpace(chars) ||
       tokenizeArgsSeparator(chars, locale) ||
-      tokenizeMisc(chars) ||
+      tokenizeParenthesis(chars) ||
       tokenizeOperator(chars) ||
       tokenizeString(chars) ||
       tokenizeDebugger(chars) ||
@@ -75,18 +75,16 @@ function tokenizeDebugger(chars: TokenizingChars): Token | null {
   return null;
 }
 
-const misc = {
-  "(": "LEFT_PAREN",
-  ")": "RIGHT_PAREN",
+const parenthesis = {
+  "(": { type: "LEFT_PAREN", value: "(" },
+  ")": { type: "RIGHT_PAREN", value: ")" },
 } as const;
 
-function tokenizeMisc(chars: TokenizingChars): Token | null {
-  if (chars.current in misc) {
+function tokenizeParenthesis(chars: TokenizingChars): Token | null {
+  if (chars.current === "(" || chars.current === ")") {
     const value = chars.shift();
-    const type = misc[value];
-    return { type, value };
+    return parenthesis[value];
   }
-
   return null;
 }
 
