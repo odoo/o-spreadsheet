@@ -101,7 +101,7 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
     if (ev.key === "Enter") {
       ev.preventDefault();
       ev.stopPropagation();
-      this.store.selectNextMatch();
+      ev.shiftKey ? this.store.selectPreviousMatch() : this.store.selectNextMatch();
     }
   }
 
