@@ -252,8 +252,8 @@ export function isObjectEmptyRecursive<T extends object>(argument: T | undefined
  * If the given item does not exist in the dictionary, it creates one with a new id.
  */
 export function getItemId<T>(item: T, itemsDic: { [id: number]: T }) {
-  for (let [key, value] of Object.entries(itemsDic)) {
-    if (deepEquals(value, item)) {
+  for (const key in itemsDic) {
+    if (deepEquals(itemsDic[key], item)) {
       return parseInt(key, 10);
     }
   }
