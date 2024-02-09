@@ -575,9 +575,9 @@ export class SheetViewPlugin extends UIPlugin {
       (v) => v.top <= zone.bottom + 1 && v.bottom >= zone.bottom + 1
     );
 
-    if ((!isLeftVisible && !isRightVisible) || (!isTopVisible && !isBottomVisible)) {
-      return border;
-    }
+    // if ((!isLeftVisible && !isRightVisible) || (!isTopVisible && !isBottomVisible)) {
+    //   return border;
+    // }
     if (isLeftVisible) border.left = borderDescr;
     if (isRightVisible) border.right = borderDescr;
     if (isTopVisible) border.top = borderDescr;

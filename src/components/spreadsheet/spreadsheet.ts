@@ -30,7 +30,6 @@ import {
   SEPARATOR_COLOR,
   TOPBAR_HEIGHT,
 } from "../../constants";
-import { toZone } from "../../helpers";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Model } from "../../model";
 import { Store, useStore, useStoreProvider } from "../../store_engine";
@@ -352,21 +351,21 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   get highlights(): Highlight[] {
     const sheetId = this.env.model.getters.getActiveSheetId();
     return [
-      {
-        zone: toZone("C4:D9"),
-        color: "#FF0000",
-        sheetId,
-      },
-      {
-        zone: toZone("F1:F60"),
-        color: "#ff00ff",
-        sheetId,
-      },
-      {
-        zone: toZone("P1:Z2"),
-        color: "#0000ff",
-        sheetId,
-      },
+      // {
+      //   zone: toZone("C4:D9"),
+      //   color: "#FF0000",
+      //   sheetId,
+      // },
+      // {
+      //   zone: toZone("F1:F60"),
+      //   color: "#ff00ff",
+      //   sheetId,
+      // },
+      // {
+      //   zone: toZone("P1:Z2"),
+      //   color: "#0000ff",
+      //   sheetId,
+      // },
     ];
   }
 
