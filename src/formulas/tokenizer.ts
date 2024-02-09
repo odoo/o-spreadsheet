@@ -111,7 +111,15 @@ function tokenizeOperator(chars: TokenizingChars): Token | null {
   return null;
 }
 
+const FIRST_POSSIBLE_NUMBER_CHARS = new Set("0123456789");
+
 function tokenizeNumber(chars: TokenizingChars, locale: Locale): Token | null {
+  if (
+    !FIRST_POSSIBLE_NUMBER_CHARS.has(chars.current) &&
+    chars.current !== locale.decimalSeparator
+  ) {
+    return null;
+  }
   const match = chars.remaining().match(getFormulaNumberRegex(locale.decimalSeparator));
   if (match) {
     chars.advanceBy(match[0].length);
