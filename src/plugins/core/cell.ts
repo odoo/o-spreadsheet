@@ -268,8 +268,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
   private removeDefaultStyleValues(style: Style | undefined): Style {
     const cleanedStyle = { ...style };
-    for (const [property, defaultValue] of Object.entries(DEFAULT_STYLE)) {
-      if (cleanedStyle[property] === defaultValue) {
+    for (const property in DEFAULT_STYLE) {
+      if (cleanedStyle[property] === DEFAULT_STYLE[property]) {
         delete cleanedStyle[property];
       }
     }
