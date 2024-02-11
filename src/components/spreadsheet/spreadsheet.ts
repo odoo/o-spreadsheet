@@ -298,7 +298,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       clipboard: this.env.clipboard || instantiateClipboard(),
       startCellEdition: (content?: string) =>
         this.composerFocusStore.focusGridComposerCell(content),
-      //TODORAR: make a store out of this
     });
 
     useEffect(
