@@ -117,8 +117,8 @@ const machine: Machine = {
  * If a range is found, the sequence is removed from the list and is returned
  * as a single token.
  */
-function matchReference(tokens: Token[]): Token | null {
-  let head = 0;
+function matchReference(tokens: Token[], currentIndex: number): Token[] | null {
+  let head = currentIndex;
   let transitions = machine[State.LeftRef];
   const matchedTokens: Token[] = [];
   while (transitions !== undefined) {
@@ -133,11 +133,7 @@ function matchReference(tokens: Token[]): Token | null {
         return null;
       case State.Found:
         matchedTokens.push(token);
-        tokens.splice(0, head);
-        return {
-          type: "REFERENCE",
-          value: concat(matchedTokens.map((token) => token.value)),
-        };
+        return matchedTokens;
       default:
         transitions = machine[nextState];
         matchedTokens.push(token);
@@ -154,10 +150,20 @@ function matchReference(tokens: Token[]): Token | null {
  * @param formula
  */
 export function rangeTokenize(formula: string, locale = DEFAULT_LOCALE): Token[] {
+  let currentIndex = 0;
   const tokens = tokenize(formula, locale);
   const result: Token[] = [];
-  while (tokens.length) {
-    result.push(matchReference(tokens) || tokens.shift()!);
+  while (currentIndex <= tokens.length) {
+    const refTokens = matchReference(tokens, currentIndex);
+    if (refTokens) {
+      result.push({
+        type: "REFERENCE",
+        value: concat(refTokens.map((token) => token.value)),
+      });
+      currentIndex += refTokens.length;
+    } else {
+      result.push(tokens[currentIndex++]);
+    }
   }
   return result;
 }
