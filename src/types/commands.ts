@@ -1184,7 +1184,7 @@ export class DispatchResult {
    * Static helper which returns a successful DispatchResult
    */
   static get Success() {
-    return new DispatchResult();
+    return SUCCESS;
   }
 
   get isSuccessful(): boolean {
@@ -1199,6 +1199,8 @@ export class DispatchResult {
     return this.reasons.includes(reason);
   }
 }
+
+const SUCCESS = new DispatchResult();
 
 export type CancelledReason = Exclude<CommandResult, CommandResult.Success>;
 
