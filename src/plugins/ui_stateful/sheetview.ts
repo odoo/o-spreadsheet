@@ -114,6 +114,13 @@ export class SheetViewPlugin extends UIPlugin {
   private gridOffsetX: Pixel = 0;
   private gridOffsetY: Pixel = 0;
 
+  /**
+   * These properties are used to cache the values of the corresponding getters,
+   * for performance reasons.
+   */
+  private sheetViewVisibleCols?: HeaderIndex[];
+  private sheetViewVisibleRows?: HeaderIndex[];
+
   private sheetsWithDirtyViewports: Set<UID> = new Set();
   private shouldAdjustViewports: boolean = false;
 
@@ -268,6 +275,8 @@ export class SheetViewPlugin extends UIPlugin {
     this.sheetsWithDirtyViewports = new Set();
     this.shouldAdjustViewports = false;
     this.setViewports();
+    this.sheetViewVisibleCols = undefined;
+    this.sheetViewVisibleRows = undefined;
   }
 
   private setViewports() {
@@ -349,21 +358,26 @@ export class SheetViewPlugin extends UIPlugin {
   }
 
   getSheetViewVisibleCols(): HeaderIndex[] {
-    const sheetId = this.getters.getActiveSheetId();
-    const viewports = this.getSubViewports(sheetId);
+    if (!this.sheetViewVisibleCols) {
+      const sheetId = this.getters.getActiveSheetId();
+      const viewports = this.getSubViewports(sheetId);
 
-    //TODO ake another commit to eimprove this
-    return [...new Set(viewports.map((v) => range(v.left, v.right + 1)).flat())].filter(
-      (col) => !this.getters.isHeaderHidden(sheetId, "COL", col)
-    );
+      this.sheetViewVisibleCols = [
+        ...new Set(viewports.map((v) => range(v.left, v.right + 1)).flat()),
+      ].filter((col) => !this.getters.isHeaderHidden(sheetId, "COL", col));
+    }
+    return this.sheetViewVisibleCols;
   }
 
   getSheetViewVisibleRows(): HeaderIndex[] {
-    const sheetId = this.getters.getActiveSheetId();
-    const viewports = this.getSubViewports(sheetId);
-    return [...new Set(viewports.map((v) => range(v.top, v.bottom + 1)).flat())].filter(
-      (row) => !this.getters.isHeaderHidden(sheetId, "ROW", row)
-    );
+    if (!this.sheetViewVisibleRows) {
+      const sheetId = this.getters.getActiveSheetId();
+      const viewports = this.getSubViewports(sheetId);
+      this.sheetViewVisibleRows = [
+        ...new Set(viewports.map((v) => range(v.top, v.bottom + 1)).flat()),
+      ].filter((row) => !this.getters.isHeaderHidden(sheetId, "ROW", row));
+    }
+    return this.sheetViewVisibleRows;
   }
 
   /**
