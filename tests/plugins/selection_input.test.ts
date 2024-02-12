@@ -729,4 +729,19 @@ describe("selection input plugin", () => {
     expect(model.getters.getSelectionInput(id2)[1].xc).toBe("F2");
     expect(model.getters.getSelectionInput(id2)[1].isFocused).toBe(true);
   });
+
+  test("Selection anchor updates when focusing on a new range within the same SelectionInput component", async () => {
+    model.dispatch("ENABLE_NEW_SELECTION_INPUT", { id, initialRanges: ["TEST", "B2"] });
+    model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 0) });
+
+    expect(model.getters.getSelectionInput(id)[0].xc).toBe("TEST");
+    moveAnchorCell(model, "down");
+    expect(model.getters.getSelectionInput(id)[0].xc).toBe("TEST");
+
+    model.dispatch("FOCUS_RANGE", { id, rangeId: idOfRange(model, id, 1) });
+
+    expect(model.getters.getSelectionInput(id)[1].xc).toBe("B2");
+    moveAnchorCell(model, "down");
+    expect(model.getters.getSelectionInput(id)[1].xc).toBe("B3");
+  });
 });
