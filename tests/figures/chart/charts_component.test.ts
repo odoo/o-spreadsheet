@@ -3,7 +3,7 @@ import { ChartTerms } from "../../../src/components/translations_terms";
 import { BACKGROUND_CHART_COLOR } from "../../../src/constants";
 import { toHex } from "../../../src/helpers";
 import { ScorecardChart } from "../../../src/helpers/figures/charts";
-import { ChartDefinition } from "../../../src/types";
+import { CHART_TYPES, ChartDefinition, ChartType } from "../../../src/types";
 import { BarChartDefinition } from "../../../src/types/chart/bar_chart";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
 import {
@@ -39,17 +39,24 @@ mockGetBoundingClientRect({
   "o-spreadsheet": () => ({ top: 100, left: 200, height: 1000, width: 1000 }),
   "o-figure-menu-item": () => ({ top: 500, left: 500 }),
 });
+type AllChartType = ChartType | "basicChart";
 
-function createTestChart(type: string) {
+function createTestChart(type: AllChartType) {
   switch (type) {
-    case "basicChart":
-      createChart(model, TEST_CHART_DATA.basicChart, chartId);
-      break;
     case "scorecard":
       createScorecardChart(model, TEST_CHART_DATA.scorecard, chartId);
       break;
     case "gauge":
       createGaugeChart(model, TEST_CHART_DATA.gauge, chartId);
+      break;
+    case "basicChart":
+      createChart(model, TEST_CHART_DATA.basicChart, chartId);
+      break;
+    case "line":
+    case "bar":
+    case "pie":
+    case "scatter":
+      createChart(model, { ...TEST_CHART_DATA.basicChart, type }, chartId);
       break;
   }
 }
@@ -110,7 +117,13 @@ describe("charts", () => {
     ({ parent, model, fixture } = await mountSpreadsheet({ model: new Model(data) }));
   });
 
-  test.each(["basicChart", "scorecard", "gauge"])("can export a chart %s", (chartType: string) => {
+  test.each(CHART_TYPES)("Can open a chart sidePanel", async (chartType) => {
+    createTestChart(chartType);
+    await openChartConfigSidePanel();
+    expect(fixture.querySelector(".o-figure")).toBeTruthy();
+  });
+
+  test.each(["basicChart", "scorecard", "gauge"] as const)("can export a chart %s", (chartType) => {
     createTestChart(chartType);
     const data = model.exportData();
     const activeSheetId = model.getters.getActiveSheetId();
@@ -130,9 +143,9 @@ describe("charts", () => {
     ]);
   });
 
-  test.each(["basicChart", "scorecard", "gauge"])(
+  test.each(["basicChart", "scorecard", "gauge"] as const)(
     "charts have a menu button",
-    async (chartType: string) => {
+    async (chartType) => {
       createTestChart(chartType);
       await nextTick();
       expect(fixture.querySelector(".o-figure")).not.toBeNull();
@@ -140,9 +153,9 @@ describe("charts", () => {
     }
   );
 
-  test.each(["basicChart", "scorecard", "gauge"])(
+  test.each(["basicChart", "scorecard", "gauge"] as const)(
     "charts don't have a menu button in dashboard mode",
-    async (chartType: string) => {
+    async (chartType) => {
       createTestChart(chartType);
       model.updateMode("dashboard");
       await nextTick();
@@ -151,9 +164,9 @@ describe("charts", () => {
     }
   );
 
-  test.each(["basicChart", "scorecard", "gauge"])(
+  test.each(["basicChart", "scorecard", "gauge"] as const)(
     "charts don't have a menu button in readonly mode",
-    async (chartType: string) => {
+    async (chartType) => {
       createTestChart(chartType);
       model.updateMode("readonly");
       await nextTick();
@@ -162,9 +175,9 @@ describe("charts", () => {
     }
   );
 
-  test.each(["scorecard", "basicChart", "gauge"])(
+  test.each(["scorecard", "basicChart", "gauge"] as const)(
     "Click on Edit button will prefill sidepanel",
-    async (chartType: string) => {
+    async (chartType) => {
       createTestChart(chartType);
       await openChartConfigSidePanel();
 
@@ -207,9 +220,9 @@ describe("charts", () => {
     }
   );
 
-  test.each(["scorecard", "basicChart", "gauge"])(
+  test.each(["scorecard", "basicChart", "gauge"] as const)(
     "Double click on chart will open sidepanel",
-    async (chartType: string) => {
+    async (chartType) => {
       createTestChart(chartType);
       await nextTick();
       expect(document.querySelector(".o-chart-container")).toBeTruthy();
@@ -219,9 +232,9 @@ describe("charts", () => {
     }
   );
 
-  test.each(["basicChart", "scorecard", "gauge"])(
+  test.each(["basicChart", "scorecard", "gauge"] as const)(
     "can edit charts %s",
-    async (chartType: string) => {
+    async (chartType) => {
       createTestChart(chartType);
       await openChartConfigSidePanel();
 
@@ -327,9 +340,9 @@ describe("charts", () => {
     expect(model.getters.getChartDefinition("2").title).toBe("new_title");
   });
 
-  test.each(["basicChart", "scorecard", "gauge"])(
+  test.each(["basicChart", "scorecard", "gauge"] as const)(
     "defocusing sidepanel after modifying chart title w/o saving should maintain the new title %s",
-    async (chartType: string) => {
+    async (chartType) => {
       createTestChart(chartType);
       await openChartDesignSidePanel();
 
@@ -342,9 +355,9 @@ describe("charts", () => {
     }
   );
 
-  test.each(["basicChart", "scorecard"])(
+  test.each(["basicChart", "scorecard"] as const)(
     "can edit charts %s background",
-    async (chartType: string) => {
+    async (chartType) => {
       createTestChart(chartType);
       const dispatch = spyDispatch(parent);
       await openChartDesignSidePanel();
@@ -379,9 +392,9 @@ describe("charts", () => {
     }
   );
 
-  test.each(["basicChart", "scorecard", "gauge"])(
+  test.each(["basicChart", "scorecard", "gauge"] as const)(
     "can close color picker when click elsewhere %s",
-    async (chartType: string) => {
+    async (chartType) => {
       createTestChart(chartType);
       openChartDesignSidePanel();
 
@@ -395,7 +408,7 @@ describe("charts", () => {
   test.each([
     ["basicChart", [".o-data-labels"], ["labelRange"]],
     ["scorecard", [".o-data-labels"], ["baseline"]],
-  ])("remove ranges in chart %s", async (chartType: string, rangesDomClasses, nameInChartDef) => {
+  ] as const)("remove ranges in chart %s", async (chartType, rangesDomClasses, nameInChartDef) => {
     createTestChart(chartType);
     await openChartConfigSidePanel();
 
@@ -461,9 +474,9 @@ describe("charts", () => {
     expect(model.getters.getChart(chartId)?.sheetId).toBe(sheetId);
   });
 
-  test.each(["basicChart", "scorecard", "gauge"])(
+  test.each(["basicChart", "scorecard", "gauge"] as const)(
     "deleting chart %s will close sidePanel",
-    async (chartType: string) => {
+    async (chartType) => {
       createTestChart(chartType);
       await openChartConfigSidePanel();
 
@@ -501,9 +514,9 @@ describe("charts", () => {
     expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeFalsy();
   });
 
-  describe.each(["basicChart", "scorecard", "gauge"])(
+  describe.each(["basicChart", "scorecard", "gauge"] as const)(
     "selecting other chart will adapt sidepanel",
-    (chartType: string) => {
+    (chartType) => {
       test.each(["click", "SELECT_FIGURE command"])(
         "when using %s",
         async (selectMethod: string) => {
@@ -646,11 +659,11 @@ describe("charts", () => {
 
   describe("Chart error messages appear and don't need to click confirm", () => {
     test.each([
-      ["basicChart", []],
-      ["scorecard", []],
+      ["basicChart" as const, []],
+      ["scorecard" as const, []],
     ])(
       "update %s with empty labels/baseline",
-      async (chartType: string, expectedResults: CommandResult[]) => {
+      async (chartType, expectedResults: CommandResult[]) => {
         createTestChart(chartType);
         await openChartConfigSidePanel();
 
@@ -665,9 +678,9 @@ describe("charts", () => {
       }
     );
 
-    test.each(["basicChart", "scorecard", "gauge"])(
+    test.each(["basicChart", "scorecard", "gauge"] as const)(
       "update chart with valid dataset/keyValue/dataRange show confirm button",
-      async (chartType: string) => {
+      async (chartType) => {
         createTestChart(chartType);
         await openChartConfigSidePanel();
 
@@ -677,9 +690,9 @@ describe("charts", () => {
       }
     );
 
-    test.each(["basicChart", "scorecard", "gauge"])(
+    test.each(["basicChart", "scorecard", "gauge"] as const)(
       "update chart with invalid dataset/keyValue/dataRange hide confirm button",
-      async (chartType: string) => {
+      async (chartType) => {
         createTestChart(chartType);
         await openChartConfigSidePanel();
 
@@ -700,9 +713,9 @@ describe("charts", () => {
       expect(model.getters.getChartDefinition(chartId)).toMatchObject(TEST_CHART_DATA.basicChart);
     });
 
-    test.each(["basicChart", "scorecard", "gauge"])(
+    test.each(["basicChart", "scorecard", "gauge"] as const)(
       "Clicking on reset button on dataset/keyValue/dataRange put back the last valid dataset/keyValue/dataRange",
-      async (chartType: string) => {
+      async (chartType) => {
         createTestChart(chartType);
         await openChartConfigSidePanel();
 
@@ -720,9 +733,9 @@ describe("charts", () => {
       }
     );
 
-    test.each(["basicChart", "scorecard"])(
+    test.each(["basicChart", "scorecard"] as const)(
       "resetting chart label works as expected",
-      async (chartType: string) => {
+      async (chartType) => {
         createTestChart(chartType);
         await openChartConfigSidePanel();
 
@@ -887,9 +900,9 @@ describe("charts", () => {
     });
   });
 
-  test.each(["basicChart", "scorecard"])(
+  test.each(["basicChart", "scorecard"] as const)(
     "Can open context menu on right click",
-    async (chartType: string) => {
+    async (chartType) => {
       createTestChart(chartType);
       await nextTick();
       triggerMouseEvent(".o-chart-container", "contextmenu");
@@ -898,9 +911,9 @@ describe("charts", () => {
     }
   );
 
-  test.each(["basicChart", "scorecard", "gauge"])(
+  test.each(["basicChart", "scorecard", "gauge"] as const)(
     "Can edit a chart with empty main range without traceback",
-    async (chartType: string) => {
+    async (chartType) => {
       createTestChart(chartType);
       updateChart(model, chartId, { keyValue: undefined, dataRange: undefined, dataSets: [] });
       await openChartConfigSidePanel();

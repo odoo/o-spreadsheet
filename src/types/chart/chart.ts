@@ -8,7 +8,8 @@ import { PieChartDefinition, PieChartRuntime } from "./pie_chart";
 import { ScatterChartDefinition, ScatterChartRuntime } from "./scatter_chart";
 import { ScorecardChartDefinition, ScorecardChartRuntime } from "./scorecard_chart";
 
-export type ChartType = "line" | "bar" | "pie" | "scorecard" | "gauge" | "scatter";
+export const CHART_TYPES = ["line", "bar", "pie", "scorecard", "gauge", "scatter"] as const;
+export type ChartType = (typeof CHART_TYPES)[number];
 
 export type ChartDefinition =
   | LineChartDefinition
