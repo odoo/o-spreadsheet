@@ -1,3 +1,6 @@
+import { HeaderIndex } from "../types";
+import { InvalidReferenceError } from "../types/errors";
+import { numberToLetters } from "./coordinates";
 import { getCanonicalSheetName, getUnquotedSheetName } from "./misc";
 
 /** Reference of a cell (eg. A1, $B$5) */
@@ -33,6 +36,11 @@ export const rangeReference = new RegExp(
     /$/.source,
   "i"
 );
+
+/** Reference of a cell in relative RC notation */
+const relativeReference = new RegExp(/\[(\-?[0-9]{1,7})\]/, "i");
+const RcRowReference = new RegExp(/R(\[?\-?[0-9]{1,7}\]?)/, "i");
+const RcColReference = new RegExp(/C(\[?\-?[0-9]{1,7}\]?)/, "i");
 
 /**
  * Return true if the given xc is the reference of a column (e.g. A or AC or Sheet1!A)
@@ -77,4 +85,78 @@ export function splitReference(ref: string): { sheetName?: string; xc: string } 
 /** Return a reference SheetName!xc from the given arguments */
 export function getFullReference(sheetName: string | undefined, xc: string): string {
   return sheetName !== undefined ? `${getCanonicalSheetName(sheetName)}!${xc}` : xc;
+}
+
+/** Converts an RC notation to an A1 notation
+ *  An RC notation is a notation where the column and row are specified by their index
+ *  instead of by the column letter and row number. There are two types of RC notations:
+ * - Absolute RC notation: RnCm where n is the row index and m is the column index
+ * - Relative RC notation: R[n]C[m] where n is the row offset relative to a base position
+ *   and m is the column offset relative to this same base position.
+ * The relative RC notation will then need to know the initial position to use as a starting
+ * point, which is why it is passed as an optional argument.
+ * In both notation, the row and column index start at 1, ie R1C1 is A1, R1C2 is B1, R2C1 is A2,
+ * etc.
+ * As in the A1 notation, an unbounded range can be specified by omitting the row or column index :
+ * - R1: all the cells in the first row (similar to 1:1)
+ * - C1: all the cells in the first column (similar to A:A)
+ */
+export function toA1(
+  reference: string,
+  basePosition?: { col: HeaderIndex; row: HeaderIndex }
+): string {
+  const { xc, sheetName } = splitReference(reference);
+  const singleCellReference = !xc.includes(":");
+  const range = xc
+    .split(":")
+    .map((xc) => {
+      let rowPart = RcRowReference.exec(xc)?.[1] ?? "";
+      if (rowPart) {
+        const relativeRow = relativeReference.test(rowPart);
+        if (relativeRow) {
+          rowPart = rowPart.substring(1, rowPart.length - 1);
+        }
+        let rowIndex = parseInt(rowPart);
+        if (isNaN(rowIndex)) {
+          throw new InvalidReferenceError();
+        }
+        if (relativeRow) {
+          if (!basePosition) {
+            throw new InvalidReferenceError();
+          }
+          rowIndex += basePosition.row + 1;
+        }
+        if (rowIndex <= 0) {
+          throw new InvalidReferenceError();
+        }
+        rowPart = rowIndex.toString();
+      }
+      let colPart = RcColReference.exec(xc)?.[1] ?? "";
+      if (colPart) {
+        const relativeCol = relativeReference.test(colPart);
+        if (relativeCol) {
+          colPart = colPart.substring(1, colPart.length - 1);
+        }
+        let colIndex = parseInt(colPart);
+        if (isNaN(colIndex)) {
+          throw new InvalidReferenceError();
+        }
+        if (relativeCol) {
+          if (!basePosition) {
+            throw new InvalidReferenceError();
+          }
+          colIndex += basePosition.col;
+        } else {
+          colIndex -= 1;
+        }
+        if (colIndex < 0) {
+          throw new InvalidReferenceError();
+        }
+        colPart = numberToLetters(colIndex);
+      }
+      const address = colPart + rowPart;
+      return (colPart && rowPart) || !singleCellReference ? address : `${address}:${address}`;
+    })
+    .join(":");
+  return getFullReference(sheetName, range);
 }
