@@ -339,3 +339,6 @@ export type {
   FPayload,
 } from "./types";
 export type { FunctionRegistry };
+
+export { AbstractCellClipboardHandler } from "./clipboard_handlers/abstract_cell_clipboard_handler";
+export { AbstractFigureClipboardHandler } from "./clipboard_handlers/abstract_figure_clipboard_handler";
