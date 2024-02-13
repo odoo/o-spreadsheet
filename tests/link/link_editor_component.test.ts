@@ -161,7 +161,12 @@ describe("link editor component", () => {
   });
 
   test("label is changed to canonical form in model", async () => {
-    updateLocale(model, { ...DEFAULT_LOCALE, formulaArgSeparator: ";", decimalSeparator: "," });
+    updateLocale(model, {
+      ...DEFAULT_LOCALE,
+      formulaArgSeparator: ";",
+      decimalSeparator: ",",
+      thousandsSeparator: " ",
+    });
     await openLinkEditor(model, "A1");
     setInputValueAndTrigger(labelInput(), "3,15");
     setInputValueAndTrigger(urlInput(), "https://url.com");

@@ -1977,7 +1977,12 @@ describe("clipboard: pasting outside of sheet", () => {
 
   test("Can paste localized formula from the OS", () => {
     const model = new Model();
-    updateLocale(model, { ...DEFAULT_LOCALE, decimalSeparator: ",", formulaArgSeparator: ";" });
+    updateLocale(model, {
+      ...DEFAULT_LOCALE,
+      decimalSeparator: ",",
+      formulaArgSeparator: ";",
+      thousandsSeparator: " ",
+    });
     pasteFromOSClipboard(model, "A1", "=SUM(5 ; 3,14)");
     expect(getCell(model, "A1")?.content).toBe("=SUM(5 , 3.14)");
     expect(getEvaluatedCell(model, "A1").value).toBe(8.14);
