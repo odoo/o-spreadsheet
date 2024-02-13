@@ -58,6 +58,90 @@ describe("getCellText", () => {
     expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
   });
 
+  test("update cell outside of sheet (without any modification)", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    const result = model.dispatch("UPDATE_CELL", {
+      sheetId,
+      col: 9999,
+      row: 9999,
+    });
+    expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet, CommandResult.NoChanges);
+  });
+
+  test("update cell without any modification", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    const result = model.dispatch("UPDATE_CELL", {
+      sheetId,
+      col: 0,
+      row: 0,
+    });
+    expect(result).toBeCancelledBecause(CommandResult.NoChanges);
+  });
+
+  test("update cell with only the same content as before", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "hello");
+    setCellFormat(model, "A1", "#,##0.0");
+    setStyle(model, "A1", { bold: true });
+    const result = model.dispatch("UPDATE_CELL", {
+      sheetId,
+      col: 0,
+      row: 0,
+      content: "hello",
+    });
+    expect(result).toBeCancelledBecause(CommandResult.NoChanges);
+  });
+
+  test("update cell with only the same format as before", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "0");
+    setCellFormat(model, "A1", "#,##0.0");
+    setStyle(model, "A1", { bold: true });
+    const result = model.dispatch("UPDATE_CELL", {
+      sheetId,
+      col: 0,
+      row: 0,
+      format: "#,##0.0",
+    });
+    expect(result).toBeCancelledBecause(CommandResult.NoChanges);
+  });
+
+  test("update cell with only the same style as before", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "0");
+    setCellFormat(model, "A1", "#,##0.0");
+    setStyle(model, "A1", { bold: true });
+    const result = model.dispatch("UPDATE_CELL", {
+      sheetId,
+      col: 0,
+      row: 0,
+      style: { bold: true },
+    });
+    expect(result).toBeCancelledBecause(CommandResult.NoChanges);
+  });
+
+  test("update cell with the same style, content and format as before", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "hello");
+    setCellFormat(model, "A1", "#,##0.0");
+    setStyle(model, "A1", { bold: true });
+    const result = model.dispatch("UPDATE_CELL", {
+      sheetId,
+      col: 0,
+      row: 0,
+      content: "hello",
+      format: "#,##0.0",
+      style: { bold: true },
+    });
+    expect(result).toBeCancelledBecause(CommandResult.NoChanges);
+  });
+
   test("clear content", () => {
     const model = new Model();
     setCellContent(model, "A1", "hello");
@@ -91,7 +175,7 @@ describe("getCellText", () => {
   test("clear cell outside of sheet", () => {
     const model = new Model();
     const result = clearCell(model, "AAA999");
-    expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
+    expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet, CommandResult.NoChanges);
   });
 
   test("clear cell is cancelled if there is nothing on the cell", () => {

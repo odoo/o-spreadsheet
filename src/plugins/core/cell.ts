@@ -1,5 +1,5 @@
 import { NULL_FORMAT } from "../../constants";
-import { lazy } from "../../helpers";
+import { deepEquals, lazy } from "../../helpers";
 import { cellFactory } from "../../helpers/cells/cell_factory";
 import { concat, getItemId, isInside, range, toCartesian, toXC } from "../../helpers/index";
 import {
@@ -19,6 +19,7 @@ import {
   RangePart,
   Style,
   UID,
+  UpdateCellCommand,
   UpdateCellData,
   WorkbookData,
   Zone,
@@ -84,12 +85,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   allowDispatch(cmd: CoreCommand): CommandResult | CommandResult[] {
     switch (cmd.type) {
       case "UPDATE_CELL":
-        return this.checkCellOutOfSheet(cmd);
+        return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessUpdateCell);
       case "CLEAR_CELL":
-        return this.checkValidations(
-          cmd,
-          this.chainValidations(this.checkCellOutOfSheet, this.checkUselessClearCell)
-        );
+        return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessClearCell);
       default:
         return CommandResult.Success;
     }
@@ -503,6 +501,21 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     const cell = this.getters.getCell(cmd.sheetId, cmd.col, cmd.row);
     if (!cell) return CommandResult.NoChanges;
     if (!cell.content && !cell.style && !cell.format) {
+      return CommandResult.NoChanges;
+    }
+    return CommandResult.Success;
+  }
+
+  private checkUselessUpdateCell(cmd: UpdateCellCommand): CommandResult {
+    const cell = this.getters.getCell(cmd.sheetId, cmd.col, cmd.row);
+    const hasContent = "content" in cmd || "formula" in cmd;
+    const hasStyle = "style" in cmd;
+    const hasFormat = "format" in cmd;
+    if (
+      (!hasContent || cell?.content === cmd.content) &&
+      (!hasStyle || deepEquals(cell?.style, cmd.style)) &&
+      (!hasFormat || cell?.format === cmd.format)
+    ) {
       return CommandResult.NoChanges;
     }
     return CommandResult.Success;
