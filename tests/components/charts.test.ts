@@ -5,16 +5,20 @@ import { toHex, toZone } from "../../src/helpers";
 import { ChartDefinition } from "../../src/types";
 import { BarChartDefinition } from "../../src/types/chart/bar_chart";
 import { LineChartDefinition } from "../../src/types/chart/line_chart";
+import { getCellContent } from "../test_helpers";
 import {
+  copy,
   createChart,
   createGaugeChart,
   createScorecardChart,
   createSheet,
   paste,
+  setCellContent,
   setStyle,
   updateChart,
 } from "../test_helpers/commands_helpers";
 import {
+  keyDown,
   setInputValueAndTrigger,
   simulateClick,
   triggerMouseEvent,
@@ -1306,6 +1310,32 @@ describe("figures", () => {
         "A1",
       ]);
     });
+  });
+
+  test("Can undo multiple times after pasting figure", async () => {
+    setCellContent(model, "D6", "HELLO");
+    createTestChart("gauge");
+    await nextTick();
+    parent.env.model.dispatch("SELECT_FIGURE", { id: chartId });
+    await nextTick();
+
+    copy(model);
+    await simulateClick(".o-grid-overlay", 0, 0);
+    paste(model, "A1");
+    await nextTick();
+
+    await keyDown("z", { ctrlKey: true });
+    expect(model.getters.getChartIds(sheetId)).toHaveLength(1);
+
+    await keyDown("y", { ctrlKey: true });
+    expect(model.getters.getChartIds(sheetId)).toHaveLength(2);
+
+    await keyDown("z", { ctrlKey: true });
+    await keyDown("z", { ctrlKey: true });
+    expect(model.getters.getChartIds(sheetId)).toHaveLength(0);
+
+    await keyDown("z", { ctrlKey: true });
+    expect(getCellContent(model, "D6")).toEqual("");
   });
 });
 

@@ -324,6 +324,7 @@ export class GridSelectionPlugin extends UIPlugin {
           this.gridSelection.anchor.zone
         );
         this.setSelectionMixin(this.gridSelection.anchor, this.gridSelection.zones);
+        this.selectedFigureId = null;
         break;
     }
     /** Any change to the selection has to be  reflected in the selection processor. */

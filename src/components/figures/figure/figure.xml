@@ -7,7 +7,7 @@
         t-ref="figure"
         t-att-style="props.style"
         tabindex="0"
-        t-on-keydown.stop="(ev) => this.onKeyDown(ev)"
+        t-on-keydown="(ev) => this.onKeyDown(ev)"
         t-on-keyup.stop="">
         <t
           t-component="figureRegistry.get(props.figure.tag).Component"
