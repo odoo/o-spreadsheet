@@ -36,6 +36,9 @@ export function isValidLocale(locale: any): locale is Locale {
   if (locale.formulaArgSeparator === locale.decimalSeparator) {
     return false;
   }
+  if (locale.thousandsSeparator === locale.decimalSeparator) {
+    return false;
+  }
 
   try {
     formatValue(1, { locale, format: "#,##0.00" });
