@@ -157,7 +157,7 @@ export function canonicalizeNumberLiteral(content: string, locale: Locale): stri
   if (locale.decimalSeparator === "." || !isNumber(content, locale)) {
     return content;
   }
-  return content.replace(locale.decimalSeparator, ".");
+  return content.replace(locale.thousandsSeparator, "").replace(locale.decimalSeparator, ".");
 }
 
 /**
