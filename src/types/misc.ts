@@ -161,7 +161,7 @@ export type ReferenceDenormalizer = (
 
 export type EnsureRange = (range: Range) => Matrix<FPayload>;
 
-type _CompiledFormula = (
+export type FormulaToExecute = (
   deps: Range[],
   refFn: ReferenceDenormalizer,
   range: EnsureRange,
@@ -169,7 +169,7 @@ type _CompiledFormula = (
 ) => Matrix<FPayload> | FPayload;
 
 export interface CompiledFormula {
-  execute: _CompiledFormula;
+  execute: FormulaToExecute;
   tokens: Token[];
   dependencies: string[];
 }

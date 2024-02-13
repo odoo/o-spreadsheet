@@ -2,7 +2,7 @@ import { Token } from ".";
 import { functionRegistry } from "../functions/index";
 import { concat, parseNumber, removeStringQuotes } from "../helpers";
 import { _t } from "../translation";
-import { CompiledFormula, DEFAULT_LOCALE } from "../types";
+import { CompiledFormula, DEFAULT_LOCALE, FormulaToExecute } from "../types";
 import { BadExpressionError, UnknownFunctionError } from "../types/errors";
 import { FunctionCode, FunctionCodeBuilder, Scope } from "./code_builder";
 import { AST, ASTFuncall, parseTokens } from "./parser";
@@ -44,8 +44,7 @@ type InternalCompiledFormula = CompiledFormula & {
 // example, "=2*sum(A1:A4)" and "=2*sum(B1:B4)" are compiled into the same
 // structural function.
 // It is only exported for testing purposes
-export const functionCache: { [key: string]: Omit<CompiledFormula, "dependencies" | "tokens"> } =
-  {};
+export const functionCache: { [key: string]: FormulaToExecute } = {};
 
 // -----------------------------------------------------------------------------
 // COMPILER
@@ -82,10 +81,9 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
       code.toString()
     );
 
-    functionCache[cacheKey] = {
-      // @ts-ignore
-      execute: baseFunction,
-    };
+    // @ts-ignore
+    functionCache[cacheKey] = baseFunction;
+
     /**
      * This function compile the function arguments. It is mostly straightforward,
      * except that there is a non trivial transformation in one situation:
@@ -228,7 +226,7 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
     }
   }
   const compiledFormula: InternalCompiledFormula = {
-    execute: functionCache[cacheKey].execute,
+    execute: functionCache[cacheKey],
     dependencies,
     constantValues,
     tokens,
