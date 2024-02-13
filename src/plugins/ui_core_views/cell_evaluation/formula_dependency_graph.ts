@@ -58,7 +58,7 @@ export class FormulaDependencyGraph {
 
     while (queue.length > 0) {
       const range = queue.pop()!;
-      visited.add(...this.encoder.encodeBoundingBox(range));
+      visited.addMany(this.encoder.encodeBoundingBox(range));
 
       const impactedPositionIds = this.rTree.search(range).map((dep) => dep.data);
       for (const positionId of impactedPositionIds) {
@@ -67,7 +67,7 @@ export class FormulaDependencyGraph {
         }
       }
     }
-    visited.delete(...ranges.flatMap((r) => this.encoder.encodeBoundingBox(r)));
+    visited.deleteMany(ranges.flatMap((r) => this.encoder.encodeBoundingBox(r)));
     return visited;
   }
 }
