@@ -15,7 +15,11 @@ import {
 } from "../../../types";
 import { EvaluationError, InvalidReferenceError } from "../../../types/errors";
 
-export type CompilationParameters = [ReferenceDenormalizer, EnsureRange, EvalContext];
+export type CompilationParameters = {
+  referenceDenormalizer: ReferenceDenormalizer;
+  ensureRange: EnsureRange;
+  evalContext: EvalContext;
+};
 const functionMap = functionRegistry.mapping;
 
 /**
@@ -50,7 +54,11 @@ class CompilationParametersBuilder {
   }
 
   getParameters(): CompilationParameters {
-    return [this.refFn.bind(this), this.range.bind(this), this.evalContext];
+    return {
+      referenceDenormalizer: this.refFn.bind(this),
+      ensureRange: this.range.bind(this),
+      evalContext: this.evalContext,
+    };
   }
 
   /**

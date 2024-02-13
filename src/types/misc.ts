@@ -161,7 +161,7 @@ export type ReferenceDenormalizer = (
 
 export type EnsureRange = (range: Range) => Matrix<FPayload>;
 
-export type _CompiledFormula = (
+type _CompiledFormula = (
   deps: Range[],
   refFn: ReferenceDenormalizer,
   range: EnsureRange,
