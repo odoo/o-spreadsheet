@@ -264,6 +264,8 @@ export class FindAndReplaceStore extends SpreadsheetStore {
         sheetIdFrom: this.getters.getActiveSheetId(),
         sheetIdTo: selectedMatch.sheetId,
       });
+      // We do not want to reset the selection at finalize in this case
+      this.isSearchDirty = false;
     }
     // we want grid selection to capture the selection stream
     this.model.selection.getBackToDefault();
