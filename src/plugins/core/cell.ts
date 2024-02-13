@@ -1,6 +1,7 @@
 import { DEFAULT_STYLE } from "../../constants";
 import { Token, compile, tokenize } from "../../formulas";
 import { isEvaluationError, toString } from "../../functions/helpers";
+import { deepEquals } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells";
 import {
   concat,
@@ -35,6 +36,7 @@ import {
   RangePart,
   Style,
   UID,
+  UpdateCellCommand,
   UpdateCellData,
   WorkbookData,
   Zone,
@@ -96,12 +98,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   allowDispatch(cmd: CoreCommand): CommandResult | CommandResult[] {
     switch (cmd.type) {
       case "UPDATE_CELL":
-        return this.checkCellOutOfSheet(cmd);
+        return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessUpdateCell);
       case "CLEAR_CELL":
-        return this.checkValidations(
-          cmd,
-          this.chainValidations(this.checkCellOutOfSheet, this.checkUselessClearCell)
-        );
+        return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessClearCell);
       default:
         return CommandResult.Success;
     }
@@ -645,6 +644,21 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     const cell = this.getters.getCell(cmd);
     if (!cell) return CommandResult.NoChanges;
     if (!cell.content && !cell.style && !cell.format) {
+      return CommandResult.NoChanges;
+    }
+    return CommandResult.Success;
+  }
+
+  private checkUselessUpdateCell(cmd: UpdateCellCommand): CommandResult {
+    const cell = this.getters.getCell(cmd);
+    const hasContent = "content" in cmd || "formula" in cmd;
+    const hasStyle = "style" in cmd;
+    const hasFormat = "format" in cmd;
+    if (
+      (!hasContent || cell?.content === cmd.content) &&
+      (!hasStyle || deepEquals(cell?.style, cmd.style)) &&
+      (!hasFormat || cell?.format === cmd.format)
+    ) {
       return CommandResult.NoChanges;
     }
     return CommandResult.Success;
