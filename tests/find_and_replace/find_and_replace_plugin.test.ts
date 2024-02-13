@@ -491,6 +491,18 @@ describe("next/previous cycle", () => {
       match(sheetId1, "A3"),
     ]);
   });
+
+  test("Selecting previous match will select the last match of the previous sheet", () => {
+    createSheet(model, { sheetId: "s2" });
+    setCellContent(model, "A1", "1", "s2");
+    setCellContent(model, "Z26", "1", "s2");
+    updateSearch(model, "1");
+    expect(model.getters.getActiveSheetId()).toBe("s1");
+    expect(getActivePosition(model)).toBe("A1");
+    model.dispatch("SELECT_SEARCH_PREVIOUS_MATCH");
+    expect(model.getters.getActiveSheetId()).toBe("s2");
+    expect(getActivePosition(model)).toBe("Z26");
+  });
 });
 
 describe("next/previous with single match", () => {
