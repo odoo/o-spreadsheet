@@ -1144,7 +1144,12 @@ describe("edition", () => {
         editCell(model, "A1", "=SUM(B2;5)");
         expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
 
-        updateLocale(model, { ...DEFAULT_LOCALE, formulaArgSeparator: ";", decimalSeparator: "," });
+        updateLocale(model, {
+          ...DEFAULT_LOCALE,
+          formulaArgSeparator: ";",
+          decimalSeparator: ",",
+          thousandsSeparator: " ",
+        });
         editCell(model, "A1", "=SUM(B2,5)");
         expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
         editCell(model, "A1", "=SUM(B2;5)");
@@ -1154,6 +1159,7 @@ describe("edition", () => {
       test("Decimal numbers as function argument", () => {
         updateLocale(model, {
           ...DEFAULT_LOCALE,
+          thousandsSeparator: " ",
           decimalSeparator: ",",
           formulaArgSeparator: ";",
         });
