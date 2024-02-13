@@ -107,7 +107,12 @@ describe("Split text into columns", () => {
   });
 
   test("Localized split values are handled", () => {
-    updateLocale(model, { ...DEFAULT_LOCALE, decimalSeparator: ",", formulaArgSeparator: ";" });
+    updateLocale(model, {
+      ...DEFAULT_LOCALE,
+      decimalSeparator: ",",
+      formulaArgSeparator: ";",
+      thousandsSeparator: " ",
+    });
     setGrid(model, { A1: "5,6||=SUM(5; 1,6)" });
     splitTextToColumns(model, "||", "A1");
     expect(getGrid(model)).toEqual({ A1: 5.6, B1: 6.6 });
