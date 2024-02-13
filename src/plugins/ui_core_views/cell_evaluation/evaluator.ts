@@ -36,7 +36,6 @@ export type PositionId = bigint;
 const MAX_ITERATION = 30;
 const ERROR_CYCLE_CELL = createEvaluatedCell(new CircularDependencyError());
 const EMPTY_CELL = createEvaluatedCell({ value: null });
-const EVAL_CONTEXT_INDEX = 2;
 
 export class Evaluator {
   private readonly getters: Getters;
@@ -110,9 +109,8 @@ export class Evaluator {
       this.getters,
       this.computeAndSave.bind(this)
     );
-    this.compilationParams[EVAL_CONTEXT_INDEX].updateDependencies =
-      this.updateDependencies.bind(this);
-    this.compilationParams[EVAL_CONTEXT_INDEX].addDependencies = this.addDependencies.bind(this);
+    this.compilationParams.evalContext.updateDependencies = this.updateDependencies.bind(this);
+    this.compilationParams.evalContext.addDependencies = this.addDependencies.bind(this);
   }
 
   evaluateCells(positions: CellPosition[]) {
@@ -572,14 +570,19 @@ export function updateEvalContextAndExecute(
   sheetId: UID,
   cellId?: UID
 ) {
-  compilationParams[EVAL_CONTEXT_INDEX].__originCellXC = lazy(() => {
+  compilationParams.evalContext.__originCellXC = lazy(() => {
     if (!cellId) {
       return undefined;
     }
     // compute the value lazily for performance reasons
-    const position = compilationParams[EVAL_CONTEXT_INDEX].getters.getCellPosition(cellId);
+    const position = compilationParams.evalContext.getters.getCellPosition(cellId);
     return toXC(position.col, position.row);
   });
-  compilationParams[EVAL_CONTEXT_INDEX].__originSheetId = sheetId;
-  return compiledFormula.execute(compiledFormula.dependencies, ...compilationParams);
+  compilationParams.evalContext.__originSheetId = sheetId;
+  return compiledFormula.execute(
+    compiledFormula.dependencies,
+    compilationParams.referenceDenormalizer,
+    compilationParams.ensureRange,
+    compilationParams.evalContext
+  );
 }
