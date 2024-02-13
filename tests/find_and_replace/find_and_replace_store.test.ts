@@ -635,7 +635,12 @@ describe("Replace", () => {
 
   test("Replaced value is changed to canonical form in model", () => {
     setCellContent(model, "A1", "=SUM(2,2)");
-    updateLocale(model, { ...DEFAULT_LOCALE, decimalSeparator: ",", formulaArgSeparator: ";" });
+    updateLocale(model, {
+      ...DEFAULT_LOCALE,
+      decimalSeparator: ",",
+      formulaArgSeparator: ";",
+      thousandsSeparator: " ",
+    });
     updateSearch(model, "2", { searchFormulas: true, searchScope: "activeSheet" });
     replaceSearch("2,5");
     expect(store.searchMatches).toHaveLength(1);
