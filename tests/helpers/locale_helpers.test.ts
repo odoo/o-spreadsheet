@@ -17,6 +17,10 @@ describe("Locale helpers", () => {
     test("Can canonicalize literal", () => {
       expect(canonicalizeContent("1", FR_LOCALE)).toBe("1");
       expect(canonicalizeContent("1,1", FR_LOCALE)).toBe("1.1");
+      expect(canonicalizeContent("1 000,1", FR_LOCALE)).toBe("1000.1");
+      expect(canonicalizeContent("1.000,1", { ...FR_LOCALE, thousandsSeparator: "." })).toBe(
+        "1000.1"
+      );
       expect(canonicalizeContent(",1", FR_LOCALE)).toBe(".1");
       expect(canonicalizeContent("1,", FR_LOCALE)).toBe("1.");
       expect(canonicalizeContent("1,1%", FR_LOCALE)).toBe("1.1%");
