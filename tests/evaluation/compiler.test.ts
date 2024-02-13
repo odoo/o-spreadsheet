@@ -410,33 +410,37 @@ describe("compile functions", () => {
 
       const m = new Model();
 
-      let refFn = jest.fn();
-      let ensureRange = jest.fn();
+      let ref = jest.fn();
+      let range = jest.fn();
 
       const ctx = { USEMETAARG: () => {}, NOTUSEMETAARG: () => {} };
 
       const rangeA1 = createRange(m.getters, "ABC", "A1")!;
       const rangeA1ToB2 = createRange(m.getters, "ABC", "A1:B2")!;
 
-      compiledFormula1.execute([rangeA1], refFn, ensureRange, ctx);
-      expect(refFn).toHaveBeenCalledWith(rangeA1, true, "USEMETAARG", 1);
-      expect(ensureRange).toHaveBeenCalledTimes(0);
-      refFn.mockReset();
+      // @ts-ignore
+      compiledFormula1.execute([rangeA1], { ref, range, ctx });
+      expect(ref).toHaveBeenCalledWith(rangeA1, true, "USEMETAARG", 1);
+      expect(range).toHaveBeenCalledTimes(0);
+      ref.mockReset();
 
-      compiledFormula2.execute([rangeA1ToB2], refFn, ensureRange, ctx);
-      expect(refFn).toHaveBeenCalledWith(rangeA1ToB2, true, "USEMETAARG", 1);
-      expect(ensureRange).toHaveBeenCalledTimes(0);
-      refFn.mockReset();
+      // @ts-ignore
+      compiledFormula2.execute([rangeA1ToB2], { ref, range, ctx });
+      expect(ref).toHaveBeenCalledWith(rangeA1ToB2, true, "USEMETAARG", 1);
+      expect(range).toHaveBeenCalledTimes(0);
+      ref.mockReset();
 
-      compiledFormula3.execute([rangeA1], refFn, ensureRange, ctx);
-      expect(refFn).toHaveBeenCalledWith(rangeA1, false, "NOTUSEMETAARG", 1);
-      expect(ensureRange).toHaveBeenCalledTimes(0);
-      refFn.mockReset();
+      // @ts-ignore
+      compiledFormula3.execute([rangeA1], { ref, range, ctx });
+      expect(ref).toHaveBeenCalledWith(rangeA1, false, "NOTUSEMETAARG", 1);
+      expect(range).toHaveBeenCalledTimes(0);
+      ref.mockReset();
 
-      compiledFormula4.execute([rangeA1ToB2], refFn, ensureRange, ctx);
-      expect(refFn).toHaveBeenCalledWith(rangeA1ToB2, false, "NOTUSEMETAARG", 1);
-      expect(ensureRange).toHaveBeenCalledTimes(0);
-      refFn.mockReset();
+      // @ts-ignore
+      compiledFormula4.execute([rangeA1ToB2], { ref, range, ctx });
+      expect(ref).toHaveBeenCalledWith(rangeA1ToB2, false, "NOTUSEMETAARG", 1);
+      expect(range).toHaveBeenCalledTimes(0);
+      ref.mockReset();
     });
   });
 

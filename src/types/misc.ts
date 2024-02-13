@@ -3,6 +3,7 @@
 // -----------------------------------------------------------------------------
 import { ComponentConstructor } from "@odoo/owl";
 import { Token } from "../formulas";
+import { CompilationParameters } from "../plugins/ui_core_views/cell_evaluation/compilation_parameters";
 import { Cell, CellValue, EvaluatedCell } from "./cells";
 import { CommandResult } from "./commands";
 import { Format } from "./format";
@@ -163,9 +164,7 @@ export type EnsureRange = (range: Range) => Matrix<FPayload>;
 
 export type FormulaToExecute = (
   deps: Range[],
-  refFn: ReferenceDenormalizer,
-  range: EnsureRange,
-  ctx: {}
+  compilationParameters: CompilationParameters
 ) => Matrix<FPayload> | FPayload;
 
 export interface CompiledFormula {

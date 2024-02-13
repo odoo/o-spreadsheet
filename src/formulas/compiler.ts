@@ -75,9 +75,7 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
     code.append(`return ${compiledAST.returnExpression};`);
     let baseFunction = new Function(
       "deps", // the dependencies in the current formula
-      "ref", // a function to access a certain dependency at a given index
-      "range", // same as above, but guarantee that the result is in the form of a range
-      "ctx",
+      "access", // the compilation parameters containing functions to access the references and an evaluation context
       code.toString()
     );
 
@@ -185,10 +183,10 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
         case "REFERENCE":
           const referenceIndex = dependencies.indexOf(ast.value);
           if (hasRange) {
-            return code.return(`range(deps[${referenceIndex}])`);
+            return code.return(`access.range(deps[${referenceIndex}])`);
           } else {
             return code.return(
-              `ref(deps[${referenceIndex}], ${isMeta ? "true" : "false"}, "${
+              `access.ref(deps[${referenceIndex}], ${isMeta ? "true" : "false"}, "${
                 referenceVerification.functionName || OPERATOR_MAP["="]
               }",  ${referenceVerification.paramIndex})`
             );
@@ -197,14 +195,14 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
           const args = compileFunctionArgs(ast).map((arg) => arg.assignResultToVariable());
           code.append(...args);
           const fnName = ast.value.toUpperCase();
-          return code.return(`ctx['${fnName}'](${args.map((arg) => arg.returnExpression)})`);
+          return code.return(`access.ctx['${fnName}'](${args.map((arg) => arg.returnExpression)})`);
         case "UNARY_OPERATION": {
           const fnName = UNARY_OPERATOR_MAP[ast.value];
           const operand = compileAST(ast.operand, false, false, {
             functionName: fnName,
           }).assignResultToVariable();
           code.append(operand);
-          return code.return(`ctx['${fnName}'](${operand.returnExpression})`);
+          return code.return(`access.ctx['${fnName}'](${operand.returnExpression})`);
         }
         case "BIN_OPERATION": {
           const fnName = OPERATOR_MAP[ast.value];
@@ -217,7 +215,7 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
           code.append(left);
           code.append(right);
           return code.return(
-            `ctx['${fnName}'](${left.returnExpression}, ${right.returnExpression})`
+            `access.ctx['${fnName}'](${left.returnExpression}, ${right.returnExpression})`
           );
         }
         case "EMPTY":

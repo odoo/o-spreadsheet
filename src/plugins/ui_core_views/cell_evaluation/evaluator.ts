@@ -560,19 +560,14 @@ export function updateEvalContextAndExecute(
   sheetId: UID,
   cellId?: UID
 ) {
-  compilationParams.evalContext.__originCellXC = lazy(() => {
+  compilationParams.ctx.__originCellXC = lazy(() => {
     if (!cellId) {
       return undefined;
     }
     // compute the value lazily for performance reasons
-    const position = compilationParams.evalContext.getters.getCellPosition(cellId);
+    const position = compilationParams.ctx.getters.getCellPosition(cellId);
     return toXC(position.col, position.row);
   });
-  compilationParams.evalContext.__originSheetId = sheetId;
-  return compiledFormula.execute(
-    compiledFormula.dependencies,
-    compilationParams.referenceDenormalizer,
-    compilationParams.ensureRange,
-    compilationParams.evalContext
-  );
+  compilationParams.ctx.__originSheetId = sheetId;
+  return compiledFormula.execute(compiledFormula.dependencies, compilationParams);
 }
