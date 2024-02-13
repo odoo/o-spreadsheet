@@ -345,4 +345,10 @@ describe("Locale helpers", () => {
       false
     );
   });
+
+  test("isValidLocale with identical thousands and decimal separators", () => {
+    const locale = { ...DEFAULT_LOCALE, thousandsSeparator: ".", decimalSeparator: "." };
+
+    expect(isValidLocale(locale)).toBe(false);
+  });
 });

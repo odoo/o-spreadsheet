@@ -653,7 +653,12 @@ describe("replace", () => {
 
   test("Replaced value is changed to canonical form in model", () => {
     searchOptions.searchFormulas = true;
-    updateLocale(model, { ...DEFAULT_LOCALE, decimalSeparator: ",", formulaArgSeparator: ";" });
+    updateLocale(model, {
+      ...DEFAULT_LOCALE,
+      decimalSeparator: ",",
+      formulaArgSeparator: ";",
+      thousandsSeparator: " ",
+    });
     model.dispatch("UPDATE_SEARCH", { toSearch: "2", searchOptions });
     model.dispatch("REPLACE_SEARCH", { replaceWith: "4,5" });
     const matches = model.getters.getSearchMatches();
