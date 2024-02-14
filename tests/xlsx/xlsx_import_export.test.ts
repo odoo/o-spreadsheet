@@ -278,6 +278,17 @@ describe("Export data to xlsx then import it", () => {
       stacked: true,
       labelsAsText: false,
     },
+    {
+      title: "demo chart 5",
+      dataSets: ["Sheet1!B27:B35", "Sheet1!C27:C35"],
+      labelRange: "Sheet1!A27:A35",
+      type: "combo" as const,
+      dataSetsHaveTitle: false,
+      background: "#AAAAAA",
+      verticalAxisPosition: "right" as const,
+      legendPosition: "bottom" as const,
+      stacked: true,
+    },
   ])("Charts %s", (chartDef: any) => {
     createChart(model, chartDef, "1");
     chartDef = model.getters.getChartDefinition("1");

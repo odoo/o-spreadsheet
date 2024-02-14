@@ -730,6 +730,7 @@ describe("Import xlsx data", () => {
     ["line chart", "C5:G18"],
     ["bar chart", "H5:L18"],
     ["pie chart", "C38:L56"],
+    ["combo chart", "H58:L71"],
     ["doughnut chart", "C19:L37"],
   ])("Can import figures ", (chartTitle, figureZone) => {
     const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
@@ -758,7 +759,10 @@ describe("Import xlsx data", () => {
     expect(figure.tag).toEqual("chart");
   });
 
-  test.each([["bar chart", "bar", "#fff", ["Sheet1!B27:B35", "Sheet1!C27:C35"]]])(
+  test.each([
+    ["bar chart", "bar", "#fff", ["Sheet1!B27:B35", "Sheet1!C27:C35"]],
+    ["combo chart", "combo", "#fff", ["Sheet1!B27:B35", "Sheet1!C27:C35"]],
+  ])(
     "Can import charts %s without dataset titles",
     (chartTitle, chartType, chartColor, chartDatasets) => {
       const testSheet = getWorkbookSheet("jestCharts", convertedData)!;

@@ -204,6 +204,7 @@ export const CHART_TYPE_CONVERSION_MAP: Record<XLSXChartType, ExcelChartType | u
   surfaceChart: undefined,
   surface3DChart: undefined,
   bubbleChart: undefined,
+  comboChart: "combo",
 };
 
 /** Conversion map for the SUBTOTAL(index, formula) function in xlsx, index <=> actual function*/

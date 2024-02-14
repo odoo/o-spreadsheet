@@ -3,6 +3,7 @@ import { createRange, spreadRange } from "../../../../helpers";
 import { createDataSets } from "../../../../helpers/figures/charts";
 import { _t } from "../../../../translation";
 import { BarChartDefinition } from "../../../../types/chart/bar_chart";
+import { ComboChartDefinition } from "../../../../types/chart/combo_chart";
 import { LineChartDefinition } from "../../../../types/chart/line_chart";
 import { PieChartDefinition } from "../../../../types/chart/pie_chart";
 import { CommandResult, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
@@ -24,7 +25,9 @@ interface Props {
   ) => DispatchResult;
   updateChart: (
     figureId: UID,
-    definition: Partial<LineChartDefinition | BarChartDefinition | PieChartDefinition>
+    definition: Partial<
+      LineChartDefinition | BarChartDefinition | PieChartDefinition | ComboChartDefinition
+    >
   ) => DispatchResult;
 }
 

@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<c:chartSpace xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:c16r2="http://schemas.microsoft.com/office/drawing/2015/06/chart">
+  <c:date1904 val="0"/>
+  <c:lang val="fr-FR"/>
+  <c:roundedCorners val="0"/>
+  <mc:AlternateContent xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
+    <mc:Choice xmlns:c14="http://schemas.microsoft.com/office/drawing/2007/8/2/chart" Requires="c14">
+      <c14:style val="102"/>
+    </mc:Choice>
+    <mc:Fallback>
+      <c:style val="2"/>
+    </mc:Fallback>
+  </mc:AlternateContent>
+  <c:chart>
+    <c:title>
+      <c:tx>
+        <c:rich>
+          <a:bodyPr/>
+          <a:lstStyle/>
+          <a:p>
+            <a:pPr lvl="0">
+              <a:defRPr b="0">
+                <a:solidFill>
+                  <a:srgbClr val="000000"/>
+                </a:solidFill>
+                <a:latin typeface="+mn-lt"/>
+              </a:defRPr>
+            </a:pPr>
+            <a:r>
+              <a:rPr lang="en-US" sz="2200"/>
+              <a:t>combo chart</a:t>
+            </a:r>
+          </a:p>
+        </c:rich>
+      </c:tx>
+      <c:overlay val="0"/>
+    </c:title>
+    <c:autoTitleDeleted val="0"/>
+    <c:plotArea>
+      <c:layout/>
+      <c:barChart>
+        <c:barDir val="col"/>
+        <c:grouping val="clustered"/>
+        <c:varyColors val="0"/>
+        <c:ser>
+          <c:idx val="0"/>
+          <c:order val="0"/>
+          <c:spPr>
+            <a:solidFill>
+              <a:srgbClr val="1F77B4"/>
+            </a:solidFill>
+            <a:ln cmpd="sng">
+              <a:solidFill>
+                <a:srgbClr val="1F77B4"/>
+              </a:solidFill>
+            </a:ln>
+          </c:spPr>
+          <c:invertIfNegative val="1"/>
+          <c:cat>
+            <c:strRef>
+              <c:f>Sheet1!$A$27:$A$35</c:f>
+              <c:strCache>
+                <c:ptCount val="9"/>
+                <c:pt idx="0">
+                  <c:v>Emily Anderson (Emmy)</c:v>
+                </c:pt>
+                <c:pt idx="1">
+                  <c:v>Sophie Allen (Saffi)</c:v>
+                </c:pt>
+                <c:pt idx="2">
+                  <c:v>Chloe Adams</c:v>
+                </c:pt>
+                <c:pt idx="3">
+                  <c:v>Megan Alexander (Meg)</c:v>
+                </c:pt>
+                <c:pt idx="4">
+                  <c:v>Lucy Arnold (Lulu)</c:v>
+                </c:pt>
+                <c:pt idx="5">
+                  <c:v>Hannah Alvarez</c:v>
+                </c:pt>
+                <c:pt idx="6">
+                  <c:v>Jessica Alcock (Jess)</c:v>
+                </c:pt>
+                <c:pt idx="7">
+                  <c:v>Charlotte Anaya</c:v>
+                </c:pt>
+                <c:pt idx="8">
+                  <c:v>Lauren Anthony</c:v>
+                </c:pt>
+              </c:strCache>
+            </c:strRef>
+          </c:cat>
+          <c:val>
+            <c:numRef>
+              <c:f>Sheet1!$B$27:$B$35</c:f>
+              <c:numCache>
+                <c:formatCode>General</c:formatCode>
+                <c:ptCount val="9"/>
+                <c:pt idx="0">
+                  <c:v>12</c:v>
+                </c:pt>
+                <c:pt idx="1">
+                  <c:v>48</c:v>
+                </c:pt>
+                <c:pt idx="2">
+                  <c:v>45</c:v>
+                </c:pt>
+                <c:pt idx="3">
+                  <c:v>1</c:v>
+                </c:pt>
+                <c:pt idx="4">
+                  <c:v>25</c:v>
+                </c:pt>
+                <c:pt idx="5">
+                  <c:v>31</c:v>
+                </c:pt>
+                <c:pt idx="6">
+                  <c:v>20</c:v>
+                </c:pt>
+                <c:pt idx="7">
+                  <c:v>19</c:v>
+                </c:pt>
+                <c:pt idx="8">
+                  <c:v>16</c:v>
+                </c:pt>
+              </c:numCache>
+            </c:numRef>
+          </c:val>
+          <c:extLst>
+            <c:ext xmlns:c14="http://schemas.microsoft.com/office/drawing/2007/8/2/chart" uri="{6F2FDCE9-48DA-4B69-8628-5D25D57E5C99}">
+              <c14:invertSolidFillFmt>
+                <c14:spPr xmlns:c14="http://schemas.microsoft.com/office/drawing/2007/8/2/chart">
+                  <a:solidFill>
+                    <a:srgbClr val="FFFFFF"/>
+                  </a:solidFill>
+                  <a:ln cmpd="sng">
+                    <a:solidFill>
+                      <a:srgbClr val="1F77B4"/>
+                    </a:solidFill>
+                  </a:ln>
+                </c14:spPr>
+              </c14:invertSolidFillFmt>
+            </c:ext>
+            <c:ext xmlns:c16="http://schemas.microsoft.com/office/drawing/2014/chart" uri="{C3380CC4-5D6E-409C-BE32-E72D297353CC}">
+              <c16:uniqueId val="{00000000-457C-469E-B304-7A21AF960744}"/>
+            </c:ext>
+          </c:extLst>
+        </c:ser>
+        <c:dLbls>
+          <c:showLegendKey val="0"/>
+          <c:showVal val="0"/>
+          <c:showCatName val="0"/>
+          <c:showSerName val="0"/>
+          <c:showPercent val="0"/>
+          <c:showBubbleSize val="0"/>
+        </c:dLbls>
+        <c:gapWidth val="70"/>
+        <c:axId val="17781237"/>
+        <c:axId val="88853993"/>
+      </c:barChart>
+      <c:lineChart>
+        <c:grouping val="standard"/>
+        <c:varyColors val="0"/>
+        <c:ser>
+          <c:idx val="1"/>
+          <c:order val="1"/>
+          <c:spPr>
+            <a:solidFill>
+              <a:srgbClr val="FF7F0E"/>
+            </a:solidFill>
+            <a:ln cmpd="sng">
+              <a:solidFill>
+                <a:srgbClr val="FF7F0E"/>
+              </a:solidFill>
+            </a:ln>
+          </c:spPr>
+          <c:marker>
+            <c:symbol val="none"/>
+          </c:marker>
+          <c:cat>
+            <c:strRef>
+              <c:f>Sheet1!$A$27:$A$35</c:f>
+              <c:strCache>
+                <c:ptCount val="9"/>
+                <c:pt idx="0">
+                  <c:v>Emily Anderson (Emmy)</c:v>
+                </c:pt>
+                <c:pt idx="1">
+                  <c:v>Sophie Allen (Saffi)</c:v>
+                </c:pt>
+                <c:pt idx="2">
+                  <c:v>Chloe Adams</c:v>
+                </c:pt>
+                <c:pt idx="3">
+                  <c:v>Megan Alexander (Meg)</c:v>
+                </c:pt>
+                <c:pt idx="4">
+                  <c:v>Lucy Arnold (Lulu)</c:v>
+                </c:pt>
+                <c:pt idx="5">
+                  <c:v>Hannah Alvarez</c:v>
+                </c:pt>
+                <c:pt idx="6">
+                  <c:v>Jessica Alcock (Jess)</c:v>
+                </c:pt>
+                <c:pt idx="7">
+                  <c:v>Charlotte Anaya</c:v>
+                </c:pt>
+                <c:pt idx="8">
+                  <c:v>Lauren Anthony</c:v>
+                </c:pt>
+              </c:strCache>
+            </c:strRef>
+          </c:cat>
+          <c:val>
+            <c:numRef>
+              <c:f>Sheet1!$C$27:$C$35</c:f>
+              <c:numCache>
+                <c:formatCode>General</c:formatCode>
+                <c:ptCount val="9"/>
+                <c:pt idx="0">
+                  <c:v>24</c:v>
+                </c:pt>
+                <c:pt idx="1">
+                  <c:v>12</c:v>
+                </c:pt>
+                <c:pt idx="2">
+                  <c:v>27</c:v>
+                </c:pt>
+                <c:pt idx="3">
+                  <c:v>9</c:v>
+                </c:pt>
+                <c:pt idx="4">
+                  <c:v>45</c:v>
+                </c:pt>
+                <c:pt idx="5">
+                  <c:v>17</c:v>
+                </c:pt>
+                <c:pt idx="6">
+                  <c:v>43</c:v>
+                </c:pt>
+                <c:pt idx="7">
+                  <c:v>11</c:v>
+                </c:pt>
+                <c:pt idx="8">
+                  <c:v>16</c:v>
+                </c:pt>
+              </c:numCache>
+            </c:numRef>
+          </c:val>
+          <c:smooth val="0"/>
+          <c:extLst>
+            <c:ext xmlns:c16="http://schemas.microsoft.com/office/drawing/2014/chart" uri="{C3380CC4-5D6E-409C-BE32-E72D297353CC}">
+              <c16:uniqueId val="{00000001-457C-469E-B304-7A21AF960744}"/>
+            </c:ext>
+          </c:extLst>
+        </c:ser>
+        <c:dLbls>
+          <c:showLegendKey val="0"/>
+          <c:showVal val="0"/>
+          <c:showCatName val="0"/>
+          <c:showSerName val="0"/>
+          <c:showPercent val="0"/>
+          <c:showBubbleSize val="0"/>
+        </c:dLbls>
+        <c:marker val="1"/>
+        <c:smooth val="0"/>
+        <c:axId val="17781237"/>
+        <c:axId val="88853993"/>
+      </c:lineChart>
+      <c:catAx>
+        <c:axId val="17781237"/>
+        <c:scaling>
+          <c:orientation val="minMax"/>
+        </c:scaling>
+        <c:delete val="0"/>
+        <c:axPos val="b"/>
+        <c:majorGridlines>
+          <c:spPr>
+            <a:ln cmpd="sng">
+              <a:solidFill>
+                <a:srgbClr val="B7B7B7"/>
+              </a:solidFill>
+            </a:ln>
+          </c:spPr>
+        </c:majorGridlines>
+        <c:title>
+          <c:tx>
+            <c:rich>
+              <a:bodyPr/>
+              <a:lstStyle/>
+              <a:p>
+                <a:pPr lvl="0">
+                  <a:defRPr b="0">
+                    <a:solidFill>
+                      <a:srgbClr val="000000"/>
+                    </a:solidFill>
+                    <a:latin typeface="+mn-lt"/>
+                  </a:defRPr>
+                </a:pPr>
+                <a:endParaRPr lang="en-US"/>
+              </a:p>
+            </c:rich>
+          </c:tx>
+          <c:overlay val="1"/>
+        </c:title>
+        <c:numFmt formatCode="General" sourceLinked="1"/>
+        <c:majorTickMark val="out"/>
+        <c:minorTickMark val="none"/>
+        <c:tickLblPos val="nextTo"/>
+        <c:txPr>
+          <a:bodyPr/>
+          <a:lstStyle/>
+          <a:p>
+            <a:pPr lvl="0">
+              <a:defRPr sz="1000" b="0" i="0">
+                <a:solidFill>
+                  <a:srgbClr val="000000"/>
+                </a:solidFill>
+                <a:latin typeface="+mn-lt"/>
+              </a:defRPr>
+            </a:pPr>
+            <a:endParaRPr lang="fr-FR"/>
+          </a:p>
+        </c:txPr>
+        <c:crossAx val="88853993"/>
+        <c:crosses val="autoZero"/>
+        <c:auto val="1"/>
+        <c:lblAlgn val="ctr"/>
+        <c:lblOffset val="100"/>
+        <c:noMultiLvlLbl val="1"/>
+      </c:catAx>
+      <c:valAx>
+        <c:axId val="88853993"/>
+        <c:scaling>
+          <c:orientation val="minMax"/>
+        </c:scaling>
+        <c:delete val="0"/>
+        <c:axPos val="l"/>
+        <c:majorGridlines>
+          <c:spPr>
+            <a:ln cmpd="sng">
+              <a:solidFill>
+                <a:srgbClr val="B7B7B7"/>
+              </a:solidFill>
+            </a:ln>
+          </c:spPr>
+        </c:majorGridlines>
+        <c:title>
+          <c:tx>
+            <c:rich>
+              <a:bodyPr/>
+              <a:lstStyle/>
+              <a:p>
+                <a:pPr lvl="0">
+                  <a:defRPr b="0">
+                    <a:solidFill>
+                      <a:srgbClr val="000000"/>
+                    </a:solidFill>
+                    <a:latin typeface="+mn-lt"/>
+                  </a:defRPr>
+                </a:pPr>
+                <a:endParaRPr lang="en-US"/>
+              </a:p>
+            </c:rich>
+          </c:tx>
+          <c:overlay val="1"/>
+        </c:title>
+        <c:numFmt formatCode="General" sourceLinked="1"/>
+        <c:majorTickMark val="out"/>
+        <c:minorTickMark val="none"/>
+        <c:tickLblPos val="nextTo"/>
+        <c:txPr>
+          <a:bodyPr/>
+          <a:lstStyle/>
+          <a:p>
+            <a:pPr lvl="0">
+              <a:defRPr sz="1000" b="0" i="0">
+                <a:solidFill>
+                  <a:srgbClr val="000000"/>
+                </a:solidFill>
+                <a:latin typeface="+mn-lt"/>
+              </a:defRPr>
+            </a:pPr>
+            <a:endParaRPr lang="fr-FR"/>
+          </a:p>
+        </c:txPr>
+        <c:crossAx val="17781237"/>
+        <c:crosses val="autoZero"/>
+        <c:crossBetween val="between"/>
+      </c:valAx>
+      <c:spPr>
+        <a:solidFill>
+          <a:srgbClr val="FFFFFF"/>
+        </a:solidFill>
+      </c:spPr>
+    </c:plotArea>
+    <c:legend>
+      <c:legendPos val="t"/>
+      <c:overlay val="0"/>
+      <c:txPr>
+        <a:bodyPr/>
+        <a:lstStyle/>
+        <a:p>
+          <a:pPr lvl="0">
+            <a:defRPr sz="1000" b="0" i="0">
+              <a:solidFill>
+                <a:srgbClr val="000000"/>
+              </a:solidFill>
+              <a:latin typeface="+mn-lt"/>
+            </a:defRPr>
+          </a:pPr>
+          <a:endParaRPr lang="fr-FR"/>
+        </a:p>
+      </c:txPr>
+    </c:legend>
+    <c:plotVisOnly val="1"/>
+    <c:dispBlanksAs val="zero"/>
+    <c:showDLblsOverMax val="1"/>
+  </c:chart>
+  <c:spPr>
+    <a:solidFill>
+      <a:srgbClr val="FFFFFF"/>
+    </a:solidFill>
+    <a:ln cmpd="sng">
+      <a:solidFill>
+        <a:srgbClr val="000000"/>
+      </a:solidFill>
+    </a:ln>
+  </c:spPr>
+  <c:printSettings>
+    <c:headerFooter/>
+    <c:pageMargins b="0.75" l="0.7" r="0.7" t="0.75" header="0.3" footer="0.3"/>
+    <c:pageSetup/>
+  </c:printSettings>
+</c:chartSpace>

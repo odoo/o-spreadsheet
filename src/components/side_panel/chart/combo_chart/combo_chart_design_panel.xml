@@ -1,0 +1,34 @@
+<templates>
+  <t t-name="o-spreadsheet-ComboChartDesignPanel">
+    <div>
+      <ChartColor
+        currentColor="props.definition.background"
+        onColorPicked.bind="updateBackgroundColor"
+      />
+      <ChartTitle title="title" update.bind="updateTitle"/>
+      <Section t-if="!props.definition.useBothYAxis">
+        <t t-set-slot="title">Vertical axis position</t>
+        <select
+          t-att-value="props.definition.verticalAxisPosition"
+          class="o-input"
+          t-on-change="(ev) => this.updateSelect('verticalAxisPosition', ev)">
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </Section>
+      <Section>
+        <t t-set-slot="title">Legend position</t>
+        <select
+          t-att-value="props.definition.legendPosition"
+          class="o-input"
+          t-on-change="(ev) => this.updateSelect('legendPosition', ev)">
+          <option value="none">None</option>
+          <option value="top">Top</option>
+          <option value="bottom">Bottom</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </Section>
+    </div>
+  </t>
+</templates>
