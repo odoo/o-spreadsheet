@@ -440,11 +440,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     } else {
       style = before ? before.style : undefined;
     }
-    const locale = this.getters.getLocale();
-    let format =
-      ("format" in after ? after.format : before && before.format) ||
-      detectDateFormat(afterContent, locale) ||
-      detectNumberFormat(afterContent);
+    const format = "format" in after ? after.format : before && before.format;
 
     /* Read the following IF as:
      * we need to remove the cell if it is completely empty, but we can know if it completely empty if:
@@ -501,12 +497,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     style: Style | undefined
   ): LiteralCell {
     const locale = this.getters.getLocale();
-    content = parseLiteral(content, locale).toString();
     return {
       id,
-      content,
+      content: parseLiteral(content, locale).toString(),
       style,
-      format,
+      format: format || detectDateFormat(content, locale) || detectNumberFormat(content),
       isFormula: false,
     };
   }
