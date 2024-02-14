@@ -16,6 +16,7 @@ import {
   addColumns,
   addRows,
   createChart,
+  createComboChart,
   createSheet,
   createSheetWithName,
   deleteColumns,
@@ -36,6 +37,7 @@ import { ChartTerms } from "../../../src/components/translations_terms";
 import { FIGURE_ID_SPLITTER } from "../../../src/constants";
 import { BarChart } from "../../../src/helpers/figures/charts";
 import { ChartPlugin } from "../../../src/plugins/core";
+import { ComboChartRuntime } from "../../../src/types/chart/combo_chart";
 import { FR_LOCALE } from "../../test_helpers/constants";
 
 jest.mock("../../../src/helpers/uuid", () => require("../../__mocks__/uuid"));
@@ -1332,6 +1334,38 @@ describe("Chart without labels", () => {
     expect(
       (model.getters.getChartRuntime("44") as BarChartRuntime).chartJsConfig.data?.labels
     ).toEqual(["B1", "B2"]);
+  });
+
+  test("Combo chart has both line and bar", () => {
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "2");
+    setCellContent(model, "A3", "3");
+    setCellContent(model, "A4", "4");
+    setCellContent(model, "A5", "5");
+    setCellContent(model, "A6", "6");
+
+    createComboChart(model, { dataSets: ["A1:A2", "A3:A4", "A5:A6"] }, "43");
+    const config = (model.getters.getChartRuntime("43") as ComboChartRuntime).chartJsConfig;
+    expect(config?.data?.datasets![0].type).toEqual("bar");
+    expect(config?.data?.datasets![1].type).toEqual("line");
+    expect(config?.data?.datasets![2].type).toEqual("line");
+  });
+
+  test("Combo chart correctly use right axis if set up in definition", () => {
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "2");
+    setCellContent(model, "A3", "3");
+    setCellContent(model, "A4", "4");
+    setCellContent(model, "A5", "5");
+    setCellContent(model, "A6", "6");
+
+    createComboChart(model, { dataSets: ["A1:A2", "A3:A4", "A5:A6"], useBothYAxis: true }, "43");
+    const config = (model.getters.getChartRuntime("43") as ComboChartRuntime).chartJsConfig;
+    expect(config?.data?.datasets![0]["yAxisID"]).toEqual("y");
+    expect(config?.data?.datasets![1]["yAxisID"]).toEqual("y1");
+    expect(config?.data?.datasets![2]["yAxisID"]).toEqual("y1");
+    expect(config?.options?.scales?.y).toMatchObject({ beginAtZero: true, position: "left" });
+    expect(config?.options?.scales?.y1).toMatchObject({ beginAtZero: true, position: "right" });
   });
 });
 

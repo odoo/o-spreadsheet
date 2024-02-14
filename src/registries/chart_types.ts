@@ -4,6 +4,7 @@ import { GaugeChartComponent } from "../components/figures/chart/gauge/gauge_cha
 import { ScorecardChart as ScorecardChartComponent } from "../components/figures/chart/scorecard/chart_scorecard";
 import { AbstractChart } from "../helpers/figures/charts/abstract_chart";
 import { BarChart, createBarChartRuntime } from "../helpers/figures/charts/bar_chart";
+import { ComboChart, createComboChartRuntime } from "../helpers/figures/charts/combo_chart";
 import { GaugeChart, createGaugeChartRuntime } from "../helpers/figures/charts/gauge_chart";
 import { LineChart, createLineChartRuntime } from "../helpers/figures/charts/line_chart";
 import { PieChart, createPieChartRuntime } from "../helpers/figures/charts/pie_chart";
@@ -34,6 +35,7 @@ import {
   ChartRuntime,
   ChartType,
 } from "../types/chart/chart";
+import { ComboChartDefinition } from "../types/chart/combo_chart";
 import { ScatterChartDefinition } from "../types/chart/scatter_chart";
 import { Validator } from "../types/validator";
 import { Registry } from "./registry";
@@ -85,6 +87,22 @@ chartRegistry.add("bar", {
     BarChart.getDefinitionFromContextCreation(context),
   name: _t("Bar"),
   sequence: 10,
+});
+chartRegistry.add("combo", {
+  match: (type) => type === "combo",
+  createChart: (definition, sheetId, getters) =>
+    new ComboChart(definition as ComboChartDefinition, sheetId, getters),
+  getChartRuntime: createComboChartRuntime,
+  validateChartDefinition: (validator, definition: ComboChartDefinition) =>
+    ComboChart.validateChartDefinition(validator, definition),
+  transformDefinition: (
+    definition: ComboChartDefinition,
+    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
+  ) => ComboChart.transformDefinition(definition, executed),
+  getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
+    ComboChart.getDefinitionFromContextCreation(context),
+  name: _t("Combo"),
+  sequence: 15,
 });
 chartRegistry.add("line", {
   match: (type) => type === "line",
@@ -170,6 +188,7 @@ chartRegistry.add("scatter", {
 export const chartComponentRegistry = new Registry<new (...args: any) => Component>();
 chartComponentRegistry.add("line", ChartJsComponent);
 chartComponentRegistry.add("bar", ChartJsComponent);
+chartComponentRegistry.add("combo", ChartJsComponent);
 chartComponentRegistry.add("pie", ChartJsComponent);
 chartComponentRegistry.add("gauge", GaugeChartComponent);
 chartComponentRegistry.add("scatter", ChartJsComponent);

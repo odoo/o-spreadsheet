@@ -2,6 +2,8 @@ import { Component } from "@odoo/owl";
 import { Registry } from "../../../registries/registry";
 import { BarConfigPanel } from "./bar_chart/bar_chart_config_panel";
 import { BarChartDesignPanel } from "./bar_chart/bar_chart_design_panel";
+import { ComboChartConfigPanel } from "./combo_chart/combo_chart_config_panel";
+import { ComboChartDesignPanel } from "./combo_chart/combo_chart_design_panel";
 import { GaugeChartConfigPanel } from "./gauge_chart_panel/gauge_chart_config_panel";
 import { GaugeChartDesignPanel } from "./gauge_chart_panel/gauge_chart_design_panel";
 import { LineBarPieConfigPanel } from "./line_bar_pie_panel/config_panel";
@@ -42,6 +44,10 @@ chartSidePanelComponentRegistry
   .add("bar", {
     configuration: BarConfigPanel,
     design: BarChartDesignPanel,
+  })
+  .add("combo", {
+    configuration: ComboChartConfigPanel,
+    design: ComboChartDesignPanel,
   })
   .add("pie", {
     configuration: LineBarPieConfigPanel,

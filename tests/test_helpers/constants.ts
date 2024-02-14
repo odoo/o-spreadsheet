@@ -14,6 +14,16 @@ export const TEST_CHART_DATA = {
     stacked: false,
     legendPosition: "top" as const,
   },
+  combo: {
+    type: "combo" as const,
+    dataSets: ["B1:B4"],
+    labelRange: "A2:A4",
+    dataSetsHaveTitle: true,
+    title: "hello",
+    background: BACKGROUND_CHART_COLOR,
+    verticalAxisPosition: "left" as const,
+    legendPosition: "top" as const,
+  },
   scorecard: {
     type: "scorecard" as const,
     keyValue: "B1:B4",

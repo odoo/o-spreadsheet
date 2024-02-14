@@ -57,11 +57,8 @@ function createTestChart(type: AllChartType, newChartId = chartId) {
     case "basicChart":
       createChart(model, TEST_CHART_DATA.basicChart, newChartId);
       break;
-    case "line":
-    case "bar":
-    case "pie":
-    case "scatter":
-      createChart(model, { ...TEST_CHART_DATA.basicChart, type }, newChartId);
+    default:
+      createChart(model, { ...TEST_CHART_DATA.basicChart, type }, chartId);
       break;
   }
 }
@@ -88,6 +85,8 @@ let chartId: string;
 let sheetId: string;
 
 let parent: Spreadsheet;
+
+const TEST_CHART_TYPES = ["basicChart", "scorecard", "gauge", "combo"] as const;
 
 describe("charts", () => {
   beforeEach(async () => {
@@ -128,7 +127,7 @@ describe("charts", () => {
     expect(fixture.querySelector(".o-figure")).toBeTruthy();
   });
 
-  test.each(["basicChart", "scorecard", "gauge"] as const)("can export a chart %s", (chartType) => {
+  test.each(TEST_CHART_TYPES)("can export a chart %s", (chartType) => {
     createTestChart(chartType);
     const data = model.exportData();
     const activeSheetId = model.getters.getActiveSheetId();
@@ -148,17 +147,14 @@ describe("charts", () => {
     ]);
   });
 
-  test.each(["basicChart", "scorecard", "gauge"] as const)(
-    "charts have a menu button",
-    async (chartType) => {
-      createTestChart(chartType);
-      await nextTick();
-      expect(fixture.querySelector(".o-figure")).not.toBeNull();
-      expect(fixture.querySelector(".o-figure-menu-item")).not.toBeNull();
-    }
-  );
+  test.each(TEST_CHART_TYPES)("charts have a menu button", async (chartType) => {
+    createTestChart(chartType);
+    await nextTick();
+    expect(fixture.querySelector(".o-figure")).not.toBeNull();
+    expect(fixture.querySelector(".o-figure-menu-item")).not.toBeNull();
+  });
 
-  test.each(["basicChart", "scorecard", "gauge"] as const)(
+  test.each(TEST_CHART_TYPES)(
     "charts don't have a menu button in dashboard mode",
     async (chartType) => {
       createTestChart(chartType);
@@ -169,7 +165,7 @@ describe("charts", () => {
     }
   );
 
-  test.each(["basicChart", "scorecard", "gauge"] as const)(
+  test.each(TEST_CHART_TYPES)(
     "charts don't have a menu button in readonly mode",
     async (chartType) => {
       createTestChart(chartType);
@@ -180,106 +176,115 @@ describe("charts", () => {
     }
   );
 
-  test.each(["scorecard", "basicChart", "gauge"] as const)(
-    "Click on Edit button will prefill sidepanel",
-    async (chartType) => {
-      createTestChart(chartType);
-      await openChartConfigSidePanel();
+  test.each(TEST_CHART_TYPES)("Click on Edit button will prefill sidepanel", async (chartType) => {
+    createTestChart(chartType);
+    await openChartConfigSidePanel();
 
-      expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
-      const panelChartType = fixture.querySelectorAll(".o-sidePanel .o-input")[0];
-      switch (chartType) {
-        case "basicChart": {
-          const dataSeries = fixture.querySelectorAll(
-            ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
-          )[0];
-          const hasTitle = (
-            fixture.querySelector(".o-use-row-as-headers input[type=checkbox]") as HTMLInputElement
-          ).checked;
-          const labels = fixture.querySelector(".o-data-labels");
-          expect((panelChartType as HTMLSelectElement).value).toBe(TEST_CHART_DATA.basicChart.type);
-          expect((dataSeries.querySelector(" .o-selection input") as HTMLInputElement).value).toBe(
-            TEST_CHART_DATA.basicChart.dataSets[0]
-          );
-          expect(hasTitle).toBe(true);
-          expect((labels!.querySelector(".o-selection input") as HTMLInputElement).value).toBe(
-            TEST_CHART_DATA.basicChart.labelRange
-          );
-          break;
-        }
-        case "scorecard": {
-          const keyValue = fixture.querySelector(
-            ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
-          );
-          const baseline = fixture.querySelector(".o-data-labels");
-          expect((panelChartType as HTMLSelectElement).value).toBe(TEST_CHART_DATA.scorecard.type);
-          expect((keyValue!.querySelector(" .o-selection input") as HTMLInputElement).value).toBe(
-            TEST_CHART_DATA.scorecard.keyValue
-          );
-          expect((baseline!.querySelector(".o-selection input") as HTMLInputElement).value).toBe(
-            TEST_CHART_DATA.scorecard.baseline
-          );
-          break;
-        }
+    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
+    const panelChartType = fixture.querySelectorAll(".o-sidePanel .o-input")[0];
+    switch (chartType) {
+      case "combo":
+        const dataSeries = fixture.querySelectorAll(
+          ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
+        )[0];
+        const hasTitle = (
+          fixture.querySelector(".o-use-row-as-headers input[type=checkbox]") as HTMLInputElement
+        ).checked;
+        const labels = fixture.querySelector(".o-data-labels");
+        expect((panelChartType as HTMLSelectElement).value).toBe("combo");
+        expect((dataSeries.querySelector(" .o-selection input") as HTMLInputElement).value).toBe(
+          TEST_CHART_DATA.basicChart.dataSets[0]
+        );
+        expect(hasTitle).toBe(true);
+        expect((labels!.querySelector(".o-selection input") as HTMLInputElement).value).toBe(
+          TEST_CHART_DATA.basicChart.labelRange
+        );
+        break;
+      case "basicChart": {
+        const dataSeries = fixture.querySelectorAll(
+          ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
+        )[0];
+        const hasTitle = (
+          fixture.querySelector(".o-use-row-as-headers input[type=checkbox]") as HTMLInputElement
+        ).checked;
+        const labels = fixture.querySelector(".o-data-labels");
+        expect((panelChartType as HTMLSelectElement).value).toBe(TEST_CHART_DATA.basicChart.type);
+        expect((dataSeries.querySelector(" .o-selection input") as HTMLInputElement).value).toBe(
+          TEST_CHART_DATA.basicChart.dataSets[0]
+        );
+        expect(hasTitle).toBe(true);
+        expect((labels!.querySelector(".o-selection input") as HTMLInputElement).value).toBe(
+          TEST_CHART_DATA.basicChart.labelRange
+        );
+        break;
+      }
+      case "scorecard": {
+        const keyValue = fixture.querySelector(
+          ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
+        );
+        const baseline = fixture.querySelector(".o-data-labels");
+        expect((panelChartType as HTMLSelectElement).value).toBe(TEST_CHART_DATA.scorecard.type);
+        expect((keyValue!.querySelector(" .o-selection input") as HTMLInputElement).value).toBe(
+          TEST_CHART_DATA.scorecard.keyValue
+        );
+        expect((baseline!.querySelector(".o-selection input") as HTMLInputElement).value).toBe(
+          TEST_CHART_DATA.scorecard.baseline
+        );
+        break;
       }
     }
-  );
+  });
 
-  test.each(["scorecard", "basicChart", "gauge"] as const)(
-    "Double click on chart will open sidepanel",
-    async (chartType) => {
-      createTestChart(chartType);
-      await nextTick();
-      expect(document.querySelector(".o-chart-container")).toBeTruthy();
-      await doubleClick(fixture, ".o-chart-container");
-      expect(model.getters.getSelectedFigureId()).toBe("someuuid");
-      expect(document.querySelector(".o-sidePanel")).toBeTruthy();
+  test.each(TEST_CHART_TYPES)("Double click on chart will open sidepanel", async (chartType) => {
+    createTestChart(chartType);
+    await nextTick();
+    expect(document.querySelector(".o-chart-container")).toBeTruthy();
+    await doubleClick(fixture, ".o-chart-container");
+    expect(model.getters.getSelectedFigureId()).toBe("someuuid");
+    expect(document.querySelector(".o-sidePanel")).toBeTruthy();
+  });
+
+  test.each(TEST_CHART_TYPES)("can edit charts %s", async (chartType) => {
+    createTestChart(chartType);
+    await openChartConfigSidePanel();
+
+    const dataSeries = fixture.querySelectorAll(
+      ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
+    )[0] as HTMLInputElement;
+    const dataSeriesValues = dataSeries.querySelector("input");
+    const dispatch = spyDispatch(parent);
+    switch (chartType) {
+      case "combo":
+      case "basicChart":
+        await click(fixture.querySelector(".o-use-row-as-headers input[type=checkbox]")!);
+        expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
+          id: chartId,
+          sheetId,
+          definition: {
+            ...model.getters.getChartDefinition(chartId),
+            dataSetsHaveTitle: false,
+          },
+        });
+        break;
+      case "scorecard":
+        setInputValueAndTrigger(dataSeriesValues, "B2:B4");
+        await nextTick();
+        await simulateClick(".o-data-series .o-selection-ok");
+        const definition = model.getters.getChartDefinition(chartId) as ScorecardChart;
+        expect(definition.keyValue).toEqual("B2:B4");
+        break;
     }
-  );
-
-  test.each(["basicChart", "scorecard", "gauge"] as const)(
-    "can edit charts %s",
-    async (chartType) => {
-      createTestChart(chartType);
-      await openChartConfigSidePanel();
-
-      const dataSeries = fixture.querySelectorAll(
-        ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
-      )[0] as HTMLInputElement;
-      const dataSeriesValues = dataSeries.querySelector("input");
-      const dispatch = spyDispatch(parent);
-      switch (chartType) {
-        case "basicChart":
-          await click(fixture.querySelector(".o-use-row-as-headers input[type=checkbox]")!);
-          expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
-            id: chartId,
-            sheetId,
-            definition: {
-              ...model.getters.getChartDefinition(chartId),
-              dataSetsHaveTitle: false,
-            },
-          });
-          break;
-        case "scorecard":
-          setInputValueAndTrigger(dataSeriesValues, "B2:B4");
-          await nextTick();
-          await simulateClick(".o-data-series .o-selection-ok");
-          const definition = model.getters.getChartDefinition(chartId) as ScorecardChart;
-          expect(definition.keyValue).toEqual("B2:B4");
-          break;
-      }
-      await simulateClick(".o-panel .inactive");
-      setInputValueAndTrigger(".o-chart-title input", "hello");
-      expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
-        id: chartId,
-        sheetId,
-        definition: {
-          ...model.getters.getChartDefinition(chartId),
-          title: "hello",
-        },
-      });
-    }
-  );
+    await simulateClick(".o-panel .inactive");
+    setInputValueAndTrigger(".o-chart-title input", "hello");
+    expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
+      id: chartId,
+      sheetId,
+      definition: {
+        ...model.getters.getChartDefinition(chartId),
+        title: "hello",
+      },
+    });
+  });
 
   test("changing property and selecting another chart does not change first chart", async () => {
     createChart(
@@ -345,7 +350,7 @@ describe("charts", () => {
     expect(model.getters.getChartDefinition("2").title).toBe("new_title");
   });
 
-  test.each(["basicChart", "scorecard", "gauge"] as const)(
+  test.each(TEST_CHART_TYPES)(
     "defocusing sidepanel after modifying chart title w/o saving should maintain the new title %s",
     async (chartType) => {
       createTestChart(chartType);
@@ -360,7 +365,7 @@ describe("charts", () => {
     }
   );
 
-  test.each(["basicChart", "scorecard"] as const)(
+  test.each(["basicChart", "combo", "scorecard"] as const)(
     "can edit charts %s background",
     async (chartType) => {
       createTestChart(chartType);
@@ -389,7 +394,7 @@ describe("charts", () => {
           background: "#000000",
         },
       });
-      if (chartType === "basicChart") {
+      if (chartType === "basicChart" || chartType === "combo") {
         const figureCanvas = fixture.querySelector(".o-figure-canvas");
         expect(figureCanvas!.classList).toContain("w-100");
         expect(figureCanvas!.classList).toContain("h-100");
@@ -397,7 +402,7 @@ describe("charts", () => {
     }
   );
 
-  test.each(["basicChart", "scorecard", "gauge"] as const)(
+  test.each(TEST_CHART_TYPES)(
     "can close color picker when click elsewhere %s",
     async (chartType) => {
       createTestChart(chartType);
@@ -412,6 +417,7 @@ describe("charts", () => {
 
   test.each([
     ["basicChart", [".o-data-labels"], ["labelRange"]],
+    ["combo", [".o-data-labels"], ["labelRange"]],
     ["scorecard", [".o-data-labels"], ["baseline"]],
   ] as const)("remove ranges in chart %s", async (chartType, rangesDomClasses, nameInChartDef) => {
     createTestChart(chartType);
@@ -479,20 +485,17 @@ describe("charts", () => {
     expect(model.getters.getChart(chartId)?.sheetId).toBe(sheetId);
   });
 
-  test.each(["basicChart", "scorecard", "gauge"] as const)(
-    "deleting chart %s will close sidePanel",
-    async (chartType) => {
-      createTestChart(chartType);
-      await openChartConfigSidePanel();
+  test.each(TEST_CHART_TYPES)("deleting chart %s will close sidePanel", async (chartType) => {
+    createTestChart(chartType);
+    await openChartConfigSidePanel();
 
-      await simulateClick(".o-figure");
-      await simulateClick(".o-figure-menu-item");
-      await simulateClick(".o-menu div[data-name='delete']");
-      expect(() => model.getters.getChartRuntime("someuuid")).toThrow();
-      await nextTick();
-      expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeFalsy();
-    }
-  );
+    await simulateClick(".o-figure");
+    await simulateClick(".o-figure-menu-item");
+    await simulateClick(".o-menu div[data-name='delete']");
+    expect(() => model.getters.getChartRuntime("someuuid")).toThrow();
+    await nextTick();
+    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeFalsy();
+  });
 
   test("deleting another chart does not close the side panel", async () => {
     const figureId1 = "figureId1";
@@ -541,58 +544,50 @@ describe("charts", () => {
     expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeFalsy();
   });
 
-  describe.each(["basicChart", "scorecard", "gauge"] as const)(
-    "selecting other chart will adapt sidepanel",
-    (chartType) => {
-      test.each(["click", "SELECT_FIGURE command"])(
-        "when using %s",
-        async (selectMethod: string) => {
-          createTestChart(chartType);
-          createChart(
-            model,
-            {
-              dataSets: ["C1:C4"],
-              labelRange: "A2:A4",
-              title: "second",
-              type: "line",
-            },
-            "secondChartId"
-          );
-          await openChartConfigSidePanel();
-          expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
-
-          const figures = fixture.querySelectorAll(".o-figure");
-          if (selectMethod === "click") {
-            await simulateClick(figures[1]);
-          } else {
-            model.dispatch("SELECT_FIGURE", { id: "secondChartId" });
-          }
-
-          await nextTick();
-          const panelChartType = fixture.querySelectorAll(".o-sidePanel .o-input")[0];
-          const dataSeries = fixture.querySelectorAll(
-            ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
-          )[0];
-          const hasTitle = (
-            fixture.querySelector(".o-use-row-as-headers input[type=checkbox]") as HTMLInputElement
-          ).checked;
-          const labels = fixture.querySelector(".o-data-labels");
-          expect((panelChartType as HTMLSelectElement).value).toBe("line");
-          expect((dataSeries.querySelector(" .o-selection input") as HTMLInputElement).value).toBe(
-            "C1:C4"
-          );
-          expect(hasTitle).toBe(true);
-          expect((labels!.querySelector(".o-selection input") as HTMLInputElement).value).toBe(
-            "A2:A4"
-          );
-          await simulateClick(".o-panel .inactive");
-          expect((fixture.querySelector(".o-panel .inactive") as HTMLElement).textContent).toBe(
-            " Configuration "
-          );
-        }
+  describe.each(TEST_CHART_TYPES)("selecting other chart will adapt sidepanel", (chartType) => {
+    test.each(["click", "SELECT_FIGURE command"])("when using %s", async (selectMethod: string) => {
+      createTestChart(chartType);
+      createChart(
+        model,
+        {
+          dataSets: ["C1:C4"],
+          labelRange: "A2:A4",
+          title: "second",
+          type: "line",
+        },
+        "secondChartId"
       );
-    }
-  );
+      await openChartConfigSidePanel();
+      expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
+
+      const figures = fixture.querySelectorAll(".o-figure");
+      if (selectMethod === "click") {
+        await simulateClick(figures[1]);
+      } else {
+        model.dispatch("SELECT_FIGURE", { id: "secondChartId" });
+      }
+
+      await nextTick();
+      const panelChartType = fixture.querySelectorAll(".o-sidePanel .o-input")[0];
+      const dataSeries = fixture.querySelectorAll(
+        ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
+      )[0];
+      const hasTitle = (
+        fixture.querySelector(".o-use-row-as-headers input[type=checkbox]") as HTMLInputElement
+      ).checked;
+      const labels = fixture.querySelector(".o-data-labels");
+      expect((panelChartType as HTMLSelectElement).value).toBe("line");
+      expect((dataSeries.querySelector(" .o-selection input") as HTMLInputElement).value).toBe(
+        "C1:C4"
+      );
+      expect(hasTitle).toBe(true);
+      expect((labels!.querySelector(".o-selection input") as HTMLInputElement).value).toBe("A2:A4");
+      await simulateClick(".o-panel .inactive");
+      expect((fixture.querySelector(".o-panel .inactive") as HTMLElement).textContent).toBe(
+        " Configuration "
+      );
+    });
+  });
 
   test("Can remove the last data series", async () => {
     createTestChart("basicChart");
@@ -687,6 +682,7 @@ describe("charts", () => {
   describe("Chart error messages appear and don't need to click confirm", () => {
     test.each([
       ["basicChart" as const, []],
+      ["combo" as const, []],
       ["scorecard" as const, []],
     ])(
       "update %s with empty labels/baseline",
@@ -705,7 +701,7 @@ describe("charts", () => {
       }
     );
 
-    test.each(["basicChart", "scorecard", "gauge"] as const)(
+    test.each(TEST_CHART_TYPES)(
       "update chart with valid dataset/keyValue/dataRange show confirm button",
       async (chartType) => {
         createTestChart(chartType);
@@ -717,7 +713,7 @@ describe("charts", () => {
       }
     );
 
-    test.each(["basicChart", "scorecard", "gauge"] as const)(
+    test.each(TEST_CHART_TYPES)(
       "update chart with invalid dataset/keyValue/dataRange hide confirm button",
       async (chartType) => {
         createTestChart(chartType);
@@ -740,7 +736,7 @@ describe("charts", () => {
       expect(model.getters.getChartDefinition(chartId)).toMatchObject(TEST_CHART_DATA.basicChart);
     });
 
-    test.each(["basicChart", "scorecard", "gauge"] as const)(
+    test.each(TEST_CHART_TYPES)(
       "Clicking on reset button on dataset/keyValue/dataRange put back the last valid dataset/keyValue/dataRange",
       async (chartType) => {
         createTestChart(chartType);
@@ -760,7 +756,7 @@ describe("charts", () => {
       }
     );
 
-    test.each(["basicChart", "scorecard"] as const)(
+    test.each(["basicChart", "combo", "scorecard"] as const)(
       "resetting chart label works as expected",
       async (chartType) => {
         createTestChart(chartType);
@@ -927,7 +923,7 @@ describe("charts", () => {
     });
   });
 
-  test.each(["basicChart", "scorecard"] as const)(
+  test.each(["basicChart", "combo", "scorecard"] as const)(
     "Can open context menu on right click",
     async (chartType) => {
       createTestChart(chartType);
@@ -938,7 +934,7 @@ describe("charts", () => {
     }
   );
 
-  test.each(["basicChart", "scorecard", "gauge"] as const)(
+  test.each(TEST_CHART_TYPES)(
     "Can edit a chart with empty main range without traceback",
     async (chartType) => {
       createTestChart(chartType);
@@ -1133,9 +1129,9 @@ describe("charts", () => {
     beforeEach(async () => {
       ({ parent, fixture, model } = await mountSpreadsheet({ model: new Model() }));
     });
-    test.each(["bar", "pie", "line", "scatter"] as const)(
+    test.each(["bar", "pie", "line", "scatter", "combo"] as const)(
       "aggregate checkbox is checked for string-count charts",
-      async (type: "bar" | "pie" | "line" | "scatter") => {
+      async (type: "bar" | "pie" | "line" | "scatter" | "combo") => {
         setCellContent(model, "A1", "London");
         setCellContent(model, "A2", "Berlin");
         setCellContent(model, "A3", "Paris");

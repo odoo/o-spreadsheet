@@ -1,6 +1,7 @@
 import { Range } from "../../types";
 import { XlsxHexColor } from "../xlsx";
 import { BarChartDefinition, BarChartRuntime } from "./bar_chart";
+import { ComboChartDefinition, ComboChartRuntime } from "./combo_chart";
 import { LegendPosition, VerticalAxisPosition } from "./common_chart";
 import { GaugeChartDefinition, GaugeChartRuntime } from "./gauge_chart";
 import { LineChartDefinition, LineChartRuntime } from "./line_chart";
@@ -8,7 +9,15 @@ import { PieChartDefinition, PieChartRuntime } from "./pie_chart";
 import { ScatterChartDefinition, ScatterChartRuntime } from "./scatter_chart";
 import { ScorecardChartDefinition, ScorecardChartRuntime } from "./scorecard_chart";
 
-export const CHART_TYPES = ["line", "bar", "pie", "scorecard", "gauge", "scatter"] as const;
+export const CHART_TYPES = [
+  "line",
+  "bar",
+  "pie",
+  "scorecard",
+  "gauge",
+  "scatter",
+  "combo",
+] as const;
 export type ChartType = (typeof CHART_TYPES)[number];
 
 export type ChartDefinition =
@@ -17,12 +26,14 @@ export type ChartDefinition =
   | BarChartDefinition
   | ScorecardChartDefinition
   | GaugeChartDefinition
-  | ScatterChartDefinition;
+  | ScatterChartDefinition
+  | ComboChartDefinition;
 
 export type ChartJSRuntime =
   | LineChartRuntime
   | PieChartRuntime
   | BarChartRuntime
+  | ComboChartRuntime
   | ScatterChartRuntime;
 
 export type ChartRuntime = ChartJSRuntime | ScorecardChartRuntime | GaugeChartRuntime;
@@ -42,13 +53,14 @@ export type AxisType = "category" | "linear" | "time";
 export interface DataSet {
   readonly labelCell?: Range; // range of the label
   readonly dataRange: Range; // range of the data
+  readonly rightYAxis?: boolean; // if the dataset should be on the right Y axis
 }
 export interface ExcelChartDataset {
   readonly label?: string;
   readonly range: string;
 }
 
-export type ExcelChartType = "line" | "bar" | "pie";
+export type ExcelChartType = "line" | "bar" | "pie" | "combo";
 
 export interface ExcelChartDefinition {
   readonly title?: string;
@@ -69,4 +81,5 @@ export interface ChartCreationContext {
   readonly background?: string;
   readonly auxiliaryRange?: string;
   readonly aggregated?: boolean;
+  readonly type?: string;
 }
