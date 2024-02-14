@@ -148,4 +148,42 @@
     </xdr:graphicFrame>
     <xdr:clientData fLocksWithSheet="0"/>
   </xdr:twoCellAnchor>
+  <xdr:twoCellAnchor>
+    <xdr:from>
+      <xdr:col>7</xdr:col>
+      <xdr:colOff>0</xdr:colOff>
+      <xdr:row>57</xdr:row>
+      <xdr:rowOff>0</xdr:rowOff>
+    </xdr:from>
+    <xdr:to>
+      <xdr:col>11</xdr:col>
+      <xdr:colOff>152400</xdr:colOff>
+      <xdr:row>70</xdr:row>
+      <xdr:rowOff>9525</xdr:rowOff>
+    </xdr:to>
+    <xdr:graphicFrame macro="">
+      <xdr:nvGraphicFramePr>
+        <xdr:cNvPr id="8" name="Chart 2" title="Chart">
+          <a:extLst>
+            <a:ext uri="{FF2B5EF4-FFF2-40B4-BE49-F238E27FC236}">
+              <a16:creationId xmlns:a16="http://schemas.microsoft.com/office/drawing/2014/main" id="{A5685A00-859E-4641-A529-E7042819F3BF}"/>
+            </a:ext>
+          </a:extLst>
+        </xdr:cNvPr>
+        <xdr:cNvGraphicFramePr>
+          <a:graphicFrameLocks/>
+        </xdr:cNvGraphicFramePr>
+      </xdr:nvGraphicFramePr>
+      <xdr:xfrm>
+        <a:off x="0" y="0"/>
+        <a:ext cx="0" cy="0"/>
+      </xdr:xfrm>
+      <a:graphic>
+        <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/chart">
+          <c:chart xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:id="rId5"/>
+        </a:graphicData>
+      </a:graphic>
+    </xdr:graphicFrame>
+    <xdr:clientData fLocksWithSheet="0"/>
+  </xdr:twoCellAnchor>
 </xdr:wsDr>

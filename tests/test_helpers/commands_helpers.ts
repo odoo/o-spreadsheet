@@ -23,6 +23,7 @@ import {
 import { target, toRangeData, toRangesData } from "./helpers";
 
 import { BarChartDefinition } from "../../src/types/chart/bar_chart";
+import { ComboChartDefinition } from "../../src/types/chart/combo_chart";
 import { GaugeChartDefinition } from "../../src/types/chart/gauge_chart";
 import { LineChartDefinition } from "../../src/types/chart/line_chart";
 import { PieChartDefinition } from "../../src/types/chart/pie_chart";
@@ -138,7 +139,11 @@ export function createImage(
 export function createChart(
   model: Model,
   data: Partial<
-    LineChartDefinition | BarChartDefinition | PieChartDefinition | ScatterChartDefinition
+    | LineChartDefinition
+    | BarChartDefinition
+    | PieChartDefinition
+    | ScatterChartDefinition
+    | ComboChartDefinition
   >,
   chartId?: UID,
   sheetId?: UID
@@ -162,6 +167,33 @@ export function createChart(
       labelsAsText: ("labelsAsText" in data && data.labelsAsText) || false,
       aggregated: ("aggregated" in data && data.aggregated) || false,
       cumulative: ("cumulative" in data && data.cumulative) || false,
+    },
+  });
+}
+
+export function createComboChart(
+  model: Model,
+  data: Partial<ComboChartDefinition>,
+  chartId?: UID,
+  sheetId?: UID
+) {
+  const id = chartId || model.uuidGenerator.uuidv4();
+  sheetId = sheetId || model.getters.getActiveSheetId();
+
+  return model.dispatch("CREATE_CHART", {
+    id,
+    sheetId,
+    definition: {
+      title: data.title || "test",
+      dataSets: data.dataSets || [],
+      dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
+      labelRange: data.labelRange,
+      type: "combo",
+      background: data.background,
+      verticalAxisPosition: ("verticalAxisPosition" in data && data.verticalAxisPosition) || "left",
+      legendPosition: data.legendPosition || "top",
+      aggregated: ("aggregated" in data && data.aggregated) || false,
+      useBothYAxis: data.useBothYAxis || false,
     },
   });
 }

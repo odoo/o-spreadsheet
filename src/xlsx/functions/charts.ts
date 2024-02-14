@@ -68,6 +68,9 @@ export function createChart(
     case "bar":
       plot = addBarChart(chart.data);
       break;
+    case "combo":
+      plot = addComboChart(chart.data);
+      break;
     case "line":
       plot = addLineChart(chart.data);
       break;
@@ -246,6 +249,89 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
       <c:axId val="${catAxId}" />
       <c:axId val="${valAxId}" />
     </c:barChart>
+    ${addAx("b", "c:catAx", catAxId, valAxId, { fontColor: chart.fontColor })}
+    ${addAx(axisPos, "c:valAx", valAxId, catAxId, { fontColor: chart.fontColor })}
+  `;
+}
+
+function addComboChart(chart: ExcelChartDefinition): XMLString {
+  // gapWitdh and overlap that define the space between clusters (in %) and the overlap between datasets (from -100: completely scattered to 100, completely overlapped)
+  // see gapWidth : https://c-rex.net/projects/samples/ooxml/e1/Part4/OOXML_P4_DOCX_gapWidth_topic_ID0EFVEQB.html#topic_ID0EFVEQB
+  // see overlap : https://c-rex.net/projects/samples/ooxml/e1/Part4/OOXML_P4_DOCX_overlap_topic_ID0ELYQQB.html#topic_ID0ELYQQB
+  //
+  // overlap and gapWitdh seems to be by default at -20 and 20 in chart.js.
+  // See https://www.chartjs.org/docs/latest/charts/bar.html and https://www.chartjs.org/docs/latest/charts/bar.html#barpercentage-vs-categorypercentage
+  const colors = new ChartColors();
+  const dataSetsNodes: XMLString[] = [];
+  for (const [dsIndex, dataset] of Object.entries(chart.dataSets)) {
+    const color = toXlsxHexColor(colors.next());
+    const dataShapeProperty = shapeProperty({
+      backgroundColor: color,
+      line: { color },
+    });
+
+    dataSetsNodes.push(
+      dsIndex === "0"
+        ? escapeXml/*xml*/ `
+      <c:ser>
+        <c:idx val="${dsIndex}"/>
+        <c:order val="${dsIndex}"/>
+        ${dataset.label ? escapeXml/*xml*/ `<c:tx>${stringRef(dataset.label!)}</c:tx>` : ""}
+        ${dataShapeProperty}
+        ${
+          chart.labelRange ? escapeXml/*xml*/ `<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""
+        } <!-- x-coordinate values -->
+        <c:val> <!-- x-coordinate values -->
+          ${numberRef(dataset.range)}
+        </c:val>
+      </c:ser>
+      `
+        : escapeXml/*xml*/ `
+      <c:ser>
+        <c:idx val="${dsIndex}"/>
+        <c:order val="${dsIndex}"/>
+        <c:smooth val="0"/>
+        <c:marker>
+          <c:symbol val="circle" />
+          <c:size val="5"/>
+        </c:marker>
+        ${dataset.label ? escapeXml`<c:tx>${stringRef(dataset.label!)}</c:tx>` : ""}
+        ${dataShapeProperty}
+        ${
+          chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""
+        } <!-- x-coordinate values -->
+        <c:val> <!-- x-coordinate values -->
+          ${numberRef(dataset.range)}
+        </c:val>
+      </c:ser>
+      `
+    );
+  }
+
+  // Excel does not support this feature
+  const axisPos = chart.verticalAxisPosition === "left" ? "l" : "r";
+
+  const overlap = chart.stacked ? 100 : -20;
+  return escapeXml/*xml*/ `
+    <c:barChart>
+      <c:barDir val="col"/>
+      <c:grouping val="clustered"/>
+      <c:overlap val="${overlap}"/>
+      <c:gapWidth val="70"/>
+      <!-- each data marker in the series does not have a different color -->
+      <c:varyColors val="0"/>
+      ${dataSetsNodes[0]}
+      <c:axId val="${catAxId}" />
+      <c:axId val="${valAxId}" />
+    </c:barChart>
+    <c:lineChart>
+      <c:grouping val="standard"/>
+      <!-- each data marker in the series does not have a different color -->
+      <c:varyColors val="0"/>
+      ${joinXmlNodes(dataSetsNodes.slice(1))}
+      <c:axId val="${catAxId}" />
+      <c:axId val="${valAxId}" />
+    </c:lineChart>
     ${addAx("b", "c:catAx", catAxId, valAxId, { fontColor: chart.fontColor })}
     ${addAx(axisPos, "c:valAx", valAxId, catAxId, { fontColor: chart.fontColor })}
   `;
