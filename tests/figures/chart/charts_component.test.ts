@@ -53,11 +53,8 @@ function createTestChart(type: AllChartType, newChartId = chartId) {
     case "basicChart":
       createChart(model, TEST_CHART_DATA.basicChart, newChartId);
       break;
-    case "line":
-    case "bar":
-    case "pie":
-    case "scatter":
-      createChart(model, { ...TEST_CHART_DATA.basicChart, type }, newChartId);
+    default:
+      createChart(model, { ...TEST_CHART_DATA.basicChart, type }, chartId);
       break;
   }
 }

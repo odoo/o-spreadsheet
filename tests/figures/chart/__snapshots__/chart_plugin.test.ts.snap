@@ -347,6 +347,7 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
             30,
           ],
           "label": "P4",
+          "yAxisID": "y",
         },
       ],
       "labels": [

@@ -4,7 +4,6 @@ import { zoneToXc } from "../../../src/helpers";
 import { ChartDefinition, UID } from "../../../src/types";
 import {
   BarChartDefinition,
-  BarChartRuntime,
   ChartJSRuntime,
   LineChartDefinition,
   LineChartRuntime,
@@ -16,6 +15,7 @@ import {
   addColumns,
   addRows,
   createChart,
+  createComboChart,
   createSheet,
   createSheetWithName,
   deleteColumns,
@@ -36,6 +36,7 @@ import { ChartTerms } from "../../../src/components/translations_terms";
 import { FIGURE_ID_SPLITTER } from "../../../src/constants";
 import { BarChart } from "../../../src/helpers/figures/charts";
 import { ChartPlugin } from "../../../src/plugins/core";
+import { ComboBarChartRuntime } from "../../../src/types/chart/common_bar_combo";
 import { FR_LOCALE } from "../../test_helpers/constants";
 
 jest.mock("../../../src/helpers/uuid", () => require("../../__mocks__/uuid"));
@@ -345,7 +346,7 @@ describe("datasource tests", function () {
       { dataSets: ["B7:B8"], dataSetsHaveTitle: true, labelRange: "B7", type: chartType },
       "1"
     );
-    const title = (model.getters.getChartRuntime("1") as BarChartRuntime | LineChartRuntime)
+    const title = (model.getters.getChartRuntime("1") as ComboBarChartRuntime | LineChartRuntime)
       ?.chartJsConfig?.options?.plugins?.tooltip?.callbacks?.title;
     expect(title).toBeUndefined();
   });
@@ -407,7 +408,7 @@ describe("datasource tests", function () {
       dataSetsHaveTitle: true,
       title: "hello1",
     });
-    chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
+    chart = (model.getters.getChartRuntime("1") as ComboBarChartRuntime).chartJsConfig;
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       dataSets: ["A8:D8", "A9:D9"],
       labelRange: "Sheet1!C7:D7",
@@ -729,7 +730,7 @@ describe("datasource tests", function () {
       },
       "1"
     );
-    const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
+    const chart = (model.getters.getChartRuntime("1") as ComboBarChartRuntime).chartJsConfig;
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       dataSets: ["B1:B4"],
       labelRange: "Sheet1!A2:A4",
@@ -839,7 +840,7 @@ describe("datasource tests", function () {
       labelRange: "Sheet1!A2:A5",
       dataSetsHaveTitle: true,
     });
-    const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
+    const chart = (model.getters.getChartRuntime("1") as ComboBarChartRuntime).chartJsConfig;
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13]);
     expect(chart.data!.datasets![1].data).toEqual([20, 19, 18, 17]);
   });
@@ -858,7 +859,7 @@ describe("datasource tests", function () {
       labelRange: "Sheet1!A2:A5",
       dataSetsHaveTitle: true,
     });
-    const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
+    const chart = (model.getters.getChartRuntime("1") as ComboBarChartRuntime).chartJsConfig;
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
   });
 
@@ -1028,11 +1029,11 @@ describe("title", function () {
       },
       "1"
     );
-    let chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
+    let chart = (model.getters.getChartRuntime("1") as ComboBarChartRuntime).chartJsConfig;
     expect(chart.options!.plugins!.title!.text).toEqual("title");
 
     updateChart(model, "1", { title: "newTitle" });
-    chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
+    chart = (model.getters.getChartRuntime("1") as ComboBarChartRuntime).chartJsConfig;
     expect(chart.options!.plugins!.title!.text).toEqual("newTitle");
   });
 
@@ -1047,13 +1048,13 @@ describe("title", function () {
       "1"
     );
     expect(
-      (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig.options?.plugins?.title
-        ?.display
+      (model.getters.getChartRuntime("1") as ComboBarChartRuntime).chartJsConfig.options?.plugins
+        ?.title?.display
     ).toBe(true);
     updateChart(model, "1", { title: "" });
     expect(
-      (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig.options?.plugins?.title
-        ?.display
+      (model.getters.getChartRuntime("1") as ComboBarChartRuntime).chartJsConfig.options?.plugins
+        ?.title?.display
     ).toBe(false);
   });
 });
@@ -1069,7 +1070,7 @@ describe("multiple sheets", function () {
       },
       "1"
     );
-    const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
+    const chart = (model.getters.getChartRuntime("1") as ComboBarChartRuntime).chartJsConfig;
     const chartDefinition = model.getters.getChartDefinition("1");
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     expect(chart.data!.datasets![1].data).toEqual([20, 19, 18]);
@@ -1087,7 +1088,7 @@ describe("multiple sheets", function () {
       },
       "1"
     );
-    const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
+    const chart = (model.getters.getChartRuntime("1") as ComboBarChartRuntime).chartJsConfig;
     const chartDefinition = model.getters.getChartDefinition("1");
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3"]);
     expect(chartDefinition).toMatchObject({
@@ -1112,7 +1113,7 @@ describe("multiple sheets", function () {
       content: "99",
     });
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "Sheet1", sheetIdTo: "42" });
-    const chart = (model.getters.getChartRuntime("28") as BarChartRuntime).chartJsConfig;
+    const chart = (model.getters.getChartRuntime("28") as ComboBarChartRuntime).chartJsConfig;
     expect(chart.data!.datasets![0].data).toEqual([99, 11, 12]);
   });
   test("change dataset label then activate the chart sheet (it should be up-to-date)", () => {
@@ -1133,7 +1134,7 @@ describe("multiple sheets", function () {
       content: "miam",
     });
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: "Sheet1", sheetIdTo: "42" });
-    const chart = (model.getters.getChartRuntime("28") as BarChartRuntime).chartJsConfig;
+    const chart = (model.getters.getChartRuntime("28") as ComboBarChartRuntime).chartJsConfig;
     expect(chart.data!.labels).toEqual(["P1", "miam", "P3"]);
   });
   test("create a chart with data from another sheet", () => {
@@ -1146,7 +1147,7 @@ describe("multiple sheets", function () {
       },
       "28"
     );
-    const chart = (model.getters.getChartRuntime("28") as BarChartRuntime).chartJsConfig;
+    const chart = (model.getters.getChartRuntime("28") as ComboBarChartRuntime).chartJsConfig;
     const chartDefinition = model.getters.getChartDefinition("28");
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
     expect(chart.data!.datasets![1].data).toEqual([20, 19, 18]);
@@ -1291,19 +1292,19 @@ describe("Chart without labels", () => {
   test("The legend is not displayed when there is only one dataSet and no label", () => {
     createChart(model, defaultChart, "42");
     expect(
-      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig?.options?.plugins
+      (model.getters.getChartRuntime("42") as ComboBarChartRuntime).chartJsConfig?.options?.plugins
         ?.legend?.display
     ).toBe(false);
 
     createChart(model, { ...defaultChart, dataSets: ["A1:A2", "A3:A4"] }, "43");
     expect(
-      (model.getters.getChartRuntime("43") as BarChartRuntime).chartJsConfig?.options?.plugins
+      (model.getters.getChartRuntime("43") as ComboBarChartRuntime).chartJsConfig?.options?.plugins
         ?.legend?.display
     ).toBeUndefined();
 
     createChart(model, { ...defaultChart, labelRange: "B1:B2" }, "44");
     expect(
-      (model.getters.getChartRuntime("44") as BarChartRuntime).chartJsConfig?.options?.plugins
+      (model.getters.getChartRuntime("44") as ComboBarChartRuntime).chartJsConfig?.options?.plugins
         ?.legend?.display
     ).toBeUndefined();
   });
@@ -1313,25 +1314,53 @@ describe("Chart without labels", () => {
     setCellContent(model, "A2", "2");
     createChart(model, defaultChart, "42");
     expect(
-      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig?.data?.labels
+      (model.getters.getChartRuntime("42") as ComboBarChartRuntime).chartJsConfig?.data?.labels
     ).toEqual(["", ""]);
 
     createChart(model, { ...defaultChart, dataSets: ["A1:A2", "A3:A4"] }, "43");
     expect(
-      (model.getters.getChartRuntime("43") as BarChartRuntime).chartJsConfig?.data?.datasets![0]
-        .label
+      (model.getters.getChartRuntime("43") as ComboBarChartRuntime).chartJsConfig?.data
+        ?.datasets![0].label
     ).toEqual(`${ChartTerms.Series.toString()} 1`);
     expect(
-      (model.getters.getChartRuntime("43") as BarChartRuntime).chartJsConfig?.data?.datasets![1]
-        .label
+      (model.getters.getChartRuntime("43") as ComboBarChartRuntime).chartJsConfig?.data
+        ?.datasets![1].label
     ).toEqual(`${ChartTerms.Series.toString()} 2`);
 
     setCellContent(model, "B1", "B1");
     setCellContent(model, "B2", "B2");
     createChart(model, { ...defaultChart, labelRange: "B1:B2" }, "44");
     expect(
-      (model.getters.getChartRuntime("44") as BarChartRuntime).chartJsConfig.data?.labels
+      (model.getters.getChartRuntime("44") as ComboBarChartRuntime).chartJsConfig.data?.labels
     ).toEqual(["B1", "B2"]);
+  });
+
+  test("Combo chart has both line and bar", () => {
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "2");
+    setCellContent(model, "A3", "3");
+    setCellContent(model, "A4", "4");
+    setCellContent(model, "A5", "5");
+    setCellContent(model, "A6", "6");
+
+    createComboChart(model, { dataSets: ["A1:A2", "A3:A4", "A5:A6"] }, "43");
+    const config = (model.getters.getChartRuntime("43") as ComboBarChartRuntime).chartJsConfig;
+    expect(config?.data?.datasets![0].type).toEqual("bar");
+    expect(config?.data?.datasets![1].type).toEqual("line");
+  });
+
+  test("Combo chart correctly use right axis if set up in definition", () => {
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "2");
+    setCellContent(model, "A3", "3");
+    setCellContent(model, "A4", "4");
+    setCellContent(model, "A5", "5");
+    setCellContent(model, "A6", "6");
+
+    createComboChart(model, { dataSets: ["A1:A2", "A3:A4", "A5:A6"], useBothYAxis: true }, "43");
+    const config = (model.getters.getChartRuntime("43") as ComboBarChartRuntime).chartJsConfig;
+    expect(config?.data?.datasets![0]["yAxisID"]).toEqual("y");
+    expect(config?.data?.datasets![1]["yAxisID"]).toEqual("y1");
   });
 });
 
@@ -1352,25 +1381,25 @@ describe("Chart design configuration", () => {
   test("Legend position", () => {
     createChart(model, defaultChart, "42");
     expect(
-      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.plugins
+      (model.getters.getChartRuntime("42") as ComboBarChartRuntime).chartJsConfig.options?.plugins
         ?.legend?.position
     ).toBe("top");
 
     updateChart(model, "42", { legendPosition: "left" });
     expect(
-      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.plugins
+      (model.getters.getChartRuntime("42") as ComboBarChartRuntime).chartJsConfig.options?.plugins
         ?.legend?.position
     ).toBe("left");
 
     updateChart(model, "42", { legendPosition: "right" });
     expect(
-      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.plugins
+      (model.getters.getChartRuntime("42") as ComboBarChartRuntime).chartJsConfig.options?.plugins
         ?.legend?.position
     ).toBe("right");
 
     updateChart(model, "42", { legendPosition: "bottom" });
     expect(
-      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.plugins
+      (model.getters.getChartRuntime("42") as ComboBarChartRuntime).chartJsConfig.options?.plugins
         ?.legend?.position
     ).toBe("bottom");
   });
@@ -1406,14 +1435,14 @@ describe("Chart design configuration", () => {
     expect(
       // @ts-ignore
       // prettier-ignore
-      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.scales?.y?.position
+      (model.getters.getChartRuntime("42") as ComboBarChartRuntime).chartJsConfig.options?.scales?.y?.position
     ).toBe("left");
 
     updateChart(model, "42", { verticalAxisPosition: "right" });
     expect(
       // @ts-ignore
       // prettier-ignore
-      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.scales?.y?.position
+      (model.getters.getChartRuntime("42") as ComboBarChartRuntime).chartJsConfig.options?.scales?.y?.position
     ).toBe("right");
   });
 
@@ -1441,7 +1470,7 @@ describe("Chart design configuration", () => {
     });
 
     createChart(model, { labelRange: "A2:A6", dataSets: ["B1:B15", "C1:C15"] }, "1");
-    const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
+    const chart = (model.getters.getChartRuntime("1") as ComboBarChartRuntime).chartJsConfig;
     expect(chart.data!.labels).toEqual(["P1", "", ""]);
     expect(chart.data!.datasets![0].data).toEqual([null, 10, null]);
     expect(chart.data!.datasets![1].data).toEqual([null, null, 20]);
@@ -1452,7 +1481,7 @@ describe("Chart design configuration", () => {
     // corresponding label would be A8, but it's not part of the label range
     setCellContent(model, "B8", "30");
     createChart(model, { labelRange: "A2:A3", dataSets: ["B1:B15"] }, "1");
-    const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
+    const chart = (model.getters.getChartRuntime("1") as ComboBarChartRuntime).chartJsConfig;
     expect(chart.data!.labels).toEqual([""]);
     expect(chart.data!.datasets![0].data).toEqual([30]);
   });
@@ -1462,7 +1491,7 @@ describe("Chart design configuration", () => {
     // corresponding value would be B8, but it's not part of the data range
     setCellContent(model, "A8", "P1");
     createChart(model, { labelRange: "A2:A15", dataSets: ["B1:B3"] }, "1");
-    const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
+    const chart = (model.getters.getChartRuntime("1") as ComboBarChartRuntime).chartJsConfig;
     expect(chart.data!.labels).toEqual(["P1"]);
     expect(chart.data!.datasets![0].data).toEqual([undefined]);
   });
@@ -1470,7 +1499,7 @@ describe("Chart design configuration", () => {
   test("no data points at all", () => {
     const model = new Model();
     createChart(model, { labelRange: "A2:A3", dataSets: ["B1:B3"] }, "1");
-    const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
+    const chart = (model.getters.getChartRuntime("1") as ComboBarChartRuntime).chartJsConfig;
     expect(chart.data!.labels).toEqual([]);
     expect(chart.data!.datasets![0].data).toEqual([]);
   });
@@ -1485,7 +1514,7 @@ describe("Chart design configuration", () => {
         ...formatting,
       });
       createChart(model, { labelRange: "A2:A3", dataSets: ["B1:B3"] }, "1");
-      const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
+      const chart = (model.getters.getChartRuntime("1") as ComboBarChartRuntime).chartJsConfig;
       expect(chart.data!.labels).toEqual([]);
       expect(chart.data!.datasets![0].data).toEqual([]);
     }
@@ -1501,7 +1530,7 @@ describe("Chart design configuration", () => {
         ...formatting,
       });
       createChart(model, { labelRange: "A2:A3", dataSets: ["B1:B3"] }, "1");
-      const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
+      const chart = (model.getters.getChartRuntime("1") as ComboBarChartRuntime).chartJsConfig;
       expect(chart.data!.labels).toEqual([]);
       expect(chart.data!.datasets![0].data).toEqual([]);
     }
@@ -1511,7 +1540,7 @@ describe("Chart design configuration", () => {
     const model = new Model();
     setCellContent(model, "B2", "0");
     createChart(model, { labelRange: "A2:A3", dataSets: ["B1:B3"] }, "1");
-    const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
+    const chart = (model.getters.getChartRuntime("1") as ComboBarChartRuntime).chartJsConfig;
     expect(chart.data!.labels).toEqual([""]);
     expect(chart.data!.datasets![0].data).toEqual([0]);
   });
@@ -1520,21 +1549,21 @@ describe("Chart design configuration", () => {
     const model = new Model();
     setCellContent(model, "A2", "0");
     createChart(model, { labelRange: "A2:A3", dataSets: ["B1:B3"] }, "1");
-    const chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
+    const chart = (model.getters.getChartRuntime("1") as ComboBarChartRuntime).chartJsConfig;
     expect(chart.data!.labels).toEqual(["0"]);
     expect(chart.data!.datasets![0].data).toEqual([null]);
   });
 
   test("Changing the format of a cell reevaluates a chart runtime", () => {
     const model = new Model();
-    let chart: BarChartRuntime;
+    let chart: ComboBarChartRuntime;
     setCellContent(model, "A2", "2022/03/01");
     setCellContent(model, "A3", "2022/03/02");
     createChart(model, { labelRange: "A2:A3", dataSets: ["B2:B3"], dataSetsHaveTitle: false }, "1");
-    chart = model.getters.getChartRuntime("1") as BarChartRuntime;
+    chart = model.getters.getChartRuntime("1") as ComboBarChartRuntime;
     expect(chart.chartJsConfig.data!.labels).toEqual(["2022/03/01", "2022/03/02"]);
     setCellFormat(model, "A2", "m/d/yyyy");
-    chart = model.getters.getChartRuntime("1") as BarChartRuntime;
+    chart = model.getters.getChartRuntime("1") as ComboBarChartRuntime;
     expect(chart.chartJsConfig.data!.labels).toEqual(["3/1/2022", "2022/03/02"]);
   });
 
@@ -1565,7 +1594,7 @@ describe("Chart design configuration", () => {
       "Bar/Line chart Y axis, cell without format: thousand separator",
       (chartType) => {
         createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
-        const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
+        const runtime = model.getters.getChartRuntime("42") as ComboBarChartRuntime;
         //@ts-ignore
         expect(runtime.chartJsConfig.options.scales.y?.ticks.callback!(60000000)).toEqual(
           "60,000,000"
@@ -1578,7 +1607,7 @@ describe("Chart design configuration", () => {
       (chartType) => {
         updateLocale(model, FR_LOCALE);
         createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
-        const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
+        const runtime = model.getters.getChartRuntime("42") as ComboBarChartRuntime;
         //@ts-ignore
         expect(runtime.chartJsConfig.options.scales.y?.ticks.callback!(60000000)).toEqual(
           "60 000 000"
@@ -1591,7 +1620,7 @@ describe("Chart design configuration", () => {
       (chartType) => {
         setCellFormat(model, "A2", "[$$]#,##0.00");
         createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
-        const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
+        const runtime = model.getters.getChartRuntime("42") as ComboBarChartRuntime;
         //@ts-ignore
         expect(runtime.chartJsConfig.options.scales.y?.ticks.callback!(60000000)).toEqual(
           "$60,000,000.00"
@@ -1604,7 +1633,7 @@ describe("Chart design configuration", () => {
       (chartType) => {
         setCellFormat(model, "A2", "m/d/yyyy");
         createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
-        const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
+        const runtime = model.getters.getChartRuntime("42") as ComboBarChartRuntime;
         //@ts-ignore
         expect(runtime.chartJsConfig.options.scales.y?.ticks.callback!(600)).toEqual("600");
       }
@@ -1615,7 +1644,7 @@ describe("Chart design configuration", () => {
       (chartType) => {
         setCellContent(model, "A2", "60000000");
         createChart(model, { ...defaultChart, type: chartType as "bar" | "line" | "pie" }, "42");
-        const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
+        const runtime = model.getters.getChartRuntime("42") as ComboBarChartRuntime;
         const label = getTooltipLabel(runtime, 0, 0);
 
         expect(label).toEqual("60,000,000");
@@ -1626,7 +1655,7 @@ describe("Chart design configuration", () => {
       setCellContent(model, "A2", "6000");
       setCellFormat(model, "A2", "[$$]#,##0.00");
       createChart(model, { ...defaultChart, type: chartType as "bar" | "line" | "pie" }, "42");
-      const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
+      const runtime = model.getters.getChartRuntime("42") as ComboBarChartRuntime;
       const label = getTooltipLabel(runtime, 0, 0);
       expect(label).toEqual("$6,000.00");
     });
@@ -1635,7 +1664,7 @@ describe("Chart design configuration", () => {
       setCellContent(model, "A2", "6000");
       setCellFormat(model, "A2", "m/d/yyyy");
       createChart(model, { ...defaultChart, type: chartType as "bar" | "line" | "pie" }, "42");
-      const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
+      const runtime = model.getters.getChartRuntime("42") as ComboBarChartRuntime;
       const label = getTooltipLabel(runtime, 0, 0);
       expect(label).toEqual("6,000");
     });
@@ -1766,12 +1795,13 @@ describe("Chart aggregate labels", () => {
     (type) => {
       createChart(aggregatedModel, aggregatedChart, "42");
       updateChart(aggregatedModel, "42", { type });
-      let chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+      let chart = (aggregatedModel.getters.getChartRuntime("42") as ComboBarChartRuntime)
+        .chartJsConfig;
       expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13, 14, 15, 16, 17]);
       expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4", "P1", "P2", "P3", "P4"]);
 
       updateChart(aggregatedModel, "42", { aggregated: true });
-      chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+      chart = (aggregatedModel.getters.getChartRuntime("42") as ComboBarChartRuntime).chartJsConfig;
       expect(chart.data!.datasets![0].data).toEqual([24, 26, 28, 30]);
       expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
     }
@@ -1782,7 +1812,8 @@ describe("Chart aggregate labels", () => {
     setCellContent(aggregatedModel, "B3", "");
     setCellContent(aggregatedModel, "B6", "");
     updateChart(aggregatedModel, "42", { aggregated: true });
-    const chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+    const chart = (aggregatedModel.getters.getChartRuntime("42") as ComboBarChartRuntime)
+      .chartJsConfig;
     expect(chart.data!.datasets![0].data).toEqual([10, 15, 28, 30]);
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
   });
@@ -1792,7 +1823,8 @@ describe("Chart aggregate labels", () => {
     setCellContent(aggregatedModel, "B2", "");
     setCellContent(aggregatedModel, "B6", "");
     updateChart(aggregatedModel, "42", { aggregated: true });
-    const chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+    const chart = (aggregatedModel.getters.getChartRuntime("42") as ComboBarChartRuntime)
+      .chartJsConfig;
     expect(chart.data!.datasets![0].data).toEqual([0, 26, 28, 30]);
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
   });
@@ -1802,7 +1834,8 @@ describe("Chart aggregate labels", () => {
     setCellContent(aggregatedModel, "B3", "I am a string");
     setCellContent(aggregatedModel, "B6", "I am a string too");
     updateChart(aggregatedModel, "42", { aggregated: true });
-    const chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+    const chart = (aggregatedModel.getters.getChartRuntime("42") as ComboBarChartRuntime)
+      .chartJsConfig;
     expect(chart.data!.datasets![0].data).toEqual([10, 15, 28, 30]);
     expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
   });
@@ -1816,13 +1849,14 @@ describe("Chart aggregate labels", () => {
       };
       createChart(aggregatedModel, aggregatedChart, "42");
       updateChart(aggregatedModel, "42", { type });
-      let chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+      let chart = (aggregatedModel.getters.getChartRuntime("42") as ComboBarChartRuntime)
+        .chartJsConfig;
       expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13, 14, 15, 16, 17]);
       expect(chart.data!.datasets![1].data).toEqual([31, 32, 33, 34, 21, 22, 23, 24]);
       expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4", "P1", "P2", "P3", "P4"]);
 
       updateChart(aggregatedModel, "42", { aggregated: true });
-      chart = (aggregatedModel.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig;
+      chart = (aggregatedModel.getters.getChartRuntime("42") as ComboBarChartRuntime).chartJsConfig;
       expect(chart.data!.datasets![0].data).toEqual([24, 26, 28, 30]);
       expect(chart.data!.datasets![1].data).toEqual([52, 54, 56, 58]);
       expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
@@ -2061,17 +2095,17 @@ describe("Chart evaluation", () => {
       "1"
     );
     expect(
-      (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig.data!.datasets![0]!
+      (model.getters.getChartRuntime("1") as ComboBarChartRuntime).chartJsConfig.data!.datasets![0]!
         .data![0]
     ).toBe(0);
     setCellContent(model, "C3", "1");
     expect(
-      (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig.data!.datasets![0]!
+      (model.getters.getChartRuntime("1") as ComboBarChartRuntime).chartJsConfig.data!.datasets![0]!
         .data![0]
     ).toBe(1);
     deleteColumns(model, ["C"]);
     expect(
-      (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig.data!.datasets![0]!
+      (model.getters.getChartRuntime("1") as ComboBarChartRuntime).chartJsConfig.data!.datasets![0]!
         .data![0]
     ).toBe("#REF");
   });
@@ -2083,11 +2117,11 @@ describe("Chart evaluation", () => {
     createChart(model, {}, chartId);
 
     updateChart(model, chartId, { labelRange: "A1:A2" });
-    const chartRuntime1 = model.getters.getChartRuntime(chartId) as BarChartRuntime;
+    const chartRuntime1 = model.getters.getChartRuntime(chartId) as ComboBarChartRuntime;
     undo(model);
-    const chartRuntime2 = model.getters.getChartRuntime(chartId) as BarChartRuntime;
+    const chartRuntime2 = model.getters.getChartRuntime(chartId) as ComboBarChartRuntime;
     redo(model);
-    const chartRuntime3 = model.getters.getChartRuntime(chartId) as BarChartRuntime;
+    const chartRuntime3 = model.getters.getChartRuntime(chartId) as ComboBarChartRuntime;
     expect(chartRuntime1.chartJsConfig.data?.labels).toEqual(["oui", "non"]);
     expect(chartRuntime2.chartJsConfig.data?.labels).toEqual([]);
     expect(chartRuntime3.chartJsConfig.data?.labels).toEqual(["oui", "non"]);
@@ -2184,14 +2218,14 @@ test("creating chart with single dataset should have legend position set as none
   );
   await nextTick();
   expect(
-    (model.getters.getChartRuntime("24") as BarChartRuntime).chartJsConfig.options?.plugins?.legend
-      ?.display
+    (model.getters.getChartRuntime("24") as ComboBarChartRuntime).chartJsConfig.options?.plugins
+      ?.legend?.display
   ).toBeFalsy();
   updateChart(model, "24", { legendPosition: "top" });
   await nextTick();
   expect(
-    (model.getters.getChartRuntime("24") as BarChartRuntime).chartJsConfig.options?.plugins?.legend
-      ?.position
+    (model.getters.getChartRuntime("24") as ComboBarChartRuntime).chartJsConfig.options?.plugins
+      ?.legend?.position
   ).toBe("top");
 });
 
@@ -2226,7 +2260,7 @@ test("Duplicating a sheet dispatches `CREATE_CHART` for each chart", () => {
 });
 
 function isChartAxisStacked(model: Model, chartId: UID, axis: "x" | "y"): boolean {
-  const runtime = model.getters.getChartRuntime(chartId) as BarChartRuntime;
+  const runtime = model.getters.getChartRuntime(chartId) as ComboBarChartRuntime;
   // @ts-ignore
   return runtime.chartJsConfig.options?.scales?.[axis]?.stacked;
 }

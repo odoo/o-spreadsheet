@@ -1,21 +1,5 @@
-import type { ChartConfiguration } from "chart.js";
-import { Color } from "../misc";
-import { LegendPosition, VerticalAxisPosition } from "./common_chart";
+import { ComboBarChartDefinition } from "./common_bar_combo";
 
-export interface BarChartDefinition {
+export interface BarChartDefinition extends ComboBarChartDefinition {
   readonly type: "bar";
-  readonly dataSets: string[];
-  readonly dataSetsHaveTitle: boolean;
-  readonly labelRange?: string;
-  readonly title: string;
-  readonly background?: Color;
-  readonly verticalAxisPosition: VerticalAxisPosition;
-  readonly legendPosition: LegendPosition;
-  readonly stacked: boolean;
-  readonly aggregated?: boolean;
 }
-
-export type BarChartRuntime = {
-  chartJsConfig: ChartConfiguration;
-  background: Color;
-};

@@ -1,6 +1,8 @@
 import { Range } from "../../types";
 import { XlsxHexColor } from "../xlsx";
-import { BarChartDefinition, BarChartRuntime } from "./bar_chart";
+import { BarChartDefinition } from "./bar_chart";
+import { ComboChartDefinition } from "./combo_chart";
+import { ComboBarChartRuntime } from "./common_bar_combo";
 import { LegendPosition, VerticalAxisPosition } from "./common_chart";
 import { GaugeChartDefinition, GaugeChartRuntime } from "./gauge_chart";
 import { LineChartDefinition, LineChartRuntime } from "./line_chart";
@@ -8,7 +10,15 @@ import { PieChartDefinition, PieChartRuntime } from "./pie_chart";
 import { ScatterChartDefinition, ScatterChartRuntime } from "./scatter_chart";
 import { ScorecardChartDefinition, ScorecardChartRuntime } from "./scorecard_chart";
 
-export const CHART_TYPES = ["line", "bar", "pie", "scorecard", "gauge", "scatter"] as const;
+export const CHART_TYPES = [
+  "line",
+  "bar",
+  "pie",
+  "scorecard",
+  "gauge",
+  "scatter",
+  "combo",
+] as const;
 export type ChartType = (typeof CHART_TYPES)[number];
 
 export type ChartDefinition =
@@ -17,12 +27,13 @@ export type ChartDefinition =
   | BarChartDefinition
   | ScorecardChartDefinition
   | GaugeChartDefinition
-  | ScatterChartDefinition;
+  | ScatterChartDefinition
+  | ComboChartDefinition;
 
 export type ChartJSRuntime =
   | LineChartRuntime
   | PieChartRuntime
-  | BarChartRuntime
+  | ComboBarChartRuntime
   | ScatterChartRuntime;
 
 export type ChartRuntime = ChartJSRuntime | ScorecardChartRuntime | GaugeChartRuntime;
@@ -42,6 +53,7 @@ export type AxisType = "category" | "linear" | "time";
 export interface DataSet {
   readonly labelCell?: Range; // range of the label
   readonly dataRange: Range; // range of the data
+  readonly rightYAxis?: boolean; // if the dataset should be on the right Y axis
 }
 export interface ExcelChartDataset {
   readonly label?: string;
@@ -68,4 +80,5 @@ export interface ChartCreationContext {
   readonly title?: string;
   readonly background?: string;
   readonly auxiliaryRange?: string;
+  readonly type?: string;
 }
