@@ -43,6 +43,10 @@ chartSidePanelComponentRegistry
     configuration: BarConfigPanel,
     design: BarChartDesignPanel,
   })
+  .add("combo", {
+    configuration: LineBarPieConfigPanel,
+    design: BarChartDesignPanel,
+  })
   .add("pie", {
     configuration: LineBarPieConfigPanel,
     design: LineBarPieDesignPanel,

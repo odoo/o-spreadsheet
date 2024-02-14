@@ -20,6 +20,7 @@ import {
   UID,
 } from "../../src/types";
 import { BarChartDefinition } from "../../src/types/chart/bar_chart";
+import { ComboChartDefinition } from "../../src/types/chart/combo_chart";
 import { GaugeChartDefinition } from "../../src/types/chart/gauge_chart";
 import { LineChartDefinition } from "../../src/types/chart/line_chart";
 import { PieChartDefinition } from "../../src/types/chart/pie_chart";
@@ -132,7 +133,11 @@ export function createImage(
 export function createChart(
   model: Model,
   data: Partial<
-    LineChartDefinition | BarChartDefinition | PieChartDefinition | ScatterChartDefinition
+    | LineChartDefinition
+    | BarChartDefinition
+    | PieChartDefinition
+    | ScatterChartDefinition
+    | ComboChartDefinition
   >,
   chartId?: UID,
   sheetId?: UID
