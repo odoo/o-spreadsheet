@@ -687,6 +687,18 @@ test("import then export (figures)", () => {
   expect(model).toExport(modelData);
 });
 
+test("import date as string and detect the format", () => {
+  const model = new Model({
+    sheets: [
+      {
+        cells: { A1: { content: "12/31/2020" } },
+      },
+    ],
+  });
+  expect(getCell(model, "A1")?.format).toBe("m/d/yyyy");
+  expect(getCell(model, "A1")?.content).toBe("12/31/2020");
+});
+
 test("Can import spreadsheet with only version", () => {
   new Model({ version: 1 });
   // We expect the model to be loaded without traceback

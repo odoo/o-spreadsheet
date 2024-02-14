@@ -438,8 +438,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     } else {
       style = before ? before.style : undefined;
     }
-    let format =
-      ("format" in after ? after.format : before && before.format) || detectFormat(afterContent);
+    const format = "format" in after ? after.format : before && before.format;
 
     /* Read the following IF as:
      * we need to remove the cell if it is completely empty, but we can know if it completely empty if:
@@ -499,7 +498,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       id,
       content,
       style,
-      format,
+      format: format || detectFormat(content),
       isFormula: false,
     };
   }
