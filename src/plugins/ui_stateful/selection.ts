@@ -422,9 +422,18 @@ export class GridSelectionPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     const cells = new Set<EvaluatedCell>();
 
+    const isRowHiddenCache: { [row: number]: boolean } = {};
+    const isColHiddenCache: { [col: number]: boolean } = {};
+
     for (const zone of this.gridSelection.zones) {
       for (const { col, row } of positions(zone)) {
-        if (this.getters.isRowHidden(sheetId, row) || this.getters.isColHidden(sheetId, col)) {
+        if (isRowHiddenCache[row] === undefined) {
+          isRowHiddenCache[row] = this.getters.isRowHidden(sheetId, row);
+        }
+        if (isColHiddenCache[col] === undefined) {
+          isColHiddenCache[col] = this.getters.isColHidden(sheetId, col);
+        }
+        if (isRowHiddenCache[row] || isColHiddenCache[col]) {
           continue; // Skip hidden cells
         }
 
