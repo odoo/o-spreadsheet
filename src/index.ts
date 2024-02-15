@@ -62,6 +62,7 @@ import {
   colorToRGBA,
   computeTextWidth,
   createCurrencyFormat,
+  deepCopy,
   deepEquals,
   formatValue,
   isDefined,
@@ -255,6 +256,7 @@ export const helpers = {
   deepEquals,
   overlap,
   union,
+  deepCopy,
 };
 
 export const links = {
