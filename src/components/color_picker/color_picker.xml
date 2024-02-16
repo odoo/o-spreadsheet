@@ -52,13 +52,13 @@
           <div
             class="o-gradient"
             t-on-click.stop=""
-            t-on-mousedown="dragGradientPointer"
+            t-on-pointerdown="dragGradientPointer"
             t-att-style="gradientHueStyle">
             <div class="saturation w-100 h-100 position-absolute pe-none"/>
             <div class="lightness w-100 h-100 position-absolute pe-none"/>
             <div class="magnifier pe-none" t-att-style="pointerStyle"/>
           </div>
-          <div class="o-hue-container" t-on-mousedown="dragHuePointer">
+          <div class="o-hue-container" t-on-pointerdown="dragHuePointer">
             <div class="o-hue-picker" t-on-click.stop=""/>
             <div class="o-hue-slider pe-none" t-att-style="sliderStyle">
               <t t-call="o-spreadsheet-Icon.TRIANGLE_UP"/>

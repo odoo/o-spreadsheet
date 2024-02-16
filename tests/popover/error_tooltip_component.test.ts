@@ -96,7 +96,7 @@ describe("Grid integration", () => {
     Date.now = jest.fn(() => 0);
     setCellContent(model, "A1", "=NA()");
     await nextTick();
-    gridMouseEvent(model, "mousemove", "A1");
+    gridMouseEvent(model, "pointermove", "A1");
     Date.now = jest.fn(() => 500);
     jest.advanceTimersByTime(300);
     await nextTick();
@@ -107,7 +107,7 @@ describe("Grid integration", () => {
     Date.now = jest.fn(() => 0);
     setCellContent(model, "A1", "=VLOOKUP(6,A1:A2,B2:B4)");
     await nextTick();
-    gridMouseEvent(model, "mousemove", "A1");
+    gridMouseEvent(model, "pointermove", "A1");
     Date.now = jest.fn(() => 500);
     jest.advanceTimersByTime(300);
     await nextTick();
@@ -147,7 +147,7 @@ describe("Grid integration", () => {
     await nextTick();
     setCellContent(model, "C3", "[label](url.com)");
 
-    triggerMouseEvent(".o-figure", "mousemove", DEFAULT_CELL_WIDTH * 2, DEFAULT_CELL_HEIGHT * 2);
+    triggerMouseEvent(".o-figure", "pointermove", DEFAULT_CELL_WIDTH * 2, DEFAULT_CELL_HEIGHT * 2);
     jest.advanceTimersByTime(400);
     await nextTick();
 

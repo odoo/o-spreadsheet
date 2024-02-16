@@ -29,7 +29,7 @@ let sheetId: UID;
 
 //Test Component required
 const TEMPLATE = xml/* xml */ `
-  <div class="o-fake-grid" t-on-mousedown="onMouseDown">
+  <div class="o-fake-grid" t-on-pointerdown="onMouseDown">
     <t t-esc='"coucou"'/>
   </div>
 `;
@@ -89,12 +89,12 @@ describe("Drag And Drop horizontal tests", () => {
     const { height } = model.getters.getSheetViewDimension();
     const { x: offsetCorrectionX } = model.getters.getMainViewportCoordinates();
     const x = offsetCorrectionX + DEFAULT_CELL_WIDTH;
-    triggerMouseEvent(".o-fake-grid", "mousedown", x, 0.5 * height);
-    triggerMouseEvent(".o-fake-grid", "mousemove", 0.5 * offsetCorrectionX, 0.5 * height);
+    triggerMouseEvent(".o-fake-grid", "pointerdown", x, 0.5 * height);
+    triggerMouseEvent(".o-fake-grid", "pointermove", 0.5 * offsetCorrectionX, 0.5 * height);
     const advanceTimer = edgeScrollDelay(0.5 * offsetCorrectionX, 1);
 
     jest.advanceTimersByTime(advanceTimer);
-    triggerMouseEvent(".o-fake-grid", "mouseup", 0.5 * offsetCorrectionX, 0.5 * height);
+    triggerMouseEvent(".o-fake-grid", "pointerup", 0.5 * offsetCorrectionX, 0.5 * height);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 8,
       right: 14,
@@ -112,9 +112,9 @@ describe("Drag And Drop horizontal tests", () => {
     const { height } = model.getters.getSheetViewDimension();
     const { x: offsetCorrectionX } = model.getters.getMainViewportCoordinates();
     const x = offsetCorrectionX + DEFAULT_CELL_WIDTH;
-    triggerMouseEvent(".o-fake-grid", "mousedown", 0.5 * offsetCorrectionX, 0.5 * height);
-    triggerMouseEvent(".o-fake-grid", "mousemove", x, 0.5 * height);
-    triggerMouseEvent(".o-fake-grid", "mouseup", 0.5 * offsetCorrectionX, 0.5 * height);
+    triggerMouseEvent(".o-fake-grid", "pointerdown", 0.5 * offsetCorrectionX, 0.5 * height);
+    triggerMouseEvent(".o-fake-grid", "pointermove", x, 0.5 * height);
+    triggerMouseEvent(".o-fake-grid", "pointerup", 0.5 * offsetCorrectionX, 0.5 * height);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 4,
       right: 10,
@@ -129,12 +129,12 @@ describe("Drag And Drop horizontal tests", () => {
       right: 10,
     });
     const { width, height } = model.getters.getSheetViewDimension();
-    triggerMouseEvent(".o-fake-grid", "mousedown", width, 0.5 * height);
-    triggerMouseEvent(".o-fake-grid", "mousemove", 1.5 * width, 0.5 * height);
+    triggerMouseEvent(".o-fake-grid", "pointerdown", width, 0.5 * height);
+    triggerMouseEvent(".o-fake-grid", "pointermove", 1.5 * width, 0.5 * height);
     const advanceTimer = edgeScrollDelay(0.5 * width, 4);
 
     jest.advanceTimersByTime(advanceTimer);
-    triggerMouseEvent(".o-fake-grid", "mouseup", 1.5 * width, 0.5 * height);
+    triggerMouseEvent(".o-fake-grid", "pointerup", 1.5 * width, 0.5 * height);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 9,
       right: 15,
@@ -150,12 +150,12 @@ describe("Drag And Drop horizontal tests", () => {
     });
     const { width, height } = model.getters.getSheetViewDimension();
     const { x: offsetCorrectionX } = model.getters.getMainViewportCoordinates();
-    triggerMouseEvent(".o-fake-grid", "mousedown", 0.5 * offsetCorrectionX, 0.5 * height);
-    triggerMouseEvent(".o-fake-grid", "mousemove", 1.5 * width, 0.5 * height);
+    triggerMouseEvent(".o-fake-grid", "pointerdown", 0.5 * offsetCorrectionX, 0.5 * height);
+    triggerMouseEvent(".o-fake-grid", "pointermove", 1.5 * width, 0.5 * height);
     const advanceTimer = edgeScrollDelay(0.5 * width, 4);
 
     jest.advanceTimersByTime(advanceTimer);
-    triggerMouseEvent(".o-fake-grid", "mouseup", 1.5 * width, 0.5 * height);
+    triggerMouseEvent(".o-fake-grid", "pointerup", 1.5 * width, 0.5 * height);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 9,
       right: 15,
@@ -168,23 +168,23 @@ describe("Drag And Drop horizontal tests", () => {
     hideColumns(model, [numberToLetters(right + 1)]);
     const { width, height } = model.getters.getSheetViewDimension();
     const y = height / 2;
-    triggerMouseEvent(".o-fake-grid", "mousedown", width / 2, y);
-    triggerMouseEvent(".o-fake-grid", "mousemove", 1.5 * width, y);
+    triggerMouseEvent(".o-fake-grid", "pointerdown", width / 2, y);
+    triggerMouseEvent(".o-fake-grid", "pointermove", 1.5 * width, y);
     const advanceTimer = edgeScrollDelay(0.5 * width, 5);
 
     jest.advanceTimersByTime(advanceTimer);
-    triggerMouseEvent(".o-fake-grid", "mouseup", 1.5 * width, y);
+    triggerMouseEvent(".o-fake-grid", "pointerup", 1.5 * width, y);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 6,
       right: 17,
     });
     setViewportOffset(model, (right + 2) * DEFAULT_CELL_WIDTH, 0);
     await nextTick();
-    triggerMouseEvent(".o-fake-grid", "mousedown", width / 2, y);
-    triggerMouseEvent(".o-fake-grid", "mousemove", -1.5 * width, y);
+    triggerMouseEvent(".o-fake-grid", "pointerdown", width / 2, y);
+    triggerMouseEvent(".o-fake-grid", "pointermove", -1.5 * width, y);
 
     jest.advanceTimersByTime(advanceTimer);
-    triggerMouseEvent(".o-fake-grid", "mouseup", -1.5 * width, y);
+    triggerMouseEvent(".o-fake-grid", "pointerup", -1.5 * width, y);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 6,
       right: 17,
@@ -197,12 +197,12 @@ describe("Drag And Drop horizontal tests", () => {
     await nextTick();
     const { x: offsetCorrectionX } = model.getters.getMainViewportCoordinates();
     const x = offsetCorrectionX + DEFAULT_CELL_WIDTH;
-    triggerMouseEvent(".o-fake-grid", "mousedown", x, 0);
-    triggerMouseEvent(".o-fake-grid", "mousemove", -50, 0);
+    triggerMouseEvent(".o-fake-grid", "pointerdown", x, 0);
+    triggerMouseEvent(".o-fake-grid", "pointermove", -50, 0);
     const advanceTimer = edgeScrollDelay(offsetCorrectionX + 50, 6);
 
     jest.advanceTimersByTime(advanceTimer);
-    triggerMouseEvent(".o-fake-grid", "mouseup", -50, 0);
+    triggerMouseEvent(".o-fake-grid", "pointerup", -50, 0);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 4,
       right: 10,
@@ -223,12 +223,12 @@ describe("Drag And Drop vertical tests", () => {
     const { width } = model.getters.getSheetViewDimension();
     const { y: offsetCorrectionY } = model.getters.getMainViewportCoordinates();
     const y = offsetCorrectionY + DEFAULT_CELL_HEIGHT;
-    triggerMouseEvent(".o-fake-grid", "mousedown", 0.5 * width, y);
-    triggerMouseEvent(".o-fake-grid", "mousemove", 0.5 * width, 0.5 * offsetCorrectionY);
+    triggerMouseEvent(".o-fake-grid", "pointerdown", 0.5 * width, y);
+    triggerMouseEvent(".o-fake-grid", "pointermove", 0.5 * width, 0.5 * offsetCorrectionY);
     const advanceTimer = edgeScrollDelay(0.5 * offsetCorrectionY, 1);
 
     jest.advanceTimersByTime(advanceTimer);
-    triggerMouseEvent(".o-fake-grid", "mouseup", 0.5 * width, 0.5 * offsetCorrectionY);
+    triggerMouseEvent(".o-fake-grid", "pointerup", 0.5 * width, 0.5 * offsetCorrectionY);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 8,
       bottom: 47,
@@ -246,10 +246,10 @@ describe("Drag And Drop vertical tests", () => {
     const { width } = model.getters.getSheetViewDimension();
     const { y: offsetCorrectionY } = model.getters.getMainViewportCoordinates();
     const y = offsetCorrectionY + DEFAULT_CELL_HEIGHT;
-    triggerMouseEvent(".o-fake-grid", "mousedown", 0.5 * width, 0.5 * offsetCorrectionY);
-    triggerMouseEvent(".o-fake-grid", "mousemove", 0.5 * width, y);
+    triggerMouseEvent(".o-fake-grid", "pointerdown", 0.5 * width, 0.5 * offsetCorrectionY);
+    triggerMouseEvent(".o-fake-grid", "pointermove", 0.5 * width, y);
 
-    triggerMouseEvent(".o-fake-grid", "mouseup", 0.5 * width, 0.5 * offsetCorrectionY);
+    triggerMouseEvent(".o-fake-grid", "pointerup", 0.5 * width, 0.5 * offsetCorrectionY);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 4,
       bottom: 43,
@@ -264,12 +264,12 @@ describe("Drag And Drop vertical tests", () => {
       bottom: 43,
     });
     const { width, height } = model.getters.getSheetViewDimension();
-    triggerMouseEvent(".o-fake-grid", "mousedown", 0.5 * width, height);
-    triggerMouseEvent(".o-fake-grid", "mousemove", 0.5 * width, 1.5 * height);
+    triggerMouseEvent(".o-fake-grid", "pointerdown", 0.5 * width, height);
+    triggerMouseEvent(".o-fake-grid", "pointermove", 0.5 * width, 1.5 * height);
     const advanceTimer = edgeScrollDelay(0.5 * height, 4);
 
     jest.advanceTimersByTime(advanceTimer);
-    triggerMouseEvent(".o-fake-grid", "mouseup", 0.5 * width, 1.5 * height);
+    triggerMouseEvent(".o-fake-grid", "pointerup", 0.5 * width, 1.5 * height);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 9,
       bottom: 48,
@@ -285,12 +285,12 @@ describe("Drag And Drop vertical tests", () => {
     });
     const { width, height } = model.getters.getSheetViewDimension();
     const { y: offsetCorrectionY } = model.getters.getMainViewportCoordinates();
-    triggerMouseEvent(".o-fake-grid", "mousedown", 0.5 * width, 0.5 * offsetCorrectionY);
-    triggerMouseEvent(".o-fake-grid", "mousemove", 0.5 * width, 1.5 * height);
+    triggerMouseEvent(".o-fake-grid", "pointerdown", 0.5 * width, 0.5 * offsetCorrectionY);
+    triggerMouseEvent(".o-fake-grid", "pointermove", 0.5 * width, 1.5 * height);
     const advanceTimer = edgeScrollDelay(0.5 * height, 4);
 
     jest.advanceTimersByTime(advanceTimer);
-    triggerMouseEvent(".o-fake-grid", "mouseup", 0.5 * width, 1.5 * height);
+    triggerMouseEvent(".o-fake-grid", "pointerup", 0.5 * width, 1.5 * height);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 9,
       bottom: 48,
@@ -303,12 +303,12 @@ describe("Drag And Drop vertical tests", () => {
     await nextTick();
     const { y: offsetCorrectionY } = model.getters.getMainViewportCoordinates();
     const y = offsetCorrectionY + DEFAULT_CELL_HEIGHT;
-    triggerMouseEvent(".o-fake-grid", "mousedown", 0, y);
-    triggerMouseEvent(".o-fake-grid", "mousemove", 0, -50);
+    triggerMouseEvent(".o-fake-grid", "pointerdown", 0, y);
+    triggerMouseEvent(".o-fake-grid", "pointermove", 0, -50);
     const advanceTimer = edgeScrollDelay(offsetCorrectionY + 50, 6);
 
     jest.advanceTimersByTime(advanceTimer);
-    triggerMouseEvent(".o-fake-grid", "mouseup", 0, -50);
+    triggerMouseEvent(".o-fake-grid", "pointerup", 0, -50);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 4,
       bottom: 43,
@@ -325,12 +325,12 @@ describe("Drag And Drop vertical tests without frozen panes", () => {
       right: 16,
     });
     const { height } = model.getters.getSheetViewDimension();
-    triggerMouseEvent(".o-fake-grid", "mousedown", DEFAULT_CELL_WIDTH, 0.5 * height);
-    triggerMouseEvent(".o-fake-grid", "mousemove", -0.5 * DEFAULT_CELL_WIDTH, 0.5 * height);
+    triggerMouseEvent(".o-fake-grid", "pointerdown", DEFAULT_CELL_WIDTH, 0.5 * height);
+    triggerMouseEvent(".o-fake-grid", "pointermove", -0.5 * DEFAULT_CELL_WIDTH, 0.5 * height);
     const advanceTimer = edgeScrollDelay(0.5 * DEFAULT_CELL_WIDTH, 1);
 
     jest.advanceTimersByTime(advanceTimer);
-    triggerMouseEvent(".o-fake-grid", "mouseup", -0.5 * DEFAULT_CELL_WIDTH, 0.5 * height);
+    triggerMouseEvent(".o-fake-grid", "pointerup", -0.5 * DEFAULT_CELL_WIDTH, 0.5 * height);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 4,
       right: 14,
@@ -343,11 +343,11 @@ describe("Drag And Drop vertical tests without frozen panes", () => {
       bottom: 49,
     });
     const { width } = model.getters.getSheetViewDimension();
-    triggerMouseEvent(".o-fake-grid", "mousedown", 0.5 * width, DEFAULT_CELL_HEIGHT);
-    triggerMouseEvent(".o-fake-grid", "mousemove", 0.5 * width, -0.5 * DEFAULT_CELL_HEIGHT);
+    triggerMouseEvent(".o-fake-grid", "pointerdown", 0.5 * width, DEFAULT_CELL_HEIGHT);
+    triggerMouseEvent(".o-fake-grid", "pointermove", 0.5 * width, -0.5 * DEFAULT_CELL_HEIGHT);
     const advanceTimer = edgeScrollDelay(0.5 * DEFAULT_CELL_HEIGHT, 1);
     jest.advanceTimersByTime(advanceTimer);
-    triggerMouseEvent(".o-fake-grid", "mouseup", 0.5 * width, -0.5 * DEFAULT_CELL_HEIGHT);
+    triggerMouseEvent(".o-fake-grid", "pointerup", 0.5 * width, -0.5 * DEFAULT_CELL_HEIGHT);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 4,
       bottom: 47,
@@ -360,23 +360,23 @@ describe("Drag And Drop vertical tests without frozen panes", () => {
     hideRows(model, [bottom + 1]);
     const { width, height } = model.getters.getSheetViewDimension();
     const x = width / 2;
-    triggerMouseEvent(".o-fake-grid", "mousedown", x, height / 2);
-    triggerMouseEvent(".o-fake-grid", "mousemove", x, 1.5 * height);
+    triggerMouseEvent(".o-fake-grid", "pointerdown", x, height / 2);
+    triggerMouseEvent(".o-fake-grid", "pointermove", x, 1.5 * height);
     const advanceTimer = edgeScrollDelay(0.5 * height, 5);
 
     jest.advanceTimersByTime(advanceTimer);
-    triggerMouseEvent(".o-fake-grid", "mouseup", x, 1.5 * height);
+    triggerMouseEvent(".o-fake-grid", "pointerup", x, 1.5 * height);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 6,
       bottom: 50,
     });
     setViewportOffset(model, 0, (bottom + 2) * DEFAULT_CELL_HEIGHT);
     await nextTick();
-    triggerMouseEvent(".o-fake-grid", "mousedown", x, height / 2);
-    triggerMouseEvent(".o-fake-grid", "mousemove", x, -1.5 * height);
+    triggerMouseEvent(".o-fake-grid", "pointerdown", x, height / 2);
+    triggerMouseEvent(".o-fake-grid", "pointermove", x, -1.5 * height);
 
     jest.advanceTimersByTime(advanceTimer);
-    triggerMouseEvent(".o-fake-grid", "mouseup", x, -1.5 * height);
+    triggerMouseEvent(".o-fake-grid", "pointerup", x, -1.5 * height);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 39,
       bottom: 83,

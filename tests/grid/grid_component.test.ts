@@ -826,14 +826,14 @@ describe("Grid component", () => {
       selectCell(model, "B2");
       setStyle(model, "B2", { bold: true });
       model.dispatch("ACTIVATE_PAINT_FORMAT", { persistent: false });
-      gridMouseEvent(model, "mousedown", "C8");
+      gridMouseEvent(model, "pointerdown", "C8");
       expect(getCell(model, "C8")).toBeUndefined();
-      gridMouseEvent(model, "mouseup", "C8");
+      gridMouseEvent(model, "pointerup", "C8");
       expect(getCell(model, "C8")!.style).toEqual({ bold: true });
 
-      gridMouseEvent(model, "mousedown", "D8");
+      gridMouseEvent(model, "pointerdown", "D8");
       expect(getCell(model, "D8")).toBeUndefined();
-      gridMouseEvent(model, "mouseup", "D8");
+      gridMouseEvent(model, "pointerup", "D8");
       expect(getCell(model, "D8")).toBeUndefined();
     });
 
@@ -842,14 +842,14 @@ describe("Grid component", () => {
       selectCell(model, "B2");
       setStyle(model, "B2", { bold: true });
       model.dispatch("ACTIVATE_PAINT_FORMAT", { persistent: true });
-      gridMouseEvent(model, "mousedown", "C8");
+      gridMouseEvent(model, "pointerdown", "C8");
       expect(getCell(model, "C8")).toBeUndefined();
-      gridMouseEvent(model, "mouseup", "C8");
+      gridMouseEvent(model, "pointerup", "C8");
       expect(getCell(model, "C8")!.style).toEqual({ bold: true });
 
-      gridMouseEvent(model, "mousedown", "D8");
+      gridMouseEvent(model, "pointerdown", "D8");
       expect(getCell(model, "D8")).toBeUndefined();
-      gridMouseEvent(model, "mouseup", "D8");
+      gridMouseEvent(model, "pointerup", "D8");
       expect(getCell(model, "D8")!.style).toEqual({ bold: true });
     });
 
@@ -869,9 +869,9 @@ describe("Grid component", () => {
       setStyle(model, "B2", { bold: true });
       model.dispatch("ACTIVATE_PAINT_FORMAT", { persistent: false });
       keyDown({ key: "Escape" });
-      gridMouseEvent(model, "mousedown", "C8");
+      gridMouseEvent(model, "pointerdown", "C8");
       expect(getCell(model, "C8")).toBeUndefined();
-      gridMouseEvent(model, "mouseup", "C8");
+      gridMouseEvent(model, "pointerup", "C8");
       expect(getCell(model, "C8")).toBeUndefined();
     });
 
@@ -882,9 +882,9 @@ describe("Grid component", () => {
       model.dispatch("ACTIVATE_PAINT_FORMAT", { persistent: true });
       setStyle(model, "B2", { bold: false });
 
-      gridMouseEvent(model, "mousedown", "D8");
+      gridMouseEvent(model, "pointerdown", "D8");
       expect(getCell(model, "D8")).toBeUndefined();
-      gridMouseEvent(model, "mouseup", "D8");
+      gridMouseEvent(model, "pointerup", "D8");
       expect(getCell(model, "D8")!.style).toEqual({ bold: true });
     });
   });
@@ -1266,12 +1266,12 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
   test("Can edge-scroll horizontally", async () => {
     const { width, height } = model.getters.getSheetViewDimension();
     const y = height / 2;
-    triggerMouseEvent(".o-grid-overlay", "mousedown", width / 2, y);
-    triggerMouseEvent(".o-grid-overlay", "mousemove", 1.5 * width, y);
+    triggerMouseEvent(".o-grid-overlay", "pointerdown", width / 2, y);
+    triggerMouseEvent(".o-grid-overlay", "pointermove", 1.5 * width, y);
     const advanceTimer = edgeScrollDelay(0.5 * width, 5);
 
     jest.advanceTimersByTime(advanceTimer);
-    triggerMouseEvent(".o-grid-overlay", "mouseup", 1.5 * width, y);
+    triggerMouseEvent(".o-grid-overlay", "pointerup", 1.5 * width, y);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 6,
@@ -1280,12 +1280,12 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
       bottom: 42,
     });
 
-    triggerMouseEvent(".o-grid-overlay", "mousedown", width / 2, y);
-    triggerMouseEvent(".o-grid-overlay", "mousemove", -0.5 * width, y);
+    triggerMouseEvent(".o-grid-overlay", "pointerdown", width / 2, y);
+    triggerMouseEvent(".o-grid-overlay", "pointermove", -0.5 * width, y);
     const advanceTimer2 = edgeScrollDelay(0.5 * width, 2);
 
     jest.advanceTimersByTime(advanceTimer2);
-    triggerMouseEvent(".o-grid-overlay", "mouseup", -0.5 * width, y);
+    triggerMouseEvent(".o-grid-overlay", "pointerup", -0.5 * width, y);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 3,
@@ -1298,12 +1298,12 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
   test("Can edge-scroll vertically", async () => {
     const { width, height } = model.getters.getSheetViewDimensionWithHeaders();
     const x = width / 2;
-    triggerMouseEvent(".o-grid-overlay", "mousedown", x, height / 2);
-    triggerMouseEvent(".o-grid-overlay", "mousemove", x, 1.5 * height);
+    triggerMouseEvent(".o-grid-overlay", "pointerdown", x, height / 2);
+    triggerMouseEvent(".o-grid-overlay", "pointermove", x, 1.5 * height);
     const advanceTimer = edgeScrollDelay(0.5 * height, 5);
 
     jest.advanceTimersByTime(advanceTimer);
-    triggerMouseEvent(".o-grid-overlay", "mouseup", x, 1.5 * height);
+    triggerMouseEvent(".o-grid-overlay", "pointerup", x, 1.5 * height);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 0,
@@ -1312,12 +1312,12 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
       bottom: 48,
     });
 
-    triggerMouseEvent(".o-grid-overlay", "mousedown", x, height / 2);
-    triggerMouseEvent(".o-grid-overlay", "mousemove", x, -0.5 * height);
+    triggerMouseEvent(".o-grid-overlay", "pointerdown", x, height / 2);
+    triggerMouseEvent(".o-grid-overlay", "pointermove", x, -0.5 * height);
     const advanceTimer2 = edgeScrollDelay(0.5 * height, 2);
 
     jest.advanceTimersByTime(advanceTimer2);
-    triggerMouseEvent(".o-grid-overlay", "mouseup", x, -0.5 * height);
+    triggerMouseEvent(".o-grid-overlay", "pointerup", x, -0.5 * height);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 0,

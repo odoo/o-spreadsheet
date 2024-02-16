@@ -10,7 +10,7 @@
       <div
         class="o-formula-assistant bg-white"
         t-if="context.functionName"
-        t-on-mousemove="onMouseMove"
+        t-on-pointermove="onMouseMove"
         t-att-class="{'opacity-25': assistantState.allowCellSelectionBehind}">
         <div class="o-formula-assistant-head">
           <span t-esc="context.functionName"/>

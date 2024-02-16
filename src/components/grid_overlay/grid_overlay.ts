@@ -89,10 +89,10 @@ function useCellHovered(
     }
   }
 
-  useRefListener(gridRef, "mousemove", updateMousePosition);
+  useRefListener(gridRef, "pointermove", updateMousePosition);
   useRefListener(gridRef, "mouseleave", onMouseLeave);
   useRefListener(gridRef, "mouseenter", resume);
-  useRefListener(gridRef, "mousedown", recompute);
+  useRefListener(gridRef, "pointerdown", recompute);
 
   useExternalListener(window, "click", handleGlobalClick);
   function handleGlobalClick(e: MouseEvent) {

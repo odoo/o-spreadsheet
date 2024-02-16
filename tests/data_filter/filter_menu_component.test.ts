@@ -138,7 +138,7 @@ describe("Filter menu component", () => {
       const listItems = fixture.querySelectorAll(".o-filter-menu-value");
       expect(listItems[0].classList.contains("selected")).toBeFalsy();
 
-      listItems[0].dispatchEvent(new Event("mousemove", { bubbles: true }));
+      listItems[0].dispatchEvent(new Event("pointermove", { bubbles: true }));
       await nextTick();
       expect(listItems[0].classList.contains("selected")).toBeTruthy();
     });

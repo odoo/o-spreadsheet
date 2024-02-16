@@ -215,9 +215,9 @@ describe("Composer interactions", () => {
 
   test("=+Click range, the range ref should be colored", async () => {
     const composerEl = await typeInComposerGrid("=");
-    gridMouseEvent(model, "mousedown", "C8");
-    gridMouseEvent(model, "mousemove", "B8");
-    gridMouseEvent(model, "mouseup", "B8");
+    gridMouseEvent(model, "pointerdown", "C8");
+    gridMouseEvent(model, "pointermove", "B8");
+    gridMouseEvent(model, "pointerup", "B8");
     await nextTick();
     expect(composerEl.textContent).toBe("=B8:C8");
     expect(cehMock.colors["B8:C8"]).toBe(colors[0]);

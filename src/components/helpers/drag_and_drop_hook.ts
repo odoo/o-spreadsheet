@@ -127,7 +127,7 @@ class DOMDndHelper {
   private onDragEnd: (itemId: UID, indexAtEnd: number) => void;
 
   /**
-   * The dead zone is an area in which the mousemove events are ignored.
+   * The dead zone is an area in which the pointermove events are ignored.
    *
    * This is useful when swapping the dragged item with a larger item. After the swap,
    * the mouse is still hovering on the item  we just swapped with. In this case, we don't want
@@ -182,7 +182,7 @@ class DOMDndHelper {
   }
 
   onMouseMove(ev: MouseEvent) {
-    if (ev.button !== 0) {
+    if (ev.button !== -1) {
       this.onCancel();
       return;
     }

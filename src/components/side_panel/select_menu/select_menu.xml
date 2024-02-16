@@ -3,7 +3,7 @@
     <select
       t-att-class="props.class"
       t-ref="select"
-      t-on-mousedown.stop.prevent=""
+      t-on-pointerdown.stop.prevent=""
       t-on-click="onClick">
       <option selected="true" t-esc="props.selectedValue"/>
     </select>
