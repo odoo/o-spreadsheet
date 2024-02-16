@@ -13,6 +13,9 @@ export class DependencyContainer {
    * Also useful for mocking a store.
    */
   inject<T extends StoreConstructor>(Store: T, instance: InstanceType<T>): void {
+    if (this.dependencies.has(Store) && this.dependencies.get(Store) !== instance) {
+      throw new Error(`Store ${Store.name} already has an instance`);
+    }
     this.dependencies.set(Store, instance);
   }
 
