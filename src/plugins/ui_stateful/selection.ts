@@ -10,9 +10,11 @@ import {
   isEqual,
   positionToZone,
   positions,
+  recomputeZones,
   uniqueZones,
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
+  zoneToXc,
 } from "../../helpers/index";
 import { _t } from "../../translation";
 import { SelectionEvent } from "../../types/event_stream";
@@ -420,12 +422,17 @@ export class GridSelectionPlugin extends UIPlugin {
 
   getStatisticFnResults(): { [name: string]: number | undefined } {
     const sheetId = this.getters.getActiveSheetId();
-    const cells = new Set<EvaluatedCell>();
+    const cells: EvaluatedCell[] = [];
 
     const isRowHiddenCache: { [row: number]: boolean } = {};
     const isColHiddenCache: { [col: number]: boolean } = {};
 
-    for (const zone of this.gridSelection.zones) {
+    const recomputedXC = recomputeZones(this.gridSelection.zones.map(zoneToXc), []);
+    const zonesCleanedFromOverlapping = recomputedXC.map(
+      (xc) => this.getters.getRangeFromSheetXC(sheetId, xc).zone
+    );
+
+    for (const zone of zonesCleanedFromOverlapping) {
       for (const { col, row } of positions(zone)) {
         if (isRowHiddenCache[row] === undefined) {
           isRowHiddenCache[row] = this.getters.isRowHidden(sheetId, row);
@@ -439,7 +446,7 @@ export class GridSelectionPlugin extends UIPlugin {
 
         const evaluatedCell = this.getters.getEvaluatedCell({ sheetId, col, row });
         if (evaluatedCell.type !== CellValueType.empty) {
-          cells.add(evaluatedCell);
+          cells.push(evaluatedCell);
         }
       }
     }
@@ -454,7 +461,7 @@ export class GridSelectionPlugin extends UIPlugin {
       // Ex: if there are only texts in the selection, we prefer that the SUM result
       // be displayed as undefined rather than 0.
       let fnResult: number | undefined = undefined;
-      const evaluatedCells = [...cells].filter((c) => fn.types.includes(c.type));
+      const evaluatedCells = cells.filter((c) => fn.types.includes(c.type));
       if (evaluatedCells.length) {
         fnResult = fn.compute(evaluatedCells, locale);
       }
