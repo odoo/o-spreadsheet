@@ -375,9 +375,9 @@ describe("figures", () => {
         await nextTick();
         const figureEl = fixture.querySelector(".o-figure")!;
 
-        triggerMouseEvent(figureEl, "mousedown");
+        triggerMouseEvent(figureEl, "pointerdown");
         triggerWheelEvent(figureEl, { deltaY: wheelY, deltaX: wheelX });
-        triggerMouseEvent(figureEl, "mouseup");
+        triggerMouseEvent(figureEl, "pointerup");
         await nextTick();
 
         expect(model.getters.getFigure(model.getters.getActiveSheetId(), "someuuid")).toMatchObject(
@@ -400,7 +400,7 @@ describe("figures", () => {
     expect(document.activeElement).not.toBe(figure);
     expect(fixture.querySelector(".o-fig-anchor")).toBeNull();
 
-    triggerMouseEvent(figure, "mousedown", 300, 200);
+    triggerMouseEvent(figure, "pointerdown", 300, 200);
     await nextTick();
     expect(figure.classList).not.toContain("o-dragging");
   });
@@ -628,7 +628,7 @@ describe("figures", () => {
   test("Clicking a figure does not mark it a 'dragging'", async () => {
     createFigure(model);
     await nextTick();
-    triggerMouseEvent(".o-figure", "mousedown", 0, 0);
+    triggerMouseEvent(".o-figure", "pointerdown", 0, 0);
     await nextTick();
     expect(fixture.querySelector(".o-figure")?.classList.contains("o-dragging")).toBeFalsy();
   });
@@ -846,7 +846,7 @@ describe("figures", () => {
         expect(fixture.querySelectorAll(".o-figure-snap-line")).toHaveLength(0);
         await dragElement(".o-figure[data-id=f1]", { x: 50, y: 50 }, undefined, false);
         expect(fixture.querySelectorAll(".o-figure-snap-line")).toHaveLength(2);
-        triggerMouseEvent(".o-figure[data-id=f1]", "mouseup");
+        triggerMouseEvent(".o-figure[data-id=f1]", "pointerup");
         await nextTick();
         expect(fixture.querySelectorAll(".o-figure-snap-line")).toHaveLength(0);
       });

@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-FilterMenuValueItem">
     <div
       t-on-click="this.props.onClick"
-      t-on-mousemove="this.props.onMouseMove"
+      t-on-pointermove="this.props.onMouseMove"
       class="o-filter-menu-item o-filter-menu-value"
       t-ref="menuValueItem"
       t-att-class="{'selected': this.props.isSelected}">

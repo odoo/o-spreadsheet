@@ -456,7 +456,7 @@ describe("TopBar component", () => {
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(0);
   });
 
-  test("Can open a Topbar menu with mousemove", async () => {
+  test("Can open a Topbar menu with pointermove", async () => {
     const { parent } = await mountParent();
     await click(fixture, ".o-topbar-menu[data-id='edit']");
     const edit = getNode(["edit"], topbarMenuRegistry);

@@ -110,7 +110,7 @@ describe("BottomBar component", () => {
     const model = new Model({ sheets: [{ id: "Sheet1" }, { id: "Sheet2" }] });
     await mountBottomBar(model);
     const dispatch = jest.spyOn(model, "dispatch");
-    triggerMouseEvent(`.o-sheet[data-id="Sheet2"]`, "mousedown");
+    triggerMouseEvent(`.o-sheet[data-id="Sheet2"]`, "pointerdown");
     expect(dispatch).toHaveBeenCalledWith("ACTIVATE_SHEET", {
       sheetIdFrom: "Sheet1",
       sheetIdTo: "Sheet2",
@@ -716,7 +716,7 @@ describe("BottomBar component", () => {
       sheetList.scrollLeft = 120;
       sheetList.dispatchEvent(new Event("scroll")); // JSDOm don't trigger scroll event when the scrollLeft is changed...
 
-      triggerMouseEvent(document, "mouseup");
+      triggerMouseEvent(document, "pointerup");
       const sheetIds = model.getters.getVisibleSheetIds();
       expect(sheetIds).toEqual(["Sheet2", "Sheet1", "Sheet3", "Sheet4"]);
     });
@@ -736,7 +736,7 @@ describe("BottomBar component", () => {
       const sheetList = fixture.querySelector(".o-sheet-list")!;
       sheetList.dispatchEvent(new Event("scroll")); // JSDOm don't trigger scroll event when the scrollLeft is changed...
 
-      triggerMouseEvent(document, "mouseup");
+      triggerMouseEvent(document, "pointerup");
       const sheetIds = model.getters.getVisibleSheetIds();
       expect(sheetIds[sheetIds.length - 1]).toEqual("Sheet1");
     });
@@ -756,7 +756,7 @@ describe("BottomBar component", () => {
       const sheetList = fixture.querySelector(".o-sheet-list")!;
       sheetList.dispatchEvent(new Event("scroll")); // JSDOm don't trigger scroll event when the scrollLeft is changed...
 
-      triggerMouseEvent(document, "mouseup");
+      triggerMouseEvent(document, "pointerup");
       expect(model.getters.getVisibleSheetIds()[0]).toEqual("Sheet10");
     });
 
@@ -770,18 +770,18 @@ describe("BottomBar component", () => {
         },
       });
 
-      triggerMouseEvent('.o-sheet[data-id="Sheet1"]', "mousedown");
-      triggerMouseEvent('.o-sheet[data-id="Sheet1"]', "mousemove", 0, 0);
+      triggerMouseEvent('.o-sheet[data-id="Sheet1"]', "pointerdown");
+      triggerMouseEvent('.o-sheet[data-id="Sheet1"]', "pointermove", 0, 0);
       await nextTick();
       expect(getElComputedStyle('.o-sheet[data-id="Sheet1"]', "left")).toBe("0px");
       expect(getElComputedStyle('.o-sheet[data-id="Sheet2"]', "left")).toBe("0px");
 
-      triggerMouseEvent('.o-sheet[data-id="Sheet1"]', "mousemove", 100, 0);
+      triggerMouseEvent('.o-sheet[data-id="Sheet1"]', "pointermove", 100, 0);
       await nextTick();
       expect(getElComputedStyle(".o-sheet[data-id=Sheet1]", "left")).toBe("100px");
       expect(getElComputedStyle(".o-sheet[data-id=Sheet2]", "left")).toBe("-99px"); // -99 because we do a -1 to take the negative margin into account
 
-      triggerMouseEvent('.o-sheet[data-id="Sheet1"]', "mousemove", 150, 0); // 150 is the position of the mouse not the move offset
+      triggerMouseEvent('.o-sheet[data-id="Sheet1"]', "pointermove", 150, 0); // 150 is the position of the mouse not the move offset
       await nextTick();
       expect(getElComputedStyle(".o-sheet[data-id=Sheet1]", "left")).toBe("150px");
       expect(getElComputedStyle(".o-sheet[data-id=Sheet2]", "left")).toBe("-99px");

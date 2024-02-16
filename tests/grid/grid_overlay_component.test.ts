@@ -57,11 +57,11 @@ async function selectColumn(letter: string, extra: any = {}) {
 async function resizeColumn(letter: string, delta: number) {
   const index = lettersToNumber(letter);
   const x = model.getters.getColDimensions(model.getters.getActiveSheetId(), index)!.start + 1;
-  triggerMouseEvent(".o-overlay .o-col-resizer", "mousemove", x, 10);
+  triggerMouseEvent(".o-overlay .o-col-resizer", "pointermove", x, 10);
   await nextTick();
-  triggerMouseEvent(".o-overlay .o-col-resizer .o-handle", "mousedown", x, 10);
-  triggerMouseEvent(window, "mousemove", x + delta, 10);
-  triggerMouseEvent(window, "mouseup", x + delta, 10);
+  triggerMouseEvent(".o-overlay .o-col-resizer .o-handle", "pointerdown", x, 10);
+  triggerMouseEvent(window, "pointermove", x + delta, 10);
+  triggerMouseEvent(window, "pointerup", x + delta, 10);
   await nextTick();
 }
 /**
@@ -72,12 +72,12 @@ async function resizeColumn(letter: string, delta: number) {
 async function dragColumn(startLetter: string, endLetter: string) {
   let index = lettersToNumber(startLetter);
   let x = model.getters.getColDimensions(model.getters.getActiveSheetId(), index)!.start + 1;
-  triggerMouseEvent(".o-overlay .o-col-resizer", "mousedown", x, 10);
+  triggerMouseEvent(".o-overlay .o-col-resizer", "pointerdown", x, 10);
   index = lettersToNumber(endLetter);
   x = model.getters.getColDimensions(model.getters.getActiveSheetId(), index)!.start + 1;
-  triggerMouseEvent(window, "mousemove", x, 10, { buttons: 1 });
+  triggerMouseEvent(window, "pointermove", x, 10, { buttons: 1 });
   await nextTick();
-  triggerMouseEvent(window, "mouseup", x, 10);
+  triggerMouseEvent(window, "pointerup", x, 10);
 }
 /**
  * Trigger a double click on a column
@@ -86,7 +86,7 @@ async function dragColumn(startLetter: string, endLetter: string) {
 async function dblClickColumn(letter: string) {
   const index = lettersToNumber(letter);
   const x = model.getters.getColDimensions(model.getters.getActiveSheetId(), index)!.end;
-  triggerMouseEvent(".o-overlay .o-col-resizer", "mousemove", x, 10);
+  triggerMouseEvent(".o-overlay .o-col-resizer", "pointermove", x, 10);
   await nextTick();
   triggerMouseEvent(".o-overlay .o-col-resizer .o-handle", "dblclick", x, 10);
 }
@@ -97,10 +97,10 @@ async function dblClickColumn(letter: string) {
  */
 async function selectRow(index: number, extra: any = {}) {
   const y = model.getters.getRowDimensions(model.getters.getActiveSheetId(), index)!.start + 1;
-  triggerMouseEvent(".o-overlay .o-row-resizer", "mousemove", 10, y);
+  triggerMouseEvent(".o-overlay .o-row-resizer", "pointermove", 10, y);
   await nextTick();
-  triggerMouseEvent(".o-overlay .o-row-resizer", "mousedown", 10, y, extra);
-  triggerMouseEvent(window, "mouseup", 10, y);
+  triggerMouseEvent(".o-overlay .o-row-resizer", "pointerdown", 10, y, extra);
+  triggerMouseEvent(window, "pointerup", 10, y);
 }
 /**
  * Resize a row
@@ -109,11 +109,11 @@ async function selectRow(index: number, extra: any = {}) {
  */
 async function resizeRow(index: number, delta: number) {
   const y = model.getters.getRowDimensions(model.getters.getActiveSheetId(), index)!.start + 1;
-  triggerMouseEvent(".o-overlay .o-row-resizer", "mousemove", 10, y);
+  triggerMouseEvent(".o-overlay .o-row-resizer", "pointermove", 10, y);
   await nextTick();
-  triggerMouseEvent(".o-overlay .o-row-resizer .o-handle", "mousedown", 10, y);
-  triggerMouseEvent(window, "mousemove", 10, y + delta);
-  triggerMouseEvent(window, "mouseup", 10, y + delta);
+  triggerMouseEvent(".o-overlay .o-row-resizer .o-handle", "pointerdown", 10, y);
+  triggerMouseEvent(window, "pointermove", 10, y + delta);
+  triggerMouseEvent(window, "pointerup", 10, y + delta);
   await nextTick();
 }
 /**
@@ -123,11 +123,11 @@ async function resizeRow(index: number, delta: number) {
  */
 async function dragRow(startIndex: number, endIndex: number) {
   let y = model.getters.getRowDimensions(model.getters.getActiveSheetId(), startIndex)!.start + 1;
-  triggerMouseEvent(".o-overlay .o-row-resizer", "mousedown", 10, y);
+  triggerMouseEvent(".o-overlay .o-row-resizer", "pointerdown", 10, y);
   y = model.getters.getRowDimensions(model.getters.getActiveSheetId(), endIndex)!.start + 1;
-  triggerMouseEvent(window, "mousemove", 10, y, { buttons: 1 });
+  triggerMouseEvent(window, "pointermove", 10, y, { buttons: 1 });
   await nextTick();
-  triggerMouseEvent(window, "mouseup", 10, y);
+  triggerMouseEvent(window, "pointerup", 10, y);
 }
 /**
  * Trigger a double click on a row
@@ -135,7 +135,7 @@ async function dragRow(startIndex: number, endIndex: number) {
  */
 async function dblClickRow(index: number) {
   const y = model.getters.getRowDimensions(model.getters.getActiveSheetId(), index)!.end;
-  triggerMouseEvent(".o-overlay .o-row-resizer", "mousemove", 10, y);
+  triggerMouseEvent(".o-overlay .o-row-resizer", "pointermove", 10, y);
   await nextTick();
 
   triggerMouseEvent(".o-overlay .o-row-resizer .o-handle", "dblclick", 10, y);
@@ -174,14 +174,14 @@ describe("Resizer component", () => {
     const index = lettersToNumber("C");
     const x = model.getters.getColDimensions(model.getters.getActiveSheetId(), index)!.start + 1;
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
-    triggerMouseEvent(".o-overlay .o-col-resizer", "mousemove", x, 10);
+    triggerMouseEvent(".o-overlay .o-col-resizer", "pointermove", x, 10);
     await nextTick();
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
-    triggerMouseEvent(".o-overlay .o-col-resizer .o-handle", "mousedown", x, 10);
-    triggerMouseEvent(window, "mousemove", x + 50, 10);
+    triggerMouseEvent(".o-overlay .o-col-resizer .o-handle", "pointerdown", x, 10);
+    triggerMouseEvent(window, "pointermove", x + 50, 10);
     await nextTick();
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
-    triggerMouseEvent(window, "mouseup", x + 50, 10);
+    triggerMouseEvent(window, "pointerup", x + 50, 10);
     await nextTick();
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
   });
@@ -355,22 +355,22 @@ describe("Resizer component", () => {
     );
   });
   test("can select the entire sheet", async () => {
-    triggerMouseEvent(".o-overlay .all", "mousedown", 5, 5);
+    triggerMouseEvent(".o-overlay .all", "pointerdown", 5, 5);
     expect(model.getters.getSelectedZones()[0]).toEqual({ left: 0, top: 0, right: 9, bottom: 9 });
     expect(getSelectionAnchorCellXc(model)).toBe("A1");
   });
 
   test("Mousemove hover something else than a header", async () => {
-    triggerMouseEvent(".o-overlay .o-col-resizer", "mousemove", -10, 10);
+    triggerMouseEvent(".o-overlay .o-col-resizer", "pointermove", -10, 10);
     expect(fixture.querySelector("o-handle")).toBeNull();
 
-    triggerMouseEvent(".o-overlay .o-row-resizer", "mousemove", 10, -10);
+    triggerMouseEvent(".o-overlay .o-row-resizer", "pointermove", 10, -10);
     expect(fixture.querySelector("o-handle")).toBeNull();
 
-    triggerMouseEvent(".o-overlay .o-col-resizer", "mousemove", 20, 10);
+    triggerMouseEvent(".o-overlay .o-col-resizer", "pointermove", 20, 10);
     expect(fixture.querySelector("o-handle")).toBeNull();
 
-    triggerMouseEvent(".o-overlay .o-row-resizer", "mousemove", 10, 12);
+    triggerMouseEvent(".o-overlay .o-row-resizer", "pointermove", 10, 12);
     expect(fixture.querySelector("o-handle")).toBeNull();
   });
 
@@ -782,13 +782,13 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
     const { width } = model.getters.getSheetViewDimension();
     const y = DEFAULT_CELL_HEIGHT;
 
-    triggerMouseEvent(".o-col-resizer", "mousedown", width / 2, y);
-    triggerMouseEvent(".o-col-resizer", "mousemove", 1.5 * width, y);
+    triggerMouseEvent(".o-col-resizer", "pointerdown", width / 2, y);
+    triggerMouseEvent(".o-col-resizer", "pointermove", 1.5 * width, y);
     // we want 5 ticks of setTimeout
     const advanceTimer = edgeScrollDelay(0.5 * width, 5);
 
     jest.advanceTimersByTime(advanceTimer);
-    triggerMouseEvent(".o-col-resizer", "mouseup", 1.5 * width, y);
+    triggerMouseEvent(".o-col-resizer", "pointerup", 1.5 * width, y);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 6,
@@ -797,13 +797,13 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
       bottom: 42,
     });
 
-    triggerMouseEvent(".o-col-resizer", "mousedown", width / 2, y);
-    triggerMouseEvent(".o-col-resizer", "mousemove", -0.5 * width, y);
+    triggerMouseEvent(".o-col-resizer", "pointerdown", width / 2, y);
+    triggerMouseEvent(".o-col-resizer", "pointermove", -0.5 * width, y);
     // we want 2 ticks of setTimeout
     const advanceTimer2 = edgeScrollDelay(0.5 * width, 2);
 
     jest.advanceTimersByTime(advanceTimer2);
-    triggerMouseEvent(".o-col-resizer", "mouseup", -0.5 * width, y);
+    triggerMouseEvent(".o-col-resizer", "pointerup", -0.5 * width, y);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 3,
@@ -816,12 +816,12 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
   test("Can edge-scroll vertically", async () => {
     const { height } = model.getters.getSheetViewDimensionWithHeaders();
     const x = DEFAULT_CELL_WIDTH / 2;
-    triggerMouseEvent(".o-row-resizer", "mousedown", x, height / 2);
-    triggerMouseEvent(".o-row-resizer", "mousemove", x, 1.5 * height);
+    triggerMouseEvent(".o-row-resizer", "pointerdown", x, height / 2);
+    triggerMouseEvent(".o-row-resizer", "pointermove", x, 1.5 * height);
     const advanceTimer = edgeScrollDelay(0.5 * height, 5);
 
     jest.advanceTimersByTime(advanceTimer);
-    triggerMouseEvent(".o-row-resizer", "mouseup", x, 1.5 * height);
+    triggerMouseEvent(".o-row-resizer", "pointerup", x, 1.5 * height);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 0,
@@ -830,12 +830,12 @@ describe("Edge-Scrolling on mouseMove in selection", () => {
       bottom: 48,
     });
 
-    triggerMouseEvent(".o-row-resizer", "mousedown", x, height / 2);
-    triggerMouseEvent(".o-row-resizer", "mousemove", x, -0.5 * height);
+    triggerMouseEvent(".o-row-resizer", "pointerdown", x, height / 2);
+    triggerMouseEvent(".o-row-resizer", "pointermove", x, -0.5 * height);
     const advanceTimer2 = edgeScrollDelay(0.5 * height, 2);
 
     jest.advanceTimersByTime(advanceTimer2);
-    triggerMouseEvent(".o-row-resizer", "mouseup", x, -0.5 * height);
+    triggerMouseEvent(".o-row-resizer", "pointerup", x, -0.5 * height);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 0,

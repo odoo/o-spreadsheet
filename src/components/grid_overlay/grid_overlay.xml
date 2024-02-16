@@ -5,7 +5,7 @@
       class="o-grid-overlay overflow-hidden"
       t-att-class="{'o-paint-format-cursor': isPaintingFormat}"
       t-att-style="style"
-      t-on-mousedown="onMouseDown"
+      t-on-pointerdown="onMouseDown"
       t-on-dblclick.self="onDoubleClick"
       t-on-contextmenu.stop.prevent="onContextMenu">
       <FiguresContainer onFigureDeleted="props.onFigureDeleted"/>

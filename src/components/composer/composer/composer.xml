@@ -12,7 +12,7 @@
         t-on-keydown="onKeydown"
         t-on-mousewheel.stop=""
         t-on-input="onInput"
-        t-on-mousedown="onMousedown"
+        t-on-pointerdown="onMousedown"
         t-on-click="onClick"
         t-on-keyup="onKeyup"
         t-on-paste="onPaste"
@@ -26,9 +26,9 @@
         class="o-composer-assistant shadow"
         t-att-style="assistantStyle"
         t-on-wheel.stop=""
-        t-on-mousedown.prevent.stop=""
+        t-on-pointerdown.prevent.stop=""
         t-on-click.prevent.stop=""
-        t-on-mouseup.prevent.stop="">
+        t-on-pointerup.prevent.stop="">
         <TextValueProvider
           t-if="autoCompleteState.showProvider"
           values="autoCompleteState.values"

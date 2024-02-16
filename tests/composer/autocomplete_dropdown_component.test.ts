@@ -246,12 +246,12 @@ describe("Functions autocomplete", () => {
       const entries = fixture.querySelectorAll(".o-autocomplete-value");
       const firstEntry = entries[0];
       const secondEntry = entries[1];
-      triggerMouseEvent(secondEntry, "mousemove");
+      triggerMouseEvent(secondEntry, "pointermove");
       await nextTick();
       expect(
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent
       ).toBe("SZZ");
-      triggerMouseEvent(firstEntry, "mousemove");
+      triggerMouseEvent(firstEntry, "pointermove");
       await nextTick();
       expect(
         fixture.querySelector(".o-autocomplete-value-focus .o-autocomplete-value")!.textContent

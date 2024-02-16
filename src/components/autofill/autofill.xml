@@ -4,7 +4,7 @@
     <div
       class="o-autofill-handler"
       t-att-style="handlerStyle"
-      t-on-mousedown="onMouseDown"
+      t-on-pointerdown="onMouseDown"
       t-on-dblclick="onDblClick"
     />
     <t t-set="tooltip" t-value="getTooltip()"/>

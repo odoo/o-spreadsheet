@@ -12,19 +12,19 @@ export function startDnd(
   const _onMouseUp = (ev: MouseEvent) => {
     onMouseUp(ev);
 
-    window.removeEventListener("mousedown", onMouseDown);
-    window.removeEventListener("mouseup", _onMouseUp);
+    window.removeEventListener("pointerdown", onMouseDown);
+    window.removeEventListener("pointerup", _onMouseUp);
     window.removeEventListener("dragstart", _onDragStart);
-    window.removeEventListener("mousemove", onMouseMove);
+    window.removeEventListener("pointermove", onMouseMove);
     window.removeEventListener("wheel", onMouseMove);
   };
   function _onDragStart(ev: DragEvent) {
     ev.preventDefault();
   }
-  window.addEventListener("mousedown", onMouseDown);
-  window.addEventListener("mouseup", _onMouseUp);
+  window.addEventListener("pointerdown", onMouseDown);
+  window.addEventListener("pointerup", _onMouseUp);
   window.addEventListener("dragstart", _onDragStart);
-  window.addEventListener("mousemove", onMouseMove);
+  window.addEventListener("pointermove", onMouseMove);
   // mouse wheel on window is by default a passive event.
   // preventDefault() is not allowed in passive event handler.
   // https://chromestatus.com/feature/6662647093133312
@@ -32,13 +32,13 @@ export function startDnd(
 }
 
 /**
- * Function to be used during a mousedown event, this function allows to
- * perform actions related to the mousemove and mouseup events and adjusts the viewport
- * when the new position related to the mousemove event is outside of it.
+ * Function to be used during a pointerdown event, this function allows to
+ * perform actions related to the pointermove and pointerup events and adjusts the viewport
+ * when the new position related to the pointermove event is outside of it.
  * Among inputs are two callback functions. First intended for actions performed during
- * the mousemove event, it receives as parameters the current position of the mousemove
+ * the pointermove event, it receives as parameters the current position of the pointermove
  * (occurrence of the current column and the current row). Second intended for actions
- * performed during the mouseup event.
+ * performed during the pointerup event.
  */
 export function dragAndDropBeyondTheViewport(
   env: SpreadsheetChildEnv,

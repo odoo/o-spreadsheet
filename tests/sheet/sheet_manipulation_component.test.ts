@@ -38,9 +38,9 @@ beforeEach(async () => {
 
 function simulateContextMenu(selector: string, coord: { x: number; y: number }) {
   const target = document.querySelector(selector)! as HTMLElement;
-  triggerMouseEvent(selector, "mousedown", coord.x, coord.y, { button: 1, bubbles: true });
+  triggerMouseEvent(selector, "pointerdown", coord.x, coord.y, { button: 1, bubbles: true });
   target.focus();
-  triggerMouseEvent(selector, "mouseup", coord.x, coord.y, { button: 1, bubbles: true });
+  triggerMouseEvent(selector, "pointerup", coord.x, coord.y, { button: 1, bubbles: true });
   triggerMouseEvent(selector, "contextmenu", coord.x, coord.y, { button: 1, bubbles: true });
 }
 describe("Context Menu add/remove row/col", () => {

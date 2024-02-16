@@ -9,7 +9,7 @@
           class="d-flex flex-column text-start"
           t-att-class="{'o-autocomplete-value-focus': props.selectedIndex === v_index}"
           t-on-click="() => this.props.onValueSelected(v.text)"
-          t-on-mousemove="() => this.props.onValueHovered(v_index)">
+          t-on-pointermove="() => this.props.onValueHovered(v_index)">
           <div class="o-autocomplete-value text-truncate">
             <t t-set="htmlContent" t-value="props.getHtmlContent(v.text)"/>
             <span

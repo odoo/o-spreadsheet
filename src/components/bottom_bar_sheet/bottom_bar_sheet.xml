@@ -3,7 +3,7 @@
     <Ripple>
       <div
         class="o-sheet d-flex align-items-center user-select-none text-nowrap "
-        t-on-mousedown="(ev) => this.onMouseDown(ev)"
+        t-on-pointerdown="(ev) => this.onMouseDown(ev)"
         t-on-contextmenu.prevent="(ev) => this.onContextMenu(ev)"
         t-ref="sheetDiv"
         t-att-style="props.style"

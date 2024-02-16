@@ -47,55 +47,70 @@ function getRowEndPosition(row: number) {
 
 async function selectNWCellCorner(el: Element, xc: string) {
   const { top, left } = toZone(xc);
-  triggerMouseEvent(el, "mousedown", getColStartPosition(left), getRowStartPosition(top));
+  triggerMouseEvent(el, "pointerdown", getColStartPosition(left), getRowStartPosition(top));
   await nextTick();
 }
 
 async function selectNECellCorner(el: Element, xc: string) {
   const { top, left } = toZone(xc);
-  triggerMouseEvent(el, "mousedown", getColEndPosition(left), getRowStartPosition(top));
+  triggerMouseEvent(el, "pointerdown", getColEndPosition(left), getRowStartPosition(top));
   await nextTick();
 }
 
 async function selectSWCellCorner(el: Element, xc: string) {
   const { top, left } = toZone(xc);
-  triggerMouseEvent(el, "mousedown", getColStartPosition(left), getRowEndPosition(top));
+  triggerMouseEvent(el, "pointerdown", getColStartPosition(left), getRowEndPosition(top));
   await nextTick();
 }
 
 async function selectSECellCorner(el: Element, xc: string) {
   const { top, left } = toZone(xc);
-  triggerMouseEvent(el, "mousedown", getColEndPosition(left), getRowEndPosition(top));
+  triggerMouseEvent(el, "pointerdown", getColEndPosition(left), getRowEndPosition(top));
   await nextTick();
 }
 
 async function selectTopCellBorder(el: Element, xc: string) {
   const { top, left } = toZone(xc);
-  triggerMouseEvent(el, "mousedown", getColStartPosition(left) + 10, getRowStartPosition(top) + 2);
+  triggerMouseEvent(
+    el,
+    "pointerdown",
+    getColStartPosition(left) + 10,
+    getRowStartPosition(top) + 2
+  );
   await nextTick();
 }
 
 async function selectBottomCellBorder(el: Element, xc: string) {
   const { top, left } = toZone(xc);
-  triggerMouseEvent(el, "mousedown", getColStartPosition(left) + 10, getRowEndPosition(top) - 2);
+  triggerMouseEvent(el, "pointerdown", getColStartPosition(left) + 10, getRowEndPosition(top) - 2);
   await nextTick();
 }
 
 async function selectLeftCellBorder(el: Element, xc: string) {
   const { top, left } = toZone(xc);
-  triggerMouseEvent(el, "mousedown", getColStartPosition(left) + 2, getRowStartPosition(top) + 10);
+  triggerMouseEvent(
+    el,
+    "pointerdown",
+    getColStartPosition(left) + 2,
+    getRowStartPosition(top) + 10
+  );
   await nextTick();
 }
 
 async function selectRightCellBorder(el: Element, xc: string) {
   const { top, left } = toZone(xc);
-  triggerMouseEvent(el, "mousedown", getColEndPosition(left) - 2, getRowStartPosition(top) + 10);
+  triggerMouseEvent(el, "pointerdown", getColEndPosition(left) - 2, getRowStartPosition(top) + 10);
   await nextTick();
 }
 
 async function moveToCell(el: Element, xc: string) {
   const { top, left } = toZone(xc);
-  triggerMouseEvent(el, "mousemove", getColStartPosition(left) + 10, getRowStartPosition(top) + 10);
+  triggerMouseEvent(
+    el,
+    "pointermove",
+    getColStartPosition(left) + 10,
+    getRowStartPosition(top) + 10
+  );
   await nextTick();
 }
 
@@ -328,7 +343,7 @@ describe("Corner component", () => {
     // move outside the grid
     triggerMouseEvent(
       cornerEl,
-      "mousemove",
+      "pointermove",
       getColStartPosition(0) - 100,
       getRowStartPosition(0) - 100
     );
@@ -758,12 +773,12 @@ describe("Edge-Scrolling on mouseMove of hightlights", () => {
     const { width } = model.getters.getSheetViewDimensionWithHeaders();
     const y = DEFAULT_CELL_HEIGHT;
 
-    triggerMouseEvent(".o-border-n", "mousedown", width / 2, y);
-    triggerMouseEvent(".o-border-n", "mousemove", 1.5 * width, y);
+    triggerMouseEvent(".o-border-n", "pointerdown", width / 2, y);
+    triggerMouseEvent(".o-border-n", "pointermove", 1.5 * width, y);
     const advanceTimer = edgeScrollDelay(0.5 * width, 5);
 
     jest.advanceTimersByTime(advanceTimer);
-    triggerMouseEvent(".o-border-n", "mouseup", 1.5 * width, y);
+    triggerMouseEvent(".o-border-n", "pointerup", 1.5 * width, y);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 6,
       right: 16,
@@ -774,12 +789,12 @@ describe("Edge-Scrolling on mouseMove of hightlights", () => {
     // force a nextTick to update the props of Highlight as it is not using an internal state
     await nextTick();
 
-    triggerMouseEvent(".o-border-n", "mousedown", width / 2, y);
-    triggerMouseEvent(".o-border-n", "mousemove", -0.5 * width, y);
+    triggerMouseEvent(".o-border-n", "pointerdown", width / 2, y);
+    triggerMouseEvent(".o-border-n", "pointermove", -0.5 * width, y);
     const advanceTimer2 = edgeScrollDelay(0.5 * width, 2);
 
     jest.advanceTimersByTime(advanceTimer2);
-    triggerMouseEvent(".o-border-n", "mouseup", -0.5 * width, y);
+    triggerMouseEvent(".o-border-n", "pointerup", -0.5 * width, y);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 3,
@@ -792,12 +807,12 @@ describe("Edge-Scrolling on mouseMove of hightlights", () => {
   test("Can edge-scroll border vertically", async () => {
     const { height } = model.getters.getSheetViewDimensionWithHeaders();
     const x = DEFAULT_CELL_WIDTH / 2;
-    triggerMouseEvent(".o-border-n", "mousedown", x, height / 2);
-    triggerMouseEvent(".o-border-n", "mousemove", x, 1.5 * height);
+    triggerMouseEvent(".o-border-n", "pointerdown", x, height / 2);
+    triggerMouseEvent(".o-border-n", "pointermove", x, 1.5 * height);
     const advanceTimer = edgeScrollDelay(0.5 * height, 5);
 
     jest.advanceTimersByTime(advanceTimer);
-    triggerMouseEvent(".o-border-n", "mouseup", x, 1.5 * height);
+    triggerMouseEvent(".o-border-n", "pointerup", x, 1.5 * height);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 0,
@@ -809,12 +824,12 @@ describe("Edge-Scrolling on mouseMove of hightlights", () => {
     // force a nextTick to update the props of Highlight as it is not using an internal state
     await nextTick();
 
-    triggerMouseEvent(".o-border-n", "mousedown", x, height / 2);
-    triggerMouseEvent(".o-border-n", "mousemove", x, -0.5 * height);
+    triggerMouseEvent(".o-border-n", "pointerdown", x, height / 2);
+    triggerMouseEvent(".o-border-n", "pointermove", x, -0.5 * height);
     const advanceTimer2 = edgeScrollDelay(0.5 * height, 2);
 
     jest.advanceTimersByTime(advanceTimer2);
-    triggerMouseEvent(".o-border-n", "mouseup", x, -0.5 * height);
+    triggerMouseEvent(".o-border-n", "pointerup", x, -0.5 * height);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 0,
@@ -828,12 +843,12 @@ describe("Edge-Scrolling on mouseMove of hightlights", () => {
     const { width } = model.getters.getSheetViewDimensionWithHeaders();
     const y = DEFAULT_CELL_HEIGHT;
 
-    triggerMouseEvent(".o-corner-nw", "mousedown", width / 2, y);
-    triggerMouseEvent(".o-corner-nw", "mousemove", 1.5 * width, y);
+    triggerMouseEvent(".o-corner-nw", "pointerdown", width / 2, y);
+    triggerMouseEvent(".o-corner-nw", "pointermove", 1.5 * width, y);
     const advanceTimer = edgeScrollDelay(0.5 * width, 5);
 
     jest.advanceTimersByTime(advanceTimer);
-    triggerMouseEvent(".o-corner-nw", "mouseup", 1.5 * width, y);
+    triggerMouseEvent(".o-corner-nw", "pointerup", 1.5 * width, y);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 6,
       right: 16,
@@ -844,12 +859,12 @@ describe("Edge-Scrolling on mouseMove of hightlights", () => {
     // force a nextTick to update the props of Highlight as it is not using an internal state
     await nextTick();
 
-    triggerMouseEvent(".o-corner-nw", "mousedown", width / 2, y);
-    triggerMouseEvent(".o-corner-nw", "mousemove", -0.5 * width, y);
+    triggerMouseEvent(".o-corner-nw", "pointerdown", width / 2, y);
+    triggerMouseEvent(".o-corner-nw", "pointermove", -0.5 * width, y);
     const advanceTimer2 = edgeScrollDelay(0.5 * width, 2);
 
     jest.advanceTimersByTime(advanceTimer2);
-    triggerMouseEvent(".o-corner-nw", "mouseup", -0.5 * width, y);
+    triggerMouseEvent(".o-corner-nw", "pointerup", -0.5 * width, y);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 3,
@@ -862,12 +877,12 @@ describe("Edge-Scrolling on mouseMove of hightlights", () => {
   test("Can edge-scroll corner vertically", async () => {
     const { height } = model.getters.getSheetViewDimensionWithHeaders();
     const x = DEFAULT_CELL_WIDTH / 2;
-    triggerMouseEvent(".o-corner-nw", "mousedown", x, height / 2);
-    triggerMouseEvent(".o-corner-nw", "mousemove", x, 1.5 * height);
+    triggerMouseEvent(".o-corner-nw", "pointerdown", x, height / 2);
+    triggerMouseEvent(".o-corner-nw", "pointermove", x, 1.5 * height);
     const advanceTimer = edgeScrollDelay(0.5 * height, 5);
 
     jest.advanceTimersByTime(advanceTimer);
-    triggerMouseEvent(".o-corner-nw", "mouseup", x, 1.5 * height);
+    triggerMouseEvent(".o-corner-nw", "pointerup", x, 1.5 * height);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 0,
@@ -879,12 +894,12 @@ describe("Edge-Scrolling on mouseMove of hightlights", () => {
     // force a nextTick to update the props of Highlight as it is not using an internal state
     await nextTick();
 
-    triggerMouseEvent(".o-corner-nw", "mousedown", x, height / 2);
-    triggerMouseEvent(".o-corner-nw", "mousemove", x, -0.5 * height);
+    triggerMouseEvent(".o-corner-nw", "pointerdown", x, height / 2);
+    triggerMouseEvent(".o-corner-nw", "pointermove", x, -0.5 * height);
     const advanceTimer2 = edgeScrollDelay(0.5 * height, 2);
 
     jest.advanceTimersByTime(advanceTimer2);
-    triggerMouseEvent(".o-corner-nw", "mouseup", x, -0.5 * height);
+    triggerMouseEvent(".o-corner-nw", "pointerup", x, -0.5 * height);
 
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       left: 0,

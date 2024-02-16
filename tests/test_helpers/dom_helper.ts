@@ -13,7 +13,7 @@ export async function simulateClick(
   extra: MouseEventInit = { bubbles: true }
 ) {
   const target = getTarget(selector);
-  triggerMouseEvent(selector, "mousedown", x, y, extra);
+  triggerMouseEvent(selector, "pointerdown", x, y, extra);
   if (target !== document.activeElement) {
     const oldActiveEl = document.activeElement;
     (document.activeElement as HTMLElement | null)?.dispatchEvent(
@@ -33,7 +33,7 @@ export async function simulateClick(
       target.dispatchEvent(new FocusEvent("focus", { relatedTarget: oldActiveEl }));
     }
   }
-  triggerMouseEvent(selector, "mouseup", x, y, extra);
+  triggerMouseEvent(selector, "pointerup", x, y, extra);
   triggerMouseEvent(selector, "click", x, y, extra);
   await nextTick();
 }
@@ -95,7 +95,7 @@ export async function hoverCell(model: Model, xc: string, delay: number) {
     x -= HEADER_WIDTH;
     y -= HEADER_HEIGHT;
   }
-  triggerMouseEvent(".o-grid-overlay", "mousemove", x, y);
+  triggerMouseEvent(".o-grid-overlay", "pointermove", x, y);
   jest.advanceTimersByTime(delay);
   await nextTick();
 }
@@ -149,6 +149,9 @@ export function triggerMouseEvent(
   offsetY?: number,
   extra: MouseEventInit = { bubbles: true }
 ) {
+  if (type === "pointermove") {
+    extra = { button: -1, ...extra };
+  }
   const ev = new MouseEvent(type, {
     // this is only correct if we assume the target is positioned
     // at the very top left corner of the screen
@@ -279,10 +282,10 @@ export function getElStyle(selector: string, style: string): string {
 export async function selectColumnByClicking(model: Model, letter: string, extra: any = {}) {
   const index = lettersToNumber(letter);
   const x = model.getters.getColDimensions(model.getters.getActiveSheetId(), index)!.start + 1;
-  triggerMouseEvent(".o-overlay .o-col-resizer", "mousemove", x, 10);
+  triggerMouseEvent(".o-overlay .o-col-resizer", "pointermove", x, 10);
   await nextTick();
-  triggerMouseEvent(".o-overlay .o-col-resizer", "mousedown", x, 10, extra);
-  triggerMouseEvent(window, "mouseup", x, 10);
+  triggerMouseEvent(".o-overlay .o-col-resizer", "pointerdown", x, 10, extra);
+  triggerMouseEvent(window, "pointerup", x, 10);
   await nextTick();
 }
 
@@ -294,10 +297,10 @@ export async function dragElement(
 ) {
   const { x: startX, y: startY } = startingPosition;
   const { x: offsetX, y: offsetY } = dragOffset;
-  triggerMouseEvent(element, "mousedown", startX, startY);
-  triggerMouseEvent(element, "mousemove", startX + offsetX, startY + offsetY);
+  triggerMouseEvent(element, "pointerdown", startX, startY);
+  triggerMouseEvent(element, "pointermove", startX + offsetX, startY + offsetY);
   if (mouseUp) {
-    triggerMouseEvent(element, "mouseup", startX + offsetX, startY + offsetY);
+    triggerMouseEvent(element, "pointerup", startX + offsetX, startY + offsetY);
   }
   await nextTick();
 }

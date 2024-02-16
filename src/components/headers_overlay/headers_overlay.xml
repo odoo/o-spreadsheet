@@ -3,18 +3,18 @@
     <div class="o-overlay">
       <ColResizer onOpenContextMenu="props.onOpenContextMenu"/>
       <RowResizer onOpenContextMenu="props.onOpenContextMenu"/>
-      <div class="all" t-on-mousedown.self="selectAll"/>
+      <div class="all" t-on-pointerdown.self="selectAll"/>
     </div>
   </t>
 
   <t t-name="o-spreadsheet-RowResizer">
     <div
       class="o-row-resizer"
-      t-on-mousemove.self="onMouseMove"
+      t-on-pointermove.self="onMouseMove"
       t-on-mouseleave="onMouseLeave"
-      t-on-mousedown.self.prevent="select"
+      t-on-pointerdown.self.prevent="select"
       t-ref="rowResizer"
-      t-on-mouseup.self="onMouseUp"
+      t-on-pointerup.self="onMouseUp"
       t-on-contextmenu.self="onContextMenu"
       t-att-class="{'o-grab': state.waitingForMove, 'o-dragging': state.isMoving}">
       <div
@@ -30,7 +30,7 @@
       <t t-if="state.resizerIsActive">
         <div
           class="o-handle"
-          t-on-mousedown="onMouseDown"
+          t-on-pointerdown="onMouseDown"
           t-on-dblclick="onDblClick"
           t-on-contextmenu.prevent=""
           t-attf-style="top:{{state.draggerLinePosition - 2}}px;">
@@ -69,11 +69,11 @@
   <t t-name="o-spreadsheet-ColResizer">
     <div
       class="o-col-resizer"
-      t-on-mousemove.self="onMouseMove"
+      t-on-pointermove.self="onMouseMove"
       t-on-mouseleave="onMouseLeave"
-      t-on-mousedown.self.prevent="select"
+      t-on-pointerdown.self.prevent="select"
       t-ref="colResizer"
-      t-on-mouseup.self="onMouseUp"
+      t-on-pointerup.self="onMouseUp"
       t-on-contextmenu.self="onContextMenu"
       t-att-class="{'o-grab': state.waitingForMove, 'o-dragging': state.isMoving, }">
       <div
@@ -89,7 +89,7 @@
       <t t-if="state.resizerIsActive">
         <div
           class="o-handle"
-          t-on-mousedown="onMouseDown"
+          t-on-pointerdown="onMouseDown"
           t-on-dblclick="onDblClick"
           t-on-contextmenu.prevent=""
           t-attf-style="left:{{state.draggerLinePosition - 2}}px;">
