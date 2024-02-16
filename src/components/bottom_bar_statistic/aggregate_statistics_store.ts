@@ -1,6 +1,6 @@
 import { sum } from "../../functions/helper_math";
 import { average, countAny, countNumbers, max, min } from "../../functions/helper_statistical";
-import { lazy, memoize } from "../../helpers";
+import { lazy, memoize, recomputeZones, zoneToXc } from "../../helpers";
 import { Get } from "../../store_engine";
 import { SpreadsheetStore } from "../../stores";
 import { _t } from "../../translation";
@@ -105,10 +105,14 @@ export class AggregateStatisticsStore extends SpreadsheetStore {
   private _computeStatisticFnResults(): StatisticFnResults {
     const getters = this.getters;
     const sheetId = getters.getActiveSheetId();
-    const cells = new Set<EvaluatedCell>();
+    const cells: EvaluatedCell[] = [];
 
-    const zones = getters.getSelectedZones();
-    for (const zone of zones) {
+    const recomputedXC = recomputeZones(getters.getSelectedZones().map(zoneToXc), []);
+    const zonesCleanedFromOverlapping = recomputedXC.map(
+      (xc) => this.getters.getRangeFromSheetXC(sheetId, xc).zone
+    );
+
+    for (const zone of zonesCleanedFromOverlapping) {
       for (let col = zone.left; col <= zone.right; col++) {
         for (let row = zone.top; row <= zone.bottom; row++) {
           if (getters.isRowHidden(sheetId, row) || getters.isColHidden(sheetId, col)) {
@@ -117,18 +121,17 @@ export class AggregateStatisticsStore extends SpreadsheetStore {
 
           const evaluatedCell = getters.getEvaluatedCell({ sheetId, col, row });
           if (evaluatedCell.type !== CellValueType.empty) {
-            cells.add(evaluatedCell);
+            cells.push(evaluatedCell);
           }
         }
       }
     }
     const locale = getters.getLocale();
     let statisticFnResults: StatisticFnResults = {};
-    const cellsArray = [...cells];
 
     const getCells = memoize((typeStr: string) => {
       const types = typeStr.split(",");
-      return cellsArray.filter((c) => types.includes(c.type));
+      return cells.filter((c) => types.includes(c.type));
     });
     for (let fn of selectionStatisticFunctions) {
       // We don't want to display statistical information when there is no interest:
@@ -137,7 +140,7 @@ export class AggregateStatisticsStore extends SpreadsheetStore {
       // Ex: if there are only texts in the selection, we prefer that the SUM result
       // be displayed as undefined rather than 0.
       let fnResult: Lazy<number> | undefined = undefined;
-      const evaluatedCells = getCells(fn.types.join(","));
+      const evaluatedCells = getCells(fn.types.sort().join(","));
       if (evaluatedCells.length) {
         fnResult = lazy(() => fn.compute(evaluatedCells, locale));
       }
