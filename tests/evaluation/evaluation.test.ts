@@ -243,6 +243,14 @@ describe("evaluateCells", () => {
     expect(getCellError(model, "A1")).toBe("VLOOKUP evaluates to an out of bounds range.");
   });
 
+  test("error when expecting a boolean", () => {
+    const model = new Model();
+    setCellContent(model, "A1", '=NOT("1")');
+    expect(getCellError(model, "A1")).toBe(
+      "The function NOT expects a boolean value, but '1' is a text, and cannot be coerced to a boolean."
+    );
+  });
+
   test("Unknown function error", () => {
     const model = new Model();
     setCellContent(model, "A1", "=ThisIsNotARealFunction(A2)");
