@@ -163,7 +163,7 @@ const normalizeString = memoize(function normalizeString(str: string) {
 
 const expectBooleanValueError = (value: string) =>
   _t(
-    "The function [[FUNCTION_NAME]] expects a boolean value, but '%s' is a text, and cannot be coerced to a number.",
+    "The function [[FUNCTION_NAME]] expects a boolean value, but '%s' is a text, and cannot be coerced to a boolean.",
     value
   );
 
