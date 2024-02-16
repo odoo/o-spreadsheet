@@ -43,6 +43,11 @@ describe("Checkbox", () => {
 
   test("Can render a checkbox with a name", async () => {
     await mountCheckbox({ value: true, onChange: () => {}, name: "My name" });
-    expect(fixture.querySelector("input")!.getAttribute("name")).toEqual("My name");
+    expect(fixture.querySelector("input")?.getAttribute("name")).toEqual("My name");
+  });
+
+  test("Can render a checkbox with a title", async () => {
+    await mountCheckbox({ value: true, onChange: () => {}, title: "my title" });
+    expect(fixture.querySelector("label")?.getAttribute("title")).toEqual("my title");
   });
 });

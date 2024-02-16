@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet.Checkbox">
-    <label class="o-checkbox">
+    <label class="o-checkbox" t-att-title="props.title">
       <input
         type="checkbox"
         t-att-name="props.name"
