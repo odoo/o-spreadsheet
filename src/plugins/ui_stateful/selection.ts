@@ -422,7 +422,7 @@ export class GridSelectionPlugin extends UIPlugin {
 
   getStatisticFnResults(): { [name: string]: number | undefined } {
     const sheetId = this.getters.getActiveSheetId();
-    const cells: EvaluatedCell[] = [];
+    const evaluatedCellByType: { [type: string]: EvaluatedCell[] } = {};
 
     const isRowHiddenCache: { [row: number]: boolean } = {};
     const isColHiddenCache: { [col: number]: boolean } = {};
@@ -446,7 +446,10 @@ export class GridSelectionPlugin extends UIPlugin {
 
         const evaluatedCell = this.getters.getEvaluatedCell({ sheetId, col, row });
         if (evaluatedCell.type !== CellValueType.empty) {
-          cells.push(evaluatedCell);
+          if (!(evaluatedCell.type in evaluatedCellByType)) {
+            evaluatedCellByType[evaluatedCell.type] = [];
+          }
+          evaluatedCellByType[evaluatedCell.type].push(evaluatedCell);
         }
       }
     }
@@ -455,15 +458,20 @@ export class GridSelectionPlugin extends UIPlugin {
 
     let statisticFnResults: { [name: string]: number | undefined } = {};
     for (let fn of selectionStatisticFunctions) {
+      const evaluatedCells: EvaluatedCell[][] = [];
+      for (const type of fn.types) {
+        if (evaluatedCellByType[type]) {
+          evaluatedCells.push(evaluatedCellByType[type]);
+        }
+      }
       // We don't want to display statistical information when there is no interest:
       // We set the statistical result to undefined if the data handled by the selection
       // does not match the data handled by the function.
       // Ex: if there are only texts in the selection, we prefer that the SUM result
       // be displayed as undefined rather than 0.
       let fnResult: number | undefined = undefined;
-      const evaluatedCells = cells.filter((c) => fn.types.includes(c.type));
       if (evaluatedCells.length) {
-        fnResult = fn.compute(evaluatedCells, locale);
+        fnResult = fn.compute(evaluatedCells.flat(), locale);
       }
       statisticFnResults[fn.name] = fnResult;
     }
