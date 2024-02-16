@@ -7,6 +7,7 @@ interface Props {
   value: boolean;
   className?: string;
   name?: string;
+  title?: string;
   onChange: (value: boolean) => void;
 }
 
@@ -27,6 +28,7 @@ export class Checkbox extends Component<Props, SpreadsheetChildEnv> {
     value: { type: Boolean, optional: true },
     className: { type: String, optional: true },
     name: { type: String, optional: true },
+    title: { type: String, optional: true },
     onChange: Function,
   };
   static defaultProps = { value: false };
