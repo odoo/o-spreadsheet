@@ -58,6 +58,10 @@ css/*SCSS*/ `
       height: 0px;
     }
   }
+  .o-figure-container {
+    -webkit-user-select: none; // safari
+    user-select: none;
+  }
 `;
 
 /**
