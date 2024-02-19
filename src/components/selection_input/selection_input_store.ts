@@ -325,7 +325,7 @@ export class SelectionInputStore extends SpreadsheetStore {
   }
 
   /**
-   * Convert highlights input format to the command format.
+   * Converts highlights input format to the command format.
    * The first xc in the input range will keep its color.
    * Invalid ranges and ranges from other sheets than the active sheets
    * are ignored.

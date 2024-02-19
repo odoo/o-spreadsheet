@@ -1,7 +1,14 @@
-import type { ComposerStore } from "../../src/components/composer/composer/composer_store";
-import { DateTime, getCanonicalSheetName, jsDateToRoundNumber, toZone } from "../../src/helpers";
+import { ComposerStore } from "../../src/components/composer/composer/composer_store";
+import {
+  DateTime,
+  colors,
+  getCanonicalSheetName,
+  jsDateToRoundNumber,
+  toZone,
+} from "../../src/helpers";
 import { Model } from "../../src/model";
-import { Store } from "../../src/store_engine";
+import { DependencyContainer, Store } from "../../src/store_engine";
+import { HighlightStore } from "../../src/stores/highlight_store";
 import { NotificationStore } from "../../src/stores/notification_store";
 import { CellValueType, DEFAULT_LOCALE } from "../../src/types";
 import {
@@ -32,16 +39,14 @@ import {
   getEvaluatedCell,
 } from "../test_helpers/getters_helpers"; // to have getcontext mocks
 import "../test_helpers/helpers";
-import { makeTestComposerStore, makeTestNotificationStore } from "../test_helpers/helpers";
+import { makeStore } from "../test_helpers/stores";
 
 let model: Model;
 let composerStore: Store<ComposerStore>;
-let notificationStore: NotificationStore;
+let container: DependencyContainer;
 
 beforeEach(() => {
-  model = new Model();
-  notificationStore = makeTestNotificationStore();
-  composerStore = makeTestComposerStore(model, notificationStore);
+  ({ model, container, store: composerStore } = makeStore(ComposerStore));
 });
 
 describe("edition", () => {
@@ -691,6 +696,7 @@ describe("edition", () => {
   });
 
   test("write too long formulas raises an error", async () => {
+    const notificationStore = container.get(NotificationStore);
     const spyNotify = jest.spyOn(notificationStore, "raiseError");
     composerStore.startEdition();
     const content = // 101 tokens
@@ -1039,6 +1045,20 @@ describe("edition", () => {
     composerStore.startEdition(`=${fakeSheetName}!A1+A2+ZZZZZZZZZ1000000`);
     const highlights = composerStore.highlights;
     expect(highlights).toHaveLength(1);
-    expect(highlights[0].zone).toMatchObject(toZone("A2"));
+    expect(highlights[0]).toMatchObject({ zone: toZone("A2"), color: colors[0] });
+  });
+
+  test("References of non-active sheets are filtered out from the highlights", () => {
+    const secondSheetname = "louloulou";
+    createSheet(model, { name: secondSheetname, activate: false });
+    composerStore.startEdition(`=${secondSheetname}!A1+A2+ZZZZZZZZZ1000000`);
+    const gridHighlights = container.get(HighlightStore).highlights;
+    expect(gridHighlights).toHaveLength(1);
+    expect(gridHighlights[0]).toMatchObject({ zone: toZone("A2"), color: colors[1] });
+    const composerHighlights = composerStore.highlights;
+    expect(composerHighlights).toHaveLength(2);
+    colors;
+    expect(composerHighlights[0]).toMatchObject({ zone: toZone("A1"), color: colors[0] });
+    expect(composerHighlights[1]).toMatchObject({ zone: toZone("A2"), color: colors[1] });
   });
 });

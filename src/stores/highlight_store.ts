@@ -24,8 +24,10 @@ export class HighlightStore extends SpreadsheetStore {
   }
 
   get highlights(): Highlight[] {
+    const activeSheetId = this.getters.getActiveSheetId();
     return this.providers
       .flatMap((h) => h.highlights)
+      .filter((h) => h.sheetId === activeSheetId)
       .map((highlight) => {
         const { numberOfRows, numberOfCols } = zoneToDimension(highlight.zone);
         const zone =
