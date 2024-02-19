@@ -3,7 +3,6 @@ import {
   deepCopy,
   getCellPositionsInRanges,
   isInside,
-  recomputeZones,
   toXC,
 } from "../../helpers";
 import { dataValidationEvaluatorRegistry } from "../../registries/data_validation_registry";
@@ -204,12 +203,8 @@ export class DataValidationPlugin
 
   private removeRangesFromRules(sheetId: UID, ranges: Range[], rules: DataValidationRule[]) {
     rules = deepCopy(rules);
-    const rangesXcs = ranges.map((range) => this.getters.getRangeString(range, sheetId));
     for (const rule of rules) {
-      const ruleRanges = rule.ranges.map((range) => this.getters.getRangeString(range, sheetId));
-      rule.ranges = recomputeZones(ruleRanges, rangesXcs).map((xc) =>
-        this.getters.getRangeFromSheetXC(sheetId, xc)
-      );
+      rule.ranges = this.getters.recomputeRanges(rule.ranges, ranges);
     }
     return rules.filter((rule) => rule.ranges.length > 0);
   }

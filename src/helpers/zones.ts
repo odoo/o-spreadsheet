@@ -386,9 +386,10 @@ export function isZoneInside(smallZone: Zone, biggerZone: Zone): boolean {
  * Recompute the ranges of the zone to contain all the cells in zones, without the cells in toRemoveZones
  * Also regroup zones together to shorten the string
  */
-export function recomputeZones(zonesXc: string[], toRemoveZonesXc: string[]): string[] {
-  const zones = zonesXc.map(toUnboundedZone);
-  const zonesToRemove = toRemoveZonesXc.map(toUnboundedZone);
+export function recomputeZones(
+  zones: UnboundedZone[],
+  zonesToRemove: UnboundedZone[]
+): UnboundedZone[] {
   // Compute the max to replace the bottom of full columns and right of full rows by something
   // bigger than any other col/row to be able to apply the algorithm while keeping tracks of what
   // zones are full cols/rows
@@ -410,13 +411,11 @@ export function recomputeZones(zonesXc: string[], toRemoveZonesXc: string[]): st
   const positionToKeep = positionsDifference(zonePositions, positionsToRemove);
   const columns = mergePositionsIntoColumns(positionToKeep);
 
-  return mergeAlignedColumns(columns)
-    .map((zone) => ({
-      ...zone,
-      bottom: zone.bottom === maxBottom + 1 ? undefined : zone.bottom,
-      right: zone.right === maxRight + 1 ? undefined : zone.right,
-    }))
-    .map(zoneToXc);
+  return mergeAlignedColumns(columns).map((zone) => ({
+    ...zone,
+    bottom: zone.bottom === maxBottom + 1 ? undefined : zone.bottom,
+    right: zone.right === maxRight + 1 ? undefined : zone.right,
+  }));
 }
 
 /**
@@ -659,7 +658,7 @@ export function organizeZone(zone: Zone): Zone {
   };
 }
 
-export function positionToZone(position: Position) {
+export function positionToZone(position: Position): Zone {
   return { left: position.col, right: position.col, top: position.row, bottom: position.row };
 }
 
@@ -687,7 +686,7 @@ export function getZoneArea(zone: Zone): number {
  * */
 export function areZonesContinuous(zones: Zone[]): boolean {
   if (zones.length < 2) return true;
-  return recomputeZones(zones.map(zoneToXc), []).length === 1;
+  return recomputeZones(zones, []).length === 1;
 }
 
 /** Return all the columns in the given list of zones */

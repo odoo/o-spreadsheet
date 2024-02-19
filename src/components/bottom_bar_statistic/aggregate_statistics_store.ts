@@ -1,6 +1,6 @@
 import { sum } from "../../functions/helper_math";
 import { average, countAny, countNumbers, max, min } from "../../functions/helper_statistical";
-import { lazy, memoize, recomputeZones, zoneToXc } from "../../helpers";
+import { lazy, memoize, recomputeZones } from "../../helpers";
 import { Get } from "../../store_engine";
 import { SpreadsheetStore } from "../../stores";
 import { _t } from "../../translation";
@@ -107,14 +107,13 @@ export class AggregateStatisticsStore extends SpreadsheetStore {
     const sheetId = getters.getActiveSheetId();
     const cells: EvaluatedCell[] = [];
 
-    const recomputedXC = recomputeZones(getters.getSelectedZones().map(zoneToXc), []);
-    const zonesCleanedFromOverlapping = recomputedXC.map(
-      (xc) => this.getters.getRangeFromSheetXC(sheetId, xc).zone
-    );
+    const recomputedZones = recomputeZones(getters.getSelectedZones(), []);
+    const heightMax = this.getters.getSheetSize(sheetId).numberOfRows - 1;
+    const widthMax = this.getters.getSheetSize(sheetId).numberOfCols - 1;
 
-    for (const zone of zonesCleanedFromOverlapping) {
-      for (let col = zone.left; col <= zone.right; col++) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
+    for (const zone of recomputedZones) {
+      for (let col = zone.left; col <= (zone.right ?? widthMax); col++) {
+        for (let row = zone.top; row <= (zone.bottom ?? heightMax); row++) {
           if (getters.isRowHidden(sheetId, row) || getters.isColHidden(sheetId, col)) {
             continue; // Skip hidden cells
           }
