@@ -18,6 +18,10 @@ exports[`Grid component simple rendering snapshot 1`] = `
     
     
     
+    <div>
+      
+    </div>
+    
     
     <div
       class="o-grid-add-rows mt-2 ms-2 w-100 d-flex position-relative align-items-center"
@@ -108,8 +112,6 @@ exports[`Grid component simple rendering snapshot 1`] = `
     class="o-autofill-handler"
     style="top:45px; left:140px;"
   />
-  
-  
   
   
   
