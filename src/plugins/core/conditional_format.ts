@@ -240,7 +240,7 @@ export class ConditionalFormatPlugin
   /**
    * Add or remove cells to a given conditional formatting rule and return the adapted CF's XCs.
    */
-  getAdaptedCfRanges(sheetId: UID, cf: ConditionalFormat, toAdd: string[], toRemove: string[]) {
+  getAdaptedCfRanges(sheetId: UID, cf: ConditionalFormat, toAdd: Zone[], toRemove: Zone[]) {
     if (toAdd.length === 0 && toRemove.length === 0) {
       return;
     }
@@ -251,8 +251,8 @@ export class ConditionalFormatPlugin
       currentRanges = rules[replaceIndex].ranges.map(toUnboundedZone);
     }
 
-    currentRanges = currentRanges.concat(toAdd.map(toUnboundedZone));
-    return recomputeZones(currentRanges, toRemove.map(toUnboundedZone));
+    currentRanges = currentRanges.concat(toAdd);
+    return recomputeZones(currentRanges, toRemove);
   }
 
   // ---------------------------------------------------------------------------

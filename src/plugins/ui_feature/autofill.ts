@@ -2,6 +2,7 @@ import {
   clip,
   deepCopy,
   isInside,
+  positionToZone,
   recomputeZones,
   toCartesian,
   toXC,
@@ -447,7 +448,12 @@ export class AutofillPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     const cfOrigin = this.getters.getRulesByCell(sheetId, originCol, originRow);
     for (const cf of cfOrigin) {
-      const newCfRanges = this.getters.getAdaptedCfRanges(sheetId, cf, [toXC(col, row)], []);
+      const newCfRanges = this.getters.getAdaptedCfRanges(
+        sheetId,
+        cf,
+        [positionToZone({ col, row })],
+        []
+      );
       if (newCfRanges) {
         this.dispatch("ADD_CONDITIONAL_FORMAT", {
           cf: deepCopy(cf),
