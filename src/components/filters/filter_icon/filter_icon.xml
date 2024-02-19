@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-FilterIcon">
-    <div class="o-filter-icon" t-att-class="iconClass" t-on-click.stop="onClick">
+    <div class="o-filter-icon" t-att-class="iconClass" t-on-click="onClick">
       <t t-if="isFilterActive" t-call="o-spreadsheet-Icon.FILTER_ICON_ACTIVE"/>
       <t t-else="" t-call="o-spreadsheet-Icon.FILTER_ICON"/>
     </div>

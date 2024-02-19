@@ -1,14 +1,7 @@
 import { Component } from "@odoo/owl";
 import { DEFAULT_VERTICAL_ALIGN, GRID_ICON_EDGE_LENGTH, GRID_ICON_MARGIN } from "../../constants";
 import { positionToZone } from "../../helpers";
-import {
-  Align,
-  CellPosition,
-  DOMCoordinates,
-  Rect,
-  SpreadsheetChildEnv,
-  VerticalAlign,
-} from "../../types";
+import { Align, CellPosition, Rect, SpreadsheetChildEnv, VerticalAlign } from "../../types";
 import { css, cssPropertiesToCss } from "../helpers";
 
 css/* scss */ `
@@ -22,7 +15,6 @@ export interface GridCellIconProps {
   cellPosition: CellPosition;
   horizontalAlign?: Align;
   verticalAlign?: VerticalAlign;
-  offset?: DOMCoordinates;
 }
 
 export class GridCellIcon extends Component<GridCellIconProps, SpreadsheetChildEnv> {
@@ -31,7 +23,6 @@ export class GridCellIcon extends Component<GridCellIconProps, SpreadsheetChildE
     cellPosition: Object,
     horizontalAlign: { type: String, optional: true },
     verticalAlign: { type: String, optional: true },
-    offset: { type: Object, optional: true },
     slots: Object,
   };
 
@@ -43,8 +34,8 @@ export class GridCellIcon extends Component<GridCellIconProps, SpreadsheetChildE
     const x = this.getIconHorizontalPosition(rect, cellPosition);
     const y = this.getIconVerticalPosition(rect, cellPosition);
     return cssPropertiesToCss({
-      top: `${y + (this.props.offset?.y || 0)}px`,
-      left: `${x + (this.props.offset?.x || 0)}px`,
+      top: `${y}px`,
+      left: `${x}px`,
     });
   }
 
