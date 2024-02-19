@@ -370,9 +370,7 @@ export function isZoneInside(smallZone: Zone, biggerZone: Zone): boolean {
  * Recompute the ranges of the zone to contain all the cells in zones, without the cells in toRemoveZones
  * Also regroup zones together to shorten the string
  */
-export function recomputeZones(zonesXc: string[], toRemoveZonesXc: string[]): string[] {
-  const zones = zonesXc.map(toUnboundedZone);
-  const zonesToRemove = toRemoveZonesXc.map(toUnboundedZone);
+export function recomputeZones(zones: UnboundedZone[], zonesToRemove: UnboundedZone[]): string[] {
   // Compute the max to replace the bottom of full columns and right of full rows by something
   // bigger than any other col/row to be able to apply the algorithm while keeping tracks of what
   // zones are full cols/rows
@@ -675,7 +673,7 @@ export function getZoneArea(zone: Zone): number {
  * */
 export function areZonesContinuous(...zones: Zone[]): boolean {
   if (zones.length < 2) return true;
-  return recomputeZones(zones.map(zoneToXc), []).length === 1;
+  return recomputeZones(zones, []).length === 1;
 }
 
 /** Return all the columns in the given list of zones */

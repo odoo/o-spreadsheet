@@ -1,4 +1,12 @@
-import { clip, deepCopy, isInside, recomputeZones, toCartesian, toXC } from "../../helpers/index";
+import {
+  clip,
+  deepCopy,
+  isInside,
+  recomputeZones,
+  toCartesian,
+  toXC,
+  toZone,
+} from "../../helpers/index";
 import { autofillModifiersRegistry, autofillRulesRegistry } from "../../registries/index";
 import {
   AutofillData,
@@ -458,8 +466,8 @@ export class AutofillPlugin extends UIPlugin {
       return;
     }
 
-    const dvRangesXcs = dvOrigin.ranges.map((range) => this.getters.getRangeString(range, sheetId));
-    const newDvRanges = recomputeZones(dvRangesXcs.concat(toXC(col, row)), []);
+    const dvRangesZones = dvOrigin.ranges.map((range) => range.zone);
+    const newDvRanges = recomputeZones(dvRangesZones.concat(toZone(toXC(col, row))), []);
     this.dispatch("ADD_DATA_VALIDATION_RULE", {
       rule: dvOrigin,
       ranges: newDvRanges.map((xc) => this.getters.getRangeDataFromXc(sheetId, xc)),

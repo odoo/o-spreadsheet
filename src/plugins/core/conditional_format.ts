@@ -1,5 +1,5 @@
 import { compile } from "../../formulas/index";
-import { isInside, recomputeZones } from "../../helpers/index";
+import { isInside, recomputeZones, toUnboundedZone } from "../../helpers/index";
 import {
   AddConditionalFormatCommand,
   ApplyRangeChange,
@@ -18,6 +18,7 @@ import {
   IconSetRule,
   IconThreshold,
   UID,
+  UnboundedZone,
   Validation,
   WorkbookData,
   Zone,
@@ -245,13 +246,13 @@ export class ConditionalFormatPlugin
     }
     const rules = this.getters.getConditionalFormats(sheetId);
     const replaceIndex = rules.findIndex((c) => c.id === cf.id);
-    let currentRanges: string[] = [];
+    let currentRanges: UnboundedZone[] = [];
     if (replaceIndex > -1) {
-      currentRanges = rules[replaceIndex].ranges;
+      currentRanges = rules[replaceIndex].ranges.map(toUnboundedZone);
     }
 
-    currentRanges = currentRanges.concat(toAdd);
-    return recomputeZones(currentRanges, toRemove);
+    currentRanges = currentRanges.concat(toAdd.map(toUnboundedZone));
+    return recomputeZones(currentRanges, toRemove.map(toUnboundedZone));
   }
 
   // ---------------------------------------------------------------------------

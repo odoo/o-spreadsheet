@@ -112,7 +112,7 @@ describe("Data validation", () => {
 
       expect(getDataValidationRules(model, sheetId)).toMatchObject([
         { id: "id", ranges: ["A1", "A4:A5"], criterion: { type: "textContains", values: ["1"] } },
-        { id: "id2", ranges: ["C2:2"], criterion: { type: "textContains", values: ["2"] } },
+        { id: "id2", ranges: ["C2:Z2"], criterion: { type: "textContains", values: ["2"] } },
         { id: "id3", ranges: ["A2:B3"], criterion: { type: "textContains", values: ["3"] } },
       ]);
     });

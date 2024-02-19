@@ -14,7 +14,6 @@ import {
   uniqueZones,
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
-  zoneToXc,
 } from "../../helpers/index";
 import { _t } from "../../translation";
 import { SelectionEvent } from "../../types/event_stream";
@@ -427,7 +426,7 @@ export class GridSelectionPlugin extends UIPlugin {
     const isRowHiddenCache: { [row: number]: boolean } = {};
     const isColHiddenCache: { [col: number]: boolean } = {};
 
-    const recomputedXC = recomputeZones(this.gridSelection.zones.map(zoneToXc), []);
+    const recomputedXC = recomputeZones(this.gridSelection.zones, []);
     const zonesCleanedFromOverlapping = recomputedXC.map(
       (xc) => this.getters.getRangeFromSheetXC(sheetId, xc).zone
     );
