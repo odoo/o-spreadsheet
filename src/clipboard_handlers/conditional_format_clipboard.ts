@@ -114,11 +114,11 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
    * Add or remove cells to a given conditional formatting rule.
    */
   private adaptCFRules(sheetId: UID, cf: ConditionalFormat, toAdd: Zone[], toRemove: Zone[]) {
-    const newRangesXC = this.getters.getAdaptedCfRanges(sheetId, cf, toAdd, toRemove);
-    if (!newRangesXC) {
+    const newRangesZone = this.getters.getAdaptedCfZones(sheetId, cf, toAdd, toRemove);
+    if (!newRangesZone) {
       return;
     }
-    if (newRangesXC.length === 0) {
+    if (newRangesZone.length === 0) {
       this.dispatch("REMOVE_CONDITIONAL_FORMAT", { id: cf.id, sheetId });
       return;
     }
@@ -128,7 +128,7 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
         rule: cf.rule,
         stopIfTrue: cf.stopIfTrue,
       },
-      ranges: newRangesXC.map((xc) => this.getters.getRangeDataFromXc(sheetId, xc)),
+      ranges: newRangesZone.map((zone) => this.getters.getRangeDataFromZone(sheetId, zone)),
       sheetId,
     });
   }

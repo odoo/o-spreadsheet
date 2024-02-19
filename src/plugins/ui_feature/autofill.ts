@@ -447,16 +447,16 @@ export class AutofillPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     const cfOrigin = this.getters.getRulesByCell(sheetId, originCol, originRow);
     for (const cf of cfOrigin) {
-      const newCfRanges = this.getters.getAdaptedCfRanges(
+      const newCfZones = this.getters.getAdaptedCfZones(
         sheetId,
         cf,
         [positionToZone({ col, row })],
         []
       );
-      if (newCfRanges) {
+      if (newCfZones) {
         this.dispatch("ADD_CONDITIONAL_FORMAT", {
           cf: deepCopy(cf),
-          ranges: newCfRanges.map((xc) => this.getters.getRangeDataFromXc(sheetId, xc)),
+          ranges: newCfZones.map((zone) => this.getters.getRangeDataFromZone(sheetId, zone)),
           sheetId,
         });
       }
