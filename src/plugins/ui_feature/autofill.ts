@@ -6,7 +6,6 @@ import {
   recomputeZones,
   toCartesian,
   toXC,
-  zoneToXc,
 } from "../../helpers/index";
 import { autofillModifiersRegistry, autofillRulesRegistry } from "../../registries/index";
 import {
@@ -473,12 +472,10 @@ export class AutofillPlugin extends UIPlugin {
     }
 
     const dvRangesZones = dvOrigin.ranges.map((range) => range.zone);
-    const newDvRanges = recomputeZones(dvRangesZones.concat(positionToZone({ col, row })), []).map(
-      zoneToXc
-    );
+    const newDvRanges = recomputeZones(dvRangesZones.concat(positionToZone({ col, row })), []);
     this.dispatch("ADD_DATA_VALIDATION_RULE", {
       rule: dvOrigin,
-      ranges: newDvRanges.map((xc) => this.getters.getRangeDataFromXc(sheetId, xc)),
+      ranges: newDvRanges.map((zone) => this.getters.getRangeDataFromZone(sheetId, zone)),
       sheetId,
     });
   }
