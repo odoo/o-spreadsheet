@@ -360,3 +360,9 @@ export type DebouncedFunction<T> = T & {
   stopDebounce: () => void;
   isDebouncePending: () => boolean;
 };
+
+export interface GridClickModifiers {
+  addZone: boolean;
+  expandZone: boolean;
+  closePopover: boolean;
+}

@@ -45,6 +45,7 @@ import {
   DOMDimension,
   Dimension,
   Direction,
+  GridClickModifiers,
   HeaderIndex,
   Pixel,
   Rect,
@@ -56,7 +57,6 @@ import { ClientTag } from "../collaborative_client_tag/collaborative_client_tag"
 import { ComposerSelection, ComposerStore } from "../composer/composer/composer_store";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { GridComposer } from "../composer/grid_composer/grid_composer";
-import { FilterIconsOverlay } from "../filters/filter_icons_overlay/filter_icons_overlay";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { HeadersOverlay } from "../headers_overlay/headers_overlay";
@@ -126,7 +126,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     Popover,
     VerticalScrollBar,
     HorizontalScrollBar,
-    FilterIconsOverlay,
   };
   readonly HEADER_HEIGHT = HEADER_HEIGHT;
   readonly HEADER_WIDTH = HEADER_WIDTH;
@@ -464,20 +463,16 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   // Zone selection with mouse
   // ---------------------------------------------------------------------------
 
-  onCellClicked(
-    col: HeaderIndex,
-    row: HeaderIndex,
-    { addZone, expandZone }: { addZone: boolean; expandZone: boolean }
-  ) {
-    if (this.cellPopovers.isOpen) {
+  onCellClicked(col: HeaderIndex, row: HeaderIndex, modifiers: GridClickModifiers) {
+    if (modifiers.closePopover && this.cellPopovers.isOpen) {
       this.cellPopovers.close();
     }
     if (this.composerStore.editionMode === "editing") {
       this.composerStore.stopEdition();
     }
-    if (expandZone) {
+    if (modifiers.expandZone) {
       this.env.model.selection.setAnchorCorner(col, row);
-    } else if (addZone) {
+    } else if (modifiers.addZone) {
       this.env.model.selection.addCellToSelection(col, row);
     } else {
       this.env.model.selection.selectCell(col, row);

@@ -1,6 +1,7 @@
 import { Component, onMounted, onWillUnmount, useExternalListener, useRef } from "@odoo/owl";
 import {
   DOMCoordinates,
+  GridClickModifiers,
   HeaderIndex,
   Pixel,
   Position,
@@ -10,6 +11,7 @@ import {
 } from "../../types";
 import { DataValidationOverlay } from "../data_validation_overlay/data_validation_overlay";
 import { FiguresContainer } from "../figures/figure_container/figure_container";
+import { FilterIconsOverlay } from "../filters/filter_icons_overlay/filter_icons_overlay";
 import { GridAddRowsFooter } from "../grid_add_rows_footer/grid_add_rows_footer";
 import { css } from "../helpers";
 import { getBoundingRectAsPOJO, isCtrlKey } from "../helpers/dom_helpers";
@@ -156,11 +158,7 @@ function useTouchMove(
 interface Props {
   onCellHovered: (position: Partial<Position>) => void;
   onCellDoubleClicked: (col: HeaderIndex, row: HeaderIndex) => void;
-  onCellClicked: (
-    col: HeaderIndex,
-    row: HeaderIndex,
-    modifiers: { addZone: boolean; expandZone: boolean }
-  ) => void;
+  onCellClicked: (col: HeaderIndex, row: HeaderIndex, modifiers: GridClickModifiers) => void;
   onCellRightClicked: (col: HeaderIndex, row: HeaderIndex, coordinates: DOMCoordinates) => void;
   onGridResized: (dimension: Rect) => void;
   onGridMoved: (deltaX: Pixel, deltaY: Pixel) => void;
@@ -180,7 +178,12 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     onGridMoved: Function,
     gridOverlayDimensions: String,
   };
-  static components = { FiguresContainer, DataValidationOverlay, GridAddRowsFooter };
+  static components = {
+    FiguresContainer,
+    DataValidationOverlay,
+    GridAddRowsFooter,
+    FilterIconsOverlay,
+  };
   static defaultProps = {
     onCellHovered: () => {},
     onCellDoubleClicked: () => {},
@@ -230,7 +233,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     return this.env.model.getters.isPaintingFormat();
   }
 
-  onMouseDown(ev: MouseEvent) {
+  onMouseDown(ev: MouseEvent, modifiers?: { closePopover: boolean }) {
     if (ev.button > 0) {
       // not main button, probably a context menu
       return;
@@ -239,6 +242,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     this.props.onCellClicked(col, row, {
       expandZone: ev.shiftKey,
       addZone: isCtrlKey(ev),
+      closePopover: modifiers?.closePopover ?? true,
     });
   }
 
