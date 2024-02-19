@@ -9,12 +9,13 @@ import {
   toCartesian,
   toUnboundedZone,
   toZone,
+  zoneToXc,
 } from "../../src/helpers/index";
 import { Position, Zone } from "../../src/types";
 import { target } from "../test_helpers/helpers";
 
 const recomputeZonesFromXC = function (xcs: string[], xcsToRemove: string[]): string[] {
-  return recomputeZones(xcs.map(toUnboundedZone), xcsToRemove.map(toUnboundedZone));
+  return recomputeZones(xcs.map(toUnboundedZone), xcsToRemove.map(toUnboundedZone)).map(zoneToXc);
 };
 
 describe("overlap", () => {

@@ -1,5 +1,5 @@
 import { compile } from "../../formulas/index";
-import { isInside, recomputeZones, toUnboundedZone } from "../../helpers/index";
+import { isInside, recomputeZones, toUnboundedZone, zoneToXc } from "../../helpers/index";
 import {
   AddConditionalFormatCommand,
   ApplyRangeChange,
@@ -252,7 +252,7 @@ export class ConditionalFormatPlugin
     }
 
     currentRanges = currentRanges.concat(toAdd);
-    return recomputeZones(currentRanges, toRemove);
+    return recomputeZones(currentRanges, toRemove).map(zoneToXc);
   }
 
   // ---------------------------------------------------------------------------

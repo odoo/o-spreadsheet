@@ -5,6 +5,7 @@ import {
   isInside,
   recomputeZones,
   toXC,
+  zoneToXc,
 } from "../../helpers";
 import { dataValidationEvaluatorRegistry } from "../../registries/data_validation_registry";
 import {
@@ -204,9 +205,9 @@ export class DataValidationPlugin
     const rangesZones = ranges.map((range) => range.zone);
     for (const rule of rules) {
       const ruleRangeZones = rule.ranges.map((range) => range.zone);
-      rule.ranges = recomputeZones(ruleRangeZones, rangesZones).map((xc) =>
-        this.getters.getRangeFromSheetXC(sheetId, xc)
-      );
+      rule.ranges = recomputeZones(ruleRangeZones, rangesZones)
+        .map(zoneToXc)
+        .map((xc) => this.getters.getRangeFromSheetXC(sheetId, xc));
     }
     return rules.filter((rule) => rule.ranges.length > 0);
   }
