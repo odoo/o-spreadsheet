@@ -2,7 +2,7 @@ import { CommandResult, CorePlugin } from "../../src";
 import { toZone } from "../../src/helpers";
 import { Model, ModelConfig } from "../../src/model";
 import { corePluginRegistry, featurePluginRegistry } from "../../src/plugins/index";
-import { UIPlugin } from "../../src/plugins/ui_plugin";
+import { UIPlugin, UIPluginConfig } from "../../src/plugins/ui_plugin";
 import { Command, CommandTypes, CoreCommand, DispatchResult, coreTypes } from "../../src/types";
 import { setupCollaborativeEnv } from "../collaborative/collaborative_helpers";
 import { copy, selectCell, setCellContent } from "../test_helpers/commands_helpers";
@@ -356,5 +356,39 @@ describe("Model", () => {
     };
     const model = new Model(modelData);
     expect(model.exportData()).toMatchSnapshot();
+  });
+
+  test("UI plugins can access data sources", () => {
+    let hasDataSource = false;
+    class MyUIPlugin extends UIPlugin {
+      constructor(config: UIPluginConfig) {
+        super(config);
+        if ("dataSources" in config) {
+          hasDataSource = true;
+        }
+      }
+    }
+    addTestPlugin(featurePluginRegistry, MyUIPlugin);
+    new Model();
+    expect(hasDataSource).toBe(true);
+  });
+
+  test("Custom is accessible from a data source", () => {
+    const fn = jest.fn();
+    class MyDataSource {
+      constructor(custom: ModelConfig["custom"]) {
+        custom.fn();
+      }
+    }
+
+    class MyUIPlugin extends UIPlugin {
+      constructor(config: UIPluginConfig) {
+        super(config);
+        config.dataSources.add("myDataSource", MyDataSource, config.custom);
+      }
+    }
+    addTestPlugin(featurePluginRegistry, MyUIPlugin);
+    new Model({}, { custom: { fn } });
+    expect(fn).toHaveBeenCalled();
   });
 });

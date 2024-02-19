@@ -2,6 +2,7 @@ import { markRaw } from "@odoo/owl";
 import { LocalTransportService } from "./collaborative/local_transport_service";
 import { Session } from "./collaborative/session";
 import { DEFAULT_REVISION_ID } from "./constants";
+import { DataSources } from "./helpers/data_sources";
 import { EventBus } from "./helpers/event_bus";
 import { deepCopy, UuidGenerator } from "./helpers/index";
 import { buildRevisionLog } from "./history/factory";
@@ -108,6 +109,7 @@ export interface ModelConfig {
   readonly notifyUI: (payload: InformationNotification) => void;
   readonly raiseBlockingErrorUI: (text: string) => void;
   readonly customColors: Color[];
+  readonly dataSources: DataSources;
 }
 
 export interface ModelExternalConfig {
@@ -404,6 +406,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       notifyUI: (payload) => this.trigger("notify-ui", payload),
       raiseBlockingErrorUI: (text) => this.trigger("raise-error-ui", { text }),
       customColors: config.customColors || [],
+      dataSources: new DataSources(config.custom || {}),
     };
   }
 
@@ -437,6 +440,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       custom: this.config.custom,
       uiActions: this.config,
       session: this.session,
+      dataSources: this.config.dataSources,
       defaultCurrencyFormat: this.config.defaultCurrencyFormat,
       customColors: this.config.customColors || [],
     };

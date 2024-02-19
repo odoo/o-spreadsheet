@@ -152,6 +152,7 @@ export {
   parseTokens,
 } from "./formulas/parser";
 export { tokenize } from "./formulas/tokenizer";
+export { DataSources } from "./helpers/data_sources";
 export { AbstractChart } from "./helpers/figures/charts";
 export { findCellInNewZone } from "./helpers/zones";
 export { load } from "./migrations/data";

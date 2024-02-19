@@ -1,4 +1,5 @@
 import { Session } from "../collaborative/session";
+import { DataSources } from "../helpers/data_sources";
 import { ModelConfig } from "../model";
 import { SelectionStreamProcessor } from "../selection_stream/selection_stream_processor";
 import { StateObserver } from "../state_observer";
@@ -23,6 +24,7 @@ export interface UIPluginConfig {
   readonly selection: SelectionStreamProcessor;
   readonly moveClient: (position: ClientPosition) => void;
   readonly uiActions: UIActions;
+  readonly dataSources: DataSources;
   readonly custom: ModelConfig["custom"];
   readonly session: Session;
   readonly defaultCurrencyFormat?: Format;
