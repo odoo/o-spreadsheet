@@ -1,4 +1,4 @@
-import { UuidGenerator, deepEquals, isInside, toXC } from "../helpers";
+import { UuidGenerator, deepEquals, isInside, positionToZone } from "../helpers";
 import {
   CellPosition,
   ClipboardCellData,
@@ -83,7 +83,7 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
   }
 
   private pasteCf(origin: CellPosition, target: CellPosition, isCutOperation?: boolean) {
-    const xc = toXC(target.col, target.row);
+    const zone = positionToZone(target);
     for (const rule of this.getters.getConditionalFormats(origin.sheetId)) {
       for (const range of rule.ranges) {
         if (
@@ -93,17 +93,17 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
             this.getters.getRangeFromSheetXC(origin.sheetId, range).zone
           )
         ) {
-          const toRemoveRange: string[] = [];
+          const toRemoveZone: Zone[] = [];
           if (isCutOperation) {
             //remove from current rule
-            toRemoveRange.push(toXC(origin.col, origin.row));
+            toRemoveZone.push(positionToZone(origin));
           }
           if (origin.sheetId === target.sheetId) {
-            this.adaptCFRules(origin.sheetId, rule, [xc], toRemoveRange);
+            this.adaptCFRules(origin.sheetId, rule, [zone], toRemoveZone);
           } else {
-            this.adaptCFRules(origin.sheetId, rule, [], toRemoveRange);
+            this.adaptCFRules(origin.sheetId, rule, [], toRemoveZone);
             const cfToCopyTo = this.getCFToCopyTo(target.sheetId, rule);
-            this.adaptCFRules(target.sheetId, cfToCopyTo, [xc], []);
+            this.adaptCFRules(target.sheetId, cfToCopyTo, [zone], []);
           }
         }
       }
@@ -113,12 +113,12 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
   /**
    * Add or remove cells to a given conditional formatting rule.
    */
-  private adaptCFRules(sheetId: UID, cf: ConditionalFormat, toAdd: string[], toRemove: string[]) {
-    const newRangesXC = this.getters.getAdaptedCfRanges(sheetId, cf, toAdd, toRemove);
-    if (!newRangesXC) {
+  private adaptCFRules(sheetId: UID, cf: ConditionalFormat, toAdd: Zone[], toRemove: Zone[]) {
+    const newRangesXc = this.getters.getAdaptedCfRanges(sheetId, cf, toAdd, toRemove);
+    if (!newRangesXc) {
       return;
     }
-    if (newRangesXC.length === 0) {
+    if (newRangesXc.length === 0) {
       this.dispatch("REMOVE_CONDITIONAL_FORMAT", { id: cf.id, sheetId });
       return;
     }
@@ -128,7 +128,7 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
         rule: cf.rule,
         stopIfTrue: cf.stopIfTrue,
       },
-      ranges: newRangesXC.map((xc) => this.getters.getRangeDataFromXc(sheetId, xc)),
+      ranges: newRangesXc,
       sheetId,
     });
   }

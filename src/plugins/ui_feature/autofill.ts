@@ -1,4 +1,12 @@
-import { clip, deepCopy, isInside, recomputeZones, toCartesian, toXC } from "../../helpers/index";
+import {
+  clip,
+  deepCopy,
+  isInside,
+  positionToZone,
+  recomputeZones,
+  toCartesian,
+  toXC,
+} from "../../helpers/index";
 import { autofillModifiersRegistry, autofillRulesRegistry } from "../../registries/index";
 import {
   AutofillData,
@@ -454,11 +462,16 @@ export class AutofillPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     const cfOrigin = this.getters.getRulesByCell(sheetId, originCol, originRow);
     for (const cf of cfOrigin) {
-      const newCfRanges = this.getters.getAdaptedCfRanges(sheetId, cf, [toXC(col, row)], []);
+      const newCfRanges = this.getters.getAdaptedCfRanges(
+        sheetId,
+        cf,
+        [positionToZone({ col, row })],
+        []
+      );
       if (newCfRanges) {
         this.dispatch("ADD_CONDITIONAL_FORMAT", {
           cf: deepCopy(cf),
-          ranges: newCfRanges.map((xc) => this.getters.getRangeDataFromXc(sheetId, xc)),
+          ranges: newCfRanges,
           sheetId,
         });
       }
@@ -473,11 +486,11 @@ export class AutofillPlugin extends UIPlugin {
       return;
     }
 
-    const dvRangesXcs = dvOrigin.ranges.map((range) => this.getters.getRangeString(range, sheetId));
-    const newDvRanges = recomputeZones(dvRangesXcs.concat(toXC(col, row)), []);
+    const dvRangesZones = dvOrigin.ranges.map((range) => range.zone);
+    const newDvRanges = recomputeZones(dvRangesZones.concat(positionToZone({ col, row })), []);
     this.dispatch("ADD_DATA_VALIDATION_RULE", {
       rule: dvOrigin,
-      ranges: newDvRanges.map((xc) => this.getters.getRangeDataFromXc(sheetId, xc)),
+      ranges: newDvRanges.map((zone) => this.getters.getRangeDataFromZone(sheetId, zone)),
       sheetId,
     });
   }

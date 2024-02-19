@@ -9,6 +9,7 @@ import {
   numberToLetters,
   RangeImpl,
   rangeReference,
+  recomputeZones,
   splitReference,
   toUnboundedZone,
   unionUnboundedZones,
@@ -49,6 +50,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     "getRangeFromRangeData",
     "getRangeFromZone",
     "getRangesUnion",
+    "recomputeRanges",
     "isRangeValid",
   ] as const;
 
@@ -421,6 +423,19 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
         prefixSheet: false,
       },
       this.getters.getSheetSize
+    );
+  }
+
+  /**
+   * Allows you to recompute ranges from the same sheet
+   */
+  recomputeRanges(ranges: Range[], rangesToRemove: Range[]): Range[] {
+    const zones = ranges.map((range) => RangeImpl.fromRange(range, this.getters).unboundedZone);
+    const zonesToRemove = rangesToRemove.map(
+      (range) => RangeImpl.fromRange(range, this.getters).unboundedZone
+    );
+    return recomputeZones(zones, zonesToRemove).map((zone) =>
+      this.getRangeFromZone(ranges[0].sheetId, zone)
     );
   }
 
