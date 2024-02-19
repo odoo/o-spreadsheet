@@ -13,6 +13,7 @@ import {
   createSheet,
   setFormat,
   setStyle,
+  undo,
   updateChart,
 } from "../../test_helpers/commands_helpers";
 import { TEST_CHART_DATA } from "../../test_helpers/constants";
@@ -513,6 +514,14 @@ describe("charts", () => {
     await simulateClick(".o-figure");
     await keyDown({ key: "Delete" });
     expect(fixture.querySelector(".o-figure")).toBeFalsy();
+  });
+
+  test("Undo a chart insertion will close the chart side panel", async () => {
+    createTestChart("basicChart");
+    await openChartConfigSidePanel();
+    undo(model);
+    await nextTick();
+    expect(fixture.querySelector(".o-sidePanel")).toBeFalsy();
   });
 
   test("double click a chart in readonly mode does not open the side panel", async () => {

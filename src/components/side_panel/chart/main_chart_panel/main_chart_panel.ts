@@ -38,21 +38,22 @@ css/* scss */ `
 
 interface Props {
   onCloseSidePanel: () => void;
+  figureId: UID;
 }
 
 export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartPanel";
   static components = { Section };
-  static props = { onCloseSidePanel: Function };
+  static props = { onCloseSidePanel: Function, figureId: String };
 
-  private store!: Store<MainChartPanelStore>;
+  store!: Store<MainChartPanelStore>;
 
   get figureId() {
-    return this.store.figureId;
+    return this.props.figureId;
   }
 
   setup(): void {
-    this.store = useLocalStore(MainChartPanelStore, this.env.model.getters.getSelectedFigureId());
+    this.store = useLocalStore(MainChartPanelStore);
   }
 
   updateChart<T extends ChartDefinition>(figureId: UID, updateDefinition: Partial<T>) {

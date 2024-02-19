@@ -1,3 +1,4 @@
+import { sidePanelRegistry } from "../../../registries/side_panel_registry";
 import { SpreadsheetStore } from "../../../stores";
 
 interface SidePanelProps {
@@ -5,18 +6,46 @@ interface SidePanelProps {
   [key: string]: unknown;
 }
 
+interface OpenSidePanel {
+  isOpen: true;
+  props: SidePanelProps;
+}
+
+interface ClosedSidePanel {
+  isOpen: false;
+}
+
+export type SidePanelState = OpenSidePanel | ClosedSidePanel;
+
 export class SidePanelStore extends SpreadsheetStore {
-  isOpen: boolean = false;
-  panelProps: SidePanelProps = {};
+  initialPanelProps: SidePanelProps = {};
   componentTag: string = "";
 
+  get isOpen() {
+    if (!this.componentTag) {
+      return false;
+    }
+    return this.computeState(this.componentTag, this.initialPanelProps).isOpen;
+  }
+
+  get panelProps() {
+    const state = this.computeState(this.componentTag, this.initialPanelProps);
+    if (state.isOpen) {
+      return state.props;
+    }
+    return {};
+  }
+
   open(componentTag: string, panelProps: SidePanelProps = {}) {
+    const state = this.computeState(componentTag, panelProps);
+    if (state.isOpen === false) {
+      return;
+    }
     if (this.isOpen && componentTag !== this.componentTag) {
-      this.panelProps?.onCloseSidePanel?.();
+      this.initialPanelProps?.onCloseSidePanel?.();
     }
     this.componentTag = componentTag;
-    this.panelProps = panelProps;
-    this.isOpen = true;
+    this.initialPanelProps = state.props;
   }
 
   toggle(componentTag: string, panelProps: SidePanelProps) {
@@ -28,9 +57,20 @@ export class SidePanelStore extends SpreadsheetStore {
   }
 
   close() {
-    this.panelProps.onCloseSidePanel?.();
-    this.isOpen = false;
-    this.panelProps = {};
+    this.initialPanelProps.onCloseSidePanel?.();
+    this.initialPanelProps = {};
     this.componentTag = "";
+  }
+
+  private computeState(componentTag: string, panelProps: SidePanelProps): SidePanelState {
+    const customComputeState = sidePanelRegistry.get(componentTag).computeState;
+    if (!customComputeState) {
+      return {
+        isOpen: true,
+        props: panelProps,
+      };
+    } else {
+      return customComputeState(this.getters, panelProps);
+    }
   }
 }
