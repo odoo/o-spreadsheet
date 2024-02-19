@@ -1,11 +1,4 @@
-import {
-  UuidGenerator,
-  deepEquals,
-  isInside,
-  positionToZone,
-  recomputeZones,
-  zoneToXc,
-} from "../helpers";
+import { UuidGenerator, deepEquals, isInside, positionToZone, recomputeZones } from "../helpers";
 import {
   CellPosition,
   ClipboardCellData,
@@ -149,14 +142,14 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
     toRemove: Zone[]
   ) {
     const dvRangesXcs = rule.ranges.map((range) => range.zone);
-    const newRangesXC = recomputeZones([...dvRangesXcs, ...toAdd], toRemove).map(zoneToXc);
-    if (newRangesXC.length === 0) {
+    const newRangesZones = recomputeZones([...dvRangesXcs, ...toAdd], toRemove);
+    if (newRangesZones.length === 0) {
       this.dispatch("REMOVE_DATA_VALIDATION_RULE", { sheetId, id: rule.id });
       return;
     }
     this.dispatch("ADD_DATA_VALIDATION_RULE", {
       rule,
-      ranges: newRangesXC.map((xc) => this.getters.getRangeDataFromXc(sheetId, xc)),
+      ranges: newRangesZones.map((zone) => this.getters.getRangeDataFromZone(sheetId, zone)),
       sheetId,
     });
   }
