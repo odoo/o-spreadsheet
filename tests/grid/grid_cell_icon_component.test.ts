@@ -9,8 +9,6 @@ import {
   DEFAULT_CELL_WIDTH,
   GRID_ICON_EDGE_LENGTH,
   GRID_ICON_MARGIN,
-  HEADER_HEIGHT,
-  HEADER_WIDTH,
 } from "../../src/constants";
 import { SpreadsheetChildEnv, UID } from "../../src/types";
 import { merge, resizeColumns, resizeRows, setStyle } from "../test_helpers/commands_helpers";
@@ -39,7 +37,6 @@ describe("Grid cell icon component", () => {
   async function mountGridIcon(partialProps: Partial<GridCellIconProps>) {
     const props: GridCellIconProps = {
       cellPosition: { sheetId, col: 1, row: 1 },
-      offset: { x: HEADER_WIDTH, y: HEADER_HEIGHT },
       ...partialProps,
     };
 
@@ -56,7 +53,7 @@ describe("Grid cell icon component", () => {
     resizeColumns(model, ["B"], 200);
     await mountGridIcon({ cellPosition: { sheetId, col: 1, row: 1 }, horizontalAlign: "left" });
     const colDims = model.getters.getColDimensionsInViewport(sheetId, 1);
-    const left = colDims.start + GRID_ICON_MARGIN + HEADER_WIDTH;
+    const left = colDims.start + GRID_ICON_MARGIN;
     expect(getStylePropertyInPx(icon, "left")).toEqual(left);
   });
 
@@ -65,7 +62,7 @@ describe("Grid cell icon component", () => {
     await mountGridIcon({ cellPosition: { sheetId, col: 1, row: 1 }, horizontalAlign: "center" });
     const colDims = model.getters.getColDimensionsInViewport(sheetId, 1);
     const centeringOffset = Math.floor((colDims.size - GRID_ICON_EDGE_LENGTH) / 2);
-    const center = colDims.end - GRID_ICON_EDGE_LENGTH - centeringOffset + HEADER_WIDTH;
+    const center = colDims.end - GRID_ICON_EDGE_LENGTH - centeringOffset;
     expect(getStylePropertyInPx(icon, "left")).toEqual(center);
   });
 
@@ -73,7 +70,7 @@ describe("Grid cell icon component", () => {
     resizeColumns(model, ["B"], 200);
     await mountGridIcon({ cellPosition: { sheetId, col: 1, row: 1 }, horizontalAlign: "right" });
     const colDims = model.getters.getColDimensionsInViewport(sheetId, 1);
-    const right = colDims.end - GRID_ICON_MARGIN - GRID_ICON_EDGE_LENGTH + HEADER_WIDTH;
+    const right = colDims.end - GRID_ICON_MARGIN - GRID_ICON_EDGE_LENGTH;
     expect(getStylePropertyInPx(icon, "left")).toEqual(right);
   });
 
@@ -81,7 +78,7 @@ describe("Grid cell icon component", () => {
     resizeRows(model, [1], 200);
     await mountGridIcon({ cellPosition: { sheetId, col: 1, row: 1 }, verticalAlign: "top" });
     const rowDims = model.getters.getRowDimensionsInViewport(sheetId, 1);
-    const top = rowDims.start + GRID_ICON_MARGIN + HEADER_HEIGHT;
+    const top = rowDims.start + GRID_ICON_MARGIN;
     expect(getStylePropertyInPx(icon, "top")).toEqual(top);
   });
 
@@ -90,7 +87,7 @@ describe("Grid cell icon component", () => {
     await mountGridIcon({ cellPosition: { sheetId, col: 1, row: 1 }, verticalAlign: "middle" });
     const rowDims = model.getters.getRowDimensionsInViewport(sheetId, 1);
     const centeringOffset = Math.floor((rowDims.size - GRID_ICON_EDGE_LENGTH) / 2);
-    const middle = rowDims.end - GRID_ICON_EDGE_LENGTH - centeringOffset + HEADER_HEIGHT;
+    const middle = rowDims.end - GRID_ICON_EDGE_LENGTH - centeringOffset;
     expect(getStylePropertyInPx(icon, "top")).toEqual(middle);
   });
 
@@ -98,7 +95,7 @@ describe("Grid cell icon component", () => {
     resizeRows(model, [1], 200);
     await mountGridIcon({ cellPosition: { sheetId, col: 1, row: 1 }, verticalAlign: "bottom" });
     const rowDims = model.getters.getRowDimensionsInViewport(sheetId, 1);
-    const bottom = rowDims.end - GRID_ICON_MARGIN - GRID_ICON_EDGE_LENGTH + HEADER_HEIGHT;
+    const bottom = rowDims.end - GRID_ICON_MARGIN - GRID_ICON_EDGE_LENGTH;
     expect(bottom).toEqual(getStylePropertyInPx(icon, "top"));
   });
 
@@ -115,8 +112,8 @@ describe("Grid cell icon component", () => {
       horizontalAlign: "left",
     });
 
-    const top = rowDims.start + GRID_ICON_MARGIN + HEADER_HEIGHT;
-    const left = colDims.start + GRID_ICON_MARGIN + HEADER_WIDTH;
+    const top = rowDims.start + GRID_ICON_MARGIN;
+    const left = colDims.start + GRID_ICON_MARGIN;
     expect(getStylePropertyInPx(icon, "top")).toEqual(top);
     expect(getStylePropertyInPx(icon, "left")).toEqual(left);
   });
@@ -129,10 +126,10 @@ describe("Grid cell icon component", () => {
       verticalAlign: "bottom",
     });
 
-    const top = 2 * DEFAULT_CELL_HEIGHT - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN + HEADER_HEIGHT;
+    const top = 2 * DEFAULT_CELL_HEIGHT - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN;
     expect(getStylePropertyInPx(icon, "top")).toEqual(top);
 
-    const left = 2 * DEFAULT_CELL_WIDTH - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN + HEADER_WIDTH;
+    const left = 2 * DEFAULT_CELL_WIDTH - GRID_ICON_EDGE_LENGTH - GRID_ICON_MARGIN;
     expect(getStylePropertyInPx(icon, "left")).toEqual(left);
   });
 });

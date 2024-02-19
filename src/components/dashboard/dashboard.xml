@@ -4,7 +4,7 @@
       class="o-grid o-two-columns"
       tabindex="-1"
       t-on-wheel="onMouseWheel"
-      t-on-click="onClosePopover">
+      t-on-pointerdown="onClosePopover">
       <div class="mx-auto h-100 position-relative" t-ref="grid" t-att-style="gridContainer">
         <GridOverlay
           onCellHovered.bind="onCellHovered"
@@ -27,7 +27,6 @@
           t-on-contextmenu.prevent=""
           t-att-style="getCellClickableStyle(clickableCell.coordinates)"
         />
-        <FilterIconsOverlay/>
       </div>
       <VerticalScrollBar/>
       <HorizontalScrollBar/>
