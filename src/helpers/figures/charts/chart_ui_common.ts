@@ -6,7 +6,7 @@ import { Color, Figure, Format, Getters, LocaleFormat, Range } from "../../../ty
 import { ChartRuntime, DataSet, DatasetValues, LabelValues } from "../../../types/chart/chart";
 import { formatValue, isDateTimeFormat } from "../../format";
 import { range } from "../../misc";
-import { recomputeZones, zoneToXc } from "../../zones";
+import { recomputeZones } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
 import { drawScoreChart } from "./scorecard_chart";
 import { getScorecardConfiguration } from "./scorecard_chart_config_builder";
@@ -21,11 +21,11 @@ import { getScorecardConfiguration } from "./scorecard_chart_config_builder";
 export function getData(getters: Getters, ds: DataSet): any[] {
   if (ds.dataRange) {
     const labelCellZone = ds.labelCell ? [ds.labelCell.zone] : [];
-    const dataXC = recomputeZones([ds.dataRange.zone], labelCellZone).map(zoneToXc)[0];
-    if (dataXC === undefined) {
+    const dataZone = recomputeZones([ds.dataRange.zone], labelCellZone)[0];
+    if (dataZone === undefined) {
       return [];
     }
-    const dataRange = getters.getRangeFromSheetXC(ds.dataRange.sheetId, dataXC);
+    const dataRange = getters.getRangeFromZone(ds.dataRange.sheetId, dataZone);
     return getters.getRangeValues(dataRange).map((value) => (value === "" ? undefined : value));
   }
   return [];
