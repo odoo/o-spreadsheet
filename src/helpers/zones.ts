@@ -650,7 +650,7 @@ export function organizeZone(zone: Zone): Zone {
   };
 }
 
-export function positionToZone(position: Position) {
+export function positionToZone(position: Position): Zone {
   return { left: position.col, right: position.col, top: position.row, bottom: position.row };
 }
 

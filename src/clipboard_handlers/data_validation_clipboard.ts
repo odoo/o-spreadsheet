@@ -1,11 +1,4 @@
-import {
-  UuidGenerator,
-  deepEquals,
-  isInside,
-  recomputeZones,
-  toUnboundedZone,
-  toXC,
-} from "../helpers";
+import { UuidGenerator, deepEquals, isInside, positionToZone, recomputeZones } from "../helpers";
 import {
   CellPosition,
   ClipboardCellData,
@@ -100,28 +93,23 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
       const targetRule = this.getters.getValidationRuleForCell(target);
       if (targetRule) {
         // Remove the data validation rule on the target cell
-        this.adaptDataValidationRule(
-          target.sheetId,
-          targetRule,
-          [],
-          [toXC(target.col, target.row)]
-        );
+        this.adaptDataValidationRule(target.sheetId, targetRule, [], [positionToZone(target)]);
       }
       return;
     }
-    const xc = toXC(target.col, target.row);
+    const zone = positionToZone(target);
     for (const range of rule.ranges) {
       if (isInside(origin.col, origin.row, range.zone)) {
-        const toRemoveRange: string[] = [];
+        const toRemoveZone: Zone[] = [];
         if (isCutOperation) {
-          toRemoveRange.push(toXC(origin.col, origin.row));
+          toRemoveZone.push(positionToZone(origin));
         }
         if (origin.sheetId === target.sheetId) {
-          this.adaptDataValidationRule(origin.sheetId, rule, [xc], toRemoveRange);
+          this.adaptDataValidationRule(origin.sheetId, rule, [zone], toRemoveZone);
         } else {
-          this.adaptDataValidationRule(origin.sheetId, rule, [], toRemoveRange);
+          this.adaptDataValidationRule(origin.sheetId, rule, [], toRemoveZone);
           const copyToRule = this.getDataValidationRuleToCopyTo(target.sheetId, rule);
-          this.adaptDataValidationRule(target.sheetId, copyToRule, [xc], []);
+          this.adaptDataValidationRule(target.sheetId, copyToRule, [zone], []);
         }
       }
     }
@@ -150,14 +138,11 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
   private adaptDataValidationRule(
     sheetId: UID,
     rule: DataValidationRule,
-    toAdd: string[],
-    toRemove: string[]
+    toAdd: Zone[],
+    toRemove: Zone[]
   ) {
-    const dvRangesXcs = rule.ranges.map((range) => this.getters.getRangeString(range, sheetId));
-    const newRangesXC = recomputeZones(
-      [...dvRangesXcs, ...toAdd].map(toUnboundedZone),
-      toRemove.map(toUnboundedZone)
-    );
+    const dvRangesXcs = rule.ranges.map((range) => range.zone);
+    const newRangesXC = recomputeZones([...dvRangesXcs, ...toAdd], toRemove);
     if (newRangesXC.length === 0) {
       this.dispatch("REMOVE_DATA_VALIDATION_RULE", { sheetId, id: rule.id });
       return;
