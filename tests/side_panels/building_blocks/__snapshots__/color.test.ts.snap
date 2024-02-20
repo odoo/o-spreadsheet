@@ -6,11 +6,12 @@ exports[`Chart color Can render a chart color component 1`] = `
     class="o-spreadsheet"
   >
     <div
-      class="o-section o-chart-background-color"
+      class="o-section o-chart-background-color undefined"
     >
       <div
         class="o-section-title"
       >
+        
         Background color
       </div>
       

@@ -15,8 +15,10 @@ import {
 } from "../../../types";
 import { BarChartDefinition, BarChartRuntime } from "../../../types/chart/bar_chart";
 import {
+  AxesDesign,
   ChartCreationContext,
   DataSet,
+  DatasetDesign,
   ExcelChartDataset,
   ExcelChartDefinition,
 } from "../../../types/chart/chart";
@@ -24,11 +26,11 @@ import { LegendPosition, VerticalAxisPosition } from "../../../types/chart/commo
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
+import { ColorGenerator } from "../../color";
 import { formatValue } from "../../format";
 import { createRange } from "../../range";
-import { AbstractChart } from "./abstract_chart";
+import { AbstractChart, getChartTitle } from "./abstract_chart";
 import {
-  ChartColors,
   chartFontColor,
   checkDataset,
   checkLabelRange,
@@ -54,12 +56,13 @@ export class BarChart extends AbstractChart {
   readonly dataSets: DataSet[];
   readonly labelRange?: Range | undefined;
   readonly background?: Color;
-  readonly verticalAxisPosition: VerticalAxisPosition;
   readonly legendPosition: LegendPosition;
   readonly stacked: boolean;
   readonly aggregated?: boolean;
   readonly type = "bar";
   readonly dataSetsHaveTitle: boolean;
+  readonly dataSetDesign?: DatasetDesign[];
+  readonly axesDesign?: AxesDesign;
 
   constructor(definition: BarChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -71,11 +74,27 @@ export class BarChart extends AbstractChart {
     );
     this.labelRange = createRange(getters, sheetId, definition.labelRange);
     this.background = definition.background;
-    this.verticalAxisPosition = definition.verticalAxisPosition;
     this.legendPosition = definition.legendPosition;
     this.stacked = definition.stacked;
     this.aggregated = definition.aggregated;
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
+    this.dataSetDesign = definition.dataSetDesign;
+    this.axesDesign = definition.axesDesign;
+  }
+
+  get verticalAxisPosition(): VerticalAxisPosition {
+    let useRightAxis = false,
+      useLeftAxis = false;
+    for (const design of this.dataSetDesign || []) {
+      if (design.yAxisID === "y") {
+        useLeftAxis = true;
+        break;
+      } else if (design.yAxisID === "y1") {
+        useRightAxis = true;
+        break;
+      }
+    }
+    return useLeftAxis || !useRightAxis ? "left" : "right";
   }
 
   static transformDefinition(
@@ -102,8 +121,9 @@ export class BarChart extends AbstractChart {
       legendPosition: "top",
       title: context.title || "",
       type: "bar",
-      verticalAxisPosition: "left",
       labelRange: context.auxiliaryRange || undefined,
+      dataSetDesign: context.dataSetDesign,
+      axesDesign: context.axesDesign,
     };
   }
 
@@ -118,6 +138,8 @@ export class BarChart extends AbstractChart {
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
         : undefined,
       aggregated: this.aggregated,
+      dataSetDesign: this.dataSetDesign,
+      axesDesign: this.axesDesign,
     };
   }
 
@@ -154,13 +176,14 @@ export class BarChart extends AbstractChart {
         this.getters.getRangeString(ds.dataRange, targetSheetId || this.sheetId)
       ),
       legendPosition: this.legendPosition,
-      verticalAxisPosition: this.verticalAxisPosition,
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
       title: this.title,
       stacked: this.stacked,
       aggregated: this.aggregated,
+      dataSetDesign: this.dataSetDesign,
+      axesDesign: this.axesDesign,
     };
   }
 
@@ -177,10 +200,12 @@ export class BarChart extends AbstractChart {
     );
     return {
       ...this.getDefinition(),
+      title: getChartTitle(this.title),
       backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
       dataSets,
       labelRange,
+      verticalAxisPosition: this.verticalAxisPosition,
     };
   }
 
@@ -226,25 +251,104 @@ function getBarConfiguration(
         color: fontColor,
       },
     },
-    y: {
-      position: chart.verticalAxisPosition,
-      beginAtZero: true, // the origin of the y axis is always zero
-      ticks: {
-        color: fontColor,
-        callback: (value) => {
-          value = Number(value);
-          if (isNaN(value)) return value;
-          const { locale, format } = localeFormat;
-          return formatValue(value, { locale, format: !format && value > 1000 ? "#,##" : format });
-        },
+  };
+  if (chart.axesDesign?.x?.title?.title) {
+    config.options.scales.x!["title"] = {
+      display: true,
+      text: chart.axesDesign.x.title.title,
+      color: chart.axesDesign.x.title.color,
+      font: {
+        style: chart.axesDesign.x.title.italic ? "italic" : "normal",
+        weight: chart.axesDesign.x.title.bold ? "bold" : "normal",
+      },
+      align:
+        chart.axesDesign.x.title.align === "left"
+          ? "start"
+          : chart.axesDesign.x.title.align === "right"
+          ? "end"
+          : "center",
+    };
+  }
+  const yAxis = {
+    beginAtZero: true, // the origin of the y axis is always zero
+    ticks: {
+      color: fontColor,
+      callback: (value) => {
+        value = Number(value);
+        if (isNaN(value)) return value;
+        const { locale, format } = localeFormat;
+        return formatValue(value, { locale, format: !format && value > 1000 ? "#,##" : format });
       },
     },
   };
+  const definition = chart.getDefinition();
+  let useLeftAxis = false,
+    useRightAxis = false;
+  for (const design of definition.dataSetDesign || []) {
+    if (design.yAxisID === "y") {
+      useLeftAxis = true;
+    } else if (design.yAxisID === "y1") {
+      useRightAxis = true;
+    }
+  }
+  useLeftAxis ||= !useRightAxis;
+  if (useLeftAxis) {
+    config.options.scales.y = {
+      ...yAxis,
+      position: "left",
+    };
+    if (chart.axesDesign?.y?.title?.title) {
+      config.options.scales.y!["title"] = {
+        display: true,
+        text: chart.axesDesign.y.title.title,
+        color: chart.axesDesign.y.title.color,
+        font: {
+          style: chart.axesDesign.y.title.italic ? "italic" : "normal",
+          weight: chart.axesDesign.y.title.bold ? "bold" : "normal",
+        },
+        align:
+          chart.axesDesign.y.title.align === "left"
+            ? "start"
+            : chart.axesDesign.y.title.align === "right"
+            ? "end"
+            : "center",
+      };
+    }
+  }
+  if (useRightAxis) {
+    config.options.scales.y1 = {
+      ...yAxis,
+      position: "right",
+    };
+    if (chart.axesDesign?.y1?.title?.title) {
+      config.options.scales.y1!["title"] = {
+        display: true,
+        text: chart.axesDesign.y1.title.title,
+        color: chart.axesDesign.y1.title.color,
+        font: {
+          style: chart.axesDesign.y1.title.italic ? "italic" : "normal",
+          weight: chart.axesDesign.y1.title.bold ? "bold" : "normal",
+        },
+        align:
+          chart.axesDesign.y1.title.align === "left"
+            ? "start"
+            : chart.axesDesign.y1.title.align === "right"
+            ? "end"
+            : "center",
+      };
+    }
+  }
   if (chart.stacked) {
     // @ts-ignore chart.js type is broken
     config.options.scales!.x!.stacked = true;
-    // @ts-ignore chart.js type is broken
-    config.options.scales!.y!.stacked = true;
+    if (useLeftAxis) {
+      // @ts-ignore chart.js type is broken
+      config.options.scales!.y!.stacked = true;
+    }
+    if (useRightAxis) {
+      // @ts-ignore chart.js type is broken
+      config.options.scales!.y1!.stacked = true;
+    }
   }
   return config;
 }
@@ -269,9 +373,9 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
   const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
   const locale = getters.getLocale();
   const config = getBarConfiguration(chart, labels, { format: dataSetFormat, locale });
-  const colors = new ChartColors();
+  const colors = new ColorGenerator();
 
-  for (let { label, data } of dataSetsValues) {
+  for (const { label, data } of dataSetsValues) {
     const color = colors.next();
     const dataset: ChartDataset = {
       label,
@@ -280,6 +384,23 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
       backgroundColor: color,
     };
     config.data.datasets.push(dataset);
+  }
+
+  const definition = chart.getDefinition();
+  for (const [index, dataset] of config.data.datasets.entries()) {
+    if (definition.dataSetDesign?.[index]?.backgroundColor) {
+      const color = definition.dataSetDesign[index].backgroundColor;
+      dataset.backgroundColor = color;
+      dataset.borderColor = color;
+    }
+    if (definition.dataSetDesign?.[index]?.label) {
+      const label = definition.dataSetDesign[index].label;
+      dataset.label = label;
+    }
+    if (definition.dataSetDesign?.[index]?.yAxisID) {
+      const yAxisID = definition.dataSetDesign[index].yAxisID;
+      dataset["yAxisID"] = yAxisID;
+    }
   }
 
   return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };

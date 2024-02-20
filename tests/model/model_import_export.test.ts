@@ -170,7 +170,6 @@ describe("Migrations", () => {
       dataSets: ["B26:B35", "C26:C35"],
       dataSetsHaveTitle: true,
       background: BACKGROUND_CHART_COLOR,
-      verticalAxisPosition: "left",
       legendPosition: "top",
       stacked: false,
     });
@@ -181,7 +180,6 @@ describe("Migrations", () => {
       dataSets: ["B27:B35", "C27:C35"],
       dataSetsHaveTitle: false,
       background: BACKGROUND_CHART_COLOR,
-      verticalAxisPosition: "left",
       legendPosition: "top",
       stacked: false,
     });
@@ -192,7 +190,6 @@ describe("Migrations", () => {
       dataSets: ["B26:B27"],
       dataSetsHaveTitle: true,
       background: BACKGROUND_CHART_COLOR,
-      verticalAxisPosition: "left",
       legendPosition: "top",
       stacked: false,
     });
@@ -203,7 +200,6 @@ describe("Migrations", () => {
       dataSets: ["B27"],
       dataSetsHaveTitle: false,
       background: BACKGROUND_CHART_COLOR,
-      verticalAxisPosition: "left",
       legendPosition: "top",
       stacked: false,
     });

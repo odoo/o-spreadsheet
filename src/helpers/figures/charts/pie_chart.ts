@@ -31,11 +31,11 @@ import { PieChartDefinition, PieChartRuntime } from "../../../types/chart/pie_ch
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
+import { ColorGenerator } from "../../color";
 import { formatValue } from "../../format";
 import { createRange } from "../../range";
-import { AbstractChart } from "./abstract_chart";
+import { AbstractChart, getChartTitle } from "./abstract_chart";
 import {
-  ChartColors,
   chartFontColor,
   checkDataset,
   checkLabelRange,
@@ -101,7 +101,7 @@ export class PieChart extends AbstractChart {
       dataSets: context.range ? context.range : [],
       dataSetsHaveTitle: false,
       legendPosition: "top",
-      title: context.title || "",
+      title: getChartTitle(context.title ?? ""),
       type: "pie",
       labelRange: context.auxiliaryRange || undefined,
       aggregated: context.aggregated ?? false,
@@ -176,6 +176,7 @@ export class PieChart extends AbstractChart {
     );
     return {
       ...this.getDefinition(),
+      title: getChartTitle(this.title),
       backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
       verticalAxisPosition: "left", //TODO ExcelChartDefinition should be adapted, but can be done later
@@ -237,7 +238,7 @@ function getPieConfiguration(
   return config;
 }
 
-function getPieColors(colors: ChartColors, dataSetsValues: DatasetValues[]): Color[] {
+function getPieColors(colors: ColorGenerator, dataSetsValues: DatasetValues[]): Color[] {
   const pieColors: Color[] = [];
   const maxLength = Math.max(...dataSetsValues.map((ds) => ds.data.length));
   for (let i = 0; i <= maxLength; i++) {
@@ -314,7 +315,7 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
   const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
   const locale = getters.getLocale();
   const config = getPieConfiguration(chart, labels, { format: dataSetFormat, locale });
-  const colors = new ChartColors();
+  const colors = new ColorGenerator();
   for (let { label, data } of dataSetsValues) {
     const backgroundColor = getPieColors(colors, dataSetsValues);
     const dataset: ChartDataset = {

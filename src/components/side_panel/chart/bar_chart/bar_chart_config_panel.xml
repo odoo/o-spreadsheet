@@ -13,6 +13,7 @@
         ranges="this.getDataSeriesRanges()"
         onSelectionChanged="(ranges) => this.onDataSeriesRangesChanged(ranges)"
         onSelectionConfirmed="() => this.onDataSeriesConfirmed()"
+        initialColors="this.getInitialColors()"
       />
       <ChartLabelRange
         range="this.getLabelRange()"

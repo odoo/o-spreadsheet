@@ -156,12 +156,12 @@ export function createChart(
       labelRange: data.labelRange,
       type: data.type || "bar",
       background: data.background,
-      verticalAxisPosition: ("verticalAxisPosition" in data && data.verticalAxisPosition) || "left",
       legendPosition: data.legendPosition || "top",
       stacked: ("stacked" in data && data.stacked) || false,
       labelsAsText: ("labelsAsText" in data && data.labelsAsText) || false,
       aggregated: ("aggregated" in data && data.aggregated) || false,
       cumulative: ("cumulative" in data && data.cumulative) || false,
+      dataSetDesign: data.dataSetDesign,
     },
   });
 }

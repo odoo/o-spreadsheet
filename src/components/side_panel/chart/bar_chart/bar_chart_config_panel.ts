@@ -1,4 +1,5 @@
 import { _t } from "../../../../translation";
+import { BarChartDefinition } from "../../../../types/chart";
 import { LineBarPieConfigPanel } from "../line_bar_pie_panel/config_panel";
 
 export class BarConfigPanel extends LineBarPieConfigPanel {
@@ -6,6 +7,12 @@ export class BarConfigPanel extends LineBarPieConfigPanel {
 
   get stackedLabel(): string {
     return _t("Stacked barchart");
+  }
+
+  getInitialColors() {
+    return ((this.props.definition as BarChartDefinition).dataSetDesign ?? []).map(
+      (design) => design.backgroundColor
+    );
   }
 
   onUpdateStacked(stacked: boolean) {

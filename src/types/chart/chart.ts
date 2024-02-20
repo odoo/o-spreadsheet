@@ -1,4 +1,4 @@
-import { Range } from "../../types";
+import { Color, Range } from "../../types";
 import { XlsxHexColor } from "../xlsx";
 import { BarChartDefinition, BarChartRuntime } from "./bar_chart";
 import { LegendPosition, VerticalAxisPosition } from "./common_chart";
@@ -37,6 +37,30 @@ export interface DatasetValues {
   readonly data: any[];
 }
 
+export interface DatasetDesign {
+  readonly backgroundColor?: string;
+  readonly yAxisID?: string;
+  readonly label?: string;
+}
+
+interface AxisDesign {
+  readonly title?: TitleDesign;
+}
+
+export interface AxesDesign {
+  readonly x?: AxisDesign;
+  readonly y?: AxisDesign;
+  readonly y1?: AxisDesign;
+}
+
+export interface TitleDesign {
+  readonly title?: string;
+  readonly bold?: boolean;
+  readonly italic?: boolean;
+  readonly align?: "left" | "center" | "right";
+  readonly color?: Color;
+}
+
 export type AxisType = "category" | "linear" | "time";
 
 export interface DataSet {
@@ -65,8 +89,11 @@ export interface ExcelChartDefinition {
 
 export interface ChartCreationContext {
   readonly range?: string[];
-  readonly title?: string;
+  readonly title?: string | TitleDesign;
   readonly background?: string;
   readonly auxiliaryRange?: string;
   readonly aggregated?: boolean;
+  readonly type?: string;
+  readonly dataSetDesign?: DatasetDesign[];
+  readonly axesDesign?: AxesDesign;
 }

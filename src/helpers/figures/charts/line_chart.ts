@@ -11,8 +11,10 @@ import {
   UID,
 } from "../../../types";
 import {
+  AxesDesign,
   ChartCreationContext,
   DataSet,
+  DatasetDesign,
   ExcelChartDataset,
   ExcelChartDefinition,
 } from "../../../types/chart/chart";
@@ -22,7 +24,7 @@ import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { createRange } from "../../range";
-import { AbstractChart } from "./abstract_chart";
+import { AbstractChart, getChartTitle } from "./abstract_chart";
 import {
   chartFontColor,
   checkDataset,
@@ -42,7 +44,6 @@ export class LineChart extends AbstractChart {
   readonly dataSets: DataSet[];
   readonly labelRange?: Range | undefined;
   readonly background?: Color;
-  readonly verticalAxisPosition: VerticalAxisPosition;
   readonly legendPosition: LegendPosition;
   readonly labelsAsText: boolean;
   readonly stacked: boolean;
@@ -50,6 +51,8 @@ export class LineChart extends AbstractChart {
   readonly type = "line";
   readonly dataSetsHaveTitle: boolean;
   readonly cumulative: boolean;
+  readonly dataSetDesign?: DatasetDesign[];
+  readonly axesDesign?: AxesDesign;
 
   constructor(definition: LineChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -61,13 +64,29 @@ export class LineChart extends AbstractChart {
     );
     this.labelRange = createRange(this.getters, sheetId, definition.labelRange);
     this.background = definition.background;
-    this.verticalAxisPosition = definition.verticalAxisPosition;
     this.legendPosition = definition.legendPosition;
     this.labelsAsText = definition.labelsAsText;
     this.stacked = definition.stacked;
     this.aggregated = definition.aggregated;
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
     this.cumulative = definition.cumulative;
+    this.dataSetDesign = definition.dataSetDesign;
+    this.axesDesign = definition.axesDesign;
+  }
+
+  get verticalAxisPosition(): VerticalAxisPosition {
+    let useRightAxis = false,
+      useLeftAxis = false;
+    for (const design of this.dataSetDesign || []) {
+      if (design.yAxisID === "y") {
+        useLeftAxis = true;
+        break;
+      } else if (design.yAxisID === "y1") {
+        useRightAxis = true;
+        break;
+      }
+    }
+    return useLeftAxis || !useRightAxis ? "left" : "right";
   }
 
   static validateChartDefinition(
@@ -93,11 +112,12 @@ export class LineChart extends AbstractChart {
       legendPosition: "top",
       title: context.title || "",
       type: "line",
-      verticalAxisPosition: "left",
       labelRange: context.auxiliaryRange || undefined,
       stacked: false,
       aggregated: context.aggregated ?? false,
       cumulative: false,
+      dataSetDesign: context.dataSetDesign,
+      axesDesign: context.axesDesign,
     };
   }
 
@@ -118,7 +138,6 @@ export class LineChart extends AbstractChart {
         this.getters.getRangeString(ds.dataRange, targetSheetId || this.sheetId)
       ),
       legendPosition: this.legendPosition,
-      verticalAxisPosition: this.verticalAxisPosition,
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
@@ -127,6 +146,8 @@ export class LineChart extends AbstractChart {
       stacked: this.stacked,
       aggregated: this.aggregated,
       cumulative: this.cumulative,
+      dataSetDesign: this.dataSetDesign,
+      axesDesign: this.axesDesign,
     };
   }
 
@@ -141,6 +162,8 @@ export class LineChart extends AbstractChart {
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
         : undefined,
       aggregated: this.aggregated,
+      dataSetDesign: this.dataSetDesign,
+      axesDesign: this.axesDesign,
     };
   }
 
@@ -171,10 +194,12 @@ export class LineChart extends AbstractChart {
     );
     return {
       ...this.getDefinition(),
+      title: getChartTitle(this.title),
       backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
       dataSets,
       labelRange,
+      verticalAxisPosition: this.verticalAxisPosition,
     };
   }
 

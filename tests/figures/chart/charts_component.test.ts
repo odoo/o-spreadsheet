@@ -2,7 +2,7 @@ import { CommandResult, Model, Spreadsheet } from "../../../src";
 import { ChartTerms } from "../../../src/components/translations_terms";
 import { BACKGROUND_CHART_COLOR } from "../../../src/constants";
 import { toHex } from "../../../src/helpers";
-import { ScorecardChart } from "../../../src/helpers/figures/charts";
+import { ScorecardChart, getChartTitle } from "../../../src/helpers/figures/charts";
 import { CHART_TYPES, ChartDefinition, ChartType } from "../../../src/types";
 import { BarChartDefinition } from "../../../src/types/chart/bar_chart";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
@@ -270,14 +270,30 @@ describe("charts", () => {
       }
       await simulateClick(".o-panel .inactive");
       setInputValueAndTrigger(".o-chart-title input", "hello");
-      expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
-        id: chartId,
-        sheetId,
-        definition: {
-          ...model.getters.getChartDefinition(chartId),
-          title: "hello",
-        },
-      });
+      switch (chartType) {
+        case "basicChart":
+          expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
+            id: chartId,
+            sheetId,
+            definition: {
+              ...model.getters.getChartDefinition(chartId),
+              title: {
+                title: "hello",
+              },
+            },
+          });
+          break;
+        case "scorecard":
+          expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
+            id: chartId,
+            sheetId,
+            definition: {
+              ...model.getters.getChartDefinition(chartId),
+              title: "hello",
+            },
+          });
+          break;
+      }
     }
   );
 
@@ -341,8 +357,8 @@ describe("charts", () => {
     await simulateClick(".o-chart-title input");
     setInputValueAndTrigger(".o-chart-title input", "new_title");
 
-    expect(model.getters.getChartDefinition("1").title).toBe("old_title_1");
-    expect(model.getters.getChartDefinition("2").title).toBe("new_title");
+    expect(getChartTitle(model.getters.getChartDefinition("1").title)).toBe("old_title_1");
+    expect(getChartTitle(model.getters.getChartDefinition("2").title)).toBe("new_title");
   });
 
   test.each(["basicChart", "scorecard", "gauge"] as const)(

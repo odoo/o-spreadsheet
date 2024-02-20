@@ -86,6 +86,10 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
+  getRuntime(figureId: UID) {
+    return this.env.model.getters.getChartRuntime(figureId);
+  }
+
   onTypeChange(type: ChartType) {
     if (!this.figureId) {
       return;

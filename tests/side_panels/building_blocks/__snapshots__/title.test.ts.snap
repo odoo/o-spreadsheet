@@ -6,11 +6,12 @@ exports[`Chart title Can render a chart title component 1`] = `
     class="container"
   >
     <div
-      class="o-section o-chart-title"
+      class="o-section o-chart-title undefined"
     >
       <div
         class="o-section-title"
       >
+        
         Title
       </div>
       
