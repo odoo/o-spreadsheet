@@ -103,7 +103,7 @@ export const OrderedLayers = memoize(
  * @param layer New layer name
  * @param priority The lower priorities are rendered first
  */
-export function AddRenderingLayer(layer: string, priority: number) {
+export function addRenderingLayer(layer: string, priority: number) {
   if (LAYERS[layer]) {
     throw new Error(`Layer ${layer} already exists`);
   }
