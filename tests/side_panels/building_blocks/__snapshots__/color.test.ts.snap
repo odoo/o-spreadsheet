@@ -11,6 +11,7 @@ exports[`Chart color Can render a chart color component 1`] = `
       <div
         class="o-section-title"
       >
+        
         Background color
       </div>
       

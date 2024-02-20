@@ -53,6 +53,7 @@
           updateChart.bind="updateChart"
           canUpdateChart.bind="canUpdateChart"
           t-key="figureId + definition.type"
+          getRuntime.bind="getRuntime"
         />
       </t>
     </div>

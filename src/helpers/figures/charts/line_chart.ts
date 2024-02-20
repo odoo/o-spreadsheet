@@ -13,6 +13,7 @@ import {
 import {
   ChartCreationContext,
   DataSet,
+  DatasetDesign,
   ExcelChartDataset,
   ExcelChartDefinition,
 } from "../../../types/chart/chart";
@@ -42,7 +43,6 @@ export class LineChart extends AbstractChart {
   readonly dataSets: DataSet[];
   readonly labelRange?: Range | undefined;
   readonly background?: Color;
-  readonly verticalAxisPosition: VerticalAxisPosition;
   readonly legendPosition: LegendPosition;
   readonly labelsAsText: boolean;
   readonly stacked: boolean;
@@ -50,6 +50,7 @@ export class LineChart extends AbstractChart {
   readonly type = "line";
   readonly dataSetsHaveTitle: boolean;
   readonly cumulative: boolean;
+  readonly dataSetDesign?: DatasetDesign[];
 
   constructor(definition: LineChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -61,13 +62,28 @@ export class LineChart extends AbstractChart {
     );
     this.labelRange = createRange(this.getters, sheetId, definition.labelRange);
     this.background = definition.background;
-    this.verticalAxisPosition = definition.verticalAxisPosition;
     this.legendPosition = definition.legendPosition;
     this.labelsAsText = definition.labelsAsText;
     this.stacked = definition.stacked;
     this.aggregated = definition.aggregated;
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
     this.cumulative = definition.cumulative;
+    this.dataSetDesign = definition.dataSetDesign;
+  }
+
+  get verticalAxisPosition(): VerticalAxisPosition {
+    let useRightAxis = false,
+      useLeftAxis = false;
+    for (const design of this.dataSetDesign || []) {
+      if (design.yAxisID === "y") {
+        useLeftAxis = true;
+        break;
+      } else if (design.yAxisID === "y1") {
+        useRightAxis = true;
+        break;
+      }
+    }
+    return useLeftAxis || !useRightAxis ? "left" : "right";
   }
 
   static validateChartDefinition(
@@ -93,11 +109,11 @@ export class LineChart extends AbstractChart {
       legendPosition: "top",
       title: context.title || "",
       type: "line",
-      verticalAxisPosition: "left",
       labelRange: context.auxiliaryRange || undefined,
       stacked: false,
       aggregated: false,
       cumulative: false,
+      dataSetDesign: context.dataSetDesign,
     };
   }
 
@@ -118,7 +134,6 @@ export class LineChart extends AbstractChart {
         this.getters.getRangeString(ds.dataRange, targetSheetId || this.sheetId)
       ),
       legendPosition: this.legendPosition,
-      verticalAxisPosition: this.verticalAxisPosition,
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
@@ -127,6 +142,7 @@ export class LineChart extends AbstractChart {
       stacked: this.stacked,
       aggregated: this.aggregated,
       cumulative: this.cumulative,
+      dataSetDesign: this.dataSetDesign,
     };
   }
 
@@ -140,6 +156,7 @@ export class LineChart extends AbstractChart {
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
         : undefined,
+      dataSetDesign: this.dataSetDesign,
     };
   }
 
@@ -174,6 +191,7 @@ export class LineChart extends AbstractChart {
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
       dataSets,
       labelRange,
+      verticalAxisPosition: this.verticalAxisPosition,
     };
   }
 

@@ -53,12 +53,8 @@ import {
 } from "./constants";
 import { isEvaluationError, toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
 import { FunctionRegistry, arg, functionRegistry } from "./functions/index";
-import {
-  ChartColors,
-  chartFontColor,
-  getDefaultChartJsRuntime,
-  getFillingMode,
-} from "./helpers/figures/charts";
+import { ColorGenerator } from "./helpers/color";
+import { chartFontColor, getDefaultChartJsRuntime, getFillingMode } from "./helpers/figures/charts";
 import {
   UuidGenerator,
   colorToRGBA,
@@ -244,13 +240,13 @@ export const helpers = {
   UuidGenerator,
   formatValue,
   createCurrencyFormat,
+  ColorGenerator,
   computeTextWidth,
   createEmptyWorkbookData,
   createEmptySheet,
   createEmptyExcelSheet,
   getDefaultChartJsRuntime,
   chartFontColor,
-  ChartColors,
   getFillingMode,
   rgbaToHex,
   colorToRGBA,

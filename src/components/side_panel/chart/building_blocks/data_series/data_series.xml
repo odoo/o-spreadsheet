@@ -8,6 +8,7 @@
         hasSingleRange="props.hasSingleRange"
         onSelectionChanged="(ranges) => props.onSelectionChanged(ranges)"
         onSelectionConfirmed="() => props.onSelectionConfirmed()"
+        initialColors="props.initialColors"
       />
     </Section>
   </t>

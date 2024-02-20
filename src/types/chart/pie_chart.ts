@@ -1,5 +1,6 @@
 import type { ChartConfiguration } from "chart.js";
 import { Color } from "../misc";
+import { DatasetDesign } from "./chart";
 import { LegendPosition } from "./common_chart";
 
 export interface PieChartDefinition {
@@ -11,6 +12,7 @@ export interface PieChartDefinition {
   readonly background?: Color;
   readonly legendPosition: LegendPosition;
   readonly aggregated?: boolean;
+  readonly dataSetDesign?: DatasetDesign[];
 }
 
 export type PieChartRuntime = {

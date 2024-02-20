@@ -89,14 +89,6 @@ exports[`Linear/Time charts font color is white with a dark background color 1`]
           },
           "type": "linear",
         },
-        "y": {
-          "beginAtZero": true,
-          "position": "left",
-          "ticks": {
-            "callback": [Function],
-            "color": "#FFFFFF",
-          },
-        },
       },
     },
     "platform": undefined,
@@ -206,14 +198,6 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for date char
           },
           "type": "time",
         },
-        "y": {
-          "beginAtZero": true,
-          "position": "left",
-          "ticks": {
-            "callback": [Function],
-            "color": "#000000",
-          },
-        },
       },
     },
     "platform": undefined,
@@ -317,14 +301,6 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for linear ch
           },
           "type": "linear",
         },
-        "y": {
-          "beginAtZero": true,
-          "position": "left",
-          "ticks": {
-            "callback": [Function],
-            "color": "#000000",
-          },
-        },
       },
     },
     "platform": undefined,
@@ -403,15 +379,6 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
           "ticks": {
             "color": "#000000",
             "padding": 5,
-          },
-        },
-        "y": {
-          "beginAtZero": true,
-          "position": "left",
-          "stacked": true,
-          "ticks": {
-            "callback": [Function],
-            "color": "#000000",
           },
         },
       },
@@ -494,14 +461,6 @@ exports[`datasource tests create chart with a dataset of one cell (no title) 1`]
           "ticks": {
             "color": "#000000",
             "padding": 5,
-          },
-        },
-        "y": {
-          "beginAtZero": true,
-          "position": "left",
-          "ticks": {
-            "callback": [Function],
-            "color": "#000000",
           },
         },
       },
@@ -603,14 +562,6 @@ exports[`datasource tests create chart with column datasets 1`] = `
             "padding": 5,
           },
         },
-        "y": {
-          "beginAtZero": true,
-          "position": "left",
-          "ticks": {
-            "callback": [Function],
-            "color": "#000000",
-          },
-        },
       },
     },
     "platform": undefined,
@@ -708,14 +659,6 @@ exports[`datasource tests create chart with column datasets with category title 
           "ticks": {
             "color": "#000000",
             "padding": 5,
-          },
-        },
-        "y": {
-          "beginAtZero": true,
-          "position": "left",
-          "ticks": {
-            "callback": [Function],
-            "color": "#000000",
           },
         },
       },
@@ -817,14 +760,6 @@ exports[`datasource tests create chart with column datasets without series title
             "padding": 5,
           },
         },
-        "y": {
-          "beginAtZero": true,
-          "position": "left",
-          "ticks": {
-            "callback": [Function],
-            "color": "#000000",
-          },
-        },
       },
     },
     "platform": undefined,
@@ -907,14 +842,6 @@ exports[`datasource tests create chart with only the dataset title (no data) 1`]
           "ticks": {
             "color": "#000000",
             "padding": 5,
-          },
-        },
-        "y": {
-          "beginAtZero": true,
-          "position": "left",
-          "ticks": {
-            "callback": [Function],
-            "color": "#000000",
           },
         },
       },
@@ -1016,14 +943,6 @@ exports[`datasource tests create chart with rectangle dataset 1`] = `
             "padding": 5,
           },
         },
-        "y": {
-          "beginAtZero": true,
-          "position": "left",
-          "ticks": {
-            "callback": [Function],
-            "color": "#000000",
-          },
-        },
       },
     },
     "platform": undefined,
@@ -1121,14 +1040,6 @@ exports[`datasource tests create chart with row datasets 1`] = `
           "ticks": {
             "color": "#000000",
             "padding": 5,
-          },
-        },
-        "y": {
-          "beginAtZero": true,
-          "position": "left",
-          "ticks": {
-            "callback": [Function],
-            "color": "#000000",
           },
         },
       },
@@ -1230,14 +1141,6 @@ exports[`datasource tests create chart with row datasets with category title 1`]
             "padding": 5,
           },
         },
-        "y": {
-          "beginAtZero": true,
-          "position": "left",
-          "ticks": {
-            "callback": [Function],
-            "color": "#000000",
-          },
-        },
       },
     },
     "platform": undefined,
@@ -1335,14 +1238,6 @@ exports[`datasource tests create chart with row datasets without series title 1`
           "ticks": {
             "color": "#000000",
             "padding": 5,
-          },
-        },
-        "y": {
-          "beginAtZero": true,
-          "position": "left",
-          "ticks": {
-            "callback": [Function],
-            "color": "#000000",
           },
         },
       },

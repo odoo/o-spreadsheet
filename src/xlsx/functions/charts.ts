@@ -1,5 +1,4 @@
-import { range } from "../../helpers";
-import { ChartColors } from "../../helpers/figures/charts";
+import { ColorGenerator, range } from "../../helpers";
 import { Color, ExcelWorkbookData, FigureData } from "../../types";
 import { ExcelChartDefinition } from "../../types/chart/chart";
 import { XMLAttributes, XMLString, XlsxHexColor } from "../../types/xlsx";
@@ -204,7 +203,7 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
   //
   // overlap and gapWitdh seems to be by default at -20 and 20 in chart.js.
   // See https://www.chartjs.org/docs/latest/charts/bar.html and https://www.chartjs.org/docs/latest/charts/bar.html#barpercentage-vs-categorypercentage
-  const colors = new ChartColors();
+  const colors = new ColorGenerator();
   const dataSetsNodes: XMLString[] = [];
   for (const [dsIndex, dataset] of Object.entries(chart.dataSets)) {
     const color = toXlsxHexColor(colors.next());
@@ -252,7 +251,7 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
 }
 
 function addLineChart(chart: ExcelChartDefinition): XMLString {
-  const colors = new ChartColors();
+  const colors = new ColorGenerator();
   const dataSetsNodes: XMLString[] = [];
   for (const [dsIndex, dataset] of Object.entries(chart.dataSets)) {
     const dataShapeProperty = shapeProperty({
@@ -308,7 +307,7 @@ function addDoughnutChart(
   data: ExcelWorkbookData,
   { holeSize } = { holeSize: 50 }
 ) {
-  const colors = new ChartColors();
+  const colors = new ColorGenerator();
 
   const maxLength = Math.max(
     ...chart.dataSets.map((ds) => getRangeSize(ds.range, chartSheetIndex, data))

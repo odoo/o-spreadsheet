@@ -10,6 +10,7 @@ interface State {
 interface Props {
   currentColor?: string;
   onColorPicked: (color: string) => void;
+  title?: string;
 }
 
 export class ChartColor extends Component<Props, SpreadsheetChildEnv> {
@@ -18,6 +19,7 @@ export class ChartColor extends Component<Props, SpreadsheetChildEnv> {
   static props = {
     currentColor: { type: String, optional: true },
     onColorPicked: Function,
+    title: { type: String, optional: true },
   };
 
   private state!: State;

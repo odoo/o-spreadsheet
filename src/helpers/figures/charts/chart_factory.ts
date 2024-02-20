@@ -180,7 +180,7 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
       labelRange: labelRangeXc,
       type: "line",
       dataSetsHaveTitle,
-      verticalAxisPosition: "left",
+      dataSetDesign: dataSets.map(() => ({ yAxisID: "y" })),
       legendPosition: newLegendPos,
     };
   }
@@ -192,7 +192,7 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
     stacked: false,
     aggregated: false,
     dataSetsHaveTitle,
-    verticalAxisPosition: "left",
+    dataSetDesign: dataSets.map(() => ({ yAxisID: "y" })),
     legendPosition: newLegendPos,
   };
 }

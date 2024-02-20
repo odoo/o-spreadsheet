@@ -89,7 +89,6 @@ function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | un
     title: chartData.title || "",
     type: chartData.type,
     background: convertColor({ rgb: chartData.backgroundColor }) || "#FFFFFF",
-    verticalAxisPosition: chartData.verticalAxisPosition,
     legendPosition: chartData.legendPosition,
     stacked: chartData.stacked || false,
     aggregated: false,

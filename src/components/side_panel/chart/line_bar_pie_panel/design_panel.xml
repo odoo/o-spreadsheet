@@ -19,6 +19,40 @@
           <option value="right">Right</option>
         </select>
       </Section>
+      <Section>
+        <t t-set-slot="title">Data Series Design</t>
+        <select
+          class="o-input"
+          t-model="state.label"
+          t-on-change="(ev) => this.updateSerieEditor(ev)">
+          <t t-foreach="getDataSeries()" t-as="serie" t-key="serie">
+            <option t-att-value="serie" t-esc="serie"/>
+          </t>
+        </select>
+        <ChartColor
+          currentColor="state.color"
+          onColorPicked.bind="updateDataSeriesColor"
+          title="'Background color'"
+        />
+        <Section class="'pt-0'">
+          <t t-set-slot="title">Vertical axis</t>
+          <select
+            t-model="state.axis"
+            class="o-input"
+            t-on-change="(ev) => this.updateDataSeriesAxis(ev)">
+            <option value="left">Left</option>
+            <option value="right">Right</option>
+          </select>
+        </Section>
+        <Section class="'pt-0'">
+          <t t-set-slot="title">Serie name</t>
+          <input
+            class="o-input"
+            t-model="state.label"
+            t-on-change="(ev) => this.updateDataSeriesLabel(ev)"
+          />
+        </Section>
+      </Section>
     </div>
   </t>
 </templates>

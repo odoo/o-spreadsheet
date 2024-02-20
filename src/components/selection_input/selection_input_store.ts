@@ -1,5 +1,5 @@
 import { toRaw } from "@odoo/owl";
-import { colors, isEqual, positionToZone, splitReference } from "../../helpers/index";
+import { ColorGenerator, isEqual, positionToZone, splitReference } from "../../helpers/index";
 import { Get } from "../../store_engine";
 import { SpreadsheetStore } from "../../stores";
 import { HighlightStore } from "../../stores/highlight_store";
@@ -30,7 +30,8 @@ export class SelectionInputStore extends SpreadsheetStore {
   constructor(
     get: Get,
     private initialRanges: string[] = [],
-    private readonly inputHasSingleRange: boolean = false
+    private readonly inputHasSingleRange: boolean = false,
+    private readonly initialColors: Color[] = []
   ) {
     super(get);
     if (inputHasSingleRange && initialRanges.length > 1) {
@@ -191,13 +192,14 @@ export class SelectionInputStore extends SpreadsheetStore {
    * e.g. ["A1", "Sheet2!B3", "E12"]
    */
   get selectionInputs(): (RangeInputValue & { isFocused: boolean; isValidRange: boolean })[] {
+    const generator = new ColorGenerator(this.initialColors);
     return this.ranges.map((input, index) =>
       Object.assign({}, input, {
         color:
           this.hasMainFocus &&
           this.focusedRangeIndex !== null &&
           this.getters.isRangeValid(input.xc)
-            ? input.color
+            ? generator.next()
             : null,
         isFocused: this.hasMainFocus && this.focusedRangeIndex === index,
         isValidRange: input.xc === "" || this.getters.isRangeValid(input.xc),
@@ -292,13 +294,17 @@ export class SelectionInputStore extends SpreadsheetStore {
    */
   private insertNewRange(index: number, values: string[]) {
     const currentMaxId = Math.max(0, ...this.ranges.map((range) => Number(range.id)));
+    const generator = new ColorGenerator(this.initialColors);
+    for (let i = 0; i < index; i++) {
+      generator.next();
+    }
     this.ranges.splice(
       index,
       0,
       ...values.map((xc, i) => ({
         xc,
         id: currentMaxId + i + 1,
-        color: colors[(currentMaxId + i) % colors.length],
+        color: generator.next(),
       }))
     );
   }

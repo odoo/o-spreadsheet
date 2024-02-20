@@ -40,6 +40,7 @@ export class BarChart extends ComboBarChart {
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
       dataSets,
       labelRange,
+      verticalAxisPosition: this.verticalAxisPosition,
     };
   }
 
@@ -52,9 +53,9 @@ export class BarChart extends ComboBarChart {
       aggregated: false,
       legendPosition: "top",
       title: context.title || "",
-      verticalAxisPosition: "left",
       labelRange: context.auxiliaryRange || undefined,
       type: "bar",
+      dataSetDesign: context.dataSetDesign,
     };
   }
 }

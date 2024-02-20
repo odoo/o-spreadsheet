@@ -4,10 +4,10 @@ import { BACKGROUND_CHART_COLOR, LINE_FILL_TRANSPARENCY } from "../../../constan
 import { Color, Format, Getters, LocaleFormat, Range } from "../../../types";
 import { AxisType, DatasetValues, LabelValues } from "../../../types/chart/chart";
 import { getChartTimeOptions, timeFormatLuxonCompatible } from "../../chart_date";
-import { colorToRGBA, rgbaToHex } from "../../color";
+import { ColorGenerator, colorToRGBA, rgbaToHex } from "../../color";
 import { formatValue } from "../../format";
 import { deepCopy, findNextDefinedValue } from "../../misc";
-import { ChartColors, chartFontColor } from "./chart_common";
+import { chartFontColor } from "./chart_common";
 import {
   aggregateDataForLabels,
   filterEmptyDataPoints,
@@ -152,23 +152,50 @@ function getLineOrScatterConfiguration(
         color: fontColor,
       },
     },
-    y: {
-      position: chart.verticalAxisPosition,
-      beginAtZero: true, // the origin of the y axis is always zero
-      ticks: {
-        color: fontColor,
-        callback: (value) => {
-          value = Number(value);
-          if (isNaN(value)) return value;
-          const { locale, format } = localeFormat;
-          return formatValue(value, { locale, format: !format && value > 1000 ? "#,##" : format });
-        },
+  };
+  const yAxis = {
+    beginAtZero: true, // the origin of the y axis is always zero
+    ticks: {
+      color: fontColor,
+      callback: (value) => {
+        value = Number(value);
+        if (isNaN(value)) return value;
+        const { locale, format } = localeFormat;
+        return formatValue(value, { locale, format: !format && value > 1000 ? "#,##" : format });
       },
     },
   };
-  if ("stacked" in chart && chart.stacked && config.options?.scales?.y) {
-    // @ts-ignore chart.js type is wrong
-    config.options.scales.y.stacked = true;
+  const definition = chart.getDefinition();
+  let useLeftAxis = false,
+    useRightAxis = false;
+  for (const design of definition.dataSetDesign || []) {
+    if (design.yAxisID === "y") {
+      useLeftAxis = true;
+    } else if (design.yAxisID === "y1") {
+      useRightAxis = true;
+    }
+  }
+  if (useLeftAxis) {
+    config.options.scales.y = {
+      ...yAxis,
+      position: "left",
+    };
+  }
+  if (useRightAxis) {
+    config.options.scales.y1 = {
+      ...yAxis,
+      position: "right",
+    };
+  }
+  if ("stacked" in chart && chart.stacked) {
+    if (useLeftAxis) {
+      // @ts-ignore chart.js type is broken
+      config.options.scales!.y!.stacked = true;
+    }
+    if (useRightAxis) {
+      // @ts-ignore chart.js type is broken
+      config.options.scales!.y1!.stacked = true;
+    }
   }
   return config;
 }
@@ -231,7 +258,7 @@ export function createLineOrScatterChartRuntime(
   const stacked = "stacked" in chart ? chart.stacked : false;
   const cumulative = "cumulative" in chart ? chart.cumulative : false;
 
-  const colors = new ChartColors();
+  const colors = new ColorGenerator();
   for (let [index, { label, data }] of dataSetsValues.entries()) {
     if (["linear", "time"].includes(axisType)) {
       // Replace empty string labels by undefined to make sure chartJS doesn't decide that "" is the same as 0
@@ -265,6 +292,25 @@ export function createLineOrScatterChartRuntime(
       fill: stacked ? getFillingMode(index) : false,
     };
     config.data!.datasets!.push(dataset);
+  }
+
+  const definition = chart.getDefinition();
+  for (const [index, dataset] of config.data.datasets.entries()) {
+    if (definition.dataSetDesign?.[index]?.backgroundColor) {
+      const color = definition.dataSetDesign[index].backgroundColor;
+      dataset.backgroundColor = color;
+      dataset.borderColor = color;
+      //@ts-ignore
+      dataset.pointBackgroundColor = color;
+    }
+    if (definition.dataSetDesign?.[index]?.label) {
+      const label = definition.dataSetDesign[index].label;
+      dataset.label = label;
+    }
+    if (definition.dataSetDesign?.[index]?.yAxisID) {
+      const yAxisID = definition.dataSetDesign[index].yAxisID;
+      dataset["yAxisID"] = yAxisID;
+    }
   }
 
   return {

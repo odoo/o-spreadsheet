@@ -18,10 +18,12 @@ import { ChartLabelRange } from "../building_blocks/label_range/label_range";
 
 interface Props {
   figureId: UID;
-  definition: LineChartDefinition | BarChartDefinition | PieChartDefinition;
+  definition: LineChartDefinition | BarChartDefinition | PieChartDefinition | ComboChartDefinition;
   canUpdateChart: (
     figureId: UID,
-    definition: Partial<LineChartDefinition | BarChartDefinition | PieChartDefinition>
+    definition: Partial<
+      LineChartDefinition | BarChartDefinition | PieChartDefinition | ComboChartDefinition
+    >
   ) => DispatchResult;
   updateChart: (
     figureId: UID,

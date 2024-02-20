@@ -2,10 +2,9 @@ import { App, Component, onMounted, onWillUnmount, useSubEnv, xml } from "@odoo/
 import { Model } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { SelectionInput } from "../../src/components/selection_input/selection_input";
-import { toCartesian, toZone } from "../../src/helpers";
+import { ColorGenerator, toCartesian, toZone } from "../../src/helpers";
 import { useStoreProvider } from "../../src/store_engine";
 import { ModelStore } from "../../src/stores";
-import { HighlightStore } from "../../src/stores/highlight_store";
 import { SpreadsheetChildEnv } from "../../src/types";
 import {
   activateSheet,
@@ -195,17 +194,17 @@ describe("Selection Input", () => {
   });
 
   test("input is filled when new cells are selected", async () => {
-    const { model, env } = await createSelectionInput();
-    const highlightStore = env.getStore(HighlightStore);
+    const { model } = await createSelectionInput();
     selectCell(model, "B4");
     await nextTick();
     expect(fixture.querySelector("input")!.value).toBe("B4");
-    const color = highlightStore.highlights[0].color;
+    const colorGenerator = new ColorGenerator();
+    const color = colorGenerator.next();
     expect(fixture.querySelector("input")!.getAttribute("style")).toBe(`color: ${color};`);
     simulateClick(".o-add-selection");
     selectCell(model, "B5");
     await nextTick();
-    const color2 = highlightStore.highlights[1].color;
+    const color2 = colorGenerator.next();
     expect(fixture.querySelectorAll("input")[0].value).toBe("B4");
     expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe(`color: ${color};`);
     expect(fixture.querySelectorAll("input")[1].value).toBe("B5");

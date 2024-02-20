@@ -11,7 +11,12 @@ import {
   RemoveColumnsRowsCommand,
   UID,
 } from "../../../types";
-import { ChartCreationContext, DataSet, ExcelChartDefinition } from "../../../types/chart/chart";
+import {
+  ChartCreationContext,
+  DataSet,
+  DatasetDesign,
+  ExcelChartDefinition,
+} from "../../../types/chart/chart";
 import { LegendPosition, VerticalAxisPosition } from "../../../types/chart/common_chart";
 import { ScatterChartDefinition, ScatterChartRuntime } from "../../../types/chart/scatter_chart";
 import { Validator } from "../../../types/validator";
@@ -34,12 +39,12 @@ export class ScatterChart extends AbstractChart {
   readonly dataSets: DataSet[];
   readonly labelRange?: Range | undefined;
   readonly background?: Color;
-  readonly verticalAxisPosition: VerticalAxisPosition;
   readonly legendPosition: LegendPosition;
   readonly labelsAsText: boolean;
   readonly aggregated?: boolean;
   readonly type = "scatter";
   readonly dataSetsHaveTitle: boolean;
+  readonly dataSetDesign?: DatasetDesign[];
 
   constructor(definition: ScatterChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -51,11 +56,26 @@ export class ScatterChart extends AbstractChart {
     );
     this.labelRange = createRange(this.getters, sheetId, definition.labelRange);
     this.background = definition.background;
-    this.verticalAxisPosition = definition.verticalAxisPosition;
     this.legendPosition = definition.legendPosition;
     this.labelsAsText = definition.labelsAsText;
     this.aggregated = definition.aggregated;
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
+    this.dataSetDesign = definition.dataSetDesign;
+  }
+
+  get verticalAxisPosition(): VerticalAxisPosition {
+    let useRightAxis = false,
+      useLeftAxis = false;
+    for (const design of this.dataSetDesign || []) {
+      if (design.yAxisID === "y") {
+        useLeftAxis = true;
+        break;
+      } else if (design.yAxisID === "y1") {
+        useRightAxis = true;
+        break;
+      }
+    }
+    return useLeftAxis || !useRightAxis ? "left" : "right";
   }
 
   static validateChartDefinition(
@@ -81,9 +101,9 @@ export class ScatterChart extends AbstractChart {
       legendPosition: "top",
       title: context.title || "",
       type: "scatter",
-      verticalAxisPosition: "left",
       labelRange: context.auxiliaryRange || undefined,
       aggregated: false,
+      dataSetDesign: context.dataSetDesign,
     };
   }
 
@@ -104,13 +124,13 @@ export class ScatterChart extends AbstractChart {
         this.getters.getRangeString(ds.dataRange, targetSheetId || this.sheetId)
       ),
       legendPosition: this.legendPosition,
-      verticalAxisPosition: this.verticalAxisPosition,
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
       title: this.title,
       labelsAsText: this.labelsAsText,
       aggregated: this.aggregated,
+      dataSetDesign: this.dataSetDesign,
     };
   }
 
@@ -124,6 +144,7 @@ export class ScatterChart extends AbstractChart {
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
         : undefined,
+      dataSetDesign: this.dataSetDesign,
     };
   }
 

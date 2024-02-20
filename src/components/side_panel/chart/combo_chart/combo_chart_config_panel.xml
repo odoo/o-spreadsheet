@@ -13,6 +13,7 @@
         ranges="this.getDataSeriesRanges()"
         onSelectionChanged="(ranges) => this.onDataSeriesRangesChanged(ranges)"
         onSelectionConfirmed="() => this.onDataSeriesConfirmed()"
+        initialColors="this.getInitialColors()"
       />
       <ChartLabelRange
         range="this.getLabelRange()"
@@ -21,15 +22,7 @@
         onSelectionConfirmed="() => this.onLabelRangeConfirmed()"
         options="this.getLabelRangeOptions()"
       />
-      <Section class="'py-0'">
-        <Checkbox
-          name="'shouldUseRightAxis'"
-          label="shouldUseRightAxis"
-          value="props.definition.useBothYAxis"
-          onChange.bind="onUpdateUseRightAxis"
-        />
-      </Section>
-      <Section class="'o-use-row-as-headers pt-0'" t-if="calculateHeaderPosition()">
+      <Section class="'o-use-row-as-headers'" t-if="calculateHeaderPosition()">
         <Checkbox
           name="'dataSetsHaveTitle'"
           label="dataSetsHaveTitleLabel"

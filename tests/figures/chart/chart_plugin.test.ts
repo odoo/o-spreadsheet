@@ -15,7 +15,6 @@ import {
   addColumns,
   addRows,
   createChart,
-  createComboChart,
   createSheet,
   createSheetWithName,
   deleteColumns,
@@ -1284,7 +1283,7 @@ describe("Chart without labels", () => {
     legendPosition: "top",
     title: "My chart",
     type: "bar",
-    verticalAxisPosition: "left",
+    dataSetDesign: [{ yAxisID: "y" }],
     stacked: false,
     aggregated: false,
   };
@@ -1329,7 +1328,7 @@ describe("Chart without labels", () => {
 
     setCellContent(model, "B1", "B1");
     setCellContent(model, "B2", "B2");
-    createChart(model, { ...defaultChart, labelRange: "B1:B2" }, "44");
+    createChart(model, { ...defaultChart, type: "combo", labelRange: "B1:B2" }, "44");
     expect(
       (model.getters.getChartRuntime("44") as ComboBarChartRuntime).chartJsConfig.data?.labels
     ).toEqual(["B1", "B2"]);
@@ -1343,7 +1342,7 @@ describe("Chart without labels", () => {
     setCellContent(model, "A5", "5");
     setCellContent(model, "A6", "6");
 
-    createComboChart(model, { dataSets: ["A1:A2", "A3:A4", "A5:A6"] }, "43");
+    createChart(model, { type: "combo", dataSets: ["A1:A2", "A3:A4", "A5:A6"] }, "43");
     const config = (model.getters.getChartRuntime("43") as ComboBarChartRuntime).chartJsConfig;
     expect(config?.data?.datasets![0].type).toEqual("bar");
     expect(config?.data?.datasets![1].type).toEqual("line");
@@ -1357,7 +1356,14 @@ describe("Chart without labels", () => {
     setCellContent(model, "A5", "5");
     setCellContent(model, "A6", "6");
 
-    createComboChart(model, { dataSets: ["A1:A2", "A3:A4", "A5:A6"], useBothYAxis: true }, "43");
+    createChart(
+      model,
+      {
+        dataSets: ["A1:A2", "A3:A4", "A5:A6"],
+        dataSetDesign: [{ yAxisID: "y" }, { yAxisID: "y1" }],
+      },
+      "43"
+    );
     const config = (model.getters.getChartRuntime("43") as ComboBarChartRuntime).chartJsConfig;
     expect(config?.data?.datasets![0]["yAxisID"]).toEqual("y");
     expect(config?.data?.datasets![1]["yAxisID"]).toEqual("y1");
@@ -1372,7 +1378,7 @@ describe("Chart design configuration", () => {
     legendPosition: "top",
     title: "My chart",
     type: "bar",
-    verticalAxisPosition: "left",
+    dataSetDesign: [{ yAxisID: "y" }],
     labelRange: "A3",
     stacked: false,
     aggregated: false,
@@ -1428,22 +1434,6 @@ describe("Chart design configuration", () => {
     updateChart(model, "42", { type: "line", stacked: false });
     expect(isChartAxisStacked(model, "42", "x")).toBeUndefined();
     expect(isChartAxisStacked(model, "42", "y")).toBeUndefined();
-  });
-
-  test("Vertical axis position", () => {
-    createChart(model, defaultChart, "42");
-    expect(
-      // @ts-ignore
-      // prettier-ignore
-      (model.getters.getChartRuntime("42") as ComboBarChartRuntime).chartJsConfig.options?.scales?.y?.position
-    ).toBe("left");
-
-    updateChart(model, "42", { verticalAxisPosition: "right" });
-    expect(
-      // @ts-ignore
-      // prettier-ignore
-      (model.getters.getChartRuntime("42") as ComboBarChartRuntime).chartJsConfig.options?.scales?.y?.position
-    ).toBe("right");
   });
 
   test("empty data points are not displayed in the chart", () => {
@@ -1746,9 +1736,9 @@ describe("Chart aggregate labels", () => {
       legendPosition: "top",
       title: "My chart",
       type: "bar",
-      verticalAxisPosition: "left",
       stacked: false,
       aggregated: false,
+      dataSetDesign: [{ yAxisID: "y" }],
     };
     aggregatedModel = new Model({
       sheets: [

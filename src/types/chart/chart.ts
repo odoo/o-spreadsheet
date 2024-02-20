@@ -48,6 +48,12 @@ export interface DatasetValues {
   readonly data: any[];
 }
 
+export interface DatasetDesign {
+  readonly backgroundColor?: string;
+  readonly yAxisID?: string;
+  readonly label?: string;
+}
+
 export type AxisType = "category" | "linear" | "time";
 
 export interface DataSet {
@@ -81,4 +87,5 @@ export interface ChartCreationContext {
   readonly background?: string;
   readonly auxiliaryRange?: string;
   readonly type?: string;
+  readonly dataSetDesign?: DatasetDesign[];
 }

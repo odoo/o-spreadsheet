@@ -1,7 +1,13 @@
 import { Component, useExternalListener, useState } from "@odoo/owl";
 import { _t } from "../../../../translation";
 import { ScorecardChartDefinition } from "../../../../types/chart/scorecard_chart";
-import { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
+import {
+  ChartRuntime,
+  Color,
+  DispatchResult,
+  SpreadsheetChildEnv,
+  UID,
+} from "../../../../types/index";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
 import { Section } from "../../components/section/section";
 import { ChartColor } from "../building_blocks/color/color";
@@ -14,6 +20,7 @@ interface Props {
   definition: ScorecardChartDefinition;
   canUpdateChart: (figureId: UID, definition: Partial<ScorecardChartDefinition>) => DispatchResult;
   updateChart: (figureId: UID, definition: Partial<ScorecardChartDefinition>) => DispatchResult;
+  getRuntime?: (figureId: UID) => ChartRuntime;
 }
 
 interface PanelState {
@@ -28,6 +35,7 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
     definition: Object,
     updateChart: Function,
     canUpdateChart: Function,
+    getRuntime: { type: Function, optional: true },
   };
 
   private state: PanelState = useState({

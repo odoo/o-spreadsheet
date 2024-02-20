@@ -17,6 +17,7 @@ import {
   BarChartDefinition,
   ChartCreationContext,
   DataSet,
+  DatasetDesign,
   ExcelChartDefinition,
   LegendPosition,
   VerticalAxisPosition,
@@ -24,11 +25,11 @@ import {
 import { ComboChartDefinition } from "../../../types/chart/combo_chart";
 import { ComboBarChartRuntime } from "../../../types/chart/common_bar_combo";
 import { Validator } from "../../../types/validator";
+import { ColorGenerator } from "../../color";
 import { formatValue } from "../../format";
 import { createRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
-  ChartColors,
   chartFontColor,
   checkDataset,
   checkLabelRange,
@@ -53,11 +54,11 @@ export class ComboBarChart extends AbstractChart {
   readonly dataSets: DataSet[];
   readonly labelRange?: Range | undefined;
   readonly background?: Color;
-  readonly verticalAxisPosition: VerticalAxisPosition;
   readonly legendPosition: LegendPosition;
   readonly stacked: boolean;
   readonly aggregated?: boolean;
   readonly dataSetsHaveTitle: boolean;
+  readonly dataSetDesign?: DatasetDesign[];
 
   constructor(
     readonly type: "bar" | "combo",
@@ -74,11 +75,11 @@ export class ComboBarChart extends AbstractChart {
     );
     this.labelRange = createRange(getters, sheetId, definition.labelRange);
     this.background = definition.background;
-    this.verticalAxisPosition = definition.verticalAxisPosition;
     this.legendPosition = definition.legendPosition;
     this.stacked = definition.stacked;
     this.aggregated = definition.aggregated;
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
+    this.dataSetDesign = definition.dataSetDesign;
   }
 
   static transformDefinition(
@@ -105,6 +106,7 @@ export class ComboBarChart extends AbstractChart {
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
         : undefined,
+      dataSetDesign: this.dataSetDesign,
     };
   }
 
@@ -128,7 +130,7 @@ export class ComboBarChart extends AbstractChart {
     return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
   }
 
-  private getDefinitionWithSpecificDataSets(
+  getDefinitionWithSpecificDataSets(
     dataSets: DataSet[],
     labelRange: Range | undefined,
     targetSheetId?: UID
@@ -141,14 +143,29 @@ export class ComboBarChart extends AbstractChart {
         this.getters.getRangeString(ds.dataRange, targetSheetId || this.sheetId)
       ),
       legendPosition: this.legendPosition,
-      verticalAxisPosition: this.verticalAxisPosition,
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
       title: this.title,
       stacked: this.stacked,
       aggregated: this.aggregated,
+      dataSetDesign: this.dataSetDesign,
     };
+  }
+
+  get verticalAxisPosition(): VerticalAxisPosition {
+    let useRightAxis = false,
+      useLeftAxis = false;
+    for (const design of this.dataSetDesign || []) {
+      if (design.yAxisID === "y") {
+        useLeftAxis = true;
+        break;
+      } else if (design.yAxisID === "y1") {
+        useRightAxis = true;
+        break;
+      }
+    }
+    return useLeftAxis || !useRightAxis ? "left" : "right";
   }
 
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
@@ -197,25 +214,52 @@ function getComboBarConfiguration(
         color: fontColor,
       },
     },
-    y: {
-      position: chart.verticalAxisPosition,
-      beginAtZero: true, // the origin of the y axis is always zero
-      ticks: {
-        color: fontColor,
-        callback: (value) => {
-          value = Number(value);
-          if (isNaN(value)) return value;
-          const { locale, format } = localeFormat;
-          return formatValue(value, { locale, format: !format && value > 1000 ? "#,##" : format });
-        },
+  };
+  const yAxis = {
+    beginAtZero: true, // the origin of the y axis is always zero
+    ticks: {
+      color: fontColor,
+      callback: (value) => {
+        value = Number(value);
+        if (isNaN(value)) return value;
+        const { locale, format } = localeFormat;
+        return formatValue(value, { locale, format: !format && value > 1000 ? "#,##" : format });
       },
     },
   };
+  const definition = chart.getDefinition();
+  let useLeftAxis = false,
+    useRightAxis = false;
+  for (const design of definition.dataSetDesign || []) {
+    if (design.yAxisID === "y") {
+      useLeftAxis = true;
+    } else if (design.yAxisID === "y1") {
+      useRightAxis = true;
+    }
+  }
+  if (useLeftAxis) {
+    config.options.scales.y = {
+      ...yAxis,
+      position: "left",
+    };
+  }
+  if (useRightAxis) {
+    config.options.scales.y1 = {
+      ...yAxis,
+      position: "right",
+    };
+  }
   if (chart.stacked) {
     // @ts-ignore chart.js type is broken
     config.options.scales!.x!.stacked = true;
-    // @ts-ignore chart.js type is broken
-    config.options.scales!.y!.stacked = true;
+    if (useLeftAxis) {
+      // @ts-ignore chart.js type is broken
+      config.options.scales!.y!.stacked = true;
+    }
+    if (useRightAxis) {
+      // @ts-ignore chart.js type is broken
+      config.options.scales!.y1!.stacked = true;
+    }
   }
   return config;
 }
@@ -243,7 +287,7 @@ export function createComboBarChartRuntime(
   const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
   const locale = getters.getLocale();
   const config = getComboBarConfiguration(chart, labels, { format: dataSetFormat, locale });
-  const colors = new ChartColors();
+  const colors = new ColorGenerator();
 
   for (let [index, { label, data }] of dataSetsValues.entries()) {
     const color = colors.next();
@@ -255,6 +299,23 @@ export function createComboBarChartRuntime(
       yAxisID: chart.dataSets[index].rightYAxis ? "y1" : "y",
     };
     config.data.datasets.push(dataset);
+  }
+
+  const definition = chart.getDefinition();
+  for (const [index, dataset] of config.data.datasets.entries()) {
+    if (definition.dataSetDesign?.[index]?.backgroundColor) {
+      const color = definition.dataSetDesign[index].backgroundColor;
+      dataset.backgroundColor = color;
+      dataset.borderColor = color;
+    }
+    if (definition.dataSetDesign?.[index]?.label) {
+      const label = definition.dataSetDesign[index].label;
+      dataset.label = label;
+    }
+    if (definition.dataSetDesign?.[index]?.yAxisID) {
+      const yAxisID = definition.dataSetDesign[index].yAxisID;
+      dataset["yAxisID"] = yAxisID;
+    }
   }
 
   return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
