@@ -160,7 +160,7 @@ export { CorePlugin } from "./plugins/core_plugin";
 export { UIPlugin } from "./plugins/ui_plugin";
 export { Registry } from "./registries/registry";
 export { setTranslationMethod } from "./translation";
-export { CancelledReason, CommandResult, DispatchResult } from "./types";
+export { CancelledReason, CommandResult, DispatchResult, addRenderingLayer } from "./types";
 export { Client } from "./types/collaborative/session";
 export {
   ClientJoinedMessage,
@@ -273,6 +273,7 @@ export const links = {
   openLink,
   urlRepresentation,
 };
+
 export const components = {
   Checkbox,
   Section,
