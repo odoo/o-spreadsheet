@@ -1489,3 +1489,16 @@ export const TRUNC = {
   },
   isExported: true,
 } satisfies AddFunctionDescription;
+
+// -----------------------------------------------------------------------------
+// INT
+// -----------------------------------------------------------------------------
+export const INT = {
+  description: _t("Rounds a number down to the nearest integer that is less than or equal to it."),
+  args: [arg("value (number)", _t("The number to round down to the nearest integer."))],
+  returns: ["NUMBER"],
+  compute: function (value: Maybe<FPayload>): number {
+    return Math.floor(toNumber(value, this.locale));
+  },
+  isExported: true,
+} satisfies AddFunctionDescription;
