@@ -8,7 +8,7 @@ import {
   splitTextToWidth,
 } from "../../helpers/index";
 import { localizeFormula } from "../../helpers/locale";
-import { CellValueType, Command, CommandResult, LocalCommand, UID } from "../../types";
+import { Command, CommandResult, LocalCommand, UID } from "../../types";
 import { CellPosition, HeaderIndex, Pixel, Style, Zone } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
@@ -20,7 +20,6 @@ export class SheetUIPlugin extends UIPlugin {
     "getCellText",
     "getCellMultiLineText",
     "getContiguousZone",
-    "isEvaluatedCellEmpty",
   ] as const;
 
   private ctx = document.createElement("canvas").getContext("2d")!;
@@ -168,19 +167,6 @@ export class SheetUIPlugin extends UIPlugin {
     } while (hasExpanded);
 
     return zone;
-  }
-
-  /**
-   * Checks if a cell evaluated value is empty. If the cell is part of a merge,
-   * the check applies to the main cell of the merge.
-   */
-  //TODORAR this does not fit the new scheme where a cell with an empty string is not empty anymore
-  // this means the navigation was acually altered with the recent change
-  // remove the getter and put it back in selection processor as nobody uses it
-  isEvaluatedCellEmpty(position: CellPosition): boolean {
-    const mainPosition = this.getters.getMainCellPosition(position);
-    const cell = this.getters.getEvaluatedCell(mainPosition);
-    return cell.type === CellValueType.empty;
   }
 
   /**
