@@ -1381,6 +1381,20 @@ describe("FLOOR / FLOOR.MATH / FLOOR.PRECISE formulas", () => {
   );
 });
 
+describe("INT formula", () => {
+  test.each([
+    ["0", 0],
+    ["6", 6],
+    ["6.7", 6],
+    ["7.89", 7],
+    ["-6", -6],
+    ["-6.7", -7],
+    ["-7.89", -8],
+  ])("return the nearest rounded down integer", (a, expected) => {
+    expect(evaluateCell("A1", { A1: "=INT(A2)", A2: a })).toBe(expected);
+  });
+});
+
 describe("ISEVEN formula", () => {
   test.each([
     ["-3", false],
