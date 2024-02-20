@@ -26,7 +26,7 @@
             <Grid exposeFocus="(focus) => this._focusGrid = focus"/>
           </div>
         </div>
-        <SidePanel t-if="sidePanel.isOpen"/>
+        <SidePanel/>
         <BottomBar onClick="() => this.focusGrid()"/>
       </t>
     </div>
