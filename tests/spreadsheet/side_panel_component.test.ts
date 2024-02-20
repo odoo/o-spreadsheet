@@ -186,4 +186,57 @@ describe("Side Panel", () => {
     expect(document.activeElement).toBe(inputTarget);
     expect(parent.env.model.getters.getActiveSheetId()).not.toBe(sheetId);
   });
+
+  test("Can compute side panel props with computeState of the registry", async () => {
+    sidePanelRegistry.add("CUSTOM_PANEL", {
+      title: "Custom Panel",
+      Body: Body,
+      computeState: () => ({ isOpen: true, props: { text: "test text" } }),
+    });
+    parent.env.openSidePanel("CUSTOM_PANEL", {});
+    await nextTick();
+    expect(document.querySelector(".props_body")!.textContent).toBe("test text");
+  });
+
+  test("Can close the side panel with computeState of the registry", async () => {
+    let text = "test text";
+    sidePanelRegistry.add("CUSTOM_PANEL", {
+      title: "Custom Panel",
+      Body: Body,
+      computeState: () => (text ? { isOpen: true, props: { text } } : { isOpen: false }),
+    });
+    parent.env.openSidePanel("CUSTOM_PANEL", {});
+    await nextTick();
+    expect(document.querySelector(".o-sidePanel .props_body")!.textContent).toBe("test text");
+
+    text = "";
+    parent.render(true);
+    await nextTick();
+    expect(document.querySelector(".o-sidePanel")).toBeNull();
+  });
+
+  test("The onCloseSidePanel callback is called when computeState closes the side panel", async () => {
+    const onCloseSidePanel = jest.fn();
+    let text = "test text";
+    sidePanelRegistry.add("CUSTOM_PANEL", {
+      title: "Custom Panel",
+      Body: Body,
+      computeState: () =>
+        text ? { isOpen: true, props: { text, onCloseSidePanel } } : { isOpen: false },
+    });
+    parent.env.openSidePanel("CUSTOM_PANEL", {});
+    await nextTick();
+    expect(document.querySelector(".o-sidePanel .props_body")!.textContent).toBe("test text");
+
+    text = "";
+    parent.render(true);
+    await nextTick();
+    expect(document.querySelector(".o-sidePanel")).toBeNull();
+    expect(onCloseSidePanel).toHaveBeenCalled();
+
+    text = "new text. This should not re-open the side panel";
+    parent.render(true);
+    await nextTick();
+    expect(document.querySelector(".o-sidePanel")).toBeNull();
+  });
 });

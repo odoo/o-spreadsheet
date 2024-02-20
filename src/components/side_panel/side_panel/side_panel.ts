@@ -1,4 +1,4 @@
-import { Component } from "@odoo/owl";
+import { Component, useEffect } from "@odoo/owl";
 import { BACKGROUND_HEADER_COLOR, FILTERS_COLOR } from "../../../constants";
 import { sidePanelRegistry } from "../../../registries/side_panel_registry";
 import { Store, useStore } from "../../../store_engine";
@@ -161,6 +161,14 @@ export class SidePanel extends Component<never, SpreadsheetChildEnv> {
 
   setup() {
     this.sidePanelStore = useStore(SidePanelStore);
+    useEffect(
+      (isOpen) => {
+        if (!isOpen) {
+          this.sidePanelStore.close();
+        }
+      },
+      () => [this.sidePanelStore.isOpen]
+    );
   }
 
   get panel() {
