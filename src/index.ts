@@ -349,6 +349,7 @@ export type {
   CellPosition,
   EvalContext,
   FPayload,
+  UID,
 } from "./types";
 export type { FunctionRegistry };
 
