@@ -997,12 +997,11 @@ describe("composer highlights color", () => {
     expect(composerStore.highlights[0].zone).toEqual({ left: 0, right: 1, top: 0, bottom: 2 });
   });
 
-  // ADRM TODO: are cells outside the sheet really invalid ranges ? Should the Composer really cares about that ?
-  test.each([/*"=ZZ1", "=A101",*/ "=A1A"])("Do not highlight invalid ref", async (ref) => {
-    setCellContent(model, "A1", ref);
+  test("Do not highlight invalid ref", async () => {
+    setCellContent(model, "A1", "=A1A");
     composerEl = await startComposition();
     expect(composerStore.highlights.length).toBe(0);
-    expect(composerEl.textContent).toBe(ref);
+    expect(composerEl.textContent).toBe("=A1A");
   });
 
   test("highlight cross-sheet ranges", async () => {
