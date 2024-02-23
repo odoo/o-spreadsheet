@@ -74,10 +74,42 @@ class FunctionRegistry extends Registry<FunctionDescription> {
     }
     const descr = addMetaInfoFromArg(addDescr);
     validateArguments(descr.args);
-    this.mapping[name] = addErrorHandling(addResultHandling(descr.compute), name);
+    this.mapping[name] = addErrorHandling(addResultHandling(addInputHandling(descr)), name);
     super.add(name, descr);
     return this;
   }
+}
+
+function addInputHandling(
+  descr: FunctionDescription
+): ComputeFunction<FPayload | Matrix<FPayload> | CellValue | Matrix<CellValue>> {
+  return function (
+    this: EvalContext,
+    ...args: Arg[]
+  ): FPayload | Matrix<FPayload> | CellValue | Matrix<CellValue> {
+    const checkedArgs: Arg[] = [];
+    for (let i = 0; i < args.length; i++) {
+      const argDefinition = descr.args[descr.getArgToFocus(i + 1) - 1];
+      const acceptMatrix = argDefinition.type.some((t) => t.startsWith("RANGE"));
+      const arg = args[i];
+      if (isMatrix(arg) && !acceptMatrix) {
+        if (arg.length !== 1 || arg[0].length !== 1) {
+          throw new EvaluationError(
+            _t(
+              "Function [[FUNCTION_NAME]] expects the parameter '%s' to be a single value or a single cell reference, not a range.",
+              argDefinition.name
+            )
+          );
+        }
+        checkedArgs.push(arg[0][0]);
+      } else {
+        checkedArgs.push(arg);
+      }
+    }
+
+    const compute = descr.compute.bind(this);
+    return compute(...checkedArgs);
+  };
 }
 
 function addErrorHandling(
