@@ -305,7 +305,7 @@ describe("evaluateCells", () => {
         ArgValue,
         CellValue
       >,
-      args: [{ name: "range", description: "", type: ["RANGE"] }],
+      args: [{ name: "range", description: "", type: ["RANGE"], acceptMatrix: true }],
       returns: ["NUMBER"],
     });
     const model = new Model();

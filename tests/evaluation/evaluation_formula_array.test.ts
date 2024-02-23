@@ -80,6 +80,21 @@ describe("evaluate formulas that return an array", () => {
     expect(getEvaluatedCell(model, "B2").value).toBe(42);
   });
 
+  test("can use result array in formula that accept array", () => {
+    setCellContent(model, "A1", "=SUM(MFILL(2, 2, 42))");
+    expect(getEvaluatedCell(model, "A1").value).toBe(168);
+  });
+
+  test("can't use result array in formula that accept scalar only", () => {
+    setCellContent(model, "A1", "=ABS(MFILL(2, 2, -42))");
+    expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+  });
+
+  test("can use 1x1 result array in formula that accept scalar", () => {
+    setCellContent(model, "A1", "=ABS(MFILL(1, 1, -42))");
+    expect(getEvaluatedCell(model, "A1").value).toBe(42);
+  });
+
   test("reference to a formula result array is possible", () => {
     setCellContent(model, "E5", "=B2");
     setCellContent(model, "A1", "=MFILL(3,3,42)");

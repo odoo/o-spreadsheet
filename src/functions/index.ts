@@ -12,6 +12,7 @@ import {
   Matrix,
   ValueAndFormat,
 } from "../types";
+import { CellErrorType, EvaluationError } from "../types/errors";
 import { addMetaInfoFromArg, validateArguments } from "./arguments";
 import { matrixMap } from "./helpers";
 import * as array from "./module_array";
@@ -74,10 +75,36 @@ class FunctionRegistry extends Registry<FunctionDescription> {
     }
     const descr = addMetaInfoFromArg(addDescr);
     validateArguments(descr.args);
-    this.mapping[name] = createComputeFunctionFromDescription(descr);
+    this.mapping[name] = addInputHandling(descr, createComputeFunctionFromDescription(descr));
     super.add(name, descr);
     return this;
   }
+}
+
+function addInputHandling(
+  descr: FunctionDescription,
+  computeFunction: ComputeFunction<Arg, Matrix<ValueAndFormat> | ValueAndFormat>
+) {
+  function computeWithInputHandling(this: EvalContext, ...args: Arg[]) {
+    for (let i = 0; i < args.length; i++) {
+      const argDefinition = descr.args[descr.getArgToFocus(i + 1) - 1];
+      const arg = args[i];
+      if (isMatrix(arg) && !argDefinition.acceptMatrix) {
+        if (arg.length !== 1 || arg[0].length !== 1) {
+          throw new EvaluationError(
+            CellErrorType.GenericError,
+            _t(
+              "Function [[FUNCTION_NAME]] expects the parameter '%s' to be a single value or a single cell reference, not a range.",
+              argDefinition.name
+            )
+          );
+        }
+        args[i] = arg[0][0];
+      }
+    }
+    return computeFunction.apply(this, args);
+  }
+  return computeWithInputHandling;
 }
 
 function createComputeFunctionFromDescription(
