@@ -19,6 +19,7 @@ export type ArgType =
   | "META";
 
 export interface ArgDefinition {
+  acceptMatrix?: boolean;
   repeating?: boolean;
   optional?: boolean;
   description: string;
