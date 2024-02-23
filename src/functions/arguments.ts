@@ -65,6 +65,9 @@ function makeArg(str: string, description: string): ArgDefinition {
     result.default = true;
     result.defaultValue = defaultValue;
   }
+  if (types.some((t) => t.startsWith("RANGE"))) {
+    result.acceptMatrix = true;
+  }
   return result;
 }
 
