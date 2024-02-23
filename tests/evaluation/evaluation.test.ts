@@ -297,7 +297,7 @@ describe("evaluateCells", () => {
       compute: function (range) {
         return toMatrix(range).flat().length;
       },
-      args: [{ name: "range", description: "", type: ["RANGE"] }],
+      args: [{ name: "range", description: "", type: ["RANGE"], acceptMatrix: true }],
       returns: ["NUMBER"],
     });
     const model = new Model();
