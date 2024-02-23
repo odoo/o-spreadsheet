@@ -13,6 +13,7 @@ import { GridOverlay } from "./components/grid_overlay/grid_overlay";
 import { useDragAndDropListItems } from "./components/helpers/drag_and_drop_hook";
 import { useHighlights, useHighlightsOnHover } from "./components/helpers/highlight_hook";
 import { Menu } from "./components/menu/menu";
+import { Popover } from "./components/popover";
 import { CellPopoverStore } from "./components/popover/cell_popover_store";
 import { SelectionInput } from "./components/selection_input/selection_input";
 import { SelectionInputStore } from "./components/selection_input/selection_input_store";
@@ -298,6 +299,7 @@ export const components = {
   ScorecardChartDesignPanel,
   FigureComponent,
   Menu,
+  Popover,
   SelectionInput,
   ValidationMessages,
 };
