@@ -56,7 +56,6 @@ import { ClientTag } from "../collaborative_client_tag/collaborative_client_tag"
 import { ComposerSelection, ComposerStore } from "../composer/composer/composer_store";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { GridComposer } from "../composer/grid_composer/grid_composer";
-import { FilterIconsOverlay } from "../filters/filter_icons_overlay/filter_icons_overlay";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
 import { HeadersOverlay } from "../headers_overlay/headers_overlay";
@@ -126,7 +125,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     Popover,
     VerticalScrollBar,
     HorizontalScrollBar,
-    FilterIconsOverlay,
   };
   readonly HEADER_HEIGHT = HEADER_HEIGHT;
   readonly HEADER_WIDTH = HEADER_WIDTH;
@@ -467,9 +465,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   onCellClicked(
     col: HeaderIndex,
     row: HeaderIndex,
-    { addZone, expandZone }: { addZone: boolean; expandZone: boolean }
+    { addZone, expandZone }: { addZone: boolean; expandZone: boolean },
+    closePopover: boolean
   ) {
-    if (this.cellPopovers.isOpen) {
+    if (closePopover && this.cellPopovers.isOpen) {
       this.cellPopovers.close();
     }
     if (this.composerStore.editionMode === "editing") {

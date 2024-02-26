@@ -12,7 +12,6 @@ import {
   SpreadsheetChildEnv,
   Zone,
 } from "../../types/index";
-import { FilterIconsOverlay } from "../filters/filter_icons_overlay/filter_icons_overlay";
 import { HoveredCellStore } from "../grid/hovered_cell_store";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
@@ -51,7 +50,6 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
     Popover,
     VerticalScrollBar,
     HorizontalScrollBar,
-    FilterIconsOverlay,
   };
 
   protected cellPopovers!: Store<CellPopoverStore>;
