@@ -327,12 +327,6 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "A1").value).toBe(0);
   });
 
-  test("=Range", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "=A2:A3");
-    expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
-  });
-
   test("misc math formulas", () => {
     const model = new Model();
     setCellContent(model, "A1", "42");

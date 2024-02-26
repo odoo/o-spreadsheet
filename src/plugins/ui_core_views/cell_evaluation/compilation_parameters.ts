@@ -11,12 +11,10 @@ import {
   Getters,
   Matrix,
   Range,
-  ReferenceDenormalizer,
 } from "../../../types";
 import { EvaluationError, InvalidReferenceError } from "../../../types/errors";
 
 export type CompilationParameters = {
-  referenceDenormalizer: ReferenceDenormalizer;
   ensureRange: EnsureRange;
   evalContext: EvalContext;
 };
@@ -55,62 +53,31 @@ class CompilationParametersBuilder {
 
   getParameters(): CompilationParameters {
     return {
-      referenceDenormalizer: this.refFn.bind(this),
       ensureRange: this.range.bind(this),
       evalContext: this.evalContext,
     };
   }
 
   /**
-   * Returns the value of the cell(s) used in reference
+   * Return the values of the cell(s) used in reference, but always in the format of a range even
+   * if a single cell is referenced. It is a list of col values.
+   *
+   * Note that each col is possibly sparse: it only contain the values of cells
+   * that are actually present in the grid.
    *
    * @param range the references used
    * @param isMeta if a reference is supposed to be used in a `meta` parameter as described in the
    *        function for which this parameter is used, we just return the string of the parameter.
    *        The `compute` of the formula's function must process it completely
    */
-  private refFn(
-    range: Range,
-    isMeta: boolean,
-    functionName: string,
-    paramNumber?: number
-  ): FPayload {
+  private range(range: Range, isMeta: boolean): Matrix<FPayload> {
     this.assertRangeValid(range);
     if (isMeta) {
       // Use zoneToXc of zone instead of getRangeString to avoid sending unbounded ranges
       const sheetName = this.getters.getSheetName(range.sheetId);
-      return { value: getFullReference(sheetName, zoneToXc(range.zone)) };
+      return [[{ value: getFullReference(sheetName, zoneToXc(range.zone)) }]];
     }
 
-    // if the formula definition could have accepted a range, we would pass through the _range function and not here
-    if (range.zone.bottom !== range.zone.top || range.zone.left !== range.zone.right) {
-      throw new EvaluationError(
-        paramNumber
-          ? _t(
-              "Function %s expects the parameter %s to be a single value or a single cell reference, not a range.",
-              functionName.toString(),
-              paramNumber.toString()
-            )
-          : _t(
-              "Function %s expects its parameters to be single values or single cell references, not ranges.",
-              functionName.toString()
-            )
-      );
-    }
-    const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
-    return this.computeCell(position);
-  }
-
-  /**
-   * Return the values of the cell(s) used in reference, but always in the format of a range even
-   * if a single cell is referenced. It is a list of col values. This is useful for the formulas that describe parameters as
-   * range<number> etc.
-   *
-   * Note that each col is possibly sparse: it only contain the values of cells
-   * that are actually present in the grid.
-   */
-  private range(range: Range): Matrix<FPayload> {
-    this.assertRangeValid(range);
     const sheetId = range.sheetId;
     const zone = range.zone;
 

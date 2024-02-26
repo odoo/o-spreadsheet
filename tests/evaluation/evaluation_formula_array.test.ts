@@ -46,9 +46,12 @@ describe("evaluate formulas that return an array", () => {
     restoreDefaultFunctions();
   });
 
-  test("a simple reference to a range cannot return an array", () => {
-    setCellContent(model, "A1", "=A2:A3");
-    expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+  test("a simple reference to a range can return an array", () => {
+    setCellContent(model, "A1", "a1");
+    setCellContent(model, "A2", "a2");
+    setCellContent(model, "B1", "=A1:A2");
+    expect(getEvaluatedCell(model, "B1").value).toBe("a1");
+    expect(getEvaluatedCell(model, "B2").value).toBe("a2");
   });
 
   test("can spread array", () => {

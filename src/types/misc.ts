@@ -160,18 +160,10 @@ export interface Border {
   right?: BorderDescr;
 }
 
-export type ReferenceDenormalizer = (
-  range: Range,
-  isMeta: boolean,
-  functionName: string,
-  paramNumber: number
-) => FPayload;
-
-export type EnsureRange = (range: Range) => Matrix<FPayload>;
+export type EnsureRange = (range: Range, isMeta: boolean) => Matrix<FPayload>;
 
 export type FormulaToExecute = (
   deps: Range[],
-  refFn: ReferenceDenormalizer,
   range: EnsureRange,
   ctx: {}
 ) => Matrix<FPayload> | FPayload;
