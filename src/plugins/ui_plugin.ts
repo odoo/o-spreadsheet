@@ -20,6 +20,7 @@ export interface UIPluginConfig {
   readonly getters: Getters;
   readonly stateObserver: StateObserver;
   readonly dispatch: CommandDispatcher["dispatch"];
+  readonly canDispatch: CommandDispatcher["dispatch"];
   readonly selection: SelectionStreamProcessor;
   readonly moveClient: (position: ClientPosition) => void;
   readonly uiActions: UIActions;
@@ -45,8 +46,15 @@ export class UIPlugin<State = any> extends BasePlugin<State, Command> {
   protected getters: Getters;
   protected ui: UIActions;
   protected selection: SelectionStreamProcessor;
-  constructor({ getters, stateObserver, dispatch, uiActions, selection }: UIPluginConfig) {
-    super(stateObserver, dispatch);
+  constructor({
+    getters,
+    stateObserver,
+    dispatch,
+    canDispatch,
+    uiActions,
+    selection,
+  }: UIPluginConfig) {
+    super(stateObserver, dispatch, canDispatch);
     this.getters = getters;
     this.ui = uiActions;
     this.selection = selection;
