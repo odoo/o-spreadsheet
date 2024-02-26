@@ -540,7 +540,7 @@ describe("Columns", () => {
           },
           {
             id: "sheet2",
-            colNumber: 1,
+            colNumber: 2,
             rowNumber: 3,
             cells: {
               A1: { content: "=B1" },
@@ -1179,7 +1179,7 @@ describe("Rows", () => {
           {
             id: "sheet2",
             colNumber: 3,
-            rowNumber: 1,
+            rowNumber: 4,
             cells: {
               A1: { content: "=A2" },
               B1: { content: "=Sheet1!A2" },

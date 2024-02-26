@@ -292,7 +292,7 @@ describe("compile functions", () => {
     test("reject range when expecting only non-range argument", () => {
       for (let typeExpected of ["ANY", "BOOLEAN", "DATE", "NUMBER", "STRING"] as ArgType[]) {
         functionRegistry.add(typeExpected + "EXPECTED", {
-          description: "function expect number in 1st arg",
+          description: "function expect " + typeExpected + " in 1st arg",
           compute: () => {
             return true;
           },
@@ -310,7 +310,6 @@ describe("compile functions", () => {
       setCellContent(m, "B5", "=STRINGEXPECTED(A1:A2)");
       setCellContent(m, "B6", "=ANYEXPECTED(A1:A$2)");
       setCellContent(m, "B7", "=ANYEXPECTED(sheet1!A1:A$2)");
-      setCellContent(m, "B8", "=A2:A3");
       setCellContent(m, "B9", "=+A2:A3");
       setCellContent(m, "B10", "=A1+A2:A3");
       setCellContent(m, "B11", "=-A2:A3");
@@ -319,43 +318,40 @@ describe("compile functions", () => {
       setCellContent(m, "B14", "=ANYEXPECTED(A1:A1)");
 
       expect(getCellError(m, "B1")).toBe(
-        "Function ANYEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
+        "Function ANYEXPECTED expects the parameter 'arg1' to be a single value or a single cell reference, not a range."
       );
       expect(getCellError(m, "B2")).toBe(
-        "Function BOOLEANEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
+        "Function BOOLEANEXPECTED expects the parameter 'arg1' to be a single value or a single cell reference, not a range."
       );
       expect(getCellError(m, "B3")).toBe(
-        "Function DATEEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
+        "Function DATEEXPECTED expects the parameter 'arg1' to be a single value or a single cell reference, not a range."
       );
       expect(getCellError(m, "B4")).toBe(
-        "Function NUMBEREXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
+        "Function NUMBEREXPECTED expects the parameter 'arg1' to be a single value or a single cell reference, not a range."
       );
       expect(getCellError(m, "B5")).toBe(
-        "Function STRINGEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
+        "Function STRINGEXPECTED expects the parameter 'arg1' to be a single value or a single cell reference, not a range."
       );
       expect(getCellError(m, "B6")).toBe(
-        "Function ANYEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
+        "Function ANYEXPECTED expects the parameter 'arg1' to be a single value or a single cell reference, not a range."
       );
       expect(getCellError(m, "B7")).toBe(
-        "Function ANYEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
-      );
-      expect(getCellError(m, "B8")).toBe(
-        "Function EQ expects its parameters to be single values or single cell references, not ranges."
+        "Function ANYEXPECTED expects the parameter 'arg1' to be a single value or a single cell reference, not a range."
       );
       expect(getCellError(m, "B9")).toBe(
-        "Function UPLUS expects its parameters to be single values or single cell references, not ranges."
+        "Function UPLUS expects the parameter 'value' to be a single value or a single cell reference, not a range."
       );
       expect(getCellError(m, "B10")).toBe(
-        "Function ADD expects its parameters to be single values or single cell references, not ranges."
+        "Function ADD expects the parameter 'value2' to be a single value or a single cell reference, not a range."
       );
       expect(getCellError(m, "B11")).toBe(
-        "Function UMINUS expects its parameters to be single values or single cell references, not ranges."
+        "Function UMINUS expects the parameter 'value' to be a single value or a single cell reference, not a range."
       );
       expect(getCellError(m, "B12")).toBe(
-        "Function MINUS expects its parameters to be single values or single cell references, not ranges."
+        "Function MINUS expects the parameter 'value2' to be a single value or a single cell reference, not a range."
       );
       expect(getCellError(m, "B13")).toBe(
-        "Function MULTIPLY expects its parameters to be single values or single cell references, not ranges."
+        "Function MULTIPLY expects the parameter 'factor2' to be a single value or a single cell reference, not a range."
       );
       expect(getCellError(m, "B14")).toBeUndefined();
     });
@@ -410,7 +406,6 @@ describe("compile functions", () => {
 
       const m = new Model();
 
-      let refFn = jest.fn();
       let ensureRange = jest.fn();
 
       const ctx = { USEMETAARG: () => {}, NOTUSEMETAARG: () => {} };
@@ -418,25 +413,21 @@ describe("compile functions", () => {
       const rangeA1 = createRange(m.getters, "ABC", "A1")!;
       const rangeA1ToB2 = createRange(m.getters, "ABC", "A1:B2")!;
 
-      compiledFormula1.execute([rangeA1], refFn, ensureRange, ctx);
-      expect(refFn).toHaveBeenCalledWith(rangeA1, true, "USEMETAARG", 1);
-      expect(ensureRange).toHaveBeenCalledTimes(0);
-      refFn.mockReset();
+      compiledFormula1.execute([rangeA1], ensureRange, ctx);
+      expect(ensureRange).toHaveBeenCalledWith(rangeA1, true);
+      ensureRange.mockReset();
 
-      compiledFormula2.execute([rangeA1ToB2], refFn, ensureRange, ctx);
-      expect(refFn).toHaveBeenCalledWith(rangeA1ToB2, true, "USEMETAARG", 1);
-      expect(ensureRange).toHaveBeenCalledTimes(0);
-      refFn.mockReset();
+      compiledFormula2.execute([rangeA1ToB2], ensureRange, ctx);
+      expect(ensureRange).toHaveBeenCalledWith(rangeA1ToB2, true);
+      ensureRange.mockReset();
 
-      compiledFormula3.execute([rangeA1], refFn, ensureRange, ctx);
-      expect(refFn).toHaveBeenCalledWith(rangeA1, false, "NOTUSEMETAARG", 1);
-      expect(ensureRange).toHaveBeenCalledTimes(0);
-      refFn.mockReset();
+      compiledFormula3.execute([rangeA1], ensureRange, ctx);
+      expect(ensureRange).toHaveBeenCalledWith(rangeA1, false);
+      ensureRange.mockReset();
 
-      compiledFormula4.execute([rangeA1ToB2], refFn, ensureRange, ctx);
-      expect(refFn).toHaveBeenCalledWith(rangeA1ToB2, false, "NOTUSEMETAARG", 1);
-      expect(ensureRange).toHaveBeenCalledTimes(0);
-      refFn.mockReset();
+      compiledFormula4.execute([rangeA1ToB2], ensureRange, ctx);
+      expect(ensureRange).toHaveBeenCalledWith(rangeA1ToB2, false);
+      ensureRange.mockReset();
     });
   });
 
