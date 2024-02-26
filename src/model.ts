@@ -423,6 +423,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       stateObserver: this.state,
       range: this.range,
       dispatch: this.dispatchFromCorePlugin,
+      canDispatch: this.canDispatch,
       uuidGenerator: this.uuidGenerator,
       custom: this.config.custom,
       external: this.config.external,
@@ -434,6 +435,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       getters: this.getters,
       stateObserver: this.state,
       dispatch: this.dispatch,
+      canDispatch: this.canDispatch,
       selection: this.selection,
       moveClient: this.session.move.bind(this.session),
       custom: this.config.custom,
@@ -485,7 +487,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * Check if a command can be dispatched, and returns a DispatchResult object with the possible
    * reasons the dispatch failed.
    */
-  canDispatch: CommandDispatcher["canDispatch"] = (type: string, payload?: any) => {
+  canDispatch: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
     return this.checkDispatchAllowed(createCommand(type, payload));
   };
 

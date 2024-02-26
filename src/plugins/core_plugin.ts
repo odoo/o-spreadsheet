@@ -18,6 +18,7 @@ export interface CorePluginConfig {
   readonly stateObserver: StateObserver;
   readonly range: RangeAdapter;
   readonly dispatch: CoreCommandDispatcher["dispatch"];
+  readonly canDispatch: CoreCommandDispatcher["dispatch"];
   readonly uuidGenerator: UuidGenerator;
   readonly custom: ModelConfig["custom"];
   readonly external: ModelConfig["external"];
@@ -41,8 +42,15 @@ export class CorePlugin<State = any>
   protected getters: CoreGetters;
   protected uuidGenerator: UuidGenerator;
 
-  constructor({ getters, stateObserver, range, dispatch, uuidGenerator }: CorePluginConfig) {
-    super(stateObserver, dispatch);
+  constructor({
+    getters,
+    stateObserver,
+    range,
+    dispatch,
+    canDispatch,
+    uuidGenerator,
+  }: CorePluginConfig) {
+    super(stateObserver, dispatch, canDispatch);
     range.addRangeProvider(this.adaptRanges.bind(this));
     this.getters = getters;
     this.uuidGenerator = uuidGenerator;
