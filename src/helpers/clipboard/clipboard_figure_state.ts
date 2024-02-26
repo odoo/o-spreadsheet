@@ -69,7 +69,16 @@ export class ClipboardFigureState implements ClipboardState {
       y: this.getters.getRowDimensions(sheetId, target[0].top).start,
     };
 
-    const newChart = this.copiedChart.copyInSheetId(sheetId);
+    let copiedChart;
+    if (!this.getters.tryGetSheet(this.sheetId)) {
+      copiedChart = this.copiedChart;
+      copiedChart.dataSets = [];
+      copiedChart.labelRange = "";
+      copiedChart.title = "";
+    } else {
+      copiedChart = this.copiedChart.copyInSheetId(sheetId);
+    }
+
     const newId = new UuidGenerator().uuidv4();
 
     this.dispatch("CREATE_CHART", {
@@ -77,7 +86,7 @@ export class ClipboardFigureState implements ClipboardState {
       sheetId,
       position,
       size: { height: this.copiedFigure.height, width: this.copiedFigure.width },
-      definition: newChart.getDefinition(),
+      definition: copiedChart.getDefinition(),
     });
 
     if (this.operation === "CUT") {

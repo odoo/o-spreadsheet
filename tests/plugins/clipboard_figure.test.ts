@@ -7,6 +7,7 @@ import {
   createChart,
   createSheet,
   cut,
+  deleteSheet,
   paste,
   setCellContent,
   setSelection,
@@ -135,6 +136,29 @@ describe("Clipboard for figures", () => {
     const newChartId = model.getters.getFigures("42")[0].id;
     expect(model.getters.getChartDefinition(newChartId)).toEqual(chartDef);
     expect(model.getters.getFigures(sheetId)).toHaveLength(0);
+  });
+
+  test("Can paste chart on another sheet after sheet is deleted", () => {
+    const model = new Model();
+    const chartId = "thisIsAnId";
+    createChart(model, { dataSets: ["A1:A5"], labelRange: "", title: "CHECK" }, chartId);
+    const chartDef = model.getters.getChartDefinition(chartId) as BarChartDefinition;
+    expect(chartDef.dataSets).toEqual(["A1:A5"]);
+
+    model.dispatch("SELECT_FIGURE", { id: chartId });
+    copy(model);
+    createSheet(model, { sheetId: "42" });
+    activateSheet(model, "42");
+    deleteSheet(model, "Sheet1");
+    paste(model, "A1");
+    const newChartId = model.getters.getFigures("42")[0].id;
+    expect(model.getters.getChartDefinition(newChartId)).toEqual({
+      ...chartDef,
+      dataSetsHaveTitle: false,
+      title: "",
+      dataSets: [],
+      labelRange: undefined,
+    });
   });
 
   describe("Paste command result", () => {
