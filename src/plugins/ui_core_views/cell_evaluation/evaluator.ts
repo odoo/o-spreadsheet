@@ -172,13 +172,17 @@ export class Evaluator {
       this.getters.getRangeFromSheetXC(sheetId, xc)
     );
     this.updateCompilationParameters();
-    const result = updateEvalContextAndExecute(
+    let result = updateEvalContextAndExecute(
+      // todo: check if 'toScalar' should be called here
       { ...compiledFormula, dependencies: ranges },
       this.compilationParams,
       sheetId
     );
     if (isMatrix(result)) {
-      return matrixMap(result, (cell) => cell.value);
+      if (result.length !== 1 || result[0].length !== 1) {
+        return matrixMap(result, (cell) => cell.value);
+      }
+      result = result[0][0];
     }
     if (result.value === null) {
       return 0;
@@ -564,14 +568,14 @@ export function updateEvalContextAndExecute(
   sheetId: UID,
   cellId?: UID
 ) {
-  compilationParams[2].__originCellXC = lazy(() => {
+  compilationParams[1].__originCellXC = lazy(() => {
     if (!cellId) {
       return undefined;
     }
     // compute the value lazily for performance reasons
-    const position = compilationParams[2].getters.getCellPosition(cellId);
+    const position = compilationParams[1].getters.getCellPosition(cellId);
     return toXC(position.col, position.row);
   });
-  compilationParams[2].__originSheetId = sheetId;
+  compilationParams[1].__originSheetId = sheetId;
   return compiledFormula.execute(compiledFormula.dependencies, ...compilationParams);
 }

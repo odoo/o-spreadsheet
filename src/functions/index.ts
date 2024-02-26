@@ -87,7 +87,6 @@ function addInputHandling(
     this: EvalContext,
     ...args: Arg[]
   ): FPayload | Matrix<FPayload> | CellValue | Matrix<CellValue> {
-    const checkedArgs: Arg[] = [];
     for (let i = 0; i < args.length; i++) {
       const argDefinition = descr.args[descr.getArgToFocus(i + 1) - 1];
       const acceptMatrix = argDefinition.type.some((t) => t.startsWith("RANGE"));
@@ -101,14 +100,10 @@ function addInputHandling(
             )
           );
         }
-        checkedArgs.push(arg[0][0]);
-      } else {
-        checkedArgs.push(arg);
+        args[i] = arg[0][0];
       }
     }
-
-    const compute = descr.compute.bind(this);
-    return compute(...checkedArgs);
+    return descr.compute.apply(this, args);
   };
 }
 
