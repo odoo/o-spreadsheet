@@ -4,6 +4,7 @@ import {
   Border,
   CellPosition,
   Command,
+  CommandTypes,
   Lazy,
   Style,
   Table,
@@ -39,17 +40,10 @@ export class TableStylePlugin extends UIPlugin {
       this.tableStyles = {};
       return;
     }
-    switch (cmd.type) {
-      case "HIDE_COLUMNS_ROWS":
-      case "UNHIDE_COLUMNS_ROWS":
-      case "UNFOLD_HEADER_GROUP":
-      case "FOLD_HEADER_GROUP":
-      case "FOLD_ALL_HEADER_GROUPS":
-      case "UNFOLD_ALL_HEADER_GROUPS":
-      case "UPDATE_TABLE":
-      case "UPDATE_FILTER":
-        delete this.tableStyles[cmd.sheetId];
-        break;
+
+    if (doesCommandInvalidatesTableStyle(cmd)) {
+      delete this.tableStyles[cmd.sheetId];
+      return;
     }
   }
 
@@ -185,4 +179,23 @@ export class TableStylePlugin extends UIPlugin {
       rowMapping,
     };
   }
+}
+
+const invalidateTableStyleCommands = [
+  "HIDE_COLUMNS_ROWS",
+  "UNHIDE_COLUMNS_ROWS",
+  "UNFOLD_HEADER_GROUP",
+  "FOLD_HEADER_GROUP",
+  "FOLD_ALL_HEADER_GROUPS",
+  "UNFOLD_ALL_HEADER_GROUPS",
+  "CREATE_TABLE",
+  "UPDATE_TABLE",
+  "UPDATE_FILTER",
+] as const;
+const invalidateTableStyleCommandsSet = new Set<CommandTypes>(invalidateTableStyleCommands);
+
+export function doesCommandInvalidatesTableStyle(
+  cmd: Command
+): cmd is { type: (typeof invalidateTableStyleCommands)[number] } & Command {
+  return invalidateTableStyleCommandsSet.has(cmd.type);
 }

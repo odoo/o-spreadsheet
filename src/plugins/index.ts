@@ -37,6 +37,7 @@ import {
   SortPlugin,
   UIOptionsPlugin,
 } from "./ui_feature";
+import { CellComputedStylePlugin } from "./ui_feature/cell_computed_style";
 import { HistoryPlugin } from "./ui_feature/local_history";
 import { SplitToColumnsPlugin } from "./ui_feature/split_to_columns";
 import { TableAutofillPlugin } from "./ui_feature/table_autofill";
@@ -87,6 +88,7 @@ export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()
   .add("evaluation_filter", FilterEvaluationPlugin)
   .add("header_visibility_ui", HeaderVisibilityUIPlugin)
   .add("table_style", TableStylePlugin)
+  .add("cell_computed_style", CellComputedStylePlugin)
   .add("header_positions", HeaderPositionsUIPlugin)
   .add("viewport", SheetViewPlugin)
   .add("clipboard", ClipboardPlugin);
