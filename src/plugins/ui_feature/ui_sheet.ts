@@ -1,30 +1,21 @@
-import {
-  GRID_ICON_MARGIN,
-  ICON_EDGE_LENGTH,
-  LINK_COLOR,
-  PADDING_AUTORESIZE_HORIZONTAL,
-} from "../../constants";
+import { GRID_ICON_MARGIN, ICON_EDGE_LENGTH, PADDING_AUTORESIZE_HORIZONTAL } from "../../constants";
 import {
   computeIconWidth,
   computeTextWidth,
   isEqual,
-  isObjectEmptyRecursive,
   positions,
   range,
-  removeFalsyAttributes,
   splitTextToWidth,
 } from "../../helpers/index";
 import { localizeFormula } from "../../helpers/locale";
 import { Command, CommandResult, LocalCommand, UID } from "../../types";
-import { Border, CellPosition, HeaderIndex, Pixel, Style, Zone } from "../../types/misc";
+import { CellPosition, HeaderIndex, Pixel, Style, Zone } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 export class SheetUIPlugin extends UIPlugin {
   static getters = [
     "doesCellHaveGridIcon",
     "getCellWidth",
-    "getCellComputedBorder",
-    "getCellComputedStyle",
     "getTextWidth",
     "getCellText",
     "getCellMultiLineText",
@@ -74,7 +65,7 @@ export class SheetUIPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   getCellWidth(position: CellPosition): number {
-    const style = this.getCellComputedStyle(position);
+    const style = this.getters.getCellComputedStyle(position);
 
     let contentWidth = 0;
 
@@ -188,33 +179,6 @@ export class SheetUIPlugin extends UIPlugin {
       this.getters.getCorrespondingFormulaCell(mainPosition) ||
       this.getters.getCell(mainPosition)?.content
     );
-  }
-
-  getCellComputedBorder(position: CellPosition): Border | null {
-    const cellBorder = this.getters.getCellBorder(position) || {};
-    const cellTableBorder = this.getters.getCellTableBorder(position) || {};
-
-    // Use removeFalsyAttributes to avoid overwriting borders with undefined values
-    const border = { ...cellTableBorder, ...removeFalsyAttributes(cellBorder) };
-
-    return isObjectEmptyRecursive(border) ? null : border;
-  }
-
-  getCellComputedStyle(position: CellPosition): Style {
-    const cell = this.getters.getCell(position);
-    const cfStyle = this.getters.getCellConditionalFormatStyle(position);
-    const tableStyle = this.getters.getCellTableStyle(position);
-    const computedStyle = {
-      ...removeFalsyAttributes(tableStyle),
-      ...removeFalsyAttributes(cell?.style),
-      ...removeFalsyAttributes(cfStyle),
-    };
-    const evaluatedCell = this.getters.getEvaluatedCell(position);
-    if (evaluatedCell.link && !computedStyle.textColor) {
-      computedStyle.textColor = LINK_COLOR;
-    }
-
-    return computedStyle;
   }
 
   private getColMaxWidth(sheetId: UID, index: HeaderIndex): number {

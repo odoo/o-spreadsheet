@@ -22,6 +22,7 @@ import { EvaluationConditionalFormatPlugin } from "../plugins/ui_core_views/eval
 import { HeaderSizeUIPlugin } from "../plugins/ui_core_views/header_sizes_ui";
 import { AutofillPlugin } from "../plugins/ui_feature/autofill";
 import { AutomaticSumPlugin } from "../plugins/ui_feature/automatic_sum";
+import { CellComputedStylePlugin } from "../plugins/ui_feature/cell_computed_style";
 import { CollaborativePlugin } from "../plugins/ui_feature/collaborative";
 import { FindAndReplacePlugin } from "../plugins/ui_feature/find_and_replace";
 import { HeaderVisibilityUIPlugin } from "../plugins/ui_feature/header_visibility_ui";
@@ -136,4 +137,5 @@ export type Getters = {
   PluginGetters<typeof EvaluationDataValidationPlugin> &
   PluginGetters<typeof HeaderPositionsUIPlugin> &
   PluginGetters<typeof TableStylePlugin> &
+  PluginGetters<typeof CellComputedStylePlugin> &
   PluginGetters<typeof DynamicTablesPlugin>;
