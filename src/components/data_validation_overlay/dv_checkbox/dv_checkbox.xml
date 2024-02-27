@@ -3,9 +3,9 @@
     <input
       type="checkbox"
       class="o-dv-checkbox"
-      t-att-class="{'pe-none': isDisabled}"
-      t-on-change="onCheckboxChange"
-      t-att-checked="checkBoxValue"
+      t-att-class="{'pe-none': ctx.isDisabled}"
+      t-on-change="ctx.onCheckboxChange"
+      t-att-checked="ctx.checkBoxValue"
     />
   </t>
 </templates>

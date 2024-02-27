@@ -8,14 +8,7 @@ import {
 } from "../../constants";
 import { positionToZone } from "../../helpers";
 import { Align, CellPosition, Rect, SpreadsheetChildEnv, VerticalAlign } from "../../types";
-import { css, cssPropertiesToCss } from "../helpers";
-
-css/* scss */ `
-  .o-grid-cell-icon {
-    width: ${GRID_ICON_EDGE_LENGTH}px;
-    height: ${GRID_ICON_EDGE_LENGTH}px;
-  }
-`;
+import { cssPropertiesToCss } from "../helpers";
 
 export interface GridCellIconProps {
   cellPosition: CellPosition;

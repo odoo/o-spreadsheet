@@ -1,0 +1,10 @@
+<templates>
+  <t t-name="o-spreadsheet-GridIconOverlay">
+    <t t-foreach="icons" t-as="icon" t-key="icon_index">
+      <div class="position-absolute o-grid-cell-icon" t-att-style="getIconStyle(icon)">
+        <t t-set="ctx" t-value="icon.ctx"/>
+        <t t-call="{{icon.template}}"/>
+      </div>
+    </t>
+  </t>
+</templates>

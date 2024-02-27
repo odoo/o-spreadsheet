@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-DataValidationListIcon">
     <div
       class="o-dv-list-icon d-flex align-items-center justify-content-center"
-      t-on-click="onClick">
+      t-on-click="ctx.onClick">
       <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
     </div>
   </t>
