@@ -30,6 +30,7 @@ css/* scss */ `
 interface Props {
   rule: DataValidationRule | undefined;
   onExit: () => void;
+  onCloseSidePanel?: () => void;
 }
 
 interface State {
@@ -42,6 +43,7 @@ export class DataValidationEditor extends Component<Props, SpreadsheetChildEnv> 
   static props = {
     rule: { type: Object, optional: true },
     onExit: Function,
+    onCloseSidePanel: { type: Function, optional: true },
   };
 
   state = useState<State>({ rule: this.defaultDataValidationRule });
