@@ -128,9 +128,9 @@ export function toUnboundedZone(xc: string): UnboundedZone {
  *
  * Examples:
  *    "A1" ==> Top 0, Bottom 0, Left: 0, Right: 0
- *    "B1:B3" ==> Top 0, Bottom 3, Left: 1, Right: 1
+ *    "B1:B3" ==> Top 0, Bottom 2, Left: 1, Right: 1
  *    "Sheet1!A1" ==> Top 0, Bottom 0, Left: 0, Right: 0
- *    "Sheet1!B1:B3" ==> Top 0, Bottom 3, Left: 1, Right: 1
+ *    "Sheet1!B1:B3" ==> Top 0, Bottom 2, Left: 1, Right: 1
  *
  * @param xc the string reference to convert
  *
