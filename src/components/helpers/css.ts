@@ -140,12 +140,15 @@ export function cellTextStyleToCss(style: Style | undefined): CSSProperties {
  * Transform CSS properties into a CSS string.
  */
 export function cssPropertiesToCss(attributes: CSSProperties): string {
-  const str = Object.entries(attributes)
-    .filter(([attName, attValue]) => attValue !== undefined)
-    .map(([attName, attValue]) => `${attName}:${attValue};`)
-    .join(" ");
+  let styleStr = "";
+  for (const attName in attributes) {
+    if (!attributes[attName]) {
+      continue;
+    }
+    styleStr += `${attName}:${attributes[attName]}; `;
+  }
 
-  return str;
+  return styleStr;
 }
 
 export function getElementMargins(el: Element) {

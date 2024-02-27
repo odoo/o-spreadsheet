@@ -461,7 +461,7 @@ exports[`Color Picker buttons Full component rendering 1`] = `
   >
     <div
       class="o-gradient"
-      style="background:hsl(0 100% 50%);"
+      style="background:hsl(0 100% 50%); "
     >
       <div
         class="saturation w-100 h-100 position-absolute pe-none"
@@ -471,7 +471,7 @@ exports[`Color Picker buttons Full component rendering 1`] = `
       />
       <div
         class="magnifier pe-none"
-        style="left:-8px; top:178px; background:#000000;"
+        style="left:-8px; top:178px; background:#000000; "
       />
     </div>
     <div
@@ -482,7 +482,7 @@ exports[`Color Picker buttons Full component rendering 1`] = `
       />
       <div
         class="o-hue-slider pe-none"
-        style="margin-left:-8px;"
+        style="margin-left:-8px; "
       >
         <svg
           class="o-icon"
@@ -511,7 +511,7 @@ exports[`Color Picker buttons Full component rendering 1`] = `
       />
       <div
         class="o-color-preview"
-        style="background-color:#000000;"
+        style="background-color:#000000; "
       />
     </div>
     <div

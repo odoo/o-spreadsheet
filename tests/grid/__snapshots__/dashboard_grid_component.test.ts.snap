@@ -7,11 +7,11 @@ exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`
 >
   <div
     class="mx-auto h-100 position-relative"
-    style="max-width:2496px;"
+    style="max-width:2496px; "
   >
     <div
       class="o-grid-overlay overflow-hidden"
-      style="height:100%; width:100%;"
+      style="height:100%; width:100%; "
     >
       <div>
         
@@ -40,19 +40,19 @@ exports[`Grid component in dashboard mode simple dashboard rendering snapshot 1`
   </div>
   <div
     class="o-scrollbar vertical"
-    style="top:0px; right:0px; width:15px; bottom:0px;"
+    style="top:0px; right:0px; width:15px; bottom:0px; "
   >
     <div
-      style="width:1px; height:2328px;"
+      style="width:1px; height:2328px; "
     />
   </div>
   
   <div
     class="o-scrollbar horizontal"
-    style="left:0px; bottom:0px; height:15px; right:0px;"
+    style="left:0px; bottom:0px; height:15px; right:0px; "
   >
     <div
-      style="width:2592px; height:1px;"
+      style="width:2592px; height:1px; "
     />
   </div>
   
