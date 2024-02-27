@@ -345,15 +345,7 @@ export const constants = {
 export type { EnrichedToken } from "./formulas/composer_tokenizer";
 export type { AST, ASTFuncall } from "./formulas/parser";
 export type { Token } from "./formulas/tokenizer";
-export type {
-  AddFunctionDescription,
-  Arg,
-  Cell,
-  CellPosition,
-  EvalContext,
-  FPayload,
-  UID,
-} from "./types";
+export type * from "./types";
 export type { FunctionRegistry };
 
 export { AbstractCellClipboardHandler } from "./clipboard_handlers/abstract_cell_clipboard_handler";
