@@ -373,9 +373,23 @@ describe("Migrations", () => {
     expect(data.sheets[1].cells["A2"]?.format).toEqual(2);
   });
 
-  test("migrate version 12: update border description structure", () => {
+  test("migrate version 12: Fix Overlapping datafilters", () => {
     const model = new Model({
       version: 12,
+      sheets: [
+        {
+          id: "1",
+          filterTables: [{ range: "A1:B2" }, { range: "A1:C2" }],
+        },
+      ],
+    });
+    const data = model.exportData();
+    expect(data.sheets[0].filterTables).toEqual([{ range: "A1:C2" }]);
+  });
+
+  test("migrate version 12.5: update border description structure", () => {
+    const model = new Model({
+      version: 12.5,
       sheets: [
         {
           id: "1",
@@ -401,20 +415,6 @@ describe("Migrations", () => {
         },
       },
     });
-  });
-
-  test("migrate version 12.5: Fix Overlapping datafilters", () => {
-    const model = new Model({
-      version: 12,
-      sheets: [
-        {
-          id: "1",
-          filterTables: [{ range: "A1:B2" }, { range: "A1:C2" }],
-        },
-      ],
-    });
-    const data = model.exportData();
-    expect(data.sheets[0].filterTables).toEqual([{ range: "A1:C2" }]);
   });
 });
 
