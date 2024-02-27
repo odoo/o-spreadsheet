@@ -336,7 +336,7 @@ const MIGRATIONS: Migration[] = [
   },
   {
     description: "Change Border description structure",
-    from: 12,
+    from: 12.5,
     to: 13,
     applyMigration(data: any): any {
       for (const borderId in data.borders) {
