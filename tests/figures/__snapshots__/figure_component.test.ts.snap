@@ -3,7 +3,7 @@
 exports[`figures selected figure snapshot 1`] = `
 <div
   class="o-figure-wrapper pe-auto"
-  style="left:1px; top:1px; width:100px; height:100px; z-index:11;"
+  style="left:1px; top:1px; width:100px; height:100px; z-index:11; "
 >
   <div
     class="o-figure w-100 h-100"
@@ -62,35 +62,35 @@ exports[`figures selected figure snapshot 1`] = `
   />
   <div
     class="o-fig-anchor o-top"
-    style="top:-3px; right:calc(50% - 3px);"
+    style="top:-3px; right:calc(50% - 3px); "
   />
   <div
     class="o-fig-anchor o-topRight"
-    style="top:-3px; right:-3px;"
+    style="top:-3px; right:-3px; "
   />
   <div
     class="o-fig-anchor o-right"
-    style="bottom:calc(50% - 3px); right:-3px;"
+    style="bottom:calc(50% - 3px); right:-3px; "
   />
   <div
     class="o-fig-anchor o-bottomRight"
-    style="bottom:-3px; right:-3px;"
+    style="bottom:-3px; right:-3px; "
   />
   <div
     class="o-fig-anchor o-bottom"
-    style="bottom:-3px; right:calc(50% - 3px);"
+    style="bottom:-3px; right:calc(50% - 3px); "
   />
   <div
     class="o-fig-anchor o-bottomLeft"
-    style="bottom:-3px; left:-3px;"
+    style="bottom:-3px; left:-3px; "
   />
   <div
     class="o-fig-anchor o-left"
-    style="bottom:calc(50% - 3px); left:-3px;"
+    style="bottom:calc(50% - 3px); left:-3px; "
   />
   <div
     class="o-fig-anchor o-topLeft"
-    style="top:-3px; left:-3px;"
+    style="top:-3px; left:-3px; "
   />
   
 </div>

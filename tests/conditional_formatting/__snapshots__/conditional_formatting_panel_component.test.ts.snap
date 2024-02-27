@@ -52,7 +52,7 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
           
           <div
             class="o-cf-preview-icon d-flex justify-content-around align-items-center me-2"
-            style="background:#FF0000;"
+            style="background:#FF0000; "
           >
              123 
           </div>

@@ -11,20 +11,20 @@ exports[`Header group component test For column groups Snapshot 1`] = `
   >
     <div
       class="o-header-group-scroll-container position-relative"
-      style="left:0px;"
+      style="left:0px; "
     >
       <div
         class="o-header-group position-absolute"
         data-id="0-5"
-        style="top:0px; left:0px; width:624px; height:21px;"
+        style="top:0px; left:0px; width:624px; height:21px; "
       >
         <div
           class="o-header-group-header position-absolute d-flex align-items-center justify-content-center overflow-hidden"
-          style="width:48px; height:100%;"
+          style="width:48px; height:100%; "
         >
           <div
             class="o-group-fold-button user-select-none rounded d-flex align-items-center justify-content-center"
-            style="background-color:#fff; color:#333;"
+            style="background-color:#fff; color:#333; "
           >
             <svg
               class="o-icon minus"
@@ -40,7 +40,7 @@ exports[`Header group component test For column groups Snapshot 1`] = `
         </div>
         <div
           class="o-group-border position-absolute"
-          style="top:calc(50% - 1px); left:24px; width:calc(100% - 24px); height:30%; border-top:1px solid #999; border-right:1px solid #999;"
+          style="top:calc(50% - 1px); left:24px; width:calc(100% - 24px); height:30%; border-top:1px solid #999; border-right:1px solid #999; "
         />
         
       </div>
@@ -48,15 +48,15 @@ exports[`Header group component test For column groups Snapshot 1`] = `
       <div
         class="o-header-group position-absolute"
         data-id="2-5"
-        style="top:21px; left:144px; width:480px; height:21px;"
+        style="top:21px; left:144px; width:480px; height:21px; "
       >
         <div
           class="o-header-group-header position-absolute d-flex align-items-center justify-content-center overflow-hidden"
-          style="width:96px; height:100%;"
+          style="width:96px; height:100%; "
         >
           <div
             class="o-group-fold-button user-select-none rounded d-flex align-items-center justify-content-center"
-            style="background-color:#fff; color:#333;"
+            style="background-color:#fff; color:#333; "
           >
             <svg
               class="o-icon minus"
@@ -72,7 +72,7 @@ exports[`Header group component test For column groups Snapshot 1`] = `
         </div>
         <div
           class="o-group-border position-absolute"
-          style="top:calc(50% - 1px); left:48px; width:calc(100% - 48px); height:30%; border-top:1px solid #999; border-right:1px solid #999;"
+          style="top:calc(50% - 1px); left:48px; width:calc(100% - 48px); height:30%; border-top:1px solid #999; border-right:1px solid #999; "
         />
         
       </div>
@@ -95,20 +95,20 @@ exports[`Header group component test For row groups Snapshot 1`] = `
   >
     <div
       class="o-header-group-scroll-container position-relative"
-      style="top:0px;"
+      style="top:0px; "
     >
       <div
         class="o-header-group position-absolute"
         data-id="0-5"
-        style="top:0px; left:0px; width:21px; height:164px;"
+        style="top:0px; left:0px; width:21px; height:164px; "
       >
         <div
           class="o-header-group-header position-absolute d-flex align-items-center justify-content-center overflow-hidden"
-          style="width:100%; height:26px;"
+          style="width:100%; height:26px; "
         >
           <div
             class="o-group-fold-button user-select-none rounded d-flex align-items-center justify-content-center"
-            style="background-color:#fff; color:#333;"
+            style="background-color:#fff; color:#333; "
           >
             <svg
               class="o-icon minus"
@@ -124,7 +124,7 @@ exports[`Header group component test For row groups Snapshot 1`] = `
         </div>
         <div
           class="o-group-border position-absolute"
-          style="top:13px; left:calc(50% - 1px); width:30%; height:calc(100% - 13px); border-left:1px solid #999; border-bottom:1px solid #999;"
+          style="top:13px; left:calc(50% - 1px); width:30%; height:calc(100% - 13px); border-left:1px solid #999; border-bottom:1px solid #999; "
         />
         
       </div>
@@ -132,15 +132,15 @@ exports[`Header group component test For row groups Snapshot 1`] = `
       <div
         class="o-header-group position-absolute"
         data-id="2-5"
-        style="top:49px; left:21px; width:21px; height:115px;"
+        style="top:49px; left:21px; width:21px; height:115px; "
       >
         <div
           class="o-header-group-header position-absolute d-flex align-items-center justify-content-center overflow-hidden"
-          style="width:100%; height:23px;"
+          style="width:100%; height:23px; "
         >
           <div
             class="o-group-fold-button user-select-none rounded d-flex align-items-center justify-content-center"
-            style="background-color:#fff; color:#333;"
+            style="background-color:#fff; color:#333; "
           >
             <svg
               class="o-icon minus"
@@ -156,7 +156,7 @@ exports[`Header group component test For row groups Snapshot 1`] = `
         </div>
         <div
           class="o-group-border position-absolute"
-          style="top:11.5px; left:calc(50% - 1px); width:30%; height:calc(100% - 11.5px); border-left:1px solid #999; border-bottom:1px solid #999;"
+          style="top:11.5px; left:calc(50% - 1px); width:30%; height:calc(100% - 11.5px); border-left:1px solid #999; border-bottom:1px solid #999; "
         />
         
       </div>
