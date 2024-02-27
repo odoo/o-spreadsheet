@@ -85,7 +85,7 @@ describe("Autofill component", () => {
     expect(fixture.querySelector(".o-autofill-nextvalue")).toMatchInlineSnapshot(`
       <div
         class="o-autofill-nextvalue"
-        style="top:30px; left:375px;"
+        style="top:30px; left:375px; "
       >
         <div>
           test
@@ -111,7 +111,7 @@ describe("Autofill component", () => {
     expect(fixture.querySelector(".o-autofill-nextvalue")).toMatchInlineSnapshot(`
       <div
         class="o-autofill-nextvalue"
-        style="top:30px; left:375px;"
+        style="top:30px; left:375px; "
       >
         <div>
           test
@@ -140,7 +140,7 @@ describe("Autofill component", () => {
     expect(fixture.querySelector(".o-autofill-nextvalue")).toMatchInlineSnapshot(`
       <div
         class="o-autofill-nextvalue"
-        style="top:30px; left:375px;"
+        style="top:30px; left:375px; "
       >
         <div>
           test
