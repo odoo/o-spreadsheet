@@ -8,7 +8,7 @@ interface SidePanelProps {
 
 interface OpenSidePanel {
   isOpen: true;
-  props: SidePanelProps;
+  props?: SidePanelProps;
 }
 
 interface ClosedSidePanel {
@@ -28,10 +28,10 @@ export class SidePanelStore extends SpreadsheetStore {
     return this.computeState(this.componentTag, this.initialPanelProps).isOpen;
   }
 
-  get panelProps() {
+  get panelProps(): SidePanelProps {
     const state = this.computeState(this.componentTag, this.initialPanelProps);
     if (state.isOpen) {
-      return state.props;
+      return state.props ?? {};
     }
     return {};
   }
@@ -45,7 +45,7 @@ export class SidePanelStore extends SpreadsheetStore {
       this.initialPanelProps?.onCloseSidePanel?.();
     }
     this.componentTag = componentTag;
-    this.initialPanelProps = state.props;
+    this.initialPanelProps = state.props ?? {};
   }
 
   toggle(componentTag: string, panelProps: SidePanelProps) {
