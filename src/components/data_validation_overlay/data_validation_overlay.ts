@@ -9,13 +9,18 @@ export class DataValidationOverlay extends Component<{}, SpreadsheetChildEnv> {
   static components = { GridCellIcon, DataValidationCheckbox, DataValidationListIcon };
 
   get checkBoxCellPositions(): CellPosition[] {
-    return this.env.model.getters.getDataValidationCheckBoxCellPositions();
+    return this.env.model.getters
+      .getVisibleCellPositions()
+      .filter(this.env.model.getters.isCellValidCheckbox);
   }
 
   get listIconsCellPositions(): CellPosition[] {
-    return this.env.model.getters.isReadonly()
-      ? []
-      : this.env.model.getters.getDataValidationListCellsPositions();
+    if (this.env.model.getters.isReadonly()) {
+      return [];
+    }
+    return this.env.model.getters
+      .getVisibleCellPositions()
+      .filter(this.env.model.getters.cellHasListDataValidationIcon);
   }
 }
 

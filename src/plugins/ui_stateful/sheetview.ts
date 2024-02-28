@@ -91,6 +91,8 @@ export class SheetViewPlugin extends UIPlugin {
     "getEdgeScrollRow",
     "getVisibleFigures",
     "getVisibleRect",
+    "getVisibleRectWithoutHeaders",
+    "getVisibleCellPositions",
     "getColRowOffsetInViewport",
     "getMainViewportCoordinates",
     "getActiveSheetScrollInfo",
@@ -367,6 +369,28 @@ export class SheetViewPlugin extends UIPlugin {
   }
 
   /**
+   * Get the positions of all the cells that are visible in the viewport, taking merges into account.
+   */
+  getVisibleCellPositions(): CellPosition[] {
+    const visibleCols = this.getSheetViewVisibleCols();
+    const visibleRows = this.getSheetViewVisibleRows();
+    const sheetId = this.getters.getActiveSheetId();
+
+    const positions: CellPosition[] = [];
+    for (const col of visibleCols) {
+      for (const row of visibleRows) {
+        const position = { sheetId, col, row };
+        const mainPosition = this.getters.getMainCellPosition(position);
+        if (mainPosition.row !== row || mainPosition.col !== col) {
+          continue;
+        }
+        positions.push(position);
+      }
+    }
+    return positions;
+  }
+
+  /**
    * Return the main viewport maximum size relative to the client size.
    */
   getMainViewportRect(): Rect {
@@ -494,6 +518,14 @@ export class SheetViewPlugin extends UIPlugin {
    * Computes the coordinates and size to draw the zone on the canvas
    */
   getVisibleRect(zone: Zone): Rect {
+    const rect = this.getVisibleRectWithoutHeaders(zone);
+    return { ...rect, x: rect.x + this.gridOffsetX, y: rect.y + this.gridOffsetY };
+  }
+
+  /**
+   * Computes the coordinates and size to draw the zone without taking the grid offset into account
+   */
+  getVisibleRectWithoutHeaders(zone: Zone): Rect {
     const sheetId = this.getters.getActiveSheetId();
     const viewportRects = this.getSubViewports(sheetId)
       .map((viewport) => viewport.getRect(zone))
@@ -506,12 +538,7 @@ export class SheetViewPlugin extends UIPlugin {
     const y = Math.min(...viewportRects.map((rect) => rect.y));
     const width = Math.max(...viewportRects.map((rect) => rect.x + rect.width)) - x;
     const height = Math.max(...viewportRects.map((rect) => rect.y + rect.height)) - y;
-    return {
-      x: x + this.gridOffsetX,
-      y: y + this.gridOffsetY,
-      width,
-      height,
-    };
+    return { x, y, width, height };
   }
 
   /**
