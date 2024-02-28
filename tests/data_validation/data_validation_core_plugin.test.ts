@@ -203,24 +203,34 @@ describe("Data validation", () => {
     });
 
     test("Dropdown lists are kept when clearing the content of a non-empty cell", () => {
-      expect(model.getters.getDataValidationListCellsPositions()).toHaveLength(1);
+      expect(getDataValidationRules(model, sheetId)).toMatchObject([
+        { criterion: { type: "isValueInList" }, ranges: ["A1"] },
+      ]);
       setCellContent(model, "A1", "hello");
       deleteContent(model, ["A1"]);
-      expect(model.getters.getDataValidationListCellsPositions()).toHaveLength(1);
+      expect(getDataValidationRules(model, sheetId)).toMatchObject([
+        { criterion: { type: "isValueInList" }, ranges: ["A1"] },
+      ]);
       expect(getCellContent(model, "A1")).toBe("");
     });
 
     test("Dropdown lists are removed when clearing the content of an empty cell", () => {
-      expect(model.getters.getDataValidationListCellsPositions()).toHaveLength(1);
+      expect(getDataValidationRules(model, sheetId)).toMatchObject([
+        { criterion: { type: "isValueInList" }, ranges: ["A1"] },
+      ]);
       setCellContent(model, "A1", "");
       deleteContent(model, ["A1"]);
-      expect(model.getters.getDataValidationListCellsPositions()).toHaveLength(0);
+      expect(getDataValidationRules(model, sheetId)).toEqual([]);
     });
 
     test("Dropdown lists are kept when setting the content of a cell to an empty string", () => {
-      expect(model.getters.getDataValidationListCellsPositions()).toHaveLength(1);
+      expect(getDataValidationRules(model, sheetId)).toMatchObject([
+        { criterion: { type: "isValueInList" }, ranges: ["A1"] },
+      ]);
       setCellContent(model, "A1", "");
-      expect(model.getters.getDataValidationListCellsPositions()).toHaveLength(1);
+      expect(getDataValidationRules(model, sheetId)).toMatchObject([
+        { criterion: { type: "isValueInList" }, ranges: ["A1"] },
+      ]);
     });
   });
 

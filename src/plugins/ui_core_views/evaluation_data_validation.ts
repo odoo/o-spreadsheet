@@ -37,8 +37,6 @@ type SheetValidationResult = { [col: HeaderIndex]: Array<Lazy<ValidationResult>>
 export class EvaluationDataValidationPlugin extends UIPlugin {
   static getters = [
     "getDataValidationInvalidCriterionValueMessage",
-    "getDataValidationCheckBoxCellPositions",
-    "getDataValidationListCellsPositions",
     "getInvalidDataValidationMessage",
     "getValidationResultForCellValue",
     "isCellValidCheckbox",
@@ -134,26 +132,6 @@ export class EvaluationDataValidationPlugin extends UIPlugin {
     const error = this.getRuleErrorForCellValue(cellValue, cellPosition, rule);
 
     return error ? { error, rule, isValid: false } : VALID_RESULT;
-  }
-
-  getDataValidationCheckBoxCellPositions(): CellPosition[] {
-    const rules = this.getters
-      .getDataValidationRules(this.getters.getActiveSheetId())
-      .filter((rule) => rule.criterion.type === "isBoolean");
-    return getCellPositionsInRanges(rules.map((rule) => rule.ranges).flat()).filter((position) =>
-      this.isCellValidCheckbox(position)
-    );
-  }
-
-  getDataValidationListCellsPositions(): CellPosition[] {
-    const rules = this.getters
-      .getDataValidationRules(this.getters.getActiveSheetId())
-      .filter(
-        (rule) =>
-          (rule.criterion.type === "isValueInList" || rule.criterion.type === "isValueInRange") &&
-          rule.criterion.displayStyle === "arrow"
-      );
-    return getCellPositionsInRanges(rules.map((rule) => rule.ranges).flat());
   }
 
   private getValidationResultForCell(cellPosition: CellPosition): ValidationResult {

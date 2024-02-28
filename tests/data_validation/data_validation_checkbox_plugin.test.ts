@@ -1,4 +1,4 @@
-import { Model } from "../../src";
+import { Model, UID } from "../../src";
 import {
   addDataValidation,
   deleteContent,
@@ -6,12 +6,15 @@ import {
   setStyle,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellContent, getStyle } from "../test_helpers/getters_helpers";
+import { getDataValidationRules } from "../test_helpers/helpers";
 
 describe("Checkbox in model", () => {
   let model: Model;
+  let sheetId: UID;
 
   beforeEach(async () => {
     model = new Model();
+    sheetId = model.getters.getActiveSheetId();
   });
 
   test("Adding a checkbox rule will make its cells align middle/center", () => {
@@ -34,20 +37,22 @@ describe("Checkbox in model", () => {
 
   test("Checkbox are removed when clearing the content of the cell", () => {
     addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
-    expect(model.getters.getDataValidationCheckBoxCellPositions()).toEqual([
-      { sheetId: model.getters.getActiveSheetId(), col: 0, row: 0 },
+    expect(getDataValidationRules(model, sheetId)).toMatchObject([
+      { criterion: { type: "isBoolean" }, ranges: ["A1"] },
     ]);
     deleteContent(model, ["A1"]);
-    expect(model.getters.getDataValidationCheckBoxCellPositions()).toHaveLength(0);
+    expect(getDataValidationRules(model, sheetId)).toEqual([]);
   });
 
   test("Checkbox are kept when emptying the content of the cell", () => {
     addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
-    expect(model.getters.getDataValidationCheckBoxCellPositions()).toEqual([
-      { sheetId: model.getters.getActiveSheetId(), col: 0, row: 0 },
+    expect(getDataValidationRules(model, sheetId)).toMatchObject([
+      { criterion: { type: "isBoolean" }, ranges: ["A1"] },
     ]);
     setCellContent(model, "A1", "");
-    expect(model.getters.getDataValidationCheckBoxCellPositions()).toHaveLength(1);
+    expect(getDataValidationRules(model, sheetId)).toMatchObject([
+      { criterion: { type: "isBoolean" }, ranges: ["A1"] },
+    ]);
   });
 
   test("Insert checkbox in an empty cell set the content to FALSE", () => {
