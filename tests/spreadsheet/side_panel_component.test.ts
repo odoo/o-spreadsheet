@@ -26,6 +26,13 @@ class Body2 extends Component<any, any> {
     </div>`;
 }
 
+class BodyWithoutProps extends Component<any, any> {
+  static template = xml`
+    <div>
+      <div class="main_body_3">Hello</div>
+    </div>`;
+}
+
 beforeEach(async () => {
   ({ parent, fixture } = await mountSpreadsheet());
   sidePanelContent = Object.assign({}, sidePanelRegistry.content);
@@ -104,6 +111,23 @@ describe("Side Panel", () => {
     expect(document.querySelector(".main_body")!.textContent).toBe("test");
     expect(document.querySelector(".props_body")).not.toBeNull();
     expect(document.querySelector(".props_body")!.textContent).toBe("context");
+  });
+
+  test("Can open and close a custom side panel without any props", async () => {
+    sidePanelRegistry.add("CUSTOM_PANEL", {
+      title: "Title",
+      Body: BodyWithoutProps,
+      computeState: () => {
+        return { isOpen: true };
+      },
+    });
+    parent.env.openSidePanel("CUSTOM_PANEL");
+    await nextTick();
+    expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
+    expect(document.querySelector(".main_body_3")).not.toBeNull();
+    simulateClick(".o-sidePanelClose");
+    await nextTick();
+    expect(document.querySelector(".o-sidePanel")).toBeNull();
   });
 
   test("Can open a side panel when another one is open", async () => {
