@@ -1,7 +1,13 @@
 import { Component } from "@odoo/owl";
-import { DEFAULT_VERTICAL_ALIGN, GRID_ICON_EDGE_LENGTH, GRID_ICON_MARGIN } from "../../constants";
+import {
+  DEFAULT_VERTICAL_ALIGN,
+  GRID_ICON_EDGE_LENGTH,
+  GRID_ICON_MARGIN,
+  HEADER_HEIGHT,
+  HEADER_WIDTH,
+} from "../../constants";
 import { positionToZone } from "../../helpers";
-import { Align, CellPosition, SpreadsheetChildEnv, VerticalAlign } from "../../types";
+import { Align, CellPosition, Rect, SpreadsheetChildEnv, VerticalAlign } from "../../types";
 import { css, cssPropertiesToCss } from "../helpers";
 
 css/* scss */ `
@@ -26,26 +32,29 @@ export class GridCellIcon extends Component<GridCellIconProps, SpreadsheetChildE
     slots: Object,
   };
 
-  get iconStyle() {
-    const x = this.getIconHorizontalPosition();
-    const y = this.getIconVerticalPosition();
+  get iconStyle(): string {
+    const cellPosition = this.props.cellPosition;
+    const merge = this.env.model.getters.getMerge(cellPosition);
+    const zone = merge || positionToZone(cellPosition);
+    const rect = this.env.model.getters.getVisibleRect(zone);
+    const x = this.getIconHorizontalPosition(rect, cellPosition, "right");
+    const y = this.getIconVerticalPosition(rect, cellPosition, undefined);
     return cssPropertiesToCss({
-      top: `${y}px`,
-      left: `${x}px`,
+      top: `${y - HEADER_HEIGHT}px`, // ADRM TODO: doesn't work in dashboard. Create a getter getVisibleRectWithoutHeaders or something.
+      left: `${x - HEADER_WIDTH}px`,
     });
   }
 
-  private getIconVerticalPosition(): number {
-    const { sheetId, row } = this.props.cellPosition;
-    const merge = this.env.model.getters.getMerge(this.props.cellPosition);
-    const start = this.env.model.getters.getRowDimensionsInViewport(sheetId, row).start;
-    const end = this.env.model.getters.getRowDimensionsInViewport(
-      sheetId,
-      merge ? merge.bottom : row
-    ).end;
+  private getIconVerticalPosition(
+    rect: Rect,
+    cellPosition: CellPosition,
+    verticalAlign: VerticalAlign
+  ): number {
+    const start = rect.y;
+    const end = rect.y + rect.height;
 
-    const cell = this.env.model.getters.getCell(this.props.cellPosition);
-    const align = this.props.verticalAlign || cell?.style?.verticalAlign || DEFAULT_VERTICAL_ALIGN;
+    const cell = this.env.model.getters.getCell(cellPosition);
+    const align = verticalAlign || cell?.style?.verticalAlign || DEFAULT_VERTICAL_ALIGN;
 
     switch (align) {
       case "bottom":
@@ -58,18 +67,17 @@ export class GridCellIcon extends Component<GridCellIconProps, SpreadsheetChildE
     }
   }
 
-  private getIconHorizontalPosition(): number {
-    const { sheetId, col } = this.props.cellPosition;
-    const merge = this.env.model.getters.getMerge(this.props.cellPosition);
-    const start = this.env.model.getters.getColDimensionsInViewport(sheetId, col).start;
-    const end = this.env.model.getters.getColDimensionsInViewport(
-      sheetId,
-      merge ? merge.right : col
-    ).end;
+  private getIconHorizontalPosition(
+    rect: Rect,
+    cellPosition: CellPosition,
+    horizontalAlign: Align
+  ): number {
+    const start = rect.x;
+    const end = rect.x + rect.width;
 
-    const cell = this.env.model.getters.getCell(this.props.cellPosition);
-    const evaluatedCell = this.env.model.getters.getEvaluatedCell(this.props.cellPosition);
-    const align = this.props.horizontalAlign || cell?.style?.align || evaluatedCell.defaultAlign;
+    const cell = this.env.model.getters.getCell(cellPosition);
+    const evaluatedCell = this.env.model.getters.getEvaluatedCell(cellPosition);
+    const align = horizontalAlign || cell?.style?.align || evaluatedCell.defaultAlign;
 
     switch (align) {
       case "right":
