@@ -81,6 +81,10 @@ sidePanelRegistry.add("TableSidePanel", {
     if (!table) {
       return { isOpen: false };
     }
-    return { isOpen: true, props: { table } };
+    return {
+      isOpen: true,
+      props: { table },
+      key: table.id,
+    };
   },
 });

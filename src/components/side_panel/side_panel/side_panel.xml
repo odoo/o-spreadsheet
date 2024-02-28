@@ -10,7 +10,7 @@
           t-component="panel.Body"
           t-props="sidePanelStore.panelProps"
           onCloseSidePanel.bind="close"
-          t-key="'Body_' + sidePanelStore.componentTag"
+          t-key="'Body_' + sidePanelStore.componentTag + sidePanelStore.panelKey"
         />
       </div>
       <div class="o-sidePanelFooter" t-if="panel?.Footer">
