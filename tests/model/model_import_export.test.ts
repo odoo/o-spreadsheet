@@ -428,9 +428,23 @@ describe("Migrations", () => {
     expect(data.settings).toEqual({ locale: DEFAULT_LOCALE });
   });
 
-  test("migrate version 15: filterTables are renamed into tables", () => {
+  test("migrate version 14.5: Fix Overlapping datafilters", () => {
     const model = new Model({
       version: 14,
+      sheets: [
+        {
+          id: "1",
+          filterTables: [{ range: "A1:B2" }, { range: "A1:C2" }],
+        },
+      ],
+    });
+    const data = model.exportData();
+    expect(data.sheets[0].tables).toEqual([{ range: "A1:C2" }]);
+  });
+
+  test("migrate version 15: filterTables are renamed into tables", () => {
+    const model = new Model({
+      version: 14.5,
       sheets: [
         {
           id: "1",
