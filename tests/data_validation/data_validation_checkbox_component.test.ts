@@ -1,6 +1,7 @@
 import { Model } from "../../src";
 import { addDataValidation, setCellContent, setStyle } from "../test_helpers/commands_helpers";
 import { getStyle } from "../test_helpers/getters_helpers";
+import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 import { MockGridRenderingContext } from "../test_helpers/renderer_helpers";
 
 describe("Checkbox in model", () => {
@@ -56,5 +57,28 @@ describe("Checkbox in model", () => {
       model.drawGrid(ctx);
       expect(renderedTexts).toContain("hello");
     });
+  });
+});
+
+describe("Checkbox component", () => {
+  test("Data validation checkbox on formula is disabled", async () => {
+    const model = new Model();
+    addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
+    const { fixture } = await mountSpreadsheet({ model });
+    await nextTick();
+
+    expect(fixture.querySelector(".o-dv-checkbox")?.classList).not.toContain("pe-none");
+    setCellContent(model, "A1", "=TRUE");
+    await nextTick();
+    expect(fixture.querySelector(".o-dv-checkbox")?.classList).toContain("pe-none");
+  });
+
+  test("Data validation checkbox is disabled in readonly mode", async () => {
+    const model = new Model();
+    addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
+    model.updateMode("readonly");
+    const { fixture } = await mountSpreadsheet({ model });
+
+    expect(fixture.querySelector(".o-dv-checkbox")?.classList).toContain("pe-none");
   });
 });
