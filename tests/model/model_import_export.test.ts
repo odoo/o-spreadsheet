@@ -427,6 +427,20 @@ describe("Migrations", () => {
     let data = model.exportData();
     expect(data.settings).toEqual({ locale: DEFAULT_LOCALE });
   });
+
+  test("migrate version 14.5: Fix Overlapping datafilters", () => {
+    const model = new Model({
+      version: 14,
+      sheets: [
+        {
+          id: "1",
+          filterTables: [{ range: "A1:B2" }, { range: "A1:C2" }],
+        },
+      ],
+    });
+    const data = model.exportData();
+    expect(data.sheets[0].filterTables).toEqual([{ range: "A1:C2" }]);
+  });
 });
 
 describe("Import", () => {
