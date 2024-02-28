@@ -38,6 +38,7 @@ import { FR_LOCALE } from "../test_helpers/constants";
 import { getCell, getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import {
   doAction,
+  getDataValidationRules,
   getName,
   getNode,
   makeTestEnv,
@@ -939,8 +940,8 @@ describe("Menu Item actions", () => {
   test("Insert -> Checkbox", () => {
     selectCell(model, "A1");
     doAction(["insert", "insert_checkbox"], env);
-    expect(model.getters.getDataValidationCheckBoxCellPositions()).toEqual([
-      { sheetId, col: 0, row: 0 },
+    expect(getDataValidationRules(model, sheetId)).toMatchObject([
+      { criterion: { type: "isBoolean" }, ranges: ["A1"] },
     ]);
     expect(getCellContent(model, "A1")).toEqual("FALSE");
   });
