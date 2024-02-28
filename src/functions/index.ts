@@ -95,8 +95,7 @@ function addErrorHandling(
 ): ComputeFunction<Matrix<FPayload> | FPayload> {
   return function (this: EvalContext, ...args: Arg[]): Matrix<FPayload> | FPayload {
     try {
-      const computeFormula = compute.bind(this);
-      return computeFormula(...args);
+      return compute.apply(this, args);
     } catch (e) {
       return handleError(e, functionName);
     }
@@ -144,8 +143,7 @@ function addResultHandling(
   compute: ComputeFunction<FPayload | Matrix<FPayload> | CellValue | Matrix<CellValue>>
 ): ComputeFunction<FPayload | Matrix<FPayload>> {
   return function (this: EvalContext, ...args: Arg[]): FPayload | Matrix<FPayload> {
-    const computeResult = compute.bind(this);
-    const result = computeResult(...args);
+    const result = compute.apply(this, args);
 
     if (!isMatrix(result)) {
       if (typeof result === "object" && result !== null && "value" in result) {
