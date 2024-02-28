@@ -112,10 +112,8 @@ function buildComputeFunctionFromDescription(descr) {
     this: EvalContext,
     ...args: ComputeFunctionArg<Arg>[]
   ): Matrix<ValueAndFormat> | ValueAndFormat {
-    const computeValue = descr.compute.bind(this);
-    const computeFormat = descr.computeFormat?.bind(this) || (() => undefined);
-    const value = computeValue(...extractArgValuesFromArgs(args));
-    const format = computeFormat(...args);
+    const value = descr.compute.apply(this, extractArgValuesFromArgs(args));
+    const format = descr.computeFormat?.apply(this, args);
 
     if (isMatrix(value)) {
       if (format === undefined || isMatrix(format)) {
