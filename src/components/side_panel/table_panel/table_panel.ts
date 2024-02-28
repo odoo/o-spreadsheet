@@ -1,4 +1,4 @@
-import { Component, onWillUpdateProps, useState } from "@odoo/owl";
+import { Component, useState } from "@odoo/owl";
 import { positionToZone, rangeReference } from "../../../helpers";
 import {
   CommandResult,
@@ -63,15 +63,6 @@ export class TablePanel extends Component<Props, SpreadsheetChildEnv> {
       tableZoneErrors: [],
       tableXc: this.env.model.getters.getRangeString(this.props.table.range, sheetId),
       filtersEnabledIfPossible: this.props.table.config.hasFilters,
-    });
-
-    onWillUpdateProps((nextProps: Props) => {
-      if (this.props.table.id !== nextProps.table.id) {
-        const sheetId = this.env.model.getters.getActiveSheetId();
-        this.state.tableXc = this.env.model.getters.getRangeString(nextProps.table.range, sheetId);
-        this.state.tableZoneErrors = [];
-        this.state.filtersEnabledIfPossible = nextProps.table.config.hasFilters;
-      }
     });
   }
 

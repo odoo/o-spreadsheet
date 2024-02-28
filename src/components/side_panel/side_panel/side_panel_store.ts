@@ -9,6 +9,7 @@ interface SidePanelProps {
 interface OpenSidePanel {
   isOpen: true;
   props?: SidePanelProps;
+  key?: string;
 }
 
 interface ClosedSidePanel {
@@ -34,6 +35,14 @@ export class SidePanelStore extends SpreadsheetStore {
       return state.props ?? {};
     }
     return {};
+  }
+
+  get panelKey(): string | undefined {
+    const state = this.computeState(this.componentTag, this.initialPanelProps);
+    if (state.isOpen) {
+      return state.key;
+    }
+    return undefined;
   }
 
   open(componentTag: string, panelProps: SidePanelProps = {}) {
