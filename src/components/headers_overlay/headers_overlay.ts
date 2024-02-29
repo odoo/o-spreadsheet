@@ -340,11 +340,6 @@ css/* scss */ `
       height: 10000px;
       background-color: ${SELECTION_BORDER_COLOR};
     }
-    .o-unhide-buttons {
-      width: fit-content;
-      gap: 5px;
-      transform: translate(-50%, 0);
-    }
     .o-unhide:hover {
       z-index: ${ComponentsImportance.Grid + 1};
       background-color: lightgrey;
@@ -536,10 +531,6 @@ css/* scss */ `
       width: 10000px;
       height: 1px;
       background-color: ${SELECTION_BORDER_COLOR};
-    }
-    .o-unhide-buttons {
-      height: fit-content;
-      transform: translate(0, -50%);
     }
     .o-unhide:hover {
       z-index: ${ComponentsImportance.Grid + 1};
