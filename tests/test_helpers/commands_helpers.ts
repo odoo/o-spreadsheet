@@ -181,8 +181,8 @@ export function createScorecardChart(
       keyValue: data.keyValue || "",
       baselineDescr: data.baselineDescr || "",
       baselineMode: data.baselineMode || "difference",
-      baselineColorDown: data.baselineColorDown || "#DC6965",
-      baselineColorUp: data.baselineColorUp || "#00A04A",
+      baselineColorDown: data.baselineColorDown || "#E06666",
+      baselineColorUp: data.baselineColorUp || "#6AA84F",
       background: data.background,
     },
   });

@@ -642,7 +642,7 @@ test("complete import, then export", () => {
     ],
     settings: { locale: DEFAULT_LOCALE },
     styles: {
-      1: { bold: true, textColor: "#3A3791", fontSize: 12 },
+      1: { bold: true, textColor: "#674EA7", fontSize: 12 },
     },
     formats: {
       1: "0.00%",

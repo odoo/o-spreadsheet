@@ -22,7 +22,7 @@ const testRuntime: GaugeChartRuntime = {
     { value: 25, label: "25" },
     { value: 75, label: "75" },
   ],
-  colors: ["#FF0000", "#FFA500", "#007000"],
+  colors: ["#FF0000", "#FF9900", "#007000"],
 };
 
 const testChartRect: Rect = {
@@ -94,7 +94,7 @@ describe("Gauge rendering config", () => {
     expect(config.gauge).toMatchObject({
       arcWidth: config.gauge.rect.width / 6,
       percentage: 0.5,
-      color: "#FFA500",
+      color: "#FF9900",
     });
   });
 

@@ -101,10 +101,10 @@ const simpleData = {
     2: "#,##0.00",
   },
   styles: {
-    1: { bold: true, textColor: "#3A3791", fontSize: 12 },
+    1: { bold: true, textColor: "#674EA7", fontSize: 12 },
     2: { italic: true },
     3: { strikethrough: true, align: "left" },
-    4: { fillColor: "#e3efd9" },
+    4: { fillColor: "#FFF2CC" },
     5: { underline: true },
     6: { verticalAlign: "top" },
     7: { verticalAlign: "middle" },
@@ -454,7 +454,7 @@ describe("Test XLSX export", () => {
     });
 
     test("Conditional formatting", async () => {
-      const style = { fillColor: "#90EE90" };
+      const style = { fillColor: "#B6D7A8" };
       const model = new Model({
         sheets: [
           {
@@ -624,7 +624,7 @@ describe("Test XLSX export", () => {
                   values: ["1"],
                   style: {
                     fillColor: "#90EE80",
-                    color: "#90EE90",
+                    color: "#B6D7A8",
                     bold: true,
                     italic: true,
                     strike: true,
@@ -670,7 +670,7 @@ describe("Test XLSX export", () => {
 
   describe("references with headers should be converted to references with fixed coordinates", () => {
     test("Conditional formatting and formula", async () => {
-      const style = { fillColor: "#90EE90" };
+      const style = { fillColor: "#B6D7A8" };
       const model = new Model({
         sheets: [
           {

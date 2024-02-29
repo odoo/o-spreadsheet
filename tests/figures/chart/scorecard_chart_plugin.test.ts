@@ -215,7 +215,7 @@ describe("datasource tests", function () {
     const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
     expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
       baselineArrow: "down",
-      baselineColor: "#DC6965",
+      baselineColor: "#E06666",
       baselineDisplay: "60%",
       keyValue: "40",
     });
@@ -232,7 +232,7 @@ describe("datasource tests", function () {
     const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
     expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
       baselineArrow: "up",
-      baselineColor: "#00A04A",
+      baselineColor: "#6AA84F",
       baselineDisplay: "40%",
       keyValue: "140",
     });
@@ -313,7 +313,7 @@ describe("datasource tests", function () {
     const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
     expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
       baselineArrow: "up",
-      baselineColor: "#00A04A",
+      baselineColor: "#6AA84F",
       baselineDisplay: "∞%",
     });
   });
@@ -358,8 +358,8 @@ describe("multiple sheets", () => {
                 title: "demo chart",
                 keyValue: "Sheet2!A1",
                 baselineMode: "difference",
-                baselineColorDown: "#DC6965",
-                baselineColorUp: "#00A04A",
+                baselineColorDown: "#E06666",
+                baselineColorUp: "#6AA84F",
               },
             },
           ],

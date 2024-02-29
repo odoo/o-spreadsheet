@@ -10137,7 +10137,7 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Conditional f
         <dxf>
             <fill>
                 <patternFill>
-                    <bgColor rgb="90EE90"/>
+                    <bgColor rgb="B6D7A8"/>
                 </patternFill>
             </fill>
         </dxf>
@@ -10881,7 +10881,7 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
         <font>
             <b/>
             <sz val="12"/>
-            <color rgb="3A3791"/>
+            <color rgb="674EA7"/>
             <name val="Arial"/>
         </font>
         <font>
@@ -10917,7 +10917,7 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
         </fill>
         <fill>
             <patternFill patternType="solid">
-                <fgColor rgb="E3EFD9"/>
+                <fgColor rgb="FFF2CC"/>
                 <bgColor indexed="64"/>
             </patternFill>
         </fill>
@@ -22057,7 +22057,7 @@ exports[`Test XLSX export references with headers should be converted to referen
         <dxf>
             <fill>
                 <patternFill>
-                    <bgColor rgb="90EE90"/>
+                    <bgColor rgb="B6D7A8"/>
                 </patternFill>
             </fill>
         </dxf>

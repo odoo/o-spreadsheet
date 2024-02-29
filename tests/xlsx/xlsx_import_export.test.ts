@@ -163,7 +163,7 @@ describe("Export data to xlsx then import it", () => {
       operator: "Equal" as const,
       type: "CellIsRule" as const,
       style: {
-        fillColor: "#FFA500",
+        fillColor: "#FF9900",
       },
     },
     {
