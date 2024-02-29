@@ -1,7 +1,7 @@
 import { getFullReference, toXC, toZone } from "../helpers/index";
 import { _t } from "../translation";
 import { AddFunctionDescription, FPayload, Matrix, Maybe } from "../types";
-import { NotAvailableError } from "../types/errors";
+import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
 import {
   assert,
@@ -22,12 +22,11 @@ const DEFAULT_MATCH_MODE = 0;
 const DEFAULT_SEARCH_MODE = 1;
 const DEFAULT_ABSOLUTE_RELATIVE_MODE = 1;
 
-function assertAvailable(variable, searchKey) {
-  if (variable === undefined) {
-    throw new NotAvailableError(
-      _t("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", toString(searchKey))
-    );
-  }
+function valueNotAvailable(searchKey: Maybe<FPayload>): FPayload {
+  return {
+    value: CellErrorType.NotAvailable,
+    message: _t("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", toString(searchKey)),
+  };
 }
 
 // -----------------------------------------------------------------------------
@@ -189,7 +188,9 @@ export const HLOOKUP = {
       ? dichotomicSearch(range, searchKey, "nextSmaller", "asc", range.length, getValueFromRange)
       : linearSearch(range, searchKey, "strict", range.length, getValueFromRange);
     const col = range[colIndex];
-    assertAvailable(col, searchKey?.value);
+    if (col === undefined) {
+      return valueNotAvailable(searchKey);
+    }
     return col[_index - 1];
   },
   isExported: true,
@@ -286,11 +287,13 @@ export const LOOKUP = {
       getElement
     );
 
-    if (index === -1) assertAvailable(undefined, searchKey?.value);
-
-    verticalSearch
-      ? assertAvailable(searchArray[0][index], searchKey?.value)
-      : assertAvailable(searchArray[index][nbRow - 1], searchKey?.value);
+    if (
+      index === -1 ||
+      (verticalSearch && searchArray[0][index] === undefined) ||
+      (!verticalSearch && searchArray[index][nbRow - 1] === undefined)
+    ) {
+      return valueNotAvailable(searchKey);
+    }
 
     if (resultRange === undefined) {
       return verticalSearch ? searchArray[nbCol - 1][index] : searchArray[index][nbRow - 1];
@@ -342,7 +345,7 @@ export const MATCH = {
     searchKey: Maybe<FPayload>,
     range: Matrix<FPayload>,
     searchType: Maybe<FPayload> = { value: DEFAULT_SEARCH_TYPE }
-  ): number {
+  ) {
     let _searchType = toNumber(searchType, this.locale);
     const nbCol = range.length;
     const nbRow = range[0].length;
@@ -372,9 +375,12 @@ export const MATCH = {
         index = dichotomicSearch(range, searchKey, "nextGreater", "desc", rangeLen, getElement);
         break;
     }
-
-    assertAvailable(nbCol === 1 ? range[0][index] : range[index], searchKey);
-
+    if (
+      (nbCol === 1 && range[0][index] === undefined) ||
+      (nbCol !== 1 && range[index] === undefined)
+    ) {
+      return valueNotAvailable(searchKey);
+    }
     return index + 1;
   },
   isExported: true,
@@ -474,7 +480,9 @@ export const VLOOKUP = {
       : linearSearch(range, searchKey, "strict", range[0].length, getValueFromRange);
 
     const value = range[_index - 1][rowIndex];
-    assertAvailable(value, searchKey);
+    if (value === undefined) {
+      return valueNotAvailable(searchKey);
+    }
     return value;
   },
   isExported: true,
@@ -523,7 +531,7 @@ export const XLOOKUP = {
     defaultValue: Maybe<FPayload>,
     matchMode: Maybe<FPayload> = { value: DEFAULT_MATCH_MODE },
     searchMode: Maybe<FPayload> = { value: DEFAULT_SEARCH_MODE }
-  ): Matrix<FPayload> {
+  ) {
     const _matchMode = Math.trunc(toNumber(matchMode.value, this.locale));
     const _searchMode = Math.trunc(toNumber(searchMode.value, this.locale));
 
@@ -578,9 +586,10 @@ export const XLOOKUP = {
         ? returnRange.map((col) => [col[index]])
         : [returnRange[index]];
     }
-
-    assertAvailable(defaultValue, searchKey);
-    return [[defaultValue!]];
+    if (defaultValue === undefined) {
+      return valueNotAvailable(searchKey);
+    }
+    return [[defaultValue]];
   },
   isExported: true,
 } satisfies AddFunctionDescription;
