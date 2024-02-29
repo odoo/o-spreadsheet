@@ -86,7 +86,7 @@
       <b/>
       <u/>
       <sz val="22"/>
-      <color rgb="FF3A3791"/>
+      <color rgb="FF674EA7"/>
       <name val="Arial"/>
       <family val="2"/>
     </font>
@@ -177,19 +177,19 @@
     </fill>
     <fill>
       <patternFill patternType="solid">
-        <fgColor rgb="FFE3EFD9"/>
+        <fgColor rgb="FFFFF2CC"/>
         <bgColor indexed="64"/>
       </patternFill>
     </fill>
     <fill>
       <patternFill patternType="solid">
-        <fgColor rgb="FFC5E0B3"/>
+        <fgColor rgb="FFD9EAD3"/>
         <bgColor indexed="64"/>
       </patternFill>
     </fill>
     <fill>
       <patternFill patternType="solid">
-        <fgColor rgb="FFA7D08C"/>
+        <fgColor rgb="FFB6D7A8"/>
         <bgColor indexed="64"/>
       </patternFill>
     </fill>
@@ -1443,21 +1443,21 @@
     <dxf>
       <fill>
         <patternFill>
-          <bgColor rgb="FFEE9090"/>
+          <bgColor rgb="FFE06666"/>
         </patternFill>
       </fill>
     </dxf>
     <dxf>
       <fill>
         <patternFill>
-          <bgColor rgb="FF90EE90"/>
+          <bgColor rgb="FFB6D7A8"/>
         </patternFill>
       </fill>
     </dxf>
     <dxf>
       <fill>
         <patternFill>
-          <bgColor rgb="FFFFA500"/>
+          <bgColor rgb="FFFF9900"/>
         </patternFill>
       </fill>
     </dxf>

@@ -1044,7 +1044,7 @@ describe("evaluateCells", () => {
     setCellContent(model, "A2", "=A1");
     expect(getEvaluatedCell(model, "A2").value).toBe(0);
     setStyle(model, "A1", {
-      fillColor: "#a7d08c",
+      fillColor: "#B6D7A8",
     });
     setCellContent(model, "A12", "this re-evaluates cells");
     expect(getCellContent(model, "A2")).toBe("0");

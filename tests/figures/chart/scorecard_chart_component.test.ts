@@ -167,8 +167,8 @@ describe("Scorecard charts computation", () => {
     const chartDesign = getChartDesign(model, chartId, sheetId);
 
     expect(chartDesign.baselineArrow?.direction).toBe("down");
-    expect(chartDesign.baselineArrow?.style.color).toBeSameColorAs("#DC6965");
-    expect(chartDesign.baseline?.style.color).toBeSameColorAs("#DC6965");
+    expect(chartDesign.baselineArrow?.style.color).toBeSameColorAs("#E06666");
+    expect(chartDesign.baseline?.style.color).toBeSameColorAs("#E06666");
     expect(chartDesign.baseline?.text).toEqual("1");
   });
 
@@ -177,8 +177,8 @@ describe("Scorecard charts computation", () => {
     const chartDesign = getChartDesign(model, chartId, sheetId);
 
     expect(chartDesign.baselineArrow?.direction).toBe("up");
-    expect(chartDesign.baselineArrow?.style.color).toBeSameColorAs("#00A04A");
-    expect(chartDesign.baseline?.style.color).toBeSameColorAs("#00A04A");
+    expect(chartDesign.baselineArrow?.style.color).toBeSameColorAs("#6AA84F");
+    expect(chartDesign.baseline?.style.color).toBeSameColorAs("#6AA84F");
     expect(chartDesign.baseline?.text).toEqual("1");
   });
 
@@ -443,13 +443,13 @@ describe("Scorecard charts rendering", () => {
   test("Key < baseline display in red with down arrow", () => {
     createScorecardChart(model, { keyValue: "A1", baseline: "B3" }, chartId);
     renderScorecardChart(model, chartId, sheetId, canvas);
-    expect(scorecardChartStyle.baseline.color).toBeSameColorAs("#DC6965");
+    expect(scorecardChartStyle.baseline.color).toBeSameColorAs("#E06666");
   });
 
   test("Key > baseline display in green with up arrow", () => {
     createScorecardChart(model, { keyValue: "A1", baseline: "B1" }, chartId);
     renderScorecardChart(model, chartId, sheetId, canvas);
-    expect(scorecardChartStyle.baseline.color).toBeSameColorAs("#00A04A");
+    expect(scorecardChartStyle.baseline.color).toBeSameColorAs("#6AA84F");
   });
 
   test("Key = baseline display default font color with no arrow", () => {

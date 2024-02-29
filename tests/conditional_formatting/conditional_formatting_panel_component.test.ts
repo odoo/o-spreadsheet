@@ -1,7 +1,7 @@
 import { Component, onMounted, onWillUnmount, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { ConditionalFormattingPanel } from "../../src/components/side_panel/conditional_formatting/conditional_formatting";
-import { toZone } from "../../src/helpers";
+import { toHex, toZone } from "../../src/helpers";
 import { ConditionalFormatPlugin } from "../../src/plugins/core/conditional_format";
 import { CellIsRule, CommandResult, SpreadsheetChildEnv, UID } from "../../src/types";
 import {
@@ -282,7 +282,7 @@ describe("UI of conditional formats", () => {
         cf: createEqualCF(
           "2",
           {
-            fillColor: "#FFA500",
+            fillColor: "#FF9900",
             textColor: "#ffff00",
             italic: true,
             bold: true,
@@ -301,8 +301,8 @@ describe("UI of conditional formats", () => {
       const previewLine = document.querySelector(".o-cf-preview-line")! as HTMLDivElement;
       const style = window.getComputedStyle(previewLine);
       expect(previewLine.textContent).toBe("Preview text");
-      expect(style.color).toBe("rgb(255, 255, 0)");
-      expect(style.backgroundColor).toBe("rgb(255, 165, 0)");
+      expect(toHex(style.color)).toBe("#FFFF00");
+      expect(toHex(style.backgroundColor)).toBe("#FF9900");
       expect(style.fontWeight).toBe("bold");
       expect(style.fontStyle).toBe("italic");
       expect(style.textDecoration).toBe("line-through");
