@@ -35,7 +35,7 @@ export interface ComputedTableStyle {
   styles: Style[][];
 }
 
-interface TableElementStyle {
+export interface TableElementStyle {
   border?: TableBorder;
   style?: Style;
   size?: number;

@@ -1,8 +1,10 @@
 import { Model } from "../../src";
-import { UID } from "../../src/types";
+import { TABLE_PRESETS } from "../../src/helpers/table_presets";
+import { TableStyle, UID } from "../../src/types";
 import {
   createChart,
   createScorecardChart,
+  createTable,
   redo,
   setStyle,
   undo,
@@ -184,10 +186,46 @@ describe("custom colors are correctly handled when editing charts", () => {
     );
     expect(model.getters.getCustomColors()).toEqual(["#123456"]);
   });
+
+  test("custom colors from model imported data", () => {
+    setStyle(model, "A1", { fillColor: "#123456" });
+    const importedModel = new Model(model.exportData());
+    expect(importedModel.getters.getCustomColors()).toEqual(["#123456"]);
+  });
 });
 
 test("custom colors from config", () => {
   const data = {};
   const model = new Model(data, { customColors: ["#875A7B", "not a valid color"] });
   expect(model.getters.getCustomColors()).toEqual(["#875A7B"]);
+});
+
+describe("Custom colors with table styles", () => {
+  let model: Model;
+  const customStyle: TableStyle = {
+    wholeTable: { border: { bottom: { color: "#123456", style: "thin" } } },
+    firstColumn: { style: { fillColor: "#234567" } },
+    totalRow: { style: { textColor: "#345678" } },
+    category: "dark",
+    colorName: "customColor",
+  };
+
+  beforeEach(() => {
+    model = new Model();
+    TABLE_PRESETS["customStyle"] = customStyle;
+  });
+
+  afterEach(() => {
+    delete TABLE_PRESETS["customStyle"];
+  });
+
+  test("Custom colors are added from table styles", () => {
+    createTable(model, "A1:B2", { styleId: "customStyle", totalRow: true, firstColumn: true });
+    expect(model.getters.getCustomColors()).toEqual(["#345678", "#234567", "#123456"]);
+  });
+
+  test("Table elements that are not displayed are not added to custom colors", () => {
+    createTable(model, "A1:B2", { styleId: "customStyle", totalRow: false, firstColumn: false });
+    expect(model.getters.getCustomColors()).toEqual(["#123456"]);
+  });
 });

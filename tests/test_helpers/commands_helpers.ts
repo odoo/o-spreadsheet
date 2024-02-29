@@ -1,4 +1,5 @@
 import { isInside, lettersToNumber, toCartesian, toZone } from "../../src/helpers/index";
+import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { Model } from "../../src/model";
 import {
   AnchorZone,
@@ -890,14 +891,14 @@ export function unfreezeColumns(model: Model, sheetId: UID = model.getters.getAc
 export function createTable(
   model: Model,
   range: string,
-  config?: TableConfig,
+  config?: Partial<TableConfig>,
   sheetId: UID = model.getters.getActiveSheetId()
 ): DispatchResult {
   model.selection.selectTableAroundSelection();
   return model.dispatch("CREATE_TABLE", {
     sheetId,
     ranges: toRangesData(sheetId, range),
-    config,
+    config: { ...DEFAULT_TABLE_CONFIG, ...config },
   });
 }
 
