@@ -42,25 +42,22 @@
         t-as="hiddenItem"
         t-key="hiddenItem_index">
         <div
-          class="o-unhide-buttons position-relative float-end"
+          class="position-absolute end-0 translate-middle-y"
           t-att-style="getUnhideButtonStyle(hiddenItem[0])">
-          <t t-if="!hiddenItem.includes(0)">
-            <div
-              class="o-unhide rounded mb-1"
-              t-att-data-index="hiddenItem_index"
-              t-on-click="() => this.unhide(hiddenItem)">
-              <t t-call="o-spreadsheet-Icon.TRIANGLE_UP"/>
-            </div>
-          </t>
-          <t
-            t-if="!hiddenItem.includes(env.model.getters.getNumberRows(env.model.getters.getActiveSheetId())-1)">
-            <div
-              class="o-unhide rounded"
-              t-att-data-index="hiddenItem_index"
-              t-on-click="() => this.unhide(hiddenItem)">
-              <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
-            </div>
-          </t>
+          <div
+            class="o-unhide rounded mb-1"
+            t-att-class="{'invisible': hiddenItem.includes(0)}"
+            t-att-data-index="hiddenItem_index"
+            t-on-click="() => this.unhide(hiddenItem)">
+            <t t-call="o-spreadsheet-Icon.TRIANGLE_UP"/>
+          </div>
+          <div
+            class="o-unhide rounded"
+            t-att-class="{'invisible': hiddenItem.includes(env.model.getters.getNumberRows(env.model.getters.getActiveSheetId())-1)}"
+            t-att-data-index="hiddenItem_index"
+            t-on-click="() => this.unhide(hiddenItem)">
+            <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
+          </div>
         </div>
       </t>
     </div>
@@ -101,25 +98,22 @@
         t-as="hiddenItem"
         t-key="hiddenItem_index">
         <div
-          class="o-unhide-buttons position-relative h-100 d-flex align-items-center"
+          class="position-absolute h-100 d-flex align-items-center translate-middle-x gap-2"
           t-att-style="getUnhideButtonStyle(hiddenItem[0])">
-          <t t-if="!hiddenItem.includes(0)">
-            <div
-              class="o-unhide rounded"
-              t-att-data-index="hiddenItem_index"
-              t-on-click="() => this.unhide(hiddenItem)">
-              <t t-call="o-spreadsheet-Icon.TRIANGLE_LEFT"/>
-            </div>
-          </t>
-          <t
-            t-if="!hiddenItem.includes(env.model.getters.getNumberCols(env.model.getters.getActiveSheetId())-1)">
-            <div
-              class="o-unhide rounded"
-              t-att-data-index="hiddenItem_index"
-              t-on-click="() => this.unhide(hiddenItem)">
-              <t t-call="o-spreadsheet-Icon.TRIANGLE_RIGHT"/>
-            </div>
-          </t>
+          <div
+            class="o-unhide rounded"
+            t-att-class="{'invisible': hiddenItem.includes(0)}"
+            t-att-data-index="hiddenItem_index"
+            t-on-click="() => this.unhide(hiddenItem)">
+            <t t-call="o-spreadsheet-Icon.TRIANGLE_LEFT"/>
+          </div>
+          <div
+            class="o-unhide rounded"
+            t-att-class="{'invisible': hiddenItem.includes(env.model.getters.getNumberCols(env.model.getters.getActiveSheetId())-1)}"
+            t-att-data-index="hiddenItem_index"
+            t-on-click="() => this.unhide(hiddenItem)">
+            <t t-call="o-spreadsheet-Icon.TRIANGLE_RIGHT"/>
+          </div>
         </div>
       </t>
     </div>
