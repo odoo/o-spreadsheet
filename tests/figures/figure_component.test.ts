@@ -276,6 +276,29 @@ describe("figures", () => {
     }
   );
 
+  test.each([
+    ["right", { mouseOffsetX: 300, mouseOffsetY: 0 }],
+    ["bottom", { mouseOffsetX: 0, mouseOffsetY: 300 }],
+    ["bottomRight", { mouseOffsetX: 300, mouseOffsetY: 300 }],
+  ])(
+    "Resizing a figure does not crop it to its visible part in the viewport",
+    async (anchor: string, mouseMove: { mouseOffsetX: number; mouseOffsetY: number }) => {
+      const figureId = "someuuid";
+      const figure = { width: 200, height: 200 };
+      createFigure(model, { id: figureId, y: 0, x: 0, ...figure });
+      await nextTick();
+      setViewportOffset(model, 100, 100);
+      await simulateClick(".o-figure");
+      await dragAnchor(anchor, mouseMove.mouseOffsetX, mouseMove.mouseOffsetY, true);
+      const updatedFigure = {
+        ...figure,
+        width: figure.width + mouseMove.mouseOffsetX,
+        height: figure.height + mouseMove.mouseOffsetY,
+      };
+      expect(model.getters.getFigure(sheetId, figureId)).toMatchObject(updatedFigure);
+    }
+  );
+
   describe("Move a figure with drag & drop ", () => {
     test("Can move a figure with drag & drop", async () => {
       createFigure(model, { id: "someuuid", x: 200, y: 100 });
