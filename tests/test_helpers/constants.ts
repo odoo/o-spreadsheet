@@ -218,7 +218,7 @@ export const TEST_COMMANDS: CommandMapping = {
     type: "CREATE_IMAGE",
     position: { x: 0, y: 0 },
     size: { width: 200, height: 200 },
-    definition: { path: "/image/1", size: { width: 200, height: 200 } },
+    definition: { src: "/image/1", size: { width: 200, height: 200 } },
     sheetId: "sheetId",
     figureId: "figureId",
   },

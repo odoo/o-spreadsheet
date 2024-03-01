@@ -116,7 +116,7 @@ export function createImage(
     position: { x: 0, y: 0 },
     ...partialParam,
     definition: {
-      path: "image path",
+      src: "image path",
       mimetype: "image/jpeg",
       ...partialParam.definition,
     },

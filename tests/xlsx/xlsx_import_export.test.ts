@@ -312,7 +312,7 @@ describe("Export data to xlsx then import it", () => {
 
     const newFigure = importedModel.getters.getFigures(sheetId)[0];
     const newImage = importedModel.getters.getImage(newFigure.id);
-    expect(newImage.path).toEqual(imageDefinition.path);
+    expect(newImage.src).toEqual(imageDefinition.src);
     expect(newFigure.width).toBe(300);
     expect(newFigure.height).toBe(400);
   });

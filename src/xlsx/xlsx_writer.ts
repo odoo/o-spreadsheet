@@ -161,7 +161,7 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
       drawingRelIds.push(imageRelId);
       files.push({
         path: `xl/media/${imageFileName}`,
-        imageSrc: image.data.path,
+        imageSrc: image.data.src,
       });
     }
 

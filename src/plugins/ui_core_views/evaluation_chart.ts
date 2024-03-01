@@ -122,7 +122,7 @@ export class EvaluationChartPlugin extends UIPlugin<EvaluationChartState> {
               tag: "image",
               data: {
                 mimetype: "image/png",
-                path: img,
+                src: img,
                 size: { width: figure.width, height: figure.height },
               },
             });

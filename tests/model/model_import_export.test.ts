@@ -457,6 +457,39 @@ describe("Migrations", () => {
     expect(data.version).toBe(CURRENT_VERSION);
     expect(data.sheets[0].tables).toEqual([{ range: "A1:B2", type: "static" }]);
   });
+
+  test("migrate version 16: image path renamed to src", () => {
+    const model = new Model({
+      version: 15,
+      sheets: [
+        {
+          id: "someuuid",
+          figures: [
+            {
+              id: "image-uuid",
+              x: 100,
+              y: 100,
+              width: 100,
+              height: 100,
+              tag: "image",
+              data: {
+                path: "/web/image/313",
+                size: {
+                  width: 100,
+                  height: 100,
+                },
+                mimetype: "image/png",
+              },
+            },
+          ],
+        },
+      ],
+    });
+    expect(model.getters.getImage("image-uuid").src).toBe("/web/image/313");
+    // @ts-expect-error
+    expect(model.getters.getImage("image-uuid").path).toBeUndefined();
+    expect(model.exportData().version).toBe(CURRENT_VERSION);
+  });
 });
 
 describe("Import", () => {

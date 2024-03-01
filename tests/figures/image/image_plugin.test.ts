@@ -10,7 +10,7 @@ describe("image plugin", function () {
     const imageId = "Image1";
     const definition = {
       sheetId,
-      path: "image path",
+      src: "image path",
       size: { width: 100, height: 100 },
       mimetype: "image/jpeg",
     };
@@ -44,7 +44,7 @@ describe("image plugin", function () {
     const imageId = "Image1";
     const definition = {
       sheetId,
-      path: "image path",
+      src: "image path",
       size: { width: 100, height: 100 },
       mimetype: "image/jpeg",
     };
@@ -65,7 +65,7 @@ describe("image plugin", function () {
     const imageId = "Image1";
     const definition = {
       sheetId,
-      path: "image path",
+      src: "image path",
       size: { width: 100, height: 100 },
       mimetype: "image/jpeg",
     };

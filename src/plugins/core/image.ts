@@ -20,13 +20,13 @@ interface ImageState {
 }
 
 export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
-  static getters = ["getImage", "getImagePath", "getImageSize"] as const;
+  static getters = ["getImage", "getImageSrc", "getImageSize"] as const;
   readonly fileStore?: FileStore;
   readonly images: Record<UID, Record<UID, Image | undefined> | undefined> = {};
   /**
-   * paths of images synced with the file store server.
+   * sources of images synced with the file store server.
    */
-  readonly syncedImages: Set<Image["path"]> = new Set();
+  readonly syncedImages: Set<Image["src"]> = new Set();
 
   constructor(config: CorePluginConfig) {
     super(config);
@@ -54,7 +54,7 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
       case "CREATE_IMAGE":
         this.addImage(cmd.figureId, cmd.sheetId, cmd.position, cmd.size);
         this.history.update("images", cmd.sheetId, cmd.figureId, cmd.definition);
-        this.syncedImages.add(cmd.definition.path);
+        this.syncedImages.add(cmd.definition.src);
         break;
       case "DUPLICATE_SHEET": {
         const sheetFiguresFrom = this.getters.getFigures(cmd.sheetId);
@@ -90,10 +90,10 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
    * Delete unused images from the file store
    */
   garbageCollectExternalResources() {
-    const images = new Set(this.getAllImages().map((image) => image.path));
-    for (const path of this.syncedImages) {
-      if (!images.has(path)) {
-        this.fileStore?.delete(path);
+    const images = new Set(this.getAllImages().map((image) => image.src));
+    for (const src of this.syncedImages) {
+      if (!images.has(src)) {
+        this.fileStore?.delete(src);
       }
     }
   }
@@ -111,8 +111,8 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
     throw new Error(`There is no image with the given figureId: ${figureId}`);
   }
 
-  getImagePath(figureId: UID): string {
-    return this.getImage(figureId).path;
+  getImageSrc(figureId: UID): string {
+    return this.getImage(figureId).src;
   }
 
   getImageSize(figureId: UID): FigureSize {
@@ -140,7 +140,7 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
       const images = (sheet.figures || []).filter((figure) => figure.tag === "image");
       for (const image of images) {
         this.history.update("images", sheet.id, image.id, image.data);
-        this.syncedImages.add(image.data.path);
+        this.syncedImages.add(image.data.src);
       }
     }
   }

@@ -10,7 +10,7 @@ export interface FileStore {
   /**
    * Upload a file to a server and returns its path.
    */
-  upload(file: File): Promise<{ metaData: ImageMetadata; path: string }>;
+  upload(file: File): Promise<{ metaData: ImageMetadata; src: string }>;
 
   /**
    * Delete a file from the server

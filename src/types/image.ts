@@ -2,7 +2,7 @@ import { FigureSize } from "./figure";
 import { XLSXFigureSize } from "./xlsx";
 
 export interface Image {
-  path: string;
+  src: string;
   size: FigureSize;
   mimetype?: string;
   /**

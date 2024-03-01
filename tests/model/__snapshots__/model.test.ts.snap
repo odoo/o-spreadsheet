@@ -51,6 +51,6 @@ exports[`Model export formula with unbound zone stays unbound 1`] = `
   ],
   "styles": {},
   "uniqueFigureIds": true,
-  "version": 15,
+  "version": 16,
 }
 `;

@@ -76,7 +76,7 @@ function getImageMenuRegistry(
       name: _t("Reset size"),
       sequence: 4,
       execute: async () => {
-        const imagePath = env.model.getters.getImagePath(figureId);
+        const imagePath = env.model.getters.getImageSrc(figureId);
         const size =
           env.model.getters.getImageSize(figureId) ??
           (await env.imageProvider?.getImageOriginalSize(imagePath));
