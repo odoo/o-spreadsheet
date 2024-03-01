@@ -627,6 +627,28 @@ describe("Autofill", () => {
     expect(getCell(model, "A4")?.content).toBe(undefined);
   });
 
+  test("Auto-autofill stops at non empty cell", () => {
+    // On standard range
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "2");
+    setCellContent(model, "A3", "3");
+    setCellContent(model, "B1", "=A1");
+    setCellContent(model, "B3", "Text not overwritten");
+    setSelection(model, ["B1"]);
+    model.dispatch("AUTOFILL_AUTO");
+    expect(getCell(model, "B2")?.content).toBe("=A2");
+    expect(getCell(model, "B3")?.content).toBe("Text not overwritten");
+
+    // On a table
+    createTable(model, "C1:C3");
+    setCellContent(model, "C1", "=D1");
+    setCellContent(model, "C3", "Text not overwritten");
+    setSelection(model, ["C1"]);
+    model.dispatch("AUTOFILL_AUTO");
+    expect(getCell(model, "C2")?.content).toBe("=D2");
+    expect(getCell(model, "C3")?.content).toBe("Text not overwritten");
+  });
+
   test("autofill with merge in selection", () => {
     merge(model, "A1:A2");
     setCellContent(model, "A1", "1");

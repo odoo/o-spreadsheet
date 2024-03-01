@@ -5,6 +5,7 @@ import {
   AutofillModifier,
   AutofillResult,
   Cell,
+  CellValueType,
   Command,
   CommandResult,
   DIRECTION,
@@ -272,11 +273,19 @@ export class AutofillPlugin extends UIPlugin {
     const activePosition = this.getters.getActivePosition();
 
     const table = this.getters.getTable(activePosition);
-    const row = table ? table.range.zone.bottom : this.getAutofillAutoLastRow();
+    let autofillRow = table ? table.range.zone.bottom : this.getAutofillAutoLastRow();
 
+    // Stop autofill at the next non-empty cell
     const selection = this.getters.getSelectedZone();
-    if (row !== selection.bottom) {
-      this.select(activePosition.col, row);
+    for (let row = selection.bottom + 1; row <= autofillRow; row++) {
+      if (this.getters.getEvaluatedCell({ ...activePosition, row }).type !== CellValueType.empty) {
+        autofillRow = row - 1;
+        break;
+      }
+    }
+
+    if (autofillRow > selection.bottom) {
+      this.select(activePosition.col, autofillRow);
       this.autofill(true);
     }
   }
