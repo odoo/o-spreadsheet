@@ -1,5 +1,5 @@
 import { FigureSize } from "./figure";
-import { Image } from "./image";
+import { Image, ImageMetadata } from "./image";
 
 type FilePath = string;
 
@@ -10,7 +10,7 @@ export interface FileStore {
   /**
    * Upload a file to a server and returns its path.
    */
-  upload(file: File): Promise<FilePath>;
+  upload(file: File): Promise<{ metaData: ImageMetadata; path: string }>;
 
   /**
    * Delete a file from the server

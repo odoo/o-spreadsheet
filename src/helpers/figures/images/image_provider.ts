@@ -11,9 +11,9 @@ export class ImageProvider implements ImageProviderInterface {
 
   async requestImage(): Promise<Image> {
     const file = await this.getImageFromUser();
-    const path = await this.fileStore.upload(file);
+    const { path, metaData } = await this.fileStore.upload(file);
     const size = await this.getImageOriginalSize(path);
-    return { path, size, mimetype: file.type };
+    return { path, size, mimetype: file.type, metaData };
   }
 
   private getImageFromUser(): Promise<File> {

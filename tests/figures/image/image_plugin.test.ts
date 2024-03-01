@@ -18,6 +18,16 @@ describe("image plugin", function () {
     expect(model.getters.getImage(imageId)).toEqual(definition);
   });
 
+  test("create image with meta data", () => {
+    const model = new Model();
+    const imageId = "Image1";
+    const partialDefinition = {
+      metaData: { storageId: 4 },
+    };
+    createImage(model, { figureId: imageId, definition: partialDefinition });
+    expect(model.getters.getImage(imageId).metaData).toEqual({ storageId: 4 });
+  });
+
   test("delete image", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
@@ -165,6 +175,24 @@ describe("test image import & export", function () {
     expect(newModel.getters.getFigure(sheetId, imageId)).toEqual(
       model.getters.getFigure(sheetId, imageId)
     );
+  });
+
+  test("import/export meta data", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    const imageId = "Image1";
+    const partialDefinition = {
+      metaData: { storageId: 4 },
+    };
+    createImage(model, {
+      sheetId,
+      figureId: imageId,
+      definition: partialDefinition,
+    });
+    const data = model.exportData();
+    const sheet = data.sheets.find((s) => s.id === sheetId);
+    expect(sheet?.figures[0].data.metaData).toEqual({ storageId: 4 });
+    expect(new Model(data).getters.getImage(imageId).metaData).toEqual({ storageId: 4 });
   });
 });
 
