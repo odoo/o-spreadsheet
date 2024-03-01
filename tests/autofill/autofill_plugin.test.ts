@@ -1,13 +1,12 @@
-import { Model } from "../../src";
-import { functionRegistry } from "../../src/functions";
+import "../test_helpers/helpers";
+
 import { buildSheetLink, toCartesian, toZone } from "../../src/helpers";
-import { AutofillPlugin } from "../../src/plugins/ui_feature/autofill";
 import { Border, ConditionalFormat, Style } from "../../src/types";
-import { DIRECTION } from "../../src/types/index";
 import {
   addDataValidation,
   createSheet,
   createSheetWithName,
+  createTable,
   deleteColumns,
   deleteRows,
   merge,
@@ -22,8 +21,7 @@ import {
   getCellText,
   getMerges,
   getStyle,
-} from "../test_helpers/getters_helpers"; // to have getcontext mocks
-import "../test_helpers/helpers";
+} from "../test_helpers/getters_helpers";
 import {
   XCToMergeCellMap,
   getDataValidationRules,
@@ -32,6 +30,11 @@ import {
   makeTestComposerStore,
   toRangesData,
 } from "../test_helpers/helpers";
+
+import { Model } from "../../src";
+import { functionRegistry } from "../../src/functions";
+import { AutofillPlugin } from "../../src/plugins/ui_feature/autofill";
+import { DIRECTION } from "../../src/types/index";
 
 let autoFill: AutofillPlugin;
 let model: Model;
@@ -613,6 +616,15 @@ describe("Autofill", () => {
     expect(getCellContent(model, "C2")).toBe("2");
     expect(getCellContent(model, "C3")).toBe("2");
     expect(getCell(model, "C4")).toBeUndefined();
+  });
+
+  test("Auto-autofill in a table fill until the end of the table", () => {
+    createTable(model, "A1:B3");
+    setCellContent(model, "A1", "=C1");
+    model.dispatch("AUTOFILL_AUTO");
+    expect(getCell(model, "A2")?.content).toBe("=C2");
+    expect(getCell(model, "A3")?.content).toBe("=C3");
+    expect(getCell(model, "A4")?.content).toBe(undefined);
   });
 
   test("autofill with merge in selection", () => {

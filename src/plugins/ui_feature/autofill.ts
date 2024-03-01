@@ -16,6 +16,7 @@ import {
   Tooltip,
   Zone,
 } from "../../types/index";
+
 import { UIPlugin } from "../ui_plugin";
 
 /**
@@ -268,10 +269,24 @@ export class AutofillPlugin extends UIPlugin {
    * autofiller
    */
   private autofillAuto() {
+    const activePosition = this.getters.getActivePosition();
+
+    const table = this.getters.getTable(activePosition);
+    const row = table ? table.range.zone.bottom : this.getAutofillAutoLastRow();
+
+    const selection = this.getters.getSelectedZone();
+    if (row !== selection.bottom) {
+      this.select(activePosition.col, row);
+      this.autofill(true);
+    }
+  }
+
+  private getAutofillAutoLastRow() {
     const zone = this.getters.getSelectedZone();
     const sheetId = this.getters.getActiveSheetId();
     let col: HeaderIndex = zone.left;
     let row: HeaderIndex = zone.bottom;
+
     if (col > 0) {
       let leftPosition = { sheetId, col: col - 1, row };
       while (
@@ -295,10 +310,7 @@ export class AutofillPlugin extends UIPlugin {
         }
       }
     }
-    if (row !== zone.bottom) {
-      this.select(zone.left, row - 1);
-      this.autofill(true);
-    }
+    return row - 1;
   }
 
   /**
