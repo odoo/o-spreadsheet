@@ -28,7 +28,8 @@ export function dragFigureForResize(
   { x: mouseX, y: mouseY }: PixelPosition,
   { x: mouseInitialX, y: mouseInitialY }: PixelPosition,
   keepRatio: boolean,
-  minFigSize: number
+  minFigSize: number,
+  { scrollX, scrollY }: SheetScrollInfo
 ): Figure {
   let { x, y, width, height } = initialFigure;
 
@@ -58,14 +59,14 @@ export function dragFigureForResize(
     }
   }
 
-  // Restrict resizing if x or y reaches header boundaries
-  if (x < 0) {
-    width += x;
-    x = 0;
+  // Adjusts figure dimensions to ensure it remains within header boundaries and viewport during resizing.
+  if (x + scrollX <= 0) {
+    width = width + x + scrollX;
+    x = -scrollX;
   }
-  if (y < 0) {
-    height += y;
-    y = 0;
+  if (y + scrollY <= 0) {
+    height = height + y + scrollY;
+    y = -scrollY;
   }
 
   return { ...initialFigure, x, y, width, height };
