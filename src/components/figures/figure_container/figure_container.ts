@@ -264,6 +264,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
     const initialX = ev.clientX;
     const initialY = ev.clientY;
 
+    const { scrollX, scrollY } = this.env.model.getters.getActiveSheetScrollInfo();
     const { x: dndInitialX, y: dndInitialY } = this.internalToScreenCoordinates(figure);
     this.dnd.x = dndInitialX;
     this.dnd.y = dndInitialY;
@@ -284,13 +285,14 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
         this.dnd.y = dndInitialY - deltaY;
       }
 
-      if (this.dnd.x < 0) {
-        this.dnd.width += this.dnd.x;
-        this.dnd.x = 0;
+      // Adjusts figure dimensions to ensure it remains within header boundaries and viewport during resizing.
+      if (this.dnd.x + scrollX <= 0) {
+        this.dnd.width = this.dnd.width + this.dnd.x + scrollX;
+        this.dnd.x = -scrollX;
       }
-      if (this.dnd.y < 0) {
-        this.dnd.height += this.dnd.y;
-        this.dnd.y = 0;
+      if (this.dnd.y + scrollY <= 0) {
+        this.dnd.height = this.dnd.height + this.dnd.y + scrollY;
+        this.dnd.y = -scrollY;
       }
     };
 
