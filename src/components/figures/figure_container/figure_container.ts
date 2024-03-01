@@ -338,7 +338,8 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
         currentMousePosition,
         initialMousePosition,
         keepRatio,
-        minFigSize
+        minFigSize,
+        this.env.model.getters.getActiveSheetScrollInfo()
       );
 
       const otherFigures = this.getOtherFigures(figure.id);
