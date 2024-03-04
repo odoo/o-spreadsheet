@@ -76,6 +76,12 @@
           onSelectionConfirmed.bind="this.onRangeConfirmed"
         />
         <ValidationMessages messages="errorMessages" msgType="'error'"/>
+        <Checkbox
+          label="getCheckboxLabel('automaticAutofill')"
+          name="'automaticAutofill'"
+          value="tableConfig.automaticAutofill"
+          onChange="(val) => this.updateTableConfig('automaticAutofill', val)"
+        />
       </Section>
       <div class="o-sidePanelButtons">
         <button t-on-click="deleteTable" class="o-table-delete o-button">Delete table</button>

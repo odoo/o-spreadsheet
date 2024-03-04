@@ -27,6 +27,8 @@ export interface TableConfig {
   bandedRows: boolean;
   bandedColumns: boolean;
 
+  automaticAutofill?: boolean;
+
   styleId: string;
 }
 

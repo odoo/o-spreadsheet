@@ -17,6 +17,13 @@ const TABLE_ELEMENTS_BY_PRIORITY: TableElement[] = [
   "totalRow",
 ];
 
+/** Return the content zone of the table, ie. the table zone without the headers */
+export function getTableContentZone(tableZone: Zone, tableConfig: TableConfig): Zone | undefined {
+  const numberOfHeaders = tableConfig.numberOfHeaders;
+  const contentZone = { ...tableZone, top: tableZone.top + numberOfHeaders };
+  return contentZone.top <= contentZone.bottom ? contentZone : undefined;
+}
+
 export function getComputedTableStyle(
   tableConfig: TableConfig,
   numberOfCols: number,

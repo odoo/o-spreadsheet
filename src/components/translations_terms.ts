@@ -149,6 +149,7 @@ export const TableTerms = {
     firstColumn: _t("First column"),
     lastColumn: _t("Last column"),
     bandedColumns: _t("Banded columns"),
+    automaticAutofill: _t("Automatically autofill formulas"),
     totalRow: _t("Total row"),
   },
   Tooltips: {

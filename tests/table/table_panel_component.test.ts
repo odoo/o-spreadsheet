@@ -46,16 +46,21 @@ describe("Table side panel", () => {
     await nextTick();
   });
 
-  test.each(["hasFilters", "totalRow", "firstColumn", "lastColumn", "bandedRows", "bandedColumns"])(
-    "Can change table config boolean option %s",
-    (configOption) => {
-      const value = getTable(model, sheetId).config[configOption];
-      const checkbox = fixture.querySelector(`input[name="${configOption}"]`) as HTMLInputElement;
-      expect(checkbox.checked).toBe(value);
-      click(checkbox);
-      expect(getTable(model, sheetId).config[configOption]).toBe(!value);
-    }
-  );
+  test.each([
+    "hasFilters",
+    "totalRow",
+    "firstColumn",
+    "lastColumn",
+    "bandedRows",
+    "bandedColumns",
+    "automaticAutofill",
+  ])("Can change table config boolean option %s", (configOption) => {
+    const value = getTable(model, sheetId).config[configOption];
+    const checkbox = fixture.querySelector(`input[name="${configOption}"]`) as HTMLInputElement;
+    expect(checkbox.checked).toBe(value);
+    click(checkbox);
+    expect(getTable(model, sheetId).config[configOption]).toBe(!value);
+  });
 
   test("Cannot add filters to a table without headers", async () => {
     updateTableConfig(model, "A1:C4", { numberOfHeaders: 0 });
