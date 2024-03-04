@@ -153,6 +153,12 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
         this.pasteTableCell(sheetId, tableCell, position, clipboardOptions);
       }
     }
+
+    if (tableCells.length === 1) {
+      for (let c = 0; c < tableCells[0].length; c++) {
+        this.dispatch("AUTOFILL_TABLE_COLUMN", { col: col + c, row, sheetId });
+      }
+    }
   }
 
   private pasteTableCell(

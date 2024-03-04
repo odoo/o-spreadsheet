@@ -493,6 +493,10 @@ export interface UpdateTableCommand {
   config?: Partial<TableConfig>;
 }
 
+export interface AutofillTableCommand extends PositionDependentCommand {
+  type: "AUTOFILL_TABLE_COLUMN";
+}
+
 export interface UpdateFilterCommand extends PositionDependentCommand {
   type: "UPDATE_FILTER";
   hiddenValues: string[];
@@ -962,6 +966,7 @@ export type LocalCommand =
   | StartCommand
   | AutofillCommand
   | AutofillSelectCommand
+  | AutofillTableCommand
   | ShowFormulaCommand
   | AutofillAutoCommand
   | SelectFigureCommand

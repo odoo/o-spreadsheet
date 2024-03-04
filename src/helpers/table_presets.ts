@@ -20,6 +20,9 @@ export const DEFAULT_TABLE_CONFIG: TableConfig = {
 
   bandedRows: true,
   bandedColumns: false,
+
+  automaticAutofill: true,
+
   styleId: "TableStyleMedium2",
 };
 

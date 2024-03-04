@@ -453,6 +453,7 @@ export class ComposerStore extends SpreadsheetStore {
           row,
         });
       }
+      this.model.dispatch("AUTOFILL_TABLE_COLUMN", { col, row, sheetId: this.sheetId });
       this.setContent("");
     }
   }

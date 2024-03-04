@@ -12,6 +12,7 @@ import {
   zoneToDimension,
   zoneToXc,
 } from "../../helpers";
+import { getTableContentZone } from "../../helpers/table_helpers";
 import { DEFAULT_TABLE_CONFIG, TABLE_PRESETS } from "../../helpers/table_presets";
 import {
   ApplyRangeChange,
@@ -428,13 +429,15 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
     if (zone.left !== zone.right) {
       throw new Error("Can only define a filter on a single column");
     }
-    const filteredZone = { ...zone, top: zone.top + config.numberOfHeaders };
-    const filteredRange = this.getters.getRangeFromZone(range.sheetId, filteredZone);
+    const contentZone = getTableContentZone(zone, config);
+    const filteredRange = contentZone
+      ? this.getters.getRangeFromZone(range.sheetId, contentZone)
+      : undefined;
     return {
       id,
       rangeWithHeaders: range,
       col: zone.left,
-      filteredRange: filteredZone.top > filteredZone.bottom ? undefined : filteredRange,
+      filteredRange,
     };
   }
 

@@ -38,6 +38,7 @@ import {
 } from "./ui_feature";
 import { HistoryPlugin } from "./ui_feature/local_history";
 import { SplitToColumnsPlugin } from "./ui_feature/split_to_columns";
+import { TableAutofillPlugin } from "./ui_feature/table_autofill";
 import { TableStylePlugin } from "./ui_feature/table_style";
 import { UIPluginConstructor } from "./ui_plugin";
 import {
@@ -76,7 +77,8 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("split_to_columns", SplitToColumnsPlugin)
   .add("collaborative", CollaborativePlugin)
   .add("history", HistoryPlugin)
-  .add("data_cleanup", DataCleanupPlugin);
+  .add("data_cleanup", DataCleanupPlugin)
+  .add("table_autofill", TableAutofillPlugin);
 
 // Plugins which have a state, but which should not be shared in collaborative
 export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()
