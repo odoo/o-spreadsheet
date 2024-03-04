@@ -8,7 +8,6 @@ import {
   isDefined,
   isZoneInside,
   isZoneValid,
-  positions,
   range,
   toCartesian,
 } from "../../helpers/index";
@@ -69,7 +68,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getNumberHeaders",
     "getGridLinesVisibility",
     "getNextSheetName",
-    "isEmpty",
     "getSheetSize",
     "getSheetZone",
     "getPaneDivisions",
@@ -503,15 +501,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   // ---------------------------------------------------------------------------
   // Row/Col manipulation
   // ---------------------------------------------------------------------------
-
-  /**
-   * Check if a zone only contains empty cells
-   */
-  isEmpty(sheetId: UID, zone: Zone): boolean {
-    return positions(zone)
-      .map(({ col, row }) => this.getCell({ sheetId, col, row }))
-      .every((cell) => !cell || cell.content === "");
-  }
 
   getCommandZones(cmd: Command): Zone[] {
     const zones: Zone[] = [];
