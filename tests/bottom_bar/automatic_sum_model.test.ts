@@ -118,6 +118,12 @@ describe("automatic sum", () => {
     expect(getCellText(model, "B4")).toBe("=SUM(B2:B3)");
   });
 
+  test("with spreaded values", () => {
+    setCellContent(model, "A1", "=MUNIT(2)");
+    automaticSum(model, "B1:B2");
+    expect(getCellText(model, "B3")).toBe("=SUM(B1:B2)");
+  });
+
   test("on a number", () => {
     setCellContent(model, "B2", "4");
     setCellContent(model, "B3", "4");
