@@ -4,6 +4,7 @@ import { CellErrorType, EvaluationError } from "../../../types/errors";
 import {
   CellPosition,
   CellValue,
+  CellValueType,
   Command,
   EvaluatedCell,
   ExcelCellData,
@@ -146,6 +147,7 @@ export class EvaluationPlugin extends UIPlugin {
     "getEvaluatedCell",
     "getEvaluatedCells",
     "getEvaluatedCellsInZone",
+    "isEmpty",
   ] as const;
 
   private shouldRebuildDependenciesGraph = true;
@@ -256,6 +258,15 @@ export class EvaluationPlugin extends UIPlugin {
     return positions(zone).map(({ col, row }) =>
       this.getters.getEvaluatedCell({ sheetId, col, row })
     );
+  }
+
+  /**
+   * Check if a zone only contains empty cells
+   */
+  isEmpty(sheetId: UID, zone: Zone): boolean {
+    return positions(zone)
+      .map(({ col, row }) => this.getEvaluatedCell({ sheetId, col, row }))
+      .every((cell) => cell.type === CellValueType.empty);
   }
 
   // ---------------------------------------------------------------------------
