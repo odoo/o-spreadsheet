@@ -8,6 +8,7 @@ import {
   XLSXHyperLink,
   XLSXImportFile,
   XLSXOutlineProperties,
+  XLSXPivotTable,
   XLSXRow,
   XLSXSheetFormat,
   XLSXSheetProperties,
@@ -58,7 +59,8 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
           cfs: this.extractConditionalFormats(),
           figures: this.extractFigures(sheetElement),
           hyperlinks: this.extractHyperLinks(sheetElement),
-          tables: [...this.extractTables(sheetElement), ...this.extractPivotTables()],
+          tables: this.extractTables(sheetElement),
+          pivotTables: this.extractPivotTables(),
           isVisible: sheetWorkbookInfo.state === "visible" ? true : false,
         };
       }
@@ -191,7 +193,7 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
     );
   }
 
-  private extractPivotTables(): XLSXTable[] {
+  private extractPivotTables(): XLSXPivotTable[] {
     try {
       return Object.values(this.relationships)
         .filter((relationship) => relationship.type.endsWith("pivotTable"))

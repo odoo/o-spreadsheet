@@ -35,6 +35,9 @@ import { ExcelFigureSize } from "./figure";
  *  - merge (string): §18.3.1.55 (mergeCell)
  *  - number format (XLSXNumFormat) : §18.8.30 (numFmt)
  *  - outline properties (XLSXOutlineProperties): §18.3.1.31 (outlinePr)
+ *  - pivot table (XLSXPivotTable): §18.10.1.73 (pivotTableDefinition)
+ *  - pivot table location (XLSXPivotTableLocation): §18.10.1.49 (location)
+ *  - pivot table style info (XLSXPivotTableStyleInfo): §18.10.7.74 (pivotTableStyleInfo)
  *  - rows (XLSXRow): §18.3.1.73 (row)
  *  - sheet (XLSXWorksheet): §18.3.1.99 (worksheet)
  *  - sheet format (XLSXSheetFormat): §18.3.1.81 (sheetFormatPr)
@@ -230,6 +233,7 @@ export interface XLSXWorksheet {
   figures: XLSXFigure[];
   hyperlinks: XLSXHyperLink[];
   tables: XLSXTable[];
+  pivotTables: XLSXPivotTable[];
 }
 
 export interface XLSXSheetView {
@@ -576,6 +580,29 @@ export interface XLSXTableStyleInfo {
   showLastColumn?: boolean;
   showRowStripes?: boolean;
   showColumnStripes?: boolean;
+}
+
+export interface XLSXPivotTable {
+  name: string;
+  rowGrandTotals: boolean;
+  location: XLSXPivotTableLocation;
+  style?: XLSXPivotTableStyleInfo;
+}
+
+export interface XLSXPivotTableLocation {
+  ref: string;
+  firstHeaderRow: number;
+  firstDataRow: number;
+  firstDataCol: number;
+}
+
+export interface XLSXPivotTableStyleInfo {
+  name: string;
+  showRowHeaders: boolean;
+  showColHeaders: boolean;
+  showRowStripes: boolean;
+  showColStripes: boolean;
+  showLastColumn?: boolean;
 }
 
 export interface XLSXTableCol {

@@ -6,14 +6,8 @@ import {
   markdownLink,
   toZone,
 } from "../../src/helpers";
-import {
-  Border,
-  CellIsRule,
-  DEFAULT_LOCALE,
-  IconSetRule,
-  PLAIN_TEXT_FORMAT,
-  Style,
-} from "../../src/types";
+import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
+import { CellIsRule, DEFAULT_LOCALE, IconSetRule, PLAIN_TEXT_FORMAT } from "../../src/types";
 import { BarChartDefinition } from "../../src/types/chart/bar_chart";
 import { ComboChartDefinition } from "../../src/types/chart/combo_chart";
 import { LineChartDefinition } from "../../src/types/chart/line_chart";
@@ -34,11 +28,6 @@ import {
 } from "../../src/xlsx/conversion/conversion_maps";
 import { convertXlsxFormat } from "../../src/xlsx/conversion/format_conversion";
 import { adaptFormula } from "../../src/xlsx/conversion/formula_conversion";
-import {
-  TABLE_BORDER_STYLE,
-  TABLE_HEADER_STYLE,
-  TABLE_HIGHLIGHTED_CELL_STYLE,
-} from "../../src/xlsx/conversion/table_conversion";
 import { getRelativePath } from "../../src/xlsx/helpers/misc";
 import { XLSXImportWarningManager } from "../../src/xlsx/helpers/xlsx_parser_error_manager";
 import { XlsxReader } from "../../src/xlsx/xlsx_reader";
@@ -504,17 +493,13 @@ describe("Import xlsx data", () => {
     }
   });
 
-  test("tables with headers are imported as tables", () => {
+  test("tables are imported", () => {
     const sheet = getWorkbookSheet("jestTable", convertedData)!;
-    expect(sheet.tables).toHaveLength(3);
-    expect(sheet.tables[0]).toEqual({ range: "C3:J6" });
-    expect(sheet.tables[1]).toEqual({ range: "C11:D12" });
-    expect(sheet.tables[2]).toEqual({ range: "C30:D32" });
+    expect(sheet.tables).toHaveLength(10);
   });
 
   test("rows filtered by a table filter are hidden", () => {
     const sheet = getWorkbookSheet("jestTable", convertedData)!;
-    expect(sheet.tables[2]).toEqual({ range: "C30:D32" });
     expect(sheet.cells["C31"]?.content).toEqual("Hidden");
     expect(sheet.rows[30].isHidden).toBeTruthy();
   });
@@ -526,139 +511,63 @@ describe("Import xlsx data", () => {
       tableTestSheet = getWorkbookSheet("jestTable", convertedData)!;
     });
 
-    test("Can display basic table style (borders on table outline)", () => {
-      const tableZone = toZone("C8:D9");
-      expect(
-        getWorkbookCellBorder(
-          getWorkbookCell(tableZone.left, tableZone.top, tableTestSheet)!,
-          convertedData
-        )
-      ).toMatchObject({
-        top: TABLE_BORDER_STYLE,
-        bottom: undefined,
-        left: TABLE_BORDER_STYLE,
-        right: undefined,
-      });
-      expect(
-        getWorkbookCellBorder(
-          getWorkbookCell(tableZone.right, tableZone.top, tableTestSheet)!,
-          convertedData
-        )
-      ).toMatchObject({
-        top: TABLE_BORDER_STYLE,
-        bottom: undefined,
-        right: TABLE_BORDER_STYLE,
-        left: undefined,
-      });
-      expect(
-        getWorkbookCellBorder(
-          getWorkbookCell(tableZone.left, tableZone.bottom, tableTestSheet)!,
-          convertedData
-        )
-      ).toMatchObject({
-        bottom: TABLE_BORDER_STYLE,
-        top: undefined,
-        left: TABLE_BORDER_STYLE,
-        right: undefined,
-      });
-      expect(
-        getWorkbookCellBorder(
-          getWorkbookCell(tableZone.right, tableZone.bottom, tableTestSheet)!,
-          convertedData
-        )
-      ).toMatchObject({
-        bottom: TABLE_BORDER_STYLE,
-        top: undefined,
-        right: TABLE_BORDER_STYLE,
-        left: undefined,
+    test("Can import basic table style", () => {
+      const table = tableTestSheet.tables.find((table) => table.range === "C8:D9")!;
+      expect(table?.config).toMatchObject({
+        numberOfHeaders: 0,
+        totalRow: false,
+        bandedRows: false,
+        bandedColumns: false,
+        firstColumn: false,
+        lastColumn: false,
+        hasFilters: false,
+        styleId: "TableStyleLight8",
       });
     });
 
-    test("Can display header style", () => {
-      const tableZone = toZone("C11:D12");
-      expect(
-        getWorkbookCellStyle(
-          getWorkbookCell(tableZone.left, tableZone.top, tableTestSheet)!,
-          convertedData
-        )
-      ).toMatchObject(TABLE_HEADER_STYLE);
-      expect(
-        getWorkbookCellStyle(
-          getWorkbookCell(tableZone.right, tableZone.top, tableTestSheet)!,
-          convertedData
-        )
-      ).toMatchObject(TABLE_HEADER_STYLE);
+    test("Can import table style id", () => {
+      const table = tableTestSheet.tables.find((table) => table.range === "C3:J6");
+      expect(table?.config).toMatchObject({ styleId: "TableStyleLight10" });
     });
 
-    test("Can highlight first table column", () => {
-      const tableZone = toZone("C14:D15");
-      expect(
-        getWorkbookCellStyle(
-          getWorkbookCell(tableZone.left, tableZone.top, tableTestSheet)!,
-          convertedData
-        )
-      ).toMatchObject(TABLE_HIGHLIGHTED_CELL_STYLE);
-      expect(
-        getWorkbookCellStyle(
-          getWorkbookCell(tableZone.left, tableZone.bottom, tableTestSheet)!,
-          convertedData
-        )
-      ).toMatchObject(TABLE_HIGHLIGHTED_CELL_STYLE);
+    test("Can import table with headers", () => {
+      const table = tableTestSheet.tables.find((table) => table.range === "C11:D12");
+      expect(table?.config).toMatchObject({ numberOfHeaders: 1 });
+    });
+
+    test("Can import table with first column style", () => {
+      const table = tableTestSheet.tables.find((table) => table.range === "C14:D15");
+      expect(table?.config).toMatchObject({ firstColumn: true });
     });
 
     test("Can highlight last table column", () => {
-      const tableZone = toZone("C17:D18");
-      expect(
-        getWorkbookCellStyle(
-          getWorkbookCell(tableZone.right, tableZone.top, tableTestSheet)!,
-          convertedData
-        )
-      ).toMatchObject(TABLE_HIGHLIGHTED_CELL_STYLE);
-      expect(
-        getWorkbookCellStyle(
-          getWorkbookCell(tableZone.right, tableZone.bottom, tableTestSheet)!,
-          convertedData
-        )
-      ).toMatchObject(TABLE_HIGHLIGHTED_CELL_STYLE);
+      const table = tableTestSheet.tables.find((table) => table.range === "C17:D18");
+      expect(table?.config).toMatchObject({ lastColumn: true });
     });
 
-    test("Can display banded rows (borders between rows)", () => {
-      const tableZone = toZone("C20:D21");
-      expect(
-        getWorkbookCellBorder(
-          getWorkbookCell(tableZone.left, tableZone.bottom, tableTestSheet)!,
-          convertedData
-        )
-      ).toMatchObject({ top: TABLE_BORDER_STYLE });
-      expect(
-        getWorkbookCellBorder(
-          getWorkbookCell(tableZone.right, tableZone.bottom, tableTestSheet)!,
-          convertedData
-        )
-      ).toMatchObject({ top: TABLE_BORDER_STYLE });
+    test("Can import table with banded rows", () => {
+      const table = tableTestSheet.tables.find((table) => table.range === "C20:D21");
+      expect(table?.config).toMatchObject({ bandedRows: true });
     });
 
-    test("Can display banded columns (borders between columns)", () => {
-      const tableZone = toZone("C23:D24");
-      expect(
-        getWorkbookCellBorder(
-          getWorkbookCell(tableZone.right, tableZone.top, tableTestSheet)!,
-          convertedData
-        )
-      ).toMatchObject({ left: TABLE_BORDER_STYLE });
-      expect(
-        getWorkbookCellBorder(
-          getWorkbookCell(tableZone.right, tableZone.bottom, tableTestSheet)!,
-          convertedData
-        )
-      ).toMatchObject({ left: TABLE_BORDER_STYLE });
+    test("Can import table with banded columns", () => {
+      const table = tableTestSheet.tables.find((table) => table.range === "C23:D24");
+      expect(table?.config).toMatchObject({ bandedColumns: true });
     });
 
-    test("Can display total row", () => {
-      const tableZone = toZone("C26:D28");
-      expect(getWorkbookCell(tableZone.left, tableZone.bottom, tableTestSheet)!.content).toEqual(
-        "Total"
-      );
+    test("Can import table with total rows", () => {
+      const table = tableTestSheet.tables.find((table) => table.range === "C26:D28");
+      expect(table?.config).toMatchObject({ totalRow: true });
+    });
+
+    test("Can import table with filters", () => {
+      const table = tableTestSheet.tables.find((table) => table.range === "C30:D32");
+      expect(table?.config).toMatchObject({ hasFilters: true });
+    });
+
+    test("Table with custom style will be converted to default table style", () => {
+      const table = tableTestSheet.tables.find((table) => table.range === "C34:D35");
+      expect(table?.config).toMatchObject({ styleId: DEFAULT_TABLE_CONFIG.styleId });
     });
   });
 
@@ -687,45 +596,20 @@ describe("Import xlsx data", () => {
     expect(testSheet.cells["J5"]?.content).toEqual("=E3");
   });
 
-  // We just import pivots as a Table (cells with some styling/borders).
+  // We just import pivots as a Table
   test("can import pivots", () => {
-    // Test pivot coordinates are in A1
     const testSheet = getWorkbookSheet("jestPivot", convertedData)!;
-    const pivotZone = toZone("C3:L21");
-
-    for (let col = pivotZone.left; col <= pivotZone.right; col++) {
-      for (let row = pivotZone.top; row <= pivotZone.bottom; row++) {
-        // Special style for headers and first column
-        let expectedStyle: Style | undefined = undefined;
-        if (row === pivotZone.top || row === pivotZone.top + 1) {
-          expectedStyle = TABLE_HEADER_STYLE;
-        } else if (col === pivotZone.left) {
-          expectedStyle = TABLE_HIGHLIGHTED_CELL_STYLE;
-        }
-
-        // Borders = outline of the table + top border between each row
-        const expectedBorder: Border = {};
-        if (col === pivotZone.right) {
-          expectedBorder.right = TABLE_BORDER_STYLE;
-        }
-        if (col === pivotZone.left) {
-          expectedBorder.left = TABLE_BORDER_STYLE;
-        }
-        if (row === pivotZone.bottom) {
-          expectedBorder.bottom = TABLE_BORDER_STYLE;
-        }
-        expectedBorder.top = TABLE_BORDER_STYLE;
-
-        if (expectedStyle) {
-          expect(
-            getWorkbookCellStyle(getWorkbookCell(col, row, testSheet)!, convertedData)
-          ).toMatchObject(expectedStyle);
-        }
-        expect(getWorkbookCellBorder(getWorkbookCell(col, row, testSheet)!, convertedData)).toEqual(
-          expectedBorder
-        );
-      }
-    }
+    const table = testSheet.tables[0];
+    expect(table.range).toEqual("C3:L21");
+    expect(table.config).toMatchObject({
+      numberOfHeaders: 2,
+      totalRow: true,
+      firstColumn: true,
+      lastColumn: true,
+      bandedRows: false,
+      bandedColumns: false,
+      hasFilters: false,
+    });
   });
 
   test.each([
