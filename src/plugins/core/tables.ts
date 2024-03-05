@@ -571,6 +571,11 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
   }
 
   exportForExcel(data: ExcelWorkbookData) {
-    this.export(data);
+    for (const sheet of data.sheets) {
+      for (const table of this.getCoreTables(sheet.id)) {
+        const range = zoneToXc(table.range.zone);
+        sheet.tables.push({ range, filters: [], config: table.config });
+      }
+    }
   }
 }
