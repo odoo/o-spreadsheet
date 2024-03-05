@@ -11976,7 +11976,7 @@ exports[`Test XLSX export Export data filters Export data filters snapshot 1`] =
       "path": "xl/workbook.xml",
     },
     {
-      "content": "<table id="1" name="Table1" displayName="Table1" ref="A1:C4" xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" xmlns:xr3="http://schemas.microsoft.com/office/spreadsheetml/2016/revision3" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
+      "content": "<table id="1" name="Table1" displayName="Table1" ref="A1:C4" headerRowCount="1" totalsRowCount="0" xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" xmlns:xr3="http://schemas.microsoft.com/office/spreadsheetml/2016/revision3" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
     <autoFilter ref="A1:C4">
         <filterColumn colId="0">
             <filters>
@@ -11997,7 +11997,7 @@ exports[`Test XLSX export Export data filters Export data filters snapshot 1`] =
         <tableColumn id="2" name="Hello2"/>
         <tableColumn id="3" name="56"/>
     </tableColumns>
-    <tableStyleInfo name="TableStyleLight8" showFirstColumn="0" showLastColumn="0" showRowStripes="0" showColumnStripes="0"/>
+    <tableStyleInfo name="TableStyleMedium2" showFirstColumn="0" showLastColumn="0" showRowStripes="1" showColumnStripes="0"/>
 </table>",
       "contentType": "table",
       "path": "xl/tables/table1.xml",
@@ -12216,6 +12216,21 @@ exports[`Test XLSX export Export data filters Export data filters snapshot 1`] =
     },
   ],
   "name": "my_spreadsheet.xlsx",
+}
+`;
+
+exports[`Test XLSX export Export data filters Table style is correctly exported 1`] = `
+{
+  "content": "<table id="1" name="Table1" displayName="Table1" ref="A1:A4" headerRowCount="1" totalsRowCount="1" xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" xmlns:xr3="http://schemas.microsoft.com/office/spreadsheetml/2016/revision3" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
+    <autoFilter ref="A1:A4">
+    </autoFilter>
+    <tableColumns count="1">
+        <tableColumn id="1" name="Column0"/>
+    </tableColumns>
+    <tableStyleInfo name="TableStyleMedium9" showFirstColumn="1" showLastColumn="1" showRowStripes="1" showColumnStripes="1"/>
+</table>",
+  "contentType": "table",
+  "path": "xl/tables/table1.xml",
 }
 `;
 

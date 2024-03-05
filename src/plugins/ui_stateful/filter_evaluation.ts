@@ -176,9 +176,8 @@ export class FilterEvaluationPlugin extends UIPlugin {
           const filteredValues: string[] = this.getFilterHiddenValues(position);
 
           const filter = this.getters.getFilter(position);
-          if (!filter) continue;
 
-          const valuesInFilterZone = filter.filteredRange
+          const valuesInFilterZone = filter?.filteredRange
             ? positions(filter.filteredRange.zone).map(
                 (position) => this.getters.getEvaluatedCell({ sheetId, ...position }).formattedValue
               )
@@ -195,17 +194,12 @@ export class FilterEvaluationPlugin extends UIPlugin {
             });
           }
 
-          // In xlsx, filter header should ALWAYS be a string and should be unique in the table
-          const headerPosition = {
-            col: filter.col,
-            row: filter.rangeWithHeaders.zone.top,
-            sheetId,
-          };
-          const headerString = this.getters.getEvaluatedCell(headerPosition).formattedValue;
+          // In xlsx, column header should ALWAYS be a string and should be unique in the table
+          const headerString = this.getters.getEvaluatedCell(position).formattedValue;
           const headerName = this.getUniqueColNameForExcel(i, headerString, headerNames);
           headerNames.push(headerName);
-          sheetData.cells[toXC(headerPosition.col, headerPosition.row)] = {
-            ...sheetData.cells[toXC(headerPosition.col, headerPosition.row)],
+          sheetData.cells[toXC(position.col, position.row)] = {
+            ...sheetData.cells[toXC(position.col, position.row)],
             content: headerName,
             value: headerName,
             isFormula: false,

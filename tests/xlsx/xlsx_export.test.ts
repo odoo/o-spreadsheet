@@ -1,8 +1,9 @@
 import { functionRegistry } from "../../src/functions";
 import { buildSheetLink, toXC } from "../../src/helpers";
+import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { Model } from "../../src/model";
 import { Dimension, ExcelChartType, PLAIN_TEXT_FORMAT } from "../../src/types";
-import { XLSXExportXMLFile } from "../../src/types/xlsx";
+import { XLSXExportXMLFile, XMLString } from "../../src/types/xlsx";
 import { adaptFormulaToExcel } from "../../src/xlsx/functions/cells";
 import { escapeXml, parseXML } from "../../src/xlsx/helpers/xml_helpers";
 import {
@@ -1329,6 +1330,43 @@ describe("Test XLSX export", () => {
 
       expect(exported.sheets[0].cells["B1"]?.content).toEqual("Hello2");
       expect(exported.sheets[0].cells["B1"]?.value).toEqual("Hello2");
+    });
+
+    test("Table headers are replaced by unique formatted value even if table has no filters", () => {
+      const model = new Model();
+      createTable(model, "A1:A4", { ...DEFAULT_TABLE_CONFIG, hasFilters: false });
+      setCellContent(model, "A1", "=DATE(1,1,1)");
+      const exported = getExportedExcelData(model);
+      expect(exported.sheets[0].cells["A1"]?.content).toEqual("1/1/1901");
+    });
+
+    test("Table style is correctly exported", async () => {
+      const model = new Model();
+      createTable(model, "A1:A4", {
+        totalRow: true,
+        firstColumn: true,
+        lastColumn: true,
+        numberOfHeaders: 1,
+        bandedRows: true,
+        bandedColumns: true,
+        styleId: "TableStyleMedium9",
+      });
+      const exported = await exportPrettifiedXlsx(model);
+      const tableFile = exported.files.find((file) => file.path === "xl/tables/table1.xml");
+      const xml = parseXML(new XMLString((tableFile as XLSXExportXMLFile)?.content));
+
+      const table = xml.querySelector("table");
+      expect(table?.getAttribute("headerRowCount")).toEqual("1");
+      expect(table?.getAttribute("totalsRowCount")).toEqual("1");
+
+      const tableStyle = xml.querySelector("tableStyleInfo");
+      expect(tableStyle?.getAttribute("name")).toEqual("TableStyleMedium9");
+      expect(tableStyle?.getAttribute("showFirstColumn")).toEqual("1");
+      expect(tableStyle?.getAttribute("showLastColumn")).toEqual("1");
+      expect(tableStyle?.getAttribute("showRowStripes")).toEqual("1");
+      expect(tableStyle?.getAttribute("showColumnStripes")).toEqual("1");
+
+      expect(tableFile).toMatchSnapshot();
     });
 
     test("Filtered values are exported and rows are hidden", () => {

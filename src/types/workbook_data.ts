@@ -110,6 +110,7 @@ export interface DataValidationRuleData extends Omit<DataValidationRule, "ranges
 export interface ExcelTableData {
   range: string;
   filters: ExcelFilterData[];
+  config: TableConfig;
 }
 
 export interface ExcelFilterData {
