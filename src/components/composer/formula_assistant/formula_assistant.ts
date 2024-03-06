@@ -1,5 +1,5 @@
 import { Component, onWillUnmount, useState } from "@odoo/owl";
-import { FunctionDescription } from "../../../types";
+import { FunctionDescription, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
 
 // -----------------------------------------------------------------------------
@@ -44,7 +44,7 @@ interface AssistantState {
   allowCellSelectionBehind: boolean;
 }
 
-export class FunctionDescriptionProvider extends Component<Props> {
+export class FunctionDescriptionProvider extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FunctionDescriptionProvider";
   assistantState: AssistantState = useState({
     allowCellSelectionBehind: false,
@@ -72,6 +72,10 @@ export class FunctionDescriptionProvider extends Component<Props> {
     this.timeOutId = setTimeout(() => {
       this.assistantState.allowCellSelectionBehind = false;
     }, 2000) as unknown as number;
+  }
+
+  get formulaArgSeparator() {
+    return this.env.model.getters.getLocale().formulaArgSeparator + " ";
   }
 }
 
