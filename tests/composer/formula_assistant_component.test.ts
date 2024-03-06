@@ -2,7 +2,9 @@ import { setTranslationMethod } from "../../src";
 import { arg, functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
 import { _t } from "../../src/translation";
+import { DEFAULT_LOCALE } from "../../src/types";
 import { registerCleanup } from "../setup/jest.setup";
+import { updateLocale } from "../test_helpers/commands_helpers";
 import { keyDown, keyUp } from "../test_helpers/dom_helper";
 import {
   ComposerWrapper,
@@ -251,6 +253,14 @@ describe("formula assistant", () => {
         await typeInComposer("=FUNC3(");
         expect(fixture.querySelectorAll(".o-formula-assistant-head")[0].textContent).toBe(
           "FUNC3 ( f3Arg1, [f3Arg2, ...] ) "
+        );
+      });
+
+      test("arguments separator is localized", async () => {
+        updateLocale(model, { ...DEFAULT_LOCALE, formulaArgSeparator: ";" });
+        await typeInComposer("=FUNC1(");
+        expect(fixture.querySelectorAll(".o-formula-assistant-head")[0].textContent).toBe(
+          "FUNC1 ( f1Arg1; f1Arg2 ) "
         );
       });
     });
