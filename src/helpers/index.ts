@@ -7,6 +7,7 @@ export * from "./format";
 export * from "./misc";
 export * from "./numbers";
 export * from "./range";
+export * from "./recompute_zones";
 export * from "./references";
 export * from "./search";
 export * from "./sheet";
