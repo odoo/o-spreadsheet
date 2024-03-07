@@ -9,7 +9,6 @@ import { SpreadsheetChildEnv } from "../../src/types";
 import {
   addRows,
   createChart,
-  createSheet,
   freezeRows,
   selectCell,
   setCellContent,
@@ -232,16 +231,6 @@ describe("Simple Spreadsheet Component", () => {
     await nextTick();
     keyDown({ key: "H", ctrlKey: true });
     expect(spreadsheetKeyDown).not.toHaveBeenCalled();
-  });
-
-  test("The spreadsheet does not render after onbeforeunload", async () => {
-    ({ model, parent, fixture } = await mountSpreadsheet());
-    window.dispatchEvent(new Event("beforeunload", { bubbles: true }));
-    await nextTick();
-    createSheet(model, {});
-    await nextTick();
-    const sheets = fixture.querySelectorAll(".o-all-sheets .o-sheet");
-    expect(sheets).toHaveLength(model.getters.getSheetIds().length - 1);
   });
 
   test("Insert a function properly sets the edition", async () => {
