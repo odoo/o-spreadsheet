@@ -1005,6 +1005,26 @@ export function updateTableZone(
   });
 }
 
+export function resizeTable(
+  model: Model,
+  range: string,
+  newZone: string,
+  tableType?: CoreTableType,
+  sheetId: UID = model.getters.getActiveSheetId()
+): DispatchResult {
+  const zone = toZone(range);
+  const table = model.getters.getTable({ sheetId, col: zone.left, row: zone.top });
+  if (!table) {
+    throw new Error(`No table found at ${range}`);
+  }
+  return model.dispatch("RESIZE_TABLE", {
+    sheetId,
+    zone: table.range.zone,
+    newTableRange: toRangeData(sheetId, newZone),
+    tableType,
+  });
+}
+
 export function updateFilter(
   model: Model,
   xc: string,

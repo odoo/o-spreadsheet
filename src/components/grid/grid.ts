@@ -23,6 +23,7 @@ import {
 } from "../../constants";
 import { isInside } from "../../helpers/index";
 import { openLink } from "../../helpers/links";
+import { isStaticTable } from "../../helpers/table_helpers";
 import { interactiveCut } from "../../helpers/ui/cut_interactive";
 import { interactivePaste, interactivePasteFromOS } from "../../helpers/ui/paste_interactive";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
@@ -52,6 +53,7 @@ import {
   Rect,
   Ref,
   SpreadsheetChildEnv,
+  Table,
 } from "../../types/index";
 import { Autofill } from "../autofill/autofill";
 import { ClientTag } from "../collaborative_client_tag/collaborative_client_tag";
@@ -74,6 +76,7 @@ import { CellPopoverStore } from "../popover";
 import { Popover } from "../popover/popover";
 import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
 import { SidePanelStore } from "../side_panel/side_panel/side_panel_store";
+import { TableResizer } from "../tables/table_resizer/table_resizer";
 import { HoveredCellStore } from "./hovered_cell_store";
 
 /**
@@ -127,6 +130,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     Popover,
     VerticalScrollBar,
     HorizontalScrollBar,
+    TableResizer,
   };
   readonly HEADER_HEIGHT = HEADER_HEIGHT;
   readonly HEADER_WIDTH = HEADER_WIDTH;
@@ -780,5 +784,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
   onComposerContentFocused() {
     this.composerFocusStore.focusGridComposerContent();
+  }
+
+  get staticTables(): Table[] {
+    const sheetId = this.env.model.getters.getActiveSheetId();
+    return this.env.model.getters.getCoreTables(sheetId).filter(isStaticTable);
   }
 }

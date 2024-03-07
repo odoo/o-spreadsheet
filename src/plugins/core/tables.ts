@@ -46,7 +46,7 @@ interface TableState {
 }
 
 export class TablePlugin extends CorePlugin<TableState> implements TableState {
-  static getters = ["getCoreTable", "getCoreTables"] as const;
+  static getters = ["getCoreTable", "getCoreTables", "getCoreTableMatchingTopLeft"] as const;
 
   readonly tables: Record<UID, Record<TableId, CoreTable | undefined>> = {};
 
@@ -77,7 +77,7 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
           (cmd) => this.checkTableConfigUpdateIsValid(cmd.config)
         );
       case "UPDATE_TABLE":
-        const updatedTable = this.getTableFromZone(cmd.sheetId, cmd.zone);
+        const updatedTable = this.getCoreTableMatchingTopLeft(cmd.sheetId, cmd.zone);
         if (!updatedTable) {
           return CommandResult.TableNotFound;
         }
@@ -255,10 +255,9 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
     return direction;
   }
 
-  private getTableFromZone(sheetId: UID, zone: Zone): CoreTable | undefined {
+  getCoreTableMatchingTopLeft(sheetId: UID, zone: Zone): CoreTable | undefined {
     for (const table of this.getCoreTables(sheetId)) {
       const tableZone = table.range.zone;
-      // Only check top left to match dynamic tables
       if (tableZone.left === zone.left && tableZone.top === zone.top) {
         return table;
       }
@@ -275,7 +274,7 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
     if (zoneIsInSheet !== CommandResult.Success) {
       return zoneIsInSheet;
     }
-    const updatedTable = this.getTableFromZone(cmd.sheetId, cmd.zone);
+    const updatedTable = this.getCoreTableMatchingTopLeft(cmd.sheetId, cmd.zone);
     if (!updatedTable) {
       return CommandResult.TableNotFound;
     }
@@ -341,7 +340,7 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
   }
 
   private updateTable(cmd: UpdateTableCommand) {
-    const table = this.getTableFromZone(cmd.sheetId, cmd.zone);
+    const table = this.getCoreTableMatchingTopLeft(cmd.sheetId, cmd.zone);
     if (!table) {
       return;
     }

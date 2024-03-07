@@ -1,5 +1,5 @@
 import { Border, BorderDescr, CellPosition, Range, Style, UID, Zone } from "../types";
-import { CoreTable, Filter, Table, TableConfig, TableStyle } from "../types/table";
+import { CoreTable, Filter, StaticTable, Table, TableConfig, TableStyle } from "../types/table";
 
 import { generateMatrix } from "../functions/helpers";
 import { ComputedTableStyle } from "./../types/table";
@@ -48,6 +48,10 @@ export function createFilter(
     col: zone.left,
     filteredRange: filteredZone.top > filteredZone.bottom ? undefined : filteredRange,
   };
+}
+
+export function isStaticTable(table: CoreTable): table is StaticTable {
+  return table.type === "static" || table.type === "forceStatic";
 }
 
 export function getComputedTableStyle(
