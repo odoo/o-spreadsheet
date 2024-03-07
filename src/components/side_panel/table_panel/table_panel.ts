@@ -162,7 +162,13 @@ export class TablePanel extends Component<Props, SpreadsheetChildEnv> {
       const extendedZone = this.env.model.getters.getContiguousZone(sheetId, newRange.zone);
       newRange = this.env.model.getters.getRangeFromZone(sheetId, extendedZone);
     }
-    const result = this.env.model.dispatch("UPDATE_TABLE", {
+    const newTableZone = newRange.zone;
+    const oldTableZone = this.props.table.range.zone;
+    const cmdToCall =
+      newTableZone.top === oldTableZone.top && newTableZone.left === oldTableZone.left
+        ? "RESIZE_TABLE"
+        : "UPDATE_TABLE";
+    const result = this.env.model.dispatch(cmdToCall, {
       sheetId,
       zone: this.props.table.range.zone,
       newTableRange: newRange.rangeData,

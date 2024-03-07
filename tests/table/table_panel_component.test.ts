@@ -8,6 +8,7 @@ import {
   updateTableConfig,
 } from "../test_helpers/commands_helpers";
 import { click, setInputValueAndTrigger, simulateClick } from "../test_helpers/dom_helper";
+import { getCell } from "../test_helpers/getters_helpers";
 import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
 
 import { Model } from "../../src";
@@ -106,6 +107,14 @@ describe("Table side panel", () => {
     await click(fixture, ".o-selection .o-selection-ok");
     expect(zoneToXc(getTable(model, sheetId).range.zone)).toEqual("D4:D5");
     expect(model.getters.getSelectedZone()).toEqual(toZone("D4"));
+  });
+
+  test("Table is auto-filled if the new zone expands the table down", async () => {
+    setCellContent(model, "A4", "=A3+1");
+    await simulateClick(".o-selection input");
+    await setInputValueAndTrigger(".o-selection input", "A1:C5");
+    await click(fixture, ".o-selection .o-selection-ok");
+    expect(getCell(model, "A5")?.content).toEqual("=A4+1");
   });
 
   test("Side panel works with unbounded table zones", async () => {

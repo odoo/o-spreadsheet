@@ -192,6 +192,7 @@ const invalidateTableStyleCommands = [
   "UPDATE_TABLE",
   "UPDATE_FILTER",
   "REMOVE_TABLE",
+  "RESIZE_TABLE",
 ] as const;
 const invalidateTableStyleCommandsSet = new Set<CommandTypes>(invalidateTableStyleCommands);
 

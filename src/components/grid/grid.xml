@@ -56,6 +56,9 @@
         position="menuState.position"
         onClose="() => this.closeMenu()"
       />
+      <t t-foreach="staticTables" t-as="table" t-key="table.id">
+        <TableResizer table="table"/>
+      </t>
       <VerticalScrollBar topOffset="HEADER_HEIGHT"/>
       <HorizontalScrollBar leftOffset="HEADER_WIDTH"/>
       <div class="o-scrollbar corner"/>
