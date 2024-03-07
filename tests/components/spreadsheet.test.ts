@@ -8,7 +8,7 @@ import { SelectionMode } from "../../src/plugins/ui/selection";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/registries";
 import { Client } from "../../src/types";
 import { StateUpdateMessage } from "../../src/types/collaborative/transport_service";
-import { createSheet, selectCell, setCellContent } from "../test_helpers/commands_helpers";
+import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { simulateClick, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {
   makeTestFixture,
@@ -360,15 +360,6 @@ describe("Composer interactions", () => {
     selectCell(parent.model, "B2");
     await nextTick();
     expect(spy).not.toHaveBeenCalled();
-  });
-
-  test("The spreadsheet does not render after onbeforeunload", async () => {
-    window.dispatchEvent(new Event("beforeunload", { bubbles: true }));
-    await nextTick();
-    createSheet(parent.model, {});
-    await nextTick();
-    const sheets = document.querySelectorAll(".o-all-sheets .o-sheet");
-    expect(sheets).toHaveLength(parent.model.getters.getVisibleSheets().length - 1);
   });
 
   test("The activate sheet is the sheet in first position, after replaying commands", async () => {

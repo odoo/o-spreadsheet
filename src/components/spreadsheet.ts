@@ -165,7 +165,6 @@ export class Spreadsheet extends Component<Props, SpreadsheetEnv> {
     useExternalListener(document.body, "copy", this.copy.bind(this, false));
     useExternalListener(document.body, "paste", this.paste);
     useExternalListener(document.body, "keyup", this.onKeyup.bind(this));
-    useExternalListener(window, "beforeunload", this.leaveCollaborativeSession.bind(this));
     this.activateFirstSheet();
   }
 
