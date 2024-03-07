@@ -326,7 +326,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     );
 
     useExternalListener(window as any, "resize", () => this.render(true));
-    useExternalListener(window, "beforeunload", this.unbindModelEvents.bind(this));
 
     this.bindModelEvents();
 
