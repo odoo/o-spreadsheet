@@ -8,7 +8,7 @@ import { GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
 import { ChartRuntime, DataSet, DatasetValues, LabelValues } from "../../../types/chart/chart";
 import { formatValue, isDateTimeFormat } from "../../format";
 import { range } from "../../misc";
-import { recomputeZones } from "../../zones";
+import { recomputeZones } from "../../recompute_zones";
 import { AbstractChart } from "./abstract_chart";
 import { drawGaugeChart } from "./gauge_chart_rendering";
 import { drawScoreChart } from "./scorecard_chart";

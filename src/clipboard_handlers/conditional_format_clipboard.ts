@@ -93,15 +93,15 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
             this.getters.getRangeFromSheetXC(origin.sheetId, range).zone
           )
         ) {
-          const toRemoveZone: Zone[] = [];
+          const toRemoveZones: Zone[] = [];
           if (isCutOperation) {
             //remove from current rule
-            toRemoveZone.push(positionToZone(origin));
+            toRemoveZones.push(positionToZone(origin));
           }
           if (origin.sheetId === target.sheetId) {
-            this.adaptCFRules(origin.sheetId, rule, [zone], toRemoveZone);
+            this.adaptCFRules(origin.sheetId, rule, [zone], toRemoveZones);
           } else {
-            this.adaptCFRules(origin.sheetId, rule, [], toRemoveZone);
+            this.adaptCFRules(origin.sheetId, rule, [], toRemoveZones);
             const cfToCopyTo = this.getCFToCopyTo(target.sheetId, rule);
             this.adaptCFRules(target.sheetId, cfToCopyTo, [zone], []);
           }

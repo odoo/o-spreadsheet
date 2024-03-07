@@ -392,6 +392,23 @@ export function deepEquals(o1: any, o2: any): boolean {
   return true;
 }
 
+/**
+ * Compares two arrays.
+ * For performance reasons, this function is to be preferred
+ * to 'deepEquals' in the case we know that the inputs are arrays.
+ */
+export function deepEqualsArray(arr1: unknown[], arr2: unknown[]): boolean {
+  if (arr1.length !== arr2.length) {
+    return false;
+  }
+  for (let i = 0; i < arr1.length; i++) {
+    if (!deepEquals(arr1[i], arr2[i])) {
+      return false;
+    }
+  }
+  return true;
+}
+
 /** Check if the given array contains all the values of the other array. */
 export function includesAll<T>(arr: T[], values: T[]): boolean {
   return values.every((value) => arr.includes(value));
