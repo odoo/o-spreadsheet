@@ -55,6 +55,9 @@
         onClose="() => this.closeMenu()"
       />
       <FilterIconsOverlay gridPosition="{ x: HEADER_WIDTH, y : HEADER_HEIGHT }"/>
+      <t t-foreach="staticTables" t-as="table" t-key="table.id">
+        <TableResizer table="table"/>
+      </t>
       <VerticalScrollBar topOffset="HEADER_HEIGHT"/>
       <HorizontalScrollBar leftOffset="HEADER_WIDTH"/>
       <div class="o-scrollbar corner"/>

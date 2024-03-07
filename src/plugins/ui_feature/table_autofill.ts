@@ -16,7 +16,10 @@ export class TableAutofillPlugin extends UIPlugin {
         const { col, row } = cmd;
         const tableContentZone = getTableContentZone(table.range.zone, table.config);
         if (tableContentZone && isInside(col, row, tableContentZone)) {
-          this.autofillTableZone(cmd, tableContentZone);
+          const top = cmd.autofillRowStart ?? tableContentZone.top;
+          const bottom = cmd.autofillRowEnd ?? tableContentZone.bottom;
+          const autofillZone = { ...tableContentZone, top, bottom };
+          this.autofillTableZone(cmd, autofillZone);
         }
         break;
     }

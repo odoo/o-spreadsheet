@@ -496,8 +496,21 @@ export interface UpdateTableCommand {
   config?: Partial<TableConfig>;
 }
 
+export interface ResizeTableCommand {
+  type: "RESIZE_TABLE";
+  zone: Zone;
+  sheetId: UID;
+  newTableRange: RangeData;
+  tableType?: CoreTableType;
+}
+
 export interface AutofillTableCommand extends PositionDependentCommand {
   type: "AUTOFILL_TABLE_COLUMN";
+
+  /** The row to start the autofill in. If undefined, it will autofill from the top of the table column */
+  autofillRowStart?: number;
+  /** The row to end the autofill in . If undefined, it will autofill to the bottom of the table column */
+  autofillRowEnd?: number;
 }
 
 export interface UpdateFilterCommand extends PositionDependentCommand {
@@ -990,7 +1003,8 @@ export type LocalCommand =
   | SplitTextIntoColumnsCommand
   | RemoveDuplicatesCommand
   | TrimWhitespaceCommand
-  | RenderCanvasCommand;
+  | RenderCanvasCommand
+  | ResizeTableCommand;
 
 export type Command = CoreCommand | LocalCommand;
 
@@ -1149,6 +1163,7 @@ export const enum CommandResult {
   InvalidCopyPasteSelection = "InvalidCopyPasteSelection",
   NoChanges = "NoChanges",
   InvalidInputId = "InvalidInputId",
+  InvalidTableResize = "InvalidTableResize",
 }
 
 export interface CommandHandler<T> {
