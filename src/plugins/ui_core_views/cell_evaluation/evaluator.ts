@@ -1,4 +1,5 @@
 import { compile } from "../../../formulas";
+import { implementationErrorMessage } from "../../../functions";
 import { matrixMap } from "../../../functions/helpers";
 import { forEachPositionsInZone, JetSet, lazy, toXC } from "../../../helpers";
 import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells";
@@ -19,7 +20,7 @@ import {
   RangeCompiledFormula,
   UID,
 } from "../../../types";
-import { CircularDependencyError, EvaluationError } from "../../../types/errors";
+import { CellErrorType, CircularDependencyError, EvaluationError } from "../../../types/errors";
 import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
 import { RTreeBoundingBox } from "./r_tree";
@@ -262,6 +263,8 @@ export class Evaluator {
         ? this.computeFormulaCell(cellPosition.sheetId, cell)
         : evaluateLiteral(cell.content, localeFormat);
     } catch (e) {
+      e.value = e?.value || CellErrorType.GenericError;
+      e.message = e?.message || implementationErrorMessage;
       return createEvaluatedCell(e);
     } finally {
       this.cellsBeingComputed.delete(cellId);
