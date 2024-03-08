@@ -18,3 +18,4 @@ tests/**/__snapshots__
 tests/**/xlsx_demo_data
 # Ignore all PNG files:
 **/*.png
+**/*.xlsx
