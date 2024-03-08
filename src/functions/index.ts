@@ -93,7 +93,7 @@ function addErrorHandling(
   };
 }
 
-const implementationErrorMessage = _t(
+export const implementationErrorMessage = _t(
   "An unexpected error occurred. Submit a support ticket at odoo.com/help."
 );
 
