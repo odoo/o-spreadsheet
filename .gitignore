@@ -9,6 +9,8 @@ logs/
 
 debug.log
 .git.cache
-*.xlsx
-tests/__xlsx__/xlsx_demo_data/xl/printerSettings
+tests/__xlsx__/xlsx_demo_data/*
+# Excel temp file
+tests/__xlsx__/~$xlsx_demo_data.xlsx
+
 tools/owl_templates/_compiled/*

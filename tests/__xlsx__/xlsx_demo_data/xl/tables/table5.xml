@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<table xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" xmlns:xr3="http://schemas.microsoft.com/office/spreadsheetml/2016/revision3" mc:Ignorable="xr xr3" id="8" xr:uid="{99032175-A8A6-4B1D-82EF-3BD382F7F193}" name="Table49" displayName="Table49" ref="C23:D24" headerRowCount="0" totalsRowShown="0">
-  <tableColumns count="2">
-    <tableColumn id="1" xr3:uid="{BC2A820E-F4AA-4CA5-B00B-F63DC965E4EF}" name="Column1"/>
-    <tableColumn id="2" xr3:uid="{FA7609E7-F1B1-4019-9C97-718E4217747A}" name="Column2"/>
-  </tableColumns>
-  <tableStyleInfo name="TableStyleLight8" showFirstColumn="0" showLastColumn="0" showRowStripes="0" showColumnStripes="1"/>
-</table>
