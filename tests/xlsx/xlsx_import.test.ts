@@ -55,8 +55,8 @@ import {
 
 describe("Import xlsx data", () => {
   let convertedData: WorkbookData;
-  beforeAll(() => {
-    const demo_xlsx = getTextXlsxFiles();
+  beforeAll(async () => {
+    const demo_xlsx = await getTextXlsxFiles();
     const reader = new XlsxReader(demo_xlsx);
     convertedData = reader.convertXlsx();
   });
@@ -203,7 +203,7 @@ describe("Import xlsx data", () => {
   });
 
   test.each([
-    ["overflow", "F19"],
+    [undefined, "F19"], // overflow is the default, no style is needed
     ["wrap", "F20"],
   ])("Can import wrapping mode %s", (wrapType, cellXc) => {
     const testSheet = getWorkbookSheet("jestStyles", convertedData)!;
