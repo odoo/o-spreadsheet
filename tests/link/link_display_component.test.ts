@@ -1,6 +1,12 @@
 import { Model, Spreadsheet } from "../../src";
 import { buildSheetLink } from "../../src/helpers";
-import { clearCell, createSheet, merge, setCellContent } from "../test_helpers/commands_helpers";
+import {
+  clearCell,
+  createSheet,
+  merge,
+  selectCell,
+  setCellContent,
+} from "../test_helpers/commands_helpers";
 import { clickCell, hoverCell, rightClickCell, simulateClick } from "../test_helpers/dom_helper";
 import { getCell, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
@@ -179,7 +185,21 @@ describe("link display component", () => {
     });
   });
 
-  test("open link editor", async () => {
+  test("open link editor selects the related cell in the grid", async () => {
+    selectCell(model, "A10");
+    setCellContent(model, "A1", "[label](url.com)");
+    await hoverCell(model, "A1", 400);
+    await simulateClick(".o-edit-link");
+    expect(fixture.querySelector(".o-link-tool")).toBeFalsy();
+    expect(model.getters.getActivePosition()).toMatchObject({ col: 0, row: 0 });
+    const editor = fixture.querySelector(".o-link-editor");
+    expect(editor).toBeTruthy();
+    const inputs = editor?.querySelectorAll("input")!;
+    expect(inputs[0].value).toBe("label");
+    expect(inputs[1].value).toBe("https://url.com");
+  });
+
+  test("open link editor ", async () => {
     setCellContent(model, "A1", "[label](url.com)");
     await hoverCell(model, "A1", 400);
     await simulateClick(".o-edit-link");
