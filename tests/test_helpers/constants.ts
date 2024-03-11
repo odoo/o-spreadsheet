@@ -119,6 +119,17 @@ export const TEST_COMMANDS: CommandMapping = {
     sheetId: "sheetId",
     zone: { top: 0, left: 0, bottom: 1, right: 1 },
   },
+  CREATE_TABLE_STYLE: {
+    type: "CREATE_TABLE_STYLE",
+    tableStyleId: "MyStyle",
+    tableStyleName: "MyStyle",
+    templateName: "lightWithHeader",
+    primaryColor: "#0f0",
+  },
+  REMOVE_TABLE_STYLE: {
+    type: "REMOVE_TABLE_STYLE",
+    tableStyleId: "MyStyle",
+  },
   HIDE_SHEET: {
     type: "HIDE_SHEET",
     sheetId: "sheetId",

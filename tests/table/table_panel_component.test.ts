@@ -180,7 +180,7 @@ describe("Table side panel", () => {
       ".o-popover .o-table-style-list-item:not(.selected)"
     );
     await click(tableStyleItems[0]);
-    expect(getTable(model, sheetId).config.styleId).toBe(tableStyleItems[0].title);
+    expect(tableStyleItems[0].title).toContain(getTable(model, sheetId).config.styleId);
     expect(fixture.querySelector(".o-popover")).toBeNull();
   });
 

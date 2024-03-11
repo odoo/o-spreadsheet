@@ -6,12 +6,14 @@ import {
   range,
 } from "../../helpers";
 import { transformDefinition } from "../../helpers/figures/charts";
+import { DEFAULT_TABLE_CONFIG } from "../../helpers/table_presets";
 import { otRegistry } from "../../registries";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,
   CreateChartCommand,
   CreateSheetCommand,
+  CreateTableCommand,
   DeleteFigureCommand,
   DeleteSheetCommand,
   FoldHeaderGroupCommand,
@@ -22,6 +24,7 @@ import {
   MoveRangeCommand,
   RemoveColumnsRowsCommand,
   RemoveMergeCommand,
+  RemoveTableStyleCommand,
   UnGroupHeadersCommand,
   UnfoldHeaderGroupCommand,
   UpdateChartCommand,
@@ -64,6 +67,11 @@ otRegistry.addTransformation(
 );
 otRegistry.addTransformation("ADD_COLUMNS_ROWS", ["UPDATE_TABLE"], updateTableTransformation);
 otRegistry.addTransformation("REMOVE_COLUMNS_ROWS", ["UPDATE_TABLE"], updateTableTransformation);
+otRegistry.addTransformation(
+  "REMOVE_TABLE_STYLE",
+  ["CREATE_TABLE", "UPDATE_TABLE"],
+  removeTableStyleTransform
+);
 otRegistry.addTransformation(
   "ADD_COLUMNS_ROWS",
   ["GROUP_HEADERS", "UNGROUP_HEADERS", "FOLD_HEADER_GROUP", "UNFOLD_HEADER_GROUP"],
@@ -189,6 +197,19 @@ function updateTableTransformation(
     ? transformRangeData(toTransform.newTableRange, executed)
     : undefined;
   return { ...toTransform, newTableRange, zone: newCmdZone };
+}
+
+function removeTableStyleTransform(
+  toTransform: UpdateTableCommand | CreateTableCommand,
+  executed: RemoveTableStyleCommand
+): UpdateTableCommand | CreateTableCommand {
+  if (toTransform.config?.styleId !== executed.tableStyleId) {
+    return toTransform;
+  }
+  return {
+    ...toTransform,
+    config: { ...toTransform.config, styleId: DEFAULT_TABLE_CONFIG.styleId },
+  } as UpdateTableCommand | CreateTableCommand;
 }
 
 /**

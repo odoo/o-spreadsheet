@@ -641,6 +641,7 @@ test("complete import, then export", () => {
       },
     ],
     settings: { locale: DEFAULT_LOCALE },
+    customTableStyles: {},
     styles: {
       1: { bold: true, textColor: "#674EA7", fontSize: 12 },
     },
@@ -729,6 +730,7 @@ test("import then export (figures)", () => {
     borders: {},
     uniqueFigureIds: true,
     settings: { locale: DEFAULT_LOCALE },
+    customTableStyles: {},
   };
   const model = new Model(modelData);
   expect(model).toExport(modelData);

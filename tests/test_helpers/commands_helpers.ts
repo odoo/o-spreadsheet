@@ -8,6 +8,7 @@ import {
   ChartDefinition,
   ClipboardPasteOptions,
   CreateSheetCommand,
+  CreateTableStyleCommand,
   DataValidationCriterion,
   Dimension,
   Direction,
@@ -956,6 +957,18 @@ export function deleteTable(
   return model.dispatch("REMOVE_TABLE", { sheetId, target: target(range) });
 }
 
+export function createTableStyle(
+  model: Model,
+  tableStyleId: string,
+  style?: Partial<Omit<CreateTableStyleCommand, "type" | "styleId">>
+): DispatchResult {
+  return model.dispatch("CREATE_TABLE_STYLE", {
+    tableStyleId,
+    primaryColor: style?.primaryColor || "#FF0000",
+    templateName: style?.templateName || "dark",
+    tableStyleName: style?.tableStyleName || tableStyleId,
+  });
+}
 export function setFormat(
   model: Model,
   targetXc: string,
