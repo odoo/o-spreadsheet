@@ -461,22 +461,6 @@ export function isConsecutive(iterable: Iterable<number>): boolean {
   return true;
 }
 
-export class JetSet<T> extends Set<T> {
-  addMany(iterable: Iterable<T>): this {
-    for (const element of iterable) {
-      super.add(element);
-    }
-    return this;
-  }
-  deleteMany(iterable: Iterable<T>): boolean {
-    let wasDeleted = false;
-    for (const element of iterable) {
-      wasDeleted ||= super.delete(element);
-    }
-    return wasDeleted;
-  }
-}
-
 /**
  * Creates a version of the function that's memoized on the value of its first
  * argument, if any.
