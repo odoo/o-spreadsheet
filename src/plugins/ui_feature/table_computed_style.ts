@@ -26,7 +26,7 @@ interface TableRuntime {
   numberOfRows: number;
 }
 
-export class TableStylePlugin extends UIPlugin {
+export class TableComputedStylePlugin extends UIPlugin {
   static getters = ["getCellTableStyle", "getCellTableBorder"] as const;
 
   private tableStyles: Record<UID, Record<TableId, Lazy<ComputedTableStyle>>> = {};
@@ -42,7 +42,11 @@ export class TableStylePlugin extends UIPlugin {
     }
 
     if (doesCommandInvalidatesTableStyle(cmd)) {
-      delete this.tableStyles[cmd.sheetId];
+      if ("sheetId" in cmd) {
+        delete this.tableStyles[cmd.sheetId];
+      } else {
+        this.tableStyles = {};
+      }
       return;
     }
   }
@@ -80,7 +84,8 @@ export class TableStylePlugin extends UIPlugin {
   private computeTableStyle(sheetId: UID, table: Table): Lazy<ComputedTableStyle> {
     return lazy(() => {
       const { config, numberOfCols, numberOfRows } = this.getTableRuntimeConfig(sheetId, table);
-      const relativeTableStyle = getComputedTableStyle(config, numberOfCols, numberOfRows);
+      const style = this.getters.getTableStyle(table.config.styleId);
+      const relativeTableStyle = getComputedTableStyle(config, style, numberOfCols, numberOfRows);
 
       // Return the style with sheet coordinates instead of tables coordinates
       const mapping = this.getTableMapping(sheetId, table);
@@ -193,6 +198,8 @@ const invalidateTableStyleCommands = [
   "UPDATE_FILTER",
   "REMOVE_TABLE",
   "RESIZE_TABLE",
+  "CREATE_TABLE_STYLE",
+  "REMOVE_TABLE_STYLE",
 ] as const;
 const invalidateTableStyleCommandsSet = new Set<CommandTypes>(invalidateTableStyleCommands);
 

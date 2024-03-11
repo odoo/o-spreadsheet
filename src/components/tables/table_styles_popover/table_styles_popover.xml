@@ -1,28 +1,63 @@
 <templates>
   <t t-name="o-spreadsheet-TableStylesPopover">
     <Popover t-if="props.popoverProps" t-props="props.popoverProps">
-      <div class="o-table-style-popover d-flex flex-column px-4 py-1" t-ref="tableStyleList">
-        <div t-foreach="categories" t-as="category" t-key="category">
-          <div class="mt-2 mb-1">
-            <b t-esc="category_value"/>
+      <div
+        class="o-table-style-popover d-flex flex-column px-4 py-3"
+        t-ref="tableStyleList"
+        t-on-contextmenu.prevent="">
+        <div class="d-flex">
+          <div
+            t-foreach="Object.keys(categories)"
+            t-as="category"
+            t-key="category"
+            class="form-check d-flex align-items-center">
+            <input
+              class="form-check-input me-1"
+              type="radio"
+              t-att-id="category_value"
+              t-att-value="category_value"
+              name="category"
+              t-model="state.selectedCategory"
+            />
+            <label
+              class="form-check-label pe-4"
+              t-att-for="category_value"
+              t-esc="categories[category_value]"
+            />
           </div>
-          <div class="d-flex flex-wrap">
-            <div
-              class="o-table-style-list-item"
-              t-att-class="{ 'selected': styleId === props.selectedStyleId }"
-              t-foreach="getPresetsByCategory(category)"
-              t-as="styleId"
-              t-key="styleId"
-              t-att-title="getStyleName(styleId)"
-              t-on-click="() => this.props.onStylePicked(styleId)">
-              <div class="o-table-style-popover-preview">
-                <TableStylePreview tableConfig="getTableConfig(styleId)"/>
-              </div>
+        </div>
+        <hr class="hr my-2"/>
+        <div class="d-flex flex-wrap">
+          <div
+            class="o-table-style-list-item"
+            t-att-class="{ 'selected': styleId === props.selectedStyleId }"
+            t-foreach="displayedStyles"
+            t-as="styleId"
+            t-key="styleId"
+            t-att-title="getStyleName(styleId)"
+            t-on-click="() => this.props.onStylePicked(styleId)"
+            t-on-contextmenu.prevent="(ev) => this.onContextMenu(ev, styleId)">
+            <div class="o-table-style-popover-preview">
+              <TableStylePreview
+                tableConfig="props.tableConfig"
+                tableStyle="env.model.getters.getTableStyle(styleId)"
+              />
             </div>
           </div>
-          <hr t-if="!category_last" class="hr mt-2 mb-0"/>
+          <div
+            t-if="state.selectedCategory === 'custom'"
+            class="o-new-table-style o-table-style-list-item o-table-style-popover-preview d-flex justify-content-center align-items-center"
+            t-on-click="newTableStyle">
+            +
+          </div>
         </div>
       </div>
+      <Menu
+        t-if="menu.isOpen"
+        menuItems="menu.menuItems"
+        position="menu.position"
+        onClose.bind="this.closeMenu"
+      />
     </Popover>
   </t>
 </templates>

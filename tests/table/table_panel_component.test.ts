@@ -2,6 +2,7 @@ import { RangeImpl, toUnboundedZone, toZone, zoneToXc } from "../../src/helpers"
 import { SpreadsheetChildEnv, Table, UID } from "../../src/types";
 import {
   createTable,
+  createTableStyle,
   deleteTable,
   setCellContent,
   setSelection,
@@ -188,6 +189,29 @@ describe("Table side panel", () => {
     expect(tableStyleItems[1].classList).toContain("selected");
   });
 
+  test("Table style picker only contain styles of the same category as the current one", async () => {
+    updateTableConfig(model, "A1:C3", { styleId: "TableStyleMedium1" });
+    await nextTick();
+
+    const getDisplayedStyleIds = () => {
+      return Array.from(fixture.querySelectorAll<HTMLElement>(".o-table-style-list-item")).map(
+        (el) => el.dataset.id
+      );
+    };
+    expect(getDisplayedStyleIds()).toEqual([
+      "TableStyleMedium1",
+      "TableStyleMedium2",
+      "TableStyleMedium3",
+      "TableStyleMedium4",
+    ]);
+
+    createTableStyle(model, "CustomStyle");
+    updateTableConfig(model, "A1:C3", { styleId: "CustomStyle" });
+    await nextTick();
+
+    expect(getDisplayedStyleIds()).toEqual(["CustomStyle"]);
+  });
+
   test("Can toggle the table style pick popover", async () => {
     expect(fixture.querySelector(".o-popover .o-table-style-popover")).toBeNull();
 
@@ -204,7 +228,7 @@ describe("Table side panel", () => {
       ".o-popover .o-table-style-list-item:not(.selected)"
     );
     await click(tableStyleItems[0]);
-    expect(getTable(model, sheetId).config.styleId).toBe(tableStyleItems[0].title);
+    expect(tableStyleItems[0].title).toContain(getTable(model, sheetId).config.styleId);
     expect(fixture.querySelector(".o-popover")).toBeNull();
   });
 

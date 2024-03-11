@@ -62,7 +62,10 @@ interface TableBorder extends Border {
 
 export interface TableStyle {
   category: string;
-  colorName: string;
+
+  displayName: string;
+  templateName: TableStyleTemplateName;
+  primaryColor: string;
 
   wholeTable?: TableElementStyle;
   firstColumnStripe?: TableElementStyle;
@@ -81,3 +84,15 @@ export interface TableStyle {
   // firstTotalCell: TableElementStyle;
   // lastTotalCell: TableElementStyle;
 }
+
+export type TableStyleTemplateName =
+  | "none"
+  | "lightColoredText"
+  | "lightAllBorders"
+  | "mediumAllBorders"
+  | "lightWithHeader"
+  | "mediumBandedBorders"
+  | "mediumMinimalBorders"
+  | "darkNoBorders"
+  | "mediumWhiteBorders"
+  | "dark";

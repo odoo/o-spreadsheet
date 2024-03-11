@@ -9,6 +9,10 @@ import { RemoveDuplicatesPanel } from "../components/side_panel/remove_duplicate
 import { SettingsPanel } from "../components/side_panel/settings/settings_panel";
 import { SplitIntoColumnsPanel } from "../components/side_panel/split_to_columns_panel/split_to_columns_panel";
 import { TablePanel } from "../components/side_panel/table_panel/table_panel";
+import {
+  TableStyleEditorPanel,
+  TableStyleEditorPanelProps,
+} from "../components/side_panel/table_style_editor_panel/table_style_editor_panel";
 import { getTableTopLeft } from "../helpers/table_helpers";
 import { _t } from "../translation";
 import { Getters, UID } from "../types";
@@ -74,6 +78,7 @@ sidePanelRegistry.add("MoreFormats", {
   title: _t("More date formats"),
   Body: MoreFormatsPanel,
 });
+
 sidePanelRegistry.add("TableSidePanel", {
   title: _t("Edit table"),
   Body: TablePanel,
@@ -85,5 +90,17 @@ sidePanelRegistry.add("TableSidePanel", {
 
     const coreTable = getters.getCoreTable(getTableTopLeft(table));
     return { isOpen: true, props: { table: coreTable }, key: table.id };
+  },
+});
+
+sidePanelRegistry.add("TableStyleEditorPanel", {
+  title: _t("Create custom table style"),
+  Body: TableStyleEditorPanel,
+  computeState: (getters: Getters, initialProps: TableStyleEditorPanelProps) => {
+    return {
+      isOpen: true,
+      props: { ...initialProps },
+      key: initialProps.styleId ?? "new",
+    };
   },
 });

@@ -15,7 +15,7 @@ import {
   zoneToXc,
 } from "../../helpers";
 import { createFilter } from "../../helpers/table_helpers";
-import { DEFAULT_TABLE_CONFIG, TABLE_PRESETS } from "../../helpers/table_presets";
+import { DEFAULT_TABLE_CONFIG } from "../../helpers/table_presets";
 import {
   ApplyRangeChange,
   CellPosition,
@@ -291,10 +291,6 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
     if (config.numberOfHeaders !== undefined && config.numberOfHeaders < 0) {
       return CommandResult.InvalidTableConfig;
     }
-    if (config.styleId && !TABLE_PRESETS[config.styleId]) {
-      return CommandResult.InvalidTableConfig;
-    }
-
     if (config.hasFilters && config.numberOfHeaders === 0) {
       return CommandResult.InvalidTableConfig;
     }

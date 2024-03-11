@@ -207,12 +207,14 @@ describe("Custom colors with table styles", () => {
     firstColumn: { style: { fillColor: "#234567" } },
     totalRow: { style: { textColor: "#345678" } },
     category: "dark",
-    colorName: "customColor",
+    displayName: "customStyle",
+    templateName: "dark",
+    primaryColor: "#123456",
   };
 
   beforeEach(() => {
-    model = new Model();
     TABLE_PRESETS["customStyle"] = customStyle;
+    model = new Model();
   });
 
   afterEach(() => {

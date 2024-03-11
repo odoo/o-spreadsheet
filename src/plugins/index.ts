@@ -16,6 +16,7 @@ import {
 import { HeaderGroupingPlugin } from "./core/header_grouping";
 import { PivotCorePlugin } from "./core/pivot";
 import { SettingsPlugin } from "./core/settings";
+import { TableStylePlugin } from "./core/table_style";
 import { CorePluginConstructor } from "./core_plugin";
 import {
   CustomColorsPlugin,
@@ -43,8 +44,8 @@ import { CellComputedStylePlugin } from "./ui_feature/cell_computed_style";
 import { HistoryPlugin } from "./ui_feature/local_history";
 import { SplitToColumnsPlugin } from "./ui_feature/split_to_columns";
 import { TableAutofillPlugin } from "./ui_feature/table_autofill";
+import { TableComputedStylePlugin } from "./ui_feature/table_computed_style";
 import { TableResizeUI } from "./ui_feature/table_resize_ui";
-import { TableStylePlugin } from "./ui_feature/table_style";
 import { UIPluginConstructor } from "./ui_plugin";
 import {
   ClipboardPlugin,
@@ -69,7 +70,8 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("figures", FigurePlugin)
   .add("chart", ChartPlugin)
   .add("image", ImagePlugin)
-  .add("pivot_core", PivotCorePlugin);
+  .add("pivot_core", PivotCorePlugin)
+  .add("tableStyle", TableStylePlugin);
 
 // Plugins which handle a specific feature, without handling any core commands
 export const featurePluginRegistry = new Registry<UIPluginConstructor>()
@@ -92,8 +94,8 @@ export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()
   .add("selection", GridSelectionPlugin)
   .add("evaluation_filter", FilterEvaluationPlugin)
   .add("header_visibility_ui", HeaderVisibilityUIPlugin)
-  .add("table_style", TableStylePlugin)
   .add("cell_computed_style", CellComputedStylePlugin)
+  .add("table_computed_style", TableComputedStylePlugin)
   .add("header_positions", HeaderPositionsUIPlugin)
   .add("viewport", SheetViewPlugin)
   .add("clipboard", ClipboardPlugin);
