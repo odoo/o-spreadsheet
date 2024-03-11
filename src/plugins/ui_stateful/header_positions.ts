@@ -23,12 +23,8 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
         }
         break;
       case "UPDATE_CELL":
-        if ("content" in cmd || "format" in cmd) {
-          this.headerPositions = {};
-          this.isDirty = true;
-        } else {
-          this.headerPositions[cmd.sheetId] = this.computeHeaderPositionsOfSheet(cmd.sheetId);
-        }
+        this.headerPositions = {};
+        this.isDirty = true;
         break;
       case "UPDATE_FILTER":
       case "REMOVE_FILTER_TABLE":
