@@ -37,14 +37,12 @@ import { TABLE_PRESETS } from "../../src/helpers/table_presets";
 import { TABLE_STYLE_ALL_RED } from "../test_helpers/constants";
 import { DEFAULT_TABLE_CONFIG } from "./../../src/helpers/table_presets";
 
-const oldTablePresets = { ...TABLE_PRESETS };
 beforeEach(() => {
   TABLE_PRESETS.TestStyleAllRed = TABLE_STYLE_ALL_RED;
 });
 
 afterEach(() => {
-  Object.keys(TABLE_PRESETS).forEach((key) => delete TABLE_PRESETS[key]);
-  Object.assign(TABLE_PRESETS, oldTablePresets);
+  delete TABLE_PRESETS.TestStyleAllRed;
 });
 
 describe("Table plugin", () => {

@@ -610,6 +610,7 @@ export function createEmptyWorkbookData(sheetName = "Sheet1"): WorkbookData {
     settings: { locale: DEFAULT_LOCALE },
     pivots: {},
     pivotNextId: 1,
+    customTableStyles: {},
   };
   return data;
 }

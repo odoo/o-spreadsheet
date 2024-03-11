@@ -1,6 +1,5 @@
 import { Model } from "../../src";
 import { toZone, zoneToXc } from "../../src/helpers";
-import { TABLE_PRESETS } from "../../src/helpers/table_presets";
 import { UID } from "../../src/types";
 import {
   copy,
@@ -15,7 +14,6 @@ import {
   updateTableConfig,
   updateTableZone,
 } from "../test_helpers/commands_helpers";
-import { TABLE_STYLE_ALL_RED } from "../test_helpers/constants";
 import { getCell } from "../test_helpers/getters_helpers";
 import {
   getExportedExcelData,
@@ -26,17 +24,9 @@ import {
 let model: Model;
 let sheetId: UID;
 
-const oldTablePresets = { ...TABLE_PRESETS };
-
 beforeEach(() => {
   model = new Model();
   sheetId = model.getters.getActiveSheetId();
-  TABLE_PRESETS.TestStyleAllRed = TABLE_STYLE_ALL_RED;
-});
-
-afterEach(() => {
-  Object.keys(TABLE_PRESETS).forEach((key) => delete TABLE_PRESETS[key]);
-  Object.assign(TABLE_PRESETS, oldTablePresets);
 });
 
 function getTables(model: Model, sheetId: UID) {
@@ -199,13 +189,15 @@ describe("Dynamic tables", () => {
   test("Can copy/paste a cell of a dynamic table", () => {
     setCellContent(model, "A1", "=MUNIT(2)");
     createDynamicTable(model, "A1");
-    updateTableConfig(model, "A1", { styleId: "TestStyleAllRed" });
+    updateTableConfig(model, "A1", { styleId: "TableStyleDark11" });
 
     copy(model, "B1");
     paste(model, "D1");
 
     expect(model.getters.getTable({ sheetId, col: 3, row: 0 })).toBeUndefined();
-    expect(getCell(model, "D1")?.style).toMatchObject({ fillColor: "#FF0000" });
+    expect(getCell(model, "D1")?.style).toMatchObject(
+      model.getters.getCellComputedStyle(toCellPosition(sheetId, "B1"))
+    );
   });
 
   describe("Import/export", () => {

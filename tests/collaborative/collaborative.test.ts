@@ -2,6 +2,7 @@ import { Model, UIPlugin } from "../../src";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { functionRegistry } from "../../src/functions";
 import { getDefaultCellHeight, range, toCartesian, toZone } from "../../src/helpers";
+import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { featurePluginRegistry } from "../../src/plugins";
 import { Command, CommandResult, CoreCommand, DataValidationCriterion } from "../../src/types";
 import { CollaborationMessage } from "../../src/types/collaborative/transport_service";
@@ -16,6 +17,7 @@ import {
   createChart,
   createSheet,
   createTable,
+  createTableStyle,
   deleteRows,
   deleteSheet,
   groupHeaders,
@@ -23,10 +25,12 @@ import {
   hideSheet,
   merge,
   paste,
+  redo,
   setCellContent,
   setStyle,
   undo,
   ungroupHeaders,
+  updateTableConfig,
 } from "../test_helpers/commands_helpers";
 import {
   getBorder,
@@ -824,6 +828,72 @@ describe("Multi users synchronisation", () => {
         { id: "id2", ranges: ["A3:A7"], criterion, isBlocking: false },
       ]
     );
+  });
+
+  describe("Table style", () => {
+    test("Create a table with a style, and delete the style at the same time", () => {
+      createTableStyle(alice, "MyStyle");
+      network.concurrent(() => {
+        alice.dispatch("REMOVE_TABLE_STYLE", { tableStyleId: "MyStyle" });
+        createTable(bob, "A1:B4", { styleId: "MyStyle" });
+      });
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getTables(user.getters.getActiveSheetId())[0].config.styleId,
+        DEFAULT_TABLE_CONFIG.styleId
+      );
+    });
+
+    test("Update a table with a style, and delete the style at the same time", () => {
+      createTableStyle(alice, "MyStyle");
+      createTable(alice, "A1:B4");
+      network.concurrent(() => {
+        alice.dispatch("REMOVE_TABLE_STYLE", { tableStyleId: "MyStyle" });
+        updateTableConfig(bob, "A1:B4", { styleId: "MyStyle" });
+      });
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getTables(user.getters.getActiveSheetId())[0].config.styleId,
+        DEFAULT_TABLE_CONFIG.styleId
+      );
+    });
+
+    test("Undo create table style with another user that created a table with this style", () => {
+      createTableStyle(alice, "MyStyle");
+      createTable(bob, "A1:B4", { styleId: "MyStyle" });
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getTables(user.getters.getActiveSheetId())[0].config.styleId,
+        "MyStyle"
+      );
+
+      undo(alice);
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getTables(user.getters.getActiveSheetId())[0].config.styleId,
+        DEFAULT_TABLE_CONFIG.styleId
+      );
+
+      redo(alice);
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getTables(user.getters.getActiveSheetId())[0].config.styleId,
+        "MyStyle"
+      );
+    });
+
+    test("Undo delete table style have synchronized values", () => {
+      createTableStyle(alice, "MyStyle");
+      network.concurrent(() => {
+        alice.dispatch("REMOVE_TABLE_STYLE", { tableStyleId: "MyStyle" });
+        createTable(bob, "A1:B4", { styleId: "MyStyle" });
+      });
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getTables(user.getters.getActiveSheetId())[0].config.styleId,
+        DEFAULT_TABLE_CONFIG.styleId
+      );
+
+      undo(alice);
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getTables(user.getters.getActiveSheetId())[0].config.styleId,
+        DEFAULT_TABLE_CONFIG.styleId
+      );
+    });
   });
 });
 

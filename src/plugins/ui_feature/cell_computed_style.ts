@@ -8,7 +8,7 @@ import {
 } from "../../types";
 import { Border, CellPosition, Style, UID } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
-import { doesCommandInvalidatesTableStyle } from "./table_style";
+import { doesCommandInvalidatesTableStyle } from "./table_computed_style";
 
 export class CellComputedStylePlugin extends UIPlugin {
   static getters = ["getCellComputedBorder", "getCellComputedStyle"] as const;
@@ -28,8 +28,13 @@ export class CellComputedStylePlugin extends UIPlugin {
     }
 
     if (doesCommandInvalidatesTableStyle(cmd)) {
-      delete this.styles[cmd.sheetId];
-      delete this.borders[cmd.sheetId];
+      if ("sheetId" in cmd) {
+        delete this.styles[cmd.sheetId];
+        delete this.borders[cmd.sheetId];
+      } else {
+        this.styles = {};
+        this.borders = {};
+      }
       return;
     }
 

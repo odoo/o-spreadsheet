@@ -13,6 +13,7 @@ import { PivotCorePlugin } from "../plugins/core/pivot";
 import { RangeAdapter } from "../plugins/core/range";
 import { SettingsPlugin } from "../plugins/core/settings";
 import { SheetPlugin } from "../plugins/core/sheet";
+import { TableStylePlugin } from "../plugins/core/table_style";
 import { TablePlugin } from "../plugins/core/tables";
 import { EvaluationDataValidationPlugin } from "../plugins/ui_core_views";
 import { EvaluationPlugin } from "../plugins/ui_core_views/cell_evaluation";
@@ -31,7 +32,7 @@ import { HeaderVisibilityUIPlugin } from "../plugins/ui_feature/header_visibilit
 import { HistoryPlugin } from "../plugins/ui_feature/local_history";
 import { SortPlugin } from "../plugins/ui_feature/sort";
 import { SplitToColumnsPlugin } from "../plugins/ui_feature/split_to_columns";
-import { TableStylePlugin } from "../plugins/ui_feature/table_style";
+import { TableComputedStylePlugin } from "../plugins/ui_feature/table_computed_style";
 import { UIOptionsPlugin } from "../plugins/ui_feature/ui_options";
 import { SheetUIPlugin } from "../plugins/ui_feature/ui_sheet";
 import { ClipboardPlugin } from "../plugins/ui_stateful/clipboard";
@@ -142,4 +143,5 @@ export type Getters = {
   PluginGetters<typeof TableStylePlugin> &
   PluginGetters<typeof CellComputedStylePlugin> &
   PluginGetters<typeof DynamicTablesPlugin> &
-  PluginGetters<typeof PivotUIPlugin>;
+  PluginGetters<typeof PivotUIPlugin> &
+  PluginGetters<typeof TableComputedStylePlugin>;

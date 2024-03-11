@@ -3,6 +3,7 @@
 exports[`Model export formula with unbound zone stays unbound 1`] = `
 {
   "borders": {},
+  "customTableStyles": {},
   "formats": {},
   "pivotNextId": 1,
   "pivots": {},

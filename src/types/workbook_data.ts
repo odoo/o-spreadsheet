@@ -4,7 +4,7 @@ import { ConditionalFormat } from "./conditional_formatting";
 import { Image } from "./image";
 import { Border, Dimension, HeaderGroup, PaneDivision, Pixel, Style, UID } from "./misc";
 import { PivotCoreDefinition } from "./pivot";
-import { CoreTableType, TableConfig } from "./table";
+import { CoreTableType, TableConfig, TableStyleTemplateName } from "./table";
 
 export interface Dependencies {
   references: string[];
@@ -72,6 +72,7 @@ export interface WorkbookData {
   revisionId: UID;
   uniqueFigureIds: boolean;
   settings: WorkbookSettings;
+  customTableStyles: { [key: string]: TableStyleData };
 }
 
 export interface ExcelWorkbookData extends WorkbookData {
@@ -117,4 +118,10 @@ export interface ExcelFilterData {
   colId: number;
   displayedValues: string[];
   displayBlanks?: boolean;
+}
+
+export interface TableStyleData {
+  templateName: TableStyleTemplateName;
+  primaryColor: string;
+  displayName: string;
 }
