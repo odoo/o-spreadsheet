@@ -25,7 +25,7 @@ interface TableRuntime {
   numberOfRows: number;
 }
 
-export class TableStylePlugin extends UIPlugin {
+export class TableComputedStylePlugin extends UIPlugin {
   static getters = ["getCellTableStyle", "getCellTableBorder"] as const;
 
   private tableStyles: Record<UID, Record<TableId, Lazy<ComputedTableStyle>>> = {};
@@ -86,7 +86,8 @@ export class TableStylePlugin extends UIPlugin {
   private computeTableStyle(sheetId: UID, table: Table): Lazy<ComputedTableStyle> {
     return lazy(() => {
       const { config, numberOfCols, numberOfRows } = this.getTableRuntimeConfig(sheetId, table);
-      const relativeTableStyle = getComputedTableStyle(config, numberOfCols, numberOfRows);
+      const style = this.getters.getTableStyle(table.config.styleId);
+      const relativeTableStyle = getComputedTableStyle(config, style, numberOfCols, numberOfRows);
 
       // Return the style with sheet coordinates instead of tables coordinates
       const mapping = this.getTableMapping(sheetId, table);

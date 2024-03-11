@@ -1,6 +1,5 @@
 import { Component, useState } from "@odoo/owl";
 import { getTableStyleName } from "../../../helpers/table_helpers";
-import { TABLE_PRESETS } from "../../../helpers/table_presets";
 import { SpreadsheetChildEnv } from "../../../types";
 import { Table, TableConfig } from "../../../types/table";
 import { css } from "../../helpers";
@@ -58,7 +57,7 @@ export class TableStylePicker extends Component<TableStylePickerProps, Spreadshe
   state = useState<TableStylePickerState>({ popoverProps: undefined });
 
   getDisplayedTableStyles() {
-    const styles = Object.keys(TABLE_PRESETS);
+    const styles = Object.keys(this.env.model.getters.getTableStyles());
     const selectedStyleIndex = styles.indexOf(this.props.table.config.styleId);
     if (selectedStyleIndex === -1) {
       return styles.slice(0, 4);
@@ -101,6 +100,6 @@ export class TableStylePicker extends Component<TableStylePickerProps, Spreadshe
   }
 
   getStyleName(styleId: string): string {
-    return getTableStyleName(styleId, TABLE_PRESETS[styleId]);
+    return getTableStyleName(styleId, this.env.model.getters.getTableStyle(styleId));
   }
 }

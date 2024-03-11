@@ -338,6 +338,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
     onMounted(() => {
       this.checkViewportSize();
+      this.sidePanel.open("TableStyleEditor", {});
     });
     onWillUnmount(() => this.unbindModelEvents());
     onPatched(() => {

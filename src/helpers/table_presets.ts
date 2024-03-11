@@ -33,9 +33,9 @@ interface ColorSet {
   highlight: Color;
 }
 
-type StyleTemplate = (colorSet: ColorSet) => TableStyle;
+export type TableStyleTemplate = (colorSet: ColorSet) => TableStyle;
 
-function generateColorSet(name: string, highlightColor: Color): ColorSet {
+export function generateTableColorSet(name: string, highlightColor: Color): ColorSet {
   return {
     coloredText: darkenColor(highlightColor, 0.3),
     light: lightenColor(highlightColor, 0.8),
@@ -57,10 +57,10 @@ const COLOR_SETS = {
     mediumBorder: "#000000",
     highlight: "#000000",
   },
-  lightBlue: generateColorSet(_t("Light blue"), "#346B90"),
-  red: generateColorSet(_t("Red"), "#C53628"),
-  lightGreen: generateColorSet(_t("Light green"), "#748747"),
-  purple: generateColorSet(_t("Purple"), "#6C4E65"),
+  lightBlue: generateTableColorSet(_t("Light blue"), "#346B90"),
+  red: generateTableColorSet(_t("Red"), "#C53628"),
+  lightGreen: generateTableColorSet(_t("Light green"), "#748747"),
+  purple: generateTableColorSet(_t("Purple"), "#6C4E65"),
   gray: {
     name: _t("Gray"),
     coloredText: "#666666",
@@ -70,7 +70,7 @@ const COLOR_SETS = {
     mediumBorder: "#D0D0D0",
     highlight: "#A9A9A9",
   },
-  orange: generateColorSet(_t("Orange"), "#C37034"),
+  orange: generateTableColorSet(_t("Orange"), "#C37034"),
 };
 
 const DARK_COLOR_SETS = {
@@ -80,7 +80,7 @@ const DARK_COLOR_SETS = {
   redBlue: { ...COLOR_SETS.lightBlue, highlight: COLOR_SETS.red.highlight },
 };
 
-const lightTemplateColoredText: StyleTemplate = (colorSet) => ({
+const lightTemplateColoredText: TableStyleTemplate = (colorSet) => ({
   category: "light",
   colorName: colorSet.name,
   wholeTable: {
@@ -95,7 +95,7 @@ const lightTemplateColoredText: StyleTemplate = (colorSet) => ({
   firstRowStripe: { style: { fillColor: colorSet.light } },
 });
 
-const lightTemplateWithHeader: StyleTemplate = (colorSet) => ({
+const lightTemplateWithHeader: TableStyleTemplate = (colorSet) => ({
   category: "light",
   colorName: colorSet.name,
   wholeTable: {
@@ -115,7 +115,7 @@ const lightTemplateWithHeader: StyleTemplate = (colorSet) => ({
   secondRowStripe: { border: { bottom: { color: colorSet.highlight, style: "thin" } } },
 });
 
-const lightTemplateAllBorders: StyleTemplate = (colorSet) => ({
+const lightTemplateAllBorders: TableStyleTemplate = (colorSet) => ({
   category: "light",
   colorName: colorSet.name,
   wholeTable: {
@@ -134,7 +134,7 @@ const lightTemplateAllBorders: StyleTemplate = (colorSet) => ({
   firstColumnStripe: { style: { fillColor: colorSet.light } },
 });
 
-const mediumTemplateBandedBorders: StyleTemplate = (colorSet) => ({
+const mediumTemplateBandedBorders: TableStyleTemplate = (colorSet) => ({
   category: "medium",
   colorName: colorSet.name,
   wholeTable: {
@@ -154,7 +154,7 @@ const mediumTemplateBandedBorders: StyleTemplate = (colorSet) => ({
   firstColumnStripe: { style: { fillColor: colorSet.light } },
 });
 
-const mediumTemplateWhiteBorders: StyleTemplate = (colorSet) => ({
+const mediumTemplateWhiteBorders: TableStyleTemplate = (colorSet) => ({
   category: "medium",
   colorName: colorSet.name,
   wholeTable: {
@@ -178,7 +178,7 @@ const mediumTemplateWhiteBorders: StyleTemplate = (colorSet) => ({
   firstColumnStripe: { style: { fillColor: colorSet.medium } },
 });
 
-const mediumTemplateMinimalBorders: StyleTemplate = (colorSet) => ({
+const mediumTemplateMinimalBorders: TableStyleTemplate = (colorSet) => ({
   category: "medium",
   colorName: colorSet.name,
   wholeTable: {
@@ -198,7 +198,7 @@ const mediumTemplateMinimalBorders: StyleTemplate = (colorSet) => ({
   firstColumnStripe: { style: { fillColor: COLOR_SETS.black.light } },
 });
 
-const mediumTemplateAllBorders: StyleTemplate = (colorSet) => ({
+const mediumTemplateAllBorders: TableStyleTemplate = (colorSet) => ({
   category: "medium",
   colorName: colorSet.name,
   wholeTable: {
@@ -217,7 +217,7 @@ const mediumTemplateAllBorders: StyleTemplate = (colorSet) => ({
   firstColumnStripe: { style: { fillColor: colorSet.medium } },
 });
 
-const darkTemplate: StyleTemplate = (colorSet) => ({
+const darkTemplate: TableStyleTemplate = (colorSet) => ({
   category: "dark",
   colorName: colorSet.name,
   wholeTable: { style: { fillColor: colorSet.highlight, textColor: "#FFFFFF" } },
@@ -241,7 +241,7 @@ const darkTemplate: StyleTemplate = (colorSet) => ({
   firstColumnStripe: { style: { fillColor: colorSet.dark } },
 });
 
-const darkTemplateNoBorders: StyleTemplate = (colorSet) => ({
+const darkTemplateNoBorders: TableStyleTemplate = (colorSet) => ({
   category: "dark",
   colorName: colorSet.name,
   wholeTable: { style: { fillColor: colorSet.light } },
@@ -335,3 +335,15 @@ export const TABLE_PRESETS: Record<string, TableStyle> = {
   TableStyleDark10: darkTemplateNoBorders(DARK_COLOR_SETS.purpleGreen),
   TableStyleDark11: darkTemplateNoBorders(DARK_COLOR_SETS.orangeBlue),
 };
+
+export const TABLE_STYLES_TEMPLATES: TableStyleTemplate[] = [
+  lightTemplateColoredText,
+  lightTemplateAllBorders,
+  mediumTemplateAllBorders,
+  lightTemplateWithHeader,
+  mediumTemplateBandedBorders,
+  mediumTemplateMinimalBorders,
+  darkTemplateNoBorders,
+  mediumTemplateWhiteBorders,
+  darkTemplate,
+];

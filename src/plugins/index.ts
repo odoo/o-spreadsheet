@@ -15,6 +15,7 @@ import {
 } from "./core";
 import { HeaderGroupingPlugin } from "./core/header_grouping";
 import { SettingsPlugin } from "./core/settings";
+import { TableStylePlugin } from "./core/table_style";
 import { CorePluginConstructor } from "./core_plugin";
 import {
   CustomColorsPlugin,
@@ -38,7 +39,7 @@ import {
 } from "./ui_feature";
 import { HistoryPlugin } from "./ui_feature/local_history";
 import { SplitToColumnsPlugin } from "./ui_feature/split_to_columns";
-import { TableStylePlugin } from "./ui_feature/table_style";
+import { TableComputedStylePlugin } from "./ui_feature/table_computed_style";
 import { UIPluginConstructor } from "./ui_plugin";
 import {
   ClipboardPlugin,
@@ -62,7 +63,8 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("conditional formatting", ConditionalFormatPlugin)
   .add("figures", FigurePlugin)
   .add("chart", ChartPlugin)
-  .add("image", ImagePlugin);
+  .add("image", ImagePlugin)
+  .add("tableStyle", TableStylePlugin);
 
 // Plugins which handle a specific feature, without handling any core commands
 export const featurePluginRegistry = new Registry<UIPluginConstructor>()
@@ -83,7 +85,7 @@ export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()
   .add("selection", GridSelectionPlugin)
   .add("evaluation_filter", FilterEvaluationPlugin)
   .add("header_visibility_ui", HeaderVisibilityUIPlugin)
-  .add("table_style", TableStylePlugin)
+  .add("table_computed_style", TableComputedStylePlugin)
   .add("header_positions", HeaderPositionsUIPlugin)
   .add("viewport", SheetViewPlugin)
   .add("clipboard", ClipboardPlugin);

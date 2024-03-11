@@ -1,6 +1,6 @@
 import { Component, useExternalListener, useRef } from "@odoo/owl";
 import { getTableStyleName } from "../../../helpers/table_helpers";
-import { TABLE_PRESETS, TABLE_STYLE_CATEGORIES } from "../../../helpers/table_presets";
+import { TABLE_STYLE_CATEGORIES } from "../../../helpers/table_presets";
 import { SpreadsheetChildEnv } from "../../../types";
 import { TableConfig } from "../../../types/table";
 import { css } from "../../helpers";
@@ -60,7 +60,7 @@ export class TableStylesPopover extends Component<TableStylesPopoverProps, Sprea
     selectedStyleId: { type: String, optional: true },
   };
 
-  stylePresets = TABLE_PRESETS;
+  stylePresets = this.env.model.getters.getTableStyles();
   categories = TABLE_STYLE_CATEGORIES;
 
   private tableStyleListRef = useRef("tableStyleList");
@@ -83,10 +83,11 @@ export class TableStylesPopover extends Component<TableStylesPopoverProps, Sprea
   }
 
   getTableConfig(styleId: string): TableConfig {
+    // ADMR TODO: change this (same in table panel probably?)
     return { ...this.props.tableConfig, styleId: styleId };
   }
 
   getStyleName(styleId: string): string {
-    return getTableStyleName(styleId, TABLE_PRESETS[styleId]);
+    return getTableStyleName(styleId, this.stylePresets[styleId]);
   }
 }

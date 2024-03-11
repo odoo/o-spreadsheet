@@ -9,6 +9,7 @@ import { RemoveDuplicatesPanel } from "../components/side_panel/remove_duplicate
 import { SettingsPanel } from "../components/side_panel/settings/settings_panel";
 import { SplitIntoColumnsPanel } from "../components/side_panel/split_to_columns_panel/split_to_columns_panel";
 import { TablePanel } from "../components/side_panel/table_panel/table_panel";
+import { TableStyleEditorPanel } from "../components/side_panel/table_style_editor_panel/table_style_editor_panel";
 import { _t } from "../translation";
 import { Getters, UID } from "../types";
 import { sidePanelRegistry } from "./side_panel_registry";
@@ -73,6 +74,7 @@ sidePanelRegistry.add("MoreFormats", {
   title: _t("More date formats"),
   Body: MoreFormatsPanel,
 });
+
 sidePanelRegistry.add("TableSidePanel", {
   title: _t("Edit table"),
   Body: TablePanel,
@@ -87,4 +89,9 @@ sidePanelRegistry.add("TableSidePanel", {
       key: table.id,
     };
   },
+});
+
+sidePanelRegistry.add("TableStyleEditor", {
+  title: _t("Edit table style"),
+  Body: TableStyleEditorPanel,
 });

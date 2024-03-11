@@ -10,7 +10,6 @@ import {
   toHex,
 } from "../../helpers";
 import { GaugeChart, ScorecardChart } from "../../helpers/figures/charts";
-import { TABLE_PRESETS } from "../../helpers/table_presets";
 import { Color, CoreViewCommand, Immutable, RGBA, TableElementStyle, UID } from "../../types";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
@@ -190,7 +189,7 @@ export class CustomColorsPlugin extends UIPlugin<CustomColorState> {
     const tables = this.getters.getTables(sheetId);
     return tables.flatMap((table) => {
       const config = table.config;
-      const style = TABLE_PRESETS[config.styleId];
+      const style = this.getters.getTableStyle(config.styleId);
       return [
         this.getTableStyleElementColors(style.wholeTable),
         config.numberOfHeaders > 0 ? this.getTableStyleElementColors(style.headerRow) : [],

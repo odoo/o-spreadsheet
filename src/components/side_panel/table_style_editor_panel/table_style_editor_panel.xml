@@ -1,0 +1,52 @@
+<templates>
+  <t t-name="o-spreadsheet-TableStyleEditorPanel">
+    <div class="o-table-style-editor-panel">
+      <Section>
+        <t t-set-slot="title">Style name</t>
+        <input
+          type="text"
+          class="o-input o-optional"
+          t-att-value="state.styleName"
+          t-on-change="updateTitle"
+        />
+      </Section>
+      <Section>
+        <t t-set-slot="title">Style color</t>
+        <div class="d-flex align-items-center">
+          <div
+            class="o-color-preview"
+            t-att-style="colorPreviewStyle"
+            t-on-click.stop="togglePicker"
+          />
+          <span class="pe-1">Primary table style color</span>
+          <ColorPickerWidget
+            currentColor="state.primaryColor"
+            showColorPicker="state.pickerOpened"
+            toggleColorPicker.bind="togglePicker"
+            onColorPicked.bind="onColorPicked"
+            icon="'o-spreadsheet-Icon.FILL_COLOR'"
+          />
+        </div>
+      </Section>
+      <Section class="'pt-1'">
+        <t t-set-slot="title">Style Template</t>
+        <div class="o-table-style-edit-grid">
+          <div
+            class="o-table-style-list-item"
+            t-foreach="tableTemplates"
+            t-as="template"
+            t-key="template_index"
+            t-att-class="{ 'selected': template === state.selectedTemplate }"
+            t-on-click="() => this.onTemplatePicked(template)">
+            <div class="o-table-style-edit-template-preview">
+              <TableStylePreview
+                tableConfig="previewTableConfig"
+                tableStyle="computeTableStyle(template)"
+              />
+            </div>
+          </div>
+        </div>
+      </Section>
+    </div>
+  </t>
+</templates>
