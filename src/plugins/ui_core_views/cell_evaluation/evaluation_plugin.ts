@@ -1,5 +1,5 @@
 import { compileTokens } from "../../../formulas/compiler";
-import { Token, isExportableToExcel } from "../../../formulas/index";
+import { isExportableToExcel, Token } from "../../../formulas/index";
 import { getItemId, positions, toXC } from "../../../helpers/index";
 import { CellErrorType } from "../../../types/errors";
 import {
@@ -13,11 +13,11 @@ import {
   Format,
   FormattedValue,
   FormulaCell,
+  invalidateDependenciesCommands,
   Matrix,
   Range,
   UID,
   Zone,
-  invalidateDependenciesCommands,
 } from "../../../types/index";
 import { FormulaCellWithDependencies } from "../../core";
 import { UIPlugin, UIPluginConfig } from "../../ui_plugin";
@@ -188,6 +188,10 @@ export class EvaluationPlugin extends UIPlugin {
         if ("content" in cmd) {
           this.evaluator.updateDependencies(cmd);
         }
+        break;
+      case "DUPLICATE_SHEET":
+      case "CREATE_SHEET":
+        this.shouldRebuildDependenciesGraph = true;
         break;
       case "EVALUATE_CELLS":
         this.evaluator.evaluateAllCells();

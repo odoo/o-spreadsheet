@@ -1,4 +1,6 @@
-import { PositionId } from "./evaluator";
+import { CellPosition } from "../../../types";
+import { PositionMap } from "./position_map";
+import { PositionSet } from "./position_set";
 
 /**
  * Contains, for each cell, the array
@@ -41,51 +43,53 @@ export class SpreadingRelation {
    * - (B1) --> (B2, B3, B4)  meaning B1 spreads on B2, B3 and B4
    *
    */
-  private readonly resultsToArrayFormulas: Map<PositionId, Set<PositionId>> = new Map();
-  private readonly arrayFormulasToResults: Map<PositionId, Set<PositionId>> = new Map();
+  private readonly resultsToArrayFormulas: PositionMap<PositionSet> = new PositionMap();
+  private readonly arrayFormulasToResults: PositionMap<PositionSet> = new PositionMap();
 
-  getFormulaPositionsSpreadingOn(resultPositionId: PositionId): Iterable<PositionId> {
-    return this.resultsToArrayFormulas.get(resultPositionId) || EMPTY_ARRAY;
+  constructor(private readonly createEmptyPositionSet: () => PositionSet) {}
+
+  getFormulaPositionsSpreadingOn(resultPosition: CellPosition): Iterable<CellPosition> {
+    return this.resultsToArrayFormulas.get(resultPosition) || EMPTY_ARRAY;
   }
 
-  getArrayResultPositionIds(formulasPositionId: PositionId): Iterable<PositionId> {
-    return this.arrayFormulasToResults.get(formulasPositionId) || EMPTY_ARRAY;
+  getArrayResultPositions(formulasPosition: CellPosition): Iterable<CellPosition> {
+    return this.arrayFormulasToResults.get(formulasPosition) || EMPTY_ARRAY;
   }
 
   /**
    * Remove a node, also remove it from other nodes adjacency list
    */
-  removeNode(positionId: PositionId) {
-    this.resultsToArrayFormulas.delete(positionId);
-    this.arrayFormulasToResults.delete(positionId);
+  removeNode(position: CellPosition) {
+    this.resultsToArrayFormulas.delete(position);
+    this.arrayFormulasToResults.delete(position);
   }
 
   /**
    * Create a spreading relation between two cells
    */
   addRelation({
-    arrayFormulaPositionId,
-    resultPositionId,
+    arrayFormulaPosition,
+    resultPosition,
   }: {
-    arrayFormulaPositionId: PositionId;
-    resultPositionId: PositionId;
+    arrayFormulaPosition: CellPosition;
+    resultPosition: CellPosition;
   }): void {
-    if (!this.resultsToArrayFormulas.has(resultPositionId)) {
-      this.resultsToArrayFormulas.set(resultPositionId, new Set<PositionId>());
+    if (!this.resultsToArrayFormulas.has(resultPosition)) {
+      this.resultsToArrayFormulas.set(resultPosition, this.createEmptyPositionSet());
     }
-    this.resultsToArrayFormulas.get(resultPositionId)?.add(arrayFormulaPositionId);
-    if (!this.arrayFormulasToResults.has(arrayFormulaPositionId)) {
-      this.arrayFormulasToResults.set(arrayFormulaPositionId, new Set<PositionId>());
+    this.resultsToArrayFormulas.get(resultPosition)?.add(arrayFormulaPosition);
+    if (!this.arrayFormulasToResults.has(arrayFormulaPosition)) {
+      this.arrayFormulasToResults.set(arrayFormulaPosition, this.createEmptyPositionSet());
     }
-    this.arrayFormulasToResults.get(arrayFormulaPositionId)?.add(resultPositionId);
+    this.arrayFormulasToResults.get(arrayFormulaPosition)?.add(resultPosition);
   }
 
-  hasArrayFormulaResult(positionId: PositionId): boolean {
-    return this.resultsToArrayFormulas.has(positionId);
+  hasArrayFormulaResult(position: CellPosition): boolean {
+    return this.resultsToArrayFormulas.has(position);
   }
 
-  isArrayFormula(positionId: PositionId): boolean {
-    return this.arrayFormulasToResults.has(positionId);
+  isArrayFormula(position: CellPosition): boolean {
+    return this.arrayFormulasToResults.has(position);
   }
 }
 
