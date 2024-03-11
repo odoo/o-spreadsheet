@@ -594,6 +594,7 @@ export function createEmptyWorkbookData(sheetName = "Sheet1"): WorkbookData {
     revisionId: DEFAULT_REVISION_ID,
     uniqueFigureIds: true,
     settings: { locale: DEFAULT_LOCALE },
+    customTableStyles: {},
   };
   return data;
 }

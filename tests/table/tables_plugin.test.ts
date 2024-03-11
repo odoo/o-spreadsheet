@@ -35,18 +35,18 @@ import {
 import { getFilterHiddenValues, toRangeData } from "../test_helpers/helpers";
 import { DEFAULT_TABLE_CONFIG } from "./../../src/helpers/table_presets";
 
-const oldTablePresets = { ...TABLE_PRESETS };
 beforeEach(() => {
   TABLE_PRESETS.TestStyleAllRed = {
     category: "dark",
-    colorName: "Red",
+    name: "AllRed",
     wholeTable: { style: { fillColor: "#FF0000" }, border: { top: DEFAULT_BORDER_DESC } },
+    templateName: "dark",
+    primaryColor: "#FF0000",
   };
 });
 
 afterEach(() => {
-  Object.keys(TABLE_PRESETS).forEach((key) => delete TABLE_PRESETS[key]);
-  Object.assign(TABLE_PRESETS, oldTablePresets);
+  delete TABLE_PRESETS.TestStyleAllRed;
 });
 
 describe("Table plugin", () => {
