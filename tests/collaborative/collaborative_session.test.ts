@@ -194,7 +194,7 @@ describe("Collaborative session", () => {
 
   test.each(messages)("Bad initial revisions should be ignored", (message) => {
     expect(() => {
-      session.loadInitialMessages([
+      session.loadInitialRevisions([
         {
           type: "REMOTE_REVISION",
           version: MESSAGE_VERSION,

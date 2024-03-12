@@ -75,7 +75,7 @@ export type CollaborationMessage =
   | ClientJoinedMessage
   | ClientLeftMessage;
 
-export type StateUpdateMessage = Extract<CollaborationMessage, { nextRevisionId: UID }>;
+export type RevisionMessage = Extract<CollaborationMessage, { nextRevisionId: UID }>;
 
 export type NewMessageCallback<T = any> = (message: T) => void;
 

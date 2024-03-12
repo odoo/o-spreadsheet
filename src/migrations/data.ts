@@ -6,7 +6,7 @@ import {
 } from "../constants";
 import { UuidGenerator, getItemId, overlap, toXC, toZone, zoneToXc } from "../helpers/index";
 import { isValidLocale } from "../helpers/locale";
-import { StateUpdateMessage } from "../types/collaborative/transport_service";
+import { RevisionMessage } from "../types/collaborative/transport_service";
 import {
   CoreCommand,
   DEFAULT_LOCALE,
@@ -427,19 +427,19 @@ function setDefaults(partialData: Partial<WorkbookData>): Partial<WorkbookData> 
 }
 
 /**
- * The goal of this function is to repair corrupted/wrong initial messages caused by
+ * The goal of this function is to repair corrupted/wrong initial revisions caused by
  * a bug.
  * The bug should obviously be fixed, but it's too late for existing spreadsheet.
  */
-export function repairInitialMessages(
+export function repairInitialRevisions(
   data: Partial<WorkbookData>,
-  initialMessages: StateUpdateMessage[]
-): StateUpdateMessage[] {
-  initialMessages = fixTranslatedSheetIds(data, initialMessages);
-  initialMessages = dropCommands(initialMessages, "SORT_CELLS");
-  initialMessages = dropCommands(initialMessages, "SET_DECIMAL");
-  initialMessages = fixChartDefinitions(data, initialMessages);
-  return initialMessages;
+  revisions: RevisionMessage[]
+): RevisionMessage[] {
+  revisions = fixTranslatedSheetIds(data, revisions);
+  revisions = dropCommands(revisions, "SORT_CELLS");
+  revisions = dropCommands(revisions, "SET_DECIMAL");
+  revisions = fixChartDefinitions(data, revisions);
+  return revisions;
 }
 
 /**
@@ -450,14 +450,14 @@ export function repairInitialMessages(
  */
 function fixTranslatedSheetIds(
   data: Partial<WorkbookData>,
-  initialMessages: StateUpdateMessage[]
-): StateUpdateMessage[] {
+  initialRevisions: RevisionMessage[]
+): RevisionMessage[] {
   // the fix is only needed when the workbook is generated on-the-fly
   if (Object.keys(data).length !== 0) {
-    return initialMessages;
+    return initialRevisions;
   }
   const sheetIds: UID[] = [];
-  const messages: StateUpdateMessage[] = [];
+  const messages: RevisionMessage[] = [];
   const fixSheetId = (cmd: CoreCommand) => {
     if (cmd.type === "CREATE_SHEET") {
       sheetIds.push(cmd.sheetId);
@@ -466,7 +466,7 @@ function fixTranslatedSheetIds(
     }
     return cmd;
   };
-  for (const message of initialMessages) {
+  for (const message of initialRevisions) {
     if (message.type === "REMOTE_REVISION") {
       messages.push({
         ...message,
@@ -479,9 +479,9 @@ function fixTranslatedSheetIds(
   return messages;
 }
 
-function dropCommands(initialMessages: StateUpdateMessage[], commandType: string) {
-  const messages: StateUpdateMessage[] = [];
-  for (const message of initialMessages) {
+function dropCommands(revisions: RevisionMessage[], commandType: string) {
+  const messages: RevisionMessage[] = [];
+  for (const message of revisions) {
     if (message.type === "REMOTE_REVISION") {
       messages.push({
         ...message,
@@ -494,8 +494,8 @@ function dropCommands(initialMessages: StateUpdateMessage[], commandType: string
   return messages;
 }
 
-function fixChartDefinitions(data: Partial<WorkbookData>, initialMessages: StateUpdateMessage[]) {
-  const messages: StateUpdateMessage[] = [];
+function fixChartDefinitions(data: Partial<WorkbookData>, revisions: RevisionMessage[]) {
+  const messages: RevisionMessage[] = [];
   const map = {};
   for (const sheet of data.sheets || []) {
     sheet.figures?.forEach((figure) => {
@@ -505,7 +505,7 @@ function fixChartDefinitions(data: Partial<WorkbookData>, initialMessages: State
       }
     });
   }
-  for (const message of initialMessages) {
+  for (const message of revisions) {
     if (message.type === "REMOTE_REVISION") {
       const commands: CoreCommand[] = [];
       for (const cmd of message.commands) {
