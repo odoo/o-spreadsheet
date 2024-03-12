@@ -1,6 +1,6 @@
 import { DEFAULT_TABLE_CONFIG, TABLE_PRESETS } from "../../helpers/table_presets";
 import { _t } from "../../translation";
-import { CommandResult, CoreCommand, TableStyle, WorkbookData } from "../../types/index";
+import { CoreCommand, TableStyle, WorkbookData } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
 
 interface TableStylesState {
@@ -13,18 +13,9 @@ export class TableStylePlugin extends CorePlugin<TableStylesState> implements Ta
     "getNewCustomTableStyleName",
     "getTableStyle",
     "getTableStyles",
+    "isTableStyleEditable",
   ] as const;
   readonly styles: { [styleId: string]: TableStyle } = {};
-
-  allowDispatch(cmd: CoreCommand): CommandResult | CommandResult[] {
-    switch (cmd.type) {
-      case "UPDATE_TABLE":
-        if (cmd.config?.styleId && !this.styles[cmd.config.styleId]) {
-          return CommandResult.InvalidTableConfig;
-        }
-    }
-    return CommandResult.Success;
-  }
 
   handle(cmd: CoreCommand) {
     switch (cmd.type) {
@@ -39,10 +30,7 @@ export class TableStylePlugin extends CorePlugin<TableStylesState> implements Ta
   }
 
   getTableStyle(styleId: string): TableStyle {
-    // Rationale: we could throw an error here if the styleId is unknown, and ensure that this case does never happens
-    // by adding a reverse transform to CREATE_TABLE_STYLE command, dropping tables created with a style that
-    // was deleted. But that's not something we want functionally: if an user created a table, and that someone else comes
-    // and remove the table style, we'd rather have a table with the default style rather than no table at all.
+    // ADRM TOOD: do it good
     return this.styles[styleId] ?? this.styles[DEFAULT_TABLE_CONFIG.styleId];
   }
 
@@ -60,6 +48,10 @@ export class TableStylePlugin extends CorePlugin<TableStylesState> implements Ta
       i++;
     }
     return `${name} ${i}`;
+  }
+
+  isTableStyleEditable(styleId: string): boolean {
+    return !TABLE_PRESETS[styleId];
   }
 
   import(data: WorkbookData) {

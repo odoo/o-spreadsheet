@@ -23,30 +23,13 @@ css/* scss */ `
       cursor: pointer;
     }
 
-    .o-table-style-edit-grid {
-      display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
-      justify-items: center;
-      align-items: space-between;
-    }
-
     .o-table-style-list-item {
       margin: 1px 3px;
-      padding: 4px 7px;
-
-      &.selected {
-        padding: 3px 6px;
-      }
+      padding: 3px 6px;
 
       .o-table-style-edit-template-preview {
         width: 81px;
         height: 61px;
-      }
-
-      .o-table-style-edit-template-name {
-        display: none;
-        // color: #696969
       }
     }
   }

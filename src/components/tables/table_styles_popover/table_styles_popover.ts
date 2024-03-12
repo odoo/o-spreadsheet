@@ -1,11 +1,13 @@
-import { Component, useExternalListener, useRef } from "@odoo/owl";
+import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
 import { BG_HOVER_COLOR } from "../../../constants";
 import { getTableStyleName } from "../../../helpers/table_helpers";
 import { TABLE_STYLE_CATEGORIES } from "../../../helpers/table_presets";
+import { createTableStyleContextMenuActions } from "../../../registries/menus/table_style_menu_registry";
 import { SpreadsheetChildEnv } from "../../../types";
 import { TableConfig } from "../../../types/table";
 import { css } from "../../helpers";
 import { isChildEvent } from "../../helpers/dom_helpers";
+import { Menu, MenuState } from "../../menu/menu";
 import { Popover, PopoverProps } from "../../popover/popover";
 import { TableStylePreview } from "../table_style_preview/table_style_preview";
 
@@ -25,10 +27,7 @@ css/* scss */ `
     font-size: 14px;
     user-select: none;
     .o-table-style-list-item {
-      padding: 4px;
-      &.selected {
-        padding: 3px;
-      }
+      padding: 3px;
 
       .o-table-style-popover-preview {
         width: 66px;
@@ -47,6 +46,7 @@ css/* scss */ `
   }
 
   .o-table-style-list-item {
+    border: 1px solid transparent;
     &.selected {
       border: 1px solid #007eff;
       background: #f5f5f5;
@@ -62,7 +62,7 @@ export type CustomTablePopoverMouseEvent = MouseEvent & { hasClosedTableStylesPo
 
 export class TableStylesPopover extends Component<TableStylesPopoverProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TableStylesPopover";
-  static components = { Popover, TableStylePreview };
+  static components = { Popover, TableStylePreview, Menu };
   static props = {
     tableConfig: Object,
     popoverProps: { type: Object, optional: true },
@@ -75,6 +75,7 @@ export class TableStylesPopover extends Component<TableStylesPopoverProps, Sprea
   categories = TABLE_STYLE_CATEGORIES;
 
   private tableStyleListRef = useRef("tableStyleList");
+  menu: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
 
   setup(): void {
     useExternalListener(window, "click", this.onExternalClick, { capture: true });
@@ -103,10 +104,21 @@ export class TableStylesPopover extends Component<TableStylesPopoverProps, Sprea
   }
 
   newTableStyle() {
-    console.log("newTableStyle");
     this.props.closePopover();
     this.env.openSidePanel("TableStyleEditor", {
       onStylePicked: this.props.onStylePicked,
     });
+  }
+
+  onContextMenu(event: MouseEvent, styleId: string) {
+    this.menu.menuItems = createTableStyleContextMenuActions(this.env, styleId);
+    this.menu.isOpen = true;
+    this.menu.position = { x: event.clientX, y: event.clientY };
+  }
+
+  closeMenu() {
+    this.menu.isOpen = false;
+    this.menu.position = null;
+    this.menu.menuItems = [];
   }
 }

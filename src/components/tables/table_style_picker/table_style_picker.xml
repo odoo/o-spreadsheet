@@ -9,7 +9,8 @@
           t-as="styleId"
           t-key="styleId"
           t-att-title="getStyleName(styleId)"
-          t-on-click="() => this.onStylePicked(styleId)">
+          t-on-click="() => this.onStylePicked(styleId)"
+          t-on-contextmenu.prevent="(ev) => this.onContextMenu(ev, styleId)">
           <div class="o-table-style-picker-preview">
             <TableStylePreview tableConfig="getTableConfig(styleId)"/>
           </div>
@@ -27,6 +28,12 @@
       onStylePicked.bind="onStylePicked"
       popoverProps="state.popoverProps"
       closePopover.bind="closePopover"
+    />
+    <Menu
+      t-if="menu.isOpen"
+      menuItems="menu.menuItems"
+      position="menu.position"
+      onClose.bind="this.closeMenu"
     />
   </t>
 </templates>

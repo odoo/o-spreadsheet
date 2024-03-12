@@ -25,7 +25,7 @@
       </Section>
       <Section class="'pt-1'">
         <t t-set-slot="title">Style template</t>
-        <div class="o-table-style-edit-grid">
+        <div class="d-flex flex-wrap">
           <div
             class="o-table-style-list-item"
             t-foreach="tableTemplates"

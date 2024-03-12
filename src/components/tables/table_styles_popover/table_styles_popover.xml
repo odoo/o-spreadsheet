@@ -1,10 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-TableStylesPopover">
     <Popover t-if="props.popoverProps" t-props="props.popoverProps">
-      <div
-        class="o-table-style-popover d-flex flex-column px-4 py-1"
-        t-ref="tableStyleList"
-        t-on-contextmenu.prevent="">
+      <div class="o-table-style-popover d-flex flex-column px-4 py-1" t-ref="tableStyleList">
         <div t-foreach="categories" t-as="category" t-key="category">
           <div class="mt-2 mb-1">
             <b t-esc="category_value"/>
@@ -17,7 +14,8 @@
               t-as="styleId"
               t-key="styleId"
               t-att-title="getStyleName(styleId)"
-              t-on-click="() => this.props.onStylePicked(styleId)">
+              t-on-click="() => this.props.onStylePicked(styleId)"
+              t-on-contextmenu.prevent="(ev) => this.onContextMenu(ev, styleId)">
               <div class="o-table-style-popover-preview">
                 <TableStylePreview tableConfig="getTableConfig(styleId)"/>
               </div>
@@ -31,6 +29,12 @@
           <span class="ps-2">New table style...</span>
         </div>
       </div>
+      <Menu
+        t-if="menu.isOpen"
+        menuItems="menu.menuItems"
+        position="menu.position"
+        onClose.bind="this.closeMenu"
+      />
     </Popover>
   </t>
 </templates>
