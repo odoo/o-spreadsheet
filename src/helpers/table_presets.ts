@@ -4,6 +4,7 @@ import { Color } from "../types";
 import { TableConfig, TableStyle } from "../types/table";
 
 export const TABLE_STYLE_CATEGORIES = {
+  custom: _t("Custom"),
   none: _t("None"),
   light: _t("Light"),
   medium: _t("Medium"),
@@ -35,7 +36,7 @@ interface ColorSet {
 
 export type TableStyleTemplate = (colorSet: ColorSet) => TableStyle;
 
-export function generateTableColorSet(name: string, highlightColor: Color): ColorSet {
+function generateTableColorSet(name: string, highlightColor: Color): ColorSet {
   return {
     coloredText: darkenColor(highlightColor, 0.3),
     light: lightenColor(highlightColor, 0.8),
@@ -45,6 +46,14 @@ export function generateTableColorSet(name: string, highlightColor: Color): Colo
     highlight: highlightColor,
     name,
   };
+}
+
+export function generateTableCustomStyle(
+  mainColor: Color,
+  template: TableStyleTemplate
+): TableStyle {
+  const colorSet = generateTableColorSet("", mainColor);
+  return { ...template(colorSet), category: "custom" };
 }
 
 const COLOR_SETS = {

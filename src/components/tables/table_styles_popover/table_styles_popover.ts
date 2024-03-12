@@ -1,4 +1,5 @@
 import { Component, useExternalListener, useRef } from "@odoo/owl";
+import { BG_HOVER_COLOR } from "../../../constants";
 import { getTableStyleName } from "../../../helpers/table_helpers";
 import { TABLE_STYLE_CATEGORIES } from "../../../helpers/table_presets";
 import { SpreadsheetChildEnv } from "../../../types";
@@ -22,6 +23,7 @@ css/* scss */ `
     max-width: calc((66px + 4px * 2) * 7);
     background: #fff;
     font-size: 14px;
+    user-select: none;
     .o-table-style-list-item {
       padding: 4px;
       &.selected {
@@ -31,6 +33,15 @@ css/* scss */ `
       .o-table-style-popover-preview {
         width: 66px;
         height: 51px;
+      }
+    }
+
+    .o-new-table-style {
+      height: 30px;
+      cursor: pointer;
+
+      &:hover {
+        background-color: ${BG_HOVER_COLOR};
       }
     }
   }
@@ -89,5 +100,13 @@ export class TableStylesPopover extends Component<TableStylesPopoverProps, Sprea
 
   getStyleName(styleId: string): string {
     return getTableStyleName(styleId, this.stylePresets[styleId]);
+  }
+
+  newTableStyle() {
+    console.log("newTableStyle");
+    this.props.closePopover();
+    this.env.openSidePanel("TableStyleEditor", {
+      onStylePicked: this.props.onStylePicked,
+    });
   }
 }

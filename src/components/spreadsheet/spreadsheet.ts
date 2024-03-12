@@ -339,6 +339,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     onMounted(() => {
       this.checkViewportSize();
       this.sidePanel.open("TableStyleEditor", {});
+      document.querySelector<HTMLElement>(".o-table-widget .o-menu-item-button")?.click();
     });
     onWillUnmount(() => this.unbindModelEvents());
     onPatched(() => {

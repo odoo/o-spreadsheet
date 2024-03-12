@@ -3,12 +3,7 @@
     <div class="o-table-style-editor-panel">
       <Section>
         <t t-set-slot="title">Style name</t>
-        <input
-          type="text"
-          class="o-input o-optional"
-          t-att-value="state.styleName"
-          t-on-change="updateTitle"
-        />
+        <input type="text" class="o-input o-optional" t-model="state.styleName"/>
       </Section>
       <Section class="'pt-1'">
         <t t-set-slot="title">Style color</t>
@@ -47,8 +42,8 @@
           </div>
         </div>
         <div class="o-sidePanelButtons">
-          <button t-on-click="deleteTable" class="o-button">Cancel</button>
-          <button t-on-click="deleteTable" class="o-button ">Confirm</button>
+          <button t-on-click="onCancel" class="o-cancel o-button">Cancel</button>
+          <button t-on-click="onConfirm" class="o-confirm o-button">Confirm</button>
         </div>
       </Section>
     </div>

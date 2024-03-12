@@ -1,7 +1,10 @@
 <templates>
   <t t-name="o-spreadsheet-TableStylesPopover">
     <Popover t-if="props.popoverProps" t-props="props.popoverProps">
-      <div class="o-table-style-popover d-flex flex-column px-4 py-1" t-ref="tableStyleList">
+      <div
+        class="o-table-style-popover d-flex flex-column px-4 py-1"
+        t-ref="tableStyleList"
+        t-on-contextmenu.prevent="">
         <div t-foreach="categories" t-as="category" t-key="category">
           <div class="mt-2 mb-1">
             <b t-esc="category_value"/>
@@ -21,6 +24,11 @@
             </div>
           </div>
           <hr t-if="!category_last" class="hr mt-2 mb-0"/>
+        </div>
+        <hr class="hr mt-2 mb-0"/>
+        <div class="o-new-table-style d-flex align-items-center my-1" t-on-click="newTableStyle">
+          <t t-call="o-spreadsheet-Icon.EDIT_TABLE"/>
+          <span class="ps-2">New table style...</span>
         </div>
       </div>
     </Popover>

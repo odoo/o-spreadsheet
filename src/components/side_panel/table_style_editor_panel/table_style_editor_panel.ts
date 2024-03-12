@@ -2,7 +2,7 @@ import { Component, useExternalListener, useState } from "@odoo/owl";
 import {
   TABLE_STYLES_TEMPLATES,
   TableStyleTemplate,
-  generateTableColorSet,
+  generateTableCustomStyle,
 } from "../../../helpers/table_presets";
 import { Color, SpreadsheetChildEnv, TableConfig, TableStyle } from "../../../types";
 import { ColorPickerWidget } from "../../color_picker/color_picker_widget";
@@ -52,9 +52,9 @@ css/* scss */ `
   }
 `;
 
-interface Props {
+export interface TableStyleEditorPanelProps {
   onCloseSidePanel: () => void;
-  onConfirm?: () => void;
+  onStylePicked?: (styleId: string) => void;
 }
 
 interface State {
@@ -64,17 +64,20 @@ interface State {
   styleName: string;
 }
 
-export class TableStyleEditorPanel extends Component<Props, SpreadsheetChildEnv> {
+export class TableStyleEditorPanel extends Component<
+  TableStyleEditorPanelProps,
+  SpreadsheetChildEnv
+> {
   static template = "o-spreadsheet-TableStyleEditorPanel";
   static components = { Section, ColorPickerWidget, TableStylePreview };
   static props = {
     onCloseSidePanel: Function,
-    onConfirm: { type: Function, optional: true },
+    onStylePicked: { type: Function, optional: true },
   };
 
   state = useState<State>({
     pickerOpened: false,
-    primaryColor: "#f00",
+    primaryColor: "#3C78D8",
     selectedTemplate: TABLE_STYLES_TEMPLATES[0],
     styleName: this.env.model.getters.getNewCustomTableStyleName(),
   });
@@ -96,9 +99,17 @@ export class TableStyleEditorPanel extends Component<Props, SpreadsheetChildEnv>
     this.state.selectedTemplate = template;
   }
 
-  onUpdateName(ev: InputEvent) {
-    const name = (ev.target as HTMLInputElement).value;
-    this.state.styleName = name;
+  onConfirm() {
+    this.env.model.dispatch("CREATE_TABLE_STYLE", {
+      tableStyleId: this.state.styleName,
+      tableStyle: this.selectedStyle,
+    });
+    this.props.onCloseSidePanel();
+    this.props.onStylePicked?.(this.state.styleName);
+  }
+
+  onCancel() {
+    this.props.onCloseSidePanel();
   }
 
   get colorPreviewStyle() {
@@ -127,7 +138,6 @@ export class TableStyleEditorPanel extends Component<Props, SpreadsheetChildEnv>
   }
 
   computeTableStyle(template: TableStyleTemplate): TableStyle {
-    const colorSet = generateTableColorSet("", this.state.primaryColor);
-    return template(colorSet);
+    return generateTableCustomStyle(this.state.primaryColor, template);
   }
 }
