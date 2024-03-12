@@ -3,7 +3,7 @@ import { ExcelChartDefinition } from "./chart/chart";
 import { ConditionalFormat } from "./conditional_formatting";
 import { Image } from "./image";
 import { Border, Dimension, HeaderGroup, PaneDivision, Pixel, Style, UID } from "./misc";
-import { TableConfig } from "./table";
+import { TableConfig, TableStyle } from "./table";
 
 export interface Dependencies {
   references: string[];
@@ -65,6 +65,7 @@ export interface WorkbookData {
   revisionId: UID;
   uniqueFigureIds: boolean;
   settings: WorkbookSettings;
+  customTableStyles: { [key: string]: TableStyle };
 }
 
 export interface ExcelWorkbookData extends WorkbookData {

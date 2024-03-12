@@ -49,7 +49,7 @@ interface TableBorder extends Border {
 
 export interface TableStyle {
   category: string;
-  colorName: string;
+  colorName?: string;
 
   wholeTable?: TableElementStyle;
   firstColumnStripe?: TableElementStyle;

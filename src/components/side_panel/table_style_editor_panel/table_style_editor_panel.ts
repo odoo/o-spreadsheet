@@ -4,16 +4,11 @@ import {
   TableStyleTemplate,
   generateTableColorSet,
 } from "../../../helpers/table_presets";
-import { Color, SpreadsheetChildEnv, Table, TableConfig, TableStyle } from "../../../types";
+import { Color, SpreadsheetChildEnv, TableConfig, TableStyle } from "../../../types";
 import { ColorPickerWidget } from "../../color_picker/color_picker_widget";
 import { css, cssPropertiesToCss } from "../../helpers";
 import { TableStylePreview } from "../../tables/table_style_preview/table_style_preview";
 import { Section } from "../components/section/section";
-
-interface Props {
-  table: Table;
-  onCloseSidePanel: () => void;
-}
 
 css/* scss */ `
   .o-table-style-editor-panel {
@@ -57,6 +52,11 @@ css/* scss */ `
   }
 `;
 
+interface Props {
+  onCloseSidePanel: () => void;
+  onConfirm?: () => void;
+}
+
 interface State {
   pickerOpened: boolean;
   primaryColor: Color;
@@ -64,16 +64,19 @@ interface State {
   styleName: string;
 }
 
-// ADRM TODO: props validation
 export class TableStyleEditorPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TableStyleEditorPanel";
   static components = { Section, ColorPickerWidget, TableStylePreview };
+  static props = {
+    onCloseSidePanel: Function,
+    onConfirm: { type: Function, optional: true },
+  };
 
   state = useState<State>({
     pickerOpened: false,
     primaryColor: "#f00",
     selectedTemplate: TABLE_STYLES_TEMPLATES[0],
-    styleName: "Start name",
+    styleName: this.env.model.getters.getNewCustomTableStyleName(),
   });
 
   setup() {

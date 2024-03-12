@@ -92,6 +92,6 @@ sidePanelRegistry.add("TableSidePanel", {
 });
 
 sidePanelRegistry.add("TableStyleEditor", {
-  title: _t("Edit table style"),
+  title: _t("Create custom table style"),
   Body: TableStyleEditorPanel,
 });

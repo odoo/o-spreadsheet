@@ -10,7 +10,7 @@
           t-on-change="updateTitle"
         />
       </Section>
-      <Section>
+      <Section class="'pt-1'">
         <t t-set-slot="title">Style color</t>
         <div class="d-flex align-items-center">
           <div
@@ -29,7 +29,7 @@
         </div>
       </Section>
       <Section class="'pt-1'">
-        <t t-set-slot="title">Style Template</t>
+        <t t-set-slot="title">Style template</t>
         <div class="o-table-style-edit-grid">
           <div
             class="o-table-style-list-item"
@@ -45,6 +45,10 @@
               />
             </div>
           </div>
+        </div>
+        <div class="o-sidePanelButtons">
+          <button t-on-click="deleteTable" class="o-button">Cancel</button>
+          <button t-on-click="deleteTable" class="o-button ">Confirm</button>
         </div>
       </Section>
     </div>

@@ -26,7 +26,7 @@ import {
   UID,
 } from "./misc";
 import { RangeData } from "./range";
-import { TableConfig } from "./table";
+import { TableConfig, TableStyle } from "./table";
 
 // -----------------------------------------------------------------------------
 // Grid commands
@@ -205,6 +205,7 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "CREATE_TABLE",
   "REMOVE_TABLE",
   "UPDATE_TABLE",
+  "CREATE_TABLE_STYLE",
 
   /** IMAGE */
   "CREATE_IMAGE",
@@ -491,6 +492,12 @@ export interface UpdateTableCommand {
   sheetId: UID;
   newTableRange?: RangeData;
   config?: Partial<TableConfig>;
+}
+
+export interface CreateTableStyleCommand {
+  type: "CREATE_TABLE_STYLE";
+  tableStyleId: string;
+  tableStyle: TableStyle;
 }
 
 export interface UpdateFilterCommand extends PositionDependentCommand {
@@ -918,6 +925,7 @@ export type CoreCommand =
   | CreateTableCommand
   | RemoveTableCommand
   | UpdateTableCommand
+  | CreateTableStyleCommand
 
   /** HEADER GROUP */
   | GroupHeadersCommand
