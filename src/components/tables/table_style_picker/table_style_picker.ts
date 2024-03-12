@@ -1,12 +1,12 @@
 import { Component, useState } from "@odoo/owl";
+import { Action } from "../../../actions/action";
 import { getTableStyleName } from "../../../helpers/table_helpers";
 import { createTableStyleContextMenuActions } from "../../../registries/menus/table_style_menu_registry";
 import { SpreadsheetChildEnv } from "../../../types";
 import { Table, TableConfig } from "../../../types/table";
 import { css } from "../../helpers";
-import { Menu, MenuState } from "../../menu/menu";
 import { PopoverProps } from "../../popover/popover";
-import { TableStylePreview } from "../table_style_preview/table_style_preview";
+import { TablePreviewList, TableStyleWithId } from "../table_preview_list/table_preview_list";
 import {
   CustomTablePopoverMouseEvent,
   TableStylesPopover,
@@ -49,21 +49,25 @@ css/* scss */ `
 
 export class TableStylePicker extends Component<TableStylePickerProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TableStylePicker";
-  static components = { TableStylesPopover, TableStylePreview, Menu };
+  static components = { TableStylesPopover, TablePreviewList };
   static props = { table: Object };
 
   state = useState<TableStylePickerState>({ popoverProps: undefined });
-  menu: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
 
-  getDisplayedTableStyles() {
+  getDisplayedTableStyles(): TableStyleWithId[] {
     const styles = Object.keys(this.env.model.getters.getTableStyles());
     const selectedStyleIndex = styles.indexOf(this.props.table.config.styleId);
+    let displayedStyleIds: string[] = [];
     if (selectedStyleIndex === -1) {
-      return styles.slice(0, 4);
+      displayedStyleIds = styles.slice(0, 4);
+    } else {
+      const index = Math.floor(selectedStyleIndex / 4) * 4;
+      displayedStyleIds = styles.slice(index, index + 4);
     }
-
-    const index = Math.floor(selectedStyleIndex / 4) * 4;
-    return styles.slice(index, index + 4);
+    return displayedStyleIds.map((styleId) => ({
+      id: styleId,
+      ...this.env.model.getters.getTableStyle(styleId),
+    }));
   }
 
   getTableConfig(styleId: string): TableConfig {
@@ -102,15 +106,7 @@ export class TableStylePicker extends Component<TableStylePickerProps, Spreadshe
     return getTableStyleName(styleId, this.env.model.getters.getTableStyle(styleId));
   }
 
-  onContextMenu(event: MouseEvent, styleId: string) {
-    this.menu.menuItems = createTableStyleContextMenuActions(this.env, styleId);
-    this.menu.isOpen = true;
-    this.menu.position = { x: event.clientX, y: event.clientY };
-  }
-
-  closeMenu() {
-    this.menu.isOpen = false;
-    this.menu.position = null;
-    this.menu.menuItems = [];
+  getContextMenuItems(styleId: string): Action[] {
+    return createTableStyleContextMenuActions(this.env, styleId);
   }
 }

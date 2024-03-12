@@ -1,0 +1,24 @@
+<templates>
+  <t t-name="o-spreadsheet-TablePreviewList">
+    <div class="d-flex flex-wrap">
+      <div
+        t-foreach="props.tableStyles"
+        t-as="style"
+        t-key="style.id"
+        t-att-class="getContainerClass(style.id)"
+        t-att-title="props.getStyleName?.(style.id)"
+        t-on-click="() => this.props.onStylePicked(style.id)"
+        t-on-contextmenu.prevent="(ev) => this.onContextMenu(ev, style.id)">
+        <div t-att-class="props.previewClassName">
+          <TableStylePreview tableConfig="props.tableConfig" tableStyle="style"/>
+        </div>
+      </div>
+    </div>
+    <Menu
+      t-if="menu.isOpen"
+      menuItems="menu.menuItems"
+      position="menu.position"
+      onClose.bind="this.closeMenu"
+    />
+  </t>
+</templates>

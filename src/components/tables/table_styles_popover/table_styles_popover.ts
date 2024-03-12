@@ -1,4 +1,5 @@
-import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
+import { Component, useExternalListener, useRef } from "@odoo/owl";
+import { Action } from "../../../actions/action";
 import { BG_HOVER_COLOR } from "../../../constants";
 import { getTableStyleName } from "../../../helpers/table_helpers";
 import { TABLE_STYLE_CATEGORIES } from "../../../helpers/table_presets";
@@ -7,9 +8,8 @@ import { SpreadsheetChildEnv } from "../../../types";
 import { TableConfig } from "../../../types/table";
 import { css } from "../../helpers";
 import { isChildEvent } from "../../helpers/dom_helpers";
-import { Menu, MenuState } from "../../menu/menu";
 import { Popover, PopoverProps } from "../../popover/popover";
-import { TableStylePreview } from "../table_style_preview/table_style_preview";
+import { TablePreviewList, TableStyleWithId } from "../table_preview_list/table_preview_list";
 
 interface TableStylesPopoverProps {
   selectedStyleId?: string;
@@ -62,7 +62,7 @@ export type CustomTablePopoverMouseEvent = MouseEvent & { hasClosedTableStylesPo
 
 export class TableStylesPopover extends Component<TableStylesPopoverProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TableStylesPopover";
-  static components = { Popover, TableStylePreview, Menu };
+  static components = { Popover, TablePreviewList };
   static props = {
     tableConfig: Object,
     popoverProps: { type: Object, optional: true },
@@ -75,7 +75,6 @@ export class TableStylesPopover extends Component<TableStylesPopoverProps, Sprea
   categories = TABLE_STYLE_CATEGORIES;
 
   private tableStyleListRef = useRef("tableStyleList");
-  menu: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
 
   setup(): void {
     useExternalListener(window, "click", this.onExternalClick, { capture: true });
@@ -88,15 +87,10 @@ export class TableStylesPopover extends Component<TableStylesPopoverProps, Sprea
     }
   }
 
-  getPresetsByCategory(category: string) {
-    return Object.keys(this.stylePresets).filter(
-      (key) => this.stylePresets[key].category === category
-    );
-  }
-
-  getTableConfig(styleId: string): TableConfig {
-    // ADMR TODO: change this (same in table panel probably?)
-    return { ...this.props.tableConfig, styleId: styleId };
+  getTableStylesByCategory(category: string): TableStyleWithId[] {
+    return Object.keys(this.stylePresets)
+      .filter((key) => this.stylePresets[key].category === category)
+      .map((styleId) => ({ id: styleId, ...this.env.model.getters.getTableStyle(styleId) }));
   }
 
   getStyleName(styleId: string): string {
@@ -110,15 +104,7 @@ export class TableStylesPopover extends Component<TableStylesPopoverProps, Sprea
     });
   }
 
-  onContextMenu(event: MouseEvent, styleId: string) {
-    this.menu.menuItems = createTableStyleContextMenuActions(this.env, styleId);
-    this.menu.isOpen = true;
-    this.menu.position = { x: event.clientX, y: event.clientY };
-  }
-
-  closeMenu() {
-    this.menu.isOpen = false;
-    this.menu.position = null;
-    this.menu.menuItems = [];
+  getContextMenuItems(styleId: string): Action[] {
+    return createTableStyleContextMenuActions(this.env, styleId);
   }
 }
