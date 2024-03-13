@@ -153,8 +153,17 @@ class FakeRendererStore extends RendererStore {
   drawLayer(renderingContext: GridRenderingContext, layer: LayerName) {}
 }
 
-export function makeTestEnv(mockEnv: Partial<SpreadsheetChildEnv> = {}): SpreadsheetChildEnv {
+interface SpreadsheetChildEnvWithStores extends SpreadsheetChildEnv {
+  __spreadsheet_stores__: DependencyContainer;
+}
+
+export function makeTestEnv(
+  mockEnv: Partial<SpreadsheetChildEnvWithStores> = {}
+): SpreadsheetChildEnvWithStores {
   const model = mockEnv.model || new Model();
+  if (mockEnv.__spreadsheet_stores__) {
+    throw new Error("Cannot call makeTestEnv on a partial env that already have a store container");
+  }
   const container = new DependencyContainer();
   container.inject(ModelStore, model);
   const notificationStore = {
@@ -171,7 +180,7 @@ export function makeTestEnv(mockEnv: Partial<SpreadsheetChildEnv> = {}): Spreads
     model,
     isDashboard: mockEnv.isDashboard || (() => false),
     openSidePanel: mockEnv.openSidePanel || sidePanelStore.open.bind(sidePanelStore),
-    toggleSidePanel: mockEnv.toggleSidePanel || (() => {}),
+    toggleSidePanel: mockEnv.toggleSidePanel || sidePanelStore.toggle.bind(sidePanelStore),
     clipboard: mockEnv.clipboard || new MockClipboard(),
     //FIXME : image provider is not built on top of the file store of the model if provided
     // and imageProvider is defined even when there is no file store on the model
@@ -185,7 +194,6 @@ export function makeTestEnv(mockEnv: Partial<SpreadsheetChildEnv> = {}): Spreads
       }),
     loadLocales: mockEnv.loadLocales || (async () => DEFAULT_LOCALES),
     getStore: container.get.bind(container),
-    // @ts-ignore
     __spreadsheet_stores__: container,
   };
 }

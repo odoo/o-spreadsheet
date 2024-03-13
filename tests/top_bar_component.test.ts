@@ -28,7 +28,6 @@ import { getBorder, getCell, getStyle, getTable } from "./test_helpers/getters_h
 import {
   getFigureIds,
   getNode,
-  makeTestEnv,
   mountComponent,
   mountSpreadsheet,
   nextTick,
@@ -74,11 +73,11 @@ async function mountParent(
   model: Model = new Model(),
   testEnv?: Partial<SpreadsheetChildEnv>
 ): Promise<{ parent: Parent; model: Model; fixture: HTMLElement }> {
-  const env = makeTestEnv({
+  const env = {
     ...testEnv,
     model,
     isDashboard: () => model.getters.isDashboard(),
-  });
+  };
   let parent: Component;
   ({ parent, fixture } = await mountComponent(Parent, { env }));
   return { parent: parent as Parent, model, fixture };
