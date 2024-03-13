@@ -1,5 +1,6 @@
 import { Component, onMounted, onWillUnmount, xml } from "@odoo/owl";
 import { BottomBar } from "../../src/components/bottom_bar/bottom_bar";
+import { toHex } from "../../src/helpers";
 import { interactiveRenameSheet } from "../../src/helpers/ui/sheet_interactive";
 import { Model } from "../../src/model";
 import { Pixel, SpreadsheetChildEnv, UID } from "../../src/types";
@@ -420,6 +421,26 @@ describe("BottomBar component", () => {
       sheetIdFrom: sheet,
       sheetIdTo: "42",
     });
+  });
+
+  test("Clicking on an hidden sheet in the list of sheets unhide and activate it", async () => {
+    const { model } = await mountBottomBar();
+    createSheet(model, { sheetId: "42", hidden: true });
+    await click(fixture, ".o-list-sheets");
+    const menuItem = fixture.querySelector<HTMLElement>(".o-menu-item[data-name='42'")!;
+    expect(toHex(menuItem.style.color)).toEqual("#808080");
+    await click(menuItem);
+    expect(model.getters.getActiveSheetId()).toBe("42");
+    expect(model.getters.getActiveSheet().isVisible).toBe(true);
+  });
+
+  test("Hidden sheets menu items are disabled in readonly in the list of sheets", async () => {
+    const { model } = await mountBottomBar();
+    createSheet(model, { sheetId: "42", hidden: true });
+    model.updateMode("readonly");
+    await click(fixture, ".o-list-sheets");
+    const menuItem = fixture.querySelector<HTMLElement>(".o-menu-item[data-name='42'");
+    expect(menuItem!.classList).toContain("disabled");
   });
 
   describe("Scroll on the list of sheets", () => {

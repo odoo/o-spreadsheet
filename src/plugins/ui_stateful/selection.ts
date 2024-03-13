@@ -143,7 +143,10 @@ export class GridSelectionPlugin extends UIPlugin {
     switch (cmd.type) {
       case "ACTIVATE_SHEET":
         try {
-          this.getters.getSheet(cmd.sheetIdTo);
+          const sheet = this.getters.getSheet(cmd.sheetIdTo);
+          if (!sheet.isVisible) {
+            return CommandResult.SheetIsHidden;
+          }
           break;
         } catch (error) {
           return CommandResult.InvalidSheetId;
@@ -519,9 +522,6 @@ export class GridSelectionPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   private activateSheet(sheetIdFrom: UID, sheetIdTo: UID) {
-    if (!this.getters.isSheetVisible(sheetIdTo)) {
-      this.dispatch("SHOW_SHEET", { sheetId: sheetIdTo });
-    }
     this.setActiveSheet(sheetIdTo);
     this.sheetsData[sheetIdFrom] = {
       gridSelection: deepCopy(this.gridSelection),

@@ -1149,6 +1149,7 @@ export const enum CommandResult {
   InvalidCopyPasteSelection = "InvalidCopyPasteSelection",
   NoChanges = "NoChanges",
   InvalidInputId = "InvalidInputId",
+  SheetIsHidden = "SheetIsHidden",
 }
 
 export interface CommandHandler<T> {
