@@ -48,7 +48,7 @@ export interface ExcelChartDataset {
   readonly range: string;
 }
 
-export type ExcelChartType = "line" | "bar" | "pie";
+export type ExcelChartType = "line" | "bar" | "pie" | "scatter";
 
 export interface ExcelChartDefinition {
   readonly title?: string;

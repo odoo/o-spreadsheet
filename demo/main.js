@@ -189,6 +189,12 @@ class Demo extends Component {
             inputFiles[images[i]] = { imageSrc };
           }
           await this.initiateConnection(inputFiles);
+          stores.resetStores();
+          stores.inject(NotificationStore, {
+            notifyUser: this.notifyUser,
+            raiseError: this.raiseError,
+            askConfirmation: this.askConfirmation,
+          });
           this.state.key = this.state.key + 1;
 
           // note : the onchange won't be called if we cancel the dialog w/o selecting a file, so this won't be called.
