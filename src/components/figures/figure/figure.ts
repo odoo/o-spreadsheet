@@ -1,4 +1,4 @@
-import { Component, useEffect, useRef, useState } from "@odoo/owl";
+import { Component, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
 import {
   ComponentsImportance,
   FIGURE_BORDER_COLOR,
@@ -213,6 +213,10 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
       },
       () => [this.env.model.getters.getSelectedFigureId(), this.props.figure.id, this.figureRef.el]
     );
+
+    onWillUnmount(() => {
+      this.props.onFigureDeleted();
+    });
   }
 
   clickAnchor(dirX: ResizeDirection, dirY: ResizeDirection, ev: MouseEvent) {
@@ -235,6 +239,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
         this.props.onFigureDeleted();
         ev.stopPropagation();
         ev.preventDefault();
+        ev.stopPropagation();
         break;
       case "ArrowDown":
       case "ArrowLeft":
@@ -255,6 +260,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
         });
         ev.stopPropagation();
         ev.preventDefault();
+        ev.stopPropagation();
         break;
     }
   }
