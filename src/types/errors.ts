@@ -45,3 +45,9 @@ export class UnknownFunctionError extends EvaluationError {
     super(message, CellErrorType.UnknownFunction);
   }
 }
+
+export class XlsxExportError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
+}

@@ -1,3 +1,4 @@
+import { XlsxExportError } from "../../src";
 import { functionRegistry } from "../../src/functions";
 import { buildSheetLink, toXC } from "../../src/helpers";
 import { createEmptyExcelWorkbookData } from "../../src/migrations/data";
@@ -1453,6 +1454,12 @@ describe("Test XLSX export", () => {
       });
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
+  });
+
+  test("Cannot export xlsx with sheet name longer than 31 characters", () => {
+    const model = new Model();
+    createSheet(model, { name: "a".repeat(40) });
+    expect(() => getExportedExcelData(model)).toThrow(XlsxExportError);
   });
 });
 
