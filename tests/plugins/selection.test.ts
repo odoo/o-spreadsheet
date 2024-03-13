@@ -414,6 +414,26 @@ describe("simple selection", () => {
     moveAnchorCell(model, "up");
     expect(model.getters.getSelectedZone()).toEqual(toZone("A1:B2"));
   });
+
+  test("Selecting figure and undo cleanup selectedFigureId in selection plugin", () => {
+    const model = new Model();
+    model.dispatch("CREATE_FIGURE", {
+      sheetId: model.getters.getActiveSheetId(),
+      figure: {
+        id: "someuuid",
+        x: 10,
+        y: 10,
+        tag: "hey",
+        width: 100,
+        height: 100,
+      },
+    });
+    expect(model.getters.getSelectedFigureId()).toBe(null);
+    model.dispatch("SELECT_FIGURE", { id: "someuuid" });
+    expect(model.getters.getSelectedFigureId()).toBe("someuuid");
+    undo(model);
+    expect(model.getters.getSelectedFigureId()).toBe(null);
+  });
 });
 
 describe("multiple selections", () => {
