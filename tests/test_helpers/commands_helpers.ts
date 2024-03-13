@@ -59,7 +59,7 @@ export function activateSheet(
  */
 export function createSheet(
   model: Model,
-  data: Partial<CreateSheetCommand & { activate: boolean }>
+  data: Partial<CreateSheetCommand & { activate: boolean; hidden: boolean }>
 ) {
   const sheetId = data.sheetId || model.uuidGenerator.uuidv4();
   const result = model.dispatch("CREATE_SHEET", {
@@ -69,6 +69,9 @@ export function createSheet(
     rows: data.rows,
     name: data.name,
   });
+  if (data.hidden) {
+    hideSheet(model, sheetId);
+  }
   if (data.activate) {
     activateSheet(model, sheetId);
   }

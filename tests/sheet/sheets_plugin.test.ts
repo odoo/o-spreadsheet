@@ -266,6 +266,12 @@ describe("sheets", () => {
     expect(activateSheet(model, "INVALID_ID")).toBeCancelledBecause(CommandResult.InvalidSheetId);
   });
 
+  test("cannot activate an hidden sheet", () => {
+    const model = new Model();
+    createSheet(model, { sheetId: "42", hidden: true });
+    expect(activateSheet(model, "42")).toBeCancelledBecause(CommandResult.SheetIsHidden);
+  });
+
   test("evaluating multiple sheets", () => {
     const model = new Model({
       sheets: [

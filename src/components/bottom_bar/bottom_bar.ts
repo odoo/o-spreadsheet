@@ -141,10 +141,14 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
         name: sheet.name,
         sequence: i,
         isReadonlyAllowed: true,
-        textColor: sheet.isVisible ? undefined : "grey",
+        textColor: sheet.isVisible ? undefined : "#808080",
         execute: (env) => {
+          if (!this.env.model.getters.isSheetVisible(sheetId)) {
+            this.env.model.dispatch("SHOW_SHEET", { sheetId });
+          }
           env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: from, sheetIdTo: sheetId });
         },
+        isEnabled: (env) => (env.model.getters.isReadonly() ? sheet.isVisible : true),
       });
       i++;
     }
