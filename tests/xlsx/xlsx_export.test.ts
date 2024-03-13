@@ -1449,6 +1449,51 @@ describe("Test XLSX export", () => {
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
   });
+
+  test("Sheet names longer than 31 characters are sliced in the Excel Export", () => {
+    const model = new Model();
+    const longSheetName = "a".repeat(40);
+    const longSheetNameWithSpaces = "Hey " + "a".repeat(40);
+    createSheet(model, { name: longSheetNameWithSpaces });
+    createSheet(model, { name: longSheetName });
+    setCellContent(model, "A1", `='${longSheetNameWithSpaces}'!A1`);
+    createChart(model, {
+      dataSets: [`${longSheetName}!A1:A4`],
+      labelRange: `${longSheetName}!A1:A4`,
+    });
+
+    const fixedSheetName = "a".repeat(31);
+    const fixedSheetNameWithSpaces = "Hey " + "a".repeat(27);
+    const exportedData = getExportedExcelData(model);
+    expect(exportedData.sheets[1].name).toBe(fixedSheetName);
+    expect(exportedData.sheets[0].cells["A1"]?.content).toBe(`='${fixedSheetNameWithSpaces}'!A1`);
+    expect(exportedData.sheets[0].charts[0].data.labelRange).toBe(`${fixedSheetName}!A2:A4`);
+    expect(exportedData.sheets[0].charts[0].data.dataSets[0]).toEqual({
+      label: `${fixedSheetName}!A1`,
+      range: `${fixedSheetName}!A2:A4`,
+    });
+  });
+
+  test("Avoid duplicated sheet names in excel export if multiple sliced names are the same", () => {
+    const model = new Model();
+    createSheet(model, { name: "a".repeat(40) });
+    createSheet(model, { name: "a".repeat(41) });
+    createSheet(model, { name: "a".repeat(42) });
+    const exportedExcelData = getExportedExcelData(model);
+    expect(exportedExcelData.sheets[1].name).toBe("a".repeat(31));
+    expect(exportedExcelData.sheets[2].name).toBe("a".repeat(30) + "1");
+    expect(exportedExcelData.sheets[3].name).toBe("a".repeat(30) + "2");
+  });
+
+  test("Cells whose content are the same as a too long sheet name are not changed", () => {
+    const model = new Model();
+    const longFormula = "=A1+A2+A3+A4+A5+A6+A7+A8+A9+A10+A11+A12+A13+A14+A15+A16";
+    createSheet(model, { name: longFormula });
+    setCellContent(model, "A1", longFormula);
+    const exportedExcelData = getExportedExcelData(model);
+    expect(exportedExcelData.sheets[1].name).toBe(longFormula.slice(0, 31));
+    expect(exportedExcelData.sheets[0].cells["A1"]?.content).toBe(longFormula);
+  });
 });
 
 describe("XML parser", () => {

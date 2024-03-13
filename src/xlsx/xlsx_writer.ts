@@ -1,4 +1,5 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
+import { escapeRegExp } from "../helpers";
 import { ExcelSheetData, ExcelWorkbookData } from "../types";
 import {
   XLSXExport,
@@ -54,6 +55,7 @@ import {
  * https://www.ecma-international.org/publications-and-standards/standards/ecma-376/
  */
 export function getXLSX(data: ExcelWorkbookData): XLSXExport {
+  data = fixLengthySheetNames(data);
   const files: XLSXExportFile[] = [];
   const construct = getDefaultXLSXStructure();
   files.push(createWorkbook(data, construct));
@@ -360,4 +362,41 @@ function createRelRoot(): XLSXExportFile {
     </Relationships>
   `;
   return createXMLFile(parseXML(xml), "_rels/.rels");
+}
+
+/**
+ * Excel sheet names are maximum 31 characters while o-spreadsheet do not have this limit.
+ * This method converts the sheet names to be within the 31 characters limit.
+ * The cells/charts referencing this sheet will be updated accordingly.
+ */
+export function fixLengthySheetNames(data: ExcelWorkbookData): ExcelWorkbookData {
+  const nameMapping: Record<string, string> = {};
+  const newNames = new Set<string>();
+  for (const sheet of data.sheets) {
+    let newName = sheet.name.slice(0, 31);
+    let i = 1;
+    while (newNames.has(newName)) {
+      newName = newName.slice(0, 31 - String(i).length) + i++;
+    }
+    newNames.add(newName);
+    if (newName !== sheet.name) {
+      nameMapping[sheet.name] = newName;
+      sheet.name = newName;
+    }
+  }
+
+  if (!Object.keys(nameMapping).length) {
+    return data;
+  }
+
+  const sheetWithNewNames = Object.keys(nameMapping).sort((a, b) => b.length - a.length);
+  let stringifiedData = JSON.stringify(data);
+  for (const sheetName of sheetWithNewNames) {
+    const regex = new RegExp(`'?${escapeRegExp(sheetName)}'?!`, "g");
+    stringifiedData = stringifiedData.replaceAll(regex, (match) => {
+      const newName = nameMapping[sheetName];
+      return match.replace(sheetName, newName);
+    });
+  }
+  return JSON.parse(stringifiedData);
 }
