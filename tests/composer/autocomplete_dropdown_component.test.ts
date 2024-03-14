@@ -321,6 +321,18 @@ describe("Functions autocomplete", () => {
       await keyDown({ key: "ArrowDown" });
       expect(composerStore.currentContent).toBe("=SUM(B2");
     });
+
+    test("autocomplete should not appear when typing '=S', stop the edition, and editing back", async () => {
+      await typeInComposer("=S", true);
+      expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(2);
+
+      await keyDown({ key: "Escape" });
+      await nextTick();
+      expect(fixture.querySelector(".o-autocomplete-dropdown")).toBeFalsy();
+
+      await typeInComposer("", true);
+      expect(fixture.querySelector(".o-autocomplete-dropdown")).toBeFalsy();
+    });
   });
 
   describe("autocomplete functions SUM IF", () => {
@@ -361,6 +373,17 @@ describe("Autocomplete parenthesis", () => {
     await typeInComposer("=sum(1,2");
     await keyDown({ key: "Enter" });
     expect(getCellText(model, "A1")).toBe("=sum(1,2)");
+  });
+
+  test("=sum( + enter + edit does not show the formula assistant", async () => {
+    await typeInComposer("=sum(");
+    expect(fixture.querySelector(".o-formula-assistant-container")).toBeTruthy();
+    await keyDown({ key: "Enter" });
+    await nextTick();
+    expect(fixture.querySelector(".o-formula-assistant-container")).toBeFalsy();
+
+    await typeInComposer("", true);
+    expect(fixture.querySelector(".o-formula-assistant-container")).toBeFalsy();
   });
 
   test("=sum(1,2) + enter + edit sum does not add parenthesis", async () => {
