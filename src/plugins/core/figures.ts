@@ -40,6 +40,9 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
         this.figures[cmd.sheetId] = {};
         break;
       case "DELETE_SHEET":
+        this.getters.getFigures(cmd.sheetId).forEach((figure) => {
+          this.dispatch("DELETE_FIGURE", { id: figure.id, sheetId: cmd.sheetId });
+        });
         this.deleteSheet(cmd.sheetId);
         break;
       case "CREATE_FIGURE":
