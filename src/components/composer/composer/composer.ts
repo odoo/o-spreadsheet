@@ -208,6 +208,11 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
       if (!this.isKeyStillDown) {
         this.processContent();
       }
+
+      // Required because typing '=SUM' and double-clicking another cell leaves ShowProvider and ShowDescription true
+      if (this.env.model.getters.getEditionMode() === "inactive") {
+        this.processTokenAtCursor();
+      }
     });
   }
 
