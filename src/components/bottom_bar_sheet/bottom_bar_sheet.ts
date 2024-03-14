@@ -12,8 +12,8 @@ css/* scss */ `
     padding: 0 15px;
     padding-right: 10px;
     height: ${BOTTOMBAR_HEIGHT}px;
-    border-left: 1px solid #c1c1c1;
-    border-right: 1px solid #c1c1c1;
+    border-left: 1px solid #c0c0c0;
+    border-right: 1px solid #c0c0c0;
     margin-left: -1px;
     cursor: pointer;
     &:hover {

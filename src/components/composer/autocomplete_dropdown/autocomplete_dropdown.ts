@@ -10,7 +10,7 @@ css/* scss */ `
     max-width: 400px;
 
     .o-autocomplete-value-focus {
-      background-color: #f2f2f2;
+      background-color: #f3f3f3;
     }
 
     & > div {

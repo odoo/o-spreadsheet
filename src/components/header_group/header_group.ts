@@ -40,7 +40,7 @@ css/* scss */ `
         }
 
         &:hover {
-          border-color: #777777;
+          border-color: #767676;
         }
       }
     }
