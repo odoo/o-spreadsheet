@@ -40,7 +40,7 @@ css/* scss */ `
         }
 
         &:hover {
-          border-color: #777;
+          border-color: #777777;
         }
       }
     }
@@ -80,8 +80,8 @@ abstract class AbstractHeaderGroup extends Component<Props, SpreadsheetChildEnv>
 
   get groupButtonStyle(): string {
     return cssPropertiesToCss({
-      "background-color": this.isGroupFolded ? "#333" : "#fff",
-      color: this.isGroupFolded ? "#fff" : "#333",
+      "background-color": this.isGroupFolded ? "#333333" : "#FFFFFF",
+      color: this.isGroupFolded ? "#FFFFFF" : "#333333",
     });
   }
 

@@ -56,7 +56,7 @@ css/* scss */ `
   }
   .o-link-icon:hover {
     cursor: pointer;
-    color: #000;
+    color: #000000;
   }
 `;
 

@@ -328,7 +328,7 @@ export function setColorAlpha(color: Color, alpha: number): string {
 export function lightenColor(color: Color, percentage: number): Color {
   const hsla = hexToHSLA(color);
   if (percentage === 1) {
-    return "#fff";
+    return "#FFFFFF";
   }
   hsla.l = percentage * (100 - hsla.l) + hsla.l;
   return hslaToHex(hsla);
@@ -337,7 +337,7 @@ export function lightenColor(color: Color, percentage: number): Color {
 export function darkenColor(color: Color, percentage: number): Color {
   const hsla = hexToHSLA(color);
   if (percentage === 1) {
-    return "#000";
+    return "#000000";
   }
   hsla.l = hsla.l - percentage * hsla.l;
   return hslaToHex(hsla);

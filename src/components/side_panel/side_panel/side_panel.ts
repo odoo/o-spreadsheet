@@ -134,7 +134,7 @@ css/* scss */ `
     }
 
     .o-sidePanel-tools {
-      color: #333;
+      color: #333333;
       font-size: 13px;
       cursor: default;
       display: flex;

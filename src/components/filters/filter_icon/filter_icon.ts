@@ -18,7 +18,7 @@ css/* scss */ `
 
     &:hover {
       background: ${FILTERS_COLOR};
-      color: #fff;
+      color: #ffffff;
     }
 
     &.o-high-contrast {
@@ -26,12 +26,12 @@ css/* scss */ `
     }
     &.o-high-contrast:hover {
       color: ${FILTERS_COLOR};
-      background: #fff;
+      background: #ffffff;
     }
   }
   .o-filter-icon:hover {
     background: ${FILTERS_COLOR};
-    color: #fff;
+    color: #ffffff;
   }
 `;
 
@@ -71,7 +71,7 @@ export class FilterIcon extends Component<Props, SpreadsheetChildEnv> {
 
   get iconClass(): string {
     const cellStyle = this.env.model.getters.getCellComputedStyle(this.props.cellPosition);
-    const luminance = relativeLuminance(cellStyle.fillColor || "#fff");
+    const luminance = relativeLuminance(cellStyle.fillColor || "#FFFFFF");
     return luminance < 0.45 ? "o-high-contrast" : "";
   }
 }

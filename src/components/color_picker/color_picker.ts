@@ -136,16 +136,16 @@ css/* scss */ `
         width: ${MAGNIFIER_EDGE}px;
         box-sizing: border-box;
         border-radius: 50%;
-        border: 2px solid #fff;
+        border: 2px solid #ffffff;
         box-shadow: 0px 0px 3px #c0c0c0;
         position: absolute;
         z-index: 2;
       }
       .saturation {
-        background: linear-gradient(to right, #fff 0%, transparent 100%);
+        background: linear-gradient(to right, #ffffff 0%, transparent 100%);
       }
       .lightness {
-        background: linear-gradient(to top, #000 0%, transparent 100%);
+        background: linear-gradient(to top, #000000 0%, transparent 100%);
       }
       .o-hue-picker {
         border: ${ITEM_BORDER_WIDTH}px solid #c0c0c0;

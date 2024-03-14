@@ -132,7 +132,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     const { x: left, y: top, width, height } = this.rect;
 
     // color style
-    const background = (!isFormula && style.fillColor) || "#ffffff";
+    const background = (!isFormula && style.fillColor) || "#FFFFFF";
     const color = (!isFormula && style.textColor) || "#000000";
 
     // font style

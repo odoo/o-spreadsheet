@@ -20,7 +20,7 @@ css/* scss */ `
   .o-table-style-popover {
     /** 7 tables preview + padding by line */
     max-width: calc((66px + 4px * 2) * 7);
-    background: #fff;
+    background: #ffffff;
     font-size: 14px;
     .o-table-style-list-item {
       padding: 4px;

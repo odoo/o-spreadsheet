@@ -304,7 +304,7 @@ const backgroundColorChartJSPlugin = {
     const { ctx } = chart;
     ctx.save();
     ctx.globalCompositeOperation = "destination-over";
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = "#FFFFFF";
     ctx.fillRect(0, 0, chart.width, chart.height);
     ctx.restore();
   },

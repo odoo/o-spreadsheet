@@ -21,7 +21,7 @@ function drawBackgrounds(
   ctx.save();
   for (let col = 0; col < 5; col++) {
     for (let row = 0; row < 5; row++) {
-      ctx.fillStyle = tableStyle.styles[col][row].fillColor || "#fff";
+      ctx.fillStyle = tableStyle.styles[col][row].fillColor || "#FFFFFF";
       ctx.fillRect(col * colWidth, row * rowHeight, colWidth, rowHeight);
     }
   }
@@ -97,7 +97,7 @@ function drawTexts(
 
   for (let col = 0; col < 5; col++) {
     for (let row = 0; row < 5; row++) {
-      ctx.strokeStyle = tableStyle.styles[col][row].textColor || "#000";
+      ctx.strokeStyle = tableStyle.styles[col][row].textColor || "#000000";
 
       ctx.beginPath();
       ctx.moveTo(col * colWidth + xPadding + 1, row * rowHeight + yPadding);

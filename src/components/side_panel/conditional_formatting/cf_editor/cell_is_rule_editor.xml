@@ -5,7 +5,7 @@
       t-attf-style="font-weight:{{currentStyle.bold ?'bold':'normal'}};
                        text-decoration:{{getTextDecoration(currentStyle)}};
                        font-style:{{currentStyle.italic?'italic':'normal'}};
-                       color:{{currentStyle.textColor || '#000'}};
+                       color:{{currentStyle.textColor || '#000000'}};
                        border-radius: 4px;
                        background-color:{{currentStyle.fillColor}};">
       <t t-if="previewText" t-esc="previewText"/>

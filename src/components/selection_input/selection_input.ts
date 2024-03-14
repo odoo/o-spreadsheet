@@ -35,7 +35,7 @@ css/* scss */ `
         border-width: 2px;
       }
       button.o-btn {
-        color: #333;
+        color: #333333;
       }
       button.o-btn-action {
         margin: 8px 1px;
@@ -150,7 +150,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   }
 
   getColor(range: SelectionRange) {
-    const color = range.color || "#000";
+    const color = range.color || "#000000";
     return "color: " + color + ";";
   }
 

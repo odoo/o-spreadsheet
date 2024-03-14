@@ -21,7 +21,7 @@ css/* scss */ `
     }
 
     &.active {
-      color: #484;
+      color: #448844;
       background-color: #ffffff;
       box-shadow: 0 1px 3px 1px rgba(60, 64, 67, 0.15);
     }

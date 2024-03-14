@@ -56,14 +56,14 @@ import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipbo
 const ACTIVE_BG_COLOR = BACKGROUND_HEADER_FILTER_COLOR;
 const ACTIVE_FONT_COLOR = FILTERS_COLOR;
 const HOVERED_BG_COLOR = BG_HOVER_COLOR;
-const HOVERED_FONT_COLOR = "#000";
+const HOVERED_FONT_COLOR = "#000000";
 
 css/* scss */ `
   .o-spreadsheet {
     position: relative;
     display: grid;
     grid-template-columns: auto 350px;
-    color: #333;
+    color: #333333;
     input {
       background-color: white;
     }
@@ -71,7 +71,7 @@ css/* scss */ `
       color: grey !important;
     }
     button {
-      color: #333;
+      color: #333333;
     }
     .o-disabled {
       opacity: 0.4;

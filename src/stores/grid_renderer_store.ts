@@ -57,7 +57,7 @@ import { RendererStore } from "./renderer_store";
 // Constants, types, helpers, ...
 // -----------------------------------------------------------------------------
 
-export const CELL_BACKGROUND_GRIDLINE_STROKE_STYLE = "#111";
+export const CELL_BACKGROUND_GRIDLINE_STROKE_STYLE = "#111111";
 
 export class GridRenderer {
   private getters: Getters;
@@ -122,7 +122,7 @@ export class GridRenderer {
     const { width, height } = this.getters.getSheetViewDimensionWithHeaders();
 
     // white background
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = "#FFFFFF";
     ctx.fillRect(0, 0, width + CANVAS_SHIFT, height + CANVAS_SHIFT);
 
     const areGridLinesVisible =
@@ -143,8 +143,8 @@ export class GridRenderer {
     const { ctx } = renderingContext;
     for (const box of boxes) {
       let style = box.style;
-      if (style.fillColor && style.fillColor !== "#ffffff") {
-        ctx.fillStyle = style.fillColor || "#ffffff";
+      if (style.fillColor && style.fillColor !== "#FFFFFF") {
+        ctx.fillStyle = style.fillColor || "#FFFFFF";
         ctx.fillRect(box.x, box.y, box.width, box.height);
       }
       if (box.isError) {
@@ -179,7 +179,7 @@ export class GridRenderer {
             (box.clipRect?.x || box.x + box.width / 2 - box.content.width / 2) + thinLineWidth / 2;
           width = clipWidth - 2 * thinLineWidth;
         }
-        ctx.fillStyle = "#ffffff";
+        ctx.fillStyle = "#FFFFFF";
         ctx.fillRect(x, y, width, height);
       }
     }
@@ -285,7 +285,7 @@ export class GridRenderer {
           currentFont = font;
           ctx.font = font;
         }
-        ctx.fillStyle = style.textColor || "#000";
+        ctx.fillStyle = style.textColor || "#000000";
 
         // compute horizontal align start point parameter
         let x = box.x;
@@ -404,7 +404,7 @@ export class GridRenderer {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.lineWidth = thinLineWidth;
-    ctx.strokeStyle = "#333";
+    ctx.strokeStyle = "#333333";
 
     // Columns headers background
     for (let col = left; col <= right; col++) {
@@ -460,7 +460,7 @@ export class GridRenderer {
     for (const i of visibleCols) {
       const colSize = this.getters.getColSize(sheetId, i);
       const colName = numberToLetters(i);
-      ctx.fillStyle = activeCols.has(i) ? "#fff" : TEXT_HEADER_COLOR;
+      ctx.fillStyle = activeCols.has(i) ? "#FFFFFF" : TEXT_HEADER_COLOR;
       let colStart = this.getHeaderOffset("COL", left, i);
       ctx.fillText(colName, colStart + colSize / 2, HEADER_HEIGHT / 2);
       ctx.moveTo(colStart + colSize, 0);
@@ -469,7 +469,7 @@ export class GridRenderer {
     // row text + separator
     for (const i of visibleRows) {
       const rowSize = this.getters.getRowSize(sheetId, i);
-      ctx.fillStyle = activeRows.has(i) ? "#fff" : TEXT_HEADER_COLOR;
+      ctx.fillStyle = activeRows.has(i) ? "#FFFFFF" : TEXT_HEADER_COLOR;
 
       let rowStart = this.getHeaderOffset("ROW", top, i);
       ctx.fillText(String(i + 1), HEADER_WIDTH / 2, rowStart + rowSize / 2);

@@ -14,7 +14,7 @@ css/* scss */ `
   .o-selection-statistic {
     margin-right: 20px;
     padding: 4px 4px 4px 8px;
-    color: #333;
+    color: #333333;
     cursor: pointer;
     &:hover {
       background-color: rgba(0, 0, 0, 0.08) !important;

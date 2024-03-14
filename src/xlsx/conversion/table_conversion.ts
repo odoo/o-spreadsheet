@@ -9,7 +9,7 @@ type CellMap = { [key: string]: CellData | undefined };
 
 export const TABLE_HEADER_STYLE: Style = {
   fillColor: "#000000",
-  textColor: "#ffffff",
+  textColor: "#FFFFFF",
   bold: true,
 };
 

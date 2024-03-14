@@ -6,7 +6,7 @@ css/* scss */ `
   .o-autocomplete-dropdown {
     pointer-events: auto;
     cursor: pointer;
-    background-color: #fff;
+    background-color: #ffffff;
     max-width: 400px;
 
     .o-autocomplete-value-focus {

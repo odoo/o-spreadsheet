@@ -577,11 +577,11 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
         case "NUMBER":
         case "ARG_SEPARATOR":
         case "STRING":
-          result.push({ value: token.value, color: tokenColors[token.type] || "#000" });
+          result.push({ value: token.value, color: tokenColors[token.type] || "#000000" });
           break;
         case "REFERENCE":
           const { xc, sheetName } = splitReference(token.value);
-          result.push({ value: token.value, color: this.rangeColor(xc, sheetName) || "#000" });
+          result.push({ value: token.value, color: this.rangeColor(xc, sheetName) || "#000000" });
           break;
         case "SYMBOL":
           const value = token.value;
@@ -591,7 +591,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
           } else if (upperCaseValue in functionRegistry.content) {
             result.push({ value: token.value, color: tokenColors.FUNCTION });
           } else {
-            result.push({ value: token.value, color: "#000" });
+            result.push({ value: token.value, color: "#000000" });
           }
           break;
         case "LEFT_PAREN":
@@ -603,13 +603,13 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
             tokenAtCursor.parenIndex &&
             tokenAtCursor.parenIndex === token.parenIndex
           ) {
-            result.push({ value: token.value, color: tokenColors.MATCHING_PAREN || "#000" });
+            result.push({ value: token.value, color: tokenColors.MATCHING_PAREN || "#000000" });
           } else {
-            result.push({ value: token.value, color: tokenColors[token.type] || "#000" });
+            result.push({ value: token.value, color: tokenColors[token.type] || "#000000" });
           }
           break;
         default:
-          result.push({ value: token.value, color: "#000" });
+          result.push({ value: token.value, color: "#000000" });
           break;
       }
       if (this.composerStore.showSelectionIndicator && end === start && end === token.end) {
