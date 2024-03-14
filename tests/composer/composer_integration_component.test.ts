@@ -453,6 +453,17 @@ describe("Composer interactions", () => {
     await clickCell(model, "B2");
     expect(getCellText(model, "A1")).toBe("=sum(sum(1,2))");
   });
+
+  test("Autocomplete should not appear when typing '=S', clicking outside, and editing back", async () => {
+    await typeInComposerGrid("=S");
+    expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(10);
+
+    await clickCell(model, "B2");
+    expect(fixture.querySelector(".o-autocomplete-dropdown")).toBeFalsy();
+
+    await startGridComposition();
+    expect(fixture.querySelector(".o-autocomplete-dropdown")).toBeFalsy();
+  });
 });
 
 describe("Grid composer", () => {
