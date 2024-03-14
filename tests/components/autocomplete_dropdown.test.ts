@@ -8,8 +8,11 @@ import {
   clearFunctions,
   ComposerWrapper,
   mountComposerWrapper,
+  mountSpreadsheet,
   nextTick,
   restoreDefaultFunctions,
+  startGridComposition,
+  typeInComposerGrid,
   typeInComposerHelper,
 } from "../test_helpers/helpers";
 import { ContentEditableHelper } from "./__mocks__/content_editable_helper";
@@ -226,6 +229,20 @@ describe("Functions autocomplete", () => {
       await simulateClick(dropDownEl);
       expect(document.activeElement).toEqual(activeElement);
     });
+
+    test("autocomplete should not appear when typing '=S', clicking outside, and edting back", async () => {
+      const { model, fixture } = await mountSpreadsheet();
+      await typeInComposerGrid("=S", true);
+      expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(2);
+
+      model.dispatch("STOP_EDITION");
+      await nextTick();
+      expect(fixture.querySelector(".o-autocomplete-dropdown")).toBeFalsy();
+
+      await startGridComposition();
+      await nextTick();
+      expect(fixture.querySelector(".o-autocomplete-dropdown")).toBeFalsy();
+    });
   });
 
   describe("autocomplete functions SUM IF", () => {
@@ -265,6 +282,19 @@ describe("Autocomplete parenthesis", () => {
     await typeInComposer("=sum(1,2");
     await keyDown({ key: "Enter" });
     expect(getCellText(model, "A1")).toBe("=sum(1,2)");
+  });
+
+  test("=sum( + enter + edit does not show the formula assistant", async () => {
+    const { fixture, model } = await mountSpreadsheet();
+    await typeInComposerGrid("=sum(");
+    expect(fixture.querySelector(".o-formula-assistant-container")).toBeTruthy();
+
+    model.dispatch("STOP_EDITION");
+    await nextTick();
+    expect(fixture.querySelector(".o-formula-assistant-container")).toBeFalsy();
+
+    await startGridComposition();
+    expect(fixture.querySelector(".o-formula-assistant-container")).toBeFalsy();
   });
 
   test("=sum(1,2) + enter + edit sum does not add parenthesis", async () => {
