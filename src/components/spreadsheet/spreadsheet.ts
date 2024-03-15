@@ -70,9 +70,6 @@ css/* scss */ `
     .text-muted {
       color: grey !important;
     }
-    button {
-      color: #333333;
-    }
     .o-disabled {
       opacity: 0.4;
       pointer: default;
@@ -203,6 +200,7 @@ css/* scss */ `
     height: 30px;
     line-height: 16px;
     background: white;
+    color: #333333;
     margin-right: 8px;
     &:hover:enabled {
       background-color: rgba(0, 0, 0, 0.08);

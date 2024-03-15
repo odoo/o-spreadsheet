@@ -30,11 +30,6 @@ css/* scss */ `
   .o_cf_radio_item {
     margin-right: 10%;
   }
-  .radio input:checked {
-    color: #e9ecef;
-    border-color: #00a09d;
-    background-color: #00a09d;
-  }
   .o-cf-editor {
     border-bottom: solid;
     border-color: lightgrey;

@@ -84,7 +84,9 @@
         />
       </Section>
       <div class="o-sidePanelButtons">
-        <button t-on-click="deleteTable" class="o-table-delete o-button">Delete table</button>
+        <button t-on-click="deleteTable" class="o-table-delete btn btn-outline-danger">
+          Delete table
+        </button>
       </div>
     </div>
   </t>

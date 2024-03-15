@@ -53,7 +53,7 @@ css/* scss */ `
     line-height: 1.2;
     font-size: 13px;
     font-weight: 500;
-    background-color: #ffffff;
+    background-color: #fff;
 
     .o-topbar-top {
       border-bottom: 1px solid ${SEPARATOR_COLOR};
@@ -67,7 +67,7 @@ css/* scss */ `
 
           &.active {
             background-color: ${BG_HOVER_COLOR};
-            color: #000000;
+            color: #000;
           }
         }
       }
@@ -159,7 +159,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   state: State = useState({
     menuState: { isOpen: false, position: null, menuItems: [] },
     activeTool: "",
-    fillColor: "#FFFFFF",
+    fillColor: "#ffffff",
     textColor: "#000000",
   });
   isSelectingMenu = false;
@@ -258,7 +258,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   updateCellState() {
     const style = this.env.model.getters.getCurrentStyle();
-    this.state.fillColor = style.fillColor || "#FFFFFF";
+    this.state.fillColor = style.fillColor || "#ffffff";
     this.state.textColor = style.textColor || "#000000";
     this.menus = topbarMenuRegistry.getMenuItems();
   }

@@ -42,11 +42,6 @@ css/* scss */ `
         outline: none;
       }
     }
-
-    .o-sidePanelButtons .o-table-delete:hover {
-      color: #ffffff;
-      background: #d94b4b;
-    }
   }
 `;
 

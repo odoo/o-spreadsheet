@@ -17,7 +17,7 @@ import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 /**
  * https://tomekdev.com/posts/sorting-colors-in-js
  */
-function sortWithClusters(colorsToSort: Color[]): Color[] {
+export function sortWithClusters(colorsToSort: Color[]): Color[] {
   const clusters: { leadColor: RGBA; colors: RGBA[] }[] = [
     { leadColor: rgba(255, 0, 0), colors: [] }, // red
     { leadColor: rgba(255, 128, 0), colors: [] }, // orange

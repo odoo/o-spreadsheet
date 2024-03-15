@@ -84,10 +84,6 @@ css/* scss */ `
       height: 44px;
       cursor: pointer;
       text-decoration: none;
-      &:hover {
-        color: #003a39;
-        text-decoration: none;
-      }
     }
 
     .o-button.primary:not(.o-disabled) {
