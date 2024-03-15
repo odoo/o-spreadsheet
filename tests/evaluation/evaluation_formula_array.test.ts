@@ -42,9 +42,12 @@ describe("evaluate formulas that return an array", () => {
     restoreDefaultFunctions();
   });
 
-  test("a simple reference to a range cannot return an array", () => {
-    setCellContent(model, "A1", "=A2:A3");
-    expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+  test("a simple reference to a range can return an array", () => {
+    setCellContent(model, "A1", "a1");
+    setCellContent(model, "A2", "a2");
+    setCellContent(model, "B1", "=A1:A2");
+    expect(getEvaluatedCell(model, "B1").value).toBe("a1");
+    expect(getEvaluatedCell(model, "B2").value).toBe("a2");
   });
 
   test("can spread array", () => {
@@ -53,6 +56,24 @@ describe("evaluate formulas that return an array", () => {
     expect(getEvaluatedCell(model, "A2").value).toBe(42);
     expect(getEvaluatedCell(model, "B1").value).toBe(42);
     expect(getEvaluatedCell(model, "B2").value).toBe(42);
+  });
+
+  test("can use result array in formula that accept array", () => {
+    setCellContent(model, "A1", "=SUM(MFILL(2, 2, 42))");
+    expect(getEvaluatedCell(model, "A1").value).toBe(168);
+  });
+
+  test("can't use result array in formula that accept scalar only", () => {
+    setCellContent(model, "A1", "=ABS(MFILL(2, 2, -42))");
+    expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+    expect(getCellError(model, "A1")).toBe(
+      "Function ABS expects the parameter 'value' to be a single value or a single cell reference, not a range."
+    );
+  });
+
+  test("can use 1x1 result array in formula that accept scalar", () => {
+    setCellContent(model, "A1", "=ABS(MFILL(1, 1, -42))");
+    expect(getEvaluatedCell(model, "A1").value).toBe(42);
   });
 
   test("reference to a formula result array is possible", () => {
