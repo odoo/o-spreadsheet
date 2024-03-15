@@ -22,6 +22,7 @@ import {
 } from "./test_helpers/commands_helpers";
 import { getCell, getCellContent, getEvaluatedCell } from "./test_helpers/getters_helpers";
 import {
+  clearFunctions,
   doAction,
   getName,
   getNode,
@@ -856,6 +857,26 @@ describe("Menu Item actions", () => {
       env
     );
     expect(allFunctions.map((f) => f.name(env))).toContain("TEST.FUNC");
+    restoreDefaultFunctions();
+  });
+
+  test("Insert -> Function -> hidden formulas are filtered out", () => {
+    clearFunctions();
+    functionRegistry.add("HIDDEN.FUNC", {
+      args: [],
+      compute: () => 42,
+      description: "Test function",
+      returns: ["NUMBER"],
+      hidden: true,
+      category: "hidden",
+    });
+    const env = makeTestEnv();
+    const functionCategories = getNode(["insert", "insert_function"]).children(env);
+    expect(functionCategories.map((f) => f.name(env))).not.toContain("hidden");
+    const allFunctions = getNode(["insert", "insert_function", "categorie_function_all"]).children(
+      env
+    );
+    expect(allFunctions.map((f) => f.name(env))).not.toContain("HIDDEN.FUNC");
     restoreDefaultFunctions();
   });
 
