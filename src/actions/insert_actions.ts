@@ -221,19 +221,24 @@ export const categorieFunctionAll: ActionSpec = {
 };
 
 function allFunctionListMenuBuilder(): ActionSpec[] {
-  const fnNames = functionRegistry.getKeys();
+  const fnNames = functionRegistry.getKeys().filter((key) => !functionRegistry.get(key).hidden);
   return createFormulaFunctions(fnNames);
 }
 
 export const categoriesFunctionListMenuBuilder: ActionBuilder = () => {
   const functions = functionRegistry.content;
-  const categories = [...new Set(functionRegistry.getAll().map((fn) => fn.category))].filter(
-    isDefined
-  );
+  const categories = [
+    ...new Set(
+      functionRegistry
+        .getAll()
+        .filter((fn) => !fn.hidden)
+        .map((fn) => fn.category)
+    ),
+  ].filter(isDefined);
 
   return categories.sort().map((category, i) => {
     const functionsInCategory = Object.keys(functions).filter(
-      (key) => functions[key].category === category
+      (key) => functions[key].category === category && !functions[key].hidden
     );
     return {
       name: category,
