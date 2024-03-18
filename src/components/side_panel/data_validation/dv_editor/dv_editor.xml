@@ -36,10 +36,10 @@
       </div>
 
       <div class="o-sidePanelButtons">
-        <button t-on-click="props.onExit" class="o-dv-cancel o-button">Cancel</button>
+        <button t-on-click="props.onExit" class="o-dv-cancel o-button o-button-grey">Cancel</button>
         <button
           t-on-click="onSave"
-          class="o-dv-save o-button primary"
+          class="o-dv-save o-button o-button-grey primary"
           t-att-class="{'o-disabled': !canSave }">
           Save
         </button>
