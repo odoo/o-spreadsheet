@@ -74,13 +74,13 @@
         <button
           t-att-disabled="!hasSearchResult"
           t-on-click="() => store.selectPreviousMatch()"
-          class="o-button">
+          class="o-button o-button-grey">
           Previous
         </button>
         <button
           t-att-disabled="!hasSearchResult"
           t-on-click="() => store.selectNextMatch()"
-          class="o-button">
+          class="o-button o-button-grey">
           Next
         </button>
       </div>
@@ -100,13 +100,13 @@
         <button
           t-att-disabled="store.selectedMatchIndex === null"
           t-on-click="() => store.replace()"
-          class="o-button">
+          class="o-button o-button-grey">
           Replace
         </button>
         <button
           t-att-disabled="store.selectedMatchIndex === null"
           t-on-click="() => store.replaceAll()"
-          class="o-button">
+          class="o-button o-button-grey">
           Replace all
         </button>
       </div>

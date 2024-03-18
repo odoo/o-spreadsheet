@@ -18,7 +18,7 @@
       </div>
       <div class="mb-2"/>
     </t>
-    <button class="o-dv-list-add-value o-button mb-3" t-on-click="onAddAnotherValue">
+    <button class="o-dv-list-add-value o-button o-button-grey mb-3" t-on-click="onAddAnotherValue">
       Add another item
     </button>
 
