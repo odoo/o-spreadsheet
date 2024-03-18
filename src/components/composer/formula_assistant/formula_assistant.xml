@@ -8,7 +8,7 @@
           }">
       <t t-set="context" t-value="getContext()"/>
       <div
-        class="o-formula-assistant bg-white"
+        class="o-formula-assistant"
         t-if="context.functionName"
         t-on-pointermove="onMouseMove"
         t-att-class="{'opacity-25': assistantState.allowCellSelectionBehind}">
