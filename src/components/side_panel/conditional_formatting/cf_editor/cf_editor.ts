@@ -77,11 +77,9 @@ css/* scss */ `
     }
     .o-cell-is-operator {
       margin-bottom: 5px;
-      width: 96%;
     }
     .o-cell-is-value {
       margin-bottom: 5px;
-      width: 96%;
     }
     .o-color-picker-widget .o-color-picker-button {
       pointer-events: all;
