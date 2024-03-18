@@ -14,7 +14,7 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
       class="d-flex w-100"
     >
       <div
-        class="o-menu-item-icon align-middle"
+        class="o-menu-item-icon align-middle flex-shrink-0"
       >
         <svg
           class="o-icon"
@@ -50,7 +50,7 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
       class="d-flex w-100"
     >
       <div
-        class="o-menu-item-icon align-middle"
+        class="o-menu-item-icon align-middle flex-shrink-0"
       >
         <svg
           class="o-icon"
@@ -86,7 +86,7 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
       class="d-flex w-100"
     >
       <div
-        class="o-menu-item-icon align-middle"
+        class="o-menu-item-icon align-middle flex-shrink-0"
       >
         <svg
           class="o-icon"
@@ -122,7 +122,7 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
       class="d-flex w-100"
     >
       <div
-        class="o-menu-item-icon align-middle"
+        class="o-menu-item-icon align-middle flex-shrink-0"
       >
         <svg
           class="o-icon"
@@ -170,7 +170,7 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
       class="d-flex w-100"
     >
       <div
-        class="o-menu-item-icon align-middle"
+        class="o-menu-item-icon align-middle flex-shrink-0"
       >
         <svg
           class="o-icon"
@@ -201,7 +201,7 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
       class="d-flex w-100"
     >
       <div
-        class="o-menu-item-icon align-middle"
+        class="o-menu-item-icon align-middle flex-shrink-0"
       >
         <svg
           class="o-icon"
@@ -232,7 +232,7 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
       class="d-flex w-100"
     >
       <div
-        class="o-menu-item-icon align-middle"
+        class="o-menu-item-icon align-middle flex-shrink-0"
       >
         <svg
           class="o-icon"
@@ -280,7 +280,7 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
       class="d-flex w-100"
     >
       <div
-        class="o-menu-item-icon align-middle"
+        class="o-menu-item-icon align-middle flex-shrink-0"
       >
         <svg
           class="o-icon"
@@ -311,7 +311,7 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
       class="d-flex w-100"
     >
       <div
-        class="o-menu-item-icon align-middle"
+        class="o-menu-item-icon align-middle flex-shrink-0"
       >
         <svg
           class="o-icon"
@@ -342,7 +342,7 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
       class="d-flex w-100"
     >
       <div
-        class="o-menu-item-icon align-middle"
+        class="o-menu-item-icon align-middle flex-shrink-0"
       >
         <svg
           class="o-icon"
@@ -390,7 +390,7 @@ exports[`Context Menu integration tests context menu simple rendering 1`] = `
       class="d-flex w-100"
     >
       <div
-        class="o-menu-item-icon align-middle"
+        class="o-menu-item-icon align-middle flex-shrink-0"
       >
         <svg
           class="o-icon"
