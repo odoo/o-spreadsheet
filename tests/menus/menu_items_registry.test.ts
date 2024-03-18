@@ -24,6 +24,7 @@ import {
   selectRow,
   setAnchorCorner,
   setCellContent,
+  setFormat,
   setSelection,
   setStyle,
   updateLocale,
@@ -1154,6 +1155,34 @@ describe("Menu Item actions", () => {
       doAction(["format", "format_number", "format_number_percent"], env);
       expect(composerStore.editionMode).toBe("inactive");
       expect(getCellContent(model, "A1")).toBe("");
+    });
+
+    describe("Custom number formats", () => {
+      function getNumberFormatsInMenu() {
+        return getNode(["format", "format_number"], env)
+          .children(env)
+          .map((node) => node.name(env));
+      }
+
+      test("Custom date and currency formats are present in the number format item", () => {
+        expect(getNumberFormatsInMenu()).not.toContain("#.##0[$£]");
+        setFormat(model, "A1", "#.##0[$£]");
+        expect(getNumberFormatsInMenu()).toContain("#.##0[$£]");
+
+        expect(getNumberFormatsInMenu()).not.toContain("dd/mm/yyyy");
+        setFormat(model, "A1", "dd/mm/yyyy");
+        expect(getNumberFormatsInMenu()).toContain("dd/mm/yyyy");
+      });
+
+      test("Custom formats that are nether dates nor currencies are not present", () => {
+        setFormat(model, "A1", "#.####0");
+        expect(getNumberFormatsInMenu()).not.toContain("#.####0");
+      });
+
+      test("Default formats are not re-added in custom formats", () => {
+        setFormat(model, "A1", "m/d/yyyy");
+        expect(getNumberFormatsInMenu()).not.toContain("m/d/yyyy");
+      });
     });
   });
 

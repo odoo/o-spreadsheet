@@ -22,11 +22,15 @@ import { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 import { setFormatter, setStyle } from "./menu_items_actions";
 
+export interface NumberFormatActionSpec extends ActionSpec {
+  format?: Format | ((env: SpreadsheetChildEnv) => Format);
+}
+
 /**
  * Create a format action specification for a given format.
  * The format can be dynamically computed from the environment.
  */
-function createFormatActionSpec({
+export function createFormatActionSpec({
   name,
   format,
   descriptionValue,
@@ -34,7 +38,7 @@ function createFormatActionSpec({
   name: string;
   descriptionValue: CellValue;
   format: Format | ((env: SpreadsheetChildEnv) => Format);
-}): ActionSpec {
+}): NumberFormatActionSpec {
   const formatCallback = typeof format === "function" ? format : () => format;
   return {
     name,
@@ -45,16 +49,17 @@ function createFormatActionSpec({
       }),
     execute: (env) => setFormatter(env, formatCallback(env)),
     isActive: (env) => isFormatSelected(env, formatCallback(env)),
+    format,
   };
 }
 
-export const formatNumberAutomatic: ActionSpec = {
+export const formatNumberAutomatic: NumberFormatActionSpec = {
   name: _t("Automatic"),
   execute: (env) => setFormatter(env, ""),
   isActive: (env) => isAutomaticFormatSelected(env),
 };
 
-export const formatNumberPlainText: ActionSpec = {
+export const formatNumberPlainText: NumberFormatActionSpec = {
   name: _t("Plain text"),
   execute: (env) => setFormatter(env, PLAIN_TEXT_FORMAT),
   isActive: (env) => isFormatSelected(env, PLAIN_TEXT_FORMAT),
@@ -84,7 +89,7 @@ export const formatNumberCurrency = createFormatActionSpec({
   format: (env) => env.model.config.defaultCurrencyFormat ?? DEFAULT_CURRENCY_FORMAT,
 });
 
-export const formatNumberCurrencyRounded: ActionSpec = {
+export const formatNumberCurrencyRounded: NumberFormatActionSpec = {
   ...createFormatActionSpec({
     name: _t("Currency rounded"),
     descriptionValue: 1000,
@@ -98,7 +103,7 @@ export const formatNumberCurrencyRounded: ActionSpec = {
 
 const DEFAULT_CURRENCY_FORMAT = "[$$]#,##0.00";
 
-const EXAMPLE_DATE = parseLiteral("2023/09/26 10:43:00 PM", DEFAULT_LOCALE);
+export const EXAMPLE_DATE = parseLiteral("2023/09/26 10:43:00 PM", DEFAULT_LOCALE);
 
 export const formatCustomCurrency: ActionSpec = {
   name: _t("Custom currency"),
