@@ -1,7 +1,7 @@
-import { modifyProfiles, recomputeZones2, toUnboundedZone, zoneToXc } from "../../src/helpers";
+import { modifyProfiles, recomputeZones, toUnboundedZone, zoneToXc } from "../../src/helpers";
 
-const recomputeZones2FromXC = function (xcs: string[], xcsToRemove: string[]): string[] {
-  return recomputeZones2(xcs.map(toUnboundedZone), xcsToRemove.map(toUnboundedZone)).map(zoneToXc);
+const recomputeZonesFromXC = function (xcs: string[], xcsToRemove: string[]): string[] {
+  return recomputeZones(xcs.map(toUnboundedZone), xcsToRemove.map(toUnboundedZone)).map(zoneToXc);
 };
 
 // Only to test result after modifyProfiles
@@ -698,7 +698,7 @@ describe("modifyProfiles", () => {
 describe("recomputeZones new tests", () => {
   test("on a simple zone", () => {
     const conf1 = ["A1:B1"];
-    expect(recomputeZones2FromXC(conf1, [])).toEqual(conf1);
+    expect(recomputeZonesFromXC(conf1, [])).toEqual(conf1);
   });
 
   test.each([
@@ -710,8 +710,8 @@ describe("recomputeZones new tests", () => {
     ["F1:G1", ["C3:E5", "F1:G1"]],
     ["G1:H1", ["C3:E5", "G1:H1"]],
   ])("translation of 2x1 zone (%s) on rowIndex 0 with C3:E5", (zone, result) => {
-    expect(recomputeZones2FromXC(["C3:E5", zone], [])).toEqual(result);
-    expect(recomputeZones2FromXC([zone, "C3:E5"], [])).toEqual(result);
+    expect(recomputeZonesFromXC(["C3:E5", zone], [])).toEqual(result);
+    expect(recomputeZonesFromXC([zone, "C3:E5"], [])).toEqual(result);
   });
 
   test.each([
@@ -723,8 +723,8 @@ describe("recomputeZones new tests", () => {
     ["F1:G2", ["C3:E5", "F1:G2"]],
     ["G1:H2", ["C3:E5", "G1:H2"]],
   ])("translation of 2x2 zone (%s) on rowIndex 0 with C3:E5", (zone, result) => {
-    expect(recomputeZones2FromXC(["C3:E5", zone], [])).toEqual(result);
-    expect(recomputeZones2FromXC([zone, "C3:E5"], [])).toEqual(result);
+    expect(recomputeZonesFromXC(["C3:E5", zone], [])).toEqual(result);
+    expect(recomputeZonesFromXC([zone, "C3:E5"], [])).toEqual(result);
   });
 
   test("testtesttest", () => {
@@ -751,7 +751,7 @@ describe("recomputeZones new tests", () => {
       "D3",
       "D5",
     ];
-    expect(recomputeZones2FromXC(toMerge, [])).toEqual(["D1:D21"]);
+    expect(recomputeZonesFromXC(toMerge, [])).toEqual(["D1:D21"]);
   });
 });
 
@@ -759,127 +759,127 @@ describe("recomputeZones old tests", () => {
   test("add a cell to zone(1)", () => {
     const toKeep = ["A1:C3", "A4"];
     const expectedZone = ["A1:A4", "B1:C3"];
-    expect(recomputeZones2FromXC(toKeep, [])).toEqual(expectedZone);
+    expect(recomputeZonesFromXC(toKeep, [])).toEqual(expectedZone);
   });
 
   test("add a cell to zone(2)", () => {
     const toKeep = ["A1:C3", "D1"];
     const expectedZone = ["A1:C3", "D1"];
-    expect(recomputeZones2FromXC(toKeep, [])).toEqual(expectedZone);
+    expect(recomputeZonesFromXC(toKeep, [])).toEqual(expectedZone);
   });
 
   test("add a cell to a full column zone", () => {
     const toKeep = ["A:B", "A4"];
     const expectedZone = ["A:B"];
-    expect(recomputeZones2FromXC(toKeep, [])).toEqual(expectedZone);
+    expect(recomputeZonesFromXC(toKeep, [])).toEqual(expectedZone);
   });
 
   test("add a cell to a full column zone (2)", () => {
     const toKeep = ["A2:A", "A1"];
     const expectedZone = ["A:A"];
-    expect(recomputeZones2FromXC(toKeep, [])).toEqual(expectedZone);
+    expect(recomputeZonesFromXC(toKeep, [])).toEqual(expectedZone);
   });
 
   test("add a cell to a full row zone", () => {
     const toKeep = ["1:2", "A1"];
     const expectedZone = ["1:2"];
-    expect(recomputeZones2FromXC(toKeep, [])).toEqual(expectedZone);
+    expect(recomputeZonesFromXC(toKeep, [])).toEqual(expectedZone);
   });
 
   test("add a cell to a full row zone (2)", () => {
     const toKeep = ["C1:1", "B1"];
     const expectedZone = ["B1:1"];
-    expect(recomputeZones2FromXC(toKeep, [])).toEqual(expectedZone);
+    expect(recomputeZonesFromXC(toKeep, [])).toEqual(expectedZone);
   });
 
   test("add a row to a zone", () => {
     const toKeep = ["A1:C3", "A4:C4"];
     const expectedZone = ["A1:C4"];
-    expect(recomputeZones2FromXC(toKeep, [])).toEqual(expectedZone);
+    expect(recomputeZonesFromXC(toKeep, [])).toEqual(expectedZone);
   });
 
   test("add a row to a full row range", () => {
     const toKeep = ["1:1", "2:2"];
     const expectedZone = ["1:2"];
-    expect(recomputeZones2FromXC(toKeep, [])).toEqual(expectedZone);
+    expect(recomputeZonesFromXC(toKeep, [])).toEqual(expectedZone);
   });
 
   test("add a col to a zone", () => {
     const toKeep = ["A1:C3", "D1:D3"];
     const expectedZone = ["A1:D3"];
-    expect(recomputeZones2FromXC(toKeep, [])).toEqual(expectedZone);
+    expect(recomputeZonesFromXC(toKeep, [])).toEqual(expectedZone);
   });
 
   test("add a col to a full column range", () => {
     const toKeep = ["A2:A", "B2:B"];
     const expectedZone = ["A2:B"];
-    expect(recomputeZones2FromXC(toKeep, [])).toEqual(expectedZone);
+    expect(recomputeZonesFromXC(toKeep, [])).toEqual(expectedZone);
   });
 
   test("merge zones", () => {
     const toKeep = ["A1:B3", "B2:C5", "C1:C5"];
     const expectedZone = ["A1:A3", "B1:C5"];
-    expect(recomputeZones2FromXC(toKeep, [])).toEqual(expectedZone);
+    expect(recomputeZonesFromXC(toKeep, [])).toEqual(expectedZone);
   });
   test("zones included", () => {
     const toKeep = ["A1:D6", "A2:C3"];
     const expectedZone = ["A1:D6"];
-    expect(recomputeZones2FromXC(toKeep, [])).toEqual(expectedZone);
+    expect(recomputeZonesFromXC(toKeep, [])).toEqual(expectedZone);
   });
   test("remove a cell (1)", () => {
     const toKeep = ["A1:D6"];
     const toRemove = ["A1"];
     const expectedZone = ["A2:A6", "B1:D6"];
-    expect(recomputeZones2FromXC(toKeep, toRemove)).toEqual(expectedZone);
+    expect(recomputeZonesFromXC(toKeep, toRemove)).toEqual(expectedZone);
   });
   test("remove a cell (2)", () => {
     const toKeep = ["A1:D6"];
     const toRemove = ["D6"];
     const expectedZone = ["A1:C6", "D1:D5"];
-    expect(recomputeZones2FromXC(toKeep, toRemove)).toEqual(expectedZone);
+    expect(recomputeZonesFromXC(toKeep, toRemove)).toEqual(expectedZone);
   });
   test("remove a cell (3)", () => {
     const toKeep = ["A1:D6"];
     const toRemove = ["B3"];
     const expectedZone = ["A1:A6", "B1:B2", "B4:B6", "C1:D6"];
-    expect(recomputeZones2FromXC(toKeep, toRemove)).toEqual(expectedZone);
+    expect(recomputeZonesFromXC(toKeep, toRemove)).toEqual(expectedZone);
   });
   test("remove a cell inside a full column range", () => {
     const toKeep = ["A:A"];
     const toRemove = ["A4"];
     const expectedZone = ["A1:A3", "A5:A"];
-    expect(recomputeZones2FromXC(toKeep, toRemove)).toEqual(expectedZone);
+    expect(recomputeZonesFromXC(toKeep, toRemove)).toEqual(expectedZone);
   });
   test("remove a cell at the top of a full column range", () => {
     const toKeep = ["A:A"];
     const toRemove = ["A1"];
     const expectedZone = ["A2:A"];
-    expect(recomputeZones2FromXC(toKeep, toRemove)).toEqual(expectedZone);
+    expect(recomputeZonesFromXC(toKeep, toRemove)).toEqual(expectedZone);
   });
   test("remove a cell inside a full row range", () => {
     const toKeep = ["1:1"];
     const toRemove = ["C1"];
     const expectedZone = ["A1:B1", "D1:1"];
-    expect(recomputeZones2FromXC(toKeep, toRemove)).toEqual(expectedZone);
+    expect(recomputeZonesFromXC(toKeep, toRemove)).toEqual(expectedZone);
   });
   test("remove a cell at the left of a full row range", () => {
     const toKeep = ["1:1"];
     const toRemove = ["A1"];
     const expectedZone = ["B1:1"];
-    expect(recomputeZones2FromXC(toKeep, toRemove)).toEqual(expectedZone);
+    expect(recomputeZonesFromXC(toKeep, toRemove)).toEqual(expectedZone);
   });
 
   test("remove a zone", () => {
     const toKeep = ["A1:D6"];
     const toRemove = ["B1:C6"];
     const expectedZone = ["A1:A6", "D1:D6"];
-    expect(recomputeZones2FromXC(toKeep, toRemove)).toEqual(expectedZone);
+    expect(recomputeZonesFromXC(toKeep, toRemove)).toEqual(expectedZone);
   });
 
   test("remove an unbounded zone", () => {
     const toKeep = ["A1:D6"];
     const toRemove = ["2:3"];
     const expectedZone = ["A1:D1", "A4:D6"];
-    expect(recomputeZones2FromXC(toKeep, toRemove)).toEqual(expectedZone);
+    expect(recomputeZonesFromXC(toKeep, toRemove)).toEqual(expectedZone);
   });
 });

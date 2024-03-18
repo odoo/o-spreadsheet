@@ -10,7 +10,7 @@ import {
   isEqual,
   positionToZone,
   positions,
-  recomputeZones2,
+  recomputeZones,
   uniqueZones,
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
@@ -426,7 +426,7 @@ export class GridSelectionPlugin extends UIPlugin {
     const isRowHiddenCache: { [row: number]: boolean } = {};
     const isColHiddenCache: { [col: number]: boolean } = {};
 
-    const recomputedZones = recomputeZones2(this.gridSelection.zones, []);
+    const recomputedZones = recomputeZones(this.gridSelection.zones, []);
     const heightMax = this.getters.getSheetSize(sheetId).numberOfRows - 1;
     const widthMax = this.getters.getSheetSize(sheetId).numberOfCols - 1;
 

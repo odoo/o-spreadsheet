@@ -16,13 +16,13 @@ import { UnboundedZone } from "../types";
  * Applying recomputeZones will return zones without
  * overlapping: 
  * 
- * ["B3:D4", "D2:E3"]         ["B3:D4", "D2:E2", "E3"]
+ * ["B3:D4", "D2:E3"]         ["B3:C4", "D2:D4", "E2:E3"]
  * 
  *      A B C D E                    A B C D E  
  *    1       ___                  1       ___  
- *    2   ___|_  |                 2   ___|___| 
- *    3  |   |_|_|      --->       3  |     |_| 
- *    4  |_____|                   4  |_____|   
+ *    2   ___|_  |                 2   ___| | | 
+ *    3  |   |_|_|      --->       3  |   | |_| 
+ *    4  |_____|                   4  |___|_|   
  *    6                            6            
  *    7                            7            
  *
@@ -129,7 +129,7 @@ import { UnboundedZone } from "../types";
  * - you will find coordinate of a cell only once among all the zones
  * - the number of zones will be reduced to the minimum
  */
-export function recomputeZones2(
+export function recomputeZones(
   zones: UnboundedZone[],
   zonesToRemove: UnboundedZone[]
 ): UnboundedZone[] {
@@ -151,9 +151,9 @@ export function modifyProfiles( // export for testing only
     const leftValue = zone.left;
     const rightValue = zone.right === undefined ? undefined : zone.right + 1;
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    // FIND LEFT POINT /////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////
+    // FIND LEFT POINT ////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////
 
     let leftPredecessorProfileIndex = binaryPredecessorSearch(profilesStartingPosition, leftValue);
 
@@ -176,9 +176,9 @@ export function modifyProfiles( // export for testing only
       leftIndex++;
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    // FIND RIGHT POINT ////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////
+    // FIND RIGHT POINT ///////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////
 
     let rightPredecessorProfileIndex =
       rightValue === undefined
@@ -213,18 +213,18 @@ export function modifyProfiles( // export for testing only
       }
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    // MODIFY PROFILES /////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////
+    // MODIFY PROFILES ////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////
 
     for (let i = leftIndex; i <= rightIndex; i++) {
       const profile = profiles.get(profilesStartingPosition[i])!;
       modifyProfile(profile, zone, toRemove);
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    // REMOVE SAME CONTIGUOUS PROFILES /////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////
+    // REMOVE SAME CONTIGUOUS PROFILES ////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////
 
     // maybe this part cost in performance, and maybe it's not necessary (depending on the use case). To be checked
     for (
@@ -362,52 +362,6 @@ function constructZonesFromProfiles(
   mergedZone.push(...stackZones);
   return mergedZone;
 }
-
-// WIP for a new constructZonesFromProfiles, to discuss
-
-// function constructZonesFromProfiles(profilesStartingPosition: number[], profiles: Map<number, number[]>): UnboundedZone[] {
-//   const zones: UnboundedZone[] = [];
-//   for (let colIndex = 0; colIndex < profilesStartingPosition.length; colIndex++) {
-//     const left = profilesStartingPosition[colIndex];
-//     const profile = profiles.get(left)!;
-//     if (!profile || profile.length === 0) {
-//       continue;
-//     }
-
-//     // let right = profilesStartingPosition[colIndex + 1];
-//     // if (right !== undefined) {
-//     //   right--;
-//     // }
-
-//     for (let rowIndex = 0; rowIndex < profile.length; rowIndex += 2) {
-//       const top = profile[rowIndex];
-//       let bottom = profile[rowIndex + 1];
-//       if (bottom !== undefined) {
-//         bottom--;
-//       }
-
-//       for(let nextColIndex = colIndex +1; nextColIndex < profilesStartingPosition.length; nextColIndex++) {
-//         const nextLeft = profilesStartingPosition[nextColIndex];
-//         const nextProfile = profiles.get(nextLeft)!;
-
-//         if(nextProfile.length === 0) {
-//           break;
-//         }
-
-//         // If the top predecessor index is even, it means that the top of the zone is already positioned on a filled zone
-//         // --> this is what we are looking for
-//         const topPredIndex = binaryPredecessorSearch(nextProfile, top, 0, false);
-//         if ((topPredIndex % 2 !== 0 )) {
-//           break;
-//         }
-
-//         // the next position should be in the filled zone too to
-
-//       }
-
-//     }
-//   }
-// }
 
 function binaryPredecessorSearch(arr: number[], val: number, start = 0, matchEqual = true) {
   let end = arr.length - 1;

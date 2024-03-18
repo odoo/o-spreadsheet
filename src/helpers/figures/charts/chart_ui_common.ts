@@ -6,7 +6,7 @@ import { Color, Figure, Format, Getters, LocaleFormat, Range } from "../../../ty
 import { ChartRuntime, DataSet, DatasetValues, LabelValues } from "../../../types/chart/chart";
 import { formatValue, isDateTimeFormat } from "../../format";
 import { range } from "../../misc";
-import { recomputeZones } from "../../zones";
+import { recomputeZones } from "../../recompute_zones";
 import { AbstractChart } from "./abstract_chart";
 import { drawScoreChart } from "./scorecard_chart";
 import { getScorecardConfiguration } from "./scorecard_chart_config_builder";
