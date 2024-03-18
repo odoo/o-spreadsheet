@@ -387,7 +387,7 @@ const allNonExportableFormulasData = {
     {
       cells: {
         A1: { content: "=WAIT(100)" },
-        A2: { content: "=COUNTUNIQUE(1,2,3,2,4)" },
+        A2: { content: "=COUNTUNIQUE(1,A24,3,2,4)" },
         A3: { content: "=sum(A1,wait(100))" },
         A4: { content: "=ADD(42,24)" },
         A5: { content: "=DIVIDE(84,42)" },
@@ -409,6 +409,7 @@ const allNonExportableFormulasData = {
         A21: { content: '=FORMAT.LARGE.NUMBER(1000, "k")' },
         A22: { content: "=SUM(A3:3)" }, // should be adapted to SUM(A3:Z3)
         A23: { content: "=SUM(A3:A)" }, // should be adapted to SUM(A3:A100)
+        A24: { content: "2" },
       },
     },
   ],

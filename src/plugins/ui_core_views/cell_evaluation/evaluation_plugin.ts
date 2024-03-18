@@ -317,7 +317,7 @@ export class EvaluationPlugin extends UIPlugin {
         ? getItemId<Format>(newFormat, data.formats)
         : exportedCellData.format;
       let content;
-      if (formulaCell instanceof FormulaCellWithDependencies) {
+      if (isFormula && formulaCell instanceof FormulaCellWithDependencies) {
         content = formulaCell.contentWithFixedReferences;
       } else {
         content = !isExported ? newContent : exportedCellData.content;
