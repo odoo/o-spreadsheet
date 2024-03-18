@@ -70,9 +70,6 @@ css/* scss */ `
     .text-muted {
       color: grey !important;
     }
-    button {
-      color: #333;
-    }
     .o-disabled {
       opacity: 0.4;
       pointer: default;
@@ -195,17 +192,17 @@ css/* scss */ `
   }
 
   .o-button {
-    border: 1px solid lightgrey;
+    border: 1px solid;
     padding: 0px 20px 0px 20px;
     border-radius: 4px;
     font-weight: 500;
     font-size: 14px;
     height: 30px;
     line-height: 16px;
-    background: white;
     margin-right: 8px;
-    &:hover:enabled {
-      background-color: rgba(0, 0, 0, 0.08);
+
+    &:not(:hover) {
+      background-color: transparent;
     }
 
     &:enabled {
@@ -218,6 +215,15 @@ css/* scss */ `
 
     &:last-child {
       margin-right: 0px;
+    }
+
+    &.o-button-grey {
+      border-color: lightgrey;
+      background: #ffffff;
+      color: #333;
+      &:hover:enabled {
+        background-color: rgba(0, 0, 0, 0.08);
+      }
     }
   }
 

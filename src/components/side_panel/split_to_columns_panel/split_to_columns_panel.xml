@@ -32,7 +32,7 @@
 
         <div class="o-sidePanelButtons">
           <button
-            class="o-button"
+            class="o-button o-button-grey"
             t-att-class="{'o-disabled': isConfirmDisabled}"
             t-on-click="confirm">
             Confirm

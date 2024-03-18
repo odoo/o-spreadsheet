@@ -38,8 +38,8 @@
         onClose="() => this.menu.isOpen=false"
       />
       <div class="o-buttons">
-        <button t-on-click="cancel" class="o-button o-cancel">Cancel</button>
-        <button t-on-click="save" class="o-button o-save" t-att-disabled="!link.url">
+        <button t-on-click="cancel" class="o-button o-button-grey o-cancel">Cancel</button>
+        <button t-on-click="save" class="o-button o-button-grey o-save" t-att-disabled="!link.url">
           Confirm
         </button>
       </div>
