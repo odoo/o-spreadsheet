@@ -52,7 +52,7 @@
       </Section>
       <div class="o-sidePanelButtons">
         <button
-          class="o-button"
+          class="o-button o-button-grey"
           t-on-click="() => this.apply()"
           t-att-disabled="!formatProposals.length || isSameFormat">
           Apply
