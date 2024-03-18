@@ -9,6 +9,7 @@ import { css } from "../../helpers/css";
 
 css/* scss */ `
   .o-formula-assistant {
+    background: #ffffff;
     .o-formula-assistant-head {
       background-color: #f2f2f2;
       padding: 10px;
