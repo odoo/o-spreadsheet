@@ -69,8 +69,12 @@
           <t t-set="rule" t-value="state.rules.iconSet"/>
         </t>
         <div class="o-sidePanelButtons">
-          <button t-on-click="props.onExitEdition" class="o-button o-cf-cancel">Cancel</button>
-          <button t-on-click="saveConditionalFormat" class="o-button primary o-cf-save">
+          <button t-on-click="props.onExitEdition" class="o-button o-button-grey o-cf-cancel">
+            Cancel
+          </button>
+          <button
+            t-on-click="saveConditionalFormat"
+            class="o-button o-button-grey primary o-cf-save">
             Save
           </button>
         </div>
