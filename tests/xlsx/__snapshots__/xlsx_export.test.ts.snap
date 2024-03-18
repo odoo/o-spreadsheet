@@ -15197,6 +15197,9 @@ exports[`Test XLSX export formulas All non-exportable formulas 1`] = `
         </row>
         <row r="24" ht="17.25" customHeight="1" hidden="0">
             <c r="A24" s="1">
+                <v>
+                    2
+                </v>
             </c>
         </row>
         <row r="25" ht="17.25" customHeight="1" hidden="0">
