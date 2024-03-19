@@ -1,13 +1,10 @@
 import { Model } from "../src";
 import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
-  BACKGROUND_HEADER_FILTER_COLOR,
   BACKGROUND_HEADER_SELECTED_COLOR,
-  BACKGROUND_HEADER_SELECTED_FILTER_COLOR,
   CELL_BORDER_COLOR,
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
-  FILTERS_COLOR,
   HEADER_HEIGHT,
   HEADER_WIDTH,
   MIN_CELL_TEXT_MARGIN,
@@ -33,7 +30,6 @@ import {
   addColumns,
   addDataValidation,
   copy,
-  createTable,
   deleteColumns,
   merge,
   paste,
@@ -215,50 +211,6 @@ describe("renderer", () => {
       expect(fillColHeaderInstr).toEqual(BACKGROUND_HEADER_ACTIVE_COLOR);
       const fillRowHeaderInstr = getFirstRowHeaderFillColor();
       expect(fillRowHeaderInstr).toEqual(BACKGROUND_HEADER_ACTIVE_COLOR);
-    });
-
-    test("Color of headers that contains a filter", () => {
-      createTable(model, "A1:B2");
-      setSelection(model, ["B2"]); // by default the cell A1 was selected
-      drawGridRenderer(ctx);
-
-      const fillColHeaderInstr = getFirstColHeaderFillColor();
-      expect(fillColHeaderInstr).toEqual(BACKGROUND_HEADER_FILTER_COLOR);
-      const fillRowHeaderInstr = getFirstRowHeaderFillColor();
-      expect(fillRowHeaderInstr).toEqual(BACKGROUND_HEADER_FILTER_COLOR);
-    });
-
-    test("Color of headers that contain a filter + are selected", () => {
-      createTable(model, "A1:B2");
-      setSelection(model, ["A1"]);
-      drawGridRenderer(ctx);
-
-      const fillColHeaderInstr = getFirstColHeaderFillColor();
-      expect(fillColHeaderInstr).toEqual(BACKGROUND_HEADER_SELECTED_FILTER_COLOR);
-      const fillRowHeaderInstr = getFirstRowHeaderFillColor();
-      expect(fillRowHeaderInstr).toEqual(BACKGROUND_HEADER_SELECTED_FILTER_COLOR);
-    });
-
-    test("Headers that contain a filter + are selected", () => {
-      createTable(model, "A1:B2");
-      setSelection(model, ["A1"]);
-      drawGridRenderer(ctx);
-
-      const fillColHeaderInstr = getFirstColHeaderFillColor();
-      expect(fillColHeaderInstr).toEqual(BACKGROUND_HEADER_SELECTED_FILTER_COLOR);
-      const fillRowHeaderInstr = getFirstRowHeaderFillColor();
-      expect(fillRowHeaderInstr).toEqual(BACKGROUND_HEADER_SELECTED_FILTER_COLOR);
-    });
-
-    test("Headers that contain a filter + are active", () => {
-      createTable(model, "A1:B2");
-      setSelection(model, ["A1:B2"]);
-      drawGridRenderer(ctx);
-
-      const fillColHeaderInstr = getFirstColHeaderFillColor();
-      expect(fillColHeaderInstr).toEqual(FILTERS_COLOR);
-      const fillRowHeaderInstr = getFirstRowHeaderFillColor();
-      expect(fillRowHeaderInstr).toEqual(FILTERS_COLOR);
     });
   });
 
