@@ -1,6 +1,6 @@
 import { Registry } from "../registries/registry";
 import { _t } from "../translation";
-import { CellValue, Getters, Link, SpreadsheetChildEnv } from "../types";
+import { CellValue, CommandResult, Getters, Link, SpreadsheetChildEnv } from "../types";
 import { isMarkdownLink, isSheetUrl, isWebLink, parseMarkdownLink, parseSheetUrl } from "./misc";
 
 /**
@@ -56,10 +56,17 @@ urlRegistry.add("sheet_URL", {
   },
   open(url, env) {
     const sheetId = parseSheetUrl(url);
-    env.model.dispatch("ACTIVATE_SHEET", {
+    const result = env.model.dispatch("ACTIVATE_SHEET", {
       sheetIdFrom: env.model.getters.getActiveSheetId(),
       sheetIdTo: sheetId,
     });
+    if (result.isCancelledBecause(CommandResult.SheetIsHidden)) {
+      env.notifyUser({
+        type: "warning",
+        sticky: false,
+        text: _t("Cannot open the link because the linked sheet is hidden."),
+      });
+    }
   },
   sequence: 0,
 });
