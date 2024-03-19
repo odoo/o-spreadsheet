@@ -20,11 +20,15 @@ autoCompleteProviders.add("dataValidation", {
       values = rule.criterion.values;
     } else {
       const range = this.getters.getRangeFromSheetXC(position.sheetId, rule.criterion.values[0]);
-      values = this.getters
-        .getRangeValues(range)
-        .filter(isNotNull)
-        .map((value) => value.toString())
-        .filter((val) => val !== "");
+      values = Array.from(
+        new Set(
+          this.getters
+            .getRangeValues(range)
+            .filter(isNotNull)
+            .map((value) => value.toString())
+            .filter((val) => val !== "")
+        )
+      );
     }
     return values.map((value) => ({ text: value }));
   },

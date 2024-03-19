@@ -83,6 +83,16 @@ describe("Data validation", () => {
     ]);
   });
 
+  test("Duplicate values will be filtered out when adding a rule for value in the list", () => {
+    addDataValidation(model, "A1", "id", {
+      type: "isValueInList",
+      values: ["1", "1", "2", "3", "2"],
+      displayStyle: "arrow",
+    });
+
+    expect(getDataValidationRules(model, sheetId)[0].criterion.values).toEqual(["1", "2", "3"]);
+  });
+
   test("Adding a rule with an existing id will replace the old one", () => {
     addDataValidation(model, "A1", "id", { type: "textContains", values: ["1"] });
     addDataValidation(model, "A1:C2", "id", { type: "isBetween", values: ["1", "5"] });
