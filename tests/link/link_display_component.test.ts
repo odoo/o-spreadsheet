@@ -15,10 +15,12 @@ describe("link display component", () => {
   let fixture: HTMLElement;
   let model: Model;
   let parent: Spreadsheet;
+  let notifyUser: jest.Mock;
 
   beforeEach(async () => {
     jest.useFakeTimers();
-    ({ parent, model, fixture } = await mountSpreadsheet());
+    notifyUser = jest.fn();
+    ({ parent, model, fixture } = await mountSpreadsheet(undefined, { notifyUser }));
   });
 
   test("simple snapshot", async () => {
@@ -229,6 +231,19 @@ describe("link display component", () => {
     await simulateClick("a");
     expect(model.getters.getActiveSheetId()).toBe(sheetId);
     expect(fixture.querySelector(".o-link-tool")).toBeFalsy();
+  });
+
+  test("click on a link to an hidden sheet do nothing and warns the user", async () => {
+    createSheet(model, { sheetId: "42", hidden: true });
+    setCellContent(model, "A1", `[label](${buildSheetLink("42")})`);
+    await hoverCell(model, "A1", 400);
+    await simulateClick("a");
+    expect(model.getters.getActiveSheetId()).not.toBe("42");
+    expect(notifyUser).toHaveBeenCalledWith({
+      type: "warning",
+      sticky: false,
+      text: "Cannot open the link because the linked sheet is hidden.",
+    });
   });
 
   test("click on the grid closes the popover", async () => {
