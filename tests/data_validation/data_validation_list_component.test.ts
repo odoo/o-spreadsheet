@@ -254,6 +254,33 @@ describe("autocomplete in composer", () => {
     expect(values[1].textContent).toBe("ok");
     expect(values[2].textContent).toBe("thing");
   });
+
+  test("Duplicate values will be removed before sending proposals to the autocomplete dropdown in data validation with range", async () => {
+    setCellContent(model, "A2", "ok");
+    setCellContent(model, "A3", "hello");
+    setCellContent(model, "A4", "ok");
+    addDataValidation(model, "A1", "id", {
+      type: "isValueInRange",
+      values: ["A2:A4"],
+      displayStyle: "arrow",
+    });
+
+    ({ fixture, parent } = await mountComposerWrapper(model));
+    await typeInComposer("");
+    expect(model.getters.getAutoCompleteDataValidationValues()).toMatchObject(["ok", "hello"]);
+  });
+
+  test("Duplicate values will be removed before sending proposals to the autocomplete dropdown in data validation with list", async () => {
+    addDataValidation(model, "A1", "id", {
+      type: "isValueInList",
+      values: ["ok", "hello", "ok", "hello"],
+      displayStyle: "arrow",
+    });
+
+    ({ fixture, parent } = await mountComposerWrapper(model));
+    await typeInComposer("");
+    expect(model.getters.getAutoCompleteDataValidationValues()).toMatchObject(["ok", "hello"]);
+  });
 });
 
 describe("Selection arrow icon in grid", () => {
