@@ -42,7 +42,6 @@ interface TableState {
 
 export class TablePlugin extends CorePlugin<TableState> implements TableState {
   static getters = [
-    "doesZonesContainFilter",
     "getFilter",
     "getFilters",
     "getTable",
@@ -224,13 +223,6 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
   getTablesOverlappingZones(sheetId: UID, zones: Zone[]): Table[] {
     return this.getTables(sheetId).filter((table) =>
       zones.some((zone) => overlap(table.range.zone, zone))
-    );
-  }
-
-  doesZonesContainFilter(sheetId: UID, zones: Zone[]): boolean {
-    return (
-      this.getTablesOverlappingZones(sheetId, zones).filter((table) => table.config.hasFilters)
-        .length > 0
     );
   }
 

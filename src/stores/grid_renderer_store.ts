@@ -4,14 +4,11 @@ import { ICONS } from "../components/icons/icons";
 import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
   BACKGROUND_HEADER_COLOR,
-  BACKGROUND_HEADER_FILTER_COLOR,
   BACKGROUND_HEADER_SELECTED_COLOR,
-  BACKGROUND_HEADER_SELECTED_FILTER_COLOR,
   CANVAS_SHIFT,
   CELL_BORDER_COLOR,
   DEFAULT_FONT,
   DEFAULT_VERTICAL_ALIGN,
-  FILTERS_COLOR,
   FROZEN_PANE_BORDER_COLOR,
   FROZEN_PANE_HEADER_BORDER_COLOR,
   GRID_ICON_EDGE_LENGTH,
@@ -410,17 +407,14 @@ export class GridRenderer {
     for (let col = left; col <= right; col++) {
       const colZone = { left: col, right: col, top: 0, bottom: numberOfRows - 1 };
       const { x, width } = this.getters.getVisibleRect(colZone);
-      const colHasFilter = this.getters.doesZonesContainFilter(sheetId, [colZone]);
       const isColActive = activeCols.has(col);
       const isColSelected = selectedCols.has(col);
       if (isColActive) {
-        ctx.fillStyle = colHasFilter ? FILTERS_COLOR : BACKGROUND_HEADER_ACTIVE_COLOR;
+        ctx.fillStyle = BACKGROUND_HEADER_ACTIVE_COLOR;
       } else if (isColSelected) {
-        ctx.fillStyle = colHasFilter
-          ? BACKGROUND_HEADER_SELECTED_FILTER_COLOR
-          : BACKGROUND_HEADER_SELECTED_COLOR;
+        ctx.fillStyle = BACKGROUND_HEADER_SELECTED_COLOR;
       } else {
-        ctx.fillStyle = colHasFilter ? BACKGROUND_HEADER_FILTER_COLOR : BACKGROUND_HEADER_COLOR;
+        ctx.fillStyle = BACKGROUND_HEADER_COLOR;
       }
       ctx.fillRect(x, 0, width, HEADER_HEIGHT);
     }
@@ -430,17 +424,14 @@ export class GridRenderer {
       const rowZone = { top: row, bottom: row, left: 0, right: numberOfCols - 1 };
       const { y, height } = this.getters.getVisibleRect(rowZone);
 
-      const rowHasFilter = this.getters.doesZonesContainFilter(sheetId, [rowZone]);
       const isRowActive = activeRows.has(row);
       const isRowSelected = selectedRows.has(row);
       if (isRowActive) {
-        ctx.fillStyle = rowHasFilter ? FILTERS_COLOR : BACKGROUND_HEADER_ACTIVE_COLOR;
+        ctx.fillStyle = BACKGROUND_HEADER_ACTIVE_COLOR;
       } else if (isRowSelected) {
-        ctx.fillStyle = rowHasFilter
-          ? BACKGROUND_HEADER_SELECTED_FILTER_COLOR
-          : BACKGROUND_HEADER_SELECTED_COLOR;
+        ctx.fillStyle = BACKGROUND_HEADER_SELECTED_COLOR;
       } else {
-        ctx.fillStyle = rowHasFilter ? BACKGROUND_HEADER_FILTER_COLOR : BACKGROUND_HEADER_COLOR;
+        ctx.fillStyle = BACKGROUND_HEADER_COLOR;
       }
       ctx.fillRect(0, y, HEADER_WIDTH, height);
     }
