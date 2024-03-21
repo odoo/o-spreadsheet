@@ -227,7 +227,7 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onSheetMouseDown(sheetId: UID, event: MouseEvent) {
-    if (event.button !== 0) return;
+    if (event.button !== 0 || this.env.model.getters.isReadonly()) return;
     this.closeMenu();
 
     const visibleSheets = this.getVisibleSheets();
