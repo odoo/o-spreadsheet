@@ -28,7 +28,7 @@ interface Props {
 }
 
 export class BottomBarStatistic extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-BottomBarStatisic";
+  static template = "o-spreadsheet-BottomBarStatistic";
   static props = {
     openContextMenu: Function,
     closeContextMenu: Function,
