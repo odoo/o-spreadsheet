@@ -1,25 +1,20 @@
 import { CellClipboardHandler } from "../../clipboard_handlers/cell_clipboard";
 import { SELECTION_BORDER_COLOR } from "../../constants";
-import { sum } from "../../functions/helper_math";
-import { average, countAny, countNumbers, max, min } from "../../functions/helper_statistical";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
 import {
   clip,
   deepCopy,
   isEqual,
   positionToZone,
-  positions,
   uniqueZones,
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
 } from "../../helpers/index";
-import { _t } from "../../translation";
 import { SelectionEvent } from "../../types/event_stream";
 import {
   AddColumnsRowsCommand,
   AnchorZone,
   CellPosition,
-  CellValueType,
   ClientPosition,
   Command,
   CommandResult,
@@ -28,7 +23,6 @@ import {
   GridRenderingContext,
   HeaderIndex,
   LocalCommand,
-  Locale,
   MoveColumnsRowsCommand,
   RemoveColumnsRowsCommand,
   Selection,
@@ -42,45 +36,6 @@ import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 interface SheetInfo {
   gridSelection: Selection;
 }
-
-interface SelectionStatisticFunction {
-  name: string;
-  compute: (data: EvaluatedCell[], locale: Locale) => number;
-  types: CellValueType[];
-}
-
-const selectionStatisticFunctions: SelectionStatisticFunction[] = [
-  {
-    name: _t("Sum"),
-    types: [CellValueType.number],
-    compute: (values, locale) => sum([[values]], locale),
-  },
-  {
-    name: _t("Avg"),
-    types: [CellValueType.number],
-    compute: (values, locale) => average([[values]], locale),
-  },
-  {
-    name: _t("Min"),
-    types: [CellValueType.number],
-    compute: (values, locale) => min([[values]], locale),
-  },
-  {
-    name: _t("Max"),
-    types: [CellValueType.number],
-    compute: (values, locale) => max([[values]], locale),
-  },
-  {
-    name: _t("Count"),
-    types: [CellValueType.number, CellValueType.text, CellValueType.boolean, CellValueType.error],
-    compute: (values) => countAny([[values]]),
-  },
-  {
-    name: _t("Count Numbers"),
-    types: [CellValueType.number, CellValueType.text, CellValueType.boolean, CellValueType.error],
-    compute: (values, locale) => countNumbers([[values]], locale),
-  },
-];
 
 /**
  * SelectionPlugin
@@ -97,7 +52,6 @@ export class GridSelectionPlugin extends UIPlugin {
     "getSelectedZones",
     "getSelectedZone",
     "getSelectedCells",
-    "getStatisticFnResults",
     "getSelectedFigureId",
     "getSelection",
     "getActivePosition",
@@ -418,42 +372,6 @@ export class GridSelectionPlugin extends UIPlugin {
           }
         : this.getters.getNextVisibleCellPosition({ sheetId, col: 0, row: 0 });
     }
-  }
-
-  getStatisticFnResults(): { [name: string]: number | undefined } {
-    const sheetId = this.getters.getActiveSheetId();
-    const cells = new Set<EvaluatedCell>();
-
-    for (const zone of this.gridSelection.zones) {
-      for (const { col, row } of positions(zone)) {
-        if (this.getters.isRowHidden(sheetId, row) || this.getters.isColHidden(sheetId, col)) {
-          continue; // Skip hidden cells
-        }
-
-        const evaluatedCell = this.getters.getEvaluatedCell({ sheetId, col, row });
-        if (evaluatedCell.type !== CellValueType.empty) {
-          cells.add(evaluatedCell);
-        }
-      }
-    }
-
-    const locale = this.getters.getLocale();
-
-    let statisticFnResults: { [name: string]: number | undefined } = {};
-    for (let fn of selectionStatisticFunctions) {
-      // We don't want to display statistical information when there is no interest:
-      // We set the statistical result to undefined if the data handled by the selection
-      // does not match the data handled by the function.
-      // Ex: if there are only texts in the selection, we prefer that the SUM result
-      // be displayed as undefined rather than 0.
-      let fnResult: number | undefined = undefined;
-      const evaluatedCells = [...cells].filter((c) => fn.types.includes(c.type));
-      if (evaluatedCells.length) {
-        fnResult = fn.compute(evaluatedCells, locale);
-      }
-      statisticFnResults[fn.name] = fnResult;
-    }
-    return statisticFnResults;
   }
 
   isSelected(zone: Zone): boolean {

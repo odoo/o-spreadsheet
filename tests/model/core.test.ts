@@ -1,23 +1,18 @@
-import { functionRegistry } from "../../src/functions";
 import { zoneToXc } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult, coreTypes, UID } from "../../src/types";
 import {
   activateSheet,
-  addCellToSelection,
   addColumns,
   addRows,
   createSheet,
-  hideRows,
   redo,
   resizeColumns,
   resizeRows,
   selectCell,
-  setAnchorCorner,
   setCellContent,
   setCellFormat,
   setFormat,
-  setSelection,
   setStyle,
   setZoneBorders,
   undo,
@@ -25,174 +20,13 @@ import {
 import {
   getCell,
   getCellContent,
-  getCellError,
   getEvaluatedCell,
   getRangeFormattedValues,
   getRangeValues,
 } from "../test_helpers/getters_helpers";
 import { makeTestComposerStore, toRangesData } from "../test_helpers/helpers";
 
-let model: Model;
 describe("core", () => {
-  describe("statistic functions", () => {
-    test("functions are applied on deduplicated cells in zones", () => {
-      const model = new Model();
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "A2", "2");
-      setCellContent(model, "A3", "3");
-
-      setSelection(model, ["A1:A2"]);
-      let statisticFnResults = model.getters.getStatisticFnResults();
-      expect(statisticFnResults["Count"]).toBe(2);
-
-      // expand selection with the range A3:A2
-      addCellToSelection(model, "A3");
-      setAnchorCorner(model, "A2");
-
-      // A2 is now present in two selection
-      statisticFnResults = model.getters.getStatisticFnResults();
-      expect(statisticFnResults["Count"]).toBe(3);
-    });
-
-    test("statistic function should not include hidden rows/columns in calculations", () => {
-      const model = new Model();
-      setCellContent(model, "A1", "1");
-      setCellContent(model, "A2", "2");
-      setCellContent(model, "A3", "3");
-
-      setSelection(model, ["A1:A4"]);
-      let statisticFnResults = model.getters.getStatisticFnResults();
-      expect(statisticFnResults["Sum"]).toBe(6);
-
-      hideRows(model, [1, 2]);
-      statisticFnResults = model.getters.getStatisticFnResults();
-      expect(statisticFnResults["Sum"]).toBe(1);
-    });
-
-    describe("return undefined if the types handled by the function are not present among the types of the selected cells", () => {
-      beforeEach(() => {
-        model = new Model();
-        setCellContent(model, "A1", "24");
-        setCellContent(model, "A2", "=42");
-        setCellContent(model, "A3", "107% of people don't get statistics");
-        setCellContent(model, "A4", "TRUE");
-        setCellContent(model, "A5", "=A5");
-        setCellContent(model, "A6", "=A7");
-      });
-
-      test('return the "SUM" value only on cells interpreted as number', () => {
-        // select the range A1:A7
-        selectCell(model, "A1");
-        setAnchorCorner(model, "A7");
-        let statisticFnResults = model.getters.getStatisticFnResults();
-        expect(statisticFnResults["Sum"]).toBe(66);
-
-        selectCell(model, "A7");
-        statisticFnResults = model.getters.getStatisticFnResults();
-        expect(statisticFnResults["Sum"]).toBe(undefined);
-      });
-
-      test('return the "Avg" result only on cells interpreted as number', () => {
-        // select the range A1:A7
-        selectCell(model, "A1");
-        setAnchorCorner(model, "A7");
-        let statisticFnResults = model.getters.getStatisticFnResults();
-        expect(statisticFnResults["Avg"]).toBe(22);
-
-        selectCell(model, "A7");
-        statisticFnResults = model.getters.getStatisticFnResults();
-        expect(statisticFnResults["Avg"]).toBe(undefined);
-      });
-
-      test('return "Min" value only on cells interpreted as number', () => {
-        // select the range A1:A7
-        selectCell(model, "A1");
-        setAnchorCorner(model, "A7");
-        let statisticFnResults = model.getters.getStatisticFnResults();
-        expect(statisticFnResults["Min"]).toBe(0);
-
-        selectCell(model, "A7");
-        statisticFnResults = model.getters.getStatisticFnResults();
-        expect(statisticFnResults["Min"]).toBe(undefined);
-      });
-
-      test('return the "Max" value only on cells interpreted as number', () => {
-        // select the range A1:A7
-        selectCell(model, "A1");
-        setAnchorCorner(model, "A7");
-        let statisticFnResults = model.getters.getStatisticFnResults();
-        expect(statisticFnResults["Max"]).toBe(42);
-
-        selectCell(model, "A7");
-        statisticFnResults = model.getters.getStatisticFnResults();
-        expect(statisticFnResults["Max"]).toBe(undefined);
-      });
-
-      test('return the "Count" value on all types of interpreted cells except on cells interpreted as empty', () => {
-        // select the range A1:A7
-        selectCell(model, "A1");
-        setAnchorCorner(model, "A7");
-        let statisticFnResults = model.getters.getStatisticFnResults();
-        expect(statisticFnResults["Count"]).toBe(6);
-
-        selectCell(model, "A7");
-        statisticFnResults = model.getters.getStatisticFnResults();
-        expect(statisticFnResults["Count"]).toBe(undefined);
-      });
-
-      test('return the "Count numbers" value on all types of interpreted cells except on cells interpreted as empty', () => {
-        selectCell(model, "A1");
-        let statisticFnResults = model.getters.getStatisticFnResults();
-        expect(statisticFnResults["Count Numbers"]).toBe(1);
-
-        selectCell(model, "A2");
-        statisticFnResults = model.getters.getStatisticFnResults();
-        expect(statisticFnResults["Count Numbers"]).toBe(1);
-
-        selectCell(model, "A3");
-        statisticFnResults = model.getters.getStatisticFnResults();
-        expect(statisticFnResults["Count Numbers"]).toBe(0);
-
-        selectCell(model, "A4");
-        statisticFnResults = model.getters.getStatisticFnResults();
-        expect(statisticFnResults["Count Numbers"]).toBe(0);
-
-        selectCell(model, "A5");
-        statisticFnResults = model.getters.getStatisticFnResults();
-        expect(statisticFnResults["Count Numbers"]).toBe(0);
-
-        // select the range A6:A7
-        selectCell(model, "A6");
-        setAnchorCorner(model, "A7");
-        statisticFnResults = model.getters.getStatisticFnResults();
-        expect(statisticFnResults["Count"]).toBe(1);
-      });
-    });
-
-    test("raise error from compilation with specific error message", () => {
-      functionRegistry.add("TWOARGSNEEDED", {
-        description: "any function",
-        compute: () => {
-          return true;
-        },
-        args: [
-          { name: "arg1", description: "", type: ["ANY"] },
-          { name: "arg2", description: "", type: ["ANY"] },
-        ],
-        returns: ["ANY"],
-      });
-
-      const model = new Model();
-      setCellContent(model, "A1", "=TWOARGSNEEDED(42)");
-
-      expect(getEvaluatedCell(model, "A1").value).toBe("#BAD_EXPR");
-      expect(getCellError(model, "A1")).toBe(
-        `Invalid number of arguments for the TWOARGSNEEDED function. Expected 2 minimum, but got 1 instead.`
-      );
-      functionRegistry.remove("TWOARGSNEEDED");
-    });
-  });
-
   describe("format", () => {
     test("format cell that point to an empty cell properly", () => {
       const model = new Model();
