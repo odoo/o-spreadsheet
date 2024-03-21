@@ -1,6 +1,12 @@
 import { Component, useSubEnv, xml } from "@odoo/owl";
 import { Menu } from "../../src/components/menu/menu";
-import { MENU_ITEM_HEIGHT, MENU_WIDTH, TOPBAR_HEIGHT } from "../../src/constants";
+import {
+  DEFAULT_CELL_HEIGHT,
+  DEFAULT_CELL_WIDTH,
+  MENU_ITEM_HEIGHT,
+  MENU_WIDTH,
+  TOPBAR_HEIGHT,
+} from "../../src/constants";
 import { toXC } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { createFullMenuItem, FullMenuItem } from "../../src/registries";
@@ -15,6 +21,9 @@ import {
   nextTick,
   Touch,
 } from "../test_helpers/helpers";
+
+const COLUMN_D = { x: 340, y: 10 };
+const ROW_5 = { x: 30, y: 100 };
 
 let fixture: HTMLElement;
 let model: Model;
@@ -211,6 +220,35 @@ describe("Context Menu integration tests", () => {
     await rightClickCell(model, "C8");
     expect(getActiveXc(model)).toBe("C8");
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
+  });
+
+  test("context menu opens at correct position upon right-clicking a cell", async () => {
+    expect(fixture.querySelector(".o-menu")).toBeFalsy();
+    await rightClickCell(model, "B2");
+    expect(getActiveXc(model)).toBe("B2");
+    expect(getPosition(".o-menu")).toMatchObject({
+      left: DEFAULT_CELL_WIDTH,
+      top: DEFAULT_CELL_HEIGHT,
+    });
+    expect(fixture.querySelector(".o-menu")).toBeTruthy();
+  });
+
+  test("context menu opens at the correct position upon right-clicking a row or column resizer", async () => {
+    triggerMouseEvent(".o-col-resizer", "contextmenu", COLUMN_D.x, COLUMN_D.y);
+    await nextTick();
+    const colMenuContainer = document.querySelector(".o-menu")! as HTMLElement;
+    const { top: colTop, left: colLeft } = window.getComputedStyle(colMenuContainer.parentElement!);
+
+    expect(colLeft).toBe(`${COLUMN_D.x}px`);
+    expect(colTop).toBe(`${COLUMN_D.y}px`);
+
+    triggerMouseEvent(".o-row-resizer", "contextmenu", ROW_5.x, ROW_5.y);
+    await nextTick();
+    const rowMenuContainer = document.querySelector(".o-menu")! as HTMLElement;
+    const { top: rowTop, left: rowLeft } = window.getComputedStyle(rowMenuContainer.parentElement!);
+
+    expect(rowLeft).toBe(`${ROW_5.x}px`);
+    expect(rowTop).toBe(`${ROW_5.y}px`);
   });
 
   test("right click on a cell, then left click elsewhere closes a context menu", async () => {
