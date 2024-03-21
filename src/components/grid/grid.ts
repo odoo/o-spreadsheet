@@ -532,9 +532,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     } else if (this.env.model.getters.getActiveRows().has(row)) {
       type = "ROW";
     }
-    const { x, y, width, height } = this.env.model.getters.getVisibleRect(lastZone);
-
-    this.toggleContextMenu(type, x + width, y + height);
+    const { x, y, width } = this.env.model.getters.getVisibleRect(lastZone);
+    this.toggleContextMenu(type, this.canvasPosition.x + x + width, this.canvasPosition.y + y);
   }
 
   onCellRightClicked(col: HeaderIndex, row: HeaderIndex, { x, y }: DOMCoordinates) {
