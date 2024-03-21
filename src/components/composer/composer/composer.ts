@@ -109,6 +109,7 @@ export interface ComposerProps {
   delimitation?: DOMDimension;
   onComposerContentFocused: () => void;
   onComposerCellFocused?: (content: String) => void;
+  onInputContextMenu?: (event: MouseEvent) => void;
   isDefaultFocus?: boolean;
 }
 
@@ -543,6 +544,12 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     }
   }
 
+  onContextMenu(ev: MouseEvent) {
+    if (this.env.model.getters.getEditionMode() === "inactive") {
+      this.props.onInputContextMenu?.(ev);
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Private
   // ---------------------------------------------------------------------------
@@ -803,4 +810,5 @@ Composer.props = {
   onComposerCellFocused: { type: Function, optional: true },
   onComposerContentFocused: Function,
   isDefaultFocus: { type: Boolean, optional: true },
+  onInputContextMenu: { type: Function, optional: true },
 };
