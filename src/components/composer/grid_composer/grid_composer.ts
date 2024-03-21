@@ -44,6 +44,7 @@ css/* scss */ `
 
 interface Props {
   gridDims: DOMDimension;
+  onInputContextMenu: (event: MouseEvent) => void;
 }
 
 /**
@@ -54,6 +55,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GridComposer";
   static props = {
     gridDims: Object,
+    onInputContextMenu: Function,
   };
   static components = { Composer };
 
@@ -113,6 +115,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       onComposerContentFocused: () => this.composerFocusStore.focusGridComposerContent(),
       onComposerCellFocused: (content: string) =>
         this.composerFocusStore.focusGridComposerCell(content),
+      onInputContextMenu: this.props.onInputContextMenu,
     };
   }
 
