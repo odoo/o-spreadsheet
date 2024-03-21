@@ -27,6 +27,7 @@ interface Props {
   content: string;
   onComposerContentFocused: () => void;
   onComposerCellFocused: () => void;
+  onInputContextMenu: (event: MouseEvent) => void;
 }
 
 /**
@@ -77,6 +78,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       isDefaultFocus: true,
       onComposerContentFocused: this.props.onComposerContentFocused,
       onComposerCellFocused: this.props.onComposerCellFocused,
+      onInputContextMenu: this.props.onInputContextMenu,
     };
   }
 
