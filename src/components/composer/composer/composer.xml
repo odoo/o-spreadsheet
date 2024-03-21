@@ -19,6 +19,7 @@
         t-on-compositionstart="onCompositionStart"
         t-on-compositionend="onCompositionEnd"
         t-on-dblclick="onDblClick"
+        t-on-contextmenu="onContextMenu"
       />
 
       <div

@@ -44,6 +44,7 @@ interface Props {
   onComposerContentFocused: () => void;
   onComposerCellFocused: () => void;
   gridDims: DOMDimension;
+  onInputContextMenu: (event: MouseEvent) => void;
 }
 
 /**
@@ -59,6 +60,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     onComposerCellFocused: Function,
     onComposerContentFocused: Function,
     gridDims: Object,
+    onInputContextMenu: Function,
   };
   static components = { Composer };
 
@@ -113,6 +115,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       isDefaultFocus: true,
       onComposerContentFocused: this.props.onComposerContentFocused,
       onComposerCellFocused: this.props.onComposerCellFocused,
+      onInputContextMenu: this.props.onInputContextMenu,
     };
   }
 
