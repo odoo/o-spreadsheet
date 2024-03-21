@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-BottomBarStatisic">
+  <t t-name="o-spreadsheet-BottomBarStatistic">
     <t t-set="selectedStatistic" t-value="getSelectedStatistic()"/>
     <Ripple class="'ms-auto'" t-if="selectedStatistic !== undefined">
       <div
