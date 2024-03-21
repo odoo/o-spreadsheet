@@ -6,7 +6,6 @@
       t-on-click="focusDefaultElement"
       t-on-keydown="onKeydown"
       t-on-wheel="onMouseWheel"
-      t-on-contextmenu="onInputContextMenu"
       t-ref="grid">
       <GridOverlay
         onCellClicked.bind="onCellClicked"
@@ -24,6 +23,7 @@
         onComposerContentFocused="props.onComposerContentFocused"
         onComposerCellFocused="props.onGridComposerCellFocused"
         gridDims="env.model.getters.getSheetViewDimensionWithHeaders()"
+        onInputContextMenu.bind="onInputContextMenu"
       />
       <canvas t-ref="canvas"/>
       <t
