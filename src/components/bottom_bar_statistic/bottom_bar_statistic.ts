@@ -2,9 +2,11 @@ import { Component, onWillUpdateProps } from "@odoo/owl";
 import { deepEquals } from "../../helpers";
 import { formatValue } from "../../helpers/format";
 import { MenuItemRegistry } from "../../registries/menu_items_registry";
+import { Store, useStore } from "../../store_engine";
 import { SpreadsheetChildEnv } from "../../types";
 import { Ripple } from "../animation/ripple";
 import { css } from "../helpers/css";
+import { AggregateStatisticsStore, StatisticFnResults } from "./aggregate_statistics_store";
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
@@ -36,18 +38,17 @@ export class BottomBarStatistic extends Component<Props, SpreadsheetChildEnv> {
   static components = { Ripple };
 
   selectedStatisticFn: string = "";
-  private statisticFnResults: { [name: string]: number | undefined } = {};
+  private statisticFnResults: StatisticFnResults = {};
+  private store!: Store<AggregateStatisticsStore>;
 
   setup() {
-    this.statisticFnResults = this.env.model.getters.getStatisticFnResults();
+    this.store = useStore(AggregateStatisticsStore);
 
     onWillUpdateProps(() => {
-      const newStatisticFnResults = this.env.model.getters.getStatisticFnResults();
-
+      const newStatisticFnResults = this.store.statisticFnResults;
       if (!deepEquals(newStatisticFnResults, this.statisticFnResults)) {
         this.props.closeContextMenu();
       }
-
       this.statisticFnResults = newStatisticFnResults;
     });
   }
