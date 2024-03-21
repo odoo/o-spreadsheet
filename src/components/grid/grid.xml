@@ -6,7 +6,6 @@
       t-on-click="focusDefaultElement"
       t-on-keydown="onKeydown"
       t-on-wheel="onMouseWheel"
-      t-on-contextmenu="onInputContextMenu"
       t-ref="grid">
       <GridOverlay
         onCellClicked.bind="onCellClicked"
@@ -19,7 +18,10 @@
         onFigureDeleted.bind="focusDefaultElement"
       />
       <HeadersOverlay onOpenContextMenu="(type, x, y) => this.toggleContextMenu(type, x, y)"/>
-      <GridComposer gridDims="env.model.getters.getSheetViewDimensionWithHeaders()"/>
+      <GridComposer
+        gridDims="env.model.getters.getSheetViewDimensionWithHeaders()"
+        onInputContextMenu.bind="onInputContextMenu"
+      />
       <canvas t-ref="canvas"/>
       <t
         t-foreach="env.model.getters.getClientsToDisplay()"

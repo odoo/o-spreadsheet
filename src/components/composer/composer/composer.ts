@@ -106,6 +106,7 @@ export interface ComposerProps {
   delimitation?: DOMDimension;
   onComposerContentFocused: () => void;
   onComposerCellFocused?: (content: String) => void;
+  onInputContextMenu?: (event: MouseEvent) => void;
   isDefaultFocus?: boolean;
 }
 
@@ -138,6 +139,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     onComposerCellFocused: { type: Function, optional: true },
     onComposerContentFocused: Function,
     isDefaultFocus: { type: Boolean, optional: true },
+    onInputContextMenu: { type: Function, optional: true },
   };
   static components = { TextValueProvider, FunctionDescriptionProvider };
   static defaultProps = {
@@ -528,6 +530,12 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
       if (token.type === "REFERENCE") {
         this.composerStore.changeComposerCursorSelection(token.start, token.end);
       }
+    }
+  }
+
+  onContextMenu(ev: MouseEvent) {
+    if (this.composerStore.editionMode === "inactive") {
+      this.props.onInputContextMenu?.(ev);
     }
   }
 
