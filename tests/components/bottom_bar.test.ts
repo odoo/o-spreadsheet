@@ -825,5 +825,12 @@ describe("BottomBar component", () => {
       await dragSheet("Sheet1", { mouseMoveX: 10, mouseUp: false });
       expect(fixture.querySelector(".o-menu")).toBeFalsy();
     });
+
+    test("Cannot drag & drop sheets in readonly mode", async () => {
+      model.updateMode("readonly");
+      await dragSheet("Sheet1", { mouseMoveX: 10, mouseUp: false });
+      expect(getElComputedStyle('.o-sheet[data-id="Sheet1"]', "position")).toBe("");
+      expect(getElComputedStyle('.o-sheet[data-id="Sheet1"]', "left")).toBe("");
+    });
   });
 });
