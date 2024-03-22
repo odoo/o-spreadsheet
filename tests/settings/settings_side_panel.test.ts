@@ -4,14 +4,14 @@ import { DEFAULT_LOCALE, DEFAULT_LOCALES, Locale, SpreadsheetChildEnv } from "..
 import { updateLocale } from "../test_helpers/commands_helpers";
 import { CUSTOM_LOCALE, FR_LOCALE } from "../test_helpers/constants";
 import { setInputValueAndTrigger } from "../test_helpers/dom_helper";
-import { makeTestEnv, mountComponent, nextTick } from "../test_helpers/helpers";
+import { mountComponent, nextTick } from "../test_helpers/helpers";
 
 describe("settings sidePanel component", () => {
   let model: Model;
   let fixture: HTMLElement;
   let onCloseSidePanel: jest.Mock;
 
-  async function mountSettingsSidePanel(modelArg?: Model, env?: SpreadsheetChildEnv) {
+  async function mountSettingsSidePanel(modelArg?: Model, env?: Partial<SpreadsheetChildEnv>) {
     model = modelArg ?? new Model();
     ({ fixture } = await mountComponent(SettingsPanel, {
       model,
@@ -96,7 +96,7 @@ describe("settings sidePanel component", () => {
 
     test("Malformed locales in env.loadLocales() are not displayed", async () => {
       const testLocales: Locale[] = [DEFAULT_LOCALE, { code: "malformed" } as any, "yo !" as any];
-      const env = makeTestEnv({ loadLocales: async () => testLocales });
+      const env = { loadLocales: async () => testLocales };
       await mountSettingsSidePanel(undefined, env);
 
       const options = fixture.querySelectorAll<HTMLOptionElement>(

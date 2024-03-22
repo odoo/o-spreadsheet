@@ -2,9 +2,8 @@ import { generateMatrix } from "../functions/helpers";
 import { Border, BorderDescr, Style, Zone } from "../types";
 import { TableConfig, TableStyle } from "../types/table";
 import { ComputedTableStyle } from "./../types/table";
-import { TABLE_PRESETS } from "./table_presets";
 
-type TableElement = keyof Omit<TableStyle, "category" | "colorName">;
+type TableElement = keyof Omit<TableStyle, "category" | "name" | "templateName" | "primaryColor">;
 const TABLE_ELEMENTS_BY_PRIORITY: TableElement[] = [
   "wholeTable",
   "firstColumnStripe",
@@ -26,23 +25,24 @@ export function getTableContentZone(tableZone: Zone, tableConfig: TableConfig): 
 
 export function getComputedTableStyle(
   tableConfig: TableConfig,
+  style: TableStyle,
   numberOfCols: number,
   numberOfRows: number
 ): ComputedTableStyle {
   return {
-    borders: getAllTableBorders(tableConfig, numberOfCols, numberOfRows),
-    styles: getAllTableStyles(tableConfig, numberOfCols, numberOfRows),
+    borders: getAllTableBorders(tableConfig, style, numberOfCols, numberOfRows),
+    styles: getAllTableStyles(tableConfig, style, numberOfCols, numberOfRows),
   };
 }
 
 function getAllTableBorders(
   tableConfig: TableConfig,
+  style: TableStyle,
   nOfCols: number,
   nOfRows: number
 ): Border[][] {
   const borders: Border[][] = generateMatrix(nOfCols, nOfRows, () => ({}));
 
-  const style = TABLE_PRESETS[tableConfig.styleId];
   for (const tableElement of TABLE_ELEMENTS_BY_PRIORITY) {
     const styleBorder = style[tableElement]?.border;
     if (!styleBorder) continue;
@@ -125,12 +125,12 @@ function setBorderDescr(
 
 function getAllTableStyles(
   tableConfig: TableConfig,
+  style: TableStyle,
   numberOfCols: number,
   numberOfRows: number
 ): Style[][] {
   const styles: Style[][] = generateMatrix(numberOfCols, numberOfRows, () => ({}));
 
-  const style = TABLE_PRESETS[tableConfig.styleId];
   for (const tableElement of TABLE_ELEMENTS_BY_PRIORITY) {
     const tableElStyle = style[tableElement];
     const bold = isTableElementInBold(tableElement);
@@ -230,8 +230,4 @@ function getTableElementZones(
   }
 
   return zones;
-}
-
-export function getTableStyleName(styleId: string, tableStyle: TableStyle): string {
-  return tableStyle.colorName ? `${tableStyle.colorName}, ${styleId}` : styleId;
 }

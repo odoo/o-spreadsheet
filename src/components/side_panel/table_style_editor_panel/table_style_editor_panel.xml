@@ -1,0 +1,51 @@
+<templates>
+  <t t-name="o-spreadsheet-TableStyleEditorPanel">
+    <div class="o-table-style-editor-panel">
+      <Section>
+        <t t-set-slot="title">Style name</t>
+        <input type="text" class="o-input o-optional" t-model="state.styleName"/>
+      </Section>
+      <Section class="'pt-1'">
+        <t t-set-slot="title">Style color</t>
+        <div class="d-flex align-items-center">
+          <div
+            class="o-color-preview"
+            t-att-style="colorPreviewStyle"
+            t-on-click.stop="togglePicker"
+          />
+          <span class="pe-1">Primary table style color</span>
+          <ColorPickerWidget
+            currentColor="state.primaryColor"
+            showColorPicker="state.pickerOpened"
+            toggleColorPicker.bind="togglePicker"
+            onColorPicked.bind="onColorPicked"
+            icon="'o-spreadsheet-Icon.FILL_COLOR'"
+          />
+        </div>
+      </Section>
+      <Section class="'pt-1'">
+        <t t-set-slot="title">Style template</t>
+        <div class="d-flex flex-wrap">
+          <div
+            class="o-table-style-list-item"
+            t-foreach="tableTemplates"
+            t-as="templateName"
+            t-key="templateName"
+            t-att-class="{ 'selected': templateName === state.selectedTemplateName }"
+            t-on-click="() => this.onTemplatePicked(templateName)">
+            <div class="o-table-style-edit-template-preview">
+              <TableStylePreview
+                tableConfig="previewTableConfig"
+                tableStyle="computeTableStyle(templateName)"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="o-sidePanelButtons">
+          <button t-on-click="onCancel" class="o-cancel o-button">Cancel</button>
+          <button t-on-click="onConfirm" class="o-confirm o-button">Confirm</button>
+        </div>
+      </Section>
+    </div>
+  </t>
+</templates>

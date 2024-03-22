@@ -7,12 +7,14 @@ import {
   CreateChartCommand,
   CreateFigureCommand,
   CreateSheetCommand,
+  CreateTableStyleCommand,
   DeleteFigureCommand,
   DeleteSheetCommand,
   DuplicateSheetCommand,
   HideColumnsRowsCommand,
   RemoveColumnsRowsCommand,
   RemoveMergeCommand,
+  RemoveTableStyleCommand,
   UnhideColumnsRowsCommand,
 } from "../types/commands";
 import { Registry } from "./registry";
@@ -31,7 +33,8 @@ export const inverseCommandRegistry = new Registry<InverseFunction>()
   .add("CREATE_FIGURE", inverseCreateFigure)
   .add("CREATE_CHART", inverseCreateChart)
   .add("HIDE_COLUMNS_ROWS", inverseHideColumnsRows)
-  .add("UNHIDE_COLUMNS_ROWS", inverseUnhideColumnsRows);
+  .add("UNHIDE_COLUMNS_ROWS", inverseUnhideColumnsRows)
+  .add("CREATE_TABLE_STYLE", inverseCreateTableStyle);
 
 for (const cmd of coreTypes.values()) {
   if (!inverseCommandRegistry.contains(cmd)) {
@@ -128,4 +131,8 @@ function inverseUnhideColumnsRows(cmd: UnhideColumnsRowsCommand): HideColumnsRow
       elements: cmd.elements,
     },
   ];
+}
+
+function inverseCreateTableStyle(cmd: CreateTableStyleCommand): RemoveTableStyleCommand[] {
+  return [{ type: "REMOVE_TABLE_STYLE", tableStyleId: cmd.tableStyleId }];
 }

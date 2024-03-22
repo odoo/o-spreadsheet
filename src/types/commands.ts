@@ -26,7 +26,7 @@ import {
   UID,
 } from "./misc";
 import { RangeData } from "./range";
-import { TableConfig } from "./table";
+import { TableConfig, TableStyleTemplateName } from "./table";
 
 // -----------------------------------------------------------------------------
 // Grid commands
@@ -205,6 +205,8 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "CREATE_TABLE",
   "REMOVE_TABLE",
   "UPDATE_TABLE",
+  "CREATE_TABLE_STYLE",
+  "REMOVE_TABLE_STYLE",
 
   /** IMAGE */
   "CREATE_IMAGE",
@@ -495,6 +497,19 @@ export interface UpdateTableCommand {
 
 export interface AutofillTableCommand extends PositionDependentCommand {
   type: "AUTOFILL_TABLE_COLUMN";
+}
+
+export interface CreateTableStyleCommand {
+  type: "CREATE_TABLE_STYLE";
+  tableStyleId: string;
+  tableStyleName: string;
+  templateName: TableStyleTemplateName;
+  primaryColor: Color;
+}
+
+export interface RemoveTableStyleCommand {
+  type: "REMOVE_TABLE_STYLE";
+  tableStyleId: string;
 }
 
 export interface UpdateFilterCommand extends PositionDependentCommand {
@@ -922,6 +937,8 @@ export type CoreCommand =
   | CreateTableCommand
   | RemoveTableCommand
   | UpdateTableCommand
+  | CreateTableStyleCommand
+  | RemoveTableStyleCommand
 
   /** HEADER GROUP */
   | GroupHeadersCommand
@@ -1116,6 +1133,7 @@ export const enum CommandResult {
   TableNotFound = "TableNotFound",
   TableOverlap = "TableOverlap",
   InvalidTableConfig = "InvalidTableConfig",
+  InvalidTableStyle = "InvalidTableStyle",
   FilterNotFound = "FilterNotFound",
   MergeInTable = "MergeInTable",
   NonContinuousTargets = "NonContinuousTargets",
