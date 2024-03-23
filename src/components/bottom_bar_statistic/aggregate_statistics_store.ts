@@ -122,6 +122,7 @@ export class AggregateStatisticsStore extends SpreadsheetStore {
     }
     const locale = getters.getLocale();
     let statisticFnResults: StatisticFnResults = {};
+    const cellsArray = [...cells];
     for (let fn of selectionStatisticFunctions) {
       // We don't want to display statistical information when there is no interest:
       // We set the statistical result to undefined if the data handled by the selection
@@ -129,7 +130,7 @@ export class AggregateStatisticsStore extends SpreadsheetStore {
       // Ex: if there are only texts in the selection, we prefer that the SUM result
       // be displayed as undefined rather than 0.
       let fnResult: number | undefined = undefined;
-      const evaluatedCells = [...cells].filter((c) => fn.types.includes(c.type));
+      const evaluatedCells = cellsArray.filter((c) => fn.types.includes(c.type));
       if (evaluatedCells.length) {
         fnResult = fn.compute(evaluatedCells, locale);
       }
