@@ -55,7 +55,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     "getSheetIds",
     "getVisibleSheetIds",
     "isSheetVisible",
-    "getEvaluationSheets",
     "doesHeaderExist",
     "doesHeadersExist",
     "getCell",
@@ -352,10 +351,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return this.orderedSheetIds.filter(this.isSheetVisible.bind(this));
   }
 
-  getEvaluationSheets(): Record<UID, Sheet | undefined> {
-    return this.sheets;
-  }
-
   doesHeaderExist(sheetId: UID, dimension: Dimension, index: number) {
     return dimension === "COL"
       ? index >= 0 && index < this.getNumberCols(sheetId)
@@ -364,14 +359,6 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   doesHeadersExist(sheetId: UID, dimension: Dimension, headerIndexes: HeaderIndex[]): boolean {
     return headerIndexes.every((index) => this.doesHeaderExist(sheetId, dimension, index));
-  }
-
-  getRow(sheetId: UID, index: HeaderIndex): Row {
-    const row = this.getSheet(sheetId).rows[index];
-    if (!row) {
-      throw new Error(`Row ${row} not found.`);
-    }
-    return row;
   }
 
   getCell({ sheetId, col, row }: CellPosition): Cell | undefined {

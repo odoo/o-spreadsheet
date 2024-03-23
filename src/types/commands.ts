@@ -12,7 +12,6 @@ import {
   Border,
   BorderData,
   CellPosition,
-  Color,
   Dimension,
   HeaderIndex,
   Pixel,
@@ -689,15 +688,6 @@ export interface ActivateSheetCommand {
   sheetIdTo: UID;
 }
 
-/**
- * Set a color to be used for the next selection to highlight.
- * The color is only used when selection highlight is enabled.
- */
-export interface SetColorCommand {
-  type: "SET_HIGHLIGHT_COLOR";
-  color: Color;
-}
-
 export interface EvaluateCellsCommand {
   type: "EVALUATE_CELLS";
 }
@@ -965,7 +955,6 @@ export type LocalCommand =
   | ActivateSheetCommand
   | EvaluateCellsCommand
   | StartChangeHighlightCommand
-  | SetColorCommand
   | StartCommand
   | AutofillCommand
   | AutofillSelectCommand

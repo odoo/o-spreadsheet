@@ -6,7 +6,6 @@ import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_hel
 import {
   clip,
   deepCopy,
-  formatValue,
   isEqual,
   positionToZone,
   positions,
@@ -99,7 +98,6 @@ export class GridSelectionPlugin extends UIPlugin {
     "getSelectedZone",
     "getSelectedCells",
     "getStatisticFnResults",
-    "getAggregate",
     "getSelectedFigureId",
     "getSelection",
     "getActivePosition",
@@ -456,22 +454,6 @@ export class GridSelectionPlugin extends UIPlugin {
       statisticFnResults[fn.name] = fnResult;
     }
     return statisticFnResults;
-  }
-
-  getAggregate(): string | null {
-    let aggregate = 0;
-    let n = 0;
-    const sheetId = this.getters.getActiveSheetId();
-    const cellPositions = this.gridSelection.zones.map(positions).flat();
-    for (const { col, row } of cellPositions) {
-      const cell = this.getters.getEvaluatedCell({ sheetId, col, row });
-      if (cell.type === CellValueType.number) {
-        n++;
-        aggregate += cell.value;
-      }
-    }
-    const locale = this.getters.getLocale();
-    return n < 2 ? null : formatValue(aggregate, { locale });
   }
 
   isSelected(zone: Zone): boolean {
