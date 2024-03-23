@@ -1,10 +1,10 @@
 import { Component, onWillUpdateProps } from "@odoo/owl";
-import { deepEquals } from "../../helpers";
-import { formatValue } from "../../helpers/format";
-import { MenuItemRegistry } from "../../registries/menu_items_registry";
-import { SpreadsheetChildEnv } from "../../types";
-import { Ripple } from "../animation/ripple";
-import { css } from "../helpers/css";
+import { deepEquals } from "../../../helpers";
+import { formatValue } from "../../../helpers/format";
+import { MenuItemRegistry } from "../../../registries/menu_items_registry";
+import { SpreadsheetChildEnv } from "../../../types";
+import { Ripple } from "../../animation/ripple";
+import { css } from "../../helpers/css";
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
