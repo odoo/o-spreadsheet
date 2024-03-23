@@ -1,12 +1,11 @@
 import { Component, onWillUpdateProps } from "@odoo/owl";
-import { deepEquals } from "../../helpers";
 import { formatValue } from "../../helpers/format";
 import { MenuItemRegistry } from "../../registries/menu_items_registry";
 import { Store, useStore } from "../../store_engine";
 import { SpreadsheetChildEnv } from "../../types";
 import { Ripple } from "../animation/ripple";
 import { css } from "../helpers/css";
-import { AggregateStatisticsStore, StatisticFnResults } from "./aggregate_statistics_store";
+import { AggregateStatisticsStore } from "./aggregate_statistics_store";
 
 // -----------------------------------------------------------------------------
 // SpreadSheet
@@ -38,41 +37,34 @@ export class BottomBarStatistic extends Component<Props, SpreadsheetChildEnv> {
   static components = { Ripple };
 
   selectedStatisticFn: string = "";
-  private statisticFnResults: StatisticFnResults = {};
   private store!: Store<AggregateStatisticsStore>;
 
   setup() {
     this.store = useStore(AggregateStatisticsStore);
-
     onWillUpdateProps(() => {
-      const newStatisticFnResults = this.store.statisticFnResults;
-      if (!deepEquals(newStatisticFnResults, this.statisticFnResults)) {
+      if (Object.values(this.store.statisticFnResults).every((result) => result === undefined)) {
         this.props.closeContextMenu();
       }
-      this.statisticFnResults = newStatisticFnResults;
     });
   }
 
   getSelectedStatistic() {
     // don't display button if no function has a result
-    if (Object.values(this.statisticFnResults).every((result) => result === undefined)) {
+    if (Object.values(this.store.statisticFnResults).every((result) => result === undefined)) {
       return undefined;
     }
     if (this.selectedStatisticFn === "") {
-      this.selectedStatisticFn = Object.keys(this.statisticFnResults)[0];
+      this.selectedStatisticFn = Object.keys(this.store.statisticFnResults)[0];
     }
-    return this.getComposedFnName(
-      this.selectedStatisticFn,
-      this.statisticFnResults[this.selectedStatisticFn]
-    );
+    return this.getComposedFnName(this.selectedStatisticFn);
   }
 
   listSelectionStatistics(ev: MouseEvent) {
     const registry = new MenuItemRegistry();
     let i = 0;
-    for (let [fnName, fnValue] of Object.entries(this.statisticFnResults)) {
+    for (let [fnName] of Object.entries(this.store.statisticFnResults)) {
       registry.add(fnName, {
-        name: this.getComposedFnName(fnName, fnValue),
+        name: () => this.getComposedFnName(fnName),
         sequence: i,
         isReadonlyAllowed: true,
         execute: () => {
@@ -86,8 +78,9 @@ export class BottomBarStatistic extends Component<Props, SpreadsheetChildEnv> {
     this.props.openContextMenu(left + width, top, registry);
   }
 
-  private getComposedFnName(fnName: string, fnValue: number | undefined): string {
+  private getComposedFnName(fnName: string): string {
     const locale = this.env.model.getters.getLocale();
+    const fnValue = this.store.statisticFnResults[fnName];
     return fnName + ": " + (fnValue !== undefined ? formatValue(fnValue, { locale }) : "__");
   }
 }

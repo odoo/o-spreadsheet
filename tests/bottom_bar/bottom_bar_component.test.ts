@@ -657,7 +657,27 @@ describe("BottomBar component", () => {
     expect(fixture.querySelector(".o-selection-statistic")?.textContent).toBe("Count Numbers: 1");
   });
 
-  test("The list of statistics menu closes if the selection or the cell value change", async () => {
+  test("The list of statistics is updated with the selection", async () => {
+    const { model } = await mountBottomBar();
+    // Change value of cell
+    setCellContent(model, "A1", "24");
+    setCellContent(model, "A2", "23");
+    await nextTick();
+    triggerMouseEvent(".o-selection-statistic", "click");
+    await nextTick();
+    expect(fixture.querySelector(".o-menu")).toBeTruthy();
+    expect(fixture.querySelector(".o-menu .o-menu-item")?.textContent).toBe("Sum: 24");
+
+    setCellContent(model, "A1", "42");
+    await nextTick();
+    expect(fixture.querySelector(".o-menu .o-menu-item")?.textContent).toBe("Sum: 42");
+
+    selectCell(model, "A2");
+    await nextTick();
+    expect(fixture.querySelector(".o-menu .o-menu-item")?.textContent).toBe("Sum: 23");
+  });
+
+  test("Hide the statistics component when the statistics are empty", async () => {
     const { model } = await mountBottomBar();
     // Change value of cell
     setCellContent(model, "A1", "24");
@@ -665,18 +685,15 @@ describe("BottomBar component", () => {
     triggerMouseEvent(".o-selection-statistic", "click");
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
+    expect(fixture.querySelector(".o-menu .o-menu-item")?.textContent).toBe("Sum: 24");
 
     setCellContent(model, "A1", "42");
     await nextTick();
-    expect(fixture.querySelector(".o-menu")).toBeFalsy();
-
-    // Change selection
-    triggerMouseEvent(".o-selection-statistic", "click");
-    await nextTick();
-    expect(fixture.querySelector(".o-menu")).toBeTruthy();
+    expect(fixture.querySelector(".o-menu .o-menu-item")?.textContent).toBe("Sum: 42");
 
     selectCell(model, "A2");
     await nextTick();
+    expect(fixture.querySelector(".o-selection-statistic")).toBeFalsy();
     expect(fixture.querySelector(".o-menu")).toBeFalsy();
   });
 
