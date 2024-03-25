@@ -14,18 +14,23 @@ import {
   CreateSheetCommand,
   DeleteFigureCommand,
   DeleteSheetCommand,
+  DuplicatePivotCommand,
   FoldHeaderGroupCommand,
   FreezeColumnsCommand,
   FreezeRowsCommand,
   GroupHeadersCommand,
   HeaderIndex,
+  InsertPivotCommand,
   MoveRangeCommand,
   RemoveColumnsRowsCommand,
   RemoveMergeCommand,
+  RemovePivotCommand,
+  RenamePivotCommand,
   UnGroupHeadersCommand,
   UnfoldHeaderGroupCommand,
   UpdateChartCommand,
   UpdateFigureCommand,
+  UpdatePivotCommand,
   UpdateTableCommand,
   Zone,
 } from "../../types";
@@ -74,6 +79,22 @@ otRegistry.addTransformation(
   ["GROUP_HEADERS", "UNGROUP_HEADERS", "FOLD_HEADER_GROUP", "UNFOLD_HEADER_GROUP"],
   groupHeadersTransformation
 );
+
+otRegistry.addTransformation(
+  "REMOVE_PIVOT",
+  ["RENAME_PIVOT", "DUPLICATE_PIVOT", "INSERT_PIVOT", "UPDATE_PIVOT"],
+  pivotTransformation
+);
+
+function pivotTransformation(
+  toTransform: RenamePivotCommand | DuplicatePivotCommand | InsertPivotCommand | UpdatePivotCommand,
+  executed: RemovePivotCommand
+) {
+  if (toTransform.pivotId === executed.pivotId) {
+    return undefined;
+  }
+  return toTransform;
+}
 
 function transformTargetSheetId(
   toTransform: MoveRangeCommand,

@@ -3,6 +3,7 @@ import { ExcelChartDefinition } from "./chart/chart";
 import { ConditionalFormat } from "./conditional_formatting";
 import { Image } from "./image";
 import { Border, Dimension, HeaderGroup, PaneDivision, Pixel, Style, UID } from "./misc";
+import { PivotCoreDefinition } from "./pivot";
 import { CoreTableType, TableConfig } from "./table";
 
 export interface Dependencies {
@@ -56,12 +57,18 @@ interface WorkbookSettings {
   locale: Locale;
 }
 
+interface PivotData extends PivotCoreDefinition {
+  formulaId: string;
+}
+
 export interface WorkbookData {
   version: number;
   sheets: SheetData[];
   styles: { [key: number]: Style };
   formats: { [key: number]: Format };
   borders: { [key: number]: Border };
+  pivots: { [key: string]: PivotData };
+  pivotNextId: number;
   revisionId: UID;
   uniqueFigureIds: boolean;
   settings: WorkbookSettings;

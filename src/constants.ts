@@ -249,3 +249,15 @@ export const MAXIMAL_FREEZABLE_RATIO = 0.85;
 
 export const NEWLINE = "\n";
 export const FONT_SIZES: number[] = [6, 7, 8, 9, 10, 11, 12, 14, 18, 24, 36];
+
+// Pivot
+export const PIVOT_TABLE_CONFIG = {
+  hasFilters: false,
+  totalRow: false,
+  firstColumn: true,
+  lastColumn: false,
+  numberOfHeaders: 1,
+  bandedRows: true,
+  bandedColumns: false,
+  styleId: "TableStyleMedium5",
+};
