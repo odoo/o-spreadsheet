@@ -12,6 +12,15 @@ export let OWL_TEMPLATES: Document;
 beforeAll(() => {
   OWL_TEMPLATES = getParsedOwlTemplateBundle();
   setDefaultSheetViewSize(1000);
+  Object.defineProperty(Element.prototype, "innerText", {
+    get: function myProperty() {
+      return this.textContent;
+    },
+    set: function myProperty(value) {
+      this.textContent = value;
+      this.innerHTML = value;
+    },
+  });
 });
 
 beforeEach(() => {
