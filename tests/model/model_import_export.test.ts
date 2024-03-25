@@ -640,6 +640,8 @@ test("complete import, then export", () => {
         headerGroups: { COL: [], ROW: [] },
       },
     ],
+    pivots: {},
+    pivotNextId: 1,
     settings: { locale: DEFAULT_LOCALE },
     styles: {
       1: { bold: true, textColor: "#674EA7", fontSize: 12 },
@@ -724,6 +726,8 @@ test("import then export (figures)", () => {
         headerGroups: { COL: [], ROW: [] },
       },
     ],
+    pivots: {},
+    pivotNextId: 1,
     styles: {},
     formats: {},
     borders: {},

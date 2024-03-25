@@ -14,6 +14,7 @@ import {
   TablePlugin,
 } from "./core";
 import { HeaderGroupingPlugin } from "./core/header_grouping";
+import { PivotCorePlugin } from "./core/pivot";
 import { SettingsPlugin } from "./core/settings";
 import { CorePluginConstructor } from "./core_plugin";
 import {
@@ -64,7 +65,8 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("conditional formatting", ConditionalFormatPlugin)
   .add("figures", FigurePlugin)
   .add("chart", ChartPlugin)
-  .add("image", ImagePlugin);
+  .add("image", ImagePlugin)
+  .add("pivot_core", PivotCorePlugin);
 
 // Plugins which handle a specific feature, without handling any core commands
 export const featurePluginRegistry = new Registry<UIPluginConstructor>()

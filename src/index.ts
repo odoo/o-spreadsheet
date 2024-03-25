@@ -88,6 +88,7 @@ import {
   unquote,
 } from "./helpers/index";
 import { openLink, urlRegistry, urlRepresentation } from "./helpers/links";
+import { getMaxObjectId, makePivotFormula } from "./helpers/pivot/pivot_helpers";
 import {
   createEmptyExcelSheet,
   createEmptySheet,
@@ -270,6 +271,8 @@ export const helpers = {
   expandZoneOnInsertion,
   reduceZoneOnDeletion,
   unquote,
+  makePivotFormula,
+  getMaxObjectId,
 };
 
 export const links = {

@@ -15,7 +15,7 @@ export interface SPTableData {
   cols: SPTableColumn[][];
   rows: SPTableRow[];
   measures: string[];
-  rowTitle: string;
+  rowTitle?: string;
 }
 
 export interface SPTableCell {
@@ -67,6 +67,14 @@ export interface CommonPivotDefinition {
   measures: PivotMeasureDefinition[];
   name: string;
 }
+
+export interface SpreadsheetPivotDefinition extends CommonPivotDefinition {}
+
+export type PivotDefinition = SpreadsheetPivotDefinition;
+
+export type CorePivotDefinition = PivotDefinition & {
+  formulaId: string;
+};
 
 export interface Field {
   name: string;
