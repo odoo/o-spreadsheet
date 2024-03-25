@@ -29,6 +29,7 @@ import {
   drawDecoratedText,
   getZonesCols,
   getZonesRows,
+  largeMin,
   numberToLetters,
   overlap,
   positionToZone,
@@ -72,7 +73,7 @@ export class RendererPlugin extends UIPlugin {
    * column of the current viewport
    */
   getColDimensionsInViewport(sheetId: UID, col: HeaderIndex): HeaderDimensions {
-    const left = Math.min(...this.getters.getSheetViewVisibleCols());
+    const left = largeMin(this.getters.getSheetViewVisibleCols());
     const start = this.getters.getColRowOffsetInViewport("COL", left, col);
     const size = this.getters.getColSize(sheetId, col);
     const isColHidden = this.getters.isColHidden(sheetId, col);
@@ -88,7 +89,7 @@ export class RendererPlugin extends UIPlugin {
    * of the current viewport
    */
   getRowDimensionsInViewport(sheetId: UID, row: HeaderIndex): HeaderDimensions {
-    const top = Math.min(...this.getters.getSheetViewVisibleRows());
+    const top = largeMin(this.getters.getSheetViewVisibleRows());
     const start = this.getters.getColRowOffsetInViewport("ROW", top, row);
     const size = this.getters.getRowSize(sheetId, row);
     const isRowHidden = this.getters.isRowHidden(sheetId, row);
