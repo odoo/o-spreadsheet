@@ -1,4 +1,11 @@
-import { buildSheetLink, markdownLink, splitReference, toCartesian, toXC } from "../../helpers";
+import {
+  buildSheetLink,
+  largeMax,
+  markdownLink,
+  splitReference,
+  toCartesian,
+  toXC,
+} from "../../helpers";
 import { CellData, HeaderData, SheetData } from "../../types";
 import { XLSXCell, XLSXHyperLink, XLSXImportData, XLSXWorksheet } from "../../types/xlsx";
 import {
@@ -193,7 +200,7 @@ function getSheetDims(sheet: XLSXWorksheet): number[] {
   const dims = [0, 0];
 
   for (let row of sheet.rows) {
-    dims[0] = Math.max(dims[0], ...row.cells.map((cell) => toCartesian(cell.xc).col));
+    dims[0] = Math.max(dims[0], largeMax(row.cells.map((cell) => toCartesian(cell.xc).col)));
     dims[1] = Math.max(dims[1], row.index);
   }
 

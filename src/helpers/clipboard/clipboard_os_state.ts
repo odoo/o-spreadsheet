@@ -8,6 +8,7 @@ import {
   Getters,
   Zone,
 } from "../../types";
+import { largeMax } from "../misc";
 import { zoneToDimension } from "../zones";
 import { ClipboardCellsAbstractState } from "./clipboard_abstract_cell_state";
 
@@ -78,7 +79,7 @@ export class ClipboardOsState extends ClipboardCellsAbstractState {
 
   private getPasteZone(target: Zone[]): Zone {
     const height = this.values.length;
-    const width = Math.max(...this.values.map((a) => a.length));
+    const width = largeMax(this.values.map((a) => a.length));
     const { left: activeCol, top: activeRow } = target[0];
     return {
       top: activeRow,
