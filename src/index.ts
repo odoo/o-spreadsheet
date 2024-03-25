@@ -349,6 +349,7 @@ export const constants = {
   HIGHLIGHT_COLOR,
 };
 
+export { PivotRuntimeDefinition } from "./helpers/pivot/pivot_runtime_definition";
 export { SpreadsheetPivotTable } from "./helpers/pivot/spreadsheet_pivot_table";
 
 export type { EnrichedToken } from "./formulas/composer_tokenizer";
