@@ -8,6 +8,8 @@ import {
   isDefined,
   isZoneInside,
   isZoneValid,
+  largeMax,
+  largeMin,
   positions,
   range,
   toCartesian,
@@ -134,7 +136,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           cmd.dimension === "COL"
             ? this.getNumberCols(cmd.sheetId)
             : this.getNumberRows(cmd.sheetId);
-        if (Math.min(...cmd.elements) < 0 || Math.max(...cmd.elements) > elements) {
+        if (largeMin(cmd.elements) < 0 || largeMax(cmd.elements) > elements) {
           return CommandResult.InvalidHeaderIndex;
         } else if (
           this.checkElementsIncludeAllNonFrozenHeaders(cmd.sheetId, cmd.dimension, cmd.elements)

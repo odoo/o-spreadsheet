@@ -360,7 +360,7 @@ export function getItemId<T>(item: T, itemsDic: { [id: number]: T }) {
 
   // Generate new Id if the item didn't exist in the dictionary
   const ids = Object.keys(itemsDic);
-  const maxId = ids.length === 0 ? 0 : Math.max(...ids.map((id) => parseInt(id, 10)));
+  const maxId = ids.length === 0 ? 0 : largeMax(ids.map((id) => parseInt(id, 10)));
 
   itemsDic[maxId + 1] = item;
   return maxId + 1;
@@ -569,4 +569,36 @@ export function isConsecutive(iterable: Iterable<number>): boolean {
     }
   }
   return true;
+}
+
+/**
+ * Alternative to Math.max that works with large arrays.
+ * Typically useful for arrays bigger than 100k elements.
+ */
+export function largeMax(array: number[]) {
+  let len = array.length;
+
+  if (len < 100_000) return Math.max(...array);
+
+  let max: number = -Infinity;
+  while (len--) {
+    max = array[len] > max ? array[len] : max;
+  }
+  return max;
+}
+
+/**
+ * Alternative to Math.min that works with large arrays.
+ * Typically useful for arrays bigger than 100k elements.
+ */
+export function largeMin(array: number[]) {
+  let len = array.length;
+
+  if (len < 100_000) return Math.min(...array);
+
+  let min: number = +Infinity;
+  while (len--) {
+    min = array[len] < min ? array[len] : min;
+  }
+  return min;
 }
