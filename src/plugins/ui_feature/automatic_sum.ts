@@ -3,6 +3,8 @@ import {
   isDateTimeFormat,
   isInside,
   isOneDimensional,
+  largeMax,
+  largeMin,
   positions,
   range,
   union,
@@ -189,15 +191,15 @@ export class AutomaticSumPlugin extends UIPlugin {
     const invalidCells = cellPositions.filter(
       (position) => cells[position] && !cells[position].isAutoSummable
     );
-    const maxValidPosition = Math.max(...invalidCells);
+    const maxValidPosition = largeMax(invalidCells);
     const numberSequences = groupConsecutive(
       cellPositions.filter((position) => this.isNumber(cells[position]))
     );
     const firstSequence = numberSequences[0] || [];
-    if (Math.max(...firstSequence) < maxValidPosition) {
+    if (largeMax(firstSequence) < maxValidPosition) {
       return Infinity;
     }
-    return Math.min(...firstSequence);
+    return largeMin(firstSequence);
   }
 
   private shouldFindData(sheetId: UID, zone: Zone): boolean {
