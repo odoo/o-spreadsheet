@@ -25,6 +25,7 @@ import {
 } from "./helper_statistical";
 import {
   assert,
+  assertNotZero,
   dichotomicSearch,
   inferFormat,
   matrixMap,
@@ -380,10 +381,7 @@ export const AVEDEV = {
       0,
       this.locale
     );
-    assert(
-      () => count !== 0,
-      _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
-    );
+    assertNotZero(count);
     const average = sum / count;
     return reduceNumbers(values, (acc, a) => acc + Math.abs(average - a), 0, this.locale) / count;
   },
@@ -473,12 +471,7 @@ export const AVERAGE_WEIGHTED = {
         }
       }
     }
-
-    assert(
-      () => count !== 0,
-      _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
-    );
-
+    assertNotZero(count);
     return { value: sum / count, format: inferFormat(args[0]) };
   },
 } satisfies AddFunctionDescription;
@@ -510,10 +503,7 @@ export const AVERAGEA = {
       0,
       this.locale
     );
-    assert(
-      () => count !== 0,
-      _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
-    );
+    assertNotZero(count);
     return {
       value: sum / count,
       format: inferFormat(args[0]),
@@ -554,12 +544,7 @@ export const AVERAGEIF = {
       },
       this.locale
     );
-
-    assert(
-      () => count !== 0,
-      _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
-    );
-
+    assertNotZero(count);
     return sum / count;
   },
   isExported: true,
@@ -596,10 +581,7 @@ export const AVERAGEIFS = {
       },
       this.locale
     );
-    assert(
-      () => count !== 0,
-      _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
-    );
+    assertNotZero(count);
     return sum / count;
   },
   isExported: true,

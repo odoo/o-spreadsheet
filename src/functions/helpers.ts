@@ -131,6 +131,13 @@ export function assertNumberGreaterThanOrEqualToOne(value: number) {
   );
 }
 
+export function assertNotZero(value: number) {
+  assert(
+    () => value !== 0,
+    _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
+  );
+}
+
 export function toString(data: FPayload | CellValue | undefined): string {
   const value = toValue(data);
   switch (typeof value) {

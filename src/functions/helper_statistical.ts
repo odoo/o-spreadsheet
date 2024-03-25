@@ -1,7 +1,7 @@
 import { isNumber, parseDateTime } from "../helpers";
 import { _t } from "../translation";
 import { Arg, Locale, isMatrix } from "../types";
-import { assert, isEvaluationError, reduceAny, reduceNumbers } from "./helpers";
+import { assert, assertNotZero, isEvaluationError, reduceAny, reduceNumbers } from "./helpers";
 
 export function assertSameNumberOfElements(...args: any[][]) {
   const dims = args[0].length;
@@ -29,10 +29,7 @@ export function average(values: Arg[], locale: Locale) {
     0,
     locale
   );
-  assert(
-    () => count !== 0,
-    _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
-  );
+  assertNotZero(count);
   return sum / count;
 }
 
