@@ -151,120 +151,77 @@ export function modifyProfiles( // export for testing only
     const leftValue = zone.left;
     const rightValue = zone.right === undefined ? undefined : zone.right + 1;
 
-    ///////////////////////////////////////////////////////////////////////////////
-    // FIND LEFT POINT ////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////
-
-    let leftPredecessorProfileIndex = binaryPredecessorSearch(profilesStartingPosition, leftValue);
-
-    // leftValue is potentially a new interesting position in which can start a new profile
-    // we momentarily add them among the profiles to be able to easily find them and work with them later
-
-    profiles.set(leftValue, [
-      ...profiles.get(profilesStartingPosition[leftPredecessorProfileIndex])!,
-    ]);
-
-    // now we looking for the indexes of the profiles on which apply a modification
-    // all this indexes are positioned after a leftIndex.
-
-    let leftIndex = leftPredecessorProfileIndex;
-    if (leftValue != profilesStartingPosition[leftPredecessorProfileIndex]) {
-      // mean that the zone is not starting at the same position as the previous profile
-      // --> it's a new profile
-      // --> we need to add it
-      profilesStartingPosition.splice(leftPredecessorProfileIndex + 1, 0, leftValue);
-      leftIndex++;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////
-    // FIND RIGHT POINT ///////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////
-
-    let rightPredecessorProfileIndex =
-      rightValue === undefined
-        ? profilesStartingPosition.length - 1
-        : binaryPredecessorSearch(
-            profilesStartingPosition,
-            rightValue,
-            leftPredecessorProfileIndex
-          );
-
-    // rightValue are potentially a new interesting position in which can start a new profile
-    // we momentarily add them among the profiles to be able to easily find them and work with them later
-
-    if (rightValue !== undefined) {
-      profiles.set(rightValue, [
-        ...profiles.get(profilesStartingPosition[rightPredecessorProfileIndex])!,
-      ]);
-    }
-
-    // now we looking for the indexes of the profiles on which apply a modification
-    // all this indexes are positioned before a rightIndex
-
-    let rightIndex = rightPredecessorProfileIndex;
-    if (rightValue !== undefined) {
-      if (rightValue !== profilesStartingPosition[rightPredecessorProfileIndex]) {
-        // mean that the zone is not ending at the same position as the previous profile
-        // --> it's a new profile
-        // --> we need to add it
-        profilesStartingPosition.splice(rightPredecessorProfileIndex + 1, 0, rightValue);
-      } else {
-        rightIndex--;
-      }
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////
-    // MODIFY PROFILES ////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////
+    const leftIndex = findIndexAndCreateProfile(
+      profilesStartingPosition,
+      profiles,
+      leftValue,
+      true
+    );
+    const rightIndex = findIndexAndCreateProfile(
+      profilesStartingPosition,
+      profiles,
+      rightValue,
+      false,
+      leftIndex
+    );
 
     for (let i = leftIndex; i <= rightIndex; i++) {
       const profile = profiles.get(profilesStartingPosition[i])!;
       modifyProfile(profile, zone, toRemove);
     }
 
-    ///////////////////////////////////////////////////////////////////////////////
-    // REMOVE SAME CONTIGUOUS PROFILES ////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////
-
     // maybe this part cost in performance, and maybe it's not necessary (depending on the use case). To be checked
-    for (
-      let i = rightIndex === profilesStartingPosition.length - 1 ? rightIndex : rightIndex + 1;
-      i > (leftIndex - 1 === -1 ? 0 : leftIndex - 1);
-      i--
-    ) {
-      if (
-        deepEqualsArray(
-          profiles.get(profilesStartingPosition[i])!,
-          profiles.get(profilesStartingPosition[i - 1])!
-        )
-      ) {
-        profiles.delete(profilesStartingPosition[i]);
-        profilesStartingPosition.splice(i, 1);
-      }
-    }
+    removeContiguousProfiles(profilesStartingPosition, profiles, leftIndex, rightIndex);
   }
 }
 
+function findIndexAndCreateProfile(
+  profilesStartingPosition: number[],
+  profiles: Map<number, number[]>,
+  value: number | undefined,
+  searchLeft: boolean,
+  startIndex: number = 0
+) {
+  const predecessorIndex =
+    value === undefined
+      ? profilesStartingPosition.length - 1
+      : binaryPredecessorSearch(profilesStartingPosition, value, startIndex);
+
+  if (value === undefined) {
+    // this is only the case when the value correspond to a bottom value that could be undefined
+    return predecessorIndex;
+  }
+  if (value != profilesStartingPosition[predecessorIndex]) {
+    // mean that the value is not ending at the same position as the previous profile
+    // --> it's a new profile
+    // --> we need to add it
+    profilesStartingPosition.splice(predecessorIndex + 1, 0, value);
+    profiles.set(value, [...profiles.get(profilesStartingPosition[predecessorIndex])!]); // we use the profile of the predecessor to modify it in modifyProfile
+    return searchLeft ? predecessorIndex + 1 : predecessorIndex;
+  }
+  return searchLeft ? predecessorIndex : predecessorIndex - 1;
+}
+
 /**
- *  Suppose the following        Suppose we want to add        The purpose of this function
- *  profile:                     the following zone:           is to take the profile of
- *                                                             the new zone and merge it
- *       A B C D E F                  A B C D E F              with the existing profile.
- *     1    '___'                   1    '   '
- *     2    |___|                   2    '___'                 Here [2, 3, 5, 8] with [3, 7]
- *     3    '   '                   3    |   |                 would be merged into [2, 8]
- *     4    '___'          -->      4    |   |            -->
- *     6    |   |                   6    |___|                 The difficulty of this function
- *     7    |___|                   7                          is to know what must be deleted
- *     8                            8                          and what must be added to the profile
+ *  Suppose the following        Suppose we want to add          We want to have the
+ *  profile:                     the following zone:             following profile:
  *
- *  the profile for 'C'          the top zone correspond
- *  corresponds to:              to 3 and the bottom zone
+ *       A B C D E F                  A B C D E F                     A B C D E F
+ *     1    '___'                   1    '   '                      1    '___'
+ *     2    |___|                   2    '___'                      2    |   |
+ *     3    '   '                   3    |   |                      3    |   |
+ *     4    '___'          -->      4    |   |            -->       4    |   |
+ *     6    |   |                   6    |___|                      6    |   |
+ *     7    |___|                   7                               7    |___|
+ *     8                            8                               8
+ *
+ *  the profile for 'C'          the top zone correspond        Here [2, 3, 5, 8] with [3, 7]
+ *  corresponds to:              to 3 and the bottom zone       would be merged into [2, 8]
  *   ____  ____                  correspond to 6
- *  [2, 3, 5, 8]                 would be the profile:
- *                                ____
- *  Note that the 'filled        [3, 7]
- *  zone' are always between
+ *  [2, 3, 5, 8]                 would be the profile:          The difficulty of modify profile
+ *                                ____                          is to know what must be deleted
+ *  Note that the 'filled        [3, 7]                         and what must be added to the
+ *  zone' are always between                                    existing profile.
  *  an even index and its
  *  next index
  *
@@ -309,6 +266,29 @@ function modifyProfile(
   // add the top and bottom value to the profile and
   // remove all information between the top and bottom index
   profile.splice(topPredIndex + 1, bottomSuccIndex - topPredIndex - 1, ...newPoints);
+}
+
+function removeContiguousProfiles(
+  profilesStartingPosition: number[],
+  profiles: Map<number, number[]>,
+  leftIndex: number,
+  rightIndex: number
+) {
+  for (
+    let i = rightIndex === profilesStartingPosition.length - 1 ? rightIndex : rightIndex + 1;
+    i > (leftIndex - 1 === -1 ? 0 : leftIndex - 1);
+    i--
+  ) {
+    if (
+      deepEqualsArray(
+        profiles.get(profilesStartingPosition[i])!,
+        profiles.get(profilesStartingPosition[i - 1])!
+      )
+    ) {
+      profiles.delete(profilesStartingPosition[i]);
+      profilesStartingPosition.splice(i, 1);
+    }
+  }
 }
 
 function constructZonesFromProfiles(
