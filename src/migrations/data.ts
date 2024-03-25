@@ -26,7 +26,7 @@ import { normalizeV9 } from "./legacy_tools";
  * a breaking change is made in the way the state is handled, and an upgrade
  * function should be defined
  */
-export const CURRENT_VERSION = 15;
+export const CURRENT_VERSION = 16;
 const INITIAL_SHEET_ID = "Sheet1";
 
 /**
@@ -368,6 +368,20 @@ const MIGRATIONS: Migration[] = [
       return data;
     },
   },
+  {
+    description: "Add pivots",
+    from: 15,
+    to: 16,
+    applyMigration(data: any): any {
+      if (!data.pivots) {
+        data.pivots = {};
+      }
+      if (!data.pivotNextId) {
+        data.pivotNextId = 1;
+      }
+      return data;
+    },
+  },
 ];
 
 /**
@@ -594,6 +608,8 @@ export function createEmptyWorkbookData(sheetName = "Sheet1"): WorkbookData {
     revisionId: DEFAULT_REVISION_ID,
     uniqueFigureIds: true,
     settings: { locale: DEFAULT_LOCALE },
+    pivots: {},
+    pivotNextId: 1,
   };
   return data;
 }

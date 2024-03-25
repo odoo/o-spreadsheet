@@ -37,6 +37,13 @@ import { Checkbox } from "./components/side_panel/components/checkbox/checkbox";
 import { RoundColorPicker } from "./components/side_panel/components/round_color_picker/round_color_picker";
 import { Section } from "./components/side_panel/components/section/section";
 import { FindAndReplaceStore } from "./components/side_panel/find_and_replace/find_and_replace_store";
+import { AllPivotsSidePanel } from "./components/side_panel/pivot/all_pivots_side_panel";
+import { EditableName } from "./components/side_panel/pivot/editable_name/editable_name";
+import { AddDimensionButton } from "./components/side_panel/pivot/pivot_dimensions/add_dimension_button/add_dimension_button";
+import { PivotDimension } from "./components/side_panel/pivot/pivot_dimensions/pivot_dimension/pivot_dimension";
+import { PivotDimensionGranularity } from "./components/side_panel/pivot/pivot_dimensions/pivot_dimension_granularity/pivot_dimension_granularity";
+import { PivotDimensionOrder } from "./components/side_panel/pivot/pivot_dimensions/pivot_dimension_order/pivot_dimension_order";
+import { PivotDimensions } from "./components/side_panel/pivot/pivot_dimensions/pivot_dimensions";
 import { SidePanelStore } from "./components/side_panel/side_panel/side_panel_store";
 import { ValidationMessages } from "./components/validation_messages/validation_messages";
 import {
@@ -48,9 +55,11 @@ import {
   HIGHLIGHT_COLOR,
   MIN_COL_WIDTH,
   MIN_ROW_HEIGHT,
+  PIVOT_TABLE_CONFIG,
   SCROLLBAR_WIDTH,
   TOPBAR_HEIGHT,
 } from "./constants";
+import { getFunctionsFromTokens } from "./formulas";
 import { isEvaluationError, toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
 import { FunctionRegistry, arg, functionRegistry } from "./functions/index";
 import {
@@ -74,6 +83,7 @@ import {
   lazy,
   lettersToNumber,
   markdownLink,
+  mergeContiguousZones,
   numberToLetters,
   overlap,
   parseMarkdownLink,
@@ -89,6 +99,20 @@ import {
 } from "./helpers/index";
 import { openLink, urlRegistry, urlRepresentation } from "./helpers/links";
 import {
+  getFirstPivotFunction,
+  getMaxObjectId,
+  getNumberOfPivotFunctions,
+  insertTokenAfterArgSeparator,
+  insertTokenAfterLeftParenthesis,
+  isDateField,
+  makeFieldProposal,
+  makePivotFormula,
+  parseDimension,
+} from "./helpers/pivot/pivot_helpers";
+import { getPivotHighlights } from "./helpers/pivot/pivot_highlight";
+import { pivotRegistry } from "./helpers/pivot/pivot_registry";
+import { pivotTimeAdapter, pivotTimeAdapterRegistry } from "./helpers/pivot/pivot_time_adapter";
+import {
   createEmptyExcelSheet,
   createEmptySheet,
   createEmptyWorkbookData,
@@ -99,6 +123,7 @@ import {
   featurePluginRegistry,
   statefulUIPluginRegistry,
 } from "./plugins/index";
+import { UNDO_REDO_PIVOT_COMMANDS } from "./plugins/ui_core_views/pivot_ui";
 import { clickableCellRegistry } from "./registries/cell_clickable_registry";
 import {
   autoCompleteProviders,
@@ -130,6 +155,7 @@ import { SpreadsheetStore } from "./stores";
 import { HighlightStore } from "./stores/highlight_store";
 import { ModelStore } from "./stores/model_store";
 import { NotificationStore } from "./stores/notification_store";
+import { PivotSidePanelStore } from "./stores/pivot_side_panel_store";
 import { RendererStore } from "./stores/renderer_store";
 import { AddFunctionDescription, isMatrix } from "./types";
 import { errorTypes } from "./types/errors";
@@ -227,6 +253,8 @@ export const registries = {
   repeatLocalCommandTransformRegistry,
   repeatCommandTransformRegistry,
   clipboardHandlersRegistries,
+  pivotRegistry,
+  pivotTimeAdapterRegistry,
 };
 export const helpers = {
   arg,
@@ -270,6 +298,20 @@ export const helpers = {
   expandZoneOnInsertion,
   reduceZoneOnDeletion,
   unquote,
+  makePivotFormula,
+  getMaxObjectId,
+  getFunctionsFromTokens,
+  getFirstPivotFunction,
+  getNumberOfPivotFunctions,
+  parseDimension,
+  isDateField,
+  makeFieldProposal,
+  insertTokenAfterArgSeparator,
+  insertTokenAfterLeftParenthesis,
+  mergeContiguousZones,
+  getPivotHighlights,
+  pivotTimeAdapter,
+  UNDO_REDO_PIVOT_COMMANDS,
 };
 
 export const links = {
@@ -307,6 +349,13 @@ export const components = {
   Popover,
   SelectionInput,
   ValidationMessages,
+  AddDimensionButton,
+  PivotDimensionGranularity,
+  PivotDimensionOrder,
+  PivotDimension,
+  PivotDimensions,
+  EditableName,
+  AllPivotsSidePanel,
 };
 
 export const hooks = {
@@ -332,6 +381,7 @@ export const stores = {
   useStore,
   useLocalStore,
   SidePanelStore,
+  PivotSidePanelStore,
 };
 
 export type { StoreConstructor, StoreParams } from "./store_engine";
@@ -347,7 +397,11 @@ export function addFunction(functionName: string, functionDescription: AddFuncti
 export const constants = {
   DEFAULT_LOCALE,
   HIGHLIGHT_COLOR,
+  PIVOT_TABLE_CONFIG,
 };
+
+export { PivotRuntimeDefinition } from "./helpers/pivot/pivot_runtime_definition";
+export { SpreadsheetPivotTable } from "./helpers/pivot/spreadsheet_pivot_table";
 
 export type { EnrichedToken } from "./formulas/composer_tokenizer";
 export type { AST, ASTFuncall } from "./formulas/parser";

@@ -1,0 +1,87 @@
+<templates>
+  <t t-name="o-spreadsheet-PivotDimensions">
+    <div class="o_side_panel_section pivot-dimensions" t-ref="pivot-dimensions">
+      <div class="fw-bold py-1 d-flex flex-row justify-content-between align-items-center">
+        Columns
+        <AddDimensionButton
+          onFieldPicked.bind="addColumnDimension"
+          fields="props.unusedGroupableFields"
+        />
+      </div>
+      <t t-foreach="props.definition.columns" t-as="col" t-key="col.nameWithGranularity">
+        <div
+          t-on-pointerdown="(ev) => this.startDragAndDrop(col, ev)"
+          t-att-style="dragAndDrop.itemsStyle[col.nameWithGranularity]"
+          class="pt-1">
+          <PivotDimension dimension="col" onRemoved.bind="removeDimension">
+            <PivotDimensionGranularity
+              t-if="isDateField(col)"
+              dimension="col"
+              onUpdated.bind="this.updateGranularity"
+              availableGranularities="props.unusedDateTimeGranularities[col.name]"
+            />
+            <PivotDimensionOrder dimension="col" onUpdated.bind="this.updateOrder"/>
+          </PivotDimension>
+        </div>
+      </t>
+      <div
+        class="fw-bold pt-4 pb-1 d-flex flex-row justify-content-between align-items-center"
+        t-att-style="dragAndDrop.itemsStyle['__rows_title__']">
+        Rows
+        <AddDimensionButton
+          onFieldPicked.bind="addRowDimension"
+          fields="props.unusedGroupableFields"
+        />
+      </div>
+      <t t-foreach="props.definition.rows" t-as="row" t-key="row.nameWithGranularity">
+        <div
+          t-on-pointerdown="(ev) => this.startDragAndDrop(row, ev)"
+          t-att-style="dragAndDrop.itemsStyle[row.nameWithGranularity]"
+          class="pt-1">
+          <PivotDimension dimension="row" onRemoved.bind="removeDimension">
+            <PivotDimensionGranularity
+              t-if="isDateField(row)"
+              dimension="row"
+              onUpdated.bind="this.updateGranularity"
+              availableGranularities="props.unusedDateTimeGranularities[row.name]"
+            />
+            <PivotDimensionOrder dimension="row" onUpdated.bind="this.updateOrder"/>
+          </PivotDimension>
+        </div>
+      </t>
+      <div class="fw-bold pt-4 pb-1 d-flex flex-row justify-content-between align-items-center">
+        Measures
+        <AddDimensionButton
+          onFieldPicked.bind="addMeasureDimension"
+          fields="props.unusedMeasureFields"
+        />
+      </div>
+      <t t-foreach="props.definition.measures" t-as="measure" t-key="measure.nameWithAggregator">
+        <div
+          t-on-pointerdown="(ev) => this.startDragAndDropMeasures(measure, ev)"
+          t-att-style="dragAndDrop.itemsStyle[measure.name]"
+          class="pt-1 pivot-measure">
+          <PivotDimension dimension="measure" onRemoved.bind="removeMeasureDimension">
+            <div class="d-flex flex-row small">
+              <div class="d-flex flex-row py-1 px-2 w-100">
+                <div class="flex-basis-50">Aggregated by</div>
+                <select
+                  class="o_input flex-basis-50"
+                  t-on-change="(ev) => this.updateAggregator(measure, ev.target.value)">
+                  <option
+                    t-foreach="Object.keys(AGGREGATORS[measure.type])"
+                    t-as="agg"
+                    t-key="agg"
+                    t-att-value="agg"
+                    t-att-selected="agg === measure.aggregator"
+                    t-esc="AGGREGATORS[measure.type][agg]"
+                  />
+                </select>
+              </div>
+            </div>
+          </PivotDimension>
+        </div>
+      </t>
+    </div>
+  </t>
+</templates>

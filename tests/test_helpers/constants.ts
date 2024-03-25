@@ -1,5 +1,7 @@
+import { SpreadsheetPivotTable } from "../../src";
 import { BACKGROUND_CHART_COLOR, DEFAULT_BORDER_DESC } from "../../src/constants";
 import { CoreCommand, CoreCommandTypes, DEFAULT_LOCALE, Locale, TableStyle } from "../../src/types";
+import { PivotCoreDefinition } from "../../src/types/pivot";
 import { target, toRangesData } from "./helpers";
 
 export const TEST_CHART_DATA = {
@@ -54,6 +56,14 @@ export const TEST_CHART_DATA = {
       },
     },
   },
+};
+
+const PIVOT: PivotCoreDefinition = {
+  columns: [],
+  rows: [],
+  measures: [],
+  name: "pivot",
+  type: "SPREADSHEET",
 };
 
 type CommandMapping = {
@@ -376,6 +386,38 @@ export const TEST_COMMANDS: CommandMapping = {
     type: "REMOVE_DATA_VALIDATION_RULE",
     sheetId: "sheetId",
     id: "dvId",
+  },
+  ADD_PIVOT: {
+    type: "ADD_PIVOT",
+    pivotId: "1",
+    pivot: PIVOT,
+  },
+  INSERT_PIVOT: {
+    type: "INSERT_PIVOT",
+    pivotId: "1",
+    sheetId: "sheetId",
+    col: 0,
+    row: 0,
+    table: new SpreadsheetPivotTable([[]], [], []).export(),
+  },
+  REMOVE_PIVOT: {
+    type: "REMOVE_PIVOT",
+    pivotId: "1",
+  },
+  UPDATE_PIVOT: {
+    type: "UPDATE_PIVOT",
+    pivotId: "1",
+    pivot: PIVOT,
+  },
+  DUPLICATE_PIVOT: {
+    type: "DUPLICATE_PIVOT",
+    pivotId: "1",
+    newPivotId: "2",
+  },
+  RENAME_PIVOT: {
+    type: "RENAME_PIVOT",
+    pivotId: "1",
+    name: "newName",
   },
 };
 

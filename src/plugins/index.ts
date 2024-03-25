@@ -14,6 +14,7 @@ import {
   TablePlugin,
 } from "./core";
 import { HeaderGroupingPlugin } from "./core/header_grouping";
+import { PivotCorePlugin } from "./core/pivot";
 import { SettingsPlugin } from "./core/settings";
 import { CorePluginConstructor } from "./core_plugin";
 import {
@@ -25,6 +26,7 @@ import {
 } from "./ui_core_views";
 import { DynamicTablesPlugin } from "./ui_core_views/dynamic_tables";
 import { HeaderSizeUIPlugin } from "./ui_core_views/header_sizes_ui";
+import { PivotUIPlugin } from "./ui_core_views/pivot_ui";
 import {
   AutofillPlugin,
   AutomaticSumPlugin,
@@ -66,7 +68,8 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("conditional formatting", ConditionalFormatPlugin)
   .add("figures", FigurePlugin)
   .add("chart", ChartPlugin)
-  .add("image", ImagePlugin);
+  .add("image", ImagePlugin)
+  .add("pivot_core", PivotCorePlugin);
 
 // Plugins which handle a specific feature, without handling any core commands
 export const featurePluginRegistry = new Registry<UIPluginConstructor>()
@@ -103,4 +106,5 @@ export const coreViewsPluginRegistry = new Registry<UIPluginConstructor>()
   .add("row_size", HeaderSizeUIPlugin)
   .add("data_validation_ui", EvaluationDataValidationPlugin)
   .add("dynamic_tables", DynamicTablesPlugin)
-  .add("custom_colors", CustomColorsPlugin);
+  .add("custom_colors", CustomColorsPlugin)
+  .add("pivot_ui", PivotUIPlugin);

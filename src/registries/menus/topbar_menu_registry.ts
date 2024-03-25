@@ -4,6 +4,8 @@ import * as ACTION_FORMAT from "../../actions/format_actions";
 import * as ACTION_INSERT from "../../actions/insert_actions";
 import * as ACTIONS from "../../actions/menu_items_actions";
 import * as ACTION_VIEW from "../../actions/view_actions";
+import { getPivotHighlights } from "../../helpers/pivot/pivot_highlight";
+import { HighlightStore } from "../../stores/highlight_store";
 import { _t } from "../../translation";
 import { MenuItemRegistry } from "../menu_items_registry";
 import { formatNumberMenuItemSpec } from "./number_format_menu_registry";
@@ -454,4 +456,28 @@ topbarMenuRegistry
     ...ACTION_DATA.createRemoveFilter,
     sequence: 40,
     separator: true,
+  })
+  .addChild("data_sources_data", ["data"], (env) => {
+    const sequence = 50;
+    return env.model.getters.getPivotIds().map((pivotId, index) => {
+      const highlightProvider = {
+        get highlights() {
+          return getPivotHighlights(env.model.getters, pivotId);
+        },
+      };
+      return {
+        id: `item_pivot_${env.model.getters.getPivotFormulaId(pivotId)}`,
+        name: env.model.getters.getPivotDisplayName(pivotId),
+        sequence: sequence + index,
+        execute: (env) => env.openSidePanel("PIVOT_PROPERTIES_PANEL", { pivotId }),
+        onStartHover: (env) => env.getStore(HighlightStore).register(highlightProvider),
+        onStopHover: (env) => env.getStore(HighlightStore).unRegister(highlightProvider),
+        icon: "o-spreadsheet-Icon.PIVOT",
+        separator: index === env.model.getters.getPivotIds().length - 1,
+        secondaryIcon: (env) =>
+          env.model.getters.isPivotUnused(pivotId)
+            ? "o-spreadsheet-Icon.UNUSED_PIVOT_WARNING"
+            : undefined,
+      };
+    });
   });

@@ -4,6 +4,8 @@ exports[`Model export formula with unbound zone stays unbound 1`] = `
 {
   "borders": {},
   "formats": {},
+  "pivotNextId": 1,
+  "pivots": {},
   "revisionId": "START_REVISION",
   "settings": {
     "locale": {
@@ -51,6 +53,6 @@ exports[`Model export formula with unbound zone stays unbound 1`] = `
   ],
   "styles": {},
   "uniqueFigureIds": true,
-  "version": 15,
+  "version": 16,
 }
 `;

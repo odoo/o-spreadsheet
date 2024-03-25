@@ -956,4 +956,17 @@ https://fontawesome.com/license -->
       />
     </svg>
   </t>
+  <t t-name="o-spreadsheet-Icon.PIVOT">
+    <svg class="o-icon" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+      <path
+        fill="currentColor"
+        d="M17 2v14H1V6h4V2h12m-1 1H6v3h10M2 7v2h3V7m-3 3v2h3v-2m-3 3v2h3v-2m1-6v2h6V7m-6 3v2h6v-2m-6 3v2h6v-2m1-6v2h3V7m-3 3v2h3v-2m-3 3v2h3v-2"
+      />
+    </svg>
+  </t>
+  <t t-name="o-spreadsheet-Icon.UNUSED_PIVOT_WARNING">
+    <div class="o-unused-pivot-icon text-warning" title="This pivot is not used">
+      <t t-call="o-spreadsheet-Icon.TRIANGLE_EXCLAMATION"/>
+    </div>
+  </t>
 </templates>

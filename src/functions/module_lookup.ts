@@ -1,8 +1,14 @@
-import { getFullReference, toXC, toZone } from "../helpers/index";
+import { getFullReference, range, toXC, toZone } from "../helpers/index";
 import { _t } from "../translation";
 import { AddFunctionDescription, CellPosition, CellValue, FPayload, Matrix, Maybe } from "../types";
 import { CellErrorType, EvaluationError, InvalidReferenceError } from "../types/errors";
 import { arg } from "./arguments";
+import {
+  assertDomainLength,
+  assertMeasureExist,
+  getPivotCellValueAndFormat,
+  getPivotId,
+} from "./helper_lookup";
 import {
   LinearSearchMode,
   assert,
@@ -684,4 +690,146 @@ export const XLOOKUP = {
     return [[defaultValue]];
   },
   isExported: true,
+} satisfies AddFunctionDescription;
+
+//--------------------------------------------------------------------------
+// Pivot functions
+//--------------------------------------------------------------------------
+
+export const PIVOT_VALUE = {
+  description: _t("Get the value from a pivot."),
+  args: [
+    arg("pivot_id (string)", _t("ID of the pivot.")),
+    arg("measure_name (string)", _t("Name of the measure.")),
+    arg("domain_field_name (string,optional,repeating)", _t("Field name.")),
+    arg("domain_value (string,optional,repeating)", _t("Value.")),
+  ],
+  compute: function (
+    formulaId: Maybe<FPayload>,
+    measureName: Maybe<FPayload>,
+    ...domain: Maybe<FPayload>[]
+  ) {
+    const _pivotFormulaId = toString(formulaId);
+    const measure = toString(measureName);
+    const domainArgs = domain.map(toString);
+    const pivotId = getPivotId(_pivotFormulaId, this.getters);
+    assertMeasureExist(pivotId, measure, this.getters);
+    assertDomainLength(domainArgs);
+    const pivot = this.getters.getPivot(pivotId);
+    const error = pivot.assertIsValid({ throwOnError: false });
+    if (error) {
+      return error;
+    }
+    const value = pivot.getPivotCellValue(measure, domainArgs);
+    if (!value && !this.getters.areDomainArgsFieldsValid(pivotId, domainArgs)) {
+      return {
+        value: CellErrorType.GenericError,
+        message: _t("Dimensions don't match the pivot definition"),
+      };
+    }
+    if (measure === "__count") {
+      return { value, format: "0" };
+    }
+    const format = pivot.getPivotMeasureFormat(measure);
+    return { value, format };
+  },
+  returns: ["NUMBER", "STRING"],
+} satisfies AddFunctionDescription;
+
+export const PIVOT_HEADER = {
+  description: _t("Get the header of a pivot."),
+  args: [
+    arg("pivot_id (string)", _t("ID of the pivot.")),
+    arg("domain_field_name (string,optional,repeating)", _t("Field name.")),
+    arg("domain_value (string,optional,repeating)", _t("Value.")),
+  ],
+  compute: function (pivotId: Maybe<FPayload>, ...domain: Maybe<FPayload>[]) {
+    const _pivotFormulaId = toString(pivotId);
+    const domainArgs = domain.map(toString);
+    const _pivotId = getPivotId(_pivotFormulaId, this.getters);
+    assertDomainLength(domainArgs);
+    const pivot = this.getters.getPivot(_pivotId);
+    const error = pivot.assertIsValid({ throwOnError: false });
+    if (error) {
+      return error;
+    }
+    const fieldName = domainArgs.at(-2);
+    const valueArg = domainArgs.at(-1);
+    const format =
+      !fieldName || fieldName === "measure" || valueArg === "false"
+        ? undefined
+        : pivot.getPivotFieldFormat(fieldName);
+    if (
+      !this.getters.areDomainArgsFieldsValid(
+        _pivotId,
+        fieldName === "measure" ? domainArgs.slice(0, -2) : domainArgs
+      )
+    ) {
+      return {
+        value: CellErrorType.GenericError,
+        message: _t("Dimensions don't match the pivot definition"),
+      };
+    }
+    return {
+      value: pivot.computePivotHeaderValue(domainArgs),
+      format,
+    };
+  },
+  returns: ["NUMBER", "STRING"],
+} satisfies AddFunctionDescription;
+
+export const PIVOT = {
+  description: _t("Get a pivot table."),
+  args: [
+    arg("pivot_id (string)", _t("ID of the pivot.")),
+    arg("row_count (number, optional, default=10000)", _t("number of rows")),
+    arg("include_total (boolean, default=TRUE)", _t("Whether to include total/sub-totals or not.")),
+    arg(
+      "include_column_titles (boolean, default=TRUE)",
+      _t("Whether to include the column titles or not.")
+    ),
+  ],
+  compute: function (
+    pivotId: Maybe<FPayload>,
+    rowCount: Maybe<FPayload> = { value: 10000 },
+    includeTotal: Maybe<FPayload> = { value: true },
+    includeColumnHeaders: Maybe<FPayload> = { value: true }
+  ) {
+    const _pivotFormulaId = toString(pivotId);
+    const _pivotId = getPivotId(_pivotFormulaId, this.getters);
+    const pivot = this.getters.getPivot(_pivotId);
+    const error = pivot.assertIsValid({ throwOnError: false });
+    if (error) {
+      return error;
+    }
+    const table = pivot.getTableStructure();
+    const _includeColumnHeaders = toBoolean(includeColumnHeaders);
+    const cells = table.getPivotCells(toBoolean(includeTotal), _includeColumnHeaders);
+    const headerRows = _includeColumnHeaders ? table.columns.length : 0;
+    const pivotTitle = this.getters.getPivotDisplayName(_pivotId);
+    const _rowCount = toNumber(rowCount, this.locale);
+    if (_rowCount < 0) {
+      throw new EvaluationError(_t("The number of rows must be positive."));
+    }
+    const end = Math.min(headerRows + _rowCount, cells[0].length);
+    if (end === 0) {
+      return [[{ value: pivotTitle }]];
+    }
+    const tableWidth = cells.length;
+    const tableRows = range(0, end);
+    const result: Matrix<FPayload> = [];
+    for (const col of range(0, tableWidth)) {
+      result[col] = [];
+      for (const row of tableRows) {
+        const pivotCell = cells[col][row];
+        const fn = pivotCell.isHeader ? PIVOT_HEADER : PIVOT_VALUE;
+        result[col].push(getPivotCellValueAndFormat.call(this, _pivotFormulaId, pivotCell, fn));
+      }
+    }
+    if (_includeColumnHeaders) {
+      result[0][0] = { value: pivotTitle };
+    }
+    return result;
+  },
+  returns: ["RANGE<ANY>"],
 } satisfies AddFunctionDescription;
