@@ -25,7 +25,7 @@
               t-att-class="{'disabled': !isMenuEnabled, 'o-menu-item-active': isActive(menuItem)}"
               t-att-style="getColor(menuItem)">
               <div class="d-flex w-100">
-                <div t-if="childrenHaveIcon" class="o-menu-item-icon align-middle">
+                <div t-if="childrenHaveIcon" class="o-menu-item-icon align-middle flex-shrink-0">
                   <t t-if="getIconName(menuItem)" t-call="{{getIconName(menuItem)}}"/>
                 </div>
                 <div class="o-menu-item-name align-middle text-truncate" t-esc="getName(menuItem)"/>
