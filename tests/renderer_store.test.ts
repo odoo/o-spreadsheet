@@ -1487,6 +1487,7 @@ describe("renderer", () => {
               C1: { content: "=A0" },
               D1: { content: "=(+" },
               E1: { content: "=5/0" },
+              F1: { content: "=SQRT(-1)" },
             },
             conditionalFormats: [],
           },
@@ -1522,10 +1523,14 @@ describe("renderer", () => {
     expect(boxD1.isError).toBeTruthy();
     expect(filled[2][0]).toBe(boxD1.x + boxD1.width - 5);
     expect(filled[2][1]).toBe(boxD1.y);
-    const boxE1 = getBoxFromText(gridRendererStore, "#ERROR"); // GeneralError => Should display
+    const boxE1 = getBoxFromText(gridRendererStore, "#DIV/0!"); // DivisionByZero => Should display
     expect(boxE1.isError).toBeTruthy();
     expect(filled[3][0]).toBe(boxE1.x + boxE1.width - 5);
     expect(filled[3][1]).toBe(boxE1.y);
+    const boxF1 = getBoxFromText(gridRendererStore, "#ERROR"); // GeneralError => Should display
+    expect(boxF1.isError).toBeTruthy();
+    expect(filled[4][0]).toBe(boxF1.x + boxF1.width - 5);
+    expect(filled[4][1]).toBe(boxF1.y);
   });
 
   test("Do not draw gridLines over colored cells in dashboard mode", () => {

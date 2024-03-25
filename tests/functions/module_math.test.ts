@@ -178,7 +178,7 @@ describe("ATAN2 formula", () => {
   });
 
   test.each([["0", "0"]])("take 2 parameter, return an error", (a, b) => {
-    expect(evaluateCell("A1", { A1: "=ATAN2(A2, A3)", A2: a, A3: b })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: "=ATAN2(A2, A3)", A2: a, A3: b })).toBe("#DIV/0!");
   });
 });
 
@@ -452,7 +452,7 @@ describe("COT formula", () => {
   });
 
   test.each([["0"]])("take 1 parameter, return an error", (a) => {
-    expect(evaluateCell("A1", { A1: "=COT(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!!
+    expect(evaluateCell("A1", { A1: "=COT(A2)", A2: a })).toBe("#DIV/0!");
   });
 });
 
@@ -468,7 +468,7 @@ describe("COTH formula", () => {
   });
 
   test.each([["0"]])("take 1 parameter(s), return an error", (a) => {
-    expect(evaluateCell("A1", { A1: "=COTH(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!!
+    expect(evaluateCell("A1", { A1: "=COTH(A2)", A2: a })).toBe("#DIV/0!");
   });
 });
 
@@ -1114,7 +1114,7 @@ describe("CSC formula", () => {
   });
 
   test.each([["0"]])("take 1 parameter(s), return an error", (a) => {
-    expect(evaluateCell("A1", { A1: "=CSC(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: "=CSC(A2)", A2: a })).toBe("#DIV/0!");
   });
 });
 
@@ -1129,7 +1129,7 @@ describe("CSCH formula", () => {
   });
 
   test.each([["0"]])("take 1 parameter, return an error", (a) => {
-    expect(evaluateCell("A1", { A1: "=CSCH(A2)", A2: a })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: "=CSCH(A2)", A2: a })).toBe("#DIV/0!");
   });
 });
 
@@ -1639,36 +1639,36 @@ describe("MOD formula", () => {
     ["0", "0"],
     ["2.2", "0"],
   ])("take 2 parameters, return error on parameter 2", (a, b) => {
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: a, A3: b })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
+    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: a, A3: b })).toBe("#DIV/0!");
   });
 
   test("special value testing", () => {
     expect(evaluateCell("A1", { A1: "=MOD()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=MOD( , )" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: "=MOD( , )" })).toBe("#DIV/0!");
     expect(evaluateCell("A1", { A1: "=MOD(42, 12)" })).toBe(6);
     expect(evaluateCell("A1", { A1: "=MOD( , 12)" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=MOD(42, )" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: "=MOD(42, )" })).toBe("#DIV/0!");
     expect(evaluateCell("A1", { A1: "=MOD(42.42, TRUE)" })).toBeCloseTo(0.42, 9);
-    expect(evaluateCell("A1", { A1: "=MOD(42, FALSE)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: "=MOD(42, FALSE)" })).toBe("#DIV/0!");
     expect(evaluateCell("A1", { A1: "=MOD(TRUE, 10)" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=MOD(FALSE, 10)" })).toBe(0);
 
-    expect(evaluateCell("A1", { A1: '=MOD("" , "")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: '=MOD("" , "")' })).toBe("#DIV/0!");
     expect(evaluateCell("A1", { A1: '=MOD("" , 12)' })).toBe(0);
     expect(evaluateCell("A1", { A1: '=MOD(" " , 12)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #VALUE!
     expect(evaluateCell("A1", { A1: '=MOD("42", 12)' })).toBe(6);
     expect(evaluateCell("A1", { A1: '=MOD("42", "12")' })).toBe(6);
-    expect(evaluateCell("A1", { A1: '=MOD("42", "")' })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: '=MOD("42", "")' })).toBe("#DIV/0!");
 
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "", A3: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "", A3: "" })).toBe("#DIV/0!");
     expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "42", A3: "12" })).toBe(6);
     expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "", A3: "12" })).toBe(0);
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "42", A3: "" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "42", A3: "" })).toBe("#DIV/0!");
     expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "42.42", A3: "TRUE" })).toBeCloseTo(
       0.42,
       9
     );
-    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "42.42", A3: "FALSE" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "42.42", A3: "FALSE" })).toBe("#DIV/0!");
     expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "TRUE", A3: "10" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=MOD(A2, A3)", A2: "FALSE", A3: "10" })).toBe(0);
 

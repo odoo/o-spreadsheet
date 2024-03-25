@@ -256,7 +256,7 @@ describe("LOOKUP formula", () => {
       A2: "42",
       B2: "2",
     };
-    expect(evaluateCell("A3", { A3: "=LOOKUP(A1, A1:B2)", ...grid })).toBe("#ERROR");
+    expect(evaluateCell("A3", { A3: "=LOOKUP(A1, A1:B2)", ...grid })).toBe("#DIV/0!");
   });
 });
 

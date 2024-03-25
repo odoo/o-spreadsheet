@@ -8,6 +8,7 @@ import {
   Maybe,
   isMatrix,
 } from "../types";
+import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
 import { assertPositive } from "./helper_assert";
 import { sum } from "./helper_math";
@@ -215,7 +216,8 @@ export const ATAN2 = {
     const _y = toNumber(y, this.locale);
     assert(
       () => _x !== 0 || _y !== 0,
-      _t("Function [[FUNCTION_NAME]] caused a divide by zero error.")
+      _t("Function [[FUNCTION_NAME]] caused a divide by zero error."),
+      CellErrorType.DivisionByZero
     );
     return Math.atan2(_y, _x);
   },
@@ -886,7 +888,11 @@ export const LN = {
 // MOD
 // -----------------------------------------------------------------------------
 function mod(dividend: number, divisor: number): number {
-  assert(() => divisor !== 0, _t("The divisor must be different from 0."));
+  assert(
+    () => divisor !== 0,
+    _t("The divisor must be different from 0."),
+    CellErrorType.DivisionByZero
+  );
   const modulus = dividend % divisor;
   // -42 % 10 = -2 but we want 8, so need the code below
   if ((modulus > 0 && divisor < 0) || (modulus < 0 && divisor > 0)) {

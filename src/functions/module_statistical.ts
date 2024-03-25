@@ -11,7 +11,7 @@ import {
   Maybe,
   isMatrix,
 } from "../types";
-import { EvaluationError, NotAvailableError } from "../types/errors";
+import { CellErrorType, EvaluationError, NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import { assertSameDimensions } from "./helper_assert";
 import { invertMatrix, multiplyMatrices } from "./helper_matrices";
@@ -81,7 +81,8 @@ function covariance(dataY: Arg, dataX: Arg, isSample: boolean): number {
 
   assert(
     () => count !== 0 && (!isSample || count !== 1),
-    _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
+    _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error."),
+    CellErrorType.DivisionByZero
   );
 
   let sumY = 0;
@@ -119,7 +120,8 @@ function variance(args: Arg[], isSample: boolean, textAs0: boolean, locale: Loca
 
   assert(
     () => count !== 0 && (!isSample || count !== 1),
-    _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
+    _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error."),
+    CellErrorType.DivisionByZero
   );
 
   const average = sum / count;

@@ -6,6 +6,7 @@ export const CellErrorType = {
   BadExpression: "#BAD_EXPR",
   CircularDependency: "#CYCLE",
   UnknownFunction: "#NAME?",
+  DivisionByZero: "#DIV/0!",
   GenericError: "#ERROR",
 } as const;
 
