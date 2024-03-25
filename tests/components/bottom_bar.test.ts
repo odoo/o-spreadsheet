@@ -258,7 +258,7 @@ describe("BottomBar component", () => {
       expect(sheetName.getAttribute("contenteditable")).toEqual("false");
       triggerMouseEvent(sheetName, "dblclick");
       await nextTick();
-      expect(sheetName.getAttribute("contenteditable")).toEqual("plaintext-only");
+      expect(sheetName.getAttribute("contenteditable")).toEqual("true");
       expect(document.activeElement).toEqual(sheetName);
     });
 
@@ -277,7 +277,7 @@ describe("BottomBar component", () => {
       await nextTick();
       await click(fixture, ".o-menu-item[data-name='rename'");
       const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
-      expect(sheetName.getAttribute("contenteditable")).toEqual("plaintext-only");
+      expect(sheetName.getAttribute("contenteditable")).toEqual("true");
       expect(document.activeElement).toEqual(sheetName);
     });
 
@@ -336,6 +336,22 @@ describe("BottomBar component", () => {
       expect(raiseError).toHaveBeenCalled();
       expect(window.getSelection()?.toString()).toEqual("ThisIsASheet");
       expect(document.activeElement).toEqual(sheetName);
+    });
+
+    test("Pasting styled content in sheet name and renaming sheet does not throw a trackback", async () => {
+      const HTML = `<span style="color: rgb(242, 44, 61); background-color: rgb(0, 0, 0);">HELLO</span>`;
+
+      const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
+      triggerMouseEvent(sheetName, "dblclick");
+      await nextTick();
+
+      sheetName.innerHTML = HTML;
+      await keyDown({ key: "Enter" });
+
+      expect(sheetName.getAttribute("contenteditable")).toEqual("false");
+      await nextTick();
+
+      expect(sheetName.innerText).toEqual("HELLO");
     });
   });
 
