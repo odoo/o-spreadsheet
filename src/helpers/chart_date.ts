@@ -1,6 +1,6 @@
 import type { TimeScaleOptions } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
-import { parseDateTime } from ".";
+import { largeMax, largeMin, parseDateTime } from ".";
 import { Alias, Format, Locale } from "../types";
 
 // -----------------------------------------------------------------------------
@@ -126,7 +126,7 @@ function getBestTimeUnitForScale(
     return undefined;
   }
   const labelsTimestamps = labelDates.map((date) => date!.getTime());
-  const period = Math.max(...labelsTimestamps) - Math.min(...labelsTimestamps);
+  const period = largeMax(labelsTimestamps) - largeMin(labelsTimestamps);
 
   const minUnit = getFormatMinDisplayUnit(format);
 

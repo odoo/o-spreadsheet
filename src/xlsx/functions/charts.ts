@@ -1,4 +1,4 @@
-import { range } from "../../helpers";
+import { largeMax, range } from "../../helpers";
 import { ChartColors } from "../../helpers/figures/charts";
 import { Color, ExcelWorkbookData, FigureData } from "../../types";
 import { ExcelChartDefinition } from "../../types/chart/chart";
@@ -396,8 +396,8 @@ function addDoughnutChart(
 ) {
   const colors = new ChartColors();
 
-  const maxLength = Math.max(
-    ...chart.dataSets.map((ds) => getRangeSize(ds.range, chartSheetIndex, data))
+  const maxLength = largeMax(
+    chart.dataSets.map((ds) => getRangeSize(ds.range, chartSheetIndex, data))
   );
   const doughnutColors: string[] = range(0, maxLength).map(() => toXlsxHexColor(colors.next()));
 
