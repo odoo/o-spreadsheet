@@ -4,13 +4,13 @@ import { memoize } from "../helpers/misc";
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _t } from "../translation";
 import { Arg, CellValue, FPayload, Locale, Matrix, Maybe, isMatrix } from "../types";
-import { EvaluationError, errorTypes } from "../types/errors";
+import { CellErrorType, EvaluationError, errorTypes } from "../types/errors";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
 
-export function assert(condition: () => boolean, message: string): void {
+export function assert(condition: () => boolean, message: string, value?: string): void {
   if (!condition()) {
-    throw new EvaluationError(message);
+    throw new EvaluationError(message, value);
   }
 }
 
@@ -134,7 +134,8 @@ export function assertNumberGreaterThanOrEqualToOne(value: number) {
 export function assertNotZero(value: number) {
   assert(
     () => value !== 0,
-    _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
+    _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error."),
+    CellErrorType.DivisionByZero
   );
 }
 

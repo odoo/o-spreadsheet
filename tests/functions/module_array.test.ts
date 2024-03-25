@@ -106,7 +106,7 @@ describe("ARRAY.CONSTRAIN function", () => {
     const model = createModelFromGrid(grid);
     setCellContent(model, "C1", "=ARRAY.CONSTRAIN(A1:B3, 2, 2)");
     expect(getRangeValuesAsMatrix(model, "C1:D2")).toEqual([
-      ["#BAD_EXPR", "#ERROR"],
+      ["#BAD_EXPR", "#DIV/0!"],
       [42, 0],
     ]);
   });
@@ -224,7 +224,7 @@ describe("CHOOSECOLS function", () => {
     const grid = { A1: "=KABOUM", A2: "42", A3: "=1/0" };
     const model = createModelFromGrid(grid);
     setCellContent(model, "B1", "=CHOOSECOLS(A1:A3, 1)");
-    expect(getRangeValuesAsMatrix(model, "B1:B3")).toEqual([["#BAD_EXPR"], [42], ["#ERROR"]]);
+    expect(getRangeValuesAsMatrix(model, "B1:B3")).toEqual([["#BAD_EXPR"], [42], ["#DIV/0!"]]);
   });
 });
 
@@ -341,7 +341,7 @@ describe("CHOOSEROWS function", () => {
     const grid = { A1: "=KABOUM", B1: "42", C1: "=1/0" };
     const model = createModelFromGrid(grid);
     setCellContent(model, "A2", "=CHOOSEROWS(A1:C1, 1)");
-    expect(getRangeValuesAsMatrix(model, "A2:C2")).toEqual([["#BAD_EXPR", 42, "#ERROR"]]);
+    expect(getRangeValuesAsMatrix(model, "A2:C2")).toEqual([["#BAD_EXPR", 42, "#DIV/0!"]]);
   });
 });
 
@@ -459,13 +459,13 @@ describe("EXPAND function", () => {
     const grid = { A1: "=KABOUM", B1: "42", C1: "=1/0" };
     const model = createModelFromGrid(grid);
     setCellContent(model, "A2", "=EXPAND(A1:C1, 1, 4, 24)");
-    expect(getRangeValuesAsMatrix(model, "A2:D2")).toEqual([["#BAD_EXPR", 42, "#ERROR", 24]]);
+    expect(getRangeValuesAsMatrix(model, "A2:D2")).toEqual([["#BAD_EXPR", 42, "#DIV/0!", 24]]);
   });
 
   test("EXPAND accepts error on the last argument", () => {
     const model = createModelFromGrid({ A1: "42" });
     setCellContent(model, "A2", "=EXPAND(A1, 1, 2, 1/0)");
-    expect(getRangeValuesAsMatrix(model, "A2:B2")).toEqual([[42, "#ERROR"]]);
+    expect(getRangeValuesAsMatrix(model, "A2:B2")).toEqual([[42, "#DIV/0!"]]);
   });
 });
 
@@ -550,7 +550,7 @@ describe("FLATTEN function", () => {
     const grid = { A1: "=KABOUM", B1: "42", C1: "=1/0" };
     const model = createModelFromGrid(grid);
     setCellContent(model, "A2", "=FLATTEN(A1, B1:C1)");
-    expect(getRangeValuesAsMatrix(model, "A2:A4")).toEqual([["#BAD_EXPR"], [42], ["#ERROR"]]);
+    expect(getRangeValuesAsMatrix(model, "A2:A4")).toEqual([["#BAD_EXPR"], [42], ["#DIV/0!"]]);
   });
 });
 
@@ -752,7 +752,7 @@ describe("HSTACK function", () => {
     setCellContent(model, "C1", "=HSTACK(A1, B1:B2)");
     expect(getRangeValuesAsMatrix(model, "C1:D2")).toEqual([
       ["#BAD_EXPR", 42],
-      [0, "#ERROR"],
+      [0, "#DIV/0!"],
     ]);
   });
 });
@@ -1391,7 +1391,7 @@ describe("TRANSPOSE function", () => {
     setCellContent(model, "C1", "=TRANSPOSE(A1:B2)");
     expect(getRangeValuesAsMatrix(model, "C1:D2")).toEqual([
       ["#BAD_EXPR", 42],
-      [24, "#ERROR"],
+      [24, "#DIV/0!"],
     ]);
   });
 });
@@ -1470,7 +1470,7 @@ describe("VSTACK function", () => {
     setCellContent(model, "A2", "=VSTACK(A1,B1:C1)");
     expect(getRangeValuesAsMatrix(model, "A2:B3")).toEqual([
       ["#BAD_EXPR", 0],
-      ["#ERROR", 42],
+      ["#DIV/0!", 42],
     ]);
   });
 });
@@ -1571,7 +1571,7 @@ describe("WRAPCOLS function", () => {
     const model = createModelFromGrid(grid);
     setCellContent(model, "A2", "=WRAPCOLS(A1:C1, 2)");
     expect(getRangeValuesAsMatrix(model, "A2:B3")).toEqual([
-      ["#BAD_EXPR", "#ERROR"],
+      ["#BAD_EXPR", "#DIV/0!"],
       [42, 0],
     ]);
   });
@@ -1673,7 +1673,7 @@ describe("WRAPROWS function", () => {
     setCellContent(model, "A2", "=WRAPROWS(A1:C1, 2)");
     expect(getRangeValuesAsMatrix(model, "A2:B3")).toEqual([
       ["#BAD_EXPR", 42],
-      ["#ERROR", 0],
+      ["#DIV/0!", 0],
     ]);
   });
 });
