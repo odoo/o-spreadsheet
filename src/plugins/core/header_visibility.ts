@@ -1,4 +1,11 @@
-import { deepCopy, getAddHeaderStartIndex, includesAll, range } from "../../helpers";
+import {
+  deepCopy,
+  getAddHeaderStartIndex,
+  includesAll,
+  largeMax,
+  largeMin,
+  range,
+} from "../../helpers";
 import { Command, CommandResult, ExcelWorkbookData, WorkbookData } from "../../types";
 import { ConsecutiveIndexes, Dimension, HeaderIndex, UID } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
@@ -31,7 +38,7 @@ export class HeaderVisibilityPlugin extends CorePlugin {
         const hiddenElements = new Set((hiddenGroup || []).flat().concat(cmd.elements));
         if (hiddenElements.size >= elements) {
           return CommandResult.TooManyHiddenElements;
-        } else if (Math.min(...cmd.elements) < 0 || Math.max(...cmd.elements) > elements) {
+        } else if (largeMin(cmd.elements) < 0 || largeMax(cmd.elements) > elements) {
           return CommandResult.InvalidHeaderIndex;
         } else {
           return CommandResult.Success;

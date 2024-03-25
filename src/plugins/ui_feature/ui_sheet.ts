@@ -4,7 +4,7 @@ import {
   NEWLINE,
   PADDING_AUTORESIZE_HORIZONTAL,
 } from "../../constants";
-import { computeIconWidth, computeTextWidth, positions } from "../../helpers/index";
+import { computeIconWidth, computeTextWidth, largeMax, positions } from "../../helpers/index";
 import { Command, CommandResult, LocalCommand, UID } from "../../types";
 import {
   CellPosition,
@@ -236,7 +236,7 @@ export class SheetUIPlugin extends UIPlugin {
   private getColMaxWidth(sheetId: UID, index: HeaderIndex): number {
     const cellsPositions = positions(this.getters.getColsZone(sheetId, index, index));
     const sizes = cellsPositions.map((position) => this.getCellWidth({ sheetId, ...position }));
-    return Math.max(0, ...sizes);
+    return Math.max(0, largeMax(sizes));
   }
 
   private splitWordToSpecificWidth(

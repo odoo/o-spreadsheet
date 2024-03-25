@@ -8,7 +8,7 @@ import {
   toXC,
   UuidGenerator,
 } from "../../helpers/index";
-import { clip, deepEquals } from "../../helpers/misc";
+import { clip, deepEquals, largeMax, largeMin } from "../../helpers/misc";
 import { _lt } from "../../translation";
 import {
   CellIsRule,
@@ -181,13 +181,13 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
       .map((cell) => cell.value);
     switch (threshold.type) {
       case "value":
-        const result = functionName === "max" ? Math.max(...rangeValues) : Math.min(...rangeValues);
+        const result = functionName === "max" ? largeMax(rangeValues) : largeMin(rangeValues);
         return result;
       case "number":
         return Number(threshold.value);
       case "percentage":
-        const min = Math.min(...rangeValues);
-        const max = Math.max(...rangeValues);
+        const min = largeMin(rangeValues);
+        const max = largeMax(rangeValues);
         const delta = max - min;
         return min + (delta * Number(threshold.value)) / 100;
       case "percentile":

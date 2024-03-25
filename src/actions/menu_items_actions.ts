@@ -9,6 +9,8 @@ import {
   getZoneArea,
   isConsecutive,
   isEqual,
+  largeMax,
+  largeMin,
   numberToLetters,
 } from "../helpers/index";
 import { interactiveSortSelection } from "../helpers/sort";
@@ -151,8 +153,8 @@ export const DELETE_CONTENT_ROWS_NAME = (env: SpreadsheetChildEnv) => {
   let last: number;
   const activesRows = env.model.getters.getActiveRows();
   if (activesRows.size !== 0) {
-    first = Math.min(...activesRows);
-    last = Math.max(...activesRows);
+    first = largeMin([...activesRows]);
+    last = largeMax([...activesRows]);
   } else {
     const zone = env.model.getters.getSelectedZones()[0];
     first = zone.top;
@@ -183,8 +185,8 @@ export const DELETE_CONTENT_COLUMNS_NAME = (env: SpreadsheetChildEnv) => {
   let last: number;
   const activeCols = env.model.getters.getActiveCols();
   if (activeCols.size !== 0) {
-    first = Math.min(...activeCols);
-    last = Math.max(...activeCols);
+    first = largeMin([...activeCols]);
+    last = largeMax([...activeCols]);
   } else {
     const zone = env.model.getters.getSelectedZones()[0];
     first = zone.left;
@@ -215,8 +217,8 @@ export const REMOVE_ROWS_NAME = (env: SpreadsheetChildEnv) => {
   let last: number;
   const activesRows = env.model.getters.getActiveRows();
   if (activesRows.size !== 0) {
-    first = Math.min(...activesRows);
-    last = Math.max(...activesRows);
+    first = largeMin([...activesRows]);
+    last = largeMax([...activesRows]);
   } else {
     const zone = env.model.getters.getSelectedZones()[0];
     first = zone.top;
@@ -272,8 +274,8 @@ export const REMOVE_COLUMNS_NAME = (env: SpreadsheetChildEnv) => {
   let last: number;
   const activeCols = env.model.getters.getActiveCols();
   if (activeCols.size !== 0) {
-    first = Math.min(...activeCols);
-    last = Math.max(...activeCols);
+    first = largeMin([...activeCols]);
+    last = largeMax([...activeCols]);
   } else {
     const zone = env.model.getters.getSelectedZones()[0];
     first = zone.left;
@@ -367,7 +369,7 @@ export const INSERT_ROWS_BEFORE_ACTION = (env: SpreadsheetChildEnv) => {
   let row: number;
   let quantity: number;
   if (activeRows.size) {
-    row = Math.min(...activeRows);
+    row = largeMin([...activeRows]);
     quantity = activeRows.size;
   } else {
     const zone = env.model.getters.getSelectedZones()[0];
@@ -401,7 +403,7 @@ export const INSERT_ROWS_AFTER_ACTION = (env: SpreadsheetChildEnv) => {
   let row: number;
   let quantity: number;
   if (activeRows.size) {
-    row = Math.max(...activeRows);
+    row = largeMax([...activeRows]);
     quantity = activeRows.size;
   } else {
     const zone = env.model.getters.getSelectedZones()[0];
@@ -450,7 +452,7 @@ export const INSERT_COLUMNS_BEFORE_ACTION = (env: SpreadsheetChildEnv) => {
   let column: number;
   let quantity: number;
   if (activeCols.size) {
-    column = Math.min(...activeCols);
+    column = largeMin([...activeCols]);
     quantity = activeCols.size;
   } else {
     const zone = env.model.getters.getSelectedZones()[0];
@@ -486,7 +488,7 @@ export const INSERT_COLUMNS_AFTER_ACTION = (env: SpreadsheetChildEnv) => {
   let column: number;
   let quantity: number;
   if (activeCols.size) {
-    column = Math.max(...activeCols);
+    column = largeMax([...activeCols]);
     quantity = activeCols.size;
   } else {
     const zone = env.model.getters.getSelectedZones()[0];
