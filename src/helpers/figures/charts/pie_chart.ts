@@ -32,6 +32,7 @@ import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { formatValue } from "../../format";
+import { largeMax } from "../../misc";
 import { createRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
@@ -238,7 +239,7 @@ function getPieConfiguration(
 
 function getPieColors(colors: ChartColors, dataSetsValues: DatasetValues[]): Color[] {
   const pieColors: Color[] = [];
-  const maxLength = Math.max(...dataSetsValues.map((ds) => ds.data.length));
+  const maxLength = largeMax(dataSetsValues.map((ds) => ds.data.length));
   for (let i = 0; i <= maxLength; i++) {
     pieColors.push(colors.next());
   }

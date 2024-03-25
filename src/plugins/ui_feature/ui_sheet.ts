@@ -3,6 +3,7 @@ import {
   computeIconWidth,
   computeTextWidth,
   isEqual,
+  largeMax,
   positions,
   range,
   splitTextToWidth,
@@ -195,7 +196,7 @@ export class SheetUIPlugin extends UIPlugin {
   private getColMaxWidth(sheetId: UID, index: HeaderIndex): number {
     const cellsPositions = positions(this.getters.getColsZone(sheetId, index, index));
     const sizes = cellsPositions.map((position) => this.getCellWidth({ sheetId, ...position }));
-    return Math.max(0, ...sizes);
+    return Math.max(0, largeMax(sizes));
   }
 
   /**
