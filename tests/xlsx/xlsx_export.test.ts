@@ -1447,6 +1447,40 @@ describe("Test XLSX export", () => {
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
   });
+
+  test("Sheet names longer than 31 characters are sliced in the Excel Export", () => {
+    const model = new Model();
+    const longSheetName = "a".repeat(40);
+    const longSheetNameWithSpaces = "Hey " + "a".repeat(40);
+    createSheet(model, { name: longSheetNameWithSpaces });
+    createSheet(model, { name: longSheetName });
+    setCellContent(model, "A1", `='${longSheetNameWithSpaces}'!A1`);
+    createChart(model, {
+      dataSets: [`${longSheetName}!A1:A4`],
+      labelRange: `${longSheetName}!A1:A4`,
+    });
+
+    const fixedSheetName = "a".repeat(31);
+    const fixedSheetNameWithSpaces = "Hey " + "a".repeat(27);
+    const exportedData = getExportedExcelData(model);
+    expect(exportedData.sheets[1].name).toBe(fixedSheetName);
+    expect(exportedData.sheets[0].cells["A1"]?.content).toBe(`='${fixedSheetNameWithSpaces}'!A1`);
+    expect(exportedData.sheets[0].charts[0].data.labelRange).toBe(`${fixedSheetName}!A2:A4`);
+    expect(exportedData.sheets[0].charts[0].data.dataSets[0]).toEqual({
+      label: `${fixedSheetName}!A1`,
+      range: `${fixedSheetName}!A2:A4`,
+    });
+  });
+
+  test("Avoid duplicated sheet names in excel export if multiple sliced names are the same", () => {
+    const model = new Model();
+    createSheet(model, { name: "a".repeat(40) });
+    createSheet(model, { name: "a".repeat(41) });
+    createSheet(model, { name: "a".repeat(42) });
+    expect(getExportedExcelData(model).sheets[1].name).toBe("a".repeat(31));
+    expect(getExportedExcelData(model).sheets[2].name).toBe("a".repeat(30) + "1");
+    expect(getExportedExcelData(model).sheets[3].name).toBe("a".repeat(30) + "2");
+  });
 });
 
 describe("XML parser", () => {
