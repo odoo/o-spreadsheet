@@ -5,6 +5,8 @@ import {
   groupConsecutive,
   isZoneInside,
   isZoneValid,
+  largeMax,
+  largeMin,
   numberToLetters,
   RangeImpl,
   rangeReference,
@@ -74,8 +76,8 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
           let newRange = range;
           let changeType: ChangeType = "NONE";
           for (let group of groups) {
-            const min = Math.min(...group);
-            const max = Math.max(...group);
+            const min = largeMin(group);
+            const max = largeMax(group);
             if (range.zone[start] <= min && min <= range.zone[end]) {
               const toRemove = Math.min(range.zone[end], max) - min + 1;
               changeType = "RESIZE";
