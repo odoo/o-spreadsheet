@@ -9,6 +9,7 @@ import {
   isEqual,
   positionToZone,
   positions,
+  recomputeZones,
   uniqueZones,
   updateSelectionOnDeletion,
   updateSelectionOnInsertion,
@@ -422,17 +423,39 @@ export class GridSelectionPlugin extends UIPlugin {
 
   getStatisticFnResults(): { [name: string]: number | undefined } {
     const sheetId = this.getters.getActiveSheetId();
-    const cells = new Set<EvaluatedCell>();
+    const evaluatedCellByType: { [type: string]: EvaluatedCell[] } = {};
 
-    for (const zone of this.gridSelection.zones) {
-      for (const { col, row } of positions(zone)) {
-        if (this.getters.isRowHidden(sheetId, row) || this.getters.isColHidden(sheetId, col)) {
+    const isRowHiddenCache: { [row: number]: boolean } = {};
+    const isColHiddenCache: { [col: number]: boolean } = {};
+
+    const recomputedZones = recomputeZones(this.gridSelection.zones, []);
+    const heightMax = this.getters.getSheetSize(sheetId).numberOfRows - 1;
+    const widthMax = this.getters.getSheetSize(sheetId).numberOfCols - 1;
+
+    for (let zone of recomputedZones) {
+      let _zone = {
+        top: zone.top,
+        bottom: zone.bottom ?? heightMax,
+        left: zone.left,
+        right: zone.right ?? widthMax,
+      };
+      for (const { col, row } of positions(_zone)) {
+        if (isRowHiddenCache[row] === undefined) {
+          isRowHiddenCache[row] = this.getters.isRowHidden(sheetId, row);
+        }
+        if (isColHiddenCache[col] === undefined) {
+          isColHiddenCache[col] = this.getters.isColHidden(sheetId, col);
+        }
+        if (isRowHiddenCache[row] || isColHiddenCache[col]) {
           continue; // Skip hidden cells
         }
 
         const evaluatedCell = this.getters.getEvaluatedCell({ sheetId, col, row });
         if (evaluatedCell.type !== CellValueType.empty) {
-          cells.add(evaluatedCell);
+          if (!(evaluatedCell.type in evaluatedCellByType)) {
+            evaluatedCellByType[evaluatedCell.type] = [];
+          }
+          evaluatedCellByType[evaluatedCell.type].push(evaluatedCell);
         }
       }
     }
@@ -441,15 +464,20 @@ export class GridSelectionPlugin extends UIPlugin {
 
     let statisticFnResults: { [name: string]: number | undefined } = {};
     for (let fn of selectionStatisticFunctions) {
+      const evaluatedCells: EvaluatedCell[][] = [];
+      for (const type of fn.types) {
+        if (evaluatedCellByType[type]) {
+          evaluatedCells.push(evaluatedCellByType[type]);
+        }
+      }
       // We don't want to display statistical information when there is no interest:
       // We set the statistical result to undefined if the data handled by the selection
       // does not match the data handled by the function.
       // Ex: if there are only texts in the selection, we prefer that the SUM result
       // be displayed as undefined rather than 0.
       let fnResult: number | undefined = undefined;
-      const evaluatedCells = [...cells].filter((c) => fn.types.includes(c.type));
       if (evaluatedCells.length) {
-        fnResult = fn.compute(evaluatedCells, locale);
+        fnResult = fn.compute(evaluatedCells.flat(), locale);
       }
       statisticFnResults[fn.name] = fnResult;
     }

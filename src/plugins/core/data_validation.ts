@@ -201,11 +201,11 @@ export class DataValidationPlugin
 
   private removeRangesFromRules(sheetId: UID, ranges: Range[], rules: DataValidationRule[]) {
     rules = deepCopy(rules);
-    const rangesXcs = ranges.map((range) => this.getters.getRangeString(range, sheetId));
+    const rangesZones = ranges.map((range) => range.zone);
     for (const rule of rules) {
-      const ruleRanges = rule.ranges.map((range) => this.getters.getRangeString(range, sheetId));
-      rule.ranges = recomputeZones(ruleRanges, rangesXcs).map((xc) =>
-        this.getters.getRangeFromSheetXC(sheetId, xc)
+      const ruleRangeZones = rule.ranges.map((range) => range.zone);
+      rule.ranges = recomputeZones(ruleRangeZones, rangesZones).map((zone) =>
+        this.getters.getRangeFromZone(sheetId, zone)
       );
     }
     return rules.filter((rule) => rule.ranges.length > 0);
