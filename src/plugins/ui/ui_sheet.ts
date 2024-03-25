@@ -3,7 +3,13 @@ import {
   ICON_EDGE_LENGTH,
   PADDING_AUTORESIZE_HORIZONTAL,
 } from "../../constants";
-import { computeIconWidth, computeTextWidth, positions, positionToZone } from "../../helpers/index";
+import {
+  computeIconWidth,
+  computeTextWidth,
+  largeMax,
+  positions,
+  positionToZone,
+} from "../../helpers/index";
 import { Cell, CellValueType, Command, CommandResult, UID } from "../../types";
 import { Dimension, HeaderDimensions, HeaderIndex, Pixel, Position, Style } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
@@ -229,7 +235,7 @@ export class SheetUIPlugin extends UIPlugin {
   private getColMaxWidth(sheetId: UID, index: HeaderIndex): number {
     const cellsPositions = positions(this.getters.getColsZone(sheetId, index, index));
     const sizes = cellsPositions.map((position) => this.getCellWidth(sheetId, position));
-    return Math.max(0, ...sizes);
+    return Math.max(0, largeMax(sizes));
   }
 
   private splitWordToSpecificWidth(

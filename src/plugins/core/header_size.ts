@@ -1,5 +1,12 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
-import { deepCopy, getAddHeaderStartIndex, getDefaultCellHeight, lazy, range } from "../../helpers";
+import {
+  deepCopy,
+  getAddHeaderStartIndex,
+  getDefaultCellHeight,
+  largeMin,
+  lazy,
+  range,
+} from "../../helpers";
 import { Command, ExcelWorkbookData, WorkbookData } from "../../types";
 import { Dimension, HeaderIndex, Lazy, Pixel, UID } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
@@ -55,7 +62,7 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
         for (let headerIndex of [...cmd.elements].sort((a, b) => b - a)) {
           sizes.splice(headerIndex, 1);
         }
-        const min = Math.min(...cmd.elements);
+        const min = largeMin(cmd.elements);
         sizes = sizes.map((size, row) => {
           if (cmd.dimension === "ROW" && row >= min) {
             // invalidate sizes
