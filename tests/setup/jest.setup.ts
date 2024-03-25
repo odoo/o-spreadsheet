@@ -23,6 +23,15 @@ beforeAll(() => {
     (str, ...values) => str,
     () => true
   );
+  Object.defineProperty(Element.prototype, "innerText", {
+    get: function () {
+      return this.textContent;
+    },
+    set: function (value) {
+      this.textContent = value;
+      this.innerHTML = value;
+    },
+  });
 });
 
 beforeEach(() => {
