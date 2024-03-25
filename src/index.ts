@@ -349,6 +349,8 @@ export const constants = {
   HIGHLIGHT_COLOR,
 };
 
+export { SpreadsheetPivotTable } from "./helpers/pivot/spreadsheet_pivot_table";
+
 export type { EnrichedToken } from "./formulas/composer_tokenizer";
 export type { AST, ASTFuncall } from "./formulas/parser";
 export type { Token } from "./formulas/tokenizer";

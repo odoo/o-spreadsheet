@@ -245,3 +245,8 @@ export const MAXIMAL_FREEZABLE_RATIO = 0.85;
 
 export const NEWLINE = "\n";
 export const FONT_SIZES: number[] = [6, 7, 8, 9, 10, 11, 12, 14, 18, 24, 36];
+
+// Pivot
+export const HEADER_STYLE = { fillColor: "#E6F2F3" };
+export const TOP_LEVEL_STYLE = { bold: true, fillColor: "#E6F2F3" };
+export const MEASURE_STYLE = { fillColor: "#E6F2F3", textColor: "#756f6f" };
