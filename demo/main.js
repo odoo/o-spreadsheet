@@ -18,7 +18,7 @@ const {
   onError,
 } = owl;
 
-const { Spreadsheet, Model, setTranslationMethod } = o_spreadsheet;
+const { Spreadsheet, Model, setTranslationMethod, XlsxExportError } = o_spreadsheet;
 const { topbarMenuRegistry } = o_spreadsheet.registries;
 const { useStoreProvider, NotificationStore } = o_spreadsheet.stores;
 
@@ -52,19 +52,31 @@ topbarMenuRegistry.addChild("xlsx", ["file"], {
   name: "Save as XLSX",
   sequence: 20,
   execute: async (env) => {
-    const doc = await env.model.exportXLSX();
-    const zip = new JSZip();
-    for (const file of doc.files) {
-      if (file.imageSrc) {
-        const fetchedImage = await fetch(file.imageSrc).then((response) => response.blob());
-        zip.file(file.path, fetchedImage);
+    try {
+      const doc = await env.model.exportXLSX();
+      const zip = new JSZip();
+      for (const file of doc.files) {
+        if (file.imageSrc) {
+          const fetchedImage = await fetch(file.imageSrc).then((response) => response.blob());
+          zip.file(file.path, fetchedImage);
+        } else {
+          zip.file(file.path, file.content.replaceAll(` xmlns=""`, ""));
+        }
+      }
+      zip.generateAsync({ type: "blob" }).then(function (blob) {
+        saveAs(blob, doc.name);
+      });
+    } catch (e) {
+      if (e instanceof XlsxExportError) {
+        env.notifyUser({
+          text: e.message,
+          sticky: true,
+          type: "warning",
+        });
       } else {
-        zip.file(file.path, file.content.replaceAll(` xmlns=""`, ""));
+        throw e;
       }
     }
-    zip.generateAsync({ type: "blob" }).then(function (blob) {
-      saveAs(blob, doc.name);
-    });
   },
   icon: "o-spreadsheet-Icon.EXPORT_XLSX",
 });

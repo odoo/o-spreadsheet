@@ -12,6 +12,7 @@ import {
   toCartesian,
 } from "../../helpers/index";
 import { _t } from "../../translation";
+import { XlsxExportError } from "../../types/errors";
 import {
   Cell,
   CellPosition,
@@ -291,6 +292,18 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
 
   exportForExcel(data: ExcelWorkbookData) {
     this.exportSheets(data);
+
+    const tooLongSheetNames = data.sheets
+      .filter((sheet) => sheet.name.length > 31)
+      .map((sheet) => `"${sheet.name}"`);
+    if (tooLongSheetNames.length) {
+      throw new XlsxExportError(
+        _t(
+          "Cannot export because sheet names longer than 31 characters are not supported in Excel. Please rename the sheets: %s.",
+          tooLongSheetNames.join(", ")
+        )
+      );
+    }
   }
 
   // ---------------------------------------------------------------------------
