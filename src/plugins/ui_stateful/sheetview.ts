@@ -1,5 +1,5 @@
 import { getDefaultSheetViewSize } from "../../constants";
-import { clip, findCellInNewZone, isDefined, range } from "../../helpers";
+import { clip, findCellInNewZone, isDefined, largeMin, range } from "../../helpers";
 import { scrollDelay } from "../../helpers/index";
 import { InternalViewport } from "../../helpers/internal_viewport";
 import { SelectionEvent } from "../../types/event_stream";
@@ -561,7 +561,7 @@ export class SheetViewPlugin extends UIPlugin {
    * column of the current viewport
    */
   getColDimensionsInViewport(sheetId: UID, col: HeaderIndex): HeaderDimensions {
-    const left = Math.min(...this.getters.getSheetViewVisibleCols());
+    const left = largeMin(this.getters.getSheetViewVisibleCols());
     const start = this.getters.getColRowOffsetInViewport("COL", left, col);
     const size = this.getters.getColSize(sheetId, col);
     const isColHidden = this.getters.isColHidden(sheetId, col);
@@ -577,7 +577,7 @@ export class SheetViewPlugin extends UIPlugin {
    * of the current viewport
    */
   getRowDimensionsInViewport(sheetId: UID, row: HeaderIndex): HeaderDimensions {
-    const top = Math.min(...this.getters.getSheetViewVisibleRows());
+    const top = largeMin(this.getters.getSheetViewVisibleRows());
     const start = this.getters.getColRowOffsetInViewport("ROW", top, row);
     const size = this.getters.getRowSize(sheetId, row);
     const isRowHidden = this.getters.isRowHidden(sheetId, row);

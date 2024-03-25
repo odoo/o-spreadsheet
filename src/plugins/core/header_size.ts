@@ -1,9 +1,8 @@
-import { DEFAULT_CELL_WIDTH } from "../../constants";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../constants";
 import { deepCopy, getAddHeaderStartIndex, range, removeIndexesFromArray } from "../../helpers";
 import { Command, ExcelWorkbookData, WorkbookData } from "../../types";
 import { Dimension, HeaderIndex, Pixel, UID } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
-import { DEFAULT_CELL_HEIGHT } from "./../../constants";
 
 interface HeaderSizeState {
   sizes: Record<UID, Record<Dimension, Array<Pixel | undefined>>>;
