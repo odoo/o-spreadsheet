@@ -8,6 +8,8 @@ import {
   isDefined,
   isZoneInside,
   isZoneValid,
+  largeMax,
+  largeMin,
   range,
   toCartesian,
 } from "../../helpers/index";
@@ -126,8 +128,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         }
         return CommandResult.Success;
       case "REMOVE_COLUMNS_ROWS": {
-        const min = Math.min(...cmd.elements);
-        const max = Math.max(...cmd.elements);
+        const min = largeMin(cmd.elements);
+        const max = largeMax(cmd.elements);
         if (min < 0 || !this.doesHeaderExist(cmd.sheetId, cmd.dimension, max)) {
           return CommandResult.InvalidHeaderIndex;
         } else if (
