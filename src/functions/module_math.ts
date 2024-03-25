@@ -14,6 +14,7 @@ import { sum } from "./helper_math";
 import { getUnitMatrix } from "./helper_matrices";
 import {
   assert,
+  assertNotZero,
   inferFormat,
   isEvaluationError,
   reduceAny,
@@ -400,10 +401,7 @@ export const COT = {
   returns: ["NUMBER"],
   compute: function (angle: Maybe<FPayload>): number {
     const _angle = toNumber(angle, this.locale);
-    assert(
-      () => _angle !== 0,
-      _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
-    );
+    assertNotZero(_angle);
     return 1 / Math.tan(_angle);
   },
   isExported: true,
@@ -418,10 +416,7 @@ export const COTH = {
   returns: ["NUMBER"],
   compute: function (value: Maybe<FPayload>): number {
     const _value = toNumber(value, this.locale);
-    assert(
-      () => _value !== 0,
-      _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
-    );
+    assertNotZero(_value);
     return 1 / Math.tanh(_value);
   },
   isExported: true,
@@ -601,10 +596,7 @@ export const CSC = {
   returns: ["NUMBER"],
   compute: function (angle: Maybe<FPayload>): number {
     const _angle = toNumber(angle, this.locale);
-    assert(
-      () => _angle !== 0,
-      _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
-    );
+    assertNotZero(_angle);
     return 1 / Math.sin(_angle);
   },
   isExported: true,
@@ -619,10 +611,7 @@ export const CSCH = {
   returns: ["NUMBER"],
   compute: function (value: Maybe<FPayload>): number {
     const _value = toNumber(value, this.locale);
-    assert(
-      () => _value !== 0,
-      _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
-    );
+    assertNotZero(_value);
     return 1 / Math.sinh(_value);
   },
   isExported: true,
