@@ -274,3 +274,35 @@ export function deepEquals(o1: any, o2: any): boolean {
 
   return true;
 }
+
+/**
+ * Alternative to Math.max that works with large arrays.
+ * Typically useful for arrays bigger than 100k elements.
+ */
+export function largeMax(array: number[]) {
+  let len = array.length;
+
+  if (len < 100_000) return Math.max(...array);
+
+  let max: number = -Infinity;
+  while (len--) {
+    max = array[len] > max ? array[len] : max;
+  }
+  return max;
+}
+
+/**
+ * Alternative to Math.min that works with large arrays.
+ * Typically useful for arrays bigger than 100k elements.
+ */
+export function largeMin(array: number[]) {
+  let len = array.length;
+
+  if (len < 100_000) return Math.min(...array);
+
+  let min: number = +Infinity;
+  while (len--) {
+    min = array[len] < min ? array[len] : min;
+  }
+  return min;
+}
