@@ -47,7 +47,14 @@ export class SplitIntoColumnsPanel extends Component<Props, SpreadsheetChildEnv>
     const composerStore = useStore(ComposerStore);
     // The feature makes no sense if we are editing a cell, because then the selection isn't active
     // Stop the edition when the panel is mounted, and close the panel if the user start editing a cell
-    useEffect(this.props.onCloseSidePanel, () => [composerStore.editionMode]);
+    useEffect(
+      (editionMode) => {
+        if (editionMode !== "inactive") {
+          this.props.onCloseSidePanel();
+        }
+      },
+      () => [composerStore.editionMode]
+    );
 
     onMounted(() => {
       composerStore.stopEdition();
