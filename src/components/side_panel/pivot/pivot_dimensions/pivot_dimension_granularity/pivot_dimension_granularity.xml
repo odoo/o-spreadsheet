@@ -11,9 +11,9 @@
             t-foreach="allGranularities"
             t-as="granularity"
             t-key="granularity"
-            t-if="props.granularities.has(granularity) || granularity === props.dimension.granularity"
+            t-if="props.availableGranularities.has(granularity) || granularity === props.dimension.granularity"
             t-att-value="granularity"
-            t-out="periods[granularity]"
+            t-esc="periods[granularity]"
             t-att-selected="granularity === props.dimension.granularity or (granularity === 'month' and !props.dimension.granularity)"
           />
         </select>

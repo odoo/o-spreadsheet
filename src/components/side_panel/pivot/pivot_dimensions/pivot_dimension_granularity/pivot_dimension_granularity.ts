@@ -6,7 +6,7 @@ import { PivotDimension } from "../../../../../types/pivot";
 interface Props {
   dimension: PivotDimension;
   onUpdated: (dimension: PivotDimension, ev: InputEvent) => void;
-  granularities: Set<string>;
+  availableGranularities: Set<string>;
 }
 
 // @ts-ignore TODOPRO Remove it when https://github.com/odoo/owl/pull/1599 is merged
@@ -15,7 +15,7 @@ export class PivotDimensionGranularity extends Component<Props, SpreadsheetChild
   static props = {
     dimension: Object,
     onUpdated: Function,
-    granularities: Set,
+    availableGranularities: Set,
   };
   periods = PERIODS;
   allGranularities = ["year", "quarter", "month", "week", "day"];

@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-PivotDimensionOrder">
-    <div class="d-flex flex-row">
-      <div class="d-flex flex-row py-1 px-2 w-100 small">
+    <div class="d-flex">
+      <div class="d-flex py-1 px-2 w-100 small">
         <div class="flex-basis-50">Order by</div>
         <select
           class="o_input flex-basis-50"
