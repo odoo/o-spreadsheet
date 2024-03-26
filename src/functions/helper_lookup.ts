@@ -9,7 +9,7 @@ import { SPTableCell } from "../types/pivot";
 export function getPivotId(pivotFormulaId: string, getters: Getters) {
   const pivotId = getters.getPivotId(pivotFormulaId);
   if (!pivotId) {
-    throw new EvaluationError(_t(`There is no pivot with id "%s"`, pivotFormulaId));
+    throw new EvaluationError(_t('There is no pivot with id "%s"', pivotFormulaId));
   }
   return pivotId;
 }
