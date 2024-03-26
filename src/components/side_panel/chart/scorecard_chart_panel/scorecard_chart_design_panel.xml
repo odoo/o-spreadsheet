@@ -19,7 +19,7 @@
       </Section>
     </div>
     <Section class="'o-chart-baseline-color'">
-      <t t-set-slot="title">Baseline color</t>
+      <t t-set-slot="title" t-esc="colorsSectionTitle"/>
       <div class="d-flex align-items-center">
         <span class="pe-1">Color on value increase</span>
         <ColorPickerWidget

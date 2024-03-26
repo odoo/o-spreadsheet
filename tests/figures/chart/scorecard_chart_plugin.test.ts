@@ -337,6 +337,46 @@ describe("datasource tests", function () {
       baselineDisplay: "0%",
     });
   });
+
+  test("progress bar with positive baseline/key ratio", () => {
+    setCellContent(model, "A1", "40");
+    setCellContent(model, "A2", "100");
+    createScorecardChart(model, {
+      keyValue: "A1",
+      baseline: "A2",
+      baselineMode: "progress",
+    });
+    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
+      baselineColor: undefined,
+      baselineDisplay: "40%",
+      keyValue: "40",
+      progressBar: {
+        color: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
+        value: 0.4,
+      },
+    });
+  });
+
+  test("progress bar with negative baseline/key ratio", () => {
+    setCellContent(model, "A1", "-40");
+    setCellContent(model, "A2", "100");
+    createScorecardChart(model, {
+      keyValue: "A1",
+      baseline: "A2",
+      baselineMode: "progress",
+    });
+    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
+      baselineColor: undefined,
+      baselineDisplay: "-40%",
+      keyValue: "-40",
+      progressBar: {
+        color: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
+        value: -0.4,
+      },
+    });
+  });
 });
 
 describe("multiple sheets", () => {

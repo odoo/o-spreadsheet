@@ -181,6 +181,47 @@ describe("Scorecard charts computation", () => {
     expect(chartDesign.baseline?.style.color).toBeSameColorAs("#525252");
   });
 
+  test("Baseline description and arrow with mode 'progress' are not displayed", () => {
+    createScorecardChart(
+      model,
+      { keyValue: "A1", baseline: "B1", baselineMode: "progress" },
+      chartId
+    );
+    const chartDesign = getChartDesign(model, chartId, sheetId);
+
+    expect(chartDesign.baselineDescr).toBeUndefined();
+    expect(chartDesign.baselineArrow).toBeUndefined();
+    expect(chartDesign.baseline?.style.color).toBeSameColorAs("#525252");
+    expect(chartDesign.baseline?.text).toEqual("200%");
+  });
+
+  test("Progress bar color is equal to up color for positive percentage", () => {
+    createScorecardChart(
+      model,
+      { keyValue: "A1", baseline: "B1", baselineMode: "progress" },
+      chartId
+    );
+    const chartDesign = getChartDesign(model, chartId, sheetId);
+
+    expect(chartDesign.progressBar?.style.color).toBeSameColorAs(
+      DEFAULT_SCORECARD_BASELINE_COLOR_UP
+    );
+  });
+
+  test("Progress bar color is equal to down color for negative percentage", () => {
+    setCellContent(model, "A1", "-5");
+    createScorecardChart(
+      model,
+      { keyValue: "A1", baseline: "B1", baselineMode: "progress" },
+      chartId
+    );
+    const chartDesign = getChartDesign(model, chartId, sheetId);
+
+    expect(chartDesign.progressBar?.style.color).toBeSameColorAs(
+      DEFAULT_SCORECARD_BASELINE_COLOR_DOWN
+    );
+  });
+
   test("Number are humanized if stipulated in the chart definition", () => {
     setCellContent(model, "A1", "123456789");
     setCellContent(model, "B1", "10.5");

@@ -4,6 +4,7 @@ import {
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
   DEFAULT_SCORECARD_BASELINE_MODE,
 } from "../../../constants";
+import { toNumber } from "../../../functions/helpers";
 import { _t } from "../../../translation";
 import {
   AddColumnsRowsCommand,
@@ -29,6 +30,7 @@ import {
 } from "../../../types/chart/scorecard_chart";
 import { Validator } from "../../../types/validator";
 import { formatValue } from "../../format";
+import { isNumber } from "../../numbers";
 import { createRange } from "../../range";
 import { rangeReference } from "../../references";
 import {
@@ -61,6 +63,21 @@ function getBaselineText(
       return formatValue(baseline.value, { format, locale });
     }
     return baseline.formattedValue;
+  } else if (baselineMode === "progress") {
+    const ratio = (keyValue.value / baseline.value) * 100;
+    const baselineValue = parseFloat(ratio.toFixed(2));
+    if (!humanize) {
+      return baselineValue.toLocaleString() + "%";
+    }
+    const format = formatLargeNumber(
+      {
+        value: baselineValue,
+        format: baseline.format,
+      },
+      undefined,
+      locale
+    );
+    return formatValue(baselineValue, { format, locale }) + "%";
   } else {
     let diff = keyValue.value - baseline.value;
     if (baselineMode === "percentage" && diff !== 0) {
@@ -107,6 +124,7 @@ function getBaselineColor(
 ): Color | undefined {
   if (
     baselineMode === "text" ||
+    baselineMode === "progress" ||
     baseline?.type !== CellValueType.number ||
     keyValue?.type !== CellValueType.number
   ) {
@@ -167,6 +185,7 @@ export class ScorecardChart extends AbstractChart {
   readonly baseline?: Range;
   readonly baselineMode: BaselineMode;
   readonly baselineDescr?: string;
+  readonly progressBar: boolean = false;
   readonly background?: Color;
   readonly baselineColorUp: Color;
   readonly baselineColorDown: Color;
@@ -371,6 +390,43 @@ export function drawScoreChart(structure: ScorecardChartConfig, canvas: HTMLCanv
       structure.key.style.strikethrough
     );
   }
+
+  if (structure.progressBar) {
+    ctx.fillStyle = structure.progressBar.style.backgroundColor;
+    ctx.beginPath();
+    ctx.roundRect(
+      structure.progressBar.position.x,
+      structure.progressBar.position.y,
+      structure.progressBar.dimension.width,
+      structure.progressBar.dimension.height,
+      structure.progressBar.dimension.height / 2
+    );
+    ctx.fill();
+    ctx.fillStyle = structure.progressBar.style.color;
+    ctx.beginPath();
+    if (structure.progressBar.value > 0) {
+      ctx.roundRect(
+        structure.progressBar.position.x,
+        structure.progressBar.position.y,
+        structure.progressBar.dimension.width *
+          Math.max(0, Math.min(1.0, structure.progressBar.value)),
+        structure.progressBar.dimension.height,
+        structure.progressBar.dimension.height / 2
+      );
+    } else {
+      const width =
+        structure.progressBar.dimension.width *
+        Math.max(0, Math.min(1.0, -structure.progressBar.value));
+      ctx.roundRect(
+        structure.progressBar.position.x + structure.progressBar.dimension.width - width,
+        structure.progressBar.position.y,
+        width,
+        structure.progressBar.dimension.height,
+        structure.progressBar.dimension.height / 2
+      );
+    }
+    ctx.fill();
+  }
 }
 
 export function createScorecardChartRuntime(
@@ -422,6 +478,10 @@ export function createScorecardChartRuntime(
     chart.humanize ?? false,
     locale
   );
+  let baselineValue = 0;
+  if (chart.baselineMode === "progress" && isNumber(baselineDisplay, locale)) {
+    baselineValue = toNumber(baselineDisplay, locale);
+  }
   return {
     title: _t(chart.title),
     keyValue: formattedKeyValue || keyValue,
@@ -434,11 +494,12 @@ export function createScorecardChartRuntime(
       chart.baselineColorUp,
       chart.baselineColorDown
     ),
-    baselineDescr: chart.baselineDescr ? _t(chart.baselineDescr) : "",
+    baselineDescr:
+      chart.baselineMode !== "progress" && chart.baselineDescr ? _t(chart.baselineDescr) : "",
     fontColor,
     background,
     baselineStyle:
-      chart.baselineMode !== "percentage" && baseline
+      chart.baselineMode !== "percentage" && chart.baselineMode !== "progress" && baseline
         ? getters.getCellStyle({
             sheetId: baseline.sheetId,
             col: baseline.zone.left,
@@ -452,5 +513,12 @@ export function createScorecardChartRuntime(
           row: chart.keyValue.zone.top,
         })
       : undefined,
+    progressBar:
+      chart.baselineMode === "progress"
+        ? {
+            value: baselineValue,
+            color: baselineValue > 0 ? chart.baselineColorUp : chart.baselineColorDown,
+          }
+        : undefined,
   };
 }

@@ -43,6 +43,12 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
     return _t(this.props.definition.title);
   }
 
+  get colorsSectionTitle(): string {
+    return _t(
+      (this.props.definition.baselineMode === "progress" ? "Progress bar" : "Baseline") + " colors"
+    );
+  }
+
   get humanizeNumbersLabel(): string {
     return _t("Humanize numbers");
   }
