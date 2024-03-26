@@ -19,7 +19,7 @@
       </Section>
     </div>
     <Section class="'o-chart-baseline-color'">
-      <t t-set-slot="title">Baseline color</t>
+      <t t-set-slot="title" t-esc="colorsSectionTitle"/>
       <div class="d-flex align-items-center">
         <span class="pe-1">Color on value increase</span>
         <ColorPickerWidget
@@ -42,6 +42,15 @@
           icon="'o-spreadsheet-Icon.FILL_COLOR'"
         />
       </div>
+    </Section>
+    <Section class="'pt-1'">
+      <t t-set-slot="title">Number formatting</t>
+      <Checkbox
+        name="'humanizeNumbers'"
+        label="humanizeNumbersLabel"
+        value="props.definition.humanize"
+        onChange.bind="updateHumanizeNumbers"
+      />
     </Section>
   </t>
 </templates>

@@ -3,6 +3,7 @@ import { _t } from "../../../../translation";
 import { ScorecardChartDefinition } from "../../../../types/chart/scorecard_chart";
 import { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
+import { Checkbox } from "../../components/checkbox/checkbox";
 import { Section } from "../../components/section/section";
 import { ChartColor } from "../building_blocks/color/color";
 import { ChartTitle } from "../building_blocks/title/title";
@@ -22,7 +23,7 @@ interface PanelState {
 
 export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ScorecardChartDesignPanel";
-  static components = { ColorPickerWidget, ChartColor, ChartTitle, Section };
+  static components = { ColorPickerWidget, ChartColor, ChartTitle, Section, Checkbox };
   static props = {
     figureId: String,
     definition: Object,
@@ -42,8 +43,22 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
     return _t(this.props.definition.title);
   }
 
+  get colorsSectionTitle(): string {
+    return _t(
+      (this.props.definition.baselineMode === "progress" ? "Progress bar" : "Baseline") + " colors"
+    );
+  }
+
+  get humanizeNumbersLabel(): string {
+    return _t("Humanize numbers");
+  }
+
   updateTitle(title: string) {
     this.props.updateChart(this.props.figureId, { title });
+  }
+
+  updateHumanizeNumbers(humanize: boolean) {
+    this.props.updateChart(this.props.figureId, { humanize });
   }
 
   translate(term) {

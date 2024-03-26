@@ -10,10 +10,17 @@ export interface ScorecardChartDefinition {
   readonly background?: Color;
   readonly baselineColorUp: Color;
   readonly baselineColorDown: Color;
+  readonly humanize?: boolean;
 }
 
-export type BaselineMode = "text" | "difference" | "percentage";
+export type BaselineMode = "text" | "difference" | "percentage" | "progress";
 export type BaselineArrowDirection = "neutral" | "up" | "down";
+
+export interface ProgressBar {
+  readonly value: number;
+  readonly color: Color;
+}
+
 export interface ScorecardChartRuntime {
   readonly title: string;
   readonly keyValue: string;
@@ -25,4 +32,5 @@ export interface ScorecardChartRuntime {
   readonly fontColor: Color;
   readonly keyValueStyle?: Style;
   readonly baselineStyle?: Style;
+  readonly progressBar?: ProgressBar;
 }

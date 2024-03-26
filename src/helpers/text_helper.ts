@@ -8,7 +8,11 @@ import {
   NEWLINE,
   PADDING_AUTORESIZE_VERTICAL,
 } from "../constants";
-import { Cell, Pixel, PixelPosition, Style } from "../types";
+import { toNumber } from "../functions/helpers";
+import { _t } from "../translation";
+import { Cell, FPayload, Locale, Maybe, Pixel, PixelPosition, Style } from "../types";
+import { EvaluationError } from "../types/errors";
+import { createLargeNumberFormat } from "./format";
 
 export function computeTextLinesHeight(textLineHeight: number, numberOfLines: number = 1) {
   return numberOfLines * (textLineHeight + MIN_CELL_TEXT_MARGIN) - MIN_CELL_TEXT_MARGIN;
@@ -222,6 +226,90 @@ export function toLowerCase(str: string | undefined): string {
 const pxRegex = /([0-9\.]*)px/;
 export function getContextFontSize(font: string): Pixel {
   return Number(font.match(pxRegex)?.[1]);
+}
+
+export function fittingString(ctx, str: string, maxWidth: number) {
+  var width = ctx.measureText(str).width;
+  var ellipsis = "…";
+  var ellipsisWidth = ctx.measureText(ellipsis).width;
+  if (width <= maxWidth || width <= ellipsisWidth) {
+    return str;
+  } else {
+    var len = str.length;
+    while (width >= maxWidth - ellipsisWidth && len-- > 0) {
+      str = str.substring(0, len);
+      width = ctx.measureText(str).width;
+    }
+    return str + ellipsis;
+  }
+}
+
+export function drawSplittedText(
+  context: CanvasRenderingContext2D,
+  splitted: string[],
+  position: PixelPosition
+) {
+  const measure = context.measureText(splitted[1]);
+  context.fillText(splitted[1], position.x, position.y);
+  position.y -= measure.fontBoundingBoxAscent + measure.fontBoundingBoxDescent;
+  context.fillText(splitted[0], position.x, position.y);
+}
+
+export function splitTextInTwoLines(text: string): string[] {
+  let spaces = "";
+  while (text[0] === " ") {
+    spaces += " ";
+    text = text.slice(1);
+  }
+  const length = Math.floor(text.length);
+  let leftSpace = Math.floor(length / 2),
+    rightSpace = Math.floor(length / 2);
+  while (leftSpace > 0 && text[leftSpace] !== " ") {
+    leftSpace--;
+  }
+  while (rightSpace < text.length && text[rightSpace] !== " ") {
+    rightSpace++;
+  }
+  if (leftSpace > length - rightSpace) {
+    return [spaces + text.slice(0, leftSpace), spaces + text.slice(leftSpace + 1)];
+  } else {
+    return [spaces + text.slice(0, rightSpace), spaces + text.slice(rightSpace + 1)];
+  }
+}
+
+export function formatLargeNumber(
+  arg: Maybe<FPayload>,
+  unit: Maybe<FPayload>,
+  locale: Locale
+): string {
+  let value = 0;
+  try {
+    value = Math.abs(toNumber(arg?.value, locale));
+  } catch (e) {
+    return "";
+  }
+  const format = arg?.format;
+  if (unit !== undefined) {
+    const postFix = unit?.value;
+    switch (postFix) {
+      case "k":
+        return createLargeNumberFormat(format, 1e3, "k", locale);
+      case "m":
+        return createLargeNumberFormat(format, 1e6, "m", locale);
+      case "b":
+        return createLargeNumberFormat(format, 1e9, "b", locale);
+      default:
+        throw new EvaluationError(_t("The formatting unit should be 'k', 'm' or 'b'."));
+    }
+  }
+  if (value < 1e5) {
+    return createLargeNumberFormat(format, 0, "", locale);
+  } else if (value < 1e8) {
+    return createLargeNumberFormat(format, 1e3, "k", locale);
+  } else if (value < 1e11) {
+    return createLargeNumberFormat(format, 1e6, "m", locale);
+  }
+  return createLargeNumberFormat(format, 1e9, "b", locale);
 }
 
 export function drawDecoratedText(
