@@ -160,13 +160,10 @@ export class PivotUIPlugin extends UIPlugin {
       if (!pivotId || !pivot.isReady()) {
         return undefined;
       }
-      // const includeTotal = args[2] !== undefined ? args[2] === false : undefined;
-      // const includeColumnHeaders = args[3] !== undefined ? args[3] === false : undefined;
-      const includeTotal = args[2];
-      const includeColumnHeaders = args[3];
+      const includeTotal = args[2] === false ? false : undefined;
+      const includeColumnHeaders = args[3] === false ? false : undefined;
       const pivotCells = pivot
         .getTableStructure()
-        //@ts-ignore TODOPRO
         .getPivotCells(includeTotal, includeColumnHeaders);
       const pivotCol = position.col - mainPosition.col;
       const pivotRow = position.row - mainPosition.row;
