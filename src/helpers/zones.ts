@@ -530,15 +530,6 @@ export function positions(zone: Zone): Position[] {
   return positions;
 }
 
-export function forEachPositionsInZone(zone: Zone, callback: (col: number, row: number) => void) {
-  const { left, right, top, bottom } = zone;
-  for (let col = left; col <= right; col++) {
-    for (let row = top; row <= bottom; row++) {
-      callback(col, row);
-    }
-  }
-}
-
 /**
  * This function returns a zone with coordinates modified according to the change
  * applied to the zone. It may be possible to change the zone by resizing or moving
