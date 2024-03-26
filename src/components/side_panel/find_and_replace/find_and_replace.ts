@@ -94,6 +94,8 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onSearchInput(ev: InputEvent) {
+    debugger;
+    console.log(ev);
     this.store.updateSearchContent((ev.target as HTMLInputElement)?.value || "");
   }
 

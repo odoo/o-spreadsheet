@@ -5,6 +5,7 @@
         <t t-set-slot="title">Search</t>
         <div class="o-input-search-container">
           <input
+            t-debug="1"
             type="text"
             t-ref="searchInput"
             class="o-input o-input-with-count"

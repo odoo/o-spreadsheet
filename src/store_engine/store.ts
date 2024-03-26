@@ -1,5 +1,3 @@
-import { reactive } from "@odoo/owl";
-
 /**
  * An injectable store constructor
  */
@@ -88,7 +86,8 @@ type NeverReturns<T> = T extends (...args: any[]) => any ? (...args: Parameters<
 
 export class ReactiveStore {
   constructor(protected get: Get) {
-    return reactive(this);
+    // return reactive(this);
+    // debugger
   }
 }
 
