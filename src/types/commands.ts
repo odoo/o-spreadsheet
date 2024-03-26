@@ -898,6 +898,11 @@ export interface RenderCanvasCommand {
   type: "RENDER_CANVAS";
 }
 
+export interface RefreshPivotCommand {
+  type: "REFRESH_PIVOT";
+  id: UID;
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -1037,7 +1042,8 @@ export type LocalCommand =
   | SplitTextIntoColumnsCommand
   | RemoveDuplicatesCommand
   | TrimWhitespaceCommand
-  | RenderCanvasCommand;
+  | RenderCanvasCommand
+  | RefreshPivotCommand;
 
 export type Command = CoreCommand | LocalCommand;
 

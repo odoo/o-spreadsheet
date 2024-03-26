@@ -51,6 +51,7 @@ import {
   SCROLLBAR_WIDTH,
   TOPBAR_HEIGHT,
 } from "./constants";
+import { getFunctionsFromTokens } from "./formulas";
 import { isEvaluationError, toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
 import { FunctionRegistry, arg, functionRegistry } from "./functions/index";
 import {
@@ -88,7 +89,13 @@ import {
   unquote,
 } from "./helpers/index";
 import { openLink, urlRegistry, urlRepresentation } from "./helpers/links";
-import { getMaxObjectId, makePivotFormula } from "./helpers/pivot/pivot_helpers";
+import {
+  getFirstPivotFunction,
+  getMaxObjectId,
+  getNumberOfPivotFormulas,
+  makePivotFormula,
+} from "./helpers/pivot/pivot_helpers";
+import { pivotRegistry } from "./helpers/pivot/pivot_registry";
 import {
   createEmptyExcelSheet,
   createEmptySheet,
@@ -228,6 +235,7 @@ export const registries = {
   repeatLocalCommandTransformRegistry,
   repeatCommandTransformRegistry,
   clipboardHandlersRegistries,
+  pivotRegistry,
 };
 export const helpers = {
   arg,
@@ -273,6 +281,9 @@ export const helpers = {
   unquote,
   makePivotFormula,
   getMaxObjectId,
+  getFunctionsFromTokens,
+  getFirstPivotFunction,
+  getNumberOfPivotFormulas,
 };
 
 export const links = {

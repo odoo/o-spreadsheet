@@ -6,8 +6,14 @@ import { CommandResult, CoreCommand, Position, UID, WorkbookData } from "../../t
 import { CorePivotDefinition, PivotDefinition, SPTableCell } from "../../types/pivot";
 import { CorePlugin } from "../core_plugin";
 
-export class PivotCorePlugin extends CorePlugin {
-  static getters = /** @type {const} */ [
+interface CoreState {
+  nextFormulaId: number;
+  pivots: Record<UID, CorePivotDefinition | undefined>;
+  formulaIds: Record<UID, string | undefined>;
+}
+
+export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState {
+  static getters = [
     "getPivotDefinition",
     "getPivotDisplayName",
     "getPivotId",
@@ -15,11 +21,11 @@ export class PivotCorePlugin extends CorePlugin {
     "getPivotIds",
     "getPivotName",
     "isExistingPivot",
-  ];
+  ] as const;
 
-  private nextFormulaId: number = 1;
-  private pivots: { [key: UID]: CorePivotDefinition } = {};
-  private formulaIds: { [key: UID]: string } = {};
+  readonly nextFormulaId: number = 1;
+  public readonly pivots: { [key: UID]: CorePivotDefinition } = {};
+  public readonly formulaIds: { [key: UID]: string } = {};
 
   allowDispatch(cmd: CoreCommand) {
     switch (cmd.type) {
@@ -87,7 +93,10 @@ export class PivotCorePlugin extends CorePlugin {
         break;
       }
       case "UPDATE_PIVOT": {
-        this.history.update("pivots", cmd.pivotId, cmd.pivot);
+        this.history.update("pivots", cmd.pivotId, {
+          ...cmd.pivot,
+          formulaId: this.pivots[cmd.pivotId].formulaId,
+        });
         break;
       }
     }
@@ -250,7 +259,7 @@ export class PivotCorePlugin extends CorePlugin {
         this.addPivot(id, deepCopy(pivot), pivot.formulaId);
       }
     }
-    this.nextFormulaId = data.pivotNextId || getMaxObjectId(this.pivots) + 1;
+    this.history.update("nextFormulaId", data.pivotNextId || getMaxObjectId(this.pivots) + 1);
   }
   /**
    * Export the pivots

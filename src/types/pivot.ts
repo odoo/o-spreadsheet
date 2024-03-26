@@ -68,7 +68,9 @@ export interface CommonPivotDefinition {
   name: string;
 }
 
-export interface SpreadsheetPivotDefinition extends CommonPivotDefinition {}
+export interface SpreadsheetPivotDefinition extends CommonPivotDefinition {
+  type: "SPREADSHEET";
+}
 
 export type PivotDefinition = SpreadsheetPivotDefinition;
 

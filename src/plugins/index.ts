@@ -26,6 +26,7 @@ import {
 } from "./ui_core_views";
 import { DynamicTablesPlugin } from "./ui_core_views/dynamic_tables";
 import { HeaderSizeUIPlugin } from "./ui_core_views/header_sizes_ui";
+import { PivotUIPlugin } from "./ui_core_views/pivot_ui";
 import {
   AutofillPlugin,
   AutomaticSumPlugin,
@@ -101,4 +102,5 @@ export const coreViewsPluginRegistry = new Registry<UIPluginConstructor>()
   .add("row_size", HeaderSizeUIPlugin)
   .add("data_validation_ui", EvaluationDataValidationPlugin)
   .add("dynamic_tables", DynamicTablesPlugin)
-  .add("custom_colors", CustomColorsPlugin);
+  .add("custom_colors", CustomColorsPlugin)
+  .add("pivot_ui", PivotUIPlugin);

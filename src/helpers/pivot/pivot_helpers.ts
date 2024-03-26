@@ -1,3 +1,7 @@
+import { Token, getFunctionsFromTokens } from "../../formulas";
+
+const PIVOT_FUNCTIONS = ["PIVOT.VALUE", "PIVOT.HEADER", "PIVOT"];
+
 /**
  * Build a pivot formula expression
  */
@@ -29,4 +33,20 @@ export function getMaxObjectId(o: object) {
   const nums = keys.map((id) => parseInt(id, 10));
   const max = Math.max(...nums);
   return max;
+}
+
+/**
+ * Get the first Pivot function description of the given formula.
+ */
+export function getFirstPivotFunction(tokens: Token[]) {
+  return getFunctionsFromTokens(tokens, PIVOT_FUNCTIONS)[0];
+}
+
+/**
+ * Parse a spreadsheet formula and detect the number of PIVOT functions that are
+ * present in the given formula.
+ * TODOPRO Rename this function to getNumberOfPivotFunctions
+ */
+export function getNumberOfPivotFormulas(tokens: Token[]) {
+  return getFunctionsFromTokens(tokens, PIVOT_FUNCTIONS).length;
 }

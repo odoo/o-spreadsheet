@@ -53,6 +53,7 @@ const PIVOT: PivotDefinition = {
   rows: [],
   measures: [],
   name: "pivot",
+  type: "SPREADSHEET",
 };
 
 type CommandMapping = {
