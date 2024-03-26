@@ -1,6 +1,6 @@
 import { sum } from "../../functions/helper_math";
 import { average, countAny, countNumbers, max, min } from "../../functions/helper_statistical";
-import { memoize } from "../../helpers";
+import { lazy, memoize } from "../../helpers";
 import { Get } from "../../store_engine";
 import { SpreadsheetStore } from "../../stores";
 import { _t } from "../../translation";
@@ -8,12 +8,13 @@ import {
   CellValueType,
   Command,
   EvaluatedCell,
+  Lazy,
   Locale,
   invalidateEvaluationCommands,
 } from "../../types";
 
 export interface StatisticFnResults {
-  [name: string]: number | undefined;
+  [name: string]: Lazy<number> | undefined;
 }
 
 interface SelectionStatisticFunction {
@@ -135,10 +136,10 @@ export class AggregateStatisticsStore extends SpreadsheetStore {
       // does not match the data handled by the function.
       // Ex: if there are only texts in the selection, we prefer that the SUM result
       // be displayed as undefined rather than 0.
-      let fnResult: number | undefined = undefined;
+      let fnResult: Lazy<number> | undefined = undefined;
       const evaluatedCells = getCells(fn.types.sort().join(","));
       if (evaluatedCells.length) {
-        fnResult = fn.compute(evaluatedCells, locale);
+        fnResult = lazy(() => fn.compute(evaluatedCells, locale));
       }
       statisticFnResults[fn.name] = fnResult;
     }
