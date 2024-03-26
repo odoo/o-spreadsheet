@@ -20,6 +20,12 @@
           value="props.definition.dataSetsHaveTitle"
           onChange.bind="onUpdateDataSetsHaveTitle"
         />
+        <Checkbox
+          name="'showSubTotals'"
+          label="showSubTotalsLabel"
+          value="props.definition.showSubTotals"
+          onChange.bind="onUpdateShowSubTotals"
+        />
       </Section>
 
       <ChartErrorSection t-if="errorMessages.length" messages="errorMessages"/>

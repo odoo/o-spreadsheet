@@ -5,6 +5,7 @@ import { _t } from "../../../../translation";
 import { BarChartDefinition } from "../../../../types/chart/bar_chart";
 import { LineChartDefinition } from "../../../../types/chart/line_chart";
 import { PieChartDefinition } from "../../../../types/chart/pie_chart";
+import { WaterfallChartDefinition } from "../../../../types/chart/waterfall_chart";
 import { CommandResult, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { ChartTerms } from "../../../translations_terms";
@@ -17,14 +18,22 @@ import { ChartLabelRange } from "../building_blocks/label_range/label_range";
 
 interface Props {
   figureId: UID;
-  definition: LineChartDefinition | BarChartDefinition | PieChartDefinition;
+  definition:
+    | LineChartDefinition
+    | BarChartDefinition
+    | PieChartDefinition
+    | WaterfallChartDefinition;
   canUpdateChart: (
     figureId: UID,
-    definition: Partial<LineChartDefinition | BarChartDefinition | PieChartDefinition>
+    definition: Partial<
+      LineChartDefinition | BarChartDefinition | PieChartDefinition | WaterfallChartDefinition
+    >
   ) => DispatchResult;
   updateChart: (
     figureId: UID,
-    definition: Partial<LineChartDefinition | BarChartDefinition | PieChartDefinition>
+    definition: Partial<
+      LineChartDefinition | BarChartDefinition | PieChartDefinition | WaterfallChartDefinition
+    >
   ) => DispatchResult;
 }
 

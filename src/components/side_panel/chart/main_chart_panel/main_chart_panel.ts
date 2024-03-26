@@ -87,6 +87,7 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onTypeChange(type: ChartType) {
+    console.log("onTypeChange", type);
     if (!this.figureId) {
       return;
     }
@@ -95,11 +96,12 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
       throw new Error("Chart not defined.");
     }
     const definition = getChartDefinitionFromContextCreation(context, type);
-    this.env.model.dispatch("UPDATE_CHART", {
+    const result = this.env.model.dispatch("UPDATE_CHART", {
       definition,
       id: this.figureId,
       sheetId: this.env.model.getters.getFigureSheetId(this.figureId)!,
     });
+    console.log("result", result);
   }
 
   get chartPanel(): ChartSidePanel {

@@ -1,11 +1,12 @@
+import { _t } from "../../../../translation";
 import { LineBarPieConfigPanel } from "../line_bar_pie_panel/config_panel";
 
 export class WaterfallChartConfigPanel extends LineBarPieConfigPanel {
   static template = "o-spreadsheet-WaterfallConfigPanel";
 
-  onUpdateStacked(stacked: boolean) {
+  onUpdateShowSubTotals(showSubTotals: boolean) {
     this.props.updateChart(this.props.figureId, {
-      stacked,
+      showSubTotals,
     });
   }
 
@@ -13,5 +14,9 @@ export class WaterfallChartConfigPanel extends LineBarPieConfigPanel {
     this.props.updateChart(this.props.figureId, {
       aggregated,
     });
+  }
+
+  get showSubTotalsLabel(): string {
+    return _t("Show subtotals at the end of series");
   }
 }

@@ -1,6 +1,12 @@
 import type { ChartConfiguration, ChartDataset, LegendOptions } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
-import { BACKGROUND_CHART_COLOR } from "../../../constants";
+import {
+  BACKGROUND_CHART_COLOR,
+  CHART_WATERFALL_NEGATIVE_COLOR,
+  CHART_WATERFALL_POSITIVE_COLOR,
+  CHART_WATERFALL_SUBTOTAL_COLOR,
+} from "../../../constants";
+import { _t } from "../../../translation";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -41,6 +47,7 @@ import {
   getChartDatasetValues,
   getChartLabelValues,
   getDefaultChartJsRuntime,
+  truncateLabel,
 } from "./chart_ui_common";
 
 export class WaterfallChart extends AbstractChart {
@@ -180,12 +187,30 @@ export class WaterfallChart extends AbstractChart {
 function getWaterfallConfiguration(
   chart: WaterfallChart,
   labels: string[],
+  dataSeriesLabels: (string | undefined)[],
   localeFormat: LocaleFormat
 ): ChartConfiguration {
+  const { locale, format } = localeFormat;
+
   const fontColor = chartFontColor(chart.background);
   const config = getDefaultChartJsRuntime(chart, labels, fontColor, localeFormat);
   const legend: DeepPartial<LegendOptions<"bar">> = {
-    labels: { color: fontColor },
+    labels: {
+      generateLabels: (t) => {
+        const legendValues = [
+          { text: "Positive values", fontColor, fillStyle: CHART_WATERFALL_POSITIVE_COLOR },
+          { text: "Negative values", fontColor, fillStyle: CHART_WATERFALL_NEGATIVE_COLOR },
+        ];
+        if (chart.showSubTotals) {
+          legendValues.push({
+            text: "Subtotals",
+            fontColor,
+            fillStyle: CHART_WATERFALL_SUBTOTAL_COLOR,
+          });
+        }
+        return legendValues;
+      },
+    },
   };
   if ((!chart.labelRange && chart.dataSets.length === 1) || chart.legendPosition === "none") {
     legend.display = false;
@@ -203,21 +228,45 @@ function getWaterfallConfiguration(
         padding: 5,
         color: fontColor,
       },
+      grid: {
+        display: false,
+      },
     },
     y: {
       position: chart.verticalAxisPosition,
-      beginAtZero: true, // the origin of the y axis is always zero
       ticks: {
         color: fontColor,
         callback: (value) => {
           value = Number(value);
           if (isNaN(value)) return value;
-          const { locale, format } = localeFormat;
-          return formatValue(value, { locale, format: !format && value > 1000 ? "#,##" : format });
+          return formatValue(value, {
+            locale,
+            format: !format && Math.abs(value) > 1000 ? "#,##" : format,
+          });
+        },
+      },
+      grid: {
+        lineWidth: (context) => {
+          return context.tick.value === 0 ? 2 : 1;
         },
       },
     },
   };
+  config.options.plugins!.tooltip = {
+    callbacks: {
+      label: function (tooltipItem) {
+        const [lastValue, currentValue] = tooltipItem.raw as [number, number];
+        const yLabel = currentValue - lastValue;
+        const dataSeriesIndex = Math.floor(tooltipItem.dataIndex / labels.length);
+        const dataSeriesLabel = dataSeriesLabels[dataSeriesIndex];
+        const toolTipFormat = !format && Math.abs(yLabel) > 1000 ? "#,##" : format;
+        const yLabelStr = formatValue(yLabel, { format: toolTipFormat, locale });
+        return dataSeriesLabel ? `${dataSeriesLabel}: ${yLabelStr}` : yLabelStr;
+      },
+    },
+  };
+  config.options.plugins!.waterfallLinesPlugin = { enabled: true };
+
   return config;
 }
 
@@ -240,22 +289,53 @@ export function createWaterfallChartRuntime(
   if (chart.aggregated) {
     ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
   }
+  if (chart.showSubTotals) {
+    labels.push(_t("Subtotal"));
+  }
 
   const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
   const locale = getters.getLocale();
-  const config = getWaterfallConfiguration(chart, labels, { format: dataSetFormat, locale });
+  const dataSeriesLabels = dataSetsValues.map((dataSet) => dataSet.label);
+  const config = getWaterfallConfiguration(chart, labels, dataSeriesLabels, {
+    format: dataSetFormat,
+    locale,
+  });
+  config.type = "bar";
   const colors = new ChartColors();
 
-  for (let { label, data } of dataSetsValues) {
-    const color = colors.next();
-    const dataset: ChartDataset = {
-      label,
-      data,
-      borderColor: color,
-      backgroundColor: color,
-    };
-    config.data.datasets.push(dataset);
+  const color = colors.next();
+  const backgroundColor: Color[] = [];
+  const datasetValues: Array<[number, number]> = [];
+  const dataset: ChartDataset = {
+    label: "",
+    data: datasetValues,
+    borderColor: color,
+    backgroundColor,
+  };
+  const labelsWithSubTotals: string[] = [];
+  let lastValue = 0;
+  for (const dataSetsValue of dataSetsValues) {
+    for (let i = 0; i < dataSetsValue.data.length; i++) {
+      const data = dataSetsValue.data[i];
+      labelsWithSubTotals.push(labels[i]);
+      if (isNaN(Number(data))) {
+        datasetValues.push([lastValue, lastValue]);
+        backgroundColor.push("");
+        continue;
+      }
+      datasetValues.push([lastValue, data + lastValue]);
+      const color = data >= 0 ? CHART_WATERFALL_POSITIVE_COLOR : CHART_WATERFALL_NEGATIVE_COLOR;
+      backgroundColor.push(color);
+      lastValue += data;
+    }
+    if (chart.showSubTotals) {
+      labelsWithSubTotals.push(_t("Subtotal"));
+      datasetValues.push([0, lastValue]);
+      backgroundColor.push(CHART_WATERFALL_SUBTOTAL_COLOR);
+    }
   }
+  config.data.datasets.push(dataset);
+  config.data.labels = labelsWithSubTotals.map(truncateLabel);
 
   return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
 }

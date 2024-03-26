@@ -2,10 +2,14 @@ import { Component, onMounted, useEffect, useRef } from "@odoo/owl";
 import type { Chart, ChartConfiguration } from "chart.js";
 import { Figure, SpreadsheetChildEnv } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
+import { waterfallLinesPlugin } from "./waterfall_plugin";
 
 interface Props {
   figure: Figure;
 }
+
+// @ts-ignore
+window.Chart.register(waterfallLinesPlugin);
 
 export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartJsComponent";

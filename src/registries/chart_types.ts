@@ -183,7 +183,7 @@ chartRegistry.add("waterfall", {
     executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
   ) => WaterfallChart.transformDefinition(definition, executed),
   getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
-    BarChart.getDefinitionFromContextCreation(context),
+    WaterfallChart.getDefinitionFromContextCreation(context),
   name: _t("Waterfall"),
   sequence: 70,
 });
@@ -195,3 +195,4 @@ chartComponentRegistry.add("pie", ChartJsComponent);
 chartComponentRegistry.add("gauge", GaugeChartComponent);
 chartComponentRegistry.add("scatter", ChartJsComponent);
 chartComponentRegistry.add("scorecard", ScorecardChartComponent);
+chartComponentRegistry.add("waterfall", ChartJsComponent);
