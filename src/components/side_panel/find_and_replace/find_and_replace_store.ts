@@ -309,6 +309,10 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
   // ---------------------------------------------------------------------------
 
   get highlights(): Highlight[] {
+    return this.computeHightlights();
+  }
+
+  private computeHightlights() {
     const highlights: Highlight[] = [];
     const sheetId = this.getters.getActiveSheetId();
 

@@ -86,9 +86,96 @@ type CQS<T> = {
  */
 type NeverReturns<T> = T extends (...args: any[]) => any ? (...args: Parameters<T>) => void : T;
 
+function getAllMethods(obj) {
+  let methodsAndAccessors: string[] = [];
+
+  // Iterate over own properties of the object
+  Object.getOwnPropertyNames(obj).forEach((prop) => {
+    const descriptor = Object.getOwnPropertyDescriptor(obj, prop);
+    if (!descriptor) {
+      return;
+    }
+    if (typeof descriptor.value === "function") {
+      methodsAndAccessors.push(prop);
+    }
+  });
+
+  // Recursively traverse the prototype chain
+  const prototype = Object.getPrototypeOf(obj);
+  if (prototype !== null) {
+    const inheritedMethodsAndAccessors = getAllMethods(prototype);
+    methodsAndAccessors = methodsAndAccessors.concat(inheritedMethodsAndAccessors);
+  }
+
+  return methodsAndAccessors;
+}
+
+function getAllAccessors(obj, bindTo) {
+  let methodsAndAccessors: string[] = [];
+
+  // Iterate over own properties of the object
+  Object.getOwnPropertyNames(obj).forEach((prop) => {
+    const descriptor = Object.getOwnPropertyDescriptor(obj, prop);
+    if (!descriptor) {
+      return;
+    }
+    // if (descriptor.get || descriptor.set) {debugger}
+    if (descriptor.get || descriptor.set) {
+      console.log(prop);
+      Object.defineProperty(obj, prop, {
+        ...descriptor,
+        get() {
+          return descriptor.get!.bind(obj);
+        },
+      });
+      methodsAndAccessors.push(prop);
+    }
+  });
+
+  // Recursively traverse the prototype chain
+  const prototype = Object.getPrototypeOf(obj);
+  if (prototype !== null) {
+    const inheritedMethodsAndAccessors = getAllAccessors(prototype, bindTo);
+    console.log(inheritedMethodsAndAccessors);
+    methodsAndAccessors = methodsAndAccessors.concat(inheritedMethodsAndAccessors);
+  }
+
+  return methodsAndAccessors;
+}
+
+// const a = {
+//   a: 1,
+//   b() {
+//     return 2;
+//   },
+//   get c() {
+//     return 3;
+//   },
+//   set c(v) {
+//     console.log(v);
+//   },
+// };
+// console.log()
+
 export class ReactiveStore {
   constructor(protected get: Get) {
-    return reactive(this);
+    const reactiveThis = reactive(this);
+    // bind all methods to the non-reactive instance
+    for (const key of getAllMethods(this)) {
+      reactiveThis[key] = reactiveThis[key].bind(reactiveThis);
+    }
+    for (const key of getAllAccessors(this, this)) {
+      // TODO include getters
+      // const descriptor = Object.getOwnPropertyDescriptor(this, key);
+      // debugger
+      // Object.defineProperty(reactiveThis, key, {
+      //   ...descriptor,
+      //   get() {
+      //     return descriptor?.get!.bind(reactiveThis);
+      //   },
+      // });
+    }
+    return reactiveThis;
   }
 }
 
