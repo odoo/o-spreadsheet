@@ -19,6 +19,7 @@ import {
   HeaderIndex,
   Pixel,
   Position,
+  Rect,
   Ref,
   SpreadsheetChildEnv,
 } from "../../types/index";
@@ -328,6 +329,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     return this.hoveredCell.col === col && this.hoveredCell.row === row;
   }
 
+  private getGridRect(): Rect {
+    return { ...this.canvasPosition, ...this.env.model.getters.getSheetViewDimensionWithHeaders() };
+  }
+
   // ---------------------------------------------------------------------------
   // Zone selection with mouse
   // ---------------------------------------------------------------------------
@@ -451,9 +456,9 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     } else if (this.env.model.getters.getActiveRows().has(row)) {
       type = "ROW";
     }
-    const { x, y, width, height } = this.env.model.getters.getVisibleRect(lastZone);
-
-    this.toggleContextMenu(type, x + width, y + height);
+    const { x, y, width } = this.env.model.getters.getVisibleRect(lastZone);
+    const gridRect = this.getGridRect();
+    this.toggleContextMenu(type, gridRect.x + x + width, gridRect.y + y);
   }
 
   onCellRightClicked(col: HeaderIndex, row: HeaderIndex, { x, y }: DOMCoordinates) {

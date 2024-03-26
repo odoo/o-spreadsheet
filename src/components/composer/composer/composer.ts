@@ -100,6 +100,7 @@ export interface ComposerProps {
   focus: "inactive" | "cellFocus" | "contentFocus";
   onComposerContentFocused: () => void;
   onComposerCellFocused?: (content: String) => void;
+  onInputContextMenu?: (event: MouseEvent) => void;
   isDefaultFocus?: boolean;
 }
 
@@ -446,6 +447,12 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
 
   onCompleted(text: string | undefined) {
     text && this.autoComplete(text);
+  }
+
+  onContextMenu(ev: MouseEvent) {
+    if (this.env.model.getters.getEditionMode() === "inactive") {
+      this.props.onInputContextMenu?.(ev);
+    }
   }
 
   // ---------------------------------------------------------------------------
