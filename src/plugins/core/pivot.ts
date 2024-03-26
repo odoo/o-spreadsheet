@@ -86,14 +86,6 @@ export class PivotCorePlugin extends CorePlugin {
         this.addPivot(newPivotId, pivot);
         break;
       }
-      // this command is deprecated. use UPDATE_PIVOT instead
-      // TODOPRO
-      // @ts-ignore This is bad :snif:
-      case "UPDATE_ODOO_PIVOT_DOMAIN": {
-        // @ts-ignore This is bad :snif:
-        this.history.update("pivots", cmd.pivotId, "domain", cmd.domain);
-        break;
-      }
       case "UPDATE_PIVOT": {
         this.history.update("pivots", cmd.pivotId, cmd.pivot);
         break;
