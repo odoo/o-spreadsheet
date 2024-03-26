@@ -118,6 +118,12 @@ export const invalidateEvaluationCommands = new Set<CommandTypes>([
   "REDO",
   "ADD_MERGE",
   "UPDATE_LOCALE",
+  "ADD_PIVOT",
+  "UPDATE_PIVOT",
+  "INSERT_PIVOT",
+  "RENAME_PIVOT",
+  "REMOVE_PIVOT",
+  "DUPLICATE_PIVOT",
 ]);
 
 export const invalidateDependenciesCommands = new Set<CommandTypes>(["MOVE_RANGES"]);
