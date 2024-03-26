@@ -178,6 +178,7 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
         if (this.state.link.url) {
           this.save();
         }
+        ev.preventDefault();
         break;
       case "Escape":
         this.cancel();
