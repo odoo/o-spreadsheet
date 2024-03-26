@@ -145,6 +145,7 @@ import { SpreadsheetStore } from "./stores";
 import { HighlightStore } from "./stores/highlight_store";
 import { ModelStore } from "./stores/model_store";
 import { NotificationStore } from "./stores/notification_store";
+import { PivotSidePanelStore } from "./stores/pivot_side_panel_store";
 import { RendererStore } from "./stores/renderer_store";
 import { AddFunctionDescription, isMatrix } from "./types";
 import { errorTypes } from "./types/errors";
@@ -360,6 +361,7 @@ export const stores = {
   useStore,
   useLocalStore,
   SidePanelStore,
+  PivotSidePanelStore,
 };
 
 export type { StoreConstructor, StoreParams } from "./store_engine";

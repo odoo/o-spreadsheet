@@ -1,4 +1,4 @@
-import { PivotMeasure } from "../../types/pivot";
+import { PivotFields, PivotMeasure } from "../../types/pivot";
 import { PivotRuntimeDefinition } from "./pivot_runtime_definition";
 import { SpreadsheetPivotTable } from "./spreadsheet_pivot_table";
 
@@ -14,4 +14,5 @@ export interface Pivot<T = PivotRuntimeDefinition> {
   assertIsValid({ throwOnError }: { throwOnError: boolean }): boolean;
   isReady(): boolean; //TODOPRO
   load(params: unknown): Promise<void>; //TODOPRO
+  getFields(): PivotFields; //TODOPRO
 }

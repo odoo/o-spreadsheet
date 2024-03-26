@@ -42,6 +42,7 @@ export interface PivotField {
   searchable?: boolean;
   aggregator?: string;
   store?: boolean;
+  groupable?: boolean;
 }
 
 export type PivotFields = Record<string, PivotField | undefined>;

@@ -95,6 +95,7 @@ export const PERIODS = {
 };
 
 const DATE_FIELDS = ["date", "datetime"];
+export const MEASURES_TYPES = ["integer", "float", "monetary"];
 
 /**
  * Parse a dimension string into a pivot dimension definition.
