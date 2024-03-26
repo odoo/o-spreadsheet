@@ -241,7 +241,7 @@ export class PivotUIPlugin extends UIPlugin {
     const dataSourceId = this.getPivotDataSourceId(pivotId);
     const definition = this.getters.getPivotCoreDefinition(pivotId);
     if (recreate || !(dataSourceId in this.pivots)) {
-      const cls = pivotRegistry.get(definition.type);
+      const cls = pivotRegistry.get(definition.type).cls;
       this.pivots[dataSourceId] = new cls(this.custom, { definition, getters: this.getters });
     }
   }

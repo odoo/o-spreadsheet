@@ -1,8 +1,9 @@
 import { ModelConfig } from "../../model";
 import { Registry } from "../../registries/registry";
 import { Getters } from "../../types";
-import { PivotCoreDefinition } from "../../types/pivot";
+import { PivotCoreDefinition, PivotFields } from "../../types/pivot";
 import { Pivot } from "./pivot_runtime";
+import { PivotRuntimeDefinition } from "./pivot_runtime_definition";
 
 interface PivotParams {
   definition: PivotCoreDefinition;
@@ -10,5 +11,13 @@ interface PivotParams {
 }
 
 type PivotConstructor = new (custom: ModelConfig["custom"], params: PivotParams) => Pivot;
+type PivotDefinitionConstructor = new (
+  definition: PivotCoreDefinition,
+  fields: PivotFields
+) => PivotRuntimeDefinition;
+interface PivotRegistryItem {
+  cls: PivotConstructor;
+  definition: PivotDefinitionConstructor;
+}
 
-export const pivotRegistry = new Registry<PivotConstructor>();
+export const pivotRegistry = new Registry<PivotRegistryItem>();
