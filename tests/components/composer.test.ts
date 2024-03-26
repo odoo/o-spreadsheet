@@ -627,6 +627,19 @@ describe("composer", () => {
     expect(cell.link.url).toBe("http://odoo.com");
   });
 
+  test("Pressing Enter while editing a label does not open grid composer", async () => {
+    setCellContent(model, "A1", "[label](url.com)");
+    await simulateClick(".o-topbar-menu[data-id='insert']");
+    await simulateClick(".o-menu-item[data-name='insert_link']");
+    const editor = fixture.querySelector(".o-link-editor");
+    expect(editor).toBeTruthy();
+
+    editor!.querySelectorAll("input")[0].focus();
+    await keyDown("Enter");
+    expect(fixture.querySelector(".o-link-editor")).toBeFalsy();
+    expect(model.getters.getEditionMode()).toBe("inactive");
+  });
+
   test("Hitting enter on topbar composer will properly update it and stop the edition", async () => {
     setCellContent(model, "A1", "I am Tabouret");
     await clickCell(model, "A1");
