@@ -53,10 +53,6 @@ export class PivotUIPlugin extends UIPlugin {
       case "REFRESH_PIVOT":
         this.refreshPivot(cmd.id);
         break;
-      // @ts-ignore Should be moved to Odoo TODOPRO
-      case "REFRESH_ALL_DATA_SOURCES":
-        this.refreshAllPivots();
-        break;
       case "ADD_PIVOT": {
         this.setupPivot(cmd.pivotId);
         break;
@@ -239,15 +235,6 @@ export class PivotUIPlugin extends UIPlugin {
   private refreshPivot(pivotId: UID) {
     const pivot = this.getters.getPivot(pivotId);
     pivot.load({ reload: true });
-  }
-
-  /**
-   * Refresh the cache of all the pivots
-   */
-  private refreshAllPivots() {
-    for (const pivotId of this.getters.getPivotIds()) {
-      this.refreshPivot(pivotId);
-    }
   }
 
   setupPivot(pivotId: UID, { recreate } = { recreate: false }) {
