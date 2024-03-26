@@ -564,12 +564,9 @@ export interface UpdatePivotCommand {
   pivot: PivotDefinition;
 }
 
-export interface InsertPivotCommand {
+export interface InsertPivotCommand extends PositionDependentCommand {
   type: "INSERT_PIVOT";
   pivotId: UID;
-  sheetId: string;
-  col: number;
-  row: number;
   table: SPTableData;
 }
 
