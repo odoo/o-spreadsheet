@@ -1,5 +1,6 @@
 import { _t } from "../translation";
 import { AddFunctionDescription, FPayload, FPayloadNumber, Maybe } from "../types";
+import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
 import { assert, isEvaluationError, toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";
@@ -50,7 +51,11 @@ export const DIVIDE = {
   returns: ["NUMBER"],
   compute: function (dividend: Maybe<FPayload>, divisor: Maybe<FPayload>): FPayloadNumber {
     const _divisor = toNumber(divisor, this.locale);
-    assert(() => _divisor !== 0, _t("The divisor must be different from zero."));
+    assert(
+      () => _divisor !== 0,
+      _t("The divisor must be different from zero."),
+      CellErrorType.DivisionByZero
+    );
     return {
       value: toNumber(dividend, this.locale) / _divisor,
       format: dividend?.format || divisor?.format,

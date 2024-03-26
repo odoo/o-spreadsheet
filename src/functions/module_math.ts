@@ -8,12 +8,14 @@ import {
   Maybe,
   isMatrix,
 } from "../types";
+import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
 import { assertPositive } from "./helper_assert";
 import { sum } from "./helper_math";
 import { getUnitMatrix } from "./helper_matrices";
 import {
   assert,
+  assertNotZero,
   inferFormat,
   isEvaluationError,
   reduceAny,
@@ -214,7 +216,8 @@ export const ATAN2 = {
     const _y = toNumber(y, this.locale);
     assert(
       () => _x !== 0 || _y !== 0,
-      _t("Function [[FUNCTION_NAME]] caused a divide by zero error.")
+      _t("Function [[FUNCTION_NAME]] caused a divide by zero error."),
+      CellErrorType.DivisionByZero
     );
     return Math.atan2(_y, _x);
   },
@@ -400,10 +403,7 @@ export const COT = {
   returns: ["NUMBER"],
   compute: function (angle: Maybe<FPayload>): number {
     const _angle = toNumber(angle, this.locale);
-    assert(
-      () => _angle !== 0,
-      _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
-    );
+    assertNotZero(_angle);
     return 1 / Math.tan(_angle);
   },
   isExported: true,
@@ -418,10 +418,7 @@ export const COTH = {
   returns: ["NUMBER"],
   compute: function (value: Maybe<FPayload>): number {
     const _value = toNumber(value, this.locale);
-    assert(
-      () => _value !== 0,
-      _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
-    );
+    assertNotZero(_value);
     return 1 / Math.tanh(_value);
   },
   isExported: true,
@@ -601,10 +598,7 @@ export const CSC = {
   returns: ["NUMBER"],
   compute: function (angle: Maybe<FPayload>): number {
     const _angle = toNumber(angle, this.locale);
-    assert(
-      () => _angle !== 0,
-      _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
-    );
+    assertNotZero(_angle);
     return 1 / Math.sin(_angle);
   },
   isExported: true,
@@ -619,10 +613,7 @@ export const CSCH = {
   returns: ["NUMBER"],
   compute: function (value: Maybe<FPayload>): number {
     const _value = toNumber(value, this.locale);
-    assert(
-      () => _value !== 0,
-      _t("Evaluation of function [[FUNCTION_NAME]] caused a divide by zero error.")
-    );
+    assertNotZero(_value);
     return 1 / Math.sinh(_value);
   },
   isExported: true,
@@ -897,7 +888,11 @@ export const LN = {
 // MOD
 // -----------------------------------------------------------------------------
 function mod(dividend: number, divisor: number): number {
-  assert(() => divisor !== 0, _t("The divisor must be different from 0."));
+  assert(
+    () => divisor !== 0,
+    _t("The divisor must be different from 0."),
+    CellErrorType.DivisionByZero
+  );
   const modulus = dividend % divisor;
   // -42 % 10 = -2 but we want 8, so need the code below
   if ((modulus > 0 && divisor < 0) || (modulus < 0 && divisor > 0)) {

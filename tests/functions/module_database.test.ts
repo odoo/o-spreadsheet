@@ -255,7 +255,7 @@ describe("database formula", () => {
 
       const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
       expect(gridResult.A20).toBeCloseTo(0.02828, 5);
-      expect(gridResult.A21).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+      expect(gridResult.A21).toBe("#DIV/0!");
       expect(gridResult.A22).toBeCloseTo(24.47448, 5);
       expect(gridResult.A23).toBeCloseTo(6.9282, 5);
     });
@@ -309,7 +309,7 @@ describe("database formula", () => {
 
       const gridResult = evaluateGrid({ ...database, ...criteria, ...grid });
       expect(gridResult.A20).toBeCloseTo(0.0008, 4);
-      expect(gridResult.A21).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+      expect(gridResult.A21).toBe("#DIV/0!");
       expect(gridResult.A22).toBe(599);
       expect(gridResult.A23).toBe(48);
     });

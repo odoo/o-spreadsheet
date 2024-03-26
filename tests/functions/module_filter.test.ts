@@ -241,7 +241,7 @@ describe("UNIQUE function", () => {
     expect(getRangeValuesAsMatrix(model, "B1:B4")).toEqual([
       ["#BAD_EXPR"],
       ["Peter"],
-      ["#ERROR"],
+      ["#DIV/0!"],
       [null],
     ]);
   });

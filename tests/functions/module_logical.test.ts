@@ -70,7 +70,7 @@ describe("IF formula", () => {
 
   test("functional tests on simple arguments with errors", () => {
     expect(evaluateCell("A1", { A1: "=IF(TRUE,42,1/0)" })).toBe(42);
-    expect(evaluateCell("A1", { A1: "=IF(TRUE,1/0,42)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: "=IF(TRUE,1/0,42)" })).toBe("#DIV/0!");
   });
 
   test("casting tests on simple arguments", () => {
@@ -92,10 +92,10 @@ describe("IF formula", () => {
       42
     );
     expect(evaluateCell("A1", { A1: "=IF(A2, A3, A4)", A2: "TRUE", A3: "=1/0", A4: "42" })).toBe(
-      "#ERROR"
-    ); // @compatibility: on google sheets, return #DIV/0!
+      "#DIV/0!"
+    );
     expect(evaluateCell("A1", { A1: "=IF(TRUE, 1/(1/1), 1/(1/0))" })).toBe(1);
-    expect(evaluateCell("A1", { A1: "=IF(FALSE, 1/(1/1), 1/(1/0))" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=IF(FALSE, 1/(1/1), 1/(1/0))" })).toBe("#DIV/0!");
     expect(evaluateCell("A1", { A1: "=IF(FALSE, A1, 42)" })).toBe(42);
     expect(evaluateCell("A1", { A1: "=IF(TRUE, A1, 42)" })).toBe("#CYCLE");
     expect(evaluateCell("A2", { A1: "=IF(TRUE, A1, 42)", A2: "=A1" })).toBe("#CYCLE");
@@ -145,7 +145,7 @@ describe("IFERROR formula", () => {
 
   test("functional tests on arguments with errors", () => {
     expect(evaluateCell("A1", { A1: "=IFERROR(A2, A3)", A2: "TRUE", A3: "=1/0" })).toBe(true);
-    expect(evaluateCell("A1", { A1: "=IFERROR(A2, A3)", A2: "=1/0", A3: "=1/0" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: "=IFERROR(A2, A3)", A2: "=1/0", A3: "=1/0" })).toBe("#DIV/0!");
     expect(evaluateCell("A1", { A1: "=IFERROR(TRUE, COUNT(1/0))" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=IFERROR(1/0, COUNT(A1))" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=IFERROR(IFERROR(TRUE, 1/0), 1/0)" })).toBe(true);
@@ -180,7 +180,7 @@ describe("IFNA formula", () => {
     expect(evaluateCell("A1", { A1: '=IFNA("" , 42)' })).toBe("");
     expect(evaluateCell("A1", { A1: "=IFNA(3% , 42)" })).toBe(0.03);
     expect(evaluateCell("A1", { A1: "=IFNA(FALSE, 42/0)" })).toBe(false);
-    expect(evaluateCell("A1", { A1: "=IFNA(42/0, FALSE)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=IFNA(42/0, FALSE)" })).toBe("#DIV/0!");
 
     expect(evaluateCell("A1", { A1: "=IFNA(NA(), 42)" })).toBe(42);
   });
@@ -218,8 +218,8 @@ describe("IFS formula", () => {
 
   test("functional tests on simple arguments with errors", () => {
     expect(evaluateCell("A1", { A1: '=IFS(TRUE, "ok1", 1/0, 1/0)' })).toBe("ok1");
-    expect(evaluateCell("A1", { A1: '=IFS(1/0, "ok1", TRUE, 42)' })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
-    expect(evaluateCell("A1", { A1: "=IFS(TRUE, 1/0, TRUE, 42)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: '=IFS(1/0, "ok1", TRUE, 42)' })).toBe("#DIV/0!");
+    expect(evaluateCell("A1", { A1: "=IFS(TRUE, 1/0, TRUE, 42)" })).toBe("#DIV/0!");
   });
 
   test("casting tests on simple arguments", () => {
@@ -271,7 +271,7 @@ describe("IFS formula", () => {
         A4: "TRUE",
         A5: "42",
       })
-    ).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    ).toBe("#DIV/0!");
     expect(
       evaluateCell("A1", {
         A1: "=IFS(A2, A3, A4, A5)",
@@ -280,7 +280,7 @@ describe("IFS formula", () => {
         A4: "TRUE",
         A5: "42",
       })
-    ).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    ).toBe("#DIV/0!");
   });
 
   test("casting tests on cell arguments", () => {

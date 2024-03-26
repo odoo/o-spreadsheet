@@ -85,7 +85,7 @@ describe("CONCAT formula", () => {
 describe("DIVIDE formula", () => {
   test("functional tests on simple arguments", () => {
     expect(evaluateCell("A1", { A1: "=DIVIDE()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=DIVIDE( ,  )" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: "=DIVIDE( ,  )" })).toBe("#DIV/0!");
     expect(evaluateCell("A1", { A1: "=DIVIDE( , 1)" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=DIVIDE(84, 42)" })).toBe(2);
     expect(evaluateCell("A1", { A1: "=DIVIDE(48, -24)" })).toBe(-2);
@@ -104,7 +104,7 @@ describe("DIVIDE formula", () => {
   });
 
   test("functional tests on cell arguments", () => {
-    expect(evaluateCell("A1", { A1: "=DIVIDE(A2, A3)" })).toBe("#ERROR"); // @compatibility: on google sheets, return #DIV/0!
+    expect(evaluateCell("A1", { A1: "=DIVIDE(A2, A3)" })).toBe("#DIV/0!");
     expect(evaluateCell("A1", { A1: "=DIVIDE(A2, A3)", A3: "42" })).toBe(0);
     expect(evaluateCell("A1", { A1: "=DIVIDE(A2, A3)", A2: "42", A3: "2" })).toBe(21);
     expect(evaluateCell("A1", { A1: "=DIVIDE(A2, A3)", A2: "4.2", A3: "-1" })).toBe(-4.2);
