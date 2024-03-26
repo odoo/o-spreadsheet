@@ -1,4 +1,5 @@
 import { Token, getFunctionsFromTokens } from "../../formulas";
+import { _t } from "../../translation";
 
 const PIVOT_FUNCTIONS = ["PIVOT.VALUE", "PIVOT.HEADER", "PIVOT"];
 
@@ -49,3 +50,11 @@ export function getFirstPivotFunction(tokens: Token[]) {
 export function getNumberOfPivotFunctions(tokens: Token[]) {
   return getFunctionsFromTokens(tokens, PIVOT_FUNCTIONS).length;
 }
+
+export const PERIODS = {
+  day: _t("Day"),
+  week: _t("Week"),
+  month: _t("Month"),
+  quarter: _t("Quarter"),
+  year: _t("Year"),
+};

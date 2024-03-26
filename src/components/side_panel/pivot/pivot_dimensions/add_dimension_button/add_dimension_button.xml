@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet.AddDimensionButton">
+  <t t-name="o-spreadsheet-AddDimensionButton">
     <span class="btn btn-sm btn-link add-dimension" t-on-click="togglePopover" t-ref="button">
       Add
     </span>

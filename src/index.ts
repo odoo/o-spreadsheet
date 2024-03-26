@@ -38,6 +38,7 @@ import { Checkbox } from "./components/side_panel/components/checkbox/checkbox";
 import { Section } from "./components/side_panel/components/section/section";
 import { FindAndReplaceStore } from "./components/side_panel/find_and_replace/find_and_replace_store";
 import { AddDimensionButton } from "./components/side_panel/pivot/pivot_dimensions/add_dimension_button/add_dimension_button";
+import { PivotDimensionGranularity } from "./components/side_panel/pivot/pivot_dimensions/pivot_dimension_granularity/pivot_dimension_granularity";
 import { SidePanelStore } from "./components/side_panel/side_panel/side_panel_store";
 import { ValidationMessages } from "./components/validation_messages/validation_messages";
 import {
@@ -323,6 +324,7 @@ export const components = {
   SelectionInput,
   ValidationMessages,
   AddDimensionButton,
+  PivotDimensionGranularity,
 };
 
 export const hooks = {

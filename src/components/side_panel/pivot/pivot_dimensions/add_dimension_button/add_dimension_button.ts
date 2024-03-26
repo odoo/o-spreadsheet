@@ -21,7 +21,7 @@ css/* scss */ `
 `;
 
 export class AddDimensionButton extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.AddDimensionButton";
+  static template = "o-spreadsheet-AddDimensionButton";
   static components = { Popover };
   static props = {
     onFieldPicked: Function,
