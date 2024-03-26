@@ -6,8 +6,19 @@ import {
 } from "../../helpers/pivot/pivot_helpers";
 import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
 import { Pivot } from "../../helpers/pivot/pivot_runtime";
-import { CellPosition, Command, UID } from "../../types";
+import {
+  AddPivotCommand,
+  CellPosition,
+  Command,
+  CoreCommand,
+  UID,
+  UpdatePivotCommand,
+} from "../../types";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
+
+function isPivotCommand(cmd: CoreCommand): cmd is AddPivotCommand | UpdatePivotCommand {
+  return ["ADD_PIVOT", "UPDATE_PIVOT"].includes(cmd.type);
+}
 
 export class PivotUIPlugin extends UIPlugin {
   static getters = [
@@ -67,12 +78,9 @@ export class PivotUIPlugin extends UIPlugin {
       case "REDO": {
         this.unusedPivots = undefined;
 
-        const pivotCommands = cmd.commands.filter((cmd) =>
-          ["ADD_PIVOT", "UPDATE_PIVOT"].includes(cmd.type)
-        );
+        const pivotCommands = cmd.commands.filter(isPivotCommand);
 
         for (const cmd of pivotCommands) {
-          //@ts-ignore Find a way to tell typescript that pivotId is present TODOPRO
           const pivotId = cmd.pivotId;
           if (!this.getters.isExistingPivot(pivotId)) {
             continue;
