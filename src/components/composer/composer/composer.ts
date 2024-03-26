@@ -364,6 +364,9 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
       const el = this.composerRef.el! as HTMLInputElement;
       content = el.childNodes.length ? el.textContent! : "";
     }
+    if (!content && this.props.focus === "inactive") {
+      return;
+    }
     if (this.props.focus === "inactive") {
       return this.props.onComposerCellFocused?.(content);
     }
