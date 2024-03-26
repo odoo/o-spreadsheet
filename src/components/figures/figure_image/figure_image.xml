@@ -1,5 +1,5 @@
 <templates>
   <t t-name="o-spreadsheet-ImageFigure">
-    <img t-att-src="getImagePath" class="w-100 h-100"/>
+    <img t-att-src="getImageSrc" class="w-100 h-100"/>
   </t>
 </templates>

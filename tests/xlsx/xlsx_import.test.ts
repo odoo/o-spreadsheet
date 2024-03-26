@@ -17,7 +17,6 @@ import {
 import { BarChartDefinition } from "../../src/types/chart/bar_chart";
 import { LineChartDefinition } from "../../src/types/chart/line_chart";
 import { PieChartDefinition } from "../../src/types/chart/pie_chart";
-import { Image } from "../../src/types/image";
 import { SheetData, WorkbookData } from "../../src/types/workbook_data";
 import { XLSXCfOperatorType, XLSXSharedFormula } from "../../src/types/xlsx";
 import { hexaToInt } from "../../src/xlsx/conversion/color_conversion";
@@ -828,7 +827,9 @@ describe("Import xlsx data", () => {
   test("Can import images", () => {
     const testSheet = getWorkbookSheet("jestImages", convertedData)!;
     const figure = testSheet.figures.find((figure) => figure.tag === "image")!;
-    const imageData = figure.data as Image;
+    const imageData = figure.data;
+    expect(convertedData.version).toBe(12);
+    // path renamed to src in version 16
     expect(imageData.path).toEqual("relative path");
     expect(figure.width).toEqual(figure.height);
   });

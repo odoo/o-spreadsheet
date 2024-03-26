@@ -24,7 +24,7 @@ describe("image file store", () => {
           commands: [
             {
               type: "CREATE_IMAGE",
-              definition: { path: "/image/1", size, mimetype: "image/jpeg" },
+              definition: { src: "/image/1", size, mimetype: "image/jpeg" },
               figureId: "figureId",
               position: { x: 0, y: 0 },
               sheetId: data.sheets[0].id,
@@ -59,7 +59,7 @@ describe("image file store", () => {
           commands: [
             {
               type: "CREATE_IMAGE",
-              definition: { path: "/image/1", size, mimetype: "image/jpeg" },
+              definition: { src: "/image/1", size, mimetype: "image/jpeg" },
               figureId: "figureId",
               position: { x: 0, y: 0 },
               sheetId,
@@ -95,7 +95,7 @@ describe("image file store", () => {
           commands: [
             {
               type: "CREATE_IMAGE",
-              definition: { path: "/image/1", size, mimetype: "image/jpeg" },
+              definition: { src: "/image/1", size, mimetype: "image/jpeg" },
               figureId: "figureId",
               position: { x: 0, y: 0 },
               sheetId,
@@ -137,7 +137,7 @@ describe("image file store", () => {
           commands: [
             {
               type: "CREATE_IMAGE",
-              definition: { path: "/image/1", size, mimetype: "image/jpeg" },
+              definition: { src: "/image/1", size, mimetype: "image/jpeg" },
               figureId: "figureId",
               position: { x: 0, y: 0 },
               sheetId,
@@ -186,7 +186,7 @@ describe("image file store", () => {
           commands: [
             {
               type: "CREATE_IMAGE",
-              definition: { path: "/image/1", size, mimetype: "image/jpeg" },
+              definition: { src: "/image/1", size, mimetype: "image/jpeg" },
               figureId: "figure_1",
               position: { x: 0, y: 0 },
               sheetId,
@@ -194,7 +194,7 @@ describe("image file store", () => {
             },
             {
               type: "CREATE_IMAGE",
-              definition: { path: "/image/1", size },
+              definition: { src: "/image/1", size },
               figureId: "figure_2",
               position: { x: 0, y: 0 },
               sheetId,
@@ -230,7 +230,7 @@ describe("image file store", () => {
             { type: "CREATE_SHEET", position: 1, sheetId: "sheet_2" },
             {
               type: "CREATE_IMAGE",
-              definition: { path: "/image/1", size, mimetype: "image/jpeg" },
+              definition: { src: "/image/1", size, mimetype: "image/jpeg" },
               figureId: "figureId",
               position: { x: 0, y: 0 },
               sheetId: "sheet_2",
@@ -266,7 +266,7 @@ describe("image file store", () => {
             { type: "CREATE_SHEET", position: 1, sheetId: "sheet_2" },
             {
               type: "CREATE_IMAGE",
-              definition: { path: "/image/1", size, mimetype: "image/jpeg" },
+              definition: { src: "/image/1", size, mimetype: "image/jpeg" },
               figureId: "figureId",
               position: { x: 0, y: 0 },
               sheetId: "sheet_2",
@@ -300,7 +300,7 @@ describe("image file store", () => {
         x: 0,
         y: 0,
         data: {
-          path: "/image/1",
+          src: "/image/1",
           size: { width: 100, height: 100 },
           mimetype: "image/jpeg",
         },
