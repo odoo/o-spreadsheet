@@ -166,6 +166,7 @@ describe("split to columns sidePanel component", () => {
   });
 
   test("Panel is closed if the user starts to edit a cell", async () => {
+    expect(onCloseSidePanel).not.toHaveBeenCalled();
     const composerStore = parent.env.getStore(ComposerStore);
     composerStore.startEdition();
     await nextTick();
