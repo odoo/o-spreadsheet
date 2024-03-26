@@ -41,6 +41,7 @@ import { AddDimensionButton } from "./components/side_panel/pivot/pivot_dimensio
 import { PivotDimension } from "./components/side_panel/pivot/pivot_dimensions/pivot_dimension/pivot_dimension";
 import { PivotDimensionGranularity } from "./components/side_panel/pivot/pivot_dimensions/pivot_dimension_granularity/pivot_dimension_granularity";
 import { PivotDimensionOrder } from "./components/side_panel/pivot/pivot_dimensions/pivot_dimension_order/pivot_dimension_order";
+import { PivotDimensions } from "./components/side_panel/pivot/pivot_dimensions/pivot_dimensions";
 import { SidePanelStore } from "./components/side_panel/side_panel/side_panel_store";
 import { ValidationMessages } from "./components/validation_messages/validation_messages";
 import {
@@ -97,7 +98,9 @@ import {
   getFirstPivotFunction,
   getMaxObjectId,
   getNumberOfPivotFunctions,
+  isDateField,
   makePivotFormula,
+  parseDimension,
 } from "./helpers/pivot/pivot_helpers";
 import { pivotRegistry } from "./helpers/pivot/pivot_registry";
 import {
@@ -288,6 +291,8 @@ export const helpers = {
   getFunctionsFromTokens,
   getFirstPivotFunction,
   getNumberOfPivotFunctions,
+  parseDimension,
+  isDateField,
 };
 
 export const links = {
@@ -329,6 +334,7 @@ export const components = {
   PivotDimensionGranularity,
   PivotDimensionOrder,
   PivotDimension,
+  PivotDimensions,
 };
 
 export const hooks = {
