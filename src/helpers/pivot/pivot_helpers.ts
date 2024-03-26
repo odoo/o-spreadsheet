@@ -45,8 +45,7 @@ export function getFirstPivotFunction(tokens: Token[]) {
 /**
  * Parse a spreadsheet formula and detect the number of PIVOT functions that are
  * present in the given formula.
- * TODOPRO Rename this function to getNumberOfPivotFunctions
  */
-export function getNumberOfPivotFormulas(tokens: Token[]) {
+export function getNumberOfPivotFunctions(tokens: Token[]) {
   return getFunctionsFromTokens(tokens, PIVOT_FUNCTIONS).length;
 }

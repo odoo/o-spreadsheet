@@ -1,6 +1,9 @@
 import { Token } from "../../formulas";
 import { astToFormula } from "../../formulas/parser";
-import { getFirstPivotFunction, getNumberOfPivotFormulas } from "../../helpers/pivot/pivot_helpers";
+import {
+  getFirstPivotFunction,
+  getNumberOfPivotFunctions,
+} from "../../helpers/pivot/pivot_helpers";
 import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
 import { Pivot } from "../../helpers/pivot/pivot_runtime";
 import { CellPosition, Command, UID } from "../../types";
@@ -138,7 +141,7 @@ export class PivotUIPlugin extends UIPlugin {
    */
   getPivotDomainArgsFromPosition(position: CellPosition) {
     const cell = this.getters.getCorrespondingFormulaCell(position);
-    if (!cell || !cell.isFormula || getNumberOfPivotFormulas(cell.compiledFormula.tokens) === 0) {
+    if (!cell || !cell.isFormula || getNumberOfPivotFunctions(cell.compiledFormula.tokens) === 0) {
       return undefined;
     }
     const mainPosition = this.getters.getCellPosition(cell.id);

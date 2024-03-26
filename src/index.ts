@@ -92,7 +92,7 @@ import { openLink, urlRegistry, urlRepresentation } from "./helpers/links";
 import {
   getFirstPivotFunction,
   getMaxObjectId,
-  getNumberOfPivotFormulas,
+  getNumberOfPivotFunctions,
   makePivotFormula,
 } from "./helpers/pivot/pivot_helpers";
 import { pivotRegistry } from "./helpers/pivot/pivot_registry";
@@ -283,7 +283,7 @@ export const helpers = {
   getMaxObjectId,
   getFunctionsFromTokens,
   getFirstPivotFunction,
-  getNumberOfPivotFormulas,
+  getNumberOfPivotFunctions,
 };
 
 export const links = {
