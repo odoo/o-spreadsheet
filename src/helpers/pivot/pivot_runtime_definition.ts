@@ -1,11 +1,11 @@
 import { _t } from "../../translation";
 import {
-  CommonPivotDefinition,
-  Fields,
+  CommonPivotCoreDefinition,
+  PivotCoreDimension,
+  PivotCoreMeasure,
   PivotDimension,
-  PivotDimensionDefinition,
+  PivotFields,
   PivotMeasure,
-  PivotMeasureDefinition,
 } from "../../types/pivot";
 
 /**
@@ -18,14 +18,14 @@ export class PivotRuntimeDefinition {
   readonly columns: PivotDimension[];
   readonly rows: PivotDimension[];
 
-  constructor(definition: CommonPivotDefinition, fields: Fields) {
+  constructor(definition: CommonPivotCoreDefinition, fields: PivotFields) {
     this.measures = definition.measures.map((measure) => createMeasure(fields, measure));
     this.columns = definition.columns.map((dimension) => createPivotDimension(fields, dimension));
     this.rows = definition.rows.map((dimension) => createPivotDimension(fields, dimension));
   }
 }
 
-function createMeasure(fields: Fields, measure: PivotMeasureDefinition): PivotMeasure {
+function createMeasure(fields: PivotFields, measure: PivotCoreMeasure): PivotMeasure {
   const name = measure.name;
   const aggregator = measure.aggregator || fields[name]?.aggregator;
   const field =
@@ -56,7 +56,7 @@ function createMeasure(fields: Fields, measure: PivotMeasureDefinition): PivotMe
   };
 }
 
-function createPivotDimension(fields: Fields, dimension: PivotDimensionDefinition): PivotDimension {
+function createPivotDimension(fields: PivotFields, dimension: PivotCoreDimension): PivotDimension {
   const field = fields[dimension.name];
   if (!field) {
     throw new Error(`Field ${name} not found in fields`);

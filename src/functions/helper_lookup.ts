@@ -15,7 +15,7 @@ export function getPivotId(pivotFormulaId: string, getters: Getters) {
 }
 
 export function assertMeasureExist(pivotId: UID, measure: string, getters: Getters) {
-  const { measures } = getters.getPivotDefinition(pivotId);
+  const { measures } = getters.getPivotCoreDefinition(pivotId);
   if (!measures.find((m) => m.name === measure)) {
     const validMeasures = `(${measures.map((m) => m.name).join(", ")})`;
     throw new EvaluationError(

@@ -1,11 +1,11 @@
 import { ModelConfig } from "../../model";
 import { Registry } from "../../registries/registry";
 import { Getters } from "../../types";
-import { CorePivotDefinition } from "../../types/pivot";
+import { PivotCoreDefinition } from "../../types/pivot";
 import { Pivot } from "./pivot_runtime";
 
 interface PivotParams {
-  definition: CorePivotDefinition;
+  definition: PivotCoreDefinition;
   getters: Getters;
 }
 

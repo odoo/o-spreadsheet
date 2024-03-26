@@ -25,7 +25,7 @@ import { ClipboardPasteOptions } from "./clipboard";
 import { FigureSize } from "./figure";
 import { SearchOptions } from "./find_and_replace";
 import { Image } from "./image";
-import { PivotDefinition, SPTableData } from "./pivot";
+import { PivotCoreDefinition, SPTableData } from "./pivot";
 import { RangeData } from "./range";
 import { CoreTableType, TableConfig } from "./table";
 
@@ -555,13 +555,13 @@ export interface UpdateLocaleCommand {
 export interface AddPivotCommand {
   type: "ADD_PIVOT";
   pivotId: UID;
-  pivot: PivotDefinition;
+  pivot: PivotCoreDefinition;
 }
 
 export interface UpdatePivotCommand {
   type: "UPDATE_PIVOT";
   pivotId: UID;
-  pivot: PivotDefinition;
+  pivot: PivotCoreDefinition;
 }
 
 export interface InsertPivotCommand extends PositionDependentCommand {
