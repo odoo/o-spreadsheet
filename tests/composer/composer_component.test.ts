@@ -33,6 +33,7 @@ import {
 import {
   ComposerWrapper,
   mountComposerWrapper,
+  mountSpreadsheet,
   nextTick,
   typeInComposerHelper,
 } from "../test_helpers/helpers";
@@ -515,6 +516,20 @@ describe("composer", () => {
     const link = getEvaluatedCell(model, "A1").link;
     expect(link?.label).toBe("label updated");
     expect(link?.url).toBe("http://odoo.com");
+  });
+
+  test("Pressing Enter while editing a label does not open grid composer", async () => {
+    ({ model, fixture } = await mountSpreadsheet());
+    setCellContent(model, "A1", "[label](http://odoo.com)");
+    await simulateClick(".o-topbar-menu[data-id='insert']");
+    await simulateClick(".o-menu-item[data-name='insert_link']");
+    const editor = fixture.querySelector(".o-link-editor");
+    expect(editor).toBeTruthy();
+
+    editor!.querySelectorAll("input")[0].focus();
+    await keyDown({ key: "Enter" });
+    expect(fixture.querySelector(".o-link-editor")).toBeFalsy();
+    expect(model.getters.getEditionMode()).toBe("inactive");
   });
 
   describe("change selecting mode when typing specific token value", () => {
