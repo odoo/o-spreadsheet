@@ -72,7 +72,7 @@ css/* scss */ `
     }
     .o-disabled {
       opacity: 0.4;
-      pointer: default;
+      cursor: default;
       pointer-events: none;
     }
 
@@ -240,7 +240,7 @@ css/* scss */ `
 
   .o-number-input {
     /* Remove number input arrows */
-    -moz-appearance: textfield;
+    appearance: textfield;
     &::-webkit-outer-spin-button,
     &::-webkit-inner-spin-button {
       -webkit-appearance: none;
