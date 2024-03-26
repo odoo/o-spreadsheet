@@ -7,8 +7,17 @@ import { LineChartDefinition, LineChartRuntime } from "./line_chart";
 import { PieChartDefinition, PieChartRuntime } from "./pie_chart";
 import { ScatterChartDefinition, ScatterChartRuntime } from "./scatter_chart";
 import { ScorecardChartDefinition, ScorecardChartRuntime } from "./scorecard_chart";
+import { WaterfallChartDefinition, WaterfallChartRuntime } from "./waterfall_chart";
 
-export const CHART_TYPES = ["line", "bar", "pie", "scorecard", "gauge", "scatter"] as const;
+export const CHART_TYPES = [
+  "line",
+  "bar",
+  "pie",
+  "scorecard",
+  "gauge",
+  "scatter",
+  "waterfall",
+] as const;
 export type ChartType = (typeof CHART_TYPES)[number];
 
 export type ChartDefinition =
@@ -17,13 +26,15 @@ export type ChartDefinition =
   | BarChartDefinition
   | ScorecardChartDefinition
   | GaugeChartDefinition
-  | ScatterChartDefinition;
+  | ScatterChartDefinition
+  | WaterfallChartDefinition;
 
 export type ChartJSRuntime =
   | LineChartRuntime
   | PieChartRuntime
   | BarChartRuntime
-  | ScatterChartRuntime;
+  | ScatterChartRuntime
+  | WaterfallChartRuntime;
 
 export type ChartRuntime = ChartJSRuntime | ScorecardChartRuntime | GaugeChartRuntime;
 

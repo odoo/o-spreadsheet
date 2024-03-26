@@ -11,6 +11,7 @@ import { LineChartDesignPanel } from "./line_chart/line_chart_design_panel";
 import { ScatterConfigPanel } from "./scatter_chart/scatter_chart_config_panel";
 import { ScorecardChartConfigPanel } from "./scorecard_chart_panel/scorecard_chart_config_panel";
 import { ScorecardChartDesignPanel } from "./scorecard_chart_panel/scorecard_chart_design_panel";
+import { WaterfallChartConfigPanel } from "./waterfall_chart/waterfall_chart_config_panel";
 
 export { BarConfigPanel } from "./bar_chart/bar_chart_config_panel";
 export { BarChartDesignPanel } from "./bar_chart/bar_chart_design_panel";
@@ -54,4 +55,8 @@ chartSidePanelComponentRegistry
   .add("scorecard", {
     configuration: ScorecardChartConfigPanel,
     design: ScorecardChartDesignPanel,
+  })
+  .add("waterfall", {
+    configuration: WaterfallChartConfigPanel,
+    design: BarChartDesignPanel,
   });

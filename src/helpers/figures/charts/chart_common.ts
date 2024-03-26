@@ -23,6 +23,7 @@ import { LineChartDefinition } from "../../../types/chart/line_chart";
 import { PieChartDefinition } from "../../../types/chart/pie_chart";
 import { ScatterChartDefinition } from "../../../types/chart/scatter_chart";
 import { BaselineArrowDirection, BaselineMode } from "../../../types/chart/scorecard_chart";
+import { WaterfallChartDefinition } from "../../../types/chart/waterfall_chart";
 import { CellErrorType } from "../../../types/errors";
 import { relativeLuminance } from "../../color";
 import { formatValue } from "../../format";
@@ -278,7 +279,12 @@ export function toExcelLabelRange(
  * with an executed command
  */
 export function transformChartDefinitionWithDataSetsWithZone<
-  T extends LineChartDefinition | BarChartDefinition | PieChartDefinition | ScatterChartDefinition
+  T extends
+    | LineChartDefinition
+    | BarChartDefinition
+    | PieChartDefinition
+    | ScatterChartDefinition
+    | WaterfallChartDefinition
 >(definition: T, executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand): T {
   let labelRange: string | undefined;
   if (definition.labelRange) {
@@ -341,7 +347,12 @@ export function chartFontColor(backgroundColor: Color | undefined): Color {
 }
 
 export function checkDataset(
-  definition: LineChartDefinition | BarChartDefinition | PieChartDefinition | ScatterChartDefinition
+  definition:
+    | LineChartDefinition
+    | BarChartDefinition
+    | PieChartDefinition
+    | ScatterChartDefinition
+    | WaterfallChartDefinition
 ): CommandResult {
   if (definition.dataSets) {
     const invalidRanges =
@@ -358,7 +369,12 @@ export function checkDataset(
 }
 
 export function checkLabelRange(
-  definition: LineChartDefinition | BarChartDefinition | PieChartDefinition | ScatterChartDefinition
+  definition:
+    | LineChartDefinition
+    | BarChartDefinition
+    | PieChartDefinition
+    | ScatterChartDefinition
+    | WaterfallChartDefinition
 ): CommandResult {
   if (definition.labelRange) {
     const invalidLabels = !rangeReference.test(definition.labelRange || "");
