@@ -188,6 +188,7 @@ export class LinkEditor extends Component<LinkEditorProps, SpreadsheetChildEnv> 
           this.save();
         }
         ev.stopPropagation();
+        ev.preventDefault();
         break;
       case "Escape":
         this.cancel();
