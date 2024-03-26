@@ -107,12 +107,17 @@ export class AggregateStatisticsStore extends SpreadsheetStore {
     const sheetId = getters.getActiveSheetId();
     const cells = new Set<EvaluatedCell>();
 
+    const isColHidden = memoize((col: number) => getters.isColHidden(sheetId, col));
+    const isRowHidden = memoize((row: number) => getters.isRowHidden(sheetId, row));
     const zones = getters.getSelectedZones();
     for (const zone of zones) {
       for (let col = zone.left; col <= zone.right; col++) {
+        if (isColHidden(col)) {
+          continue; // Skip hidden columns
+        }
         for (let row = zone.top; row <= zone.bottom; row++) {
-          if (getters.isRowHidden(sheetId, row) || getters.isColHidden(sheetId, col)) {
-            continue; // Skip hidden cells
+          if (isRowHidden(row)) {
+            continue; // Skip hidden rows
           }
 
           const evaluatedCell = getters.getEvaluatedCell({ sheetId, col, row });
