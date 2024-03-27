@@ -8,6 +8,7 @@ import { LineChartDefinition, LineChartRuntime } from "./line_chart";
 import { PieChartDefinition, PieChartRuntime } from "./pie_chart";
 import { ScatterChartDefinition, ScatterChartRuntime } from "./scatter_chart";
 import { ScorecardChartDefinition, ScorecardChartRuntime } from "./scorecard_chart";
+import { WaterfallChartDefinition, WaterfallChartRuntime } from "./waterfall_chart";
 
 export const CHART_TYPES = [
   "line",
@@ -17,6 +18,7 @@ export const CHART_TYPES = [
   "gauge",
   "scatter",
   "combo",
+  "waterfall",
 ] as const;
 export type ChartType = (typeof CHART_TYPES)[number];
 
@@ -27,14 +29,21 @@ export type ChartDefinition =
   | ScorecardChartDefinition
   | GaugeChartDefinition
   | ScatterChartDefinition
-  | ComboChartDefinition;
+  | ComboChartDefinition
+  | WaterfallChartDefinition;
+
+export type ChartWithAxisDefinition = Extract<
+  ChartDefinition,
+  { dataSets: string[]; labelRange?: string }
+>;
 
 export type ChartJSRuntime =
   | LineChartRuntime
   | PieChartRuntime
   | BarChartRuntime
   | ComboChartRuntime
-  | ScatterChartRuntime;
+  | ScatterChartRuntime
+  | WaterfallChartRuntime;
 
 export type ChartRuntime = ChartJSRuntime | ScorecardChartRuntime | GaugeChartRuntime;
 

@@ -2,11 +2,13 @@ import { Component, useState } from "@odoo/owl";
 import { createRange, spreadRange } from "../../../../helpers";
 import { createDataSets } from "../../../../helpers/figures/charts";
 import { _t } from "../../../../translation";
-import { BarChartDefinition } from "../../../../types/chart/bar_chart";
-import { ComboChartDefinition } from "../../../../types/chart/combo_chart";
-import { LineChartDefinition } from "../../../../types/chart/line_chart";
-import { PieChartDefinition } from "../../../../types/chart/pie_chart";
-import { CommandResult, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
+import {
+  ChartWithAxisDefinition,
+  CommandResult,
+  DispatchResult,
+  SpreadsheetChildEnv,
+  UID,
+} from "../../../../types/index";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { ChartTerms } from "../../../translations_terms";
 import { ValidationMessages } from "../../../validation_messages/validation_messages";
@@ -18,17 +20,9 @@ import { ChartLabelRange } from "../building_blocks/label_range/label_range";
 
 interface Props {
   figureId: UID;
-  definition: LineChartDefinition | BarChartDefinition | PieChartDefinition;
-  canUpdateChart: (
-    figureId: UID,
-    definition: Partial<LineChartDefinition | BarChartDefinition | PieChartDefinition>
-  ) => DispatchResult;
-  updateChart: (
-    figureId: UID,
-    definition: Partial<
-      LineChartDefinition | BarChartDefinition | PieChartDefinition | ComboChartDefinition
-    >
-  ) => DispatchResult;
+  definition: ChartWithAxisDefinition;
+  canUpdateChart: (figureId: UID, definition: Partial<ChartWithAxisDefinition>) => DispatchResult;
+  updateChart: (figureId: UID, definition: Partial<ChartWithAxisDefinition>) => DispatchResult;
 }
 
 interface ChartPanelState {
@@ -36,8 +30,8 @@ interface ChartPanelState {
   labelsDispatchResult?: DispatchResult;
 }
 
-export class LineBarPieConfigPanel extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-LineBarPieConfigPanel";
+export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEnv> {
+  static template = "o-spreadsheet-GenericChartConfigPanel";
   static components = {
     SelectionInput,
     ValidationMessages,

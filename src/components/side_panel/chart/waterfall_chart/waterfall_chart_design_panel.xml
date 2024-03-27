@@ -1,0 +1,88 @@
+<templates>
+  <t t-name="o-spreadsheet-WaterfallChartDesignPanel">
+    <div>
+      <Section class="'o-chart-background-color'">
+        <t t-set-slot="title">Background color</t>
+        <div class="d-flex align-items-center">
+          <span class="me-2">Select a color...</span>
+          <RoundColorPicker
+            currentColor="props.definition.background"
+            onColorPicked="(color) => this.updateColor('background', color)"
+          />
+        </div>
+      </Section>
+      <ChartTitle title="title" update.bind="updateTitle"/>
+      <Section>
+        <t t-set-slot="title">Vertical axis position</t>
+        <select
+          t-att-value="props.definition.verticalAxisPosition"
+          class="o-input o-chart-vertical-axis-position"
+          t-on-change="(ev) => this.updateSelect('verticalAxisPosition', ev)">
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </Section>
+      <Section>
+        <t t-set-slot="title">Legend position</t>
+        <select
+          t-att-value="props.definition.legendPosition"
+          class="o-input o-chart-legend-position"
+          t-on-change="(ev) => this.updateSelect('legendPosition', ev)">
+          <option value="none">None</option>
+          <option value="top">Top</option>
+          <option value="bottom">Bottom</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </Section>
+      <Section>
+        <t t-set-slot="title">Waterfall options</t>
+        <t t-set="firstValueAsSubtotal">Use first value as subtotal</t>
+        <Checkbox
+          name="'firstValueAsSubtotal'"
+          label="firstValueAsSubtotal"
+          value="props.definition.firstValueAsSubtotal"
+          onChange.bind="onUpdateFirstValueAsSubtotal"
+        />
+        <t t-set="showSubTotalsLabel">Show subtotals at the end of series</t>
+        <Checkbox
+          name="'showSubTotals'"
+          label="showSubTotalsLabel"
+          value="props.definition.showSubTotals"
+          onChange.bind="onUpdateShowSubTotals"
+        />
+        <t t-set="showConnectorLinesLabel">Show connector lines</t>
+        <Checkbox
+          name="'showConnectorLines'"
+          label="showConnectorLinesLabel"
+          value="props.definition.showConnectorLines"
+          onChange.bind="onUpdateShowConnectorLines"
+        />
+      </Section>
+      <Section>
+        <t t-set-slot="title">Waterfall colors</t>
+        <div class="o-waterfall-positive-color d-flex align-items-center mb-1">
+          <RoundColorPicker
+            currentColor="positiveValuesColor"
+            onColorPicked="(color) => this.updateColor('positiveValuesColor', color)"
+          />
+          <span class="ps-2">Color of positive values</span>
+        </div>
+        <div class="o-waterfall-negative-color d-flex align-items-center mb-1">
+          <RoundColorPicker
+            currentColor="negativeValuesColor"
+            onColorPicked="(color) => this.updateColor('negativeValuesColor', color)"
+          />
+          <span class="ps-2">Color of negative values</span>
+        </div>
+        <div class="o-waterfall-subtotal-color d-flex align-items-center">
+          <RoundColorPicker
+            currentColor="subTotalValuesColor"
+            onColorPicked="(color) => this.updateColor('subTotalValuesColor', color)"
+          />
+          <span class="ps-2">Color of subtotals</span>
+        </div>
+      </Section>
+    </div>
+  </t>
+</templates>

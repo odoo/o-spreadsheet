@@ -2,9 +2,9 @@ import { LineChart } from "../../../../helpers/figures/charts";
 import { canChartParseLabels } from "../../../../helpers/figures/charts/chart_common_line_scatter";
 import { _t } from "../../../../translation";
 import { LineChartDefinition } from "../../../../types/chart";
-import { LineBarPieConfigPanel } from "../line_bar_pie_panel/config_panel";
+import { GenericChartConfigPanel } from "../line_bar_pie_panel/config_panel";
 
-export class LineConfigPanel extends LineBarPieConfigPanel {
+export class LineConfigPanel extends GenericChartConfigPanel {
   static template = "o-spreadsheet-LineConfigPanel";
 
   get canTreatLabelsAsText() {

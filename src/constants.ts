@@ -29,6 +29,10 @@ export const FROZEN_PANE_HEADER_BORDER_COLOR = "#BCBCBC";
 export const FROZEN_PANE_BORDER_COLOR = "#DADFE8";
 export const COMPOSER_ASSISTANT_COLOR = "#9B359B";
 
+export const CHART_WATERFALL_POSITIVE_COLOR = "#006FBE";
+export const CHART_WATERFALL_NEGATIVE_COLOR = "#E40000";
+export const CHART_WATERFALL_SUBTOTAL_COLOR = "#AAAAAA";
+
 // Color picker defaults as upper case HEX to match `toHex`helper
 export const COLOR_PICKER_DEFAULTS: Color[] = [
   "#000000",

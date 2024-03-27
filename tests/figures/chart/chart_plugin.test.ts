@@ -1,6 +1,5 @@
-import { ChartType, TooltipItem } from "chart.js";
+import { ChartType as ChartJSType, TooltipItem } from "chart.js";
 import { CommandResult, Model } from "../../../src";
-import { zoneToXc } from "../../../src/helpers";
 import { ChartDefinition, UID } from "../../../src/types";
 import {
   BarChartDefinition,
@@ -10,7 +9,6 @@ import {
   LineChartRuntime,
   PieChartRuntime,
 } from "../../../src/types/chart";
-import { ScatterChartRuntime } from "../../../src/types/chart/scatter_chart";
 import {
   activateSheet,
   addColumns,
@@ -35,9 +33,11 @@ import { getPlugin, mockChart, nextTick, target } from "../../test_helpers/helpe
 
 import { ChartTerms } from "../../../src/components/translations_terms";
 import { FIGURE_ID_SPLITTER } from "../../../src/constants";
+import { zoneToXc } from "../../../src/helpers";
 import { BarChart } from "../../../src/helpers/figures/charts";
 import { ChartPlugin } from "../../../src/plugins/core";
 import { ComboChartRuntime } from "../../../src/types/chart/combo_chart";
+import { ScatterChartRuntime } from "../../../src/types/chart/scatter_chart";
 import { FR_LOCALE } from "../../test_helpers/constants";
 
 jest.mock("../../../src/helpers/uuid", () => require("../../__mocks__/uuid"));
@@ -1580,7 +1580,7 @@ describe("Chart design configuration", () => {
             x: 0,
             y: chart.chartJsConfig!.data!.datasets![datasetIndex].data![dataIndex] as number,
           };
-    const tooltipItem: TooltipItem<ChartType> = {
+    const tooltipItem: TooltipItem<ChartJSType> = {
       label: "",
       // @ts-ignore chart.js type is wrong
       parsed: point,
@@ -1595,7 +1595,7 @@ describe("Chart design configuration", () => {
   }
 
   describe("Format of Y values at Runtime", () => {
-    test.each(["bar", "line", "scatter"])(
+    test.each(["bar", "line", "scatter", "waterfall"])(
       "Bar/Line chart Y axis, cell without format: thousand separator",
       (chartType) => {
         createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
@@ -1607,7 +1607,7 @@ describe("Chart design configuration", () => {
       }
     );
 
-    test.each(["bar", "line", "scatter"])(
+    test.each(["bar", "line", "scatter", "waterfall"])(
       "Bar/Line chart Y axis, cell without format: thousand separator is locale dependant",
       (chartType) => {
         updateLocale(model, FR_LOCALE);
@@ -1620,7 +1620,7 @@ describe("Chart design configuration", () => {
       }
     );
 
-    test.each(["bar", "line", "scatter"])(
+    test.each(["bar", "line", "scatter", "waterfall"])(
       "Bar/Line chart Y axis, cell with format",
       (chartType) => {
         setCellFormat(model, "A2", "[$$]#,##0.00");
@@ -1633,7 +1633,7 @@ describe("Chart design configuration", () => {
       }
     );
 
-    test.each(["bar", "line", "scatter"])(
+    test.each(["bar", "line", "scatter", "waterfall"])(
       "Bar/Line chart Y axis, date format is ignored",
       (chartType) => {
         setCellFormat(model, "A2", "m/d/yyyy");

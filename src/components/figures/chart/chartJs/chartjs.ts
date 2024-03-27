@@ -2,10 +2,14 @@ import { Component, onMounted, useEffect, useRef } from "@odoo/owl";
 import type { Chart, ChartConfiguration } from "chart.js";
 import { Figure, SpreadsheetChildEnv } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
+import { waterfallLinesPlugin } from "./chartjs_waterfall_plugin";
 
 interface Props {
   figure: Figure;
 }
+
+// @ts-ignore
+window.Chart?.register(waterfallLinesPlugin);
 
 export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartJsComponent";
@@ -60,10 +64,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     } else {
       this.chart!.data.datasets = [];
     }
-    this.chart!.config.options!.plugins!.tooltip = chartData.options!.plugins!.tooltip;
-    this.chart!.config.options!.plugins!.legend = chartData.options!.plugins!.legend;
-    this.chart!.config.options!.scales = chartData.options?.scales;
-    // ?
+    this.chart!.config.options = chartData.options;
     this.chart!.update("active");
   }
 }

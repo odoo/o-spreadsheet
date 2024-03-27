@@ -1,7 +1,7 @@
 import { _t } from "../../../../translation";
-import { LineBarPieConfigPanel } from "../line_bar_pie_panel/config_panel";
+import { GenericChartConfigPanel } from "../line_bar_pie_panel/config_panel";
 
-export class ComboChartConfigPanel extends LineBarPieConfigPanel {
+export class ComboChartConfigPanel extends GenericChartConfigPanel {
   static template = "o-spreadsheet-ComboChartConfigPanel";
 
   get shouldUseRightAxis(): string {

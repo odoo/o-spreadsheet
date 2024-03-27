@@ -1,5 +1,5 @@
-import { LineBarPieDesignPanel } from "../line_bar_pie_panel/design_panel";
+import { GenericChartDesignPanel } from "../line_bar_pie_panel/design_panel";
 
-export class LineChartDesignPanel extends LineBarPieDesignPanel {
+export class LineChartDesignPanel extends GenericChartDesignPanel {
   static template = "o-spreadsheet-LineChartDesignPanel";
 }
