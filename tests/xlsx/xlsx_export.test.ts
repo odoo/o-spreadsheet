@@ -875,9 +875,11 @@ describe("Test XLSX export", () => {
     test.each([
       ["line", ["Sheet1!B1:B4", "Sheet1!C1:C4"]],
       ["bar", ["Sheet1!B1:B4", "Sheet1!C1:C4"]],
+      ["combo", ["Sheet1!B1:B4", "Sheet1!C1:C4"]],
       ["pie", ["Sheet1!B1:B4", "Sheet1!C1:C4"]],
       ["line", ["Sheet1!B1:B4"]],
       ["bar", ["Sheet1!B1:B4"]],
+      ["combo", ["Sheet1!B1:B4"]],
       ["pie", ["Sheet1!B1:B4"]],
     ])("simple %s chart with dataset %s", async (chartType: string, dataSets: string[]) => {
       const model = new Model(chartData);
@@ -886,7 +888,7 @@ describe("Test XLSX export", () => {
         {
           dataSets,
           labelRange: "Sheet1!A2:A4",
-          type: chartType as "line" | "bar" | "pie",
+          type: chartType as "line" | "bar" | "pie" | "combo",
         },
         "1"
       );
