@@ -1,5 +1,6 @@
 import { sum } from "../../functions/helper_math";
 import { average, countAny, countNumbers, max, min } from "../../functions/helper_statistical";
+import { lazy, memoize } from "../../helpers";
 import { Get } from "../../store_engine";
 import { SpreadsheetStore } from "../../stores";
 import { _t } from "../../translation";
@@ -7,12 +8,13 @@ import {
   CellValueType,
   Command,
   EvaluatedCell,
+  Lazy,
   Locale,
   invalidateEvaluationCommands,
 } from "../../types";
 
 export interface StatisticFnResults {
-  [name: string]: number | undefined;
+  [name: string]: Lazy<number> | undefined;
 }
 
 interface SelectionStatisticFunction {
@@ -105,12 +107,17 @@ export class AggregateStatisticsStore extends SpreadsheetStore {
     const sheetId = getters.getActiveSheetId();
     const cells = new Set<EvaluatedCell>();
 
+    const isColHidden = memoize((col: number) => getters.isColHidden(sheetId, col));
+    const isRowHidden = memoize((row: number) => getters.isRowHidden(sheetId, row));
     const zones = getters.getSelectedZones();
     for (const zone of zones) {
       for (let col = zone.left; col <= zone.right; col++) {
+        if (isColHidden(col)) {
+          continue; // Skip hidden columns
+        }
         for (let row = zone.top; row <= zone.bottom; row++) {
-          if (getters.isRowHidden(sheetId, row) || getters.isColHidden(sheetId, col)) {
-            continue; // Skip hidden cells
+          if (isRowHidden(row)) {
+            continue; // Skip hidden rows
           }
 
           const evaluatedCell = getters.getEvaluatedCell({ sheetId, col, row });
@@ -123,16 +130,21 @@ export class AggregateStatisticsStore extends SpreadsheetStore {
     const locale = getters.getLocale();
     let statisticFnResults: StatisticFnResults = {};
     const cellsArray = [...cells];
+
+    const getCells = memoize((typeStr: string) => {
+      const types = typeStr.split(",");
+      return cellsArray.filter((c) => types.includes(c.type));
+    });
     for (let fn of selectionStatisticFunctions) {
       // We don't want to display statistical information when there is no interest:
       // We set the statistical result to undefined if the data handled by the selection
       // does not match the data handled by the function.
       // Ex: if there are only texts in the selection, we prefer that the SUM result
       // be displayed as undefined rather than 0.
-      let fnResult: number | undefined = undefined;
-      const evaluatedCells = cellsArray.filter((c) => fn.types.includes(c.type));
+      let fnResult: Lazy<number> | undefined = undefined;
+      const evaluatedCells = getCells(fn.types.join(","));
       if (evaluatedCells.length) {
-        fnResult = fn.compute(evaluatedCells, locale);
+        fnResult = lazy(() => fn.compute(evaluatedCells, locale));
       }
       statisticFnResults[fn.name] = fnResult;
     }

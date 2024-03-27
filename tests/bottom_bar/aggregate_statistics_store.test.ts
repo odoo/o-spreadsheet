@@ -24,7 +24,7 @@ describe("Aggregate statistic functions", () => {
 
     setSelection(model, ["A1:A2"]);
     let statisticFnResults = store.statisticFnResults;
-    expect(statisticFnResults["Count"]).toBe(2);
+    expect(statisticFnResults["Count"]?.()).toBe(2);
 
     // expand selection with the range A3:A2
     addCellToSelection(model, "A3");
@@ -32,7 +32,7 @@ describe("Aggregate statistic functions", () => {
 
     // A2 is now present in two selection
     statisticFnResults = store.statisticFnResults;
-    expect(statisticFnResults["Count"]).toBe(3);
+    expect(statisticFnResults["Count"]?.()).toBe(3);
   });
 
   test("statistic function should not include hidden rows/columns in calculations", () => {
@@ -43,11 +43,11 @@ describe("Aggregate statistic functions", () => {
 
     setSelection(model, ["A1:A4"]);
     let statisticFnResults = store.statisticFnResults;
-    expect(statisticFnResults["Sum"]).toBe(6);
+    expect(statisticFnResults["Sum"]?.()).toBe(6);
 
     hideRows(model, [1, 2]);
     statisticFnResults = store.statisticFnResults;
-    expect(statisticFnResults["Sum"]).toBe(1);
+    expect(statisticFnResults["Sum"]?.()).toBe(1);
   });
 
   describe("return undefined if the types handled by the function are not present among the types of the selected cells", () => {
@@ -68,7 +68,7 @@ describe("Aggregate statistic functions", () => {
       selectCell(model, "A1");
       setAnchorCorner(model, "A7");
       let statisticFnResults = store.statisticFnResults;
-      expect(statisticFnResults["Sum"]).toBe(66);
+      expect(statisticFnResults["Sum"]?.()).toBe(66);
 
       selectCell(model, "A7");
       statisticFnResults = store.statisticFnResults;
@@ -80,7 +80,7 @@ describe("Aggregate statistic functions", () => {
       selectCell(model, "A1");
       setAnchorCorner(model, "A7");
       let statisticFnResults = store.statisticFnResults;
-      expect(statisticFnResults["Avg"]).toBe(22);
+      expect(statisticFnResults["Avg"]?.()).toBe(22);
 
       selectCell(model, "A7");
       statisticFnResults = store.statisticFnResults;
@@ -92,7 +92,7 @@ describe("Aggregate statistic functions", () => {
       selectCell(model, "A1");
       setAnchorCorner(model, "A7");
       let statisticFnResults = store.statisticFnResults;
-      expect(statisticFnResults["Min"]).toBe(0);
+      expect(statisticFnResults["Min"]?.()).toBe(0);
 
       selectCell(model, "A7");
       statisticFnResults = store.statisticFnResults;
@@ -104,7 +104,7 @@ describe("Aggregate statistic functions", () => {
       selectCell(model, "A1");
       setAnchorCorner(model, "A7");
       let statisticFnResults = store.statisticFnResults;
-      expect(statisticFnResults["Max"]).toBe(42);
+      expect(statisticFnResults["Max"]?.()).toBe(42);
 
       selectCell(model, "A7");
       statisticFnResults = store.statisticFnResults;
@@ -116,7 +116,7 @@ describe("Aggregate statistic functions", () => {
       selectCell(model, "A1");
       setAnchorCorner(model, "A7");
       let statisticFnResults = store.statisticFnResults;
-      expect(statisticFnResults["Count"]).toBe(6);
+      expect(statisticFnResults["Count"]?.()).toBe(6);
 
       selectCell(model, "A7");
       statisticFnResults = store.statisticFnResults;
@@ -126,29 +126,29 @@ describe("Aggregate statistic functions", () => {
     test('return the "Count numbers" value on all types of interpreted cells except on cells interpreted as empty', () => {
       selectCell(model, "A1");
       let statisticFnResults = store.statisticFnResults;
-      expect(statisticFnResults["Count Numbers"]).toBe(1);
+      expect(statisticFnResults["Count Numbers"]?.()).toBe(1);
 
       selectCell(model, "A2");
       statisticFnResults = store.statisticFnResults;
-      expect(statisticFnResults["Count Numbers"]).toBe(1);
+      expect(statisticFnResults["Count Numbers"]?.()).toBe(1);
 
       selectCell(model, "A3");
       statisticFnResults = store.statisticFnResults;
-      expect(statisticFnResults["Count Numbers"]).toBe(0);
+      expect(statisticFnResults["Count Numbers"]?.()).toBe(0);
 
       selectCell(model, "A4");
       statisticFnResults = store.statisticFnResults;
-      expect(statisticFnResults["Count Numbers"]).toBe(0);
+      expect(statisticFnResults["Count Numbers"]?.()).toBe(0);
 
       selectCell(model, "A5");
       statisticFnResults = store.statisticFnResults;
-      expect(statisticFnResults["Count Numbers"]).toBe(0);
+      expect(statisticFnResults["Count Numbers"]?.()).toBe(0);
 
       // select the range A6:A7
       selectCell(model, "A6");
       setAnchorCorner(model, "A7");
       statisticFnResults = store.statisticFnResults;
-      expect(statisticFnResults["Count"]).toBe(1);
+      expect(statisticFnResults["Count"]?.()).toBe(1);
     });
   });
 
@@ -186,12 +186,12 @@ describe("Aggregate statistic functions", () => {
     createSheet(model, { sheetId: sId2 });
     setCellContent(model, "A2", "4", sId2);
     setCellContent(model, "A3", "4", sId2);
-    expect(store.statisticFnResults["Count"]).toBe(3);
+    expect(store.statisticFnResults["Count"]?.()).toBe(3);
     activateSheet(model, sId2);
     selectAll(model);
-    expect(store.statisticFnResults["Count"]).toBe(2);
+    expect(store.statisticFnResults["Count"]?.()).toBe(2);
     activateSheet(model, sId1);
     selectAll(model);
-    expect(store.statisticFnResults["Count"]).toBe(3);
+    expect(store.statisticFnResults["Count"]?.()).toBe(3);
   });
 });
