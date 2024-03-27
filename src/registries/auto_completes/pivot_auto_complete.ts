@@ -59,10 +59,10 @@ autoCompleteProviders.add("pivot_measures", {
       return [];
     }
     const dataSource = this.getters.getPivot(pivotId);
-    if (!dataSource.isMetaDataLoaded()) {
+    const fields = dataSource.getFields();
+    if (!fields) {
       return [];
     }
-    const fields = dataSource.getFields();
     const definition = this.getters.getPivotCoreDefinition(pivotId);
     return definition.measures
       .map((measure) => {
@@ -103,7 +103,8 @@ autoCompleteProviders.add("pivot_group_fields", {
       return;
     }
     const dataSource = this.getters.getPivot(pivotId);
-    if (!dataSource.isMetaDataLoaded()) {
+    const fields = dataSource.getFields();
+    if (!fields) {
       return;
     }
     let args = functionContext.args;
@@ -114,7 +115,6 @@ autoCompleteProviders.add("pivot_group_fields", {
       args = args.filter((ast, index) => index % 2 === 1); // keep only the field names
     }
     const argGroupBys = args.map((ast) => ast?.value).filter(isDefined);
-    const fields = dataSource.getFields();
     const { columns, rows } = this.getters.getPivotCoreDefinition(pivotId);
     const colFields = columns.map((groupBy) => groupBy.name);
     const rowFields = rows.map((groupBy) => groupBy.name);

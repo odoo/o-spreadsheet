@@ -20,6 +20,14 @@ export class PivotSidePanelStore extends SpreadsheetStore {
     super(get);
   }
 
+  get fields() {
+    const fields = this.pivot.getFields();
+    if (!fields) {
+      throw new Error("Fields not found");
+    }
+    return fields;
+  }
+
   get pivot() {
     return this.getters.getPivot(this.pivotId);
   }
@@ -27,7 +35,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
   get definition() {
     const type = this.getters.getPivotCoreDefinition(this.pivotId).type;
     const cls = pivotRegistry.get(type).definition;
-    return this.draft ? new cls(this.draft, this.pivot.getFields()) : this.pivot.definition;
+    return this.draft ? new cls(this.draft, this.fields) : this.pivot.definition;
   }
 
   get isDirty() {
@@ -43,7 +51,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
         aggregator: "sum",
       },
     ];
-    const fields = this.pivot.getFields();
+    const fields = this.fields;
     for (const fieldName in fields) {
       const field = fields[fieldName];
       if (!field) {
@@ -70,7 +78,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
 
   get unusedGroupableFields() {
     const groupableFields: PivotField[] = [];
-    const fields = this.pivot.getFields();
+    const fields = this.fields;
     for (const fieldName in fields) {
       const field = fields[fieldName];
       if (!field) {
@@ -101,7 +109,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
 
   get unusedDateTimeGranularities() {
     //@ts-ignore TODOPRO
-    return this.getUnusedDateTimeGranularities(this.pivot.getFields(), this.definition);
+    return this.getUnusedDateTimeGranularities(this.fields, this.definition);
   }
 
   reset(pivotId: UID) {
@@ -156,7 +164,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
       return;
     }
     const cleanedWithGranularity = this.addDefaultDateTimeGranularity(
-      this.pivot.getFields(),
+      this.fields,
       cleanedDefinition
     );
     if (this.updatesAreDeferred) {

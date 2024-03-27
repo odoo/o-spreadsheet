@@ -7,9 +7,9 @@ interface Props {
   onRemoved: (dimension: PivotDimension) => void;
 }
 
+// don't use bg-white since it's flipped to dark in dark mode and we don't support dark mode
 css/* scss */ `
   .pivot-dimension {
-    // don't use bg-white since it's flipped to dark in dark mode and we don't support dark mode
     background-color: white;
 
     select > option {
