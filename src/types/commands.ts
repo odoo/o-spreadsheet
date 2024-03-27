@@ -25,6 +25,7 @@ import { ClipboardPasteOptions } from "./clipboard";
 import { FigureSize } from "./figure";
 import { SearchOptions } from "./find_and_replace";
 import { Image } from "./image";
+import { PivotCoreDefinition, SPTableData } from "./pivot";
 import { RangeData } from "./range";
 import { CoreTableType, TableConfig } from "./table";
 
@@ -117,6 +118,12 @@ export const invalidateEvaluationCommands = new Set<CommandTypes>([
   "REDO",
   "ADD_MERGE",
   "UPDATE_LOCALE",
+  "ADD_PIVOT",
+  "UPDATE_PIVOT",
+  "INSERT_PIVOT",
+  "RENAME_PIVOT",
+  "REMOVE_PIVOT",
+  "DUPLICATE_PIVOT",
 ]);
 
 export const invalidateDependenciesCommands = new Set<CommandTypes>(["MOVE_RANGES"]);
@@ -225,6 +232,14 @@ export const coreTypes = new Set<CoreCommandTypes>([
 
   /** MISC */
   "UPDATE_LOCALE",
+
+  /** PIVOT */
+  "ADD_PIVOT",
+  "UPDATE_PIVOT",
+  "INSERT_PIVOT",
+  "RENAME_PIVOT",
+  "REMOVE_PIVOT",
+  "DUPLICATE_PIVOT",
 ]);
 
 export function isCoreCommand(cmd: Command): cmd is CoreCommand {
@@ -532,6 +547,44 @@ export interface SetDecimalCommand extends TargetDependentCommand {
 export interface UpdateLocaleCommand {
   type: "UPDATE_LOCALE";
   locale: Locale;
+}
+
+// ------------------------------------------------
+// PIVOT
+// ------------------------------------------------
+export interface AddPivotCommand {
+  type: "ADD_PIVOT";
+  pivotId: UID;
+  pivot: PivotCoreDefinition;
+}
+
+export interface UpdatePivotCommand {
+  type: "UPDATE_PIVOT";
+  pivotId: UID;
+  pivot: PivotCoreDefinition;
+}
+
+export interface InsertPivotCommand extends PositionDependentCommand {
+  type: "INSERT_PIVOT";
+  pivotId: UID;
+  table: SPTableData;
+}
+
+export interface RenamePivotCommand {
+  type: "RENAME_PIVOT";
+  pivotId: UID;
+  name: string;
+}
+
+export interface RemovePivotCommand {
+  type: "REMOVE_PIVOT";
+  pivotId: UID;
+}
+
+export interface DuplicatePivotCommand {
+  type: "DUPLICATE_PIVOT";
+  pivotId: UID;
+  newPivotId: string;
 }
 
 // ------------------------------------------------
@@ -848,6 +901,11 @@ export interface RenderCanvasCommand {
   type: "RENDER_CANVAS";
 }
 
+export interface RefreshPivotCommand {
+  type: "REFRESH_PIVOT";
+  id: UID;
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -931,7 +989,15 @@ export type CoreCommand =
   | RemoveDataValidationCommand
 
   /** MISC */
-  | UpdateLocaleCommand;
+  | UpdateLocaleCommand
+
+  /** PIVOT */
+  | AddPivotCommand
+  | UpdatePivotCommand
+  | InsertPivotCommand
+  | RenamePivotCommand
+  | RemovePivotCommand
+  | DuplicatePivotCommand;
 
 export type LocalCommand =
   | RequestUndoCommand
@@ -979,7 +1045,8 @@ export type LocalCommand =
   | SplitTextIntoColumnsCommand
   | RemoveDuplicatesCommand
   | TrimWhitespaceCommand
-  | RenderCanvasCommand;
+  | RenderCanvasCommand
+  | RefreshPivotCommand;
 
 export type Command = CoreCommand | LocalCommand;
 
@@ -1139,6 +1206,8 @@ export const enum CommandResult {
   NoChanges = "NoChanges",
   InvalidInputId = "InvalidInputId",
   SheetIsHidden = "SheetIsHidden",
+  PivotIdNotFound = "PivotIdNotFound",
+  EmptyName = "EmptyName",
 }
 
 export interface CommandHandler<T> {

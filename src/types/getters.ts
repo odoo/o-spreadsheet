@@ -9,6 +9,7 @@ import { HeaderSizePlugin } from "../plugins/core/header_size";
 import { HeaderVisibilityPlugin } from "../plugins/core/header_visibility";
 import { ImagePlugin } from "../plugins/core/image";
 import { MergePlugin } from "../plugins/core/merge";
+import { PivotCorePlugin } from "../plugins/core/pivot";
 import { RangeAdapter } from "../plugins/core/range";
 import { SettingsPlugin } from "../plugins/core/settings";
 import { SheetPlugin } from "../plugins/core/sheet";
@@ -20,6 +21,7 @@ import { DynamicTablesPlugin } from "../plugins/ui_core_views/dynamic_tables";
 import { EvaluationChartPlugin } from "../plugins/ui_core_views/evaluation_chart";
 import { EvaluationConditionalFormatPlugin } from "../plugins/ui_core_views/evaluation_conditional_format";
 import { HeaderSizeUIPlugin } from "../plugins/ui_core_views/header_sizes_ui";
+import { PivotUIPlugin } from "../plugins/ui_core_views/pivot_ui";
 import { AutofillPlugin } from "../plugins/ui_feature/autofill";
 import { AutomaticSumPlugin } from "../plugins/ui_feature/automatic_sum";
 import { CollaborativePlugin } from "../plugins/ui_feature/collaborative";
@@ -107,7 +109,8 @@ export type CoreGetters = PluginGetters<typeof SheetPlugin> &
   PluginGetters<typeof TablePlugin> &
   PluginGetters<typeof SettingsPlugin> &
   PluginGetters<typeof HeaderGroupingPlugin> &
-  PluginGetters<typeof DataValidationPlugin>;
+  PluginGetters<typeof DataValidationPlugin> &
+  PluginGetters<typeof PivotCorePlugin>;
 
 export type Getters = {
   isReadonly: () => boolean;
@@ -136,4 +139,5 @@ export type Getters = {
   PluginGetters<typeof EvaluationDataValidationPlugin> &
   PluginGetters<typeof HeaderPositionsUIPlugin> &
   PluginGetters<typeof TableStylePlugin> &
-  PluginGetters<typeof DynamicTablesPlugin>;
+  PluginGetters<typeof DynamicTablesPlugin> &
+  PluginGetters<typeof PivotUIPlugin>;

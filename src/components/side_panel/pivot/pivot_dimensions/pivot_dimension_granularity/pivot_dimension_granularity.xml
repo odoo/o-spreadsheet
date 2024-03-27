@@ -1,0 +1,23 @@
+<templates>
+  <t t-name="o-spreadsheet-PivotDimensionGranularity">
+    <div class="d-flex flex-row">
+      <div class="d-flex flex-row py-1 px-2 w-100 small">
+        <t t-set="granularity" t-value="props.dimension.granularity"/>
+        <div class="flex-basis-50">Granularity</div>
+        <select
+          class="o_input flex-basis-50"
+          t-on-change="(ev) => props.onUpdated(props.dimension, ev.target.value)">
+          <option
+            t-foreach="allGranularities"
+            t-as="granularity"
+            t-key="granularity"
+            t-if="props.availableGranularities.has(granularity) || granularity === props.dimension.granularity"
+            t-att-value="granularity"
+            t-esc="periods[granularity]"
+            t-att-selected="granularity === props.dimension.granularity or (granularity === 'month' and !props.dimension.granularity)"
+          />
+        </select>
+      </div>
+    </div>
+  </t>
+</templates>
