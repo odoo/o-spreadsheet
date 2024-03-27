@@ -43,6 +43,7 @@ export interface PivotField {
   aggregator?: string;
   store?: boolean;
   groupable?: boolean;
+  help?: string;
 }
 
 export type PivotFields = Record<string, PivotField | undefined>;

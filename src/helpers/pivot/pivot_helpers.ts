@@ -1,4 +1,6 @@
+import { tokenColors } from "../../components/composer/composer/composer";
 import { Token, getFunctionsFromTokens } from "../../formulas";
+import { EnrichedToken } from "../../formulas/composer_tokenizer";
 import { _t } from "../../translation";
 import { PivotCoreDimension, PivotField } from "../../types/pivot";
 
@@ -111,4 +113,68 @@ export function parseDimension(dimension: string): PivotCoreDimension {
 
 export function isDateField(field: PivotField) {
   return DATE_FIELDS.includes(field.type);
+}
+
+/**
+ * Create a proposal entry for the compose autocomplete
+ * to insert a field name string in a formula.
+ */
+export function makeFieldProposal(field: PivotField) {
+  const quotedFieldName = `"${field.name}"`;
+  return {
+    text: quotedFieldName,
+    description: field.string + (field.help ? ` (${field.help})` : ""),
+    htmlContent: [{ value: quotedFieldName, color: tokenColors.STRING }],
+    fuzzySearchKey: field.string + quotedFieldName, // search on translated name and on technical name
+  };
+}
+
+/**
+ * Perform the autocomplete of the composer by inserting the value
+ * at the cursor position, replacing the current token if necessary.
+ * Must be bound to the autocomplete provider.
+ */
+export function insertTokenAfterArgSeparator(tokenAtCursor: EnrichedToken, value: string) {
+  let start = tokenAtCursor.end;
+  const end = tokenAtCursor.end;
+  if (tokenAtCursor.type !== "ARG_SEPARATOR") {
+    // replace the whole token
+    start = tokenAtCursor.start;
+  }
+  //@ts-ignore TODOPRO LUL help please
+  this.composer.changeComposerCursorSelection(start, end);
+  //@ts-ignore TODOPRO LUL help please
+  this.composer.replaceComposerCursorSelection(value);
+}
+
+/**
+ * Perform the autocomplete of the composer by inserting the value
+ * at the cursor position, replacing the current token if necessary.
+ * Must be bound to the autocomplete provider.
+ * @param {EnrichedToken} tokenAtCursor
+ * @param {string} value
+ */
+export function insertTokenAfterLeftParenthesis(tokenAtCursor: EnrichedToken, value: string) {
+  let start = tokenAtCursor.end;
+  const end = tokenAtCursor.end;
+  if (tokenAtCursor.type !== "LEFT_PAREN") {
+    // replace the whole token
+    start = tokenAtCursor.start;
+  }
+  //@ts-ignore TODOPRO LUL help please
+  this.composer.changeComposerCursorSelection(start, end);
+  //@ts-ignore TODOPRO LUL help please
+  this.composer.replaceComposerCursorSelection(value);
+}
+
+/**
+ * Extract the pivot id (always the first argument) from the function
+ * context of the given token.
+ */
+export function extractFormulaIdFromToken(tokenAtCursor: EnrichedToken) {
+  const idAst = tokenAtCursor.functionContext?.args[0];
+  if (!idAst || !["STRING", "NUMBER"].includes(idAst.type)) {
+    return;
+  }
+  return idAst.value;
 }

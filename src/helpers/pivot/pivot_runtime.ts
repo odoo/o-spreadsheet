@@ -15,4 +15,7 @@ export interface Pivot<T = PivotRuntimeDefinition> {
   isReady(): boolean; //TODOPRO
   load(params: unknown): Promise<void>; //TODOPRO
   getFields(): PivotFields; //TODOPRO
+  isMetaDataLoaded(): boolean; //TODOPRO
+  isLoadedAndValid(): boolean; //TODOPRO
+  getPossibleFieldValues(groupBy: string): { value: string | boolean | number; label: string }[]; //TODOPRO
 }

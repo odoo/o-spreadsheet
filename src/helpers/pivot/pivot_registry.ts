@@ -15,7 +15,7 @@ type PivotDefinitionConstructor = new (
   definition: PivotCoreDefinition,
   fields: PivotFields
 ) => PivotRuntimeDefinition;
-interface PivotRegistryItem {
+export interface PivotRegistryItem {
   cls: PivotConstructor;
   definition: PivotDefinitionConstructor;
 }

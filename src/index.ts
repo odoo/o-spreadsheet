@@ -98,7 +98,10 @@ import {
   getFirstPivotFunction,
   getMaxObjectId,
   getNumberOfPivotFunctions,
+  insertTokenAfterArgSeparator,
+  insertTokenAfterLeftParenthesis,
   isDateField,
+  makeFieldProposal,
   makePivotFormula,
   parseDimension,
 } from "./helpers/pivot/pivot_helpers";
@@ -294,6 +297,9 @@ export const helpers = {
   getNumberOfPivotFunctions,
   parseDimension,
   isDateField,
+  makeFieldProposal,
+  insertTokenAfterArgSeparator,
+  insertTokenAfterLeftParenthesis,
 };
 
 export const links = {
