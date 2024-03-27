@@ -161,7 +161,7 @@ export class PivotUIPlugin extends UIPlugin {
       }
       const pivotId = this.getters.getPivotId(formulaId.toString());
       const pivot = this.getPivot(pivotId);
-      if (!pivotId || !pivot.isReady()) {
+      if (!pivotId || !pivot.isLoadedAndValid()) {
         return undefined;
       }
       const includeTotal = args[2] === false ? false : undefined;

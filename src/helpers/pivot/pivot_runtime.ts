@@ -12,7 +12,6 @@ export interface Pivot<T = PivotRuntimeDefinition> {
   getPivotFieldFormat(name: string): string;
   getPivotMeasureFormat(name: string): string | undefined;
   assertIsValid({ throwOnError }: { throwOnError: boolean }): boolean;
-  isReady(): boolean; //TODOPRO
   load(params: unknown): Promise<void>; //TODOPRO
   getFields(): PivotFields; //TODOPRO
   isMetaDataLoaded(): boolean; //TODOPRO
