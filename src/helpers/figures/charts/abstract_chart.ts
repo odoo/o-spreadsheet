@@ -11,8 +11,13 @@ import {
   ChartDefinition,
   ChartType,
   ExcelChartDefinition,
+  TitleDesign,
 } from "../../../types/chart/chart";
 import { Validator } from "../../../types/validator";
+
+export function getChartTitle(title: string | TitleDesign): string {
+  return typeof title === "string" ? title : title.title ?? "";
+}
 
 /**
  * AbstractChart is the class from which every Chart should inherit.
@@ -20,7 +25,7 @@ import { Validator } from "../../../types/validator";
  */
 export abstract class AbstractChart {
   readonly sheetId: UID;
-  readonly title: string;
+  readonly title: string | TitleDesign;
   abstract readonly type: ChartType;
   protected readonly getters: CoreGetters;
 

@@ -574,7 +574,7 @@ describe("Collaborative Sheet manipulation", () => {
       type: "bar",
       stacked: false,
       background: BACKGROUND_CHART_COLOR,
-      verticalAxisPosition: "left",
+      dataSetDesign: [{ yAxisID: "y" }],
       legendPosition: "top",
       aggregated: false,
     };

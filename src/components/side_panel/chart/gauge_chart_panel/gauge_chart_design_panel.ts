@@ -3,6 +3,7 @@ import { deepCopy } from "../../../../helpers/index";
 import { _t } from "../../../../translation";
 import { GaugeChartDefinition, SectionRule } from "../../../../types/chart/gauge_chart";
 import {
+  ChartRuntime,
   Color,
   CommandResult,
   DispatchResult,
@@ -56,6 +57,7 @@ interface Props {
   definition: GaugeChartDefinition;
   canUpdateChart: (figureId: UID, definition: Partial<GaugeChartDefinition>) => DispatchResult;
   updateChart: (figureId: UID, definition: Partial<GaugeChartDefinition>) => DispatchResult;
+  getRuntime?: (figureId: UID) => ChartRuntime;
 }
 
 interface PanelState {
@@ -72,6 +74,7 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
     definition: Object,
     updateChart: Function,
     canUpdateChart: Function,
+    getRuntime: { type: Function, optional: true },
   };
 
   private state: PanelState = useState({

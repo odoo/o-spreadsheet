@@ -1,24 +1,236 @@
 <templates>
   <t t-name="o-spreadsheet-LineBarPieDesignPanel">
-    <div>
-      <ChartColor
-        currentColor="props.definition.background"
-        onColorPicked.bind="updateBackgroundColor"
-      />
-      <ChartTitle title="title" update.bind="updateTitle"/>
-      <Section>
-        <t t-set-slot="title">Legend position</t>
-        <select
-          t-att-value="props.definition.legendPosition"
-          class="o-input"
-          t-on-change="(ev) => this.updateSelect('legendPosition', ev)">
-          <option value="none">None</option>
-          <option value="top">Top</option>
-          <option value="bottom">Bottom</option>
-          <option value="left">Left</option>
-          <option value="right">Right</option>
-        </select>
-      </Section>
-    </div>
+    <SidePanelCollapsible collapsedAtInit="true" name="'general'">
+      <t t-set-slot="title">General</t>
+      <t t-set-slot="content">
+        <ChartColor
+          currentColor="props.definition.background"
+          onColorPicked.bind="updateBackgroundColor"
+          class="'pt-0 pb-2'"
+        />
+        <ChartTitle
+          title="title"
+          update.bind="updateTitle"
+          name="'Chart Title'"
+          class="'pt-0 pb-0'"
+        />
+        <Section class="'pt-0'">
+          <div class="o-chart-title-designer">
+            <span
+              class="o-menu-item-button"
+              t-att-class="{active: isTitleBold('chart')}"
+              t-on-click="(ev) => this.toggleBoldTitle('chart')">
+              <span>
+                <t t-call="o-spreadsheet-Icon.BOLD"/>
+              </span>
+            </span>
+            <span
+              class="o-menu-item-button"
+              t-att-class="{active: isTitleItalic('chart')}"
+              t-on-click="(ev) => this.toggleItalicTitle('chart')">
+              <span>
+                <t t-call="o-spreadsheet-Icon.ITALIC"/>
+              </span>
+            </span>
+            <span
+              class="o-menu-item-button"
+              t-on-click="(ev) => this.toggleDropdownTool('horizontalChartAlignTool', ev)">
+              <span>
+                <t
+                  t-if="getTitleAlignment('chart') === 'left'"
+                  t-call="o-spreadsheet-Icon.ALIGN_LEFT"
+                />
+                <t
+                  t-elif="getTitleAlignment('chart') === 'right'"
+                  t-call="o-spreadsheet-Icon.ALIGN_RIGHT"
+                />
+                <t t-else="" t-call="o-spreadsheet-Icon.ALIGN_CENTER"/>
+              </span>
+              <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
+            </span>
+            <div
+              class="o-dropdown-content"
+              t-if="state.activeTool === 'horizontalChartAlignTool'"
+              t-on-click.stop="">
+              <div class="o-dropdown-line">
+                <span
+                  class="o-menu-item-button"
+                  t-on-click="(ev) => this.updateTitleAlignment('chart', 'left')">
+                  <span>
+                    <t t-call="o-spreadsheet-Icon.ALIGN_LEFT"/>
+                  </span>
+                </span>
+                <span
+                  class="o-menu-item-button"
+                  t-on-click="(ev) => this.updateTitleAlignment('chart', 'center')">
+                  <span>
+                    <t t-call="o-spreadsheet-Icon.ALIGN_CENTER"/>
+                  </span>
+                </span>
+                <span
+                  class="o-menu-item-button"
+                  t-on-click="(ev) => this.updateTitleAlignment('chart', 'right')">
+                  <span>
+                    <t t-call="o-spreadsheet-Icon.ALIGN_RIGHT"/>
+                  </span>
+                </span>
+              </div>
+            </div>
+            <ColorPickerWidget
+              currentColor="getTitleColor('chart')"
+              toggleColorPicker="(ev) => this.toggleDropdownTool('fillChartColorTool', ev)"
+              showColorPicker="state.activeTool === 'fillChartColorTool'"
+              onColorPicked="(color) => this.updateTitleColor('chart', color)"
+              title="fill_color"
+              icon="'o-spreadsheet-Icon.TEXT_COLOR'"
+              class="'o-hoverable-button o-menu-item-button'"
+            />
+          </div>
+        </Section>
+        <Section class="'pt-0'">
+          <t t-set-slot="title">Legend position</t>
+          <select
+            t-att-value="props.definition.legendPosition"
+            class="o-input"
+            t-on-change="(ev) => this.updateSelect('legendPosition', ev)">
+            <option value="none">None</option>
+            <option value="top">Top</option>
+            <option value="bottom">Bottom</option>
+            <option value="left">Left</option>
+            <option value="right">Right</option>
+          </select>
+        </Section>
+      </t>
+    </SidePanelCollapsible>
+    <SidePanelCollapsible collapsedAtInit="true" name="'data-series'">
+      <t t-set-slot="title">Data Series</t>
+      <t t-set-slot="content">
+        <Section class="'pt-0 pb-0'">
+          <select
+            class="pl-1 o-input"
+            t-model="state.label"
+            t-on-change="(ev) => this.updateSerieEditor(ev)">
+            <t t-foreach="getDataSeries()" t-as="serie" t-key="serie">
+              <option t-att-value="serie" t-esc="serie"/>
+            </t>
+          </select>
+          <ChartColor
+            currentColor="getDataSerieColor()"
+            onColorPicked.bind="updateDataSeriesColor"
+            title="'Background color'"
+            class="'px-0 pb-2'"
+          />
+          <Section class="'pt-0 px-0'">
+            <t t-set-slot="title">Vertical axis</t>
+            <select
+              t-att-value="getDataSerieAxis()"
+              class="o-input"
+              t-on-change="(ev) => this.updateDataSeriesAxis(ev)">
+              <option value="left">Left</option>
+              <option value="right">Right</option>
+            </select>
+          </Section>
+          <Section class="'pt-0 px-0'">
+            <t t-set-slot="title">Serie name</t>
+            <input
+              class="o-input"
+              t-att-value="getDataSerieLabel()"
+              t-on-change="(ev) => this.updateDataSeriesLabel(ev)"
+            />
+          </Section>
+        </Section>
+      </t>
+    </SidePanelCollapsible>
+    <SidePanelCollapsible collapsedAtInit="true" name="'axis'">
+      <t t-set-slot="title">Axis Title</t>
+      <t t-set-slot="content">
+        <Section class="'pt-0'">
+          <select class="o-input" t-on-change="(ev) => this.updateAxisEditor(ev)">
+            <option value="x">Horizontal axis</option>
+            <option value="y">Vertical (left) axis</option>
+            <option value="y1">Vertical (right) axis</option>
+          </select>
+          <Section class="'px-0'">
+            <t t-set-slot="title">Axis Title</t>
+            <input
+              class="o-input"
+              t-att-value="getAxisTitle()"
+              t-on-change="(ev) => this.updateAxisTitle(ev)"
+            />
+            <div class="o-chart-title-designer">
+              <span
+                class="o-menu-item-button"
+                t-att-class="{active: isTitleBold('axis')}"
+                t-on-click="(ev) => this.toggleBoldTitle('axis')">
+                <span>
+                  <t t-call="o-spreadsheet-Icon.BOLD"/>
+                </span>
+              </span>
+              <span
+                class="o-menu-item-button"
+                t-att-class="{active: isTitleItalic('axis')}"
+                t-on-click="(ev) => this.toggleItalicTitle('axis')">
+                <span>
+                  <t t-call="o-spreadsheet-Icon.ITALIC"/>
+                </span>
+              </span>
+              <span
+                class="o-menu-item-button"
+                t-on-click="(ev) => this.toggleDropdownTool('horizontalAxisAlignTool', ev)">
+                <span>
+                  <t
+                    t-if="getTitleAlignment('axis') === 'left'"
+                    t-call="o-spreadsheet-Icon.ALIGN_LEFT"
+                  />
+                  <t
+                    t-elif="getTitleAlignment('axis') === 'right'"
+                    t-call="o-spreadsheet-Icon.ALIGN_RIGHT"
+                  />
+                  <t t-else="" t-call="o-spreadsheet-Icon.ALIGN_CENTER"/>
+                </span>
+                <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
+              </span>
+              <div
+                class="o-dropdown-content"
+                t-if="state.activeTool === 'horizontalAxisAlignTool'"
+                t-on-click.stop="">
+                <div class="o-dropdown-line">
+                  <span
+                    class="o-menu-item-button"
+                    t-on-click="(ev) => this.updateTitleAlignment('axis', 'left')">
+                    <span>
+                      <t t-call="o-spreadsheet-Icon.ALIGN_LEFT"/>
+                    </span>
+                  </span>
+                  <span
+                    class="o-menu-item-button"
+                    t-on-click="(ev) => this.updateTitleAlignment('axis', 'center')">
+                    <span>
+                      <t t-call="o-spreadsheet-Icon.ALIGN_CENTER"/>
+                    </span>
+                  </span>
+                  <span
+                    class="o-menu-item-button"
+                    t-on-click="(ev) => this.updateTitleAlignment('axis', 'right')">
+                    <span>
+                      <t t-call="o-spreadsheet-Icon.ALIGN_RIGHT"/>
+                    </span>
+                  </span>
+                </div>
+              </div>
+              <ColorPickerWidget
+                currentColor="getTitleColor('axis')"
+                toggleColorPicker="(ev) => this.toggleDropdownTool('fillAxisColorTool', ev)"
+                showColorPicker="state.activeTool === 'fillAxisColorTool'"
+                onColorPicked="(color) => this.updateTitleColor('axis', color)"
+                title="fill_color"
+                icon="'o-spreadsheet-Icon.TEXT_COLOR'"
+                class="'o-hoverable-button o-menu-item-button'"
+              />
+            </div>
+          </Section>
+        </Section>
+      </t>
+    </SidePanelCollapsible>
   </t>
 </templates>

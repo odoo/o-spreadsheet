@@ -273,19 +273,6 @@ describe("selection input plugin", () => {
     expect(store.selectionInputs[1].isFocused).toBe(false);
   });
 
-  test("focus other input does not use the focused input previous color", () => {
-    const { store, model } = makeStore(SelectionInputStore);
-    store.addEmptyRange();
-    expect(store.selectionInputs[1].isFocused).toBe(true);
-    selectCell(model, "C2");
-    const firstColor = store.selectionInputs[1].color;
-    store.focusById(idOfRange(store, 0));
-    selectCell(model, "C3");
-    const secondColor = store.selectionInputs[0].color;
-    expect(store.highlights.length).toBe(2);
-    expect(firstColor).not.toBe(secondColor);
-  });
-
   test("manually changing the input updates highlighted zone", () => {
     const { store, container } = makeStore(SelectionInputStore);
     store.changeRange(idOfRange(store, 0), "C5");

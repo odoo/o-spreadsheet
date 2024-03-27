@@ -29,7 +29,7 @@ import { createRange } from "../../range";
 import { rangeReference } from "../../references";
 import { drawDecoratedText } from "../../text_helper";
 import { toUnboundedZone, zoneToXc } from "../../zones";
-import { AbstractChart } from "./abstract_chart";
+import { AbstractChart, getChartTitle } from "./abstract_chart";
 import {
   adaptChartRange,
   copyLabelRangeWithNewSheetId,
@@ -92,7 +92,7 @@ export class ScorecardChart extends AbstractChart {
       background: context.background,
       type: "scorecard",
       keyValue: context.range ? context.range[0] : undefined,
-      title: context.title || "",
+      title: getChartTitle(context.title ?? ""),
       baselineMode: DEFAULT_SCORECARD_BASELINE_MODE,
       baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
       baselineColorDown: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
@@ -156,7 +156,7 @@ export class ScorecardChart extends AbstractChart {
       baselineColorDown: this.baselineColorDown,
       baselineColorUp: this.baselineColorUp,
       baselineMode: this.baselineMode,
-      title: this.title,
+      title: getChartTitle(this.title),
       type: "scorecard",
       background: this.background,
       baseline: baseline
@@ -288,7 +288,7 @@ export function createScorecardChartRuntime(
 
   const locale = getters.getLocale();
   return {
-    title: _t(chart.title),
+    title: _t(getChartTitle(chart.title)),
     keyValue: formattedKeyValue || keyValue,
     baselineDisplay: getBaselineText(baselineCell, keyValueCell, chart.baselineMode, locale),
     baselineArrow: getBaselineArrowDirection(baselineCell, keyValueCell, chart.baselineMode),

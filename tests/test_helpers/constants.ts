@@ -10,7 +10,7 @@ export const TEST_CHART_DATA = {
     dataSetsHaveTitle: true,
     title: "hello",
     background: BACKGROUND_CHART_COLOR,
-    verticalAxisPosition: "left" as const,
+    dataSetDesign: [{ yAxisID: "y" }],
     stacked: false,
     legendPosition: "top" as const,
   },

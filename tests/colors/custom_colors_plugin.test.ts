@@ -114,7 +114,6 @@ describe("custom colors are correctly handled when editing charts", () => {
         type: "bar",
         stacked: false,
         dataSetsHaveTitle: false,
-        verticalAxisPosition: "left",
         legendPosition: "none",
         background: "#112233",
         aggregated: false,

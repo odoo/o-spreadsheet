@@ -105,12 +105,18 @@ export function getDefaultChartJsRuntime(
   fontColor: Color,
   { format, locale }: LocaleFormat
 ): Required<ChartConfiguration> {
+  const chartTitle =
+    typeof chart.title === "string"
+      ? {
+          title: chart.title,
+        }
+      : chart.title;
   const options: ChartOptions = {
     // https://www.chartjs.org/docs/latest/general/responsive.html
     responsive: true, // will resize when its container is resized
     maintainAspectRatio: false, // doesn't maintain the aspect ration (width/height =2 by default) so the user has the choice of the exact layout
     layout: {
-      padding: { left: 20, right: 20, top: chart.title ? 10 : 25, bottom: 10 },
+      padding: { left: 20, right: 20, top: chartTitle.title ? 10 : 25, bottom: 10 },
     },
     elements: {
       line: {
@@ -123,10 +129,16 @@ export function getDefaultChartJsRuntime(
     animation: false,
     plugins: {
       title: {
-        display: !!chart.title,
-        text: _t(chart.title),
-        color: fontColor,
-        font: { size: 22, weight: "normal" },
+        display: !!chartTitle.title,
+        text: _t(chartTitle.title ?? ""),
+        color: chartTitle?.color ?? fontColor,
+        align:
+          chartTitle.align === "left" ? "start" : chartTitle.align === "right" ? "end" : "center",
+        font: {
+          size: 22,
+          weight: chartTitle.bold ? "bold" : "normal",
+          style: chartTitle.italic ? "italic" : "normal",
+        },
       },
       legend: {
         // Disable default legend onClick (show/hide dataset), to allow us to set a global onClick on the chart container.

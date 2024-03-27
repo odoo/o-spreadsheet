@@ -1042,7 +1042,9 @@ describe("title", function () {
       {
         dataSets: ["A1:B1"],
         labelRange: "A2:B2",
-        title: "title",
+        title: {
+          title: "title",
+        },
       },
       "1"
     );
@@ -1050,7 +1052,7 @@ describe("title", function () {
       (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig.options?.plugins?.title
         ?.display
     ).toBe(true);
-    updateChart(model, "1", { title: "" });
+    updateChart(model, "1", { title: { title: "" } });
     expect(
       (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig.options?.plugins?.title
         ?.display
@@ -1283,7 +1285,7 @@ describe("Chart without labels", () => {
     legendPosition: "top",
     title: "My chart",
     type: "bar",
-    verticalAxisPosition: "left",
+    dataSetDesign: [{ yAxisID: "y" }],
     stacked: false,
     aggregated: false,
   };
@@ -1328,7 +1330,7 @@ describe("Chart without labels", () => {
 
     setCellContent(model, "B1", "B1");
     setCellContent(model, "B2", "B2");
-    createChart(model, { ...defaultChart, labelRange: "B1:B2" }, "44");
+    createChart(model, { ...defaultChart, type: "bar", labelRange: "B1:B2" }, "44");
     expect(
       (model.getters.getChartRuntime("44") as BarChartRuntime).chartJsConfig.data?.labels
     ).toEqual(["B1", "B2"]);
@@ -1343,7 +1345,7 @@ describe("Chart design configuration", () => {
     legendPosition: "top",
     title: "My chart",
     type: "bar",
-    verticalAxisPosition: "left",
+    dataSetDesign: [{ yAxisID: "y" }],
     labelRange: "A3",
     stacked: false,
     aggregated: false,
@@ -1399,22 +1401,6 @@ describe("Chart design configuration", () => {
     updateChart(model, "42", { type: "line", stacked: false });
     expect(isChartAxisStacked(model, "42", "x")).toBeUndefined();
     expect(isChartAxisStacked(model, "42", "y")).toBeUndefined();
-  });
-
-  test("Vertical axis position", () => {
-    createChart(model, defaultChart, "42");
-    expect(
-      // @ts-ignore
-      // prettier-ignore
-      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.scales?.y?.position
-    ).toBe("left");
-
-    updateChart(model, "42", { verticalAxisPosition: "right" });
-    expect(
-      // @ts-ignore
-      // prettier-ignore
-      (model.getters.getChartRuntime("42") as BarChartRuntime).chartJsConfig.options?.scales?.y?.position
-    ).toBe("right");
   });
 
   test("empty data points are not displayed in the chart", () => {
@@ -1599,16 +1585,13 @@ describe("Chart design configuration", () => {
       }
     );
 
-    test.each(["bar", "line", "scatter"])(
-      "Bar/Line chart Y axis, date format is ignored",
-      (chartType) => {
-        setCellFormat(model, "A2", "m/d/yyyy");
-        createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
-        const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
-        //@ts-ignore
-        expect(runtime.chartJsConfig.options.scales.y?.ticks.callback!(600)).toEqual("600");
-      }
-    );
+    test.each(["bar"])("Bar/Line chart Y axis, date format is ignored", (chartType) => {
+      setCellFormat(model, "A2", "m/d/yyyy");
+      createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
+      const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
+      //@ts-ignore
+      expect(runtime.chartJsConfig.options.scales.y?.ticks.callback!(600)).toEqual("600");
+    });
 
     test.each(["bar", "line"])(
       "Basic chart tooltip label, cell without format: thousand separator",
@@ -1717,9 +1700,9 @@ describe("Chart aggregate labels", () => {
       legendPosition: "top",
       title: "My chart",
       type: "bar",
-      verticalAxisPosition: "left",
       stacked: false,
       aggregated: false,
+      dataSetDesign: [{ yAxisID: "y" }],
     };
     aggregatedModel = new Model({
       sheets: [

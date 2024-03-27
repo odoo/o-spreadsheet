@@ -174,7 +174,7 @@ ___
 | Name | Type |
 | :------ | :------ |
 | `CellErrorLevel` | typeof `CellErrorLevel` |
-| `ChartColors` | typeof `ChartColors` |
+| `ColorGenerator` | typeof `ColorGenerator` |
 | `EvaluationError` | typeof [`EvaluationError`](classes/EvaluationError.md) |
 | `UuidGenerator` | typeof `UuidGenerator` |
 | `args` | (`strings`: `string`) => `ArgDefinition`[] |

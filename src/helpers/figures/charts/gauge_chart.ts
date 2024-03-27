@@ -33,7 +33,7 @@ import { clip, formatValue } from "../../index";
 import { createRange } from "../../range";
 import { rangeReference } from "../../references";
 import { toUnboundedZone, zoneToXc } from "../../zones";
-import { AbstractChart } from "./abstract_chart";
+import { AbstractChart, getChartTitle } from "./abstract_chart";
 import { adaptChartRange, copyLabelRangeWithNewSheetId } from "./chart_common";
 
 type RangeLimitsValidation = (rangeLimit: string, rangeLimitName: string) => CommandResult;
@@ -178,7 +178,7 @@ export class GaugeChart extends AbstractChart {
   static getDefinitionFromContextCreation(context: ChartCreationContext): GaugeChartDefinition {
     return {
       background: context.background,
-      title: context.title || "",
+      title: getChartTitle(context.title ?? ""),
       type: "gauge",
       dataRange: context.range ? context.range[0] : undefined,
       sectionRule: {
@@ -223,7 +223,7 @@ export class GaugeChart extends AbstractChart {
     return {
       background: this.background,
       sectionRule: this.sectionRule,
-      title: this.title,
+      title: getChartTitle(this.title),
       type: "gauge",
       dataRange: dataRange
         ? this.getters.getRangeString(dataRange, targetSheetId || this.sheetId)
@@ -317,7 +317,7 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
 
   return {
     background: getters.getStyleOfSingleCellChart(chart.background, dataRange).background,
-    title: chart.title,
+    title: getChartTitle(chart.title),
     minValue: {
       value: minValue,
       label: formatValue(minValue, { locale, format }),

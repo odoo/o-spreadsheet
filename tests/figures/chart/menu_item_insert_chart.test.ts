@@ -118,7 +118,7 @@ describe("Insert chart menu item", () => {
         aggregated: false,
         title: expect.any(String),
         type: "bar",
-        verticalAxisPosition: "left",
+        dataSetDesign: [{ yAxisID: "y" }],
       },
     };
   });
