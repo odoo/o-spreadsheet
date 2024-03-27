@@ -7,3 +7,4 @@ export * from "./gauge_chart";
 export * from "./line_chart";
 export * from "./pie_chart";
 export * from "./scorecard_chart";
+export * from "./waterfall_chart";

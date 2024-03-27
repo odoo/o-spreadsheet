@@ -14,12 +14,7 @@ import {
   UnboundedZone,
   Zone,
 } from "../../../types";
-import { BarChartDefinition } from "../../../types/chart/bar_chart";
-import { DataSet, ExcelChartDataset } from "../../../types/chart/chart";
-import { ComboChartDefinition } from "../../../types/chart/combo_chart";
-import { LineChartDefinition } from "../../../types/chart/line_chart";
-import { PieChartDefinition } from "../../../types/chart/pie_chart";
-import { ScatterChartDefinition } from "../../../types/chart/scatter_chart";
+import { ChartWithAxisDefinition, DataSet, ExcelChartDataset } from "../../../types/chart/chart";
 import { CellErrorType } from "../../../types/errors";
 import { relativeLuminance } from "../../color";
 import { isDefined } from "../../misc";
@@ -273,14 +268,10 @@ export function toExcelLabelRange(
  * Transform a chart definition which supports dataSets (dataSets and LabelRange)
  * with an executed command
  */
-export function transformChartDefinitionWithDataSetsWithZone<
-  T extends
-    | LineChartDefinition
-    | BarChartDefinition
-    | PieChartDefinition
-    | ScatterChartDefinition
-    | ComboChartDefinition
->(definition: T, executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand): T {
+export function transformChartDefinitionWithDataSetsWithZone<T extends ChartWithAxisDefinition>(
+  definition: T,
+  executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
+): T {
   let labelRange: string | undefined;
   if (definition.labelRange) {
     const labelZone = transformZone(toUnboundedZone(definition.labelRange), executed);
@@ -341,14 +332,7 @@ export function chartFontColor(backgroundColor: Color | undefined): Color {
   return relativeLuminance(backgroundColor) < 0.3 ? "#FFFFFF" : "#000000";
 }
 
-export function checkDataset(
-  definition:
-    | LineChartDefinition
-    | BarChartDefinition
-    | PieChartDefinition
-    | ScatterChartDefinition
-    | ComboChartDefinition
-): CommandResult {
+export function checkDataset(definition: ChartWithAxisDefinition): CommandResult {
   if (definition.dataSets) {
     const invalidRanges =
       definition.dataSets.find((range) => !rangeReference.test(range)) !== undefined;
@@ -363,14 +347,7 @@ export function checkDataset(
   return CommandResult.Success;
 }
 
-export function checkLabelRange(
-  definition:
-    | LineChartDefinition
-    | BarChartDefinition
-    | PieChartDefinition
-    | ScatterChartDefinition
-    | ComboChartDefinition
-): CommandResult {
+export function checkLabelRange(definition: ChartWithAxisDefinition): CommandResult {
   if (definition.labelRange) {
     const invalidLabels = !rangeReference.test(definition.labelRange || "");
     if (invalidLabels) {

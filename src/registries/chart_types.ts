@@ -13,6 +13,10 @@ import {
   ScorecardChart,
   createScorecardChartRuntime,
 } from "../helpers/figures/charts/scorecard_chart";
+import {
+  WaterfallChart,
+  createWaterfallChartRuntime,
+} from "../helpers/figures/charts/waterfall_chart";
 import { _t } from "../translation";
 import {
   AddColumnsRowsCommand,
@@ -37,6 +41,7 @@ import {
 } from "../types/chart/chart";
 import { ComboChartDefinition } from "../types/chart/combo_chart";
 import { ScatterChartDefinition } from "../types/chart/scatter_chart";
+import { WaterfallChartDefinition } from "../types/chart/waterfall_chart";
 import { Validator } from "../types/validator";
 import { Registry } from "./registry";
 
@@ -149,6 +154,17 @@ chartRegistry.add("scatter", {
   name: _t("Scatter"),
   sequence: 60,
 });
+chartRegistry.add("waterfall", {
+  match: (type) => type === "waterfall",
+  createChart: (definition, sheetId, getters) =>
+    new WaterfallChart(definition as WaterfallChartDefinition, sheetId, getters),
+  getChartRuntime: createWaterfallChartRuntime,
+  validateChartDefinition: WaterfallChart.validateChartDefinition,
+  transformDefinition: WaterfallChart.transformDefinition,
+  getChartDefinitionFromContextCreation: WaterfallChart.getDefinitionFromContextCreation,
+  name: _t("Waterfall"),
+  sequence: 70,
+});
 
 export const chartComponentRegistry = new Registry<new (...args: any) => Component>();
 chartComponentRegistry.add("line", ChartJsComponent);
@@ -158,3 +174,4 @@ chartComponentRegistry.add("pie", ChartJsComponent);
 chartComponentRegistry.add("gauge", GaugeChartComponent);
 chartComponentRegistry.add("scatter", ChartJsComponent);
 chartComponentRegistry.add("scorecard", ScorecardChartComponent);
+chartComponentRegistry.add("waterfall", ChartJsComponent);

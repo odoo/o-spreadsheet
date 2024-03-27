@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-LineBarPieConfigPanel">
+  <t t-name="o-spreadsheet-GenericChartConfigPanel">
     <div>
       <ChartDataSeries
         ranges="this.getDataSeriesRanges()"

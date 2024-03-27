@@ -33,6 +33,7 @@ import { LineChartDefinition } from "../../src/types/chart/line_chart";
 import { PieChartDefinition } from "../../src/types/chart/pie_chart";
 import { ScatterChartDefinition } from "../../src/types/chart/scatter_chart";
 import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart";
+import { WaterfallChartDefinition } from "../../src/types/chart/waterfall_chart";
 import { Image } from "../../src/types/image";
 import { CoreTableType, TableConfig } from "../../src/types/table";
 import { FigureSize } from "./../../src/types/figure";
@@ -148,6 +149,7 @@ export function createChart(
     | PieChartDefinition
     | ScatterChartDefinition
     | ComboChartDefinition
+    | WaterfallChartDefinition
   >,
   chartId?: UID,
   sheetId?: UID
@@ -159,6 +161,7 @@ export function createChart(
     id,
     sheetId,
     definition: {
+      ...data,
       title: data.title || "test",
       dataSets: data.dataSets || [],
       dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
@@ -171,6 +174,8 @@ export function createChart(
       labelsAsText: ("labelsAsText" in data && data.labelsAsText) || false,
       aggregated: ("aggregated" in data && data.aggregated) || false,
       cumulative: ("cumulative" in data && data.cumulative) || false,
+      showSubTotals: ("showSubTotals" in data && data.showSubTotals) || false,
+      showConnectorLines: ("showConnectorLines" in data && data.showConnectorLines) || false,
     },
   });
 }
@@ -200,6 +205,12 @@ export function createComboChart(
       useBothYAxis: data.useBothYAxis || false,
     },
   });
+}
+
+export function createWaterfallChart(model: Model, def?: Partial<WaterfallChartDefinition>): UID {
+  createChart(model, { ...def, type: "waterfall" });
+  const sheetId = model.getters.getActiveSheetId();
+  return model.getters.getChartIds(sheetId)[0];
 }
 
 export function createScorecardChart(

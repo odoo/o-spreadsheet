@@ -383,3 +383,14 @@ export function triggerTouchEvent(
   });
   target.dispatchEvent(ev);
 }
+
+/** Get the value of an HTML input or select Element */
+export function getHTMLInputValue(target: DOMTarget): string {
+  const input = getTarget(target) as HTMLInputElement;
+  return input.value;
+}
+
+export function getHTMLCheckboxValue(target: DOMTarget): boolean {
+  const checkbox = getTarget(target) as HTMLInputElement;
+  return checkbox.checked;
+}
