@@ -1,6 +1,6 @@
 import { deepCopy, deepEquals } from "../helpers";
 import { MEASURES_TYPES } from "../helpers/pivot/pivot_helpers";
-import { pivotRegistry } from "../helpers/pivot/pivot_registry";
+import { pivotRuntimeRegistry } from "../helpers/pivot/pivot_registry";
 import { Get } from "../store_engine";
 import { _t } from "../translation";
 import { UID } from "../types";
@@ -14,7 +14,7 @@ import {
 import { SpreadsheetStore } from "./spreadsheet_store";
 
 export class PivotSidePanelStore extends SpreadsheetStore {
-  private updatesAreDeferred: boolean = true;
+  private updatesAreDeferred: boolean = false;
   private draft: PivotCoreDefinition | null = null;
   constructor(get: Get, private pivotId: UID) {
     super(get);
@@ -34,8 +34,8 @@ export class PivotSidePanelStore extends SpreadsheetStore {
 
   get definition() {
     const type = this.getters.getPivotCoreDefinition(this.pivotId).type;
-    const cls = pivotRegistry.get(type).definition;
-    return this.draft ? new cls(this.draft, this.fields) : this.pivot.definition;
+    const cls = pivotRuntimeRegistry.get(type).definition;
+    return this.draft ? new cls(this.draft, this.fields, this.getters) : this.pivot.definition;
   }
 
   get isDirty() {

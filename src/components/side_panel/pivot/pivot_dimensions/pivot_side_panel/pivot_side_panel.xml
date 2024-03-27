@@ -1,0 +1,12 @@
+<templates>
+  <t t-name="o-spreadsheet-PivotSidePanel">
+    <t t-esc="zone"/>
+    <PivotDimensions
+      unusedGroupableFields="store.unusedGroupableFields"
+      unusedMeasureFields="store.unusedMeasureFields"
+      unusedDateTimeGranularities="store.unusedDateTimeGranularities"
+      definition="definition"
+      onDimensionsUpdated.bind="onDimensionsUpdated"
+    />
+  </t>
+</templates>

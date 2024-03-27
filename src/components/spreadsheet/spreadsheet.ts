@@ -343,6 +343,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
     onMounted(() => {
       this.checkViewportSize();
+      this.env.openSidePanel("PivotSidePanel", { pivotId: "1" });
     });
     onWillUnmount(() => this.unbindModelEvents());
     onPatched(() => {

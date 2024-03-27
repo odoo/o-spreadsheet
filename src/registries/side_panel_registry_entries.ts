@@ -5,6 +5,7 @@ import { DataValidationPanel } from "../components/side_panel/data_validation/da
 import { DataValidationEditor } from "../components/side_panel/data_validation/dv_editor/dv_editor";
 import { FindAndReplacePanel } from "../components/side_panel/find_and_replace/find_and_replace";
 import { MoreFormatsPanel } from "../components/side_panel/more_formats/more_formats";
+import { PivotSidePanel } from "../components/side_panel/pivot/pivot_dimensions/pivot_side_panel/pivot_side_panel";
 import { RemoveDuplicatesPanel } from "../components/side_panel/remove_duplicates/remove_duplicates";
 import { SettingsPanel } from "../components/side_panel/settings/settings_panel";
 import { SplitIntoColumnsPanel } from "../components/side_panel/split_to_columns_panel/split_to_columns_panel";
@@ -86,4 +87,9 @@ sidePanelRegistry.add("TableSidePanel", {
     const coreTable = getters.getCoreTable(getTableTopLeft(table));
     return { isOpen: true, props: { table: coreTable }, key: table.id };
   },
+});
+
+sidePanelRegistry.add("PivotSidePanel", {
+  title: _t("Pivot"),
+  Body: PivotSidePanel,
 });

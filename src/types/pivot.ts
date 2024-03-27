@@ -1,3 +1,5 @@
+import { UID } from "./misc";
+
 export type Aggregator =
   | "array_agg"
   | "count"
@@ -30,12 +32,16 @@ export interface CommonPivotCoreDefinition {
 
 export interface SpreadsheetPivotCoreDefinition extends CommonPivotCoreDefinition {
   type: "SPREADSHEET";
+  sheetId: UID;
+  range: string;
 }
 
 export type PivotCoreDefinition = SpreadsheetPivotCoreDefinition;
 
+export type techName = string;
+
 export interface PivotField {
-  name: string;
+  name: techName;
   type: string;
   string: string;
   relation?: string;
@@ -46,7 +52,7 @@ export interface PivotField {
   help?: string;
 }
 
-export type PivotFields = Record<string, PivotField | undefined>;
+export type PivotFields = Record<techName, PivotField | undefined>;
 
 export interface PivotMeasure extends PivotCoreMeasure {
   nameWithAggregator: string;

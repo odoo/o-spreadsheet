@@ -105,7 +105,7 @@ import {
   makePivotFormula,
   parseDimension,
 } from "./helpers/pivot/pivot_helpers";
-import { pivotRegistry } from "./helpers/pivot/pivot_registry";
+import { pivotRuntimeRegistry } from "./helpers/pivot/pivot_registry";
 import {
   createEmptyExcelSheet,
   createEmptySheet,
@@ -246,7 +246,7 @@ export const registries = {
   repeatLocalCommandTransformRegistry,
   repeatCommandTransformRegistry,
   clipboardHandlersRegistries,
-  pivotRegistry,
+  pivotRegistry: pivotRuntimeRegistry,
 };
 export const helpers = {
   arg,

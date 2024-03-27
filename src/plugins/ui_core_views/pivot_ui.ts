@@ -4,7 +4,7 @@ import {
   getFirstPivotFunction,
   getNumberOfPivotFunctions,
 } from "../../helpers/pivot/pivot_helpers";
-import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
+import { pivotRuntimeRegistry } from "../../helpers/pivot/pivot_registry";
 import { Pivot } from "../../helpers/pivot/pivot_runtime";
 import {
   AddPivotCommand,
@@ -34,6 +34,8 @@ export class PivotUIPlugin extends UIPlugin {
   private unusedPivots?: UID[];
   private custom: UIPluginConfig["custom"];
 
+  private isDirty: boolean = false;
+
   constructor(config: UIPluginConfig) {
     super(config);
     this.custom = config.custom;
@@ -42,6 +44,7 @@ export class PivotUIPlugin extends UIPlugin {
   beforeHandle(cmd: Command) {
     switch (cmd.type) {
       case "START":
+        this.isDirty = true;
         for (const pivotId of this.getters.getPivotIds()) {
           this.setupPivot(pivotId);
         }
@@ -84,6 +87,17 @@ export class PivotUIPlugin extends UIPlugin {
           this.setupPivot(pivotId, { recreate: true });
         }
         break;
+      }
+      case "EVALUATE_CELLS":
+        this.isDirty = true;
+    }
+  }
+
+  finalize() {
+    if (this.isDirty) {
+      this.isDirty = false;
+      for (const pivotId of this.getters.getPivotIds()) {
+        this.setupPivot(pivotId, { recreate: true });
       }
     }
   }
@@ -241,7 +255,7 @@ export class PivotUIPlugin extends UIPlugin {
     const dataSourceId = this.getPivotDataSourceId(pivotId);
     const definition = this.getters.getPivotCoreDefinition(pivotId);
     if (recreate || !(dataSourceId in this.pivots)) {
-      const cls = pivotRegistry.get(definition.type).cls;
+      const cls = pivotRuntimeRegistry.get(definition.type).cls;
       this.pivots[dataSourceId] = new cls(this.custom, { definition, getters: this.getters });
     }
   }

@@ -2106,6 +2106,17 @@ export const demoData = {
       ],
     },
   ],
+  pivots: {
+    1: {
+      type: "SPREADSHEET",
+      columns: [],
+      rows: [],
+      measures: [],
+      name: "My pivot",
+      sheetId: "sh4",
+      range: "G1:K9",
+    },
+  },
   styles: {
     1: { bold: true, textColor: "#674EA7", fontSize: 18 },
     2: { italic: true },
