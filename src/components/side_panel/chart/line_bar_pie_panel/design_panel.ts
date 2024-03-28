@@ -4,8 +4,8 @@ import { BarChartDefinition } from "../../../../types/chart/bar_chart";
 import { LineChartDefinition } from "../../../../types/chart/line_chart";
 import { PieChartDefinition } from "../../../../types/chart/pie_chart";
 import { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
+import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";
-import { ChartColor } from "../building_blocks/color/color";
 import { ChartTitle } from "../building_blocks/title/title";
 
 interface Props {
@@ -22,7 +22,7 @@ interface Props {
 
 export class LineBarPieDesignPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-LineBarPieDesignPanel";
-  static components = { ChartColor, ChartTitle, Section };
+  static components = { RoundColorPicker, ChartTitle, Section };
   static props = {
     figureId: String,
     definition: Object,

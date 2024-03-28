@@ -3,8 +3,8 @@ import { _t } from "../../../../translation";
 import { ScorecardChartDefinition } from "../../../../types/chart/scorecard_chart";
 import { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
+import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";
-import { ChartColor } from "../building_blocks/color/color";
 import { ChartTitle } from "../building_blocks/title/title";
 
 type ColorPickerId = undefined | "backgroundColor" | "baselineColorUp" | "baselineColorDown";
@@ -22,7 +22,7 @@ interface PanelState {
 
 export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ScorecardChartDesignPanel";
-  static components = { ColorPickerWidget, ChartColor, ChartTitle, Section };
+  static components = { ColorPickerWidget, RoundColorPicker, ChartTitle, Section };
   static props = {
     figureId: String,
     definition: Object,

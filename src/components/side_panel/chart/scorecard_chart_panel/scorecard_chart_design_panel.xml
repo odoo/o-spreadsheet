@@ -3,7 +3,7 @@
     <t t-set="color_up">Color Up</t>
     <t t-set="color_down">Color Down</t>
     <div>
-      <ChartColor
+      <RoundColorPicker
         currentColor="props.definition.background"
         onColorPicked="(color) => this.setColor(color, 'backgroundColor')"
       />

@@ -28,13 +28,13 @@ import {
   ScorecardChartDesignPanel,
   chartSidePanelComponentRegistry,
 } from "./components/side_panel/chart";
-import { ChartColor } from "./components/side_panel/chart/building_blocks/color/color";
 import { ChartDataSeries } from "./components/side_panel/chart/building_blocks/data_series/data_series";
 import { ChartErrorSection } from "./components/side_panel/chart/building_blocks/error_section/error_section";
 import { ChartLabelRange } from "./components/side_panel/chart/building_blocks/label_range/label_range";
 import { ChartTitle } from "./components/side_panel/chart/building_blocks/title/title";
 import { ChartPanel } from "./components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { Checkbox } from "./components/side_panel/components/checkbox/checkbox";
+import { RoundColorPicker } from "./components/side_panel/components/round_color_picker/round_color_picker";
 import { Section } from "./components/side_panel/components/section/section";
 import { FindAndReplaceStore } from "./components/side_panel/find_and_replace/find_and_replace_store";
 import { SidePanelStore } from "./components/side_panel/side_panel/side_panel_store";
@@ -283,7 +283,7 @@ export const links = {
 export const components = {
   Checkbox,
   Section,
-  ChartColor,
+  RoundColorPicker,
   ChartDataSeries,
   ChartErrorSection,
   ChartLabelRange,
