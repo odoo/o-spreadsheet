@@ -187,4 +187,8 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
   private closeMenus() {
     this.state.openedMenu = undefined;
   }
+
+  get backgroundColorTitle() {
+    return ChartTerms.BackgroundColor;
+  }
 }
