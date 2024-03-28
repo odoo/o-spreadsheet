@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Chart color Can render a chart color component 1`] = `
+exports[`Panel color picker Can render a panel color picker component 1`] = `
 <div>
   <div
     class="o-spreadsheet"

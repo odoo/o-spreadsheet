@@ -1,15 +1,15 @@
-import { ChartColor } from "../../../src/components/side_panel/chart/building_blocks/color/color";
+import { RoundColorPicker } from "../../../src/components/side_panel/components/round_color_picker/round_color_picker";
 import { click } from "../../test_helpers/dom_helper";
 import { mountComponentWithPortalTarget } from "../../test_helpers/helpers";
 
 let fixture: HTMLElement;
 
-async function mountChartColor(props: ChartColor["props"]) {
-  ({ fixture } = await mountComponentWithPortalTarget(ChartColor, { props }));
+async function mountChartColor(props: RoundColorPicker["props"]) {
+  ({ fixture } = await mountComponentWithPortalTarget(RoundColorPicker, { props }));
 }
 
-describe("Chart color", () => {
-  test("Can render a chart color component", async () => {
+describe("Panel color picker", () => {
+  test("Can render a panel color picker component", async () => {
     await mountChartColor({ onColorPicked: () => {} });
     expect(fixture).toMatchSnapshot();
   });

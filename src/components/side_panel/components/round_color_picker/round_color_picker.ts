@@ -1,7 +1,7 @@
 import { Component, useExternalListener, useState } from "@odoo/owl";
-import { SpreadsheetChildEnv } from "../../../../../types";
-import { ColorPickerWidget } from "../../../../color_picker/color_picker_widget";
-import { Section } from "../../../components/section/section";
+import { SpreadsheetChildEnv } from "../../../../types";
+import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
+import { Section } from "../section/section";
 
 interface State {
   pickerOpened: boolean;
@@ -12,8 +12,8 @@ interface Props {
   onColorPicked: (color: string) => void;
 }
 
-export class ChartColor extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet.ChartColor";
+export class RoundColorPicker extends Component<Props, SpreadsheetChildEnv> {
+  static template = "o-spreadsheet.RoundColorPicker";
   static components = { ColorPickerWidget, Section };
   static props = {
     currentColor: { type: String, optional: true },

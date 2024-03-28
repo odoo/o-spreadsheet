@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-LineChartDesignPanel">
     <div>
-      <ChartColor
+      <RoundColorPicker
         currentColor="props.definition.background"
         onColorPicked.bind="updateBackgroundColor"
       />
