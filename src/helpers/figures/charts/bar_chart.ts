@@ -235,7 +235,10 @@ function getBarConfiguration(
           value = Number(value);
           if (isNaN(value)) return value;
           const { locale, format } = localeFormat;
-          return formatValue(value, { locale, format: !format && value > 1000 ? "#,##" : format });
+          return formatValue(value, {
+            locale,
+            format: !format && Math.abs(value) >= 1000 ? "#,##" : format,
+          });
         },
       },
     },
