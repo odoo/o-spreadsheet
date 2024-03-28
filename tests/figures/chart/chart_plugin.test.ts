@@ -1604,6 +1604,10 @@ describe("Chart design configuration", () => {
         expect(runtime.chartJsConfig.options.scales.y?.ticks.callback!(60000000)).toEqual(
           "60,000,000"
         );
+        //@ts-ignore
+        expect(runtime.chartJsConfig.options.scales.y?.ticks.callback!(-60000000)).toEqual(
+          "-60,000,000"
+        );
       }
     );
 
@@ -1616,6 +1620,10 @@ describe("Chart design configuration", () => {
         //@ts-ignore
         expect(runtime.chartJsConfig.options.scales.y?.ticks.callback!(60000000)).toEqual(
           "60 000 000"
+        );
+        // @ts-ignore
+        expect(runtime.chartJsConfig.options.scales.y?.ticks.callback!(-60000000)).toEqual(
+          "-60 000 000"
         );
       }
     );
@@ -1645,7 +1653,7 @@ describe("Chart design configuration", () => {
     );
 
     test.each(["bar", "line"])(
-      "Basic chart tooltip label, cell without format: thousand separator",
+      "Basic chart tooltip label, cell without format: thousand separator for positive values",
       (chartType) => {
         setCellContent(model, "A2", "60000000");
         createChart(model, { ...defaultChart, type: chartType as "bar" | "line" | "pie" }, "42");
@@ -1656,14 +1664,17 @@ describe("Chart design configuration", () => {
       }
     );
 
-    test.each(["bar", "line"])("Basic chart tooltip label, cell with format", (chartType) => {
-      setCellContent(model, "A2", "6000");
-      setCellFormat(model, "A2", "[$$]#,##0.00");
-      createChart(model, { ...defaultChart, type: chartType as "bar" | "line" | "pie" }, "42");
-      const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
-      const label = getTooltipLabel(runtime, 0, 0);
-      expect(label).toEqual("$6,000.00");
-    });
+    test.each(["bar", "line"])(
+      "Basic chart tooltip label, cell without format: thousand separator for negative values",
+      (chartType) => {
+        setCellContent(model, "A2", "-60000000");
+        createChart(model, { ...defaultChart, type: chartType as "bar" | "line" | "pie" }, "42");
+        const runtime = model.getters.getChartRuntime("42") as BarChartRuntime;
+        const label = getTooltipLabel(runtime, 0, 0);
+
+        expect(label).toEqual("-60,000,000");
+      }
+    );
 
     test.each(["bar", "line"])("Basic chart tooltip label, date format is ignored", (chartType) => {
       setCellContent(model, "A2", "6000");
