@@ -373,13 +373,8 @@ describe("charts", () => {
       await openChartDesignSidePanel();
 
       expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
-      const colorpickerButton = fixture.querySelector(
-        ".o-chart-background-color .o-color-picker-widget .o-color-picker-button"
-      );
-      await simulateClick(colorpickerButton);
-      const colorpickerItems = fixture.querySelectorAll(
-        ".o-color-picker-line-item"
-      ) as NodeListOf<HTMLElement>;
+      await simulateClick(".o-round-color-picker-button");
+      const colorpickerItems = fixture.querySelectorAll<HTMLElement>(".o-color-picker-line-item");
       for (let el of colorpickerItems) {
         if (toHex(el.style.backgroundColor) === "#000000") {
           await simulateClick(el);

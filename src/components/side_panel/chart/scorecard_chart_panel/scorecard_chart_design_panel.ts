@@ -3,6 +3,7 @@ import { _t } from "../../../../translation";
 import { ScorecardChartDefinition } from "../../../../types/chart/scorecard_chart";
 import { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
+import { ChartTerms } from "../../../translations_terms";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";
 import { ChartTitle } from "../building_blocks/title/title";
@@ -79,5 +80,9 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
 
   private closeMenus() {
     this.state.openedColorPicker = undefined;
+  }
+
+  get backgroundColorTitle() {
+    return ChartTerms.BackgroundColor;
   }
 }

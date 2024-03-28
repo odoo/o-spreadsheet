@@ -1,10 +1,17 @@
 <templates>
   <t t-name="o-spreadsheet-GaugeChartDesignPanel">
     <div>
-      <RoundColorPicker
-        currentColor="props.definition.background"
-        onColorPicked.bind="updateBackgroundColor"
-      />
+      <Section class="'o-chart-background-color'">
+        <t t-set-slot="title">Background color</t>
+        <div class="d-flex align-items-center">
+          <span class="me-2">Select a color...</span>
+          <RoundColorPicker
+            currentColor="props.definition.background"
+            onColorPicked.bind="updateBackgroundColor"
+            title="backgroundColorTitle"
+          />
+        </div>
+      </Section>
       <ChartTitle title="title" update.bind="updateTitle"/>
       <Section>
         <t t-set-slot="title">Range</t>

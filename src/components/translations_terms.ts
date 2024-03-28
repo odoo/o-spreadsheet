@@ -49,6 +49,7 @@ export const CellIsOperators = {
 
 export const ChartTerms = {
   Series: _t("Series"),
+  BackgroundColor: _t("Background color"),
   Errors: {
     Unexpected: _t("The chart definition is invalid for an unknown reason"),
     // BASIC CHART ERRORS (LINE | BAR | PIE)

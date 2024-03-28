@@ -3,10 +3,17 @@
     <t t-set="color_up">Color Up</t>
     <t t-set="color_down">Color Down</t>
     <div>
-      <RoundColorPicker
-        currentColor="props.definition.background"
-        onColorPicked="(color) => this.setColor(color, 'backgroundColor')"
-      />
+      <Section class="'o-chart-background-color'">
+        <t t-set-slot="title">Background color</t>
+        <div class="d-flex align-items-center">
+          <span class="me-2">Select a color...</span>
+          <RoundColorPicker
+            currentColor="props.definition.background"
+            onColorPicked="(color) => this.setColor(color, 'backgroundColor')"
+            title="backgroundColorTitle"
+          />
+        </div>
+      </Section>
       <ChartTitle title="title" update.bind="updateTitle"/>
       <Section>
         <t t-set-slot="title">Baseline description</t>
