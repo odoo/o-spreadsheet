@@ -82,6 +82,13 @@ export interface UnboundedZone {
   bottom: HeaderIndex | undefined;
   left: HeaderIndex;
   right: HeaderIndex | undefined;
+  /**
+   * The hasHeader flag is used to determine if the zone has a header (eg. A2:A or C3:3).
+   *
+   * The main issue is that the zone A1:A and A:A have different behavior. The "correct" way to handle this would be to
+   * allow the top/left to be undefined, but this make typing and using unbounded zones VERY annoying. So we use this
+   * boolean instead.
+   */
   hasHeader?: boolean;
 }
 
