@@ -230,7 +230,7 @@ function getPieConfiguration(
 
     const xLabel = tooltipItem.label || tooltipItem.dataset.label;
     const yLabel = tooltipItem.parsed.y ?? tooltipItem.parsed;
-    const toolTipFormat = !format && yLabel > 1000 ? "#,##" : format;
+    const toolTipFormat = !format && yLabel >= 1000 ? "#,##" : format;
     const yLabelStr = formatValue(yLabel, { format: toolTipFormat, locale });
 
     return xLabel ? `${xLabel}: ${yLabelStr} (${percentage}%)` : `${yLabelStr} (${percentage}%)`;
