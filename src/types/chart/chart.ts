@@ -90,5 +90,13 @@ export interface ChartCreationContext {
   readonly background?: string;
   readonly auxiliaryRange?: string;
   readonly aggregated?: boolean;
-  readonly type?: string;
+  readonly stacked?: boolean;
+  readonly cumulative?: boolean;
+  readonly dataSetsHaveTitle?: boolean;
+  readonly labelsAsText?: boolean;
+  readonly showSubTotals?: boolean;
+  readonly showConnectorLines?: boolean;
+  readonly firstValueAsSubtotal?: boolean;
+  readonly verticalAxisPosition?: VerticalAxisPosition;
+  readonly legendPosition?: LegendPosition;
 }

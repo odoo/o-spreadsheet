@@ -1,6 +1,9 @@
-import { CommandResult, Model } from "../../../src";
+import { ChartCreationContext, CommandResult, Model } from "../../../src";
 import { deepCopy, zoneToXc } from "../../../src/helpers";
-import { GaugeChart } from "../../../src/helpers/figures/charts";
+import {
+  GaugeChart,
+  getChartDefinitionFromContextCreation,
+} from "../../../src/helpers/figures/charts";
 import {
   GaugeChartDefinition,
   GaugeChartRuntime,
@@ -109,6 +112,33 @@ describe("datasource tests", function () {
       sectionRule: defaultSectionRule,
     });
     expect(model.getters.getChartRuntime("1") as GaugeChartRuntime).toMatchSnapshot();
+  });
+
+  test("create gauge from creation context", () => {
+    const context: Required<ChartCreationContext> = {
+      background: "#123456",
+      title: "hello there",
+      range: ["Sheet1!B1:B4"],
+      auxiliaryRange: "Sheet1!A1:A4",
+      legendPosition: "bottom",
+      verticalAxisPosition: "right",
+      cumulative: true,
+      labelsAsText: true,
+      dataSetsHaveTitle: true,
+      aggregated: true,
+      stacked: true,
+      firstValueAsSubtotal: true,
+      showConnectorLines: false,
+      showSubTotals: true,
+    };
+    const definition = getChartDefinitionFromContextCreation(context, "gauge");
+    expect(definition).toEqual({
+      type: "gauge",
+      background: "#123456",
+      title: "hello there",
+      dataRange: "Sheet1!B1:B4",
+      sectionRule: expect.any(Object),
+    });
   });
 
   test("ranges in gauge definition change automatically", () => {

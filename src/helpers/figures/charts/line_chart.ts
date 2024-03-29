@@ -88,16 +88,16 @@ export class LineChart extends AbstractChart {
     return {
       background: context.background,
       dataSets: context.range ? context.range : [],
-      dataSetsHaveTitle: false,
-      labelsAsText: false,
-      legendPosition: "top",
+      dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
+      labelsAsText: context.labelsAsText ?? false,
+      legendPosition: context.legendPosition ?? "top",
       title: context.title || "",
       type: "line",
-      verticalAxisPosition: "left",
+      verticalAxisPosition: context.verticalAxisPosition ?? "left",
       labelRange: context.auxiliaryRange || undefined,
-      stacked: false,
+      stacked: context.stacked ?? false,
       aggregated: context.aggregated ?? false,
-      cumulative: false,
+      cumulative: context.cumulative ?? false,
     };
   }
 
@@ -132,15 +132,13 @@ export class LineChart extends AbstractChart {
 
   getContextCreation(): ChartCreationContext {
     return {
-      background: this.background,
-      title: this.title,
+      ...this,
       range: this.dataSets.map((ds: DataSet) =>
         this.getters.getRangeString(ds.dataRange, this.sheetId)
       ),
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
         : undefined,
-      aggregated: this.aggregated,
     };
   }
 

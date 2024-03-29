@@ -447,13 +447,8 @@ describe("charts", () => {
     await setInputValueAndTrigger(chartType, "pie");
     setInputValueAndTrigger(dataSeriesValues, "B2:B5");
     await click(hasTitle);
-    // dataSetsHaveTitle is not propagated
-    expect((mockChartData.data! as any).datasets[0].data).toEqual([
-      "first column dataset",
-      10,
-      11,
-      12,
-    ]);
+    expect((mockChartData.data! as any).datasets[0].label).toEqual("first column dataset");
+    expect((mockChartData.data! as any).datasets[0].data).toEqual([10, 11, 12]);
     expect(mockChartData.type).toBe("pie");
     expect((mockChartData.options?.plugins!.title as any).text).toBe("hello");
   });
@@ -1162,6 +1157,21 @@ describe("charts", () => {
         const checkbox = document.querySelector("input[name='aggregated']") as HTMLInputElement;
         expect(checkbox.checked).toBe(true);
       }
+    });
+
+    test("dataSetsHaveTitle value is kept when changing to a chart without aggregate option then back again", async () => {
+      createTestChart("basicChart");
+      updateChart(model, chartId, { dataSetsHaveTitle: true, type: "pie" });
+      await openChartConfigSidePanel();
+      let checkbox = document.querySelector("input[name='dataSetsHaveTitle']") as HTMLInputElement;
+      expect(checkbox.checked).toBe(true);
+
+      await setInputValueAndTrigger(".o-type-selector", "gauge");
+      expect(document.querySelector("input[name='dataSetsHaveTitle']")).toBeFalsy();
+
+      await setInputValueAndTrigger(".o-type-selector", "pie");
+      checkbox = document.querySelector("input[name='dataSetsHaveTitle']") as HTMLInputElement;
+      expect(checkbox.checked).toBe(true);
     });
   });
 
