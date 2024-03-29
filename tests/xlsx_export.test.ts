@@ -1336,6 +1336,15 @@ describe("Test XLSX export", () => {
       expect(exported.sheets[0].filterTables[0].filters).toHaveLength(0);
     });
 
+    test("Filters with only one row are not exported", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "Hello");
+      setCellContent(model, "B1", "Hello");
+      createFilter(model, "A1:B1");
+      const exported = getExportedExcelData(model);
+      expect(exported.sheets[0].filterTables).toHaveLength(0);
+    });
+
     test("Filtered values are not duplicated", () => {
       const model = new Model();
       createFilter(model, "A1:B4");
