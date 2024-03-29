@@ -1,10 +1,7 @@
 import { Component } from "@odoo/owl";
 import { ChartSidePanel, chartSidePanelComponentRegistry } from "..";
 import { BACKGROUND_HEADER_COLOR } from "../../../../constants";
-import {
-  getChartDefinitionFromContextCreation,
-  getChartTypes,
-} from "../../../../helpers/figures/charts";
+import { getChartTypes } from "../../../../helpers/figures/charts";
 import { Store, useLocalStore } from "../../../../store_engine";
 import { ChartDefinition, ChartType, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { css } from "../../../helpers/css";
@@ -90,16 +87,7 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
     if (!this.figureId) {
       return;
     }
-    const context = this.env.model.getters.getContextCreationChart(this.figureId);
-    if (!context) {
-      throw new Error("Chart not defined.");
-    }
-    const definition = getChartDefinitionFromContextCreation(context, type);
-    this.env.model.dispatch("UPDATE_CHART", {
-      definition,
-      id: this.figureId,
-      sheetId: this.env.model.getters.getFigureSheetId(this.figureId)!,
-    });
+    this.store.changeChartType(this.figureId, type);
   }
 
   get chartPanel(): ChartSidePanel {
