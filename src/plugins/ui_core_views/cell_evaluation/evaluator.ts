@@ -1,7 +1,7 @@
 import { compile } from "../../../formulas";
 import { implementationErrorMessage } from "../../../functions";
 import { matrixMap } from "../../../functions/helpers";
-import { lazy, positionToZone, toXC } from "../../../helpers";
+import { lazy, positionToZone, toXC, union, unionPositionsToZone } from "../../../helpers";
 import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells";
 import { ModelConfig } from "../../../model";
 import { _t } from "../../../translation";
@@ -17,6 +17,7 @@ import {
   Range,
   RangeCompiledFormula,
   UID,
+  Zone,
   isMatrix,
 } from "../../../types";
 import { CellErrorType, CircularDependencyError, EvaluationError } from "../../../types/errors";
@@ -55,15 +56,15 @@ export class Evaluator {
     return this.evaluatedCells.get(position) || EMPTY_CELL;
   }
 
-  getSpreadPositionsOf(position: CellPosition): CellPosition[] {
+  getSpreadZone(position: CellPosition): Zone | undefined {
     if (!this.spreadingRelations.isArrayFormula(position)) {
-      return [];
+      return undefined;
     }
     if (this.evaluatedCells.get(position)?.type === CellValueType.error) {
-      return [position];
+      return positionToZone(position);
     }
     const spreadPositions = Array.from(this.spreadingRelations.getArrayResultPositions(position));
-    return [position, ...spreadPositions];
+    return union(positionToZone(position), unionPositionsToZone(spreadPositions));
   }
 
   getEvaluatedPositions(): CellPosition[] {

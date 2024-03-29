@@ -1,4 +1,3 @@
-import { positionToZone, union } from "../helpers";
 import { Get } from "../store_engine";
 import { Highlight, Zone } from "../types";
 import { HighlightStore } from "./highlight_store";
@@ -33,15 +32,9 @@ export class ArrayFormulaHighlight extends SpreadsheetStore {
   private getHighlightZone(): Zone | undefined {
     const position = this.model.getters.getActivePosition();
     const spreader = this.model.getters.getArrayFormulaSpreadingOn(position);
-    const spreadPositions = spreader
-      ? this.model.getters.getSpreadPositionsOf(spreader)
-      : this.model.getters.getSpreadPositionsOf(position);
-
-    if (spreadPositions.length) {
-      const zones = spreadPositions.map(positionToZone);
-      return union(...zones);
-    } else {
-      return undefined;
-    }
+    const spreadZone = spreader
+      ? this.model.getters.getSpreadZone(spreader)
+      : this.model.getters.getSpreadZone(position);
+    return spreadZone;
   }
 }
