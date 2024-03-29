@@ -1262,4 +1262,24 @@ describe("evaluate formula getter", () => {
     expect((getEvaluatedCell(model, "A1") as ErrorCell).message).toBe("Error2");
     functionRegistry.remove("GETVALUE");
   });
+
+  test("return error message with function name placeholder", () => {
+    functionRegistry.add("GETERR", {
+      description: "Get error",
+      compute: () => {
+        return {
+          value: "#ERROR",
+          message: "Function [[FUNCTION_NAME]] failed",
+        };
+      },
+      args: [],
+      returns: ["ANY"],
+    });
+    setCellContent(model, "A1", "=GETERR()");
+    expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
+    expect((getEvaluatedCell(model, "A1") as ErrorCell).message).toBe("Function GETERR failed");
+    setCellContent(model, "A1", "=SUM(GETERR())");
+    expect((getEvaluatedCell(model, "A1") as ErrorCell).message).toBe("Function GETERR failed");
+    functionRegistry.remove("GETERR");
+  });
 });
