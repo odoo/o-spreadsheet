@@ -1,5 +1,5 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
-import { escapeRegExp } from "../helpers";
+import { escapeRegExp, toZone, zoneToDimension } from "../helpers";
 import { ExcelSheetData, ExcelWorkbookData } from "../types";
 import {
   XLSXExport,
@@ -56,6 +56,7 @@ import {
  */
 export function getXLSX(data: ExcelWorkbookData): XLSXExport {
   data = fixLengthySheetNames(data);
+  data = purgeSingleRowTables(data);
   const files: XLSXExportFile[] = [];
   const construct = getDefaultXLSXStructure();
   files.push(createWorkbook(data, construct));
@@ -399,4 +400,17 @@ export function fixLengthySheetNames(data: ExcelWorkbookData): ExcelWorkbookData
     });
   }
   return JSON.parse(stringifiedData);
+}
+
+/** Excel files do not support tables with a single row the defined range
+ * Since those tables are not really useful (no filtering/limited styling)
+ * This function filters out all tables with a single row.
+ */
+export function purgeSingleRowTables(data: ExcelWorkbookData): ExcelWorkbookData {
+  for (const sheet of data.sheets) {
+    sheet.tables = sheet.tables.filter(
+      (table) => zoneToDimension(toZone(table.range)).numberOfRows > 1
+    );
+  }
+  return data;
 }
