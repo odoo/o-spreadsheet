@@ -1,4 +1,4 @@
-import { Component, onMounted, onWillUnmount, xml } from "@odoo/owl";
+import { Component, xml } from "@odoo/owl";
 import { Model } from "../src";
 import { ComposerStore } from "../src/components/composer/composer/composer_store";
 import { TopBar } from "../src/components/top_bar/top_bar";
@@ -63,11 +63,6 @@ class Parent extends Component<any, SpreadsheetChildEnv> {
     </div>
   `;
   static components = { TopBar };
-
-  setup() {
-    onMounted(() => this.env.model.on("update", this, () => this.render(true)));
-    onWillUnmount(() => this.env.model.off("update", this));
-  }
 
   get gridHeight(): Pixel {
     const { height } = this.env.model.getters.getSheetViewDimension();

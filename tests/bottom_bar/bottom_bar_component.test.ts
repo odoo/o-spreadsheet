@@ -1,4 +1,4 @@
-import { Component, onMounted, onWillUnmount, xml } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { BottomBar } from "../../src/components/bottom_bar/bottom_bar";
 import { toHex } from "../../src/helpers";
 import { interactiveRenameSheet } from "../../src/helpers/ui/sheet_interactive";
@@ -27,29 +27,17 @@ import {
   triggerMouseEvent,
   triggerWheelEvent,
 } from "../test_helpers/dom_helper";
-import { makeTestEnv, mockUuidV4To, mountComponent, nextTick } from "../test_helpers/helpers";
+import {
+  makeTestEnv,
+  mockUuidV4To,
+  mountComponentWithPortalTarget,
+  nextTick,
+} from "../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 let fixture: HTMLElement;
-
-class Parent extends Component<any, any> {
-  static template = xml/* xml */ `
-    <div class="o-spreadsheet">
-      <BottomBar onClick="()=>{}"/>
-    </div>
-  `;
-  static components = { BottomBar };
-
-  setup() {
-    onMounted(() => this.props.model.on("update", this, this.render));
-    onWillUnmount(() => this.props.model.off("update", this));
-  }
-  getSubEnv() {
-    return this.__owl__.childEnv;
-  }
-}
 
 function isDragAndDropActive(): boolean {
   const activeSheet = fixture.querySelector<HTMLElement>(".o-sheet.active")!;
@@ -59,10 +47,14 @@ function isDragAndDropActive(): boolean {
 async function mountBottomBar(
   model: Model = new Model(),
   env: Partial<SpreadsheetChildEnv> = {}
-): Promise<{ parent: Parent; model: Model }> {
+): Promise<{ parent: Component; model: Model }> {
   let parent: Component;
-  ({ fixture, parent } = await mountComponent(Parent, { model, env, props: { model } }));
-  return { parent: parent as Parent, model };
+  ({ fixture, parent } = await mountComponentWithPortalTarget(BottomBar, {
+    model,
+    env,
+    props: { onClick: () => {} },
+  }));
+  return { parent, model };
 }
 
 describe("BottomBar component", () => {
@@ -462,7 +454,7 @@ describe("BottomBar component", () => {
 
   describe("Scroll on the list of sheets", () => {
     let model: Model;
-    let parent: Parent;
+    let parent: Component;
     let sheetListEl: HTMLElement;
 
     jest
@@ -516,7 +508,7 @@ describe("BottomBar component", () => {
     test("Can scroll to the right: scroll arrow right enabled and fade-out effect", async () => {
       jest.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(300);
       jest.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(500);
-      parent.render();
+      parent.render(true);
       await nextTick();
 
       expect(fixture.querySelector(".o-bottom-bar-arrow-left.o-disabled")).not.toBeNull();
@@ -529,7 +521,7 @@ describe("BottomBar component", () => {
       jest.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(300);
       jest.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(500);
       sheetListEl.scrollLeft = 200;
-      parent.render();
+      parent.render(true);
       await nextTick();
       expect(fixture.querySelector(".o-bottom-bar-arrow-left:not(.o-disabled)")).not.toBeNull();
       expect(fixture.querySelector(".o-bottom-bar-arrow-right.o-disabled")).not.toBeNull();
@@ -541,7 +533,7 @@ describe("BottomBar component", () => {
       jest.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(300);
       jest.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(500);
       sheetListEl.scrollLeft = 100;
-      parent.render();
+      parent.render(true);
       await nextTick();
       expect(fixture.querySelector(".o-bottom-bar-arrow-left:not(.o-disabled)")).not.toBeNull();
       expect(fixture.querySelector(".o-bottom-bar-arrow-right:not(.o-disabled)")).not.toBeNull();
@@ -552,7 +544,7 @@ describe("BottomBar component", () => {
     test("Scroll to the right with the arrow button", async () => {
       jest.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(100);
       jest.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(250);
-      parent.render();
+      parent.render(true);
       await nextTick();
       simulateClick(".o-bottom-bar-arrow-right");
       await nextTick();
@@ -567,7 +559,7 @@ describe("BottomBar component", () => {
       jest.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(100);
       jest.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(250);
       sheetListEl.scrollLeft = 150;
-      parent.render();
+      parent.render(true);
       await nextTick();
       simulateClick(".o-bottom-bar-arrow-left");
       await nextTick();
@@ -587,7 +579,7 @@ describe("BottomBar component", () => {
 
       jest.spyOn(sheetListEl, "clientWidth", "get").mockReturnValue(100);
       jest.spyOn(sheetListEl, "scrollWidth", "get").mockReturnValue(800);
-      parent.render();
+      parent.render(true);
       await nextTick();
 
       simulateClick(".o-bottom-bar-arrow-right");

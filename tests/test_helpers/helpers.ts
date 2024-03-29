@@ -199,22 +199,55 @@ export function testUndoRedo(model: Model, expect: jest.Expect, command: Command
   expect(model).toExport(after);
 }
 
-export async function mountComponent<Props extends { [key: string]: any }>(
-  component: ComponentConstructor<Props, SpreadsheetChildEnv>,
-  optionalArgs: {
-    props?: Props;
-    env?: Partial<SpreadsheetChildEnv>;
-    model?: Model;
-    fixture?: HTMLElement;
-    renderOnModelUpdate?: boolean; // true by default
-  } = {}
-): Promise<{
+type ComponentProps = { [key: string]: any };
+
+interface ParentProps<ChildProps extends ComponentProps> {
+  childComponent: ComponentConstructor<ChildProps, SpreadsheetChildEnv>;
+  childProps: ChildProps;
+}
+
+class ParentWithPortalTarget<Props extends ComponentProps> extends Component<
+  ParentProps<Props>,
+  SpreadsheetChildEnv
+> {
+  static template = xml/*xml*/ `
+    <div class="o-spreadsheet" >
+      <t t-component="props.childComponent" t-props="props.childProps"/>
+    </div>
+  `;
+}
+
+interface MountComponentArgs<Props extends ComponentProps> {
+  props?: Props;
+  env?: Partial<SpreadsheetChildEnv>;
+  model?: Model;
+  fixture?: HTMLElement;
+  renderOnModelUpdate?: boolean; // true by default
+}
+
+interface MountComponentReturn<Props extends ComponentProps> {
   app: App;
   parent: Component<Props, SpreadsheetChildEnv>;
   model: Model;
   fixture: HTMLElement;
   env: SpreadsheetChildEnv;
-}> {
+}
+
+export async function mountComponentWithPortalTarget<Props extends ComponentProps>(
+  component: ComponentConstructor<Props, SpreadsheetChildEnv>,
+  optionalArgs: MountComponentArgs<Props> = {}
+): Promise<MountComponentReturn<ParentProps<Props>>> {
+  const args = {
+    ...optionalArgs,
+    props: { childComponent: component, childProps: optionalArgs.props || ({} as Props) },
+  };
+  return mountComponent(ParentWithPortalTarget<Props>, args);
+}
+
+export async function mountComponent<Props extends { [key: string]: any }>(
+  component: ComponentConstructor<Props, SpreadsheetChildEnv>,
+  optionalArgs: MountComponentArgs<Props> = {}
+): Promise<MountComponentReturn<Props>> {
   const model = optionalArgs.model || optionalArgs?.env?.model || new Model();
   model.drawLayer = () => {};
   const env = makeTestEnv({ ...optionalArgs.env, model: model });

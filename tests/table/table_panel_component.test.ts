@@ -1,4 +1,3 @@
-import { Component, xml } from "@odoo/owl";
 import { RangeImpl, toUnboundedZone, toZone, zoneToXc } from "../../src/helpers";
 import { SpreadsheetChildEnv, Table, UID } from "../../src/types";
 import {
@@ -9,21 +8,11 @@ import {
   updateTableConfig,
 } from "../test_helpers/commands_helpers";
 import { click, setInputValueAndTrigger, simulateClick } from "../test_helpers/dom_helper";
-import { mountComponent, nextTick } from "../test_helpers/helpers";
+import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
 
 import { Model } from "../../src";
 import { SidePanel } from "../../src/components/side_panel/side_panel/side_panel";
 import { TableTerms } from "../../src/components/translations_terms";
-
-class Parent extends Component<{}, SpreadsheetChildEnv> {
-  static components = { SidePanel };
-  static template = xml/*xml*/ `
-  <!-- Portal target -->
-  <div class="o-spreadsheet">
-    <SidePanel />
-  </div>
-  `;
-}
 
 function getTable(model: Model, sheetId: UID): Table {
   return model.getters.getTables(sheetId)[0];
@@ -43,7 +32,7 @@ describe("Table side panel", () => {
     model = new Model();
     sheetId = model.getters.getActiveSheetId();
     createTable(model, "A1:C3");
-    ({ fixture, env } = await mountComponent(Parent, { model }));
+    ({ fixture, env } = await mountComponentWithPortalTarget(SidePanel, { model }));
     env.openSidePanel("TableSidePanel", {});
     await nextTick();
   });
