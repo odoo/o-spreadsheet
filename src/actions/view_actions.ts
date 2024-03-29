@@ -304,7 +304,7 @@ function cannotCreateFilter(env: SpreadsheetChildEnv): boolean {
   return !areZonesContinuous(...env.model.getters.getSelectedZones());
 }
 
-function createRemoveFilterAction(env: SpreadsheetChildEnv) {
+export function createRemoveFilterAction(env: SpreadsheetChildEnv) {
   if (selectionContainsFilter(env)) {
     env.model.dispatch("REMOVE_FILTER_TABLE", {
       sheetId: env.model.getters.getActiveSheetId(),
