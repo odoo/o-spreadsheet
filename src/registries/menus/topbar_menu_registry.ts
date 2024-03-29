@@ -427,13 +427,8 @@ topbarMenuRegistry
     sequence: 30,
     separator: true,
   })
-  .addChild("add_data_filter", ["data"], {
-    ...ACTION_DATA.addDataFilter,
-    sequence: 40,
-    separator: true,
-  })
-  .addChild("remove_data_filter", ["data"], {
-    ...ACTION_DATA.removeDataFilter,
+  .addChild("add_remove_data_filter", ["data"], {
+    ...ACTION_DATA.addRemoveDataFilter,
     sequence: 40,
     separator: true,
   });
