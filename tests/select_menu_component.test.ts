@@ -1,21 +1,7 @@
-import { Component, xml } from "@odoo/owl";
 import { Action, createActions } from "../src/actions/action";
 import { SelectMenu, SelectMenuProps } from "../src/components/side_panel/select_menu/select_menu";
-import { SpreadsheetChildEnv } from "../src/types";
 import { click } from "./test_helpers/dom_helper";
-import { mountComponent } from "./test_helpers/helpers";
-
-interface ParentProps {
-  selectMenuProps: SelectMenuProps;
-}
-
-class Parent extends Component<ParentProps, SpreadsheetChildEnv> {
-  static components = { SelectMenu };
-  static template = xml/*xml*/ `
-      <div class="o-spreadsheet" /> <!-- portal target -->
-      <SelectMenu t-props="props.selectMenuProps"/>
-    `;
-}
+import { mountComponentWithPortalTarget } from "./test_helpers/helpers";
 
 const testMenuItems: Action[] = createActions([
   { name: "item1", id: "item1" },
@@ -26,9 +12,7 @@ describe("data validation sidePanel component", () => {
   let fixture: HTMLElement;
 
   async function mountSelectMenu(props: SelectMenuProps) {
-    ({ fixture } = await mountComponent(Parent, {
-      props: { selectMenuProps: props },
-    }));
+    ({ fixture } = await mountComponentWithPortalTarget(SelectMenu, { props }));
   }
 
   test("Clicking on the select opens a menu", async () => {

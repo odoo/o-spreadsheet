@@ -1,24 +1,11 @@
-import { Component, xml } from "@odoo/owl";
 import { ChartColor } from "../../../src/components/side_panel/chart/building_blocks/color/color";
-import { SpreadsheetChildEnv } from "../../../src/types";
 import { click } from "../../test_helpers/dom_helper";
-import { mountComponent } from "../../test_helpers/helpers";
+import { mountComponentWithPortalTarget } from "../../test_helpers/helpers";
 
 let fixture: HTMLElement;
 
-type Props = ChartColor["props"];
-
-class Container extends Component<Props, SpreadsheetChildEnv> {
-  static template = xml/* xml */ `
-    <div class="o-spreadsheet">
-      <ChartColor t-props="props"/>
-    </div>
-  `;
-  static components = { ChartColor };
-}
-
-async function mountChartColor(props: Props) {
-  ({ fixture } = await mountComponent(Container, { props }));
+async function mountChartColor(props: ChartColor["props"]) {
+  ({ fixture } = await mountComponentWithPortalTarget(ChartColor, { props }));
 }
 
 describe("Chart color", () => {

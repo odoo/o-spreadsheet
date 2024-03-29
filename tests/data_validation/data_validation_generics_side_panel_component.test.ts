@@ -1,29 +1,17 @@
-import { Component, onMounted, onWillUnmount, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { DataValidationPanel } from "../../src/components/side_panel/data_validation/data_validation_panel";
-import { SpreadsheetChildEnv, UID } from "../../src/types";
+import { UID } from "../../src/types";
 import { addDataValidation, updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
 import { click, setInputValueAndTrigger, simulateClick } from "../test_helpers/dom_helper";
-import { getDataValidationRules, mountComponent, nextTick } from "../test_helpers/helpers";
-
-interface ParentProps {
-  onCloseSidePanel: () => void;
-}
-class Parent extends Component<ParentProps, SpreadsheetChildEnv> {
-  static components = { DataValidationPanel };
-  static template = xml/*xml*/ `
-    <div class="o-spreadsheet" /> <!-- portal target -->
-    <DataValidationPanel onCloseSidePanel="props.onCloseSidePanel"/>
-  `;
-  setup() {
-    onMounted(() => this.env.model.on("update", this, () => this.render(true)));
-    onWillUnmount(() => this.env.model.off("update", this));
-  }
-}
+import {
+  getDataValidationRules,
+  mountComponentWithPortalTarget,
+  nextTick,
+} from "../test_helpers/helpers";
 
 export async function mountDataValidationPanel(model?: Model) {
-  return mountComponent(Parent, {
+  return mountComponentWithPortalTarget(DataValidationPanel, {
     model: model || new Model(),
     props: { onCloseSidePanel: () => {} },
   });

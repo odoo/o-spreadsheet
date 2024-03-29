@@ -1,11 +1,10 @@
-import { Component, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { TableDropdownButton } from "../../src/components/tables/table_dropdown_button/table_dropdown_button";
 import { toZone } from "../../src/helpers";
-import { SpreadsheetChildEnv, UID } from "../../src/types";
+import { UID } from "../../src/types";
 import { createTable, setSelection } from "../test_helpers/commands_helpers";
 import { click } from "../test_helpers/dom_helper";
-import { makeTestEnv, mountComponent } from "../test_helpers/helpers";
+import { makeTestEnv, mountComponentWithPortalTarget } from "../test_helpers/helpers";
 
 let model: Model;
 let sheetId: UID;
@@ -13,20 +12,11 @@ let fixture: HTMLElement;
 let openSidePanelSpy: jest.Mock<any, any>;
 let toggleSidePanelSpy: jest.Mock<any, any>;
 
-class Parent extends Component<{}, SpreadsheetChildEnv> {
-  static components = { TableDropdownButton };
-  static template = xml/*xml*/ `
-  <div class="o-spreadsheet">
-    <TableDropdownButton />
-  </div>
-  `;
-}
-
 beforeEach(async () => {
   openSidePanelSpy = jest.fn();
   toggleSidePanelSpy = jest.fn();
   const env = makeTestEnv({ openSidePanel: openSidePanelSpy, toggleSidePanel: toggleSidePanelSpy });
-  ({ model, fixture } = await mountComponent(Parent, { env }));
+  ({ model, fixture } = await mountComponentWithPortalTarget(TableDropdownButton, { env }));
   sheetId = model.getters.getActiveSheetId();
 });
 

@@ -1,10 +1,8 @@
-import { Component, xml } from "@odoo/owl";
 import { BorderEditor, BorderEditorProps } from "../../src/components/border_editor/border_editor";
 import { DEFAULT_BORDER_DESC } from "../../src/constants";
 import { Model } from "../../src/model";
-import { SpreadsheetChildEnv } from "../../src/types";
 import { simulateClick } from "../test_helpers/dom_helper";
-import { makeTestFixture, mountComponent } from "../test_helpers/helpers";
+import { makeTestFixture, mountComponentWithPortalTarget } from "../test_helpers/helpers";
 
 let fixture: HTMLElement;
 
@@ -16,15 +14,6 @@ async function setDefaultBorder(name: string) {
     await simulateClick('div[title="Line style"]');
     await simulateClick(`div[title="${DEFAULT_BORDER_DESC.style}"]`);
   }
-}
-
-class BorderEditorTestParent extends Component<BorderEditorProps, SpreadsheetChildEnv> {
-  static template = xml/* xml */ `
-    <div class="o-spreadsheet">
-      <BorderEditor t-props="props"/>
-    </div>
-  `;
-  static components = { BorderEditor };
 }
 
 async function mountBorderEditor(
@@ -41,7 +30,7 @@ async function mountBorderEditor(
     maxHeight: partialProps.maxHeight !== undefined ? partialProps.maxHeight : 1000,
     anchorRect: partialProps.anchorRect || { x: 0, y: 0, width: 0, height: 0 },
   };
-  ({ fixture } = await mountComponent(BorderEditorTestParent, { model, props }));
+  ({ fixture } = await mountComponentWithPortalTarget(BorderEditor, { model, props }));
 }
 
 let onBorderColorPicked: jest.Mock;

@@ -1,4 +1,4 @@
-import { Component, onMounted, onWillUnmount, xml } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { Model } from "../../src";
 import { ConditionalFormattingPanel } from "../../src/components/side_panel/conditional_formatting/conditional_formatting";
 import { toHex, toZone } from "../../src/helpers";
@@ -24,7 +24,7 @@ import {
   createEqualCF,
   getHighlightsFromStore,
   getPlugin,
-  mountComponent,
+  mountComponentWithPortalTarget,
   mountSpreadsheet,
   nextTick,
   spyModelDispatch,
@@ -33,23 +33,6 @@ import {
 } from "../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 import { FR_LOCALE } from "./../test_helpers/constants";
-
-interface ParentProps {
-  onCloseSidePanel: () => void;
-}
-
-class Parent extends Component<ParentProps, SpreadsheetChildEnv> {
-  static components = { ConditionalFormattingPanel };
-  static template = xml/*xml*/ `
-  <div class="o-spreadsheet">
-    <ConditionalFormattingPanel onCloseSidePanel="props.onCloseSidePanel"/>
-  </div>
-  `;
-  setup() {
-    onMounted(() => this.env.model.on("update", this, () => this.render(true)));
-    onWillUnmount(() => this.env.model.off("update", this));
-  }
-}
 
 function errorMessages(): string[] {
   return textContentAll(selectors.error);
@@ -136,7 +119,7 @@ describe("UI of conditional formats", () => {
   });
 
   beforeEach(async () => {
-    ({ model, fixture, env } = await mountComponent(Parent, {
+    ({ model, fixture, env } = await mountComponentWithPortalTarget(ConditionalFormattingPanel, {
       props: { onCloseSidePanel: () => {} },
     }));
     sheetId = model.getters.getActiveSheetId();
