@@ -19,6 +19,7 @@ import {
   CellPosition,
   CommandResult,
   CoreCommand,
+  ExcelTableData,
   ExcelWorkbookData,
   Filter,
   FilterId,
@@ -521,6 +522,14 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
   }
 
   exportForExcel(data: ExcelWorkbookData) {
-    this.export(data);
+    for (const sheet of data.sheets) {
+      for (const table of this.getTables(sheet.id)) {
+        if (zoneToDimension(table.range.zone).numberOfRows === 1) {
+          continue;
+        }
+        const tableData: ExcelTableData = { range: zoneToXc(table.range.zone), filters: [] };
+        sheet.tables.push(tableData);
+      }
+    }
   }
 }
