@@ -2,7 +2,7 @@ import { arg, functionRegistry } from "../../src/functions";
 import { toScalar } from "../../src/functions/helper_matrices";
 import { toMatrix, toNumber } from "../../src/functions/helpers";
 import { Model } from "../../src/model";
-import { DEFAULT_LOCALE } from "../../src/types";
+import { DEFAULT_LOCALE, ErrorCell } from "../../src/types";
 import {
   addColumns,
   addRows,
@@ -96,6 +96,23 @@ describe("evaluate formulas that return an array", () => {
     setCellContent(model, "B1", "=TRANSPOSE(A1:A2)");
     expect(getEvaluatedCell(model, "B1").value).toBe(42);
     expect(getEvaluatedCell(model, "C1").value).toBe("#ERROR");
+  });
+
+  test("can interpolate function name when error is returned", () => {
+    functionRegistry.add("GETERR", {
+      description: "Get error",
+      compute: () => {
+        const error = {
+          value: "#ERROR",
+          message: "Function [[FUNCTION_NAME]] failed",
+        };
+        return [[{ value: 42 }, error]];
+      },
+      args: [],
+      returns: ["ANY"],
+    });
+    setCellContent(model, "A1", "=GETERR()");
+    expect((getEvaluatedCell(model, "A2") as ErrorCell).message).toBe("Function GETERR failed");
   });
 
   describe("spread matrix with format", () => {
