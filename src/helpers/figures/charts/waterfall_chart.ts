@@ -105,30 +105,28 @@ export class WaterfallChart extends AbstractChart {
     return {
       background: context.background,
       dataSets: context.range ? context.range : [],
-      dataSetsHaveTitle: false,
+      dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
       aggregated: context.aggregated ?? false,
-      legendPosition: "top",
+      legendPosition: context.legendPosition ?? "top",
       title: context.title || "",
       type: "waterfall",
-      verticalAxisPosition: "left",
+      verticalAxisPosition: context.verticalAxisPosition ?? "left",
       labelRange: context.auxiliaryRange || undefined,
-      showSubTotals: true,
-      showConnectorLines: true,
-      firstValueAsSubtotal: false,
+      showSubTotals: context.showSubTotals ?? false,
+      showConnectorLines: context.showConnectorLines ?? true,
+      firstValueAsSubtotal: context.firstValueAsSubtotal ?? false,
     };
   }
 
   getContextCreation(): ChartCreationContext {
     return {
-      background: this.background,
-      title: this.title,
+      ...this,
       range: this.dataSets.map((ds: DataSet) =>
         this.getters.getRangeString(ds.dataRange, this.sheetId)
       ),
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
         : undefined,
-      aggregated: this.aggregated,
     };
   }
 

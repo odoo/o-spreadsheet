@@ -96,28 +96,26 @@ export class BarChart extends AbstractChart {
     return {
       background: context.background,
       dataSets: context.range ? context.range : [],
-      dataSetsHaveTitle: false,
-      stacked: false,
+      dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
+      stacked: context.stacked ?? false,
       aggregated: context.aggregated ?? false,
-      legendPosition: "top",
+      legendPosition: context.legendPosition ?? "top",
       title: context.title || "",
       type: "bar",
-      verticalAxisPosition: "left",
+      verticalAxisPosition: context.verticalAxisPosition ?? "left",
       labelRange: context.auxiliaryRange || undefined,
     };
   }
 
   getContextCreation(): ChartCreationContext {
     return {
-      background: this.background,
-      title: this.title,
+      ...this,
       range: this.dataSets.map((ds: DataSet) =>
         this.getters.getRangeString(ds.dataRange, this.sheetId)
       ),
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
         : undefined,
-      aggregated: this.aggregated,
     };
   }
 

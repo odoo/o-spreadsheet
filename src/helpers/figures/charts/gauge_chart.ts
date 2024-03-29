@@ -238,8 +238,7 @@ export class GaugeChart extends AbstractChart {
 
   getContextCreation(): ChartCreationContext {
     return {
-      background: this.background,
-      title: this.title,
+      ...this,
       range: this.dataRange
         ? [this.getters.getRangeString(this.dataRange, this.sheetId)]
         : undefined,

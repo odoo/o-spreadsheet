@@ -87,12 +87,12 @@ export class ScatterChart extends AbstractChart {
     return {
       background: context.background,
       dataSets: context.range ? context.range : [],
-      dataSetsHaveTitle: false,
-      labelsAsText: false,
-      legendPosition: "top",
+      dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
+      labelsAsText: context.labelsAsText ?? false,
+      legendPosition: context.legendPosition ?? "top",
       title: context.title || "",
       type: "scatter",
-      verticalAxisPosition: "left",
+      verticalAxisPosition: context.verticalAxisPosition ?? "left",
       labelRange: context.auxiliaryRange || undefined,
       aggregated: context.aggregated ?? false,
     };
@@ -127,15 +127,13 @@ export class ScatterChart extends AbstractChart {
 
   getContextCreation(): ChartCreationContext {
     return {
-      background: this.background,
-      title: this.title,
+      ...this,
       range: this.dataSets.map((ds: DataSet) =>
         this.getters.getRangeString(ds.dataRange, this.sheetId)
       ),
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
         : undefined,
-      aggregated: this.aggregated,
     };
   }
 

@@ -90,15 +90,13 @@ export class ComboChart extends AbstractChart {
 
   getContextCreation(): ChartCreationContext {
     return {
-      background: this.background,
-      title: this.title,
+      ...this,
       range: this.dataSets.map((ds: DataSet) =>
         this.getters.getRangeString(ds.dataRange, this.sheetId)
       ),
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
         : undefined,
-      aggregated: this.aggregated,
     };
   }
 
@@ -168,12 +166,12 @@ export class ComboChart extends AbstractChart {
   static getDefinitionFromContextCreation(context: ChartCreationContext): ComboChartDefinition {
     return {
       background: context.background,
-      dataSets: context.range ? context.range : [],
-      dataSetsHaveTitle: false,
+      dataSets: context.range ?? [],
+      dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
       aggregated: context.aggregated,
-      legendPosition: "top",
+      legendPosition: context.legendPosition ?? "top",
       title: context.title || "",
-      verticalAxisPosition: "left",
+      verticalAxisPosition: context.verticalAxisPosition ?? "left",
       labelRange: context.auxiliaryRange || undefined,
       type: "combo",
       useBothYAxis: false,

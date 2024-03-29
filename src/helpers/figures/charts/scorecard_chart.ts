@@ -242,8 +242,7 @@ export class ScorecardChart extends AbstractChart {
 
   getContextCreation(): ChartCreationContext {
     return {
-      background: this.background,
-      title: this.title,
+      ...this,
       range: this.keyValue ? [this.getters.getRangeString(this.keyValue, this.sheetId)] : undefined,
       auxiliaryRange: this.baseline
         ? this.getters.getRangeString(this.baseline, this.sheetId)
