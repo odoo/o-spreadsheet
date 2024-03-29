@@ -353,6 +353,16 @@ export class FiltersPlugin extends CorePlugin<FiltersState> implements FiltersSt
   }
 
   exportForExcel(data: ExcelWorkbookData) {
-    this.export(data);
+    for (const sheet of data.sheets) {
+      for (const filterTable of this.getFilterTables(sheet.id)) {
+        if (zoneToDimension(filterTable.zone).height === 1) {
+          continue;
+        }
+        sheet.filterTables.push({
+          range: zoneToXc(filterTable.zone),
+          filters: [],
+        });
+      }
+    }
   }
 }
