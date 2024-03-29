@@ -198,6 +198,8 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
         // render left
         assistantStyle.right = `0px`;
       }
+    } else if (this.props.delimitation) {
+      assistantStyle["max-height"] = `${this.props.delimitation.height}px`;
     }
     return cssPropertiesToCss(assistantStyle);
   }
