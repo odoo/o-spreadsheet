@@ -149,7 +149,7 @@ export class EvaluationPlugin extends UIPlugin {
     "getEvaluatedCell",
     "getEvaluatedCells",
     "getEvaluatedCellsInZone",
-    "getSpreadPositionsOf",
+    "getSpreadZone",
     "getArrayFormulaSpreadingOn",
     "isEmpty",
   ] as const;
@@ -271,8 +271,11 @@ export class EvaluationPlugin extends UIPlugin {
     );
   }
 
-  getSpreadPositionsOf(position: CellPosition): CellPosition[] {
-    return this.evaluator.getSpreadPositionsOf(position);
+  /**
+   * Return the spread zone the position is part of, if any
+   */
+  getSpreadZone(position: CellPosition): Zone | undefined {
+    return this.evaluator.getSpreadZone(position);
   }
 
   getArrayFormulaSpreadingOn(position: CellPosition): CellPosition | undefined {

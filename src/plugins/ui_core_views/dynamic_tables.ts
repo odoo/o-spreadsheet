@@ -6,7 +6,6 @@ import {
   overlap,
   toZone,
   union,
-  unionPositionsToZone,
   zoneToXc,
 } from "../../helpers";
 import { createFilter } from "../../helpers/table_helpers";
@@ -177,9 +176,9 @@ export class DynamicTablesPlugin extends UIPlugin {
       return true;
     }
 
-    const spreadPositions = this.getters.getSpreadPositionsOf(parentSpreadingCell);
+    const zone = this.getters.getSpreadZone(parentSpreadingCell);
 
-    return deepEquals(unionZone, unionPositionsToZone(spreadPositions));
+    return deepEquals(unionZone, zone);
   }
 
   private coreTableToTable(sheetId: UID, table: CoreTable): Table {
@@ -189,8 +188,7 @@ export class DynamicTablesPlugin extends UIPlugin {
 
     const tableZone = table.range.zone;
     const tablePosition = { sheetId, col: tableZone.left, row: tableZone.top };
-    const spreadPositions = this.getters.getSpreadPositionsOf(tablePosition);
-    const zone = spreadPositions.length ? unionPositionsToZone(spreadPositions) : table.range.zone;
+    const zone = this.getters.getSpreadZone(tablePosition) ?? table.range.zone;
     const range = this.getters.getRangeFromZone(sheetId, zone);
     const filters = this.getDynamicTableFilters(sheetId, table, zone);
     return { id: table.id, range, filters, config: table.config };
