@@ -417,6 +417,16 @@ export function matrixMap<T, M>(matrix: Matrix<T>, fn: (value: T) => M): Matrix<
   return generateMatrix(matrix.length, matrix[0].length, (col, row) => fn(matrix[col][row]));
 }
 
+export function matrixForEach<T>(matrix: Matrix<T>, fn: (value: T) => void): void {
+  const numberOfCols = matrix.length;
+  const numberOfRows = matrix[0]?.length ?? 0;
+  for (let col = 0; col < numberOfCols; col++) {
+    for (let row = 0; row < numberOfRows; row++) {
+      fn(matrix[col][row]);
+    }
+  }
+}
+
 export function transposeMatrix<T>(matrix: Matrix<T>): Matrix<T> {
   if (!matrix.length) {
     return [];
