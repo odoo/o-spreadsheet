@@ -450,8 +450,21 @@ topbarMenuRegistry
     sequence: 30,
     separator: true,
   })
+<<<<<<< HEAD
   .addChild("add_remove_data_filter", ["data"], {
     ...ACTION_DATA.createRemoveFilter,
+||||||| parent of f529d8f6a (temp)
+  .addChild("add_data_filter", ["data"], {
+    ...ACTION_DATA.addDataFilter,
+    sequence: 40,
+    separator: true,
+  })
+  .addChild("remove_data_filter", ["data"], {
+    ...ACTION_DATA.removeDataFilter,
+=======
+  .addChild("add_remove_data_filter", ["data"], {
+    ...ACTION_DATA.addRemoveDataFilter,
+>>>>>>> f529d8f6a (temp)
     sequence: 40,
     separator: true,
   });

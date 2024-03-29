@@ -283,6 +283,66 @@ export const ungroupRows: ActionSpec = {
   icon: "o-spreadsheet-Icon.UNGROUP_ROWS",
 };
 
+<<<<<<< HEAD
+||||||| parent of f529d8f6a (temp)
+function selectionContainsFilter(env: SpreadsheetChildEnv): boolean {
+  const sheetId = env.model.getters.getActiveSheetId();
+  const selectedZones = env.model.getters.getSelectedZones();
+  return env.model.getters.doesZonesContainFilter(sheetId, selectedZones);
+}
+
+function cannotCreateFilter(env: SpreadsheetChildEnv): boolean {
+  return !areZonesContinuous(...env.model.getters.getSelectedZones());
+}
+
+function createRemoveFilterAction(env: SpreadsheetChildEnv) {
+  if (selectionContainsFilter(env)) {
+    env.model.dispatch("REMOVE_FILTER_TABLE", {
+      sheetId: env.model.getters.getActiveSheetId(),
+      target: env.model.getters.getSelectedZones(),
+    });
+    return;
+  }
+
+  if (cannotCreateFilter(env)) {
+    return;
+  }
+  env.model.selection.selectTableAroundSelection();
+  const sheetId = env.model.getters.getActiveSheetId();
+  const selection = env.model.getters.getSelectedZones();
+  interactiveAddFilter(env, sheetId, selection);
+}
+
+=======
+function selectionContainsFilter(env: SpreadsheetChildEnv): boolean {
+  const sheetId = env.model.getters.getActiveSheetId();
+  const selectedZones = env.model.getters.getSelectedZones();
+  return env.model.getters.doesZonesContainFilter(sheetId, selectedZones);
+}
+
+function cannotCreateFilter(env: SpreadsheetChildEnv): boolean {
+  return !areZonesContinuous(...env.model.getters.getSelectedZones());
+}
+
+export function createRemoveFilterAction(env: SpreadsheetChildEnv) {
+  if (selectionContainsFilter(env)) {
+    env.model.dispatch("REMOVE_FILTER_TABLE", {
+      sheetId: env.model.getters.getActiveSheetId(),
+      target: env.model.getters.getSelectedZones(),
+    });
+    return;
+  }
+
+  if (cannotCreateFilter(env)) {
+    return;
+  }
+  env.model.selection.selectTableAroundSelection();
+  const sheetId = env.model.getters.getActiveSheetId();
+  const selection = env.model.getters.getSelectedZones();
+  interactiveAddFilter(env, sheetId, selection);
+}
+
+>>>>>>> f529d8f6a (temp)
 function groupHeadersAction(env: SpreadsheetChildEnv, dim: Dimension) {
   const selection = env.model.getters.getSelectedZone();
   const sheetId = env.model.getters.getActiveSheetId();
