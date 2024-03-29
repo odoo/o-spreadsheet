@@ -739,9 +739,12 @@ export const INSERT_LINK_NAME = (env: SpreadsheetChildEnv) => {
 //------------------------------------------------------------------------------
 
 export const FILTERS_CREATE_FILTER_TABLE = (env: SpreadsheetChildEnv) => {
+  const zones = env.model.getters.getSelectedZones();
+  if (zones.length === 1 && getZoneArea(zones[0]) === 1) {
+    env.model.selection.selectTableAroundSelection();
+  }
   const sheetId = env.model.getters.getActiveSheetId();
-  const selection = env.model.getters.getSelection().zones;
-  interactiveAddFilter(env, sheetId, selection);
+  interactiveAddFilter(env, sheetId, env.model.getters.getSelectedZones());
 };
 
 export const FILTERS_REMOVE_FILTER_TABLE = (env: SpreadsheetChildEnv) => {
