@@ -1,7 +1,7 @@
 import { FORMULA_REF_IDENTIFIER, NULL_FORMAT } from "../../constants";
 import { cellFactory } from "../../helpers/cells/cell_factory";
 import { FormulaCell } from "../../helpers/cells/index";
-import { deepEquals, isInside, range, toCartesian, toXC } from "../../helpers/index";
+import { deepEquals, isInside, range, toCartesian, toXC, UuidGenerator } from "../../helpers/index";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -46,6 +46,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   ];
 
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
+  private cellUuidGenerator = new UuidGenerator(true);
   private createCell = cellFactory(this.getters);
 
   adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
@@ -248,7 +249,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
   importCell(sheet: Sheet, cellData: CellData, normalizedStyles: { [key: number]: Style }): Cell {
     const style = (cellData.style && normalizedStyles[cellData.style]) || undefined;
-    const cellId = this.uuidGenerator.uuidv4();
+    const cellId = this.cellUuidGenerator.uuidv4();
     const properties = { format: cellData?.format, style };
     return this.createCell(cellId, cellData?.content || "", properties, sheet.id);
   }
@@ -455,7 +456,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       return;
     }
 
-    const cellId = before?.id || this.uuidGenerator.uuidv4();
+    const cellId = before?.id || this.cellUuidGenerator.uuidv4();
     const didContentChange = hasContent;
     const properties = { format, style };
     const cell = this.createCell(cellId, afterContent, properties, sheet.id);

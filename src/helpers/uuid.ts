@@ -7,6 +7,10 @@ export class UuidGenerator {
 
   private fastIdStart = 0;
 
+  constructor(isFast: boolean = false) {
+    this.setIsFastStrategy(isFast);
+  }
+
   setIsFastStrategy(isFast: boolean) {
     this.isFastIdStrategy = isFast;
   }
