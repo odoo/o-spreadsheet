@@ -1,7 +1,15 @@
 import { NULL_FORMAT } from "../../constants";
 import { deepEquals, lazy } from "../../helpers";
 import { cellFactory } from "../../helpers/cells/cell_factory";
+<<<<<<< HEAD
 import { concat, getItemId, isInside, range, toCartesian, toXC } from "../../helpers/index";
+||||||| parent of d36495121 (temp)
+import { FormulaCell } from "../../helpers/cells/index";
+import { deepEquals, isInside, range, toCartesian, toXC } from "../../helpers/index";
+=======
+import { FormulaCell } from "../../helpers/cells/index";
+import { deepEquals, isInside, range, toCartesian, toXC, UuidGenerator } from "../../helpers/index";
+>>>>>>> d36495121 (temp)
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -52,6 +60,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
   readonly nextId = 1;
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
+  private cellUuidGenerator = new UuidGenerator(true);
   private createCell = cellFactory(this.getters);
 
   adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
@@ -244,10 +253,20 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     normalizedFormats: { [key: number]: Format }
   ): Cell {
     const style = (cellData.style && normalizedStyles[cellData.style]) || undefined;
+<<<<<<< HEAD
     const format = (cellData.format && normalizedFormats[cellData.format]) || undefined;
     const cellId = this.getNextUid();
     const properties = { format, style };
     return this.createCell(cellId, cellData?.content || "", properties, sheetId);
+||||||| parent of d36495121 (temp)
+    const cellId = this.uuidGenerator.uuidv4();
+    const properties = { format: cellData?.format, style };
+    return this.createCell(cellId, cellData?.content || "", properties, sheet.id);
+=======
+    const cellId = this.cellUuidGenerator.uuidv4();
+    const properties = { format: cellData?.format, style };
+    return this.createCell(cellId, cellData?.content || "", properties, sheet.id);
+>>>>>>> d36495121 (temp)
   }
 
   exportForExcel(data: ExcelWorkbookData) {
@@ -474,7 +493,13 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       return;
     }
 
+<<<<<<< HEAD
     const cellId = before?.id || this.getNextUid();
+||||||| parent of d36495121 (temp)
+    const cellId = before?.id || this.uuidGenerator.uuidv4();
+=======
+    const cellId = before?.id || this.cellUuidGenerator.uuidv4();
+>>>>>>> d36495121 (temp)
     const didContentChange = hasContent;
     const properties = { format, style };
     const cell = this.createCell(cellId, afterContent, properties, sheetId);
