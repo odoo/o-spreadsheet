@@ -101,6 +101,23 @@ describe("evaluate formulas that return an array", () => {
     expect(getEvaluatedCell(model, "C1").value).toBe("#ERROR");
   });
 
+  test("can interpolate function name when error is returned", () => {
+    functionRegistry.add("GETERR", {
+      description: "Get error",
+      compute: () => {
+        const error = {
+          value: "#ERROR",
+          message: "Function [[FUNCTION_NAME]] failed",
+        };
+        return [[{ value: 42 }, error]];
+      },
+      args: [],
+      returns: ["ANY"],
+    });
+    setCellContent(model, "A1", "=GETERR()");
+    expect(getEvaluatedCell(model, "A2").message).toBe("Function GETERR failed");
+  });
+
   describe("spread matrix with format", () => {
     test("can spread matrix of values with matrix of format", () => {
       functionRegistry.add("MATRIX.2.2", {

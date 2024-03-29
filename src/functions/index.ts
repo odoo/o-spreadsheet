@@ -13,7 +13,7 @@ import {
 } from "../types";
 import { EvaluationError } from "../types/errors";
 import { addMetaInfoFromArg, validateArguments } from "./arguments";
-import { isEvaluationError, matrixMap } from "./helpers";
+import { isEvaluationError, matrixForEach, matrixMap } from "./helpers";
 import * as array from "./module_array";
 import * as misc from "./module_custom";
 import * as database from "./module_database";
@@ -83,7 +83,7 @@ export class FunctionRegistry extends Registry<FunctionDescription> {
     }
     const descr = addMetaInfoFromArg(addDescr);
     validateArguments(descr.args);
-    this.mapping[name] = addErrorHandling(addResultHandling(addInputHandling(descr)), name);
+    this.mapping[name] = addErrorHandling(addResultHandling(addInputHandling(descr), name), name);
     super.add(name, descr);
     return this;
   }
@@ -168,24 +168,39 @@ function hasStringMessage(obj: unknown): obj is { message: string } {
 }
 
 function addResultHandling(
-  compute: ComputeFunction<FPayload | Matrix<FPayload> | CellValue | Matrix<CellValue>>
+  compute: ComputeFunction<FPayload | Matrix<FPayload> | CellValue | Matrix<CellValue>>,
+  functionName: string
 ): ComputeFunction<FPayload | Matrix<FPayload>> {
-  return function (this: EvalContext, ...args: Arg[]): FPayload | Matrix<FPayload> {
+  return function computeWithResultHandling(
+    this: EvalContext,
+    ...args: Arg[]
+  ): FPayload | Matrix<FPayload> {
     const result = compute.apply(this, args);
 
     if (!isMatrix(result)) {
       if (typeof result === "object" && result !== null && "value" in result) {
+        replaceFunctionNamePlaceholder(result, functionName);
         return result;
       }
       return { value: result };
     }
 
     if (typeof result[0][0] === "object" && result[0][0] !== null && "value" in result[0][0]) {
+      matrixForEach(result as Matrix<FPayload>, (result) =>
+        replaceFunctionNamePlaceholder(result, functionName)
+      );
       return result as Matrix<FPayload>;
     }
 
     return matrixMap(result as Matrix<CellValue>, (row) => ({ value: row }));
   };
+}
+
+function replaceFunctionNamePlaceholder(fPayload: FPayload, functionName: string) {
+  // change in place and only if needed for performance reasons
+  if (fPayload.message?.includes("[[FUNCTION_NAME]]")) {
+    fPayload.message = fPayload.message.replace("[[FUNCTION_NAME]]", functionName);
+  }
 }
 
 export const functionRegistry: FunctionRegistry = new FunctionRegistry();
