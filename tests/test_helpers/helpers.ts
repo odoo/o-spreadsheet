@@ -71,7 +71,7 @@ import {
 import { Image } from "../../src/types/image";
 import { XLSXExport } from "../../src/types/xlsx";
 import { isXLSXExportXMLFile } from "../../src/xlsx/helpers/xlsx_helper";
-import { fixLengthySheetNames } from "../../src/xlsx/xlsx_writer";
+import { fixLengthySheetNames, purgeSingleRowTables } from "../../src/xlsx/xlsx_writer";
 import { FileStore } from "../__mocks__/mock_file_store";
 import { registerCleanup } from "../setup/jest.setup";
 import { MockClipboard } from "./clipboard";
@@ -676,7 +676,8 @@ export function getExportedExcelData(model: Model): ExcelWorkbookData {
       handler.exportForExcel(data);
     }
   }
-  return fixLengthySheetNames(data);
+  data = fixLengthySheetNames(data);
+  return purgeSingleRowTables(data);
 }
 
 export function mockUuidV4To(model: Model, value: number | string) {
