@@ -75,10 +75,10 @@ export function aggregateDataForLabels(
   }
 
   return {
-    labels: Object.keys(labelMap),
+    labels: Array.from(labelSet),
     dataSetsValues: datasets.map((dataset, indexOfDataset) => ({
       ...dataset,
-      data: Object.values(labelMap).map((dataOfLabel: any[]) => dataOfLabel[indexOfDataset]),
+      data: Array.from(labelSet).map((label) => labelMap[label][indexOfDataset]),
     })),
   };
 }
