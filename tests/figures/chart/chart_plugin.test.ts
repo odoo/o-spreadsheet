@@ -1862,6 +1862,26 @@ describe("Chart aggregate labels", () => {
       expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
     }
   );
+
+  test.each(["bar", "line", "pie"] as const)(
+    "Labels will not be sorted when aggregated in %s chart",
+    (type) => {
+      createChart(aggregatedModel, aggregatedChart, "42");
+      updateChart(aggregatedModel, "42", { type });
+
+      setCellContent(aggregatedModel, "A3", "2023");
+      setCellContent(aggregatedModel, "A7", "2024");
+
+      let chart = (aggregatedModel.getters.getChartRuntime("42") as ChartJSRuntime).chartJsConfig;
+      expect(chart.data!.datasets![0].data).toEqual([10, 11, 12, 13, 14, 15, 16, 17]);
+      expect(chart.data!.labels).toEqual(["P1", "2023", "P3", "P4", "P1", "2024", "P3", "P4"]);
+
+      updateChart(aggregatedModel, "42", { aggregated: true });
+      chart = (aggregatedModel.getters.getChartRuntime("42") as ChartJSRuntime).chartJsConfig;
+      expect(chart.data!.datasets![0].data).toEqual([24, 11, 28, 30, 15]);
+      expect(chart.data!.labels).toEqual(["P1", "2023", "P3", "P4", "2024"]);
+    }
+  );
 });
 
 describe("Linear/Time charts", () => {
