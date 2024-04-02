@@ -298,10 +298,7 @@ export class AutofillPlugin extends UIPlugin {
 
     if (col > 0) {
       let leftPosition = { sheetId, col: col - 1, row };
-      while (
-        this.getters.getCorrespondingFormulaCell(leftPosition) ||
-        this.getters.getCell(leftPosition)?.content
-      ) {
+      while (this.getters.getEvaluatedCell(leftPosition).type !== CellValueType.empty) {
         row += 1;
         leftPosition = { sheetId, col: col - 1, row };
       }
@@ -310,10 +307,7 @@ export class AutofillPlugin extends UIPlugin {
       col = zone.right;
       if (col <= this.getters.getNumberCols(sheetId)) {
         let rightPosition = { sheetId, col: col + 1, row };
-        while (
-          this.getters.getCorrespondingFormulaCell(rightPosition) ||
-          this.getters.getCell(rightPosition)?.content
-        ) {
+        while (this.getters.getEvaluatedCell(rightPosition).type !== CellValueType.empty) {
           row += 1;
           rightPosition = { sheetId, col: col + 1, row };
         }

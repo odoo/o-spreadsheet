@@ -9,7 +9,7 @@ import {
   splitTextToWidth,
 } from "../../helpers/index";
 import { localizeFormula } from "../../helpers/locale";
-import { Command, CommandResult, LocalCommand, UID } from "../../types";
+import { CellValueType, Command, CommandResult, LocalCommand, UID } from "../../types";
 import { CellPosition, HeaderIndex, Pixel, Style, Zone } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
@@ -176,10 +176,7 @@ export class SheetUIPlugin extends UIPlugin {
    */
   private isCellEmpty(position: CellPosition): boolean {
     const mainPosition = this.getters.getMainCellPosition(position);
-    return !(
-      this.getters.getCorrespondingFormulaCell(mainPosition) ||
-      this.getters.getCell(mainPosition)?.content
-    );
+    return this.getters.getEvaluatedCell(mainPosition).type === CellValueType.empty;
   }
 
   private getColMaxWidth(sheetId: UID, index: HeaderIndex): number {
