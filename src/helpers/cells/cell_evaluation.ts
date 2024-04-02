@@ -54,7 +54,7 @@ export function createEvaluatedCell(
   cell?: Cell
 ): EvaluatedCell {
   const link = detectLink(fPayload.value);
-  if (!link) {
+  if (!link || link.label.startsWith("=")) {
     return _createEvaluatedCell(fPayload, locale, cell);
   }
   const linkPayload = {

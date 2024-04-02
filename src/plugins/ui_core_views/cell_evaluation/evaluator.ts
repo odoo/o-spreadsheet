@@ -1,5 +1,4 @@
 import { compile } from "../../../formulas";
-import { implementationErrorMessage } from "../../../functions";
 import { matrixMap } from "../../../functions/helpers";
 import { lazy, positionToZone, toXC } from "../../../helpers";
 import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells";
@@ -19,7 +18,7 @@ import {
   UID,
   isMatrix,
 } from "../../../types";
-import { CellErrorType, CircularDependencyError, EvaluationError } from "../../../types/errors";
+import { CircularDependencyError, EvaluationError } from "../../../types/errors";
 import { CompilationParameters, buildCompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
 import { PositionMap } from "./position_map";
@@ -242,21 +241,15 @@ export class Evaluator {
 
     const cellId = cell.id;
     const localeFormat = { format: cell.format, locale: this.getters.getLocale() };
-    try {
-      if (this.cellsBeingComputed.has(cellId)) {
-        return ERROR_CYCLE_CELL;
-      }
-      this.cellsBeingComputed.add(cellId);
-      return cell.isFormula
-        ? this.computeFormulaCell(position.sheetId, cell)
-        : evaluateLiteral(cell.content, localeFormat);
-    } catch (e) {
-      e.value = e?.value || CellErrorType.GenericError;
-      e.message = e?.message || implementationErrorMessage;
-      return createEvaluatedCell(e);
-    } finally {
-      this.cellsBeingComputed.delete(cellId);
+    if (this.cellsBeingComputed.has(cellId)) {
+      return ERROR_CYCLE_CELL;
     }
+    this.cellsBeingComputed.add(cellId);
+    const result = cell.isFormula
+      ? this.computeFormulaCell(position.sheetId, cell)
+      : evaluateLiteral(cell.content, localeFormat);
+    this.cellsBeingComputed.delete(cellId);
+    return result;
   }
 
   private computeAndSave(position: CellPosition) {
