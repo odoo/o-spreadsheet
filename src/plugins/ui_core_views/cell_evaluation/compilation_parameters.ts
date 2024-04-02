@@ -75,7 +75,10 @@ class CompilationParametersBuilder {
     functionName: string,
     paramNumber?: number
   ): FPayload {
-    this.assertRangeValid(range);
+    const invalidRangeError = this.assertRangeValid(range);
+    if (invalidRangeError) {
+      return invalidRangeError;
+    }
     if (isMeta) {
       // Use zoneToXc of zone instead of getRangeString to avoid sending unbounded ranges
       const sheetName = this.getters.getSheetName(range.sheetId);
@@ -84,7 +87,7 @@ class CompilationParametersBuilder {
 
     // if the formula definition could have accepted a range, we would pass through the _range function and not here
     if (range.zone.bottom !== range.zone.top || range.zone.left !== range.zone.right) {
-      throw new EvaluationError(
+      return new EvaluationError(
         paramNumber
           ? _t(
               "Function %s expects the parameter %s to be a single value or a single cell reference, not a range.",
@@ -103,7 +106,7 @@ class CompilationParametersBuilder {
 
   private readCell(position: CellPosition): FPayload {
     if (!this.getters.tryGetSheet(position.sheetId)) {
-      throw new EvaluationError(_t("Invalid sheet name"));
+      return new EvaluationError(_t("Invalid sheet name"));
     }
     return this.computeCell(position);
   }
@@ -117,7 +120,10 @@ class CompilationParametersBuilder {
    * that are actually present in the grid.
    */
   private range(range: Range): Matrix<FPayload> {
-    this.assertRangeValid(range);
+    const invalidRangeError = this.assertRangeValid(range);
+    if (invalidRangeError) {
+      return [[invalidRangeError]];
+    }
     const sheetId = range.sheetId;
     const zone = range.zone;
 
@@ -151,12 +157,13 @@ class CompilationParametersBuilder {
     return matrix;
   }
 
-  private assertRangeValid(range: Range): void {
+  private assertRangeValid(range: Range) {
     if (!isZoneValid(range.zone)) {
-      throw new InvalidReferenceError();
+      return new InvalidReferenceError();
     }
     if (range.invalidSheetName) {
-      throw new EvaluationError(_t("Invalid sheet name: %s", range.invalidSheetName));
+      return new EvaluationError(_t("Invalid sheet name: %s", range.invalidSheetName));
     }
+    return undefined;
   }
 }
