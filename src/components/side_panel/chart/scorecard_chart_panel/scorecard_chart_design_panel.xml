@@ -27,27 +27,21 @@
     </div>
     <Section class="'o-chart-baseline-color'">
       <t t-set-slot="title">Baseline color</t>
-      <div class="d-flex align-items-center">
-        <span class="pe-1">Color on value increase</span>
-        <ColorPickerWidget
+      <div class="d-flex align-items-center mb-2">
+        <RoundColorPicker
           currentColor="props.definition.baselineColorUp"
-          toggleColorPicker="() => this.toggleColorPicker('baselineColorUp')"
-          showColorPicker="state.openedColorPicker === 'baselineColorUp'"
           onColorPicked="(color) => this.setColor(color, 'baselineColorUp')"
           title="color_up"
-          icon="'o-spreadsheet-Icon.FILL_COLOR'"
         />
+        <span class="ps-2">Color on value increase</span>
       </div>
       <div class="d-flex align-items-center">
-        <span class="pe-1">Color on value decrease</span>
-        <ColorPickerWidget
+        <RoundColorPicker
           currentColor="props.definition.baselineColorDown"
-          toggleColorPicker="() => this.toggleColorPicker('baselineColorDown')"
-          showColorPicker="state.openedColorPicker === 'baselineColorDown'"
           onColorPicked="(color) => this.setColor(color, 'baselineColorDown')"
           title="color_down"
-          icon="'o-spreadsheet-Icon.FILL_COLOR'"
         />
+        <span class="ps-2">Color on value decrease</span>
       </div>
     </Section>
   </t>

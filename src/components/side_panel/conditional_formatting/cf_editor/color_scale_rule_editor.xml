@@ -33,19 +33,22 @@
         type="text"
         class="o-input o-threshold-value o-required"
         t-model="rule[thresholdType].value"
-        t-att-class="{ 'o-invalid': isValueInvalid(thresholdType) }"
+        t-att-class="{ 'o-invalid': isValueInvalid(thresholdType), 'invisible': threshold === undefined }"
         t-if="threshold !== undefined and threshold.type !== 'value'"
       />
-      <input type="text" class="o-input o-threshold-value" t-else="" disabled="1"/>
-      <ColorPickerWidget
-        currentColor="getThresholdColor(threshold)"
-        toggleColorPicker="(ev) => this.toggleMenu('colorScale-'+thresholdType+'Color', ev)"
-        showColorPicker="state.openedMenu === 'colorScale-'+thresholdType+'Color'"
-        onColorPicked="(color) => this.setColorScaleColor(thresholdType, color)"
-        title="fill_color"
-        icon="'o-spreadsheet-Icon.FILL_COLOR'"
-        disabled="threshold === undefined"
+      <input
+        type="text"
+        t-attf-class="o-input o-threshold-value {{ threshold === undefined ? 'invisible' : ''}}"
+        t-else=""
+        disabled="1"
       />
+      <div t-attf-class="flex-shrink-0 ms-1 {{ threshold === undefined ? 'invisible' : ''}}">
+        <RoundColorPicker
+          currentColor="getThresholdColor(threshold)"
+          onColorPicked="(color) => this.setColorScaleColor(thresholdType, color)"
+          title="fill_color"
+        />
+      </div>
     </div>
   </t>
 
