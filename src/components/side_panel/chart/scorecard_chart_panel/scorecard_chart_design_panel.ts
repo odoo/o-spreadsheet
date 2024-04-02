@@ -1,8 +1,7 @@
-import { Component, useExternalListener, useState } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import { _t } from "../../../../translation";
 import { ScorecardChartDefinition } from "../../../../types/chart/scorecard_chart";
 import { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
-import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
 import { ChartTerms } from "../../../translations_terms";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";
@@ -17,27 +16,15 @@ interface Props {
   updateChart: (figureId: UID, definition: Partial<ScorecardChartDefinition>) => DispatchResult;
 }
 
-interface PanelState {
-  openedColorPicker: ColorPickerId;
-}
-
 export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ScorecardChartDesignPanel";
-  static components = { ColorPickerWidget, RoundColorPicker, ChartTitle, Section };
+  static components = { RoundColorPicker, ChartTitle, Section };
   static props = {
     figureId: String,
     definition: Object,
     updateChart: Function,
     canUpdateChart: Function,
   };
-
-  private state: PanelState = useState({
-    openedColorPicker: undefined,
-  });
-
-  setup() {
-    useExternalListener(window, "click", this.closeMenus);
-  }
 
   get title(): string {
     return _t(this.props.definition.title);
@@ -55,14 +42,6 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
     this.props.updateChart(this.props.figureId, { baselineDescr: ev.target.value });
   }
 
-  toggleColorPicker(colorPickerId: ColorPickerId) {
-    if (this.state.openedColorPicker === colorPickerId) {
-      this.state.openedColorPicker = undefined;
-    } else {
-      this.state.openedColorPicker = colorPickerId;
-    }
-  }
-
   setColor(color: Color, colorPickerId: ColorPickerId) {
     switch (colorPickerId) {
       case "backgroundColor":
@@ -75,11 +54,6 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
         this.props.updateChart(this.props.figureId, { baselineColorUp: color });
         break;
     }
-    this.closeMenus();
-  }
-
-  private closeMenus() {
-    this.state.openedColorPicker = undefined;
   }
 
   get backgroundColorTitle() {

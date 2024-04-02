@@ -71,15 +71,15 @@ const selectors = {
     range: ".o-cf-preview-range",
   },
   colorScaleEditor: {
-    minColor: ".o-threshold-minimum .o-color-picker-widget .o-color-picker-button",
+    minColor: ".o-threshold-minimum .o-round-color-picker-button",
     minType: ".o-threshold-minimum > select",
     minValue: ".o-threshold-minimum .o-threshold-value",
 
-    midColor: ".o-threshold-midpoint .o-color-picker-widget .o-color-picker-button",
+    midColor: ".o-threshold-midpoint .o-round-color-picker-button",
     midType: ".o-threshold-midpoint > select",
     midValue: ".o-threshold-midpoint .o-threshold-value",
 
-    maxColor: ".o-threshold-maximum .o-color-picker-widget .o-color-picker-button",
+    maxColor: ".o-threshold-maximum .o-round-color-picker-button",
     maxType: ".o-threshold-maximum > select",
     maxValue: ".o-threshold-maximum .o-threshold-value",
 
@@ -1014,6 +1014,21 @@ describe("UI of conditional formats", () => {
     await click(fixture, selectors.buttonSave);
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
     expect(errorMessages()).toEqual(["Invalid Maxpoint formula"]);
+  });
+
+  test("If there is no midpoint in a color scale, the input and color picker are invisible", async () => {
+    await click(fixture, selectors.buttonAdd);
+    await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
+
+    expect(fixture.querySelector<HTMLInputElement>(selectors.colorScaleEditor.midType)?.value).toBe(
+      "none"
+    );
+    expect(fixture.querySelector(selectors.colorScaleEditor.midValue)?.classList).toContain(
+      "invisible"
+    );
+    expect(
+      fixture.querySelector(selectors.colorScaleEditor.midColor)?.parentElement?.classList
+    ).toContain("invisible");
   });
 
   describe("Icon set CF", () => {

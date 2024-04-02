@@ -76,12 +76,9 @@
 
         <tr>
           <td>
-            <ColorPickerWidget
+            <RoundColorPicker
               currentColor="sectionRule.colors.upperColor"
-              toggleColorPicker="(ev) => this.toggleMenu('sectionColor-upperColor', ev)"
-              showColorPicker="state.openedMenu === 'sectionColor-upperColor'"
               onColorPicked="(color) => this.updateSectionColor('upperColor', color)"
-              icon="'o-spreadsheet-Icon.FILL_COLOR'"
             />
           </td>
           <td>Else</td>
@@ -96,12 +93,9 @@
   <t t-name="o-spreadsheet-GaugeChartColorSectionTemplateRow">
     <tr>
       <td>
-        <ColorPickerWidget
+        <RoundColorPicker
           currentColor="sectionColor"
-          toggleColorPicker="(ev) => this.toggleMenu('sectionColor-'+sectionType, ev)"
-          showColorPicker="state.openedMenu === 'sectionColor-'+sectionType"
           onColorPicked="(color) => this.updateSectionColor(sectionType, color)"
-          icon="'o-spreadsheet-Icon.FILL_COLOR'"
         />
       </td>
       <td>When value is below</td>

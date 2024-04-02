@@ -20,6 +20,7 @@ import { IconPicker } from "../../../icon_picker/icon_picker";
 import { ICONS, ICON_SETS } from "../../../icons/icons";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { CellIsOperators, CfTerms } from "../../../translations_terms";
+import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";
 import { ConditionalFormatPreviewList } from "../cf_preview_list/cf_preview_list";
 
@@ -233,6 +234,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     ColorPickerWidget,
     ConditionalFormatPreviewList,
     Section,
+    RoundColorPicker,
   };
 
   icons = ICONS;

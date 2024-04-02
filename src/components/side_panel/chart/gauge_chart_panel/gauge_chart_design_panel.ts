@@ -1,4 +1,4 @@
-import { Component, useExternalListener, useState } from "@odoo/owl";
+import { Component, useState } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers/index";
 import { _t } from "../../../../translation";
 import { GaugeChartDefinition, SectionRule } from "../../../../types/chart/gauge_chart";
@@ -11,11 +11,10 @@ import {
 } from "../../../../types/index";
 import { css } from "../../../helpers/css";
 import { ChartTerms } from "../../../translations_terms";
-import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";
 import { ChartErrorSection } from "../building_blocks/error_section/error_section";
 import { ChartTitle } from "../building_blocks/title/title";
-import { ColorPickerWidget } from "./../../../color_picker/color_picker_widget";
+import { RoundColorPicker } from "./../../components/round_color_picker/round_color_picker";
 
 css/* scss */ `
   .o-gauge-color-set {
@@ -27,6 +26,10 @@ css/* scss */ `
       font-size: 12px;
       line-height: 18px;
       width: 100%;
+    }
+    td {
+      box-sizing: border-box;
+      height: 30px;
     }
     th.o-gauge-color-set-colorPicker {
       width: 8%;
@@ -49,8 +52,6 @@ css/* scss */ `
   }
 `;
 
-type GaugeMenu = "sectionColor-lowerColor" | "sectionColor-middleColor" | "sectionColor-upperColor";
-
 interface Props {
   figureId: UID;
   definition: GaugeChartDefinition;
@@ -59,7 +60,6 @@ interface Props {
 }
 
 interface PanelState {
-  openedMenu?: GaugeMenu;
   sectionRuleDispatchResult?: DispatchResult;
   sectionRule: SectionRule;
 }
@@ -67,7 +67,6 @@ interface PanelState {
 export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GaugeChartDesignPanel";
   static components = {
-    ColorPickerWidget,
     ChartErrorSection,
     RoundColorPicker,
     ChartTitle,
@@ -85,10 +84,6 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
     sectionRuleDispatchResult: undefined,
     sectionRule: deepCopy(this.props.definition.sectionRule),
   });
-
-  setup() {
-    useExternalListener(window, "click", this.closeMenus);
-  }
 
   get title() {
     return _t(this.props.definition.title);
@@ -161,31 +156,21 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
     const sectionRule = deepCopy(this.state.sectionRule);
     sectionRule.colors[target] = color;
     this.updateSectionRule(sectionRule);
-    this.closeMenus();
-  }
-
-  toggleMenu(menu: GaugeMenu) {
-    const isSelected: boolean = this.state.openedMenu === menu;
-    this.closeMenus();
-    if (!isSelected) {
-      this.state.openedMenu = menu;
-    }
   }
 
   updateSectionRule(sectionRule: SectionRule) {
     this.state.sectionRuleDispatchResult = this.props.updateChart(this.props.figureId, {
       sectionRule,
     });
+    if (this.state.sectionRuleDispatchResult.isSuccessful) {
+      this.state.sectionRule = deepCopy(sectionRule);
+    }
   }
 
   canUpdateSectionRule(sectionRule: SectionRule) {
     this.state.sectionRuleDispatchResult = this.props.canUpdateChart(this.props.figureId, {
       sectionRule,
     });
-  }
-
-  private closeMenus() {
-    this.state.openedMenu = undefined;
   }
 
   get backgroundColorTitle() {

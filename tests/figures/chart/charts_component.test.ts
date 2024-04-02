@@ -951,7 +951,7 @@ describe("charts", () => {
 
       // Change color of "up" value of baseline
       const colorpickerUpButton = fixture.querySelectorAll(
-        ".o-chart-baseline-color .o-color-picker-button"
+        ".o-chart-baseline-color .o-round-color-picker-button"
       )[0];
       await simulateClick(colorpickerUpButton);
       const colorpickerUpItems = fixture.querySelectorAll(
@@ -974,7 +974,7 @@ describe("charts", () => {
 
       // Change color of "down" value of baseline
       const colorpickerDownButton = fixture.querySelectorAll(
-        ".o-chart-baseline-color .o-color-picker-button"
+        ".o-chart-baseline-color .o-round-color-picker-button"
       )[1];
       await simulateClick(colorpickerDownButton);
       const colorpickerDownItems = fixture.querySelectorAll(
