@@ -98,13 +98,6 @@ class CompilationParametersBuilder {
       );
     }
     const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
-    return this.readCell(position);
-  }
-
-  private readCell(position: CellPosition): FPayload {
-    if (!this.getters.tryGetSheet(position.sheetId)) {
-      throw new EvaluationError(_t("Invalid sheet name"));
-    }
     return this.computeCell(position);
   }
 
@@ -143,7 +136,7 @@ class CompilationParametersBuilder {
       matrix[colIndex] = new Array(height);
       for (let row = _zone.top; row <= _zone.bottom; row++) {
         const rowIndex = row - _zone.top;
-        matrix[colIndex][rowIndex] = this.readCell({ sheetId, col, row });
+        matrix[colIndex][rowIndex] = this.computeCell({ sheetId, col, row });
       }
     }
 
