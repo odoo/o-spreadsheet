@@ -29,6 +29,7 @@ exports[`Header group component test For column groups Snapshot 1`] = `
             <svg
               class="o-icon minus"
               viewBox="0 0 18 18"
+              xmlns="http://www.w3.org/2000/svg"
             >
               <path
                 d="M0 8h18v2H0z"
@@ -60,6 +61,7 @@ exports[`Header group component test For column groups Snapshot 1`] = `
             <svg
               class="o-icon minus"
               viewBox="0 0 18 18"
+              xmlns="http://www.w3.org/2000/svg"
             >
               <path
                 d="M0 8h18v2H0z"
@@ -111,6 +113,7 @@ exports[`Header group component test For row groups Snapshot 1`] = `
             <svg
               class="o-icon minus"
               viewBox="0 0 18 18"
+              xmlns="http://www.w3.org/2000/svg"
             >
               <path
                 d="M0 8h18v2H0z"
@@ -142,6 +145,7 @@ exports[`Header group component test For row groups Snapshot 1`] = `
             <svg
               class="o-icon minus"
               viewBox="0 0 18 18"
+              xmlns="http://www.w3.org/2000/svg"
             >
               <path
                 d="M0 8h18v2H0z"
