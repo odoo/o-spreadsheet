@@ -26,8 +26,8 @@ export class InternalViewport {
   canScrollHorizontally: boolean;
   viewportWidth: Pixel;
   viewportHeight: Pixel;
-  private offsetCorrectionX: Pixel;
-  private offsetCorrectionY: Pixel;
+  offsetCorrectionX: Pixel;
+  offsetCorrectionY: Pixel;
 
   constructor(
     private getters: Getters,
