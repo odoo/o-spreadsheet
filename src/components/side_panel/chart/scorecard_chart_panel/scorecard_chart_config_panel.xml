@@ -30,6 +30,7 @@
           <option value="text">Absolute value</option>
           <option value="difference">Value change from key value</option>
           <option value="percentage">Percentage change from key value</option>
+          <option value="progress">Progress bar</option>
         </select>
       </Section>
 

@@ -18,6 +18,7 @@ import {
   setCellContent,
   setFormat,
   setStyle,
+  updateChart,
 } from "../../test_helpers/commands_helpers";
 import { getCellContent } from "../../test_helpers/getters_helpers";
 import { toRangesData } from "../../test_helpers/helpers";
@@ -135,7 +136,7 @@ describe("Scorecard charts computation", () => {
     expect(chartDesign.baselineDescr?.length).toEqual(1);
   });
 
-  test("Too long baseline description is splitted", () => {
+  test("Too long baseline description is split", () => {
     createScorecardChart(
       model,
       {
@@ -170,7 +171,7 @@ describe("Scorecard charts computation", () => {
     );
     const chartDesign = getChartDesign(model, chartId, sheetId);
 
-    expect(chartDesign.baseline?.text).toEqual("100%");
+    expect(chartDesign.baseline?.text).toEqual("100.0%");
   });
 
   test("Baseline with mode 'text' is plainly displayed", () => {
@@ -181,6 +182,47 @@ describe("Scorecard charts computation", () => {
     expect(chartDesign.baseline?.style.color).toBeSameColorAs("#525252");
   });
 
+  test("Baseline description and arrow with mode 'progress' are not displayed", () => {
+    createScorecardChart(
+      model,
+      { keyValue: "A1", baseline: "B1", baselineMode: "progress" },
+      chartId
+    );
+    const chartDesign = getChartDesign(model, chartId, sheetId);
+
+    expect(chartDesign.baselineDescr).toBeUndefined();
+    expect(chartDesign.baselineArrow).toBeUndefined();
+    expect(chartDesign.baseline?.style.color).toBeSameColorAs("#525252");
+    expect(chartDesign.baseline?.text).toEqual("200.0%");
+  });
+
+  test("Progress bar color is equal to up color for positive percentage", () => {
+    createScorecardChart(
+      model,
+      { keyValue: "A1", baseline: "B1", baselineMode: "progress" },
+      chartId
+    );
+    const chartDesign = getChartDesign(model, chartId, sheetId);
+
+    expect(chartDesign.progressBar?.style.color).toBeSameColorAs(
+      DEFAULT_SCORECARD_BASELINE_COLOR_UP
+    );
+  });
+
+  test("Progress bar color is equal to down color for negative percentage", () => {
+    setCellContent(model, "A1", "-5");
+    createScorecardChart(
+      model,
+      { keyValue: "A1", baseline: "B1", baselineMode: "progress" },
+      chartId
+    );
+    const chartDesign = getChartDesign(model, chartId, sheetId);
+
+    expect(chartDesign.progressBar?.style.color).toBeSameColorAs(
+      DEFAULT_SCORECARD_BASELINE_COLOR_DOWN
+    );
+  });
+
   test("Number are humanized if stipulated in the chart definition", () => {
     setCellContent(model, "A1", "123456789");
     setCellContent(model, "B1", "10.5");
@@ -189,6 +231,20 @@ describe("Scorecard charts computation", () => {
 
     expect(chartDesign.key?.text).toBe("123m");
     expect(chartDesign.baseline?.text).toBe("123m");
+  });
+
+  test("Number are humanized if stipulated in the chart definition even in text mode", () => {
+    setCellContent(model, "A1", "123456789");
+    setCellContent(model, "B1", "122222342");
+    createScorecardChart(
+      model,
+      { keyValue: "A1", baseline: "B1", humanize: true, baselineMode: "text" },
+      chartId
+    );
+    const chartDesign = getChartDesign(model, chartId, sheetId);
+
+    expect(chartDesign.key?.text).toBe("123m");
+    expect(chartDesign.baseline?.text).toBe("122m");
   });
 
   test("Key < baseline display in red with down arrow", () => {
@@ -268,7 +324,7 @@ describe("Scorecard charts computation", () => {
     );
     setFormat(model, "B2", "[$$]#,####0.0000");
     const chartDesign = getChartDesign(model, chartId, sheetId);
-    expect(chartDesign.baseline?.text).toEqual("100%");
+    expect(chartDesign.baseline?.text).toEqual("100.0%");
   });
 
   test("Key value and baseline are displayed with the cell style", () => {
@@ -313,7 +369,7 @@ describe("Scorecard charts computation", () => {
     setFormat(model, "A1", "0.0");
     const chartDesign = getChartDesign(model, chartId, sheetId);
     expect(chartDesign.baseline?.style.font.includes("bold")).toBeFalsy();
-    expect(chartDesign.baseline?.text).toEqual("100%");
+    expect(chartDesign.baseline?.text).toEqual("100.0%");
   });
 
   test("High contrast font colors with dark background", () => {
@@ -582,6 +638,20 @@ describe("Scorecard charts rendering", () => {
     renderScorecardChart(model, chartId, sheetId, canvas);
     expect(scorecardChartStyle.baseline.fontSize).toBeLessThan(baselineFontSize);
     expect(scorecardChartStyle.title.fontSize).toEqual(titleFontSize);
+    expect(scorecardChartStyle.key.fontSize).toBeLessThan(keyFontSize);
+  });
+
+  test("Font size scale down if we add a description with no baseline", () => {
+    setCellContent(model, "B2", "");
+    createScorecardChart(
+      model,
+      { keyValue: "A1", baseline: "B2", title: "This is a title", baselineDescr: "" },
+      chartId
+    );
+    renderScorecardChart(model, chartId, sheetId, canvas);
+    const keyFontSize = scorecardChartStyle.key.fontSize!;
+    updateChart(model, chartId, { baselineDescr: "Coucou" });
+    renderScorecardChart(model, chartId, sheetId, canvas);
     expect(scorecardChartStyle.key.fontSize).toBeLessThan(keyFontSize);
   });
 });

@@ -53,6 +53,15 @@ export type ScorecardChartConfig = {
   baseline?: ScorecardChartElement;
   baselineDescr?: ScorecardChartElement[];
   key?: ScorecardChartElement;
+  progressBar?: {
+    position: PixelPosition;
+    dimension: DOMDimension;
+    style: {
+      color: Color;
+      backgroundColor: Color;
+    };
+    value: number;
+  };
 };
 
 export function formatBaselineDescr(
@@ -139,12 +148,12 @@ class ScorecardChartConfigBuilder {
       position: {
         x: (this.width - baselineWidth - baselineDescrWidth + baselineArrowSize) / 2,
         y: this.keyValue
-          ? this.height * (1 - BOTTOM_PADDING_RATIO * 2)
+          ? this.height * (1 - BOTTOM_PADDING_RATIO * (this.runtime.progressBar ? 1 : 2))
           : this.height - (this.height - titleHeight - baselineHeight) / 2 - CHART_PADDING,
       },
     };
 
-    if (style.baselineArrow) {
+    if (style.baselineArrow && !this.runtime.progressBar) {
       structure.baselineArrow = {
         direction: this.baselineArrow,
         style: style.baselineArrow,
@@ -188,6 +197,26 @@ class ScorecardChartConfigBuilder {
           },
         ];
       }
+    }
+
+    let progressBarHeight = 0;
+    if (this.runtime.progressBar) {
+      progressBarHeight = this.height * 0.05;
+      structure.progressBar = {
+        position: {
+          x: 2 * CHART_PADDING,
+          y: this.height * (1 - 2 * BOTTOM_PADDING_RATIO) - baselineHeight - progressBarHeight,
+        },
+        dimension: {
+          height: progressBarHeight,
+          width: this.width - 4 * CHART_PADDING,
+        },
+        value: this.runtime.progressBar.value,
+        style: {
+          color: this.runtime.progressBar.color,
+          backgroundColor: this.secondaryFontColor,
+        },
+      };
     }
 
     const { width: keyWidth, height: keyHeight } = this.getFullTextDimensions(
@@ -299,6 +328,9 @@ class ScorecardChartConfigBuilder {
         baselineDescrFontSize = Math.min(baselineDescrFontSize, lineWidth);
       }
     }
+    if (this.runtime.progressBar) {
+      baselineValueFontSize /= 1.5;
+    }
 
     return {
       title: {
@@ -334,7 +366,7 @@ class ScorecardChartConfigBuilder {
         color: this.secondaryFontColor,
       },
       baselineArrow:
-        this.baselineArrow === "neutral"
+        this.baselineArrow === "neutral" || this.runtime.progressBar
           ? undefined
           : {
               size: this.keyValue ? 0.8 * baselineValueFontSize : 0,
