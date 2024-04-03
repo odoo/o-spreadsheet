@@ -11,7 +11,7 @@ import {
 import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
 import { assertPositive } from "./helper_assert";
-import { sum } from "./helper_math";
+import { countUnique, isDefined, sum } from "./helper_math";
 import { getUnitMatrix } from "./helper_matrices";
 import {
   assert,
@@ -520,17 +520,6 @@ export const COUNTIFS = {
 // COUNTUNIQUE
 // -----------------------------------------------------------------------------
 
-function isDefined(data: FPayload | undefined): boolean {
-  if (data === undefined) {
-    return false;
-  }
-  const { value } = data;
-  if (value === null || value === "") {
-    return false;
-  }
-  return true;
-}
-
 export const COUNTUNIQUE = {
   description: _t("Counts number of unique values in a range."),
   args: [
@@ -542,7 +531,7 @@ export const COUNTUNIQUE = {
   ],
   returns: ["NUMBER"],
   compute: function (...args: Arg[]): number {
-    return reduceAny(args, (acc, a) => (isDefined(a) ? acc.add(a?.value) : acc), new Set()).size;
+    return countUnique(args);
   },
 } satisfies AddFunctionDescription;
 
