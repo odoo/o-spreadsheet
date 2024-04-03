@@ -115,15 +115,6 @@ export class SelectiveHistory<T = unknown> {
     this.tree.drop(operationId);
   }
 
-  getRevertedExecution(): T[] {
-    const data: T[] = [];
-    const operations = this.tree.revertedExecution(this.HEAD_BRANCH);
-    for (const { operation } of operations) {
-      data.push(operation.data);
-    }
-    return data;
-  }
-
   /**
    * Revert the state as it was *before* the given operation was executed.
    */
