@@ -26,7 +26,7 @@
       </Section>
     </div>
     <Section class="'o-chart-baseline-color'">
-      <t t-set-slot="title">Baseline color</t>
+      <t t-set-slot="title" t-esc="colorsSectionTitle"/>
       <div class="d-flex align-items-center mb-2">
         <RoundColorPicker
           currentColor="props.definition.baselineColorUp"

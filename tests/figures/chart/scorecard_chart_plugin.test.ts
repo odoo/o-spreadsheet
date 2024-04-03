@@ -220,7 +220,7 @@ describe("datasource tests", function () {
     expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
       baselineArrow: "down",
       baselineColor: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
-      baselineDisplay: "60%",
+      baselineDisplay: "60.0%",
       keyValue: "40",
     });
   });
@@ -237,7 +237,7 @@ describe("datasource tests", function () {
     expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
       baselineArrow: "up",
       baselineColor: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
-      baselineDisplay: "40%",
+      baselineDisplay: "40.0%",
       keyValue: "140",
     });
   });
@@ -254,7 +254,7 @@ describe("datasource tests", function () {
     expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
       baselineArrow: "neutral",
       baselineColor: undefined,
-      baselineDisplay: "0%",
+      baselineDisplay: "0.0%",
       keyValue: "140",
     });
   });
@@ -334,7 +334,47 @@ describe("datasource tests", function () {
     expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
       baselineArrow: "neutral",
       baselineColor: undefined,
-      baselineDisplay: "0%",
+      baselineDisplay: "0.0%",
+    });
+  });
+
+  test("progress bar with positive baseline/key ratio", () => {
+    setCellContent(model, "A1", "40");
+    setCellContent(model, "A2", "100");
+    createScorecardChart(model, {
+      keyValue: "A1",
+      baseline: "A2",
+      baselineMode: "progress",
+    });
+    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
+      baselineColor: undefined,
+      baselineDisplay: "40.0%",
+      keyValue: "40",
+      progressBar: {
+        color: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
+        value: 0.4,
+      },
+    });
+  });
+
+  test("progress bar with negative baseline/key ratio", () => {
+    setCellContent(model, "A1", "-40");
+    setCellContent(model, "A2", "100");
+    createScorecardChart(model, {
+      keyValue: "A1",
+      baseline: "A2",
+      baselineMode: "progress",
+    });
+    const [scorecardId] = model.getters.getChartIds(model.getters.getActiveSheetId());
+    expect(model.getters.getChartRuntime(scorecardId)).toMatchObject({
+      baselineColor: undefined,
+      baselineDisplay: "-40.0%",
+      keyValue: "-40",
+      progressBar: {
+        color: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
+        value: -0.4,
+      },
     });
   });
 });
@@ -458,5 +498,5 @@ test("Scorecard with formula cell", () => {
   );
   const runtime = model.getters.getChartRuntime("1") as ScorecardChartRuntime;
   expect(runtime.keyValue).toEqual("4");
-  expect(runtime.baselineDisplay).toEqual("100%");
+  expect(runtime.baselineDisplay).toEqual("100.0%");
 });
