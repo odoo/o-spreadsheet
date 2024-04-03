@@ -177,20 +177,16 @@ export class SheetViewPlugin extends UIPlugin {
         this.setSheetViewOffset(cmd.offsetX, cmd.offsetY);
         break;
       case "SHIFT_VIEWPORT_DOWN":
-        const { top } = this.getActiveMainViewport();
         const sheetId = this.getters.getActiveSheetId();
-        const shiftedOffsetY = this.clipOffsetY(
-          this.getters.getRowDimensions(sheetId, top).start + this.sheetViewHeight
-        );
-        this.shiftVertically(shiftedOffsetY);
+        const { top, viewportHeight, offsetCorrectionY } = this.getMainInternalViewport(sheetId);
+        const topRowDims = this.getters.getRowDimensions(sheetId, top);
+        this.shiftVertically(topRowDims.start + viewportHeight - offsetCorrectionY);
         break;
       case "SHIFT_VIEWPORT_UP": {
-        const { top } = this.getActiveMainViewport();
         const sheetId = this.getters.getActiveSheetId();
-        const shiftedOffsetY = this.clipOffsetY(
-          this.getters.getRowDimensions(sheetId, top).end - this.sheetViewHeight
-        );
-        this.shiftVertically(shiftedOffsetY);
+        const { top, viewportHeight, offsetCorrectionY } = this.getMainInternalViewport(sheetId);
+        const topRowDims = this.getters.getRowDimensions(sheetId, top);
+        this.shiftVertically(topRowDims.end - offsetCorrectionY - viewportHeight);
         break;
       }
       case "REMOVE_COLUMNS_ROWS":
@@ -609,18 +605,6 @@ export class SheetViewPlugin extends UIPlugin {
     );
   }
 
-  /**
-   * Clip the vertical offset within the allowed range.
-   * Not above the sheet, nor below the sheet.
-   */
-  private clipOffsetY(offsetY: Pixel): Pixel {
-    const { height } = this.getMainViewportRect();
-    const maxOffset = height - this.sheetViewHeight;
-    offsetY = Math.min(offsetY, maxOffset);
-    offsetY = Math.max(offsetY, 0);
-    return offsetY;
-  }
-
   private getViewportOffset(sheetId: UID) {
     return {
       x: this.viewports[sheetId]?.bottomRight.offsetScrollbarX || 0,
@@ -715,8 +699,11 @@ export class SheetViewPlugin extends UIPlugin {
     const { scrollX } = this.getActiveSheetScrollInfo();
     this.setSheetViewOffset(scrollX, offset);
     const { anchor } = this.getters.getSelection();
-    const deltaRow = this.getActiveMainViewport().top - top;
-    this.selection.selectCell(anchor.cell.col, anchor.cell.row + deltaRow);
+    const sheetId = this.getters.getActiveSheetId();
+    if (anchor.cell.row >= this.getters.getPaneDivisions(sheetId).ySplit) {
+      const deltaRow = this.getActiveMainViewport().top - top;
+      this.selection.selectCell(anchor.cell.col, anchor.cell.row + deltaRow);
+    }
   }
 
   getVisibleFigures(): Figure[] {
