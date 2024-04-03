@@ -1372,6 +1372,47 @@ describe("shift viewport up/down", () => {
     });
   });
 
+  describe("shift down/up with frozen panes", () => {
+    test("shift down/up with frozen rows and with selection in frozen rows", () => {
+      freezeRows(model, 5);
+      const { bottom, top } = model.getters.getActiveMainViewport();
+      model.dispatch("SHIFT_VIEWPORT_DOWN");
+      expect(model.getters.getActiveMainViewport().top).toBe(bottom);
+      expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A1");
+      model.dispatch("SHIFT_VIEWPORT_UP");
+      expect(model.getters.getActiveMainViewport().top).toBe(top);
+      expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A1");
+    });
+
+    test("shift down/up with frozen rows and with selection not in frozen rows", () => {
+      freezeRows(model, 5);
+      selectCell(model, "A6");
+      const { bottom, top } = model.getters.getActiveMainViewport();
+      model.dispatch("SHIFT_VIEWPORT_DOWN");
+      expect(model.getters.getActiveMainViewport().top).toBe(bottom);
+      expect(zoneToXc(model.getters.getSelectedZone())).toEqual(toXC(0, bottom));
+      model.dispatch("SHIFT_VIEWPORT_UP");
+      expect(model.getters.getActiveMainViewport().top).toBe(top);
+      expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A6");
+    });
+
+    test("shift down scrolls until the last row if there are frozen rows", () => {
+      const sheetId = model.getters.getActiveSheetId();
+      const numberOfRows = model.getters.getNumberRows(sheetId);
+      freezeRows(model, 10);
+      let { bottom } = model.getters.getActiveMainViewport();
+      while (true) {
+        model.dispatch("SHIFT_VIEWPORT_DOWN");
+        const newBottom = model.getters.getActiveMainViewport().bottom;
+        if (newBottom === bottom) {
+          break;
+        }
+        bottom = newBottom;
+      }
+      expect(model.getters.getActiveMainViewport().bottom).toBe(numberOfRows - 1);
+    });
+  });
+
   test.each(["A1", "A2"])(
     "viewport and selection %s do not move when its already the end of the sheet",
     (selectedCell) => {
