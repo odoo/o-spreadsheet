@@ -72,6 +72,13 @@ describe("Viewport of Simple sheet", () => {
     model = new Model();
   });
 
+  test("SET_VIEWPORT_OFFSET is refused if it won't scroll any viewport", () => {
+    expect(setViewportOffset(model, 0, 0)).toBeCancelledBecause(CommandResult.NoViewportScroll);
+
+    expect(setViewportOffset(model, 10, 10)).toBeSuccessfullyDispatched();
+    expect(setViewportOffset(model, 10, 10)).toBeCancelledBecause(CommandResult.NoViewportScroll);
+  });
+
   test("Select cell correctly affects offset", () => {
     // Since we rely on the adjustViewportPosition function here, the offsets will be linear combinations of the cells width and height
     selectCell(model, "P1");
@@ -935,6 +942,16 @@ describe("Multi Panes viewport", () => {
   beforeEach(async () => {
     model = new Model();
   });
+
+  test("SET_VIEWPORT_OFFSET is refused if it won't scroll any viewport", () => {
+    freezeColumns(model, 4);
+    freezeRows(model, 5);
+    expect(setViewportOffset(model, 0, 0)).toBeCancelledBecause(CommandResult.NoViewportScroll);
+
+    expect(setViewportOffset(model, 10, 10)).toBeSuccessfullyDispatched();
+    expect(setViewportOffset(model, 10, 10)).toBeCancelledBecause(CommandResult.NoViewportScroll);
+  });
+
   test("Freezing row generates 2 panes", () => {
     const getPanesEntries = () => Object.keys(getPanes());
     expect(getPanesEntries()).toEqual(["bottomRight"]);
