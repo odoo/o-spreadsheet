@@ -2,6 +2,7 @@ import { _t } from "../translation";
 import { AddFunctionDescription, Arg, FPayload, Maybe } from "../types";
 import { CellErrorType, EvaluationError } from "../types/errors";
 import { arg } from "./arguments";
+import { boolAnd, boolOr } from "./helper_logical";
 import { assert, conditionalVisitBoolean, isEvaluationError, toBoolean } from "./helpers";
 
 // -----------------------------------------------------------------------------
@@ -23,15 +24,9 @@ export const AND = {
   ],
   returns: ["BOOLEAN"],
   compute: function (...logicalExpressions: Arg[]): boolean {
-    let foundBoolean = false;
-    let acc = true;
-    conditionalVisitBoolean(logicalExpressions, (arg) => {
-      foundBoolean = true;
-      acc = acc && arg;
-      return acc;
-    });
+    const { result, foundBoolean } = boolAnd(logicalExpressions);
     assert(() => foundBoolean, _t("[[FUNCTION_NAME]] has no valid input data."));
-    return acc;
+    return result;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -227,15 +222,9 @@ export const OR = {
   ],
   returns: ["BOOLEAN"],
   compute: function (...logicalExpressions: Arg[]): boolean {
-    let foundBoolean = false;
-    let acc = false;
-    conditionalVisitBoolean(logicalExpressions, (arg) => {
-      foundBoolean = true;
-      acc = acc || arg;
-      return !acc;
-    });
+    const { result, foundBoolean } = boolOr(logicalExpressions);
     assert(() => foundBoolean, _t("[[FUNCTION_NAME]] has no valid input data."));
-    return acc;
+    return result;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
