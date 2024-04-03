@@ -131,7 +131,7 @@ export class SheetViewPlugin extends UIPlugin {
       case "SET_VIEWPORT_OFFSET":
         return this.chainValidations(
           this.checkScrollingDirection,
-          this.checkViewportsWillChange
+          this.checkIfViewportsWillChange
         )(cmd);
       case "RESIZE_SHEETVIEW":
         return this.chainValidations(
@@ -263,8 +263,7 @@ export class SheetViewPlugin extends UIPlugin {
       this.resetViewports(sheetId);
       if (this.shouldAdjustViewports) {
         const position = this.getters.getSheetPosition(sheetId);
-        const viewports = this.getSubViewports(sheetId);
-        Object.values(viewports).forEach((viewport) => {
+        this.getSubViewports(sheetId).forEach((viewport) => {
           viewport.adjustPosition(position);
         });
       }
@@ -640,7 +639,7 @@ export class SheetViewPlugin extends UIPlugin {
     return CommandResult.Success;
   }
 
-  private checkViewportsWillChange({ offsetX, offsetY }: SetViewportOffsetCommand) {
+  private checkIfViewportsWillChange({ offsetX, offsetY }: SetViewportOffsetCommand) {
     const sheetId = this.getters.getActiveSheetId();
     const { maxOffsetX, maxOffsetY } = this.getMaximumSheetOffset();
     const willScroll = this.getSubViewports(sheetId).some((viewport) =>
@@ -649,7 +648,7 @@ export class SheetViewPlugin extends UIPlugin {
         clip(offsetY, 0, maxOffsetY)
       )
     );
-    return willScroll ? CommandResult.Success : CommandResult.NoViewportScroll;
+    return willScroll ? CommandResult.Success : CommandResult.ViewportScrollLimitsReached;
   }
 
   private getMainViewport(sheetId: UID): Viewport {
@@ -699,7 +698,7 @@ export class SheetViewPlugin extends UIPlugin {
   private setSheetViewOffset(offsetX: Pixel, offsetY: Pixel) {
     const sheetId = this.getters.getActiveSheetId();
     const { maxOffsetX, maxOffsetY } = this.getMaximumSheetOffset();
-    Object.values(this.getSubViewports(sheetId)).forEach((viewport) =>
+    this.getSubViewports(sheetId).forEach((viewport) =>
       viewport.setViewportOffset(clip(offsetX, 0, maxOffsetX), clip(offsetY, 0, maxOffsetY))
     );
   }
@@ -782,7 +781,7 @@ export class SheetViewPlugin extends UIPlugin {
    * Adjust the viewport such that the anchor position is visible
    */
   private refreshViewport(sheetId: UID, anchorPosition: Position) {
-    Object.values(this.getSubViewports(sheetId)).forEach((viewport) => {
+    this.getSubViewports(sheetId).forEach((viewport) => {
       viewport.adjustViewportZone();
       viewport.adjustPosition(anchorPosition);
     });

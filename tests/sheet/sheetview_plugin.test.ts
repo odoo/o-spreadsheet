@@ -74,10 +74,14 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("SET_VIEWPORT_OFFSET is refused if it won't scroll any viewport", () => {
-    expect(setViewportOffset(model, 0, 0)).toBeCancelledBecause(CommandResult.NoViewportScroll);
+    expect(setViewportOffset(model, 0, 0)).toBeCancelledBecause(
+      CommandResult.ViewportScrollLimitsReached
+    );
 
     expect(setViewportOffset(model, 10, 10)).toBeSuccessfullyDispatched();
-    expect(setViewportOffset(model, 10, 10)).toBeCancelledBecause(CommandResult.NoViewportScroll);
+    expect(setViewportOffset(model, 10, 10)).toBeCancelledBecause(
+      CommandResult.ViewportScrollLimitsReached
+    );
   });
 
   test("Select cell correctly affects offset", () => {
@@ -947,10 +951,14 @@ describe("Multi Panes viewport", () => {
   test("SET_VIEWPORT_OFFSET is refused if it won't scroll any viewport", () => {
     freezeColumns(model, 4);
     freezeRows(model, 5);
-    expect(setViewportOffset(model, 0, 0)).toBeCancelledBecause(CommandResult.NoViewportScroll);
+    expect(setViewportOffset(model, 0, 0)).toBeCancelledBecause(
+      CommandResult.ViewportScrollLimitsReached
+    );
 
     expect(setViewportOffset(model, 10, 10)).toBeSuccessfullyDispatched();
-    expect(setViewportOffset(model, 10, 10)).toBeCancelledBecause(CommandResult.NoViewportScroll);
+    expect(setViewportOffset(model, 10, 10)).toBeCancelledBecause(
+      CommandResult.ViewportScrollLimitsReached
+    );
   });
 
   test("Freezing row generates 2 panes", () => {

@@ -1202,7 +1202,7 @@ export const enum CommandResult {
   Readonly = "Readonly",
   InvalidViewportSize = "InvalidViewportSize",
   InvalidScrollingDirection = "InvalidScrollingDirection",
-  NoViewportScroll = "NoViewportScroll",
+  ViewportScrollLimitsReached = "ViewportScrollLimitsReached",
   FigureDoesNotExist = "FigureDoesNotExist",
   InvalidConditionalFormatId = "InvalidConditionalFormatId",
   InvalidCellPopover = "InvalidCellPopover",
