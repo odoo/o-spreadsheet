@@ -138,12 +138,13 @@ export class SheetViewPlugin extends UIPlugin {
       case "AlterZone":
         break;
       case "ZonesSelected":
+        const sheetId = this.getters.getActiveSheetId();
         let { col, row } = findCellInNewZone(event.previousAnchor.zone, event.anchor.zone);
         if (event.mode === "updateAnchor") {
           const oldZone = event.previousAnchor.zone;
           const newZone = event.anchor.zone;
           // altering a zone should not move the viewport in a dimension that wasn't changed
-          const { top, bottom, left, right } = this.getters.getActiveMainViewport();
+          const { top, bottom, left, right } = this.getMainInternalViewport(sheetId);
           if (oldZone.left === newZone.left && oldZone.right === newZone.right) {
             col = left > col || col > right ? left : col;
           }
@@ -151,10 +152,9 @@ export class SheetViewPlugin extends UIPlugin {
             row = top > row || row > bottom ? top : row;
           }
         }
-        const sheetId = this.getters.getActiveSheetId();
         col = Math.min(col, this.getters.getNumberCols(sheetId) - 1);
         row = Math.min(row, this.getters.getNumberRows(sheetId) - 1);
-        this.refreshViewport(this.getters.getActiveSheetId(), { col, row });
+        this.refreshViewport(sheetId, { col, row });
         break;
     }
   }
@@ -180,20 +180,16 @@ export class SheetViewPlugin extends UIPlugin {
         this.setSheetViewOffset(cmd.offsetX, cmd.offsetY);
         break;
       case "SHIFT_VIEWPORT_DOWN":
-        const { top } = this.getActiveMainViewport();
         const sheetId = this.getters.getActiveSheetId();
-        const shiftedOffsetY = this.clipOffsetY(
-          this.getters.getRowDimensions(sheetId, top).start + this.sheetViewHeight
-        );
-        this.shiftVertically(shiftedOffsetY);
+        const { top, viewportHeight, offsetCorrectionY } = this.getMainInternalViewport(sheetId);
+        const topRowDims = this.getters.getRowDimensions(sheetId, top);
+        this.shiftVertically(topRowDims.start + viewportHeight - offsetCorrectionY);
         break;
       case "SHIFT_VIEWPORT_UP": {
-        const { top } = this.getActiveMainViewport();
         const sheetId = this.getters.getActiveSheetId();
-        const shiftedOffsetY = this.clipOffsetY(
-          this.getters.getRowDimensions(sheetId, top).end - this.sheetViewHeight
-        );
-        this.shiftVertically(shiftedOffsetY);
+        const { top, viewportHeight, offsetCorrectionY } = this.getMainInternalViewport(sheetId);
+        const topRowDims = this.getters.getRowDimensions(sheetId, top);
+        this.shiftVertically(topRowDims.end - offsetCorrectionY - viewportHeight);
         break;
       }
       case "REMOVE_COLUMNS_ROWS":
@@ -614,18 +610,6 @@ export class SheetViewPlugin extends UIPlugin {
     );
   }
 
-  /**
-   * Clip the vertical offset within the allowed range.
-   * Not above the sheet, nor below the sheet.
-   */
-  private clipOffsetY(offsetY: Pixel): Pixel {
-    const { height } = this.getMainViewportRect();
-    const maxOffset = height - this.sheetViewHeight;
-    offsetY = Math.min(offsetY, maxOffset);
-    offsetY = Math.max(offsetY, 0);
-    return offsetY;
-  }
-
   private getViewportOffset(sheetId: UID) {
     return {
       x: this.viewports[sheetId]?.bottomRight.offsetScrollbarX || 0,
@@ -716,12 +700,15 @@ export class SheetViewPlugin extends UIPlugin {
    * viewport top.
    */
   private shiftVertically(offset: Pixel) {
-    const { top } = this.getActiveMainViewport();
+    const sheetId = this.getters.getActiveSheetId();
+    const { top } = this.getMainInternalViewport(sheetId);
     const { scrollX } = this.getActiveSheetScrollInfo();
     this.setSheetViewOffset(scrollX, offset);
     const { anchor } = this.getters.getSelection();
-    const deltaRow = this.getActiveMainViewport().top - top;
-    this.selection.selectCell(anchor.cell.col, anchor.cell.row + deltaRow);
+    if (anchor.cell.row >= this.getters.getPaneDivisions(sheetId).ySplit) {
+      const deltaRow = this.getMainInternalViewport(sheetId).top - top;
+      this.selection.selectCell(anchor.cell.col, anchor.cell.row + deltaRow);
+    }
   }
 
   getVisibleFigures(): Figure[] {
