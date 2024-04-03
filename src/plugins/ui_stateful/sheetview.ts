@@ -19,6 +19,7 @@ import {
   Rect,
   ResizeViewportCommand,
   ScrollDirection,
+  SetViewportOffsetCommand,
   SheetDOMScrollInfo,
   SheetScrollInfo,
   UID,
@@ -128,7 +129,10 @@ export class SheetViewPlugin extends UIPlugin {
   allowDispatch(cmd: LocalCommand): CommandResult | CommandResult[] {
     switch (cmd.type) {
       case "SET_VIEWPORT_OFFSET":
-        return this.checkScrollingDirection(cmd);
+        return this.chainValidations(
+          this.checkScrollingDirection,
+          this.checkViewportsWillChange
+        )(cmd);
       case "RESIZE_SHEETVIEW":
         return this.chainValidations(
           this.checkValuesAreDifferent,
@@ -634,6 +638,18 @@ export class SheetViewPlugin extends UIPlugin {
       return CommandResult.InvalidScrollingDirection;
     }
     return CommandResult.Success;
+  }
+
+  private checkViewportsWillChange({ offsetX, offsetY }: SetViewportOffsetCommand) {
+    const sheetId = this.getters.getActiveSheetId();
+    const { maxOffsetX, maxOffsetY } = this.getMaximumSheetOffset();
+    const willScroll = this.getSubViewports(sheetId).some((viewport) =>
+      viewport.willNewOffsetScrollViewport(
+        clip(offsetX, 0, maxOffsetX),
+        clip(offsetY, 0, maxOffsetY)
+      )
+    );
+    return willScroll ? CommandResult.Success : CommandResult.NoViewportScroll;
   }
 
   private getMainViewport(sheetId: UID): Viewport {

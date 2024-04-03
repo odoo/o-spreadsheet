@@ -207,6 +207,13 @@ export class InternalViewport {
     this.adjustViewportZoneY();
   }
 
+  willNewOffsetScrollViewport(offsetX: Pixel, offsetY: Pixel) {
+    return (
+      (this.canScrollHorizontally && this.offsetScrollbarX !== offsetX) ||
+      (this.canScrollVertically && this.offsetScrollbarY !== offsetY)
+    );
+  }
+
   setViewportOffset(offsetX: Pixel, offsetY: Pixel) {
     this.setViewportOffsetX(offsetX);
     this.setViewportOffsetY(offsetY);
