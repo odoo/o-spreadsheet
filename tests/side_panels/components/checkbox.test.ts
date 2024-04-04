@@ -61,4 +61,9 @@ describe("Checkbox", () => {
     expect(fixture.querySelector("input")!.disabled).toEqual(true);
     expect(fixture.querySelector("label")!.classList).toContain("text-muted");
   });
+
+  test("Can render a checkbox with a custom className on the label", async () => {
+    await mountCheckbox({ value: true, onChange: () => {}, className: "custom-checkbox" });
+    expect(fixture.querySelector("label")!.classList.contains("custom-checkbox")).toBe(true);
+  });
 });
