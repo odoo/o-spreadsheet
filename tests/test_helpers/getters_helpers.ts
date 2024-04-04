@@ -123,6 +123,18 @@ export function getBorder(
 }
 
 /**
+ * Get the computed borders at the given XC
+ */
+export function getComputedBorder(
+  model: Model,
+  xc: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+): Border | null {
+  const { col, row } = toCartesian(xc);
+  return model.getters.getCellComputedBorder({ sheetId, col, row });
+}
+
+/**
  * Get the list of the merges
  */
 export function getMerges(model: Model): Record<number, Merge> {

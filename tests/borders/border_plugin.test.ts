@@ -14,7 +14,12 @@ import {
   setZoneBorders,
   undo,
 } from "../test_helpers/commands_helpers";
-import { getBorder, getCell, getCellContent } from "../test_helpers/getters_helpers";
+import {
+  getBorder,
+  getCell,
+  getCellContent,
+  getComputedBorder,
+} from "../test_helpers/getters_helpers";
 import "../test_helpers/helpers"; // to have getcontext mocks
 
 describe("borders", () => {
@@ -737,5 +742,21 @@ describe("Borders formatting", () => {
       bottom: DEFAULT_BORDER_DESC,
       right: { style: "dashed", color: "#0000FF" },
     });
+  });
+});
+
+describe("Computed borders", () => {
+  test("SET_BORDER command recomputes the borders", () => {
+    const model = new Model();
+    expect(getComputedBorder(model, "A1")).toBeNull();
+    setBorders(model, "A1", { top: DEFAULT_BORDER_DESC });
+    expect(getComputedBorder(model, "A1")).not.toBeNull();
+  });
+
+  test("SET_ZONE_BORDERS command recomputes the borders", () => {
+    const model = new Model();
+    expect(getComputedBorder(model, "A1")).toBeNull();
+    setZoneBorders(model, { position: "all" }, ["A1"]);
+    expect(getComputedBorder(model, "A1")).not.toBeNull();
   });
 });

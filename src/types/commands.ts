@@ -129,6 +129,12 @@ export const invalidateCFEvaluationCommands = new Set<CommandTypes>([
   "CHANGE_CONDITIONAL_FORMAT_PRIORITY",
 ]);
 
+export const invalidateBordersCommands = new Set<CommandTypes>([
+  "AUTOFILL_CELL",
+  "SET_BORDER",
+  "SET_ZONE_BORDERS",
+]);
+
 export const readonlyAllowedCommands = new Set<CommandTypes>([
   "START",
   "ACTIVATE_SHEET",
