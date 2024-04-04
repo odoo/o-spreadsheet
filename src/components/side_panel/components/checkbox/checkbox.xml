@@ -3,7 +3,8 @@
     <label
       class="o-checkbox"
       t-att-title="props.title"
-      t-att-class="{'text-muted': props.disabled }">
+      t-att-class="{'text-muted': props.disabled }"
+      t-attf-class="{{props.className}}">
       <input
         type="checkbox"
         t-att-disabled="props.disabled"
