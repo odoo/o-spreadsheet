@@ -1,6 +1,11 @@
 import { LINK_COLOR } from "../../constants";
 import { isObjectEmptyRecursive, removeFalsyAttributes } from "../../helpers/index";
-import { Command, invalidateCFEvaluationCommands, invalidateEvaluationCommands } from "../../types";
+import {
+  Command,
+  invalidateBordersCommands,
+  invalidateCFEvaluationCommands,
+  invalidateEvaluationCommands,
+} from "../../types";
 import { Border, CellPosition, Style, UID } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 import { doesCommandInvalidatesTableStyle } from "./table_style";
@@ -30,6 +35,10 @@ export class CellComputedStylePlugin extends UIPlugin {
 
     if (invalidateCFEvaluationCommands.has(cmd.type)) {
       this.styles = {};
+      return;
+    }
+    if (invalidateBordersCommands.has(cmd.type)) {
+      this.borders = {};
       return;
     }
   }
