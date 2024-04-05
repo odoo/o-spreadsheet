@@ -58,7 +58,7 @@ export function getXLSX(data: ExcelWorkbookData): XLSXExport {
   data = fixLengthySheetNames(data);
   data = purgeSingleRowTables(data);
   const files: XLSXExportFile[] = [];
-  const construct = getDefaultXLSXStructure();
+  const construct = getDefaultXLSXStructure(data);
   files.push(createWorkbook(data, construct));
 
   files.push(...createWorksheets(data, construct));
