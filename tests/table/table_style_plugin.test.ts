@@ -4,6 +4,7 @@ import { TABLE_PRESETS } from "../../src/helpers/table_presets";
 import { Style, UID } from "../../src/types";
 import {
   createTable,
+  deleteTable,
   foldHeaderGroup,
   groupRows,
   hideColumns,
@@ -236,6 +237,13 @@ describe("Table style", () => {
       expect(getFullTableStyle("A1:B4")).not.toEqual(tableStyle);
       redo(model);
       expect(getFullTableStyle("A1:B4")).toEqual(tableStyle);
+    });
+
+    test("Style is updated when deleting a table", () => {
+      setStyle(model, "A1", { fillColor: "#f00" });
+      const tableStyle = getFullTableStyle("A1:B4");
+      deleteTable(model, "A1:B4");
+      expect(getFullTableStyle("A1:B4")).not.toEqual(tableStyle);
     });
   });
 });
