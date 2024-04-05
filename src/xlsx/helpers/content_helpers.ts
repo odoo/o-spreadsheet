@@ -1,4 +1,5 @@
 import { DEFAULT_FONT_SIZE } from "../../constants";
+import { deepEquals } from "../../helpers";
 import {
   Align,
   CellData,
@@ -138,17 +139,15 @@ export function addRelsToFile(
 }
 
 export function pushElement<T>(property: T, propertyList: T[]): number {
-  for (let [key, value] of Object.entries(propertyList)) {
-    if (JSON.stringify(value) === JSON.stringify(property)) {
-      return parseInt(key, 10);
+  let len = propertyList.length;
+  for (let i = 0; i < len; i++) {
+    if (deepEquals(property, propertyList[i])) {
+      return i;
     }
   }
-  let elemId = propertyList.findIndex((elem) => JSON.stringify(elem) === JSON.stringify(property));
-  if (elemId === -1) {
-    propertyList.push(property);
-    elemId = propertyList.length - 1;
-  }
-  return elemId;
+
+  propertyList[propertyList.length] = property;
+  return propertyList.length - 1;
 }
 
 const chartIds: UID[] = [];
