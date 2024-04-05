@@ -11,11 +11,6 @@ import {
 import { ExtractedStyle, XLSXRel, XLSXRelFile, XLSXStructure } from "../../types/xlsx";
 import { FIRST_NUMFMT_ID, HEIGHT_FACTOR, WIDTH_FACTOR, XLSX_FORMAT_MAP } from "../constants";
 
-type PropertyPosition<T> = {
-  id: number;
-  list: T[];
-};
-
 // -------------------------------------
 //            CF HELPERS
 // -------------------------------------
@@ -99,22 +94,17 @@ export function extractStyle(cell: CellData, data: WorkbookData): ExtractedStyle
 }
 
 export function normalizeStyle(construct: XLSXStructure, styles: ExtractedStyle): number {
-  const { id: fontId } = pushElement(styles["font"], construct.fonts);
-  const { id: fillId } = pushElement(styles["fill"], construct.fills);
-  const { id: borderId } = pushElement(styles["border"], construct.borders);
   // Normalize this
   const numFmtId = convertFormat(styles["numFmt"], construct.numFmts);
   const style = {
-    fontId,
-    fillId,
-    borderId,
+    fontId: pushElement(styles["font"], construct.fonts),
+    fillId: pushElement(styles["fill"], construct.fills),
+    borderId: pushElement(styles["border"], construct.borders),
     numFmtId,
     verticalAlignment: styles["verticalAlignment"] as string,
     horizontalAlignment: styles["horizontalAlignment"] as string,
   };
-  const { id } = pushElement(style, construct.styles);
-
-  return id;
+  return pushElement(style, construct.styles);
 }
 
 export function convertFormat(format: string | undefined, numFmtStructure: string[]): number {
@@ -123,8 +113,7 @@ export function convertFormat(format: string | undefined, numFmtStructure: strin
   }
   let formatId: number | undefined = XLSX_FORMAT_MAP[format];
   if (!formatId) {
-    const { id } = pushElement(format, numFmtStructure);
-    formatId = id + FIRST_NUMFMT_ID;
+    formatId = pushElement(format, numFmtStructure) + FIRST_NUMFMT_ID;
   }
   return formatId;
 }
@@ -153,10 +142,10 @@ export function addRelsToFile(
   return id;
 }
 
-export function pushElement<T>(property: T, propertyList: T[]): PropertyPosition<T> {
+export function pushElement<T>(property: T, propertyList: T[]): number {
   for (let [key, value] of Object.entries(propertyList)) {
     if (JSON.stringify(value) === JSON.stringify(property)) {
-      return { id: parseInt(key, 10), list: propertyList };
+      return parseInt(key, 10);
     }
   }
   let elemId = propertyList.findIndex((elem) => JSON.stringify(elem) === JSON.stringify(property));
@@ -164,10 +153,7 @@ export function pushElement<T>(property: T, propertyList: T[]): PropertyPosition
     propertyList.push(property);
     elemId = propertyList.length - 1;
   }
-  return {
-    id: elemId,
-    list: propertyList,
-  };
+  return elemId;
 }
 
 const chartIds: UID[] = [];

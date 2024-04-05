@@ -70,15 +70,14 @@ export function addContent(
   attrs: XMLAttributes;
   node: XMLString;
 } {
-  let value: string = content;
+  let value: string | number = content;
   const attrs: XMLAttributes = [];
 
   if (["TRUE", "FALSE"].includes(value.trim())) {
     value = value === "TRUE" ? "1" : "0";
     attrs.push(["t", "b"]);
   } else if (!isNumber(value)) {
-    const { id } = pushElement(content, sharedStrings);
-    value = id.toString();
+    value = pushElement(content, sharedStrings);
     attrs.push(["t", "s"]);
   }
   return { attrs, node: escapeXml/*xml*/ `<v>${value}</v>` };

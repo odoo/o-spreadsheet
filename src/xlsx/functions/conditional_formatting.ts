@@ -69,8 +69,7 @@ function addCellIsRule(cf: ConditionalFormat, rule: CellIsRule, dxfs: XLSXDxf[])
   if (rule.style.fillColor) {
     dxf.fill = { fgColor: rule.style.fillColor };
   }
-  const { id } = pushElement(dxf, dxfs);
-  ruleAttributes.push(["dxfId", id]);
+  ruleAttributes.push(["dxfId", pushElement(dxf, dxfs)]);
 
   return escapeXml/*xml*/ `
     <conditionalFormatting sqref="${cf.ranges.join(" ")}">
