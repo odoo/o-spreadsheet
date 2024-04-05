@@ -191,6 +191,7 @@ const invalidateTableStyleCommands = [
   "CREATE_TABLE",
   "UPDATE_TABLE",
   "UPDATE_FILTER",
+  "REMOVE_TABLE",
 ] as const;
 const invalidateTableStyleCommandsSet = new Set<CommandTypes>(invalidateTableStyleCommands);
 
