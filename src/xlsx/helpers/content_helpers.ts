@@ -3,7 +3,6 @@ import { tokenize } from "../../formulas";
 import { functionRegistry } from "../../functions";
 import { splitReference, toUnboundedZone } from "../../helpers";
 import {
-  BorderDescr,
   ConditionalFormattingOperatorValues,
   ExcelCellData,
   ExcelWorkbookData,
@@ -14,8 +13,6 @@ import {
 } from "../../types";
 import {
   ExtractedStyle,
-  XLSXBorder,
-  XLSXBorderDescr,
   XLSXHorizontalAlignment,
   XLSXNumFormat,
   XLSXRel,
@@ -87,30 +84,12 @@ export function convertWidthFromExcel(width: number | undefined): number | undef
   return Math.round((width / WIDTH_FACTOR) * 100) / 100;
 }
 
-function convertBorderDescr(descr: BorderDescr | undefined): XLSXBorderDescr | undefined {
-  if (!descr) {
-    return undefined;
-  }
-  return {
-    style: descr.style,
-    color: { rgb: descr.color },
-  };
-}
-
 export function extractStyle(cell: ExcelCellData, data: WorkbookData): ExtractedStyle {
   let style: Style = {};
   if (cell.style) {
     style = data.styles[cell.style];
   }
   const format = extractFormat(cell, data);
-  const exportedBorder: XLSXBorder = {};
-  if (cell.border) {
-    const border = data.borders[cell.border];
-    exportedBorder.left = convertBorderDescr(border.left);
-    exportedBorder.right = convertBorderDescr(border.right);
-    exportedBorder.bottom = convertBorderDescr(border.bottom);
-    exportedBorder.top = convertBorderDescr(border.top);
-  }
   const styles = {
     font: {
       size: style?.fontSize || DEFAULT_FONT_SIZE,
@@ -124,7 +103,7 @@ export function extractStyle(cell: ExcelCellData, data: WorkbookData): Extracted
         }
       : { reservedAttribute: "none" },
     numFmt: format ? { format: format, id: 0 /* id not used for export */ } : undefined,
-    border: exportedBorder || {},
+    border: cell.border || 0,
     alignment: {
       horizontal: style.align as XLSXHorizontalAlignment,
       vertical: style.verticalAlign
@@ -162,9 +141,9 @@ export function normalizeStyle(construct: XLSXStructure, styles: ExtractedStyle)
   // Normalize this
   const numFmtId = convertFormat(styles["numFmt"], construct.numFmts);
   const style = {
-    fontId: pushElement(styles["font"], construct.fonts),
-    fillId: pushElement(styles["fill"], construct.fills),
-    borderId: pushElement(styles["border"], construct.borders),
+    fontId: pushElement(styles.font, construct.fonts),
+    fillId: pushElement(styles.fill, construct.fills),
+    borderId: styles.border,
     numFmtId,
     alignment: {
       vertical: styles.alignment.vertical,
