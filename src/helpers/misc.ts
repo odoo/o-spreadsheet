@@ -350,7 +350,7 @@ export function deepEquals(o1: any, o2: any): boolean {
   if (o1 === o2) return true;
   if ((o1 && !o2) || (o2 && !o1)) return false;
   if (typeof o1 !== typeof o2) return false;
-  if (typeof o1 !== "object") return o1 === o2;
+  if (typeof o1 !== "object") return false;
 
   // Objects can have different keys if the values are undefined
   const keys = new Set<string>();
