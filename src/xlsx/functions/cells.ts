@@ -49,7 +49,7 @@ export function addContent(
   attrs: XMLAttributes;
   node: XMLString;
 } {
-  let value: string = content;
+  let value: string | number = content;
   const attrs: XMLAttributes = [];
 
   const clearValue = value.trim().toUpperCase();
@@ -57,8 +57,7 @@ export function addContent(
     value = clearValue === "TRUE" ? "1" : "0";
     attrs.push(["t", "b"]);
   } else if (forceString || !isNumber(value, DEFAULT_LOCALE)) {
-    const { id } = pushElement(content, sharedStrings);
-    value = id.toString();
+    value = pushElement(content, sharedStrings);
     attrs.push(["t", "s"]);
   }
   return { attrs, node: escapeXml/*xml*/ `<v>${value}</v>` };
