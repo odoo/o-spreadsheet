@@ -77,14 +77,9 @@ chartRegistry.add("bar", {
   createChart: (definition, sheetId, getters) =>
     new BarChart(definition as BarChartDefinition, sheetId, getters),
   getChartRuntime: createBarChartRuntime,
-  validateChartDefinition: (validator, definition: BarChartDefinition) =>
-    BarChart.validateChartDefinition(validator, definition),
-  transformDefinition: (
-    definition: BarChartDefinition,
-    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ) => BarChart.transformDefinition(definition, executed),
-  getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
-    BarChart.getDefinitionFromContextCreation(context),
+  validateChartDefinition: BarChart.validateChartDefinition,
+  transformDefinition: BarChart.transformDefinition,
+  getChartDefinitionFromContextCreation: BarChart.getDefinitionFromContextCreation,
   name: _t("Bar"),
   sequence: 10,
 });
@@ -93,14 +88,9 @@ chartRegistry.add("combo", {
   createChart: (definition, sheetId, getters) =>
     new ComboChart(definition as ComboChartDefinition, sheetId, getters),
   getChartRuntime: createComboChartRuntime,
-  validateChartDefinition: (validator, definition: ComboChartDefinition) =>
-    ComboChart.validateChartDefinition(validator, definition),
-  transformDefinition: (
-    definition: ComboChartDefinition,
-    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ) => ComboChart.transformDefinition(definition, executed),
-  getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
-    ComboChart.getDefinitionFromContextCreation(context),
+  validateChartDefinition: ComboChart.validateChartDefinition,
+  transformDefinition: ComboChart.transformDefinition,
+  getChartDefinitionFromContextCreation: ComboChart.getDefinitionFromContextCreation,
   name: _t("Combo"),
   sequence: 15,
 });
@@ -109,14 +99,9 @@ chartRegistry.add("line", {
   createChart: (definition, sheetId, getters) =>
     new LineChart(definition as LineChartDefinition, sheetId, getters),
   getChartRuntime: createLineChartRuntime,
-  validateChartDefinition: (validator, definition) =>
-    LineChart.validateChartDefinition(validator, definition as LineChartDefinition),
-  transformDefinition: (
-    definition: LineChartDefinition,
-    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ) => LineChart.transformDefinition(definition, executed),
-  getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
-    LineChart.getDefinitionFromContextCreation(context),
+  validateChartDefinition: LineChart.validateChartDefinition,
+  transformDefinition: LineChart.transformDefinition,
+  getChartDefinitionFromContextCreation: LineChart.getDefinitionFromContextCreation,
   name: _t("Line"),
   sequence: 20,
 });
@@ -125,14 +110,9 @@ chartRegistry.add("pie", {
   createChart: (definition, sheetId, getters) =>
     new PieChart(definition as PieChartDefinition, sheetId, getters),
   getChartRuntime: createPieChartRuntime,
-  validateChartDefinition: (validator, definition: PieChartDefinition) =>
-    PieChart.validateChartDefinition(validator, definition),
-  transformDefinition: (
-    definition: PieChartDefinition,
-    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ) => PieChart.transformDefinition(definition, executed),
-  getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
-    PieChart.getDefinitionFromContextCreation(context),
+  validateChartDefinition: PieChart.validateChartDefinition,
+  transformDefinition: PieChart.transformDefinition,
+  getChartDefinitionFromContextCreation: PieChart.getDefinitionFromContextCreation,
   name: _t("Pie"),
   sequence: 30,
 });
@@ -141,14 +121,9 @@ chartRegistry.add("scorecard", {
   createChart: (definition, sheetId, getters) =>
     new ScorecardChart(definition as ScorecardChartDefinition, sheetId, getters),
   getChartRuntime: createScorecardChartRuntime,
-  validateChartDefinition: (validator, definition) =>
-    ScorecardChart.validateChartDefinition(validator, definition as ScorecardChartDefinition),
-  transformDefinition: (
-    definition: ScorecardChartDefinition,
-    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ) => ScorecardChart.transformDefinition(definition, executed),
-  getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
-    ScorecardChart.getDefinitionFromContextCreation(context),
+  validateChartDefinition: ScorecardChart.validateChartDefinition,
+  transformDefinition: ScorecardChart.transformDefinition,
+  getChartDefinitionFromContextCreation: ScorecardChart.getDefinitionFromContextCreation,
   name: _t("Scorecard"),
   sequence: 40,
 });
@@ -157,14 +132,9 @@ chartRegistry.add("gauge", {
   createChart: (definition, sheetId, getters) =>
     new GaugeChart(definition as GaugeChartDefinition, sheetId, getters),
   getChartRuntime: createGaugeChartRuntime,
-  validateChartDefinition: (validator, definition) =>
-    GaugeChart.validateChartDefinition(validator, definition as GaugeChartDefinition),
-  transformDefinition: (
-    definition: GaugeChartDefinition,
-    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ) => GaugeChart.transformDefinition(definition, executed),
-  getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
-    GaugeChart.getDefinitionFromContextCreation(context),
+  validateChartDefinition: GaugeChart.validateChartDefinition,
+  transformDefinition: GaugeChart.transformDefinition,
+  getChartDefinitionFromContextCreation: GaugeChart.getDefinitionFromContextCreation,
   name: _t("Gauge"),
   sequence: 50,
 });
@@ -173,14 +143,9 @@ chartRegistry.add("scatter", {
   createChart: (definition, sheetId, getters) =>
     new ScatterChart(definition as ScatterChartDefinition, sheetId, getters),
   getChartRuntime: createScatterChartRuntime,
-  validateChartDefinition: (validator, definition) =>
-    ScatterChart.validateChartDefinition(validator, definition as ScatterChartDefinition),
-  transformDefinition: (
-    definition: ScatterChartDefinition,
-    executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ) => ScatterChart.transformDefinition(definition, executed),
-  getChartDefinitionFromContextCreation: (context: ChartCreationContext) =>
-    ScatterChart.getDefinitionFromContextCreation(context),
+  validateChartDefinition: ScatterChart.validateChartDefinition,
+  transformDefinition: ScatterChart.transformDefinition,
+  getChartDefinitionFromContextCreation: ScatterChart.getDefinitionFromContextCreation,
   name: _t("Scatter"),
   sequence: 60,
 });
