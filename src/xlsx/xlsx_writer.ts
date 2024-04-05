@@ -51,7 +51,7 @@ import {
  */
 export function getXLSX(data: ExcelWorkbookData): XLSXExport {
   const files: XLSXExportFile[] = [];
-  const construct = getDefaultXLSXStructure();
+  const construct = getDefaultXLSXStructure(data);
   files.push(createWorkbook(data, construct));
 
   files.push(...createWorksheets(data, construct));

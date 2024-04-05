@@ -1,6 +1,9 @@
 import { DEFAULT_FONT_SIZE } from "../../constants";
 import { concat } from "../../helpers";
+import { BorderDescr, ExcelWorkbookData } from "../../types";
 import {
+  XLSXBorder,
+  XLSXBorderDescr,
   XLSXExportFile,
   XLSXStructure,
   XMLAttributes,
@@ -57,7 +60,26 @@ export function parseXML(xmlString: XMLString): XMLDocument {
   return document;
 }
 
-export function getDefaultXLSXStructure(): XLSXStructure {
+function convertBorderDescr(descr: BorderDescr | undefined): XLSXBorderDescr | undefined {
+  if (!descr) {
+    return undefined;
+  }
+  return {
+    style: descr[0],
+    color: { rgb: descr[1] },
+  };
+}
+
+export function getDefaultXLSXStructure(data: ExcelWorkbookData): XLSXStructure {
+  const xlsxBorders: XLSXBorder[] = Object.values(data.borders).map((border) => {
+    return {
+      left: convertBorderDescr(border.left),
+      right: convertBorderDescr(border.right),
+      bottom: convertBorderDescr(border.bottom),
+      top: convertBorderDescr(border.top),
+    };
+  });
+  const borders = [{}, ...xlsxBorders];
   return {
     relsFiles: [],
     sharedStrings: [],
@@ -80,7 +102,7 @@ export function getDefaultXLSXStructure(): XLSXStructure {
       },
     ],
     fills: [{ reservedAttribute: "none" }, { reservedAttribute: "gray125" }],
-    borders: [{}],
+    borders,
     numFmts: [],
     dxfs: [],
   };
