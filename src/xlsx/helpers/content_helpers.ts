@@ -172,8 +172,9 @@ export function addRelsToFile(
 
 export function pushElement<T>(property: T, propertyList: T[]): number {
   let len = propertyList.length;
+  const operator = typeof property === "object" ? deepEquals : (a: T, b: T) => a === b;
   for (let i = 0; i < len; i++) {
-    if (deepEquals(property, propertyList[i])) {
+    if (operator(property, propertyList[i])) {
       return i;
     }
   }
