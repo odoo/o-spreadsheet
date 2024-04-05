@@ -208,7 +208,7 @@ export interface XLSXStyle {
 export interface ExtractedStyle {
   font: XLSXFont;
   fill: XLSXFill;
-  border: XLSXBorder;
+  border: number;
   numFmt: XLSXNumFormat | undefined;
   alignment: XLSXCellAlignment;
 }
