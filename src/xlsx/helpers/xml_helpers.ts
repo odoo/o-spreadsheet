@@ -1,4 +1,5 @@
 import { DEFAULT_FONT_SIZE } from "../../constants";
+import { ExcelWorkbookData } from "../../types";
 import {
   XLSXExportFile,
   XLSXStructure,
@@ -56,7 +57,8 @@ export function parseXML(xmlString: XMLString): XMLDocument {
   return document;
 }
 
-export function getDefaultXLSXStructure(): XLSXStructure {
+export function getDefaultXLSXStructure(data: ExcelWorkbookData): XLSXStructure {
+  const borders = [{}, ...Object.values(data.borders)];
   return {
     relsFiles: [],
     sharedStrings: [],
@@ -79,7 +81,7 @@ export function getDefaultXLSXStructure(): XLSXStructure {
       },
     ],
     fills: [{ reservedAttribute: "none" }, { reservedAttribute: "gray125" }],
-    borders: [{}],
+    borders,
     numFmts: [],
     dxfs: [],
   };
