@@ -1,7 +1,6 @@
 import { DEFAULT_FONT_SIZE } from "../../constants";
 import {
   Align,
-  Border,
   CellData,
   ConditionalFormattingOperatorValues,
   Style,
@@ -64,10 +63,6 @@ export function extractStyle(cell: CellData, data: WorkbookData): ExtractedStyle
   if (cell.style) {
     style = data.styles[cell.style];
   }
-  let border: Border = {};
-  if (cell.border) {
-    border = data.borders[cell.border];
-  }
   const styles = {
     font: {
       size: style?.fontSize || DEFAULT_FONT_SIZE,
@@ -81,7 +76,7 @@ export function extractStyle(cell: CellData, data: WorkbookData): ExtractedStyle
         }
       : { reservedAttribute: "none" },
     numFmt: cell.format,
-    border: border || {},
+    border: cell.border || 0,
     verticalAlignment: "center" as Align, // we always center vertically for now
     horizontalAlignment: style?.align,
   };
@@ -97,9 +92,9 @@ export function normalizeStyle(construct: XLSXStructure, styles: ExtractedStyle)
   // Normalize this
   const numFmtId = convertFormat(styles["numFmt"], construct.numFmts);
   const style = {
-    fontId: pushElement(styles["font"], construct.fonts),
-    fillId: pushElement(styles["fill"], construct.fills),
-    borderId: pushElement(styles["border"], construct.borders),
+    fontId: pushElement(styles.font, construct.fonts),
+    fillId: pushElement(styles.fill, construct.fills),
+    borderId: styles.border,
     numFmtId,
     verticalAlignment: styles["verticalAlignment"] as string,
     horizontalAlignment: styles["horizontalAlignment"] as string,

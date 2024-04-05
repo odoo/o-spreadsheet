@@ -103,7 +103,7 @@ export interface XLSXStyle {
 export interface ExtractedStyle {
   font: XLSXFont;
   fill: XLSXFill;
-  border: Border;
+  border: number;
   numFmt: string | undefined;
   verticalAlignment: Align;
   horizontalAlignment: Align;
