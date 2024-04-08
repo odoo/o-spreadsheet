@@ -149,13 +149,15 @@ export class Evaluator {
     this.spreadingRelations = new SpreadingRelation();
     this.formulaDependencies = lazy(() => {
       const dependencies = [...this.getAllCells()].flatMap((positionId) =>
-        this.getDirectDependencies(positionId).map((range) => ({
-          data: positionId,
-          boundingBox: {
-            zone: range.zone,
-            sheetId: range.sheetId,
-          },
-        }))
+        this.getDirectDependencies(positionId)
+          .filter((range) => !range.invalidSheetName && !range.invalidXc)
+          .map((range) => ({
+            data: positionId,
+            boundingBox: {
+              zone: range.zone,
+              sheetId: range.sheetId,
+            },
+          }))
       );
       return new FormulaDependencyGraph(this.encoder, dependencies);
     });
