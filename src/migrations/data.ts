@@ -26,7 +26,7 @@ import { normalizeV9 } from "./legacy_tools";
  * a breaking change is made in the way the state is handled, and an upgrade
  * function should be defined
  */
-export const CURRENT_VERSION = 15;
+export const CURRENT_VERSION = 16;
 const INITIAL_SHEET_ID = "Sheet1";
 
 /**
@@ -364,6 +364,22 @@ const MIGRATIONS: Migration[] = [
       for (const sheetData of data.sheets || []) {
         sheetData.tables = sheetData.tables || sheetData.filterTables || [];
         delete sheetData.filterTables;
+      }
+      return data;
+    },
+  },
+  {
+    description: "Rename image path to src",
+    from: 15,
+    to: 16,
+    applyMigration(data: any): any {
+      for (const sheet of data.sheets || []) {
+        for (const figure of sheet.figures || []) {
+          if (figure.tag === "image") {
+            figure.data.src = figure.data.path;
+            delete figure.data.path;
+          }
+        }
       }
       return data;
     },

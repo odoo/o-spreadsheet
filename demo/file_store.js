@@ -12,7 +12,9 @@ export class FileStore {
       body: fd,
     });
     if (res.ok) {
-      return await res.text();
+      return {
+        src: await res.text(),
+      };
     } else {
       throw new Error(res.statusText);
     }

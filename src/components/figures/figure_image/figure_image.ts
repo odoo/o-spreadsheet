@@ -22,7 +22,7 @@ export class ImageFigure extends Component<Props, SpreadsheetChildEnv> {
     return this.props.figure.id;
   }
 
-  get getImagePath(): string {
-    return this.env.model.getters.getImagePath(this.figureId);
+  get getImageSrc(): string {
+    return this.env.model.getters.getImageSrc(this.figureId);
   }
 }
