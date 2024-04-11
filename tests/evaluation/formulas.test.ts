@@ -13,7 +13,12 @@ function moveFormula(model: Model, formula: string, offsetX: number, offsetY: nu
   const sheetId = model.getters.getActiveSheetId();
   setCellContent(model, "A1", formula);
   const cell = getCell(model, "A1") as FormulaCell;
-  return model.getters.getTranslatedCellFormula(sheetId, offsetX, offsetY, cell.compiledFormula);
+  return model.getters.getTranslatedCellFormula(
+    sheetId,
+    offsetX,
+    offsetY,
+    cell.compiledFormula.tokens
+  );
 }
 
 describe("createAdaptedRanges", () => {

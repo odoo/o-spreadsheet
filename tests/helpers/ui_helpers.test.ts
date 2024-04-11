@@ -252,7 +252,9 @@ describe("UI Helpers", () => {
       const clipboardString = "a\t1\nb\t2";
 
       test("Can interactive paste", () => {
-        interactivePasteFromOS(env, target("D2"), clipboardString);
+        interactivePasteFromOS(env, target("D2"), {
+          "text/plain": clipboardString,
+        });
         expect(getCellContent(model, "D2")).toBe("a");
         expect(getCellContent(model, "E2")).toBe("1");
         expect(getCellContent(model, "D3")).toBe("b");
@@ -262,7 +264,9 @@ describe("UI Helpers", () => {
       test("Pasting content that will destroy a merge will notify the user", async () => {
         merge(model, "B2:C3");
         selectCell(model, "A1");
-        interactivePasteFromOS(env, model.getters.getSelectedZones(), clipboardString);
+        interactivePasteFromOS(env, model.getters.getSelectedZones(), {
+          "text/plain": clipboardString,
+        });
         expect(notifyUserTextSpy).toHaveBeenCalledWith(
           PasteInteractiveContent.willRemoveExistingMerge.toString()
         );

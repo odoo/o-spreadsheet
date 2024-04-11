@@ -29,7 +29,8 @@ export const copy: ActionSpec = {
   isReadonlyAllowed: true,
   execute: async (env) => {
     env.model.dispatch("COPY");
-    await env.clipboard.write(env.model.getters.getClipboardContent());
+    window.localStorage.setItem("clipboardId", env.model.getters.getClipboardId());
+    await env.clipboard?.write(env.model.getters.getClipboardContent());
   },
   icon: "o-spreadsheet-Icon.COPY",
 };
@@ -39,7 +40,7 @@ export const cut: ActionSpec = {
   description: "Ctrl+X",
   execute: async (env) => {
     interactiveCut(env);
-    await env.clipboard.write(env.model.getters.getClipboardContent());
+    await env.clipboard?.write(env.model.getters.getClipboardContent());
   },
   icon: "o-spreadsheet-Icon.CUT",
 };

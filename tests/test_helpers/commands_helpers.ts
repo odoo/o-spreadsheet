@@ -11,6 +11,7 @@ import {
   BorderData,
   ChartDefinition,
   ChartWithAxisDefinition,
+  ClipboardContent,
   ClipboardPasteOptions,
   CreateSheetCommand,
   CreateTableStyleCommand,
@@ -328,11 +329,11 @@ export function paste(
 export function pasteFromOSClipboard(
   model: Model,
   range: string,
-  content: string,
+  content: ClipboardContent,
   pasteOption?: ClipboardPasteOptions
 ): DispatchResult {
   return model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
-    text: content,
+    clipboardContent: content,
     target: target(range),
     pasteOption,
   });
