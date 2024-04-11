@@ -77,7 +77,7 @@ export const findAndReplace: ActionSpec = {
   execute: (env) => {
     env.openSidePanel("FindAndReplace", {});
   },
-  icon: "o-spreadsheet-Icon.FIND_AND_REPLACE",
+  icon: "o-spreadsheet-Icon.SEARCH",
 };
 
 export const deleteValues: ActionSpec = {

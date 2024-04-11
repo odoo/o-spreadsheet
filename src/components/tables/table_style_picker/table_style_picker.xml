@@ -18,7 +18,7 @@
       <div
         class="o-table-style-picker-arrow d-flex align-items-center px-1"
         t-on-click.stop="onArrowButtonClick">
-        <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
+        <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
       </div>
     </div>
     <TableStylesPopover

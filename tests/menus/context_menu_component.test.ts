@@ -651,11 +651,11 @@ describe("Context Menu internal tests", () => {
       },
     ]);
     await renderContextMenu(300, 300, { menuItems });
-    expect(fixture.querySelector(".search-icon")).not.toBeNull();
+    expect(fixture.querySelector(".fa-search")).not.toBeNull();
     visible = false;
     parent.render(true);
     await nextTick();
-    expect(fixture.querySelector(".search-icon")).toBeNull();
+    expect(fixture.querySelector(".fa-search")).toBeNull();
   });
 
   test("Menu hover callbacks are called", async () => {

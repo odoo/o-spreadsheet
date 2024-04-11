@@ -145,6 +145,6 @@ function getDeleteMenuItem(
       });
       onFigureDeleted();
     },
-    icon: "o-spreadsheet-Icon.DELETE",
+    icon: "o-spreadsheet-Icon.TRASH",
   };
 }

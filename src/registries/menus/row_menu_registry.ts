@@ -43,7 +43,7 @@ rowMenuRegistry
   .add("delete_row", {
     ...ACTION_EDIT.deleteRows,
     sequence: 70,
-    icon: "o-spreadsheet-Icon.DELETE",
+    icon: "o-spreadsheet-Icon.TRASH",
   })
   .add("clear_row", {
     ...ACTION_EDIT.clearRows,

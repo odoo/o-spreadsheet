@@ -484,22 +484,13 @@ exports[`Color Picker buttons Full component rendering 1`] = `
         class="o-hue-slider pe-none"
         style="margin-left:-8px; "
       >
-        <svg
-          class="o-icon"
-          transform="rotate(180)"
-          xmlns="http://www.w3.org/2000/svg"
+        <div
+          class="o-icon fa-small"
         >
-          <svg
-            class="o-icon"
-            viewBox="0 0 18 18"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <polygon
-              fill="currentColor"
-              points="5 7 9 11 13 7"
-            />
-          </svg>
-        </svg>
+          <i
+            class="fa fa-caret-up"
+          />
+        </div>
       </div>
     </div>
     <div

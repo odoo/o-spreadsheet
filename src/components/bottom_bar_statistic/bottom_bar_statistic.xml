@@ -7,7 +7,7 @@
         t-on-click="listSelectionStatistics">
         <t t-esc="selectedStatistic"/>
         <span class="ms-2">
-          <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
+          <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
         </span>
       </div>
     </Ripple>

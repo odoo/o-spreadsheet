@@ -61,7 +61,7 @@ colMenuRegistry
   .add("delete_column", {
     ...ACTION_EDIT.deleteCols,
     sequence: 90,
-    icon: "o-spreadsheet-Icon.DELETE",
+    icon: "o-spreadsheet-Icon.TRASH",
   })
   .add("clear_column", {
     ...ACTION_EDIT.clearCols,
