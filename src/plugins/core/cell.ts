@@ -1,7 +1,7 @@
 import { DEFAULT_STYLE } from "../../constants";
 import { Token, compile, tokenize } from "../../formulas";
 import { isEvaluationError, toString } from "../../functions/helpers";
-import { deepEquals } from "../../helpers";
+import { deepEquals, isExcelCompatible } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells";
 import {
   concat,
@@ -286,6 +286,24 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
   exportForExcel(data: ExcelWorkbookData) {
     this.export(data);
+    const incompatible: string[] = [];
+    for (const formatId in data.formats || []) {
+      if (!isExcelCompatible(data.formats[formatId])) {
+        incompatible.push(formatId);
+        delete data.formats[formatId];
+      }
+    }
+    if (incompatible.length) {
+      for (const sheet of data.sheets) {
+        for (const xc in sheet.cells) {
+          const cell = sheet.cells[xc];
+          const format = cell?.format;
+          if (format && incompatible.includes(format.toString())) {
+            delete cell.format;
+          }
+        }
+      }
+    }
   }
 
   private removeDefaultStyleValues(style: Style | undefined): Style {

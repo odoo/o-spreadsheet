@@ -324,6 +324,15 @@ describe("formatValue on number", () => {
     expect(() => formatValue(1234, { format: "[$][]#,##0.0", locale })).toThrow();
   });
 
+  test.each(["#,##0 dd", "dd #,##0", "#,##0 dd/mm/yyyy", "dd/mm/yyyy #,##0"])(
+    "mixing date and numbers",
+    (format) => {
+      expect(() => formatValue(1234, { format, locale })).toThrow(
+        `Invalid number format: ${format}`
+      );
+    }
+  );
+
   test("multiple strings in one format", () => {
     expect(formatValue(1234, { format: "[$TEST]#,##0[$TEST]", locale })).toBe("TEST1,234TEST");
     expect(formatValue(1234, { format: "#,##0[$TEST][$TEST]", locale })).toBe("1,234TESTTEST");
@@ -437,6 +446,9 @@ describe("formatValue on date and time", () => {
     "mmm-yy",
     "mmmm-yy",
     "mmmmm-yy",
+    "qq",
+    "qq yyyy",
+    "qqqq yyyy",
   ])("detect date time format %s", (format) => {
     expect(isDateTimeFormat(format)).toBe(true);
   });
@@ -786,6 +798,35 @@ describe("formatValue on date and time", () => {
       expect(
         formatValue(parseDateTime(value, locale)!.value, { format: "dddd-mm-yyyy", locale })
       ).toBe(result);
+    });
+
+    test.each([
+      ["2023/01/01", "Q1"],
+      ["2023/02/01", "Q1"],
+      ["2024/02/29", "Q1"], // Leap year
+      ["2023/03/01", "Q1"],
+      ["2023/04/01", "Q2"],
+      ["2023/05/01", "Q2"],
+      ["2023/06/01", "Q2"],
+      ["2023/07/01", "Q3"],
+      ["2023/08/01", "Q3"],
+      ["2023/09/01", "Q3"],
+      ["2023/10/01", "Q4"],
+      ["2023/11/01", "Q4"],
+      ["2023/12/01", "Q4"],
+      ["2023/12/31", "Q4"],
+    ])("quarter %s", (value, result) => {
+      expect(formatValue(parseDateTime(value, locale)!.value, { format: "qq", locale })).toBe(
+        result
+      );
+    });
+
+    test("quarter with year", () => {
+      const date = parseDateTime("2023/01/01", locale)!.value;
+      expect(formatValue(date, { format: "qq yyyy", locale })).toBe("Q1 2023");
+      expect(formatValue(date, { format: "qqqq yyyy", locale })).toBe("Quarter 1 2023");
+      expect(formatValue(date, { format: "yyyy qq", locale })).toBe("2023 Q1");
+      expect(formatValue(date, { format: "qq/yyyy", locale })).toBe("Q1/2023");
     });
 
     test.each([

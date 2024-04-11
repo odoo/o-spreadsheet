@@ -81,6 +81,10 @@ export class DateTime {
     return this.jsDate.getUTCMonth();
   }
 
+  getQuarter() {
+    return Math.floor(this.getMonth() / 3) + 1;
+  }
+
   getDate() {
     return this.jsDate.getUTCDate();
   }
