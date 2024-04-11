@@ -1,7 +1,8 @@
 <templates>
-  <t t-name="o-spreadsheet-PivotDimensions">
-    <div class="o_side_panel_section pivot-dimensions" t-ref="pivot-dimensions">
-      <div class="fw-bold py-1 d-flex flex-row justify-content-between align-items-center">
+  <t t-name="o-spreadsheet-PivotLayoutConfigurator">
+    <div class="o_side_panel_section pivot-dimensions o-section" t-ref="pivot-dimensions">
+      <div
+        class="fw-bold py-1 d-flex flex-row justify-content-between align-items-center o-section-title">
         Columns
         <AddDimensionButton
           onFieldPicked.bind="addColumnDimension"
@@ -19,13 +20,14 @@
               dimension="col"
               onUpdated.bind="this.updateGranularity"
               availableGranularities="props.unusedDateTimeGranularities[col.name]"
+              allGranularities="props.allGranularities"
             />
             <PivotDimensionOrder dimension="col" onUpdated.bind="this.updateOrder"/>
           </PivotDimension>
         </div>
       </t>
       <div
-        class="fw-bold pt-4 pb-1 d-flex flex-row justify-content-between align-items-center"
+        class="fw-bold pt-4 pb-1 d-flex flex-row justify-content-between align-items-center o-section-title"
         t-att-style="dragAndDrop.itemsStyle['__rows_title__']">
         Rows
         <AddDimensionButton
@@ -44,12 +46,14 @@
               dimension="row"
               onUpdated.bind="this.updateGranularity"
               availableGranularities="props.unusedDateTimeGranularities[row.name]"
+              allGranularities="props.allGranularities"
             />
             <PivotDimensionOrder dimension="row" onUpdated.bind="this.updateOrder"/>
           </PivotDimension>
         </div>
       </t>
-      <div class="fw-bold pt-4 pb-1 d-flex flex-row justify-content-between align-items-center">
+      <div
+        class="fw-bold pt-4 pb-1 d-flex flex-row justify-content-between align-items-center o-section-title">
         Measures
         <AddDimensionButton
           onFieldPicked.bind="addMeasureDimension"

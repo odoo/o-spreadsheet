@@ -1,6 +1,7 @@
 // Don't remove unused import
 // organize-imports-ignore
 import { demoData, makeLargeDataset } from "./data.js";
+import { makePivotDataset } from "./pivot.js";
 import { currenciesData } from "./currencies.js";
 import { WebsocketTransport } from "./transport.js";
 import { FileStore } from "./file_store.js";
@@ -257,6 +258,7 @@ class Demo extends Component {
       this.stateUpdateMessages = [];
     }
     this.createModel(data || demoData);
+    // this.createModel(makePivotDataset(10_000));
     // this.createModel(makeLargeDataset(26, 10_000, ["numbers"]));
     // this.createModel({});
   }

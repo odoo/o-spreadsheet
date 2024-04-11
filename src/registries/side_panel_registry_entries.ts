@@ -5,6 +5,7 @@ import { DataValidationPanel } from "../components/side_panel/data_validation/da
 import { DataValidationEditor } from "../components/side_panel/data_validation/dv_editor/dv_editor";
 import { FindAndReplacePanel } from "../components/side_panel/find_and_replace/find_and_replace";
 import { MoreFormatsPanel } from "../components/side_panel/more_formats/more_formats";
+import { PivotSidePanel } from "../components/side_panel/pivot/pivot_side_panel/pivot_side_panel";
 import { RemoveDuplicatesPanel } from "../components/side_panel/remove_duplicates/remove_duplicates";
 import { SettingsPanel } from "../components/side_panel/settings/settings_panel";
 import { SplitIntoColumnsPanel } from "../components/side_panel/split_to_columns_panel/split_to_columns_panel";
@@ -15,7 +16,7 @@ import {
 } from "../components/side_panel/table_style_editor_panel/table_style_editor_panel";
 import { getTableTopLeft } from "../helpers/table_helpers";
 import { _t } from "../translation";
-import { Getters, UID } from "../types";
+import { Getters, SpreadsheetChildEnv, UID } from "../types";
 import { sidePanelRegistry } from "./side_panel_registry";
 
 //------------------------------------------------------------------------------
@@ -102,5 +103,25 @@ sidePanelRegistry.add("TableStyleEditorPanel", {
       props: { ...initialProps },
       key: initialProps.styleId ?? "new",
     };
+  },
+});
+
+sidePanelRegistry.add("PivotSidePanel", {
+  title: (env: SpreadsheetChildEnv, props: { pivotId: UID | undefined }) => {
+    if (props.pivotId) {
+      return _t("Pivot #%s", env.model.getters.getPivotFormulaId(props.pivotId));
+    }
+    return _t("List of Pivots");
+  },
+  Body: PivotSidePanel,
+  computeState: (getters: Getters, initialProps: { pivotId: UID | undefined }) => {
+    if (!getters.getPivotIds().length) {
+      return { isOpen: false };
+    }
+    let { pivotId } = initialProps;
+    if (pivotId && !getters.isExistingPivot(pivotId)) {
+      pivotId = undefined;
+    }
+    return { isOpen: true, props: { pivotId }, key: `pivot_key_${pivotId}` };
   },
 });

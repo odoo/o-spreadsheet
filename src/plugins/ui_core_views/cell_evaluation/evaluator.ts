@@ -4,6 +4,7 @@ import { matrixMap } from "../../../functions/helpers";
 import { lazy, positionToZone, toXC, union, unionPositionsToZone } from "../../../helpers";
 import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells";
 import { ModelConfig } from "../../../model";
+import { onIterationEndEvaluationRegistry } from "../../../registries/evaluation_registry";
 import { _t } from "../../../translation";
 import {
   CellPosition,
@@ -253,6 +254,7 @@ export class Evaluator {
           this.evaluatedCells.set(position, evaluatedCell);
         }
       }
+      onIterationEndEvaluationRegistry.getAll().forEach((callback) => callback(this.getters));
     }
   }
 

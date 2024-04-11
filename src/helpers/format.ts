@@ -63,7 +63,7 @@ type InternalFormat = (
 
 // TODO in the future : remove these constants MONTHS/DAYS, and use a library such as luxon to handle it
 // + possibly handle automatic translation of day/month
-const MONTHS: Readonly<Record<number, string>> = {
+export const MONTHS: Readonly<Record<number, string>> = {
   0: _t("January"),
   1: _t("February"),
   2: _t("March"),

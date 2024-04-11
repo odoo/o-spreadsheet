@@ -402,6 +402,19 @@ export const CREATE_CHART = (env: SpreadsheetChildEnv) => {
 };
 
 //------------------------------------------------------------------------------
+// Pivots
+//------------------------------------------------------------------------------
+
+export const CREATE_PIVOT = (env: SpreadsheetChildEnv) => {
+  const pivotId = env.model.uuidGenerator.uuidv4();
+  const newSheetId = env.model.uuidGenerator.uuidv4();
+  const result = env.model.dispatch("INSERT_NEW_PIVOT", { pivotId, newSheetId });
+  if (result.isSuccessful) {
+    env.openSidePanel("PivotSidePanel", { pivotId });
+  }
+};
+
+//------------------------------------------------------------------------------
 // Image
 //------------------------------------------------------------------------------
 async function requestImage(env: SpreadsheetChildEnv): Promise<Image | undefined> {

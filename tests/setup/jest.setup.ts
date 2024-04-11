@@ -7,6 +7,7 @@ import { setTranslationMethod } from "../../src/translation";
 import { getCompiledTemplates } from "../../tools/owl_templates/compile_templates.cjs";
 import "./canvas.mock";
 import "./jest_extend";
+import "./polyfill";
 import "./resize_observer.mock";
 
 function registerOwlTemplates() {

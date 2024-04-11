@@ -1232,3 +1232,13 @@ export function removeDataValidation(
 ) {
   return model.dispatch("REMOVE_DATA_VALIDATION_RULE", { sheetId, id });
 }
+
+export function insertPivot(
+  model: Model,
+  xc: string,
+  pivotId: UID = "1",
+  newSheetId: UID = "newSheet1"
+) {
+  setSelection(model, [xc]);
+  return model.dispatch("INSERT_NEW_PIVOT", { pivotId, newSheetId });
+}

@@ -1,7 +1,8 @@
+import { toZone, zoneToXc } from "../helpers";
 import { _t } from "../translation";
-import { AddFunctionDescription, Arg, EvalContext, FPayload, Getters, UID } from "../types";
-import { EvaluationError } from "../types/errors";
-import { SPTableCell } from "../types/pivot";
+import { CellPosition, EvalContext, Getters, UID } from "../types";
+import { EvaluationError, InvalidReferenceError } from "../types/errors";
+import { PivotCoreDefinition } from "../types/pivot";
 
 /**
  * Get the pivot ID from the formula pivot ID.
@@ -34,18 +35,36 @@ export function assertDomainLength(domain: string[]) {
   }
 }
 
-export function getPivotCellValueAndFormat(
-  this: EvalContext,
-  pivotId: UID,
-  pivotCell: SPTableCell,
-  fn: AddFunctionDescription
-): FPayload {
-  if (!pivotCell.domain) {
-    return { value: "", format: undefined };
-  } else {
-    const domain = pivotCell.domain;
-    const measure = pivotCell.measure;
-    const args = pivotCell.isHeader ? [pivotId, ...domain] : [pivotId, measure, ...domain];
-    return fn.compute.call(this, ...(args as Arg[])) as FPayload;
+export function addPivotDependencies(
+  evalContext: EvalContext,
+  coreDefinition: PivotCoreDefinition
+) {
+  //TODO This function can be very costly when used with PIVOT.VALUE and PIVOT.HEADER
+  if (coreDefinition.type !== "SPREADSHEET" || !coreDefinition.dataSet) {
+    return;
+  }
+  const { sheetId, zone } = coreDefinition.dataSet;
+  let originPosition: CellPosition | undefined;
+  const originSheetId = evalContext.__originSheetId;
+  const originCellXC = evalContext.__originCellXC?.();
+  if (originCellXC) {
+    const cellZone = toZone(originCellXC);
+    originPosition = {
+      sheetId: originSheetId,
+      col: cellZone.left,
+      row: cellZone.top,
+    };
+    // The following line is used to reset the dependencies of the cell, to avoid
+    // keeping dependencies from previous evaluation of the PIVOT formula (i.e.
+    // in case the reference has been changed).
+    evalContext.updateDependencies?.(originPosition);
+  }
+  const xc = zoneToXc(zone);
+  const range = evalContext.getters.getRangeFromSheetXC(sheetId, xc);
+  if (range === undefined || range.invalidXc || range.invalidSheetName) {
+    throw new InvalidReferenceError();
+  }
+  if (originPosition) {
+    evalContext.addDependencies?.(originPosition, [range]);
   }
 }

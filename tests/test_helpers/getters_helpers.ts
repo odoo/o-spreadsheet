@@ -1,4 +1,4 @@
-import { toCartesian, toXC } from "../../src/helpers/index";
+import { toCartesian, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui_stateful";
 import {
@@ -70,6 +70,26 @@ export function getCellContent(
 ): string {
   const { col, row } = toCartesian(xc);
   return model.getters.getCellText({ sheetId, col, row }, model.getters.shouldShowFormulas());
+}
+
+/**
+ * Get the string representation of the content of a range of cells
+ */
+export function getEvaluatedGrid(
+  model: Model,
+  range: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  const zone = toZone(range);
+  const content: string[][] = [];
+  for (let row = zone.top; row <= zone.bottom; row++) {
+    const rowContent: string[] = [];
+    for (let col = zone.left; col <= zone.right; col++) {
+      rowContent.push(getCellContent(model, toXC(col, row), sheetId));
+    }
+    content.push(rowContent);
+  }
+  return content;
 }
 
 /**

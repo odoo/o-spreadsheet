@@ -24,10 +24,11 @@ interface Props {
   unusedGroupableFields: PivotField[];
   unusedMeasureFields: PivotField[];
   unusedDateTimeGranularities: Record<string, Set<string>>;
+  allGranularities: string[];
 }
 
-export class PivotDimensions extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-PivotDimensions";
+export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEnv> {
+  static template = "o-spreadsheet-PivotLayoutConfigurator";
   static components = {
     AddDimensionButton,
     PivotDimension,
@@ -40,6 +41,7 @@ export class PivotDimensions extends Component<Props, SpreadsheetChildEnv> {
     unusedGroupableFields: Array,
     unusedMeasureFields: Array,
     unusedDateTimeGranularities: Object,
+    allGranularities: Array,
   };
 
   private dimensionsRef = useRef("pivot-dimensions");
@@ -48,7 +50,7 @@ export class PivotDimensions extends Component<Props, SpreadsheetChildEnv> {
   isDateField = isDateField;
 
   startDragAndDrop(dimension: PivotDimensionType, event: MouseEvent) {
-    if (event.button !== 0) {
+    if (event.button !== 0 || (event.target as HTMLElement).tagName === "SELECT") {
       return;
     }
 
@@ -90,7 +92,7 @@ export class PivotDimensions extends Component<Props, SpreadsheetChildEnv> {
   }
 
   startDragAndDropMeasures(measure: PivotMeasure, event: MouseEvent) {
-    if (event.button !== 0) {
+    if (event.button !== 0 || (event.target as HTMLElement).tagName === "SELECT") {
       return;
     }
 
@@ -158,14 +160,14 @@ export class PivotDimensions extends Component<Props, SpreadsheetChildEnv> {
   addColumnDimension(fieldName: string) {
     const { columns }: { columns: PivotCoreDimension[] } = this.props.definition;
     this.props.onDimensionsUpdated({
-      columns: columns.concat([{ name: fieldName }]),
+      columns: columns.concat([{ name: fieldName, order: "asc" }]),
     });
   }
 
   addRowDimension(fieldName: string) {
     const { rows }: { rows: PivotCoreDimension[] } = this.props.definition;
     this.props.onDimensionsUpdated({
-      rows: rows.concat([{ name: fieldName }]),
+      rows: rows.concat([{ name: fieldName, order: "asc" }]),
     });
   }
 

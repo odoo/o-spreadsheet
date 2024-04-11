@@ -14,6 +14,16 @@ css/* scss */ `
     background-color: white;
     border: 1px solid darkgray;
     user-select: none;
+
+    .btn-link {
+      text-decoration: none;
+      color: #017e84;
+      font-weight: 500;
+      &:hover {
+        color: #01585c;
+      }
+    }
+
     .o-sidePanelHeader {
       padding: 6px;
       height: 30px;

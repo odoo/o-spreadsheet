@@ -11,6 +11,7 @@ import { otRegistry } from "../../registries";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,
+  AddPivotCommand,
   CreateChartCommand,
   CreateSheetCommand,
   CreateTableCommand,
@@ -91,10 +92,55 @@ otRegistry.addTransformation(
 otRegistry.addTransformation(
   "REMOVE_PIVOT",
   ["RENAME_PIVOT", "DUPLICATE_PIVOT", "INSERT_PIVOT", "UPDATE_PIVOT"],
-  pivotTransformation
+  pivotRemovedTransformation
 );
 
-function pivotTransformation(
+otRegistry.addTransformation(
+  "DELETE_SHEET",
+  ["ADD_PIVOT", "UPDATE_PIVOT"],
+  pivotDeletedSheetTransformation
+);
+
+otRegistry.addTransformation(
+  "ADD_COLUMNS_ROWS",
+  ["ADD_PIVOT", "UPDATE_PIVOT"],
+  pivotZoneTransformation
+);
+otRegistry.addTransformation(
+  "REMOVE_COLUMNS_ROWS",
+  ["ADD_PIVOT", "UPDATE_PIVOT"],
+  pivotZoneTransformation
+);
+
+function pivotZoneTransformation(
+  toTransform: AddPivotCommand | UpdatePivotCommand,
+  executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
+): AddPivotCommand | UpdatePivotCommand | undefined {
+  if (toTransform.pivot.type !== "SPREADSHEET") {
+    return toTransform;
+  }
+  if (toTransform.pivot.dataSet?.sheetId !== executed.sheetId) {
+    return toTransform;
+  }
+  const newZone = transformZone(toTransform.pivot.dataSet.zone, executed);
+  const dataSet = newZone ? { ...toTransform.pivot.dataSet, zone: newZone } : undefined;
+  return { ...toTransform, pivot: { ...toTransform.pivot, dataSet } };
+}
+
+function pivotDeletedSheetTransformation(
+  toTransform: AddPivotCommand | UpdatePivotCommand,
+  executed: DeleteSheetCommand
+): AddPivotCommand | UpdatePivotCommand | undefined {
+  if (toTransform.pivot.type !== "SPREADSHEET") {
+    return toTransform;
+  }
+  if (toTransform.pivot.dataSet?.sheetId === executed.sheetId) {
+    return { ...toTransform, pivot: { ...toTransform.pivot, dataSet: undefined } };
+  }
+  return toTransform;
+}
+
+function pivotRemovedTransformation(
   toTransform: RenamePivotCommand | DuplicatePivotCommand | InsertPivotCommand | UpdatePivotCommand,
   executed: RemovePivotCommand
 ) {

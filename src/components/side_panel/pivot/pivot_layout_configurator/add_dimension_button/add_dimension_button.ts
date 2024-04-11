@@ -28,13 +28,6 @@ css/* scss */ `
   .pivot-dimension-search {
     background-color: white;
   }
-  .pivot-dimension-field {
-    background-color: white;
-
-    &:hover {
-      background-color: #f0f0f0;
-    }
-  }
 `;
 
 export class AddDimensionButton extends Component<Props, SpreadsheetChildEnv> {
@@ -98,8 +91,9 @@ export class AddDimensionButton extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get popoverProps() {
+    const { x, y, width, height } = this.buttonRef.el!.getBoundingClientRect();
     return {
-      anchorRect: this.buttonRef.el!.getBoundingClientRect(),
+      anchorRect: { x, y, width, height },
       positioning: "BottomLeft",
     };
   }

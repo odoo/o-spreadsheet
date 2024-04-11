@@ -57,9 +57,7 @@ interface WorkbookSettings {
   locale: Locale;
 }
 
-interface PivotData extends PivotCoreDefinition {
-  formulaId: string;
-}
+type PivotData = { formulaId: string } & PivotCoreDefinition;
 
 export interface WorkbookData {
   version: number;

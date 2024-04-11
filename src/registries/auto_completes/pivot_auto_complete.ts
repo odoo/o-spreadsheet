@@ -55,7 +55,7 @@ autoCompleteProviders.add("pivot_measures", {
     }
     const pivotFormulaId = extractFormulaIdFromToken(tokenAtCursor);
     const pivotId = this.getters.getPivotId(pivotFormulaId);
-    if (!this.getters.isExistingPivot(pivotId)) {
+    if (!pivotId || !this.getters.isExistingPivot(pivotId)) {
       return [];
     }
     const dataSource = this.getters.getPivot(pivotId);
@@ -99,7 +99,7 @@ autoCompleteProviders.add("pivot_group_fields", {
     }
     const pivotFormulaId = extractFormulaIdFromToken(tokenAtCursor);
     const pivotId = this.getters.getPivotId(pivotFormulaId);
-    if (!this.getters.isExistingPivot(pivotId)) {
+    if (!pivotId || !this.getters.isExistingPivot(pivotId)) {
       return;
     }
     const dataSource = this.getters.getPivot(pivotId);
@@ -197,11 +197,11 @@ autoCompleteProviders.add("pivot_group_values", {
     }
     const pivotFormulaId = extractFormulaIdFromToken(tokenAtCursor);
     const pivotId = this.getters.getPivotId(pivotFormulaId);
-    if (!this.getters.isExistingPivot(pivotId)) {
+    if (!pivotId || !this.getters.isExistingPivot(pivotId)) {
       return;
     }
     const dataSource = this.getters.getPivot(pivotId);
-    if (!dataSource.isLoadedAndValid()) {
+    if (!dataSource.isValid()) {
       return;
     }
     const argPosition = functionContext.argPosition;

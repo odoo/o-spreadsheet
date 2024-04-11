@@ -1,0 +1,10 @@
+<templates>
+  <t t-name="o-spreadsheet-PivotListItem">
+    <div
+      class="o_pivot_list_item p-4 border-bottom"
+      t-ref="pivotListItem"
+      t-on-click="this.selectPivot">
+      <span t-esc="env.model.getters.getPivotDisplayName(props.pivotId)"/>
+    </div>
+  </t>
+</templates>

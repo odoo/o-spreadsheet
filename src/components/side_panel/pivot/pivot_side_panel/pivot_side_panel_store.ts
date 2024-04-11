@@ -1,23 +1,32 @@
-import { deepCopy, deepEquals } from "../helpers";
-import { MEASURES_TYPES } from "../helpers/pivot/pivot_helpers";
-import { pivotRegistry } from "../helpers/pivot/pivot_registry";
-import { Get } from "../store_engine";
-import { _t } from "../translation";
-import { UID } from "../types";
+import { deepCopy, deepEquals } from "../../../../helpers";
+import { isDateField } from "../../../../helpers/pivot/pivot_helpers";
+import { pivotRegistry } from "../../../../helpers/pivot/pivot_registry";
+import { Get } from "../../../../store_engine";
+import { SpreadsheetStore } from "../../../../stores/spreadsheet_store";
+import { _t } from "../../../../translation";
+import { Command, UID } from "../../../../types";
 import {
   PivotCoreDefinition,
   PivotDimension,
   PivotField,
   PivotFields,
   PivotMeasure,
-} from "../types/pivot";
-import { SpreadsheetStore } from "./spreadsheet_store";
+} from "../../../../types/pivot";
 
 export class PivotSidePanelStore extends SpreadsheetStore {
   private updatesAreDeferred: boolean = true;
   private draft: PivotCoreDefinition | null = null;
   constructor(get: Get, private pivotId: UID) {
     super(get);
+  }
+
+  handle(cmd: Command) {
+    switch (cmd.type) {
+      case "UPDATE_PIVOT":
+        if (cmd.pivotId === this.pivotId) {
+          this.getters.getPivot(this.pivotId).init();
+        }
+    }
   }
 
   get fields() {
@@ -33,9 +42,10 @@ export class PivotSidePanelStore extends SpreadsheetStore {
   }
 
   get definition() {
-    const type = this.getters.getPivotCoreDefinition(this.pivotId).type;
-    const cls = pivotRegistry.get(type).definition;
-    return this.draft ? new cls(this.draft, this.fields) : this.pivot.definition;
+    const Definition = pivotRegistry.get(this.pivot.type).definition;
+    return this.draft
+      ? new Definition(this.draft, this.fields, this.getters)
+      : this.pivot.definition;
   }
 
   get isDirty() {
@@ -57,11 +67,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
       if (!field) {
         continue;
       }
-      if (
-        ((MEASURES_TYPES.includes(field.type) && field.aggregator) || field.type === "many2one") &&
-        field.name !== "id" &&
-        field.store
-      ) {
+      if (pivotRegistry.get(this.pivot.type).isMeasureCandidate(field)) {
         measureFields.push(field);
       }
     }
@@ -83,7 +89,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
       if (!field) {
         continue;
       }
-      if (field.groupable) {
+      if (pivotRegistry.get(this.pivot.type).isGroupable(field)) {
         groupableFields.push(field);
       }
     }
@@ -95,7 +101,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
     const unusedDateTimeGranularities = this.unusedDateTimeGranularities;
     return groupableFields
       .filter((field) => {
-        if (field.type === "date" || field.type === "datetime") {
+        if (isDateField(field)) {
           return (
             !currentlyUsed.includes(field.name) || unusedDateTimeGranularities[field.name].size > 0
           );
@@ -103,6 +109,10 @@ export class PivotSidePanelStore extends SpreadsheetStore {
         return !currentlyUsed.includes(field.name);
       })
       .sort((a, b) => a.string.localeCompare(b.string));
+  }
+
+  get allGranularities() {
+    return pivotRegistry.get(this.pivot.type).granularities;
   }
 
   get unusedDateTimeGranularities() {
@@ -137,6 +147,17 @@ export class PivotSidePanelStore extends SpreadsheetStore {
 
   discardPendingUpdate() {
     this.draft = null;
+  }
+
+  renamePivot(name: string) {
+    const pivot = this.getters.getPivotCoreDefinition(this.pivotId);
+    this.model.dispatch("UPDATE_PIVOT", {
+      pivotId: this.pivotId,
+      pivot: {
+        ...pivot,
+        name,
+      },
+    });
   }
 
   update(definitionUpdate: Partial<PivotCoreDefinition>) {
@@ -203,7 +224,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
       const fieldType = fields[dimension.name]?.type;
       return fieldType === "date" || fieldType === "datetime";
     });
-    const granularities = ["year", "quarter", "month", "week", "day"];
+    const granularities = this.allGranularities;
     const granularitiesPerFields = {};
     for (const field of dateFields) {
       granularitiesPerFields[field.name] = new Set(granularities);
