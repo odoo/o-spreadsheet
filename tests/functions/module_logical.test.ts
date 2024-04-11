@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { setCellContent, setCellFormat } from "../test_helpers/commands_helpers";
+import { deleteRows, setCellContent, setCellFormat } from "../test_helpers/commands_helpers";
 import { getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { evaluateCell, evaluateCellFormat } from "../test_helpers/helpers";
 
@@ -126,9 +126,48 @@ describe("IFERROR formula", () => {
     expect(evaluateCell("A1", { A1: "=IFERROR(3% , 42)" })).toBe(0.03);
   });
 
-  test("functional tests on simple arguments with errors", () => {
-    expect(evaluateCell("A1", { A1: "=IFERROR(FALSE, 42/0)" })).toBe(false);
-    expect(evaluateCell("A1", { A1: "=IFERROR(42/0, FALSE)" })).toBe(false);
+  test("functional test with division by 0", () => {
+    expect(evaluateCell("A1", { A1: "=IFERROR(24/0, 42)" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=IFERROR(SUM(24/0), 42)" })).toBe(42);
+  });
+
+  test("functional test with invalid sheet name", () => {
+    expect(evaluateCell("A1", { A1: "=IFERROR(Sheet42!A1, 42)" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=IFERROR(SUM(Sheet42!A1), 42)" })).toBe(42);
+  });
+
+  test("functional test with invalid reference", () => {
+    const model = new Model();
+    setCellContent(model, "B2", "=IFERROR(A1, 42)");
+    setCellContent(model, "C2", "=IFERROR(SUM(A1), 42)");
+    deleteRows(model, [0]);
+    expect(getEvaluatedCell(model, "B1").value).toBe(42);
+    expect(getEvaluatedCell(model, "C1").value).toBe(42);
+  });
+
+  // to solve in a next commit in which remove error caching during evaluation
+  test.skip("functional tests with bad expression", () => {
+    expect(evaluateCell("A1", { A1: "=IFERROR(PI(1), 42)" })).toBe(42);
+  });
+
+  test("functional tests with evaluation error", () => {
+    expect(evaluateCell("A1", { A1: '=IFERROR(COS("I_AM_NOT_A_NUMBER"), 42)' })).toBe(42);
+  });
+
+  // to solve in a next commit in which remove error caching during evaluation
+  test.skip("functional tests with unknown function", () => {
+    expect(evaluateCell("A1", { A1: '=IFERROR(COSMOPOLITAN("I LOVE COCKTAIL"), 42)' })).toBe(42);
+  });
+
+  test("functional tests with not available error", () => {
+    expect(evaluateCell("A1", { A1: '=IFERROR(FILTER("test",false), 42)' })).toBe(42);
+  });
+
+  test("functional tests with circular dependency error", () => {
+    // Don't know what we want as result here
+    expect(evaluateCell("A1", { A1: "=IFERROR(A1, 42)" })).toBe(42);
+    // Don't know what we want as result here
+    expect(evaluateCell("A1", { A1: "=IFERROR(COS(A1), 42)" })).toBe(42);
   });
 
   test("functional tests on cell arguments", () => {

@@ -59,8 +59,7 @@ class CompilationParametersBuilder {
   }
 
   /**
-   * Return the values of the cell(s) used in reference, but always in the format of a range even
-   * if a single cell is referenced. It is a list of col values.
+   * Return the values of the cell(s) used in reference. It is a list of col values.
    *
    * Note that each col is possibly sparse: it only contain the values of cells
    * that are actually present in the grid.
@@ -71,7 +70,13 @@ class CompilationParametersBuilder {
    *        The `compute` of the formula's function must process it completely
    */
   private range(range: Range, isMeta: boolean): Matrix<FPayload> {
-    this.assertRangeValid(range);
+    if (!isZoneValid(range.zone)) {
+      return [[new InvalidReferenceError()]];
+    }
+    if (range.invalidSheetName) {
+      return [[new EvaluationError(_t("Invalid sheet name: %s", range.invalidSheetName))]];
+    }
+
     if (isMeta) {
       // Use zoneToXc of zone instead of getRangeString to avoid sending unbounded ranges
       const sheetName = this.getters.getSheetName(range.sheetId);
@@ -109,14 +114,5 @@ class CompilationParametersBuilder {
 
     this.rangeCache[cacheKey] = matrix;
     return matrix;
-  }
-
-  private assertRangeValid(range: Range): void {
-    if (!isZoneValid(range.zone)) {
-      throw new InvalidReferenceError();
-    }
-    if (range.invalidSheetName) {
-      throw new EvaluationError(_t("Invalid sheet name: %s", range.invalidSheetName));
-    }
   }
 }

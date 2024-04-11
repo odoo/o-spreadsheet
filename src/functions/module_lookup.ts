@@ -113,6 +113,9 @@ export const COLUMN = {
   ],
   returns: ["NUMBER"],
   compute: function (cellReference: Maybe<{ value: string }>): number {
+    if (isEvaluationError(cellReference?.value)) {
+      throw cellReference;
+    }
     const _cellReference =
       cellReference === undefined ? this.__originCellXC?.() : cellReference.value;
     assert(
@@ -134,6 +137,9 @@ export const COLUMNS = {
   args: [arg("range (meta)", _t("The range whose column count will be returned."))],
   returns: ["NUMBER"],
   compute: function (range: { value: string }): number {
+    if (isEvaluationError(range?.value)) {
+      throw range;
+    }
     const zone = toZone(range.value);
     return zone.right - zone.left + 1;
   },
@@ -476,6 +482,9 @@ export const ROW = {
   ],
   returns: ["NUMBER"],
   compute: function (cellReference: Maybe<{ value: string }>): number {
+    if (isEvaluationError(cellReference?.value)) {
+      throw cellReference;
+    }
     const _cellReference =
       cellReference === undefined ? this.__originCellXC?.() : cellReference.value;
     assert(
@@ -497,6 +506,9 @@ export const ROWS = {
   args: [arg("range (meta)", _t("The range whose row count will be returned."))],
   returns: ["NUMBER"],
   compute: function (range: { value: string }): number {
+    if (isEvaluationError(range?.value)) {
+      throw range;
+    }
     const zone = toZone(range.value);
     return zone.bottom - zone.top + 1;
   },

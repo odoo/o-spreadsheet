@@ -14,7 +14,7 @@ import {
 describe("ABS formula", () => {
   test("take 1 argument", () => {
     expect(evaluateCell("A1", { A1: "=ABS()" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
-    expect(evaluateCell("A1", { A1: "=?ABS(-42)" })).toBe(42);
+    expect(evaluateCell("A1", { A1: "=ABS(-42)" })).toBe(42);
     expect(evaluateCell("A1", { A1: "=ABS(-42, 24)" })).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
   });
 
