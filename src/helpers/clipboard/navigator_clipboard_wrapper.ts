@@ -1,16 +1,24 @@
 import { ClipboardContent, ClipboardMIMEType } from "./../../types/clipboard";
 
 export type ClipboardReadResult =
-  | { status: "ok"; content: string }
+  | { status: "ok"; content: ClipboardContent }
   | { status: "permissionDenied" | "notImplemented" };
 
 export interface ClipboardInterface {
   write(clipboardContent: ClipboardContent): Promise<void>;
   writeText(text: string): Promise<void>;
-  readText(): Promise<ClipboardReadResult>;
+  read(): Promise<ClipboardReadResult>;
 }
 
-export function instantiateClipboard(): ClipboardInterface {
+export function instantiateClipboard(): ClipboardInterface | undefined {
+  if (!navigator.clipboard?.write) {
+    /** If browser's navigator.clipboard is not defined or if the write
+     * method is not supported in the browser's navigator.clipboard, we
+     * do not instantiate the env clipboard to be able to later check in
+     * the grid if we can copy/paste with it.
+     */
+    return undefined;
+  }
   return new WebClipboardWrapper(navigator.clipboard);
 }
 
@@ -30,14 +38,22 @@ class WebClipboardWrapper implements ClipboardInterface {
     } catch (e) {}
   }
 
-  async readText(): Promise<ClipboardReadResult> {
+  async read(): Promise<ClipboardReadResult> {
     let permissionResult: PermissionStatus | undefined = undefined;
     try {
       //@ts-ignore - clipboard-read is not implemented in all browsers
       permissionResult = await navigator.permissions.query({ name: "clipboard-read" });
     } catch (e) {}
     try {
-      const clipboardContent = await this.clipboard!.readText();
+      const clipboardItems = await this.clipboard!.read();
+      const clipboardContent: ClipboardContent = {};
+      for (const item of clipboardItems) {
+        for (const type of item.types) {
+          const blob = await item.getType(type);
+          const text = await blob.text();
+          clipboardContent[type as ClipboardMIMEType] = text;
+        }
+      }
       return { status: "ok", content: clipboardContent };
     } catch (e) {
       const status = permissionResult?.state === "denied" ? "permissionDenied" : "notImplemented";
@@ -50,6 +66,7 @@ class WebClipboardWrapper implements ClipboardInterface {
       new ClipboardItem({
         [ClipboardMIMEType.PlainText]: this.getBlob(content, ClipboardMIMEType.PlainText),
         [ClipboardMIMEType.Html]: this.getBlob(content, ClipboardMIMEType.Html),
+        [ClipboardMIMEType.OSpreadsheet]: this.getBlob(content, ClipboardMIMEType.OSpreadsheet),
       }),
     ];
   }

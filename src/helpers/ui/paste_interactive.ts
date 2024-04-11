@@ -1,6 +1,7 @@
-import { CommandResult, DispatchResult } from "../..";
+import { ClipboardContent, CommandResult, DispatchResult } from "../..";
+import { CURRENT_VERSION } from "../../migrations/data";
 import { _t } from "../../translation";
-import { ClipboardPasteOptions, SpreadsheetChildEnv, Zone } from "../../types";
+import { ClipboardMIMEType, ClipboardPasteOptions, SpreadsheetChildEnv, Zone } from "../../types";
 
 export const PasteInteractiveContent = {
   wrongPasteSelection: _t("This operation is not allowed with multiple selections."),
@@ -37,9 +38,34 @@ export function interactivePaste(
 export function interactivePasteFromOS(
   env: SpreadsheetChildEnv,
   target: Zone[],
-  text: string,
+  clipboardContent: ClipboardContent,
   pasteOption?: ClipboardPasteOptions
 ) {
-  const result = env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", { target, text, pasteOption });
+  let result: DispatchResult;
+  try {
+    result = env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
+      target,
+      clipboardContent,
+      pasteOption,
+    });
+  } catch (error) {
+    const parsedSpreadsheetContent = clipboardContent[ClipboardMIMEType.OSpreadsheet]
+      ? JSON.parse(clipboardContent[ClipboardMIMEType.OSpreadsheet])
+      : {};
+    if (parsedSpreadsheetContent.version !== CURRENT_VERSION) {
+      env.raiseError(
+        _t(
+          "An unexpected error occurred while pasting content. This is probably due to a version mismatch."
+        )
+      );
+    }
+    result = env.model.dispatch("PASTE_FROM_OS_CLIPBOARD", {
+      target,
+      clipboardContent: {
+        [ClipboardMIMEType.PlainText]: clipboardContent[ClipboardMIMEType.PlainText],
+      },
+      pasteOption,
+    });
+  }
   handlePasteResult(env, result);
 }

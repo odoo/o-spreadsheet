@@ -103,7 +103,7 @@ autofillModifiersRegistry
         return { cellData: {} };
       }
       const sheetId = data.sheetId;
-      const content = getters.getTranslatedCellFormula(sheetId, x, y, cell.compiledFormula);
+      const content = getters.getTranslatedCellFormula(sheetId, x, y, cell.compiledFormula.tokens);
       return {
         cellData: {
           border: data.border,

@@ -159,7 +159,8 @@ interface SpreadsheetChildEnvWithStores extends SpreadsheetChildEnv {
 }
 
 export function makeTestEnv(
-  mockEnv: Partial<SpreadsheetChildEnvWithStores> = {}
+  mockEnv: Partial<SpreadsheetChildEnvWithStores> = {},
+  forceUndefinedClipboard: boolean = false
 ): SpreadsheetChildEnvWithStores {
   const model = mockEnv.model || new Model();
   if (mockEnv.__spreadsheet_stores__) {
@@ -182,7 +183,8 @@ export function makeTestEnv(
     isDashboard: mockEnv.isDashboard || (() => false),
     openSidePanel: mockEnv.openSidePanel || sidePanelStore.open.bind(sidePanelStore),
     toggleSidePanel: mockEnv.toggleSidePanel || sidePanelStore.toggle.bind(sidePanelStore),
-    clipboard: mockEnv.clipboard || new MockClipboard(),
+    clipboard:
+      forceUndefinedClipboard && !mockEnv.clipboard ? mockEnv.clipboard : new MockClipboard(),
     //FIXME : image provider is not built on top of the file store of the model if provided
     // and imageProvider is defined even when there is no file store on the model
     imageProvider: new ImageProvider(new FileStore()),
@@ -233,6 +235,7 @@ interface MountComponentArgs<Props extends ComponentProps> {
   model?: Model;
   fixture?: HTMLElement;
   renderOnModelUpdate?: boolean; // true by default
+  forceUndefinedClipboard?: boolean; // false by default
 }
 
 interface MountComponentReturn<Props extends ComponentProps> {
@@ -260,7 +263,10 @@ export async function mountComponent<Props extends { [key: string]: any }>(
 ): Promise<MountComponentReturn<Props>> {
   const model = optionalArgs.model || optionalArgs?.env?.model || new Model();
   model.drawLayer = () => {};
-  const env = makeTestEnv({ ...optionalArgs.env, model: model });
+  const env = makeTestEnv(
+    { ...optionalArgs.env, model: model },
+    optionalArgs.forceUndefinedClipboard
+  );
   const props = optionalArgs.props || ({} as Props);
   const app = new App(component, { props, env, test: true, translateFn: _t });
   const fixture = optionalArgs?.fixture || makeTestFixture();
@@ -282,7 +288,8 @@ export async function mountComponent<Props extends { [key: string]: any }>(
 // Requires to be called wit jest realTimers
 export async function mountSpreadsheet(
   props: SpreadsheetProps = { model: new Model() },
-  partialEnv: Partial<SpreadsheetChildEnv> = {}
+  partialEnv: Partial<SpreadsheetChildEnv> = {},
+  forceUndefinedClipboard: boolean = false
 ): Promise<{
   app: App;
   parent: Spreadsheet;
@@ -295,6 +302,7 @@ export async function mountSpreadsheet(
     env: partialEnv,
     model: props.model,
     renderOnModelUpdate: false,
+    forceUndefinedClipboard: forceUndefinedClipboard,
   });
 
   /**

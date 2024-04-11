@@ -42,6 +42,7 @@ import {
   Align,
   CellValueType,
   Client,
+  ClipboardContent,
   ClipboardMIMEType,
   DOMCoordinates,
   DOMDimension,
@@ -600,7 +601,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.menuState.menuItems = registries[type].getMenuItems();
   }
 
-  copy(cut: boolean, ev: ClipboardEvent) {
+  async copy(cut: boolean, ev: ClipboardEvent) {
     if (!this.gridEl.contains(document.activeElement)) {
       return;
     }
@@ -621,8 +622,16 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       this.env.model.dispatch("COPY");
     }
     const content = this.env.model.getters.getClipboardContent();
-    for (const type in content) {
-      clipboardData.setData(type, content[type]);
+    if (this.env.clipboard) {
+      await this.env.clipboard?.write(content);
+    } else {
+      /** If the used browser does not support
+       * navigator.clipboard.write(), store data in
+       * the ClipboardEvent instance instead.
+       */
+      for (const type in content) {
+        clipboardData.setData(type, content[type]);
+      }
     }
     ev.preventDefault();
   }
@@ -638,21 +647,53 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       return;
     }
 
-    if (clipboardData.types.indexOf(ClipboardMIMEType.PlainText) > -1) {
-      const content = clipboardData.getData(ClipboardMIMEType.PlainText);
-      const target = this.env.model.getters.getSelectedZones();
-      const clipboardString = this.env.model.getters.getClipboardTextContent();
-      const isCutOperation = this.env.model.getters.isCutOperation();
-      if (clipboardString === content) {
-        // the paste actually comes from o-spreadsheet itself
-        interactivePaste(this.env, target);
-      } else {
-        interactivePasteFromOS(this.env, target, content);
+    let clipboardContent: ClipboardContent = {};
+    let htmlDocument: Document = new DOMParser().parseFromString("", "text/xml");
+    let browserClipboardSpreadsheetContent: string = "{}";
+
+    if (this.env.clipboard) {
+      const clipboard = await this.env.clipboard.read();
+      if (clipboard.status === "ok") {
+        clipboardContent = clipboard.content;
+        htmlDocument = new DOMParser().parseFromString(
+          clipboardContent[ClipboardMIMEType.Html] ?? "",
+          "text/xml"
+        );
+        browserClipboardSpreadsheetContent =
+          clipboardContent[ClipboardMIMEType.OSpreadsheet] &&
+          clipboardContent[ClipboardMIMEType.OSpreadsheet].length > 0
+            ? clipboardContent[ClipboardMIMEType.OSpreadsheet]
+            : "{}";
       }
-      if (isCutOperation) {
-        await this.env.clipboard.write({ [ClipboardMIMEType.PlainText]: "" });
-      }
+    } else {
+      browserClipboardSpreadsheetContent = clipboardData.getData(ClipboardMIMEType.OSpreadsheet);
+      clipboardContent = {
+        [ClipboardMIMEType.PlainText]: clipboardData.getData(ClipboardMIMEType.PlainText),
+        [ClipboardMIMEType.Html]: clipboardData.getData(ClipboardMIMEType.Html),
+        [ClipboardMIMEType.OSpreadsheet]: browserClipboardSpreadsheetContent,
+      };
     }
+
+    const target = this.env.model.getters.getSelectedZones();
+    const isCutOperation = this.env.model.getters.isCutOperation();
+
+    const parsedBrowserClipboardSpreadsheetContent = JSON.parse(browserClipboardSpreadsheetContent);
+    const clipboardId =
+      htmlDocument.querySelector("table")?.getAttribute("data-clipboard-id") ||
+      parsedBrowserClipboardSpreadsheetContent.clipboardId;
+
+    if (this.env.model.getters.getClipboardId() === clipboardId) {
+      /**
+       * Pasting in the same spreadsheet
+       */
+      interactivePaste(this.env, target);
+    } else {
+      interactivePasteFromOS(this.env, target, clipboardContent);
+    }
+    if (isCutOperation) {
+      await this.env.clipboard?.write({ [ClipboardMIMEType.PlainText]: "" });
+    }
+    ev.preventDefault();
   }
 
   private displayWarningCopyPasteNotSupported() {

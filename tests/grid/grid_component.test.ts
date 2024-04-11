@@ -34,6 +34,7 @@ import {
   hideColumns,
   hideRows,
   merge,
+  // pasteFromOSClipboard,
   selectCell,
   selectColumn,
   selectHeader,
@@ -1360,28 +1361,39 @@ describe("Copy paste keyboard shortcut", () => {
     composerFocusStore = parent.env.getStore(ComposerFocusStore);
   });
   test("Can paste from OS", async () => {
+    await parent.env.clipboard!.writeText("Excalibur");
     selectCell(model, "A1");
-    clipboardData.setText("Excalibur");
-    document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
+    await document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     expect(getCellContent(model, "A1")).toEqual("Excalibur");
   });
+
   test("Can copy/paste cells", async () => {
     setCellContent(model, "A1", "things");
     selectCell(model, "A1");
-    document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
-    expect(clipboardData.content).toEqual({ "text/plain": "things", "text/html": "things" });
+    await document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
+    const clipboard = await parent.env.clipboard!.read!();
+    const clipboardContent = "content" in clipboard ? clipboard.content : {};
+    expect(clipboardContent).toMatchObject({
+      "text/plain": "things",
+      "text/html": "things",
+    });
     selectCell(model, "A2");
-    document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
+    await document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     expect(getCellContent(model, "A2")).toEqual("things");
   });
 
   test("Can cut/paste cells", async () => {
     setCellContent(model, "A1", "things");
     selectCell(model, "A1");
-    document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
-    expect(clipboardData.content).toEqual({ "text/plain": "things", "text/html": "things" });
+    await document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
+    const clipboard = await parent.env.clipboard!.read!();
+    const clipboardContent = "content" in clipboard ? clipboard.content : {};
+    expect(clipboardContent).toMatchObject({
+      "text/plain": "things",
+      "text/html": "things",
+    });
     selectCell(model, "A2");
-    document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
+    await document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     expect(getCellContent(model, "A1")).toEqual("");
     expect(getCellContent(model, "A2")).toEqual("things");
   });
@@ -1390,11 +1402,11 @@ describe("Copy paste keyboard shortcut", () => {
     setCellContent(model, "A1", "things");
     setStyle(model, "A1", { bold: true });
     selectCell(model, "A1");
-    document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
+    await document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     setCellContent(model, "A1", "new content");
     setStyle(model, "A1", { bold: false });
     selectCell(model, "A2");
-    document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
+    await document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     expect(getCellContent(model, "A2")).toEqual("things");
     expect(getStyle(model, "A2")).toEqual({ bold: true });
     expect(getCell(model, "A1")).toBe(undefined);
@@ -1404,35 +1416,41 @@ describe("Copy paste keyboard shortcut", () => {
     model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
     setCellContent(model, "A1", "1");
     setCellFormat(model, "A1", "m/d/yyyy");
-    document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
-    expect(clipboardData.getData(ClipboardMIMEType.PlainText)).toEqual(getCellContent(model, "A1"));
+    await document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
+    const clipboard = await parent.env.clipboard!.read!();
+    const clipboardContent = "content" in clipboard ? clipboard.content : {};
+    expect(clipboardContent[ClipboardMIMEType.PlainText]).toEqual(getCellContent(model, "A1"));
     model.dispatch("SET_FORMULA_VISIBILITY", { show: false });
     selectCell(model, "A2");
-    document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
+    await document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     expect(getCellContent(model, "A2")).toEqual("12/31/1899");
   });
 
   test("Cut of a formula cell, or non-formula cell with showFormulas should return its formattedValue", async () => {
     setCellContent(model, "A1", "1");
     setCellFormat(model, "A1", "m/d/yyyy");
-    document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
-    expect(clipboardData.getData(ClipboardMIMEType.PlainText)).toEqual(
+    await document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
+    let clipboard = await parent.env.clipboard!.read!();
+    let clipboardContent = "content" in clipboard ? clipboard.content : {};
+    expect(clipboardContent[ClipboardMIMEType.PlainText]).toEqual(
       getEvaluatedCell(model, "A1").formattedValue
     );
     selectCell(model, "A2");
-    document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
+    await document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     expect(getCellContent(model, "A2")).toEqual("12/31/1899");
 
     model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
     setCellContent(model, "B1", "1");
     selectCell(model, "B1");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
-    expect(clipboardData.getData(ClipboardMIMEType.PlainText)).toEqual(
+    clipboard = await parent.env.clipboard!.read!();
+    clipboardContent = "content" in clipboard ? clipboard.content : {};
+    expect(clipboardContent[ClipboardMIMEType.PlainText]).toEqual(
       getEvaluatedCell(model, "B1").formattedValue
     );
     model.dispatch("SET_FORMULA_VISIBILITY", { show: false });
     selectCell(model, "B2");
-    document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
+    await document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     expect(getCellContent(model, "B2")).toEqual("1");
   });
 
@@ -1445,7 +1463,6 @@ describe("Copy paste keyboard shortcut", () => {
     // Fake OS clipboard should have the same content
     // to make paste come from spreadsheet clipboard
     // which support paste as values
-    parent.env.clipboard.writeText(content);
     selectCell(model, "A2");
     document.activeElement!.dispatchEvent(
       new KeyboardEvent("keydown", { key: "V", ctrlKey: true, bubbles: true, shiftKey: true })
@@ -1541,8 +1558,12 @@ describe("Copy paste keyboard shortcut", () => {
     createChart(model, {}, "chartId");
     model.dispatch("SELECT_FIGURE", { id: "chartId" });
     document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
-    expect(clipboardData.content).toEqual({ "text/plain": "\t" });
-    document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
+    const clipboard = await parent.env.clipboard!.read!();
+    const clipboardContent = "content" in clipboard ? clipboard.content : {};
+    expect(clipboardContent).toMatchObject({
+      "text/plain": "\t",
+    });
+    await document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     expect(model.getters.getChartIds(sheetId)).toHaveLength(2);
   });
 
@@ -1551,8 +1572,12 @@ describe("Copy paste keyboard shortcut", () => {
     createChart(model, {}, "chartId");
     model.dispatch("SELECT_FIGURE", { id: "chartId" });
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
-    expect(clipboardData.content).toEqual({ "text/plain": "\t" });
-    document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
+    const clipboard = await parent.env.clipboard!.read!();
+    const clipboardContent = "content" in clipboard ? clipboard.content : {};
+    expect(clipboardContent).toMatchObject({
+      "text/plain": "\t",
+    });
+    await document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
     expect(model.getters.getChartIds(sheetId)).toHaveLength(1);
     expect(model.getters.getChartIds(sheetId)[0]).not.toEqual("chartId");
   });
@@ -1617,6 +1642,71 @@ describe("Copy paste keyboard shortcut", () => {
     );
     await nextTick();
     expect(composerFocusStore.gridComposerFocus).toBe("cellFocus");
+  });
+});
+
+describe("Copy paste with no naviagator.clipboard or with no naviagator.clipboard read/write support", () => {
+  let clipboardData: MockClipboardData;
+
+  beforeEach(async () => {
+    clipboardData = new MockClipboardData();
+    ({ parent, model, fixture } = await mountSpreadsheet(
+      undefined,
+      {
+        clipboard: undefined,
+      },
+      true
+    ));
+    composerStore = parent.env.getStore(ComposerStore);
+    composerFocusStore = parent.env.getStore(ComposerFocusStore);
+  });
+
+  test("should copy/paste cells in the same spreadsheet", async () => {
+    const cellStyle = { bold: true, fillColor: "#00FF00", fontSize: 20 };
+    setCellContent(model, "A1", "abc");
+    setStyle(model, "A1", cellStyle);
+    selectCell(model, "A1");
+    await document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
+    selectCell(model, "A2");
+    await document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
+    expect(getCell(model, "A2")?.content).toEqual("abc");
+    expect(getCell(model, "A2")?.style).toEqual(cellStyle);
+  });
+
+  test("should copy/paste cells in a different spreadsheet", async () => {
+    const {
+      parent: externalParent,
+      model: externalModel,
+      fixture: externalFixture,
+    } = await mountSpreadsheet(
+      undefined,
+      {
+        clipboard: undefined,
+      },
+      true
+    );
+    composerStore = externalParent.env.getStore(ComposerStore);
+    composerFocusStore = externalParent.env.getStore(ComposerFocusStore);
+
+    const cellStyle = { bold: true, fillColor: "#00FF00", fontSize: 20 };
+    setCellContent(model, "A1", "abc");
+    setStyle(model, "A1", cellStyle);
+
+    const grid: HTMLElement | null = fixture.querySelector(".o-grid-composer .o-composer");
+    grid?.focus();
+
+    selectCell(model, "A1");
+    await document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
+
+    const externalGrid: HTMLElement | null = externalFixture.querySelector(
+      ".o-grid-composer .o-composer"
+    );
+    externalGrid?.focus();
+
+    selectCell(externalModel, "A2");
+    await document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
+    expect(getCell(externalModel, "A2")?.content).toEqual("abc");
+    expect(getCell(externalModel, "A2")?.style).toEqual(cellStyle);
   });
 });
 

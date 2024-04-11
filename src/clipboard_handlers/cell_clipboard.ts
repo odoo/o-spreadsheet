@@ -70,7 +70,13 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
           };
         }
         cellsInRow.push({
-          cell,
+          content: cell?.content ?? "",
+          style: cell?.style,
+          format: cell?.format,
+          tokens:
+            cell && "compiledFormula" in cell
+              ? cell.compiledFormula.tokens.map(({ value, type }) => ({ value, type }))
+              : [],
           border: this.getters.getCellBorder(position) || undefined,
           evaluatedCell,
           position,
@@ -180,7 +186,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
   private clearClippedZones(content: ClipboardContent) {
     for (const row of content.cells) {
       for (const cell of row) {
-        if (cell.cell) {
+        if (cell.position) {
           this.dispatch("CLEAR_CELL", cell.position);
         }
       }
@@ -220,7 +226,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
   ) {
     const { sheetId, col, row } = target;
     const targetCell = this.getters.getEvaluatedCell(target);
-    const originFormat = origin.cell?.format ?? origin.evaluatedCell.format;
+    const originFormat = origin?.format ?? origin.evaluatedCell.format;
 
     if (clipboardOption?.pasteOption === "asValue") {
       const locale = this.getters.getLocale();
@@ -232,27 +238,27 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     if (clipboardOption?.pasteOption === "onlyFormat") {
       this.dispatch("UPDATE_CELL", {
         ...target,
-        style: origin.cell?.style ?? null,
+        style: origin?.style ?? null,
         format: originFormat ?? targetCell.format,
       });
       return;
     }
 
     const content =
-      origin.cell && origin.cell.isFormula && !clipboardOption?.isCutOperation
+      origin && origin.tokens && origin.tokens?.length > 0 && !clipboardOption?.isCutOperation
         ? this.getters.getTranslatedCellFormula(
             sheetId,
             col - origin.position.col,
             row - origin.position.row,
-            origin.cell.compiledFormula
+            origin.tokens ?? []
           )
-        : origin.cell?.content;
-    if (content !== "" || origin.cell?.format || origin.cell?.style) {
+        : origin?.content;
+    if (content !== "" || origin?.format || origin?.style) {
       this.dispatch("UPDATE_CELL", {
         ...target,
         content,
-        style: origin.cell?.style || null,
-        format: origin.cell?.format,
+        style: origin?.style || null,
+        format: origin?.format,
       });
     } else if (targetCell) {
       this.dispatch("CLEAR_CELL", target);
@@ -277,10 +283,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
       for (let i = 0; i < rowLength; i++) {
         const content = canonicalizeNumberValue(row[i] || "", locale);
         cells.push({
-          cell: {
-            isFormula: false,
-            content,
-          },
+          content: content,
           evaluatedCell: {
             formattedValue: content,
           },

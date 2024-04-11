@@ -30,7 +30,7 @@ export interface SpreadsheetChildEnv extends SpreadsheetEnv {
   isDashboard: () => boolean;
   openSidePanel: (panel: string, panelProps?: any) => void;
   toggleSidePanel: (panel: string, panelProps?: any) => void;
-  clipboard: ClipboardInterface;
+  clipboard: ClipboardInterface | undefined;
   startCellEdition: (content?: string) => void;
   loadCurrencies?: () => Promise<Currency[]>;
   loadLocales: () => Promise<Locale[]>;

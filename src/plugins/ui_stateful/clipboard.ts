@@ -3,7 +3,8 @@ import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_ha
 import { cellStyleToCss, cssPropertiesToCss } from "../../components/helpers";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
-import { isZoneValid, positions, union } from "../../helpers/index";
+import { UuidGenerator, isZoneValid, positions, union } from "../../helpers/index";
+import { CURRENT_VERSION } from "../../migrations/data";
 import {
   ClipboardContent,
   ClipboardData,
@@ -47,6 +48,7 @@ export class ClipboardPlugin extends UIPlugin {
   static layers = ["Clipboard"] as const;
   static getters = [
     "getClipboardContent",
+    "getClipboardId",
     "getClipboardTextContent",
     "isCutOperation",
     "isPaintingFormat",
@@ -57,6 +59,7 @@ export class ClipboardPlugin extends UIPlugin {
   private originSheetId?: UID;
   private copiedData?: MinimalClipboardData;
   private _isCutOperation?: boolean;
+  private clipboardId = new UuidGenerator().uuidv4();
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -68,7 +71,9 @@ export class ClipboardPlugin extends UIPlugin {
         const zones = this.getters.getSelectedZones();
         return this.isCutAllowedOn(zones);
       case "PASTE_FROM_OS_CLIPBOARD": {
-        const copiedData = this.convertOSClipboardData(cmd.text);
+        const copiedData = this.convertOSClipboardData(
+          cmd.clipboardContent[ClipboardMIMEType.PlainText]
+        );
         const pasteOption =
           cmd.pasteOption || (this.paintFormatStatus !== "inactive" ? "onlyFormat" : undefined);
         return this.isPasteAllowed(cmd.target, copiedData, { pasteOption });
@@ -125,7 +130,13 @@ export class ClipboardPlugin extends UIPlugin {
         this.copiedData = this.copy(cmd.type, zones);
         break;
       case "PASTE_FROM_OS_CLIPBOARD": {
-        this.copiedData = this.convertOSClipboardData(cmd.text);
+        if (cmd.clipboardContent[ClipboardMIMEType.OSpreadsheet]) {
+          this.copiedData = JSON.parse(cmd.clipboardContent[ClipboardMIMEType.OSpreadsheet]);
+        } else {
+          this.copiedData = this.convertOSClipboardData(
+            cmd.clipboardContent[ClipboardMIMEType.PlainText]
+          );
+        }
         const pasteOption =
           cmd.pasteOption || (this.paintFormatStatus !== "inactive" ? "onlyFormat" : undefined);
         this.paste(cmd.target, {
@@ -278,7 +289,7 @@ export class ClipboardPlugin extends UIPlugin {
     }
   }
 
-  private convertOSClipboardData(clipboardData: string): {} {
+  private convertOSClipboardData(clipboardData: string | undefined): {} {
     this._isCutOperation = false;
     const handlers: ClipboardHandler<any>[] = clipboardHandlersRegistries.figureHandlers
       .getAll()
@@ -460,11 +471,29 @@ export class ClipboardPlugin extends UIPlugin {
     return this.getPlainTextContent();
   }
 
+  getClipboardId(): string {
+    return this.clipboardId;
+  }
+
   getClipboardContent(): ClipboardContent {
     return {
       [ClipboardMIMEType.PlainText]: this.getPlainTextContent(),
       [ClipboardMIMEType.Html]: this.getHTMLContent(),
+      [ClipboardMIMEType.OSpreadsheet]: this.getSerializedGridData(),
     };
+  }
+
+  private getSerializedGridData(): string {
+    const zones = this.getters.getSelectedZones();
+    const clipboardData = this.getClipboardData(zones);
+    let copiedData: MinimalClipboardData = {};
+    for (const handler of this.selectClipboardHandlers(clipboardData)) {
+      const data = handler.copy(clipboardData);
+      copiedData = { ...copiedData, ...data };
+    }
+    copiedData.version = CURRENT_VERSION;
+    copiedData.clipboardId = this.clipboardId;
+    return JSON.stringify(copiedData);
   }
 
   private getPlainTextContent(): string {
@@ -476,8 +505,8 @@ export class ClipboardPlugin extends UIPlugin {
         .map((cells) => {
           return cells
             .map((c) =>
-              this.getters.shouldShowFormulas() && c.cell?.isFormula
-                ? c.cell?.content || ""
+              this.getters.shouldShowFormulas() && c?.tokens && c.tokens.length > 0
+                ? c?.content || ""
                 : c.evaluatedCell?.formattedValue || ""
             )
             .join("\t");
@@ -498,7 +527,7 @@ export class ClipboardPlugin extends UIPlugin {
       return "";
     }
 
-    let htmlTable = '<table border="1" style="border-collapse:collapse">';
+    let htmlTable = `<table border="1" style="border-collapse:collapse" data-clipboard-id="${this.clipboardId}">`;
     for (const row of cells) {
       htmlTable += "<tr>";
       for (const cell of row) {

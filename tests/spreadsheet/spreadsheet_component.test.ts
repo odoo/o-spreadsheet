@@ -125,7 +125,7 @@ describe("Simple Spreadsheet Component", () => {
     ({ env } = await mountSpreadsheet({
       model: new Model({ sheets: [{ id: "sh1" }] }),
     }));
-    expect(env.clipboard["clipboard"]).toBe(navigator.clipboard);
+    expect(env.clipboard!["clipboard"]).toBe(navigator.clipboard);
   });
 
   test("typing opens composer after toolbar clicked", async () => {
@@ -361,7 +361,6 @@ describe("Composer / selectionInput interactions", () => {
     }));
   });
 
-  jest.setTimeout(500000000);
   test("Switching from selection input to composer should update the highlihts", async () => {
     const composerStore = env.getStore(ComposerStore);
     //open cf sidepanel

@@ -1,5 +1,6 @@
 import { DEFAULT_STYLE } from "../../constants";
 import { Token, compile, tokenize } from "../../formulas";
+import { compileTokens } from "../../formulas/compiler";
 import { isEvaluationError, toString } from "../../functions/helpers";
 import { deepEquals, isExcelCompatible } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells";
@@ -339,13 +340,13 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    */
   private getFormulaCellContent(
     sheetId: UID,
-    compiledFormula: RangeCompiledFormula,
+    tokens: Token[],
     dependencies: Range[],
     useFixedReference: boolean = false
   ): string {
     let rangeIndex = 0;
     return concat(
-      compiledFormula.tokens.map((token) => {
+      tokens.map((token) => {
         if (token.type === "REFERENCE") {
           const range = dependencies[rangeIndex++];
           return this.getters.getRangeString(range, sheetId, { useFixedReference });
@@ -358,19 +359,18 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   /*
    * Constructs a formula string based on an initial formula and a translation vector
    */
-  getTranslatedCellFormula(
-    sheetId: UID,
-    offsetX: number,
-    offsetY: number,
-    compiledFormula: RangeCompiledFormula
-  ) {
-    const adaptedDependencies = this.getters.createAdaptedRanges(
-      compiledFormula.dependencies,
-      offsetX,
-      offsetY,
-      sheetId
-    );
-    return this.getFormulaCellContent(sheetId, compiledFormula, adaptedDependencies);
+  getTranslatedCellFormula(sheetId: UID, offsetX: number, offsetY: number, tokens: Token[]) {
+    try {
+      const adaptedDependencies = this.getters.createAdaptedRanges(
+        compileTokens(tokens).dependencies.map((d) => this.getters.getRangeFromSheetXC(sheetId, d)),
+        offsetX,
+        offsetY,
+        sheetId
+      );
+      return this.getFormulaCellContent(sheetId, tokens, adaptedDependencies);
+    } catch (error) {
+      return concat(tokens.map(({ value }) => value));
+    }
   }
 
   getCellStyle(position: CellPosition): Style {

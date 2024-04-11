@@ -51,35 +51,39 @@ export const PASTE_ACTION = async (env: SpreadsheetChildEnv) => paste(env);
 export const PASTE_AS_VALUE_ACTION = async (env: SpreadsheetChildEnv) => paste(env, "asValue");
 
 async function paste(env: SpreadsheetChildEnv, pasteOption?: ClipboardPasteOptions) {
-  const spreadsheetClipboard = env.model.getters.getClipboardTextContent();
-  const osClipboard = await env.clipboard.readText();
-
-  switch (osClipboard.status) {
-    case "ok":
-      const target = env.model.getters.getSelectedZones();
-      if (osClipboard && osClipboard.content !== spreadsheetClipboard) {
-        interactivePasteFromOS(env, target, osClipboard.content, pasteOption);
-      } else {
-        interactivePaste(env, target, pasteOption);
-      }
-      if (env.model.getters.isCutOperation() && pasteOption !== "asValue") {
-        await env.clipboard.write({ [ClipboardMIMEType.PlainText]: "" });
-      }
-      break;
-    case "notImplemented":
-      env.raiseError(
-        _t(
-          "Pasting from the context menu is not supported in this browser. Use keyboard shortcuts ctrl+c / ctrl+v instead."
-        )
-      );
-      break;
-    case "permissionDenied":
-      env.raiseError(
-        _t(
-          "Access to the clipboard denied by the browser. Please enable clipboard permission for this page in your browser settings."
-        )
-      );
-      break;
+  const osClipboard = await env.clipboard?.read();
+  if (osClipboard) {
+    switch (osClipboard.status) {
+      case "ok":
+        const osClipboardSpreadsheetContent = osClipboard.content[ClipboardMIMEType.OSpreadsheet]
+          ? osClipboard.content[ClipboardMIMEType.OSpreadsheet]
+          : "{}";
+        const parsedSpreadsheetContent = JSON.parse(osClipboardSpreadsheetContent);
+        const target = env.model.getters.getSelectedZones();
+        if (env.model.getters.getClipboardId() !== parsedSpreadsheetContent.clipboardId) {
+          interactivePasteFromOS(env, target, osClipboard.content, pasteOption);
+        } else {
+          interactivePaste(env, target, pasteOption);
+        }
+        if (env.model.getters.isCutOperation() && pasteOption !== "asValue") {
+          await env.clipboard?.write({ [ClipboardMIMEType.PlainText]: "" });
+        }
+        break;
+      case "notImplemented":
+        env.raiseError(
+          _t(
+            "Pasting from the context menu is not supported in this browser. Use keyboard shortcuts ctrl+c / ctrl+v instead."
+          )
+        );
+        break;
+      case "permissionDenied":
+        env.raiseError(
+          _t(
+            "Access to the clipboard denied by the browser. Please enable clipboard permission for this page in your browser settings."
+          )
+        );
+        break;
+    }
   }
 }
 

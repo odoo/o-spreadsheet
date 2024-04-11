@@ -5,18 +5,31 @@ import {
 import { ClipboardContent, ClipboardMIMEType } from "../../src/types";
 
 export class MockClipboard implements ClipboardInterface {
-  private content: string | undefined = "Some random clipboard content";
+  private content: ClipboardContent = {};
 
-  async readText(): Promise<ClipboardReadResult> {
-    return { status: "ok", content: this.content || "" };
+  async read(): Promise<ClipboardReadResult> {
+    return {
+      status: "ok",
+      content: {
+        [ClipboardMIMEType.PlainText]: this.content[ClipboardMIMEType.PlainText],
+        [ClipboardMIMEType.Html]: this.content[ClipboardMIMEType.Html],
+        [ClipboardMIMEType.OSpreadsheet]: this.content[ClipboardMIMEType.OSpreadsheet],
+      },
+    };
   }
 
   async writeText(text: string): Promise<void> {
-    this.content = text;
+    this.content[ClipboardMIMEType.PlainText] = text;
+    this.content[ClipboardMIMEType.Html] = "";
+    this.content[ClipboardMIMEType.OSpreadsheet] = "";
   }
 
   async write(content: ClipboardContent) {
-    this.content = content[ClipboardMIMEType.PlainText];
+    this.content = {
+      [ClipboardMIMEType.PlainText]: content[ClipboardMIMEType.PlainText],
+      [ClipboardMIMEType.Html]: content[ClipboardMIMEType.Html],
+      [ClipboardMIMEType.OSpreadsheet]: content[ClipboardMIMEType.OSpreadsheet],
+    };
   }
 }
 

@@ -11,6 +11,7 @@ import {
 import { figureRegistry } from "../../src/registries";
 import { CreateFigureCommand, Figure, Pixel, SpreadsheetChildEnv, UID } from "../../src/types";
 
+import { ClipboardMIMEType } from "../../src/types/clipboard";
 import {
   activateSheet,
   addColumns,
@@ -518,9 +519,10 @@ describe("figures", () => {
         await simulateClick(".o-figure");
         await simulateClick(".o-figure-menu-item");
         await simulateClick(".o-menu div[data-name='copy']");
-        const envClipBoardContent = await env.clipboard.readText();
+        const envClipBoardContent = await env.clipboard!.read();
         if (envClipBoardContent.status === "ok") {
-          expect(envClipBoardContent.content).toEqual(
+          const envClipboardTextContent = envClipBoardContent.content[ClipboardMIMEType.PlainText];
+          expect(envClipboardTextContent).toEqual(
             model.getters.getClipboardContent()["text/plain"]
           );
         }
@@ -536,9 +538,10 @@ describe("figures", () => {
         await simulateClick(".o-figure");
         await simulateClick(".o-figure-menu-item");
         await simulateClick(".o-menu div[data-name='cut']");
-        const envClipBoardContent = await env.clipboard.readText();
+        const envClipBoardContent = await env.clipboard!.read();
         if (envClipBoardContent.status === "ok") {
-          expect(envClipBoardContent.content).toEqual(
+          const envClipboardTextContent = envClipBoardContent.content[ClipboardMIMEType.PlainText];
+          expect(envClipboardTextContent).toEqual(
             model.getters.getClipboardContent()["text/plain"]
           );
         }

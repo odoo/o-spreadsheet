@@ -56,7 +56,7 @@ export class RangeImpl implements Range {
     if (range instanceof RangeImpl) {
       return range;
     }
-    return new RangeImpl(range, getters.getSheetSize);
+    throw new TypeError(`Expected instance of type RangeImpl got ${range.constructor.name}`);
   }
 
   get unboundedZone(): UnboundedZone {
