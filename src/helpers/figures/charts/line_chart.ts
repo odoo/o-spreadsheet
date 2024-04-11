@@ -286,10 +286,10 @@ function canBeLinearChart(labelRange: Range | undefined, getters: Getters): bool
 function getLineConfiguration(
   chart: LineChart,
   labels: string[],
-  localeFormat: LocaleFormat
+  options: LocaleFormat & { truncateLabels?: boolean }
 ): Required<ChartConfiguration> {
   const fontColor = chartFontColor(chart.background);
-  const config = getDefaultChartJsRuntime(chart, labels, fontColor, localeFormat);
+  const config = getDefaultChartJsRuntime(chart, labels, fontColor, options);
 
   const legend: DeepPartial<LegendOptions<"line">> = {
     labels: {
@@ -332,7 +332,7 @@ function getLineConfiguration(
         callback: (value) => {
           value = Number(value);
           if (isNaN(value)) return value;
-          const { locale, format } = localeFormat;
+          const { locale, format } = options;
           return formatValue(value, {
             locale,
             format: !format && Math.abs(value) >= 1000 ? "#,##" : format,
@@ -370,9 +370,10 @@ export function createLineChartRuntime(chart: LineChart, getters: Getters): Line
   }
 
   const locale = getters.getLocale();
+  const truncateLabels = axisType === "category";
   const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
-  const localeFormat = { format: dataSetFormat, locale };
-  const config = getLineConfiguration(chart, labels, localeFormat);
+  const options = { format: dataSetFormat, locale, truncateLabels };
+  const config = getLineConfiguration(chart, labels, options);
   const labelFormat = getChartLabelFormat(getters, chart.labelRange)!;
   if (axisType === "time") {
     const axis = {
