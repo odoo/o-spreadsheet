@@ -388,7 +388,7 @@ export function isDateTimeFormat(format: Format) {
     return false;
   }
 }
-const allowedDateTimeFormatFirstChar = new Set(["h", "m", "y", "d"]);
+const allowedDateTimeFormatFirstChar = new Set(["h", "m", "y", "d", "q"]);
 
 export function applyDateTimeFormat(value: number, format: Format): FormattedValue {
   // TODO: unify the format functions for date and datetime
@@ -435,6 +435,10 @@ function formatJSDate(jsDate: DateTime, format: Format): FormattedValue {
           return MONTHS[jsDate.getMonth()];
         case "mmmmm":
           return MONTHS[jsDate.getMonth()].slice(0, 1);
+        case "qq":
+          return _t("Q%(quarter)s", { quarter: jsDate.getQuarter() });
+        case "qqqq":
+          return _t("Quarter %(quarter)s", { quarter: jsDate.getQuarter() });
         case "yy":
           const fullYear = String(jsDate.getFullYear()).replace("-", "").padStart(2, "0");
           return fullYear.slice(fullYear.length - 2);
@@ -681,6 +685,16 @@ export function changeDecimalPlaces(format: Format, step: number, locale: Locale
   return newFormat;
 }
 
+export function isExcelCompatible(format: Format): boolean {
+  const internalFormat = parseFormat(format);
+  for (let part of internalFormat) {
+    if (part.type === "DATE" && part.format.includes("q")) {
+      return false;
+    }
+  }
+  return true;
+}
+
 function changeInternalNumberFormatDecimalPlaces(
   format: Readonly<InternalNumberFormat>,
   step: number
@@ -720,6 +734,7 @@ function convertFormatToInternalFormat(format: Format): InternalFormat {
       if (closingIndex === 0) {
         throw new Error(`Invalid currency brackets format: ${format}`);
       }
+      // remove leading "[$"" and ending "]".
       const str = format.substring(currentIndex + 2, closingIndex - 1);
       if (str.includes("[")) {
         throw new Error(`Invalid currency format: ${format}`);
@@ -727,7 +742,7 @@ function convertFormatToInternalFormat(format: Format): InternalFormat {
       result.push({
         type: "STRING",
         format: str,
-      }); // remove leading "[$"" and ending "]".
+      });
     } else {
       // rest of the time
       const nextPartIndex = format.substring(currentIndex).indexOf("[");
@@ -793,7 +808,7 @@ function convertToInternalNumberFormat(format: Format): InternalNumberFormat {
   }
 }
 
-const validNumberChars = /[,#0.%]/g;
+const validNumberChars = /[,#0.%@]/g;
 
 function containsInvalidNumberChars(format: Format): boolean {
   return Boolean(format.replace(validNumberChars, ""));

@@ -8,7 +8,9 @@ import {
   formatNumberDuration,
   formatNumberFullDateTime,
   formatNumberFullMonth,
+  formatNumberFullQuarter,
   formatNumberFullWeekDayAndMonth,
+  formatNumberQuarter,
   formatNumberShortMonth,
   formatNumberShortWeekDay,
   formatNumberTime,
@@ -48,6 +50,8 @@ const DATE_FORMAT_ACTIONS = createActions([
   formatNumberTime,
   formatNumberDateTime,
   formatNumberDuration,
+  formatNumberQuarter,
+  formatNumberFullQuarter,
 ]);
 
 export class MoreFormatsPanel extends Component<Props, SpreadsheetChildEnv> {

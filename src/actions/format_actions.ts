@@ -133,6 +133,18 @@ export const formatNumberDuration = createFormatActionSpec({
   format: "hhhh:mm:ss",
 });
 
+export const formatNumberQuarter = createFormatActionSpec({
+  name: _t("Quarter"),
+  descriptionValue: EXAMPLE_DATE,
+  format: "qq yyyy",
+});
+
+export const formatNumberFullQuarter = createFormatActionSpec({
+  name: _t("Full quarter"),
+  descriptionValue: EXAMPLE_DATE,
+  format: "qqqq yyyy",
+});
+
 export const moreFormats: ActionSpec = {
   name: _t("More date formats"),
   execute: (env) => env.openSidePanel("MoreFormats", {}),

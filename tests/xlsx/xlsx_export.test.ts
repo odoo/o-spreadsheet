@@ -16,6 +16,7 @@ import {
   groupHeaders,
   merge,
   setCellContent,
+  setCellFormat,
   setFormat,
   updateFilter,
 } from "../test_helpers/commands_helpers";
@@ -631,6 +632,19 @@ describe("Test XLSX export", () => {
       });
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
+
+    test("does not export quarter format", async () => {
+      const model = new Model();
+
+      setCellFormat(model, "A1", "qq yyyy");
+      setCellFormat(model, "A2", "qqqq yyyy");
+
+      const exported = getExportedExcelData(model);
+      expect(exported.sheets[0].cells.A1?.format).toBeUndefined();
+      expect(exported.sheets[0].cells.A2?.format).toBeUndefined();
+      expect(exported.formats).toEqual({});
+    });
+
     test("Conditional formatting with formula cannot be exported (for now)", async () => {
       jest.spyOn(global.console, "warn").mockImplementation();
       const model = new Model({
