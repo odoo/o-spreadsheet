@@ -66,6 +66,7 @@ interface Props {
   class?: string;
   onSelectionChanged?: (ranges: string[]) => void;
   onSelectionConfirmed?: () => void;
+  forceSheet: boolean;
 }
 
 type SelectionRangeEditMode = "select-range" | "text-edit";
@@ -98,6 +99,7 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     class: { type: String, optional: true },
     onSelectionChanged: { type: Function, optional: true },
     onSelectionConfirmed: { type: Function, optional: true },
+    forceSheet: { type: Boolean, optional: true },
   };
   private state: State = useState({
     isMissing: false,
@@ -134,7 +136,8 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
     this.store = useLocalStore(
       SelectionInputStore,
       this.props.ranges,
-      this.props.hasSingleRange || false
+      this.props.hasSingleRange || false,
+      this.props.forceSheet
     );
     onWillUpdateProps((nextProps) => {
       if (nextProps.ranges.join() !== this.store.selectionInputValues.join()) {

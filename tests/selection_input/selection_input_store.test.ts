@@ -660,4 +660,11 @@ describe("selection input plugin", () => {
     expect(store2.selectionInputs[1].xc).toBe("F2");
     expect(store2.selectionInputs[1].isFocused).toBe(true);
   });
+
+  test("Can force the sheet to be displayed", () => {
+    const { store, model } = makeStore(SelectionInputStore, [], true, true);
+    setSelection(model, ["A3:A5"]);
+    expect(store.selectionInputs).toHaveLength(1);
+    expect(store.selectionInputs[0].xc).toBe("Sheet1!A3:A5");
+  });
 });

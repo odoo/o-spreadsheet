@@ -30,7 +30,8 @@ export class SelectionInputStore extends SpreadsheetStore {
   constructor(
     get: Get,
     private initialRanges: string[] = [],
-    private readonly inputHasSingleRange: boolean = false
+    private readonly inputHasSingleRange: boolean = false,
+    private readonly forceSheet: boolean = false
   ) {
     super(get);
     if (inputHasSingleRange && initialRanges.length > 1) {
@@ -65,7 +66,10 @@ export class SelectionInputStore extends SpreadsheetStore {
       this.ranges[this.focusedRangeIndex].xc.trim() !== "";
 
     if (willAddNewRange) {
-      const xc = this.getters.getSelectionRangeString(range, inputSheetId);
+      const xc = this.getters.getSelectionRangeString(
+        range,
+        this.forceSheet ? "forceSheetReference" : inputSheetId
+      );
       this.insertNewRange(this.ranges.length, [xc]);
       this.focusLast();
     } else {
@@ -75,7 +79,10 @@ export class SelectionInputStore extends SpreadsheetStore {
         parts = this.getters.getRangeFromSheetXC(inputSheetId, previousXc).parts;
       }
       const newRange = range.clone({ parts });
-      const xc = this.getters.getSelectionRangeString(newRange, inputSheetId);
+      const xc = this.getters.getSelectionRangeString(
+        newRange,
+        this.forceSheet ? "forceSheetReference" : inputSheetId
+      );
       this.setRange(this.focusedRangeIndex, [xc]);
     }
   }
