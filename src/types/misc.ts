@@ -1,4 +1,4 @@
-import { Cell, CellValue, EvaluatedCell } from "./cells";
+import { CellValue, EvaluatedCell } from "./cells";
 
 import { CommandResult } from "./commands";
 // -----------------------------------------------------------------------------
@@ -199,10 +199,13 @@ export function isMatrix(x: any): x is Matrix<any> {
 }
 
 export interface ClipboardCell {
-  cell?: Cell;
   evaluatedCell: EvaluatedCell;
-  border?: Border;
   position: CellPosition;
+  content: string;
+  style?: Style | undefined;
+  format?: Format | undefined;
+  tokens?: Token[];
+  border?: Border;
 }
 
 export interface HeaderDimensions {

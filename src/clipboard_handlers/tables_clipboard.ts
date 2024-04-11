@@ -7,7 +7,7 @@ import {
   ClipboardPasteTarget,
   CoreTableType,
   HeaderIndex,
-  Range,
+  RangeData,
   Style,
   TableConfig,
   UID,
@@ -21,7 +21,7 @@ interface TableStyle {
 }
 
 interface CopiedTable {
-  range: Range;
+  range: RangeData;
   config: TableConfig;
   type: CoreTableType;
 }
@@ -68,7 +68,7 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
           }
           tableCellsInRow.push({
             table: {
-              range: coreTable.range,
+              range: coreTable.range.rangeData,
               config: coreTable.config,
               type: coreTable.type,
             },
@@ -125,7 +125,7 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
         if (tableCell.table) {
           this.dispatch("REMOVE_TABLE", {
             sheetId: content.sheetId,
-            target: [tableCell.table.range.zone],
+            target: [this.getters.getRangeFromRangeData(tableCell.table.range).zone],
           });
         }
       }
@@ -168,7 +168,7 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
   ) {
     if (tableCell.table && !options?.pasteOption) {
       const { range: tableRange } = tableCell.table;
-      const zoneDims = zoneToDimension(tableRange.zone);
+      const zoneDims = zoneToDimension(this.getters.getRangeFromRangeData(tableRange).zone);
       const newTableZone = {
         left: position.col,
         top: position.row,

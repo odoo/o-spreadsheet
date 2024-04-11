@@ -1,5 +1,6 @@
 import { DEFAULT_STYLE } from "../../constants";
 import { Token, compile } from "../../formulas";
+import { compileTokens } from "../../formulas/compiler";
 import { isEvaluationError, toString } from "../../functions/helpers";
 import { deepEquals, isExcelCompatible, recomputeZones } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells";
@@ -340,16 +341,16 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
    */
   private getFormulaCellContent(
     sheetId: UID,
-    compiledFormula: RangeCompiledFormula,
+    tokens: Token[],
     dependencies: Range[],
     useFixedReference: boolean = false
   ): string {
     if (!dependencies.length) {
-      return concat(compiledFormula.tokens.map((token) => token.value));
+      return concat(tokens.map((token) => token.value));
     }
     let rangeIndex = 0;
     return concat(
-      compiledFormula.tokens.map((token) => {
+      tokens.map((token) => {
         if (token.type === "REFERENCE") {
           const range = dependencies[rangeIndex++];
           return this.getters.getRangeString(range, sheetId, { useFixedReference });
@@ -362,25 +363,22 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   /*
    * Constructs a formula string based on an initial formula and a translation vector
    */
-  getTranslatedCellFormula(
-    sheetId: UID,
-    offsetX: number,
-    offsetY: number,
-    compiledFormula: RangeCompiledFormula
-  ) {
+  getTranslatedCellFormula(sheetId: UID, offsetX: number, offsetY: number, tokens: Token[]) {
     const adaptedDependencies = this.getters.createAdaptedRanges(
-      compiledFormula.dependencies,
+      compileTokens(tokens).dependencies.map((d) => this.getters.getRangeFromSheetXC(sheetId, d)),
       offsetX,
       offsetY,
       sheetId
     );
-    return this.getFormulaCellContent(sheetId, compiledFormula, adaptedDependencies);
+    return this.getFormulaCellContent(sheetId, tokens, adaptedDependencies);
   }
 
-  getFormulaMovedInSheet(targetSheetId: UID, compiledFormula: RangeCompiledFormula) {
-    const dependencies = compiledFormula.dependencies;
+  getFormulaMovedInSheet(originSheetId: UID, targetSheetId: UID, tokens: Token[]) {
+    const dependencies = compileTokens(tokens).dependencies.map((d) =>
+      this.getters.getRangeFromSheetXC(originSheetId, d)
+    );
     const adaptedDependencies = this.getters.removeRangesSheetPrefix(targetSheetId, dependencies);
-    return this.getFormulaCellContent(targetSheetId, compiledFormula, adaptedDependencies);
+    return this.getFormulaCellContent(targetSheetId, tokens, adaptedDependencies);
   }
 
   getCellStyle(position: CellPosition): Style {

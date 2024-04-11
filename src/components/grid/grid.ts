@@ -37,7 +37,6 @@ import { Store, useStore } from "../../store_engine";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { ArrayFormulaHighlight } from "../../stores/array_formula_highlight";
 import { HighlightStore } from "../../stores/highlight_store";
-import { _t } from "../../translation";
 import {
   Align,
   CellValueType,
@@ -595,14 +594,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.menuState.menuItems = registries[type].getMenuItems();
   }
 
-  copy(cut: boolean, ev: ClipboardEvent) {
+  async copy(cut: boolean, ev: ClipboardEvent) {
     if (!this.gridEl.contains(document.activeElement)) {
-      return;
-    }
-
-    const clipboardData = ev.clipboardData;
-    if (!clipboardData) {
-      this.displayWarningCopyPasteNotSupported();
       return;
     }
 
@@ -616,9 +609,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       this.env.model.dispatch("COPY");
     }
     const content = this.env.model.getters.getClipboardContent();
-    for (const type in content) {
-      clipboardData.setData(type, content[type]);
-    }
+    await this.env.clipboard.write(content);
     ev.preventDefault();
   }
 
@@ -627,32 +618,33 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       return;
     }
 
-    const clipboardData = ev.clipboardData;
-    if (!clipboardData) {
-      this.displayWarningCopyPasteNotSupported();
+    ev.preventDefault();
+
+    const clipboard = await this.env.clipboard.read();
+    if (clipboard.status !== "ok") {
       return;
     }
+    const htmlDocument = new DOMParser().parseFromString(
+      clipboard.content[ClipboardMIMEType.Html] ?? "<div></div>",
+      "text/xml"
+    );
+    const osClipboardSpreadsheetContent = clipboard.content[ClipboardMIMEType.OSpreadsheet] || "{}";
 
-    if (clipboardData.types.indexOf(ClipboardMIMEType.PlainText) > -1) {
-      ev.preventDefault();
-      const content = clipboardData.getData(ClipboardMIMEType.PlainText);
-      const target = this.env.model.getters.getSelectedZones();
-      const clipboardString = this.env.model.getters.getClipboardTextContent();
-      const isCutOperation = this.env.model.getters.isCutOperation();
-      if (clipboardString === content) {
-        // the paste actually comes from o-spreadsheet itself
-        interactivePaste(this.env, target);
-      } else {
-        interactivePasteFromOS(this.env, target, content);
-      }
-      if (isCutOperation) {
-        await this.env.clipboard.write({ [ClipboardMIMEType.PlainText]: "" });
-      }
+    const target = this.env.model.getters.getSelectedZones();
+    const isCutOperation = this.env.model.getters.isCutOperation();
+
+    const clipboardId =
+      JSON.parse(osClipboardSpreadsheetContent).clipboardId ??
+      htmlDocument.querySelector("div")?.getAttribute("data-clipboard-id");
+
+    if (this.env.model.getters.getClipboardId() === clipboardId) {
+      interactivePaste(this.env, target);
+    } else {
+      interactivePasteFromOS(this.env, target, clipboard.content);
     }
-  }
-
-  private displayWarningCopyPasteNotSupported() {
-    this.env.raiseError(_t("Copy/Paste is not supported in this browser."));
+    if (isCutOperation) {
+      await this.env.clipboard.write({ [ClipboardMIMEType.PlainText]: "" });
+    }
   }
 
   private clearFormatting() {
