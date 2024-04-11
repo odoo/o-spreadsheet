@@ -446,7 +446,7 @@ describe("TopBar component", () => {
     expect(fixture.querySelectorAll(".o-topbar-menu")).toHaveLength(number);
     await click(fixture, ".o-topbar-menu[data-id='edit']");
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
-    const edit = getNode(["edit"], topbarMenuRegistry);
+    const edit = getNode(["edit"], env, topbarMenuRegistry);
     const numberChild = edit.children(parent.env).filter((item) => item.isVisible(env)).length;
     expect(fixture.querySelectorAll(".o-menu-item")).toHaveLength(numberChild);
     await click(fixture, ".o-spreadsheet-topbar");
@@ -455,15 +455,15 @@ describe("TopBar component", () => {
 
   test("Can open a Topbar menu with pointermove", async () => {
     const { parent } = await mountParent();
-    await click(fixture, ".o-topbar-menu[data-id='edit']");
-    const edit = getNode(["edit"], topbarMenuRegistry);
     const env = parent.env;
+    await click(fixture, ".o-topbar-menu[data-id='edit']");
+    const edit = getNode(["edit"], env, topbarMenuRegistry);
     let numberChild = edit.children(env).filter((item) => item.isVisible(env)).length;
     expect(fixture.querySelectorAll(".o-menu-item")).toHaveLength(numberChild);
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
     triggerMouseEvent(".o-topbar-menu[data-id='insert']", "mouseover");
     await nextTick();
-    const insert = getNode(["insert"], topbarMenuRegistry);
+    const insert = getNode(["insert"], env, topbarMenuRegistry);
     numberChild = insert?.children(parent.env).filter((item) => item.isVisible(parent.env)).length;
     expect(fixture.querySelectorAll(".o-menu-item")).toHaveLength(numberChild);
     expect(fixture.querySelectorAll(".o-menu")).toHaveLength(1);
