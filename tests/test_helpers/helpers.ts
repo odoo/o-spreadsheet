@@ -743,12 +743,13 @@ export async function doAction(
   env: SpreadsheetChildEnv,
   menuRegistry: MenuItemRegistry = topbarMenuRegistry
 ) {
-  const node = getNode(path, menuRegistry);
+  const node = getNode(path, env, menuRegistry);
   await node.execute?.(env);
 }
 
 export function getNode(
   _path: string[],
+  env: SpreadsheetChildEnv,
   menuRegistry: MenuItemRegistry = topbarMenuRegistry
 ): Action {
   const path = [..._path];
@@ -762,7 +763,7 @@ export function getNode(
     if (path.length === 0) {
       return item;
     }
-    items = item.children({} as SpreadsheetChildEnv);
+    items = item.children(env);
   }
   throw new Error(`Menu item not found`);
 }
@@ -772,7 +773,7 @@ export function getName(
   env: SpreadsheetChildEnv,
   menuRegistry: MenuItemRegistry = topbarMenuRegistry
 ): string {
-  const node = getNode(path, menuRegistry);
+  const node = getNode(path, env, menuRegistry);
   return node.name(env).toString();
 }
 
