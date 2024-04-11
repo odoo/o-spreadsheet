@@ -1655,7 +1655,7 @@ describe("clipboard", () => {
       sheetId: sheet1Id,
     });
 
-    model.dispatch("COPY", { target: target("A1") });
+    copy(model, "A1");
     activateSheet(model, sheet2Id);
     model.dispatch("PASTE", { target: target("A1") });
     expect(model.getters.getConditionalFormats(sheet2Id)).toMatchObject([
@@ -1668,7 +1668,7 @@ describe("clipboard", () => {
       sheetId: sheet1Id,
     });
     activateSheet(model, sheet1Id);
-    model.dispatch("COPY", { target: target("A1") });
+    copy(model, "A1");
     activateSheet(model, sheet2Id);
     model.dispatch("PASTE", { target: target("B2") });
     expect(model.getters.getConditionalFormats(sheet2Id)).toMatchObject([
