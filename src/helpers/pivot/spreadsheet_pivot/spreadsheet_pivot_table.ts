@@ -1,4 +1,4 @@
-import { SPTableCell, SPTableColumn, SPTableRow } from "../../types/pivot";
+import { SPTableCell, SPTableColumn, SPTableRow } from "../../../types/pivot";
 
 /**
  * Class used to ease the construction of a pivot table.

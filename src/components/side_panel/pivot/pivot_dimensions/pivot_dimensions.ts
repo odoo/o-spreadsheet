@@ -24,6 +24,7 @@ interface Props {
   unusedGroupableFields: PivotField[];
   unusedMeasureFields: PivotField[];
   unusedDateTimeGranularities: Record<string, Set<string>>;
+  allGranularities: string[];
 }
 
 export class PivotDimensions extends Component<Props, SpreadsheetChildEnv> {
@@ -40,6 +41,7 @@ export class PivotDimensions extends Component<Props, SpreadsheetChildEnv> {
     unusedGroupableFields: Array,
     unusedMeasureFields: Array,
     unusedDateTimeGranularities: Object,
+    allGranularities: Array,
   };
 
   private dimensionsRef = useRef("pivot-dimensions");
@@ -48,7 +50,7 @@ export class PivotDimensions extends Component<Props, SpreadsheetChildEnv> {
   isDateField = isDateField;
 
   startDragAndDrop(dimension: PivotDimensionType, event: MouseEvent) {
-    if (event.button !== 0) {
+    if (event.button !== 0 || (event.target as HTMLElement).tagName === "SELECT") {
       return;
     }
 
@@ -90,7 +92,7 @@ export class PivotDimensions extends Component<Props, SpreadsheetChildEnv> {
   }
 
   startDragAndDropMeasures(measure: PivotMeasure, event: MouseEvent) {
-    if (event.button !== 0) {
+    if (event.button !== 0 || (event.target as HTMLElement).tagName === "SELECT") {
       return;
     }
 

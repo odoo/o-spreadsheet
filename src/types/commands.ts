@@ -941,6 +941,12 @@ export interface RefreshPivotCommand {
   id: UID;
 }
 
+export interface InsertNewPivotCommand {
+  type: "INSERT_NEW_PIVOT";
+  pivotId: UID;
+  newSheetId: UID;
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -1084,7 +1090,8 @@ export type LocalCommand =
   | TrimWhitespaceCommand
   | RenderCanvasCommand
   | ResizeTableCommand
-  | RefreshPivotCommand;
+  | RefreshPivotCommand
+  | InsertNewPivotCommand;
 
 export type Command = CoreCommand | LocalCommand;
 

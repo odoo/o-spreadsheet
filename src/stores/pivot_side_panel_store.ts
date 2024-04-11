@@ -3,7 +3,7 @@ import { MEASURES_TYPES } from "../helpers/pivot/pivot_helpers";
 import { pivotRegistry } from "../helpers/pivot/pivot_registry";
 import { Get } from "../store_engine";
 import { _t } from "../translation";
-import { UID } from "../types";
+import { Command, UID } from "../types";
 import {
   PivotCoreDefinition,
   PivotDimension,
@@ -20,6 +20,15 @@ export class PivotSidePanelStore extends SpreadsheetStore {
     super(get);
   }
 
+  handle(cmd: Command) {
+    switch (cmd.type) {
+      case "UPDATE_PIVOT":
+        if (cmd.pivotId === this.pivotId) {
+          this.getters.getPivot(this.pivotId).init();
+        }
+    }
+  }
+
   get fields() {
     const fields = this.pivot.getFields();
     if (!fields) {
@@ -33,9 +42,10 @@ export class PivotSidePanelStore extends SpreadsheetStore {
   }
 
   get definition() {
-    const type = this.getters.getPivotCoreDefinition(this.pivotId).type;
-    const cls = pivotRegistry.get(type).definition;
-    return this.draft ? new cls(this.draft, this.fields) : this.pivot.definition;
+    const Definition = pivotRegistry.get(this.pivot.type).definition;
+    return this.draft
+      ? new Definition(this.draft, this.fields, this.getters)
+      : this.pivot.definition;
   }
 
   get isDirty() {
@@ -103,6 +113,10 @@ export class PivotSidePanelStore extends SpreadsheetStore {
         return !currentlyUsed.includes(field.name);
       })
       .sort((a, b) => a.string.localeCompare(b.string));
+  }
+
+  get allGranularities() {
+    return pivotRegistry.get(this.pivot.type).granularities;
   }
 
   get unusedDateTimeGranularities() {
@@ -203,7 +217,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
       const fieldType = fields[dimension.name]?.type;
       return fieldType === "date" || fieldType === "datetime";
     });
-    const granularities = ["year", "quarter", "month", "week", "day"];
+    const granularities = this.allGranularities;
     const granularitiesPerFields = {};
     for (const field of dateFields) {
       granularitiesPerFields[field.name] = new Set(granularities);

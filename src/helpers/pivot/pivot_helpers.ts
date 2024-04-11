@@ -2,8 +2,13 @@ import { tokenColors } from "../../components/composer/composer/composer";
 import { ComposerStore } from "../../components/composer/composer/composer_store";
 import { Token, getFunctionsFromTokens } from "../../formulas";
 import { EnrichedToken } from "../../formulas/composer_tokenizer";
+import { boolAnd, boolOr } from "../../functions/helper_logical";
+import { countUnique, sum } from "../../functions/helper_math";
+import { average, countAny, max, min } from "../../functions/helper_statistical";
+import { inferFormat } from "../../functions/helpers";
 import { _t } from "../../translation";
-import { PivotCoreDimension, PivotField } from "../../types/pivot";
+import { Arg, CellValue, Format, Locale } from "../../types";
+import { DomainArg, PivotCoreDimension, PivotField } from "../../types/pivot";
 
 const PIVOT_FUNCTIONS = ["PIVOT.VALUE", "PIVOT.HEADER", "PIVOT"];
 
@@ -41,6 +46,42 @@ for (const type in AGGREGATORS_BY_FIELD_TYPE) {
     AGGREGATORS[type][aggregator] = AGGREGATOR_NAMES[aggregator];
   }
 }
+
+export type AggregatorInstance = {
+  fn: (args: Arg[], locale?: Locale) => CellValue;
+  format?: (data: Arg | undefined) => Format | undefined;
+};
+
+export const AGGREGATORS_FN: Record<string, AggregatorInstance | undefined> = {
+  count: {
+    fn: (args: Arg[]) => countAny(args),
+  },
+  count_distinct: {
+    fn: (args: Arg[]) => countUnique(args),
+  },
+  bool_and: {
+    fn: (args: Arg[]) => boolAnd(args).result,
+  },
+  bool_or: {
+    fn: (args: Arg[]) => boolOr(args).result,
+  },
+  max: {
+    fn: (args: Arg[], locale: Locale) => max(args, locale),
+    format: inferFormat,
+  },
+  min: {
+    fn: (args: Arg[], locale: Locale) => min(args, locale),
+    format: inferFormat,
+  },
+  avg: {
+    fn: (args: Arg[], locale: Locale) => average(args, locale),
+    format: inferFormat,
+  },
+  sum: {
+    fn: (args: Arg[], locale: Locale) => sum(args, locale),
+    format: inferFormat,
+  },
+};
 
 /**
  * Build a pivot formula expression
@@ -90,12 +131,17 @@ export function getNumberOfPivotFunctions(tokens: Token[]) {
   return getFunctionsFromTokens(tokens, PIVOT_FUNCTIONS).length;
 }
 
-export const PERIODS = {
+export const ALL_PERIODS = {
   year: _t("Year"),
   quarter: _t("Quarter"),
   month: _t("Month"),
   week: _t("Week"),
   day: _t("Day"),
+  year_number: _t("Year"),
+  quarter_number: _t("Quarter"),
+  month_number: _t("Month"),
+  iso_week_number: _t("Week"),
+  day_of_month: _t("Day of Month"),
 };
 
 const DATE_FIELDS = ["date", "datetime"];
@@ -183,4 +229,12 @@ export function extractFormulaIdFromToken(tokenAtCursor: EnrichedToken) {
     return;
   }
   return idAst.value;
+}
+
+export function toDomainArgs(domainStr: string[]) {
+  const domain: DomainArg[] = [];
+  for (let i = 0; i < domainStr.length - 1; i += 2) {
+    domain.push({ field: domainStr[i], value: domainStr[i + 1] });
+  }
+  return domain;
 }

@@ -6,6 +6,7 @@ import {
 } from "../constants";
 import { UuidGenerator, getItemId, overlap, toXC, toZone, zoneToXc } from "../helpers/index";
 import { isValidLocale } from "../helpers/locale";
+import { getMaxObjectId } from "../helpers/pivot/pivot_helpers";
 import { StateUpdateMessage } from "../types/collaborative/transport_service";
 import {
   CoreCommand,
@@ -383,7 +384,7 @@ const MIGRATIONS: Migration[] = [
         data.pivots = {};
       }
       if (!data.pivotNextId) {
-        data.pivotNextId = 1;
+        data.pivotNextId = getMaxObjectId(data.pivots) + 1;
       }
       return data;
     },

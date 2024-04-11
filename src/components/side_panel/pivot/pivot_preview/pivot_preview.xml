@@ -1,0 +1,10 @@
+<templates>
+  <t t-name="o-spreadsheet-PivotPreview">
+    <div
+      class="o_pivot_preview p-4 border-bottom"
+      t-ref="pivotPreview"
+      t-on-click="this.selectPivot">
+      <span t-esc="env.model.getters.getPivotDisplayName(props.pivotId)"/>
+    </div>
+  </t>
+</templates>

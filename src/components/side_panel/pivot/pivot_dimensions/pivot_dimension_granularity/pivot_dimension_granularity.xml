@@ -8,7 +8,7 @@
           class="o_input flex-basis-50"
           t-on-change="(ev) => props.onUpdated(props.dimension, ev.target.value)">
           <option
-            t-foreach="allGranularities"
+            t-foreach="props.allGranularities"
             t-as="granularity"
             t-key="granularity"
             t-if="props.availableGranularities.has(granularity) || granularity === props.dimension.granularity"

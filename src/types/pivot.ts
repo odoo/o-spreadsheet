@@ -1,6 +1,7 @@
 import { CellValue } from "./cells";
 import { Format } from "./format";
 import { Locale } from "./locale";
+import { UID, Zone } from "./misc";
 
 export type Aggregator =
   | "array_agg"
@@ -13,7 +14,17 @@ export type Aggregator =
   | "avg"
   | "sum";
 
-export type Granularity = "day" | "week" | "month" | "quarter" | "year";
+export type Granularity =
+  | "day"
+  | "week"
+  | "month"
+  | "quarter"
+  | "year"
+  | "day_of_month"
+  | "iso_week_number"
+  | "month_number"
+  | "quarter_number"
+  | "year_number";
 
 export interface PivotCoreDimension {
   name: string;
@@ -35,12 +46,18 @@ export interface CommonPivotCoreDefinition {
 
 export interface SpreadsheetPivotCoreDefinition extends CommonPivotCoreDefinition {
   type: "SPREADSHEET";
+  dataSet?: {
+    sheetId: UID;
+    zone: Zone;
+  };
 }
 
 export type PivotCoreDefinition = SpreadsheetPivotCoreDefinition;
 
+export type TechnicalName = string;
+
 export interface PivotField {
-  name: string;
+  name: TechnicalName;
   type: string;
   string: string;
   relation?: string;
@@ -51,18 +68,20 @@ export interface PivotField {
   help?: string;
 }
 
-export type PivotFields = Record<string, PivotField | undefined>;
+export type PivotFields = Record<TechnicalName, PivotField | undefined>;
 
 export interface PivotMeasure extends PivotCoreMeasure {
   nameWithAggregator: string;
   displayName: string;
   type: string;
+  isValid: boolean;
 }
 
 export interface PivotDimension extends PivotCoreDimension {
   nameWithGranularity: string;
   displayName: string;
   type: string;
+  isValid: boolean;
 }
 
 export interface SPTableColumn {
@@ -98,3 +117,13 @@ export interface PivotTimeAdapter<T> {
   getFormat: (locale?: Locale) => Format | undefined;
   toCellValue: (normalizedValue: T) => CellValue;
 }
+
+//TODO Use it everywhere a domain is required
+export interface DomainArg {
+  field: string;
+  value: string;
+}
+
+//TODO
+// export type DomainArgs = DomainArg[];
+export type StringDomainArgs = string[];

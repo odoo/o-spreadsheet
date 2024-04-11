@@ -1,7 +1,8 @@
+import { toXC, toZone, zoneToXc } from "../helpers";
 import { _t } from "../translation";
-import { AddFunctionDescription, Arg, EvalContext, FPayload, Getters, UID } from "../types";
-import { EvaluationError } from "../types/errors";
-import { SPTableCell } from "../types/pivot";
+import { CellPosition, CellValue, EvalContext, Getters, UID } from "../types";
+import { EvaluationError, InvalidReferenceError } from "../types/errors";
+import { PivotCoreDefinition } from "../types/pivot";
 
 /**
  * Get the pivot ID from the formula pivot ID.
@@ -34,18 +35,46 @@ export function assertDomainLength(domain: string[]) {
   }
 }
 
-export function getPivotCellValueAndFormat(
-  this: EvalContext,
-  pivotId: UID,
-  pivotCell: SPTableCell,
-  fn: AddFunctionDescription
-): FPayload {
-  if (!pivotCell.domain) {
-    return { value: "", format: undefined };
-  } else {
-    const domain = pivotCell.domain;
-    const measure = pivotCell.measure;
-    const args = pivotCell.isHeader ? [pivotId, ...domain] : [pivotId, measure, ...domain];
-    return fn.compute.call(this, ...(args as Arg[])) as FPayload;
+export function addPivotDependencies(
+  evalContext: EvalContext,
+  coreDefinition: PivotCoreDefinition
+) {
+  //TODO This function can be very costly when used with PIVOT.VALUE and PIVOT.HEADER
+  if (coreDefinition.type !== "SPREADSHEET" || !coreDefinition.dataSet) {
+    return;
+  }
+  const { sheetId, zone } = coreDefinition.dataSet;
+  const xc = zoneToXc(zone);
+  let originPosition: CellPosition | undefined;
+  const originSheetId = evalContext.__originSheetId;
+  const __originCellXC = evalContext.__originCellXC?.();
+  if (__originCellXC) {
+    const cellZone = toZone(__originCellXC);
+    originPosition = {
+      sheetId: originSheetId,
+      col: cellZone.left,
+      row: cellZone.top,
+    };
+    // The following line is used to reset the dependencies of the cell, to avoid
+    // keeping dependencies from previous evaluation of the INDIRECT formula (i.e.
+    // in case the reference has been changed).
+    evalContext.updateDependencies?.(originPosition);
+  }
+  const range = evalContext.getters.getRangeFromSheetXC(sheetId, xc);
+  if (range === undefined || range.invalidXc || range.invalidSheetName) {
+    throw new InvalidReferenceError();
+  }
+  if (originPosition) {
+    evalContext.addDependencies?.(originPosition, [range]);
+  }
+
+  // First evaluation
+  for (let col = range.zone.left; col <= range.zone.right; col++) {
+    for (let row = range.zone.top; row <= range.zone.bottom; row++) {
+      /**
+       * We force the evaluation of the dependencies to ensure their presence (necessary for the first evaluation)
+       */
+      evalContext.getters.evaluateFormula(range.sheetId, toXC(col, row)) as CellValue;
+    }
   }
 }

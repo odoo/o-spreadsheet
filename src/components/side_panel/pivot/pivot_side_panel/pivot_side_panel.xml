@@ -1,0 +1,10 @@
+<templates>
+  <t t-name="o-spreadsheet-PivotSidePanel">
+    <t t-if="props.pivotId" t-component="sidePanelEditor" t-props="props"/>
+    <t t-else="">
+      <t t-foreach="env.model.getters.getPivotIds()" t-as="pivotId" t-key="pivotId">
+        <PivotPreview pivotId="pivotId"/>
+      </t>
+    </t>
+  </t>
+</templates>

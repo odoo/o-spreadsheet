@@ -37,7 +37,6 @@ import { Checkbox } from "./components/side_panel/components/checkbox/checkbox";
 import { RoundColorPicker } from "./components/side_panel/components/round_color_picker/round_color_picker";
 import { Section } from "./components/side_panel/components/section/section";
 import { FindAndReplaceStore } from "./components/side_panel/find_and_replace/find_and_replace_store";
-import { AllPivotsSidePanel } from "./components/side_panel/pivot/all_pivots_side_panel";
 import { EditableName } from "./components/side_panel/pivot/editable_name/editable_name";
 import { AddDimensionButton } from "./components/side_panel/pivot/pivot_dimensions/add_dimension_button/add_dimension_button";
 import { PivotDimension } from "./components/side_panel/pivot/pivot_dimensions/pivot_dimension/pivot_dimension";
@@ -111,6 +110,7 @@ import {
 } from "./helpers/pivot/pivot_helpers";
 import { getPivotHighlights } from "./helpers/pivot/pivot_highlight";
 import { pivotRegistry } from "./helpers/pivot/pivot_registry";
+import { pivotSidePanelRegistry } from "./helpers/pivot/pivot_side_panel_registry";
 import { pivotTimeAdapter, pivotTimeAdapterRegistry } from "./helpers/pivot/pivot_time_adapter";
 import {
   createEmptyExcelSheet,
@@ -255,6 +255,7 @@ export const registries = {
   clipboardHandlersRegistries,
   pivotRegistry,
   pivotTimeAdapterRegistry,
+  pivotSidePanelRegistry,
 };
 export const helpers = {
   arg,
@@ -355,7 +356,6 @@ export const components = {
   PivotDimension,
   PivotDimensions,
   EditableName,
-  AllPivotsSidePanel,
 };
 
 export const hooks = {
@@ -401,7 +401,7 @@ export const constants = {
 };
 
 export { PivotRuntimeDefinition } from "./helpers/pivot/pivot_runtime_definition";
-export { SpreadsheetPivotTable } from "./helpers/pivot/spreadsheet_pivot_table";
+export { SpreadsheetPivotTable } from "./helpers/pivot/spreadsheet_pivot/spreadsheet_pivot_table";
 
 export type { EnrichedToken } from "./formulas/composer_tokenizer";
 export type { AST, ASTFuncall } from "./formulas/parser";
