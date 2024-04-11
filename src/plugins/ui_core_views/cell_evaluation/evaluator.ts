@@ -161,8 +161,10 @@ export class Evaluator {
   }
 
   evaluateAllCells() {
+    console.time("evaluateAllCells");
     this.evaluatedCells = new PositionMap();
     this.evaluate(this.getAllCells());
+    console.timeEnd("evaluateAllCells");
   }
 
   evaluateFormula(sheetId: UID, formulaString: string): CellValue | Matrix<CellValue> {
