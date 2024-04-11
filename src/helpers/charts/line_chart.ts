@@ -283,9 +283,18 @@ function canBeLinearChart(chart: LineChart, getters: Getters): boolean {
   return true;
 }
 
-function getLineConfiguration(chart: LineChart, labels: string[]): ChartConfiguration {
+function getLineConfiguration(
+  chart: LineChart,
+  labels: string[],
+  truncateLabels: boolean
+): ChartConfiguration {
   const fontColor = chartFontColor(chart.background);
-  const config: ChartConfiguration = getDefaultChartJsRuntime(chart, labels, fontColor);
+  const config: ChartConfiguration = getDefaultChartJsRuntime(
+    chart,
+    labels,
+    fontColor,
+    truncateLabels
+  );
   const legend: ChartLegendOptions = {
     labels: {
       fontColor,
@@ -349,7 +358,8 @@ function createLineChartRuntime(chart: LineChart, getters: Getters): LineChartRu
   if (axisType === "time") {
     ({ labels, dataSetsValues } = fixEmptyLabelsForDateCharts(labels, dataSetsValues));
   }
-  const config = getLineConfiguration(chart, labels);
+  const truncateLabels = axisType === "category";
+  const config = getLineConfiguration(chart, labels, truncateLabels);
   const labelFormat = getLabelFormat(getters, chart.labelRange)!;
   if (axisType === "time") {
     config.options!.scales!.xAxes![0].type = "time";
