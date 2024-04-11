@@ -98,7 +98,8 @@ export function getDefaultChartJsRuntime(
   chart: AbstractChart,
   labels: string[],
   fontColor: Color,
-  { format, locale }: LocaleFormat
+  { format, locale }: LocaleFormat,
+  truncateLabels: boolean = true
 ): ChartConfiguration {
   return {
     type: chart.type,
@@ -156,7 +157,7 @@ export function getDefaultChartJsRuntime(
       },
     },
     data: {
-      labels: labels.map(truncateLabel),
+      labels: truncateLabels ? labels.map(truncateLabel) : labels,
       datasets: [],
     },
   };

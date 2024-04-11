@@ -288,14 +288,16 @@ function canBeLinearChart(labelRange: Range | undefined, getters: Getters): bool
 function getLineConfiguration(
   chart: LineChart,
   labels: string[],
-  localeFormat: LocaleFormat
+  localeFormat: LocaleFormat,
+  truncateLabels: boolean = true
 ): ChartConfiguration {
   const fontColor = chartFontColor(chart.background);
   const config: ChartConfiguration = getDefaultChartJsRuntime(
     chart,
     labels,
     fontColor,
-    localeFormat
+    localeFormat,
+    truncateLabels
   );
   const legend: ChartLegendOptions = {
     labels: {
@@ -377,9 +379,10 @@ export function createLineChartRuntime(chart: LineChart, getters: Getters): Line
   }
 
   const locale = getters.getLocale();
+  const truncateLabels = axisType === "category";
   const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
   const localeFormat = { format: dataSetFormat, locale };
-  const config = getLineConfiguration(chart, labels, localeFormat);
+  const config = getLineConfiguration(chart, labels, localeFormat, truncateLabels);
   const labelFormat = getChartLabelFormat(getters, chart.labelRange)!;
   if (axisType === "time") {
     config.options!.scales!.xAxes![0].type = "time";
