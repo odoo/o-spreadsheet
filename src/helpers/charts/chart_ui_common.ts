@@ -66,7 +66,8 @@ export function truncateLabel(label: string | undefined): string {
 export function getDefaultChartJsRuntime(
   chart: AbstractChart,
   labels: string[],
-  fontColor: Color
+  fontColor: Color,
+  truncateLabels: boolean = true
 ): ChartConfiguration {
   return {
     type: chart.type,
@@ -106,7 +107,7 @@ export function getDefaultChartJsRuntime(
       },
     },
     data: {
-      labels: labels.map(truncateLabel),
+      labels: truncateLabels ? labels.map(truncateLabel) : labels,
       datasets: [],
     },
   };
