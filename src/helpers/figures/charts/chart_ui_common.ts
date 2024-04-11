@@ -100,7 +100,7 @@ export function getDefaultChartJsRuntime(
   chart: AbstractChart,
   labels: string[],
   fontColor: Color,
-  { format, locale }: LocaleFormat
+  { format, locale, truncateLabels }: LocaleFormat & { truncateLabels?: boolean }
 ): Required<ChartConfiguration> {
   const options: ChartOptions = {
     // https://www.chartjs.org/docs/latest/general/responsive.html
@@ -148,7 +148,7 @@ export function getDefaultChartJsRuntime(
     type: chart.type as ChartType,
     options,
     data: {
-      labels: labels.map(truncateLabel),
+      labels: truncateLabels ? labels.map(truncateLabel) : labels,
       datasets: [],
     },
     platform: undefined as unknown as typeof BasePlatform, // This key is optional and will be set by chart.js
