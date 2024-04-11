@@ -1,6 +1,6 @@
 import { ChartType, TooltipItem } from "chart.js";
 import { CommandResult, Model } from "../../../src";
-import { zoneToXc } from "../../../src/helpers";
+import { toZone, zoneToXc } from "../../../src/helpers";
 import { ChartDefinition, UID } from "../../../src/types";
 import {
   BarChartDefinition,
@@ -33,10 +33,11 @@ import {
 import { getPlugin, mockChart, nextTick, target } from "../../test_helpers/helpers";
 
 import { ChartTerms } from "../../../src/components/translations_terms";
-import { FIGURE_ID_SPLITTER } from "../../../src/constants";
+import { FIGURE_ID_SPLITTER, MAX_CHAR_LABEL } from "../../../src/constants";
 import { BarChart } from "../../../src/helpers/figures/charts";
 import { ChartPlugin } from "../../../src/plugins/core";
 import { FR_LOCALE } from "../../test_helpers/constants";
+import { getCellContent } from "../../test_helpers/getters_helpers";
 
 jest.mock("../../../src/helpers/uuid", () => require("../../__mocks__/uuid"));
 
@@ -1984,6 +1985,33 @@ describe("Linear/Time charts", () => {
     const chart = (model.getters.getChartRuntime(chartId) as LineChartRuntime).chartJsConfig;
     expect(chart.data!.labels![1]).toEqual("1/17/1900");
     expect(chart.data!.datasets![0].data![1]).toEqual({ y: undefined, x: "1/17/1900" });
+  });
+
+  test("date chart: long labels are not truncated", () => {
+    model.dispatch("SET_FORMATTING", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: [toZone("C2")],
+      format: "m/d/yyyy hh:mm:ss a",
+    });
+    setCellContent(model, "C2", "300");
+    setCellContent(model, "B2", "10");
+    const formattedValue = getCellContent(model, "C2");
+    expect(formattedValue).toEqual("10/26/1900 12:00:00 AM");
+    expect(formattedValue.length).toBeGreaterThan(MAX_CHAR_LABEL);
+    createChart(
+      model,
+      {
+        type: "line",
+        dataSets: ["B2"],
+        labelRange: "C2",
+        labelsAsText: false,
+        dataSetsHaveTitle: false,
+      },
+      chartId
+    );
+    const chart = (model.getters.getChartRuntime(chartId) as LineChartRuntime).chartJsConfig;
+    expect(chart.data!.labels![0]).toEqual(formattedValue);
+    expect(chart.data!.datasets![0].data![0]).toEqual({ y: 10, x: formattedValue });
   });
 
   test("linear chart: label 0 isn't set to undefined", () => {
