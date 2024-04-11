@@ -4,9 +4,9 @@ import { AddFunctionDescription, CellPosition, FPayload, Matrix, Maybe } from ".
 import { CellErrorType, EvaluationError, InvalidReferenceError } from "../types/errors";
 import { arg } from "./arguments";
 import {
+  addPivotDependencies,
   assertDomainLength,
   assertMeasureExist,
-  getPivotCellValueAndFormat,
   getPivotId,
 } from "./helper_lookup";
 import {
@@ -720,21 +720,19 @@ export const PIVOT_VALUE = {
     assertMeasureExist(pivotId, measure, this.getters);
     assertDomainLength(domainArgs);
     const pivot = this.getters.getPivot(pivotId);
+    const coreDefinition = this.getters.getPivotCoreDefinition(pivotId);
+    addPivotDependencies(this, coreDefinition);
     const error = pivot.assertIsValid({ throwOnError: false });
     if (error) {
       return error;
     }
-    const value = pivot.getPivotCellValue(measure, domainArgs);
+    const { value, format } = pivot.getPivotCellValueAndFormat(measure, domainArgs);
     if (!value && !this.getters.areDomainArgsFieldsValid(pivotId, domainArgs)) {
       return {
         value: CellErrorType.GenericError,
         message: _t("Dimensions don't match the pivot definition"),
       };
     }
-    if (measure === "__count") {
-      return { value, format: "0" };
-    }
-    const format = pivot.getPivotMeasureFormat(measure);
     return { value, format };
   },
   returns: ["NUMBER", "STRING"],
@@ -753,16 +751,14 @@ export const PIVOT_HEADER = {
     const _pivotId = getPivotId(_pivotFormulaId, this.getters);
     assertDomainLength(domainArgs);
     const pivot = this.getters.getPivot(_pivotId);
+    const coreDefinition = this.getters.getPivotCoreDefinition(_pivotId);
+    addPivotDependencies(this, coreDefinition);
     const error = pivot.assertIsValid({ throwOnError: false });
     if (error) {
       return error;
     }
     const fieldName = domainArgs.at(-2);
     const valueArg = domainArgs.at(-1);
-    const format =
-      !fieldName || fieldName === "measure" || valueArg === "false"
-        ? undefined
-        : pivot.getPivotFieldFormat(fieldName);
     if (
       !this.getters.areDomainArgsFieldsValid(
         _pivotId,
@@ -774,9 +770,10 @@ export const PIVOT_HEADER = {
         message: _t("Dimensions don't match the pivot definition"),
       };
     }
+    const { value, format } = pivot.getPivotHeaderValueAndFormat(domainArgs);
     return {
-      value: pivot.computePivotHeaderValue(domainArgs),
-      format,
+      value,
+      format: !fieldName || fieldName === "measure" || valueArg === "false" ? undefined : format,
     };
   },
   returns: ["NUMBER", "STRING"],
@@ -802,6 +799,9 @@ export const PIVOT = {
     const _pivotFormulaId = toString(pivotId);
     const _pivotId = getPivotId(_pivotFormulaId, this.getters);
     const pivot = this.getters.getPivot(_pivotId);
+    const coreDefinition = this.getters.getPivotCoreDefinition(_pivotId);
+    addPivotDependencies(this, coreDefinition);
+    pivot.init({ reload: pivot.needsReevaluation });
     const error = pivot.assertIsValid({ throwOnError: false });
     if (error) {
       return error;
@@ -826,8 +826,16 @@ export const PIVOT = {
       result[col] = [];
       for (const row of tableRows) {
         const pivotCell = cells[col][row];
-        const fn = pivotCell.isHeader ? PIVOT_HEADER : PIVOT_VALUE;
-        result[col].push(getPivotCellValueAndFormat.call(this, _pivotFormulaId, pivotCell, fn));
+        if (!pivotCell.domain) {
+          result[col].push({ value: "", format: undefined });
+        } else if (pivotCell.isHeader) {
+          result[col].push(pivot.getPivotHeaderValueAndFormat(pivotCell.domain));
+        } else {
+          if (!pivotCell.measure) {
+            throw new Error("Measure is missing");
+          }
+          result[col].push(pivot.getPivotCellValueAndFormat(pivotCell.measure, pivotCell.domain));
+        }
       }
     }
     if (_includeColumnHeaders) {

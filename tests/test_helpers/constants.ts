@@ -1,5 +1,6 @@
 import { SpreadsheetPivotTable } from "../../src";
 import { BACKGROUND_CHART_COLOR, DEFAULT_BORDER_DESC } from "../../src/constants";
+import { toZone } from "../../src/helpers";
 import { CoreCommand, CoreCommandTypes, DEFAULT_LOCALE, Locale, TableStyle } from "../../src/types";
 import { PivotCoreDefinition } from "../../src/types/pivot";
 import { target, toRangesData } from "./helpers";
@@ -59,6 +60,10 @@ export const TEST_CHART_DATA = {
 };
 
 const PIVOT: PivotCoreDefinition = {
+  dataSet: {
+    zone: toZone("A1:B1"),
+    sheetId: "Sheet1",
+  },
   columns: [],
   rows: [],
   measures: [],

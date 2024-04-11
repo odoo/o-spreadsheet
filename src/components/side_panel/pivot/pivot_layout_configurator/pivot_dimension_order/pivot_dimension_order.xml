@@ -6,9 +6,14 @@
         <select
           class="o_input flex-basis-50"
           t-on-change="(ev) => props.onUpdated(props.dimension, ev.target.value)">
-          <option value="" t-att-selected="props.dimension.order === undefined">Automatic</option>
           <option value="asc" t-att-selected="props.dimension.order === 'asc'">Ascending</option>
           <option value="desc" t-att-selected="props.dimension.order === 'desc'">Descending</option>
+          <option
+            t-if="props.dimension.type !== 'date'"
+            value=""
+            t-att-selected="props.dimension.order === undefined">
+            Unsorted
+          </option>
         </select>
       </div>
     </div>

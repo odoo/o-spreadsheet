@@ -26,6 +26,8 @@ export * from "./getters";
 export * from "./history";
 export * from "./locale";
 export * from "./misc";
+export * from "./pivot";
+export * from "./pivot_runtime";
 export * from "./range";
 export * from "./rendering";
 export * from "./table";

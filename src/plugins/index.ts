@@ -16,6 +16,7 @@ import {
 import { HeaderGroupingPlugin } from "./core/header_grouping";
 import { PivotCorePlugin } from "./core/pivot";
 import { SettingsPlugin } from "./core/settings";
+import { SpreadsheetPivotCorePlugin } from "./core/spreadsheet_pivot";
 import { TableStylePlugin } from "./core/table_style";
 import { CorePluginConstructor } from "./core_plugin";
 import {
@@ -36,6 +37,7 @@ import {
   FindAndReplacePlugin,
   FormatPlugin,
   HeaderVisibilityUIPlugin,
+  InsertPivotPlugin,
   SheetUIPlugin,
   SortPlugin,
   UIOptionsPlugin,
@@ -71,6 +73,7 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("chart", ChartPlugin)
   .add("image", ImagePlugin)
   .add("pivot_core", PivotCorePlugin)
+  .add("spreadsheet_pivot_core", SpreadsheetPivotCorePlugin)
   .add("tableStyle", TableStylePlugin);
 
 // Plugins which handle a specific feature, without handling any core commands
@@ -82,6 +85,7 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("sort", SortPlugin)
   .add("automatic_sum", AutomaticSumPlugin)
   .add("format", FormatPlugin)
+  .add("insert_pivot", InsertPivotPlugin)
   .add("split_to_columns", SplitToColumnsPlugin)
   .add("collaborative", CollaborativePlugin)
   .add("history", HistoryPlugin)

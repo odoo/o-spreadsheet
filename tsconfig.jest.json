@@ -29,5 +29,6 @@
     "hideGenerator": true,
     "disableSources": true,
     "excludeExternals": true
-  }
+  },
+  "files": ["global.d.ts"]
 }

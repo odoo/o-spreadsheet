@@ -11,12 +11,13 @@ import {
 import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
 import { assertPositive } from "./helper_assert";
-import { countUnique, isDefined, sum } from "./helper_math";
+import { countUnique, sum } from "./helper_math";
 import { getUnitMatrix } from "./helper_matrices";
 import {
   assert,
   assertNotZero,
   inferFormat,
+  isDataNonEmpty,
   isEvaluationError,
   reduceAny,
   strictToNumber,
@@ -568,7 +569,7 @@ export const COUNTUNIQUEIFS = {
       args,
       (i, j) => {
         const data = range[i][j];
-        if (isDefined(data)) {
+        if (isDataNonEmpty(data)) {
           uniqueValues.add(data.value);
         }
       },

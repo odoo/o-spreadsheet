@@ -2,8 +2,13 @@ import { tokenColors } from "../../components/composer/composer/composer";
 import { ComposerStore } from "../../components/composer/composer/composer_store";
 import { Token, getFunctionsFromTokens } from "../../formulas";
 import { EnrichedToken } from "../../formulas/composer_tokenizer";
+import { boolAnd, boolOr } from "../../functions/helper_logical";
+import { countUnique, sum } from "../../functions/helper_math";
+import { average, countAny, max, min } from "../../functions/helper_statistical";
+import { inferFormat } from "../../functions/helpers";
 import { _t } from "../../translation";
-import { PivotCoreDimension, PivotField } from "../../types/pivot";
+import { Arg, CellValue, FPayload, Format, Locale, Matrix } from "../../types";
+import { DomainArg, PivotCoreDimension, PivotField } from "../../types/pivot";
 
 const PIVOT_FUNCTIONS = ["PIVOT.VALUE", "PIVOT.HEADER", "PIVOT"];
 
@@ -18,19 +23,12 @@ const AGGREGATOR_NAMES = {
   sum: _t("Sum"),
 };
 
-const NUMBER_AGGREGATORS = ["max", "min", "avg", "sum", "count_distinct", "count"];
-const DATE_AGGREGATORS = ["max", "min", "count_distinct", "count"];
+const NUMBER_CHAR_AGGREGATORS = ["max", "min", "avg", "sum", "count_distinct", "count"];
 
 const AGGREGATORS_BY_FIELD_TYPE = {
-  integer: NUMBER_AGGREGATORS,
-  float: NUMBER_AGGREGATORS,
-  monetary: NUMBER_AGGREGATORS,
-  date: DATE_AGGREGATORS,
-  datetime: DATE_AGGREGATORS,
-  boolean: ["count_distinct", "count", "bool_and", "bool_or"],
-  char: ["count_distinct", "count"],
-  many2one: ["count_distinct", "count"],
-  reference: ["count_distinct", "count"],
+  integer: NUMBER_CHAR_AGGREGATORS,
+  char: NUMBER_CHAR_AGGREGATORS,
+  //TODO Support for date and boolean
 };
 
 export const AGGREGATORS = {};
@@ -41,6 +39,46 @@ for (const type in AGGREGATORS_BY_FIELD_TYPE) {
     AGGREGATORS[type][aggregator] = AGGREGATOR_NAMES[aggregator];
   }
 }
+
+type AggregatorFN = {
+  fn: (args: Matrix<FPayload>, locale?: Locale) => CellValue;
+  format: (data: Arg | undefined) => Format | undefined;
+};
+
+export const AGGREGATORS_FN: Record<string, AggregatorFN | undefined> = {
+  count: {
+    fn: (args: Matrix<FPayload>) => countAny([args]),
+    format: () => "0",
+  },
+  count_distinct: {
+    fn: (args: Matrix<FPayload>) => countUnique([args]),
+    format: () => "0",
+  },
+  bool_and: {
+    fn: (args: Matrix<FPayload>) => boolAnd([args]).result,
+    format: () => undefined,
+  },
+  bool_or: {
+    fn: (args: Matrix<FPayload>) => boolOr([args]).result,
+    format: () => undefined,
+  },
+  max: {
+    fn: (args: Matrix<FPayload>, locale: Locale) => max([args], locale),
+    format: inferFormat,
+  },
+  min: {
+    fn: (args: Matrix<FPayload>, locale: Locale) => min([args], locale),
+    format: inferFormat,
+  },
+  avg: {
+    fn: (args: Matrix<FPayload>, locale: Locale) => average([args], locale),
+    format: inferFormat,
+  },
+  sum: {
+    fn: (args: Matrix<FPayload>, locale: Locale) => sum([args], locale),
+    format: inferFormat,
+  },
+};
 
 /**
  * Build a pivot formula expression
@@ -90,16 +128,20 @@ export function getNumberOfPivotFunctions(tokens: Token[]) {
   return getFunctionsFromTokens(tokens, PIVOT_FUNCTIONS).length;
 }
 
-export const PERIODS = {
+export const ALL_PERIODS = {
   year: _t("Year"),
   quarter: _t("Quarter"),
   month: _t("Month"),
   week: _t("Week"),
   day: _t("Day"),
+  year_number: _t("Year"),
+  quarter_number: _t("Quarter"),
+  month_number: _t("Month"),
+  iso_week_number: _t("Week"),
+  day_of_month: _t("Day of Month"),
 };
 
 const DATE_FIELDS = ["date", "datetime"];
-export const MEASURES_TYPES = ["integer", "float", "monetary"];
 
 /**
  * Parse a dimension string into a pivot dimension definition.
@@ -183,4 +225,15 @@ export function extractFormulaIdFromToken(tokenAtCursor: EnrichedToken) {
     return;
   }
   return idAst.value;
+}
+
+export function toDomainArgs(domainStr: string[]) {
+  if (domainStr.length % 2 !== 0) {
+    throw new Error("Invalid domain: odd number of elements");
+  }
+  const domain: DomainArg[] = [];
+  for (let i = 0; i < domainStr.length - 1; i += 2) {
+    domain.push({ field: domainStr[i], value: domainStr[i + 1] });
+  }
+  return domain;
 }

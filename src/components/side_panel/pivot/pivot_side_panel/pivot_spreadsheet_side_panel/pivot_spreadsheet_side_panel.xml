@@ -1,0 +1,70 @@
+<templates>
+  <t t-name="o-spreadsheet-PivotSpreadsheetSidePanel">
+    <div class="d-flex flex-column h-100 justify-content-between overflow-hidden">
+      <div class="h-100 overflow-auto">
+        <Section>
+          <t t-set-slot="title">Name</t>
+          <EditableName name="name" displayName="displayName" onChanged.bind="onNameChanged"/>
+          <div class="btn btn-link o_duplicate_pivot" t-on-click="duplicatePivot">
+            <i class="fa fa-solid fa-copy me-1"/>
+            Duplicate Pivot
+          </div>
+        </Section>
+        <Section>
+          <t t-set-slot="title">Range</t>
+          <SelectionInput
+            ranges="ranges"
+            required="true"
+            isInvalid="shouldDisplayInvalidRangeError"
+            hasSingleRange="true"
+            onSelectionChanged="(ranges) => this.onSelectionChanged(ranges)"
+            onSelectionConfirmed="() => this.onSelectionConfirmed()"
+          />
+          <span
+            class="text-danger sp_range_error_message"
+            t-if="shouldDisplayInvalidRangeError"
+            t-esc="pivot.invalidRangeMessage"
+          />
+        </Section>
+
+        <PivotLayoutConfigurator
+          t-if="!pivot.isInvalidRange"
+          unusedGroupableFields="store.unusedGroupableFields"
+          unusedMeasureFields="store.unusedMeasureFields"
+          unusedDateTimeGranularities="store.unusedDateTimeGranularities"
+          allGranularities="store.allGranularities"
+          definition="definition"
+          onDimensionsUpdated.bind="onDimensionsUpdated"
+        />
+        <Section>
+          <button class="btn btn-link sp_back" t-on-click="back">Back</button>
+          <button class="btn btn-link sp_delete" t-on-click="delete">Delete</button>
+        </Section>
+      </div>
+      <Section
+        class="'align-items-center border-top d-flex flex-row justify-content-between py-1 pivot-defer-update'">
+        <Checkbox
+          label="deferUpdatesLabel"
+          title="deferUpdatesTooltip"
+          value="store.updatesAreDeferred"
+          onChange="(value) => store.deferUpdates(value)"
+        />
+        <div>
+          <i
+            t-if="store.isDirty"
+            class="btn btn-sm pe-0 fa fa-undo"
+            title="Discard all changes"
+            t-on-click="() => store.discardPendingUpdate()"
+          />
+          <span
+            t-if="store.isDirty"
+            class="btn btm-sm btn-link sp_apply_update"
+            title="Apply all changes"
+            t-on-click="() => store.applyUpdate()">
+            Update
+          </span>
+        </div>
+      </Section>
+    </div>
+  </t>
+</templates>

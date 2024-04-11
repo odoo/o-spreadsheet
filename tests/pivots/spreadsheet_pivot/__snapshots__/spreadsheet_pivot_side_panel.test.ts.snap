@@ -1,0 +1,377 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
+<div
+  class="o-sidePanel"
+>
+  <div
+    class="o-sidePanelHeader"
+  >
+    <div
+      class="o-sidePanelTitle"
+    >
+      Pivot #1
+    </div>
+    <div
+      class="o-sidePanelClose"
+    >
+      ✕
+    </div>
+  </div>
+  <div
+    class="o-sidePanelBody"
+  >
+    <div
+      class="d-flex flex-column h-100 justify-content-between overflow-hidden"
+    >
+      <div
+        class="h-100 overflow-auto"
+      >
+        <div
+          class="o-section"
+        >
+          <div
+            class="o-section-title"
+          >
+            Name
+          </div>
+          
+          
+          <div
+            class="o_sp_en_display_name"
+          >
+            (#1) Pivot
+          </div>
+          <div
+            class="btn btn-link o_sp_en_rename"
+          >
+            <i
+              class="fa fa-pencil me-1"
+            />
+             Rename 
+          </div>
+          <br />
+          <div
+            class="btn btn-link o_duplicate_pivot"
+          >
+            <i
+              class="fa fa-solid fa-copy me-1"
+            />
+             Duplicate Pivot 
+          </div>
+          
+        </div>
+        
+        <div
+          class="o-section"
+        >
+          <div
+            class="o-section-title"
+          >
+            Range
+          </div>
+          
+          <div
+            class="o-selection"
+          >
+            <div
+              class="o-selection-input d-flex flex-row"
+            >
+              <div
+                class="position-relative w-100"
+              >
+                <input
+                  class="w-100 o-required"
+                  spellcheck="false"
+                  style="color: #000;"
+                  type="text"
+                />
+                
+              </div>
+              
+            </div>
+            
+            
+            <div
+              class="o-selection-input d-flex flex-row"
+            >
+              
+              
+              
+            </div>
+          </div>
+          
+          
+        </div>
+        
+        <div
+          class="o_side_panel_section pivot-dimensions o-section"
+        >
+          <div
+            class="fw-bold py-1 d-flex flex-row justify-content-between align-items-center o-section-title"
+          >
+             Columns 
+            <span
+              class="btn btn-sm btn-link add-dimension"
+            >
+               Add 
+            </span>
+            
+            
+          </div>
+          
+          
+          <div
+            class="fw-bold pt-4 pb-1 d-flex flex-row justify-content-between align-items-center o-section-title"
+          >
+             Rows 
+            <span
+              class="btn btn-sm btn-link add-dimension"
+            >
+               Add 
+            </span>
+            
+            
+          </div>
+          
+          
+          <div
+            class="fw-bold pt-4 pb-1 d-flex flex-row justify-content-between align-items-center o-section-title"
+          >
+             Measures 
+            <span
+              class="btn btn-sm btn-link add-dimension"
+            >
+               Add 
+            </span>
+            
+            
+          </div>
+          
+          
+        </div>
+        
+        <div
+          class="o-section"
+        >
+          
+          <button
+            class="btn btn-link sp_back"
+          >
+            Back
+          </button>
+          <button
+            class="btn btn-link sp_delete"
+          >
+            Delete
+          </button>
+          
+        </div>
+        
+      </div>
+      <div
+        class="o-section align-items-center border-top d-flex flex-row justify-content-between py-1 pivot-defer-update"
+      >
+        
+        <label
+          class="o-checkbox"
+          title="Changing the pivot definition requires to reload the data. It may take some time."
+        >
+          <input
+            class="align-middle"
+            type="checkbox"
+          />
+          Defer updates
+          
+        </label>
+        <div>
+          
+          
+        </div>
+        
+      </div>
+      
+    </div>
+    
+  </div>
+  
+</div>
+`;
+
+exports[`Spreadsheet pivot side panel It should display only the selection input when the dataSet is not valid 1`] = `
+<div
+  class="o-sidePanel"
+>
+  <div
+    class="o-sidePanelHeader"
+  >
+    <div
+      class="o-sidePanelTitle"
+    >
+      Pivot #1
+    </div>
+    <div
+      class="o-sidePanelClose"
+    >
+      ✕
+    </div>
+  </div>
+  <div
+    class="o-sidePanelBody"
+  >
+    <div
+      class="d-flex flex-column h-100 justify-content-between overflow-hidden"
+    >
+      <div
+        class="h-100 overflow-auto"
+      >
+        <div
+          class="o-section"
+        >
+          <div
+            class="o-section-title"
+          >
+            Name
+          </div>
+          
+          
+          <div
+            class="o_sp_en_display_name"
+          >
+            (#1) Pivot
+          </div>
+          <div
+            class="btn btn-link o_sp_en_rename"
+          >
+            <i
+              class="fa fa-pencil me-1"
+            />
+             Rename 
+          </div>
+          <br />
+          <div
+            class="btn btn-link o_duplicate_pivot"
+          >
+            <i
+              class="fa fa-solid fa-copy me-1"
+            />
+             Duplicate Pivot 
+          </div>
+          
+        </div>
+        
+        <div
+          class="o-section"
+        >
+          <div
+            class="o-section-title"
+          >
+            Range
+          </div>
+          
+          <div
+            class="o-selection"
+          >
+            <div
+              class="o-selection-input d-flex flex-row"
+            >
+              <div
+                class="position-relative w-100"
+              >
+                <input
+                  class="w-100 o-required o-focused o-invalid border-danger position-relative text-decoration-underline"
+                  spellcheck="false"
+                  style="color: #000;"
+                  type="text"
+                />
+                <span
+                  class="error-icon text-danger position-absolute d-flex align-items-center"
+                  title="This range is invalid"
+                >
+                  <div
+                    class="o-icon"
+                  >
+                    <i
+                      class="fa fa-exclamation-circle"
+                    />
+                  </div>
+                </span>
+                
+              </div>
+              
+            </div>
+            
+            
+            <div
+              class="o-selection-input d-flex flex-row"
+            >
+              
+              <button
+                class="o-btn-action bg-transparent fw-bold o-selection-ko"
+              >
+                 Reset 
+              </button>
+              
+              <button
+                class="o-btn-action bg-transparent fw-bold o-selection-ok"
+              >
+                 Confirm 
+              </button>
+              
+            </div>
+          </div>
+          <span
+            class="text-danger sp_range_error_message"
+          >
+            The pivot cannot be created because the dataset is missing.
+          </span>
+          
+        </div>
+        
+        
+        <div
+          class="o-section"
+        >
+          
+          <button
+            class="btn btn-link sp_back"
+          >
+            Back
+          </button>
+          <button
+            class="btn btn-link sp_delete"
+          >
+            Delete
+          </button>
+          
+        </div>
+        
+      </div>
+      <div
+        class="o-section align-items-center border-top d-flex flex-row justify-content-between py-1 pivot-defer-update"
+      >
+        
+        <label
+          class="o-checkbox"
+          title="Changing the pivot definition requires to reload the data. It may take some time."
+        >
+          <input
+            class="align-middle"
+            type="checkbox"
+          />
+          Defer updates
+          
+        </label>
+        <div>
+          
+          
+        </div>
+        
+      </div>
+      
+    </div>
+    
+  </div>
+  
+</div>
+`;

@@ -1,4 +1,5 @@
 import { _t } from "../../translation";
+import { EvaluationError } from "../../types/errors";
 import {
   CommonPivotCoreDefinition,
   PivotCoreDimension,
@@ -7,6 +8,7 @@ import {
   PivotFields,
   PivotMeasure,
 } from "../../types/pivot";
+import { isDateField } from "./pivot_helpers";
 
 /**
  * Represent a pivot runtime definition. A pivot runtime definition is a pivot
@@ -23,23 +25,40 @@ export class PivotRuntimeDefinition {
     this.columns = definition.columns.map((dimension) => createPivotDimension(fields, dimension));
     this.rows = definition.rows.map((dimension) => createPivotDimension(fields, dimension));
   }
+
+  getDimension(nameWithGranularity: string): PivotDimension {
+    const dimension =
+      this.columns.find((d) => d.nameWithGranularity === nameWithGranularity) ||
+      this.rows.find((d) => d.nameWithGranularity === nameWithGranularity);
+    if (!dimension) {
+      throw new EvaluationError(_t("Dimension %s does not exist", nameWithGranularity));
+    }
+    return dimension;
+  }
+
+  getMeasure(name: string): PivotMeasure {
+    const measure = this.measures.find((measure) => measure.name === name);
+    if (!measure) {
+      throw new EvaluationError(_t("Field %s does not exist", name));
+    }
+    return measure;
+  }
 }
 
 function createMeasure(fields: PivotFields, measure: PivotCoreMeasure): PivotMeasure {
   const name = measure.name;
-  const aggregator = measure.aggregator || fields[name]?.aggregator;
   const field =
-    name === "__count" ? { name: "__count", string: _t("Count"), type: "integer" } : fields[name];
-  if (!field) {
-    throw new Error(`Field ${name} not found in fields`);
-  }
+    name === "__count"
+      ? { name: "__count", string: _t("Count"), type: "integer", aggregator: "sum" }
+      : fields[name];
+  const aggregator = measure.aggregator || field?.aggregator;
   return {
     nameWithAggregator: name + (aggregator ? `:${aggregator}` : ""),
     /**
      * Display name of the measure
      * e.g. "__count" -> "Count", "amount_total" -> "Total Amount"
      */
-    displayName: field.string,
+    displayName: field?.string ?? name,
     /**
      * Get the name of the measure, as it is stored in the pivot formula
      */
@@ -52,28 +71,29 @@ function createMeasure(fields: PivotFields, measure: PivotCoreMeasure): PivotMea
      * Get the type of the measure field
      * e.g. "stage_id" -> "many2one", "create_date:month" -> "date"
      */
-    type: name === "__count" ? "integer" : field.type,
+    type: name === "__count" ? "integer" : field?.type ?? "integer",
+    isValid: !!field,
   };
 }
 
 function createPivotDimension(fields: PivotFields, dimension: PivotCoreDimension): PivotDimension {
   const field = fields[dimension.name];
-  if (!field) {
-    throw new Error(`Field ${name} not found in fields`);
-  }
+  const type = field?.type ?? "integer";
+  const granularity =
+    field && isDateField(field) ? dimension.granularity ?? "month_number" : undefined;
+
   return {
     /**
      * Get the display name of the dimension
      * e.g. "stage_id" -> "Stage", "create_date:month" -> "Create Date"
      */
-    displayName: field.string,
+    displayName: field?.string ?? dimension.name,
 
     /**
      * Get the name of the dimension, as it is stored in the pivot formula
      * e.g. "stage_id", "create_date:month"
      */
-    nameWithGranularity:
-      dimension.name + (dimension.granularity ? `:${dimension.granularity}` : ""),
+    nameWithGranularity: dimension.name + (granularity ? `:${granularity}` : ""),
 
     /**
      * Get the name of the field of the dimension
@@ -85,14 +105,16 @@ function createPivotDimension(fields: PivotFields, dimension: PivotCoreDimension
      * Get the aggregate operator of the dimension
      * e.g. "stage_id" -> undefined, "create_date:month" -> "month"
      */
-    granularity: dimension.granularity,
+    granularity,
 
     /**
      * Get the type of the field of the dimension
      * e.g. "stage_id" -> "many2one", "create_date:month" -> "date"
      */
-    type: field.type,
+    type,
 
     order: dimension.order,
+
+    isValid: !!field,
   };
 }

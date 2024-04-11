@@ -933,3 +933,14 @@ export function flattenRowFirst<T, K>(items: Array<T | Matrix<T>>, callback: (va
     "rowFirst"
   );
 }
+
+export function isDataNonEmpty(data: FPayload | undefined): boolean {
+  if (data === undefined) {
+    return false;
+  }
+  const { value } = data;
+  if (value === null || value === "") {
+    return false;
+  }
+  return true;
+}

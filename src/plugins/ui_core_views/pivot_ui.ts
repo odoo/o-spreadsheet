@@ -5,7 +5,6 @@ import {
   getNumberOfPivotFunctions,
 } from "../../helpers/pivot/pivot_helpers";
 import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
-import { Pivot } from "../../helpers/pivot/pivot_runtime";
 import {
   AddPivotCommand,
   CellPosition,
@@ -13,7 +12,9 @@ import {
   CoreCommand,
   UID,
   UpdatePivotCommand,
+  invalidateEvaluationCommands,
 } from "../../types";
+import { Pivot } from "../../types/pivot_runtime";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
 export const UNDO_REDO_PIVOT_COMMANDS = ["ADD_PIVOT", "UPDATE_PIVOT"];
@@ -51,6 +52,13 @@ export class PivotUIPlugin extends UIPlugin {
   }
 
   handle(cmd: Command) {
+    if (invalidateEvaluationCommands.has(cmd.type)) {
+      for (const pivotId of this.getters.getPivotIds()) {
+        if (!pivotRegistry.get(this.getters.getPivotCoreDefinition(pivotId).type).externalData) {
+          this.setupPivot(pivotId, { recreate: true });
+        }
+      }
+    }
     switch (cmd.type) {
       case "REFRESH_PIVOT":
         this.refreshPivot(cmd.id);
@@ -162,8 +170,11 @@ export class PivotUIPlugin extends UIPlugin {
         return undefined;
       }
       const pivotId = this.getters.getPivotId(formulaId.toString());
+      if (!pivotId) {
+        return undefined;
+      }
       const pivot = this.getPivot(pivotId);
-      if (!pivotId || !pivot.isLoadedAndValid()) {
+      if (!pivot.isValid()) {
         return undefined;
       }
       const includeTotal = args[2] === false ? false : undefined;
@@ -188,12 +199,7 @@ export class PivotUIPlugin extends UIPlugin {
   }
 
   getPivot(pivotId: UID) {
-    const dataSourceId = this.getPivotDataSourceId(pivotId);
-    return this.pivots[dataSourceId];
-  }
-
-  getPivotDataSourceId(pivotId: UID) {
-    return `pivot-${pivotId}`;
+    return this.pivots[pivotId];
   }
 
   isPivotUnused(pivotId: UID) {
@@ -236,15 +242,14 @@ export class PivotUIPlugin extends UIPlugin {
    */
   private refreshPivot(pivotId: UID) {
     const pivot = this.getters.getPivot(pivotId);
-    pivot.load({ reload: true });
+    pivot.init({ reload: true });
   }
 
   setupPivot(pivotId: UID, { recreate } = { recreate: false }) {
-    const dataSourceId = this.getPivotDataSourceId(pivotId);
     const definition = this.getters.getPivotCoreDefinition(pivotId);
-    if (recreate || !(dataSourceId in this.pivots)) {
-      const cls = pivotRegistry.get(definition.type).cls;
-      this.pivots[dataSourceId] = new cls(this.custom, { definition, getters: this.getters });
+    if (recreate || !(pivotId in this.pivots)) {
+      const Pivot = pivotRegistry.get(definition.type).ui;
+      this.pivots[pivotId] = new Pivot(this.custom, { definition, getters: this.getters });
     }
   }
 

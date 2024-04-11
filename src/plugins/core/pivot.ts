@@ -1,7 +1,7 @@
 import { PIVOT_TABLE_CONFIG } from "../../constants";
 import { deepCopy, deepEquals, isDefined } from "../../helpers";
 import { getMaxObjectId, makePivotFormula } from "../../helpers/pivot/pivot_helpers";
-import { SpreadsheetPivotTable } from "../../helpers/pivot/spreadsheet_pivot_table";
+import { SpreadsheetPivotTable } from "../../helpers/pivot/spreadsheet_pivot/table_spreadsheet_pivot";
 import { _t } from "../../translation";
 import {
   CellPosition,
@@ -12,23 +12,17 @@ import {
   UID,
   WorkbookData,
 } from "../../types";
-import { PivotCoreDefinition, SPTableCell } from "../../types/pivot";
+import { PivotCoreDefinition, PivotTableCell } from "../../types/pivot";
 import { CorePlugin } from "../core_plugin";
 
-interface LocalPivot extends PivotCoreDefinition {
-  /**
-   * The formula id is the id that is used in the formula to identify the pivot.
-   * It's different from the pivot id, which is the id of the pivot in the state.
-   * The formula id is a readable id, auto-incremented. The pivotId is a UID.
-   * We need this distinction to be assured that the pivotId is unique in a
-   * context of collaboration.
-   */
+interface Pivot {
+  definition: PivotCoreDefinition;
   formulaId: string;
 }
 
 interface CoreState {
   nextFormulaId: number;
-  pivots: Record<UID, LocalPivot | undefined>;
+  pivots: Record<UID, Pivot | undefined>;
   formulaIds: Record<UID, string | undefined>;
 }
 
@@ -44,13 +38,15 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
   ] as const;
 
   readonly nextFormulaId: number = 1;
-  public readonly pivots: { [key: UID]: LocalPivot } = {};
-  public readonly formulaIds: { [key: UID]: string } = {};
+  public readonly pivots: {
+    [pivotId: UID]: Pivot | undefined;
+  } = {};
+  public readonly formulaIds: { [formulaId: UID]: UID | undefined } = {};
 
   allowDispatch(cmd: CoreCommand) {
     switch (cmd.type) {
       case "UPDATE_PIVOT": {
-        if (deepEquals(cmd.pivot, this.pivots[cmd.pivotId])) {
+        if (deepEquals(cmd.pivot, this.pivots[cmd.pivotId]?.definition)) {
           return CommandResult.NoChanges;
         }
         break;
@@ -94,7 +90,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
         break;
       }
       case "RENAME_PIVOT": {
-        this.history.update("pivots", cmd.pivotId, "name", cmd.name);
+        this.history.update("pivots", cmd.pivotId, "definition", "name", cmd.name);
         break;
       }
       case "REMOVE_PIVOT": {
@@ -107,15 +103,13 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
       }
       case "DUPLICATE_PIVOT": {
         const { pivotId, newPivotId } = cmd;
-        const pivot = deepCopy(this.pivots[pivotId]);
+        const pivot = deepCopy(this.getPivotCore(pivotId).definition);
+        pivot.name = _t("%s (copy)", pivot.name);
         this.addPivot(newPivotId, pivot);
         break;
       }
       case "UPDATE_PIVOT": {
-        this.history.update("pivots", cmd.pivotId, {
-          ...cmd.pivot,
-          formulaId: this.pivots[cmd.pivotId].formulaId,
-        });
+        this.history.update("pivots", cmd.pivotId, "definition", cmd.pivot);
         break;
       }
     }
@@ -131,7 +125,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
   }
 
   getPivotName(pivotId: UID) {
-    return _t(this.pivots[pivotId].name);
+    return _t(this.getPivotCore(pivotId).definition.name);
   }
 
   /**
@@ -140,7 +134,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
    * context where the pivot is not loaded yet.
    */
   getPivotCoreDefinition(pivotId: UID): PivotCoreDefinition {
-    return this.pivots[pivotId];
+    return this.getPivotCore(pivotId).definition;
   }
 
   /**
@@ -151,7 +145,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
   }
 
   getPivotFormulaId(pivotId: UID) {
-    return this.pivots[pivotId]?.formulaId;
+    return this.getPivotCore(pivotId).formulaId;
   }
 
   getPivotIds(): UID[] {
@@ -171,12 +165,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     pivot: PivotCoreDefinition,
     formulaId = this.nextFormulaId.toString()
   ) {
-    const pivots = { ...this.pivots };
-    pivots[pivotId] = {
-      ...pivot,
-      formulaId,
-    };
-    this.history.update("pivots", pivots);
+    this.history.update("pivots", pivotId, { definition: pivot, formulaId });
     this.history.update("formulaIds", formulaId, pivotId);
     this.history.update("nextFormulaId", this.nextFormulaId + 1);
   }
@@ -240,7 +229,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     }
   }
 
-  private addPivotFormula(position: CellPosition, formulaId: UID, pivotCell: SPTableCell) {
+  private addPivotFormula(position: CellPosition, formulaId: UID, pivotCell: PivotTableCell) {
     const formula = pivotCell.isHeader ? "PIVOT.HEADER" : "PIVOT.VALUE";
     const args = pivotCell.domain
       ? [formulaId, pivotCell.measure, ...pivotCell.domain].filter(isDefined)
@@ -250,6 +239,14 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
       ...position,
       content: pivotCell.content || (args ? makePivotFormula(formula, args) : undefined),
     });
+  }
+
+  private getPivotCore(pivotId: UID): Pivot {
+    const pivot = this.pivots[pivotId];
+    if (!pivot) {
+      throw new Error(`Pivot with id ${pivotId} not found`);
+    }
+    return pivot;
   }
 
   // ---------------------------------------------------------------------
@@ -273,7 +270,10 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
   export(data: WorkbookData) {
     data.pivots = {};
     for (const pivotId in this.pivots) {
-      data.pivots[pivotId] = deepCopy(this.pivots[pivotId]);
+      data.pivots[pivotId] = {
+        ...this.getPivotCoreDefinition(pivotId),
+        formulaId: this.getPivotFormulaId(pivotId),
+      };
     }
     data.pivotNextId = this.nextFormulaId;
   }

@@ -1,12 +1,13 @@
 import { Component } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../../../../..";
-import { PERIODS } from "../../../../../helpers/pivot/pivot_helpers";
+import { ALL_PERIODS } from "../../../../../helpers/pivot/pivot_helpers";
 import { PivotDimension } from "../../../../../types/pivot";
 
 interface Props {
   dimension: PivotDimension;
   onUpdated: (dimension: PivotDimension, ev: InputEvent) => void;
   availableGranularities: Set<string>;
+  allGranularities: string[];
 }
 
 export class PivotDimensionGranularity extends Component<Props, SpreadsheetChildEnv> {
@@ -15,7 +16,7 @@ export class PivotDimensionGranularity extends Component<Props, SpreadsheetChild
     dimension: Object,
     onUpdated: Function,
     availableGranularities: Set,
+    allGranularities: Array,
   };
-  periods = PERIODS;
-  allGranularities = Object.keys(PERIODS);
+  periods = ALL_PERIODS;
 }

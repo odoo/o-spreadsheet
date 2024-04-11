@@ -258,6 +258,10 @@ topbarMenuRegistry
     ...ACTION_INSERT.insertChart,
     sequence: 50,
   })
+  .addChild("insert_pivot", ["insert"], {
+    ...ACTION_INSERT.insertPivot,
+    sequence: 52,
+  })
   .addChild("insert_image", ["insert"], {
     ...ACTION_INSERT.insertImage,
     sequence: 55,
@@ -469,7 +473,7 @@ topbarMenuRegistry
         id: `item_pivot_${env.model.getters.getPivotFormulaId(pivotId)}`,
         name: env.model.getters.getPivotDisplayName(pivotId),
         sequence: sequence + index,
-        execute: (env) => env.openSidePanel("PIVOT_PROPERTIES_PANEL", { pivotId }),
+        execute: (env) => env.openSidePanel("PivotSidePanel", { pivotId }),
         onStartHover: (env) => env.getStore(HighlightStore).register(highlightProvider),
         onStopHover: (env) => env.getStore(HighlightStore).unRegister(highlightProvider),
         icon: "o-spreadsheet-Icon.PIVOT",

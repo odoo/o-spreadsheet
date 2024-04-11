@@ -178,6 +178,12 @@ export const insertChart: ActionSpec = {
   icon: "o-spreadsheet-Icon.INSERT_CHART",
 };
 
+export const insertPivot: ActionSpec = {
+  name: _t("Pivot table"),
+  execute: ACTIONS.CREATE_PIVOT,
+  icon: "o-spreadsheet-Icon.PIVOT",
+};
+
 export const insertImage: ActionSpec = {
   name: _t("Image"),
   description: "Ctrl+O",

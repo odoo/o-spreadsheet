@@ -1,4 +1,4 @@
-import { SPTableCell, SPTableColumn, SPTableRow } from "../../types/pivot";
+import { PivotTableCell, PivotTableColumn, PivotTableRow } from "../../../types/pivot";
 
 /**
  * Class used to ease the construction of a pivot table.
@@ -43,16 +43,16 @@ import { SPTableCell, SPTableColumn, SPTableRow } from "../../types/pivot";
  *
  */
 export class SpreadsheetPivotTable {
-  readonly columns: SPTableColumn[][];
-  readonly rows: SPTableRow[];
+  readonly columns: PivotTableColumn[][];
+  readonly rows: PivotTableRow[];
   readonly measures: string[];
   readonly rowTitle?: string;
   readonly maxIndent: number;
-  readonly pivotCells: { [key: string]: SPTableCell[][] } = {};
+  readonly pivotCells: { [key: string]: PivotTableCell[][] } = {};
 
   constructor(
-    columns: SPTableColumn[][],
-    rows: SPTableRow[],
+    columns: PivotTableColumn[][],
+    rows: PivotTableRow[],
     measures: string[],
     rowTitle: string = ""
   ) {
@@ -79,7 +79,7 @@ export class SpreadsheetPivotTable {
     return this.columns.at(-1)?.length || 0;
   }
 
-  getPivotCells(includeTotal = true, includeColumnHeaders = true): SPTableCell[][] {
+  getPivotCells(includeTotal = true, includeColumnHeaders = true): PivotTableCell[][] {
     const key = JSON.stringify({ includeTotal, includeColumnHeaders });
     if (!this.pivotCells[key]) {
       const numberOfDataRows = this.rows.length;
@@ -92,7 +92,7 @@ export class SpreadsheetPivotTable {
       if (!includeTotal && numberOfDataColumns !== this.measures.length) {
         pivotWidth -= this.measures.length;
       }
-      const domainArray: SPTableCell[][] = [];
+      const domainArray: PivotTableCell[][] = [];
       const startRow = includeColumnHeaders ? 0 : this.columns.length;
       for (let col = 0; col < pivotWidth; col++) {
         domainArray.push([]);
@@ -112,7 +112,7 @@ export class SpreadsheetPivotTable {
     return this.rows[index].indent !== this.maxIndent;
   }
 
-  private getPivotCell(col: number, row: number, includeTotal = true): SPTableCell {
+  private getPivotCell(col: number, row: number, includeTotal = true): PivotTableCell {
     const colHeadersHeight = this.columns.length;
     if (col === 0 && row === colHeadersHeight - 1) {
       return { content: this.rowTitle, isHeader: true };

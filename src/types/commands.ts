@@ -26,7 +26,7 @@ import { ClipboardPasteOptions } from "./clipboard";
 import { FigureSize } from "./figure";
 import { SearchOptions } from "./find_and_replace";
 import { Image } from "./image";
-import { PivotCoreDefinition, SPTableData } from "./pivot";
+import { PivotCoreDefinition, PivotTableData } from "./pivot";
 import { RangeData } from "./range";
 import { CoreTableType, TableConfig, TableStyleTemplateName } from "./table";
 
@@ -602,7 +602,7 @@ export interface UpdatePivotCommand {
 export interface InsertPivotCommand extends PositionDependentCommand {
   type: "INSERT_PIVOT";
   pivotId: UID;
-  table: SPTableData;
+  table: PivotTableData;
 }
 
 export interface RenamePivotCommand {
@@ -941,6 +941,12 @@ export interface RefreshPivotCommand {
   id: UID;
 }
 
+export interface InsertNewPivotCommand {
+  type: "INSERT_NEW_PIVOT";
+  pivotId: UID;
+  newSheetId: UID;
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -1084,7 +1090,8 @@ export type LocalCommand =
   | TrimWhitespaceCommand
   | RenderCanvasCommand
   | ResizeTableCommand
-  | RefreshPivotCommand;
+  | RefreshPivotCommand
+  | InsertNewPivotCommand;
 
 export type Command = CoreCommand | LocalCommand;
 
