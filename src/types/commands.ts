@@ -22,7 +22,7 @@ import {
 } from "./misc";
 
 import { ChartDefinition } from "./chart/chart";
-import { ClipboardPasteOptions } from "./clipboard";
+import { ClipboardContent, ClipboardPasteOptions } from "./clipboard";
 import { FigureSize } from "./figure";
 import { SearchOptions } from "./find_and_replace";
 import { Image } from "./image";
@@ -756,7 +756,7 @@ export interface CancelPaintFormatCommand {
 export interface PasteFromOSClipboardCommand {
   type: "PASTE_FROM_OS_CLIPBOARD";
   target: Zone[];
-  text: string;
+  clipboardContent: ClipboardContent;
   pasteOption?: ClipboardPasteOptions;
 }
 

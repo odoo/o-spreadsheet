@@ -78,7 +78,12 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
           }
         }
         cellsInRow.push({
-          cell,
+          content: cell?.content ?? "",
+          style: cell?.style,
+          format: cell?.format,
+          tokens: cell?.isFormula
+            ? cell.compiledFormula.tokens.map(({ value, type }) => ({ value, type }))
+            : [],
           border: this.getters.getCellBorder(position) || undefined,
           evaluatedCell,
           position,
@@ -194,7 +199,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
   private clearClippedZones(content: ClipboardContent) {
     for (const row of content.cells) {
       for (const cell of row) {
-        if (cell.cell) {
+        if (cell.position) {
           this.dispatch("CLEAR_CELL", cell.position);
         }
       }
@@ -234,7 +239,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
   ) {
     const { sheetId, col, row } = target;
     const targetCell = this.getters.getEvaluatedCell(target);
-    const originFormat = origin.cell?.format ?? origin.evaluatedCell.format;
+    const originFormat = origin?.format ?? origin.evaluatedCell.format;
 
     if (clipboardOption?.pasteOption === "asValue") {
       const locale = this.getters.getLocale();
@@ -246,29 +251,33 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     if (clipboardOption?.pasteOption === "onlyFormat") {
       this.dispatch("UPDATE_CELL", {
         ...target,
-        style: origin.cell?.style ?? null,
+        style: origin?.style ?? null,
         format: originFormat ?? targetCell.format,
       });
       return;
     }
 
-    let content = origin.cell?.content;
-    if (origin.cell?.isFormula && !clipboardOption?.isCutOperation) {
+    let content = origin?.content;
+    if (origin?.tokens && origin.tokens.length > 0 && !clipboardOption?.isCutOperation) {
       content = this.getters.getTranslatedCellFormula(
         sheetId,
         col - origin.position.col,
         row - origin.position.row,
-        origin.cell.compiledFormula
+        origin.tokens
       );
-    } else if (origin.cell?.isFormula) {
-      content = this.getters.getFormulaMovedInSheet(sheetId, origin.cell.compiledFormula);
+    } else if (origin?.tokens && origin.tokens.length > 0) {
+      content = this.getters.getFormulaMovedInSheet(
+        origin.position.sheetId,
+        sheetId,
+        origin.tokens
+      );
     }
-    if (content !== "" || origin.cell?.format || origin.cell?.style) {
+    if (content !== "" || origin?.format || origin?.style) {
       this.dispatch("UPDATE_CELL", {
         ...target,
         content,
-        style: origin.cell?.style || null,
-        format: origin.cell?.format,
+        style: origin?.style || null,
+        format: origin?.format,
       });
     } else if (targetCell) {
       this.dispatch("CLEAR_CELL", target);
@@ -293,10 +302,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
       for (let i = 0; i < rowLength; i++) {
         const content = canonicalizeNumberValue(row[i] || "", locale);
         cells.push({
-          cell: {
-            isFormula: false,
-            content,
-          },
+          content: content,
           evaluatedCell: {
             formattedValue: content,
           },

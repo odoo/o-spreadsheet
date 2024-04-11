@@ -51,13 +51,22 @@ export const PASTE_ACTION = async (env: SpreadsheetChildEnv) => paste(env);
 export const PASTE_AS_VALUE_ACTION = async (env: SpreadsheetChildEnv) => paste(env, "asValue");
 
 async function paste(env: SpreadsheetChildEnv, pasteOption?: ClipboardPasteOptions) {
-  const spreadsheetClipboard = env.model.getters.getClipboardTextContent();
-  const osClipboard = await env.clipboard.readText();
-
+  const osClipboard = await env.clipboard.read();
   switch (osClipboard.status) {
     case "ok":
+      const htmlDocument = new DOMParser().parseFromString(
+        osClipboard.content[ClipboardMIMEType.Html] ?? "<div></div>",
+        "text/xml"
+      );
+      const osClipboardSpreadsheetContent =
+        osClipboard.content[ClipboardMIMEType.OSpreadsheet] || "{}";
+      const clipboardId =
+        JSON.parse(osClipboardSpreadsheetContent).clipboardId ??
+        htmlDocument.querySelector("div")?.getAttribute("data-clipboard-id");
+
       const target = env.model.getters.getSelectedZones();
-      if (osClipboard && osClipboard.content !== spreadsheetClipboard) {
+
+      if (env.model.getters.getClipboardId() !== clipboardId) {
         interactivePasteFromOS(env, target, osClipboard.content, pasteOption);
       } else {
         interactivePaste(env, target, pasteOption);

@@ -358,7 +358,6 @@ describe("Composer / selectionInput interactions", () => {
     }));
   });
 
-  jest.setTimeout(500000000);
   test("Switching from selection input to composer should update the highlihts", async () => {
     const composerStore = env.getStore(CellComposerStore);
     //open cf sidepanel

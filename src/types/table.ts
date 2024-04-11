@@ -54,7 +54,7 @@ export interface TableElementStyle {
   size?: number;
 }
 
-interface TableBorder extends Border {
+export interface TableBorder extends Border {
   // used to describe borders inside of a zone
   horizontal?: BorderDescr;
   vertical?: BorderDescr;
