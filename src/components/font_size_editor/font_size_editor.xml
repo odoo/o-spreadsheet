@@ -19,7 +19,7 @@
           t-ref="inputFontSize"
         />
         <span>
-          <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
+          <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
         </span>
       </div>
       <div

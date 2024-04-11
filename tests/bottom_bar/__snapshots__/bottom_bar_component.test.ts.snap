@@ -238,16 +238,13 @@ exports[`BottomBar component simple rendering 1`] = `
             <span
               class="o-sheet-icon ms-1"
             >
-              <svg
-                class="o-icon"
-                viewBox="0 0 18 18"
-                xmlns="http://www.w3.org/2000/svg"
+              <div
+                class="o-icon fa-small"
               >
-                <polygon
-                  fill="currentColor"
-                  points="5 7 9 11 13 7"
+                <i
+                  class="fa fa-caret-down"
                 />
-              </svg>
+              </div>
             </span>
           </div>
         </div>

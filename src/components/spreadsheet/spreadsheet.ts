@@ -21,7 +21,6 @@ import {
   GROUP_LAYER_WIDTH,
   HEADER_GROUPING_BACKGROUND_COLOR,
   ICONS_COLOR,
-  ICON_EDGE_LENGTH,
   MAXIMAL_FREEZABLE_RATIO,
   MENU_SEPARATOR_BORDER_WIDTH,
   MENU_SEPARATOR_PADDING,
@@ -64,6 +63,8 @@ css/* scss */ `
     display: grid;
     grid-template-columns: auto 350px;
     color: #333;
+    font-size: 14px;
+
     input {
       background-color: white;
     }
@@ -139,12 +140,6 @@ css/* scss */ `
 
   .o-two-columns {
     grid-column: 1 / 3;
-  }
-
-  .o-icon {
-    width: ${ICON_EDGE_LENGTH}px;
-    height: ${ICON_EDGE_LENGTH}px;
-    vertical-align: middle;
   }
 
   .o-cf-icon {

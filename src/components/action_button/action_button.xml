@@ -11,7 +11,7 @@
         <t t-call="{{iconTitle}}"/>
       </span>
       <t t-if="props.hasTriangleDownIcon">
-        <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
+        <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
       </t>
     </span>
   </t>

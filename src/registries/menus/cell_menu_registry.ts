@@ -63,18 +63,18 @@ cellMenuRegistry
   .add("delete_row", {
     ...ACTION_EDIT.deleteRow,
     sequence: 110,
-    icon: "o-spreadsheet-Icon.DELETE",
+    icon: "o-spreadsheet-Icon.TRASH",
   })
   .add("delete_column", {
     ...ACTION_EDIT.deleteCol,
     sequence: 120,
-    icon: "o-spreadsheet-Icon.DELETE",
+    icon: "o-spreadsheet-Icon.TRASH",
   })
   .add("delete_cell", {
     ...ACTION_EDIT.deleteCells,
     sequence: 130,
     separator: true,
-    icon: "o-spreadsheet-Icon.DELETE",
+    icon: "o-spreadsheet-Icon.TRASH",
   })
   .addChild("delete_cell_up", ["delete_cell"], {
     ...ACTION_EDIT.deleteCellShiftUp,

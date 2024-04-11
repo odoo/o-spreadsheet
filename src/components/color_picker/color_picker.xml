@@ -61,7 +61,7 @@
           <div class="o-hue-container" t-on-pointerdown="dragHuePointer">
             <div class="o-hue-picker" t-on-click.stop=""/>
             <div class="o-hue-slider pe-none" t-att-style="sliderStyle">
-              <t t-call="o-spreadsheet-Icon.TRIANGLE_UP"/>
+              <t t-call="o-spreadsheet-Icon.CARET_UP"/>
             </div>
           </div>
           <div class="o-custom-input-preview">

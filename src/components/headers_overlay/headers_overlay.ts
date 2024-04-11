@@ -3,6 +3,7 @@ import {
   ComponentsImportance,
   HEADER_HEIGHT,
   HEADER_WIDTH,
+  ICONS_COLOR,
   MIN_COL_WIDTH,
   MIN_ROW_HEIGHT,
   SELECTION_BORDER_COLOR,
@@ -348,6 +349,9 @@ css/* scss */ `
       height: 10000px;
       background-color: ${SELECTION_BORDER_COLOR};
     }
+    .o-unhide {
+      color: ${ICONS_COLOR};
+    }
     .o-unhide:hover {
       z-index: ${ComponentsImportance.Grid + 1};
       background-color: lightgrey;
@@ -539,6 +543,9 @@ css/* scss */ `
       width: 10000px;
       height: 1px;
       background-color: ${SELECTION_BORDER_COLOR};
+    }
+    .o-unhide {
+      color: ${ICONS_COLOR};
     }
     .o-unhide:hover {
       z-index: ${ComponentsImportance.Grid + 1};

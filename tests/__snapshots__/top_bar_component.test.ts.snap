@@ -224,16 +224,13 @@ exports[`TopBar component can set cell format 1`] = `
                 </svg>
               </span>
               
-              <svg
-                class="o-icon"
-                viewBox="0 0 18 18"
-                xmlns="http://www.w3.org/2000/svg"
+              <div
+                class="o-icon fa-small"
               >
-                <polygon
-                  fill="currentColor"
-                  points="5 7 9 11 13 7"
+                <i
+                  class="fa fa-caret-down"
                 />
-              </svg>
+              </div>
               
             </span>
             
@@ -254,16 +251,13 @@ exports[`TopBar component can set cell format 1`] = `
                   type="number"
                 />
                 <span>
-                  <svg
-                    class="o-icon"
-                    viewBox="0 0 18 18"
-                    xmlns="http://www.w3.org/2000/svg"
+                  <div
+                    class="o-icon fa-small"
                   >
-                    <polygon
-                      fill="currentColor"
-                      points="5 7 9 11 13 7"
+                    <i
+                      class="fa fa-caret-down"
                     />
-                  </svg>
+                  </div>
                 </span>
               </div>
               
@@ -453,16 +447,13 @@ exports[`TopBar component can set cell format 1`] = `
                   </svg>
                 </span>
                 
-                <svg
-                  class="o-icon"
-                  viewBox="0 0 18 18"
-                  xmlns="http://www.w3.org/2000/svg"
+                <div
+                  class="o-icon fa-small"
                 >
-                  <polygon
-                    fill="currentColor"
-                    points="5 7 9 11 13 7"
+                  <i
+                    class="fa fa-caret-down"
                   />
-                </svg>
+                </div>
                 
               </span>
               
@@ -490,16 +481,13 @@ exports[`TopBar component can set cell format 1`] = `
                   </svg>
                 </span>
                 
-                <svg
-                  class="o-icon"
-                  viewBox="0 0 18 18"
-                  xmlns="http://www.w3.org/2000/svg"
+                <div
+                  class="o-icon fa-small"
                 >
-                  <polygon
-                    fill="currentColor"
-                    points="5 7 9 11 13 7"
+                  <i
+                    class="fa fa-caret-down"
                   />
-                </svg>
+                </div>
                 
               </span>
               
@@ -527,16 +515,13 @@ exports[`TopBar component can set cell format 1`] = `
                   </svg>
                 </span>
                 
-                <svg
-                  class="o-icon"
-                  viewBox="0 0 18 18"
-                  xmlns="http://www.w3.org/2000/svg"
+                <div
+                  class="o-icon fa-small"
                 >
-                  <polygon
-                    fill="currentColor"
-                    points="5 7 9 11 13 7"
+                  <i
+                    class="fa fa-caret-down"
                   />
-                </svg>
+                </div>
                 
               </span>
               
@@ -568,16 +553,13 @@ exports[`TopBar component can set cell format 1`] = `
                   </svg>
                 </span>
                 
-                <svg
-                  class="o-icon"
-                  viewBox="0 0 18 18"
-                  xmlns="http://www.w3.org/2000/svg"
+                <div
+                  class="o-icon fa-small"
                 >
-                  <polygon
-                    fill="currentColor"
-                    points="5 7 9 11 13 7"
+                  <i
+                    class="fa fa-caret-down"
                   />
-                </svg>
+                </div>
                 
               </span>
               
@@ -591,16 +573,13 @@ exports[`TopBar component can set cell format 1`] = `
               <span
                 style=""
               >
-                <svg
-                  class="o-cf-icon filter-icon-active"
-                  viewBox="0 0 18 18"
-                  xmlns="http://www.w3.org/2000/svg"
+                <div
+                  class="o-icon filter-icon-active"
                 >
-                  <path
-                    d="M16.6.5H1.29C.59.5.23 1.35.73 1.85l6.1 6.1v6.8c0 .26.13.5.34.65l2.64 1.85a.79.79 0 0 0 1.25-.65V7.96l6.1-6.1A.79.79 0 0 0 16.6.51"
-                    fill="currentColor"
+                  <i
+                    class="fa fa-filter"
                   />
-                </svg>
+                </div>
               </span>
               
               
@@ -647,7 +626,7 @@ exports[`TopBar component can set cell format 1`] = `
             class="d-flex w-100"
           >
             <div
-              class="o-menu-item-icon align-middle flex-shrink-0"
+              class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
             >
               <svg
                 class="o-icon"
@@ -681,7 +660,7 @@ exports[`TopBar component can set cell format 1`] = `
             class="d-flex w-100"
           >
             <div
-              class="o-menu-item-icon align-middle flex-shrink-0"
+              class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
             />
             
             <div
@@ -708,7 +687,7 @@ exports[`TopBar component can set cell format 1`] = `
             class="d-flex w-100"
           >
             <div
-              class="o-menu-item-icon align-middle flex-shrink-0"
+              class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
             />
             
             <div
@@ -736,7 +715,7 @@ exports[`TopBar component can set cell format 1`] = `
             class="d-flex w-100"
           >
             <div
-              class="o-menu-item-icon align-middle flex-shrink-0"
+              class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
             />
             
             <div
@@ -768,7 +747,7 @@ exports[`TopBar component can set cell format 1`] = `
             class="d-flex w-100"
           >
             <div
-              class="o-menu-item-icon align-middle flex-shrink-0"
+              class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
             />
             
             <div
@@ -796,7 +775,7 @@ exports[`TopBar component can set cell format 1`] = `
             class="d-flex w-100"
           >
             <div
-              class="o-menu-item-icon align-middle flex-shrink-0"
+              class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
             />
             
             <div
@@ -824,7 +803,7 @@ exports[`TopBar component can set cell format 1`] = `
             class="d-flex w-100"
           >
             <div
-              class="o-menu-item-icon align-middle flex-shrink-0"
+              class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
             />
             
             <div
@@ -851,7 +830,7 @@ exports[`TopBar component can set cell format 1`] = `
             class="d-flex w-100"
           >
             <div
-              class="o-menu-item-icon align-middle flex-shrink-0"
+              class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
             />
             
             <div
@@ -879,7 +858,7 @@ exports[`TopBar component can set cell format 1`] = `
             class="d-flex w-100"
           >
             <div
-              class="o-menu-item-icon align-middle flex-shrink-0"
+              class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
             />
             
             <div
@@ -907,7 +886,7 @@ exports[`TopBar component can set cell format 1`] = `
             class="d-flex w-100"
           >
             <div
-              class="o-menu-item-icon align-middle flex-shrink-0"
+              class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
             />
             
             <div
@@ -935,7 +914,7 @@ exports[`TopBar component can set cell format 1`] = `
             class="d-flex w-100"
           >
             <div
-              class="o-menu-item-icon align-middle flex-shrink-0"
+              class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
             />
             
             <div
@@ -967,7 +946,7 @@ exports[`TopBar component can set cell format 1`] = `
             class="d-flex w-100"
           >
             <div
-              class="o-menu-item-icon align-middle flex-shrink-0"
+              class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
             />
             
             <div
@@ -1208,16 +1187,13 @@ exports[`TopBar component simple rendering 1`] = `
             </svg>
           </span>
           
-          <svg
-            class="o-icon"
-            viewBox="0 0 18 18"
-            xmlns="http://www.w3.org/2000/svg"
+          <div
+            class="o-icon fa-small"
           >
-            <polygon
-              fill="currentColor"
-              points="5 7 9 11 13 7"
+            <i
+              class="fa fa-caret-down"
             />
-          </svg>
+          </div>
           
         </span>
         
@@ -1238,16 +1214,13 @@ exports[`TopBar component simple rendering 1`] = `
               type="number"
             />
             <span>
-              <svg
-                class="o-icon"
-                viewBox="0 0 18 18"
-                xmlns="http://www.w3.org/2000/svg"
+              <div
+                class="o-icon fa-small"
               >
-                <polygon
-                  fill="currentColor"
-                  points="5 7 9 11 13 7"
+                <i
+                  class="fa fa-caret-down"
                 />
-              </svg>
+              </div>
             </span>
           </div>
           
@@ -1437,16 +1410,13 @@ exports[`TopBar component simple rendering 1`] = `
               </svg>
             </span>
             
-            <svg
-              class="o-icon"
-              viewBox="0 0 18 18"
-              xmlns="http://www.w3.org/2000/svg"
+            <div
+              class="o-icon fa-small"
             >
-              <polygon
-                fill="currentColor"
-                points="5 7 9 11 13 7"
+              <i
+                class="fa fa-caret-down"
               />
-            </svg>
+            </div>
             
           </span>
           
@@ -1474,16 +1444,13 @@ exports[`TopBar component simple rendering 1`] = `
               </svg>
             </span>
             
-            <svg
-              class="o-icon"
-              viewBox="0 0 18 18"
-              xmlns="http://www.w3.org/2000/svg"
+            <div
+              class="o-icon fa-small"
             >
-              <polygon
-                fill="currentColor"
-                points="5 7 9 11 13 7"
+              <i
+                class="fa fa-caret-down"
               />
-            </svg>
+            </div>
             
           </span>
           
@@ -1511,16 +1478,13 @@ exports[`TopBar component simple rendering 1`] = `
               </svg>
             </span>
             
-            <svg
-              class="o-icon"
-              viewBox="0 0 18 18"
-              xmlns="http://www.w3.org/2000/svg"
+            <div
+              class="o-icon fa-small"
             >
-              <polygon
-                fill="currentColor"
-                points="5 7 9 11 13 7"
+              <i
+                class="fa fa-caret-down"
               />
-            </svg>
+            </div>
             
           </span>
           
@@ -1552,16 +1516,13 @@ exports[`TopBar component simple rendering 1`] = `
               </svg>
             </span>
             
-            <svg
-              class="o-icon"
-              viewBox="0 0 18 18"
-              xmlns="http://www.w3.org/2000/svg"
+            <div
+              class="o-icon fa-small"
             >
-              <polygon
-                fill="currentColor"
-                points="5 7 9 11 13 7"
+              <i
+                class="fa fa-caret-down"
               />
-            </svg>
+            </div>
             
           </span>
           
@@ -1575,16 +1536,13 @@ exports[`TopBar component simple rendering 1`] = `
           <span
             style=""
           >
-            <svg
-              class="o-cf-icon filter-icon-active"
-              viewBox="0 0 18 18"
-              xmlns="http://www.w3.org/2000/svg"
+            <div
+              class="o-icon filter-icon-active"
             >
-              <path
-                d="M16.6.5H1.29C.59.5.23 1.35.73 1.85l6.1 6.1v6.8c0 .26.13.5.34.65l2.64 1.85a.79.79 0 0 0 1.25-.65V7.96l6.1-6.1A.79.79 0 0 0 16.6.51"
-                fill="currentColor"
+              <i
+                class="fa fa-filter"
               />
-            </svg>
+            </div>
           </span>
           
           

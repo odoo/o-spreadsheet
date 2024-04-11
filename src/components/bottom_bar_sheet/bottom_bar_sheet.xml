@@ -22,7 +22,7 @@
           t-att-contenteditable="state.isEditing ? 'true': 'false'"
         />
         <span class="o-sheet-icon ms-1" t-on-click.stop="(ev) => this.onIconClick(ev)">
-          <t t-call="o-spreadsheet-Icon.TRIANGLE_DOWN"/>
+          <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
         </span>
       </div>
     </Ripple>

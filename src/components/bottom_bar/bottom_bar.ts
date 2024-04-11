@@ -55,6 +55,7 @@ css/* scss */ `
         .o-icon {
           height: 18px;
           width: 18px;
+          font-size: 18px;
         }
       }
     }

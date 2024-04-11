@@ -1,14 +1,26 @@
+import { ICON_EDGE_LENGTH } from "../../constants";
 import { css } from "../helpers";
 
 css/* scss */ `
   .o-spreadsheet {
     .o-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: ${ICON_EDGE_LENGTH}px;
+      height: ${ICON_EDGE_LENGTH}px;
+      font-size: ${ICON_EDGE_LENGTH}px;
+      vertical-align: middle;
+
       .small-text {
         font: bold 9px sans-serif;
       }
       .heavy-text {
         font: bold 16px sans-serif;
       }
+    }
+    .fa-small {
+      font-size: 14px;
     }
   }
 `;

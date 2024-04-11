@@ -83,7 +83,7 @@ topbarMenuRegistry
   })
   .addChild("delete", ["edit"], {
     name: _t("Delete"),
-    icon: "o-spreadsheet-Icon.DELETE",
+    icon: "o-spreadsheet-Icon.TRASH",
     sequence: 70,
   })
   .addChild("edit_delete_cell_values", ["edit", "delete"], {
