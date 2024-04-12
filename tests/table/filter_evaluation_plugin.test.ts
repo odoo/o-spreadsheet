@@ -2,6 +2,7 @@ import { Model } from "../../src";
 import { CommandResult, UID } from "../../src/types";
 import {
   addRows,
+  createSheet,
   createTable,
   deleteColumns,
   deleteRows,
@@ -306,5 +307,17 @@ describe("Filter Evaluation", () => {
     expect(model.getters.getHeaderGroups(sheetId, "ROW")).toMatchObject([{ start: 0, end: 7 }]);
     expect(model.getters.isRowFiltered(sheetId, 6)).toEqual(true);
     expect(model.getters.isRowFiltered(sheetId, 7)).toEqual(true);
+  });
+
+  test("row filtered in an inactive sheet", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+
+    createTable(model, "A6:A8");
+    setCellContent(model, "A7", "Hi");
+    updateFilter(model, "A6", ["Hi"]);
+
+    createSheet(model, { sheetId: "sh2", activate: true });
+    expect(model.getters.isRowFiltered(sheetId, 6)).toEqual(true);
   });
 });
