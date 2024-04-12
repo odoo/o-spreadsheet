@@ -13,6 +13,7 @@ import {
   activateSheet,
   addColumns,
   addRows,
+  createSheet,
   createTable,
   deleteColumns,
   deleteRows,
@@ -1071,6 +1072,30 @@ describe("Multi Panes viewport", () => {
     originalActiveMainViewport = model.getters.getActiveMainViewport();
     hideColumns(model, ["E", "F", "G", "H"]);
     expect(model.getters.getActiveMainViewport()).toEqual(originalActiveMainViewport);
+  });
+
+  test("filtered row rect after updating another sheet", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    createSheet(model, { sheetId: "sh2" });
+    setCellContent(model, "A1", "Hi");
+    setCellContent(model, "A2", "Hello");
+
+    createTable(model, "A1:A3");
+
+    updateFilter(model, "A1", ["Hello"]);
+    expect(model.getters.isRowHidden(sheetId, 1)).toEqual(true);
+    const rectA2 = {
+      x: 0,
+      y: DEFAULT_CELL_HEIGHT,
+      width: DEFAULT_CELL_WIDTH,
+      height: 0,
+    };
+    expect(model.getters.getVisibleRect(toZone("A2"))).toEqual(rectA2);
+    activateSheet(model, "sh2");
+    setCellContent(model, "A1", "hi");
+    activateSheet(model, sheetId);
+    expect(model.getters.getVisibleRect(toZone("A2"))).toEqual(rectA2);
   });
 
   test("Viewport remains unaffected when hiding all rows below frozen panes by data filter", () => {
