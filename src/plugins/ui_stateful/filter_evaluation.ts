@@ -34,7 +34,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
 
   private filterValues: Record<UID, Record<FilterId, string[]>> = {};
 
-  hiddenRows: Set<number> = new Set();
+  hiddenRows: Record<UID, Set<number> | undefined> = {};
   isEvaluationDirty = false;
 
   allowDispatch(cmd: LocalCommand): CommandResult {
@@ -79,11 +79,11 @@ export class FilterEvaluationPlugin extends UIPlugin {
       case "UNFOLD_HEADER_GROUP":
       case "FOLD_ALL_HEADER_GROUPS":
       case "UNFOLD_ALL_HEADER_GROUPS":
-        this.updateHiddenRows();
+        this.updateHiddenRows(cmd.sheetId);
         break;
       case "UPDATE_FILTER":
         this.updateFilter(cmd);
-        this.updateHiddenRows();
+        this.updateHiddenRows(cmd.sheetId);
         break;
       case "DUPLICATE_SHEET":
         const filterValues: Record<FilterId, string[]> = {};
@@ -104,17 +104,15 @@ export class FilterEvaluationPlugin extends UIPlugin {
 
   finalize() {
     if (this.isEvaluationDirty) {
-      this.updateHiddenRows();
+      for (const sheetId of this.getters.getSheetIds()) {
+        this.updateHiddenRows(sheetId);
+      }
       this.isEvaluationDirty = false;
     }
   }
 
-  isRowFiltered(sheetId: UID, row: number) {
-    if (sheetId !== this.getters.getActiveSheetId()) {
-      return false;
-    }
-
-    return this.hiddenRows.has(row);
+  isRowFiltered(sheetId: UID, row: number): boolean {
+    return !!this.hiddenRows[sheetId]?.has(row);
   }
 
   getCellBorderWithFilterBorder(position: CellPosition): Border | null {
@@ -171,8 +169,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
     this.filterValues[sheetId][id] = hiddenValues;
   }
 
-  private updateHiddenRows() {
-    const sheetId = this.getters.getActiveSheetId();
+  private updateHiddenRows(sheetId: UID) {
     const filters = this.getters
       .getFilters(sheetId)
       .sort((filter1, filter2) => filter1.zoneWithHeaders.top - filter2.zoneWithHeaders.top);
@@ -195,7 +192,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
         }
       }
     }
-    this.hiddenRows = hiddenRows;
+    this.hiddenRows[sheetId] = hiddenRows;
   }
 
   private getCellValueAsString(sheetId: UID, col: number, row: number): string {
