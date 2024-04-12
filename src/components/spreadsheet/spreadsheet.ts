@@ -33,7 +33,6 @@ import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Model } from "../../model";
 import { Store, useStore, useStoreProvider } from "../../store_engine";
 import { ModelStore } from "../../stores";
-import { ArrayFormulaHighlight } from "../../stores/array_formula_highlight";
 import { NotificationStore } from "../../stores/notification_store";
 import { _t } from "../../translation";
 import { HeaderGroup, InformationNotification, Pixel, SpreadsheetChildEnv } from "../../types";
@@ -296,7 +295,6 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     this.notificationStore = useStore(NotificationStore);
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.sidePanel = useStore(SidePanelStore);
-    useStore(ArrayFormulaHighlight);
     this.keyDownMapping = {
       "CTRL+H": () => this.sidePanel.toggle("FindAndReplace", {}),
       "CTRL+F": () => this.sidePanel.toggle("FindAndReplace", {}),

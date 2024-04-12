@@ -34,6 +34,7 @@ import {
 import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
 import { Store, useStore } from "../../store_engine";
 import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
+import { ArrayFormulaHighlight } from "../../stores/array_formula_highlight";
 import { HighlightStore } from "../../stores/highlight_store";
 import { _t } from "../../translation";
 import {
@@ -156,6 +157,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     this.sidePanel = useStore(SidePanelStore);
+    useStore(ArrayFormulaHighlight);
 
     useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
     useExternalListener(document.body, "cut", this.copy.bind(this, true));
