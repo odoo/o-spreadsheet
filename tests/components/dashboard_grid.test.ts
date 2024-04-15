@@ -6,7 +6,14 @@ import {
   FILTER_ICON_MARGIN,
 } from "../../src/constants";
 import { Model } from "../../src/model";
-import { createFilter, selectCell, setCellContent } from "../test_helpers/commands_helpers";
+import { clickableCellRegistry } from "../../src/registries/cell_clickable_registry";
+import { Cell } from "../../src/types";
+import {
+  createFilter,
+  selectCell,
+  setCellContent,
+  setViewportOffset,
+} from "../test_helpers/commands_helpers";
 import { simulateClick } from "../test_helpers/dom_helper";
 import { getActiveXc } from "../test_helpers/getters_helpers";
 import { mountSpreadsheet, nextTick, spyDispatch } from "../test_helpers/helpers";
@@ -117,5 +124,33 @@ describe("Grid component in dashboard mode", () => {
     selectCell(model, "A2");
     document.body.dispatchEvent(getEmptyClipboardEvent("paste"));
     expect(spy).not.toHaveBeenCalledWith("PASTE");
+  });
+
+  test("Clickable cells actions are properly udpated on viewport scroll", async () => {
+    const fn = jest.fn();
+    clickableCellRegistry.add("fake", {
+      condition: (cell: Cell) => cell.content.startsWith("__"),
+      action: (cell, env) => {
+        const { top, left } = env.model.getters.getActiveMainViewport();
+        fn(left, top);
+      },
+      sequence: 5,
+    });
+    setCellContent(model, "A1", "__test1");
+    setCellContent(model, "A10", "__test1");
+    model.updateMode("dashboard");
+    await nextTick();
+
+    await simulateClick("div.o-dashboard-clickable-cell", 10, 10); // first visible cell
+    expect(fn).toHaveBeenCalledWith(0, 0);
+
+    setViewportOffset(
+      model,
+      DEFAULT_CELL_WIDTH /** scroll to column B */,
+      9 * DEFAULT_CELL_HEIGHT /** scroll to row 10 */
+    );
+
+    await simulateClick("div.o-dashboard-clickable-cell", 10, 10);
+    expect(fn).toHaveBeenCalledWith(1, 9);
   });
 });
