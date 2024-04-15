@@ -22,8 +22,8 @@ interface Props {
 interface HighlightState {
   shiftingMode: "isMoving" | "isResizing" | "none";
 }
-export class Highlight extends Component<Props, SpreadsheetChildEnv> {
-  static template = "o-spreadsheet-Highlight";
+export class HighlightOverlay extends Component<Props, SpreadsheetChildEnv> {
+  static template = "o-spreadsheet-HighlightOverlay";
   static props = {
     zone: Object,
     color: String,

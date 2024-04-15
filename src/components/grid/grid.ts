@@ -69,7 +69,7 @@ import { useGridDrawing } from "../helpers/draw_grid_hook";
 import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
 import { useWheelHandler } from "../helpers/wheel_hook";
-import { Highlight } from "../highlight/highlight/highlight";
+import { HighlightOverlay } from "../highlight/highlight_overlay/highlight_overlay";
 import { Menu, MenuState } from "../menu/menu";
 import { CellPopoverStore } from "../popover";
 import { Popover } from "../popover/popover";
@@ -125,7 +125,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     Menu,
     Autofill,
     ClientTag,
-    Highlight,
+    HighlightOverlay,
     Popover,
     VerticalScrollBar,
     HorizontalScrollBar,

@@ -48,7 +48,7 @@
       <t t-foreach="highlights" t-as="highlight" t-key="highlight_index">
         <t
           t-if="highlight.interactive and highlight.sheetId === env.model.getters.getActiveSheetId()">
-          <Highlight zone="highlight.zone" color="highlight.color"/>
+          <HighlightOverlay zone="highlight.zone" color="highlight.color"/>
         </t>
       </t>
       <Menu

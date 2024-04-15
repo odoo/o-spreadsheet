@@ -1,6 +1,5 @@
 import { Component, useSubEnv, xml } from "@odoo/owl";
 import { Model } from "../../src";
-import { Highlight } from "../../src/components/highlight/highlight/highlight";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -17,6 +16,7 @@ import {
   startGridComposition,
   typeInComposerGrid,
 } from "../test_helpers/helpers";
+import { HighlightOverlay } from "./../../src/components/highlight/highlight_overlay/highlight_overlay";
 
 jest.mock("../../src/components/composer/content_editable_helper.ts", () =>
   require("../__mocks__/content_editable_helper")
@@ -128,11 +128,11 @@ interface Props {
 }
 
 class Parent extends Component<Props> {
-  static components = { Highlight };
+  static components = { HighlightOverlay };
   static template = xml/*xml*/ `
-    <Highlight zone="props.zone" color="props.color"/>
+    <HighlightOverlay zone="props.zone" color="props.color"/>
   `;
-  static props = { ...Highlight.props, model: Object };
+  static props = { ...HighlightOverlay.props, model: Object };
   setup() {
     spyDispatch = jest.spyOn(model, "dispatch");
     spyHandleEvent = jest.fn();
