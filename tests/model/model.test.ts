@@ -5,7 +5,7 @@ import { corePluginRegistry, featurePluginRegistry } from "../../src/plugins/ind
 import { UIPlugin } from "../../src/plugins/ui_plugin";
 import { Command, CommandTypes, CoreCommand, DispatchResult, coreTypes } from "../../src/types";
 import { setupCollaborativeEnv } from "../collaborative/collaborative_helpers";
-import { copy, selectCell, setCellContent } from "../test_helpers/commands_helpers";
+import { copy, redo, selectCell, setCellContent, undo } from "../test_helpers/commands_helpers";
 import {
   getCell,
   getCellContent,
@@ -356,5 +356,25 @@ describe("Model", () => {
     };
     const model = new Model(modelData);
     expect(model.exportData()).toMatchSnapshot();
+  });
+
+  test("Can batch commands with BATCH_COMMAND", () => {
+    const model = new Model();
+    model.dispatch("ONE_HISTORY_STEP", {
+      callback: () => {
+        setCellContent(model, "A1", "test1");
+        setCellContent(model, "A2", "test2");
+      },
+    });
+    expect(getCellContent(model, "A1")).toEqual("test1");
+    expect(getCellContent(model, "A2")).toEqual("test2");
+
+    undo(model);
+    expect(getCellContent(model, "A1")).toEqual("");
+    expect(getCellContent(model, "A2")).toEqual("");
+
+    redo(model);
+    expect(getCellContent(model, "A1")).toEqual("test1");
+    expect(getCellContent(model, "A2")).toEqual("test2");
   });
 });

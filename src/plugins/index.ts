@@ -41,6 +41,7 @@ import {
 } from "./ui_feature";
 import { CellComputedStylePlugin } from "./ui_feature/cell_computed_style";
 import { HistoryPlugin } from "./ui_feature/local_history";
+import { OneHistoryStepPlugin } from "./ui_feature/one_history_step";
 import { SplitToColumnsPlugin } from "./ui_feature/split_to_columns";
 import { TableAutofillPlugin } from "./ui_feature/table_autofill";
 import { TableResizeUI } from "./ui_feature/table_resize_ui";
@@ -73,6 +74,7 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
 
 // Plugins which handle a specific feature, without handling any core commands
 export const featurePluginRegistry = new Registry<UIPluginConstructor>()
+  .add("one_history_step", OneHistoryStepPlugin)
   .add("ui_sheet", SheetUIPlugin)
   .add("ui_options", UIOptionsPlugin)
   .add("autofill", AutofillPlugin)

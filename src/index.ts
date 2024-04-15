@@ -96,6 +96,7 @@ import {
   toZone,
   union,
   unquote,
+  withOneHistoryStep,
 } from "./helpers/index";
 import { openLink, urlRegistry, urlRepresentation } from "./helpers/links";
 import {
@@ -312,6 +313,7 @@ export const helpers = {
   getPivotHighlights,
   pivotTimeAdapter,
   UNDO_REDO_PIVOT_COMMANDS,
+  withOneHistoryStep,
 };
 
 export const links = {

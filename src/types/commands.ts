@@ -925,6 +925,11 @@ export interface RefreshPivotCommand {
   id: UID;
 }
 
+export interface OneHistoryStepCommand {
+  type: "ONE_HISTORY_STEP";
+  callback: () => void;
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -1066,7 +1071,8 @@ export type LocalCommand =
   | TrimWhitespaceCommand
   | RenderCanvasCommand
   | ResizeTableCommand
-  | RefreshPivotCommand;
+  | RefreshPivotCommand
+  | OneHistoryStepCommand;
 
 export type Command = CoreCommand | LocalCommand;
 

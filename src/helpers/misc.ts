@@ -2,6 +2,7 @@
 // Miscellaneous
 //------------------------------------------------------------------------------
 import { NEWLINE } from "../constants";
+import { Model } from "../model";
 import { ConsecutiveIndexes, Lazy, UID } from "../types";
 import { SearchOptions } from "../types/find_and_replace";
 import { Cloneable, DebouncedFunction } from "./../types/misc";
@@ -550,4 +551,8 @@ export function largeMin(array: number[]) {
     min = array[len] < min ? array[len] : min;
   }
   return min;
+}
+
+export function withOneHistoryStep(model: Model, callback: () => void) {
+  model.dispatch("ONE_HISTORY_STEP", { callback });
 }
