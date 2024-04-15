@@ -45,21 +45,24 @@ export function computeTextWidth(
   fontUnit: "px" | "pt" = "pt"
 ) {
   const font = computeTextFont(style, fontUnit);
-  context.save();
-  context.font = font;
-  const width = computeCachedTextWidth(context, text);
-  context.restore();
+  const width = computeCachedTextWidth(context, text, font);
   return width;
 }
 
-export function computeCachedTextWidth(context: CanvasRenderingContext2D, text: string) {
-  const font = context.font;
+export function computeCachedTextWidth(
+  context: CanvasRenderingContext2D,
+  text: string,
+  font: string = context.font
+) {
   if (!textWidthCache[font]) {
     textWidthCache[font] = {};
   }
   if (textWidthCache[font][text] === undefined) {
+    context.save();
+    context.font = font;
     const textWidth = context.measureText(text).width;
     textWidthCache[font][text] = textWidth;
+    context.restore();
   }
   return textWidthCache[font][text];
 }
