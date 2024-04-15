@@ -367,7 +367,7 @@ export function getAddHeaderStartIndex(position: "before" | "after", base: numbe
 /**
  * Compares two objects.
  */
-export function deepEquals(o1: any, o2: any): boolean {
+export function deepEquals(o1: any, o2: any, ignoreFunctions?: "ignoreFunctions"): boolean {
   if (o1 === o2) return true;
   if ((o1 && !o2) || (o2 && !o1)) return false;
   if (typeof o1 !== typeof o2) return false;
@@ -381,10 +381,12 @@ export function deepEquals(o1: any, o2: any): boolean {
   }
 
   for (const key in o1) {
-    if (typeof o1[key] !== typeof o2[key]) return false;
-    if (typeof o1[key] === "object") {
-      if (!deepEquals(o1[key], o2[key])) return false;
+    const typeOfO1Key = typeof o1[key];
+    if (typeOfO1Key !== typeof o2[key]) return false;
+    if (typeOfO1Key === "object") {
+      if (!deepEquals(o1[key], o2[key], ignoreFunctions)) return false;
     } else {
+      if (ignoreFunctions && typeOfO1Key === "function") return true;
       if (o1[key] !== o2[key]) return false;
     }
   }

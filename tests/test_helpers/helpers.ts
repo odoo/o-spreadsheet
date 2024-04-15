@@ -719,7 +719,7 @@ export const mockChart = () => {
     }
     toBase64Image = () => "data:image/png;base64,randomDataThatIsActuallyABase64Image";
     destroy = () => {};
-    update = () => {};
+    update() {}
     options = mockChartData.options;
     config = mockChartData;
   }
