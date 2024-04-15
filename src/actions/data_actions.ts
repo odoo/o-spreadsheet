@@ -42,19 +42,6 @@ export const addRemoveDataFilter: ActionSpec = {
   icon: "o-spreadsheet-Icon.MENU_FILTER_ICON",
 };
 
-// export const removeDataFilter: ActionSpec = {
-//   name: _lt("Remove filter"),
-//   execute: (env) => {
-//     const sheetId = env.model.getters.getActiveSheetId();
-//     env.model.dispatch("REMOVE_FILTER_TABLE", {
-//       sheetId,
-//       target: env.model.getters.getSelectedZones(),
-//     });
-//   },
-//   isVisible: ACTIONS.SELECTION_CONTAINS_FILTER,
-//   icon: "o-spreadsheet-Icon.MENU_FILTER_ICON",
-// };
-
 export const splitToColumns: ActionSpec = {
   name: _lt("Split text to columns"),
   sequence: 1,
