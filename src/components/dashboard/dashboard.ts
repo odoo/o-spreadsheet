@@ -30,7 +30,6 @@ interface ClickableCell {
   coordinates: Rect;
   position: Position;
   action: (position: CellPosition, env: SpreadsheetChildEnv) => void;
-  tKey: string;
 }
 
 css/* scss */ `
@@ -39,8 +38,6 @@ css/* scss */ `
     cursor: pointer;
   }
 `;
-
-let tKey = 1;
 
 export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SpreadsheetDashboard";
@@ -128,13 +125,9 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
           coordinates: rect,
           position: { col, row },
           action,
-          // we can't rely on position only because a row or a column could
-          // be inserted at any time.
-          tKey: `${tKey}-${col}-${row}`,
         });
       }
     }
-    tKey++;
     return cells;
   }
 
