@@ -2,6 +2,7 @@ import { debounce, getSearchRegex, isInside, positionToZone } from "../../../hel
 import { HighlightProvider, HighlightStore } from "../../../stores/highlight_store";
 import { CellPosition, Color, Command, Highlight } from "../../../types";
 
+import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { Get } from "../../../store_engine";
 import { SpreadsheetStore } from "../../../stores";
 import { SearchOptions } from "../../../types/find_and_replace";
@@ -287,24 +288,49 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
       return;
     }
 
-    this.model.dispatch("REPLACE_SEARCH", {
-      searchString: this.toSearch,
-      replaceWith: this.toReplace,
-      matches: [this.searchMatches[this.selectedMatchIndex]],
-      searchOptions: this.searchOptions,
-    });
+    this.replaceMatch(
+      this.searchMatches[this.selectedMatchIndex],
+      this.toSearch,
+      this.toReplace,
+      this.searchOptions
+    );
     this.selectNextCell(Direction.next);
   }
   /**
    * Apply the replace function to all the matches one time.
    */
   replaceAll() {
-    this.model.dispatch("REPLACE_SEARCH", {
-      searchString: this.toSearch,
-      replaceWith: this.toReplace,
-      matches: this.searchMatches,
-      searchOptions: this.searchOptions,
+    this.model.withOneHistoryStep(() => {
+      for (const match of this.searchMatches) {
+        this.replaceMatch(match, this.toSearch, this.toReplace, this.searchOptions);
+      }
     });
+  }
+
+  private replaceMatch(
+    selectedMatch: CellPosition,
+    searchString: string,
+    replaceWith: string,
+    searchOptions: SearchOptions
+  ) {
+    const cell = this.getters.getCell(selectedMatch);
+    if (!cell?.content) {
+      return;
+    }
+
+    if (cell?.isFormula && !searchOptions.searchFormulas) {
+      return;
+    }
+
+    const searchRegex = getSearchRegex(searchString, searchOptions);
+    const replaceRegex = new RegExp(searchRegex.source, searchRegex.flags + "g");
+    const toReplace: string | null = this.getters.getCellText(
+      selectedMatch,
+      searchOptions.searchFormulas
+    );
+    const content = toReplace.replace(replaceRegex, replaceWith);
+    const canonicalContent = canonicalizeNumberContent(content, this.getters.getLocale());
+    this.model.dispatch("UPDATE_CELL", { ...selectedMatch, content: canonicalContent });
   }
 
   private getSearchableString(position: CellPosition): string {

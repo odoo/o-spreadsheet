@@ -11,7 +11,6 @@ import {
 import {
   Border,
   BorderData,
-  CellPosition,
   Color,
   Dimension,
   HeaderIndex,
@@ -24,7 +23,6 @@ import {
 import { ChartDefinition } from "./chart/chart";
 import { ClipboardPasteOptions } from "./clipboard";
 import { FigureSize } from "./figure";
-import { SearchOptions } from "./find_and_replace";
 import { Image } from "./image";
 import { PivotCoreDefinition, PivotTableData } from "./pivot";
 import { RangeData } from "./range";
@@ -843,14 +841,6 @@ export interface SelectFigureCommand {
   id: UID | null;
 }
 
-export interface ReplaceSearchCommand {
-  type: "REPLACE_SEARCH";
-  searchString: string;
-  replaceWith: string;
-  searchOptions: SearchOptions;
-  matches: CellPosition[];
-}
-
 export interface SortCommand {
   type: "SORT_CELLS";
   sheetId: UID;
@@ -1069,7 +1059,6 @@ export type LocalCommand =
   | ShowFormulaCommand
   | AutofillAutoCommand
   | SelectFigureCommand
-  | ReplaceSearchCommand
   | SortCommand
   | SetDecimalCommand
   | ResizeViewportCommand
