@@ -1,4 +1,4 @@
-import { deepEqualsArray } from "../helpers";
+import { deepEqualsArray } from "../helpers/misc";
 import { UnboundedZone } from "../types";
 
 /**
