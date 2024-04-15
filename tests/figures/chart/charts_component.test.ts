@@ -1125,6 +1125,15 @@ describe("charts", () => {
     await keyDown({ key: "Z", ctrlKey: true });
     expect(getCellContent(model, "D6")).toEqual("");
   });
+
+  test("Chart is not re-rendered if its runtime do not change", async () => {
+    const updateChart = jest.spyOn((window as any).Chart.prototype, "update");
+    createTestChart("basicChart");
+    await nextTick();
+    setCellContent(model, "C3", "value");
+    await nextTick();
+    expect(updateChart).not.toHaveBeenCalled();
+  });
 });
 
 describe("charts with multiple sheets", () => {

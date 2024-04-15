@@ -625,7 +625,7 @@ export const mockChart = () => {
     }
     toBase64Image = () => "";
     destroy = () => {};
-    update = () => {};
+    update() {}
     options = mockChartData.options;
     config = mockChartData;
   }
