@@ -26,7 +26,6 @@ import { AutofillPlugin } from "../plugins/ui_feature/autofill";
 import { AutomaticSumPlugin } from "../plugins/ui_feature/automatic_sum";
 import { CellComputedStylePlugin } from "../plugins/ui_feature/cell_computed_style";
 import { CollaborativePlugin } from "../plugins/ui_feature/collaborative";
-import { FindAndReplacePlugin } from "../plugins/ui_feature/find_and_replace";
 import { HeaderVisibilityUIPlugin } from "../plugins/ui_feature/header_visibility_ui";
 import { HistoryPlugin } from "../plugins/ui_feature/local_history";
 import { SortPlugin } from "../plugins/ui_feature/sort";
@@ -124,7 +123,6 @@ export type Getters = {
   PluginGetters<typeof EvaluationPlugin> &
   PluginGetters<typeof EvaluationChartPlugin> &
   PluginGetters<typeof EvaluationConditionalFormatPlugin> &
-  PluginGetters<typeof FindAndReplacePlugin> &
   PluginGetters<typeof HeaderVisibilityUIPlugin> &
   PluginGetters<typeof CustomColorsPlugin> &
   PluginGetters<typeof AutomaticSumPlugin> &
