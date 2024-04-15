@@ -1,5 +1,5 @@
 <templates>
-  <t t-name="o-spreadsheet-Highlight">
+  <t t-name="o-spreadsheet-HighlightOverlay">
     <div class="o-highlight" t-ref="highlight">
       <t t-foreach="['n', 's', 'w', 'e']" t-as="orientation" t-key="orientation">
         <Border
