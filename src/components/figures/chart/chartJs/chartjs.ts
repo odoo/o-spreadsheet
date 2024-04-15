@@ -63,7 +63,6 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     this.chart!.config.options!.plugins!.tooltip = chartData.options!.plugins!.tooltip;
     this.chart!.config.options!.plugins!.legend = chartData.options!.plugins!.legend;
     this.chart!.config.options!.scales = chartData.options?.scales;
-    // ?
-    this.chart!.update("active");
+    this.chart!.update();
   }
 }
