@@ -65,6 +65,6 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
       this.chart!.data.datasets = [];
     }
     this.chart!.config.options = chartData.options;
-    this.chart!.update("active");
+    this.chart!.update();
   }
 }
