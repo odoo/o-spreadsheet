@@ -1433,7 +1433,6 @@ describe("Menu Item actions", () => {
 
   describe("Filters", () => {
     const FilterItemPath = ["data", "add_remove_data_filter"];
-    // const removeFilterPath = ["data", "remove_data_filter"];
 
     test("Filters -> Create filter", () => {
       setSelection(model, ["A1:A5"]);
