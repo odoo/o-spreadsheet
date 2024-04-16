@@ -6,7 +6,12 @@ import {
   GRID_ICON_MARGIN,
 } from "../../src/constants";
 import { IsValueInListCriterion, UID } from "../../src/types";
-import { addDataValidation, setCellContent, setSelection } from "../test_helpers/commands_helpers";
+import {
+  addDataValidation,
+  createFilter,
+  setCellContent,
+  setSelection,
+} from "../test_helpers/commands_helpers";
 import { click, keyDown, setInputValueAndTrigger } from "../test_helpers/dom_helper";
 import { getCellContent } from "../test_helpers/getters_helpers";
 import {
@@ -329,7 +334,7 @@ describe("Selection arrow icon in grid", () => {
       displayStyle: "plainText",
     });
     ({ fixture } = await mountSpreadsheet({ model }));
-    expect(fixture.querySelector(".o-grid-cell-icon")).toBeNull();
+    expect(fixture.querySelector(".o-dv-list-icon")).toBeNull();
   });
 
   test("Icon is not displayed in dashboard", async () => {
@@ -337,9 +342,22 @@ describe("Selection arrow icon in grid", () => {
     addDataValidation(model, "A1", "id", {
       type: "isValueInList",
       values: ["ok", "hello", "okay"],
-      displayStyle: "plainText",
+      displayStyle: "arrow",
     });
     ({ fixture } = await mountSpreadsheet({ model }));
-    expect(fixture.querySelector(".o-grid-cell-icon")).toBeNull();
+    expect(fixture.querySelector(".o-dv-list-icon")).toBeNull();
+  });
+
+  test("Icon is not displayed if there is a filter icon", async () => {
+    addDataValidation(model, "A1", "id", {
+      type: "isValueInList",
+      values: ["ok", "hello", "okay"],
+      displayStyle: "arrow",
+    });
+    createFilter(model, "A1:A4");
+
+    ({ fixture } = await mountSpreadsheet({ model }));
+    expect(fixture.querySelector(".o-dv-list-icon")).toBeNull();
+    expect(fixture.querySelector(".o-filter-icon")).not.toBeNull();
   });
 });
