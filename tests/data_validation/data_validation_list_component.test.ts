@@ -324,13 +324,19 @@ describe("Selection arrow icon in grid", () => {
     );
   });
 
-  test("Clicking on the icon opens the composer", async () => {
+  test("Clicking on the icon opens the composer with suggestions", async () => {
     setSelection(model, ["B2"]);
     ({ fixture, env } = await mountSpreadsheet({ model }));
     const composerStore = env.getStore(ComposerStore);
     await click(fixture, ".o-dv-list-icon");
+    await nextTick();
     expect(composerStore.editionMode).toBe("editing");
     expect(composerStore.currentEditedCell).toEqual({ sheetId, col: 0, row: 0 });
+    const suggestions = fixture.querySelectorAll(".o-autocomplete-dropdown .o-autocomplete-value");
+    expect(suggestions.length).toBe(3);
+    expect(suggestions[0].textContent).toBe("ok");
+    expect(suggestions[1].textContent).toBe("hello");
+    expect(suggestions[2].textContent).toBe("okay");
   });
 
   test("Icon is not displayed when display style is plainText", async () => {
