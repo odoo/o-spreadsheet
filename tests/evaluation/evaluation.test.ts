@@ -327,12 +327,6 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "A1").value).toBe(0);
   });
 
-  test("=Range", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "=A2:A3");
-    expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
-  });
-
   test("misc math formulas", () => {
     const model = new Model();
     setCellContent(model, "A1", "42");
@@ -1066,6 +1060,14 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "A3").value).toBe("old");
     setCellContent(model, "A1", "new");
     expect(getEvaluatedCell(model, "A3").value).toBe("new");
+  });
+
+  test("wrong range input can become valid", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=ADD(B1:C1,1)");
+    expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
+    deleteColumns(model, ["C"]);
+    expect(getEvaluatedCell(model, "A1").value).toBe(1);
   });
 
   test("Coherent handling of #REF when it occurs following a column deletion or a copy/paste", () => {

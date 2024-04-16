@@ -143,6 +143,15 @@ describe("IFERROR formula", () => {
     expect(evaluateCell("A1", { A1: "=IFERROR(A2, 42)", A2: "test" })).toBe("test");
   });
 
+  test("functional tests on function arguments", () => {
+    expect(evaluateCell("A1", { A1: "=IFERROR(ADD(1,2), 42)" })).toBe(3);
+  });
+
+  test("functional tests on wrong expressions arguments", () => {
+    expect(evaluateCell("A1", { A1: "=IFERROR((+, 42)" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=IFERROR(TODAY(4), 42)" })).toBe("#BAD_EXPR");
+  });
+
   test("functional tests on arguments with errors", () => {
     expect(evaluateCell("A1", { A1: "=IFERROR(A2, A3)", A2: "TRUE", A3: "=1/0" })).toBe(true);
     expect(evaluateCell("A1", { A1: "=IFERROR(A2, A3)", A2: "=1/0", A3: "=1/0" })).toBe("#DIV/0!");
@@ -152,6 +161,7 @@ describe("IFERROR formula", () => {
     expect(evaluateCell("A1", { A1: "=IFERROR(IFERROR(1/0, 1/0), 1)" })).toBe(1);
     expect(evaluateCell("A1", { A1: "=IFERROR(IFERROR(1/0, 1/0), A1)" })).toBe("#CYCLE");
     expect(evaluateCell("A1", { A1: "=IFERROR(1, 1/0) + IFERROR(1, 1/0)" })).toBe(2);
+    expect(evaluateCell("A1", { A1: "=IFERROR(ADD(B1:B2,2), 1)" })).toBe(1);
   });
 
   test("format is preserved from value", () => {
