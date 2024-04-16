@@ -780,12 +780,12 @@ export class ComposerWrapper extends Component<ComposerWrapperProps, Spreadsheet
 
   get composerProps(): ComposerProps {
     return {
+      ...this.props.composerProps,
       onComposerContentFocused: () => {
         this.state.focusComposer = "contentFocus";
         this.setEdition({});
       },
       focus: this.state.focusComposer,
-      ...this.props.composerProps,
     };
   }
 
