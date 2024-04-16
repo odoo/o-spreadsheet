@@ -130,12 +130,7 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
           }
         }
 
-        compiledArgs.push(
-          compileAST(currentArg, isMeta, hasRange, {
-            functionName,
-            paramIndex: i + 1,
-          })
-        );
+        compiledArgs.push(compileAST(currentArg, isMeta, hasRange));
       }
 
       return compiledArgs;
@@ -153,15 +148,7 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
      * function needs to receive as argument the coordinates of a cell rather
      * than its value. For this we have meta arguments.
      */
-    function compileAST(
-      ast: AST,
-      isMeta = false,
-      hasRange = false,
-      referenceVerification: {
-        functionName?: string;
-        paramIndex?: number;
-      } = {}
-    ): FunctionCode {
+    function compileAST(ast: AST, isMeta = false, hasRange = false): FunctionCode {
       const code = new FunctionCodeBuilder(scope);
       if (ast.type !== "REFERENCE" && !(ast.type === "BIN_OPERATION" && ast.value === ":")) {
         if (isMeta) {
@@ -184,14 +171,10 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
           );
         case "REFERENCE":
           const referenceIndex = dependencies.indexOf(ast.value);
-          if (hasRange) {
+          if ((!isMeta && ast.value.includes(":")) || hasRange) {
             return code.return(`range(deps[${referenceIndex}])`);
           } else {
-            return code.return(
-              `ref(deps[${referenceIndex}], ${isMeta ? "true" : "false"}, "${
-                referenceVerification.functionName || OPERATOR_MAP["="]
-              }",  ${referenceVerification.paramIndex})`
-            );
+            return code.return(`ref(deps[${referenceIndex}], ${isMeta ? "true" : "false"})`);
           }
         case "FUNCALL":
           const args = compileFunctionArgs(ast).map((arg) => arg.assignResultToVariable());
@@ -200,20 +183,14 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
           return code.return(`ctx['${fnName}'](${args.map((arg) => arg.returnExpression)})`);
         case "UNARY_OPERATION": {
           const fnName = UNARY_OPERATOR_MAP[ast.value];
-          const operand = compileAST(ast.operand, false, false, {
-            functionName: fnName,
-          }).assignResultToVariable();
+          const operand = compileAST(ast.operand, false, false).assignResultToVariable();
           code.append(operand);
           return code.return(`ctx['${fnName}'](${operand.returnExpression})`);
         }
         case "BIN_OPERATION": {
           const fnName = OPERATOR_MAP[ast.value];
-          const left = compileAST(ast.left, false, false, {
-            functionName: fnName,
-          }).assignResultToVariable();
-          const right = compileAST(ast.right, false, false, {
-            functionName: fnName,
-          }).assignResultToVariable();
+          const left = compileAST(ast.left, false, false).assignResultToVariable();
+          const right = compileAST(ast.right, false, false).assignResultToVariable();
           code.append(left);
           code.append(right);
           return code.return(
@@ -259,7 +236,10 @@ function compilationCacheKey(
           return `|N${constantValues.numbers.indexOf(parseNumber(token.value, DEFAULT_LOCALE))}|`;
         case "REFERENCE":
         case "INVALID_REFERENCE":
-          return `|${dependencies.indexOf(token.value)}|`;
+          if (token.value.includes(":")) {
+            return `R|${dependencies.indexOf(token.value)}|`;
+          }
+          return `C|${dependencies.indexOf(token.value)}|`;
         case "SPACE":
           return "";
         default:

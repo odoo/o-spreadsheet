@@ -1,10 +1,28 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`compile functions check type of arguments simple argument value from a single cell or range reference 1`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =SIMPLE_VALUE_EXPECTED(C|0|)
+const _1 = ref(deps[0], false);
+return ctx['SIMPLE_VALUE_EXPECTED'](_1);
+}"
+`;
+
+exports[`compile functions check type of arguments simple argument value from a single cell or range reference 2`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =SIMPLE_VALUE_EXPECTED(R|0|)
+const _1 = range(deps[0]);
+return ctx['SIMPLE_VALUE_EXPECTED'](_1);
+}"
+`;
+
 exports[`compile functions with meta arguments function call requesting meta parameter 1`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
-// =USEMETAARG(|0|)
-const _1 = ref(deps[0], true, "USEMETAARG",  1);
+// =USEMETAARG(C|0|)
+const _1 = ref(deps[0], true);
 return ctx['USEMETAARG'](_1);
 }"
 `;
@@ -12,8 +30,8 @@ return ctx['USEMETAARG'](_1);
 exports[`compile functions with meta arguments function call requesting meta parameter 2`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
-// =USEMETAARG(|0|)
-const _1 = ref(deps[0], true, "USEMETAARG",  1);
+// =USEMETAARG(C|0|)
+const _1 = ref(deps[0], true);
 return ctx['USEMETAARG'](_1);
 }"
 `;
@@ -21,7 +39,7 @@ return ctx['USEMETAARG'](_1);
 exports[`expression compiler cells are converted to ranges if function require a range 1`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
-// =sum(|0|)
+// =sum(C|0|)
 const _1 = range(deps[0]);
 return ctx['SUM'](_1);
 }"
@@ -30,11 +48,11 @@ return ctx['SUM'](_1);
 exports[`expression compiler expression with $ref 1`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
-// =|0|+|1|+|2|
-const _1 = ref(deps[0], false, "ADD",  undefined);
-const _2 = ref(deps[1], false, "ADD",  undefined);
+// =C|0|+C|1|+C|2|
+const _1 = ref(deps[0], false);
+const _2 = ref(deps[1], false);
 const _3 = ctx['ADD'](_1, _2);
-const _4 = ref(deps[2], false, "ADD",  undefined);
+const _4 = ref(deps[2], false);
 return ctx['ADD'](_3, _4);
 }"
 `;
@@ -42,17 +60,17 @@ return ctx['ADD'](_3, _4);
 exports[`expression compiler expression with references with a sheet 1`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
-// =|0|
-return ref(deps[0], false, "EQ",  undefined);
+// =C|0|
+return ref(deps[0], false);
 }"
 `;
 
 exports[`expression compiler expressions with a debugger 1`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
-// =?|0|/|N0|
+// =?C|0|/|N0|
 debugger;
-const _1 = ref(deps[0], false, "DIVIDE",  undefined);
+const _1 = ref(deps[0], false);
 const _2 = { value: this.constantValues.numbers[0] };
 return ctx['DIVIDE'](_1, _2);
 }"
@@ -61,8 +79,8 @@ return ctx['DIVIDE'](_1, _2);
 exports[`expression compiler read some values and functions 1`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
-// =|0|+sum(|1|)
-const _1 = ref(deps[0], false, "ADD",  undefined);
+// =C|0|+sum(R|1|)
+const _1 = ref(deps[0], false);
 const _2 = range(deps[1]);
 const _3 = ctx['SUM'](_2);
 return ctx['ADD'](_1, _3);
@@ -211,8 +229,8 @@ return ctx['UNARY.PERCENT'](_3);
 exports[`expression compiler some arithmetic expressions 15`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
-// =|0|%
-const _1 = ref(deps[0], false, "UNARY.PERCENT",  undefined);
+// =C|0|%
+const _1 = ref(deps[0], false);
 return ctx['UNARY.PERCENT'](_1);
 }"
 `;
@@ -220,7 +238,7 @@ return ctx['UNARY.PERCENT'](_1);
 exports[`expression compiler with the same reference multiple times 1`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
-// =SUM(|0|,|0|,|2|)
+// =SUM(C|0|,C|0|,C|2|)
 const _1 = range(deps[0]);
 const _2 = range(deps[0]);
 const _3 = range(deps[2]);

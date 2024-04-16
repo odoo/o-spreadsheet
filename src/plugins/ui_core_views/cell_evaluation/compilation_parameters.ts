@@ -69,34 +69,14 @@ class CompilationParametersBuilder {
    *        function for which this parameter is used, we just return the string of the parameter.
    *        The `compute` of the formula's function must process it completely
    */
-  private refFn(
-    range: Range,
-    isMeta: boolean,
-    functionName: string,
-    paramNumber?: number
-  ): FPayload {
+  private refFn(range: Range, isMeta: boolean): FPayload {
     this.assertRangeValid(range);
     if (isMeta) {
       // Use zoneToXc of zone instead of getRangeString to avoid sending unbounded ranges
       const sheetName = this.getters.getSheetName(range.sheetId);
       return { value: getFullReference(sheetName, zoneToXc(range.zone)) };
     }
-
-    // if the formula definition could have accepted a range, we would pass through the _range function and not here
-    if (range.zone.bottom !== range.zone.top || range.zone.left !== range.zone.right) {
-      throw new EvaluationError(
-        paramNumber
-          ? _t(
-              "Function %s expects the parameter %s to be a single value or a single cell reference, not a range.",
-              functionName.toString(),
-              paramNumber.toString()
-            )
-          : _t(
-              "Function %s expects its parameters to be single values or single cell references, not ranges.",
-              functionName.toString()
-            )
-      );
-    }
+    // the compiler guarantees only single cell ranges reach this part of the code
     const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
     return this.computeCell(position);
   }
