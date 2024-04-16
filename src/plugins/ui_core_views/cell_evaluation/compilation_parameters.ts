@@ -70,7 +70,10 @@ class CompilationParametersBuilder {
    *        The `compute` of the formula's function must process it completely
    */
   private refFn(range: Range, isMeta: boolean): FPayload {
-    this.assertRangeValid(range);
+    const rangeError = this.getRangeError(range);
+    if (rangeError) {
+      return rangeError;
+    }
     if (isMeta) {
       // Use zoneToXc of zone instead of getRangeString to avoid sending unbounded ranges
       const sheetName = this.getters.getSheetName(range.sheetId);
@@ -90,7 +93,10 @@ class CompilationParametersBuilder {
    * that are actually present in the grid.
    */
   private range(range: Range): Matrix<FPayload> {
-    this.assertRangeValid(range);
+    const rangeError = this.getRangeError(range);
+    if (rangeError) {
+      return [[rangeError]];
+    }
     const sheetId = range.sheetId;
     const zone = range.zone;
 
@@ -124,12 +130,13 @@ class CompilationParametersBuilder {
     return matrix;
   }
 
-  private assertRangeValid(range: Range): void {
+  private getRangeError(range: Range): EvaluationError | undefined {
     if (!isZoneValid(range.zone)) {
-      throw new InvalidReferenceError();
+      return new InvalidReferenceError();
     }
     if (range.invalidSheetName) {
-      throw new EvaluationError(_t("Invalid sheet name: %s", range.invalidSheetName));
+      return new EvaluationError(_t("Invalid sheet name: %s", range.invalidSheetName));
     }
+    return undefined;
   }
 }
