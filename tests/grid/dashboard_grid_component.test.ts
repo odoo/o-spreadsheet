@@ -124,7 +124,9 @@ describe("Grid component in dashboard mode", () => {
   test("Clickable cells actions are properly udpated on viewport scroll", async () => {
     const fn = jest.fn();
     clickableCellRegistry.add("fake", {
-      condition: (position, env) => !!env.model.getters.getCell(position)?.content.startsWith("__"),
+      condition: (position, getters) => {
+        return !!getters.getCell(position)?.content.startsWith("__");
+      },
       execute: (position) => fn(position.col, position.row),
       sequence: 5,
     });

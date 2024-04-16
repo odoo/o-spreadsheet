@@ -1,17 +1,6 @@
-import { Component, useChildSubEnv, useRef } from "@odoo/owl";
-import { positionToZone } from "../../helpers/zones";
-import { clickableCellRegistry } from "../../registries/cell_clickable_registry";
+import { Component, toRaw, useChildSubEnv, useRef } from "@odoo/owl";
 import { Store, useStore } from "../../store_engine";
-import {
-  CellPosition,
-  DOMCoordinates,
-  DOMDimension,
-  Pixel,
-  Position,
-  Rect,
-  SpreadsheetChildEnv,
-  Zone,
-} from "../../types/index";
+import { DOMCoordinates, DOMDimension, Pixel, Rect, SpreadsheetChildEnv } from "../../types/index";
 import { HoveredCellStore } from "../grid/hovered_cell_store";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
 import { GridPopover } from "../grid_popover/grid_popover";
@@ -22,14 +11,9 @@ import { useWheelHandler } from "../helpers/wheel_hook";
 import { CellPopoverStore } from "../popover";
 import { Popover } from "../popover/popover";
 import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
+import { ClickableCell, ClickableCellsStore } from "./clickable_cell_store";
 
 interface Props {}
-
-interface ClickableCell {
-  coordinates: Rect;
-  position: Position;
-  action: (position: CellPosition, env: SpreadsheetChildEnv) => void;
-}
 
 css/* scss */ `
   .o-dashboard-clickable-cell {
@@ -54,11 +38,13 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
   onMouseWheel!: (ev: WheelEvent) => void;
   canvasPosition!: DOMCoordinates;
   hoveredCell!: Store<HoveredCellStore>;
+  clickableCellsStore!: Store<ClickableCellsStore>;
 
   setup() {
     const gridRef = useRef("grid");
     this.canvasPosition = useAbsoluteBoundingRect(gridRef);
     this.hoveredCell = useStore(HoveredCellStore);
+    this.clickableCellsStore = useStore(ClickableCellsStore);
 
     useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
     useGridDrawing("canvas", this.env.model, () => this.env.model.getters.getSheetViewDimension());
@@ -103,44 +89,12 @@ export class SpreadsheetDashboard extends Component<Props, SpreadsheetChildEnv> 
    *
    */
   getClickableCells(): ClickableCell[] {
-    const cells: ClickableCell[] = [];
-    const sheetId = this.env.model.getters.getActiveSheetId();
-    for (const col of this.env.model.getters.getSheetViewVisibleCols()) {
-      for (const row of this.env.model.getters.getSheetViewVisibleRows()) {
-        const position = { sheetId, col, row };
-        const action = this.getClickableAction(position);
-        if (!action) {
-          continue;
-        }
-        let zone: Zone;
-        if (this.env.model.getters.isInMerge(position)) {
-          zone = this.env.model.getters.getMerge(position)!;
-        } else {
-          zone = positionToZone({ col, row });
-        }
-        const rect = this.env.model.getters.getVisibleRect(zone);
-        cells.push({
-          coordinates: rect,
-          position: { col, row },
-          action,
-        });
-      }
-    }
-    return cells;
-  }
-
-  getClickableAction(position: CellPosition) {
-    for (const items of clickableCellRegistry.getAll().sort((a, b) => a.sequence - b.sequence)) {
-      if (items.condition(position, this.env)) {
-        return items.execute;
-      }
-    }
-    return false;
+    return toRaw(this.clickableCellsStore.clickableCells);
   }
 
   selectClickableCell(clickableCell: ClickableCell) {
     const { position, action } = clickableCell;
-    action({ ...position, sheetId: this.env.model.getters.getActiveSheetId() }, this.env);
+    action(position, this.env);
   }
 
   onClosePopover() {
