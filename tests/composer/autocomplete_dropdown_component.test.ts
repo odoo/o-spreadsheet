@@ -328,6 +328,7 @@ describe("Functions autocomplete", () => {
 
       await keyDown({ key: "Escape" });
       await nextTick();
+      await nextTick();
       expect(fixture.querySelector(".o-autocomplete-dropdown")).toBeFalsy();
 
       await typeInComposer("", true);
@@ -379,6 +380,7 @@ describe("Autocomplete parenthesis", () => {
     await typeInComposer("=sum(");
     expect(fixture.querySelector(".o-formula-assistant-container")).toBeTruthy();
     await keyDown({ key: "Enter" });
+    await nextTick();
     await nextTick();
     expect(fixture.querySelector(".o-formula-assistant-container")).toBeFalsy();
 
