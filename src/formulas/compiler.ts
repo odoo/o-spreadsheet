@@ -121,10 +121,8 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
           if (!isRangeInput(currentArg)) {
             throw new BadExpressionError(
               _t(
-                "Function %s expects the parameter %s to be reference to a cell or range, not a %s.",
-                functionName,
-                (i + 1).toString(),
-                currentArg.type.toLowerCase()
+                "Function %(function_name)s expects the parameter %(arg_index)s to be a reference to a cell or a range.",
+                { function_name: functionName, arg_index: i + 1 }
               )
             );
           }

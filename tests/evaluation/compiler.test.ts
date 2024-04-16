@@ -267,18 +267,18 @@ describe("compile functions", () => {
       });
 
       expect(() => compiledBaseFunction("=RANGEEXPECTED(42)")).toThrowError(
-        "Function RANGEEXPECTED expects the parameter 1 to be reference to a cell or range, not a number."
+        "Function RANGEEXPECTED expects the parameter 1 to be a reference to a cell or a range."
       );
       expect(() => compiledBaseFunction('=RANGEEXPECTED("test")')).toThrowError(
-        "Function RANGEEXPECTED expects the parameter 1 to be reference to a cell or range, not a string."
+        "Function RANGEEXPECTED expects the parameter 1 to be a reference to a cell or a range."
       );
       expect(() => compiledBaseFunction("=RANGEEXPECTED(TRUE)")).toThrowError(
-        "Function RANGEEXPECTED expects the parameter 1 to be reference to a cell or range, not a boolean."
+        "Function RANGEEXPECTED expects the parameter 1 to be a reference to a cell or a range."
       );
       expect(() =>
         compiledBaseFunction("=RANGEEXPECTED(FORMULA_NOT_RETURNING_RANGE())")
       ).toThrowError(
-        "Function RANGEEXPECTED expects the parameter 1 to be reference to a cell or range, not a funcall."
+        "Function RANGEEXPECTED expects the parameter 1 to be a reference to a cell or a range."
       );
 
       expect(() => compiledBaseFunction("=RANGEEXPECTED(A1)")).not.toThrow();
