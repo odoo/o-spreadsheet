@@ -15,11 +15,8 @@ import {
   ComposerWrapper,
   clearFunctions,
   mountComposerWrapper,
-  mountSpreadsheet,
   nextTick,
   restoreDefaultFunctions,
-  startGridComposition,
-  typeInComposerGrid,
   typeInComposerHelper,
 } from "../test_helpers/helpers";
 jest.mock("../../src/components/composer/content_editable_helper.ts", () =>
@@ -258,16 +255,15 @@ describe("Functions autocomplete", () => {
     });
 
     test("autocomplete should not appear when typing '=S', clicking outside, and edting back", async () => {
-      const { model, fixture } = await mountSpreadsheet();
-      await typeInComposerGrid("=S", true);
+      await typeInComposer("=S", true);
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(2);
 
       model.dispatch("STOP_EDITION");
       await nextTick();
+      await nextTick();
       expect(fixture.querySelector(".o-autocomplete-dropdown")).toBeFalsy();
 
-      await startGridComposition();
-      await nextTick();
+      await keyDown({ key: "Enter" });
       expect(fixture.querySelector(".o-autocomplete-dropdown")).toBeFalsy();
     });
   });
@@ -312,15 +308,16 @@ describe("Autocomplete parenthesis", () => {
   });
 
   test("=sum( + enter + edit does not show the formula assistant", async () => {
-    const { fixture, model } = await mountSpreadsheet();
-    await typeInComposerGrid("=sum(");
+    await typeInComposer("=sum(");
     expect(fixture.querySelector(".o-formula-assistant-container")).toBeTruthy();
 
     model.dispatch("STOP_EDITION");
     await nextTick();
+    await nextTick();
     expect(fixture.querySelector(".o-formula-assistant-container")).toBeFalsy();
 
-    await startGridComposition();
+    selectCell(model, "B4");
+    await keyDown({ key: "Enter" });
     expect(fixture.querySelector(".o-formula-assistant-container")).toBeFalsy();
   });
 
