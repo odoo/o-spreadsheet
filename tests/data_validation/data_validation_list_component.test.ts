@@ -203,10 +203,13 @@ describe("autocomplete in composer", () => {
 
     test("Values displayed are not filtered when the user opens the composer with a valid value", async () => {
       setCellContent(model, "A1", "hello");
-      model.dispatch("START_EDITION", {});
-      ({ fixture, parent } = await mountComposerWrapper(model, { focus: "cellFocus" }));
+      ({ fixture, parent } = await mountComposerWrapper(model, { focus: "inactive" }));
+      parent.startComposition();
+      // start edition
       await nextTick();
-      expect(fixture.querySelectorAll<HTMLElement>(".o-autocomplete-value")).toHaveLength(3);
+      // autocomplete update
+      await nextTick();
+      expect(document.querySelectorAll<HTMLElement>(".o-autocomplete-value")).toHaveLength(3);
     });
 
     test("Values displayed are not filtered when the input has no match in valid values", async () => {
@@ -305,12 +308,18 @@ describe("Selection arrow icon in grid", () => {
     );
   });
 
-  test("Clicking on the icon opens the composer", async () => {
+  test("Clicking on the icon opens the composer with suggestions", async () => {
     setSelection(model, ["B2"]);
     ({ fixture } = await mountSpreadsheet({ model }));
     await click(fixture, ".o-dv-list-icon");
+    await nextTick();
     expect(model.getters.getEditionMode()).toBe("editing");
     expect(model.getters.getCurrentEditedCell()).toEqual({ sheetId, col: 0, row: 0 });
+    const suggestions = fixture.querySelectorAll(".o-autocomplete-dropdown .o-autocomplete-value");
+    expect(suggestions.length).toBe(3);
+    expect(suggestions[0].textContent).toBe("ok");
+    expect(suggestions[1].textContent).toBe("hello");
+    expect(suggestions[2].textContent).toBe("okay");
   });
 
   test("Icon is not displayed when display style is plainText", async () => {
