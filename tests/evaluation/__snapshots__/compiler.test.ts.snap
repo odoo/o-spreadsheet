@@ -1,5 +1,255 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`compile functions check number of arguments with basic arguments 1`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =ANYFUNCTION()
+return { value: "#BAD_EXPR", message: "Invalid number of arguments for the ANYFUNCTION function. Expected 2 minimum, but got 0 instead." };
+}"
+`;
+
+exports[`compile functions check number of arguments with basic arguments 2`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =ANYFUNCTION(|N0|)
+return { value: "#BAD_EXPR", message: "Invalid number of arguments for the ANYFUNCTION function. Expected 2 minimum, but got 1 instead." };
+}"
+`;
+
+exports[`compile functions check number of arguments with basic arguments 3`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =ANYFUNCTION(|N0|,|N1|)
+const _1 = { value: this.constantValues.numbers[0] };
+const _2 = { value: this.constantValues.numbers[1] };
+return ctx['ANYFUNCTION'](_1,_2);
+}"
+`;
+
+exports[`compile functions check number of arguments with basic arguments 4`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =ANYFUNCTION(|N0|,|N1|,|N2|)
+return { value: "#BAD_EXPR", message: "Invalid number of arguments for the ANYFUNCTION function. Expected 2 maximum, but got 3 instead." };
+}"
+`;
+
+exports[`compile functions check number of arguments with default argument 1`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =USEDEFAULTARG(|N0|)
+const _1 = { value: this.constantValues.numbers[0] };
+return ctx['USEDEFAULTARG'](_1);
+}"
+`;
+
+exports[`compile functions check number of arguments with default argument 2`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =USEDEFAULTARG(|N0|,|N1|)
+const _1 = { value: this.constantValues.numbers[0] };
+const _2 = { value: this.constantValues.numbers[1] };
+return ctx['USEDEFAULTARG'](_1,_2);
+}"
+`;
+
+exports[`compile functions check number of arguments with default argument 3`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =USEDEFAULTARG(|N0|,|N1|,|N2|)
+return { value: "#BAD_EXPR", message: "Invalid number of arguments for the USEDEFAULTARG function. Expected 2 maximum, but got 3 instead." };
+}"
+`;
+
+exports[`compile functions check number of arguments with more than one repeatable argument 1`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =REPEATABLES(|N0|,|N1|)
+return { value: "#BAD_EXPR", message: "Invalid number of arguments for the REPEATABLES function. Expected all arguments after position 1 to be supplied by groups of 2 arguments" };
+}"
+`;
+
+exports[`compile functions check number of arguments with more than one repeatable argument 2`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =REPEATABLES(|N0|,|N1|,|N2|)
+const _1 = { value: this.constantValues.numbers[0] };
+const _2 = { value: this.constantValues.numbers[1] };
+const _3 = { value: this.constantValues.numbers[2] };
+return ctx['REPEATABLES'](_1,_2,_3);
+}"
+`;
+
+exports[`compile functions check number of arguments with more than one repeatable argument 3`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =REPEATABLES(|N0|,|N1|,|N2|,|N3|)
+return { value: "#BAD_EXPR", message: "Invalid number of arguments for the REPEATABLES function. Expected all arguments after position 1 to be supplied by groups of 2 arguments" };
+}"
+`;
+
+exports[`compile functions check number of arguments with more than one repeatable argument 4`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =REPEATABLES(|N0|,|N1|,|N2|,|N3|,|N4|)
+const _1 = { value: this.constantValues.numbers[0] };
+const _2 = { value: this.constantValues.numbers[1] };
+const _3 = { value: this.constantValues.numbers[2] };
+const _4 = { value: this.constantValues.numbers[3] };
+const _5 = { value: this.constantValues.numbers[4] };
+return ctx['REPEATABLES'](_1,_2,_3,_4,_5);
+}"
+`;
+
+exports[`compile functions check number of arguments with optional argument 1`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =OPTIONAL(|N0|)
+const _1 = { value: this.constantValues.numbers[0] };
+return ctx['OPTIONAL'](_1);
+}"
+`;
+
+exports[`compile functions check number of arguments with optional argument 2`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =OPTIONAL(|N0|,|N1|)
+const _1 = { value: this.constantValues.numbers[0] };
+const _2 = { value: this.constantValues.numbers[1] };
+return ctx['OPTIONAL'](_1,_2);
+}"
+`;
+
+exports[`compile functions check number of arguments with optional argument 3`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =OPTIONAL(|N0|,|N1|,|N2|)
+return { value: "#BAD_EXPR", message: "Invalid number of arguments for the OPTIONAL function. Expected 2 maximum, but got 3 instead." };
+}"
+`;
+
+exports[`compile functions check number of arguments with repeatable argument 1`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =REPEATABLE(|N0|)
+const _1 = { value: this.constantValues.numbers[0] };
+return ctx['REPEATABLE'](_1);
+}"
+`;
+
+exports[`compile functions check number of arguments with repeatable argument 2`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =REPEATABLE(|N0|,|N1|)
+const _1 = { value: this.constantValues.numbers[0] };
+const _2 = { value: this.constantValues.numbers[1] };
+return ctx['REPEATABLE'](_1,_2);
+}"
+`;
+
+exports[`compile functions check number of arguments with repeatable argument 3`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =REPEATABLE(|N0|,|N1|,|N2|,|N3|,|N4|,|N5|)
+const _1 = { value: this.constantValues.numbers[0] };
+const _2 = { value: this.constantValues.numbers[1] };
+const _3 = { value: this.constantValues.numbers[2] };
+const _4 = { value: this.constantValues.numbers[3] };
+const _5 = { value: this.constantValues.numbers[4] };
+const _6 = { value: this.constantValues.numbers[5] };
+return ctx['REPEATABLE'](_1,_2,_3,_4,_5,_6);
+}"
+`;
+
+exports[`compile functions check type of arguments accept subfunction compile error 1`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =ONE_ARG(ONE_ARG(|N0|,|N1|))
+const _1 = { value: "#BAD_EXPR", message: "Invalid number of arguments for the ONE_ARG function. Expected 1 maximum, but got 2 instead." };
+return ctx['ONE_ARG'](_1);
+}"
+`;
+
+exports[`compile functions check type of arguments reject non-range argument when expecting only range argument 1`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =RANGEEXPECTED(|N0|)
+return { value: "#BAD_EXPR", message: "Function RANGEEXPECTED expects the parameter 1 to be reference to a cell or range, not a number." };
+}"
+`;
+
+exports[`compile functions check type of arguments reject non-range argument when expecting only range argument 2`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =RANGEEXPECTED(|S0|)
+return { value: "#BAD_EXPR", message: "Function RANGEEXPECTED expects the parameter 1 to be reference to a cell or range, not a string." };
+}"
+`;
+
+exports[`compile functions check type of arguments reject non-range argument when expecting only range argument 3`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =RANGEEXPECTED(TRUE)
+return { value: "#BAD_EXPR", message: "Function RANGEEXPECTED expects the parameter 1 to be reference to a cell or range, not a boolean." };
+}"
+`;
+
+exports[`compile functions check type of arguments reject non-range argument when expecting only range argument 4`] = `[Function]`;
+
+exports[`compile functions check type of arguments reject non-range argument when expecting only range argument 5`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =RANGEEXPECTED(|0|)
+const _1 = range(deps[0]);
+return ctx['RANGEEXPECTED'](_1);
+}"
+`;
+
+exports[`compile functions check type of arguments reject non-range argument when expecting only range argument 6`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =RANGEEXPECTED(|0|)
+const _1 = range(deps[0]);
+return ctx['RANGEEXPECTED'](_1);
+}"
+`;
+
+exports[`compile functions check type of arguments reject non-range argument when expecting only range argument 7`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =RANGEEXPECTED(|0|)
+const _1 = range(deps[0]);
+return ctx['RANGEEXPECTED'](_1);
+}"
+`;
+
+exports[`compile functions check type of arguments reject non-range argument when expecting only range argument 8`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =RANGEEXPECTED(|0|)
+const _1 = range(deps[0]);
+return ctx['RANGEEXPECTED'](_1);
+}"
+`;
+
+exports[`compile functions check type of arguments reject non-range argument when expecting only range argument 9`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =RANGEEXPECTED(|0|)
+const _1 = range(deps[0]);
+return ctx['RANGEEXPECTED'](_1);
+}"
+`;
+
+exports[`compile functions check type of arguments reject non-range argument when expecting only range argument 10`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =RANGEEXPECTED(FORMULA_RETURNING_RANGE())
+const _1 = ctx['FORMULA_RETURNING_RANGE']();
+return ctx['RANGEEXPECTED'](_1);
+}"
+`;
+
 exports[`compile functions with meta arguments function call requesting meta parameter 1`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
@@ -15,6 +265,121 @@ exports[`compile functions with meta arguments function call requesting meta par
 // =USEMETAARG(|0|)
 const _1 = ref(deps[0], true, "USEMETAARG",  1);
 return ctx['USEMETAARG'](_1);
+}"
+`;
+
+exports[`compile functions with meta arguments throw error if parameter isn't cell/range reference 1`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =USEMETAARG(|0|)
+const _1 = ref(deps[0], true, "USEMETAARG",  1);
+return ctx['USEMETAARG'](_1);
+}"
+`;
+
+exports[`compile functions with meta arguments throw error if parameter isn't cell/range reference 2`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =USEMETAARG(|0|)
+const _1 = ref(deps[0], true, "USEMETAARG",  1);
+return ctx['USEMETAARG'](_1);
+}"
+`;
+
+exports[`compile functions with meta arguments throw error if parameter isn't cell/range reference 3`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =USEMETAARG(|0|)
+const _1 = ref(deps[0], true, "USEMETAARG",  1);
+return ctx['USEMETAARG'](_1);
+}"
+`;
+
+exports[`compile functions with meta arguments throw error if parameter isn't cell/range reference 4`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =USEMETAARG(|0|)
+const _1 = ref(deps[0], true, "USEMETAARG",  1);
+return ctx['USEMETAARG'](_1);
+}"
+`;
+
+exports[`compile functions with meta arguments throw error if parameter isn't cell/range reference 5`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =USEMETAARG(|0|)
+const _1 = ref(deps[0], true, "USEMETAARG",  1);
+return ctx['USEMETAARG'](_1);
+}"
+`;
+
+exports[`compile functions with meta arguments throw error if parameter isn't cell/range reference 6`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =USEMETAARG(|0|)
+const _1 = ref(deps[0], true, "USEMETAARG",  1);
+return ctx['USEMETAARG'](_1);
+}"
+`;
+
+exports[`compile functions with meta arguments throw error if parameter isn't cell/range reference 7`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =USEMETAARG(|0|)
+const _1 = ref(deps[0], true, "USEMETAARG",  1);
+return ctx['USEMETAARG'](_1);
+}"
+`;
+
+exports[`compile functions with meta arguments throw error if parameter isn't cell/range reference 8`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =USEMETAARG(|0|)
+const _1 = ref(deps[0], true, "USEMETAARG",  1);
+return ctx['USEMETAARG'](_1);
+}"
+`;
+
+exports[`compile functions with meta arguments throw error if parameter isn't cell/range reference 9`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =USEMETAARG(|S0|)
+const _1 = { value: "#BAD_EXPR", message: "Argument must be a reference to a cell or range." };
+return ctx['USEMETAARG'](_1);
+}"
+`;
+
+exports[`compile functions with meta arguments throw error if parameter isn't cell/range reference 10`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =USEMETAARG(|S0|)
+const _1 = { value: "#BAD_EXPR", message: "Argument must be a reference to a cell or range." };
+return ctx['USEMETAARG'](_1);
+}"
+`;
+
+exports[`compile functions with meta arguments throw error if parameter isn't cell/range reference 11`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =USEMETAARG(TRUE)
+const _1 = { value: "#BAD_EXPR", message: "Argument must be a reference to a cell or range." };
+return ctx['USEMETAARG'](_1);
+}"
+`;
+
+exports[`compile functions with meta arguments throw error if parameter isn't cell/range reference 12`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+// =USEMETAARG(SUM(|N0|,|N1|,|N2|))
+const _1 = { value: "#BAD_EXPR", message: "Argument must be a reference to a cell or range." };
+return ctx['USEMETAARG'](_1);
+}"
+`;
+
+exports[`expression compiler cannot compile some invalid formulas 1`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+return { value: "#BAD_EXPR", message: "Invalid formula" };
 }"
 `;
 
@@ -66,6 +431,13 @@ const _1 = ref(deps[0], false, "ADD",  undefined);
 const _2 = range(deps[1]);
 const _3 = ctx['SUM'](_2);
 return ctx['ADD'](_1, _3);
+}"
+`;
+
+exports[`expression compiler simple values that throw error 1`] = `
+"function anonymous(deps,ref,range,ctx
+) {
+return { value: "#BAD_EXPR", message: "Invalid formula" };
 }"
 `;
 

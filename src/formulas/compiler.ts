@@ -3,7 +3,7 @@ import { functionRegistry } from "../functions/index";
 import { concat, parseNumber, removeStringQuotes } from "../helpers";
 import { _t } from "../translation";
 import { CompiledFormula, DEFAULT_LOCALE, FormulaToExecute } from "../types";
-import { BadExpressionError, UnknownFunctionError } from "../types/errors";
+import { BadExpressionError, EvaluationError, UnknownFunctionError } from "../types/errors";
 import { FunctionCode, FunctionCodeBuilder, Scope } from "./code_builder";
 import { AST, ASTFuncall, parseTokens } from "./parser";
 import { rangeTokenize } from "./range_tokenizer";
@@ -59,21 +59,27 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
   const { dependencies, constantValues } = formulaArguments(tokens);
   const cacheKey = compilationCacheKey(tokens, dependencies, constantValues);
   if (!functionCache[cacheKey]) {
-    const ast = parseTokens([...tokens]);
+    let ast: AST;
+    try {
+      ast = parseTokens([...tokens]);
+    } catch (error) {
+      ast = { type: "EMPTY", value: "" };
+    }
     const scope = new Scope();
 
-    if (ast.type === "BIN_OPERATION" && ast.value === ":") {
-      throw new BadExpressionError(_t("Invalid formula"));
-    }
-    if (ast.type === "EMPTY") {
-      throw new BadExpressionError(_t("Invalid formula"));
-    }
-    const compiledAST = compileAST(ast);
     const code = new FunctionCodeBuilder();
-    code.append(`// ${cacheKey}`);
-    code.append(compiledAST);
-    code.append(`return ${compiledAST.returnExpression};`);
-    let baseFunction = new Function(
+    if ((ast.type === "BIN_OPERATION" && ast.value === ":") || ast.type === "EMPTY") {
+      const errorExpression = errorToExpressionString(
+        new BadExpressionError(_t("Invalid formula"))
+      );
+      code.append(`return ${errorExpression};`);
+    } else {
+      const compiledAST = compileAST(ast);
+      code.append(`// ${cacheKey}`);
+      code.append(compiledAST);
+      code.append(`return ${compiledAST.returnExpression};`);
+    }
+    const baseFunction = new Function(
       "deps", // the dependencies in the current formula
       "ref", // a function to access a certain dependency at a given index
       "range", // same as above, but guarantee that the result is in the form of a range
@@ -83,6 +89,44 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
 
     // @ts-ignore
     functionCache[cacheKey] = baseFunction;
+
+    function checkArgsCompilationError(ast: ASTFuncall): EvaluationError | undefined {
+      const { args } = ast;
+      const functionName = ast.value.toUpperCase();
+      const functionDefinition = functions[functionName];
+
+      if (!functionDefinition) {
+        return new UnknownFunctionError(_t('Unknown function: "%s"', ast.value));
+      }
+
+      const notEnoughArgsError = checkEnoughArgs(ast);
+      if (notEnoughArgsError) {
+        return notEnoughArgsError;
+      }
+
+      for (let i = 0; i < args.length; i++) {
+        const argToFocus = functionDefinition.getArgToFocus(i + 1) - 1;
+        const argDefinition = functionDefinition.args[argToFocus];
+        const currentArg = args[i];
+        const argTypes = argDefinition.type || [];
+
+        const isRangeOnly = argTypes.every((t) => isRangeType(t));
+
+        if (isRangeOnly) {
+          if (!isRangeInput(currentArg)) {
+            return new BadExpressionError(
+              _t(
+                "Function %s expects the parameter %s to be reference to a cell or range, not a %s.",
+                functionName,
+                (i + 1).toString(),
+                currentArg.type.toLowerCase()
+              )
+            );
+          }
+        }
+      }
+      return undefined;
+    }
 
     /**
      * This function compile the function arguments. It is mostly straightforward,
@@ -97,12 +141,6 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
       const functionName = ast.value.toUpperCase();
       const functionDefinition = functions[functionName];
 
-      if (!functionDefinition) {
-        throw new UnknownFunctionError(_t('Unknown function: "%s"', ast.value));
-      }
-
-      assertEnoughArgs(ast);
-
       const compiledArgs: FunctionCode[] = [];
 
       for (let i = 0; i < args.length; i++) {
@@ -115,20 +153,6 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
         const isMeta = argTypes.includes("META");
 
         const hasRange = argTypes.some((t) => isRangeType(t));
-        const isRangeOnly = argTypes.every((t) => isRangeType(t));
-
-        if (isRangeOnly) {
-          if (!isRangeInput(currentArg)) {
-            throw new BadExpressionError(
-              _t(
-                "Function %s expects the parameter %s to be reference to a cell or range, not a %s.",
-                functionName,
-                (i + 1).toString(),
-                currentArg.type.toLowerCase()
-              )
-            );
-          }
-        }
 
         compiledArgs.push(
           compileAST(currentArg, isMeta, hasRange, {
@@ -163,9 +187,14 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
       } = {}
     ): FunctionCode {
       const code = new FunctionCodeBuilder(scope);
+      // TODo move this
       if (ast.type !== "REFERENCE" && !(ast.type === "BIN_OPERATION" && ast.value === ":")) {
         if (isMeta) {
-          throw new BadExpressionError(_t("Argument must be a reference to a cell or range."));
+          return code.return(
+            errorToExpressionString(
+              new BadExpressionError(_t("Argument must be a reference to a cell or range."))
+            )
+          );
         }
       }
       if (ast.debug) {
@@ -194,10 +223,15 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
             );
           }
         case "FUNCALL":
-          const args = compileFunctionArgs(ast).map((arg) => arg.assignResultToVariable());
-          code.append(...args);
-          const fnName = ast.value.toUpperCase();
-          return code.return(`ctx['${fnName}'](${args.map((arg) => arg.returnExpression)})`);
+          const argsError = checkArgsCompilationError(ast);
+          if (argsError) {
+            return code.return(errorToExpressionString(argsError));
+          } else {
+            const args = compileFunctionArgs(ast).map((arg) => arg.assignResultToVariable());
+            code.append(...args);
+            const fnName = ast.value.toUpperCase();
+            return code.return(`ctx['${fnName}'](${args.map((arg) => arg.returnExpression)})`);
+          }
         case "UNARY_OPERATION": {
           const fnName = UNARY_OPERATOR_MAP[ast.value];
           const operand = compileAST(ast.operand, false, false, {
@@ -308,13 +342,13 @@ function formulaArguments(tokens: Token[]) {
 /**
  * Check if arguments are supplied in the correct quantities
  */
-function assertEnoughArgs(ast: ASTFuncall) {
+function checkEnoughArgs(ast: ASTFuncall): EvaluationError | undefined {
   const nbrArg = ast.args.length;
   const functionName = ast.value.toUpperCase();
   const functionDefinition = functions[functionName];
 
   if (nbrArg < functionDefinition.minArgRequired) {
-    throw new BadExpressionError(
+    return new BadExpressionError(
       _t(
         "Invalid number of arguments for the %s function. Expected %s minimum, but got %s instead.",
         functionName,
@@ -325,7 +359,7 @@ function assertEnoughArgs(ast: ASTFuncall) {
   }
 
   if (nbrArg > functionDefinition.maxArgPossible) {
-    throw new BadExpressionError(
+    return new BadExpressionError(
       _t(
         "Invalid number of arguments for the %s function. Expected %s maximum, but got %s instead.",
         functionName,
@@ -340,7 +374,7 @@ function assertEnoughArgs(ast: ASTFuncall) {
     const unrepeatableArgs = functionDefinition.args.length - repeatableArgs;
     const repeatingArgs = nbrArg - unrepeatableArgs;
     if (repeatingArgs % repeatableArgs !== 0) {
-      throw new BadExpressionError(
+      return new BadExpressionError(
         _t(
           "Invalid number of arguments for the %s function. Expected all arguments after position %s to be supplied by groups of %s arguments",
           functionName,
@@ -350,6 +384,7 @@ function assertEnoughArgs(ast: ASTFuncall) {
       );
     }
   }
+  return undefined;
 }
 
 function isRangeType(type: string) {
@@ -366,4 +401,8 @@ function isRangeInput(arg: AST) {
   }
 
   return false;
+}
+
+function errorToExpressionString(error: EvaluationError): string {
+  return `{ value: "${error.value}", message: "${error.message}" }`;
 }
