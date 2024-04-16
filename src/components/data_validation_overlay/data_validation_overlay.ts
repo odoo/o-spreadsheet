@@ -12,7 +12,11 @@ export class DataValidationOverlay extends Component<{}, SpreadsheetChildEnv> {
   get checkBoxCellPositions(): CellPosition[] {
     return this.env.model.getters
       .getVisibleCellPositions()
-      .filter(this.env.model.getters.isCellValidCheckbox);
+      .filter(
+        (position) =>
+          this.env.model.getters.isCellValidCheckbox(position) &&
+          !this.env.model.getters.isFilterHeader(position)
+      );
   }
 
   get listIconsCellPositions(): CellPosition[] {
@@ -21,6 +25,10 @@ export class DataValidationOverlay extends Component<{}, SpreadsheetChildEnv> {
     }
     return this.env.model.getters
       .getVisibleCellPositions()
-      .filter(this.env.model.getters.cellHasListDataValidationIcon);
+      .filter(
+        (position) =>
+          this.env.model.getters.cellHasListDataValidationIcon(position) &&
+          !this.env.model.getters.isFilterHeader(position)
+      );
   }
 }
