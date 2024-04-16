@@ -1,5 +1,10 @@
 import { Model } from "../../src";
-import { addDataValidation, setCellContent, setStyle } from "../test_helpers/commands_helpers";
+import {
+  addDataValidation,
+  createTable,
+  setCellContent,
+  setStyle,
+} from "../test_helpers/commands_helpers";
 import { getStyle } from "../test_helpers/getters_helpers";
 import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
@@ -49,5 +54,15 @@ describe("Checkbox component", () => {
     const { fixture } = await mountSpreadsheet({ model });
 
     expect(fixture.querySelector(".o-dv-checkbox")?.classList).toContain("pe-none");
+  });
+
+  test("Icon is not displayed if there is a filter icon", async () => {
+    const model = new Model();
+    addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
+    createTable(model, "A1:A4");
+
+    const { fixture } = await mountSpreadsheet({ model });
+    expect(fixture.querySelector(".o-dv-checkbox")).toBeNull();
+    expect(fixture.querySelector(".o-filter-icon")).not.toBeNull();
   });
 });
