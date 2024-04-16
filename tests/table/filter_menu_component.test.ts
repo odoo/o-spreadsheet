@@ -1,6 +1,7 @@
 import { Model } from "../../src";
 import { UID } from "../../src/types";
 import {
+  createDynamicTable,
   createTable,
   hideRows,
   setCellContent,
@@ -330,12 +331,22 @@ describe("Filter menu component", () => {
     await nextTick();
     await openFilterMenu();
     expect(
-      [...fixture.querySelectorAll(".o-filter-menu-item")].map((el) => el.textContent)
-    ).toEqual([" Sort ascending (A ⟶ Z) ", " Sort descending (Z ⟶ A) ", "✓(Blanks)"]);
+      [...fixture.querySelectorAll(".o-filter-menu-item")].map((el) => el.textContent?.trim())
+    ).toEqual(["Sort ascending (A ⟶ Z)", "Sort descending (Z ⟶ A)", "✓(Blanks)"]);
     model.updateMode("readonly");
     await nextTick();
     expect(
-      [...fixture.querySelectorAll(".o-filter-menu-item")].map((el) => el.textContent)
+      [...fixture.querySelectorAll(".o-filter-menu-item")].map((el) => el.textContent?.trim())
     ).toEqual(["✓(Blanks)"]);
+  });
+
+  test("cannot sort dynamic table", async () => {
+    setCellContent(model, "A10", "=MUNIT(2)");
+    createDynamicTable(model, "A10");
+    await nextTick();
+    await openFilterMenu();
+    expect(
+      [...fixture.querySelectorAll(".o-filter-menu-item")].map((el) => el.textContent?.trim())
+    ).not.toContain("Sort ascending (A ⟶ Z)");
   });
 });

@@ -16,7 +16,6 @@ exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`
        Sort descending (Z ⟶ A) 
     </div>
   </div>
-  
   <div
     class="o-separator"
   />
