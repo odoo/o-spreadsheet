@@ -1,4 +1,4 @@
-import { Component, onMounted, onPatched, useEffect, useRef, useState } from "@odoo/owl";
+import { Component, onMounted, useEffect, useRef, useState } from "@odoo/owl";
 import { COMPOSER_ASSISTANT_COLOR, DEFAULT_FONT, NEWLINE } from "../../../constants";
 import { EnrichedToken } from "../../../formulas/index";
 import { functionRegistry } from "../../../functions/index";
@@ -235,19 +235,18 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
         this.env.focusableElement.setFocusableElement(el);
       }
       this.contentHelper.updateEl(el);
-      this.processTokenAtCursor();
     });
 
     useEffect(() => {
       this.processContent();
     });
 
-    onPatched(() => {
-      // Required because typing '=SUM' and double-clicking another cell leaves ShowProvider/ShowDescription true
-      if (this.env.model.getters.getEditionMode() === "inactive") {
+    useEffect(
+      () => {
         this.processTokenAtCursor();
-      }
-    });
+      },
+      () => [this.env.model.getters.getEditionMode() !== "inactive"]
+    );
   }
 
   // ---------------------------------------------------------------------------
@@ -744,6 +743,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
       this.env.model.getters.getAutoCompleteDataValidationValues();
     if (!content.startsWith("=") && dataValidationAutocompleteValues.length) {
       this.showDataValidationAutocomplete(dataValidationAutocompleteValues);
+      return;
     }
 
     if (content.startsWith("=")) {
