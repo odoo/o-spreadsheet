@@ -149,8 +149,15 @@ export class FilterMenu extends Component<Props, SpreadsheetChildEnv> {
     this.state.values = this.getFilterHiddenValues(this.props.filterPosition);
   }
 
-  get isReadonly() {
-    return this.env.model.getters.isReadonly();
+  get isSortable() {
+    if (!this.table) {
+      return false;
+    }
+    const coreTable = this.env.model.getters.getCoreTableMatchingTopLeft(
+      this.table.range.sheetId,
+      this.table.range.zone
+    );
+    return !this.env.model.getters.isReadonly() && coreTable?.type !== "dynamic";
   }
 
   private getFilterHiddenValues(position: Position): Value[] {
