@@ -162,6 +162,8 @@ describe("IFERROR formula", () => {
     expect(evaluateCell("A1", { A1: "=IFERROR(IFERROR(1/0, 1/0), A1)" })).toBe("#CYCLE");
     expect(evaluateCell("A1", { A1: "=IFERROR(1, 1/0) + IFERROR(1, 1/0)" })).toBe(2);
     expect(evaluateCell("A1", { A1: "=IFERROR(ADD(B1:B2,2), 1)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=IFERROR(doesNotExist!B1, 1)" })).toBe(1);
+    expect(evaluateCell("A1", { A1: "=IFERROR(doesNotExist!B1:B2, 1)" })).toBe(1);
   });
 
   test("format is preserved from value", () => {
