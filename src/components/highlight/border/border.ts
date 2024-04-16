@@ -38,18 +38,18 @@ export class Border extends Component<Props, SpreadsheetChildEnv> {
     const isVertical = ["w", "e"].includes(this.props.orientation);
 
     const z = this.props.zone;
-    const margin = 2;
 
     const rect = this.env.model.getters.getVisibleRect(z);
 
     const left = rect.x;
-    const right = rect.x + rect.width - 2 * margin;
+    const right = rect.x + rect.width;
     const top = rect.y;
-    const bottom = rect.y + rect.height - 2 * margin;
+    const bottom = rect.y + rect.height;
 
-    const lineWidth = 4;
-    const leftValue = isLeft ? left : right;
-    const topValue = isTop ? top : bottom;
+    const lineWidth = 8;
+    const centeringOffset = lineWidth / 2;
+    const leftValue = (isLeft ? left : right) - (isVertical ? centeringOffset : 0);
+    const topValue = (isTop ? top : bottom) - (isHorizontal ? centeringOffset : 0);
     const widthValue = isHorizontal ? right - left : lineWidth;
     const heightValue = isVertical ? bottom - top : lineWidth;
 
