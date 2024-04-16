@@ -25,7 +25,7 @@ describe("expression compiler", () => {
   });
 
   test("simple values that throw error", () => {
-    expect(() => compiledBaseFunction(`='abc'`)).toThrowError();
+    expect(compiledBaseFunction(`='abc'`).execute.toString()).toMatchSnapshot();
   });
 
   test.each(["=1 + 3", "=2 * 3", "=2 - 3", "=2 / 3", "=-3", "=(3 + 1) * (-1 + 4)"])(
@@ -80,7 +80,7 @@ describe("expression compiler", () => {
   });
 
   test("cannot compile some invalid formulas", () => {
-    expect(() => compiledBaseFunction("=qsdf")).toThrow();
+    expect(compiledBaseFunction("=qsdf").execute.toString()).toMatchSnapshot();
   });
 });
 
@@ -102,10 +102,10 @@ describe("compile functions", () => {
         ],
         returns: ["ANY"],
       });
-      expect(() => compiledBaseFunction("=ANYFUNCTION()")).toThrow();
-      expect(() => compiledBaseFunction("=ANYFUNCTION(1)")).toThrow();
-      expect(() => compiledBaseFunction("=ANYFUNCTION(1,2)")).not.toThrow();
-      expect(() => compiledBaseFunction("=ANYFUNCTION(1,2,3)")).toThrow();
+      expect(compiledBaseFunction("=ANYFUNCTION()").execute.toString()).toMatchSnapshot();
+      expect(compiledBaseFunction("=ANYFUNCTION(1)").execute.toString()).toMatchSnapshot();
+      expect(compiledBaseFunction("=ANYFUNCTION(1,2)").execute.toString()).toMatchSnapshot();
+      expect(compiledBaseFunction("=ANYFUNCTION(1,2,3)").execute.toString()).toMatchSnapshot();
       restoreDefaultFunctions();
     });
 
@@ -121,9 +121,9 @@ describe("compile functions", () => {
         ],
         returns: ["ANY"],
       });
-      expect(() => compiledBaseFunction("=OPTIONAL(1)")).not.toThrow();
-      expect(() => compiledBaseFunction("=OPTIONAL(1,2)")).not.toThrow();
-      expect(() => compiledBaseFunction("=OPTIONAL(1,2,3)")).toThrow();
+      expect(compiledBaseFunction("=OPTIONAL(1)").execute.toString()).toMatchSnapshot();
+      expect(compiledBaseFunction("=OPTIONAL(1,2)").execute.toString()).toMatchSnapshot();
+      expect(compiledBaseFunction("=OPTIONAL(1,2,3)").execute.toString()).toMatchSnapshot();
       restoreDefaultFunctions();
     });
 
@@ -139,9 +139,9 @@ describe("compile functions", () => {
         ],
         returns: ["ANY"],
       });
-      expect(() => compiledBaseFunction("=USEDEFAULTARG(1)")).not.toThrow();
-      expect(() => compiledBaseFunction("=USEDEFAULTARG(1,2)")).not.toThrow();
-      expect(() => compiledBaseFunction("=USEDEFAULTARG(1,2,3)")).toThrow();
+      expect(compiledBaseFunction("=USEDEFAULTARG(1)").execute.toString()).toMatchSnapshot();
+      expect(compiledBaseFunction("=USEDEFAULTARG(1,2)").execute.toString()).toMatchSnapshot();
+      expect(compiledBaseFunction("=USEDEFAULTARG(1,2,3)").execute.toString()).toMatchSnapshot();
       restoreDefaultFunctions();
     });
 
@@ -157,9 +157,9 @@ describe("compile functions", () => {
         ],
         returns: ["ANY"],
       });
-      expect(() => compiledBaseFunction("=REPEATABLE(1)")).not.toThrow();
-      expect(() => compiledBaseFunction("=REPEATABLE(1,2)")).not.toThrow();
-      expect(() => compiledBaseFunction("=REPEATABLE(1,2,3,4,5,6)")).not.toThrow();
+      expect(compiledBaseFunction("=REPEATABLE(1)").execute.toString()).toMatchSnapshot();
+      expect(compiledBaseFunction("=REPEATABLE(1,2)").execute.toString()).toMatchSnapshot();
+      expect(compiledBaseFunction("=REPEATABLE(1,2,3,4,5,6)").execute.toString()).toMatchSnapshot();
       restoreDefaultFunctions();
     });
 
@@ -176,10 +176,12 @@ describe("compile functions", () => {
         ],
         returns: ["ANY"],
       });
-      expect(() => compiledBaseFunction("=REPEATABLES(1, 2)")).toThrow();
-      expect(() => compiledBaseFunction("=REPEATABLES(1, 2, 3)")).not.toThrow();
-      expect(() => compiledBaseFunction("=REPEATABLES(1, 2, 3, 4)")).toThrow();
-      expect(() => compiledBaseFunction("=REPEATABLES(1, 2, 3, 4, 5)")).not.toThrow();
+      expect(compiledBaseFunction("=REPEATABLES(1, 2)").execute.toString()).toMatchSnapshot();
+      expect(compiledBaseFunction("=REPEATABLES(1, 2, 3)").execute.toString()).toMatchSnapshot();
+      expect(compiledBaseFunction("=REPEATABLES(1, 2, 3, 4)").execute.toString()).toMatchSnapshot();
+      expect(
+        compiledBaseFunction("=REPEATABLES(1, 2, 3, 4, 5)").execute.toString()
+      ).toMatchSnapshot();
       restoreDefaultFunctions();
     });
   });
@@ -266,27 +268,23 @@ describe("compile functions", () => {
         returns: ["STRING"],
       });
 
-      expect(() => compiledBaseFunction("=RANGEEXPECTED(42)")).toThrowError(
-        "Function RANGEEXPECTED expects the parameter 1 to be reference to a cell or range, not a number."
-      );
-      expect(() => compiledBaseFunction('=RANGEEXPECTED("test")')).toThrowError(
-        "Function RANGEEXPECTED expects the parameter 1 to be reference to a cell or range, not a string."
-      );
-      expect(() => compiledBaseFunction("=RANGEEXPECTED(TRUE)")).toThrowError(
-        "Function RANGEEXPECTED expects the parameter 1 to be reference to a cell or range, not a boolean."
-      );
+      expect(compiledBaseFunction("=RANGEEXPECTED(42)").execute.toString()).toMatchSnapshot();
+      expect(compiledBaseFunction('=RANGEEXPECTED("test")').execute.toString()).toMatchSnapshot();
+      expect(compiledBaseFunction("=RANGEEXPECTED(TRUE)").execute.toString()).toMatchSnapshot();
       expect(() =>
         compiledBaseFunction("=RANGEEXPECTED(FORMULA_NOT_RETURNING_RANGE())")
-      ).toThrowError(
-        "Function RANGEEXPECTED expects the parameter 1 to be reference to a cell or range, not a funcall."
-      );
+      ).toMatchSnapshot();
 
-      expect(() => compiledBaseFunction("=RANGEEXPECTED(A1)")).not.toThrow();
-      expect(() => compiledBaseFunction("=RANGEEXPECTED(A1:A1)")).not.toThrow();
-      expect(() => compiledBaseFunction("=RANGEEXPECTED(A1:A2)")).not.toThrow();
-      expect(() => compiledBaseFunction("=RANGEEXPECTED(A1:A$2)")).not.toThrow();
-      expect(() => compiledBaseFunction("=RANGEEXPECTED(sheet2!A1:A$2)")).not.toThrow();
-      expect(() => compiledBaseFunction("=RANGEEXPECTED(FORMULA_RETURNING_RANGE())")).not.toThrow();
+      expect(compiledBaseFunction("=RANGEEXPECTED(A1)").execute.toString()).toMatchSnapshot();
+      expect(compiledBaseFunction("=RANGEEXPECTED(A1:A1)").execute.toString()).toMatchSnapshot();
+      expect(compiledBaseFunction("=RANGEEXPECTED(A1:A2)").execute.toString()).toMatchSnapshot();
+      expect(compiledBaseFunction("=RANGEEXPECTED(A1:A$2)").execute.toString()).toMatchSnapshot();
+      expect(
+        compiledBaseFunction("=RANGEEXPECTED(sheet2!A1:A$2)").execute.toString()
+      ).toMatchSnapshot();
+      expect(
+        compiledBaseFunction("=RANGEEXPECTED(FORMULA_RETURNING_RANGE())").execute.toString()
+      ).toMatchSnapshot();
     });
 
     test("reject range when expecting only non-range argument", () => {
@@ -359,6 +357,18 @@ describe("compile functions", () => {
       );
       expect(getCellError(m, "B14")).toBeUndefined();
     });
+
+    test("accept subfunction compile error", () => {
+      functionRegistry.add("ONE_ARG", {
+        description: "function expect number in 1st arg",
+        compute: (arg) => {
+          return true;
+        },
+        args: [{ name: "arg1", description: "", type: ["ANY"] }],
+        returns: ["ANY"],
+      });
+      expect(compiledBaseFunction("=ONE_ARG(ONE_ARG(1,2))").execute.toString()).toMatchSnapshot();
+    });
   });
 
   describe("with meta arguments", () => {
@@ -386,20 +396,26 @@ describe("compile functions", () => {
     );
 
     test("throw error if parameter isn't cell/range reference", () => {
-      expect(() => compiledBaseFunction("=USEMETAARG(X8)")).not.toThrow();
-      expect(() => compiledBaseFunction("=USEMETAARG($X$8)")).not.toThrow();
-      expect(() => compiledBaseFunction("=USEMETAARG(Sheet42!X8)")).not.toThrow();
-      expect(() => compiledBaseFunction("=USEMETAARG('Sheet 42'!X8)")).not.toThrow();
+      expect(compiledBaseFunction("=USEMETAARG(X8)").execute.toString()).toMatchSnapshot();
+      expect(compiledBaseFunction("=USEMETAARG($X$8)").execute.toString()).toMatchSnapshot();
+      expect(compiledBaseFunction("=USEMETAARG(Sheet42!X8)").execute.toString()).toMatchSnapshot();
+      expect(
+        compiledBaseFunction("=USEMETAARG('Sheet 42'!X8)").execute.toString()
+      ).toMatchSnapshot();
 
-      expect(() => compiledBaseFunction("=USEMETAARG(D3:Z9)")).not.toThrow();
-      expect(() => compiledBaseFunction("=USEMETAARG($D$3:$Z$9)")).not.toThrow();
-      expect(() => compiledBaseFunction("=USEMETAARG(Sheet42!$D$3:$Z$9)")).not.toThrow();
-      expect(() => compiledBaseFunction("=USEMETAARG('Sheet 42'!D3:Z9)")).not.toThrow();
+      expect(compiledBaseFunction("=USEMETAARG(D3:Z9)").execute.toString()).toMatchSnapshot();
+      expect(compiledBaseFunction("=USEMETAARG($D$3:$Z$9)").execute.toString()).toMatchSnapshot();
+      expect(
+        compiledBaseFunction("=USEMETAARG(Sheet42!$D$3:$Z$9)").execute.toString()
+      ).toMatchSnapshot();
+      expect(
+        compiledBaseFunction("=USEMETAARG('Sheet 42'!D3:Z9)").execute.toString()
+      ).toMatchSnapshot();
 
-      expect(() => compiledBaseFunction('=USEMETAARG("kikou")')).toThrowError();
-      expect(() => compiledBaseFunction('=USEMETAARG("")')).toThrowError();
-      expect(() => compiledBaseFunction("=USEMETAARG(TRUE)")).toThrowError();
-      expect(() => compiledBaseFunction("=USEMETAARG(SUM(1,2,3))")).toThrowError();
+      expect(compiledBaseFunction('=USEMETAARG("kikou")').execute.toString()).toMatchSnapshot();
+      expect(compiledBaseFunction('=USEMETAARG("")').execute.toString()).toMatchSnapshot();
+      expect(compiledBaseFunction("=USEMETAARG(TRUE)").execute.toString()).toMatchSnapshot();
+      expect(compiledBaseFunction("=USEMETAARG(SUM(1,2,3))").execute.toString()).toMatchSnapshot();
     });
 
     test("do not care about the value of the cell / range passed as a reference", () => {
