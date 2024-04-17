@@ -31,13 +31,13 @@ describe("automatic sum", () => {
   test("1d zone in an empty sheet", () => {
     automaticSum(model, "A3:B3");
     const sheetId = model.getters.getActiveSheetId();
-    expect(model.getters.getEvaluatedCells(sheetId)).toEqual({});
+    expect(model.getters.getEvaluatedCells(sheetId)).toEqual([]);
   });
 
   test("2d zone in an empty sheet", () => {
     automaticSum(model, "A3:D4");
     const sheetId = model.getters.getActiveSheetId();
-    expect(model.getters.getEvaluatedCells(sheetId)).toEqual({});
+    expect(model.getters.getEvaluatedCells(sheetId)).toEqual([]);
   });
 
   test("from A1", () => {
@@ -518,7 +518,7 @@ describe("automatic sum", () => {
   test("multiple selected zones in an empty sheet", () => {
     automaticSumMulti(model, ["A1:A2", "B1:B3"]);
     const sheetId = model.getters.getActiveSheetId();
-    expect(model.getters.getEvaluatedCells(sheetId)).toEqual({});
+    expect(model.getters.getEvaluatedCells(sheetId)).toEqual([]);
   });
 
   test("multiple selected zones", () => {
