@@ -1,5 +1,6 @@
 import { positions, positionToZone } from "../../../helpers";
-import { CellPosition } from "../../../types";
+import { futureRecomputeZones } from "../../../helpers/recompute_zones";
+import { CellPosition, UID, Zone } from "../../../types";
 import { PositionMap } from "./position_map";
 import { PositionSet } from "./position_set";
 import { RTreeBoundingBox, RTreeItem, SpreadsheetRTree } from "./r_tree";
@@ -67,10 +68,18 @@ export class FormulaDependencyGraph {
       );
 
       const impactedPositions = this.rTree.search(range).map((dep) => dep.data);
+      const nextInQueue: Record<UID, Zone[]> = {};
       for (const position of impactedPositions) {
         if (!visited.has(position)) {
-          queue.push({ sheetId: position.sheetId, zone: positionToZone(position) });
+          if (!nextInQueue[position.sheetId]) {
+            nextInQueue[position.sheetId] = [];
+          }
+          nextInQueue[position.sheetId].push(positionToZone(position));
         }
+      }
+      for (const sheetId in nextInQueue) {
+        const zones = futureRecomputeZones(nextInQueue[sheetId]);
+        queue.push(...zones.map((zone) => ({ sheetId, zone })));
       }
     }
     visited.deleteMany(
