@@ -181,6 +181,8 @@ export class SidePanel extends Component<{}, SpreadsheetChildEnv> {
 
   getTitle() {
     const panel = this.panel;
-    return typeof panel.title === "function" ? panel.title(this.env) : panel.title;
+    return typeof panel.title === "function"
+      ? panel.title(this.env, this.sidePanelStore.panelProps)
+      : panel.title;
   }
 }
