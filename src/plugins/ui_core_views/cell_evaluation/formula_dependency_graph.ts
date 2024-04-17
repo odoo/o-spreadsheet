@@ -1,4 +1,6 @@
 import { JetSet } from "../../../helpers";
+import { futureRecomputeZones } from "../../../helpers/recompute_zones";
+import { UID, Zone } from "../../../types";
 import { PositionBitsEncoder, PositionId } from "./evaluator";
 import { RTreeBoundingBox, RTreeItem, SpreadsheetRTree } from "./r_tree";
 
@@ -61,10 +63,19 @@ export class FormulaDependencyGraph {
       visited.addMany(this.encoder.encodeBoundingBox(range));
 
       const impactedPositionIds = this.rTree.search(range).map((dep) => dep.data);
+      const nextInQueue: Record<UID, Zone[]> = {};
       for (const positionId of impactedPositionIds) {
         if (!visited.has(positionId)) {
-          queue.push(this.encoder.decodeToBoundingBox(positionId));
+          const { sheetId, zone } = this.encoder.decodeToBoundingBox(positionId);
+          if (!nextInQueue[sheetId]) {
+            nextInQueue[sheetId] = [];
+          }
+          nextInQueue[sheetId].push(zone);
         }
+      }
+      for (const sheetId in nextInQueue) {
+        const zones = futureRecomputeZones(nextInQueue[sheetId]);
+        queue.push(...zones.map((zone) => ({ sheetId, zone })));
       }
     }
     visited.deleteMany(ranges.flatMap((r) => this.encoder.encodeBoundingBox(r)));
