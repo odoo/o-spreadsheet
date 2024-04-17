@@ -75,6 +75,10 @@ export class Evaluator {
     return this.evaluatedCells.keys();
   }
 
+  getEvaluatedPositionsInSheet(sheetId: UID): CellPosition[] {
+    return this.evaluatedCells.keysForSheet(sheetId);
+  }
+
   getArrayFormulaSpreadingOn(position: CellPosition): CellPosition | undefined {
     if (!this.spreadingRelations.hasArrayFormulaResult(position)) {
       return this.spreadingRelations.isArrayFormula(position) ? position : undefined;

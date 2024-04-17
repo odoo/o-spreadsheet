@@ -121,9 +121,7 @@ describe("Clear columns", () => {
     clearColumns(["B", "C"]);
     const style = { textColor: "#fe0000" };
     expect(getCell(model, "B2")).toBeUndefined();
-    expect(
-      Object.keys(model.getters.getEvaluatedCells(model.getters.getActiveSheetId()))
-    ).toHaveLength(5);
+    expect(Object.keys(model.getters.getCells(model.getters.getActiveSheetId()))).toHaveLength(5);
     expect(getCell(model, "A1")).toMatchObject({ content: "A1" });
     expect(getCell(model, "A2")).toMatchObject({ content: "A2" });
     expect(getCell(model, "A3")).toMatchObject({ content: "A3" });
@@ -167,9 +165,7 @@ describe("Clear rows", () => {
     clearRows([1, 2]);
     const style = { textColor: "#fe0000" };
     expect(getCell(model, "B2")).toBeUndefined();
-    expect(
-      Object.keys(model.getters.getEvaluatedCells(model.getters.getActiveSheetId()))
-    ).toHaveLength(5);
+    expect(Object.keys(model.getters.getCells(model.getters.getActiveSheetId()))).toHaveLength(5);
     expect(getCell(model, "A1")).toMatchObject({ content: "A1" });
     expect(getCell(model, "A2")).toMatchObject({ style });
     expect(getBorder(model, "A2")).toEqual(border);
@@ -1061,12 +1057,12 @@ describe("Rows", () => {
       const s = { style: "thin", color: "#000000" };
       const style = { textColor: "#fe0000" };
       const sheetId = model.getters.getActiveSheetId();
-      expect(Object.keys(model.getters.getEvaluatedCells(sheetId))).toHaveLength(8); // 7 NumberCells + 1 emptyCell in merge with style
+      expect(Object.keys(model.getters.getCells(sheetId))).toHaveLength(8); // 7 NumberCells + 1 emptyCell in merge with style
       deleteRows(model, [1]);
       expect(getCell(model, "A2")).toBeUndefined();
       expect(getCell(model, "B2")).toBeUndefined();
       expect(getCell(model, "C2")).toBeUndefined();
-      expect(Object.values(model.getters.getEvaluatedCells(sheetId))).toHaveLength(5); // 4 NumberCells +1 emptyCell with no merge, but with style
+      expect(Object.values(model.getters.getCells(sheetId))).toHaveLength(5); // 4 NumberCells +1 emptyCell with no merge, but with style
       expect(getCell(model, "A1")).toMatchObject({ style });
       expect(getCell(model, "A3")).toMatchObject({ style });
       expect(getBorder(model, "B1")).toEqual({ top: s, bottom: s });
