@@ -149,6 +149,7 @@ export class EvaluationPlugin extends UIPlugin {
     "getEvaluatedCell",
     "getEvaluatedCells",
     "getEvaluatedCellsInZone",
+    "getEvaluatedCellsPositions",
     "getSpreadZone",
     "getArrayFormulaSpreadingOn",
     "isEmpty",
@@ -251,14 +252,14 @@ export class EvaluationPlugin extends UIPlugin {
     return this.evaluator.getEvaluatedCell(position);
   }
 
-  getEvaluatedCells(sheetId: UID): Record<UID, EvaluatedCell> {
-    const rawCells = this.getters.getCells(sheetId) || {};
-    const record: Record<UID, EvaluatedCell> = {};
-    for (let cellId of Object.keys(rawCells)) {
-      const position = this.getters.getCellPosition(cellId);
-      record[cellId] = this.getEvaluatedCell(position);
-    }
-    return record;
+  getEvaluatedCells(sheetId: UID): EvaluatedCell[] {
+    return this.evaluator
+      .getEvaluatedPositionsInSheet(sheetId)
+      .map((position) => this.getEvaluatedCell(position));
+  }
+
+  getEvaluatedCellsPositions(sheetId: UID): CellPosition[] {
+    return this.evaluator.getEvaluatedPositionsInSheet(sheetId);
   }
 
   getEvaluatedCellsInZone(sheetId: UID, zone: Zone): EvaluatedCell[] {
