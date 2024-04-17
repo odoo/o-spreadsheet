@@ -321,9 +321,9 @@ type GridStyleDescr = { [xc: string]: Style | undefined };
 function getCellGrid(model: Model): { [xc: string]: EvaluatedCell } {
   const result = {};
   const sheetId = model.getters.getActiveSheetId();
-  for (let cellId in model.getters.getEvaluatedCells(sheetId)) {
-    const { col, row } = model.getters.getCellPosition(cellId);
-    const cell = model.getters.getEvaluatedCell({ sheetId, col, row });
+  for (const position of model.getters.getEvaluatedCellsPositions(sheetId)) {
+    const { col, row } = position;
+    const cell = model.getters.getEvaluatedCell(position);
     result[toXC(col, row)] = cell;
   }
   return result;

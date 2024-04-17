@@ -18,6 +18,10 @@ export class PositionMap<T> {
     return this.map[sheetId]?.[col]?.[row];
   }
 
+  getSheet(sheetId: UID): Record<number, Record<number, T>> | undefined {
+    return this.map[sheetId];
+  }
+
   has({ sheetId, col, row }: CellPosition): boolean {
     return this.map[sheetId]?.[col]?.[row] !== undefined;
   }
@@ -26,7 +30,7 @@ export class PositionMap<T> {
     delete this.map[sheetId]?.[col]?.[row];
   }
 
-  keys() {
+  keys(): CellPosition[] {
     const map = this.map;
     const keys: CellPosition[] = [];
     for (const sheetId in map) {
@@ -34,6 +38,20 @@ export class PositionMap<T> {
         for (const row in map[sheetId][col]) {
           keys.push({ sheetId, col: parseInt(col), row: parseInt(row) });
         }
+      }
+    }
+    return keys;
+  }
+
+  keysForSheet(sheetId: UID): CellPosition[] {
+    const map = this.map[sheetId];
+    if (!map) {
+      return [];
+    }
+    const keys: CellPosition[] = [];
+    for (const col in map) {
+      for (const row in map[col]) {
+        keys.push({ sheetId, col: parseInt(col), row: parseInt(row) });
       }
     }
     return keys;
