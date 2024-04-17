@@ -7,7 +7,7 @@ import { Registry } from "./registry";
 //------------------------------------------------------------------------------
 
 export interface SidePanelContent {
-  title: string | ((env: SpreadsheetChildEnv) => string);
+  title: string | ((env: SpreadsheetChildEnv, props: object) => string);
   Body: any;
   Footer?: any;
   /**

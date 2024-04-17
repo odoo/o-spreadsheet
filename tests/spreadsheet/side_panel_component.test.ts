@@ -113,6 +113,17 @@ describe("Side Panel", () => {
     expect(document.querySelector(".props_body")!.textContent).toBe("context");
   });
 
+  test("Can open a custom side panel with custom title based on props", async () => {
+    sidePanelRegistry.add("CUSTOM_PANEL", {
+      title: (env, props: any) => `Title: ${props.text}`,
+      Body: Body,
+    });
+    parent.env.openSidePanel("CUSTOM_PANEL", { text: "1" });
+    await nextTick();
+    expect(document.querySelectorAll(".o-sidePanel")).toHaveLength(1);
+    expect(document.querySelector(".o-sidePanelTitle")!.textContent).toBe("Title: 1");
+  });
+
   test("Can open and close a custom side panel without any props", async () => {
     sidePanelRegistry.add("CUSTOM_PANEL", {
       title: "Title",
