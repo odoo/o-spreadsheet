@@ -1238,34 +1238,18 @@ describe("shift viewport up/down", () => {
     expect(model.getters.getActiveMainViewport().top).toBe(0);
   });
 
-  test("RENAME move viewport not starting from the top", () => {
+  test.each([
+    [DEFAULT_CELL_HEIGHT * 3, 3],
+    [DEFAULT_CELL_HEIGHT * 3 + 1, 3],
+    [DEFAULT_CELL_HEIGHT * 3 - 1, 2],
+  ])("Move viewport not starting from the top", (scrollValue, expectedTop) => {
     selectCell(model, "A4");
     const { bottom } = model.getters.getActiveMainViewport();
-    setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT * 3);
+    setViewportOffset(model, 0, scrollValue);
     model.dispatch("SHIFT_VIEWPORT_DOWN");
-    expect(model.getters.getActiveMainViewport().top).toBe(bottom + 3);
+    expect(model.getters.getActiveMainViewport().top).toBe(bottom + expectedTop);
     model.dispatch("SHIFT_VIEWPORT_UP");
-    expect(model.getters.getActiveMainViewport().top).toBe(3);
-  });
-
-  test("RENAME move viewport not starting from the top", () => {
-    selectCell(model, "A4");
-    const { bottom } = model.getters.getActiveMainViewport();
-    setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT * 3 + 1);
-    model.dispatch("SHIFT_VIEWPORT_DOWN");
-    expect(model.getters.getActiveMainViewport().top).toBe(bottom + 3);
-    model.dispatch("SHIFT_VIEWPORT_UP");
-    expect(model.getters.getActiveMainViewport().top).toBe(3);
-  });
-
-  test("RENAME move viewport not starting from the top", () => {
-    selectCell(model, "A4");
-    const { bottom } = model.getters.getActiveMainViewport();
-    setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT * 3 - 1);
-    model.dispatch("SHIFT_VIEWPORT_DOWN");
-    expect(model.getters.getActiveMainViewport().top).toBe(bottom + 2);
-    model.dispatch("SHIFT_VIEWPORT_UP");
-    expect(model.getters.getActiveMainViewport().top).toBe(2);
+    expect(model.getters.getActiveMainViewport().top).toBe(expectedTop);
   });
 
   test("move all the way down and up again", () => {
