@@ -56,7 +56,6 @@ export class GridSelectionPlugin extends UIPlugin {
     "getSelection",
     "getActivePosition",
     "getSheetPosition",
-    "isSelected",
     "isSingleColSelected",
     "getElementsFromSelection",
     "tryGetActiveSheetId",
@@ -372,10 +371,6 @@ export class GridSelectionPlugin extends UIPlugin {
           }
         : this.getters.getNextVisibleCellPosition({ sheetId, col: 0, row: 0 });
     }
-  }
-
-  isSelected(zone: Zone): boolean {
-    return !!this.getters.getSelectedZones().find((z) => isEqual(z, zone));
   }
 
   isSingleColSelected() {
