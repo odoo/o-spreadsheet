@@ -595,8 +595,74 @@ describe("evaluate formulas that return an array", () => {
       setCellContent(model, "C1", "=MFILL(2,1,B1+1)");
       expect(getEvaluatedCell(model, "A1").value).toBe(31);
       expect(getEvaluatedCell(model, "B1").value).toBe(31);
-      expect(getEvaluatedCell(model, "C1").value).toBe(32);
-      expect(getEvaluatedCell(model, "D1").value).toBe(32);
+      expect(getEvaluatedCell(model, "C1").value).toBe(30);
+      expect(getEvaluatedCell(model, "D1").value).toBe(30);
+    });
+
+    test("Spreaded formulas with range deps Do not invalidate themselves on evaluation", () => {
+      let c = 0;
+      functionRegistry.add("INCREMENTONEVAL", {
+        description: "returns the input, but fancy. Like transpose(transpose(range))",
+        args: [arg("range (any, range<any>)", "The matrix to be transposed.")],
+        returns: ["RANGE<ANY>"],
+        compute: function (values) {
+          c++;
+          return 5;
+        },
+        isExported: true,
+      });
+      setCellContent(model, "A1", "0");
+      setCellContent(model, "A2", "1");
+      setCellContent(model, "A3", "2");
+      setCellContent(model, "A4", "3");
+      setCellContent(model, "A5", "=INCREMENTONEVAL(A2:A3)");
+      expect(c).toEqual(1);
+      setCellContent(model, "A5", "=INCREMENTONEVAL(A1:A2)");
+      expect(c).toEqual(2);
+      setCellContent(model, "A5", "=INCREMENTONEVAL(A1:B2)");
+      expect(c).toEqual(3);
+    });
+
+    test("Spreaded formulas with range deps invalidate only once the dependencies of themselves", () => {
+      let c = 0;
+      functionRegistry.add("INCREMENTONEVAL", {
+        description: "",
+        args: [arg("range (any, range<any>)", "")],
+        returns: ["RANGE<ANY>"],
+        compute: function () {
+          c++;
+          return 5;
+        },
+        isExported: false,
+      });
+      setCellContent(model, "A1", "0");
+      setCellContent(model, "A2", "1");
+      setCellContent(model, "A5", "=TRANSPOSE(A1:A2)");
+      setCellContent(model, "B1", "=INCREMENTONEVAL(A5)"); // depends on array formula (main cell)
+      expect(c).toEqual(1);
+      setCellContent(model, "A2", "2");
+      expect(c).toEqual(2);
+    });
+
+    test("Spreaded formulas with range deps invalidate only once the dependencies of result", () => {
+      let c = 0;
+      functionRegistry.add("INCREMENTONEVAL", {
+        description: "",
+        args: [arg("range (any, range<any>)", "")],
+        returns: ["RANGE<ANY>"],
+        compute: function () {
+          c++;
+          return 5;
+        },
+        isExported: false,
+      });
+      setCellContent(model, "A1", "0");
+      setCellContent(model, "A2", "1");
+      setCellContent(model, "A5", "=TRANSPOSE(A1:A2)");
+      setCellContent(model, "B1", "=INCREMENTONEVAL(B5)"); // depends on array formula (not the main cell)
+      expect(c).toEqual(1);
+      setCellContent(model, "A2", "2");
+      expect(c).toEqual(2);
     });
 
     test("have collision when spread size zone change", () => {
