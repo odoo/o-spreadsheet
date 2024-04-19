@@ -135,7 +135,7 @@ export class Evaluator {
       }
       if (!content) {
         // The previous content could have blocked some array formulas
-        impactedPositions.addMany(this.getArrayFormulasBlockedByOrSpreadingOn(position));
+        impactedPositions.addMany(this.getArrayFormulasBlockedBy(position));
       }
     }
     return impactedPositions;
@@ -192,14 +192,23 @@ export class Evaluator {
     return positions;
   }
 
-  private getArrayFormulasBlockedByOrSpreadingOn(position: CellPosition): Iterable<CellPosition> {
+  /**
+   * Return the position of formulas blocked by the given position
+   * as well as all their dependencies.
+   */
+  private getArrayFormulasBlockedBy(position: CellPosition): Iterable<CellPosition> {
     if (!this.spreadingRelations.hasArrayFormulaResult(position)) {
       return [];
     }
     const arrayFormulas = this.spreadingRelations.getFormulaPositionsSpreadingOn(position);
     const positions = this.createEmptyPositionSet();
     positions.addMany(arrayFormulas);
-    positions.addMany(this.getCellsDependingOn(arrayFormulas));
+    const arrayFormulaPosition = this.getArrayFormulaSpreadingOn(position);
+    if (arrayFormulaPosition) {
+      // ignore the formula spreading on the position. Keep only the blocked ones
+      positions.delete(arrayFormulaPosition);
+    }
+    positions.addMany(this.getCellsDependingOn(positions));
     return positions;
   }
 
@@ -407,7 +416,7 @@ export class Evaluator {
       }
       this.evaluatedCells.delete(child);
       this.nextPositionsToUpdate.addMany(this.getCellsDependingOn([child]));
-      this.nextPositionsToUpdate.addMany(this.getArrayFormulasBlockedByOrSpreadingOn(child));
+      this.nextPositionsToUpdate.addMany(this.getArrayFormulasBlockedBy(child));
     }
   }
 

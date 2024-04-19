@@ -9,6 +9,7 @@ import {
 } from "@odoo/owl";
 import type { ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
+import { functionCache } from "../../src";
 import { Action } from "../../src/actions/action";
 import { Composer, ComposerProps } from "../../src/components/composer/composer/composer";
 import {
@@ -530,6 +531,9 @@ export function clearFunctions() {
 }
 
 export function restoreDefaultFunctions() {
+  for (let f in functionCache) {
+    delete functionCache[f];
+  }
   clearFunctions();
   Object.keys(functionMapRestore).forEach((k) => {
     functionMap[k] = functionMapRestore[k];
