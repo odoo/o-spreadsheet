@@ -122,7 +122,7 @@ export class Evaluator {
       }
       if (!content) {
         // The previous content could have blocked some array formulas
-        impactedPositionIds.addMany(this.getArrayFormulasBlockedByOrSpreadingOn(positionId));
+        impactedPositionIds.addMany(this.getArrayFormulasBlockedBy(positionId));
       }
     }
     return impactedPositionIds;
@@ -174,13 +174,22 @@ export class Evaluator {
     return positionIds;
   }
 
-  private getArrayFormulasBlockedByOrSpreadingOn(positionId: PositionId): Iterable<PositionId> {
+  /**
+   * Return the position of formulas blocked by the given position
+   * as well as all their dependencies.
+   */
+  private getArrayFormulasBlockedBy(positionId: PositionId): Iterable<PositionId> {
     if (!this.spreadingRelations.hasArrayFormulaResult(positionId)) {
       return [];
     }
     const arrayFormulas = this.spreadingRelations.getFormulaPositionsSpreadingOn(positionId);
     const cells = new JetSet<PositionId>(arrayFormulas);
-    cells.addMany(this.getCellsDependingOn(arrayFormulas));
+    const arrayFormulaPositionId = this.getArrayFormulaSpreadingOnId(positionId);
+    if (arrayFormulaPositionId) {
+      // ignore the formula spreading on the position. Keep only the blocked ones
+      cells.delete(arrayFormulaPositionId);
+    }
+    cells.addMany(this.getCellsDependingOn(cells));
     return cells;
   }
 
@@ -402,7 +411,7 @@ export class Evaluator {
       }
       this.evaluatedCells.delete(child);
       this.nextPositionsToUpdate.addMany(this.getCellsDependingOn([child]));
-      this.nextPositionsToUpdate.addMany(this.getArrayFormulasBlockedByOrSpreadingOn(child));
+      this.nextPositionsToUpdate.addMany(this.getArrayFormulasBlockedBy(child));
     }
     this.spreadingRelations.removeNode(positionId);
   }
