@@ -93,7 +93,7 @@ export function getDefaultXLSXStructure(data: ExcelWorkbookData): XLSXStructure 
         fillId: 0,
         numFmtId: 0,
         borderId: 0,
-        alignment: { vertical: "bottom" },
+        alignment: {},
       },
     ],
     fonts: [
@@ -101,7 +101,7 @@ export function getDefaultXLSXStructure(data: ExcelWorkbookData): XLSXStructure 
         size: DEFAULT_FONT_SIZE,
         family: 2,
         color: { rgb: "000000" },
-        name: "Calibri",
+        name: "Arial",
       },
     ],
     fills: [{ reservedAttribute: "none" }, { reservedAttribute: "gray125" }],

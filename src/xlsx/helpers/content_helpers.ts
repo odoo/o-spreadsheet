@@ -96,7 +96,7 @@ export function extractStyle(cell: ExcelCellData, data: WorkbookData): Extracted
       vertical: style.verticalAlign
         ? V_ALIGNMENT_EXPORT_CONVERSION_MAP[style.verticalAlign]
         : undefined,
-      wrapText: style.wrapping === "wrap",
+      wrapText: style.wrapping === "wrap" || undefined,
     },
   };
 

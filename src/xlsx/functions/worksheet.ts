@@ -86,7 +86,10 @@ export function addRows(
 
         // style
         const id = normalizeStyle(construct, extractStyle(cell, data));
-        attributes.push(["s", id]);
+        // don't add style if default
+        if (id) {
+          attributes.push(["s", id]);
+        }
 
         let additionalAttrs: XMLAttributes = [];
         let cellNode = escapeXml``;

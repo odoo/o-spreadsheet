@@ -86,3 +86,11 @@ export function hexaToInt(hex: Color) {
   }
   return parseInt(hex.replace("#", ""), 16);
 }
+
+/**
+ * When defining style (fontColor, borderColor for instance)
+ * Excel will specify rgb="FF000000"
+ * In that case, We should not consider this value as user-defined but
+ * rather like an instruction: "Use your system default"
+ */
+export const DEFAULT_SYSTEM_COLOR = "FF000000";
