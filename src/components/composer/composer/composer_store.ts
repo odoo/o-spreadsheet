@@ -782,8 +782,7 @@ export class ComposerStore extends SpreadsheetStore {
       const exactMatch = proposals?.find((p) => p.text === tokenAtCursor.value);
       // remove tokens that are likely to be other parts of the formula that slipped in the token if it's a string
       const searchTerm = tokenAtCursor.value.replace(/[ ,\(\)]/g, "");
-      const initialContent = this.initialContent;
-      if (exactMatch && exactMatch.text !== initialContent) {
+      if (exactMatch && this._currentContent !== this.initialContent) {
         // this means the user has chosen a proposal
         return;
       }
@@ -797,7 +796,7 @@ export class ComposerStore extends SpreadsheetStore {
           proposals,
           (p) => p.fuzzySearchKey || p.text
         );
-        if (!exactMatch) {
+        if (!exactMatch || filteredProposals.length > 1) {
           proposals = filteredProposals;
         }
       }
