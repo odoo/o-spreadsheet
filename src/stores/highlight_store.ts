@@ -1,4 +1,3 @@
-import { toRaw } from "@odoo/owl";
 import { zoneToDimension } from "../helpers";
 import { drawHighlight } from "../helpers/rendering";
 import { Get } from "../store_engine";
@@ -10,6 +9,7 @@ export interface HighlightProvider {
 }
 
 export class HighlightStore extends SpreadsheetStore {
+  mutators = ["register", "unRegister"] as const;
   private providers: HighlightProvider[] = [];
 
   constructor(get: Get) {
@@ -46,7 +46,7 @@ export class HighlightStore extends SpreadsheetStore {
   }
 
   unRegister(highlightProvider: HighlightProvider) {
-    this.providers = this.providers.filter((h) => toRaw(h) !== toRaw(highlightProvider));
+    this.providers = this.providers.filter((h) => h !== highlightProvider);
   }
 
   drawLayer(ctx: GridRenderingContext, layer: LayerName): void {

@@ -19,6 +19,7 @@ interface ClosedSidePanel {
 export type SidePanelState = OpenSidePanel | ClosedSidePanel;
 
 export class SidePanelStore extends SpreadsheetStore {
+  mutators = ["open", "toggle", "close"] as const;
   initialPanelProps: SidePanelProps = {};
   componentTag: string = "";
 

@@ -2,6 +2,7 @@ import { AutoCompleteProposal, AutoCompleteProvider } from "../../../registries"
 import { SpreadsheetStore } from "../../../stores";
 
 export class AutoCompleteStore extends SpreadsheetStore {
+  mutators = ["useProvider", "moveSelection", "hide", "selectIndex"] as const;
   selectedIndex: number | undefined = undefined;
   provider: AutoCompleteProvider | undefined;
 

@@ -1,7 +1,6 @@
-import { toRaw } from "@odoo/owl";
-
 // The name is misleading and can be confused with the DOM focus.
 export class FocusStore {
+  mutators = ["focus", "unfocus"] as const;
   public focusedElement: object | null = null;
 
   focus(element: object) {
@@ -9,7 +8,7 @@ export class FocusStore {
   }
 
   unfocus(element: object) {
-    if (this.focusedElement && toRaw(this.focusedElement) === toRaw(element)) {
+    if (this.focusedElement && this.focusedElement === element) {
       this.focusedElement = null;
     }
   }

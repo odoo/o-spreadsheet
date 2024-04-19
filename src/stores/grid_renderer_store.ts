@@ -1,4 +1,3 @@
-import { markRaw } from "@odoo/owl";
 import { ModelStore } from ".";
 import { ICONS } from "../components/icons/icons";
 import {
@@ -64,13 +63,6 @@ export class GridRenderer {
     this.getters = get(ModelStore).getters;
     this.renderer = get(RendererStore);
     this.renderer.register(this);
-    /**
-     * Mark the instance as raw to avoid reactivity as this class is instanciated
-     * as a Store by `useGridDrawing` (which casts it as reactive).
-     *
-     * Calling `this.` on a reactive instance is significantly slower than on a raw object.
-     */
-    markRaw(this);
   }
 
   get renderingLayers() {
