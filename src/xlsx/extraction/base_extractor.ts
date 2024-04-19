@@ -8,6 +8,7 @@ import {
   XLSXTheme,
   XMLFile,
 } from "../../types/xlsx";
+import { DEFAULT_SYSTEM_COLOR } from "../conversion";
 import { fixXlsxUnicode } from "../helpers/misc";
 import { XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
 import { escapeQueryNameSpaces } from "../helpers/xml_helpers";
@@ -327,9 +328,10 @@ export class XlsxBaseExtractor {
       rgb = this.getThemeColor(themeIndex, theme.clrScheme);
     } else {
       rgb = this.extractAttr(colorElement, "rgb")?.asString();
+      rgb = rgb === DEFAULT_SYSTEM_COLOR ? undefined : rgb;
     }
     const color = {
-      rgb,
+      rgb: rgb || defaultColor,
       auto: this.extractAttr(colorElement, "auto")?.asBool(),
       indexed: this.extractAttr(colorElement, "indexed")?.asNum(),
       tint: this.extractAttr(colorElement, "tint")?.asNum(),
