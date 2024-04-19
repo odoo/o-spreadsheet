@@ -50,7 +50,7 @@ export class FormulaDependencyGraph {
   }
 
   /**
-   * Return the cell and all cells that depend on it,
+   * Return all the cells that depend on the provided ranges,
    * in the correct order they should be evaluated.
    * This is called a topological ordering (excluding cycles)
    */
