@@ -313,6 +313,27 @@ export function debounce<T extends (...args: any) => void>(
   return debounced as DebouncedFunction<T>;
 }
 
+/**
+ * Creates a batched version of a callback so that all calls to it in the same
+ * microtick will only call the original callback once.
+ *
+ * @param callback the callback to batch
+ * @returns a batched version of the original callback
+ *
+ * Copied from odoo/owl repo.
+ */
+export function batched(callback: () => void): () => void {
+  let scheduled = false;
+  return async (...args) => {
+    if (!scheduled) {
+      scheduled = true;
+      await Promise.resolve();
+      scheduled = false;
+      callback(...args);
+    }
+  };
+}
+
 /*
  * Concatenate an array of strings.
  */

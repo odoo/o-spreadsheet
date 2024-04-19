@@ -1,4 +1,3 @@
-import { toRaw } from "@odoo/owl";
 import { EnrichedToken, composerTokenize } from "../../../formulas/composer_tokenizer";
 import { POSTFIX_UNARY_OPERATORS } from "../../../formulas/tokenizer";
 import { parseLiteral } from "../../../helpers/cells";
@@ -68,6 +67,16 @@ export interface ComposerSelection {
 }
 
 export class ComposerStore extends SpreadsheetStore {
+  mutators = [
+    "startEdition",
+    "setCurrentContent",
+    "stopEdition",
+    "stopComposerRangeSelection",
+    "cancelEdition",
+    "cycleReferences",
+    "changeComposerCursorSelection",
+    "replaceComposerCursorSelection",
+  ] as const;
   private col: HeaderIndex = 0;
   private row: HeaderIndex = 0;
   editionMode: EditionMode = "inactive";
@@ -84,9 +93,9 @@ export class ComposerStore extends SpreadsheetStore {
 
   constructor(get: Get) {
     super(get);
-    this.highlightStore.register(toRaw(this));
+    this.highlightStore.register(this);
     this.onDispose(() => {
-      this.highlightStore.unRegister(toRaw(this));
+      this.highlightStore.unRegister(this);
     });
   }
 
@@ -229,7 +238,7 @@ export class ComposerStore extends SpreadsheetStore {
         if (this.isSelectingRange) {
           this.editionMode = "editing";
         }
-        this.model.selection.resetAnchor(toRaw(this), {
+        this.model.selection.resetAnchor(this, {
           cell: { col: left, row: top },
           zone: cmd.zone,
         });
@@ -247,7 +256,7 @@ export class ComposerStore extends SpreadsheetStore {
             row: activePosition.row,
           });
           const zone = this.getters.expandZone(cmd.sheetIdTo, positionToZone({ col, row }));
-          this.model.selection.resetAnchor(toRaw(this), { cell: { col, row }, zone });
+          this.model.selection.resetAnchor(this, { cell: { col, row }, zone });
         }
         break;
       case "DELETE_SHEET":
@@ -373,7 +382,7 @@ export class ComposerStore extends SpreadsheetStore {
   private startComposerRangeSelection() {
     if (this.sheetId === this.getters.getActiveSheetId()) {
       const zone = positionToZone({ col: this.col, row: this.row });
-      this.model.selection.resetAnchor(toRaw(this), {
+      this.model.selection.resetAnchor(this, {
         cell: { col: this.col, row: this.row },
         zone,
       });
@@ -404,7 +413,7 @@ export class ComposerStore extends SpreadsheetStore {
     this.colorIndexByRange = {};
     const zone = positionToZone({ col: this.col, row: this.row });
     this.model.selection.capture(
-      toRaw(this),
+      this,
       { cell: { col: this.col, row: this.row }, zone },
       {
         handleEvent: this.handleEvent.bind(this),
@@ -519,7 +528,7 @@ export class ComposerStore extends SpreadsheetStore {
       return;
     }
     this.editionMode = "inactive";
-    this.model.selection.release(toRaw(this));
+    this.model.selection.release(this);
   }
 
   /**

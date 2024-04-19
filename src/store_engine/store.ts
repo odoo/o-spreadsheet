@@ -1,5 +1,3 @@
-import { reactive } from "@odoo/owl";
-
 /**
  * An injectable store constructor
  */
@@ -27,7 +25,7 @@ export type StoreParams<T extends StoreConstructor> = SkipFirst<ConstructorParam
 /**
  * A function used to inject dependencies in a store constructor
  */
-export type Get = <T extends StoreConstructor<any>>(
+export type Get = <T extends StoreConstructor>(
   Store: T
 ) => T extends StoreConstructor<infer I> ? Store<I> : never;
 
@@ -37,6 +35,10 @@ export type Get = <T extends StoreConstructor<any>>(
  * type A = SkipFirst<[number, string, boolean]> // [string, boolean]
  */
 type SkipFirst<T extends any[]> = T extends [any, ...infer U] ? U : never;
+
+type OmitFunctions<T> = {
+  [K in keyof T as T[K] extends Function ? never : K]: T[K];
+};
 
 /**
  * Create a store to expose an external resource (which is not a store itself)
@@ -63,7 +65,9 @@ stores.inject(MyMetaStore, storeInstance);
   return MetaStore as StoreConstructor<T>;
 }
 
-export type Store<T> = CQS<T>;
+export type Store<S> = S extends { mutators: readonly (keyof S)[] }
+  ? CQS<Pick<S, S["mutators"][number]> & OmitFunctions<S>>
+  : CQS<OmitFunctions<S>>;
 
 /**
  * Command Query Separation [1,2] implementation with types.
@@ -86,14 +90,10 @@ type CQS<T> = {
  */
 type NeverReturns<T> = T extends (...args: any[]) => any ? (...args: Parameters<T>) => void : T;
 
-export class ReactiveStore {
-  constructor(protected get: Get) {
-    return reactive(this);
-  }
-}
-
-export class DisposableStore extends ReactiveStore implements Disposable {
+export class DisposableStore implements Disposable {
   private disposeCallbacks: (() => void)[] = [];
+
+  constructor(protected get: Get) {}
 
   protected onDispose(callback: () => void) {
     this.disposeCallbacks.push(callback);

@@ -1,9 +1,14 @@
+import { EventBus } from "../helpers/event_bus";
 import { Get, StoreConstructor, StoreParams } from "./store";
+
+interface StoreUpdateEvent {
+  type: "store-updated";
+}
 
 /**
  * A type-safe dependency container
  */
-export class DependencyContainer {
+export class DependencyContainer extends EventBus<StoreUpdateEvent> {
   private dependencies: Map<StoreConstructor, any> = new Map();
   private factory = new StoreFactory(this.get.bind(this));
 

@@ -4,6 +4,7 @@ import { ComposerSelection, ComposerStore } from "./composer/composer_store";
 export type ComposerFocusType = "inactive" | "cellFocus" | "contentFocus";
 
 export class ComposerFocusStore extends SpreadsheetStore {
+  mutators = ["focusTopBarComposer", "focusGridComposerContent", "focusGridComposerCell"] as const;
   private composerStore = this.get(ComposerStore);
 
   private topBarFocus: Exclude<ComposerFocusType, "cellFocus"> = "inactive";

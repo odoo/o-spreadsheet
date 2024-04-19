@@ -1,4 +1,3 @@
-import { toRaw } from "@odoo/owl";
 import { colors, isEqual, positionToZone, splitReference } from "../../helpers/index";
 import { Get } from "../../store_engine";
 import { SpreadsheetStore } from "../../stores";
@@ -21,6 +20,16 @@ export interface RangeInputValue {
  * This plugin handles this internal state.
  */
 export class SelectionInputStore extends SpreadsheetStore {
+  mutators = [
+    "resetWithRanges",
+    "focusById",
+    "unfocus",
+    "addEmptyRange",
+    "removeRange",
+    "changeRange",
+    "reset",
+    "confirm",
+  ] as const;
   ranges: RangeInputValue[] = [];
   focusedRangeIndex: number | null = null;
   private inputSheetId: UID;
@@ -90,7 +99,7 @@ export class SelectionInputStore extends SpreadsheetStore {
             row: 0,
           });
           const zone = this.getters.expandZone(cmd.sheetIdTo, positionToZone({ col, row }));
-          this.model.selection.resetAnchor(toRaw(this), { cell: { col, row }, zone });
+          this.model.selection.resetAnchor(this, { cell: { col, row }, zone });
         }
         break;
       }
@@ -110,7 +119,7 @@ export class SelectionInputStore extends SpreadsheetStore {
         if (focusIndex !== -1) {
           this.focus(focusIndex);
           const { left, top } = newZone;
-          this.model.selection.resetAnchor(toRaw(this), {
+          this.model.selection.resetAnchor(this, {
             cell: { col: left, row: top },
             zone: newZone,
           });
@@ -216,7 +225,7 @@ export class SelectionInputStore extends SpreadsheetStore {
 
   private get hasMainFocus() {
     const focusedElement = this.focusStore.focusedElement;
-    return !!focusedElement && toRaw(focusedElement) === toRaw(this);
+    return !!focusedElement && focusedElement === this;
   }
 
   get highlights(): Highlight[] {
@@ -251,7 +260,7 @@ export class SelectionInputStore extends SpreadsheetStore {
   unfocus() {
     this.focusedRangeIndex = null;
     this.focusStore.unfocus(this);
-    this.model.selection.release(toRaw(this));
+    this.model.selection.release(this);
   }
 
   private captureSelection() {
@@ -262,7 +271,7 @@ export class SelectionInputStore extends SpreadsheetStore {
     const sheetId = this.getters.getActiveSheetId();
     const zone = this.getters.getRangeFromSheetXC(sheetId, range?.xc || "A1").zone;
     this.model.selection.capture(
-      toRaw(this),
+      this,
       { cell: { col: zone.left, row: zone.top }, zone },
       {
         handleEvent: this.handleEvent.bind(this),
