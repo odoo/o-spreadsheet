@@ -29,6 +29,7 @@ import {
   SEPARATOR_COLOR,
   TOPBAR_HEIGHT,
 } from "../../constants";
+import { batched } from "../../helpers";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Model } from "../../model";
 import { Store, useStore, useStoreProvider } from "../../store_engine";
@@ -341,10 +342,15 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       }
     });
 
+    const render = batched(this.render.bind(this, true));
     onMounted(() => {
       this.checkViewportSize();
+      stores.on("store-updated", this, render);
     });
-    onWillUnmount(() => this.unbindModelEvents());
+    onWillUnmount(() => {
+      this.unbindModelEvents();
+      stores.off("store-updated", this);
+    });
     onPatched(() => {
       this.checkViewportSize();
     });

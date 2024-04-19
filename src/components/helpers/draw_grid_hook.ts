@@ -9,7 +9,7 @@ import { DOMDimension, OrderedLayers } from "../../types";
 export function useGridDrawing(refName: string, model: Model, canvasSize: () => DOMDimension) {
   const canvasRef = useRef(refName);
   useEffect(drawGrid);
-  const rendererManager = useStore(RendererStore);
+  const rendererStore = useStore(RendererStore);
   useStore(GridRenderer);
 
   function drawGrid() {
@@ -39,7 +39,11 @@ export function useGridDrawing(refName: string, model: Model, canvasSize: () => 
 
     for (const layer of OrderedLayers()) {
       model.drawLayer(renderingContext, layer);
-      rendererManager.drawLayer(renderingContext, layer);
+      // @ts-ignore 'drawLayer' is not declated as a mutator because:
+      // it does not mutate anything. Most importantly it's used
+      // during rendering. Invoking a mutator during rendering would
+      // trigger another rendering, ultimately resulting in an infinite loop.
+      rendererStore.drawLayer(renderingContext, layer);
     }
   }
 }
