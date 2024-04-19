@@ -1,4 +1,3 @@
-import { ReactiveStore } from "../store_engine";
 import { GridRenderingContext, LayerName } from "../types";
 
 export interface Renderer {
@@ -6,7 +5,8 @@ export interface Renderer {
   renderingLayers: Readonly<LayerName[]>;
 }
 
-export class RendererStore extends ReactiveStore {
+export class RendererStore {
+  mutators = ["register", "unRegister"] as const;
   private renderers: Partial<Record<LayerName, Renderer[]>> = {};
 
   register(renderer: Renderer) {

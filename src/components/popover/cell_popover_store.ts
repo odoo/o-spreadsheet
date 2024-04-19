@@ -11,6 +11,8 @@ import {
 import { HoveredCellStore } from "../grid/hovered_cell_store";
 
 export class CellPopoverStore extends SpreadsheetStore {
+  mutators = ["open", "close"] as const;
+
   private persistentPopover?: CellPosition & { type: CellPopoverType };
 
   protected hoveredCell = this.get(HoveredCellStore);

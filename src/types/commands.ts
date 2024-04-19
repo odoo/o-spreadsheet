@@ -932,10 +932,6 @@ export interface SplitTextIntoColumnsCommand {
   force?: boolean;
 }
 
-export interface RenderCanvasCommand {
-  type: "RENDER_CANVAS";
-}
-
 export interface RefreshPivotCommand {
   type: "REFRESH_PIVOT";
   id: UID;
@@ -1088,7 +1084,6 @@ export type LocalCommand =
   | SplitTextIntoColumnsCommand
   | RemoveDuplicatesCommand
   | TrimWhitespaceCommand
-  | RenderCanvasCommand
   | ResizeTableCommand
   | RefreshPivotCommand
   | InsertNewPivotCommand;

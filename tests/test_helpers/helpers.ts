@@ -1,12 +1,4 @@
-import {
-  App,
-  Component,
-  ComponentConstructor,
-  onMounted,
-  onWillUnmount,
-  useState,
-  xml,
-} from "@odoo/owl";
+import { App, Component, ComponentConstructor, useState, xml } from "@odoo/owl";
 import type { ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
 import { functionCache } from "../../src";
@@ -23,6 +15,7 @@ import { matrixMap } from "../../src/functions/helpers";
 import { functionRegistry } from "../../src/functions/index";
 import { ImageProvider } from "../../src/helpers/figures/images/image_provider";
 import {
+  batched,
   range,
   toCartesian,
   toUnboundedZone,
@@ -39,7 +32,13 @@ import { UIPluginConstructor } from "../../src/plugins/ui_plugin";
 import { topbarMenuRegistry } from "../../src/registries";
 import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import { Registry } from "../../src/registries/registry";
-import { DependencyContainer, Get, Store, useStore } from "../../src/store_engine";
+import {
+  DependencyContainer,
+  Store,
+  StoreConstructor,
+  proxifyStoreMutation,
+  useStore,
+} from "../../src/store_engine";
 import { ModelStore } from "../../src/stores";
 import { HighlightProvider, HighlightStore } from "../../src/stores/highlight_store";
 import { NotificationStore } from "../../src/stores/notification_store";
@@ -147,9 +146,6 @@ export function makeTestFixture() {
 }
 
 class FakeRendererStore extends RendererStore {
-  constructor(get: Get) {
-    super(get);
-  }
   // we don't want to actually draw anything on the canvas as it cannot be tested
   drawLayer(renderingContext: GridRenderingContext, layer: LayerName) {}
 }
@@ -168,15 +164,17 @@ export function makeTestEnv(
   const container = new DependencyContainer();
   container.inject(ModelStore, model);
   const notificationStore = {
+    mutators: ["notifyUser", "raiseError", "askConfirmation"],
     notifyUser: mockEnv.notifyUser || (() => {}),
     raiseError: mockEnv.raiseError || (() => {}),
     askConfirmation: mockEnv.askConfirmation || (() => {}),
-  };
+  } as const;
 
   container.inject(NotificationStore, notificationStore);
-  container.inject(RendererStore, new FakeRendererStore(container.get));
+  container.inject(RendererStore, new FakeRendererStore());
 
-  const sidePanelStore = container.get(SidePanelStore);
+  const store = container.get(SidePanelStore);
+  const sidePanelStore = proxifyStoreMutation(store, () => container.trigger("store-updated"));
   return {
     model,
     isDashboard: mockEnv.isDashboard || (() => false),
@@ -194,7 +192,11 @@ export function makeTestEnv(
         return [] as Currency[];
       }),
     loadLocales: mockEnv.loadLocales || (async () => DEFAULT_LOCALES),
-    getStore: container.get.bind(container),
+    getStore<T extends StoreConstructor>(Store: T) {
+      const store = container.get(Store);
+      return proxifyStoreMutation(store, () => container.trigger("store-updated"));
+    },
+    // @ts-ignore
     __spreadsheet_stores__: container,
   };
 }
@@ -266,14 +268,19 @@ export async function mountComponent<Props extends { [key: string]: any }>(
   const fixture = optionalArgs?.fixture || makeTestFixture();
   const parent = await app.mount(fixture);
 
+  const render = batched(parent.render.bind(parent, true));
   if (optionalArgs.renderOnModelUpdate === undefined || optionalArgs.renderOnModelUpdate) {
-    model.on("update", null, () => parent.render(true));
+    model.on("update", null, render);
   }
+  // @ts-ignore
+  env.__spreadsheet_stores__.on("store-updated", null, render);
 
   registerCleanup(() => {
     app.destroy();
     fixture.remove();
     model.off("update", null);
+    // @ts-ignore
+    env.__spreadsheet_stores__.off("store-updated", null);
   });
 
   return { app, parent, model, fixture, env: parent.env };
@@ -836,8 +843,6 @@ export class ComposerWrapper extends Component<ComposerWrapperProps, Spreadsheet
   setup() {
     this.state.focusComposer = this.props.focusComposer;
     this.composerStore = useStore(ComposerStore);
-    onMounted(() => this.env.model.on("update", this, () => this.render(true)));
-    onWillUnmount(() => this.env.model.off("update", this));
   }
 
   get composerProps(): ComposerProps {
@@ -918,6 +923,7 @@ export function getHighlightsFromStore(
 
 export function makeTestNotificationStore(): NotificationStore {
   return {
+    mutators: ["notifyUser", "raiseError", "askConfirmation"],
     notifyUser: () => {},
     raiseError: () => {},
     askConfirmation: () => {},

@@ -14,6 +14,7 @@ import {
 } from "../../../../types/pivot";
 
 export class PivotSidePanelStore extends SpreadsheetStore {
+  mutators = ["applyUpdate", "renamePivot", "update"] as const;
   private updatesAreDeferred: boolean = true;
   private draft: PivotCoreDefinition | null = null;
   constructor(get: Get, private pivotId: UID) {

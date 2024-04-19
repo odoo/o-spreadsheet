@@ -2,7 +2,6 @@ import { debounce, getSearchRegex, isInside, positionToZone } from "../../../hel
 import { HighlightProvider, HighlightStore } from "../../../stores/highlight_store";
 import { CellPosition, Color, Command, Highlight } from "../../../types";
 
-import { toRaw } from "@odoo/owl";
 import { Get } from "../../../store_engine";
 import { SpreadsheetStore } from "../../../stores";
 import { SearchOptions } from "../../../types/find_and_replace";
@@ -16,6 +15,14 @@ enum Direction {
 }
 
 export class FindAndReplaceStore extends SpreadsheetStore implements HighlightProvider {
+  mutators = [
+    "updateSearchOptions",
+    "updateSearchContent",
+    "searchFormulas",
+    "selectPreviousMatch",
+    "selectNextMatch",
+    "replace",
+  ] as const;
   private allSheetsMatches: CellPosition[] = [];
   private activeSheetMatches: CellPosition[] = [];
   private specificRangeMatches: CellPosition[] = [];
@@ -44,11 +51,11 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     this.searchOptions.searchFormulas = this.initialShowFormulaState;
 
     const highlightStore = get(HighlightStore);
-    highlightStore.register(toRaw(this));
+    highlightStore.register(this);
     this.onDispose(() => {
       this.model.dispatch("SET_FORMULA_VISIBILITY", { show: this.initialShowFormulaState });
       this.updateSearchContent.stopDebounce();
-      highlightStore.unRegister(toRaw(this));
+      highlightStore.unRegister(this);
     });
   }
 

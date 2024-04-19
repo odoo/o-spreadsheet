@@ -3,6 +3,7 @@ import { SpreadsheetStore } from "../../../../stores";
 import { ChartCreationContext, ChartType, UID } from "../../../../types";
 
 export class MainChartPanelStore extends SpreadsheetStore {
+  mutators = ["activatePanel", "changeChartType"] as const;
   panel: "configuration" | "design" = "configuration";
   private creationContext: ChartCreationContext = {};
 

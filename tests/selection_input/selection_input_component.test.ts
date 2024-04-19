@@ -1,4 +1,4 @@
-import { App, Component, onMounted, onWillUnmount, useSubEnv, xml } from "@odoo/owl";
+import { App, Component, useSubEnv, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { SelectionInput } from "../../src/components/selection_input/selection_input";
@@ -85,11 +85,6 @@ class Parent extends Component<any> {
     this.model = model;
     this.onChanged = this.props.config.onChanged || jest.fn();
     this.onConfirmed = this.props.config.onConfirmed || jest.fn();
-    onMounted(() => {
-      this.model.on("update", this, () => this.render(true));
-      this.render(true);
-    });
-    onWillUnmount(() => this.model.off("update", this));
   }
 }
 
@@ -112,11 +107,6 @@ class MultiParent extends Component<any> {
     });
     const stores = useStoreProvider();
     stores.inject(ModelStore, this.props.model);
-    onMounted(() => {
-      this.props.model.on("update", this, () => this.render(true));
-      this.render(true);
-    });
-    onWillUnmount(() => this.props.model.off("update", this));
   }
 }
 

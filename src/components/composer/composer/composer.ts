@@ -680,7 +680,9 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
    */
   private processTokenAtCursor(): void {
     let content = this.composerStore.currentContent;
-    this.autoCompleteState.hide();
+    if (this.autoCompleteState.provider) {
+      this.autoCompleteState.hide();
+    }
     this.functionDescriptionState.showDescription = false;
     const autoCompleteProvider = this.composerStore.autocompleteProvider;
     if (autoCompleteProvider) {
