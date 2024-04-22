@@ -223,22 +223,28 @@ export class InternalViewport {
    * @returns Computes the absolute coordinate of a given zone inside the viewport
    */
   getRect(zone: Zone): Rect | undefined {
+    // change this to use offset correction not snapped
+    // need to remove the diff
+    // offsetScrollbarX > offsetX
+    const scrollbardiff = this.offsetScrollbarY - this.offsetY; // > 0
     const targetZone = intersection(zone, this);
     if (targetZone) {
-      const x =
-        this.getters.getColRowOffset("COL", this.left, targetZone.left) + this.offsetCorrectionX;
+      const x = this.getters.getColRowOffset("COL", this.left, targetZone.left);
 
       const y =
-        this.getters.getColRowOffset("ROW", this.top, targetZone.top) + this.offsetCorrectionY;
+        this.getters.getColRowOffset("ROW", this.top, targetZone.top) +
+        this.offsetCorrectionY -
+        (this.top !== targetZone.top ? scrollbardiff : 0);
 
       const width = Math.min(
         this.getters.getColRowOffset("COL", targetZone.left, targetZone.right + 1),
         this.viewportWidth
       );
-      const height = Math.min(
-        this.getters.getColRowOffset("ROW", targetZone.top, targetZone.bottom + 1),
-        this.viewportHeight
-      );
+      const height =
+        Math.min(
+          this.getters.getColRowOffset("ROW", targetZone.top, targetZone.bottom + 1),
+          this.viewportHeight
+        ) - (this.top === targetZone.top ? scrollbardiff : 0);
       return {
         x,
         y,
