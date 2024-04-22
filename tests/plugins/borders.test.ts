@@ -6,6 +6,8 @@ import {
   addRows,
   cut,
   deleteCells,
+  deleteColumns,
+  deleteRows,
   paste,
   selectCell,
   setAnchorCorner,
@@ -441,6 +443,20 @@ describe("Grid manipulation", () => {
     expect(getBorder(model, "B3")).toEqual({ top: b, left: b, right: b, bottom: b });
     expect(getBorder(model, "C2")).toBeNull();
     expect(getBorder(model, "B4")).toEqual({ top: b });
+  });
+
+  test("Remove multiple headers before the borders", () => {
+    setBorder(model, "external", "C3");
+    deleteRows(model, [0, 1]);
+    expect(getBorder(model, "B1")).toEqual({ right: b });
+    expect(getBorder(model, "C1")).toEqual({ top: b, left: b, right: b, bottom: b });
+    expect(getBorder(model, "D1")).toEqual({ left: b });
+    expect(getBorder(model, "C2")).toEqual({ top: b });
+
+    deleteColumns(model, ["A", "B"]);
+    expect(getBorder(model, "A1")).toEqual({ top: b, left: b, right: b, bottom: b });
+    expect(getBorder(model, "B1")).toEqual({ left: b });
+    expect(getBorder(model, "A2")).toEqual({ top: b });
   });
 
   test("Borders are correctly duplicated on sheet dup", () => {
