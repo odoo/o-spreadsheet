@@ -274,8 +274,8 @@ export class EvaluationPlugin extends UIPlugin {
   /**
    * Return the spread zone the position is part of, if any
    */
-  getSpreadZone(position: CellPosition): Zone | undefined {
-    return this.evaluator.getSpreadZone(position);
+  getSpreadZone(position: CellPosition, options = { ignoreSpillError: false }): Zone | undefined {
+    return this.evaluator.getSpreadZone(position, options);
   }
 
   getArrayFormulaSpreadingOn(position: CellPosition): CellPosition | undefined {

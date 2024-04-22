@@ -1,5 +1,6 @@
 import { Get } from "../store_engine";
 import { Highlight, Zone } from "../types";
+import { CellErrorType } from "../types/errors";
 import { HighlightStore } from "./highlight_store";
 import { SpreadsheetStore } from "./spreadsheet_store";
 
@@ -12,29 +13,25 @@ export class ArrayFormulaHighlight extends SpreadsheetStore {
   }
 
   get highlights(): Highlight[] {
-    const zone = this.getHighlightZone();
+    let zone: Zone | undefined;
+    const position = this.model.getters.getActivePosition();
+    const cell = this.getters.getEvaluatedCell(position);
+    const spreader = this.model.getters.getArrayFormulaSpreadingOn(position);
+    zone = spreader
+      ? this.model.getters.getSpreadZone(spreader, { ignoreSpillError: true })
+      : this.model.getters.getSpreadZone(position, { ignoreSpillError: true });
     if (!zone) {
       return [];
     }
-
-    const sheetId = this.model.getters.getActiveSheetId();
     return [
       {
-        sheetId,
+        sheetId: position.sheetId,
         zone,
+        dashed: cell.value === CellErrorType.SpilledBlocked,
         color: "#17A2B8",
         noFill: true,
         thinLine: true,
       },
     ];
-  }
-
-  private getHighlightZone(): Zone | undefined {
-    const position = this.model.getters.getActivePosition();
-    const spreader = this.model.getters.getArrayFormulaSpreadingOn(position);
-    const spreadZone = spreader
-      ? this.model.getters.getSpreadZone(spreader)
-      : this.model.getters.getSpreadZone(position);
-    return spreadZone;
   }
 }
