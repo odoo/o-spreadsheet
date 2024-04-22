@@ -4,6 +4,7 @@ import { TABLE_PRESETS } from "../../src/helpers/table_presets";
 import { Style, UID } from "../../src/types";
 import {
   createTable,
+  deleteContent,
   deleteTable,
   foldHeaderGroup,
   groupRows,
@@ -20,6 +21,7 @@ import {
   updateFilter,
   updateTableConfig,
 } from "../test_helpers/commands_helpers";
+import { getTable } from "../test_helpers/getters_helpers";
 import { toCellPosition } from "../test_helpers/helpers";
 
 let model: Model;
@@ -169,6 +171,15 @@ describe("Table style", () => {
           expect(tableBorder).toEqual(expected);
         }
       }
+    });
+
+    test("Cell style is updated when a table is deleted with DELETE_CONTENT", () => {
+      createTable(model, "A1:B4");
+      expect(getCellStyle("A1")).not.toEqual({});
+
+      deleteContent(model, ["A1:B4"]);
+      expect(getTable(model, "A1")).toBeUndefined();
+      expect(getCellStyle("A1")).toEqual({});
     });
   });
 
