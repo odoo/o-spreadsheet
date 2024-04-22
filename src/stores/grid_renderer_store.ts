@@ -405,6 +405,7 @@ export class GridRenderer {
     ctx.lineWidth = thinLineWidth;
     ctx.strokeStyle = "#333";
 
+    // FIX the headers to account for the scrolloffset
     // Columns headers background
     for (let col = left; col <= right; col++) {
       const colZone = { left: col, right: col, top: 0, bottom: numberOfRows - 1 };
@@ -471,6 +472,10 @@ export class GridRenderer {
     }
 
     ctx.stroke();
+
+    // cut that with the top left corner
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, HEADER_WIDTH, HEADER_HEIGHT);
   }
 
   private drawFrozenPanesHeaders(renderingContext: GridRenderingContext) {
@@ -591,7 +596,8 @@ export class GridRenderer {
     const position = { sheetId, col, row };
     const cell = this.getters.getEvaluatedCell(position);
     const showFormula = this.getters.shouldShowFormulas();
-    const { x, y, width, height } = this.getters.getVisibleRect(zone);
+    const { x, y, width, height, originalX, originalHeight, originalWidth, originalY } =
+      this.getters.getRenderingRect(zone);
     const { verticalAlign } = this.getters.getCellStyle(position);
     let style = this.getters.getCellComputedStyle(position);
     if (this.fingerprints.isEnabled) {
@@ -602,10 +608,10 @@ export class GridRenderer {
       ? undefined
       : this.getters.getConditionalDataBar(position);
     const box: Box = {
-      x,
-      y,
-      width,
-      height,
+      x: originalX,
+      y: originalY,
+      width: originalWidth,
+      height: originalHeight,
       border: this.getters.getCellComputedBorder(position) || undefined,
       style,
       dataBarFill,
@@ -658,8 +664,8 @@ export class GridRenderer {
     const isOverflowing = contentWidth > width || fontSizePX > height;
     if (iconSrc || box.hasIcon) {
       box.clipRect = {
-        x: box.x + iconBoxWidth,
-        y: box.y,
+        x: x + iconBoxWidth,
+        y: y,
         width: Math.max(0, width - iconBoxWidth - headerIconWidth),
         height,
       };
@@ -722,8 +728,8 @@ export class GridRenderer {
       }
     } else if (wrapping === "clip" || wrapping === "wrap" || multiLineText.length > 1) {
       box.clipRect = {
-        x: box.x,
-        y: box.y,
+        x: x,
+        y: y,
         width,
         height,
       };
@@ -743,6 +749,7 @@ export class GridRenderer {
     const bottom = visibleRows[visibleRows.length - 1];
     const viewport = { left, right, top, bottom };
     const sheetId = this.getters.getActiveSheetId();
+    // TODO frozen pane don't work
 
     for (const row of visibleRows) {
       for (const col of visibleCols) {

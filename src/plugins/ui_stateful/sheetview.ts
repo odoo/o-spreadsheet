@@ -12,6 +12,7 @@ import {
   Dimension,
   EdgeScrollInfo,
   Figure,
+  FullRect,
   HeaderIndex,
   LocalCommand,
   Pixel,
@@ -104,6 +105,7 @@ export class SheetViewPlugin extends UIPlugin {
     "isPositionVisible",
     "getColDimensionsInViewport",
     "getRowDimensionsInViewport",
+    "getRenderingRect",
   ] as const;
 
   readonly viewports: Record<UID, SheetViewports | undefined> = {};
@@ -420,12 +422,12 @@ export class SheetViewPlugin extends UIPlugin {
     referenceIndex: HeaderIndex,
     index: HeaderIndex
   ): Pixel {
-    const sheetId = this.getters.getActiveSheetId();
-    const visibleCols = this.getters.getSheetViewVisibleCols();
-    const visibleRows = this.getters.getSheetViewVisibleRows();
     if (index < referenceIndex) {
       return -this.getColRowOffsetInViewport(dimension, index, referenceIndex);
     }
+    const sheetId = this.getters.getActiveSheetId();
+    const visibleCols = this.getters.getSheetViewVisibleCols();
+    const visibleRows = this.getters.getSheetViewVisibleRows();
     let offset = 0;
     const visibleIndexes = dimension === "COL" ? visibleCols : visibleRows;
     for (let i = referenceIndex; i < index; i++) {
@@ -433,6 +435,12 @@ export class SheetViewPlugin extends UIPlugin {
         continue;
       }
       offset += this.getters.getHeaderSize(sheetId, dimension, i);
+    }
+    const viewport = this.getMainInternalViewport(sheetId);
+    if (dimension === "ROW") {
+      offset -= viewport.offsetScrollbarY - viewport.offsetY;
+    } else {
+      offset -= viewport.offsetScrollbarX - viewport.offsetX;
     }
     return offset;
   }
@@ -514,6 +522,47 @@ export class SheetViewPlugin extends UIPlugin {
       direction = "reset";
     }
     return { canEdgeScroll, direction, delay };
+  }
+
+  getRenderingRect(zone: Zone): FullRect {
+    const sheetId = this.getters.getActiveSheetId();
+    const viewportRects = this.getSubViewports(sheetId)
+      .map((viewport) => viewport.getRenderingRect(zone))
+      .filter(isDefined);
+    if (viewportRects.length === 0) {
+      return {
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0,
+        originalHeight: 0,
+        originalWidth: 0,
+        originalX: 0,
+        originalY: 0,
+      };
+    }
+    // waht a shitshow :D
+    const x = Math.min(...viewportRects.map((rect) => rect.x));
+    const y = Math.min(...viewportRects.map((rect) => rect.y));
+    const width = Math.max(...viewportRects.map((rect) => rect.x + rect.width)) - x;
+    const height = Math.max(...viewportRects.map((rect) => rect.y + rect.height)) - y;
+    const originalX = Math.min(...viewportRects.map((rect) => rect.originalX));
+    const originalY = Math.min(...viewportRects.map((rect) => rect.originalY));
+    const originalWidth =
+      Math.max(...viewportRects.map((rect) => rect.originalX + rect.originalWidth)) - originalX;
+    const originalHeight =
+      Math.max(...viewportRects.map((rect) => rect.originalY + rect.originalHeight)) - originalY;
+    if (zone.left === 0 && zone.top === 0) console.log(viewportRects[0], y);
+    return {
+      x: x + this.gridOffsetX,
+      y: y + this.gridOffsetY,
+      width,
+      height,
+      originalX: originalX + this.gridOffsetX,
+      originalY: originalY + this.gridOffsetY,
+      originalWidth,
+      originalHeight,
+    };
   }
 
   /**

@@ -16,6 +16,13 @@ export interface DOMDimension {
 
 export type Rect = DOMCoordinates & DOMDimension;
 
+export type FullRect = Rect & {
+  originalX: Pixel;
+  originalY: Pixel;
+  originalWidth: Pixel;
+  originalHeight: Pixel;
+};
+
 export interface BoxTextContent {
   textLines: string[];
   width: Pixel;
