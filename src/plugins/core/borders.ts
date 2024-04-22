@@ -92,7 +92,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
         this.clearBorders(cmd.sheetId, cmd.target);
         break;
       case "REMOVE_COLUMNS_ROWS":
-        for (let el of cmd.elements) {
+        for (let el of [...cmd.elements].sort((a, b) => b - a)) {
           if (cmd.dimension === "COL") {
             this.shiftBordersHorizontally(cmd.sheetId, el + 1, -1);
           } else {
