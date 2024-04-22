@@ -169,10 +169,9 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
         for (const tableId in tables) {
           const table = tables[tableId];
           if (table && cmd.target.some((zone) => isZoneInside(table.range.zone, zone))) {
-            delete tables[tableId];
+            this.dispatch("REMOVE_TABLE", { sheetId: cmd.sheetId, target: [table.range.zone] });
           }
         }
-        this.history.update("tables", cmd.sheetId, tables);
         break;
       }
     }
