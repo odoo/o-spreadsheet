@@ -20,7 +20,7 @@ import {
   Zone,
   isMatrix,
 } from "../../../types";
-import { CellErrorType, CircularDependencyError, EvaluationError } from "../../../types/errors";
+import { CellErrorType, CircularDependencyError, SplillBlockedError } from "../../../types/errors";
 import { CompilationParameters, buildCompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
 import { PositionMap } from "./position_map";
@@ -338,18 +338,18 @@ export class Evaluator {
     }
 
     if (enoughCols) {
-      throw new EvaluationError(
+      throw new SplillBlockedError(
         _t("Result couldn't be automatically expanded. Please insert more rows.")
       );
     }
 
     if (enoughRows) {
-      throw new EvaluationError(
+      throw new SplillBlockedError(
         _t("Result couldn't be automatically expanded. Please insert more columns.")
       );
     }
 
-    throw new EvaluationError(
+    throw new SplillBlockedError(
       _t("Result couldn't be automatically expanded. Please insert more columns and rows.")
     );
   }
@@ -376,7 +376,7 @@ export class Evaluator {
         this.getters.getEvaluatedCell(position).type !== CellValueType.empty
       ) {
         this.blockedArrayFormulas.add(formulaPosition);
-        throw new EvaluationError(
+        throw new SplillBlockedError(
           _t(
             "Array result was not expanded because it would overwrite data in %s.",
             toXC(position.col, position.row)
