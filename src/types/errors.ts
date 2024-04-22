@@ -7,6 +7,7 @@ export const CellErrorType = {
   CircularDependency: "#CYCLE",
   UnknownFunction: "#NAME?",
   DivisionByZero: "#DIV/0!",
+  SpilledBlocked: "#SPILL!",
   GenericError: "#ERROR",
 } as const;
 
@@ -44,5 +45,11 @@ export class NotAvailableError extends EvaluationError {
 export class UnknownFunctionError extends EvaluationError {
   constructor(message = _t("Unknown function")) {
     super(message, CellErrorType.UnknownFunction);
+  }
+}
+
+export class SplillBlockedError extends EvaluationError {
+  constructor(message = _t("Spill range is not empty")) {
+    super(message, CellErrorType.SpilledBlocked);
   }
 }
