@@ -239,6 +239,7 @@ export interface Highlight {
   /** transparency of the fill color (0-1) */
   fillAlpha?: number;
   noBorder?: boolean;
+  dashed?: boolean;
 }
 
 export interface PaneDivision {

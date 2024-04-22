@@ -56,11 +56,15 @@ export class Evaluator {
     return this.evaluatedCells.get(position) || EMPTY_CELL;
   }
 
-  getSpreadZone(position: CellPosition): Zone | undefined {
+  getSpreadZone(position: CellPosition, options = { ignoreSpillError: false }): Zone | undefined {
     if (!this.spreadingRelations.isArrayFormula(position)) {
       return undefined;
     }
-    if (this.evaluatedCells.get(position)?.type === CellValueType.error) {
+    const evaluatedCell = this.evaluatedCells.get(position);
+    if (
+      evaluatedCell?.type === CellValueType.error &&
+      !(options.ignoreSpillError && evaluatedCell?.value === CellErrorType.SpilledBlocked)
+    ) {
       return positionToZone(position);
     }
     const spreadPositions = Array.from(this.spreadingRelations.getArrayResultPositions(position));

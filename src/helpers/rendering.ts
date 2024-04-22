@@ -16,6 +16,9 @@ export function drawHighlight(
 
   const { ctx } = renderingContext;
   if (!highlight.noBorder) {
+    if (highlight.dashed) {
+      ctx.setLineDash([5, 3]);
+    }
     ctx.strokeStyle = color;
     if (highlight.thinLine) {
       ctx.lineWidth = 1;
