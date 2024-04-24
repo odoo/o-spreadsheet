@@ -1,5 +1,5 @@
 import { deepEqualsArray } from "../helpers/misc";
-import { UnboundedZone } from "../types";
+import { UnboundedZone, Zone } from "../types";
 
 /**
  * ####################################################
@@ -128,10 +128,10 @@ import { UnboundedZone } from "../types";
  * - you will find coordinate of a cell only once among all the zones
  * - the number of zones will be reduced to the minimum
  */
-export function recomputeZones(
-  zones: UnboundedZone[],
-  zonesToRemove: UnboundedZone[]
-): UnboundedZone[] {
+export function recomputeZones<T extends Zone | UnboundedZone>(
+  zones: T[],
+  zonesToRemove: T[]
+): T[] {
   const profilesStartingPosition: number[] = [0];
   const profiles = new Map<number, number[]>([[0, []]]);
 
@@ -140,10 +140,10 @@ export function recomputeZones(
   return constructZonesFromProfiles(profilesStartingPosition, profiles);
 }
 
-export function modifyProfiles( // export for testing only
+export function modifyProfiles<T extends Zone | UnboundedZone>( // export for testing only
   profilesStartingPosition: number[],
   profiles: Map<number, number[]>,
-  zones: UnboundedZone[],
+  zones: T[],
   toRemove: boolean = false
 ) {
   for (const zone of zones) {
@@ -298,10 +298,10 @@ function removeContiguousProfiles(
   }
 }
 
-function constructZonesFromProfiles(
+function constructZonesFromProfiles<T extends Zone | UnboundedZone>(
   profilesStartingPosition: number[],
   profiles: Map<number, number[]>
-): UnboundedZone[] {
+): T[] {
   const mergedZone: UnboundedZone[] = [];
   let pendingZones: UnboundedZone[] = [];
   for (let colIndex = 0; colIndex < profilesStartingPosition.length; colIndex++) {
@@ -353,7 +353,7 @@ function constructZonesFromProfiles(
     pendingZones = nextPendingZones;
   }
   mergedZone.push(...pendingZones);
-  return mergedZone;
+  return mergedZone as T[];
 }
 
 function binaryPredecessorSearch(arr: number[], val: number, start = 0, matchEqual = true) {
