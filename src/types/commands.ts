@@ -949,6 +949,12 @@ export interface RenderCanvasCommand {
   type: "RENDER_CANVAS";
 }
 
+export interface ExpandSheetForZoneCommand {
+  type: "EXPAND_SHEET_FOR_ZONE";
+  sheetId: UID;
+  targetZone: Zone;
+}
+
 export interface RefreshPivotCommand {
   type: "REFRESH_PIVOT";
   id: UID;
@@ -1098,6 +1104,7 @@ export type LocalCommand =
   | TrimWhitespaceCommand
   | RenderCanvasCommand
   | ResizeTableCommand
+  | ExpandSheetForZoneCommand
   | RefreshPivotCommand;
 
 export type Command = CoreCommand | LocalCommand;
