@@ -48,8 +48,7 @@ export class MergeClipboardHandler extends AbstractCellClipboardHandler<
     if (options?.isCutOperation || !("zones" in target) || !target.zones.length) {
       return;
     }
-    const sheetId = this.getters.getActiveSheetId();
-    this.pasteFromCopy(sheetId, target.zones, content.cells, options);
+    this.pasteFromCopy(target.sheetId, target.zones, content.cells, options);
   }
 
   pasteZone(sheetId: UID, col: HeaderIndex, row: HeaderIndex, cells: ClipboardCell[][]) {

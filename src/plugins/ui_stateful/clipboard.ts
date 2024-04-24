@@ -371,12 +371,14 @@ export class ClipboardPlugin extends UIPlugin {
     }
     let zone: Zone | undefined = undefined;
     let selectedZones: Zone[] = [];
+    const sheetId = this.getters.getActiveSheetId();
     let target: ClipboardPasteTarget = {
+      sheetId,
       zones,
     };
     const handlers = this.selectClipboardHandlers(copiedData);
     for (const handler of handlers) {
-      const currentTarget = handler.getPasteTarget(zones, copiedData, options);
+      const currentTarget = handler.getPasteTarget(sheetId, zones, copiedData, options);
       if (currentTarget.figureId) {
         target.figureId = currentTarget.figureId;
       }
@@ -577,11 +579,12 @@ export class ClipboardPlugin extends UIPlugin {
   }
 
   private getClipboardData(zones: Zone[]): ClipboardData {
+    const sheetId = this.getters.getActiveSheetId();
     const selectedFigureId = this.getters.getSelectedFigureId();
     if (selectedFigureId) {
-      return { figureId: selectedFigureId };
+      return { figureId: selectedFigureId, sheetId };
     }
-    return getClipboardDataPositions(zones);
+    return getClipboardDataPositions(sheetId, zones);
   }
 
   // ---------------------------------------------------------------------------

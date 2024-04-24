@@ -27,7 +27,7 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
     }
 
     const { rowsIndexes, columnsIndexes } = data;
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = data.sheetId;
     const cellPositions = rowsIndexes.map((row) =>
       columnsIndexes.map((col) => ({ col, row, sheetId }))
     );
@@ -52,7 +52,7 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
       return;
     }
     const zones = target.zones;
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = target.sheetId;
 
     if (!options?.isCutOperation) {
       this.pasteFromCopy(sheetId, zones, clippedContent.cellPositions);
