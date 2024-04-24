@@ -19,7 +19,7 @@ type ClipboardContent = {
 
 export class ChartClipboardHandler extends AbstractFigureClipboardHandler<ClipboardContent> {
   copy(data: ClipboardFigureData): ClipboardContent | undefined {
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = data.sheetId;
     const figure = this.getters.getFigure(sheetId, data.figureId);
     if (!figure) {
       throw new Error(`No figure for the given id: ${data.figureId}`);
@@ -41,18 +41,16 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
   }
 
   getPasteTarget(
+    sheetId: UID,
     target: Zone[],
     content: ClipboardContent,
     options?: ClipboardOptions
   ): ClipboardPasteTarget {
     if (!content?.copiedFigure || !content?.copiedChart) {
-      return { zones: [] };
+      return { zones: [], sheetId };
     }
     const newId = new UuidGenerator().uuidv4();
-    return {
-      zones: [],
-      figureId: newId,
-    };
+    return { zones: [], figureId: newId, sheetId };
   }
 
   paste(target: ClipboardPasteTarget, clippedContent: ClipboardContent, options: ClipboardOptions) {
@@ -60,7 +58,7 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
       return;
     }
     const { zones, figureId } = target;
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = target.sheetId;
     const numCols = this.getters.getNumberCols(sheetId);
     const numRows = this.getters.getNumberRows(sheetId);
     const targetX = this.getters.getColDimensions(sheetId, zones[0].left).start;

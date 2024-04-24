@@ -31,8 +31,13 @@ export class ClipboardHandler<T> {
     return CommandResult.Success;
   }
 
-  getPasteTarget(target: Zone[], content: T, options: ClipboardOptions): ClipboardPasteTarget {
-    return { zones: [] };
+  getPasteTarget(
+    sheetId: UID,
+    target: Zone[],
+    content: T,
+    options: ClipboardOptions
+  ): ClipboardPasteTarget {
+    return { zones: [], sheetId };
   }
 
   convertOSClipboardData(data: any): T | undefined {

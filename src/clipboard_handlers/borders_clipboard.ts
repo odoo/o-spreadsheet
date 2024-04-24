@@ -18,7 +18,7 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
   Border | null
 > {
   copy(data: ClipboardCellData): ClipboardContent | undefined {
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = data.sheetId;
     if (data.zones.length === 0) {
       return;
     }
@@ -40,7 +40,7 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
     if (!content) {
       return;
     }
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = target.sheetId;
     if (options?.pasteOption === "asValue") {
       return;
     }

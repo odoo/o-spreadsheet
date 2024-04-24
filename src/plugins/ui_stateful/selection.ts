@@ -559,8 +559,9 @@ export class GridSelectionPlugin extends UIPlugin {
       },
     ];
 
+    const sheetId = this.getActiveSheetId();
     const handler = new CellClipboardHandler(this.getters, this.dispatch);
-    const data = handler.copy(getClipboardDataPositions(target));
+    const data = handler.copy(getClipboardDataPositions(sheetId, target));
     if (!data) {
       return;
     }
@@ -573,7 +574,7 @@ export class GridSelectionPlugin extends UIPlugin {
         bottom: !isCol ? base + thickness - 1 : this.getters.getNumberRows(cmd.sheetId) - 1,
       },
     ];
-    handler.paste({ zones: pasteTarget }, data, { isCutOperation: true });
+    handler.paste({ zones: pasteTarget, sheetId }, data, { isCutOperation: true });
 
     const toRemove = isBasedBefore ? cmd.elements.map((el) => el + thickness) : cmd.elements;
     let currentIndex = cmd.base;

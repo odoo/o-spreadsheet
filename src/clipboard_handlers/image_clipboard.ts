@@ -20,7 +20,7 @@ type ClipboardContent = {
 
 export class ImageClipboardHandler extends AbstractFigureClipboardHandler<ClipboardContent> {
   copy(data: ClipboardFigureData): ClipboardContent | undefined {
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = data.sheetId;
     const figure = this.getters.getFigure(sheetId, data.figureId);
     if (!figure) {
       throw new Error(`No figure for the given id: ${data.figureId}`);
@@ -40,18 +40,16 @@ export class ImageClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
   }
 
   getPasteTarget(
+    sheetId: UID,
     target: Zone[],
     content: ClipboardContent,
     options?: ClipboardOptions
   ): ClipboardPasteTarget {
     if (!content?.copiedFigure || !content?.copiedImage) {
-      return { zones: [] };
+      return { zones: [], sheetId };
     }
     const newId = new UuidGenerator().uuidv4();
-    return {
-      zones: [],
-      figureId: newId,
-    };
+    return { sheetId, zones: [], figureId: newId };
   }
 
   paste(target: ClipboardPasteTarget, clippedContent: ClipboardContent, options: ClipboardOptions) {
