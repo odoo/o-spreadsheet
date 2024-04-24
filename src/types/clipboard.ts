@@ -16,6 +16,7 @@ export type ClipboardPasteOptions = "onlyFormat" | "asValue";
 export type ClipboardOperation = "CUT" | "COPY";
 
 export type ClipboardCellData = {
+  sheetId: UID;
   zones: Zone[];
   rowsIndexes: HeaderIndex[];
   columnsIndexes: HeaderIndex[];
@@ -23,12 +24,14 @@ export type ClipboardCellData = {
 };
 
 export type ClipboardFigureData = {
+  sheetId: UID;
   figureId: UID;
 };
 
 export type ClipboardData = ClipboardCellData | ClipboardFigureData;
 
 export type ClipboardPasteTarget = {
+  sheetId: UID;
   zones: Zone[];
   figureId?: UID;
 };

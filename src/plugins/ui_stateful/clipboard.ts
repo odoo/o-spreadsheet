@@ -369,7 +369,7 @@ export class ClipboardPlugin extends UIPlugin {
     const { pasteTarget, zoneAffectedByPaste } = this.getPasteTarget(
       handlers,
       this.copiedData,
-      zones,
+      { zones, sheetId: this.getters.getActiveSheetId() },
       { ...options, isCutOperation: this.isCutOperation() }
     );
 
@@ -522,13 +522,13 @@ export class ClipboardPlugin extends UIPlugin {
   getPasteTarget(
     handlers: ClipboardHandler<any>[],
     copiedData: any,
-    target: Zone[],
+    pasteTarget: ClipboardPasteTarget,
     options?: ClipboardOptions
   ): { pasteTarget: ClipboardPasteTarget; zoneAffectedByPaste: Zone | undefined } {
+    const { sheetId, zones } = pasteTarget;
     const zonesAffectedByPaste: Zone[] = [];
-    const pasteTarget: ClipboardPasteTarget = { zones: target };
     for (const handler of handlers) {
-      const currentTarget = handler.getPasteTarget(target, copiedData, options || {});
+      const currentTarget = handler.getPasteTarget(sheetId, zones, copiedData, options || {});
       if (currentTarget.figureId) {
         pasteTarget.figureId = currentTarget.figureId;
       }
@@ -591,11 +591,12 @@ export class ClipboardPlugin extends UIPlugin {
   }
 
   private getClipboardData(zones: Zone[]): ClipboardData {
+    const sheetId = this.getters.getActiveSheetId();
     const selectedFigureId = this.getters.getSelectedFigureId();
     if (selectedFigureId) {
-      return { figureId: selectedFigureId };
+      return { figureId: selectedFigureId, sheetId };
     }
-    return getClipboardDataPositions(zones);
+    return getClipboardDataPositions(sheetId, zones);
   }
 
   // ---------------------------------------------------------------------------

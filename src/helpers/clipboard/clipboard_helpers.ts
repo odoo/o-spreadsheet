@@ -1,7 +1,7 @@
-import { ClipboardCellData, Zone } from "../../types";
+import { ClipboardCellData, UID, Zone } from "../../types";
 import { mergeOverlappingZones, positions } from "../zones";
 
-export function getClipboardDataPositions(zones: Zone[]): ClipboardCellData {
+export function getClipboardDataPositions(sheetId: UID, zones: Zone[]): ClipboardCellData {
   const lefts = new Set(zones.map((z) => z.left));
   const rights = new Set(zones.map((z) => z.right));
   const tops = new Set(zones.map((z) => z.top));
@@ -19,7 +19,7 @@ export function getClipboardDataPositions(zones: Zone[]): ClipboardCellData {
   const cellsPosition = clippedZones.map((zone) => positions(zone)).flat();
   const columnsIndexes = [...new Set(cellsPosition.map((p) => p.col))].sort((a, b) => a - b);
   const rowsIndexes = [...new Set(cellsPosition.map((p) => p.row))].sort((a, b) => a - b);
-  return { zones, clippedZones, columnsIndexes, rowsIndexes };
+  return { sheetId, zones, clippedZones, columnsIndexes, rowsIndexes };
 }
 
 /**

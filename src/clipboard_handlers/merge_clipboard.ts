@@ -21,7 +21,7 @@ export class MergeClipboardHandler extends AbstractCellClipboardHandler<
   ClipboardMerge
 > {
   copy(data: ClipboardCellData): ClipboardContent {
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = data.sheetId;
 
     const { rowsIndexes, columnsIndexes, zones } = data;
     if (!zones || !rowsIndexes.length || !columnsIndexes.length) {
@@ -54,7 +54,7 @@ export class MergeClipboardHandler extends AbstractCellClipboardHandler<
     if (!target.zones?.length || !content.merges) {
       return;
     }
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = target.sheetId;
     if (options.isCutOperation) {
       for (const merge of content.merges.flat()) {
         if (merge) {

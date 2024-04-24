@@ -12,7 +12,7 @@ interface ClipboardContent extends FigureClipboardContent {
 
 export class ImageClipboardHandler extends AbstractFigureClipboardHandler<ClipboardContent> {
   copy(data: ClipboardFigureData): ClipboardContent | undefined {
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = data.sheetId;
     const figure = this.getters.getFigure(sheetId, data.figureId);
     if (!figure) {
       throw new Error(`No figure for the given id: ${data.figureId}`);

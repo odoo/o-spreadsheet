@@ -20,7 +20,7 @@ interface ClipboardContent extends FigureClipboardContent {
 
 export class ChartClipboardHandler extends AbstractFigureClipboardHandler<ClipboardContent> {
   copy(data: ClipboardFigureData): ClipboardContent | undefined {
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = data.sheetId;
     const figure = this.getters.getFigure(sheetId, data.figureId);
     if (!figure) {
       throw new Error(`No figure for the given id: ${data.figureId}`);
@@ -48,7 +48,7 @@ export class ChartClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     }
     const { zones, figureId } = target;
     const { width, height } = clippedContent.copiedFigure;
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = target.sheetId;
     const targetX = this.getters.getColDimensions(sheetId, zones[0].left).start;
     const targetY = this.getters.getRowDimensions(sheetId, zones[0].top).start;
     const position = { x: targetX, y: targetY };

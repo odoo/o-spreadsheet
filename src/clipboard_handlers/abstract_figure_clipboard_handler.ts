@@ -26,15 +26,15 @@ export class AbstractFigureClipboardHandler<
   }
 
   getPasteTarget(
+    sheetId: UID,
     targetZones: Zone[],
     content: FigureClipboardContent,
     options?: ClipboardOptions
   ): ClipboardPasteTarget {
     if (!content?.copiedFigure) {
-      return { zones: [] };
+      return { zones: [], sheetId };
     }
     const target = targetZones[0];
-    const sheetId = this.getters.getActiveSheetId();
 
     const topInPixel = this.getters.getRowDimensions(sheetId, target.top).start;
     let bottom = this.getters.getRowAtPosition(sheetId, topInPixel + content.copiedFigure.height);
@@ -59,6 +59,7 @@ export class AbstractFigureClipboardHandler<
     }
 
     return {
+      sheetId,
       zones: [{ left: target.left, top: target.top, right, bottom }],
       figureId: new UuidGenerator().uuidv4(),
     };
@@ -74,7 +75,7 @@ export class AbstractFigureClipboardHandler<
     }
     const { zones, figureId } = target;
     const { width, height } = clippedContent.copiedFigure;
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = target.sheetId;
     const targetX = this.getters.getColDimensions(sheetId, zones[0].left).start;
     const targetY = this.getters.getRowDimensions(sheetId, zones[0].top).start;
     const position = { x: targetX, y: targetY };

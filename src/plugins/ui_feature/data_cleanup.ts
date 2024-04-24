@@ -77,7 +77,7 @@ export class DataCleanupPlugin extends UIPlugin {
     }));
 
     const handler = new CellClipboardHandler(this.getters, this.dispatch);
-    const data = handler.copy(getClipboardDataPositions(rowsToKeep));
+    const data = handler.copy(getClipboardDataPositions(sheetId, rowsToKeep));
     if (!data) {
       return;
     }
@@ -93,7 +93,7 @@ export class DataCleanupPlugin extends UIPlugin {
       bottom: zone.top,
     };
 
-    handler.paste({ zones: [zonePasted] }, data, { isCutOperation: false });
+    handler.paste({ zones: [zonePasted], sheetId }, data, { isCutOperation: false });
 
     const remainingZone = {
       left: zone.left,

@@ -1,5 +1,7 @@
+import { clipboardHandlersRegistries } from "../../src/clipboard_handlers";
 import { DEFAULT_BORDER_DESC } from "../../src/constants";
 import { toCartesian, toZone, zoneToXc } from "../../src/helpers";
+import { getClipboardDataPositions } from "../../src/helpers/clipboard/clipboard_helpers";
 import { Model } from "../../src/model";
 import { LineChartDefinition } from "../../src/types/chart";
 import { ClipboardMIMEType, CommandResult, DEFAULT_LOCALE } from "../../src/types/index";
@@ -18,6 +20,7 @@ import {
   createChart,
   createSheet,
   createSheetWithName,
+  createTable,
   cut,
   deleteColumns,
   deleteRows,
@@ -2342,4 +2345,45 @@ describe("clipboard: pasting outside of sheet", () => {
       expect(getCellContent(model, "A2")).toBe("2");
     });
   });
+});
+
+test("Can use clipboard handlers to paste in a sheet other than the active sheet", () => {
+  model = new Model();
+  const sheetId = model.getters.getActiveSheetId();
+  createSheet(model, { sheetId: "sh2" });
+
+  setCellContent(model, "A1", "1");
+  const cf = createEqualCF("1", { fillColor: "#FF0000" }, "1");
+  model.dispatch("ADD_CONDITIONAL_FORMAT", { cf, ranges: toRangesData(sheetId, "A1"), sheetId });
+  createTable(model, "A1");
+
+  const handlers = clipboardHandlersRegistries.cellHandlers
+    .getAll()
+    .map((handler) => new handler(model.getters, model.dispatch));
+
+  let copiedData = {};
+  const clipboardData = getClipboardDataPositions(sheetId, [toZone("A1")]);
+  for (const handler of handlers) {
+    copiedData = { ...copiedData, ...handler.copy(clipboardData) };
+  }
+
+  const { pasteTarget, zoneAffectedByPaste } = model.getters.getPasteTarget(handlers, copiedData, {
+    zones: target("A1"),
+    sheetId: "sh2",
+  });
+  if (zoneAffectedByPaste !== undefined) {
+    model.dispatch("EXPAND_SHEET_FOR_ZONE", {
+      sheetId: "sh2",
+      targetZone: zoneAffectedByPaste,
+    });
+  }
+  for (const handler of handlers) {
+    handler.paste(pasteTarget, copiedData, {});
+  }
+
+  expect(getCellContent(model, "A1", "sh2")).toBe("1");
+  expect(model.getters.getConditionalFormats(sheetId)).toMatchObject([
+    { ranges: ["A1"], rule: cf.rule },
+  ]);
+  expect(model.getters.getTables(sheetId)).toMatchObject([{ range: { zone: toZone("A1") } }]);
 });
