@@ -18,10 +18,10 @@ import {
   Dimension,
   GridRenderingContext,
   HeaderIndex,
+  isCoreCommand,
   LocalCommand,
   UID,
   Zone,
-  isCoreCommand,
 } from "../../types/index";
 import { xmlEscape } from "../../xlsx/helpers/xml_helpers";
 import { UIPlugin } from "../ui_plugin";
@@ -48,6 +48,7 @@ export class ClipboardPlugin extends UIPlugin {
   static getters = [
     "getClipboardContent",
     "getClipboardTextContent",
+    "getPasteTarget",
     "isCutOperation",
     "isPaintingFormat",
   ] as const;
@@ -279,6 +280,10 @@ export class ClipboardPlugin extends UIPlugin {
         this.status = "invisible";
         break;
       }
+      case "EXPAND_SHEET_FOR_ZONE": {
+        this.addMissingDimensions(cmd.sheetId, cmd.targetZone);
+        break;
+      }
       default:
         if (isCoreCommand(cmd)) {
           this.status = "invisible";
@@ -369,37 +374,20 @@ export class ClipboardPlugin extends UIPlugin {
     if (!copiedData) {
       return;
     }
-    let zone: Zone | undefined = undefined;
-    let selectedZones: Zone[] = [];
-    let target: ClipboardPasteTarget = {
-      zones,
-    };
     const handlers = this.selectClipboardHandlers(copiedData);
+    const { pasteTarget, zoneAffectedByPaste } = this.getPasteTarget(handlers, copiedData, zones, {
+      ...options,
+      isCutOperation: options.isCutOperation,
+    });
+
+    if (zoneAffectedByPaste !== undefined) {
+      this.addMissingDimensions(this.getters.getActiveSheetId(), zoneAffectedByPaste);
+    }
     for (const handler of handlers) {
-      const currentTarget = handler.getPasteTarget(zones, copiedData, options);
-      if (currentTarget.figureId) {
-        target.figureId = currentTarget.figureId;
-      }
-      for (const targetZone of currentTarget.zones) {
-        selectedZones.push(targetZone);
-        if (zone === undefined) {
-          zone = targetZone;
-          continue;
-        }
-        zone = union(zone, targetZone);
-      }
+      handler.paste(pasteTarget, copiedData, options);
     }
-    if (zone !== undefined) {
-      this.addMissingDimensions(
-        this.getters.getActiveSheetId(),
-        zone.right - zone.left + 1,
-        zone.bottom - zone.top + 1,
-        zone.left,
-        zone.top
-      );
-    }
-    handlers.forEach((handler) => handler.paste(target, copiedData, options));
-    if (!options?.selectTarget) {
+
+    if (!options?.selectTarget || !zoneAffectedByPaste) {
       return;
     }
     const selection = zones[0];
@@ -407,22 +395,20 @@ export class ClipboardPlugin extends UIPlugin {
     const row = selection.top;
     this.selection.getBackToDefault();
     this.selection.selectZone(
-      { cell: { col, row }, zone: union(...selectedZones) },
+      { cell: { col, row }, zone: zoneAffectedByPaste },
       { scrollIntoView: false }
     );
   }
 
   /**
-   * Add columns and/or rows to ensure that col + width and row + height are still
-   * in the sheet
+   * Add columns and/or rows to ensure that the given zone is fully in the sheet
    */
-  private addMissingDimensions(
-    sheetId: UID,
-    width: number,
-    height: number,
-    col: number,
-    row: number
-  ) {
+  private addMissingDimensions(sheetId: UID, zone: Zone) {
+    const col = zone.left;
+    const row = zone.top;
+    const width = zone.right - col + 1;
+    const height = zone.bottom - row + 1;
+
     const missingRows = height + row - this.getters.getNumberRows(sheetId);
     if (missingRows > 0) {
       this.dispatch("ADD_COLUMNS_ROWS", {
@@ -527,6 +513,34 @@ export class ClipboardPlugin extends UIPlugin {
 
   isPaintingFormat(): boolean {
     return this.paintFormatStatus !== "inactive";
+  }
+
+  /**
+   * Get the paste target to give to the clipboard handlers if the given data is pasted in the given target zones.
+   * Also return the zone that would be affected by the paste operation.
+   */
+  getPasteTarget(
+    handlers: ClipboardHandler<any>[],
+    copiedData: any,
+    target: Zone[],
+    options: ClipboardOptions
+  ): { pasteTarget: ClipboardPasteTarget; zoneAffectedByPaste: Zone | undefined } {
+    const zonesAffectedByPaste: Zone[] = [];
+    const pasteTarget: ClipboardPasteTarget = { zones: target };
+    for (const handler of handlers) {
+      const currentTarget = handler.getPasteTarget(target, copiedData, options);
+      if (currentTarget.figureId) {
+        pasteTarget.figureId = currentTarget.figureId;
+      }
+      for (const targetZone of currentTarget.zones) {
+        zonesAffectedByPaste.push(targetZone);
+      }
+    }
+
+    return {
+      pasteTarget,
+      zoneAffectedByPaste: zonesAffectedByPaste.length ? union(...zonesAffectedByPaste) : undefined,
+    };
   }
 
   // ---------------------------------------------------------------------------

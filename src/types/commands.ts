@@ -1,7 +1,7 @@
 import {
   ConditionalFormat,
-  DOMCoordinates,
   DataValidationRule,
+  DOMCoordinates,
   Figure,
   Format,
   Locale,
@@ -934,6 +934,12 @@ export interface SplitTextIntoColumnsCommand {
   force?: boolean;
 }
 
+export interface ExpandSheetForZoneCommand {
+  type: "EXPAND_SHEET_FOR_ZONE";
+  sheetId: UID;
+  targetZone: Zone;
+}
+
 export interface RefreshPivotCommand {
   type: "REFRESH_PIVOT";
   id: UID;
@@ -1088,7 +1094,9 @@ export type LocalCommand =
   | TrimWhitespaceCommand
   | ResizeTableCommand
   | RefreshPivotCommand
-  | InsertNewPivotCommand;
+  | InsertNewPivotCommand
+  | ExpandSheetForZoneCommand
+  | RefreshPivotCommand;
 
 export type Command = CoreCommand | LocalCommand;
 
