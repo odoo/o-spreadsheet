@@ -396,6 +396,12 @@ export class ClipboardPlugin extends UIPlugin {
     if (!options?.selectTarget || !zoneAffectedByPaste) {
       return;
     }
+
+    if (pasteTarget.figureId) {
+      this.dispatch("SELECT_FIGURE", { id: pasteTarget.figureId });
+      return;
+    }
+
     const selection = zones[0];
     const col = selection.left;
     const row = selection.top;

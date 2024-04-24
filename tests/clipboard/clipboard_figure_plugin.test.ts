@@ -1,5 +1,6 @@
 import { CommandResult, Model } from "../../src";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
+import { zoneToXc } from "../../src/helpers";
 import { UID } from "../../src/types";
 import { BarChartDefinition } from "../../src/types/chart";
 import {
@@ -10,6 +11,8 @@ import {
   createSheet,
   cut,
   paste,
+  resizeColumns,
+  resizeRows,
   setCellContent,
   setSelection,
   updateChart,
@@ -70,6 +73,14 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     expect(model.getters.getFigures(sheetId)).toHaveLength(2);
   });
 
+  test("New figure is selected after the paste", () => {
+    model.dispatch("SELECT_FIGURE", { id: figureId });
+    copy(model);
+    paste(model, "A1");
+    expect(model.getters.getSelectedFigureId()).toEqual(getCopiedFigureId());
+    expect(zoneToXc(model.getters.getSelectedZone())).toEqual("A1");
+  });
+
   test("Can copy and paste figure to another sheet", () => {
     model.dispatch("SELECT_FIGURE", { id: figureId });
     copy(model);
@@ -128,27 +139,39 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     expect(model.getters.getFigures(sheetId)).toHaveLength(0);
   });
 
-  test("Figure is copied to edge of the sheet", () => {
-    model.dispatch("UPDATE_FIGURE", {
-      sheetId,
-      id: figureId,
-      height: 256,
-      width: 257,
-    });
+  test("Rows and columns are added when pasting figure at the edge of the sheet", () => {
+    model.dispatch("UPDATE_FIGURE", { sheetId, id: figureId, height: 200, width: 200 });
     model.dispatch("SELECT_FIGURE", { id: figureId });
+
+    expect(model.getters.getNumberRows(sheetId)).toBe(100);
+    expect(model.getters.getNumberCols(sheetId)).toBe(26);
+
     copy(model);
     paste(model, "Z100");
     const copiedFigure = model.getters.getFigure(sheetId, getCopiedFigureId())!;
-    const maxX = model.getters.getColDimensions(
-      sheetId,
-      model.getters.getNumberCols(sheetId) - 1
-    ).end;
-    const maxY = model.getters.getRowDimensions(
-      sheetId,
-      model.getters.getNumberRows(sheetId) - 1
-    ).end;
-    expect(copiedFigure.x).toBe(maxX - copiedFigure.width);
-    expect(copiedFigure.y).toBe(maxY - copiedFigure.height);
+    expect(copiedFigure.x).toBe(25 * DEFAULT_CELL_WIDTH);
+    expect(copiedFigure.y).toBe(99 * DEFAULT_CELL_HEIGHT);
+
+    const missingRows = Math.ceil((200 - DEFAULT_CELL_HEIGHT) / DEFAULT_CELL_HEIGHT);
+    expect(model.getters.getNumberRows(sheetId)).toBe(100 + missingRows);
+    const missingCols = Math.ceil((200 - DEFAULT_CELL_WIDTH) / DEFAULT_CELL_WIDTH);
+    expect(model.getters.getNumberCols(sheetId)).toBe(26 + missingCols);
+  });
+
+  test("Correct number of headers are inserted when figure is pasted at the edge of the sheet with custom sized headers", () => {
+    resizeColumns(model, ["Z"], 10);
+    resizeRows(model, [99], 10);
+
+    model.dispatch("UPDATE_FIGURE", { sheetId, id: figureId, height: 200, width: 200 });
+    model.dispatch("SELECT_FIGURE", { id: figureId });
+
+    copy(model);
+    paste(model, "Z100");
+
+    const missingRows = Math.ceil((200 - 10) / 10);
+    expect(model.getters.getNumberRows(sheetId)).toBe(100 + missingRows);
+    const missingCols = Math.ceil((200 - 10) / 10);
+    expect(model.getters.getNumberCols(sheetId)).toBe(26 + missingCols);
   });
 
   describe("Paste command result", () => {
