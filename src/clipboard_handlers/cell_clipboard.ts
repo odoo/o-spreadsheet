@@ -35,7 +35,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     if (!("zones" in data) || !data.zones.length) {
       return;
     }
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = data.sheetId;
     const zones = data.zones;
     if (!zones.length) {
       return {
@@ -82,7 +82,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     return {
       cells: clippedCells,
       zones: clippedZones,
-      sheetId: this.getters.getActiveSheetId(),
+      sheetId: data.sheetId,
     };
   }
 
@@ -121,7 +121,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
       return;
     }
     const zones = target.zones;
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = target.sheetId;
     if (!options?.isCutOperation) {
       this.pasteFromCopy(sheetId, zones, content.cells, options);
     } else {
@@ -130,6 +130,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
   }
 
   getPasteTarget(
+    sheetId: UID,
     target: Zone[],
     content: ClipboardContent,
     options?: ClipboardOptions
@@ -138,6 +139,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     const height = content.cells.length;
     if (options?.isCutOperation) {
       return {
+        sheetId,
         zones: [
           {
             left: target[0].left,
@@ -149,11 +151,9 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
       };
     }
     if (width === 1 && height === 1) {
-      return { zones: [] };
+      return { zones: [], sheetId };
     }
-    return {
-      zones: getPasteZones(target, content.cells),
-    };
+    return { sheetId, zones: getPasteZones(target, content.cells) };
   }
 
   private pasteFromCut(
