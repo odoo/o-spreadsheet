@@ -1,16 +1,13 @@
 import {
   createAdaptedZone,
   isZoneValid,
-  mergeAlignedColumns,
-  mergePositionsIntoColumns,
   overlap,
   positions,
   toCartesian,
   toUnboundedZone,
   toZone,
 } from "../../src/helpers/index";
-import { Position, Zone } from "../../src/types";
-import { target } from "../test_helpers/helpers";
+import { Zone } from "../../src/types";
 
 describe("overlap", () => {
   test("one zone above the other", () => {
@@ -40,148 +37,6 @@ describe("isZoneValid", () => {
     expect(isZoneValid({ bottom: 1, top: -1, right: 1, left: 1 })).toBe(false);
     expect(isZoneValid({ bottom: 1, top: 1, right: -1, left: 1 })).toBe(false);
     expect(isZoneValid({ bottom: 1, top: 1, right: 1, left: -1 })).toBe(false);
-  });
-});
-
-describe("mergePositionsIntoColumns", () => {
-  function p(xc: string): Position {
-    const zone = toZone(xc);
-    return { col: zone.left, row: zone.top };
-  }
-  const A1 = p("A1");
-  const A2 = p("A2");
-  const A3 = p("A3");
-  const B1 = p("B1");
-  const B2 = p("B2");
-  const C1 = p("C1");
-  const C2 = p("C2");
-  test("no zone", () => {
-    expect(mergePositionsIntoColumns([])).toEqual([]);
-  });
-
-  test("a single zone", () => {
-    expect(mergePositionsIntoColumns([A1])).toEqual(target("A1"));
-  });
-
-  test("a duplicated zone", () => {
-    expect(mergePositionsIntoColumns([A1, A1])).toEqual(target("A1"));
-  });
-
-  test("two non-adjacent positions on the same column", () => {
-    expect(mergePositionsIntoColumns([A1, A3])).toEqual(target("A1, A3"));
-  });
-
-  test("two non-adjacent positions on the same row", () => {
-    expect(mergePositionsIntoColumns([A1, C1])).toEqual(target("A1, C1"));
-  });
-
-  test("two adjacent positions on the same column", () => {
-    expect(mergePositionsIntoColumns([A1, A2])).toEqual(target("A1:A2"));
-  });
-
-  test("two adjacent positions on the same row", () => {
-    expect(mergePositionsIntoColumns([A1, B1])).toEqual(target("A1, B1"));
-  });
-
-  test("four adjacent positions on different columns", () => {
-    expect(mergePositionsIntoColumns([C2, C1, A1, A2])).toEqual(target("A1:A2, C1:C2"));
-  });
-
-  test("four adjacent positions on adjacent columns", () => {
-    expect(mergePositionsIntoColumns([C2, C1, B2, B1])).toEqual(target("B1:B2, C1:C2"));
-  });
-});
-
-describe("mergeAlignedColumns", () => {
-  test("no column", () => {
-    expect(mergeAlignedColumns([])).toEqual([]);
-  });
-  test("a row", () => {
-    expect(() => mergeAlignedColumns(target("A1:B1"))).toThrow();
-    expect(() => mergeAlignedColumns(target("A1:A2, A1:B1"))).toThrow();
-  });
-  test("a single column", () => {
-    expect(mergeAlignedColumns(target("A1:A2"))).toEqual(target("A1:A2"));
-  });
-
-  test("two zones on the same column", () => {
-    expect(mergeAlignedColumns(target("A1:A2, A3:A4"))).toEqual(target("A1:A2, A3:A4"));
-  });
-
-  test("duplicated columns", () => {
-    expect(mergeAlignedColumns(target("A1:A2, A1:A2"))).toEqual(target("A1:A2"));
-  });
-
-  test("two adjacent zones on the same column", () => {
-    expect(mergeAlignedColumns(target("A1:A2, A2:A4"))).toEqual(target("A1:A2, A2:A4"));
-  });
-  test("two aligned zones on non-adjacent columns", () => {
-    expect(mergeAlignedColumns(target("A1:A2, C1:C2"))).toEqual(target("A1:A2, C1:C2"));
-  });
-
-  test("two non-aligned zones on adjacent columns", () => {
-    expect(mergeAlignedColumns(target("A1:A2, B1:B3"))).toEqual(target("A1:A2, B1:B3"));
-  });
-
-  test("two aligned zones on adjacent columns", () => {
-    expect(mergeAlignedColumns(target("A1:A2, B1:B2"))).toEqual(target("A1:B2"));
-  });
-
-  test("three aligned zones on adjacent columns", () => {
-    expect(mergeAlignedColumns(target("A1:A2, B1:B2, C1:C2"))).toEqual(target("A1:C2"));
-  });
-
-  test("three aligned zones on adjacent columns", () => {
-    expect(mergeAlignedColumns(target("A1:A2, B1:B2, C1:C2"))).toEqual(target("A1:C2"));
-  });
-
-  test("two aligned zones on adjacent and one on non-adjacent columns", () => {
-    expect(mergeAlignedColumns(target("A1:A2, B1:B2, D1:D2"))).toEqual(target("A1:B2, D1:D2"));
-    expect(mergeAlignedColumns(target("A1:A2, D1:D2, B1:B2"))).toEqual(target("A1:B2, D1:D2"));
-    expect(mergeAlignedColumns(target("A1:A2, A3:A4, B3:B4"))).toEqual(target("A1:A2, A3:B4"));
-    expect(mergeAlignedColumns(target("A3:A4, A1:A2, B3:B4"))).toEqual(target("A1:A2, A3:B4"));
-  });
-  test("two overlapping columns with one aligned column", () => {
-    expect(mergeAlignedColumns(target("A1:A2, A2:A3, B2:B3"))).toEqual(target("A1:A2, A2:B3"));
-    expect(mergeAlignedColumns(target("A2:A3, A1:A2, B2:B3"))).toEqual(target("A1:A2, A2:B3"));
-
-    expect(mergeAlignedColumns(target("A1:A2, A2:A3, B1:B2"))).toEqual(target("A1:B2, A2:A3"));
-    expect(mergeAlignedColumns(target("A2:A3, A1:A2, B1:B2"))).toEqual(target("A1:B2, A2:A3"));
-  });
-  test("two overlapping columns with two aligned column", () => {
-    expect(mergeAlignedColumns(target("A1:A2, A2:A3, B2:B3, C2:C3"))).toEqual(
-      target("A1:A2, A2:C3")
-    );
-    expect(mergeAlignedColumns(target("B2:B3, C2:C3, A1:A2, A2:A3"))).toEqual(
-      target("A1:A2, A2:C3")
-    );
-
-    expect(mergeAlignedColumns(target("A1:A2, A2:A3, B1:B2, C1:C2"))).toEqual(
-      target("A1:C2, A2:A3")
-    );
-    expect(mergeAlignedColumns(target("C1:C2, A1:A2, A2:A3, B1:B2"))).toEqual(
-      target("A1:C2, A2:A3")
-    );
-  });
-  test("one column inside another with zones on the right", () => {
-    expect(mergeAlignedColumns(target("A1:A4, A2:A3"))).toEqual(target("A1:A4"));
-    expect(mergeAlignedColumns(target("A1:A4, A2:A3, B1:B4"))).toEqual(target("A1:B4"));
-    expect(mergeAlignedColumns(target("A2:A3, A1:A4, B1:B4"))).toEqual(target("A1:B4"));
-
-    expect(mergeAlignedColumns(target("A1:A4, A2:A3, B2:B3"))).toEqual(target("A1:A4, B2:B3"));
-    expect(mergeAlignedColumns(target("A2:A3, A1:A4, B2:B3"))).toEqual(target("A1:A4, B2:B3"));
-
-    expect(mergeAlignedColumns(target("A1:A4, A1:A3, B1:B3"))).toEqual(target("A1:A4, B1:B3"));
-    expect(mergeAlignedColumns(target("A1:A3, A1:A4, B1:B3"))).toEqual(target("A1:A4, B1:B3"));
-  });
-  test("one column inside another with zones on the left", () => {
-    expect(mergeAlignedColumns(target("B1:B3, B1:B4, A1:A3"))).toEqual(target("A1:A3, B1:B4"));
-    expect(mergeAlignedColumns(target("B1:B3, B1:B4, A1:A4"))).toEqual(target("A1:B4"));
-  });
-  test("two aligned respectively with one other", () => {
-    expect(mergeAlignedColumns(target("A1:A2, A3:A4, B1:B2, B3:B4"))).toEqual(
-      target("A1:B2, A3:B4")
-    );
   });
 });
 
