@@ -1,5 +1,21 @@
 <templates>
   <t t-name="o-spreadsheet-TableStylePreview">
-    <canvas t-ref="canvas" class="w-100 h-100"/>
+    <div
+      class="o-table-style-list-item"
+      t-att-class="{ 'selected': props.selected }"
+      t-att-data-id="props.styleId"
+      t-att-title="styleName"
+      t-on-click="props.onClick"
+      t-on-contextmenu.prevent="(ev) => this.onContextMenu(ev)">
+      <div t-att-class="props.class">
+        <canvas t-ref="canvas" class="w-100 h-100"/>
+      </div>
+    </div>
+    <Menu
+      t-if="menu.isOpen"
+      menuItems="menu.menuItems"
+      position="menu.position"
+      onClose.bind="this.closeMenu"
+    />
   </t>
 </templates>

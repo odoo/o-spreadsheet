@@ -1,9 +1,7 @@
 import { Component, useState } from "@odoo/owl";
-import { createTableStyleContextMenuActions } from "../../../registries/menus/table_style_menu_registry";
 import { SpreadsheetChildEnv } from "../../../types";
 import { Table } from "../../../types/table";
 import { css } from "../../helpers";
-import { Menu, MenuState } from "../../menu/menu";
 import { PopoverProps } from "../../popover/popover";
 import { TableStylePreview } from "../table_style_preview/table_style_preview";
 import {
@@ -48,11 +46,10 @@ css/* scss */ `
 
 export class TableStylePicker extends Component<TableStylePickerProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TableStylePicker";
-  static components = { TableStylesPopover, TableStylePreview, Menu };
+  static components = { TableStylesPopover, TableStylePreview };
   static props = { table: Object };
 
   state = useState<TableStylePickerState>({ popoverProps: undefined });
-  menu: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
 
   getDisplayedTableStyles() {
     const allStyles = this.env.model.getters.getTableStyles();
@@ -95,21 +92,5 @@ export class TableStylePicker extends Component<TableStylePickerProps, Spreadshe
 
   private closePopover() {
     this.state.popoverProps = undefined;
-  }
-
-  getStyleName(styleId: string): string {
-    return this.env.model.getters.getTableStyle(styleId).displayName;
-  }
-
-  onContextMenu(event: MouseEvent, styleId: string) {
-    this.menu.menuItems = createTableStyleContextMenuActions(this.env, styleId);
-    this.menu.isOpen = true;
-    this.menu.position = { x: event.clientX, y: event.clientY };
-  }
-
-  closeMenu() {
-    this.menu.isOpen = false;
-    this.menu.position = null;
-    this.menu.menuItems = [];
   }
 }
