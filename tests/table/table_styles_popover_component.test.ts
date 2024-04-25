@@ -92,6 +92,11 @@ describe("Table style editor panel", () => {
       await click(fixture, ".form-check-input[value='custom']");
     });
 
+    test("Can edit a custom table style with the top-right hover button", async () => {
+      click(fixture, ".o-table-style-edit-button");
+      expect(openSidePanel).toHaveBeenCalledWith("TableStyleEditorPanel", { styleId: "MyStyle" });
+    });
+
     test("Can edit a custom table style with the context menu", async () => {
       triggerMouseEvent('.o-table-style-list-item[title="MyStyle"]', "contextmenu");
       await nextTick();
