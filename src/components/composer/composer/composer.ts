@@ -5,8 +5,7 @@ import { clip, getZoneArea, isEqual, splitReference } from "../../../helpers/ind
 import { ComposerStore } from "./composer_store";
 
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
-import { AutoCompleteProvider } from "../../../registries";
-import { Store, useStore } from "../../../store_engine";
+import { Store, useLocalStore, useStore } from "../../../store_engine";
 import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
 import {
   CSSProperties,
@@ -21,6 +20,7 @@ import { css, cssPropertiesToCss } from "../../helpers/css";
 import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { updateSelectionWithArrowKeys } from "../../helpers/selection_helpers";
 import { TextValueProvider } from "../autocomplete_dropdown/autocomplete_dropdown";
+import { AutoCompleteStore } from "../autocomplete_dropdown/autocomplete_dropdown_store";
 import { ComposerFocusType } from "../composer_focus_store";
 import { ContentEditableHelper } from "../content_editable_helper";
 import { FunctionDescriptionProvider } from "../formula_assistant/formula_assistant";
@@ -115,11 +115,6 @@ interface ComposerState {
   positionEnd: number;
 }
 
-interface AutoCompleteState {
-  provider: AutoCompleteProvider | undefined;
-  selectedIndex: number | undefined;
-}
-
 interface FunctionDescriptionState {
   showDescription: boolean;
   functionName: string;
@@ -159,10 +154,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     positionEnd: 0,
   });
 
-  autoCompleteState: AutoCompleteState = useState({
-    provider: undefined,
-    selectedIndex: undefined,
-  });
+  autoCompleteState!: Store<AutoCompleteStore>;
 
   functionDescriptionState: FunctionDescriptionState = useState({
     showDescription: false,
@@ -227,6 +219,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   setup() {
     this.composerStore = useStore(ComposerStore);
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
+    this.autoCompleteState = useLocalStore(AutoCompleteStore);
     onMounted(() => {
       const el = this.composerRef.el!;
       if (this.props.isDefaultFocus) {
@@ -262,7 +255,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
       )
     ) {
       this.functionDescriptionState.showDescription = false;
-      this.autoCompleteState.provider = undefined;
+      this.autoCompleteState.hide();
       // Prevent the default content editable behavior which moves the cursor
       ev.preventDefault();
       ev.stopPropagation();
@@ -288,21 +281,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     // only for arrow up and down
     if (["ArrowUp", "ArrowDown"].includes(ev.key) && this.autoCompleteState.provider) {
       ev.preventDefault();
-      if (this.autoCompleteState.selectedIndex === undefined) {
-        this.autoCompleteState.selectedIndex = 0;
-        return;
-      }
-      if (ev.key === "ArrowUp") {
-        this.autoCompleteState.selectedIndex--;
-        if (this.autoCompleteState.selectedIndex < 0) {
-          this.autoCompleteState.selectedIndex =
-            this.autoCompleteState.provider.proposals.length - 1;
-        }
-      } else {
-        this.autoCompleteState.selectedIndex =
-          (this.autoCompleteState.selectedIndex + 1) %
-          this.autoCompleteState.provider.proposals.length;
-      }
+      this.autoCompleteState.moveSelection(ev.key === "ArrowDown" ? "next" : "previous");
     }
   }
 
@@ -465,13 +444,8 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     }
   }
 
-  showAutoComplete(provider: AutoCompleteProvider) {
-    this.autoCompleteState.provider = provider;
-    this.autoCompleteState.selectedIndex = provider.autoSelectFirstProposal ? 0 : undefined;
-  }
-
   updateAutoCompleteIndex(index: number) {
-    this.autoCompleteState.selectedIndex = clip(0, index, 10);
+    this.autoCompleteState.selectIndex(clip(0, index, 10));
   }
 
   /**
@@ -705,11 +679,11 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
    */
   private processTokenAtCursor(): void {
     let content = this.composerStore.currentContent;
-    this.autoCompleteState.provider = undefined;
+    this.autoCompleteState.hide();
     this.functionDescriptionState.showDescription = false;
     const autoCompleteProvider = this.composerStore.autocompleteProvider;
     if (autoCompleteProvider) {
-      this.showAutoComplete(autoCompleteProvider);
+      this.autoCompleteState.useProvider(autoCompleteProvider);
       return;
     }
     const token = this.composerStore.tokenAtCursor;
