@@ -193,6 +193,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     uuidGenerator: UuidGenerator = new UuidGenerator(),
     verboseImport = true
   ) {
+    const start = performance.now();
+    console.group("Model creation");
     super();
 
     stateUpdateMessages = repairInitialMessages(data, stateUpdateMessages);
@@ -281,12 +283,17 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.joinSession();
 
     if (config.snapshotRequested) {
+      const startSnapshot = performance.now();
+      console.info("Snapshot requested");
       this.session.snapshot(this.exportData());
       this.garbageCollectExternalResources();
+      console.info("Snapshot taken in", performance.now() - startSnapshot, "ms");
     }
     // mark all models as "raw", so they will not be turned into reactive objects
     // by owl, since we do not rely on reactivity
     markRaw(this);
+    console.info("Model created in", performance.now() - start, "ms");
+    console.groupEnd();
   }
 
   joinSession() {
@@ -523,11 +530,16 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         }
         this.status = Status.Running;
         const { changes, commands } = this.state.recordChanges(() => {
+          const start = performance.now();
           if (isCoreCommand(command)) {
             this.state.addCommand(command);
           }
           this.dispatchToHandlers(this.handlers, command);
           this.finalize();
+          const time = performance.now() - start;
+          if (time > 5) {
+            console.info(type, time, "ms");
+          }
         });
         this.session.save(command, commands, changes);
         this.status = Status.Ready;

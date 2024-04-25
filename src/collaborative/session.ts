@@ -149,11 +149,17 @@ export class Session extends EventBus<CollaborativeEvent> {
   }
 
   loadInitialMessages(messages: StateUpdateMessage[]) {
+    const start = performance.now();
+    const numberOfCommands = messages.reduce(
+      (acc, message) => acc + (message.type === "REMOTE_REVISION" ? message.commands.length : 1),
+      0
+    );
     this.isReplayingInitialRevisions = true;
     for (const message of messages) {
       this.onMessageReceived(message);
     }
     this.isReplayingInitialRevisions = false;
+    console.info("Replayed", numberOfCommands, "commands in", performance.now() - start, "ms");
   }
 
   /**

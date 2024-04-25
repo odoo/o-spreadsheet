@@ -112,6 +112,7 @@ export class Evaluator {
   }
 
   evaluateCells(positions: CellPosition[]) {
+    const start = performance.now();
     const cellsToCompute = this.createEmptyPositionSet();
     cellsToCompute.addMany(positions);
     const arrayFormulasPositions = this.getArrayFormulasImpactedByChangesOf(positions);
@@ -119,6 +120,7 @@ export class Evaluator {
     cellsToCompute.addMany(arrayFormulasPositions);
     cellsToCompute.addMany(this.getCellsDependingOn(arrayFormulasPositions));
     this.evaluate(cellsToCompute);
+    console.info("evaluate Cells", performance.now() - start, "ms");
   }
 
   private getArrayFormulasImpactedByChangesOf(
@@ -161,8 +163,10 @@ export class Evaluator {
   }
 
   evaluateAllCells() {
+    const start = performance.now();
     this.evaluatedCells = new PositionMap();
     this.evaluate(this.getAllCells());
+    console.info("evaluate all cells", performance.now() - start, "ms");
   }
 
   evaluateFormula(sheetId: UID, formulaString: string): CellValue | Matrix<CellValue> {
