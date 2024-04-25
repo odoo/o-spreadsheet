@@ -32,6 +32,10 @@ beforeAll(() => {
       this.innerHTML = value;
     },
   });
+
+  console.info = () => {};
+  console.group = () => {};
+  console.groupEnd = () => {};
 });
 
 beforeEach(() => {
