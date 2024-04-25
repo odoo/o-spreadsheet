@@ -1,3 +1,4 @@
+import { recomputeZones } from "../helpers";
 import { getPasteZones } from "../helpers/clipboard/clipboard_helpers";
 import { ClipboardCellData, ClipboardOptions, HeaderIndex, UID, Zone } from "../types";
 import { ClipboardHandler } from "./abstract_clipboard_handler";
@@ -19,7 +20,7 @@ export class AbstractCellClipboardHandler<T, T1> extends ClipboardHandler<T> {
     } else {
       // in this case, due to the isPasteAllowed function: state.cells contains
       // only one cell
-      for (const zone of target) {
+      for (const zone of recomputeZones(target)) {
         for (let col = zone.left; col <= zone.right; col++) {
           for (let row = zone.top; row <= zone.bottom; row++) {
             this.pasteZone(sheetId, col, row, content, options);

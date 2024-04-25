@@ -645,13 +645,13 @@ export function getZoneArea(zone: Zone): number {
  * */
 export function areZonesContinuous(zones: Zone[]): boolean {
   if (zones.length < 2) return true;
-  return recomputeZones(zones, []).length === 1;
+  return recomputeZones(zones).length === 1;
 }
 
 /** Return all the columns in the given list of zones */
 export function getZonesCols(zones: Zone[]): Set<number> {
   const set = new Set<number>();
-  for (let zone of zones) {
+  for (let zone of recomputeZones(zones)) {
     for (let col of range(zone.left, zone.right + 1)) {
       set.add(col);
     }
@@ -662,7 +662,7 @@ export function getZonesCols(zones: Zone[]): Set<number> {
 /** Return all the rows in the given list of zones */
 export function getZonesRows(zones: Zone[]): Set<number> {
   const set = new Set<number>();
-  for (let zone of zones) {
+  for (let zone of recomputeZones(zones)) {
     for (let row of range(zone.top, zone.bottom + 1)) {
       set.add(row);
     }

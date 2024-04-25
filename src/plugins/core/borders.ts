@@ -4,6 +4,7 @@ import {
   getItemId,
   isDefined,
   range,
+  recomputeZones,
   toCartesian,
   toXC,
   toZone,
@@ -438,7 +439,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
    * Remove the borders of a zone
    */
   private clearBorders(sheetId: UID, zones: Zone[]) {
-    for (let zone of zones) {
+    for (let zone of recomputeZones(zones)) {
       for (let row = zone.top; row <= zone.bottom; row++) {
         this.history.update("borders", sheetId, zone.right + 1, row, "vertical", undefined);
         for (let col = zone.left; col <= zone.right; col++) {
@@ -474,7 +475,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
     if (position === "clear") {
       return this.clearBorders(sheetId, zones);
     }
-    for (let zone of zones) {
+    for (let zone of recomputeZones(zones)) {
       if (position === "h" || position === "hv" || position === "all") {
         for (let row = zone.top + 1; row <= zone.bottom; row++) {
           for (let col = zone.left; col <= zone.right; col++) {
