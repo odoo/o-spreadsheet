@@ -15,20 +15,15 @@
       <Section class="'pt-1'">
         <t t-set-slot="title">Style template</t>
         <div class="d-flex flex-wrap">
-          <div
-            class="o-table-style-list-item"
-            t-foreach="tableTemplates"
-            t-as="templateName"
-            t-key="templateName"
-            t-att-class="{ 'selected': templateName === state.selectedTemplateName }"
-            t-on-click="() => this.onTemplatePicked(templateName)">
-            <div class="o-table-style-edit-template-preview">
-              <TableStylePreview
-                tableConfig="previewTableConfig"
-                tableStyle="computeTableStyle(templateName)"
-              />
-            </div>
-          </div>
+          <t t-foreach="tableTemplates" t-as="templateName" t-key="templateName">
+            <TableStylePreview
+              class="'o-table-style-edit-template-preview'"
+              selected="templateName === state.selectedTemplateName"
+              tableConfig="previewTableConfig"
+              tableStyle="computeTableStyle(templateName)"
+              onClick="() => this.onTemplatePicked(templateName)"
+            />
+          </t>
         </div>
         <div class="o-sidePanelButtons">
           <button t-on-click="onCancel" class="o-cancel o-button">Cancel</button>

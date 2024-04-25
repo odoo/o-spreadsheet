@@ -2,23 +2,16 @@
   <t t-name="o-spreadsheet-TableStylePicker">
     <div class="o-table-style-picker d-flex flew-row justify-content-between ps-1">
       <div class="d-flex flex-row overflow-hidden">
-        <div
-          class="o-table-style-list-item"
-          t-att-class="{ 'selected': styleId === props.table.config.styleId }"
-          t-foreach="getDisplayedTableStyles()"
-          t-as="styleId"
-          t-key="styleId"
-          t-att-title="getStyleName(styleId)"
-          t-att-data-id="styleId"
-          t-on-click="() => this.onStylePicked(styleId)"
-          t-on-contextmenu.prevent="(ev) => this.onContextMenu(ev, styleId)">
-          <div class="o-table-style-picker-preview">
-            <TableStylePreview
-              tableConfig="props.table.config"
-              tableStyle="env.model.getters.getTableStyle(styleId)"
-            />
-          </div>
-        </div>
+        <t t-foreach="getDisplayedTableStyles()" t-as="styleId" t-key="styleId">
+          <TableStylePreview
+            class="'o-table-style-picker-preview'"
+            selected="styleId === props.table.config.styleId"
+            tableConfig="props.table.config"
+            tableStyle="env.model.getters.getTableStyle(styleId)"
+            styleId="styleId"
+            onClick="() => this.onStylePicked(styleId)"
+          />
+        </t>
       </div>
       <div
         class="o-table-style-picker-arrow d-flex align-items-center px-1"
@@ -32,12 +25,6 @@
       onStylePicked.bind="onStylePicked"
       popoverProps="state.popoverProps"
       closePopover.bind="closePopover"
-    />
-    <Menu
-      t-if="menu.isOpen"
-      menuItems="menu.menuItems"
-      position="menu.position"
-      onClose.bind="this.closeMenu"
     />
   </t>
 </templates>

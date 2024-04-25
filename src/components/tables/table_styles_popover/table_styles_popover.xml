@@ -28,22 +28,16 @@
         </div>
         <hr class="hr my-2"/>
         <div class="d-flex flex-wrap">
-          <div
-            class="o-table-style-list-item"
-            t-att-class="{ 'selected': styleId === props.selectedStyleId }"
-            t-foreach="displayedStyles"
-            t-as="styleId"
-            t-key="styleId"
-            t-att-title="getStyleName(styleId)"
-            t-on-click="() => this.props.onStylePicked(styleId)"
-            t-on-contextmenu.prevent="(ev) => this.onContextMenu(ev, styleId)">
-            <div class="o-table-style-popover-preview">
-              <TableStylePreview
-                tableConfig="props.tableConfig"
-                tableStyle="env.model.getters.getTableStyle(styleId)"
-              />
-            </div>
-          </div>
+          <t t-foreach="displayedStyles" t-as="styleId" t-key="styleId">
+            <TableStylePreview
+              class="'o-table-style-popover-preview'"
+              styleId="styleId"
+              selected="styleId === props.selectedStyleId"
+              tableConfig="props.tableConfig"
+              tableStyle="env.model.getters.getTableStyle(styleId)"
+              onClick="() => this.props.onStylePicked(styleId)"
+            />
+          </t>
           <div
             t-if="state.selectedCategory === 'custom'"
             class="o-new-table-style o-table-style-list-item o-table-style-popover-preview d-flex justify-content-center align-items-center"
@@ -52,12 +46,6 @@
           </div>
         </div>
       </div>
-      <Menu
-        t-if="menu.isOpen"
-        menuItems="menu.menuItems"
-        position="menu.position"
-        onClose.bind="this.closeMenu"
-      />
     </Popover>
   </t>
 </templates>
