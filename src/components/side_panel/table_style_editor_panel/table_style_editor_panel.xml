@@ -8,19 +8,8 @@
       <Section class="'pt-1'">
         <t t-set-slot="title">Style color</t>
         <div class="d-flex align-items-center">
-          <div
-            class="o-color-preview"
-            t-att-style="colorPreviewStyle"
-            t-on-click.stop="togglePicker"
-          />
-          <span class="pe-1">Primary table style color</span>
-          <ColorPickerWidget
-            currentColor="state.primaryColor"
-            showColorPicker="state.pickerOpened"
-            toggleColorPicker.bind="togglePicker"
-            onColorPicked.bind="onColorPicked"
-            icon="'o-spreadsheet-Icon.FILL_COLOR'"
-          />
+          <span class="pe-2">Primary table style color</span>
+          <RoundColorPicker currentColor="state.primaryColor" onColorPicked.bind="onColorPicked"/>
         </div>
       </Section>
       <Section class="'pt-1'">
