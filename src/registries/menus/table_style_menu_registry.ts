@@ -14,13 +14,13 @@ export function createTableStyleContextMenuActions(
       id: "editTableStyle",
       name: _t("Edit table style"),
       execute: (env) => env.openSidePanel("TableStyleEditorPanel", { styleId }),
-      icon: "o-spreadsheet-Icon.EDIT_TABLE",
+      icon: "o-spreadsheet-Icon.EDIT",
     },
     {
       id: "deleteTableStyle",
       name: _t("Delete table style"),
       execute: (env) => env.model.dispatch("REMOVE_TABLE_STYLE", { tableStyleId: styleId }),
-      icon: "o-spreadsheet-Icon.DELETE_TABLE",
+      icon: "o-spreadsheet-Icon.TRASH",
     },
   ]);
 }

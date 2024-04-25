@@ -86,4 +86,18 @@ describe("Table style editor panel", () => {
     await click(fixture, ".o-sidePanel .o-confirm");
     expect(onStylePicked).toBeCalledWith(getTableStyleIdFromName("Custom Table Style"));
   });
+
+  test("Can delete table style from the panel", async () => {
+    createTableStyle(model, "Custom Table Style");
+    expect(getTableStyleFromName("Custom Table Style")).not.toBeUndefined();
+
+    await mountPanel({ styleId: "Custom Table Style" });
+    click(fixture, ".o-sidePanel .o-delete");
+    expect(getTableStyleFromName("Custom Table Style")).toBeUndefined();
+  });
+
+  test("Delete button is not present when creating a new table style", async () => {
+    await mountPanel();
+    expect(fixture.querySelector(".o-sidePanel .o-delete")).toBeNull();
+  });
 });

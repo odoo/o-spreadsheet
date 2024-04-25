@@ -27,6 +27,20 @@ css/* scss */ `
 
     &:hover {
       background: #ddd;
+      .o-table-style-edit-button {
+        display: block !important;
+        right: 0;
+        top: 0;
+        background: #fff;
+        cursor: pointer;
+        border: 1px solid #ddd;
+        padding: 1px 1px 1px 2px;
+        .o-icon {
+          font-size: 12px;
+          width: 12px;
+          height: 12px;
+        }
+      }
     }
   }
 `;
@@ -87,5 +101,16 @@ export class TableStylePreview extends Component<Props, SpreadsheetChildEnv> {
       return "";
     }
     return this.env.model.getters.getTableStyle(this.props.styleId).displayName;
+  }
+
+  get isStyleEditable(): boolean {
+    if (!this.props.styleId) {
+      return false;
+    }
+    return this.env.model.getters.isTableStyleEditable(this.props.styleId);
+  }
+
+  editTableStyle() {
+    this.env.openSidePanel("TableStyleEditorPanel", { styleId: this.props.styleId });
   }
 }

@@ -23,6 +23,11 @@ css/* scss */ `
         height: 61px;
       }
     }
+
+    .o-sidePanelButtons .o-delete:hover:enabled {
+      color: #ffffff;
+      background: #d94b4b;
+    }
   }
 `;
 
@@ -95,6 +100,14 @@ export class TableStyleEditorPanel extends Component<
   }
 
   onCancel() {
+    this.props.onCloseSidePanel();
+  }
+
+  onDelete() {
+    if (!this.props.styleId) {
+      return;
+    }
+    this.env.model.dispatch("REMOVE_TABLE_STYLE", { tableStyleId: this.props.styleId });
     this.props.onCloseSidePanel();
   }
 
