@@ -97,6 +97,7 @@ import {
   unquote,
 } from "./helpers/index";
 import { openLink, urlRegistry, urlRepresentation } from "./helpers/links";
+import { supportedPivotExplodedFormulaRegistry } from "./helpers/pivot/pivot_exploded_formula_registry";
 import {
   getFirstPivotFunction,
   getMaxObjectId,
@@ -256,6 +257,7 @@ export const registries = {
   pivotRegistry,
   pivotTimeAdapterRegistry,
   pivotSidePanelRegistry,
+  supportedPivotExplodedFormulaRegistry,
 };
 export const helpers = {
   arg,

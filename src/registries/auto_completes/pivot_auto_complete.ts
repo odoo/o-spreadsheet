@@ -1,6 +1,7 @@
 import { tokenColors } from "../../components/composer/composer/composer";
 import { EnrichedToken } from "../../formulas/composer_tokenizer";
 import { isDefined } from "../../helpers";
+import { supportedPivotExplodedFormulaRegistry } from "../../helpers/pivot/pivot_exploded_formula_registry";
 import {
   extractFormulaIdFromToken,
   insertTokenAfterArgSeparator,
@@ -27,17 +28,25 @@ autoCompleteProviders.add("pivot_ids", {
     if (pivotIds.includes(tokenAtCursor.value)) {
       return;
     }
-    return pivotIds.map((pivotId) => {
-      const definition = this.getters.getPivotCoreDefinition(pivotId);
-      const formulaId = this.getters.getPivotFormulaId(pivotId);
-      const str = `${formulaId}`;
-      return {
-        text: str,
-        description: definition.name,
-        htmlContent: [{ value: str, color: tokenColors.NUMBER }],
-        fuzzySearchKey: str + definition.name,
-      };
-    });
+    return pivotIds
+      .map((pivotId) => {
+        const definition = this.getters.getPivotCoreDefinition(pivotId);
+        if (
+          functionContext.parent.toUpperCase() !== "PIVOT" &&
+          !supportedPivotExplodedFormulaRegistry.get(definition.type)
+        ) {
+          return undefined;
+        }
+        const formulaId = this.getters.getPivotFormulaId(pivotId);
+        const str = `${formulaId}`;
+        return {
+          text: str,
+          description: definition.name,
+          htmlContent: [{ value: str, color: tokenColors.NUMBER }],
+          fuzzySearchKey: str + definition.name,
+        };
+      })
+      .filter(isDefined);
   },
   selectProposal: insertTokenAfterLeftParenthesis,
 });
@@ -64,6 +73,9 @@ autoCompleteProviders.add("pivot_measures", {
       return [];
     }
     const definition = this.getters.getPivotCoreDefinition(pivotId);
+    if (!supportedPivotExplodedFormulaRegistry.get(definition.type)) {
+      return [];
+    }
     return definition.measures
       .map((measure) => {
         if (measure.name === "__count") {
@@ -107,6 +119,10 @@ autoCompleteProviders.add("pivot_group_fields", {
     if (!fields) {
       return;
     }
+    const { columns, rows, type } = this.getters.getPivotCoreDefinition(pivotId);
+    if (!supportedPivotExplodedFormulaRegistry.get(type)) {
+      return [];
+    }
     let args = functionContext.args;
     if (functionContext?.parent.toUpperCase() === "PIVOT.VALUE") {
       args = args.filter((ast, index) => index % 2 === 0); // keep only the field names
@@ -115,7 +131,6 @@ autoCompleteProviders.add("pivot_group_fields", {
       args = args.filter((ast, index) => index % 2 === 1); // keep only the field names
     }
     const argGroupBys = args.map((ast) => ast?.value).filter(isDefined);
-    const { columns, rows } = this.getters.getPivotCoreDefinition(pivotId);
     const colFields = columns.map((groupBy) => groupBy.name);
     const rowFields = rows.map((groupBy) => groupBy.name);
 
@@ -200,6 +215,11 @@ autoCompleteProviders.add("pivot_group_values", {
     if (!pivotId || !this.getters.isExistingPivot(pivotId)) {
       return;
     }
+    const { type } = this.getters.getPivotCoreDefinition(pivotId);
+    if (!supportedPivotExplodedFormulaRegistry.get(type)) {
+      return [];
+    }
+
     const dataSource = this.getters.getPivot(pivotId);
     if (!dataSource.isValid()) {
       return;
