@@ -4,26 +4,23 @@
       Add
     </span>
     <Popover t-if="popover.isOpen" t-props="popoverProps">
-      <div class="p-2 bg-white border-bottom d-flex align-items-baseline pivot-dimension-search">
+      <div
+        class="p-2 bg-white border-bottom d-flex sticky-top align-items-baseline pivot-dimension-search">
         <i class="pe-1 pivot-dimension-search-field-icon">
           <t t-call="o-spreadsheet-Icon.SEARCH"/>
         </i>
         <input
-          t-model="search.input"
+          t-on-input="(ev) => this.updateSearch(ev.target.value)"
           t-on-keydown="onKeyDown"
           class="border-0 w-100 pivot-dimension-search-field"
-          autofocus="1"
+          t-ref="autofocus"
         />
       </div>
-      <div
-        t-foreach="filteredFields"
-        t-as="field"
-        t-key="field.name"
-        t-esc="field.string"
-        t-att-title="field.help"
-        t-on-click="() => this.pickField(field)"
-        class="p-1 px-2 pivot-dimension-field"
-        role="button"
+      <TextValueProvider
+        proposals="autoComplete.provider.proposals"
+        selectedIndex="autoComplete.selectedIndex"
+        onValueSelected="autoComplete.provider.selectProposal"
+        onValueHovered="() => {}"
       />
     </Popover>
   </t>

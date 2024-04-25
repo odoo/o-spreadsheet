@@ -31,7 +31,7 @@ export function useStore<T extends StoreConstructor>(Store: T): Store<InstanceTy
 
 export function useLocalStore<T extends LocalStoreConstructor<any>>(
   Store: T,
-  ...args: StoreParams<T>
+  ...args: StoreParams<T> extends never ? [] : StoreParams<T>
 ): Store<InstanceType<T>> {
   const env = useEnv();
   const container = getDependencyContainer(env);
