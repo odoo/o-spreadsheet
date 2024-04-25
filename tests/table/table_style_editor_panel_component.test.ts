@@ -60,7 +60,7 @@ describe("Table style editor panel", () => {
 
   test("Can change the style primary color", async () => {
     await mountPanel();
-    await click(fixture, ".o-color-picker-button");
+    await click(fixture, ".o-round-color-picker-button");
     await click(fixture, 'div[data-color="#FF9900"]');
     click(fixture, ".o-sidePanel .o-confirm");
     expect(getTableStyleFromName("Custom Table Style")).toMatchObject(

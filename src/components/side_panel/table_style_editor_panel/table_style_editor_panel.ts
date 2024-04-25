@@ -7,24 +7,13 @@ import {
   TableStyle,
   TableStyleTemplateName,
 } from "../../../types";
-import { ColorPickerWidget } from "../../color_picker/color_picker_widget";
 import { css, cssPropertiesToCss } from "../../helpers";
 import { TableStylePreview } from "../../tables/table_style_preview/table_style_preview";
+import { RoundColorPicker } from "../components/round_color_picker/round_color_picker";
 import { Section } from "../components/section/section";
 
 css/* scss */ `
   .o-table-style-editor-panel {
-    .o-color-preview {
-      width: 30px;
-      height: 15px;
-      margin-left: 2px;
-      outline: 1px solid #3d85c6;
-      outline-offset: 1px;
-      margin-right: 10px;
-
-      cursor: pointer;
-    }
-
     .o-table-style-list-item {
       margin: 1px 3px;
       padding: 3px 6px;
@@ -55,7 +44,7 @@ export class TableStyleEditorPanel extends Component<
   SpreadsheetChildEnv
 > {
   static template = "o-spreadsheet-TableStyleEditorPanel";
-  static components = { Section, ColorPickerWidget, TableStylePreview };
+  static components = { Section, RoundColorPicker, TableStylePreview };
   static props = {
     onCloseSidePanel: Function,
     onStylePicked: { type: Function, optional: true },
