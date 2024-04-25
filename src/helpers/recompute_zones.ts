@@ -128,16 +128,19 @@ import { UnboundedZone, Zone } from "../types";
  * - you will find coordinate of a cell only once among all the zones
  * - the number of zones will be reduced to the minimum
  */
-export function recomputeZones<T extends Zone | UnboundedZone>(
+export function recomputeZones<T extends UnboundedZone | Zone>(
   zones: T[],
-  zonesToRemove: T[]
+  zonesToRemove: (UnboundedZone | Zone)[] = []
 ): T[] {
+  if (zones.length <= 1 && zonesToRemove.length === 0) {
+    return zones;
+  }
   const profilesStartingPosition: number[] = [0];
   const profiles = new Map<number, number[]>([[0, []]]);
 
   modifyProfiles(profilesStartingPosition, profiles, zones, false);
   modifyProfiles(profilesStartingPosition, profiles, zonesToRemove, true);
-  return constructZonesFromProfiles(profilesStartingPosition, profiles);
+  return constructZonesFromProfiles<T>(profilesStartingPosition, profiles);
 }
 
 export function modifyProfiles<T extends Zone | UnboundedZone>( // export for testing only
@@ -298,12 +301,12 @@ function removeContiguousProfiles(
   }
 }
 
-function constructZonesFromProfiles<T extends Zone | UnboundedZone>(
+function constructZonesFromProfiles<T extends UnboundedZone | Zone>(
   profilesStartingPosition: number[],
   profiles: Map<number, number[]>
 ): T[] {
-  const mergedZone: UnboundedZone[] = [];
-  let pendingZones: UnboundedZone[] = [];
+  const mergedZone: T[] = [];
+  let pendingZones: T[] = [];
   for (let colIndex = 0; colIndex < profilesStartingPosition.length; colIndex++) {
     const left = profilesStartingPosition[colIndex];
     const profile = profiles.get(left);
@@ -318,7 +321,7 @@ function constructZonesFromProfiles<T extends Zone | UnboundedZone>(
       right--;
     }
 
-    const nextPendingZones: UnboundedZone[] = [];
+    const nextPendingZones: T[] = [];
     for (let i = 0; i < profile.length; i += 2) {
       const top = profile[i];
       let bottom = profile[i + 1];
@@ -345,7 +348,7 @@ function constructZonesFromProfiles<T extends Zone | UnboundedZone>(
         }
       }
       if (!findCorrespondingZone) {
-        nextPendingZones.push(profileZone);
+        nextPendingZones.push(profileZone as T);
       }
     }
 

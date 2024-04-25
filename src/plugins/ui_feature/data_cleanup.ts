@@ -1,5 +1,12 @@
 import { CellClipboardHandler } from "../../clipboard_handlers/cell_clipboard";
-import { deepEquals, positions, range, trimContent, zoneToDimension } from "../../helpers";
+import {
+  deepEquals,
+  positions,
+  range,
+  recomputeZones,
+  trimContent,
+  zoneToDimension,
+} from "../../helpers";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
 import { _t } from "../../translation";
 import {
@@ -206,7 +213,7 @@ export class DataCleanupPlugin extends UIPlugin {
   }
 
   private trimWhitespace() {
-    const zones = this.getters.getSelectedZones();
+    const zones = recomputeZones(this.getters.getSelectedZones());
     const sheetId = this.getters.getActiveSheetId();
     let count = 0;
 

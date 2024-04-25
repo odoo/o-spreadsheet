@@ -3,6 +3,7 @@ import {
   deepCopy,
   getCellPositionsInRanges,
   isInside,
+  recomputeZones,
   toXC,
 } from "../../helpers";
 import { dataValidationEvaluatorRegistry } from "../../registries/data_validation_registry";
@@ -123,7 +124,7 @@ export class DataValidationPlugin
         break;
       }
       case "DELETE_CONTENT": {
-        const zones = cmd.target;
+        const zones = recomputeZones(cmd.target);
         const sheetId = cmd.sheetId;
         for (const zone of zones) {
           for (let row = zone.top; row <= zone.bottom; row++) {

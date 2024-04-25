@@ -4,6 +4,7 @@ import {
   isDateTimeFormat,
   positions,
   positionToZone,
+  recomputeZones,
 } from "../../helpers";
 import {
   CellPosition,
@@ -42,7 +43,7 @@ export class FormatPlugin extends UIPlugin {
    */
   private setDecimal(sheetId: UID, zones: Zone[], step: SetDecimalStep) {
     // Find the each cell with a number value and get the format
-    for (const zone of zones) {
+    for (const zone of recomputeZones(zones)) {
       for (const position of positions(zone)) {
         const numberFormat = this.getCellNumberFormat({ sheetId, ...position });
         if (numberFormat !== undefined) {
