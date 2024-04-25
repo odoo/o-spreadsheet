@@ -1,4 +1,4 @@
-import { Component, onMounted, useEffect, useRef } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, useEffect, useRef } from "@odoo/owl";
 import type { Chart, ChartConfiguration } from "chart.js";
 import { deepCopy, deepEquals } from "../../../../helpers";
 import { Figure, SpreadsheetChildEnv } from "../../../../types";
@@ -42,6 +42,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
       // Note: chartJS modify the runtime in place, so it's important to give it a copy
       this.createChart(deepCopy(runtime.chartJsConfig));
     });
+    onWillUnmount(() => this.chart?.destroy());
     useEffect(() => {
       const runtime = this.chartRuntime;
       if (!deepEquals(runtime, this.currentRuntime, "ignoreFunctions")) {
