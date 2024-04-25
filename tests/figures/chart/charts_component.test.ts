@@ -1305,3 +1305,13 @@ describe("Default background on runtime tests", () => {
     expect(model.getters.getChartRuntime("1").background).toBe("#FA0000");
   });
 });
+
+test("ChartJS charts are correctly destroyed on chart deletion", async () => {
+  ({ parent, fixture, model } = await mountSpreadsheet({ model: new Model() }));
+  createChart(model, { dataSets: ["A1"], type: "bar" }, "1");
+  await nextTick();
+  const spyDelete = jest.spyOn((window as any).Chart.prototype, "destroy");
+  model.dispatch("DELETE_FIGURE", { id: "1", sheetId: model.getters.getActiveSheetId() });
+  await nextTick();
+  expect(spyDelete).toHaveBeenCalled();
+});
