@@ -301,8 +301,8 @@ export class EvaluationPlugin extends UIPlugin {
       const format = newFormat
         ? getItemId<Format>(newFormat, data.formats)
         : exportedCellData.format;
-      let content;
-      if (formulaCell instanceof FormulaCellWithDependencies) {
+      let content: string | undefined;
+      if (isExported && formulaCell instanceof FormulaCellWithDependencies) {
         content = this.getters.buildFormulaContent(
           exportedSheetData.id,
           formulaCell,
