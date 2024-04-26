@@ -323,8 +323,8 @@ export class EvaluationPlugin extends UIPlugin {
       const format = newFormat
         ? getItemId<Format>(newFormat, data.formats)
         : exportedCellData.format;
-      let content;
-      if (isFormula && formulaCell instanceof FormulaCellWithDependencies) {
+      let content: string | undefined;
+      if (isExported && isFormula && formulaCell instanceof FormulaCellWithDependencies) {
         content = formulaCell.contentWithFixedReferences;
       } else {
         content = !isExported ? newContent : exportedCellData.content;
