@@ -1,4 +1,4 @@
-import { functionRegistry } from "../../src/functions";
+import { arg, functionRegistry } from "../../src/functions";
 import { buildSheetLink, toXC } from "../../src/helpers";
 import { createEmptyExcelWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
@@ -739,7 +739,7 @@ describe("Test XLSX export", () => {
 
       functionRegistry.add("NON.EXPORTABLE", {
         description: "a non exportable formula",
-        args: [],
+        args: [arg('range (any, range<any>, ,default="a")', "")],
         returns: ["NUMBER"],
         compute: function (): number {
           return 42;
@@ -751,10 +751,12 @@ describe("Test XLSX export", () => {
       });
 
       setCellContent(model, "A1", "=1+NON.EXPORTABLE()");
+      setCellContent(model, "A2", "=1+NON.EXPORTABLE(A1)");
 
       const exported = getExportedExcelData(model);
 
       expect(exported.sheets[0].cells["A1"]?.content).toEqual("43");
+      expect(exported.sheets[0].cells["A2"]?.content).toEqual("43");
       const formatId = exported.sheets[0].cells["A1"]?.format;
       expect(formatId).toEqual(1);
       expect(exported.formats[formatId!]).toEqual("0.00%");

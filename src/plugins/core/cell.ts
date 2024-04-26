@@ -639,7 +639,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 }
 
-export class FormulaCellWithDependencies implements FormulaCell {
+class FormulaCellWithDependencies implements FormulaCell {
   readonly isFormula = true;
   readonly compiledFormula: RangeCompiledFormula;
   constructor(
