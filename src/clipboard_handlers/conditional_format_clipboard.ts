@@ -1,4 +1,4 @@
-import { UuidGenerator, deepEquals, isInside, positionToZone } from "../helpers";
+import { UuidGenerator, deepEquals, positionToZone } from "../helpers";
 import {
   CellPosition,
   ClipboardCellData,
@@ -6,18 +6,24 @@ import {
   ClipboardPasteTarget,
   ConditionalFormat,
   HeaderIndex,
+  Maybe,
   UID,
   Zone,
 } from "../types";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 
-type ClipboardContent = {
-  cellPositions: CellPosition[][];
-};
+interface ClipboardConditionalFormat {
+  position: CellPosition;
+  rules: ConditionalFormat[];
+}
+
+interface ClipboardContent {
+  cfRules: Maybe<ClipboardConditionalFormat>[][];
+}
 
 export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHandler<
   ClipboardContent,
-  CellPosition
+  Maybe<ClipboardConditionalFormat>
 > {
   private readonly uuidGenerator = new UuidGenerator();
 
@@ -28,13 +34,20 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
 
     const { rowsIndexes, columnsIndexes } = data;
     const sheetId = data.sheetId;
-    const cellPositions = rowsIndexes.map((row) =>
-      columnsIndexes.map((col) => ({ col, row, sheetId }))
-    );
+    const cfRules: Maybe<ClipboardConditionalFormat>[][] = [];
 
-    return {
-      cellPositions,
-    };
+    for (const row of rowsIndexes) {
+      const cfRuleInRow: Maybe<ClipboardConditionalFormat>[] = [];
+      for (const col of columnsIndexes) {
+        const cfRules = Array.from(this.getters.getRulesByCell(sheetId, col, row));
+        cfRuleInRow.push({
+          position: { col, row, sheetId },
+          rules: cfRules,
+        });
+      }
+      cfRules.push(cfRuleInRow);
+    }
+    return { cfRules };
   }
 
   paste(
@@ -43,7 +56,7 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
     options?: ClipboardOptions
   ) {
     if (
-      !clippedContent?.cellPositions ||
+      !clippedContent?.cfRules ||
       options?.pasteOption === "asValue" ||
       !("zones" in target) ||
       !target.zones.length
@@ -54,7 +67,7 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
     const sheetId = target.sheetId;
 
     if (!options?.isCutOperation) {
-      this.pasteFromCopy(sheetId, zones, clippedContent.cellPositions);
+      this.pasteFromCopy(sheetId, zones, clippedContent.cfRules, options);
     } else {
       this.pasteFromCut(sheetId, zones, clippedContent);
     }
@@ -62,7 +75,7 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
 
   private pasteFromCut(sheetId: UID, target: Zone[], content: ClipboardContent) {
     const selection = target[0];
-    this.pasteZone(sheetId, selection.left, selection.top, content.cellPositions, {
+    this.pasteZone(sheetId, selection.left, selection.top, content.cfRules, {
       isCutOperation: true,
     });
   }
@@ -71,10 +84,10 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
     sheetId: UID,
     col: HeaderIndex,
     row: HeaderIndex,
-    positions: CellPosition[][],
+    cfRules: Maybe<ClipboardConditionalFormat>[][],
     clipboardOptions?: ClipboardOptions
   ) {
-    for (const [r, rowCells] of positions.entries()) {
+    for (const [r, rowCells] of cfRules.entries()) {
       for (const [c, origin] of rowCells.entries()) {
         const position = { col: col + c, row: row + r, sheetId };
         this.pasteCf(origin, position, clipboardOptions?.isCutOperation);
@@ -82,29 +95,25 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
     }
   }
 
-  private pasteCf(origin: CellPosition, target: CellPosition, isCutOperation?: boolean) {
-    const zone = positionToZone(target);
-    for (const rule of this.getters.getConditionalFormats(origin.sheetId)) {
-      for (const range of rule.ranges) {
-        if (
-          isInside(
-            origin.col,
-            origin.row,
-            this.getters.getRangeFromSheetXC(origin.sheetId, range).zone
-          )
-        ) {
-          const toRemoveZones: Zone[] = [];
-          if (isCutOperation) {
-            //remove from current rule
-            toRemoveZones.push(positionToZone(origin));
-          }
-          if (origin.sheetId === target.sheetId) {
-            this.adaptCFRules(origin.sheetId, rule, [zone], toRemoveZones);
-          } else {
-            this.adaptCFRules(origin.sheetId, rule, [], toRemoveZones);
-            const cfToCopyTo = this.getCFToCopyTo(target.sheetId, rule);
-            this.adaptCFRules(target.sheetId, cfToCopyTo, [zone], []);
-          }
+  private pasteCf(
+    origin: Maybe<ClipboardConditionalFormat>,
+    target: CellPosition,
+    isCutOperation?: boolean
+  ) {
+    if (origin?.rules && origin.rules.length > 0) {
+      const zone = positionToZone(target);
+      for (const rule of origin.rules) {
+        const toRemoveZones: Zone[] = [];
+        if (isCutOperation) {
+          //remove from current rule
+          toRemoveZones.push(positionToZone(origin.position));
+        }
+        if (origin.position.sheetId === target.sheetId) {
+          this.adaptCFRules(origin.position.sheetId, rule, [zone], toRemoveZones);
+        } else {
+          this.adaptCFRules(origin.position.sheetId, rule, [], toRemoveZones);
+          const cfToCopyTo = this.getCFToCopyTo(target.sheetId, rule);
+          this.adaptCFRules(target.sheetId, cfToCopyTo, [zone], []);
         }
       }
     }

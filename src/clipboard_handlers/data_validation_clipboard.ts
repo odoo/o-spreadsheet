@@ -1,4 +1,4 @@
-import { UuidGenerator, deepEquals, isInside, positionToZone, recomputeZones } from "../helpers";
+import { UuidGenerator, deepEquals, positionToZone, recomputeZones } from "../helpers";
 import {
   CellPosition,
   ClipboardCellData,
@@ -6,18 +6,24 @@ import {
   ClipboardPasteTarget,
   DataValidationRule,
   HeaderIndex,
+  Maybe,
   UID,
   Zone,
 } from "../types";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 
-type ClipboardContent = {
-  cellPositions: CellPosition[][];
-};
+interface ClipboardDataValidationRule {
+  position: CellPosition;
+  rule: Maybe<DataValidationRule>;
+}
+
+interface ClipboardContent {
+  dvRules: Maybe<ClipboardDataValidationRule>[][];
+}
 
 export class DataValidationClipboardHandler extends AbstractCellClipboardHandler<
   ClipboardContent,
-  CellPosition
+  Maybe<ClipboardDataValidationRule>
 > {
   private readonly uuidGenerator = new UuidGenerator();
 
@@ -28,13 +34,18 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
 
     const { rowsIndexes, columnsIndexes } = data;
     const sheetId = data.sheetId;
-    const cellPositions = rowsIndexes.map((row) =>
-      columnsIndexes.map((col) => ({ col, row, sheetId }))
-    );
+    const dvRules: Maybe<ClipboardDataValidationRule>[][] = [];
 
-    return {
-      cellPositions,
-    };
+    for (const row of rowsIndexes) {
+      const dvRuleInRow: Maybe<ClipboardDataValidationRule>[] = [];
+      for (const col of columnsIndexes) {
+        const position = { sheetId, col, row };
+        const rule = this.getters.getValidationRuleForCell(position);
+        dvRuleInRow.push({ position, rule });
+      }
+      dvRules.push(dvRuleInRow);
+    }
+    return { dvRules };
   }
 
   paste(
@@ -42,7 +53,7 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
     clippedContent: ClipboardContent,
     options?: ClipboardOptions
   ) {
-    if (!clippedContent?.cellPositions) {
+    if (!clippedContent?.dvRules) {
       return;
     }
     if (options?.pasteOption) {
@@ -55,7 +66,7 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
     const sheetId = target.sheetId;
 
     if (!options?.isCutOperation) {
-      this.pasteFromCopy(sheetId, zones, clippedContent.cellPositions);
+      this.pasteFromCopy(sheetId, zones, clippedContent.dvRules);
     } else {
       this.pasteFromCut(sheetId, zones, clippedContent);
     }
@@ -63,7 +74,7 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
 
   private pasteFromCut(sheetId: UID, target: Zone[], content: ClipboardContent) {
     const selection = target[0];
-    this.pasteZone(sheetId, selection.left, selection.top, content.cellPositions, {
+    this.pasteZone(sheetId, selection.left, selection.top, content.dvRules, {
       isCutOperation: true,
     });
   }
@@ -72,10 +83,10 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
     sheetId: UID,
     col: HeaderIndex,
     row: HeaderIndex,
-    positions: CellPosition[][],
+    dvRules: Maybe<ClipboardDataValidationRule>[][],
     clipboardOptions?: ClipboardOptions
   ) {
-    for (const [r, rowCells] of positions.entries()) {
+    for (const [r, rowCells] of dvRules.entries()) {
       for (const [c, origin] of rowCells.entries()) {
         const position = { col: col + c, row: row + r, sheetId };
         this.pasteDataValidation(origin, position, clipboardOptions?.isCutOperation);
@@ -84,40 +95,43 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
   }
 
   private pasteDataValidation(
-    origin: CellPosition,
+    origin: Maybe<ClipboardDataValidationRule>,
     target: CellPosition,
     isCutOperation?: boolean
   ) {
-    const rule = this.getters.getValidationRuleForCell(origin);
-    if (!rule) {
-      const targetRule = this.getters.getValidationRuleForCell(target);
-      if (targetRule) {
-        // Remove the data validation rule on the target cell
-        this.adaptDataValidationRule(target.sheetId, targetRule, [], [positionToZone(target)]);
+    if (origin) {
+      const zone = positionToZone(target);
+      const rule = origin.rule;
+      if (!rule) {
+        const targetRule = this.getters.getValidationRuleForCell(target);
+        if (targetRule) {
+          // Remove the data validation rule on the target cell
+          this.adaptDataValidationRule(target.sheetId, targetRule, [], [zone]);
+        }
+        return;
       }
-      return;
-    }
-    const zone = positionToZone(target);
-    for (const range of rule.ranges) {
-      if (isInside(origin.col, origin.row, range.zone)) {
-        const toRemoveZone: Zone[] = [];
-        if (isCutOperation) {
-          toRemoveZone.push(positionToZone(origin));
+      const toRemoveZone: Zone[] = [];
+      if (isCutOperation) {
+        toRemoveZone.push(positionToZone(origin.position));
+      }
+      if (origin.position.sheetId === target.sheetId) {
+        const copyToRule = this.getDataValidationRuleToCopyTo(target.sheetId, rule, false);
+        this.adaptDataValidationRule(origin.position.sheetId, copyToRule, [zone], toRemoveZone);
+      } else {
+        const originRule = this.getters.getValidationRuleForCell(origin.position);
+        if (originRule) {
+          this.adaptDataValidationRule(origin.position.sheetId, originRule, [], toRemoveZone);
         }
-        if (origin.sheetId === target.sheetId) {
-          this.adaptDataValidationRule(origin.sheetId, rule, [zone], toRemoveZone);
-        } else {
-          this.adaptDataValidationRule(origin.sheetId, rule, [], toRemoveZone);
-          const copyToRule = this.getDataValidationRuleToCopyTo(target.sheetId, rule);
-          this.adaptDataValidationRule(target.sheetId, copyToRule, [zone], []);
-        }
+        const copyToRule = this.getDataValidationRuleToCopyTo(target.sheetId, rule);
+        this.adaptDataValidationRule(target.sheetId, copyToRule, [zone], []);
       }
     }
   }
 
   private getDataValidationRuleToCopyTo(
     targetSheetId: UID,
-    originRule: DataValidationRule
+    originRule: DataValidationRule,
+    newId = true
   ): DataValidationRule {
     const ruleInTargetSheet = this.getters
       .getDataValidationRules(targetSheetId)
@@ -129,7 +143,7 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
 
     return ruleInTargetSheet
       ? ruleInTargetSheet
-      : { ...originRule, id: this.uuidGenerator.uuidv4(), ranges: [] };
+      : { ...originRule, id: newId ? this.uuidGenerator.uuidv4() : originRule.id, ranges: [] };
   }
 
   /**

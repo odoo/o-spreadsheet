@@ -42,6 +42,7 @@ import {
   setStyle,
   setViewportOffset,
   setZoneBorders,
+  unMerge,
   undo,
   updateLocale,
 } from "../test_helpers/commands_helpers";
@@ -425,6 +426,82 @@ describe("clipboard", () => {
     copy(model, "A1");
     paste(model, "B1:B2");
     expect(getCellContent(model, "B1")).toEqual("thingies");
+  });
+
+  test("copy zones with multiple compatible merges => paste => it should paste with all merges", () => {
+    const model = new Model({
+      sheets: [{ id: "s1", merges: ["A1:A3", "C1:C3"] }],
+    });
+    copy(model, "A1:C3");
+    paste(model, "E1");
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.getMerges(sheetId).map(zoneToXc)).toEqual([
+      "A1:A3",
+      "C1:C3",
+      "E1:E3",
+      "G1:G3",
+    ]);
+  });
+
+  test("copy zones with multiple compatible merges with CTRL+CLICK => paste => it should paste with all merges", () => {
+    const model = new Model({
+      sheets: [{ id: "s1", merges: ["A1:A3", "C1:C3"] }],
+    });
+    copy(model, "A1", "C1");
+    paste(model, "E1");
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.getMerges(sheetId).map(zoneToXc)).toEqual([
+      "A1:A3",
+      "C1:C3",
+      "E1:E3",
+      "F1:F3",
+    ]);
+  });
+
+  test("copy zones with one merge => unmerge origin cell => paste => it should paste with original merge", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+
+    merge(model, "A1:C3");
+    copy(model, "A1");
+
+    unMerge(model, "A1:C3");
+    paste(model, "E1");
+
+    expect(model.getters.getMerges(sheetId).map(zoneToXc)).toEqual(["E1:G3"]);
+  });
+
+  test("copy zones with multiple compatible merges => unmerge origin zones => paste => it should paste with all merges", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+
+    merge(model, "A1:A3");
+    merge(model, "C1:C3");
+    copy(model, "A1:C3");
+
+    unMerge(model, "A1:A3");
+    unMerge(model, "C1:C3");
+    paste(model, "E1");
+
+    expect(model.getters.getMerges(sheetId).map(zoneToXc)).toEqual(["E1:E3", "G1:G3"]);
+  });
+
+  test("copy zones with multiple compatible merges => delete origin sheet => paste => it should paste with all merges", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+
+    merge(model, "A1:A3");
+    merge(model, "C1:C3");
+    copy(model, "A1:C3");
+
+    const newSheetId = "Sheet2";
+    createSheet(model, { sheetId: newSheetId });
+    activateSheet(model, newSheetId);
+    deleteSheet(model, sheetId);
+
+    paste(model, "E1");
+
+    expect(model.getters.getMerges(newSheetId).map(zoneToXc)).toEqual(["E1:E3", "G1:G3"]);
   });
 
   test("cutting a cell with style remove the cell", () => {
@@ -1557,6 +1634,84 @@ describe("clipboard", () => {
     expect(getStyle(model, "C2")).toEqual({});
   });
 
+  test("copy cells with CF => remove origin CF => paste => it should paste with original CF", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    const cf = createEqualCF("1", { fillColor: "#00FF00" }, "cfId");
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf,
+      sheetId,
+      ranges: toRangesData(sheetId, "A1:A3"),
+    });
+    copy(model, "A1:A3");
+    model.dispatch("REMOVE_CONDITIONAL_FORMAT", {
+      id: "cfId",
+      sheetId,
+    });
+    paste(model, "D1");
+    expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toMatchObject([
+      { ranges: ["D1:D3"], rule: cf.rule },
+    ]);
+  });
+
+  test("copy cells with multiple independent CF => remove all copied CF => paste => it should paste with all original CF in the correct positions", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    const cf1 = createEqualCF("1", { fillColor: "#00FF00" }, "cf1");
+    const cf2 = createEqualCF("1", { fillColor: "#0000FF" }, "cf2");
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: cf1,
+      sheetId,
+      ranges: toRangesData(sheetId, "A1:A3"),
+    });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: cf2,
+      sheetId,
+      ranges: toRangesData(sheetId, "C1:C3"),
+    });
+    copy(model, "A1:C3");
+    model.dispatch("REMOVE_CONDITIONAL_FORMAT", {
+      id: "cf1",
+      sheetId,
+    });
+    model.dispatch("REMOVE_CONDITIONAL_FORMAT", {
+      id: "cf2",
+      sheetId,
+    });
+    paste(model, "E1");
+    expect(model.getters.getConditionalFormats(sheetId)).toMatchObject([
+      { ranges: ["E1:E3"], rule: cf1.rule },
+      { ranges: ["G1:G3"], rule: cf2.rule },
+    ]);
+  });
+
+  test("copy cells with multiple independent CF => remove origin sheet => paste => it should paste with all original CF in the correct positions", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    const cf1 = createEqualCF("1", { fillColor: "#00FF00" }, "cf1");
+    const cf2 = createEqualCF("1", { fillColor: "#0000FF" }, "cf2");
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: cf1,
+      sheetId,
+      ranges: toRangesData(sheetId, "A1:A3"),
+    });
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: cf2,
+      sheetId,
+      ranges: toRangesData(sheetId, "C1:C3"),
+    });
+    copy(model, "A1:C3");
+    const newSheetId = "Sheet2";
+    createSheet(model, { sheetId: newSheetId });
+    activateSheet(model, newSheetId);
+    deleteSheet(model, sheetId);
+    paste(model, "E1");
+    expect(model.getters.getConditionalFormats(newSheetId)).toMatchObject([
+      { ranges: ["E1:E3"], rule: cf1.rule },
+      { ranges: ["G1:G3"], rule: cf2.rule },
+    ]);
+  });
+
   test("can copy and paste a conditional formatted zone", () => {
     const model = new Model({ sheets: [{ colNumber: 5, rowNumber: 5 }] });
     setCellContent(model, "A1", "1");
@@ -1665,7 +1820,7 @@ describe("clipboard", () => {
     expect(model.getters.getConditionalFormats("sheet1")).toEqual([]);
   });
 
-  test("copy paste CF in another sheet => change CF => copy paste again doesn't overwrite the previously pasted CF", () => {
+  test("copy paste CF in another sheet => change CF => copy paste again does not overwrite the previously pasted CF", () => {
     const model = new Model();
     createSheet(model, {});
     const sheet1Id = model.getters.getSheetIds()[0];
