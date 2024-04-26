@@ -6,7 +6,9 @@ import {
   copy,
   createSheet,
   cut,
+  deleteSheet,
   paste,
+  removeDataValidation,
 } from "../test_helpers/commands_helpers";
 import { getDataValidationRules } from "../test_helpers/helpers";
 
@@ -145,6 +147,58 @@ describe("Data validation", () => {
 
     expect(getDataValidationRules(model, sheetId)).toMatchObject([
       { id: expect.any(String), criterion, ranges: ["A2:A5"] },
+    ]);
+  });
+
+  test("copy cells with DV => delete original DV => paste => should paste cells with copied DV", () => {
+    const criterion: DataValidationCriterion = { type: "textContains", values: ["1"] };
+    addDataValidation(model, "A1:A5", "id", criterion);
+    copy(model, "A1:A5");
+
+    removeDataValidation(model, "id");
+
+    paste(model, "C1");
+
+    expect(getDataValidationRules(model, sheetId)).toMatchObject([
+      { id: "id", criterion, ranges: ["C1:C5"] },
+    ]);
+  });
+
+  test("copy zone with independant multiple DV => delete original DV => paste => should paste cells with copied DV", () => {
+    const criterion1: DataValidationCriterion = { type: "textContains", values: ["1"] };
+    const criterion2: DataValidationCriterion = { type: "textContains", values: ["2"] };
+    addDataValidation(model, "A1:A5", "id1", criterion1);
+    addDataValidation(model, "C1:C5", "id2", criterion2);
+
+    copy(model, "A1:C5");
+
+    removeDataValidation(model, "id1");
+    removeDataValidation(model, "id2");
+
+    paste(model, "E1");
+
+    expect(getDataValidationRules(model, sheetId)).toMatchObject([
+      { id: "id1", criterion: criterion1, ranges: ["E1:E5"] },
+      { id: "id2", criterion: criterion2, ranges: ["G1:G5"] },
+    ]);
+  });
+
+  test("copy zone with independant multiple DV => delete origin sheet => paste => should paste cells with copied DV", () => {
+    const criterion1: DataValidationCriterion = { type: "textContains", values: ["1"] };
+    const criterion2: DataValidationCriterion = { type: "textContains", values: ["2"] };
+    addDataValidation(model, "A1:A5", "id1", criterion1);
+    addDataValidation(model, "C1:C5", "id2", criterion2);
+
+    copy(model, "A1:C5");
+
+    createSheet(model, { sheetId: "Sheet2" });
+    deleteSheet(model, sheetId);
+
+    paste(model, "E1");
+
+    expect(getDataValidationRules(model, "Sheet2")).toMatchObject([
+      { criterion: criterion1, ranges: ["E1:E5"] },
+      { criterion: criterion2, ranges: ["G1:G5"] },
     ]);
   });
 });
