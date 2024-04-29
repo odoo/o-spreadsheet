@@ -212,7 +212,7 @@ function columnsTreeToColumns(
 /**
  * Group the dataEntries based on the given dimension
  */
-function groupBy(dataEntries: DataEntries, dimension: PivotDimension, locale: Locale) {
+export function groupBy(dataEntries: DataEntries, dimension: PivotDimension, locale: Locale) {
   const groups = Object.groupBy(dataEntries, keySelector(dimension, locale));
   return groups;
 }

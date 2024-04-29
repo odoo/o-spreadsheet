@@ -81,9 +81,9 @@ export function makePivotDataset(rowsNumber = 1000) {
         colNumber: 256,
         rowNumber: rowsNumber + 1,
         cells: {
-          A1: {
-            content: `=PIVOT("1")`,
-          },
+          //   A1: {
+          //     content: `=PIVOT("1")`,
+          //   },
         },
       },
       {
@@ -110,7 +110,7 @@ export function makePivotDataset(rowsNumber = 1000) {
         rows: [
           {
             name: "Created on",
-            granularity: "year_number",
+            granularity: "day",
           },
         ],
         measures: [

@@ -26,6 +26,7 @@ import { toXC } from "../../coordinates";
 import { MONTHS, isDateTimeFormat } from "../../format";
 import { AGGREGATORS_FN, MEASURES_TYPES, toDomainArgs } from "../pivot_helpers";
 import { PivotParams } from "../pivot_registry";
+import { SpreadsheetPivotCalculator } from "./spreadsheet_pivot_calculator";
 import {
   DataEntries,
   DataEntry,
@@ -77,6 +78,8 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
    */
   isDirtyForEvaluation: boolean = true;
 
+  private calculator: SpreadsheetPivotCalculator | undefined;
+
   constructor(custom: ModelConfig["custom"], params: SpreadsheetPivotParams) {
     this.getters = params.getters;
     this.coreDefinition = params.definition;
@@ -110,6 +113,11 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
       const range = this._definition.range;
       if (this.isValid() && range) {
         this.dataEntries = this.extractDataEntriesFromRange(range);
+        this.calculator = new SpreadsheetPivotCalculator(
+          this.dataEntries,
+          this._definition.columns.concat(this._definition.rows),
+          this.getters.getLocale()
+        );
       }
       this.isDirtyForEvaluation = false;
     }
@@ -217,13 +225,25 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
 
   getPivotCellValueAndFormat(measure: string, domainStr: StringDomainArgs): FPayload {
     const domain = toDomainArgs(domainStr);
-    const dataEntries = this.filterDataEntriesFromDomain(this.dataEntries, domain);
-    if (dataEntries.length === 0) {
+    // const dataEntries = this.filterDataEntriesFromDomain(this.dataEntries, domain);
+    // if (dataEntries.length === 0) {
+    //   return { value: "" };
+    // }
+    // const values1 = dataEntries
+    //   .map((value) => value[measure])
+    //   .filter((cell) => cell && cell.type !== CellValueType.empty);
+
+    const values2 = this.calculator?.getDataEntries(domain) || [];
+    const values3 = values2.map((value) => this.dataEntries[value][measure]);
+
+    // if (!deepEquals(values1, values3)) {
+    //   throw new Error("Boom");
+    // }
+
+    const values = values3;
+    if (values.length === 0) {
       return { value: "" };
     }
-    const values = dataEntries
-      .map((value) => value[measure])
-      .filter((cell) => cell && cell.type !== CellValueType.empty);
     const aggregator = this.getMeasure(measure).aggregator || "count";
     const operator = AGGREGATORS_FN[aggregator];
     if (!operator) {
@@ -386,6 +406,10 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
         entry[field.name] = cell;
       }
       entry["__count"] = { value: 1, type: CellValueType.number };
+      entry["__source_row_index__"] = {
+        value: row - range.zone.top - 1,
+        type: CellValueType.number,
+      };
       dataEntries.push(entry);
     }
     const dateDimensions = this.definition.columns
