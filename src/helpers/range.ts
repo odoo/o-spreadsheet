@@ -178,7 +178,8 @@ export class RangeImpl implements Range {
           : this.parts.map((part) => {
               return { rowFixed: part.rowFixed, colFixed: part.colFixed };
             }),
-        prefixSheet: rangeParams?.prefixSheet ? rangeParams.prefixSheet : this.prefixSheet,
+        prefixSheet:
+          rangeParams?.prefixSheet !== undefined ? rangeParams.prefixSheet : this.prefixSheet,
       },
       this.getSheetSize
     );

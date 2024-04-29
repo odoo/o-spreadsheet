@@ -223,6 +223,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.coreGetters.isRangeValid = this.range.isRangeValid.bind(this.range);
     this.coreGetters.extendRange = this.range.extendRange.bind(this.range);
     this.coreGetters.getRangesUnion = this.range.getRangesUnion.bind(this.range);
+    this.coreGetters.removeRangesSheetPrefix = this.range.removeRangesSheetPrefix.bind(this.range);
 
     this.getters = {
       isReadonly: () => this.config.mode === "readonly" || this.config.mode === "dashboard",

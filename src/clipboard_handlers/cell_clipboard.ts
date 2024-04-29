@@ -238,15 +238,17 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
       return;
     }
 
-    const content =
-      origin.cell && origin.cell.isFormula && !clipboardOption?.isCutOperation
-        ? this.getters.getTranslatedCellFormula(
-            sheetId,
-            col - origin.position.col,
-            row - origin.position.row,
-            origin.cell.compiledFormula
-          )
-        : origin.cell?.content;
+    let content = origin.cell?.content;
+    if (origin.cell?.isFormula && !clipboardOption?.isCutOperation) {
+      content = this.getters.getTranslatedCellFormula(
+        sheetId,
+        col - origin.position.col,
+        row - origin.position.row,
+        origin.cell.compiledFormula
+      );
+    } else if (origin.cell?.isFormula) {
+      content = this.getters.getFormulaMovedInSheet(sheetId, origin.cell.compiledFormula);
+    }
     if (content !== "" || origin.cell?.format || origin.cell?.style) {
       this.dispatch("UPDATE_CELL", {
         ...target,

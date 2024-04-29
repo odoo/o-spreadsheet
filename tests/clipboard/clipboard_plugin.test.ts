@@ -1371,6 +1371,19 @@ describe("clipboard", () => {
     expect(getCellText(model, "B2")).toBe("=SUM(C1:C2)");
   });
 
+  test("cut/paste a formula with references in another sheet updates the sheet references in the formula", () => {
+    const model = new Model();
+    createSheet(model, { sheetId: "sh2", name: "Sheet2" });
+    setCellContent(model, "A1", "=SUM(C1:C2)");
+    setCellContent(model, "B1", "=Sheet2!A1 + A2");
+    cut(model, "A1:B1");
+
+    activateSheet(model, "sh2");
+    paste(model, "A1");
+    expect(getCellText(model, "A1")).toBe("=SUM(Sheet1!C1:C2)");
+    expect(getCellText(model, "B1")).toBe("=A1 + Sheet1!A2");
+  });
+
   test("copy/paste a zone present in formulas references does not update references", () => {
     const model = new Model();
     setCellContent(model, "A1", "=B2");
