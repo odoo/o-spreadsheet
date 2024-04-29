@@ -1,4 +1,4 @@
-import { toJsDate } from "../../../functions/helpers";
+import { toJsDate, toNumber } from "../../../functions/helpers";
 import { Locale } from "../../../types";
 import { PivotDimension } from "../../../types/pivot";
 import { FieldValue } from "./spreadsheet_pivot_data_entry";
@@ -20,7 +20,7 @@ export function createDate(dimension: PivotDimension, value: FieldValue["value"]
         number = date.getDate();
         break;
       case "day":
-        number = value;
+        number = Math.floor(toNumber(value, locale));
         break;
     }
     MAP_VALUE_DIMENSION_DATE[granularity].values[`${value}`] = number;

@@ -205,7 +205,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
       }
       if (dimension.granularity === "month_number") {
         return {
-          value: MONTHS[parseInt(`${finalCell.value}`, 10)].toString(),
+          value: MONTHS[toNumber(finalCell.value, this.getters.getLocale())].toString(),
         };
       }
     }
