@@ -6,7 +6,6 @@
     "moduleResolution": "node",
     "removeComments": false,
     "target": "ESNext",
-    "outDir": "build/js",
     "alwaysStrict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": false,
@@ -20,7 +19,6 @@
     "sourceMap": true,
     "strictBindCallApply": true
   },
-  "include": ["src"],
   "typedocOptions": {
     "entryPoints": ["src/index.ts"],
     "out": "doc/tsdoc",

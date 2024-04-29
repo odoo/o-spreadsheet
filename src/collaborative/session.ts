@@ -50,6 +50,8 @@ export class Session extends EventBus<CollaborativeEvent> {
 
   private uuidGenerator = new UuidGenerator();
   private lastLocalOperation: Revision | undefined;
+  private worker: Worker;
+
   /**
    * Manages the collaboration between multiple users on the same spreadsheet.
    * It can forward local state changes to other users to ensure they all eventually
@@ -60,7 +62,6 @@ export class Session extends EventBus<CollaborativeEvent> {
    * @param revisions
    * @param transportService communication channel used to send and receive messages
    * between all connected clients
-   * @param client the client connected locally
    * @param serverRevisionId
    */
   constructor(
@@ -71,6 +72,10 @@ export class Session extends EventBus<CollaborativeEvent> {
     super();
 
     this.debouncedMove = debounce(this._move.bind(this), DEBOUNCE_TIME) as Session["move"];
+    this.worker = new Worker("../build/o_spreadsheet_worker.js");
+    this.worker.onmessage = (e) => {
+      console.log("message from worker", e.data);
+    };
   }
 
   canApplyOptimisticUpdate() {
@@ -299,6 +304,14 @@ export class Session extends EventBus<CollaborativeEvent> {
             .flat();
           this.trigger("remote-revision-received", {
             commands: transformAll(commands, pendingCommands),
+          });
+          this.worker.postMessage({
+            nextRevisionId: message.nextRevisionId,
+            clientId,
+            commands,
+            rootCommand: undefined,
+            changes: undefined,
+            timestamp,
           });
         }
         break;
