@@ -52,6 +52,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     "getRangesUnion",
     "recomputeRanges",
     "isRangeValid",
+    "removeRangesSheetPrefix",
   ] as const;
 
   // ---------------------------------------------------------------------------
@@ -289,6 +290,19 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
             ((range.parts[1] || range.parts[0]).rowFixed ? 0 : offsetY),
       };
       return range.clone({ sheetId: copySheetId, zone: unboundZone }).orderZone();
+    });
+  }
+
+  /**
+   * Remove the sheet name prefix if a range is part of the given sheet.
+   */
+  removeRangesSheetPrefix(sheetId: UID, ranges: Range[]): Range[] {
+    return ranges.map((range) => {
+      const rangeImpl = RangeImpl.fromRange(range, this.getters);
+      if (rangeImpl.prefixSheet && rangeImpl.sheetId === sheetId) {
+        return rangeImpl.clone({ prefixSheet: false });
+      }
+      return rangeImpl;
     });
   }
 

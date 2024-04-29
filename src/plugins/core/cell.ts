@@ -62,6 +62,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     "getTranslatedCellFormula",
     "getCellStyle",
     "getCellById",
+    "getFormulaMovedInSheet",
   ] as const;
   readonly nextId = 1;
   public readonly cells: { [sheetId: string]: { [id: string]: Cell } } = {};
@@ -371,6 +372,12 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       sheetId
     );
     return this.getFormulaCellContent(sheetId, compiledFormula, adaptedDependencies);
+  }
+
+  getFormulaMovedInSheet(targetSheetId: UID, compiledFormula: RangeCompiledFormula) {
+    const dependencies = compiledFormula.dependencies;
+    const adaptedDependencies = this.getters.removeRangesSheetPrefix(targetSheetId, dependencies);
+    return this.getFormulaCellContent(targetSheetId, compiledFormula, adaptedDependencies);
   }
 
   getCellStyle(position: CellPosition): Style {
