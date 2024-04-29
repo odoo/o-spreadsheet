@@ -20,7 +20,7 @@ import {
   Zone,
 } from "../../../types/index";
 import { FormulaCellWithDependencies } from "../../core";
-import { UIPlugin, UIPluginConfig } from "../../ui_plugin";
+import { CorePluginConfig, CoreUiPlugin } from "../../core_plugin";
 import { CoreViewCommand, invalidateEvaluationCommands } from "./../../../types/commands";
 import { Evaluator } from "./evaluator";
 
@@ -139,7 +139,7 @@ import { Evaluator } from "./evaluator";
 // of other cells depending on it, at the next iteration.
 
 //#endregion
-export class EvaluationPlugin extends UIPlugin {
+export class EvaluationPlugin extends CoreUiPlugin {
   static getters = [
     "evaluateFormula",
     "getCorrespondingFormulaCell",
@@ -159,7 +159,7 @@ export class EvaluationPlugin extends UIPlugin {
   private evaluator: Evaluator;
   private positionsToUpdate: CellPosition[] = [];
 
-  constructor(config: UIPluginConfig) {
+  constructor(config: CorePluginConfig) {
     super(config);
     this.evaluator = new Evaluator(config.custom, this.getters);
   }

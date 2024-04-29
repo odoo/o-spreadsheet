@@ -4,7 +4,7 @@ import { SelectionStreamProcessor } from "../selection_stream/selection_stream_p
 import { StateObserver } from "../state_observer";
 import {
   ClientPosition,
-  Color,
+  // Color,
   Command,
   CommandDispatcher,
   Format,
@@ -27,7 +27,7 @@ export interface UIPluginConfig {
   readonly custom: ModelConfig["custom"];
   readonly session: Session;
   readonly defaultCurrencyFormat?: Format;
-  readonly customColors: Color[];
+  // readonly customColors: Color[];
 }
 
 export interface UIPluginConstructor {
