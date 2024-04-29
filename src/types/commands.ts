@@ -182,6 +182,7 @@ export const coreTypes = new Set<CoreCommandTypes>([
   /** MERGE */
   "ADD_MERGE",
   "REMOVE_MERGE",
+  "CLEAR_MERGES",
 
   /** SHEETS MANIPULATION */
   "CREATE_SHEET",
@@ -367,6 +368,13 @@ export interface AddMergeCommand extends TargetDependentCommand {
 
 export interface RemoveMergeCommand extends TargetDependentCommand {
   type: "REMOVE_MERGE";
+}
+
+/** CLEAR_MERGES remove all the merges intersecting a zone in target, unlike REMOVE_MERGE
+ * that removes the merges exactly matching a zone in target.
+ */
+export interface ClearMergesCommand extends TargetDependentCommand {
+  type: "CLEAR_MERGES";
 }
 
 //------------------------------------------------------------------------------
@@ -968,6 +976,7 @@ export type CoreCommand =
   /** MERGE */
   | AddMergeCommand
   | RemoveMergeCommand
+  | ClearMergesCommand
 
   /** SHEETS MANIPULATION */
   | CreateSheetCommand

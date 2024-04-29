@@ -123,8 +123,7 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
       case "CREATE_TABLE": {
         const ranges = cmd.ranges.map((rangeData) => this.getters.getRangeFromRangeData(rangeData));
         const union = this.getters.getRangesUnion(ranges);
-        const mergesInTarget = this.getters.getMergesInZone(cmd.sheetId, union.zone);
-        this.dispatch("REMOVE_MERGE", { sheetId: cmd.sheetId, target: mergesInTarget });
+        this.dispatch("CLEAR_MERGES", { sheetId: cmd.sheetId, target: [union.zone] });
 
         const id = this.uuidGenerator.uuidv4();
         const config = cmd.config || DEFAULT_TABLE_CONFIG;
@@ -343,8 +342,7 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
       ? this.getters.getRangeFromRangeData(cmd.newTableRange)
       : undefined;
     if (newTableRange) {
-      const mergesInTarget = this.getters.getMergesInZone(cmd.sheetId, newTableRange.zone);
-      this.dispatch("REMOVE_MERGE", { sheetId: cmd.sheetId, target: mergesInTarget });
+      this.dispatch("CLEAR_MERGES", { sheetId: cmd.sheetId, target: [newTableRange.zone] });
     }
 
     const range = newTableRange || table.range;

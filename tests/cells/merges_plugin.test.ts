@@ -499,6 +499,19 @@ describe("merges", () => {
     expect(getMerges(model)).toEqual({});
   });
 
+  test("Can clear a zone of all merges", () => {
+    const model = new Model();
+    merge(model, "A1:A2");
+    merge(model, "B1:B5");
+    merge(model, "C1:D1");
+
+    model.dispatch("CLEAR_MERGES", {
+      sheetId: model.getters.getActiveSheetId(),
+      target: [toZone("A1:C2")],
+    });
+    expect(getMerges(model)).toEqual({});
+  });
+
   test("can undo and redo a merge", () => {
     const model = new Model();
 

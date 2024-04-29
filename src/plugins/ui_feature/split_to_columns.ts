@@ -133,8 +133,7 @@ export class SplitToColumnsPlugin extends UIPlugin {
     const sheetId = this.getters.getActiveSheetId();
     const colsInSplitZone = Math.max(...splittedCols.map((s) => s.length));
     const splitZone = { ...selection, right: selection.left + colsInSplitZone - 1 };
-    const merges = this.getters.getMergesInZone(sheetId, splitZone);
-    this.dispatch("REMOVE_MERGE", { sheetId, target: merges });
+    this.dispatch("CLEAR_MERGES", { sheetId, target: [splitZone] });
   }
 
   private addColsToAvoidCollisions(selection: Zone, splittedCols: string[][]) {

@@ -106,6 +106,11 @@ export const TEST_COMMANDS: CommandMapping = {
     target: target("A1:A2"),
     sheetId: "sheetId",
   },
+  CLEAR_MERGES: {
+    type: "CLEAR_MERGES",
+    target: target("A1:A2"),
+    sheetId: "sheetId",
+  },
   SET_FORMATTING: {
     type: "SET_FORMATTING",
     target: target("A1"),
@@ -444,6 +449,7 @@ export const OT_TESTS_TARGET_DEPENDANT_COMMANDS = [
   TEST_COMMANDS.SET_FORMATTING,
   TEST_COMMANDS.CLEAR_FORMATTING,
   TEST_COMMANDS.REMOVE_TABLE,
+  TEST_COMMANDS.CLEAR_MERGES,
 ];
 
 export const OT_TESTS_ZONE_DEPENDANT_COMMANDS = [

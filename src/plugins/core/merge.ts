@@ -117,6 +117,14 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
           this.removeMerge(cmd.sheetId, zone);
         }
         break;
+      case "CLEAR_MERGES": {
+        for (const zone of cmd.target) {
+          const mergesInTarget = this.getMergesInZone(cmd.sheetId, zone);
+          for (const merge of mergesInTarget) {
+            this.removeMerge(cmd.sheetId, merge);
+          }
+        }
+      }
     }
   }
 
