@@ -130,8 +130,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   private statefulUIPlugins: UIPlugin[] = [];
 
-  private coreViewsPlugins: UIPlugin[] = [];
-
   private range: RangeAdapter;
 
   private session: Session;
@@ -250,8 +248,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.session.loadInitialMessages(stateUpdateMessages);
 
     for (let Plugin of coreViewsPluginRegistry.getAll()) {
-      const plugin = this.setupUiPlugin(Plugin);
-      this.coreViewsPlugins.push(plugin);
+      const plugin = this.setupCoreUiPlugin(Plugin);
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
       this.coreHandlers.push(plugin);
@@ -321,6 +318,20 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         this.renderers[layer] = [];
       }
       this.renderers[layer]!.push(plugin);
+    }
+    return plugin;
+  }
+
+  private setupCoreUiPlugin(Plugin: CorePluginConstructor) {
+    const plugin = new Plugin({ ...this.corePluginConfig, getters: this.getters });
+    for (let name of Plugin.getters) {
+      if (!(name in plugin)) {
+        throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
+      }
+      if (name in this.getters) {
+        throw new Error(`Getter "${name}" is already defined.`);
+      }
+      this.getters[name] = plugin[name].bind(plugin);
     }
     return plugin;
   }
@@ -436,6 +447,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       uuidGenerator: this.uuidGenerator,
       custom: this.config.custom,
       external: this.config.external,
+      customColors: this.config.customColors || [],
     };
   }
 
@@ -451,7 +463,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       uiActions: this.config,
       session: this.session,
       defaultCurrencyFormat: this.config.defaultCurrencyFormat,
-      customColors: this.config.customColors || [],
     };
   }
 
@@ -588,13 +599,13 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private dispatchToHandlers(handlers: CommandHandler<Command>[], command: Command) {
     const isCommandCore = isCoreCommand(command);
     for (const handler of handlers) {
-      if (!isCommandCore && handler instanceof CorePlugin) {
+      if (!isCommandCore && this.corePlugins.includes(handler as any)) {
         continue;
       }
       handler.beforeHandle(command);
     }
     for (const handler of handlers) {
-      if (!isCommandCore && handler instanceof CorePlugin) {
+      if (!isCommandCore && this.corePlugins.includes(handler as any)) {
         continue;
       }
       handler.handle(command);
@@ -638,10 +649,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    */
   exportData(): WorkbookData {
     let data = createEmptyWorkbookData();
-    for (let handler of this.handlers) {
-      if (handler instanceof CorePlugin) {
-        handler.export(data);
-      }
+    for (let corePlugin of this.corePlugins) {
+      corePlugin.export(data);
     }
     data.revisionId = this.session.getRevisionId() || DEFAULT_REVISION_ID;
     data = deepCopy(data);

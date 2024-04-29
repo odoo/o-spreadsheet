@@ -17,7 +17,7 @@ import {
   invalidateEvaluationCommands,
 } from "../../types";
 import { Pivot } from "../../types/pivot_runtime";
-import { UIPlugin, UIPluginConfig } from "../ui_plugin";
+import { CorePluginConfig, CoreUiPlugin } from "../core_plugin";
 
 export const UNDO_REDO_PIVOT_COMMANDS = ["ADD_PIVOT", "UPDATE_PIVOT"];
 
@@ -25,7 +25,7 @@ function isPivotCommand(cmd: CoreCommand): cmd is AddPivotCommand | UpdatePivotC
   return UNDO_REDO_PIVOT_COMMANDS.includes(cmd.type);
 }
 
-export class PivotUIPlugin extends UIPlugin {
+export class PivotUIPlugin extends CoreUiPlugin {
   static getters = [
     "getPivot",
     "getFirstPivotFunction",
@@ -37,9 +37,9 @@ export class PivotUIPlugin extends UIPlugin {
 
   private pivots: Record<UID, Pivot> = {};
   private unusedPivots?: UID[];
-  private custom: UIPluginConfig["custom"];
+  private custom: CorePluginConfig["custom"];
 
-  constructor(config: UIPluginConfig) {
+  constructor(config: CorePluginConfig) {
     super(config);
     this.custom = config.custom;
   }

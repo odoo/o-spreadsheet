@@ -105,7 +105,7 @@ export const statefulUIPluginRegistry = new Registry<UIPluginConstructor>()
   .add("clipboard", ClipboardPlugin);
 
 // Plugins which have a derived state from core data
-export const coreViewsPluginRegistry = new Registry<UIPluginConstructor>()
+export const coreViewsPluginRegistry = new Registry<CorePluginConstructor>()
   .add("evaluation", EvaluationPlugin)
   .add("evaluation_chart", EvaluationChartPlugin)
   .add("evaluation_cf", EvaluationConditionalFormatPlugin)
