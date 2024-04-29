@@ -156,6 +156,8 @@ export class GridSelectionPlugin extends UIPlugin {
     }
     switch (cmd.type) {
       case "START":
+        console.log((this as any).constructor.name);
+
         const firstSheetId = this.getters.getVisibleSheetIds()[0];
         this.activateSheet(firstSheetId, firstSheetId);
         const { col, row } = this.getters.getNextVisibleCellPosition({

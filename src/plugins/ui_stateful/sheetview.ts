@@ -178,6 +178,8 @@ export class SheetViewPlugin extends UIPlugin {
 
     switch (cmd.type) {
       case "START":
+        console.log((this as any).constructor.name);
+
         this.selection.observe(this, {
           handleEvent: this.handleEvent.bind(this),
         });

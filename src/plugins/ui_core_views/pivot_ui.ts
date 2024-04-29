@@ -45,6 +45,8 @@ export class PivotUIPlugin extends CoreUiPlugin {
   beforeHandle(cmd: Command) {
     switch (cmd.type) {
       case "START":
+        console.log((this as any).constructor.name);
+
         for (const pivotId of this.getters.getPivotIds()) {
           this.setupPivot(pivotId);
         }

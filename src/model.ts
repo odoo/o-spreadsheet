@@ -1,36 +1,28 @@
 import { markRaw } from "@odoo/owl";
+import { CoreModel } from "./CoreModel";
 import { LocalTransportService } from "./collaborative/local_transport_service";
 import { Session } from "./collaborative/session";
-import { DEFAULT_REVISION_ID } from "./constants";
+import { DEFAULT_REVISION_ID, Status } from "./constants";
 import { EventBus } from "./helpers/event_bus";
-import { deepCopy, UuidGenerator } from "./helpers/index";
+import { UuidGenerator, deepCopy } from "./helpers/index";
 import { buildRevisionLog } from "./history/factory";
 import {
   createEmptyExcelWorkbookData,
-  createEmptyWorkbookData,
   load,
-  repairInitialMessages,
+  repairInitialMessages
 } from "./migrations/data";
 import { BasePlugin } from "./plugins/base_plugin";
-import { RangeAdapter } from "./plugins/core/range";
-import { CorePlugin, CorePluginConfig, CorePluginConstructor } from "./plugins/core_plugin";
-import {
-  corePluginRegistry,
-  coreViewsPluginRegistry,
-  featurePluginRegistry,
-  statefulUIPluginRegistry,
-} from "./plugins/index";
+import { featurePluginRegistry, statefulUIPluginRegistry } from "./plugins/index";
 import { UIPlugin, UIPluginConfig, UIPluginConstructor } from "./plugins/ui_plugin";
 import {
   SelectionStreamProcessor,
-  SelectionStreamProcessorImpl,
+  SelectionStreamProcessorImpl
 } from "./selection_stream/selection_stream_processor";
 import { StateObserver } from "./state_observer";
 import { _t } from "./translation";
 import { StateUpdateMessage, TransportService } from "./types/collaborative/transport_service";
 import { FileStore } from "./types/files";
 import {
-  canExecuteInReadonly,
   Client,
   ClientPosition,
   Color,
@@ -40,7 +32,6 @@ import {
   CommandResult,
   CommandTypes,
   CoreCommand,
-  CoreGetters,
   Currency,
   DEFAULT_LOCALES,
   DispatchResult,
@@ -48,11 +39,12 @@ import {
   Getters,
   GridRenderingContext,
   InformationNotification,
-  isCoreCommand,
   LayerName,
   LocalCommand,
   Locale,
   UID,
+  canExecuteInReadonly,
+  isCoreCommand
 } from "./types/index";
 import { WorkbookData } from "./types/workbook_data";
 import { XLSXExport } from "./types/xlsx";
@@ -86,7 +78,7 @@ import { getXLSX } from "./xlsx/xlsx_writer";
 export type Mode = "normal" | "readonly" | "dashboard";
 
 export interface ModelConfig {
-  readonly mode: Mode;
+  mode: Mode;
   /**
    * Any external custom dependencies your custom plugins or functions might need.
    * They are available in plugins config and functions
@@ -116,23 +108,14 @@ export interface ModelExternalConfig {
   readonly loadLocales?: () => Promise<Locale[]>;
 }
 
-const enum Status {
-  Ready,
-  Running,
-  RunningCore,
-  Finalizing,
-}
-
 export class Model extends EventBus<any> implements CommandDispatcher {
-  private corePlugins: CorePlugin[] = [];
+  private coreModel: CoreModel;
 
   private featurePlugins: UIPlugin[] = [];
 
   private statefulUIPlugins: UIPlugin[] = [];
 
-  private range: RangeAdapter;
-
-  private session: Session;
+  private readonly session: Session;
 
   /**
    * In a collaborative context, some commands can be replayed, we have to ensure
@@ -158,7 +141,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * The config object contains some configuration flag and callbacks
    */
   readonly config: ModelConfig;
-  private corePluginConfig: CorePluginConfig;
   private uiPluginConfig: UIPluginConfig;
 
   private state: StateObserver;
@@ -172,17 +154,10 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    */
   getters: Getters;
 
-  /**
-   * Getters that are accessible from the core plugins. It's a subset of `getters`,
-   * without the UI getters
-   */
-  private coreGetters: CoreGetters;
-
   uuidGenerator: UuidGenerator;
 
   private readonly handlers: CommandHandler<Command>[] = [];
   private readonly uiHandlers: CommandHandler<Command>[] = [];
-  private readonly coreHandlers: CommandHandler<CoreCommand>[] = [];
 
   constructor(
     data: any = {},
@@ -199,60 +174,43 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     const workbookData = load(data, verboseImport);
 
+    this.uuidGenerator = uuidGenerator;
+    this.config = this.setupConfig(config);
     this.state = new StateObserver();
 
-    this.uuidGenerator = uuidGenerator;
-
-    this.config = this.setupConfig(config);
+    this.coreModel = new CoreModel({
+      workbookData,
+      state: this.state,
+      dispatch: this.dispatchFromCorePlugin,
+      canDispatch: this.canDispatch,
+      uuidGenerator: this.uuidGenerator,
+      custom: this.config.custom,
+      external: this.config.external,
+      customColors: config.customColors
+    });
 
     this.session = this.setupSession(workbookData.revisionId);
 
-    this.coreGetters = {} as CoreGetters;
-
-    this.range = new RangeAdapter(this.coreGetters);
-    this.coreGetters.getRangeString = this.range.getRangeString.bind(this.range);
-    this.coreGetters.getRangeFromSheetXC = this.range.getRangeFromSheetXC.bind(this.range);
-    this.coreGetters.createAdaptedRanges = this.range.createAdaptedRanges.bind(this.range);
-    this.coreGetters.getRangeDataFromXc = this.range.getRangeDataFromXc.bind(this.range);
-    this.coreGetters.getRangeDataFromZone = this.range.getRangeDataFromZone.bind(this.range);
-    this.coreGetters.getRangeFromRangeData = this.range.getRangeFromRangeData.bind(this.range);
-    this.coreGetters.getRangeFromZone = this.range.getRangeFromZone.bind(this.range);
-    this.coreGetters.recomputeRanges = this.range.recomputeRanges.bind(this.range);
-    this.coreGetters.isRangeValid = this.range.isRangeValid.bind(this.range);
-    this.coreGetters.extendRange = this.range.extendRange.bind(this.range);
-    this.coreGetters.getRangesUnion = this.range.getRangesUnion.bind(this.range);
-    this.coreGetters.removeRangesSheetPrefix = this.range.removeRangesSheetPrefix.bind(this.range);
-
     this.getters = {
       isReadonly: () => this.config.mode === "readonly" || this.config.mode === "dashboard",
-      isDashboard: () => this.config.mode === "dashboard",
+      isDashboard: () => this.config.mode === "dashboard"
     } as Getters;
 
     this.uuidGenerator.setIsFastStrategy(true);
 
     // Initiate stream processor
     this.selection = new SelectionStreamProcessorImpl(this.getters);
-
-    this.coreHandlers.push(this.range);
-    this.handlers.push(this.range);
-
-    this.corePluginConfig = this.setupCorePluginConfig();
     this.uiPluginConfig = this.setupUiPluginConfig();
 
-    // registering plugins
-    for (let Plugin of corePluginRegistry.getAll()) {
-      this.setupCorePlugin(Plugin, workbookData);
-    }
-    Object.assign(this.getters, this.coreGetters);
+    this.handlers.push(this.coreModel.range);
+    this.coreModel.addPluginsTo(this.handlers);
+
+    Object.assign(this.getters, this.coreModel.coreGetters);
 
     this.session.loadInitialMessages(stateUpdateMessages);
 
-    for (let Plugin of coreViewsPluginRegistry.getAll()) {
-      const plugin = this.setupCoreUiPlugin(Plugin);
-      this.handlers.push(plugin);
-      this.uiHandlers.push(plugin);
-      this.coreHandlers.push(plugin);
-    }
+    this.coreModel.setupCoreUiPlugins(this.getters, this.handlers, this.uiHandlers);
+
     for (let Plugin of statefulUIPluginRegistry.getAll()) {
       const plugin = this.setupUiPlugin(Plugin);
       this.statefulUIPlugins.push(plugin);
@@ -269,10 +227,11 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     // starting plugins
     this.dispatch("START");
+
     // Model should be the last permanent subscriber in the list since he should render
     // after all changes have been applied to the other subscribers (plugins)
     this.selection.observe(this, {
-      handleEvent: () => this.trigger("update"),
+      handleEvent: () => this.trigger("update")
     });
     // This should be done after construction of LocalHistory due to order of
     // events
@@ -284,7 +243,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       const startSnapshot = performance.now();
       console.info("Snapshot requested");
       this.session.snapshot(this.exportData());
-      this.garbageCollectExternalResources();
+      this.coreModel.garbageCollectExternalResources();
       console.info("Snapshot taken in", performance.now() - startSnapshot, "ms");
     }
     // mark all models as "raw", so they will not be turned into reactive objects
@@ -292,6 +251,10 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     markRaw(this);
     console.info("Model created in", performance.now() - start, "ms");
     console.groupEnd();
+  }
+
+  getState(): StateObserver {
+    return this.state;
   }
 
   joinSession() {
@@ -322,43 +285,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     return plugin;
   }
 
-  private setupCoreUiPlugin(Plugin: CorePluginConstructor) {
-    const plugin = new Plugin({ ...this.corePluginConfig, getters: this.getters });
-    for (let name of Plugin.getters) {
-      if (!(name in plugin)) {
-        throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
-      }
-      if (name in this.getters) {
-        throw new Error(`Getter "${name}" is already defined.`);
-      }
-      this.getters[name] = plugin[name].bind(plugin);
-    }
-    return plugin;
-  }
-
-  /**
-   * Initialize and properly configure a plugin.
-   *
-   * This method is private for now, but if the need arise, there is no deep
-   * reason why the model could not add dynamically a plugin while it is running.
-   */
-  private setupCorePlugin(Plugin: CorePluginConstructor, data: WorkbookData) {
-    const plugin = new Plugin(this.corePluginConfig);
-    for (let name of Plugin.getters) {
-      if (!(name in plugin)) {
-        throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
-      }
-      if (name in this.coreGetters) {
-        throw new Error(`Getter "${name}" is already defined.`);
-      }
-      this.coreGetters[name] = plugin[name].bind(plugin);
-    }
-    plugin.import(data);
-    this.corePlugins.push(plugin);
-    this.coreHandlers.push(plugin);
-    this.handlers.push(plugin);
-  }
-
   private onRemoteRevisionReceived({ commands }: { commands: readonly CoreCommand[] }) {
     for (let command of commands) {
       const previousStatus = this.status;
@@ -380,9 +306,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
             return;
           }
           this.isReplayingCommand = true;
-          this.dispatchToHandlers(this.coreHandlers, command);
+          this.dispatchToHandlers(this.coreModel.coreHandlers, command);
           this.isReplayingCommand = false;
-        },
+        }
       }),
       this.config.transportService,
       revisionId
@@ -411,7 +337,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private setupConfig(config: Partial<ModelConfig>): ModelConfig {
     const client = config.client || {
       id: this.uuidGenerator.uuidv4(),
-      name: _t("Anonymous").toString(),
+      name: _t("Anonymous").toString()
     };
     const transportService = config.transportService || new LocalTransportService();
     return {
@@ -421,11 +347,12 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       external: this.setupExternalConfig(config.external || {}),
       transportService,
       client,
-      moveClient: () => {},
+      moveClient: () => {
+      },
       snapshotRequested: false,
       notifyUI: (payload) => this.trigger("notify-ui", payload),
       raiseBlockingErrorUI: (text) => this.trigger("raise-error-ui", { text }),
-      customColors: config.customColors || [],
+      customColors: config.customColors || []
     };
   }
 
@@ -433,21 +360,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     const loadLocales = external.loadLocales || (() => Promise.resolve(DEFAULT_LOCALES));
     return {
       ...external,
-      loadLocales,
-    };
-  }
-
-  private setupCorePluginConfig(): CorePluginConfig {
-    return {
-      getters: this.coreGetters,
-      stateObserver: this.state,
-      range: this.range,
-      dispatch: this.dispatchFromCorePlugin,
-      canDispatch: this.canDispatch,
-      uuidGenerator: this.uuidGenerator,
-      custom: this.config.custom,
-      external: this.config.external,
-      customColors: this.config.customColors || [],
+      loadLocales
     };
   }
 
@@ -462,7 +375,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       custom: this.config.custom,
       uiActions: this.config,
       session: this.session,
-      defaultCurrencyFormat: this.config.defaultCurrencyFormat,
+      defaultCurrencyFormat: this.config.defaultCurrencyFormat
     };
   }
 
@@ -475,18 +388,12 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    */
   private checkDispatchAllowed(command: Command): DispatchResult {
     const results = isCoreCommand(command)
-      ? this.checkDispatchAllowedCoreCommand(command)
+      ? this.coreModel.checkDispatchAllowedCoreCommand(command)
       : this.checkDispatchAllowedLocalCommand(command);
-    if (results.some((r) => r !== CommandResult.Success)) {
+    if (results.some((r: CommandResult) => r !== CommandResult.Success)) {
       return new DispatchResult(results.flat());
     }
     return DispatchResult.Success;
-  }
-
-  private checkDispatchAllowedCoreCommand(command: CoreCommand) {
-    const results = this.corePlugins.map((handler) => handler.allowDispatch(command));
-    results.push(this.range.allowDispatch(command));
-    return results;
   }
 
   private checkDispatchAllowedLocalCommand(command: LocalCommand) {
@@ -527,6 +434,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    */
   dispatch: CommandDispatcher["dispatch"] = (type: CommandTypes, payload?: any) => {
     const command: Command = createCommand(type, payload);
+    console.log(type, payload);
     let status: Status = this.status;
     if (this.getters.isReadonly() && !canExecuteInReadonly(command)) {
       return new DispatchResult(CommandResult.Readonly);
@@ -586,7 +494,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     const command = createCommand(type, payload);
     const previousStatus = this.status;
     this.status = Status.RunningCore;
-    const handlers = this.isReplayingCommand ? this.coreHandlers : this.handlers;
+    const handlers = this.isReplayingCommand ? this.coreModel.coreHandlers : this.handlers;
     this.dispatchToHandlers(handlers, command);
     this.status = previousStatus;
     return DispatchResult.Success;
@@ -599,13 +507,13 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private dispatchToHandlers(handlers: CommandHandler<Command>[], command: Command) {
     const isCommandCore = isCoreCommand(command);
     for (const handler of handlers) {
-      if (!isCommandCore && this.corePlugins.includes(handler as any)) {
+      if (!isCommandCore && this.coreModel.coreHandlers.includes(handler)) {
         continue;
       }
       handler.beforeHandle(command);
     }
     for (const handler of handlers) {
-      if (!isCommandCore && this.corePlugins.includes(handler as any)) {
+      if (!isCommandCore && this.coreModel.coreHandlers.includes(handler)) {
         continue;
       }
       handler.handle(command);
@@ -648,12 +556,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * export date out of the model.
    */
   exportData(): WorkbookData {
-    let data = createEmptyWorkbookData();
-    for (let corePlugin of this.corePlugins) {
-      corePlugin.export(data);
-    }
+    let data = this.coreModel.exportData();
     data.revisionId = this.session.getRevisionId() || DEFAULT_REVISION_ID;
-    data = deepCopy(data);
     return data;
   }
 
@@ -683,12 +587,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     data = deepCopy(data);
 
     return getXLSX(data);
-  }
-
-  garbageCollectExternalResources() {
-    for (const plugin of this.corePlugins) {
-      plugin.garbageCollectExternalResources();
-    }
   }
 }
 

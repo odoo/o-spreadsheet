@@ -9,6 +9,7 @@ import "./canvas.mock";
 import "./jest_extend";
 import "./polyfill";
 import "./resize_observer.mock";
+import "./worker.mock";
 
 function registerOwlTemplates() {
   const templates = getCompiledTemplates();

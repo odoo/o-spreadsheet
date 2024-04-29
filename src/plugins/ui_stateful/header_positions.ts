@@ -18,6 +18,8 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
 
     switch (cmd.type) {
       case "START":
+        console.log((this as any).constructor.name);
+
         for (const sheetId of this.getters.getSheetIds()) {
           this.headerPositions[sheetId] = this.computeHeaderPositionsOfSheet(sheetId);
         }

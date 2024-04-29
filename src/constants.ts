@@ -264,3 +264,10 @@ export const PIVOT_TABLE_CONFIG = {
   bandedColumns: false,
   styleId: "TableStyleMedium5",
 };
+
+export const enum Status {
+  Ready,
+  Running,
+  RunningCore,
+  Finalizing,
+}

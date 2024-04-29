@@ -16,7 +16,7 @@ import { BasePlugin } from "./base_plugin";
 import { RangeAdapter } from "./core/range";
 
 export interface CorePluginConfig {
-  readonly getters: CoreGetters;
+  getters: CoreGetters;
   readonly stateObserver: StateObserver;
   readonly range: RangeAdapter;
   readonly dispatch: CoreCommandDispatcher["dispatch"];
