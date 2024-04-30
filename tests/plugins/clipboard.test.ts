@@ -1598,6 +1598,20 @@ describe("clipboard: pasting outside of sheet", () => {
       expect(getCellContent(model, "C1")).toBe("");
       expect(getCellContent(model, "C3")).toBe("");
     });
+
+    test("Adding rows in another sheet does not invalidate the clipboard", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "A2", "2");
+      model.dispatch("CUT", { target: target("A1:A2") });
+
+      createSheet(model, { activate: true });
+      addRows(model, "after", 0, 5);
+
+      model.dispatch("PASTE", { target: target("A1") });
+      expect(getCellContent(model, "A1")).toBe("1");
+      expect(getCellContent(model, "A2")).toBe("2");
+    });
   });
 
   describe("remove col/row can invalidate the clipboard of cut", () => {
@@ -1679,6 +1693,20 @@ describe("clipboard: pasting outside of sheet", () => {
       model.dispatch("PASTE", { target: [toZone("D1")] });
       expect(getCellContent(model, "B2")).toBe("1");
       expect(getCellContent(model, "D1")).toBe("");
+    });
+
+    test("Removing rows in another sheet does not invalidate the clipboard", () => {
+      const model = new Model();
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "A2", "2");
+      model.dispatch("CUT", { target: target("A1:A2") });
+
+      createSheet(model, { activate: true });
+      deleteRows(model, [1]);
+
+      model.dispatch("PASTE", { target: target("A1") });
+      expect(getCellContent(model, "A1")).toBe("1");
+      expect(getCellContent(model, "A2")).toBe("2");
     });
   });
 });
