@@ -1,6 +1,7 @@
 import { INCORRECT_RANGE_STRING } from "../../constants";
 import {
   createAdaptedZone,
+  deepEquals,
   getComposerSheetName,
   groupConsecutive,
   isZoneInside,
@@ -16,6 +17,7 @@ import {
 import {
   ApplyRangeChange,
   ApplyRangeChangeResult,
+  CellPosition,
   ChangeType,
   Command,
   CommandHandler,
@@ -44,6 +46,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     "getRangeDataFromXc",
     "getRangeDataFromZone",
     "getRangeFromRangeData",
+    "moveRangeInsideZone",
   ] as const;
 
   // ---------------------------------------------------------------------------
@@ -422,6 +425,33 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     };
 
     return new RangeImpl(rangeInterface, this.getters.getSheetSize);
+  }
+
+  /**
+   * Get the changed range if the given zone is moved to the target position
+   */
+  moveRangeInsideZone(
+    range: Range,
+    originSheetId: UID,
+    originZone: Zone,
+    target: CellPosition
+  ): ApplyRangeChangeResult {
+    const rangeImpl = RangeImpl.fromRange(range, this.getters);
+    const { col, row, sheetId: targetSheetId } = target;
+    if (range.sheetId !== originSheetId || !isZoneInside(range.zone, originZone)) {
+      return { changeType: "NONE" };
+    }
+    const offsetX = col - originZone.left;
+    const offsetY = row - originZone.top;
+    const adaptedRange = this.createAdaptedRange(rangeImpl, "both", "MOVE", [offsetX, offsetY]);
+    if (targetSheetId === originSheetId && deepEquals(adaptedRange.zone, range.zone)) {
+      return { changeType: "NONE" };
+    }
+    const prefixSheet = adaptedRange.sheetId === targetSheetId ? adaptedRange.prefixSheet : true;
+    return {
+      changeType: "MOVE",
+      range: adaptedRange.clone({ sheetId: targetSheetId, prefixSheet }),
+    };
   }
 
   // ---------------------------------------------------------------------------

@@ -1,7 +1,6 @@
 import { isDefined, isInside } from "../../helpers/index";
 import { otRegistry } from "../../registries/ot_registry";
 import {
-  AddColumnsRowsCommand,
   AddMergeCommand,
   CoreCommand,
   GridDependentCommand,
@@ -11,14 +10,13 @@ import {
   isSheetDependent,
   isTargetDependent,
   PositionDependentCommand,
-  RemoveColumnsRowsCommand,
   SheetDependentCommand,
   TargetDependentCommand,
   Zone,
 } from "../../types";
 import { isRangeDependant, RangesDependentCommand } from "./../../types/commands";
 import { RangeData } from "./../../types/range";
-import { transformZone } from "./ot_helpers";
+import { transformPositionWithGrid, transformZone } from "./ot_helpers";
 import "./ot_specific";
 
 type TransformResult = "SKIP_TRANSFORMATION" | "IGNORE_COMMAND";
@@ -214,41 +212,13 @@ function transformPosition(
     return transformSheetResult === "IGNORE_COMMAND" ? "IGNORE_COMMAND" : cmd;
   }
   if (executed.type === "ADD_COLUMNS_ROWS" || executed.type === "REMOVE_COLUMNS_ROWS") {
-    return transformPositionWithGrid(cmd, executed);
+    const position = transformPositionWithGrid(cmd, executed);
+    return position ? { ...cmd, ...position } : "IGNORE_COMMAND";
   }
   if (executed.type === "ADD_MERGE") {
     return transformPositionWithMerge(cmd, executed);
   }
   return "SKIP_TRANSFORMATION";
-}
-
-/**
- * Transform a PositionDependentCommand after a grid shape modification. This
- * transformation consists of updating the position.
- */
-function transformPositionWithGrid(
-  cmd: Extract<CoreCommand, PositionDependentCommand>,
-  executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-): Extract<CoreCommand, PositionDependentCommand> | TransformResult {
-  const field = executed.dimension === "COL" ? "col" : "row";
-  let base = cmd[field];
-  if (executed.type === "REMOVE_COLUMNS_ROWS") {
-    const elements = [...executed.elements].sort((a, b) => b - a);
-    if (elements.includes(base)) {
-      return "IGNORE_COMMAND";
-    }
-    for (let removedElement of elements) {
-      if (base >= removedElement) {
-        base--;
-      }
-    }
-  }
-  if (executed.type === "ADD_COLUMNS_ROWS") {
-    if (base > executed.base || (base === executed.base && executed.position === "before")) {
-      base = base + executed.quantity;
-    }
-  }
-  return { ...cmd, [field]: base };
 }
 
 /**

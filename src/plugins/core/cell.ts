@@ -55,27 +55,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   private createCell = cellFactory(this.getters);
 
   adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID) {
-    for (const sheet of Object.keys(this.cells)) {
-      for (const cell of Object.values(this.cells[sheet] || {})) {
-        if (cell.isFormula()) {
-          for (const range of cell.dependencies) {
-            if (!sheetId || range.sheetId === sheetId) {
-              const change = applyChange(range);
-              if (change.changeType !== "NONE") {
-                this.history.update(
-                  "cells",
-                  sheet,
-                  cell.id,
-                  "dependencies" as any,
-                  cell.dependencies.indexOf(range),
-                  change.range
-                );
-              }
-            }
-          }
-        }
-      }
-    }
+    this.updateCellDependencies(applyChange);
   }
 
   // ---------------------------------------------------------------------------
@@ -88,6 +68,18 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessUpdateCell);
       case "CLEAR_CELL":
         return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessClearCell);
+      case "MOVE_REFERENCES": {
+        const targetSheet = this.getters.tryGetSheet(cmd.targetSheetId);
+        if (!targetSheet) {
+          return CommandResult.InvalidSheetId;
+        }
+
+        const sheetZone = this.getters.getSheetZone(cmd.targetSheetId);
+        if (!isInside(cmd.targetCol, cmd.targetRow, sheetZone)) {
+          return CommandResult.TargetOutOfSheet;
+        }
+        return CommandResult.Success;
+      }
       default:
         return CommandResult.Success;
     }
@@ -127,6 +119,35 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           format: "",
         });
         break;
+      case "MOVE_REFERENCES": {
+        const target = { sheetId: cmd.targetSheetId, col: cmd.targetCol, row: cmd.targetRow };
+        this.updateCellDependencies((range) =>
+          this.getters.moveRangeInsideZone(range, cmd.sheetId, cmd.zone, target)
+        );
+        break;
+      }
+    }
+  }
+
+  private updateCellDependencies(adaptRange: ApplyRangeChange) {
+    for (const sheet of Object.keys(this.cells)) {
+      for (const cell of Object.values(this.cells[sheet] || {})) {
+        if (cell.isFormula()) {
+          for (const range of cell.dependencies) {
+            const change = adaptRange(range);
+            if (change.changeType !== "NONE") {
+              this.history.update(
+                "cells",
+                sheet,
+                cell.id,
+                "dependencies" as any,
+                cell.dependencies.indexOf(range),
+                change.range
+              );
+            }
+          }
+        }
+      }
     }
   }
 

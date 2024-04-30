@@ -10,6 +10,7 @@ import {
   DeleteContentCommand,
   FreezeColumnsCommand,
   FreezeRowsCommand,
+  MoveReferencesCommand,
   RemoveColumnsRowsCommand,
   RemoveFilterTableCommand,
   RemoveMergeCommand,
@@ -466,6 +467,59 @@ describe("OT with REMOVE_COLUMNS_ROWS with dimension ROW", () => {
       const command = { ...toTransform, quantity: 3 };
       const result = transform(command, removeRows);
       expect(result).toEqual({ ...command });
+    });
+  });
+
+  describe("OT with MOVE_REFERENCES", () => {
+    const moveReferencesCmd: MoveReferencesCommand = {
+      type: "MOVE_REFERENCES",
+      sheetId,
+      zone: toZone("B2:C3"),
+      targetSheetId: "Sheet2",
+      targetCol: 1,
+      targetRow: 1,
+    };
+
+    test("Rows removed before origin zone", () => {
+      const removeRowsCmd = { ...removeRows, elements: [0] };
+      const result = transform(moveReferencesCmd, removeRowsCmd);
+      expect(result).toEqual({ ...moveReferencesCmd, zone: toZone("B1:C2") });
+    });
+
+    test("Rows removed inside origin zone", () => {
+      const removeRowsCmd = { ...removeRows, elements: [1] };
+      const result = transform(moveReferencesCmd, removeRowsCmd);
+      expect(result).toEqual({ ...moveReferencesCmd, zone: toZone("B2:C2") });
+    });
+
+    test("Rows removed after origin zone", () => {
+      const removeRowsCmd = { ...removeRows, elements: [4] };
+      const result = transform(moveReferencesCmd, removeRowsCmd);
+      expect(result).toEqual(moveReferencesCmd);
+    });
+
+    test("Remove all columns of origin zone", () => {
+      const removeRowsCmd = { ...removeRows, elements: [1, 2] };
+      const result = transform(moveReferencesCmd, removeRowsCmd);
+      expect(result).toEqual(undefined);
+    });
+
+    test("Rows removed before target position", () => {
+      const removeRowsCmd = { ...removeRows, elements: [0], sheetId: "Sheet2" };
+      const result = transform(moveReferencesCmd, removeRowsCmd);
+      expect(result).toEqual({ ...moveReferencesCmd, targetRow: 0 });
+    });
+
+    test("Rows removed after target position", () => {
+      const removeRowsCmd = { ...removeRows, elements: [5], sheetId: "Sheet2" };
+      const result = transform(moveReferencesCmd, removeRowsCmd);
+      expect(result).toEqual(moveReferencesCmd);
+    });
+
+    test("Remove column of target position ", () => {
+      const removeRowsCmd = { ...removeRows, elements: [1], sheetId: "Sheet2" };
+      const result = transform(moveReferencesCmd, removeRowsCmd);
+      expect(result).toEqual(undefined);
     });
   });
 });

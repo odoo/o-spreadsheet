@@ -1,6 +1,6 @@
 import { Model } from "../../src";
 import { LINK_COLOR } from "../../src/constants";
-import { buildSheetLink } from "../../src/helpers";
+import { buildSheetLink, toZone } from "../../src/helpers";
 import { CellValueType, CommandResult, LinkCell } from "../../src/types";
 import {
   clearCell,
@@ -398,4 +398,33 @@ describe("link cell", () => {
       textColor: "#111",
     });
   });
+});
+
+test("MOVE_REFERENCES allowDispatch", () => {
+  const model = new Model({
+    sheets: [
+      { id: "sh1", rowNumber: 10, colNumber: 10 },
+      { id: "sh2", rowNumber: 20, colNumber: 20 },
+    ],
+  });
+  const sheetId = model.getters.getActiveSheetId();
+  const cmd = { sheetId, targetSheetId: "sh2", zone: toZone("A1"), targetCol: 0, targetRow: 0 };
+
+  let result = model.dispatch("MOVE_REFERENCES", cmd);
+  expect(result).toBeSuccessfullyDispatched();
+
+  result = model.dispatch("MOVE_REFERENCES", { ...cmd, targetSheetId: "invalidTargetSheet" });
+  expect(result).toBeCancelledBecause(CommandResult.InvalidSheetId);
+
+  result = model.dispatch("MOVE_REFERENCES", { ...cmd, sheetId: "invalidOriginSheet" });
+  expect(result).toBeCancelledBecause(CommandResult.InvalidSheetId);
+
+  result = model.dispatch("MOVE_REFERENCES", { ...cmd, zone: toZone("A12") });
+  expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
+
+  result = model.dispatch("MOVE_REFERENCES", { ...cmd, targetCol: 15 });
+  expect(result).toBeSuccessfullyDispatched();
+
+  result = model.dispatch("MOVE_REFERENCES", { ...cmd, targetRow: 25 });
+  expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet);
 });
