@@ -33,10 +33,7 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C>, Vali
     dispatch: CommandDispatcher["dispatch"],
     canDispatch: CommandDispatcher["dispatch"]
   ) {
-    this.history = Object.assign(Object.create(stateObserver), {
-      update: stateObserver.addChange.bind(stateObserver, this),
-      selectCell: () => {},
-    });
+    this.history = { update: stateObserver.addChange.bind(stateObserver, this) };
     this.dispatch = dispatch;
     this.canDispatch = canDispatch;
   }
