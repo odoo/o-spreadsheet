@@ -58,7 +58,7 @@ export class FilterEvaluationPlugin extends UIPlugin {
         this.isEvaluationDirty = true;
         break;
       case "START":
-        console.log((this as any).constructor.name);
+        // console.log((this as any).constructor.name);
 
         for (const sheetId of this.getters.getSheetIds()) {
           this.filterValues[sheetId] = {};

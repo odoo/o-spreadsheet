@@ -6,17 +6,13 @@ import { DEFAULT_REVISION_ID, Status } from "./constants";
 import { EventBus } from "./helpers/event_bus";
 import { UuidGenerator, deepCopy } from "./helpers/index";
 import { buildRevisionLog } from "./history/factory";
-import {
-  createEmptyExcelWorkbookData,
-  load,
-  repairInitialMessages
-} from "./migrations/data";
+import { createEmptyExcelWorkbookData, load, repairInitialMessages } from "./migrations/data";
 import { BasePlugin } from "./plugins/base_plugin";
 import { featurePluginRegistry, statefulUIPluginRegistry } from "./plugins/index";
 import { UIPlugin, UIPluginConfig, UIPluginConstructor } from "./plugins/ui_plugin";
 import {
   SelectionStreamProcessor,
-  SelectionStreamProcessorImpl
+  SelectionStreamProcessorImpl,
 } from "./selection_stream/selection_stream_processor";
 import { StateObserver } from "./state_observer";
 import { _t } from "./translation";
@@ -44,7 +40,7 @@ import {
   Locale,
   UID,
   canExecuteInReadonly,
-  isCoreCommand
+  isCoreCommand,
 } from "./types/index";
 import { WorkbookData } from "./types/workbook_data";
 import { XLSXExport } from "./types/xlsx";
@@ -166,9 +162,13 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     uuidGenerator: UuidGenerator = new UuidGenerator(),
     verboseImport = true
   ) {
+    super();
+    // mark all models as "raw", so they will not be turned into reactive objects
+    // by owl, since we do not rely on reactivity
+    markRaw(this);
+
     const start = performance.now();
     console.group("Model creation");
-    super();
 
     stateUpdateMessages = repairInitialMessages(data, stateUpdateMessages);
 
@@ -178,6 +178,11 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.config = this.setupConfig(config);
     this.state = new StateObserver();
 
+    this.getters = {
+      isReadonly: () => this.config.mode === "readonly" || this.config.mode === "dashboard",
+      isDashboard: () => this.config.mode === "dashboard",
+    } as Getters;
+
     this.coreModel = new CoreModel({
       workbookData,
       state: this.state,
@@ -186,15 +191,10 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       uuidGenerator: this.uuidGenerator,
       custom: this.config.custom,
       external: this.config.external,
-      customColors: config.customColors
+      customColors: config.customColors,
     });
 
     this.session = this.setupSession(workbookData.revisionId);
-
-    this.getters = {
-      isReadonly: () => this.config.mode === "readonly" || this.config.mode === "dashboard",
-      isDashboard: () => this.config.mode === "dashboard"
-    } as Getters;
 
     this.uuidGenerator.setIsFastStrategy(true);
 
@@ -202,14 +202,13 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.selection = new SelectionStreamProcessorImpl(this.getters);
     this.uiPluginConfig = this.setupUiPluginConfig();
 
-    this.handlers.push(this.coreModel.range);
     this.coreModel.addPluginsTo(this.handlers);
 
     Object.assign(this.getters, this.coreModel.coreGetters);
 
     this.session.loadInitialMessages(stateUpdateMessages);
 
-    this.coreModel.setupCoreUiPlugins(this.getters, this.handlers, this.uiHandlers);
+    this.coreModel.setupCoreUiPlugins(this.getters, this.handlers, this.uiHandlers, this.dispatch);
 
     for (let Plugin of statefulUIPluginRegistry.getAll()) {
       const plugin = this.setupUiPlugin(Plugin);
@@ -231,7 +230,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     // Model should be the last permanent subscriber in the list since he should render
     // after all changes have been applied to the other subscribers (plugins)
     this.selection.observe(this, {
-      handleEvent: () => this.trigger("update")
+      handleEvent: () => this.trigger("update"),
     });
     // This should be done after construction of LocalHistory due to order of
     // events
@@ -246,9 +245,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       this.coreModel.garbageCollectExternalResources();
       console.info("Snapshot taken in", performance.now() - startSnapshot, "ms");
     }
-    // mark all models as "raw", so they will not be turned into reactive objects
-    // by owl, since we do not rely on reactivity
-    markRaw(this);
+
     console.info("Model created in", performance.now() - start, "ms");
     console.groupEnd();
   }
@@ -308,7 +305,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
           this.isReplayingCommand = true;
           this.dispatchToHandlers(this.coreModel.coreHandlers, command);
           this.isReplayingCommand = false;
-        }
+        },
       }),
       this.config.transportService,
       revisionId
@@ -337,7 +334,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private setupConfig(config: Partial<ModelConfig>): ModelConfig {
     const client = config.client || {
       id: this.uuidGenerator.uuidv4(),
-      name: _t("Anonymous").toString()
+      name: _t("Anonymous").toString(),
     };
     const transportService = config.transportService || new LocalTransportService();
     return {
@@ -347,12 +344,11 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       external: this.setupExternalConfig(config.external || {}),
       transportService,
       client,
-      moveClient: () => {
-      },
+      moveClient: () => {},
       snapshotRequested: false,
       notifyUI: (payload) => this.trigger("notify-ui", payload),
       raiseBlockingErrorUI: (text) => this.trigger("raise-error-ui", { text }),
-      customColors: config.customColors || []
+      customColors: config.customColors || [],
     };
   }
 
@@ -360,7 +356,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     const loadLocales = external.loadLocales || (() => Promise.resolve(DEFAULT_LOCALES));
     return {
       ...external,
-      loadLocales
+      loadLocales,
     };
   }
 
@@ -375,7 +371,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       custom: this.config.custom,
       uiActions: this.config,
       session: this.session,
-      defaultCurrencyFormat: this.config.defaultCurrencyFormat
+      defaultCurrencyFormat: this.config.defaultCurrencyFormat,
     };
   }
 
@@ -434,7 +430,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    */
   dispatch: CommandDispatcher["dispatch"] = (type: CommandTypes, payload?: any) => {
     const command: Command = createCommand(type, payload);
-    console.log(type, payload);
     let status: Status = this.status;
     if (this.getters.isReadonly() && !canExecuteInReadonly(command)) {
       return new DispatchResult(CommandResult.Readonly);
@@ -507,13 +502,13 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private dispatchToHandlers(handlers: CommandHandler<Command>[], command: Command) {
     const isCommandCore = isCoreCommand(command);
     for (const handler of handlers) {
-      if (!isCommandCore && this.coreModel.coreHandlers.includes(handler)) {
+      if (!isCommandCore && this.coreModel.corePlugins.includes(handler as any)) {
         continue;
       }
       handler.beforeHandle(command);
     }
     for (const handler of handlers) {
-      if (!isCommandCore && this.coreModel.coreHandlers.includes(handler)) {
+      if (!isCommandCore && this.coreModel.corePlugins.includes(handler as any)) {
         continue;
       }
       handler.handle(command);

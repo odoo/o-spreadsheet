@@ -4,27 +4,15 @@
  * CoreModel.ts is intended only for core and core_evaluation plugins integration.
  * As far as possible, it should have no external dependencies
  */
-import { Handler } from "express";
+import { createEmptyWorkbookData } from "./migrations/data";
 import { corePluginRegistry, coreViewsPluginRegistry } from "./plugins";
 import { RangeAdapter } from "./plugins/core";
 import { CorePlugin, CorePluginConfig, CorePluginConstructor } from "./plugins/core_plugin";
-import { UIPlugin } from "./plugins/ui_plugin";
 import { Registry } from "./registries/registry";
-import {
-  Command,
-  CommandDispatcher,
-  CommandHandler,
-  CoreCommand,
-  CoreGetters,
-  DispatchResult,
-  Getters,
-  WorkbookData
-} from "./types";
-import { createEmptyWorkbookData } from "./migrations/data";
+import { Command, CommandHandler, CoreCommand, CoreGetters, Getters, WorkbookData } from "./types";
 
 export class CoreModel {
-  private corePlugins: CorePlugin[] = [];
-  private coreUiPlugins: UIPlugin[] = [];
+  corePlugins: CorePlugin[] = [];
   readonly coreHandlers: CommandHandler<CoreCommand>[] = [];
 
   readonly range: RangeAdapter;
@@ -55,23 +43,40 @@ export class CoreModel {
     this.coreGetters.getRangesUnion = this.range.getRangesUnion.bind(this.range);
     this.coreGetters.removeRangesSheetPrefix = this.range.removeRangesSheetPrefix.bind(this.range);
 
+    let corePluginsConfig = this.setupCorePluginConfig();
+    corePluginsConfig.getters = this.coreGetters;
+    corePluginsConfig.dispatch = options.dispatch;
+
     this.corePlugins = this.setupCorePlugins(
       corePluginRegistry,
       this.coreGetters,
+      corePluginsConfig as CorePluginConfig,
       options.workbookData
     );
     this.corePlugins.forEach((plugin) => this.coreHandlers.push(plugin));
   }
 
-  setupCoreUiPlugins(allGetters: Getters, allHandlers: CommandHandler<Command>[], uiHandlers: CommandHandler<Command>[]) {
-    this.coreUiPlugins = this.setupCorePlugins(coreViewsPluginRegistry, allGetters, null);
-    this.coreUiPlugins.forEach((x) => {
-        allHandlers.push(x);
-        uiHandlers.push(x);
-        this.coreHandlers.push(x);
-      }
-    );
+  setupCoreUiPlugins(
+    allGetters: Getters,
+    allHandlers: CommandHandler<Command>[],
+    uiHandlers: CommandHandler<Command>[],
+    dispatch
+  ) {
+    let corePluginsConfig = this.setupCorePluginConfig();
+    corePluginsConfig.getters = allGetters;
+    corePluginsConfig.dispatch = dispatch;
 
+    const coreUiPlugins = this.setupCorePlugins(
+      coreViewsPluginRegistry,
+      allGetters,
+      corePluginsConfig as CorePluginConfig,
+      null
+    );
+    coreUiPlugins.forEach((x) => {
+      allHandlers.push(x);
+      uiHandlers.push(x);
+      this.coreHandlers.push(x);
+    });
   }
 
   /**
@@ -83,10 +88,9 @@ export class CoreModel {
   private setupCorePlugins(
     registry: Registry<CorePluginConstructor>,
     getters: CoreGetters,
+    corePluginConfig: CorePluginConfig,
     workbookData: WorkbookData | null
-  ): Handler[] {
-    let corePluginConfig = { ...this.setupCorePluginConfig(), getters } as CorePluginConfig;
-    corePluginConfig.getters = getters;
+  ): CorePlugin[] {
     return registry.getAll().map((Plugin) => {
       const plugin = new Plugin(corePluginConfig);
       for (let name of Plugin.getters) {
@@ -109,17 +113,16 @@ export class CoreModel {
     return {
       stateObserver: this.options.state,
       range: this.range,
-      dispatch: this.dispatchFromCorePlugin,
       canDispatch: this.options.canDispatch,
       uuidGenerator: this.options.uuidGenerator,
       custom: this.options.custom,
       external: this.options.external,
-      customColors: this.options.customColors || []
+      customColors: this.options.customColors || [],
     };
   }
 
   addPluginsTo(commandHandler: CommandHandler<Command>[]) {
-    this.corePlugins.forEach((plugin) => commandHandler.push(plugin));
+    this.coreHandlers.forEach((plugin) => commandHandler.push(plugin));
   }
 
   checkDispatchAllowedCoreCommand(command: CoreCommand) {
@@ -133,11 +136,6 @@ export class CoreModel {
       plugin.garbageCollectExternalResources();
     }
   }
-
-  private dispatchFromCorePlugin: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
-    console.log("I'm dispatching from core plugins");
-    return DispatchResult.Success;
-  };
 
   exportData(): WorkbookData {
     let data = createEmptyWorkbookData();

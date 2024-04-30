@@ -31,7 +31,7 @@ export class HeaderSizeUIPlugin extends CoreUiPlugin<HeaderSizeState> implements
   handle(cmd: Command) {
     switch (cmd.type) {
       case "START":
-        console.log((this as any).constructor.name);
+        // console.log((this as any).constructor.name);
         for (const sheetId of this.getters.getSheetIds()) {
           this.initializeSheet(sheetId);
         }

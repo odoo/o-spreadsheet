@@ -19,7 +19,7 @@ export interface CorePluginConfig {
   getters: CoreGetters;
   readonly stateObserver: StateObserver;
   readonly range: RangeAdapter;
-  readonly dispatch: CoreCommandDispatcher["dispatch"];
+  dispatch: CoreCommandDispatcher["dispatch"];
   readonly canDispatch: CoreCommandDispatcher["dispatch"];
   readonly uuidGenerator: UuidGenerator;
   readonly custom: ModelConfig["custom"];
