@@ -1,5 +1,6 @@
 import {
   createAdaptedZone,
+  deepEquals,
   getCanonicalSheetName,
   groupConsecutive,
   isZoneInside,
@@ -18,6 +19,7 @@ import { CellErrorType } from "../../types/errors";
 import {
   ApplyRangeChange,
   ApplyRangeChangeResult,
+  CellPosition,
   ChangeType,
   Command,
   CommandHandler,
@@ -52,6 +54,8 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     "getRangesUnion",
     "recomputeRanges",
     "isRangeValid",
+    "getMovedRange",
+    "removeRangesPrefixOfSheet",
   ] as const;
 
   // ---------------------------------------------------------------------------
@@ -292,6 +296,16 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     });
   }
 
+  removeRangesPrefixOfSheet(sheetId: UID, ranges: Range[]): Range[] {
+    return ranges.map((range) => {
+      const rangeImpl = RangeImpl.fromRange(range, this.getters);
+      if (rangeImpl.prefixSheet && rangeImpl.sheetId === sheetId) {
+        return rangeImpl.clone({ prefixSheet: false });
+      }
+      return rangeImpl;
+    });
+  }
+
   extendRange(range: Range, dimension: Dimension, quantity: number): Range {
     const rangeImpl = RangeImpl.fromRange(range, this.getters);
     const right = dimension === "COL" ? rangeImpl.zone.right + quantity : rangeImpl.zone.right;
@@ -469,6 +483,33 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     const zones = ranges.map((range) => RangeImpl.fromRange(range, this.getters).unboundedZone);
     const unionOfZones = unionUnboundedZones(...zones);
     return this.getRangeFromZone(ranges[0].sheetId, unionOfZones);
+  }
+
+  /**
+   * Get the changed range if the given zone is moved to the target position
+   */
+  getMovedRange(
+    range: Range,
+    originSheetId: UID,
+    originZone: Zone,
+    target: CellPosition
+  ): ApplyRangeChangeResult {
+    const rangeImpl = RangeImpl.fromRange(range, this.getters);
+    const { col, row, sheetId: targetSheetId } = target;
+    if (range.sheetId !== originSheetId || !isZoneInside(range.zone, originZone)) {
+      return { changeType: "NONE" };
+    }
+    const offsetX = col - originZone.left;
+    const offsetY = row - originZone.top;
+    const adaptedRange = this.createAdaptedRange(rangeImpl, "both", "MOVE", [offsetX, offsetY]);
+    if (targetSheetId === originSheetId && deepEquals(adaptedRange.zone, range.zone)) {
+      return { changeType: "NONE" };
+    }
+    const prefixSheet = adaptedRange.sheetId === targetSheetId ? adaptedRange.prefixSheet : true;
+    return {
+      changeType: "MOVE",
+      range: adaptedRange.clone({ sheetId: targetSheetId, prefixSheet }),
+    };
   }
 
   // ---------------------------------------------------------------------------

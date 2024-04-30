@@ -1,5 +1,6 @@
 import { SpreadsheetPivotTable } from "../../src";
 import { BACKGROUND_CHART_COLOR, DEFAULT_BORDER_DESC } from "../../src/constants";
+import { toZone } from "../../src/helpers";
 import { CoreCommand, CoreCommandTypes, DEFAULT_LOCALE, Locale, TableStyle } from "../../src/types";
 import { PivotCoreDefinition } from "../../src/types/pivot";
 import { target, toRangesData } from "./helpers";
@@ -320,6 +321,14 @@ export const TEST_COMMANDS: CommandMapping = {
     targetSheetId: "sheetId",
     col: 0,
     row: 0,
+  },
+  MOVE_REFERENCES: {
+    type: "MOVE_REFERENCES",
+    zone: toZone("A1"),
+    sheetId: "sheetId",
+    targetSheetId: "sheetId",
+    targetCol: 0,
+    targetRow: 0,
   },
   SET_ZONE_BORDERS: {
     type: "SET_ZONE_BORDERS",

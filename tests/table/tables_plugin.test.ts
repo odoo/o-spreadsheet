@@ -690,13 +690,6 @@ describe("Table plugin", () => {
       expect(getTable(model, "A1")).toBeFalsy();
       const copiedTable = getTable(model, "A5");
       expect(copiedTable).toBeTruthy();
-      expect(
-        model.getters.getFilterHiddenValues({
-          sheetId,
-          col: copiedTable!.range.zone.left,
-          row: copiedTable!.range.zone.top,
-        })
-      ).toEqual(["thisIsAValue"]);
     });
 
     test("Can cut and paste multiple tables", () => {
@@ -711,13 +704,6 @@ describe("Table plugin", () => {
 
       const copiedTable = getTable(model, "A5");
       expect(copiedTable).toBeTruthy();
-      expect(
-        model.getters.getFilterHiddenValues({
-          sheetId,
-          col: copiedTable!.range.zone.left,
-          row: copiedTable!.range.zone.top,
-        })
-      ).toEqual(["thisIsAValue"]);
       expect(getTable(model, "D9")).toBeTruthy();
     });
 

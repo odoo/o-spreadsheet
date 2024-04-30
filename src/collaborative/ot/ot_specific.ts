@@ -24,6 +24,7 @@ import {
   HeaderIndex,
   InsertPivotCommand,
   MoveRangeCommand,
+  MoveReferencesCommand,
   RemoveColumnsRowsCommand,
   RemoveMergeCommand,
   RemovePivotCommand,
@@ -37,7 +38,7 @@ import {
   UpdateTableCommand,
   Zone,
 } from "../../types";
-import { transformRangeData, transformZone } from "./ot_helpers";
+import { transformPositionWithGrid, transformRangeData, transformZone } from "./ot_helpers";
 
 /*
  * This file contains the specifics transformations
@@ -56,7 +57,17 @@ otRegistry.addTransformation(
   ["CREATE_CHART", "UPDATE_CHART"],
   updateChartRangesTransformation
 );
-otRegistry.addTransformation("DELETE_SHEET", ["MOVE_RANGES"], transformTargetSheetId);
+otRegistry.addTransformation(
+  "DELETE_SHEET",
+  ["MOVE_RANGES", "MOVE_REFERENCES"],
+  transformTargetSheetId
+);
+otRegistry.addTransformation("ADD_COLUMNS_ROWS", ["MOVE_REFERENCES"], moveReferencesTransformation);
+otRegistry.addTransformation(
+  "REMOVE_COLUMNS_ROWS",
+  ["MOVE_REFERENCES"],
+  moveReferencesTransformation
+);
 otRegistry.addTransformation("DELETE_FIGURE", ["UPDATE_FIGURE", "UPDATE_CHART"], updateChartFigure);
 otRegistry.addTransformation("CREATE_SHEET", ["CREATE_SHEET"], createSheetTransformation);
 otRegistry.addTransformation("ADD_MERGE", ["ADD_MERGE", "REMOVE_MERGE"], mergeTransformation);
@@ -290,4 +301,32 @@ function groupHeadersTransformation(
   }
 
   return { ...toTransform, start: Math.min(...results), end: Math.max(...results) };
+}
+
+function moveReferencesTransformation(
+  toTransform: MoveReferencesCommand,
+  executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
+): MoveReferencesCommand | undefined {
+  if (toTransform.sheetId === executed.sheetId) {
+    const newZone = transformZone(toTransform.zone, executed);
+    if (!newZone) {
+      return undefined;
+    }
+    toTransform = { ...toTransform, zone: newZone };
+  }
+
+  if (toTransform.targetSheetId === executed.sheetId) {
+    const targetPosition = { col: toTransform.targetCol, row: toTransform.targetRow };
+    const newTargetPosition = transformPositionWithGrid(targetPosition, executed);
+    if (!newTargetPosition) {
+      return undefined;
+    }
+    toTransform = {
+      ...toTransform,
+      targetCol: newTargetPosition.col,
+      targetRow: newTargetPosition.row,
+    };
+  }
+
+  return toTransform;
 }

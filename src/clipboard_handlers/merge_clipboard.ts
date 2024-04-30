@@ -1,96 +1,95 @@
-import { getPasteZones } from "../helpers/clipboard/clipboard_helpers";
+import { zoneToDimension } from "../helpers";
 import {
-  CellPosition,
-  ClipboardCell,
+  ClipboardCellData,
   ClipboardOptions,
   ClipboardPasteTarget,
-  CommandResult,
   HeaderIndex,
+  Merge,
   UID,
-  Zone,
 } from "../types";
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 
+type ClipboardMerge = Merge | undefined;
+
 interface ClipboardContent {
-  cells: ClipboardCell[][];
-  zones: Zone[];
   sheetId: UID;
+  merges: ClipboardMerge[][];
 }
 
 export class MergeClipboardHandler extends AbstractCellClipboardHandler<
   ClipboardContent,
-  ClipboardCell
+  ClipboardMerge
 > {
-  isPasteAllowed(sheetId: UID, target: Zone[], content: ClipboardContent): CommandResult {
-    if (!("cells" in content)) {
-      return CommandResult.Success;
+  copy(data: ClipboardCellData): ClipboardContent {
+    const sheetId = this.getters.getActiveSheetId();
+
+    const { rowsIndexes, columnsIndexes, zones } = data;
+    if (!zones || !rowsIndexes.length || !columnsIndexes.length) {
+      return { merges: [[]], sheetId };
     }
-    const clipboardHeight = content.cells.length;
-    const clipboardWidth = content.cells[0].length;
-    for (const zone of getPasteZones(target, content.cells)) {
-      if (this.getters.doesIntersectMerge(sheetId, zone)) {
-        if (
-          target.length > 1 ||
-          !this.getters.isSingleCellOrMerge(sheetId, target[0]) ||
-          clipboardHeight * clipboardWidth !== 1
-        ) {
-          return CommandResult.WillRemoveExistingMerge;
+
+    const copiedMerges: ClipboardMerge[][] = [];
+    for (let row of rowsIndexes) {
+      let mergesInRow: ClipboardMerge[] = [];
+      copiedMerges.push(mergesInRow);
+      for (let col of columnsIndexes) {
+        const position = { col, row, sheetId };
+        const merge = this.getters.getMerge(position);
+        const mainCell = this.getters.getMainCellPosition(position);
+        if (merge && mainCell.col === col && mainCell.row === row) {
+          mergesInRow.push(merge);
+        } else {
+          mergesInRow.push(undefined);
         }
       }
     }
-    return CommandResult.Success;
+
+    return { sheetId, merges: copiedMerges };
   }
 
   /**
    * Paste the clipboard content in the given target
    */
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
-    if (options?.isCutOperation || !("zones" in target) || !target.zones.length) {
+    if (!target.zones?.length || !content.merges) {
       return;
     }
     const sheetId = this.getters.getActiveSheetId();
-    this.pasteFromCopy(sheetId, target.zones, content.cells, options);
-  }
-
-  pasteZone(sheetId: UID, col: HeaderIndex, row: HeaderIndex, cells: ClipboardCell[][]) {
-    for (const [r, rowCells] of cells.entries()) {
-      for (const [c, origin] of rowCells.entries()) {
-        if (!origin.position) {
-          continue;
+    if (options.isCutOperation) {
+      for (const merge of content.merges.flat()) {
+        if (merge) {
+          this.dispatch("REMOVE_MERGE", {
+            sheetId: content.sheetId,
+            target: [merge],
+          });
         }
-        const position = { col: col + c, row: row + r, sheetId };
-        this.pasteMergeIfExist(origin.position, position);
       }
     }
+    this.pasteFromCopy(sheetId, target.zones, content.merges, options);
   }
 
-  /**
-   * If the origin position given is the top left of a merge, merge the target
-   * position.
-   */
-  private pasteMergeIfExist(origin: CellPosition, target: CellPosition) {
-    let { sheetId, col, row } = origin;
-
-    const { col: mainCellColOrigin, row: mainCellRowOrigin } =
-      this.getters.getMainCellPosition(origin);
-    if (mainCellColOrigin === col && mainCellRowOrigin === row) {
-      const merge = this.getters.getMerge(origin);
-      if (!merge) {
-        return;
+  pasteZone(sheetId: UID, col: HeaderIndex, row: HeaderIndex, merges: Merge[][]) {
+    for (let r = 0; r < merges.length; r++) {
+      const rowMerges = merges[r];
+      for (let c = 0; c < rowMerges.length; c++) {
+        const merge = rowMerges[c];
+        if (!merge) {
+          continue;
+        }
+        const dimensions = zoneToDimension(merge);
+        this.dispatch("ADD_MERGE", {
+          sheetId,
+          force: true,
+          target: [
+            {
+              left: col + c,
+              top: row + r,
+              right: col + c + dimensions.numberOfCols - 1,
+              bottom: row + r + dimensions.numberOfRows - 1,
+            },
+          ],
+        });
       }
-      ({ sheetId, col, row } = target);
-      this.dispatch("ADD_MERGE", {
-        sheetId,
-        force: true,
-        target: [
-          {
-            left: col,
-            top: row,
-            right: col + merge.right - merge.left,
-            bottom: row + merge.bottom - merge.top,
-          },
-        ],
-      });
     }
   }
 }

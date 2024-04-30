@@ -101,6 +101,17 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessUpdateCell);
       case "CLEAR_CELL":
         return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessClearCell);
+      case "MOVE_REFERENCES": {
+        const targetSheet = this.getters.tryGetSheet(cmd.targetSheetId);
+        if (!targetSheet) {
+          return CommandResult.InvalidSheetId;
+        }
+        const sheetZone = this.getters.getSheetZone(cmd.targetSheetId);
+        if (!isInside(cmd.targetCol, cmd.targetRow, sheetZone)) {
+          return CommandResult.TargetOutOfSheet;
+        }
+        return CommandResult.Success;
+      }
       default:
         return CommandResult.Success;
     }

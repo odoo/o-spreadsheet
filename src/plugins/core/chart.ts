@@ -12,6 +12,7 @@ import {
   DOMDimension,
   Figure,
   FigureData,
+  Range,
   UID,
   UpdateChartCommand,
   WorkbookData,
@@ -109,6 +110,15 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
           this.history.update("charts", id, undefined);
         }
         break;
+      case "MOVE_REFERENCES": {
+        const target = { sheetId: cmd.targetSheetId, col: cmd.targetCol, row: cmd.targetRow };
+        const adaptRange = (range: Range) =>
+          this.getters.getMovedRange(range, cmd.sheetId, cmd.zone, target);
+        for (const [chartId, chart] of Object.entries(this.charts)) {
+          this.history.update("charts", chartId, chart?.updateRanges(adaptRange));
+        }
+        break;
+      }
     }
   }
 

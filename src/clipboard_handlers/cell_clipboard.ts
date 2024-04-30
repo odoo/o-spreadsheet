@@ -106,6 +106,19 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
         return CommandResult.WrongPasteSelection;
       }
     }
+    const clipboardHeight = content.cells.length;
+    const clipboardWidth = content.cells[0].length;
+    for (const zone of getPasteZones(target, content.cells)) {
+      if (this.getters.doesIntersectMerge(sheetId, zone)) {
+        if (
+          target.length > 1 ||
+          !this.getters.isSingleCellOrMerge(sheetId, target[0]) ||
+          clipboardHeight * clipboardWidth !== 1
+        ) {
+          return CommandResult.WillRemoveExistingMerge;
+        }
+      }
+    }
     return CommandResult.Success;
   }
 
@@ -165,12 +178,12 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     this.clearClippedZones(content);
     const selection = target[0];
     this.pasteZone(sheetId, selection.left, selection.top, content.cells, options);
-    this.dispatch("MOVE_RANGES", {
-      target: content.zones,
+    this.dispatch("MOVE_REFERENCES", {
+      zone: content.zones[0],
       sheetId: content.sheetId,
       targetSheetId: sheetId,
-      col: selection.left,
-      row: selection.top,
+      targetCol: selection.left,
+      targetRow: selection.top,
     });
   }
 
