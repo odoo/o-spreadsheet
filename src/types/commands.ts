@@ -292,6 +292,7 @@ export interface AddColumnsRowsCommand extends SheetDependentCommand {
   base: HeaderIndex;
   quantity: number;
   position: "before" | "after";
+  emptyNewHeaders?: boolean;
 }
 
 export interface RemoveColumnsRowsCommand extends HeadersDependentCommand {
@@ -951,6 +952,21 @@ export interface InsertNewPivotCommand {
   newSheetId: UID;
 }
 
+export interface SendFigureToSheetCommand {
+  type: "SEND_FIGURE_TO_SHEET";
+  figureId: UID;
+  sheetId: UID;
+}
+
+export interface SendSelectionToSheetCommand {
+  type: "SEND_SELECTION_TO_SHEET";
+  sheetId: UID;
+}
+
+export interface ReorganizeSheetCommand {
+  type: "REORGANIZE_SHEET";
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -1096,7 +1112,10 @@ export type LocalCommand =
   | RefreshPivotCommand
   | InsertNewPivotCommand
   | ExpandSheetForZoneCommand
-  | RefreshPivotCommand;
+  | RefreshPivotCommand
+  | SendFigureToSheetCommand
+  | SendSelectionToSheetCommand
+  | ReorganizeSheetCommand;
 
 export type Command = CoreCommand | LocalCommand;
 

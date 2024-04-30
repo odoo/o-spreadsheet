@@ -56,11 +56,11 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
       for (let col of columnsIndexes) {
         const position = { col, row, sheetId };
         const table = this.getters.getTable(position);
-        if (!table || copiedTablesIds.has(table.id)) {
+        const coreTable = this.getters.getCoreTable(position);
+        if ((!table && !coreTable) || copiedTablesIds.has((table || coreTable)!.id)) {
           tableCellsInRow.push({});
           continue;
         }
-        const coreTable = this.getters.getCoreTable(position);
         const tableZone = coreTable?.range.zone;
         // Copy whole table
         if (coreTable && tableZone && zones.some((z) => isZoneInside(tableZone, z))) {

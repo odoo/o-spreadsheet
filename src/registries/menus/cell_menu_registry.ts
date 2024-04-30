@@ -4,6 +4,7 @@ import { MenuItemRegistry } from "../menu_items_registry";
 import * as ACTION_EDIT from "../../actions/edit_actions";
 import * as ACTION_INSERT from "../../actions/insert_actions";
 import * as ACTIONS from "../../actions/menu_items_actions";
+import { getZoneArea } from "../../helpers";
 import * as ACTIONS_PIVOT from "../../helpers/pivot/pivot_menu_items";
 
 //------------------------------------------------------------------------------
@@ -110,4 +111,20 @@ cellMenuRegistry
     ...ACTIONS_PIVOT.pivotProperties,
     sequence: 160,
     separator: true,
+  })
+  .add("send_to_sheet", {
+    name: _t("Send range to sheet"),
+    sequence: 170,
+    separator: true,
+    isVisible: (env) => {
+      const selection = env.model.getters.getSelectedZones();
+      return selection.length === 1 && getZoneArea(selection[0]) !== 1;
+    },
+    icon: "o-spreadsheet-Icon.CUT", // ADRM TODO: icon
+    children: [
+      (env) =>
+        ACTIONS.getSendToSheetMenuChildren(env, (env, sheetId) =>
+          env.model.dispatch("SEND_SELECTION_TO_SHEET", { sheetId })
+        ),
+    ],
   });

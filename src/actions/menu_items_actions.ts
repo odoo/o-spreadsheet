@@ -20,7 +20,7 @@ import { interactiveCreateTable } from "../helpers/ui/table_interactive";
 import { _t } from "../translation";
 import { ClipboardMIMEType, ClipboardPasteOptions } from "../types/clipboard";
 import { Image } from "../types/image";
-import { Dimension, Format, SpreadsheetChildEnv, Style } from "../types/index";
+import { Dimension, Format, SpreadsheetChildEnv, Style, UID } from "../types/index";
 import { ActionSpec } from "./action";
 
 //------------------------------------------------------------------------------
@@ -575,3 +575,36 @@ export const CREATE_OR_REMOVE_FILTER_ACTION: ActionSpec = {
     SELECTED_TABLE_HAS_FILTERS(env) ? REMOVE_DATA_FILTER(env) : ADD_DATA_FILTER(env),
   icon: "o-spreadsheet-Icon.FILTER_ICON_ACTIVE",
 };
+
+export function getSendToSheetMenuChildren(
+  env: SpreadsheetChildEnv,
+  sendItemToSheetCallback: (env: SpreadsheetChildEnv, sheetId: UID) => void
+): ActionSpec[] {
+  const sheetIds = env.model.getters
+    .getSheetIds()
+    .filter((sheetId) => sheetId !== env.model.getters.getActiveSheetId());
+
+  const children: ActionSpec[] = [];
+  for (const sheetId of sheetIds) {
+    children.push({
+      name: env.model.getters.getSheetName(sheetId),
+      id: sheetId,
+      icon: "o-spreadsheet-Icon.CLEAR_AND_RELOAD",
+      execute: (env) => sendItemToSheetCallback(env, sheetId),
+    });
+  }
+  children.push({
+    name: _t("New sheet"),
+    id: "new_sheet",
+    icon: "o-spreadsheet-Icon.PLUS",
+    execute: (env) => {
+      const position = env.model.getters.getSheetIds().length;
+      const sheetId = env.model.uuidGenerator.uuidv4();
+      const name = env.model.getters.getNextSheetName(_t("Sheet"));
+
+      env.model.dispatch("CREATE_SHEET", { sheetId, position, name });
+      sendItemToSheetCallback(env, sheetId);
+    },
+  });
+  return children;
+}

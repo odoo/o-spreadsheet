@@ -259,7 +259,9 @@ export class EvaluationPlugin extends UIPlugin {
   }
 
   getEvaluatedCellsPositions(sheetId: UID): CellPosition[] {
-    return this.evaluator.getEvaluatedPositionsInSheet(sheetId);
+    return this.evaluator
+      .getEvaluatedPositionsInSheet(sheetId)
+      .filter((position) => this.getEvaluatedCell(position).type !== CellValueType.empty);
   }
 
   getEvaluatedCellsInZone(sheetId: UID, zone: Zone): EvaluatedCell[] {

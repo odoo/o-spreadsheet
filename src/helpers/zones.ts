@@ -647,3 +647,18 @@ export function mergeContiguousZones(zones: Zone[]) {
   }
   return mergedZones;
 }
+
+/**
+ * Compare zone by width, then by height, then by top, then by left
+ */
+export function compareZoneByWidth(zone1: Zone, zone2: Zone) {
+  const widtHDiff = zone2.right - zone2.left - (zone1.right - zone1.left);
+  if (widtHDiff) {
+    return widtHDiff;
+  }
+  const heightDiff = zone2.bottom - zone2.top - (zone1.bottom - zone1.top);
+  if (heightDiff) {
+    return heightDiff;
+  }
+  return zone1.top - zone2.top || zone1.left - zone2.left;
+}

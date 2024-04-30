@@ -1,4 +1,5 @@
 import { Action, ActionSpec, createActions } from "../actions/action";
+import { getSendToSheetMenuChildren } from "../actions/menu_items_actions";
 import { ChartFigure } from "../components/figures/figure_chart/figure_chart";
 import { ImageFigure } from "../components/figures/figure_image/figure_image";
 import { getMaxFigureSize } from "../helpers/figures/figure/figure";
@@ -59,6 +60,7 @@ function getChartMenu(
     getCopyMenuItem(figureId, env),
     getCutMenuItem(figureId, env),
     getDeleteMenuItem(figureId, onFigureDeleted, env),
+    getSendFigureToSheetMenuItem(figureId),
   ];
   return createActions(menuItemSpecs);
 }
@@ -95,6 +97,7 @@ function getImageMenuRegistry(
       icon: "o-spreadsheet-Icon.REFRESH",
     },
     getDeleteMenuItem(figureId, onFigureDeleted, env),
+    getSendFigureToSheetMenuItem(figureId),
   ];
   return createActions(menuItemSpecs);
 }
@@ -146,5 +149,21 @@ function getDeleteMenuItem(
       onFigureDeleted();
     },
     icon: "o-spreadsheet-Icon.TRASH",
+    separator: true,
+  };
+}
+
+function getSendFigureToSheetMenuItem(figureId: UID): ActionSpec {
+  return {
+    sequence: 15,
+    id: "send_to_sheet",
+    name: _t("Send to sheet"),
+    icon: "o-spreadsheet-Icon.CUT", // ADRM TODO: icon
+    children: [
+      (env) =>
+        getSendToSheetMenuChildren(env, (env, sheetId) =>
+          env.model.dispatch("SEND_FIGURE_TO_SHEET", { sheetId, figureId })
+        ),
+    ],
   };
 }

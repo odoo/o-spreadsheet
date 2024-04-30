@@ -18,6 +18,7 @@ import {
   Dimension,
   Direction,
   DispatchResult,
+  DOMCoordinates,
   Locale,
   SelectionStep,
   SortDirection,
@@ -141,7 +142,10 @@ export function createImage(
  */
 export function createChart(
   model: Model,
-  data: { type: ChartDefinition["type"] } & Partial<ChartWithAxisDefinition>,
+  data: { type: ChartDefinition["type"] } & Partial<ChartWithAxisDefinition> & {
+      position?: DOMCoordinates;
+      size?: FigureSize;
+    },
   chartId?: UID,
   sheetId?: UID
 ) {
@@ -170,6 +174,8 @@ export function createChart(
     id,
     sheetId,
     definition,
+    position: data.position,
+    size: data.size,
   });
 }
 
