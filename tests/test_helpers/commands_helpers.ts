@@ -13,6 +13,7 @@ import {
   ClipboardPasteOptions,
   CreateSheetCommand,
   CreateTableStyleCommand,
+  DOMCoordinates,
   DataValidationCriterion,
   Dimension,
   Direction,
@@ -151,7 +152,7 @@ export function createChart(
     | ScatterChartDefinition
     | ComboChartDefinition
     | WaterfallChartDefinition
-  >,
+  > & { position?: DOMCoordinates; size?: FigureSize },
   chartId?: UID,
   sheetId?: UID
 ) {
@@ -161,6 +162,8 @@ export function createChart(
   return model.dispatch("CREATE_CHART", {
     id,
     sheetId,
+    position: data.position,
+    size: data.size,
     definition: {
       ...data,
       title: data.title || "test",

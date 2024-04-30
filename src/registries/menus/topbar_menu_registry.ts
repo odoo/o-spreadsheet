@@ -480,4 +480,9 @@ topbarMenuRegistry
             : undefined,
       };
     });
+  })
+  .addChild("reorganize_sheet", ["data"], {
+    ...ACTION_DATA.reorganizeSheet,
+    sequence: 45,
+    separator: true,
   });

@@ -705,6 +705,7 @@ function getZoneWidth(zone: Zone) {
  * Merge contiguous and overlapping zones that are in the array into bigger zones
  */
 export function mergeContiguousZones(zones: Zone[]) {
+  // ADRM TODO: not include touching corners
   const mergedZones = [...zones];
   let hasMerged = true;
   while (hasMerged) {

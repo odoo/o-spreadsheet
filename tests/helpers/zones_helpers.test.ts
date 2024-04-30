@@ -2,12 +2,14 @@ import {
   createAdaptedZone,
   isZoneValid,
   mergeAlignedColumns,
+  mergeContiguousZones,
   mergePositionsIntoColumns,
   overlap,
   positions,
   toCartesian,
   toUnboundedZone,
   toZone,
+  zoneToXc,
 } from "../../src/helpers/index";
 import { Position, Zone } from "../../src/types";
 import { target } from "../test_helpers/helpers";
@@ -297,4 +299,10 @@ describe("createAdaptedZone", () => {
   test("negative resize on columns and rows", () => {
     expect(createAdaptedZone(zone, "both", "RESIZE", [-1, -1])).toEqual(toZone("B2"));
   });
+});
+
+test("test", () => {
+  const array = ["A32:A43", "A45:A56", "B33:C44", "B46:C56"];
+  const merged = mergeContiguousZones(array.map(toZone));
+  console.log(merged.map(zoneToXc));
 });

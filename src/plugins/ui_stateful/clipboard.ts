@@ -411,6 +411,7 @@ export class ClipboardPlugin extends UIPlugin {
 
     const missingRows = height + row - this.getters.getNumberRows(sheetId);
     if (missingRows > 0) {
+      console.log("ADD_ROWS", missingRows);
       this.dispatch("ADD_COLUMNS_ROWS", {
         dimension: "ROW",
         base: this.getters.getNumberRows(sheetId) - 1,
