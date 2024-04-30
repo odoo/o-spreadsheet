@@ -18,10 +18,10 @@ import {
   Dimension,
   GridRenderingContext,
   HeaderIndex,
+  isCoreCommand,
   LocalCommand,
   UID,
   Zone,
-  isCoreCommand,
 } from "../../types/index";
 import { xmlEscape } from "../../xlsx/helpers/xml_helpers";
 import { UIPlugin } from "../ui_plugin";
@@ -210,7 +210,7 @@ export class ClipboardPlugin extends UIPlugin {
         this.status = "invisible";
 
         // If we add a col/row inside or before the cut area, we invalidate the clipboard
-        if (this._isCutOperation !== true) {
+        if (this._isCutOperation !== true || cmd.sheetId !== this.copiedData?.sheetId) {
           return;
         }
         const isClipboardDirty = this.isColRowDirtyingClipboard(
@@ -226,7 +226,7 @@ export class ClipboardPlugin extends UIPlugin {
         this.status = "invisible";
 
         // If we remove a col/row inside or before the cut area, we invalidate the clipboard
-        if (this._isCutOperation !== true) {
+        if (this._isCutOperation !== true || cmd.sheetId !== this.copiedData?.sheetId) {
           return;
         }
         for (let el of cmd.elements) {
