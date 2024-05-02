@@ -477,14 +477,24 @@ export function isOneDimensional(zone: Zone): boolean {
  */
 export function positions(zone: Zone): Position[] {
   const positions: Position[] = [];
-  const [left, right] = [zone.right, zone.left].sort((a, b) => a - b);
-  const [top, bottom] = [zone.top, zone.bottom].sort((a, b) => a - b);
+
+  const { left, right, top, bottom } = reorderZone(zone);
   for (const col of range(left, right + 1)) {
     for (const row of range(top, bottom + 1)) {
       positions.push({ col, row });
     }
   }
   return positions;
+}
+
+export function reorderZone(zone: Zone): Zone {
+  if (zone.left > zone.right) {
+    zone = { left: zone.right, right: zone.left, top: zone.top, bottom: zone.bottom };
+  }
+  if (zone.top > zone.bottom) {
+    zone = { left: zone.left, right: zone.right, top: zone.bottom, bottom: zone.top };
+  }
+  return zone;
 }
 
 /**
@@ -605,15 +615,6 @@ export function findCellInNewZone(oldZone: Zone, currentZone: Zone): Position {
     row = top;
   }
   return { col, row };
-}
-
-export function organizeZone(zone: Zone): Zone {
-  return {
-    top: Math.min(zone.top, zone.bottom),
-    bottom: Math.max(zone.top, zone.bottom),
-    left: Math.min(zone.left, zone.right),
-    right: Math.max(zone.left, zone.right),
-  };
 }
 
 export function positionToZone(position: Position): Zone {
