@@ -1,0 +1,22 @@
+<templates>
+  <t t-name="o-spreadsheet-SidePanelCollapsible">
+    <div class="p-1 m-1" t-att-class="props.class">
+      <div class="o_side_panel_collapsible_title d-flex align-items-center">
+        <span
+          t-att-id="'btn-collapse-'+currentId"
+          t-att-class="{ 'collapsed': props.collapsedAtInit }"
+          class="collapsor w-100"
+          data-bs-toggle="collapse"
+          t-att-data-bs-target="'#box-collapse-'+currentId">
+          <t t-slot="title"/>
+        </span>
+      </div>
+      <div
+        t-att-id="'box-collapse-'+currentId"
+        t-att-class="{'show': !props.collapsedAtInit}"
+        class="collapsible_section collapse">
+        <t t-slot="content"/>
+      </div>
+    </div>
+  </t>
+</templates>
