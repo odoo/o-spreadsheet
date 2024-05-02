@@ -1,3 +1,4 @@
+import { OPERATOR_MAP, UNARY_OPERATOR_MAP } from "../../src/formulas/compiler";
 import { functionRegistry } from "../../src/functions";
 import { toScalar } from "../../src/functions/helper_matrices";
 import { toString } from "../../src/functions/helpers";
@@ -150,5 +151,25 @@ describe("vectorization", () => {
       ["A2", "B2"],
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E2")).toBeTruthy();
+  });
+
+  test("binary operators should always accept vectors", () => {
+    // mean binary operators args should always be simple args
+    for (let op in OPERATOR_MAP) {
+      const functionDefinition = functionRegistry.content[OPERATOR_MAP[op]];
+      expect(
+        functionDefinition.args.every((arg) =>
+          arg.type.every((t) => !t.startsWith("RANGE") && t !== "META")
+        )
+      );
+    }
+  });
+
+  test("unary operators should always accept vectors", () => {
+    // mean unary operators args should always be simple arg
+    for (const op in UNARY_OPERATOR_MAP) {
+      const functionDefinition = functionRegistry.content[UNARY_OPERATOR_MAP[op]];
+      expect(functionDefinition.args[0].type.every((t) => !t.startsWith("RANGE") && t !== "META"));
+    }
   });
 });
