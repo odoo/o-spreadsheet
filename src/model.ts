@@ -203,6 +203,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.uiPluginConfig = this.setupUiPluginConfig();
 
     this.coreModel.addPluginsTo(this.handlers);
+    this.coreModel.import(workbookData);
 
     Object.assign(this.getters, this.coreModel.coreGetters);
 
@@ -505,12 +506,14 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       if (!isCommandCore && this.coreModel.corePlugins.includes(handler as any)) {
         continue;
       }
+      // console.log(`${handler.constructor.name} is beforeHandling ${command.type}`);
       handler.beforeHandle(command);
     }
     for (const handler of handlers) {
       if (!isCommandCore && this.coreModel.corePlugins.includes(handler as any)) {
         continue;
       }
+      // console.log(`${handler.constructor.name} is handling ${command.type}`);
       handler.handle(command);
     }
     this.trigger("command-dispatched", command);

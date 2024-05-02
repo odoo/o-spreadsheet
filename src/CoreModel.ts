@@ -50,10 +50,17 @@ export class CoreModel {
     this.corePlugins = this.setupCorePlugins(
       corePluginRegistry,
       this.coreGetters,
-      corePluginsConfig as CorePluginConfig,
-      options.workbookData
+      corePluginsConfig as CorePluginConfig
     );
-    this.corePlugins.forEach((plugin) => this.coreHandlers.push(plugin));
+    this.corePlugins.forEach((plugin) => {
+      this.coreHandlers.push(plugin);
+    });
+  }
+
+  import(data: WorkbookData) {
+    for (let corePlugin of this.corePlugins) {
+      corePlugin.import(data);
+    }
   }
 
   setupCoreUiPlugins(
@@ -69,8 +76,7 @@ export class CoreModel {
     const coreUiPlugins = this.setupCorePlugins(
       coreViewsPluginRegistry,
       allGetters,
-      corePluginsConfig as CorePluginConfig,
-      null
+      corePluginsConfig as CorePluginConfig
     );
     coreUiPlugins.forEach((x) => {
       allHandlers.push(x);
@@ -88,8 +94,7 @@ export class CoreModel {
   private setupCorePlugins(
     registry: Registry<CorePluginConstructor>,
     getters: CoreGetters,
-    corePluginConfig: CorePluginConfig,
-    workbookData: WorkbookData | null
+    corePluginConfig: CorePluginConfig
   ): CorePlugin[] {
     return registry.getAll().map((Plugin) => {
       const plugin = new Plugin(corePluginConfig);
@@ -101,9 +106,6 @@ export class CoreModel {
           throw new Error(`Getter "${name}" is already defined.`);
         }
         getters[name] = plugin[name].bind(plugin);
-      }
-      if (workbookData) {
-        plugin.import(workbookData);
       }
       return plugin;
     });
