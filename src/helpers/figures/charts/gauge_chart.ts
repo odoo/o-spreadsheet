@@ -178,7 +178,7 @@ export class GaugeChart extends AbstractChart {
   static getDefinitionFromContextCreation(context: ChartCreationContext): GaugeChartDefinition {
     return {
       background: context.background,
-      title: context.title || "",
+      title: context.title || { text: "" },
       type: "gauge",
       dataRange: context.range ? context.range[0] : undefined,
       sectionRule: {
@@ -316,7 +316,7 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
 
   return {
     background: getters.getStyleOfSingleCellChart(chart.background, dataRange).background,
-    title: chart.title,
+    title: chart.title ?? { text: "" },
     minValue: {
       value: minValue,
       label: formatValue(minValue, { locale, format }),

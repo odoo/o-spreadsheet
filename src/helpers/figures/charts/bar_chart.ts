@@ -100,7 +100,7 @@ export class BarChart extends AbstractChart {
       stacked: context.stacked ?? false,
       aggregated: context.aggregated ?? false,
       legendPosition: context.legendPosition ?? "top",
-      title: context.title || "",
+      title: context.title || { text: "" },
       type: "bar",
       verticalAxisPosition: context.verticalAxisPosition ?? "left",
       labelRange: context.auxiliaryRange || undefined,
@@ -175,6 +175,7 @@ export class BarChart extends AbstractChart {
     );
     return {
       ...this.getDefinition(),
+      title: this.title.text ?? "",
       backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
       dataSets,

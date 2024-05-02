@@ -5,7 +5,6 @@ import {
   GAUGE_TEXT_COLOR_HIGH_CONTRAST,
   GAUGE_TITLE_FONT_SIZE,
   GAUGE_TITLE_PADDING_LEFT,
-  GAUGE_TITLE_PADDING_TOP,
   getGaugeRenderingConfig,
 } from "../../../src/helpers/figures/charts/gauge_chart_rendering";
 import { Rect } from "../../../src/types";
@@ -14,7 +13,7 @@ import { MockCanvasRenderingContext2D } from "../../setup/canvas.mock";
 
 const testRuntime: GaugeChartRuntime = {
   background: "#FFFFFF",
-  title: "This is a title",
+  title: { text: "This is a title" },
   minValue: { value: 0, label: "0" },
   maxValue: { value: 100, label: "100" },
   gaugeValue: { value: 50, label: "50" },
@@ -51,13 +50,17 @@ describe("Gauge rendering config", () => {
     expect(config.width).toEqual(testChartRect.width);
   });
 
+  /* In the following test, textPosition.y is expected to be NaN as the vertical position of the
+     title is computed according to the title height, and fontBoundingBoxAscent and
+     fontBoundingBoxDescent are not implemented by js-dom so not available here.
+  */
   test("Chart title", () => {
     expect(getRenderingConfig(testRuntime).title).toEqual({
-      label: testRuntime.title,
+      label: testRuntime.title.text,
       fontSize: GAUGE_TITLE_FONT_SIZE,
       textPosition: {
         x: GAUGE_TITLE_PADDING_LEFT,
-        y: GAUGE_TITLE_PADDING_TOP + GAUGE_TITLE_FONT_SIZE,
+        y: NaN,
       },
       color: GAUGE_TEXT_COLOR,
     });

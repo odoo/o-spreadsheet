@@ -281,8 +281,86 @@ describe("charts", () => {
       sheetId,
       definition: {
         ...model.getters.getChartDefinition(chartId),
-        title: "hello",
+        title: { text: "hello" },
       },
+    });
+  });
+
+  test("can edit chart title color", async () => {
+    createChart(
+      model,
+      {
+        dataSets: ["C1:C4"],
+        labelRange: "A2:A4",
+        type: "line",
+        title: { text: "title" },
+      },
+      "1"
+    );
+    await openChartDesignSidePanel("1");
+
+    await click(
+      fixture,
+      ".o-chart-title-designer > .o-color-picker-widget > .o-color-picker-button"
+    );
+    await click(fixture, ".o-color-picker-line-item[data-color='#EFEFEF'");
+    expect(model.getters.getChartDefinition("1").title).toEqual({
+      text: "title",
+      color: "#EFEFEF",
+    });
+  });
+
+  test.each(["Left", "Center", "Right"])(
+    "can edit chart title alignment",
+    async (alignment: string) => {
+      createChart(
+        model,
+        {
+          dataSets: ["C1:C4"],
+          labelRange: "A2:A4",
+          type: "line",
+          title: { text: "title" },
+        },
+        "1"
+      );
+      await openChartDesignSidePanel("1");
+
+      await click(
+        fixture,
+        ".o-chart-title-designer > .o-menu-item-button[title='Horizontal alignment']"
+      );
+      await click(fixture, `.o-menu-item-button[title='${alignment}']`);
+      expect(model.getters.getChartDefinition("1").title).toEqual({
+        text: "title",
+        align: alignment.toLowerCase(),
+      });
+    }
+  );
+
+  test("can edit chart title style", async () => {
+    createChart(
+      model,
+      {
+        dataSets: ["C1:C4"],
+        labelRange: "A2:A4",
+        type: "line",
+        title: { text: "title" },
+      },
+      "1"
+    );
+    await openChartDesignSidePanel("1");
+
+    await click(fixture, ".o-chart-title-designer > .o-menu-item-button[title='Bold']");
+    expect(model.getters.getChartDefinition("1").title).toEqual({
+      text: "title",
+      bold: true,
+    });
+
+    await click(fixture, ".o-chart-title-designer > .o-menu-item-button[title='Italic']");
+    expect(model.getters.getChartDefinition("1").title).toEqual({
+      text: "title",
+      bold: true,
+      italic: true,
     });
   });
 
@@ -293,7 +371,7 @@ describe("charts", () => {
         dataSets: ["C1:C4"],
         labelRange: "A2:A4",
         type: "line",
-        title: "old_title_1",
+        title: { text: "old_title_1" },
       },
       "1"
     );
@@ -303,7 +381,7 @@ describe("charts", () => {
         dataSets: ["C1:C4"],
         labelRange: "A2:A4",
         type: "line",
-        title: "old_title_2",
+        title: { text: "old_title_2" },
       },
       "2"
     );
@@ -314,8 +392,8 @@ describe("charts", () => {
 
     const figures = fixture.querySelectorAll(".o-figure");
     await simulateClick(figures[1] as HTMLElement);
-    expect(model.getters.getChartDefinition("1").title).toBe("old_title_1");
-    expect(model.getters.getChartDefinition("2").title).toBe("old_title_2");
+    expect(model.getters.getChartDefinition("1").title.text).toBe("old_title_1");
+    expect(model.getters.getChartDefinition("2").title.text).toBe("old_title_2");
   });
 
   test("selecting a chart then selecting another chart and editing property change the second chart", async () => {
@@ -325,7 +403,7 @@ describe("charts", () => {
         dataSets: ["C1:C4"],
         labelRange: "A2:A4",
         type: "line",
-        title: "old_title_1",
+        title: { text: "old_title_1" },
       },
       "1"
     );
@@ -335,7 +413,7 @@ describe("charts", () => {
         dataSets: ["C1:C4"],
         labelRange: "A2:A4",
         type: "line",
-        title: "old_title_2",
+        title: { text: "old_title_2" },
       },
       "2"
     );
@@ -346,8 +424,8 @@ describe("charts", () => {
     await simulateClick(".o-chart-title input");
     setInputValueAndTrigger(".o-chart-title input", "new_title");
 
-    expect(model.getters.getChartDefinition("1").title).toBe("old_title_1");
-    expect(model.getters.getChartDefinition("2").title).toBe("new_title");
+    expect(model.getters.getChartDefinition("1").title.text).toBe("old_title_1");
+    expect(model.getters.getChartDefinition("2").title.text).toBe("new_title");
   });
 
   test.each(TEST_CHART_TYPES)(
@@ -542,7 +620,7 @@ describe("charts", () => {
         {
           dataSets: ["C1:C4"],
           labelRange: "A2:A4",
-          title: "second",
+          title: { text: "second" },
           type: "line",
         },
         "secondChartId"
@@ -630,7 +708,7 @@ describe("charts", () => {
         dataSets: [],
         labelRange: "A2:A4",
         type: "line",
-        title: "old_title_1",
+        title: { text: "old_title_1" },
       },
       chartId
     );
@@ -653,7 +731,7 @@ describe("charts", () => {
         dataSets: [],
         labelRange: "A2:A4",
         type: "line",
-        title: "old_title_1",
+        title: { text: "old_title_1" },
       },
       chartId
     );
@@ -1135,7 +1213,7 @@ describe("charts", () => {
             legendPosition: "top",
             type,
             dataSetsHaveTitle: false,
-            title: "",
+            title: { text: "" },
           },
           chartId,
           sheetId
@@ -1244,7 +1322,7 @@ describe("charts with multiple sheets", () => {
               y: 100,
               data: {
                 type: "line",
-                title: "demo chart",
+                title: { text: "demo chart" },
                 labelRange: "Sheet1!A2:A4",
                 dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
                 dataSetsHaveTitle: true,
@@ -1260,7 +1338,7 @@ describe("charts with multiple sheets", () => {
               y: 300,
               data: {
                 type: "scorecard",
-                title: "demo scorecard",
+                title: { text: "demo scorecard" },
                 baseline: "Sheet1!A2:A4",
                 keyValue: "Sheet1!B1:B4",
               },

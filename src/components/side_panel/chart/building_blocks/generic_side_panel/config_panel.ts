@@ -1,22 +1,20 @@
 import { Component, useState } from "@odoo/owl";
-import { createRange, spreadRange } from "../../../../helpers";
-import { createDataSets } from "../../../../helpers/figures/charts";
-import { _t } from "../../../../translation";
+import { createRange, spreadRange } from "../../../../../helpers";
+import { createDataSets } from "../../../../../helpers/figures/charts";
+import { _t } from "../../../../../translation";
 import {
   ChartWithAxisDefinition,
   CommandResult,
   DispatchResult,
   SpreadsheetChildEnv,
   UID,
-} from "../../../../types/index";
-import { SelectionInput } from "../../../selection_input/selection_input";
-import { ChartTerms } from "../../../translations_terms";
-import { ValidationMessages } from "../../../validation_messages/validation_messages";
-import { Checkbox } from "../../components/checkbox/checkbox";
-import { Section } from "../../components/section/section";
-import { ChartDataSeries } from "../building_blocks/data_series/data_series";
-import { ChartErrorSection } from "../building_blocks/error_section/error_section";
-import { ChartLabelRange } from "../building_blocks/label_range/label_range";
+} from "../../../../../types";
+import { ChartTerms } from "../../../../translations_terms";
+import { Checkbox } from "../../../components/checkbox/checkbox";
+import { Section } from "../../../components/section/section";
+import { ChartDataSeries } from "../data_series/data_series";
+import { ChartErrorSection } from "../error_section/error_section";
+import { ChartLabelRange } from "../label_range/label_range";
 
 interface Props {
   figureId: UID;
@@ -33,8 +31,6 @@ interface ChartPanelState {
 export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GenericChartConfigPanel";
   static components = {
-    SelectionInput,
-    ValidationMessages,
     ChartDataSeries,
     ChartLabelRange,
     Section,

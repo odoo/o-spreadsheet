@@ -90,7 +90,7 @@ export class ScatterChart extends AbstractChart {
       dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
       labelsAsText: context.labelsAsText ?? false,
       legendPosition: context.legendPosition ?? "top",
-      title: context.title || "",
+      title: context.title || { text: "" },
       type: "scatter",
       verticalAxisPosition: context.verticalAxisPosition ?? "left",
       labelRange: context.auxiliaryRange || undefined,
@@ -166,6 +166,7 @@ export class ScatterChart extends AbstractChart {
     );
     return {
       ...this.getDefinition(),
+      title: this.getDefinition().title.text ?? "",
       backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
       dataSets,

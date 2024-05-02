@@ -83,7 +83,7 @@ describe("datasource tests", function () {
       model,
       {
         dataRange: "B8",
-        title: "Title",
+        title: { text: "Title" },
         sectionRule: randomSectionRule,
       },
       "1"
@@ -91,7 +91,7 @@ describe("datasource tests", function () {
     expect(model.getters.getChartDefinition("1") as GaugeChartDefinition).toMatchObject({
       dataRange: "B8",
       type: "gauge",
-      title: "Title",
+      title: { text: "Title" },
       sectionRule: randomSectionRule,
     });
     expect(model.getters.getChartRuntime("1") as GaugeChartRuntime).toMatchSnapshot();
@@ -108,7 +108,7 @@ describe("datasource tests", function () {
     expect(model.getters.getChartDefinition("1") as GaugeChartDefinition).toMatchObject({
       type: "gauge",
       dataRange: "A1",
-      title: "",
+      title: { text: "" },
       sectionRule: defaultSectionRule,
     });
     expect(model.getters.getChartRuntime("1") as GaugeChartRuntime).toMatchSnapshot();
@@ -117,7 +117,7 @@ describe("datasource tests", function () {
   test("create gauge from creation context", () => {
     const context: Required<ChartCreationContext> = {
       background: "#123456",
-      title: "hello there",
+      title: { text: "hello there" },
       range: ["Sheet1!B1:B4"],
       auxiliaryRange: "Sheet1!A1:A4",
       legendPosition: "bottom",
@@ -135,7 +135,7 @@ describe("datasource tests", function () {
     expect(definition).toEqual({
       type: "gauge",
       background: "#123456",
-      title: "hello there",
+      title: { text: "hello there" },
       dataRange: "Sheet1!B1:B4",
       sectionRule: expect.any(Object),
     });
@@ -181,12 +181,12 @@ describe("datasource tests", function () {
     );
     updateChart(model, "1", {
       dataRange: "A7",
-      title: "hello1",
+      title: { text: "hello1" },
       sectionRule: randomSectionRule,
     });
     expect(model.getters.getChartDefinition("1") as GaugeChartDefinition).toMatchObject({
       dataRange: "A7",
-      title: "hello1",
+      title: { text: "hello1" },
       sectionRule: randomSectionRule,
     });
   });
@@ -361,7 +361,7 @@ describe("datasource tests", function () {
     createGaugeChart(
       model,
       {
-        title: "test",
+        title: { text: "test" },
         dataRange: "B1:B4",
         sectionRule: randomSectionRule,
       },
@@ -377,7 +377,7 @@ describe("datasource tests", function () {
     const duplicatedFigure = model.getters.getFigures(secondSheetId)[0];
     const duplicatedChart = model.getters.getChart(duplicatedFigure.id) as GaugeChart;
 
-    expect(duplicatedChart.title).toEqual("test");
+    expect(duplicatedChart.title.text).toEqual("test");
     expect(zoneToXc(duplicatedChart.dataRange!.zone)).toEqual("B1:B4");
     expect(duplicatedChart.dataRange?.sheetId).toEqual(secondSheetId);
 
@@ -409,7 +409,7 @@ describe("multiple sheets", () => {
               y: 100,
               data: {
                 type: "gauge",
-                title: "demo chart",
+                title: { text: "demo chart" },
                 dataRange: "Sheet2!A1",
                 sectionRule: { ...defaultSectionRule },
               },
@@ -483,7 +483,7 @@ describe("Chart design configuration", () => {
     defaultChart = {
       background: "#ffffff",
       dataRange: "A1",
-      title: "My chart",
+      title: { text: "My chart" },
       type: "gauge",
       sectionRule: deepCopy(defaultSectionRule),
     };

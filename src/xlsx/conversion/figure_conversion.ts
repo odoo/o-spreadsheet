@@ -86,7 +86,9 @@ function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | un
     dataSets,
     dataSetsHaveTitle,
     labelRange,
-    title: chartData.title || "",
+    title: {
+      text: chartData.title || "",
+    },
     type: chartData.type,
     background: convertColor({ rgb: chartData.backgroundColor }) || "#FFFFFF",
     verticalAxisPosition: chartData.verticalAxisPosition,

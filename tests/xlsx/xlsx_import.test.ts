@@ -623,7 +623,7 @@ describe("Import xlsx data", () => {
     const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
     // Cells in the 1st column of the sheet contains jsons with expected figure data
     const figZone = toZone(figureZone);
-    const figure = testSheet.figures.find((figure) => figure.data.title === chartTitle)!;
+    const figure = testSheet.figures.find((figure) => figure.data.title.text === chartTitle)!;
 
     // Don't test exact positions, because excel does some esoteric magic for units and sizes (+our conversion is wonky, hello hardcoded DPI)
     // We'll only test that the figure corners are located in the correct cells
@@ -653,9 +653,9 @@ describe("Import xlsx data", () => {
     "Can import charts %s without dataset titles",
     (chartTitle, chartType, chartColor, chartDatasets) => {
       const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
-      const figure = testSheet.figures.find((figure) => figure.data.title === chartTitle)!;
+      const figure = testSheet.figures.find((figure) => figure.data.title.text === chartTitle)!;
       const chartData = figure.data as BarChartDefinition | ComboChartDefinition;
-      expect(chartData.title).toEqual(chartTitle);
+      expect(chartData.title.text).toEqual(chartTitle);
       expect(chartData.type).toEqual(chartType);
       expect(standardizeColor(chartData.background!)).toEqual(standardizeColor(chartColor));
 
@@ -673,9 +673,9 @@ describe("Import xlsx data", () => {
     "Can import charts %s with dataset titles",
     (chartTitle, chartType, chartColor, chartDatasets) => {
       const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
-      const figure = testSheet.figures.find((figure) => figure.data.title === chartTitle)!;
+      const figure = testSheet.figures.find((figure) => figure.data.title.text === chartTitle)!;
       const chartData = figure.data as LineChartDefinition | PieChartDefinition;
-      expect(chartData.title).toEqual(chartTitle);
+      expect(chartData.title.text).toEqual(chartTitle);
       expect(chartData.type).toEqual(chartType);
       expect(standardizeColor(chartData.background!)).toEqual(standardizeColor(chartColor));
 
@@ -687,9 +687,9 @@ describe("Import xlsx data", () => {
 
   test("Can import scatter plot", () => {
     const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
-    const figure = testSheet.figures.find((figure) => figure.data.title === "scatter chart")!;
+    const figure = testSheet.figures.find((figure) => figure.data.title.text === "scatter chart")!;
     const chartData = figure.data as ScatterChartDefinition;
-    expect(chartData.title).toEqual("scatter chart");
+    expect(chartData.title.text).toEqual("scatter chart");
     expect(chartData.type).toEqual("scatter");
     expect(standardizeColor(chartData.background!)).toEqual(standardizeColor("#fff"));
     expect(chartData.dataSets).toEqual(["Sheet1!C26:C35"]);

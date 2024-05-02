@@ -7,7 +7,7 @@ describe("combo chart", () => {
   test("create combo chart from creation context", () => {
     const context: Required<ChartCreationContext> = {
       background: "#123456",
-      title: "hello there",
+      title: { text: "hello there" },
       range: ["Sheet1!B1:B4"],
       auxiliaryRange: "Sheet1!A1:A4",
       legendPosition: "bottom",
@@ -25,7 +25,7 @@ describe("combo chart", () => {
     expect(definition).toEqual({
       type: "combo",
       background: "#123456",
-      title: "hello there",
+      title: { text: "hello there" },
       dataSets: ["Sheet1!B1:B4"],
       labelRange: "Sheet1!A1:A4",
       legendPosition: "bottom",

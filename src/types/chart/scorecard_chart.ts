@@ -1,8 +1,9 @@
 import { Color, Style } from "../misc";
+import { TitleDesign } from "./chart";
 
 export interface ScorecardChartDefinition {
   readonly type: "scorecard";
-  readonly title: string;
+  readonly title: TitleDesign;
   readonly keyValue?: string;
   readonly baseline?: string;
   readonly baselineMode: BaselineMode;
@@ -22,7 +23,7 @@ export interface ProgressBar {
 }
 
 export interface ScorecardChartRuntime {
-  readonly title: string;
+  readonly title: TitleDesign;
   readonly keyValue: string;
   readonly baselineDisplay: string;
   readonly baselineColor?: string;

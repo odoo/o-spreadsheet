@@ -108,7 +108,7 @@ export class WaterfallChart extends AbstractChart {
       dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
       aggregated: context.aggregated ?? false,
       legendPosition: context.legendPosition ?? "top",
-      title: context.title || "",
+      title: context.title || { text: "" },
       type: "waterfall",
       verticalAxisPosition: context.verticalAxisPosition ?? "left",
       labelRange: context.auxiliaryRange || undefined,

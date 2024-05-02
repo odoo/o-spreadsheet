@@ -116,7 +116,7 @@ describe("Insert chart menu item", () => {
         legendPosition: "none",
         stacked: false,
         aggregated: false,
-        title: expect.any(String),
+        title: { text: expect.any(String) },
         type: "bar",
         verticalAxisPosition: "left",
       },
@@ -376,7 +376,7 @@ describe("Insert chart menu item", () => {
     const payload = { ...defaultPayload };
     payload.definition.dataSets = ["C1:C4"];
     payload.definition.legendPosition = "none";
-    payload.definition.title = "";
+    payload.definition.title = { text: "" };
     payload.definition.dataSetsHaveTitle = false;
     payload.definition.labelRange = "B1:B4";
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);
@@ -387,7 +387,7 @@ describe("Insert chart menu item", () => {
     const payload = { ...defaultPayload };
     payload.definition.dataSets = ["D1:G4"];
     payload.definition.legendPosition = "top";
-    payload.definition.title = "Title1 and 3";
+    payload.definition.title = { text: "Title1 and 3" };
     payload.definition.dataSetsHaveTitle = true;
     payload.definition.labelRange = "C1:C4";
     payload.definition.type = "line";
@@ -401,7 +401,7 @@ describe("Insert chart menu item", () => {
     const payload = { ...defaultPayload };
     payload.definition.dataSets = ["D1:H4"];
     payload.definition.legendPosition = "top";
-    payload.definition.title = "Title1, 3 and Title2";
+    payload.definition.title = { text: "Title1, 3 and Title2" };
     payload.definition.dataSetsHaveTitle = true;
     payload.definition.labelRange = "C1:C4";
     payload.definition.type = "line";
@@ -440,7 +440,7 @@ describe("Insert chart menu item", () => {
     const payload = { ...defaultPayload };
     payload.definition = {
       keyValue: "K5",
-      title: expect.any(String),
+      title: { text: expect.any(String) },
       type: "scorecard",
       baselineColorDown: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
       baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
@@ -528,7 +528,7 @@ describe("Insert chart menu item", () => {
         legendPosition: "top",
         type: "pie",
         dataSetsHaveTitle: false,
-        title: "",
+        title: { text: "" },
       },
     };
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);

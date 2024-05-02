@@ -91,7 +91,7 @@ export class LineChart extends AbstractChart {
       dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
       labelsAsText: context.labelsAsText ?? false,
       legendPosition: context.legendPosition ?? "top",
-      title: context.title || "",
+      title: context.title || { text: "" },
       type: "line",
       verticalAxisPosition: context.verticalAxisPosition ?? "left",
       labelRange: context.auxiliaryRange || undefined,
@@ -169,6 +169,7 @@ export class LineChart extends AbstractChart {
     );
     return {
       ...this.getDefinition(),
+      title: this.title.text ?? "",
       backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
       dataSets,

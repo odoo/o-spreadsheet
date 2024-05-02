@@ -196,7 +196,7 @@ export class ScorecardChart extends AbstractChart {
       background: context.background,
       type: "scorecard",
       keyValue: context.range ? context.range[0] : undefined,
-      title: context.title || "",
+      title: context.title || { text: "" },
       baselineMode: DEFAULT_SCORECARD_BASELINE_MODE,
       baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
       baselineColorDown: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
@@ -445,7 +445,10 @@ export function createScorecardChartRuntime(
       ? toNumber(baselineDisplay, locale)
       : 0;
   return {
-    title: _t(chart.title),
+    title: {
+      ...chart.title,
+      text: _t(chart.title.text ?? ""),
+    },
     keyValue: formattedKeyValue,
     baselineDisplay,
     baselineArrow: getBaselineArrowDirection(baselineCell, keyValueCell, chart.baselineMode),

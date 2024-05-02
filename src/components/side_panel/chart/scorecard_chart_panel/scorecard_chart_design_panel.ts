@@ -4,32 +4,35 @@ import { ScorecardChartDefinition } from "../../../../types/chart/scorecard_char
 import { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { ChartTerms } from "../../../translations_terms";
 import { Checkbox } from "../../components/checkbox/checkbox";
+import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";
-import { ChartTitle } from "../building_blocks/title/title";
+import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
 
 type ColorPickerId = undefined | "backgroundColor" | "baselineColorUp" | "baselineColorDown";
 
 interface Props {
   figureId: UID;
   definition: ScorecardChartDefinition;
-  canUpdateChart: (figureId: UID, definition: Partial<ScorecardChartDefinition>) => DispatchResult;
+  canUpdateChart: (figureID: UID, definition: Partial<ScorecardChartDefinition>) => DispatchResult;
   updateChart: (figureId: UID, definition: Partial<ScorecardChartDefinition>) => DispatchResult;
 }
 
 export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ScorecardChartDesignPanel";
-  static components = { RoundColorPicker, ChartTitle, Section, Checkbox };
+  static components = {
+    GeneralDesignEditor,
+    RoundColorPicker,
+    SidePanelCollapsible,
+    Section,
+    Checkbox,
+  };
   static props = {
     figureId: String,
     definition: Object,
     updateChart: Function,
-    canUpdateChart: Function,
+    canUpdateChart: { type: Function, optional: true },
   };
-
-  get title(): string {
-    return _t(this.props.definition.title);
-  }
 
   get colorsSectionTitle(): string {
     return this.props.definition.baselineMode === "progress"
@@ -41,8 +44,8 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
     return _t("Humanize numbers");
   }
 
-  updateTitle(title: string) {
-    this.props.updateChart(this.props.figureId, { title });
+  updateTitle(content: string) {
+    this.props.updateChart(this.props.figureId, { title: { text: content } });
   }
 
   updateHumanizeNumbers(humanize: boolean) {

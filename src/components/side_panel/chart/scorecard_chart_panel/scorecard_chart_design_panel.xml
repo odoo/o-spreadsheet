@@ -2,56 +2,54 @@
   <t t-name="o-spreadsheet-ScorecardChartDesignPanel">
     <t t-set="color_up">Color Up</t>
     <t t-set="color_down">Color Down</t>
-    <div>
-      <Section class="'o-chart-background-color'">
-        <t t-set-slot="title">Background color</t>
-        <div class="d-flex align-items-center">
-          <span class="me-2">Select a color...</span>
-          <RoundColorPicker
-            currentColor="props.definition.background"
-            onColorPicked="(color) => this.setColor(color, 'backgroundColor')"
-            title="backgroundColorTitle"
+    <GeneralDesignEditor
+      figureId="props.figureId"
+      definition="props.definition"
+      updateChart="props.updateChart">
+      <t t-set-slot="general-extension">
+        <Section class="'pt-1'">
+          <t t-set-slot="title">Number formatting</t>
+          <Checkbox
+            name="'humanizeNumbers'"
+            label="humanizeNumbersLabel"
+            value="props.definition.humanize"
+            onChange.bind="updateHumanizeNumbers"
           />
-        </div>
-      </Section>
-      <ChartTitle title="title" update.bind="updateTitle"/>
-      <Section>
-        <t t-set-slot="title">Baseline description</t>
-        <input
-          type="text"
-          t-att-value="translate(props.definition.baselineDescr)"
-          t-on-change="updateBaselineDescr"
-          class="o-input o-optional"
-        />
-      </Section>
-    </div>
-    <Section class="'o-chart-baseline-color'">
-      <t t-set-slot="title" t-esc="colorsSectionTitle"/>
-      <div class="d-flex align-items-center mb-2">
-        <RoundColorPicker
-          currentColor="props.definition.baselineColorUp"
-          onColorPicked="(color) => this.setColor(color, 'baselineColorUp')"
-          title="color_up"
-        />
-        <span class="ps-2">Color on value increase</span>
-      </div>
-      <div class="d-flex align-items-center">
-        <RoundColorPicker
-          currentColor="props.definition.baselineColorDown"
-          onColorPicked="(color) => this.setColor(color, 'baselineColorDown')"
-          title="color_down"
-        />
-        <span class="ps-2">Color on value decrease</span>
-      </div>
-    </Section>
-    <Section class="'pt-1'">
-      <t t-set-slot="title">Number formatting</t>
-      <Checkbox
-        name="'humanizeNumbers'"
-        label="humanizeNumbersLabel"
-        value="props.definition.humanize"
-        onChange.bind="updateHumanizeNumbers"
-      />
-    </Section>
+        </Section>
+      </t>
+    </GeneralDesignEditor>
+    <SidePanelCollapsible collapsedAtInit="true">
+      <t t-set-slot="title">Baseline</t>
+      <t t-set-slot="content">
+        <Section>
+          <t t-set-slot="title">Baseline description</t>
+          <input
+            type="text"
+            t-att-value="translate(props.definition.baselineDescr)"
+            t-on-change="updateBaselineDescr"
+            class="o-input o-optional"
+          />
+        </Section>
+        <Section class="'o-chart-baseline-color'">
+          <t t-set-slot="title" t-esc="colorsSectionTitle"/>
+          <div class="d-flex align-items-center mb-2">
+            <RoundColorPicker
+              currentColor="props.definition.baselineColorUp"
+              onColorPicked="(color) => this.setColor(color, 'baselineColorUp')"
+              title="color_up"
+            />
+            <span class="ps-2">Color on value increase</span>
+          </div>
+          <div class="d-flex align-items-center">
+            <RoundColorPicker
+              currentColor="props.definition.baselineColorDown"
+              onColorPicked="(color) => this.setColor(color, 'baselineColorDown')"
+              title="color_down"
+            />
+            <span class="ps-2">Color on value decrease</span>
+          </div>
+        </Section>
+      </t>
+    </SidePanelCollapsible>
   </t>
 </templates>

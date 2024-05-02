@@ -1,6 +1,5 @@
 import { Component, useState } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers/index";
-import { _t } from "../../../../translation";
 import { GaugeChartDefinition, SectionRule } from "../../../../types/chart/gauge_chart";
 import {
   Color,
@@ -11,10 +10,11 @@ import {
 } from "../../../../types/index";
 import { css } from "../../../helpers/css";
 import { ChartTerms } from "../../../translations_terms";
+import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
+import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";
 import { ChartErrorSection } from "../building_blocks/error_section/error_section";
-import { ChartTitle } from "../building_blocks/title/title";
-import { RoundColorPicker } from "./../../components/round_color_picker/round_color_picker";
+import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
 
 css/* scss */ `
   .o-gauge-color-set {
@@ -52,41 +52,41 @@ css/* scss */ `
   }
 `;
 
-interface Props {
-  figureId: UID;
-  definition: GaugeChartDefinition;
-  canUpdateChart: (figureId: UID, definition: Partial<GaugeChartDefinition>) => DispatchResult;
-  updateChart: (figureId: UID, definition: Partial<GaugeChartDefinition>) => DispatchResult;
-}
-
 interface PanelState {
   sectionRuleDispatchResult?: DispatchResult;
   sectionRule: SectionRule;
 }
 
+interface Props {
+  figureId: UID;
+  definition: GaugeChartDefinition;
+  canUpdateChart: (figureID: UID, definition: Partial<GaugeChartDefinition>) => DispatchResult;
+  updateChart: (figureId: UID, definition: Partial<GaugeChartDefinition>) => DispatchResult;
+}
+
 export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-GaugeChartDesignPanel";
   static components = {
-    ChartErrorSection,
-    RoundColorPicker,
-    ChartTitle,
+    SidePanelCollapsible,
     Section,
+    RoundColorPicker,
+    GeneralDesignEditor,
+    ChartErrorSection,
   };
   static props = {
     figureId: String,
     definition: Object,
     updateChart: Function,
-    canUpdateChart: Function,
+    canUpdateChart: { type: Function, optional: true },
   };
 
-  private state: PanelState = useState({
-    openedMenu: undefined,
-    sectionRuleDispatchResult: undefined,
-    sectionRule: deepCopy(this.props.definition.sectionRule),
-  });
+  protected state!: PanelState;
 
-  get title() {
-    return _t(this.props.definition.title);
+  setup() {
+    this.state = useState<PanelState>({
+      sectionRuleDispatchResult: undefined,
+      sectionRule: deepCopy(this.props.definition.sectionRule),
+    });
   }
 
   get designErrorMessages(): string[] {
@@ -102,8 +102,8 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
     });
   }
 
-  updateTitle(title: string) {
-    this.props.updateChart(this.props.figureId, { title });
+  updateTitle(content: string) {
+    this.props.updateChart(this.props.figureId, { title: { text: content } });
   }
 
   isRangeMinInvalid() {

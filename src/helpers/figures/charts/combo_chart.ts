@@ -143,6 +143,7 @@ export class ComboChart extends AbstractChart {
     );
     return {
       ...this.getDefinition(),
+      title: this.title.text ?? "",
       backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
       dataSets,
@@ -171,7 +172,7 @@ export class ComboChart extends AbstractChart {
       dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
       aggregated: context.aggregated,
       legendPosition: context.legendPosition ?? "top",
-      title: context.title || "",
+      title: context.title || { text: "" },
       verticalAxisPosition: context.verticalAxisPosition ?? "left",
       labelRange: context.auxiliaryRange || undefined,
       type: "combo",

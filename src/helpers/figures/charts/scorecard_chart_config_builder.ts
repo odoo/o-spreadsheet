@@ -1,5 +1,5 @@
 import { Color } from "chart.js";
-import { DEFAULT_FONT } from "../../../constants";
+import { DEFAULT_CHART_FONT_SIZE } from "../../../constants";
 import { DOMDimension, Pixel, PixelPosition, Style } from "../../../types";
 import { BaselineArrowDirection, ScorecardChartRuntime } from "../../../types/chart";
 import { relativeLuminance } from "../../color";
@@ -11,7 +11,6 @@ import {
 } from "../../text_helper";
 
 /* Sizes of boxes containing the texts, in percentage of the Chart size */
-const TITLE_FONT_SIZE = 18;
 const KEY_BOX_HEIGHT_RATIO = 0.8;
 
 /* Padding at the border of the chart */
@@ -79,7 +78,7 @@ function getDefaultContextFont(
 ): string {
   const italicStr = italic ? "italic" : "";
   const weight = bold ? "bold" : "";
-  return `${italicStr} ${weight} ${fontSize}px ${DEFAULT_FONT}`;
+  return `${italicStr} ${weight} ${fontSize}px ${DEFAULT_CHART_FONT_SIZE}`;
 }
 
 export function getScorecardConfiguration(
@@ -114,12 +113,28 @@ class ScorecardChartConfigBuilder {
 
     let titleHeight = 0;
     if (this.title) {
+      let x: number, titleWidth: number;
+      ({ height: titleHeight, width: titleWidth } = this.getFullTextDimensions(
+        this.title,
+        style.title.font
+      ));
+      switch (this.runtime.title.align) {
+        case "center":
+          x = (this.width - titleWidth) / 2;
+          break;
+        case "right":
+          x = this.width - titleWidth - CHART_PADDING;
+          break;
+        case "left":
+        default:
+          x = CHART_PADDING;
+      }
       ({ height: titleHeight } = this.getFullTextDimensions(this.title, style.title.font));
       structure.title = {
         text: this.title,
         style: style.title,
         position: {
-          x: CHART_PADDING,
+          x,
           y: CHART_PADDING / 2 + titleHeight,
         },
       };
@@ -238,8 +253,8 @@ class ScorecardChartConfigBuilder {
     return structure;
   }
 
-  private get title() {
-    return this.runtime.title;
+  private get title(): string {
+    return this.runtime.title.text ?? "";
   }
 
   get keyValue() {
@@ -334,8 +349,12 @@ class ScorecardChartConfigBuilder {
 
     return {
       title: {
-        font: getDefaultContextFont(TITLE_FONT_SIZE),
-        color: this.secondaryFontColor,
+        font: getDefaultContextFont(
+          DEFAULT_CHART_FONT_SIZE,
+          this.runtime.title.bold,
+          this.runtime.title.italic
+        ),
+        color: this.runtime.title.color ?? this.secondaryFontColor,
       },
       keyValue: {
         color: this.runtime.keyValueStyle?.textColor || this.runtime.fontColor,
@@ -379,7 +398,7 @@ class ScorecardChartConfigBuilder {
   private getDrawableHeight(): number {
     const verticalPadding = CHART_PADDING + this.height * BOTTOM_PADDING_RATIO;
     let availableHeight = this.height - 2 * verticalPadding;
-    availableHeight -= this.title ? TITLE_FONT_SIZE * LINE_HEIGHT : 0;
+    availableHeight -= this.title ? DEFAULT_CHART_FONT_SIZE * LINE_HEIGHT : 0;
     return availableHeight;
   }
 }
