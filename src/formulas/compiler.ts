@@ -10,7 +10,8 @@ import { rangeTokenize } from "./range_tokenizer";
 
 const functions = functionRegistry.content;
 
-const OPERATOR_MAP = {
+export const OPERATOR_MAP = {
+  // export for test
   "=": "EQ",
   "+": "ADD",
   "-": "MINUS",
@@ -25,7 +26,8 @@ const OPERATOR_MAP = {
   "&": "CONCATENATE",
 };
 
-const UNARY_OPERATOR_MAP = {
+export const UNARY_OPERATOR_MAP = {
+  // export for test
   "-": "UMINUS",
   "+": "UPLUS",
   "%": "UNARY.PERCENT",
