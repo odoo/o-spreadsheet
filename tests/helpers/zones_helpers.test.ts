@@ -1,13 +1,17 @@
 import {
   createAdaptedZone,
   isZoneValid,
+  mergeContiguousZones,
   overlap,
   positions,
   toCartesian,
   toUnboundedZone,
   toZone,
+  zoneToXc,
 } from "../../src/helpers/index";
+
 import { Zone } from "../../src/types";
+import { target } from "../test_helpers/helpers";
 
 describe("overlap", () => {
   test("one zone above the other", () => {
@@ -151,5 +155,43 @@ describe("createAdaptedZone", () => {
 
   test("negative resize on columns and rows", () => {
     expect(createAdaptedZone(zone, "both", "RESIZE", [-1, -1])).toEqual(toZone("B2"));
+  });
+});
+
+describe("mergeContiguousZones", () => {
+  test("mergeContiguousZones: can merge two contiguous zones", () => {
+    let zones = mergeContiguousZones(target("A1:A6, B1:B6"));
+    expect(zones.map(zoneToXc)).toEqual(["A1:B6"]);
+
+    zones = mergeContiguousZones(target("A1:D1, A2:D2"));
+    expect(zones.map(zoneToXc)).toEqual(["A1:D2"]);
+
+    zones = mergeContiguousZones(target("A1:A6, B2"));
+    expect(zones.map(zoneToXc)).toEqual(["A1:B6"]);
+
+    zones = mergeContiguousZones(target("C1, A2:F2"));
+    expect(zones.map(zoneToXc)).toEqual(["A1:F2"]);
+
+    // Not contiguous
+    zones = mergeContiguousZones(target("C1, C3"));
+    expect(zones.map(zoneToXc)).toEqual(["C1", "C3"]);
+  });
+
+  test("mergeContiguousZones: can merge two overlapping zones", () => {
+    let zones = mergeContiguousZones(target("A1:A6, A1:C4"));
+    expect(zones.map(zoneToXc)).toEqual(["A1:C6"]);
+
+    zones = mergeContiguousZones(target("A1:C6, A1:B5"));
+    expect(zones.map(zoneToXc)).toEqual(["A1:C6"]);
+  });
+
+  test("mergeContiguousZones: can merge overlapping and contiguous zones", () => {
+    const zones = mergeContiguousZones(target("A1:A6, A1:C4, A7"));
+    expect(zones.map(zoneToXc)).toEqual(["A1:C7"]);
+  });
+
+  test("Zones diagonally next to each other are not contiguous", () => {
+    const zones = mergeContiguousZones(target("A1, B2, C3, A3"));
+    expect(zones.map(zoneToXc)).toEqual(["A1", "B2", "C3", "A3"]);
   });
 });

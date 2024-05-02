@@ -609,22 +609,19 @@ export function unionPositionsToZone(positions: Position[]): Zone {
  * Check if two zones are contiguous, ie. that they share a border
  */
 function areZoneContiguous(zone1: Zone, zone2: Zone) {
-  const u = union(zone1, zone2);
   if (zone1.right + 1 === zone2.left || zone1.left === zone2.right + 1) {
-    return getZoneHeight(u) <= getZoneHeight(zone1) + getZoneHeight(zone2);
+    return (
+      (zone1.top <= zone2.bottom && zone1.top >= zone2.top) ||
+      (zone2.top <= zone1.bottom && zone2.top >= zone1.top)
+    );
   }
   if (zone1.bottom + 1 === zone2.top || zone1.top === zone2.bottom + 1) {
-    return getZoneWidth(u) <= getZoneWidth(zone1) + getZoneWidth(zone2);
+    return (
+      (zone1.left <= zone2.right && zone1.left >= zone2.left) ||
+      (zone2.left <= zone1.right && zone2.left >= zone1.left)
+    );
   }
   return false;
-}
-
-function getZoneHeight(zone: Zone) {
-  return zone.bottom - zone.top + 1;
-}
-
-function getZoneWidth(zone: Zone) {
-  return zone.right - zone.left + 1;
 }
 
 /**
