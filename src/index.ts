@@ -62,13 +62,9 @@ import {
 import { getFunctionsFromTokens } from "./formulas";
 import { isEvaluationError, toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
 import { FunctionRegistry, arg, functionRegistry } from "./functions/index";
+import { chartFontColor, getDefaultChartJsRuntime, getFillingMode } from "./helpers/figures/charts";
 import {
-  ChartColors,
-  chartFontColor,
-  getDefaultChartJsRuntime,
-  getFillingMode,
-} from "./helpers/figures/charts";
-import {
+  ColorGenerator,
   UuidGenerator,
   colorToRGBA,
   computeTextWidth,
@@ -275,13 +271,13 @@ export const helpers = {
   UuidGenerator,
   formatValue,
   createCurrencyFormat,
+  ColorGenerator,
   computeTextWidth,
   createEmptyWorkbookData,
   createEmptySheet,
   createEmptyExcelSheet,
   getDefaultChartJsRuntime,
   chartFontColor,
-  ChartColors,
   getFillingMode,
   rgbaToHex,
   colorToRGBA,

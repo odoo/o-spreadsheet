@@ -2,11 +2,10 @@ import { App, Component, useSubEnv, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
 import { SelectionInput } from "../../src/components/selection_input/selection_input";
-import { toCartesian, toZone } from "../../src/helpers";
+import { ColorGenerator, toCartesian, toZone } from "../../src/helpers";
 import { useStoreProvider } from "../../src/store_engine";
 import { ModelStore } from "../../src/stores";
-import { HighlightStore } from "../../src/stores/highlight_store";
-import { SpreadsheetChildEnv } from "../../src/types";
+import { Color, SpreadsheetChildEnv } from "../../src/types";
 import {
   activateSheet,
   addCellToSelection,
@@ -52,6 +51,7 @@ interface SelectionInputTestConfig {
   hasSingleRange?: boolean;
   onChanged?: jest.Mock<void, [any]>;
   onConfirmed?: jest.Mock<void, []>;
+  colors?: Color[];
 }
 
 class Parent extends Component<any> {
@@ -60,7 +60,9 @@ class Parent extends Component<any> {
       ranges="initialRanges || []"
       hasSingleRange="hasSingleRange"
       onSelectionChanged="(ranges) => this.onChanged(ranges)"
-      onSelectionConfirmed="onConfirmed" />
+      onSelectionConfirmed="onConfirmed"
+      colors="colors || []"
+    />
   `;
   static components = { SelectionInput };
   model!: Model;
@@ -68,6 +70,7 @@ class Parent extends Component<any> {
   hasSingleRange: boolean | undefined;
   onChanged!: jest.Mock<void, [any]>;
   onConfirmed!: jest.Mock<void, []>;
+  colors: Color[] | undefined;
 
   get id(): string {
     const selectionInput = getChildFromComponent(this, SelectionInput);
@@ -82,6 +85,7 @@ class Parent extends Component<any> {
     stores.inject(ModelStore, this.props.model);
     this.initialRanges = this.props.config.initialRanges;
     this.hasSingleRange = this.props.config.hasSingleRange;
+    this.colors = this.props.config.colors;
     this.model = model;
     this.onChanged = this.props.config.onChanged || jest.fn();
     this.onConfirmed = this.props.config.onConfirmed || jest.fn();
@@ -185,21 +189,41 @@ describe("Selection Input", () => {
   });
 
   test("input is filled when new cells are selected", async () => {
-    const { model, env } = await createSelectionInput();
-    const highlightStore = env.getStore(HighlightStore);
+    const { model } = await createSelectionInput();
     selectCell(model, "B4");
     await nextTick();
     expect(fixture.querySelector("input")!.value).toBe("B4");
-    const color = highlightStore.highlights[0].color;
+    const colorGenerator = new ColorGenerator();
+    const color = colorGenerator.next();
     expect(fixture.querySelector("input")!.getAttribute("style")).toBe(`color: ${color};`);
     simulateClick(".o-add-selection");
     selectCell(model, "B5");
     await nextTick();
-    const color2 = highlightStore.highlights[1].color;
+    const color2 = colorGenerator.next();
     expect(fixture.querySelectorAll("input")[0].value).toBe("B4");
     expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe(`color: ${color};`);
     expect(fixture.querySelectorAll("input")[1].value).toBe("B5");
     expect(fixture.querySelectorAll("input")[1].getAttribute("style")).toBe(`color: ${color2};`);
+  });
+
+  test("colors passed as props are taken into account and completed by a color", async () => {
+    const { model } = await createSelectionInput({ colors: ["#FF0000"] });
+    selectCell(model, "B4");
+    await nextTick();
+    expect(fixture.querySelector("input")!.value).toBe("B4");
+    expect(fixture.querySelector("input")!.getAttribute("style")).toBe("color: #FF0000;");
+    simulateClick(".o-add-selection");
+    selectCell(model, "B5");
+    await nextTick();
+    const colorGenerator = new ColorGenerator();
+    colorGenerator.next(); //the first generated color is skipped in favor of the props color
+    const secondColor = colorGenerator.next();
+    expect(fixture.querySelectorAll("input")[0].value).toBe("B4");
+    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color: #FF0000;");
+    expect(fixture.querySelectorAll("input")[1].value).toBe("B5");
+    expect(fixture.querySelectorAll("input")[1].getAttribute("style")).toBe(
+      `color: ${secondColor};`
+    );
   });
 
   test("can select full column as unbounded zone by clicking on header", async () => {

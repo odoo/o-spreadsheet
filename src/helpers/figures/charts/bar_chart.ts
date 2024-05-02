@@ -24,11 +24,11 @@ import { LegendPosition, VerticalAxisPosition } from "../../../types/chart/commo
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
+import { ColorGenerator } from "../../color";
 import { formatValue } from "../../format";
 import { createRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
-  ChartColors,
   chartFontColor,
   checkDataset,
   checkLabelRange,
@@ -270,7 +270,7 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
   const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
   const locale = getters.getLocale();
   const config = getBarConfiguration(chart, labels, { format: dataSetFormat, locale });
-  const colors = new ChartColors();
+  const colors = new ColorGenerator();
 
   for (let { label, data } of dataSetsValues) {
     const color = colors.next();

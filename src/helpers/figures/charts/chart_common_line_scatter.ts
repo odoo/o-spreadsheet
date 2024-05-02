@@ -4,10 +4,10 @@ import { BACKGROUND_CHART_COLOR, LINE_FILL_TRANSPARENCY } from "../../../constan
 import { Color, Format, Getters, LocaleFormat, Range } from "../../../types";
 import { AxisType, DatasetValues, LabelValues } from "../../../types/chart/chart";
 import { getChartTimeOptions, timeFormatLuxonCompatible } from "../../chart_date";
-import { colorToRGBA, rgbaToHex } from "../../color";
+import { ColorGenerator, colorToRGBA, rgbaToHex } from "../../color";
 import { formatValue } from "../../format";
 import { deepCopy, findNextDefinedValue } from "../../misc";
-import { ChartColors, chartFontColor } from "./chart_common";
+import { chartFontColor } from "./chart_common";
 import {
   aggregateDataForLabels,
   filterEmptyDataPoints,
@@ -235,7 +235,7 @@ export function createLineOrScatterChartRuntime(
   const stacked = "stacked" in chart ? chart.stacked : false;
   const cumulative = "cumulative" in chart ? chart.cumulative : false;
 
-  const colors = new ChartColors();
+  const colors = new ColorGenerator();
   for (let [index, { label, data }] of dataSetsValues.entries()) {
     if (["linear", "time"].includes(axisType)) {
       // Replace empty string labels by undefined to make sure chartJS doesn't decide that "" is the same as 0
