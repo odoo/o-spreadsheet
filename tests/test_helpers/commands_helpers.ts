@@ -163,7 +163,7 @@ export function createChart(
     sheetId,
     definition: {
       ...data,
-      title: data.title || "test",
+      title: data.title || { text: "test" },
       dataSets: data.dataSets || [],
       dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
       labelRange: data.labelRange,
@@ -194,7 +194,7 @@ export function createComboChart(
     id,
     sheetId,
     definition: {
-      title: data.title || "test",
+      title: data.title || { text: "test" },
       dataSets: data.dataSets || [],
       dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
       labelRange: data.labelRange,
@@ -228,7 +228,7 @@ export function createScorecardChart(
     sheetId,
     definition: {
       type: "scorecard",
-      title: data.title || "",
+      title: data.title || { text: "" },
       baseline: data.baseline || "",
       keyValue: data.keyValue || "",
       baselineDescr: data.baselineDescr || "",
@@ -256,7 +256,7 @@ export function createGaugeChart(
     definition: {
       type: "gauge",
       background: data.background,
-      title: data.title || "",
+      title: data.title || { text: "" },
       dataRange: data.dataRange || "",
       sectionRule: data.sectionRule || {
         rangeMin: "0",

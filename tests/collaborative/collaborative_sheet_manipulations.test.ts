@@ -569,7 +569,7 @@ describe("Collaborative Sheet manipulation", () => {
     const chartDef: BarChartDefinition = {
       dataSets: ["A1:A3", "F1:F3"],
       labelRange: "F3",
-      title: "chart title",
+      title: { text: "chart title" },
       dataSetsHaveTitle: false,
       type: "bar",
       stacked: false,

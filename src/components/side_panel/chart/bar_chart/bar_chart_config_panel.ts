@@ -1,5 +1,5 @@
 import { _t } from "../../../../translation";
-import { GenericChartConfigPanel } from "../line_bar_pie_panel/config_panel";
+import { GenericChartConfigPanel } from "../building_blocks/generic_side_panel/config_panel";
 
 export class BarConfigPanel extends GenericChartConfigPanel {
   static template = "o-spreadsheet-BarConfigPanel";

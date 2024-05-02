@@ -1,4 +1,4 @@
-import { Range } from "../../types";
+import { Align, Color, Range } from "../../types";
 import { XlsxHexColor } from "../xlsx";
 import { BarChartDefinition, BarChartRuntime } from "./bar_chart";
 import { ComboChartDefinition, ComboChartRuntime } from "./combo_chart";
@@ -57,6 +57,14 @@ export interface DatasetValues {
   readonly data: any[];
 }
 
+export interface TitleDesign {
+  readonly text?: string;
+  readonly bold?: boolean;
+  readonly italic?: boolean;
+  readonly align?: Align;
+  readonly color?: Color;
+}
+
 export type AxisType = "category" | "linear" | "time";
 
 export interface DataSet {
@@ -86,7 +94,7 @@ export interface ExcelChartDefinition {
 
 export interface ChartCreationContext {
   readonly range?: string[];
-  readonly title?: string;
+  readonly title?: TitleDesign;
   readonly background?: string;
   readonly auxiliaryRange?: string;
   readonly aggregated?: boolean;

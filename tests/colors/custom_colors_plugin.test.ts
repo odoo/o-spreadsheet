@@ -109,7 +109,7 @@ describe("custom colors are correctly handled when editing charts", () => {
       sheetId,
       id: "1",
       definition: {
-        title: "a title",
+        title: { text: "a title" },
         dataSets: [],
         type: "bar",
         stacked: false,
@@ -134,7 +134,7 @@ describe("custom colors are correctly handled when editing charts", () => {
       sheetId,
       id: "1",
       definition: {
-        title: "a title",
+        title: { text: "a title" },
         type: "gauge",
         dataRange: "B1:B4",
         sectionRule: {

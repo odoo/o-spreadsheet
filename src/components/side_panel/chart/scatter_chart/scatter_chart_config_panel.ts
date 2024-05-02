@@ -2,7 +2,7 @@ import { canChartParseLabels } from "../../../../helpers/figures/charts/chart_co
 import { ScatterChart } from "../../../../helpers/figures/charts/scatter_chart";
 import { _t } from "../../../../translation";
 import { LineChartDefinition } from "../../../../types/chart";
-import { GenericChartConfigPanel } from "../line_bar_pie_panel/config_panel";
+import { GenericChartConfigPanel } from "../building_blocks/generic_side_panel/config_panel";
 
 export class ScatterConfigPanel extends GenericChartConfigPanel {
   static template = "o-spreadsheet-ScatterConfigPanel";

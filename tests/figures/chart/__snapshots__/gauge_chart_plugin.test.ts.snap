@@ -27,7 +27,9 @@ exports[`datasource tests create a gauge chart 1`] = `
     "label": "-200",
     "value": -200,
   },
-  "title": "Title",
+  "title": {
+    "text": "Title",
+  },
 }
 `;
 
@@ -58,6 +60,8 @@ exports[`datasource tests create empty gauge chart 1`] = `
     "label": "0",
     "value": 0,
   },
-  "title": "",
+  "title": {
+    "text": "",
+  },
 }
 `;

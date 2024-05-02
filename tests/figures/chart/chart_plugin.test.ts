@@ -45,6 +45,11 @@ jest.mock("../../../src/helpers/uuid", () => require("../../__mocks__/uuid"));
 
 let model: Model;
 
+function getChartConfiguration(model: Model, chartId: UID) {
+  const runtime = model.getters.getChartRuntime(chartId) as any;
+  return runtime.chartJsConfig;
+}
+
 beforeEach(() => {
   model = new Model({
     sheets: [
@@ -100,7 +105,7 @@ describe("datasource tests", function () {
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       dataSets: ["B1:B4", "C1:C4"],
       labelRange: "Sheet1!A2:A4",
-      title: "test",
+      title: { text: "test" },
       type: "line",
     });
     expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
@@ -119,7 +124,7 @@ describe("datasource tests", function () {
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       dataSets: ["B1:B4", "C1:C4"],
       labelRange: "Sheet1!A2:A4",
-      title: "test",
+      title: { text: "test" },
       type: "line",
     });
     expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
@@ -140,7 +145,7 @@ describe("datasource tests", function () {
       dataSets: ["B2:B4", "C2:C4"],
       labelRange: "A2:A4",
       dataSetsHaveTitle: false,
-      title: "test",
+      title: { text: "test" },
       type: "line",
     });
     expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
@@ -175,7 +180,7 @@ describe("datasource tests", function () {
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       dataSets: ["A8:D8", "A9:D9"],
       labelRange: "B7:D7",
-      title: "test",
+      title: { text: "test" },
       type: "line",
     });
     expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
@@ -211,7 +216,7 @@ describe("datasource tests", function () {
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       dataSets: ["B8:D8", "B9:D9"],
       labelRange: "B7:D7",
-      title: "test",
+      title: { text: "test" },
       type: "line",
     });
     expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
@@ -247,7 +252,7 @@ describe("datasource tests", function () {
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       dataSets: ["B8"],
       labelRange: "Sheet1!B7:D7",
-      title: "test",
+      title: { text: "test" },
       type: "line",
     });
     expect(chart.chartJsConfig.data?.datasets?.[0].data).toEqual(
@@ -271,7 +276,7 @@ describe("datasource tests", function () {
       dataSets: ["B8"],
       dataSetsHaveTitle: false,
       labelRange: "B7",
-      title: "test",
+      title: { text: "test" },
       type: "line",
     });
     expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
@@ -408,13 +413,13 @@ describe("datasource tests", function () {
       dataSets: ["Sheet1!A8:D8", "Sheet1!A9:D9"],
       labelRange: "Sheet1!C7:D7",
       dataSetsHaveTitle: true,
-      title: "hello1",
+      title: { text: "hello1" },
     });
     chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       dataSets: ["A8:D8", "A9:D9"],
       labelRange: "Sheet1!C7:D7",
-      title: "hello1",
+      title: { text: "hello1" },
       type: "bar",
     });
     expect(chart.data!.datasets![0].data).toEqual([30, 31, 32]);
@@ -705,7 +710,7 @@ describe("datasource tests", function () {
     updateChart(model, chartId, {
       dataSets: ["B1:B4"],
       labelRange: "A2:A4",
-      title: "updated chart",
+      title: { text: "updated chart" },
     });
     expect(model.getters.getSelectedFigureId()).toBeNull();
   });
@@ -736,7 +741,7 @@ describe("datasource tests", function () {
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       dataSets: ["B1:B4"],
       labelRange: "Sheet1!A2:A4",
-      title: "test",
+      title: { text: "test" },
       type: "bar",
     });
     expect(chart.data!.datasets![0].data).toEqual([10, 11, 12]);
@@ -998,7 +1003,7 @@ describe("datasource tests", function () {
     expect(duplicatedChartDefinition).toMatchObject({
       dataSets: [`${secondSheetName}!C1:C4`],
       labelRange: `${secondSheetName}!A2:A4`,
-      title: "test",
+      title: { text: "test" },
     });
   });
 
@@ -1027,14 +1032,14 @@ describe("title", function () {
       {
         dataSets: ["A1:B1"],
         labelRange: "A2:B2",
-        title: "title",
+        title: { text: "title" },
       },
       "1"
     );
     let chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
     expect(chart.options!.plugins!.title!.text).toEqual("title");
 
-    updateChart(model, "1", { title: "newTitle" });
+    updateChart(model, "1", { title: { text: "newTitle" } });
     chart = (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig;
     expect(chart.options!.plugins!.title!.text).toEqual("newTitle");
   });
@@ -1045,7 +1050,7 @@ describe("title", function () {
       {
         dataSets: ["A1:B1"],
         labelRange: "A2:B2",
-        title: "title",
+        title: { text: "title" },
       },
       "1"
     );
@@ -1053,12 +1058,108 @@ describe("title", function () {
       (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig.options?.plugins?.title
         ?.display
     ).toBe(true);
-    updateChart(model, "1", { title: "" });
+    updateChart(model, "1", { title: { text: "" } });
     expect(
       (model.getters.getChartRuntime("1") as BarChartRuntime).chartJsConfig.options?.plugins?.title
         ?.display
     ).toBe(false);
   });
+
+  test.each(["line", "bar", "pie", "combo", "waterfall", "scatter"] as const)(
+    "Title alignment is taken into account",
+    (type) => {
+      createChart(
+        model,
+        {
+          dataSets: ["A1:B1"],
+          labelRange: "A2:B2",
+          title: {
+            text: "title",
+          },
+          type,
+        },
+        "1"
+      );
+      expect(getChartConfiguration(model, "1").options?.plugins?.title?.align).toBe("start");
+      updateChart(model, "1", { title: { text: "title", align: "center" } });
+      expect(getChartConfiguration(model, "1").options?.plugins?.title?.align).toBe("center");
+      updateChart(model, "1", { title: { text: "title", align: "right" } });
+      expect(getChartConfiguration(model, "1").options?.plugins?.title?.align).toBe("end");
+      updateChart(model, "1", { title: { text: "title", align: "left" } });
+      expect(getChartConfiguration(model, "1").options?.plugins?.title?.align).toBe("start");
+    }
+  );
+  test.each(["line", "bar", "pie", "combo", "waterfall", "scatter"] as const)(
+    "Title color is taken into account",
+    (type) => {
+      createChart(
+        model,
+        {
+          dataSets: ["A1:B1"],
+          labelRange: "A2:B2",
+          title: {
+            text: "title",
+            color: "#f00",
+          },
+          type,
+        },
+        "1"
+      );
+      expect(getChartConfiguration(model, "1").options?.plugins?.title?.color).toBe("#f00");
+    }
+  );
+
+  test.each(["line", "bar", "pie", "combo", "waterfall", "scatter"] as const)(
+    "Title bold style is taken into account",
+    (type) => {
+      createChart(
+        model,
+        {
+          dataSets: ["A1:B1"],
+          labelRange: "A2:B2",
+          title: {
+            text: "title",
+            bold: true,
+          },
+          type,
+        },
+        "1"
+      );
+      expect(getChartConfiguration(model, "1").options?.plugins?.title?.font).toMatchObject({
+        weight: "bold",
+      });
+      updateChart(model, "1", { title: { text: "title", bold: false } });
+      expect(getChartConfiguration(model, "1").options?.plugins?.title?.font).toMatchObject({
+        weight: "normal",
+      });
+    }
+  );
+
+  test.each(["line", "bar", "pie", "combo", "waterfall", "scatter"] as const)(
+    "Title italic style is taken into account",
+    (type) => {
+      createChart(
+        model,
+        {
+          dataSets: ["A1:B1"],
+          labelRange: "A2:B2",
+          title: {
+            text: "title",
+            italic: true,
+          },
+          type,
+        },
+        "1"
+      );
+      expect(getChartConfiguration(model, "1").options?.plugins?.title?.font).toMatchObject({
+        style: "italic",
+      });
+      updateChart(model, "1", { title: { text: "title", italic: false } });
+      expect(getChartConfiguration(model, "1").options?.plugins?.title?.font).toMatchObject({
+        style: "normal",
+      });
+    }
+  );
 });
 
 describe("multiple sheets", function () {
@@ -1179,7 +1280,7 @@ describe("multiple sheets", function () {
                 y: 100,
                 data: {
                   type: "line",
-                  title: "demo chart",
+                  title: { text: "demo chart" },
                   labelRange: "Sheet1!A1:A2",
                   dataSets: ["Sheet2!A1:A2"],
                   dataSetsHaveTitle: false,
@@ -1284,7 +1385,7 @@ describe("Chart without labels", () => {
     dataSets: ["A1:A2"],
     dataSetsHaveTitle: false,
     legendPosition: "top",
-    title: "My chart",
+    title: { text: "My chart" },
     type: "bar",
     verticalAxisPosition: "left",
     stacked: false,
@@ -1376,7 +1477,7 @@ describe("Chart design configuration", () => {
     dataSets: ["A1:A2"],
     dataSetsHaveTitle: true,
     legendPosition: "top",
-    title: "My chart",
+    title: { text: "My chart" },
     type: "bar",
     verticalAxisPosition: "left",
     labelRange: "A3",
@@ -1761,7 +1862,7 @@ describe("Chart aggregate labels", () => {
       labelRange: "A2:A9",
       dataSetsHaveTitle: false,
       legendPosition: "top",
-      title: "My chart",
+      title: { text: "My chart" },
       type: "bar",
       verticalAxisPosition: "left",
       stacked: false,

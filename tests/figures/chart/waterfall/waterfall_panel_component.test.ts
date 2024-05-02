@@ -93,7 +93,7 @@ describe("Watrefall chart side panel", () => {
   describe("Design panel", () => {
     test("Waterfall design panel is correctly initialized", async () => {
       const chartId = createWaterfallChart(model, {
-        title: "My Waterfall chart",
+        title: { text: "My Waterfall chart" },
         verticalAxisPosition: "right",
         legendPosition: "bottom",
         showSubTotals: true,
@@ -129,9 +129,11 @@ describe("Watrefall chart side panel", () => {
       await setInputValueAndTrigger(".o-chart-vertical-axis-position", "right");
       await setInputValueAndTrigger(".o-chart-legend-position", "bottom");
 
-      expect(getWaterfallDefinition(chartId)?.title).toEqual("My Waterfall chart");
-      expect(getWaterfallDefinition(chartId)?.verticalAxisPosition).toEqual("right");
-      expect(getWaterfallDefinition(chartId)?.legendPosition).toEqual("bottom");
+      const definition = getWaterfallDefinition(chartId);
+
+      expect(definition?.title.text).toEqual("My Waterfall chart");
+      expect(definition?.verticalAxisPosition).toEqual("right");
+      expect(definition?.legendPosition).toEqual("bottom");
     });
 
     test("Can change waterfall-specific checkboxes", async () => {

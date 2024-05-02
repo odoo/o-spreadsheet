@@ -102,7 +102,7 @@ export class PieChart extends AbstractChart {
       dataSets: context.range ? context.range : [],
       dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
       legendPosition: context.legendPosition ?? "top",
-      title: context.title || "",
+      title: context.title || { text: "" },
       type: "pie",
       labelRange: context.auxiliaryRange || undefined,
       aggregated: context.aggregated ?? false,
@@ -175,6 +175,7 @@ export class PieChart extends AbstractChart {
     );
     return {
       ...this.getDefinition(),
+      title: this.title.text ?? "",
       backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
       verticalAxisPosition: "left", //TODO ExcelChartDefinition should be adapted, but can be done later

@@ -1,51 +1,47 @@
 <templates>
   <t t-name="o-spreadsheet-GaugeChartDesignPanel">
-    <div>
-      <Section class="'o-chart-background-color'">
-        <t t-set-slot="title">Background color</t>
-        <div class="d-flex align-items-center">
-          <span class="me-2">Select a color...</span>
-          <RoundColorPicker
-            currentColor="props.definition.background"
-            onColorPicked.bind="updateBackgroundColor"
-            title="backgroundColorTitle"
-          />
-        </div>
-      </Section>
-      <ChartTitle title="title" update.bind="updateTitle"/>
-      <Section>
-        <t t-set-slot="title">Range</t>
-        <div class="o-subsection-left">
-          <input
-            type="text"
-            t-model="state.sectionRule.rangeMin"
-            t-on-change="() => this.updateSectionRule(state.sectionRule)"
-            t-on-input="() => this.canUpdateSectionRule(state.sectionRule)"
-            class="o-input o-data-range-min"
-            t-att-class="{ 'o-invalid': isRangeMinInvalid() }"
-          />
-        </div>
-        <div class="o-subsection-right">
-          <input
-            type="text"
-            t-model="state.sectionRule.rangeMax"
-            t-on-change="() => this.updateSectionRule(state.sectionRule)"
-            t-on-input="() => this.canUpdateSectionRule(state.sectionRule)"
-            class="o-input o-data-range-max"
-            t-att-class="{ 'o-invalid': isRangeMaxInvalid() }"
-          />
-        </div>
-      </Section>
+    <GeneralDesignEditor
+      figureId="props.figureId"
+      definition="props.definition"
+      updateChart="props.updateChart"
+    />
+    <SidePanelCollapsible collapsedAtInit="true">
+      <t t-set-slot="title">Gauge Design</t>
+      <t t-set-slot="content">
+        <Section class="'pt-0'">
+          <t t-set-slot="title">Range</t>
+          <div class="o-subsection-left">
+            <input
+              type="text"
+              t-model="state.sectionRule.rangeMin"
+              t-on-change="() => this.updateSectionRule(state.sectionRule)"
+              t-on-input="() => this.canUpdateSectionRule(state.sectionRule)"
+              class="o-input o-data-range-min"
+              t-att-class="{ 'o-invalid': isRangeMinInvalid() }"
+            />
+          </div>
+          <div class="o-subsection-right">
+            <input
+              type="text"
+              t-model="state.sectionRule.rangeMax"
+              t-on-change="() => this.updateSectionRule(state.sectionRule)"
+              t-on-input="() => this.canUpdateSectionRule(state.sectionRule)"
+              class="o-input o-data-range-max"
+              t-att-class="{ 'o-invalid': isRangeMaxInvalid() }"
+            />
+          </div>
+        </Section>
 
-      <Section>
-        <t t-set-slot="title">Thresholds</t>
-        <t t-call="o-spreadsheet-GaugeChartColorSectionTemplate">
-          <t t-set="sectionRule" t-value="state.sectionRule"/>
-        </t>
-      </Section>
+        <Section>
+          <t t-set-slot="title">Thresholds</t>
+          <t t-call="o-spreadsheet-GaugeChartColorSectionTemplate">
+            <t t-set="sectionRule" t-value="state.sectionRule"/>
+          </t>
+        </Section>
 
-      <ChartErrorSection t-if="designErrorMessages.length" messages="designErrorMessages"/>
-    </div>
+        <ChartErrorSection t-if="designErrorMessages.length" messages="designErrorMessages"/>
+      </t>
+    </SidePanelCollapsible>
   </t>
 
   <t t-name="o-spreadsheet-GaugeChartColorSectionTemplate">

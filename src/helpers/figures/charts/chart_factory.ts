@@ -132,7 +132,7 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
   if (getZoneArea(zone) === 1 && topLeftCell?.content) {
     return {
       type: "scorecard",
-      title: "",
+      title: { text: "" },
       background: topLeftCell.style?.fillColor || undefined,
       keyValue: zoneToXc(zone),
       baselineMode: DEFAULT_SCORECARD_BASELINE_MODE,
@@ -175,7 +175,7 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
   const labelRange = labelRangeXc ? getters.getRangeFromSheetXC(sheetId, labelRangeXc) : undefined;
   if (canChartParseLabels(labelRange, getters)) {
     return {
-      title,
+      title: { text: title },
       dataSets,
       labelsAsText: false,
       stacked: false,
@@ -194,7 +194,7 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
     getData(getters, _dataSets[0]).every((e) => typeof e === "string" && !isEvaluationError(e))
   ) {
     return {
-      title: "",
+      title: { text: "" },
       dataSets,
       aggregated: true,
       labelRange: dataSets[0],
@@ -204,7 +204,7 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
     };
   }
   return {
-    title,
+    title: { text: title },
     dataSets,
     labelRange: labelRangeXc,
     type: "bar",

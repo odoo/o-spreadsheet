@@ -1,6 +1,6 @@
 import type { BasePlatform, ChartConfiguration, ChartOptions, ChartType } from "chart.js";
 import { ChartTerms } from "../../../components/translations_terms";
-import { MAX_CHAR_LABEL } from "../../../constants";
+import { DEFAULT_CHART_FONT_SIZE, MAX_CHAR_LABEL } from "../../../constants";
 import { isEvaluationError } from "../../../functions/helpers";
 import { _t } from "../../../translation";
 import { Color, Figure, Format, Getters, LocaleFormat, Range } from "../../../types";
@@ -105,6 +105,7 @@ export function getDefaultChartJsRuntime(
   fontColor: Color,
   { format, locale, truncateLabels }: LocaleFormat & { truncateLabels?: boolean }
 ): Required<ChartConfiguration> {
+  const chartTitle = chart.title.text ? chart.title : { ...chart.title, content: "" };
   const options: ChartOptions = {
     // https://www.chartjs.org/docs/latest/general/responsive.html
     responsive: true, // will resize when its container is resized
@@ -123,10 +124,16 @@ export function getDefaultChartJsRuntime(
     animation: false,
     plugins: {
       title: {
-        display: !!chart.title,
-        text: _t(chart.title),
-        color: fontColor,
-        font: { size: 22, weight: "normal" },
+        display: !!chartTitle.text,
+        text: _t(chartTitle.text!),
+        color: chartTitle?.color ?? fontColor,
+        align:
+          chartTitle.align === "center" ? "center" : chartTitle.align === "right" ? "end" : "start",
+        font: {
+          size: DEFAULT_CHART_FONT_SIZE,
+          weight: chartTitle.bold ? "bold" : "normal",
+          style: chartTitle.italic ? "italic" : "normal",
+        },
       },
       legend: {
         // Disable default legend onClick (show/hide dataset), to allow us to set a global onClick on the chart container.

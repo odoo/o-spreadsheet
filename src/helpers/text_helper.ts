@@ -64,6 +64,39 @@ export function computeCachedTextWidth(context: CanvasRenderingContext2D, text: 
   return textWidthCache[font][text];
 }
 
+const textDimensionsCache: Record<string, Record<string, { width: number; height: number }>> = {};
+
+export function computeTextDimension(
+  context: CanvasRenderingContext2D,
+  text: string,
+  style: Style,
+  fontUnit: "px" | "pt" = "pt"
+): { width: number; height: number } {
+  const font = computeTextFont(style, fontUnit);
+  context.save();
+  context.font = font;
+  const dimensions = computeCachedTextDimension(context, text);
+  context.restore();
+  return dimensions;
+}
+
+function computeCachedTextDimension(
+  context: CanvasRenderingContext2D,
+  text: string
+): { width: number; height: number } {
+  const font = context.font;
+  if (!textDimensionsCache[font]) {
+    textDimensionsCache[font] = {};
+  }
+  if (textDimensionsCache[font][text] === undefined) {
+    const measure = context.measureText(text);
+    const width = measure.width;
+    const height = measure.fontBoundingBoxAscent + measure.fontBoundingBoxDescent;
+    textDimensionsCache[font][text] = { width, height };
+  }
+  return textDimensionsCache[font][text];
+}
+
 export function fontSizeInPixels(fontSize: number) {
   return Math.round((fontSize * 96) / 72);
 }

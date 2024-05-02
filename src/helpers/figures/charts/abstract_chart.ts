@@ -11,6 +11,7 @@ import {
   ChartDefinition,
   ChartType,
   ExcelChartDefinition,
+  TitleDesign,
 } from "../../../types/chart/chart";
 import { Validator } from "../../../types/validator";
 
@@ -20,7 +21,7 @@ import { Validator } from "../../../types/validator";
  */
 export abstract class AbstractChart {
   readonly sheetId: UID;
-  readonly title: string;
+  readonly title: TitleDesign;
   abstract readonly type: ChartType;
   protected readonly getters: CoreGetters;
 

@@ -1,24 +1,39 @@
-import { useExternalListener, useState } from "@odoo/owl";
+import { Component } from "@odoo/owl";
 import {
   CHART_WATERFALL_NEGATIVE_COLOR,
   CHART_WATERFALL_POSITIVE_COLOR,
   CHART_WATERFALL_SUBTOTAL_COLOR,
 } from "../../../../constants";
-import { Color } from "../../../../types";
+import { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types";
 import { WaterfallChartDefinition } from "../../../../types/chart/waterfall_chart";
-import { GenericChartDesignPanel } from "../line_bar_pie_panel/design_panel";
+import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
+import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
+import { Section } from "../../components/section/section";
+import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
 import { Checkbox } from "./../../components/checkbox/checkbox";
-import { RoundColorPicker } from "./../../components/round_color_picker/round_color_picker";
 
-export class WaterfallChartDesignPanel extends GenericChartDesignPanel {
+interface Props {
+  figureId: UID;
+  definition: WaterfallChartDefinition;
+  canUpdateChart: (figureID: UID, definition: Partial<WaterfallChartDefinition>) => DispatchResult;
+  updateChart: (figureId: UID, definition: Partial<WaterfallChartDefinition>) => DispatchResult;
+}
+
+export class WaterfallChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-WaterfallChartDesignPanel";
-  static components = { ...GenericChartDesignPanel.components, Checkbox, RoundColorPicker };
-
-  state = useState({ pickerOpened: false });
-  setup() {
-    super.setup();
-    useExternalListener(window as any, "click", this.closePicker);
-  }
+  static components = {
+    GeneralDesignEditor,
+    Checkbox,
+    SidePanelCollapsible,
+    Section,
+    RoundColorPicker,
+  };
+  static props = {
+    figureId: String,
+    definition: Object,
+    updateChart: Function,
+    canUpdateChart: { type: Function, optional: true },
+  };
 
   onUpdateShowSubTotals(showSubTotals: boolean) {
     this.props.updateChart(this.props.figureId, { showSubTotals });
@@ -34,14 +49,6 @@ export class WaterfallChartDesignPanel extends GenericChartDesignPanel {
 
   updateColor(colorName: string, color: Color) {
     this.props.updateChart(this.props.figureId, { [colorName]: color });
-  }
-
-  closePicker() {
-    this.state.pickerOpened = false;
-  }
-
-  togglePicker() {
-    this.state.pickerOpened = !this.state.pickerOpened;
   }
 
   get positiveValuesColor() {
@@ -63,5 +70,17 @@ export class WaterfallChartDesignPanel extends GenericChartDesignPanel {
       (this.props.definition as WaterfallChartDefinition).subTotalValuesColor ||
       CHART_WATERFALL_SUBTOTAL_COLOR
     );
+  }
+
+  updateLegendPosition(ev) {
+    this.props.updateChart(this.props.figureId, {
+      legendPosition: ev.target.value,
+    });
+  }
+
+  updateVerticalAxisPosition(ev) {
+    this.props.updateChart(this.props.figureId, {
+      verticalAxisPosition: ev.target.value,
+    });
   }
 }

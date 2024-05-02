@@ -1,9 +1,13 @@
-import { DEFAULT_FONT } from "../../../constants";
+import { DEFAULT_CHART_FONT_SIZE, DEFAULT_FONT } from "../../../constants";
 import { Color, PixelPosition, Rect } from "../../../types";
 import { GaugeChartRuntime } from "../../../types/chart";
 import { relativeLuminance } from "../../color";
 import { clip } from "../../misc";
-import { computeTextWidth, getFontSizeMatchingWidth } from "../../text_helper";
+import {
+  computeTextDimension,
+  computeTextWidth,
+  getFontSizeMatchingWidth,
+} from "../../text_helper";
 
 export const GAUGE_PADDING_SIDE = 30;
 export const GAUGE_PADDING_TOP = 10;
@@ -18,14 +22,14 @@ const GAUGE_INFLECTION_MARKER_COLOR = "#666666aa";
 const GAUGE_INFLECTION_LABEL_BOTTOM_MARGIN = 6;
 
 export const GAUGE_TITLE_SECTION_HEIGHT = 25;
-export const GAUGE_TITLE_FONT_SIZE = 18;
+export const GAUGE_TITLE_FONT_SIZE = DEFAULT_CHART_FONT_SIZE;
 export const GAUGE_TITLE_PADDING_LEFT = 10;
 export const GAUGE_TITLE_PADDING_TOP = 5;
 
 interface RenderingParams {
   width: number;
   height: number;
-  title: TextProperties;
+  title: TextProperties & { bold?: boolean; italic?: boolean };
   backgroundColor: Color;
   gauge: {
     rect: Rect;
@@ -168,7 +172,7 @@ export function getGaugeRenderingConfig(
   const minValue = runtime.minValue;
   const gaugeValue = runtime.gaugeValue;
 
-  const gaugeRect = getGaugeRect(boundingRect, runtime.title);
+  const gaugeRect = getGaugeRect(boundingRect, runtime.title.text);
   const gaugeArcWidth = gaugeRect.width / 6;
 
   const gaugePercentage = gaugeValue
@@ -211,17 +215,43 @@ export function getGaugeRenderingConfig(
 
   const inflectionValues = getInflectionValues(runtime, gaugeRect, textColor, ctx);
 
+  let x: number = 0,
+    titleWidth = 0,
+    titleHeight = 0;
+  if (runtime.title.text) {
+    ({ width: titleWidth, height: titleHeight } = computeTextDimension(
+      ctx,
+      runtime.title.text,
+      { ...runtime.title, fontSize: GAUGE_TITLE_FONT_SIZE },
+      "px"
+    ));
+  }
+  switch (runtime.title.align) {
+    case "right":
+      x = boundingRect.width - titleWidth - GAUGE_TITLE_PADDING_LEFT;
+      break;
+    case "center":
+      x = (boundingRect.width - titleWidth) / 2;
+      break;
+    case "left":
+    default:
+      x = GAUGE_TITLE_PADDING_LEFT;
+      break;
+  }
+
   return {
     width: boundingRect.width,
     height: boundingRect.height,
     title: {
-      label: runtime.title,
+      label: runtime.title.text ?? "",
       fontSize: GAUGE_TITLE_FONT_SIZE,
       textPosition: {
-        x: GAUGE_TITLE_PADDING_LEFT,
-        y: GAUGE_TITLE_PADDING_TOP + GAUGE_TITLE_FONT_SIZE,
+        x,
+        y: GAUGE_TITLE_PADDING_TOP + titleHeight / 2,
       },
-      color: textColor,
+      color: runtime.title.color ?? textColor,
+      bold: runtime.title.bold,
+      italic: runtime.title.italic,
     },
     backgroundColor: runtime.background,
     gauge: {

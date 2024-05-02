@@ -233,7 +233,7 @@ describe("Export data to xlsx then import it", () => {
 
   test.each([
     {
-      title: "demo chart",
+      title: { text: "demo chart" },
       dataSets: ["Sheet1!B26:B35", "Sheet1!C26:C35"],
       labelRange: "Sheet1!A27:A35",
       type: "line" as const,
@@ -245,7 +245,7 @@ describe("Export data to xlsx then import it", () => {
       labelsAsText: false,
     },
     {
-      title: "demo chart 2",
+      title: { text: "demo chart 2" },
       dataSets: ["Sheet1!B27:B35", "Sheet1!C27:C35"],
       labelRange: "Sheet1!A27:A35",
       type: "bar" as const,
@@ -256,7 +256,7 @@ describe("Export data to xlsx then import it", () => {
       stacked: true,
     },
     {
-      title: "pie demo chart",
+      title: { text: "pie demo chart" },
       dataSets: ["Sheet1!B26:B35", "Sheet1!C26:C35"],
       labelRange: "Sheet1!A27:A35",
       type: "pie" as const,
@@ -267,7 +267,7 @@ describe("Export data to xlsx then import it", () => {
       stacked: false,
     },
     {
-      title: "demo chart4",
+      title: { text: "demo chart4" },
       dataSets: ["Sheet1!B26:B35", "Sheet1!C26:C35"],
       labelRange: "Sheet1!A27:A35",
       type: "line" as const,
@@ -279,7 +279,7 @@ describe("Export data to xlsx then import it", () => {
       labelsAsText: false,
     },
     {
-      title: "demo chart 5",
+      title: { text: "demo chart 5" },
       dataSets: ["Sheet1!B27:B35", "Sheet1!C27:C35"],
       labelRange: "Sheet1!A27:A35",
       type: "combo" as const,

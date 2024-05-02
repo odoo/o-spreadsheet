@@ -1,0 +1,24 @@
+<templates>
+  <t t-name="o-spreadsheet-PieChartDesignPanel">
+    <GeneralDesignEditor
+      figureId="props.figureId"
+      definition="props.definition"
+      updateChart="props.updateChart">
+      <t t-set-slot="general-extension">
+        <Section class="'pt-0'">
+          <t t-set-slot="title">Legend position</t>
+          <select
+            t-att-value="props.definition.legendPosition ?? 'top'"
+            class="o-input"
+            t-on-change="(ev) => this.updateLegendPosition(ev)">
+            <option value="none">None</option>
+            <option value="top">Top</option>
+            <option value="bottom">Bottom</option>
+            <option value="left">Left</option>
+            <option value="right">Right</option>
+          </select>
+        </Section>
+      </t>
+    </GeneralDesignEditor>
+  </t>
+</templates>

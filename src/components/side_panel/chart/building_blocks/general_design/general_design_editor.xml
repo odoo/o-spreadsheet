@@ -1,0 +1,30 @@
+<templates>
+  <t t-name="o-spreadsheet-GeneralDesignEditor">
+    <t t-set="chart_title">Chart Title</t>
+    <SidePanelCollapsible collapsedAtInit="false">
+      <t t-set-slot="title">General</t>
+      <t t-set-slot="content">
+        <Section class="'o-chart-background-color pt-0 pb-0'">
+          <div class="d-flex align-items-center mt-0">
+            <span class="o-section-title mb-0 pe-2">Background Color</span>
+            <RoundColorPicker
+              currentColor="props.definition.background"
+              onColorPicked.bind="updateBackgroundColor"
+            />
+          </div>
+        </Section>
+        <ChartTitle
+          title="title.text"
+          updateTitle.bind="updateTitle"
+          name="chart_title"
+          toggleItalic.bind="toggleItalicChartTitle"
+          toggleBold.bind="toggleBoldChartTitle"
+          updateAlignment.bind="updateChartTitleAlignment"
+          updateColor.bind="updateChartTitleColor"
+          style="titleStyle"
+        />
+        <t t-slot="general-extension"/>
+      </t>
+    </SidePanelCollapsible>
+  </t>
+</templates>

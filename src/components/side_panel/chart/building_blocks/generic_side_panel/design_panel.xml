@@ -1,0 +1,9 @@
+<templates>
+  <t t-name="o-spreadsheet-GenericChartDesignPanel">
+    <GeneralDesignEditor
+      figureId="props.figureId"
+      definition="props.definition"
+      updateChart="props.updateChart"
+    />
+  </t>
+</templates>
