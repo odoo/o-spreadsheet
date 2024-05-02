@@ -31,12 +31,12 @@ import { PieChartDefinition, PieChartRuntime } from "../../../types/chart/pie_ch
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
+import { ColorGenerator } from "../../color";
 import { formatValue } from "../../format";
 import { largeMax } from "../../misc";
 import { createRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
-  ChartColors,
   chartFontColor,
   checkDataset,
   checkLabelRange,
@@ -236,7 +236,7 @@ function getPieConfiguration(
   return config;
 }
 
-function getPieColors(colors: ChartColors, dataSetsValues: DatasetValues[]): Color[] {
+function getPieColors(colors: ColorGenerator, dataSetsValues: DatasetValues[]): Color[] {
   const pieColors: Color[] = [];
   const maxLength = largeMax(dataSetsValues.map((ds) => ds.data.length));
   for (let i = 0; i <= maxLength; i++) {
@@ -313,7 +313,7 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
   const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
   const locale = getters.getLocale();
   const config = getPieConfiguration(chart, labels, { format: dataSetFormat, locale });
-  const colors = new ChartColors();
+  const colors = new ColorGenerator();
   for (let { label, data } of dataSetsValues) {
     const backgroundColor = getPieColors(colors, dataSetsValues);
     const dataset: ChartDataset = {
