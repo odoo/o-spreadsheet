@@ -3,8 +3,8 @@ import {
   deepEquals,
   isEqual,
   isInside,
-  organizeZone,
   positionToZone,
+  reorderZone,
   union,
 } from "../helpers";
 import { _t } from "../translation";
@@ -226,7 +226,7 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
     }
     let result: Zone | null = anchor.zone;
     const expand = (z: Zone) => {
-      z = organizeZone(z);
+      z = reorderZone(z);
       const { left, right, top, bottom } = this.getters.expandZone(sheetId, z);
       return {
         left: Math.max(0, left),
@@ -257,7 +257,7 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
         const newTop = this.getNextAvailableRow(deltaRow, refCol, top + (n - 1));
         result = top + n <= refRow ? expand({ top: newTop, left, bottom, right }) : null;
       }
-      result = result ? organizeZone(result) : result;
+      result = result ? reorderZone(result) : result;
       if (result && !isEqual(result, anchor.zone)) {
         return this.processEvent({
           options: { scrollIntoView: true },
@@ -272,7 +272,7 @@ export class SelectionStreamProcessorImpl implements SelectionStreamProcessor {
       left: anchorCol,
       right: anchorCol,
     };
-    const zoneWithDelta = organizeZone({
+    const zoneWithDelta = reorderZone({
       top: this.getNextAvailableRow(deltaRow, refCol!, top),
       left: this.getNextAvailableCol(deltaCol, left, refRow!),
       bottom: this.getNextAvailableRow(deltaRow, refCol!, bottom),
