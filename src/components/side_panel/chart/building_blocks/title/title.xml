@@ -14,7 +14,7 @@
         t-att-placeholder="placeholder"
       />
       <Section class="'pt-0 px-0'">
-        <div class="o-chart-title-designer">
+        <div class="o-chart-title-designer position-relative d-flex align-items-center">
           <span
             class="o-menu-item-button o-hoverable-button"
             title="Bold"
@@ -45,10 +45,10 @@
             <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
           </span>
           <div
-            class="o-dropdown-content"
+            class="o-dropdown-content position-absolute top-100 start-0 bg-white"
             t-if="state.activeTool === 'horizontalChartAlignTool'"
             t-on-click.stop="">
-            <div class="o-dropdown-line">
+            <div class="o-dropdown-line d-flex">
               <span
                 class="o-menu-item-button o-hoverable-button"
                 t-att-class="{active: props.style.align === 'left'}"

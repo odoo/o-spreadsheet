@@ -173,7 +173,7 @@ describe("chart specific Clipboard test", () => {
     const model = new Model();
     const chartId = "thisIsAnId";
     createChart(model, {}, chartId);
-    updateChart(model, chartId, { dataSets: ["A1:A5"], labelRange: "B1" });
+    updateChart(model, chartId, { dataSets: [{ dataRange: "A1:A5" }], labelRange: "B1" });
     const chartDef = model.getters.getChartDefinition(chartId) as BarChartDefinition;
     model.dispatch("SELECT_FIGURE", { id: chartId });
     copy(model);
@@ -183,7 +183,7 @@ describe("chart specific Clipboard test", () => {
     const newChartId = model.getters.getFigures("42")[0].id;
     expect(model.getters.getChartDefinition(newChartId)).toEqual({
       ...chartDef,
-      dataSets: ["Sheet1!A1:A5"],
+      dataSets: [{ dataRange: "Sheet1!A1:A5" }],
       labelRange: "Sheet1!B1",
     });
   });

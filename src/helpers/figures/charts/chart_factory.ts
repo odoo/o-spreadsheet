@@ -176,7 +176,7 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
   if (canChartParseLabels(labelRange, getters)) {
     return {
       title: { text: title },
-      dataSets,
+      dataSets: dataSets.map((dataRange) => ({ dataRange, yAxisId: "y" })),
       labelsAsText: false,
       stacked: false,
       aggregated: false,
@@ -184,7 +184,6 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
       labelRange: labelRangeXc,
       type: "line",
       dataSetsHaveTitle,
-      verticalAxisPosition: "left",
       legendPosition: newLegendPos,
     };
   }
@@ -195,7 +194,7 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
   ) {
     return {
       title: { text: "" },
-      dataSets,
+      dataSets: dataSets.map((dataRange) => ({ dataRange })),
       aggregated: true,
       labelRange: dataSets[0],
       type: "pie",
@@ -205,13 +204,12 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
   }
   return {
     title: { text: title },
-    dataSets,
+    dataSets: dataSets.map((dataRange) => ({ dataRange, yAxisId: "y" })),
     labelRange: labelRangeXc,
     type: "bar",
     stacked: false,
     aggregated: false,
     dataSetsHaveTitle,
-    verticalAxisPosition: "left",
     legendPosition: newLegendPos,
   };
 }

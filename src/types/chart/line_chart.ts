@@ -1,21 +1,21 @@
 import type { ChartConfiguration } from "chart.js";
 import { Color } from "../misc";
-import { TitleDesign } from "./chart";
-import { LegendPosition, VerticalAxisPosition } from "./common_chart";
+import { AxesDesign, CustomizedDataSet, TitleDesign } from "./chart";
+import { LegendPosition } from "./common_chart";
 
 export interface LineChartDefinition {
   readonly type: "line";
-  readonly dataSets: string[];
+  readonly dataSets: CustomizedDataSet[];
   readonly dataSetsHaveTitle: boolean;
   readonly labelRange?: string;
   readonly title: TitleDesign;
   readonly background?: Color;
-  readonly verticalAxisPosition: VerticalAxisPosition;
   readonly legendPosition: LegendPosition;
   readonly labelsAsText: boolean;
   readonly stacked: boolean;
   readonly aggregated?: boolean;
   readonly cumulative: boolean;
+  readonly axesDesign?: AxesDesign;
 }
 
 export type LineChartRuntime = {

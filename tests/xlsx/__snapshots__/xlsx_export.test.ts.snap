@@ -5504,7 +5504,7 @@ exports[`Test XLSX export Charts pie chart with only title dataset 1`] = `
 }
 `;
 
-exports[`Test XLSX export Charts simple bar chart with dataset [ 'Sheet1!B1:B4' ] 1`] = `
+exports[`Test XLSX export Charts simple bar chart with dataset [ [Object] ] 1`] = `
 {
   "files": [
     {
@@ -6068,7 +6068,7 @@ exports[`Test XLSX export Charts simple bar chart with dataset [ 'Sheet1!B1:B4' 
 }
 `;
 
-exports[`Test XLSX export Charts simple bar chart with dataset [ 'Sheet1!B1:B4', 'Sheet1!C1:C4' ] 1`] = `
+exports[`Test XLSX export Charts simple bar chart with dataset [ [Object], [Object] ] 1`] = `
 {
   "files": [
     {
@@ -6670,7 +6670,7 @@ exports[`Test XLSX export Charts simple bar chart with dataset [ 'Sheet1!B1:B4',
 }
 `;
 
-exports[`Test XLSX export Charts simple combo chart with dataset [ 'Sheet1!B1:B4' ] 1`] = `
+exports[`Test XLSX export Charts simple combo chart with dataset [ [Object] ] 1`] = `
 {
   "files": [
     {
@@ -7241,7 +7241,7 @@ exports[`Test XLSX export Charts simple combo chart with dataset [ 'Sheet1!B1:B4
 }
 `;
 
-exports[`Test XLSX export Charts simple combo chart with dataset [ 'Sheet1!B1:B4', 'Sheet1!C1:C4' ] 1`] = `
+exports[`Test XLSX export Charts simple combo chart with dataset [ [Object], [Object] ] 1`] = `
 {
   "files": [
     {
@@ -7855,7 +7855,7 @@ exports[`Test XLSX export Charts simple combo chart with dataset [ 'Sheet1!B1:B4
 }
 `;
 
-exports[`Test XLSX export Charts simple line chart with dataset [ 'Sheet1!B1:B4' ] 1`] = `
+exports[`Test XLSX export Charts simple line chart with dataset [ [Object] ] 1`] = `
 {
   "files": [
     {
@@ -8419,7 +8419,7 @@ exports[`Test XLSX export Charts simple line chart with dataset [ 'Sheet1!B1:B4'
 }
 `;
 
-exports[`Test XLSX export Charts simple line chart with dataset [ 'Sheet1!B1:B4', 'Sheet1!C1:C4' ] 1`] = `
+exports[`Test XLSX export Charts simple line chart with dataset [ [Object], [Object] ] 1`] = `
 {
   "files": [
     {
@@ -9024,7 +9024,7 @@ exports[`Test XLSX export Charts simple line chart with dataset [ 'Sheet1!B1:B4'
 }
 `;
 
-exports[`Test XLSX export Charts simple pie chart with dataset [ 'Sheet1!B1:B4' ] 1`] = `
+exports[`Test XLSX export Charts simple pie chart with dataset [ [Object] ] 1`] = `
 {
   "files": [
     {
@@ -9505,7 +9505,7 @@ exports[`Test XLSX export Charts simple pie chart with dataset [ 'Sheet1!B1:B4' 
 }
 `;
 
-exports[`Test XLSX export Charts simple pie chart with dataset [ 'Sheet1!B1:B4', 'Sheet1!C1:C4' ] 1`] = `
+exports[`Test XLSX export Charts simple pie chart with dataset [ [Object], [Object] ] 1`] = `
 {
   "files": [
     {
@@ -10060,7 +10060,7 @@ exports[`Test XLSX export Charts simple pie chart with dataset [ 'Sheet1!B1:B4',
 }
 `;
 
-exports[`Test XLSX export Charts simple scatter chart with dataset [ 'Sheet1!B1:B4' ] 1`] = `
+exports[`Test XLSX export Charts simple scatter chart with dataset [ [Object] ] 1`] = `
 {
   "files": [
     {
@@ -10622,7 +10622,7 @@ exports[`Test XLSX export Charts simple scatter chart with dataset [ 'Sheet1!B1:
 }
 `;
 
-exports[`Test XLSX export Charts simple scatter chart with dataset [ 'Sheet1!B1:B4', 'Sheet1!C1:C4' ] 1`] = `
+exports[`Test XLSX export Charts simple scatter chart with dataset [ [Object], [Object] ] 1`] = `
 {
   "files": [
     {

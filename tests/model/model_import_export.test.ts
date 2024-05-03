@@ -167,10 +167,9 @@ describe("Migrations", () => {
       type: "line",
       title: "demo chart",
       labelRange: "'My sheet'!A27:A35",
-      dataSets: ["B26:B35", "C26:C35"],
+      dataSets: [{ dataRange: "B26:B35" }, { dataRange: "C26:C35" }],
       dataSetsHaveTitle: true,
       background: BACKGROUND_CHART_COLOR,
-      verticalAxisPosition: "left",
       legendPosition: "top",
       stacked: false,
     });
@@ -178,10 +177,9 @@ describe("Migrations", () => {
       type: "bar",
       title: "demo chart 2",
       labelRange: "'My sheet'!A27:A35",
-      dataSets: ["B27:B35", "C27:C35"],
+      dataSets: [{ dataRange: "B27:B35" }, { dataRange: "C27:C35" }],
       dataSetsHaveTitle: false,
       background: BACKGROUND_CHART_COLOR,
-      verticalAxisPosition: "left",
       legendPosition: "top",
       stacked: false,
     });
@@ -189,10 +187,9 @@ describe("Migrations", () => {
       type: "bar",
       title: "demo chart 3",
       labelRange: "'My sheet'!A27",
-      dataSets: ["B26:B27"],
+      dataSets: [{ dataRange: "B26:B27" }],
       dataSetsHaveTitle: true,
       background: BACKGROUND_CHART_COLOR,
-      verticalAxisPosition: "left",
       legendPosition: "top",
       stacked: false,
     });
@@ -200,10 +197,9 @@ describe("Migrations", () => {
       type: "bar",
       title: "demo chart 4",
       labelRange: "'My sheet'!A27",
-      dataSets: ["B27"],
+      dataSets: [{ dataRange: "B27" }],
       dataSetsHaveTitle: false,
       background: BACKGROUND_CHART_COLOR,
-      verticalAxisPosition: "left",
       legendPosition: "top",
       stacked: false,
     });
@@ -283,7 +279,10 @@ describe("Migrations", () => {
     expect(cells.A1!.content).toBe("=sheetName_!A2");
 
     const figures = data.sheets[1].figures;
-    expect(figures[0].data?.dataSets).toEqual(["=sheetName_!A1:A2", "My sheet!A1:A2"]);
+    expect(figures[0].data?.dataSets).toEqual([
+      { dataRange: "=sheetName_!A1:A2" },
+      { dataRange: "My sheet!A1:A2" },
+    ]);
     expect(figures[0].data?.labelRange).toBe("=sheetName_!B1:B2");
 
     const cfs = data.sheets[1].conditionalFormats;
@@ -555,7 +554,7 @@ describe("Export", () => {
                 type: "line",
                 title: "demo chart",
                 labelRange: "A1:A4",
-                dataSets: ["B1:B4", "C1:C4"],
+                dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }],
               },
             },
             { id: "id2", x: 100, y: 100, width: 100, height: 100 },

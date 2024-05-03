@@ -2,7 +2,7 @@ import { Component } from "@odoo/owl";
 import { Registry } from "../../../registries/registry";
 import { BarConfigPanel } from "./bar_chart/bar_chart_config_panel";
 import { GenericChartConfigPanel } from "./building_blocks/generic_side_panel/config_panel";
-import { GenericChartDesignPanel } from "./building_blocks/generic_side_panel/design_panel";
+import { ChartWithAxisDesignPanel } from "./chart_with_axis/design_panel";
 import { GaugeChartConfigPanel } from "./gauge_chart_panel/gauge_chart_config_panel";
 import { GaugeChartDesignPanel } from "./gauge_chart_panel/gauge_chart_design_panel";
 import { LineConfigPanel } from "./line_chart/line_chart_config_panel";
@@ -14,7 +14,7 @@ import { WaterfallChartDesignPanel } from "./waterfall_chart/waterfall_chart_des
 
 export { BarConfigPanel } from "./bar_chart/bar_chart_config_panel";
 export { GenericChartConfigPanel } from "./building_blocks/generic_side_panel/config_panel";
-export { GenericChartDesignPanel } from "./building_blocks/generic_side_panel/design_panel";
+export { ChartWithAxisDesignPanel } from "./chart_with_axis/design_panel";
 export { GaugeChartConfigPanel } from "./gauge_chart_panel/gauge_chart_config_panel";
 export { GaugeChartDesignPanel } from "./gauge_chart_panel/gauge_chart_design_panel";
 export { LineConfigPanel } from "./line_chart/line_chart_config_panel";
@@ -31,19 +31,19 @@ export const chartSidePanelComponentRegistry = new Registry<ChartSidePanel>();
 chartSidePanelComponentRegistry
   .add("line", {
     configuration: LineConfigPanel,
-    design: GenericChartDesignPanel,
+    design: ChartWithAxisDesignPanel,
   })
   .add("scatter", {
     configuration: ScatterConfigPanel,
-    design: GenericChartDesignPanel,
+    design: ChartWithAxisDesignPanel,
   })
   .add("bar", {
     configuration: BarConfigPanel,
-    design: GenericChartDesignPanel,
+    design: ChartWithAxisDesignPanel,
   })
   .add("combo", {
     configuration: GenericChartConfigPanel,
-    design: GenericChartDesignPanel,
+    design: ChartWithAxisDesignPanel,
   })
   .add("pie", {
     configuration: GenericChartConfigPanel,

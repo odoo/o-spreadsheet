@@ -71,7 +71,7 @@ export class PieChart extends AbstractChart {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       getters,
-      definition.dataSets,
+      definition.dataSets.map((ds) => ds.dataRange),
       sheetId,
       definition.dataSetsHaveTitle
     );
@@ -99,7 +99,7 @@ export class PieChart extends AbstractChart {
   static getDefinitionFromContextCreation(context: ChartCreationContext): PieChartDefinition {
     return {
       background: context.background,
-      dataSets: context.range ? context.range : [],
+      dataSets: context.range ?? [],
       dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
@@ -116,9 +116,9 @@ export class PieChart extends AbstractChart {
   getContextCreation(): ChartCreationContext {
     return {
       ...this,
-      range: this.dataSets.map((ds: DataSet) =>
-        this.getters.getRangeString(ds.dataRange, this.sheetId)
-      ),
+      range: this.dataSets.map((ds: DataSet) => ({
+        dataRange: this.getters.getRangeString(ds.dataRange, this.sheetId),
+      })),
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
         : undefined,
@@ -134,9 +134,9 @@ export class PieChart extends AbstractChart {
       type: "pie",
       dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
       background: this.background,
-      dataSets: dataSets.map((ds: DataSet) =>
-        this.getters.getRangeString(ds.dataRange, targetSheetId || this.sheetId)
-      ),
+      dataSets: dataSets.map((ds: DataSet) => ({
+        dataRange: this.getters.getRangeString(ds.dataRange, targetSheetId || this.sheetId),
+      })),
       legendPosition: this.legendPosition,
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)

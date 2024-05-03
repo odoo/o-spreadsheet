@@ -195,7 +195,7 @@ export class ScorecardChart extends AbstractChart {
     return {
       background: context.background,
       type: "scorecard",
-      keyValue: context.range ? context.range[0] : undefined,
+      keyValue: context.range ? context.range[0].dataRange : undefined,
       title: context.title || { text: "" },
       baselineMode: DEFAULT_SCORECARD_BASELINE_MODE,
       baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
@@ -243,7 +243,9 @@ export class ScorecardChart extends AbstractChart {
   getContextCreation(): ChartCreationContext {
     return {
       ...this,
-      range: this.keyValue ? [this.getters.getRangeString(this.keyValue, this.sheetId)] : undefined,
+      range: this.keyValue
+        ? [{ dataRange: this.getters.getRangeString(this.keyValue, this.sheetId) }]
+        : undefined,
       auxiliaryRange: this.baseline
         ? this.getters.getRangeString(this.baseline, this.sheetId)
         : undefined,

@@ -52,7 +52,7 @@ describe("Watrefall chart side panel", () => {
   describe("Config panel", () => {
     test("Waterfall config panel is correctly initialized", async () => {
       const chartId = createWaterfallChart(model, {
-        dataSets: ["A1:A3"],
+        dataSets: [{ dataRange: "A1:A3" }],
         labelRange: "B1:B3",
         dataSetsHaveTitle: true,
         aggregated: true,
@@ -67,7 +67,7 @@ describe("Watrefall chart side panel", () => {
 
     test("Can change chart values in config side panel", async () => {
       const chartId = createWaterfallChart(model, {
-        dataSets: ["A1:A3"],
+        dataSets: [{ dataRange: "A1:A3" }],
         labelRange: "B1:B3",
         dataSetsHaveTitle: true,
         aggregated: true,
@@ -80,7 +80,7 @@ describe("Watrefall chart side panel", () => {
 
       await setInputValueAndTrigger(".o-data-series input", "B1:B3");
       await simulateClick(".o-data-series .o-selection-ok");
-      expect(getWaterfallDefinition(chartId)?.dataSets).toEqual(["B1:B3"]);
+      expect(getWaterfallDefinition(chartId)?.dataSets).toEqual([{ dataRange: "B1:B3" }]);
 
       await simulateClick('input[name="aggregated"]');
       expect(getWaterfallDefinition(chartId)?.aggregated).toEqual(false);

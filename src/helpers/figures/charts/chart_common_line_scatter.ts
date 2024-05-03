@@ -7,7 +7,7 @@ import { getChartTimeOptions, timeFormatLuxonCompatible } from "../../chart_date
 import { ColorGenerator, colorToRGBA, rgbaToHex } from "../../color";
 import { formatValue } from "../../format";
 import { deepCopy, findNextDefinedValue } from "../../misc";
-import { chartFontColor } from "./chart_common";
+import { chartFontColor, getChartAxisTitleRuntime } from "./chart_common";
 import {
   aggregateDataForLabels,
   filterEmptyDataPoints,
@@ -151,27 +151,58 @@ function getLineOrScatterConfiguration(
         padding: 5,
         color: fontColor,
       },
+      title: getChartAxisTitleRuntime(chart.axesDesign?.x),
     },
-    y: {
-      position: chart.verticalAxisPosition,
-      beginAtZero: true, // the origin of the y axis is always zero
-      ticks: {
-        color: fontColor,
-        callback: (value) => {
-          value = Number(value);
-          if (isNaN(value)) return value;
-          const { locale, format } = options;
-          return formatValue(value, {
-            locale,
-            format: !format && Math.abs(value) >= 1000 ? "#,##" : format,
-          });
-        },
+  };
+  const yAxis = {
+    beginAtZero: true, // the origin of the y axis is always zero
+    ticks: {
+      color: fontColor,
+      callback: (value) => {
+        value = Number(value);
+        if (isNaN(value)) return value;
+        const { locale, format } = options;
+        return formatValue(value, {
+          locale,
+          format: !format && Math.abs(value) >= 1000 ? "#,##" : format,
+        });
       },
     },
   };
-  if ("stacked" in chart && chart.stacked && config.options?.scales?.y) {
-    // @ts-ignore chart.js type is wrong
-    config.options.scales.y.stacked = true;
+  const definition = chart.getDefinition();
+  let useLeftAxis = false,
+    useRightAxis = false;
+  for (const design of definition.dataSets || []) {
+    if (design.yAxisId === "y") {
+      useLeftAxis = true;
+    } else if (design.yAxisId === "y1") {
+      useRightAxis = true;
+    }
+  }
+  useLeftAxis ||= !useRightAxis;
+  if (useLeftAxis) {
+    config.options.scales.y = {
+      ...yAxis,
+      position: "left",
+      title: getChartAxisTitleRuntime(chart.axesDesign?.y),
+    };
+  }
+  if (useRightAxis) {
+    config.options.scales.y1 = {
+      ...yAxis,
+      position: "right",
+      title: getChartAxisTitleRuntime(chart.axesDesign?.y1),
+    };
+  }
+  if ("stacked" in chart && chart.stacked) {
+    if (useLeftAxis) {
+      // @ts-ignore chart.js type is broken
+      config.options.scales!.y!.stacked = true;
+    }
+    if (useRightAxis) {
+      // @ts-ignore chart.js type is broken
+      config.options.scales!.y1!.stacked = true;
+    }
   }
   return config;
 }
@@ -236,6 +267,7 @@ export function createLineOrScatterChartRuntime(
   const cumulative = "cumulative" in chart ? chart.cumulative : false;
 
   const colors = new ColorGenerator();
+  const definition = chart.getDefinition();
   for (let [index, { label, data }] of dataSetsValues.entries()) {
     if (["linear", "time"].includes(axisType)) {
       // Replace empty string labels by undefined to make sure chartJS doesn't decide that "" is the same as 0
@@ -269,6 +301,23 @@ export function createLineOrScatterChartRuntime(
       fill: stacked ? getFillingMode(index) : false,
     };
     config.data!.datasets!.push(dataset);
+  }
+
+  for (const [index, dataset] of config.data.datasets.entries()) {
+    if (definition.dataSets?.[index]?.backgroundColor) {
+      const color = definition.dataSets[index].backgroundColor;
+      dataset.backgroundColor = color;
+      dataset.borderColor = color;
+      //@ts-ignore
+      dataset.pointBackgroundColor = color;
+    }
+    if (definition.dataSets?.[index]?.label) {
+      const label = definition.dataSets[index].label;
+      dataset.label = label;
+    }
+    if (definition.dataSets?.[index]?.yAxisId) {
+      dataset["yAxisID"] = definition.dataSets[index].yAxisId;
+    }
   }
 
   return {

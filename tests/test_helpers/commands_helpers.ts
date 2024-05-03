@@ -10,6 +10,7 @@ import {
   Border,
   BorderData,
   ChartDefinition,
+  ChartWithAxisDefinition,
   ClipboardPasteOptions,
   CreateSheetCommand,
   CreateTableStyleCommand,
@@ -27,12 +28,8 @@ import {
 } from "../../src/types";
 import { target, toRangeData, toRangesData } from "./helpers";
 
-import { BarChartDefinition } from "../../src/types/chart/bar_chart";
 import { ComboChartDefinition } from "../../src/types/chart/combo_chart";
 import { GaugeChartDefinition } from "../../src/types/chart/gauge_chart";
-import { LineChartDefinition } from "../../src/types/chart/line_chart";
-import { PieChartDefinition } from "../../src/types/chart/pie_chart";
-import { ScatterChartDefinition } from "../../src/types/chart/scatter_chart";
 import { ScorecardChartDefinition } from "../../src/types/chart/scorecard_chart";
 import { WaterfallChartDefinition } from "../../src/types/chart/waterfall_chart";
 import { Image } from "../../src/types/image";
@@ -144,14 +141,7 @@ export function createImage(
  */
 export function createChart(
   model: Model,
-  data: Partial<
-    | LineChartDefinition
-    | BarChartDefinition
-    | PieChartDefinition
-    | ScatterChartDefinition
-    | ComboChartDefinition
-    | WaterfallChartDefinition
-  >,
+  data: Partial<ChartWithAxisDefinition>,
   chartId?: UID,
   sheetId?: UID
 ) {
@@ -161,6 +151,7 @@ export function createChart(
   return model.dispatch("CREATE_CHART", {
     id,
     sheetId,
+    //@ts-ignore WHY DO WE NEED THIS ???
     definition: {
       ...data,
       title: data.title || { text: "test" },
@@ -169,7 +160,6 @@ export function createChart(
       labelRange: data.labelRange,
       type: data.type || "bar",
       background: data.background,
-      verticalAxisPosition: ("verticalAxisPosition" in data && data.verticalAxisPosition) || "left",
       legendPosition: data.legendPosition || "top",
       stacked: ("stacked" in data && data.stacked) || false,
       labelsAsText: ("labelsAsText" in data && data.labelsAsText) || false,
@@ -200,10 +190,8 @@ export function createComboChart(
       labelRange: data.labelRange,
       type: "combo",
       background: data.background,
-      verticalAxisPosition: ("verticalAxisPosition" in data && data.verticalAxisPosition) || "left",
       legendPosition: data.legendPosition || "top",
       aggregated: ("aggregated" in data && data.aggregated) || false,
-      useBothYAxis: data.useBothYAxis || false,
     },
   });
 }

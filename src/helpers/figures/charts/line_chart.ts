@@ -11,8 +11,11 @@ import {
   UID,
 } from "../../../types";
 import {
+  AxesDesign,
   ChartCreationContext,
+  CustomizedDataSet,
   DataSet,
+  DatasetDesign,
   ExcelChartDataset,
   ExcelChartDefinition,
 } from "../../../types/chart/chart";
@@ -42,7 +45,6 @@ export class LineChart extends AbstractChart {
   readonly dataSets: DataSet[];
   readonly labelRange?: Range | undefined;
   readonly background?: Color;
-  readonly verticalAxisPosition: VerticalAxisPosition;
   readonly legendPosition: LegendPosition;
   readonly labelsAsText: boolean;
   readonly stacked: boolean;
@@ -50,24 +52,42 @@ export class LineChart extends AbstractChart {
   readonly type = "line";
   readonly dataSetsHaveTitle: boolean;
   readonly cumulative: boolean;
+  readonly dataSetDesign?: DatasetDesign[];
+  readonly axesDesign?: AxesDesign;
 
   constructor(definition: LineChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       this.getters,
-      definition.dataSets,
+      definition.dataSets.map((ds) => ds.dataRange),
       sheetId,
       definition.dataSetsHaveTitle
     );
     this.labelRange = createRange(this.getters, sheetId, definition.labelRange);
     this.background = definition.background;
-    this.verticalAxisPosition = definition.verticalAxisPosition;
     this.legendPosition = definition.legendPosition;
     this.labelsAsText = definition.labelsAsText;
     this.stacked = definition.stacked;
     this.aggregated = definition.aggregated;
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
     this.cumulative = definition.cumulative;
+    this.dataSetDesign = definition.dataSets;
+    this.axesDesign = definition.axesDesign;
+  }
+
+  get verticalAxisPosition(): VerticalAxisPosition {
+    let useRightAxis = false,
+      useLeftAxis = false;
+    for (const design of this.dataSetDesign || []) {
+      if (design.yAxisId === "y") {
+        useLeftAxis = true;
+        break;
+      } else if (design.yAxisId === "y1") {
+        useRightAxis = true;
+        break;
+      }
+    }
+    return useLeftAxis || !useRightAxis ? "left" : "right";
   }
 
   static validateChartDefinition(
@@ -87,17 +107,17 @@ export class LineChart extends AbstractChart {
   static getDefinitionFromContextCreation(context: ChartCreationContext): LineChartDefinition {
     return {
       background: context.background,
-      dataSets: context.range ? context.range : [],
+      dataSets: context.range ?? [],
       dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
       labelsAsText: context.labelsAsText ?? false,
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
       type: "line",
-      verticalAxisPosition: context.verticalAxisPosition ?? "left",
       labelRange: context.auxiliaryRange || undefined,
       stacked: context.stacked ?? false,
       aggregated: context.aggregated ?? false,
       cumulative: context.cumulative ?? false,
+      axesDesign: context.axesDesign,
     };
   }
 
@@ -110,15 +130,19 @@ export class LineChart extends AbstractChart {
     labelRange: Range | undefined,
     targetSheetId?: UID
   ): LineChartDefinition {
+    const ranges: CustomizedDataSet[] = [];
+    for (const [i, dataSet] of dataSets.entries()) {
+      ranges.push({
+        ...this.dataSetDesign?.[i],
+        dataRange: this.getters.getRangeString(dataSet.dataRange, targetSheetId || this.sheetId),
+      });
+    }
     return {
       type: "line",
       dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
       background: this.background,
-      dataSets: dataSets.map((ds: DataSet) =>
-        this.getters.getRangeString(ds.dataRange, targetSheetId || this.sheetId)
-      ),
+      dataSets: ranges,
       legendPosition: this.legendPosition,
-      verticalAxisPosition: this.verticalAxisPosition,
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
@@ -127,15 +151,21 @@ export class LineChart extends AbstractChart {
       stacked: this.stacked,
       aggregated: this.aggregated,
       cumulative: this.cumulative,
+      axesDesign: this.axesDesign,
     };
   }
 
   getContextCreation(): ChartCreationContext {
+    const range: CustomizedDataSet[] = [];
+    for (const [i, dataSet] of this.dataSets.entries()) {
+      range.push({
+        ...this.dataSetDesign?.[i],
+        dataRange: this.getters.getRangeString(dataSet.dataRange, this.sheetId),
+      });
+    }
     return {
       ...this,
-      range: this.dataSets.map((ds: DataSet) =>
-        this.getters.getRangeString(ds.dataRange, this.sheetId)
-      ),
+      range,
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
         : undefined,
@@ -174,6 +204,7 @@ export class LineChart extends AbstractChart {
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
       dataSets,
       labelRange,
+      verticalAxisPosition: this.verticalAxisPosition,
     };
   }
 

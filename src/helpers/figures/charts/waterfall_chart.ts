@@ -19,7 +19,13 @@ import {
   RemoveColumnsRowsCommand,
   UID,
 } from "../../../types";
-import { ChartCreationContext, DataSet, ExcelChartDefinition } from "../../../types/chart/chart";
+import {
+  AxesDesign,
+  ChartCreationContext,
+  CustomizedDataSet,
+  DataSet,
+  ExcelChartDefinition,
+} from "../../../types/chart/chart";
 import { LegendPosition, VerticalAxisPosition } from "../../../types/chart/common_chart";
 import {
   WaterfallChartDefinition,
@@ -36,6 +42,7 @@ import {
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
+  getChartAxisTitleRuntime,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
@@ -64,12 +71,14 @@ export class WaterfallChart extends AbstractChart {
   readonly positiveValuesColor?: Color;
   readonly negativeValuesColor?: Color;
   readonly subTotalValuesColor?: Color;
+  readonly dataSetDesign: CustomizedDataSet[];
+  readonly axesDesign?: AxesDesign;
 
   constructor(definition: WaterfallChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       getters,
-      definition.dataSets,
+      definition.dataSets.map((ds) => ds.dataRange),
       sheetId,
       definition.dataSetsHaveTitle
     );
@@ -85,6 +94,8 @@ export class WaterfallChart extends AbstractChart {
     this.negativeValuesColor = definition.negativeValuesColor;
     this.subTotalValuesColor = definition.subTotalValuesColor;
     this.firstValueAsSubtotal = definition.firstValueAsSubtotal;
+    this.dataSetDesign = definition.dataSets;
+    this.axesDesign = definition.axesDesign;
   }
 
   static transformDefinition(
@@ -110,20 +121,26 @@ export class WaterfallChart extends AbstractChart {
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
       type: "waterfall",
-      verticalAxisPosition: context.verticalAxisPosition ?? "left",
+      verticalAxisPosition: "left",
       labelRange: context.auxiliaryRange || undefined,
       showSubTotals: context.showSubTotals ?? false,
       showConnectorLines: context.showConnectorLines ?? true,
       firstValueAsSubtotal: context.firstValueAsSubtotal ?? false,
+      axesDesign: context.axesDesign,
     };
   }
 
   getContextCreation(): ChartCreationContext {
+    const range: CustomizedDataSet[] = [];
+    for (const [i, dataSet] of this.dataSets.entries()) {
+      range.push({
+        ...this.dataSetDesign?.[i],
+        dataRange: this.getters.getRangeString(dataSet.dataRange, this.sheetId),
+      });
+    }
     return {
       ...this,
-      range: this.dataSets.map((ds: DataSet) =>
-        this.getters.getRangeString(ds.dataRange, this.sheetId)
-      ),
+      range,
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
         : undefined,
@@ -155,13 +172,18 @@ export class WaterfallChart extends AbstractChart {
     labelRange: Range | undefined,
     targetSheetId?: UID
   ): WaterfallChartDefinition {
+    const ranges: CustomizedDataSet[] = [];
+    for (const [i, dataSet] of dataSets.entries()) {
+      ranges.push({
+        ...this.dataSetDesign?.[i],
+        dataRange: this.getters.getRangeString(dataSet.dataRange, targetSheetId || this.sheetId),
+      });
+    }
     return {
       type: "waterfall",
       dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
       background: this.background,
-      dataSets: dataSets.map((ds: DataSet) =>
-        this.getters.getRangeString(ds.dataRange, targetSheetId || this.sheetId)
-      ),
+      dataSets: ranges,
       legendPosition: this.legendPosition,
       verticalAxisPosition: this.verticalAxisPosition,
       labelRange: labelRange
@@ -175,6 +197,7 @@ export class WaterfallChart extends AbstractChart {
       negativeValuesColor: this.negativeValuesColor,
       subTotalValuesColor: this.subTotalValuesColor,
       firstValueAsSubtotal: this.firstValueAsSubtotal,
+      axesDesign: this.axesDesign,
     };
   }
 
@@ -249,6 +272,7 @@ function getWaterfallConfiguration(
       grid: {
         display: false,
       },
+      title: getChartAxisTitleRuntime(chart.axesDesign?.x),
     },
     y: {
       position: chart.verticalAxisPosition,
@@ -268,6 +292,7 @@ function getWaterfallConfiguration(
           return context.tick.value === 0 ? 2 : 1;
         },
       },
+      title: getChartAxisTitleRuntime(chart.axesDesign?.y),
     },
   };
   config.options.plugins!.tooltip = {

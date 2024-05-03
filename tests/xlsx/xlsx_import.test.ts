@@ -647,8 +647,18 @@ describe("Import xlsx data", () => {
   });
 
   test.each([
-    ["bar chart", "bar", "#fff", ["Sheet1!B27:B35", "Sheet1!C27:C35"]],
-    ["combo chart", "combo", "#fff", ["Sheet1!B27:B35", "Sheet1!C27:C35"]],
+    [
+      "bar chart",
+      "bar",
+      "#fff",
+      [{ dataRange: "Sheet1!B27:B35" }, { dataRange: "Sheet1!C27:C35" }],
+    ],
+    [
+      "combo chart",
+      "combo",
+      "#fff",
+      [{ dataRange: "Sheet1!B27:B35" }, { dataRange: "Sheet1!C27:C35" }],
+    ],
   ])(
     "Can import charts %s without dataset titles",
     (chartTitle, chartType, chartColor, chartDatasets) => {
@@ -666,9 +676,19 @@ describe("Import xlsx data", () => {
   );
 
   test.each([
-    ["line chart", "line", "#CECECE", ["Sheet1!B26:B35", "Sheet1!C26:C35"]],
-    ["pie chart", "pie", "#fff", ["Sheet1!B26:B35"]],
-    ["doughnut chart", "pie", "#fff", ["Sheet1!B26:B35", "Sheet1!C26:C35"]],
+    [
+      "line chart",
+      "line",
+      "#CECECE",
+      [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
+    ],
+    ["pie chart", "pie", "#fff", [{ dataRange: "Sheet1!B26:B35" }]],
+    [
+      "doughnut chart",
+      "pie",
+      "#fff",
+      [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
+    ],
   ])(
     "Can import charts %s with dataset titles",
     (chartTitle, chartType, chartColor, chartDatasets) => {
@@ -692,7 +712,7 @@ describe("Import xlsx data", () => {
     expect(chartData.title.text).toEqual("scatter chart");
     expect(chartData.type).toEqual("scatter");
     expect(standardizeColor(chartData.background!)).toEqual(standardizeColor("#fff"));
-    expect(chartData.dataSets).toEqual(["Sheet1!C26:C35"]);
+    expect(chartData.dataSets).toEqual([{ dataRange: "Sheet1!C26:C35" }]);
     expect(chartData.labelRange).toEqual("Sheet1!B26:B35");
     expect(chartData.dataSetsHaveTitle).toBeTruthy();
   });

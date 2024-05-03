@@ -367,6 +367,10 @@ const ColorsList = [
   "rgb(158,218,229)",
 ];
 
+export function getNthColor(index: number): Color {
+  return ColorsList[index % ColorsList.length];
+}
+
 export class ColorGenerator {
   private currentColorIndex = 0;
   private colors: string[];
@@ -378,6 +382,6 @@ export class ColorGenerator {
   next(): string {
     return this.colors?.[this.currentColorIndex]
       ? this.colors[this.currentColorIndex++]
-      : ColorsList[this.currentColorIndex++ % ColorsList.length];
+      : getNthColor(this.currentColorIndex++);
   }
 }

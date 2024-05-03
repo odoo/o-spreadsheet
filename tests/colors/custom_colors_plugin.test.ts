@@ -97,7 +97,7 @@ describe("custom colors are correctly handled when editing charts", () => {
     createChart(
       model,
       {
-        dataSets: ["A1:A10"],
+        dataSets: [{ dataRange: "A1:A10" }],
         labelRange: "A1",
         background: "#123456",
       },
@@ -114,7 +114,6 @@ describe("custom colors are correctly handled when editing charts", () => {
         type: "bar",
         stacked: false,
         dataSetsHaveTitle: false,
-        verticalAxisPosition: "left",
         legendPosition: "none",
         background: "#112233",
         aggregated: false,
@@ -177,7 +176,7 @@ describe("custom colors are correctly handled when editing charts", () => {
     createChart(
       model,
       {
-        dataSets: ["A1:A10"],
+        dataSets: [{ dataRange: "A1:A10" }],
         labelRange: "A1",
         background: "#123456",
       },

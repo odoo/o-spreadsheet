@@ -193,7 +193,7 @@ describe("charts", () => {
         const labels = fixture.querySelector(".o-data-labels");
         expect((panelChartType as HTMLSelectElement).value).toBe("combo");
         expect((dataSeries.querySelector(" .o-selection input") as HTMLInputElement).value).toBe(
-          TEST_CHART_DATA.basicChart.dataSets[0]
+          TEST_CHART_DATA.basicChart.dataSets[0].dataRange
         );
         expect(hasTitle).toBe(true);
         expect((labels!.querySelector(".o-selection input") as HTMLInputElement).value).toBe(
@@ -210,7 +210,7 @@ describe("charts", () => {
         const labels = fixture.querySelector(".o-data-labels");
         expect((panelChartType as HTMLSelectElement).value).toBe(TEST_CHART_DATA.basicChart.type);
         expect((dataSeries.querySelector(" .o-selection input") as HTMLInputElement).value).toBe(
-          TEST_CHART_DATA.basicChart.dataSets[0]
+          TEST_CHART_DATA.basicChart.dataSets[0].dataRange
         );
         expect(hasTitle).toBe(true);
         expect((labels!.querySelector(".o-selection input") as HTMLInputElement).value).toBe(
@@ -290,7 +290,7 @@ describe("charts", () => {
     createChart(
       model,
       {
-        dataSets: ["C1:C4"],
+        dataSets: [{ dataRange: "C1:C4" }],
         labelRange: "A2:A4",
         type: "line",
         title: { text: "title" },
@@ -299,10 +299,11 @@ describe("charts", () => {
     );
     await openChartDesignSidePanel("1");
 
-    await click(
-      fixture,
+    const color_menu = fixture.querySelectorAll(
       ".o-chart-title-designer > .o-color-picker-widget > .o-color-picker-button"
-    );
+    )[0];
+
+    await click(color_menu);
     await click(fixture, ".o-color-picker-line-item[data-color='#EFEFEF'");
     expect(model.getters.getChartDefinition("1").title).toEqual({
       text: "title",
@@ -316,7 +317,7 @@ describe("charts", () => {
       createChart(
         model,
         {
-          dataSets: ["C1:C4"],
+          dataSets: [{ dataRange: "C1:C4" }],
           labelRange: "A2:A4",
           type: "line",
           title: { text: "title" },
@@ -324,11 +325,11 @@ describe("charts", () => {
         "1"
       );
       await openChartDesignSidePanel("1");
-
-      await click(
-        fixture,
+      const alignment_menu = fixture.querySelectorAll(
         ".o-chart-title-designer > .o-menu-item-button[title='Horizontal alignment']"
-      );
+      )[0];
+
+      await click(alignment_menu);
       await click(fixture, `.o-menu-item-button[title='${alignment}']`);
       expect(model.getters.getChartDefinition("1").title).toEqual({
         text: "title",
@@ -341,7 +342,7 @@ describe("charts", () => {
     createChart(
       model,
       {
-        dataSets: ["C1:C4"],
+        dataSets: [{ dataRange: "C1:C4" }],
         labelRange: "A2:A4",
         type: "line",
         title: { text: "title" },
@@ -350,13 +351,19 @@ describe("charts", () => {
     );
     await openChartDesignSidePanel("1");
 
-    await click(fixture, ".o-chart-title-designer > .o-menu-item-button[title='Bold']");
+    const bold_element = fixture.querySelectorAll(
+      ".o-chart-title-designer > .o-menu-item-button[title='Bold']"
+    )[0];
+    await click(bold_element);
     expect(model.getters.getChartDefinition("1").title).toEqual({
       text: "title",
       bold: true,
     });
 
-    await click(fixture, ".o-chart-title-designer > .o-menu-item-button[title='Italic']");
+    const italic_element = fixture.querySelectorAll(
+      ".o-chart-title-designer > .o-menu-item-button[title='Italic']"
+    )[0];
+    await click(italic_element);
     expect(model.getters.getChartDefinition("1").title).toEqual({
       text: "title",
       bold: true,
@@ -364,11 +371,244 @@ describe("charts", () => {
     });
   });
 
+  test("can edit chart axis title color", async () => {
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "C1:C4" }],
+        labelRange: "A2:A4",
+        type: "line",
+      },
+      "1"
+    );
+    await openChartDesignSidePanel("1");
+
+    const color_menu = fixture.querySelectorAll(
+      ".o-chart-title-designer > .o-color-picker-widget > .o-color-picker-button"
+    )[1];
+
+    await click(color_menu);
+    await click(fixture, ".o-color-picker-line-item[data-color='#EFEFEF'");
+    //@ts-ignore
+    expect(model.getters.getChartDefinition("1").axesDesign.x).toEqual({
+      title: {
+        color: "#EFEFEF",
+      },
+    });
+  });
+
+  test.each(["Left", "Center", "Right"])(
+    "can edit chart axis title alignment",
+    async (alignment: string) => {
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "C1:C4" }],
+          labelRange: "A2:A4",
+          type: "line",
+          title: { text: "title" },
+        },
+        "1"
+      );
+      await openChartDesignSidePanel("1");
+      const alignment_menu = fixture.querySelectorAll(
+        ".o-chart-title-designer > .o-menu-item-button[title='Horizontal alignment']"
+      )[1];
+
+      await click(alignment_menu);
+      await click(fixture, `.o-menu-item-button[title='${alignment}']`);
+      //@ts-ignore
+      expect(model.getters.getChartDefinition("1").axesDesign.x).toEqual({
+        title: {
+          align: alignment.toLowerCase(),
+        },
+      });
+    }
+  );
+
+  test("can edit chart axis title style", async () => {
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "C1:C4" }],
+        labelRange: "A2:A4",
+        type: "line",
+        title: { text: "title" },
+      },
+      "1"
+    );
+    await openChartDesignSidePanel("1");
+
+    const bold_element = fixture.querySelectorAll(
+      ".o-chart-title-designer > .o-menu-item-button[title='Bold']"
+    )[1];
+    await click(bold_element);
+    //@ts-ignore
+    expect(model.getters.getChartDefinition("1").axesDesign.x).toEqual({
+      title: {
+        bold: true,
+      },
+    });
+
+    const italic_element = fixture.querySelectorAll(
+      ".o-chart-title-designer > .o-menu-item-button[title='Italic']"
+    )[1];
+    await click(italic_element);
+    //@ts-ignore
+    expect(model.getters.getChartDefinition("1").axesDesign.x).toEqual({
+      title: {
+        bold: true,
+        italic: true,
+      },
+    });
+  });
+
+  test("can edit multiple chart axis title style", async () => {
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "C1:C4" }],
+        labelRange: "A2:A4",
+        type: "line",
+        title: { text: "title" },
+      },
+      "1"
+    );
+    await openChartDesignSidePanel("1");
+
+    const bold_element = fixture.querySelectorAll(
+      ".o-chart-title-designer > .o-menu-item-button[title='Bold']"
+    )[1];
+    await click(bold_element);
+    //@ts-ignore
+    expect(model.getters.getChartDefinition("1").axesDesign.x).toEqual({
+      title: {
+        bold: true,
+      },
+    });
+
+    setInputValueAndTrigger(".o-axis-selector", "y");
+    const italic_element = fixture.querySelectorAll(
+      ".o-chart-title-designer > .o-menu-item-button[title='Italic']"
+    )[1];
+    await click(italic_element);
+    //@ts-ignore
+    expect(model.getters.getChartDefinition("1").axesDesign).toEqual({
+      x: {
+        title: {
+          bold: true,
+        },
+      },
+      y: {
+        title: {
+          italic: true,
+        },
+      },
+    });
+  });
+
+  test("can edit chart data series color", async () => {
+    createChart(
+      model,
+      {
+        dataSets: [
+          { dataRange: "B1:B4", label: "serie_1" },
+          { dataRange: "C1:C4", label: "serie_2" },
+        ],
+        labelRange: "A2:A4",
+        type: "line",
+      },
+      "1"
+    );
+    await openChartDesignSidePanel("1");
+
+    let color_menu = fixture.querySelectorAll(".o-round-color-picker-button")[1];
+
+    await click(color_menu);
+    await click(fixture, ".o-color-picker-line-item[data-color='#EFEFEF'");
+    //@ts-ignore
+    expect(model.getters.getChartDefinition("1").dataSets).toEqual([
+      {
+        dataRange: "B1:B4",
+        backgroundColor: "#EFEFEF",
+        label: "serie_1",
+      },
+      {
+        dataRange: "C1:C4",
+        label: "serie_2",
+      },
+    ]);
+
+    setInputValueAndTrigger(".data-series-selector", "serie_2");
+
+    color_menu = fixture.querySelectorAll(".o-round-color-picker-button")[1];
+
+    await click(color_menu);
+    await click(fixture, ".o-color-picker-line-item[data-color='#FF0000'");
+    //@ts-ignore
+    expect(model.getters.getChartDefinition("1").dataSets).toEqual([
+      {
+        dataRange: "B1:B4",
+        backgroundColor: "#EFEFEF",
+        label: "serie_1",
+      },
+      {
+        dataRange: "C1:C4",
+        backgroundColor: "#FF0000",
+        label: "serie_2",
+      },
+    ]);
+  });
+
+  test("can edit chart data series vertical axis", async () => {
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "C1:C4" }],
+        labelRange: "A2:A4",
+        type: "line",
+      },
+      "1"
+    );
+    await openChartDesignSidePanel("1");
+    setInputValueAndTrigger(".o-vertical-axis-selection", "right");
+
+    //@ts-ignore
+    expect(model.getters.getChartDefinition("1").dataSets).toEqual([
+      {
+        dataRange: "C1:C4",
+        yAxisId: "y1",
+      },
+    ]);
+  });
+
+  test("can edit chart data series label", async () => {
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "C1:C4" }],
+        labelRange: "A2:A4",
+        type: "line",
+      },
+      "1"
+    );
+    await openChartDesignSidePanel("1");
+    setInputValueAndTrigger(".o-serie-label-editor", "coucou");
+
+    //@ts-ignore
+    expect(model.getters.getChartDefinition("1").dataSets).toEqual([
+      {
+        dataRange: "C1:C4",
+        label: "coucou",
+      },
+    ]);
+  });
+
   test("changing property and selecting another chart does not change first chart", async () => {
     createChart(
       model,
       {
-        dataSets: ["C1:C4"],
+        dataSets: [{ dataRange: "C1:C4" }],
         labelRange: "A2:A4",
         type: "line",
         title: { text: "old_title_1" },
@@ -378,7 +618,7 @@ describe("charts", () => {
     createChart(
       model,
       {
-        dataSets: ["C1:C4"],
+        dataSets: [{ dataRange: "C1:C4" }],
         labelRange: "A2:A4",
         type: "line",
         title: { text: "old_title_2" },
@@ -400,7 +640,7 @@ describe("charts", () => {
     createChart(
       model,
       {
-        dataSets: ["C1:C4"],
+        dataSets: [{ dataRange: "C1:C4" }],
         labelRange: "A2:A4",
         type: "line",
         title: { text: "old_title_1" },
@@ -410,7 +650,7 @@ describe("charts", () => {
     createChart(
       model,
       {
-        dataSets: ["C1:C4"],
+        dataSets: [{ dataRange: "C1:C4" }],
         labelRange: "A2:A4",
         type: "line",
         title: { text: "old_title_2" },
@@ -618,7 +858,7 @@ describe("charts", () => {
       createChart(
         model,
         {
-          dataSets: ["C1:C4"],
+          dataSets: [{ dataRange: "C1:C4" }],
           labelRange: "A2:A4",
           title: { text: "second" },
           type: "line",
@@ -666,13 +906,13 @@ describe("charts", () => {
     await setInputValueAndTrigger(element, "C1:C4");
     await simulateClick(".o-data-series .o-selection-ok");
     expect((model.getters.getChartDefinition(chartId) as BarChartDefinition).dataSets).toEqual([
-      "B1:B4",
-      "C1:C4",
+      { dataRange: "B1:B4", yAxisId: "y" },
+      { dataRange: "C1:C4" },
     ]);
     const remove = document.querySelectorAll(".o-data-series .o-remove-selection")[1];
     await simulateClick(remove);
     expect((model.getters.getChartDefinition(chartId) as BarChartDefinition).dataSets).toEqual([
-      "B1:B4",
+      { dataRange: "B1:B4", yAxisId: "y" },
     ]);
   });
 
@@ -685,9 +925,9 @@ describe("charts", () => {
     await setInputValueAndTrigger(element, "C1:D4");
     await simulateClick(".o-data-series .o-selection-ok");
     expect((model.getters.getChartDefinition(chartId) as BarChartDefinition).dataSets).toEqual([
-      "B1:B4",
-      "C1:C4",
-      "D1:D4",
+      { dataRange: "B1:B4", yAxisId: "y" },
+      { dataRange: "C1:C4" },
+      { dataRange: "D1:D4" },
     ]);
     expect(fixture.querySelectorAll(".o-selection-input input").length).toEqual(4);
     expect(
@@ -719,8 +959,8 @@ describe("charts", () => {
     await setInputValueAndTrigger(element, "1:2");
     await simulateClick(".o-data-series .o-selection-ok");
     expect((model.getters.getChartDefinition(chartId) as BarChartDefinition).dataSets).toEqual([
-      "1:1",
-      "2:2",
+      { dataRange: "1:1" },
+      { dataRange: "2:2" },
     ]);
   });
 
@@ -742,8 +982,8 @@ describe("charts", () => {
     await setInputValueAndTrigger(element, "A:B");
     await simulateClick(".o-data-series .o-selection-ok");
     expect((model.getters.getChartDefinition(chartId) as BarChartDefinition).dataSets).toEqual([
-      "A:A",
-      "B:B",
+      { dataRange: "A:A" },
+      { dataRange: "B:B" },
     ]);
   });
 
@@ -1073,7 +1313,11 @@ describe("charts", () => {
   describe("labelAsText", () => {
     test("labelAsText checkbox displayed for line charts with number dataset and labels", async () => {
       createTestChart("basicChart");
-      updateChart(model, chartId, { type: "line", labelRange: "C2:C4", dataSets: ["B2:B4"] });
+      updateChart(model, chartId, {
+        type: "line",
+        labelRange: "C2:C4",
+        dataSets: [{ dataRange: "B2:B4" }],
+      });
       await openChartConfigSidePanel();
 
       expect(document.querySelector("input[name='labelsAsText']")).toBeTruthy();
@@ -1098,7 +1342,7 @@ describe("charts", () => {
     test("labelAsText checkbox not displayed for text labels", async () => {
       createTestChart("basicChart");
       updateChart(model, chartId, { type: "line" });
-      updateChart(model, chartId, { labelRange: "A2:A4", dataSets: ["B2:B4"] });
+      updateChart(model, chartId, { labelRange: "A2:A4", dataSets: [{ dataRange: "B2:B4" }] });
       await openChartConfigSidePanel();
 
       expect(document.querySelector("input[name='labelsAsText']")).toBeFalsy();
@@ -1107,7 +1351,11 @@ describe("charts", () => {
     test("labelAsText checkbox displayed for date labels", async () => {
       setFormat(model, "C2:C4", "m/d/yyyy");
       createTestChart("basicChart");
-      updateChart(model, chartId, { type: "line", labelRange: "C2:C4", dataSets: ["B2:B4"] });
+      updateChart(model, chartId, {
+        type: "line",
+        labelRange: "C2:C4",
+        dataSets: [{ dataRange: "B2:B4" }],
+      });
       await openChartConfigSidePanel();
 
       expect(document.querySelector("input[name='labelsAsText']")).toBeTruthy();
@@ -1115,7 +1363,11 @@ describe("charts", () => {
 
     test("labelAsText checkbox updates the chart", async () => {
       createTestChart("basicChart");
-      updateChart(model, chartId, { type: "line", labelRange: "C2:C4", dataSets: ["B2:B4"] });
+      updateChart(model, chartId, {
+        type: "line",
+        labelRange: "C2:C4",
+        dataSets: [{ dataRange: "B2:B4" }],
+      });
       await openChartConfigSidePanel();
 
       expect(
@@ -1131,7 +1383,11 @@ describe("charts", () => {
     test("labelAsText checkbox not displayed for text labels with date format", async () => {
       createTestChart("basicChart");
       setFormat(model, "C2:C4", "m/d/yyyy");
-      updateChart(model, chartId, { type: "line", labelRange: "A2:A4", dataSets: ["B2:B4"] });
+      updateChart(model, chartId, {
+        type: "line",
+        labelRange: "A2:A4",
+        dataSets: [{ dataRange: "B2:B4" }],
+      });
       await openChartConfigSidePanel();
 
       expect(document.querySelector("input[name='labelsAsText']")).toBeFalsy();
@@ -1139,7 +1395,11 @@ describe("charts", () => {
 
     test("labelAsText checkbox not displayed for charts with empty labels", async () => {
       createTestChart("basicChart");
-      updateChart(model, chartId, { type: "line", labelRange: "F2:F4", dataSets: ["B2:B4"] });
+      updateChart(model, chartId, {
+        type: "line",
+        labelRange: "F2:F4",
+        dataSets: [{ dataRange: "B2:B4" }],
+      });
       await openChartConfigSidePanel();
 
       expect(document.querySelector("input[name='labelsAsText']")).toBeFalsy();
@@ -1147,7 +1407,11 @@ describe("charts", () => {
 
     test("Side panel correctly reacts to has_header checkbox check/uncheck (with only one point)", async () => {
       createTestChart("basicChart");
-      updateChart(model, chartId, { type: "line", labelRange: "C2", dataSets: ["A1"] });
+      updateChart(model, chartId, {
+        type: "line",
+        labelRange: "C2",
+        dataSets: [{ dataRange: "A1" }],
+      });
       await nextTick();
       await simulateClick(".o-figure");
       await simulateClick(".o-figure-menu-item");
@@ -1162,7 +1426,11 @@ describe("charts", () => {
 
     test("Side panel correctly reacts to has_header checkbox check/uncheck (with two datasets)", async () => {
       createTestChart("basicChart");
-      updateChart(model, chartId, { type: "line", labelRange: "C2", dataSets: ["A1:A2", "A1"] });
+      updateChart(model, chartId, {
+        type: "line",
+        labelRange: "C2",
+        dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A1" }],
+      });
       await nextTick();
       await simulateClick(".o-figure");
       await simulateClick(".o-figure-menu-item");
@@ -1173,22 +1441,22 @@ describe("charts", () => {
 
       expect(checkbox.checked).toBe(false);
       expect((model.getters.getChartDefinition(chartId) as LineChartDefinition).dataSets).toEqual([
-        "A1:A2",
-        "A1",
+        { dataRange: "A1:A2" },
+        { dataRange: "A1" },
       ]);
 
       await simulateClick(checkbox);
       expect(checkbox.checked).toBe(true);
       expect((model.getters.getChartDefinition(chartId) as LineChartDefinition).dataSets).toEqual([
-        "A1:A2",
-        "A1",
+        { dataRange: "A1:A2" },
+        { dataRange: "A1" },
       ]);
 
       await simulateClick(checkbox);
       expect(checkbox.checked).toBe(false);
       expect((model.getters.getChartDefinition(chartId) as LineChartDefinition).dataSets).toEqual([
-        "A1:A2",
-        "A1",
+        { dataRange: "A1:A2" },
+        { dataRange: "A1" },
       ]);
     });
   });
@@ -1207,7 +1475,7 @@ describe("charts", () => {
         createChart(
           model,
           {
-            dataSets: ["K1:K6"],
+            dataSets: [{ dataRange: "K1:K6" }],
             labelRange: "K1:K6",
             aggregated: true,
             legendPosition: "top",
@@ -1324,7 +1592,7 @@ describe("charts with multiple sheets", () => {
                 type: "line",
                 title: { text: "demo chart" },
                 labelRange: "Sheet1!A2:A4",
-                dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
+                dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
                 dataSetsHaveTitle: true,
                 background: "#FFFFFF",
               },
@@ -1366,19 +1634,19 @@ describe("Default background on runtime tests", () => {
   });
 
   test("Creating a 'basicChart' without background should have default background on runtime", async () => {
-    createChart(model, { dataSets: ["A1"] }, "1", sheetId);
+    createChart(model, { dataSets: [{ dataRange: "A1" }] }, "1", sheetId);
     expect(model.getters.getChartDefinition("1")?.background).toBeUndefined();
     expect(model.getters.getChartRuntime("1").background).toBe(BACKGROUND_CHART_COLOR);
   });
   test("Creating a 'basicChart' without background and updating its type should have default background on runtime", async () => {
-    createChart(model, { dataSets: ["A1"] }, "1", sheetId);
+    createChart(model, { dataSets: [{ dataRange: "A1" }] }, "1", sheetId);
     updateChart(model, "1", { type: "line" }, sheetId);
     expect(model.getters.getChartDefinition("1")?.background).toBeUndefined();
     expect(model.getters.getChartRuntime("1").background).toBe(BACKGROUND_CHART_COLOR);
   });
   test("Creating a 'basicChart' on a single cell with style and converting into scorecard should have cell background as chart background", () => {
     setStyle(model, "A1", { fillColor: "#FA0000" }, sheetId);
-    createChart(model, { dataSets: ["A1"] }, "1", sheetId);
+    createChart(model, { dataSets: [{ dataRange: "A1" }] }, "1", sheetId);
     updateChart(model, "1", { type: "scorecard", keyValue: "A1" }, sheetId);
     expect(model.getters.getChartDefinition("1")?.background).toBeUndefined();
     expect(model.getters.getChartRuntime("1").background).toBe("#FA0000");
@@ -1387,7 +1655,7 @@ describe("Default background on runtime tests", () => {
 
 test("ChartJS charts are correctly destroyed on chart deletion", async () => {
   ({ parent, fixture, model } = await mountSpreadsheet({ model: new Model() }));
-  createChart(model, { dataSets: ["A1"], type: "bar" }, "1");
+  createChart(model, { dataSets: [{ dataRange: "A1" }], type: "bar" }, "1");
   await nextTick();
   const spyDelete = jest.spyOn((window as any).Chart.prototype, "destroy");
   model.dispatch("DELETE_FIGURE", { id: "1", sheetId: model.getters.getActiveSheetId() });

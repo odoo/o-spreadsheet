@@ -34,7 +34,7 @@ export type ChartDefinition =
 
 export type ChartWithAxisDefinition = Extract<
   ChartDefinition,
-  { dataSets: string[]; labelRange?: string }
+  { dataSets: CustomizedDataSet[]; labelRange?: string }
 >;
 
 export type ChartJSRuntime =
@@ -57,6 +57,22 @@ export interface DatasetValues {
   readonly data: any[];
 }
 
+export interface DatasetDesign {
+  readonly backgroundColor?: string;
+  readonly yAxisId?: string;
+  readonly label?: string;
+}
+
+export interface AxisDesign {
+  readonly title?: TitleDesign;
+}
+
+export interface AxesDesign {
+  readonly x?: AxisDesign;
+  readonly y?: AxisDesign;
+  readonly y1?: AxisDesign;
+}
+
 export interface TitleDesign {
   readonly text?: string;
   readonly bold?: boolean;
@@ -64,6 +80,8 @@ export interface TitleDesign {
   readonly align?: Align;
   readonly color?: Color;
 }
+
+export type CustomizedDataSet = { readonly dataRange: string } & DatasetDesign;
 
 export type AxisType = "category" | "linear" | "time";
 
@@ -93,7 +111,7 @@ export interface ExcelChartDefinition {
 }
 
 export interface ChartCreationContext {
-  readonly range?: string[];
+  readonly range?: CustomizedDataSet[];
   readonly title?: TitleDesign;
   readonly background?: string;
   readonly auxiliaryRange?: string;
@@ -105,6 +123,6 @@ export interface ChartCreationContext {
   readonly showSubTotals?: boolean;
   readonly showConnectorLines?: boolean;
   readonly firstValueAsSubtotal?: boolean;
-  readonly verticalAxisPosition?: VerticalAxisPosition;
   readonly legendPosition?: LegendPosition;
+  readonly axesDesign?: AxesDesign;
 }
