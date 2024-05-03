@@ -327,6 +327,7 @@ export class Evaluator {
     const nbRows = formulaReturn[0].length;
 
     forEachSpreadPositionInMatrix(nbColumns, nbRows, this.updateSpreadRelation(formulaPosition));
+    this.assertNoMergedCellsInSpreadZone(formulaPosition, formulaReturn);
     forEachSpreadPositionInMatrix(nbColumns, nbRows, this.checkCollision(formulaPosition));
     forEachSpreadPositionInMatrix(
       nbColumns,
@@ -369,6 +370,26 @@ export class Evaluator {
 
     throw new SplillBlockedError(
       _t("Result couldn't be automatically expanded. Please insert more columns and rows.")
+    );
+  }
+
+  private assertNoMergedCellsInSpreadZone(
+    { sheetId, col, row }: CellPosition,
+    matrixResult: Matrix<FPayload>
+  ) {
+    const mergedCells = this.getters.getMergesInZone(sheetId, {
+      top: row,
+      bottom: row + matrixResult.length,
+      left: col,
+      right: col + matrixResult[0].length,
+    });
+
+    if (mergedCells.length === 0) {
+      return;
+    }
+
+    throw new SplillBlockedError(
+      _t("Merged cells found in the spill zone. Please unmerge cells before using array formulas.")
     );
   }
 
