@@ -26,6 +26,19 @@ interface ConstructorArgs {
   readonly sheetId: UID;
 }
 
+const NOT_FIXED = [
+  { colFixed: false, rowFixed: false },
+  { colFixed: false, rowFixed: false },
+] satisfies RangePart[];
+
+const a = (p) => {
+  const isFullRow = isRowReference(p);
+  return {
+    colFixed: isFullRow ? false : p.startsWith("$"),
+    rowFixed: isFullRow ? p.startsWith("$") : p.includes("$", 1),
+  };
+};
+
 export class RangeImpl implements Range {
   private readonly _zone: Readonly<Zone | UnboundedZone>;
   readonly parts: Range["parts"];
@@ -76,13 +89,17 @@ export class RangeImpl implements Range {
   }
 
   static getRangeParts(xc: string, zone: UnboundedZone): RangePart[] {
-    const parts = xc.split(":").map((p) => {
-      const isFullRow = isRowReference(p);
-      return {
-        colFixed: isFullRow ? false : p.startsWith("$"),
-        rowFixed: isFullRow ? p.startsWith("$") : p.includes("$", 1),
-      };
-    });
+    if (!xc.includes("$")) {
+      return NOT_FIXED;
+    }
+
+    let parts;
+    if (xc.includes(":")) {
+      const [left, right] = xc.split(":");
+      parts = [a(left), a(right)];
+    } else {
+      parts = [a(xc)];
+    }
 
     const isFullCol = zone.bottom === undefined;
     const isFullRow = zone.right === undefined;
