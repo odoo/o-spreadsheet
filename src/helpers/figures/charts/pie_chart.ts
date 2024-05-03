@@ -314,9 +314,8 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
   const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
   const locale = getters.getLocale();
   const config = getPieConfiguration(chart, labels, { format: dataSetFormat, locale });
-  const colors = new ColorGenerator();
-  for (let { label, data } of dataSetsValues) {
-    const backgroundColor = getPieColors(colors, dataSetsValues);
+  const backgroundColor = getPieColors(new ColorGenerator(), dataSetsValues);
+  for (const { label, data } of dataSetsValues) {
     const dataset: ChartDataset = {
       label,
       data,

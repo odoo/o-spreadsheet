@@ -1,6 +1,6 @@
 import type { BasePlatform, ChartConfiguration, ChartOptions, ChartType } from "chart.js";
 import { ChartTerms } from "../../../components/translations_terms";
-import { DEFAULT_CHART_FONT_SIZE, MAX_CHAR_LABEL } from "../../../constants";
+import { DEFAULT_CHART_FONT_SIZE, DEFAULT_CHART_PADDING, MAX_CHAR_LABEL } from "../../../constants";
 import { isEvaluationError } from "../../../functions/helpers";
 import { _t } from "../../../translation";
 import { Color, Figure, Format, Getters, LocaleFormat, Range } from "../../../types";
@@ -111,7 +111,12 @@ export function getDefaultChartJsRuntime(
     responsive: true, // will resize when its container is resized
     maintainAspectRatio: false, // doesn't maintain the aspect ration (width/height =2 by default) so the user has the choice of the exact layout
     layout: {
-      padding: { left: 20, right: 20, top: chart.title ? 10 : 25, bottom: 10 },
+      padding: {
+        left: DEFAULT_CHART_PADDING,
+        right: DEFAULT_CHART_PADDING,
+        top: chartTitle.text ? DEFAULT_CHART_PADDING / 2 : DEFAULT_CHART_PADDING + 5,
+        bottom: DEFAULT_CHART_PADDING,
+      },
     },
     elements: {
       line: {
