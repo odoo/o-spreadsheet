@@ -36,6 +36,16 @@ export function getDefaultCellHeight(
   return computeTextLinesHeight(fontSize, numberOfLines) + 2 * PADDING_AUTORESIZE_VERTICAL;
 }
 
+export function getDefaultContextFont(
+  fontSize: number,
+  bold: boolean | undefined = false,
+  italic: boolean | undefined = false
+): string {
+  const italicStr = italic ? "italic" : "";
+  const weight = bold ? "bold" : "";
+  return `${italicStr} ${weight} ${fontSize}px ${DEFAULT_FONT}`;
+}
+
 const textWidthCache: Record<string, Record<string, number>> = {};
 
 export function computeTextWidth(

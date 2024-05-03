@@ -1,4 +1,4 @@
-import { DEFAULT_CHART_FONT_SIZE, DEFAULT_FONT } from "../../../constants";
+import { DEFAULT_CHART_FONT_SIZE, DEFAULT_CHART_PADDING, DEFAULT_FONT } from "../../../constants";
 import { Color, PixelPosition, Rect } from "../../../types";
 import { GaugeChartRuntime } from "../../../types/chart";
 import { relativeLuminance } from "../../color";
@@ -6,6 +6,7 @@ import { clip } from "../../misc";
 import {
   computeTextDimension,
   computeTextWidth,
+  getDefaultContextFont,
   getFontSizeMatchingWidth,
 } from "../../text_helper";
 
@@ -23,8 +24,8 @@ const GAUGE_INFLECTION_LABEL_BOTTOM_MARGIN = 6;
 
 export const GAUGE_TITLE_SECTION_HEIGHT = 25;
 export const GAUGE_TITLE_FONT_SIZE = DEFAULT_CHART_FONT_SIZE;
-export const GAUGE_TITLE_PADDING_LEFT = 10;
-export const GAUGE_TITLE_PADDING_TOP = 5;
+export const GAUGE_TITLE_PADDING_LEFT = DEFAULT_CHART_PADDING;
+export const GAUGE_TITLE_PADDING_TOP = DEFAULT_CHART_PADDING;
 
 interface RenderingParams {
   width: number;
@@ -157,7 +158,8 @@ function drawInflectionValues(ctx: CanvasRenderingContext2D, config: RenderingPa
 function drawTitle(ctx: CanvasRenderingContext2D, config: RenderingParams) {
   ctx.save();
   const title = config.title;
-  ctx.font = `${title.fontSize}px ${DEFAULT_FONT}`;
+  ctx.font = getDefaultContextFont(title.fontSize, title.bold, title.italic);
+  ctx.textBaseline = "middle";
   ctx.fillStyle = title.color;
   ctx.fillText(title.label, title.textPosition.x, title.textPosition.y);
   ctx.restore();

@@ -300,11 +300,14 @@ export function drawScoreChart(structure: ScorecardChartConfig, canvas: HTMLCanv
   if (structure.title) {
     ctx.font = structure.title.style.font;
     ctx.fillStyle = structure.title.style.color;
+    const baseline = ctx.textBaseline;
+    ctx.textBaseline = "middle";
     ctx.fillText(
       clipTextWithEllipsis(ctx, structure.title.text, canvas.width - structure.title.position.x),
       structure.title.position.x,
       structure.title.position.y
     );
+    ctx.textBaseline = baseline;
   }
 
   if (structure.baseline) {

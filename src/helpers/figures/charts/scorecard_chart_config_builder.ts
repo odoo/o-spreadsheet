@@ -1,11 +1,12 @@
 import { Color } from "chart.js";
-import { DEFAULT_CHART_FONT_SIZE } from "../../../constants";
+import { DEFAULT_CHART_FONT_SIZE, DEFAULT_CHART_PADDING } from "../../../constants";
 import { DOMDimension, Pixel, PixelPosition, Style } from "../../../types";
 import { BaselineArrowDirection, ScorecardChartRuntime } from "../../../types/chart";
 import { relativeLuminance } from "../../color";
 import {
   computeCachedTextWidth,
   computeTextWidth,
+  getDefaultContextFont,
   getFontSizeMatchingWidth,
   splitTextInTwoLines,
 } from "../../text_helper";
@@ -14,7 +15,7 @@ import {
 const KEY_BOX_HEIGHT_RATIO = 0.8;
 
 /* Padding at the border of the chart */
-const CHART_PADDING = 10;
+const CHART_PADDING = DEFAULT_CHART_PADDING;
 const BOTTOM_PADDING_RATIO = 0.05;
 
 /**
@@ -71,16 +72,6 @@ export function formatBaselineDescr(
   return baseline && _baselineDescr ? " " + _baselineDescr : _baselineDescr;
 }
 
-function getDefaultContextFont(
-  fontSize: number,
-  bold: boolean | undefined = false,
-  italic: boolean | undefined = false
-): string {
-  const italicStr = italic ? "italic" : "";
-  const weight = bold ? "bold" : "";
-  return `${italicStr} ${weight} ${fontSize}px ${DEFAULT_CHART_FONT_SIZE}`;
-}
-
 export function getScorecardConfiguration(
   { width, height }: DOMDimension,
   runtime: ScorecardChartRuntime
@@ -129,13 +120,12 @@ class ScorecardChartConfigBuilder {
         default:
           x = CHART_PADDING;
       }
-      ({ height: titleHeight } = this.getFullTextDimensions(this.title, style.title.font));
       structure.title = {
         text: this.title,
         style: style.title,
         position: {
           x,
-          y: CHART_PADDING / 2 + titleHeight,
+          y: CHART_PADDING + titleHeight / 2,
         },
       };
     }
