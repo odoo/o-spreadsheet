@@ -1,7 +1,35 @@
 import { Component, useExternalListener, useState } from "@odoo/owl";
 import { Color, SpreadsheetChildEnv, TitleDesign } from "../../../../../types";
 import { ColorPickerWidget } from "../../../../color_picker/color_picker_widget";
+import { css } from "../../../../helpers";
 import { Section } from "../../../components/section/section";
+
+css/* scss */ `
+  .o-chart-title-designer {
+    > span {
+      height: 30px;
+    }
+
+    .o-menu-item-button.active {
+      background-color: #e6f4ea;
+      color: #188038;
+    }
+
+    .o-dropdown-content {
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 2px;
+      z-index: 100;
+      box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
+
+      .o-dropdown-line {
+        > span {
+          padding: 4px;
+        }
+      }
+    }
+  }
+`;
 
 interface Props {
   title: string;

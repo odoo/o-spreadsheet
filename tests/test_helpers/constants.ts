@@ -8,23 +8,30 @@ import { target, toRangesData } from "./helpers";
 export const TEST_CHART_DATA = {
   basicChart: {
     type: "bar" as const,
-    dataSets: ["B1:B4"],
+    dataSets: [
+      {
+        dataRange: "B1:B4",
+        yAxisId: "y",
+      },
+    ],
     labelRange: "A2:A4",
     dataSetsHaveTitle: true,
     title: { text: "hello" },
     background: BACKGROUND_CHART_COLOR,
-    verticalAxisPosition: "left" as const,
     stacked: false,
     legendPosition: "top" as const,
   },
   combo: {
     type: "combo" as const,
-    dataSets: ["B1:B4"],
+    dataSets: [
+      {
+        dataRange: "B1:B4",
+      },
+    ],
     labelRange: "A2:A4",
     dataSetsHaveTitle: true,
     title: { text: "hello" },
     background: BACKGROUND_CHART_COLOR,
-    verticalAxisPosition: "left" as const,
     legendPosition: "top" as const,
   },
   scorecard: {

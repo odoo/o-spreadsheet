@@ -118,10 +118,9 @@ describe("datasource tests", function () {
     const context: Required<ChartCreationContext> = {
       background: "#123456",
       title: { text: "hello there" },
-      range: ["Sheet1!B1:B4"],
+      range: [{ dataRange: "Sheet1!B1:B4" }],
       auxiliaryRange: "Sheet1!A1:A4",
       legendPosition: "bottom",
-      verticalAxisPosition: "right",
       cumulative: true,
       labelsAsText: true,
       dataSetsHaveTitle: true,
@@ -130,6 +129,7 @@ describe("datasource tests", function () {
       firstValueAsSubtotal: true,
       showConnectorLines: false,
       showSubTotals: true,
+      axesDesign: {},
     };
     const definition = getChartDefinitionFromContextCreation(context, "gauge");
     expect(definition).toEqual({

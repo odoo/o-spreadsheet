@@ -5,6 +5,7 @@ import { _t } from "../../../../../translation";
 import {
   ChartWithAxisDefinition,
   CommandResult,
+  CustomizedDataSet,
   DispatchResult,
   SpreadsheetChildEnv,
   UID,
@@ -49,7 +50,7 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
     labelsDispatchResult: undefined,
   });
 
-  private dataSeriesRanges: string[] = [];
+  private dataSeriesRanges: CustomizedDataSet[] = [];
   private labelRange: string | undefined;
 
   setup() {
@@ -101,7 +102,10 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
    * button "confirm" is clicked
    */
   onDataSeriesRangesChanged(ranges: string[]) {
-    this.dataSeriesRanges = ranges;
+    this.dataSeriesRanges = ranges.map((dataRange, i) => ({
+      ...this.dataSeriesRanges?.[i],
+      dataRange,
+    }));
     this.state.datasetDispatchResult = this.props.canUpdateChart(this.props.figureId, {
       dataSets: this.dataSeriesRanges,
     });
@@ -154,7 +158,7 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
     const labelRange = createRange(getters, sheetId, this.labelRange);
     const dataSets = createDataSets(
       getters,
-      this.dataSeriesRanges,
+      this.dataSeriesRanges.map((ds) => ds.dataRange),
       sheetId,
       this.props.definition.dataSetsHaveTitle
     );

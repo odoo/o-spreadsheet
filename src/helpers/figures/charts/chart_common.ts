@@ -14,7 +14,13 @@ import {
   UnboundedZone,
   Zone,
 } from "../../../types";
-import { ChartWithAxisDefinition, DataSet, ExcelChartDataset } from "../../../types/chart/chart";
+import {
+  AxisDesign,
+  ChartWithAxisDefinition,
+  CustomizedDataSet,
+  DataSet,
+  ExcelChartDataset,
+} from "../../../types/chart/chart";
 import { CellErrorType } from "../../../types/errors";
 import { relativeLuminance } from "../../color";
 import { isDefined } from "../../misc";
@@ -277,11 +283,11 @@ export function transformChartDefinitionWithDataSetsWithZone<T extends ChartWith
     const labelZone = transformZone(toUnboundedZone(definition.labelRange), executed);
     labelRange = labelZone ? zoneToXc(labelZone) : undefined;
   }
-  const dataSets = definition.dataSets
-    .map(toUnboundedZone)
+  const dataSets: CustomizedDataSet[] = definition.dataSets
+    .map((ds) => toUnboundedZone(ds.dataRange))
     .map((zone) => transformZone(zone, executed))
     .filter(isDefined)
-    .map(zoneToXc);
+    .map((xc) => ({ dataRange: zoneToXc(xc) }));
   return {
     ...definition,
     labelRange,
@@ -303,11 +309,11 @@ export function chartFontColor(backgroundColor: Color | undefined): Color {
 export function checkDataset(definition: ChartWithAxisDefinition): CommandResult {
   if (definition.dataSets) {
     const invalidRanges =
-      definition.dataSets.find((range) => !rangeReference.test(range)) !== undefined;
+      definition.dataSets.find((range) => !rangeReference.test(range.dataRange)) !== undefined;
     if (invalidRanges) {
       return CommandResult.InvalidDataSet;
     }
-    const zones = definition.dataSets.map(toUnboundedZone);
+    const zones = definition.dataSets.map((ds) => toUnboundedZone(ds.dataRange));
     if (zones.some((zone) => zone.top !== zone.bottom && isFullRow(zone))) {
       return CommandResult.InvalidDataSet;
     }
@@ -355,4 +361,49 @@ export function getChartPositionAtCenterOfViewport(
   }; // Position at the center of the scrollable viewport
 
   return position;
+}
+
+export function getChartAxisTitleRuntime(design?: AxisDesign):
+  | {
+      display: boolean;
+      text: string;
+      color?: string;
+      font: {
+        style: "italic" | "normal";
+        weight: "bold" | "normal";
+      };
+      align: "start" | "center" | "end";
+    }
+  | undefined {
+  if (design?.title?.text) {
+    const { text, color, align, italic, bold } = design.title;
+    return {
+      display: true,
+      text,
+      color,
+      font: {
+        style: italic ? "italic" : "normal",
+        weight: bold ? "bold" : "normal",
+      },
+      align: align === "left" ? "start" : align === "right" ? "end" : "center",
+    };
+  }
+  return;
+}
+
+export function getDefinedAxis(definition: ChartWithAxisDefinition): {
+  useLeftAxis: boolean;
+  useRightAxis: boolean;
+} {
+  let useLeftAxis = false,
+    useRightAxis = false;
+  for (const design of definition.dataSets || []) {
+    if (design.yAxisId === "y1") {
+      useRightAxis = true;
+    } else {
+      useLeftAxis = true;
+    }
+  }
+  useLeftAxis ||= !useRightAxis;
+  return { useLeftAxis, useRightAxis };
 }

@@ -1,4 +1,5 @@
 import { GridRenderingContext, Highlight, Rect } from "../types";
+import { toHex } from "./color";
 
 import { HIGHLIGHT_COLOR } from "../constants";
 import { setColorAlpha } from "./color";
@@ -30,7 +31,7 @@ export function drawHighlight(
     }
   }
   if (!highlight.noFill) {
-    ctx.fillStyle = setColorAlpha(color, highlight.fillAlpha ?? 0.12);
+    ctx.fillStyle = setColorAlpha(toHex(color), highlight.fillAlpha ?? 0.12);
     ctx.fillRect(x, y, width, height);
   }
 }

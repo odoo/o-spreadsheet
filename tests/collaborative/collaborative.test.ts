@@ -454,7 +454,14 @@ describe("Multi users synchronisation", () => {
     createChart(
       alice,
       {
-        dataSets: ["A8:D8", "A9:D9"],
+        dataSets: [
+          {
+            dataRange: "A8:D8",
+          },
+          {
+            dataRange: "A9:D9",
+          },
+        ],
         labelRange: "B7:D7",
         type: "line",
       },

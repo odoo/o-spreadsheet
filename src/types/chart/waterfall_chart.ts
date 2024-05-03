@@ -1,11 +1,11 @@
 import type { ChartConfiguration } from "chart.js";
 import { Color } from "../misc";
-import { TitleDesign } from "./chart";
+import { AxesDesign, CustomizedDataSet, TitleDesign } from "./chart";
 import { LegendPosition, VerticalAxisPosition } from "./common_chart";
 
 export interface WaterfallChartDefinition {
   readonly type: "waterfall";
-  readonly dataSets: string[];
+  readonly dataSets: CustomizedDataSet[];
   readonly dataSetsHaveTitle: boolean;
   readonly labelRange?: string;
   readonly title: TitleDesign;
@@ -19,6 +19,7 @@ export interface WaterfallChartDefinition {
   readonly positiveValuesColor?: Color;
   readonly negativeValuesColor?: Color;
   readonly subTotalValuesColor?: Color;
+  readonly axesDesign?: AxesDesign;
 }
 
 export type WaterfallChartRuntime = {

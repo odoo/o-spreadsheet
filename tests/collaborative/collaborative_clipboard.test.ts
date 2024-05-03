@@ -109,7 +109,7 @@ describe("Collaborative range manipulation", () => {
     createChart(
       alice,
       {
-        dataSets: ["A2"],
+        dataSets: [{ dataRange: "A2" }],
         labelRange: "A1",
         dataSetsHaveTitle: false,
         type: "line",
@@ -119,7 +119,7 @@ describe("Collaborative range manipulation", () => {
     cut(alice, "A2");
     paste(alice, "D4");
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
-      (user) => (user.getters.getChartDefinition("1") as LineChartDefinition).dataSets[0],
+      (user) => (user.getters.getChartDefinition("1") as LineChartDefinition).dataSets[0].dataRange,
       "D4"
     );
   });

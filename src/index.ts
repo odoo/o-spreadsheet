@@ -19,10 +19,10 @@ import { SelectionInput } from "./components/selection_input/selection_input";
 import { SelectionInputStore } from "./components/selection_input/selection_input_store";
 import {
   BarConfigPanel,
+  ChartWithAxisDesignPanel,
   GaugeChartConfigPanel,
   GaugeChartDesignPanel,
   GenericChartConfigPanel,
-  GenericChartDesignPanel,
   LineConfigPanel,
   ScorecardChartConfigPanel,
   ScorecardChartDesignPanel,
@@ -336,9 +336,9 @@ export const components = {
   GridOverlay,
   ScorecardChart,
   LineConfigPanel,
-  GenericChartDesignPanel,
   BarConfigPanel,
   GenericChartConfigPanel,
+  ChartWithAxisDesignPanel,
   GaugeChartConfigPanel,
   GaugeChartDesignPanel,
   ScorecardChartConfigPanel,

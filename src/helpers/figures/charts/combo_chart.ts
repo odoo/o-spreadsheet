@@ -16,7 +16,14 @@ import {
   RemoveColumnsRowsCommand,
   UID,
 } from "../../../types";
-import { ExcelChartDataset, LegendPosition, VerticalAxisPosition } from "../../../types/chart";
+import {
+  AxesDesign,
+  CustomizedDataSet,
+  DatasetDesign,
+  ExcelChartDataset,
+  LegendPosition,
+  VerticalAxisPosition,
+} from "../../../types/chart";
 import { ComboChartDefinition, ComboChartRuntime } from "../../../types/chart/combo_chart";
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
@@ -32,6 +39,7 @@ import {
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
+  getChartAxisTitleRuntime,
   shouldRemoveFirstLabel,
   toExcelDataset,
   toExcelLabelRange,
@@ -48,31 +56,31 @@ import {
 } from "./chart_ui_common";
 
 export class ComboChart extends AbstractChart {
-  readonly useBothYAxis?: boolean;
   readonly dataSets: DataSet[];
   readonly labelRange?: Range;
   readonly background?: Color;
-  readonly verticalAxisPosition: VerticalAxisPosition;
   readonly legendPosition: LegendPosition;
   readonly aggregated?: boolean;
   readonly dataSetsHaveTitle: boolean;
+  readonly dataSetDesign?: DatasetDesign[];
+  readonly axesDesign?: AxesDesign;
   readonly type = "combo";
 
   constructor(definition: ComboChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       getters,
-      definition.dataSets,
+      definition.dataSets.map((ds) => ds.dataRange),
       sheetId,
       definition.dataSetsHaveTitle
     );
     this.labelRange = createRange(getters, sheetId, definition.labelRange);
     this.background = definition.background;
-    this.verticalAxisPosition = definition.verticalAxisPosition;
     this.legendPosition = definition.legendPosition;
     this.aggregated = definition.aggregated;
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
-    this.useBothYAxis = definition.useBothYAxis;
+    this.dataSetDesign = definition.dataSets;
+    this.axesDesign = definition.axesDesign;
   }
 
   static transformDefinition(
@@ -90,11 +98,16 @@ export class ComboChart extends AbstractChart {
   }
 
   getContextCreation(): ChartCreationContext {
+    const range: CustomizedDataSet[] = [];
+    for (const [i, dataSet] of this.dataSets.entries()) {
+      range.push({
+        ...this.dataSetDesign?.[i],
+        dataRange: this.getters.getRangeString(dataSet.dataRange, this.sheetId),
+      });
+    }
     return {
       ...this,
-      range: this.dataSets.map((ds: DataSet) =>
-        this.getters.getRangeString(ds.dataRange, this.sheetId)
-      ),
+      range,
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
         : undefined,
@@ -110,21 +123,25 @@ export class ComboChart extends AbstractChart {
     labelRange: Range | undefined,
     targetSheetId?: UID
   ): ComboChartDefinition {
+    const ranges: CustomizedDataSet[] = [];
+    for (const [i, dataSet] of dataSets.entries()) {
+      ranges.push({
+        ...this.dataSetDesign?.[i],
+        dataRange: this.getters.getRangeString(dataSet.dataRange, targetSheetId || this.sheetId),
+      });
+    }
     return {
       type: "combo",
       dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
       background: this.background,
-      dataSets: dataSets.map((ds: DataSet) =>
-        this.getters.getRangeString(ds.dataRange, targetSheetId || this.sheetId)
-      ),
+      dataSets: ranges,
       legendPosition: this.legendPosition,
-      verticalAxisPosition: this.verticalAxisPosition,
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
       title: this.title,
       aggregated: this.aggregated,
-      useBothYAxis: this.useBothYAxis,
+      axesDesign: this.axesDesign,
     };
   }
 
@@ -148,7 +165,23 @@ export class ComboChart extends AbstractChart {
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
       dataSets,
       labelRange,
+      verticalAxisPosition: this.verticalAxisPosition,
     };
+  }
+
+  get verticalAxisPosition(): VerticalAxisPosition {
+    let useRightAxis = false,
+      useLeftAxis = false;
+    for (const design of this.dataSetDesign || []) {
+      if (design.yAxisId === "y") {
+        useLeftAxis = true;
+        break;
+      } else if (design.yAxisId === "y1") {
+        useRightAxis = true;
+        break;
+      }
+    }
+    return useLeftAxis || !useRightAxis ? "left" : "right";
   }
 
   updateRanges(applyChange: ApplyRangeChange): ComboChart {
@@ -173,10 +206,9 @@ export class ComboChart extends AbstractChart {
       aggregated: context.aggregated,
       legendPosition: context.legendPosition ?? "top",
       title: context.title || { text: "" },
-      verticalAxisPosition: context.verticalAxisPosition ?? "left",
       labelRange: context.auxiliaryRange || undefined,
       type: "combo",
-      useBothYAxis: false,
+      axesDesign: context.axesDesign,
     };
   }
 
@@ -226,6 +258,7 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
   const config = getDefaultChartJsRuntime(chart, labels, fontColor, localeFormat);
   const legend: DeepPartial<LegendOptions<"bar">> = {
     labels: { color: fontColor },
+    reverse: true,
   };
   if ((!chart.labelRange && chart.dataSets.length === 1) || chart.legendPosition === "none") {
     legend.display = false;
@@ -243,6 +276,7 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
         padding: 5,
         color: fontColor,
       },
+      title: getChartAxisTitleRuntime(chart.axesDesign?.x),
     },
   };
   const formatCallback = (format: Format | undefined) => {
@@ -270,35 +304,46 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
       callback: formatCallback(lineDataSetsFormat),
     },
   };
-  if (chart.useBothYAxis) {
+  const definition = chart.getDefinition();
+  let useLeftAxis = false,
+    useRightAxis = false;
+  for (const design of definition.dataSets || []) {
+    if (design.yAxisId === "y") {
+      useLeftAxis = true;
+    } else if (design.yAxisId === "y1") {
+      useRightAxis = true;
+    }
+  }
+  useLeftAxis ||= !useRightAxis;
+  if (useLeftAxis) {
     config.options.scales.y = {
       ...leftVerticalAxis,
       position: "left",
+      title: getChartAxisTitleRuntime(chart.axesDesign?.y),
     };
+  }
+  if (useRightAxis) {
     config.options.scales.y1 = {
       ...rightVerticalAxis,
       position: "right",
       grid: {
         display: false,
       },
-    };
-  } else {
-    config.options.scales.y = {
-      ...leftVerticalAxis,
-      position: chart.verticalAxisPosition,
+      title: getChartAxisTitleRuntime(chart.axesDesign?.y1),
     };
   }
 
   const colors = new ColorGenerator();
 
   for (let [index, { label, data }] of dataSetsValues.entries()) {
+    const design = definition.dataSets[index];
     const color = colors.next();
     const dataset: ChartDataset = {
-      label,
+      label: design?.label ?? label,
       data,
-      borderColor: color,
-      backgroundColor: color,
-      yAxisID: index > 0 && chart.useBothYAxis ? "y1" : "y",
+      borderColor: design?.backgroundColor ?? color,
+      backgroundColor: design.backgroundColor ?? color,
+      yAxisID: design?.yAxisId ?? "y",
       type: index === 0 ? "bar" : "line",
       order: -index,
     };

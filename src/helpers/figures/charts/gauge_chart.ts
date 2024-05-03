@@ -180,7 +180,7 @@ export class GaugeChart extends AbstractChart {
       background: context.background,
       title: context.title || { text: "" },
       type: "gauge",
-      dataRange: context.range ? context.range[0] : undefined,
+      dataRange: context.range ? context.range[0].dataRange : undefined,
       sectionRule: {
         colors: {
           lowerColor: DEFAULT_GAUGE_LOWER_COLOR,
@@ -240,7 +240,7 @@ export class GaugeChart extends AbstractChart {
     return {
       ...this,
       range: this.dataRange
-        ? [this.getters.getRangeString(this.dataRange, this.sheetId)]
+        ? [{ dataRange: this.getters.getRangeString(this.dataRange, this.sheetId) }]
         : undefined,
     };
   }

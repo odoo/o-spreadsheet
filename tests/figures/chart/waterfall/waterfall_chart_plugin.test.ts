@@ -24,7 +24,7 @@ describe("Waterfall chart", () => {
     setCellContent(model, "A2", "-20");
     setCellContent(model, "A3", "30");
     const chartId = createWaterfallChart(model, {
-      dataSets: ["A1:A3"],
+      dataSets: [{ dataRange: "A1:A3" }],
       dataSetsHaveTitle: false,
       showSubTotals: false,
     });
@@ -44,7 +44,7 @@ describe("Waterfall chart", () => {
     setCellContent(model, "C2", "-40");
     const chartId = createWaterfallChart(model, {
       labelRange: "A1:A2",
-      dataSets: ["B1:C2"],
+      dataSets: [{ dataRange: "B1:C2" }],
       dataSetsHaveTitle: false,
       showSubTotals: false,
     });
@@ -71,7 +71,7 @@ describe("Waterfall chart", () => {
     setCellContent(model, "C2", "-40");
     const chartId = createWaterfallChart(model, {
       labelRange: "A1:A2",
-      dataSets: ["B1:C2"],
+      dataSets: [{ dataRange: "B1:C2" }],
       dataSetsHaveTitle: false,
       showSubTotals: true,
     });
@@ -102,7 +102,7 @@ describe("Waterfall chart", () => {
     setCellContent(model, "B3", "30");
     const chartId = createWaterfallChart(model, {
       labelRange: "A1:A4",
-      dataSets: ["B1:B4"],
+      dataSets: [{ dataRange: "B1:B4" }],
       dataSetsHaveTitle: false,
       showSubTotals: true,
     });
@@ -126,7 +126,7 @@ describe("Waterfall chart", () => {
     setCellContent(model, "B4", "10");
     const chartId = createWaterfallChart(model, {
       labelRange: "A1:A4",
-      dataSets: ["B1:B4"],
+      dataSets: [{ dataRange: "B1:B4" }],
       dataSetsHaveTitle: false,
       showSubTotals: false,
       aggregated: true,
@@ -157,7 +157,7 @@ describe("Waterfall chart", () => {
     setCellContent(model, "B1", "10");
     setCellContent(model, "B2", "-20");
     const chartId = createWaterfallChart(model, {
-      dataSets: ["B1:B2"],
+      dataSets: [{ dataRange: "B1:B2" }],
       firstValueAsSubtotal: true,
       dataSetsHaveTitle: false,
     });
@@ -172,7 +172,7 @@ describe("Waterfall chart", () => {
     setCellContent(model, "A2", "10");
     setCellContent(model, "A3", "-20");
     const chartId = createWaterfallChart(model, {
-      dataSets: ["A1:A3"],
+      dataSets: [{ dataRange: "A1:A3" }],
       dataSetsHaveTitle: false,
       showSubTotals: true,
     });
@@ -202,7 +202,7 @@ describe("Waterfall chart", () => {
     setCellContent(model, "A2", "30");
     setCellContent(model, "B2", "-40");
     const chartId = createWaterfallChart(model, {
-      dataSets: ["A1:B2"],
+      dataSets: [{ dataRange: "A1:B2" }],
       dataSetsHaveTitle: true,
       showSubTotals: false,
     });
@@ -267,10 +267,9 @@ describe("Waterfall chart", () => {
     const context: Required<ChartCreationContext> = {
       background: "#123456",
       title: { text: "hello there" },
-      range: ["Sheet1!B1:B4"],
+      range: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
       auxiliaryRange: "Sheet1!A1:A4",
       legendPosition: "bottom",
-      verticalAxisPosition: "right",
       cumulative: true,
       labelsAsText: true,
       dataSetsHaveTitle: true,
@@ -279,21 +278,23 @@ describe("Waterfall chart", () => {
       firstValueAsSubtotal: true,
       showConnectorLines: false,
       showSubTotals: true,
+      axesDesign: {},
     };
     const definition = getChartDefinitionFromContextCreation(context, "waterfall");
     expect(definition).toEqual({
       type: "waterfall",
       background: "#123456",
       title: { text: "hello there" },
-      dataSets: ["Sheet1!B1:B4"],
+      dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
       labelRange: "Sheet1!A1:A4",
       legendPosition: "bottom",
-      verticalAxisPosition: "right",
       dataSetsHaveTitle: true,
       aggregated: true,
       firstValueAsSubtotal: true,
       showConnectorLines: false,
       showSubTotals: true,
+      axesDesign: {},
+      verticalAxisPosition: "left",
     });
   });
 });

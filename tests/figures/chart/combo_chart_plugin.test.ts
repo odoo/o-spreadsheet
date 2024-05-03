@@ -8,10 +8,9 @@ describe("combo chart", () => {
     const context: Required<ChartCreationContext> = {
       background: "#123456",
       title: { text: "hello there" },
-      range: ["Sheet1!B1:B4"],
+      range: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
       auxiliaryRange: "Sheet1!A1:A4",
       legendPosition: "bottom",
-      verticalAxisPosition: "right",
       cumulative: true,
       labelsAsText: true,
       dataSetsHaveTitle: true,
@@ -20,19 +19,19 @@ describe("combo chart", () => {
       firstValueAsSubtotal: true,
       showConnectorLines: false,
       showSubTotals: true,
+      axesDesign: {},
     };
     const definition = getChartDefinitionFromContextCreation(context, "combo");
     expect(definition).toEqual({
       type: "combo",
       background: "#123456",
       title: { text: "hello there" },
-      dataSets: ["Sheet1!B1:B4"],
+      dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
       labelRange: "Sheet1!A1:A4",
       legendPosition: "bottom",
-      verticalAxisPosition: "right",
       dataSetsHaveTitle: true,
       aggregated: true,
-      useBothYAxis: false,
+      axesDesign: {},
     });
   });
 
@@ -58,8 +57,10 @@ describe("combo chart", () => {
       {
         type: "combo",
         labelRange: "A1:A2",
-        dataSets: ["B1:B2", "C1:C2"],
-        useBothYAxis: true,
+        dataSets: [
+          { dataRange: "B1:B2", yAxisId: "y" },
+          { dataRange: "C1:C2", yAxisId: "y1" },
+        ],
         dataSetsHaveTitle: false,
       },
       "1"

@@ -421,7 +421,7 @@ describe("Composer / selectionInput interactions", () => {
     createChart(
       model,
       {
-        dataSets: ["Sheet1!B1:B4", "Sheet1!C1:C4"],
+        dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
         labelRange: "Sheet1!A2:A4",
         type: "bar",
       },

@@ -28,7 +28,7 @@ exports[`Chart title Can render a chart title component 1`] = `
         >
           
           <div
-            class="o-chart-title-designer"
+            class="o-chart-title-designer position-relative d-flex align-items-center"
           >
             <span
               class="o-menu-item-button o-hoverable-button"

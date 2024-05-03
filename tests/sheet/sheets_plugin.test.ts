@@ -720,7 +720,11 @@ describe("sheets", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
     const chartId = "uuid";
-    createChart(model, { dataSets: ["Sheet1!B1:B4"], labelRange: "Sheet1!A2:A4" }, chartId);
+    createChart(
+      model,
+      { dataSets: [{ dataRange: "Sheet1!B1:B4" }], labelRange: "Sheet1!A2:A4" },
+      chartId
+    );
     model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo: "42" });
     model.dispatch("UPDATE_FIGURE", {
       sheetId: sheetId,

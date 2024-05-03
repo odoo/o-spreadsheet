@@ -83,5 +83,16 @@
         </Section>
       </t>
     </SidePanelCollapsible>
+    <SidePanelCollapsible collapsedAtInit="true">
+      <t t-set-slot="title">Axis Title</t>
+      <t t-set-slot="content">
+        <AxisDesignEditor
+          axesList="axesList"
+          figureId="props.figureId"
+          definition="props.definition"
+          updateChart="props.updateChart"
+        />
+      </t>
+    </SidePanelCollapsible>
   </t>
 </templates>

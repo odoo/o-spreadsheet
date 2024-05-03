@@ -7,48 +7,10 @@ import {
   TitleDesign,
   UID,
 } from "../../../../../types";
-import { css } from "../../../../helpers";
 import { SidePanelCollapsible } from "../../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 import { Section } from "../../../components/section/section";
 import { ChartTitle } from "../title/title";
-
-css/* scss */ `
-  .o-chart-title-designer {
-    position: relative;
-    display: flex;
-    align-items: center;
-
-    > span {
-      height: 30px;
-    }
-
-    .o-menu-item-button.active {
-      background-color: #e6f4ea;
-      color: #188038;
-    }
-
-    .o-dropdown-content {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      overflow-y: auto;
-      overflow-x: hidden;
-      padding: 2px;
-      z-index: 100;
-      box-shadow: 1px 2px 5px 2px rgba(51, 51, 51, 0.15);
-      background-color: white;
-
-      .o-dropdown-line {
-        display: flex;
-
-        > span {
-          padding: 4px;
-        }
-      }
-    }
-  }
-`;
 
 interface GeneralDesignEditorState {
   activeTool: string;

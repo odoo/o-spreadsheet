@@ -1,0 +1,81 @@
+<templates>
+  <t t-name="o-spreadsheet-ChartWithAxisDesignPanel">
+    <GeneralDesignEditor
+      figureId="props.figureId"
+      definition="props.definition"
+      updateChart="props.updateChart">
+      <t t-set-slot="general-extension">
+        <Section class="'pt-0'">
+          <t t-set-slot="title">Legend position</t>
+          <select
+            t-att-value="props.definition.legendPosition ?? 'top'"
+            class="o-input"
+            t-on-change="this.updateLegendPosition">
+            <option value="none">None</option>
+            <option value="top">Top</option>
+            <option value="bottom">Bottom</option>
+            <option value="left">Left</option>
+            <option value="right">Right</option>
+          </select>
+        </Section>
+      </t>
+    </GeneralDesignEditor>
+    <SidePanelCollapsible collapsedAtInit="true">
+      <t t-set-slot="title">Data Series</t>
+      <t t-set-slot="content">
+        <Section class="'pt-0 pb-0'">
+          <select
+            class="pl-1 o-input data-series-selector"
+            t-model="state.label"
+            t-on-change="(ev) => this.updateSerieEditor(ev)">
+            <t t-foreach="getDataSeries()" t-as="serie" t-key="serie" t-index="index">
+              <option
+                t-att-value="serie"
+                t-att-selected="state.index === serie_index"
+                t-esc="serie"
+              />
+            </t>
+          </select>
+          <Section class="'px-0'">
+            <div class="d-flex align-items-center">
+              <span class="o-section-title mb-0 pe-2">Serie Color</span>
+              <RoundColorPicker
+                currentColor="getDataSerieColor()"
+                onColorPicked.bind="updateDataSeriesColor"
+              />
+            </div>
+          </Section>
+          <Section class="'pt-0 px-0'">
+            <t t-set-slot="title">Vertical axis</t>
+            <select
+              t-att-value="getDataSerieAxis()"
+              class="o-input o-vertical-axis-selection"
+              t-on-change="(ev) => this.updateDataSeriesAxis(ev)">
+              <option value="left">Left</option>
+              <option value="right">Right</option>
+            </select>
+          </Section>
+          <Section class="'pt-0 px-0'">
+            <t t-set-slot="title">Serie name</t>
+            <input
+              class="o-input o-serie-label-editor"
+              t-att-value="getDataSerieLabel()"
+              t-on-change="(ev) => this.updateDataSeriesLabel(ev)"
+            />
+          </Section>
+        </Section>
+      </t>
+    </SidePanelCollapsible>
+    <SidePanelCollapsible collapsedAtInit="true">
+      <t t-set-slot="title">Axis</t>
+      <t t-set-slot="content">
+        <AxisDesignEditor
+          axesList="axesList"
+          figureId="props.figureId"
+          definition="props.definition"
+          updateChart="props.updateChart"
+        />
+      </t>
+    </SidePanelCollapsible>
+  </t>
+</templates>
