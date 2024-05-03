@@ -11,9 +11,11 @@ import {
   deleteColumns,
   deleteContent,
   deleteRows,
+  merge,
   paste,
   setCellContent,
   setFormat,
+  unMerge,
 } from "../test_helpers/commands_helpers";
 import { getCellContent, getCellError, getEvaluatedCell } from "../test_helpers/getters_helpers";
 import { restoreDefaultFunctions } from "../test_helpers/helpers";
@@ -882,6 +884,29 @@ describe("evaluate formulas that return an array", () => {
 
       setCellContent(model, "H1", "2");
       expect(model.getters.getSpreadZone({ sheetId, col: 0, row: 0 })).toEqual(toZone("A1:B2"));
+    });
+  });
+
+  describe("result array can collides with merged cells", () => {
+    test("do not spread result upon collision", () => {
+      setCellContent(model, "A1", "=MFILL(2, 2, 42)");
+      merge(model, "A2:A3");
+      expect(getEvaluatedCell(model, "A1").value).toBe("#SPILL!");
+      expect(getEvaluatedCell(model, "A2").value).toBe(null);
+      expect(getEvaluatedCell(model, "B1").value).toBe(null);
+      expect(getEvaluatedCell(model, "B2").value).toBe(null);
+    });
+
+    test("spread result upon collision removal", () => {
+      setCellContent(model, "A1", "=MFILL(2, 2, 42)");
+      merge(model, "A2:A3");
+      expect(getEvaluatedCell(model, "A1").value).toBe("#SPILL!");
+
+      unMerge(model, "A2:A3");
+      expect(getEvaluatedCell(model, "A1").value).toBe(42);
+      expect(getEvaluatedCell(model, "A2").value).toBe(42);
+      expect(getEvaluatedCell(model, "B1").value).toBe(42);
+      expect(getEvaluatedCell(model, "B2").value).toBe(42);
     });
   });
 });
