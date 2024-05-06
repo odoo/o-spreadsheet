@@ -6,6 +6,8 @@ const { xml, Component, whenReady, useSubEnv, useState } = owl;
 const { Spreadsheet, Model } = o_spreadsheet;
 const { topbarMenuRegistry } = o_spreadsheet.registries;
 
+const { useStoreProvider, NotificationStore } = o_spreadsheet.stores;
+
 const tags = new Set();
 
 const NOTIFICATION_STYLE =
@@ -115,7 +117,12 @@ class Demo extends Component {
       },
       icon: "o-spreadsheet-Icon.IMPORT_XLSX",
     });
-
+    const stores = useStoreProvider();
+    stores.inject(NotificationStore, {
+      notifyUser: this.notifyUser,
+      raiseError: this.raiseError,
+      askConfirmation: this.askConfirmation,
+    });
     useSubEnv({
       notifyUser: this.notifyUser,
       raiseError: this.raiseError,
