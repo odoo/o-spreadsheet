@@ -254,11 +254,14 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
   }
 
   getMainCellPosition(position: CellPosition): CellPosition {
-    if (!this.isInMerge(position)) {
-      return position;
-    }
-    const mergeTopLeftPos = this.getMerge(position)!.topLeft;
-    return { sheetId: position.sheetId, col: mergeTopLeftPos.col, row: mergeTopLeftPos.row };
+    const mergeZone = this.getMerge(position);
+    return mergeZone
+      ? {
+          sheetId: position.sheetId,
+          col: mergeZone.left,
+          row: mergeZone.top,
+        }
+      : position;
   }
 
   isMergeHidden(sheetId: UID, merge: Merge): boolean {
@@ -539,7 +542,6 @@ function exportMerges(merges: Record<number, Range | undefined>): string[] {
 function rangeToMerge(mergeId: number, range: Range): Merge {
   return {
     ...range.zone,
-    topLeft: { col: range.zone.left, row: range.zone.top },
     id: mergeId,
   };
 }

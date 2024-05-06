@@ -57,7 +57,7 @@ describe("merges", () => {
     expect(getCellContent(model, "B2", sheet1)).toBe("b2");
     expect(getMergeCellMap(model)).toEqual(XCToMergeCellMap(model, ["B2", "B3"]));
     expect(getMerges(model)).toEqual({
-      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: toCartesian("B2") },
+      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1 },
     });
   });
 
@@ -69,7 +69,7 @@ describe("merges", () => {
     });
     expect(getMergeCellMap(model)).toEqual(XCToMergeCellMap(model, ["B2", "B3"]));
     expect(getMerges(model)).toEqual({
-      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: toCartesian("B2") },
+      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1 },
     });
 
     selectCell(model, "B2");
@@ -90,8 +90,8 @@ describe("merges", () => {
     });
     merge(model, "B2:B3", secondSheetId);
     expect(model.getters.getMerges(secondSheetId)).toEqual([
-      { ...toZone("C2:C3"), id: 2, topLeft: toCartesian("C2") },
-      { ...toZone("B2:B3"), id: 3, topLeft: toCartesian("B2") },
+      { ...toZone("C2:C3"), id: 2 },
+      { ...toZone("B2:B3"), id: 3 },
     ]);
     expect(model.getters.getMerge({ sheetId: secondSheetId, col: 2, row: 1 })?.id).toBe(2);
     expect(model.getters.getMerge({ sheetId: secondSheetId, col: 1, row: 1 })?.id).toBe(3);
@@ -451,7 +451,7 @@ describe("merges", () => {
     });
   });
 
-  test("setting border to topleft => setting style => merging => unmerging", () => {
+  test("setting border to  => setting style => merging => unmerging", () => {
     const model = new Model();
     setZoneBorders(model, { position: "external" }, ["A1"]);
     setStyle(model, "A1", { fillColor: "red" });
@@ -507,7 +507,7 @@ describe("merges", () => {
 
     expect(getMergeCellMap(model)).toEqual(XCToMergeCellMap(model, ["B2", "B3"]));
     expect(getMerges(model)).toEqual({
-      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1, topLeft: toCartesian("B2") },
+      "1": { bottom: 2, id: 1, left: 1, right: 1, top: 1 },
     });
 
     // undo
@@ -519,7 +519,7 @@ describe("merges", () => {
     redo(model);
     expect(getMergeCellMap(model)).toEqual(XCToMergeCellMap(model, ["B2", "B3"]));
     expect(getMerges(model)).toEqual({
-      "2": { bottom: 2, id: 2, left: 1, right: 1, top: 1, topLeft: toCartesian("B2") },
+      "2": { bottom: 2, id: 2, left: 1, right: 1, top: 1 },
     });
   });
 
@@ -612,12 +612,8 @@ describe("merges", () => {
       sheetIdTo: secondSheetId,
     });
     addColumns(model, "before", "A", 1, "42");
-    expect(model.getters.getMerges(firstSheetId)).toEqual([
-      { ...toZone("C1:C2"), id: 1, topLeft: toCartesian("C1") },
-    ]);
-    expect(model.getters.getMerges(secondSheetId)).toEqual([
-      { ...toZone("D1:D2"), id: 2, topLeft: toCartesian("D1") },
-    ]);
+    expect(model.getters.getMerges(firstSheetId)).toEqual([{ ...toZone("C1:C2"), id: 1 }]);
+    expect(model.getters.getMerges(secondSheetId)).toEqual([{ ...toZone("D1:D2"), id: 2 }]);
   });
 
   describe("isSingleCellOrMerge getter", () => {

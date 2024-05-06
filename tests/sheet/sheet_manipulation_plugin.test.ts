@@ -1,5 +1,5 @@
 import { DEFAULT_BORDER_DESC, DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
-import { lettersToNumber, toCartesian, toXC, toZone } from "../../src/helpers";
+import { lettersToNumber, toXC, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { Border, CommandResult } from "../../src/types";
 import { CellErrorType } from "../../src/types/errors";
@@ -267,9 +267,9 @@ describe("Columns", () => {
     test("On deletion", () => {
       deleteColumns(model, ["B", "D"]);
       expect(getMerges(model)).toEqual({
-        1: { id: 1, topLeft: toCartesian("A1"), top: 0, bottom: 0, left: 0, right: 2 },
-        2: { id: 2, topLeft: toCartesian("B2"), top: 1, bottom: 1, left: 1, right: 2 },
-        3: { id: 3, topLeft: toCartesian("B3"), top: 2, bottom: 2, left: 1, right: 2 },
+        1: { id: 1, top: 0, bottom: 0, left: 0, right: 2 },
+        2: { id: 2, top: 1, bottom: 1, left: 1, right: 2 },
+        3: { id: 3, top: 2, bottom: 2, left: 1, right: 2 },
       });
       expect(getMergeCellMap(model)).toEqual(
         XCToMergeCellMap(model, ["A1", "B1", "C1", "B2", "C2", "B3", "C3"])
@@ -280,10 +280,10 @@ describe("Columns", () => {
       addColumns(model, "before", "B", 1);
       addColumns(model, "after", "A", 1);
       expect(getMerges(model)).toEqual({
-        1: { id: 1, topLeft: toCartesian("A1"), top: 0, bottom: 0, left: 0, right: 6 },
-        2: { id: 2, topLeft: toCartesian("D2"), top: 1, bottom: 1, left: 3, right: 6 },
-        3: { id: 3, topLeft: toCartesian("E3"), top: 2, bottom: 2, left: 4, right: 6 },
-        4: { id: 4, topLeft: toCartesian("D4"), top: 3, bottom: 3, left: 3, right: 5 },
+        1: { id: 1, top: 0, bottom: 0, left: 0, right: 6 },
+        2: { id: 2, top: 1, bottom: 1, left: 3, right: 6 },
+        3: { id: 3, top: 2, bottom: 2, left: 4, right: 6 },
+        4: { id: 4, top: 3, bottom: 3, left: 3, right: 5 },
       });
       // prettier-ignore
       expect(getMergeCellMap(model)).toEqual(
@@ -512,7 +512,6 @@ describe("Columns", () => {
       expect(Object.values(getMerges(model))[0]).toMatchObject({
         left: 2,
         right: 5,
-        topLeft: toCartesian("C4"),
       });
     });
   });
@@ -997,9 +996,9 @@ describe("Rows", () => {
     test("On deletion", () => {
       deleteRows(model, [1, 3]);
       expect(getMerges(model)).toEqual({
-        1: { id: 1, topLeft: toCartesian("A1"), top: 0, bottom: 2, left: 0, right: 0 },
-        2: { id: 2, topLeft: toCartesian("B2"), top: 1, bottom: 2, left: 1, right: 1 },
-        3: { id: 3, topLeft: toCartesian("C2"), top: 1, bottom: 2, left: 2, right: 2 },
+        1: { id: 1, top: 0, bottom: 2, left: 0, right: 0 },
+        2: { id: 2, top: 1, bottom: 2, left: 1, right: 1 },
+        3: { id: 3, top: 1, bottom: 2, left: 2, right: 2 },
       });
       expect(getMergeCellMap(model)).toEqual(
         XCToMergeCellMap(model, ["A1", "A2", "A3", "B2", "B3", "C2", "C3"])
@@ -1009,10 +1008,10 @@ describe("Rows", () => {
       addRows(model, "before", 1, 1);
       addRows(model, "after", 0, 1);
       expect(getMerges(model)).toEqual({
-        1: { id: 1, topLeft: toCartesian("A1"), top: 0, bottom: 6, left: 0, right: 0 },
-        2: { id: 2, topLeft: toCartesian("B4"), top: 3, bottom: 6, left: 1, right: 1 },
-        3: { id: 3, topLeft: toCartesian("C5"), top: 4, bottom: 6, left: 2, right: 2 },
-        4: { id: 4, topLeft: toCartesian("D4"), top: 3, bottom: 5, left: 3, right: 3 },
+        1: { id: 1, top: 0, bottom: 6, left: 0, right: 0 },
+        2: { id: 2, top: 3, bottom: 6, left: 1, right: 1 },
+        3: { id: 3, top: 4, bottom: 6, left: 2, right: 2 },
+        4: { id: 4, top: 3, bottom: 5, left: 3, right: 3 },
       });
       // prettier-ignore
       expect(getMergeCellMap(model)).toEqual(
@@ -1124,7 +1123,6 @@ describe("Rows", () => {
       expect(Object.values(getMerges(model))[0]).toMatchObject({
         top: 2,
         bottom: 5,
-        topLeft: toCartesian("D3"),
       });
     });
 

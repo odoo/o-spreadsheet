@@ -443,7 +443,7 @@ export class AutofillPlugin extends UIPlugin {
       }
     }
     const originMerge = this.getters.getMerge(originPosition);
-    if (originMerge?.topLeft.col === originCol && originMerge?.topLeft.row === originRow) {
+    if (originMerge?.left === originCol && originMerge?.top === originRow) {
       this.dispatch("ADD_MERGE", {
         sheetId,
         target: [

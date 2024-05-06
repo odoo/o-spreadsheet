@@ -226,7 +226,6 @@ export interface PixelPosition {
 
 export interface Merge extends Zone {
   id: number;
-  topLeft: Position;
 }
 
 export interface Highlight {

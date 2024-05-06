@@ -486,7 +486,7 @@ describe("Import", () => {
     expect(Object.keys(getMerges(model))).toHaveLength(0);
     activateSheet(model, sheet1);
     expect(Object.keys(getMerges(model))).toHaveLength(1);
-    expect(Object.values(getMerges(model))[0].topLeft).toEqual(toCartesian("A2"));
+    expect(getMerges(model)[1]).toMatchObject(toZone("A2:B2"));
   });
 
   test("can import cell without content", () => {
