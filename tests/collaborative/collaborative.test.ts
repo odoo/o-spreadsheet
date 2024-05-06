@@ -1,7 +1,7 @@
 import { Model, UIPlugin } from "../../src";
 import { DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { functionRegistry } from "../../src/functions";
-import { getDefaultCellHeight, range, toCartesian, toZone } from "../../src/helpers";
+import { getDefaultCellHeight, range, toZone } from "../../src/helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { featurePluginRegistry } from "../../src/plugins";
 import { Command, CommandResult, CoreCommand, DataValidationCriterion } from "../../src/types";
@@ -284,13 +284,13 @@ describe("Multi users synchronisation", () => {
 
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "B3"), undefined);
     expect(alice.getters.getMerges(sheetId)).toMatchObject([
-      { bottom: 2, left: 0, top: 0, right: 1, topLeft: toCartesian("A1") },
+      { bottom: 2, left: 0, top: 0, right: 1 },
     ]);
     expect(bob.getters.getMerges(sheetId)).toMatchObject([
-      { bottom: 2, left: 0, top: 0, right: 1, topLeft: toCartesian("A1") },
+      { bottom: 2, left: 0, top: 0, right: 1 },
     ]);
     expect(charlie.getters.getMerges(sheetId)).toMatchObject([
-      { bottom: 2, left: 0, top: 0, right: 1, topLeft: toCartesian("A1") },
+      { bottom: 2, left: 0, top: 0, right: 1 },
     ]);
     undo(bob);
     expect([alice, bob, charlie]).toHaveSynchronizedValue((user) => getCell(user, "B3"), undefined);
@@ -364,10 +364,6 @@ describe("Multi users synchronisation", () => {
         {
           ...toZone("A80:A98"),
           id: 1,
-          topLeft: {
-            col: 0,
-            row: 79,
-          },
         },
       ]
     );
