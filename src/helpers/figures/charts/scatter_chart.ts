@@ -174,14 +174,6 @@ export function createScatterChartRuntime(
   chartJsConfig.type = "line";
 
   const configOptions = chartJsConfig.options!;
-  configOptions.elements = {
-    point: {
-      radius: 3,
-      hoverRadius: 3, // chartJS seems bugged, the point starts with the "hoverRadius" value
-      hitRadius: 8,
-    },
-  };
-
   const locale = getters.getLocale();
 
   configOptions.plugins!.tooltip!.callbacks!.title = () => "";
