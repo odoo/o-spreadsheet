@@ -25,21 +25,22 @@ export function toZoneWithoutBoundaryChanges(xc: string): UnboundedZone {
     xc = xc.split("!").at(-1)!;
   }
   if (xc.includes("$")) {
-    xc = xc.replace(/\$/g, "");
+    xc = xc.replaceAll("$", "");
   }
-  let ranges: string[];
+  let firstRangePart: string = "";
+  let secondRangePart: string | undefined;
   if (xc.includes(":")) {
-    ranges = xc.split(":").map((x) => x.trim());
+    [firstRangePart, secondRangePart] = xc.split(":");
+    firstRangePart = firstRangePart.trim();
+    secondRangePart = secondRangePart.trim();
   } else {
-    ranges = [xc.trim()];
+    firstRangePart = xc.trim();
   }
 
   let top: number, bottom: number, left: number, right: number;
   let fullCol = false;
   let fullRow = false;
   let hasHeader = false;
-  const firstRangePart = ranges[0];
-  const secondRangePart = ranges[1] && ranges[1];
 
   if (isColReference(firstRangePart)) {
     left = right = lettersToNumber(firstRangePart);
@@ -55,7 +56,7 @@ export function toZoneWithoutBoundaryChanges(xc: string): UnboundedZone {
     top = bottom = c.row;
     hasHeader = true;
   }
-  if (ranges.length === 2) {
+  if (secondRangePart) {
     if (isColReference(secondRangePart)) {
       right = lettersToNumber(secondRangePart);
       fullCol = true;
