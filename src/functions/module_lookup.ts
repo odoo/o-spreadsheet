@@ -1,6 +1,6 @@
 import { getFullReference, range, toXC, toZone } from "../helpers/index";
 import { _t } from "../translation";
-import { AddFunctionDescription, CellPosition, CellValue, FPayload, Matrix, Maybe } from "../types";
+import { AddFunctionDescription, CellPosition, FPayload, Matrix, Maybe } from "../types";
 import { CellErrorType, EvaluationError, InvalidReferenceError } from "../types/errors";
 import { arg } from "./arguments";
 import {
@@ -312,15 +312,7 @@ export const INDIRECT: AddFunctionDescription = {
       const colValues: FPayload[] = [];
       for (let row = range.zone.top; row <= range.zone.bottom; row++) {
         const position = { sheetId: range.sheetId, col, row };
-        // The below 'value' is typed as CellValue because the evaluateFormula will have to
-        // evaluate a string containing the A1 reference of a single cell, so this will
-        // return a CellValue.
-        const value = this.getters.evaluateFormula(range.sheetId, toXC(col, row)) as CellValue;
-        const evaluatedCell = this.getters.getEvaluatedCell(position);
-        colValues.push({
-          ...evaluatedCell,
-          value,
-        });
+        colValues.push(this.getters.getEvaluatedCell(position));
       }
       values.push(colValues);
     }
