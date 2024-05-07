@@ -168,4 +168,46 @@ describe("load data", () => {
       uniqueFigureIds: true,
     });
   });
+
+  test("figure data are correctly updated", () => {
+    expect(
+      load({
+        version: 15,
+        sheets: [
+          {
+            name: "Sheet1",
+            id: "Sheet1",
+            cells: {},
+            figures: [
+              {
+                id: "1",
+                data: {
+                  type: "line",
+                  title: "Line",
+                  labelRange: "Sheet1!A27:A35",
+                  dataSets: ["Sheet1!B26:B35", "Sheet1!C26:C35"],
+                  dataSetsHaveTitle: true,
+                },
+              },
+            ],
+          },
+        ],
+      })
+    ).toMatchObject({
+      version: CURRENT_VERSION,
+      sheets: [
+        {
+          figures: [
+            {
+              data: {
+                title: { text: "Line" },
+                dataSets: [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
+                dataSetsHaveTitle: true,
+              },
+            },
+          ],
+        },
+      ],
+    });
+  });
 });

@@ -10,6 +10,7 @@ import { getMaxObjectId } from "../helpers/pivot/pivot_helpers";
 import { StateUpdateMessage } from "../types/collaborative/transport_service";
 import {
   CoreCommand,
+  CustomizedDataSet,
   DEFAULT_LOCALE,
   ExcelSheetData,
   ExcelWorkbookData,
@@ -385,6 +386,30 @@ const MIGRATIONS: Migration[] = [
       }
       if (!data.pivotNextId) {
         data.pivotNextId = getMaxObjectId(data.pivots) + 1;
+      }
+      return data;
+    },
+  },
+  {
+    description: "transform chart data structure (2)",
+    from: 16,
+    to: 17,
+    applyMigration(data: any): any {
+      for (const sheet of data.sheets || []) {
+        for (const f in sheet.figures || []) {
+          const figure = sheet.figures[f];
+          if ("title" in figure.data && typeof figure.data.title === "string") {
+            figure.data.title = { text: figure.data.title };
+          }
+          const figureType = figure.data.type;
+          if (!["line", "bar", "pie", "scatter", "waterfall", "combo"].includes(figureType)) {
+            continue;
+          }
+          const { dataSets, ...newData } = sheet.figures[f].data;
+          const newDataSets: CustomizedDataSet = dataSets.map((dataRange) => ({ dataRange }));
+          newData.dataSets = newDataSets;
+          sheet.figures[f].data = newData;
+        }
       }
       return data;
     },
