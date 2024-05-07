@@ -219,10 +219,9 @@ export function expandZoneOnInsertion<Z extends UnboundedZone | Zone>(
   const end = start === "left" ? "right" : "bottom";
   const zoneEnd = zone[end];
 
-  if (zone[start] <= baseElement && zoneEnd && zoneEnd > baseElement) {
+  if (zone[start] <= base && zoneEnd && zoneEnd >= base) {
     return createAdaptedZone(zone, dimension, "RESIZE", quantity);
-  }
-  if (baseElement < zone[start]) {
+  } else if (baseElement < zone[start]) {
     return createAdaptedZone(zone, dimension, "MOVE", quantity);
   }
   return { ...zone };

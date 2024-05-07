@@ -1,5 +1,6 @@
 import {
   createAdaptedZone,
+  expandZoneOnInsertion,
   isZoneValid,
   mergeAlignedColumns,
   mergePositionsIntoColumns,
@@ -8,6 +9,7 @@ import {
   toCartesian,
   toUnboundedZone,
   toZone,
+  zoneToXc,
 } from "../../src/helpers/index";
 import { Position, Zone } from "../../src/types";
 import { target } from "../test_helpers/helpers";
@@ -296,5 +298,37 @@ describe("createAdaptedZone", () => {
 
   test("negative resize on columns and rows", () => {
     expect(createAdaptedZone(zone, "both", "RESIZE", [-1, -1])).toEqual(toZone("B2"));
+  });
+});
+
+describe("expandZoneOnInsertion", () => {
+  test("Add rows before the zone", () => {
+    const zone = toZone("B2:C3");
+    const expanded = expandZoneOnInsertion(zone, "top", 0, "after", 1);
+    expect(zoneToXc(expanded)).toBe("B3:C4");
+  });
+
+  test("Add rows right before the zone", () => {
+    const zone = toZone("B2:C3");
+    const expanded = expandZoneOnInsertion(zone, "top", 1, "before", 1);
+    expect(zoneToXc(expanded)).toBe("B2:C4");
+  });
+
+  test("Add rows inside the zone", () => {
+    const zone = toZone("B2:C3");
+    const expanded = expandZoneOnInsertion(zone, "top", 1, "after", 1);
+    expect(zoneToXc(expanded)).toBe("B2:C4");
+  });
+
+  test("Add rows after the zone", () => {
+    const zone = toZone("B2:C3");
+    const expanded = expandZoneOnInsertion(zone, "top", 5, "after", 1);
+    expect(zoneToXc(expanded)).toBe("B2:C3");
+  });
+
+  test("Add rows right after the zone", () => {
+    const zone = toZone("B2:C3");
+    const expanded = expandZoneOnInsertion(zone, "top", 2, "after", 1);
+    expect(zoneToXc(expanded)).toBe("B2:C4");
   });
 });
