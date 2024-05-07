@@ -24,7 +24,7 @@ import {
   Zone,
 } from "../../types/index";
 import { xmlEscape } from "../../xlsx/helpers/xml_helpers";
-import { UIPlugin } from "../ui_plugin";
+import { UIPlugin, UIPluginConfig } from "../ui_plugin";
 
 interface InsertDeleteCellsTargets {
   cut: Zone[];
@@ -46,8 +46,10 @@ type MinimalClipboardData = {
 export class ClipboardPlugin extends UIPlugin {
   static layers = ["Clipboard"] as const;
   static getters = [
+    "getCellClipboardHandlers",
     "getClipboardContent",
     "getClipboardTextContent",
+    "getFigureClipboardHandlers",
     "getPasteTarget",
     "isCutOperation",
     "isPaintingFormat",
@@ -58,6 +60,20 @@ export class ClipboardPlugin extends UIPlugin {
   private originSheetId?: UID;
   private copiedData?: MinimalClipboardData;
   private _isCutOperation: boolean = false;
+
+  private cellClipboardHandlers: ClipboardHandler<any>[];
+  private figureClipboardHandlers: ClipboardHandler<any>[];
+
+  constructor(config: UIPluginConfig) {
+    super(config);
+    this.cellClipboardHandlers = clipboardHandlersRegistries.cellHandlers
+      .getAll()
+      .map((handler) => new handler(this.getters, this.dispatch));
+
+    this.figureClipboardHandlers = clipboardHandlersRegistries.figureHandlers
+      .getAll()
+      .map((handler) => new handler(this.getters, this.dispatch));
+  }
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -292,14 +308,8 @@ export class ClipboardPlugin extends UIPlugin {
   }
 
   private convertOSClipboardData(clipboardData: string): {} {
-    const handlers: ClipboardHandler<any>[] = clipboardHandlersRegistries.figureHandlers
-      .getAll()
-      .map((handler) => new handler(this.getters, this.dispatch));
-    clipboardHandlersRegistries.cellHandlers
-      .getAll()
-      .forEach((handler) => handlers.push(new handler(this.getters, this.dispatch)));
     let copiedData = {};
-    for (const handler of handlers) {
+    for (const handler of [...this.figureClipboardHandlers, ...this.cellClipboardHandlers]) {
       const data = handler.convertOSClipboardData(clipboardData);
       copiedData = { ...copiedData, ...data };
     }
@@ -308,13 +318,9 @@ export class ClipboardPlugin extends UIPlugin {
 
   private selectClipboardHandlers(data: {}): ClipboardHandler<any>[] {
     if ("figureId" in data) {
-      return clipboardHandlersRegistries.figureHandlers
-        .getAll()
-        .map((handler) => new handler(this.getters, this.dispatch));
+      return this.figureClipboardHandlers;
     }
-    return clipboardHandlersRegistries.cellHandlers
-      .getAll()
-      .map((handler) => new handler(this.getters, this.dispatch));
+    return this.cellClipboardHandlers;
   }
 
   private isCutAllowedOn(zones: Zone[]) {
@@ -455,6 +461,14 @@ export class ClipboardPlugin extends UIPlugin {
       [ClipboardMIMEType.PlainText]: this.getPlainTextContent(),
       [ClipboardMIMEType.Html]: this.getHTMLContent(),
     };
+  }
+
+  getCellClipboardHandlers(): ClipboardHandler<any>[] {
+    return this.cellClipboardHandlers;
+  }
+
+  getFigureClipboardHandlers(): ClipboardHandler<any>[] {
+    return this.figureClipboardHandlers;
   }
 
   private getPlainTextContent(): string {
