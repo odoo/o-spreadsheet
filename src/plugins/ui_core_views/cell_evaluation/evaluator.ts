@@ -89,8 +89,9 @@ export class Evaluator {
     this.formulaDependencies().addDependencies(position, dependencies);
   }
 
-  addDependencies(position: CellPosition, dependencies: Range[]) {
+  private addDependencies(position: CellPosition, dependencies: Range[]) {
     this.formulaDependencies().addDependencies(position, dependencies);
+    this.computeAndSave(position);
   }
 
   private updateCompilationParameters() {
