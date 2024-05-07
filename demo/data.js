@@ -6,7 +6,7 @@
  */
 
 export const demoData = {
-  version: 7,
+  version: 16,
   sheets: [
     {
       name: "Sheet1",

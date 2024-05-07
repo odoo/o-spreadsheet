@@ -165,7 +165,7 @@ describe("Migrations", () => {
     const data = model.exportData();
     expect(data.sheets[0].figures[0].data).toEqual({
       type: "line",
-      title: "demo chart",
+      title: { text: "demo chart" },
       labelRange: "'My sheet'!A27:A35",
       dataSets: [{ dataRange: "B26:B35" }, { dataRange: "C26:C35" }],
       dataSetsHaveTitle: true,
@@ -175,7 +175,7 @@ describe("Migrations", () => {
     });
     expect(data.sheets[0].figures[1].data).toEqual({
       type: "bar",
-      title: "demo chart 2",
+      title: { text: "demo chart 2" },
       labelRange: "'My sheet'!A27:A35",
       dataSets: [{ dataRange: "B27:B35" }, { dataRange: "C27:C35" }],
       dataSetsHaveTitle: false,
@@ -185,7 +185,7 @@ describe("Migrations", () => {
     });
     expect(data.sheets[0].figures[2].data).toEqual({
       type: "bar",
-      title: "demo chart 3",
+      title: { text: "demo chart 3" },
       labelRange: "'My sheet'!A27",
       dataSets: [{ dataRange: "B26:B27" }],
       dataSetsHaveTitle: true,
@@ -195,7 +195,7 @@ describe("Migrations", () => {
     });
     expect(data.sheets[0].figures[3].data).toEqual({
       type: "bar",
-      title: "demo chart 4",
+      title: { text: "demo chart 4" },
       labelRange: "'My sheet'!A27",
       dataSets: [{ dataRange: "B27" }],
       dataSetsHaveTitle: false,
