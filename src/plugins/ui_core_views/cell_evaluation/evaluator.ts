@@ -91,7 +91,15 @@ export class Evaluator {
 
   private addDependencies(position: CellPosition, dependencies: Range[]) {
     this.formulaDependencies().addDependencies(position, dependencies);
-    this.computeAndSave(position);
+    for (const range of dependencies) {
+      const sheetId = range.sheetId;
+      const { left, bottom, right, top } = range.zone;
+      for (let col = left; col <= right; col++) {
+        for (let row = top; row <= bottom; row++) {
+          this.computeAndSave({ sheetId, col, row });
+        }
+      }
+    }
   }
 
   private updateCompilationParameters() {

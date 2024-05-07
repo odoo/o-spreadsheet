@@ -1567,6 +1567,23 @@ describe("INDIRECT formula", () => {
     expect(grid.A4).toBe(6);
   });
 
+  test("Dependencies are correctly evaluated", () => {
+    const model = new Model({
+      sheets: [
+        {
+          cells: {
+            A1: { content: '=INDIRECT("B1")' },
+            B1: { content: "hello" },
+            A2: { content: '=INDIRECT("B2")' },
+            B2: { content: "=1+1" },
+          },
+        },
+      ],
+    });
+    expect(getCellContent(model, "A1")).toBe("hello");
+    expect(getCellContent(model, "A2")).toBe("2");
+  });
+
   test("Reference to a cell and range of a different sheet (A1 notation)", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
