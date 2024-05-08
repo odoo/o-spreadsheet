@@ -1215,7 +1215,6 @@ describe("MAXIFS formula", () => {
     expect(evaluateCell("A4", { A4: "=MAXIFS(A1:A3, B1:B3, 24)", ...grid })).toBe(42);
   });
 
-  // @compatibility: should be able to accept errors !
   test("MAXIFS doesn't accept errors in 2n+2 parameters", () => {
     // prettier-ignore
     const grid = {
@@ -1223,7 +1222,7 @@ describe("MAXIFS formula", () => {
       A2: "41", B2: "1",
       A3: "42", B3: "=KABOUM",
     };
-    expect(evaluateCell("A4", { A4: "=MAXIFS(A1:A3, B1:B3, 1)", ...grid })).toBe("#BAD_EXPR"); // @compatibility: should be 41
+    expect(evaluateCell("A4", { A4: "=MAXIFS(A1:A3, B1:B3, 1)", ...grid })).toBe(41);
   });
 
   // @compatibility: should be able to count errors !
@@ -1615,7 +1614,6 @@ describe("MINIFS formula", () => {
     expect(evaluateCell("A4", { A4: "=MINIFS(A1:A3, B1:B3, 24)", ...grid })).toBe(42);
   });
 
-  // @compatibility: should be able to accept errors !
   test("MINIFS doesn't accept errors in 2n+2 parameters", () => {
     // prettier-ignore
     const grid = {
@@ -1623,7 +1621,7 @@ describe("MINIFS formula", () => {
       A2: "41", B2: "1",
       A3: "42", B3: "=KABOUM",
     };
-    expect(evaluateCell("A4", { A4: "=MINIFS(A1:A3, B1:B3, 1)", ...grid })).toBe("#BAD_EXPR"); // @compatibility: should be 40
+    expect(evaluateCell("A4", { A4: "=MINIFS(A1:A3, B1:B3, 1)", ...grid })).toBe(40);
   });
 
   // @compatibility: should be able to count errors !
