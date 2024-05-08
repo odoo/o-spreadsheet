@@ -12,6 +12,10 @@ const templates = await(await fetch("../dist/o_spreadsheet.xml")).text();
 const env = {
   notifyUser: () => window.alert(content),
   askConfirmation: (message, confirm, cancel) => confirm(),
+  raiseError: (content, callback) => {
+    window.alert(content);
+    callback?.();
+  },
 };
 const app = new owl.App(Spreadsheet, {
   props: { model },
