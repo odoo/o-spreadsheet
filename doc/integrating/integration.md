@@ -13,6 +13,10 @@ const env = {
   notifyUser: () => window.alert(content),
   askConfirmation: (message, confirm, cancel) => confirm(),
   editText: (title, callback) => callback(""),
+  raiseError: (content, callback) => {
+    window.alert(content);
+    callback?.();
+  },
 };
 const app = new owl.App(Spreadsheet, {
   props: { model },
