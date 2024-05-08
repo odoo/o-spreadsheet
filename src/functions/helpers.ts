@@ -561,7 +561,7 @@ function evaluatePredicate(value: CellValue | undefined, criterion: Predicate): 
   }
 
   if (typeof operand === "number" && operator === "=") {
-    return toString(value) === toString(operand);
+    return value.toString() === operand.toString();
   }
 
   if (operator === "<>" || operator === "=") {
@@ -631,19 +631,16 @@ export function visitMatchingRanges(
     );
   }
 
-  const dimRow = (args[0] as Matrix<FPayload>).length;
-  const dimCol = (args[0] as Matrix<FPayload>)[0].length;
+  const firstArg = toMatrix(args[0]);
+  const dimRow = firstArg.length;
+  const dimCol = firstArg[0].length;
 
   let predicates: Predicate[] = [];
 
   for (let i = 0; i < countArg - 1; i += 2) {
-    const criteriaRange = args[i];
+    const criteriaRange = toMatrix(args[i]);
 
-    if (
-      !isMatrix(criteriaRange) ||
-      criteriaRange.length !== dimRow ||
-      criteriaRange[0].length !== dimCol
-    ) {
+    if (criteriaRange.length !== dimRow || criteriaRange[0].length !== dimCol) {
       throw new EvaluationError(
         _t("Function [[FUNCTION_NAME]] expects criteria_range to have the same dimension")
       );
@@ -657,7 +654,7 @@ export function visitMatchingRanges(
     for (let j = 0; j < dimCol; j++) {
       let validatedPredicates = true;
       for (let k = 0; k < countArg - 1; k += 2) {
-        const criteriaValue = (args[k] as Matrix<FPayload>)[i][j].value;
+        const criteriaValue = toMatrix(args[k])[i][j].value;
         const criterion = predicates[k / 2];
         validatedPredicates = evaluatePredicate(criteriaValue ?? undefined, criterion);
         if (!validatedPredicates) {
