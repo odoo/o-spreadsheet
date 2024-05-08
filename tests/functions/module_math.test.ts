@@ -823,14 +823,13 @@ describe("COUNTIF formula", () => {
     expect(grid5Result.J82).toBe(1);
   });
 
-  // @compatibility: should be able to accept errors !
   test("COUNTIF does not accept errors in first parameter", () => {
     // prettier-ignore
     const grid = {
       A1: "=KABOUM", B1: "42",
       A2: "42",      B2: "=1/0",
     };
-    expect(evaluateCell("A3", { A3: "=COUNTIF(A1:B2, 42)", ...grid })).toBe("#BAD_EXPR"); // @compatibility: should be 2
+    expect(evaluateCell("A3", { A3: "=COUNTIF(A1:B2, 42)", ...grid })).toBe(2);
   });
 
   // @compatibility: should be able to count errors !
@@ -881,14 +880,13 @@ describe("COUNTIFS formula", () => {
     expect(gridResult.D9).toBe(4);
   });
 
-  // @compatibility: should be able to accept errors !
   test("COUNTIFS does not accept errors in 2n+1 parameters", () => {
     // prettier-ignore
     const grid = {
       A1: "=KABOUM", B1: "42",
       A2: "42",      B2: "=1/0",
     };
-    expect(evaluateCell("A3", { A3: "=COUNTIFS(A1:B2, 42)", ...grid })).toBe("#BAD_EXPR"); // @compatibility: should be 2
+    expect(evaluateCell("A3", { A3: "=COUNTIFS(A1:B2, 42)", ...grid })).toBe(2);
   });
 
   // @compatibility: should be able to count errors !
@@ -1075,7 +1073,6 @@ describe("COUNTUNIQUEIFS formula", () => {
     expect(evaluateCell("A4", { A4: "=COUNTUNIQUEIFS(A1:A3, B1:B3, 1)", ...grid })).toBe(2);
   });
 
-  // @compatibility: should be able to accept errors !
   test("COUNTUNIQUEIFS does not accept errors in 2n+2 parameters", () => {
     // prettier-ignore
     const grid = {
@@ -1083,9 +1080,7 @@ describe("COUNTUNIQUEIFS formula", () => {
       A2: "41", B2: "1",
       A3: "42", B3: "=KABOUM",
     };
-    expect(evaluateCell("A4", { A4: "=COUNTUNIQUEIFS(A1:A3, B1:B3, 1)", ...grid })).toBe(
-      "#BAD_EXPR"
-    ); // @compatibility: should be 2
+    expect(evaluateCell("A4", { A4: "=COUNTUNIQUEIFS(A1:A3, B1:B3, 1)", ...grid })).toBe(2);
   });
 
   // @compatibility: should be able to count errors !
@@ -2604,14 +2599,13 @@ describe("SUMIF formula", () => {
     expect(gridResult.A16).toBe(39);
   });
 
-  // @compatibility: should be able to accept errors !
   test("SUMIF does not accept errors in first parameter", () => {
     // prettier-ignore
     const grid = {
         A1: "=KABOUM", B1: "42",
         A2: "42",      B2: "=1/0",
       };
-    expect(evaluateCell("A3", { A3: "=SUMIF(A1:B2, 42)", ...grid })).toBe("#BAD_EXPR"); // @compatibility: should be 84
+    expect(evaluateCell("A3", { A3: "=SUMIF(A1:B2, 42)", ...grid })).toBe(84);
   });
 
   // @compatibility: should be able to accept errors !
@@ -2664,7 +2658,6 @@ describe("SUMIFS formula", () => {
     expect(evaluateCell("A4", { A4: "=SUMIFS(A1:A3, B1:B3, 24)", ...grid })).toBe(42);
   });
 
-  // @compatibility: should be able to accept errors !
   test("SUMIFS does not accept errors in 2n+2 parameters", () => {
     // prettier-ignore
     const grid = {
@@ -2672,7 +2665,7 @@ describe("SUMIFS formula", () => {
       A2: "41", B2: "1",
       A3: "42", B3: "=KABOUM",
     };
-    expect(evaluateCell("A4", { A4: "=SUMIFS(A1:A3, B1:B3, 1)", ...grid })).toBe("#BAD_EXPR"); // @compatibility: should be 81
+    expect(evaluateCell("A4", { A4: "=SUMIFS(A1:A3, B1:B3, 1)", ...grid })).toBe(81);
   });
 
   // @compatibility: should be able to count errors !
