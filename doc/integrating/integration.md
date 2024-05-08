@@ -13,6 +13,7 @@ const env = {
   notifyUser: () => window.alert(content),
   askConfirmation: (message, confirm, cancel) => confirm(),
   editText: (title, callback) => callback(""),
+  raiseError: (content) => window.alert(content),
   loadCurrencies: () => [],
 };
 const app = new owl.App(Spreadsheet, {
