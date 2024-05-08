@@ -80,6 +80,7 @@ interface SelectionRange extends Omit<RangeInputValue, "color"> {
   isValidRange: boolean;
   color?: Color;
 }
+
 /**
  * This component can be used when the user needs to input some
  * ranges. He can either input the ranges with the regular DOM `<input/>`
@@ -178,7 +179,13 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private extractRanges(value: string): string {
-    return this.props.hasSingleRange ? value.split(",")[0] : value;
+    if (this.props.hasSingleRange) {
+      const indexOfComma = value.indexOf(",");
+      if (indexOfComma !== -1) {
+        return value.substring(0, indexOfComma);
+      }
+    }
+    return value;
   }
 
   focus(rangeId: number) {

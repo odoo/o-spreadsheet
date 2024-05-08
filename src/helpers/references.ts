@@ -65,12 +65,12 @@ export function isSingleCellReference(xc: string): boolean {
 }
 
 export function splitReference(ref: string): { sheetName?: string; xc: string } {
-  if (!ref.includes("!")) {
+  const indexOfSheet = ref.lastIndexOf("!");
+  if (indexOfSheet === -1) {
     return { xc: ref };
   }
-  const parts = ref.split("!");
-  const xc = parts.pop()!;
-  const sheetName = getUnquotedSheetName(parts.join("!")) || undefined;
+  const xc = ref.slice(indexOfSheet + 1);
+  const sheetName = getUnquotedSheetName(ref.slice(0, indexOfSheet)) || undefined;
   return { sheetName, xc };
 }
 

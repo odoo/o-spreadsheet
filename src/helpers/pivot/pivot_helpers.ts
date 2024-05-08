@@ -106,11 +106,11 @@ export const MEASURES_TYPES = ["integer", "float", "monetary"];
  * e.g "create_date:month" => { name: "create_date", granularity: "month" }
  */
 export function parseDimension(dimension: string): PivotCoreDimension {
-  const [name, granularity] = dimension.split(":");
-  if (granularity) {
-    return { name, granularity };
+  const indexOfColon = dimension.indexOf(":");
+  if (indexOfColon === -1) {
+    return { name: dimension };
   }
-  return { name };
+  return { name: dimension.slice(0, indexOfColon), granularity: dimension.slice(indexOfColon + 1) };
 }
 
 export function isDateField(field: PivotField) {

@@ -56,6 +56,7 @@ export function isNumber(value: string | undefined, locale: Locale): boolean {
 const getInvaluableSymbolsRegexp = memoize(function getInvaluableSymbolsRegexp(locale: Locale) {
   return new RegExp(`[\$€${escapeRegExp(locale.thousandsSeparator)}]`, "g");
 });
+
 /**
  * Convert a string into a number. It assumes that the string actually represents
  * a number (as determined by the isNumber function)
@@ -70,10 +71,13 @@ export function parseNumber(str: string, locale: Locale): number {
   // remove invaluable characters
   str = str.replace(getInvaluableSymbolsRegexp(locale), "");
   let n = Number(str);
-  if (isNaN(n) && str.includes("%")) {
-    n = Number(str.split("%")[0]);
-    if (!isNaN(n)) {
-      return n / 100;
+  if (isNaN(n)) {
+    const indexOfPercent = str.indexOf("%");
+    if (indexOfPercent !== -1) {
+      n = Number(str.substring(0, indexOfPercent));
+      if (!isNaN(n)) {
+        return n / 100;
+      }
     }
   }
   return n;

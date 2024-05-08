@@ -76,7 +76,9 @@ export class RangeImpl implements Range {
   }
 
   static getRangeParts(xc: string, zone: UnboundedZone): RangePart[] {
-    const parts = xc.split(":").map((p) => {
+    const index = xc.indexOf(":");
+    let originalParts = [xc.slice(0, index), xc.slice(index + 1)];
+    const parts = originalParts.map((p) => {
       const isFullRow = isRowReference(p);
       return {
         colFixed: isFullRow ? false : p.startsWith("$"),

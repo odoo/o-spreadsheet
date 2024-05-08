@@ -362,9 +362,16 @@ function splitNumberIntl(
     });
     numberRepresentation[maxDecimals] = formatter;
   }
+  const formattedValue = formatter.format(value);
 
-  const [integerDigits, decimalDigits] = formatter.format(value).split(".");
-  return { integerDigits, decimalDigits };
+  const indexOfDot = formattedValue.indexOf(".");
+  if (indexOfDot === -1) {
+    return { integerDigits: formattedValue, decimalDigits: undefined };
+  }
+  return {
+    integerDigits: formattedValue.substring(0, indexOfDot),
+    decimalDigits: formattedValue.substring(indexOfDot + 1),
+  };
 }
 
 /** Convert a number into a string, without scientific notation */
@@ -388,6 +395,7 @@ export function isDateTimeFormat(format: Format) {
     return false;
   }
 }
+
 const allowedDateTimeFormatFirstChar = new Set(["h", "m", "y", "d", "q"]);
 
 export function applyDateTimeFormat(value: number, format: Format): FormattedValue {
@@ -786,11 +794,14 @@ function convertToInternalNumberFormat(format: Format): InternalNumberFormat {
   if (extraSigns) {
     throw new Error(`A format can only contain a single '${extraSigns[0]}' symbol`);
   }
-  const [integerPart, decimalPart] = _format.split(".");
-  if (decimalPart && decimalPart.length > 20) {
-    throw new Error("A format can't contain more than 20 decimal places");
-  }
-  if (decimalPart !== undefined) {
+
+  const indexOfDot = _format.lastIndexOf(".");
+  if (indexOfDot !== -1) {
+    const integerPart = _format.slice(0, indexOfDot);
+    const decimalPart = _format.slice(indexOfDot + 1);
+    if (decimalPart && decimalPart.length > 20) {
+      throw new Error("A format can't contain more than 20 decimal places");
+    }
     return {
       integerPart,
       isPercent,
@@ -800,7 +811,7 @@ function convertToInternalNumberFormat(format: Format): InternalNumberFormat {
     };
   } else {
     return {
-      integerPart,
+      integerPart: _format,
       isPercent,
       thousandsSeparator,
       magnitude,

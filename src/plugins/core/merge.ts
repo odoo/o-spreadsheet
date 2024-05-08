@@ -176,7 +176,8 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     const rangeString = this.getters.getRangeString(expandedRange, forSheetId);
     if (this.isSingleCellOrMerge(rangeImpl.sheetId, rangeImpl.zone)) {
       const { sheetName, xc } = splitReference(rangeString);
-      return getFullReference(sheetName, xc.split(":")[0]);
+      const indexOfColumn = xc.indexOf(":");
+      return getFullReference(sheetName, indexOfColumn !== -1 ? xc.slice(0, indexOfColumn) : xc);
     }
     return rangeString;
   }
