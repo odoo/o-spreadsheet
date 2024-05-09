@@ -1,5 +1,4 @@
 import {
-  concat,
   isColHeader,
   isColReference,
   isRowHeader,
@@ -120,7 +119,7 @@ const machine: Machine = {
 function matchReference(tokens: Token[]): Token | null {
   let head = 0;
   let transitions = machine[State.LeftRef];
-  const matchedTokens: Token[] = [];
+  let matchedTokens: string = "";
   while (transitions !== undefined) {
     const token = tokens[head++];
     if (!token) {
@@ -132,15 +131,15 @@ function matchReference(tokens: Token[]): Token | null {
       case undefined:
         return null;
       case State.Found:
-        matchedTokens.push(token);
+        matchedTokens += token.value;
         tokens.splice(0, head);
         return {
           type: "REFERENCE",
-          value: concat(matchedTokens.map((token) => token.value)),
+          value: matchedTokens,
         };
       default:
         transitions = machine[nextState];
-        matchedTokens.push(token);
+        matchedTokens += token.value;
         break;
     }
   }
