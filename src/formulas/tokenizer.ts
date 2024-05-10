@@ -144,7 +144,7 @@ function tokenizeString(chars: TokenizingChars): Token | null {
   return null;
 }
 
-const separatorRegexp = /^[\w\.!\$]+/;
+const SYMBOL_CHARS = new Set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_.!$");
 
 /**
  * A "Symbol" is just basically any word-like element that can appear in a
@@ -185,11 +185,8 @@ function tokenizeSymbol(chars: TokenizingChars): Token | null {
       };
     }
   }
-  const match = chars.remaining().match(separatorRegexp);
-  if (match) {
-    const value = match[0];
-    result += value;
-    chars.advanceBy(value.length);
+  while (chars.current && SYMBOL_CHARS.has(chars.current)) {
+    result += chars.shift();
   }
   if (result.length) {
     const value = result;
