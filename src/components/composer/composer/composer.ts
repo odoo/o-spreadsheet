@@ -206,7 +206,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     Enter: this.processEnterKey,
     Escape: this.processEscapeKey,
     F2: () => console.warn("Not implemented"),
-    F4: this.processF4Key,
+    F4: (ev: KeyboardEvent) => this.processF4Key(ev),
     Tab: (ev: KeyboardEvent) => this.processTabKey(ev),
   };
 
@@ -331,9 +331,10 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     this.env.model.dispatch("CANCEL_EDITION");
   }
 
-  private processF4Key() {
+  private processF4Key(ev: KeyboardEvent) {
     this.env.model.dispatch("CYCLE_EDITION_REFERENCES");
     this.processContent();
+    ev.stopPropagation();
   }
 
   private processNumpadDecimal(ev: KeyboardEvent) {
