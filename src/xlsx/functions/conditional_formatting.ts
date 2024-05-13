@@ -81,7 +81,7 @@ function addCellIsRule(cf: ConditionalFormat, rule: CellIsRule, dxfs: XLSXDxf[])
 }
 
 function cellRuleFormula(ranges: string[], rule: CellIsRule): string[] {
-  const firstCell = ranges[0].split(":")[0];
+  const firstCell = ranges[0].slice(0, ranges[0].indexOf(":"));
   const values = rule.values;
   switch (rule.operator) {
     case "ContainsText":

@@ -16,11 +16,16 @@ type FixedReferenceType = "col" | "row" | "colrow" | "none";
 export function loopThroughReferenceType(token: Readonly<Token>): Token {
   if (token.type !== "REFERENCE") return token;
   const { xc, sheetName } = splitReference(token.value);
-  const [left, right] = xc.split(":") as [string, string | undefined];
-
-  const updatedLeft = getTokenNextReferenceType(left);
-  const updatedRight = right ? `:${getTokenNextReferenceType(right)}` : "";
-  return { ...token, value: getFullReference(sheetName, updatedLeft + updatedRight) };
+  const indexOfColon = xc.indexOf(":");
+  if (indexOfColon !== -1) {
+    const left = xc.slice(0, indexOfColon);
+    const right = xc.slice(indexOfColon + 1);
+    const updatedRight = getTokenNextReferenceType(right);
+    const updatedLeft = getTokenNextReferenceType(left);
+    return { ...token, value: getFullReference(sheetName, `${updatedLeft}:${updatedRight}`) };
+  }
+  const updatedLeft = getTokenNextReferenceType(xc);
+  return { ...token, value: getFullReference(sheetName, updatedLeft) };
 }
 
 /**

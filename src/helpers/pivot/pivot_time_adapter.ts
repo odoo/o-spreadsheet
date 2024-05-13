@@ -61,15 +61,16 @@ const dayAdapter: PivotTimeAdapter<string> = {
  */
 const weekAdapter: PivotTimeAdapter<string> = {
   normalizeFunctionValue(value) {
-    const [week, year] = value.split("/");
-    return `${Number(week)}/${Number(year)}`;
+    const index = value.indexOf("/");
+    return `${value.slice(0, index)}/${value.slice(index + 1)}`;
   },
   getFormat() {
     return undefined;
   },
   formatValue(normalizedValue) {
-    const [week, year] = normalizedValue.split("/");
-    return _t("W%(week)s %(year)s", { week, year });
+    const index = normalizedValue.indexOf("/");
+    const parts = { week: normalizedValue.slice(0, index), year: normalizedValue.slice(index + 1) };
+    return _t("W%(week)s %(year)s", parts);
   },
   toCellValue(normalizedValue) {
     return this.formatValue(normalizedValue);
@@ -104,15 +105,16 @@ const monthAdapter: PivotTimeAdapter<string> = {
  */
 const quarterAdapter: PivotTimeAdapter<string> = {
   normalizeFunctionValue(value) {
-    const [quarter, year] = value.split("/");
-    return `${quarter}/${year}`;
+    const index = value.indexOf("/");
+    return `${value.slice(0, index)}/${value.slice(index + 1)}`;
   },
   getFormat() {
     return undefined;
   },
   formatValue(normalizedValue) {
-    const [quarter, year] = normalizedValue.split("/");
-    return _t("Q%(quarter)s %(year)s", { quarter, year });
+    const index = normalizedValue.indexOf("/");
+    const parts = { week: normalizedValue.slice(0, index), year: normalizedValue.slice(index + 1) };
+    return _t("Q%(quarter)s %(year)s", parts);
   },
   toCellValue(normalizedValue) {
     return this.formatValue(normalizedValue);

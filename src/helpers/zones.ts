@@ -22,18 +22,19 @@ import { isColReference, isRowReference } from "./references";
  *
  */
 export function toZoneWithoutBoundaryChanges(xc: string): UnboundedZone {
-  if (xc.includes("!")) {
-    xc = xc.split("!").at(-1)!;
+  const indexOfExclamation = xc.lastIndexOf("!");
+  if (indexOfExclamation !== -1) {
+    xc = xc.slice(indexOfExclamation + 1);
   }
   if (xc.includes("$")) {
     xc = xc.replaceAll("$", "");
   }
   let firstRangePart: string = "";
   let secondRangePart: string | undefined;
-  if (xc.includes(":")) {
-    [firstRangePart, secondRangePart] = xc.split(":");
-    firstRangePart = firstRangePart.trim();
-    secondRangePart = secondRangePart.trim();
+  const indexOfColon = xc.indexOf(":");
+  if (indexOfColon !== -1) {
+    firstRangePart = xc.slice(0, indexOfColon).trim();
+    secondRangePart = xc.slice(indexOfColon + 1).trim();
   } else {
     firstRangePart = xc.trim();
   }
