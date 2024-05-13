@@ -9,7 +9,9 @@ import {
 import { colors, toHex, toZone } from "../../src/helpers";
 import {
   activateSheet,
+  copy,
   createSheet,
+  paste,
   renameSheet,
   resizeColumns,
   resizeRows,
@@ -30,6 +32,7 @@ import {
 import {
   getActivePosition,
   getActiveSheetFullScrollInfo,
+  getCellContent,
   getCellText,
   getSelectionAnchorCellXc,
 } from "../test_helpers/getters_helpers";
@@ -472,6 +475,19 @@ describe("Grid composer", () => {
     await simulateClick(fixture.querySelectorAll(".o-sheet")[1]);
     expect(model.getters.getActiveSheetId()).toEqual("42");
     expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer")!);
+  });
+
+  test("pressing F4 loops the references without impacting the 'redo' feature of the grid", async () => {
+    setCellContent(model, "A1", "coucou");
+    setCellContent(model, "A2", "coucou2");
+    copy(model, "A1:A2");
+    paste(model, "A3:A4");
+    selectCell(model, "B1");
+    await startComposition("=C4");
+    model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 1, end: 1 });
+    await nextTick();
+    await keyDown({ key: "F4" });
+    expect(getCellContent(model, "B2")).toBe("");
   });
 
   describe("grid composer basic style", () => {
