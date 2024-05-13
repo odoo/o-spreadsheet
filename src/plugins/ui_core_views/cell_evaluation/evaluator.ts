@@ -130,9 +130,10 @@ export class Evaluator {
       }
       if (!content) {
         // The previous content could have blocked some array formulas
-        impactedPositions.addMany(this.getArrayFormulasBlockedBy(position));
+        impactedPositions.add(position);
       }
     }
+    impactedPositions.addMany(this.getArrayFormulasBlockedBy(impactedPositions));
     return impactedPositions;
   }
 
@@ -188,23 +189,25 @@ export class Evaluator {
   }
 
   /**
-   * Return the position of formulas blocked by the given position
+   * Return the position of formulas blocked by the given positions
    * as well as all their dependencies.
    */
-  private getArrayFormulasBlockedBy(position: CellPosition): Iterable<CellPosition> {
-    if (!this.spreadingRelations.hasArrayFormulaResult(position)) {
-      return [];
+  private getArrayFormulasBlockedBy(positions: Iterable<CellPosition>): Iterable<CellPosition> {
+    const arrayFormulaPositions = this.createEmptyPositionSet();
+    for (const position of positions) {
+      if (!this.spreadingRelations.hasArrayFormulaResult(position)) {
+        continue;
+      }
+      const arrayFormulas = this.spreadingRelations.getFormulaPositionsSpreadingOn(position);
+      arrayFormulaPositions.addMany(arrayFormulas);
+      const arrayFormulaPosition = this.getArrayFormulaSpreadingOn(position);
+      if (arrayFormulaPosition) {
+        // ignore the formula spreading on the position. Keep only the blocked ones
+        arrayFormulaPositions.delete(arrayFormulaPosition);
+      }
     }
-    const arrayFormulas = this.spreadingRelations.getFormulaPositionsSpreadingOn(position);
-    const positions = this.createEmptyPositionSet();
-    positions.addMany(arrayFormulas);
-    const arrayFormulaPosition = this.getArrayFormulaSpreadingOn(position);
-    if (arrayFormulaPosition) {
-      // ignore the formula spreading on the position. Keep only the blocked ones
-      positions.delete(arrayFormulaPosition);
-    }
-    positions.addMany(this.getCellsDependingOn(positions));
-    return positions;
+    arrayFormulaPositions.addMany(this.getCellsDependingOn(arrayFormulaPositions));
+    return arrayFormulaPositions;
   }
 
   private nextPositionsToUpdate = new PositionSet({});
@@ -401,6 +404,7 @@ export class Evaluator {
     if (!this.spreadingRelations.isArrayFormula(position)) {
       return;
     }
+    const invalidated = this.createEmptyPositionSet();
     for (const child of this.spreadingRelations.getArrayResultPositions(position)) {
       const content = this.getters.getCell(child)?.content;
       if (content) {
@@ -408,10 +412,11 @@ export class Evaluator {
         // there's still a collision
         continue;
       }
+      invalidated.add(child);
       this.evaluatedCells.delete(child);
-      this.nextPositionsToUpdate.addMany(this.getCellsDependingOn([child]));
-      this.nextPositionsToUpdate.addMany(this.getArrayFormulasBlockedBy(child));
     }
+    this.nextPositionsToUpdate.addMany(this.getCellsDependingOn(invalidated));
+    this.nextPositionsToUpdate.addMany(this.getArrayFormulasBlockedBy(invalidated));
     this.spreadingRelations.removeNode(position);
   }
 
