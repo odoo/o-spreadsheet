@@ -215,7 +215,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     "Ctrl+Enter": this.processNewLineEvent,
     Escape: this.processEscapeKey,
     F2: () => console.warn("Not implemented"),
-    F4: this.processF4Key,
+    F4: (ev: KeyboardEvent) => this.processF4Key(ev),
     Tab: (ev: KeyboardEvent) => this.processTabKey(ev, "right"),
     "Shift+Tab": (ev: KeyboardEvent) => this.processTabKey(ev, "left"),
   };
@@ -359,7 +359,8 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     this.composerStore.cancelEdition();
   }
 
-  private processF4Key() {
+  private processF4Key(ev: KeyboardEvent) {
+    ev.stopPropagation();
     this.composerStore.cycleReferences();
     this.processContent();
   }
