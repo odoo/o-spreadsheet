@@ -160,9 +160,12 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
    * if they have at least a common cell
    */
   doesIntersectMerge(sheetId: UID, zone: Zone): boolean {
-    return positions(zone).some(
-      ({ col, row }) => this.getMerge({ sheetId, col, row }) !== undefined
-    );
+    for (const merge of this.getMerges(sheetId)) {
+      if (overlap(zone, merge)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
