@@ -1,6 +1,10 @@
 import { CellPopoverStore } from "../components/popover";
 import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH } from "../constants";
 import {
+  ClipboardReadResult,
+  ClipboardReadTextResult,
+} from "../helpers/clipboard/navigator_clipboard_wrapper";
+import {
   getChartPositionAtCenterOfViewport,
   getSmartChartDefinition,
 } from "../helpers/figures/charts";
@@ -18,7 +22,7 @@ import { DEFAULT_TABLE_CONFIG } from "../helpers/table_presets";
 import { interactivePaste, interactivePasteFromOS } from "../helpers/ui/paste_interactive";
 import { interactiveCreateTable } from "../helpers/ui/table_interactive";
 import { _t } from "../translation";
-import { ClipboardMIMEType, ClipboardPasteOptions } from "../types/clipboard";
+import { ClipboardContent, ClipboardMIMEType, ClipboardPasteOptions } from "../types/clipboard";
 import { Image } from "../types/image";
 import { Dimension, Format, SpreadsheetChildEnv, Style } from "../types/index";
 import { ActionSpec } from "./action";
@@ -51,17 +55,38 @@ export const PASTE_ACTION = async (env: SpreadsheetChildEnv) => paste(env);
 export const PASTE_AS_VALUE_ACTION = async (env: SpreadsheetChildEnv) => paste(env, "asValue");
 
 async function paste(env: SpreadsheetChildEnv, pasteOption?: ClipboardPasteOptions) {
-  const osClipboard = await env.clipboard?.read();
+  let isPasteLocal: boolean = false;
+  let content: ClipboardContent = {};
+  let osClipboard: ClipboardReadResult | ClipboardReadTextResult | undefined;
+
+  osClipboard = await env.clipboard?.read();
+
+  if (!osClipboard?.content) {
+    osClipboard = await env.clipboard?.readText();
+  }
+
   if (osClipboard) {
     switch (osClipboard.status) {
       case "ok":
-        const osClipboardSpreadsheetContent = osClipboard.content[ClipboardMIMEType.OSpreadsheet]
-          ? osClipboard.content[ClipboardMIMEType.OSpreadsheet]
-          : "{}";
-        const parsedSpreadsheetContent = JSON.parse(osClipboardSpreadsheetContent);
+        if (osClipboard.content instanceof String) {
+          const spreadsheetClipboard = env.model.getters.getClipboardTextContent();
+          isPasteLocal = osClipboard.content === spreadsheetClipboard;
+          content = {
+            [ClipboardMIMEType.PlainText]: osClipboard.content as string,
+          };
+        } else {
+          const osClipboardSpreadsheetContent =
+            osClipboard.content && osClipboard.content[ClipboardMIMEType.OSpreadsheet]
+              ? osClipboard.content[ClipboardMIMEType.OSpreadsheet]
+              : "{}";
+          const parsedSpreadsheetContent = JSON.parse(osClipboardSpreadsheetContent);
+          isPasteLocal =
+            env.model.getters.getClipboardId() === parsedSpreadsheetContent.clipboardId;
+          content = osClipboard.content as ClipboardContent;
+        }
         const target = env.model.getters.getSelectedZones();
-        if (env.model.getters.getClipboardId() !== parsedSpreadsheetContent.clipboardId) {
-          interactivePasteFromOS(env, target, osClipboard.content, pasteOption);
+        if (!isPasteLocal) {
+          interactivePasteFromOS(env, target, content, pasteOption);
         } else {
           interactivePaste(env, target, pasteOption);
         }

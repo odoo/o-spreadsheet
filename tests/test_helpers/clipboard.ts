@@ -1,11 +1,19 @@
 import {
   ClipboardInterface,
   ClipboardReadResult,
+  ClipboardReadTextResult,
 } from "../../src/helpers/clipboard/navigator_clipboard_wrapper";
 import { ClipboardContent, ClipboardMIMEType } from "../../src/types";
 
 export class MockClipboard implements ClipboardInterface {
   private content: ClipboardContent = {};
+
+  async readText(): Promise<ClipboardReadTextResult> {
+    return {
+      status: "ok",
+      content: this.content[ClipboardMIMEType.PlainText] ?? "",
+    };
+  }
 
   async read(): Promise<ClipboardReadResult> {
     return {

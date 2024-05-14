@@ -521,7 +521,9 @@ describe("figures", () => {
         await simulateClick(".o-menu div[data-name='copy']");
         const envClipBoardContent = await env.clipboard!.read();
         if (envClipBoardContent.status === "ok") {
-          const envClipboardTextContent = envClipBoardContent.content[ClipboardMIMEType.PlainText];
+          const envClipboardTextContent = envClipBoardContent.content
+            ? envClipBoardContent.content[ClipboardMIMEType.PlainText]
+            : "";
           expect(envClipboardTextContent).toEqual(
             model.getters.getClipboardContent()["text/plain"]
           );
@@ -540,7 +542,9 @@ describe("figures", () => {
         await simulateClick(".o-menu div[data-name='cut']");
         const envClipBoardContent = await env.clipboard!.read();
         if (envClipBoardContent.status === "ok") {
-          const envClipboardTextContent = envClipBoardContent.content[ClipboardMIMEType.PlainText];
+          const envClipboardTextContent = envClipBoardContent.content
+            ? envClipBoardContent.content[ClipboardMIMEType.PlainText]
+            : "";
           expect(envClipboardTextContent).toEqual(
             model.getters.getClipboardContent()["text/plain"]
           );

@@ -21,6 +21,10 @@ import {
   HEADER_WIDTH,
   SCROLLBAR_WIDTH,
 } from "../../constants";
+import {
+  ClipboardReadResult,
+  ClipboardReadTextResult,
+} from "../../helpers/clipboard/navigator_clipboard_wrapper";
 import { isInside } from "../../helpers/index";
 import { openLink } from "../../helpers/links";
 import { isStaticTable } from "../../helpers/table_helpers";
@@ -622,7 +626,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       this.env.model.dispatch("COPY");
     }
     const content = this.env.model.getters.getClipboardContent();
-    if (this.env.clipboard) {
+    if (this.env.clipboard && this.env.clipboard.isWriteSupported()) {
       await this.env.clipboard?.write(content);
     } else {
       /** If the used browser does not support
@@ -641,29 +645,55 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       return;
     }
 
-    const clipboardData = ev.clipboardData;
+    var clipboardData = ev.clipboardData;
     if (!clipboardData) {
       this.displayWarningCopyPasteNotSupported();
       return;
     }
 
-    let clipboardContent: ClipboardContent = {};
-    let htmlDocument: Document = new DOMParser().parseFromString("", "text/xml");
+    let clipboardContent: ClipboardContent | string | undefined = {};
+    let clipboard: ClipboardReadResult | ClipboardReadTextResult | undefined = undefined;
+    let isPasteLocal: boolean = false;
+    let htmlDocument: Document = new DOMParser().parseFromString("<div></div>", "text/xml");
     let browserClipboardSpreadsheetContent: string = "{}";
 
     if (this.env.clipboard) {
-      const clipboard = await this.env.clipboard.read();
+      if (this.env.clipboard.isWriteSupported()) {
+        clipboard = await this.env.clipboard?.read();
+      } else {
+        clipboard = await this.env.clipboard?.readText();
+      }
+
+      // if (!clipboard?.content) {
+      // }
+
       if (clipboard.status === "ok") {
-        clipboardContent = clipboard.content;
-        htmlDocument = new DOMParser().parseFromString(
-          clipboardContent[ClipboardMIMEType.Html] ?? "",
-          "text/xml"
-        );
-        browserClipboardSpreadsheetContent =
-          clipboardContent[ClipboardMIMEType.OSpreadsheet] &&
-          clipboardContent[ClipboardMIMEType.OSpreadsheet].length > 0
-            ? clipboardContent[ClipboardMIMEType.OSpreadsheet]
-            : "{}";
+        if (clipboard.content instanceof String) {
+          const spreadsheetClipboard = this.env.model.getters.getClipboardTextContent();
+          isPasteLocal = clipboard.content === spreadsheetClipboard;
+          clipboardContent = {
+            [ClipboardMIMEType.PlainText]: clipboard.content as string,
+          };
+        } else {
+          const clipboardSpreadsheetContent =
+            clipboard.content && clipboard.content[ClipboardMIMEType.OSpreadsheet]
+              ? clipboard.content[ClipboardMIMEType.OSpreadsheet]
+              : "{}";
+          const parsedSpreadsheetContent = JSON.parse(clipboardSpreadsheetContent);
+
+          htmlDocument = new DOMParser().parseFromString(
+            clipboardContent ? (clipboardContent[ClipboardMIMEType.Html] as string) : "<div></div>",
+            "text/xml"
+          );
+
+          const clipboardId =
+            htmlDocument.querySelector("table")?.getAttribute("data-clipboard-id") ||
+            parsedSpreadsheetContent.clipboardId;
+
+          isPasteLocal = this.env.model.getters.getClipboardId() === clipboardId;
+
+          clipboardContent = clipboard.content as ClipboardContent;
+        }
       }
     } else {
       browserClipboardSpreadsheetContent = clipboardData.getData(ClipboardMIMEType.OSpreadsheet);
@@ -677,12 +707,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     const target = this.env.model.getters.getSelectedZones();
     const isCutOperation = this.env.model.getters.isCutOperation();
 
-    const parsedBrowserClipboardSpreadsheetContent = JSON.parse(browserClipboardSpreadsheetContent);
-    const clipboardId =
-      htmlDocument.querySelector("table")?.getAttribute("data-clipboard-id") ||
-      parsedBrowserClipboardSpreadsheetContent.clipboardId;
-
-    if (this.env.model.getters.getClipboardId() === clipboardId) {
+    if (isPasteLocal) {
       /**
        * Pasting in the same spreadsheet
        */
@@ -691,7 +716,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       interactivePasteFromOS(this.env, target, clipboardContent);
     }
     if (isCutOperation) {
-      await this.env.clipboard?.write({ [ClipboardMIMEType.PlainText]: "" });
+      await this.env.clipboard?.write({ [ClipboardMIMEType.PlainText]: "" }); // TODO check this
     }
     ev.preventDefault();
   }

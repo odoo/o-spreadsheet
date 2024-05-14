@@ -1,17 +1,24 @@
 import { ClipboardContent, ClipboardMIMEType } from "./../../types/clipboard";
 
-export type ClipboardReadResult =
-  | { status: "ok"; content: ClipboardContent }
-  | { status: "permissionDenied" | "notImplemented" };
+export type ClipboardResult<T> = {
+  status: "ok" | "permissionDenied" | "notImplemented";
+  content: T | undefined;
+};
+
+export type ClipboardReadResult = ClipboardResult<ClipboardContent>;
+
+export type ClipboardReadTextResult = ClipboardResult<string>;
 
 export interface ClipboardInterface {
+  isWriteSupported(): boolean;
   write(clipboardContent: ClipboardContent): Promise<void>;
   writeText(text: string): Promise<void>;
   read(): Promise<ClipboardReadResult>;
+  readText(): Promise<ClipboardReadTextResult>;
 }
 
 export function instantiateClipboard(): ClipboardInterface | undefined {
-  if (!navigator.clipboard?.write) {
+  if (!navigator.clipboard) {
     /** If browser's navigator.clipboard is not defined or if the write
      * method is not supported in the browser's navigator.clipboard, we
      * do not instantiate the env clipboard to be able to later check in
@@ -25,6 +32,10 @@ export function instantiateClipboard(): ClipboardInterface | undefined {
 class WebClipboardWrapper implements ClipboardInterface {
   // Can be undefined because navigator.clipboard doesn't exist in old browsers
   constructor(private clipboard: Clipboard | undefined) {}
+
+  isWriteSupported(): boolean {
+    return this.clipboard?.write ? true : false;
+  }
 
   async write(clipboardContent: ClipboardContent): Promise<void> {
     try {
@@ -57,7 +68,28 @@ class WebClipboardWrapper implements ClipboardInterface {
       return { status: "ok", content: clipboardContent };
     } catch (e) {
       const status = permissionResult?.state === "denied" ? "permissionDenied" : "notImplemented";
-      return { status };
+      return {
+        status: status,
+        content: undefined,
+      };
+    }
+  }
+
+  async readText(): Promise<ClipboardReadTextResult> {
+    let permissionResult: PermissionStatus | undefined = undefined;
+    try {
+      //@ts-ignore - clipboard-read is not implemented in all browsers
+      permissionResult = await navigator.permissions.query({ name: "clipboard-read" });
+    } catch (e) {}
+    try {
+      const clipboardTextContent = await this.clipboard!.readText();
+      return { status: "ok", content: clipboardTextContent };
+    } catch (e) {
+      const status = permissionResult?.state === "denied" ? "permissionDenied" : "notImplemented";
+      return {
+        status: status,
+        content: undefined,
+      };
     }
   }
 

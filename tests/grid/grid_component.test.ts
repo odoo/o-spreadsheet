@@ -1419,7 +1419,7 @@ describe("Copy paste keyboard shortcut", () => {
     await document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     const clipboard = await parent.env.clipboard!.read!();
     const clipboardContent = "content" in clipboard ? clipboard.content : {};
-    expect(clipboardContent[ClipboardMIMEType.PlainText]).toEqual(getCellContent(model, "A1"));
+    expect(clipboardContent![ClipboardMIMEType.PlainText]).toEqual(getCellContent(model, "A1"));
     model.dispatch("SET_FORMULA_VISIBILITY", { show: false });
     selectCell(model, "A2");
     await document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
@@ -1432,7 +1432,7 @@ describe("Copy paste keyboard shortcut", () => {
     await document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     let clipboard = await parent.env.clipboard!.read!();
     let clipboardContent = "content" in clipboard ? clipboard.content : {};
-    expect(clipboardContent[ClipboardMIMEType.PlainText]).toEqual(
+    expect(clipboardContent![ClipboardMIMEType.PlainText]).toEqual(
       getEvaluatedCell(model, "A1").formattedValue
     );
     selectCell(model, "A2");
@@ -1445,7 +1445,7 @@ describe("Copy paste keyboard shortcut", () => {
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     clipboard = await parent.env.clipboard!.read!();
     clipboardContent = "content" in clipboard ? clipboard.content : {};
-    expect(clipboardContent[ClipboardMIMEType.PlainText]).toEqual(
+    expect(clipboardContent![ClipboardMIMEType.PlainText]).toEqual(
       getEvaluatedCell(model, "B1").formattedValue
     );
     model.dispatch("SET_FORMULA_VISIBILITY", { show: false });
