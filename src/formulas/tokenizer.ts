@@ -228,7 +228,7 @@ function tokenizeInvalidRange(chars: TokenizingChars): Token | null {
   return null;
 }
 
-class TokenizingChars {
+export class TokenizingChars {
   private text: string;
   private currentIndex: number = 0;
   current: string;
