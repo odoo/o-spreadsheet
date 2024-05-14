@@ -1,3 +1,9 @@
+import {
+  compileNumberTokens,
+  parseNumberTokens,
+  tokenizeNumber,
+} from "../formulas/number_tokenizer";
+import { TokenizingChars } from "../formulas/tokenizer";
 import { Locale } from "../types";
 import { escapeRegExp, memoize } from "./misc";
 
@@ -18,29 +24,29 @@ export const getFormulaNumberRegex = memoize(function getFormulaNumberRegex(
   );
 });
 
-const getNumberRegex = memoize(function getNumberRegex(locale: Locale) {
-  const decimalSeparator = escapeRegExp(locale.decimalSeparator);
-  const thousandsSeparator = escapeRegExp(locale.thousandsSeparator);
+// const getNumberRegex = memoize(function getNumberRegex(locale: Locale) {
+//   const decimalSeparator = escapeRegExp(locale.decimalSeparator);
+//   const thousandsSeparator = escapeRegExp(locale.thousandsSeparator);
 
-  const pIntegerAndDecimals = `(\\d+(${thousandsSeparator}\\d{3,})*(${decimalSeparator}\\d*)?)`; // pattern that match integer number with or without decimal digits
-  const pOnlyDecimals = `(${decimalSeparator}\\d+)`; // pattern that match only expression with decimal digits
-  const pScientificFormat = "(e(\\+|-)?\\d+)?"; // pattern that match scientific format between zero and one time (should be placed before pPercentFormat)
-  const pPercentFormat = "(\\s*%)?"; // pattern that match percent symbol between zero and one time
-  const pNumber =
-    "(\\s*" + pIntegerAndDecimals + "|" + pOnlyDecimals + ")" + pScientificFormat + pPercentFormat;
-  const pMinus = "(\\s*-)?"; // pattern that match negative symbol between zero and one time
-  const pCurrencyFormat = "(\\s*[\\$€])?";
+//   const pIntegerAndDecimals = `(\\d+(${thousandsSeparator}\\d{3,})*(${decimalSeparator}\\d*)?)`; // pattern that match integer number with or without decimal digits
+//   const pOnlyDecimals = `(${decimalSeparator}\\d+)`; // pattern that match only expression with decimal digits
+//   const pScientificFormat = "(e(\\+|-)?\\d+)?"; // pattern that match scientific format between zero and one time (should be placed before pPercentFormat)
+//   const pPercentFormat = "(\\s*%)?"; // pattern that match percent symbol between zero and one time
+//   const pNumber =
+//     "(\\s*" + pIntegerAndDecimals + "|" + pOnlyDecimals + ")" + pScientificFormat + pPercentFormat;
+//   const pMinus = "(\\s*-)?"; // pattern that match negative symbol between zero and one time
+//   const pCurrencyFormat = "(\\s*[\\$€])?";
 
-  const p1 = pMinus + pCurrencyFormat + pNumber;
-  const p2 = pMinus + pNumber + pCurrencyFormat;
-  const p3 = pCurrencyFormat + pMinus + pNumber;
+//   const p1 = pMinus + pCurrencyFormat + pNumber;
+//   const p2 = pMinus + pNumber + pCurrencyFormat;
+//   const p3 = pCurrencyFormat + pMinus + pNumber;
 
-  const pNumberExp = "^((" + [p1, p2, p3].join(")|(") + "))$";
+//   const pNumberExp = "^((" + [p1, p2, p3].join(")|(") + "))$";
 
-  const numberRegexp = new RegExp(pNumberExp, "i");
+//   const numberRegexp = new RegExp(pNumberExp, "i");
 
-  return numberRegexp;
-});
+//   return numberRegexp;
+// });
 
 /**
  * Return true if the argument is a "number string".
@@ -49,13 +55,21 @@ const getNumberRegex = memoize(function getNumberRegex(locale: Locale) {
  */
 export function isNumber(value: string | undefined, locale: Locale): boolean {
   if (!value) return false;
+
+  const chars = new TokenizingChars(value.trim());
+  const numberTokens = tokenizeNumber(chars, locale);
+  if (!chars.isOver()) return false;
+  const computeNumber = parseNumberTokens(numberTokens);
+  if (computeNumber === null || numberTokens.length) return false;
+  return true;
   // TO DO: add regexp for DATE string format (ex match: "28 02 2020")
-  return getNumberRegex(locale).test(value.trim());
+  // return getNumberRegex(locale).test(value.trim());
 }
 
-const getInvaluableSymbolsRegexp = memoize(function getInvaluableSymbolsRegexp(locale: Locale) {
-  return new RegExp(`[\$€${escapeRegExp(locale.thousandsSeparator)}]`, "g");
-});
+// const getInvaluableSymbolsRegexp = memoize(function getInvaluableSymbolsRegexp(locale: Locale) {
+//   return new RegExp(`[\$€${escapeRegExp(locale.thousandsSeparator)}]`, "g");
+// });
+
 /**
  * Convert a string into a number. It assumes that the string actually represents
  * a number (as determined by the isNumber function)
@@ -63,20 +77,14 @@ const getInvaluableSymbolsRegexp = memoize(function getInvaluableSymbolsRegexp(l
  * Note that it accepts "" (empty string), even though it does not count as a
  * number from the point of view of the isNumber function.
  */
-export function parseNumber(str: string, locale: Locale): number {
-  if (locale.decimalSeparator !== ".") {
-    str = str.replace(locale.decimalSeparator, ".");
-  }
-  // remove invaluable characters
-  str = str.replace(getInvaluableSymbolsRegexp(locale), "");
-  let n = Number(str);
-  if (isNaN(n) && str.includes("%")) {
-    n = Number(str.split("%")[0]);
-    if (!isNaN(n)) {
-      return n / 100;
-    }
-  }
-  return n;
+export function parseNumber(str: string, locale: Locale): number | null {
+  // if (locale.decimalSeparator !== ".") {
+  //   str = str.replace(locale.decimalSeparator, ".");
+  // }
+  const chars = new TokenizingChars(str.trim());
+  const numberTokens = tokenizeNumber(chars, locale);
+  if (!chars.isOver()) return null;
+  return compileNumberTokens(numberTokens);
 }
 
 export function percentile(values: number[], percent: number, isInclusive: boolean) {
