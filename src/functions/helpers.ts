@@ -64,8 +64,12 @@ export function toNumber(data: FPayload | CellValue | undefined, locale: Locale)
     case "boolean":
       return value ? 1 : 0;
     case "string":
-      if (isNumber(value, locale) || value === "") {
-        return parseNumber(value, locale);
+      if (value === "") {
+        return 0;
+      }
+      const number = parseNumber(value, locale);
+      if (number !== null) {
+        return number;
       }
       const internalDate = parseDateTime(value, locale);
       if (internalDate) {

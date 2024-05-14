@@ -231,7 +231,7 @@ function compilationCacheKey(
           const value = removeStringQuotes(token.value);
           return `|S${constantValues.strings.indexOf(value)}|`;
         case "NUMBER":
-          return `|N${constantValues.numbers.indexOf(parseNumber(token.value, DEFAULT_LOCALE))}|`;
+          return `|N${constantValues.numbers.indexOf(parseNumber(token.value, DEFAULT_LOCALE)!)}|`;
         case "REFERENCE":
         case "INVALID_REFERENCE":
           if (token.value.includes(":")) {
@@ -270,8 +270,8 @@ function formulaArguments(tokens: Token[]) {
         break;
       case "NUMBER": {
         const value = parseNumber(token.value, DEFAULT_LOCALE);
-        if (!constantValues.numbers.includes(value)) {
-          constantValues.numbers.push(value);
+        if (!constantValues.numbers.includes(value!)) {
+          constantValues.numbers.push(value!);
         }
         break;
       }

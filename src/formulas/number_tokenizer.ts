@@ -140,7 +140,8 @@ const numberFunctionCache: { [key: string]: NumberFunction | null } = {};
 export function compileNumberTokens(numberTokens: NumberToken[]): number | null {
   const cacheKey = compilationNumberCacheKey(numberTokens);
   if (numberFunctionCache[cacheKey] === undefined) {
-    numberFunctionCache[cacheKey] = parseNumberTokens(numberTokens);
+    const computeNumber = parseNumberTokens(numberTokens);
+    numberFunctionCache[cacheKey] = numberTokens.length ? null : computeNumber;
   }
   const computeNumber = numberFunctionCache[cacheKey];
   if (computeNumber === null) {
@@ -306,7 +307,7 @@ function parseValueTokens(valueTokens: NumberToken[]): NumberFunction | null {
         (acc, t) => (t.type === "DIGIT" ? acc++ : acc),
         0
       );
-      countDigitsForValue = digitsAfterParsing - digitsBeforeParsing;
+      countDigitsForValue = digitsBeforeParsing - digitsAfterParsing;
       computeDigits = (...digits) => computeNumeralFn(...digits.slice(0, countDigitsForValue));
       continue;
     }
@@ -322,7 +323,7 @@ function parseValueTokens(valueTokens: NumberToken[]): NumberFunction | null {
         (acc, t) => (t.type === "DIGIT" ? acc++ : acc),
         0
       );
-      const countDigitsForExponent = digitsAfterParsing - digitsBeforeParsing;
+      const countDigitsForExponent = digitsBeforeParsing - digitsAfterParsing;
       computeExponent = (...digits) =>
         computeExponentFn(...digits.slice(countDigitsForValue, countDigitsForExponent));
       continue;

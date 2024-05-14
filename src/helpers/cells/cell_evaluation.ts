@@ -18,7 +18,7 @@ import { isDateTime } from "../dates";
 import { detectDateFormat, detectNumberFormat, formatValue, isDateTimeFormat } from "../format";
 import { detectLink } from "../links";
 import { isBoolean, memoize } from "../misc";
-import { isNumber } from "../numbers";
+import { parseNumber } from "../numbers";
 
 export function evaluateLiteral(content: string = "", localeFormat: LocaleFormat): EvaluatedCell {
   const value =
@@ -36,8 +36,9 @@ export function parseLiteral(content: string, locale: Locale): CellValue {
   if (content === "") {
     return null;
   }
-  if (isNumber(content, DEFAULT_LOCALE)) {
-    return toNumber(content, DEFAULT_LOCALE);
+  const number = parseNumber(content, DEFAULT_LOCALE);
+  if (number !== null) {
+    return number;
   }
   if (isDateTime(content, locale)) {
     return toNumber(content, locale);

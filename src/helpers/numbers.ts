@@ -1,4 +1,8 @@
-import { parseNumberTokens, tokenizeNumber } from "../formulas/number_tokenizer";
+import {
+  compileNumberTokens,
+  parseNumberTokens,
+  tokenizeNumber,
+} from "../formulas/number_tokenizer";
 import { TokenizingChars } from "../formulas/tokenizer";
 import { Locale } from "../types";
 import { escapeRegExp, memoize } from "./misc";
@@ -51,19 +55,20 @@ export const getFormulaNumberRegex = memoize(function getFormulaNumberRegex(
  */
 export function isNumber(value: string | undefined, locale: Locale): boolean {
   if (!value) return false;
+
   const chars = new TokenizingChars(value.trim());
   const numberTokens = tokenizeNumber(chars, locale);
   if (!chars.isOver()) return false;
-  const number = parseNumberTokens(numberTokens);
-  if (number === null || numberTokens.length) return false;
+  const computeNumber = parseNumberTokens(numberTokens);
+  if (computeNumber === null || numberTokens.length) return false;
   return true;
   // TO DO: add regexp for DATE string format (ex match: "28 02 2020")
   // return getNumberRegex(locale).test(value.trim());
 }
 
-const getInvaluableSymbolsRegexp = memoize(function getInvaluableSymbolsRegexp(locale: Locale) {
-  return new RegExp(`[\$€${escapeRegExp(locale.thousandsSeparator)}]`, "g");
-});
+// const getInvaluableSymbolsRegexp = memoize(function getInvaluableSymbolsRegexp(locale: Locale) {
+//   return new RegExp(`[\$€${escapeRegExp(locale.thousandsSeparator)}]`, "g");
+// });
 
 /**
  * Convert a string into a number. It assumes that the string actually represents
@@ -72,20 +77,14 @@ const getInvaluableSymbolsRegexp = memoize(function getInvaluableSymbolsRegexp(l
  * Note that it accepts "" (empty string), even though it does not count as a
  * number from the point of view of the isNumber function.
  */
-export function parseNumber(str: string, locale: Locale): number {
-  if (locale.decimalSeparator !== ".") {
-    str = str.replace(locale.decimalSeparator, ".");
-  }
-  // remove invaluable characters
-  str = str.replace(getInvaluableSymbolsRegexp(locale), "");
-  let n = Number(str);
-  if (isNaN(n) && str.includes("%")) {
-    n = Number(str.split("%")[0]);
-    if (!isNaN(n)) {
-      return n / 100;
-    }
-  }
-  return n;
+export function parseNumber(str: string, locale: Locale): number | null {
+  // if (locale.decimalSeparator !== ".") {
+  //   str = str.replace(locale.decimalSeparator, ".");
+  // }
+  const chars = new TokenizingChars(str.trim());
+  const numberTokens = tokenizeNumber(chars, locale);
+  if (!chars.isOver()) return null;
+  return compileNumberTokens(numberTokens);
 }
 
 export function percentile(values: number[], percent: number, isInclusive: boolean) {

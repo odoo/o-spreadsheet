@@ -107,7 +107,7 @@ function parseOperand(tokens: Token[]): AST {
       next.debug = true;
       return next;
     case "NUMBER":
-      return { type: "NUMBER", value: parseNumber(current.value, DEFAULT_LOCALE) };
+      return { type: "NUMBER", value: parseNumber(current.value, DEFAULT_LOCALE)! };
     case "STRING":
       return { type: "STRING", value: removeStringQuotes(current.value) };
     case "INVALID_REFERENCE":
