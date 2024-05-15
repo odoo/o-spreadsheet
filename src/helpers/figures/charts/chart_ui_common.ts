@@ -7,7 +7,7 @@ import { Color, Figure, Format, Getters, LocaleFormat, Range } from "../../../ty
 import { GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
 import { ChartRuntime, DataSet, DatasetValues, LabelValues } from "../../../types/chart/chart";
 import { formatValue, isDateTimeFormat } from "../../format";
-import { range } from "../../misc";
+import { deepCopy, range } from "../../misc";
 import { recomputeZones } from "../../recompute_zones";
 import { AbstractChart } from "./abstract_chart";
 import { drawGaugeChart } from "./gauge_chart_rendering";
@@ -284,9 +284,10 @@ export function chartToImage(
   // we have to add the canvas to the DOM otherwise it won't be rendered
   document.body.append(div);
   if ("chartJsConfig" in runtime) {
-    runtime.chartJsConfig.plugins = [backgroundColorChartJSPlugin];
+    const config = deepCopy(runtime.chartJsConfig);
+    config.plugins = [backgroundColorChartJSPlugin];
     // @ts-ignore
-    const chart = new window.Chart(canvas, runtime.chartJsConfig);
+    const chart = new window.Chart(canvas, config);
     const imgContent = chart.toBase64Image() as string;
     chart.destroy();
     div.remove();
