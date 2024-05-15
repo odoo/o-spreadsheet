@@ -2,7 +2,7 @@ import { Align, Color, Range } from "../../types";
 import { XlsxHexColor } from "../xlsx";
 import { BarChartDefinition, BarChartRuntime } from "./bar_chart";
 import { ComboChartDefinition, ComboChartRuntime } from "./combo_chart";
-import { LegendPosition, VerticalAxisPosition } from "./common_chart";
+import { LegendPosition } from "./common_chart";
 import { GaugeChartDefinition, GaugeChartRuntime } from "./gauge_chart";
 import { LineChartDefinition, LineChartRuntime } from "./line_chart";
 import { PieChartDefinition, PieChartRuntime } from "./pie_chart";
@@ -89,25 +89,33 @@ export interface DataSet {
   readonly labelCell?: Range; // range of the label
   readonly dataRange: Range; // range of the data
   readonly rightYAxis?: boolean; // if the dataset should be on the right Y axis
+  readonly backgroundColor?: Color;
+  readonly customLabel?: string;
 }
 export interface ExcelChartDataset {
-  readonly label?: string;
+  readonly label?: { text?: string } | { reference?: string };
   readonly range: string;
+  readonly backgroundColor?: Color;
+  readonly rightYAxis?: boolean;
 }
 
 export type ExcelChartType = "line" | "bar" | "pie" | "combo" | "scatter";
 
 export interface ExcelChartDefinition {
-  readonly title?: string;
+  readonly title?: TitleDesign;
   readonly type: ExcelChartType;
   readonly dataSets: ExcelChartDataset[];
   readonly labelRange?: string;
   readonly backgroundColor: XlsxHexColor;
   readonly fontColor: XlsxHexColor;
-  readonly verticalAxisPosition: VerticalAxisPosition;
   readonly legendPosition: LegendPosition;
   readonly stacked?: boolean;
   readonly cumulative?: boolean;
+  readonly verticalAxis?: {
+    useLeftAxis?: boolean;
+    useRightAxis?: boolean;
+  };
+  readonly axesDesign?: AxesDesign;
 }
 
 export interface ChartCreationContext {

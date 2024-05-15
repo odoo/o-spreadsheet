@@ -78,7 +78,7 @@ export class WaterfallChart extends AbstractChart {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       getters,
-      definition.dataSets.map((ds) => ds.dataRange),
+      definition.dataSets,
       sheetId,
       definition.dataSetsHaveTitle
     );

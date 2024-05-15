@@ -71,7 +71,7 @@ export class PieChart extends AbstractChart {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       getters,
-      definition.dataSets.map((ds) => ds.dataRange),
+      definition.dataSets,
       sheetId,
       definition.dataSetsHaveTitle
     );
@@ -175,10 +175,8 @@ export class PieChart extends AbstractChart {
     );
     return {
       ...this.getDefinition(),
-      title: this.title.text ?? "",
       backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
-      verticalAxisPosition: "left", //TODO ExcelChartDefinition should be adapted, but can be done later
       dataSets,
       labelRange,
     };

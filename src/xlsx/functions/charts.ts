@@ -1,6 +1,7 @@
+import { DEFAULT_CHART_FONT_SIZE } from "../../constants";
 import { ColorGenerator, largeMax, range } from "../../helpers";
 import { Color, ExcelWorkbookData, FigureData } from "../../types";
-import { ExcelChartDefinition } from "../../types/chart/chart";
+import { ExcelChartDataset, ExcelChartDefinition, TitleDesign } from "../../types/chart/chart";
 import { XMLAttributes, XMLString, XlsxHexColor } from "../../types/xlsx";
 import { DRAWING_NS_A, DRAWING_NS_C, RELATIONSHIP_NSR } from "../constants";
 import { toXlsxHexColor } from "../helpers/colors";
@@ -52,10 +53,13 @@ export function createChart(
   });
   // <manualLayout/> to manually position the chart in the figure container
   let title = escapeXml``;
-  if (chart.data.title) {
+  if (chart.data.title?.text) {
+    const color = chart.data.title.color
+      ? toXlsxHexColor(chart.data.title.color)
+      : chart.data.fontColor;
     title = escapeXml/*xml*/ `
       <c:title>
-        ${insertText(chart.data.title, chart.data.fontColor)}
+        ${insertText(chart.data.title.text, color, DEFAULT_CHART_FONT_SIZE, chart.data.title)}
         <c:overlay val="0" />
       </c:title>
     `;
@@ -151,7 +155,8 @@ function lineAttributes(params: LineAttributes): XMLString {
 function insertText(
   text: string,
   fontColor: XlsxHexColor = "000000",
-  fontsize: number = 22
+  fontsize: number = DEFAULT_CHART_FONT_SIZE,
+  style: { bold?: boolean; italic?: boolean } = {}
 ): XMLString {
   return escapeXml/*xml*/ `
     <c:tx>
@@ -160,13 +165,13 @@ function insertText(
         <a:lstStyle />
         <a:p>
           <a:pPr lvl="0">
-            <a:defRPr b="0">
+            <a:defRPr b="${style?.bold ? 1 : 0}" i="${style?.italic ? 1 : 0}">
               ${solidFill(fontColor)}
               <a:latin typeface="+mn-lt"/>
             </a:defRPr>
           </a:pPr>
           <a:r> <!-- Runs -->
-            <a:rPr sz="${fontsize * 100}"/>
+            <a:rPr b="${style?.bold ? 1 : 0}" i="${style?.italic ? 1 : 0}" sz="${fontsize * 100}"/>
             <a:t>${text}</a:t>
           </a:r>
         </a:p>
@@ -202,6 +207,25 @@ function insertTextProperties(
   `;
 }
 
+function extractDataSetLabel(label: ExcelChartDataset["label"]): XMLString {
+  if (!label) {
+    return escapeXml/*xml*/ ``;
+  }
+  if ("text" in label && label.text) {
+    return escapeXml/*xml*/ `
+      <c:tx><c:v>${label.text!}</c:v></c:tx>
+    `;
+  }
+  if ("reference" in label && label.reference) {
+    return escapeXml/*xml*/ `
+      <c:tx>
+      ${stringRef(label.reference)}
+      </c:tx>
+    `;
+  }
+  return escapeXml/*xml*/ ``;
+}
+
 function addBarChart(chart: ExcelChartDefinition): XMLString {
   // gapWitdh and overlap that define the space between clusters (in %) and the overlap between datasets (from -100: completely scattered to 100, completely overlapped)
   // see gapWidth : https://c-rex.net/projects/samples/ooxml/e1/Part4/OOXML_P4_DOCX_gapWidth_topic_ID0EFVEQB.html#topic_ID0EFVEQB
@@ -209,8 +233,10 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
   //
   // overlap and gapWitdh seems to be by default at -20 and 20 in chart.js.
   // See https://www.chartjs.org/docs/latest/charts/bar.html and https://www.chartjs.org/docs/latest/charts/bar.html#barpercentage-vs-categorypercentage
-  const colors = new ColorGenerator();
-  const dataSetsNodes: XMLString[] = [];
+  const dataSetsColors = chart.dataSets.map((ds) => ds.backgroundColor ?? "");
+  const colors = new ColorGenerator(dataSetsColors);
+  const leftDataSetsNodes: XMLString[] = [];
+  const rightDataSetsNodes: XMLString[] = [];
   for (const [dsIndex, dataset] of Object.entries(chart.dataSets)) {
     const color = toXlsxHexColor(colors.next());
     const dataShapeProperty = shapeProperty({
@@ -218,11 +244,11 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
       line: { color },
     });
 
-    dataSetsNodes.push(escapeXml/*xml*/ `
+    const dataSetNode = escapeXml/*xml*/ `
       <c:ser>
         <c:idx val="${dsIndex}"/>
         <c:order val="${dsIndex}"/>
-        ${dataset.label ? escapeXml/*xml*/ `<c:tx>${stringRef(dataset.label!)}</c:tx>` : ""}
+        ${extractDataSetLabel(dataset.label)}
         ${dataShapeProperty}
         ${
           chart.labelRange ? escapeXml/*xml*/ `<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""
@@ -231,29 +257,70 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
           ${numberRef(dataset.range)}
         </c:val>
       </c:ser>
-    `);
+    `;
+    if (dataset.rightYAxis) {
+      rightDataSetsNodes.push(dataSetNode);
+    } else {
+      leftDataSetsNodes.push(dataSetNode);
+    }
   }
-
-  // Excel does not support this feature
-  const axisPos = chart.verticalAxisPosition === "left" ? "l" : "r";
 
   const grouping = chart.stacked ? "stacked" : "clustered";
   const overlap = chart.stacked ? 100 : -20;
   return escapeXml/*xml*/ `
-    <c:barChart>
-      <c:barDir val="col"/>
-      <c:grouping val="${grouping}"/>
-      <c:overlap val="${overlap}"/>
-      <c:gapWidth val="70"/>
-      <!-- each data marker in the series does not have a different color -->
-      <c:varyColors val="0"/>
-      ${joinXmlNodes(dataSetsNodes)}
-      <c:axId val="${catAxId}" />
-      <c:axId val="${valAxId}" />
-    </c:barChart>
-    ${addAx("b", "c:catAx", catAxId, valAxId, { fontColor: chart.fontColor })}
-    ${addAx(axisPos, "c:valAx", valAxId, catAxId, { fontColor: chart.fontColor })}
-  `;
+  ${
+    leftDataSetsNodes.length
+      ? escapeXml/*xml*/ `
+        <c:barChart>
+          <c:barDir val="col"/>
+          <c:grouping val="${grouping}"/>
+          <c:overlap val="${overlap}"/>
+          <c:gapWidth val="70"/>
+          <!-- each data marker in the series does not have a different color -->
+          <c:varyColors val="0"/>
+          ${joinXmlNodes(leftDataSetsNodes)}
+          <c:axId val="${catAxId}" />
+          <c:axId val="${valAxId}" />
+        </c:barChart>
+        ${addAx("b", "c:catAx", catAxId, valAxId, chart.axesDesign?.x?.title, chart.fontColor)}
+        ${addAx("l", "c:valAx", valAxId, catAxId, chart.axesDesign?.y?.title, chart.fontColor)}
+      `
+      : ""
+  }
+  ${
+    rightDataSetsNodes.length
+      ? escapeXml/*xml*/ `
+        <c:barChart>
+          <c:barDir val="col"/>
+          <c:grouping val="${grouping}"/>
+          <c:overlap val="${overlap}"/>
+          <c:gapWidth val="70"/>
+          <!-- each data marker in the series does not have a different color -->
+          <c:varyColors val="0"/>
+          ${joinXmlNodes(rightDataSetsNodes)}
+          <c:axId val="${catAxId + 1}" />
+          <c:axId val="${valAxId + 1}" />
+        </c:barChart>
+        ${addAx(
+          "b",
+          "c:catAx",
+          catAxId + 1,
+          valAxId + 1,
+          chart.axesDesign?.x?.title,
+          chart.fontColor,
+          leftDataSetsNodes.length ? 1 : 0
+        )}
+        ${addAx(
+          "r",
+          "c:valAx",
+          valAxId + 1,
+          catAxId + 1,
+          chart.axesDesign?.y1?.title,
+          chart.fontColor
+        )}
+      `
+      : ""
+  }`;
 }
 
 function addComboChart(chart: ExcelChartDefinition): XMLString {
@@ -263,32 +330,39 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
   //
   // overlap and gapWitdh seems to be by default at -20 and 20 in chart.js.
   // See https://www.chartjs.org/docs/latest/charts/bar.html and https://www.chartjs.org/docs/latest/charts/bar.html#barpercentage-vs-categorypercentage
-  const colors = new ColorGenerator();
-  const dataSetsNodes: XMLString[] = [];
-  for (const [dsIndex, dataset] of Object.entries(chart.dataSets)) {
+  const dataSets = chart.dataSets;
+  const dataSetsColors = dataSets.map((ds) => ds.backgroundColor ?? "");
+  const colors = new ColorGenerator(dataSetsColors);
+  let dataSet = dataSets[0];
+  const firstColor = toXlsxHexColor(colors.next());
+  const useRightAxisForBarSerie = dataSet.rightYAxis ?? false;
+  const barDataSetNode: XMLString = escapeXml/*xml*/ `
+    <c:ser>
+      <c:idx val="0"/>
+      <c:order val="0"/>
+      ${extractDataSetLabel(dataSet.label)}
+      ${shapeProperty({
+        backgroundColor: firstColor,
+        line: { color: firstColor },
+      })}
+      ${chart.labelRange ? escapeXml/*xml*/ `<c:cat>${stringRef(chart.labelRange)}</c:cat>` : ""}
+      <!-- x-coordinate values -->
+      <c:val>
+        ${numberRef(dataSet.range)}
+      </c:val>
+    </c:ser>
+  `;
+  const leftDataSetsNodes: XMLString[] = [];
+  const rightDataSetsNodes: XMLString[] = [];
+  for (let dsIndex = 1; dsIndex < dataSets.length; dsIndex++) {
+    dataSet = dataSets[dsIndex];
     const color = toXlsxHexColor(colors.next());
     const dataShapeProperty = shapeProperty({
       backgroundColor: color,
       line: { color },
     });
 
-    dataSetsNodes.push(
-      dsIndex === "0"
-        ? escapeXml/*xml*/ `
-      <c:ser>
-        <c:idx val="${dsIndex}"/>
-        <c:order val="${dsIndex}"/>
-        ${dataset.label ? escapeXml/*xml*/ `<c:tx>${stringRef(dataset.label!)}</c:tx>` : ""}
-        ${dataShapeProperty}
-        ${
-          chart.labelRange ? escapeXml/*xml*/ `<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""
-        } <!-- x-coordinate values -->
-        <c:val> <!-- x-coordinate values -->
-          ${numberRef(dataset.range)}
-        </c:val>
-      </c:ser>
-      `
-        : escapeXml/*xml*/ `
+    const dataSetNode = escapeXml/*xml*/ `
       <c:ser>
         <c:idx val="${dsIndex}"/>
         <c:order val="${dsIndex}"/>
@@ -296,22 +370,23 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
         <c:marker>
           <c:symbol val="circle" />
           <c:size val="5"/>
+          ${dataShapeProperty}
         </c:marker>
-        ${dataset.label ? escapeXml`<c:tx>${stringRef(dataset.label!)}</c:tx>` : ""}
+        ${extractDataSetLabel(dataSet.label)}
         ${dataShapeProperty}
-        ${
-          chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""
-        } <!-- x-coordinate values -->
-        <c:val> <!-- x-coordinate values -->
-          ${numberRef(dataset.range)}
+        ${chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange)}</c:cat>` : ""}
+        <!-- x-coordinate values -->
+        <c:val>
+          ${numberRef(dataSet.range)}
         </c:val>
       </c:ser>
-      `
-    );
+    `;
+    if (dataSet.rightYAxis) {
+      rightDataSetsNodes.push(dataSetNode);
+    } else {
+      leftDataSetsNodes.push(dataSetNode);
+    }
   }
-
-  // Excel does not support this feature
-  const axisPos = chart.verticalAxisPosition === "left" ? "l" : "r";
 
   const overlap = chart.stacked ? 100 : -20;
   return escapeXml/*xml*/ `
@@ -322,36 +397,96 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
       <c:gapWidth val="70"/>
       <!-- each data marker in the series does not have a different color -->
       <c:varyColors val="0"/>
-      ${dataSetsNodes[0]}
-      <c:axId val="${catAxId}" />
-      <c:axId val="${valAxId}" />
+      ${barDataSetNode}
+      <c:axId val="${catAxId + (useRightAxisForBarSerie ? 1 : 0)}" />
+      <c:axId val="${valAxId + (useRightAxisForBarSerie ? 1 : 0)}" />
     </c:barChart>
-    <c:lineChart>
-      <c:grouping val="standard"/>
-      <!-- each data marker in the series does not have a different color -->
-      <c:varyColors val="0"/>
-      ${joinXmlNodes(dataSetsNodes.slice(1))}
-      <c:axId val="${catAxId}" />
-      <c:axId val="${valAxId}" />
-    </c:lineChart>
-    ${addAx("b", "c:catAx", catAxId, valAxId, { fontColor: chart.fontColor })}
-    ${addAx(axisPos, "c:valAx", valAxId, catAxId, { fontColor: chart.fontColor })}
+    ${
+      leftDataSetsNodes.length
+        ? escapeXml/*xml*/ `
+        <c:lineChart>
+          <c:grouping val="standard"/>
+          <!-- each data marker in the series does not have a different color -->
+          <c:varyColors val="0"/>
+          ${joinXmlNodes(leftDataSetsNodes)}
+          <c:axId val="${catAxId}" />
+          <c:axId val="${valAxId}" />
+        </c:lineChart>
+      `
+        : ""
+    }
+    ${
+      rightDataSetsNodes.length
+        ? escapeXml/*xml*/ `
+        <c:lineChart>
+          <c:grouping val="standard"/>
+          <!-- each data marker in the series does not have a different color -->
+          <c:varyColors val="0"/>
+          ${joinXmlNodes(rightDataSetsNodes)}
+          <c:axId val="${catAxId + 1}" />
+          <c:axId val="${valAxId + 1}" />
+        </c:lineChart>
+      `
+        : ""
+    }
+    ${
+      !useRightAxisForBarSerie || leftDataSetsNodes.length
+        ? escapeXml/*xml*/ `
+        ${addAx(
+          "b",
+          "c:catAx",
+          catAxId + 1,
+          valAxId + 1,
+          chart.axesDesign?.x?.title,
+          chart.fontColor,
+          leftDataSetsNodes.length ? 1 : 0
+        )}
+        ${addAx(
+          "r",
+          "c:valAx",
+          valAxId + 1,
+          catAxId + 1,
+          chart.axesDesign?.y1?.title,
+          chart.fontColor
+        )}
+      `
+        : ""
+    }
+    ${
+      useRightAxisForBarSerie || rightDataSetsNodes.length
+        ? escapeXml/*xml*/ `
+        ${addAx(
+          "b",
+          "c:catAx",
+          catAxId,
+          valAxId,
+          chart.axesDesign?.x?.title,
+          chart.fontColor,
+          leftDataSetsNodes.length || !useRightAxisForBarSerie ? 1 : 0
+        )}
+        ${addAx("l", "c:valAx", valAxId, catAxId, chart.axesDesign?.y?.title, chart.fontColor)}
+      `
+        : ""
+    }
   `;
 }
 
 function addLineChart(chart: ExcelChartDefinition): XMLString {
-  const colors = new ColorGenerator();
-  const dataSetsNodes: XMLString[] = [];
+  const dataSetsColors = chart.dataSets.map((ds) => ds.backgroundColor ?? "");
+  const colors = new ColorGenerator(dataSetsColors);
+  const leftDataSetsNodes: XMLString[] = [];
+  const rightDataSetsNodes: XMLString[] = [];
   for (const [dsIndex, dataset] of Object.entries(chart.dataSets)) {
+    const color = toXlsxHexColor(colors.next());
     const dataShapeProperty = shapeProperty({
       line: {
         width: 2.5,
         style: "solid",
-        color: toXlsxHexColor(colors.next()),
+        color,
       },
     });
 
-    dataSetsNodes.push(escapeXml/*xml*/ `
+    const dataSetNode = escapeXml/*xml*/ `
       <c:ser>
         <c:idx val="${dsIndex}"/>
         <c:order val="${dsIndex}"/>
@@ -359,8 +494,9 @@ function addLineChart(chart: ExcelChartDefinition): XMLString {
         <c:marker>
           <c:symbol val="circle" />
           <c:size val="5"/>
+          ${shapeProperty({ backgroundColor: color, line: { color } })}
         </c:marker>
-        ${dataset.label ? escapeXml`<c:tx>${stringRef(dataset.label!)}</c:tx>` : ""}
+        ${extractDataSetLabel(dataset.label)}
         ${dataShapeProperty}
         ${
           chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""
@@ -369,32 +505,75 @@ function addLineChart(chart: ExcelChartDefinition): XMLString {
           ${numberRef(dataset.range)}
         </c:val>
       </c:ser>
-    `);
+    `;
+    if (dataset.rightYAxis) {
+      rightDataSetsNodes.push(dataSetNode);
+    } else {
+      leftDataSetsNodes.push(dataSetNode);
+    }
   }
 
-  // Excel does not support this feature
-  const axisPos = chart.verticalAxisPosition === "left" ? "l" : "r";
   const grouping = chart.stacked ? "stacked" : "standard";
 
   return escapeXml/*xml*/ `
-    <c:lineChart>
-      <c:grouping val="${grouping}"/>
-      <!-- each data marker in the series does not have a different color -->
-      <c:varyColors val="0"/>
-      ${joinXmlNodes(dataSetsNodes)}
-      <c:axId val="${catAxId}" />
-      <c:axId val="${valAxId}" />
-    </c:lineChart>
-    ${addAx("b", "c:catAx", catAxId, valAxId, { fontColor: chart.fontColor })}
-    ${addAx(axisPos, "c:valAx", valAxId, catAxId, { fontColor: chart.fontColor })}
+    ${
+      leftDataSetsNodes.length
+        ? escapeXml/*xml*/ `
+        <c:lineChart>
+          <c:grouping val="${grouping}"/>
+          <!-- each data marker in the series does not have a different color -->
+          <c:varyColors val="0"/>
+          ${joinXmlNodes(leftDataSetsNodes)}
+          <c:axId val="${catAxId}" />
+          <c:axId val="${valAxId}" />
+        </c:lineChart>
+        ${addAx("b", "c:catAx", catAxId, valAxId, chart.axesDesign?.x?.title, chart.fontColor)}
+        ${addAx("l", "c:valAx", valAxId, catAxId, chart.axesDesign?.y?.title, chart.fontColor)}
+      `
+        : ""
+    }
+    ${
+      rightDataSetsNodes.length
+        ? escapeXml/*xml*/ `
+        <c:lineChart>
+          <c:grouping val="${grouping}"/>
+          <!-- each data marker in the series does not have a different color -->
+          <c:varyColors val="0"/>
+          ${joinXmlNodes(rightDataSetsNodes)}
+          <c:axId val="${catAxId + 1}" />
+          <c:axId val="${valAxId + 1}" />
+        </c:lineChart>
+        ${addAx(
+          "b",
+          "c:catAx",
+          catAxId + 1,
+          valAxId + 1,
+          chart.axesDesign?.x?.title,
+          chart.fontColor,
+          leftDataSetsNodes.length ? 1 : 0
+        )}
+        ${addAx(
+          "r",
+          "c:valAx",
+          valAxId + 1,
+          catAxId + 1,
+          chart.axesDesign?.y1?.title,
+          chart.fontColor
+        )}
+      `
+        : ""
+    }
   `;
 }
 
 function addScatterChart(chart: ExcelChartDefinition): XMLString {
-  const colors = new ColorGenerator();
-  const dataSetsNodes: XMLString[] = [];
+  const dataSetsColors = chart.dataSets.map((ds) => ds.backgroundColor ?? "");
+  const colors = new ColorGenerator(dataSetsColors);
+  const leftDataSetsNodes: XMLString[] = [];
+  const rightDataSetsNodes: XMLString[] = [];
   for (const [dsIndex, dataset] of Object.entries(chart.dataSets)) {
-    dataSetsNodes.push(escapeXml/*xml*/ `
+    const color = toXlsxHexColor(colors.next());
+    const dataSetNode = escapeXml/*xml*/ `
       <c:ser>
         <c:idx val="${dsIndex}"/>
         <c:order val="${dsIndex}"/>
@@ -409,8 +588,9 @@ function addScatterChart(chart: ExcelChartDefinition): XMLString {
         <c:marker>
           <c:symbol val="circle" />
           <c:size val="5"/>
-          ${shapeProperty({ backgroundColor: toXlsxHexColor(colors.next()) })}
+          ${shapeProperty({ backgroundColor: color, line: { color } })}
         </c:marker>
+        ${extractDataSetLabel(dataset.label)}
         ${
           chart.labelRange
             ? escapeXml/*xml*/ `<c:xVal> <!-- x-coordinate values -->
@@ -422,22 +602,61 @@ function addScatterChart(chart: ExcelChartDefinition): XMLString {
           ${numberRef(dataset.range)}
         </c:yVal>
       </c:ser>
-    `);
+    `;
+    if (dataset.rightYAxis) {
+      rightDataSetsNodes.push(dataSetNode);
+    } else {
+      leftDataSetsNodes.push(dataSetNode);
+    }
   }
-
-  const axisPos = chart.verticalAxisPosition === "left" ? "l" : "r";
   return escapeXml/*xml*/ `
-    <c:scatterChart>
-      <!-- each data marker in the series does not have a different color -->
-      <c:varyColors val="0"/>
-      <c:scatterStyle val="lineMarker"/>
-      ${joinXmlNodes(dataSetsNodes)}
-      <c:axId val="${catAxId}" />
-      <c:axId val="${valAxId}" />
-    </c:scatterChart>
-    ${addAx("b", "c:valAx", catAxId, valAxId, { fontColor: chart.fontColor })}
-    ${addAx(axisPos, "c:valAx", valAxId, catAxId, { fontColor: chart.fontColor })}
-  `;
+  ${
+    leftDataSetsNodes.length
+      ? escapeXml/*xml*/ `
+      <c:scatterChart>
+        <!-- each data marker in the series does not have a different color -->
+        <c:varyColors val="0"/>
+        <c:scatterStyle val="lineMarker"/>
+        ${joinXmlNodes(leftDataSetsNodes)}
+        <c:axId val="${catAxId}" />
+        <c:axId val="${valAxId}" />
+      </c:scatterChart>
+      ${addAx("b", "c:valAx", catAxId, valAxId, chart.axesDesign?.x?.title, chart.fontColor)}
+      ${addAx("l", "c:valAx", valAxId, catAxId, chart.axesDesign?.y?.title, chart.fontColor)}
+    `
+      : ""
+  }
+  ${
+    rightDataSetsNodes.length
+      ? escapeXml/*xml*/ `
+      <c:scatterChart>
+        <!-- each data marker in the series does not have a different color -->
+        <c:varyColors val="0"/>
+        <c:scatterStyle val="lineMarker"/>
+        ${joinXmlNodes(rightDataSetsNodes)}
+        <c:axId val="${catAxId + 1}" />
+        <c:axId val="${valAxId + 1}" />
+      </c:scatterChart>
+      ${addAx(
+        "b",
+        "c:valAx",
+        catAxId + 1,
+        valAxId + 1,
+        chart.axesDesign?.x?.title,
+        chart.fontColor,
+        leftDataSetsNodes.length ? 1 : 0
+      )}
+      ${addAx(
+        "r",
+        "c:valAx",
+        valAxId + 1,
+        catAxId + 1,
+        chart.axesDesign?.y1?.title,
+        chart.fontColor
+      )}
+    `
+      : ""
+  }`;
 }
 
 function addDoughnutChart(
@@ -475,7 +694,7 @@ function addDoughnutChart(
       <c:ser>
         <c:idx val="${dsIndex}"/>
         <c:order val="${dsIndex}"/>
-        ${dataset.label ? escapeXml`<c:tx>${stringRef(dataset.label!)}</c:tx>` : ""}
+        ${extractDataSetLabel(dataset.label)}
         ${joinXmlNodes(dataPoints)}
         ${insertDataLabels({ showLeaderLines: true })}
         ${chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""}
@@ -514,15 +733,19 @@ function addAx(
   axisName: "c:catAx" | "c:valAx",
   axId: number,
   crossAxId: number,
-  { fontColor }: { fontColor: XlsxHexColor }
+  title: TitleDesign | undefined,
+  defaultFontColor: XlsxHexColor,
+  deleteAxis: number = 0
 ): XMLString {
   // Each Axis present inside a graph needs to be identified by an unsigned integer in order to be referenced by its crossAxis.
   // I.e. x-axis, will reference y-axis and vice-versa.
+  const color = title?.color ? toXlsxHexColor(title.color) : defaultFontColor;
   return escapeXml/*xml*/ `
     <${axisName}>
       <c:axId val="${axId}"/>
       <c:crossAx val="${crossAxId}"/> <!-- reference to the other axe of the chart -->
-      <c:delete val="0"/> <!-- by default, axis are not displayed -->
+      <c:crosses val="${position === "b" || position === "l" ? "min" : "max"}"/>
+      <c:delete val="${deleteAxis}"/> <!-- by default, axis are not displayed -->
       <c:scaling>
         <c:orientation  val="minMax" />
       </c:scaling>
@@ -532,9 +755,9 @@ function addAx(
       <c:minorTickMark val="none" />
       <c:numFmt formatCode="General" sourceLinked="1" />
       <c:title>
-        ${insertText("")}
+        ${insertText(title?.text ?? "", color, 10, title)}
       </c:title>
-      ${insertTextProperties(10, fontColor)}
+      ${insertTextProperties(10, defaultFontColor)}
     </${axisName}>
     <!-- <tickLblPos/> omitted -->
   `;

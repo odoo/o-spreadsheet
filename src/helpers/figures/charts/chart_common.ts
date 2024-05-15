@@ -143,13 +143,13 @@ export function adaptChartRange(
  */
 export function createDataSets(
   getters: CoreGetters,
-  dataSetsString: string[],
+  customizedDataSets: CustomizedDataSet[],
   sheetId: UID,
   dataSetsHaveTitle: boolean
 ): DataSet[] {
   const dataSets: DataSet[] = [];
-  for (const sheetXC of dataSetsString) {
-    const dataRange = getters.getRangeFromSheetXC(sheetId, sheetXC);
+  for (const dataSet of customizedDataSets) {
+    const dataRange = getters.getRangeFromSheetXC(sheetId, dataSet.dataRange);
     const { unboundedZone: zone, sheetId: dataSetSheetId, invalidSheetName, invalidXc } = dataRange;
     if (invalidSheetName || invalidXc) {
       continue;
@@ -167,8 +167,8 @@ export function createDataSets(
           left: column,
           right: column,
         };
-        dataSets.push(
-          createDataSet(
+        dataSets.push({
+          ...createDataSet(
             getters,
             dataSetSheetId,
             columnZone,
@@ -180,13 +180,16 @@ export function createDataSets(
                   right: columnZone.left,
                 }
               : undefined
-          )
-        );
+          ),
+          backgroundColor: dataSet.backgroundColor,
+          rightYAxis: dataSet.yAxisId === "y1",
+          customLabel: dataSet.label,
+        });
       }
     } else {
       /* 1 cell, 1 row or 1 column */
-      dataSets.push(
-        createDataSet(
+      dataSets.push({
+        ...createDataSet(
           getters,
           dataSetSheetId,
           zone,
@@ -198,8 +201,11 @@ export function createDataSets(
                 right: zone.left,
               }
             : undefined
-        )
-      );
+        ),
+        backgroundColor: dataSet.backgroundColor,
+        rightYAxis: dataSet.yAxisId === "y1",
+        customLabel: dataSet.label,
+      });
     }
   }
   return dataSets;
@@ -245,12 +251,24 @@ export function toExcelDataset(getters: CoreGetters, ds: DataSet): ExcelChartDat
   }
 
   const dataRange = ds.dataRange.clone({ zone: dataZone });
+  let label = {};
+  if (ds.customLabel) {
+    label = {
+      text: ds.customLabel,
+    };
+  } else if (ds.labelCell) {
+    label = {
+      reference: getters.getRangeString(ds.labelCell, "forceSheetReference", {
+        useFixedReference: true,
+      }),
+    };
+  }
 
   return {
-    label: ds.labelCell
-      ? getters.getRangeString(ds.labelCell, "forceSheetReference", { useFixedReference: true })
-      : undefined,
+    label,
     range: getters.getRangeString(dataRange, "forceSheetReference", { useFixedReference: true }),
+    backgroundColor: ds.backgroundColor,
+    rightYAxis: ds.rightYAxis,
   };
 }
 

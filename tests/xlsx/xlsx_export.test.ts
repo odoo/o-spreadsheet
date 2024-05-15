@@ -936,6 +936,100 @@ describe("Test XLSX export", () => {
       }
     );
 
+    test.each(["line", "scatter", "bar", "combo"])(
+      "simple %s chart with customized dataset",
+      async (chartType: string) => {
+        const model = new Model(chartData);
+        createChart(
+          model,
+          {
+            dataSets: [
+              {
+                dataRange: "Sheet1!B1:B4",
+                backgroundColor: "#FF0000",
+                yAxisId: "y",
+                label: "coucou",
+              },
+            ],
+            labelRange: "Sheet1!A2:A4",
+            type: chartType as "line" | "bar" | "pie" | "combo",
+          },
+          "1"
+        );
+        expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+      }
+    );
+
+    test.each(["line", "scatter", "bar", "combo"])(
+      "simple %s chart with customized title",
+      async (chartType: string) => {
+        const model = new Model(chartData);
+        createChart(
+          model,
+          {
+            dataSets: [{ dataRange: "Sheet1!B1:B4" }],
+            title: {
+              text: "Coucou",
+              align: "right",
+              bold: true,
+              italic: true,
+              color: "#ff0000",
+            },
+            labelRange: "Sheet1!A2:A4",
+            type: chartType as "line" | "bar" | "pie" | "combo",
+          },
+          "1"
+        );
+        expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+      }
+    );
+
+    test.each(["line", "scatter", "bar", "combo"] as const)(
+      "simple %s chart with customized axis",
+      async (chartType: string) => {
+        const model = new Model(chartData);
+        createChart(
+          model,
+          {
+            dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+            axesDesign: {
+              x: {
+                title: {
+                  text: "Coucou",
+                  align: "right",
+                  bold: true,
+                  italic: true,
+                  color: "#ff0000",
+                },
+              },
+              y: {
+                title: {
+                  text: "Coucou 2",
+                  align: "left",
+                  bold: true,
+                  italic: true,
+                  color: "#00ff00",
+                },
+              },
+              y1: {
+                title: {
+                  text: "Coucou 3",
+                  align: "center",
+                  bold: true,
+                  italic: true,
+                  color: "#0000ff",
+                },
+              },
+            },
+            labelRange: "Sheet1!A2:A4",
+            type: chartType as "line" | "bar" | "pie" | "combo",
+          },
+          "1"
+        );
+        expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+      }
+    );
+
     test("exported results will not be influenced by `dataSetsHaveTitle` if the dataset contains titles and label range doesn't", async () => {
       const model = new Model(chartData);
       createChart(
@@ -1556,8 +1650,11 @@ describe("Test XLSX export", () => {
     expect(exportedData.sheets[0].cells["A1"]?.content).toBe(`='${fixedSheetNameWithSpaces}'!A1`);
     expect(exportedData.sheets[0].charts[0].data.labelRange).toBe(`${fixedSheetName}!A2:A4`);
     expect(exportedData.sheets[0].charts[0].data.dataSets[0]).toEqual({
-      label: `${fixedSheetName}!A1`,
+      label: {
+        reference: `${fixedSheetName}!A1`,
+      },
       range: `${fixedSheetName}!A2:A4`,
+      rightYAxis: false,
     });
   });
 

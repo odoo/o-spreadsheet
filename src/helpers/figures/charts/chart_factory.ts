@@ -125,7 +125,8 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
   if (!singleColumn) {
     dataSetZone = { ...zone, left: zone.left + 1 };
   }
-  const dataSets = [zoneToXc(dataSetZone)];
+  const dataRange = zoneToXc(dataSetZone);
+  const dataSets = [{ dataRange, yAxisId: "y" }];
   const sheetId = getters.getActiveSheetId();
 
   const topLeftCell = getters.getCell({ sheetId, col: zone.left, row: zone.top });
@@ -176,7 +177,7 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
   if (canChartParseLabels(labelRange, getters)) {
     return {
       title: { text: title },
-      dataSets: dataSets.map((dataRange) => ({ dataRange, yAxisId: "y" })),
+      dataSets,
       labelsAsText: false,
       stacked: false,
       aggregated: false,
@@ -194,9 +195,9 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
   ) {
     return {
       title: { text: "" },
-      dataSets: dataSets.map((dataRange) => ({ dataRange })),
+      dataSets: [{ dataRange }],
       aggregated: true,
-      labelRange: dataSets[0],
+      labelRange: dataRange,
       type: "pie",
       legendPosition: "top",
       dataSetsHaveTitle: false,
@@ -204,7 +205,7 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
   }
   return {
     title: { text: title },
-    dataSets: dataSets.map((dataRange) => ({ dataRange, yAxisId: "y" })),
+    dataSets,
     labelRange: labelRangeXc,
     type: "bar",
     stacked: false,

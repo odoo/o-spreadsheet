@@ -21,7 +21,7 @@ import {
   ExcelChartDataset,
   ExcelChartDefinition,
 } from "../../../types/chart/chart";
-import { LegendPosition, VerticalAxisPosition } from "../../../types/chart/common_chart";
+import { LegendPosition } from "../../../types/chart/common_chart";
 import { ScatterChartDefinition, ScatterChartRuntime } from "../../../types/chart/scatter_chart";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
@@ -36,6 +36,7 @@ import {
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
+  getDefinedAxis,
   shouldRemoveFirstLabel,
   toExcelDataset,
   toExcelLabelRange,
@@ -60,7 +61,7 @@ export class ScatterChart extends AbstractChart {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       this.getters,
-      definition.dataSets.map((ds) => ds.dataRange),
+      definition.dataSets,
       sheetId,
       definition.dataSetsHaveTitle
     );
@@ -72,21 +73,6 @@ export class ScatterChart extends AbstractChart {
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
     this.dataSetDesign = definition.dataSets;
     this.axesDesign = definition.axesDesign;
-  }
-
-  get verticalAxisPosition(): VerticalAxisPosition {
-    let useRightAxis = false,
-      useLeftAxis = false;
-    for (const design of this.dataSetDesign || []) {
-      if (design.yAxisId === "y") {
-        useLeftAxis = true;
-        break;
-      } else if (design.yAxisId === "y1") {
-        useRightAxis = true;
-        break;
-      }
-    }
-    return useLeftAxis || !useRightAxis ? "left" : "right";
   }
 
   static validateChartDefinition(
@@ -197,12 +183,11 @@ export class ScatterChart extends AbstractChart {
     const definition = this.getDefinition();
     return {
       ...definition,
-      title: definition.title.text ?? "",
       backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
       dataSets,
       labelRange,
-      verticalAxisPosition: this.verticalAxisPosition,
+      verticalAxis: getDefinedAxis(definition),
     };
   }
 
