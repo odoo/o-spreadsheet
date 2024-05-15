@@ -11,6 +11,7 @@ import { SelectionInput } from "../../../../selection_input/selection_input";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { Section } from "../../../components/section/section";
 import { EditableName } from "../../editable_name/editable_name";
+import { PivotDeferUpdate } from "../../pivot_defer_update/pivot_defer_update";
 import { PivotLayoutConfigurator } from "../../pivot_layout_configurator/pivot_layout_configurator";
 import { PivotSidePanelStore } from "../pivot_side_panel_store";
 
@@ -31,6 +32,7 @@ export class PivotSpreadsheetSidePanel extends Component<Props, SpreadsheetChild
     SelectionInput,
     EditableName,
     Checkbox,
+    PivotDeferUpdate,
   };
   store!: Store<PivotSidePanelStore>;
 
@@ -75,14 +77,6 @@ export class PivotSpreadsheetSidePanel extends Component<Props, SpreadsheetChild
 
   get definition(): SpreadsheetPivotRuntimeDefinition {
     return this.store.definition as SpreadsheetPivotRuntimeDefinition;
-  }
-
-  get deferUpdatesLabel() {
-    return _t("Defer updates");
-  }
-
-  get deferUpdatesTooltip() {
-    return _t("Changing the pivot definition requires to reload the data. It may take some time.");
   }
 
   onSelectionChanged(ranges: string[]) {
