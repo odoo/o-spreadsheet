@@ -23,6 +23,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
   private currentSearchRegex: RegExp | null = null;
   private isSearchDirty = false;
   private initialShowFormulaState: boolean;
+  private isAutoSheetSwitch: boolean = false;
 
   // fixme: why do we make selectedMatchIndex on top of a selected
   // property in the matches?
@@ -103,15 +104,20 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
       case "ADD_COLUMNS_ROWS":
       case "EVALUATE_CELLS":
       case "UPDATE_CELL":
+        this.isSearchDirty = true;
+        break;
       case "ACTIVATE_SHEET":
         this.isSearchDirty = true;
+        this.findMatches();
         break;
     }
   }
 
   finalize() {
-    if (this.isSearchDirty) {
-      this.refreshSearch(false);
+    if (this.isSearchDirty && !this.isAutoSheetSwitch) {
+      this.isAutoSheetSwitch = true;
+      this.refreshSearch();
+      this.isAutoSheetSwitch = false;
       this.isSearchDirty = false;
     }
   }
@@ -149,10 +155,10 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
   /**
    * refresh the matches according to the current search options
    */
-  private refreshSearch(jumpToMatchSheet = true) {
+  private refreshSearch() {
     this.selectedMatchIndex = null;
     this.findMatches();
-    this.selectNextCell(Direction.current, jumpToMatchSheet);
+    this.selectNextCell(Direction.current);
   }
 
   private getSheetsInSearchOrder() {
@@ -233,7 +239,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
    * It is also used to keep coherence between the selected searchMatch
    * and selectedMatchIndex.
    */
-  private selectNextCell(indexChange: Direction, jumpToMatchSheet = true) {
+  private selectNextCell(indexChange: Direction) {
     const matches = this.searchMatches;
     if (!matches.length) {
       this.selectedMatchIndex = null;
@@ -259,11 +265,13 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     const selectedMatch = matches[nextIndex];
 
     // Switch to the sheet where the match is located
-    if (jumpToMatchSheet && this.getters.getActiveSheetId() !== selectedMatch.sheetId) {
+    if (!this.isAutoSheetSwitch && this.getters.getActiveSheetId() !== selectedMatch.sheetId) {
+      this.isAutoSheetSwitch = true;
       this.model.dispatch("ACTIVATE_SHEET", {
         sheetIdFrom: this.getters.getActiveSheetId(),
         sheetIdTo: selectedMatch.sheetId,
       });
+      this.isAutoSheetSwitch = false;
       // We do not want to reset the selection at finalize in this case
       this.isSearchDirty = false;
     }
