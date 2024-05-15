@@ -158,7 +158,7 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
     const labelRange = createRange(getters, sheetId, this.labelRange);
     const dataSets = createDataSets(
       getters,
-      this.dataSeriesRanges.map((ds) => ds.dataRange),
+      this.dataSeriesRanges,
       sheetId,
       this.props.definition.dataSetsHaveTitle
     );

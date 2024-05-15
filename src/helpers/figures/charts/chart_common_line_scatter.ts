@@ -7,7 +7,7 @@ import { getChartTimeOptions, timeFormatLuxonCompatible } from "../../chart_date
 import { ColorGenerator, colorToRGBA, rgbaToHex } from "../../color";
 import { formatValue } from "../../format";
 import { deepCopy, findNextDefinedValue } from "../../misc";
-import { chartFontColor, getChartAxisTitleRuntime } from "./chart_common";
+import { chartFontColor, getChartAxisTitleRuntime, getDefinedAxis } from "./chart_common";
 import {
   aggregateDataForLabels,
   filterEmptyDataPoints,
@@ -169,17 +169,7 @@ function getLineOrScatterConfiguration(
       },
     },
   };
-  const definition = chart.getDefinition();
-  let useLeftAxis = false,
-    useRightAxis = false;
-  for (const design of definition.dataSets || []) {
-    if (design.yAxisId === "y") {
-      useLeftAxis = true;
-    } else if (design.yAxisId === "y1") {
-      useRightAxis = true;
-    }
-  }
-  useLeftAxis ||= !useRightAxis;
+  const { useLeftAxis, useRightAxis } = getDefinedAxis(chart.getDefinition());
   if (useLeftAxis) {
     config.options.scales.y = {
       ...yAxis,

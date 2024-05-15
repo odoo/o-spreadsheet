@@ -23,7 +23,7 @@ import {
   ExcelChartDataset,
   ExcelChartDefinition,
 } from "../../../types/chart/chart";
-import { LegendPosition, VerticalAxisPosition } from "../../../types/chart/common_chart";
+import { LegendPosition } from "../../../types/chart/common_chart";
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
@@ -39,6 +39,7 @@ import {
   copyLabelRangeWithNewSheetId,
   createDataSets,
   getChartAxisTitleRuntime,
+  getDefinedAxis,
   shouldRemoveFirstLabel,
   toExcelDataset,
   toExcelLabelRange,
@@ -70,7 +71,7 @@ export class BarChart extends AbstractChart {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       getters,
-      definition.dataSets.map((ds) => ds.dataRange),
+      definition.dataSets,
       sheetId,
       definition.dataSetsHaveTitle
     );
@@ -82,21 +83,6 @@ export class BarChart extends AbstractChart {
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
     this.dataSetDesign = definition.dataSets;
     this.axesDesign = definition.axesDesign;
-  }
-
-  get verticalAxisPosition(): VerticalAxisPosition {
-    let useRightAxis = false,
-      useLeftAxis = false;
-    for (const design of this.dataSetDesign || []) {
-      if (design.yAxisId === "y") {
-        useLeftAxis = true;
-        break;
-      } else if (design.yAxisId === "y1") {
-        useRightAxis = true;
-        break;
-      }
-    }
-    return useLeftAxis || !useRightAxis ? "left" : "right";
   }
 
   static transformDefinition(
@@ -204,14 +190,14 @@ export class BarChart extends AbstractChart {
       this.labelRange,
       shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], this.dataSetsHaveTitle)
     );
+    const definition = this.getDefinition();
     return {
-      ...this.getDefinition(),
-      title: this.title.text ?? "",
+      ...definition,
       backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
       dataSets,
       labelRange,
-      verticalAxisPosition: this.verticalAxisPosition,
+      verticalAxis: getDefinedAxis(definition),
     };
   }
 
@@ -274,17 +260,7 @@ function getBarConfiguration(
       },
     },
   };
-  const definition = chart.getDefinition();
-  let useLeftAxis = false,
-    useRightAxis = false;
-  for (const design of definition.dataSets || []) {
-    if (design.yAxisId === "y") {
-      useLeftAxis = true;
-    } else if (design.yAxisId === "y1") {
-      useRightAxis = true;
-    }
-  }
-  useLeftAxis ||= !useRightAxis;
+  const { useLeftAxis, useRightAxis } = getDefinedAxis(chart.getDefinition());
   if (useLeftAxis) {
     config.options.scales.y = {
       ...yAxis,

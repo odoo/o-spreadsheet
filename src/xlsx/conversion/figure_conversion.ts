@@ -71,24 +71,29 @@ function isImageData(data: ExcelChartDefinition | ExcelImage): data is ExcelImag
 }
 
 function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | undefined {
-  const dataSetsHaveTitle = chartData.dataSets[0].label !== undefined;
+  const dataSetsHaveTitle = chartData.dataSets.some((ds) => "reference" in (ds.label ?? {}));
   const labelRange = chartData.labelRange
     ? convertExcelRangeToSheetXC(chartData.labelRange, dataSetsHaveTitle)
     : undefined;
-  let dataSets = chartData.dataSets.map((data) =>
-    convertExcelRangeToSheetXC(data.range, dataSetsHaveTitle)
-  );
+  const dataSets = chartData.dataSets.map((data) => {
+    let label: string | undefined = undefined;
+    if (data.label && "text" in data.label) {
+      label = data.label.text;
+    }
+    return {
+      dataRange: convertExcelRangeToSheetXC(data.range, dataSetsHaveTitle),
+      label,
+    };
+  });
   // For doughnut charts, in chartJS first dataset = outer dataset, in excel first dataset = inner dataset
   if (chartData.type === "pie") {
     dataSets.reverse();
   }
   return {
-    dataSets: dataSets.map((ds) => ({ dataRange: ds })),
+    dataSets,
     dataSetsHaveTitle,
     labelRange,
-    title: {
-      text: chartData.title || "",
-    },
+    title: chartData.title ?? { text: "" },
     type: chartData.type,
     background: convertColor({ rgb: chartData.backgroundColor }) || "#FFFFFF",
     legendPosition: chartData.legendPosition,

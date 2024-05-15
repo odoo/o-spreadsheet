@@ -22,7 +22,6 @@ import {
   DatasetDesign,
   ExcelChartDataset,
   LegendPosition,
-  VerticalAxisPosition,
 } from "../../../types/chart";
 import { ComboChartDefinition, ComboChartRuntime } from "../../../types/chart/combo_chart";
 import { CellErrorType } from "../../../types/errors";
@@ -40,6 +39,7 @@ import {
   copyLabelRangeWithNewSheetId,
   createDataSets,
   getChartAxisTitleRuntime,
+  getDefinedAxis,
   shouldRemoveFirstLabel,
   toExcelDataset,
   toExcelLabelRange,
@@ -70,7 +70,7 @@ export class ComboChart extends AbstractChart {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       getters,
-      definition.dataSets.map((ds) => ds.dataRange),
+      definition.dataSets,
       sheetId,
       definition.dataSetsHaveTitle
     );
@@ -158,30 +158,15 @@ export class ComboChart extends AbstractChart {
       this.labelRange,
       shouldRemoveFirstLabel(this.labelRange, this.dataSets[0], this.dataSetsHaveTitle)
     );
+    const definition = this.getDefinition();
     return {
-      ...this.getDefinition(),
-      title: this.title.text ?? "",
+      ...definition,
       backgroundColor: toXlsxHexColor(this.background || BACKGROUND_CHART_COLOR),
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
       dataSets,
       labelRange,
-      verticalAxisPosition: this.verticalAxisPosition,
+      verticalAxis: getDefinedAxis(definition),
     };
-  }
-
-  get verticalAxisPosition(): VerticalAxisPosition {
-    let useRightAxis = false,
-      useLeftAxis = false;
-    for (const design of this.dataSetDesign || []) {
-      if (design.yAxisId === "y") {
-        useLeftAxis = true;
-        break;
-      } else if (design.yAxisId === "y1") {
-        useRightAxis = true;
-        break;
-      }
-    }
-    return useLeftAxis || !useRightAxis ? "left" : "right";
   }
 
   updateRanges(applyChange: ApplyRangeChange): ComboChart {
@@ -305,16 +290,7 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
     },
   };
   const definition = chart.getDefinition();
-  let useLeftAxis = false,
-    useRightAxis = false;
-  for (const design of definition.dataSets || []) {
-    if (design.yAxisId === "y") {
-      useLeftAxis = true;
-    } else if (design.yAxisId === "y1") {
-      useRightAxis = true;
-    }
-  }
-  useLeftAxis ||= !useRightAxis;
+  const { useLeftAxis, useRightAxis } = getDefinedAxis(definition);
   if (useLeftAxis) {
     config.options.scales.y = {
       ...leftVerticalAxis,

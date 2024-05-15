@@ -712,9 +712,9 @@ describe("Import xlsx data", () => {
     expect(chartData.title.text).toEqual("scatter chart");
     expect(chartData.type).toEqual("scatter");
     expect(standardizeColor(chartData.background!)).toEqual(standardizeColor("#fff"));
-    expect(chartData.dataSets).toEqual([{ dataRange: "Sheet1!C26:C35" }]);
-    expect(chartData.labelRange).toEqual("Sheet1!B26:B35");
-    expect(chartData.dataSetsHaveTitle).toBeTruthy();
+    expect(chartData.dataSets).toEqual([{ dataRange: "Sheet1!C27:C35" }]);
+    expect(chartData.labelRange).toEqual("Sheet1!B27:B35");
+    expect(chartData.dataSetsHaveTitle).toBeFalsy();
   });
 
   test.each([

@@ -281,7 +281,6 @@ describe("Export data to xlsx then import it", () => {
       type: "combo" as const,
       dataSetsHaveTitle: false,
       background: "#AAAAAA",
-      verticalAxisPosition: "right" as const,
       legendPosition: "bottom" as const,
       stacked: true,
     },
