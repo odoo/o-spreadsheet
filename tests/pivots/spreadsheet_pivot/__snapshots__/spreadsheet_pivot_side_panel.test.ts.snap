@@ -222,10 +222,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
             Defer updates
             
           </label>
-          <div>
-            
-            
-          </div>
+          
           
         </div>
         
@@ -439,10 +436,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
             Defer updates
             
           </label>
-          <div>
-            
-            
-          </div>
+          
           
         </div>
         

@@ -1,0 +1,26 @@
+<templates>
+  <t t-name="o-spreadsheet-PivotDeferUpdate">
+    <Section
+      class="'align-items-center border-top d-flex flex-row justify-content-between py-1 pivot-defer-update'">
+      <Checkbox
+        label="deferUpdatesLabel"
+        title="deferUpdatesTooltip"
+        value="props.deferUpdate"
+        onChange="(value) => props.toggleDeferUpdate(value)"
+      />
+      <div t-if="props.isDirty">
+        <i
+          class="btn btn-sm pe-0 fa fa-undo"
+          title="Discard all changes"
+          t-on-click="() => props.discard()"
+        />
+        <span
+          class="btn btm-sm btn-link sp_apply_update"
+          title="Apply all changes"
+          t-on-click="() => props.apply()">
+          Update
+        </span>
+      </div>
+    </Section>
+  </t>
+</templates>

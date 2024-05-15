@@ -41,30 +41,13 @@
           <button class="btn btn-link sp_delete" t-on-click="delete">Delete</button>
         </Section>
       </div>
-      <Section
-        class="'align-items-center border-top d-flex flex-row justify-content-between py-1 pivot-defer-update'">
-        <Checkbox
-          label="deferUpdatesLabel"
-          title="deferUpdatesTooltip"
-          value="store.updatesAreDeferred"
-          onChange="(value) => store.deferUpdates(value)"
-        />
-        <div>
-          <i
-            t-if="store.isDirty"
-            class="btn btn-sm pe-0 fa fa-undo"
-            title="Discard all changes"
-            t-on-click="() => store.discardPendingUpdate()"
-          />
-          <span
-            t-if="store.isDirty"
-            class="btn btm-sm btn-link sp_apply_update"
-            title="Apply all changes"
-            t-on-click="() => store.applyUpdate()">
-            Update
-          </span>
-        </div>
-      </Section>
+      <PivotDeferUpdate
+        deferUpdate="store.updatesAreDeferred"
+        toggleDeferUpdate="(value) => store.deferUpdates(value)"
+        isDirty="store.isDirty"
+        discard="store.discardPendingUpdate"
+        apply="store.applyUpdate"
+      />
     </div>
   </t>
 </templates>
