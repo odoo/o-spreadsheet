@@ -31,6 +31,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
   private currentSearchRegex: RegExp | null = null;
   private isSearchDirty = false;
   private initialShowFormulaState: boolean;
+  private preserveSelectedMatchIndex: boolean = false;
 
   // fixme: why do we make selectedMatchIndex on top of a selected
   // property in the matches?
@@ -162,7 +163,9 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
    * refresh the matches according to the current search options
    */
   private refreshSearch(jumpToMatchSheet = true) {
-    this.selectedMatchIndex = null;
+    if (!this.preserveSelectedMatchIndex) {
+      this.selectedMatchIndex = null;
+    }
     this.findMatches();
     this.selectNextCell(Direction.current, jumpToMatchSheet);
   }
@@ -272,10 +275,16 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
 
     // Switch to the sheet where the match is located
     if (jumpToMatchSheet && this.getters.getActiveSheetId() !== selectedMatch.sheetId) {
+      // We set `preserveSelectedMatchIndex` to true to avoid resetting the selected search
+      // index in the `refreshSearch` function when a new sheet is activated. The reason being
+      // that, when we automatically go back to previous sheet while performing a search, the
+      // search index is reset to the first occurrence each time.
+      this.preserveSelectedMatchIndex = true;
       this.model.dispatch("ACTIVATE_SHEET", {
         sheetIdFrom: this.getters.getActiveSheetId(),
         sheetIdTo: selectedMatch.sheetId,
       });
+      this.preserveSelectedMatchIndex = false;
       // We do not want to reset the selection at finalize in this case
       this.isSearchDirty = false;
     }
