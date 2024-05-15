@@ -768,3 +768,32 @@ describe("number of match counts", () => {
     expect(store.specificRangeMatchesCount).toBe(1);
   });
 });
+
+test("Selecting a previous match located in a previous sheet will select the last occurrence of the previous sheet and go backward in order", () => {
+  setCellContent(model, "A1", "9", sheetId1);
+  setCellContent(model, "B2", "9", sheetId1);
+  setCellContent(model, "P14", "9", sheetId1);
+  createSheet(model, { sheetId: "sh2" });
+  setCellContent(model, "H34", "9", "sh2");
+
+  updateSearch(model, "9", { searchScope: "allSheets" });
+  expect(store.activeSheetMatchesCount).toStrictEqual(3);
+
+  store.selectNextMatch();
+  store.selectNextMatch();
+  store.selectNextMatch();
+
+  expect(store.activeSheetMatchesCount).toStrictEqual(1);
+
+  expect(store.selectedMatchIndex).toStrictEqual(3);
+  expect(getActivePosition(model)).toBe("H34");
+  store.selectPreviousMatch();
+  expect(getActivePosition(model)).toBe("P14");
+  expect(store.selectedMatchIndex).toStrictEqual(2);
+  store.selectPreviousMatch();
+  expect(getActivePosition(model)).toBe("B2");
+  expect(store.selectedMatchIndex).toStrictEqual(1);
+  store.selectPreviousMatch();
+  expect(getActivePosition(model)).toBe("A1");
+  expect(store.selectedMatchIndex).toStrictEqual(0);
+});
