@@ -1379,7 +1379,11 @@ export const SUMIF = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (criteriaRange: Matrix<FPayload>, criterion: Maybe<FPayload>, sumRange: Matrix<FPayload>): number {
+  compute: function (
+    criteriaRange: Matrix<FPayload>,
+    criterion: Maybe<FPayload>,
+    sumRange: Matrix<FPayload>
+  ): number {
     if (sumRange === undefined) {
       sumRange = criteriaRange;
     }
