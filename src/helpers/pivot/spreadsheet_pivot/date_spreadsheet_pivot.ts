@@ -22,6 +22,9 @@ export function createDate(dimension: PivotDimension, value: FieldValue["value"]
       case "month_number":
         number = date.getMonth();
         break;
+      case "iso_week_number":
+        number = date.getIsoWeek();
+        break;
       case "day_of_month":
         number = date.getDate();
         break;
@@ -50,6 +53,10 @@ export function createDate(dimension: PivotDimension, value: FieldValue["value"]
  *     set: { 43_831 },
  *     values: { '43_831': 0 }
  *   },
+ *   iso_week_number: {
+ *     set: { 43_831 },
+ *     values: { '43_831': 1 }
+ *   },
  *   day_of_month: {
  *     set: { 43_831 },
  *     values: { '43_831': 1 }
@@ -73,6 +80,10 @@ const MAP_VALUE_DIMENSION_DATE: Record<
     values: {},
   },
   month_number: {
+    set: new Set<FieldValue["value"]>(),
+    values: {},
+  },
+  iso_week_number: {
     set: new Set<FieldValue["value"]>(),
     values: {},
   },
