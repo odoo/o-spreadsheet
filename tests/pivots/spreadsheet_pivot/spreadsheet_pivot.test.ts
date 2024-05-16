@@ -420,6 +420,17 @@ describe("Spreadsheet Pivot", () => {
     expect(getEvaluatedGrid(model, "B26:E26")).toEqual([["1", "2", "Total", ""]]);
   });
 
+  test("iso_week_number should be supported", () => {
+    const model = createModelWithPivot("A1:I5");
+    updatePivot(model, "1", {
+      columns: [{ name: "Created on", granularity: "iso_week_number", order: "asc" }],
+      rows: [],
+      measures: [{ name: "Expected Revenue", aggregator: "sum" }],
+    });
+    setCellContent(model, "A26", `=pivot(1)`);
+    expect(getEvaluatedGrid(model, "B26:F26")).toEqual([["5", "9", "14", "Total", ""]]);
+  });
+
   describe("Pivot reevaluation", () => {
     test("Pivot fields reevaluation", () => {
       const model = new Model({

@@ -42,7 +42,14 @@ pivotRegistry.add("SPREADSHEET", {
   definition: SpreadsheetPivotRuntimeDefinition,
   externalData: false,
   onIterationEndEvaluation: (pivot: SpreadsheetPivot) => pivot.markAsDirtyForEvaluation(),
-  granularities: ["year_number", "quarter_number", "month_number", "day_of_month", "day"],
+  granularities: [
+    "year_number",
+    "quarter_number",
+    "month_number",
+    "iso_week_number",
+    "day_of_month",
+    "day",
+  ],
   isMeasureCandidate: (field: PivotField) => !["date", "boolean"].includes(field.type),
   isGroupable: () => true,
 });

@@ -1012,3 +1012,27 @@ describe("Number of digits in year/month/days in format", () => {
     expect(parseDateTime("1-3-2002", locale)).toMatchObject({ format: "m-d-yyyy" });
   });
 });
+
+describe("Datetime", () => {
+  test("isoWeekNumber", () => {
+    expect(parseDateTime("2020/01/01", locale)?.jsDate?.getIsoWeek()).toBe(1);
+    // Week 53 in 2020. The first Thursday in 2021 is on the 7th of January.
+    // So, 1st to 3rd of January are in week 53 of 2020 (Friday, Saturday and Sunday).
+    expect(parseDateTime("2021/01/01", locale)?.jsDate?.getIsoWeek()).toBe(53);
+    expect(parseDateTime("2021/01/02", locale)?.jsDate?.getIsoWeek()).toBe(53);
+    expect(parseDateTime("2021/01/03", locale)?.jsDate?.getIsoWeek()).toBe(53);
+    expect(parseDateTime("2021/01/04", locale)?.jsDate?.getIsoWeek()).toBe(1);
+    expect(parseDateTime("2021/01/05", locale)?.jsDate?.getIsoWeek()).toBe(1);
+    expect(parseDateTime("2021/01/06", locale)?.jsDate?.getIsoWeek()).toBe(1);
+    expect(parseDateTime("2021/01/07", locale)?.jsDate?.getIsoWeek()).toBe(1);
+    expect(parseDateTime("2021/03/10", locale)?.jsDate?.getIsoWeek()).toBe(10);
+    expect(parseDateTime("2021/05/16", locale)?.jsDate?.getIsoWeek()).toBe(19);
+    expect(parseDateTime("2021/05/17", locale)?.jsDate?.getIsoWeek()).toBe(20);
+
+    expect(parseDateTime("2024/01/01", locale)?.jsDate?.getIsoWeek()).toBe(1);
+    expect(parseDateTime("2024/02/29", locale)?.jsDate?.getIsoWeek()).toBe(9);
+    expect(parseDateTime("2024/12/29", locale)?.jsDate?.getIsoWeek()).toBe(52);
+    // 2nd of January 2025 is the first thursday of the year, so week 1 starts on the 30th of December 2024
+    expect(parseDateTime("2024/12/30", locale)?.jsDate?.getIsoWeek()).toBe(1);
+  });
+});
