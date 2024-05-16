@@ -80,19 +80,24 @@ export const CHOOSECOLS = {
     const _array = toMatrix(array);
     const _columns = flattenRowFirst(columns, (item) => toInteger(item?.value, this.locale));
 
+    const argOutOfRange = _columns.filter((col) => col === 0 || _array.length < Math.abs(col));
     assert(
-      () => _columns.every((col) => col > 0 && col <= _array.length),
+      () => argOutOfRange.length === 0,
       _t(
-        "The columns arguments must be between 1 and %s (got %s).",
+        "The columns arguments must be between -%s and %s (got %s), excluding 0.",
         _array.length.toString(),
-        (_columns.find((col) => col <= 0 || col > _array.length) || 0).toString()
+        _array.length.toString(),
+        argOutOfRange.join(",")
       )
     );
 
     const result: Matrix<FPayload> = Array(_columns.length);
     for (let col = 0; col < _columns.length; col++) {
-      const colIndex = _columns[col] - 1; // -1 because columns arguments are 1-indexed
-      result[col] = _array[colIndex];
+      if (_columns[col] > 0) {
+        result[col] = _array[_columns[col] - 1]; // -1 because columns arguments are 1-indexed
+      } else {
+        result[col] = _array[_array.length + _columns[col]];
+      }
     }
 
     return result;
@@ -119,16 +124,23 @@ export const CHOOSEROWS = {
     const _rows = flattenRowFirst(rows, (item) => toInteger(item?.value, this.locale));
     const _nbColumns = _array.length;
 
+    const argOutOfRange = _rows.filter((row) => row === 0 || _array[0].length < Math.abs(row));
     assert(
-      () => _rows.every((row) => row > 0 && row <= _array[0].length),
+      () => argOutOfRange.length === 0,
       _t(
-        "The rows arguments must be between 1 and %s (got %s).",
+        "The rows arguments must be between -%s and %s (got %s), excluding 0.",
         _array[0].length.toString(),
-        (_rows.find((row) => row <= 0 || row > _array[0].length) || 0).toString()
+        _array[0].length.toString(),
+        argOutOfRange.join(",")
       )
     );
 
-    return generateMatrix(_nbColumns, _rows.length, (col, row) => _array[col][_rows[row] - 1]); // -1 because rows arguments are 1-indexed
+    return generateMatrix(_nbColumns, _rows.length, (col, row) => {
+      if (_rows[row] > 0) {
+        return _array[col][_rows[row] - 1]; // -1 because columns arguments are 1-indexed
+      }
+      return _array[col][_array[col].length + _rows[row]];
+    });
   },
   isExported: true,
 } satisfies AddFunctionDescription;
