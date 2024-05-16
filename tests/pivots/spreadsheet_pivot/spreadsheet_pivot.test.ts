@@ -409,6 +409,17 @@ describe("Spreadsheet Pivot", () => {
     expect(getCellContent(model, "B28")).toBe("$15,500.00");
   });
 
+  test("quarter_number should be supported", () => {
+    const model = createModelWithPivot("A1:I5");
+    updatePivot(model, "1", {
+      columns: [{ name: "Created on", granularity: "quarter_number", order: "asc" }],
+      rows: [],
+      measures: [{ name: "Expected Revenue", aggregator: "sum" }],
+    });
+    setCellContent(model, "A26", `=pivot(1)`);
+    expect(getEvaluatedGrid(model, "B26:E26")).toEqual([["1", "2", "Total", ""]]);
+  });
+
   describe("Pivot reevaluation", () => {
     test("Pivot fields reevaluation", () => {
       const model = new Model({

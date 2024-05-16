@@ -16,6 +16,9 @@ export function createDate(dimension: PivotDimension, value: FieldValue["value"]
       case "year_number":
         number = date.getFullYear();
         break;
+      case "quarter_number":
+        number = Math.floor(date.getMonth() / 3) + 1;
+        break;
       case "month_number":
         number = date.getMonth();
         break;
@@ -39,6 +42,10 @@ export function createDate(dimension: PivotDimension, value: FieldValue["value"]
  *     set: { 43_831 },
  *     values: { '43_831': 2012 }
  *   },
+ *   quarter_number: {
+ *     set: { 43_831 },
+ *     values: { '43_831': 1 }
+ *   },
  *   month_number: {
  *     set: { 43_831 },
  *     values: { '43_831': 0 }
@@ -58,6 +65,10 @@ const MAP_VALUE_DIMENSION_DATE: Record<
   { set: Set<FieldValue["value"]>; values: Record<string, FieldValue["value"]> }
 > = {
   year_number: {
+    set: new Set<FieldValue["value"]>(),
+    values: {},
+  },
+  quarter_number: {
     set: new Set<FieldValue["value"]>(),
     values: {},
   },
