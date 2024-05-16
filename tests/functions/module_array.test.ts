@@ -179,6 +179,13 @@ describe("CHOOSECOLS function", () => {
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E3")).toBeTruthy();
   });
 
+  test("Accept negative index", () => {
+    const grid = { A1: "A1", B1: "B1", C1: "C1" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "D1", "=CHOOSECOLS(A1:C1, -1)");
+    expect(getRangeValuesAsMatrix(model, "D1")).toEqual([["C1"]]);
+  });
+
   test("CHOOSECOLS: result format depends on range's format", () => {
     // prettier-ignore
     const grid = {
@@ -292,6 +299,13 @@ describe("CHOOSEROWS function", () => {
       ["", ""],
     ]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E3")).toBeTruthy();
+  });
+
+  test("Accept negative index", () => {
+    const grid = { A1: "A1", A2: "A2", A3: "A3" };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "D1", "=CHOOSEROWS(A1:A3, -1)");
+    expect(getRangeValuesAsMatrix(model, "D1")).toEqual([["A3"]]);
   });
 
   test("CHOOSEROWS: result format depends on range's format", () => {
