@@ -34,7 +34,7 @@ export class AutoCompleteStore extends SpreadsheetStore {
       this.selectedIndex = 0;
       return;
     }
-    if (direction === "next") {
+    if (direction === "previous") {
       this.selectedIndex--;
       if (this.selectedIndex < 0) {
         this.selectedIndex = this.provider.proposals.length - 1;
