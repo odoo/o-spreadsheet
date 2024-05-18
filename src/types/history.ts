@@ -9,9 +9,9 @@ export interface CreateRevisionOptions {
 }
 
 export interface HistoryChange {
-  path: [any, ...(number | string)[]];
+  key: string;
+  target: any;
   before: any;
-  after: any;
 }
 
 export interface WorkbookHistory<Plugin> {

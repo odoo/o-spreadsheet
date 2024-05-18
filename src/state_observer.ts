@@ -1,6 +1,8 @@
 import { createEmptyStructure } from "./helpers/state_manager_helpers";
 import { CoreCommand, HistoryChange } from "./types";
 
+type HistoryPath = [any, ...(number | string)[]];
+
 export class StateObserver {
   private changes: HistoryChange[] = [];
   private commands: CoreCommand[] = [];
@@ -20,7 +22,7 @@ export class StateObserver {
     this.commands.push(command);
   }
 
-  addChange(...args: [...HistoryChange["path"], any]) {
+  addChange(...args: [...HistoryPath, any]) {
     const val: any = args.pop();
     const root = args[0];
     let value = root as any;
@@ -38,9 +40,9 @@ export class StateObserver {
       return;
     }
     this.changes.push({
-      path: args,
+      key,
+      target: value,
       before: value[key],
-      after: val,
     });
     if (val === undefined) {
       delete value[key];
