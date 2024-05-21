@@ -1,4 +1,4 @@
-import { _t } from "../../src/translation";
+import { _t, setTranslationMethod } from "../../src/translation";
 
 describe("Translations", () => {
   test("placeholders in string translation are replaced with their given value", () => {
@@ -20,5 +20,14 @@ describe("Translations", () => {
 
   test("can have named placeholders", () => {
     expect(_t("%(x1)s %(thing)s", { x1: "Hello", thing: "World" })).toBe("Hello World");
+  });
+
+  test("should replace placeholders even if the translation is not loaded", () => {
+    setTranslationMethod(
+      (str, ...values) => str,
+      () => false
+    );
+    const str = _t("%(x1)s %(thing)s", { x1: "Hello", thing: "World" });
+    expect(`${str}`).toBe("Hello World");
   });
 });
