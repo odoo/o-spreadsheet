@@ -9,6 +9,7 @@ import {
   makeFieldProposal,
 } from "../../helpers/pivot/pivot_helpers";
 import { _t } from "../../translation";
+import { Granularity } from "../../types";
 import { autoCompleteProviders } from "./auto_complete_registry";
 
 autoCompleteProviders.add("pivot_ids", {
@@ -119,7 +120,8 @@ autoCompleteProviders.add("pivot_group_fields", {
     if (!fields) {
       return;
     }
-    const { columns, rows, type } = this.getters.getPivotCoreDefinition(pivotId);
+    const { type } = this.getters.getPivotCoreDefinition(pivotId);
+    const { columns, rows } = dataSource.definition;
     if (!supportedPivotExplodedFormulaRegistry.get(type)) {
       return [];
     }
@@ -131,8 +133,8 @@ autoCompleteProviders.add("pivot_group_fields", {
       args = args.filter((ast, index) => index % 2 === 1); // keep only the field names
     }
     const argGroupBys = args.map((ast) => ast?.value).filter(isDefined);
-    const colFields = columns.map((groupBy) => groupBy.name);
-    const rowFields = rows.map((groupBy) => groupBy.name);
+    const colFields = columns.map((groupBy) => groupBy.nameWithGranularity);
+    const rowFields = rows.map((groupBy) => groupBy.nameWithGranularity);
 
     const proposals: string[] = [];
     const previousGroupBy = ["ARG_SEPARATOR", "SPACE"].includes(tokenAtCursor.type)
@@ -154,16 +156,18 @@ autoCompleteProviders.add("pivot_group_fields", {
     const groupBys = proposals.filter(isDefined);
     return groupBys
       .map((groupBy) => {
-        const field = fields[groupBy];
-        return field ? makeFieldProposal(field) : undefined;
+        const [fieldName, granularity] = groupBy.split(":");
+        const field = fields[fieldName];
+        return field ? makeFieldProposal(field, granularity as Granularity) : undefined;
       })
       .concat(
         groupBys.map((groupBy) => {
-          const field = fields[groupBy];
+          const fieldName = groupBy.split(":")[0];
+          const field = fields[fieldName];
           if (!field) {
             return undefined;
           }
-          const positionalFieldArg = `"#${field.name}"`;
+          const positionalFieldArg = `"#${groupBy}"`;
           const positionalProposal = {
             text: positionalFieldArg,
             description:
@@ -229,7 +233,7 @@ autoCompleteProviders.add("pivot_group_values", {
     if (!groupByField) {
       return;
     }
-    return dataSource.getPossibleFieldValues(groupByField).map(({ value, label }) => {
+    return dataSource.getPossibleFieldValues(groupByField.split(":")[0]).map(({ value, label }) => {
       const isString = typeof value === "string";
       const text = isString ? `"${value}"` : value.toString();
       const color = isString ? tokenColors.STRING : tokenColors.NUMBER;
