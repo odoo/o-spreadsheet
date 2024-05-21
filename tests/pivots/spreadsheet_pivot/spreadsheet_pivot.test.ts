@@ -278,6 +278,21 @@ describe("Spreadsheet Pivot", () => {
     ]);
   });
 
+  test("Empty string values are treated the same as blank cells", () => {
+    const model = createModelWithPivot("A1:I5");
+    setCellContent(model, "C3", '=""');
+    setCellContent(model, "C5", "");
+    setCellContent(model, "A26", "=pivot(1)");
+
+    updatePivot(model, "1", {
+      columns: [{ name: "Contact Name", order: "asc" }],
+    });
+
+    expect(getEvaluatedGrid(model, "B26:F26")).toEqual([
+      ["Alice", "Michel", "(Undefined)", "Total", ""],
+    ]);
+  });
+
   test("Cannot load a pivot with a field in error", () => {
     const model = createModelWithPivot("A1:I5");
     setCellContent(model, "A1", `=1/0`);
