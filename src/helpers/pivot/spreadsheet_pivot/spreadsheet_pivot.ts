@@ -363,7 +363,11 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
         if (!field) {
           throw new Error(`Field ${this.fieldKeys[index]} does not exist`);
         }
-        entry[field.name] = cell;
+        if (cell.value === "") {
+          entry[field.name] = { value: null, type: CellValueType.empty };
+        } else {
+          entry[field.name] = cell;
+        }
       }
       entry["__count"] = { value: 1, type: CellValueType.number };
       dataEntries.push(entry);
