@@ -25,7 +25,7 @@ export function dataEntriesToSpreadsheetPivotTable(
   dataEntries: DataEntries,
   definition: SpreadsheetPivotRuntimeDefinition
 ) {
-  const columnsTree = dateEntriesToColumnsTree(dataEntries, definition.columns, 0);
+  const columnsTree = dataEntriesToColumnsTree(dataEntries, definition.columns, 0);
   computeWidthOfColumnsNodes(columnsTree, definition.measures.length);
   const cols = columnsTreeToColumns(columnsTree, definition);
 
@@ -88,7 +88,7 @@ function dataEntriesToRows(
 /**
  * Create the columns tree from data entries.
  */
-function dateEntriesToColumnsTree(
+function dataEntriesToColumnsTree(
   dataEntries: DataEntries,
   columns: PivotDimension[],
   index: number
@@ -104,7 +104,7 @@ function dateEntriesToColumnsTree(
     return {
       value,
       field: colName,
-      children: dateEntriesToColumnsTree(groups[value] || [], columns, index + 1),
+      children: dataEntriesToColumnsTree(groups[value] || [], columns, index + 1),
       width: 0,
     };
   });
