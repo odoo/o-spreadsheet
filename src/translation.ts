@@ -40,7 +40,7 @@ class LazyTranslatedString extends String {
 
   valueOf() {
     const str = super.valueOf();
-    return _loaded() ? sprintf(_translate(str), ...this.values) : str;
+    return _loaded() ? sprintf(_translate(str), ...this.values) : sprintf(str, ...this.values);
   }
   toString() {
     return this.valueOf();
