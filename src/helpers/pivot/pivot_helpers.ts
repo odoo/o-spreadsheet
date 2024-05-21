@@ -8,7 +8,7 @@ import { average, countAny, max, min } from "../../functions/helper_statistical"
 import { inferFormat } from "../../functions/helpers";
 import { _t } from "../../translation";
 import { Arg, CellValue, FPayload, Format, Locale, Matrix } from "../../types";
-import { DomainArg, PivotCoreDimension, PivotField } from "../../types/pivot";
+import { DomainArg, Granularity, PivotCoreDimension, PivotField } from "../../types/pivot";
 
 const PIVOT_FUNCTIONS = ["PIVOT.VALUE", "PIVOT.HEADER", "PIVOT"];
 
@@ -163,13 +163,14 @@ export function isDateField(field: PivotField) {
  * Create a proposal entry for the compose autocomplete
  * to insert a field name string in a formula.
  */
-export function makeFieldProposal(field: PivotField) {
-  const quotedFieldName = `"${field.name}"`;
+export function makeFieldProposal(field: PivotField, granularity?: Granularity) {
+  const groupBy = granularity ? `${field.name}:${granularity}` : field.name;
+  const quotedGroupBy = `"${groupBy}"`;
   return {
-    text: quotedFieldName,
+    text: quotedGroupBy,
     description: field.string + (field.help ? ` (${field.help})` : ""),
-    htmlContent: [{ value: quotedFieldName, color: tokenColors.STRING }],
-    fuzzySearchKey: field.string + quotedFieldName, // search on translated name and on technical name
+    htmlContent: [{ value: quotedGroupBy, color: tokenColors.STRING }],
+    fuzzySearchKey: field.string + quotedGroupBy, // search on translated name and on technical name
   };
 }
 
