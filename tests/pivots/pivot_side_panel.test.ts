@@ -1,4 +1,5 @@
 import { Model, SpreadsheetChildEnv } from "../../src";
+import { createSheet, deleteSheet } from "../test_helpers/commands_helpers";
 import { click } from "../test_helpers/dom_helper";
 import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 import { addPivot, removePivot } from "../test_helpers/pivot_helpers";
@@ -83,5 +84,17 @@ describe("Pivot side panel", () => {
     await click(fixture.querySelector(".sp_delete")!);
     expect(model.getters.getPivotIds()).toEqual([]);
     expect(fixture.querySelector(".o-sidePanel")).toBeNull();
+  });
+
+  test("Sidepanel pivot definition is properly reinitialized", async () => {
+    removePivot(model, "1");
+    env.openSidePanel("PivotSidePanel", { pivotId: "2" });
+    await nextTick();
+    createSheet(model, { sheetId: "toDelete", activate: true });
+    await nextTick();
+    // force the invalidation of the pivot definition
+    deleteSheet(model, "toDelete");
+    await nextTick();
+    expect(fixture.querySelector(".o-sidePanel")).not.toBeNull();
   });
 });

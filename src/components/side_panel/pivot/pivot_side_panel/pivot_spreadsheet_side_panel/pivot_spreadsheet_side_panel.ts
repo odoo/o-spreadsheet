@@ -38,7 +38,6 @@ export class PivotSpreadsheetSidePanel extends Component<Props, SpreadsheetChild
 
   setup() {
     this.store = useLocalStore(PivotSidePanelStore, this.props.pivotId);
-    this.pivot.init();
     this.state = useState({
       range: undefined,
       rangeHasChanged: false,
