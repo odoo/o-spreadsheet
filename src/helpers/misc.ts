@@ -369,7 +369,9 @@ export function deepEquals(o1: any, o2: any, ignoreFunctions?: "ignoreFunctions"
     if (typeOfO1Key === "object") {
       if (!deepEquals(o1[key], o2[key], ignoreFunctions)) return false;
     } else {
-      if (ignoreFunctions && typeOfO1Key === "function") return true;
+      if (ignoreFunctions && typeOfO1Key === "function") {
+        continue;
+      }
       if (o1[key] !== o2[key]) return false;
     }
   }
