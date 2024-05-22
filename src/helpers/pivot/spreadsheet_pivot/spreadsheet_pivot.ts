@@ -117,7 +117,10 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
 
   get definition() {
     if (!this._definition) {
-      throw new Error("Pivot not loaded yet");
+      this.init();
+    }
+    if (!this._definition) {
+      throw new Error("Pivot definition should be defined at this point.");
     }
     return this._definition;
   }
