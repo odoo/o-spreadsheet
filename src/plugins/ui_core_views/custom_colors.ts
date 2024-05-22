@@ -71,7 +71,7 @@ interface CustomColorState {
  */
 export class CustomColorsPlugin extends CoreUiPlugin<CustomColorState> {
   private readonly customColors: Immutable<Record<Color, true>> = {};
-  private shouldUpdateColors = true;
+  private readonly shouldUpdateColors = true;
   static getters = ["getCustomColors"] as const;
 
   constructor(config: CorePluginConfig) {
@@ -92,14 +92,14 @@ export class CustomColorsPlugin extends CoreUiPlugin<CustomColorState> {
       case "SET_FORMATTING":
       case "CREATE_TABLE":
       case "UPDATE_TABLE":
-        this.shouldUpdateColors = true;
+        this.history.update("shouldUpdateColors", true);
         break;
     }
   }
 
   finalize() {
     if (this.shouldUpdateColors) {
-      this.shouldUpdateColors = false;
+      this.history.update("shouldUpdateColors", false);
       for (const color of this.computeCustomColors()) {
         this.tryToAddColor(color);
       }
