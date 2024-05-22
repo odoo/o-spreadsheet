@@ -553,7 +553,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
             console.info(type, time, "ms");
           }
         });
-        console.log(`for command ${type}`, "changes:", changes, commands);
         this.session.save(command, commands, changes);
         this.status = Status.Ready;
         this.trigger("update");
