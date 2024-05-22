@@ -189,10 +189,6 @@ export class EvaluationPlugin extends UIPlugin {
           this.evaluator.updateDependencies(cmd);
         }
         break;
-      case "DUPLICATE_SHEET":
-      case "CREATE_SHEET":
-        this.shouldRebuildDependenciesGraph = true;
-        break;
       case "EVALUATE_CELLS":
         this.evaluator.evaluateAllCells();
         break;

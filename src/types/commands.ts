@@ -113,6 +113,7 @@ export const invalidateEvaluationCommands = new Set<CommandTypes>([
   "RENAME_SHEET",
   "DELETE_SHEET",
   "CREATE_SHEET",
+  "DUPLICATE_SHEET",
   "ADD_COLUMNS_ROWS",
   "REMOVE_COLUMNS_ROWS",
   "UNDO",
