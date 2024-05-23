@@ -33,6 +33,7 @@ import { ChartErrorSection } from "./components/side_panel/chart/building_blocks
 import { ChartLabelRange } from "./components/side_panel/chart/building_blocks/label_range/label_range";
 import { ChartTitle } from "./components/side_panel/chart/building_blocks/title/title";
 import { ChartPanel } from "./components/side_panel/chart/main_chart_panel/main_chart_panel";
+import { PieChartDesignPanel } from "./components/side_panel/chart/pie_chart/pie_chart_design_panel";
 import { Checkbox } from "./components/side_panel/components/checkbox/checkbox";
 import { RoundColorPicker } from "./components/side_panel/components/round_color_picker/round_color_picker";
 import { Section } from "./components/side_panel/components/section/section";
@@ -62,7 +63,12 @@ import {
 import { getFunctionsFromTokens } from "./formulas";
 import { isEvaluationError, toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
 import { FunctionRegistry, arg, functionRegistry } from "./functions/index";
-import { chartFontColor, getDefaultChartJsRuntime, getFillingMode } from "./helpers/figures/charts";
+import {
+  chartFontColor,
+  getChartAxisTitleRuntime,
+  getDefaultChartJsRuntime,
+  getFillingMode,
+} from "./helpers/figures/charts";
 import {
   ColorGenerator,
   UuidGenerator,
@@ -278,6 +284,7 @@ export const helpers = {
   createEmptyExcelSheet,
   getDefaultChartJsRuntime,
   chartFontColor,
+  getChartAxisTitleRuntime,
   getFillingMode,
   rgbaToHex,
   colorToRGBA,
@@ -337,6 +344,7 @@ export const components = {
   ScorecardChart,
   LineConfigPanel,
   BarConfigPanel,
+  PieChartDesignPanel,
   GenericChartConfigPanel,
   ChartWithAxisDesignPanel,
   GaugeChartConfigPanel,
