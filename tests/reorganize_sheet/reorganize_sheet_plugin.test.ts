@@ -65,6 +65,24 @@ describe("Send selection to sheet", () => {
     expect(zoneToXc(model.getters.getTables("Sheet2")[0].range.zone)).toEqual("A1:B2");
   });
 
+  test("Can send the selection to a new sheet", () => {
+    const oldSheets = model.getters.getSheetIds();
+    setCellContent(model, "A1", "A");
+    setCellContent(model, "B2", "B");
+    setSelection(model, ["A1:B2"]);
+
+    model.dispatch("SEND_SELECTION_TO_SHEET", {});
+    const newSheetId = model.getters.getSheetIds().find((sheetId) => !oldSheets.includes(sheetId))!;
+
+    expect(model.getters.getActiveSheetId()).toEqual(sheetId);
+    expect(getCellContent(model, "A1", sheetId)).toEqual("");
+    expect(getCellContent(model, "B2", sheetId)).toEqual("");
+    expect(getCellContent(model, "A1", newSheetId)).toEqual("A");
+    expect(getCellContent(model, "B2", newSheetId)).toEqual("B");
+
+    expect(zoneToXc(model.getters.getTables(newSheetId)[0].range.zone)).toEqual("A1:B2");
+  });
+
   test("Range is inserted below existing cells", () => {
     setCellContent(model, "A1", "A");
     setCellContent(model, "A5", "content", "Sheet2");

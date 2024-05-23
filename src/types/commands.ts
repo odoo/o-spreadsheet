@@ -955,12 +955,12 @@ export interface InsertNewPivotCommand {
 export interface SendFigureToSheetCommand {
   type: "SEND_FIGURE_TO_SHEET";
   figureId: UID;
-  sheetId: UID;
+  sheetId?: UID;
 }
 
 export interface SendSelectionToSheetCommand {
   type: "SEND_SELECTION_TO_SHEET";
-  sheetId: UID;
+  sheetId?: UID;
 }
 
 export interface ReorganizeSheetCommand {

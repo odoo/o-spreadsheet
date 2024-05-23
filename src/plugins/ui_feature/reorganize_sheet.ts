@@ -1,6 +1,7 @@
 import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
 import { DEFAULT_CELL_HEIGHT } from "../../constants";
 import {
+  UuidGenerator,
   compareZoneByWidth,
   getZoneArea,
   mergeContiguousZones,
@@ -10,6 +11,7 @@ import {
   zoneToDimension,
 } from "../../helpers";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
+import { _t } from "../../translation";
 import {
   CellValueType,
   Command,
@@ -73,16 +75,32 @@ export class ReorganizeSheetPlugin extends UIPlugin {
 
   handle(cmd: Command) {
     switch (cmd.type) {
-      case "SEND_FIGURE_TO_SHEET":
-        this.sendFigureToSheet(cmd.figureId, cmd.sheetId);
+      case "SEND_FIGURE_TO_SHEET": {
+        const sheetId = this.getSheetToSendItemTo(cmd.sheetId);
+        this.sendFigureToSheet(cmd.figureId, sheetId);
         break;
-      case "SEND_SELECTION_TO_SHEET":
-        this.sendSelectionToSheet(cmd.sheetId);
+      }
+      case "SEND_SELECTION_TO_SHEET": {
+        const sheetId = this.getSheetToSendItemTo(cmd.sheetId);
+        this.sendSelectionToSheet(sheetId);
         break;
+      }
       case "REORGANIZE_SHEET":
         this.reorganizeSheet();
         break;
     }
+  }
+
+  private getSheetToSendItemTo(sheetId?: UID): UID {
+    if (sheetId) {
+      return sheetId;
+    }
+    const position = this.getters.getSheetIds().length;
+    const newSheetId = new UuidGenerator().uuidv4();
+    const name = this.getters.getNextSheetName(_t("Sheet"));
+
+    this.dispatch("CREATE_SHEET", { sheetId: newSheetId, position, name });
+    return newSheetId;
   }
 
   private sendFigureToSheet(figureId: UID, targetSheet: UID) {

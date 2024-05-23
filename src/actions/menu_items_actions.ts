@@ -578,7 +578,7 @@ export const CREATE_OR_REMOVE_FILTER_ACTION: ActionSpec = {
 
 export function getSendToSheetMenuChildren(
   env: SpreadsheetChildEnv,
-  sendItemToSheetCallback: (env: SpreadsheetChildEnv, sheetId: UID) => void
+  sendItemToSheetCallback: (env: SpreadsheetChildEnv, sheetId?: UID) => void
 ): ActionSpec[] {
   const sheetIds = env.model.getters
     .getSheetIds()
@@ -597,14 +597,7 @@ export function getSendToSheetMenuChildren(
     name: _t("New sheet"),
     id: "new_sheet",
     icon: "o-spreadsheet-Icon.PLUS",
-    execute: (env) => {
-      const position = env.model.getters.getSheetIds().length;
-      const sheetId = env.model.uuidGenerator.uuidv4();
-      const name = env.model.getters.getNextSheetName(_t("Sheet"));
-
-      env.model.dispatch("CREATE_SHEET", { sheetId, position, name });
-      sendItemToSheetCallback(env, sheetId);
-    },
+    execute: (env) => sendItemToSheetCallback(env, undefined),
   });
   return children;
 }
