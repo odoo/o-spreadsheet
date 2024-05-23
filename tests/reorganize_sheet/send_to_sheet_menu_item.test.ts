@@ -25,7 +25,7 @@ beforeEach(() => {
 
 describe("Send figure to sheet menu item", () => {
   test("Send chart to sheet", () => {
-    createChart(model, {}, "chartId");
+    createChart(model, { type: "bar" }, "chartId");
     const menuItems = figureRegistry.get("chart").menuBuilder("chartId", () => {}, env);
 
     const sendToSheetItem = menuItems.find((item) => item.id === "send_to_sheet");
@@ -40,7 +40,7 @@ describe("Send figure to sheet menu item", () => {
   });
 
   test("Send chart to new sheet", () => {
-    createChart(model, {}, "chartId");
+    createChart(model, { type: "bar" }, "chartId");
     const menuItems = figureRegistry.get("chart").menuBuilder("chartId", () => {}, env);
     const sendToSheetItem = menuItems.find((item) => item.id === "send_to_sheet");
     const children = sendToSheetItem?.children(env)!;
@@ -69,6 +69,7 @@ describe("Send figure to sheet menu item", () => {
 describe("Send range to sheet menu item", () => {
   test("Can send a range to a sheet", () => {
     setCellContent(model, "A1", "A");
+    setCellContent(model, "A2", "A");
     setCellContent(model, "B2", "B");
     setSelection(model, ["A1:B2"]);
 

@@ -51,6 +51,7 @@ describe("Send selection to sheet", () => {
 
   test("Can send the selection to another sheet as a table", () => {
     setCellContent(model, "A1", "A");
+    setCellContent(model, "A2", "B");
     setCellContent(model, "B2", "B");
     setSelection(model, ["A1:B2"]);
 
@@ -68,6 +69,7 @@ describe("Send selection to sheet", () => {
   test("Can send the selection to a new sheet", () => {
     const oldSheets = model.getters.getSheetIds();
     setCellContent(model, "A1", "A");
+    setCellContent(model, "A2", "A");
     setCellContent(model, "B2", "B");
     setSelection(model, ["A1:B2"]);
 

@@ -4,6 +4,7 @@ import {
   UuidGenerator,
   compareZoneByWidth,
   getZoneArea,
+  isZoneInside,
   mergeContiguousZones,
   positionToZone,
   range,
@@ -95,7 +96,8 @@ export class ReorganizeSheetPlugin extends UIPlugin {
     if (sheetId) {
       return sheetId;
     }
-    const position = this.getters.getSheetIds().length;
+    const position =
+      this.getters.getSheetIds().findIndex((id) => id === this.getters.getActiveSheetId()) + 1;
     const newSheetId = new UuidGenerator().uuidv4();
     const name = this.getters.getNextSheetName(_t("Sheet"));
 
@@ -145,20 +147,28 @@ export class ReorganizeSheetPlugin extends UIPlugin {
   }
 
   private sendSelectionToSheet(targetSheet: UID) {
+    // ADRM TODO:  test this after confirming with francois
+    const originSheetId = this.getters.getActiveSheetId();
     const selection = this.getters.getSelectedZone();
 
     const position = this.getPositionToInsertElement(targetSheet);
 
-    const data = this.copyZone(this.getters.getActiveSheetId(), selection);
-    this.pasteToTarget(data, this.cellClipboardHandlers, targetSheet, position);
+    const clustersInZone = this.getClustersOfZone(originSheetId, selection);
+    const minClusterTop = Math.min(...clustersInZone.map((cluster) => cluster.zone.top));
+    const minClusterLeft = Math.min(...clustersInZone.map((cluster) => cluster.zone.left));
 
-    const table = this.getters.getTable(this.getters.getActivePosition());
-    if (!table) {
+    for (const cluster of clustersInZone) {
+      const targetPosition = {
+        col: position.col + cluster.zone.left - minClusterLeft,
+        row: position.row + cluster.zone.top - minClusterTop,
+      };
+      const data = this.copyZone(originSheetId, cluster.zone);
+      this.pasteToTarget(data, this.cellClipboardHandlers, targetSheet, targetPosition);
       const tableZone = {
-        top: position.row,
-        left: position.col,
-        bottom: position.row + selection.bottom - selection.top,
-        right: position.col + selection.right - selection.left,
+        top: targetPosition.row,
+        left: targetPosition.col,
+        bottom: targetPosition.row + cluster.zone.bottom - cluster.zone.top,
+        right: targetPosition.col + cluster.zone.right - cluster.zone.left,
       };
       this.dispatch("CREATE_TABLE", {
         sheetId: targetSheet,
@@ -471,7 +481,8 @@ export class ReorganizeSheetPlugin extends UIPlugin {
   }
 
   private getReorganizedClusters(originSheet: UID, maxCol: HeaderIndex): ClusterRow[] {
-    const clusters = this.createClusters(originSheet);
+    const sheetZone = this.getters.getSheetZone(originSheet);
+    const clusters = this.getClustersOfZone(originSheet, sheetZone);
     if (!clusters.length) {
       return [];
     }
@@ -483,10 +494,10 @@ export class ReorganizeSheetPlugin extends UIPlugin {
     this.pasteToTarget(data, this.cellClipboardHandlers, targetSheet, target);
   }
 
-  private createClusters(sheetId: UID): Cluster[] {
+  private getClustersOfZone(sheetId: UID, zone: Zone): Cluster[] {
     const cellZones: Zone[] = [];
-    for (let col = 0; col < this.getters.getNumberCols(sheetId); col++) {
-      for (let row = 0; row < this.getters.getNumberRows(sheetId); row++) {
+    for (let col = zone.left; col <= zone.right; col++) {
+      for (let row = zone.top; row <= zone.bottom; row++) {
         const position = { sheetId, col, row };
         const cell = this.getters.getCell(position);
         const evaluatedCell = this.getters.getEvaluatedCell(position);
@@ -500,8 +511,11 @@ export class ReorganizeSheetPlugin extends UIPlugin {
         }
       }
     }
-    const tableZones = this.getters.getTables(sheetId).map((table) => table.range.zone);
-    const merges = this.getters.getMerges(sheetId);
+    const tableZones = this.getters
+      .getTables(sheetId)
+      .map((table) => table.range.zone)
+      .filter((tableZone) => isZoneInside(tableZone, zone));
+    const merges = this.getters.getMerges(sheetId).filter((merge) => isZoneInside(merge, zone));
 
     let clustersZones = recomputeZones([...tableZones, ...cellZones, ...merges], []);
     clustersZones = mergeContiguousZones(clustersZones).sort(compareZoneByWidth);
