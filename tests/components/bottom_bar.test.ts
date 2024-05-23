@@ -62,11 +62,16 @@ function isDragAndDropActive(): boolean {
 
 async function mountBottomBar(
   model: Model = new Model(),
-  env: Partial<SpreadsheetChildEnv> = {}
-): Promise<{ parent: Parent; model: Model }> {
+  partialEnv: Partial<SpreadsheetChildEnv> = {}
+): Promise<{ parent: Parent; model: Model; env: SpreadsheetChildEnv }> {
   let parent: Component;
-  ({ fixture, parent } = await mountComponent(Parent, { model, env, props: { model } }));
-  return { parent: parent as Parent, model };
+  let env: SpreadsheetChildEnv;
+  ({ fixture, parent, env } = await mountComponent(Parent, {
+    model,
+    env: partialEnv,
+    props: { model },
+  }));
+  return { parent: parent as Parent, model, env };
 }
 
 describe("BottomBar component", () => {
@@ -246,12 +251,13 @@ describe("BottomBar component", () => {
   describe("Rename a sheet", () => {
     let model: Model;
     let raiseError: jest.Mock;
+    let env: SpreadsheetChildEnv;
     beforeEach(async () => {
       raiseError = jest.fn((string, callback) => {
         callback();
       });
-      ({ model } = await mountBottomBar(new Model(), { raiseError }));
-      model;
+      ({ model, env } = await mountBottomBar(new Model(), { raiseError }));
+      env.focusableElement.focus = jest.fn();
     });
 
     test("Double click on the sheet name make it editable and give it the focus", async () => {
@@ -359,6 +365,19 @@ describe("BottomBar component", () => {
 
       expect(sheetName.innerText).toEqual("HELLO");
     });
+
+    test.each(["Enter", "Escape"])(
+      "Pressing %s ends the edition and yields back the DOM focus",
+      async (key) => {
+        const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
+        // will give focus back to the component main node
+        triggerMouseEvent(sheetName, "dblclick");
+        await nextTick();
+        sheetName.textContent = "New name";
+        await keyDown({ key });
+        expect(env.focusableElement.focus).toHaveBeenCalled();
+      }
+    );
   });
 
   test("Can't rename a sheet in readonly mode", async () => {
