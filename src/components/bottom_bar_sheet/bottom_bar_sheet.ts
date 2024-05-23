@@ -3,6 +3,8 @@ import { BOTTOMBAR_HEIGHT } from "../../constants";
 import { interactiveRenameSheet } from "../../helpers/ui/sheet_interactive";
 import { getSheetMenuRegistry } from "../../registries";
 import { MenuItemRegistry } from "../../registries/menu_items_registry";
+import { Store, useStore } from "../../store_engine";
+import { DOMFocusableElementStore } from "../../stores/DOM_focus_store";
 import { SpreadsheetChildEnv } from "../../types";
 import { Ripple } from "../animation/ripple";
 import { css } from "../helpers/css";
@@ -81,6 +83,8 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
 
   private editionState: "initializing" | "editing" = "initializing";
 
+  private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
+
   setup() {
     onMounted(() => {
       if (this.isSheetActive) {
@@ -93,6 +97,7 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
         this.focusInputAndSelectContent();
       }
     });
+    this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
   }
 
   private focusInputAndSelectContent() {
@@ -145,9 +150,11 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
     if (ev.key === "Enter") {
       ev.preventDefault();
       this.stopEdition();
+      this.DOMFocusableElementStore.focus();
     }
     if (ev.key === "Escape") {
       this.cancelEdition();
+      this.DOMFocusableElementStore.focus();
     }
   }
 

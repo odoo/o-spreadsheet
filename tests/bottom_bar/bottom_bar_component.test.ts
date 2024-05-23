@@ -3,6 +3,7 @@ import { BottomBar } from "../../src/components/bottom_bar/bottom_bar";
 import { toHex } from "../../src/helpers";
 import { interactiveRenameSheet } from "../../src/helpers/ui/sheet_interactive";
 import { Model } from "../../src/model";
+import { DOMFocusableElementStore } from "../../src/stores/DOM_focus_store";
 import { Pixel, SpreadsheetChildEnv, UID } from "../../src/types";
 import {
   activateSheet,
@@ -46,15 +47,16 @@ function isDragAndDropActive(): boolean {
 
 async function mountBottomBar(
   model: Model = new Model(),
-  env: Partial<SpreadsheetChildEnv> = {}
-): Promise<{ parent: Component; model: Model }> {
+  partialEnv: Partial<SpreadsheetChildEnv> = {}
+): Promise<{ parent: Component; model: Model; env: SpreadsheetChildEnv }> {
   let parent: Component;
-  ({ fixture, parent } = await mountComponentWithPortalTarget(BottomBar, {
+  let env: SpreadsheetChildEnv;
+  ({ fixture, parent, env } = await mountComponentWithPortalTarget(BottomBar, {
     model,
-    env,
+    env: partialEnv,
     props: { onClick: () => {} },
   }));
-  return { parent, model };
+  return { parent, model, env };
 }
 
 describe("BottomBar component", () => {
@@ -234,12 +236,14 @@ describe("BottomBar component", () => {
   describe("Rename a sheet", () => {
     let model: Model;
     let raiseError: jest.Mock;
+    let env: SpreadsheetChildEnv;
     beforeEach(async () => {
       raiseError = jest.fn((string, callback) => {
         callback();
       });
-      ({ model } = await mountBottomBar(new Model(), { raiseError }));
-      model;
+      ({ model, env } = await mountBottomBar(new Model(), { raiseError }));
+      //@ts-ignore
+      env.getStore(DOMFocusableElementStore).focus = jest.fn();
     });
 
     test("Double click on the sheet name make it editable and give it the focus", async () => {
@@ -347,6 +351,20 @@ describe("BottomBar component", () => {
 
       expect(sheetName.innerText).toEqual("HELLO");
     });
+
+    test.each(["Enter", "Escape"])(
+      "Pressing %s ends the edition and yields back the DOM focus",
+      async (key) => {
+        const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
+        // will give focus back to the component main node
+        triggerMouseEvent(sheetName, "dblclick");
+        await nextTick();
+        sheetName.textContent = "New name";
+        await keyDown({ key });
+        const focusableElementStore = env.getStore(DOMFocusableElementStore);
+        expect(focusableElementStore.focus).toHaveBeenCalled();
+      }
+    );
   });
 
   test("Can't rename a sheet in readonly mode", async () => {
