@@ -411,7 +411,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * Check if a command can be dispatched, and returns a DispatchResult object with the possible
    * reasons the dispatch failed.
    */
-  canDispatch: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
+  canDispatch: CommandDispatcher["dispatch"] = (type: CommandTypes, payload?: any) => {
     return this.checkDispatchAllowed(createCommand(type, payload));
   };
 
@@ -486,7 +486,10 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * Dispatch a command from a Core Plugin (or the History).
    * A command dispatched from this function is not added to the history.
    */
-  private dispatchFromCorePlugin: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
+  private dispatchFromCorePlugin: CommandDispatcher["dispatch"] = (
+    type: CommandTypes,
+    payload?: any
+  ) => {
     const command = createCommand(type, payload);
     const previousStatus = this.status;
     this.status = Status.RunningCore;
@@ -588,8 +591,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 }
 
-function createCommand(type: string, payload: any = {}): Command {
-  const command = deepCopy(payload);
-  command.type = type;
+function createCommand(type: CommandTypes, payload: any = {}): Command {
+  const command = { ...payload, type };
+  Object.freeze(command);
   return command;
 }
