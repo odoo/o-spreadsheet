@@ -2588,6 +2588,7 @@ describe("SUMIF formula", () => {
       A13: '=SUMIF(B1:B8, ">=10", B1:B8)',
       A14: '=SUMIF(B1:B8, ">=10")',
       A15: '=SUMIF(A1:A8, "G*", B1:B8)',
+      A16: '=SUMIF(A1:A8, "G*", B2:B8)',
     };
 
     const gridResult = evaluateGrid(grid);
@@ -2595,6 +2596,7 @@ describe("SUMIF formula", () => {
     expect(gridResult.A13).toBe(113);
     expect(gridResult.A14).toBe(113);
     expect(gridResult.A15).toBe(72);
+    expect(gridResult.A16).toBe(39);
   });
 
   test("SUMIF does not accept errors in first parameter", () => {
