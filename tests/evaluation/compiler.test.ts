@@ -3,8 +3,7 @@ import { functionCache } from "../../src/formulas/compiler";
 import { compile } from "../../src/formulas/index";
 import { functionRegistry } from "../../src/functions";
 import { createRange } from "../../src/helpers";
-import { ArgType, CompiledFormula } from "../../src/types";
-import { getCellError, setCellContent } from "../test_helpers";
+import { CompiledFormula } from "../../src/types";
 import { evaluateCell, evaluateCellFormat, restoreDefaultFunctions } from "../test_helpers/helpers";
 
 function compiledBaseFunction(formula: string): CompiledFormula {
@@ -231,133 +230,6 @@ describe("compile functions", () => {
     test("if default value --> non-value interpreted as default value", () => {
       expect(evaluateCell("A1", { A1: "=SECONDARGDEFAULTVALUEEQUAL42(1)" })).toBe(true);
       expect(evaluateCellFormat("A1", { A1: "=SECONDARGDEFAULTVALUEEQUAL42(1)" })).toBe("TRUE");
-    });
-  });
-
-  describe("check type of arguments", () => {
-    afterAll(() => {
-      restoreDefaultFunctions();
-    });
-    test("reject non-range argument when expecting only range argument", () => {
-      functionRegistry.add("RANGEEXPECTED", {
-        description: "function expect number in 1st arg",
-        compute: (arg) => {
-          return true;
-        },
-        args: [{ name: "arg1", description: "", type: ["RANGE"] }],
-        returns: ["ANY"],
-      });
-
-      functionRegistry.add("FORMULA_RETURNING_RANGE", {
-        description: "function returning range",
-        compute: (arg) => {
-          return [["cucumber"]];
-        },
-        args: [],
-        returns: ["RANGE"],
-      });
-
-      functionRegistry.add("FORMULA_NOT_RETURNING_RANGE", {
-        description: "function returning range",
-        compute: (arg) => {
-          return "cucumber";
-        },
-        args: [],
-        returns: ["STRING"],
-      });
-
-      expect(() => compiledBaseFunction("=RANGEEXPECTED(42)")).toThrowError(
-        "Function RANGEEXPECTED expects the parameter 1 to be reference to a cell or range, not a number."
-      );
-      expect(() => compiledBaseFunction('=RANGEEXPECTED("test")')).toThrowError(
-        "Function RANGEEXPECTED expects the parameter 1 to be reference to a cell or range, not a string."
-      );
-      expect(() => compiledBaseFunction("=RANGEEXPECTED(TRUE)")).toThrowError(
-        "Function RANGEEXPECTED expects the parameter 1 to be reference to a cell or range, not a boolean."
-      );
-      expect(() =>
-        compiledBaseFunction("=RANGEEXPECTED(FORMULA_NOT_RETURNING_RANGE())")
-      ).toThrowError(
-        "Function RANGEEXPECTED expects the parameter 1 to be reference to a cell or range, not a funcall."
-      );
-
-      expect(() => compiledBaseFunction("=RANGEEXPECTED(A1)")).not.toThrow();
-      expect(() => compiledBaseFunction("=RANGEEXPECTED(A1:A1)")).not.toThrow();
-      expect(() => compiledBaseFunction("=RANGEEXPECTED(A1:A2)")).not.toThrow();
-      expect(() => compiledBaseFunction("=RANGEEXPECTED(A1:A$2)")).not.toThrow();
-      expect(() => compiledBaseFunction("=RANGEEXPECTED(sheet2!A1:A$2)")).not.toThrow();
-      expect(() => compiledBaseFunction("=RANGEEXPECTED(FORMULA_RETURNING_RANGE())")).not.toThrow();
-    });
-
-    test("reject range when expecting only non-range argument", () => {
-      for (let typeExpected of ["ANY", "BOOLEAN", "DATE", "NUMBER", "STRING"] as ArgType[]) {
-        functionRegistry.add(typeExpected + "EXPECTED", {
-          description: "function expect number in 1st arg",
-          compute: () => {
-            return true;
-          },
-          args: [{ name: "arg1", description: "", type: [typeExpected] }],
-          returns: ["ANY"],
-        });
-      }
-
-      const m = new Model();
-
-      setCellContent(m, "B1", "=?ANYEXPECTED(A1:A2)");
-      setCellContent(m, "B2", "=BOOLEANEXPECTED(A1:A2)");
-      setCellContent(m, "B3", "=DATEEXPECTED(A1:A2)");
-      setCellContent(m, "B4", "=NUMBEREXPECTED(A1:A2)");
-      setCellContent(m, "B5", "=STRINGEXPECTED(A1:A2)");
-      setCellContent(m, "B6", "=ANYEXPECTED(A1:A$2)");
-      setCellContent(m, "B7", "=ANYEXPECTED(sheet1!A1:A$2)");
-      setCellContent(m, "B8", "=A2:A3");
-      setCellContent(m, "B9", "=+A2:A3");
-      setCellContent(m, "B10", "=A1+A2:A3");
-      setCellContent(m, "B11", "=-A2:A3");
-      setCellContent(m, "B12", "=A1-A2:A3");
-      setCellContent(m, "B13", "=A1+A4*A5:A6-A2");
-      setCellContent(m, "B14", "=ANYEXPECTED(A1:A1)");
-
-      expect(getCellError(m, "B1")).toBe(
-        "Function ANYEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
-      );
-      expect(getCellError(m, "B2")).toBe(
-        "Function BOOLEANEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
-      );
-      expect(getCellError(m, "B3")).toBe(
-        "Function DATEEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
-      );
-      expect(getCellError(m, "B4")).toBe(
-        "Function NUMBEREXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
-      );
-      expect(getCellError(m, "B5")).toBe(
-        "Function STRINGEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
-      );
-      expect(getCellError(m, "B6")).toBe(
-        "Function ANYEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
-      );
-      expect(getCellError(m, "B7")).toBe(
-        "Function ANYEXPECTED expects the parameter 1 to be a single value or a single cell reference, not a range."
-      );
-      expect(getCellError(m, "B8")).toBe(
-        "Function EQ expects its parameters to be single values or single cell references, not ranges."
-      );
-      expect(getCellError(m, "B9")).toBe(
-        "Function UPLUS expects its parameters to be single values or single cell references, not ranges."
-      );
-      expect(getCellError(m, "B10")).toBe(
-        "Function ADD expects its parameters to be single values or single cell references, not ranges."
-      );
-      expect(getCellError(m, "B11")).toBe(
-        "Function UMINUS expects its parameters to be single values or single cell references, not ranges."
-      );
-      expect(getCellError(m, "B12")).toBe(
-        "Function MINUS expects its parameters to be single values or single cell references, not ranges."
-      );
-      expect(getCellError(m, "B13")).toBe(
-        "Function MULTIPLY expects its parameters to be single values or single cell references, not ranges."
-      );
-      expect(getCellError(m, "B14")).toBeUndefined();
     });
   });
 
