@@ -460,6 +460,7 @@ describe("AVERAGEIF formula", () => {
       A13: '=AVERAGEIF(B1:B8, ">=10", B1:B8)',
       A14: '=AVERAGEIF(B1:B8, ">=10")',
       A15: '=AVERAGEIF(A1:A8, "G*", B1:B8)',
+      A16: '=AVERAGEIF(A1:A8, "G*", B2:B8)',
     };
 
     const gridResult = evaluateGrid(grid);
@@ -467,6 +468,7 @@ describe("AVERAGEIF formula", () => {
     expect(gridResult.A13).toBe(28.25);
     expect(gridResult.A14).toBe(28.25);
     expect(gridResult.A15).toBe(36);
+    expect(gridResult.A16).toBe(19.5);
   });
 
   test("AVERAGEIF accepts errors in first parameter", () => {
