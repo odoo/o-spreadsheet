@@ -1538,7 +1538,7 @@ describe("Copy paste keyboard shortcut", () => {
 
   test("Can copy/paste chart", async () => {
     selectCell(model, "A1");
-    createChart(model, {}, "chartId");
+    createChart(model, { type: "bar" }, "chartId");
     model.dispatch("SELECT_FIGURE", { id: "chartId" });
     document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
     expect(clipboardData.content).toEqual({ "text/plain": "\t" });
@@ -1548,7 +1548,7 @@ describe("Copy paste keyboard shortcut", () => {
 
   test("Can cut/paste chart", async () => {
     selectCell(model, "A1");
-    createChart(model, {}, "chartId");
+    createChart(model, { type: "bar" }, "chartId");
     model.dispatch("SELECT_FIGURE", { id: "chartId" });
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
     expect(clipboardData.content).toEqual({ "text/plain": "\t" });
@@ -1560,7 +1560,7 @@ describe("Copy paste keyboard shortcut", () => {
   test("Double clicking only opens composer when actually targetting grid overlay", async () => {
     // creating a child  node
     mockChart();
-    createChart(model, {}, "chartId");
+    createChart(model, { type: "bar" }, "chartId");
     await nextTick();
     await simulateClick(".o-figure", 0, 0);
     await nextTick();
