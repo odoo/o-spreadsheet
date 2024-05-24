@@ -581,7 +581,7 @@ export const COUNTUNIQUEIFS = {
     visitMatchingRanges(
       args,
       (i, j) => {
-        const data = range[i][j];
+        const data = range[i]?.[j];
         if (isDefined(data)) {
           uniqueValues.add(data.value);
         }
@@ -1379,7 +1379,7 @@ export const SUMIF = {
     ),
   ],
   returns: ["NUMBER"],
-  compute: function (criteriaRange: Arg, criterion: Maybe<FPayload>, sumRange: Arg): number {
+  compute: function (criteriaRange: Matrix<FPayload>, criterion: Maybe<FPayload>, sumRange: Matrix<FPayload>): number {
     if (sumRange === undefined) {
       sumRange = criteriaRange;
     }
@@ -1388,7 +1388,7 @@ export const SUMIF = {
     visitMatchingRanges(
       [criteriaRange, criterion],
       (i, j) => {
-        const value = sumRange![i][j].value;
+        const value = sumRange[i]?.[j]?.value;
         if (typeof value === "number") {
           sum += value;
         }
@@ -1418,7 +1418,7 @@ export const SUMIFS = {
     visitMatchingRanges(
       criters,
       (i, j) => {
-        const value = sumRange[i][j].value;
+        const value = sumRange[i]?.[j]?.value;
         if (typeof value === "number") {
           sum += value;
         }

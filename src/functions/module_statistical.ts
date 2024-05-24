@@ -546,7 +546,7 @@ export const AVERAGEIF = {
     visitMatchingRanges(
       [criteriaRange, criterion],
       (i, j) => {
-        const value = _averageRange[i][j].value;
+        const value = _averageRange[i]?.[j]?.value;
         if (typeof value === "number") {
           count += 1;
           sum += value;
@@ -588,7 +588,7 @@ export const AVERAGEIFS = {
     visitMatchingRanges(
       args,
       (i, j) => {
-        const value = _averageRange[i][j].value;
+        const value = _averageRange[i]?.[j]?.value;
         if (typeof value === "number") {
           count += 1;
           sum += value;
@@ -1075,7 +1075,7 @@ export const MAXIFS = {
     visitMatchingRanges(
       args,
       (i, j) => {
-        const value = range[i][j].value;
+        const value = range[i]?.[j]?.value;
         if (typeof value === "number") {
           result = result < value ? value : result;
         }
@@ -1203,7 +1203,7 @@ export const MINIFS = {
     visitMatchingRanges(
       args,
       (i, j) => {
-        const value = range[i][j].value;
+        const value = range[i]?.[j]?.value;
         if (typeof value === "number") {
           result = result > value ? value : result;
         }
