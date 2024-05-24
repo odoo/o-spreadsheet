@@ -1,4 +1,5 @@
 import { Component, onMounted, onWillUnmount, useExternalListener, useRef } from "@odoo/owl";
+import { Store, useStore } from "../../store_engine";
 import {
   DOMCoordinates,
   GridClickModifiers,
@@ -18,6 +19,7 @@ import { getBoundingRectAsPOJO, isCtrlKey } from "../helpers/dom_helpers";
 import { useRefListener } from "../helpers/listener_hook";
 import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { useInterval } from "../helpers/time_hooks";
+import { CellPopoverStore } from "../popover";
 
 const CURSOR_SVG = /*xml*/ `
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="14" height="16"><path d="M6.5.4c1.3-.8 2.9-.1 3.8 1.4l2.9 5.1c.2.4.9 1.6-.4 2.3l-1.6.9 1.8 3.1c.2.4.1 1-.2 1.2l-1.6 1c-.3.1-.9 0-1.1-.4l-1.8-3.1-1.6 1c-.6.4-1.7 0-2.2-.8L0 4.3"/><path fill="#fff" d="M9.1 2a1.4 1.1 60 0 0-1.7-.6L5.5 2.5l.9 1.6-1 .6-.9-1.6-.6.4 1.8 3.1-1.3.7-1.8-3.1-1 .6 3.8 6.6 6.8-3.98M3.9 8.8 10.82 5l.795 1.4-6.81 3.96"/></svg>
@@ -194,6 +196,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   };
   private gridOverlay: Ref<HTMLElement> = useRef("gridOverlay");
   private gridOverlayRect = useAbsoluteBoundingRect(this.gridOverlay);
+  private cellPopovers!: Store<CellPopoverStore>;
 
   setup() {
     useCellHovered(this.env, this.gridOverlay, this.props.onCellHovered);
@@ -216,6 +219,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
       const { scrollY } = this.env.model.getters.getActiveSheetDOMScrollInfo();
       return scrollY > 0;
     });
+    this.cellPopovers = useStore(CellPopoverStore);
   }
 
   get gridOverlayEl(): HTMLElement {
@@ -233,16 +237,18 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
     return this.env.model.getters.isPaintingFormat();
   }
 
-  onMouseDown(ev: MouseEvent, modifiers?: { closePopover: boolean }) {
+  onMouseDown(ev: MouseEvent) {
     if (ev.button > 0) {
       // not main button, probably a context menu
       return;
+    }
+    if (ev.target === this.gridOverlay.el && this.cellPopovers.isOpen) {
+      this.cellPopovers.close();
     }
     const [col, row] = this.getCartesianCoordinates(ev);
     this.props.onCellClicked(col, row, {
       expandZone: ev.shiftKey,
       addZone: isCtrlKey(ev),
-      closePopover: modifiers?.closePopover ?? true,
     });
   }
 

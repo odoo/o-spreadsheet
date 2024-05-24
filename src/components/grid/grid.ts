@@ -470,9 +470,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   // ---------------------------------------------------------------------------
 
   onCellClicked(col: HeaderIndex, row: HeaderIndex, modifiers: GridClickModifiers) {
-    if (modifiers.closePopover && this.cellPopovers.isOpen) {
-      this.cellPopovers.close();
-    }
     if (this.composerStore.editionMode === "editing") {
       this.composerStore.stopEdition();
     }

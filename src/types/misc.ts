@@ -376,5 +376,4 @@ export type DebouncedFunction<T> = T & {
 export interface GridClickModifiers {
   addZone: boolean;
   expandZone: boolean;
-  closePopover: boolean;
 }
