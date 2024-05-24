@@ -1,23 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`compile functions check type of arguments simple argument value from a single cell or range reference 1`] = `
-"function anonymous(deps,ref,range,ctx
-) {
-// =SIMPLE_VALUE_EXPECTED(C|0|)
-const _1 = ref(deps[0], false);
-return ctx['SIMPLE_VALUE_EXPECTED'](_1);
-}"
-`;
-
-exports[`compile functions check type of arguments simple argument value from a single cell or range reference 2`] = `
-"function anonymous(deps,ref,range,ctx
-) {
-// =SIMPLE_VALUE_EXPECTED(R|0|)
-const _1 = range(deps[0]);
-return ctx['SIMPLE_VALUE_EXPECTED'](_1);
-}"
-`;
-
 exports[`compile functions with meta arguments function call requesting meta parameter 1`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
