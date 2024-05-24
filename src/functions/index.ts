@@ -11,7 +11,7 @@ import {
   Matrix,
   isMatrix,
 } from "../types";
-import { EvaluationError } from "../types/errors";
+import { BadExpressionError, EvaluationError } from "../types/errors";
 import { addMetaInfoFromArg, validateArguments } from "./arguments";
 import { isEvaluationError, matrixForEach, matrixMap } from "./helpers";
 import * as array from "./module_array";
@@ -99,6 +99,7 @@ function addInputHandling(
     for (let i = 0; i < args.length; i++) {
       const argDefinition = descr.args[descr.getArgToFocus(i + 1) - 1];
       const arg = args[i];
+
       if (isMatrix(arg) && !argDefinition.acceptMatrix) {
         if (arg.length !== 1 || arg[0].length !== 1) {
           throw new EvaluationError(
@@ -109,6 +110,15 @@ function addInputHandling(
           );
         }
         args[i] = arg[0][0];
+      }
+
+      if (!isMatrix(arg) && argDefinition.acceptMatrixOnly) {
+        throw new BadExpressionError(
+          _t(
+            "Function [[FUNCTION_NAME]] expects the parameter '%s' to be reference to a cell or range.",
+            (i + 1).toString()
+          )
+        );
       }
     }
     return descr.compute.apply(this, args);

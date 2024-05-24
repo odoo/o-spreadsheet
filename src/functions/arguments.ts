@@ -68,6 +68,9 @@ function makeArg(str: string, description: string): ArgDefinition {
   if (types.some((t) => t.startsWith("RANGE"))) {
     result.acceptMatrix = true;
   }
+  if (types.every((t) => t.startsWith("RANGE"))) {
+    result.acceptMatrixOnly = true;
+  }
   return result;
 }
 
