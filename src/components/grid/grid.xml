@@ -5,7 +5,7 @@
       tabindex="-1"
       t-on-click="focusDefaultElement"
       t-on-keydown="onKeydown"
-      t-on-wheel="onMouseWheel"
+      t-on-wheel.prevent="onMouseWheel"
       t-ref="grid">
       <GridOverlay
         onCellClicked.bind="onCellClicked"
