@@ -722,7 +722,7 @@ describe("sheets", () => {
     const chartId = "uuid";
     createChart(
       model,
-      { dataSets: [{ dataRange: "Sheet1!B1:B4" }], labelRange: "Sheet1!A2:A4" },
+      { type: "bar", dataSets: [{ dataRange: "Sheet1!B1:B4" }], labelRange: "Sheet1!A2:A4" },
       chartId
     );
     model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo: "42" });

@@ -229,7 +229,7 @@ describe("UI Helpers", () => {
     });
 
     test("paste special with a figure will warn the user", async () => {
-      createChart(model, {}, "chartId");
+      createChart(model, { type: "bar" }, "chartId");
       model.dispatch("SELECT_FIGURE", { id: "chartId" });
       copy(model);
       interactivePaste(env, target("A1"), "onlyFormat");

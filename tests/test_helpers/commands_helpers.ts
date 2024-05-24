@@ -141,33 +141,35 @@ export function createImage(
  */
 export function createChart(
   model: Model,
-  data: Partial<ChartWithAxisDefinition>,
+  data: { type: ChartDefinition["type"] } & Partial<ChartWithAxisDefinition>,
   chartId?: UID,
   sheetId?: UID
 ) {
   const id = chartId || model.uuidGenerator.uuidv4();
   sheetId = sheetId || model.getters.getActiveSheetId();
-
+  const definition = {
+    ...data,
+    title: data.title || { text: "test" },
+    dataSets: ("dataSets" in data && data.dataSets) || [],
+    dataSetsHaveTitle:
+      "dataSetsHaveTitle" in data && data.dataSetsHaveTitle !== undefined
+        ? data.dataSetsHaveTitle
+        : true,
+    labelRange: "labelRange" in data ? data.labelRange : undefined,
+    verticalAxisPosition: ("verticalAxisPosition" in data && data.verticalAxisPosition) || "left",
+    background: data.background,
+    legendPosition: ("legendPosition" in data && data.legendPosition) || "top",
+    stacked: ("stacked" in data && data.stacked) || false,
+    labelsAsText: ("labelsAsText" in data && data.labelsAsText) || false,
+    aggregated: ("aggregated" in data && data.aggregated) || false,
+    cumulative: ("cumulative" in data && data.cumulative) || false,
+    showSubTotals: ("showSubTotals" in data && data.showSubTotals) || false,
+    showConnectorLines: ("showConnectorLines" in data && data.showConnectorLines) || false,
+  };
   return model.dispatch("CREATE_CHART", {
     id,
     sheetId,
-    //@ts-ignore WHY DO WE NEED THIS ???
-    definition: {
-      ...data,
-      title: data.title || { text: "test" },
-      dataSets: data.dataSets || [],
-      dataSetsHaveTitle: data.dataSetsHaveTitle !== undefined ? data.dataSetsHaveTitle : true,
-      labelRange: data.labelRange,
-      type: data.type || "bar",
-      background: data.background,
-      legendPosition: data.legendPosition || "top",
-      stacked: ("stacked" in data && data.stacked) || false,
-      labelsAsText: ("labelsAsText" in data && data.labelsAsText) || false,
-      aggregated: ("aggregated" in data && data.aggregated) || false,
-      cumulative: ("cumulative" in data && data.cumulative) || false,
-      showSubTotals: ("showSubTotals" in data && data.showSubTotals) || false,
-      showConnectorLines: ("showConnectorLines" in data && data.showConnectorLines) || false,
-    },
+    definition,
   });
 }
 

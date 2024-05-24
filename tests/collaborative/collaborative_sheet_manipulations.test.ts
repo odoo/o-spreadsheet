@@ -159,6 +159,7 @@ describe("Collaborative Sheet manipulation", () => {
     createChart(
       bob,
       {
+        type: "bar",
         dataSets: [{ dataRange: "A1:A10" }],
         labelRange: "A1",
       },

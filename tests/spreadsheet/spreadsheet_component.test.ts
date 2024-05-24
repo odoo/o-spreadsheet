@@ -200,7 +200,7 @@ describe("Simple Spreadsheet Component", () => {
     await typeInComposerTopBar("=SUM(A1,A2)");
     const topBarComposerZIndex = getZIndex(".o-topbar-composer");
 
-    createChart(model, {}, "thisIsAnId");
+    createChart(model, { type: "bar" }, "thisIsAnId");
     model.dispatch("SELECT_FIGURE", { id: "thisIsAnId" });
     await nextTick();
     const figureZIndex = getZIndex(".o-figure-wrapper");

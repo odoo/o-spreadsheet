@@ -698,6 +698,7 @@ describe("datasource tests", function () {
     createChart(
       model,
       {
+        type: "bar",
         dataSets: [{ dataRange: "B1:B4" }],
         labelRange: "A2:A4",
       },
@@ -733,6 +734,7 @@ describe("datasource tests", function () {
     createChart(
       model,
       {
+        type: "bar",
         dataSets: [{ dataRange: "Coucou!B1:B4" }, { dataRange: "Sheet1!B1:B4" }],
         labelRange: "Sheet1!A2:A4",
       },
@@ -753,6 +755,7 @@ describe("datasource tests", function () {
     const result = createChart(
       model,
       {
+        type: "bar",
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!B1:B4" }],
         labelRange: "",
       },
@@ -766,6 +769,7 @@ describe("datasource tests", function () {
       createChart(
         model,
         {
+          type: "bar",
           dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!B1:B4" }],
           labelRange: "",
         },
@@ -783,6 +787,7 @@ describe("datasource tests", function () {
     createChart(
       model,
       {
+        type: "bar",
         dataSets: [{ dataRange: "A1:A2" }],
         labelRange: "A1",
       },
@@ -813,6 +818,7 @@ describe("datasource tests", function () {
     createChart(
       model,
       {
+        type: "bar",
         dataSets: [{ dataRange: "B1:B2" }],
         labelRange: "A1:A2",
       },
@@ -838,6 +844,7 @@ describe("datasource tests", function () {
     createChart(
       model,
       {
+        type: "bar",
         dataSets: [{ dataRange: "A1:A2" }],
         labelRange: "A1",
       },
@@ -856,6 +863,7 @@ describe("datasource tests", function () {
     createChart(
       model,
       {
+        type: "bar",
         dataSets: [{ dataRange: "A1:A2" }],
         labelRange: "A1",
         dataSetsHaveTitle: true,
@@ -896,6 +904,7 @@ describe("datasource tests", function () {
     createChart(
       model,
       {
+        type: "bar",
         dataSets,
         labelRange: "A2:A4",
       },
@@ -935,6 +944,7 @@ describe("datasource tests", function () {
     createChart(
       model,
       {
+        type: "bar",
         dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }],
         labelRange: "A2:A4",
       },
@@ -990,6 +1000,7 @@ describe("datasource tests", function () {
     createChart(
       model,
       {
+        type: "bar",
         dataSets: [{ dataRange: `${secondSheetName}!C1:C4` }],
         labelRange: `${secondSheetName}!A2:A4`,
       },
@@ -1031,6 +1042,7 @@ describe("title", function () {
     createChart(
       model,
       {
+        type: "bar",
         dataSets: [{ dataRange: "A1:B1" }],
         labelRange: "A2:B2",
         title: { text: "title" },
@@ -1049,6 +1061,7 @@ describe("title", function () {
     createChart(
       model,
       {
+        type: "bar",
         dataSets: [{ dataRange: "A1:B1" }],
         labelRange: "A2:B2",
         title: {
@@ -1322,6 +1335,7 @@ describe("multiple sheets", function () {
     createChart(
       model,
       {
+        type: "bar",
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
         labelRange: "Sheet1!A2:A4",
       },
@@ -1340,6 +1354,7 @@ describe("multiple sheets", function () {
     createChart(
       model,
       {
+        type: "bar",
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
         labelRange: "Sheet1!A2:A4",
       },
@@ -1356,6 +1371,7 @@ describe("multiple sheets", function () {
     createChart(
       model,
       {
+        type: "bar",
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
         labelRange: "Sheet1!A2:A4",
       },
@@ -1376,6 +1392,7 @@ describe("multiple sheets", function () {
     createChart(
       model,
       {
+        type: "bar",
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
         labelRange: "Sheet1!A2:A4",
       },
@@ -1396,6 +1413,7 @@ describe("multiple sheets", function () {
     createChart(
       model,
       {
+        type: "bar",
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
         labelRange: "Sheet1!A2:A4",
       },
@@ -1482,6 +1500,7 @@ describe("multiple sheets", function () {
     createChart(
       model,
       {
+        type: "bar",
         dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
         labelRange: "Sheet1!A2:A4",
       },
@@ -1499,6 +1518,7 @@ describe("undo/redo", () => {
   test("undo/redo chart creation", () => {
     const before = model.exportData();
     createChart(model, {
+      type: "bar",
       dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
     });
     const after = model.exportData();
@@ -1673,7 +1693,11 @@ describe("Chart design configuration", () => {
 
     createChart(
       model,
-      { labelRange: "A2:A6", dataSets: [{ dataRange: "B1:B15" }, { dataRange: "C1:C15" }] },
+      {
+        type: "bar",
+        labelRange: "A2:A6",
+        dataSets: [{ dataRange: "B1:B15" }, { dataRange: "C1:C15" }],
+      },
       "1"
     );
     const data = getChartConfiguration(model, "1").data;
@@ -1686,7 +1710,11 @@ describe("Chart design configuration", () => {
     const model = new Model();
     // corresponding label would be A8, but it's not part of the label range
     setCellContent(model, "B8", "30");
-    createChart(model, { labelRange: "A2:A3", dataSets: [{ dataRange: "B1:B15" }] }, "1");
+    createChart(
+      model,
+      { type: "bar", labelRange: "A2:A3", dataSets: [{ dataRange: "B1:B15" }] },
+      "1"
+    );
     const data = getChartConfiguration(model, "1").data;
     expect(data.labels).toEqual([""]);
     expect(data.datasets![0].data).toEqual([30]);
@@ -1696,7 +1724,11 @@ describe("Chart design configuration", () => {
     const model = new Model();
     // corresponding value would be B8, but it's not part of the data range
     setCellContent(model, "A8", "P1");
-    createChart(model, { labelRange: "A2:A15", dataSets: [{ dataRange: "B1:B3" }] }, "1");
+    createChart(
+      model,
+      { type: "bar", labelRange: "A2:A15", dataSets: [{ dataRange: "B1:B3" }] },
+      "1"
+    );
     const data = getChartConfiguration(model, "1").data;
     expect(data.labels).toEqual(["P1"]);
     expect(data.datasets![0].data).toEqual([undefined]);
@@ -1704,7 +1736,11 @@ describe("Chart design configuration", () => {
 
   test("no data points at all", () => {
     const model = new Model();
-    createChart(model, { labelRange: "A2:A3", dataSets: [{ dataRange: "B1:B3" }] }, "1");
+    createChart(
+      model,
+      { type: "bar", labelRange: "A2:A3", dataSets: [{ dataRange: "B1:B3" }] },
+      "1"
+    );
     const data = getChartConfiguration(model, "1").data;
     expect(data.labels).toEqual([]);
     expect(data.datasets![0].data).toEqual([]);
@@ -1719,7 +1755,11 @@ describe("Chart design configuration", () => {
         target: target("A2:A3"),
         ...formatting,
       });
-      createChart(model, { labelRange: "A2:A3", dataSets: [{ dataRange: "B1:B3" }] }, "1");
+      createChart(
+        model,
+        { type: "bar", labelRange: "A2:A3", dataSets: [{ dataRange: "B1:B3" }] },
+        "1"
+      );
       const data = getChartConfiguration(model, "1").data;
       expect(data.labels).toEqual([]);
       expect(data.datasets![0].data).toEqual([]);
@@ -1735,7 +1775,11 @@ describe("Chart design configuration", () => {
         target: target("B1:B3"),
         ...formatting,
       });
-      createChart(model, { labelRange: "A2:A3", dataSets: [{ dataRange: "B1:B3" }] }, "1");
+      createChart(
+        model,
+        { type: "bar", labelRange: "A2:A3", dataSets: [{ dataRange: "B1:B3" }] },
+        "1"
+      );
       const data = getChartConfiguration(model, "1").data;
       expect(data.labels).toEqual([]);
       expect(data.datasets![0].data).toEqual([]);
@@ -1745,7 +1789,11 @@ describe("Chart design configuration", () => {
   test("data point with only a zero value", () => {
     const model = new Model();
     setCellContent(model, "B2", "0");
-    createChart(model, { labelRange: "A2:A3", dataSets: [{ dataRange: "B1:B3" }] }, "1");
+    createChart(
+      model,
+      { type: "bar", labelRange: "A2:A3", dataSets: [{ dataRange: "B1:B3" }] },
+      "1"
+    );
     const data = getChartConfiguration(model, "1").data;
     expect(data.labels).toEqual([""]);
     expect(data.datasets![0].data).toEqual([0]);
@@ -1754,7 +1802,11 @@ describe("Chart design configuration", () => {
   test("data point with only a zero label", () => {
     const model = new Model();
     setCellContent(model, "A2", "0");
-    createChart(model, { labelRange: "A2:A3", dataSets: [{ dataRange: "B1:B3" }] }, "1");
+    createChart(
+      model,
+      { type: "bar", labelRange: "A2:A3", dataSets: [{ dataRange: "B1:B3" }] },
+      "1"
+    );
     const data = getChartConfiguration(model, "1").data;
     expect(data.labels).toEqual(["0"]);
     expect(data.datasets![0].data).toEqual([null]);
@@ -1766,7 +1818,12 @@ describe("Chart design configuration", () => {
     setCellContent(model, "A3", "2022/03/02");
     createChart(
       model,
-      { labelRange: "A2:A3", dataSets: [{ dataRange: "B2:B3" }], dataSetsHaveTitle: false },
+      {
+        type: "bar",
+        labelRange: "A2:A3",
+        dataSets: [{ dataRange: "B2:B3" }],
+        dataSetsHaveTitle: false,
+      },
       "1"
     );
     expect(getChartConfiguration(model, "1").data!.labels).toEqual(["2022/03/01", "2022/03/02"]);
@@ -2411,6 +2468,7 @@ describe("Chart evaluation", () => {
     createChart(
       model,
       {
+        type: "bar",
         dataSets: [{ dataRange: "B1:B2" }],
         dataSetsHaveTitle: true,
         labelRange: "A2",
@@ -2428,7 +2486,7 @@ describe("Chart evaluation", () => {
     const chartId = "test";
     setCellContent(model, "A1", "oui");
     setCellContent(model, "A2", "non");
-    createChart(model, {}, chartId);
+    createChart(model, { type: "bar" }, chartId);
 
     updateChart(model, chartId, { labelRange: "A1:A2" });
     expect(getChartConfiguration(model, chartId).data?.labels).toEqual(["oui", "non"]);

@@ -1035,6 +1035,7 @@ describe("Test XLSX export", () => {
       createChart(
         model,
         {
+          type: "bar",
           dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
           labelRange: "Sheet1!A1:A4",
           dataSetsHaveTitle: true,
@@ -1044,6 +1045,7 @@ describe("Test XLSX export", () => {
       createChart(
         model,
         {
+          type: "bar",
           dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
           labelRange: "Sheet1!A2:A4",
           dataSetsHaveTitle: true,
@@ -1639,6 +1641,7 @@ describe("Test XLSX export", () => {
     createSheet(model, { name: longSheetName });
     setCellContent(model, "A1", `='${longSheetNameWithSpaces}'!A1`);
     createChart(model, {
+      type: "bar",
       dataSets: [{ dataRange: `${longSheetName}!A1:A4` }],
       labelRange: `${longSheetName}!A1:A4`,
     });

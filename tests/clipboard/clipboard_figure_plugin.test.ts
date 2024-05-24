@@ -27,7 +27,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
     sheetId = model.getters.getActiveSheetId();
     figureId = model.uuidGenerator.uuidv4();
     if (type === "chart") {
-      createChart(model, {}, figureId);
+      createChart(model, { type: "bar" }, figureId);
     } else if (type === "image") {
       createImage(model, { figureId });
     }
@@ -172,7 +172,7 @@ describe("chart specific Clipboard test", () => {
   test("Can copy paste chart on another sheet", () => {
     const model = new Model();
     const chartId = "thisIsAnId";
-    createChart(model, {}, chartId);
+    createChart(model, { type: "bar" }, chartId);
     updateChart(model, chartId, { dataSets: [{ dataRange: "A1:A5" }], labelRange: "B1" });
     const chartDef = model.getters.getChartDefinition(chartId) as BarChartDefinition;
     model.dispatch("SELECT_FIGURE", { id: chartId });

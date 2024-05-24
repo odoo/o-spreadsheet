@@ -1634,19 +1634,19 @@ describe("Default background on runtime tests", () => {
   });
 
   test("Creating a 'basicChart' without background should have default background on runtime", async () => {
-    createChart(model, { dataSets: [{ dataRange: "A1" }] }, "1", sheetId);
+    createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, "1", sheetId);
     expect(model.getters.getChartDefinition("1")?.background).toBeUndefined();
     expect(model.getters.getChartRuntime("1").background).toBe(BACKGROUND_CHART_COLOR);
   });
   test("Creating a 'basicChart' without background and updating its type should have default background on runtime", async () => {
-    createChart(model, { dataSets: [{ dataRange: "A1" }] }, "1", sheetId);
+    createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, "1", sheetId);
     updateChart(model, "1", { type: "line" }, sheetId);
     expect(model.getters.getChartDefinition("1")?.background).toBeUndefined();
     expect(model.getters.getChartRuntime("1").background).toBe(BACKGROUND_CHART_COLOR);
   });
   test("Creating a 'basicChart' on a single cell with style and converting into scorecard should have cell background as chart background", () => {
     setStyle(model, "A1", { fillColor: "#FA0000" }, sheetId);
-    createChart(model, { dataSets: [{ dataRange: "A1" }] }, "1", sheetId);
+    createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, "1", sheetId);
     updateChart(model, "1", { type: "scorecard", keyValue: "A1" }, sheetId);
     expect(model.getters.getChartDefinition("1")?.background).toBeUndefined();
     expect(model.getters.getChartRuntime("1").background).toBe("#FA0000");
@@ -1655,7 +1655,7 @@ describe("Default background on runtime tests", () => {
 
 test("ChartJS charts are correctly destroyed on chart deletion", async () => {
   ({ parent, fixture, model } = await mountSpreadsheet({ model: new Model() }));
-  createChart(model, { dataSets: [{ dataRange: "A1" }], type: "bar" }, "1");
+  createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, "1");
   await nextTick();
   const spyDelete = jest.spyOn((window as any).Chart.prototype, "destroy");
   model.dispatch("DELETE_FIGURE", { id: "1", sheetId: model.getters.getActiveSheetId() });
