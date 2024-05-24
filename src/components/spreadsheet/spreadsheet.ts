@@ -334,6 +334,11 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     useExternalListener(window as any, "resize", () => this.render(true));
     useExternalListener(window, "beforeunload", this.unbindModelEvents.bind(this));
 
+    // For some reason, the wheel event is not properly registered inside templates
+    // in Chromium-based browsers based on chromium 125
+    // This hack ensures the event declared in the template is properly registered/working
+    useExternalListener(document.body, "wheel", () => {});
+
     this.bindModelEvents();
 
     onWillUpdateProps((nextProps) => {
