@@ -1,6 +1,7 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
+    "disableReferencedProjectLoad": true,
     "outDir": "../build/worker"
   },
   "include": ["../src-worker/**/*"]
