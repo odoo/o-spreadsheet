@@ -113,20 +113,7 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
 
         // detect when an argument need to be evaluated as a meta argument
         const isMeta = argTypes.includes("META");
-
         const hasRange = argTypes.some((t) => isRangeType(t));
-        const isRangeOnly = argTypes.every((t) => isRangeType(t));
-
-        if (isRangeOnly) {
-          if (!isRangeInput(currentArg)) {
-            throw new BadExpressionError(
-              _t(
-                "Function %(function_name)s expects the parameter %(arg_index)s to be a reference to a cell or a range.",
-                { function_name: functionName, arg_index: i + 1 }
-              )
-            );
-          }
-        }
 
         compiledArgs.push(compileAST(currentArg, isMeta, hasRange));
       }
@@ -332,16 +319,4 @@ function assertEnoughArgs(ast: ASTFuncall) {
 
 function isRangeType(type: string) {
   return type.startsWith("RANGE");
-}
-
-function isRangeInput(arg: AST) {
-  if (arg.type === "REFERENCE") {
-    return true;
-  }
-  if (arg.type === "FUNCALL") {
-    const fnDef = functions[arg.value.toUpperCase()];
-    return fnDef && isRangeType(fnDef.returns[0]);
-  }
-
-  return false;
 }
