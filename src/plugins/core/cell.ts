@@ -1,4 +1,4 @@
-import { FORMULA_REF_IDENTIFIER, NULL_FORMAT } from "../../constants";
+import { FORMULA_REF_IDENTIFIER, LINK_COLOR, NULL_FORMAT } from "../../constants";
 import { cellFactory } from "../../helpers/cells/cell_factory";
 import { FormulaCell } from "../../helpers/cells/index";
 import { deepEquals, isInside, range, toCartesian, toXC, UuidGenerator } from "../../helpers/index";
@@ -23,6 +23,8 @@ import {
 import { CorePlugin } from "../core_plugin";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
+
+const LINK_STYLE = { textColor: LINK_COLOR, underline: true };
 
 interface CoreState {
   // this.cells[sheetId][cellId] --> cell|undefined
@@ -311,7 +313,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   getCellStyle(cell: Cell): Style {
-    return cell.style || {};
+    const linkStyle = cell.isLink() ? LINK_STYLE : {};
+    return { ...linkStyle, ...cell.style };
   }
 
   /**

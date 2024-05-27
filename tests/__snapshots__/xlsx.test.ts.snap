@@ -12607,9 +12607,8 @@ Object {
             <name val=\\"Calibri\\"/>
         </font>
         <font>
-            <u/>
             <sz val=\\"10\\"/>
-            <color rgb=\\"0000FF\\"/>
+            <color rgb=\\"000000\\"/>
             <name val=\\"Arial\\"/>
         </font>
     </fonts>
@@ -13107,9 +13106,8 @@ Object {
             <name val=\\"Calibri\\"/>
         </font>
         <font>
-            <u/>
             <sz val=\\"10\\"/>
-            <color rgb=\\"0000FF\\"/>
+            <color rgb=\\"000000\\"/>
             <name val=\\"Arial\\"/>
         </font>
     </fonts>
