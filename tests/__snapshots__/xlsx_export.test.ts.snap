@@ -17654,6 +17654,143 @@ exports[`Test XLSX export formulas Non exportable formulas are exported even wit
 }
 `;
 
+exports[`Test XLSX export formulas Non exportable functions that is evaluated as nothing (aka empty string) 1`] = `
+{
+  "files": [
+    {
+      "content": "<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+    <sheets>
+        <sheet state="visible" name="Sheet1" sheetId="1" r:id="rId1"/>
+    </sheets>
+</workbook>",
+      "contentType": "workbook",
+      "path": "xl/workbook.xml",
+    },
+    {
+      "content": "<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+    <sheetViews>
+        <sheetView showGridLines="1" workbookViewId="0">
+        </sheetView>
+    </sheetViews>
+    <sheetFormatPr defaultRowHeight="17.25" defaultColWidth="13.73"/>
+    <cols>
+        <col min="1" max="1" width="13.73" customWidth="1" hidden="0"/>
+    </cols>
+    <sheetData>
+        <row r="1" ht="17.25" customHeight="1" hidden="0">
+            <c r="A1" s="1">
+            </c>
+        </row>
+        <row r="2" ht="17.25" customHeight="1" hidden="0">
+            <c r="A2" s="1">
+            </c>
+        </row>
+        <row r="3" ht="17.25" customHeight="1" hidden="0">
+            <c r="A3" s="1">
+            </c>
+        </row>
+    </sheetData>
+</worksheet>",
+      "contentType": "sheet",
+      "path": "xl/worksheets/sheet0.xml",
+    },
+    {
+      "content": "<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+    <numFmts count="0">
+    </numFmts>
+    <fonts count="2">
+        <font>
+            <sz val="10"/>
+            <color rgb="000000"/>
+            <name val="Calibri"/>
+        </font>
+        <font>
+            <sz val="10"/>
+            <color rgb="000000"/>
+            <name val="Arial"/>
+        </font>
+    </fonts>
+    <fills count="2">
+        <fill>
+            <patternFill patternType="none"/>
+        </fill>
+        <fill>
+            <patternFill patternType="gray125"/>
+        </fill>
+    </fills>
+    <borders count="1">
+        <border>
+            <left>
+            </left>
+            <right>
+            </right>
+            <top>
+            </top>
+            <bottom>
+            </bottom>
+            <diagonal>
+            </diagonal>
+        </border>
+    </borders>
+    <cellXfs count="2">
+        <xf numFmtId="0" fillId="0" fontId="0" borderId="0" applyAlignment="1">
+            <alignment vertical="bottom"/>
+        </xf>
+        <xf numFmtId="0" fillId="0" fontId="1" borderId="0"/>
+    </cellXfs>
+    <dxfs count="0">
+    </dxfs>
+</styleSheet>",
+      "contentType": "styles",
+      "path": "xl/styles.xml",
+    },
+    {
+      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="0" uniqueCount="0">
+</sst>",
+      "contentType": "sharedStrings",
+      "path": "xl/sharedStrings.xml",
+    },
+    {
+      "content": "<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Id="rId1" Target="worksheets/sheet0.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"/>
+    <Relationship Id="rId2" Target="sharedStrings.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings"/>
+    <Relationship Id="rId3" Target="styles.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles"/>
+</Relationships>",
+      "contentType": undefined,
+      "path": "xl/_rels/workbook.xml.rels",
+    },
+    {
+      "content": "<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+    <Default Extension="avif" ContentType="image/avif"/>
+    <Default Extension="bmp" ContentType="image/bmp"/>
+    <Default Extension="gif" ContentType="image/gif"/>
+    <Default Extension="ico" ContentType="image/vnd.microsoft.icon"/>
+    <Default Extension="jpeg" ContentType="image/jpeg"/>
+    <Default Extension="png" ContentType="image/png"/>
+    <Default Extension="tiff" ContentType="image/tiff"/>
+    <Default Extension="webp" ContentType="image/webp"/>
+    <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+    <Default Extension="xml" ContentType="application/xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml" PartName="/xl/workbook.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml" PartName="/xl/worksheets/sheet0.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml" PartName="/xl/styles.xml"/>
+    <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml" PartName="/xl/sharedStrings.xml"/>
+</Types>",
+      "contentType": undefined,
+      "path": "[Content_Types].xml",
+    },
+    {
+      "content": "<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+    <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+</Relationships>",
+      "contentType": undefined,
+      "path": "_rels/.rels",
+    },
+  ],
+  "name": "my_spreadsheet.xlsx",
+}
+`;
+
 exports[`Test XLSX export link cells 1`] = `
 {
   "files": [
