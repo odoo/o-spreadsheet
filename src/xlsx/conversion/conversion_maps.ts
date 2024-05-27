@@ -21,7 +21,7 @@ import {
 } from "../../types/xlsx";
 import { XLSXVerticalAlignment } from "./../../types/xlsx";
 
-export const SUPPORTED_BORDER_STYLES = ["thin"];
+export const SUPPORTED_BORDER_STYLES = ["thin", "medium", "thick", "dashed", "dotted"];
 export const SUPPORTED_HORIZONTAL_ALIGNMENTS: XLSXHorizontalAlignment[] = [
   "general",
   "left",
