@@ -15798,7 +15798,7 @@ Object {
         </font>
         <font>
             <sz val=\\"10\\"/>
-            <color rgb=\\"01666B\\"/>
+            <color rgb=\\"000000\\"/>
             <name val=\\"Arial\\"/>
         </font>
     </fonts>
@@ -16301,7 +16301,7 @@ Object {
         </font>
         <font>
             <sz val=\\"10\\"/>
-            <color rgb=\\"01666B\\"/>
+            <color rgb=\\"000000\\"/>
             <name val=\\"Arial\\"/>
         </font>
     </fonts>

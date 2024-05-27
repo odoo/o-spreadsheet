@@ -1,7 +1,15 @@
-import { NULL_FORMAT } from "../../constants";
-import { deepEquals, lazy } from "../../helpers";
+import { LINK_COLOR, NULL_FORMAT } from "../../constants";
 import { cellFactory } from "../../helpers/cells/cell_factory";
-import { concat, getItemId, isInside, range, toCartesian, toXC } from "../../helpers/index";
+import {
+  concat,
+  deepEquals,
+  getItemId,
+  isInside,
+  lazy,
+  range,
+  toCartesian,
+  toXC,
+} from "../../helpers/index";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -27,6 +35,8 @@ import {
 import { CorePlugin } from "../core_plugin";
 
 const nbspRegexp = new RegExp(String.fromCharCode(160), "g");
+
+const LINK_STYLE = { textColor: LINK_COLOR };
 
 interface CoreState {
   // this.cells[sheetId][cellId] --> cell|undefined
@@ -320,7 +330,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   }
 
   getCellStyle(cell?: Cell): Style {
-    return (cell && cell.style) || {};
+    if (!cell) {
+      return {};
+    }
+    const linkStyle = cell.isLink() ? LINK_STYLE : {};
+    return { ...linkStyle, ...cell.style };
   }
 
   /**
