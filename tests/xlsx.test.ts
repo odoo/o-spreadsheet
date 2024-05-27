@@ -626,6 +626,13 @@ describe("Test XLSX export", () => {
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
 
+    test("Non exportable functions that is evaluated as nothing (aka empty string)", async () => {
+      const model = new Model({
+        sheets: [{ cells: { A1: { content: '=join("", A2:A3)' } }, rowNumber: 3, colNumber: 1 }],
+      });
+      expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+    });
+
     test("Multi-Sheets exportable functions", async () => {
       const model = new Model({
         sheets: [allExportableFormulasData.sheets[0], { cells: { A1: { content: "=wait(10)" } } }],

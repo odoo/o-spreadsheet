@@ -22,10 +22,12 @@ import { FORCE_DEFAULT_ARGS_FUNCTIONS, NON_RETROCOMPATIBLE_FUNCTIONS } from "../
 import { getCellType, pushElement } from "../helpers/content_helpers";
 import { escapeXml } from "../helpers/xml_helpers";
 
-export function addFormula(cell: ExcelCellData): {
-  attrs: XMLAttributes;
-  node: XMLString;
-} {
+export function addFormula(cell: ExcelCellData):
+  | {
+      attrs: XMLAttributes;
+      node: XMLString;
+    }
+  | undefined {
   const formula = cell.content!;
   const functions = functionRegistry.content;
   const tokens = tokenize(formula);
@@ -56,6 +58,12 @@ export function addFormula(cell: ExcelCellData): {
   } else {
     // Shouldn't we always output the value then ?
     const value = cell.value;
+    // If the cell contains a non-exported formula and that is evaluates to
+    // nothing* ,we don't export it.
+    // * non-falsy value are relevant and so are 0 and FALSE, which only leaves
+    // the empty string.
+    if (value === "") return undefined;
+
     const type = getCellType(value);
     attrs.push(["t", type]);
     node = escapeXml/*xml*/ `<v>${value}</v>`;
