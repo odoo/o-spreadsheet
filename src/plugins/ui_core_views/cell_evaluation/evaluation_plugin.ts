@@ -303,18 +303,25 @@ export class EvaluationPlugin extends UIPlugin {
       let newFormat: string | undefined = undefined;
       let isExported: boolean = true;
 
+      const exportedSheetData = data.sheets.find((sheet) => sheet.id === position.sheetId)!;
+
       const formulaCell = this.getCorrespondingFormulaCell(position);
       if (formulaCell) {
         isExported = isExportableToExcel(formulaCell.compiledFormula.tokens);
         isFormula = isExported;
 
         if (!isExported) {
-          newContent = (value ?? "").toString();
-          newFormat = evaluatedCell.format;
+          // If the cell contains a non-exported formula and that is evaluates to
+          // nothing* ,we don't export it.
+          // * non-falsy value are relevant and so are 0 and FALSE, which only leaves
+          // the empty string.
+          if (value !== "") {
+            newContent = (value ?? "").toString();
+            newFormat = evaluatedCell.format;
+          }
         }
       }
 
-      const exportedSheetData = data.sheets.find((sheet) => sheet.id === position.sheetId)!;
       const exportedCellData: ExcelCellData = exportedSheetData.cells[xc] || ({} as ExcelCellData);
 
       const format = newFormat
