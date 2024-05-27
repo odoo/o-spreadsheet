@@ -10,6 +10,7 @@ import {
   CoreGetters,
   DataSet,
   ExcelChartDefinition,
+  Format,
   Getters,
   Range,
   RemoveColumnsRowsCommand,
@@ -196,7 +197,10 @@ export class ComboChart extends AbstractChart {
 }
 
 export function createComboChartRuntime(chart: ComboChart, getters: Getters): ComboChartRuntime {
-  const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
+  const mainDataSetFormat = chart.dataSets.length
+    ? getChartDatasetFormat(getters, [chart.dataSets[0]])
+    : undefined;
+  const lineDataSetsFormat = getChartDatasetFormat(getters, chart.dataSets.slice(1));
   const locale = getters.getLocale();
 
   const labelValues = getChartLabelValues(getters, chart.dataSets, chart.labelRange);
@@ -215,7 +219,7 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
     ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
   }
 
-  const localeFormat = { format: dataSetFormat, locale };
+  const localeFormat = { format: mainDataSetFormat, locale };
 
   const fontColor = chartFontColor(chart.background);
   const config = getDefaultChartJsRuntime(chart, labels, fontColor, localeFormat);
@@ -240,29 +244,38 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
       },
     },
   };
-
-  const verticalAxis = {
+  const formatCallback = (format: Format | undefined) => {
+    return (value) => {
+      value = Number(value);
+      if (isNaN(value)) return value;
+      const { locale } = localeFormat;
+      return formatValue(value, {
+        locale,
+        format: !format && Math.abs(value) >= 1000 ? "#,##" : format,
+      });
+    };
+  };
+  const leftVerticalAxis = {
     beginAtZero: true, // the origin of the y axis is always zero
     ticks: {
       color: fontColor,
-      callback: (value) => {
-        value = Number(value);
-        if (isNaN(value)) return value;
-        const { locale, format } = localeFormat;
-        return formatValue(value, {
-          locale,
-          format: !format && Math.abs(value) >= 1000 ? "#,##" : format,
-        });
-      },
+      callback: formatCallback(mainDataSetFormat),
+    },
+  };
+  const rightVerticalAxis = {
+    beginAtZero: true, // the origin of the y axis is always zero
+    ticks: {
+      color: fontColor,
+      callback: formatCallback(lineDataSetsFormat),
     },
   };
   if (chart.useBothYAxis) {
     config.options.scales.y = {
-      ...verticalAxis,
+      ...leftVerticalAxis,
       position: "left",
     };
     config.options.scales.y1 = {
-      ...verticalAxis,
+      ...rightVerticalAxis,
       position: "right",
       grid: {
         display: false,
@@ -270,7 +283,7 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
     };
   } else {
     config.options.scales.y = {
-      ...verticalAxis,
+      ...leftVerticalAxis,
       position: chart.verticalAxisPosition,
     };
   }
