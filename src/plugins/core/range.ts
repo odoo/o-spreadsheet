@@ -291,7 +291,7 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
    * @param sheetXC the string description of a range, in the form SheetName!XC:XC
    */
   getRangeFromSheetXC(defaultSheetId: UID, sheetXC: string): RangeImpl {
-    if (!rangeReference.test(sheetXC)) {
+    if (!rangeReference.test(sheetXC) || !this.getters.tryGetSheet(defaultSheetId)) {
       return new RangeImpl(
         {
           sheetId: "",
