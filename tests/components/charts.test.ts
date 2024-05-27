@@ -13,6 +13,7 @@ import {
   createScorecardChart,
   createSheet,
   paste,
+  selectCell,
   setCellContent,
   setStyle,
   updateChart,
@@ -1310,6 +1311,18 @@ describe("figures", () => {
         "A1",
       ]);
     });
+  });
+
+  test("When a figure is selected, pressing Ctrl+A will not propagate to the grid to select all cells", async () => {
+    selectCell(model, "A1");
+    createTestChart("gauge");
+    await nextTick();
+
+    await simulateClick(".o-figure");
+    await keyDown("A", { ctrlKey: true });
+
+    expect(model.getters.getSelectedFigureId()).toBe("someuuid");
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A1"));
   });
 
   test("Can undo multiple times after pasting figure", async () => {
