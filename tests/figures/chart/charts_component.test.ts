@@ -1,7 +1,7 @@
 import { CommandResult, Model, Spreadsheet } from "../../../src";
 import { ChartTerms } from "../../../src/components/translations_terms";
 import { BACKGROUND_CHART_COLOR } from "../../../src/constants";
-import { toHex } from "../../../src/helpers";
+import { toHex, toZone } from "../../../src/helpers";
 import { ScorecardChart } from "../../../src/helpers/figures/charts";
 import { CHART_TYPES, ChartDefinition, ChartType } from "../../../src/types";
 import { BarChartDefinition } from "../../../src/types/chart/bar_chart";
@@ -13,6 +13,7 @@ import {
   createScorecardChart,
   createSheet,
   paste,
+  selectCell,
   setCellContent,
   setFormat,
   setStyle,
@@ -1519,6 +1520,18 @@ describe("charts", () => {
       checkbox = document.querySelector("input[name='dataSetsHaveTitle']") as HTMLInputElement;
       expect(checkbox.checked).toBe(true);
     });
+  });
+
+  test("When a figure is selected, pressing Ctrl+A will not propagate to the grid to select all cells", async () => {
+    selectCell(model, "A1");
+    createTestChart("gauge");
+    await nextTick();
+
+    await simulateClick(".o-figure");
+    await keyDown({ key: "A", ctrlKey: true });
+
+    expect(model.getters.getSelectedFigureId()).toBe("someuuid");
+    expect(model.getters.getSelectedZone()).toEqual(toZone("A1"));
   });
 
   test("Can undo multiple times after pasting figure", async () => {
