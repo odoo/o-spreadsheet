@@ -202,7 +202,8 @@ describe("link cell", () => {
       expect(cell.link.label).toBe("my label");
       expect(cell.link.url).toBe(url);
       expect(cell.urlRepresentation).toBe(url);
-      expect(cell.style).toEqual({ textColor: LINK_COLOR });
+      expect(cell.style).toBeUndefined();
+      expect(model.getters.getCellStyle(cell)).toEqual({ textColor: LINK_COLOR });
       expect(getCellText(model, "A1")).toBe("my label");
     }
   );
@@ -321,14 +322,18 @@ describe("link cell", () => {
   test("link text color is applied if a custom style is specified", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
+    const style = { fillColor: "#555", bold: true, textColor: "#111" };
+
     model.dispatch("UPDATE_CELL", {
       col: 0,
       row: 0,
       sheetId,
       content: "[my label](odoo.com)",
-      style: { fillColor: "#555", bold: true, textColor: "#111" },
+      style,
     });
-    expect(getCell(model, "A1")?.style).toEqual({
+    const cell = getCell(model, "A1")!;
+    expect(cell?.style).toEqual(style);
+    expect(model.getters.getCellStyle(cell)).toEqual({
       fillColor: "#555",
       bold: true,
       textColor: "#111",
@@ -338,14 +343,13 @@ describe("link cell", () => {
   test("link text color is not overwritten if there is a custom style", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
-    model.dispatch("UPDATE_CELL", {
-      col: 0,
-      row: 0,
-      sheetId,
-      style: { fillColor: "#555", bold: true, textColor: "#111" },
-    });
+    const style = { fillColor: "#555", bold: true, textColor: "#111" };
+    model.dispatch("UPDATE_CELL", { col: 0, row: 0, sheetId, style });
+
     setCellContent(model, "A1", `[my label](odoo.com)`);
-    expect(getCell(model, "A1")?.style).toEqual({
+    const cell = getCell(model, "A1")!;
+    expect(cell?.style).toEqual(style);
+    expect(model.getters.getCellStyle(cell)).toEqual({
       fillColor: "#555",
       bold: true,
       textColor: "#111",
@@ -383,16 +387,19 @@ describe("link cell", () => {
   test("copy-paste custom style", () => {
     const model = new Model();
     const sheetId = model.getters.getActiveSheetId();
+    const style = { fillColor: "#555", bold: true, textColor: "#111" };
     model.dispatch("UPDATE_CELL", {
       col: 1,
       row: 1,
       sheetId,
       content: "[my label](odoo.com)",
-      style: { fillColor: "#555", bold: true, textColor: "#111" },
+      style,
     });
     copy(model, "B2");
     paste(model, "D2");
-    expect(getCell(model, "D2")?.style).toEqual({
+    const cell = getCell(model, "D2")!;
+    expect(cell.style).toEqual(style);
+    expect(model.getters.getCellStyle(cell)).toEqual({
       fillColor: "#555",
       bold: true,
       textColor: "#111",

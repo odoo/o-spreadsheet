@@ -1,4 +1,4 @@
-import { DATETIME_FORMAT, LINK_COLOR, LOADING } from "../../constants";
+import { DATETIME_FORMAT, LOADING } from "../../constants";
 import { _lt, _t } from "../../translation";
 import {
   BooleanEvaluation,
@@ -162,13 +162,6 @@ export abstract class LinkCell extends AbstractCell<TextEvaluation> implements I
 
   constructor(id: UID, content: string, properties: CellDisplayProperties = {}) {
     const link = parseMarkdownLink(content);
-    properties = {
-      ...properties,
-      style: {
-        ...properties.style,
-        textColor: properties.style?.textColor || LINK_COLOR,
-      },
-    };
     link.label = _t(link.label);
     super(id, lazy({ value: link.label, type: CellValueType.text }), properties);
     this.link = link;
