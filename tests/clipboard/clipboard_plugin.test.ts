@@ -17,9 +17,11 @@ import {
   createSheet,
   createSheetWithName,
   cut,
+  deleteCells,
   deleteColumns,
   deleteRows,
   deleteSheet,
+  insertCells,
   merge,
   paste,
   pasteFromOSClipboard,
@@ -1900,6 +1902,43 @@ describe("clipboard: pasting outside of sheet", () => {
     expect(getStyle(model, "B3")).toEqual({ bold: true, fillColor: "red" });
     expect(getCellContent(model, "C2")).toBe("c2");
     expect(getCellContent(model, "C3")).toBe("c2");
+  });
+
+  test("CopyPasteAboveCell and copyPasteCellsOnLeft do not change the clipboard state", () => {
+    const model = new Model();
+    setCellContent(model, "B3", "b3");
+    cut(model, "B3");
+    setSelection(model, ["A1:B2"]);
+    copyPasteAboveCells(model);
+
+    expect(model.getters.isCutOperation()).toBe(true);
+    paste(model, "A2");
+    expect(getCellContent(model, "A2")).toBe("b3");
+
+    setCellContent(model, "B3", "b3");
+    cut(model, "B3");
+    setSelection(model, ["A1:B2"]);
+    copyPasteCellsOnLeft(model);
+
+    expect(model.getters.isCutOperation()).toBe(true);
+    paste(model, "A2");
+    expect(getCellContent(model, "A2")).toBe("b3");
+  });
+
+  test("Delete Cell and Insert Cell do not invalidate the clipboard", () => {
+    const model = new Model();
+    setCellContent(model, "B3", "b3");
+    copy(model, "B3");
+
+    deleteCells(model, "A1", "up");
+    expect(model.getters.isCutOperation()).toBe(false);
+    paste(model, "A2");
+    expect(getCellContent(model, "A2")).toBe("b3");
+
+    insertCells(model, "A1", "down");
+    expect(model.getters.isCutOperation()).toBe(false);
+    paste(model, "A5");
+    expect(getCellContent(model, "A5")).toBe("b3");
   });
 
   test("fill right selection with multiple columns -> copies first column and pastes in each subsequent column, ", async () => {
