@@ -60,6 +60,7 @@ export function useDragAndDropListItems() {
       state.itemsStyle = {};
       document.body.style.cursor = previousCursor;
       args.onCancel?.();
+      cleanUp();
     };
 
     const onDragEnd = (itemId: UID, indexAtEnd: number) => {
@@ -83,7 +84,11 @@ export function useDragAndDropListItems() {
       onDragEnd,
       onCancel: state.cancel,
     });
-    startDnd(dndHelper.onMouseMove.bind(dndHelper), dndHelper.onMouseUp.bind(dndHelper));
+    const stopListening = startDnd(
+      dndHelper.onMouseMove.bind(dndHelper),
+      dndHelper.onMouseUp.bind(dndHelper)
+    );
+    cleanupFns.push(stopListening);
 
     const onScroll = dndHelper.onScroll.bind(dndHelper);
     args.containerEl.addEventListener("scroll", onScroll);
@@ -182,7 +187,7 @@ class DOMDndHelper {
   }
 
   onMouseMove(ev: MouseEvent) {
-    if (ev.button !== -1) {
+    if (ev.button > 1) {
       this.onCancel();
       return;
     }

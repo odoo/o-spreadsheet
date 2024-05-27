@@ -18,6 +18,7 @@ import {
   keyDown,
   setInputValueAndTrigger,
   triggerMouseEvent,
+  triggerWheelEvent,
 } from "../test_helpers/dom_helper";
 import {
   createColorScale,
@@ -471,6 +472,31 @@ describe("UI of conditional formats", () => {
       await nextTick();
 
       expect(previewEl.style.transition).toBe("");
+    });
+
+    test("Drag & drop is not canceled on wheel event", async () => {
+      const previewEl = fixture.querySelector<HTMLElement>(`.o-cf-preview[data-id="1"]`)!;
+      await dragElement(previewEl, { x: 0, y: 200 });
+
+      expect(previewEl!.classList).toContain("o-cf-dragging");
+      triggerWheelEvent(previewEl, { deltaY: 100 });
+      await nextTick();
+
+      expect(previewEl!.classList).toContain("o-cf-dragging");
+    });
+
+    test("Drag & drop is canceled on right click", async () => {
+      let previewEl = fixture.querySelector<HTMLElement>(`.o-cf-preview[data-id="1"]`)!;
+      await dragElement(previewEl, { x: 0, y: 200 });
+
+      expect(previewEl!.classList).toContain("o-cf-dragging");
+      triggerMouseEvent(previewEl.parentElement, "pointermove", 0, 0, { button: 2 });
+      await nextTick();
+      expect(previewEl!.classList).not.toContain("o-cf-dragging");
+
+      triggerMouseEvent(previewEl.parentElement, "pointermove", 0, 200);
+      await nextTick();
+      expect(previewEl!.classList).not.toContain("o-cf-dragging");
     });
   });
 

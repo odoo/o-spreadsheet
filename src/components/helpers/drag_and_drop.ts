@@ -4,19 +4,26 @@ import { HeaderIndex } from "../../types/misc";
 import { gridOverlayPosition } from "./dom_helpers";
 type EventFn = (ev: MouseEvent) => void;
 
+/**
+ * Start listening to pointer events and apply the given callbacks.
+ *
+ * @returns A function to remove the listeners.
+ */
 export function startDnd(
   onMouseMove: EventFn,
   onMouseUp: EventFn,
   onMouseDown: EventFn = () => {}
 ) {
-  const _onMouseUp = (ev: MouseEvent) => {
-    onMouseUp(ev);
-
+  const removeListeners = () => {
     window.removeEventListener("pointerdown", onMouseDown);
     window.removeEventListener("pointerup", _onMouseUp);
     window.removeEventListener("dragstart", _onDragStart);
     window.removeEventListener("pointermove", onMouseMove);
     window.removeEventListener("wheel", onMouseMove);
+  };
+  const _onMouseUp = (ev: MouseEvent) => {
+    onMouseUp(ev);
+    removeListeners();
   };
   function _onDragStart(ev: DragEvent) {
     ev.preventDefault();
@@ -29,6 +36,8 @@ export function startDnd(
   // preventDefault() is not allowed in passive event handler.
   // https://chromestatus.com/feature/6662647093133312
   window.addEventListener("wheel", onMouseMove, { passive: false });
+
+  return removeListeners;
 }
 
 /**
