@@ -6,7 +6,6 @@ type ClipboardContent = {
   cells: any[][];
   zones: Zone[];
   sheetId: UID;
-  isCutOperation: boolean;
 };
 
 export class SheetClipboardHandler extends AbstractCellClipboardHandler<ClipboardContent, any> {
