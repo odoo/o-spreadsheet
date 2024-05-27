@@ -8,9 +8,9 @@ export enum ClipboardMIMEType {
 export type ClipboardContent = { [type in ClipboardMIMEType]?: string };
 
 export interface ClipboardOptions {
+  isCutOperation: boolean;
   pasteOption?: ClipboardPasteOptions;
   selectTarget?: boolean;
-  isCutOperation?: boolean;
 }
 export type ClipboardPasteOptions = "onlyFormat" | "asValue";
 export type ClipboardOperation = "CUT" | "COPY";
