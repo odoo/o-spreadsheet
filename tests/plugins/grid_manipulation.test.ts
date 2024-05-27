@@ -2,6 +2,7 @@ import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   INCORRECT_RANGE_STRING,
+  LINK_COLOR,
 } from "../../src/constants";
 import { lettersToNumber, toXC, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
@@ -1385,6 +1386,17 @@ describe("Rows", () => {
         top: 2,
         bottom: 5,
         topLeft: toPosition("D3"),
+      });
+    });
+
+    test("Link style is not propagated on row addition", () => {
+      setCellContent(model, "D4", `[my label](www.google.com)`);
+      expect(getCell(model, "D4")?.isLink()).toBe(true);
+      addRows(model, "before", 3, 1);
+
+      expect(getCell(model, "D4")).toBeUndefined();
+      expect(model.getters.getCellStyle(getCell(model, "D5")!)).toMatchObject({
+        textColor: LINK_COLOR,
       });
     });
 
