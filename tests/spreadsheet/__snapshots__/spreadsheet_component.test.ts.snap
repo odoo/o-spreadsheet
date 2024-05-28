@@ -687,10 +687,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
         
         <div
           class="o-grid-composer"
-          style="
-        position: absolute;
-        z-index: -1000;
-      "
+          style="z-index: -1000;"
         >
           <div
             class="o-composer-container w-100 h-100"
