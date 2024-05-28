@@ -563,6 +563,28 @@ describe("range plugin", () => {
       }
     );
   });
+
+  test("getRangeFromSheetXC on invalid sheet", () => {
+    let getRange = () => m.getters.getRangeFromSheetXC("NotASheet", "A1");
+    expect(getRange).not.toThrow();
+    expect(getRange().invalidXc).toBe("A1");
+
+    getRange = () => m.getters.getRangeFromSheetXC("NotASheet", "A:A");
+    expect(getRange).not.toThrow();
+    expect(getRange().invalidXc).toBe("A:A");
+
+    getRange = () => m.getters.getRangeFromSheetXC("NotASheet", "Sheet1!A1");
+    expect(getRange).not.toThrow();
+    expect(getRange().invalidXc).toBe("Sheet1!A1");
+
+    getRange = () => m.getters.getRangeFromSheetXC("", "Sheet1!A:A");
+    expect(getRange).not.toThrow();
+    expect(getRange().invalidXc).toBe("Sheet1!A:A");
+
+    getRange = () => m.getters.getRangeFromSheetXC("", "A1:A2");
+    expect(getRange).not.toThrow();
+    expect(getRange().invalidXc).toBe("A1:A2");
+  });
 });
 
 describe("Helpers", () => {
