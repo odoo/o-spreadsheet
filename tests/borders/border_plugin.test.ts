@@ -4,6 +4,7 @@ import { BorderDescr, CommandResult } from "../../src/types/index";
 import {
   addColumns,
   addRows,
+  createSheet,
   cut,
   deleteCells,
   deleteColumns,
@@ -593,6 +594,17 @@ describe("Grid manipulation", () => {
     expect(getBorder(model, "A1")).toEqual({ top: b, left: b, right: b, bottom: b });
     expect(getBorder(model, "B1")).toEqual({ left: b });
     expect(getBorder(model, "A2")).toEqual({ top: b });
+  });
+
+  test("Remove multiple rows before borders at the bottom of the sheet", () => {
+    createSheet(model, { activate: true, sheetId: "sh1", rows: 5, cols: 2 });
+    const b = DEFAULT_BORDER_DESC;
+    setZoneBorders(model, { position: "external" }, ["A4:B5"]);
+    deleteRows(model, [0, 1]);
+    expect(getBorder(model, "A2")).toEqual({ left: b, top: b });
+    expect(getBorder(model, "A3")).toEqual({ left: b, bottom: b });
+    expect(getBorder(model, "B2")).toEqual({ right: b, top: b });
+    expect(getBorder(model, "B3")).toEqual({ right: b, bottom: b });
   });
 
   test("Borders are correctly duplicated on sheet dup", () => {
