@@ -232,6 +232,7 @@ export class FigureComponent extends Component<Props, SpreadsheetChildEnv> {
 
     switch (ev.key) {
       case "Delete":
+      case "Backspace":
         this.env.model.dispatch("DELETE_FIGURE", {
           sheetId: this.env.model.getters.getActiveSheetId(),
           id: figure.id,

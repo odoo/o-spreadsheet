@@ -168,6 +168,15 @@ describe("figures", () => {
     expect(getCellContent(model, "A1")).toBe("content");
   });
 
+  test("Can delete a figure with `Backspace`", async () => {
+    createFigure(model);
+    await nextTick();
+    fixture.querySelector(".o-figure")!;
+    await simulateClick(".o-figure");
+    await keyDown({ key: "Backspace" });
+    expect(fixture.querySelector(".o-figure")).toBeNull();
+  });
+
   test("Add a figure on sheet2, scroll down on sheet 1, switch to sheet 2, the figure should be displayed", async () => {
     createSheet(model, { sheetId: "42", position: 1 });
     createFigure(model, {}, "42");
