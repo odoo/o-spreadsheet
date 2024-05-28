@@ -25,7 +25,7 @@
       <t t-set-slot="content">
         <Section class="'pt-0 pb-0'">
           <select
-            class="pl-1 o-input data-series-selector"
+            class="o-input data-series-selector"
             t-model="state.label"
             t-on-change="(ev) => this.updateSerieEditor(ev)">
             <t t-foreach="getDataSeries()" t-as="serie" t-key="serie" t-index="index">
