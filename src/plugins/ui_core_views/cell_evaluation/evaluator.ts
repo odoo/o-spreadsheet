@@ -40,7 +40,7 @@ export class Evaluator {
     new FormulaDependencyGraph(this.createEmptyPositionSet.bind(this))
   );
   private blockedArrayFormulas = new PositionSet({});
-  private spreadingRelations = new SpreadingRelation(this.createEmptyPositionSet.bind(this));
+  private spreadingRelations = new SpreadingRelation();
 
   constructor(private readonly context: ModelConfig["custom"], getters: Getters) {
     this.getters = getters;
@@ -139,7 +139,7 @@ export class Evaluator {
 
   buildDependencyGraph() {
     this.blockedArrayFormulas = this.createEmptyPositionSet();
-    this.spreadingRelations = new SpreadingRelation(this.createEmptyPositionSet.bind(this));
+    this.spreadingRelations = new SpreadingRelation();
     this.formulaDependencies = lazy(() => {
       const dependencies = [...this.getAllCells()].flatMap((position) =>
         this.getDirectDependencies(position)
