@@ -3,6 +3,7 @@ import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   INCORRECT_RANGE_STRING,
+  LINK_COLOR,
 } from "../../src/constants";
 import { lettersToNumber, toCartesian, toXC, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
@@ -33,6 +34,7 @@ import {
   getCell,
   getCellContent,
   getCellText,
+  getEvaluatedCell,
   getMerges,
 } from "../test_helpers/getters_helpers";
 import {
@@ -1129,6 +1131,18 @@ describe("Rows", () => {
         top: 2,
         bottom: 5,
         topLeft: toCartesian("D3"),
+      });
+    });
+
+    test("Link style is not propagated on row addition", () => {
+      setCellContent(model, "D4", `[my label](www.google.com)`);
+      expect(getEvaluatedCell(model, "D4").link?.label).toBe("my label");
+      addRows(model, "before", 3, 1);
+
+      const sheetId = model.getters.getActiveSheetId();
+      expect(model.getters.getCellComputedStyle({ sheetId, ...toCartesian("D4") })).toEqual({});
+      expect(model.getters.getCellComputedStyle({ sheetId, ...toCartesian("D5") })).toMatchObject({
+        textColor: LINK_COLOR,
       });
     });
 
