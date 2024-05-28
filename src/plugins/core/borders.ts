@@ -105,7 +105,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
           if (cmd.dimension === "COL") {
             this.shiftBordersHorizontally(cmd.sheetId, el + 1, -1);
           } else {
-            this.shiftBordersVertically(cmd.sheetId, el + 1, -1);
+            this.shiftBordersVertically(cmd.sheetId, el + 1, -1, cmd.elements.length);
           }
         }
         break;
@@ -152,13 +152,13 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
     let rowAboveInsertion: HeaderIndex;
     let rowBelowInsertion: HeaderIndex;
     if (cmd.position === "before") {
-      this.shiftBordersVertically(cmd.sheetId, cmd.base, cmd.quantity, {
+      this.shiftBordersVertically(cmd.sheetId, cmd.base, cmd.quantity, 0, {
         moveFirstTopBorder: true,
       });
       rowAboveInsertion = cmd.base - 1;
       rowBelowInsertion = cmd.base + cmd.quantity;
     } else {
-      this.shiftBordersVertically(cmd.sheetId, cmd.base + 1, cmd.quantity, {
+      this.shiftBordersVertically(cmd.sheetId, cmd.base + 1, cmd.quantity, 0, {
         moveFirstTopBorder: false,
       });
       rowAboveInsertion = cmd.base;
@@ -320,6 +320,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
     sheetId: UID,
     start: HeaderIndex,
     delta: number,
+    totalDeletedRows: number,
     { moveFirstTopBorder }: { moveFirstTopBorder?: boolean } = {}
   ) {
     const borders = this.borders[sheetId];
@@ -329,7 +330,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
         destructive: false,
       });
     }
-    this.getRowsRange(sheetId)
+    range(0, this.getters.getNumberRows(sheetId) + totalDeletedRows + 1)
       .filter((row) => row >= start)
       .sort((a, b) => (delta < 0 ? a - b : b - a)) // start by the end when moving up
       .forEach((row) => {
