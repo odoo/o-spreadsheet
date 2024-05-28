@@ -415,7 +415,13 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
 
   onPaste(ev: ClipboardEvent) {
     if (this.composerStore.editionMode !== "inactive") {
+      // let the browser clipboard work
       ev.stopPropagation();
+    } else {
+      // the user meant to paste in the sheet, not open the composer with the pasted content
+      // While we're not editing, we still have the focus and should therefore prevent
+      // the native "paste" to occur.
+      ev.preventDefault();
     }
   }
 
@@ -424,9 +430,6 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
    * */
   onInput(ev: InputEvent) {
     if (!this.shouldProcessInputEvents) {
-      return;
-    }
-    if (ev.inputType === "insertFromPaste" && this.composerStore.editionMode === "inactive") {
       return;
     }
     ev.stopPropagation();
