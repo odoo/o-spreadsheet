@@ -111,10 +111,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
 
   get containerStyle(): string {
     if (this.env.model.getters.getEditionMode() === "inactive" || !this.rect) {
-      return `
-        position: absolute;
-        z-index: -1000;
-      `;
+      return `z-index: -1000;`;
     }
     const isFormula = this.env.model.getters.getCurrentContent().startsWith("=");
     const cell = this.env.model.getters.getActiveCell();
