@@ -604,16 +604,12 @@ describe("composer", () => {
     await nextTick();
     expect(model.getters.getEditionMode()).toBe("inactive");
   });
-  test("input event triggered from a paste should not open composer", async () => {
-    gridInputEl.dispatchEvent(
-      new InputEvent("input", {
-        data: "d",
-        bubbles: true,
-        isComposing: false,
-        inputType: "insertFromPaste",
-      })
-    );
+
+  test("Default paste is prevented in a closed composer", async () => {
+    const pasteEvent = new Event("paste", { cancelable: true });
+    gridInputEl.dispatchEvent(pasteEvent);
     await nextTick();
+    expect(pasteEvent.defaultPrevented).toBeTruthy();
     expect(model.getters.getEditionMode()).toBe("inactive");
   });
 
