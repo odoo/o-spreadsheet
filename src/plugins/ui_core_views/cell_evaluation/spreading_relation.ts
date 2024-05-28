@@ -1,6 +1,5 @@
 import { CellPosition } from "../../../types";
 import { PositionMap } from "./position_map";
-import { PositionSet } from "./position_set";
 
 /**
  * Contains, for each cell, the array
@@ -43,10 +42,8 @@ export class SpreadingRelation {
    * - (B1) --> (B2, B3, B4)  meaning B1 spreads on B2, B3 and B4
    *
    */
-  private readonly resultsToArrayFormulas: PositionMap<PositionSet> = new PositionMap();
-  private readonly arrayFormulasToResults: PositionMap<PositionSet> = new PositionMap();
-
-  constructor(private readonly createEmptyPositionSet: () => PositionSet) {}
+  private readonly resultsToArrayFormulas: PositionMap<CellPosition[]> = new PositionMap();
+  private readonly arrayFormulasToResults: PositionMap<CellPosition[]> = new PositionMap();
 
   getFormulaPositionsSpreadingOn(resultPosition: CellPosition): Iterable<CellPosition> {
     return this.resultsToArrayFormulas.get(resultPosition) || EMPTY_ARRAY;
@@ -75,13 +72,13 @@ export class SpreadingRelation {
     resultPosition: CellPosition;
   }): void {
     if (!this.resultsToArrayFormulas.has(resultPosition)) {
-      this.resultsToArrayFormulas.set(resultPosition, this.createEmptyPositionSet());
+      this.resultsToArrayFormulas.set(resultPosition, []);
     }
-    this.resultsToArrayFormulas.get(resultPosition)?.add(arrayFormulaPosition);
+    this.resultsToArrayFormulas.get(resultPosition)?.push(arrayFormulaPosition);
     if (!this.arrayFormulasToResults.has(arrayFormulaPosition)) {
-      this.arrayFormulasToResults.set(arrayFormulaPosition, this.createEmptyPositionSet());
+      this.arrayFormulasToResults.set(arrayFormulaPosition, []);
     }
-    this.arrayFormulasToResults.get(arrayFormulaPosition)?.add(resultPosition);
+    this.arrayFormulasToResults.get(arrayFormulaPosition)?.push(resultPosition);
   }
 
   hasArrayFormulaResult(position: CellPosition): boolean {
