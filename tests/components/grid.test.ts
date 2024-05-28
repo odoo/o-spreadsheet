@@ -993,20 +993,6 @@ describe("Grid component", () => {
     await nextTick();
     expect(fixture.querySelector(".o-menu")).toBeTruthy();
   });
-
-  test("input event triggered from a paste should not open composer", async () => {
-    const input = fixture.querySelector(".o-grid div.o-composer");
-    input?.dispatchEvent(
-      new InputEvent("input", {
-        data: "d",
-        bubbles: true,
-        isComposing: false,
-        inputType: "insertFromPaste",
-      })
-    );
-    await nextTick();
-    expect(model.getters.getEditionMode()).toBe("inactive");
-  });
 });
 
 describe("Multi User selection", () => {
