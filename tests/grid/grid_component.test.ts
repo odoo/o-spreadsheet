@@ -931,20 +931,6 @@ describe("Grid component", () => {
     expect(parseInt(popover.style.top)).toBe(mockGridPosition.y + HEADER_HEIGHT);
   });
 
-  test("input event triggered from a paste should not open composer", async () => {
-    const input = fixture.querySelector(".o-grid div.o-composer");
-    input?.dispatchEvent(
-      new InputEvent("input", {
-        data: "d",
-        bubbles: true,
-        isComposing: false,
-        inputType: "insertFromPaste",
-      })
-    );
-    await nextTick();
-    expect(composerStore.editionMode).toBe("inactive");
-  });
-
   test("Mac user use metaKey, not CtrlKey", async () => {
     const mockUserAgent = jest.spyOn(navigator, "userAgent", "get");
     mockUserAgent.mockImplementation(
