@@ -1088,6 +1088,15 @@ describe("Copy/paste in composer", () => {
     expect(pasteFn).not.toBeCalled();
     fixture.removeEventListener("paste", parentPasteFn);
   });
+
+  test("Default paste is prevented in a closed composer", async () => {
+    composerEl = fixture.querySelector("div.o-composer")! as HTMLDivElement;
+    const pasteEvent = new Event("paste", { cancelable: true });
+    composerEl.dispatchEvent(pasteEvent);
+    await nextTick();
+    expect(pasteEvent.defaultPrevented).toBeTruthy();
+    expect(model.getters.getEditionMode()).toBe("inactive");
+  });
 });
 
 describe("Double click selection in composer", () => {
