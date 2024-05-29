@@ -123,7 +123,7 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
 
     /**
      * This function compiles all the information extracted by the parser into an
-     * executable code for the evaluation of the cells content. It uses a cash to
+     * executable code for the evaluation of the cells content. It uses a cache to
      * not reevaluate identical code structures.
      *
      * The function is sensitive to parameter “isMeta”. This
