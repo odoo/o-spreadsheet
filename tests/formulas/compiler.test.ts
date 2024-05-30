@@ -2,7 +2,7 @@ import { Model } from "../../src";
 import { functionCache } from "../../src/formulas/compiler";
 import { compile } from "../../src/formulas/index";
 import { functionRegistry } from "../../src/functions";
-import { createRange } from "../../src/helpers";
+import { createValidRange } from "../../src/helpers";
 import { ArgType, CompiledFormula } from "../../src/types";
 import { getCellError, setCellContent } from "../test_helpers";
 import { evaluateCell, evaluateCellFormat, restoreDefaultFunctions } from "../test_helpers/helpers";
@@ -460,8 +460,8 @@ describe("compile functions", () => {
 
       const ctx = { USEMETAARG: () => {}, NOTUSEMETAARG: () => {} };
 
-      const rangeA1 = createRange(m.getters, "ABC", "A1")!;
-      const rangeA1ToB2 = createRange(m.getters, "ABC", "A1:B2")!;
+      const rangeA1 = createValidRange(m.getters, "ABC", "A1")!;
+      const rangeA1ToB2 = createValidRange(m.getters, "ABC", "A1:B2")!;
 
       compiledFormula1.execute([rangeA1], refFn, ensureRange, ctx);
       expect(refFn).toHaveBeenCalledWith(rangeA1, true, "USEMETAARG", 1);
