@@ -5,7 +5,7 @@ import { corePluginRegistry, featurePluginRegistry } from "../../src/plugins/ind
 import { UIPlugin } from "../../src/plugins/ui_plugin";
 import { Command, CommandTypes, CoreCommand, DispatchResult, coreTypes } from "../../src/types";
 import { setupCollaborativeEnv } from "../collaborative/collaborative_helpers";
-import { copy, selectCell, setCellContent } from "../test_helpers/commands_helpers";
+import { copy, redo, selectCell, setCellContent, undo } from "../test_helpers/commands_helpers";
 import {
   getCell,
   getCellContent,
@@ -356,5 +356,70 @@ describe("Model", () => {
     };
     const model = new Model(modelData);
     expect(model.exportData()).toMatchSnapshot();
+  });
+
+  describe("withOneHistoryStep callback", () => {
+    test("Can execute multiple commands with the withOneHistoryStep callback", () => {
+      const model = new Model();
+      model.withOneHistoryStep(() => {
+        setCellContent(model, "A1", "hello");
+        setCellContent(model, "A2", "world");
+      });
+      expect(getCellContent(model, "A1")).toBe("hello");
+      expect(getCellContent(model, "A2")).toBe("world");
+    });
+  });
+
+  test("Can undo/redo withOneHistoryStep callback", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "hello");
+    model.withOneHistoryStep(() => {
+      setCellContent(model, "A1", "world");
+      setCellContent(model, "A2", "world");
+    });
+
+    expect(getCellContent(model, "A1")).toBe("world");
+    expect(getCellContent(model, "A2")).toBe("world");
+
+    undo(model);
+    expect(getCellContent(model, "A1")).toBe("hello");
+    expect(getCellContent(model, "A2")).toBe("");
+
+    undo(model);
+    expect(getCellContent(model, "A1")).toBe("");
+    expect(getCellContent(model, "A2")).toBe("");
+
+    redo(model);
+    expect(getCellContent(model, "A1")).toBe("hello");
+    expect(getCellContent(model, "A2")).toBe("");
+
+    redo(model);
+    expect(getCellContent(model, "A1")).toBe("world");
+    expect(getCellContent(model, "A2")).toBe("world");
+  });
+
+  test("Cannot use batch multiple commands with undo", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "hello");
+
+    expect(() => {
+      model.withOneHistoryStep(() => {
+        undo(model);
+        setCellContent(model, "A1", "hey");
+      });
+    }).toThrowError();
+  });
+
+  test("Cannot use batch multiple commands with redo", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "hello");
+    undo(model);
+
+    expect(() => {
+      model.withOneHistoryStep(() => {
+        redo(model);
+        setCellContent(model, "A1", "hey");
+      });
+    }).toThrowError();
   });
 });

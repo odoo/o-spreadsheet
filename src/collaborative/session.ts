@@ -81,20 +81,26 @@ export class Session extends EventBus<CollaborativeEvent> {
    * Add a new revision to the collaborative session.
    * It will be transmitted to all other connected clients.
    */
-  save(rootCommand: Command, commands: CoreCommand[], changes: HistoryChange[]) {
+  save(rootCommands: Command[], commands: CoreCommand[], changes: HistoryChange[]) {
     if (!commands.length || !changes.length || !this.canApplyOptimisticUpdate()) return;
+    if (
+      rootCommands.length > 1 &&
+      rootCommands.some((cmd) => cmd.type === "REQUEST_REDO" || cmd.type === "REQUEST_UNDO")
+    ) {
+      throw new Error("Cannot batch REQUEST_REDO/REQUEST_UNDO with other commands");
+    }
     const revision = new Revision(
       this.uuidGenerator.uuidv4(),
       this.clientId,
       commands,
-      rootCommand,
+      rootCommands,
       changes,
       Date.now()
     );
     this.revisions.append(revision.id, revision);
     // REQUEST_REDO just repeats the last operation, the
     // last operation is still the same and should not change.
-    if (rootCommand.type !== "REQUEST_REDO") {
+    if (rootCommands.every((cmd) => cmd.type !== "REQUEST_REDO")) {
       this.lastLocalOperation = revision;
     }
     this.trigger("new-local-state-update", { id: revision.id });

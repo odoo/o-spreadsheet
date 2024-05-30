@@ -9,28 +9,30 @@ import { CoreCommand, Getters } from "../../types";
 import { Command, isCoreCommand } from "../../types/commands";
 
 export function canRepeatRevision(revision: Revision | undefined): boolean {
-  if (!revision || !revision.rootCommand || typeof revision.rootCommand !== "object") {
+  if (!revision || !revision.rootCommands || revision.rootCommands.length > 1) {
     return false;
   }
+  const rootCmd = revision.rootCommands[0];
 
-  if (isCoreCommand(revision.rootCommand)) {
-    return repeatCommandTransformRegistry.contains(revision.rootCommand.type);
+  if (isCoreCommand(rootCmd)) {
+    return repeatCommandTransformRegistry.contains(rootCmd.type);
   }
 
-  return repeatLocalCommandTransformRegistry.contains(revision.rootCommand.type);
+  return repeatLocalCommandTransformRegistry.contains(rootCmd.type);
 }
 
 export function repeatRevision(
   revision: Revision,
   getters: Getters
 ): CoreCommand[] | Command | undefined {
-  if (!revision.rootCommand || typeof revision.rootCommand !== "object") {
+  if (!revision.rootCommands || revision.rootCommands.length > 1) {
     return undefined;
   }
+  const rootCmd = revision.rootCommands[0];
 
-  if (isCoreCommand(revision.rootCommand)) {
-    return repeatCoreCommand(getters, revision.rootCommand);
+  if (isCoreCommand(rootCmd)) {
+    return repeatCoreCommand(getters, rootCmd);
   }
 
-  return repeatLocalCommand(getters, revision.rootCommand, revision.commands);
+  return repeatLocalCommand(getters, rootCmd, revision.commands);
 }

@@ -156,6 +156,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    */
   private status: Status = Status.Ready;
 
+  private isBatching = false;
+  private batchedCommands: Command[] = [];
+
   /**
    * The config object contains some configuration flag and callbacks
    */
@@ -530,7 +533,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
           return result;
         }
         this.status = Status.Running;
-        const { changes, commands } = this.state.recordChanges(() => {
+        this.batchCallbackCommands(command, () => {
           const start = performance.now();
           if (isCoreCommand(command)) {
             this.state.addCommand(command);
@@ -542,9 +545,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
             console.info(type, time, "ms");
           }
         });
-        this.session.save(command, commands, changes);
         this.status = Status.Ready;
-        this.trigger("update");
         break;
       case Status.Running:
         if (isCoreCommand(command)) {
@@ -600,6 +601,26 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       handler.handle(command);
     }
     this.trigger("command-dispatched", command);
+  }
+
+  withOneHistoryStep(callback: () => void) {
+    this.batchCallbackCommands(undefined, callback);
+  }
+
+  private batchCallbackCommands(rootCommand: Command | undefined, callback: () => void) {
+    if (this.isBatching) {
+      if (rootCommand) {
+        this.batchedCommands.push(rootCommand);
+      }
+      callback();
+      return;
+    }
+    this.isBatching = true;
+    this.batchedCommands = rootCommand ? [rootCommand] : [];
+    const { changes, commands } = this.state.recordChanges(callback);
+    this.session.save(this.batchedCommands, commands, changes);
+    this.isBatching = false;
+    this.trigger("update");
   }
 
   // ---------------------------------------------------------------------------
