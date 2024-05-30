@@ -55,6 +55,7 @@ describe("Spreadsheet pivot side panel", () => {
     addPivot(model, "A1:A3", {}, "3");
     env.openSidePanel("PivotSidePanel", { pivotId: "3" });
     await nextTick();
+    await click(fixture.querySelector(".pivot-defer-update input")!);
     await click(fixture.querySelector(".add-dimension")!);
     expect(fixture.querySelector(".o-popover")).toBeDefined();
     await click(fixture, ".o-autocomplete-value");
@@ -66,6 +67,7 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("it should not defer update when the dataset is updated", async () => {
+    await click(fixture.querySelector(".pivot-defer-update input")!);
     expect((fixture.querySelector(".pivot-defer-update input")! as HTMLInputElement).checked).toBe(
       true
     );
@@ -119,13 +121,13 @@ describe("Spreadsheet pivot side panel", () => {
     await click(fixture.querySelector(".add-dimension")!);
     expect(fixture.querySelector(".o-popover")).toBeDefined();
     await click(fixture, ".o-autocomplete-value");
-    await click(fixture.querySelector(".sp_apply_update")!);
     expect(model.getters.getPivotCoreDefinition("3").columns).toEqual([
       { name: "amount", order: "asc" },
     ]);
   });
 
   test("should reset side panel if discard is clicked", async () => {
+    await click(fixture.querySelector(".pivot-defer-update input")!);
     expect(fixture.querySelectorAll(".pivot-dimension")).toHaveLength(0);
     await click(fixture.querySelector(".add-dimension")!);
     expect(fixture.querySelector(".o-popover")).toBeDefined();
