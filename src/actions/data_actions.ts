@@ -72,5 +72,5 @@ export const splitToColumns: ActionSpec = {
 export const reorganizeSheet: ActionSpec = {
   name: _t("Reorganize sheet"),
   execute: (env) => env.model.dispatch("REORGANIZE_SHEET"),
-  icon: "o-spreadsheet-Icon.SPLIT_TEXT",
+  icon: "o-spreadsheet-Icon.MAGIC",
 };
