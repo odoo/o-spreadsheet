@@ -23,7 +23,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
     "update",
   ] as const;
 
-  private updatesAreDeferred: boolean = true;
+  private updatesAreDeferred: boolean = false;
   private draft: PivotCoreDefinition | null = null;
   constructor(get: Get, private pivotId: UID) {
     super(get);
