@@ -5,15 +5,40 @@
 Here is the shortest example to use o-spreadsheet.
 
 ```typescript
-const { Spreadsheet, Model } = o_spreadsheet;
+const { Spreadsheet, Model, stores } = o_spreadsheet;
+const { useStoreProvider, NotificationStore } = stores;
+
+const { Component, xml, App } = owl;
 
 const model = new Model();
-const templates = await(await fetch("../dist/o_spreadsheet.xml")).text();
+const templates = await(await fetch("./o_spreadsheet.xml")).text();
 const env = {
   notifyUser: () => window.alert(content),
   askConfirmation: (message, confirm, cancel) => confirm(),
+  raiseError: (content, callback) => {
+    window.alert(content);
+    callback?.();
+  },
 };
-const app = new owl.App(Spreadsheet, {
+
+class Demo extends Component {
+  static template = xml/* xml */ `
+        <div style="width:100%;">
+            <Spreadsheet model="props.model"/>
+        </div>`;
+  static components = { Spreadsheet };
+
+  setup() {
+    const storeProvider = useStoreProvider();
+    storeProvider.inject(NotificationStore, {
+      notifyUser: env.notifyUser,
+      raiseError: env.raiseError,
+      askConfirmation: env.askConfirmation,
+    });
+  }
+}
+
+const app = new App(Demo, {
   props: { model },
   env,
   templates,
