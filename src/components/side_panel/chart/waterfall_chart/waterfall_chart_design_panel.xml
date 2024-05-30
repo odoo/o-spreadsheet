@@ -31,7 +31,7 @@
       </t>
     </GeneralDesignEditor>
     <SidePanelCollapsible collapsedAtInit="true">
-      <t t-set-slot="title">Waterfall Design</t>
+      <t t-set-slot="title">Waterfall design</t>
       <t t-set-slot="content">
         <Section class="'pt-0'">
           <t t-set-slot="title">Waterfall options</t>
@@ -84,7 +84,7 @@
       </t>
     </SidePanelCollapsible>
     <SidePanelCollapsible collapsedAtInit="true">
-      <t t-set-slot="title">Axis Title</t>
+      <t t-set-slot="title">Axis title</t>
       <t t-set-slot="content">
         <AxisDesignEditor
           axesList="axesList"
