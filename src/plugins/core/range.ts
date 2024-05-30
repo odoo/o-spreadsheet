@@ -341,6 +341,9 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     if (range.invalidXc) {
       return range.invalidXc;
     }
+    if (!this.getters.tryGetSheet(range.sheetId)) {
+      return CellErrorType.InvalidReference;
+    }
     if (range.zone.bottom - range.zone.top < 0 || range.zone.right - range.zone.left < 0) {
       return CellErrorType.InvalidReference;
     }
