@@ -149,8 +149,8 @@ export function createDataSets(
   const dataSets: DataSet[] = [];
   for (const sheetXC of dataSetsString) {
     const dataRange = getters.getRangeFromSheetXC(sheetId, sheetXC);
-    const { unboundedZone: zone, sheetId: dataSetSheetId, invalidSheetName } = dataRange;
-    if (invalidSheetName) {
+    const { unboundedZone: zone, sheetId: dataSetSheetId, invalidSheetName, invalidXc } = dataRange;
+    if (invalidSheetName || invalidXc) {
       continue;
     }
     // It's a rectangle. We treat all columns (arbitrary) as different data series.

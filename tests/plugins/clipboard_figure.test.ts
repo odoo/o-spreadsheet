@@ -137,6 +137,21 @@ describe("Clipboard for figures", () => {
     expect(model.getters.getFigures(sheetId)).toHaveLength(0);
   });
 
+  test("Can paste a chart with ranges that were deleted between the copy and the paste", () => {
+    createSheet(model, { sheetId: "sheet2Id", name: "Sheet2" });
+    updateChart(model, chartId, { dataSets: ["Sheet1!A1:A5", "Sheet2!B1:B5"], labelRange: "B1" });
+    model.dispatch("SELECT_FIGURE", { id: chartId });
+    copy(model);
+    model.dispatch("DELETE_SHEET", { sheetId: "Sheet1" });
+    paste(model, "A1");
+    expect(model.getters.getFigures("sheet2Id")).toHaveLength(1);
+    const newChartId = model.getters.getFigures("sheet2Id")[0].id;
+    expect(model.getters.getChartDefinition(newChartId)).toMatchObject({
+      dataSets: ["B1:B5"],
+      labelRange: undefined,
+    });
+  });
+
   describe("Paste command result", () => {
     test("Cannot paste with empty target", () => {
       model.dispatch("SELECT_FIGURE", { id: chartId });
