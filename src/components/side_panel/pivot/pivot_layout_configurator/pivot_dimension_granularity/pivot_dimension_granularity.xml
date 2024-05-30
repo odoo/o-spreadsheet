@@ -3,9 +3,9 @@
     <div class="d-flex flex-row">
       <div class="d-flex flex-row py-1 px-2 w-100 small">
         <t t-set="granularity" t-value="props.dimension.granularity"/>
-        <div class="flex-basis-50">Granularity</div>
+        <div class="pivot-dim-operator-label">Granularity</div>
         <select
-          class="o_input flex-basis-50"
+          class="o_input flex-grow-1"
           t-on-change="(ev) => props.onUpdated(props.dimension, ev.target.value)">
           <option
             t-foreach="props.allGranularities"

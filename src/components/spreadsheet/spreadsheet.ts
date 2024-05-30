@@ -35,7 +35,13 @@ import { Store, useStore, useStoreProvider } from "../../store_engine";
 import { ModelStore } from "../../stores";
 import { NotificationStore, NotificationStoreMethods } from "../../stores/notification_store";
 import { _t } from "../../translation";
-import { HeaderGroup, InformationNotification, Pixel, SpreadsheetChildEnv } from "../../types";
+import {
+  CSSProperties,
+  HeaderGroup,
+  InformationNotification,
+  Pixel,
+  SpreadsheetChildEnv,
+} from "../../types";
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
@@ -43,6 +49,7 @@ import { Grid } from "../grid/grid";
 import { HeaderGroupContainer } from "../header_group/header_group_container";
 import { css, cssPropertiesToCss } from "../helpers/css";
 import { isCtrlKey } from "../helpers/dom_helpers";
+import { useSpreadsheetRect } from "../helpers/position_hook";
 import { SidePanel } from "../side_panel/side_panel/side_panel";
 import { SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { TopBar } from "../top_bar/top_bar";
@@ -62,7 +69,6 @@ css/* scss */ `
   .o-spreadsheet {
     position: relative;
     display: grid;
-    grid-template-columns: auto 350px;
     color: #333;
     font-size: 14px;
 
@@ -268,6 +274,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
   sidePanel!: Store<SidePanelStore>;
   spreadsheetRef = useRef("spreadsheet");
+  spreadsheetRect = useSpreadsheetRect();
 
   private _focusGrid?: () => void;
 
@@ -281,11 +288,16 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     return this.props.model;
   }
 
-  getStyle() {
+  getStyle(): string {
+    const properties: CSSProperties = {};
     if (this.env.isDashboard()) {
-      return `grid-template-rows: auto;`;
+      properties["grid-template-rows"] = `auto`;
+    } else {
+      properties["grid-template-rows"] = `${TOPBAR_HEIGHT}px auto ${BOTTOMBAR_HEIGHT + 1}px`;
     }
-    return `grid-template-rows: ${TOPBAR_HEIGHT}px auto ${BOTTOMBAR_HEIGHT + 1}px`;
+    properties["grid-template-columns"] = `auto ${this.sidePanel.panelSize}px`;
+
+    return cssPropertiesToCss(properties);
   }
 
   setup() {
@@ -362,13 +374,18 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     onMounted(() => {
       this.checkViewportSize();
       stores.on("store-updated", this, render);
+      resizeObserver.observe(this.spreadsheetRef.el!);
     });
     onWillUnmount(() => {
       this.unbindModelEvents();
       stores.off("store-updated", this);
+      resizeObserver.disconnect();
     });
     onPatched(() => {
       this.checkViewportSize();
+    });
+    const resizeObserver = new ResizeObserver(() => {
+      this.sidePanel.changePanelSize(this.sidePanel.panelSize, this.spreadsheetRect.width);
     });
   }
 

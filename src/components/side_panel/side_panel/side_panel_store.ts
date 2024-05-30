@@ -18,10 +18,14 @@ interface ClosedSidePanel {
 
 export type SidePanelState = OpenSidePanel | ClosedSidePanel;
 
+export const DEFAULT_SIDE_PANEL_SIZE = 350;
+export const MIN_SHEET_VIEW_WIDTH = 150;
+
 export class SidePanelStore extends SpreadsheetStore {
-  mutators = ["open", "toggle", "close"] as const;
+  mutators = ["open", "toggle", "close", "changePanelSize", "resetPanelSize"] as const;
   initialPanelProps: SidePanelProps = {};
   componentTag: string = "";
+  panelSize = DEFAULT_SIDE_PANEL_SIZE;
 
   get isOpen() {
     if (!this.componentTag) {
@@ -70,6 +74,20 @@ export class SidePanelStore extends SpreadsheetStore {
     this.initialPanelProps.onCloseSidePanel?.();
     this.initialPanelProps = {};
     this.componentTag = "";
+  }
+
+  changePanelSize(size: number, spreadsheetElWidth: number) {
+    if (size < DEFAULT_SIDE_PANEL_SIZE) {
+      this.panelSize = DEFAULT_SIDE_PANEL_SIZE;
+    } else if (size > spreadsheetElWidth - MIN_SHEET_VIEW_WIDTH) {
+      this.panelSize = Math.max(spreadsheetElWidth - MIN_SHEET_VIEW_WIDTH, DEFAULT_SIDE_PANEL_SIZE);
+    } else {
+      this.panelSize = size;
+    }
+  }
+
+  resetPanelSize() {
+    this.panelSize = DEFAULT_SIDE_PANEL_SIZE;
   }
 
   private computeState(componentTag: string, panelProps: SidePanelProps): SidePanelState {

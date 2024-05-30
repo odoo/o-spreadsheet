@@ -68,9 +68,9 @@
           <PivotDimension dimension="measure" onRemoved.bind="removeMeasureDimension">
             <div class="d-flex flex-row small">
               <div class="d-flex flex-row py-1 px-2 w-100">
-                <div class="flex-basis-50">Aggregated by</div>
+                <div class="pivot-dim-operator-label">Aggregated by</div>
                 <select
-                  class="o_input flex-basis-50"
+                  class="o_input flex-grow-1"
                   t-on-change="(ev) => this.updateAggregator(measure, ev.target.value)">
                   <option
                     t-foreach="Object.keys(AGGREGATORS[measure.type])"

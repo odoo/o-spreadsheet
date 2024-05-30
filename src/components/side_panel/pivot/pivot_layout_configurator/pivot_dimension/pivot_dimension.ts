@@ -15,6 +15,10 @@ css/* scss */ `
     select > option {
       background-color: white;
     }
+
+    .pivot-dim-operator-label {
+      min-width: 120px;
+    }
   }
 `;
 

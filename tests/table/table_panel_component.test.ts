@@ -15,6 +15,7 @@ import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helper
 import { Model } from "../../src";
 import { SidePanel } from "../../src/components/side_panel/side_panel/side_panel";
 import { TableTerms } from "../../src/components/translations_terms";
+import { TABLE_PRESETS } from "../../src/helpers/table_presets";
 
 function getTable(model: Model, sheetId: UID): Table {
   return model.getters.getTables(sheetId)[0];
@@ -198,12 +199,8 @@ describe("Table side panel", () => {
         (el) => el.dataset.id
       );
     };
-    expect(getDisplayedStyleIds()).toEqual([
-      "TableStyleMedium1",
-      "TableStyleMedium2",
-      "TableStyleMedium3",
-      "TableStyleMedium4",
-    ]);
+    const expectedStyles = Object.keys(TABLE_PRESETS).filter((key) => key.includes("Medium"));
+    expect(getDisplayedStyleIds()).toEqual(expectedStyles);
 
     createTableStyle(model, "CustomStyle");
     updateTableConfig(model, "A1:C3", { styleId: "CustomStyle" });

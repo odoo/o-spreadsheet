@@ -33,7 +33,7 @@ css/* scss */ `
     }
 
     .o-table-style-list-item {
-      padding: 3px;
+      padding: 3px 2px;
       margin: 2px 1px;
 
       .o-table-style-picker-preview {
@@ -59,11 +59,11 @@ export class TableStylePicker extends Component<TableStylePickerProps, Spreadshe
     );
     const selectedStyleIndex = styles.indexOf(this.props.table.config.styleId);
     if (selectedStyleIndex === -1) {
-      return styles.slice(0, 4);
+      return selectedStyleIndex;
     }
 
     const index = Math.floor(selectedStyleIndex / 4) * 4;
-    return styles.slice(index, index + 4);
+    return styles.slice(index);
   }
 
   onStylePicked(styleId: string) {

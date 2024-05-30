@@ -29,7 +29,7 @@ css/* scss */ `
     vertical-align: middle;
   }
   .o_cf_radio_item {
-    margin-right: 10%;
+    margin-right: 30px;
   }
   .radio input:checked {
     color: #e9ecef;
@@ -49,6 +49,9 @@ css/* scss */ `
       }
       margin-top: 10px;
       display: flex;
+      .form-check {
+        padding-left: 1rem;
+      }
     }
     .o-section-subtitle:first-child {
       margin-top: 0px;
@@ -57,7 +60,7 @@ css/* scss */ `
       font-size: 12px;
       line-height: 1.5;
       .o-selection-cf {
-        margin-bottom: 3%;
+        margin-bottom: 9px;
       }
       .o-cell-content {
         font-size: 12px;
@@ -98,7 +101,7 @@ css/* scss */ `
         width: 100%;
       }
       .o-threshold-value {
-        margin-left: 2%;
+        margin-left: 6px;
         width: 20%;
         min-width: 0px; // input overflows in Firefox otherwise
       }
@@ -127,8 +130,8 @@ css/* scss */ `
         justify-content: space-between;
         .o-cf-icon {
           display: inline;
-          margin-left: 1%;
-          margin-right: 1%;
+          margin-left: 3px;
+          margin-right: 3px;
         }
         svg {
           vertical-align: baseline;
@@ -151,7 +154,7 @@ css/* scss */ `
       }
       table {
         table-layout: fixed;
-        margin-top: 2%;
+        margin-top: 6px;
         display: table;
         text-align: left;
         font-size: 12px;
@@ -181,8 +184,8 @@ css/* scss */ `
       }
     }
     .o-cf-iconset-reverse {
-      margin-bottom: 2%;
-      margin-top: 2%;
+      margin-bottom: 6px;
+      margin-top: 6px;
       .o-cf-label {
         display: inline-block;
         vertical-align: bottom;
