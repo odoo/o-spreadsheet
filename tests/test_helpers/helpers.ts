@@ -163,15 +163,14 @@ export function makeTestEnv(
   }
   const container = new DependencyContainer();
   container.inject(ModelStore, model);
-  const notificationStore = {
-    mutators: ["notifyUser", "raiseError", "askConfirmation"],
+  container.inject(RendererStore, new FakeRendererStore());
+
+  const notificationStore = container.get(NotificationStore);
+  notificationStore.updateNotificationCallbacks({
     notifyUser: mockEnv.notifyUser || (() => {}),
     raiseError: mockEnv.raiseError || (() => {}),
     askConfirmation: mockEnv.askConfirmation || (() => {}),
-  } as const;
-
-  container.inject(NotificationStore, notificationStore);
-  container.inject(RendererStore, new FakeRendererStore());
+  });
 
   const store = container.get(SidePanelStore);
   const sidePanelStore = proxifyStoreMutation(store, () => container.trigger("store-updated"));
@@ -184,7 +183,9 @@ export function makeTestEnv(
     //FIXME : image provider is not built on top of the file store of the model if provided
     // and imageProvider is defined even when there is no file store on the model
     imageProvider: new ImageProvider(new FileStore()),
-    ...notificationStore,
+    notifyUser: notificationStore.notifyUser,
+    raiseError: notificationStore.raiseError,
+    askConfirmation: notificationStore.askConfirmation,
     startCellEdition: mockEnv.startCellEdition || (() => {}),
     loadCurrencies:
       mockEnv.loadCurrencies ||
@@ -923,10 +924,11 @@ export function getHighlightsFromStore(
 
 export function makeTestNotificationStore(): NotificationStore {
   return {
-    mutators: ["notifyUser", "raiseError", "askConfirmation"],
+    mutators: ["notifyUser", "raiseError", "askConfirmation", "updateNotificationCallbacks"],
     notifyUser: () => {},
     raiseError: () => {},
     askConfirmation: () => {},
+    updateNotificationCallbacks: () => {},
   };
 }
 

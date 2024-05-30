@@ -28,12 +28,12 @@ import {
   SEPARATOR_COLOR,
   TOPBAR_HEIGHT,
 } from "../../constants";
-import { batched } from "../../helpers";
+import { batched, deepEquals } from "../../helpers";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Model } from "../../model";
 import { Store, useStore, useStoreProvider } from "../../store_engine";
 import { ModelStore } from "../../stores";
-import { NotificationStore } from "../../stores/notification_store";
+import { NotificationStore, NotificationStoreMethods } from "../../stores/notification_store";
 import { _t } from "../../translation";
 import { HeaderGroup, InformationNotification, Pixel, SpreadsheetChildEnv } from "../../types";
 import { BottomBar } from "../bottom_bar/bottom_bar";
@@ -245,7 +245,7 @@ css/* scss */ `
   }
 `;
 
-export interface SpreadsheetProps {
+export interface SpreadsheetProps extends Partial<NotificationStoreMethods> {
   model: Model;
 }
 
@@ -253,6 +253,9 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   static template = "o-spreadsheet-Spreadsheet";
   static props = {
     model: Object,
+    notifyUser: { type: Function, optional: true },
+    raiseError: { type: Function, optional: true },
+    askConfirmation: { type: Function, optional: true },
   };
   static components = {
     TopBar,
@@ -307,7 +310,13 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       clipboard: this.env.clipboard || instantiateClipboard(),
       startCellEdition: (content?: string) =>
         this.composerFocusStore.focusGridComposerCell(content),
-    });
+      notifyUser: (notification) => this.notificationStore.notifyUser(notification),
+      askConfirmation: (text, confirm, cancel) =>
+        this.notificationStore.askConfirmation(text, confirm, cancel),
+      raiseError: (text, cb) => this.notificationStore.raiseError(text, cb),
+    } satisfies Partial<SpreadsheetChildEnv>);
+
+    this.notificationStore.updateNotificationCallbacks({ ...this.props });
 
     useEffect(
       () => {
@@ -340,6 +349,9 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       if (nextProps.model !== this.props.model) {
         throw new Error("Changing the props model is not supported at the moment.");
       }
+      if (!deepEquals(nextProps, this.props)) {
+        this.notificationStore.updateNotificationCallbacks({ ...nextProps });
+      }
     });
 
     const render = batched(this.render.bind(this, true));
@@ -361,7 +373,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     this.model.on("notify-ui", this, (notification: InformationNotification) =>
       this.notificationStore.notifyUser(notification)
     );
-    this.model.on("raise-error-ui", this, ({ text }) => this.env.raiseError(text));
+    this.model.on("raise-error-ui", this, ({ text }) => this.notificationStore.raiseError(text));
   }
 
   private unbindModelEvents() {

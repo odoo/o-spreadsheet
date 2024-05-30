@@ -1,6 +1,7 @@
 import { Model } from "..";
 import { ClipboardInterface } from "../helpers/clipboard/navigator_clipboard_wrapper";
 import { Get } from "../store_engine";
+import { NotificationStoreMethods } from "../stores/notification_store";
 import { Currency } from "./currency";
 import { ImageProviderInterface } from "./files";
 import { Locale } from "./locale";
@@ -18,13 +19,7 @@ export interface InformationNotification {
   sticky: boolean;
 }
 
-export interface SpreadsheetEnv {
-  notifyUser: (notification: InformationNotification) => any;
-  raiseError: (text: string, callback?: () => void) => any;
-  askConfirmation: (content: string, confirm: () => any, cancel?: () => any) => any;
-}
-
-export interface SpreadsheetChildEnv extends SpreadsheetEnv {
+export interface SpreadsheetChildEnv extends NotificationStoreMethods {
   model: Model;
   imageProvider?: ImageProviderInterface;
   isDashboard: () => boolean;

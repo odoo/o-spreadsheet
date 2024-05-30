@@ -10,7 +10,6 @@ const {
   xml,
   Component,
   whenReady,
-  useSubEnv,
   onWillStart,
   onMounted,
   useState,
@@ -21,7 +20,7 @@ const {
 
 const { Spreadsheet, Model, setTranslationMethod } = o_spreadsheet;
 const { topbarMenuRegistry } = o_spreadsheet.registries;
-const { useStoreProvider, NotificationStore } = o_spreadsheet.stores;
+const { useStoreProvider } = o_spreadsheet.stores;
 
 setTranslationMethod(
   (str, ...values) => str,
@@ -191,11 +190,6 @@ class Demo extends Component {
           }
           await this.initiateConnection(inputFiles);
           stores.resetStores();
-          stores.inject(NotificationStore, {
-            notifyUser: this.notifyUser,
-            raiseError: this.raiseError,
-            askConfirmation: this.askConfirmation,
-          });
           this.state.key = this.state.key + 1;
 
           // note : the onchange won't be called if we cancel the dialog w/o selecting a file, so this won't be called.
@@ -208,16 +202,7 @@ class Demo extends Component {
     });
 
     const stores = useStoreProvider();
-    stores.inject(NotificationStore, {
-      notifyUser: this.notifyUser,
-      raiseError: this.raiseError,
-      askConfirmation: this.askConfirmation,
-    });
-    useSubEnv({
-      notifyUser: this.notifyUser,
-      raiseError: this.raiseError,
-      askConfirmation: this.askConfirmation,
-    });
+
     useExternalListener(window, "beforeunload", this.leaveCollaborativeSession.bind(this));
     useExternalListener(window, "unhandledrejection", () => {
       this.notifyUser({
@@ -283,13 +268,6 @@ class Demo extends Component {
     this.model.joinSession();
     this.activateFirstSheet();
   }
-  askConfirmation(content, confirm, cancel) {
-    if (window.confirm(content)) {
-      confirm();
-    } else {
-      cancel?.();
-    }
-  }
 
   activateFirstSheet() {
     const sheetId = this.model.getters.getActiveSheetId();
@@ -323,11 +301,6 @@ class Demo extends Component {
     }
   }
 
-  raiseError(content, callback) {
-    window.alert(content);
-    callback?.();
-  }
-
   /**
    * Fetch the list of revisions of the server since the
    * start of the session.
@@ -344,7 +317,7 @@ Demo.template = xml/* xml */ `
   <div t-if="state.displayHeader" class="d-flex flex flex-column justify-content vh-100">
     <div class="p-3 border-bottom">A header</div>
     <div class="flex-fill">
-      <Spreadsheet model="model" t-key="state.key"/>
+      <Spreadsheet model="model" notifyUser="notifyUser" t-key="state.key"/>
     </div>
   </div>
   <div t-else="" class="vh-100">

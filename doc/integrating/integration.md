@@ -9,13 +9,18 @@ const { Spreadsheet, Model } = o_spreadsheet;
 
 const model = new Model();
 const templates = await(await fetch("../dist/o_spreadsheet.xml")).text();
-const env = {
-  notifyUser: () => window.alert(content),
-  askConfirmation: (message, confirm, cancel) => confirm(),
-};
 const app = new owl.App(Spreadsheet, {
-  props: { model },
-  env,
+  props: {
+    model,
+    // optionals
+    notifyUser: () => window.alert(content),
+    askConfirmation: (message, confirm, cancel) => window.confirm(message),
+    raiseError: (content, callback) => {
+      window.alert(content);
+      callback?.();
+    },
+  },
+  {},
   templates,
 });
 app.mount(document.body);
@@ -25,8 +30,22 @@ app.mount(document.body);
 
 Spreadsheet component takes the following props:
 
+**required**:
+
 - `model`
   The spreadsheet model to be used with the component.
+
+**optional**:
+
+- `notifyUser`
+  A function used to notify the user. It supports several levels of severity as well as a sticky behaviour.
+  See its [`interface`](../../src/types/env.ts#L15)
+- `askConfirmation`
+  A function used to ask the user confirmation before applying a callback
+- `raiseError`
+  A function to warn the user when a manipulation error occurs.
+
+The optional props should implement [`NotificationStoreMethods`](../../src/stores/notification_store.ts#L3).
 
 ## Model creation
 
@@ -136,3 +155,7 @@ const model = new Model(data, {
   },
 });
 ```
+
+## Managing application state with stores
+
+See [Managing application state with stores](/src/store_engine/README.md)
