@@ -25,7 +25,7 @@ import {
   ScorecardChartRuntime,
 } from "../../../types/chart/scorecard_chart";
 import { Validator } from "../../../types/validator";
-import { createRange } from "../../range";
+import { createValidRange } from "../../range";
 import { rangeReference } from "../../references";
 import { drawDecoratedText } from "../../text_helper";
 import { toUnboundedZone, zoneToXc } from "../../zones";
@@ -71,8 +71,8 @@ export class ScorecardChart extends AbstractChart {
 
   constructor(definition: ScorecardChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
-    this.keyValue = createRange(getters, sheetId, definition.keyValue);
-    this.baseline = createRange(getters, sheetId, definition.baseline);
+    this.keyValue = createValidRange(getters, sheetId, definition.keyValue);
+    this.baseline = createValidRange(getters, sheetId, definition.baseline);
     this.baselineMode = definition.baselineMode;
     this.baselineDescr = definition.baselineDescr;
     this.background = definition.background;
