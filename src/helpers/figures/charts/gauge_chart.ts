@@ -29,7 +29,7 @@ import {
 } from "../../../types/chart/gauge_chart";
 import { Validator } from "../../../types/validator";
 import { clip } from "../../index";
-import { createRange } from "../../range";
+import { createValidRange } from "../../range";
 import { rangeReference } from "../../references";
 import { toUnboundedZone, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
@@ -139,7 +139,7 @@ export class GaugeChart extends AbstractChart {
 
   constructor(definition: GaugeChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
-    this.dataRange = createRange(this.getters, this.sheetId, definition.dataRange);
+    this.dataRange = createValidRange(this.getters, this.sheetId, definition.dataRange);
     this.sectionRule = definition.sectionRule;
     this.background = definition.background;
   }

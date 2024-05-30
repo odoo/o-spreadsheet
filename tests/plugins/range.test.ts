@@ -563,6 +563,14 @@ describe("range plugin", () => {
       }
     );
   });
+
+  test("getRangeString does not crash with deleted sheet", () => {
+    const range = m.getters.getRangeFromSheetXC("s1", "A1");
+    expect(m.getters.getRangeString(range)).toBe("s1!A1");
+    createSheet(m, { sheetId: "s2" });
+    deleteSheet(m, "s1");
+    expect(m.getters.getRangeString(range)).toBe(INCORRECT_RANGE_STRING);
+  });
 });
 
 describe("Helpers", () => {

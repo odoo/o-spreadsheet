@@ -185,8 +185,14 @@ export function copyRangeWithNewSheetId(sheetIdFrom: UID, sheetIdTo: UID, range:
 /**
  * Create a range from a xc. If the xc is empty, this function returns undefined.
  */
-export function createRange(getters: CoreGetters, sheetId: UID, range?: string): Range | undefined {
-  return range ? getters.getRangeFromSheetXC(sheetId, range) : undefined;
+export function createValidRange(
+  getters: CoreGetters,
+  sheetId: UID,
+  xc?: string
+): Range | undefined {
+  if (!xc) return;
+  const range = getters.getRangeFromSheetXC(sheetId, xc);
+  return !(range.invalidSheetName || range.invalidXc) ? range : undefined;
 }
 
 /**
