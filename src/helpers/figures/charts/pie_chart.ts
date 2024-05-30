@@ -34,7 +34,7 @@ import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { ColorGenerator } from "../../color";
 import { formatValue } from "../../format";
 import { largeMax } from "../../misc";
-import { createRange } from "../../range";
+import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
   chartFontColor,
@@ -75,7 +75,7 @@ export class PieChart extends AbstractChart {
       sheetId,
       definition.dataSetsHaveTitle
     );
-    this.labelRange = createRange(getters, sheetId, definition.labelRange);
+    this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
     this.background = definition.background;
     this.legendPosition = definition.legendPosition;
     this.aggregated = definition.aggregated;

@@ -1,5 +1,5 @@
 import { Component, useState } from "@odoo/owl";
-import { createRange, spreadRange } from "../../../../../helpers";
+import { createValidRange, spreadRange } from "../../../../../helpers";
 import { createDataSets } from "../../../../../helpers/figures/charts";
 import { _t } from "../../../../../translation";
 import {
@@ -155,7 +155,7 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
     }
     const getters = this.env.model.getters;
     const sheetId = getters.getActiveSheetId();
-    const labelRange = createRange(getters, sheetId, this.labelRange);
+    const labelRange = createValidRange(getters, sheetId, this.labelRange);
     const dataSets = createDataSets(
       getters,
       this.dataSeriesRanges,
