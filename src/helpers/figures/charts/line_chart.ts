@@ -32,7 +32,7 @@ import { getChartTimeOptions, timeFormatMomentCompatible } from "../../chart_dat
 import { colorToRGBA, rgbaToHex } from "../../color";
 import { formatValue } from "../../format";
 import { deepCopy, findNextDefinedValue } from "../../misc";
-import { createRange } from "../../range";
+import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
   ChartColors,
@@ -80,7 +80,7 @@ export class LineChart extends AbstractChart {
       sheetId,
       definition.dataSetsHaveTitle
     );
-    this.labelRange = createRange(this.getters, sheetId, definition.labelRange);
+    this.labelRange = createValidRange(this.getters, sheetId, definition.labelRange);
     this.background = definition.background;
     this.verticalAxisPosition = definition.verticalAxisPosition;
     this.legendPosition = definition.legendPosition;
