@@ -49,6 +49,11 @@ export class CogWheelMenu extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
+  onClick(item: CogWheelMenuItem) {
+    item.onClick();
+    this.popover.isOpen = false;
+  }
+
   get popoverProps() {
     const { x, y, width, height } = this.buttonRef.el!.getBoundingClientRect();
     return {

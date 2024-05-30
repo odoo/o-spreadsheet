@@ -92,6 +92,14 @@ export class PivotSpreadsheetSidePanel extends Component<Props, SpreadsheetChild
     }
   }
 
+  flipAxis() {
+    const { rows, columns } = this.definition;
+    this.onDimensionsUpdated({
+      rows: columns,
+      columns: rows,
+    });
+  }
+
   onDimensionsUpdated(definition: Partial<SpreadsheetPivotCoreDefinition>) {
     this.store.update(definition);
   }

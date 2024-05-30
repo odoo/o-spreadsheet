@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-PivotSpreadsheetSidePanel">
     <div class="d-flex flex-column h-100 justify-content-between overflow-hidden">
       <div class="h-100 overflow-auto">
-        <PivotTitleSection pivotId="props.pivotId"/>
+        <PivotTitleSection pivotId="props.pivotId" flipAxis.bind="flipAxis"/>
         <Section>
           <t t-set-slot="title">Range</t>
           <SelectionInput

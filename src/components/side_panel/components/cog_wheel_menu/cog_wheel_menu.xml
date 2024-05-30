@@ -7,7 +7,7 @@
           t-foreach="props.items"
           t-as="item"
           t-key="item.name"
-          t-on-click="item.onClick"
+          t-on-click="() => this.onClick(item)"
           class="btn btn-link me-3">
           <i t-if="item.icon" t-att-class="'me-2 fa ' + item.icon"/>
           <t t-esc="item.name"/>
