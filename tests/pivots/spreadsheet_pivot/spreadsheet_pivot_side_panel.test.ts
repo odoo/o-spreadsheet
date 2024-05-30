@@ -124,4 +124,14 @@ describe("Spreadsheet pivot side panel", () => {
       { name: "amount", order: "asc" },
     ]);
   });
+
+  test("should reset side panel if discard is clicked", async () => {
+    expect(fixture.querySelectorAll(".pivot-dimension")).toHaveLength(0);
+    await click(fixture.querySelector(".add-dimension")!);
+    expect(fixture.querySelector(".o-popover")).toBeDefined();
+    await click(fixture.querySelectorAll(".o-autocomplete-value")[0]);
+    expect(fixture.querySelectorAll(".pivot-dimension")).toHaveLength(1);
+    await click(fixture.querySelector(".fa-undo")!);
+    expect(fixture.querySelectorAll(".pivot-dimension")).toHaveLength(0);
+  });
 });
