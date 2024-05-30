@@ -1,6 +1,10 @@
 import { Model } from "../../src/model";
 import { activateSheet, createSheet, setCellContent } from "../test_helpers/commands_helpers";
-import { getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
+import {
+  getCellContent,
+  getEvaluatedCell,
+  getEvaluatedGrid,
+} from "../test_helpers/getters_helpers";
 import {
   createModelFromGrid,
   evaluateCell,
@@ -1620,5 +1624,174 @@ describe("INDIRECT formula", () => {
     expect(grid.A4).toBe("#NAME?");
     expect(grid.A5).toBe("#CYCLE");
     expect(grid.A6).toBe("#ERROR");
+  });
+});
+
+describe("OFFSET formula", () => {
+  test("should check argument validity", () => {
+    expect(evaluateCell("A1", { A1: "=OFFSET()" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=OFFSET(,1,1,0,0)" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=OFFSET(A1:C5, 'hola')" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=OFFSET(A1:C5)" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=OFFSET(A1:C5, 0)" })).toBe("#BAD_EXPR");
+    expect(evaluateCell("A1", { A1: "=OFFSET(A1:C5, -1, -1)" })).toBe("#REF");
+    expect(evaluateCell("A1", { A1: "=OFFSET(A1:C5, 0, 0, -1, 0)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=OFFSET(A1:C5, 0, 0, 0, -1)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=OFFSET(A1:C5, 0, 0, 0, 0)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=OFFSET(Sheet100!A1:C5, , 0, -1)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=OFFSET(A1, 0, 0)" })).toBe("#CYCLE");
+  });
+
+  test("can select a single cell", () => {
+    const grid = evaluateGrid({
+      A1: "A1",
+      D4: "=OFFSET(A1, 0, 0)",
+    });
+    expect(grid.D4).toBe(grid.A1);
+  });
+
+  test("should select a zone with no offsets", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "A1", B1: "B1", C1: "C1",
+      A2: "A2", B2: "B2", C2: "C2",
+      A3: "A3", B3: "B3", C3: "C3", 
+                                    D4: "=OFFSET(A1:C3,0,0)",
+    };
+    const model = createModelFromGrid(grid);
+    //prettier-ignore
+    expect(getEvaluatedGrid(model, "D4:F6")).toEqual([
+      ["A1", "B1", "C1"],
+      ["A2", "B2", "C2"],
+      ["A3", "B3", "C3"],
+    ]);
+  });
+
+  test("should select a zone with positive offsets", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "A1", B1: "B1", C1: "C1",
+      A2: "A2", B2: "B2", C2: "C2",
+      A3: "A3", B3: "B3", C3: "C3",
+
+                                    D5: "=OFFSET(A1:C3,1,1)",
+    };
+    const model = createModelFromGrid(grid);
+    //prettier-ignore
+    expect(getEvaluatedGrid(model, "D5:F7")).toEqual([
+      ["B2", "C2", "0"],
+      ["B3", "C3", "0"],
+      ["0",  "0",  "0"],
+    ]);
+    setCellContent(model, "B2", "Hola");
+    expect(getEvaluatedCell(model, "D5").value).toBe("Hola");
+  });
+
+  test("should select a zone with negative offsets", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "A1", B1: "B1", C1: "C1",
+      A2: "A2", B2: "B2", C2: "C2",
+      A3: "A3", B3: "B3", C3: "C3",
+
+                                    D5: "=OFFSET(B2:C3,-1,-1)",
+    };
+    const model = createModelFromGrid(grid);
+    //prettier-ignore
+    expect(getEvaluatedGrid(model, "D5:F7")).toEqual([
+      ["A1", "B1", ""],
+      ["A2", "B2", ""],
+      ["",    "",  ""],
+    ]);
+    setCellContent(model, "A1", "Hola");
+    expect(getEvaluatedCell(model, "D5").value).toBe("Hola");
+  });
+
+  test("select a full row (with empty col parameter)", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "A1", B1: "B1", C1: "C1",
+      A2: "A2", B2: "B2", C2: "C2",
+      A3: "A3", B3: "B3", C3: "C3", 
+                                    D5: "=OFFSET(A1:C3,2,,1,3)",
+    };
+    const model = createModelFromGrid(grid);
+    //prettier-ignore
+    expect(getEvaluatedGrid(model, "D5:F7")).toEqual([
+      ["A3", "B3", "C3"],
+      ["",    "",    ""],
+      ["",    "",    ""],
+    ]);
+  });
+
+  test("select a full row (with 0 as col parameter)", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "A1", B1: "B1", C1: "C1",
+      A2: "A2", B2: "B2", C2: "C2",
+      A3: "A3", B3: "B3", C3: "C3", 
+                                    D5: "=OFFSET(A1:C3,2,0,1,3)",
+    };
+    const model = createModelFromGrid(grid);
+    //prettier-ignore
+    expect(getEvaluatedGrid(model, "D5:F7")).toEqual([
+      ["A3", "B3", "C3"],
+      ["",    "",    ""],
+      ["",    "",    ""],
+    ]);
+  });
+
+  test("select a full column (with empty row parameter", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "A1", B1: "B1", C1: "C1",
+      A2: "A2", B2: "B2", C2: "C2",
+      A3: "A3", B3: "B3", C3: "C3", 
+                                    D5: "=OFFSET(A1:C3,,2,3,1)",
+    };
+    const model = createModelFromGrid(grid);
+    //prettier-ignore
+    expect(getEvaluatedGrid(model, "D5:F7")).toEqual([
+      ["C1", "", ""],
+      ["C2", "", ""],
+      ["C3", "", ""],
+    ]);
+  });
+
+  test("select a full column (with 0 as row parameter", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "A1", B1: "B1", C1: "C1",
+      A2: "A2", B2: "B2", C2: "C2",
+      A3: "A3", B3: "B3", C3: "C3", 
+                                    D5: "=OFFSET(A1:C3,0,2,3,1)",
+    };
+    const model = createModelFromGrid(grid);
+    //prettier-ignore
+    expect(getEvaluatedGrid(model, "D5:F7")).toEqual([
+      ["C1", "", ""],
+      ["C2", "", ""],
+      ["C3", "", ""],
+    ]);
+  });
+
+  test("should select a zone from another sheet", () => {
+    //prettier-ignore
+    const grid = {
+      A1: "A1", B1: "B1", C1: "C1",
+      A2: "A2", B2: "B2", C2: "C2",
+      A3: "A3", B3: "B3", C3: "C3",
+    };
+    const model = createModelFromGrid(grid);
+    createSheet(model, { sheetId: "Sheet2" });
+    setCellContent(model, "D4", "=OFFSET(Sheet1!A1:C3,0,0)", "Sheet2");
+    //prettier-ignore
+    expect(getEvaluatedGrid(model, "D4:F6", "Sheet2")).toEqual([
+      ["A1", "B1", "C1"],
+      ["A2", "B2", "C2"],
+      ["A3", "B3", "C3"],
+    ]);
+    setCellContent(model, "A1", "hola", "Sheet1");
+    expect(getEvaluatedCell(model, "D4", "Sheet2").value).toBe("hola");
   });
 });
