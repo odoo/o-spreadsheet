@@ -112,6 +112,22 @@ describe("Spreadsheet pivot side panel", () => {
     expect(fixture.querySelector(".o-sidePanelTitle")?.textContent).toEqual("Pivot #2");
   });
 
+  test("Can flip axes of a pivot", async () => {
+    updatePivot(model, "1", {
+      rows: [{ name: "Contact Name", order: "asc" }],
+      columns: [{ name: "Active", order: "asc" }],
+    });
+    await click(fixture, SELECTORS.COG_WHEEL);
+    await click(fixture, SELECTORS.FLIP_AXIS_PIVOT);
+    const pivotId = model.getters.getPivotId("1")!;
+    expect(model.getters.getPivotCoreDefinition(pivotId).rows).toEqual([
+      { name: "Active", order: "asc" },
+    ]);
+    expect(model.getters.getPivotCoreDefinition(pivotId).columns).toEqual([
+      { name: "Contact Name", order: "asc" },
+    ]);
+  });
+
   test("Pivot dimensions are ordered 'asc' by default", async () => {
     setCellContent(model, "A1", "amount");
     setCellContent(model, "A2", "10");

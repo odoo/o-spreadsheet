@@ -7,6 +7,7 @@ import { EditableName } from "../editable_name/editable_name";
 
 interface Props {
   pivotId: UID;
+  flipAxis: () => void;
 }
 
 export class PivotTitleSection extends Component<Props, SpreadsheetChildEnv> {
@@ -14,17 +15,23 @@ export class PivotTitleSection extends Component<Props, SpreadsheetChildEnv> {
   static components = { CogWheelMenu, Section, EditableName };
   static props = {
     pivotId: String,
+    flipAxis: Function,
   };
 
   get cogWheelMenuItems() {
     return [
       {
-        name: "Duplicate",
+        name: _t("Flip axes"),
+        icon: "fa-exchange",
+        onClick: this.props.flipAxis,
+      },
+      {
+        name: _t("Duplicate"),
         icon: "fa-copy",
         onClick: () => this.duplicatePivot(),
       },
       {
-        name: "Delete",
+        name: _t("Delete"),
         icon: "fa-trash",
         onClick: () => this.delete(),
       },
