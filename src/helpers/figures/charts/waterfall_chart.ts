@@ -33,7 +33,7 @@ import {
 } from "../../../types/chart/waterfall_chart";
 import { Validator } from "../../../types/validator";
 import { formatValue } from "../../format";
-import { createRange } from "../../range";
+import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
   chartFontColor,
@@ -82,7 +82,7 @@ export class WaterfallChart extends AbstractChart {
       sheetId,
       definition.dataSetsHaveTitle
     );
-    this.labelRange = createRange(getters, sheetId, definition.labelRange);
+    this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
     this.background = definition.background;
     this.verticalAxisPosition = definition.verticalAxisPosition;
     this.legendPosition = definition.legendPosition;
