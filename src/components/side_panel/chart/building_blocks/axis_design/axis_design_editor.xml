@@ -1,6 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-AxisDesignEditor">
-    <t t-set="editor_label">Axis Title</t>
+    <t t-set="editor_label">Axis title</t>
     <Section class="'py-0'">
       <select class="o-input o-axis-selector" t-on-change="this.updateAxisEditor">
         <t t-foreach="props.axesList" t-as="axis" t-key="axis.id">
