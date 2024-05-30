@@ -2,9 +2,9 @@
   <t t-name="o-spreadsheet-PivotDimensionOrder">
     <div class="d-flex">
       <div class="d-flex py-1 px-2 w-100 small">
-        <div class="flex-basis-50">Order by</div>
+        <div class="pivot-dim-operator-label">Order by</div>
         <select
-          class="o_input flex-basis-50"
+          class="o_input flex-grow-1"
           t-on-change="(ev) => props.onUpdated(props.dimension, ev.target.value)">
           <option value="asc" t-att-selected="props.dimension.order === 'asc'">Ascending</option>
           <option value="desc" t-att-selected="props.dimension.order === 'desc'">Descending</option>

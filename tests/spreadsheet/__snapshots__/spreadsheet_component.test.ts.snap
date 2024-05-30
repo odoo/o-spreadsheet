@@ -3,7 +3,7 @@
 exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
 <div
   class="o-spreadsheet"
-  style="grid-template-rows: 63px auto 37px"
+  style="grid-template-rows:63px auto 37px; grid-template-columns:auto 350px; "
 >
   
   <div

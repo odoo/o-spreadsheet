@@ -5,7 +5,7 @@ import { FilterIcon } from "../filter_icon/filter_icon";
 
 export class FilterIconsOverlay extends Component<{}, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FilterIconsOverlay";
-
+  static props = {};
   static components = {
     GridCellIcon,
     FilterIcon,

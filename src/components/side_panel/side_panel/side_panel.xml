@@ -5,20 +5,30 @@
         <div class="o-sidePanelTitle" t-esc="getTitle()"/>
         <div class="o-sidePanelClose" t-on-click="close">✕</div>
       </div>
-      <div class="o-sidePanelBody">
-        <t
-          t-component="panel.Body"
-          t-props="sidePanelStore.panelProps"
-          onCloseSidePanel.bind="close"
-          t-key="'Body_' + sidePanelStore.componentTag + sidePanelStore.panelKey"
-        />
-      </div>
-      <div class="o-sidePanelFooter" t-if="panel?.Footer">
-        <t
-          t-component="panel.Footer"
-          t-props="sidePanelStore.panelProps"
-          t-key="'Footer_' + sidePanelStore.componentTag"
-        />
+      <div class="o-sidePanelBody-container d-flex flex-grow-1 ">
+        <div class="o-sidePanel-handle-container d-flex align-items-center">
+          <div
+            class="o-sidePanel-handle"
+            t-on-pointerdown="startHandleDrag"
+            t-on-dblclick="sidePanelStore.resetPanelSize">
+            <t t-call="o-spreadsheet-Icon.THIN_DRAG_HANDLE"/>
+          </div>
+        </div>
+        <div class="o-sidePanelBody">
+          <t
+            t-component="panel.Body"
+            t-props="sidePanelStore.panelProps"
+            onCloseSidePanel.bind="close"
+            t-key="'Body_' + sidePanelStore.componentTag + sidePanelStore.panelKey"
+          />
+        </div>
+        <div class="o-sidePanelFooter" t-if="panel?.Footer">
+          <t
+            t-component="panel.Footer"
+            t-props="sidePanelStore.panelProps"
+            t-key="'Footer_' + sidePanelStore.componentTag"
+          />
+        </div>
       </div>
     </div>
   </t>

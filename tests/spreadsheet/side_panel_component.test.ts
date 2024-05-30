@@ -1,13 +1,25 @@
 import { Component, xml } from "@odoo/owl";
-import { Spreadsheet } from "../../src";
+import { Model, Spreadsheet } from "../../src";
+import {
+  DEFAULT_SIDE_PANEL_SIZE,
+  MIN_SHEET_VIEW_WIDTH,
+  SidePanelStore,
+} from "../../src/components/side_panel/side_panel/side_panel_store";
 import { SidePanelContent, sidePanelRegistry } from "../../src/registries/side_panel_registry";
 import { createSheet } from "../test_helpers/commands_helpers";
-import { simulateClick } from "../test_helpers/dom_helper";
+import { doubleClick, dragElement, simulateClick } from "../test_helpers/dom_helper";
 import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
+import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
+
+let spreadsheetWidth = 1000;
+mockGetBoundingClientRect({
+  "o-spreadsheet": () => ({ x: 0, y: 0, width: spreadsheetWidth, height: 1000 }),
+});
 
 let fixture: HTMLElement;
 let parent: Spreadsheet;
 let sidePanelContent: { [key: string]: SidePanelContent };
+let model: Model;
 
 class Body extends Component<any, any> {
   static template = xml`
@@ -34,7 +46,7 @@ class BodyWithoutProps extends Component<any, any> {
 }
 
 beforeEach(async () => {
-  ({ parent, fixture } = await mountSpreadsheet());
+  ({ parent, fixture, model } = await mountSpreadsheet());
   sidePanelContent = Object.assign({}, sidePanelRegistry.content);
 });
 
@@ -205,7 +217,7 @@ describe("Side Panel", () => {
   });
 
   test("Side panel does not lose focus upon sheet change", async () => {
-    createSheet(parent.env.model, { activate: true });
+    createSheet(model, { activate: true });
     sidePanelRegistry.add("CUSTOM_PANEL_1", {
       title: "Custom Panel 1",
       Body: Body,
@@ -215,11 +227,11 @@ describe("Side Panel", () => {
     const inputTarget = document.querySelector(".o-sidePanel input")! as HTMLInputElement;
     inputTarget.focus();
     expect(document.activeElement).toBe(inputTarget);
-    const sheetId = parent.env.model.getters.getActiveSheetId();
-    parent.env.model.dispatch("ACTIVATE_NEXT_SHEET");
+    const sheetId = model.getters.getActiveSheetId();
+    model.dispatch("ACTIVATE_NEXT_SHEET");
     await nextTick();
     expect(document.activeElement).toBe(inputTarget);
-    expect(parent.env.model.getters.getActiveSheetId()).not.toBe(sheetId);
+    expect(model.getters.getActiveSheetId()).not.toBe(sheetId);
   });
 
   test("Can compute side panel props with computeState of the registry", async () => {
@@ -273,5 +285,68 @@ describe("Side Panel", () => {
     parent.render(true);
     await nextTick();
     expect(document.querySelector(".o-sidePanel")).toBeNull();
+  });
+
+  describe("Side panel resize", () => {
+    beforeEach(async () => {
+      sidePanelRegistry.add("CUSTOM_PANEL_2", { title: "title", Body: Body });
+      parent.env.openSidePanel("CUSTOM_PANEL_2");
+      await nextTick();
+    });
+
+    test("Can resize the side panel with the mouse", async () => {
+      const spreadsheetEl = fixture.querySelector<HTMLElement>(".o-spreadsheet")!;
+      expect(spreadsheetEl.style["grid-template-columns"]).toBe("auto 350px");
+
+      await dragElement(fixture.querySelector(".o-sidePanel-handle")!, { y: 0, x: -100 });
+      await nextTick();
+      expect(spreadsheetEl.style["grid-template-columns"]).toBe("auto 450px");
+      expect(parent.env.getStore(SidePanelStore).panelSize).toBe(450);
+    });
+
+    test("Can resize the side panel with the sidePanelStore", async () => {
+      const store = parent.env.getStore(SidePanelStore);
+      store.changePanelSize(400, spreadsheetWidth);
+      await nextTick();
+
+      const spreadsheetEl = fixture.querySelector<HTMLElement>(".o-spreadsheet")!;
+      expect(spreadsheetEl.style["grid-template-columns"]).toBe("auto 400px");
+    });
+
+    test("Cannot make the side panel smaller than its default size", () => {
+      const store = parent.env.getStore(SidePanelStore);
+      store.changePanelSize(100, spreadsheetWidth);
+      expect(store.panelSize).toBe(DEFAULT_SIDE_PANEL_SIZE);
+    });
+
+    test("Cannot make the sheetView too small", () => {
+      const store = parent.env.getStore(SidePanelStore);
+      store.changePanelSize(900, spreadsheetWidth);
+      expect(store.panelSize).toBe(spreadsheetWidth - MIN_SHEET_VIEW_WIDTH);
+
+      store.changePanelSize(2000, spreadsheetWidth);
+      expect(store.panelSize).toBe(spreadsheetWidth - MIN_SHEET_VIEW_WIDTH);
+    });
+
+    test("Side panel is resized when spreadsheet is resized", async () => {
+      const store = parent.env.getStore(SidePanelStore);
+      store.changePanelSize(850, spreadsheetWidth);
+
+      spreadsheetWidth = 600;
+      await nextTick();
+      // @ts-ignore - trigger resize observers
+      window.resizers.resize();
+      expect(store.panelSize).toBe(600 - MIN_SHEET_VIEW_WIDTH);
+    });
+
+    test("Can double click to reset the panel size", async () => {
+      const store = parent.env.getStore(SidePanelStore);
+      store.changePanelSize(400, spreadsheetWidth);
+      await nextTick();
+
+      await doubleClick(fixture.querySelector(".o-sidePanel-handle")!);
+      await nextTick();
+      expect(store.panelSize).toBe(DEFAULT_SIDE_PANEL_SIZE);
+    });
   });
 });
