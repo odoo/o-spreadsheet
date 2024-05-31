@@ -22,6 +22,7 @@ describe("population pyramid chart", () => {
       showSubTotals: true,
       axesDesign: {},
       fillArea: true,
+      showValues: false,
     };
     const definition = PyramidChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({
@@ -36,6 +37,7 @@ describe("population pyramid chart", () => {
       stacked: true,
       axesDesign: {},
       horizontal: true,
+      showValues: false,
     });
   });
 

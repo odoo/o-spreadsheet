@@ -138,4 +138,5 @@ export interface ChartCreationContext {
   readonly legendPosition?: LegendPosition;
   readonly axesDesign?: AxesDesign;
   readonly fillArea?: boolean;
+  readonly showValues?: boolean;
 }

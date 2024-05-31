@@ -8,6 +8,8 @@ import {
   SpreadsheetChildEnv,
   UID,
 } from "../../../../types/index";
+import { ChartTerms } from "../../../translations_terms";
+import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";
@@ -32,6 +34,7 @@ export class ChartWithAxisDesignPanel extends Component<Props, SpreadsheetChildE
     Section,
     AxisDesignEditor,
     RoundColorPicker,
+    Checkbox,
   };
   static props = {
     figureId: String,
@@ -130,5 +133,13 @@ export class ChartWithAxisDesignPanel extends Component<Props, SpreadsheetChildE
   getDataSerieLabel() {
     const dataSets = this.props.definition.dataSets;
     return dataSets[this.state.index]?.label || this.getDataSeries()[this.state.index];
+  }
+
+  get showValuesLabel(): string {
+    return ChartTerms.ShowValues;
+  }
+
+  updateShowValues(showValues: boolean) {
+    this.props.updateChart(this.props.figureId, { showValues });
   }
 }
