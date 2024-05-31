@@ -12,10 +12,8 @@ import {
   PLAIN_TEXT_FORMAT,
 } from "../types";
 import { EvaluationError } from "../types/errors";
-import { DEFAULT_LOCALE } from "./../types/locale";
 import { DateTime, INITIAL_1900_DAY, isDateTime, numberToJsDate, parseDateTime } from "./dates";
 import { escapeRegExp, memoize } from "./misc";
-import { isNumber } from "./numbers";
 
 /**
  *  Constant used to indicate the maximum of digits that is possible to display
@@ -532,10 +530,8 @@ export function detectDateFormat(content: string, locale: Locale): Format | unde
   return internalDate.format;
 }
 
+/** use this function only if the content corresponds to a number (means that isNumber(content) return true */
 export function detectNumberFormat(content: string): Format | undefined {
-  if (!isNumber(content, DEFAULT_LOCALE)) {
-    return undefined;
-  }
   const digitBase = content.includes(".") ? "0.00" : "0";
   const matchedCurrencies = content.match(/[\$€]/);
   if (matchedCurrencies) {

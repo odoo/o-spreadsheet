@@ -573,7 +573,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     const locale = this.getters.getLocale();
     const parsedValue = parseLiteral(content, locale);
 
-    format = format || detectDateFormat(content, locale) || detectNumberFormat(content);
+    format =
+      format ||
+      (typeof parsedValue === "number"
+        ? detectDateFormat(content, locale) || detectNumberFormat(content)
+        : undefined);
     if (format !== PLAIN_TEXT_FORMAT && !isEvaluationError(content)) {
       content = toString(parsedValue);
     }
