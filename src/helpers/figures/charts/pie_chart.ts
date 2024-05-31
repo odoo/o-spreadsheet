@@ -67,6 +67,7 @@ export class PieChart extends AbstractChart {
   readonly aggregated?: boolean;
   readonly dataSetsHaveTitle: boolean;
   readonly isDoughnut?: boolean;
+  readonly showValues?: boolean;
 
   constructor(definition: PieChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -82,6 +83,7 @@ export class PieChart extends AbstractChart {
     this.aggregated = definition.aggregated;
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
     this.isDoughnut = definition.isDoughnut;
+    this.showValues = definition.showValues;
   }
 
   static transformDefinition(
@@ -109,6 +111,7 @@ export class PieChart extends AbstractChart {
       labelRange: context.auxiliaryRange || undefined,
       aggregated: context.aggregated ?? false,
       isDoughnut: false,
+      showValues: context.showValues,
     };
   }
 
@@ -147,6 +150,7 @@ export class PieChart extends AbstractChart {
       title: this.title,
       aggregated: this.aggregated,
       isDoughnut: this.isDoughnut,
+      showValues: this.showValues,
     };
   }
 
@@ -236,6 +240,8 @@ function getPieConfiguration(
 
     return xLabel ? `${xLabel}: ${yLabelStr} (${percentage}%)` : `${yLabelStr} (${percentage}%)`;
   };
+
+  config.options.plugins!.chartShowValuesPlugin = { showValues: chart.showValues };
   return config;
 }
 

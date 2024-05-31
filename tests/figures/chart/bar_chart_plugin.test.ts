@@ -28,6 +28,7 @@ describe("bar chart", () => {
       showSubTotals: true,
       axesDesign: {},
       fillArea: true,
+      showValues: false,
     };
     const definition = BarChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({
@@ -41,6 +42,7 @@ describe("bar chart", () => {
       aggregated: true,
       stacked: true,
       axesDesign: {},
+      showValues: false,
     });
   });
 

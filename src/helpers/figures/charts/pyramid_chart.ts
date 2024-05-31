@@ -47,6 +47,7 @@ export class PyramidChart extends AbstractChart {
   readonly axesDesign?: AxesDesign;
   readonly horizontal = true;
   readonly stacked = true;
+  readonly showValues?: boolean;
 
   constructor(definition: PyramidChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -63,6 +64,7 @@ export class PyramidChart extends AbstractChart {
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
     this.dataSetDesign = definition.dataSets;
     this.axesDesign = definition.axesDesign;
+    this.showValues = definition.showValues;
   }
 
   static transformDefinition(
@@ -92,6 +94,7 @@ export class PyramidChart extends AbstractChart {
       axesDesign: context.axesDesign,
       horizontal: true,
       stacked: true,
+      showValues: context.showValues,
     };
   }
 
@@ -158,6 +161,7 @@ export class PyramidChart extends AbstractChart {
       axesDesign: this.axesDesign,
       horizontal: true,
       stacked: true,
+      showValues: this.showValues,
     };
   }
 
@@ -205,6 +209,9 @@ export function createPyramidChartRuntime(
     const tooltipItem = { ...item, parsed: { y: item.parsed.y, x: Math.abs(item.parsed.x) } };
     return tooltipLabelCallback(tooltipItem);
   };
+  const callback = config.options!.plugins!.chartShowValuesPlugin!.callback;
+  config.options!.plugins!.chartShowValuesPlugin!.callback = (x) =>
+    callback!(Math.abs(x as number));
 
   return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
 }

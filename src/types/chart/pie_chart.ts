@@ -14,6 +14,7 @@ export interface PieChartDefinition {
   readonly aggregated?: boolean;
   readonly axesDesign?: AxesDesign;
   readonly isDoughnut?: boolean;
+  readonly showValues?: boolean;
 }
 
 export type PieChartRuntime = {

@@ -7,6 +7,7 @@ import {
 import { _t } from "../../../../translation";
 import { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types";
 import { WaterfallChartDefinition } from "../../../../types/chart/waterfall_chart";
+import { ChartTerms } from "../../../translations_terms";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";
@@ -95,5 +96,13 @@ export class WaterfallChartDesignPanel extends Component<Props, SpreadsheetChild
     this.props.updateChart(this.props.figureId, {
       verticalAxisPosition: ev.target.value,
     });
+  }
+
+  get showValuesLabel(): string {
+    return ChartTerms.ShowValues;
+  }
+
+  updateShowValues(showValues: boolean) {
+    this.props.updateChart(this.props.figureId, { showValues });
   }
 }
