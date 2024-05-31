@@ -264,6 +264,7 @@ export class StandaloneComposerStore extends SpreadsheetStore {
       {
         handleEvent: this.handleEvent.bind(this),
         release: () => {
+          // this should write on the cell :/
           this._stopEdition();
         },
       }
