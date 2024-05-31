@@ -674,6 +674,34 @@ describe("Grid manipulation", () => {
     });
     expect(getBorder(model, "C3")).toEqual({ left: DEFAULT_BORDER_DESC });
   });
+
+  test("Remove multiple rows before borders at the bottom of the sheet starting from the first column", () => {
+    const b = DEFAULT_BORDER_DESC;
+    setZoneBorders(model, { position: "external" }, ["A98:C100"]);
+    deleteRows(model, [0, 1, 2, 3]);
+    expect(getBorder(model, "A94")).toEqual({ left: b, top: b });
+    expect(getBorder(model, "B94")).toEqual({ top: b });
+    expect(getBorder(model, "C94")).toEqual({ top: b, right: b });
+    expect(getBorder(model, "A95")).toEqual({ left: b });
+    expect(getBorder(model, "C95")).toEqual({ right: b });
+    expect(getBorder(model, "A96")).toEqual({ bottom: b, left: b });
+    expect(getBorder(model, "B96")).toEqual({ bottom: b });
+    expect(getBorder(model, "C96")).toEqual({ right: b, bottom: b });
+  });
+
+  test("Remove multiple rows before borders at the bottom of the sheet starting from the second column", () => {
+    const b = DEFAULT_BORDER_DESC;
+    setZoneBorders(model, { position: "external" }, ["B98:D100"]);
+    deleteRows(model, [0, 1, 2, 3]);
+    expect(getBorder(model, "B94")).toEqual({ left: b, top: b });
+    expect(getBorder(model, "C94")).toEqual({ top: b });
+    expect(getBorder(model, "D94")).toEqual({ top: b, right: b });
+    expect(getBorder(model, "B95")).toEqual({ left: b });
+    expect(getBorder(model, "D95")).toEqual({ right: b });
+    expect(getBorder(model, "B96")).toEqual({ bottom: b, left: b });
+    expect(getBorder(model, "C96")).toEqual({ bottom: b });
+    expect(getBorder(model, "D96")).toEqual({ right: b, bottom: b });
+  });
 });
 
 test("Cells that have undefined borders don't override borders of neighboring cells at import", () => {
