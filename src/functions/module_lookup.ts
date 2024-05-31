@@ -252,7 +252,7 @@ export const INDEX: AddFunctionDescription = {
 };
 
 // -----------------------------------------------------------------------------
-// INDEX
+// INDIRECT
 // -----------------------------------------------------------------------------
 export const INDIRECT: AddFunctionDescription = {
   description: _t("Returns the content of a cell, specified by a string."),
