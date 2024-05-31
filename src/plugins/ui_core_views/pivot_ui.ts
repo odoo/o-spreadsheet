@@ -185,17 +185,18 @@ export class PivotUIPlugin extends UIPlugin {
       const pivotCol = position.col - mainPosition.col;
       const pivotRow = position.row - mainPosition.row;
       const pivotCell = pivotCells[pivotCol][pivotRow];
-      const domain = pivotCell.domain;
+      let domain = pivotCell.domain;
       if (domain?.at(-2) === "measure") {
-        return domain.slice(0, -2);
+        domain = domain.slice(0, -2);
       }
-      return domain;
+      return { domainArgs: domain, isHeader: pivotCell.isHeader };
     }
-    const domain = args.slice(functionName === "PIVOT.VALUE" ? 2 : 1);
+    let domain = args.slice(functionName === "PIVOT.VALUE" ? 2 : 1);
     if (domain.at(-2) === "measure") {
-      return domain.slice(0, -2);
+      domain = domain.slice(0, -2);
     }
-    return domain;
+    const isHeader = functionName === "PIVOT.HEADER";
+    return { domainArgs: domain, isHeader };
   }
 
   getPivot(pivotId: UID) {
