@@ -13,6 +13,7 @@ interface CellAttributes {
 
 export interface LiteralCell extends CellAttributes {
   readonly isFormula: false;
+  readonly parsedValue: CellValue;
 }
 
 export interface FormulaCell extends CellAttributes {

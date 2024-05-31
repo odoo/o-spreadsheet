@@ -8,6 +8,7 @@ import {
   FormulaModifier,
   Getters,
   IncrementModifier,
+  LiteralCell,
 } from "../types/index";
 import { AlphanumericIncrementModifier } from "./../types/autofill";
 import { Registry } from "./registry";
@@ -68,7 +69,9 @@ autofillModifiersRegistry
         tooltip: content
           ? {
               props: {
-                content: evaluateLiteral(data.cell?.content, localeFormat).formattedValue,
+                content: data.cell
+                  ? evaluateLiteral(data.cell as LiteralCell, localeFormat).formattedValue
+                  : "",
               },
             }
           : undefined,

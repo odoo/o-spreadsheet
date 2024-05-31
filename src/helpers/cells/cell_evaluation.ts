@@ -9,6 +9,7 @@ import {
   ErrorCell,
   EvaluatedCell,
   FPayload,
+  LiteralCell,
   Locale,
   LocaleFormat,
   NumberCell,
@@ -20,11 +21,12 @@ import { detectLink } from "../links";
 import { isBoolean, memoize } from "../misc";
 import { isNumber } from "../numbers";
 
-export function evaluateLiteral(content: string = "", localeFormat: LocaleFormat): EvaluatedCell {
+export function evaluateLiteral(
+  literalCell: LiteralCell,
+  localeFormat: LocaleFormat
+): EvaluatedCell {
   const value =
-    localeFormat.format === PLAIN_TEXT_FORMAT
-      ? content
-      : parseLiteral(content, localeFormat.locale);
+    localeFormat.format === PLAIN_TEXT_FORMAT ? literalCell.content : literalCell.parsedValue;
   const fPayload = { value, format: localeFormat.format };
   return createEvaluatedCell(fPayload, localeFormat.locale);
 }

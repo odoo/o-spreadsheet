@@ -571,9 +571,11 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     style: Style | undefined
   ): LiteralCell {
     const locale = this.getters.getLocale();
+    const parsedValue = parseLiteral(content, locale);
+
     format = format || detectDateFormat(content, locale) || detectNumberFormat(content);
     if (format !== PLAIN_TEXT_FORMAT && !isEvaluationError(content)) {
-      content = toString(parseLiteral(content, locale));
+      content = toString(parsedValue);
     }
     return {
       id,
@@ -581,6 +583,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       style,
       format,
       isFormula: false,
+      parsedValue,
     };
   }
 
