@@ -1,5 +1,5 @@
+import { StandaloneComposerStore } from "../../components/composer/composer/_standalone_composer_store";
 import { tokenColors } from "../../components/composer/composer/composer";
-import { ComposerStore } from "../../components/composer/composer/composer_store";
 import { Token, getFunctionsFromTokens } from "../../formulas";
 import { EnrichedToken } from "../../formulas/composer_tokenizer";
 import { boolAnd, boolOr } from "../../functions/helper_logical";
@@ -180,7 +180,7 @@ export function makeFieldProposal(field: PivotField, granularity?: Granularity) 
  * Must be bound to the autocomplete provider.
  */
 export function insertTokenAfterArgSeparator(
-  this: { composer: ComposerStore },
+  this: { composer: StandaloneComposerStore },
   tokenAtCursor: EnrichedToken,
   value: string
 ) {
@@ -202,7 +202,7 @@ export function insertTokenAfterArgSeparator(
  * @param {string} value
  */
 export function insertTokenAfterLeftParenthesis(
-  this: { composer: ComposerStore },
+  this: { composer: StandaloneComposerStore },
   tokenAtCursor: EnrichedToken,
   value: string
 ) {

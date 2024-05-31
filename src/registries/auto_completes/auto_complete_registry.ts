@@ -1,5 +1,5 @@
+import { StandaloneComposerStore } from "../../components/composer/composer/_standalone_composer_store";
 import { HtmlContent } from "../../components/composer/composer/composer";
-import { ComposerStore } from "../../components/composer/composer/composer_store";
 import { EnrichedToken } from "../../formulas/composer_tokenizer";
 import { Getters } from "../../types";
 import { Registry } from "../registry";
@@ -37,12 +37,12 @@ export interface AutoCompleteProviderDefinition {
   autoSelectFirstProposal?: boolean;
   maxDisplayedProposals?: number;
   getProposals(
-    this: { composer: ComposerStore; getters: Getters },
+    this: { composer: StandaloneComposerStore; getters: Getters },
     tokenAtCursor: EnrichedToken,
     content: string
   ): AutoCompleteProposal[] | undefined;
   selectProposal(
-    this: { composer: ComposerStore },
+    this: { composer: StandaloneComposerStore },
     tokenAtCursor: EnrichedToken,
     text: string
   ): void;

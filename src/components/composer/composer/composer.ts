@@ -298,8 +298,8 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
         }
       }
       this.composerStore.stopEdition();
+      this.env.model.selection.moveAnchorCell(direction, 1);
     }
-    this.env.model.selection.moveAnchorCell(direction, 1);
   }
 
   private processEnterKey(ev: KeyboardEvent, direction: Direction) {
