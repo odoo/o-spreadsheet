@@ -155,7 +155,9 @@ export class PivotUIPlugin extends UIPlugin {
    * If the cell is the result of PIVOT, the result is the domain of the cell
    * as if it was the individual pivot formula
    */
-  getPivotDomainArgsFromPosition(position: CellPosition) {
+  getPivotDomainArgsFromPosition(
+    position: CellPosition
+  ): { domainArgs: PivotDomain; isHeader?: boolean } | undefined {
     const cell = this.getters.getCorrespondingFormulaCell(position);
     if (!cell || !cell.isFormula || getNumberOfPivotFunctions(cell.compiledFormula.tokens) === 0) {
       return undefined;
@@ -190,19 +192,20 @@ export class PivotUIPlugin extends UIPlugin {
       if (pivotCell.type === "EMPTY") {
         return undefined;
       }
-      const domain = pivotCell.domain;
+      let domain = pivotCell.domain;
       if (domain.at(-1)?.field === "measure") {
-        return domain.slice(0, -1);
+        domain = domain.slice(0, -1);
       }
-      return domain;
+      return { domainArgs: domain, isHeader: pivotCell.type === "HEADER" };
     }
-    const domain = toPivotDomain(
+    let domain = toPivotDomain(
       args.slice(functionName === "PIVOT.VALUE" ? 2 : 1).map((x) => `${x}`)
     );
     if (domain.at(-1)?.field === "measure") {
-      return domain.slice(0, -1);
+      domain = domain.slice(0, -1);
     }
-    return domain;
+    const isHeader = functionName === "PIVOT.HEADER";
+    return { domainArgs: domain, isHeader };
   }
 
   getPivot(pivotId: UID) {
