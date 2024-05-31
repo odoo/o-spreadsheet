@@ -1,5 +1,5 @@
 import { DEFAULT_BORDER_DESC } from "../../constants";
-import { deepEquals, range, toCartesian, toXC, toZone } from "../../helpers/index";
+import { deepEquals, isDefined, range, toCartesian, toXC, toZone } from "../../helpers/index";
 import {
   AddColumnsRowsCommand,
   Border,
@@ -220,6 +220,21 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   }
 
   /**
+   * Get all the rows which contains at least a border
+   */
+  private getRowsWithBorders(sheetId: UID): number[] {
+    const sheetBorders = this.borders[sheetId]?.filter(isDefined);
+    if (!sheetBorders) return [];
+    const rowsWithBorders = new Set<number>();
+    for (const rowBorders of sheetBorders) {
+      for (const rowBorder in rowBorders) {
+        rowsWithBorders.add(parseInt(rowBorder, 10));
+      }
+    }
+    return Array.from(rowsWithBorders);
+  }
+
+  /**
    * Get the range of all the rows in the sheet
    */
   private getRowsRange(sheetId: UID): number[] {
@@ -278,7 +293,7 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
         destructive: false,
       });
     }
-    this.getRowsRange(sheetId)
+    this.getRowsWithBorders(sheetId)
       .filter((row) => row >= start)
       .sort((a, b) => (delta < 0 ? a - b : b - a)) // start by the end when moving up
       .forEach((row) => {
