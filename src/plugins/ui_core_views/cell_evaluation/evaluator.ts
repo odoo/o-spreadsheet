@@ -290,7 +290,7 @@ export class Evaluator {
       this.cellsBeingComputed.add(cellId);
       return cell.isFormula
         ? this.computeFormulaCell(position.sheetId, cell)
-        : evaluateLiteral(cell.content, localeFormat);
+        : evaluateLiteral(cell, localeFormat);
     } catch (e) {
       e.value = e?.value || CellErrorType.GenericError;
       e.message = e?.message || implementationErrorMessage;

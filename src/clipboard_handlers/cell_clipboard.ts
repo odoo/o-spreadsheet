@@ -67,6 +67,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
             format: evaluatedCell.format,
             content,
             isFormula: false,
+            parsedValue: evaluatedCell.value,
           };
         }
         cellsInRow.push({
