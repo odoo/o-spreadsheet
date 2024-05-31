@@ -59,10 +59,15 @@ export function createEvaluatedCell(
   if (!link) {
     return _createEvaluatedCell(fPayload, locale, cell);
   }
+  const value = parseLiteral(link.label, locale);
+  const format =
+    fPayload.format ||
+    (typeof value === "number"
+      ? detectDateFormat(link.label, locale) || detectNumberFormat(link.label)
+      : undefined);
   const linkPayload = {
-    value: parseLiteral(link.label, locale),
-    format:
-      fPayload.format || detectDateFormat(link.label, locale) || detectNumberFormat(link.label),
+    value,
+    format,
   };
   return {
     ..._createEvaluatedCell(linkPayload, locale, cell),
