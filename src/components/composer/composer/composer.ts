@@ -167,19 +167,16 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   get assistantStyle(): string {
     const assistantStyle: CSSProperties = {};
 
-    const rect = this.props.rect || this.composerRef.el?.getBoundingClientRect();
-    const delimitation =
-      this.props.delimitation || document.documentElement.getBoundingClientRect();
-    assistantStyle["min-width"] = `${rect?.width || ASSISTANT_WIDTH}px`;
+    assistantStyle["min-width"] = `${this.props.rect?.width || ASSISTANT_WIDTH}px`;
     const proposals = this.autoCompleteState.provider?.proposals;
     const proposalsHaveDescription = proposals?.some((proposal) => proposal.description);
     if (this.functionDescriptionState.showDescription || proposalsHaveDescription) {
       assistantStyle.width = `${ASSISTANT_WIDTH}px`;
     }
 
-    if (delimitation && rect) {
-      const { x: cellX, y: cellY, height: cellHeight } = rect;
-      const remainingHeight = delimitation.height - (cellY + cellHeight);
+    if (this.props.delimitation && this.props.rect) {
+      const { x: cellX, y: cellY, height: cellHeight } = this.props.rect;
+      const remainingHeight = this.props.delimitation.height - (cellY + cellHeight);
       assistantStyle["max-height"] = `${remainingHeight}px`;
       if (cellY > remainingHeight) {
         const availableSpaceAbove = cellY;
@@ -189,12 +186,12 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
         assistantStyle.top = `-3px`;
         assistantStyle.transform = `translate(0, -100%)`;
       }
-      if (cellX + ASSISTANT_WIDTH > delimitation.width) {
+      if (cellX + ASSISTANT_WIDTH > this.props.delimitation.width) {
         // render left
         assistantStyle.right = `0px`;
       }
-    } else if (delimitation) {
-      assistantStyle["max-height"] = `${delimitation.height}px`;
+    } else if (this.props.delimitation) {
+      assistantStyle["max-height"] = `${this.props.delimitation.height}px`;
     }
     return cssPropertiesToCss(assistantStyle);
   }
