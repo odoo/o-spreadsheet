@@ -20,6 +20,7 @@ export interface WaterfallChartDefinition {
   readonly negativeValuesColor?: Color;
   readonly subTotalValuesColor?: Color;
   readonly axesDesign?: AxesDesign;
+  readonly showValues?: boolean;
 }
 
 export type WaterfallChartRuntime = {

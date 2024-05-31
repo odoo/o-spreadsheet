@@ -67,6 +67,7 @@ export class BarChart extends AbstractChart {
   readonly dataSetDesign?: DatasetDesign[];
   readonly axesDesign?: AxesDesign;
   readonly horizontal?: boolean;
+  readonly showValues?: boolean;
 
   constructor(definition: BarChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -85,6 +86,7 @@ export class BarChart extends AbstractChart {
     this.dataSetDesign = definition.dataSets;
     this.axesDesign = definition.axesDesign;
     this.horizontal = definition.horizontal;
+    this.showValues = definition.showValues;
   }
 
   static transformDefinition(
@@ -113,6 +115,7 @@ export class BarChart extends AbstractChart {
       type: "bar",
       labelRange: context.auxiliaryRange || undefined,
       axesDesign: context.axesDesign,
+      showValues: context.showValues,
     };
   }
 
@@ -179,6 +182,7 @@ export class BarChart extends AbstractChart {
       aggregated: this.aggregated,
       axesDesign: this.axesDesign,
       horizontal: this.horizontal,
+      showValues: this.showValues,
     };
   }
 
@@ -243,21 +247,23 @@ function getBarConfiguration(
   };
   config.options.indexAxis = chart.horizontal ? "y" : "x";
 
+  const formatCallback = (value) => {
+    value = Number(value);
+    if (isNaN(value)) return value;
+    const { locale, format } = localeFormat;
+    return formatValue(value, {
+      locale,
+      format: !format && Math.abs(value) >= 1000 ? "#,##" : format,
+    });
+  };
+
   config.options.scales = {};
   const labelsAxis = { ticks: { padding: 5, color: fontColor } };
   const valuesAxis = {
     beginAtZero: true, // the origin of the y axis is always zero
     ticks: {
       color: fontColor,
-      callback: (value) => {
-        value = Number(value);
-        if (isNaN(value)) return value;
-        const { locale, format } = localeFormat;
-        return formatValue(value, {
-          locale,
-          format: !format && Math.abs(value) >= 1000 ? "#,##" : format,
-        });
-      },
+      callback: formatCallback,
     },
   };
 
@@ -292,6 +298,12 @@ function getBarConfiguration(
       config.options.scales!.y1!.stacked = true;
     }
   }
+  config.options.plugins!.chartShowValuesPlugin = {
+    showValues: chart.showValues,
+    background: chart.background,
+    horizontal: chart.horizontal,
+    callback: formatCallback,
+  };
   return config;
 }
 

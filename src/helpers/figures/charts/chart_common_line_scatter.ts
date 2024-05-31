@@ -150,19 +150,20 @@ function getLineOrScatterConfiguration(
       title: getChartAxisTitleRuntime(chart.axesDesign?.x),
     },
   };
+  const formatCallback = (value) => {
+    value = Number(value);
+    if (isNaN(value)) return value;
+    const { locale, format } = options;
+    return formatValue(value, {
+      locale,
+      format: !format && Math.abs(value) >= 1000 ? "#,##" : format,
+    });
+  };
   const yAxis = {
     beginAtZero: true, // the origin of the y axis is always zero
     ticks: {
       color: fontColor,
-      callback: (value) => {
-        value = Number(value);
-        if (isNaN(value)) return value;
-        const { locale, format } = options;
-        return formatValue(value, {
-          locale,
-          format: !format && Math.abs(value) >= 1000 ? "#,##" : format,
-        });
-      },
+      callback: formatCallback,
     },
   };
   const { useLeftAxis, useRightAxis } = getDefinedAxis(chart.getDefinition());
@@ -190,6 +191,11 @@ function getLineOrScatterConfiguration(
       config.options.scales!.y1!.stacked = true;
     }
   }
+  config.options.plugins!.chartShowValuesPlugin = {
+    showValues: chart.showValues,
+    background: chart.background,
+    callback: formatCallback,
+  };
   return config;
 }
 

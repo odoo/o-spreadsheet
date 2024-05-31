@@ -7,6 +7,7 @@ import { ScorecardChart } from "../../../src/helpers/figures/charts";
 import { CHART_TYPES, ChartDefinition, ChartType, SpreadsheetChildEnv } from "../../../src/types";
 import { BarChartDefinition } from "../../../src/types/chart/bar_chart";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
+import { getChartConfiguration } from "../../test_helpers/chart_helpers";
 import {
   copy,
   createChart,
@@ -1494,6 +1495,32 @@ describe("charts", () => {
         { dataRange: "A1" },
       ]);
     });
+  });
+
+  test("showValues checkbox updates the chart", async () => {
+    createTestChart("basicChart");
+    updateChart(model, chartId, {
+      type: "line",
+      labelRange: "C2:C4",
+      dataSets: [{ dataRange: "B2:B4" }],
+    });
+    await mountChartSidePanel();
+    await openChartDesignSidePanel();
+
+    expect(
+      (model.getters.getChartDefinition(chartId) as LineChartDefinition).showValues
+    ).toBeFalsy();
+
+    let options = getChartConfiguration(model, chartId).options;
+    expect(options.plugins.chartShowValuesPlugin.showValues).toBeFalsy();
+
+    await simulateClick("input[name='showValues']");
+    expect(
+      (model.getters.getChartDefinition(chartId) as LineChartDefinition).showValues
+    ).toBeTruthy();
+
+    options = getChartConfiguration(model, chartId).options;
+    expect(options.plugins.chartShowValuesPlugin.showValues).toBeTruthy();
   });
 
   describe("aggregate", () => {

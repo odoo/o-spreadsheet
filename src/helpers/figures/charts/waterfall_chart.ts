@@ -73,6 +73,7 @@ export class WaterfallChart extends AbstractChart {
   readonly subTotalValuesColor?: Color;
   readonly dataSetDesign: CustomizedDataSet[];
   readonly axesDesign?: AxesDesign;
+  readonly showValues?: boolean;
 
   constructor(definition: WaterfallChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -96,6 +97,7 @@ export class WaterfallChart extends AbstractChart {
     this.firstValueAsSubtotal = definition.firstValueAsSubtotal;
     this.dataSetDesign = definition.dataSets;
     this.axesDesign = definition.axesDesign;
+    this.showValues = definition.showValues;
   }
 
   static transformDefinition(
@@ -127,6 +129,7 @@ export class WaterfallChart extends AbstractChart {
       showConnectorLines: context.showConnectorLines ?? true,
       firstValueAsSubtotal: context.firstValueAsSubtotal ?? false,
       axesDesign: context.axesDesign,
+      showValues: context.showValues,
     };
   }
 
@@ -198,6 +201,7 @@ export class WaterfallChart extends AbstractChart {
       subTotalValuesColor: this.subTotalValuesColor,
       firstValueAsSubtotal: this.firstValueAsSubtotal,
       axesDesign: this.axesDesign,
+      showValues: this.showValues,
     };
   }
 
@@ -309,6 +313,10 @@ function getWaterfallConfiguration(
     },
   };
   config.options.plugins!.waterfallLinesPlugin = { showConnectorLines: chart.showConnectorLines };
+  config.options.plugins!.chartShowValuesPlugin = {
+    showValues: chart.showValues,
+    background: chart.background,
+  };
 
   return config;
 }

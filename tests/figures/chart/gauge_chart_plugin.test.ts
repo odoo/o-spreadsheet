@@ -128,6 +128,7 @@ describe("datasource tests", function () {
       showSubTotals: true,
       axesDesign: {},
       fillArea: true,
+      showValues: false,
     };
     const definition = GaugeChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({

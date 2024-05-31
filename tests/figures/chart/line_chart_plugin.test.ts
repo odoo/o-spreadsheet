@@ -21,6 +21,7 @@ describe("line chart", () => {
       showSubTotals: true,
       axesDesign: {},
       fillArea: true,
+      showValues: false,
     };
     const definition = LineChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({
@@ -37,6 +38,7 @@ describe("line chart", () => {
       cumulative: true,
       axesDesign: {},
       fillArea: true,
+      showValues: false,
     });
   });
 

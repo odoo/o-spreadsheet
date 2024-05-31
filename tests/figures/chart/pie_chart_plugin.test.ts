@@ -19,6 +19,7 @@ describe("pie chart", () => {
       showSubTotals: true,
       axesDesign: {},
       fillArea: true,
+      showValues: false,
     };
     const definition = PieChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({
@@ -31,6 +32,7 @@ describe("pie chart", () => {
       dataSetsHaveTitle: true,
       aggregated: true,
       isDoughnut: false,
+      showValues: false,
     });
   });
 });

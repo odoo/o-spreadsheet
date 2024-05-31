@@ -21,6 +21,7 @@ describe("combo chart", () => {
       showSubTotals: true,
       axesDesign: {},
       fillArea: true,
+      showValues: false,
     };
     const definition = ComboChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({
@@ -33,6 +34,7 @@ describe("combo chart", () => {
       dataSetsHaveTitle: true,
       aggregated: true,
       axesDesign: {},
+      showValues: false,
     });
   });
 

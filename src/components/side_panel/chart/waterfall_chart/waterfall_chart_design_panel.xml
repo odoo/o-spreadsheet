@@ -28,6 +28,14 @@
             <option value="right">Right</option>
           </select>
         </Section>
+        <Section>
+          <Checkbox
+            name="'showValues'"
+            label="showValuesLabel"
+            value="props.definition.showValues"
+            onChange="showValues => props.updateChart(this.props.figureId, {showValues})"
+          />
+        </Section>
       </t>
     </GeneralDesignEditor>
     <SidePanelCollapsible collapsedAtInit="true">
