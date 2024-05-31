@@ -1,10 +1,15 @@
 import type {
+  ActiveElement,
   BubbleDataPoint,
+  Chart,
   ChartConfiguration,
   ChartDataset,
+  LegendElement,
+  LegendItem,
   LegendOptions,
   Point,
 } from "chart.js";
+import { ChartEvent } from "chart.js/dist/core/core.plugins";
 import { DeepPartial } from "chart.js/dist/types/utils";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
@@ -31,7 +36,7 @@ import { PieChartDefinition, PieChartRuntime } from "../../../types/chart/pie_ch
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
-import { ColorGenerator } from "../../color";
+import { ColorGenerator, setColorAlpha } from "../../color";
 import { formatValue } from "../../format";
 import { largeMax } from "../../misc";
 import { createRange } from "../../range";
@@ -66,6 +71,7 @@ export class PieChart extends AbstractChart {
   readonly type = "pie";
   readonly aggregated?: boolean;
   readonly dataSetsHaveTitle: boolean;
+  lastHoveredIndex: number | undefined = undefined;
 
   constructor(definition: PieChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -195,6 +201,56 @@ export class PieChart extends AbstractChart {
     const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
     return new PieChart(definition, this.sheetId, this.getters);
   }
+
+  highlightItem(index: number, dataSets) {
+    dataSets.forEach((dataset) => {
+      const backgroundColors = dataset.backgroundColor;
+      if (!backgroundColors) {
+        return;
+      }
+      backgroundColors.forEach((color, i, colors) => {
+        colors[i] = setColorAlpha(color, i === index ? 1 : 0.5);
+      });
+    });
+  }
+
+  unHighlightItems(dataSets) {
+    dataSets.forEach((dataset) => {
+      const backgroundColors = dataset.backgroundColor;
+      backgroundColors.forEach((color, i, colors) => {
+        colors[i] = setColorAlpha(color, 1);
+      });
+    });
+  }
+
+  onHoverLegend(evt: ChartEvent, item: LegendItem, legend: LegendElement<"pie">) {
+    if (item.index === undefined) {
+      return;
+    }
+    const datasets = legend.chart.data.datasets;
+    this.highlightItem(item.index, datasets);
+    legend.chart.update();
+  }
+
+  onLeaveLegend(evt: ChartEvent, item: LegendItem, legend: LegendElement<"pie">) {
+    const datasets = legend.chart.data.datasets;
+    this.unHighlightItems(datasets);
+    legend.chart.update();
+  }
+
+  onHover(evt: ChartEvent, items: ActiveElement[], chart: Chart) {
+    const datasets = chart.data.datasets;
+    if (items[0]) {
+      if (items[0].index !== this.lastHoveredIndex) {
+        this.highlightItem(items[0].index, datasets);
+        this.lastHoveredIndex = items[0].index;
+      }
+    } else if (this.lastHoveredIndex !== undefined) {
+      this.unHighlightItems(datasets);
+      this.lastHoveredIndex = undefined;
+    }
+    chart.update();
+  }
 }
 
 function getPieConfiguration(
@@ -205,6 +261,8 @@ function getPieConfiguration(
   const fontColor = chartFontColor(chart.background);
   const config = getDefaultChartJsRuntime(chart, labels, fontColor, localeFormat);
   const legend: DeepPartial<LegendOptions<"pie">> = {
+    onHover: chart.onHoverLegend.bind(chart),
+    onLeave: chart.onLeaveLegend.bind(chart),
     labels: { color: fontColor },
   };
   if ((!chart.labelRange && chart.dataSets.length === 1) || chart.legendPosition === "none") {
@@ -216,22 +274,35 @@ function getPieConfiguration(
   config.options.layout = {
     padding: { left: 20, right: 20, top: chart.title ? 10 : 25, bottom: 10 },
   };
-  config.options.plugins!.tooltip!.callbacks!.title = function (tooltipItems) {
-    return tooltipItems[0].dataset.label;
-  };
   config.options.plugins!.tooltip!.callbacks!.label = function (tooltipItem) {
     const { format, locale } = localeFormat;
     const data = tooltipItem.dataset.data;
     const dataIndex = tooltipItem.dataIndex;
     const percentage = calculatePercentage(data, dataIndex);
 
-    const xLabel = tooltipItem.label || tooltipItem.dataset.label;
     const yLabel = tooltipItem.parsed.y ?? tooltipItem.parsed;
     const toolTipFormat = !format && yLabel >= 1000 ? "#,##" : format;
     const yLabelStr = formatValue(yLabel, { format: toolTipFormat, locale });
 
-    return xLabel ? `${xLabel}: ${yLabelStr} (${percentage}%)` : `${yLabelStr} (${percentage}%)`;
+    return `${yLabelStr} (${percentage}%)`;
   };
+  config.options.onHover = chart.onHover.bind(chart);
+  config.options.plugins!["eventPlugin"] = {
+    events: ["mouseout"],
+  };
+  config.plugins = [
+    ...config.plugins,
+    {
+      id: "eventPlugin",
+      afterEvent(c, args, _) {
+        if (args.event.type === "mouseout") {
+          chart.unHighlightItems(c.data.datasets);
+          c.update();
+          chart.lastHoveredIndex = undefined;
+        }
+      },
+    },
+  ];
   return config;
 }
 
@@ -319,6 +390,7 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
       data,
       borderColor: "#FFFFFF",
       backgroundColor,
+      hoverBackgroundColor: backgroundColor,
     };
     config.data!.datasets!.push(dataset);
   }

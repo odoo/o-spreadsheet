@@ -1,4 +1,11 @@
-import { ChartDataset } from "chart.js";
+import {
+  ActiveElement,
+  Chart,
+  ChartDataset,
+  ChartEvent,
+  LegendElement,
+  LegendItem,
+} from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import { toNumber } from "../../../functions/helpers";
 import {
@@ -25,6 +32,7 @@ import { LegendPosition } from "../../../types/chart/common_chart";
 import { ScatterChartDefinition, ScatterChartRuntime } from "../../../types/chart/scatter_chart";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
+import { setColorAlpha } from "../../color";
 import { formatValue } from "../../format";
 import { isNumber } from "../../numbers";
 import { createRange } from "../../range";
@@ -56,6 +64,7 @@ export class ScatterChart extends AbstractChart {
   readonly dataSetsHaveTitle: boolean;
   readonly dataSetDesign?: DatasetDesign[];
   readonly axesDesign?: AxesDesign;
+  lastHoveredIndex: number | undefined = undefined;
 
   constructor(definition: ScatterChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -205,6 +214,56 @@ export class ScatterChart extends AbstractChart {
       sheetId
     );
     return new ScatterChart(definition, sheetId, this.getters);
+  }
+
+  highlightItem(index: number, dataSets) {
+    dataSets.forEach((dataset) => {
+      const backgroundColors = dataset.backgroundColor;
+      if (!backgroundColors) {
+        return;
+      }
+      backgroundColors.forEach((color, i, colors) => {
+        colors[i] = setColorAlpha(color, i === index ? 1 : 0.5);
+      });
+    });
+  }
+
+  unHighlightItems(dataSets) {
+    dataSets.forEach((dataset) => {
+      const backgroundColors = dataset.backgroundColor;
+      backgroundColors.forEach((color, i, colors) => {
+        colors[i] = setColorAlpha(color, 1);
+      });
+    });
+  }
+
+  onHoverLegend(evt: ChartEvent, item: LegendItem, legend: LegendElement<"pie">) {
+    if (item.index === undefined) {
+      return;
+    }
+    const datasets = legend.chart.data.datasets;
+    this.highlightItem(item.index, datasets);
+    legend.chart.update();
+  }
+
+  onLeaveLegend(evt: ChartEvent, item: LegendItem, legend: LegendElement<"pie">) {
+    const datasets = legend.chart.data.datasets;
+    this.unHighlightItems(datasets);
+    legend.chart.update();
+  }
+
+  onHover(evt: ChartEvent, items: ActiveElement[], chart: Chart) {
+    const datasets = chart.data.datasets;
+    if (items[0]) {
+      if (items[0].index !== this.lastHoveredIndex) {
+        this.highlightItem(items[0].index, datasets);
+        this.lastHoveredIndex = items[0].index;
+      }
+    } else if (this.lastHoveredIndex !== undefined) {
+      this.unHighlightItems(datasets);
+      this.lastHoveredIndex = undefined;
+    }
+    chart.update();
   }
 }
 

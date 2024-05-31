@@ -134,6 +134,10 @@ function getLineOrScatterConfiguration(
         return labels;
       },
     },
+    //@ts-ignore
+    onHover: chart.onHoverLegend.bind(chart),
+    //@ts-ignore
+    onLeave: chart.onLeaveLegend.bind(chart),
   };
   if ((!chart.labelRange && chart.dataSets.length === 1) || chart.legendPosition === "none") {
     legend.display = false;

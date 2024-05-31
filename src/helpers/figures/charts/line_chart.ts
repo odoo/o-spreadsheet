@@ -1,3 +1,4 @@
+import { ActiveElement, Chart, ChartEvent, LegendElement, LegendItem } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
   AddColumnsRowsCommand,
@@ -24,6 +25,7 @@ import { LineChartDefinition, LineChartRuntime } from "../../../types/chart/line
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
+import { setColorAlpha } from "../../color";
 import { createRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
@@ -55,6 +57,7 @@ export class LineChart extends AbstractChart {
   readonly cumulative: boolean;
   readonly dataSetDesign?: DatasetDesign[];
   readonly axesDesign?: AxesDesign;
+  lastHoveredIndex: number | undefined = undefined;
 
   constructor(definition: LineChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -208,6 +211,56 @@ export class LineChart extends AbstractChart {
       sheetId
     );
     return new LineChart(definition, sheetId, this.getters);
+  }
+
+  highlightItem(index: number, dataSets) {
+    dataSets.forEach((dataset) => {
+      const backgroundColors = dataset.backgroundColor;
+      if (!backgroundColors) {
+        return;
+      }
+      backgroundColors.forEach((color, i, colors) => {
+        colors[i] = setColorAlpha(color, i === index ? 1 : 0.5);
+      });
+    });
+  }
+
+  unHighlightItems(dataSets) {
+    dataSets.forEach((dataset) => {
+      const backgroundColors = dataset.backgroundColor;
+      backgroundColors.forEach((color, i, colors) => {
+        colors[i] = setColorAlpha(color, 1);
+      });
+    });
+  }
+
+  onHoverLegend(evt: ChartEvent, item: LegendItem, legend: LegendElement<"pie">) {
+    if (item.index === undefined) {
+      return;
+    }
+    const datasets = legend.chart.data.datasets;
+    this.highlightItem(item.index, datasets);
+    legend.chart.update();
+  }
+
+  onLeaveLegend(evt: ChartEvent, item: LegendItem, legend: LegendElement<"pie">) {
+    const datasets = legend.chart.data.datasets;
+    this.unHighlightItems(datasets);
+    legend.chart.update();
+  }
+
+  onHover(evt: ChartEvent, items: ActiveElement[], chart: Chart) {
+    const datasets = chart.data.datasets;
+    if (items[0]) {
+      if (items[0].index !== this.lastHoveredIndex) {
+        this.highlightItem(items[0].index, datasets);
+        this.lastHoveredIndex = items[0].index;
+      }
+    } else if (this.lastHoveredIndex !== undefined) {
+      this.unHighlightItems(datasets);
+      this.lastHoveredIndex = undefined;
+    }
+    chart.update();
   }
 }
 

@@ -326,24 +326,6 @@ describe("datasource tests", function () {
     expect(chart.labelRange).toStrictEqual("Sheet1!C2:C4");
   });
 
-  test("pie chart tooltip title display the correct dataset", () => {
-    createChart(
-      model,
-      {
-        dataSets: [{ dataRange: "B7:B8" }],
-        dataSetsHaveTitle: true,
-        labelRange: "B7",
-        type: "pie",
-      },
-      "1"
-    );
-    const title = getChartConfiguration(model, "1").options!.plugins?.tooltip!.callbacks!.title!;
-    // @ts-ignore `title` should be binded to the TooltipModel
-    expect(title([{ dataset: { label: "dataset 1" } }])).toBe("dataset 1");
-    // @ts-ignore `title` should be binded to the TooltipModel
-    expect(title([{ dataset: { label: "dataset 2" } }])).toBe("dataset 2");
-  });
-
   test.each(["bar", "line"] as const)("chart %s tooltip title is not dynamic", (chartType) => {
     createChart(
       model,
@@ -1954,7 +1936,7 @@ describe("Chart design configuration", () => {
       const chart = model.getters.getChartRuntime("1") as PieChartRuntime;
       const label = getTooltipLabel(chart, 0, 1);
 
-      expect(label).toBe("P1: 150 (60.00%)");
+      expect(label).toBe("150 (60.00%)");
     });
 
     test("pie chart tooltip label with format", () => {
@@ -1973,7 +1955,7 @@ describe("Chart design configuration", () => {
       const chart = model.getters.getChartRuntime("1") as PieChartRuntime;
       const label = getTooltipLabel(chart, 0, 0);
 
-      expect(label).toBe("P1: $6,000.00 (100.00%)");
+      expect(label).toBe("$6,000.00 (100.00%)");
     });
   });
 
@@ -2616,3 +2598,27 @@ test("Duplicating a sheet dispatches `CREATE_CHART` for each chart", () => {
 function isChartAxisStacked(model: Model, chartId: UID, axis: "x" | "y"): boolean {
   return getChartConfiguration(model, chartId).options?.scales?.[axis]?.stacked;
 }
+
+test("Pie chart with multiple dataSets keeps the same color", () => {
+  setCellContent(model, "A1", "London");
+  setCellContent(model, "A2", "Paris");
+  setCellContent(model, "B1", "1");
+  setCellContent(model, "B2", "2");
+  setCellContent(model, "C1", "4");
+  setCellContent(model, "C2", "5");
+  createChart(
+    model,
+    {
+      dataSets: [{ dataRange: "B1:C2" }],
+      labelRange: "A1:A2",
+      type: "pie",
+    },
+    "1"
+  );
+  const config = (model.getters.getChartRuntime("1") as PieChartRuntime).chartJsConfig;
+  const colors_1 = config.data.datasets[0].backgroundColor!;
+  const colors_2 = config.data.datasets[1].backgroundColor!;
+  for (let i = 0; i < 3; i++) {
+    expect(colors_1[i]).toEqual(colors_2[i]);
+  }
+});
