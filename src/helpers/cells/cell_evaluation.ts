@@ -1,4 +1,4 @@
-import { isEvaluationError, toNumber, toString } from "../../functions/helpers";
+import { isEvaluationError, toString } from "../../functions/helpers";
 import {
   BooleanCell,
   Cell,
@@ -15,11 +15,11 @@ import {
   NumberCell,
   PLAIN_TEXT_FORMAT,
 } from "../../types";
-import { isDateTime } from "../dates";
+import { parseDateTime } from "../dates";
 import { detectDateFormat, detectNumberFormat, formatValue, isDateTimeFormat } from "../format";
 import { detectLink } from "../links";
 import { isBoolean, memoize } from "../misc";
-import { isNumber } from "../numbers";
+import { isNumber, parseNumber } from "../numbers";
 
 export function evaluateLiteral(
   literalCell: LiteralCell,
@@ -39,10 +39,11 @@ export function parseLiteral(content: string, locale: Locale): CellValue {
     return null;
   }
   if (isNumber(content, DEFAULT_LOCALE)) {
-    return toNumber(content, DEFAULT_LOCALE);
+    return parseNumber(content, DEFAULT_LOCALE);
   }
-  if (isDateTime(content, locale)) {
-    return toNumber(content, locale);
+  const internalDate = parseDateTime(content, locale);
+  if (internalDate) {
+    return internalDate.value;
   }
   if (isBoolean(content)) {
     return content.toUpperCase() === "TRUE" ? true : false;
