@@ -331,7 +331,8 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
 
     const onMouseMove = (ev: MouseEvent) => {
       const currentMousePosition = { x: ev.clientX, y: ev.clientY };
-      const draggedFigure = dragFigureForResize(
+      const scrollInfo = this.env.model.getters.getActiveSheetScrollInfo();
+      const scrolledDraggedFigure = dragFigureForResize(
         initialFig,
         dirX,
         dirY,
@@ -339,7 +340,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
         initialMousePosition,
         keepRatio,
         minFigSize,
-        this.env.model.getters.getActiveSheetScrollInfo()
+        scrollInfo
       );
 
       const otherFigures = this.getOtherFigures(figure.id);
@@ -347,7 +348,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
         this.env.model.getters,
         dirX,
         dirY,
-        draggedFigure,
+        scrolledDraggedFigure,
         otherFigures
       );
       this.dnd.draggedFigure = snapResult.snappedFigure;

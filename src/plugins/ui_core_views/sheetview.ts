@@ -396,7 +396,7 @@ export class SheetViewPlugin extends UIPlugin {
      * 3. previous in XRight > outside
      * 5. previous in Left > outside
      * A. previous in Left > right
-     * with X a position taken in the bottomRIght (aka scrollable) viewport
+     * with X a position taken in the bottomRight (aka scrollable) viewport
      */
     const { xSplit } = this.getters.getPaneDivisions(this.getters.getActiveSheetId());
     const { width } = this.getSheetViewDimension();

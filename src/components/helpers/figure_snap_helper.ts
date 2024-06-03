@@ -87,10 +87,10 @@ export function snapForResize(
   getters: Getters,
   resizeDirX: -1 | 0 | 1,
   resizeDirY: -1 | 0 | 1,
-  figureToSnap: Figure,
+  scrolledFigureToSnap: Figure,
   otherFigures: Figure[]
 ): SnapReturn {
-  const snappedFigure = { ...figureToSnap };
+  const snappedFigure = { ...scrolledFigureToSnap };
 
   // Vertical snap line
   const verticalSnapLine = getSnapLine(
@@ -137,18 +137,21 @@ export function snapForResize(
 /**
  * Get the position of snap axes for the given figure
  *
+ * @param getters
  * @param figure the figure
  * @param axesTypes the list of axis types to return the positions of
+ * @param shouldAdaptForScroll
  */
 function getVisibleAxes<T extends HFigureAxisType | VFigureAxisType>(
   getters: Getters,
   figure: Figure,
-  axesTypes: T[]
+  axesTypes: T[],
+  shouldAdaptForScroll: boolean = true
 ): FigureAxis<T>[] {
   const axes = axesTypes.map((axisType) => getAxis(figure, axisType));
   return axes
     .filter((axis) => isAxisVisible(getters, figure, axis))
-    .map((axis) => getAxisScreenPosition(getters, figure, axis));
+    .map((axis) => getAxisScreenPosition(getters, figure, axis, shouldAdaptForScroll));
 }
 
 /**
@@ -161,10 +164,14 @@ function getVisibleAxes<T extends HFigureAxisType | VFigureAxisType>(
 function getAxisScreenPosition<T extends HFigureAxisType | VFigureAxisType>(
   getters: Getters,
   figure: Figure,
-  figureAxis: FigureAxis<T>
+  figureAxis: FigureAxis<T>,
+  shouldAdaptForScroll: boolean = true
 ): FigureAxis<T> {
-  const screenFigure = internalFigureToScreen(getters, figure);
-  return getAxis(screenFigure, figureAxis.axisType);
+  if (shouldAdaptForScroll) {
+    const screenFigure = internalFigureToScreen(getters, figure);
+    return getAxis(screenFigure, figureAxis.axisType);
+  }
+  return getAxis(figure, figureAxis.axisType);
 }
 
 function isAxisVisible<T extends HFigureAxisType | VFigureAxisType>(
@@ -198,6 +205,7 @@ function isAxisVisible<T extends HFigureAxisType | VFigureAxisType>(
 /**
  * Get a snap line for the given figure, if the figure can snap to any other figure
  *
+ * @param getters
  * @param figureToSnap figure to get the snap line for
  * @param figAxesTypes figure axes of the given figure to be considered to find a snap line
  * @param otherFigures figures to match against the snapped figure to find a snap line
@@ -211,12 +219,12 @@ function getSnapLine<T extends HFigureAxisType[] | VFigureAxisType[]>(
   otherFigures: Figure[],
   otherAxesTypes: T
 ): SnapLine<T[number]> | undefined {
-  const axesOfFigure = getVisibleAxes(getters, figureToSnap, figAxesTypes);
+  const axesOfFigure = getVisibleAxes(getters, figureToSnap, figAxesTypes, false);
 
   let closestMatch: SnapLine<T[number]> | undefined = undefined;
 
   for (const otherFigure of otherFigures) {
-    const axesOfOtherFig = getVisibleAxes(getters, otherFigure, otherAxesTypes);
+    const axesOfOtherFig = getVisibleAxes(getters, otherFigure, otherAxesTypes, true);
 
     for (const axisOfFigure of axesOfFigure) {
       for (const axisOfOtherFig of axesOfOtherFig) {
