@@ -7,7 +7,7 @@ import { Color, Figure, Format, Getters, LocaleFormat, Range } from "../../../ty
 import { GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
 import { ChartRuntime, DataSet, DatasetValues, LabelValues } from "../../../types/chart/chart";
 import { formatValue, isDateTimeFormat } from "../../format";
-import { range } from "../../misc";
+import { deepCopy, range } from "../../misc";
 import { recomputeZones, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
 import { drawGaugeChart } from "./gauge_chart_rendering";
@@ -274,7 +274,7 @@ export function chartToImage(
   if ("chartJsConfig" in runtime) {
     runtime.chartJsConfig.plugins = [backgroundColorChartJSPlugin];
     // @ts-ignore
-    const chart = new window.Chart(canvas, runtime.chartJsConfig);
+    const chart = new window.Chart(canvas, deepCopy(runtime.chartJsConfig));
     const imgContent = chart.toBase64Image() as string;
     chart.destroy();
     div.remove();
