@@ -5,7 +5,7 @@ import { _t } from "../../../translation";
 import { Color, Figure, Format, Getters, LocaleFormat, Range } from "../../../types";
 import { ChartRuntime, DataSet, DatasetValues, LabelValues } from "../../../types/chart/chart";
 import { formatValue, isDateTimeFormat } from "../../format";
-import { range } from "../../misc";
+import { deepCopy, range } from "../../misc";
 import { recomputeZones, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
 import { drawScoreChart } from "./scorecard_chart";
@@ -261,7 +261,7 @@ export function chartToImage(runtime: ChartRuntime, figure: Figure, type: string
   if ("chartJsConfig" in runtime) {
     runtime.chartJsConfig.plugins = [backgroundColorChartJSPlugin];
     // @ts-ignore
-    const chart = new window.Chart(canvas, runtime.chartJsConfig);
+    const chart = new window.Chart(canvas, deepCopy(runtime.chartJsConfig));
     const imgContent = chart.toBase64Image();
     chart.destroy();
     div.remove();
