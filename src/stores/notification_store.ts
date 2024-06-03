@@ -13,7 +13,8 @@ export class NotificationStore {
     "askConfirmation",
     "updateNotificationCallbacks",
   ] as const;
-  notifyUser: NotificationStoreMethods["notifyUser"] = (notification) => window.alert(notification);
+  notifyUser: NotificationStoreMethods["notifyUser"] = (notification) =>
+    window.alert(notification.text);
   askConfirmation: NotificationStoreMethods["askConfirmation"] = (content, confirm, cancel) => {
     if (window.confirm(content)) {
       confirm();
