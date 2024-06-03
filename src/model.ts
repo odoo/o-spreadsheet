@@ -288,7 +288,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 
   leaveSession() {
-    this.session.leave();
+    this.session.leave(this.exportData());
   }
 
   private setupUiPlugin(Plugin: UIPluginConstructor) {
