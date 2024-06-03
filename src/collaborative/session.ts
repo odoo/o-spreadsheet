@@ -165,7 +165,10 @@ export class Session extends EventBus<CollaborativeEvent> {
   /**
    * Notify the server that the user client left the collaborative session
    */
-  leave() {
+  leave(data: WorkbookData) {
+    if (Object.keys(this.clients).length === 1 && this.processedRevisions.size) {
+      this.snapshot(data);
+    }
     delete this.clients[this.clientId];
     this.transportService.leave(this.clientId);
     this.transportService.sendMessage({
