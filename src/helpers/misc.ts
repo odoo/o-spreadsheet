@@ -70,7 +70,12 @@ export function deepCopy<T>(obj: T): T {
  * Check if the object is a plain old javascript object.
  */
 function isPlainObject(obj: unknown): boolean {
-  return typeof obj === "object" && obj?.constructor === Object;
+  return (
+    typeof obj === "object" &&
+    obj !== null &&
+    // obj.constructor can be undefined when there's no prototype (`Object.create(null, {})`)
+    (obj?.constructor === Object || obj?.constructor === undefined)
+  );
 }
 
 /**
