@@ -85,6 +85,19 @@ describe("deepCopy", () => {
     expect("b" in obj).toBe(false);
   });
 
+  test("copy object without any prototype", () => {
+    const obj = Object.create(null, {
+      foo: {
+        writable: true,
+        configurable: true,
+        enumerable: true,
+        value: "hello",
+      },
+    });
+    const copy = deepCopy(obj);
+    expect(copy.foo).toBe("hello");
+  });
+
   test("nested objects is not mutated", () => {
     const obj = { z: { a: 1 } };
     const copy = deepCopy(obj);
