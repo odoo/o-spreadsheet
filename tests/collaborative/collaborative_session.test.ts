@@ -2,7 +2,7 @@ import { Model } from "../../src";
 import { Session } from "../../src/collaborative/session";
 import { DEBOUNCE_TIME, MESSAGE_VERSION } from "../../src/constants";
 import { buildRevisionLog } from "../../src/history/factory";
-import { Client, CommandResult } from "../../src/types";
+import { Client, CommandResult, WorkbookData } from "../../src/types";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { selectCell } from "../test_helpers/commands_helpers";
 
@@ -50,13 +50,65 @@ describe("Collaborative session", () => {
 
   test("local client leaves", () => {
     const spy = jest.spyOn(transport, "sendMessage");
-    session.leave();
+    session.leave({} as WorkbookData);
+    expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith({
       type: "CLIENT_LEFT",
       version: MESSAGE_VERSION,
       clientId: client.id,
     });
     expect(session.getConnectedClients()).toEqual(new Set());
+  });
+
+  test("local client leaves with no other clients and changes", () => {
+    transport.sendMessage({
+      type: "REMOTE_REVISION",
+      version: MESSAGE_VERSION,
+      nextRevisionId: "42",
+      clientId: "client_42",
+      commands: [],
+      serverRevisionId: transport["serverRevisionId"],
+    });
+    const spy = jest.spyOn(transport, "sendMessage");
+    const data = { sheets: [{}] } as WorkbookData;
+    session.leave(data);
+    expect(spy).toHaveBeenCalledWith({
+      type: "SNAPSHOT",
+      version: MESSAGE_VERSION,
+      nextRevisionId: expect.any(String),
+      serverRevisionId: "42",
+      data: { ...data, revisionId: expect.any(String) },
+    });
+  });
+
+  test("local client leaves with other connected clients and changes", () => {
+    transport.sendMessage({
+      type: "CLIENT_JOINED",
+      version: MESSAGE_VERSION,
+      client: {
+        id: "bob",
+        name: "Bob",
+        position: { sheetId: "sheet1", col: 0, row: 0 },
+      },
+    });
+    expect(session.getConnectedClients().size).toBe(2);
+    transport.sendMessage({
+      type: "REMOTE_REVISION",
+      version: MESSAGE_VERSION,
+      nextRevisionId: "42",
+      clientId: "client_42",
+      commands: [],
+      serverRevisionId: transport["serverRevisionId"],
+    });
+    const spy = jest.spyOn(transport, "sendMessage");
+    const data = { sheets: [{}] } as WorkbookData;
+    session.leave(data);
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith({
+      type: "CLIENT_LEFT",
+      version: MESSAGE_VERSION,
+      clientId: client.id,
+    });
   });
 
   test("remote client move", () => {
@@ -147,7 +199,7 @@ describe("Collaborative session", () => {
 
   test("Leave the session do not crash", () => {
     session.move({ sheetId: "sheetId", col: 1, row: 2 });
-    session.leave();
+    session.leave({} as WorkbookData);
     jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
   });
 
