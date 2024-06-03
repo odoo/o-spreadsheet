@@ -10,8 +10,7 @@ type Ref = ReturnType<typeof useRef>;
  */
 export function useSpreadsheetRect(): Rect {
   const position = useState({ x: 0, y: 0, width: 0, height: 0 });
-  let spreadsheetElement = document.querySelector(".o-spreadsheet");
-  updatePosition();
+  let spreadsheetElement: Element | null = null;
   function updatePosition() {
     if (!spreadsheetElement) {
       spreadsheetElement = document.querySelector(".o-spreadsheet");
