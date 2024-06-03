@@ -28,7 +28,7 @@ import {
   SEPARATOR_COLOR,
   TOPBAR_HEIGHT,
 } from "../../constants";
-import { batched, deepEquals } from "../../helpers";
+import { batched } from "../../helpers";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { Model } from "../../model";
 import { Store, useStore, useStoreProvider } from "../../store_engine";
@@ -345,11 +345,15 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
 
     this.bindModelEvents();
 
-    onWillUpdateProps((nextProps) => {
+    onWillUpdateProps((nextProps: SpreadsheetProps) => {
       if (nextProps.model !== this.props.model) {
         throw new Error("Changing the props model is not supported at the moment.");
       }
-      if (!deepEquals(nextProps, this.props)) {
+      if (
+        nextProps.notifyUser !== this.props.notifyUser ||
+        nextProps.askConfirmation !== this.props.askConfirmation ||
+        nextProps.raiseError !== this.props.raiseError
+      ) {
         this.notificationStore.updateNotificationCallbacks({ ...nextProps });
       }
     });
