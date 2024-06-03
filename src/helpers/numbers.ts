@@ -14,7 +14,7 @@ export const getFormulaNumberRegex = memoize(function getFormulaNumberRegex(
 ) {
   decimalSeparator = escapeRegExp(decimalSeparator);
   return new RegExp(
-    `(^-?\\d+(${decimalSeparator}?\\d*(e\\d+)?)?|^-?${decimalSeparator}\\d+)(?!\\w|!)`
+    `(?:^-?\\d+(?:${decimalSeparator}?\\d*(?:e\\d+)?)?|^-?${decimalSeparator}\\d+)(?!\\w|!)`
   );
 });
 
@@ -22,20 +22,26 @@ const getNumberRegex = memoize(function getNumberRegex(locale: Locale) {
   const decimalSeparator = escapeRegExp(locale.decimalSeparator);
   const thousandsSeparator = escapeRegExp(locale.thousandsSeparator);
 
-  const pIntegerAndDecimals = `(\\d+(${thousandsSeparator}\\d{3,})*(${decimalSeparator}\\d*)?)`; // pattern that match integer number with or without decimal digits
-  const pOnlyDecimals = `(${decimalSeparator}\\d+)`; // pattern that match only expression with decimal digits
-  const pScientificFormat = "(e(\\+|-)?\\d+)?"; // pattern that match scientific format between zero and one time (should be placed before pPercentFormat)
-  const pPercentFormat = "(\\s*%)?"; // pattern that match percent symbol between zero and one time
+  const pIntegerAndDecimals = `(?:\\d+(?:${thousandsSeparator}\\d{3,})*(?:${decimalSeparator}\\d*)?)`; // pattern that match integer number with or without decimal digits
+  const pOnlyDecimals = `(?:${decimalSeparator}\\d+)`; // pattern that match only expression with decimal digits
+  const pScientificFormat = "(?:e(?:\\+|-)?\\d+)?"; // pattern that match scientific format between zero and one time (should be placed before pPercentFormat)
+  const pPercentFormat = "(?:\\s*%)?"; // pattern that match percent symbol between zero and one time
   const pNumber =
-    "(\\s*" + pIntegerAndDecimals + "|" + pOnlyDecimals + ")" + pScientificFormat + pPercentFormat;
-  const pMinus = "(\\s*-)?"; // pattern that match negative symbol between zero and one time
-  const pCurrencyFormat = "(\\s*[\\$€])?";
+    "(?:\\s*" +
+    pIntegerAndDecimals +
+    "|" +
+    pOnlyDecimals +
+    ")" +
+    pScientificFormat +
+    pPercentFormat;
+  const pMinus = "(?:\\s*-)?"; // pattern that match negative symbol between zero and one time
+  const pCurrencyFormat = "(?:\\s*[\\$€])?";
 
   const p1 = pMinus + pCurrencyFormat + pNumber;
   const p2 = pMinus + pNumber + pCurrencyFormat;
   const p3 = pCurrencyFormat + pMinus + pNumber;
 
-  const pNumberExp = "^((" + [p1, p2, p3].join(")|(") + "))$";
+  const pNumberExp = "^(?:(?:" + [p1, p2, p3].join(")|(?:") + "))$";
 
   const numberRegexp = new RegExp(pNumberExp, "i");
 
