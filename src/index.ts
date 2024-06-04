@@ -64,9 +64,14 @@ import {
   colorToRGBA,
   computeTextWidth,
   createCurrencyFormat,
+<<<<<<< HEAD
   deepCopy,
   deepEquals,
   expandZoneOnInsertion,
+||||||| parent of 62da60f3a (temp)
+=======
+  deepEquals,
+>>>>>>> 62da60f3a (temp)
   formatValue,
   isDefined,
   isInside,
@@ -263,6 +268,7 @@ export const helpers = {
   createActions,
   transformRangeData,
   deepEquals,
+<<<<<<< HEAD
   overlap,
   union,
   isInside,
@@ -270,6 +276,9 @@ export const helpers = {
   expandZoneOnInsertion,
   reduceZoneOnDeletion,
   unquote,
+||||||| parent of 62da60f3a (temp)
+=======
+>>>>>>> 62da60f3a (temp)
 };
 
 export const links = {
