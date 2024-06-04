@@ -11,6 +11,7 @@ import { css, cssPropertiesToCss } from "../../helpers";
 import { TableStylePreview } from "../../tables/table_style_preview/table_style_preview";
 import { RoundColorPicker } from "../components/round_color_picker/round_color_picker";
 import { Section } from "../components/section/section";
+import { TextInput } from "../pivot/text_input/text_input";
 
 css/* scss */ `
   .o-table-style-editor-panel {
@@ -49,7 +50,7 @@ export class TableStyleEditorPanel extends Component<
   SpreadsheetChildEnv
 > {
   static template = "o-spreadsheet-TableStyleEditorPanel";
-  static components = { Section, RoundColorPicker, TableStylePreview };
+  static components = { Section, RoundColorPicker, TableStylePreview, TextInput };
   static props = {
     onCloseSidePanel: Function,
     onStylePicked: { type: Function, optional: true },
@@ -81,6 +82,10 @@ export class TableStyleEditorPanel extends Component<
   onColorPicked(color: Color) {
     this.state.primaryColor = color;
     this.state.pickerOpened = false;
+  }
+
+  onStyleNameChanged(name: string) {
+    this.state.styleName = name;
   }
 
   onTemplatePicked(templateName: TableStyleTemplateName) {

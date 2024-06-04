@@ -3,6 +3,7 @@ import { Color, SpreadsheetChildEnv, TitleDesign } from "../../../../../types";
 import { ColorPickerWidget } from "../../../../color_picker/color_picker_widget";
 import { css } from "../../../../helpers";
 import { Section } from "../../../components/section/section";
+import { TextInput } from "../../../pivot/text_input/text_input";
 
 css/* scss */ `
   .o-chart-title-designer {
@@ -48,7 +49,7 @@ export interface ChartTitleState {
 
 export class ChartTitle extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet.ChartTitle";
-  static components = { Section, ColorPickerWidget };
+  static components = { Section, ColorPickerWidget, TextInput };
   static props = {
     title: String,
     updateTitle: Function,
@@ -69,8 +70,8 @@ export class ChartTitle extends Component<Props, SpreadsheetChildEnv> {
     activeTool: "",
   });
 
-  updateTitle(ev: InputEvent) {
-    this.props.updateTitle((ev.target as HTMLInputElement).value);
+  updateTitle(value: string) {
+    this.props.updateTitle(value);
   }
 
   toggleDropdownTool(tool: string, ev: MouseEvent) {

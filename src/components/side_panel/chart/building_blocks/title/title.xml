@@ -6,13 +6,7 @@
         <t t-if="props.name" t-esc="props.name"/>
         <t t-else="">Title</t>
       </t>
-      <input
-        type="text"
-        class="o-input o-optional"
-        t-att-value="props.title"
-        t-on-change="updateTitle"
-        t-att-placeholder="placeholder"
-      />
+      <TextInput value="props.title" onChange.bind="updateTitle" placeholder="placeholder"/>
       <Section class="'pt-0 px-0'">
         <div class="o-chart-title-designer position-relative d-flex align-items-center">
           <span
