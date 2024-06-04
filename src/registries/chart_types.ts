@@ -201,19 +201,37 @@ chartSubtypeRegistry
     chartType: "scatter",
     chartSubtype: "scatter",
   })
+  .add("column", {
+    matcher: (definition) =>
+      definition.type === "bar" && !definition.stacked && !definition.horizontal,
+    displayName: _t("Column"),
+    chartType: "bar",
+    chartSubtype: "column",
+    subtypeDefinition: { stacked: false, horizontal: false },
+  })
+  .add("stacked_column", {
+    matcher: (definition) =>
+      definition.type === "bar" && definition.stacked && !definition.horizontal,
+    displayName: _t("Stacked Column"),
+    chartType: "bar",
+    chartSubtype: "stacked_column",
+    subtypeDefinition: { stacked: true, horizontal: false },
+  })
   .add("bar", {
-    matcher: (definition) => definition.type === "bar" && !definition.stacked,
+    matcher: (definition) =>
+      definition.type === "bar" && !definition.stacked && !!definition.horizontal,
     displayName: _t("Bar"),
     chartType: "bar",
     chartSubtype: "bar",
-    subtypeDefinition: { stacked: false },
+    subtypeDefinition: { horizontal: true, stacked: false },
   })
   .add("stacked_bar", {
-    matcher: (definition) => definition.type === "bar" && definition.stacked,
+    matcher: (definition) =>
+      definition.type === "bar" && definition.stacked && !!definition.horizontal,
     displayName: _t("Stacked Bar"),
     chartType: "bar",
     chartSubtype: "stacked_bar",
-    subtypeDefinition: { stacked: true },
+    subtypeDefinition: { horizontal: true, stacked: true },
   })
   .add("combo", {
     displayName: _t("Combo"),

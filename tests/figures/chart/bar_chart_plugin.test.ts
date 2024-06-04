@@ -1,6 +1,9 @@
-import { ChartCreationContext } from "../../../src";
+import { ChartCreationContext, Model } from "../../../src";
 import { BarChart } from "../../../src/helpers/figures/charts";
+import { BarChartRuntime } from "../../../src/types/chart";
+import { createChart, setCellContent, setFormat } from "../../test_helpers/commands_helpers";
 
+let model: Model;
 describe("bar chart", () => {
   test("create bar chart from creation context", () => {
     const context: Required<ChartCreationContext> = {
@@ -31,6 +34,62 @@ describe("bar chart", () => {
       aggregated: true,
       stacked: true,
       axesDesign: {},
+    });
+  });
+
+  describe("Horizontal bar chart", () => {
+    beforeEach(() => {
+      model = new Model();
+    });
+
+    test("Chart is set as horizontal in chartJS runtime", () => {
+      createChart(model, { horizontal: true, type: "bar" }, "id");
+      const runtime = model.getters.getChartRuntime("id") as BarChartRuntime;
+      expect(runtime.chartJsConfig.options?.indexAxis).toBe("y");
+    });
+
+    test("Axis and tooltips are correctly setup for horizontal chart", () => {
+      setCellContent(model, "A1", "5");
+      setFormat(model, "A1", "#,##0[$€]");
+
+      createChart(
+        model,
+        {
+          horizontal: true,
+          type: "bar",
+          dataSets: [{ dataRange: "A1", yAxisId: "y" }],
+          axesDesign: { x: { title: { text: "xAxis" } }, y: { title: { text: "yAxis" } } },
+        },
+        "id"
+      );
+      const runtime = model.getters.getChartRuntime("id") as BarChartRuntime;
+      const options = runtime.chartJsConfig.options as any;
+      expect(options.scales.x.title.text).toBe("xAxis");
+      expect(options.scales.x.ticks.callback(5)).toBe("5€");
+      expect(options.scales.y.title.text).toBe("yAxis");
+      expect(options.scales.y.ticks.callback).toBeUndefined();
+
+      const tooltipTestItem = { parsed: { x: 5, y: "label" }, label: "dataSetLabel" };
+      const tooltip = runtime.chartJsConfig.options?.plugins?.tooltip as any;
+      expect(tooltip?.callbacks?.label(tooltipTestItem)).toBe("dataSetLabel: 5€");
+    });
+
+    test("Horizontal bar chart cannot have datasets on the right", () => {
+      // Note: this is a chartJS limitation, it bugs when trying to display an horizontal bar chart with datasets with
+      // axis on both right and left sides
+      createChart(
+        model,
+        {
+          horizontal: true,
+          type: "bar",
+          dataSets: [{ dataRange: "A1", yAxisId: "y1" }],
+          axesDesign: { x: { title: { text: "xAxis" } }, y1: { title: { text: "yAxis" } } },
+        },
+        "id"
+      );
+      const runtime = model.getters.getChartRuntime("id") as any;
+      expect(runtime.chartJsConfig.options?.scales?.y1).toBe(undefined);
+      expect(runtime.chartJsConfig.data.datasets[0].yAxisID).toBe(undefined);
     });
   });
 });

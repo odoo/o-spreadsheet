@@ -66,6 +66,7 @@ export class BarChart extends AbstractChart {
   readonly dataSetsHaveTitle: boolean;
   readonly dataSetDesign?: DatasetDesign[];
   readonly axesDesign?: AxesDesign;
+  readonly horizontal?: boolean;
 
   constructor(definition: BarChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -83,6 +84,7 @@ export class BarChart extends AbstractChart {
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
     this.dataSetDesign = definition.dataSets;
     this.axesDesign = definition.axesDesign;
+    this.horizontal = definition.horizontal;
   }
 
   static transformDefinition(
@@ -176,6 +178,7 @@ export class BarChart extends AbstractChart {
       stacked: this.stacked,
       aggregated: this.aggregated,
       axesDesign: this.axesDesign,
+      horizontal: this.horizontal,
     };
   }
 
@@ -222,7 +225,10 @@ function getBarConfiguration(
   localeFormat: LocaleFormat
 ): ChartConfiguration {
   const fontColor = chartFontColor(chart.background);
-  const config = getDefaultChartJsRuntime(chart, labels, fontColor, localeFormat);
+  const config = getDefaultChartJsRuntime(chart, labels, fontColor, {
+    ...localeFormat,
+    horizontalChart: chart.horizontal,
+  });
   const legend: DeepPartial<LegendOptions<"bar">> = {
     labels: { color: fontColor },
   };
@@ -235,17 +241,11 @@ function getBarConfiguration(
   config.options.layout = {
     padding: { left: 20, right: 20, top: chart.title ? 10 : 25, bottom: 10 },
   };
+  config.options.indexAxis = chart.horizontal ? "y" : "x";
 
-  config.options.scales = {
-    x: {
-      ticks: {
-        padding: 5,
-        color: fontColor,
-      },
-      title: getChartAxisTitleRuntime(chart.axesDesign?.x),
-    },
-  };
-  const yAxis = {
+  config.options.scales = {};
+  const labelsAxis = { ticks: { padding: 5, color: fontColor } };
+  const valuesAxis = {
     beginAtZero: true, // the origin of the y axis is always zero
     ticks: {
       color: fontColor,
@@ -260,7 +260,12 @@ function getBarConfiguration(
       },
     },
   };
+
+  const xAxis = chart.horizontal ? valuesAxis : labelsAxis;
+  const yAxis = chart.horizontal ? labelsAxis : valuesAxis;
   const { useLeftAxis, useRightAxis } = getDefinedAxis(chart.getDefinition());
+
+  config.options.scales.x = { ...xAxis, title: getChartAxisTitleRuntime(chart.axesDesign?.x) };
   if (useLeftAxis) {
     config.options.scales.y = {
       ...yAxis,
@@ -334,7 +339,7 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
       const label = definition.dataSets[index].label;
       dataset.label = label;
     }
-    if (definition.dataSets?.[index]?.yAxisId) {
+    if (definition.dataSets?.[index]?.yAxisId && !chart.horizontal) {
       dataset["yAxisID"] = definition.dataSets[index].yAxisId;
     }
   }

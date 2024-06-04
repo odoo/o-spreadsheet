@@ -221,7 +221,7 @@ describe("charts", () => {
           fixture.querySelector(".o-use-row-as-headers input[type=checkbox]") as HTMLInputElement
         ).checked;
         const labels = fixture.querySelector(".o-data-labels");
-        expect((panelChartType as HTMLSelectElement).value).toBe(TEST_CHART_DATA.basicChart.type);
+        expect((panelChartType as HTMLSelectElement).value).toBe("column");
         expect((dataSeries.querySelector(" .o-selection input") as HTMLInputElement).value).toBe(
           TEST_CHART_DATA.basicChart.dataSets[0].dataRange
         );
@@ -630,6 +630,7 @@ describe("charts", () => {
       { dataSets: [{ dataRange: "C1:C4" }, { dataRange: "C1:C4" }], type: "line" },
       chartId
     );
+    await mountChartSidePanel(chartId);
     await openChartDesignSidePanel(chartId);
     expect(1).toBe(1);
   });
@@ -1595,6 +1596,13 @@ describe("charts", () => {
     await nextTick();
     expect(updateChart).not.toHaveBeenCalled();
   });
+
+  test("Cannot change series axis on horizontal bar chart", async () => {
+    createChart(model, { type: "bar", horizontal: true }, chartId);
+    await mountChartSidePanel();
+    await openChartDesignSidePanel();
+    expect(fixture.querySelector(".o-vertical-axis-selection")).toBeNull();
+  });
 });
 
 describe("charts with multiple sheets", () => {
@@ -1713,23 +1721,39 @@ describe("Change chart type", () => {
   test.each(["bar", "line"] as const)(
     "Can change chart type between simple and stacked %s",
     async (type) => {
+      const uiType = type === "bar" ? "column" : type;
       createChart(model, { type }, chartId);
       await mountChartSidePanel(chartId);
 
       const select = fixture.querySelector(".o-type-selector") as HTMLSelectElement;
       const stackedCheckbox = fixture.querySelector("input[name='stacked']") as HTMLInputElement;
-      expect(select.value).toBe(type);
+      expect(select.value).toBe(uiType);
       expect(stackedCheckbox.checked).toBe(false);
 
-      await setInputValueAndTrigger(select, "stacked_" + type);
-      expect(select.value).toBe("stacked_" + type);
+      await setInputValueAndTrigger(select, "stacked_" + uiType);
+      expect(select.value).toBe("stacked_" + uiType);
       expect(model.getters.getChartDefinition(chartId)).toMatchObject({ type, stacked: true });
       expect(stackedCheckbox.checked).toBe(true);
 
       await click(stackedCheckbox);
       expect(stackedCheckbox.checked).toBe(false);
-      expect(select.value).toBe(type);
+      expect(select.value).toBe(uiType);
       expect(model.getters.getChartDefinition(chartId)).toMatchObject({ type, stacked: false });
     }
   );
+
+  test("Can change chart type between bar and horizontal bar chart", async () => {
+    createChart(model, { type: "bar", horizontal: false }, chartId);
+    await mountChartSidePanel(chartId);
+    const select = fixture.querySelector(".o-type-selector") as HTMLSelectElement;
+
+    updateChart(model, chartId, { horizontal: true }, sheetId);
+    await nextTick();
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject({ horizontal: true });
+    expect(select.value).toBe("bar");
+
+    await setInputValueAndTrigger(select, "column");
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject({ horizontal: false });
+    expect(select.value).toBe("column");
+  });
 });
