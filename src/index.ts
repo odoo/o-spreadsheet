@@ -39,6 +39,7 @@ import {
   colorToRGBA,
   computeTextWidth,
   createCurrencyFormat,
+  deepEquals,
   formatValue,
   isDefined,
   isMarkdownLink,
@@ -204,6 +205,7 @@ export const helpers = {
   isDefined,
   lazy,
   genericRepeat,
+  deepEquals,
 };
 
 export const links = {
