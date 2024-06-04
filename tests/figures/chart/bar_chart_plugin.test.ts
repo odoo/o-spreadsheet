@@ -1,5 +1,5 @@
 import { ChartCreationContext } from "../../../src";
-import { getChartDefinitionFromContextCreation } from "../../../src/helpers/figures/charts";
+import { BarChart } from "../../../src/helpers/figures/charts";
 
 describe("bar chart", () => {
   test("create bar chart from creation context", () => {
@@ -19,7 +19,7 @@ describe("bar chart", () => {
       showSubTotals: true,
       axesDesign: {},
     };
-    const definition = getChartDefinitionFromContextCreation(context, "bar");
+    const definition = BarChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({
       type: "bar",
       background: "#123456",

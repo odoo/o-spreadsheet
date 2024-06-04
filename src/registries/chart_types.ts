@@ -68,7 +68,6 @@ export interface ChartBuilder {
     executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
   ): ChartDefinition;
   getChartDefinitionFromContextCreation(context: ChartCreationContext): ChartDefinition;
-  name: string;
   sequence: number;
 }
 
@@ -85,7 +84,6 @@ chartRegistry.add("bar", {
   validateChartDefinition: BarChart.validateChartDefinition,
   transformDefinition: BarChart.transformDefinition,
   getChartDefinitionFromContextCreation: BarChart.getDefinitionFromContextCreation,
-  name: _t("Bar"),
   sequence: 10,
 });
 chartRegistry.add("combo", {
@@ -96,7 +94,6 @@ chartRegistry.add("combo", {
   validateChartDefinition: ComboChart.validateChartDefinition,
   transformDefinition: ComboChart.transformDefinition,
   getChartDefinitionFromContextCreation: ComboChart.getDefinitionFromContextCreation,
-  name: _t("Combo"),
   sequence: 15,
 });
 chartRegistry.add("line", {
@@ -107,7 +104,6 @@ chartRegistry.add("line", {
   validateChartDefinition: LineChart.validateChartDefinition,
   transformDefinition: LineChart.transformDefinition,
   getChartDefinitionFromContextCreation: LineChart.getDefinitionFromContextCreation,
-  name: _t("Line"),
   sequence: 20,
 });
 chartRegistry.add("pie", {
@@ -118,7 +114,6 @@ chartRegistry.add("pie", {
   validateChartDefinition: PieChart.validateChartDefinition,
   transformDefinition: PieChart.transformDefinition,
   getChartDefinitionFromContextCreation: PieChart.getDefinitionFromContextCreation,
-  name: _t("Pie"),
   sequence: 30,
 });
 chartRegistry.add("scorecard", {
@@ -129,7 +124,6 @@ chartRegistry.add("scorecard", {
   validateChartDefinition: ScorecardChart.validateChartDefinition,
   transformDefinition: ScorecardChart.transformDefinition,
   getChartDefinitionFromContextCreation: ScorecardChart.getDefinitionFromContextCreation,
-  name: _t("Scorecard"),
   sequence: 40,
 });
 chartRegistry.add("gauge", {
@@ -140,7 +134,6 @@ chartRegistry.add("gauge", {
   validateChartDefinition: GaugeChart.validateChartDefinition,
   transformDefinition: GaugeChart.transformDefinition,
   getChartDefinitionFromContextCreation: GaugeChart.getDefinitionFromContextCreation,
-  name: _t("Gauge"),
   sequence: 50,
 });
 chartRegistry.add("scatter", {
@@ -151,7 +144,6 @@ chartRegistry.add("scatter", {
   validateChartDefinition: ScatterChart.validateChartDefinition,
   transformDefinition: ScatterChart.transformDefinition,
   getChartDefinitionFromContextCreation: ScatterChart.getDefinitionFromContextCreation,
-  name: _t("Scatter"),
   sequence: 60,
 });
 chartRegistry.add("waterfall", {
@@ -162,7 +154,6 @@ chartRegistry.add("waterfall", {
   validateChartDefinition: WaterfallChart.validateChartDefinition,
   transformDefinition: WaterfallChart.transformDefinition,
   getChartDefinitionFromContextCreation: WaterfallChart.getDefinitionFromContextCreation,
-  name: _t("Waterfall"),
   sequence: 70,
 });
 
@@ -175,3 +166,77 @@ chartComponentRegistry.add("gauge", GaugeChartComponent);
 chartComponentRegistry.add("scatter", ChartJsComponent);
 chartComponentRegistry.add("scorecard", ScorecardChartComponent);
 chartComponentRegistry.add("waterfall", ChartJsComponent);
+
+export interface ChartSubtypeProperties {
+  /** Type shown in the chart side panel */
+  chartSubtype: string;
+  /** Translated name of the displayType */
+  displayName: string;
+  /** Type of the chart in the model */
+  chartType: ChartType;
+  /** Match the chart type with a chart display type. Optional if chartType === displayType  */
+  matcher?: (definition: ChartDefinition) => boolean;
+  /** Additional definition options to create a chart of type displayType */
+  subtypeDefinition?: Partial<ChartDefinition>;
+}
+
+export const chartSubtypeRegistry = new Registry<ChartSubtypeProperties>();
+chartSubtypeRegistry
+  .add("line", {
+    matcher: (definition) => definition.type === "line" && !definition.stacked,
+    displayName: _t("Line"),
+    chartType: "line",
+    chartSubtype: "line",
+    subtypeDefinition: { stacked: false },
+  })
+  .add("stacked_line", {
+    matcher: (definition) => definition.type === "line" && definition.stacked,
+    displayName: _t("Stacked Line"),
+    chartType: "line",
+    chartSubtype: "stacked_line",
+    subtypeDefinition: { stacked: true },
+  })
+  .add("scatter", {
+    displayName: _t("Scatter"),
+    chartType: "scatter",
+    chartSubtype: "scatter",
+  })
+  .add("bar", {
+    matcher: (definition) => definition.type === "bar" && !definition.stacked,
+    displayName: _t("Bar"),
+    chartType: "bar",
+    chartSubtype: "bar",
+    subtypeDefinition: { stacked: false },
+  })
+  .add("stacked_bar", {
+    matcher: (definition) => definition.type === "bar" && definition.stacked,
+    displayName: _t("Stacked Bar"),
+    chartType: "bar",
+    chartSubtype: "stacked_bar",
+    subtypeDefinition: { stacked: true },
+  })
+  .add("combo", {
+    displayName: _t("Combo"),
+    chartSubtype: "combo",
+    chartType: "combo",
+  })
+  .add("pie", {
+    displayName: _t("Pie"),
+    chartSubtype: "pie",
+    chartType: "pie",
+  })
+  .add("gauge", {
+    displayName: _t("Gauge"),
+    chartSubtype: "gauge",
+    chartType: "gauge",
+  })
+  .add("scorecard", {
+    displayName: _t("Scorecard"),
+    chartSubtype: "scorecard",
+    chartType: "scorecard",
+  })
+  .add("waterfall", {
+    displayName: _t("Waterfall"),
+    chartSubtype: "waterfall",
+    chartType: "waterfall",
+  });

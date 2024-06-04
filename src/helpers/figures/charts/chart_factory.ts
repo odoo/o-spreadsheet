@@ -14,12 +14,7 @@ import {
   UID,
   Zone,
 } from "../../../types";
-import {
-  ChartCreationContext,
-  ChartDefinition,
-  ChartRuntime,
-  ChartType,
-} from "../../../types/chart/chart";
+import { ChartDefinition, ChartRuntime } from "../../../types/chart/chart";
 import { CoreGetters, Getters } from "../../../types/getters";
 import { Validator } from "../../../types/validator";
 import { getZoneArea, zoneToDimension, zoneToXc } from "../../zones";
@@ -87,25 +82,6 @@ export function transformDefinition(
     throw new Error("Unknown chart type.");
   }
   return transformation.transformDefinition(definition, executed);
-}
-
-/**
- * Get an empty definition based on the given context and the given type
- */
-export function getChartDefinitionFromContextCreation(
-  context: ChartCreationContext,
-  type: ChartType
-) {
-  const chartClass = chartRegistry.get(type);
-  return chartClass.getChartDefinitionFromContextCreation(context);
-}
-
-export function getChartTypes(): Record<string, string> {
-  const result = {};
-  for (const key of chartRegistry.getKeys()) {
-    result[key] = chartRegistry.get(key).name;
-  }
-  return result;
 }
 
 /**

@@ -4,7 +4,7 @@ import {
   CHART_WATERFALL_POSITIVE_COLOR,
   CHART_WATERFALL_SUBTOTAL_COLOR,
 } from "../../../../src/constants";
-import { getChartDefinitionFromContextCreation } from "../../../../src/helpers/figures/charts";
+import { WaterfallChart } from "../../../../src/helpers/figures/charts";
 import { WaterfallChartRuntime } from "../../../../src/types/chart/waterfall_chart";
 import { createWaterfallChart, setCellContent, updateChart } from "../../../test_helpers";
 
@@ -280,7 +280,7 @@ describe("Waterfall chart", () => {
       showSubTotals: true,
       axesDesign: {},
     };
-    const definition = getChartDefinitionFromContextCreation(context, "waterfall");
+    const definition = WaterfallChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({
       type: "waterfall",
       background: "#123456",

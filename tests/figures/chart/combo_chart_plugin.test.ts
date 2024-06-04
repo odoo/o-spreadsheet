@@ -1,7 +1,7 @@
 import { ChartCreationContext, Model } from "../../../src";
-import { getChartDefinitionFromContextCreation } from "../../../src/helpers/figures/charts";
 import { ComboChartRuntime } from "../../../src/types/chart/combo_chart";
 import { createChart, setCellContent, setCellFormat } from "../../test_helpers/commands_helpers";
+import { ComboChart } from "./../../../src/helpers/figures/charts/combo_chart";
 
 describe("combo chart", () => {
   test("create combo chart from creation context", () => {
@@ -21,7 +21,7 @@ describe("combo chart", () => {
       showSubTotals: true,
       axesDesign: {},
     };
-    const definition = getChartDefinitionFromContextCreation(context, "combo");
+    const definition = ComboChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({
       type: "combo",
       background: "#123456",

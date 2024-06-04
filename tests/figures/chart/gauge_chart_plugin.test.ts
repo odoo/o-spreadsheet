@@ -1,9 +1,6 @@
 import { ChartCreationContext, CommandResult, Model } from "../../../src";
 import { deepCopy, zoneToXc } from "../../../src/helpers";
-import {
-  GaugeChart,
-  getChartDefinitionFromContextCreation,
-} from "../../../src/helpers/figures/charts";
+import { GaugeChart } from "../../../src/helpers/figures/charts";
 import {
   GaugeChartDefinition,
   GaugeChartRuntime,
@@ -131,7 +128,7 @@ describe("datasource tests", function () {
       showSubTotals: true,
       axesDesign: {},
     };
-    const definition = getChartDefinitionFromContextCreation(context, "gauge");
+    const definition = GaugeChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({
       type: "gauge",
       background: "#123456",

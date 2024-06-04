@@ -1,5 +1,5 @@
 import { ChartCreationContext } from "../../../src";
-import { getChartDefinitionFromContextCreation } from "../../../src/helpers/figures/charts";
+import { LineChart } from "../../../src/helpers/figures/charts";
 
 describe("line chart", () => {
   test("create line chart from creation context", () => {
@@ -19,7 +19,7 @@ describe("line chart", () => {
       showSubTotals: true,
       axesDesign: {},
     };
-    const definition = getChartDefinitionFromContextCreation(context, "line");
+    const definition = LineChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({
       type: "line",
       background: "#123456",
