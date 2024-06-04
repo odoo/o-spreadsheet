@@ -112,6 +112,10 @@ export class ChartWithAxisDesignPanel extends Component<Props, SpreadsheetChildE
     return dataSets[this.state.index].yAxisId === "y1" ? "right" : "left";
   }
 
+  get canHaveTwoVerticalAxis() {
+    return "horizontal" in this.props.definition ? !this.props.definition.horizontal : true;
+  }
+
   updateDataSeriesLabel(ev) {
     const label = ev.target.value;
     const dataSets = this.props.definition.dataSets;

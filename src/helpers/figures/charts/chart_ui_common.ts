@@ -103,8 +103,9 @@ export function getDefaultChartJsRuntime(
   chart: AbstractChart,
   labels: string[],
   fontColor: Color,
-  { format, locale, truncateLabels }: LocaleFormat & { truncateLabels?: boolean }
+  args: LocaleFormat & { truncateLabels?: boolean; horizontalChart?: boolean }
 ): Required<ChartConfiguration> {
+  const { format, locale, truncateLabels, horizontalChart } = args;
   const chartTitle = chart.title.text ? chart.title : { ...chart.title, content: "" };
   const options: ChartOptions = {
     // https://www.chartjs.org/docs/latest/general/responsive.html
@@ -149,8 +150,11 @@ export function getDefaultChartJsRuntime(
         callbacks: {
           label: function (tooltipItem) {
             const xLabel = tooltipItem.dataset?.label || tooltipItem.label;
-            // tooltipItem.parsed.y can be an object or a number for pie charts
-            const yLabel = tooltipItem.parsed.y ?? tooltipItem.parsed;
+            // tooltipItem.parsed can be an object or a number for pie charts
+            let yLabel = horizontalChart ? tooltipItem.parsed.x : tooltipItem.parsed.y;
+            if (!yLabel) {
+              yLabel = tooltipItem.parsed;
+            }
             const toolTipFormat = !format && Math.abs(yLabel) >= 1000 ? "#,##" : format;
             const yLabelStr = formatValue(yLabel, { format: toolTipFormat, locale });
             return xLabel ? `${xLabel}: ${yLabelStr}` : yLabelStr;

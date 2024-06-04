@@ -375,6 +375,7 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
           "hitRadius": 15,
         },
       },
+      "indexAxis": "x",
       "layout": {
         "padding": {
           "bottom": 10,

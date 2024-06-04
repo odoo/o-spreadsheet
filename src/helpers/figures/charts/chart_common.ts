@@ -415,6 +415,9 @@ export function getDefinedAxis(definition: ChartWithAxisDefinition): {
 } {
   let useLeftAxis = false,
     useRightAxis = false;
+  if ("horizontal" in definition && definition.horizontal) {
+    return { useLeftAxis: true, useRightAxis: false };
+  }
   for (const design of definition.dataSets || []) {
     if (design.yAxisId === "y1") {
       useRightAxis = true;

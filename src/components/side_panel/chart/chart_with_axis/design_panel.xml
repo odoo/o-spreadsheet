@@ -45,7 +45,7 @@
               />
             </div>
           </Section>
-          <Section class="'pt-0 px-0'">
+          <Section class="'pt-0 px-0'" t-if="canHaveTwoVerticalAxis">
             <t t-set-slot="title">Vertical axis</t>
             <select
               t-att-value="getDataSerieAxis()"
