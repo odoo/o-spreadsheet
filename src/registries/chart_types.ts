@@ -8,6 +8,7 @@ import { ComboChart, createComboChartRuntime } from "../helpers/figures/charts/c
 import { GaugeChart, createGaugeChartRuntime } from "../helpers/figures/charts/gauge_chart";
 import { LineChart, createLineChartRuntime } from "../helpers/figures/charts/line_chart";
 import { PieChart, createPieChartRuntime } from "../helpers/figures/charts/pie_chart";
+import { PyramidChart, createPyramidChartRuntime } from "../helpers/figures/charts/pyramid_chart";
 import { ScatterChart, createScatterChartRuntime } from "../helpers/figures/charts/scatter_chart";
 import {
   ScorecardChart,
@@ -40,6 +41,7 @@ import {
   ChartType,
 } from "../types/chart/chart";
 import { ComboChartDefinition } from "../types/chart/combo_chart";
+import { PyramidChartDefinition } from "../types/chart/pyramid_chart";
 import { ScatterChartDefinition } from "../types/chart/scatter_chart";
 import { WaterfallChartDefinition } from "../types/chart/waterfall_chart";
 import { Validator } from "../types/validator";
@@ -165,6 +167,17 @@ chartRegistry.add("waterfall", {
   name: _t("Waterfall"),
   sequence: 70,
 });
+chartRegistry.add("pyramid", {
+  match: (type) => type === "pyramid",
+  createChart: (definition, sheetId, getters) =>
+    new PyramidChart(definition as PyramidChartDefinition, sheetId, getters),
+  getChartRuntime: createPyramidChartRuntime,
+  validateChartDefinition: PyramidChart.validateChartDefinition,
+  transformDefinition: PyramidChart.transformDefinition,
+  getChartDefinitionFromContextCreation: PyramidChart.getDefinitionFromContextCreation,
+  name: _t("Pyramid"),
+  sequence: 80,
+});
 
 export const chartComponentRegistry = new Registry<new (...args: any) => Component>();
 chartComponentRegistry.add("line", ChartJsComponent);
@@ -175,3 +188,4 @@ chartComponentRegistry.add("gauge", GaugeChartComponent);
 chartComponentRegistry.add("scatter", ChartJsComponent);
 chartComponentRegistry.add("scorecard", ScorecardChartComponent);
 chartComponentRegistry.add("waterfall", ChartJsComponent);
+chartComponentRegistry.add("pyramid", ChartJsComponent);

@@ -153,6 +153,7 @@ export function getDefaultChartJsRuntime(
             const yLabel = tooltipItem.parsed.y ?? tooltipItem.parsed;
             const toolTipFormat = !format && Math.abs(yLabel) >= 1000 ? "#,##" : format;
             const yLabelStr = formatValue(yLabel, { format: toolTipFormat, locale });
+            console.log(tooltipItem, xLabel, yLabel, yLabelStr);
             return xLabel ? `${xLabel}: ${yLabelStr}` : yLabelStr;
           },
         },
