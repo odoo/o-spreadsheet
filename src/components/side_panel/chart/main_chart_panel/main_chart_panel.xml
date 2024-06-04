@@ -32,7 +32,7 @@
               t-key="type"
               t-att-value="type"
               t-esc="types[type]"
-              t-att-selected="definition.type === type"
+              t-att-selected="selectedUIChartType === type"
             />
           </select>
         </Section>

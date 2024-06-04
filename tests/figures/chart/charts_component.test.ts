@@ -1,4 +1,5 @@
 import { CommandResult, Model, Spreadsheet } from "../../../src";
+import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { ChartTerms } from "../../../src/components/translations_terms";
 import { BACKGROUND_CHART_COLOR } from "../../../src/constants";
 import { toHex, toZone } from "../../../src/helpers";
@@ -33,6 +34,7 @@ import {
 import { getCellContent } from "../../test_helpers/getters_helpers";
 import {
   mockChart,
+  mountComponentWithPortalTarget,
   mountSpreadsheet,
   nextTick,
   spyDispatch,
@@ -79,10 +81,15 @@ async function openChartDesignSidePanel(id = chartId) {
   await simulateClick(".o-panel-element.inactive");
 }
 
+async function mountChartSidePanel(figureId = chartId) {
+  const props = { figureId, onCloseSidePanel: () => {} };
+  ({ fixture } = await mountComponentWithPortalTarget(ChartPanel, { props, model }));
+}
+
 let fixture: HTMLElement;
 let model: Model;
 let mockChartData = mockChart();
-let chartId: string;
+const chartId = "someuuid";
 let sheetId: string;
 
 let parent: Spreadsheet;
@@ -92,7 +99,6 @@ const TEST_CHART_TYPES = ["basicChart", "scorecard", "gauge", "combo"] as const;
 describe("charts", () => {
   beforeEach(async () => {
     mockChartData = mockChart();
-    chartId = "someuuid";
     sheetId = "Sheet1";
     const data = {
       sheets: [
@@ -1684,4 +1690,33 @@ test("ChartJS charts are correctly destroyed on chart deletion", async () => {
   model.dispatch("DELETE_FIGURE", { id: "1", sheetId: model.getters.getActiveSheetId() });
   await nextTick();
   expect(spyDelete).toHaveBeenCalled();
+});
+
+describe("Change chart type", () => {
+  beforeEach(() => {
+    model = new Model();
+  });
+
+  test.each(["bar", "line"] as const)(
+    "Can change chart type between simple and stacked %s",
+    async (type) => {
+      createChart(model, { type }, chartId);
+      await mountChartSidePanel(chartId);
+
+      const select = fixture.querySelector(".o-type-selector") as HTMLSelectElement;
+      const stackedCheckbox = fixture.querySelector("input[name='stacked']") as HTMLInputElement;
+      expect(select.value).toBe(type);
+      expect(stackedCheckbox.checked).toBe(false);
+
+      await setInputValueAndTrigger(select, "stacked_" + type);
+      expect(select.value).toBe("stacked_" + type);
+      expect(model.getters.getChartDefinition(chartId)).toMatchObject({ type, stacked: true });
+      expect(stackedCheckbox.checked).toBe(true);
+
+      await click(stackedCheckbox);
+      expect(stackedCheckbox.checked).toBe(false);
+      expect(select.value).toBe(type);
+      expect(model.getters.getChartDefinition(chartId)).toMatchObject({ type, stacked: false });
+    }
+  );
 });

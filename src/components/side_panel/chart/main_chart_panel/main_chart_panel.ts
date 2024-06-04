@@ -1,7 +1,7 @@
 import { Component } from "@odoo/owl";
 import { ChartSidePanel, chartSidePanelComponentRegistry } from "..";
 import { BACKGROUND_HEADER_COLOR } from "../../../../constants";
-import { getChartTypes } from "../../../../helpers/figures/charts";
+import { chartSubtypeRegistry } from "../../../../registries/chart_types";
 import { Store, useLocalStore } from "../../../../store_engine";
 import { ChartDefinition, ChartType, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { css } from "../../../helpers/css";
@@ -110,6 +110,18 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get chartTypes() {
-    return getChartTypes();
+    const result = {};
+    for (const key of chartSubtypeRegistry.getKeys()) {
+      result[key] = chartSubtypeRegistry.get(key).displayName;
+    }
+    return result;
+  }
+
+  get selectedUIChartType() {
+    const definition = this.getChartDefinition(this.props.figureId);
+    const matchedChart = chartSubtypeRegistry
+      .getAll()
+      .find((c) => c.matcher?.(definition) || false);
+    return matchedChart?.chartSubtype || chartSubtypeRegistry.get(definition.type).chartType;
   }
 }

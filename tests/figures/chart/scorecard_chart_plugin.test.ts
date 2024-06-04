@@ -5,10 +5,7 @@ import {
   DEFAULT_SCORECARD_BASELINE_MODE,
 } from "../../../src/constants";
 import { zoneToXc } from "../../../src/helpers";
-import {
-  ScorecardChart,
-  getChartDefinitionFromContextCreation,
-} from "../../../src/helpers/figures/charts";
+import { ScorecardChart } from "../../../src/helpers/figures/charts";
 import {
   ScorecardChartDefinition,
   ScorecardChartRuntime,
@@ -99,7 +96,7 @@ describe("datasource tests", function () {
       showSubTotals: true,
       axesDesign: {},
     };
-    const definition = getChartDefinitionFromContextCreation(context, "scorecard");
+    const definition = ScorecardChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({
       type: "scorecard",
       background: "#123456",

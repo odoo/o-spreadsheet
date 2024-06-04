@@ -1,5 +1,5 @@
 import { ChartCreationContext } from "../../../src";
-import { getChartDefinitionFromContextCreation } from "../../../src/helpers/figures/charts";
+import { PieChart } from "../../../src/helpers/figures/charts";
 
 describe("pie chart", () => {
   test("create pie chart from creation context", () => {
@@ -19,7 +19,7 @@ describe("pie chart", () => {
       showSubTotals: true,
       axesDesign: {},
     };
-    const definition = getChartDefinitionFromContextCreation(context, "pie");
+    const definition = PieChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({
       type: "pie",
       background: "#123456",
