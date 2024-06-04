@@ -45,6 +45,7 @@ import {
   colorToRGBA,
   computeTextWidth,
   createCurrencyFormat,
+  deepEquals,
   formatValue,
   isDefined,
   isMarkdownLink,
@@ -223,6 +224,7 @@ export const helpers = {
   createAction,
   createActions,
   transformRangeData,
+  deepEquals,
 };
 
 export const links = {
