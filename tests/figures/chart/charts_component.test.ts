@@ -1,10 +1,10 @@
-import { CommandResult, Model, Spreadsheet } from "../../../src";
+import { CommandResult, Model } from "../../../src";
 import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { ChartTerms } from "../../../src/components/translations_terms";
 import { BACKGROUND_CHART_COLOR } from "../../../src/constants";
 import { toHex, toZone } from "../../../src/helpers";
 import { ScorecardChart } from "../../../src/helpers/figures/charts";
-import { CHART_TYPES, ChartDefinition, ChartType } from "../../../src/types";
+import { CHART_TYPES, ChartDefinition, ChartType, SpreadsheetChildEnv } from "../../../src/types";
 import { BarChartDefinition } from "../../../src/types/chart/bar_chart";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
 import {
@@ -35,9 +35,9 @@ import { getCellContent } from "../../test_helpers/getters_helpers";
 import {
   mockChart,
   mountComponentWithPortalTarget,
-  mountSpreadsheet,
+  mountSpreadsheet as mountSpreadsheetHelper,
   nextTick,
-  spyDispatch,
+  spyModelDispatch,
   textContentAll,
 } from "../../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
@@ -72,18 +72,24 @@ function errorMessages(): string[] {
 
 async function openChartConfigSidePanel(id = chartId) {
   model.dispatch("SELECT_FIGURE", { id });
-  parent.env.openSidePanel("ChartPanel");
+  env.openSidePanel("ChartPanel");
   await nextTick();
 }
 
 async function openChartDesignSidePanel(id = chartId) {
-  await openChartConfigSidePanel(id);
+  if (!fixture.querySelector(".o-chart")) {
+    await openChartConfigSidePanel(id);
+  }
   await simulateClick(".o-panel-element.inactive");
 }
 
 async function mountChartSidePanel(figureId = chartId) {
   const props = { figureId, onCloseSidePanel: () => {} };
-  ({ fixture } = await mountComponentWithPortalTarget(ChartPanel, { props, model }));
+  ({ fixture, env } = await mountComponentWithPortalTarget(ChartPanel, { props, model }));
+}
+
+async function mountSpreadsheet() {
+  ({ env, model, fixture } = await mountSpreadsheetHelper({ model }));
 }
 
 let fixture: HTMLElement;
@@ -92,7 +98,7 @@ let mockChartData = mockChart();
 const chartId = "someuuid";
 let sheetId: string;
 
-let parent: Spreadsheet;
+let env: SpreadsheetChildEnv;
 
 const TEST_CHART_TYPES = ["basicChart", "scorecard", "gauge", "combo"] as const;
 
@@ -125,10 +131,11 @@ describe("charts", () => {
         },
       ],
     };
-    ({ parent, model, fixture } = await mountSpreadsheet({ model: new Model(data) }));
+    model = new Model(data);
   });
 
   test.each(CHART_TYPES)("Can open a chart sidePanel", async (chartType) => {
+    await mountSpreadsheet();
     createTestChart(chartType);
     await openChartConfigSidePanel();
     expect(fixture.querySelector(".o-figure")).toBeTruthy();
@@ -155,6 +162,7 @@ describe("charts", () => {
   });
 
   test.each(TEST_CHART_TYPES)("charts have a menu button", async (chartType) => {
+    await mountSpreadsheet();
     createTestChart(chartType);
     await nextTick();
     expect(fixture.querySelector(".o-figure")).not.toBeNull();
@@ -164,6 +172,7 @@ describe("charts", () => {
   test.each(TEST_CHART_TYPES)(
     "charts don't have a menu button in dashboard mode",
     async (chartType) => {
+      await mountSpreadsheet();
       createTestChart(chartType);
       model.updateMode("dashboard");
       await nextTick();
@@ -175,6 +184,7 @@ describe("charts", () => {
   test.each(TEST_CHART_TYPES)(
     "charts don't have a menu button in readonly mode",
     async (chartType) => {
+      await mountSpreadsheet();
       createTestChart(chartType);
       model.updateMode("readonly");
       await nextTick();
@@ -185,15 +195,13 @@ describe("charts", () => {
 
   test.each(TEST_CHART_TYPES)("Click on Edit button will prefill sidepanel", async (chartType) => {
     createTestChart(chartType);
-    await openChartConfigSidePanel();
+    await mountChartSidePanel();
 
-    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
-    const panelChartType = fixture.querySelectorAll(".o-sidePanel .o-input")[0];
+    expect(fixture.querySelector(".o-chart")).toBeTruthy();
+    const panelChartType = fixture.querySelectorAll(".o-chart .o-input")[0];
     switch (chartType) {
       case "combo":
-        const dataSeries = fixture.querySelectorAll(
-          ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
-        )[0];
+        const dataSeries = fixture.querySelectorAll(".o-chart .o-data-series")[0];
         const hasTitle = (
           fixture.querySelector(".o-use-row-as-headers input[type=checkbox]") as HTMLInputElement
         ).checked;
@@ -208,9 +216,7 @@ describe("charts", () => {
         );
         break;
       case "basicChart": {
-        const dataSeries = fixture.querySelectorAll(
-          ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
-        )[0];
+        const dataSeries = fixture.querySelectorAll(".o-chart .o-data-series")[0];
         const hasTitle = (
           fixture.querySelector(".o-use-row-as-headers input[type=checkbox]") as HTMLInputElement
         ).checked;
@@ -226,9 +232,7 @@ describe("charts", () => {
         break;
       }
       case "scorecard": {
-        const keyValue = fixture.querySelector(
-          ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
-        );
+        const keyValue = fixture.querySelector(".o-chart .o-data-series");
         const baseline = fixture.querySelector(".o-data-labels");
         expect((panelChartType as HTMLSelectElement).value).toBe(TEST_CHART_DATA.scorecard.type);
         expect((keyValue!.querySelector(" .o-selection input") as HTMLInputElement).value).toBe(
@@ -243,23 +247,22 @@ describe("charts", () => {
   });
 
   test.each(TEST_CHART_TYPES)("Double click on chart will open sidepanel", async (chartType) => {
+    await mountSpreadsheet();
     createTestChart(chartType);
     await nextTick();
     expect(document.querySelector(".o-chart-container")).toBeTruthy();
     await doubleClick(fixture, ".o-chart-container");
     expect(model.getters.getSelectedFigureId()).toBe("someuuid");
-    expect(document.querySelector(".o-sidePanel")).toBeTruthy();
+    expect(document.querySelector(".o-chart")).toBeTruthy();
   });
 
   test.each(TEST_CHART_TYPES)("can edit charts %s", async (chartType) => {
     createTestChart(chartType);
-    await openChartConfigSidePanel();
+    await mountChartSidePanel();
 
-    const dataSeries = fixture.querySelectorAll(
-      ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
-    )[0] as HTMLInputElement;
+    const dataSeries = fixture.querySelectorAll(".o-chart .o-data-series")[0] as HTMLInputElement;
     const dataSeriesValues = dataSeries.querySelector("input");
-    const dispatch = spyDispatch(parent);
+    const dispatch = spyModelDispatch(model);
     switch (chartType) {
       case "combo":
       case "basicChart":
@@ -302,9 +305,10 @@ describe("charts", () => {
         type: "line",
         title: { text: "title" },
       },
-      "1"
+      chartId
     );
-    await openChartDesignSidePanel("1");
+    await mountChartSidePanel();
+    await openChartDesignSidePanel(chartId);
 
     const color_menu = fixture.querySelectorAll(
       ".o-chart-title-designer > .o-color-picker-widget > .o-color-picker-button"
@@ -312,7 +316,7 @@ describe("charts", () => {
 
     await click(color_menu);
     await click(fixture, ".o-color-picker-line-item[data-color='#EFEFEF'");
-    expect(model.getters.getChartDefinition("1").title).toEqual({
+    expect(model.getters.getChartDefinition(chartId).title).toEqual({
       text: "title",
       color: "#EFEFEF",
     });
@@ -329,16 +333,17 @@ describe("charts", () => {
           type: "line",
           title: { text: "title" },
         },
-        "1"
+        chartId
       );
-      await openChartDesignSidePanel("1");
+      await mountChartSidePanel();
+      await openChartDesignSidePanel(chartId);
       const alignment_menu = fixture.querySelectorAll(
         ".o-chart-title-designer > .o-menu-item-button[title='Horizontal alignment']"
       )[0];
 
       await click(alignment_menu);
       await click(fixture, `.o-menu-item-button[title='${alignment}']`);
-      expect(model.getters.getChartDefinition("1").title).toEqual({
+      expect(model.getters.getChartDefinition(chartId).title).toEqual({
         text: "title",
         align: alignment.toLowerCase(),
       });
@@ -354,15 +359,16 @@ describe("charts", () => {
         type: "line",
         title: { text: "title" },
       },
-      "1"
+      chartId
     );
-    await openChartDesignSidePanel("1");
+    await mountChartSidePanel();
+    await openChartDesignSidePanel(chartId);
 
     const bold_element = fixture.querySelectorAll(
       ".o-chart-title-designer > .o-menu-item-button[title='Bold']"
     )[0];
     await click(bold_element);
-    expect(model.getters.getChartDefinition("1").title).toEqual({
+    expect(model.getters.getChartDefinition(chartId).title).toEqual({
       text: "title",
       bold: true,
     });
@@ -371,7 +377,7 @@ describe("charts", () => {
       ".o-chart-title-designer > .o-menu-item-button[title='Italic']"
     )[0];
     await click(italic_element);
-    expect(model.getters.getChartDefinition("1").title).toEqual({
+    expect(model.getters.getChartDefinition(chartId).title).toEqual({
       text: "title",
       bold: true,
       italic: true,
@@ -386,9 +392,10 @@ describe("charts", () => {
         labelRange: "A2:A4",
         type: "line",
       },
-      "1"
+      chartId
     );
-    await openChartDesignSidePanel("1");
+    await mountChartSidePanel();
+    await openChartDesignSidePanel(chartId);
 
     const color_menu = fixture.querySelectorAll(
       ".o-chart-title-designer > .o-color-picker-widget > .o-color-picker-button"
@@ -397,7 +404,7 @@ describe("charts", () => {
     await click(color_menu);
     await click(fixture, ".o-color-picker-line-item[data-color='#EFEFEF'");
     //@ts-ignore
-    expect(model.getters.getChartDefinition("1").axesDesign.x).toEqual({
+    expect(model.getters.getChartDefinition(chartId).axesDesign.x).toEqual({
       title: {
         color: "#EFEFEF",
       },
@@ -415,9 +422,10 @@ describe("charts", () => {
           type: "line",
           title: { text: "title" },
         },
-        "1"
+        chartId
       );
-      await openChartDesignSidePanel("1");
+      await mountChartSidePanel();
+      await openChartDesignSidePanel(chartId);
       const alignment_menu = fixture.querySelectorAll(
         ".o-chart-title-designer > .o-menu-item-button[title='Horizontal alignment']"
       )[1];
@@ -425,7 +433,7 @@ describe("charts", () => {
       await click(alignment_menu);
       await click(fixture, `.o-menu-item-button[title='${alignment}']`);
       //@ts-ignore
-      expect(model.getters.getChartDefinition("1").axesDesign.x).toEqual({
+      expect(model.getters.getChartDefinition(chartId).axesDesign.x).toEqual({
         title: {
           align: alignment.toLowerCase(),
         },
@@ -442,16 +450,17 @@ describe("charts", () => {
         type: "line",
         title: { text: "title" },
       },
-      "1"
+      chartId
     );
-    await openChartDesignSidePanel("1");
+    await mountChartSidePanel();
+    await openChartDesignSidePanel(chartId);
 
     const bold_element = fixture.querySelectorAll(
       ".o-chart-title-designer > .o-menu-item-button[title='Bold']"
     )[1];
     await click(bold_element);
     //@ts-ignore
-    expect(model.getters.getChartDefinition("1").axesDesign.x).toEqual({
+    expect(model.getters.getChartDefinition(chartId).axesDesign.x).toEqual({
       title: {
         bold: true,
       },
@@ -462,7 +471,7 @@ describe("charts", () => {
     )[1];
     await click(italic_element);
     //@ts-ignore
-    expect(model.getters.getChartDefinition("1").axesDesign.x).toEqual({
+    expect(model.getters.getChartDefinition(chartId).axesDesign.x).toEqual({
       title: {
         bold: true,
         italic: true,
@@ -479,16 +488,17 @@ describe("charts", () => {
         type: "line",
         title: { text: "title" },
       },
-      "1"
+      chartId
     );
-    await openChartDesignSidePanel("1");
+    await mountChartSidePanel();
+    await openChartDesignSidePanel(chartId);
 
     const bold_element = fixture.querySelectorAll(
       ".o-chart-title-designer > .o-menu-item-button[title='Bold']"
     )[1];
     await click(bold_element);
     //@ts-ignore
-    expect(model.getters.getChartDefinition("1").axesDesign.x).toEqual({
+    expect(model.getters.getChartDefinition(chartId).axesDesign.x).toEqual({
       title: {
         bold: true,
       },
@@ -500,7 +510,7 @@ describe("charts", () => {
     )[1];
     await click(italic_element);
     //@ts-ignore
-    expect(model.getters.getChartDefinition("1").axesDesign).toEqual({
+    expect(model.getters.getChartDefinition(chartId).axesDesign).toEqual({
       x: {
         title: {
           bold: true,
@@ -525,16 +535,17 @@ describe("charts", () => {
         labelRange: "A2:A4",
         type: "line",
       },
-      "1"
+      chartId
     );
-    await openChartDesignSidePanel("1");
+    await mountChartSidePanel();
+    await openChartDesignSidePanel(chartId);
 
     let color_menu = fixture.querySelectorAll(".o-round-color-picker-button")[1];
 
     await click(color_menu);
     await click(fixture, ".o-color-picker-line-item[data-color='#EFEFEF'");
     //@ts-ignore
-    expect(model.getters.getChartDefinition("1").dataSets).toEqual([
+    expect(model.getters.getChartDefinition(chartId).dataSets).toEqual([
       {
         dataRange: "B1:B4",
         backgroundColor: "#EFEFEF",
@@ -553,7 +564,7 @@ describe("charts", () => {
     await click(color_menu);
     await click(fixture, ".o-color-picker-line-item[data-color='#FF0000'");
     //@ts-ignore
-    expect(model.getters.getChartDefinition("1").dataSets).toEqual([
+    expect(model.getters.getChartDefinition(chartId).dataSets).toEqual([
       {
         dataRange: "B1:B4",
         backgroundColor: "#EFEFEF",
@@ -575,13 +586,14 @@ describe("charts", () => {
         labelRange: "A2:A4",
         type: "line",
       },
-      "1"
+      chartId
     );
-    await openChartDesignSidePanel("1");
+    await mountChartSidePanel();
+    await openChartDesignSidePanel();
     setInputValueAndTrigger(".o-vertical-axis-selection", "right");
 
     //@ts-ignore
-    expect(model.getters.getChartDefinition("1").dataSets).toEqual([
+    expect(model.getters.getChartDefinition(chartId).dataSets).toEqual([
       {
         dataRange: "C1:C4",
         yAxisId: "y1",
@@ -597,13 +609,14 @@ describe("charts", () => {
         labelRange: "A2:A4",
         type: "line",
       },
-      "1"
+      chartId
     );
-    await openChartDesignSidePanel("1");
+    await mountChartSidePanel();
+    await openChartDesignSidePanel();
     setInputValueAndTrigger(".o-serie-label-editor", "coucou");
 
     //@ts-ignore
-    expect(model.getters.getChartDefinition("1").dataSets).toEqual([
+    expect(model.getters.getChartDefinition(chartId).dataSets).toEqual([
       {
         dataRange: "C1:C4",
         label: "coucou",
@@ -642,6 +655,7 @@ describe("charts", () => {
       },
       "2"
     );
+    await mountSpreadsheet();
     await openChartDesignSidePanel("1");
 
     await simulateClick(".o-chart-title input");
@@ -674,6 +688,7 @@ describe("charts", () => {
       },
       "2"
     );
+    await mountSpreadsheet();
     await openChartDesignSidePanel("1");
 
     const figures = fixture.querySelectorAll(".o-figure");
@@ -689,6 +704,7 @@ describe("charts", () => {
     "defocusing sidepanel after modifying chart title w/o saving should maintain the new title %s",
     async (chartType) => {
       createTestChart(chartType);
+      await mountSpreadsheet();
       await openChartDesignSidePanel();
 
       await simulateClick(".o-chart-title input");
@@ -704,10 +720,11 @@ describe("charts", () => {
     "can edit charts %s background",
     async (chartType) => {
       createTestChart(chartType);
-      const dispatch = spyDispatch(parent);
+      await mountSpreadsheet();
+      const dispatch = spyModelDispatch(model);
       await openChartDesignSidePanel();
 
-      expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
+      expect(fixture.querySelector(".o-chart")).toBeTruthy();
       await simulateClick(".o-round-color-picker-button");
       const colorpickerItems = fixture.querySelectorAll<HTMLElement>(".o-color-picker-line-item");
       for (let el of colorpickerItems) {
@@ -736,7 +753,8 @@ describe("charts", () => {
     "can close color picker when click elsewhere %s",
     async (chartType) => {
       createTestChart(chartType);
-      openChartDesignSidePanel();
+      await mountChartSidePanel();
+      await openChartDesignSidePanel();
 
       await simulateClick(".o-color-picker-widget .o-color-picker-button");
       expect(fixture.querySelector(".o-color-picker")).toBeTruthy();
@@ -751,7 +769,7 @@ describe("charts", () => {
     ["scorecard", [".o-data-labels"], ["baseline"]],
   ] as const)("remove ranges in chart %s", async (chartType, rangesDomClasses, nameInChartDef) => {
     createTestChart(chartType);
-    await openChartConfigSidePanel();
+    await mountChartSidePanel();
 
     for (let i = 0; i < rangesDomClasses.length; i++) {
       const domClass = rangesDomClasses[i];
@@ -769,12 +787,11 @@ describe("charts", () => {
 
   test("drawing of chart will receive new data after update", async () => {
     createTestChart("basicChart");
+    await mountSpreadsheet();
     await openChartConfigSidePanel();
 
-    const chartType = fixture.querySelectorAll(".o-sidePanel .o-input")[0] as HTMLSelectElement;
-    const dataSeries = fixture.querySelectorAll(
-      ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
-    )[0] as HTMLInputElement;
+    const chartType = fixture.querySelectorAll(".o-chart .o-input")[0] as HTMLSelectElement;
+    const dataSeries = fixture.querySelectorAll(".o-chart .o-data-series")[0] as HTMLInputElement;
     const dataSeriesValues = dataSeries.querySelector("input");
     const hasTitle = fixture.querySelector(
       ".o-use-row-as-headers input[type=checkbox]"
@@ -790,17 +807,14 @@ describe("charts", () => {
 
   test("updating a chart from another sheet does not change it s sheetId", async () => {
     createTestChart("basicChart");
-    await openChartConfigSidePanel();
-
+    await mountChartSidePanel();
     createSheet(model, { sheetId: "42", activate: true });
-    const chartType = fixture.querySelectorAll(".o-sidePanel .o-input")[0] as HTMLSelectElement;
+    const chartType = fixture.querySelectorAll(".o-chart .o-input")[0] as HTMLSelectElement;
     await setInputValueAndTrigger(chartType, "pie");
 
     expect(model.getters.getChart(chartId)?.sheetId).toBe(sheetId);
 
-    const dataSeries = fixture.querySelectorAll(
-      ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
-    )[0] as HTMLInputElement;
+    const dataSeries = fixture.querySelectorAll(".o-chart .o-data-series")[0] as HTMLInputElement;
     const dataSeriesValues = dataSeries.querySelector("input");
     const hasTitle = fixture.querySelector(
       ".o-use-row-as-headers input[type=checkbox]"
@@ -812,14 +826,14 @@ describe("charts", () => {
 
   test.each(TEST_CHART_TYPES)("deleting chart %s will close sidePanel", async (chartType) => {
     createTestChart(chartType);
-    await openChartConfigSidePanel();
+    await mountSpreadsheet();
 
     await simulateClick(".o-figure");
     await simulateClick(".o-figure-menu-item");
     await simulateClick(".o-menu div[data-name='delete']");
     expect(() => model.getters.getChartRuntime("someuuid")).toThrow();
     await nextTick();
-    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeFalsy();
+    expect(fixture.querySelector(".o-chart")).toBeFalsy();
   });
 
   test("deleting another chart does not close the side panel", async () => {
@@ -828,15 +842,16 @@ describe("charts", () => {
     createTestChart("basicChart", figureId1);
     createTestChart("basicChart", figureId2);
     const sheetId = model.getters.getActiveSheetId();
-    await openChartConfigSidePanel(figureId1);
-    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
+    await mountChartSidePanel(figureId1);
+    expect(fixture.querySelector(".o-chart")).toBeTruthy();
     model.dispatch("DELETE_FIGURE", { id: figureId2, sheetId }); // could be deleted by another user
     await nextTick();
-    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
+    expect(fixture.querySelector(".o-chart")).toBeTruthy();
   });
 
   test("Deleting a chart with active selection input does not produce a traceback", async () => {
     createTestChart("basicChart");
+    await mountSpreadsheet();
     await openChartConfigSidePanel();
 
     await simulateClick(".o-data-series .o-add-selection");
@@ -850,23 +865,24 @@ describe("charts", () => {
 
   test("Undo a chart insertion will close the chart side panel", async () => {
     createTestChart("basicChart");
+    await mountSpreadsheet();
     await openChartConfigSidePanel();
     undo(model);
     await nextTick();
-    expect(fixture.querySelector(".o-sidePanel")).toBeFalsy();
+    expect(fixture.querySelector(".o-chart")).toBeFalsy();
   });
 
   test("double click a chart in readonly mode does not open the side panel", async () => {
     createTestChart("basicChart");
-    await nextTick();
+    await mountSpreadsheet();
 
-    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeFalsy();
+    expect(fixture.querySelector(".o-chart")).toBeFalsy();
     model.updateMode("readonly");
     expect(model.getters.getSelectedFigureId()).toBeNull();
     await nextTick();
     await doubleClick(fixture, ".o-chart-container");
-    expect(fixture.querySelector(".o-sidePanel")).toBeFalsy();
-    expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeFalsy();
+    expect(fixture.querySelector(".o-chart")).toBeFalsy();
+    expect(fixture.querySelector(".o-chart")).toBeFalsy();
   });
 
   describe.each(TEST_CHART_TYPES)("selecting other chart will adapt sidepanel", (chartType) => {
@@ -882,8 +898,9 @@ describe("charts", () => {
         },
         "secondChartId"
       );
+      await mountSpreadsheet();
       await openChartConfigSidePanel();
-      expect(fixture.querySelector(".o-sidePanel .o-sidePanelBody .o-chart")).toBeTruthy();
+      expect(fixture.querySelector(".o-chart")).toBeTruthy();
 
       const figures = fixture.querySelectorAll(".o-figure");
       if (selectMethod === "click") {
@@ -893,10 +910,8 @@ describe("charts", () => {
       }
 
       await nextTick();
-      const panelChartType = fixture.querySelectorAll(".o-sidePanel .o-input")[0];
-      const dataSeries = fixture.querySelectorAll(
-        ".o-sidePanel .o-sidePanelBody .o-chart .o-data-series"
-      )[0];
+      const panelChartType = fixture.querySelectorAll(".o-chart .o-input")[0];
+      const dataSeries = fixture.querySelectorAll(".o-chart .o-data-series")[0];
       const hasTitle = (
         fixture.querySelector(".o-use-row-as-headers input[type=checkbox]") as HTMLInputElement
       ).checked;
@@ -916,7 +931,7 @@ describe("charts", () => {
 
   test("Can remove the last data series", async () => {
     createTestChart("basicChart");
-    await openChartConfigSidePanel();
+    await mountChartSidePanel();
 
     await simulateClick(".o-data-series .o-add-selection");
     const element = document.querySelectorAll(".o-data-series input")[1];
@@ -935,7 +950,7 @@ describe("charts", () => {
 
   test("Can add multiple ranges all in once", async () => {
     createTestChart("basicChart");
-    await openChartConfigSidePanel();
+    await mountChartSidePanel();
 
     await simulateClick(".o-data-series .o-add-selection");
     const element = document.querySelectorAll(".o-data-series input")[1];
@@ -969,7 +984,7 @@ describe("charts", () => {
       },
       chartId
     );
-    await openChartConfigSidePanel();
+    await mountChartSidePanel();
 
     await simulateClick(".o-data-series .o-add-selection");
     const element = document.querySelectorAll(".o-data-series input")[1];
@@ -992,7 +1007,7 @@ describe("charts", () => {
       },
       chartId
     );
-    await openChartConfigSidePanel();
+    await mountChartSidePanel();
 
     await simulateClick(".o-data-series .o-add-selection");
     const element = document.querySelectorAll(".o-data-series input")[1];
@@ -1013,7 +1028,7 @@ describe("charts", () => {
       "update %s with empty labels/baseline",
       async (chartType, expectedResults: CommandResult[]) => {
         createTestChart(chartType);
-        await openChartConfigSidePanel();
+        await mountChartSidePanel();
 
         await simulateClick(".o-data-labels input");
         await setInputValueAndTrigger(".o-data-labels input", "");
@@ -1030,7 +1045,7 @@ describe("charts", () => {
       "update chart with valid dataset/keyValue/dataRange show confirm button",
       async (chartType) => {
         createTestChart(chartType);
-        await openChartConfigSidePanel();
+        await mountChartSidePanel();
 
         await simulateClick(".o-data-series input");
         await setInputValueAndTrigger(".o-data-series input", "A1");
@@ -1042,7 +1057,7 @@ describe("charts", () => {
       "update chart with invalid dataset/keyValue/dataRange hide confirm button",
       async (chartType) => {
         createTestChart(chartType);
-        await openChartConfigSidePanel();
+        await mountChartSidePanel();
 
         await simulateClick(".o-data-series input");
         await setInputValueAndTrigger(".o-data-series input", "This is not valid");
@@ -1052,7 +1067,7 @@ describe("charts", () => {
 
     test("does not update the chart with an invalid dataset", async () => {
       createTestChart("basicChart");
-      await openChartConfigSidePanel();
+      await mountChartSidePanel();
 
       await simulateClick(".o-data-series input");
       await setInputValueAndTrigger(".o-data-series input", "A1:A10--");
@@ -1065,7 +1080,7 @@ describe("charts", () => {
       "Clicking on reset button on dataset/keyValue/dataRange put back the last valid dataset/keyValue/dataRange",
       async (chartType) => {
         createTestChart(chartType);
-        await openChartConfigSidePanel();
+        await mountChartSidePanel();
 
         await simulateClick(".o-data-series input");
         await setInputValueAndTrigger(".o-data-series input", "A1");
@@ -1085,7 +1100,7 @@ describe("charts", () => {
       "resetting chart label works as expected",
       async (chartType) => {
         createTestChart(chartType);
-        await openChartConfigSidePanel();
+        await mountChartSidePanel();
 
         await simulateClick(".o-data-labels input");
         await setInputValueAndTrigger(".o-data-labels input", "A1");
@@ -1108,6 +1123,7 @@ describe("charts", () => {
     describe("update chart with invalid section rule", () => {
       beforeEach(async () => {
         createTestChart("gauge");
+        await mountChartSidePanel();
         await openChartDesignSidePanel();
       });
 
@@ -1167,7 +1183,7 @@ describe("charts", () => {
 
     test("Scorecard > error displayed on input fields", async () => {
       createTestChart("scorecard");
-      await openChartConfigSidePanel();
+      await mountChartSidePanel();
 
       // empty dataset/key value
       await simulateClick(".o-data-series input");
@@ -1187,7 +1203,7 @@ describe("charts", () => {
     describe("gauge > error displayed on input fields", () => {
       beforeEach(async () => {
         createTestChart("gauge");
-        await openChartConfigSidePanel();
+        await mountChartSidePanel();
       });
 
       test("empty dataRange", async () => {
@@ -1252,7 +1268,7 @@ describe("charts", () => {
     "Can open context menu on right click",
     async (chartType) => {
       createTestChart(chartType);
-      await nextTick();
+      await mountSpreadsheet();
       triggerMouseEvent(".o-chart-container", "contextmenu");
       await nextTick();
       expect(document.querySelector(".o-menu")).not.toBeNull();
@@ -1264,8 +1280,8 @@ describe("charts", () => {
     async (chartType) => {
       createTestChart(chartType);
       updateChart(model, chartId, { keyValue: undefined, dataRange: undefined, dataSets: [] });
+      await mountSpreadsheet();
       await openChartConfigSidePanel();
-      await nextTick();
 
       const input = fixture.querySelector("input.o-required");
       await simulateClick(input);
@@ -1276,7 +1292,8 @@ describe("charts", () => {
   describe("Scorecard specific tests", () => {
     test("can edit chart baseline colors", async () => {
       createTestChart("scorecard");
-      const dispatch = spyDispatch(parent);
+      const dispatch = spyModelDispatch(model);
+      await mountChartSidePanel();
       await openChartDesignSidePanel();
 
       // Change color of "up" value of baseline
@@ -1335,7 +1352,7 @@ describe("charts", () => {
         labelRange: "C2:C4",
         dataSets: [{ dataRange: "B2:B4" }],
       });
-      await openChartConfigSidePanel();
+      await mountChartSidePanel();
 
       expect(document.querySelector("input[name='labelsAsText']")).toBeTruthy();
     });
@@ -1343,7 +1360,7 @@ describe("charts", () => {
     test("labelAsText checkbox not displayed for pie charts", async () => {
       createTestChart("basicChart");
       updateChart(model, chartId, { type: "pie" });
-      await openChartConfigSidePanel();
+      await mountChartSidePanel();
 
       expect(document.querySelector("input[name='labelsAsText']")).toBeFalsy();
     });
@@ -1351,7 +1368,7 @@ describe("charts", () => {
     test("labelAsText checkbox not displayed for bar charts", async () => {
       createTestChart("basicChart");
       updateChart(model, chartId, { type: "bar" });
-      await openChartConfigSidePanel();
+      await mountChartSidePanel();
 
       expect(document.querySelector("input[name='labelsAsText']")).toBeFalsy();
     });
@@ -1360,7 +1377,7 @@ describe("charts", () => {
       createTestChart("basicChart");
       updateChart(model, chartId, { type: "line" });
       updateChart(model, chartId, { labelRange: "A2:A4", dataSets: [{ dataRange: "B2:B4" }] });
-      await openChartConfigSidePanel();
+      await mountChartSidePanel();
 
       expect(document.querySelector("input[name='labelsAsText']")).toBeFalsy();
     });
@@ -1373,7 +1390,7 @@ describe("charts", () => {
         labelRange: "C2:C4",
         dataSets: [{ dataRange: "B2:B4" }],
       });
-      await openChartConfigSidePanel();
+      await mountChartSidePanel();
 
       expect(document.querySelector("input[name='labelsAsText']")).toBeTruthy();
     });
@@ -1385,7 +1402,7 @@ describe("charts", () => {
         labelRange: "C2:C4",
         dataSets: [{ dataRange: "B2:B4" }],
       });
-      await openChartConfigSidePanel();
+      await mountChartSidePanel();
 
       expect(
         (model.getters.getChartDefinition(chartId) as LineChartDefinition).labelsAsText
@@ -1405,7 +1422,7 @@ describe("charts", () => {
         labelRange: "A2:A4",
         dataSets: [{ dataRange: "B2:B4" }],
       });
-      await openChartConfigSidePanel();
+      await mountChartSidePanel();
 
       expect(document.querySelector("input[name='labelsAsText']")).toBeFalsy();
     });
@@ -1417,7 +1434,7 @@ describe("charts", () => {
         labelRange: "F2:F4",
         dataSets: [{ dataRange: "B2:B4" }],
       });
-      await openChartConfigSidePanel();
+      await mountChartSidePanel();
 
       expect(document.querySelector("input[name='labelsAsText']")).toBeFalsy();
     });
@@ -1429,10 +1446,7 @@ describe("charts", () => {
         labelRange: "C2",
         dataSets: [{ dataRange: "A1" }],
       });
-      await nextTick();
-      await simulateClick(".o-figure");
-      await simulateClick(".o-figure-menu-item");
-      await simulateClick(".o-menu div[data-name='edit']");
+      await mountChartSidePanel();
 
       const checkbox = document.querySelector("input[name='labelsAsText']") as HTMLInputElement;
       expect(checkbox.checked).toBe(false);
@@ -1448,10 +1462,7 @@ describe("charts", () => {
         labelRange: "C2",
         dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A1" }],
       });
-      await nextTick();
-      await simulateClick(".o-figure");
-      await simulateClick(".o-figure-menu-item");
-      await simulateClick(".o-menu div[data-name='edit']");
+      await mountChartSidePanel();
 
       const checkbox = document.querySelector("input[name='labelsAsText']") as HTMLInputElement;
       expect(checkbox.checked).toBe(false);
@@ -1479,9 +1490,6 @@ describe("charts", () => {
   });
 
   describe("aggregate", () => {
-    beforeEach(async () => {
-      ({ parent, fixture, model } = await mountSpreadsheet({ model: new Model() }));
-    });
     test.each(["bar", "pie", "line", "scatter", "combo"] as const)(
       "aggregate checkbox is checked for string-count charts",
       async (type: "bar" | "pie" | "line" | "scatter" | "combo") => {
@@ -1503,7 +1511,7 @@ describe("charts", () => {
           chartId,
           sheetId
         );
-        await openChartConfigSidePanel();
+        await mountChartSidePanel();
 
         const checkbox = document.querySelector("input[name='aggregated']") as HTMLInputElement;
         expect(checkbox.checked).toBe(true);
@@ -1513,7 +1521,7 @@ describe("charts", () => {
     test("aggregate value is kept when changing chart type", async () => {
       createTestChart("basicChart");
       updateChart(model, chartId, { aggregated: true, type: "pie" });
-      await openChartConfigSidePanel();
+      await mountChartSidePanel();
 
       for (const chartType of ["bar", "line", "scatter", "pie"] as const) {
         await setInputValueAndTrigger(".o-type-selector", chartType);
@@ -1525,7 +1533,7 @@ describe("charts", () => {
     test("dataSetsHaveTitle value is kept when changing to a chart without aggregate option then back again", async () => {
       createTestChart("basicChart");
       updateChart(model, chartId, { dataSetsHaveTitle: true, type: "pie" });
-      await openChartConfigSidePanel();
+      await mountChartSidePanel();
       let checkbox = document.querySelector("input[name='dataSetsHaveTitle']") as HTMLInputElement;
       expect(checkbox.checked).toBe(true);
 
@@ -1539,6 +1547,7 @@ describe("charts", () => {
   });
 
   test("When a figure is selected, pressing Ctrl+A will not propagate to the grid to select all cells", async () => {
+    await mountSpreadsheet();
     selectCell(model, "A1");
     createTestChart("gauge");
     await nextTick();
@@ -1551,10 +1560,11 @@ describe("charts", () => {
   });
 
   test("Can undo multiple times after pasting figure", async () => {
+    await mountSpreadsheet();
     setCellContent(model, "D6", "HELLO");
     createTestChart("gauge");
     await nextTick();
-    parent.env.model.dispatch("SELECT_FIGURE", { id: chartId });
+    env.model.dispatch("SELECT_FIGURE", { id: chartId });
     await nextTick();
 
     copy(model);
@@ -1577,6 +1587,7 @@ describe("charts", () => {
   });
 
   test("Chart is not re-rendered if its runtime do not change", async () => {
+    await mountSpreadsheet();
     const updateChart = jest.spyOn((window as any).Chart.prototype, "update");
     createTestChart("basicChart");
     await nextTick();
@@ -1611,7 +1622,7 @@ describe("charts with multiple sheets", () => {
           name: "Sheet2",
           figures: [
             {
-              id: "1",
+              id: chartId,
               tag: "chart",
               width: 400,
               height: 300,
@@ -1644,13 +1655,14 @@ describe("charts with multiple sheets", () => {
         },
       ],
     };
-    ({ parent, model, fixture } = await mountSpreadsheet({ model: new Model(data) }));
+    model = new Model(data);
+    await mountSpreadsheet();
   });
 
   test("delete sheet containing chart data does not crash", async () => {
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet1");
     model.dispatch("DELETE_SHEET", { sheetId: model.getters.getActiveSheetId() });
-    const runtimeChart = model.getters.getChartRuntime("1");
+    const runtimeChart = model.getters.getChartRuntime(chartId);
     expect(runtimeChart).toBeDefined();
     await nextTick();
     expect(fixture.querySelector(".o-chart-container")).not.toBeNull();
@@ -1658,36 +1670,37 @@ describe("charts with multiple sheets", () => {
 });
 
 describe("Default background on runtime tests", () => {
-  beforeEach(async () => {
-    ({ parent, fixture, model } = await mountSpreadsheet({ model: new Model() }));
+  beforeEach(() => {
+    model = new Model();
   });
 
   test("Creating a 'basicChart' without background should have default background on runtime", async () => {
-    createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, "1", sheetId);
-    expect(model.getters.getChartDefinition("1")?.background).toBeUndefined();
-    expect(model.getters.getChartRuntime("1").background).toBe(BACKGROUND_CHART_COLOR);
+    createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, chartId, sheetId);
+    expect(model.getters.getChartDefinition(chartId)?.background).toBeUndefined();
+    expect(model.getters.getChartRuntime(chartId).background).toBe(BACKGROUND_CHART_COLOR);
   });
   test("Creating a 'basicChart' without background and updating its type should have default background on runtime", async () => {
-    createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, "1", sheetId);
-    updateChart(model, "1", { type: "line" }, sheetId);
-    expect(model.getters.getChartDefinition("1")?.background).toBeUndefined();
-    expect(model.getters.getChartRuntime("1").background).toBe(BACKGROUND_CHART_COLOR);
+    createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, chartId, sheetId);
+    updateChart(model, chartId, { type: "line" }, sheetId);
+    expect(model.getters.getChartDefinition(chartId)?.background).toBeUndefined();
+    expect(model.getters.getChartRuntime(chartId).background).toBe(BACKGROUND_CHART_COLOR);
   });
   test("Creating a 'basicChart' on a single cell with style and converting into scorecard should have cell background as chart background", () => {
     setStyle(model, "A1", { fillColor: "#FA0000" }, sheetId);
-    createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, "1", sheetId);
-    updateChart(model, "1", { type: "scorecard", keyValue: "A1" }, sheetId);
-    expect(model.getters.getChartDefinition("1")?.background).toBeUndefined();
-    expect(model.getters.getChartRuntime("1").background).toBe("#FA0000");
+    createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, chartId, sheetId);
+    updateChart(model, chartId, { type: "scorecard", keyValue: "A1" }, sheetId);
+    expect(model.getters.getChartDefinition(chartId)?.background).toBeUndefined();
+    expect(model.getters.getChartRuntime(chartId).background).toBe("#FA0000");
   });
 });
 
 test("ChartJS charts are correctly destroyed on chart deletion", async () => {
-  ({ parent, fixture, model } = await mountSpreadsheet({ model: new Model() }));
-  createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, "1");
+  model = new Model();
+  await mountSpreadsheet();
+  createChart(model, { type: "bar", dataSets: [{ dataRange: "A1" }] }, chartId);
   await nextTick();
   const spyDelete = jest.spyOn((window as any).Chart.prototype, "destroy");
-  model.dispatch("DELETE_FIGURE", { id: "1", sheetId: model.getters.getActiveSheetId() });
+  model.dispatch("DELETE_FIGURE", { id: chartId, sheetId: model.getters.getActiveSheetId() });
   await nextTick();
   expect(spyDelete).toHaveBeenCalled();
 });
