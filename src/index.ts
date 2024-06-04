@@ -38,6 +38,7 @@ import {
 import {
   colorToRGBA,
   computeTextWidth,
+  deepEquals,
   formatValue,
   isMarkdownLink,
   markdownLink,
@@ -186,6 +187,7 @@ export const helpers = {
   rgbaToHex,
   colorToRGBA,
   positionToZone,
+  deepEquals,
 };
 export const components = {
   ChartPanel,
