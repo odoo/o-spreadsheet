@@ -1075,7 +1075,7 @@ describe("title", function () {
     expect(getChartConfiguration(model, "1").options?.plugins?.title?.display).toBe(false);
   });
 
-  test.each(["line", "bar", "pie", "combo", "waterfall", "scatter"] as const)(
+  test.each(["line", "bar", "pyramid", "pie", "combo", "waterfall", "scatter"] as const)(
     "Title alignment is taken into account",
     (type) => {
       createChart(
@@ -1099,7 +1099,7 @@ describe("title", function () {
       expect(getChartConfiguration(model, "1").options?.plugins?.title?.align).toBe("start");
     }
   );
-  test.each(["line", "bar", "pie", "combo", "waterfall", "scatter"] as const)(
+  test.each(["line", "bar", "pyramid", "pie", "combo", "waterfall", "scatter"] as const)(
     "Title color is taken into account",
     (type) => {
       createChart(
@@ -1119,7 +1119,7 @@ describe("title", function () {
     }
   );
 
-  test.each(["line", "bar", "pie", "combo", "waterfall", "scatter"] as const)(
+  test.each(["line", "bar", "pyramid", "pie", "combo", "waterfall", "scatter"] as const)(
     "Title bold style is taken into account",
     (type) => {
       createChart(
@@ -1145,7 +1145,7 @@ describe("title", function () {
     }
   );
 
-  test.each(["line", "bar", "pie", "combo", "waterfall", "scatter"] as const)(
+  test.each(["line", "bar", "pyramid", "pie", "combo", "waterfall", "scatter"] as const)(
     "Title italic style is taken into account",
     (type) => {
       createChart(
@@ -1171,7 +1171,7 @@ describe("title", function () {
     }
   );
 
-  test.each(["line", "bar", "combo", "waterfall", "scatter"] as const)(
+  test.each(["line", "bar", "pyramid", "combo", "waterfall", "scatter"] as const)(
     "Axis title alignment is taken into account for %s chart",
     (type) => {
       createChart(
@@ -1231,7 +1231,7 @@ describe("title", function () {
     }
   );
 
-  test.each(["line", "bar", "combo", "waterfall", "scatter"] as const)(
+  test.each(["line", "bar", "pyramid", "combo", "waterfall", "scatter"] as const)(
     "Axis title color is taken into account for %s chart",
     (type) => {
       createChart(
@@ -1256,7 +1256,7 @@ describe("title", function () {
     }
   );
 
-  test.each(["line", "bar", "combo", "waterfall", "scatter"] as const)(
+  test.each(["line", "bar", "pyramid", "combo", "waterfall", "scatter"] as const)(
     "Axis bold style is taken into account for %s chart",
     (type) => {
       createChart(
@@ -1292,7 +1292,7 @@ describe("title", function () {
     }
   );
 
-  test.each(["line", "bar", "combo", "waterfall", "scatter"] as const)(
+  test.each(["line", "bar", "pyramid", "combo", "waterfall", "scatter"] as const)(
     "Axis italic style is taken into account for %s chart",
     (type) => {
       createChart(
@@ -2049,7 +2049,7 @@ describe("Chart design configuration", () => {
     }
   );
 
-  test.each(["line", "scatter", "bar", "combo"] as const)(
+  test.each(["line", "scatter", "bar", "pyramid", "combo"] as const)(
     "%s chart correctly use dataset colors set up in definition",
     (chartType) => {
       setCellContent(model, "A1", "1");
