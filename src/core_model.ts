@@ -4,12 +4,30 @@
  * CoreModel.ts is intended only for core and core_evaluation plugins integration.
  * As far as possible, it should have no external dependencies
  */
+import { Revision } from "./collaborative/revisions";
+// import { Status } from "./constants";
+import { buildRevisionLog } from "./history/factory";
+import { SelectiveHistory } from "./history/selective_history";
 import { createEmptyWorkbookData } from "./migrations/data";
 import { corePluginRegistry, coreViewsPluginRegistry } from "./plugins";
 import { RangeAdapter } from "./plugins/core";
 import { CorePlugin, CorePluginConfig, CorePluginConstructor } from "./plugins/core_plugin";
 import { Registry } from "./registries/registry";
-import { Command, CommandHandler, CoreCommand, CoreGetters, Getters, WorkbookData } from "./types";
+import { StateObserver } from "./state_observer";
+import {
+  Command,
+  CommandDispatcher,
+  CommandHandler,
+  CommandResult,
+  CommandTypes,
+  CoreCommand,
+  CoreGetters,
+  DispatchResult,
+  Getters,
+  UID,
+  WorkbookData,
+  isCoreCommand,
+} from "./types";
 
 export class CoreModel {
   corePlugins: CorePlugin[] = [];
@@ -23,10 +41,21 @@ export class CoreModel {
    */
   coreGetters: CoreGetters;
   private options: any;
+  private readonly stateObserver: StateObserver;
+
+  /**
+   * In a collaborative context, some commands can be replayed, we have to ensure
+   * that these commands are not replayed on the UI plugins.
+   */
+  private isReplayingCommand: boolean = false;
+  private readonly dispatchToUi: (command: Command) => void;
 
   constructor(options) {
     this.coreGetters = {} as CoreGetters;
+    this.stateObserver = new StateObserver();
+
     this.options = options;
+    this.dispatchToUi = options.dispatchToUi;
     this.range = new RangeAdapter(this.coreGetters);
     this.coreHandlers.push(this.range);
 
@@ -45,7 +74,7 @@ export class CoreModel {
 
     let corePluginsConfig = this.setupCorePluginConfig();
     corePluginsConfig.getters = this.coreGetters;
-    corePluginsConfig.dispatch = options.dispatch;
+    corePluginsConfig.dispatch = this.dispatchFromCorePlugin;
 
     this.corePlugins = this.setupCorePlugins(
       corePluginRegistry,
@@ -113,7 +142,7 @@ export class CoreModel {
 
   private setupCorePluginConfig(): Partial<CorePluginConfig> {
     return {
-      stateObserver: this.options.state,
+      stateObserver: this.stateObserver,
       range: this.range,
       canDispatch: this.options.canDispatch,
       uuidGenerator: this.options.uuidGenerator,
@@ -125,12 +154,6 @@ export class CoreModel {
 
   addPluginsTo(commandHandler: CommandHandler<Command>[]) {
     this.coreHandlers.forEach((plugin) => commandHandler.push(plugin));
-  }
-
-  checkDispatchAllowedCoreCommand(command: CoreCommand) {
-    const results = this.corePlugins.map((handler) => handler.allowDispatch(command));
-    results.push(this.range.allowDispatch(command));
-    return results;
   }
 
   garbageCollectExternalResources() {
@@ -146,4 +169,73 @@ export class CoreModel {
     }
     return data;
   }
+
+  buildRevisionLog(initialRevisionId: UID): SelectiveHistory<Revision> {
+    return buildRevisionLog(
+      initialRevisionId,
+      this.stateObserver.recordChanges.bind(this.stateObserver),
+      (command: CoreCommand) => {
+        const results = this.checkDispatchAllowedCoreCommand(command);
+        if (results.some((result) => result !== CommandResult.Success)) return;
+        this.isReplayingCommand = true;
+        this.dispatchToCore(command);
+        this.isReplayingCommand = false;
+      }
+    );
+  }
+
+  startRevisionForCommand(command: Command) {
+    return this.stateObserver.recordChanges(() => {
+      if (isCoreCommand(command)) {
+        this.stateObserver.addCommand(command);
+      }
+      this.dispatchToCore(command);
+    });
+  }
+
+  addCommandForCurrentRevision(command: CoreCommand) {
+    this.stateObserver.addCommand(command);
+    this.dispatchToCore(command);
+  }
+
+  checkDispatchAllowedCoreCommand(command: CoreCommand) {
+    const results = this.corePlugins.map((handler) => handler.allowDispatch(command));
+    results.push(this.range.allowDispatch(command));
+    return results;
+  }
+
+  private dispatchToCore(command: Command) {
+    const isCommandCore = isCoreCommand(command);
+    if (!isCommandCore) {
+      return;
+    }
+    this.coreHandlers.forEach((handler) => {
+      handler.beforeHandle(command);
+    });
+    this.coreHandlers.forEach((handler) => {
+      handler.handle(command);
+    });
+  }
+
+  /**
+   * Dispatch a command from a Core Plugin (or the History).
+   * A command dispatched from this function is not added to the history.
+   */
+  dispatchFromCorePlugin: CommandDispatcher["dispatch"] = (type: CommandTypes, payload?: any) => {
+    const command = createCommand(type, payload);
+    // const previousStatus = this.status;
+    // this.status = Status.RunningCore;
+    this.dispatchToCore(command);
+    if (!this.isReplayingCommand) {
+      // dispatch to ui handlers ? how ?
+      this.dispatchToUi(command);
+    }
+    // this.status = previousStatus;
+    return DispatchResult.Success;
+  };
+}
+function createCommand(type: CommandTypes, payload: any = {}): Command {
+  const command = { ...payload, type };
+  Object.freeze(command);
+  return command;
 }

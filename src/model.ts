@@ -5,7 +5,6 @@ import { DEFAULT_REVISION_ID, Status } from "./constants";
 import { CoreModel } from "./core_model";
 import { EventBus } from "./helpers/event_bus";
 import { UuidGenerator, deepCopy } from "./helpers/index";
-import { buildRevisionLog } from "./history/factory";
 import { createEmptyExcelWorkbookData, load, repairInitialMessages } from "./migrations/data";
 import { BasePlugin } from "./plugins/base_plugin";
 import { featurePluginRegistry, statefulUIPluginRegistry } from "./plugins/index";
@@ -14,7 +13,6 @@ import {
   SelectionStreamProcessor,
   SelectionStreamProcessorImpl,
 } from "./selection_stream/selection_stream_processor";
-import { StateObserver } from "./state_observer";
 import { _t } from "./translation";
 import { StateUpdateMessage, TransportService } from "./types/collaborative/transport_service";
 import { FileStore } from "./types/files";
@@ -107,17 +105,7 @@ export interface ModelExternalConfig {
 export class Model extends EventBus<any> implements CommandDispatcher {
   private coreModel: CoreModel;
 
-  private featurePlugins: UIPlugin[] = [];
-
-  private statefulUIPlugins: UIPlugin[] = [];
-
   private readonly session: Session;
-
-  /**
-   * In a collaborative context, some commands can be replayed, we have to ensure
-   * that these commands are not replayed on the UI plugins.
-   */
-  private isReplayingCommand: boolean = false;
 
   /**
    * A plugin can draw some contents on the canvas. But even better: it can do
@@ -138,8 +126,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    */
   readonly config: ModelConfig;
   private uiPluginConfig: UIPluginConfig;
-
-  private state: StateObserver;
 
   readonly selection: SelectionStreamProcessor;
 
@@ -176,7 +162,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     this.uuidGenerator = uuidGenerator;
     this.config = this.setupConfig(config);
-    this.state = new StateObserver();
 
     this.getters = {
       isReadonly: () => this.config.mode === "readonly" || this.config.mode === "dashboard",
@@ -185,8 +170,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     this.coreModel = new CoreModel({
       workbookData,
-      state: this.state,
-      dispatch: this.dispatchFromCorePlugin,
+      dispatchToUi: this.dispatchToUi.bind(this),
       canDispatch: this.canDispatch,
       uuidGenerator: this.uuidGenerator,
       custom: this.config.custom,
@@ -213,13 +197,11 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     for (let Plugin of statefulUIPluginRegistry.getAll()) {
       const plugin = this.setupUiPlugin(Plugin);
-      this.statefulUIPlugins.push(plugin);
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
     }
     for (let Plugin of featurePluginRegistry.getAll()) {
       const plugin = this.setupUiPlugin(Plugin);
-      this.featurePlugins.push(plugin);
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
     }
@@ -283,41 +265,25 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     for (let command of commands) {
       const previousStatus = this.status;
       this.status = Status.RunningCore;
-      this.dispatchToHandlers(this.statefulUIPlugins, command);
+      this.dispatchToUi(command);
       this.status = previousStatus;
     }
     this.finalize();
   }
 
-  private setupSession(revisionId: UID): Session {
-    const session = new Session(
-      buildRevisionLog({
-        initialRevisionId: revisionId,
-        recordChanges: this.state.recordChanges.bind(this.state),
-        dispatch: (command: CoreCommand) => {
-          const result = this.checkDispatchAllowed(command);
-          if (!result.isSuccessful) {
-            return;
-          }
-          this.isReplayingCommand = true;
-          this.dispatchToHandlers(this.coreModel.coreHandlers, command);
-          this.isReplayingCommand = false;
-        },
-      }),
-      this.config.transportService,
-      revisionId
-    );
-    return session;
+  private setupSession(initialRevisionId: UID): Session {
+    const revisionLog = this.coreModel.buildRevisionLog(initialRevisionId);
+    return new Session(revisionLog, this.config.transportService, initialRevisionId);
   }
 
   private setupSessionEvents() {
     this.session.on("remote-revision-received", this, this.onRemoteRevisionReceived);
     this.session.on("revision-undone", this, ({ commands }) => {
-      this.dispatchFromCorePlugin("UNDO", { commands });
+      this.coreModel.dispatchFromCorePlugin("UNDO", { commands });
       this.finalize();
     });
     this.session.on("revision-redone", this, ({ commands }) => {
-      this.dispatchFromCorePlugin("REDO", { commands });
+      this.coreModel.dispatchFromCorePlugin("REDO", { commands });
       this.finalize();
     });
     // How could we improve communication between the session and UI?
@@ -389,8 +355,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 
   private checkDispatchAllowedLocalCommand(command: LocalCommand) {
-    const results = this.uiHandlers.map((handler) => handler.allowDispatch(command));
-    return results;
+    return this.uiHandlers.map((handler) => handler.allowDispatch(command));
   }
 
   private finalize() {
@@ -435,24 +400,25 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     }
     switch (status) {
       case Status.Ready:
-        const result = this.checkDispatchAllowed(command);
+        // we are dispatching an "root" command, that is a command the is dispatch as a
+        // response to a user or external event, as opposed to a command dispatched by the plugins
+        // themselves while already processing a command
+        const rootCommand = command;
+        const result = this.checkDispatchAllowed(rootCommand);
         if (!result.isSuccessful) {
           return result;
         }
         this.status = Status.Running;
-        const { changes, commands } = this.state.recordChanges(() => {
-          const start = performance.now();
-          if (isCoreCommand(command)) {
-            this.state.addCommand(command);
-          }
-          this.dispatchToHandlers(this.handlers, command);
-          this.finalize();
-          const time = performance.now() - start;
-          if (time > 5) {
-            console.info(type, time, "ms");
-          }
-        });
-        this.session.save(command, commands, changes);
+        const start = performance.now();
+        const { changes, commands } = this.coreModel.startRevisionForCommand(rootCommand);
+        this.dispatchToUi(rootCommand);
+        this.trigger("command-dispatched", command);
+        this.finalize();
+        const time = performance.now() - start;
+        if (time > 5) {
+          console.info(type, time, "ms");
+        }
+        this.session.save(rootCommand, commands, changes);
         this.status = Status.Ready;
         this.trigger("update");
         break;
@@ -462,58 +428,32 @@ export class Model extends EventBus<any> implements CommandDispatcher {
           if (!dispatchResult.isSuccessful) {
             return dispatchResult;
           }
-          this.state.addCommand(command);
+          this.coreModel.addCommandForCurrentRevision(command);
         }
-        this.dispatchToHandlers(this.handlers, command);
+        this.dispatchToUi(command);
+        this.trigger("command-dispatched", command);
         break;
       case Status.Finalizing:
         throw new Error("Cannot dispatch commands in the finalize state");
       case Status.RunningCore:
         if (isCoreCommand(command)) {
+          // because core plugins have a "coreDispatcher", the only way to arrive here is a ui plugin
+          // that has dispatched a core command during the processing of another command
           throw new Error(`A UI plugin cannot dispatch ${type} while handling a core command`);
         }
-        this.dispatchToHandlers(this.handlers, command);
+        this.dispatchToUi(command);
+        this.trigger("command-dispatched", command);
     }
     return DispatchResult.Success;
   };
 
-  /**
-   * Dispatch a command from a Core Plugin (or the History).
-   * A command dispatched from this function is not added to the history.
-   */
-  private dispatchFromCorePlugin: CommandDispatcher["dispatch"] = (
-    type: CommandTypes,
-    payload?: any
-  ) => {
-    const command = createCommand(type, payload);
-    const previousStatus = this.status;
-    this.status = Status.RunningCore;
-    const handlers = this.isReplayingCommand ? this.coreModel.coreHandlers : this.handlers;
-    this.dispatchToHandlers(handlers, command);
-    this.status = previousStatus;
-    return DispatchResult.Success;
-  };
-
-  /**
-   * Dispatch the given command to the given handlers.
-   * It will call `beforeHandle` and `handle`
-   */
-  private dispatchToHandlers(handlers: CommandHandler<Command>[], command: Command) {
-    const isCommandCore = isCoreCommand(command);
-    const validHandlers = handlers.filter((handler) =>
-      isCommandCore
-        ? true /* Core Commands can be dispatched to all plugin */
-        : /* non core commands cannot be dispatched to core plugins */
-          !this.coreModel.corePlugins.includes(handler as any)
-    );
-
-    for (const handler of validHandlers) {
+  private dispatchToUi(command: Command) {
+    for (const handler of this.uiHandlers) {
       handler.beforeHandle(command);
     }
-    for (const handler of validHandlers) {
+    for (const handler of this.uiHandlers) {
       handler.handle(command);
     }
-    this.trigger("command-dispatched", command);
   }
 
   // ---------------------------------------------------------------------------
