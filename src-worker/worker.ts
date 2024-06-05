@@ -1,5 +1,4 @@
-import { createEmptyWorkbookData } from "../src/migrations/data";
-import { HeadlessModel } from "./headless_model";
+import { CoreModel } from "../src/core_model";
 
 export declare const PLOP = "Plop...";
 
@@ -8,8 +7,4 @@ onmessage = function (e: MessageEvent) {
   postMessage(`I have received ${e.data.commands.map((x) => x.type)}`);
 };
 
-const o = createEmptyWorkbookData();
-o.sheets[0].name = "12";
-
-// export const model = new HeadlessModel (createEmptyWorkbookData());
-export const model = new HeadlessModel();
+const coreModel = new CoreModel();

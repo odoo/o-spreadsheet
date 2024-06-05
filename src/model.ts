@@ -1,8 +1,8 @@
 import { markRaw } from "@odoo/owl";
-import { CoreModel } from "./CoreModel";
 import { LocalTransportService } from "./collaborative/local_transport_service";
 import { Session } from "./collaborative/session";
 import { DEFAULT_REVISION_ID, Status } from "./constants";
+import { CoreModel } from "./core_model";
 import { EventBus } from "./helpers/event_bus";
 import { UuidGenerator, deepCopy } from "./helpers/index";
 import { buildRevisionLog } from "./history/factory";
