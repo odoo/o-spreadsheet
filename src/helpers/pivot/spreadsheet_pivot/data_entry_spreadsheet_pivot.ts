@@ -61,7 +61,7 @@ function dataEntriesToRows(
   }
   const row = rows[index];
   const rowName = row.nameWithGranularity;
-  const groups = groupBy(dataEntries, row);
+  const groups = groupPivotDataEntriesBy(dataEntries, row);
   const orderedKeys = orderDataEntriesKeys(groups, row);
   const pivotTableRows: PivotTableRow[] = [];
   const _fields = fields.concat(rowName);
@@ -97,7 +97,7 @@ function dataEntriesToColumnsTree(
   }
   const column = columns[index];
   const colName = columns[index].nameWithGranularity;
-  const groups = groupBy(dataEntries, column);
+  const groups = groupPivotDataEntriesBy(dataEntries, column);
   const orderedKeys = orderDataEntriesKeys(groups, columns[index]);
   return orderedKeys.map((value) => {
     return {
@@ -205,7 +205,7 @@ function columnsTreeToColumns(
 /**
  * Group the dataEntries based on the given dimension
  */
-function groupBy(dataEntries: DataEntries, dimension: PivotDimension) {
+export function groupPivotDataEntriesBy(dataEntries: DataEntries, dimension: PivotDimension) {
   return Object.groupBy(dataEntries, keySelector(dimension));
 }
 

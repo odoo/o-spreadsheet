@@ -23,6 +23,7 @@ import {
   DataEntries,
   DataEntry,
   dataEntriesToSpreadsheetPivotTable,
+  groupPivotDataEntriesBy,
 } from "./data_entry_spreadsheet_pivot";
 import { createDate } from "./date_spreadsheet_pivot";
 import { SpreadsheetPivotRuntimeDefinition } from "./runtime_definition_spreadsheet_pivot";
@@ -127,7 +128,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
   }
 
   isValid(): boolean {
-    if (this.invalidRangeError || !this._definition) {
+    if (this.invalidRangeError || !this.definition) {
       return false;
     }
     for (const measure of this.definition.measures) {
@@ -189,18 +190,18 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     const dimension = this.getDimension(lastNode.field);
     const cells = this.filterDataEntriesFromDomain(this.dataEntries, domain);
     const finalCell = cells[0]?.[dimension.nameWithGranularity];
+    if (dimension.type === "date") {
+      const adapter = pivotTimeAdapter(dimension.granularity as Granularity);
+      return {
+        value: adapter.toCellValue(toNormalizedPivotValue(dimension, lastNode.value)),
+        format: adapter.getFormat(this.getters.getLocale()),
+      };
+    }
     if (!finalCell) {
       return { value: "" };
     }
     if (finalCell.value === null) {
       return { value: _t("(Undefined)") };
-    }
-    if (dimension.type === "date") {
-      const adapter = pivotTimeAdapter(dimension.granularity as Granularity);
-      return {
-        value: adapter.toCellValue(finalCell.value),
-        format: adapter.getFormat(this.getters.getLocale()),
-      };
     }
     return {
       value: finalCell.value,
@@ -228,9 +229,14 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     };
   }
 
-  getPossibleFieldValues(groupBy: string): { value: string | number | boolean; label: string }[] {
-    //TODO This method should be implemented for the autocomplete feature
-    throw new Error("Method not implemented.");
+  getPossibleFieldValues(
+    dimension: PivotDimension
+  ): { value: string | number | boolean; label: string }[] {
+    const values: { value: string | number | boolean; label: string }[] = [];
+    for (const value in groupPivotDataEntriesBy(this.dataEntries, dimension)) {
+      values.push({ value, label: "" });
+    }
+    return values;
   }
 
   getTableStructure(): SpreadsheetPivotTable {

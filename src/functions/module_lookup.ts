@@ -1,5 +1,4 @@
 import { getFullReference, range, toXC, toZone } from "../helpers/index";
-import { supportedPivotExplodedFormulaRegistry } from "../helpers/pivot/pivot_exploded_formula_registry";
 import { toPivotDomain } from "../helpers/pivot/pivot_helpers";
 import { _t } from "../translation";
 import { AddFunctionDescription, CellPosition, FPayload, Matrix, Maybe } from "../types";
@@ -711,12 +710,7 @@ export const PIVOT_VALUE = {
     assertDomainLength(_domainArgs);
     const pivot = this.getters.getPivot(pivotId);
     const coreDefinition = this.getters.getPivotCoreDefinition(pivotId);
-    if (!supportedPivotExplodedFormulaRegistry.get(coreDefinition.type)) {
-      return {
-        value: CellErrorType.GenericError,
-        message: _t("This pivot does not support PIVOT.VALUE formula"),
-      };
-    }
+
     addPivotDependencies(this, coreDefinition);
     const error = pivot.assertIsValid({ throwOnError: false });
     if (error) {
@@ -748,12 +742,6 @@ export const PIVOT_HEADER = {
     assertDomainLength(_domainArgs);
     const pivot = this.getters.getPivot(_pivotId);
     const coreDefinition = this.getters.getPivotCoreDefinition(_pivotId);
-    if (!supportedPivotExplodedFormulaRegistry.get(coreDefinition.type)) {
-      return {
-        value: CellErrorType.GenericError,
-        message: _t("This pivot does not support PIVOT.VALUE formula"),
-      };
-    }
     addPivotDependencies(this, coreDefinition);
     const error = pivot.assertIsValid({ throwOnError: false });
     if (error) {

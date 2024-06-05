@@ -108,7 +108,7 @@ import {
   insertTokenAfterLeftParenthesis,
   makeFieldProposal,
 } from "./helpers/pivot/pivot_composer_helpers";
-import { supportedPivotExplodedFormulaRegistry } from "./helpers/pivot/pivot_exploded_formula_registry";
+import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
 
 import {
   flatPivotDomain,
@@ -268,7 +268,7 @@ export const registries = {
   pivotTimeAdapterRegistry,
   pivotSidePanelRegistry,
   pivotNormalizationValueRegistry,
-  supportedPivotExplodedFormulaRegistry,
+  supportedPivotPositionalFormulaRegistry,
 };
 export const helpers = {
   arg,
