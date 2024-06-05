@@ -1,4 +1,4 @@
-import { Component, onMounted, useRef } from "@odoo/owl";
+import { Component, onMounted, useRef, useState } from "@odoo/owl";
 import { zoneToXc } from "../../../helpers";
 import { Store, useLocalStore } from "../../../store_engine";
 import { _t } from "../../../translation";
@@ -47,10 +47,9 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
     onCloseSidePanel: Function,
   };
 
-  private dataRange: string = "";
   private searchInput = useRef("searchInput");
-
   private store!: Store<FindAndReplaceStore>;
+  private state!: { dataRange: string };
 
   get hasSearchResult() {
     return this.store.selectedMatchIndex !== null;
@@ -86,6 +85,7 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
 
   setup() {
     this.store = useLocalStore(FindAndReplaceStore);
+    this.state = useState({ dataRange: "" });
     onMounted(() => this.searchInput.el?.focus());
   }
 
@@ -131,16 +131,16 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onSearchRangeChanged(ranges: string[]) {
-    this.dataRange = ranges[0];
+    this.state.dataRange = ranges[0];
   }
 
   updateDataRange() {
-    if (!this.dataRange || this.searchOptions.searchScope !== "specificRange") {
+    if (!this.state.dataRange || this.searchOptions.searchScope !== "specificRange") {
       return;
     }
     const specificRange = this.env.model.getters.getRangeFromSheetXC(
       this.env.model.getters.getActiveSheetId(),
-      this.dataRange
+      this.state.dataRange
     );
     this.store.updateSearchOptions({ specificRange });
   }
