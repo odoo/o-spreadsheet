@@ -500,18 +500,17 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    */
   private dispatchToHandlers(handlers: CommandHandler<Command>[], command: Command) {
     const isCommandCore = isCoreCommand(command);
-    for (const handler of handlers) {
-      if (!isCommandCore && this.coreModel.corePlugins.includes(handler as any)) {
-        continue;
-      }
-      // console.log(`${handler.constructor.name} is beforeHandling ${command.type}`);
+    const validHandlers = handlers.filter((handler) =>
+      isCommandCore
+        ? true /* Core Commands can be dispatched to all plugin */
+        : /* non core commands cannot be dispatched to core plugins */
+          !this.coreModel.corePlugins.includes(handler as any)
+    );
+
+    for (const handler of validHandlers) {
       handler.beforeHandle(command);
     }
-    for (const handler of handlers) {
-      if (!isCommandCore && this.coreModel.corePlugins.includes(handler as any)) {
-        continue;
-      }
-      // console.log(`${handler.constructor.name} is handling ${command.type}`);
+    for (const handler of validHandlers) {
       handler.handle(command);
     }
     this.trigger("command-dispatched", command);
