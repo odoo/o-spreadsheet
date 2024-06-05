@@ -1,6 +1,10 @@
 import { PIVOT_TABLE_CONFIG } from "../../constants";
 import { deepCopy, deepEquals, isDefined } from "../../helpers";
-import { getMaxObjectId, makePivotFormula } from "../../helpers/pivot/pivot_helpers";
+import {
+  flatPivotDomain,
+  getMaxObjectId,
+  makePivotFormula,
+} from "../../helpers/pivot/pivot_helpers";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/spreadsheet_pivot/table_spreadsheet_pivot";
 import { _t } from "../../translation";
 import {
@@ -230,14 +234,24 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
   }
 
   private addPivotFormula(position: CellPosition, formulaId: UID, pivotCell: PivotTableCell) {
-    const formula = pivotCell.isHeader ? "PIVOT.HEADER" : "PIVOT.VALUE";
-    const args = pivotCell.domain
-      ? [formulaId, pivotCell.measure, ...pivotCell.domain].filter(isDefined)
-      : undefined;
-
+    let content: string | undefined = undefined;
+    switch (pivotCell.type) {
+      case "HEADER":
+        content = makePivotFormula(
+          "PIVOT.HEADER",
+          [formulaId, ...flatPivotDomain(pivotCell.domain)].filter(isDefined)
+        );
+        break;
+      case "VALUE":
+        content = makePivotFormula(
+          "PIVOT.VALUE",
+          [formulaId, pivotCell.measure, ...flatPivotDomain(pivotCell.domain)].filter(isDefined)
+        );
+        break;
+    }
     this.dispatch("UPDATE_CELL", {
       ...position,
-      content: args ? makePivotFormula(formula, args) : undefined,
+      content,
     });
   }
 

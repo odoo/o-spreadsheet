@@ -39,7 +39,7 @@ export class PivotRuntimeDefinition {
   getMeasure(name: string): PivotMeasure {
     const measure = this.measures.find((measure) => measure.name === name);
     if (!measure) {
-      throw new EvaluationError(_t("Field %s does not exist", name));
+      throw new EvaluationError(_t("Field %s is not a measure", name));
     }
     return measure;
   }

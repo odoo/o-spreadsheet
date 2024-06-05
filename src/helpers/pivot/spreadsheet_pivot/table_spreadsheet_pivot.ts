@@ -1,4 +1,4 @@
-import { PivotTableCell, PivotTableColumn, PivotTableRow } from "../../../types/pivot";
+import { PivotDomain, PivotTableCell, PivotTableColumn, PivotTableRow } from "../../../types/pivot";
 
 /**
  * Class used to ease the construction of a pivot table.
@@ -109,19 +109,19 @@ export class SpreadsheetPivotTable {
     const colHeadersHeight = this.columns.length;
     if (row <= colHeadersHeight - 1) {
       const domain = this.getColHeaderDomain(col, row);
-      return { domain, isHeader: true };
+      return domain ? { type: "HEADER", domain } : { type: "EMPTY" };
     } else if (col === 0) {
       const rowIndex = row - colHeadersHeight;
       const domain = this.getRowDomain(rowIndex);
-      return { domain, isHeader: true };
+      return { type: "HEADER", domain };
     } else {
       const rowIndex = row - colHeadersHeight;
       if (!includeTotal && this.isTotalRow(rowIndex)) {
-        return { isHeader: false };
+        return { type: "EMPTY" };
       }
       const domain = [...this.getRowDomain(rowIndex), ...this.getColDomain(col)];
       const measure = this.getColMeasure(col);
-      return { domain, isHeader: false, measure };
+      return { type: "VALUE", domain, measure };
     }
   }
 
@@ -129,33 +129,41 @@ export class SpreadsheetPivotTable {
     if (col === 0) {
       return undefined;
     }
-    const domain: string[] = [];
+    const domain: PivotDomain = [];
     const pivotCol = this.columns[row].find((pivotCol) => pivotCol.offset === col);
     if (!pivotCol) {
       return undefined;
     }
     for (let i = 0; i < pivotCol.fields.length; i++) {
-      domain.push(pivotCol.fields[i]);
-      domain.push(pivotCol.values[i]);
+      domain.push({
+        field: pivotCol.fields[i],
+        value: pivotCol.values[i],
+      });
     }
     return domain;
   }
 
   private getColDomain(col: number) {
     const domain = this.getColHeaderDomain(col, this.columns.length - 1);
-    return domain ? domain.slice(0, -2) : []; // slice: remove measure and value
+    return domain ? domain.slice(0, -1) : []; // slice: remove measure and value
   }
 
   private getColMeasure(col: number) {
     const domain = this.getColHeaderDomain(col, this.columns.length - 1);
-    return domain?.at(-1);
+    const measure = domain?.at(-1)?.value;
+    if (measure === undefined) {
+      throw new Error("Measure isd missing");
+    }
+    return measure.toString();
   }
 
   private getRowDomain(row: number) {
-    const domain: string[] = [];
+    const domain: PivotDomain = [];
     for (let i = 0; i < this.rows[row].fields.length; i++) {
-      domain.push(this.rows[row].fields[i]);
-      domain.push(this.rows[row].values[i]);
+      domain.push({
+        field: this.rows[row].fields[i],
+        value: this.rows[row].values[i],
+      });
     }
     return domain;
   }

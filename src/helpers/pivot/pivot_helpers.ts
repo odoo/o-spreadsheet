@@ -1,16 +1,10 @@
-import { tokenColors } from "../../components/composer/composer/composer";
-import { ComposerStore } from "../../components/composer/composer/composer_store";
-import { Token, getFunctionsFromTokens } from "../../formulas";
-import { EnrichedToken } from "../../formulas/composer_tokenizer";
 import { boolAnd, boolOr } from "../../functions/helper_logical";
 import { countUnique, sum } from "../../functions/helper_math";
 import { average, countAny, max, min } from "../../functions/helper_statistical";
 import { inferFormat } from "../../functions/helpers";
 import { _t } from "../../translation";
 import { Arg, CellValue, FPayload, Format, Locale, Matrix } from "../../types";
-import { DomainArg, Granularity, PivotCoreDimension, PivotField } from "../../types/pivot";
-
-const PIVOT_FUNCTIONS = ["PIVOT.VALUE", "PIVOT.HEADER", "PIVOT"];
+import { PivotCoreDimension, PivotDomain, PivotField } from "../../types/pivot";
 
 const AGGREGATOR_NAMES = {
   count: _t("Count"),
@@ -113,21 +107,6 @@ export function getMaxObjectId(o: object) {
   return max;
 }
 
-/**
- * Get the first Pivot function description of the given formula.
- */
-export function getFirstPivotFunction(tokens: Token[]) {
-  return getFunctionsFromTokens(tokens, PIVOT_FUNCTIONS)[0];
-}
-
-/**
- * Parse a spreadsheet formula and detect the number of PIVOT functions that are
- * present in the given formula.
- */
-export function getNumberOfPivotFunctions(tokens: Token[]) {
-  return getFunctionsFromTokens(tokens, PIVOT_FUNCTIONS).length;
-}
-
 export const ALL_PERIODS = {
   year: _t("Year"),
   quarter: _t("Quarter"),
@@ -159,82 +138,17 @@ export function isDateField(field: PivotField) {
   return DATE_FIELDS.includes(field.type);
 }
 
-/**
- * Create a proposal entry for the compose autocomplete
- * to insert a field name string in a formula.
- */
-export function makeFieldProposal(field: PivotField, granularity?: Granularity) {
-  const groupBy = granularity ? `${field.name}:${granularity}` : field.name;
-  const quotedGroupBy = `"${groupBy}"`;
-  return {
-    text: quotedGroupBy,
-    description: field.string + (field.help ? ` (${field.help})` : ""),
-    htmlContent: [{ value: quotedGroupBy, color: tokenColors.STRING }],
-    fuzzySearchKey: field.string + quotedGroupBy, // search on translated name and on technical name
-  };
-}
-
-/**
- * Perform the autocomplete of the composer by inserting the value
- * at the cursor position, replacing the current token if necessary.
- * Must be bound to the autocomplete provider.
- */
-export function insertTokenAfterArgSeparator(
-  this: { composer: ComposerStore },
-  tokenAtCursor: EnrichedToken,
-  value: string
-) {
-  let start = tokenAtCursor.end;
-  const end = tokenAtCursor.end;
-  if (tokenAtCursor.type !== "ARG_SEPARATOR") {
-    // replace the whole token
-    start = tokenAtCursor.start;
-  }
-  this.composer.changeComposerCursorSelection(start, end);
-  this.composer.replaceComposerCursorSelection(value);
-}
-
-/**
- * Perform the autocomplete of the composer by inserting the value
- * at the cursor position, replacing the current token if necessary.
- * Must be bound to the autocomplete provider.
- * @param {EnrichedToken} tokenAtCursor
- * @param {string} value
- */
-export function insertTokenAfterLeftParenthesis(
-  this: { composer: ComposerStore },
-  tokenAtCursor: EnrichedToken,
-  value: string
-) {
-  let start = tokenAtCursor.end;
-  const end = tokenAtCursor.end;
-  if (tokenAtCursor.type !== "LEFT_PAREN") {
-    // replace the whole token
-    start = tokenAtCursor.start;
-  }
-  this.composer.changeComposerCursorSelection(start, end);
-  this.composer.replaceComposerCursorSelection(value);
-}
-
-/**
- * Extract the pivot id (always the first argument) from the function
- * context of the given token.
- */
-export function extractFormulaIdFromToken(tokenAtCursor: EnrichedToken) {
-  const idAst = tokenAtCursor.functionContext?.args[0];
-  if (!idAst || !["STRING", "NUMBER"].includes(idAst.type)) {
-    return;
-  }
-  return idAst.value;
-}
-
-export function toDomainArgs(domainStr: string[]) {
+export function toPivotDomain(domainStr: string[]) {
   if (domainStr.length % 2 !== 0) {
     throw new Error("Invalid domain: odd number of elements");
   }
-  const domain: DomainArg[] = [];
+  const domain: PivotDomain = [];
   for (let i = 0; i < domainStr.length - 1; i += 2) {
     domain.push({ field: domainStr[i], value: domainStr[i + 1] });
   }
   return domain;
+}
+
+export function flatPivotDomain(domain: PivotDomain) {
+  return domain.flatMap((arg) => [arg.field, arg.value]);
 }
