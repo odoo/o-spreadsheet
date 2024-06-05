@@ -1,9 +1,9 @@
-import { toNumber } from "../../../functions/helpers";
 import { ModelConfig } from "../../../model";
 import { _t } from "../../../translation";
 import { CellValueType, EvaluatedCell, FPayload, Getters, Range, UID, Zone } from "../../../types";
 import { CellErrorType, EvaluationError } from "../../../types/errors";
 import {
+  Granularity,
   PivotDimension,
   PivotDomain,
   PivotFields,
@@ -14,10 +14,11 @@ import {
 } from "../../../types/pivot";
 import { InitPivotParams, Pivot } from "../../../types/pivot_runtime";
 import { toXC } from "../../coordinates";
-import { MONTHS, isDateTimeFormat } from "../../format";
+import { isDateTimeFormat } from "../../format";
 import { isDefined } from "../../misc";
-import { AGGREGATORS_FN } from "../pivot_helpers";
+import { AGGREGATORS_FN, toNormalizedPivotValue } from "../pivot_helpers";
 import { PivotParams } from "../pivot_registry";
+import { pivotTimeAdapter } from "../pivot_time_adapter";
 import {
   DataEntries,
   DataEntry,
@@ -188,7 +189,6 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     const dimension = this.getDimension(lastNode.field);
     const cells = this.filterDataEntriesFromDomain(this.dataEntries, domain);
     const finalCell = cells[0]?.[dimension.nameWithGranularity];
-
     if (!finalCell) {
       return { value: "" };
     }
@@ -196,17 +196,11 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
       return { value: _t("(Undefined)") };
     }
     if (dimension.type === "date") {
-      if (dimension.granularity === "day") {
-        return {
-          value: toNumber(finalCell.value, this.getters.getLocale()),
-          format: this.getters.getLocale().dateFormat,
-        };
-      }
-      if (dimension.granularity === "month_number") {
-        return {
-          value: MONTHS[toNumber(finalCell.value, this.getters.getLocale())].toString(),
-        };
-      }
+      const adapter = pivotTimeAdapter(dimension.granularity as Granularity);
+      return {
+        value: adapter.toCellValue(finalCell.value),
+        format: adapter.getFormat(this.getters.getLocale()),
+      };
     }
     return {
       value: finalCell.value,
@@ -264,7 +258,9 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     const { field, value } = domain;
     const dimension = this.getDimension(field);
     return dataEntries.filter(
-      (entry) => `${entry[dimension.nameWithGranularity]?.value}` === value
+      (entry) =>
+        `${entry[dimension.nameWithGranularity]?.value}` ===
+        `${toNormalizedPivotValue(dimension, value)}`
     );
   }
 

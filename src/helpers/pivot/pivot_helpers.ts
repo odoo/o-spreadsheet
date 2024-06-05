@@ -1,10 +1,19 @@
 import { boolAnd, boolOr } from "../../functions/helper_logical";
 import { countUnique, sum } from "../../functions/helper_math";
 import { average, countAny, max, min } from "../../functions/helper_statistical";
-import { inferFormat } from "../../functions/helpers";
+import { inferFormat, toBoolean, toNumber, toString } from "../../functions/helpers";
+import { Registry } from "../../registries/registry";
 import { _t } from "../../translation";
-import { Arg, CellValue, FPayload, Format, Locale, Matrix } from "../../types";
-import { PivotCoreDimension, PivotDomain, PivotField } from "../../types/pivot";
+import { Arg, CellValue, DEFAULT_LOCALE, FPayload, Format, Locale, Matrix } from "../../types";
+import { EvaluationError } from "../../types/errors";
+import {
+  Granularity,
+  PivotCoreDimension,
+  PivotDimension,
+  PivotDomain,
+  PivotField,
+} from "../../types/pivot";
+import { pivotTimeAdapter } from "./pivot_time_adapter";
 
 const AGGREGATOR_NAMES = {
   count: _t("Count"),
@@ -152,3 +161,53 @@ export function toPivotDomain(domainStr: string[]) {
 export function flatPivotDomain(domain: PivotDomain) {
   return domain.flatMap((arg) => [arg.field, arg.value]);
 }
+
+/**
+ * Parses the value defining a pivot group in a PIVOT formula
+ * e.g. given the following formula PIVOT.VALUE("1", "stage_id", "42", "status", "won"),
+ * the two group values are "42" and "won".
+ */
+export function toNormalizedPivotValue(
+  dimension: Pick<PivotDimension, "type" | "displayName" | "granularity">,
+  groupValue
+) {
+  if (groupValue === null || groupValue === "null") {
+    return null;
+  }
+  const groupValueString =
+    typeof groupValue === "boolean"
+      ? toString(groupValue).toLocaleLowerCase()
+      : toString(groupValue);
+  if (!pivotNormalizationValueRegistry.contains(dimension.type)) {
+    throw new EvaluationError(
+      _t("Field %(field)s is not supported because of its type (%(type)s)", {
+        field: dimension.displayName,
+        type: dimension.type,
+      })
+    );
+  }
+  // represents a field which is not set (=False server side)
+  if (groupValueString === "false") {
+    return false;
+  }
+  const normalizer = pivotNormalizationValueRegistry.get(dimension.type);
+  return normalizer(groupValueString, dimension.granularity);
+}
+
+function normalizeDateTime(value: string, granularity: Granularity) {
+  if (!granularity) {
+    throw "";
+  }
+  return pivotTimeAdapter(granularity).normalizeFunctionValue(value);
+}
+
+export const pivotNormalizationValueRegistry = new Registry<
+  (value: string, granularity?: Granularity | string) => CellValue
+>();
+
+pivotNormalizationValueRegistry
+  .add("date", normalizeDateTime)
+  .add("datetime", normalizeDateTime)
+  .add("integer", (value) => toNumber(value, DEFAULT_LOCALE))
+  .add("boolean", (value) => toBoolean(value))
+  .add("char", (value) => toString(value));

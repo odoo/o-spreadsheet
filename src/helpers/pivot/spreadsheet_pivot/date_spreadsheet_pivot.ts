@@ -1,6 +1,7 @@
 import { toJsDate, toNumber } from "../../../functions/helpers";
 import { Locale } from "../../../types";
 import { PivotDimension } from "../../../types/pivot";
+import { toNormalizedPivotValue } from "../pivot_helpers";
 import { FieldValue } from "./data_entry_spreadsheet_pivot";
 
 export function createDate(dimension: PivotDimension, value: FieldValue["value"], locale: Locale) {
@@ -20,7 +21,7 @@ export function createDate(dimension: PivotDimension, value: FieldValue["value"]
         number = Math.floor(date.getMonth() / 3) + 1;
         break;
       case "month_number":
-        number = date.getMonth();
+        number = date.getMonth() + 1;
         break;
       case "iso_week_number":
         number = date.getIsoWeek();
@@ -32,7 +33,10 @@ export function createDate(dimension: PivotDimension, value: FieldValue["value"]
         number = Math.floor(toNumber(value, locale));
         break;
     }
-    MAP_VALUE_DIMENSION_DATE[granularity].values[`${value}`] = number;
+    MAP_VALUE_DIMENSION_DATE[granularity].values[`${value}`] = toNormalizedPivotValue(
+      dimension,
+      number
+    );
   }
   return MAP_VALUE_DIMENSION_DATE[granularity].values[`${value}`];
 }
