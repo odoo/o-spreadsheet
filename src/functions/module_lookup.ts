@@ -1,5 +1,6 @@
 import { getFullReference, range, toXC, toZone } from "../helpers/index";
 import { supportedPivotExplodedFormulaRegistry } from "../helpers/pivot/pivot_exploded_formula_registry";
+import { toPivotDomain } from "../helpers/pivot/pivot_helpers";
 import { _t } from "../translation";
 import { AddFunctionDescription, CellPosition, FPayload, Matrix, Maybe } from "../types";
 import { CellErrorType, EvaluationError, InvalidReferenceError } from "../types/errors";
@@ -712,14 +713,14 @@ export const PIVOT_VALUE = {
   compute: function (
     formulaId: Maybe<FPayload>,
     measureName: Maybe<FPayload>,
-    ...domain: Maybe<FPayload>[]
+    ...domainArgs: Maybe<FPayload>[]
   ) {
     const _pivotFormulaId = toString(formulaId);
-    const measure = toString(measureName);
-    const domainArgs = domain.map(toString);
+    const _measure = toString(measureName);
+    const _domainArgs = domainArgs.map(toString);
     const pivotId = getPivotId(_pivotFormulaId, this.getters);
-    assertMeasureExist(pivotId, measure, this.getters);
-    assertDomainLength(domainArgs);
+    assertMeasureExist(pivotId, _measure, this.getters);
+    assertDomainLength(_domainArgs);
     const pivot = this.getters.getPivot(pivotId);
     const coreDefinition = this.getters.getPivotCoreDefinition(pivotId);
     if (!supportedPivotExplodedFormulaRegistry.get(coreDefinition.type)) {
@@ -733,8 +734,9 @@ export const PIVOT_VALUE = {
     if (error) {
       return error;
     }
-    const { value, format } = pivot.getPivotCellValueAndFormat(measure, domainArgs);
-    if (!value && !this.getters.areDomainArgsFieldsValid(pivotId, domainArgs)) {
+    const domain = toPivotDomain(_domainArgs);
+    const { value, format } = pivot.getPivotCellValueAndFormat(_measure, domain);
+    if (!value && !this.getters.areDomainArgsFieldsValid(pivotId, domain)) {
       return {
         value: CellErrorType.GenericError,
         message: _t("Dimensions don't match the pivot definition"),
@@ -752,11 +754,11 @@ export const PIVOT_HEADER = {
     arg("domain_field_name (string,optional,repeating)", _t("Field name.")),
     arg("domain_value (string,optional,repeating)", _t("Value.")),
   ],
-  compute: function (pivotId: Maybe<FPayload>, ...domain: Maybe<FPayload>[]) {
+  compute: function (pivotId: Maybe<FPayload>, ...domainArgs: Maybe<FPayload>[]) {
     const _pivotFormulaId = toString(pivotId);
-    const domainArgs = domain.map(toString);
+    const _domainArgs = domainArgs.map(toString);
     const _pivotId = getPivotId(_pivotFormulaId, this.getters);
-    assertDomainLength(domainArgs);
+    assertDomainLength(_domainArgs);
     const pivot = this.getters.getPivot(_pivotId);
     const coreDefinition = this.getters.getPivotCoreDefinition(_pivotId);
     if (!supportedPivotExplodedFormulaRegistry.get(coreDefinition.type)) {
@@ -770,12 +772,12 @@ export const PIVOT_HEADER = {
     if (error) {
       return error;
     }
-    const fieldName = domainArgs.at(-2);
-    const valueArg = domainArgs.at(-1);
+    const domain = toPivotDomain(_domainArgs);
+    const lastNode = domain.at(-1);
     if (
       !this.getters.areDomainArgsFieldsValid(
         _pivotId,
-        fieldName === "measure" ? domainArgs.slice(0, -2) : domainArgs
+        lastNode?.field === "measure" ? domain.slice(0, -1) : domain
       )
     ) {
       return {
@@ -783,10 +785,16 @@ export const PIVOT_HEADER = {
         message: _t("Dimensions don't match the pivot definition"),
       };
     }
-    const { value, format } = pivot.getPivotHeaderValueAndFormat(domainArgs);
+    if (lastNode?.field === "measure") {
+      return pivot.getPivotMeasureValue(toString(lastNode.value), domain);
+    }
+    const { value, format } = pivot.getPivotHeaderValueAndFormat(domain);
     return {
       value,
-      format: !fieldName || fieldName === "measure" || valueArg === "false" ? undefined : format,
+      format:
+        !lastNode || lastNode.field === "measure" || lastNode.value === "false"
+          ? undefined
+          : format,
     };
   },
   returns: ["NUMBER", "STRING"],
@@ -804,15 +812,19 @@ export const PIVOT = {
     ),
   ],
   compute: function (
-    pivotId: Maybe<FPayload>,
+    pivotFormulaId: Maybe<FPayload>,
     rowCount: Maybe<FPayload> = { value: 10000 },
     includeTotal: Maybe<FPayload> = { value: true },
     includeColumnHeaders: Maybe<FPayload> = { value: true }
   ) {
-    const _pivotFormulaId = toString(pivotId);
-    const _pivotId = getPivotId(_pivotFormulaId, this.getters);
-    const pivot = this.getters.getPivot(_pivotId);
-    const coreDefinition = this.getters.getPivotCoreDefinition(_pivotId);
+    const _pivotFormulaId = toString(pivotFormulaId);
+    const _rowCount = toNumber(rowCount, this.locale);
+    const _includeColumnHeaders = toBoolean(includeColumnHeaders);
+    const _includedTotal = toBoolean(includeTotal);
+
+    const pivotId = getPivotId(_pivotFormulaId, this.getters);
+    const pivot = this.getters.getPivot(pivotId);
+    const coreDefinition = this.getters.getPivotCoreDefinition(pivotId);
     addPivotDependencies(this, coreDefinition);
     pivot.init({ reload: pivot.needsReevaluation });
     const error = pivot.assertIsValid({ throwOnError: false });
@@ -820,11 +832,9 @@ export const PIVOT = {
       return error;
     }
     const table = pivot.getTableStructure();
-    const _includeColumnHeaders = toBoolean(includeColumnHeaders);
-    const cells = table.getPivotCells(toBoolean(includeTotal), _includeColumnHeaders);
+    const cells = table.getPivotCells(_includedTotal, _includeColumnHeaders);
     const headerRows = _includeColumnHeaders ? table.columns.length : 0;
-    const pivotTitle = this.getters.getPivotDisplayName(_pivotId);
-    const _rowCount = toNumber(rowCount, this.locale);
+    const pivotTitle = this.getters.getPivotDisplayName(pivotId);
     if (_rowCount < 0) {
       throw new EvaluationError(_t("The number of rows must be positive."));
     }
@@ -839,15 +849,22 @@ export const PIVOT = {
       result[col] = [];
       for (const row of tableRows) {
         const pivotCell = cells[col][row];
-        if (!pivotCell.domain) {
-          result[col].push({ value: "", format: undefined });
-        } else if (pivotCell.isHeader) {
-          result[col].push(pivot.getPivotHeaderValueAndFormat(pivotCell.domain));
-        } else {
-          if (!pivotCell.measure) {
-            throw new Error("Measure is missing");
-          }
-          result[col].push(pivot.getPivotCellValueAndFormat(pivotCell.measure, pivotCell.domain));
+        switch (pivotCell.type) {
+          case "EMPTY":
+            result[col].push({ value: "" });
+            break;
+          case "HEADER":
+            const domain = pivotCell.domain;
+            const lastNode = domain.at(-1);
+            if (lastNode?.field === "measure") {
+              result[col].push(pivot.getPivotMeasureValue(toString(lastNode.value), domain));
+            } else {
+              result[col].push(pivot.getPivotHeaderValueAndFormat(domain));
+            }
+            break;
+          case "VALUE":
+            result[col].push(pivot.getPivotCellValueAndFormat(pivotCell.measure, pivotCell.domain));
+            break;
         }
       }
     }

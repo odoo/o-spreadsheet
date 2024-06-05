@@ -100,17 +100,22 @@ import {
   unquote,
 } from "./helpers/index";
 import { openLink, urlRegistry, urlRepresentation } from "./helpers/links";
-import { supportedPivotExplodedFormulaRegistry } from "./helpers/pivot/pivot_exploded_formula_registry";
 import {
   getFirstPivotFunction,
-  getMaxObjectId,
   getNumberOfPivotFunctions,
   insertTokenAfterArgSeparator,
   insertTokenAfterLeftParenthesis,
-  isDateField,
   makeFieldProposal,
+} from "./helpers/pivot/pivot_composer_helpers";
+import { supportedPivotExplodedFormulaRegistry } from "./helpers/pivot/pivot_exploded_formula_registry";
+
+import {
+  flatPivotDomain,
+  getMaxObjectId,
+  isDateField,
   makePivotFormula,
   parseDimension,
+  toPivotDomain,
 } from "./helpers/pivot/pivot_helpers";
 import { getPivotHighlights } from "./helpers/pivot/pivot_highlight";
 import { pivotRegistry } from "./helpers/pivot/pivot_registry";
@@ -316,6 +321,8 @@ export const helpers = {
   insertTokenAfterLeftParenthesis,
   mergeContiguousZones,
   getPivotHighlights,
+  toPivotDomain,
+  flatPivotDomain,
   pivotTimeAdapter,
   UNDO_REDO_PIVOT_COMMANDS,
 };

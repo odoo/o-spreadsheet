@@ -4,19 +4,19 @@ import { _t } from "../../../translation";
 import { CellValueType, EvaluatedCell, FPayload, Getters, Range, UID, Zone } from "../../../types";
 import { CellErrorType, EvaluationError } from "../../../types/errors";
 import {
-  DomainArg,
   PivotDimension,
+  PivotDomain,
   PivotFields,
   PivotMeasure,
+  PivotNode,
   SpreadsheetPivotCoreDefinition,
-  StringDomainArgs,
   TechnicalName,
 } from "../../../types/pivot";
 import { InitPivotParams, Pivot } from "../../../types/pivot_runtime";
 import { toXC } from "../../coordinates";
 import { MONTHS, isDateTimeFormat } from "../../format";
 import { isDefined } from "../../misc";
-import { AGGREGATORS_FN, toDomainArgs } from "../pivot_helpers";
+import { AGGREGATORS_FN } from "../pivot_helpers";
 import { PivotParams } from "../pivot_registry";
 import {
   DataEntries,
@@ -174,14 +174,16 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     return this.definition.getMeasure(name);
   }
 
-  getPivotHeaderValueAndFormat(domainStr: StringDomainArgs): FPayload {
-    const domain = toDomainArgs(domainStr);
+  getPivotMeasureValue(name: string): FPayload {
+    return {
+      value: this.getMeasure(name).displayName,
+    };
+  }
+
+  getPivotHeaderValueAndFormat(domain: PivotDomain): FPayload {
     const lastNode = domain.at(-1);
     if (!lastNode) {
       return { value: _t("Total") };
-    }
-    if (lastNode.field === "measure") {
-      return { value: this.getMeasure(lastNode.value).displayName };
     }
     const dimension = this.getDimension(lastNode.field);
     const cells = this.filterDataEntriesFromDomain(this.dataEntries, domain);
@@ -212,8 +214,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     };
   }
 
-  getPivotCellValueAndFormat(measure: string, domainStr: StringDomainArgs): FPayload {
-    const domain = toDomainArgs(domainStr);
+  getPivotCellValueAndFormat(measure: string, domain: PivotDomain): FPayload {
     const dataEntries = this.filterDataEntriesFromDomain(this.dataEntries, domain);
     if (dataEntries.length === 0) {
       return { value: "" };
@@ -252,14 +253,14 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     return this.fields;
   }
 
-  private filterDataEntriesFromDomain(dataEntries: DataEntries, domain: DomainArg[]) {
+  private filterDataEntriesFromDomain(dataEntries: DataEntries, domain: PivotNode[]) {
     return domain.reduce(
       (current, acc) => this.filterDataEntriesFromDomainNode(current, acc),
       dataEntries
     );
   }
 
-  private filterDataEntriesFromDomainNode(dataEntries: DataEntries, domain: DomainArg) {
+  private filterDataEntriesFromDomainNode(dataEntries: DataEntries, domain: PivotNode) {
     const { field, value } = domain;
     const dimension = this.getDimension(field);
     return dataEntries.filter(

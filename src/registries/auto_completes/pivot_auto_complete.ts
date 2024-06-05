@@ -1,13 +1,13 @@
 import { tokenColors } from "../../components/composer/composer/composer";
 import { EnrichedToken } from "../../formulas/composer_tokenizer";
 import { isDefined } from "../../helpers";
-import { supportedPivotExplodedFormulaRegistry } from "../../helpers/pivot/pivot_exploded_formula_registry";
 import {
   extractFormulaIdFromToken,
   insertTokenAfterArgSeparator,
   insertTokenAfterLeftParenthesis,
   makeFieldProposal,
-} from "../../helpers/pivot/pivot_helpers";
+} from "../../helpers/pivot/pivot_composer_helpers";
+import { supportedPivotExplodedFormulaRegistry } from "../../helpers/pivot/pivot_exploded_formula_registry";
 import { _t } from "../../translation";
 import { Granularity } from "../../types";
 import { autoCompleteProviders } from "./auto_complete_registry";

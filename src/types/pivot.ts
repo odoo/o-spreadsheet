@@ -103,11 +103,22 @@ export interface PivotTableData {
   measures: string[];
 }
 
-export interface PivotTableCell {
-  isHeader: boolean;
-  domain?: string[];
-  measure?: string;
+export interface PivotHeaderCell {
+  type: "HEADER";
+  domain: PivotDomain;
 }
+
+export interface PivotValueCell {
+  type: "VALUE";
+  domain: PivotDomain;
+  measure: string;
+}
+
+export interface PivotEmptyCell {
+  type: "EMPTY";
+}
+
+export type PivotTableCell = PivotHeaderCell | PivotValueCell | PivotEmptyCell;
 
 export interface PivotTimeAdapter<T> {
   normalizeFunctionValue: (value: string) => T;
@@ -116,12 +127,9 @@ export interface PivotTimeAdapter<T> {
   toCellValue: (normalizedValue: T) => CellValue;
 }
 
-//TODO Use it everywhere a domain is required
-export interface DomainArg {
+export interface PivotNode {
   field: string;
-  value: string;
+  value: string | number | boolean;
 }
 
-//TODO
-// export type DomainArgs = DomainArg[];
-export type StringDomainArgs = string[];
+export type PivotDomain = PivotNode[];

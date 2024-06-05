@@ -3,13 +3,15 @@ import { astToFormula } from "../../formulas/parser";
 import {
   getFirstPivotFunction,
   getNumberOfPivotFunctions,
-} from "../../helpers/pivot/pivot_helpers";
+} from "../../helpers/pivot/pivot_composer_helpers";
+import { toPivotDomain } from "../../helpers/pivot/pivot_helpers";
 import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
 import {
   AddPivotCommand,
   CellPosition,
   Command,
   CoreCommand,
+  PivotDomain,
   UID,
   UpdatePivotCommand,
   invalidateEvaluationCommands,
@@ -185,15 +187,20 @@ export class PivotUIPlugin extends UIPlugin {
       const pivotCol = position.col - mainPosition.col;
       const pivotRow = position.row - mainPosition.row;
       const pivotCell = pivotCells[pivotCol][pivotRow];
+      if (pivotCell.type === "EMPTY") {
+        return undefined;
+      }
       const domain = pivotCell.domain;
-      if (domain?.at(-2) === "measure") {
-        return domain.slice(0, -2);
+      if (domain.at(-1)?.field === "measure") {
+        return domain.slice(0, -1);
       }
       return domain;
     }
-    const domain = args.slice(functionName === "PIVOT.VALUE" ? 2 : 1);
-    if (domain.at(-2) === "measure") {
-      return domain.slice(0, -2);
+    const domain = toPivotDomain(
+      args.slice(functionName === "PIVOT.VALUE" ? 2 : 1).map((x) => `${x}`)
+    );
+    if (domain.at(-1)?.field === "measure") {
+      return domain.slice(0, -1);
     }
     return domain;
   }
@@ -211,9 +218,9 @@ export class PivotUIPlugin extends UIPlugin {
    * a pivot function are valid according to the pivot definition.
    * e.g. =PIVOT.VALUE(1,"revenue","country_id",...,"create_date:month",...,"source_id",...)
    */
-  areDomainArgsFieldsValid(pivotId: UID, domainArgs: string[]) {
-    const dimensions = domainArgs
-      .filter((arg, index) => index % 2 === 0)
+  areDomainArgsFieldsValid(pivotId: UID, domain: PivotDomain) {
+    const dimensions = domain
+      .map((node) => node.field)
       .map((name) => (name.startsWith("#") ? name.slice(1) : name));
     let argIndex = 0;
     let definitionIndex = 0;
