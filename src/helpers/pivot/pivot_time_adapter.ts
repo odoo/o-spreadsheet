@@ -1,15 +1,13 @@
 import { toNumber } from "../../functions/helpers";
 import { Registry } from "../../registries/registry";
 import { _t } from "../../translation";
-import { DEFAULT_LOCALE } from "../../types";
+import { CellValue, DEFAULT_LOCALE } from "../../types";
 import { Granularity, PivotTimeAdapter } from "../../types/pivot";
 import { formatValue } from "../format";
 
-export const pivotTimeAdapterRegistry = new Registry<PivotTimeAdapter<string | number | false>>();
+export const pivotTimeAdapterRegistry = new Registry<PivotTimeAdapter<CellValue>>();
 
-export function pivotTimeAdapter(
-  granularity: Granularity
-): PivotTimeAdapter<string | number | false> {
+export function pivotTimeAdapter(granularity: Granularity): PivotTimeAdapter<CellValue> {
   return pivotTimeAdapterRegistry.get(granularity);
 }
 
