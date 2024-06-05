@@ -111,6 +111,8 @@ import {
   makeFieldProposal,
   makePivotFormula,
   parseDimension,
+  pivotNormalizationValueRegistry,
+  toNormalizedPivotValue,
 } from "./helpers/pivot/pivot_helpers";
 import { getPivotHighlights } from "./helpers/pivot/pivot_highlight";
 import { pivotRegistry } from "./helpers/pivot/pivot_registry";
@@ -259,6 +261,7 @@ export const registries = {
   pivotRegistry,
   pivotTimeAdapterRegistry,
   pivotSidePanelRegistry,
+  pivotNormalizationValueRegistry,
   supportedPivotExplodedFormulaRegistry,
 };
 export const helpers = {
@@ -268,6 +271,7 @@ export const helpers = {
   toJsDate,
   toNumber,
   toString,
+  toNormalizedPivotValue,
   toXC,
   toZone,
   toUnboundedZone,
