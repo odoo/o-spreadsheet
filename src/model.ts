@@ -360,7 +360,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private setupUiPluginConfig(): UIPluginConfig {
     return {
       getters: this.getters,
-      stateObserver: this.state,
       dispatch: this.dispatch,
       canDispatch: this.canDispatch,
       selection: this.selection,

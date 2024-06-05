@@ -1,11 +1,9 @@
-import { StateObserver } from "../state_observer";
 import {
   CommandDispatcher,
   CommandHandler,
   CommandResult,
   ExcelWorkbookData,
   Validation,
-  WorkbookHistory,
 } from "../types/index";
 import { Validator } from "../types/validator";
 
@@ -24,16 +22,10 @@ import { Validator } from "../types/validator";
 export class BasePlugin<State = any, C = any> implements CommandHandler<C>, Validator {
   static getters: readonly string[] = [];
 
-  protected history: WorkbookHistory<State>;
   protected dispatch: CommandDispatcher["dispatch"];
   protected canDispatch: CommandDispatcher["dispatch"];
 
-  constructor(
-    stateObserver: StateObserver,
-    dispatch: CommandDispatcher["dispatch"],
-    canDispatch: CommandDispatcher["dispatch"]
-  ) {
-    this.history = { update: stateObserver.addChange.bind(stateObserver, this) };
+  constructor(dispatch: CommandDispatcher["dispatch"], canDispatch: CommandDispatcher["dispatch"]) {
     this.dispatch = dispatch;
     this.canDispatch = canDispatch;
   }
