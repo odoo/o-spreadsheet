@@ -251,10 +251,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     console.groupEnd();
   }
 
-  getState(): StateObserver {
-    return this.state;
-  }
-
   joinSession() {
     this.session.join(this.config.client);
   }
