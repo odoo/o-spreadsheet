@@ -10,8 +10,8 @@ import { SpreadsheetPivotCoreDefinition } from "../../../../../types/pivot";
 import { SelectionInput } from "../../../../selection_input/selection_input";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { Section } from "../../../components/section/section";
-import { EditableName } from "../../editable_name/editable_name";
 import { PivotLayoutConfigurator } from "../../pivot_layout_configurator/pivot_layout_configurator";
+import { TextInput } from "../../text_input/text_input";
 import { PivotSidePanelStore } from "../pivot_side_panel_store";
 
 interface Props {
@@ -29,7 +29,7 @@ export class PivotSpreadsheetSidePanel extends Component<Props, SpreadsheetChild
     PivotLayoutConfigurator,
     Section,
     SelectionInput,
-    EditableName,
+    TextInput,
     Checkbox,
   };
   store!: Store<PivotSidePanelStore>;

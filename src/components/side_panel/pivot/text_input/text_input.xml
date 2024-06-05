@@ -1,0 +1,14 @@
+<templates>
+  <div t-name="o-spreadsheet-TextInput" class="w-100">
+    <input
+      t-ref="input"
+      class="os-input w-100"
+      type="text"
+      t-att-class="props.class"
+      t-att-id="props.id"
+      t-att-placeholder="props.placeholder"
+      t-on-change="onChange"
+      t-model="state.value"
+    />
+  </div>
+</templates>

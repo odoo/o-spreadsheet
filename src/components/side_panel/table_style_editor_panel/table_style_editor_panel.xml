@@ -3,7 +3,7 @@
     <div class="o-table-style-editor-panel">
       <Section>
         <t t-set-slot="title">Style name</t>
-        <input type="text" class="o-input o-optional" t-model="state.styleName"/>
+        <TextInput value="state.styleName" onChange.bind="onStyleNameChanged"/>
       </Section>
       <Section class="'pt-1'">
         <t t-set-slot="title">Style color</t>

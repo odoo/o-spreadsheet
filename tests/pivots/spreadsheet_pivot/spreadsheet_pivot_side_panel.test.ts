@@ -2,7 +2,7 @@ import { Model, SpreadsheetChildEnv } from "../../../src";
 import { toZone } from "../../../src/helpers";
 import { SpreadsheetPivot } from "../../../src/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
 import { setCellContent } from "../../test_helpers/commands_helpers";
-import { click } from "../../test_helpers/dom_helper";
+import { click, setInputValueAndTrigger } from "../../test_helpers/dom_helper";
 import { mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
 import { addPivot, updatePivot } from "../../test_helpers/pivot_helpers";
 
@@ -38,13 +38,8 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("It should be able to change the pivot name", async () => {
-    await click(fixture.querySelector(".pivot-defer-update input")!);
-    await nextTick();
-    await click(fixture.querySelector(".o_sp_en_rename")!);
-    const input = fixture.querySelector(".o_sp_en_name") as HTMLInputElement;
-    input.value = "New Pivot Name";
-    input.dispatchEvent(new Event("input"));
-    await click(fixture.querySelector(".o_sp_en_save")!);
+    setInputValueAndTrigger(fixture.querySelector("input.os-input")!, "New Pivot Name");
+    await click(document.body);
     expect(model.getters.getPivotName("1")).toEqual("New Pivot Name");
   });
 
@@ -90,15 +85,6 @@ describe("Spreadsheet pivot side panel", () => {
     await nextTick();
     await click(fixture.querySelector(".o-selection-ok")!);
     expect(fixture.querySelectorAll(".sp_range_error_message")).toHaveLength(0);
-  });
-
-  test("Can rename a pivot", async () => {
-    await click(fixture.querySelector(".o_sp_en_rename")!);
-    const input = fixture.querySelector(".o_sp_en_name") as HTMLInputElement;
-    input.value = "New Pivot Name";
-    input.dispatchEvent(new Event("input"));
-    await click(fixture.querySelector(".o_sp_en_save")!);
-    expect(model.getters.getPivotName("1")).toEqual("New Pivot Name");
   });
 
   test("Can duplicate a pivot", async () => {

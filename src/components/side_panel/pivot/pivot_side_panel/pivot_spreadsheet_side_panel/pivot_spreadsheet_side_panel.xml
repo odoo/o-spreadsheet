@@ -4,7 +4,7 @@
       <div class="h-100 overflow-auto">
         <Section>
           <t t-set-slot="title">Name</t>
-          <EditableName name="name" displayName="displayName" onChanged.bind="onNameChanged"/>
+          <TextInput value="name" onChange.bind="onNameChanged"/>
           <div class="btn btn-link o_duplicate_pivot" t-on-click="duplicatePivot">
             <i class="fa fa-solid fa-copy me-1"/>
             Duplicate Pivot

@@ -38,13 +38,13 @@ import { Checkbox } from "./components/side_panel/components/checkbox/checkbox";
 import { RoundColorPicker } from "./components/side_panel/components/round_color_picker/round_color_picker";
 import { Section } from "./components/side_panel/components/section/section";
 import { FindAndReplaceStore } from "./components/side_panel/find_and_replace/find_and_replace_store";
-import { EditableName } from "./components/side_panel/pivot/editable_name/editable_name";
 import { AddDimensionButton } from "./components/side_panel/pivot/pivot_layout_configurator/add_dimension_button/add_dimension_button";
 import { PivotDimension } from "./components/side_panel/pivot/pivot_layout_configurator/pivot_dimension/pivot_dimension";
 import { PivotDimensionGranularity } from "./components/side_panel/pivot/pivot_layout_configurator/pivot_dimension_granularity/pivot_dimension_granularity";
 import { PivotDimensionOrder } from "./components/side_panel/pivot/pivot_layout_configurator/pivot_dimension_order/pivot_dimension_order";
 import { PivotLayoutConfigurator } from "./components/side_panel/pivot/pivot_layout_configurator/pivot_layout_configurator";
 import { PivotSidePanelStore } from "./components/side_panel/pivot/pivot_side_panel/pivot_side_panel_store";
+import { TextInput } from "./components/side_panel/pivot/text_input/text_input";
 import { SidePanelStore } from "./components/side_panel/side_panel/side_panel_store";
 import { ValidationMessages } from "./components/validation_messages/validation_messages";
 import {
@@ -361,7 +361,7 @@ export const components = {
   PivotDimensionOrder,
   PivotDimension,
   PivotLayoutConfigurator,
-  EditableName,
+  TextInput,
 };
 
 export const hooks = {
