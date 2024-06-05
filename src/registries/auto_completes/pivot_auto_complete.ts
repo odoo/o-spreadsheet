@@ -1,15 +1,15 @@
 import { tokenColors } from "../../components/composer/composer/composer";
 import { EnrichedToken } from "../../formulas/composer_tokenizer";
-import { isDefined } from "../../helpers";
+import { MONTHS, isDefined, range } from "../../helpers";
 import {
   extractFormulaIdFromToken,
   insertTokenAfterArgSeparator,
   insertTokenAfterLeftParenthesis,
   makeFieldProposal,
 } from "../../helpers/pivot/pivot_composer_helpers";
-import { supportedPivotExplodedFormulaRegistry } from "../../helpers/pivot/pivot_exploded_formula_registry";
+import { supportedPivotPositionalFormulaRegistry } from "../../helpers/pivot/pivot_positional_formula_registry";
 import { _t } from "../../translation";
-import { Granularity } from "../../types";
+import { Granularity, PivotDimension } from "../../types";
 import { autoCompleteProviders } from "./auto_complete_registry";
 
 autoCompleteProviders.add("pivot_ids", {
@@ -32,12 +32,7 @@ autoCompleteProviders.add("pivot_ids", {
     return pivotIds
       .map((pivotId) => {
         const definition = this.getters.getPivotCoreDefinition(pivotId);
-        if (
-          functionContext.parent.toUpperCase() !== "PIVOT" &&
-          !supportedPivotExplodedFormulaRegistry.get(definition.type)
-        ) {
-          return undefined;
-        }
+
         const formulaId = this.getters.getPivotFormulaId(pivotId);
         const str = `${formulaId}`;
         return {
@@ -68,15 +63,14 @@ autoCompleteProviders.add("pivot_measures", {
     if (!pivotId || !this.getters.isExistingPivot(pivotId)) {
       return [];
     }
-    const dataSource = this.getters.getPivot(pivotId);
-    const fields = dataSource.getFields();
+    const pivot = this.getters.getPivot(pivotId);
+    pivot.init();
+    const fields = pivot.getFields();
     if (!fields) {
       return [];
     }
     const definition = this.getters.getPivotCoreDefinition(pivotId);
-    if (!supportedPivotExplodedFormulaRegistry.get(definition.type)) {
-      return [];
-    }
+
     return definition.measures
       .map((measure) => {
         if (measure.name === "__count") {
@@ -115,16 +109,14 @@ autoCompleteProviders.add("pivot_group_fields", {
     if (!pivotId || !this.getters.isExistingPivot(pivotId)) {
       return;
     }
-    const dataSource = this.getters.getPivot(pivotId);
-    const fields = dataSource.getFields();
+    const pivot = this.getters.getPivot(pivotId);
+    pivot.init();
+    const fields = pivot.getFields();
     if (!fields) {
       return;
     }
-    const { type } = this.getters.getPivotCoreDefinition(pivotId);
-    const { columns, rows } = dataSource.definition;
-    if (!supportedPivotExplodedFormulaRegistry.get(type)) {
-      return [];
-    }
+    const { columns, rows } = pivot.definition;
+
     let args = functionContext.args;
     if (functionContext?.parent.toUpperCase() === "PIVOT.VALUE") {
       args = args.filter((ast, index) => index % 2 === 0); // keep only the field names
@@ -162,6 +154,9 @@ autoCompleteProviders.add("pivot_group_fields", {
       })
       .concat(
         groupBys.map((groupBy) => {
+          if (!supportedPivotPositionalFormulaRegistry.get(pivot.type)) {
+            return undefined;
+          }
           const fieldName = groupBy.split(":")[0];
           const field = fields[fieldName];
           if (!field) {
@@ -219,33 +214,62 @@ autoCompleteProviders.add("pivot_group_values", {
     if (!pivotId || !this.getters.isExistingPivot(pivotId)) {
       return;
     }
-    const { type } = this.getters.getPivotCoreDefinition(pivotId);
-    if (!supportedPivotExplodedFormulaRegistry.get(type)) {
-      return [];
-    }
 
-    const dataSource = this.getters.getPivot(pivotId);
-    if (!dataSource.isValid()) {
+    const pivot = this.getters.getPivot(pivotId);
+    if (!pivot.isValid()) {
       return;
     }
     const argPosition = functionContext.argPosition;
-    const groupByField = tokenAtCursor.functionContext?.args[argPosition - 1]?.value;
+    const groupByField: string = tokenAtCursor.functionContext?.args[argPosition - 1]?.value;
     if (!groupByField) {
       return;
     }
-    return dataSource
-      .getPossibleFieldValues(groupByField.toString().split(":")[0])
-      .map(({ value, label }) => {
-        const isString = typeof value === "string";
-        const text = isString ? `"${value}"` : value.toString();
-        const color = isString ? tokenColors.STRING : tokenColors.NUMBER;
-        return {
-          text,
-          description: label,
-          htmlContent: [{ value: text, color }],
-          fuzzySearchKey: value + label,
-        };
-      });
+    let dimension: PivotDimension;
+    try {
+      dimension = pivot.definition.getDimension(groupByField);
+    } catch (error) {
+      return undefined;
+    }
+    if (dimension.granularity === "month_number") {
+      return Object.values(MONTHS).map((monthDisplayName, index) => ({
+        text: `${index + 1}`,
+        fuzzySearchKey: monthDisplayName.toString(),
+        description: monthDisplayName.toString(),
+        htmlContent: [{ value: `${index + 1}`, color: tokenColors.NUMBER }],
+      }));
+    } else if (dimension.granularity === "quarter_number") {
+      return [1, 2, 3, 4].map((quarter) => ({
+        text: `${quarter}`,
+        fuzzySearchKey: `${quarter}`,
+        description: _t("Quarter %s", quarter),
+        htmlContent: [{ value: `${quarter}`, color: tokenColors.NUMBER }],
+      }));
+    } else if (dimension.granularity === "day_of_month") {
+      return range(1, 32).map((dayOfMonth) => ({
+        text: `${dayOfMonth}`,
+        fuzzySearchKey: `${dayOfMonth}`,
+        description: "",
+        htmlContent: [{ value: `${dayOfMonth}`, color: tokenColors.NUMBER }],
+      }));
+    } else if (dimension.granularity === "iso_week_number") {
+      return range(0, 54).map((isoWeekNumber) => ({
+        text: `${isoWeekNumber}`,
+        fuzzySearchKey: `${isoWeekNumber}`,
+        description: "",
+        htmlContent: [{ value: `${isoWeekNumber}`, color: tokenColors.NUMBER }],
+      }));
+    }
+    return pivot.getPossibleFieldValues(dimension).map(({ value, label }) => {
+      const isString = typeof value === "string";
+      const text = isString ? `"${value}"` : value.toString();
+      const color = isString ? tokenColors.STRING : tokenColors.NUMBER;
+      return {
+        text,
+        description: label,
+        htmlContent: [{ value: text, color }],
+        fuzzySearchKey: value + label,
+      };
+    });
   },
   selectProposal: insertTokenAfterArgSeparator,
 });

@@ -89,6 +89,9 @@ export class Evaluator {
   }
 
   updateDependencies(position: CellPosition) {
+    // removing dependencies is slow because it requires
+    // to traverse the entire r-tree.
+    // The data structure is optimized for searches the other way around
     this.formulaDependencies().removeAllDependencies(position);
     const dependencies = this.getDirectDependencies(position);
     this.formulaDependencies().addDependencies(position, dependencies);

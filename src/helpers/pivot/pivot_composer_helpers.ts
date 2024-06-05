@@ -13,11 +13,15 @@ const PIVOT_FUNCTIONS = ["PIVOT.VALUE", "PIVOT.HEADER", "PIVOT"];
 export function makeFieldProposal(field: PivotField, granularity?: Granularity) {
   const groupBy = granularity ? `${field.name}:${granularity}` : field.name;
   const quotedGroupBy = `"${groupBy}"`;
+  const fuzzySearchKey =
+    field.string !== field.name
+      ? field.string + quotedGroupBy // search on translated name and on technical name
+      : quotedGroupBy;
   return {
     text: quotedGroupBy,
     description: field.string + (field.help ? ` (${field.help})` : ""),
     htmlContent: [{ value: quotedGroupBy, color: tokenColors.STRING }],
-    fuzzySearchKey: field.string + quotedGroupBy, // search on translated name and on technical name
+    fuzzySearchKey,
   };
 }
 
