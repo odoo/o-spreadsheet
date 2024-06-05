@@ -1,15 +1,14 @@
 import { toNumber } from "../../functions/helpers";
 import { Registry } from "../../registries/registry";
 import { _t } from "../../translation";
-import { DEFAULT_LOCALE } from "../../types";
+import { CellValue, DEFAULT_LOCALE } from "../../types";
+import { EvaluationError } from "../../types/errors";
 import { Granularity, PivotTimeAdapter } from "../../types/pivot";
-import { formatValue } from "../format";
+import { MONTHS, formatValue } from "../format";
 
-export const pivotTimeAdapterRegistry = new Registry<PivotTimeAdapter<string | number | false>>();
+export const pivotTimeAdapterRegistry = new Registry<PivotTimeAdapter<CellValue>>();
 
-export function pivotTimeAdapter(
-  granularity: Granularity
-): PivotTimeAdapter<string | number | false> {
+export function pivotTimeAdapter(granularity: Granularity): PivotTimeAdapter<CellValue> {
   return pivotTimeAdapterRegistry.get(granularity);
 }
 
@@ -57,6 +56,32 @@ const dayAdapter: PivotTimeAdapter<string> = {
 };
 
 /**
+ * normalizes day of month number
+ */
+const dayOfMonthAdapter: PivotTimeAdapter<number> = {
+  normalizeFunctionValue(value) {
+    const day = toNumber(value, DEFAULT_LOCALE);
+    if (day < 1 || day > 31) {
+      throw new EvaluationError(
+        _t("%s is not a valid day of month (it should be a number between 1 and 31)", day)
+      );
+    }
+    return day;
+  },
+  getFormat() {
+    return "0";
+  },
+  formatValue(normalizedValue, locale) {
+    locale = locale ?? DEFAULT_LOCALE;
+    const value = toNumber(normalizedValue, DEFAULT_LOCALE);
+    return formatValue(value, { locale, format: this.getFormat(locale) });
+  },
+  toCellValue(normalizedValue) {
+    return toNumber(normalizedValue, DEFAULT_LOCALE);
+  },
+};
+
+/**
  * Normalized value: "2/2023" for week 2 of 2023
  */
 const weekAdapter: PivotTimeAdapter<string> = {
@@ -73,6 +98,32 @@ const weekAdapter: PivotTimeAdapter<string> = {
   },
   toCellValue(normalizedValue) {
     return this.formatValue(normalizedValue);
+  },
+};
+
+/**
+ * normalizes iso week number
+ */
+const isoWeekNumberAdapter: PivotTimeAdapter<number> = {
+  normalizeFunctionValue(value) {
+    const isoWeek = toNumber(value, DEFAULT_LOCALE);
+    if (isoWeek < 0 || isoWeek > 53) {
+      throw new EvaluationError(
+        _t("%s is not a valid week (it should be a number between 0 and 53)", isoWeek)
+      );
+    }
+    return isoWeek;
+  },
+  getFormat() {
+    return "0";
+  },
+  formatValue(normalizedValue, locale) {
+    locale = locale ?? DEFAULT_LOCALE;
+    const value = toNumber(normalizedValue, DEFAULT_LOCALE);
+    return formatValue(value, { locale, format: this.getFormat(locale) });
+  },
+  toCellValue(normalizedValue) {
+    return toNumber(normalizedValue, DEFAULT_LOCALE);
   },
 };
 
@@ -99,6 +150,32 @@ const monthAdapter: PivotTimeAdapter<string> = {
 };
 
 /**
+ * normalizes month number
+ */
+const monthNumberAdapter: PivotTimeAdapter<number> = {
+  normalizeFunctionValue(value) {
+    const month = toNumber(value, DEFAULT_LOCALE);
+    if (month < 1 || month > 12) {
+      throw new EvaluationError(
+        _t("%s is not a valid month (it should be a number between 1 and 12)", month)
+      );
+    }
+    return month;
+  },
+  getFormat() {
+    return "0";
+  },
+  formatValue(normalizedValue, locale) {
+    locale = locale ?? DEFAULT_LOCALE;
+    const value = toNumber(normalizedValue, DEFAULT_LOCALE);
+    return formatValue(value, { locale, format: this.getFormat(locale) });
+  },
+  toCellValue(normalizedValue) {
+    return MONTHS[toNumber(normalizedValue, DEFAULT_LOCALE) - 1].toString();
+  },
+};
+
+/**
  * normalized quarter value is "quarter/year"
  * e.g. "1/2020" for Q1 2020
  */
@@ -119,6 +196,32 @@ const quarterAdapter: PivotTimeAdapter<string> = {
   },
 };
 
+/**
+ * normalizes quarter number
+ */
+const quarterNumberAdapter: PivotTimeAdapter<number> = {
+  normalizeFunctionValue(value) {
+    const quarter = toNumber(value, DEFAULT_LOCALE);
+    if (quarter < 1 || quarter > 4) {
+      throw new EvaluationError(
+        _t("%s is not a valid quarter (it should be a number between 1 and 4)", quarter)
+      );
+    }
+    return quarter;
+  },
+  getFormat() {
+    return "0";
+  },
+  formatValue(normalizedValue, locale) {
+    locale = locale ?? DEFAULT_LOCALE;
+    const value = toNumber(normalizedValue, DEFAULT_LOCALE);
+    return formatValue(value, { locale, format: this.getFormat(locale) });
+  },
+  toCellValue(normalizedValue) {
+    return toNumber(normalizedValue, DEFAULT_LOCALE);
+  },
+};
+
 const yearAdapter: PivotTimeAdapter<number> = {
   normalizeFunctionValue(value) {
     return toNumber(value, DEFAULT_LOCALE);
@@ -131,7 +234,7 @@ const yearAdapter: PivotTimeAdapter<number> = {
     return formatValue(normalizedValue, { locale, format: "0" });
   },
   toCellValue(normalizedValue) {
-    return normalizedValue;
+    return toNumber(normalizedValue, DEFAULT_LOCALE);
   },
 };
 
@@ -140,4 +243,9 @@ pivotTimeAdapterRegistry
   .add("week", weekAdapter)
   .add("month", monthAdapter)
   .add("quarter", quarterAdapter)
-  .add("year", yearAdapter);
+  .add("year", yearAdapter)
+  .add("day_of_month", dayOfMonthAdapter)
+  .add("iso_week_number", isoWeekNumberAdapter)
+  .add("month_number", monthNumberAdapter)
+  .add("quarter_number", quarterNumberAdapter)
+  .add("year_number", yearAdapter);
