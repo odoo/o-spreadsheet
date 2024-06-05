@@ -1,4 +1,5 @@
 import { Model, Spreadsheet } from "../../src";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { SearchOptions } from "../../src/types/find_and_replace";
 import { activateSheet, createSheet, setCellContent } from "../test_helpers/commands_helpers";
 import {
@@ -6,6 +7,7 @@ import {
   focusAndKeyDown,
   setInputValueAndTrigger,
   simulateClick,
+  triggerMouseEvent,
 } from "../test_helpers/dom_helper";
 import { getCell, getCellContent } from "../test_helpers/getters_helpers";
 import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
@@ -116,6 +118,7 @@ describe("find and replace sidePanel component", () => {
       ).toBe(true);
     });
   });
+
   describe("basic search", () => {
     test("simple search", async () => {
       setCellContent(model, "A1", "1");
@@ -179,6 +182,35 @@ describe("find and replace sidePanel component", () => {
 
       expect(document.querySelector(selectors.searchRange)).toBeTruthy();
       await setInputValueAndTrigger(selectors.searchRange, "A1:B2", "onlyInput");
+      expect(getMatchesCount()).toMatchObject({ specificRange: 0 });
+
+      await click(fixture, selectors.confirmSearchRange);
+      expect(getMatchesCount()).toMatchObject({ specificRange: 1 });
+    });
+
+    test("Ranges are properly updated by with several grid selections", async () => {
+      setCellContent(model, "A1", "1");
+      inputSearchValue("1");
+      changeSearchScope("specificRange");
+      await nextTick();
+      await nextTick();
+      (fixture.querySelector(selectors.searchRange) as HTMLInputElement).focus();
+      triggerMouseEvent(
+        ".o-grid-overlay",
+        "pointerdown",
+        DEFAULT_CELL_WIDTH / 2,
+        DEFAULT_CELL_HEIGHT / 2
+      );
+      // let at least a rendering to mimic a realistic behaviour. The compopents could render between the events
+      await nextTick();
+      triggerMouseEvent(
+        ".o-grid-overlay",
+        "pointermove",
+        DEFAULT_CELL_WIDTH / 2,
+        (3 / 2) * DEFAULT_CELL_HEIGHT
+      );
+      await nextTick();
+
       expect(getMatchesCount()).toMatchObject({ specificRange: 0 });
 
       await click(fixture, selectors.confirmSearchRange);

@@ -30,7 +30,7 @@
         </select>
         <div t-if="searchOptions.searchScope === 'specificRange'">
           <SelectionInput
-            ranges="[this.dataRange]"
+            ranges="[this.state.dataRange]"
             onSelectionChanged="(ranges) => this.onSearchRangeChanged(ranges)"
             onSelectionConfirmed.bind="updateDataRange"
             hasSingleRange="true"
@@ -59,7 +59,7 @@
           />
         </div>
         <div class="o-matches-count mt-4" t-if="store.toSearch !== ''">
-          <div t-if="searchOptions.searchScope === 'specificRange' and dataRange != ''">
+          <div t-if="searchOptions.searchScope === 'specificRange' and state.dataRange != ''">
             <t t-esc="specificRangeMatchesCount"/>
           </div>
           <div>
