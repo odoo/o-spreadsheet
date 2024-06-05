@@ -60,4 +60,8 @@ chartSidePanelComponentRegistry
   .add("waterfall", {
     configuration: GenericChartConfigPanel,
     design: WaterfallChartDesignPanel,
+  })
+  .add("pyramid", {
+    configuration: GenericChartConfigPanel,
+    design: ChartWithAxisDesignPanel,
   });
