@@ -259,7 +259,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
   import(data: WorkbookData) {
     if (data.pivots) {
       for (const [id, pivot] of Object.entries(data.pivots)) {
-        this.addPivot(id, deepCopy(pivot), pivot.formulaId);
+        this.addPivot(id, pivot, pivot.formulaId);
       }
     }
     this.history.update("nextFormulaId", data.pivotNextId || getMaxObjectId(this.pivots) + 1);
