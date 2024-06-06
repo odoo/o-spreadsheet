@@ -127,6 +127,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private corePlugins: CorePlugin[] = [];
 
   private featurePlugins: UIPlugin[] = [];
+  private uiLocalNotCoreAndStuff: UIPlugin[] = [];
 
   private statefulUIPlugins: UIPlugin[] = [];
 
@@ -256,12 +257,14 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     for (let Plugin of statefulUIPluginRegistry.getAll()) {
       const plugin = this.setupUiPlugin(Plugin);
       this.statefulUIPlugins.push(plugin);
+      this.uiLocalNotCoreAndStuff.push(plugin);
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
     }
     for (let Plugin of featurePluginRegistry.getAll()) {
       const plugin = this.setupUiPlugin(Plugin);
       this.featurePlugins.push(plugin);
+      this.uiLocalNotCoreAndStuff.push(plugin);
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
     }
@@ -363,7 +366,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     for (let command of commands) {
       const previousStatus = this.status;
       this.status = Status.RunningCore;
-      this.dispatchToHandlers(this.statefulUIPlugins, command);
+      this.dispatchToUIStateful(command);
       this.status = previousStatus;
     }
     this.finalize();
@@ -380,7 +383,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
             return;
           }
           this.isReplayingCommand = true;
-          this.dispatchToHandlers(this.coreHandlers, command);
+          // here we need to dispatch to Core and CoreUI (AKA CoreView)
+          this.dispatchToCoreAndCoreUI(command);
           this.isReplayingCommand = false;
         },
       }),
@@ -545,8 +549,10 @@ export class Model extends EventBus<any> implements CommandDispatcher {
           const start = performance.now();
           if (isCoreCommand(command)) {
             this.state.addCommand(command);
+            this.dispatchToCoreOnly(command);
           }
-          this.dispatchToHandlers(this.handlers, command);
+          this.dispatchToUI(command);
+          this.trigger("command-dispatched", command);
           this.finalize();
           const time = performance.now() - start;
           if (time > 5) {
@@ -564,8 +570,11 @@ export class Model extends EventBus<any> implements CommandDispatcher {
             return dispatchResult;
           }
           this.state.addCommand(command);
+          this.dispatchToCoreOnly(command);
         }
-        this.dispatchToHandlers(this.handlers, command);
+        this.dispatchToUI(command);
+        this.trigger("command-dispatched", command);
+
         break;
       case Status.Finalizing:
         throw new Error("Cannot dispatch commands in the finalize state");
@@ -573,7 +582,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         if (isCoreCommand(command)) {
           throw new Error(`A UI plugin cannot dispatch ${type} while handling a core command`);
         }
-        this.dispatchToHandlers(this.handlers, command);
+        this.dispatchToUI(command);
     }
     return DispatchResult.Success;
   };
@@ -586,31 +595,71 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     const command = createCommand(type, payload);
     const previousStatus = this.status;
     this.status = Status.RunningCore;
-    const handlers = this.isReplayingCommand ? this.coreHandlers : this.handlers;
-    this.dispatchToHandlers(handlers, command);
+    if (isCoreCommand(command)) {
+      this.dispatchToCoreAndCoreUI(command);
+    }
+    if (!this.isReplayingCommand) {
+      this.dispatchToUI(command);
+    }
+    this.trigger("command-dispatched", command);
     this.status = previousStatus;
     return DispatchResult.Success;
   };
+
+  private dispatchToCoreAndCoreUI(command: CoreCommand) {
+    for (const handler of this.coreHandlers) {
+      handler.beforeHandle(command);
+    }
+    for (const handler of this.coreHandlers) {
+      handler.handle(command);
+    }
+  }
+
+  //@ts-ignore
+  private dispatchToCoreOnly(command: CoreCommand) {
+    this.range.beforeHandle(command);
+    for (const handler of this.corePlugins) {
+      handler.beforeHandle(command);
+    }
+    this.range.handle(command);
+    for (const handler of this.corePlugins) {
+      handler.handle(command);
+    }
+  }
+
+  private dispatchToUI(command: Command) {
+    for (const handler of this.uiHandlers) {
+      handler.beforeHandle(command);
+    }
+    for (const handler of this.uiHandlers) {
+      handler.handle(command);
+    }
+  }
+
+  private dispatchToUIStateful(command: CoreCommand) {
+    for (const handler of this.statefulUIPlugins) {
+      handler.beforeHandle(command);
+    }
+    for (const handler of this.statefulUIPlugins) {
+      handler.handle(command);
+    }
+  }
 
   /**
    * Dispatch the given command to the given handlers.
    * It will call `beforeHandle` and `handle`
    */
+  //@ts-ignore
   private dispatchToHandlers(handlers: CommandHandler<Command>[], command: Command) {
-    const isCommandCore = isCoreCommand(command);
-    for (const handler of handlers) {
-      if (!isCommandCore && this.corePlugins.includes(handler as any)) {
-        continue;
-      }
+    const validHandlers = isCoreCommand(command)
+      ? handlers
+      : handlers.filter((x) => !this.corePlugins.includes(x as any));
+    for (const handler of validHandlers) {
       handler.beforeHandle(command);
     }
-    for (const handler of handlers) {
-      if (!isCommandCore && this.corePlugins.includes(handler as any)) {
-        continue;
-      }
+    for (const handler of validHandlers) {
       handler.handle(command);
     }
-    this.trigger("command-dispatched", command);
   }
 
   // ---------------------------------------------------------------------------
