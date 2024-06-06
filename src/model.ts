@@ -545,20 +545,20 @@ export class Model extends EventBus<any> implements CommandDispatcher {
           return result;
         }
         this.status = Status.Running;
+        const start = performance.now();
         const { changes, commands } = this.state.recordChanges(() => {
-          const start = performance.now();
           if (isCoreCommand(command)) {
             this.state.addCommand(command);
             this.dispatchToCoreOnly(command);
           }
-          this.dispatchToUI(command);
-          this.trigger("command-dispatched", command);
-          this.finalize();
-          const time = performance.now() - start;
-          if (time > 5) {
-            console.info(type, time, "ms");
-          }
         });
+        this.dispatchToUI(command);
+        this.trigger("command-dispatched", command);
+        this.finalize();
+        const time = performance.now() - start;
+        if (time > 5) {
+          console.info(type, time, "ms");
+        }
         this.session.save(command, commands, changes);
         this.status = Status.Ready;
         this.trigger("update");
