@@ -13,6 +13,7 @@ export interface PieChartDefinition {
   readonly legendPosition: LegendPosition;
   readonly aggregated?: boolean;
   readonly axesDesign?: AxesDesign;
+  readonly isDoughnut?: boolean;
 }
 
 export type PieChartRuntime = {

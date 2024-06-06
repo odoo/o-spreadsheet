@@ -49,8 +49,13 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     useEffect(() => {
       const runtime = this.chartRuntime;
       if (!deepEquals(runtime, this.currentRuntime, "ignoreFunctions")) {
+        if (runtime.chartJsConfig.type !== this.currentRuntime.chartJsConfig.type) {
+          this.chart?.destroy();
+          this.createChart(deepCopy(runtime.chartJsConfig));
+        } else {
+          this.updateChartJs(deepCopy(runtime));
+        }
         this.currentRuntime = runtime;
-        this.updateChartJs(deepCopy(runtime));
       }
     });
   }
