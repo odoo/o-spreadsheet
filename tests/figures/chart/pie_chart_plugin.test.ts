@@ -29,6 +29,7 @@ describe("pie chart", () => {
       legendPosition: "bottom",
       dataSetsHaveTitle: true,
       aggregated: true,
+      isDoughnut: false,
     });
   });
 });

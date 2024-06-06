@@ -252,9 +252,18 @@ chartSubtypeRegistry
     chartType: "combo",
   })
   .add("pie", {
+    matcher: (definition) => definition.type === "pie" && !definition.isDoughnut,
     displayName: _t("Pie"),
     chartSubtype: "pie",
     chartType: "pie",
+    subtypeDefinition: { isDoughnut: false },
+  })
+  .add("doughnut", {
+    matcher: (definition) => definition.type === "pie" && !!definition.isDoughnut,
+    displayName: _t("Doughnut"),
+    chartSubtype: "doughnut",
+    chartType: "pie",
+    subtypeDefinition: { isDoughnut: true },
   })
   .add("gauge", {
     displayName: _t("Gauge"),

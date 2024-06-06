@@ -66,6 +66,7 @@ export class PieChart extends AbstractChart {
   readonly type = "pie";
   readonly aggregated?: boolean;
   readonly dataSetsHaveTitle: boolean;
+  readonly isDoughnut?: boolean;
 
   constructor(definition: PieChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -80,6 +81,7 @@ export class PieChart extends AbstractChart {
     this.legendPosition = definition.legendPosition;
     this.aggregated = definition.aggregated;
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
+    this.isDoughnut = definition.isDoughnut;
   }
 
   static transformDefinition(
@@ -106,6 +108,7 @@ export class PieChart extends AbstractChart {
       type: "pie",
       labelRange: context.auxiliaryRange || undefined,
       aggregated: context.aggregated ?? false,
+      isDoughnut: false,
     };
   }
 
@@ -143,6 +146,7 @@ export class PieChart extends AbstractChart {
         : undefined,
       title: this.title,
       aggregated: this.aggregated,
+      isDoughnut: this.isDoughnut,
     };
   }
 
@@ -321,6 +325,10 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
       backgroundColor,
     };
     config.data!.datasets!.push(dataset);
+  }
+
+  if (chart.isDoughnut) {
+    config.type = "doughnut";
   }
 
   return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };

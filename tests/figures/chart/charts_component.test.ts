@@ -1713,6 +1713,30 @@ test("ChartJS charts are correctly destroyed on chart deletion", async () => {
   expect(spyDelete).toHaveBeenCalled();
 });
 
+test("ChartJS charts are correctly destroyed and re-created when runtime change type but definition do not", async () => {
+  model = new Model();
+  await mountSpreadsheet();
+
+  createChart(model, { type: "pie", isDoughnut: false }, chartId);
+  expect(model.getters.getChartDefinition(chartId).type).toEqual("pie");
+  expect(model.getters.getChartRuntime(chartId)).toMatchObject({
+    chartJsConfig: { type: "pie" },
+  });
+  await nextTick();
+  const spyConstructor = jest.spyOn((window as any).Chart.prototype, "constructorMock");
+  const spyDelete = jest.spyOn((window as any).Chart.prototype, "destroy");
+
+  updateChart(model, chartId, { isDoughnut: true }, sheetId);
+  expect(model.getters.getChartDefinition(chartId).type).toEqual("pie");
+  expect(model.getters.getChartRuntime(chartId)).toMatchObject({
+    chartJsConfig: { type: "doughnut" },
+  });
+
+  await nextTick();
+  expect(spyDelete).toHaveBeenCalled();
+  expect(spyConstructor).toHaveBeenCalled();
+});
+
 describe("Change chart type", () => {
   beforeEach(() => {
     model = new Model();
@@ -1755,5 +1779,24 @@ describe("Change chart type", () => {
     await setInputValueAndTrigger(select, "column");
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({ horizontal: false });
     expect(select.value).toBe("column");
+  });
+
+  test("Can change chart type between pie and doughnut chart", async () => {
+    createChart(model, { type: "pie", isDoughnut: false }, chartId);
+    await mountChartSidePanel(chartId);
+    const select = fixture.querySelector(".o-type-selector") as HTMLSelectElement;
+
+    updateChart(model, chartId, { isDoughnut: true }, sheetId);
+    await nextTick();
+    expect(model.getters.getChartRuntime(chartId)).toMatchObject({
+      chartJsConfig: { type: "doughnut" },
+    });
+    expect(select.value).toBe("doughnut");
+
+    await setInputValueAndTrigger(select, "pie");
+    expect(model.getters.getChartRuntime(chartId)).toMatchObject({
+      chartJsConfig: { type: "pie" },
+    });
+    expect(select.value).toBe("pie");
   });
 });

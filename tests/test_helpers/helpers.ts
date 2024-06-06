@@ -726,7 +726,9 @@ export const mockChart = () => {
     static _adapters = { _date: MockLuxonTimeAdapter };
     constructor(ctx: unknown, chartData: ChartConfiguration) {
       Object.assign(mockChartData, chartData);
+      this.constructorMock();
     }
+    constructorMock() {} // for spying
     set data(value) {
       mockChartData.data = value;
     }
