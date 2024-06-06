@@ -83,8 +83,8 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
       case "INSERT_PIVOT": {
         const { sheetId, col, row, pivotId, table } = cmd;
         const position = { sheetId, col, row };
-        const { cols, rows, measures, rowTitle } = table;
-        const spTable = new SpreadsheetPivotTable(cols, rows, measures, rowTitle);
+        const { cols, rows, measures } = table;
+        const spTable = new SpreadsheetPivotTable(cols, rows, measures);
         const formulaId = this.getPivotFormulaId(pivotId);
         this.insertPivot(position, formulaId, spTable);
         break;
@@ -237,7 +237,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
 
     this.dispatch("UPDATE_CELL", {
       ...position,
-      content: pivotCell.content || (args ? makePivotFormula(formula, args) : undefined),
+      content: args ? makePivotFormula(formula, args) : undefined,
     });
   }
 

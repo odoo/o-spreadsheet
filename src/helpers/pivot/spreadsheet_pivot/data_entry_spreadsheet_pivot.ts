@@ -38,8 +38,7 @@ export function dataEntriesToSpreadsheetPivotTable(
   });
 
   const measureNames = definition.measures.map((m) => m.name);
-  const rowTitle = rows.length > 0 ? rows[0].values[0] : "";
-  return new SpreadsheetPivotTable(cols, rows, measureNames, rowTitle);
+  return new SpreadsheetPivotTable(cols, rows, measureNames);
 }
 
 // -----------------------------------------------------------------------------

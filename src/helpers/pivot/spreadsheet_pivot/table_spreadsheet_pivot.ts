@@ -46,16 +46,10 @@ export class SpreadsheetPivotTable {
   readonly columns: PivotTableColumn[][];
   readonly rows: PivotTableRow[];
   readonly measures: string[];
-  readonly rowTitle?: string;
   readonly maxIndent: number;
   readonly pivotCells: { [key: string]: PivotTableCell[][] } = {};
 
-  constructor(
-    columns: PivotTableColumn[][],
-    rows: PivotTableRow[],
-    measures: string[],
-    rowTitle: string = ""
-  ) {
+  constructor(columns: PivotTableColumn[][], rows: PivotTableRow[], measures: string[]) {
     this.columns = columns.map((row) => {
       // offset in the pivot table
       // starts at 1 because the first column is the row title
@@ -68,7 +62,6 @@ export class SpreadsheetPivotTable {
     });
     this.rows = rows;
     this.measures = measures;
-    this.rowTitle = rowTitle;
     this.maxIndent = Math.max(...this.rows.map((row) => row.indent));
   }
 
@@ -114,9 +107,7 @@ export class SpreadsheetPivotTable {
 
   private getPivotCell(col: number, row: number, includeTotal = true): PivotTableCell {
     const colHeadersHeight = this.columns.length;
-    if (col === 0 && row === colHeadersHeight - 1) {
-      return { content: this.rowTitle, isHeader: true };
-    } else if (row <= colHeadersHeight - 1) {
+    if (row <= colHeadersHeight - 1) {
       const domain = this.getColHeaderDomain(col, row);
       return { domain, isHeader: true };
     } else if (col === 0) {
@@ -174,7 +165,6 @@ export class SpreadsheetPivotTable {
       cols: this.columns,
       rows: this.rows,
       measures: this.measures,
-      rowTitle: this.rowTitle,
     };
   }
 }
