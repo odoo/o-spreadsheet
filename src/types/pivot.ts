@@ -101,13 +101,11 @@ export interface PivotTableData {
   cols: PivotTableColumn[][];
   rows: PivotTableRow[];
   measures: string[];
-  rowTitle?: string;
 }
 
 export interface PivotTableCell {
   isHeader: boolean;
   domain?: string[];
-  content?: string;
   measure?: string;
 }
 
