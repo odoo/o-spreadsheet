@@ -180,6 +180,16 @@ chartComponentRegistry.add("scorecard", ScorecardChartComponent);
 chartComponentRegistry.add("waterfall", ChartJsComponent);
 chartComponentRegistry.add("pyramid", ChartJsComponent);
 
+type ChartUICategory = keyof typeof chartCategories;
+
+export const chartCategories = {
+  line: _t("Line"),
+  column: _t("Column"),
+  bar: _t("Bar"),
+  pie: _t("Pie"),
+  misc: _t("Miscellaneous"),
+};
+
 export interface ChartSubtypeProperties {
   /** Type shown in the chart side panel */
   chartSubtype: string;
@@ -191,6 +201,8 @@ export interface ChartSubtypeProperties {
   matcher?: (definition: ChartDefinition) => boolean;
   /** Additional definition options to create a chart of type displayType */
   subtypeDefinition?: Partial<ChartDefinition>;
+  category: ChartUICategory;
+  preview: string;
 }
 
 export const chartSubtypeRegistry = new Registry<ChartSubtypeProperties>();
@@ -201,6 +213,8 @@ chartSubtypeRegistry
     chartType: "line",
     chartSubtype: "line",
     subtypeDefinition: { stacked: false },
+    category: "line",
+    preview: "o-spreadsheet-ChartPreview.LINE_CHART",
   })
   .add("stacked_line", {
     matcher: (definition) => definition.type === "line" && definition.stacked,
@@ -208,11 +222,15 @@ chartSubtypeRegistry
     chartType: "line",
     chartSubtype: "stacked_line",
     subtypeDefinition: { stacked: true },
+    category: "line",
+    preview: "o-spreadsheet-ChartPreview.STACKED_AREA_CHART",
   })
   .add("scatter", {
     displayName: _t("Scatter"),
     chartType: "scatter",
     chartSubtype: "scatter",
+    category: "misc",
+    preview: "o-spreadsheet-ChartPreview.SCATTER_CHART",
   })
   .add("column", {
     matcher: (definition) =>
@@ -221,6 +239,8 @@ chartSubtypeRegistry
     chartType: "bar",
     chartSubtype: "column",
     subtypeDefinition: { stacked: false, horizontal: false },
+    category: "column",
+    preview: "o-spreadsheet-ChartPreview.COLUMN_CHART",
   })
   .add("stacked_column", {
     matcher: (definition) =>
@@ -229,6 +249,8 @@ chartSubtypeRegistry
     chartType: "bar",
     chartSubtype: "stacked_column",
     subtypeDefinition: { stacked: true, horizontal: false },
+    category: "column",
+    preview: "o-spreadsheet-ChartPreview.STACKED_COLUMN_CHART",
   })
   .add("bar", {
     matcher: (definition) =>
@@ -237,6 +259,8 @@ chartSubtypeRegistry
     chartType: "bar",
     chartSubtype: "bar",
     subtypeDefinition: { horizontal: true, stacked: false },
+    category: "bar",
+    preview: "o-spreadsheet-ChartPreview.BAR_CHART",
   })
   .add("stacked_bar", {
     matcher: (definition) =>
@@ -245,11 +269,15 @@ chartSubtypeRegistry
     chartType: "bar",
     chartSubtype: "stacked_bar",
     subtypeDefinition: { horizontal: true, stacked: true },
+    category: "bar",
+    preview: "o-spreadsheet-ChartPreview.STACKED_BAR_CHART",
   })
   .add("combo", {
     displayName: _t("Combo"),
     chartSubtype: "combo",
     chartType: "combo",
+    category: "line",
+    preview: "o-spreadsheet-ChartPreview.COMBO_CHART",
   })
   .add("pie", {
     matcher: (definition) => definition.type === "pie" && !definition.isDoughnut,
@@ -257,6 +285,8 @@ chartSubtypeRegistry
     chartSubtype: "pie",
     chartType: "pie",
     subtypeDefinition: { isDoughnut: false },
+    category: "pie",
+    preview: "o-spreadsheet-ChartPreview.PIE_CHART",
   })
   .add("doughnut", {
     matcher: (definition) => definition.type === "pie" && !!definition.isDoughnut,
@@ -264,24 +294,34 @@ chartSubtypeRegistry
     chartSubtype: "doughnut",
     chartType: "pie",
     subtypeDefinition: { isDoughnut: true },
+    category: "pie",
+    preview: "o-spreadsheet-ChartPreview.DOUGHNUT_CHART",
   })
   .add("gauge", {
     displayName: _t("Gauge"),
     chartSubtype: "gauge",
     chartType: "gauge",
+    category: "misc",
+    preview: "o-spreadsheet-ChartPreview.GAUGE_CHART",
   })
   .add("scorecard", {
     displayName: _t("Scorecard"),
     chartSubtype: "scorecard",
     chartType: "scorecard",
+    category: "misc",
+    preview: "o-spreadsheet-ChartPreview.SCORECARD_CHART",
   })
   .add("waterfall", {
     displayName: _t("Waterfall"),
     chartSubtype: "waterfall",
     chartType: "waterfall",
+    category: "misc",
+    preview: "o-spreadsheet-ChartPreview.WATERFALL_CHART",
   })
   .add("pyramid", {
     displayName: _t("Population Pyramid"),
     chartSubtype: "pyramid",
     chartType: "pyramid",
+    category: "misc",
+    preview: "o-spreadsheet-ChartPreview.POPULATION_PYRAMID_CHART",
   });

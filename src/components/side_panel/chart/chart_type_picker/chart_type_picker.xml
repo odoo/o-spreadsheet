@@ -1,0 +1,49 @@
+<templates>
+  <t t-name="o-spreadsheet-ChartTypePicker">
+    <t t-set="selectedChartProperties" t-value="getSelectedChartSubtypeProperties()"/>
+    <Section>
+      <t t-set-slot="title">Chart type</t>
+      <div class="position-relative">
+        <select
+          class="o-input o-type-selector"
+          t-ref="selectRef"
+          t-on-pointerdown.prevent="onPointerDown">
+          <option
+            t-esc="selectedChartProperties.displayName"
+            t-att-value="selectedChartProperties.chartSubtype"
+          />
+        </select>
+        <div class="o-type-selector-preview position-absolute">
+          <t t-call="{{selectedChartProperties.preview}}"/>
+        </div>
+      </div>
+    </Section>
+    <Popover t-if="state.popoverProps" t-props="state.popoverProps">
+      <div
+        t-ref="popoverRef"
+        class="o-chart-select-popover px-3 pb-4"
+        t-att-style="state.popoverStyle">
+        <t t-foreach="categories" t-as="category" t-key="category">
+          <t t-if="chartTypeByCategories[category]">
+            <h5 class="my-3" t-esc="category_value"/>
+            <div class="d-flex flex-wrap">
+              <t
+                t-foreach="chartTypeByCategories[category]"
+                t-as="properties"
+                t-key="properties.chartSubtype">
+                <div
+                  class="o-chart-type-item"
+                  t-att-title="properties.displayName"
+                  t-on-click="() => this.onTypeChange(properties.chartSubtype)"
+                  t-att-data-id="properties.chartSubtype"
+                  t-att-class="{'selected': properties === selectedChartProperties}">
+                  <t t-call="{{properties.preview}}"/>
+                </div>
+              </t>
+            </div>
+          </t>
+        </t>
+      </div>
+    </Popover>
+  </t>
+</templates>

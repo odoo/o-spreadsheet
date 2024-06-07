@@ -83,6 +83,12 @@ async function openChartDesignSidePanel(id = chartId) {
   await simulateClick(".o-panel-element.inactive");
 }
 
+async function changeChartType(type: string) {
+  triggerMouseEvent(".o-type-selector", "pointerdown");
+  await nextTick();
+  await click(fixture, `.o-chart-type-item[data-id="${type}"]`);
+}
+
 async function mountChartSidePanel(figureId = chartId) {
   const props = { figureId, onCloseSidePanel: () => {} };
   ({ fixture, env } = await mountComponentWithPortalTarget(ChartPanel, { props, model }));
@@ -791,13 +797,12 @@ describe("charts", () => {
     await mountSpreadsheet();
     await openChartConfigSidePanel();
 
-    const chartType = fixture.querySelectorAll(".o-chart .o-input")[0] as HTMLSelectElement;
     const dataSeries = fixture.querySelectorAll(".o-chart .o-data-series")[0] as HTMLInputElement;
     const dataSeriesValues = dataSeries.querySelector("input");
     const hasTitle = fixture.querySelector(
       ".o-use-row-as-headers input[type=checkbox]"
     ) as HTMLInputElement;
-    await setInputValueAndTrigger(chartType, "pie");
+    await changeChartType("pie");
     setInputValueAndTrigger(dataSeriesValues, "B2:B5");
     await click(hasTitle);
     expect((mockChartData.data! as any).datasets[0].label).toEqual("first column dataset");
@@ -1525,7 +1530,7 @@ describe("charts", () => {
       await mountChartSidePanel();
 
       for (const chartType of ["bar", "line", "scatter", "pie"] as const) {
-        await setInputValueAndTrigger(".o-type-selector", chartType);
+        await changeChartType(chartType);
         const checkbox = document.querySelector("input[name='aggregated']") as HTMLInputElement;
         expect(checkbox.checked).toBe(true);
       }
@@ -1538,10 +1543,10 @@ describe("charts", () => {
       let checkbox = document.querySelector("input[name='dataSetsHaveTitle']") as HTMLInputElement;
       expect(checkbox.checked).toBe(true);
 
-      await setInputValueAndTrigger(".o-type-selector", "gauge");
+      await changeChartType("gauge");
       expect(document.querySelector("input[name='dataSetsHaveTitle']")).toBeFalsy();
 
-      await setInputValueAndTrigger(".o-type-selector", "pie");
+      await changeChartType("pie");
       checkbox = document.querySelector("input[name='dataSetsHaveTitle']") as HTMLInputElement;
       expect(checkbox.checked).toBe(true);
     });
@@ -1754,7 +1759,7 @@ describe("Change chart type", () => {
       expect(select.value).toBe(uiType);
       expect(stackedCheckbox.checked).toBe(false);
 
-      await setInputValueAndTrigger(select, "stacked_" + uiType);
+      await changeChartType("stacked_" + uiType);
       expect(select.value).toBe("stacked_" + uiType);
       expect(model.getters.getChartDefinition(chartId)).toMatchObject({ type, stacked: true });
       expect(stackedCheckbox.checked).toBe(true);
@@ -1776,7 +1781,7 @@ describe("Change chart type", () => {
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({ horizontal: true });
     expect(select.value).toBe("bar");
 
-    await setInputValueAndTrigger(select, "column");
+    await changeChartType("column");
     expect(model.getters.getChartDefinition(chartId)).toMatchObject({ horizontal: false });
     expect(select.value).toBe("column");
   });
@@ -1793,7 +1798,7 @@ describe("Change chart type", () => {
     });
     expect(select.value).toBe("doughnut");
 
-    await setInputValueAndTrigger(select, "pie");
+    await changeChartType("pie");
     expect(model.getters.getChartRuntime(chartId)).toMatchObject({
       chartJsConfig: { type: "pie" },
     });

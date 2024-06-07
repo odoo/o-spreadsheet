@@ -8,7 +8,8 @@ const MODIFIER_KEYS = ["Shift", "Control", "Alt", "Meta"];
  * Return true if the event was triggered from
  * a child element.
  */
-export function isChildEvent(parent: HTMLElement, ev: Event): boolean {
+export function isChildEvent(parent: HTMLElement | null | undefined, ev: Event): boolean {
+  if (!parent) return false;
   return !!ev.target && parent!.contains(ev.target as Node);
 }
 

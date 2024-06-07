@@ -20,22 +20,7 @@
 
       <t t-set="definition" t-value="getChartDefinition(this.figureId)"/>
       <t t-if="store.panel === 'configuration'">
-        <Section>
-          <t t-set-slot="title">Chart type</t>
-          <t t-set="types" t-value="chartTypes"/>
-          <select
-            class="o-input o-type-selector"
-            t-on-change="(ev) => this.onTypeChange(ev.target.value)">
-            <option
-              t-foreach="chartTypes"
-              t-as="type"
-              t-key="type"
-              t-att-value="type"
-              t-esc="types[type]"
-              t-att-selected="selectedUIChartType === type"
-            />
-          </select>
-        </Section>
+        <ChartTypePicker figureId="props.figureId" chartPanelStore="store"/>
         <t
           t-component="chartPanel.configuration"
           definition="definition"
