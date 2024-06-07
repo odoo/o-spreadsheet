@@ -42,7 +42,9 @@ import {
   getEvaluatedCell,
 } from "../test_helpers/getters_helpers"; // to have getcontext mocks
 import "../test_helpers/helpers";
-import { makeStore } from "../test_helpers/stores";
+import { createModelFromGrid } from "../test_helpers/helpers";
+import { addPivot } from "../test_helpers/pivot_helpers";
+import { makeStore, makeStoreWithModel } from "../test_helpers/stores";
 
 let model: Model;
 let composerStore: Store<ComposerStore>;
@@ -1113,5 +1115,253 @@ describe("edition", () => {
     colors;
     expect(composerHighlights[0]).toMatchObject({ zone: toZone("A1"), color: colors[0] });
     expect(composerHighlights[1]).toMatchObject({ zone: toZone("A2"), color: colors[1] });
+  });
+
+  test("click on a pivot dimension header cell insert the formula", () => {
+    const grid = {
+      D1: "Name",
+      D2: "Alice",
+      D3: "Bob",
+      D4: "Bob",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "D1:D4", {
+      columns: [],
+      rows: [{ name: "Name" }],
+      measures: [{ name: "__count" }],
+    });
+    setCellContent(model, "A1", "=PIVOT(1)");
+    const { store } = makeStoreWithModel(model, ComposerStore);
+    store.startEdition("=");
+    selectCell(model, "A3");
+    expect(store.currentContent).toBe('=PIVOT.HEADER(1,"Name","Alice")');
+
+    // click on another header
+    selectCell(model, "A4");
+    expect(store.currentContent).toBe('=PIVOT.HEADER(1,"Name","Bob")');
+
+    // click on total header
+    selectCell(model, "A5");
+    expect(store.currentContent).toBe("=PIVOT.HEADER(1)");
+  });
+
+  test("click on a pivot value cell insert the formula", () => {
+    const grid = {
+      D1: "Name",
+      D2: "Alice",
+      D3: "Bob",
+      D4: "Bob",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "D1:D4", {
+      columns: [],
+      rows: [{ name: "Name" }],
+      measures: [{ name: "__count" }],
+    });
+    setCellContent(model, "A1", "=PIVOT(1)");
+    const { store } = makeStoreWithModel(model, ComposerStore);
+    store.startEdition("=");
+    selectCell(model, "B3");
+    expect(store.currentContent).toBe('=PIVOT.VALUE(1,"__count","Name","Alice")');
+
+    // click on another value
+    selectCell(model, "B4");
+    expect(store.currentContent).toBe('=PIVOT.VALUE(1,"__count","Name","Bob")');
+
+    // click on total value
+    selectCell(model, "B5");
+    expect(store.currentContent).toBe('=PIVOT.VALUE(1,"__count")');
+  });
+
+  test("click on a pivot measure header cell insert the formula", () => {
+    const grid = {
+      D1: "Name",
+      D2: "Alice",
+      D3: "Bob",
+      D4: "Bob",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "D1:D4", {
+      columns: [],
+      rows: [{ name: "Name" }],
+      measures: [{ name: "__count" }],
+    });
+    setCellContent(model, "A1", "=PIVOT(1)");
+    const { store } = makeStoreWithModel(model, ComposerStore);
+    store.startEdition("=");
+    selectCell(model, "B2");
+    expect(store.currentContent).toBe('=PIVOT.HEADER(1,"measure","__count")');
+  });
+
+  test("click on an empty cell of a pivot inserts the reference", () => {
+    const grid = {
+      D1: "Name",
+      D2: "Alice",
+      D3: "Bob",
+      D4: "Bob",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "D1:D4", {
+      columns: [],
+      rows: [{ name: "Name" }],
+      measures: [{ name: "__count" }],
+    });
+    setCellContent(model, "A1", "=PIVOT(1)");
+    const { store } = makeStoreWithModel(model, ComposerStore);
+    store.startEdition("=");
+    selectCell(model, "A1"); // top-left cell
+    expect(store.currentContent).toBe("=A1");
+
+    selectCell(model, "A2"); // empty cell next to measure headers
+    expect(store.currentContent).toBe("=A2");
+  });
+
+  test("click on a pivot cell then increase the selected zone inserts the reference", () => {
+    const grid = {
+      D1: "Name",
+      D2: "Alice",
+      D3: "Bob",
+      D4: "Bob",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "D1:D4", {
+      columns: [],
+      rows: [{ name: "Name" }],
+      measures: [{ name: "__count" }],
+    });
+    setCellContent(model, "A1", "=PIVOT(1)");
+    const { store } = makeStoreWithModel(model, ComposerStore);
+    store.startEdition("=");
+
+    selectCell(model, "A3");
+    expect(store.currentContent).toBe('=PIVOT.HEADER(1,"Name","Alice")');
+
+    resizeAnchorZone(model, "down", 1);
+    expect(store.currentContent).toBe("=A3:A4");
+
+    selectCell(model, "A4"); // click on a pivot cell again
+    expect(store.currentContent).toBe('=PIVOT.HEADER(1,"Name","Bob")');
+  });
+
+  test("add multiple pivot function in the same formula", () => {
+    const grid = {
+      D1: "Name",
+      D2: "Alice",
+      D3: "Bob",
+      D4: "Bob",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "D1:D4", {
+      columns: [],
+      rows: [{ name: "Name" }],
+      measures: [{ name: "__count" }],
+    });
+    setCellContent(model, "A1", "=PIVOT(1)");
+    const { store } = makeStoreWithModel(model, ComposerStore);
+    store.startEdition("=");
+    selectCell(model, "A3");
+    expect(store.currentContent).toBe('=PIVOT.HEADER(1,"Name","Alice")');
+    store.setCurrentContent('=PIVOT.HEADER(1,"Name","Alice")+');
+    selectCell(model, "A4");
+    expect(store.currentContent).toBe(
+      '=PIVOT.HEADER(1,"Name","Alice")+PIVOT.HEADER(1,"Name","Bob")'
+    );
+  });
+
+  test("select mutliple pivot function", () => {
+    const grid = {
+      D1: "Name",
+      D2: "Alice",
+      D3: "Bob",
+      D4: "Bob",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "D1:D4", {
+      columns: [],
+      rows: [{ name: "Name" }],
+      measures: [{ name: "__count" }],
+    });
+    setCellContent(model, "A1", "=PIVOT(1)");
+    const { store } = makeStoreWithModel(model, ComposerStore);
+    store.startEdition("=SUM(");
+    selectCell(model, "A3");
+    expect(store.currentContent).toBe('=SUM(PIVOT.HEADER(1,"Name","Alice")');
+    addCellToSelection(model, "A4");
+    expect(store.currentContent).toBe(
+      '=SUM(PIVOT.HEADER(1,"Name","Alice"),PIVOT.HEADER(1,"Name","Bob")'
+    );
+  });
+
+  test("select an empty pivot value inserts the pivot function", () => {
+    // prettier-ignore
+    const grid = {
+      D1: "Name",   E1: "Price",
+      D2: "Alice",  E2: "123",
+      D3: "Bob",
+      D4: "Bob",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "D1:E4", {
+      columns: [],
+      rows: [{ name: "Name" }],
+      measures: [{ name: "Price" }],
+    });
+    setCellContent(model, "A1", "=PIVOT(1)");
+    const { store } = makeStoreWithModel(model, ComposerStore);
+    store.startEdition("=");
+    expect(getEvaluatedCell(model, "B4").value).toBe(""); // empty
+    selectCell(model, "B4");
+    expect(store.currentContent).toBe('=PIVOT.VALUE(1,"Price","Name","Bob")');
+  });
+
+  test("clicking on a exploded pivot formula inserts the reference", () => {
+    const grid = {
+      D1: "Name",
+      D2: "Alice",
+      D3: "Bob",
+      D4: "Bob",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "D1:D4", {
+      columns: [],
+      rows: [{ name: "Name" }],
+      measures: [{ name: "__count" }],
+    });
+    const { store } = makeStoreWithModel(model, ComposerStore);
+    store.startEdition("=");
+    setCellContent(model, "B1", '=PIVOT.HEADER(1,"Name","Alice")');
+    selectCell(model, "B1");
+    expect(store.currentContent).toBe("=B1");
+  });
+
+  test("click on a pivot value highlights the selection", () => {
+    const grid = {
+      D1: "Name",
+      D2: "Alice",
+      D3: "Bob",
+      D4: "Bob",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "D1:D4", {
+      columns: [],
+      rows: [{ name: "Name" }],
+      measures: [{ name: "__count" }],
+    });
+    setCellContent(model, "A1", "=PIVOT(1)");
+    const { store } = makeStoreWithModel(model, ComposerStore);
+    store.startEdition("=");
+    selectCell(model, "B3");
+    expect(store.currentContent).toBe('=PIVOT.VALUE(1,"__count","Name","Alice")');
+    expect(store.highlights).toEqual([
+      {
+        zone: toZone("B3"),
+        color: "#445566",
+        sheetId: model.getters.getActiveSheetId(),
+        dashed: true,
+        interactive: false,
+        noFill: true,
+        thinLine: true,
+      },
+    ]);
   });
 });
