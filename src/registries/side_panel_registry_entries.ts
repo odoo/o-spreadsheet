@@ -107,21 +107,15 @@ sidePanelRegistry.add("TableStyleEditorPanel", {
 });
 
 sidePanelRegistry.add("PivotSidePanel", {
-  title: (env: SpreadsheetChildEnv, props: { pivotId: UID | undefined }) => {
-    if (props.pivotId) {
-      return _t("Pivot #%s", env.model.getters.getPivotFormulaId(props.pivotId));
-    }
-    return _t("List of Pivots");
+  title: (env: SpreadsheetChildEnv, props: { pivotId: UID }) => {
+    return _t("Pivot #%s", env.model.getters.getPivotFormulaId(props.pivotId));
   },
   Body: PivotSidePanel,
-  computeState: (getters: Getters, initialProps: { pivotId: UID | undefined }) => {
-    if (!getters.getPivotIds().length) {
-      return { isOpen: false };
-    }
-    let { pivotId } = initialProps;
-    if (pivotId && !getters.isExistingPivot(pivotId)) {
-      pivotId = undefined;
-    }
-    return { isOpen: true, props: { pivotId }, key: `pivot_key_${pivotId}` };
+  computeState: (getters: Getters, props: { pivotId: UID }) => {
+    return {
+      isOpen: getters.isExistingPivot(props.pivotId),
+      props,
+      key: `pivot_key_${props.pivotId}`,
+    };
   },
 });
