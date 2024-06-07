@@ -28,7 +28,7 @@
             class="o-input data-series-selector"
             t-model="state.label"
             t-on-change="(ev) => this.updateSerieEditor(ev)">
-            <t t-foreach="getDataSeries()" t-as="serie" t-key="serie" t-index="index">
+            <t t-foreach="getDataSeries()" t-as="serie" t-key="serie_index">
               <option
                 t-att-value="serie"
                 t-att-selected="state.index === serie_index"
