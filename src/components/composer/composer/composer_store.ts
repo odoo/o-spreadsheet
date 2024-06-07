@@ -24,6 +24,7 @@ import {
   getDateTimeFormat,
   localizeFormula,
 } from "../../../helpers/locale";
+import { makePivotFormulaFromPivotCell } from "../../../helpers/pivot/pivot_helpers";
 import { cycleFixedReference } from "../../../helpers/reference_type";
 import {
   AutoCompleteProvider,
@@ -583,8 +584,22 @@ export class ComposerStore extends SpreadsheetStore {
   private replaceSelectedRange(zone: Zone | UnboundedZone) {
     const ref = this.getZoneReference(zone);
     const currentToken = this.tokenAtCursor;
-    const start = currentToken?.type === "REFERENCE" ? currentToken.start : this.selectionStart;
-    this.replaceText(ref, start, this.selectionEnd);
+
+    let replaceStart = this.selectionStart;
+    if (currentToken?.type === "REFERENCE") {
+      replaceStart = currentToken.start;
+    } else if (currentToken?.type === "RIGHT_PAREN") {
+      // match left parenthesis
+      const leftParenthesisIndex = this.currentTokens.findIndex(
+        (token) => token.type === "LEFT_PAREN" && token.parenIndex === currentToken.parenIndex
+      );
+      const functionToken = this.currentTokens[leftParenthesisIndex - 1];
+      if (functionToken === undefined) {
+        return;
+      }
+      replaceStart = functionToken.start;
+    }
+    this.replaceText(ref, replaceStart, this.selectionEnd);
   }
 
   /**
@@ -624,6 +639,17 @@ export class ComposerStore extends SpreadsheetStore {
   private getZoneReference(zone: Zone | UnboundedZone): string {
     const inputSheetId = this.currentEditedCell.sheetId;
     const sheetId = this.getters.getActiveSheetId();
+    if (zone.top === zone.bottom && zone.left === zone.right) {
+      const position = { sheetId, col: zone.left, row: zone.top };
+      const pivotId = this.getters.getPivotIdFromPosition(position);
+      const pivotCell = this.getters.getPivotCellFromPosition(position);
+      const cell = this.getters.getCell(position);
+      if (pivotId && pivotCell.type !== "EMPTY" && !cell?.isFormula) {
+        const formulaPivotId = this.getters.getPivotFormulaId(pivotId);
+        const formula = makePivotFormulaFromPivotCell(formulaPivotId, pivotCell);
+        return formula.slice(1); // strip leading =
+      }
+    }
     const range = this.getters.getRangeFromZone(sheetId, zone);
     return this.getters.getSelectionRangeString(range, inputSheetId);
   }
@@ -738,21 +764,38 @@ export class ComposerStore extends SpreadsheetStore {
       const colorIndex = this.colorIndexByRange[rangeString];
       return colors[colorIndex % colors.length];
     };
-    return this.getReferencedRanges().map((range) => {
+    const highlights: Highlight[] = [];
+    for (const range of this.getReferencedRanges()) {
       const rangeString = this.getters.getRangeString(range, editionSheetId);
       const { numberOfRows, numberOfCols } = zoneToDimension(range.zone);
       const zone =
         numberOfRows * numberOfCols === 1
           ? this.getters.expandZone(range.sheetId, range.zone)
           : range.zone;
-
-      return {
+      highlights.push({
         zone,
         color: rangeColor(rangeString),
         sheetId: range.sheetId,
         interactive: true,
-      };
-    });
+      });
+    }
+    const activeSheetId = this.getters.getActiveSheetId();
+    const selectionZone = this.model.selection.getAnchor().zone;
+    const isSelectionHightlighted = highlights.find(
+      (highlight) => highlight.sheetId === activeSheetId && isEqual(highlight.zone, selectionZone)
+    );
+    if (this.editionMode === "selecting" && !isSelectionHightlighted) {
+      highlights.push({
+        zone: selectionZone,
+        color: "#445566",
+        sheetId: activeSheetId,
+        dashed: true,
+        interactive: false,
+        noFill: true,
+        thinLine: true,
+      });
+    }
+    return highlights;
   }
 
   /**
