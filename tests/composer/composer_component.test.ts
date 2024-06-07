@@ -3,6 +3,7 @@ import {
   tokenColors,
 } from "../../src/components/composer/composer/composer";
 import { ComposerStore } from "../../src/components/composer/composer/composer_store";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { colors, toCartesian, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { Store } from "../../src/store_engine";
@@ -11,6 +12,7 @@ import { MockClipboardData, getClipboardEvent } from "../test_helpers/clipboard"
 import {
   createSheet,
   createSheetWithName,
+  createTable,
   merge,
   resizeAnchorZone,
   selectCell,
@@ -30,6 +32,7 @@ import {
   getCellText,
   getEvaluatedCell,
   getSelectionAnchorCellXc,
+  getTable,
 } from "../test_helpers/getters_helpers";
 import {
   ComposerWrapper,
@@ -506,6 +509,19 @@ describe("composer", () => {
     keyUp({ key: "d" });
     await nextTick();
     expect(composerStore.editionMode).toBe("inactive");
+  });
+
+  test("should create a table when a cell is double clicked in edit mode", async () => {
+    ({ model, fixture } = await mountSpreadsheet());
+    selectCell(model, "A1");
+    triggerMouseEvent(
+      ".o-grid-overlay",
+      "dblclick",
+      0.5 * DEFAULT_CELL_WIDTH,
+      0.5 * DEFAULT_CELL_HEIGHT
+    );
+    createTable(model, "A1");
+    expect(getTable(model, "A1")).toBeTruthy();
   });
 
   test("edit link cell changes the label", async () => {

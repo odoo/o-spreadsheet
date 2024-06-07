@@ -608,10 +608,8 @@ export class ComposerStore extends SpreadsheetStore {
         return isEqual(this.getters.expandZone(activeSheetId, refRange.zone), oldZone);
       });
 
-    // this function assumes that the previous range is always found because
-    // it's called when changing a highlight, which exists by definition
     if (!previousRefToken) {
-      throw new Error("Previous range not found");
+      return;
     }
 
     const previousRange = this.getters.getRangeFromSheetXC(activeSheetId, previousRefToken.value);
