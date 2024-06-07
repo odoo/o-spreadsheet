@@ -37,7 +37,6 @@
           onDimensionsUpdated.bind="onDimensionsUpdated"
         />
         <Section>
-          <button class="btn btn-link sp_back" t-on-click="back">Back</button>
           <button class="btn btn-link sp_delete" t-on-click="delete">Delete</button>
         </Section>
       </div>

@@ -194,11 +194,6 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
           >
             
             <button
-              class="btn btn-link sp_back"
-            >
-              Back
-            </button>
-            <button
               class="btn btn-link sp_delete"
             >
               Delete
@@ -227,7 +222,6 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
         </div>
         
       </div>
-      
     </div>
     
   </div>
@@ -408,11 +402,6 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
           >
             
             <button
-              class="btn btn-link sp_back"
-            >
-              Back
-            </button>
-            <button
               class="btn btn-link sp_delete"
             >
               Delete
@@ -441,7 +430,6 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
         </div>
         
       </div>
-      
     </div>
     
   </div>

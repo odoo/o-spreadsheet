@@ -127,10 +127,6 @@ export class PivotSpreadsheetSidePanel extends Component<Props, SpreadsheetChild
     this.store.update(definition);
   }
 
-  back() {
-    this.env.openSidePanel("PivotSidePanel", {});
-  }
-
   delete() {
     this.env.model.dispatch("REMOVE_PIVOT", { pivotId: this.props.pivotId });
   }
