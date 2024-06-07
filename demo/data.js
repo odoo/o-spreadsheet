@@ -2507,7 +2507,7 @@ export const demoData = {
     34: { top: { style: "dotted", color: "#0000FF" } },
     35: { left: { style: "dashed", color: "#93C47D" } },
   },
-  revisionId: "a9983fa2-a614-45e5-9117-1c120bdb9392",
+  revisionId: "START_REVISION",
   uniqueFigureIds: true,
   settings: {
     locale: {
