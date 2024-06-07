@@ -605,6 +605,16 @@ describe("charts", () => {
     ]);
   });
 
+  test("can open design panel of chart with duplicated dataset", async () => {
+    createChart(
+      model,
+      { dataSets: [{ dataRange: "C1:C4" }, { dataRange: "C1:C4" }], type: "line" },
+      chartId
+    );
+    await openChartDesignSidePanel(chartId);
+    expect(1).toBe(1);
+  });
+
   test("changing property and selecting another chart does not change first chart", async () => {
     createChart(
       model,
