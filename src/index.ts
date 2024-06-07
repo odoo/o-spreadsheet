@@ -32,6 +32,7 @@ import { ChartDataSeries } from "./components/side_panel/chart/building_blocks/d
 import { ChartErrorSection } from "./components/side_panel/chart/building_blocks/error_section/error_section";
 import { ChartLabelRange } from "./components/side_panel/chart/building_blocks/label_range/label_range";
 import { ChartTitle } from "./components/side_panel/chart/building_blocks/title/title";
+import { ChartTypePicker } from "./components/side_panel/chart/chart_type_picker/chart_type_picker";
 import { ChartPanel } from "./components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { PieChartDesignPanel } from "./components/side_panel/chart/pie_chart/pie_chart_design_panel";
 import { Checkbox } from "./components/side_panel/components/checkbox/checkbox";
@@ -368,6 +369,7 @@ export const components = {
   GaugeChartDesignPanel,
   ScorecardChartConfigPanel,
   ScorecardChartDesignPanel,
+  ChartTypePicker,
   FigureComponent,
   Menu,
   Popover,

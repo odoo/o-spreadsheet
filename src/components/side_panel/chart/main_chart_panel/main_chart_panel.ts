@@ -1,11 +1,11 @@
 import { Component } from "@odoo/owl";
 import { ChartSidePanel, chartSidePanelComponentRegistry } from "..";
 import { BACKGROUND_HEADER_COLOR } from "../../../../constants";
-import { chartSubtypeRegistry } from "../../../../registries/chart_types";
 import { Store, useLocalStore } from "../../../../store_engine";
 import { ChartDefinition, ChartType, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { css } from "../../../helpers/css";
 import { Section } from "../../components/section/section";
+import { ChartTypePicker } from "../chart_type_picker/chart_type_picker";
 import { MainChartPanelStore } from "./main_chart_panel_store";
 
 css/* scss */ `
@@ -40,7 +40,7 @@ interface Props {
 
 export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-ChartPanel";
-  static components = { Section };
+  static components = { Section, ChartTypePicker };
   static props = { onCloseSidePanel: Function, figureId: String };
 
   store!: Store<MainChartPanelStore>;
@@ -107,21 +107,5 @@ export class ChartPanel extends Component<Props, SpreadsheetChildEnv> {
 
   private getChartDefinition(figureId: UID): ChartDefinition {
     return this.env.model.getters.getChartDefinition(figureId);
-  }
-
-  get chartTypes() {
-    const result = {};
-    for (const key of chartSubtypeRegistry.getKeys()) {
-      result[key] = chartSubtypeRegistry.get(key).displayName;
-    }
-    return result;
-  }
-
-  get selectedUIChartType() {
-    const definition = this.getChartDefinition(this.props.figureId);
-    const matchedChart = chartSubtypeRegistry
-      .getAll()
-      .find((c) => c.matcher?.(definition) || false);
-    return matchedChart?.chartSubtype || chartSubtypeRegistry.get(definition.type).chartType;
   }
 }
