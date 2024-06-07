@@ -2,12 +2,14 @@ import {
   selectionIndicatorClass,
   tokenColors,
 } from "../../src/components/composer/composer/composer";
+import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { colors, toCartesian, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { Highlight } from "../../src/types";
 import { ContentEditableHelper } from "../__mocks__/content_editable_helper";
 import { MockClipboardData, getClipboardEvent } from "../test_helpers/clipboard";
 import {
+  createFilter,
   createSheet,
   createSheetWithName,
   merge,
@@ -28,6 +30,7 @@ import {
   getCellContent,
   getCellText,
   getEvaluatedCell,
+  getFilterTable,
   getSelectionAnchorCellXc,
 } from "../test_helpers/getters_helpers";
 import {
@@ -506,6 +509,19 @@ describe("composer", () => {
     keyUp({ key: "d" });
     await nextTick();
     expect(model.getters.getEditionMode()).toBe("inactive");
+  });
+
+  test("should create a table when a cell is double clicked in edit mode", async () => {
+    ({ model, fixture } = await mountSpreadsheet());
+    selectCell(model, "A1");
+    triggerMouseEvent(
+      ".o-grid-overlay",
+      "dblclick",
+      0.5 * DEFAULT_CELL_WIDTH,
+      0.5 * DEFAULT_CELL_HEIGHT
+    );
+    createFilter(model, "A1");
+    expect(getFilterTable(model, "A1")).toBeTruthy();
   });
 
   test("edit link cell changes the label", async () => {
