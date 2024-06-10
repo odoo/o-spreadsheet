@@ -374,20 +374,21 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   private setupSession(revisionId: UID): Session {
     const session = new Session(
-      buildRevisionLog({
-        initialRevisionId: revisionId,
-        recordChanges: this.state.recordChanges.bind(this.state),
-        dispatch: (command: CoreCommand) => {
+      buildRevisionLog(
+        revisionId,
+        this.state.recordChanges.bind(this.state),
+        (command: CoreCommand) => {
           const result = this.checkDispatchAllowed(command);
           if (!result.isSuccessful) {
             return;
           }
           this.isReplayingCommand = true;
           // here we need to dispatch to Core and CoreUI (AKA CoreView)
+          // without recording changes because the changes are recorded in factory.ts/buildRevisionLog
           this.dispatchToCoreAndCoreUI(command);
           this.isReplayingCommand = false;
-        },
-      }),
+        }
+      ),
       this.config.transportService,
       revisionId
     );
@@ -518,7 +519,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   /**
    * The dispatch method is the only entry point to manipulate data in the model.
    * This is through this method that commands are dispatched most of the time
-   * recursively until no plugin want to react anymore.
+   * recursively until no plugin wants to react anymore.
    *
    * CoreCommands dispatched from this function are saved in the history.
    *
@@ -564,6 +565,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         this.trigger("update");
         break;
       case Status.Running:
+        // When, during the handling of a command by a UI plugin,
+        // those plugin(s) dispatch another command (Core or UI)
         if (isCoreCommand(command)) {
           const dispatchResult = this.checkDispatchAllowed(command);
           if (!dispatchResult.isSuccessful) {
@@ -579,6 +582,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       case Status.Finalizing:
         throw new Error("Cannot dispatch commands in the finalize state");
       case Status.RunningCore:
+        // We only use this when executing remote revisions to notify UI Plugins
         if (isCoreCommand(command)) {
           throw new Error(`A UI plugin cannot dispatch ${type} while handling a core command`);
         }
