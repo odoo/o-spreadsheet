@@ -1,4 +1,4 @@
-const originalGetBoundingClientRect = HTMLDivElement.prototype.getBoundingClientRect;
+const originalGetBoundingClientRect = HTMLElement.prototype.getBoundingClientRect;
 
 export function mockGetBoundingClientRect(
   classesWithMocks: Record<string, (el: HTMLElement) => Partial<DOMRect>>
@@ -6,8 +6,8 @@ export function mockGetBoundingClientRect(
   const mockedClasses = Object.keys(classesWithMocks);
 
   jest
-    .spyOn(HTMLDivElement.prototype, "getBoundingClientRect")
-    .mockImplementation(function (this: HTMLDivElement) {
+    .spyOn(HTMLElement.prototype, "getBoundingClientRect")
+    .mockImplementation(function (this: HTMLElement) {
       const mockedClass = mockedClasses.find((className) => this.classList.contains(className));
       if (mockedClass) {
         const rect = populateDOMRect(classesWithMocks[mockedClass](this));
