@@ -12,6 +12,7 @@
       menuItems="props.menuItems"
       position="menuPosition"
       onClose.bind="onMenuClosed"
+      menuId="menuId"
     />
   </t>
 </templates>
