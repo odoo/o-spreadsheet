@@ -1,9 +1,10 @@
 import {
   DEFAULT_FONT_SIZE,
+  DEFAULT_INDENT,
   DEFAULT_STYLE,
   PADDING_AUTORESIZE_HORIZONTAL,
 } from "../../src/constants";
-import { fontSizeInPixels, toCartesian } from "../../src/helpers";
+import { computeTextWidth, fontSizeInPixels, toCartesian } from "../../src/helpers";
 import { Model } from "../../src/model";
 import {
   createSheet,
@@ -140,6 +141,22 @@ describe("styles", () => {
     );
     expect(model.getters.getCellWidth({ sheetId, col: A2.col, row: A2.row })).toBe(
       fontSizeInPixels(DEFAULT_FONT_SIZE) + 2 * PADDING_AUTORESIZE_HORIZONTAL
+    );
+  });
+
+  test("getCellWidth supports indent", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "A1", "H");
+    setCellContent(model, "A2", "H");
+    setStyle(model, "A1", { indent: 1 });
+    const A1 = toCartesian("A1");
+    const A2 = toCartesian("A2");
+    const styleA1 = model.getters.getCellWidth({ sheetId, col: A1.col, row: A1.row });
+    const styleA2 = model.getters.getCellWidth({ sheetId, col: A2.col, row: A2.row });
+    expect(styleA1).toBe(
+      styleA2 +
+        computeTextWidth(document.createElement("canvas").getContext("2d")!, DEFAULT_INDENT, {})
     );
   });
 });

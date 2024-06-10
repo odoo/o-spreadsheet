@@ -75,6 +75,7 @@ const simpleData = {
         A38: { content: `='<Sheet2>'!B2` },
         A39: { content: `=A39` },
         A40: { content: `=(1+2)/3` },
+        A41: { content: `Indented text`, style: 12 },
         K3: { border: 5 },
         K4: { border: 4 },
         K5: { border: 4 },
@@ -106,6 +107,7 @@ const simpleData = {
     9: { wrapping: "overflow" },
     10: { wrapping: "wrap" },
     11: { wrapping: "clip" },
+    12: { indent: 1 },
   },
   borders: {
     1: { left: { style: "thin", color: "#000" } },

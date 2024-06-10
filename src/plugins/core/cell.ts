@@ -99,9 +99,20 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   allowDispatch(cmd: CoreCommand): CommandResult | CommandResult[] {
     switch (cmd.type) {
       case "UPDATE_CELL":
-        return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessUpdateCell);
+        return this.checkValidations(
+          cmd,
+          this.checkCellOutOfSheet,
+          this.checkUselessUpdateCell,
+          this.checkIncorrectIndentLevel
+        );
       case "CLEAR_CELL":
         return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessClearCell);
+      case "SET_FORMATTING":
+        const hasStyle = "style" in cmd;
+        if (hasStyle && cmd.style?.indent && cmd.style.indent < 0) {
+          return CommandResult.IndentLevelError;
+        }
+        return CommandResult.Success;
       default:
         return CommandResult.Success;
     }
@@ -685,6 +696,14 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       (!hasFormat || cell?.format === cmd.format)
     ) {
       return CommandResult.NoChanges;
+    }
+    return CommandResult.Success;
+  }
+
+  private checkIncorrectIndentLevel(cmd: UpdateCellCommand): CommandResult {
+    const hasStyle = "style" in cmd;
+    if (hasStyle && cmd.style?.indent && cmd.style.indent < 0) {
+      return CommandResult.IndentLevelError;
     }
     return CommandResult.Success;
   }

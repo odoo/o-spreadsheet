@@ -153,6 +153,29 @@ describe("getCellText", () => {
     expect(result).toBeCancelledBecause(CommandResult.NoChanges);
   });
 
+  test("Add indentation to a cell", () => {
+    const model = new Model();
+    setStyle(model, "A1", { indent: 1 });
+    expect(getCell(model, "A1")?.style?.indent).toBe(1);
+  });
+
+  test("Trying to add negative indentation with SET_FORMATTING should be refused", () => {
+    const model = new Model();
+    const result = setStyle(model, "A1", { indent: -1 });
+    expect(result).toBeCancelledBecause(CommandResult.IndentLevelError);
+  });
+
+  test("Trying to add negative indentation with UPDATE_CELL should be refused", () => {
+    const model = new Model();
+    const result = model.dispatch("UPDATE_CELL", {
+      sheetId: model.getters.getActiveSheetId(),
+      col: 0,
+      row: 0,
+      style: { indent: -1 },
+    });
+    expect(result).toBeCancelledBecause(CommandResult.IndentLevelError);
+  });
+
   test("clear content", () => {
     const model = new Model();
     setCellContent(model, "A1", "hello");

@@ -154,6 +154,9 @@ export function addStyles(styles: XLSXStyle[]): XMLString {
     if (style.alignment && style.alignment.wrapText) {
       alignAttrs.push(["wrapText", "1"]);
     }
+    if (style.alignment && style.alignment.indent) {
+      alignAttrs.push(["indent", style.alignment.indent]);
+    }
 
     if (alignAttrs.length > 0) {
       attributes.push(["applyAlignment", "1"]); // for Libre Office

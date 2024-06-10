@@ -114,6 +114,7 @@ export interface Style {
   fillColor?: Color;
   textColor?: Color;
   fontSize?: number; // in pt, not in px!
+  indent?: number;
 }
 
 export interface UpdateCellData {

@@ -20071,6 +20071,13 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
                 </f>
             </c>
         </row>
+        <row r="41">
+            <c r="A41" s="23" t="s">
+                <v>
+                    27
+                </v>
+            </c>
+        </row>
     </sheetData>
 </worksheet>",
       "contentType": "sheet",
@@ -20352,7 +20359,7 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
             </diagonal>
         </border>
     </borders>
-    <cellXfs count="23">
+    <cellXfs count="24">
         <xf numFmtId="0" fillId="0" fontId="0" borderId="0"/>
         <xf numFmtId="0" fillId="0" fontId="1" borderId="0"/>
         <xf numFmtId="0" fillId="0" fontId="2" borderId="0"/>
@@ -20382,6 +20389,9 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
         <xf numFmtId="0" fillId="0" fontId="0" borderId="5"/>
         <xf numFmtId="10" fillId="0" fontId="0" borderId="0"/>
         <xf numFmtId="4" fillId="0" fontId="0" borderId="0"/>
+        <xf numFmtId="0" fillId="0" fontId="0" borderId="0" applyAlignment="1">
+            <alignment indent="1"/>
+        </xf>
     </cellXfs>
     <dxfs count="0">
     </dxfs>
@@ -20390,7 +20400,7 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
       "path": "xl/styles.xml",
     },
     {
-      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="27" uniqueCount="27">
+      "content": "<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="28" uniqueCount="28">
     <si>
         <t>
             Owl is awesome
@@ -20524,6 +20534,11 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
     <si>
         <t>
             test 'single quot'
+        </t>
+    </si>
+    <si>
+        <t>
+            Indented text
         </t>
     </si>
 </sst>",
