@@ -624,7 +624,9 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           class="o-grid-overlay overflow-hidden"
           style="top:26px; left:48px; height:calc(100% - 41px); width:calc(100% - 63px); "
         >
-          <div>
+          <div
+            class="position-absolute"
+          >
             
           </div>
           

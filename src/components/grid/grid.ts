@@ -628,6 +628,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     }
 
     if (clipboardData.types.indexOf(ClipboardMIMEType.PlainText) > -1) {
+      ev.preventDefault();
       const content = clipboardData.getData(ClipboardMIMEType.PlainText);
       const target = this.env.model.getters.getSelectedZones();
       const clipboardString = this.env.model.getters.getClipboardTextContent();
