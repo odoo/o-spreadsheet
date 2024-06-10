@@ -52,6 +52,7 @@ export const ChartTerms = {
   BackgroundColor: _t("Background color"),
   StackedBarChart: _t("Stacked bar chart"),
   StackedLineChart: _t("Stacked line chart"),
+  StackedAreaChart: _t("Stacked area chart"),
   CumulativeData: _t("Cumulative data"),
   TreatLabelsAsText: _t("Treat labels as text"),
   AggregatedChart: _t("Aggregate"),

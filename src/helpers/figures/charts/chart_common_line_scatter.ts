@@ -253,7 +253,8 @@ export function createLineOrScatterChartRuntime(
     };
   }
 
-  const stacked = "stacked" in chart ? chart.stacked : false;
+  const areaChart = "fillArea" in chart ? chart.fillArea : false;
+  const stackedChart = "stacked" in chart ? chart.stacked : false;
   const cumulative = "cumulative" in chart ? chart.cumulative : false;
 
   const colors = new ColorGenerator();
@@ -265,7 +266,7 @@ export function createLineOrScatterChartRuntime(
     }
     const color = colors.next();
     let backgroundRGBA = colorToRGBA(color);
-    if (stacked) {
+    if (areaChart) {
       backgroundRGBA.a = LINE_FILL_TRANSPARENCY;
     }
     if (cumulative) {
@@ -288,7 +289,7 @@ export function createLineOrScatterChartRuntime(
       borderColor: color,
       backgroundColor,
       pointBackgroundColor: color,
-      fill: stacked ? getFillingMode(index) : false,
+      fill: areaChart ? getFillingMode(index, stackedChart) : false,
     };
     config.data!.datasets!.push(dataset);
   }

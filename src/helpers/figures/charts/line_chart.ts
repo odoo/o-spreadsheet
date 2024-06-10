@@ -55,6 +55,7 @@ export class LineChart extends AbstractChart {
   readonly cumulative: boolean;
   readonly dataSetDesign?: DatasetDesign[];
   readonly axesDesign?: AxesDesign;
+  readonly fillArea?: boolean;
 
   constructor(definition: LineChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -74,6 +75,7 @@ export class LineChart extends AbstractChart {
     this.cumulative = definition.cumulative;
     this.dataSetDesign = definition.dataSets;
     this.axesDesign = definition.axesDesign;
+    this.fillArea = definition.fillArea;
   }
 
   static validateChartDefinition(
@@ -104,6 +106,7 @@ export class LineChart extends AbstractChart {
       aggregated: context.aggregated ?? false,
       cumulative: context.cumulative ?? false,
       axesDesign: context.axesDesign,
+      fillArea: context.fillArea,
     };
   }
 
@@ -138,6 +141,7 @@ export class LineChart extends AbstractChart {
       aggregated: this.aggregated,
       cumulative: this.cumulative,
       axesDesign: this.axesDesign,
+      fillArea: this.fillArea,
     };
   }
 

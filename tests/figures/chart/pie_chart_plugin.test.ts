@@ -18,6 +18,7 @@ describe("pie chart", () => {
       showConnectorLines: false,
       showSubTotals: true,
       axesDesign: {},
+      fillArea: true,
     };
     const definition = PieChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({

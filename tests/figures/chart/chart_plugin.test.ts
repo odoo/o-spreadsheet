@@ -1,6 +1,6 @@
 import { ChartType as ChartJSType, TooltipItem } from "chart.js";
 import { CommandResult, Model } from "../../../src";
-import { ChartDefinition, UID } from "../../../src/types";
+import { ChartDefinition } from "../../../src/types";
 import {
   BarChartDefinition,
   BarChartRuntime,
@@ -37,17 +37,13 @@ import { toZone, zoneToXc } from "../../../src/helpers";
 import { BarChart } from "../../../src/helpers/figures/charts";
 import { ChartPlugin } from "../../../src/plugins/core";
 import { ScatterChartRuntime } from "../../../src/types/chart/scatter_chart";
+import { getChartConfiguration } from "../../test_helpers/chart_helpers";
 import { FR_LOCALE } from "../../test_helpers/constants";
 import { getCellContent } from "../../test_helpers/getters_helpers";
 
 jest.mock("../../../src/helpers/uuid", () => require("../../__mocks__/uuid"));
 
 let model: Model;
-
-function getChartConfiguration(model: Model, chartId: UID) {
-  const runtime = model.getters.getChartRuntime(chartId) as any;
-  return runtime.chartJsConfig;
-}
 
 beforeEach(() => {
   model = new Model({
@@ -1650,24 +1646,6 @@ describe("Chart design configuration", () => {
     expect(model.getters.getChartDefinition("42")!.background).toBe("#000000");
   });
 
-  test("Stacked bar", () => {
-    createChart(model, defaultChart, "42");
-    expect(isChartAxisStacked(model, "42", "x")).toBeUndefined();
-    expect(isChartAxisStacked(model, "42", "y")).toBeUndefined();
-
-    updateChart(model, "42", { stacked: true });
-    expect(isChartAxisStacked(model, "42", "x")).toBe(true);
-    expect(isChartAxisStacked(model, "42", "y")).toBe(true);
-
-    updateChart(model, "42", { type: "line" });
-    expect(isChartAxisStacked(model, "42", "x")).toBeUndefined();
-    expect(isChartAxisStacked(model, "42", "y")).toBe(true);
-
-    updateChart(model, "42", { type: "line", stacked: false });
-    expect(isChartAxisStacked(model, "42", "x")).toBeUndefined();
-    expect(isChartAxisStacked(model, "42", "y")).toBeUndefined();
-  });
-
   test("empty data points are not displayed in the chart", () => {
     const model = new Model({
       sheets: [
@@ -2612,7 +2590,3 @@ test("Duplicating a sheet dispatches `CREATE_CHART` for each chart", () => {
   expect(spyDispatch).toHaveBeenNthCalledWith(3, "CREATE_CHART", expect.any(Object));
   expect(spyDispatch).toHaveBeenNthCalledWith(4, "CREATE_FIGURE", expect.any(Object));
 });
-
-function isChartAxisStacked(model: Model, chartId: UID, axis: "x" | "y"): boolean {
-  return getChartConfiguration(model, chartId).options?.scales?.[axis]?.stacked;
-}

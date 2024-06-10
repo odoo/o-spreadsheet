@@ -1804,4 +1804,33 @@ describe("Change chart type", () => {
     });
     expect(select.value).toBe("pie");
   });
+
+  test("Can change from (stacked)line to (stacked)area chart", async () => {
+    createChart(model, { type: "line", stacked: false, fillArea: false }, chartId);
+    await mountChartSidePanel(chartId);
+    const select = fixture.querySelector(".o-type-selector") as HTMLSelectElement;
+
+    updateChart(model, chartId, { fillArea: true }, sheetId);
+    await nextTick();
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject({
+      stacked: false,
+      fillArea: true,
+    });
+    expect(select.value).toBe("area");
+
+    await changeChartType("stacked_area");
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject({
+      stacked: true,
+      fillArea: true,
+    });
+    expect(select.value).toBe("stacked_area");
+
+    updateChart(model, chartId, { fillArea: false }, sheetId);
+    await nextTick();
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject({
+      stacked: true,
+      fillArea: false,
+    });
+    expect(select.value).toBe("stacked_line");
+  });
 });

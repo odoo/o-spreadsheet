@@ -186,6 +186,7 @@ export const chartCategories = {
   line: _t("Line"),
   column: _t("Column"),
   bar: _t("Bar"),
+  area: _t("Area"),
   pie: _t("Pie"),
   misc: _t("Miscellaneous"),
 };
@@ -208,21 +209,43 @@ export interface ChartSubtypeProperties {
 export const chartSubtypeRegistry = new Registry<ChartSubtypeProperties>();
 chartSubtypeRegistry
   .add("line", {
-    matcher: (definition) => definition.type === "line" && !definition.stacked,
+    matcher: (definition) =>
+      definition.type === "line" && !definition.stacked && !definition.fillArea,
     displayName: _t("Line"),
     chartType: "line",
     chartSubtype: "line",
-    subtypeDefinition: { stacked: false },
+    subtypeDefinition: { stacked: false, fillArea: false },
     category: "line",
     preview: "o-spreadsheet-ChartPreview.LINE_CHART",
   })
   .add("stacked_line", {
-    matcher: (definition) => definition.type === "line" && definition.stacked,
+    matcher: (definition) =>
+      definition.type === "line" && !definition.fillArea && !!definition.stacked,
     displayName: _t("Stacked Line"),
     chartType: "line",
     chartSubtype: "stacked_line",
-    subtypeDefinition: { stacked: true },
+    subtypeDefinition: { stacked: true, fillArea: false },
     category: "line",
+    preview: "o-spreadsheet-ChartPreview.STACKED_LINE_CHART",
+  })
+  .add("area", {
+    matcher: (definition) =>
+      definition.type === "line" && !definition.stacked && !!definition.fillArea,
+    displayName: _t("Area"),
+    chartType: "line",
+    chartSubtype: "area",
+    subtypeDefinition: { stacked: false, fillArea: true },
+    category: "area",
+    preview: "o-spreadsheet-ChartPreview.AREA_CHART",
+  })
+  .add("stacked_area", {
+    matcher: (definition) =>
+      definition.type === "line" && definition.stacked && !!definition.fillArea,
+    displayName: _t("Stacked Area"),
+    chartType: "line",
+    chartSubtype: "stacked_area",
+    subtypeDefinition: { stacked: true, fillArea: true },
+    category: "area",
     preview: "o-spreadsheet-ChartPreview.STACKED_AREA_CHART",
   })
   .add("scatter", {

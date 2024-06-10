@@ -279,6 +279,7 @@ describe("Waterfall chart", () => {
       showConnectorLines: false,
       showSubTotals: true,
       axesDesign: {},
+      fillArea: true,
     };
     const definition = WaterfallChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({

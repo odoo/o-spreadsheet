@@ -137,4 +137,5 @@ export interface ChartCreationContext {
   readonly firstValueAsSubtotal?: boolean;
   readonly legendPosition?: LegendPosition;
   readonly axesDesign?: AxesDesign;
+  readonly fillArea?: boolean;
 }
