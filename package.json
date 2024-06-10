@@ -1,6 +1,12 @@
 {
   "name": "@odoo/o-spreadsheet",
+<<<<<<< HEAD
   "version": "17.1.17",
+||||||| parent of f83ac27a7 (temp)
+  "version": "17.0.24",
+=======
+  "version": "17.0.25",
+>>>>>>> f83ac27a7 (temp)
   "description": "A spreadsheet component",
   "type": "module",
   "main": "dist/o-spreadsheet.cjs.js",
