@@ -260,7 +260,7 @@ function getWaterfallConfiguration(
   }
   config.options.plugins!.legend = { ...config.options.plugins?.legend, ...legend };
   config.options.layout = {
-    padding: { left: 20, right: 20, top: chart.title ? 10 : 25, bottom: 10 },
+    padding: { left: 20, right: 20, top: chart.title.text ? 10 : 25, bottom: 10 },
   };
 
   config.options.scales = {
