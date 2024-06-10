@@ -1,6 +1,7 @@
 import { Component, useRef, useState } from "@odoo/owl";
 import { Action } from "../../../actions/action";
-import { DOMCoordinates, SpreadsheetChildEnv } from "../../../types";
+import { UuidGenerator } from "../../../helpers";
+import { DOMCoordinates, MenuMouseEvent, SpreadsheetChildEnv } from "../../../types";
 import { useAbsoluteBoundingRect } from "../../helpers/position_hook";
 import { Menu } from "../../menu/menu";
 
@@ -24,6 +25,8 @@ export class SelectMenu extends Component<SelectMenuProps, SpreadsheetChildEnv> 
   };
   static components = { Menu };
 
+  menuId = new UuidGenerator().uuidv4();
+
   selectRef = useRef("select");
   selectRect = useAbsoluteBoundingRect(this.selectRef);
 
@@ -31,8 +34,11 @@ export class SelectMenu extends Component<SelectMenuProps, SpreadsheetChildEnv> 
     isMenuOpen: false,
   });
 
-  onClick() {
-    this.state.isMenuOpen = true;
+  onClick(ev: MenuMouseEvent) {
+    if (ev.closedMenuId === this.menuId) {
+      return;
+    }
+    this.state.isMenuOpen = !this.state.isMenuOpen;
   }
 
   onMenuClosed() {
@@ -42,7 +48,7 @@ export class SelectMenu extends Component<SelectMenuProps, SpreadsheetChildEnv> 
   get menuPosition(): DOMCoordinates {
     return {
       x: this.selectRect.x,
-      y: this.selectRect.y,
+      y: this.selectRect.y + this.selectRect.height,
     };
   }
 }
