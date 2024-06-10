@@ -110,7 +110,7 @@ export function getDefaultChartJsRuntime(
     horizontalChart,
   }: LocaleFormat & { truncateLabels?: boolean; horizontalChart?: boolean }
 ): Required<ChartConfiguration> {
-  const chartTitle = chart.title.text ? chart.title : { ...chart.title, content: "" };
+  const chartTitle = chart.title.text ? chart.title : { ...chart.title, text: "" };
   const options: ChartOptions = {
     // https://www.chartjs.org/docs/latest/general/responsive.html
     responsive: true, // will resize when its container is resized
