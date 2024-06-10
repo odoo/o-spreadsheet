@@ -2,14 +2,7 @@
   <t t-name="o-spreadsheet-PivotSpreadsheetSidePanel">
     <div class="d-flex flex-column h-100 justify-content-between overflow-hidden">
       <div class="h-100 overflow-auto">
-        <Section>
-          <t t-set-slot="title">Name</t>
-          <EditableName name="name" displayName="displayName" onChanged.bind="onNameChanged"/>
-          <div class="btn btn-link o_duplicate_pivot" t-on-click="duplicatePivot">
-            <i class="fa fa-solid fa-copy me-1"/>
-            Duplicate Pivot
-          </div>
-        </Section>
+        <PivotTitleSection pivotId="props.pivotId"/>
         <Section>
           <t t-set-slot="title">Range</t>
           <SelectionInput
@@ -36,9 +29,6 @@
           definition="definition"
           onDimensionsUpdated.bind="onDimensionsUpdated"
         />
-        <Section>
-          <button class="btn btn-link sp_delete" t-on-click="delete">Delete</button>
-        </Section>
       </div>
       <PivotDeferUpdate
         deferUpdate="store.updatesAreDeferred"

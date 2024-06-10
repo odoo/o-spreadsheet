@@ -14,14 +14,7 @@ import {
 } from "../../../../types/pivot";
 
 export class PivotSidePanelStore extends SpreadsheetStore {
-  mutators = [
-    "reset",
-    "deferUpdates",
-    "applyUpdate",
-    "discardPendingUpdate",
-    "renamePivot",
-    "update",
-  ] as const;
+  mutators = ["reset", "deferUpdates", "applyUpdate", "discardPendingUpdate", "update"] as const;
 
   private updatesAreDeferred: boolean = false;
   private draft: PivotCoreDefinition | null = null;
@@ -156,17 +149,6 @@ export class PivotSidePanelStore extends SpreadsheetStore {
 
   discardPendingUpdate() {
     this.draft = null;
-  }
-
-  renamePivot(name: string) {
-    const pivot = this.getters.getPivotCoreDefinition(this.pivotId);
-    this.model.dispatch("UPDATE_PIVOT", {
-      pivotId: this.pivotId,
-      pivot: {
-        ...pivot,
-        name,
-      },
-    });
   }
 
   update(definitionUpdate: Partial<PivotCoreDefinition>) {

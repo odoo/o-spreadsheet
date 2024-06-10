@@ -71,7 +71,16 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
             <div
               class="o-section-title"
             >
-              Name
+              <div
+                class="d-flex flex-row justify-content-between align-items-center"
+              >
+                 Name 
+                <span
+                  class="fa fa-cog os-cog-wheel-menu-icon"
+                />
+                
+                
+              </div>
             </div>
             
             
@@ -89,14 +98,6 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
                Rename 
             </div>
             <br />
-            <div
-              class="btn btn-link o_duplicate_pivot"
-            >
-              <i
-                class="fa fa-solid fa-copy me-1"
-              />
-               Duplicate Pivot 
-            </div>
             
           </div>
           
@@ -186,18 +187,6 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
               
             </div>
             
-            
-          </div>
-          
-          <div
-            class="o-section"
-          >
-            
-            <button
-              class="btn btn-link sp_delete"
-            >
-              Delete
-            </button>
             
           </div>
           
@@ -299,7 +288,16 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
             <div
               class="o-section-title"
             >
-              Name
+              <div
+                class="d-flex flex-row justify-content-between align-items-center"
+              >
+                 Name 
+                <span
+                  class="fa fa-cog os-cog-wheel-menu-icon"
+                />
+                
+                
+              </div>
             </div>
             
             
@@ -317,14 +315,6 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                Rename 
             </div>
             <br />
-            <div
-              class="btn btn-link o_duplicate_pivot"
-            >
-              <i
-                class="fa fa-solid fa-copy me-1"
-              />
-               Duplicate Pivot 
-            </div>
             
           </div>
           
@@ -396,18 +386,6 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
             
           </div>
           
-          
-          <div
-            class="o-section"
-          >
-            
-            <button
-              class="btn btn-link sp_delete"
-            >
-              Delete
-            </button>
-            
-          </div>
           
         </div>
         <div

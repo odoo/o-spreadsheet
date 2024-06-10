@@ -1,0 +1,13 @@
+<templates>
+  <t t-name="o-spreadsheet-PivotTitleSection">
+    <Section>
+      <t t-set-slot="title">
+        <div class="d-flex flex-row justify-content-between align-items-center">
+          Name
+          <CogWheelMenu items="cogWheelMenuItems"/>
+        </div>
+      </t>
+      <EditableName name="name" displayName="displayName" onChanged.bind="onNameChanged"/>
+    </Section>
+  </t>
+</templates>

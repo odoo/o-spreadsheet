@@ -4,15 +4,14 @@ import { splitReference, toZone } from "../../../../../helpers";
 import { SpreadsheetPivotRuntimeDefinition } from "../../../../../helpers/pivot/spreadsheet_pivot/runtime_definition_spreadsheet_pivot";
 import { SpreadsheetPivot } from "../../../../../helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
 import { Store, useLocalStore } from "../../../../../store_engine";
-import { _t } from "../../../../../translation";
 import { UID } from "../../../../../types";
 import { SpreadsheetPivotCoreDefinition } from "../../../../../types/pivot";
 import { SelectionInput } from "../../../../selection_input/selection_input";
 import { Checkbox } from "../../../components/checkbox/checkbox";
 import { Section } from "../../../components/section/section";
-import { EditableName } from "../../editable_name/editable_name";
 import { PivotDeferUpdate } from "../../pivot_defer_update/pivot_defer_update";
 import { PivotLayoutConfigurator } from "../../pivot_layout_configurator/pivot_layout_configurator";
+import { PivotTitleSection } from "../../pivot_title_section/pivot_title_section";
 import { PivotSidePanelStore } from "../pivot_side_panel_store";
 
 interface Props {
@@ -30,9 +29,9 @@ export class PivotSpreadsheetSidePanel extends Component<Props, SpreadsheetChild
     PivotLayoutConfigurator,
     Section,
     SelectionInput,
-    EditableName,
     Checkbox,
     PivotDeferUpdate,
+    PivotTitleSection,
   };
   store!: Store<PivotSidePanelStore>;
 
@@ -67,14 +66,6 @@ export class PivotSpreadsheetSidePanel extends Component<Props, SpreadsheetChild
     return this.store.pivot as SpreadsheetPivot;
   }
 
-  get name() {
-    return this.env.model.getters.getPivotName(this.props.pivotId);
-  }
-
-  get displayName() {
-    return this.env.model.getters.getPivotDisplayName(this.props.pivotId);
-  }
-
   get definition(): SpreadsheetPivotRuntimeDefinition {
     return this.store.definition as SpreadsheetPivotRuntimeDefinition;
   }
@@ -101,33 +92,7 @@ export class PivotSpreadsheetSidePanel extends Component<Props, SpreadsheetChild
     }
   }
 
-  duplicatePivot() {
-    const newPivotId = this.env.model.uuidGenerator.uuidv4();
-    const result = this.env.model.dispatch("DUPLICATE_PIVOT", {
-      pivotId: this.props.pivotId,
-      newPivotId,
-    });
-    const text = result.isSuccessful ? _t("Pivot duplicated.") : _t("Pivot duplication failed");
-    const type = result.isSuccessful ? "success" : "danger";
-    this.env.notifyUser({
-      text,
-      sticky: false,
-      type,
-    });
-    if (result.isSuccessful) {
-      this.env.openSidePanel("PivotSidePanel", { pivotId: newPivotId });
-    }
-  }
-
-  onNameChanged(name: string) {
-    this.store.renamePivot(name);
-  }
-
   onDimensionsUpdated(definition: Partial<SpreadsheetPivotCoreDefinition>) {
     this.store.update(definition);
-  }
-
-  delete() {
-    this.env.model.dispatch("REMOVE_PIVOT", { pivotId: this.props.pivotId });
   }
 }
