@@ -83,7 +83,7 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
       if (!anchor) return;
 
       const propsMaxSize = { width: this.props.maxWidth, height: this.props.maxHeight };
-      const elDims = {
+      let elDims = {
         width: el.getBoundingClientRect().width,
         height: el.getBoundingClientRect().height,
       };
@@ -95,7 +95,15 @@ export class Popover extends Component<PopoverProps, SpreadsheetChildEnv> {
           ? new BottomLeftPopoverContext(anchor, this.containerRect, propsMaxSize, spreadsheetRect)
           : new TopRightPopoverContext(anchor, this.containerRect, propsMaxSize, spreadsheetRect);
 
-      const style = popoverPositionHelper.getCss(elDims, this.props.verticalOffset);
+      el.style["max-height"] = popoverPositionHelper.getMaxHeight(elDims.height) + "px";
+      el.style["max-width"] = popoverPositionHelper.getMaxWidth(elDims.width) + "px";
+      // Re-compute the dimensions after setting the max-width and max-height
+      elDims = {
+        width: el.getBoundingClientRect().width,
+        height: el.getBoundingClientRect().height,
+      };
+
+      let style = popoverPositionHelper.getCss(elDims, this.props.verticalOffset);
       for (const property of Object.keys(style)) {
         el.style[property] = style[property];
       }
@@ -161,7 +169,7 @@ abstract class PopoverPositionContext {
     );
   }
 
-  private getMaxHeight(elementHeight: number) {
+  getMaxHeight(elementHeight: number) {
     const shouldRenderAtBottom = this.shouldRenderAtBottom(elementHeight);
     const availableHeight = shouldRenderAtBottom
       ? this.availableHeightDown
@@ -172,7 +180,7 @@ abstract class PopoverPositionContext {
       : availableHeight;
   }
 
-  private getMaxWidth(elementWidth: number) {
+  getMaxWidth(elementWidth: number) {
     const shouldRenderAtRight = this.shouldRenderAtRight(elementWidth);
     const availableWidth = shouldRenderAtRight ? this.availableWidthRight : this.availableWidthLeft;
 
@@ -193,8 +201,6 @@ abstract class PopoverPositionContext {
 
     verticalOffset = shouldRenderAtBottom ? verticalOffset : -verticalOffset;
     const cssProperties: CSSProperties = {
-      "max-height": maxHeight + "px",
-      "max-width": maxWidth + "px",
       top:
         this.getTopCoordinate(actualHeight, shouldRenderAtBottom) -
         this.spreadsheetOffset.y -
