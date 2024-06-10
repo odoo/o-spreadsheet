@@ -9,6 +9,13 @@ import {
   mountComponentWithPortalTarget,
   nextTick,
 } from "../test_helpers/helpers";
+import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
+
+const dataValidationSelectBoundingRect = { x: 100, y: 100, width: 50, height: 50 };
+mockGetBoundingClientRect({
+  "o-spreadsheet": () => ({ x: 0, y: 0, width: 1000, height: 1000 }),
+  "o-dv-type": () => dataValidationSelectBoundingRect,
+});
 
 export async function mountDataValidationPanel(model?: Model) {
   return mountComponentWithPortalTarget(DataValidationPanel, {
@@ -31,6 +38,23 @@ describe("data validation sidePanel component", () => {
     await click(fixture, ".o-dv-type");
     await click(fixture, `.o-menu-item[data-name="${type}"]`);
   }
+
+  test("Menu to select data validation type is correctly positioned", async () => {
+    await click(fixture, ".o-dv-add");
+    await click(fixture, ".o-dv-type");
+    const popover = document.querySelector<HTMLElement>(".o-popover")!;
+    const { x, y, height } = dataValidationSelectBoundingRect;
+    expect(popover.style.left).toEqual(x + "px");
+    expect(popover.style.top).toEqual(y + height + "px");
+  });
+
+  test("Clicking on the data validation type select element toggles the menu", async () => {
+    await click(fixture, ".o-dv-add");
+    await click(fixture, ".o-dv-type");
+    expect(fixture.querySelector(".o-menu")).toBeTruthy();
+    await click(fixture, ".o-dv-type");
+    expect(fixture.querySelector(".o-menu")).toBeFalsy();
+  });
 
   test.each([
     ["textContains", { values: ["str"] }, 'Text contains "str"'],
