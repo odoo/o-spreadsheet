@@ -1351,6 +1351,14 @@ describe("Copy paste keyboard shortcut", () => {
     composerStore = parent.env.getStore(ComposerStore);
     composerFocusStore = parent.env.getStore(ComposerFocusStore);
   });
+
+  test("Default paste is prevented when handled by the grid", async () => {
+    clipboardData.setText("Excalibur");
+    const pasteEvent = getClipboardEvent("paste", clipboardData);
+    document.body.dispatchEvent(pasteEvent);
+    expect(pasteEvent.defaultPrevented).toBeTruthy();
+  });
+
   test("Can paste from OS", async () => {
     selectCell(model, "A1");
     clipboardData.setText("Excalibur");
