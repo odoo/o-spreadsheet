@@ -56,3 +56,9 @@ export function updatePivot(
 export function removePivot(model: Model, pivotId: UID) {
   return model.dispatch("REMOVE_PIVOT", { pivotId });
 }
+
+export const SELECTORS = {
+  COG_WHEEL: ".os-cog-wheel-menu-icon",
+  DUPLICATE_PIVOT: ".os-cog-wheel-menu .fa-copy",
+  DELETE_PIVOT: ".os-cog-wheel-menu .fa-trash",
+};

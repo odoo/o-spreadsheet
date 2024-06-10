@@ -1,0 +1,76 @@
+import { Component } from "@odoo/owl";
+import { SpreadsheetChildEnv, UID } from "../../../..";
+import { _t } from "../../../../translation";
+import { CogWheelMenu } from "../../components/cog_wheel_menu/cog_wheel_menu";
+import { Section } from "../../components/section/section";
+import { EditableName } from "../editable_name/editable_name";
+
+interface Props {
+  pivotId: UID;
+}
+
+export class PivotTitleSection extends Component<Props, SpreadsheetChildEnv> {
+  static template = "o-spreadsheet-PivotTitleSection";
+  static components = { CogWheelMenu, Section, EditableName };
+  static props = {
+    pivotId: String,
+  };
+
+  get cogWheelMenuItems() {
+    return [
+      {
+        name: "Duplicate",
+        icon: "fa-copy",
+        onClick: () => this.duplicatePivot(),
+      },
+      {
+        name: "Delete",
+        icon: "fa-trash",
+        onClick: () => this.delete(),
+      },
+    ];
+  }
+
+  get name() {
+    return this.env.model.getters.getPivotName(this.props.pivotId);
+  }
+
+  get displayName() {
+    return this.env.model.getters.getPivotDisplayName(this.props.pivotId);
+  }
+
+  duplicatePivot() {
+    const newPivotId = this.env.model.uuidGenerator.uuidv4();
+    const result = this.env.model.dispatch("DUPLICATE_PIVOT", {
+      pivotId: this.props.pivotId,
+      newPivotId,
+    });
+    const text = result.isSuccessful ? _t("Pivot duplicated.") : _t("Pivot duplication failed");
+    const type = result.isSuccessful ? "success" : "danger";
+    this.env.notifyUser({
+      text,
+      sticky: false,
+      type,
+    });
+    if (result.isSuccessful) {
+      this.env.openSidePanel("PivotSidePanel", { pivotId: newPivotId });
+    }
+  }
+
+  delete() {
+    this.env.askConfirmation(_t("Are you sure you want to delete this pivot?"), () => {
+      this.env.model.dispatch("REMOVE_PIVOT", { pivotId: this.props.pivotId });
+    });
+  }
+
+  onNameChanged(name: string) {
+    const pivot = this.env.model.getters.getPivotCoreDefinition(this.props.pivotId);
+    this.env.model.dispatch("UPDATE_PIVOT", {
+      pivotId: this.props.pivotId,
+      pivot: {
+        ...pivot,
+        name,
+      },
+    });
+  }
+}

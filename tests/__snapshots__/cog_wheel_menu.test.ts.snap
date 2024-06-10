@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CogWheelMenu Can render a cog wheel menu 1`] = `
+<div>
+  <div
+    class="o-spreadsheet"
+  >
+    <span
+      class="fa fa-cog os-cog-wheel-menu-icon"
+    />
+    
+  </div>
+</div>
+`;

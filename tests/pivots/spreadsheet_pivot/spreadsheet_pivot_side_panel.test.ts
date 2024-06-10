@@ -4,7 +4,7 @@ import { SpreadsheetPivot } from "../../../src/helpers/pivot/spreadsheet_pivot/s
 import { setCellContent } from "../../test_helpers/commands_helpers";
 import { click } from "../../test_helpers/dom_helper";
 import { mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
-import { addPivot, updatePivot } from "../../test_helpers/pivot_helpers";
+import { SELECTORS, addPivot, updatePivot } from "../../test_helpers/pivot_helpers";
 
 describe("Spreadsheet pivot side panel", () => {
   let model: Model;
@@ -104,7 +104,8 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("Can duplicate a pivot", async () => {
-    await click(fixture.querySelector(".o_duplicate_pivot")!);
+    await click(fixture, SELECTORS.COG_WHEEL);
+    await click(fixture, SELECTORS.DUPLICATE_PIVOT);
     const pivotId = model.getters.getPivotId("2")!;
     expect(model.getters.getPivot(pivotId)).toBeDefined();
     expect(model.getters.getPivotDisplayName(pivotId)).toEqual("(#2) Pivot (copy)");
