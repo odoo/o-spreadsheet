@@ -262,13 +262,17 @@ export function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): Da
   return datasetValues;
 }
 
-/** See https://www.chartjs.org/docs/latest/charts/area.html#filling-modes */
-export function getFillingMode(index: number): "origin" | number {
-  if (index === 0) {
+/**
+ * If the chart is a stacked area chart, we want to fill until the next dataset.
+ * If the chart is a simple area chart, we want to fill until the origin (bottom axis).
+ *
+ * See https://www.chartjs.org/docs/latest/charts/area.html#filling-modes
+ */
+export function getFillingMode(index: number, stackedChart: boolean): string {
+  if (!stackedChart) {
     return "origin";
-  } else {
-    return index - 1;
   }
+  return index === 0 ? "origin" : "-1";
 }
 
 export function chartToImage(

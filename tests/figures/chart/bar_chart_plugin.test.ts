@@ -1,7 +1,13 @@
 import { ChartCreationContext, Model } from "../../../src";
 import { BarChart } from "../../../src/helpers/figures/charts";
 import { BarChartRuntime } from "../../../src/types/chart";
-import { createChart, setCellContent, setFormat } from "../../test_helpers/commands_helpers";
+import { isChartAxisStacked } from "../../test_helpers/chart_helpers";
+import {
+  createChart,
+  setCellContent,
+  setFormat,
+  updateChart,
+} from "../../test_helpers/commands_helpers";
 
 let model: Model;
 describe("bar chart", () => {
@@ -21,6 +27,7 @@ describe("bar chart", () => {
       showConnectorLines: false,
       showSubTotals: true,
       axesDesign: {},
+      fillArea: true,
     };
     const definition = BarChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({
@@ -35,6 +42,17 @@ describe("bar chart", () => {
       stacked: true,
       axesDesign: {},
     });
+  });
+
+  test("Stacked bar", () => {
+    const model = new Model();
+    createChart(model, { type: "bar", stacked: false }, "chartId");
+    expect(isChartAxisStacked(model, "chartId", "x")).toBeUndefined();
+    expect(isChartAxisStacked(model, "chartId", "y")).toBeUndefined();
+
+    updateChart(model, "chartId", { stacked: true });
+    expect(isChartAxisStacked(model, "chartId", "x")).toBe(true);
+    expect(isChartAxisStacked(model, "chartId", "y")).toBe(true);
   });
 
   describe("Horizontal bar chart", () => {

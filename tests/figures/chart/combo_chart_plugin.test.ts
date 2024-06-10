@@ -20,6 +20,7 @@ describe("combo chart", () => {
       showConnectorLines: false,
       showSubTotals: true,
       axesDesign: {},
+      fillArea: true,
     };
     const definition = ComboChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({

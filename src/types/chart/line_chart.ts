@@ -16,6 +16,7 @@ export interface LineChartDefinition {
   readonly aggregated?: boolean;
   readonly cumulative: boolean;
   readonly axesDesign?: AxesDesign;
+  readonly fillArea?: boolean;
 }
 
 export type LineChartRuntime = {
