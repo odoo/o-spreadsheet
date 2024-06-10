@@ -14,7 +14,6 @@ export const DELTA = {
     arg("number1 (number)", _t("The first number to compare.")),
     arg(`number2 (number, default=${DEFAULT_DELTA_ARG})`, _t("The second number to compare.")),
   ],
-  returns: ["NUMBER"],
   compute: function (
     number1: Maybe<FPayload>,
     number2: Maybe<FPayload> = { value: DEFAULT_DELTA_ARG }

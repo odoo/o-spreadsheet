@@ -20,7 +20,6 @@ export const CELL = {
     ),
     arg("reference (meta)", _t("The reference to the cell.")),
   ],
-  returns: ["ANY"],
   compute: function (info: Maybe<FPayload>, reference: Maybe<{ value: string }>) {
     const _info = toString(info).toLowerCase();
     assert(
@@ -76,7 +75,6 @@ export const CELL = {
 export const ISERR = {
   description: _t("Whether a value is an error other than #N/A."),
   args: [arg("value (any)", _t("The value to be verified as an error type."))],
-  returns: ["BOOLEAN"],
   compute: function (data: Maybe<FPayload>): boolean {
     const value = data?.value;
     return isEvaluationError(value) && value !== CellErrorType.NotAvailable;
@@ -90,7 +88,6 @@ export const ISERR = {
 export const ISERROR = {
   description: _t("Whether a value is an error."),
   args: [arg("value (any)", _t("The value to be verified as an error type."))],
-  returns: ["BOOLEAN"],
   compute: function (data: Maybe<FPayload>): boolean {
     const value = data?.value;
     return isEvaluationError(value);
@@ -104,7 +101,6 @@ export const ISERROR = {
 export const ISLOGICAL = {
   description: _t("Whether a value is `true` or `false`."),
   args: [arg("value (any)", _t("The value to be verified as a logical TRUE or FALSE."))],
-  returns: ["BOOLEAN"],
   compute: function (value: Maybe<FPayload>): boolean {
     return typeof value?.value === "boolean";
   },
@@ -117,7 +113,6 @@ export const ISLOGICAL = {
 export const ISNA = {
   description: _t("Whether a value is the error #N/A."),
   args: [arg("value (any)", _t("The value to be verified as an error type."))],
-  returns: ["BOOLEAN"],
   compute: function (data: Maybe<FPayload>): boolean {
     return data?.value === CellErrorType.NotAvailable;
   },
@@ -130,7 +125,6 @@ export const ISNA = {
 export const ISNONTEXT = {
   description: _t("Whether a value is non-textual."),
   args: [arg("value (any)", _t("The value to be checked."))],
-  returns: ["BOOLEAN"],
   compute: function (value: Maybe<FPayload>): boolean {
     return !ISTEXT.compute.bind(this)(value);
   },
@@ -144,7 +138,6 @@ export const ISNONTEXT = {
 export const ISNUMBER = {
   description: _t("Whether a value is a number."),
   args: [arg("value (any)", _t("The value to be verified as a number."))],
-  returns: ["BOOLEAN"],
   compute: function (value: Maybe<FPayload>): boolean {
     return typeof value?.value === "number";
   },
@@ -157,7 +150,6 @@ export const ISNUMBER = {
 export const ISTEXT = {
   description: _t("Whether a value is text."),
   args: [arg("value (any)", _t("The value to be verified as text."))],
-  returns: ["BOOLEAN"],
   compute: function (value: Maybe<FPayload>): boolean {
     return typeof value?.value === "string" && isEvaluationError(value?.value) === false;
   },
@@ -170,7 +162,6 @@ export const ISTEXT = {
 export const ISBLANK = {
   description: _t("Whether the referenced cell is empty"),
   args: [arg("value (any)", _t("Reference to the cell that will be checked for emptiness."))],
-  returns: ["BOOLEAN"],
   compute: function (value: Maybe<FPayload>): boolean {
     return value?.value === null;
   },
@@ -183,7 +174,6 @@ export const ISBLANK = {
 export const NA = {
   description: _t("Returns the error value #N/A."),
   args: [],
-  returns: ["BOOLEAN"],
   compute: function (): FPayload {
     return { value: CellErrorType.NotAvailable };
   },

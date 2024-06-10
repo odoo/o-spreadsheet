@@ -34,7 +34,6 @@ describe("evaluate formulas that return an array", () => {
         arg("m (number)", "number of row of the matrix"),
         arg("v (number)", "value to fill matrix"),
       ],
-      returns: ["RANGE<NUMBER>"],
       compute: function (n, m, v): number[][] {
         const _n = toNumber(toScalar(n), DEFAULT_LOCALE);
         const _m = toNumber(toScalar(m), DEFAULT_LOCALE);
@@ -118,7 +117,6 @@ describe("evaluate formulas that return an array", () => {
         return [[{ value: 42 }, error]];
       },
       args: [],
-      returns: ["ANY"],
     });
     setCellContent(model, "A1", "=GETERR()");
     expect((getEvaluatedCell(model, "A2") as ErrorCell).message).toBe("Function GETERR failed");
@@ -129,7 +127,6 @@ describe("evaluate formulas that return an array", () => {
       functionRegistry.add("MATRIX.2.2", {
         description: "Return an 2*2 matrix with some values",
         args: [],
-        returns: ["RANGE<NUMBER>"],
         compute: function () {
           return [
             [{ value: 1, format: "0.00" }, { value: 2 }],
@@ -152,7 +149,6 @@ describe("evaluate formulas that return an array", () => {
       functionRegistry.add("MATRIX", {
         description: "Return the matrix passed as argument",
         args: [arg("matrix (range<number>)", "a matrix")],
-        returns: ["RANGE<NUMBER>"],
         compute: function (matrix) {
           return toMatrix(matrix);
         },
@@ -606,7 +602,6 @@ describe("evaluate formulas that return an array", () => {
       functionRegistry.add("INCREMENTONEVAL", {
         description: "returns the input, but fancy. Like transpose(transpose(range))",
         args: [arg("range (any, range<any>)", "The matrix to be transposed.")],
-        returns: ["RANGE<ANY>"],
         compute: function (values) {
           c++;
           return 5;
@@ -630,7 +625,6 @@ describe("evaluate formulas that return an array", () => {
       functionRegistry.add("INCREMENTONEVAL", {
         description: "",
         args: [arg("range (any, range<any>)", "")],
-        returns: ["RANGE<ANY>"],
         compute: function () {
           c++;
           return 5;
@@ -651,7 +645,6 @@ describe("evaluate formulas that return an array", () => {
       functionRegistry.add("INCREMENTONEVAL", {
         description: "",
         args: [arg("range (any, range<any>)", "")],
-        returns: ["RANGE<ANY>"],
         compute: function () {
           c++;
           return 5;

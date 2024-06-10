@@ -187,7 +187,6 @@ describe("basic search", () => {
       description: "Get value",
       compute: () => value,
       args: [],
-      returns: ["NUMBER"],
     });
     setCellContent(model, "A1", "hello");
     setCellContent(model, "B1", "=GETVALUE()");

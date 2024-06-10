@@ -162,7 +162,6 @@ describe("Aggregate statistic functions", () => {
         { name: "arg1", description: "", type: ["ANY"] },
         { name: "arg2", description: "", type: ["ANY"] },
       ],
-      returns: ["ANY"],
     });
 
     const model = new Model();

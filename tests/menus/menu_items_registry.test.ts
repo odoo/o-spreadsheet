@@ -932,7 +932,6 @@ describe("Menu Item actions", () => {
       args: [],
       compute: () => 42,
       description: "Test function",
-      returns: ["NUMBER"],
     });
     const env = makeTestEnv();
     const allFunctions = getNode(
@@ -958,7 +957,6 @@ describe("Menu Item actions", () => {
       args: [],
       compute: () => 42,
       description: "Test function",
-      returns: ["NUMBER"],
       hidden: true,
       category: "hidden",
     });

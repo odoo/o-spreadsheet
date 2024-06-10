@@ -17,7 +17,6 @@ export const FORMAT_LARGE_NUMBER = {
       _t("The formatting unit. Use 'k', 'm', or 'b' to force the unit")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (value: Maybe<FPayload>, unite: Maybe<FPayload>): FPayloadNumber {
     return {
       value: toNumber(value, this.locale),

@@ -81,7 +81,6 @@ describe("Simple Spreadsheet Component", () => {
           return "Sheet";
         },
         args: [],
-        returns: ["STRING"],
       });
     });
 

@@ -67,7 +67,6 @@ export const ADDRESS = {
       _t("A string indicating the name of the sheet into which the address points.")
     ),
   ],
-  returns: ["STRING"],
   compute: function (
     row: Maybe<FPayload>,
     column: Maybe<FPayload>,
@@ -119,7 +118,6 @@ export const COLUMN = {
       )
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (cellReference: Maybe<{ value: string }>): number {
     if (isEvaluationError(cellReference?.value)) {
       throw cellReference;
@@ -143,7 +141,6 @@ export const COLUMN = {
 export const COLUMNS = {
   description: _t("Number of columns in a specified array or range."),
   args: [arg("range (meta)", _t("The range whose column count will be returned."))],
-  returns: ["NUMBER"],
   compute: function (range: { value: string }): number {
     if (isEvaluationError(range?.value)) {
       throw range;
@@ -179,7 +176,6 @@ export const HLOOKUP = {
       )
     ),
   ],
-  returns: ["ANY"],
   compute: function (
     searchKey: Maybe<FPayload>,
     range: Matrix<FPayload>,
@@ -227,7 +223,6 @@ export const INDEX: AddFunctionDescription = {
       _t("The index of the column to be returned from within the reference range of cells.")
     ),
   ],
-  returns: ["ANY"],
   compute: function (
     reference: Matrix<FPayload>,
     row: Maybe<FPayload> = { value: 0 },
@@ -272,7 +267,6 @@ export const INDIRECT: AddFunctionDescription = {
       )
     ),
   ],
-  returns: ["ANY"],
   compute: function (
     reference: Maybe<FPayload>,
     useA1Notation: Maybe<FPayload> = { value: true }
@@ -344,7 +338,6 @@ export const LOOKUP = {
       )
     ),
   ],
-  returns: ["ANY"],
   compute: function (
     searchKey: Maybe<FPayload>,
     searchArray: Matrix<FPayload>,
@@ -420,7 +413,6 @@ export const MATCH = {
       )
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     searchKey: Maybe<FPayload>,
     range: Matrix<FPayload>,
@@ -480,7 +472,6 @@ export const ROW = {
       )
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (cellReference: Maybe<{ value: string }>): number {
     if (isEvaluationError(cellReference?.value)) {
       throw cellReference;
@@ -504,7 +495,6 @@ export const ROW = {
 export const ROWS = {
   description: _t("Number of rows in a specified array or range."),
   args: [arg("range (meta)", _t("The range whose row count will be returned."))],
-  returns: ["NUMBER"],
   compute: function (range: { value: string }): number {
     if (isEvaluationError(range?.value)) {
       throw range;
@@ -542,7 +532,6 @@ export const VLOOKUP = {
       )
     ),
   ],
-  returns: ["ANY"],
   compute: function (
     searchKey: Maybe<FPayload>,
     range: Matrix<FPayload>,
@@ -620,7 +609,6 @@ export const XLOOKUP = {
       )
     ),
   ],
-  returns: ["ANY"],
   compute: function (
     searchKey: Maybe<FPayload>,
     lookupRange: Matrix<FPayload>,
@@ -744,7 +732,6 @@ export const PIVOT_VALUE = {
     }
     return { value, format };
   },
-  returns: ["NUMBER", "STRING"],
 } satisfies AddFunctionDescription;
 
 export const PIVOT_HEADER = {
@@ -797,7 +784,6 @@ export const PIVOT_HEADER = {
           : format,
     };
   },
-  returns: ["NUMBER", "STRING"],
 } satisfies AddFunctionDescription;
 
 export const PIVOT = {
@@ -873,5 +859,4 @@ export const PIVOT = {
     }
     return result;
   },
-  returns: ["RANGE<ANY>"],
 } satisfies AddFunctionDescription;

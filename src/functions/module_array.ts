@@ -32,7 +32,6 @@ export const ARRAY_CONSTRAIN = {
     arg("rows (number)", _t("The number of rows in the constrained array.")),
     arg("columns (number)", _t("The number of columns in the constrained array.")),
   ],
-  returns: ["RANGE<ANY>"],
   compute: function (
     array: Arg,
     rows: Maybe<FPayload>,
@@ -75,7 +74,6 @@ export const CHOOSECOLS = {
       _t("The columns indexes of the columns to be returned.")
     ),
   ],
-  returns: ["RANGE<ANY>"],
   compute: function (array: Arg, ...columns: Arg[]): Matrix<FPayload> {
     const _array = toMatrix(array);
     const _columns = flattenRowFirst(columns, (item) => toInteger(item?.value, this.locale));
@@ -118,7 +116,6 @@ export const CHOOSEROWS = {
       _t("The rows indexes of the rows to be returned.")
     ),
   ],
-  returns: ["RANGE<ANY>"],
   compute: function (array: Arg, ...rows: Arg[]): Matrix<FPayload> {
     const _array = toMatrix(array);
     const _rows = flattenRowFirst(rows, (item) => toInteger(item?.value, this.locale));
@@ -162,7 +159,6 @@ export const EXPAND = {
     ),
     arg("pad_with (any, default=0)", _t("The value with which to pad.")), // @compatibility: on Excel, pad with #N/A
   ],
-  returns: ["RANGE<ANY>"],
   compute: function (
     arg: Arg,
     rows: Maybe<FPayload>,
@@ -205,7 +201,6 @@ export const FLATTEN = {
     arg("range (any, range<any>)", _t("The first range to flatten.")),
     arg("range2 (any, range<any>, repeating)", _t("Additional ranges to flatten.")),
   ],
-  returns: ["RANGE<ANY>"],
   compute: function (...ranges: Arg[]): Matrix<FPayload> {
     return [flattenRowFirst(ranges, (val) => (val === undefined ? { value: "" } : val))];
   },
@@ -221,7 +216,6 @@ export const FREQUENCY = {
     arg("data (range<number>)", _t("The array of ranges containing the values to be counted.")),
     arg("classes (number, range<number>)", _t("The range containing the set of classes.")),
   ],
-  returns: ["RANGE<NUMBER>"],
   compute: function (data: Matrix<FPayload>, classes: Matrix<FPayload>): Matrix<number> {
     const _data = flattenRowFirst([data], (data) => data.value).filter(
       (val): val is number => typeof val === "number"
@@ -279,7 +273,6 @@ export const HSTACK = {
     arg("range1 (any, range<any>)", _t("The first range to be appended.")),
     arg("range2 (any, range<any>, repeating)", _t("Additional ranges to add to range1.")),
   ],
-  returns: ["RANGE<ANY>"],
   compute: function (...ranges: Arg[]): Matrix<FPayload> {
     const nbRows = Math.max(...ranges.map((r) => r?.[0]?.length ?? 0));
 
@@ -314,7 +307,6 @@ export const MDETERM = {
       )
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (matrix: Arg): number {
     const _matrix = toNumberMatrix(matrix, "square_matrix");
     assertSquareMatrix(
@@ -339,7 +331,6 @@ export const MINVERSE = {
       )
     ),
   ],
-  returns: ["RANGE<NUMBER>"],
   compute: function (matrix: Arg): Matrix<number> {
     const _matrix = toNumberMatrix(matrix, "square_matrix");
     assertSquareMatrix(
@@ -370,7 +361,6 @@ export const MMULT = {
       _t("The second matrix in the matrix multiplication operation.")
     ),
   ],
-  returns: ["RANGE<NUMBER>"],
   compute: function (matrix1: Arg, matrix2: Arg): Matrix<number> {
     const _matrix1 = toNumberMatrix(matrix1, "matrix1");
     const _matrix2 = toNumberMatrix(matrix2, "matrix2");
@@ -411,7 +401,6 @@ export const SUMPRODUCT = {
       )
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (...args: Arg[]): number {
     assertSameDimensions(_t("All the ranges must have the same dimensions."), ...args);
     const _args = args.map(toMatrix);
@@ -492,7 +481,6 @@ export const SUMX2MY2 = {
       )
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (arrayX: Arg, arrayY: Arg): number {
     return getSumXAndY(arrayX, arrayY, (x, y) => x ** 2 - y ** 2);
   },
@@ -518,7 +506,6 @@ export const SUMX2PY2 = {
       )
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (arrayX: Arg, arrayY: Arg): number {
     return getSumXAndY(arrayX, arrayY, (x, y) => x ** 2 + y ** 2);
   },
@@ -544,7 +531,6 @@ export const SUMXMY2 = {
       )
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (arrayX: Arg, arrayY: Arg): number {
     return getSumXAndY(arrayX, arrayY, (x, y) => (x - y) ** 2);
   },
@@ -593,7 +579,6 @@ function shouldKeepValue(ignore: number): (data: FPayload) => boolean {
 export const TOCOL = {
   description: _t("Transforms a range of cells into a single column."),
   args: TO_COL_ROW_ARGS,
-  returns: ["RANGE<ANY>"],
   compute: function (
     array: Arg,
     ignore: Maybe<FPayload> = { value: TO_COL_ROW_DEFAULT_IGNORE },
@@ -620,7 +605,6 @@ export const TOCOL = {
 export const TOROW = {
   description: _t("Transforms a range of cells into a single row."),
   args: TO_COL_ROW_ARGS,
-  returns: ["RANGE<ANY>"],
   compute: function (
     array: Arg,
     ignore: Maybe<FPayload> = { value: TO_COL_ROW_DEFAULT_IGNORE },
@@ -648,7 +632,6 @@ export const TOROW = {
 export const TRANSPOSE = {
   description: _t("Transposes the rows and columns of a range."),
   args: [arg("range (any, range<any>)", _t("The range to be transposed."))],
-  returns: ["RANGE"],
   compute: function (arg: Arg): Matrix<FPayload> {
     const _array = toMatrix(arg);
     const nbColumns = _array[0].length;
@@ -668,7 +651,6 @@ export const VSTACK = {
     arg("range1 (any, range<any>)", _t("The first range to be appended.")),
     arg("range2 (any, range<any>, repeating)", _t("Additional ranges to add to range1.")),
   ],
-  returns: ["RANGE<ANY>"],
   compute: function (...ranges: Arg[]): Matrix<FPayload> {
     const nbColumns = Math.max(...ranges.map((range) => toMatrix(range).length));
     const nbRows = ranges.reduce((acc, range) => acc + toMatrix(range)[0].length, 0);
@@ -711,7 +693,6 @@ export const WRAPCOLS = {
       _t("The value with which to fill the extra cells in the range.")
     ),
   ],
-  returns: ["RANGE<ANY>"],
   compute: function (
     range: Arg,
     wrapCount: Maybe<FPayload>,
@@ -751,7 +732,6 @@ export const WRAPROWS = {
       _t("The value with which to fill the extra cells in the range.")
     ),
   ],
-  returns: ["RANGE<ANY>"],
   compute: function (
     range: Arg,
     wrapCount: Maybe<FPayload>,

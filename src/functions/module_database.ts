@@ -171,7 +171,6 @@ const databaseArgs = [
 export const DAVERAGE = {
   description: _t("Average of a set of values from a table-like range."),
   args: databaseArgs,
-  returns: ["NUMBER"],
   compute: function (
     database: Matrix<FPayload>,
     field: Maybe<FPayload>,
@@ -189,7 +188,6 @@ export const DAVERAGE = {
 export const DCOUNT = {
   description: _t("Counts values from a table-like range."),
   args: databaseArgs,
-  returns: ["NUMBER"],
   compute: function (
     database: Matrix<FPayload>,
     field: Maybe<FPayload>,
@@ -207,7 +205,6 @@ export const DCOUNT = {
 export const DCOUNTA = {
   description: _t("Counts values and text from a table-like range."),
   args: databaseArgs,
-  returns: ["NUMBER"],
   compute: function (
     database: Matrix<FPayload>,
     field: Maybe<FPayload>,
@@ -225,7 +222,6 @@ export const DCOUNTA = {
 export const DGET = {
   description: _t("Single value from a table-like range."),
   args: databaseArgs,
-  returns: ["NUMBER"],
   compute: function (
     database: Matrix<FPayload>,
     field: Maybe<FPayload>,
@@ -244,7 +240,6 @@ export const DGET = {
 export const DMAX = {
   description: _t("Maximum of values from a table-like range."),
   args: databaseArgs,
-  returns: ["NUMBER"],
   compute: function (
     database: Matrix<FPayload>,
     field: Maybe<FPayload>,
@@ -262,7 +257,6 @@ export const DMAX = {
 export const DMIN = {
   description: _t("Minimum of values from a table-like range."),
   args: databaseArgs,
-  returns: ["NUMBER"],
   compute: function (
     database: Matrix<FPayload>,
     field: Maybe<FPayload>,
@@ -280,7 +274,6 @@ export const DMIN = {
 export const DPRODUCT = {
   description: _t("Product of values from a table-like range."),
   args: databaseArgs,
-  returns: ["NUMBER"],
   compute: function (
     database: Matrix<FPayload>,
     field: Maybe<FPayload>,
@@ -298,7 +291,6 @@ export const DPRODUCT = {
 export const DSTDEV = {
   description: _t("Standard deviation of population sample from table."),
   args: databaseArgs,
-  returns: ["NUMBER"],
   compute: function (
     database: Matrix<FPayload>,
     field: Maybe<FPayload>,
@@ -316,7 +308,6 @@ export const DSTDEV = {
 export const DSTDEVP = {
   description: _t("Standard deviation of entire population from table."),
   args: databaseArgs,
-  returns: ["NUMBER"],
   compute: function (
     database: Matrix<FPayload>,
     field: Maybe<FPayload>,
@@ -334,7 +325,6 @@ export const DSTDEVP = {
 export const DSUM = {
   description: _t("Sum of values from a table-like range."),
   args: databaseArgs,
-  returns: ["NUMBER"],
   compute: function (
     database: Matrix<FPayload>,
     field: Maybe<FPayload>,
@@ -352,7 +342,6 @@ export const DSUM = {
 export const DVAR = {
   description: _t("Variance of population sample from table-like range."),
   args: databaseArgs,
-  returns: ["NUMBER"],
   compute: function (
     database: Matrix<FPayload>,
     field: Maybe<FPayload>,
@@ -370,7 +359,6 @@ export const DVAR = {
 export const DVARP = {
   description: _t("Variance of a population from a table-like range."),
   args: databaseArgs,
-  returns: ["NUMBER"],
   compute: function (
     database: Matrix<FPayload>,
     field: Maybe<FPayload>,

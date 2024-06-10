@@ -51,25 +51,21 @@ beforeEach(() => {
       description: "do if",
       args: [],
       compute: () => 1,
-      returns: ["ANY"],
     })
     .add("SUM", {
       description: "do sum",
       args: [],
       compute: () => 1,
-      returns: ["ANY"],
     })
     .add("SZZ", {
       description: "do something",
       args: [],
       compute: () => 1,
-      returns: ["ANY"],
     })
     .add("HIDDEN", {
       description: "do something",
       args: [],
       compute: () => 1,
-      returns: ["ANY"],
       hidden: true,
     });
 });
@@ -191,7 +187,6 @@ describe("Functions autocomplete", () => {
           description: "do sum",
           args: [],
           compute: () => 1,
-          returns: ["ANY"],
         });
       }
 
@@ -215,7 +210,6 @@ describe("Functions autocomplete", () => {
           description: "",
           args: [],
           compute: () => 1,
-          returns: ["ANY"],
         });
       }
       await typeInComposer("=FUZZY");
@@ -232,7 +226,6 @@ describe("Functions autocomplete", () => {
         description: "",
         args: [],
         compute: () => 1,
-        returns: ["ANY"],
       });
       await typeInComposer("=FUZZY");
       expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
@@ -479,13 +472,11 @@ describe("autocomplete boolean functions", () => {
       description: "TRUE",
       args: [],
       compute: () => true,
-      returns: ["BOOLEAN"],
     });
     functionRegistry.add("FALSE", {
       description: "FALSE",
       args: [],
       compute: () => false,
-      returns: ["BOOLEAN"],
     });
     ({ model, fixture, parent } = await mountComposerWrapper());
     parent.startComposition();
@@ -527,43 +518,36 @@ describe("composer entries", () => {
         description: "",
         args: [],
         compute: () => 1,
-        returns: ["ANY"],
       })
       .add("SUPER", {
         description: "",
         args: [],
         compute: () => 1,
-        returns: ["ANY"],
       })
       .add("SIN", {
         description: "",
         args: [],
         compute: () => 1,
-        returns: ["ANY"],
       })
       .add("SLNT", {
         description: "",
         args: [],
         compute: () => 1,
-        returns: ["ANY"],
       })
       .add("SECQ", {
         description: "",
         args: [],
         compute: () => 1,
-        returns: ["ANY"],
       })
       .add("SAPER", {
         description: "",
         args: [],
         compute: () => 1,
-        returns: ["ANY"],
       })
       .add("SLN", {
         description: "",
         args: [],
         compute: () => 1,
-        returns: ["ANY"],
       });
   });
   test("Autocomplente entries are sorted by length and then alphanumerically", async () => {

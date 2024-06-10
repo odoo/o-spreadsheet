@@ -599,7 +599,6 @@ describe("Autofill", () => {
     functionRegistry.add("SPREAD.EMPTY", {
       description: "spreads empty values",
       args: [],
-      returns: ["NUMBER"],
       compute: function (): null[][] {
         return [
           [null, null, null], // return 2 col, 3 row matrix
