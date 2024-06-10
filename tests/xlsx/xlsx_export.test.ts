@@ -764,7 +764,6 @@ describe("Test XLSX export", () => {
       functionRegistry.add("NON.EXPORTABLE", {
         description: "a non exportable formula",
         args: [arg('range (any, range<any>, ,default="a")', "")],
-        returns: ["NUMBER"],
         compute: function () {
           return { value: 42, format: "0.00%" };
         },
@@ -791,7 +790,6 @@ describe("Test XLSX export", () => {
       functionRegistry.add("NON.EXPORTABLE.ARRAY.FORMULA", {
         description: "a non exportable formula that spread",
         args: [],
-        returns: ["RANGE<NUMBER>"],
         compute: function () {
           return [
             [

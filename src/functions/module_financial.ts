@@ -148,7 +148,6 @@ export const ACCRINTM = {
       _t("An indicator of what day count method to use.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     issue: Maybe<FPayload>,
     maturity: Maybe<FPayload>,
@@ -194,7 +193,6 @@ export const AMORLINC = {
       _t("An indicator of what day count method to use.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     cost: Maybe<FPayload>,
     purchaseDate: Maybe<FPayload>,
@@ -265,7 +263,6 @@ export const AMORLINC = {
 export const COUPDAYS = {
   description: _t("Days in coupon period containing settlement date."),
   args: COUPON_FUNCTION_ARGS,
-  returns: ["NUMBER"],
   compute: function (
     settlement: Maybe<FPayload>,
     maturity: Maybe<FPayload>,
@@ -311,7 +308,6 @@ export const COUPDAYS = {
 export const COUPDAYBS = {
   description: _t("Days from settlement until next coupon."),
   args: COUPON_FUNCTION_ARGS,
-  returns: ["NUMBER"],
   compute: function (
     settlement: Maybe<FPayload>,
     maturity: Maybe<FPayload>,
@@ -388,7 +384,6 @@ export const COUPDAYBS = {
 export const COUPDAYSNC = {
   description: _t("Days from settlement until next coupon."),
   args: COUPON_FUNCTION_ARGS,
-  returns: ["NUMBER"],
   compute: function (
     settlement: Maybe<FPayload>,
     maturity: Maybe<FPayload>,
@@ -443,7 +438,6 @@ export const COUPDAYSNC = {
 export const COUPNCD = {
   description: _t("Next coupon date after the settlement date."),
   args: COUPON_FUNCTION_ARGS,
-  returns: ["NUMBER"],
   compute: function (
     settlement: Maybe<FPayload>,
     maturity: Maybe<FPayload>,
@@ -482,7 +476,6 @@ export const COUPNCD = {
 export const COUPNUM = {
   description: _t("Number of coupons between settlement and maturity."),
   args: COUPON_FUNCTION_ARGS,
-  returns: ["NUMBER"],
   compute: function (
     settlement: Maybe<FPayload>,
     maturity: Maybe<FPayload>,
@@ -520,7 +513,6 @@ export const COUPNUM = {
 export const COUPPCD = {
   description: _t("Last coupon date prior to or on the settlement date."),
   args: COUPON_FUNCTION_ARGS,
-  returns: ["NUMBER"],
   compute: function (
     settlement: Maybe<FPayload>,
     maturity: Maybe<FPayload>,
@@ -571,7 +563,6 @@ export const CUMIPMT = {
       _t("Whether payments are due at the end (0) or beginning (1) of each period.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     rate: Maybe<FPayload>,
     numberOfPeriods: Maybe<FPayload>,
@@ -623,7 +614,6 @@ export const CUMPRINC = {
       _t("Whether payments are due at the end (0) or beginning (1) of each period.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     rate: Maybe<FPayload>,
     numberOfPeriods: Maybe<FPayload>,
@@ -668,7 +658,6 @@ export const DB = {
     ),
     arg("month (number, optional)", _t("The number of months in the first year of depreciation.")),
   ],
-  returns: ["NUMBER"],
   // to do: replace by dollar format
   compute: function (
     cost: Maybe<FPayload>,
@@ -770,7 +759,6 @@ export const DDB = {
       _t("The factor by which depreciation decreases.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     cost: Maybe<FPayload>,
     salvage: Maybe<FPayload>,
@@ -814,7 +802,6 @@ export const DISC = {
       _t("An indicator of what day count method to use.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     settlement: Maybe<FPayload>,
     maturity: Maybe<FPayload>,
@@ -862,7 +849,6 @@ export const DOLLARDE = {
     ),
     arg("unit (number)", _t("The units of the fraction, e.g. 8 for 1/8ths or 32 for 1/32nds.")),
   ],
-  returns: ["NUMBER"],
   compute: function (fractionalPrice: Maybe<FPayload>, unit: Maybe<FPayload>): number {
     const price = toNumber(fractionalPrice, this.locale);
     const _unit = Math.trunc(toNumber(unit, this.locale));
@@ -891,7 +877,6 @@ export const DOLLARFR = {
       _t("The units of the desired fraction, e.g. 8 for 1/8ths or 32 for 1/32nds.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (decimalPrice: Maybe<FPayload>, unit: Maybe<FPayload>): number {
     const price = toNumber(decimalPrice, this.locale);
     const _unit = Math.trunc(toNumber(unit, this.locale));
@@ -935,7 +920,6 @@ export const DURATION = {
       _t("An indicator of what day count method to use.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     settlement: Maybe<FPayload>,
     maturity: Maybe<FPayload>,
@@ -992,7 +976,6 @@ export const EFFECT = {
     arg("nominal_rate (number)", _t("The nominal interest rate per year.")),
     arg("periods_per_year (number)", _t("The number of compounding periods per year.")),
   ],
-  returns: ["NUMBER"],
   compute: function (nominal_rate: Maybe<FPayload>, periods_per_year: Maybe<FPayload>): number {
     const nominal = toNumber(nominal_rate, this.locale);
     const periods = Math.trunc(toNumber(periods_per_year, this.locale));
@@ -1039,7 +1022,6 @@ export const FV = {
       _t("Whether payments are due at the end (0) or beginning (1) of each period.")
     ),
   ],
-  returns: ["NUMBER"],
   // to do: replace by dollar format
   compute: function (
     rate: Maybe<FPayload>,
@@ -1075,7 +1057,6 @@ export const FVSCHEDULE = {
       _t("A series of interest rates to compound against the principal.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (principalAmount: Maybe<FPayload>, rateSchedule: Arg): number {
     const principal = toNumber(principalAmount, this.locale);
     return reduceAny(
@@ -1110,7 +1091,6 @@ export const INTRATE = {
       _t("An indicator of what day count method to use.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     settlement: Maybe<FPayload>,
     maturity: Maybe<FPayload>,
@@ -1165,7 +1145,6 @@ export const IPMT = {
       _t("Whether payments are due at the end (0) or beginning (1) of each period.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     rate: Maybe<FPayload>,
     currentPeriod: Maybe<FPayload>,
@@ -1204,7 +1183,6 @@ export const IRR = {
       _t("An estimate for what the internal rate of return will be.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     cashFlowAmounts: Matrix<FPayload>,
     rateGuess: Maybe<FPayload> = { value: DEFAULT_RATE_GUESS }
@@ -1287,7 +1265,6 @@ export const ISPMT = {
     arg("number_of_periods (number)", _t("The number of payments to be made.")),
     arg("present_value (number)", _t("The current value of the annuity.")),
   ],
-  returns: ["NUMBER"],
   compute: function (
     rate: Maybe<FPayload>,
     currentPeriod: Maybe<FPayload>,
@@ -1337,7 +1314,6 @@ export const MDURATION = {
       _t("An indicator of what day count method to use.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     settlement: Maybe<FPayload>,
     maturity: Maybe<FPayload>,
@@ -1381,7 +1357,6 @@ export const MIRR = {
       )
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     cashflowAmount: Matrix<FPayload>,
     financingRate: Maybe<FPayload>,
@@ -1445,7 +1420,6 @@ export const NOMINAL = {
     arg("effective_rate (number)", _t("The effective interest rate per year.")),
     arg("periods_per_year (number)", _t("The number of compounding periods per year.")),
   ],
-  returns: ["NUMBER"],
   compute: function (effective_rate: Maybe<FPayload>, periods_per_year: Maybe<FPayload>): number {
     const effective = toNumber(effective_rate, this.locale);
     const periods = Math.trunc(toNumber(periods_per_year, this.locale));
@@ -1483,7 +1457,6 @@ export const NPER = {
       _t("Whether payments are due at the end (0) or beginning (1) of each period.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     rate: Maybe<FPayload>,
     paymentAmount: Maybe<FPayload>,
@@ -1548,7 +1521,6 @@ export const NPV = {
     arg("cashflow1 (number, range<number>)", _t("The first future cash flow.")),
     arg("cashflow2 (number, range<number>, repeating)", _t("Additional future cash flows.")),
   ],
-  returns: ["NUMBER"],
   // to do: replace by dollar format
   compute: function (discount: Maybe<FPayload>, ...values: Arg[]): FPayloadNumber {
     const _discount = toNumber(discount, this.locale);
@@ -1576,7 +1548,6 @@ export const PDURATION = {
     arg("present_value (number)", _t("The investment's current value.")),
     arg("future_value (number)", _t("The investment's desired future value.")),
   ],
-  returns: ["NUMBER"],
   compute: function (
     rate: Maybe<FPayload>,
     presentValue: Maybe<FPayload>,
@@ -1637,7 +1608,6 @@ export const PMT = {
       _t("Whether payments are due at the end (0) or beginning (1) of each period.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     rate: Maybe<FPayload>,
     numberOfPeriods: Maybe<FPayload>,
@@ -1697,7 +1667,6 @@ export const PPMT = {
       _t("Whether payments are due at the end (0) or beginning (1) of each period.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     rate: Maybe<FPayload>,
     currentPeriod: Maybe<FPayload>,
@@ -1738,7 +1707,6 @@ export const PV = {
       _t("Whether payments are due at the end (0) or beginning (1) of each period.")
     ),
   ],
-  returns: ["NUMBER"],
   // to do: replace by dollar format
   compute: function (
     rate: Maybe<FPayload>,
@@ -1793,7 +1761,6 @@ export const PRICE = {
       _t("An indicator of what day count method to use.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     settlement: Maybe<FPayload>,
     maturity: Maybe<FPayload>,
@@ -1874,7 +1841,6 @@ export const PRICEDISC = {
       _t("An indicator of what day count method to use.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     settlement: Maybe<FPayload>,
     maturity: Maybe<FPayload>,
@@ -1935,7 +1901,6 @@ export const PRICEMAT = {
       _t("An indicator of what day count method to use.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     settlement: Maybe<FPayload>,
     maturity: Maybe<FPayload>,
@@ -2020,7 +1985,6 @@ export const RATE = {
       _t("An estimate for what the interest rate will be.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     numberOfPeriods: Maybe<FPayload>,
     paymentPerPeriod: Maybe<FPayload>,
@@ -2098,7 +2062,6 @@ export const RECEIVED = {
       _t("An indicator of what day count method to use.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     settlement: Maybe<FPayload>,
     maturity: Maybe<FPayload>,
@@ -2147,7 +2110,6 @@ export const RRI = {
     arg("present_value (number)", _t("The present value of the investment.")),
     arg("future_value (number)", _t("The future value of the investment.")),
   ],
-  returns: ["NUMBER"],
   compute: function (
     numberOfPeriods: Maybe<FPayload>,
     presentValue: Maybe<FPayload>,
@@ -2179,7 +2141,6 @@ export const SLN = {
     arg("salvage (number)", _t("The value of the asset at the end of depreciation.")),
     arg("life (number)", _t("The number of periods over which the asset is depreciated.")),
   ],
-  returns: ["NUMBER"],
   compute: function (
     cost: Maybe<FPayload>,
     salvage: Maybe<FPayload>,
@@ -2214,7 +2175,6 @@ export const SYD = {
       _t("The single period within life for which to calculate depreciation.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     cost: Maybe<FPayload>,
     salvage: Maybe<FPayload>,
@@ -2283,7 +2243,6 @@ export const TBILLPRICE = {
     ),
     arg("discount (number)", _t("The discount rate of the bill at time of purchase.")),
   ],
-  returns: ["NUMBER"],
   compute: function (
     settlement: Maybe<FPayload>,
     maturity: Maybe<FPayload>,
@@ -2321,7 +2280,6 @@ export const TBILLEQ = {
     ),
     arg("discount (number)", _t("The discount rate of the bill at time of purchase.")),
   ],
-  returns: ["NUMBER"],
   compute: function (
     settlement: Maybe<FPayload>,
     maturity: Maybe<FPayload>,
@@ -2398,7 +2356,6 @@ export const TBILLYIELD = {
     ),
     arg("price (number)", _t("The price at which the security is bought per 100 face value.")),
   ],
-  returns: ["NUMBER"],
   compute: function (
     settlement: Maybe<FPayload>,
     maturity: Maybe<FPayload>,
@@ -2454,7 +2411,6 @@ export const VDB = {
       )
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     cost: Maybe<FPayload>,
     salvage: Maybe<FPayload>,
@@ -2543,7 +2499,6 @@ export const XIRR = {
       _t("An estimate for what the internal rate of return will be.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     cashflowAmounts: Matrix<FPayload>,
     cashflowDates: Matrix<FPayload>,
@@ -2627,7 +2582,6 @@ export const XNPV = {
       _t("An range with dates corresponding to the cash flows in cashflow_amounts.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (discount: Maybe<FPayload>, cashflowAmounts: Arg, cashflowDates: Arg): number {
     const rate = toNumber(discount, this.locale);
 
@@ -2714,7 +2668,6 @@ export const YIELD = {
       _t("An indicator of what day count method to use.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     settlement: Maybe<FPayload>,
     maturity: Maybe<FPayload>,
@@ -2846,7 +2799,6 @@ export const YIELDDISC = {
       _t("An indicator of what day count method to use.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     settlement: Maybe<FPayload>,
     maturity: Maybe<FPayload>,
@@ -2904,7 +2856,6 @@ export const YIELDMAT = {
       _t("An indicator of what day count method to use.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     settlement: Maybe<FPayload>,
     maturity: Maybe<FPayload>,

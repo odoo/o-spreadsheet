@@ -120,7 +120,6 @@ describe("evaluateCells", () => {
       description: "any function",
       compute: mock,
       args: [],
-      returns: ["NUMBER"],
     });
     new Model({
       sheets: [
@@ -306,7 +305,6 @@ describe("evaluateCells", () => {
         return toMatrix(range).flat().length;
       },
       args: [{ name: "range", description: "", type: ["RANGE"], acceptMatrix: true }],
-      returns: ["NUMBER"],
     });
     const model = new Model();
     setCellContent(model, "D4", "42");
@@ -1145,7 +1143,6 @@ describe("evaluate formula getter", () => {
       description: "Get value",
       compute: () => value,
       args: [],
-      returns: ["NUMBER"],
     });
     setCellContent(model, "A1", "=GETVALUE()");
     expect(getEvaluatedCell(model, "A1").value).toBe(1);
@@ -1171,7 +1168,6 @@ describe("evaluate formula getter", () => {
       description: "Get value",
       compute: mockCompute,
       args: [],
-      returns: ["NUMBER"],
     });
     setCellContent(model, "A1", "=GETVALUE()");
     expect(mockCompute).toHaveBeenCalledTimes(1);
@@ -1186,7 +1182,6 @@ describe("evaluate formula getter", () => {
       description: "Get value",
       compute: mockCompute,
       args: [arg("value (any)", "bla")],
-      returns: ["NUMBER"],
     });
     setCellContent(model, "A1", "=GETVALUE(A2)");
     expect(getCellContent(model, "A1")).toBe("Hi");
@@ -1204,7 +1199,6 @@ describe("evaluate formula getter", () => {
       description: "Get value",
       compute: () => value,
       args: [],
-      returns: ["ANY"],
     });
     setCellContent(model, "A1", "=SUM(A2)");
     setCellContent(model, "A2", "=-GETVALUE()");
@@ -1223,7 +1217,6 @@ describe("evaluate formula getter", () => {
       description: "Get value",
       compute: () => value,
       args: [],
-      returns: ["ANY"],
     });
     createSheet(model, { sheetId: "sheet2" });
     setCellContent(model, "A1", "=SUM(Sheet2!A2)");
@@ -1253,7 +1246,6 @@ describe("evaluate formula getter", () => {
         throw new EvaluationError("Error" + value);
       },
       args: [],
-      returns: ["ANY"],
     });
     setCellContent(model, "A1", "=GETVALUE()");
     expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);
@@ -1275,7 +1267,6 @@ describe("evaluate formula getter", () => {
         };
       },
       args: [],
-      returns: ["ANY"],
     });
     setCellContent(model, "A1", "=GETERR()");
     expect(getEvaluatedCell(model, "A1").type).toBe(CellValueType.error);

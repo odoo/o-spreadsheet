@@ -49,7 +49,6 @@ export const DATE = {
     arg("month (number)", _t("The month component of the date.")),
     arg("day (number)", _t("The day component of the date.")),
   ],
-  returns: ["DATE"],
   compute: function (
     year: Maybe<FPayload>,
     month: Maybe<FPayload>,
@@ -111,7 +110,6 @@ export const DATEDIF = {
       )
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     startDate: Maybe<FPayload>,
     endDate: Maybe<FPayload>,
@@ -189,7 +187,6 @@ export const DATEDIF = {
 export const DATEVALUE = {
   description: _t("Converts a date string to a date value."),
   args: [arg("date_string (string)", _t("The string representing the date."))],
-  returns: ["NUMBER"],
   compute: function (dateString: Maybe<FPayload>): number {
     const _dateString = toString(dateString);
     const internalDate = parseDateTime(_dateString, this.locale);
@@ -210,7 +207,6 @@ export const DATEVALUE = {
 export const DAY = {
   description: _t("Day of the month that a specific date falls on."),
   args: [arg("date (string)", _t("The date from which to extract the day."))],
-  returns: ["NUMBER"],
   compute: function (date: Maybe<FPayload>): number {
     return toJsDate(date, this.locale).getDate();
   },
@@ -227,7 +223,6 @@ export const DAYS = {
     arg("end_date (date)", _t("The end of the date range.")),
     arg("start_date (date)", _t("The start of the date range.")),
   ],
-  returns: ["NUMBER"],
   compute: function (endDate: Maybe<FPayload>, startDate: Maybe<FPayload>): number {
     const _endDate = toJsDate(endDate, this.locale);
     const _startDate = toJsDate(startDate, this.locale);
@@ -251,7 +246,6 @@ export const DAYS360 = {
       _t("An indicator of what day count method to use. (0) US NASD method (1) European method")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     startDate: Maybe<FPayload>,
     endDate: Maybe<FPayload>,
@@ -279,7 +273,6 @@ export const EDATE = {
       _t("The number of months before (negative) or after (positive) 'start_date' to calculate.")
     ),
   ],
-  returns: ["DATE"],
   compute: function (startDate: Maybe<FPayload>, months: Maybe<FPayload>): FPayloadNumber {
     const _startDate = toJsDate(startDate, this.locale);
     const _months = Math.trunc(toNumber(months, this.locale));
@@ -305,7 +298,6 @@ export const EOMONTH = {
       _t("The number of months before (negative) or after (positive) 'start_date' to consider.")
     ),
   ],
-  returns: ["DATE"],
   compute: function (startDate: Maybe<FPayload>, months: Maybe<FPayload>): FPayloadNumber {
     const _startDate = toJsDate(startDate, this.locale);
     const _months = Math.trunc(toNumber(months, this.locale));
@@ -327,7 +319,6 @@ export const EOMONTH = {
 export const HOUR = {
   description: _t("Hour component of a specific time."),
   args: [arg("time (date)", _t("The time from which to calculate the hour component."))],
-  returns: ["NUMBER"],
   compute: function (date: Maybe<FPayload>): number {
     return toJsDate(date, this.locale).getHours();
   },
@@ -347,7 +338,6 @@ export const ISOWEEKNUM = {
       )
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (date: Maybe<FPayload>): number {
     const _date = toJsDate(date, this.locale);
     const y = _date.getFullYear();
@@ -429,7 +419,6 @@ export const ISOWEEKNUM = {
 export const MINUTE = {
   description: _t("Minute component of a specific time."),
   args: [arg("time (date)", _t("The time from which to calculate the minute component."))],
-  returns: ["NUMBER"],
   compute: function (date: Maybe<FPayload>): number {
     return toJsDate(date, this.locale).getMinutes();
   },
@@ -442,7 +431,6 @@ export const MINUTE = {
 export const MONTH = {
   description: _t("Month of the year a specific date falls in"),
   args: [arg("date (date)", _t("The date from which to extract the month."))],
-  returns: ["NUMBER"],
   compute: function (date: Maybe<FPayload>): number {
     return toJsDate(date, this.locale).getMonth() + 1;
   },
@@ -468,7 +456,6 @@ export const NETWORKDAYS = {
       _t("A range or array constant containing the date serial numbers to consider holidays.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (startDate: Maybe<FPayload>, endDate: Maybe<FPayload>, holidays: Arg): number {
     return NETWORKDAYS_INTL.compute.bind(this)(startDate, endDate, { value: 1 }, holidays);
   },
@@ -576,7 +563,6 @@ export const NETWORKDAYS_INTL = {
       _t("A range or array constant containing the dates to consider as holidays.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     startDate: Maybe<FPayload>,
     endDate: Maybe<FPayload>,
@@ -622,7 +608,6 @@ export const NETWORKDAYS_INTL = {
 export const NOW = {
   description: _t("Current date and time as a date value."),
   args: [],
-  returns: ["DATE"],
   compute: function (): FPayloadNumber {
     const today = DateTime.now();
     const delta = today.getTime() - INITIAL_1900_DAY.getTime();
@@ -641,7 +626,6 @@ export const NOW = {
 export const SECOND = {
   description: _t("Minute component of a specific time."),
   args: [arg("time (date)", _t("The time from which to calculate the second component."))],
-  returns: ["NUMBER"],
   compute: function (date: Maybe<FPayload>): number {
     return toJsDate(date, this.locale).getSeconds();
   },
@@ -658,7 +642,6 @@ export const TIME = {
     arg("minute (number)", _t("The minute component of the time.")),
     arg("second (number)", _t("The second component of the time.")),
   ],
-  returns: ["DATE"],
   compute: function (
     hour: Maybe<FPayload>,
     minute: Maybe<FPayload>,
@@ -692,7 +675,6 @@ export const TIME = {
 export const TIMEVALUE = {
   description: _t("Converts a time string into its serial number representation."),
   args: [arg("time_string (string)", _t("The string that holds the time representation."))],
-  returns: ["NUMBER"],
   compute: function (timeString: Maybe<FPayload>): number {
     const _timeString = toString(timeString);
     const internalDate = parseDateTime(_timeString, this.locale);
@@ -714,7 +696,6 @@ export const TIMEVALUE = {
 export const TODAY = {
   description: _t("Current date as a date value."),
   args: [],
-  returns: ["DATE"],
   compute: function (): FPayloadNumber {
     const today = DateTime.now();
     const jsDate = new DateTime(today.getFullYear(), today.getMonth(), today.getDate());
@@ -745,7 +726,6 @@ export const WEEKDAY = {
       )
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     date: Maybe<FPayload>,
     type: Maybe<FPayload> = { value: DEFAULT_TYPE }
@@ -782,7 +762,6 @@ export const WEEKNUM = {
       _t("A number representing the day that a week starts on. Sunday = 1.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     date: Maybe<FPayload>,
     type: Maybe<FPayload> = { value: DEFAULT_TYPE }
@@ -842,7 +821,6 @@ export const WORKDAY = {
       _t("A range or array constant containing the dates to consider holidays.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     startDate: Maybe<FPayload>,
     numDays: Maybe<FPayload>,
@@ -873,7 +851,6 @@ export const WORKDAY_INTL = {
       _t("A range or array constant containing the dates to consider holidays.")
     ),
   ],
-  returns: ["DATE"],
   compute: function (
     startDate: Maybe<FPayload>,
     numDays: Maybe<FPayload>,
@@ -929,7 +906,6 @@ export const WORKDAY_INTL = {
 export const YEAR = {
   description: _t("Year specified by a given date."),
   args: [arg("date (date)", _t("The date from which to extract the year."))],
-  returns: ["NUMBER"],
   compute: function (date: Maybe<FPayload>): number {
     return toJsDate(date, this.locale).getFullYear();
   },
@@ -960,7 +936,6 @@ export const YEARFRAC = {
       _t("An indicator of what day count method to use.")
     ),
   ],
-  returns: ["NUMBER"],
   compute: function (
     startDate: Maybe<FPayload>,
     endDate: Maybe<FPayload>,
@@ -996,7 +971,6 @@ export const YEARFRAC = {
 export const MONTH_START = {
   description: _t("First day of the month preceding a date."),
   args: [arg("date (date)", _t("The date from which to calculate the result."))],
-  returns: ["DATE"],
   compute: function (date: Maybe<FPayload>): FPayloadNumber {
     const _startDate = toJsDate(date, this.locale);
     const yStart = _startDate.getFullYear();
@@ -1015,7 +989,6 @@ export const MONTH_START = {
 export const MONTH_END = {
   description: _t("Last day of the month following a date."),
   args: [arg("date (date)", _t("The date from which to calculate the result."))],
-  returns: ["DATE"],
   compute: function (date: Maybe<FPayload>): FPayloadNumber {
     return EOMONTH.compute.bind(this)(date, { value: 0 });
   },
@@ -1027,7 +1000,6 @@ export const MONTH_END = {
 export const QUARTER = {
   description: _t("Quarter of the year a specific date falls in"),
   args: [arg("date (date)", _t("The date from which to extract the quarter."))],
-  returns: ["NUMBER"],
   compute: function (date: Maybe<FPayload>): number {
     return Math.ceil((toJsDate(date, this.locale).getMonth() + 1) / 3);
   },
@@ -1039,7 +1011,6 @@ export const QUARTER = {
 export const QUARTER_START = {
   description: _t("First day of the quarter of the year a specific date falls in."),
   args: [arg("date (date)", _t("The date from which to calculate the start of quarter."))],
-  returns: ["DATE"],
   compute: function (date: Maybe<FPayload>): FPayloadNumber {
     const quarter = QUARTER.compute.bind(this)(date);
     const year = YEAR.compute.bind(this)(date);
@@ -1057,7 +1028,6 @@ export const QUARTER_START = {
 export const QUARTER_END = {
   description: _t("Last day of the quarter of the year a specific date falls in."),
   args: [arg("date (date)", _t("The date from which to calculate the end of quarter."))],
-  returns: ["DATE"],
   compute: function (date: Maybe<FPayload>): FPayloadNumber {
     const quarter = QUARTER.compute.bind(this)(date);
     const year = YEAR.compute.bind(this)(date);
@@ -1075,7 +1045,6 @@ export const QUARTER_END = {
 export const YEAR_START = {
   description: _t("First day of the year a specific date falls in."),
   args: [arg("date (date)", _t("The date from which to calculate the start of the year."))],
-  returns: ["DATE"],
   compute: function (date: Maybe<FPayload>): FPayloadNumber {
     const year = YEAR.compute.bind(this)(date);
     const jsDate = new DateTime(year, 0, 1);
@@ -1092,7 +1061,6 @@ export const YEAR_START = {
 export const YEAR_END = {
   description: _t("Last day of the year a specific date falls in."),
   args: [arg("date (date)", _t("The date from which to calculate the end of the year."))],
-  returns: ["DATE"],
   compute: function (date: Maybe<FPayload>): FPayloadNumber {
     const year = YEAR.compute.bind(this)(date);
     const jsDate = new DateTime(year + 1, 0, 0);

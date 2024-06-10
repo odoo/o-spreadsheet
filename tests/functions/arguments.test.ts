@@ -188,7 +188,6 @@ describe("function addMetaInfoFromArg", () => {
         { name: "arg1", description: "", type: ["ANY"] },
         { name: "arg2", description: "", type: ["ANY"] },
       ],
-      returns: ["ANY"],
     } as AddFunctionDescription;
 
     const descr = addMetaInfoFromArg(basicFunction);
@@ -213,7 +212,6 @@ describe("function addMetaInfoFromArg", () => {
         { name: "arg1", description: "", type: ["ANY"] },
         { name: "arg2", description: "", type: ["ANY"], optional: true },
       ],
-      returns: ["ANY"],
     } as AddFunctionDescription;
 
     const descr = addMetaInfoFromArg(useOptional);
@@ -238,7 +236,6 @@ describe("function addMetaInfoFromArg", () => {
         { name: "arg1", description: "", type: ["ANY"] },
         { name: "arg2", description: "", type: ["ANY"], repeating: true },
       ],
-      returns: ["ANY"],
     } as AddFunctionDescription;
 
     const descr = addMetaInfoFromArg(useRepeatable);
@@ -264,7 +261,6 @@ describe("function addMetaInfoFromArg", () => {
         { name: "arg2", description: "", type: ["ANY"], repeating: true },
         { name: "arg3", description: "", type: ["ANY"], repeating: true },
       ],
-      returns: ["ANY"],
     } as AddFunctionDescription;
 
     const descr = addMetaInfoFromArg(useRepeatables);

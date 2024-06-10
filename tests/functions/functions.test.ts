@@ -21,7 +21,6 @@ describe("functions", () => {
         return 2 * toNumber(toScalar(arg), DEFAULT_LOCALE);
       },
       args: [arg("number (number)", "my number")],
-      returns: ["NUMBER"],
     });
     expect(evaluateCell("A1", { A1: "=DOUBLEDOUBLE(3)" })).toBe(6);
   });
@@ -32,7 +31,6 @@ describe("functions", () => {
         description: "Double the first argument",
         compute: () => 0,
         args: [],
-        returns: ["NUMBER"],
       });
     };
     expect(createBadFunction).toThrow(
@@ -46,7 +44,6 @@ describe("functions", () => {
         description: "Double the first argument",
         compute: () => 0,
         args: [],
-        returns: ["NUMBER"],
       });
     };
     expect(createBadFunction).not.toThrow();
@@ -60,7 +57,6 @@ describe("functions", () => {
         return toNumber(toScalar(arg), DEFAULT_LOCALE) * 2;
       },
       args: [arg("number (number)", "blabla")],
-      returns: ["NUMBER"],
     });
     setCellContent(model, "A1", "21");
     setCellContent(model, "A2", "42");
@@ -78,7 +74,6 @@ describe("functions", () => {
         return isEvaluationError(toScalar(arg)?.value) ? true : false;
       },
       args: [arg("arg (any)", "blabla")],
-      returns: ["BOOLEAN"],
     });
     setCellContent(model, "A1", "=SQRT(-1)");
     setCellContent(model, "B1", "=RETURN.VALUE.DEPENDING.ON.INPUT.ERROR(A1)");
@@ -96,7 +91,6 @@ describe("functions", () => {
         return toBoolean(toScalar(arg)) ? error : "ceci n'est pas une erreur";
       },
       args: [arg("arg (any)", "blabla")],
-      returns: ["ANY"],
     });
     setCellContent(model, "B1", "=RETURN.ERROR.DEPENDING.ON.INPUT.VALUE(true)");
     setCellContent(model, "B2", "=RETURN.ERROR.DEPENDING.ON.INPUT.VALUE(false)");
@@ -115,7 +109,6 @@ describe("functions", () => {
           : CellErrorType.InvalidReference;
       },
       args: [arg("arg (any)", "blabla")],
-      returns: ["ANY"],
     });
     setCellContent(model, "A1", "=ThatDoesNotMeanAnything");
     setCellContent(model, "B1", "=RETURN.ERROR.DEPENDING.ON.INPUT.ERROR(A1)");
@@ -132,7 +125,6 @@ describe("functions", () => {
         return { value: 42, format: toScalar(arg)?.format };
       },
       args: [arg("number (number)", "blabla")],
-      returns: ["NUMBER"],
     });
     setCellContent(model, "A1", "42");
     setCellFormat(model, "A1", "0%");
@@ -156,7 +148,6 @@ describe("functions", () => {
         };
       },
       args: [arg("number (number)", "blabla")],
-      returns: ["NUMBER"],
     });
     setCellContent(model, "A1", "42");
     setCellContent(model, "A2", "-42");
@@ -181,7 +172,6 @@ describe("functions", () => {
         return (this as any).coucou;
       },
       args: [],
-      returns: ["STRING"],
     });
     setCellContent(model, "A1", "=GETCOUCOU()");
     expect(getEvaluatedCell(model, "A1").value).toBe("Raoul");
@@ -196,7 +186,6 @@ describe("functions", () => {
         return (this as any).getters.getNumberCols(sheetId);
       },
       args: [],
-      returns: ["STRING"],
     });
     expect(evaluateCell("A1", { A1: "=GETNUMBERCOLS()" })).toBe(
       model.getters.getNumberCols(model.getters.getActiveSheetId())
@@ -211,7 +200,6 @@ describe("functions", () => {
         return undefined;
       },
       args: [],
-      returns: ["STRING"],
     });
     expect(evaluateCell("A1", { A1: "=UNDEFINED()" })).toBe(0);
   });
@@ -235,7 +223,6 @@ describe("functions", () => {
             acceptMatrixOnly: true,
           },
         ],
-        returns: ["ANY"],
       });
 
       functionRegistry.add("FORMULA_RETURNING_RANGE", {
@@ -244,7 +231,6 @@ describe("functions", () => {
           return [["cucumber"]];
         },
         args: [],
-        returns: ["RANGE"],
       });
 
       functionRegistry.add("FORMULA_NOT_RETURNING_RANGE", {
@@ -253,7 +239,6 @@ describe("functions", () => {
           return "cucumber";
         },
         args: [],
-        returns: ["STRING"],
       });
 
       functionRegistry.add("FORMULA_RETURNING_ERROR", {
@@ -262,7 +247,6 @@ describe("functions", () => {
           return "#ERROR";
         },
         args: [],
-        returns: ["STRING"],
       });
 
       functionRegistry.add("FORMULA_TROWING_ERROR", {
@@ -274,7 +258,6 @@ describe("functions", () => {
           return 42;
         },
         args: [],
-        returns: ["NUMBER"],
       });
 
       functionRegistry.add("FORMULA_RETURNING_RANGE_WITH_ERROR", {
@@ -283,7 +266,6 @@ describe("functions", () => {
           return [["#ERROR"]];
         },
         args: [],
-        returns: ["RANGE"],
       });
 
       functionRegistry.add("FORMULA_RETURNING_RANGE_TROWING_ERROR", {
@@ -295,7 +277,6 @@ describe("functions", () => {
           return [["cucumber"]];
         },
         args: [],
-        returns: ["RANGE"],
       });
 
       const m = new Model();
@@ -357,7 +338,6 @@ describe("functions", () => {
           return true;
         },
         args: [{ name: "arg1", description: "", type: ["NUMBER"] }],
-        returns: ["ANY"],
       });
 
       setCellContent(m, "B1", "=SIMPLE_VALUE_EXPECTED(A1)");
@@ -378,7 +358,6 @@ describe("functions", () => {
             return true;
           },
           args: [{ name: "arg1", description: "", type: [typeExpected] }],
-          returns: ["ANY"],
         });
       }
 

@@ -99,7 +99,6 @@ describe("compile functions", () => {
           { name: "arg1", description: "", type: ["ANY"] },
           { name: "arg2", description: "", type: ["ANY"] },
         ],
-        returns: ["ANY"],
       });
       expect(() => compiledBaseFunction("=ANYFUNCTION()")).toThrow();
       expect(() => compiledBaseFunction("=ANYFUNCTION(1)")).toThrow();
@@ -118,7 +117,6 @@ describe("compile functions", () => {
           { name: "arg1", description: "", type: ["ANY"] },
           { name: "arg2", description: "", type: ["ANY"], optional: true },
         ],
-        returns: ["ANY"],
       });
       expect(() => compiledBaseFunction("=OPTIONAL(1)")).not.toThrow();
       expect(() => compiledBaseFunction("=OPTIONAL(1,2)")).not.toThrow();
@@ -136,7 +134,6 @@ describe("compile functions", () => {
           { name: "arg1", description: "", type: ["ANY"] },
           { name: "arg2", description: "", type: ["ANY"], default: true, defaultValue: 42 },
         ],
-        returns: ["ANY"],
       });
       expect(() => compiledBaseFunction("=USEDEFAULTARG(1)")).not.toThrow();
       expect(() => compiledBaseFunction("=USEDEFAULTARG(1,2)")).not.toThrow();
@@ -154,7 +151,6 @@ describe("compile functions", () => {
           { name: "arg1", description: "", type: ["ANY"] },
           { name: "arg2", description: "", type: ["ANY"], optional: true, repeating: true },
         ],
-        returns: ["ANY"],
       });
       expect(() => compiledBaseFunction("=REPEATABLE(1)")).not.toThrow();
       expect(() => compiledBaseFunction("=REPEATABLE(1,2)")).not.toThrow();
@@ -173,7 +169,6 @@ describe("compile functions", () => {
           { name: "arg2", description: "", type: ["ANY"], optional: true, repeating: true },
           { name: "arg3", description: "", type: ["ANY"], optional: true, repeating: true },
         ],
-        returns: ["ANY"],
       });
       expect(() => compiledBaseFunction("=REPEATABLES(1, 2)")).toThrow();
       expect(() => compiledBaseFunction("=REPEATABLES(1, 2, 3)")).not.toThrow();
@@ -197,7 +192,6 @@ describe("compile functions", () => {
             format: arg2 === undefined ? "TRUE" : "FALSE",
           };
         },
-        returns: ["BOOLEAN"],
       });
 
       functionRegistry.add("SECONDARGDEFAULTVALUEEQUAL42", {
@@ -211,7 +205,6 @@ describe("compile functions", () => {
             ? { value: true, format: "TRUE" }
             : { value: false, format: "FALSE" };
         },
-        returns: ["ANY"],
       });
     });
     afterAll(() => {
@@ -239,13 +232,11 @@ describe("compile functions", () => {
         description: "function with a meta argument",
         compute: () => true,
         args: [{ name: "arg", description: "", type: ["META"] }],
-        returns: ["STRING"],
       });
       functionRegistry.add("NOTUSEMETAARG", {
         description: "any function",
         compute: () => true,
         args: [{ name: "arg", description: "", type: ["ANY"] }],
-        returns: ["ANY"],
       });
     });
 

@@ -156,7 +156,6 @@ describe("formatting values (with formatters)", () => {
           format: toString(toScalar(format)),
         };
       },
-      returns: ["ANY"],
     });
     const model = new Model();
     setCellContent(model, "A1", '=SET.DYN.FORMAT(5, "0.00")');

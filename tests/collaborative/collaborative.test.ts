@@ -583,7 +583,6 @@ describe("Multi users synchronisation", () => {
         description: "Get value",
         compute: () => value,
         args: [],
-        returns: ["ANY"],
       });
       const firstSheetId = alice.getters.getActiveSheetId();
       createSheet(alice, { sheetId: "sheet2" });
@@ -609,7 +608,6 @@ describe("Multi users synchronisation", () => {
         description: "Get value",
         compute: () => value,
         args: [],
-        returns: ["ANY"],
       });
       const firstSheetId = alice.getters.getActiveSheetId();
       createSheet(alice, { sheetId: "sheet2" });

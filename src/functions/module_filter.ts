@@ -122,7 +122,6 @@ export const FILTER = {
       _t("Additional column or row containing true or false values.")
     ),
   ],
-  returns: ["RANGE<ANY>"],
   compute: function (range: Arg, ...conditions: Arg[]): Matrix<FPayload> {
     let _array = toMatrix(range);
     const _conditionsMatrices = conditions.map((cond) =>
@@ -181,7 +180,6 @@ export const SORT: AddFunctionDescription = {
       )
     ),
   ],
-  returns: ["RANGE"],
   compute: function (range: Matrix<FPayload>, ...sortingCriteria: Arg[]): Matrix<FPayload> {
     const _range = transposeMatrix(range);
     return transposeMatrix(sortMatrix(_range, this.locale, ...sortingCriteria));
@@ -214,7 +212,6 @@ export const SORTN: AddFunctionDescription = {
       )
     ),
   ],
-  returns: ["RANGE"],
   compute: function (
     range: Matrix<FPayload>,
     n: Maybe<FPayload>,
@@ -301,7 +298,6 @@ export const UNIQUE = {
       _t("Whether to return only entries with no duplicates.")
     ),
   ],
-  returns: ["RANGE<NUMBER>"],
   compute: function (
     range: Arg = { value: "" },
     byColumn: Maybe<FPayload>,

@@ -47,7 +47,6 @@ describe("formula assistant", () => {
       description: "func without args",
       args: [],
       compute: () => 1,
-      returns: ["ANY"],
     });
     setTranslationMethod(
       (str, ...values) => str,
@@ -57,7 +56,6 @@ describe("formula assistant", () => {
       description: "func1 def",
       args: [arg("f1Arg1 (any)", "f1 Arg1 def"), arg("f1Arg2 (any)", _t("f1 Arg2 def"))],
       compute: () => 1,
-      returns: ["ANY"],
     });
     setTranslationMethod((str, ...values) => str);
     functionRegistry.add("FUNC2", {
@@ -67,7 +65,6 @@ describe("formula assistant", () => {
         arg("f2Arg2 (any, optional, default=TRUE)", "f2 Arg2 def"),
       ],
       compute: () => 1,
-      returns: ["ANY"],
     });
     functionRegistry.add("FUNC3", {
       description: "func3 def",
@@ -76,7 +73,6 @@ describe("formula assistant", () => {
         arg("f3Arg2 (any, optional, repeating)", "f3 Arg2 def"),
       ],
       compute: () => 1,
-      returns: ["ANY"],
     });
     functionRegistry.add("UPTOWNFUNC", {
       description: "a Bruno Mars song ?",
@@ -86,7 +82,6 @@ describe("formula assistant", () => {
         arg("f4Arg3 (any, optional, repeating)", "f4 Arg3 def"),
       ],
       compute: () => 1,
-      returns: ["ANY"],
     });
   });
 
@@ -443,13 +438,11 @@ describe("formula assistant for boolean functions", () => {
       description: "TRUE",
       args: [],
       compute: () => true,
-      returns: ["BOOLEAN"],
     });
     functionRegistry.add("FALSE", {
       description: "FALSE",
       args: [],
       compute: () => false,
-      returns: ["BOOLEAN"],
     });
   });
 

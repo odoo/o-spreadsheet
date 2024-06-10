@@ -22,7 +22,6 @@ export const AND = {
       _t("More expressions that represent logical values.")
     ),
   ],
-  returns: ["BOOLEAN"],
   compute: function (...logicalExpressions: Arg[]): boolean {
     const { result, foundBoolean } = boolAnd(logicalExpressions);
     assert(() => foundBoolean, _t("[[FUNCTION_NAME]] has no valid input data."));
@@ -37,7 +36,6 @@ export const AND = {
 export const FALSE: AddFunctionDescription = {
   description: _t("Logical value `false`."),
   args: [],
-  returns: ["BOOLEAN"],
   compute: function (): boolean {
     return false;
   },
@@ -62,7 +60,6 @@ export const IF = {
       _t("The value the function returns if logical_expression is FALSE.")
     ),
   ],
-  returns: ["ANY"],
   compute: function (
     logicalExpression: Maybe<FPayload>,
     valueIfTrue: Maybe<FPayload>,
@@ -92,7 +89,6 @@ export const IFERROR = {
       _t("The value the function returns if value is an error.")
     ),
   ],
-  returns: ["ANY"],
   compute: function (
     value: Maybe<FPayload>,
     valueIfError: Maybe<FPayload> = { value: "" }
@@ -121,7 +117,6 @@ export const IFNA = {
       _t("The value the function returns if value is an #N/A error.")
     ),
   ],
-  returns: ["ANY"],
   compute: function (
     value: Maybe<FPayload>,
     valueIfError: Maybe<FPayload> = { value: "" }
@@ -160,7 +155,6 @@ export const IFS = {
       _t("Additional values to be returned if their corresponding conditions are TRUE.")
     ),
   ],
-  returns: ["ANY"],
   compute: function (...values: Maybe<FPayload>[]): FPayload {
     assert(
       () => values.length % 2 === 0,
@@ -196,7 +190,6 @@ export const NOT = {
       )
     ),
   ],
-  returns: ["BOOLEAN"],
   compute: function (logicalExpression: Maybe<FPayload>): boolean {
     return !toBoolean(logicalExpression);
   },
@@ -220,7 +213,6 @@ export const OR = {
       _t("More expressions that evaluate to logical values.")
     ),
   ],
-  returns: ["BOOLEAN"],
   compute: function (...logicalExpressions: Arg[]): boolean {
     const { result, foundBoolean } = boolOr(logicalExpressions);
     assert(() => foundBoolean, _t("[[FUNCTION_NAME]] has no valid input data."));
@@ -235,7 +227,6 @@ export const OR = {
 export const TRUE: AddFunctionDescription = {
   description: _t("Logical value `true`."),
   args: [],
-  returns: ["BOOLEAN"],
   compute: function (): boolean {
     return true;
   },
@@ -259,7 +250,6 @@ export const XOR = {
       _t("More expressions that evaluate to logical values.")
     ),
   ],
-  returns: ["BOOLEAN"],
   compute: function (...logicalExpressions: Arg[]): boolean {
     let foundBoolean = false;
     let acc = false;

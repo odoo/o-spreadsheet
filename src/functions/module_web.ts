@@ -16,7 +16,6 @@ export const HYPERLINK = {
       _t("The text to display in the cell, enclosed in quotation marks.")
     ),
   ],
-  returns: ["STRING"],
   compute: function (url: Maybe<FPayload>, linkLabel: Maybe<FPayload>): string {
     const processedUrl = toString(url).trim();
     const processedLabel = toString(linkLabel) || processedUrl;
