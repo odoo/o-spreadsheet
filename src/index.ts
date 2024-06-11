@@ -47,6 +47,7 @@ import { PivotDimensionOrder } from "./components/side_panel/pivot/pivot_layout_
 import { PivotLayoutConfigurator } from "./components/side_panel/pivot/pivot_layout_configurator/pivot_layout_configurator";
 import { PivotSidePanelStore } from "./components/side_panel/pivot/pivot_side_panel/pivot_side_panel_store";
 import { SidePanelStore } from "./components/side_panel/side_panel/side_panel_store";
+import { ChartTerms } from "./components/translations_terms";
 import { ValidationMessages } from "./components/validation_messages/validation_messages";
 import {
   BOTTOMBAR_HEIGHT,
@@ -413,6 +414,7 @@ export const constants = {
   DEFAULT_LOCALE,
   HIGHLIGHT_COLOR,
   PIVOT_TABLE_CONFIG,
+  ChartTerms,
 };
 
 export { PivotRuntimeDefinition } from "./helpers/pivot/pivot_runtime_definition";
