@@ -8,8 +8,8 @@ import {
   EvalContext,
   FPayload,
   FunctionDescription,
-  Matrix,
   isMatrix,
+  Matrix,
 } from "../types";
 import { BadExpressionError, EvaluationError } from "../types/errors";
 import { addMetaInfoFromArg, validateArguments } from "./arguments";
@@ -144,7 +144,7 @@ export const implementationErrorMessage = _t(
   "An unexpected error occurred. Submit a support ticket at odoo.com/help."
 );
 
-function handleError(e: unknown, functionName: string): FPayload {
+export function handleError(e: unknown, functionName: string): FPayload {
   // the error could be an user error (instance of EvaluationError)
   // or a javascript error (instance of Error)
   // we don't want block the user with an implementation error

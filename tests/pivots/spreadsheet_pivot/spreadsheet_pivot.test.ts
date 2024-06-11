@@ -1,4 +1,4 @@
-import { Model } from "../../../src";
+import { CellErrorType, Model } from "../../../src";
 import {
   createSheet,
   deleteContent,
@@ -15,6 +15,7 @@ import {
 } from "../../test_helpers/getters_helpers";
 import { createModelFromGrid } from "../../test_helpers/helpers";
 import { addPivot, createModelWithPivot, updatePivot } from "../../test_helpers/pivot_helpers";
+import { CellValueType } from "./../../../src/types/cells";
 
 describe("Spreadsheet Pivot", () => {
   test("Pivot is correctly registered", () => {
@@ -1119,6 +1120,22 @@ describe("Spreadsheet Pivot", () => {
     expect(getEvaluatedCell(model, "A32").message).toBe(
       "The function PIVOT.HEADER expects a number value, but 'not a number' is a string, and cannot be coerced to a number."
     );
+  });
+
+  test("Pivot with measure AVG on text values does not crash", () => {
+    const model = createModelFromGrid({ A1: "Customer", A2: "Jean", A3: "Marc" });
+    addPivot(model, "A1:A3", {
+      columns: [],
+      rows: [],
+      measures: [{ name: "Customer", aggregator: "avg" }],
+    });
+    setCellContent(model, "A26", `=pivot(1)`);
+    expect(getCellContent(model, "A26")).toBe(model.getters.getPivotDisplayName("1"));
+    expect(getEvaluatedCell(model, "B28")).toMatchObject({
+      value: CellErrorType.DivisionByZero,
+      message: "Evaluation of function AVG caused a divide by zero error.",
+      type: CellValueType.error,
+    });
   });
 
   describe("Pivot reevaluation", () => {
