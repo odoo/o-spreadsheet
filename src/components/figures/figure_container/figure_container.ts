@@ -166,7 +166,7 @@ export class FiguresContainer extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private getContainerStyle(container: ContainerType): string {
-    const { width: viewWidth, height: viewHeight } = this.env.model.getters.getMainViewportRect();
+    const { width: viewWidth, height: viewHeight } = this.env.model.getters.getSheetViewDimension();
     const { x: viewportX, y: viewportY } = this.env.model.getters.getMainViewportCoordinates();
 
     const left = ["bottomRight", "topRight"].includes(container) ? viewportX : 0;
