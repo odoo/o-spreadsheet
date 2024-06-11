@@ -1,13 +1,9 @@
-import { deepCopy, deepEquals, isDefined } from "../../helpers";
-import {
-  flatPivotDomain,
-  getMaxObjectId,
-  makePivotFormula,
-} from "../../helpers/pivot/pivot_helpers";
+import { deepCopy, deepEquals } from "../../helpers";
+import { getMaxObjectId, makePivotFormulaFromPivotCell } from "../../helpers/pivot/pivot_helpers";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/spreadsheet_pivot/table_spreadsheet_pivot";
 import { _t } from "../../translation";
 import { CellPosition, CommandResult, CoreCommand, Position, UID, WorkbookData } from "../../types";
-import { PivotCoreDefinition, PivotTableCell } from "../../types/pivot";
+import { PivotCoreDefinition } from "../../types/pivot";
 import { CorePlugin } from "../core_plugin";
 
 interface Pivot {
@@ -171,12 +167,12 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     for (let col = 0; col < pivotCells.length; col++) {
       for (let row = 0; row < pivotCells[col].length; row++) {
         const pivotCell = pivotCells[col][row];
-        const cellPosition = {
+        this.dispatch("UPDATE_CELL", {
           sheetId: position.sheetId,
           col: position.col + col,
           row: position.row + row,
-        };
-        this.addPivotFormula(cellPosition, formulaId, pivotCell);
+          content: makePivotFormulaFromPivotCell(formulaId, pivotCell),
+        });
       }
     }
   }
@@ -206,36 +202,6 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
         position: "after",
       });
     }
-  }
-
-  private addPivotFormula(position: CellPosition, formulaId: UID, pivotCell: PivotTableCell) {
-    let content: string | undefined = undefined;
-    switch (pivotCell.type) {
-      case "HEADER":
-        content = makePivotFormula(
-          "PIVOT.HEADER",
-          [formulaId, ...flatPivotDomain(pivotCell.domain)].filter(isDefined)
-        );
-        break;
-      case "MEASURE_HEADER":
-        content = makePivotFormula(
-          "PIVOT.HEADER",
-          [formulaId, ...flatPivotDomain(pivotCell.domain), "measure", pivotCell.measure].filter(
-            isDefined
-          )
-        );
-        break;
-      case "VALUE":
-        content = makePivotFormula(
-          "PIVOT.VALUE",
-          [formulaId, pivotCell.measure, ...flatPivotDomain(pivotCell.domain)].filter(isDefined)
-        );
-        break;
-    }
-    this.dispatch("UPDATE_CELL", {
-      ...position,
-      content,
-    });
   }
 
   private getPivotCore(pivotId: UID): Pivot {
