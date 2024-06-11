@@ -1,24 +1,11 @@
-import { Component, xml } from "@odoo/owl";
 import { ChartTitle } from "../../../src/components/side_panel/chart/building_blocks/title/title";
-import { SpreadsheetChildEnv } from "../../../src/types";
 import { click, setInputValueAndTrigger } from "../../test_helpers/dom_helper";
 import { mountComponentWithPortalTarget } from "../../test_helpers/helpers";
 
 let fixture: HTMLElement;
 
-type Props = ChartTitle["props"];
-
-class Container extends Component<Props, SpreadsheetChildEnv> {
-  static template = xml/* xml */ `
-    <div class="container">
-      <ChartTitle t-props="props"/>
-    </div>
-  `;
-  static components = { ChartTitle };
-}
-
-async function mountChartTitle(props: Props) {
-  ({ fixture } = await mountComponentWithPortalTarget(Container, { props }));
+async function mountChartTitle(props: ChartTitle["props"]) {
+  ({ fixture } = await mountComponentWithPortalTarget(ChartTitle, { props }));
 }
 
 describe("Chart title", () => {

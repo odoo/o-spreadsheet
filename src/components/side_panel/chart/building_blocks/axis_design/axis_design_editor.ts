@@ -28,10 +28,9 @@ interface Props {
 
 export class AxisDesignEditor extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-AxisDesignEditor";
-  static components = {
-    Section,
-    ChartTitle,
-  };
+  static components = { Section, ChartTitle };
+  static props = { figureId: String, definition: Object, updateChart: Function, axesList: Array };
+
   state = useState({ currentAxis: "x" });
 
   get axisTitleStyle(): TitleDesign {

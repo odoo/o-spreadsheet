@@ -132,6 +132,7 @@ class Parent extends Component<Props> {
   static template = xml/*xml*/ `
     <Highlight zone="props.zone" color="props.color"/>
   `;
+  static props = { ...Highlight.props, model: Object };
   setup() {
     spyDispatch = jest.spyOn(model, "dispatch");
     spyHandleEvent = jest.fn();

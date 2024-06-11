@@ -25,6 +25,7 @@ interface RemoveDuplicatesState {
 export class RemoveDuplicatesPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-RemoveDuplicatesPanel";
   static components = { ValidationMessages, Section, Checkbox };
+  static props = { onCloseSidePanel: Function };
 
   state: RemoveDuplicatesState = useState({
     hasHeader: false,

@@ -62,11 +62,24 @@ class Parent extends Component<any, SpreadsheetChildEnv> {
     </div>
   `;
   static components = { TopBar };
+  static props = {};
 
   get gridHeight(): Pixel {
     const { height } = this.env.model.getters.getSheetViewDimension();
     return height;
   }
+}
+
+class Comp extends Component {
+  static template = xml`<div class="o-topbar-test">Test</div>`;
+  static props = {};
+}
+
+class Comp1 extends Comp {
+  static template = xml`<div class="o-topbar-test1">Test1</div>`;
+}
+class Comp2 extends Comp {
+  static template = xml`<div class="o-topbar-test2">Test2</div>`;
 }
 
 async function mountParent(
@@ -503,9 +516,6 @@ describe("TopBar component", () => {
 
   test("Can add a custom component to topbar", async () => {
     const compDefinitions = Object.assign({}, topbarComponentRegistry.content);
-    class Comp extends Component {
-      static template = xml`<div class="o-topbar-test">Test</div>`;
-    }
     topbarComponentRegistry.add("1", { component: Comp });
     await mountParent();
     expect(fixture.querySelectorAll(".o-topbar-test")).toHaveLength(1);
@@ -514,12 +524,6 @@ describe("TopBar component", () => {
 
   test("Can add multiple components to topbar with different visibilities", async () => {
     const compDefinitions = Object.assign({}, topbarComponentRegistry.content);
-    class Comp1 extends Component {
-      static template = xml`<div class="o-topbar-test1">Test1</div>`;
-    }
-    class Comp2 extends Component {
-      static template = xml`<div class="o-topbar-test2">Test2</div>`;
-    }
     let comp1Visibility = false;
     topbarComponentRegistry.add("first", {
       component: Comp1,
@@ -634,12 +638,6 @@ describe("TopBar component", () => {
 
 test("Can show/hide a TopBarComponent based on condition", async () => {
   const compDefinitions = Object.assign({}, topbarComponentRegistry.content);
-  class Comp1 extends Component {
-    static template = xml`<div class="o-topbar-test1">Test1</div>`;
-  }
-  class Comp2 extends Component {
-    static template = xml`<div class="o-topbar-test2">Test2</div>`;
-  }
   topbarComponentRegistry.add("1", {
     component: Comp1,
     isVisible: (env) => true,

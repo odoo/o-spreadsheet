@@ -1,23 +1,10 @@
-import { Component, xml } from "@odoo/owl";
 import { ChartDataSeries } from "../../../src/components/side_panel/chart/building_blocks/data_series/data_series";
-import { SpreadsheetChildEnv } from "../../../src/types";
 import { mountComponent } from "../../test_helpers/helpers";
 
 let fixture: HTMLElement;
 
-type Props = ChartDataSeries["props"];
-
-class Container extends Component<Props, SpreadsheetChildEnv> {
-  static template = xml/* xml */ `
-    <div class="container">
-      <ChartDataSeries t-props="props"/>
-    </div>
-  `;
-  static components = { ChartDataSeries };
-}
-
-async function mountDataSeries(props: Props) {
-  ({ fixture } = await mountComponent(Container, { props }));
+async function mountDataSeries(props: ChartDataSeries["props"]) {
+  ({ fixture } = await mountComponent(ChartDataSeries, { props }));
 }
 
 describe("Data Series", () => {

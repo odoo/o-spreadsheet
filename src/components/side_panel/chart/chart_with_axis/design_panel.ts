@@ -33,6 +33,13 @@ export class ChartWithAxisDesignPanel extends Component<Props, SpreadsheetChildE
     AxisDesignEditor,
     RoundColorPicker,
   };
+  static props = {
+    figureId: String,
+    definition: Object,
+    canUpdateChart: Function,
+    updateChart: Function,
+  };
+
   private state = useState({ index: 0 });
 
   get axesList(): AxisDefinition[] {

@@ -28,6 +28,7 @@ async function mountTestPopover(args: MountPopoverArgs) {
         </div>
   `;
     static components = { Popover };
+    static props = { model: Object };
 
     setup() {
       const env: any = {

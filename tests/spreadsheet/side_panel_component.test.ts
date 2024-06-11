@@ -28,6 +28,11 @@ class Body extends Component<any, any> {
       <div class="props_body" t-if="props.text"><t t-esc="props.text"/></div>
       <input type="text" class="input" t-if="props.input" />
     </div>`;
+  static props = {
+    text: { type: String, optional: true },
+    input: { type: Boolean, optional: true },
+    onCloseSidePanel: Function,
+  };
 }
 
 class Body2 extends Component<any, any> {
@@ -36,6 +41,7 @@ class Body2 extends Component<any, any> {
       <div class="main_body_2">Hello</div>
       <div class="props_body_2" t-if="props.field"><t t-esc="props.field"/></div>
     </div>`;
+  static props = { field: { type: String, optional: true }, onCloseSidePanel: Function };
 }
 
 class BodyWithoutProps extends Component<any, any> {
@@ -43,6 +49,7 @@ class BodyWithoutProps extends Component<any, any> {
     <div>
       <div class="main_body_3">Hello</div>
     </div>`;
+  static props = { onCloseSidePanel: Function };
 }
 
 beforeEach(async () => {
