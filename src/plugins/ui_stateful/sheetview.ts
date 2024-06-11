@@ -216,8 +216,11 @@ export class SheetViewPlugin extends UIPlugin {
       case "REMOVE_TABLE":
       case "UPDATE_TABLE":
       case "UPDATE_FILTER":
-        this.sheetsWithDirtyViewports.add(cmd.sheetId);
-        break;
+      case "UNFREEZE_ROWS":
+      case "UNFREEZE_COLUMNS":
+      case "FREEZE_COLUMNS":
+      case "FREEZE_ROWS":
+      case "UNFREEZE_COLUMNS_ROWS":
       case "REMOVE_COLUMNS_ROWS":
       case "RESIZE_COLUMNS_ROWS":
       case "HIDE_COLUMNS_ROWS":
@@ -230,11 +233,9 @@ export class SheetViewPlugin extends UIPlugin {
       case "FOLD_HEADER_GROUPS_IN_ZONE":
       case "UNFOLD_HEADER_GROUPS_IN_ZONE":
       case "UNFOLD_ALL_HEADER_GROUPS":
-      case "FOLD_ALL_HEADER_GROUPS": {
-        const sheetId = "sheetId" in cmd ? cmd.sheetId : this.getters.getActiveSheetId();
-        this.sheetsWithDirtyViewports.add(sheetId);
+      case "FOLD_ALL_HEADER_GROUPS":
+        this.sheetsWithDirtyViewports.add(cmd.sheetId);
         break;
-      }
       case "UPDATE_CELL":
         // update cell content or format can change hidden rows because of data filters
         if ("content" in cmd || "format" in cmd || cmd.style?.fontSize !== undefined) {
@@ -249,13 +250,6 @@ export class SheetViewPlugin extends UIPlugin {
         break;
       case "ACTIVATE_SHEET":
         this.sheetsWithDirtyViewports.add(cmd.sheetIdTo);
-        break;
-      case "UNFREEZE_ROWS":
-      case "UNFREEZE_COLUMNS":
-      case "FREEZE_COLUMNS":
-      case "FREEZE_ROWS":
-      case "UNFREEZE_COLUMNS_ROWS":
-        this.resetViewports(this.getters.getActiveSheetId());
         break;
       case "SCROLL_TO_CELL":
         this.refreshViewport(this.getters.getActiveSheetId(), { col: cmd.col, row: cmd.row });
