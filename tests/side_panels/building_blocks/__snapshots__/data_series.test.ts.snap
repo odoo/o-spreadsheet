@@ -3,53 +3,49 @@
 exports[`Data Series Can render a data series component 1`] = `
 <div>
   <div
-    class="container"
+    class="o-section o-data-series"
   >
     <div
-      class="o-section o-data-series"
+      class="o-section-title"
+    >
+      Data series
+    </div>
+    
+    <div
+      class="o-selection"
     >
       <div
-        class="o-section-title"
+        class="o-selection-input d-flex flex-row"
       >
-        Data series
+        <div
+          class="position-relative w-100"
+        >
+          <input
+            class="w-100 o-required"
+            spellcheck="false"
+            style="color: #000;"
+            type="text"
+          />
+          
+        </div>
+        
       </div>
+      
       
       <div
-        class="o-selection"
+        class="o-selection-input d-flex flex-row"
       >
-        <div
-          class="o-selection-input d-flex flex-row"
+        <button
+          class="o-btn-action bg-transparent fw-bold o-add-selection"
         >
-          <div
-            class="position-relative w-100"
-          >
-            <input
-              class="w-100 o-required"
-              spellcheck="false"
-              style="color: #000;"
-              type="text"
-            />
-            
-          </div>
-          
-        </div>
+           Add range 
+        </button>
         
         
-        <div
-          class="o-selection-input d-flex flex-row"
-        >
-          <button
-            class="o-btn-action bg-transparent fw-bold o-add-selection"
-          >
-             Add range 
-          </button>
-          
-          
-          
-        </div>
+        
       </div>
-      
     </div>
+    
   </div>
 </div>
 `;

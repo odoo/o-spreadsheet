@@ -65,6 +65,7 @@ class Parent extends Component<any> {
     />
   `;
   static components = { SelectionInput };
+  static props = { model: Object, config: Object };
   model!: Model;
   initialRanges: string[] | undefined;
   hasSingleRange: boolean | undefined;
@@ -104,6 +105,7 @@ class MultiParent extends Component<any> {
     </div>
   `;
   static components = { SelectionInput };
+  static props = { model: Object };
 
   setup() {
     useSubEnv({

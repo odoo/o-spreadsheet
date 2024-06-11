@@ -20,6 +20,7 @@ class Parent extends Component<{}, SpreadsheetChildEnv> {
     <SidePanel />
   </div>
   `;
+  static props = {};
 }
 
 beforeEach(async () => {

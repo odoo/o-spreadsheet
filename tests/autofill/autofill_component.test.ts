@@ -207,6 +207,7 @@ describe("Autofill component", () => {
       static template = xml/* xml */ `
         <div class="custom_tooltip" t-esc="props.content"/>
       `;
+      static props = { content: String };
     }
     expect(fixture.querySelector(".o-autofill-nextvalue")).toBeNull();
     model.getters.getAutofillTooltip = jest.fn(() => {

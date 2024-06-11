@@ -1,23 +1,10 @@
-import { Component, xml } from "@odoo/owl";
 import { ChartErrorSection } from "../../../src/components/side_panel/chart/building_blocks/error_section/error_section";
-import { SpreadsheetChildEnv } from "../../../src/types";
 import { mountComponent } from "../../test_helpers/helpers";
 
 let fixture: HTMLElement;
 
-type Props = ChartErrorSection["props"];
-
-class Container extends Component<Props, SpreadsheetChildEnv> {
-  static template = xml/* xml */ `
-    <div class="container">
-      <ChartErrorSection t-props="props"/>
-    </div>
-  `;
-  static components = { ChartErrorSection };
-}
-
-async function mountChartErrorSection(props: Props) {
-  ({ fixture } = await mountComponent(Container, { props }));
+async function mountChartErrorSection(props: ChartErrorSection["props"]) {
+  ({ fixture } = await mountComponent(ChartErrorSection, { props }));
 }
 
 describe("Chart error section", () => {

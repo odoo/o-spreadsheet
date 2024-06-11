@@ -1,23 +1,10 @@
-import { Component, xml } from "@odoo/owl";
 import { ChartLabelRange } from "../../../src/components/side_panel/chart/building_blocks/label_range/label_range";
-import { SpreadsheetChildEnv } from "../../../src/types";
 import { mountComponent } from "../../test_helpers/helpers";
 
 let fixture: HTMLElement;
 
-type Props = ChartLabelRange["props"];
-
-class Container extends Component<Props, SpreadsheetChildEnv> {
-  static template = xml/* xml */ `
-    <div class="container">
-      <ChartLabelRange t-props="props"/>
-    </div>
-  `;
-  static components = { ChartLabelRange };
-}
-
-async function mountLabelRange(props: Props) {
-  ({ fixture } = await mountComponent(Container, { props }));
+async function mountLabelRange(props: ChartLabelRange["props"]) {
+  ({ fixture } = await mountComponent(ChartLabelRange, { props }));
 }
 
 describe("Label range", () => {

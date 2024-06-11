@@ -14,13 +14,18 @@ import { SpreadsheetChildEnv, UID } from "../../src/types";
 import { merge, resizeColumns, resizeRows, setStyle } from "../test_helpers/commands_helpers";
 import { getStylePropertyInPx, mountComponent } from "../test_helpers/helpers";
 
-class ParentComponent extends Component<{}, SpreadsheetChildEnv> {
+class ParentComponent extends Component<GridCellIconProps, SpreadsheetChildEnv> {
   static components = { GridCellIcon };
   static template = xml/* xml */ `
     <GridCellIcon t-props="this.props">
       <div class="my-icon"></div>
     </GridCellIcon>
   `;
+  static props = {
+    cellPosition: Object,
+    horizontalAlign: { type: String, optional: true },
+    verticalAlign: { type: String, optional: true },
+  };
 }
 
 describe("Grid cell icon component", () => {
