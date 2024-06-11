@@ -1,3 +1,4 @@
+import { handleError } from "../../../functions";
 import { ModelConfig } from "../../../model";
 import { _t } from "../../../translation";
 import { CellValueType, EvaluatedCell, FPayload, Getters, Range, UID, Zone } from "../../../types";
@@ -223,10 +224,15 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     if (!operator) {
       throw new Error(`Aggregator ${aggregator} does not exist`);
     }
-    return {
-      value: values.length ? operator.fn([values], this.getters.getLocale()) : "",
-      format: operator.format(values[0]),
-    };
+
+    try {
+      return {
+        value: values.length ? operator.fn([values], this.getters.getLocale()) : "",
+        format: operator.format(values[0]),
+      };
+    } catch (e) {
+      return handleError(e, aggregator.toUpperCase());
+    }
   }
 
   getPossibleFieldValues(
