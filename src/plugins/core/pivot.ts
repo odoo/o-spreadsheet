@@ -217,6 +217,14 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
           [formulaId, ...flatPivotDomain(pivotCell.domain)].filter(isDefined)
         );
         break;
+      case "MEASURE_HEADER":
+        content = makePivotFormula(
+          "PIVOT.HEADER",
+          [formulaId, ...flatPivotDomain(pivotCell.domain), "measure", pivotCell.measure].filter(
+            isDefined
+          )
+        );
+        break;
       case "VALUE":
         content = makePivotFormula(
           "PIVOT.VALUE",

@@ -828,13 +828,10 @@ export const PIVOT = {
             result[col].push({ value: "" });
             break;
           case "HEADER":
-            const domain = pivotCell.domain;
-            const lastNode = domain.at(-1);
-            if (lastNode?.field === "measure") {
-              result[col].push(pivot.getPivotMeasureValue(toString(lastNode.value), domain));
-            } else {
-              result[col].push(pivot.getPivotHeaderValueAndFormat(domain));
-            }
+            result[col].push(pivot.getPivotHeaderValueAndFormat(pivotCell.domain));
+            break;
+          case "MEASURE_HEADER":
+            result[col].push(pivot.getPivotMeasureValue(pivotCell.measure, pivotCell.domain));
             break;
           case "VALUE":
             result[col].push(pivot.getPivotCellValueAndFormat(pivotCell.measure, pivotCell.domain));

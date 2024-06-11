@@ -108,6 +108,12 @@ export interface PivotHeaderCell {
   domain: PivotDomain;
 }
 
+export interface PivotMeasureHeaderCell {
+  type: "MEASURE_HEADER";
+  domain: PivotDomain;
+  measure: string;
+}
+
 export interface PivotValueCell {
   type: "VALUE";
   domain: PivotDomain;
@@ -118,7 +124,11 @@ export interface PivotEmptyCell {
   type: "EMPTY";
 }
 
-export type PivotTableCell = PivotHeaderCell | PivotValueCell | PivotEmptyCell;
+export type PivotTableCell =
+  | PivotHeaderCell
+  | PivotMeasureHeaderCell
+  | PivotValueCell
+  | PivotEmptyCell;
 
 export interface PivotTimeAdapter<T> {
   normalizeFunctionValue: (value: string) => T;

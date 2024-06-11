@@ -199,14 +199,15 @@ export class PivotUIPlugin extends UIPlugin {
       const pivotCol = position.col - mainPosition.col;
       const pivotRow = position.row - mainPosition.row;
       const pivotCell = pivotCells[pivotCol][pivotRow];
-      if (pivotCell.type === "EMPTY") {
-        return undefined;
+      switch (pivotCell.type) {
+        case "EMPTY":
+          return undefined;
+        case "HEADER":
+        case "MEASURE_HEADER":
+          return { domainArgs: pivotCell.domain, isHeader: true };
+        case "VALUE":
+          return { domainArgs: pivotCell.domain };
       }
-      let domain = pivotCell.domain;
-      if (domain.at(-1)?.field === "measure") {
-        domain = domain.slice(0, -1);
-      }
-      return { domainArgs: domain, isHeader: pivotCell.type === "HEADER" };
     }
     let domain = toPivotDomain(
       args.slice(functionName === "PIVOT.VALUE" ? 2 : 1).map((x) => `${x}`)
