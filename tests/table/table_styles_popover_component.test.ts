@@ -1,28 +1,16 @@
-import { Component, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import {
   TableStylesPopover,
   TableStylesPopoverProps,
 } from "../../src/components/tables/table_styles_popover/table_styles_popover";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
-import { SpreadsheetChildEnv } from "../../src/types";
 import { createTableStyle } from "../test_helpers/commands_helpers";
 import { click, triggerMouseEvent } from "../test_helpers/dom_helper";
-import { mountComponent, nextTick } from "../test_helpers/helpers";
+import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
 let openSidePanel: jest.Mock;
-
-class Parent extends Component<TableStylesPopoverProps, SpreadsheetChildEnv> {
-  static components = { TableStylesPopover };
-  static template = xml/*xml*/ `
-    <!-- Portal target -->
-    <div class="o-spreadsheet">
-      <TableStylesPopover t-props="props" />
-    </div>
-    `;
-}
 
 async function mountPopover(partialProps: Partial<TableStylesPopoverProps> = {}) {
   const props: TableStylesPopoverProps = {
@@ -38,7 +26,7 @@ async function mountPopover(partialProps: Partial<TableStylesPopoverProps> = {})
   };
   openSidePanel = jest.fn();
   const env = { openSidePanel };
-  ({ fixture } = await mountComponent(Parent, { model, props, env }));
+  ({ fixture } = await mountComponentWithPortalTarget(TableStylesPopover, { model, props, env }));
   await nextTick();
 }
 

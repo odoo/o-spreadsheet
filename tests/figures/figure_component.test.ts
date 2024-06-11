@@ -9,8 +9,9 @@ import {
   SELECTION_BORDER_COLOR,
 } from "../../src/constants";
 import { figureRegistry } from "../../src/registries";
-import { CreateFigureCommand, Figure, Pixel, SpreadsheetChildEnv, UID } from "../../src/types";
+import { CreateFigureCommand, Pixel, SpreadsheetChildEnv, UID } from "../../src/types";
 
+import { FigureComponent } from "../../src/components/figures/figure/figure";
 import {
   activateSheet,
   addColumns,
@@ -96,11 +97,9 @@ const TEMPLATE = xml/* xml */ `
   </div>
 `;
 
-interface Props {
-  figure: Figure;
-}
-class TextFigure extends Component<Props, SpreadsheetChildEnv> {
+class TextFigure extends Component<FigureComponent["props"], SpreadsheetChildEnv> {
   static template = TEMPLATE;
+  static props = FigureComponent.props;
 }
 
 mockChart();

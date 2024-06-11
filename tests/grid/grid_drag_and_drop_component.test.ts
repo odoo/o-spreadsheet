@@ -43,6 +43,7 @@ let selectedRow: number | undefined = undefined;
 
 class FakeGridComponent extends Component<Props, SpreadsheetChildEnv> {
   static template = TEMPLATE;
+  static props = { model: Object };
 
   setup() {
     useSubEnv({

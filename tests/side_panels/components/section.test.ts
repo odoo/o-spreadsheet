@@ -18,6 +18,7 @@ describe("Section", () => {
     </div>
   `;
       static components = { Section };
+      static props = { class: String };
     }
     const props = { class: "my-class" };
     ({ fixture } = await mountComponent(SectionContainer, { props }));
@@ -35,6 +36,7 @@ describe("Section", () => {
     </div>
   `;
       static components = { Section };
+      static props = { class: String };
     }
     const props = { class: "my-class" };
     ({ fixture } = await mountComponent(SectionContainer, { props }));
