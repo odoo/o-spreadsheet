@@ -12,7 +12,8 @@ import {
 } from "../../../types";
 import { BarChartDefinition } from "../../../types/chart/bar_chart";
 import {
-  AxesDesign,
+  AbstractChartAxesDesign,
+  AbstractChartTitle,
   ChartCreationContext,
   CustomizedDataSet,
   DataSet,
@@ -26,11 +27,18 @@ import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import { BarChart, createBarChartRuntime } from "./bar_chart";
 import {
+  checkAxesDesign,
+  checkChartTitle,
   checkDataset,
   checkLabelRange,
+  copyAxesDesignWithNewSheetId,
+  copyChartTitleReferenceWithNewSheetId,
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
+  getAxesDesignWithRangeString,
+  getAxesDesignWithValidRanges,
+  getChartTitleWithRangeString,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
@@ -44,7 +52,7 @@ export class PyramidChart extends AbstractChart {
   readonly type = "pyramid";
   readonly dataSetsHaveTitle: boolean;
   readonly dataSetDesign?: DatasetDesign[];
-  readonly axesDesign?: AxesDesign;
+  readonly axesDesign?: AbstractChartAxesDesign;
   readonly horizontal = true;
   readonly stacked = true;
   readonly showValues?: boolean;
@@ -63,7 +71,7 @@ export class PyramidChart extends AbstractChart {
     this.aggregated = definition.aggregated;
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
     this.dataSetDesign = definition.dataSets;
-    this.axesDesign = definition.axesDesign;
+    this.axesDesign = getAxesDesignWithValidRanges(getters, sheetId, definition.axesDesign);
     this.showValues = definition.showValues;
   }
 
@@ -78,7 +86,13 @@ export class PyramidChart extends AbstractChart {
     validator: Validator,
     definition: PyramidChartDefinition
   ): CommandResult | CommandResult[] {
-    return validator.checkValidations(definition, checkDataset, checkLabelRange);
+    return validator.checkValidations(
+      definition,
+      checkDataset,
+      checkLabelRange,
+      checkChartTitle,
+      checkAxesDesign
+    );
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): PyramidChartDefinition {
@@ -88,7 +102,7 @@ export class PyramidChart extends AbstractChart {
       dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
       aggregated: context.aggregated ?? false,
       legendPosition: context.legendPosition ?? "top",
-      title: context.title || { text: "" },
+      title: context.title || { type: "string", text: "" },
       type: "pyramid",
       labelRange: context.auxiliaryRange || undefined,
       axesDesign: context.axesDesign,
@@ -108,17 +122,27 @@ export class PyramidChart extends AbstractChart {
     }
     return {
       ...this,
+      title: getChartTitleWithRangeString(this.getters, this.sheetId, this.title),
       range,
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
         : undefined,
+      axesDesign: getAxesDesignWithRangeString(this.getters, this.sheetId, this.axesDesign),
     };
   }
 
   copyForSheetId(sheetId: UID): PyramidChart {
     const dataSets = copyDataSetsWithNewSheetId(this.sheetId, sheetId, this.dataSets);
     const labelRange = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.labelRange);
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, sheetId);
+    const chartTitle = copyChartTitleReferenceWithNewSheetId(this.sheetId, sheetId, this.title);
+    const axesDesign = copyAxesDesignWithNewSheetId(this.sheetId, sheetId, this.axesDesign);
+    const definition = this.getDefinitionWithSpecificDataSets(
+      dataSets,
+      labelRange,
+      chartTitle,
+      axesDesign,
+      sheetId
+    );
     return new PyramidChart(definition, sheetId, this.getters);
   }
 
@@ -126,18 +150,27 @@ export class PyramidChart extends AbstractChart {
     const definition = this.getDefinitionWithSpecificDataSets(
       this.dataSets,
       this.labelRange,
+      this.title,
+      this.axesDesign,
       sheetId
     );
     return new PyramidChart(definition, sheetId, this.getters);
   }
 
   getDefinition(): PyramidChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
+    return this.getDefinitionWithSpecificDataSets(
+      this.dataSets,
+      this.labelRange,
+      this.title,
+      this.axesDesign
+    );
   }
 
   private getDefinitionWithSpecificDataSets(
     dataSets: DataSet[],
     labelRange: Range | undefined,
+    title: AbstractChartTitle,
+    axesDesign?: AbstractChartAxesDesign,
     targetSheetId?: UID
   ): PyramidChartDefinition {
     const ranges: CustomizedDataSet[] = [];
@@ -156,9 +189,13 @@ export class PyramidChart extends AbstractChart {
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
-      title: this.title,
+      title: getChartTitleWithRangeString(this.getters, targetSheetId || this.sheetId, title),
       aggregated: this.aggregated,
-      axesDesign: this.axesDesign,
+      axesDesign: getAxesDesignWithRangeString(
+        this.getters,
+        targetSheetId || this.sheetId,
+        axesDesign
+      ),
       horizontal: true,
       stacked: true,
       showValues: this.showValues,
@@ -170,16 +207,23 @@ export class PyramidChart extends AbstractChart {
   }
 
   updateRanges(applyChange: ApplyRangeChange): PyramidChart {
-    const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
+    const { dataSets, labelRange, title, axesDesign, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,
       this.dataSets,
+      this.title,
+      this.axesDesign,
       this.labelRange
     );
     if (!isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
+    const definition = this.getDefinitionWithSpecificDataSets(
+      dataSets,
+      labelRange,
+      title,
+      axesDesign
+    );
     return new PyramidChart(definition, this.sheetId, this.getters);
   }
 }

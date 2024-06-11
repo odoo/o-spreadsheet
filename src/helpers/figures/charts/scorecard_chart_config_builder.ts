@@ -109,7 +109,7 @@ class ScorecardChartConfigBuilder {
         this.title,
         style.title.font
       ));
-      switch (this.runtime.title.align) {
+      switch (this.runtime.title.design?.align) {
         case "center":
           x = (this.width - titleWidth) / 2;
           break;
@@ -346,10 +346,10 @@ class ScorecardChartConfigBuilder {
       title: {
         font: getDefaultContextFont(
           DEFAULT_CHART_FONT_SIZE,
-          this.runtime.title.bold,
-          this.runtime.title.italic
+          this.runtime.title.design?.bold,
+          this.runtime.title.design?.italic
         ),
-        color: this.runtime.title.color ?? this.secondaryFontColor,
+        color: this.runtime.title.design?.color ?? this.secondaryFontColor,
       },
       keyValue: {
         color: this.runtime.keyValueStyle?.textColor || this.runtime.fontColor,
