@@ -1,5 +1,6 @@
 import { transformZone } from "../../../collaborative/ot/ot_helpers";
 import {
+  DEFAULT_CHART_PADDING,
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
   DEFAULT_SCORECARD_BASELINE_MODE,
@@ -294,6 +295,7 @@ export class ScorecardChart extends AbstractChart {
 export function drawScoreChart(structure: ScorecardChartConfig, canvas: HTMLCanvasElement) {
   const ctx = canvas.getContext("2d")!;
   canvas.width = structure.canvas.width;
+  const availableWidth = canvas.width - DEFAULT_CHART_PADDING;
   canvas.height = structure.canvas.height;
 
   ctx.fillStyle = structure.canvas.backgroundColor;
@@ -305,7 +307,7 @@ export function drawScoreChart(structure: ScorecardChartConfig, canvas: HTMLCanv
     const baseline = ctx.textBaseline;
     ctx.textBaseline = "middle";
     ctx.fillText(
-      clipTextWithEllipsis(ctx, structure.title.text, canvas.width - structure.title.position.x),
+      clipTextWithEllipsis(ctx, structure.title.text, availableWidth - structure.title.position.x),
       structure.title.position.x,
       structure.title.position.y
     );
@@ -452,6 +454,7 @@ export function createScorecardChartRuntime(
   return {
     title: {
       ...chart.title,
+      // chart titles are extracted from .json files and they are translated at runtime here
       text: _t(chart.title.text ?? ""),
     },
     keyValue: formattedKeyValue,
@@ -465,7 +468,9 @@ export function createScorecardChartRuntime(
       chart.baselineColorDown
     ),
     baselineDescr:
-      chart.baselineMode !== "progress" && chart.baselineDescr ? _t(chart.baselineDescr) : "",
+      chart.baselineMode !== "progress" && chart.baselineDescr
+        ? _t(chart.baselineDescr) // descriptions are extracted from .json files and they are translated at runtime here
+        : "",
     fontColor,
     background,
     baselineStyle:
