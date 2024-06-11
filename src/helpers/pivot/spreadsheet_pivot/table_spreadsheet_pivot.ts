@@ -107,7 +107,14 @@ export class SpreadsheetPivotTable {
 
   private getPivotCell(col: number, row: number, includeTotal = true): PivotTableCell {
     const colHeadersHeight = this.columns.length;
-    if (row <= colHeadersHeight - 1) {
+    if (col > 0 && row === colHeadersHeight - 1) {
+      const domain = this.getColHeaderDomain(col, row);
+      if (!domain) {
+        return { type: "EMPTY" };
+      }
+      const measure = domain.at(-1)?.value.toString() || "";
+      return { type: "MEASURE_HEADER", domain: domain.slice(0, -1), measure };
+    } else if (row <= colHeadersHeight - 1) {
       const domain = this.getColHeaderDomain(col, row);
       return domain ? { type: "HEADER", domain } : { type: "EMPTY" };
     } else if (col === 0) {
