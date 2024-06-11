@@ -155,7 +155,6 @@ describe("figures", () => {
     expect(fixture.querySelector(".o-figure")).toBeNull();
     expect(document.activeElement).toBe(fixture.querySelector(".o-grid div.o-composer"));
   });
-
   test("deleting a figure doesn't delete selection", async () => {
     createFigure(model);
     setCellContent(model, "A1", "content");
@@ -654,6 +653,45 @@ describe("figures", () => {
     triggerMouseEvent(".o-figure", "pointerdown", 0, 0);
     await nextTick();
     expect(fixture.querySelector(".o-figure")?.classList.contains("o-dragging")).toBeFalsy();
+  });
+
+  test("Figure container is properly computed based on the sheetView size", async () => {
+    createFigure(model, { id: "topLeft" }); // topLeft
+    createFigure(model, { id: "topRight", x: 4 * DEFAULT_CELL_WIDTH }); // topRight
+    createFigure(model, { id: "bottomLeft", y: 4 * DEFAULT_CELL_HEIGHT }); // bottomLeft
+    createFigure(model, {
+      id: "bottomRight",
+      x: 4 * DEFAULT_CELL_WIDTH,
+      y: 4 * DEFAULT_CELL_HEIGHT,
+    }); // bottomRight
+    freezeRows(model, 2);
+    freezeColumns(model, 2);
+    const { width, height } = model.getters.getSheetViewDimension();
+    await nextTick();
+
+    const topLeftContainerStyle = (
+      fixture.querySelector("[data-id='topLeftContainer']") as HTMLDivElement
+    ).style;
+    expect(topLeftContainerStyle.width).toEqual(`${width}px`);
+    expect(topLeftContainerStyle.height).toEqual(`${height}px`);
+
+    const topRightContainerStyle = (
+      fixture.querySelector("[data-id='topRightContainer']") as HTMLDivElement
+    ).style;
+    expect(topRightContainerStyle.width).toEqual(`${width - 2 * DEFAULT_CELL_WIDTH}px`);
+    expect(topRightContainerStyle.height).toEqual(`${height}px`);
+
+    const bottomLeftContainerStyle = (
+      fixture.querySelector("[data-id='bottomLeftContainer']") as HTMLDivElement
+    ).style;
+    expect(bottomLeftContainerStyle.width).toEqual(`${width}px`);
+    expect(bottomLeftContainerStyle.height).toEqual(`${height - 2 * DEFAULT_CELL_HEIGHT}px`);
+
+    const bottomRightContainerStyle = (
+      fixture.querySelector("[data-id='bottomRightContainer']") as HTMLDivElement
+    ).style;
+    expect(bottomRightContainerStyle.width).toEqual(`${width - 2 * DEFAULT_CELL_WIDTH}px`);
+    expect(bottomRightContainerStyle.height).toEqual(`${height - 2 * DEFAULT_CELL_HEIGHT}px`);
   });
 
   describe("Figure drag & drop snap", () => {
