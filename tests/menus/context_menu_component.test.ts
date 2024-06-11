@@ -200,6 +200,7 @@ class ContextMenuParent extends Component {
     </div>
   `;
   static components = { Menu };
+  static props = { x: Number, y: Number, width: Number, height: Number, config: Object };
   menus!: Action[];
   position!: { x: number; y: number; width: number; height: number };
   onClose!: () => void;

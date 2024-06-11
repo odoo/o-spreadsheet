@@ -31,6 +31,7 @@ describe("styles and component", () => {
 
     class App extends Component {
       static template = xml`<div class="app">text</div>`;
+      static props = {};
     }
 
     expect(document.head.innerHTML).toBe(`<style component=\"${name}\">.app {
@@ -56,6 +57,7 @@ describe("styles and component", () => {
     `;
     class App extends Component {
       static template = xml`<div class="app">text</div>`;
+      static props = {};
     }
     class SubApp extends App {}
 

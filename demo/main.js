@@ -325,13 +325,14 @@ Demo.template = xml/* xml */ `
   </div>
 `;
 Demo.components = { Spreadsheet };
+Demo.props = {};
 
 // Setup code
 async function setup() {
   const templates = await (await fetch("../build/o_spreadsheet.xml")).text();
   start = Date.now();
 
-  const rootApp = new owl.App(Demo, { dev: true });
+  const rootApp = new owl.App(Demo, { dev: true, warnIfNoStaticProps: true });
   rootApp.addTemplates(templates);
   rootApp.mount(document.body);
 }

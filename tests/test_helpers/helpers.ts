@@ -111,6 +111,7 @@ export function addTestPlugin(
 const realTimeSetTimeout = window.setTimeout.bind(window);
 class Root extends Component {
   static template = xml`<div/>`;
+  static props = {};
 }
 const Scheduler = new App(Root).scheduler.constructor as unknown as { requestAnimationFrame: any };
 
@@ -228,6 +229,7 @@ class ParentWithPortalTarget<Props extends ComponentProps> extends Component<
       <t t-component="props.childComponent" t-props="props.childProps"/>
     </div>
   `;
+  static props = { "*": Object };
 }
 
 interface MountComponentArgs<Props extends ComponentProps> {
@@ -265,7 +267,13 @@ export async function mountComponent<Props extends { [key: string]: any }>(
   model.drawLayer = () => {};
   const env = makeTestEnv({ ...optionalArgs.env, model: model });
   const props = optionalArgs.props || ({} as Props);
-  const app = new App(component, { props, env, test: true, translateFn: _t });
+  const app = new App(component, {
+    props,
+    env,
+    test: true,
+    translateFn: _t,
+    warnIfNoStaticProps: true,
+  });
   const fixture = optionalArgs?.fixture || makeTestFixture();
   const parent = await app.mount(fixture);
 
@@ -839,6 +847,7 @@ export class ComposerWrapper extends Component<ComposerWrapperProps, Spreadsheet
   static template = xml/*xml*/ `
     <Composer t-props="composerProps"/>
   `;
+  static props = { composerProps: Object, focusComposer: String };
   state = useState({ focusComposer: <ComposerFocusType>"inactive" });
   composerStore!: Store<ComposerStore>;
   setup() {

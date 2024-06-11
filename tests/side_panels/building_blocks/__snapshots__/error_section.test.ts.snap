@@ -3,45 +3,41 @@
 exports[`Chart error section Can render a chart error section component 1`] = `
 <div>
   <div
-    class="container"
+    class="o-section"
   >
+    
     <div
-      class="o-section"
+      class="d-flex align-items-center o-side-panel-error o-validation-error text-danger"
     >
-      
       <div
-        class="d-flex align-items-center o-side-panel-error o-validation-error text-danger"
+        class="o-icon fa-small"
       >
-        <div
-          class="o-icon fa-small"
-        >
-          <i
-            class="fa fa-exclamation-triangle"
-          />
-        </div>
-        
-        <span>
-          error_1
-        </span>
-      </div>
-      <div
-        class="d-flex align-items-center o-side-panel-error o-validation-error text-danger"
-      >
-        <div
-          class="o-icon fa-small"
-        >
-          <i
-            class="fa fa-exclamation-triangle"
-          />
-        </div>
-        
-        <span>
-          error_2
-        </span>
+        <i
+          class="fa fa-exclamation-triangle"
+        />
       </div>
       
-      
+      <span>
+        error_1
+      </span>
     </div>
+    <div
+      class="d-flex align-items-center o-side-panel-error o-validation-error text-danger"
+    >
+      <div
+        class="o-icon fa-small"
+      >
+        <i
+          class="fa fa-exclamation-triangle"
+        />
+      </div>
+      
+      <span>
+        error_2
+      </span>
+    </div>
+    
+    
   </div>
 </div>
 `;

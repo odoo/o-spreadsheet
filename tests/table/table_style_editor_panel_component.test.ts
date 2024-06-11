@@ -1,4 +1,3 @@
-import { Component, xml } from "@odoo/owl";
 import { Model } from "../../src";
 import { SidePanel } from "../../src/components/side_panel/side_panel/side_panel";
 import { TableStyleEditorPanelProps } from "../../src/components/side_panel/table_style_editor_panel/table_style_editor_panel";
@@ -6,24 +5,14 @@ import { buildTableStyle } from "../../src/helpers/table_presets";
 import { SpreadsheetChildEnv, TableStyle } from "../../src/types";
 import { createTableStyle } from "../test_helpers/commands_helpers";
 import { click, setInputValueAndTrigger } from "../test_helpers/dom_helper";
-import { mountComponent, nextTick } from "../test_helpers/helpers";
+import { mountComponentWithPortalTarget, nextTick } from "../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
 let env: SpreadsheetChildEnv;
 
-class Parent extends Component<{}, SpreadsheetChildEnv> {
-  static components = { SidePanel };
-  static template = xml/*xml*/ `
-    <!-- Portal target -->
-    <div class="o-spreadsheet">
-      <SidePanel />
-    </div>
-    `;
-}
-
 async function mountPanel(partialProps: Partial<TableStyleEditorPanelProps> = {}) {
-  ({ fixture, env } = await mountComponent(Parent, { model }));
+  ({ fixture, env } = await mountComponentWithPortalTarget(SidePanel, { model }));
   const props = { onCloseSidePanel: () => {}, ...partialProps };
   env.openSidePanel("TableStyleEditorPanel", { ...props });
   await nextTick();
