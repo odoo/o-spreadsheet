@@ -1275,4 +1275,14 @@ describe("evaluate formula getter", () => {
     expect((getEvaluatedCell(model, "A1") as ErrorCell).message).toBe("Function GETERR failed");
     functionRegistry.remove("GETERR");
   });
+
+  test("Getter getEvaluatedCells return spreaded cells", () => {
+    setCellContent(model, "A1", "=MUNIT(3)");
+    expect(model.getters.getEvaluatedCells(sheetId)).toHaveLength(9);
+  });
+
+  test("Getter getEvaluatedCells does not return cells with only a style", () => {
+    setStyle(model, "B1", { fillColor: "red" });
+    expect(model.getters.getEvaluatedCells(sheetId)).toHaveLength(0);
+  });
 });

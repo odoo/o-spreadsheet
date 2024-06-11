@@ -64,14 +64,14 @@ describe("edition", () => {
     // adding
     composerStore.startEdition("a");
     composerStore.stopEdition();
-    expect(Object.keys(model.getters.getEvaluatedCells(sheetId))).toHaveLength(1);
+    expect(model.getters.getEvaluatedCells(sheetId)).toHaveLength(1);
     expect(getCellContent(model, "A1")).toBe("a");
 
     // removing
     composerStore.startEdition();
     composerStore.setCurrentContent("");
     composerStore.stopEdition();
-    expect(model.getters.getEvaluatedCells(sheetId)).toEqual({});
+    expect(model.getters.getEvaluatedCells(sheetId)).toEqual([]);
   });
 
   test("deleting a cell with style does not remove it", () => {

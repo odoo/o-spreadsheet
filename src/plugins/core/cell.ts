@@ -1,5 +1,5 @@
 import { DEFAULT_STYLE } from "../../constants";
-import { Token, compile, tokenize } from "../../formulas";
+import { compile, Token, tokenize } from "../../formulas";
 import { isEvaluationError, toString } from "../../functions/helpers";
 import { deepEquals, isExcelCompatible, recomputeZones } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells";
@@ -122,9 +122,15 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         break;
       case "ADD_COLUMNS_ROWS":
         if (cmd.dimension === "COL") {
-          this.handleAddColumnsRows(cmd, this.copyColumnStyle.bind(this));
+          this.handleAddColumnsRows(
+            cmd,
+            cmd.emptyNewHeaders ? () => {} : this.copyColumnStyle.bind(this)
+          );
         } else {
-          this.handleAddColumnsRows(cmd, this.copyRowStyle.bind(this));
+          this.handleAddColumnsRows(
+            cmd,
+            cmd.emptyNewHeaders ? () => {} : this.copyRowStyle.bind(this)
+          );
         }
         break;
       case "UPDATE_CELL":

@@ -5,7 +5,16 @@ import { Dimension, HeaderDimensions, HeaderIndex, Pixel } from "../../types/mis
 import { UIPlugin } from "../ui_plugin";
 
 export class HeaderPositionsUIPlugin extends UIPlugin {
-  static getters = ["getColDimensions", "getRowDimensions", "getColRowOffset"] as const;
+  static getters = [
+    "getColAtPosition",
+    "getColDimensions",
+    "getHeaderAtPosition",
+    "getHeaderDimensions",
+    "getRowAtPosition",
+    "getRowDimensions",
+    "getColRowOffset",
+    "getHeadersToAddForPositionToBeInSheet",
+  ] as const;
 
   private headerPositions: Record<UID, Record<Dimension, Record<HeaderIndex, Pixel>>> = {};
   private isDirty = true;
@@ -91,6 +100,12 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
     };
   }
 
+  getHeaderDimensions(sheetId: UID, dimension: Dimension, index: HeaderIndex): HeaderDimensions {
+    return dimension === "COL"
+      ? this.getColDimensions(sheetId, index)
+      : this.getRowDimensions(sheetId, index);
+  }
+
   /**
    * Returns the offset of a header (determined by the dimension) at the given index
    * based on the referenceIndex given. If start === 0, this method will return
@@ -107,6 +122,46 @@ export class HeaderPositionsUIPlugin extends UIPlugin {
     const referencePosition = this.headerPositions[sheetId][dimension][referenceIndex];
     const position = this.headerPositions[sheetId][dimension][index];
     return position - referencePosition;
+  }
+
+  getColAtPosition(sheetId: UID, pixelPosition: Pixel): HeaderIndex | undefined {
+    return this.getHeaderAtPosition(sheetId, "COL", pixelPosition);
+  }
+
+  getRowAtPosition(sheetId: UID, pixelPosition: Pixel): HeaderIndex | undefined {
+    return this.getHeaderAtPosition(sheetId, "ROW", pixelPosition);
+  }
+
+  getHeaderAtPosition(sheetId: UID, dim: Dimension, pixelPosition: Pixel): HeaderIndex | undefined {
+    if (pixelPosition < 0) {
+      throw new Error(`Position cannot be negative (got ${pixelPosition})`);
+    }
+    for (const key in this.headerPositions[sheetId][dim]) {
+      const header = Number(key);
+      const end =
+        dim === "ROW"
+          ? this.getRowDimensions(sheetId, header).end
+          : this.getColDimensions(sheetId, header).end;
+      if (end > pixelPosition) {
+        return header;
+      }
+    }
+    return undefined;
+  }
+
+  getHeadersToAddForPositionToBeInSheet(
+    sheetId: UID,
+    dimension: Dimension,
+    pixelPosition: Pixel
+  ): number {
+    const header = this.getHeaderAtPosition(sheetId, dimension, pixelPosition);
+    if (header !== undefined) {
+      return 0;
+    }
+    const lastHeader = this.getters.getNumberHeaders(sheetId, dimension) - 1;
+    const lastHeaderDims = this.getters.getHeaderDimensions(sheetId, dimension, lastHeader);
+    const missingRows = Math.ceil((pixelPosition - lastHeaderDims.end) / lastHeaderDims.size);
+    return missingRows;
   }
 
   private computeHeaderPositionsOfSheet(sheetId: UID) {

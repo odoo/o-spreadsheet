@@ -41,7 +41,7 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
   TableCell
 > {
   copy(data: ClipboardCellData): ClipboardContent {
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = data.sheetId;
 
     const { rowsIndexes, columnsIndexes, zones } = data;
     if (!zones || !rowsIndexes.length || !columnsIndexes.length) {
@@ -56,11 +56,11 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
       for (let col of columnsIndexes) {
         const position = { col, row, sheetId };
         const table = this.getters.getTable(position);
-        if (!table || copiedTablesIds.has(table.id)) {
+        const coreTable = this.getters.getCoreTable(position);
+        if ((!table && !coreTable) || copiedTablesIds.has((table || coreTable)!.id)) {
           tableCellsInRow.push({});
           continue;
         }
-        const coreTable = this.getters.getCoreTable(position);
         const tableZone = coreTable?.range.zone;
         // Copy whole table
         if (coreTable && tableZone && zones.some((z) => isZoneInside(tableZone, z))) {
@@ -86,7 +86,7 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
 
     return {
       tableCells,
-      sheetId: this.getters.getActiveSheetId(),
+      sheetId: data.sheetId,
     };
   }
 
@@ -112,7 +112,7 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
       return;
     }
     const zones = target.zones;
-    const sheetId = this.getters.getActiveSheetId();
+    const sheetId = target.sheetId;
     if (!options?.isCutOperation) {
       this.pasteFromCopy(sheetId, zones, content.tableCells, options);
     } else {

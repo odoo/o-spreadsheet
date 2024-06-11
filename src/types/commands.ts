@@ -1,7 +1,7 @@
 import {
   ConditionalFormat,
-  DOMCoordinates,
   DataValidationRule,
+  DOMCoordinates,
   Figure,
   Format,
   Locale,
@@ -292,6 +292,7 @@ export interface AddColumnsRowsCommand extends SheetDependentCommand {
   base: HeaderIndex;
   quantity: number;
   position: "before" | "after";
+  emptyNewHeaders?: boolean;
 }
 
 export interface RemoveColumnsRowsCommand extends HeadersDependentCommand {
@@ -934,6 +935,12 @@ export interface SplitTextIntoColumnsCommand {
   force?: boolean;
 }
 
+export interface ExpandSheetForZoneCommand {
+  type: "EXPAND_SHEET_FOR_ZONE";
+  sheetId: UID;
+  targetZone: Zone;
+}
+
 export interface RefreshPivotCommand {
   type: "REFRESH_PIVOT";
   id: UID;
@@ -943,6 +950,21 @@ export interface InsertNewPivotCommand {
   type: "INSERT_NEW_PIVOT";
   pivotId: UID;
   newSheetId: UID;
+}
+
+export interface SendFigureToSheetCommand {
+  type: "SEND_FIGURE_TO_SHEET";
+  figureId: UID;
+  sheetId?: UID;
+}
+
+export interface SendSelectionToSheetCommand {
+  type: "SEND_SELECTION_TO_SHEET";
+  sheetId?: UID;
+}
+
+export interface ReorganizeSheetCommand {
+  type: "REORGANIZE_SHEET";
 }
 
 export type CoreCommand =
@@ -1088,7 +1110,12 @@ export type LocalCommand =
   | TrimWhitespaceCommand
   | ResizeTableCommand
   | RefreshPivotCommand
-  | InsertNewPivotCommand;
+  | InsertNewPivotCommand
+  | ExpandSheetForZoneCommand
+  | RefreshPivotCommand
+  | SendFigureToSheetCommand
+  | SendSelectionToSheetCommand
+  | ReorganizeSheetCommand;
 
 export type Command = CoreCommand | LocalCommand;
 
