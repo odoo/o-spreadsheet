@@ -20,7 +20,8 @@ import {
   UID,
 } from "../../../types";
 import {
-  AxesDesign,
+  AbstractChartAxesDesign,
+  AbstractChartTitle,
   ChartCreationContext,
   CustomizedDataSet,
   DataSet,
@@ -37,12 +38,19 @@ import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
   chartFontColor,
+  checkAxesDesign,
+  checkChartTitle,
   checkDataset,
   checkLabelRange,
+  copyAxesDesignWithNewSheetId,
+  copyChartTitleReferenceWithNewSheetId,
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
+  getAxesDesignWithRangeString,
+  getAxesDesignWithValidRanges,
   getChartAxisTitleRuntime,
+  getChartTitleWithRangeString,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
@@ -72,7 +80,7 @@ export class WaterfallChart extends AbstractChart {
   readonly negativeValuesColor?: Color;
   readonly subTotalValuesColor?: Color;
   readonly dataSetDesign: CustomizedDataSet[];
-  readonly axesDesign?: AxesDesign;
+  readonly axesDesign?: AbstractChartAxesDesign;
 
   constructor(definition: WaterfallChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -95,7 +103,7 @@ export class WaterfallChart extends AbstractChart {
     this.subTotalValuesColor = definition.subTotalValuesColor;
     this.firstValueAsSubtotal = definition.firstValueAsSubtotal;
     this.dataSetDesign = definition.dataSets;
-    this.axesDesign = definition.axesDesign;
+    this.axesDesign = getAxesDesignWithValidRanges(getters, sheetId, definition.axesDesign);
   }
 
   static transformDefinition(
@@ -109,7 +117,13 @@ export class WaterfallChart extends AbstractChart {
     validator: Validator,
     definition: WaterfallChartDefinition
   ): CommandResult | CommandResult[] {
-    return validator.checkValidations(definition, checkDataset, checkLabelRange);
+    return validator.checkValidations(
+      definition,
+      checkDataset,
+      checkLabelRange,
+      checkChartTitle,
+      checkAxesDesign
+    );
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): WaterfallChartDefinition {
@@ -119,7 +133,7 @@ export class WaterfallChart extends AbstractChart {
       dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
       aggregated: context.aggregated ?? false,
       legendPosition: context.legendPosition ?? "top",
-      title: context.title || { text: "" },
+      title: context.title || { type: "string", text: "" },
       type: "waterfall",
       verticalAxisPosition: "left",
       labelRange: context.auxiliaryRange || undefined,
@@ -140,17 +154,27 @@ export class WaterfallChart extends AbstractChart {
     }
     return {
       ...this,
+      title: getChartTitleWithRangeString(this.getters, this.sheetId, this.title),
       range,
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
         : undefined,
+      axesDesign: getAxesDesignWithRangeString(this.getters, this.sheetId, this.axesDesign),
     };
   }
 
   copyForSheetId(sheetId: UID): WaterfallChart {
     const dataSets = copyDataSetsWithNewSheetId(this.sheetId, sheetId, this.dataSets);
     const labelRange = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.labelRange);
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, sheetId);
+    const chartTitle = copyChartTitleReferenceWithNewSheetId(this.sheetId, sheetId, this.title);
+    const axesDesign = copyAxesDesignWithNewSheetId(this.sheetId, sheetId, this.axesDesign);
+    const definition = this.getDefinitionWithSpecificDataSets(
+      dataSets,
+      labelRange,
+      chartTitle,
+      axesDesign,
+      sheetId
+    );
     return new WaterfallChart(definition, sheetId, this.getters);
   }
 
@@ -158,18 +182,27 @@ export class WaterfallChart extends AbstractChart {
     const definition = this.getDefinitionWithSpecificDataSets(
       this.dataSets,
       this.labelRange,
+      this.title,
+      this.axesDesign,
       sheetId
     );
     return new WaterfallChart(definition, sheetId, this.getters);
   }
 
   getDefinition(): WaterfallChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
+    return this.getDefinitionWithSpecificDataSets(
+      this.dataSets,
+      this.labelRange,
+      this.title,
+      this.axesDesign
+    );
   }
 
   private getDefinitionWithSpecificDataSets(
     dataSets: DataSet[],
     labelRange: Range | undefined,
+    title: AbstractChartTitle,
+    axesDesign?: AbstractChartAxesDesign,
     targetSheetId?: UID
   ): WaterfallChartDefinition {
     const ranges: CustomizedDataSet[] = [];
@@ -189,7 +222,7 @@ export class WaterfallChart extends AbstractChart {
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
-      title: this.title,
+      title: getChartTitleWithRangeString(this.getters, targetSheetId || this.sheetId, title),
       aggregated: this.aggregated,
       showSubTotals: this.showSubTotals,
       showConnectorLines: this.showConnectorLines,
@@ -197,7 +230,11 @@ export class WaterfallChart extends AbstractChart {
       negativeValuesColor: this.negativeValuesColor,
       subTotalValuesColor: this.subTotalValuesColor,
       firstValueAsSubtotal: this.firstValueAsSubtotal,
-      axesDesign: this.axesDesign,
+      axesDesign: getAxesDesignWithRangeString(
+        this.getters,
+        targetSheetId || this.sheetId,
+        axesDesign
+      ),
     };
   }
 
@@ -207,22 +244,30 @@ export class WaterfallChart extends AbstractChart {
   }
 
   updateRanges(applyChange: ApplyRangeChange): WaterfallChart {
-    const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
+    const { dataSets, labelRange, title, axesDesign, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,
       this.dataSets,
+      this.title,
+      this.axesDesign,
       this.labelRange
     );
     if (!isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
+    const definition = this.getDefinitionWithSpecificDataSets(
+      dataSets,
+      labelRange,
+      title,
+      axesDesign
+    );
     return new WaterfallChart(definition, this.sheetId, this.getters);
   }
 }
 
 function getWaterfallConfiguration(
   chart: WaterfallChart,
+  getters: Getters,
   labels: string[],
   dataSeriesLabels: (string | undefined)[],
   localeFormat: LocaleFormat
@@ -230,7 +275,7 @@ function getWaterfallConfiguration(
   const { locale, format } = localeFormat;
 
   const fontColor = chartFontColor(chart.background);
-  const config = getDefaultChartJsRuntime(chart, labels, fontColor, localeFormat);
+  const config = getDefaultChartJsRuntime(chart, getters, labels, fontColor, localeFormat);
   const negativeColor = chart.negativeValuesColor || CHART_WATERFALL_NEGATIVE_COLOR;
   const positiveColor = chart.positiveValuesColor || CHART_WATERFALL_POSITIVE_COLOR;
   const subTotalColor = chart.subTotalValuesColor || CHART_WATERFALL_SUBTOTAL_COLOR;
@@ -272,7 +317,7 @@ function getWaterfallConfiguration(
       grid: {
         display: false,
       },
-      title: getChartAxisTitleRuntime(chart.axesDesign?.x),
+      title: getChartAxisTitleRuntime(getters, chart.axesDesign?.x),
     },
     y: {
       position: chart.verticalAxisPosition,
@@ -292,7 +337,7 @@ function getWaterfallConfiguration(
           return context.tick.value === 0 ? 2 : 1;
         },
       },
-      title: getChartAxisTitleRuntime(chart.axesDesign?.y),
+      title: getChartAxisTitleRuntime(getters, chart.axesDesign?.y),
     },
   };
   config.options.plugins!.tooltip = {
@@ -339,7 +384,7 @@ export function createWaterfallChartRuntime(
   const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
   const locale = getters.getLocale();
   const dataSeriesLabels = dataSetsValues.map((dataSet) => dataSet.label);
-  const config = getWaterfallConfiguration(chart, labels, dataSeriesLabels, {
+  const config = getWaterfallConfiguration(chart, getters, labels, dataSeriesLabels, {
     format: dataSetFormat,
     locale,
   });

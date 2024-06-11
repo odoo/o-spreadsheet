@@ -13,7 +13,8 @@ import {
   UID,
 } from "../../../types";
 import {
-  AxesDesign,
+  AbstractChartAxesDesign,
+  AbstractChartTitle,
   ChartCreationContext,
   CustomizedDataSet,
   DataSet,
@@ -31,11 +32,18 @@ import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
   chartFontColor,
+  checkAxesDesign,
+  checkChartTitle,
   checkDataset,
   checkLabelRange,
+  copyAxesDesignWithNewSheetId,
+  copyChartTitleReferenceWithNewSheetId,
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
+  getAxesDesignWithRangeString,
+  getAxesDesignWithValidRanges,
+  getChartTitleWithRangeString,
   getDefinedAxis,
   shouldRemoveFirstLabel,
   toExcelDataset,
@@ -55,7 +63,7 @@ export class ScatterChart extends AbstractChart {
   readonly type = "scatter";
   readonly dataSetsHaveTitle: boolean;
   readonly dataSetDesign?: DatasetDesign[];
-  readonly axesDesign?: AxesDesign;
+  readonly axesDesign?: AbstractChartAxesDesign;
 
   constructor(definition: ScatterChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -72,14 +80,20 @@ export class ScatterChart extends AbstractChart {
     this.aggregated = definition.aggregated;
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
     this.dataSetDesign = definition.dataSets;
-    this.axesDesign = definition.axesDesign;
+    this.axesDesign = getAxesDesignWithValidRanges(getters, sheetId, definition.axesDesign);
   }
 
   static validateChartDefinition(
     validator: Validator,
     definition: ScatterChartDefinition
   ): CommandResult | CommandResult[] {
-    return validator.checkValidations(definition, checkDataset, checkLabelRange);
+    return validator.checkValidations(
+      definition,
+      checkDataset,
+      checkLabelRange,
+      checkChartTitle,
+      checkAxesDesign
+    );
   }
 
   static transformDefinition(
@@ -96,7 +110,7 @@ export class ScatterChart extends AbstractChart {
       dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
       labelsAsText: context.labelsAsText ?? false,
       legendPosition: context.legendPosition ?? "top",
-      title: context.title || { text: "" },
+      title: context.title || { type: "string", text: "" },
       type: "scatter",
       labelRange: context.auxiliaryRange || undefined,
       aggregated: context.aggregated ?? false,
@@ -105,12 +119,19 @@ export class ScatterChart extends AbstractChart {
   }
 
   getDefinition(): ScatterChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
+    return this.getDefinitionWithSpecificDataSets(
+      this.dataSets,
+      this.labelRange,
+      this.title,
+      this.axesDesign
+    );
   }
 
   private getDefinitionWithSpecificDataSets(
     dataSets: DataSet[],
     labelRange: Range | undefined,
+    title: AbstractChartTitle,
+    axesDesign?: AbstractChartAxesDesign,
     targetSheetId?: UID
   ): ScatterChartDefinition {
     const ranges: CustomizedDataSet[] = [];
@@ -129,10 +150,14 @@ export class ScatterChart extends AbstractChart {
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
-      title: this.title,
+      title: getChartTitleWithRangeString(this.getters, targetSheetId || this.sheetId, title),
       labelsAsText: this.labelsAsText,
       aggregated: this.aggregated,
-      axesDesign: this.axesDesign,
+      axesDesign: getAxesDesignWithRangeString(
+        this.getters,
+        targetSheetId || this.sheetId,
+        axesDesign
+      ),
     };
   }
 
@@ -146,24 +171,33 @@ export class ScatterChart extends AbstractChart {
     }
     return {
       ...this,
+      title: getChartTitleWithRangeString(this.getters, this.sheetId, this.title),
       range,
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
         : undefined,
+      axesDesign: getAxesDesignWithRangeString(this.getters, this.sheetId, this.axesDesign),
     };
   }
 
   updateRanges(applyChange: ApplyRangeChange): ScatterChart {
-    const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
+    const { dataSets, labelRange, title, axesDesign, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,
       this.dataSets,
+      this.title,
+      this.axesDesign,
       this.labelRange
     );
     if (!isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
+    const definition = this.getDefinitionWithSpecificDataSets(
+      dataSets,
+      labelRange,
+      title,
+      axesDesign
+    );
     return new ScatterChart(definition, this.sheetId, this.getters);
   }
 
@@ -194,7 +228,15 @@ export class ScatterChart extends AbstractChart {
   copyForSheetId(sheetId: UID): ScatterChart {
     const dataSets = copyDataSetsWithNewSheetId(this.sheetId, sheetId, this.dataSets);
     const labelRange = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.labelRange);
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, sheetId);
+    const chartTitle = copyChartTitleReferenceWithNewSheetId(this.sheetId, sheetId, this.title);
+    const axesDesign = copyAxesDesignWithNewSheetId(this.sheetId, sheetId, this.axesDesign);
+    const definition = this.getDefinitionWithSpecificDataSets(
+      dataSets,
+      labelRange,
+      chartTitle,
+      axesDesign,
+      sheetId
+    );
     return new ScatterChart(definition, sheetId, this.getters);
   }
 
@@ -202,6 +244,8 @@ export class ScatterChart extends AbstractChart {
     const definition = this.getDefinitionWithSpecificDataSets(
       this.dataSets,
       this.labelRange,
+      this.title,
+      this.axesDesign,
       sheetId
     );
     return new ScatterChart(definition, sheetId, this.getters);

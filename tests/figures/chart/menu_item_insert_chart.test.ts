@@ -116,7 +116,7 @@ describe("Insert chart menu item", () => {
         legendPosition: "none",
         stacked: false,
         aggregated: false,
-        title: {},
+        title: { type: "string", text: expect.any(String) },
         type: "bar",
       },
     };
@@ -400,7 +400,7 @@ describe("Insert chart menu item", () => {
     const payload = { ...defaultPayload };
     payload.definition = {
       keyValue: "K5",
-      title: {},
+      title: { type: "string", text: expect.any(String) },
       type: "scorecard",
       baselineColorDown: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
       baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
@@ -488,7 +488,7 @@ describe("Insert chart menu item", () => {
         legendPosition: "top",
         type: "pie",
         dataSetsHaveTitle: false,
-        title: {},
+        title: { type: "string", text: "" },
       },
     };
     expect(dispatchSpy).toHaveBeenCalledWith("CREATE_CHART", payload);

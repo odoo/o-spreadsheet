@@ -3,8 +3,8 @@ import { ChartPanel } from "../../../src/components/side_panel/chart/main_chart_
 import { ChartTerms } from "../../../src/components/translations_terms";
 import { BACKGROUND_CHART_COLOR } from "../../../src/constants";
 import { toHex, toZone } from "../../../src/helpers";
-import { ScorecardChart } from "../../../src/helpers/figures/charts";
 import { CHART_TYPES, ChartDefinition, ChartType, SpreadsheetChildEnv } from "../../../src/types";
+import { ScorecardChartDefinition } from "../../../src/types/chart";
 import { BarChartDefinition } from "../../../src/types/chart/bar_chart";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
 import {
@@ -286,7 +286,7 @@ describe("charts", () => {
         setInputValueAndTrigger(dataSeriesValues, "B2:B4");
         await nextTick();
         await simulateClick(".o-data-series .o-selection-ok");
-        const definition = model.getters.getChartDefinition(chartId) as ScorecardChart;
+        const definition = model.getters.getChartDefinition(chartId) as ScorecardChartDefinition;
         expect(definition.keyValue).toEqual("B2:B4");
         break;
     }
@@ -297,7 +297,7 @@ describe("charts", () => {
       sheetId,
       definition: {
         ...model.getters.getChartDefinition(chartId),
-        title: { text: "hello" },
+        title: { type: "string", text: "hello" },
       },
     });
   });
@@ -309,7 +309,7 @@ describe("charts", () => {
         dataSets: [{ dataRange: "C1:C4" }],
         labelRange: "A2:A4",
         type: "line",
-        title: { text: "title" },
+        title: { type: "string", text: "title" },
       },
       chartId
     );
@@ -323,8 +323,9 @@ describe("charts", () => {
     await click(color_menu);
     await click(fixture, ".o-color-picker-line-item[data-color='#EFEFEF'");
     expect(model.getters.getChartDefinition(chartId).title).toEqual({
+      type: "string",
       text: "title",
-      color: "#EFEFEF",
+      design: { color: "#EFEFEF" },
     });
   });
 
@@ -337,7 +338,7 @@ describe("charts", () => {
           dataSets: [{ dataRange: "C1:C4" }],
           labelRange: "A2:A4",
           type: "line",
-          title: { text: "title" },
+          title: { type: "string", text: "title" },
         },
         chartId
       );
@@ -350,8 +351,9 @@ describe("charts", () => {
       await click(alignment_menu);
       await click(fixture, `.o-menu-item-button[title='${alignment}']`);
       expect(model.getters.getChartDefinition(chartId).title).toEqual({
+        type: "string",
         text: "title",
-        align: alignment.toLowerCase(),
+        design: { align: alignment.toLowerCase() },
       });
     }
   );
@@ -363,7 +365,7 @@ describe("charts", () => {
         dataSets: [{ dataRange: "C1:C4" }],
         labelRange: "A2:A4",
         type: "line",
-        title: { text: "title" },
+        title: { type: "string", text: "title" },
       },
       chartId
     );
@@ -375,8 +377,9 @@ describe("charts", () => {
     )[0];
     await click(bold_element);
     expect(model.getters.getChartDefinition(chartId).title).toEqual({
+      type: "string",
       text: "title",
-      bold: true,
+      design: { bold: true },
     });
 
     const italic_element = fixture.querySelectorAll(
@@ -384,9 +387,9 @@ describe("charts", () => {
     )[0];
     await click(italic_element);
     expect(model.getters.getChartDefinition(chartId).title).toEqual({
+      type: "string",
       text: "title",
-      bold: true,
-      italic: true,
+      design: { bold: true, italic: true },
     });
   });
 
@@ -411,9 +414,7 @@ describe("charts", () => {
     await click(fixture, ".o-color-picker-line-item[data-color='#EFEFEF'");
     //@ts-ignore
     expect(model.getters.getChartDefinition(chartId).axesDesign.x).toEqual({
-      title: {
-        color: "#EFEFEF",
-      },
+      design: { color: "#EFEFEF" },
     });
   });
 
@@ -426,7 +427,7 @@ describe("charts", () => {
           dataSets: [{ dataRange: "C1:C4" }],
           labelRange: "A2:A4",
           type: "line",
-          title: { text: "title" },
+          title: { type: "string", text: "title" },
         },
         chartId
       );
@@ -440,9 +441,7 @@ describe("charts", () => {
       await click(fixture, `.o-menu-item-button[title='${alignment}']`);
       //@ts-ignore
       expect(model.getters.getChartDefinition(chartId).axesDesign.x).toEqual({
-        title: {
-          align: alignment.toLowerCase(),
-        },
+        design: { align: alignment.toLowerCase() },
       });
     }
   );
@@ -454,7 +453,7 @@ describe("charts", () => {
         dataSets: [{ dataRange: "C1:C4" }],
         labelRange: "A2:A4",
         type: "line",
-        title: { text: "title" },
+        title: { type: "string", text: "title" },
       },
       chartId
     );
@@ -467,9 +466,7 @@ describe("charts", () => {
     await click(bold_element);
     //@ts-ignore
     expect(model.getters.getChartDefinition(chartId).axesDesign.x).toEqual({
-      title: {
-        bold: true,
-      },
+      design: { bold: true },
     });
 
     const italic_element = fixture.querySelectorAll(
@@ -478,10 +475,7 @@ describe("charts", () => {
     await click(italic_element);
     //@ts-ignore
     expect(model.getters.getChartDefinition(chartId).axesDesign.x).toEqual({
-      title: {
-        bold: true,
-        italic: true,
-      },
+      design: { bold: true, italic: true },
     });
   });
 
@@ -492,7 +486,7 @@ describe("charts", () => {
         dataSets: [{ dataRange: "C1:C4" }],
         labelRange: "A2:A4",
         type: "line",
-        title: { text: "title" },
+        title: { type: "string", text: "title" },
       },
       chartId
     );
@@ -505,9 +499,7 @@ describe("charts", () => {
     await click(bold_element);
     //@ts-ignore
     expect(model.getters.getChartDefinition(chartId).axesDesign.x).toEqual({
-      title: {
-        bold: true,
-      },
+      design: { bold: true },
     });
 
     setInputValueAndTrigger(".o-axis-selector", "y");
@@ -518,14 +510,10 @@ describe("charts", () => {
     //@ts-ignore
     expect(model.getters.getChartDefinition(chartId).axesDesign).toEqual({
       x: {
-        title: {
-          bold: true,
-        },
+        design: { bold: true },
       },
       y: {
-        title: {
-          italic: true,
-        },
+        design: { italic: true },
       },
     });
   });
@@ -648,7 +636,7 @@ describe("charts", () => {
         dataSets: [{ dataRange: "C1:C4" }],
         labelRange: "A2:A4",
         type: "line",
-        title: { text: "old_title_1" },
+        title: { type: "string", text: "old_title_1" },
       },
       "1"
     );
@@ -658,7 +646,7 @@ describe("charts", () => {
         dataSets: [{ dataRange: "C1:C4" }],
         labelRange: "A2:A4",
         type: "line",
-        title: { text: "old_title_2" },
+        title: { type: "string", text: "old_title_2" },
       },
       "2"
     );
@@ -681,7 +669,7 @@ describe("charts", () => {
         dataSets: [{ dataRange: "C1:C4" }],
         labelRange: "A2:A4",
         type: "line",
-        title: { text: "old_title_1" },
+        title: { type: "string", text: "old_title_1" },
       },
       "1"
     );
@@ -691,7 +679,7 @@ describe("charts", () => {
         dataSets: [{ dataRange: "C1:C4" }],
         labelRange: "A2:A4",
         type: "line",
-        title: { text: "old_title_2" },
+        title: { type: "string", text: "old_title_2" },
       },
       "2"
     );
@@ -899,7 +887,7 @@ describe("charts", () => {
         {
           dataSets: [{ dataRange: "C1:C4" }],
           labelRange: "A2:A4",
-          title: { text: "second" },
+          title: { type: "string", text: "second" },
           type: "line",
         },
         "secondChartId"
@@ -986,7 +974,7 @@ describe("charts", () => {
         dataSets: [],
         labelRange: "A2:A4",
         type: "line",
-        title: { text: "old_title_1" },
+        title: { type: "string", text: "old_title_1" },
       },
       chartId
     );
@@ -1009,7 +997,7 @@ describe("charts", () => {
         dataSets: [],
         labelRange: "A2:A4",
         type: "line",
-        title: { text: "old_title_1" },
+        title: { type: "string", text: "old_title_1" },
       },
       chartId
     );
@@ -1512,7 +1500,7 @@ describe("charts", () => {
             legendPosition: "top",
             type,
             dataSetsHaveTitle: false,
-            title: { text: "" },
+            title: { type: "string", text: "" },
           },
           chartId,
           sheetId

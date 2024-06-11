@@ -48,6 +48,7 @@ import {
   CellPosition,
   CellValue,
   ChartDefinition,
+  ChartType,
   ColorScaleMidPointThreshold,
   ColorScaleThreshold,
   CommandTypes,
@@ -68,6 +69,7 @@ import {
   UID,
   Zone,
 } from "../../src/types";
+import { GaugeChartRuntime, ScorecardChartRuntime } from "../../src/types/chart";
 import { Image } from "../../src/types/image";
 import { XLSXExport } from "../../src/types/xlsx";
 import { isXLSXExportXMLFile } from "../../src/xlsx/helpers/xlsx_helper";
@@ -965,4 +967,17 @@ export function getFilterHiddenValues(model: Model, sheetId = model.getters.getA
       row: table.range.zone.top,
     }),
   }));
+}
+
+export function getRuntimeChartTitle(model: Model, figureId: string, type: ChartType = "bar") {
+  const chartRuntime = model.getters.getChartRuntime(figureId);
+  switch (type) {
+    case "scorecard":
+      return (chartRuntime as ScorecardChartRuntime).title.text;
+    case "gauge":
+      return (chartRuntime as GaugeChartRuntime).title.text;
+    default:
+      // @ts-ignore chart.js type is wrong
+      return (chartRuntime as ChartJSRuntime).chartJsConfig.options?.plugins?.title?.text;
+  }
 }

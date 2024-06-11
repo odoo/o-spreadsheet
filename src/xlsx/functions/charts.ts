@@ -1,7 +1,7 @@
 import { DEFAULT_CHART_FONT_SIZE } from "../../constants";
 import { ColorGenerator, largeMax, range } from "../../helpers";
 import { Color, ExcelWorkbookData, FigureData } from "../../types";
-import { ExcelChartDataset, ExcelChartDefinition, TitleDesign } from "../../types/chart/chart";
+import { ExcelChartDataset, ExcelChartDefinition, Title } from "../../types/chart/chart";
 import { XMLAttributes, XMLString, XlsxHexColor } from "../../types/xlsx";
 import { DRAWING_NS_A, DRAWING_NS_C, RELATIONSHIP_NSR } from "../constants";
 import { toXlsxHexColor } from "../helpers/colors";
@@ -54,12 +54,17 @@ export function createChart(
   // <manualLayout/> to manually position the chart in the figure container
   let title = escapeXml``;
   if (chart.data.title?.text) {
-    const color = chart.data.title.color
-      ? toXlsxHexColor(chart.data.title.color)
+    const color = chart.data.title.design?.color
+      ? toXlsxHexColor(chart.data.title.design?.color)
       : chart.data.fontColor;
     title = escapeXml/*xml*/ `
       <c:title>
-        ${insertText(chart.data.title.text, color, DEFAULT_CHART_FONT_SIZE, chart.data.title)}
+        ${insertText(
+          chart.data.title.text,
+          color,
+          DEFAULT_CHART_FONT_SIZE,
+          chart.data.title.design
+        )}
         <c:overlay val="0" />
       </c:title>
     `;
@@ -282,8 +287,8 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
           <c:axId val="${catAxId}" />
           <c:axId val="${valAxId}" />
         </c:barChart>
-        ${addAx("b", "c:catAx", catAxId, valAxId, chart.axesDesign?.x?.title, chart.fontColor)}
-        ${addAx("l", "c:valAx", valAxId, catAxId, chart.axesDesign?.y?.title, chart.fontColor)}
+        ${addAx("b", "c:catAx", catAxId, valAxId, chart.axesDesign?.x, chart.fontColor)}
+        ${addAx("l", "c:valAx", valAxId, catAxId, chart.axesDesign?.y, chart.fontColor)}
       `
       : ""
   }
@@ -306,18 +311,11 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
           "c:catAx",
           catAxId + 1,
           valAxId + 1,
-          chart.axesDesign?.x?.title,
+          chart.axesDesign?.x,
           chart.fontColor,
           leftDataSetsNodes.length ? 1 : 0
         )}
-        ${addAx(
-          "r",
-          "c:valAx",
-          valAxId + 1,
-          catAxId + 1,
-          chart.axesDesign?.y1?.title,
-          chart.fontColor
-        )}
+        ${addAx("r", "c:valAx", valAxId + 1, catAxId + 1, chart.axesDesign?.y1, chart.fontColor)}
       `
       : ""
   }`;
@@ -437,18 +435,11 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
           "c:catAx",
           catAxId + 1,
           valAxId + 1,
-          chart.axesDesign?.x?.title,
+          chart.axesDesign?.x,
           chart.fontColor,
           leftDataSetsNodes.length ? 1 : 0
         )}
-        ${addAx(
-          "r",
-          "c:valAx",
-          valAxId + 1,
-          catAxId + 1,
-          chart.axesDesign?.y1?.title,
-          chart.fontColor
-        )}
+        ${addAx("r", "c:valAx", valAxId + 1, catAxId + 1, chart.axesDesign?.y1, chart.fontColor)}
       `
         : ""
     }
@@ -460,11 +451,11 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
           "c:catAx",
           catAxId,
           valAxId,
-          chart.axesDesign?.x?.title,
+          chart.axesDesign?.x,
           chart.fontColor,
           leftDataSetsNodes.length || !useRightAxisForBarSerie ? 1 : 0
         )}
-        ${addAx("l", "c:valAx", valAxId, catAxId, chart.axesDesign?.y?.title, chart.fontColor)}
+        ${addAx("l", "c:valAx", valAxId, catAxId, chart.axesDesign?.y, chart.fontColor)}
       `
         : ""
     }
@@ -527,8 +518,8 @@ function addLineChart(chart: ExcelChartDefinition): XMLString {
           <c:axId val="${catAxId}" />
           <c:axId val="${valAxId}" />
         </c:lineChart>
-        ${addAx("b", "c:catAx", catAxId, valAxId, chart.axesDesign?.x?.title, chart.fontColor)}
-        ${addAx("l", "c:valAx", valAxId, catAxId, chart.axesDesign?.y?.title, chart.fontColor)}
+        ${addAx("b", "c:catAx", catAxId, valAxId, chart.axesDesign?.x, chart.fontColor)}
+        ${addAx("l", "c:valAx", valAxId, catAxId, chart.axesDesign?.y, chart.fontColor)}
       `
         : ""
     }
@@ -548,18 +539,11 @@ function addLineChart(chart: ExcelChartDefinition): XMLString {
           "c:catAx",
           catAxId + 1,
           valAxId + 1,
-          chart.axesDesign?.x?.title,
+          chart.axesDesign?.x,
           chart.fontColor,
           leftDataSetsNodes.length ? 1 : 0
         )}
-        ${addAx(
-          "r",
-          "c:valAx",
-          valAxId + 1,
-          catAxId + 1,
-          chart.axesDesign?.y1?.title,
-          chart.fontColor
-        )}
+        ${addAx("r", "c:valAx", valAxId + 1, catAxId + 1, chart.axesDesign?.y1, chart.fontColor)}
       `
         : ""
     }
@@ -621,8 +605,8 @@ function addScatterChart(chart: ExcelChartDefinition): XMLString {
         <c:axId val="${catAxId}" />
         <c:axId val="${valAxId}" />
       </c:scatterChart>
-      ${addAx("b", "c:valAx", catAxId, valAxId, chart.axesDesign?.x?.title, chart.fontColor)}
-      ${addAx("l", "c:valAx", valAxId, catAxId, chart.axesDesign?.y?.title, chart.fontColor)}
+      ${addAx("b", "c:valAx", catAxId, valAxId, chart.axesDesign?.x, chart.fontColor)}
+      ${addAx("l", "c:valAx", valAxId, catAxId, chart.axesDesign?.y, chart.fontColor)}
     `
       : ""
   }
@@ -642,18 +626,11 @@ function addScatterChart(chart: ExcelChartDefinition): XMLString {
         "c:valAx",
         catAxId + 1,
         valAxId + 1,
-        chart.axesDesign?.x?.title,
+        chart.axesDesign?.x,
         chart.fontColor,
         leftDataSetsNodes.length ? 1 : 0
       )}
-      ${addAx(
-        "r",
-        "c:valAx",
-        valAxId + 1,
-        catAxId + 1,
-        chart.axesDesign?.y1?.title,
-        chart.fontColor
-      )}
+      ${addAx("r", "c:valAx", valAxId + 1, catAxId + 1, chart.axesDesign?.y1, chart.fontColor)}
     `
       : ""
   }`;
@@ -733,13 +710,13 @@ function addAx(
   axisName: "c:catAx" | "c:valAx",
   axId: number,
   crossAxId: number,
-  title: TitleDesign | undefined,
+  title: Title | undefined,
   defaultFontColor: XlsxHexColor,
   deleteAxis: number = 0
 ): XMLString {
   // Each Axis present inside a graph needs to be identified by an unsigned integer in order to be referenced by its crossAxis.
   // I.e. x-axis, will reference y-axis and vice-versa.
-  const color = title?.color ? toXlsxHexColor(title.color) : defaultFontColor;
+  const color = title?.design?.color ? toXlsxHexColor(title.design.color) : defaultFontColor;
   return escapeXml/*xml*/ `
     <${axisName}>
       <c:axId val="${axId}"/>
@@ -755,7 +732,7 @@ function addAx(
       <c:minorTickMark val="none" />
       <c:numFmt formatCode="General" sourceLinked="1" />
       <c:title>
-        ${insertText(title?.text ?? "", color, 10, title)}
+        ${insertText(title?.text ?? "", color, 10, title?.design)}
       </c:title>
       ${insertTextProperties(10, defaultFontColor)}
     </${axisName}>

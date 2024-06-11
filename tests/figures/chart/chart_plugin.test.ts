@@ -410,7 +410,7 @@ describe("datasource tests", function () {
       dataSets: [{ dataRange: "Sheet1!A8:D8" }, { dataRange: "Sheet1!A9:D9" }],
       labelRange: "Sheet1!C7:D7",
       dataSetsHaveTitle: true,
-      title: { text: "hello1" },
+      title: { type: "string", text: "hello1" },
     });
     config = getChartConfiguration(model, "1");
     expect(model.getters.getChartDefinition("1")).toMatchObject({
@@ -708,7 +708,7 @@ describe("datasource tests", function () {
     updateChart(model, chartId, {
       dataSets: [{ dataRange: "B1:B4" }],
       labelRange: "A2:A4",
-      title: { text: "updated chart" },
+      title: { type: "string", text: "updated chart" },
     });
     expect(model.getters.getSelectedFigureId()).toBeNull();
   });
@@ -1041,14 +1041,14 @@ describe("title", function () {
         type: "bar",
         dataSets: [{ dataRange: "A1:B1" }],
         labelRange: "A2:B2",
-        title: { text: "title" },
+        title: { type: "string", text: "title" },
       },
       "1"
     );
     let options = getChartConfiguration(model, "1").options;
     expect(options!.plugins!.title!.text).toEqual("title");
 
-    updateChart(model, "1", { title: { text: "newTitle" } });
+    updateChart(model, "1", { title: { type: "string", text: "newTitle" } });
     options = getChartConfiguration(model, "1").options;
     expect(options!.plugins!.title!.text).toEqual("newTitle");
   });
@@ -1060,14 +1060,12 @@ describe("title", function () {
         type: "bar",
         dataSets: [{ dataRange: "A1:B1" }],
         labelRange: "A2:B2",
-        title: {
-          text: "title",
-        },
+        title: { type: "string", text: "title" },
       },
       "1"
     );
     expect(getChartConfiguration(model, "1").options?.plugins?.title?.display).toBe(true);
-    updateChart(model, "1", { title: { text: "" } });
+    updateChart(model, "1", { title: { type: "string", text: "" } });
     expect(getChartConfiguration(model, "1").options?.plugins?.title?.display).toBe(false);
   });
 
@@ -1079,19 +1077,23 @@ describe("title", function () {
         {
           dataSets: [{ dataRange: "A1:B1" }],
           labelRange: "A2:B2",
-          title: {
-            text: "title",
-          },
+          title: { type: "string", text: "title" },
           type,
         },
         "1"
       );
       expect(getChartConfiguration(model, "1").options?.plugins?.title?.align).toBe("start");
-      updateChart(model, "1", { title: { text: "title", align: "center" } });
+      updateChart(model, "1", {
+        title: { type: "string", text: "title", design: { align: "center" } },
+      });
       expect(getChartConfiguration(model, "1").options?.plugins?.title?.align).toBe("center");
-      updateChart(model, "1", { title: { text: "title", align: "right" } });
+      updateChart(model, "1", {
+        title: { type: "string", text: "title", design: { align: "right" } },
+      });
       expect(getChartConfiguration(model, "1").options?.plugins?.title?.align).toBe("end");
-      updateChart(model, "1", { title: { text: "title", align: "left" } });
+      updateChart(model, "1", {
+        title: { type: "string", text: "title", design: { align: "left" } },
+      });
       expect(getChartConfiguration(model, "1").options?.plugins?.title?.align).toBe("start");
     }
   );
@@ -1104,8 +1106,9 @@ describe("title", function () {
           dataSets: [{ dataRange: "A1:B1" }],
           labelRange: "A2:B2",
           title: {
+            type: "string",
             text: "title",
-            color: "#f00",
+            design: { color: "#f00" },
           },
           type,
         },
@@ -1124,8 +1127,9 @@ describe("title", function () {
           dataSets: [{ dataRange: "A1:B1" }],
           labelRange: "A2:B2",
           title: {
+            type: "string",
             text: "title",
-            bold: true,
+            design: { bold: true },
           },
           type,
         },
@@ -1134,7 +1138,9 @@ describe("title", function () {
       expect(getChartConfiguration(model, "1").options?.plugins?.title?.font).toMatchObject({
         weight: "bold",
       });
-      updateChart(model, "1", { title: { text: "title", bold: false } });
+      updateChart(model, "1", {
+        title: { type: "string", text: "title", design: { bold: false } },
+      });
       expect(getChartConfiguration(model, "1").options?.plugins?.title?.font).toMatchObject({
         weight: "normal",
       });
@@ -1150,8 +1156,9 @@ describe("title", function () {
           dataSets: [{ dataRange: "A1:B1" }],
           labelRange: "A2:B2",
           title: {
+            type: "string",
             text: "title",
-            italic: true,
+            design: { italic: true },
           },
           type,
         },
@@ -1160,7 +1167,9 @@ describe("title", function () {
       expect(getChartConfiguration(model, "1").options?.plugins?.title?.font).toMatchObject({
         style: "italic",
       });
-      updateChart(model, "1", { title: { text: "title", italic: false } });
+      updateChart(model, "1", {
+        title: { type: "string", text: "title", design: { italic: false } },
+      });
       expect(getChartConfiguration(model, "1").options?.plugins?.title?.font).toMatchObject({
         style: "normal",
       });
@@ -1178,9 +1187,9 @@ describe("title", function () {
           type,
           axesDesign: {
             x: {
-              title: {
-                text: "test",
-              },
+              type: "string",
+              text: "test",
+              design: {},
             },
           },
         },
@@ -1191,10 +1200,9 @@ describe("title", function () {
       updateChart(model, "1", {
         axesDesign: {
           x: {
-            title: {
-              text: "test",
-              align: "left",
-            },
+            type: "string",
+            text: "test",
+            design: { align: "left" },
           },
         },
       });
@@ -1203,10 +1211,9 @@ describe("title", function () {
       updateChart(model, "1", {
         axesDesign: {
           x: {
-            title: {
-              text: "test",
-              align: "center",
-            },
+            type: "string",
+            text: "test",
+            design: { align: "center" },
           },
         },
       });
@@ -1215,10 +1222,9 @@ describe("title", function () {
       updateChart(model, "1", {
         axesDesign: {
           x: {
-            title: {
-              text: "test",
-              align: "right",
-            },
+            type: "string",
+            text: "test",
+            design: { align: "right" },
           },
         },
       });
@@ -1238,10 +1244,9 @@ describe("title", function () {
           type,
           axesDesign: {
             x: {
-              title: {
-                text: "test",
-                color: "#f00",
-              },
+              type: "string",
+              text: "test",
+              design: { color: "#f00" },
             },
           },
         },
@@ -1263,9 +1268,8 @@ describe("title", function () {
           type,
           axesDesign: {
             x: {
-              title: {
-                text: "test",
-              },
+              type: "string",
+              text: "test",
             },
           },
         },
@@ -1276,10 +1280,9 @@ describe("title", function () {
       updateChart(model, "1", {
         axesDesign: {
           x: {
-            title: {
-              text: "test",
-              bold: true,
-            },
+            type: "string",
+            text: "test",
+            design: { bold: true },
           },
         },
       });
@@ -1299,9 +1302,8 @@ describe("title", function () {
           type,
           axesDesign: {
             x: {
-              title: {
-                text: "test",
-              },
+              type: "string",
+              text: "test",
             },
           },
         },
@@ -1312,10 +1314,9 @@ describe("title", function () {
       updateChart(model, "1", {
         axesDesign: {
           x: {
-            title: {
-              text: "test",
-              italic: true,
-            },
+            type: "string",
+            text: "test",
+            design: { italic: true },
           },
         },
       });
@@ -1549,7 +1550,7 @@ describe("Chart without labels", () => {
     dataSets: [{ dataRange: "A1:A2", yAxisId: "y" }],
     dataSetsHaveTitle: false,
     legendPosition: "top",
-    title: { text: "My chart" },
+    title: { type: "string", text: "My chart" },
     type: "bar",
     stacked: false,
     aggregated: false,
@@ -1617,7 +1618,7 @@ describe("Chart design configuration", () => {
     dataSets: [{ dataRange: "A1:A2", yAxisId: "y" }],
     dataSetsHaveTitle: true,
     legendPosition: "top",
-    title: { text: "My chart" },
+    title: { type: "string", text: "My chart" },
     type: "bar",
     labelRange: "A3",
     stacked: false,
@@ -2068,7 +2069,7 @@ describe("Chart aggregate labels", () => {
       labelRange: "A2:A9",
       dataSetsHaveTitle: false,
       legendPosition: "top",
-      title: { text: "My chart" },
+      title: { type: "string", text: "My chart" },
       type: "bar",
       stacked: false,
       aggregated: false,

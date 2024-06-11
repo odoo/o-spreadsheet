@@ -15,16 +15,21 @@ import {
   Zone,
 } from "../../../types";
 import {
-  AxisDesign,
+  AbstractChartAxesDesign,
+  AbstractChartTitle,
+  AxesDesign,
+  ChartAxisTitleRuntime,
+  ChartDefinition,
   ChartWithAxisDefinition,
   CustomizedDataSet,
   DataSet,
   ExcelChartDataset,
+  Title,
 } from "../../../types/chart/chart";
 import { CellErrorType } from "../../../types/errors";
 import { relativeLuminance } from "../../color";
 import { isDefined } from "../../misc";
-import { copyRangeWithNewSheetId } from "../../range";
+import { copyRangeWithNewSheetId, createValidRange } from "../../range";
 import { rangeReference } from "../../references";
 import { getZoneArea, isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../../zones";
 
@@ -34,15 +39,19 @@ import { getZoneArea, isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } fr
  */
 
 /**
- * Adapt ranges of a chart which support DataSet (dataSets and LabelRange).
+ * Update chart ranges, including data sets, chart title, axes design, and label range.
  */
 export function updateChartRangesWithDataSets(
   getters: CoreGetters,
   applyChange: ApplyRangeChange,
   chartDataSets: DataSet[],
+  chartTitle: AbstractChartTitle,
+  axesDesign?: AbstractChartAxesDesign,
   chartLabelRange?: Range
 ) {
   let isStale = false;
+
+  // Update the dataSets
   const dataSetsWithUndefined: (DataSet | undefined)[] = [];
   for (let index in chartDataSets) {
     let ds: DataSet | undefined = chartDataSets[index]!;
@@ -72,17 +81,82 @@ export function updateChartRangesWithDataSets(
     }
     dataSetsWithUndefined[index] = ds;
   }
+
+  // Update the labelRange
   let labelRange = chartLabelRange;
   const range = adaptChartRange(labelRange, applyChange);
   if (range !== labelRange) {
     isStale = true;
     labelRange = range;
   }
+
+  // Update the chart title
+  let title = chartTitle;
+  if (title.type === "reference") {
+    const range = adaptChartRange(title.reference, applyChange);
+    if (range !== title.reference) {
+      isStale = true;
+      title = {
+        ...title,
+        reference: range,
+      };
+    }
+  }
+
+  // Update the axesDesign
+  let updatedAxesDesign: AbstractChartAxesDesign | undefined = undefined;
+  if (axesDesign) {
+    updatedAxesDesign = {};
+    for (const [key, value] of Object.entries(axesDesign)) {
+      if (value.type === "reference") {
+        const range = adaptChartRange(value.reference, applyChange);
+        if (range !== value.reference) {
+          isStale = true;
+          updatedAxesDesign[key] = {
+            ...value,
+            reference: range,
+          };
+        } else {
+          updatedAxesDesign[key] = value;
+        }
+      } else {
+        updatedAxesDesign[key] = value;
+      }
+    }
+  }
+
   const dataSets = dataSetsWithUndefined.filter(isDefined);
   return {
     isStale,
     dataSets,
+    title,
+    axesDesign: updatedAxesDesign,
     labelRange,
+  };
+}
+
+/**
+ * Update the title ranges for scorecard and gauge charts.
+ */
+export function updateTitleRangesForScorecardAndGaugeCharts(
+  applyChange: ApplyRangeChange,
+  title: AbstractChartTitle
+) {
+  let isStale = false;
+  let updatedTitle = title;
+  if (title.type === "reference") {
+    const range = adaptChartRange(title.reference, applyChange);
+    if (range !== title.reference) {
+      isStale = true;
+      updatedTitle = {
+        ...title,
+        reference: range,
+      };
+    }
+  }
+  return {
+    isStale,
+    title: updatedTitle,
   };
 }
 
@@ -115,6 +189,46 @@ export function copyLabelRangeWithNewSheetId(
   range?: Range
 ): Range | undefined {
   return range ? copyRangeWithNewSheetId(sheetIdFrom, sheetIdTo, range) : undefined;
+}
+
+/**
+ * Copy a title reference. If the title is a reference to a range on the
+ * sheetIdFrom, the range will target sheetIdTo.
+ */
+export function copyChartTitleReferenceWithNewSheetId(
+  sheetIdFrom: UID,
+  sheetIdTo: UID,
+  title: AbstractChartTitle
+): AbstractChartTitle {
+  if (title.type === "reference") {
+    return {
+      ...title,
+      reference: title.reference
+        ? copyRangeWithNewSheetId(sheetIdFrom, sheetIdTo, title.reference)
+        : undefined,
+    };
+  }
+
+  return title;
+}
+
+/**
+ * Copy the axesDesign given. All the ranges which are on sheetIdFrom will target
+ * sheetIdTo.
+ */
+export function copyAxesDesignWithNewSheetId(
+  sheetIdFrom: UID,
+  sheetIdTo: UID,
+  axesDesign?: AbstractChartAxesDesign
+): AbstractChartAxesDesign | undefined {
+  if (!axesDesign) {
+    return undefined;
+  }
+  const newAxesDesign: AbstractChartAxesDesign = {};
+  for (const [key, value] of Object.entries(axesDesign)) {
+    newAxesDesign[key] = copyChartTitleReferenceWithNewSheetId(sheetIdFrom, sheetIdTo, value);
+  }
+  return newAxesDesign;
 }
 
 /**
@@ -289,27 +403,57 @@ export function toExcelLabelRange(
 }
 
 /**
- * Transform a chart definition which supports dataSets (dataSets and LabelRange)
- * with an executed command
+ * Transform a chart definition containing dataSets, labelRange, chartTitleRange,
+ * and axisTitleRange using a executed command.
  */
 export function transformChartDefinitionWithDataSetsWithZone<T extends ChartWithAxisDefinition>(
   definition: T,
   executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
 ): T {
+  // Label range transformation
   let labelRange: string | undefined;
   if (definition.labelRange) {
     const labelZone = transformZone(toUnboundedZone(definition.labelRange), executed);
     labelRange = labelZone ? zoneToXc(labelZone) : undefined;
   }
+
+  // DataSets transformation
   const dataSets: CustomizedDataSet[] = definition.dataSets
     .map((ds) => toUnboundedZone(ds.dataRange))
     .map((zone) => transformZone(zone, executed))
     .filter(isDefined)
     .map((xc) => ({ dataRange: zoneToXc(xc) }));
+
+  // Chart title transformation
+  let chartTitle: string = definition.title.text;
+  if (definition.title.type === "reference" && definition.title.text) {
+    const titleZone = transformZone(toUnboundedZone(definition.title.text), executed);
+    chartTitle = titleZone ? zoneToXc(titleZone) : "";
+  }
+
+  // Axis title transformation
+  let updatedAxesDesign: AxesDesign | undefined = undefined;
+  if (definition.axesDesign) {
+    updatedAxesDesign = {};
+    for (const [key, value] of Object.entries(definition.axesDesign)) {
+      if (value.type === "reference" && value.text) {
+        const titleZone = transformZone(toUnboundedZone(value.text), executed);
+        updatedAxesDesign[key] = titleZone ? { ...value, text: zoneToXc(titleZone) } : value;
+      } else {
+        updatedAxesDesign[key] = value;
+      }
+    }
+  }
+
   return {
     ...definition,
+    title: {
+      ...definition.title,
+      text: chartTitle,
+    },
     labelRange,
     dataSets,
+    axesDesign: updatedAxesDesign,
   };
 }
 
@@ -349,6 +493,30 @@ export function checkLabelRange(definition: ChartWithAxisDefinition): CommandRes
   return CommandResult.Success;
 }
 
+export function checkChartTitle(definition: ChartDefinition): CommandResult {
+  if (definition.title.type === "reference" && definition.title.text) {
+    const invalidTitle = !rangeReference.test(definition.title.text);
+    if (invalidTitle) {
+      return CommandResult.InvalidTitleRange;
+    }
+  }
+  return CommandResult.Success;
+}
+
+export function checkAxesDesign(definition: ChartWithAxisDefinition): CommandResult {
+  if (definition.axesDesign) {
+    for (const value of Object.values(definition.axesDesign)) {
+      if (value.type === "reference" && value.text) {
+        const invalidTitle = !rangeReference.test(value.text);
+        if (invalidTitle) {
+          return CommandResult.InvalidTitleRange;
+        }
+      }
+    }
+  }
+  return CommandResult.Success;
+}
+
 export function shouldRemoveFirstLabel(
   labelRange: Range | undefined,
   dataset: DataSet | undefined,
@@ -381,32 +549,31 @@ export function getChartPositionAtCenterOfViewport(
   return position;
 }
 
-export function getChartAxisTitleRuntime(design?: AxisDesign):
-  | {
-      display: boolean;
-      text: string;
-      color?: string;
-      font: {
-        style: "italic" | "normal";
-        weight: "bold" | "normal";
-      };
-      align: "start" | "center" | "end";
-    }
-  | undefined {
-  if (design?.title?.text) {
-    const { text, color, align, italic, bold } = design.title;
-    return {
-      display: true,
-      text,
-      color,
-      font: {
-        style: italic ? "italic" : "normal",
-        weight: bold ? "bold" : "normal",
-      },
-      align: align === "left" ? "start" : align === "right" ? "end" : "center",
-    };
+export function getChartAxisTitleRuntime(
+  getters: Getters,
+  title?: AbstractChartTitle
+): ChartAxisTitleRuntime {
+  if (!title) {
+    return;
   }
-  return;
+
+  const axisDesign = getChartRuntimeTitle(getters, title);
+  const { text, design } = axisDesign;
+
+  if (!text) {
+    return;
+  }
+
+  return {
+    display: true,
+    text,
+    color: design?.color,
+    font: {
+      style: design?.italic ? "italic" : "normal",
+      weight: design?.bold ? "bold" : "normal",
+    },
+    align: design?.align === "left" ? "start" : design?.align === "right" ? "end" : "center",
+  };
 }
 
 export function getDefinedAxis(definition: ChartWithAxisDefinition): {
@@ -427,4 +594,141 @@ export function getDefinedAxis(definition: ChartWithAxisDefinition): {
   }
   useLeftAxis ||= !useRightAxis;
   return { useLeftAxis, useRightAxis };
+}
+
+/**
+ * Retrieves AbstractChart AxesDesign, converting range strings to valid range objects.
+ */
+export function getAxesDesignWithValidRanges(
+  getters: CoreGetters,
+  sheetId: UID,
+  axesDesign?: AxesDesign
+): AbstractChartAxesDesign | undefined {
+  if (!axesDesign) {
+    return undefined;
+  }
+
+  const newAxesDesign: AbstractChartAxesDesign = {};
+  for (const [key, value] of Object.entries(axesDesign)) {
+    newAxesDesign[key] = getChartTitleWithValidRange(getters, sheetId, value);
+  }
+  return newAxesDesign;
+}
+
+/**
+ * Retrieves AbstractChart Title, converting range strings to valid range objects.
+ */
+export function getChartTitleWithValidRange(
+  getters: CoreGetters,
+  sheetId: UID,
+  title: Title
+): AbstractChartTitle {
+  if (title.type === "reference") {
+    return {
+      ...title,
+      reference: createValidRange(getters, sheetId, title.text),
+    };
+  } else {
+    return {
+      ...title,
+      value: title.text,
+    };
+  }
+}
+
+/**
+ * Retrieves a title by converting a range object to a range string.
+ */
+export function getChartTitleWithRangeString(
+  getters: CoreGetters,
+  sheetId: UID,
+  title: AbstractChartTitle
+): Title {
+  const { type, design } = title;
+
+  const titleText =
+    type === "reference"
+      ? (title.reference && getters.getRangeString(title.reference, sheetId)) ?? ""
+      : title.value;
+
+  return {
+    type,
+    text: titleText,
+    design,
+  };
+}
+
+/**
+ * Retrieves a chart axes design by converting range objects to range strings.
+ */
+export function getAxesDesignWithRangeString(
+  getters: CoreGetters,
+  sheetId: UID,
+  axesDesign?: AbstractChartAxesDesign
+): AxesDesign | undefined {
+  if (!axesDesign) {
+    return undefined;
+  }
+
+  const newAxesDesign: AxesDesign = {};
+  for (const [key, value] of Object.entries(axesDesign)) {
+    newAxesDesign[key] = getChartTitleWithRangeString(getters, sheetId, value);
+  }
+  return newAxesDesign;
+}
+
+/**
+ * Checks if a range is fully contained within a merge zone.
+ */
+export function isRangeInsideMerge(range: Zone, merge: Zone): boolean {
+  return (
+    range.top >= merge.top &&
+    range.left >= merge.left &&
+    range.bottom <= merge.bottom &&
+    range.right <= merge.right
+  );
+}
+
+/**
+ * Retrieves the title for a chart from its definition.
+ * If the title is a cell reference, this function returns the formatted value of the referenced cell.
+ * If the title is provided as a direct value, it returns the title as is.
+ */
+export function getChartRuntimeTitle(getters: Getters, title: AbstractChartTitle): Title {
+  const { type, design } = title;
+
+  if (type === "string") {
+    return {
+      type,
+      text: title.value,
+      design,
+    };
+  }
+
+  const { reference } = title;
+  if (!reference || !reference.zone) {
+    return {
+      type,
+      text: "",
+      design,
+    };
+  }
+
+  const { sheetId } = reference;
+  const range = reference.zone;
+  for (const merge of getters.getMerges(sheetId)) {
+    if (isRangeInsideMerge(range, merge)) {
+      return {
+        text: getters.getCellText({ sheetId, row: merge.top, col: merge.left }),
+        type,
+        design,
+      };
+    }
+  }
+
+  return {
+    text: getters.getCellText({ sheetId, row: range.top, col: range.left }),
+    type,
+    design,
+  };
 }
