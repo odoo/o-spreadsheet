@@ -233,17 +233,19 @@ autoCompleteProviders.add("pivot_group_values", {
     if (!groupByField) {
       return;
     }
-    return dataSource.getPossibleFieldValues(groupByField.split(":")[0]).map(({ value, label }) => {
-      const isString = typeof value === "string";
-      const text = isString ? `"${value}"` : value.toString();
-      const color = isString ? tokenColors.STRING : tokenColors.NUMBER;
-      return {
-        text,
-        description: label,
-        htmlContent: [{ value: text, color }],
-        fuzzySearchKey: value + label,
-      };
-    });
+    return dataSource
+      .getPossibleFieldValues(groupByField.toString().split(":")[0])
+      .map(({ value, label }) => {
+        const isString = typeof value === "string";
+        const text = isString ? `"${value}"` : value.toString();
+        const color = isString ? tokenColors.STRING : tokenColors.NUMBER;
+        return {
+          text,
+          description: label,
+          htmlContent: [{ value: text, color }],
+          fuzzySearchKey: value + label,
+        };
+      });
   },
   selectProposal: insertTokenAfterArgSeparator,
 });
