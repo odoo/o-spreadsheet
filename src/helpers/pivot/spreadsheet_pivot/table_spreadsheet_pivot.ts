@@ -110,13 +110,13 @@ export class SpreadsheetPivotTable {
     if (col > 0 && row === colHeadersHeight - 1) {
       const domain = this.getColHeaderDomain(col, row);
       if (!domain) {
-        return { type: "EMPTY" };
+        return EMPTY_PIVOT_CELL;
       }
       const measure = domain.at(-1)?.value.toString() || "";
       return { type: "MEASURE_HEADER", domain: domain.slice(0, -1), measure };
     } else if (row <= colHeadersHeight - 1) {
       const domain = this.getColHeaderDomain(col, row);
-      return domain ? { type: "HEADER", domain } : { type: "EMPTY" };
+      return domain ? { type: "HEADER", domain } : EMPTY_PIVOT_CELL;
     } else if (col === 0) {
       const rowIndex = row - colHeadersHeight;
       const domain = this.getRowDomain(rowIndex);
@@ -124,7 +124,7 @@ export class SpreadsheetPivotTable {
     } else {
       const rowIndex = row - colHeadersHeight;
       if (!includeTotal && this.isTotalRow(rowIndex)) {
-        return { type: "EMPTY" };
+        return EMPTY_PIVOT_CELL;
       }
       const domain = [...this.getRowDomain(rowIndex), ...this.getColDomain(col)];
       const measure = this.getColMeasure(col);
@@ -183,3 +183,5 @@ export class SpreadsheetPivotTable {
     };
   }
 }
+
+export const EMPTY_PIVOT_CELL = { type: "EMPTY" } as const;

@@ -6,12 +6,14 @@ import {
 } from "../../helpers/pivot/pivot_composer_helpers";
 import { toPivotDomain } from "../../helpers/pivot/pivot_helpers";
 import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
+import { EMPTY_PIVOT_CELL } from "../../helpers/pivot/spreadsheet_pivot/table_spreadsheet_pivot";
 import {
   AddPivotCommand,
   CellPosition,
   Command,
   CoreCommand,
   PivotDomain,
+  PivotTableCell,
   UID,
   UpdatePivotCommand,
   invalidateEvaluationCommands,
@@ -30,7 +32,7 @@ export class PivotUIPlugin extends UIPlugin {
     "getPivot",
     "getFirstPivotFunction",
     "getPivotIdFromPosition",
-    "getPivotDomainArgsFromPosition",
+    "getPivotCellFromPosition",
     "isPivotUnused",
     "areDomainArgsFieldsValid",
     "isSpillPivotFormula",
@@ -165,31 +167,29 @@ export class PivotUIPlugin extends UIPlugin {
    * If the cell is the result of PIVOT, the result is the domain of the cell
    * as if it was the individual pivot formula
    */
-  getPivotDomainArgsFromPosition(
-    position: CellPosition
-  ): { domainArgs: PivotDomain; isHeader?: boolean } | undefined {
+  getPivotCellFromPosition(position: CellPosition): PivotTableCell {
     const cell = this.getters.getCorrespondingFormulaCell(position);
     if (!cell || !cell.isFormula || getNumberOfPivotFunctions(cell.compiledFormula.tokens) === 0) {
-      return undefined;
+      return EMPTY_PIVOT_CELL;
     }
     const mainPosition = this.getters.getCellPosition(cell.id);
     const result = this.getters.getFirstPivotFunction(cell.compiledFormula.tokens);
     if (!result) {
-      return undefined;
+      return EMPTY_PIVOT_CELL;
     }
     const { functionName, args } = result;
     if (functionName === "PIVOT") {
       const formulaId = args[0];
       if (!formulaId) {
-        return undefined;
+        return EMPTY_PIVOT_CELL;
       }
       const pivotId = this.getters.getPivotId(formulaId.toString());
       if (!pivotId) {
-        return undefined;
+        return EMPTY_PIVOT_CELL;
       }
       const pivot = this.getPivot(pivotId);
       if (!pivot.isValid()) {
-        return undefined;
+        return EMPTY_PIVOT_CELL;
       }
       const includeTotal = args[2] === false ? false : undefined;
       const includeColumnHeaders = args[3] === false ? false : undefined;
@@ -198,25 +198,27 @@ export class PivotUIPlugin extends UIPlugin {
         .getPivotCells(includeTotal, includeColumnHeaders);
       const pivotCol = position.col - mainPosition.col;
       const pivotRow = position.row - mainPosition.row;
-      const pivotCell = pivotCells[pivotCol][pivotRow];
-      switch (pivotCell.type) {
-        case "EMPTY":
-          return undefined;
-        case "HEADER":
-        case "MEASURE_HEADER":
-          return { domainArgs: pivotCell.domain, isHeader: true };
-        case "VALUE":
-          return { domainArgs: pivotCell.domain };
-      }
+      return pivotCells[pivotCol][pivotRow];
     }
-    let domain = toPivotDomain(
-      args.slice(functionName === "PIVOT.VALUE" ? 2 : 1).map((x) => `${x}`)
-    );
-    if (domain.at(-1)?.field === "measure") {
-      domain = domain.slice(0, -1);
+    if (functionName === "PIVOT.HEADER" && args.at(-2) === "measure") {
+      const domain = toPivotDomain(args.slice(1, -2).map((x) => `${x}`));
+      return {
+        type: "MEASURE_HEADER",
+        domain,
+        measure: args.at(-1)?.toString() || "",
+      };
+    } else if (functionName === "PIVOT.HEADER") {
+      return {
+        type: "HEADER",
+        domain: toPivotDomain(args.slice(1).map((x) => `${x}`)),
+      };
     }
-    const isHeader = functionName === "PIVOT.HEADER";
-    return { domainArgs: domain, isHeader };
+    const [measure, ...domainArgs] = args.slice(1);
+    return {
+      type: "VALUE",
+      domain: toPivotDomain(domainArgs.map((x) => `${x}`)),
+      measure: measure?.toString() || "",
+    };
   }
 
   getPivot(pivotId: UID) {
