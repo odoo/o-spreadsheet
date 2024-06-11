@@ -1,5 +1,5 @@
 import { Color } from "chart.js";
-import { DEFAULT_CHART_FONT_SIZE, DEFAULT_CHART_PADDING } from "../../../constants";
+import { DEFAULT_CHART_FONT_SIZE } from "../../../constants";
 import { DOMDimension, Pixel, PixelPosition, Style } from "../../../types";
 import { BaselineArrowDirection, ScorecardChartRuntime } from "../../../types/chart";
 import { relativeLuminance } from "../../color";
@@ -15,7 +15,7 @@ import {
 const KEY_BOX_HEIGHT_RATIO = 0.8;
 
 /* Padding at the border of the chart */
-const CHART_PADDING = DEFAULT_CHART_PADDING;
+const CHART_PADDING = 10;
 const BOTTOM_PADDING_RATIO = 0.05;
 
 /**
@@ -236,6 +236,7 @@ class ScorecardChartConfigBuilder {
           x: (this.width - keyWidth) / 2,
           y:
             this.height * (0.5 - BOTTOM_PADDING_RATIO * 2) +
+            CHART_PADDING / 2 +
             (titleHeight + keyHeight / (this.baseline || this.baselineDescr ? 2 : 1.2)) / 2,
         },
       };
@@ -300,6 +301,7 @@ class ScorecardChartConfigBuilder {
     const widthFont = getFontSizeMatchingWidth(maxLineWidth, 600, (fontSize: number) =>
       keyValueElement.getElementWidth(fontSize, this.context, this)
     );
+
     const keyFontSize = Math.min(heightFont, widthFont);
     let baselineValueFontSize = Math.floor(keyFontSize * 0.5);
 
@@ -318,7 +320,10 @@ class ScorecardChartConfigBuilder {
     );
 
     let isBaselineSplit = false;
-    if (baselineDescrFontSize < baselineValueFontSize / 2.5) {
+    if (
+      baselineDescrFontSize < baselineValueFontSize / 2.5 &&
+      this.baselineDescr.trim().includes(" ")
+    ) {
       isBaselineSplit = true;
       baselineDescrFontSize = Math.floor(baselineValueFontSize / 2.5);
       for (const line of splitTextInTwoLines(this.baselineDescr)) {
@@ -387,7 +392,7 @@ class ScorecardChartConfigBuilder {
   /** Get the height of the chart minus all the vertical paddings */
   private getDrawableHeight(): number {
     const verticalPadding = CHART_PADDING + this.height * BOTTOM_PADDING_RATIO;
-    let availableHeight = this.height - 2 * verticalPadding;
+    let availableHeight = this.height - verticalPadding;
     availableHeight -= this.title ? DEFAULT_CHART_FONT_SIZE * LINE_HEIGHT : 0;
     return availableHeight;
   }

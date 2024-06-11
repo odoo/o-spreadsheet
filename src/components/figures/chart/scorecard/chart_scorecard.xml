@@ -1,5 +1,5 @@
 <templates>
   <t t-name="o-spreadsheet-ScorecardChart">
-    <canvas class="o-figure-canvas w-100 h-100" t-ref="chartContainer"/>
+    <canvas class="o-figure-canvas w-100 h-100" t-ref="chartContainer" t-att-title="title"/>
   </t>
 </templates>

@@ -286,7 +286,7 @@ export function clipTextWithEllipsis(
     return text;
   }
   const ellipsis = "…";
-  const ellipsisWidth = computeCachedTextWidth(ctx, text);
+  const ellipsisWidth = computeCachedTextWidth(ctx, ellipsis);
   if (width <= ellipsisWidth) {
     return text;
   }
