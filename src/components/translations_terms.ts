@@ -50,6 +50,11 @@ export const CellIsOperators = {
 export const ChartTerms = {
   Series: _t("Series"),
   BackgroundColor: _t("Background color"),
+  StackedBarChart: _t("Stacked bar chart"),
+  StackedLineChart: _t("Stacked line chart"),
+  CumulativeData: _t("Cumulative data"),
+  TreatLabelsAsText: _t("Treat labels as text"),
+  AggregatedChart: _t("Aggregate"),
   Errors: {
     Unexpected: _t("The chart definition is invalid for an unknown reason"),
     // BASIC CHART ERRORS (LINE | BAR | PIE)

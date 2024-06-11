@@ -4,13 +4,13 @@
       <Section class="'pt-0'">
         <Checkbox
           name="'stacked'"
-          label="stackedLabel"
+          label="chartTerms.StackedLineChart"
           value="props.definition.stacked"
           onChange.bind="onUpdateStacked"
         />
         <Checkbox
           name="'cumulative'"
-          label="cumulativeLabel"
+          label="chartTerms.CumulativeData"
           value="props.definition.cumulative"
           onChange.bind="onUpdateCumulative"
         />

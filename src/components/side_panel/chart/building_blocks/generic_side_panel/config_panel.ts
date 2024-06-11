@@ -53,6 +53,8 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
   private dataSeriesRanges: CustomizedDataSet[] = [];
   private labelRange: string | undefined;
 
+  protected chartTerms = ChartTerms;
+
   setup() {
     this.dataSeriesRanges = this.props.definition.dataSets;
     this.labelRange = this.props.definition.labelRange;
@@ -84,7 +86,7 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
     return [
       {
         name: "aggregated",
-        label: _t("Aggregate"),
+        label: this.chartTerms.AggregatedChart,
         value: this.props.definition.aggregated ?? false,
         onChange: this.onUpdateAggregated.bind(this),
       },

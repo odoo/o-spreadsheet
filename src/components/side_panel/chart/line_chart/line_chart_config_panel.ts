@@ -1,6 +1,5 @@
 import { LineChart } from "../../../../helpers/figures/charts";
 import { canChartParseLabels } from "../../../../helpers/figures/charts/chart_common_line_scatter";
-import { _t } from "../../../../translation";
 import { LineChartDefinition } from "../../../../types/chart";
 import { GenericChartConfigPanel } from "../building_blocks/generic_side_panel/config_panel";
 
@@ -15,21 +14,13 @@ export class LineConfigPanel extends GenericChartConfigPanel {
     return false;
   }
 
-  get stackedLabel(): string {
-    return _t("Stacked linechart");
-  }
-
-  get cumulativeLabel(): string {
-    return _t("Cumulative data");
-  }
-
   getLabelRangeOptions() {
     const options = super.getLabelRangeOptions();
     if (this.canTreatLabelsAsText) {
       options.push({
         name: "labelsAsText",
         value: (this.props.definition as LineChartDefinition).labelsAsText,
-        label: _t("Treat labels as text"),
+        label: this.chartTerms.TreatLabelsAsText,
         onChange: this.onUpdateLabelsAsText.bind(this),
       });
     }
