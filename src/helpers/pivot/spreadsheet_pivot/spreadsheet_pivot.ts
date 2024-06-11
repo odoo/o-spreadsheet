@@ -1,3 +1,4 @@
+import { handleError } from "../../../functions";
 import { toNumber } from "../../../functions/helpers";
 import { ModelConfig } from "../../../model";
 import { _t } from "../../../translation";
@@ -224,10 +225,15 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     if (!operator) {
       throw new Error(`Aggregator ${aggregator} does not exist`);
     }
-    return {
-      value: values.length ? operator.fn([values], this.getters.getLocale()) : "",
-      format: operator.format(values[0]),
-    };
+
+    try {
+      return {
+        value: values.length ? operator.fn([values], this.getters.getLocale()) : "",
+        format: operator.format(values[0]),
+      };
+    } catch (e) {
+      return handleError(e, aggregator.toUpperCase());
+    }
   }
 
   getPossibleFieldValues(groupBy: string): { value: string | number | boolean; label: string }[] {
