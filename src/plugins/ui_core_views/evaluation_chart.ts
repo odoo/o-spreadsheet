@@ -1,7 +1,7 @@
 import { BACKGROUND_CHART_COLOR } from "../../constants";
 import { chartFontColor, chartRuntimeFactory, chartToImage } from "../../helpers/figures/charts";
 import { Color, ExcelWorkbookData, FigureData, Range, UID } from "../../types";
-import { ChartRuntime, ExcelChartDefinition } from "../../types/chart/chart";
+import { AxesDesign, ChartRuntime, ExcelChartDefinition, Title } from "../../types/chart/chart";
 import {
   CoreViewCommand,
   invalidateCFEvaluationCommands,
@@ -90,6 +90,42 @@ export class EvaluationChartPlugin extends UIPlugin<EvaluationChartState> {
     };
   }
 
+  /**
+   * Converts a reference to its corresponding cell value.
+   */
+  convertReferenceToCellValue(sheetId: UID, title?: Title) {
+    if (title?.type === "reference" && title.text) {
+      const range = this.getters.getRangeFromSheetXC(sheetId, title.text);
+      if (range && !range.invalidXc && !range.invalidSheetName) {
+        const content = this.getters.getCellText({
+          sheetId: range.sheetId,
+          col: range.zone.left,
+          row: range.zone.top,
+        });
+        return { ...title, text: content };
+      }
+    }
+    return title;
+  }
+
+  /**
+   * Converts cell references in the chart title and axis titles to their corresponding cell values.
+   */
+  convertTitleReferencesToCellValue(sheetId: UID, title?: Title, axesDesign?: AxesDesign) {
+    // Convert title to cell value from cell reference
+    const chartTitle = this.convertReferenceToCellValue(sheetId, title);
+
+    // Loop axes design and convert title to cell value from cell reference
+    const newAxesDesign: AxesDesign = {};
+    if (axesDesign) {
+      for (const [key, value] of Object.entries(axesDesign)) {
+        newAxesDesign[key] = this.convertReferenceToCellValue(sheetId, value);
+      }
+    }
+
+    return { title: chartTitle, axesDesign: newAxesDesign };
+  }
+
   exportForExcel(data: ExcelWorkbookData) {
     for (const sheet of data.sheets) {
       if (!sheet.images) {
@@ -104,9 +140,18 @@ export class EvaluationChartPlugin extends UIPlugin<EvaluationChartState> {
         const figureId = figure.id;
         const figureData = this.getters.getChart(figureId)?.getDefinitionForExcel();
         if (figureData) {
+          const { title, axesDesign } = this.convertTitleReferencesToCellValue(
+            sheet.id,
+            figureData.title,
+            figureData.axesDesign
+          );
           figures.push({
             ...figure,
-            data: figureData,
+            data: {
+              ...figureData,
+              title,
+              axesDesign,
+            },
           });
         } else {
           const chart = this.getters.getChart(figureId);

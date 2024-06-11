@@ -6,13 +6,23 @@
         <t t-if="props.name" t-esc="props.name"/>
         <t t-else="">Title</t>
       </t>
-      <input
-        type="text"
-        class="o-input"
-        t-att-value="props.title"
-        t-on-change="updateTitle"
-        t-att-placeholder="placeholder"
+      <SelectionInput
+        t-if="type === 'reference'"
+        ranges="[state.titleReference]"
+        onSelectionChanged="(ranges) => this.handleTitleReferenceChange(ranges)"
+        onSelectionConfirmed.bind="updateTitleReference"
+        hasSingleRange="true"
+        required="true"
       />
+      <div t-else="" class="o-input-custom">
+        <input
+          type="text"
+          class="o-input o-optional"
+          t-att-value="title"
+          t-on-change="updateTitle"
+          t-att-placeholder="placeholder"
+        />
+      </div>
       <div class="o-chart-title-designer position-relative d-flex align-items-center">
         <span
           class="o-menu-item-button o-hoverable-button"
@@ -87,6 +97,12 @@
           title="fill_color"
           icon="'o-spreadsheet-Icon.TEXT_COLOR'"
           class="'o-hoverable-button o-menu-item-button'"
+        />
+        <div class="flex-grow-1"/>
+        <Checkbox
+          label.translate="Use cell reference"
+          value="type === 'reference'"
+          onChange.bind="useReferenceAsTitle"
         />
       </div>
     </Section>

@@ -11,6 +11,7 @@ import { deepCopy, range } from "../../misc";
 import { isNumber } from "../../numbers";
 import { recomputeZones } from "../../recompute_zones";
 import { AbstractChart } from "./abstract_chart";
+import { getChartRuntimeTitle } from "./chart_common";
 import { drawGaugeChart } from "./gauge_chart_rendering";
 import { drawScoreChart } from "./scorecard_chart";
 import { getScorecardConfiguration } from "./scorecard_chart_config_builder";
@@ -102,6 +103,7 @@ export function truncateLabel(label: string | undefined): string {
  */
 export function getDefaultChartJsRuntime(
   chart: AbstractChart,
+  getters: Getters,
   labels: string[],
   fontColor: Color,
   {
@@ -111,7 +113,7 @@ export function getDefaultChartJsRuntime(
     horizontalChart,
   }: LocaleFormat & { truncateLabels?: boolean; horizontalChart?: boolean }
 ): Required<ChartConfiguration> {
-  const chartTitle = chart.title.text ? chart.title : { ...chart.title, content: "" };
+  const chartTitle = getChartRuntimeTitle(getters, chart.title);
   const options: ChartOptions = {
     // https://www.chartjs.org/docs/latest/general/responsive.html
     responsive: true, // will resize when its container is resized
@@ -137,13 +139,17 @@ export function getDefaultChartJsRuntime(
       title: {
         display: !!chartTitle.text,
         text: _t(chartTitle.text!),
-        color: chartTitle?.color ?? fontColor,
+        color: chartTitle.design?.color ?? fontColor,
         align:
-          chartTitle.align === "center" ? "center" : chartTitle.align === "right" ? "end" : "start",
+          chartTitle.design?.align === "center"
+            ? "center"
+            : chartTitle.design?.align === "right"
+            ? "end"
+            : "start",
         font: {
           size: DEFAULT_CHART_FONT_SIZE,
-          weight: chartTitle.bold ? "bold" : "normal",
-          style: chartTitle.italic ? "italic" : "normal",
+          weight: chartTitle.design?.bold ? "bold" : "normal",
+          style: chartTitle.design?.italic ? "italic" : "normal",
         },
       },
       legend: {

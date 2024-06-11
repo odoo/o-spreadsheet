@@ -233,7 +233,11 @@ describe("Export data to xlsx then import it", () => {
 
   test.each([
     {
-      title: { text: "demo chart" },
+      title: {
+        type: "string",
+        text: "demo chart",
+        design: { bold: false, italic: false, color: "#000000", align: "left" },
+      },
       dataSets: [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
       labelRange: "Sheet1!A27:A35",
       type: "line" as const,
@@ -244,7 +248,11 @@ describe("Export data to xlsx then import it", () => {
       labelsAsText: false,
     },
     {
-      title: { text: "demo chart 2" },
+      title: {
+        type: "string",
+        text: "demo chart 2",
+        design: { bold: false, italic: false, color: "#000000", align: "left" },
+      },
       dataSets: [{ dataRange: "Sheet1!B27:B35" }, { dataRange: "Sheet1!C27:C35" }],
       labelRange: "Sheet1!A27:A35",
       type: "bar" as const,
@@ -254,7 +262,11 @@ describe("Export data to xlsx then import it", () => {
       stacked: true,
     },
     {
-      title: { text: "pie demo chart" },
+      title: {
+        type: "string",
+        text: "pie demo chart",
+        design: { bold: false, italic: false, color: "#000000", align: "left" },
+      },
       dataSets: [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
       labelRange: "Sheet1!A27:A35",
       type: "pie" as const,
@@ -264,7 +276,11 @@ describe("Export data to xlsx then import it", () => {
       stacked: false,
     },
     {
-      title: { text: "demo chart4" },
+      title: {
+        type: "string",
+        text: "demo chart4",
+        design: { bold: false, italic: false, color: "#000000", align: "left" },
+      },
       dataSets: [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
       labelRange: "Sheet1!A27:A35",
       type: "line" as const,
@@ -275,7 +291,11 @@ describe("Export data to xlsx then import it", () => {
       labelsAsText: false,
     },
     {
-      title: { text: "demo chart 5" },
+      title: {
+        type: "string",
+        text: "demo chart 5",
+        design: { bold: false, italic: false, color: "#000000", align: "left" },
+      },
       dataSets: [{ dataRange: "Sheet1!B27:B35" }, { dataRange: "Sheet1!C27:C35" }],
       labelRange: "Sheet1!A27:A35",
       type: "combo" as const,

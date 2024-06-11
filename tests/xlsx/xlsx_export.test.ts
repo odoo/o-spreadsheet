@@ -1002,11 +1002,14 @@ describe("Test XLSX export", () => {
           {
             dataSets: [{ dataRange: "Sheet1!B1:B4" }],
             title: {
+              type: "string",
               text: "Coucou",
-              align: "right",
-              bold: true,
-              italic: true,
-              color: "#ff0000",
+              design: {
+                align: "right",
+                bold: true,
+                italic: true,
+                color: "#ff0000",
+              },
             },
             labelRange: "Sheet1!A2:A4",
             type: chartType as "line" | "bar" | "pie" | "combo",
@@ -1027,8 +1030,9 @@ describe("Test XLSX export", () => {
             dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
             axesDesign: {
               x: {
-                title: {
-                  text: "Coucou",
+                type: "string",
+                text: "Coucou",
+                design: {
                   align: "right",
                   bold: true,
                   italic: true,
@@ -1036,8 +1040,9 @@ describe("Test XLSX export", () => {
                 },
               },
               y: {
-                title: {
-                  text: "Coucou 2",
+                type: "string",
+                text: "Coucou 2",
+                design: {
                   align: "left",
                   bold: true,
                   italic: true,
@@ -1045,8 +1050,9 @@ describe("Test XLSX export", () => {
                 },
               },
               y1: {
-                title: {
-                  text: "Coucou 3",
+                type: "string",
+                text: "Coucou 3",
+                design: {
                   align: "center",
                   bold: true,
                   italic: true,
@@ -1323,6 +1329,50 @@ describe("Test XLSX export", () => {
         x: end + 5,
       });
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+    });
+
+    test("Chart title is exported as the corresponding cell value when the title is a cell reference.", async () => {
+      const model = new Model(chartData);
+      createChart(
+        model,
+        {
+          type: "bar",
+          dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
+          labelRange: "Sheet1!A2:A4",
+          title: { type: "reference", text: "B1" },
+        },
+        "1"
+      );
+
+      const exported = getExportedExcelData(model);
+
+      expect(exported.sheets[0].charts[0].data.title?.text).toEqual(getCellContent(model, "B1"));
+    });
+
+    test("Axis titles are exported as the corresponding cell values when they are cell references.", async () => {
+      const model = new Model(chartData);
+      createChart(
+        model,
+        {
+          type: "bar",
+          dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
+          labelRange: "Sheet1!A2:A4",
+          axesDesign: {
+            x: { type: "reference", text: "B1" },
+            y: { type: "reference", text: "C1" },
+          },
+        },
+        "1"
+      );
+
+      const exported = getExportedExcelData(model);
+
+      expect(exported.sheets[0].charts[0].data.axesDesign?.x?.text).toEqual(
+        getCellContent(model, "B1")
+      );
+      expect(exported.sheets[0].charts[0].data.axesDesign?.y?.text).toEqual(
+        getCellContent(model, "C1")
+      );
     });
   });
 

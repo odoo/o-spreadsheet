@@ -1,9 +1,12 @@
 import { Component, useState } from "@odoo/owl";
 import {
+  AxesDesign,
+  ChartTitleType,
   ChartWithAxisDefinition,
   Color,
   DispatchResult,
   SpreadsheetChildEnv,
+  Title,
   TitleDesign,
   UID,
 } from "../../../../../types";
@@ -35,11 +38,11 @@ export class AxisDesignEditor extends Component<Props, SpreadsheetChildEnv> {
   state = useState({ currentAxis: "x" });
 
   get axisTitleStyle(): TitleDesign {
-    const axisDesign = this.props.definition.axesDesign?.[this.state.currentAxis] ?? {};
+    const axisDesign: Title = this.props.definition.axesDesign?.[this.state.currentAxis] ?? {};
     return {
       color: "",
       align: "center",
-      ...axisDesign.title,
+      ...axisDesign.design,
     };
   }
 
@@ -48,11 +51,11 @@ export class AxisDesignEditor extends Component<Props, SpreadsheetChildEnv> {
   }
 
   updateAxisTitleColor(color: Color) {
-    const axesDesign = this.props.definition.axesDesign ?? {};
+    const axesDesign: AxesDesign = this.props.definition.axesDesign ?? {};
     axesDesign[this.state.currentAxis] = {
       ...axesDesign[this.state.currentAxis],
-      title: {
-        ...(axesDesign[this.state.currentAxis]?.title ?? {}),
+      design: {
+        ...(axesDesign[this.state.currentAxis]?.design ?? {}),
         color,
       },
     };
@@ -60,38 +63,38 @@ export class AxisDesignEditor extends Component<Props, SpreadsheetChildEnv> {
   }
 
   toggleBoldAxisTitle() {
-    const axesDesign = this.props.definition.axesDesign ?? {};
-    const title = axesDesign[this.state.currentAxis]?.title ?? {};
+    const axesDesign: AxesDesign = this.props.definition.axesDesign ?? {};
+    const design: TitleDesign = axesDesign[this.state.currentAxis]?.design ?? {};
     axesDesign[this.state.currentAxis] = {
       ...axesDesign[this.state.currentAxis],
-      title: {
-        ...title,
-        bold: !title?.bold,
+      design: {
+        ...design,
+        bold: !design?.bold,
       },
     };
     this.props.updateChart(this.props.figureId, { axesDesign });
   }
 
   toggleItalicAxisTitle() {
-    const axesDesign = this.props.definition.axesDesign ?? {};
-    const title = axesDesign[this.state.currentAxis]?.title ?? {};
+    const axesDesign: AxesDesign = this.props.definition.axesDesign ?? {};
+    const design: TitleDesign = axesDesign[this.state.currentAxis]?.design ?? {};
     axesDesign[this.state.currentAxis] = {
       ...axesDesign[this.state.currentAxis],
-      title: {
-        ...title,
-        italic: !title?.italic,
+      design: {
+        ...design,
+        italic: !design?.italic,
       },
     };
     this.props.updateChart(this.props.figureId, { axesDesign });
   }
 
   updateAxisTitleAlignment(align: "left" | "center" | "right") {
-    const axesDesign = this.props.definition.axesDesign ?? {};
-    const title = axesDesign[this.state.currentAxis]?.title ?? {};
+    const axesDesign: AxesDesign = this.props.definition.axesDesign ?? {};
+    const design: TitleDesign = axesDesign[this.state.currentAxis]?.design ?? {};
     axesDesign[this.state.currentAxis] = {
       ...axesDesign[this.state.currentAxis],
-      title: {
-        ...title,
+      design: {
+        ...design,
         align,
       },
     };
@@ -105,17 +108,15 @@ export class AxisDesignEditor extends Component<Props, SpreadsheetChildEnv> {
 
   getAxisTitle() {
     const axesDesign = this.props.definition.axesDesign ?? {};
-    return axesDesign[this.state.currentAxis]?.title.text || "";
+    return axesDesign[this.state.currentAxis];
   }
 
-  updateAxisTitle(text: string) {
-    const axesDesign = this.props.definition.axesDesign ?? {};
+  updateAxisTitle(text: string, type: ChartTitleType) {
+    const axesDesign: AxesDesign = this.props.definition.axesDesign ?? {};
     axesDesign[this.state.currentAxis] = {
       ...axesDesign[this.state.currentAxis],
-      title: {
-        ...axesDesign?.[this.state.currentAxis]?.title,
-        text,
-      },
+      text,
+      type,
     };
     this.props.updateChart(this.props.figureId, { axesDesign });
   }

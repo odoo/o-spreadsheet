@@ -1,11 +1,29 @@
 import { Component, useExternalListener, useState } from "@odoo/owl";
 import { GRAY_300 } from "../../../../../constants";
-import { Color, SpreadsheetChildEnv, TitleDesign } from "../../../../../types";
+import { _t } from "../../../../../translation";
+import {
+  ChartTitleType,
+  Color,
+  SpreadsheetChildEnv,
+  Title,
+  TitleDesign,
+} from "../../../../../types";
 import { ColorPickerWidget } from "../../../../color_picker/color_picker_widget";
 import { css } from "../../../../helpers";
+import { SelectionInput } from "../../../../selection_input/selection_input";
+import { Checkbox } from "../../../components/checkbox/checkbox";
 import { Section } from "../../../components/section/section";
 
 css/* scss */ `
+  .o-input-custom {
+    padding: 1px 0;
+    input {
+      /* Matches the styling of the selection input */
+      height: 31px !important;
+      margin-bottom: 5px;
+    }
+  }
+
   .o-chart-title-designer {
     > span {
       height: 30px;
@@ -39,8 +57,8 @@ css/* scss */ `
 `;
 
 interface Props {
-  title?: string;
-  updateTitle: (title: string) => void;
+  title: Title | undefined;
+  updateTitle: (title: string, type: ChartTitleType) => void;
   name?: string;
   toggleItalic?: () => void;
   toggleBold?: () => void;
@@ -51,13 +69,14 @@ interface Props {
 
 export interface ChartTitleState {
   activeTool: string;
+  titleReference: string;
 }
 
 export class ChartTitle extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet.ChartTitle";
-  static components = { Section, ColorPickerWidget };
+  static components = { Section, ColorPickerWidget, Checkbox, SelectionInput };
   static props = {
-    title: { type: String, optional: true },
+    title: { type: Object, optional: true },
     updateTitle: Function,
     name: { type: String, optional: true },
     toggleItalic: { type: Function, optional: true },
@@ -66,21 +85,28 @@ export class ChartTitle extends Component<Props, SpreadsheetChildEnv> {
     updateColor: { type: Function, optional: true },
     style: { type: Object, optional: true },
   };
-  static defaultProps = {
-    title: "",
-  };
+
   openedEl: HTMLElement | null = null;
 
   setup() {
     useExternalListener(window, "click", this.onExternalClick);
   }
 
-  state = useState({
+  state: ChartTitleState = useState({
     activeTool: "",
+    titleReference: this.props.title?.type === "reference" ? this.props.title.text : "",
   });
 
+  get title(): string {
+    return _t(this.props.title?.text || "");
+  }
+
+  get type(): ChartTitleType {
+    return this.props.title?.type || "string";
+  }
+
   updateTitle(ev: InputEvent) {
-    this.props.updateTitle((ev.target as HTMLInputElement).value);
+    this.props.updateTitle((ev.target as HTMLInputElement).value, "string");
   }
 
   toggleDropdownTool(tool: string, ev: MouseEvent) {
@@ -116,5 +142,30 @@ export class ChartTitle extends Component<Props, SpreadsheetChildEnv> {
   closeMenus() {
     this.state.activeTool = "";
     this.openedEl = null;
+  }
+
+  handleTitleReferenceChange(ranges: string[]) {
+    this.state.titleReference = ranges[0];
+  }
+
+  updateTitleReference() {
+    this.props.updateTitle(this.state.titleReference, "reference");
+  }
+
+  useReferenceAsTitle(value: boolean) {
+    const titleType = value ? "reference" : "string";
+    let title: string = this.state.titleReference;
+
+    if (titleType === "string") {
+      const sheetId = this.env.model.getters.getActiveSheetId();
+      const range = this.env.model.getters.getRangeDataFromXc(sheetId, title);
+      title = this.env.model.getters.getCellText({
+        col: range._zone.left,
+        row: range._zone.top,
+        sheetId: range._sheetId,
+      });
+    }
+
+    this.props.updateTitle(title, titleType);
   }
 }

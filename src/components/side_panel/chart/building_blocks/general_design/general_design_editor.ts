@@ -1,9 +1,11 @@
 import { Component, useState } from "@odoo/owl";
 import {
   ChartDefinition,
+  ChartTitleType,
   Color,
   DispatchResult,
   SpreadsheetChildEnv,
+  Title,
   TitleDesign,
   UID,
 } from "../../../../../types";
@@ -44,7 +46,7 @@ export class GeneralDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
-  get title(): TitleDesign {
+  get title(): Title {
     return this.props.definition.title;
   }
 
@@ -59,38 +61,60 @@ export class GeneralDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
-  updateTitle(newTitle: string) {
-    const title = { ...this.title, text: newTitle };
+  updateTitle(newTitle: string, type: ChartTitleType) {
+    const title = { ...this.title, text: newTitle, type };
     this.props.updateChart(this.props.figureId, { title });
   }
 
   get titleStyle(): TitleDesign {
     return {
       align: "left",
-      ...this.title,
+      ...this.title.design,
     };
   }
 
   updateChartTitleColor(color: Color) {
-    const title = { ...this.title, color };
+    const title = {
+      ...this.title,
+      design: {
+        ...this.title.design,
+        color,
+      },
+    };
     this.props.updateChart(this.props.figureId, { title });
     this.state.activeTool = "";
   }
 
   toggleBoldChartTitle() {
-    let title = this.title;
-    title = { ...title, bold: !title.bold };
+    const title = {
+      ...this.title,
+      design: {
+        ...this.title.design,
+        bold: !this.title.design?.bold,
+      },
+    };
     this.props.updateChart(this.props.figureId, { title });
   }
 
   toggleItalicChartTitle() {
-    let title = this.title;
-    title = { ...title, italic: !title.italic };
+    const title = {
+      ...this.title,
+      design: {
+        ...this.title.design,
+        italic: !this.title.design?.italic,
+      },
+    };
     this.props.updateChart(this.props.figureId, { title });
   }
 
   updateChartTitleAlignment(align: "left" | "center" | "right") {
-    const title = { ...this.title, align };
+    const title = {
+      ...this.title,
+      design: {
+        ...this.title.design,
+        align,
+      },
+    };
     this.props.updateChart(this.props.figureId, { title });
     this.state.activeTool = "";
   }

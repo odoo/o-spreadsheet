@@ -232,7 +232,7 @@ export function getGaugeRenderingConfig(
       "px"
     ));
   }
-  switch (runtime.title.align) {
+  switch (runtime.title.design?.align) {
     case "right":
       x = boundingRect.width - titleWidth - GAUGE_TITLE_PADDING_LEFT;
       break;
@@ -255,9 +255,9 @@ export function getGaugeRenderingConfig(
         x,
         y: GAUGE_TITLE_PADDING_TOP + titleHeight / 2,
       },
-      color: runtime.title.color ?? textColor,
-      bold: runtime.title.bold,
-      italic: runtime.title.italic,
+      color: runtime.title.design?.color ?? textColor,
+      bold: runtime.title.design?.bold,
+      italic: runtime.title.design?.italic,
     },
     backgroundColor: runtime.background,
     gauge: {

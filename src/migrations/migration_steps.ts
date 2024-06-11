@@ -8,7 +8,15 @@ import { toXC } from "../helpers/coordinates";
 import { getMaxObjectId } from "../helpers/pivot/pivot_helpers";
 import { overlap, toZone, zoneToXc } from "../helpers/zones";
 import { Registry } from "../registries/registry";
-import { CustomizedDataSet, DEFAULT_LOCALE, Format, WorkbookData, Zone } from "../types";
+import {
+  Align,
+  Color,
+  CustomizedDataSet,
+  DEFAULT_LOCALE,
+  Format,
+  WorkbookData,
+  Zone,
+} from "../types";
 import { normalizeV9 } from "./legacy_tools";
 import { WEEK_START } from "./locale";
 
@@ -418,6 +426,72 @@ migrationStepRegistry
           }
         }
       }
+      return data;
+    },
+  })
+  .add("migration_22", {
+    versionFrom: "22",
+    migrate(data: any): any {
+      interface AxisDesignV19 {
+        readonly title?: TitleDesignV19;
+      }
+
+      interface AxesDesignV19 {
+        readonly x?: AxisDesignV19;
+        readonly y?: AxisDesignV19;
+        readonly y1?: AxisDesignV19;
+      }
+
+      interface TitleDesignV19 {
+        readonly text?: string;
+        readonly bold?: boolean;
+        readonly italic?: boolean;
+        readonly align?: Align;
+        readonly color?: Color;
+      }
+
+      for (const sheet of data.sheets || []) {
+        for (const figure of sheet.figures || []) {
+          // Transform Chart Title
+          if (figure.data.title && typeof figure.data.title === "object") {
+            const title = figure.data.title;
+            figure.data.title = {
+              text: title.text || "",
+              type: "string",
+              design: {
+                bold: title.bold || false,
+                italic: title.italic || false,
+                align: title.align || "left",
+                color: title.color || "#000000",
+              },
+            };
+          }
+
+          // Transform Axes Titles
+          if (figure.data.axesDesign && typeof figure.data.axesDesign === "object") {
+            const oldAxesDesign = figure.data.axesDesign;
+            const newAxesDesign: { [key: string]: any } = {};
+            for (const [axis, axisDesign] of Object.entries(oldAxesDesign) as [
+              keyof AxesDesignV19,
+              AxisDesignV19
+            ][]) {
+              newAxesDesign[axis] = {
+                text: axisDesign.title?.text || "",
+                type: "string",
+                design: {
+                  bold: axisDesign.title?.bold || false,
+                  italic: axisDesign.title?.italic || false,
+                  align: axisDesign.title?.align || "center",
+                  color: axisDesign.title?.color || "#000000",
+                },
+              };
+            }
+
+            figure.data.axesDesign = newAxesDesign;
+          }
+        }
+      }
+
       return data;
     },
   });
