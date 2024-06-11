@@ -12,7 +12,9 @@ import {
   PivotDimension,
   PivotDomain,
   PivotField,
+  PivotTableCell,
 } from "../../types/pivot";
+import { isDefined } from "../misc";
 import { pivotTimeAdapter } from "./pivot_time_adapter";
 
 const AGGREGATOR_NAMES = {
@@ -83,6 +85,29 @@ export const AGGREGATORS_FN: Record<string, AggregatorFN | undefined> = {
   },
 };
 
+export function makePivotFormulaFromPivotCell(pivotFormulaId: string, pivotCell: PivotTableCell) {
+  switch (pivotCell.type) {
+    case "HEADER":
+      return makePivotFormula(
+        "PIVOT.HEADER",
+        [pivotFormulaId, ...flatPivotDomain(pivotCell.domain)].filter(isDefined)
+      );
+    case "MEASURE_HEADER":
+      return makePivotFormula(
+        "PIVOT.HEADER",
+        [pivotFormulaId, ...flatPivotDomain(pivotCell.domain), "measure", pivotCell.measure].filter(
+          isDefined
+        )
+      );
+    case "VALUE":
+      return makePivotFormula(
+        "PIVOT.VALUE",
+        [pivotFormulaId, pivotCell.measure, ...flatPivotDomain(pivotCell.domain)].filter(isDefined)
+      );
+    case "EMPTY":
+      return "";
+  }
+}
 /**
  * Build a pivot formula expression
  */
