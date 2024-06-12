@@ -126,9 +126,6 @@ const enum Status {
 export class Model extends EventBus<any> implements CommandDispatcher {
   private corePlugins: CorePlugin[] = [];
 
-  private featurePlugins: UIPlugin[] = [];
-  private uiLocalNotCoreAndStuff: UIPlugin[] = [];
-
   private statefulUIPlugins: UIPlugin[] = [];
 
   private range: RangeAdapter;
@@ -257,14 +254,11 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     for (let Plugin of statefulUIPluginRegistry.getAll()) {
       const plugin = this.setupUiPlugin(Plugin);
       this.statefulUIPlugins.push(plugin);
-      this.uiLocalNotCoreAndStuff.push(plugin);
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
     }
     for (let Plugin of featurePluginRegistry.getAll()) {
       const plugin = this.setupUiPlugin(Plugin);
-      this.featurePlugins.push(plugin);
-      this.uiLocalNotCoreAndStuff.push(plugin);
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
     }
@@ -619,7 +613,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     }
   }
 
-  //@ts-ignore
   private dispatchToCoreOnly(command: CoreCommand) {
     this.range.beforeHandle(command);
     for (const handler of this.corePlugins) {
@@ -645,23 +638,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       handler.beforeHandle(command);
     }
     for (const handler of this.statefulUIPlugins) {
-      handler.handle(command);
-    }
-  }
-
-  /**
-   * Dispatch the given command to the given handlers.
-   * It will call `beforeHandle` and `handle`
-   */
-  //@ts-ignore
-  private dispatchToHandlers(handlers: CommandHandler<Command>[], command: Command) {
-    const validHandlers = isCoreCommand(command)
-      ? handlers
-      : handlers.filter((x) => !this.corePlugins.includes(x as any));
-    for (const handler of validHandlers) {
-      handler.beforeHandle(command);
-    }
-    for (const handler of validHandlers) {
       handler.handle(command);
     }
   }
