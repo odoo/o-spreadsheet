@@ -1,8 +1,10 @@
 import { Model } from "../../src";
-import { concat } from "../../src/helpers";
+import { concat, zoneToXc } from "../../src/helpers";
 import { Branch } from "../../src/history/branch";
 import { Tree } from "../../src/history/tree";
 import { UID } from "../../src/types";
+import { getEvaluatedGrid } from "./getters_helpers";
+import { toCellPosition } from "./helpers";
 
 interface Data {
   _commands?: any[];
@@ -69,4 +71,17 @@ export function getDebugInfo(tree: Tree) {
 export function printDebugModel(model: Model) {
   // @ts-ignore
   console.log(getDebugInfo(model["session"]["revisions"]["tree"]));
+}
+
+/**
+ * Display the result of a PIVOT formula (the spill one)
+ */
+export function printPivot(model: Model, xc: string) {
+  const sheetId = model.getters.getActiveSheetId();
+  const position = toCellPosition(sheetId, xc);
+  const zone = model.getters.getSpreadZone(position);
+  if (!zone) {
+    throw new Error("No zone found");
+  }
+  console.table(getEvaluatedGrid(model, zoneToXc(zone)));
 }

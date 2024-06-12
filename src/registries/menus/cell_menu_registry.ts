@@ -106,6 +106,10 @@ cellMenuRegistry
     sequence: 150,
     separator: true,
   })
+  .add("pivot_fix_formulas", {
+    ...ACTIONS_PIVOT.FIX_FORMULAS,
+    sequence: 155,
+  })
   .add("pivot_properties", {
     ...ACTIONS_PIVOT.pivotProperties,
     sequence: 160,
