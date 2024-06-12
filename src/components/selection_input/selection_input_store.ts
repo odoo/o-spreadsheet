@@ -355,7 +355,8 @@ export class SelectionInputStore extends SpreadsheetStore {
         zone: this.getters.getRangeFromSheetXC(this.inputSheetId, xc).zone,
         sheetId: (sheetName && this.getters.getSheetIdByName(sheetName)) || this.inputSheetId,
         color,
-        interactive: true,
+        movable: true,
+        resizable: true,
       };
     });
   }

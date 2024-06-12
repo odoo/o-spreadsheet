@@ -535,7 +535,8 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
         zone,
         color: rangeColor(rangeString),
         sheetId: range.sheetId,
-        interactive: true,
+        movable: true,
+        resizable: true,
       });
     }
     const activeSheetId = this.getters.getActiveSheetId();
@@ -549,7 +550,8 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
         color: "#445566",
         sheetId: activeSheetId,
         dashed: true,
-        interactive: false,
+        movable: false,
+        resizable: false,
         noFill: true,
         thinLine: true,
       });

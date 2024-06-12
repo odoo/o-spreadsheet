@@ -189,8 +189,12 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.hoveredCell.hover({ col, row });
   }
 
-  get highlights() {
-    return this.highlightStore.highlights;
+  get interactiveHighlight() {
+    const activeSheetId = this.env.model.getters.getActiveSheetId();
+    return this.highlightStore.highlights.filter(
+      (highlight) =>
+        highlight.sheetId === activeSheetId && (highlight.resizable || highlight.movable)
+    );
   }
 
   get gridOverlayDimensions() {

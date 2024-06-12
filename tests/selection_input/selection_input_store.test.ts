@@ -41,7 +41,7 @@ describe("selection input plugin", () => {
   });
 
   test("input with inital ranges should not be focused", () => {
-    const { store, container } = makeStore(SelectionInputStore, ["D4"]);
+    const { store, container } = makeStore(SelectionInputStore, { storeArgs: [["D4"]] });
     expect(store.selectionInputs.length).toBe(1);
     expect(store.selectionInputs[0].xc).toBe("D4");
     expect(store.selectionInputs[0].isFocused).toBeFalsy();
@@ -49,7 +49,7 @@ describe("selection input plugin", () => {
   });
 
   test("multiple initial values have different ids", () => {
-    const { store } = makeStore(SelectionInputStore, ["D4", "D5"]);
+    const { store } = makeStore(SelectionInputStore, { storeArgs: [["D4", "D5"]] });
     const [range1, range2] = store.selectionInputs;
     expect(range1.id).not.toBe(range2.id);
   });
@@ -78,7 +78,7 @@ describe("selection input plugin", () => {
   });
 
   test("select cell inside a merge expands the selection of a single range input", () => {
-    const { store, model, container } = makeStore(SelectionInputStore, [], true);
+    const { store, model, container } = makeStore(SelectionInputStore, { storeArgs: [[], true] });
     selectCell(model, "B1");
     merge(model, "A2:A4");
     store.focusById(idOfRange(store, 0));
@@ -132,7 +132,7 @@ describe("selection input plugin", () => {
   });
 
   test("expanding a selection does not add input if maximum is reached", () => {
-    const { store, model } = makeStore(SelectionInputStore, [], true);
+    const { store, model } = makeStore(SelectionInputStore, { storeArgs: [[], true] });
     selectCell(model, "C2");
     addCellToSelection(model, "D2");
     expect(store.selectionInputs).toHaveLength(1);
@@ -140,14 +140,14 @@ describe("selection input plugin", () => {
   });
 
   test("cannot add empty range when maximum ranges reached", () => {
-    const { store } = makeStore(SelectionInputStore, [], true);
+    const { store } = makeStore(SelectionInputStore, { storeArgs: [[], true] });
     expect(store.selectionInputs).toHaveLength(1);
     store.addEmptyRange();
     expect(store.selectionInputs).toHaveLength(1);
   });
 
   test("Cannot add multiple ranges to a 'singleRange' input", () => {
-    const { store } = makeStore(SelectionInputStore, [], true);
+    const { store } = makeStore(SelectionInputStore, { storeArgs: [[], true] });
     expect(store.selectionInputs).toHaveLength(1);
     expect(store.selectionInputValues).toEqual([]);
     store.changeRange(idOfRange(store, 0), "A3,A1");
@@ -156,7 +156,7 @@ describe("selection input plugin", () => {
   });
 
   test("cannot add new range when maximum ranges reached", () => {
-    const { store } = makeStore(SelectionInputStore, [], true);
+    const { store } = makeStore(SelectionInputStore, { storeArgs: [[], true] });
     expect(store.selectionInputs).toHaveLength(1);
     store.changeRange(idOfRange(store, 0), "A3, A2");
     expect(store.selectionInputs).toHaveLength(1);
@@ -172,7 +172,7 @@ describe("selection input plugin", () => {
   });
 
   test("add an empty range with initial value", () => {
-    const { store } = makeStore(SelectionInputStore, ["A5"]);
+    const { store } = makeStore(SelectionInputStore, { storeArgs: [["A5"]] });
     expect(store.selectionInputs.length).toBe(1);
     store.addEmptyRange();
     expect(store.selectionInputs.length).toBe(2);
@@ -217,7 +217,7 @@ describe("selection input plugin", () => {
   });
 
   test("same range is updated while expanding", () => {
-    const { store, model } = makeStore(SelectionInputStore, ["A1"]);
+    const { store, model } = makeStore(SelectionInputStore, { storeArgs: [["A1"]] });
     store.addEmptyRange();
 
     addCellToSelection(model, "C2");
@@ -261,7 +261,7 @@ describe("selection input plugin", () => {
   });
 
   test("focus does not change values", () => {
-    const { store } = makeStore(SelectionInputStore, ["A1", "B2"]);
+    const { store } = makeStore(SelectionInputStore, { storeArgs: [["A1", "B2"]] });
     expect(store.selectionInputs[0].xc).toBe("A1");
     expect(store.selectionInputs[1].xc).toBe("B2");
     expect(store.selectionInputs[0].isFocused).toBe(false);
@@ -295,7 +295,7 @@ describe("selection input plugin", () => {
   });
 
   test("manually changing the input with existing range", () => {
-    const { store, container } = makeStore(SelectionInputStore, ["A8"]);
+    const { store, container } = makeStore(SelectionInputStore, { storeArgs: [["A8"]] });
     store.changeRange(idOfRange(store, 0), "A8, C5");
     expect(store.selectionInputs[0].xc).toBe("A8");
     expect(store.selectionInputs[1].xc).toBe("C5");
@@ -326,7 +326,7 @@ describe("selection input plugin", () => {
   });
 
   test("writing an invalid range with valid ones keeps the invalid one", () => {
-    const { store, container } = makeStore(SelectionInputStore, ["B2", "E3"]);
+    const { store, container } = makeStore(SelectionInputStore, { storeArgs: [["B2", "E3"]] });
     store.focusById(idOfRange(store, 0));
     store.changeRange(idOfRange(store, 0), "A1, This is invalid");
     expect(highlightedZones(container)).toEqual(["A1", "E3"]);
@@ -354,7 +354,7 @@ describe("selection input plugin", () => {
   });
 
   test("initial ranges are not highlighted", () => {
-    const { store } = makeStore(SelectionInputStore, ["C2", "D4"]);
+    const { store } = makeStore(SelectionInputStore, { storeArgs: [["C2", "D4"]] });
     expect(store.selectionInputs.length).toBe(2);
     expect(store.highlights.length).toBe(0);
   });
@@ -386,7 +386,7 @@ describe("selection input plugin", () => {
   });
 
   test("selection expansion adds as many input as needed", () => {
-    const { store, model, container } = makeStore(SelectionInputStore, ["C4"]);
+    const { store, model, container } = makeStore(SelectionInputStore, { storeArgs: [["C4"]] });
     selectCell(model, "C2");
     store.focusById(idOfRange(store, 0));
     expect(highlightedZones(container)).toEqual(["C4"]);
@@ -397,7 +397,9 @@ describe("selection input plugin", () => {
   });
 
   test("multiple alter selection in a single range component", () => {
-    const { store, model, container } = makeStore(SelectionInputStore, ["C4"], true);
+    const { store, model, container } = makeStore(SelectionInputStore, {
+      storeArgs: [["C4"], true],
+    });
     selectCell(model, "C2");
     store.focusById(idOfRange(store, 0));
     addCellToSelection(model, "E1");
@@ -408,7 +410,7 @@ describe("selection input plugin", () => {
   });
 
   test("selection expansion by altering selection adds inputs", () => {
-    const { store, model, container } = makeStore(SelectionInputStore, ["D4"]);
+    const { store, model, container } = makeStore(SelectionInputStore, { storeArgs: [["D4"]] });
     selectCell(model, "C2");
     store.focusById(idOfRange(store, 0));
     addCellToSelection(model, "D2");
@@ -420,7 +422,7 @@ describe("selection input plugin", () => {
   });
 
   test("Selections are not shared between selection inputs", () => {
-    const { store, model, container } = makeStore(SelectionInputStore, ["D4"]);
+    const { store, model, container } = makeStore(SelectionInputStore, { storeArgs: [["D4"]] });
     selectCell(model, "C2");
     store.focusById(idOfRange(store, 0));
     addCellToSelection(model, "D2");
@@ -432,7 +434,7 @@ describe("selection input plugin", () => {
   });
 
   test("highlights are updated when focus switched from one input to another", () => {
-    const { store: store1, container } = makeStore(SelectionInputStore, ["D4"]);
+    const { store: store1, container } = makeStore(SelectionInputStore, { storeArgs: [["D4"]] });
     const store2 = container.instantiate(SelectionInputStore, ["D5"]);
     store1.focusById(idOfRange(store1, 0));
     expect(store1.selectionInputs[0].isFocused).toBe(true);
@@ -449,7 +451,7 @@ describe("selection input plugin", () => {
   });
 
   test("color is kept between focuses", () => {
-    const { store } = makeStore(SelectionInputStore, ["D4"]);
+    const { store } = makeStore(SelectionInputStore, { storeArgs: [["D4"]] });
     store.focusById(idOfRange(store, 0));
     const color = store.selectionInputs[0].color;
     expect(color).toBeTruthy();
@@ -460,7 +462,9 @@ describe("selection input plugin", () => {
   });
 
   test("Pre-existing ranges from other sheets are selected", () => {
-    const { store, model, container } = makeStore(SelectionInputStore, ["Sheet2!A2"]);
+    const { store, model, container } = makeStore(SelectionInputStore, {
+      storeArgs: [["Sheet2!A2"]],
+    });
     createSheet(model, { sheetId: "42", name: "Sheet2", activate: false });
     expect(store.selectionInputs[0].xc).toBe("Sheet2!A2");
     store.focusById(idOfRange(store, 0));
@@ -540,7 +544,7 @@ describe("selection input plugin", () => {
   });
 
   test("manually adding a range from another sheet", () => {
-    const { store, model } = makeStore(SelectionInputStore, ["A1"]);
+    const { store, model } = makeStore(SelectionInputStore, { storeArgs: [["A1"]] });
     createSheet(model, { sheetId: "42", activate: true });
     expect(store.selectionInputs[0].xc).toBe("A1");
     store.focusById(idOfRange(store, 0));
@@ -560,7 +564,7 @@ describe("selection input plugin", () => {
   });
 
   test("input not focused when changing sheet", () => {
-    const { store, model } = makeStore(SelectionInputStore, ["Sheet2!B2"]);
+    const { store, model } = makeStore(SelectionInputStore, { storeArgs: [["Sheet2!B2"]] });
     createSheet(model, { sheetId: "42", position: 1 });
     store.focusById(idOfRange(store, 0));
     store.unfocus();
@@ -583,7 +587,7 @@ describe("selection input plugin", () => {
   });
 
   test("focus and change range with unbounded ranges", () => {
-    const { store } = makeStore(SelectionInputStore, ["A:A"]);
+    const { store } = makeStore(SelectionInputStore, { storeArgs: [["A:A"]] });
     store.focusById(idOfRange(store, 0));
     expect(store.selectionInputs[0].xc).toBe("A:A");
     store.changeRange(idOfRange(store, 0), "1:1");
@@ -591,7 +595,7 @@ describe("selection input plugin", () => {
   });
 
   test("consistent range colors upon refocusing multiple times", () => {
-    const { store } = makeStore(SelectionInputStore, ["B1:B5", "C1:C5"]);
+    const { store } = makeStore(SelectionInputStore, { storeArgs: [["B1:B5", "C1:C5"]] });
     store.focusById(idOfRange(store, 0));
     const [initialFirstColor, initialSecondColor] = store.selectionInputs.map((i) => i.color);
     store.unfocus();
@@ -602,7 +606,7 @@ describe("selection input plugin", () => {
   });
 
   test("no duplicate range ids when creating and deleting ranges frequently", () => {
-    const { store } = makeStore(SelectionInputStore, ["B1:B5", "C1:C5"]);
+    const { store } = makeStore(SelectionInputStore, { storeArgs: [["B1:B5", "C1:C5"]] });
     store.addEmptyRange(); // id: 3
     store.addEmptyRange(); // id: 4
     store.removeRange(idOfRange(store, 2));
@@ -613,7 +617,7 @@ describe("selection input plugin", () => {
   });
 
   test("Selection input is deactivated/ falls back on grid selection on a PASTE", () => {
-    const { store, model } = makeStore(SelectionInputStore, ["B1:B2"]);
+    const { store, model } = makeStore(SelectionInputStore, { storeArgs: [["B1:B2"]] });
     setCellContent(model, "A1", "1");
     setSelection(model, ["A1:A2"]);
     copy(model, "A1:A2");
@@ -630,7 +634,7 @@ describe("selection input plugin", () => {
   });
 
   test("Can add a empty range to a second input without pre-focusing", () => {
-    const { store: store1, container } = makeStore(SelectionInputStore, [], true);
+    const { store: store1, container } = makeStore(SelectionInputStore, { storeArgs: [[], true] });
     const store2 = container.instantiate(SelectionInputStore, []);
     store1.focusById(idOfRange(store1, 0));
     store2.addEmptyRange();
@@ -638,7 +642,7 @@ describe("selection input plugin", () => {
   });
 
   test("Can change the range of a second input without pre-focusing", () => {
-    const { store: store1, container } = makeStore(SelectionInputStore, [], true);
+    const { store: store1, container } = makeStore(SelectionInputStore, { storeArgs: [[], true] });
     const store2 = container.instantiate(SelectionInputStore, []);
     store1.focusById(idOfRange(store1, 0));
     store2.changeRange(idOfRange(store2, 0), "F1,F2");

@@ -39,7 +39,7 @@ import {
 } from "../../src/store_engine";
 import { ModelStore } from "../../src/stores";
 import { HighlightProvider, HighlightStore } from "../../src/stores/highlight_store";
-import { NotificationStore } from "../../src/stores/notification_store";
+import { NotificationStore, NotificationStoreMethods } from "../../src/stores/notification_store";
 import { RendererStore } from "../../src/stores/renderer_store";
 import { _t } from "../../src/translation";
 import {
@@ -978,13 +978,16 @@ export function getHighlightsFromStore(
     .flatMap((getter: HighlightProvider) => getter.highlights);
 }
 
-export function makeTestNotificationStore(): NotificationStore {
+export function makeTestNotificationStore(
+  callbacks?: Partial<NotificationStoreMethods>
+): NotificationStore {
   return {
     mutators: ["notifyUser", "raiseError", "askConfirmation", "updateNotificationCallbacks"],
     notifyUser: () => {},
     raiseError: () => {},
     askConfirmation: () => {},
     updateNotificationCallbacks: () => {},
+    ...callbacks,
   };
 }
 

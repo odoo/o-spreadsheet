@@ -236,7 +236,8 @@ export interface Highlight {
   zone: Zone;
   sheetId: UID;
   color: Color;
-  interactive?: boolean;
+  movable?: boolean;
+  resizable?: boolean;
   thinLine?: boolean;
   noFill?: boolean;
   /** transparency of the fill color (0-1) */
