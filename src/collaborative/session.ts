@@ -182,6 +182,9 @@ export class Session extends EventBus<CollaborativeEvent> {
    * Send a snapshot of the spreadsheet to the collaboration server
    */
   snapshot(data: WorkbookData) {
+    if (this.pendingMessages.length !== 0) {
+      return;
+    }
     const snapshotId = this.uuidGenerator.uuidv4();
     this.transportService.sendMessage({
       type: "SNAPSHOT",
