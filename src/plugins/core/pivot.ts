@@ -1,4 +1,3 @@
-import { PIVOT_TABLE_CONFIG } from "../../constants";
 import { deepCopy, deepEquals, isDefined } from "../../helpers";
 import {
   flatPivotDomain,
@@ -7,15 +6,7 @@ import {
 } from "../../helpers/pivot/pivot_helpers";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/spreadsheet_pivot/table_spreadsheet_pivot";
 import { _t } from "../../translation";
-import {
-  CellPosition,
-  CommandResult,
-  CoreCommand,
-  CreateTableCommand,
-  Position,
-  UID,
-  WorkbookData,
-} from "../../types";
+import { CellPosition, CommandResult, CoreCommand, Position, UID, WorkbookData } from "../../types";
 import { PivotCoreDefinition, PivotTableCell } from "../../types/pivot";
 import { CorePlugin } from "../core_plugin";
 
@@ -187,22 +178,6 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
         };
         this.addPivotFormula(cellPosition, formulaId, pivotCell);
       }
-    }
-    const pivotZone = {
-      top: position.row,
-      bottom: position.row + pivotCells[0].length - 1,
-      left: position.col,
-      right: position.col + pivotCells.length - 1,
-    };
-    const numberOfHeaders = table.columns.length - 1;
-    const cmdContent: Omit<CreateTableCommand, "type"> = {
-      sheetId: position.sheetId,
-      ranges: [this.getters.getRangeDataFromZone(position.sheetId, pivotZone)],
-      config: { ...PIVOT_TABLE_CONFIG, numberOfHeaders },
-      tableType: "static",
-    };
-    if (this.canDispatch("CREATE_TABLE", cmdContent).isSuccessful) {
-      this.dispatch("CREATE_TABLE", cmdContent);
     }
   }
 
