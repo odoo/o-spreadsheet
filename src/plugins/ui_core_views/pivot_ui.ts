@@ -33,6 +33,7 @@ export class PivotUIPlugin extends UIPlugin {
     "getPivotDomainArgsFromPosition",
     "isPivotUnused",
     "areDomainArgsFieldsValid",
+    "isSpillPivotFormula",
   ] as const;
 
   private pivots: Record<UID, Pivot> = {};
@@ -118,6 +119,15 @@ export class PivotUIPlugin extends UIPlugin {
       }
     }
     return undefined;
+  }
+
+  isSpillPivotFormula(position: CellPosition) {
+    const cell = this.getters.getCorrespondingFormulaCell(position);
+    if (cell && cell.isFormula) {
+      const pivotFunction = this.getFirstPivotFunction(cell.compiledFormula.tokens);
+      return pivotFunction?.functionName === "PIVOT";
+    }
+    return false;
   }
 
   getFirstPivotFunction(tokens: Token[]) {
