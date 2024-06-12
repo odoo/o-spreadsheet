@@ -4,7 +4,7 @@ import { DEBOUNCE_TIME, MESSAGE_VERSION } from "../../src/constants";
 import { buildRevisionLog } from "../../src/history/factory";
 import { Client, CommandResult, WorkbookData } from "../../src/types";
 import { MockTransportService } from "../__mocks__/transport_service";
-import { selectCell } from "../test_helpers/commands_helpers";
+import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
 
 describe("Collaborative session", () => {
   let transport: MockTransportService;
@@ -79,6 +79,27 @@ describe("Collaborative session", () => {
       serverRevisionId: "42",
       data: { ...data, revisionId: expect.any(String) },
     });
+  });
+
+  test("do not snapshot when leaving if there are pending change", () => {
+    const model = new Model(
+      {},
+      {
+        transportService: transport,
+        client: { id: "alice", name: "Alice" },
+      }
+    );
+    setCellContent(model, "A1", "hello"); // send a revision
+    const spy = jest.spyOn(transport, "sendMessage");
+    transport.concurrent(() => {
+      // send another revision
+      setCellContent(model, "A2", "world");
+      // and leave before receiving the acknowledgement
+      model.leaveSession();
+    });
+    expect(spy).toHaveBeenCalledTimes(2);
+    expect(spy).toHaveBeenCalledWith(expect.objectContaining({ type: "REMOTE_REVISION" }));
+    expect(spy).toHaveBeenCalledWith(expect.objectContaining({ type: "CLIENT_LEFT" }));
   });
 
   test("local client leaves with other connected clients and changes", () => {
