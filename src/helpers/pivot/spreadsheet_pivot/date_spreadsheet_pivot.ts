@@ -8,6 +8,9 @@ export function createDate(dimension: PivotDimension, value: FieldValue["value"]
   if (!(granularity in MAP_VALUE_DIMENSION_DATE)) {
     throw new Error(`Unknown date granularity: ${granularity}`);
   }
+  if (value === null) {
+    return null;
+  }
   if (!MAP_VALUE_DIMENSION_DATE[granularity].set.has(value)) {
     MAP_VALUE_DIMENSION_DATE[granularity].set.add(value);
     const date = toJsDate(value, locale);
