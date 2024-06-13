@@ -1,60 +1,89 @@
 # Commands
 
-Commands are the way to make changes to the state. They are dispatched to the model, which relay them to each plugins.
+Commands are essential for modifying the spreadsheet state. They are dispatched to the model, which in turn relays them to each plugin.
+There are two types of commands: `CoreCommand` and `LocalCommand`.
 
-There are two kinds of commands: `CoreCommands` and `LocalCommands`.
+## Types of Commands
 
-1. `CoreCommands` are commands that
+### CoreCommand
 
-   - manipulate the imported/exported spreadsheet state
-   - are shared in collaborative environment
+- **Purpose**: Low-level commands for updating the core spreadsheet state.
+- **Handling**: Managed by core plugins to modify their state.
+- **Sub-Commands**: Can dispatch sub-core commands but not sub-local commands.
+- **Collaboration**: Broadcast to other connected users in a collaborative environment.
 
-1. `LocalCommands`: every other command
-   - manipulate the local state
-   - can be converted into CoreCommands
-   - are not shared in collaborative environment
+### LocalCommand
 
-For example, "RESIZE_COLUMNS_ROWS" is a CoreCommand. "AUTORESIZE_COLUMNS" can be (locally) converted into a "RESIZE_COLUMNS_ROWS", and therefore, is not a CoreCommand.
-CoreCommands should be "device agnostic". This means that they should contain all the information necessary to perform their job. Local commands can use inferred information from the local internal state, such as the active sheet.
+- **Purpose**: Higher-level commands for managing the UI state or dispatching low level core commands.
+- **Handling**: Managed by UI plugins. They cannot be handled by core plugins
+- **Sub-Commands**: Can dispatch sub-commands, which can be either core or local commands.
+- **Collaboration**: Not broadcast to other connected users (but sub-core commands are).
 
-To declare a new `CoreCommands`, its type should be added to `CoreTypes`:
+### Example
+
+- `RESIZE_COLUMNS_ROWS`: A `CoreCommand` handled by a core plugin to adjust the size of rows or columns.
+- `AUTORESIZE_COLUMNS`: A `LocalCommand` handled by a UI plugin, which dispatches the sub-command `RESIZE_COLUMNS_ROWS` based on the current cell content.
+
+### Device Agnosticism
+
+Core commands should be device-agnostic and include all necessary information to perform their function. Local commands can use inferred information from the local internal state, such as the active sheet.
+
+## Declaring New Commands
+
+### CoreCommands
+
+To declare a new `CoreCommands`, its type should be added to `coreTypes`:
 
 ```js
-const { coreTypes } = o_spreadsheet;
+import { coreTypes } from "@odoo/o-spreadsheet";
 
 coreTypes.add("MY_COMMAND_NAME");
 ```
 
-Adding the type to `CoreTypes` is necessary to identify the new command as a `CoreCommands`, and so to ensure that it will be shared.
+### Read-Only Mode
 
-In readonly mode, the commands are cancelled with the `CommandResult` `Readonly`. However, some commands still need to be executed. For example, the selection should still be updated.
-To declare that a new command should be executed in readonly mode, its type should be added to `readonlyAllowedCommands`
+In read-only mode, all core commands are cancelled with the `CommandResult` `Readonly` since the spreadsheet state cannot be modified.
+However, some locale commands still need to be executed, such as updating the active sheet.
+To allow a new local command in read-only mode, add its type to `readonlyAllowedCommands`:
 
 ```js
-const { readonlyAllowedCommands } = o_spreadsheet;
+import { readonlyAllowedCommands } from "@odoo/o-spreadsheet";
+
 readonlyAllowedCommands.add("MY_COMMAND_NAME");
 ```
 
-### Repeat Commands
+## Reserved keywords in commands
 
-Some commands can be repeated. A command will be repeated if the user tries to REDO while the redo stack is empty. In this case, the history plugin will check if the last command locally dispatched is repeatable. If this is the case, the command will be adapted to the current selection and the current active sheet before being dispatched again.
+Certain parameters in command payloads are reserved and should consistently maintain the same meaning and type:
 
-#### Repeat Core Commands
+- `sheetId`: a string representing a valid sheet ID.
+- `col`/`row`: numbers representing a valid sheet position.
+- `zone` : a valid Zone.
+- `target` : an array of Zone.
+- `ranges`: an array of RangeData.
 
-To declare that a core command is repeatable, it should be added to the `repeatCommandTransformRegistry`
+These parameters are automatically validated by an internal `allowDispatch` test, ensuring `sheetId` refers to an existing sheet and other parameters describe valid positions within the sheet. If one of those parameters isn't valid, the command is rejected.
+
+## Repeat Commands
+
+Some commands can be repeated with CTRL+Y (redo) when the redo stack is empty. The history plugin checks if the last locally dispatched command is repeatable. If so, the command is adapted to the current selection and active sheet before being dispatched again.
+
+### Repeat Core Commands
+
+To declare a repeatable core command, add it to the `repeatCommandTransformRegistry`
 
 ```js
-const { repeatCommandTransformRegistry, genericRepeat } = o_spreadsheet;
+import { repeatCommandTransformRegistry, genericRepeat } from "@odoo/o-spreadsheet";
+
 repeatCommandTransformRegistry.add("MY_CORE_COMMAND", genericRepeat);
 ```
 
-The second argument is a transform function that takes the original command as argument, will adapt this command to the current selection and active sheet and return the repeated command.
+The second argument is a transformation function that takes the original command, adapts it to the current selection and active sheet, and returns the repeated command.
+The `genericRepeat` function is a generic transformation that works for most commands, transforming common command payloads (e.g., sheetId, target, zone, position) to the current selection and active sheet.
 
-The `genericRepeat` function is a generic function that can be used for most commands. It will transform common command payload (sheetId/target/zone/position) to the current selection and active sheet.
+For commands requiring specific transformations, a custom function can be defined. For example, the transformation for `ADD_COL_ROW_COMMAND`:
 
-If a command need a more specific transformation, a custom transform function can be defined. Here is the transform of `ADD_COL_ROW_COMMAND` for example:
-
-```js
+```ts
 type RepeatTransform = (getters: Getters, cmd: CoreCommand) => CoreCommand | undefined;
 
 export function repeatAddColumnsRowsCommand(
@@ -72,16 +101,17 @@ export function repeatAddColumnsRowsCommand(
 repeatCommandTransformRegistry.add("ADD_COL_ROW_COMMAND", repeatAddColumnsRowsCommand);
 ```
 
-#### Repeat Local Commands
+### Repeat Local Commands
 
-Similarly to the core commands, local commands can be repeated too. To declare that a local command is repeatable, it should be added to the `repeatLocalCommandTransformRegistry`
+Local commands can also be repeated. To declare a repeatable local command, add it to the `repeatLocalCommandTransformRegistry`:
 
 ```js
-const { repeatLocalCommandTransformRegistry, genericRepeat } = o_spreadsheet;
+import { repeatLocalCommandTransformRegistry, genericRepeat } from "@odoo/o-spreadsheet";
+
 repeatLocalCommandTransformRegistry.add("MY_LOCAL_COMMAND", genericRepeat);
 ```
 
-The difference with the core commands lies in the presence of a third argument in the transformation function: the core commands that were dispatched during the handling of the local command. This is useful if the result of the command depends on the state of an UI Plugin. In this case there's no guarantee that the state of the UI Plugin will be the same when the command is repeated. Adapting the child core commands is then sometimes a valid way to adapt the local command, as they don't depend on any internal state.
+For local commands, the transformation function includes a third argument: the core (sub)commands dispatched during the handling of the root local command. This is useful if the result depends on the UI plugins' state, as there is no guarantee that the UI plugins' state will be the same when the command is repeated. Adapting the child core commands can be a valid way to adjust the local command, as they do not depend on any internal state.
 
 ```js
 type LocalRepeatTransform = (
@@ -90,15 +120,3 @@ type LocalRepeatTransform = (
   childCommands: readonly CoreCommand[]
 ) => CoreCommand[] | LocalCommand | undefined;
 ```
-
-## Reserved keywords in commands
-
-Some parameters in command payload are reserved, and should always have the same meaning and type each time they appear in a command. Those are :
-
-- `sheetId` : should be a string that is an id of a valid sheet
-- `col`/`row`: should be numbers describing a valid sheet position
-- `zone` : should be a valid `Zone`
-- `target` : should be a valid array of `Zone`
-- `ranges`: should be a valid array of `RangeData`
-
-These parameters are automatically validated for any commands by an internal `allowDispatch` test. `sheetId` must refer to an existing sheet and other parameters must describe valid positions in the sheet.
