@@ -159,7 +159,7 @@ interface SpreadsheetChildEnvWithStores extends SpreadsheetChildEnv {
 export function makeTestEnv(
   mockEnv: Partial<SpreadsheetChildEnvWithStores> = {}
 ): SpreadsheetChildEnvWithStores {
-  const model = mockEnv.model || new Model();
+  const model = mockEnv.model || Model.BuildSync();
   if (mockEnv.__spreadsheet_stores__) {
     throw new Error("Cannot call makeTestEnv on a partial env that already have a store container");
   }
@@ -279,7 +279,7 @@ export async function mountComponent<Props extends { [key: string]: any }>(
   component: ComponentConstructor<Props, SpreadsheetChildEnv>,
   optionalArgs: MountComponentArgs<Props> = {}
 ): Promise<MountComponentReturn<Props>> {
-  const model = optionalArgs.model || optionalArgs?.env?.model || new Model();
+  const model = optionalArgs.model || optionalArgs?.env?.model || Model.BuildSync();
   model.drawLayer = () => {};
   const env = makeTestEnv({ ...optionalArgs.env, model: model });
   const props = optionalArgs.props || ({} as Props);
@@ -313,7 +313,7 @@ export async function mountComponent<Props extends { [key: string]: any }>(
 
 // Requires to be called wit jest realTimers
 export async function mountSpreadsheet(
-  props: SpreadsheetProps = { model: new Model() },
+  props: SpreadsheetProps = { model: Model.BuildSync() },
   partialEnv: Partial<SpreadsheetChildEnv> = {}
 ): Promise<{
   app: App;
@@ -410,7 +410,7 @@ export function setGridStyle(model: Model, grid: GridStyleDescr) {
  *   {B5: "5", D8: "2.6", W4: "=round(A2)"} => {B5: 5, D8: 2.6, W4: 3}
  */
 export function evaluateGrid(grid: GridDescr): GridResult {
-  const model = new Model();
+  const model = Model.BuildSync();
   for (let xc in grid) {
     if (grid[xc] !== undefined) {
       setCellContent(model, xc, grid[xc]!);
@@ -424,7 +424,7 @@ export function evaluateGrid(grid: GridDescr): GridResult {
 }
 
 export function evaluateGridText(grid: GridDescr): FormattedGridDescr {
-  const model = new Model();
+  const model = Model.BuildSync();
   for (let xc in grid) {
     if (grid[xc] !== undefined) {
       setCellContent(model, xc, grid[xc]!);
@@ -438,7 +438,7 @@ export function evaluateGridText(grid: GridDescr): FormattedGridDescr {
 }
 
 export function evaluateGridFormat(grid: GridDescr): FormattedGridDescr {
-  const model = new Model();
+  const model = Model.BuildSync();
   for (let xc in grid) {
     if (grid[xc] !== undefined) {
       setCellContent(model, xc, grid[xc]!);
@@ -499,7 +499,7 @@ export function getRangeCellsAsMatrix(
 }
 
 export function createModelFromGrid(grid: GridDescr): Model {
-  const model = new Model();
+  const model = Model.BuildSync();
   for (let xc in grid) {
     if (grid[xc] !== undefined) {
       setCellContent(model, xc, grid[xc]!);
@@ -928,7 +928,7 @@ export class ComposerWrapper extends Component<ComposerWrapperProps, Spreadsheet
 }
 
 export async function mountComposerWrapper(
-  model: Model = new Model(),
+  model: Model = Model.BuildSync(),
   composerProps: Partial<CellComposerProps> = {},
   focusComposer: ComposerFocusType = "inactive"
 ): Promise<{

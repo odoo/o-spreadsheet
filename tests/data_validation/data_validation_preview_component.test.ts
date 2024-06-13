@@ -22,7 +22,7 @@ describe("Data validation preview", () => {
   let env: SpreadsheetChildEnv;
 
   async function mountDataValidationPreview(ruleData: DataValidationRuleData, onClick = () => {}) {
-    model = new Model();
+    model = Model.BuildSync();
     const sheetId = model.getters.getActiveSheetId();
     const rule = {
       ...ruleData,
@@ -91,7 +91,7 @@ describe("Data validation preview", () => {
 
   describe("Date rules previews", () => {
     beforeEach(() => {
-      model = new Model();
+      model = Model.BuildSync();
     });
 
     function getCriterionPreview(criterion: DataValidationCriterion) {

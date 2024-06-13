@@ -25,7 +25,7 @@ let model: Model;
 let sheetId: UID;
 
 beforeEach(() => {
-  model = new Model();
+  model = Model.BuildSync();
   sheetId = model.getters.getActiveSheetId();
 });
 
@@ -208,7 +208,7 @@ describe("Dynamic tables", () => {
       const exported = model.exportData();
       expect(exported.sheets[0].tables).toMatchObject([{ range: "A1", type: "dynamic" }]);
 
-      const newModel = new Model(exported);
+      const newModel = Model.BuildSync(exported);
       expect(newModel.getters.getCoreTables(sheetId)).toMatchObject([
         { range: { zone: toZone("A1") }, type: "dynamic" },
       ]);

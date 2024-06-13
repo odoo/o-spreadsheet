@@ -1,4 +1,5 @@
 import { UuidGenerator } from "../helpers";
+import { ILongRunner } from "../helpers/long_runner";
 import { ModelConfig } from "../model";
 import { StateObserver } from "../state_observer";
 import {
@@ -22,6 +23,7 @@ export interface CorePluginConfig {
   readonly uuidGenerator: UuidGenerator;
   readonly custom: ModelConfig["custom"];
   readonly external: ModelConfig["external"];
+  readonly longRunner: ILongRunner;
 }
 
 export interface CorePluginConstructor {
@@ -49,8 +51,9 @@ export class CorePlugin<State = any>
     dispatch,
     canDispatch,
     uuidGenerator,
+    longRunner,
   }: CorePluginConfig) {
-    super(stateObserver, dispatch, canDispatch);
+    super(stateObserver, dispatch, canDispatch, longRunner);
     range.addRangeProvider(this.adaptRanges.bind(this));
     this.getters = getters;
     this.uuidGenerator = uuidGenerator;

@@ -39,7 +39,7 @@ describe("combo chart", () => {
   });
 
   test("both axis formats are based on their data set", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "Alice");
     setCellContent(model, "A2", "Bob");
 

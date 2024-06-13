@@ -50,7 +50,7 @@ describe("Table plugin", () => {
   let sheetId: UID;
 
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -365,7 +365,7 @@ describe("Table plugin", () => {
     let model: Model;
     let sheetId: UID;
     beforeEach(() => {
-      model = new Model();
+      model = Model.BuildSync();
       createTable(model, "C3:F6");
       updateFilter(model, "C3", ["C"]);
       updateFilter(model, "D3", ["D"]);
@@ -635,7 +635,7 @@ describe("Table plugin", () => {
 
   describe("Undo/Redo", () => {
     test("Can undo/redo creating a table", () => {
-      const model = new Model();
+      const model = Model.BuildSync();
       createTable(model, "C1:C4");
       const sheetId = model.getters.getActiveSheetId();
       expect(model.getters.getTables(sheetId).length).toBe(1);
@@ -646,7 +646,7 @@ describe("Table plugin", () => {
     });
 
     test("Can undo/redo deleting a table", () => {
-      const model = new Model();
+      const model = Model.BuildSync();
       createTable(model, "A1:A4");
       expect(getFilter(model, "A1")).toBeTruthy();
       deleteTable(model, "A1");
@@ -658,7 +658,7 @@ describe("Table plugin", () => {
     });
 
     test("Can undo/redo update a table", () => {
-      const model = new Model();
+      const model = Model.BuildSync();
       createTable(model, "A1:A4");
 
       model.dispatch("UPDATE_TABLE", {
@@ -873,7 +873,7 @@ describe("Table plugin", () => {
         { range: "C5:C9" }, // default config is not exported
       ]);
 
-      const imported = new Model(exported);
+      const imported = Model.BuildSync(exported);
       expect(imported.getters.getTables(sheetId)).toMatchObject([
         {
           range: { zone: toZone("A1:B5") },

@@ -4,7 +4,7 @@ import { SpreadsheetPivotCoreDefinition } from "../../src/types/pivot";
 import { pivotModelData } from "../pivots/pivot_data";
 
 export function createModelWithPivot(range: string): Model {
-  return new Model(pivotModelData(range));
+  return Model.BuildSync(pivotModelData(range));
 }
 
 function defaultPivotDefinition(sheetId: UID): SpreadsheetPivotCoreDefinition {

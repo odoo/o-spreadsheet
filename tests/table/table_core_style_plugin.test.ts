@@ -15,7 +15,7 @@ describe("Table core style plugin", () => {
   let sheetId: UID;
 
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -106,7 +106,7 @@ describe("Table core style plugin", () => {
     const exportedData = model.exportData();
     expect(exportedData.customTableStyles).toMatchObject({ MyStyle: customStyle });
 
-    const importedModel = new Model(exportedData);
+    const importedModel = Model.BuildSync(exportedData);
     expect(importedModel.getters.getTableStyle("MyStyle")).toMatchObject(customStyle);
   });
 });

@@ -56,6 +56,7 @@ import {
 import { WorkbookData } from "./types/workbook_data";
 import { XLSXExport } from "./types/xlsx";
 import { getXLSX } from "./xlsx/xlsx_writer";
+import { ILongRunner, SynchronousLongRunner } from "./helpers/long_runner";
 
 /**
  * Model
@@ -107,6 +108,7 @@ export interface ModelConfig {
   readonly notifyUI: (payload: InformationNotification) => void;
   readonly raiseBlockingErrorUI: (text: string) => void;
   readonly customColors: Color[];
+  readonly longRunner: ILongRunner;
 }
 
 export interface ModelExternalConfig {
@@ -124,14 +126,7 @@ const enum Status {
 
 export class Model extends EventBus<any> implements CommandDispatcher {
   private corePlugins: CorePlugin[] = [];
-
-  private featurePlugins: UIPlugin[] = [];
-
   private statefulUIPlugins: UIPlugin[] = [];
-
-  private coreViewsPlugins: UIPlugin[] = [];
-
-  private range: RangeAdapter;
 
   private session: Session;
 
@@ -158,34 +153,33 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   /**
    * The config object contains some configuration flag and callbacks
    */
-  readonly config: ModelConfig;
-  private corePluginConfig: CorePluginConfig;
-  private uiPluginConfig: UIPluginConfig;
+  config: ModelConfig;
 
   private state: StateObserver;
 
-  readonly selection: SelectionStreamProcessor;
+  selection: SelectionStreamProcessor;
 
   /**
    * Getters are the main way the rest of the UI read data from the model. Also,
    * it is shared between all plugins, so they can also communicate with each
    * other.
    */
-  getters: Getters;
+  getters: Getters = {} as Getters;
 
   /**
    * Getters that are accessible from the core plugins. It's a subset of `getters`,
    * without the UI getters
    */
-  private coreGetters: CoreGetters;
-
-  uuidGenerator: UuidGenerator;
+  private coreGetters: CoreGetters = {} as CoreGetters;
+  private range: RangeAdapter = new RangeAdapter(this.coreGetters);
 
   private readonly handlers: CommandHandler<Command>[] = [];
   private readonly uiHandlers: CommandHandler<Command>[] = [];
   private readonly coreHandlers: CommandHandler<CoreCommand>[] = [];
+  private longRunner: ILongRunner;
+  readonly uuidGenerator: UuidGenerator;
 
-  constructor(
+  public static async Build(
     data: any = {},
     config: Partial<ModelConfig> = {},
     stateUpdateMessages: StateUpdateMessage[] = [],
@@ -193,25 +187,36 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     verboseImport = false
   ) {
     const start = performance.now();
-    console.group("Model creation");
-    super();
-    setDefaultTranslationMethod();
+    const model = new Model(data, config, uuidGenerator);
 
-    stateUpdateMessages = repairInitialMessages(data, stateUpdateMessages);
+    model.setupCore();
+    await model.loadData(data, stateUpdateMessages, verboseImport);
+    model.setupUI();
+    model.afterSetup();
 
-    const workbookData = load(data, verboseImport);
+    console.info("Model created in", performance.now() - start, "ms");
+    console.groupEnd();
+    return model;
+  }
 
-    this.state = new StateObserver();
+  public static BuildSync(
+    data: any = {},
+    config: Partial<ModelConfig> = {},
+    stateUpdateMessages: StateUpdateMessage[] = [],
+    uuidGenerator: UuidGenerator = new UuidGenerator(),
+    verboseImport = true
+  ): Model {
+    const model = new Model(data, config, uuidGenerator);
 
-    this.uuidGenerator = uuidGenerator;
+    model.setupCore();
+    model.loadData(data, stateUpdateMessages, verboseImport);
+    model.setupUI();
+    model.afterSetup();
 
-    this.config = this.setupConfig(config);
+    return model;
+  }
 
-    this.session = this.setupSession(workbookData.revisionId);
-
-    this.coreGetters = {} as CoreGetters;
-
-    this.range = new RangeAdapter(this.coreGetters);
+  private setupCore() {
     this.coreGetters.getRangeString = this.range.getRangeString.bind(this.range);
     this.coreGetters.getRangeFromSheetXC = this.range.getRangeFromSheetXC.bind(this.range);
     this.coreGetters.createAdaptedRanges = this.range.createAdaptedRanges.bind(this.range);
@@ -225,53 +230,59 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.coreGetters.getRangesUnion = this.range.getRangesUnion.bind(this.range);
     this.coreGetters.removeRangesSheetPrefix = this.range.removeRangesSheetPrefix.bind(this.range);
 
-    this.getters = {
-      isReadonly: () => this.config.mode === "readonly" || this.config.mode === "dashboard",
-      isDashboard: () => this.config.mode === "dashboard",
-    } as Getters;
-
+    this.getters["isReadonly"] = () =>
+      this.config.mode === "readonly" || this.config.mode === "dashboard";
+    this.getters["isDashboard"] = () => this.config.mode === "dashboard";
     this.uuidGenerator.setIsFastStrategy(true);
-
-    // Initiate stream processor
-    this.selection = new SelectionStreamProcessorImpl(this.getters);
 
     this.coreHandlers.push(this.range);
     this.handlers.push(this.range);
+  }
 
-    this.corePluginConfig = this.setupCorePluginConfig();
-    this.uiPluginConfig = this.setupUiPluginConfig();
+  private loadData(
+    data: Partial<WorkbookData>,
+    stateUpdateMessages: StateUpdateMessage[],
+    verboseImport: boolean
+  ): void | Promise<void> {
+    stateUpdateMessages = repairInitialMessages(data, stateUpdateMessages);
+    const workbookData = load(data, verboseImport);
 
-    // registering plugins
-    for (let Plugin of corePluginRegistry.getAll()) {
-      this.setupCorePlugin(Plugin, workbookData);
+    const corePluginConfig = this.setupCorePluginConfig();
+    for (let CorePlugin of corePluginRegistry.getAll()) {
+      this.setupCorePlugin(CorePlugin, workbookData, corePluginConfig);
     }
     Object.assign(this.getters, this.coreGetters);
+    return this.session.loadInitialMessages(stateUpdateMessages);
+  }
 
-    this.session.loadInitialMessages(stateUpdateMessages);
+  private setupUI() {
+    const uiPluginConfig = this.setupUiPluginConfig();
 
     for (let Plugin of coreViewsPluginRegistry.getAll()) {
-      const plugin = this.setupUiPlugin(Plugin);
-      this.coreViewsPlugins.push(plugin);
+      const plugin = this.setupUiPlugin(Plugin, uiPluginConfig);
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
       this.coreHandlers.push(plugin);
     }
     for (let Plugin of statefulUIPluginRegistry.getAll()) {
-      const plugin = this.setupUiPlugin(Plugin);
+      const plugin = this.setupUiPlugin(Plugin, uiPluginConfig);
       this.statefulUIPlugins.push(plugin);
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
     }
     for (let Plugin of featurePluginRegistry.getAll()) {
-      const plugin = this.setupUiPlugin(Plugin);
-      this.featurePlugins.push(plugin);
+      const plugin = this.setupUiPlugin(Plugin, uiPluginConfig);
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
     }
+  }
+
+  private afterSetup() {
     this.uuidGenerator.setIsFastStrategy(false);
 
     // starting plugins
     this.dispatch("START");
+
     // Model should be the last permanent subscriber in the list since he should render
     // after all changes have been applied to the other subscribers (plugins)
     this.selection.observe(this, {
@@ -283,18 +294,33 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     this.joinSession();
 
-    if (config.snapshotRequested) {
+    if (this.config.snapshotRequested) {
       const startSnapshot = performance.now();
       console.info("Snapshot requested");
       this.session.snapshot(this.exportData());
       this.garbageCollectExternalResources();
       console.info("Snapshot taken in", performance.now() - startSnapshot, "ms");
     }
+  }
+
+  private constructor(
+    data: any = {},
+    config: Partial<ModelConfig> = {},
+    uuidGenerator: UuidGenerator = new UuidGenerator()
+  ) {
+    super();
+
+    setDefaultTranslationMethod();
+    this.state = new StateObserver();
+    this.uuidGenerator = uuidGenerator;
+    this.config = this.setupConfig(config);
+    this.longRunner = this.config.longRunner;
+    this.setupLongRunnerEvents();
+    this.session = this.setupSession(data?.revisionId ?? DEFAULT_REVISION_ID);
+    this.selection = new SelectionStreamProcessorImpl(this.getters);
     // mark all models as "raw", so they will not be turned into reactive objects
     // by owl, since we do not rely on reactivity
     markRaw(this);
-    console.info("Model created in", performance.now() - start, "ms");
-    console.groupEnd();
   }
 
   joinSession() {
@@ -305,8 +331,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     await this.session.leave(lazy(() => this.exportData()));
   }
 
-  private setupUiPlugin(Plugin: UIPluginConstructor) {
-    const plugin = new Plugin(this.uiPluginConfig);
+  private setupUiPlugin(Plugin: UIPluginConstructor, uiPluginConfig: UIPluginConfig) {
+    const plugin = new Plugin(uiPluginConfig);
     for (let name of Plugin.getters) {
       if (!(name in plugin)) {
         throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
@@ -331,8 +357,12 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * This method is private for now, but if the need arise, there is no deep
    * reason why the model could not add dynamically a plugin while it is running.
    */
-  private setupCorePlugin(Plugin: CorePluginConstructor, data: WorkbookData) {
-    const plugin = new Plugin(this.corePluginConfig);
+  private setupCorePlugin(
+    Plugin: CorePluginConstructor,
+    data: WorkbookData,
+    corePluginConfig: CorePluginConfig
+  ): void {
+    const plugin = new Plugin(corePluginConfig);
     for (let name of Plugin.getters) {
       if (!(name in plugin)) {
         throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
@@ -374,7 +404,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         },
       }),
       this.config.transportService,
-      revisionId
+      revisionId,
+      this.config.longRunner
     );
     return session;
   }
@@ -403,6 +434,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       name: _t("Anonymous").toString(),
     };
     const transportService = config.transportService || new LocalTransportService();
+
     return {
       ...config,
       mode: config.mode || "normal",
@@ -411,10 +443,11 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       transportService,
       client,
       moveClient: () => {},
-      snapshotRequested: false,
+      snapshotRequested: config.snapshotRequested ?? false,
       notifyUI: (payload) => this.trigger("notify-ui", payload),
       raiseBlockingErrorUI: (text) => this.trigger("raise-error-ui", { text }),
       customColors: config.customColors || [],
+      longRunner: config.longRunner || new SynchronousLongRunner(),
     };
   }
 
@@ -436,6 +469,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       uuidGenerator: this.uuidGenerator,
       custom: this.config.custom,
       external: this.config.external,
+      longRunner: this.longRunner,
     };
   }
 
@@ -452,6 +486,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       session: this.session,
       defaultCurrency: this.config.defaultCurrency,
       customColors: this.config.customColors || [],
+      longRunner: this.longRunner,
     };
   }
 
@@ -680,6 +715,19 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   garbageCollectExternalResources() {
     for (const plugin of this.corePlugins) {
       plugin.garbageCollectExternalResources();
+    }
+  }
+
+  private setupLongRunnerEvents() {
+    if (this.config.mode === "normal") {
+      this.longRunner.on("job-started", this, () => {
+        this.updateMode("readonly");
+        this.trigger("update");
+      });
+      this.longRunner.on("job-done", this, () => {
+        this.updateMode("normal");
+        this.trigger("update");
+      });
     }
   }
 }

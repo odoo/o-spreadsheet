@@ -24,7 +24,7 @@ import {
 let model: Model;
 
 beforeEach(() => {
-  model = new Model({
+  model = Model.BuildSync({
     sheets: [
       {
         name: "Sheet1",
@@ -137,7 +137,7 @@ describe("datasource tests", function () {
       "1"
     );
     const exportedData = model.exportData();
-    const newModel = new Model(exportedData);
+    const newModel = Model.BuildSync(exportedData);
     expect(newModel.getters.getVisibleFigures()).toHaveLength(1);
     expect(newModel.getters.getChartRuntime("1")).toBeTruthy();
     newModel.dispatch("DELETE_FIGURE", { sheetId: model.getters.getActiveSheetId(), id: "1" });
@@ -414,7 +414,7 @@ describe("datasource tests", function () {
 
 describe("multiple sheets", () => {
   beforeEach(() => {
-    model = new Model({
+    model = Model.BuildSync({
       sheets: [
         {
           name: "Sheet1",

@@ -12,7 +12,7 @@ describe("Pivot side panel", () => {
 
   beforeEach(async () => {
     ({ env, model, fixture } = await mountSpreadsheet(
-      { model: new Model() },
+      { model: Model.BuildSync() },
       { askConfirmation: jest.fn((title, callback) => callback()) }
     ));
     addPivot(model, "A1:D5", {}, "1");

@@ -86,7 +86,7 @@ describe("remove duplicates", () => {
       A5: { content: "11" },
     };
 
-    model = new Model({ sheets: [{ cells }] });
+    model = Model.BuildSync({ sheets: [{ cells }] });
     ({ parent, fixture } = await mountSpreadsheet({ model }));
     parent.env.openSidePanel("RemoveDuplicates");
     await nextTick();
@@ -208,7 +208,7 @@ describe("remove duplicates", () => {
 
   test("if no columns selected --> display error message and disable", async () => {
     const cells = { B1: { content: "42" }, B2: { content: "42" } };
-    model = new Model({ sheets: [{ cells }] });
+    model = Model.BuildSync({ sheets: [{ cells }] });
     ({ parent, fixture } = await mountSpreadsheet({ model }));
     setSelection(model, ["B1:B2"]);
     parent.env.openSidePanel("RemoveDuplicates");
@@ -230,7 +230,7 @@ describe("remove duplicate action", () => {
   test("expand selection to table if only one cell is selected", async () => {
     const cells = { B1: { content: "42" }, B2: { content: "42" } };
     const { fixture, model } = await mountSpreadsheet({
-      model: new Model({ sheets: [{ cells }] }),
+      model: Model.BuildSync({ sheets: [{ cells }] }),
     });
     setSelection(model, ["B2"]);
     await nextTick();

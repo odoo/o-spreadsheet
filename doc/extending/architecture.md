@@ -19,7 +19,7 @@ const col = 0;
 const row = 0;
 const sheetId = "1";
 
-const model = new Model();
+const model = Model.BuildSync();
 
 // Update A1's content by dispatching a command
 model.dispatch("UPDATE_CELL", {

@@ -65,7 +65,7 @@ describe("Interactive rename sheet", () => {
       errorTextSpy(error.toString());
       callback();
     });
-    model = new Model({});
+    model = Model.BuildSync({});
     env = makeTestEnv({ model, raiseError: raiseErrorSpy });
   });
 
@@ -105,7 +105,7 @@ describe("Interactive Freeze columns/rows", () => {
     ["column", "COL"],
     ["row", "ROW"],
   ])("freeze %s through a merge", (name, dimension) => {
-    const model = new Model();
+    const model = Model.BuildSync();
     merge(model, "A1:D4");
     const raiseError = jest.fn();
     const env = makeTestEnv({ model, raiseError });
@@ -122,7 +122,7 @@ describe("UI Helpers", () => {
   let sheetId: UID;
 
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
     sheetId = model.getters.getActiveSheetId();
     notifyUserTextSpy = jest.fn();
     askConfirmationTextSpy = jest.fn();
@@ -389,7 +389,7 @@ describe("UI Helpers", () => {
     };
     test("Sort with adjacent values to the selection ask for confirmation", () => {
       askConfirmation = jest.fn();
-      model = new Model(modelData);
+      model = Model.BuildSync(modelData);
       const zone = toZone("A2:A3");
       anchor = toCartesian("A2");
       const env = makeTestEnv({ model, askConfirmation });
@@ -398,7 +398,7 @@ describe("UI Helpers", () => {
     });
     test("Sort without adjacent values to the selection does not ask for confirmation", () => {
       askConfirmation = jest.fn();
-      model = new Model(modelData);
+      model = Model.BuildSync(modelData);
       const zone = toZone("A2:A3");
       const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
       const env = makeTestEnv({ model, askConfirmation });
@@ -408,7 +408,7 @@ describe("UI Helpers", () => {
 
     test("Sort on first column w/ confirming contiguous", () => {
       askConfirmation = jest.fn((text, confirm, cancel) => confirm());
-      model = new Model(modelData);
+      model = Model.BuildSync(modelData);
       const zone = toZone("A3:A4");
       anchor = toCartesian("A3");
       const env = makeTestEnv({ model, askConfirmation });
@@ -428,7 +428,7 @@ describe("UI Helpers", () => {
     });
     test("Sort on first column w/ refusing contiguous", () => {
       askConfirmation = jest.fn((text, confirm, cancel) => cancel());
-      model = new Model(modelData);
+      model = Model.BuildSync(modelData);
       const zone = toZone("A3:A4");
       anchor = toCartesian("A3");
       const env = makeTestEnv({ model, askConfirmation });
@@ -484,7 +484,7 @@ describe("UI Helpers", () => {
       ],
     };
     beforeEach(() => {
-      model = new Model(modelData);
+      model = Model.BuildSync(modelData);
     });
     test("Failed Sort of merges with single adjacent cell with and without interactive mode", () => {
       // add value in adjacent cell

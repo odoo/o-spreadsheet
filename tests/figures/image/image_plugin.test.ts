@@ -5,7 +5,7 @@ import { getFigureIds } from "../../test_helpers/helpers";
 
 describe("image plugin", function () {
   test("create image", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
     const definition = {
@@ -19,7 +19,7 @@ describe("image plugin", function () {
   });
 
   test("delete image", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
     createImage(model, { sheetId: sheetId, figureId: imageId });
@@ -29,7 +29,7 @@ describe("image plugin", function () {
   });
 
   test("copy paste image", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
     const definition = {
@@ -50,7 +50,7 @@ describe("image plugin", function () {
   });
 
   test("cut past image", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
     const definition = {
@@ -72,7 +72,7 @@ describe("image plugin", function () {
 
 describe("test image in sheet", function () {
   test("duplicate sheet image", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
     createImage(model, { sheetId: sheetId, figureId: imageId });
@@ -86,7 +86,7 @@ describe("test image in sheet", function () {
   });
 
   test("delete a sheet with an image", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const imageId = "Image1";
     const newSheetId = "Sheet2";
     model.dispatch("CREATE_SHEET", { sheetId: newSheetId, position: 2 });
@@ -97,7 +97,7 @@ describe("test image in sheet", function () {
   });
 
   test("Duplicate sheet > export > import > duplicate sheet contains 2 distinct charts", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
     const thirdSheetId = "third";
@@ -106,7 +106,7 @@ describe("test image in sheet", function () {
       sheetId: firstSheetId,
       sheetIdTo: secondSheetId,
     });
-    const newModel = new Model(model.exportData());
+    const newModel = Model.BuildSync(model.exportData());
     newModel.dispatch("DUPLICATE_SHEET", {
       sheetId: secondSheetId,
       sheetIdTo: thirdSheetId,
@@ -136,7 +136,7 @@ describe("test image in sheet", function () {
 
 describe("test image import & export", function () {
   test("can export an image", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const imageId = "Image1";
     createImage(model, { sheetId: "Sheet1", figureId: imageId });
     const data = model.exportData();
@@ -155,12 +155,12 @@ describe("test image import & export", function () {
     ]);
   });
   test("can import an image", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const sheetId = "Sheet1";
     const imageId = "Image1";
     createImage(model, { sheetId, figureId: imageId });
     const importedData = model.exportData();
-    const newModel = new Model(importedData);
+    const newModel = Model.BuildSync(importedData);
     expect(newModel.getters.getImage(imageId)).toEqual(model.getters.getImage(imageId));
     expect(newModel.getters.getFigure(sheetId, imageId)).toEqual(
       model.getters.getFigure(sheetId, imageId)
@@ -170,7 +170,7 @@ describe("test image import & export", function () {
 
 describe("test image undo/redo", () => {
   test("undo/redo image creation", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const before = model.exportData();
     createImage(model, {});
     const after = model.exportData();
@@ -180,7 +180,7 @@ describe("test image undo/redo", () => {
     expect(model).toExport(after);
   });
   test("undo/redo image deletion", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
     createImage(model, { sheetId, figureId: imageId });
@@ -194,7 +194,7 @@ describe("test image undo/redo", () => {
   });
 
   test("undo/redo image cut & paste", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const imageId = "Image1";
     createImage(model, { figureId: imageId });
     const before = model.exportData();
@@ -209,7 +209,7 @@ describe("test image undo/redo", () => {
   });
 
   test("undo/redo duplicate sheet", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const sheetId = model.getters.getActiveSheetId();
     const imageId = "Image1";
     createImage(model, { sheetId, figureId: imageId });

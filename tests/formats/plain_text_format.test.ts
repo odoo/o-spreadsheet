@@ -6,7 +6,7 @@ import { FR_LOCALE } from "./../test_helpers/constants";
 
 let model: Model;
 beforeEach(() => {
-  model = new Model();
+  model = Model.BuildSync();
 });
 
 describe("Plain text format", () => {
@@ -88,7 +88,7 @@ describe("Plain text format", () => {
     expect(getCellContent(model, "A1")).toBe("00009");
     const exported = model.exportData();
 
-    const importedModel = new Model(exported);
+    const importedModel = Model.BuildSync(exported);
     expect(getCell(importedModel, "A1")?.format).toBe("@");
     expect(getCellContent(importedModel, "A1")).toBe("00009");
   });

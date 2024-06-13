@@ -34,7 +34,7 @@ describe("Header grouping plugin", () => {
   let sheetId: UID;
 
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -291,7 +291,7 @@ describe("Header grouping plugin", () => {
       ]);
 
       // Test case 2: groups go to the rightmost layer
-      model = new Model();
+      model = Model.BuildSync();
       groupHeaders(model, dimension, 0, 1);
       groupHeaders(model, dimension, 0, 2);
       groupHeaders(model, dimension, 0, 3);
@@ -626,7 +626,7 @@ describe("Header grouping plugin", () => {
       ROW: [{ start: 0, end: 2 }],
     });
 
-    const newModel = new Model(exported);
+    const newModel = Model.BuildSync(exported);
     expect(newModel.getters.getHeaderGroups(sheetId, "COL")).toMatchObject([
       { start: 0, end: 2, isFolded: true },
     ]);

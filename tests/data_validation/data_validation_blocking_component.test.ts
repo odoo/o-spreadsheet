@@ -21,7 +21,7 @@ describe("Data validation with blocking rule", () => {
   let composerStore: Store<CellComposerStore>;
 
   beforeEach(async () => {
-    model = new Model();
+    model = Model.BuildSync();
     sheetId = model.getters.getActiveSheetId();
     composerStore = makeTestComposerStore(model);
   });

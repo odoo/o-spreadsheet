@@ -1,6 +1,7 @@
 import { DEBOUNCE_TIME, DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../constants";
 import { UuidGenerator } from "../helpers";
 import { EventBus } from "../helpers/event_bus";
+import { ILongRunner, SynchronousLongRunner } from "../helpers/long_runner";
 import { debounce, isDefined } from "../helpers/misc";
 import { SelectiveHistory as RevisionLog } from "../history/selective_history";
 import { CoreCommand, HistoryChange, Lazy, UID, WorkbookData } from "../types";
@@ -50,6 +51,7 @@ export class Session extends EventBus<CollaborativeEvent> {
 
   private uuidGenerator = new UuidGenerator();
   private lastLocalOperation: Revision | undefined;
+  private longRunner: ILongRunner;
   /**
    * Manages the collaboration between multiple users on the same spreadsheet.
    * It can forward local state changes to other users to ensure they all eventually
@@ -60,15 +62,17 @@ export class Session extends EventBus<CollaborativeEvent> {
    * @param revisions
    * @param transportService communication channel used to send and receive messages
    * between all connected clients
-   * @param client the client connected locally
    * @param serverRevisionId
+   * @param longRunner
    */
   constructor(
     private revisions: RevisionLog<Revision>,
     private transportService: TransportService<CollaborationMessage>,
-    private serverRevisionId: UID = DEFAULT_REVISION_ID
+    private serverRevisionId: UID = DEFAULT_REVISION_ID,
+    longRunner: ILongRunner = new SynchronousLongRunner()
   ) {
     super();
+    this.longRunner = longRunner;
 
     this.debouncedMove = debounce(this._move.bind(this), DEBOUNCE_TIME) as Session["move"];
   }
@@ -155,11 +159,16 @@ export class Session extends EventBus<CollaborativeEvent> {
       0
     );
     this.isReplayingInitialRevisions = true;
-    for (const message of messages) {
-      this.onMessageReceived(message);
-    }
-    this.isReplayingInitialRevisions = false;
-    console.info("Replayed", numberOfCommands, "commands in", performance.now() - start, "ms");
+    return this.longRunner.queueJob(
+      "Replaying revisions",
+      messages,
+      this.onMessageReceived.bind(this),
+      50,
+      () => {
+        this.isReplayingInitialRevisions = false;
+        console.info("Replayed", numberOfCommands, "commands in", performance.now() - start, "ms");
+      }
+    );
   }
 
   /**

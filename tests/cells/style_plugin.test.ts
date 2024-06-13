@@ -18,7 +18,7 @@ import { createEqualCF, target, toRangesData } from "../test_helpers/helpers";
 
 describe("styles", () => {
   test("can undo and redo a setStyle operation on an empty cell", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setStyle(model, "B1", { fillColor: "red" });
 
     expect(getCellContent(model, "B1")).toBe("");
@@ -28,7 +28,7 @@ describe("styles", () => {
   });
 
   test("can undo and redo a setStyle operation on an non empty cell", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "B1", "some content");
     setStyle(model, "B1", { fillColor: "red" });
     expect(getCellContent(model, "B1")).toBe("some content");
@@ -39,7 +39,7 @@ describe("styles", () => {
   });
 
   test("can clear formatting (style)", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "B1", "b1");
     selectCell(model, "B1");
     setStyle(model, "B1", { fillColor: "red" });
@@ -53,7 +53,7 @@ describe("styles", () => {
   });
 
   test("default style values are not exported", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setStyle(model, "A1", DEFAULT_STYLE);
     const data = model.exportData();
     expect(data.sheets[0].cells.A1?.style).toBeUndefined();
@@ -61,7 +61,7 @@ describe("styles", () => {
   });
 
   test("only non default style values are exported", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setStyle(model, "A1", {
       bold: true,
       italic: false,
@@ -74,7 +74,7 @@ describe("styles", () => {
   });
 
   test("clearing format on a cell with no content actually remove it", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setStyle(model, "B1", { fillColor: "red" });
     setFormat(model, "B1", "#,##0.0");
     expect(getCell(model, "B1")!.style).toBeDefined();
@@ -87,7 +87,7 @@ describe("styles", () => {
   });
 
   test("clearing format operation can be undone", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "B1", "b1");
     setStyle(model, "B1", { fillColor: "red" });
     setFormat(model, "B1", "#,##0.0");
@@ -104,7 +104,7 @@ describe("styles", () => {
   });
 
   test("clear formatting should remove format", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const sheetId = model.getters.getActiveSheetId();
     setFormat(model, "A1", "#,##0.0");
     model.dispatch("CLEAR_FORMATTING", {
@@ -115,7 +115,7 @@ describe("styles", () => {
   });
 
   test("Can set a format in another than the active one", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     createSheet(model, { sheetId: "42" });
     setStyle(model, "A1", { fillColor: "red" }, "42");
     expect(getCell(model, "A1")).toBeUndefined();
@@ -123,7 +123,7 @@ describe("styles", () => {
   });
 
   test("getCellWidth use computed style", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "H");
     setCellContent(model, "A2", "H");

@@ -1099,7 +1099,7 @@ describe("Menu Item actions", () => {
     });
 
     test("currency format with custom default currency", () => {
-      const model = new Model({}, { defaultCurrency: TEST_CURRENCY });
+      const model = Model.BuildSync({}, { defaultCurrency: TEST_CURRENCY });
       env = makeTestEnv({ model });
       const action = getNode(["format", "format_number", "format_number_currency"], env);
       expect(action.description(env)).toBe("€1,000.120");
@@ -1108,7 +1108,7 @@ describe("Menu Item actions", () => {
     });
 
     test("rounded currency format with custom default currency", () => {
-      const model = new Model({}, { defaultCurrency: TEST_CURRENCY });
+      const model = Model.BuildSync({}, { defaultCurrency: TEST_CURRENCY });
       env = makeTestEnv({ model });
       const action = getNode(["format", "format_number", "format_number_currency_rounded"], env);
       expect(action.description(env)).toBe("€1,000");
@@ -1117,14 +1117,14 @@ describe("Menu Item actions", () => {
     });
 
     test("rounded currency format is invisible if the custom default format is already rounded", () => {
-      const model = new Model({}, { defaultCurrency: { decimalPlaces: 0 } });
+      const model = Model.BuildSync({}, { defaultCurrency: { decimalPlaces: 0 } });
       env = makeTestEnv({ model });
       const action = getNode(["format", "format_number", "format_number_currency_rounded"], env);
       expect(action.isVisible(env)).toBe(false);
     });
 
     test("currency format description with locale and custom default currency", () => {
-      const model = new Model({}, { defaultCurrency: TEST_CURRENCY });
+      const model = Model.BuildSync({}, { defaultCurrency: TEST_CURRENCY });
       env = makeTestEnv({ model });
       updateLocale(model, FR_LOCALE);
       const action = getNode(["format", "format_number", "format_number_currency"], env);
@@ -1132,7 +1132,7 @@ describe("Menu Item actions", () => {
     });
 
     test("accounting format menu item", () => {
-      const model = new Model({}, { defaultCurrency: { ...TEST_CURRENCY, decimalPlaces: 0 } });
+      const model = Model.BuildSync({}, { defaultCurrency: { ...TEST_CURRENCY, decimalPlaces: 0 } });
       env = makeTestEnv({ model });
       const action = getNode(["format", "format_number", "format_number_accounting"], env);
       expect(action.isVisible(env)).toBe(true);

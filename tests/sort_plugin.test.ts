@@ -23,7 +23,9 @@ describe("Basic Sorting", () => {
       A5: { content: "16" },
       A6: { content: "15" },
     };
-    model = new Model({ sheets: [{ id: sheetId, colNumber: 1, rowNumber: 6, cells: cells }] });
+    model = Model.BuildSync({
+      sheets: [{ id: sheetId, colNumber: 1, rowNumber: 6, cells: cells }],
+    });
     sort(model, {
       zone: "A1:A6",
       anchor: "A2",
@@ -50,7 +52,7 @@ describe("Basic Sorting", () => {
     });
   });
   test("Sort Text", () => {
-    model = new Model({
+    model = Model.BuildSync({
       sheets: [
         {
           id: sheetId,
@@ -82,7 +84,7 @@ describe("Basic Sorting", () => {
     });
   });
   test("Sort Dates", () => {
-    model = new Model({
+    model = Model.BuildSync({
       sheets: [
         {
           id: sheetId,
@@ -115,7 +117,7 @@ describe("Basic Sorting", () => {
     });
   });
   test("Sort Formulas", () => {
-    model = new Model({
+    model = Model.BuildSync({
       sheets: [
         {
           id: sheetId,
@@ -155,7 +157,7 @@ describe("Basic Sorting", () => {
     expect(getEvaluatedCell(model, "C4").type).toBe(CellValueType.error);
   });
   test("Sort all types of cells then undo then redo", () => {
-    model = new Model({
+    model = Model.BuildSync({
       sheets: [
         {
           id: sheetId,
@@ -230,7 +232,7 @@ describe("Basic Sorting", () => {
   });
   test("Sort style", () => {
     const myStyle = { textColor: "#fe0000" };
-    model = new Model({
+    model = Model.BuildSync({
       sheets: [
         {
           id: sheetId,
@@ -258,7 +260,7 @@ describe("Basic Sorting", () => {
   });
 
   test("Sort with empty cells", () => {
-    model = new Model({
+    model = Model.BuildSync({
       sheets: [
         {
           id: sheetId,
@@ -289,7 +291,7 @@ describe("Basic Sorting", () => {
   });
 
   test("Sort with emptyCellAsZero option", () => {
-    model = new Model({
+    model = Model.BuildSync({
       sheets: [
         {
           id: sheetId,
@@ -335,7 +337,7 @@ describe("Basic Sorting", () => {
   });
 
   test("Sort with a cell that will be removed because it is considered empty", () => {
-    model = new Model({
+    model = Model.BuildSync({
       sheets: [
         {
           id: sheetId,
@@ -364,7 +366,7 @@ describe("Trigger sort generic errors", () => {
   const sheetId: UID = "sheet2";
 
   test("Sort with anchor outside of the sorting zone", () => {
-    const model = new Model({ sheets: [{ id: sheetId, colNumber: 1, rowNumber: 6 }] });
+    const model = Model.BuildSync({ sheets: [{ id: sheetId, colNumber: 1, rowNumber: 6 }] });
     expect(() => {
       sort(model, {
         zone: "A1:A3",
@@ -404,7 +406,7 @@ describe("Sort multi adjacent columns", () => {
    * Manually calling the getContiguousZone function.
    */
   test("Sort on second column w/ contiguous", () => {
-    model = new Model(modelData);
+    model = Model.BuildSync(modelData);
     const zone = toZone("B2:B3");
     const sheetId = model.getters.getActiveSheetId();
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
@@ -427,7 +429,7 @@ describe("Sort multi adjacent columns", () => {
     });
   });
   test("Sort on third column  w/ contiguous", () => {
-    model = new Model(modelData);
+    model = Model.BuildSync(modelData);
     const zone = toZone("C2:C4");
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
     sort(model, {
@@ -449,7 +451,7 @@ describe("Sort multi adjacent columns", () => {
     });
   });
   test("Sort on fourth column w/ contiguous", () => {
-    model = new Model(modelData);
+    model = Model.BuildSync(modelData);
     const zone = toZone("D2:D5");
     const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
     sort(model, {
@@ -472,7 +474,7 @@ describe("Sort multi adjacent columns", () => {
   });
 
   test("Sort w/ multicolumn selection", () => {
-    model = new Model(modelData);
+    model = Model.BuildSync(modelData);
     sort(model, {
       zone: "B2:C3",
       anchor: "B3",
@@ -496,7 +498,7 @@ describe("Sort multi adjacent columns", () => {
 describe("Sort adjacent columns with headers", () => {
   const sheetId: UID = "sheet4";
   beforeEach(() => {
-    model = new Model({
+    model = Model.BuildSync({
       sheets: [
         {
           id: sheetId,
@@ -666,7 +668,7 @@ describe("Sort Merges", () => {
     ],
   };
   beforeEach(() => {
-    model = new Model(modelData);
+    model = Model.BuildSync(modelData);
   });
   test("Sort of merges w/ contiguous", () => {
     const zone = toZone("B2:B4");

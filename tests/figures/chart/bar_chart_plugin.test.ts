@@ -47,7 +47,7 @@ describe("bar chart", () => {
   });
 
   test("Stacked bar", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     createChart(model, { type: "bar", stacked: false }, "chartId");
     expect(isChartAxisStacked(model, "chartId", "x")).toBeUndefined();
     expect(isChartAxisStacked(model, "chartId", "y")).toBeUndefined();
@@ -59,7 +59,7 @@ describe("bar chart", () => {
 
   describe("Horizontal bar chart", () => {
     beforeEach(() => {
-      model = new Model();
+      model = Model.BuildSync();
     });
 
     test("Chart is set as horizontal in chartJS runtime", () => {

@@ -70,7 +70,7 @@ function getSheetViewBoundaries(model): Zone {
 
 describe("Viewport of Simple sheet", () => {
   beforeEach(async () => {
-    model = new Model();
+    model = Model.BuildSync();
   });
 
   test("SET_VIEWPORT_OFFSET is refused if it won't scroll any viewport", () => {
@@ -280,7 +280,7 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("can horizontal scroll on sheet smaller than viewport", () => {
-    model = new Model({ sheets: [{ rowNumber: 2 }] });
+    model = Model.BuildSync({ sheets: [{ rowNumber: 2 }] });
     setViewportOffset(model, DEFAULT_CELL_WIDTH * 2, 0);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 0,
@@ -396,7 +396,7 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("can vertical scroll on sheet smaller than viewport", () => {
-    model = new Model({ sheets: [{ colNumber: 2 }] });
+    model = Model.BuildSync({ sheets: [{ colNumber: 2 }] });
     setViewportOffset(model, 0, DEFAULT_CELL_HEIGHT * 2);
     expect(model.getters.getActiveMainViewport()).toMatchObject({
       top: 2,
@@ -846,7 +846,7 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("Viewport is updated when updating a data filter", () => {
-    model = new Model();
+    model = Model.BuildSync();
     createTable(model, "A1:A10");
     setCellContent(model, "A2", "5");
     setCellContent(model, "A2", "5");
@@ -860,7 +860,7 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("Viewport is updated when updating a cell that change the evaluation of filtered rows", () => {
-    model = new Model();
+    model = Model.BuildSync();
     createTable(model, "A1:A10");
     setCellContent(model, "A2", "=B1");
     setCellContent(model, "A2", "=B1");
@@ -877,7 +877,7 @@ describe("Viewport of Simple sheet", () => {
   });
 
   test("Viewport is updated when folding/unfolding header groups", () => {
-    model = new Model();
+    model = Model.BuildSync();
 
     groupColumns(model, "A", "B");
     let oldViewport = { ...model.getters.getActiveMainViewport() };
@@ -945,7 +945,7 @@ describe("Viewport of Simple sheet", () => {
 
 describe("Multi Panes viewport", () => {
   beforeEach(async () => {
-    model = new Model();
+    model = Model.BuildSync();
   });
 
   test("SET_VIEWPORT_OFFSET is refused if it won't scroll any viewport", () => {
@@ -1085,7 +1085,7 @@ describe("Multi Panes viewport", () => {
   });
 
   test("Viewport remains unaffected when hiding all rows below frozen pane or columns right to frozen panes", () => {
-    const model = new Model({ sheets: [{ colNumber: 8, rowNumber: 8 }] });
+    const model = Model.BuildSync({ sheets: [{ colNumber: 8, rowNumber: 8 }] });
     const sheetId = model.getters.getActiveSheetId();
 
     freezeRows(model, 4, sheetId);
@@ -1100,7 +1100,7 @@ describe("Multi Panes viewport", () => {
   });
 
   test("filtered row rect after updating another sheet", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const sheetId = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "sh2" });
     setCellContent(model, "A1", "Hi");
@@ -1124,7 +1124,7 @@ describe("Multi Panes viewport", () => {
   });
 
   test("Viewport remains unaffected when hiding all rows below frozen panes by data filter", () => {
-    const model = new Model({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
+    const model = Model.BuildSync({ sheets: [{ colNumber: 3, rowNumber: 3 }] });
     const sheetId = model.getters.getActiveSheetId();
 
     setCellContent(model, "A2", "2808");
@@ -1142,7 +1142,7 @@ describe("Multi Panes viewport", () => {
 
 describe("multi sheet with different sizes", () => {
   beforeEach(async () => {
-    model = new Model({
+    model = Model.BuildSync({
       sheets: [
         { name: "small", id: "small", colNumber: 2, rowNumber: 2 },
         { name: "big", id: "big", colNumber: 5, rowNumber: 5 },
@@ -1238,7 +1238,7 @@ describe("multi sheet with different sizes", () => {
 
 describe("shift viewport up/down", () => {
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
   });
 
   test("basic move viewport", () => {

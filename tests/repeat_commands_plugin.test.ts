@@ -50,7 +50,7 @@ let model: Model;
 let sheetId: UID;
 
 beforeEach(() => {
-  model = new Model();
+  model = Model.BuildSync();
   sheetId = model.getters.getActiveSheetId();
 });
 

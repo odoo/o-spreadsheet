@@ -11,7 +11,7 @@ describe("more formats side panel component", () => {
   let fixture: HTMLElement;
 
   async function mountFormatPanel(modelArg?: Model, env?: SpreadsheetChildEnv) {
-    model = modelArg ?? new Model();
+    model = modelArg ?? Model.BuildSync();
     ({ fixture } = await mountComponent(MoreFormatsPanel, {
       model,
       props: { onCloseSidePanel: () => {} },
@@ -30,7 +30,7 @@ describe("more formats side panel component", () => {
   });
 
   test("format is active when mounting panel", async () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setFormat(model, "A1", "dddd d mmmm yyyy");
     await mountFormatPanel(model);
     const button = fixture.querySelector('div[data-name="Full week day and month"]');

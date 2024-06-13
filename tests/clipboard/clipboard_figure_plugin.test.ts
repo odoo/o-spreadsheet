@@ -23,7 +23,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
   let figureId: UID;
 
   beforeEach(async () => {
-    model = new Model();
+    model = Model.BuildSync();
     sheetId = model.getters.getActiveSheetId();
     figureId = model.uuidGenerator.uuidv4();
     if (type === "chart") {
@@ -152,7 +152,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
   });
 
   test("Can paste a chart with ranges that were deleted between the copy and the paste", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const chartId = "thisIsAnId";
     createSheet(model, { sheetId: "sheet2Id", name: "Sheet2" });
     createChart(
@@ -206,7 +206,7 @@ describe.each(["chart", "image"])("Clipboard for %s figures", (type: string) => 
 
 describe("chart specific Clipboard test", () => {
   test("Can copy paste chart on another sheet", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const chartId = "thisIsAnId";
     createChart(model, { type: "bar" }, chartId);
     updateChart(model, chartId, { dataSets: [{ dataRange: "A1:A5" }], labelRange: "B1" });

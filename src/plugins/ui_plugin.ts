@@ -1,4 +1,5 @@
 import { Session } from "../collaborative/session";
+import { ILongRunner } from "../helpers/long_runner";
 import { ModelConfig } from "../model";
 import { SelectionStreamProcessor } from "../selection_stream/selection_stream_processor";
 import { StateObserver } from "../state_observer";
@@ -28,10 +29,12 @@ export interface UIPluginConfig {
   readonly session: Session;
   readonly defaultCurrency?: Partial<Currency>;
   readonly customColors: Color[];
+  readonly longRunner: ILongRunner;
 }
 
 export interface UIPluginConstructor {
   new (config: UIPluginConfig): UIPlugin;
+
   layers: Readonly<LayerName[]>;
   getters: readonly string[];
 }
@@ -46,6 +49,7 @@ export class UIPlugin<State = any> extends BasePlugin<State, Command> {
   protected getters: Getters;
   protected ui: UIActions;
   protected selection: SelectionStreamProcessor;
+
   constructor({
     getters,
     stateObserver,
@@ -53,8 +57,9 @@ export class UIPlugin<State = any> extends BasePlugin<State, Command> {
     canDispatch,
     uiActions,
     selection,
+    longRunner,
   }: UIPluginConfig) {
-    super(stateObserver, dispatch, canDispatch);
+    super(stateObserver, dispatch, canDispatch, longRunner);
     this.getters = getters;
     this.ui = uiActions;
     this.selection = selection;

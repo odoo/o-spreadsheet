@@ -23,7 +23,7 @@ function moveFormula(model: Model, formula: string, offsetX: number, offsetY: nu
 
 describe("createAdaptedRanges", () => {
   test("simple changes", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       sheets: [
         {
           colNumber: 10,
@@ -36,7 +36,7 @@ describe("createAdaptedRanges", () => {
   });
 
   test("can handle negative offsets", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       sheets: [
         {
           colNumber: 10,
@@ -52,7 +52,7 @@ describe("createAdaptedRanges", () => {
   });
 
   test("can handle offsets outside the sheet", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       sheets: [
         {
           colNumber: 10,
@@ -66,7 +66,7 @@ describe("createAdaptedRanges", () => {
   });
 
   test("can handle other formulas", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       sheets: [
         {
           colNumber: 10,
@@ -78,7 +78,7 @@ describe("createAdaptedRanges", () => {
   });
 
   test("can handle cross-sheet formulas", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       sheets: [
         {
           colNumber: 10,
@@ -100,7 +100,7 @@ describe("createAdaptedRanges", () => {
   });
 
   test("can handle sheet reference with space in its name", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     createSheetWithName(model, { sheetId: "42" }, "Sheet 2");
     expect(moveFormula(model, "='Sheet 2'!B2", 1, 10)).toEqual("='Sheet 2'!C12");
   });
@@ -109,7 +109,7 @@ describe("createAdaptedRanges", () => {
 describe("Remove columns/rows that are references of formula", () => {
   let model: Model;
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
   });
 
   test("delete multiple columns, including the one in formula and the one before it", () => {

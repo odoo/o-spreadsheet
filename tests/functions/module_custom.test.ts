@@ -48,7 +48,7 @@ describe("FORMAT.LARGE.NUMBER formula", () => {
 
   test("Result does not contain decimals", () => {
     // < 100k
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "100.60");
     setCellFormat(model, "A1", "#,000.00");
     setCellContent(model, "A2", "=FORMAT.LARGE.NUMBER(A1)");
@@ -61,7 +61,7 @@ describe("FORMAT.LARGE.NUMBER formula", () => {
     expect(evaluateCellText("A1", { A1: "=FORMAT.LARGE.NUMBER(100000000000.60)" })).toBe("100b");
   });
   test("not a number", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", `=FORMAT.LARGE.NUMBER("a string")`);
     expect(getCellContent(model, "A1")).toBe("#ERROR");
     expect(getCellError(model, "A1")).toBe(
@@ -131,7 +131,7 @@ describe("FORMAT.LARGE.NUMBER formula", () => {
   });
 
   test("Original currency format is kept", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "100000");
     setFormat(model, "A1", "#,##0[$€]");
     setCellContent(model, "A2", "=FORMAT.LARGE.NUMBER(A1)");
@@ -139,7 +139,7 @@ describe("FORMAT.LARGE.NUMBER formula", () => {
   });
 
   test("Chaining FORMAT.LARGE.NUMBER does nothing with automatic/same unit", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
 
     setCellContent(model, "A1", "500000");
     setCellContent(model, "A2", "=FORMAT.LARGE.NUMBER(A1)");
@@ -152,7 +152,7 @@ describe("FORMAT.LARGE.NUMBER formula", () => {
   });
 
   test("Chaining FORMAT.LARGE.NUMBER with different units", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
 
     setCellContent(model, "A1", "5000000000");
     setCellContent(model, "A2", '=FORMAT.LARGE.NUMBER(A1, "m")');
@@ -162,7 +162,7 @@ describe("FORMAT.LARGE.NUMBER formula", () => {
   });
 
   test("FORMAT.LARGE.NUMBER breaks with custom currency that have the same look as the unit", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
 
     setFormat(model, "A1", "#,##0[$k]");
     setCellContent(model, "A1", "5000000000");

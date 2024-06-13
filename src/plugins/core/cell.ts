@@ -34,6 +34,7 @@ import {
   Range,
   RangeCompiledFormula,
   RangePart,
+  SheetData,
   Style,
   UID,
   UpdateCellCommand,
@@ -254,23 +255,29 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   // ---------------------------------------------------------------------------
 
   import(data: WorkbookData) {
-    for (let sheet of data.sheets) {
-      // cells
-      for (let xc in sheet.cells) {
-        const cellData = sheet.cells[xc];
-        const { col, row } = toCartesian(xc);
-        if (cellData?.content || cellData?.format || cellData?.style) {
-          const cell = this.importCell(sheet.id, cellData, data.styles, data.formats);
-          this.history.update("cells", sheet.id, cell.id, cell);
-          this.dispatch("UPDATE_CELL_POSITION", {
-            cellId: cell.id,
-            col,
-            row,
-            sheetId: sheet.id,
-          });
+    return this.longRunner.queueJob<SheetData>(
+      "Importing cells",
+      Object.values(data.sheets),
+      (sheet) => {
+        // cells
+        for (let xc in sheet.cells) {
+          const cellData = sheet.cells[xc];
+
+          const { col, row } = toCartesian(xc);
+          if (cellData?.content || cellData?.format || cellData?.style) {
+            const cell = this.importCell(sheet.id, cellData, data.styles, data.formats);
+            this.history.update("cells", sheet.id, cell.id, cell);
+            this.dispatch("UPDATE_CELL_POSITION", {
+              cellId: cell.id,
+              col,
+              row,
+              sheetId: sheet.id,
+            });
+          }
         }
-      }
-    }
+      },
+      5
+    );
   }
 
   export(data: WorkbookData) {
@@ -698,6 +705,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 export class FormulaCellWithDependencies implements FormulaCell {
   readonly isFormula = true;
   readonly compiledFormula: RangeCompiledFormula;
+
   constructor(
     readonly id: UID,
     compiledFormula: CompiledFormula,

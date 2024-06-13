@@ -46,7 +46,7 @@ function getFullTableStyle(xc: string) {
 
 describe("Table style", () => {
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
     sheetId = model.getters.getActiveSheetId();
   });
 

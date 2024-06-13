@@ -1,3 +1,4 @@
+import { ILongRunner } from "../helpers/long_runner";
 import { StateObserver } from "../state_observer";
 import {
   CommandDispatcher,
@@ -27,11 +28,13 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C>, Vali
   protected history: WorkbookHistory<State>;
   protected dispatch: CommandDispatcher["dispatch"];
   protected canDispatch: CommandDispatcher["dispatch"];
+  protected readonly longRunner: ILongRunner;
 
   constructor(
     stateObserver: StateObserver,
     dispatch: CommandDispatcher["dispatch"],
-    canDispatch: CommandDispatcher["dispatch"]
+    canDispatch: CommandDispatcher["dispatch"],
+    longRunner: ILongRunner
   ) {
     this.history = Object.assign(Object.create(stateObserver), {
       update: stateObserver.addChange.bind(stateObserver, this),
@@ -39,6 +42,7 @@ export class BasePlugin<State = any, C = any> implements CommandHandler<C>, Vali
     });
     this.dispatch = dispatch;
     this.canDispatch = canDispatch;
+    this.longRunner = longRunner;
   }
 
   /**

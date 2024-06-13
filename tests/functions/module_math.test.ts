@@ -900,7 +900,7 @@ describe("COUNTIF formula", () => {
   });
 
   test("COUNTIF date predicates are localized", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "01/02/2024");
     setCellContent(model, "A2", '=COUNTIF(A1, "<02/01/2024")');
     expect(getEvaluatedCell(model, "A2").value).toBe(1);
@@ -1786,7 +1786,7 @@ describe("MUNIT function", () => {
   });
 
   test("Generate unit matrix", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "D1", "=MUNIT(3)");
     expect(getRangeValuesAsMatrix(model, "D1:F3")).toEqual([
       [1, 0, 0],
@@ -2084,7 +2084,7 @@ describe("RANDARRAY function", () => {
   });
 
   test("Random rows", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "=RANDARRAY(2)");
     expect(getEvaluatedCell(model, "A1").value).toBeBetween(0, 1);
     expect(getEvaluatedCell(model, "A2").value).toBeBetween(0, 1);
@@ -2093,7 +2093,7 @@ describe("RANDARRAY function", () => {
   });
 
   test("Random columns", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "=RANDARRAY(1, 2)");
     expect(getEvaluatedCell(model, "A1").value).toBeBetween(0, 1);
     expect(getEvaluatedCell(model, "A2").value).toBe(null);
@@ -2102,7 +2102,7 @@ describe("RANDARRAY function", () => {
   });
 
   test("Random rows and columns", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "=RANDARRAY(2, 2)");
     expect(getEvaluatedCell(model, "A1").value).toBeBetween(0, 1);
     expect(getEvaluatedCell(model, "A2").value).toBeBetween(0, 1);
@@ -2111,7 +2111,7 @@ describe("RANDARRAY function", () => {
   });
 
   test("Max and min arguments", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "=RANDARRAY(2, 2, -2, 2)");
     expect(getEvaluatedCell(model, "A1").value).toBeBetween(-2, 2);
     expect(getEvaluatedCell(model, "A2").value).toBeBetween(-2, 2);
@@ -2120,7 +2120,7 @@ describe("RANDARRAY function", () => {
   });
 
   test("whole_number argument", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "=RANDARRAY(1, 1, -2, 2, TRUE)");
     const val = getEvaluatedCell(model, "A1").value as number;
     expect(val).toBeBetween(-2, 2);
@@ -2447,42 +2447,42 @@ describe("SECH formula", () => {
 
 describe("SEQUENCE formula", () => {
   test("only positive rows parameter", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "=SEQUENCE(3)");
     expect(getRangeValuesAsMatrix(model, "A1:A3")).toEqual([[1], [2], [3]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:A3")).toBeTruthy();
   });
 
   test("rows and step", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "=SEQUENCE(3,,,2)");
     expect(getRangeValuesAsMatrix(model, "A1:A3")).toEqual([[1], [3], [5]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:A3")).toBeTruthy();
   });
 
   test("rows and negative step", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "=SEQUENCE(4,,,-1)");
     expect(getRangeValuesAsMatrix(model, "A1:A4")).toEqual([[1], [0], [-1], [-2]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:A4")).toBeTruthy();
   });
 
   test("step can be zero", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "=SEQUENCE(3,,,0)");
     expect(getRangeValuesAsMatrix(model, "A1:A3")).toEqual([[1], [1], [1]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:A3")).toBeTruthy();
   });
 
   test("step can be omitted", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "=SEQUENCE(3,,,)");
     expect(getRangeValuesAsMatrix(model, "A1:A3")).toEqual([[1], [2], [3]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:A3")).toBeTruthy();
   });
 
   test("positive rows and columns parameters", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "=SEQUENCE(3, 4)");
     expect(getRangeValuesAsMatrix(model, "A1:D3")).toEqual([
       [1, 2, 3, 4],
@@ -2493,7 +2493,7 @@ describe("SEQUENCE formula", () => {
   });
 
   test("rows, columns and step parameters", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "=SEQUENCE(3,4,,2)");
     expect(getRangeValuesAsMatrix(model, "A1:D3")).toEqual([
       [1, 3, 5, 7],
@@ -2504,7 +2504,7 @@ describe("SEQUENCE formula", () => {
   });
 
   test("rows, columns, start and step parameters", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "=SEQUENCE(3,2,2,2)");
     expect(getRangeValuesAsMatrix(model, "A1:B3")).toEqual([
       [2, 4],
@@ -2515,7 +2515,7 @@ describe("SEQUENCE formula", () => {
   });
 
   test("float rows and columns parameters", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "=SEQUENCE(1.6, 2.9)");
     expect(getRangeValuesAsMatrix(model, "A1:B1")).toEqual([[1, 2]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:B1")).toBeTruthy();

@@ -164,7 +164,7 @@ describe("Collaborative local history", () => {
         serverRevisionId: "initial_revision",
       },
     ];
-    const model = new Model(
+    const model = Model.BuildSync(
       {
         revisionId: "initial_revision",
         sheets: [{ id: "sheet1" }],
@@ -192,7 +192,7 @@ describe("Collaborative local history", () => {
         serverRevisionId: DEFAULT_REVISION_ID,
       },
     ];
-    const model = new Model({}, {}, initialMessages);
+    const model = Model.BuildSync({}, {}, initialMessages);
     expect(getCellContent(model, "A1")).toBe("Hello");
   });
 
@@ -241,7 +241,7 @@ describe("Collaborative local history", () => {
         ],
       },
     ];
-    const model = new Model({}, {}, initialMessages);
+    const model = Model.BuildSync({}, {}, initialMessages);
     expect(getCellContent(model, "A1")).toBe("Hello");
     expect(getCellContent(model, "B1")).toBe("Good morning");
     expect(getCellContent(model, "A1", "newSheetId")).toBe("Hi");
@@ -265,7 +265,7 @@ describe("Collaborative local history", () => {
         undoneRevisionId: "1",
       },
     ];
-    const model = new Model(
+    const model = Model.BuildSync(
       {
         revisionId: "initial_revision",
         sheets: [{ id: "sheet1" }],
@@ -305,7 +305,7 @@ describe("Collaborative local history", () => {
         redoneRevisionId: "1",
       },
     ];
-    const model = new Model(
+    const model = Model.BuildSync(
       {
         revisionId: "initial_revision",
         sheets: [{ id: "sheet1" }],
@@ -350,7 +350,7 @@ describe("Collaborative local history", () => {
         },
       ],
     };
-    const model = new Model(data, {}, initialMessages);
+    const model = Model.BuildSync(data, {}, initialMessages);
     expect(getCellContent(model, "A1")).toBe("1");
     expect(getCellContent(model, "A2")).toBe("2");
     expect(getCellContent(model, "A3")).toBe("3");
@@ -384,7 +384,7 @@ describe("Collaborative local history", () => {
         },
       ],
     };
-    const model = new Model(data, {}, initialMessages);
+    const model = Model.BuildSync(data, {}, initialMessages);
     expect(getCell(model, "A1")?.format).toBeUndefined();
   });
 
@@ -460,7 +460,7 @@ describe("Collaborative local history", () => {
         },
       ],
     };
-    const model = new Model(data, {}, initialMessages);
+    const model = Model.BuildSync(data, {}, initialMessages);
     const definition1 = model.getters.getChartDefinition("fig1") as LineChartDefinition;
     expect(definition1.dataSets).toEqual([{ dataRange: "A1:A3" }]);
     const definition2 = model.getters.getChartDefinition("fig2") as LineChartDefinition;
@@ -742,7 +742,7 @@ describe("Collaborative local history", () => {
       snapshot(bob);
       setCellContent(alice, "A2", "Hi");
     });
-    expect(new Model(network.snapshot)).toExport(bobData);
+    expect(Model.BuildSync(network.snapshot)).toExport(bobData);
     expect(all).toHaveSynchronizedValue((user) => getCellContent(user, "A2"), "Hi");
   });
 
@@ -783,8 +783,8 @@ describe("Collaborative local history", () => {
 
   test("snapshot is sent", () => {
     const data = alice.exportData();
-    new Model(data, { transportService: network, snapshotRequested: true });
-    expect(new Model(network.snapshot)).toExport(data);
+    Model.BuildSync(data, { transportService: network, snapshotRequested: true });
+    expect(Model.BuildSync(network.snapshot)).toExport(data);
   });
 
   test("snapshot is sent with a new revision id", () => {
@@ -796,11 +796,11 @@ describe("Collaborative local history", () => {
   test("undone & redone commands are transformed", () => {
     class TestPlugin extends UIPlugin {}
     featurePluginRegistry.add("test-plugin", TestPlugin);
-    const david = new Model(alice.exportData(), {
+    const david = Model.BuildSync(alice.exportData(), {
       transportService: network,
       client: { id: "david", name: "David" },
     });
-    const elisa = new Model(alice.exportData(), {
+    const elisa = Model.BuildSync(alice.exportData(), {
       transportService: network,
       client: { id: "elisa", name: "Elisa" },
     });
