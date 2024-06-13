@@ -2,7 +2,6 @@ import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
 import { GRAY_300 } from "../../../../constants";
 import { Rect, SpreadsheetChildEnv } from "../../../../types";
 import { ColorPicker } from "../../../color_picker/color_picker";
-import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
 import { css, cssPropertiesToCss } from "../../../helpers";
 import { getBoundingRectAsPOJO } from "../../../helpers/dom_helpers";
 import { Section } from "../section/section";
@@ -36,7 +35,7 @@ css/* scss */ `
 
 export class RoundColorPicker extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet.RoundColorPicker";
-  static components = { ColorPickerWidget, Section, ColorPicker };
+  static components = { Section, ColorPicker };
   static props = {
     currentColor: { type: String, optional: true },
     title: { type: String, optional: true },

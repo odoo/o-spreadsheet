@@ -8,10 +8,4 @@ export class BarConfigPanel extends GenericChartConfigPanel {
       stacked,
     });
   }
-
-  onUpdateAggregated(aggregated: boolean) {
-    this.props.updateChart(this.props.figureId, {
-      aggregated,
-    });
-  }
 }

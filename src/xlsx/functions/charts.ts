@@ -85,6 +85,8 @@ export function createChart(
     case "pie":
       plot = addDoughnutChart(chart.data, chartSheetIndex, data, { holeSize: 0 });
       break;
+    case "radar":
+      plot = addRadarChart(chart.data);
   }
   let position: ElementPosition = "t";
   switch (chart.data.legendPosition) {
@@ -659,6 +661,58 @@ function addScatterChart(chart: ExcelChartDefinition): XMLString {
     `
       : ""
   }`;
+}
+
+function addRadarChart(chart: ExcelChartDefinition): XMLString {
+  const dataSetsColors = chart.dataSets.map((ds) => ds.backgroundColor ?? "");
+  const colors = new ColorGenerator(chart.dataSets.length, dataSetsColors);
+  const dataSetsNodes: XMLString[] = [];
+  for (const [dsIndex, dataset] of Object.entries(chart.dataSets)) {
+    const color = toXlsxHexColor(colors.next());
+    const dataShapeProperty = shapeProperty({
+      line: {
+        width: 2.5,
+        style: "solid",
+        color,
+      },
+    });
+
+    const dataSetNode = escapeXml/*xml*/ `
+      <c:ser>
+        <c:idx val="${dsIndex}"/>
+        <c:order val="${dsIndex}"/>
+        <c:smooth val="0"/>
+        <c:marker>
+          <c:symbol val="circle" />
+          <c:size val="5"/>
+          ${shapeProperty({ backgroundColor: color, line: { color } })}
+        </c:marker>
+        ${extractDataSetLabel(dataset.label)}
+        ${dataShapeProperty}
+        ${
+          chart.labelRange ? escapeXml`<c:cat>${stringRef(chart.labelRange!)}</c:cat>` : ""
+        } <!-- x-coordinate values -->
+        <c:val> <!-- x-coordinate values -->
+          ${numberRef(dataset.range)}
+        </c:val>
+      </c:ser>
+    `;
+    dataSetsNodes.push(dataSetNode);
+  }
+
+  return escapeXml/*xml*/ `
+    ${escapeXml/*xml*/ `
+        <c:radarChart>
+        <c:radarStyle val="marker"/>
+          <c:varyColors val="0"/>
+          ${joinXmlNodes(dataSetsNodes)}
+          <c:axId val="${catAxId}" />
+          <c:axId val="${valAxId}" />
+        </c:radarChart>
+        ${addAx("b", "c:catAx", catAxId, valAxId, chart.axesDesign?.x?.title, chart.fontColor)}
+        ${addAx("l", "c:valAx", valAxId, catAxId, chart.axesDesign?.y?.title, chart.fontColor)}
+      `}
+  `;
 }
 
 function addDoughnutChart(

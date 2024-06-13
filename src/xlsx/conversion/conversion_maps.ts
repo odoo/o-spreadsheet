@@ -192,7 +192,7 @@ export const CHART_TYPE_CONVERSION_MAP: Record<XLSXChartType, ExcelChartType | u
   lineChart: "line",
   line3DChart: undefined,
   stockChart: undefined,
-  radarChart: undefined,
+  radarChart: "radar",
   scatterChart: "scatter",
   pieChart: "pie",
   pie3DChart: undefined,

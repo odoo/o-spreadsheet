@@ -10,7 +10,7 @@ import {
   Border,
   BorderData,
   ChartDefinition,
-  ChartWithAxisDefinition,
+  ChartWithDataSetDefinition,
   ClipboardContent,
   ClipboardPasteOptions,
   Color,
@@ -150,7 +150,7 @@ export function createImage(
  */
 export function createChart(
   model: Model,
-  data: { type: ChartDefinition["type"] } & Partial<ChartWithAxisDefinition>,
+  data: { type: ChartDefinition["type"] } & Partial<ChartWithDataSetDefinition>,
   chartId?: UID,
   sheetId?: UID
 ) {

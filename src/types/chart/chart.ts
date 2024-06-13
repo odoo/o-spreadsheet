@@ -7,6 +7,7 @@ import { GaugeChartDefinition, GaugeChartRuntime } from "./gauge_chart";
 import { LineChartDefinition, LineChartRuntime } from "./line_chart";
 import { PieChartDefinition, PieChartRuntime } from "./pie_chart";
 import { PyramidChartDefinition, PyramidChartRuntime } from "./pyramid_chart";
+import { RadarChartDefinition, RadarChartRuntime } from "./radar_chart";
 import { ScatterChartDefinition, ScatterChartRuntime } from "./scatter_chart";
 import { ScorecardChartDefinition, ScorecardChartRuntime } from "./scorecard_chart";
 import { WaterfallChartDefinition, WaterfallChartRuntime } from "./waterfall_chart";
@@ -21,6 +22,7 @@ export const CHART_TYPES = [
   "combo",
   "waterfall",
   "pyramid",
+  "radar",
 ] as const;
 export type ChartType = (typeof CHART_TYPES)[number];
 
@@ -33,9 +35,10 @@ export type ChartDefinition =
   | ScatterChartDefinition
   | ComboChartDefinition
   | WaterfallChartDefinition
-  | PyramidChartDefinition;
+  | PyramidChartDefinition
+  | RadarChartDefinition;
 
-export type ChartWithAxisDefinition = Extract<
+export type ChartWithDataSetDefinition = Extract<
   ChartDefinition,
   { dataSets: CustomizedDataSet[]; labelRange?: string }
 >;
@@ -47,7 +50,8 @@ export type ChartJSRuntime =
   | ComboChartRuntime
   | ScatterChartRuntime
   | WaterfallChartRuntime
-  | PyramidChartRuntime;
+  | PyramidChartRuntime
+  | RadarChartRuntime;
 
 export type ChartRuntime = ChartJSRuntime | ScorecardChartRuntime | GaugeChartRuntime;
 
@@ -114,7 +118,7 @@ export interface ExcelChartDataset {
   readonly rightYAxis?: boolean;
 }
 
-export type ExcelChartType = "line" | "bar" | "pie" | "combo" | "scatter";
+export type ExcelChartType = "line" | "bar" | "pie" | "combo" | "scatter" | "radar";
 
 export interface ExcelChartDefinition {
   readonly title?: TitleDesign;

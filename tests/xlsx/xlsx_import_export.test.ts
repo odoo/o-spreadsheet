@@ -284,6 +284,16 @@ describe("Export data to xlsx then import it", () => {
       legendPosition: "bottom" as const,
       stacked: true,
     },
+    {
+      title: { text: "demo chart6" },
+      dataSets: [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
+      labelRange: "Sheet1!A27:A35",
+      type: "radar" as const,
+      dataSetsHaveTitle: false,
+      background: "#FFFFFF",
+      legendPosition: "top" as const,
+      labelsAsText: false,
+    },
   ])("Charts %s", (chartDef: any) => {
     createChart(model, chartDef, "1");
     chartDef = model.getters.getChartDefinition("1");
