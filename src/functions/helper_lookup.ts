@@ -1,7 +1,7 @@
-import { toZone, zoneToXc } from "../helpers";
+import { isZoneInside, toZone, zoneToXc } from "../helpers";
 import { _t } from "../translation";
 import { CellPosition, EvalContext, FunctionResultObject, Getters, Maybe, UID } from "../types";
-import { EvaluationError, InvalidReferenceError } from "../types/errors";
+import { CircularDependencyError, EvaluationError, InvalidReferenceError } from "../types/errors";
 import { PivotCoreDefinition } from "../types/pivot";
 
 /**
@@ -49,6 +49,9 @@ export function addPivotDependencies(
   const originCellXC = evalContext.__originCellXC?.();
   if (originCellXC) {
     const cellZone = toZone(originCellXC);
+    if (originSheetId === sheetId && isZoneInside(cellZone, zone)) {
+      throw new CircularDependencyError();
+    }
     originPosition = {
       sheetId: originSheetId,
       col: cellZone.left,

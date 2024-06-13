@@ -1179,6 +1179,16 @@ describe("Spreadsheet Pivot", () => {
     });
   });
 
+  test("Cannot use PIVOT function inside its range", () => {
+    const model = createModelWithPivot("A1:I5");
+    setCellContent(model, "B3", `=PIVOT("1")`);
+    expect(getCellContent(model, "B3")).toBe("#CYCLE");
+    setCellContent(model, "B3", `=PIVOT.VALUE("1", "__count")`);
+    expect(getCellContent(model, "B3")).toBe("#CYCLE");
+    setCellContent(model, "B3", `=PIVOT.HEADER("1")`);
+    expect(getCellContent(model, "B3")).toBe("#CYCLE");
+  });
+
   test("Date dimensions should support empty cells", () => {
     const grid = {
       A1: "Date",
