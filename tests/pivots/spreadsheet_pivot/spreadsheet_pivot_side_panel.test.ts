@@ -1,8 +1,9 @@
 import { Model, SpreadsheetChildEnv } from "../../../src";
 import { toZone } from "../../../src/helpers";
 import { SpreadsheetPivot } from "../../../src/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
-import { setCellContent } from "../../test_helpers/commands_helpers";
+import { createSheet, setCellContent, undo } from "../../test_helpers/commands_helpers";
 import { click } from "../../test_helpers/dom_helper";
+import { getCellText } from "../../test_helpers/getters_helpers";
 import { mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
 import { SELECTORS, addPivot, updatePivot } from "../../test_helpers/pivot_helpers";
 
@@ -103,13 +104,39 @@ describe("Spreadsheet pivot side panel", () => {
     expect(model.getters.getPivotName("1")).toEqual("New Pivot Name");
   });
 
-  test("Can duplicate a pivot", async () => {
+  test("Can duplicate a pivot and undo the whole action with one step backward", async () => {
     await click(fixture, SELECTORS.COG_WHEEL);
     await click(fixture, SELECTORS.DUPLICATE_PIVOT);
     const pivotId = model.getters.getPivotId("2")!;
     expect(model.getters.getPivot(pivotId)).toBeDefined();
     expect(model.getters.getPivotDisplayName(pivotId)).toEqual("(#2) Pivot (copy)");
     expect(fixture.querySelector(".o-sidePanelTitle")?.textContent).toEqual("Pivot #2");
+    expect(model.getters.getSheetIds()).toHaveLength(2);
+    expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe(
+      "Pivot (copy) (Pivot #2)"
+    );
+    expect(getCellText(model, "A1")).toBe("=PIVOT(2)");
+
+    undo(model);
+
+    expect(model.getters.getPivotId("2")).toBeUndefined();
+    expect(model.getters.getSheetIds()).toHaveLength(1);
+    expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet1");
+  });
+
+  test("Can duplicate a pivot when a duplicate sheet name already exists", async () => {
+    createSheet(model, { name: "Pivot (copy) (Pivot #2)" });
+    await click(fixture, SELECTORS.COG_WHEEL);
+    await click(fixture, SELECTORS.DUPLICATE_PIVOT);
+    const pivotId = model.getters.getPivotId("2")!;
+    expect(model.getters.getPivot(pivotId)).toBeDefined();
+    expect(model.getters.getPivotDisplayName(pivotId)).toEqual("(#2) Pivot (copy)");
+    expect(fixture.querySelector(".o-sidePanelTitle")?.textContent).toEqual("Pivot #2");
+    expect(model.getters.getSheetIds()).toHaveLength(3);
+    expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe(
+      "Pivot (copy) (Pivot #2) (1)"
+    );
+    expect(getCellText(model, "A1")).toBe("=PIVOT(2)");
   });
 
   test("Can flip axes of a pivot", async () => {
