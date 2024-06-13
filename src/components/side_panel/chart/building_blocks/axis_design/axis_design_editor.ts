@@ -1,6 +1,6 @@
 import { Component, useState } from "@odoo/owl";
 import {
-  ChartWithAxisDefinition,
+  ChartWithDataSetDefinition,
   Color,
   DispatchResult,
   SpreadsheetChildEnv,
@@ -19,10 +19,10 @@ export interface AxisDefinition {
 
 interface Props {
   figureId: UID;
-  definition: ChartWithAxisDefinition | WaterfallChartDefinition;
+  definition: ChartWithDataSetDefinition | WaterfallChartDefinition;
   updateChart: (
     figureId: UID,
-    definition: Partial<ChartWithAxisDefinition | WaterfallChartDefinition>
+    definition: Partial<ChartWithDataSetDefinition | WaterfallChartDefinition>
   ) => DispatchResult;
   axesList: AxisDefinition[];
 }
