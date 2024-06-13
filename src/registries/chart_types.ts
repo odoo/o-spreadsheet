@@ -10,6 +10,7 @@ import { GaugeChart, createGaugeChartRuntime } from "../helpers/figures/charts/g
 import { LineChart } from "../helpers/figures/charts/line_chart";
 import { PieChart, createPieChartRuntime } from "../helpers/figures/charts/pie_chart";
 import { PyramidChart, createPyramidChartRuntime } from "../helpers/figures/charts/pyramid_chart";
+import { RadarChart, createRadarChartRuntime } from "../helpers/figures/charts/radar_chart";
 import { ScatterChart, createScatterChartRuntime } from "../helpers/figures/charts/scatter_chart";
 import {
   ScorecardChart,
@@ -43,6 +44,7 @@ import {
 } from "../types/chart/chart";
 import { ComboChartDefinition } from "../types/chart/combo_chart";
 import { PyramidChartDefinition } from "../types/chart/pyramid_chart";
+import { RadarChartDefinition } from "../types/chart/radar_chart";
 import { ScatterChartDefinition } from "../types/chart/scatter_chart";
 import { WaterfallChartDefinition } from "../types/chart/waterfall_chart";
 import { Validator } from "../types/validator";
@@ -169,6 +171,16 @@ chartRegistry.add("pyramid", {
   getChartDefinitionFromContextCreation: PyramidChart.getDefinitionFromContextCreation,
   sequence: 80,
 });
+chartRegistry.add("radar", {
+  match: (type) => type === "radar",
+  createChart: (definition, sheetId, getters) =>
+    new RadarChart(definition as RadarChartDefinition, sheetId, getters),
+  getChartRuntime: createRadarChartRuntime,
+  validateChartDefinition: RadarChart.validateChartDefinition,
+  transformDefinition: RadarChart.transformDefinition,
+  getChartDefinitionFromContextCreation: RadarChart.getDefinitionFromContextCreation,
+  sequence: 80,
+});
 
 export const chartComponentRegistry = new Registry<new (...args: any) => Component>();
 chartComponentRegistry.add("line", ChartJsComponent);
@@ -180,6 +192,7 @@ chartComponentRegistry.add("scatter", ChartJsComponent);
 chartComponentRegistry.add("scorecard", ScorecardChartComponent);
 chartComponentRegistry.add("waterfall", ChartJsComponent);
 chartComponentRegistry.add("pyramid", ChartJsComponent);
+chartComponentRegistry.add("radar", ChartJsComponent);
 
 type ChartUICategory = keyof typeof chartCategories;
 
@@ -348,4 +361,22 @@ chartSubtypeRegistry
     chartType: "pyramid",
     category: "misc",
     preview: "o-spreadsheet-ChartPreview.POPULATION_PYRAMID_CHART",
+  })
+  .add("radar", {
+    matcher: (definition) => definition.type === "radar" && !definition.fillArea,
+    displayName: _t("Radar"),
+    chartSubtype: "radar",
+    chartType: "radar",
+    subtypeDefinition: { fillArea: false },
+    category: "misc",
+    preview: "o-spreadsheet-ChartPreview.RADAR_CHART",
+  })
+  .add("filled_radar", {
+    matcher: (definition) => definition.type === "radar" && !!definition.fillArea,
+    displayName: _t("Filled Radar"),
+    chartType: "radar",
+    chartSubtype: "filled_radar",
+    subtypeDefinition: { fillArea: true },
+    category: "misc",
+    preview: "o-spreadsheet-ChartPreview.FILLED_RADAR_CHART",
   });
