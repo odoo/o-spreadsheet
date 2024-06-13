@@ -12,10 +12,13 @@ export class InsertPivotPlugin extends UIPlugin {
       case "INSERT_NEW_PIVOT":
         this.insertNewPivot(cmd.pivotId, cmd.newSheetId);
         break;
+      case "DUPLICATE_PIVOT_IN_NEW_SHEET":
+        this.duplicatePivotInNewSheet(cmd.pivotId, cmd.newPivotId, cmd.newSheetId);
+        break;
     }
   }
 
-  insertNewPivot(pivotId: UID, sheetId: UID) {
+  private insertNewPivot(pivotId: UID, sheetId: UID) {
     if (getZoneArea(this.getters.getSelectedZone()) === 1) {
       this.selection.selectTableAroundSelection();
     }
@@ -40,7 +43,7 @@ export class InsertPivotPlugin extends UIPlugin {
     const formulaId = this.getters.getPivotFormulaId(pivotId);
     this.dispatch("CREATE_SHEET", {
       sheetId,
-      name: _t("Pivot #%s", formulaId),
+      name: _t("Pivot #%(formulaId)s", { formulaId }),
       position,
     });
     this.dispatch("ACTIVATE_SHEET", {
@@ -53,5 +56,44 @@ export class InsertPivotPlugin extends UIPlugin {
       row: 0,
       content: `=PIVOT(${formulaId})`,
     });
+  }
+
+  private duplicatePivotInNewSheet(pivotId: UID, newPivotId: UID, newSheetId: UID) {
+    this.dispatch("DUPLICATE_PIVOT", {
+      pivotId,
+      newPivotId,
+    });
+    const activeSheetId = this.getters.getActiveSheetId();
+    const position = this.getters.getSheetIds().indexOf(activeSheetId) + 1;
+    const formulaId = this.getters.getPivotFormulaId(newPivotId);
+    const newPivotName = this.getters.getPivotName(newPivotId);
+    this.dispatch("CREATE_SHEET", {
+      sheetId: newSheetId,
+      name: this.getPivotDuplicateSheetName(
+        _t("%(newPivotName)s (Pivot #%(formulaId)s)", {
+          newPivotName,
+          formulaId,
+        })
+      ),
+      position,
+    });
+    this.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: newSheetId });
+    this.dispatch("UPDATE_CELL", {
+      sheetId: newSheetId,
+      col: 0,
+      row: 0,
+      content: `=PIVOT(${formulaId})`,
+    });
+  }
+
+  private getPivotDuplicateSheetName(pivotName: string) {
+    let i = 1;
+    const names = this.getters.getSheetIds().map((id) => this.getters.getSheetName(id));
+    let name = pivotName;
+    while (names.includes(name)) {
+      name = `${pivotName} (${i})`;
+      i++;
+    }
+    return name;
   }
 }

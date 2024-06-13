@@ -945,6 +945,13 @@ export interface InsertNewPivotCommand {
   newSheetId: UID;
 }
 
+export interface DuplicatePivotInNewSheetCommand {
+  type: "DUPLICATE_PIVOT_IN_NEW_SHEET";
+  pivotId: UID;
+  newPivotId: UID;
+  newSheetId: UID;
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -1088,7 +1095,8 @@ export type LocalCommand =
   | TrimWhitespaceCommand
   | ResizeTableCommand
   | RefreshPivotCommand
-  | InsertNewPivotCommand;
+  | InsertNewPivotCommand
+  | DuplicatePivotInNewSheetCommand;
 
 export type Command = CoreCommand | LocalCommand;
 
