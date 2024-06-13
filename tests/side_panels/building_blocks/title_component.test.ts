@@ -330,4 +330,206 @@ describe("Chart title with cell reference", () => {
     expect(getRuntimeChartTitle(model, figureId)).toEqual(getCellContent(model, "A1"));
     expect(model.getters.getChartDefinition(figureId).title.text).toBe("A2");
   });
+
+  test("can edit chart title color", async () => {
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "C1:C4" }],
+        labelRange: "A2:A4",
+        type: "line",
+        title: { type: "string", text: "title" },
+      },
+      figureId
+    );
+    await openChartDesignSidePanel();
+
+    const color_menu = fixture.querySelectorAll(
+      ".o-chart-title-designer > .o-color-picker-widget > .o-color-picker-button"
+    )[0];
+
+    await click(color_menu);
+    await click(fixture, ".o-color-picker-line-item[data-color='#EFEFEF'");
+    expect(model.getters.getChartDefinition(figureId).title.design).toEqual({
+      color: "#EFEFEF",
+    });
+  });
+
+  test.each(["Left", "Center", "Right"])(
+    "can edit chart title alignment",
+    async (alignment: string) => {
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "C1:C4" }],
+          labelRange: "A2:A4",
+          type: "line",
+          title: { type: "string", text: "title" },
+        },
+        figureId
+      );
+      await openChartDesignSidePanel();
+      const alignment_menu = fixture.querySelectorAll(
+        ".o-chart-title-designer > .o-menu-item-button[title='Horizontal alignment']"
+      )[0];
+
+      await click(alignment_menu);
+      await click(fixture, `.o-menu-item-button[title='${alignment}']`);
+      expect(model.getters.getChartDefinition(figureId).title.design).toEqual({
+        align: alignment.toLowerCase(),
+      });
+    }
+  );
+
+  test("can edit chart title style", async () => {
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "C1:C4" }],
+        labelRange: "A2:A4",
+        type: "line",
+        title: { type: "string", text: "title" },
+      },
+      figureId
+    );
+    await openChartDesignSidePanel();
+
+    const bold_element = fixture.querySelectorAll(
+      ".o-chart-title-designer > .o-menu-item-button[title='Bold']"
+    )[0];
+    await click(bold_element);
+    expect(model.getters.getChartDefinition(figureId).title.design).toEqual({
+      bold: true,
+    });
+
+    const italic_element = fixture.querySelectorAll(
+      ".o-chart-title-designer > .o-menu-item-button[title='Italic']"
+    )[0];
+    await click(italic_element);
+    expect(model.getters.getChartDefinition(figureId).title.design).toEqual({
+      bold: true,
+      italic: true,
+    });
+  });
+
+  test("can edit chart axis title color", async () => {
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "C1:C4" }],
+        labelRange: "A2:A4",
+        type: "line",
+      },
+      figureId
+    );
+    await openChartDesignSidePanel();
+
+    const color_menu = fixture.querySelectorAll(
+      ".o-chart-title-designer > .o-color-picker-widget > .o-color-picker-button"
+    )[1];
+
+    await click(color_menu);
+    await click(fixture, ".o-color-picker-line-item[data-color='#EFEFEF'");
+    //@ts-ignore
+    expect(model.getters.getChartDefinition(figureId).axesDesign.x.design).toEqual({
+      color: "#EFEFEF",
+    });
+  });
+
+  test.each(["Left", "Center", "Right"])(
+    "can edit chart axis title alignment",
+    async (alignment: string) => {
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "C1:C4" }],
+          labelRange: "A2:A4",
+          type: "line",
+          title: { type: "string", text: "title" },
+        },
+        figureId
+      );
+      await openChartDesignSidePanel();
+      const alignment_menu = fixture.querySelectorAll(
+        ".o-chart-title-designer > .o-menu-item-button[title='Horizontal alignment']"
+      )[1];
+
+      await click(alignment_menu);
+      await click(fixture, `.o-menu-item-button[title='${alignment}']`);
+      //@ts-ignore
+      expect(model.getters.getChartDefinition(figureId).axesDesign.x.design).toEqual({
+        align: alignment.toLowerCase(),
+      });
+    }
+  );
+
+  test("can edit chart axis title style", async () => {
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "C1:C4" }],
+        labelRange: "A2:A4",
+        type: "line",
+        title: { type: "string", text: "title" },
+      },
+      figureId
+    );
+    await openChartDesignSidePanel();
+
+    const bold_element = fixture.querySelectorAll(
+      ".o-chart-title-designer > .o-menu-item-button[title='Bold']"
+    )[1];
+    await click(bold_element);
+    //@ts-ignore
+    expect(model.getters.getChartDefinition(figureId).axesDesign.x.design).toEqual({
+      bold: true,
+    });
+
+    const italic_element = fixture.querySelectorAll(
+      ".o-chart-title-designer > .o-menu-item-button[title='Italic']"
+    )[1];
+    await click(italic_element);
+    //@ts-ignore
+    expect(model.getters.getChartDefinition(figureId).axesDesign.x.design).toEqual({
+      bold: true,
+      italic: true,
+    });
+  });
+
+  test("can edit multiple chart axis title style", async () => {
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "C1:C4" }],
+        labelRange: "A2:A4",
+        type: "line",
+        title: { type: "string", text: "title" },
+      },
+      figureId
+    );
+    await openChartDesignSidePanel();
+
+    const bold_element = fixture.querySelectorAll(
+      ".o-chart-title-designer > .o-menu-item-button[title='Bold']"
+    )[1];
+    await click(bold_element);
+    //@ts-ignore
+    expect(model.getters.getChartDefinition(figureId).axesDesign.x.design).toEqual({
+      bold: true,
+    });
+
+    await click(fixture, ".o-badge-selection button[data-id=y]");
+    const italic_element = fixture.querySelectorAll(
+      ".o-chart-title-designer > .o-menu-item-button[title='Italic']"
+    )[1];
+    await click(italic_element);
+    //@ts-ignore
+    expect(model.getters.getChartDefinition(figureId).axesDesign.x.design).toEqual({
+      bold: true,
+    });
+    //@ts-ignore
+    expect(model.getters.getChartDefinition(figureId).axesDesign.y.design).toEqual({
+      italic: true,
+    });
+  });
 });
