@@ -469,6 +469,21 @@ describe("Spreadsheet Pivot", () => {
     });
   });
 
+  test("Date dimensions should support empty cells", () => {
+    const grid = {
+      A1: "Date",
+      A2: "",
+      A3: "2024-03-01",
+      A4: "=pivot(1)",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:A3", {
+      columns: [{ name: "Date", granularity: "month_number" }],
+      measures: [{ name: "__count" }],
+    });
+    expect(getEvaluatedGrid(model, "B4:E4")).toEqual([["March", "(Undefined)", "Total", ""]]);
+  });
+
   describe("Pivot reevaluation", () => {
     test("Pivot fields reevaluation", () => {
       const model = new Model({

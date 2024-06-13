@@ -188,7 +188,8 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     if (!finalCell) {
       return { value: "" };
     }
-    if (finalCell.value === null) {
+    // Value can be null but stringified (e.g. an empty date, as for now every date is stringified)
+    if (finalCell.value === null || finalCell.value === `${null}`) {
       return { value: _t("(Undefined)") };
     }
     if (dimension.type === "date") {
