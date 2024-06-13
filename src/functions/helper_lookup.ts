@@ -1,7 +1,7 @@
-import { zoneToXc } from "../helpers";
+import { isZoneInside, positionToZone, zoneToXc } from "../helpers";
 import { _t } from "../translation";
 import { EvalContext, FunctionResultObject, Getters, Maybe, Range, UID } from "../types";
-import { EvaluationError, InvalidReferenceError } from "../types/errors";
+import { CircularDependencyError, EvaluationError, InvalidReferenceError } from "../types/errors";
 import { PivotCoreDefinition, PivotCoreMeasure } from "../types/pivot";
 
 /**
@@ -49,6 +49,13 @@ export function addPivotDependencies(
     const range = evalContext.getters.getRangeFromSheetXC(sheetId, xc);
     if (range === undefined || range.invalidXc || range.invalidSheetName) {
       throw new InvalidReferenceError();
+    }
+    if (
+      evalContext.__originCellPosition &&
+      range.sheetId === evalContext.__originSheetId &&
+      isZoneInside(positionToZone(evalContext.__originCellPosition), zone)
+    ) {
+      throw new CircularDependencyError();
     }
     dependencies.push(range);
   }
