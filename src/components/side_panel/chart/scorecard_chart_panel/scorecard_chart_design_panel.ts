@@ -2,7 +2,6 @@ import { Component } from "@odoo/owl";
 import { _t } from "../../../../translation";
 import { ScorecardChartDefinition } from "../../../../types/chart/scorecard_chart";
 import { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
-import { ChartTerms } from "../../../translations_terms";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
@@ -44,10 +43,6 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
     return _t("Humanize numbers");
   }
 
-  updateTitle(content: string) {
-    this.props.updateChart(this.props.figureId, { title: { text: content } });
-  }
-
   updateHumanizeNumbers(humanize: boolean) {
     this.props.updateChart(this.props.figureId, { humanize });
   }
@@ -72,9 +67,5 @@ export class ScorecardChartDesignPanel extends Component<Props, SpreadsheetChild
         this.props.updateChart(this.props.figureId, { baselineColorUp: color });
         break;
     }
-  }
-
-  get backgroundColorTitle() {
-    return ChartTerms.BackgroundColor;
   }
 }
