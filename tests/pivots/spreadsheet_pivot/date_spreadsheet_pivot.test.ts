@@ -29,7 +29,7 @@ describe("Date Spreadsheet Pivot", () => {
     expect(createDate(MONTH_NUMBER_DIMENSION, d05_april_2024, DEFAULT_LOCALE)).toBe(4);
     expect(createDate(ISO_WEEK_NUMBER_DIMENSION, d05_april_2024, DEFAULT_LOCALE)).toBe(14);
     expect(createDate(DAY_OF_MONTH_DIMENSION, d05_april_2024, DEFAULT_LOCALE)).toBe(5);
-    expect(createDate(DAY_DIMENSION, d05_april_2024, DEFAULT_LOCALE)).toBe("04/05/2024");
+    expect(createDate(DAY_DIMENSION, d05_april_2024, DEFAULT_LOCALE)).toBe(45_387);
 
     const d04_may_2024 = 45_416;
     expect(createDate(YEAR_NUMBER_DIMENSION, d04_may_2024, DEFAULT_LOCALE)).toBe(2024);
@@ -37,7 +37,7 @@ describe("Date Spreadsheet Pivot", () => {
     expect(createDate(MONTH_NUMBER_DIMENSION, d04_may_2024, DEFAULT_LOCALE)).toBe(5);
     expect(createDate(ISO_WEEK_NUMBER_DIMENSION, d04_may_2024, DEFAULT_LOCALE)).toBe(18);
     expect(createDate(DAY_OF_MONTH_DIMENSION, d04_may_2024, DEFAULT_LOCALE)).toBe(4);
-    expect(createDate(DAY_DIMENSION, d04_may_2024, DEFAULT_LOCALE)).toBe("05/04/2024");
+    expect(createDate(DAY_DIMENSION, d04_may_2024, DEFAULT_LOCALE)).toBe(45_416);
 
     const d01_january_2019 = 43_466;
     expect(createDate(YEAR_NUMBER_DIMENSION, d01_january_2019, DEFAULT_LOCALE)).toBe(2019);
@@ -45,7 +45,7 @@ describe("Date Spreadsheet Pivot", () => {
     expect(createDate(MONTH_NUMBER_DIMENSION, d01_january_2019, DEFAULT_LOCALE)).toBe(1);
     expect(createDate(ISO_WEEK_NUMBER_DIMENSION, d01_january_2019, DEFAULT_LOCALE)).toBe(1);
     expect(createDate(DAY_OF_MONTH_DIMENSION, d01_january_2019, DEFAULT_LOCALE)).toBe(1);
-    expect(createDate(DAY_DIMENSION, d01_january_2019, DEFAULT_LOCALE)).toBe("01/01/2019");
+    expect(createDate(DAY_DIMENSION, d01_january_2019, DEFAULT_LOCALE)).toBe(43_466);
   });
 
   test("createDate with datetime values", () => {
@@ -56,7 +56,7 @@ describe("Date Spreadsheet Pivot", () => {
     expect(createDate(MONTH_NUMBER_DIMENSION, d05_april_2024_15h, DEFAULT_LOCALE)).toBe(4);
     expect(createDate(ISO_WEEK_NUMBER_DIMENSION, d05_april_2024_15h, DEFAULT_LOCALE)).toBe(14);
     expect(createDate(DAY_OF_MONTH_DIMENSION, d05_april_2024_15h, DEFAULT_LOCALE)).toBe(5);
-    expect(createDate(DAY_DIMENSION, d05_april_2024_15h, DEFAULT_LOCALE)).toBe("04/05/2024");
+    expect(createDate(DAY_DIMENSION, d05_april_2024_15h, DEFAULT_LOCALE)).toBe(45_387);
   });
 
   test("createDate throw with unknown granularity", () => {

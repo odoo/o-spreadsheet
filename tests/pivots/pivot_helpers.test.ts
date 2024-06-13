@@ -27,11 +27,11 @@ describe("toNormalizedPivotValue", () => {
         granularity: "day",
       };
       // day
-      expect(toNormalizedPivotValue(dimension, "1/11/2020")).toBe("01/11/2020");
-      expect(toNormalizedPivotValue(dimension, "01/11/2020")).toBe("01/11/2020");
-      expect(toNormalizedPivotValue(dimension, "11/2020")).toBe("11/01/2020");
-      expect(toNormalizedPivotValue(dimension, "1")).toBe("12/31/1899");
-      expect(toNormalizedPivotValue(dimension, 1)).toBe("12/31/1899");
+      expect(toNormalizedPivotValue(dimension, "1/11/2020")).toBe(43_841);
+      expect(toNormalizedPivotValue(dimension, "01/11/2020")).toBe(43_841);
+      expect(toNormalizedPivotValue(dimension, "11/2020")).toBe(44_136);
+      expect(toNormalizedPivotValue(dimension, "1")).toBe(1);
+      expect(toNormalizedPivotValue(dimension, 1)).toBe(1);
       expect(toNormalizedPivotValue(dimension, "false")).toBe(false);
       expect(toNormalizedPivotValue(dimension, false)).toBe(false);
       // week
