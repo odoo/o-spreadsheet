@@ -1833,4 +1833,20 @@ describe("Change chart type", () => {
     });
     expect(select.value).toBe("stacked_line");
   });
+
+  test("Can change chart type between radar and filled radar chart", async () => {
+    createChart(model, { type: "radar", fillArea: false }, chartId);
+    await mountChartSidePanel(chartId);
+    const select = fixture.querySelector(".o-type-selector") as HTMLSelectElement;
+
+    updateChart(model, chartId, { fillArea: true }, sheetId);
+    await nextTick();
+
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject({ fillArea: true });
+    expect(select.value).toBe("filled_radar");
+
+    await changeChartType("radar");
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject({ fillArea: false });
+    expect(select.value).toBe("radar");
+  });
 });
