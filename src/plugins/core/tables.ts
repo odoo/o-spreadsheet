@@ -536,7 +536,7 @@ export class TablePlugin extends CorePlugin<TableState> implements TableState {
   // Import/Export
   // ---------------------------------------------------------------------------
 
-  import(data: WorkbookData) {
+  async import(data: WorkbookData) {
     for (const sheet of data.sheets) {
       for (const tableData of sheet.tables || []) {
         const uuid = this.uuidGenerator.uuidv4();

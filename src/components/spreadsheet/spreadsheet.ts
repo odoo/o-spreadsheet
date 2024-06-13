@@ -454,7 +454,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   }
 
   get gridHeight(): Pixel {
-    const { height } = this.env.model.getters.getSheetViewDimension();
+    const { height } = this.env.model.getters?.getSheetViewDimension();
     return height;
   }
 

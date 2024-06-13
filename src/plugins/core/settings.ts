@@ -62,7 +62,7 @@ export class SettingsPlugin extends CorePlugin {
     }
   }
 
-  import(data: WorkbookData) {
+  async import(data: WorkbookData) {
     this.locale = data.settings?.locale ?? DEFAULT_LOCALE;
   }
 

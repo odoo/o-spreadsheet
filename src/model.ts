@@ -159,13 +159,13 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   /**
    * The config object contains some configuration flag and callbacks
    */
-  readonly config: ModelConfig;
+  config: ModelConfig;
   private corePluginConfig: CorePluginConfig;
   private uiPluginConfig: UIPluginConfig;
 
   private state: StateObserver;
 
-  readonly selection: SelectionStreamProcessor;
+  selection: SelectionStreamProcessor;
 
   /**
    * Getters are the main way the rest of the UI read data from the model. Also,
@@ -185,6 +185,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private readonly handlers: CommandHandler<Command>[] = [];
   private readonly uiHandlers: CommandHandler<Command>[] = [];
   private readonly coreHandlers: CommandHandler<CoreCommand>[] = [];
+  private workbookData: WorkbookData;
+  private stateUpdateMessages: StateUpdateMessage[];
+  private start: DOMHighResTimeStamp;
 
   constructor(
     data: any = {},
@@ -193,13 +196,13 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     uuidGenerator: UuidGenerator = new UuidGenerator(),
     verboseImport = true
   ) {
-    const start = performance.now();
-    console.group("Model creation");
     super();
+    this.start = performance.now();
+    console.group("Model creation");
 
-    stateUpdateMessages = repairInitialMessages(data, stateUpdateMessages);
+    this.stateUpdateMessages = repairInitialMessages(data, stateUpdateMessages);
 
-    const workbookData = load(data, verboseImport);
+    this.workbookData = load(data, verboseImport);
 
     this.state = new StateObserver();
 
@@ -207,7 +210,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     this.config = this.setupConfig(config);
 
-    this.session = this.setupSession(workbookData.revisionId);
+    this.session = this.setupSession(this.workbookData.revisionId);
 
     this.coreGetters = {} as CoreGetters;
 
@@ -229,7 +232,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       isReadonly: () => this.config.mode === "readonly" || this.config.mode === "dashboard",
       isDashboard: () => this.config.mode === "dashboard",
     } as Getters;
-
     this.uuidGenerator.setIsFastStrategy(true);
 
     // Initiate stream processor
@@ -240,61 +242,67 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     this.corePluginConfig = this.setupCorePluginConfig();
     this.uiPluginConfig = this.setupUiPluginConfig();
+  }
 
+  init(config: Partial<ModelConfig> = {}) {
     // registering plugins
-    for (let Plugin of corePluginRegistry.getAll()) {
-      this.setupCorePlugin(Plugin, workbookData);
-    }
-    Object.assign(this.getters, this.coreGetters);
 
-    this.session.loadInitialMessages(stateUpdateMessages);
+    Promise.all(
+      corePluginRegistry.getAll().map((CorePlugin) => {
+        return this.setupCorePlugin(CorePlugin, this.workbookData);
+      })
+    ).then(() => {
+      Object.assign(this.getters, this.coreGetters);
 
-    for (let Plugin of coreViewsPluginRegistry.getAll()) {
-      const plugin = this.setupUiPlugin(Plugin);
-      this.coreViewsPlugins.push(plugin);
-      this.handlers.push(plugin);
-      this.uiHandlers.push(plugin);
-      this.coreHandlers.push(plugin);
-    }
-    for (let Plugin of statefulUIPluginRegistry.getAll()) {
-      const plugin = this.setupUiPlugin(Plugin);
-      this.statefulUIPlugins.push(plugin);
-      this.handlers.push(plugin);
-      this.uiHandlers.push(plugin);
-    }
-    for (let Plugin of featurePluginRegistry.getAll()) {
-      const plugin = this.setupUiPlugin(Plugin);
-      this.featurePlugins.push(plugin);
-      this.handlers.push(plugin);
-      this.uiHandlers.push(plugin);
-    }
-    this.uuidGenerator.setIsFastStrategy(false);
+      this.session.loadInitialMessages(this.stateUpdateMessages);
 
-    // starting plugins
-    this.dispatch("START");
-    // Model should be the last permanent subscriber in the list since he should render
-    // after all changes have been applied to the other subscribers (plugins)
-    this.selection.observe(this, {
-      handleEvent: () => this.trigger("update"),
+      for (let Plugin of coreViewsPluginRegistry.getAll()) {
+        const plugin = this.setupUiPlugin(Plugin);
+        this.coreViewsPlugins.push(plugin);
+        this.handlers.push(plugin);
+        this.uiHandlers.push(plugin);
+        this.coreHandlers.push(plugin);
+      }
+      for (let Plugin of statefulUIPluginRegistry.getAll()) {
+        const plugin = this.setupUiPlugin(Plugin);
+        this.statefulUIPlugins.push(plugin);
+        this.handlers.push(plugin);
+        this.uiHandlers.push(plugin);
+      }
+      for (let Plugin of featurePluginRegistry.getAll()) {
+        const plugin = this.setupUiPlugin(Plugin);
+        this.featurePlugins.push(plugin);
+        this.handlers.push(plugin);
+        this.uiHandlers.push(plugin);
+      }
+      this.uuidGenerator.setIsFastStrategy(false);
+
+      // starting plugins
+      this.dispatch("START");
+      // Model should be the last permanent subscriber in the list since he should render
+      // after all changes have been applied to the other subscribers (plugins)
+      this.selection.observe(this, {
+        handleEvent: () => this.trigger("update"),
+      });
+      // This should be done after construction of LocalHistory due to order of
+      // events
+      this.setupSessionEvents();
+
+      this.joinSession();
+
+      if (config.snapshotRequested) {
+        const startSnapshot = performance.now();
+        console.info("Snapshot requested");
+        this.session.snapshot(this.exportData());
+        this.garbageCollectExternalResources();
+        console.info("Snapshot taken in", performance.now() - startSnapshot, "ms");
+      }
+      // mark all models as "raw", so they will not be turned into reactive objects
+      // by owl, since we do not rely on reactivity
+      markRaw(this);
+      console.info("Model created in", performance.now() - this.start, "ms");
+      console.groupEnd();
     });
-    // This should be done after construction of LocalHistory due to order of
-    // events
-    this.setupSessionEvents();
-
-    this.joinSession();
-
-    if (config.snapshotRequested) {
-      const startSnapshot = performance.now();
-      console.info("Snapshot requested");
-      this.session.snapshot(this.exportData());
-      this.garbageCollectExternalResources();
-      console.info("Snapshot taken in", performance.now() - startSnapshot, "ms");
-    }
-    // mark all models as "raw", so they will not be turned into reactive objects
-    // by owl, since we do not rely on reactivity
-    markRaw(this);
-    console.info("Model created in", performance.now() - start, "ms");
-    console.groupEnd();
   }
 
   joinSession() {

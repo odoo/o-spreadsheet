@@ -212,7 +212,7 @@ class Demo extends Component {
       });
     });
 
-    onWillStart(() => this.initiateConnection());
+    onWillStart(async () => await this.initiateConnection());
 
     onMounted(() => console.log("Mounted: ", Date.now() - start));
     onWillUnmount(this.leaveCollaborativeSession.bind(this));
@@ -242,8 +242,16 @@ class Demo extends Component {
       this.transportService = undefined;
       this.stateUpdateMessages = [];
     }
+
+    for (let i = 0; i < 500; i++) {
+      let newSheet = Object.assign({}, demoData.sheets[3]);
+      newSheet.id = "newsheet" + i;
+      newSheet.name = "newsheet" + i;
+      demoData.sheets.push(newSheet);
+    }
+
     this.createModel(data || demoData);
-    // this.createModel(makePivotDataset(10_000));
+    // this.createModel(makePivotDataset(100_000));
     // this.createModel(makeLargeDataset(26, 10_000, ["numbers"]));
     // this.createModel({});
   }
@@ -263,10 +271,20 @@ class Demo extends Component {
       },
       this.stateUpdateMessages
     );
+    this.model.init({
+      external: {
+        loadCurrencies: async () => currenciesData,
+        fileStore: this.fileStore,
+      },
+      custom: {},
+      transportService: this.transportService,
+      client: this.client,
+      mode: "normal",
+    });
     o_spreadsheet.__DEBUG__ = o_spreadsheet.__DEBUG__ || {};
     o_spreadsheet.__DEBUG__.model = this.model;
     this.model.joinSession();
-    this.activateFirstSheet();
+    // this.activateFirstSheet();
   }
 
   activateFirstSheet() {
@@ -336,4 +354,5 @@ async function setup() {
   rootApp.addTemplates(templates);
   rootApp.mount(document.body);
 }
+
 whenReady(setup);

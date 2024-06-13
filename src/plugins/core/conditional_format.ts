@@ -154,7 +154,7 @@ export class ConditionalFormatPlugin
     }
   }
 
-  import(data: WorkbookData) {
+  async import(data: WorkbookData) {
     for (let sheet of data.sheets) {
       this.cfRules[sheet.id] = sheet.conditionalFormats.map((rule) =>
         this.mapToConditionalFormatInternal(sheet.id, rule)

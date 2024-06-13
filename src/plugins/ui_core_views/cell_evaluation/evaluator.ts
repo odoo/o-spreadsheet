@@ -3,6 +3,7 @@ import { implementationErrorMessage } from "../../../functions";
 import { matrixMap } from "../../../functions/helpers";
 import { lazy, positionToZone, toXC, union, unionPositionsToZone } from "../../../helpers";
 import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells";
+import { longRunning } from "../../../helpers/frames";
 import { ModelConfig } from "../../../model";
 import { onIterationEndEvaluationRegistry } from "../../../registries/evaluation_registry";
 import { _t } from "../../../translation";
@@ -251,16 +252,21 @@ export class Evaluator {
     while (!this.nextPositionsToUpdate.isEmpty() && currentIteration++ < MAX_ITERATION) {
       this.updateCompilationParameters();
       const positions = this.nextPositionsToUpdate.clear();
-      for (let i = 0; i < positions.length; ++i) {
-        this.evaluatedCells.delete(positions[i]);
+      for (const position of positions) {
+        this.evaluatedCells.delete(position);
       }
-      for (let i = 0; i < positions.length; ++i) {
-        const position = positions[i];
-        const evaluatedCell = this.computeCell(position);
-        if (evaluatedCell !== EMPTY_CELL) {
-          this.evaluatedCells.set(position, evaluatedCell);
-        }
-      }
+
+      longRunning(
+        positions,
+        (position) => {
+          const evaluatedCell = this.computeCell(position);
+          if (evaluatedCell !== EMPTY_CELL) {
+            this.evaluatedCells.set(position, evaluatedCell);
+          }
+        },
+        5000,
+        2000
+      );
       onIterationEndEvaluationRegistry.getAll().forEach((callback) => callback(this.getters));
     }
   }

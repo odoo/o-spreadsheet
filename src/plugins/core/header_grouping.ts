@@ -456,7 +456,7 @@ export class HeaderGroupingPlugin extends CorePlugin<State> {
     return index === -1 ? undefined : index;
   }
 
-  import(data: WorkbookData) {
+  async import(data: WorkbookData) {
     for (const sheet of data.sheets) {
       this.groups[sheet.id] = { ROW: [], COL: [] };
       if (!sheet.headerGroups) {

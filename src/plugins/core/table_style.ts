@@ -103,7 +103,7 @@ export class TableStylePlugin extends CorePlugin<TableStylesState> implements Ta
     return !TABLE_PRESETS[styleId];
   }
 
-  import(data: WorkbookData) {
+  async import(data: WorkbookData) {
     for (const presetStyleId in TABLE_PRESETS) {
       this.styles[presetStyleId] = TABLE_PRESETS[presetStyleId];
     }

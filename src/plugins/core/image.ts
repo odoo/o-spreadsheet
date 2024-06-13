@@ -135,7 +135,7 @@ export class ImagePlugin extends CorePlugin<ImageState> implements ImageState {
     this.dispatch("CREATE_FIGURE", { sheetId, figure });
   }
 
-  import(data: WorkbookData) {
+  async import(data: WorkbookData) {
     for (const sheet of data.sheets) {
       const images = (sheet.figures || []).filter((figure) => figure.tag === "image");
       for (const image of images) {

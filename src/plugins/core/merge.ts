@@ -505,7 +505,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
   // Import/Export
   // ---------------------------------------------------------------------------
 
-  import(data: WorkbookData) {
+  async import(data: WorkbookData) {
     const sheets = data.sheets || [];
     for (let sheetData of sheets) {
       this.history.update("merges", sheetData.id, {});
