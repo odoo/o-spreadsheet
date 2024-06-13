@@ -27,6 +27,12 @@
             <span t-esc="dateTimeFormatPreview"/>
           </div>
         </div>
+        <div class="alert alert-primary d-flex align-items-center mt-2" role="alert">
+          <div class="o-icon">
+            <i class="fa fa-info"/>
+          </div>
+          <div>This setting affects all users.</div>
+        </div>
       </Section>
     </div>
   </t>
