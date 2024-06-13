@@ -194,14 +194,18 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     if (dimension.type === "date") {
       const adapter = pivotTimeAdapter(dimension.granularity as Granularity);
       return {
-        value: adapter.toCellValue(toNormalizedPivotValue(dimension, lastNode.value)),
+        value:
+          lastNode.value !== "null"
+            ? adapter.toCellValue(toNormalizedPivotValue(dimension, lastNode.value))
+            : _t("(Undefined)"),
         format: adapter.getFormat(this.getters.getLocale()),
       };
     }
     if (!finalCell) {
       return { value: "" };
     }
-    if (finalCell.value === null) {
+    // Value can be null but stringified (e.g. an empty date, as for now every date is stringified)
+    if (finalCell.value === null || finalCell.value === `${null}`) {
       return { value: _t("(Undefined)") };
     }
     return {

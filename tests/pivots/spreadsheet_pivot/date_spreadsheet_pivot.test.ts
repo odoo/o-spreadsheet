@@ -59,6 +59,15 @@ describe("Date Spreadsheet Pivot", () => {
     expect(createDate(DAY_DIMENSION, d05_april_2024_15h, DEFAULT_LOCALE)).toBe("04/05/2024");
   });
 
+  test("createDate with null values", () => {
+    expect(createDate(YEAR_NUMBER_DIMENSION, null, DEFAULT_LOCALE)).toBeNull();
+    expect(createDate(QUARTER_NUMBER_DIMENSION, null, DEFAULT_LOCALE)).toBeNull();
+    expect(createDate(MONTH_NUMBER_DIMENSION, null, DEFAULT_LOCALE)).toBeNull();
+    expect(createDate(ISO_WEEK_NUMBER_DIMENSION, null, DEFAULT_LOCALE)).toBeNull();
+    expect(createDate(DAY_OF_MONTH_DIMENSION, null, DEFAULT_LOCALE)).toBeNull();
+    expect(createDate(DAY_DIMENSION, null, DEFAULT_LOCALE)).toBeNull();
+  });
+
   test("createDate throw with unknown granularity", () => {
     const unknownGranularity = "unknown_granularity";
     expect(() => createDate(createPivotDimension(unknownGranularity), 0, DEFAULT_LOCALE)).toThrow(
