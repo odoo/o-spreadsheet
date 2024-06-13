@@ -15,7 +15,7 @@ describe("Settings plugin", () => {
   let model: Model;
 
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
   });
 
   describe("Locale", () => {
@@ -48,18 +48,18 @@ describe("Settings plugin", () => {
       const exported = model.exportData();
       expect(exported.settings.locale).toEqual(CUSTOM_LOCALE);
 
-      const newModel = new Model(exported);
+      const newModel = Model.BuildSync(exported);
       expect(newModel.getters.getLocale()).toEqual(CUSTOM_LOCALE);
     });
 
     test("Can import data with locale set", () => {
-      const model = new Model({ settings: { locale: FR_LOCALE } });
+      const model = Model.BuildSync({ settings: { locale: FR_LOCALE } });
       expect(model.getters.getLocale()).toEqual(FR_LOCALE);
     });
 
     test("Invalid locale in the data is ignored", () => {
       const invalidLocale = { ...FR_LOCALE, dateFormat: "I'm not a real format 💀" };
-      const model = new Model({ settings: { locale: invalidLocale } });
+      const model = Model.BuildSync({ settings: { locale: invalidLocale } });
       expect(model.getters.getLocale()).toEqual(DEFAULT_LOCALE);
     });
 

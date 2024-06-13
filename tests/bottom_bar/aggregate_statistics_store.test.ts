@@ -164,7 +164,7 @@ describe("Aggregate statistic functions", () => {
       ],
     });
 
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "=TWOARGSNEEDED(42)");
 
     expect(getEvaluatedCell(model, "A1").value).toBe("#BAD_EXPR");

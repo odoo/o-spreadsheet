@@ -1384,7 +1384,7 @@ describe("TRANSPOSE function", () => {
   });
 
   test("Transpose single value", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "D1", "=TRANSPOSE(5)");
     expect(getRangeValuesAsMatrix(model, "D1")).toEqual([[5]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1")).toBeTruthy();

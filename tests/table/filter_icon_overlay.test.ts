@@ -7,7 +7,7 @@ import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
 describe("Filter Icon Overlay component", () => {
   test("Overlapping filters are overwritten by the latest inserted", async () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       version: 12,
       sheets: [
         {
@@ -23,7 +23,7 @@ describe("Filter Icon Overlay component", () => {
 
   test("MouseEvent on filter icon bubbles and selects the underlying cell", async () => {
     jest.useFakeTimers();
-    const model = new Model();
+    const model = Model.BuildSync();
     createTable(model, "B2:B3");
     const sheetId = model.getters.getActiveSheetId();
     const {} = await mountSpreadsheet({ model });

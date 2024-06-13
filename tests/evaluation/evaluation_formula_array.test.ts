@@ -25,7 +25,7 @@ let sheetId: UID;
 
 describe("evaluate formulas that return an array", () => {
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
     sheetId = model.getters.getActiveSheetId();
     functionRegistry.add("MFILL", {
       description: "Return an n*n matrix filled with n.",
@@ -443,7 +443,7 @@ describe("evaluate formulas that return an array", () => {
   describe("result array can collides with sheet borders", () => {
     let model: Model;
     beforeEach(() => {
-      model = new Model({
+      model = Model.BuildSync({
         sheets: [
           {
             id: "sheet1",
@@ -638,7 +638,7 @@ describe("evaluate formulas that return an array", () => {
         args: [arg("range (range<any>)", "")],
         compute: mockCompute,
       });
-      new Model({
+      Model.BuildSync({
         sheets: [
           {
             cells: {
@@ -715,7 +715,7 @@ describe("evaluate formulas that return an array", () => {
     });
 
     test("recompute cell depending on spread values computed in between", () => {
-      const model = new Model({
+      const model = Model.BuildSync({
         sheets: [
           {
             name: "sheet1",

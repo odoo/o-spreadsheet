@@ -18,7 +18,7 @@ const {
   onError,
 } = owl;
 
-const { Spreadsheet, Model } = o_spreadsheet;
+const { Spreadsheet, Model, LongRunner } = o_spreadsheet;
 const { topbarMenuRegistry } = o_spreadsheet.registries;
 const { useStoreProvider } = o_spreadsheet.stores;
 
@@ -207,7 +207,7 @@ class Demo extends Component {
       });
     });
 
-    onWillStart(() => this.initiateConnection());
+    onWillStart(async () => await this.initiateConnection());
 
     onMounted(() => console.log("Mounted: ", Date.now() - start));
     onWillUnmount(this.leaveCollaborativeSession.bind(this));
@@ -237,17 +237,25 @@ class Demo extends Component {
       this.transportService = undefined;
       this.stateUpdateMessages = [];
     }
-    this.createModel(data || demoData);
-    // this.createModel(makePivotDataset(10_000));
+
+    for (let i = 0; i < 500; i++) {
+      let newSheet = Object.assign({}, demoData.sheets[3]);
+      newSheet.id = "newsheet" + i;
+      newSheet.name = "newsheet" + i;
+      demoData.sheets.push(newSheet);
+    }
+
+    await this.createModel(data || demoData);
+    // this.createModel(makePivotDataset(100_000));
     // this.createModel(makeLargeDataset(26, 10_000, ["numbers"]));
     // this.createModel(makeLargeDataset(26, 10_000, ["formulas"]));
     // this.createModel(makeLargeDataset(26, 10_000, ["arrayFormulas"]));
-    // this.createModel(makeLargeDataset(26, 10_000, ["vectorizedFormulas"]));
-    // this.createModel({});
+    // await this.createModel(makeLargeDataset(26, 1000, ["vectorizedFormulas"]));
+    // await this.createModel({});
   }
 
-  createModel(data) {
-    this.model = new Model(
+  async createModel(data) {
+    this.model = await Model.Build(
       data,
       {
         external: {
@@ -258,6 +266,7 @@ class Demo extends Component {
         transportService: this.transportService,
         client: this.client,
         mode: "normal",
+        longRunner: new LongRunner(),
       },
       this.stateUpdateMessages
     );
@@ -334,4 +343,5 @@ async function setup() {
   rootApp.addTemplates(templates);
   rootApp.mount(document.body);
 }
+
 whenReady(setup);

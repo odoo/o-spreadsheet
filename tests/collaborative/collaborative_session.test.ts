@@ -82,7 +82,7 @@ describe("Collaborative session", () => {
   });
 
   test("do not snapshot when leaving if there are pending change", () => {
-    const model = new Model(
+    const model = Model.BuildSync(
       {},
       {
         transportService: transport,
@@ -185,7 +185,7 @@ describe("Collaborative session", () => {
 
   test("Can send custom data in client", () => {
     const spy = jest.spyOn(transport, "sendMessage");
-    const model = new Model(
+    const model = Model.BuildSync(
       {},
       {
         transportService: transport,

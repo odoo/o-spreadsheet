@@ -18,7 +18,7 @@ describe("Single cell chart background color", () => {
   let chartId = "thisIsAnId";
 
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
     sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "1");
   });

@@ -5,7 +5,7 @@ import { NotificationStore } from "../../src/stores/notification_store";
 import { makeTestNotificationStore } from "./helpers";
 
 export function makeStore<T extends StoreConstructor>(Store: T, ...args: StoreParams<T>) {
-  return makeStoreWithModel(new Model(), Store, ...args);
+  return makeStoreWithModel(Model.BuildSync(), Store, ...args);
 }
 
 export function makeStoreWithModel<T extends StoreConstructor>(

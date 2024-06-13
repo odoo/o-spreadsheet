@@ -412,7 +412,7 @@ Let's say you have a `user` service with the currently logged in user.
 The example below shows how the service can be used in a custom function.
 
 ```ts
-const model = new Model(data, {
+const model = Model.BuildSync(data, {
   custom: {
     userService: services.user,
   },

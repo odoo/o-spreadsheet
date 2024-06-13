@@ -12,7 +12,7 @@ describe("settings sidePanel component", () => {
   let onCloseSidePanel: jest.Mock;
 
   async function mountSettingsSidePanel(modelArg?: Model, env?: Partial<SpreadsheetChildEnv>) {
-    model = modelArg ?? new Model();
+    model = modelArg ?? Model.BuildSync();
     ({ fixture } = await mountComponent(SettingsPanel, {
       model,
       props: { onCloseSidePanel: () => onCloseSidePanel() },
@@ -33,7 +33,7 @@ describe("settings sidePanel component", () => {
 
   describe("Locale", () => {
     test("Locale select is initialized with correct value", async () => {
-      model = new Model({ settings: { locale: FR_LOCALE } });
+      model = Model.BuildSync({ settings: { locale: FR_LOCALE } });
       await mountSettingsSidePanel(model);
       const localeInput = fixture.querySelector<HTMLInputElement>(".o-settings-panel select")!;
       expect(localeInput.value).toEqual(FR_LOCALE.code);
@@ -81,7 +81,7 @@ describe("settings sidePanel component", () => {
     });
 
     test("Current locale in loaded model that is not in env.loadLocales() is displayed", async () => {
-      model = new Model({ settings: { locale: CUSTOM_LOCALE } });
+      model = Model.BuildSync({ settings: { locale: CUSTOM_LOCALE } });
       await mountSettingsSidePanel(model);
       const options = fixture.querySelectorAll<HTMLOptionElement>(
         ".o-settings-panel select option"

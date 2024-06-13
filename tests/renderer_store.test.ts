@@ -62,7 +62,7 @@ interface ContextObserver {
   onFunctionCall?(fn: string, args: any[], renderingContext: MockGridRenderingContext): void;
 }
 
-function setRenderer(model: Model = new Model()) {
+function setRenderer(model: Model = Model.BuildSync()) {
   const { container, store: gridRendererStore } = makeStoreWithModel(model, GridRenderer);
   const rendererManager = container.get(RendererStore);
   const drawGridRenderer = (ctx: GridRenderingContext) => {
@@ -170,7 +170,7 @@ describe("renderer", () => {
 
     beforeEach(() => {
       ({ drawGridRenderer, model } = setRenderer(
-        new Model({ sheets: [{ colNumber: 2, rowNumber: 2 }] })
+        Model.BuildSync({ sheets: [{ colNumber: 2, rowNumber: 2 }] })
       ));
       const { width, height } = model.getters.getSheetViewDimension();
       instructions = [];
@@ -279,7 +279,7 @@ describe("renderer", () => {
 
   test("Cells evaluating to a number are properly aligned on overflow", () => {
     const { drawGridRenderer, model } = setRenderer(
-      new Model({
+      Model.BuildSync({
         sheets: [
           {
             id: 1,
@@ -331,7 +331,7 @@ describe("renderer", () => {
 
   test("fillstyle of cell will be rendered", () => {
     const { drawGridRenderer, model } = setRenderer(
-      new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
+      Model.BuildSync({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
 
     setStyle(model, "A1", { fillColor: "#DC6CDF" });
@@ -377,7 +377,7 @@ describe("renderer", () => {
 
   test("fillstyle of merge will be rendered for all cells in merge", () => {
     const { drawGridRenderer, model } = setRenderer(
-      new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
+      Model.BuildSync({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
     setStyle(model, "A1", { fillColor: "#DC6CDF" });
     merge(model, "A1:A3");
@@ -423,7 +423,7 @@ describe("renderer", () => {
 
   test("fillstyle of cell works with CF", () => {
     const { drawGridRenderer, model } = setRenderer(
-      new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
+      Model.BuildSync({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
     const sheetId = model.getters.getActiveSheetId();
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -461,7 +461,7 @@ describe("renderer", () => {
 
   test("fillstyle of merge works with CF", () => {
     const { drawGridRenderer, model } = setRenderer(
-      new Model({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
+      Model.BuildSync({ sheets: [{ colNumber: 1, rowNumber: 3 }] })
     );
     const sheetId = model.getters.getActiveSheetId();
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -551,7 +551,7 @@ describe("renderer", () => {
 
   test("Cells in a merge evaluating to a number are properly aligned on overflow", () => {
     const { drawGridRenderer, model } = setRenderer(
-      new Model({
+      Model.BuildSync({
         sheets: [
           {
             id: 1,
@@ -733,7 +733,7 @@ describe("renderer", () => {
 
   test("CF on empty cell", () => {
     const { drawGridRenderer, model } = setRenderer(
-      new Model({ sheets: [{ colNumber: 1, rowNumber: 1 }] })
+      Model.BuildSync({ sheets: [{ colNumber: 1, rowNumber: 1 }] })
     );
     let fillStyle: any[] = [];
     let fillStyleColor1Called = false;
@@ -772,7 +772,7 @@ describe("renderer", () => {
     (overflowingContent) => {
       let box: Box;
       const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-        new Model({
+        Model.BuildSync({
           sheets: [
             {
               id: "sheet1",
@@ -822,7 +822,7 @@ describe("renderer", () => {
       const overflowingNumber = "100000000000000";
       let box: Box;
       const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-        new Model({
+        Model.BuildSync({
           sheets: [
             {
               id: "sheet1",
@@ -870,7 +870,7 @@ describe("renderer", () => {
     const overflowingText = "I am a very long text";
     let box: Box;
     const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-      new Model({
+      Model.BuildSync({
         sheets: [
           {
             id: "sheet1",
@@ -918,7 +918,7 @@ describe("renderer", () => {
     // using alternative col size to clarify the computations
     const colSize = 5;
     const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-      new Model({
+      Model.BuildSync({
         sheets: [
           {
             id: "sheet1",
@@ -948,7 +948,7 @@ describe("renderer", () => {
     // using alternative col size to clarify the computations
     const colSize = 5;
     const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-      new Model({
+      Model.BuildSync({
         sheets: [
           {
             id: "sheet1",
@@ -983,7 +983,7 @@ describe("renderer", () => {
       const overflowingText = "I am a very long text";
       let box: Box;
       const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-        new Model({
+        Model.BuildSync({
           sheets: [
             {
               id: "sheet1",
@@ -1018,7 +1018,7 @@ describe("renderer", () => {
   ])("Content cannot overflow over merge with align %s", (align, ...merges) => {
     const overflowingText = "I am a very long text";
     const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-      new Model({
+      Model.BuildSync({
         sheets: [
           {
             id: "sheet1",
@@ -1051,7 +1051,7 @@ describe("renderer", () => {
       const overflowingText = "I am a very very very long text";
       let box: Box;
       const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-        new Model({
+        Model.BuildSync({
           sheets: [
             {
               id: "sheet1",
@@ -1084,7 +1084,7 @@ describe("renderer", () => {
       const overflowingText = "I am a very very very long text";
       let box: Box;
       const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-        new Model({
+        Model.BuildSync({
           sheets: [
             {
               id: "sheet1",
@@ -1116,7 +1116,7 @@ describe("renderer", () => {
     const fontSize = 26;
     let box: Box;
     const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-      new Model({
+      Model.BuildSync({
         sheets: [
           {
             id: "sheet1",
@@ -1173,7 +1173,7 @@ describe("renderer", () => {
     let box: Box;
     const cellContent = "10000";
     const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-      new Model({
+      Model.BuildSync({
         sheets: [
           {
             id: "sheet1",
@@ -1276,7 +1276,7 @@ describe("renderer", () => {
     (align: string, borders: string[], expectedClipRectZone: Zone | undefined) => {
       const cellContent = "This is a long text larger than a cell";
       const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-        new Model({
+        Model.BuildSync({
           sheets: [
             {
               id: "sheet1",
@@ -1310,7 +1310,7 @@ describe("renderer", () => {
       const borders = ["right"];
       const cellContent = "This is a long text larger than a cell";
       const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-        new Model({
+        Model.BuildSync({
           sheets: [
             { id: "sheet1", colNumber: 3, rowNumber: 3, cells: { B2: { content: cellContent } } },
           ],
@@ -1353,7 +1353,7 @@ describe("renderer", () => {
     (align: string, expectedClipRectZone: Zone | undefined) => {
       const cellContent = "This is a very vey very very very very long text larger than a cell";
       const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-        new Model({
+        Model.BuildSync({
           sheets: [
             {
               id: "sheet1",
@@ -1382,7 +1382,7 @@ describe("renderer", () => {
   test("Box clip rect computation take the text margin into account", () => {
     let box: Box;
     const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-      new Model({ sheets: [{ id: "sheet1", colNumber: 1, rowNumber: 1 }] })
+      Model.BuildSync({ sheets: [{ id: "sheet1", colNumber: 1, rowNumber: 1 }] })
     );
     resizeColumns(model, ["A"], 10);
 
@@ -1465,7 +1465,7 @@ describe("renderer", () => {
     ["dashboard" as Mode, { x: 0, y: 0, width: DEFAULT_CELL_WIDTH, height: DEFAULT_CELL_HEIGHT }],
     ["normal" as Mode, { x: 0, y: 0, width: DEFAULT_CELL_WIDTH, height: DEFAULT_CELL_HEIGHT }],
   ])("A1 starts at the upper left corner with mode %s", (mode, expectedRect) => {
-    const model = new Model({}, { mode });
+    const model = Model.BuildSync({}, { mode });
     const rect = model.getters.getVisibleRect(toZone("A1"));
     expect(rect).toEqual(expectedRect);
   });
@@ -1475,7 +1475,7 @@ describe("renderer", () => {
      * according to the kind of error
      */
     const { drawGridRenderer, model, gridRendererStore } = setRenderer(
-      new Model({
+      Model.BuildSync({
         sheets: [
           {
             id: "sheet1",
@@ -1536,7 +1536,7 @@ describe("renderer", () => {
   test("Do not draw gridLines over colored cells in dashboard mode", () => {
     const CellFillColor = "#fe0000";
     const { drawGridRenderer, model } = setRenderer(
-      new Model({
+      Model.BuildSync({
         sheets: [{ id: "Sheet1", name: "Sheet1", cells: { A1: { style: 1 }, A2: { style: 1 } } }],
         styles: { 1: { fillColor: CellFillColor } },
       })
@@ -1569,7 +1569,7 @@ describe("renderer", () => {
   test("Do not draw gridLines over colored cells while hiding grid lines", () => {
     const CellFillColor = "#fe0000";
     const { drawGridRenderer, model } = setRenderer(
-      new Model({
+      Model.BuildSync({
         sheets: [{ id: "Sheet1", name: "Sheet1", cells: { A1: { style: 1 }, A2: { style: 1 } } }],
         styles: { 1: { fillColor: CellFillColor } },
       })
@@ -1604,7 +1604,7 @@ describe("renderer", () => {
 
   test("draw text position depends on vertical align", () => {
     const { drawGridRenderer, model } = setRenderer(
-      new Model({
+      Model.BuildSync({
         sheets: [
           {
             id: 1,
@@ -1649,7 +1649,7 @@ describe("renderer", () => {
 
   test("keep the text vertically align to the top if not enough spaces to display it", () => {
     const { drawGridRenderer, model } = setRenderer(
-      new Model({
+      Model.BuildSync({
         sheets: [
           {
             id: 1,
@@ -1720,7 +1720,7 @@ describe("renderer", () => {
 
     beforeEach(() => {
       ({ drawGridRenderer, model, gridRendererStore } = setRenderer(
-        new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] })
+        Model.BuildSync({ sheets: [{ colNumber: 10, rowNumber: 10 }] })
       ));
       fillWhiteRectInstructions = [];
       let drawingWhiteBackground = false;

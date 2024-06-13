@@ -32,7 +32,7 @@ let env: SpreadsheetChildEnv;
 
 describe("Table side panel", () => {
   beforeEach(async () => {
-    model = new Model();
+    model = Model.BuildSync();
     sheetId = model.getters.getActiveSheetId();
     createTable(model, "A1:C3");
     ({ fixture, env } = await mountComponentWithPortalTarget(SidePanel, { model }));

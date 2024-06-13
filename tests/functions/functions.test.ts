@@ -50,7 +50,7 @@ describe("functions", () => {
   });
 
   test("Function can return value depending on input values", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     functionRegistry.add("RETURN.VALUE.DEPENDING.ON.INPUT.VALUE", {
       description: "return value depending on input value",
       compute: function (arg) {
@@ -67,7 +67,7 @@ describe("functions", () => {
   });
 
   test("Function can return value depending on input error", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     functionRegistry.add("RETURN.VALUE.DEPENDING.ON.INPUT.ERROR", {
       description: "return value depending on input error",
       compute: function (arg: Arg) {
@@ -83,7 +83,7 @@ describe("functions", () => {
   });
 
   test("Function can return error depending on input value", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     functionRegistry.add("RETURN.ERROR.DEPENDING.ON.INPUT.VALUE", {
       description: "return value depending on input error",
       compute: function (arg) {
@@ -100,7 +100,7 @@ describe("functions", () => {
   });
 
   test("Function can return error depending on input error", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     functionRegistry.add("RETURN.ERROR.DEPENDING.ON.INPUT.ERROR", {
       description: "return value depending on input error",
       compute: function (arg) {
@@ -118,7 +118,7 @@ describe("functions", () => {
   });
 
   test("Function can return format depending on input format", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     functionRegistry.add("RETURN.FORMAT.DEPENDING.ON.INPUT.FORMAT", {
       description: "return format depending on input format",
       compute: function (arg) {
@@ -137,7 +137,7 @@ describe("functions", () => {
   });
 
   test("Function can return format depending on input value", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     functionRegistry.add("RETURN.FORMAT.DEPENDING.ON.INPUT.VALUE", {
       description: "return format depending on input value",
       compute: function (arg) {
@@ -158,7 +158,7 @@ describe("functions", () => {
   });
 
   test("Can use a custom evaluation context in a function", () => {
-    const model = new Model(
+    const model = Model.BuildSync(
       {},
       {
         custom: {
@@ -178,7 +178,7 @@ describe("functions", () => {
   });
 
   test("Can use a getter in a function", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     functionRegistry.add("GETNUMBERCOLS", {
       description: "Get the number of columns",
       compute: function () {
@@ -279,7 +279,7 @@ describe("functions", () => {
         args: [],
       });
 
-      const m = new Model();
+      const m = Model.BuildSync();
       const errorMessage =
         "Function RANGEEXPECTED expects the parameter '1' to be reference to a cell or range.";
 
@@ -330,7 +330,7 @@ describe("functions", () => {
     });
 
     test("simple argument value from a single cell or range reference", () => {
-      const m = new Model();
+      const m = Model.BuildSync();
 
       functionRegistry.add("SIMPLE_VALUE_EXPECTED", {
         description: "does not accept a range",

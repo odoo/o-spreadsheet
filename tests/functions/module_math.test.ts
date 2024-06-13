@@ -871,7 +871,7 @@ describe("COUNTIF formula", () => {
   });
 
   test("COUNTIF date predicates are localized", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "01/02/2024");
     setCellContent(model, "A2", '=COUNTIF(A1, "<02/01/2024")');
     expect(getEvaluatedCell(model, "A2").value).toBe(1);
@@ -1757,7 +1757,7 @@ describe("MUNIT function", () => {
   });
 
   test("Generate unit matrix", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "D1", "=MUNIT(3)");
     expect(getRangeValuesAsMatrix(model, "D1:F3")).toEqual([
       [1, 0, 0],
@@ -2055,7 +2055,7 @@ describe("RANDARRAY function", () => {
   });
 
   test("Random rows", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "=RANDARRAY(2)");
     expect(getEvaluatedCell(model, "A1").value).toBeBetween(0, 1);
     expect(getEvaluatedCell(model, "A2").value).toBeBetween(0, 1);
@@ -2064,7 +2064,7 @@ describe("RANDARRAY function", () => {
   });
 
   test("Random columns", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "=RANDARRAY(1, 2)");
     expect(getEvaluatedCell(model, "A1").value).toBeBetween(0, 1);
     expect(getEvaluatedCell(model, "A2").value).toBe(null);
@@ -2073,7 +2073,7 @@ describe("RANDARRAY function", () => {
   });
 
   test("Random rows and columns", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "=RANDARRAY(2, 2)");
     expect(getEvaluatedCell(model, "A1").value).toBeBetween(0, 1);
     expect(getEvaluatedCell(model, "A2").value).toBeBetween(0, 1);
@@ -2082,7 +2082,7 @@ describe("RANDARRAY function", () => {
   });
 
   test("Max and min arguments", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "=RANDARRAY(2, 2, -2, 2)");
     expect(getEvaluatedCell(model, "A1").value).toBeBetween(-2, 2);
     expect(getEvaluatedCell(model, "A2").value).toBeBetween(-2, 2);
@@ -2091,7 +2091,7 @@ describe("RANDARRAY function", () => {
   });
 
   test("whole_number argument", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "=RANDARRAY(1, 1, -2, 2, TRUE)");
     const val = getEvaluatedCell(model, "A1").value as number;
     expect(val).toBeBetween(-2, 2);

@@ -44,7 +44,7 @@ async function changeChartColor(selector: string, color: string) {
 
 describe("Watrefall chart side panel", () => {
   beforeEach(async () => {
-    model = new Model();
+    model = Model.BuildSync();
     createTable(model, "A1:C3");
     ({ fixture, env } = await mountComponentWithPortalTarget(SidePanel, { model }));
   });

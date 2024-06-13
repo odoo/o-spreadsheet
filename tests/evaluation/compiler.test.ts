@@ -271,7 +271,7 @@ describe("compile functions", () => {
       const compiledFormula3 = compileFromCompleteFormula("=NOTUSEMETAARG(A1)");
       const compiledFormula4 = compileFromCompleteFormula("=NOTUSEMETAARG(A1:B2)");
 
-      const m = new Model();
+      const m = Model.BuildSync();
 
       let refFn = jest.fn();
       let ensureRange = jest.fn();

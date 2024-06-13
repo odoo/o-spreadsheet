@@ -19,7 +19,7 @@ mockGetBoundingClientRect({
 
 export async function mountDataValidationPanel(model?: Model) {
   return mountComponentWithPortalTarget(DataValidationPanel, {
-    model: model || new Model(),
+    model: model || Model.BuildSync(),
     props: { onCloseSidePanel: () => {} },
   });
 }

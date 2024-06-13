@@ -83,7 +83,7 @@ class Comp2 extends Comp {
 }
 
 async function mountParent(
-  model: Model = new Model(),
+  model: Model = Model.BuildSync(),
   testEnv?: Partial<SpreadsheetChildEnv>
 ): Promise<{ parent: Parent; model: Model; fixture: HTMLElement }> {
   const env = {
@@ -103,7 +103,7 @@ describe("TopBar component", () => {
   });
 
   test("opening a second menu closes the first one", async () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "B2", "b2");
     await mountParent(model);
     expect(fixture.querySelectorAll(".o-dropdown-content").length).toBe(0);
@@ -125,7 +125,7 @@ describe("TopBar component", () => {
   });
 
   test("merging cell button state is correct", async () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       sheets: [
         {
           colNumber: 10,
@@ -147,7 +147,7 @@ describe("TopBar component", () => {
   });
 
   test("multiple selection zones => merge tools is disabled", async () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "B2", "b2");
 
     await mountParent(model);
@@ -304,7 +304,7 @@ describe("TopBar component", () => {
   });
 
   test("can clear formatting", async () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     selectCell(model, "B1");
     setZoneBorders(model, { position: "all" });
     expect(getBorder(model, "B1")).toBeDefined();
@@ -356,7 +356,7 @@ describe("TopBar component", () => {
     ])(
       "alignment icon options in top bar matches the selected cell (content: %s, style: %s)",
       async (content, style, expectedTitleActive) => {
-        const model = new Model();
+        const model = Model.BuildSync();
         setCellContent(model, "A1", content);
         setStyle(model, "A1", style as Style);
         await mountParent(model);
@@ -389,7 +389,7 @@ describe("TopBar component", () => {
     ])(
       "alignment icon options in top bar matches the selected cell (content: %s, style: %s)",
       async (content, style, expectedTitleActive) => {
-        const model = new Model();
+        const model = Model.BuildSync();
         setCellContent(model, "A1", content);
         setStyle(model, "A1", style as Style);
         await mountParent(model);
@@ -422,7 +422,7 @@ describe("TopBar component", () => {
     ])(
       "wrapping icon options in the top bar matches the selected cell (content: %s, style: %s)",
       async (content, style, expectedTitleActive) => {
-        const model = new Model();
+        const model = Model.BuildSync();
         setCellContent(model, "A1", content);
         setStyle(model, "A1", style as Style);
         await mountParent(model);
@@ -436,7 +436,7 @@ describe("TopBar component", () => {
   });
 
   test("opening, then closing same menu", async () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "B2", "b2");
     await mountParent(model);
 
@@ -560,7 +560,7 @@ describe("TopBar component", () => {
   });
 
   test("Cannot edit cell in a readonly spreadsheet", async () => {
-    const model = new Model({}, { mode: "readonly" });
+    const model = Model.BuildSync({}, { mode: "readonly" });
     ({ fixture, parent } = await mountParent(model));
     const composerStore = parent.env.getStore(ComposerStore);
 
@@ -576,7 +576,7 @@ describe("TopBar component", () => {
   });
 
   test("Keep focus on the composer when clicked in readonly mode", async () => {
-    ({ fixture } = await mountParent(new Model({}, { mode: "readonly" })));
+    ({ fixture } = await mountParent(Model.BuildSync({}, { mode: "readonly" })));
 
     let composerEl = fixture.querySelector(".o-spreadsheet-topbar div.o-composer")! as HTMLElement;
     expect(document.activeElement).not.toBe(composerEl);
@@ -618,7 +618,7 @@ describe("TopBar component", () => {
 
   test("can insert an image", async () => {
     const fileStore = new FileStore();
-    const model = new Model({}, { external: { fileStore } });
+    const model = Model.BuildSync({}, { external: { fileStore } });
     await mountParent(model);
     const sheetId = model.getters.getActiveSheetId();
     await simulateClick(".o-topbar-menu[data-id='insert']");
@@ -658,7 +658,7 @@ test("Can show/hide a TopBarComponent based on condition", async () => {
 describe("TopBar - Custom currency", () => {
   test("can open custom currency sidepanel from tool", async () => {
     const { fixture } = await mountSpreadsheet({
-      model: new Model({}, { external: { loadCurrencies: async () => [] as Currency[] } }),
+      model: Model.BuildSync({}, { external: { loadCurrencies: async () => [] as Currency[] } }),
     });
     await click(fixture, ".o-menu-item-button[title='More formats']");
     await click(fixture, ".o-menu-item[title='Custom currency']");
@@ -895,7 +895,7 @@ describe("Topbar svg icon", () => {
     [{ wrapping: "wrap" }, "Wrapping", "wrapping-wrap"],
     [{ wrapping: "overflow" }, "Wrapping", "wrapping-overflow"],
   ])("Icon in top bar matches the selected cell style", async (style, buttonTitle, iconClass) => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setStyle(model, "A1", style as Style);
 
     ({ fixture } = await mountSpreadsheet({ model }));

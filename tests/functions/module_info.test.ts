@@ -18,7 +18,7 @@ describe("CELL formula", () => {
       A3: '=CELL("address", Sheet2!C2:D4)',
       A4: '=CELL("address", Sheet1!E1:E2)',
     };
-    const model = new Model();
+    const model = Model.BuildSync();
     createSheet(model, { sheetId: "sh2", name: "Sheet2" });
     setGrid(model, grid);
 
@@ -34,7 +34,7 @@ describe("CELL formula", () => {
       A2: '=CELL("col", C2:D4)',
       A3: '=CELL("col", Sheet2!D2:D4)',
     };
-    const model = new Model();
+    const model = Model.BuildSync();
     createSheet(model, { sheetId: "sh2", name: "Sheet2" });
     setGrid(model, grid);
 
@@ -49,7 +49,7 @@ describe("CELL formula", () => {
       A2: '=CELL("row", C2:D4)',
       A3: '=CELL("row", Sheet2!D5:D9)',
     };
-    const model = new Model();
+    const model = Model.BuildSync();
     createSheet(model, { sheetId: "sh2", name: "Sheet2" });
     setGrid(model, grid);
 
@@ -66,7 +66,7 @@ describe("CELL formula", () => {
       B1: "1",
       C2: "hello",
     };
-    const model = new Model();
+    const model = Model.BuildSync();
     createSheet(model, { sheetId: "sh2", name: "Sheet2" });
     setCellContent(model, "D5", "=1+1", "sh2");
     setGrid(model, grid);
@@ -85,7 +85,7 @@ describe("CELL formula", () => {
       B2: "=C1",
       B3: "9",
     };
-    const model = new Model();
+    const model = Model.BuildSync();
     setFormat(model, "B1", "d/m/yyyy");
     setFormat(model, "C1", "0.00");
     setGrid(model, grid);
@@ -112,7 +112,7 @@ describe("CELL formula", () => {
   });
 
   test("CELL can be called without grid context", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const sheetId = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "sh2", name: "Sh2" });
     setCellContent(model, "D5", "=1+1", sheetId);

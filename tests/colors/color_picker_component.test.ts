@@ -17,7 +17,10 @@ mockGetBoundingClientRect({
 
 let fixture: HTMLElement;
 
-async function mountColorPicker(partialProps: Partial<ColorPickerProps> = {}, model = new Model()) {
+async function mountColorPicker(
+  partialProps: Partial<ColorPickerProps> = {},
+  model = Model.BuildSync()
+) {
   const props = {
     onColorPicked: partialProps.onColorPicked || (() => {}),
     currentColor: partialProps.currentColor || "#000000",
@@ -138,7 +141,7 @@ describe("Color Picker buttons", () => {
   });
 
   test("initial custom color", async () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setStyle(model, "A1", { fillColor: "#123456" });
     await mountColorPicker({ currentColor: "#123456" }, model);
     const color = fixture.querySelector("div[data-color='#123456']") as HTMLElement;

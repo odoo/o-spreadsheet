@@ -91,7 +91,7 @@ class MyPlugin extends CorePlugin {
 MyPlugin.getters = ["getSomething"];
 
 // add the new "MyPlugin" to the plugin registry.
-// It will be automatically instantiated by o-spreadsheet when you mount the spreadsheet component or when you create a new Model()
+// It will be automatically instantiated by o-spreadsheet when you mount the spreadsheet component or when you create a Model.BuildSync()
 const pluginRegistry = spreadsheet.registries.pluginRegistry;
 pluginRegistry.add("MyPlugin", MyPlugin);
 ```
@@ -199,7 +199,7 @@ Let's say you have a `user` service with the currently logged in user.
 The example below shows how the service can be used in a custom plugin.
 
 ```ts
-const model = new Model(data, {
+const model = Model.BuildSync(data, {
   custom: {
     userService: services.user,
   },
