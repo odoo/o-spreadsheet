@@ -554,6 +554,7 @@ export const XLSX_CHART_TYPES = [
   "surface3DChart",
   "bubbleChart",
   "comboChart",
+  "radarChart",
 ] as const;
 export type XLSXChartType = (typeof XLSX_CHART_TYPES)[number];
 

@@ -8,7 +8,7 @@ import {
   CHART_TYPES,
   ChartDefinition,
   ChartType,
-  ChartWithAxisDefinition,
+  ChartWithDataSetDefinition,
   SpreadsheetChildEnv,
 } from "../../../src/types";
 import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
@@ -1641,7 +1641,7 @@ describe("charts", () => {
         expect(runtime.chartJsConfig.data.datasets.length).toEqual(1);
 
         await simulateClick(checkbox);
-        let definition = model.getters.getChartDefinition(chartId) as ChartWithAxisDefinition;
+        let definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
         expect(definition.dataSets[0].trend).toEqual({
           type: "polynomial",
           order: 1,
@@ -1651,7 +1651,7 @@ describe("charts", () => {
         expect(runtime.chartJsConfig.data.datasets.length).toEqual(2);
 
         await simulateClick(checkbox);
-        definition = model.getters.getChartDefinition(chartId) as ChartWithAxisDefinition;
+        definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
         expect(definition.dataSets[0].trend).toEqual({
           type: "polynomial",
           order: 1,
@@ -1681,7 +1681,7 @@ describe("charts", () => {
         await mountChartSidePanel(chartId);
         await openChartDesignSidePanel(model, env, fixture, chartId);
 
-        let definition = model.getters.getChartDefinition(chartId) as ChartWithAxisDefinition;
+        let definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
         expect(definition.dataSets[0].trend).toEqual({
           type: "polynomial",
           order: 3,
@@ -1690,7 +1690,7 @@ describe("charts", () => {
 
         for (const trendType of ["exponential", "logarithmic", "linear"]) {
           setInputValueAndTrigger(".trend-type-selector", trendType);
-          definition = model.getters.getChartDefinition(chartId) as ChartWithAxisDefinition;
+          definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
           if (trendType === "linear") {
             expect(definition.dataSets[0].trend?.type).toEqual("polynomial");
             expect(definition.dataSets[0].trend?.order).toEqual(1);
@@ -1720,7 +1720,7 @@ describe("charts", () => {
         await mountChartSidePanel(chartId);
         await openChartDesignSidePanel(model, env, fixture, chartId);
 
-        let definition = model.getters.getChartDefinition(chartId) as ChartWithAxisDefinition;
+        let definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
         expect(definition.dataSets[0].trend).toEqual({
           type: "polynomial",
           order: 3,
@@ -1728,7 +1728,7 @@ describe("charts", () => {
         });
 
         setInputValueAndTrigger(".trend-order-input", "2");
-        definition = model.getters.getChartDefinition(chartId) as ChartWithAxisDefinition;
+        definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
         expect(definition.dataSets[0].trend?.order).toEqual(2);
       }
     );
@@ -2049,5 +2049,21 @@ describe("Change chart type", () => {
       fillArea: false,
     });
     expect(select.value).toBe("stacked_line");
+  });
+
+  test("Can change chart type between radar and filled radar chart", async () => {
+    createChart(model, { type: "radar", fillArea: false }, chartId);
+    await mountChartSidePanel(chartId);
+    const select = fixture.querySelector(".o-type-selector") as HTMLSelectElement;
+
+    updateChart(model, chartId, { fillArea: true }, sheetId);
+    await nextTick();
+
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject({ fillArea: true });
+    expect(select.value).toBe("filled_radar");
+
+    await changeChartType("radar");
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject({ fillArea: false });
+    expect(select.value).toBe("radar");
   });
 });

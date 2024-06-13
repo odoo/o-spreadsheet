@@ -1,0 +1,42 @@
+<templates>
+  <t t-name="o-spreadsheet-SeriesDesignEditor">
+    <SidePanelCollapsible collapsedAtInit="true">
+      <t t-set-slot="title">Data series</t>
+      <t t-set-slot="content">
+        <Section class="'pt-0 pb-0'">
+          <select
+            class="o-input data-series-selector"
+            t-model="state.label"
+            t-on-change="(ev) => this.updateSerieEditor(ev)">
+            <t t-foreach="getDataSeries()" t-as="serie" t-key="serie_index">
+              <option
+                t-att-value="serie"
+                t-att-selected="state.index === serie_index"
+                t-esc="serie"
+              />
+            </t>
+          </select>
+          <Section class="'px-0'">
+            <div class="d-flex align-items-center">
+              <span class="o-section-title mb-0 pe-2">Series color</span>
+              <RoundColorPicker
+                currentColor="getDataSerieColor()"
+                onColorPicked.bind="updateDataSeriesColor"
+              />
+            </div>
+          </Section>
+          <Section class="'pt-0 px-0'">
+            <t t-set-slot="title">Series name</t>
+            <input
+              class="o-input o-serie-label-editor"
+              type="text"
+              t-att-value="getDataSerieLabel()"
+              t-on-change="(ev) => this.updateDataSeriesLabel(ev)"
+            />
+          </Section>
+        </Section>
+        <t t-slot="data-series-extension" index="state.index"/>
+      </t>
+    </SidePanelCollapsible>
+  </t>
+</templates>
