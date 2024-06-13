@@ -8,6 +8,7 @@ import { GaugeChartConfigPanel } from "./gauge_chart_panel/gauge_chart_config_pa
 import { GaugeChartDesignPanel } from "./gauge_chart_panel/gauge_chart_design_panel";
 import { LineConfigPanel } from "./line_chart/line_chart_config_panel";
 import { PieChartDesignPanel } from "./pie_chart/pie_chart_design_panel";
+import { RadarChartDesignPanel } from "./radar_chart/radar_chart_design_panel";
 import { ScatterConfigPanel } from "./scatter_chart/scatter_chart_config_panel";
 import { ScorecardChartConfigPanel } from "./scorecard_chart_panel/scorecard_chart_config_panel";
 import { ScorecardChartDesignPanel } from "./scorecard_chart_panel/scorecard_chart_design_panel";
@@ -65,4 +66,8 @@ chartSidePanelComponentRegistry
   .add("pyramid", {
     configuration: GenericChartConfigPanel,
     design: ChartWithAxisDesignPanel,
+  })
+  .add("radar", {
+    configuration: GenericChartConfigPanel,
+    design: RadarChartDesignPanel,
   });

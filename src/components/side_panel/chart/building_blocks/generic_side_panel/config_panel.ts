@@ -3,7 +3,7 @@ import { createValidRange, spreadRange } from "../../../../../helpers";
 import { createDataSets } from "../../../../../helpers/figures/charts";
 import { _t } from "../../../../../translation";
 import {
-  ChartWithAxisDefinition,
+  ChartWithDataSetDefinition,
   CommandResult,
   CustomizedDataSet,
   DispatchResult,
@@ -19,9 +19,12 @@ import { ChartLabelRange } from "../label_range/label_range";
 
 interface Props {
   figureId: UID;
-  definition: ChartWithAxisDefinition;
-  canUpdateChart: (figureId: UID, definition: Partial<ChartWithAxisDefinition>) => DispatchResult;
-  updateChart: (figureId: UID, definition: Partial<ChartWithAxisDefinition>) => DispatchResult;
+  definition: ChartWithDataSetDefinition;
+  canUpdateChart: (
+    figureId: UID,
+    definition: Partial<ChartWithDataSetDefinition>
+  ) => DispatchResult;
+  updateChart: (figureId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
 }
 
 interface ChartPanelState {
