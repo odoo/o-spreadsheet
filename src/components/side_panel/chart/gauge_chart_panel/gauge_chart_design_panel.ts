@@ -96,16 +96,6 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
     );
   }
 
-  updateBackgroundColor(color: Color) {
-    this.props.updateChart(this.props.figureId, {
-      background: color,
-    });
-  }
-
-  updateTitle(content: string) {
-    this.props.updateChart(this.props.figureId, { title: { text: content } });
-  }
-
   isRangeMinInvalid() {
     return !!(
       this.state.sectionRuleDispatchResult?.isCancelledBecause(CommandResult.EmptyGaugeRangeMin) ||
@@ -171,9 +161,5 @@ export class GaugeChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
     this.state.sectionRuleDispatchResult = this.props.canUpdateChart(this.props.figureId, {
       sectionRule,
     });
-  }
-
-  get backgroundColorTitle() {
-    return ChartTerms.BackgroundColor;
   }
 }
