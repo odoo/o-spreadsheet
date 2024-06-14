@@ -122,6 +122,16 @@ describe("evaluate formulas that return an array", () => {
     expect((getEvaluatedCell(model, "A2") as ErrorCell).message).toBe("Function GETERR failed");
   });
 
+  test("delete blocking content spills the result", () => {
+    setCellContent(model, "A1", "=MFILL(3,3, 42)");
+    setCellContent(model, "A2", "coucou");
+    expect(getEvaluatedCell(model, "A1").value).toBe("#SPILL!");
+
+    addColumns(model, "before", "A", 1); // this forces a full re-evaluation
+    deleteContent(model, ["B2"]);
+    expect(getEvaluatedCell(model, "B1").value).toBe(42);
+  });
+
   describe("spread matrix with format", () => {
     test("can spread matrix of values with matrix of format", () => {
       functionRegistry.add("MATRIX.2.2", {
