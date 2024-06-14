@@ -174,7 +174,7 @@ export class FigurePlugin extends CorePlugin<FigureState> implements FigureState
   // ---------------------------------------------------------------------------
   // Import/Export
   // ---------------------------------------------------------------------------
-  async import(data: WorkbookData) {
+  import(data: WorkbookData) {
     for (let sheet of data.sheets) {
       const figures = {};
       sheet.figures.forEach((figure) => {

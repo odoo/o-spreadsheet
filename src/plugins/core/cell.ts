@@ -3,7 +3,6 @@ import { Token, compile, tokenize } from "../../formulas";
 import { isEvaluationError, toString } from "../../functions/helpers";
 import { deepEquals, isExcelCompatible, recomputeZones } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells";
-import { longRunning } from "../../helpers/frames";
 import {
   concat,
   detectDateFormat,
@@ -35,6 +34,7 @@ import {
   Range,
   RangeCompiledFormula,
   RangePart,
+  SheetData,
   Style,
   UID,
   UpdateCellCommand,
@@ -230,7 +230,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   // ---------------------------------------------------------------------------
 
   import(data: WorkbookData) {
-    longRunning(
+    this.longRunner.longRunning<SheetData>(
+      "Importing sheets",
       Object.values(data.sheets),
       (sheet) => {
         // cells

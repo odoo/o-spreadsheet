@@ -334,6 +334,8 @@ export const helpers = {
   UNDO_REDO_PIVOT_COMMANDS,
 };
 
+export { LongRunner } from "./helpers/long_runner";
+
 export const links = {
   isMarkdownLink,
   parseMarkdownLink,

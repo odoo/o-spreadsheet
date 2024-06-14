@@ -18,7 +18,7 @@ const {
   onError,
 } = owl;
 
-const { Spreadsheet, Model, setTranslationMethod } = o_spreadsheet;
+const { Spreadsheet, Model, setTranslationMethod, LongRunner } = o_spreadsheet;
 const { topbarMenuRegistry } = o_spreadsheet.registries;
 const { useStoreProvider } = o_spreadsheet.stores;
 
@@ -268,19 +268,13 @@ class Demo extends Component {
         transportService: this.transportService,
         client: this.client,
         mode: "normal",
+        longRunner: new LongRunner((name, percentage) => {
+          console.log(`${name} at ${percentage} %`);
+          this.model.trigger("update");
+        }),
       },
       this.stateUpdateMessages
     );
-    this.model.init({
-      external: {
-        loadCurrencies: async () => currenciesData,
-        fileStore: this.fileStore,
-      },
-      custom: {},
-      transportService: this.transportService,
-      client: this.client,
-      mode: "normal",
-    });
     o_spreadsheet.__DEBUG__ = o_spreadsheet.__DEBUG__ || {};
     o_spreadsheet.__DEBUG__.model = this.model;
     this.model.joinSession();

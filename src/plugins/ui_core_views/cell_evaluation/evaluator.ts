@@ -3,7 +3,7 @@ import { implementationErrorMessage } from "../../../functions";
 import { matrixMap } from "../../../functions/helpers";
 import { lazy, positionToZone, toXC, union, unionPositionsToZone } from "../../../helpers";
 import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells";
-import { longRunning } from "../../../helpers/frames";
+import { ILongRunner } from "../../../helpers/long_runner";
 import { ModelConfig } from "../../../model";
 import { onIterationEndEvaluationRegistry } from "../../../registries/evaluation_registry";
 import { _t } from "../../../translation";
@@ -44,14 +44,20 @@ export class Evaluator {
   );
   private blockedArrayFormulas = new PositionSet({});
   private spreadingRelations = new SpreadingRelation();
+  private readonly longRunner: ILongRunner;
 
-  constructor(private readonly context: ModelConfig["custom"], getters: Getters) {
+  constructor(
+    private readonly context: ModelConfig["custom"],
+    getters: Getters,
+    longRunner: ILongRunner
+  ) {
     this.getters = getters;
     this.compilationParams = buildCompilationParameters(
       this.context,
       this.getters,
       this.computeAndSave.bind(this)
     );
+    this.longRunner = longRunner;
   }
 
   getEvaluatedCell(position: CellPosition): EvaluatedCell {
@@ -256,7 +262,8 @@ export class Evaluator {
         this.evaluatedCells.delete(position);
       }
 
-      longRunning(
+      this.longRunner.longRunning<CellPosition>(
+        "Evaluating",
         positions,
         (position) => {
           const evaluatedCell = this.computeCell(position);
@@ -264,8 +271,7 @@ export class Evaluator {
             this.evaluatedCells.set(position, evaluatedCell);
           }
         },
-        5000,
-        2000
+        5000
       );
       onIterationEndEvaluationRegistry.getAll().forEach((callback) => callback(this.getters));
     }

@@ -28,6 +28,7 @@
         </div>
         <SidePanel/>
         <BottomBar onClick="() => this.focusGrid()"/>
+        <ProgressBarContainer/>
       </t>
     </div>
   </t>

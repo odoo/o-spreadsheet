@@ -1,0 +1,5 @@
+<template>
+  <t t-name="o-spreadsheet-ProgressBarContainer">
+    <div class="o-progressBar-container"/>
+  </t>
+</template>

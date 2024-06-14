@@ -270,7 +270,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
   /**
    * Import the pivots
    */
-  async import(data: WorkbookData) {
+  import(data: WorkbookData) {
     if (data.pivots) {
       for (const [id, pivot] of Object.entries(data.pivots)) {
         this.addPivot(id, pivot, pivot.formulaId);

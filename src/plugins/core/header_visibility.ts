@@ -183,7 +183,7 @@ export class HeaderVisibilityPlugin extends CorePlugin {
     });
   }
 
-  async import(data: WorkbookData) {
+  import(data: WorkbookData) {
     for (let sheet of data.sheets) {
       this.hiddenHeaders[sheet.id] = { COL: [], ROW: [] };
       for (let row = 0; row < sheet.rowNumber; row++) {

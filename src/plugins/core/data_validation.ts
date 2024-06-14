@@ -228,7 +228,7 @@ export class DataValidationPlugin
     }
   }
 
-  async import(data: WorkbookData) {
+  import(data: WorkbookData) {
     for (const sheet of data.sheets) {
       this.rules[sheet.id] = [];
       if (!sheet.dataValidationRules) {

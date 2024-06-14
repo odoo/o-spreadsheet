@@ -65,7 +65,7 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
     return rowSize ? Math.round(rowSize) : undefined;
   }
 
-  async import(data: WorkbookData) {
+  import(data: WorkbookData) {
     for (let sheet of data.sheets) {
       const sizes: Record<Dimension, Array<Pixel | undefined>> = {
         COL: Array(sheet.colNumber).fill(undefined),
