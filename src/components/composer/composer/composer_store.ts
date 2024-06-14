@@ -24,7 +24,7 @@ import {
   getDateTimeFormat,
   localizeFormula,
 } from "../../../helpers/locale";
-import { makePivotFormulaFromPivotCell } from "../../../helpers/pivot/pivot_helpers";
+import { createPivotFormula } from "../../../helpers/pivot/pivot_helpers";
 import { cycleFixedReference } from "../../../helpers/reference_type";
 import {
   AutoCompleteProvider,
@@ -646,7 +646,7 @@ export class ComposerStore extends SpreadsheetStore {
       const cell = this.getters.getCell(position);
       if (pivotId && pivotCell.type !== "EMPTY" && !cell?.isFormula) {
         const formulaPivotId = this.getters.getPivotFormulaId(pivotId);
-        const formula = makePivotFormulaFromPivotCell(formulaPivotId, pivotCell);
+        const formula = createPivotFormula(formulaPivotId, pivotCell);
         return formula.slice(1); // strip leading =
       }
     }

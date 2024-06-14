@@ -14,7 +14,7 @@ import {
   PivotField,
   PivotTableCell,
 } from "../../types/pivot";
-import { isDefined } from "../misc";
+import { PivotRuntimeDefinition } from "./pivot_runtime_definition";
 import { pivotTimeAdapter } from "./pivot_time_adapter";
 
 const AGGREGATOR_NAMES = {
@@ -85,46 +85,6 @@ export const AGGREGATORS_FN: Record<string, AggregatorFN | undefined> = {
   },
 };
 
-export function makePivotFormulaFromPivotCell(pivotFormulaId: string, pivotCell: PivotTableCell) {
-  switch (pivotCell.type) {
-    case "HEADER":
-      return makePivotFormula(
-        "PIVOT.HEADER",
-        [pivotFormulaId, ...flatPivotDomain(pivotCell.domain)].filter(isDefined)
-      );
-    case "MEASURE_HEADER":
-      return makePivotFormula(
-        "PIVOT.HEADER",
-        [pivotFormulaId, ...flatPivotDomain(pivotCell.domain), "measure", pivotCell.measure].filter(
-          isDefined
-        )
-      );
-    case "VALUE":
-      return makePivotFormula(
-        "PIVOT.VALUE",
-        [pivotFormulaId, pivotCell.measure, ...flatPivotDomain(pivotCell.domain)].filter(isDefined)
-      );
-    case "EMPTY":
-      return "";
-  }
-}
-/**
- * Build a pivot formula expression
- */
-export function makePivotFormula(
-  formula: "PIVOT.VALUE" | "PIVOT.HEADER",
-  args: (string | boolean | number)[]
-) {
-  return `=${formula}(${args
-    .map((arg) => {
-      const stringIsNumber =
-        typeof arg == "string" && !isNaN(Number(arg)) && Number(arg).toString() === arg;
-      const convertToNumber = typeof arg == "number" || stringIsNumber;
-      return convertToNumber ? `${arg}` : `"${arg.toString().replace(/"/g, '\\"')}"`;
-    })
-    .join(",")})`;
-}
-
 /**
  * Given an object of form {"1": {...}, "2": {...}, ...} get the maximum ID used
  * in this object
@@ -172,19 +132,58 @@ export function isDateField(field: PivotField) {
   return DATE_FIELDS.includes(field.type);
 }
 
-export function toPivotDomain(domainStr: string[]) {
-  if (domainStr.length % 2 !== 0) {
-    throw new Error("Invalid domain: odd number of elements");
+function generatePivotArgs(formulaId: string, domain: PivotDomain, measure?: string): string[] {
+  const args: string[] = [formulaId];
+  if (measure) {
+    args.push(`"${measure}"`);
   }
-  const domain: PivotDomain = [];
-  for (let i = 0; i < domainStr.length - 1; i += 2) {
-    domain.push({ field: domainStr[i], value: domainStr[i + 1] });
+  for (const { field, value, type } of domain) {
+    if (field === "measure") {
+      args.push(`"measure"`, `"${value}"`);
+      continue;
+    }
+    const { granularity } = parseDimension(field);
+    const formattedValue = toFunctionPivotValue(value, { type, granularity });
+    args.push(`"${field}"`, formattedValue);
   }
-  return domain;
+  return args;
 }
 
-export function flatPivotDomain(domain: PivotDomain) {
-  return domain.flatMap((arg) => [arg.field, arg.value]);
+/**
+ * Check if the fields in the domain part of
+ * a pivot function are valid according to the pivot definition.
+ * e.g. =PIVOT.VALUE(1,"revenue","country_id",...,"create_date:month",...,"source_id",...)
+ */
+export function areDomainArgsFieldsValid(dimensions: string[], definition: PivotRuntimeDefinition) {
+  let argIndex = 0;
+  let definitionIndex = 0;
+  const cols = definition.columns.map((col) => col.nameWithGranularity);
+  const rows = definition.rows.map((row) => row.nameWithGranularity);
+  while (dimensions[argIndex] !== undefined && dimensions[argIndex] === rows[definitionIndex]) {
+    argIndex++;
+    definitionIndex++;
+  }
+  definitionIndex = 0;
+  while (dimensions[argIndex] !== undefined && dimensions[argIndex] === cols[definitionIndex]) {
+    argIndex++;
+    definitionIndex++;
+  }
+  return dimensions.length === argIndex;
+}
+
+export function createPivotFormula(formulaId: string, cell: PivotTableCell) {
+  switch (cell.type) {
+    case "HEADER":
+      return `=PIVOT.HEADER(${generatePivotArgs(formulaId, cell.domain).join(",")})`;
+    case "VALUE":
+      return `=PIVOT.VALUE(${generatePivotArgs(formulaId, cell.domain, cell.measure).join(",")})`;
+    case "MEASURE_HEADER":
+      return `=PIVOT.HEADER(${generatePivotArgs(formulaId, [
+        ...cell.domain,
+        { field: "measure", value: cell.measure, type: "char" },
+      ]).join(",")})`;
+  }
+  return "";
 }
 
 /**
@@ -212,18 +211,35 @@ export function toNormalizedPivotValue(
     );
   }
   // represents a field which is not set (=False server side)
-  if (groupValueString === "false") {
+  if (groupValueString.toLowerCase() === "false") {
     return false;
   }
   const normalizer = pivotNormalizationValueRegistry.get(dimension.type);
   return normalizer(groupValueString, dimension.granularity);
 }
 
-function normalizeDateTime(value: string, granularity: Granularity) {
+function normalizeDateTime(value: CellValue, granularity: Granularity) {
   if (!granularity) {
-    throw "";
+    throw new Error("Missing granularity");
   }
   return pivotTimeAdapter(granularity).normalizeFunctionValue(value);
+}
+
+export function toFunctionPivotValue(
+  value: CellValue,
+  dimension: Pick<PivotDimension, "type" | "granularity">
+) {
+  if (!pivotToFunctionValueRegistry.contains(dimension.type)) {
+    return `"${value}"`;
+  }
+  return pivotToFunctionValueRegistry.get(dimension.type)(value, dimension.granularity);
+}
+
+function toFunctionValueDateTime(value: CellValue, granularity: Granularity) {
+  if (!granularity) {
+    throw new Error("Missing granularity");
+  }
+  return pivotTimeAdapter(granularity).toFunctionValue(value);
 }
 
 export const pivotNormalizationValueRegistry = new Registry<
@@ -236,3 +252,14 @@ pivotNormalizationValueRegistry
   .add("integer", (value) => toNumber(value, DEFAULT_LOCALE))
   .add("boolean", (value) => toBoolean(value))
   .add("char", (value) => toString(value));
+
+export const pivotToFunctionValueRegistry = new Registry<
+  (value: CellValue, granularity?: string) => string
+>();
+
+pivotToFunctionValueRegistry
+  .add("date", toFunctionValueDateTime)
+  .add("datetime", toFunctionValueDateTime)
+  .add("integer", (value: CellValue) => `${toNumber(value, DEFAULT_LOCALE)}`)
+  .add("boolean", (value: CellValue) => (toBoolean(value) ? "TRUE" : "FALSE"))
+  .add("char", (value: CellValue) => `"${toString(value).replace(/"/g, '\\"')}"`);

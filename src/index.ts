@@ -115,14 +115,14 @@ import {
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
 
 import {
-  flatPivotDomain,
+  areDomainArgsFieldsValid,
+  createPivotFormula,
   getMaxObjectId,
   isDateField,
-  makePivotFormula,
   parseDimension,
   pivotNormalizationValueRegistry,
+  pivotToFunctionValueRegistry,
   toNormalizedPivotValue,
-  toPivotDomain,
 } from "./helpers/pivot/pivot_helpers";
 import { getPivotHighlights } from "./helpers/pivot/pivot_highlight";
 import { pivotRegistry } from "./helpers/pivot/pivot_registry";
@@ -275,6 +275,7 @@ export const registries = {
   pivotSidePanelRegistry,
   pivotNormalizationValueRegistry,
   supportedPivotPositionalFormulaRegistry,
+  pivotToFunctionValueRegistry,
 };
 export const helpers = {
   arg,
@@ -320,7 +321,6 @@ export const helpers = {
   expandZoneOnInsertion,
   reduceZoneOnDeletion,
   unquote,
-  makePivotFormula,
   getMaxObjectId,
   getFunctionsFromTokens,
   getFirstPivotFunction,
@@ -332,10 +332,10 @@ export const helpers = {
   insertTokenAfterLeftParenthesis,
   mergeContiguousZones,
   getPivotHighlights,
-  toPivotDomain,
-  flatPivotDomain,
   pivotTimeAdapter,
   UNDO_REDO_PIVOT_COMMANDS,
+  createPivotFormula,
+  areDomainArgsFieldsValid,
 };
 
 export const links = {

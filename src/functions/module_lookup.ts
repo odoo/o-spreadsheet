@@ -1,5 +1,4 @@
 import { getFullReference, range, toXC, toZone } from "../helpers/index";
-import { toPivotDomain } from "../helpers/pivot/pivot_helpers";
 import { _t } from "../translation";
 import { AddFunctionDescription, CellPosition, FPayload, Matrix, Maybe } from "../types";
 import { CellErrorType, EvaluationError, InvalidReferenceError } from "../types/errors";
@@ -704,10 +703,9 @@ export const PIVOT_VALUE = {
   ) {
     const _pivotFormulaId = toString(formulaId);
     const _measure = toString(measureName);
-    const _domainArgs = domainArgs.map(toString);
     const pivotId = getPivotId(_pivotFormulaId, this.getters);
     assertMeasureExist(pivotId, _measure, this.getters);
-    assertDomainLength(_domainArgs);
+    assertDomainLength(domainArgs);
     const pivot = this.getters.getPivot(pivotId);
     const coreDefinition = this.getters.getPivotCoreDefinition(pivotId);
 
@@ -716,15 +714,15 @@ export const PIVOT_VALUE = {
     if (error) {
       return error;
     }
-    const domain = toPivotDomain(_domainArgs);
-    const { value, format } = pivot.getPivotCellValueAndFormat(_measure, domain);
-    if (!value && !this.getters.areDomainArgsFieldsValid(pivotId, domain)) {
+
+    if (!pivot.areDomainArgsFieldsValid(domainArgs)) {
       return {
         value: CellErrorType.GenericError,
         message: _t("Dimensions don't match the pivot definition"),
       };
     }
-    return { value, format };
+    const domain = pivot.parseArgsToPivotDomain(domainArgs);
+    return pivot.getPivotCellValueAndFormat(_measure, domain);
   },
 } satisfies AddFunctionDescription;
 
@@ -737,9 +735,8 @@ export const PIVOT_HEADER = {
   ],
   compute: function (pivotId: Maybe<FPayload>, ...domainArgs: Maybe<FPayload>[]) {
     const _pivotFormulaId = toString(pivotId);
-    const _domainArgs = domainArgs.map(toString);
     const _pivotId = getPivotId(_pivotFormulaId, this.getters);
-    assertDomainLength(_domainArgs);
+    assertDomainLength(domainArgs);
     const pivot = this.getters.getPivot(_pivotId);
     const coreDefinition = this.getters.getPivotCoreDefinition(_pivotId);
     addPivotDependencies(this, coreDefinition);
@@ -747,19 +744,14 @@ export const PIVOT_HEADER = {
     if (error) {
       return error;
     }
-    const domain = toPivotDomain(_domainArgs);
-    const lastNode = domain.at(-1);
-    if (
-      !this.getters.areDomainArgsFieldsValid(
-        _pivotId,
-        lastNode?.field === "measure" ? domain.slice(0, -1) : domain
-      )
-    ) {
+    if (!pivot.areDomainArgsFieldsValid(domainArgs)) {
       return {
         value: CellErrorType.GenericError,
         message: _t("Dimensions don't match the pivot definition"),
       };
     }
+    const domain = pivot.parseArgsToPivotDomain(domainArgs);
+    const lastNode = domain.at(-1);
     if (lastNode?.field === "measure") {
       return pivot.getPivotMeasureValue(toString(lastNode.value), domain);
     }

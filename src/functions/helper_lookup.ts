@@ -1,6 +1,6 @@
 import { toZone, zoneToXc } from "../helpers";
 import { _t } from "../translation";
-import { CellPosition, EvalContext, Getters, UID } from "../types";
+import { CellPosition, EvalContext, FPayload, Getters, Maybe, UID } from "../types";
 import { EvaluationError, InvalidReferenceError } from "../types/errors";
 import { PivotCoreDefinition } from "../types/pivot";
 
@@ -29,7 +29,7 @@ export function assertMeasureExist(pivotId: UID, measure: string, getters: Gette
   }
 }
 
-export function assertDomainLength(domain: string[]) {
+export function assertDomainLength(domain: Maybe<FPayload>[]) {
   if (domain.length % 2 !== 0) {
     throw new EvaluationError(_t("Function PIVOT takes an even number of arguments."));
   }

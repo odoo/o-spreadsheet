@@ -66,9 +66,6 @@ autoCompleteProviders.add("pivot_measures", {
     const pivot = this.getters.getPivot(pivotId);
     pivot.init();
     const fields = pivot.getFields();
-    if (!fields) {
-      return [];
-    }
     const definition = this.getters.getPivotCoreDefinition(pivotId);
 
     return definition.measures
@@ -112,9 +109,6 @@ autoCompleteProviders.add("pivot_group_fields", {
     const pivot = this.getters.getPivot(pivotId);
     pivot.init();
     const fields = pivot.getFields();
-    if (!fields) {
-      return;
-    }
     const { columns, rows } = pivot.definition;
 
     let args = functionContext.args;

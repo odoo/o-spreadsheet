@@ -1,4 +1,4 @@
-import { EvaluatedCell } from "../../../types";
+import { CellValue, EvaluatedCell } from "../../../types";
 import { PivotDimension, PivotTableColumn, PivotTableRow } from "../../../types/pivot";
 import { SpreadsheetPivotRuntimeDefinition } from "./runtime_definition_spreadsheet_pivot";
 import { SpreadsheetPivotTable } from "./table_spreadsheet_pivot";
@@ -10,7 +10,7 @@ export type DataEntry = Record<FieldName, FieldValue | undefined>;
 export type DataEntries = DataEntry[];
 
 interface ColumnsNode {
-  value: string;
+  value: CellValue;
   field: string;
   children: ColumnsTree;
   width: number;
@@ -38,7 +38,14 @@ export function dataEntriesToSpreadsheetPivotTable(
   });
 
   const measureNames = definition.measures.map((m) => m.name);
-  return new SpreadsheetPivotTable(cols, rows, measureNames);
+  const fieldsType: Record<string, string> = {};
+  for (const columns of definition.columns) {
+    fieldsType[columns.name] = columns.type;
+  }
+  for (const row of definition.rows) {
+    fieldsType[row.name] = row.type;
+  }
+  return new SpreadsheetPivotTable(cols, rows, measureNames, fieldsType);
 }
 
 // -----------------------------------------------------------------------------
@@ -54,7 +61,7 @@ function dataEntriesToRows(
   index: number,
   rows: PivotDimension[],
   fields: string[],
-  values: string[]
+  values: CellValue[]
 ): PivotTableRow[] {
   if (index >= rows.length) {
     return [];
@@ -138,7 +145,7 @@ function columnsTreeToColumns(
 
   const headers: PivotTableColumn[][] = new Array(height).fill(0).map(() => []);
 
-  function generateTreeHeaders(tree: ColumnsTree, rowIndex: number, val: string[]) {
+  function generateTreeHeaders(tree: ColumnsTree, rowIndex: number, val: CellValue[]) {
     const row = headers[rowIndex];
     for (const node of tree) {
       const localVal = val.concat([node.value]);

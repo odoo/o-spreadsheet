@@ -1,7 +1,17 @@
 import { handleError } from "../../../functions";
+import { toString } from "../../../functions/helpers";
 import { ModelConfig } from "../../../model";
 import { _t } from "../../../translation";
-import { CellValueType, EvaluatedCell, FPayload, Getters, Range, UID, Zone } from "../../../types";
+import {
+  CellValueType,
+  EvaluatedCell,
+  FPayload,
+  Getters,
+  Maybe,
+  Range,
+  UID,
+  Zone,
+} from "../../../types";
 import { CellErrorType, EvaluationError } from "../../../types/errors";
 import {
   Granularity,
@@ -17,7 +27,12 @@ import { InitPivotParams, Pivot } from "../../../types/pivot_runtime";
 import { toXC } from "../../coordinates";
 import { isDateTimeFormat } from "../../format";
 import { isDefined } from "../../misc";
-import { AGGREGATORS_FN, toNormalizedPivotValue } from "../pivot_helpers";
+import {
+  AGGREGATORS_FN,
+  areDomainArgsFieldsValid,
+  parseDimension,
+  toNormalizedPivotValue,
+} from "../pivot_helpers";
 import { PivotParams } from "../pivot_registry";
 import { pivotTimeAdapter } from "../pivot_time_adapter";
 import {
@@ -169,6 +184,28 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     return undefined;
   }
 
+  areDomainArgsFieldsValid(args: Maybe<FPayload>[]): boolean {
+    let dimensions = args.filter((_, index) => index % 2 === 0).map(toString);
+    if (dimensions.length && dimensions.at(-1) === "measure") {
+      dimensions = dimensions.slice(0, -1);
+    }
+    return areDomainArgsFieldsValid(dimensions, this.definition);
+  }
+
+  parseArgsToPivotDomain(args: Maybe<FPayload>[]): PivotDomain {
+    const domain: PivotDomain = [];
+    for (let i = 0; i < args.length - 1; i += 2) {
+      const fieldWithGranularity = toString(args[i]);
+      const type = this.getTypeOfDimension(fieldWithGranularity);
+      const normalizedValue =
+        fieldWithGranularity === "measure"
+          ? toString(args[i + 1])
+          : toNormalizedPivotValue(this.getDimension(fieldWithGranularity), args[i + 1]);
+      domain.push({ field: fieldWithGranularity, value: normalizedValue, type });
+    }
+    return domain;
+  }
+
   markAsDirtyForEvaluation(): void {
     this.needsReevaluation = true;
   }
@@ -193,19 +230,12 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     const finalCell = cells[0]?.[dimension.nameWithGranularity];
     if (dimension.type === "date") {
       const adapter = pivotTimeAdapter(dimension.granularity as Granularity);
-      return {
-        value:
-          lastNode.value !== "null"
-            ? adapter.toCellValue(toNormalizedPivotValue(dimension, lastNode.value))
-            : _t("(Undefined)"),
-        format: adapter.getFormat(this.getters.getLocale()),
-      };
+      return adapter.toValueAndFormat(lastNode.value, this.getters.getLocale());
     }
     if (!finalCell) {
       return { value: "" };
     }
-    // Value can be null but stringified (e.g. an empty date, as for now every date is stringified)
-    if (finalCell.value === null || finalCell.value === `${null}`) {
+    if (finalCell.value === null) {
       return { value: _t("(Undefined)") };
     }
     return {
@@ -259,8 +289,20 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     return this.table;
   }
 
-  getFields(): PivotFields | undefined {
+  getFields(): PivotFields {
     return this.fields;
+  }
+
+  private getTypeOfDimension(fieldWithGranularity: string): string {
+    if (fieldWithGranularity === "measure") {
+      return "char";
+    }
+    const { name } = parseDimension(fieldWithGranularity);
+    const type = this.fields[name]?.type;
+    if (!type) {
+      throw new Error(`Field ${name} does not exist`);
+    }
+    return type;
   }
 
   private filterDataEntriesFromDomain(dataEntries: DataEntries, domain: PivotNode[]) {
@@ -272,12 +314,8 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
 
   private filterDataEntriesFromDomainNode(dataEntries: DataEntries, domain: PivotNode) {
     const { field, value } = domain;
-    const dimension = this.getDimension(field);
-    return dataEntries.filter(
-      (entry) =>
-        `${entry[dimension.nameWithGranularity]?.value}` ===
-        `${toNormalizedPivotValue(dimension, value)}`
-    );
+    const { nameWithGranularity } = this.getDimension(field);
+    return dataEntries.filter((entry) => entry[nameWithGranularity]?.value === value);
   }
 
   private getDimension(nameWithGranularity: string): PivotDimension {
@@ -395,11 +433,11 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
       for (const entry of dataEntries) {
         for (const dimension of dateDimensions) {
           entry[dimension.nameWithGranularity] = {
-            value: `${createDate(
+            value: createDate(
               dimension,
               entry[dimension.name]?.value || null,
               this.getters.getLocale()
-            )}`,
+            ),
             type: entry[dimension.name]?.type || CellValueType.empty,
             format: entry[dimension.name]?.format,
           };
