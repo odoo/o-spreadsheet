@@ -1,10 +1,10 @@
 import { Component, onWillUpdateProps } from "@odoo/owl";
-import { formatValue } from "../../helpers/format";
-import { MenuItemRegistry } from "../../registries/menu_items_registry";
-import { Store, useStore } from "../../store_engine";
-import { SpreadsheetChildEnv } from "../../types";
-import { Ripple } from "../animation/ripple";
-import { css } from "../helpers/css";
+import { formatValue } from "../../../helpers/format";
+import { MenuItemRegistry } from "../../../registries/menu_items_registry";
+import { Store, useStore } from "../../../store_engine";
+import { SpreadsheetChildEnv } from "../../../types";
+import { Ripple } from "../../animation/ripple";
+import { css } from "../../helpers/css";
 import { AggregateStatisticsStore } from "./aggregate_statistics_store";
 
 // -----------------------------------------------------------------------------
