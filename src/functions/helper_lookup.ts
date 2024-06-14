@@ -1,4 +1,4 @@
-import { toZone, zoneToXc } from "../helpers";
+import { isZoneInside, toZone, zoneToXc } from "../helpers";
 import { _t } from "../translation";
 import { CellPosition, EvalContext, Getters, UID } from "../types";
 import { EvaluationError, InvalidReferenceError } from "../types/errors";
@@ -49,6 +49,11 @@ export function addPivotDependencies(
   const originCellXC = evalContext.__originCellXC?.();
   if (originCellXC) {
     const cellZone = toZone(originCellXC);
+    if (originSheetId === sheetId && isZoneInside(cellZone, zone)) {
+      throw new EvaluationError(
+        `Function [[FUNCTION_NAME]] cannot be used in its range data (${zoneToXc(zone)}).`
+      );
+    }
     originPosition = {
       sheetId: originSheetId,
       col: cellZone.left,

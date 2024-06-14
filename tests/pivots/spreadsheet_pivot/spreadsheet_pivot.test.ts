@@ -446,6 +446,14 @@ describe("Spreadsheet Pivot", () => {
     expect(getEvaluatedGrid(model, "B26:F26")).toEqual([["5", "9", "14", "Total", ""]]);
   });
 
+  test("Cannot use PIVOT function inside its range", () => {
+    const model = createModelWithPivot("A1:I5");
+    setCellContent(model, "B3", `=PIVOT("1")`);
+    expect(getCellError(model, "B3")).toBe(
+      "Function PIVOT cannot be used in its range data (A1:I5)."
+    );
+  });
+
   describe("Pivot reevaluation", () => {
     test("Pivot fields reevaluation", () => {
       const model = new Model({
