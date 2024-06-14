@@ -267,7 +267,6 @@ export class Evaluator {
     if (!this.blockedArrayFormulas.has(position)) {
       this.invalidateSpreading(position);
     }
-    this.spreadingRelations.removeNode(position);
 
     const cell = this.getters.getCell(position);
     if (cell === undefined) {
@@ -325,6 +324,8 @@ export class Evaluator {
 
     const nbColumns = formulaReturn.length;
     const nbRows = formulaReturn[0].length;
+
+    this.spreadingRelations.removeNode(formulaPosition);
 
     forEachSpreadPositionInMatrix(nbColumns, nbRows, this.updateSpreadRelation(formulaPosition));
     this.assertNoMergedCellsInSpreadZone(formulaPosition, formulaReturn);
