@@ -1,7 +1,6 @@
 import { CellValue } from "./cells";
-import { Format } from "./format";
 import { Locale } from "./locale";
-import { UID, Zone } from "./misc";
+import { FPayload, UID, Zone } from "./misc";
 
 export type Aggregator =
   | "array_agg"
@@ -86,14 +85,14 @@ export interface PivotDimension extends PivotCoreDimension {
 
 export interface PivotTableColumn {
   fields: string[];
-  values: string[];
+  values: CellValue[];
   width: number;
   offset: number;
 }
 
 export interface PivotTableRow {
   fields: string[];
-  values: string[];
+  values: CellValue[];
   indent: number;
 }
 
@@ -101,6 +100,7 @@ export interface PivotTableData {
   cols: PivotTableColumn[][];
   rows: PivotTableRow[];
   measures: string[];
+  fieldsType?: Record<string, string | undefined>; // TODO Make it mandatory when JSON migration is available
 }
 
 export interface PivotHeaderCell {
@@ -130,16 +130,22 @@ export type PivotTableCell =
   | PivotValueCell
   | PivotEmptyCell;
 
+export interface PivotTimeAdapterNotNull<T> {
+  normalizeFunctionValue: (value: Exclude<CellValue, null>) => T;
+  toValueAndFormat: (normalizedValue: T, locale?: Locale) => FPayload;
+  toFunctionValue: (normalizedValue: T) => string;
+}
+
 export interface PivotTimeAdapter<T> {
-  normalizeFunctionValue: (value: string) => T;
-  formatValue: (normalizedValue: T, locale?: Locale) => string;
-  getFormat: (locale?: Locale) => Format | undefined;
-  toCellValue: (normalizedValue: T) => CellValue;
+  normalizeFunctionValue: (value: CellValue) => T | null;
+  toValueAndFormat: (normalizedValue: T, locale?: Locale) => FPayload;
+  toFunctionValue: (normalizedValue: T) => string;
 }
 
 export interface PivotNode {
   field: string;
-  value: string | number | boolean;
+  type: string;
+  value: CellValue;
 }
 
 export type PivotDomain = PivotNode[];

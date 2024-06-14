@@ -1,4 +1,4 @@
-import { CellErrorType, Model } from "../../../src";
+import { CellErrorType, FPayload, Model } from "../../../src";
 import {
   createSheet,
   deleteContent,
@@ -15,7 +15,7 @@ import {
 } from "../../test_helpers/getters_helpers";
 import { createModelFromGrid } from "../../test_helpers/helpers";
 import { addPivot, createModelWithPivot, updatePivot } from "../../test_helpers/pivot_helpers";
-import { CellValueType } from "./../../../src/types/cells";
+import { CellValue, CellValueType } from "./../../../src/types/cells";
 
 describe("Spreadsheet Pivot", () => {
   test("Pivot is correctly registered", () => {
@@ -36,7 +36,7 @@ describe("Spreadsheet Pivot", () => {
       ],
     });
     addPivot(model, "A1:C5", {});
-    const fields = model.getters.getPivot("1").getFields()!;
+    const fields = model.getters.getPivot("1").getFields();
     expect(Object.keys(fields)).toEqual(["Customer", "Order", "Date"]);
   });
 
@@ -52,7 +52,7 @@ describe("Spreadsheet Pivot", () => {
       ],
     });
     addPivot(model, "A1:B5", {});
-    const fields = model.getters.getPivot("1").getFields()!;
+    const fields = model.getters.getPivot("1").getFields();
     expect(Object.keys(fields)).toEqual(["Customer", "Customer2"]);
   });
 
@@ -68,7 +68,7 @@ describe("Spreadsheet Pivot", () => {
       ],
     });
     addPivot(model, "A1:B5", {});
-    const fields = model.getters.getPivot("1").getFields()!;
+    const fields = model.getters.getPivot("1").getFields();
     expect(Object.keys(fields)).toEqual(["Customer", "Hello"]);
   });
 
@@ -117,7 +117,7 @@ describe("Spreadsheet Pivot", () => {
       ],
     });
     addPivot(model, "A1:I4", {});
-    const fields = model.getters.getPivot("1").getFields()!;
+    const fields = model.getters.getPivot("1").getFields();
     expect(
       Object.keys(fields).map((field) => ({ name: field, type: fields[field]?.type }))
     ).toEqual([
@@ -497,8 +497,8 @@ describe("Spreadsheet Pivot", () => {
 
     // prettier-ignore
     expect(getEvaluatedGrid(model, "C1:H2")).toEqual([
-      ["(#1) Pivot", "12/28/2024", "11/28/2024", "4/14/1995", "Total", ""],
-      ["",           "Price",      "Price",      "Price",     "Price", ""],
+      ["(#1) Pivot", "4/14/1995", "11/28/2024", "12/28/2024", "Total", ""],
+      ["",           "Price",     "Price",      "Price",      "Price", ""],
     ]);
 
     setCellContent(model, "C1", "=PIVOT(1,,,,0)");
@@ -511,7 +511,7 @@ describe("Spreadsheet Pivot", () => {
     setCellContent(model, "C1", "=PIVOT(1,,,,1)");
     // prettier-ignore
     expect(getEvaluatedGrid(model, "C1:E2")).toEqual([
-      ["(#1) Pivot", "12/28/2024", ""],
+      ["(#1) Pivot", "4/14/1995", ""],
       ["",           "Price",      ""],
     ]);
   });
@@ -1189,6 +1189,56 @@ describe("Spreadsheet Pivot", () => {
     expect(getEvaluatedGrid(model, "B4:E4")).toEqual([["March", "(Undefined)", "Total", ""]]);
   });
 
+  test("fieldsType is not mandatory in INSERT_PIVOT command", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Name", B1: "Price",
+      A2: "Alice", B2: "10",
+      A3: "Bob", B3: "20",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B3", {
+      columns: [],
+      rows: [{ name: "Price" }],
+      measures: [{ name: "Name", aggregator: "count" }],
+    });
+    const pivotId = model.getters.getPivotIds()[0];
+    const pivot = model.getters.getPivot(pivotId);
+    const table = pivot.getTableStructure().export();
+    model.dispatch("INSERT_PIVOT", {
+      pivotId,
+      col: 2,
+      row: 0,
+      sheetId: model.getters.getActiveSheetId(),
+      table: {
+        ...table,
+        fieldsType: undefined,
+      },
+    });
+    expect(getEvaluatedGrid(model, "C3:C4")).toEqual([["10"], ["20"]]);
+    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    // With fieldsType = undefined, arguments are stringified
+    expect(getEvaluatedGrid(model, "C3:C4")).toEqual([
+      [`=PIVOT.HEADER(1,"Price","10")`],
+      [`=PIVOT.HEADER(1,"Price","20")`],
+    ]);
+    model.dispatch("INSERT_PIVOT", {
+      pivotId,
+      col: 2,
+      row: 0,
+      sheetId: model.getters.getActiveSheetId(),
+      table,
+    });
+    model.dispatch("SET_FORMULA_VISIBILITY", { show: false });
+    expect(getEvaluatedGrid(model, "C3:C4")).toEqual([["10"], ["20"]]);
+    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    // With fieldsType set, arguments are correctly normalized
+    expect(getEvaluatedGrid(model, "C3:C4")).toEqual([
+      [`=PIVOT.HEADER(1,"Price",10)`],
+      [`=PIVOT.HEADER(1,"Price",20)`],
+    ]);
+  });
+
   describe("Pivot reevaluation", () => {
     test("Pivot fields reevaluation", () => {
       const model = new Model({
@@ -1204,22 +1254,172 @@ describe("Spreadsheet Pivot", () => {
       });
       addPivot(model, "A1:C5", {});
       setCellContent(model, "D1", `=PIVOT("1")`);
-      expect(Object.keys(model.getters.getPivot("1").getFields()!)).toEqual([
+      expect(Object.keys(model.getters.getPivot("1").getFields())).toEqual([
         "Customer",
         "Order",
         "Date",
       ]);
       setCellContent(model, "A1", "Tabouret");
-      expect(Object.keys(model.getters.getPivot("1").getFields()!)).toEqual([
+      expect(Object.keys(model.getters.getPivot("1").getFields())).toEqual([
         "Tabouret",
         "Order",
         "Date",
       ]);
       setCellContent(model, "A1", "=1/0");
-      expect(Object.keys(model.getters.getPivot("1").getFields()!)).toEqual([]);
+      expect(Object.keys(model.getters.getPivot("1").getFields())).toEqual([]);
       expect(model.getters.getPivot("1").isValid()).toBeFalsy();
       setCellContent(model, "A1", "Tabouret");
       expect(model.getters.getPivot("1").isValid()).toBeTruthy();
     });
+  });
+});
+
+describe("Spreadsheet arguments parsing", () => {
+  function toFPayload(args: CellValue[]): FPayload[] {
+    return args.map((value) => ({ value } as FPayload));
+  }
+
+  test("Date arguments are correctly parsed", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Date", B1: "Price",
+      A2: "2024-12-31", B2: "10",
+      A3: "2024-12-31", B3: "20",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B3", {
+      columns: [],
+      rows: [{ name: "Date", granularity: "year_number" }],
+      measures: [{ name: "Price", aggregator: "sum" }],
+    });
+    const pivot = model.getters.getPivot(model.getters.getPivotIds()[0]);
+    expect(pivot.parseArgsToPivotDomain(toFPayload(["Date:year_number", 2024]))).toEqual([
+      {
+        field: "Date:year_number",
+        value: 2024,
+        type: "date",
+      },
+    ]);
+    expect(pivot.parseArgsToPivotDomain(toFPayload(["Date:year_number", "2024"]))).toEqual([
+      {
+        field: "Date:year_number",
+        value: 2024,
+        type: "date",
+      },
+    ]);
+    expect(() =>
+      pivot.parseArgsToPivotDomain(toFPayload(["Date:year_number", "This is a string"]))
+    ).toThrow();
+    expect(() => pivot.parseArgsToPivotDomain(toFPayload(["Date", 2024]))).toThrow();
+  });
+
+  test("Number arguments are correctly parsed", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Amount", B1: "Price",
+      A2: "1", B2: "10",
+      A3: "2", B3: "20",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B3", {
+      columns: [],
+      rows: [{ name: "Amount", granularity: "year_number" }],
+      measures: [{ name: "Price", aggregator: "sum" }],
+    });
+    const pivot = model.getters.getPivot(model.getters.getPivotIds()[0]);
+    expect(pivot.parseArgsToPivotDomain(toFPayload(["Amount", 1]))).toEqual([
+      {
+        field: "Amount",
+        value: 1,
+        type: "integer",
+      },
+    ]);
+    expect(pivot.parseArgsToPivotDomain(toFPayload(["Amount", "1"]))).toEqual([
+      {
+        field: "Amount",
+        value: 1,
+        type: "integer",
+      },
+    ]);
+    expect(() =>
+      pivot.parseArgsToPivotDomain(toFPayload(["Amount", "This is a string"]))
+    ).toThrow();
+  });
+
+  test("Boolean arguments are correctly parsed", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Active", B1: "Price",
+      A2: "TRUE", B2: "10",
+      A3: "FALSE", B3: "20",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B3", {
+      columns: [],
+      rows: [{ name: "Active" }],
+      measures: [{ name: "Price", aggregator: "sum" }],
+    });
+    const pivot = model.getters.getPivot(model.getters.getPivotIds()[0]);
+    expect(pivot.parseArgsToPivotDomain(toFPayload(["Active", true]))).toEqual([
+      {
+        field: "Active",
+        value: true,
+        type: "boolean",
+      },
+    ]);
+    expect(pivot.parseArgsToPivotDomain(toFPayload(["Active", "true"]))).toEqual([
+      {
+        field: "Active",
+        value: true,
+        type: "boolean",
+      },
+    ]);
+    expect(() =>
+      pivot.parseArgsToPivotDomain(toFPayload(["Active", "This is a string"]))
+    ).toThrow();
+  });
+
+  test("String arguments are correctly parsed", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Name", B1: "Price",
+      A2: "Alice", B2: "10",
+      A3: "Bob", B3: "20",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B3", {
+      columns: [],
+      rows: [{ name: "Name" }],
+      measures: [{ name: "Price", aggregator: "sum" }],
+    });
+    const pivot = model.getters.getPivot(model.getters.getPivotIds()[0]);
+    expect(pivot.parseArgsToPivotDomain(toFPayload(["Name", true]))).toEqual([
+      {
+        field: "Name",
+        value: "TRUE",
+        type: "char",
+      },
+    ]);
+    expect(pivot.parseArgsToPivotDomain(toFPayload(["Name", "Hello"]))).toEqual([
+      {
+        field: "Name",
+        value: "Hello",
+        type: "char",
+      },
+    ]);
+    expect(pivot.parseArgsToPivotDomain(toFPayload(["Name", 1]))).toEqual([
+      {
+        field: "Name",
+        value: "1",
+        type: "char",
+      },
+    ]);
+    expect(pivot.parseArgsToPivotDomain(toFPayload(["Name", "01/01/2024"]))).toEqual([
+      {
+        field: "Name",
+        value: "01/01/2024",
+        type: "char",
+      },
+    ]);
   });
 });

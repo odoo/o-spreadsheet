@@ -2,7 +2,7 @@ import { CommandResult } from "..";
 import { canonicalizeNumberValue } from "../formulas/formula_locale";
 import { deepEquals, formatValue } from "../helpers";
 import { getPasteZones } from "../helpers/clipboard/clipboard_helpers";
-import { makePivotFormulaFromPivotCell } from "../helpers/pivot/pivot_helpers";
+import { createPivotFormula } from "../helpers/pivot/pivot_helpers";
 import {
   CellPosition,
   ClipboardCell,
@@ -50,7 +50,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
           if (!deepEquals(spreader, position) || !isCopyingOneCell) {
             const pivotCell = this.getters.getPivotCellFromPosition(position);
             const formulaPivotId = this.getters.getPivotFormulaId(pivotId);
-            const pivotFormula = makePivotFormulaFromPivotCell(formulaPivotId, pivotCell);
+            const pivotFormula = createPivotFormula(formulaPivotId, pivotCell);
             cell = {
               id: cell?.id || "",
               style: cell?.style,

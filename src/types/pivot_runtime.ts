@@ -1,6 +1,6 @@
 import { PivotRuntimeDefinition } from "../helpers/pivot/pivot_runtime_definition";
 import { SpreadsheetPivotTable } from "../helpers/pivot/spreadsheet_pivot/table_spreadsheet_pivot";
-import { FPayload } from "./misc";
+import { FPayload, Maybe } from "./misc";
 import {
   PivotCoreDefinition,
   PivotDimension,
@@ -19,13 +19,16 @@ export interface Pivot<T = PivotRuntimeDefinition> {
   isValid(): boolean;
 
   getTableStructure(): SpreadsheetPivotTable;
-  getFields(): PivotFields | undefined;
+  getFields(): PivotFields;
 
   getPivotHeaderValueAndFormat(domain: PivotDomain): FPayload;
   getPivotCellValueAndFormat(measure: string, domain: PivotDomain): FPayload;
   getPivotMeasureValue(measure: string, domain: PivotDomain): FPayload;
 
   getMeasure: (name: string) => PivotMeasure;
+
+  parseArgsToPivotDomain(args: Maybe<FPayload>[]): PivotDomain;
+  areDomainArgsFieldsValid(args: Maybe<FPayload>[]): boolean;
 
   assertIsValid({ throwOnError }: { throwOnError: boolean }): FPayload | undefined;
   getPossibleFieldValues(

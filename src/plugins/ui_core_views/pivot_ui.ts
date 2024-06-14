@@ -4,7 +4,6 @@ import {
   getFirstPivotFunction,
   getNumberOfPivotFunctions,
 } from "../../helpers/pivot/pivot_composer_helpers";
-import { toPivotDomain } from "../../helpers/pivot/pivot_helpers";
 import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
 import { EMPTY_PIVOT_CELL } from "../../helpers/pivot/spreadsheet_pivot/table_spreadsheet_pivot";
 import {
@@ -12,7 +11,7 @@ import {
   CellPosition,
   Command,
   CoreCommand,
-  PivotDomain,
+  FPayload,
   PivotTableCell,
   UID,
   UpdatePivotCommand,
@@ -34,7 +33,6 @@ export class PivotUIPlugin extends UIPlugin {
     "getPivotIdFromPosition",
     "getPivotCellFromPosition",
     "isPivotUnused",
-    "areDomainArgsFieldsValid",
     "isSpillPivotFormula",
   ] as const;
 
@@ -178,19 +176,19 @@ export class PivotUIPlugin extends UIPlugin {
       return EMPTY_PIVOT_CELL;
     }
     const { functionName, args } = result;
+    const formulaId = args[0];
+    if (!formulaId) {
+      return EMPTY_PIVOT_CELL;
+    }
+    const pivotId = this.getters.getPivotId(formulaId.toString());
+    if (!pivotId) {
+      return EMPTY_PIVOT_CELL;
+    }
+    const pivot = this.getPivot(pivotId);
+    if (!pivot.isValid()) {
+      return EMPTY_PIVOT_CELL;
+    }
     if (functionName === "PIVOT") {
-      const formulaId = args[0];
-      if (!formulaId) {
-        return EMPTY_PIVOT_CELL;
-      }
-      const pivotId = this.getters.getPivotId(formulaId.toString());
-      if (!pivotId) {
-        return EMPTY_PIVOT_CELL;
-      }
-      const pivot = this.getPivot(pivotId);
-      if (!pivot.isValid()) {
-        return EMPTY_PIVOT_CELL;
-      }
       const includeTotal = args[2] === false ? false : undefined;
       const includeColumnHeaders = args[3] === false ? false : undefined;
       const pivotCells = pivot
@@ -201,22 +199,28 @@ export class PivotUIPlugin extends UIPlugin {
       return pivotCells[pivotCol][pivotRow];
     }
     if (functionName === "PIVOT.HEADER" && args.at(-2) === "measure") {
-      const domain = toPivotDomain(args.slice(1, -2).map((x) => `${x}`));
+      const domain = pivot.parseArgsToPivotDomain(
+        args.slice(1, -2).map((value) => ({ value } as FPayload))
+      );
       return {
         type: "MEASURE_HEADER",
         domain,
         measure: args.at(-1)?.toString() || "",
       };
     } else if (functionName === "PIVOT.HEADER") {
+      const domain = pivot.parseArgsToPivotDomain(
+        args.slice(1).map((value) => ({ value } as FPayload))
+      );
       return {
         type: "HEADER",
-        domain: toPivotDomain(args.slice(1).map((x) => `${x}`)),
+        domain,
       };
     }
     const [measure, ...domainArgs] = args.slice(1);
+    const domain = pivot.parseArgsToPivotDomain(domainArgs.map((value) => ({ value } as FPayload)));
     return {
       type: "VALUE",
-      domain: toPivotDomain(domainArgs.map((x) => `${x}`)),
+      domain,
       measure: measure?.toString() || "",
     };
   }
@@ -227,33 +231,6 @@ export class PivotUIPlugin extends UIPlugin {
 
   isPivotUnused(pivotId: UID) {
     return this._getUnusedPivots().includes(pivotId);
-  }
-
-  /**
-   * Check if the fields in the domain part of
-   * a pivot function are valid according to the pivot definition.
-   * e.g. =PIVOT.VALUE(1,"revenue","country_id",...,"create_date:month",...,"source_id",...)
-   */
-  areDomainArgsFieldsValid(pivotId: UID, domain: PivotDomain) {
-    const dimensions = domain
-      .map((node) => node.field)
-      .map((name) => (name.startsWith("#") ? name.slice(1) : name));
-    let argIndex = 0;
-    let definitionIndex = 0;
-    const pivot = this.getPivot(pivotId);
-    const definition = pivot.definition;
-    const cols = definition.columns.map((col) => col.nameWithGranularity);
-    const rows = definition.rows.map((row) => row.nameWithGranularity);
-    while (dimensions[argIndex] !== undefined && dimensions[argIndex] === rows[definitionIndex]) {
-      argIndex++;
-      definitionIndex++;
-    }
-    definitionIndex = 0;
-    while (dimensions[argIndex] !== undefined && dimensions[argIndex] === cols[definitionIndex]) {
-      argIndex++;
-      definitionIndex++;
-    }
-    return dimensions.length === argIndex;
   }
 
   // ---------------------------------------------------------------------

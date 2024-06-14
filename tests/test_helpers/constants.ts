@@ -421,7 +421,7 @@ export const TEST_COMMANDS: CommandMapping = {
     sheetId: "sheetId",
     col: 0,
     row: 0,
-    table: new SpreadsheetPivotTable([[]], [], []).export(),
+    table: new SpreadsheetPivotTable([[]], [], [], {}).export(),
   },
   REMOVE_PIVOT: {
     type: "REMOVE_PIVOT",

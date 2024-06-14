@@ -1,5 +1,5 @@
 import { deepCopy, deepEquals } from "../../helpers";
-import { getMaxObjectId, makePivotFormulaFromPivotCell } from "../../helpers/pivot/pivot_helpers";
+import { createPivotFormula, getMaxObjectId } from "../../helpers/pivot/pivot_helpers";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/spreadsheet_pivot/table_spreadsheet_pivot";
 import { _t } from "../../translation";
 import { CellPosition, CommandResult, CoreCommand, Position, UID, WorkbookData } from "../../types";
@@ -74,8 +74,8 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
       case "INSERT_PIVOT": {
         const { sheetId, col, row, pivotId, table } = cmd;
         const position = { sheetId, col, row };
-        const { cols, rows, measures } = table;
-        const spTable = new SpreadsheetPivotTable(cols, rows, measures);
+        const { cols, rows, measures, fieldsType } = table;
+        const spTable = new SpreadsheetPivotTable(cols, rows, measures, fieldsType || {});
         const formulaId = this.getPivotFormulaId(pivotId);
         this.insertPivot(position, formulaId, spTable);
         break;
@@ -171,7 +171,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
           sheetId: position.sheetId,
           col: position.col + col,
           row: position.row + row,
-          content: makePivotFormulaFromPivotCell(formulaId, pivotCell),
+          content: createPivotFormula(formulaId, pivotCell),
         });
       }
     }

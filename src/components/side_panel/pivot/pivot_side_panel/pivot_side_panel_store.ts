@@ -32,11 +32,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
   }
 
   get fields() {
-    const fields = this.pivot.getFields();
-    if (!fields) {
-      throw new Error("Fields not found");
-    }
-    return fields;
+    return this.pivot.getFields();
   }
 
   get pivot() {

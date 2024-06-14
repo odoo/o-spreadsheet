@@ -1,4 +1,5 @@
 import { PivotDomain, PivotTableCell, PivotTableColumn, PivotTableRow } from "../../../types/pivot";
+import { parseDimension, toNormalizedPivotValue } from "../pivot_helpers";
 
 /**
  * Class used to ease the construction of a pivot table.
@@ -42,14 +43,21 @@ import { PivotDomain, PivotTableCell, PivotTableColumn, PivotTableRow } from "..
  *   `Revenues` (the one under Total): { width: 1, fields: ["measure"], values: ["revenues"]}
  *
  */
+
 export class SpreadsheetPivotTable {
   readonly columns: PivotTableColumn[][];
   readonly rows: PivotTableRow[];
   readonly measures: string[];
+  readonly fieldsType: Record<string, string | undefined>;
   readonly maxIndent: number;
   readonly pivotCells: { [key: string]: PivotTableCell[][] } = {};
 
-  constructor(columns: PivotTableColumn[][], rows: PivotTableRow[], measures: string[]) {
+  constructor(
+    columns: PivotTableColumn[][],
+    rows: PivotTableRow[],
+    measures: string[],
+    fieldsType: Record<string, string | undefined>
+  ) {
     this.columns = columns.map((row) => {
       // offset in the pivot table
       // starts at 1 because the first column is the row title
@@ -62,6 +70,7 @@ export class SpreadsheetPivotTable {
     });
     this.rows = rows;
     this.measures = measures;
+    this.fieldsType = fieldsType;
     this.maxIndent = Math.max(...this.rows.map((row) => row.indent));
   }
 
@@ -112,7 +121,7 @@ export class SpreadsheetPivotTable {
       if (!domain) {
         return EMPTY_PIVOT_CELL;
       }
-      const measure = domain.at(-1)?.value.toString() || "";
+      const measure = domain.at(-1)?.value?.toString() || "";
       return { type: "MEASURE_HEADER", domain: domain.slice(0, -1), measure };
     } else if (row <= colHeadersHeight - 1) {
       const domain = this.getColHeaderDomain(col, row);
@@ -142,9 +151,13 @@ export class SpreadsheetPivotTable {
       return undefined;
     }
     for (let i = 0; i < pivotCol.fields.length; i++) {
+      const fieldWithGranularity = pivotCol.fields[i];
+      const { name, granularity } = parseDimension(fieldWithGranularity);
+      const type = this.fieldsType[name] || "char";
       domain.push({
-        field: pivotCol.fields[i],
-        value: pivotCol.values[i],
+        type,
+        field: fieldWithGranularity,
+        value: toNormalizedPivotValue({ displayName: name, type, granularity }, pivotCol.values[i]),
       });
     }
     return domain;
@@ -158,8 +171,8 @@ export class SpreadsheetPivotTable {
   private getColMeasure(col: number) {
     const domain = this.getColHeaderDomain(col, this.columns.length - 1);
     const measure = domain?.at(-1)?.value;
-    if (measure === undefined) {
-      throw new Error("Measure isd missing");
+    if (measure === undefined || measure === null) {
+      throw new Error("Measure is missing");
     }
     return measure.toString();
   }
@@ -167,9 +180,16 @@ export class SpreadsheetPivotTable {
   private getRowDomain(row: number) {
     const domain: PivotDomain = [];
     for (let i = 0; i < this.rows[row].fields.length; i++) {
+      const fieldWithGranularity = this.rows[row].fields[i];
+      const { name, granularity } = parseDimension(fieldWithGranularity);
+      const type = this.fieldsType[name] || "char";
       domain.push({
-        field: this.rows[row].fields[i],
-        value: this.rows[row].values[i],
+        type,
+        field: fieldWithGranularity,
+        value: toNormalizedPivotValue(
+          { displayName: name, type, granularity },
+          this.rows[row].values[i]
+        ),
       });
     }
     return domain;
@@ -180,6 +200,7 @@ export class SpreadsheetPivotTable {
       cols: this.columns,
       rows: this.rows,
       measures: this.measures,
+      fieldsType: this.fieldsType,
     };
   }
 }

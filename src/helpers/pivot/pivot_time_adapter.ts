@@ -1,9 +1,9 @@
-import { toNumber } from "../../functions/helpers";
+import { toNumber, toString } from "../../functions/helpers";
 import { Registry } from "../../registries/registry";
 import { _t } from "../../translation";
 import { CellValue, DEFAULT_LOCALE } from "../../types";
 import { EvaluationError } from "../../types/errors";
-import { Granularity, PivotTimeAdapter } from "../../types/pivot";
+import { Granularity, PivotTimeAdapter, PivotTimeAdapterNotNull } from "../../types/pivot";
 import { MONTHS, formatValue } from "../format";
 
 export const pivotTimeAdapterRegistry = new Registry<PivotTimeAdapter<CellValue>>();
@@ -37,28 +37,26 @@ export function pivotTimeAdapter(granularity: Granularity): PivotTimeAdapter<Cel
  * - "MM/dd/yyyy" (luxon format)
  * - "mm/dd/yyyy" (spreadsheet format)
  **/
-const dayAdapter: PivotTimeAdapter<string> = {
+const dayAdapter: PivotTimeAdapterNotNull<number> = {
   normalizeFunctionValue(value) {
-    const date = toNumber(value, DEFAULT_LOCALE);
-    return formatValue(date, { locale: DEFAULT_LOCALE, format: "mm/dd/yyyy" });
+    return toNumber(value, DEFAULT_LOCALE);
   },
-  getFormat(locale) {
-    return (locale ?? DEFAULT_LOCALE).dateFormat;
+  toValueAndFormat(normalizedValue, locale) {
+    return {
+      value: toNumber(normalizedValue, DEFAULT_LOCALE),
+      format: (locale ?? DEFAULT_LOCALE).dateFormat,
+    };
   },
-  formatValue(normalizedValue, locale) {
-    locale = locale ?? DEFAULT_LOCALE;
-    const value = toNumber(normalizedValue, DEFAULT_LOCALE);
-    return formatValue(value, { locale, format: this.getFormat(locale) });
-  },
-  toCellValue(normalizedValue) {
-    return toNumber(normalizedValue, DEFAULT_LOCALE);
+  toFunctionValue(normalizedValue) {
+    const date = toNumber(normalizedValue, DEFAULT_LOCALE);
+    return `"${formatValue(date, { locale: DEFAULT_LOCALE, format: "mm/dd/yyyy" })}"`;
   },
 };
 
 /**
  * normalizes day of month number
  */
-const dayOfMonthAdapter: PivotTimeAdapter<number> = {
+const dayOfMonthAdapter: PivotTimeAdapterNotNull<number> = {
   normalizeFunctionValue(value) {
     const day = toNumber(value, DEFAULT_LOCALE);
     if (day < 1 || day > 31) {
@@ -68,43 +66,40 @@ const dayOfMonthAdapter: PivotTimeAdapter<number> = {
     }
     return day;
   },
-  getFormat() {
-    return "0";
+  toValueAndFormat(normalizedValue) {
+    return {
+      value: toNumber(normalizedValue, DEFAULT_LOCALE),
+      format: "0",
+    };
   },
-  formatValue(normalizedValue, locale) {
-    locale = locale ?? DEFAULT_LOCALE;
-    const value = toNumber(normalizedValue, DEFAULT_LOCALE);
-    return formatValue(value, { locale, format: this.getFormat(locale) });
-  },
-  toCellValue(normalizedValue) {
-    return toNumber(normalizedValue, DEFAULT_LOCALE);
+  toFunctionValue(normalizedValue) {
+    return `${normalizedValue}`;
   },
 };
 
 /**
  * Normalized value: "2/2023" for week 2 of 2023
  */
-const weekAdapter: PivotTimeAdapter<string> = {
+const weekAdapter: PivotTimeAdapterNotNull<string> = {
   normalizeFunctionValue(value) {
-    const [week, year] = value.split("/");
+    const [week, year] = toString(value).split("/");
     return `${Number(week)}/${Number(year)}`;
   },
-  getFormat() {
-    return undefined;
-  },
-  formatValue(normalizedValue) {
+  toValueAndFormat(normalizedValue, locale) {
     const [week, year] = normalizedValue.split("/");
-    return _t("W%(week)s %(year)s", { week, year });
+    return {
+      value: _t("W%(week)s %(year)s", { week, year }),
+    };
   },
-  toCellValue(normalizedValue) {
-    return this.formatValue(normalizedValue);
+  toFunctionValue(normalizedValue) {
+    return `"${normalizedValue}"`;
   },
 };
 
 /**
  * normalizes iso week number
  */
-const isoWeekNumberAdapter: PivotTimeAdapter<number> = {
+const isoWeekNumberAdapter: PivotTimeAdapterNotNull<number> = {
   normalizeFunctionValue(value) {
     const isoWeek = toNumber(value, DEFAULT_LOCALE);
     if (isoWeek < 0 || isoWeek > 53) {
@@ -114,16 +109,14 @@ const isoWeekNumberAdapter: PivotTimeAdapter<number> = {
     }
     return isoWeek;
   },
-  getFormat() {
-    return "0";
+  toValueAndFormat(normalizedValue) {
+    return {
+      value: toNumber(normalizedValue, DEFAULT_LOCALE),
+      format: "0",
+    };
   },
-  formatValue(normalizedValue, locale) {
-    locale = locale ?? DEFAULT_LOCALE;
-    const value = toNumber(normalizedValue, DEFAULT_LOCALE);
-    return formatValue(value, { locale, format: this.getFormat(locale) });
-  },
-  toCellValue(normalizedValue) {
-    return toNumber(normalizedValue, DEFAULT_LOCALE);
+  toFunctionValue(normalizedValue) {
+    return `${normalizedValue}`;
   },
 };
 
@@ -131,28 +124,26 @@ const isoWeekNumberAdapter: PivotTimeAdapter<number> = {
  * normalized month value is a string formatted as "MM/yyyy" (luxon format)
  * e.g. "01/2020" for January 2020
  */
-const monthAdapter: PivotTimeAdapter<string> = {
+const monthAdapter: PivotTimeAdapterNotNull<string> = {
   normalizeFunctionValue(value) {
     const date = toNumber(value, DEFAULT_LOCALE);
     return formatValue(date, { locale: DEFAULT_LOCALE, format: "mm/yyyy" });
   },
-  getFormat() {
-    return "mmmm yyyy";
+  toValueAndFormat(normalizedValue) {
+    return {
+      value: toNumber(normalizedValue, DEFAULT_LOCALE),
+      format: "mmmm yyyy",
+    };
   },
-  formatValue(normalizedValue, locale) {
-    locale = locale ?? DEFAULT_LOCALE;
-    const value = toNumber(normalizedValue, DEFAULT_LOCALE);
-    return formatValue(value, { locale, format: this.getFormat(locale) });
-  },
-  toCellValue(normalizedValue) {
-    return toNumber(normalizedValue, DEFAULT_LOCALE);
+  toFunctionValue(normalizedValue) {
+    return `"${normalizedValue}"`;
   },
 };
 
 /**
  * normalizes month number
  */
-const monthNumberAdapter: PivotTimeAdapter<number> = {
+const monthNumberAdapter: PivotTimeAdapterNotNull<number> = {
   normalizeFunctionValue(value) {
     const month = toNumber(value, DEFAULT_LOCALE);
     if (month < 1 || month > 12) {
@@ -162,16 +153,14 @@ const monthNumberAdapter: PivotTimeAdapter<number> = {
     }
     return month;
   },
-  getFormat() {
-    return "0";
+  toValueAndFormat(normalizedValue) {
+    return {
+      value: MONTHS[toNumber(normalizedValue, DEFAULT_LOCALE) - 1].toString(),
+      format: "0",
+    };
   },
-  formatValue(normalizedValue, locale) {
-    locale = locale ?? DEFAULT_LOCALE;
-    const value = toNumber(normalizedValue, DEFAULT_LOCALE);
-    return formatValue(value, { locale, format: this.getFormat(locale) });
-  },
-  toCellValue(normalizedValue) {
-    return MONTHS[toNumber(normalizedValue, DEFAULT_LOCALE) - 1].toString();
+  toFunctionValue(normalizedValue) {
+    return `${normalizedValue}`;
   },
 };
 
@@ -179,27 +168,26 @@ const monthNumberAdapter: PivotTimeAdapter<number> = {
  * normalized quarter value is "quarter/year"
  * e.g. "1/2020" for Q1 2020
  */
-const quarterAdapter: PivotTimeAdapter<string> = {
+const quarterAdapter: PivotTimeAdapterNotNull<string> = {
   normalizeFunctionValue(value) {
-    const [quarter, year] = value.split("/");
+    const [quarter, year] = toString(value).split("/");
     return `${quarter}/${year}`;
   },
-  getFormat() {
-    return undefined;
-  },
-  formatValue(normalizedValue) {
+  toValueAndFormat(normalizedValue) {
     const [quarter, year] = normalizedValue.split("/");
-    return _t("Q%(quarter)s %(year)s", { quarter, year });
+    return {
+      value: _t("Q%(quarter)s %(year)s", { quarter, year }),
+    };
   },
-  toCellValue(normalizedValue) {
-    return this.formatValue(normalizedValue);
+  toFunctionValue(normalizedValue) {
+    return `"${normalizedValue}"`;
   },
 };
 
 /**
  * normalizes quarter number
  */
-const quarterNumberAdapter: PivotTimeAdapter<number> = {
+const quarterNumberAdapter: PivotTimeAdapterNotNull<number> = {
   normalizeFunctionValue(value) {
     const quarter = toNumber(value, DEFAULT_LOCALE);
     if (quarter < 1 || quarter > 4) {
@@ -209,43 +197,67 @@ const quarterNumberAdapter: PivotTimeAdapter<number> = {
     }
     return quarter;
   },
-  getFormat() {
-    return "0";
+  toValueAndFormat(normalizedValue) {
+    return {
+      value: toNumber(normalizedValue, DEFAULT_LOCALE),
+      format: "0",
+    };
   },
-  formatValue(normalizedValue, locale) {
-    locale = locale ?? DEFAULT_LOCALE;
-    const value = toNumber(normalizedValue, DEFAULT_LOCALE);
-    return formatValue(value, { locale, format: this.getFormat(locale) });
-  },
-  toCellValue(normalizedValue) {
-    return toNumber(normalizedValue, DEFAULT_LOCALE);
+  toFunctionValue(normalizedValue) {
+    return `${normalizedValue}`;
   },
 };
 
-const yearAdapter: PivotTimeAdapter<number> = {
+const yearAdapter: PivotTimeAdapterNotNull<number> = {
   normalizeFunctionValue(value) {
     return toNumber(value, DEFAULT_LOCALE);
   },
-  getFormat() {
-    return "0";
+  toValueAndFormat(normalizedValue) {
+    return {
+      value: toNumber(normalizedValue, DEFAULT_LOCALE),
+      format: "0",
+    };
   },
-  formatValue(normalizedValue, locale) {
-    locale = locale ?? DEFAULT_LOCALE;
-    return formatValue(normalizedValue, { locale, format: "0" });
-  },
-  toCellValue(normalizedValue) {
-    return toNumber(normalizedValue, DEFAULT_LOCALE);
+  toFunctionValue(normalizedValue) {
+    return `${normalizedValue}`;
   },
 };
 
+/**
+ * This function takes an adapter and wraps it with a null handler.
+ * null value means that the value is not set.
+ */
+function nullHandlerDecorator<T>(adapter: PivotTimeAdapterNotNull<T>): PivotTimeAdapter<T> {
+  return {
+    normalizeFunctionValue(value) {
+      if (value === null) {
+        return null;
+      }
+      return adapter.normalizeFunctionValue(value);
+    },
+    toValueAndFormat(normalizedValue, locale) {
+      if (normalizedValue === null) {
+        return { value: _t("(Undefined)") }; //TODO Return NA ?
+      }
+      return adapter.toValueAndFormat(normalizedValue, locale);
+    },
+    toFunctionValue(normalizedValue) {
+      if (normalizedValue === null) {
+        return "false"; //TODO Return NA ?
+      }
+      return adapter.toFunctionValue(normalizedValue);
+    },
+  };
+}
+
 pivotTimeAdapterRegistry
-  .add("day", dayAdapter)
-  .add("week", weekAdapter)
-  .add("month", monthAdapter)
-  .add("quarter", quarterAdapter)
-  .add("year", yearAdapter)
-  .add("day_of_month", dayOfMonthAdapter)
-  .add("iso_week_number", isoWeekNumberAdapter)
-  .add("month_number", monthNumberAdapter)
-  .add("quarter_number", quarterNumberAdapter)
-  .add("year_number", yearAdapter);
+  .add("day", nullHandlerDecorator(dayAdapter))
+  .add("week", nullHandlerDecorator(weekAdapter))
+  .add("month", nullHandlerDecorator(monthAdapter))
+  .add("quarter", nullHandlerDecorator(quarterAdapter))
+  .add("year", nullHandlerDecorator(yearAdapter))
+  .add("day_of_month", nullHandlerDecorator(dayOfMonthAdapter))
+  .add("iso_week_number", nullHandlerDecorator(isoWeekNumberAdapter))
+  .add("month_number", nullHandlerDecorator(monthNumberAdapter))
+  .add("quarter_number", nullHandlerDecorator(quarterNumberAdapter))
+  .add("year_number", nullHandlerDecorator(yearAdapter));
