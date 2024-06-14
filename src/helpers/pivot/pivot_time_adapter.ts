@@ -37,21 +37,19 @@ export function pivotTimeAdapter(granularity: Granularity): PivotTimeAdapter<Cel
  * - "MM/dd/yyyy" (luxon format)
  * - "mm/dd/yyyy" (spreadsheet format)
  **/
-const dayAdapter: PivotTimeAdapter<string> = {
+const dayAdapter: PivotTimeAdapter<number> = {
   normalizeFunctionValue(value) {
-    const date = toNumber(value, DEFAULT_LOCALE);
-    return formatValue(date, { locale: DEFAULT_LOCALE, format: "mm/dd/yyyy" });
+    return toNumber(value, DEFAULT_LOCALE);
   },
   getFormat(locale) {
     return (locale ?? DEFAULT_LOCALE).dateFormat;
   },
   formatValue(normalizedValue, locale) {
     locale = locale ?? DEFAULT_LOCALE;
-    const value = toNumber(normalizedValue, DEFAULT_LOCALE);
-    return formatValue(value, { locale, format: this.getFormat(locale) });
+    return formatValue(normalizedValue, { locale, format: this.getFormat(locale) });
   },
   toCellValue(normalizedValue) {
-    return toNumber(normalizedValue, DEFAULT_LOCALE);
+    return normalizedValue;
   },
 };
 
@@ -73,11 +71,10 @@ const dayOfMonthAdapter: PivotTimeAdapter<number> = {
   },
   formatValue(normalizedValue, locale) {
     locale = locale ?? DEFAULT_LOCALE;
-    const value = toNumber(normalizedValue, DEFAULT_LOCALE);
-    return formatValue(value, { locale, format: this.getFormat(locale) });
+    return formatValue(normalizedValue, { locale, format: this.getFormat(locale) });
   },
   toCellValue(normalizedValue) {
-    return toNumber(normalizedValue, DEFAULT_LOCALE);
+    return normalizedValue;
   },
 };
 
@@ -119,11 +116,10 @@ const isoWeekNumberAdapter: PivotTimeAdapter<number> = {
   },
   formatValue(normalizedValue, locale) {
     locale = locale ?? DEFAULT_LOCALE;
-    const value = toNumber(normalizedValue, DEFAULT_LOCALE);
-    return formatValue(value, { locale, format: this.getFormat(locale) });
+    return formatValue(normalizedValue, { locale, format: this.getFormat(locale) });
   },
   toCellValue(normalizedValue) {
-    return toNumber(normalizedValue, DEFAULT_LOCALE);
+    return normalizedValue;
   },
 };
 
@@ -167,8 +163,7 @@ const monthNumberAdapter: PivotTimeAdapter<number> = {
   },
   formatValue(normalizedValue, locale) {
     locale = locale ?? DEFAULT_LOCALE;
-    const value = toNumber(normalizedValue, DEFAULT_LOCALE);
-    return formatValue(value, { locale, format: this.getFormat(locale) });
+    return formatValue(normalizedValue, { locale, format: this.getFormat(locale) });
   },
   toCellValue(normalizedValue) {
     return MONTHS[toNumber(normalizedValue, DEFAULT_LOCALE) - 1].toString();
@@ -214,11 +209,10 @@ const quarterNumberAdapter: PivotTimeAdapter<number> = {
   },
   formatValue(normalizedValue, locale) {
     locale = locale ?? DEFAULT_LOCALE;
-    const value = toNumber(normalizedValue, DEFAULT_LOCALE);
-    return formatValue(value, { locale, format: this.getFormat(locale) });
+    return formatValue(normalizedValue, { locale, format: this.getFormat(locale) });
   },
   toCellValue(normalizedValue) {
-    return toNumber(normalizedValue, DEFAULT_LOCALE);
+    return normalizedValue;
   },
 };
 
@@ -234,7 +228,7 @@ const yearAdapter: PivotTimeAdapter<number> = {
     return formatValue(normalizedValue, { locale, format: "0" });
   },
   toCellValue(normalizedValue) {
-    return toNumber(normalizedValue, DEFAULT_LOCALE);
+    return normalizedValue;
   },
 };
 
