@@ -5,7 +5,6 @@ import {
 } from "../../../constants";
 import { isEvaluationError } from "../../../functions/helpers";
 import { chartRegistry } from "../../../registries/chart_types";
-import { _t } from "../../../translation";
 import {
   AddColumnsRowsCommand,
   CellValueType,
@@ -109,7 +108,7 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
   if (getZoneArea(zone) === 1 && topLeftCell?.content) {
     return {
       type: "scorecard",
-      title: { text: "" },
+      title: {},
       background: topLeftCell.style?.fillColor || undefined,
       keyValue: zoneToXc(zone),
       baselineMode: DEFAULT_SCORECARD_BASELINE_MODE,
@@ -118,7 +117,6 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
     };
   }
 
-  let title = "";
   const cellsInFirstRow = getters.getEvaluatedCellsInZone(sheetId, {
     ...dataSetZone,
     bottom: dataSetZone.top,
@@ -126,18 +124,6 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
   const dataSetsHaveTitle = !!cellsInFirstRow.find(
     (cell) => cell.type !== CellValueType.empty && cell.type !== CellValueType.number
   );
-
-  if (dataSetsHaveTitle) {
-    const texts = cellsInFirstRow
-      .filter((cell) => cell.type !== CellValueType.error && cell.type !== CellValueType.empty)
-      .map((cell) => cell.formattedValue);
-
-    const lastElement = texts.splice(-1)[0];
-    title = texts.join(", ");
-    if (lastElement) {
-      title += (title ? " " + _t("and") + " " : "") + lastElement;
-    }
-  }
 
   let labelRangeXc: string | undefined;
   if (!singleColumn) {
@@ -152,7 +138,7 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
   const labelRange = labelRangeXc ? getters.getRangeFromSheetXC(sheetId, labelRangeXc) : undefined;
   if (canChartParseLabels(labelRange, getters)) {
     return {
-      title: { text: title },
+      title: {},
       dataSets,
       labelsAsText: false,
       stacked: false,
@@ -170,7 +156,7 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
     getData(getters, _dataSets[0]).every((e) => typeof e === "string" && !isEvaluationError(e))
   ) {
     return {
-      title: { text: "" },
+      title: {},
       dataSets: [{ dataRange }],
       aggregated: true,
       labelRange: dataRange,
@@ -180,7 +166,7 @@ export function getSmartChartDefinition(zone: Zone, getters: Getters): ChartDefi
     };
   }
   return {
-    title: { text: title },
+    title: {},
     dataSets,
     labelRange: labelRangeXc,
     type: "bar",
