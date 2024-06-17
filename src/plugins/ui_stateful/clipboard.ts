@@ -32,6 +32,7 @@ interface InsertDeleteCellsTargets {
 }
 
 type MinimalClipboardData = {
+  sheetId?: UID;
   cells?: ClipboardCell[][];
   zones?: Zone[];
   figureId?: UID;
@@ -287,34 +288,42 @@ export class ClipboardPlugin extends UIPlugin {
   }
 
   private convertOSClipboardData(clipboardData: string): {} {
-    const handlers: ClipboardHandler<any>[] = clipboardHandlersRegistries.figureHandlers
-      .getAll()
-      .map((handler) => new handler(this.getters, this.dispatch));
-    clipboardHandlersRegistries.cellHandlers
-      .getAll()
-      .forEach((handler) => handlers.push(new handler(this.getters, this.dispatch)));
+    const handlers = this.selectClipboardHandlers({ figureId: true }).concat(
+      this.selectClipboardHandlers({})
+    );
     let copiedData = {};
-    for (const handler of handlers) {
+    for (const { handlerName, handler } of handlers) {
       const data = handler.convertOSClipboardData(clipboardData);
-      copiedData = { ...copiedData, ...data };
+      copiedData[handlerName] = data;
+      const minimalKeys = ["sheetId", "cells", "zones", "figureId"];
+      for (const key of minimalKeys) {
+        if (data && key in data) {
+          copiedData[key] = data[key];
+        }
+      }
     }
     return copiedData;
   }
 
-  private selectClipboardHandlers(data: {}): ClipboardHandler<any>[] {
+  private selectClipboardHandlers(data: {}): {
+    handlerName: string;
+    handler: ClipboardHandler<any>;
+  }[] {
+    const handlersRegistry =
+      "figureId" in data
+        ? clipboardHandlersRegistries.figureHandlers
+        : clipboardHandlersRegistries.cellHandlers;
     if ("figureId" in data) {
-      return clipboardHandlersRegistries.figureHandlers
-        .getAll()
-        .map((handler) => new handler(this.getters, this.dispatch));
     }
-    return clipboardHandlersRegistries.cellHandlers
-      .getAll()
-      .map((handler) => new handler(this.getters, this.dispatch));
+    return handlersRegistry.getKeys().map((handlerName) => {
+      const Handler = handlersRegistry.get(handlerName);
+      return { handlerName, handler: new Handler(this.getters, this.dispatch) };
+    });
   }
 
   private isCutAllowedOn(zones: Zone[]) {
     const clipboardData = this.getClipboardData(zones);
-    for (const handler of this.selectClipboardHandlers(clipboardData)) {
+    for (const { handler } of this.selectClipboardHandlers(clipboardData)) {
       const result = handler.isCutAllowed(clipboardData);
       if (result !== CommandResult.Success) {
         return result;
@@ -324,7 +333,7 @@ export class ClipboardPlugin extends UIPlugin {
   }
 
   private isPasteAllowed(target: Zone[], copiedData: {}, options: ClipboardOptions) {
-    for (const handler of this.selectClipboardHandlers(copiedData)) {
+    for (const { handler } of this.selectClipboardHandlers(copiedData)) {
       const result = handler.isPasteAllowed(this.getters.getActiveSheetId(), target, copiedData, {
         ...options,
       });
@@ -354,9 +363,15 @@ export class ClipboardPlugin extends UIPlugin {
   private copy(zones: Zone[]): MinimalClipboardData {
     let copiedData = {};
     const clipboardData = this.getClipboardData(zones);
-    for (const handler of this.selectClipboardHandlers(clipboardData)) {
+    for (const { handlerName, handler } of this.selectClipboardHandlers(clipboardData)) {
       const data = handler.copy(clipboardData);
-      copiedData = { ...copiedData, ...data };
+      copiedData[handlerName] = data;
+      const minimalKeys = ["sheetId", "cells", "zones", "figureId"];
+      for (const key of minimalKeys) {
+        if (data && key in data) {
+          copiedData[key] = data[key];
+        }
+      }
     }
     return copiedData;
   }
@@ -377,8 +392,12 @@ export class ClipboardPlugin extends UIPlugin {
       zones,
     };
     const handlers = this.selectClipboardHandlers(copiedData);
-    for (const handler of handlers) {
-      const currentTarget = handler.getPasteTarget(sheetId, zones, copiedData, options);
+    for (const { handlerName, handler } of handlers) {
+      const handlerData = copiedData[handlerName];
+      if (!handlerData) {
+        continue;
+      }
+      const currentTarget = handler.getPasteTarget(sheetId, zones, handlerData, options);
       if (currentTarget.figureId) {
         target.figureId = currentTarget.figureId;
       }
@@ -400,7 +419,12 @@ export class ClipboardPlugin extends UIPlugin {
         zone.top
       );
     }
-    handlers.forEach((handler) => handler.paste(target, copiedData, options));
+    handlers.forEach(({ handlerName, handler }) => {
+      const handlerData = copiedData[handlerName];
+      if (handlerData) {
+        handler.paste(target, handlerData, options);
+      }
+    });
     if (!options?.selectTarget) {
       return;
     }

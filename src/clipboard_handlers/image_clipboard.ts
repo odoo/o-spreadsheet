@@ -13,8 +13,8 @@ import { AbstractFigureClipboardHandler } from "./abstract_figure_clipboard_hand
 
 type ClipboardContent = {
   figureId: UID;
-  copiedFigure?: Figure;
-  copiedImage?: Image;
+  copiedFigure: Figure;
+  copiedImage: Image;
   sheetId: UID;
 };
 
@@ -45,15 +45,12 @@ export class ImageClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
     content: ClipboardContent,
     options?: ClipboardOptions
   ): ClipboardPasteTarget {
-    if (!content?.copiedFigure || !content?.copiedImage) {
-      return { zones: [], sheetId };
-    }
     const newId = new UuidGenerator().uuidv4();
     return { sheetId, zones: [], figureId: newId };
   }
 
   paste(target: ClipboardPasteTarget, clippedContent: ClipboardContent, options: ClipboardOptions) {
-    if (!clippedContent?.copiedFigure || !clippedContent?.copiedImage || !target.figureId) {
+    if (!target.figureId) {
       return;
     }
     const { zones, figureId } = target;

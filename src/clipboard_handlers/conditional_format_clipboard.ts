@@ -55,12 +55,7 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
     clippedContent: ClipboardContent,
     options?: ClipboardOptions
   ) {
-    if (
-      !clippedContent?.cfRules ||
-      options?.pasteOption === "asValue" ||
-      !("zones" in target) ||
-      !target.zones.length
-    ) {
+    if (options?.pasteOption === "asValue" || !("zones" in target) || !target.zones.length) {
       return;
     }
     const zones = target.zones;

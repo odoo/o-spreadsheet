@@ -37,14 +37,11 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
   }
 
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
-    if (!content) {
-      return;
-    }
     const sheetId = target.sheetId;
     if (options?.pasteOption === "asValue") {
       return;
     }
-    if (!("borders" in content) || !("zones" in target) || !target.zones.length) {
+    if (!("zones" in target) || !target.zones.length) {
       return;
     }
     const zones = target.zones;
