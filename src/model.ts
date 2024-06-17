@@ -4,7 +4,7 @@ import { Session } from "./collaborative/session";
 import { DEFAULT_REVISION_ID } from "./constants";
 import { EventBus } from "./helpers/event_bus";
 import { deepCopy, UuidGenerator } from "./helpers/index";
-import { ILongRunner, LongRunner, SynchronousLongRunner } from "./helpers/long_runner";
+import { ILongRunner, SynchronousLongRunner } from "./helpers/long_runner";
 import { buildRevisionLog } from "./history/factory";
 import {
   createEmptyExcelWorkbookData,
@@ -212,10 +212,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.uuidGenerator = uuidGenerator;
 
     this.config = this.setupConfig(config);
-    this.longRunner = new LongRunner((name, percentage) => {
-      console.log(`${name} at ${percentage} %`);
-      this.trigger("update");
-    });
+
+    this.longRunner = this.config.longRunner;
+    this.setupLongRunnerEvents();
 
     this.session = this.setupSession(this.workbookData.revisionId);
 
@@ -691,6 +690,19 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   garbageCollectExternalResources() {
     for (const plugin of this.corePlugins) {
       plugin.garbageCollectExternalResources();
+    }
+  }
+
+  private setupLongRunnerEvents() {
+    if (this.config.mode === "normal") {
+      this.longRunner.on("job-started", this, () => {
+        this.updateMode("readonly");
+        this.trigger("update");
+      });
+      this.longRunner.on("job-done", this, () => {
+        this.updateMode("normal");
+        this.trigger("update");
+      });
     }
   }
 }

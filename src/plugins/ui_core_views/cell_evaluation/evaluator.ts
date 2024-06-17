@@ -261,7 +261,6 @@ export class Evaluator {
       for (const position of positions) {
         this.evaluatedCells.delete(position);
       }
-
       this.longRunner.queueJob<CellPosition>(
         "Evaluating",
         positions,

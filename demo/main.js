@@ -252,7 +252,7 @@ class Demo extends Component {
 
     this.createModel(data || demoData);
     // this.createModel(makePivotDataset(100_000));
-    // this.createModel(makeLargeDataset(26, 10_000, ["numbers"]));
+    // this.createModel(makeLargeDataset(260, 10_000, ["formulas"]));
     // this.createModel({});
   }
 
@@ -268,6 +268,7 @@ class Demo extends Component {
         transportService: this.transportService,
         client: this.client,
         mode: "normal",
+        longRunner: new LongRunner(),
       },
       this.stateUpdateMessages
     );

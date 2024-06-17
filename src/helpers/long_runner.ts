@@ -1,7 +1,9 @@
-import { Maybe } from "../types";
+import { Maybe, UID } from "../types";
 import { EventBus } from "./event_bus";
+import { UuidGenerator } from "./uuid";
 
 export interface LongRunningJob {
+  jobUID: UID;
   jobName: string;
   batchSize: number;
   iterable: string | any[];
@@ -9,7 +11,7 @@ export interface LongRunningJob {
   renderEveryMs: number;
 }
 
-export interface ILongRunner {
+export interface ILongRunner extends EventBus<any> {
   queueJob<T>(
     jobName: string,
     iterable: any[],
@@ -22,17 +24,13 @@ export interface ILongRunner {
 export class LongRunner extends EventBus<any> implements ILongRunner {
   private queue: LongRunningJob[];
   private runningJob: Maybe<LongRunningJob>;
-  private readonly updateFrameCallback: (jobName: string, percentage: number) => void;
+  private uuidGenerator: UuidGenerator;
 
-  constructor(updateFrameCallback: (jobName: string, percentage: number) => void) {
+  constructor() {
     super();
     this.queue = [];
     this.runningJob = undefined;
-    this.updateFrameCallback =
-      updateFrameCallback ||
-      ((job, percentage) => {
-        console.log(`${job} at ${percentage}%`);
-      });
+    this.uuidGenerator = new UuidGenerator();
   }
 
   queueJob<T>(
@@ -42,13 +40,15 @@ export class LongRunner extends EventBus<any> implements ILongRunner {
     batchSize: number = 100,
     renderEveryMs: number = 500
   ) {
-    this.trigger("job-queued", { name: jobName });
+    const newId = this.uuidGenerator.uuidv4();
+    this.trigger("job-queued", { id: newId, name: jobName });
     this.queue.push({
-      jobName: jobName,
-      iterable: iterable,
+      jobUID: newId,
+      jobName,
+      iterable,
       executeCallback: callback,
-      batchSize: batchSize,
-      renderEveryMs: renderEveryMs,
+      batchSize,
+      renderEveryMs,
     });
     this.check();
   }
@@ -57,24 +57,20 @@ export class LongRunner extends EventBus<any> implements ILongRunner {
     if (!this.runningJob && this.queue.length > 0) {
       this.runningJob = this.queue.shift();
       if (this.runningJob) {
-        this.run(
-          this.runningJob,
-          () => {
-            if (this.runningJob) {
-              this.trigger("job-done", { name: this.runningJob.jobName });
-            }
-            this.runningJob = undefined;
-            this.check();
-          },
-          0
-        );
+        this.run(this.runningJob, () => {
+          if (this.runningJob) {
+            this.trigger("job-done", { id: this.runningJob.jobUID });
+          }
+          this.runningJob = undefined;
+          this.check();
+        });
       }
     }
   }
 
   private run(job: LongRunningJob, doneCallback: () => void, offset: number = 0) {
     let timeout = Date.now() + job.renderEveryMs;
-    this.trigger("job-started", { name: job.jobName });
+    this.trigger("job-started", { id: job.jobUID, name: job.jobName });
 
     while (Date.now() < timeout) {
       this.batchN(job, offset);
@@ -86,8 +82,7 @@ export class LongRunner extends EventBus<any> implements ILongRunner {
     }
     setTimeout(() => {
       const progress = Math.floor((offset / job.iterable.length) * 100);
-      this.trigger("job-continued", { name: job.jobName, progress: progress });
-      this.updateFrameCallback(job.jobName, progress);
+      this.trigger("job-continued", { id: job.jobUID, name: job.jobName, progress: progress });
       this.run(job, doneCallback, offset);
     }, 0);
   }
@@ -100,7 +95,9 @@ export class LongRunner extends EventBus<any> implements ILongRunner {
   }
 }
 
-export class SynchronousLongRunner implements ILongRunner {
+export class SynchronousLongRunner extends EventBus<any> implements ILongRunner {
+  uuidGenerator = new UuidGenerator();
+
   queueJob<T>(
     jobName: string,
     iterable: T[],
@@ -108,6 +105,12 @@ export class SynchronousLongRunner implements ILongRunner {
     batchSize: number,
     renderEveryMs: number
   ): void {
+    const newId = this.uuidGenerator.uuidv4();
+    this.trigger("job-queued", { id: newId, name: jobName });
+    this.trigger("job-started", { id: newId, name: jobName });
+
     iterable.forEach(callback);
+
+    this.trigger("job-done", { id: newId });
   }
 }
