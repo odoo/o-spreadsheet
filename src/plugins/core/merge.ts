@@ -1,4 +1,5 @@
 import {
+  RangeImpl,
   clip,
   deepEquals,
   getCanonicalSheetName,
@@ -6,7 +7,6 @@ import {
   isEqual,
   overlap,
   positions,
-  RangeImpl,
   splitReference,
   toXC,
   toZone,

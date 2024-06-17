@@ -139,6 +139,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
           format: "",
         });
         break;
+      case "CLEAR_CELLS":
+        this.clearCells(cmd.sheetId, cmd.target);
+        break;
     }
   }
 
@@ -172,6 +175,26 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
             sheetId,
             col,
             row,
+            style: null,
+            format: "",
+          });
+        }
+      }
+    }
+  }
+
+  /**
+   * Clear the styles, the format and the content of zones
+   */
+  private clearCells(sheetId: UID, zones: Zone[]) {
+    for (const zone of zones) {
+      for (let col = zone.left; col <= zone.right; col++) {
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          this.dispatch("UPDATE_CELL", {
+            sheetId: sheetId,
+            col,
+            row,
+            content: "",
             style: null,
             format: "",
           });
