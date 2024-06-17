@@ -178,13 +178,10 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
    * Clear the clipped zones: remove the cells and clear the formatting
    */
   private clearClippedZones(content: ClipboardContent) {
-    for (const row of content.cells) {
-      for (const cell of row) {
-        if (cell.cell) {
-          this.dispatch("CLEAR_CELL", cell.position);
-        }
-      }
-    }
+    this.dispatch("CLEAR_CELLS", {
+      sheetId: content.sheetId,
+      target: content.zones,
+    });
     this.dispatch("CLEAR_FORMATTING", {
       sheetId: content.sheetId,
       target: content.zones,

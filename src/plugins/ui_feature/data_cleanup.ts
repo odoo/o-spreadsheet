@@ -82,9 +82,7 @@ export class DataCleanupPlugin extends UIPlugin {
       return;
     }
 
-    for (const { col, row } of positions(zone)) {
-      this.dispatch("CLEAR_CELL", { col, row, sheetId });
-    }
+    this.dispatch("CLEAR_CELLS", { target: [zone], sheetId });
 
     const zonePasted: Zone = {
       left: zone.left,

@@ -150,6 +150,7 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "UPDATE_CELL",
   "UPDATE_CELL_POSITION",
   "CLEAR_CELL",
+  "CLEAR_CELLS",
   "DELETE_CONTENT",
 
   /** GRID SHAPE */
@@ -719,6 +720,10 @@ export interface ClearCellCommand extends PositionDependentCommand {
   type: "CLEAR_CELL";
 }
 
+export interface ClearCellsCommand extends TargetDependentCommand {
+  type: "CLEAR_CELLS";
+}
+
 export interface UndoCommand {
   type: "UNDO";
   commands: readonly CoreCommand[];
@@ -860,6 +865,7 @@ export type CoreCommand =
   | UpdateCellCommand
   | UpdateCellPositionCommand
   | ClearCellCommand
+  | ClearCellsCommand
   | DeleteContentCommand
 
   /** GRID SHAPE */
