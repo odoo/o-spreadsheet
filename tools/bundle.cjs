@@ -13,7 +13,6 @@ __info__.hash = "${BUILD_INFOS.hash}";
 
 function jsBanner() {
   return `
-// @odoo-module ignore
 /**
 ${BANNER_MESSAGE.map((line) => ` * ${line}`).join("\n")}
  */
