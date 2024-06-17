@@ -68,3 +68,12 @@ export const splitToColumns: ActionSpec = {
   isEnabled: (env) => env.model.getters.isSingleColSelected(),
   icon: "o-spreadsheet-Icon.SPLIT_TEXT",
 };
+
+export const reinsertPivotMenu: ActionSpec = {
+  id: "reinsert_pivot",
+  name: _t("Re-insert pivot"),
+  sequence: 1020,
+  icon: "o-spreadsheet-Icon.INSERT_PIVOT",
+  children: [ACTIONS.REINSERT_PIVOT_CHILDREN],
+  isVisible: (env) => env.model.getters.getPivotIds().length > 0,
+};
