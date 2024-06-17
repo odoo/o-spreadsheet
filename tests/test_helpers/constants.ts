@@ -97,12 +97,6 @@ export const TEST_COMMANDS: CommandMapping = {
     row: 0,
     col: 0,
   },
-  CLEAR_CELL: {
-    type: "CLEAR_CELL",
-    col: 0,
-    row: 0,
-    sheetId: "sheetId",
-  },
   CLEAR_CELLS: {
     type: "CLEAR_CELLS",
     target: target("A1"),
@@ -452,7 +446,6 @@ export const TEST_COMMANDS: CommandMapping = {
 export const OT_TESTS_SINGLE_CELL_COMMANDS = [
   TEST_COMMANDS.UPDATE_CELL,
   TEST_COMMANDS.UPDATE_CELL_POSITION,
-  TEST_COMMANDS.CLEAR_CELL,
   TEST_COMMANDS.SET_BORDER,
 ];
 

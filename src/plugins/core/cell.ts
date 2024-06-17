@@ -20,7 +20,6 @@ import {
   Cell,
   CellData,
   CellPosition,
-  ClearCellCommand,
   CommandResult,
   CompiledFormula,
   CoreCommand,
@@ -100,8 +99,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     switch (cmd.type) {
       case "UPDATE_CELL":
         return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessUpdateCell);
-      case "CLEAR_CELL":
-        return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessClearCell);
       default:
         return CommandResult.Success;
     }
@@ -129,17 +126,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         break;
       case "UPDATE_CELL":
         this.updateCell(cmd.sheetId, cmd.col, cmd.row, cmd);
-        break;
-
-      case "CLEAR_CELL":
-        this.dispatch("UPDATE_CELL", {
-          sheetId: cmd.sheetId,
-          col: cmd.col,
-          row: cmd.row,
-          content: "",
-          style: null,
-          format: "",
-        });
         break;
       case "CLEAR_CELLS":
         this.clearCells(cmd.sheetId, cmd.target);
@@ -701,15 +687,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   //   const sheetZone = this.getters.getSheetZone(sheetId);
   //   return isZoneInside(zone, sheetZone) ? CommandResult.Success : CommandResult.TargetOutOfSheet;
   // }
-
-  private checkUselessClearCell(cmd: ClearCellCommand): CommandResult {
-    const cell = this.getters.getCell(cmd);
-    if (!cell) return CommandResult.NoChanges;
-    if (!cell.content && !cell.style && !cell.format) {
-      return CommandResult.NoChanges;
-    }
-    return CommandResult.Success;
-  }
 
   private checkUselessUpdateCell(cmd: UpdateCellCommand): CommandResult {
     const cell = this.getters.getCell(cmd);

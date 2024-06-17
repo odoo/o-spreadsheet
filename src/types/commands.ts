@@ -165,7 +165,6 @@ export const coreTypes = new Set<CoreCommandTypes>([
   /** CELLS */
   "UPDATE_CELL",
   "UPDATE_CELL_POSITION",
-  "CLEAR_CELL",
   "CLEAR_CELLS",
   "DELETE_CONTENT",
 
@@ -799,10 +798,6 @@ export interface DeleteContentCommand {
   target: Zone[];
 }
 
-export interface ClearCellCommand extends PositionDependentCommand {
-  type: "CLEAR_CELL";
-}
-
 export interface ClearCellsCommand extends TargetDependentCommand {
   type: "CLEAR_CELLS";
 }
@@ -958,7 +953,6 @@ export type CoreCommand =
   /** CELLS */
   | UpdateCellCommand
   | UpdateCellPositionCommand
-  | ClearCellCommand
   | ClearCellsCommand
   | DeleteContentCommand
 

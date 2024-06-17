@@ -3,7 +3,6 @@ import { inverseCommand } from "../../src/helpers/inverse_commands";
 import {
   AddColumnsRowsCommand,
   AddMergeCommand,
-  ClearCellCommand,
   ClearCellsCommand,
   ClearFormattingCommand,
   CoreCommand,
@@ -244,12 +243,6 @@ describe("Inverses commands", () => {
       col: 1,
       row: 1,
     };
-    const clearCell: ClearCellCommand = {
-      type: "CLEAR_CELL",
-      sheetId: "1",
-      col: 1,
-      row: 1,
-    };
     const clearCells: ClearCellsCommand = {
       type: "CLEAR_CELLS",
       sheetId: "1",
@@ -306,7 +299,6 @@ describe("Inverses commands", () => {
     test.each([
       updateCell,
       updateCellPosition,
-      clearCell,
       clearCells,
       deleteContent,
       resizeColumns,

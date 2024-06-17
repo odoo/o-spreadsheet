@@ -6,7 +6,6 @@ import { CellValueType, CommandResult } from "../../src/types";
 import {
   addColumns,
   addRows,
-  clearCell,
   clearCells,
   copy,
   createSheet,
@@ -154,13 +153,6 @@ describe("getCellText", () => {
     expect(result).toBeCancelledBecause(CommandResult.NoChanges);
   });
 
-  test("clear content", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "hello");
-    clearCell(model, "A1");
-    expect(getCell(model, "A1")).toBeUndefined();
-  });
-
   test("clear some content", () => {
     const model = new Model();
     setCellContent(model, "A1", "hello");
@@ -173,24 +165,10 @@ describe("getCellText", () => {
   test("clear some style", () => {
     const model = new Model();
     setStyle(model, "A1", { bold: true });
-    clearCell(model, "A1");
-    expect(getCell(model, "A1")).toBeUndefined();
-  });
-
-  test("clear some style", () => {
-    const model = new Model();
-    setStyle(model, "A1", { bold: true });
     setStyle(model, "A2", { italic: true });
     clearCells(model, ["A1:A2"]);
     expect(getCell(model, "A1")).toBeUndefined();
     expect(getCell(model, "A2")).toBeUndefined();
-  });
-
-  test("clear format", () => {
-    const model = new Model();
-    setCellFormat(model, "A1", "#,##0.0");
-    clearCell(model, "A1");
-    expect(getCell(model, "A1")).toBeUndefined();
   });
 
   test("clear some format", () => {
@@ -198,15 +176,6 @@ describe("getCellText", () => {
     setCellFormat(model, "A1", "#,##0.0");
     setCellFormat(model, "A2", "0%");
     clearCells(model, ["A1:A2"]);
-    expect(getCell(model, "A1")).toBeUndefined();
-  });
-
-  test("clear content, style and format", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "hello");
-    setStyle(model, "A1", { bold: true });
-    setCellFormat(model, "A1", "#,##0.0");
-    clearCell(model, "A1");
     expect(getCell(model, "A1")).toBeUndefined();
   });
 
@@ -221,18 +190,6 @@ describe("getCellText", () => {
     clearCells(model, ["A1", "A2"]);
     expect(getCell(model, "A1")).toBeUndefined();
     expect(getCell(model, "A2")).toBeUndefined();
-  });
-
-  test("clear cell outside of sheet", () => {
-    const model = new Model();
-    const result = clearCell(model, "AAA999");
-    expect(result).toBeCancelledBecause(CommandResult.TargetOutOfSheet, CommandResult.NoChanges);
-  });
-
-  test("clear cell is cancelled if there is nothing on the cell", () => {
-    const model = new Model();
-    const result = clearCell(model, "A1");
-    expect(result).toBeCancelledBecause(CommandResult.NoChanges);
   });
 
   test("escape character is not display when formatting string", () => {
