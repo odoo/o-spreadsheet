@@ -337,6 +337,28 @@ describe("Table plugin", () => {
       setCellContent(model, "A4", "Something");
       expect(zoneToXc(model.getters.getTables(sheetId)[0].range.zone)).toEqual("A1:B3");
     });
+
+    test("Table zone is not expanded when inserting a col/row next to it", () => {
+      // Note: this is more a limitation of our current behaviour of `adaptRanges` than a feature
+      // In fact, this seems bugged when drag & drop a column of a table to the left of the table,
+      // we expect the table to include this column but it does not.
+      // But changing this behaviour would either require tables to not use `Range`, or to have a
+      // complete overhaul of the way ranges work, which will probably break some spreadsheets and
+      // does not seems worth it ATM.
+      createTable(model, "B2:C3");
+
+      addColumns(model, "before", "B", 1);
+      expect(zoneToXc(model.getters.getTables(sheetId)[0].range.zone)).toEqual("C2:D3");
+
+      addColumns(model, "after", "D", 1);
+      expect(zoneToXc(model.getters.getTables(sheetId)[0].range.zone)).toEqual("C2:D3");
+
+      addRows(model, "before", 1, 1);
+      expect(zoneToXc(model.getters.getTables(sheetId)[0].range.zone)).toEqual("C3:D4");
+
+      addRows(model, "after", 3, 1);
+      expect(zoneToXc(model.getters.getTables(sheetId)[0].range.zone)).toEqual("C3:D4");
+    });
   });
 
   describe("Grid manipulation", () => {
