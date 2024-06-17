@@ -230,7 +230,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
   // ---------------------------------------------------------------------------
 
   import(data: WorkbookData) {
-    this.longRunner.longRunning<SheetData>(
+    this.longRunner.queueJob<SheetData>(
       "Importing sheets",
       Object.values(data.sheets),
       (sheet) => {

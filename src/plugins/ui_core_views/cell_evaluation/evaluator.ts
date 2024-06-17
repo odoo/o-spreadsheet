@@ -262,7 +262,7 @@ export class Evaluator {
         this.evaluatedCells.delete(position);
       }
 
-      this.longRunner.longRunning<CellPosition>(
+      this.longRunner.queueJob<CellPosition>(
         "Evaluating",
         positions,
         (position) => {

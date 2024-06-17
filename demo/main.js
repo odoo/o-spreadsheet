@@ -268,10 +268,6 @@ class Demo extends Component {
         transportService: this.transportService,
         client: this.client,
         mode: "normal",
-        longRunner: new LongRunner((name, percentage) => {
-          console.log(`${name} at ${percentage} %`);
-          this.model.trigger("update");
-        }),
       },
       this.stateUpdateMessages
     );

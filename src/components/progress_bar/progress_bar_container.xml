@@ -1,5 +1,12 @@
 <template>
   <t t-name="o-spreadsheet-ProgressBarContainer">
-    <div class="o-progressBar-container"/>
+    <div class="o-progressBar-container" t-if="progressBars.length">
+      <t t-foreach="progressBars" t-as="progressBar" t-key="progressBar.name">
+        <div class="o-progressBar" t-att-style="getStyle(progressBar)">
+          <span t-out="progressBar.name"/>
+          <span t-out="progressBar.progress"/>
+        </div>
+      </t>
+    </div>
   </t>
 </template>

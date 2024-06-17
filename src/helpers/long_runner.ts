@@ -1,4 +1,5 @@
 import { Maybe } from "../types";
+import { EventBus } from "./event_bus";
 
 export interface LongRunningJob {
   jobName: string;
@@ -9,7 +10,7 @@ export interface LongRunningJob {
 }
 
 export interface ILongRunner {
-  longRunning<T>(
+  queueJob<T>(
     jobName: string,
     iterable: any[],
     callback: (item: T) => void,
@@ -18,12 +19,13 @@ export interface ILongRunner {
   ): void;
 }
 
-export class LongRunner implements ILongRunner {
+export class LongRunner extends EventBus<any> implements ILongRunner {
   private queue: LongRunningJob[];
   private runningJob: Maybe<LongRunningJob>;
   private readonly updateFrameCallback: (jobName: string, percentage: number) => void;
 
   constructor(updateFrameCallback: (jobName: string, percentage: number) => void) {
+    super();
     this.queue = [];
     this.runningJob = undefined;
     this.updateFrameCallback =
@@ -33,13 +35,14 @@ export class LongRunner implements ILongRunner {
       });
   }
 
-  longRunning<T>(
+  queueJob<T>(
     jobName: string,
     iterable: T[],
     callback: (item: T) => void,
     batchSize: number = 100,
     renderEveryMs: number = 500
   ) {
+    this.trigger("job-queued", { name: jobName });
     this.queue.push({
       jobName: jobName,
       iterable: iterable,
@@ -57,6 +60,9 @@ export class LongRunner implements ILongRunner {
         this.run(
           this.runningJob,
           () => {
+            if (this.runningJob) {
+              this.trigger("job-done", { name: this.runningJob.jobName });
+            }
             this.runningJob = undefined;
             this.check();
           },
@@ -68,6 +74,7 @@ export class LongRunner implements ILongRunner {
 
   private run(job: LongRunningJob, doneCallback: () => void, offset: number = 0) {
     let timeout = Date.now() + job.renderEveryMs;
+    this.trigger("job-started", { name: job.jobName });
 
     while (Date.now() < timeout) {
       this.batchN(job, offset);
@@ -78,7 +85,9 @@ export class LongRunner implements ILongRunner {
       }
     }
     setTimeout(() => {
-      this.updateFrameCallback(job.jobName, Math.floor((offset / job.iterable.length) * 100));
+      const progress = Math.floor((offset / job.iterable.length) * 100);
+      this.trigger("job-continued", { name: job.jobName, progress: progress });
+      this.updateFrameCallback(job.jobName, progress);
       this.run(job, doneCallback, offset);
     }, 0);
   }
@@ -92,7 +101,7 @@ export class LongRunner implements ILongRunner {
 }
 
 export class SynchronousLongRunner implements ILongRunner {
-  longRunning<T>(
+  queueJob<T>(
     jobName: string,
     iterable: T[],
     callback: (item: T) => void,

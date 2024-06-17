@@ -4,7 +4,7 @@ import { Session } from "./collaborative/session";
 import { DEFAULT_REVISION_ID } from "./constants";
 import { EventBus } from "./helpers/event_bus";
 import { deepCopy, UuidGenerator } from "./helpers/index";
-import { ILongRunner, SynchronousLongRunner } from "./helpers/long_runner";
+import { ILongRunner, LongRunner, SynchronousLongRunner } from "./helpers/long_runner";
 import { buildRevisionLog } from "./history/factory";
 import {
   createEmptyExcelWorkbookData,
@@ -212,7 +212,10 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.uuidGenerator = uuidGenerator;
 
     this.config = this.setupConfig(config);
-    this.longRunner = this.config.longRunner;
+    this.longRunner = new LongRunner((name, percentage) => {
+      console.log(`${name} at ${percentage} %`);
+      this.trigger("update");
+    });
 
     this.session = this.setupSession(this.workbookData.revisionId);
 
