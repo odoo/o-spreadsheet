@@ -53,9 +53,6 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
     clippedContent: ClipboardContent,
     options?: ClipboardOptions
   ) {
-    if (!clippedContent?.dvRules) {
-      return;
-    }
     if (options?.pasteOption) {
       return;
     }

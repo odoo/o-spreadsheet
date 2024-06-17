@@ -131,7 +131,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
     content: ClipboardContent,
     options?: ClipboardOptions | undefined
   ) {
-    if (!("cells" in content) || !("zones" in target) || !target.zones.length) {
+    if (!("zones" in target) || !target.zones.length) {
       return;
     }
     const zones = target.zones;

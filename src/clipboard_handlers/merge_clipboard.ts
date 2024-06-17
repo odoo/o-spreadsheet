@@ -42,12 +42,7 @@ export class MergeClipboardHandler extends AbstractCellClipboardHandler<
    * Paste the clipboard content in the given target
    */
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
-    if (
-      !content.merges ||
-      options?.isCutOperation ||
-      !("zones" in target) ||
-      !target.zones.length
-    ) {
+    if (options?.isCutOperation || !("zones" in target) || !target.zones.length) {
       return;
     }
     this.pasteFromCopy(target.sheetId, target.zones, content.merges, options);
