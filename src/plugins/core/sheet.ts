@@ -870,19 +870,24 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   }
 
   private moveCellOnColumnsDeletion(sheet: Sheet, deletedColumn: number) {
+    this.dispatch("CLEAR_CELLS", {
+      sheetId: sheet.id,
+      target: [
+        {
+          left: deletedColumn,
+          top: 0,
+          right: deletedColumn,
+          bottom: sheet.rows.length - 1,
+        },
+      ],
+    });
+
     for (let rowIndex = 0; rowIndex < sheet.rows.length; rowIndex++) {
       const row = sheet.rows[rowIndex];
       for (let i in row.cells) {
         const colIndex = Number(i);
         const cellId = row.cells[i];
         if (cellId) {
-          if (colIndex === deletedColumn) {
-            this.dispatch("CLEAR_CELL", {
-              sheetId: sheet.id,
-              col: colIndex,
-              row: rowIndex,
-            });
-          }
           if (colIndex > deletedColumn) {
             this.setNewPosition(cellId, sheet.id, colIndex - 1, rowIndex);
           }
@@ -939,22 +944,21 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     deleteFromRow: HeaderIndex,
     deleteToRow: HeaderIndex
   ) {
+    this.dispatch("CLEAR_CELLS", {
+      sheetId: sheet.id,
+      target: [
+        {
+          left: 0,
+          top: deleteFromRow,
+          right: this.getters.getNumberCols(sheet.id),
+          bottom: deleteToRow,
+        },
+      ],
+    });
+
     const numberRows = deleteToRow - deleteFromRow + 1;
     for (let rowIndex = 0; rowIndex < sheet.rows.length; rowIndex++) {
       const row = sheet.rows[rowIndex];
-      if (rowIndex >= deleteFromRow && rowIndex <= deleteToRow) {
-        for (let i in row.cells) {
-          const colIndex = Number(i);
-          const cellId = row.cells[i];
-          if (cellId) {
-            this.dispatch("CLEAR_CELL", {
-              sheetId: sheet.id,
-              col: colIndex,
-              row: rowIndex,
-            });
-          }
-        }
-      }
       if (rowIndex > deleteToRow) {
         for (let i in row.cells) {
           const colIndex = Number(i);
