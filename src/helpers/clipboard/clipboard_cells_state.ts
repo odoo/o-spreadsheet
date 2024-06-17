@@ -318,13 +318,10 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
    * Clear the clipped zones: remove the cells and clear the formatting
    */
   private clearClippedZones() {
-    for (const row of this.cells) {
-      for (const cell of row) {
-        if (cell?.cell) {
-          this.dispatch("CLEAR_CELL", cell.position);
-        }
-      }
-    }
+    this.dispatch("CLEAR_CELLS", {
+      sheetId: this.sheetId,
+      target: this.zones,
+    });
     this.dispatch("CLEAR_FORMATTING", {
       sheetId: this.sheetId,
       target: this.zones,
