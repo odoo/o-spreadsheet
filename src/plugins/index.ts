@@ -34,7 +34,6 @@ import {
   AutomaticSumPlugin,
   CollaborativePlugin,
   DataCleanupPlugin,
-  FindAndReplacePlugin,
   FormatPlugin,
   HeaderVisibilityUIPlugin,
   InsertPivotPlugin,
@@ -81,7 +80,6 @@ export const featurePluginRegistry = new Registry<UIPluginConstructor>()
   .add("ui_sheet", SheetUIPlugin)
   .add("ui_options", UIOptionsPlugin)
   .add("autofill", AutofillPlugin)
-  .add("find_and_replace", FindAndReplacePlugin)
   .add("sort", SortPlugin)
   .add("automatic_sum", AutomaticSumPlugin)
   .add("format", FormatPlugin)
