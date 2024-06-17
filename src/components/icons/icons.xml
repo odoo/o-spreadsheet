@@ -873,4 +873,23 @@
       <t t-call="o-spreadsheet-Icon.TRIANGLE_EXCLAMATION"/>
     </div>
   </t>
+  <t t-name="o-spreadsheet-Icon.INSERT_PIVOT">
+    <svg class="o-icon">
+      <defs>
+        <mask id="a">
+          <path fill="#fff" d="M0 0h18v18H0z"/>
+          <path d="M18 26a3.5 3 0 0 1 0-18"/>
+        </mask>
+      </defs>
+      <path
+        fill="currentColor"
+        d="M17 2v14H1V6h4V2h12m-1 1H6v3h10M2 7v2h3V7m-3 3v2h3v-2m-3 3v2h3v-2m1-6v2h6V7m-6 3v2h6v-2m-6 3v2h6v-2m1-6v2h3V7m-3 3v2h3v-2m-3 3v2h3v-2"
+        mask="url(#a)"
+      />
+      <path
+        fill="currentColor"
+        d="M13 13v-3a.75.5 0 0 1 1.5 0v3h3a.5.75 0 0 1 0 1.5h-3v3a.75.5 0 0 1-1.5 0v-3h-3a.5.75 0 0 1 0-1.5"
+      />
+    </svg>
+  </t>
 </templates>

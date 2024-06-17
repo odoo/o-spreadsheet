@@ -484,4 +484,5 @@ topbarMenuRegistry
             : undefined,
       };
     });
-  });
+  })
+  .addChild("reinsert_pivot", ["data"], ACTION_DATA.reinsertPivotMenu);

@@ -1,6 +1,8 @@
+import { PIVOT_TABLE_CONFIG } from "../../constants";
+import { SpreadsheetPivotTable } from "../../helpers/pivot/spreadsheet_pivot/table_spreadsheet_pivot";
 import { getZoneArea } from "../../helpers/zones";
 import { _t } from "../../translation";
-import { UID } from "../../types";
+import { HeaderIndex, PivotTableData, UID } from "../../types";
 import { Command } from "../../types/commands";
 import { UIPlugin } from "../ui_plugin";
 
@@ -14,6 +16,9 @@ export class InsertPivotPlugin extends UIPlugin {
         break;
       case "DUPLICATE_PIVOT_IN_NEW_SHEET":
         this.duplicatePivotInNewSheet(cmd.pivotId, cmd.newPivotId, cmd.newSheetId);
+        break;
+      case "INSERT_PIVOT_WITH_TABLE":
+        this.insertPivotWithTable(cmd.sheetId, cmd.col, cmd.row, cmd.pivotId, cmd.table);
         break;
     }
   }
@@ -95,5 +100,70 @@ export class InsertPivotPlugin extends UIPlugin {
       i++;
     }
     return name;
+  }
+
+  insertPivotWithTable(
+    sheetId: UID,
+    col: HeaderIndex,
+    row: HeaderIndex,
+    pivotId: UID,
+    table: PivotTableData
+  ) {
+    const { cols, rows, measures, fieldsType } = table;
+    const pivotTable = new SpreadsheetPivotTable(cols, rows, measures, fieldsType || {});
+    this.resizeSheet(sheetId, col, row, pivotTable);
+    const pivotFormulaId = this.getters.getPivotFormulaId(pivotId);
+    this.dispatch("UPDATE_CELL", {
+      sheetId,
+      col,
+      row,
+      content: `=PIVOT("${pivotFormulaId}")`,
+    });
+    const zone = {
+      left: col,
+      right: col,
+      top: row,
+      bottom: row,
+    };
+
+    const numberOfHeaders = pivotTable.columns.length - 1;
+    this.dispatch("CREATE_TABLE", {
+      tableType: "dynamic",
+      sheetId,
+      ranges: [this.getters.getRangeDataFromZone(sheetId, zone)],
+      config: { ...PIVOT_TABLE_CONFIG, numberOfHeaders },
+    });
+  }
+
+  private resizeSheet(
+    sheetId: UID,
+    col: HeaderIndex,
+    row: HeaderIndex,
+    table: SpreadsheetPivotTable
+  ) {
+    const colLimit = table.getNumberOfDataColumns() + 1; // +1 for the Top-Left
+    const numberCols = this.getters.getNumberCols(sheetId);
+    const deltaCol = numberCols - col;
+    if (deltaCol < colLimit) {
+      this.dispatch("ADD_COLUMNS_ROWS", {
+        dimension: "COL",
+        base: numberCols - 1,
+        sheetId: sheetId,
+        quantity: colLimit - deltaCol,
+        position: "after",
+      });
+    }
+    const rowLimit = table.columns.length + table.rows.length;
+    const numberRows = this.getters.getNumberRows(sheetId);
+    const deltaRow = numberRows - row;
+    if (deltaRow < rowLimit) {
+      this.dispatch("ADD_COLUMNS_ROWS", {
+        dimension: "ROW",
+        base: numberRows - 1,
+        sheetId: sheetId,
+        quantity: rowLimit - deltaRow,
+        position: "after",
+      });
+    }
   }
 }

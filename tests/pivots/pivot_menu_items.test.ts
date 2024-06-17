@@ -1,10 +1,18 @@
 import { Model, SpreadsheetChildEnv } from "../../src";
-import { cellMenuRegistry } from "../../src/registries";
-import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
-import { getCellText, getEvaluatedGrid } from "../test_helpers/getters_helpers";
-import { createModelFromGrid, makeTestEnv } from "../test_helpers/helpers";
+import { toCartesian, toZone } from "../../src/helpers";
+import { cellMenuRegistry, topbarMenuRegistry } from "../../src/registries";
+import {
+  createSheet,
+  redo,
+  selectCell,
+  setCellContent,
+  undo,
+} from "../test_helpers/commands_helpers";
+import { getCell, getCellText, getEvaluatedGrid, getTable } from "../test_helpers/getters_helpers";
+import { createModelFromGrid, doAction, makeTestEnv } from "../test_helpers/helpers";
 import { addPivot } from "../test_helpers/pivot_helpers";
 
+const reinsertPivotPath = ["data", "reinsert_pivot", "reinsert_pivot_1"];
 describe("Pivot menu items", () => {
   let model: Model;
   let env: SpreadsheetChildEnv;
@@ -169,5 +177,79 @@ describe("Pivot menu items", () => {
     selectCell(model, "C1");
     cellMenuRegistry.get("pivot_fix_formulas").execute!(env);
     expect(getCellText(model, "C1")).toBe("=PIVOT(1)");
+  });
+
+  test("Reinsert a pivot", () => {
+    // prettier-ignore
+    const grid = {
+          A1: "Customer", B1: "Quantity",
+          A2: "Alice",    B2: "Jambon",
+        };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B2", {
+      columns: [],
+      rows: [{ name: "Customer" }],
+      measures: [{ name: "Quantity", aggregator: "sum" }],
+    });
+    const env = makeTestEnv({ model });
+    selectCell(model, "B8");
+    doAction(reinsertPivotPath, env, topbarMenuRegistry);
+    expect(getCellText(model, "B8")).toEqual(`=PIVOT("1")`);
+    expect(
+      model.getters.getCoreTable({
+        sheetId: model.getters.getActiveSheetId(),
+        ...toCartesian("B8"),
+      })
+    ).toMatchObject({
+      range: { zone: toZone("B8") },
+      config: { numberOfHeaders: 1 },
+      type: "dynamic",
+    });
+  });
+
+  test("Reinsert a pivot in a sheet too small", () => {
+    // prettier-ignore
+    const grid = {
+          A1: "Customer", B1: "Quantity",
+          A2: "Alice",    B2: "Jambon",
+        };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B2", {
+      columns: [],
+      rows: [{ name: "Customer" }],
+      measures: [{ name: "Quantity", aggregator: "sum" }],
+    });
+    createSheet(model, { sheetId: "smallSheet", rows: 1, cols: 1, activate: true });
+    const env = makeTestEnv({ model });
+    doAction(reinsertPivotPath, env, topbarMenuRegistry);
+    expect(getCellText(model, "A1")).toEqual(`=PIVOT("1")`);
+    expect(model.getters.getPivot(model.getters.getPivotId("1")!).isValid()).toBeTruthy();
+    expect(model.getters.getNumberCols("smallSheet")).toEqual(2);
+    expect(model.getters.getNumberRows("smallSheet")).toEqual(4); // title, col group, row header, total
+  });
+
+  test("undo pivot reinsertion", () => {
+    // prettier-ignore
+    const grid = {
+          A1: "Customer", B1: "Quantity",
+          A2: "Alice",    B2: "Jambon",
+        };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B2", {
+      columns: [],
+      rows: [{ name: "Customer" }],
+      measures: [{ name: "Quantity", aggregator: "sum" }],
+    });
+    const env = makeTestEnv({ model });
+    selectCell(model, "B8");
+    doAction(reinsertPivotPath, env, topbarMenuRegistry);
+    expect(getCellText(model, "B8")).toEqual(`=PIVOT("1")`);
+    expect(getTable(model, "B8")).toBeDefined();
+    undo(model);
+    expect(getCell(model, "B8")).toBeUndefined();
+    expect(getTable(model, "B8")).toBeUndefined();
+    redo(model);
+    expect(getCellText(model, "B8")).toEqual(`=PIVOT("1")`);
+    expect(getTable(model, "B8")).toBeDefined();
   });
 });

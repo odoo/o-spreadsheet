@@ -163,6 +163,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
 
   private insertPivot(position: CellPosition, formulaId: UID, table: SpreadsheetPivotTable) {
     this.resizeSheet(position.sheetId, position, table);
+
     const pivotCells = table.getPivotCells();
     for (let col = 0; col < pivotCells.length; col++) {
       for (let row = 0; row < pivotCells[col].length; row++) {
