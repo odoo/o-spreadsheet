@@ -3,7 +3,7 @@ import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_ha
 import { cellStyleToCss, cssPropertiesToCss } from "../../components/helpers";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
-import { UuidGenerator, isZoneValid, positions, union } from "../../helpers/index";
+import { UuidGenerator, isZoneValid, union } from "../../helpers/index";
 import { CURRENT_VERSION } from "../../migrations/data";
 import {
   ClipboardContent,
@@ -210,9 +210,10 @@ export class ClipboardPlugin extends UIPlugin {
       case "DELETE_CELL": {
         const { cut, paste } = this.getDeleteCellsTargets(cmd.zone, cmd.shiftDimension);
         if (!isZoneValid(cut[0])) {
-          for (const { col, row } of positions(cmd.zone)) {
-            this.dispatch("CLEAR_CELL", { col, row, sheetId: this.getters.getActiveSheetId() });
-          }
+          this.dispatch("CLEAR_CELLS", {
+            target: [cmd.zone],
+            sheetId: this.getters.getActiveSheetId(),
+          });
           break;
         }
         const copiedData = this.copy(cut);
