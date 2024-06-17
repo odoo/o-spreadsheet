@@ -1,7 +1,7 @@
 import { ClipboardCellsState } from "../../helpers/clipboard/clipboard_cells_state";
 import { ClipboardFigureState } from "../../helpers/clipboard/clipboard_figure_state";
 import { ClipboardOsState } from "../../helpers/clipboard/clipboard_os_state";
-import { isZoneValid, positions } from "../../helpers/index";
+import { isZoneValid } from "../../helpers/index";
 import {
   ClipboardContent,
   ClipboardMIMEType,
@@ -166,9 +166,10 @@ export class ClipboardPlugin extends UIPlugin {
       case "DELETE_CELL": {
         const { cut, paste } = this.getDeleteCellsTargets(cmd.zone, cmd.shiftDimension);
         if (!isZoneValid(cut[0])) {
-          for (const { col, row } of positions(cmd.zone)) {
-            this.dispatch("CLEAR_CELL", { col, row, sheetId: this.getters.getActiveSheetId() });
-          }
+          this.dispatch("CLEAR_CELLS", {
+            target: [cmd.zone],
+            sheetId: this.getters.getActiveSheetId(),
+          });
           break;
         }
         const state = this.getClipboardStateForCopyCells(cut, "CUT");

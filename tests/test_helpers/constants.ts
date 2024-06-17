@@ -71,6 +71,11 @@ export const TEST_COMMANDS: CommandMapping = {
     row: 0,
     sheetId: "sheetId",
   },
+  CLEAR_CELLS: {
+    type: "CLEAR_CELLS",
+    target: target("A1"),
+    sheetId: "sheetId",
+  },
   DELETE_CONTENT: {
     type: "DELETE_CONTENT",
     target: target("A1"),
@@ -376,6 +381,7 @@ export const OT_TESTS_TARGET_DEPENDANT_COMMANDS = [
   TEST_COMMANDS.CLEAR_FORMATTING,
   TEST_COMMANDS.CREATE_FILTER_TABLE,
   TEST_COMMANDS.REMOVE_FILTER_TABLE,
+  TEST_COMMANDS.CLEAR_CELLS,
 ];
 
 export const OT_TESTS_ZONE_DEPENDANT_COMMANDS = [

@@ -40,6 +40,7 @@ export const repeatCommandTransformRegistry = new Registry<RepeatTransform>();
 
 repeatCommandTransformRegistry.add("UPDATE_CELL", genericRepeat);
 repeatCommandTransformRegistry.add("CLEAR_CELL", genericRepeat);
+repeatCommandTransformRegistry.add("CLEAR_CELLS", genericRepeat);
 repeatCommandTransformRegistry.add("DELETE_CONTENT", genericRepeat);
 
 repeatCommandTransformRegistry.add("ADD_MERGE", genericRepeat);
