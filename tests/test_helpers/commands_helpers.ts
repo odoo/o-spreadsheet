@@ -557,6 +557,17 @@ export function clearCell(
 }
 
 /**
+ * Clear cells in zones
+ */
+export function clearCells(
+  model: Model,
+  xcs: string[],
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  return model.dispatch("CLEAR_CELLS", { target: xcs.map(toZone), sheetId });
+}
+
+/**
  * Set the content of a cell
  */
 export function setCellContent(
