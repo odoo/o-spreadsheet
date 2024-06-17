@@ -31,13 +31,11 @@ export default (commandLineArgs) => {
   let plugins = [nodeResolve()];
   let config = {};
 
-  if (commandLineArgs.configDev) {
-    // Only build iife version to improve speed
+  if (commandLineArgs.configDev || commandLineArgs.configDist) {
+    // Only build one version to improve speed
     input = "build/js/index.js";
     output = [
       {
-        file: `build/o_spreadsheet.js`,
-        format: "iife",
         name: "o_spreadsheet",
         extend: true,
         outro,
@@ -45,6 +43,13 @@ export default (commandLineArgs) => {
         globals: { "@odoo/owl": "owl" },
       },
     ];
+    if (commandLineArgs.configDev) {
+      output[0].file = `build/o_spreadsheet.dev.js`;
+      output[0].format = `iife`;
+    } else {
+      output[0].file = `build/o_spreadsheet.js`;
+      output[0].format = `esm`;
+    }
     config = {
       input,
       external: ["@odoo/owl"],
