@@ -7,7 +7,6 @@ exports[`Linear/Time charts font color is white with a dark background color 1`]
     "data": {
       "datasets": [
         {
-          "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
           "data": [
             {
@@ -23,7 +22,6 @@ exports[`Linear/Time charts font color is white with a dark background color 1`]
               "y": 13,
             },
           ],
-          "fill": false,
           "label": "10",
           "pointBackgroundColor": "rgb(31,119,180)",
           "tension": 0,
@@ -59,8 +57,11 @@ exports[`Linear/Time charts font color is white with a dark background color 1`]
           "labels": {
             "color": "#FFFFFF",
             "generateLabels": [Function],
+            "usePointStyle": true,
           },
           "onClick": [Function],
+          "onHover": [Function],
+          "onLeave": [Function],
           "position": "top",
         },
         "title": {
@@ -117,7 +118,6 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for date char
     "data": {
       "datasets": [
         {
-          "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
           "data": [
             {
@@ -137,7 +137,6 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for date char
               "y": 13,
             },
           ],
-          "fill": false,
           "label": "Series 1",
           "pointBackgroundColor": "rgb(31,119,180)",
           "tension": 0,
@@ -174,8 +173,11 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for date char
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
+            "usePointStyle": true,
           },
           "onClick": [Function],
+          "onHover": [Function],
+          "onLeave": [Function],
           "position": "top",
         },
         "title": {
@@ -238,7 +240,6 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for linear ch
     "data": {
       "datasets": [
         {
-          "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
           "data": [
             {
@@ -258,7 +259,6 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for linear ch
               "y": 13,
             },
           ],
-          "fill": false,
           "label": "Series 1",
           "pointBackgroundColor": "rgb(31,119,180)",
           "tension": 0,
@@ -295,8 +295,11 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for linear ch
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
+            "usePointStyle": true,
           },
           "onClick": [Function],
+          "onHover": [Function],
+          "onLeave": [Function],
           "position": "top",
         },
         "title": {
@@ -389,8 +392,12 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
         "legend": {
           "labels": {
             "color": "#000000",
+            "generateLabels": [Function],
+            "usePointStyle": true,
           },
           "onClick": [Function],
+          "onHover": [Function],
+          "onLeave": [Function],
           "position": "top",
         },
         "title": {
@@ -446,12 +453,10 @@ exports[`datasource tests create chart with a dataset of one cell (no title) 1`]
     "data": {
       "datasets": [
         {
-          "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
           "data": [
             30,
           ],
-          "fill": false,
           "label": "Series 1",
           "pointBackgroundColor": "rgb(31,119,180)",
           "tension": 0,
@@ -485,8 +490,11 @@ exports[`datasource tests create chart with a dataset of one cell (no title) 1`]
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
+            "usePointStyle": true,
           },
           "onClick": [Function],
+          "onHover": [Function],
+          "onLeave": [Function],
           "position": "top",
         },
         "title": {
@@ -540,27 +548,23 @@ exports[`datasource tests create chart with column datasets 1`] = `
     "data": {
       "datasets": [
         {
-          "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
           "data": [
             10,
             11,
             12,
           ],
-          "fill": false,
           "label": "first column dataset",
           "pointBackgroundColor": "rgb(31,119,180)",
           "tension": 0,
         },
         {
-          "backgroundColor": "#FF7F0E",
           "borderColor": "rgb(255,127,14)",
           "data": [
             20,
             19,
             18,
           ],
-          "fill": false,
           "label": "second column datase…",
           "pointBackgroundColor": "rgb(255,127,14)",
           "tension": 0,
@@ -596,8 +600,11 @@ exports[`datasource tests create chart with column datasets 1`] = `
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
+            "usePointStyle": true,
           },
           "onClick": [Function],
+          "onHover": [Function],
+          "onLeave": [Function],
           "position": "top",
         },
         "title": {
@@ -651,27 +658,23 @@ exports[`datasource tests create chart with column datasets with category title 
     "data": {
       "datasets": [
         {
-          "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
           "data": [
             10,
             11,
             12,
           ],
-          "fill": false,
           "label": "first column dataset",
           "pointBackgroundColor": "rgb(31,119,180)",
           "tension": 0,
         },
         {
-          "backgroundColor": "#FF7F0E",
           "borderColor": "rgb(255,127,14)",
           "data": [
             20,
             19,
             18,
           ],
-          "fill": false,
           "label": "second column datase…",
           "pointBackgroundColor": "rgb(255,127,14)",
           "tension": 0,
@@ -707,8 +710,11 @@ exports[`datasource tests create chart with column datasets with category title 
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
+            "usePointStyle": true,
           },
           "onClick": [Function],
+          "onHover": [Function],
+          "onLeave": [Function],
           "position": "top",
         },
         "title": {
@@ -762,27 +768,23 @@ exports[`datasource tests create chart with column datasets without series title
     "data": {
       "datasets": [
         {
-          "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
           "data": [
             10,
             11,
             12,
           ],
-          "fill": false,
           "label": "Series 1",
           "pointBackgroundColor": "rgb(31,119,180)",
           "tension": 0,
         },
         {
-          "backgroundColor": "#FF7F0E",
           "borderColor": "rgb(255,127,14)",
           "data": [
             20,
             19,
             18,
           ],
-          "fill": false,
           "label": "Series 2",
           "pointBackgroundColor": "rgb(255,127,14)",
           "tension": 0,
@@ -818,8 +820,11 @@ exports[`datasource tests create chart with column datasets without series title
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
+            "usePointStyle": true,
           },
           "onClick": [Function],
+          "onHover": [Function],
+          "onLeave": [Function],
           "position": "top",
         },
         "title": {
@@ -873,13 +878,11 @@ exports[`datasource tests create chart with only the dataset title (no data) 1`]
     "data": {
       "datasets": [
         {
-          "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
           "data": [
             undefined,
             undefined,
           ],
-          "fill": false,
           "label": "30",
           "pointBackgroundColor": "rgb(31,119,180)",
           "tension": 0,
@@ -914,8 +917,11 @@ exports[`datasource tests create chart with only the dataset title (no data) 1`]
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
+            "usePointStyle": true,
           },
           "onClick": [Function],
+          "onHover": [Function],
+          "onLeave": [Function],
           "position": "top",
         },
         "title": {
@@ -969,27 +975,23 @@ exports[`datasource tests create chart with rectangle dataset 1`] = `
     "data": {
       "datasets": [
         {
-          "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
           "data": [
             10,
             11,
             12,
           ],
-          "fill": false,
           "label": "first column dataset",
           "pointBackgroundColor": "rgb(31,119,180)",
           "tension": 0,
         },
         {
-          "backgroundColor": "#FF7F0E",
           "borderColor": "rgb(255,127,14)",
           "data": [
             20,
             19,
             18,
           ],
-          "fill": false,
           "label": "second column datase…",
           "pointBackgroundColor": "rgb(255,127,14)",
           "tension": 0,
@@ -1025,8 +1027,11 @@ exports[`datasource tests create chart with rectangle dataset 1`] = `
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
+            "usePointStyle": true,
           },
           "onClick": [Function],
+          "onHover": [Function],
+          "onLeave": [Function],
           "position": "top",
         },
         "title": {
@@ -1080,27 +1085,23 @@ exports[`datasource tests create chart with row datasets 1`] = `
     "data": {
       "datasets": [
         {
-          "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
           "data": [
             30,
             31,
             32,
           ],
-          "fill": false,
           "label": "first row dataset",
           "pointBackgroundColor": "rgb(31,119,180)",
           "tension": 0,
         },
         {
-          "backgroundColor": "#FF7F0E",
           "borderColor": "rgb(255,127,14)",
           "data": [
             40,
             41,
             42,
           ],
-          "fill": false,
           "label": "second row dataset",
           "pointBackgroundColor": "rgb(255,127,14)",
           "tension": 0,
@@ -1136,8 +1137,11 @@ exports[`datasource tests create chart with row datasets 1`] = `
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
+            "usePointStyle": true,
           },
           "onClick": [Function],
+          "onHover": [Function],
+          "onLeave": [Function],
           "position": "top",
         },
         "title": {
@@ -1191,27 +1195,23 @@ exports[`datasource tests create chart with row datasets with category title 1`]
     "data": {
       "datasets": [
         {
-          "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
           "data": [
             30,
             31,
             32,
           ],
-          "fill": false,
           "label": "first row dataset",
           "pointBackgroundColor": "rgb(31,119,180)",
           "tension": 0,
         },
         {
-          "backgroundColor": "#FF7F0E",
           "borderColor": "rgb(255,127,14)",
           "data": [
             40,
             41,
             42,
           ],
-          "fill": false,
           "label": "second row dataset",
           "pointBackgroundColor": "rgb(255,127,14)",
           "tension": 0,
@@ -1247,8 +1247,11 @@ exports[`datasource tests create chart with row datasets with category title 1`]
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
+            "usePointStyle": true,
           },
           "onClick": [Function],
+          "onHover": [Function],
+          "onLeave": [Function],
           "position": "top",
         },
         "title": {
@@ -1302,27 +1305,23 @@ exports[`datasource tests create chart with row datasets without series title 1`
     "data": {
       "datasets": [
         {
-          "backgroundColor": "#1F77B4",
           "borderColor": "rgb(31,119,180)",
           "data": [
             30,
             31,
             32,
           ],
-          "fill": false,
           "label": "Series 1",
           "pointBackgroundColor": "rgb(31,119,180)",
           "tension": 0,
         },
         {
-          "backgroundColor": "#FF7F0E",
           "borderColor": "rgb(255,127,14)",
           "data": [
             40,
             41,
             42,
           ],
-          "fill": false,
           "label": "Series 2",
           "pointBackgroundColor": "rgb(255,127,14)",
           "tension": 0,
@@ -1358,8 +1357,11 @@ exports[`datasource tests create chart with row datasets without series title 1`
           "labels": {
             "color": "#000000",
             "generateLabels": [Function],
+            "usePointStyle": true,
           },
           "onClick": [Function],
+          "onHover": [Function],
+          "onLeave": [Function],
           "position": "top",
         },
         "title": {

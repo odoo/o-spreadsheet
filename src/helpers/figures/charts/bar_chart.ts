@@ -230,7 +230,47 @@ function getBarConfiguration(
     horizontalChart: chart.horizontal,
   });
   const legend: DeepPartial<LegendOptions<"bar">> = {
-    labels: { color: fontColor },
+    onHover: (event) => {
+      const target = event.native?.target;
+      if (!target) {
+        return;
+      }
+      //@ts-ignore
+      target.style.cursor = "pointer";
+    },
+    onLeave: (event) => {
+      const target = event.native?.target;
+      if (!target) {
+        return;
+      }
+      //@ts-ignore
+      target.style.cursor = "default";
+    },
+    onClick: (click, legendItem, legend) => {
+      if (!legend.legendItems) {
+        return;
+      }
+      const index = legend.legendItems.indexOf(legendItem);
+      if (legend.chart.isDatasetVisible(index)) {
+        legend.chart.hide(index);
+      } else {
+        legend.chart.show(index);
+      }
+    },
+    labels: {
+      color: fontColor,
+      usePointStyle: true,
+      //@ts-ignore
+      generateLabels: (_chart) =>
+        _chart.data.datasets.map((dataset, index) => ({
+          text: dataset.label ?? "",
+          strokeStyle: dataset.borderColor,
+          fillStyle: dataset.backgroundColor,
+          pointStyle: "rect",
+          hidden: !_chart.isDatasetVisible(index),
+          lineWidth: 3,
+        })),
+    },
   };
   if ((!chart.labelRange && chart.dataSets.length === 1) || chart.legendPosition === "none") {
     legend.display = false;
@@ -318,30 +358,29 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
   const colors = new ColorGenerator();
 
   const definition = chart.getDefinition();
-  for (const { label, data } of dataSetsValues) {
-    const color = colors.next();
+  for (let index = 0; index < dataSetsValues.length; index++) {
+    let { label, data } = dataSetsValues[index];
+    if (definition.dataSets?.[index]?.label) {
+      label = definition.dataSets[index].label;
+    }
+
+    let borderColor = colors.next();
+    if (definition.dataSets?.[index]?.backgroundColor) {
+      borderColor = definition.dataSets[index].backgroundColor!;
+    }
+
     const dataset: ChartDataset = {
       label,
       data,
-      borderColor: color,
-      backgroundColor: color,
+      borderColor,
+      backgroundColor: borderColor,
     };
-    config.data.datasets.push(dataset);
-  }
 
-  for (const [index, dataset] of config.data.datasets.entries()) {
-    if (definition.dataSets?.[index]?.backgroundColor) {
-      const color = definition.dataSets[index].backgroundColor;
-      dataset.backgroundColor = color;
-      dataset.borderColor = color;
-    }
-    if (definition.dataSets?.[index]?.label) {
-      const label = definition.dataSets[index].label;
-      dataset.label = label;
-    }
     if (definition.dataSets?.[index]?.yAxisId && !chart.horizontal) {
       dataset["yAxisID"] = definition.dataSets[index].yAxisId;
     }
+
+    config.data.datasets.push(dataset);
   }
 
   return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };

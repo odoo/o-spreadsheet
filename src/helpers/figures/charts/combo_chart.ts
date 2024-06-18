@@ -242,7 +242,48 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
   const fontColor = chartFontColor(chart.background);
   const config = getDefaultChartJsRuntime(chart, labels, fontColor, localeFormat);
   const legend: DeepPartial<LegendOptions<"bar">> = {
-    labels: { color: fontColor },
+    onHover: (event) => {
+      const target = event.native?.target;
+      if (!target) {
+        return;
+      }
+      //@ts-ignore
+      target.style.cursor = "pointer";
+    },
+    onLeave: (event) => {
+      const target = event.native?.target;
+      if (!target) {
+        return;
+      }
+      //@ts-ignore
+      target.style.cursor = "default";
+    },
+    onClick: (click, legendItem, legend) => {
+      if (!legend.legendItems) {
+        return;
+      }
+      const index = legend.legendItems.reverse().indexOf(legendItem);
+      if (legend.chart.isDatasetVisible(index)) {
+        legend.chart.hide(index);
+      } else {
+        legend.chart.show(index);
+      }
+    },
+    labels: {
+      color: fontColor,
+      usePointStyle: true,
+      //@ts-ignore
+      generateLabels(chart) {
+        return chart.data.datasets.map((dataset, index) => ({
+          text: dataset.label,
+          fillStyle: dataset.backgroundColor,
+          strokeStyle: dataset.borderColor,
+          pointStyle: dataset.type === "line" ? "line" : "rect",
+          hidden: !chart.isDatasetVisible(index),
+          lineWidth: 3,
+        }));
+      },
+    },
     reverse: true,
   };
   if ((!chart.labelRange && chart.dataSets.length === 1) || chart.legendPosition === "none") {

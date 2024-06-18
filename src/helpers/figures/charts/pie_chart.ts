@@ -1,9 +1,9 @@
-import type {
-  BubbleDataPoint,
-  ChartConfiguration,
-  ChartDataset,
-  LegendOptions,
-  Point,
+import {
+  type BubbleDataPoint,
+  type ChartConfiguration,
+  type ChartDataset,
+  type LegendOptions,
+  type Point,
 } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
@@ -209,7 +209,21 @@ function getPieConfiguration(
   const fontColor = chartFontColor(chart.background);
   const config = getDefaultChartJsRuntime(chart, labels, fontColor, localeFormat);
   const legend: DeepPartial<LegendOptions<"pie">> = {
-    labels: { color: fontColor },
+    labels: {
+      color: fontColor,
+      usePointStyle: true,
+      //@ts-ignore
+      generateLabels: (_chart) =>
+        //@ts-ignore
+        _chart.data.labels.map((label, index) => ({
+          text: label,
+          strokeStyle: _chart.data.datasets[0].backgroundColor![index],
+          fillStyle: _chart.data.datasets[0].backgroundColor![index],
+          pointStyle: "rect",
+          hidden: false,
+          lineWidth: 2,
+        })),
+    },
   };
   if ((!chart.labelRange && chart.dataSets.length === 1) || chart.legendPosition === "none") {
     legend.display = false;

@@ -1,5 +1,7 @@
-import { ChartCreationContext } from "../../../src";
 import { PieChart } from "../../../src/helpers/figures/charts";
+import { ChartCreationContext, Model } from "../../../src";
+import { PieChartRuntime } from "../../../src/types/chart";
+import { createChart } from "../../test_helpers";
 
 describe("pie chart", () => {
   test("create pie chart from creation context", () => {
@@ -32,5 +34,58 @@ describe("pie chart", () => {
       aggregated: true,
       isDoughnut: false,
     });
+  });
+
+  test("Bar chart legend", () => {
+    const model = new Model({
+      sheets: [
+        {
+          name: "Sheet1",
+          colNumber: 10,
+          rowNumber: 10,
+          rows: {},
+          cells: {
+            A1: { content: "1" },
+            A2: { content: "2" },
+            A3: { content: "3" },
+            A4: { content: "4" },
+          },
+        },
+      ],
+    });
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "Sheet1!A1:A2" }, { dataRange: "Sheet1!A3:A4" }],
+        labelRange: "Sheet1!A2:A4",
+        type: "pie",
+      },
+      "1"
+    );
+    const runtime = model.getters.getChartRuntime("1") as PieChartRuntime;
+    const fakeChart = {
+      ...runtime.chartJsConfig,
+      isDatasetVisible: (index) => true,
+    };
+    expect(
+      runtime.chartJsConfig.options?.plugins?.legend?.labels?.generateLabels?.(fakeChart as any)
+    ).toEqual([
+      {
+        text: "3",
+        fillStyle: "rgb(31,119,180)",
+        hidden: false,
+        lineWidth: 2,
+        pointStyle: "rect",
+        strokeStyle: "rgb(31,119,180)",
+      },
+      {
+        text: "4",
+        fillStyle: "rgb(255,127,14)",
+        hidden: false,
+        lineWidth: 2,
+        pointStyle: "rect",
+        strokeStyle: "rgb(255,127,14)",
+      },
+    ]);
   });
 });

@@ -1,6 +1,6 @@
 import { ChartDataset, LegendOptions } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
-import { BACKGROUND_CHART_COLOR } from "../../../constants";
+import { BACKGROUND_CHART_COLOR, LINE_FILL_TRANSPARENCY } from "../../../constants";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -235,17 +235,57 @@ export function createRadarChartRuntime(chart: RadarChart, getters: Getters): Ra
     format: dataSetFormat,
     locale,
   });
+  const fill = definition.fillArea ?? false;
+  const pointStyle = fill ? "rect" : "line";
+  const lineWidth = fill ? 2 : 3;
   const legend: DeepPartial<LegendOptions<"radar">> = {
-    labels: { color: fontColor },
+    onHover: (event) => {
+      const target = event.native?.target;
+      if (!target) {
+        return;
+      }
+      //@ts-ignore
+      target.style.cursor = "pointer";
+    },
+    onLeave: (event) => {
+      const target = event.native?.target;
+      if (!target) {
+        return;
+      }
+      //@ts-ignore
+      target.style.cursor = "default";
+    },
+    onClick: (click, legendItem, legend) => {
+      if (!legend.legendItems) {
+        return;
+      }
+      const index = legend.legendItems.indexOf(legendItem);
+      if (legend.chart.isDatasetVisible(index)) {
+        legend.chart.hide(index);
+      } else {
+        legend.chart.show(index);
+      }
+    },
+    labels: {
+      color: fontColor,
+      usePointStyle: true,
+      //@ts-ignore
+      generateLabels: (_chart) =>
+        _chart.data.datasets.map((dataset, index) => ({
+          text: dataset.label ?? "",
+          fontColor,
+          strokeStyle: dataset.borderColor,
+          fillStyle: dataset.backgroundColor,
+          pointStyle,
+          hidden: !_chart.isDatasetVisible(index),
+          lineWidth,
+        })),
+    },
   };
   if ((!chart.labelRange && chart.dataSets.length === 1) || chart.legendPosition === "none") {
     legend.display = false;
   } else {
     legend.position = chart.legendPosition;
-  }
-  const fill = definition.fillArea ?? false;
-  if (!fill) {
-    legend.labels!["boxHeight"] = 0;
   }
   config.options.plugins!.legend = { ...config.options.plugins?.legend, ...legend };
   config.options.layout = {
@@ -269,7 +309,7 @@ export function createRadarChartRuntime(chart: RadarChart, getters: Getters): Ra
       borderColor,
     };
     if (fill) {
-      dataset.backgroundColor = setColorAlpha(borderColor, 0.3);
+      dataset.backgroundColor = setColorAlpha(borderColor, LINE_FILL_TRANSPARENCY);
       dataset["fill"] = true;
     }
     config.data.datasets.push(dataset);
