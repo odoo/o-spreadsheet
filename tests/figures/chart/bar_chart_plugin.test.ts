@@ -1,13 +1,14 @@
 import { ChartCreationContext, Model } from "../../../src";
 import { BarChart } from "../../../src/helpers/figures/charts";
 import { BarChartRuntime } from "../../../src/types/chart";
-import { isChartAxisStacked } from "../../test_helpers/chart_helpers";
+import { getChartLegendLabels, isChartAxisStacked } from "../../test_helpers/chart_helpers";
 import {
   createChart,
   setCellContent,
   setFormat,
   updateChart,
 } from "../../test_helpers/commands_helpers";
+import { createModelFromGrid } from "../../test_helpers/helpers";
 
 let model: Model;
 describe("bar chart", () => {
@@ -131,5 +132,46 @@ describe("bar chart", () => {
       expect(runtime.chartJsConfig.options?.scales?.y1).toBe(undefined);
       expect(runtime.chartJsConfig.data.datasets[0].yAxisID).toBe("y");
     });
+  });
+
+  test("Bar chart legend", () => {
+    const model = createModelFromGrid({
+      A1: "1",
+      A2: "2",
+      A3: "3",
+      A4: "4",
+    });
+    createChart(
+      model,
+      {
+        dataSets: [
+          { dataRange: "Sheet1!A1:A2", backgroundColor: "#f00", label: "serie_1" },
+          { dataRange: "Sheet1!A3:A4", backgroundColor: "#00f", label: "serie_2" },
+        ],
+        labelRange: "Sheet1!A2:A4",
+        type: "bar",
+      },
+      "1"
+    );
+    expect(getChartLegendLabels(model, "1")).toEqual([
+      {
+        fontColor: "#000000",
+        text: "serie_1",
+        fillStyle: "#f00",
+        hidden: false,
+        lineWidth: 3,
+        pointStyle: "rect",
+        strokeStyle: "#FFFFFF",
+      },
+      {
+        fontColor: "#000000",
+        text: "serie_2",
+        fillStyle: "#00f",
+        hidden: false,
+        lineWidth: 3,
+        pointStyle: "rect",
+        strokeStyle: "#FFFFFF",
+      },
+    ]);
   });
 });

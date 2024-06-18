@@ -1,11 +1,13 @@
 import { ChartCreationContext, Model } from "../../../src";
 import { ComboChartRuntime } from "../../../src/types/chart/combo_chart";
+import { getChartLegendLabels } from "../../test_helpers/chart_helpers";
 import {
   createChart,
   setCellContent,
   setCellFormat,
   updateChart,
 } from "../../test_helpers/commands_helpers";
+import { createModelFromGrid } from "../../test_helpers/helpers";
 import { ComboChart } from "./../../../src/helpers/figures/charts/combo_chart";
 
 describe("combo chart", () => {
@@ -102,5 +104,46 @@ describe("combo chart", () => {
     });
     runtime = model.getters.getChartRuntime("1") as ComboChartRuntime;
     expect(runtime.chartJsConfig.data?.datasets?.[1].type).toBe("bar");
+  });
+
+  test("Combo chart legend", () => {
+    const model = createModelFromGrid({
+      A1: "1",
+      A2: "2",
+      A3: "3",
+      A4: "4",
+    });
+    createChart(
+      model,
+      {
+        dataSets: [
+          { dataRange: "Sheet1!A1:A2", backgroundColor: "#f00", label: "serie_1" },
+          { dataRange: "Sheet1!A3:A4", backgroundColor: "#00f", label: "serie_2" },
+        ],
+        labelRange: "Sheet1!A2:A4",
+        type: "combo",
+      },
+      "1"
+    );
+    expect(getChartLegendLabels(model, "1")).toEqual([
+      {
+        fontColor: "#000000",
+        text: "serie_1",
+        hidden: false,
+        lineWidth: 3,
+        pointStyle: "rect",
+        strokeStyle: "#f00",
+        fillStyle: "#f00",
+      },
+      {
+        fontColor: "#000000",
+        text: "serie_2",
+        hidden: false,
+        lineWidth: 3,
+        pointStyle: "line",
+        strokeStyle: "#00f",
+        fillStyle: "#00f",
+      },
+    ]);
   });
 });

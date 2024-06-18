@@ -1,5 +1,8 @@
 import { ChartCreationContext } from "../../../src";
 import { PieChart } from "../../../src/helpers/figures/charts";
+import { createChart } from "../../test_helpers";
+import { getChartLegendLabels } from "../../test_helpers/chart_helpers";
+import { createModelFromGrid } from "../../test_helpers/helpers";
 
 describe("pie chart", () => {
   test("create pie chart from creation context", () => {
@@ -34,5 +37,41 @@ describe("pie chart", () => {
       isDoughnut: false,
       showValues: false,
     });
+  });
+
+  test("Pie chart legend", () => {
+    const model = createModelFromGrid({
+      A1: "1",
+      A2: "2",
+      A3: "3",
+      A4: "4",
+    });
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "Sheet1!A1:A2" }, { dataRange: "Sheet1!A3:A4" }],
+        labelRange: "Sheet1!A2:A4",
+        type: "pie",
+      },
+      "1"
+    );
+    expect(getChartLegendLabels(model, "1")).toEqual([
+      {
+        text: "3",
+        fillStyle: "#4EA7F2",
+        hidden: false,
+        lineWidth: 2,
+        pointStyle: "rect",
+        strokeStyle: "#4EA7F2",
+      },
+      {
+        text: "4",
+        fillStyle: "#EA6175",
+        hidden: false,
+        lineWidth: 2,
+        pointStyle: "rect",
+        strokeStyle: "#EA6175",
+      },
+    ]);
   });
 });

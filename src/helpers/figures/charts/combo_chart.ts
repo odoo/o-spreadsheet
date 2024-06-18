@@ -33,6 +33,7 @@ import { removeFalsyAttributes } from "../../misc";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
+  INTERACTIVE_LEGEND_CONFIG,
   TREND_LINE_XAXIS_ID,
   chartFontColor,
   checkDataset,
@@ -44,6 +45,7 @@ import {
   formatChartDatasetValue,
   getChartAxis,
   getChartColorsGenerator,
+  getCustomLegendLabels,
   getDefinedAxis,
   getTrendDatasetForBarChart,
   shouldRemoveFirstLabel,
@@ -254,7 +256,10 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
   const axisFormats = { y: mainDataSetFormat, y1: lineDataSetsFormat };
   const config = getDefaultChartJsRuntime(chart, labels, fontColor, { locale, axisFormats });
   const legend: DeepPartial<LegendOptions<"bar">> = {
-    labels: { color: fontColor },
+    ...INTERACTIVE_LEGEND_CONFIG,
+    ...getCustomLegendLabels(fontColor, {
+      lineWidth: 3,
+    }),
   };
   if (chart.legendPosition === "none") {
     legend.display = false;

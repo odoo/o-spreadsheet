@@ -1,6 +1,6 @@
 import { ChartDataset, LegendOptions } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
-import { BACKGROUND_CHART_COLOR } from "../../../constants";
+import { BACKGROUND_CHART_COLOR, LINE_FILL_TRANSPARENCY } from "../../../constants";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -29,6 +29,7 @@ import { setColorAlpha } from "../../color";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
+  INTERACTIVE_LEGEND_CONFIG,
   chartFontColor,
   checkDataset,
   checkLabelRange,
@@ -36,6 +37,7 @@ import {
   copyLabelRangeWithNewSheetId,
   createDataSets,
   getChartColorsGenerator,
+  getCustomLegendLabels,
   shouldRemoveFirstLabel,
   toExcelDataset,
   toExcelLabelRange,
@@ -239,17 +241,20 @@ export function createRadarChartRuntime(chart: RadarChart, getters: Getters): Ra
     axisFormats,
     locale,
   });
+  const fill = definition.fillArea ?? false;
+  const pointStyle = fill ? "rect" : "line";
+  const lineWidth = fill ? 2 : 3;
   const legend: DeepPartial<LegendOptions<"radar">> = {
-    labels: { color: fontColor },
+    ...INTERACTIVE_LEGEND_CONFIG,
+    ...getCustomLegendLabels(fontColor, {
+      pointStyle,
+      lineWidth,
+    }),
   };
   if ((!chart.labelRange && chart.dataSets.length === 1) || chart.legendPosition === "none") {
     legend.display = false;
   } else {
     legend.position = chart.legendPosition;
-  }
-  const fill = definition.fillArea ?? false;
-  if (!fill) {
-    legend.labels!["boxHeight"] = 0;
   }
   config.options.plugins!.legend = { ...config.options.plugins?.legend, ...legend };
   config.options.plugins!.tooltip = {
@@ -277,10 +282,11 @@ export function createRadarChartRuntime(chart: RadarChart, getters: Getters): Ra
       label,
       data,
       borderColor,
+      backgroundColor: borderColor,
     };
     if (fill) {
-      dataset.backgroundColor = setColorAlpha(borderColor, 0.3);
-      dataset["fill"] = "start"; // fills from the start of the axes (default is to start at 0)
+      dataset.backgroundColor = setColorAlpha(borderColor, LINE_FILL_TRANSPARENCY);
+      dataset["fill"] = "start";
     }
     config.data.datasets.push(dataset);
   }
