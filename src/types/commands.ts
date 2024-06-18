@@ -787,6 +787,10 @@ export interface StartChangeHighlightCommand {
   zone: Zone;
 }
 
+export interface StopChangeHighlightCommand {
+  type: "STOP_CHANGE_HIGHLIGHT";
+}
+
 export interface ShowFormulaCommand {
   type: "SET_FORMULA_VISIBILITY";
   show: boolean;
@@ -945,6 +949,12 @@ export interface InsertNewPivotCommand {
   newSheetId: UID;
 }
 
+export interface MoveArrayFormulaHighlightCommand {
+  type: "MOVE_ARRAY_FORMULA_HIGHLIGHT";
+  originalZone: Zone;
+  targetZone: Zone;
+}
+
 export type CoreCommand =
   // /** History */
   // | SelectiveUndoCommand
@@ -1062,6 +1072,7 @@ export type LocalCommand =
   | ActivateSheetCommand
   | EvaluateCellsCommand
   | StartChangeHighlightCommand
+  | StopChangeHighlightCommand
   | StartCommand
   | AutofillCommand
   | AutofillSelectCommand
@@ -1088,7 +1099,8 @@ export type LocalCommand =
   | TrimWhitespaceCommand
   | ResizeTableCommand
   | RefreshPivotCommand
-  | InsertNewPivotCommand;
+  | InsertNewPivotCommand
+  | MoveArrayFormulaHighlightCommand;
 
 export type Command = CoreCommand | LocalCommand;
 

@@ -750,7 +750,8 @@ export class ComposerStore extends SpreadsheetStore {
         zone,
         color: rangeColor(rangeString),
         sheetId: range.sheetId,
-        interactive: true,
+        movable: true,
+        resizable: true,
       };
     });
   }

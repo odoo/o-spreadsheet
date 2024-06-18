@@ -1,13 +1,12 @@
 import { Component, useSubEnv, xml } from "@odoo/owl";
 import { Model } from "../../src";
-import { Highlight } from "../../src/components/highlight/highlight/highlight";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
   getDefaultSheetViewSize,
 } from "../../src/constants";
 import { toHex, toZone } from "../../src/helpers";
-import { Color, Zone } from "../../src/types";
+import { Color, Highlight } from "../../src/types";
 import { merge } from "../test_helpers/commands_helpers";
 import { edgeScrollDelay, triggerMouseEvent } from "../test_helpers/dom_helper";
 import {
@@ -17,6 +16,7 @@ import {
   startGridComposition,
   typeInComposerGrid,
 } from "../test_helpers/helpers";
+import { HighlightOverlay } from "./../../src/components/highlight/highlight_overlay/highlight_overlay";
 
 jest.mock("../../src/components/composer/content_editable_helper.ts", () =>
   require("../__mocks__/content_editable_helper")
@@ -122,27 +122,27 @@ let spyDispatch: jest.SpyInstance;
 let spyHandleEvent: jest.Mock;
 
 interface Props {
-  zone: Zone;
   model: Model;
-  color: Color;
+  highlight: Highlight;
 }
 
 class Parent extends Component<Props> {
-  static components = { Highlight };
+  static components = { HighlightOverlay };
   static template = xml/*xml*/ `
-    <Highlight zone="props.zone" color="props.color"/>
+    <HighlightOverlay highlight="props.highlight" />
   `;
-  static props = { ...Highlight.props, model: Object };
+  static props = { ...HighlightOverlay.props, model: Object };
   setup() {
     spyDispatch = jest.spyOn(model, "dispatch");
     spyHandleEvent = jest.fn();
     // register component to listen to selection changes
 
+    const zone = this.props.highlight.zone;
     model.selection.capture(
       this,
       {
-        cell: { col: this.props.zone.left, row: this.props.zone.top },
-        zone: this.props.zone,
+        cell: { col: zone.left, row: zone.top },
+        zone: zone,
       },
       {
         handleEvent: spyHandleEvent.bind(this),
@@ -156,11 +156,20 @@ class Parent extends Component<Props> {
 
 async function mountHighlight(
   zone: string,
-  color: Color
+  color: Color,
+  highlightOptions?: Partial<Highlight>
 ): Promise<{ parent: Parent; model: Model }> {
   let parent: Component;
+  const highlight: Highlight = {
+    zone: toZone(zone),
+    color,
+    sheetId: model.getters.getActiveSheetId(),
+    movable: true,
+    resizable: true,
+    ...highlightOptions,
+  };
   ({ fixture, parent } = await mountComponent(Parent, {
-    props: { zone: toZone(zone), color, model },
+    props: { highlight, model },
   }));
   return { parent: parent as Parent, model };
 }
@@ -189,6 +198,12 @@ const genericBeforeEach = async () => {
 
 describe("Corner component", () => {
   beforeEach(genericBeforeEach);
+
+  test("No corners if the highlight is not resizable", async () => {
+    await mountHighlight("B2", "#666", { resizable: false });
+    expect(fixture.querySelector(".o-corner-nw")).toBeNull();
+  });
+
   describe("can drag all corners", () => {
     test("start on nw corner", async () => {
       await mountHighlight("B2", "#666");
@@ -469,6 +484,12 @@ describe("Corner component", () => {
 
 describe("Border component", () => {
   beforeEach(genericBeforeEach);
+
+  test("No borders if the highlight is not movable", async () => {
+    await mountHighlight("B2", "#666", { movable: false });
+    expect(fixture.querySelector(".o-border-n")).toBeNull();
+  });
+
   describe("can drag all borders", () => {
     test("start on top border", async () => {
       const parent = await mountHighlight("B2", "#666");
