@@ -49,12 +49,42 @@ import { ComposerStore } from "../../src/components/composer/composer/composer_s
 import { FONT_SIZES } from "../../src/constants";
 import { functionRegistry } from "../../src/functions";
 import { interactivePaste } from "../../src/helpers/ui/paste_interactive";
+import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import { DEFAULT_LOCALES } from "../../src/types/locale";
 import { FR_LOCALE } from "../test_helpers/constants";
 
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
-describe("Menu Item Registry", () => {
+describe("Top Bar Menu Item Registry", () => {
+  let registry: MenuItemRegistry;
+
+  beforeEach(() => (registry = new MenuItemRegistry()));
+
+  test("Menu registry items have unique ActionSpec path", () => {
+    registry.add("root", { name: "rootNode" });
+    registry.addChild("child", ["root"], { id: "unique", name: "child" });
+    expect(() =>
+      registry.addChild("child", ["root"], { id: "unique", name: "child" })
+    ).toThrowError('A child with the id "unique" already exists.');
+  });
+  test("Menu registry entries can be overriden explicitely", () => {
+    registry.add("root", { name: "rootNode" });
+    registry.addChild("child", ["root"], { id: "unique", name: "child" });
+    expect(() =>
+      registry.addChild("child", ["root"], { id: "unique", name: "child" }, { force: true })
+    ).not.toThrowError();
+  });
+  test("Menu items can have the same id with different parent nodes", () => {
+    registry.add("root1", { name: "rootNode1" });
+    registry.add("root2", { name: "rootNode2" });
+    registry.addChild("child", ["root1"], { id: "unique", name: "child" });
+    expect(() =>
+      registry.addChild("child", ["root2"], { id: "unique", name: "child" })
+    ).not.toThrowError();
+  });
+});
+
+describe("Top Bar Menu Item Registry", () => {
   let menuDefinitions;
   beforeEach(() => {
     menuDefinitions = Object.assign({}, topbarMenuRegistry.content);
