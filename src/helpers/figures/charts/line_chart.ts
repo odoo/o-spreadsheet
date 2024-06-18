@@ -5,6 +5,7 @@ import {
   Color,
   CommandResult,
   CoreGetters,
+  Getters,
   Range,
   RemoveColumnsRowsCommand,
   UID,
@@ -19,7 +20,7 @@ import {
   ExcelChartDefinition,
 } from "../../../types/chart/chart";
 import { LegendPosition } from "../../../types/chart/common_chart";
-import { LineChartDefinition } from "../../../types/chart/line_chart";
+import { LineChartDefinition, LineChartRuntime } from "../../../types/chart/line_chart";
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
@@ -32,6 +33,7 @@ import {
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
+  getCustomLegendLabels,
   getDefinedAxis,
   shouldRemoveFirstLabel,
   toExcelDataset,
@@ -39,6 +41,7 @@ import {
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
 } from "./chart_common";
+import { createLineOrScatterChartRuntime } from "./chart_common_line_scatter";
 
 export class LineChart extends AbstractChart {
   readonly dataSets: DataSet[];
@@ -215,4 +218,19 @@ export class LineChart extends AbstractChart {
     );
     return new LineChart(definition, sheetId, this.getters);
   }
+}
+
+export function createLineChartRuntime(chart: LineChart, getters: Getters): LineChartRuntime {
+  const { chartJsConfig, background } = createLineOrScatterChartRuntime(chart, getters);
+  const filled = chart.stacked || chart.fillArea;
+  const pointStyle = filled ? "rect" : "line";
+  const lineWidth = filled ? 2 : 3;
+  chartJsConfig.options!.plugins!.legend!.labels = {
+    ...chartJsConfig.options?.plugins?.legend?.labels,
+    ...getCustomLegendLabels(chartFontColor(background), {
+      pointStyle,
+      lineWidth,
+    }).labels,
+  };
+  return { chartJsConfig, background };
 }

@@ -4,10 +4,9 @@ import { GaugeChartComponent } from "../components/figures/chart/gauge/gauge_cha
 import { ScorecardChart as ScorecardChartComponent } from "../components/figures/chart/scorecard/chart_scorecard";
 import { AbstractChart } from "../helpers/figures/charts/abstract_chart";
 import { BarChart, createBarChartRuntime } from "../helpers/figures/charts/bar_chart";
-import { createLineOrScatterChartRuntime } from "../helpers/figures/charts/chart_common_line_scatter";
 import { ComboChart, createComboChartRuntime } from "../helpers/figures/charts/combo_chart";
 import { GaugeChart, createGaugeChartRuntime } from "../helpers/figures/charts/gauge_chart";
-import { LineChart } from "../helpers/figures/charts/line_chart";
+import { LineChart, createLineChartRuntime } from "../helpers/figures/charts/line_chart";
 import { PieChart, createPieChartRuntime } from "../helpers/figures/charts/pie_chart";
 import { PyramidChart, createPyramidChartRuntime } from "../helpers/figures/charts/pyramid_chart";
 import { RadarChart, createRadarChartRuntime } from "../helpers/figures/charts/radar_chart";
@@ -105,7 +104,7 @@ chartRegistry.add("line", {
   match: (type) => type === "line",
   createChart: (definition, sheetId, getters) =>
     new LineChart(definition as LineChartDefinition, sheetId, getters),
-  getChartRuntime: createLineOrScatterChartRuntime,
+  getChartRuntime: createLineChartRuntime,
   validateChartDefinition: LineChart.validateChartDefinition,
   transformDefinition: LineChart.transformDefinition,
   getChartDefinitionFromContextCreation: LineChart.getDefinitionFromContextCreation,

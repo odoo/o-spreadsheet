@@ -30,6 +30,7 @@ import { removeFalsyAttributes } from "../../misc";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
+  INTERACTIVE_LEGEND_CONFIG,
   TREND_LINE_XAXIS_ID,
   chartFontColor,
   checkDataset,
@@ -41,6 +42,7 @@ import {
   formatChartDatasetValue,
   getChartAxis,
   getChartColorsGenerator,
+  getCustomLegendLabels,
   getDefinedAxis,
   getTrendDatasetForBarChart,
   shouldRemoveFirstLabel,
@@ -256,7 +258,11 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
     horizontalChart: chart.horizontal,
   });
   const legend: DeepPartial<LegendOptions<"bar">> = {
-    labels: { color: fontColor },
+    ...INTERACTIVE_LEGEND_CONFIG,
+    ...getCustomLegendLabels(fontColor, {
+      pointStyle: "rect",
+      lineWidth: 3,
+    }),
   };
   if (chart.legendPosition === "none") {
     legend.display = false;
@@ -298,22 +304,20 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
   const colors = getChartColorsGenerator(definition, dataSetsValues.length);
   const trendDatasets: any[] = [];
   for (const index in dataSetsValues) {
-    const { label, data } = dataSetsValues[index];
-    const color = colors.next();
+    let { label, data } = dataSetsValues[index];
+    if (definition.dataSets?.[index]?.label) {
+      label = definition.dataSets[index].label;
+    }
+
+    const backgroundColor = colors.next();
     const dataset: ChartDataset<"bar", number[]> = {
       label,
       data,
       borderColor: BORDER_CHART_COLOR,
       borderWidth: 1,
-      backgroundColor: color,
+      backgroundColor,
     };
     config.data.datasets.push(dataset);
-
-    if (definition.dataSets?.[index]?.label) {
-      const label = definition.dataSets[index].label;
-      dataset.label = label;
-    }
-
     dataset.yAxisID = chart.horizontal ? "y" : definition.dataSets[index].yAxisId || "y";
     dataset.xAxisID = "x";
 

@@ -103,4 +103,64 @@ describe("combo chart", () => {
     runtime = model.getters.getChartRuntime("1") as ComboChartRuntime;
     expect(runtime.chartJsConfig.data?.datasets?.[1].type).toBe("bar");
   });
+
+  test("Combo chart legend", () => {
+    const model = new Model({
+      sheets: [
+        {
+          name: "Sheet1",
+          colNumber: 10,
+          rowNumber: 10,
+          rows: {},
+          cells: {
+            A1: { content: "1" },
+            A2: { content: "2" },
+            A3: { content: "3" },
+            A4: { content: "4" },
+          },
+        },
+      ],
+    });
+    createChart(
+      model,
+      {
+        dataSets: [
+          { dataRange: "Sheet1!A1:A2", backgroundColor: "#f00", label: "serie_1" },
+          { dataRange: "Sheet1!A3:A4", backgroundColor: "#00f", label: "serie_2" },
+        ],
+        labelRange: "Sheet1!A2:A4",
+        type: "combo",
+      },
+      "1"
+    );
+    const runtime = model.getters.getChartRuntime("1") as ComboChartRuntime;
+    const fakeChart = {
+      ...runtime.chartJsConfig,
+      isDatasetVisible: (index) => true,
+    };
+    expect(
+      runtime.chartJsConfig.options?.plugins?.legend?.labels?.generateLabels?.(fakeChart as any)
+    ).toEqual([
+      {
+        color: "#000000",
+        fontColor: "#000000",
+        text: "serie_1",
+        hidden: false,
+        lineWidth: 3,
+        pointStyle: "rect",
+        strokeStyle: "#f00",
+        fillStyle: "#f00",
+      },
+      {
+        color: "#000000",
+        fontColor: "#000000",
+        text: "serie_2",
+        hidden: false,
+        lineWidth: 3,
+        pointStyle: "line",
+        strokeStyle: "#00f",
+        fillStyle: "#00f",
+      },
+    ]);
+  });
 });
