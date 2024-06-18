@@ -19,9 +19,11 @@ import {
   setFormat,
   setStyle,
   updateChart,
+  updateLocale,
 } from "../../test_helpers/commands_helpers";
 import { getCellContent } from "../../test_helpers/getters_helpers";
 import { toRangesData } from "../../test_helpers/helpers";
+import { FR_LOCALE } from "./../../test_helpers/constants";
 
 let model: Model;
 let chartId: string;
@@ -290,11 +292,22 @@ describe("Scorecard charts computation", () => {
     expect(chartDesign.key?.text).toEqual("200%");
   });
 
+  test("Baseline is displayed with the spreadsheet locale", () => {
+    setCellContent(model, "C1", "=B2");
+    createScorecardChart(model, { keyValue: "A3", baseline: "C1" }, chartId);
+    let chartDesign = getChartDesign(model, chartId, sheetId);
+    expect(chartDesign.baseline?.text).toEqual("0.12");
+
+    updateLocale(model, FR_LOCALE);
+    chartDesign = getChartDesign(model, chartId, sheetId);
+    expect(chartDesign.baseline?.text).toEqual("0,12");
+  });
+
   test("Baseline is displayed with the cell evaluated format", () => {
     setCellContent(model, "C1", "=B2");
     createScorecardChart(model, { keyValue: "A3", baseline: "C1" }, chartId);
     let chartDesign = getChartDesign(model, chartId, sheetId);
-    expect(chartDesign.baseline?.text).toEqual((0.12).toLocaleString());
+    expect(chartDesign.baseline?.text).toEqual("0.12");
 
     setFormat(model, "B2", "[$$]#,##0.00");
     chartDesign = getChartDesign(model, chartId, sheetId);
@@ -305,7 +318,7 @@ describe("Scorecard charts computation", () => {
     setCellContent(model, "C1", "=B2");
     createScorecardChart(model, { keyValue: "A3", baseline: "B2" }, chartId);
     const chartDesign = getChartDesign(model, chartId, sheetId);
-    expect(chartDesign.baseline?.text).toEqual((0.12).toLocaleString());
+    expect(chartDesign.baseline?.text).toEqual("0.12");
     expect(getCellContent(model, "A3")).toEqual("2.1234");
   });
 
