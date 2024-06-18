@@ -48,12 +48,8 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
     return { dvRules };
   }
 
-  paste(
-    target: ClipboardPasteTarget,
-    clippedContent: ClipboardContent,
-    options?: ClipboardOptions
-  ) {
-    if (options?.pasteOption) {
+  paste(target: ClipboardPasteTarget, clippedContent: ClipboardContent, options: ClipboardOptions) {
+    if (options.pasteOption) {
       return;
     }
     if (!("zones" in target) || !target.zones.length) {
@@ -62,7 +58,7 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
     const zones = target.zones;
     const sheetId = target.sheetId;
 
-    if (!options?.isCutOperation) {
+    if (!options.isCutOperation) {
       this.pasteFromCopy(sheetId, zones, clippedContent.dvRules);
     } else {
       this.pasteFromCut(sheetId, zones, clippedContent);

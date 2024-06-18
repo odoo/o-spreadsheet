@@ -50,18 +50,14 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
     return { cfRules };
   }
 
-  paste(
-    target: ClipboardPasteTarget,
-    clippedContent: ClipboardContent,
-    options?: ClipboardOptions
-  ) {
-    if (options?.pasteOption === "asValue" || !("zones" in target) || !target.zones.length) {
+  paste(target: ClipboardPasteTarget, clippedContent: ClipboardContent, options: ClipboardOptions) {
+    if (options.pasteOption === "asValue" || !("zones" in target) || !target.zones.length) {
       return;
     }
     const zones = target.zones;
     const sheetId = target.sheetId;
 
-    if (!options?.isCutOperation) {
+    if (!options.isCutOperation) {
       this.pasteFromCopy(sheetId, zones, clippedContent.cfRules, options);
     } else {
       this.pasteFromCut(sheetId, zones, clippedContent);

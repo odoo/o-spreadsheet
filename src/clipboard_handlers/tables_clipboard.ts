@@ -107,10 +107,10 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
     };
   }
 
-  paste(target: ClipboardPasteTarget, content: ClipboardContent, options?: ClipboardOptions) {
+  paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
     const zones = target.zones;
     const sheetId = target.sheetId;
-    if (!options?.isCutOperation) {
+    if (!options.isCutOperation) {
       this.pasteFromCopy(sheetId, zones, content.tableCells, options);
     } else {
       this.pasteFromCut(sheetId, zones, content, options);

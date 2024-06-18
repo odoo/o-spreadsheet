@@ -16,7 +16,7 @@ export class ClipboardHandler<T> {
     return;
   }
 
-  paste(target: ClipboardPasteTarget, clippedContent: T, options: ClipboardOptions | undefined) {}
+  paste(target: ClipboardPasteTarget, clippedContent: T, options: ClipboardOptions) {}
 
   isPasteAllowed(
     sheetId: UID,
