@@ -21,7 +21,12 @@ export class MenuItemRegistry extends Registry<ActionSpec> {
    * @param path Path of items to add this subitem
    * @param value Subitem to add
    */
-  addChild(key: string, path: string[], value: ActionSpec | ActionBuilder): MenuItemRegistry {
+  addChild(
+    key: string,
+    path: string[],
+    value: ActionSpec | ActionBuilder,
+    options: { force: boolean } = { force: false }
+  ): MenuItemRegistry {
     if (typeof value !== "function" && value.id === undefined) {
       value.id = key;
     }
@@ -44,6 +49,19 @@ export class MenuItemRegistry extends Registry<ActionSpec> {
     if (!node.children) {
       node.children = [];
     }
+    const children = node.children;
+    if (!children || typeof children === "function") {
+      throw new Error(`${path} is either not a node or it's dynamically computed`);
+    }
+    if ("id" in value) {
+      const valueIndex = children.findIndex((elt) => "id" in elt && elt.id === value.id);
+      if (valueIndex > -1) {
+        if (!options.force) throw new Error(`A child with the id "${value.id}" already exists.`);
+        node.children.splice(valueIndex, 1, value);
+        return this;
+      }
+    }
+
     node.children.push(value);
     return this;
   }
