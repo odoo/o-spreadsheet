@@ -31,6 +31,7 @@ import { formatValue } from "../../format";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
+  INTERACTIVE_LEGEND_CONFIG,
   TREND_LINE_XAXIS_ID,
   chartFontColor,
   checkDataset,
@@ -40,6 +41,7 @@ import {
   copyLabelRangeWithNewSheetId,
   createDataSets,
   getChartAxisTitleRuntime,
+  getCustomLegendLabels,
   getDefinedAxis,
   getTrendDatasetForBarChart,
   shouldRemoveFirstLabel,
@@ -251,7 +253,11 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
     horizontalChart: chart.horizontal,
   });
   const legend: DeepPartial<LegendOptions<"bar">> = {
-    labels: { color: fontColor },
+    ...INTERACTIVE_LEGEND_CONFIG,
+    ...getCustomLegendLabels(fontColor, {
+      pointStyle: "rect",
+      lineWidth: 3,
+    }),
   };
   if (chart.legendPosition === "none") {
     legend.display = false;
@@ -332,25 +338,23 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
 
   const definition = chart.getDefinition();
   for (const index in dataSetsValues) {
-    const { label, data } = dataSetsValues[index];
-    const color = colors.next();
+    let { label, data } = dataSetsValues[index];
+    if (definition.dataSets?.[index]?.label) {
+      label = definition.dataSets[index].label;
+    }
+
+    let borderColor = colors.next();
+    if (definition.dataSets?.[index]?.backgroundColor) {
+      borderColor = definition.dataSets[index].backgroundColor!;
+    }
     const dataset: ChartDataset<"bar", number[]> = {
       label,
       data,
-      borderColor: color,
-      backgroundColor: color,
+      borderColor,
+      backgroundColor: borderColor,
     };
     config.data.datasets.push(dataset);
 
-    if (definition.dataSets?.[index]?.backgroundColor) {
-      const color = definition.dataSets[index].backgroundColor;
-      dataset.backgroundColor = color;
-      dataset.borderColor = color;
-    }
-    if (definition.dataSets?.[index]?.label) {
-      const label = definition.dataSets[index].label;
-      dataset.label = label;
-    }
     if (definition.dataSets?.[index]?.yAxisId && !chart.horizontal) {
       dataset["yAxisID"] = definition.dataSets[index].yAxisId;
     }

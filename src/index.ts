@@ -68,8 +68,10 @@ import { getFunctionsFromTokens } from "./formulas";
 import { isEvaluationError, toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
 import { FunctionRegistry, arg, functionRegistry } from "./functions/index";
 import {
+  INTERACTIVE_LEGEND_CONFIG,
   chartFontColor,
   getChartAxisTitleRuntime,
+  getCustomLegendLabels,
   getDefaultChartJsRuntime,
   getFillingMode,
 } from "./helpers/figures/charts";
@@ -304,6 +306,7 @@ export const helpers = {
   createEmptySheet,
   createEmptyExcelSheet,
   getDefaultChartJsRuntime,
+  getCustomLegendLabels,
   chartFontColor,
   getChartAxisTitleRuntime,
   getFillingMode,
@@ -431,6 +434,7 @@ export const constants = {
   HIGHLIGHT_COLOR,
   PIVOT_TABLE_CONFIG,
   ChartTerms,
+  INTERACTIVE_LEGEND_CONFIG,
 };
 
 export { PivotRuntimeDefinition } from "./helpers/pivot/pivot_runtime_definition";

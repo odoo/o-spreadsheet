@@ -2103,7 +2103,7 @@ describe("Chart design configuration", () => {
     }
   );
 
-  test.each(["line", "scatter", "bar", "pyramid", "combo"] as const)(
+  test.each(["bar", "pyramid", "combo"] as const)(
     "%s chart correctly use dataset colors set up in definition",
     (chartType) => {
       setCellContent(model, "A1", "1");
@@ -2128,6 +2128,33 @@ describe("Chart design configuration", () => {
       expect(config.data?.datasets![0]["backgroundColor"]).toEqual("#f00");
       expect(config.data?.datasets![0]["borderColor"]).toEqual("#f00");
       expect(config.data?.datasets![1]["backgroundColor"]).toEqual("#00f");
+      expect(config.data?.datasets![1]["borderColor"]).toEqual("#00f");
+    }
+  );
+
+  test.each(["line", "scatter"] as const)(
+    "%s chart correctly use dataset colors set up in definition",
+    (chartType) => {
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "A2", "2");
+      setCellContent(model, "A3", "3");
+      setCellContent(model, "A4", "4");
+      setCellContent(model, "A5", "5");
+      setCellContent(model, "A6", "6");
+
+      createChart(
+        model,
+        {
+          dataSets: [
+            { dataRange: "A1:A2", backgroundColor: "#f00" },
+            { dataRange: "A3:A4", backgroundColor: "#00f" },
+          ],
+          type: chartType,
+        },
+        "43"
+      );
+      const config = getChartConfiguration(model, "43");
+      expect(config.data?.datasets![0]["borderColor"]).toEqual("#f00");
       expect(config.data?.datasets![1]["borderColor"]).toEqual("#00f");
     }
   );
@@ -2829,15 +2856,16 @@ describe("trending line", () => {
     const runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
     const step = (6 - 1) / 25;
     //@ts-ignore
-    const data = runtime.dataSetsValues[1].data;
-    for (let i = 0; i < data.lenght; i++) {
-      const value = data.lenght;
+    const data = runtime.chartJsConfig.data.datasets[1].data;
+    for (let i = 0; i < data.length; i++) {
+      const value = data[i];
       const expectedValue = Math.pow(1 + i * step, 2);
-      expect(value).toEqual(expectedValue);
+      expect(value).toBeCloseTo(expectedValue);
     }
   });
 
   test("trend line works with datetime values as labels", () => {
+    mockChart();
     setFormat(model, "C1:C5", "m/d/yyyy");
     const config = getChartConfiguration(model, "1");
     expect(config.options.scales.x1).toMatchObject({
@@ -2847,13 +2875,13 @@ describe("trending line", () => {
       labels: range(0, 26).map((v) => v.toString()),
     });
     const runtime = model.getters.getChartRuntime("1");
-    const step = (5 - 1) / 25;
+    const step = (6 - 1) / 25;
     //@ts-ignore
-    const data = runtime.dataSetsValues[1].data;
-    for (let i = 0; i < data.lenght; i++) {
-      const value = data.lenght;
+    const data = runtime.chartJsConfig.data.datasets[1].data;
+    for (let i = 0; i < data.length; i++) {
+      const value = data[i];
       const expectedValue = Math.pow(1 + i * step, 2);
-      expect(value).toEqual(expectedValue);
+      expect(value).toBeCloseTo(expectedValue);
     }
   });
 
@@ -2866,22 +2894,27 @@ describe("trending line", () => {
       labels: range(0, 26).map((v) => v.toString()),
     });
     const runtime = model.getters.getChartRuntime("1");
-    const step = (5 - 1) / 25;
+    const step = (6 - 1) / 25;
     //@ts-ignore
-    const data = runtime.dataSetsValues[1].data;
-    for (let i = 0; i < data.lenght; i++) {
-      const value = data.lenght;
+    const data = runtime.chartJsConfig.data.datasets[1].data;
+    for (let i = 0; i < data.length; i++) {
+      const value = data[i];
       const expectedValue = Math.pow(1 + i * step, 2);
-      expect(value).toEqual(expectedValue);
+      expect(value).toBeCloseTo(expectedValue);
     }
   });
 
   test("empty labels are correctly predicted", () => {
     setGrid(model, {
+      B6: "",
       C6: "6",
+      B7: "",
       C7: "7",
+      B8: "",
       C8: "8",
+      B9: "",
       C9: "9",
+      B10: "",
       C10: "10",
     });
     updateChart(model, "1", {
@@ -2896,13 +2929,13 @@ describe("trending line", () => {
       labels: range(0, 51).map((v) => v.toString()),
     });
     const runtime = model.getters.getChartRuntime("1");
-    const step = (10 - 1) / 25;
+    const step = (10 - 1) / 50;
     //@ts-ignore
-    const data = runtime.dataSetsValues[1].data;
-    for (let i = 0; i < data.lenght; i++) {
-      const value = data.lenght;
+    const data = runtime.chartJsConfig.data.datasets[1].data;
+    for (let i = 0; i < data.length; i++) {
+      const value = data[i];
       const expectedValue = Math.pow(1 + i * step, 2);
-      expect(value).toEqual(expectedValue);
+      expect(value).toBeCloseTo(expectedValue);
     }
   });
 });
