@@ -88,11 +88,22 @@ describe("basic search", () => {
     expect(store.selectedMatchIndex).toStrictEqual(0);
   });
 
+  test("default search scope is set to activeSheet", () => {
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "test");
+    createSheet(model, { sheetId: "sh2", activate: true });
+    setCellContent(model, "A1", "test");
+    setCellContent(model, "A2", "test");
+    updateSearch(model, "test");
+    expect(store.searchMatches).toEqual([match("sh2", "A1"), match("sh2", "A2")]);
+    expect(store.selectedMatchIndex).toStrictEqual(0);
+  });
+
   test("simple search for search scope allSheet", () => {
     setCellContent(model, "A2", "test");
     createSheet(model, { sheetId: "sh2" });
     setCellContent(model, "A2", "test", "sh2");
-    updateSearch(model, "test");
+    updateSearch(model, "test", { searchScope: "allSheets" });
     expect(store.selectedMatchIndex).toStrictEqual(0);
     expect(store.searchMatches).toEqual([match(sheetId1, "A2"), match("sh2", "A2")]);
   });
@@ -140,7 +151,7 @@ describe("basic search", () => {
     createSheet(model, { sheetId: sheetId2 });
     setCellContent(model, "A1", "=111", sheetId2);
 
-    updateSearch(model, "hello");
+    updateSearch(model, "hello", { searchScope: "allSheets" });
     store.selectNextMatch();
     expect(store.selectedMatchIndex).toStrictEqual(1);
     expect(store.searchMatches).toStrictEqual([match(sheetId1, "A1"), match(sheetId1, "A2")]);
@@ -222,7 +233,7 @@ describe("basic search", () => {
     createSheet(model, { sheetId: sheetId2 });
     setCellContent(model, "A2", "=111", sheetId2);
     activateSheet(model, sheetId2);
-    updateSearch(model, "1");
+    updateSearch(model, "1", { searchScope: "allSheets" });
     expect(getActivePosition(model)).toBe("A2");
     expect(store.selectedMatchIndex).toStrictEqual(2);
     expect(store.searchMatches).toStrictEqual([
@@ -388,7 +399,7 @@ test("replace don't replace value resulting from array formula", () => {
 
 test("Only change sheet on search related command", () => {
   setCellContent(model, "A1", "hello");
-  updateSearch(model, "hello");
+  updateSearch(model, "hello", { searchScope: "allSheets" });
   createSheet(model, { sheetId: "sh2", activate: true });
   expect(store.searchMatches).toHaveLength(1);
   expect(store.selectedMatchIndex).toStrictEqual(0);
@@ -517,7 +528,7 @@ describe("next/previous cycle", () => {
     createSheet(model, { sheetId: "s2" });
     setCellContent(model, "A1", "1", "s2");
     setCellContent(model, "Z26", "1", "s2");
-    updateSearch(model, "1");
+    updateSearch(model, "1", { searchScope: "allSheets" });
     expect(model.getters.getActiveSheetId()).toBe(sheetId1);
     expect(getActivePosition(model)).toBe("A1");
     store.selectPreviousMatch();

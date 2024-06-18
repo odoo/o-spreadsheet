@@ -42,7 +42,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     matchCase: false,
     exactMatch: false,
     searchFormulas: false,
-    searchScope: "allSheets",
+    searchScope: "activeSheet",
     specificRange: undefined,
   };
 
