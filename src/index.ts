@@ -67,10 +67,12 @@ import { isEvaluationError, toBoolean, toJsDate, toNumber, toString } from "./fu
 import { FunctionRegistry, arg, functionRegistry } from "./functions/index";
 import {
   CHART_AXIS_CHOICES,
+  INTERACTIVE_LEGEND_CONFIG,
   TREND_LINE_XAXIS_ID,
   chartFontColor,
   formatTickValue,
   getChartAxisTitleRuntime,
+  getCustomLegendLabels,
   getDefaultChartJsRuntime,
   getFillingMode,
   getTrendDatasetForBarChart,
@@ -314,6 +316,7 @@ export const helpers = {
   createEmptySheet,
   createEmptyExcelSheet,
   getDefaultChartJsRuntime,
+  getCustomLegendLabels,
   chartFontColor,
   getChartAxisTitleRuntime,
   getChartAxisType,
@@ -449,6 +452,7 @@ export const constants = {
   PIVOT_TABLE_CONFIG,
   TREND_LINE_XAXIS_ID,
   CHART_AXIS_CHOICES,
+  INTERACTIVE_LEGEND_CONFIG,
 };
 
 export { PivotRuntimeDefinition } from "./helpers/pivot/pivot_runtime_definition";
