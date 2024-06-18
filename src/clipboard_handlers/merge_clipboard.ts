@@ -19,10 +19,6 @@ export class MergeClipboardHandler extends AbstractCellClipboardHandler<
   Maybe<Merge>
 > {
   copy(data: ClipboardCellData): ClipboardContent | undefined {
-    if (!data.zones.length) {
-      return;
-    }
-
     const sheetId = this.getters.getActiveSheetId();
     const { rowsIndexes, columnsIndexes } = data;
     const merges: Maybe<Merge>[][] = [];
@@ -42,7 +38,7 @@ export class MergeClipboardHandler extends AbstractCellClipboardHandler<
    * Paste the clipboard content in the given target
    */
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
-    if (options.isCutOperation || !("zones" in target) || !target.zones.length) {
+    if (options.isCutOperation) {
       return;
     }
     this.pasteFromCopy(target.sheetId, target.zones, content.merges, options);

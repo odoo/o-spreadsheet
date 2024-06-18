@@ -32,9 +32,6 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
   }
 
   copy(data: ClipboardCellData): ClipboardContent | undefined {
-    if (!("zones" in data) || !data.zones.length) {
-      return;
-    }
     const sheetId = data.sheetId;
 
     const { clippedZones, rowsIndexes, columnsIndexes } = data;
@@ -119,9 +116,6 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
    * Paste the clipboard content in the given target
    */
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
-    if (!("zones" in target) || !target.zones.length) {
-      return;
-    }
     const zones = target.zones;
     const sheetId = target.sheetId;
     if (!options.isCutOperation) {
