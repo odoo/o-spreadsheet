@@ -36,14 +36,6 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
       return;
     }
     const sheetId = data.sheetId;
-    const zones = data.zones;
-    if (!zones.length) {
-      return {
-        cells: [[]],
-        zones: [],
-        sheetId,
-      };
-    }
 
     const { clippedZones, rowsIndexes, columnsIndexes } = data;
     const clippedCells: ClipboardCell[][] = [];
