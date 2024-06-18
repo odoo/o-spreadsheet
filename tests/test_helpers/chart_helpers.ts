@@ -11,6 +11,15 @@ export function getChartConfiguration(model: Model, chartId: UID) {
   return runtime.chartJsConfig;
 }
 
+export function getChartLegendLabels(model: Model, chartId: UID) {
+  const runtime = model.getters.getChartRuntime(chartId) as any;
+  const fakeChart = {
+    ...runtime.chartJsConfig,
+    isDatasetVisible: (index) => true,
+  };
+  return runtime.chartJsConfig.options?.plugins?.legend?.labels?.generateLabels?.(fakeChart as any);
+}
+
 export async function openChartConfigSidePanel(model: Model, env: SpreadsheetChildEnv, id: UID) {
   model.dispatch("SELECT_FIGURE", { id });
   env.openSidePanel("ChartPanel");

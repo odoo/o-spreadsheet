@@ -232,14 +232,16 @@ describe("Waterfall chart", () => {
       {
         text: "Positive values",
         fillStyle: CHART_WATERFALL_POSITIVE_COLOR,
-        strokeStyle: CHART_WATERFALL_POSITIVE_COLOR,
         fontColor,
+        pointStyle: "rect",
+        strokeStyle: CHART_WATERFALL_POSITIVE_COLOR,
       },
       {
         text: "Negative values",
         fillStyle: CHART_WATERFALL_NEGATIVE_COLOR,
-        strokeStyle: CHART_WATERFALL_NEGATIVE_COLOR,
         fontColor,
+        pointStyle: "rect",
+        strokeStyle: CHART_WATERFALL_NEGATIVE_COLOR,
       },
     ]);
 
@@ -251,20 +253,23 @@ describe("Waterfall chart", () => {
       {
         text: "Positive values",
         fillStyle: CHART_WATERFALL_POSITIVE_COLOR,
-        strokeStyle: CHART_WATERFALL_POSITIVE_COLOR,
         fontColor,
+        pointStyle: "rect",
+        strokeStyle: CHART_WATERFALL_POSITIVE_COLOR,
       },
       {
         text: "Negative values",
         fillStyle: CHART_WATERFALL_NEGATIVE_COLOR,
-        strokeStyle: CHART_WATERFALL_NEGATIVE_COLOR,
         fontColor,
+        pointStyle: "rect",
+        strokeStyle: CHART_WATERFALL_NEGATIVE_COLOR,
       },
       {
         text: "Subtotals",
         fillStyle: CHART_WATERFALL_SUBTOTAL_COLOR,
-        strokeStyle: CHART_WATERFALL_SUBTOTAL_COLOR,
         fontColor,
+        pointStyle: "rect",
+        strokeStyle: CHART_WATERFALL_SUBTOTAL_COLOR,
       },
     ]);
 

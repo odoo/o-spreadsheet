@@ -1,7 +1,8 @@
 import { ChartCreationContext, Model } from "../../../src";
 import { LineChart } from "../../../src/helpers/figures/charts";
-import { isChartAxisStacked } from "../../test_helpers/chart_helpers";
+import { getChartLegendLabels, isChartAxisStacked } from "../../test_helpers/chart_helpers";
 import { createChart, setCellContent, updateChart } from "../../test_helpers/commands_helpers";
+import { createModelFromGrid } from "../../test_helpers/helpers";
 
 describe("line chart", () => {
   test("create line chart from creation context", () => {
@@ -182,5 +183,46 @@ describe("line chart", () => {
     expect(runtime.chartJsConfig.data.datasets[1].fill).toBe("origin");
     expect(runtime.chartJsConfig.data.datasets[1].borderColor).toBe("#112233");
     expect(runtime.chartJsConfig.data.datasets[1].backgroundColor).toBe("#11223366");
+  });
+
+  test("Line chart legend", () => {
+    const model = createModelFromGrid({
+      A1: "1",
+      A2: "2",
+      A3: "3",
+      A4: "4",
+    });
+    createChart(
+      model,
+      {
+        dataSets: [
+          { dataRange: "Sheet1!A1:A2", backgroundColor: "#f00", label: "serie_1" },
+          { dataRange: "Sheet1!A3:A4", backgroundColor: "#00f", label: "serie_2" },
+        ],
+        labelRange: "Sheet1!A2:A4",
+        type: "line",
+      },
+      "1"
+    );
+    expect(getChartLegendLabels(model, "1")).toEqual([
+      {
+        fontColor: "#000000",
+        fillStyle: "#f00",
+        text: "serie_1",
+        hidden: false,
+        lineWidth: 3,
+        pointStyle: "line",
+        strokeStyle: "#f00",
+      },
+      {
+        fontColor: "#000000",
+        fillStyle: "#00f",
+        text: "serie_2",
+        hidden: false,
+        lineWidth: 3,
+        pointStyle: "line",
+        strokeStyle: "#00f",
+      },
+    ]);
   });
 });
