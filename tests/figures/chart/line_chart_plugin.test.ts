@@ -1,8 +1,8 @@
 import { ChartCreationContext, Model } from "../../../src";
 import { LineChart } from "../../../src/helpers/figures/charts";
+import { LineChartRuntime } from "../../../src/types/chart";
 import { isChartAxisStacked } from "../../test_helpers/chart_helpers";
 import { createChart, updateChart } from "../../test_helpers/commands_helpers";
-import { LineChartRuntime } from "../../../src/types/chart";
 
 describe("line chart", () => {
   test("create line chart from creation context", () => {

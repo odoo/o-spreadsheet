@@ -6,6 +6,7 @@ import { ChartWithAxisDesignPanel } from "./chart_with_axis/design_panel";
 import { GaugeChartConfigPanel } from "./gauge_chart_panel/gauge_chart_config_panel";
 import { GaugeChartDesignPanel } from "./gauge_chart_panel/gauge_chart_design_panel";
 import { LineConfigPanel } from "./line_chart/line_chart_config_panel";
+import { LinechartDesignPanel } from "./line_chart/line_chart_design_panel";
 import { PieChartDesignPanel } from "./pie_chart/pie_chart_design_panel";
 import { RadarChartDesignPanel } from "./radar_chart/radar_chart_design_panel";
 import { ScatterConfigPanel } from "./scatter_chart/scatter_chart_config_panel";
@@ -32,7 +33,7 @@ export const chartSidePanelComponentRegistry = new Registry<ChartSidePanel>();
 chartSidePanelComponentRegistry
   .add("line", {
     configuration: LineConfigPanel,
-    design: ChartWithAxisDesignPanel,
+    design: LinechartDesignPanel,
   })
   .add("scatter", {
     configuration: ScatterConfigPanel,

@@ -217,8 +217,9 @@ export class LineChart extends AbstractChart {
 
 export function createLineChartRuntime(chart: LineChart, getters: Getters): LineChartRuntime {
   const { chartJsConfig, background } = createLineOrScatterChartRuntime(chart, getters);
-  const pointStyle = chart.stacked ? "rect" : "line";
-  const lineWidth = chart.stacked ? 2 : 3;
+  const filled = chart.fillArea;
+  const pointStyle = filled ? "rect" : "line";
+  const lineWidth = filled ? 2 : 3;
   chartJsConfig.options!.plugins!.legend!.labels = {
     ...chartJsConfig.options?.plugins?.legend?.labels,
     usePointStyle: true,

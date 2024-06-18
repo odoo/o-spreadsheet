@@ -2027,7 +2027,7 @@ describe("Chart design configuration", () => {
     }
   );
 
-  test.each(["line", "scatter", "bar", "pyramid", "combo"] as const)(
+  test.each(["bar", "pyramid", "combo"] as const)(
     "%s chart correctly use dataset colors set up in definition",
     (chartType) => {
       setCellContent(model, "A1", "1");
@@ -2052,6 +2052,35 @@ describe("Chart design configuration", () => {
       expect(config.data?.datasets![0]["backgroundColor"]).toEqual("#f00");
       expect(config.data?.datasets![0]["borderColor"]).toEqual("#f00");
       expect(config.data?.datasets![1]["backgroundColor"]).toEqual("#00f");
+      expect(config.data?.datasets![1]["borderColor"]).toEqual("#00f");
+    }
+  );
+
+  test.each(["line", "scatter", "radar"] as const)(
+    "%s chart correctly use dataset colors set up in definition",
+    (chartType) => {
+      setCellContent(model, "A1", "1");
+      setCellContent(model, "A2", "2");
+      setCellContent(model, "A3", "3");
+      setCellContent(model, "A4", "4");
+      setCellContent(model, "A5", "5");
+      setCellContent(model, "A6", "6");
+
+      createChart(
+        model,
+        {
+          dataSets: [
+            { dataRange: "A1:A2", backgroundColor: "#f00" },
+            { dataRange: "A3:A4", backgroundColor: "#00f" },
+          ],
+          type: chartType,
+        },
+        "43"
+      );
+      const config = getChartConfiguration(model, "43");
+      expect(config.data?.datasets![0]["backgroundColor"]).toEqual(undefined);
+      expect(config.data?.datasets![0]["borderColor"]).toEqual("#f00");
+      expect(config.data?.datasets![1]["backgroundColor"]).toEqual(undefined);
       expect(config.data?.datasets![1]["borderColor"]).toEqual("#00f");
     }
   );

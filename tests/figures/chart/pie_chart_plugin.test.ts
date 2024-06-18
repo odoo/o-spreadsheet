@@ -1,5 +1,5 @@
-import { PieChart } from "../../../src/helpers/figures/charts";
 import { ChartCreationContext, Model } from "../../../src";
+import { PieChart } from "../../../src/helpers/figures/charts";
 import { PieChartRuntime } from "../../../src/types/chart";
 import { createChart } from "../../test_helpers";
 
