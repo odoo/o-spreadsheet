@@ -217,6 +217,14 @@ export function createScatterChartRuntime(
   // use chartJS line chart and disable the lines instead of chartJS scatter chart. This is because the scatter chart
   // have less options than the line chart (it only works with linear labels)
   chartJsConfig.type = "line";
+
+  const configOptions = chartJsConfig.options!;
+  configOptions.plugins!.legend!.labels = {
+    ...configOptions.plugins?.legend?.labels,
+    boxHeight: 6,
+    usePointStyle: true,
+  };
+
   for (const dataSet of chartJsConfig.data!.datasets!) {
     (dataSet as ChartDataset<"line">).showLine = "showLine" in dataSet ? dataSet.showLine : false;
   }

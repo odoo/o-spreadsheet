@@ -2,19 +2,15 @@ import { ChartConfiguration, ChartDataset, LegendOptions } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
 import { BACKGROUND_CHART_COLOR, LINE_FILL_TRANSPARENCY } from "../../../constants";
 import { toNumber } from "../../../functions/helpers";
-import { Color, Format, Getters, Locale, Range } from "../../../types";
-import {
-  AxisType,
-  DatasetValues,
-  LabelValues,
-  TrendConfiguration,
-} from "../../../types/chart/chart";
+import { Color, Getters, Locale, Range } from "../../../types";
+import { AxisType, DatasetValues, TrendConfiguration } from "../../../types/chart/chart";
 import { getChartTimeOptions, timeFormatLuxonCompatible } from "../../chart_date";
-import { colorToRGBA, rgbaToHex } from "../../color";
+import { setColorAlpha } from "../../color";
 import { formatValue } from "../../format/format";
 import { deepCopy, findNextDefinedValue, range } from "../../misc";
 import { isNumber } from "../../numbers";
 import {
+  INTERACTIVE_LEGEND_CONFIG,
   TREND_LINE_XAXIS_ID,
   chartFontColor,
   computeChartPadding,
@@ -197,10 +193,6 @@ export function createLineOrScatterChartRuntime(
 ): {
   chartJsConfig: ChartConfiguration;
   background: Color;
-  dataSetsValues: DatasetValues[];
-  labelValues: LabelValues;
-  dataSetFormat: Format | undefined;
-  labelFormat: Format | undefined;
 } {
   const axisType = getChartAxisType(chart, getters);
   const labelValues = getChartLabelValues(getters, chart.dataSets, chart.labelRange);
@@ -230,17 +222,9 @@ export function createLineOrScatterChartRuntime(
   const config = getDefaultChartJsRuntime(chart, labels, fontColor, options);
 
   const legend: DeepPartial<LegendOptions<"line">> = {
+    ...INTERACTIVE_LEGEND_CONFIG,
     labels: {
       color: fontColor,
-      generateLabels(chart) {
-        // color the legend labels with the dataset color, without any transparency
-        const { data } = chart;
-        const labels = window.Chart.defaults.plugins.legend.labels.generateLabels!(chart);
-        for (const [index, label] of labels.entries()) {
-          label.fillStyle = data.datasets![index].borderColor as string;
-        }
-        return labels;
-      },
     },
   };
   if (chart.legendPosition === "none") {
@@ -348,12 +332,10 @@ export function createLineOrScatterChartRuntime(
 
   const definition = chart.getDefinition();
   const colors = getChartColorsGenerator(definition, dataSetsValues.length);
+  let maxLength = 0;
+  const trendDatasets: any[] = [];
+
   for (let [index, { label, data }] of dataSetsValues.entries()) {
-    const color = colors.next();
-    let backgroundRGBA = colorToRGBA(color);
-    if (areaChart) {
-      backgroundRGBA.a = LINE_FILL_TRANSPARENCY;
-    }
     if (cumulative) {
       let accumulator = 0;
       data = data.map((value) => {
@@ -369,31 +351,26 @@ export function createLineOrScatterChartRuntime(
       data = data.map((y, index) => ({ x: labels[index] || undefined, y }));
     }
 
-    const backgroundColor = rgbaToHex(backgroundRGBA);
+    const borderColor = colors.next();
+    if (definition.dataSets?.[index]?.label) {
+      label = definition.dataSets[index].label;
+    }
 
     const dataset: ChartDataset = {
       label,
       data,
       tension: 0, // 0 -> render straight lines, which is much faster
-      borderColor: color,
-      backgroundColor,
-      pointBackgroundColor: color,
+      borderColor,
+      backgroundColor: areaChart ? setColorAlpha(borderColor, LINE_FILL_TRANSPARENCY) : borderColor,
+      pointBackgroundColor: borderColor,
       fill: areaChart ? getFillingMode(index, stackedChart) : false,
     };
-    config.data!.datasets!.push(dataset);
-  }
 
-  let maxLength = 0;
-  const trendDatasets: any[] = [];
-
-  for (const [index, dataset] of config.data.datasets.entries()) {
-    if (definition.dataSets?.[index]?.label) {
-      const label = definition.dataSets[index].label;
-      dataset.label = label;
-    }
     if (definition.dataSets?.[index]?.yAxisId) {
       dataset["yAxisID"] = definition.dataSets[index].yAxisId;
     }
+
+    config.data!.datasets!.push(dataset);
 
     const trend = definition.dataSets?.[index].trend;
     if (!trend?.display) {
@@ -404,7 +381,6 @@ export function createLineOrScatterChartRuntime(
     if (trendDataset) {
       maxLength = Math.max(maxLength, trendDataset.data.length);
       trendDatasets.push(trendDataset);
-      dataSetsValues.push(trendDataset);
     }
   }
   if (trendDatasets.length) {
@@ -436,9 +412,5 @@ export function createLineOrScatterChartRuntime(
   return {
     chartJsConfig: config,
     background: chart.background || BACKGROUND_CHART_COLOR,
-    dataSetsValues,
-    labelValues,
-    dataSetFormat,
-    labelFormat,
   };
 }
