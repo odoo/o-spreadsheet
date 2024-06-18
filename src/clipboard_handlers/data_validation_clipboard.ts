@@ -28,10 +28,6 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
   private readonly uuidGenerator = new UuidGenerator();
 
   copy(data: ClipboardCellData): ClipboardContent | undefined {
-    if (!data.zones.length) {
-      return;
-    }
-
     const { rowsIndexes, columnsIndexes } = data;
     const sheetId = data.sheetId;
     const dvRules: Maybe<ClipboardDataValidationRule>[][] = [];
@@ -50,9 +46,6 @@ export class DataValidationClipboardHandler extends AbstractCellClipboardHandler
 
   paste(target: ClipboardPasteTarget, clippedContent: ClipboardContent, options: ClipboardOptions) {
     if (options.pasteOption) {
-      return;
-    }
-    if (!("zones" in target) || !target.zones.length) {
       return;
     }
     const zones = target.zones;

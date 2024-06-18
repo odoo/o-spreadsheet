@@ -44,9 +44,6 @@ export class TableClipboardHandler extends AbstractCellClipboardHandler<
     const sheetId = data.sheetId;
 
     const { rowsIndexes, columnsIndexes, zones } = data;
-    if (!zones || !rowsIndexes.length || !columnsIndexes.length) {
-      return { tableCells: [[]], sheetId };
-    }
 
     const copiedTablesIds = new Set<UID>();
     const tableCells: TableCell[][] = [];

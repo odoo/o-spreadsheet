@@ -41,9 +41,6 @@ export class BorderClipboardHandler extends AbstractCellClipboardHandler<
     if (options.pasteOption === "asValue") {
       return;
     }
-    if (!("zones" in target) || !target.zones.length) {
-      return;
-    }
     const zones = target.zones;
     if (!options.isCutOperation) {
       this.pasteFromCopy(sheetId, zones, content.borders);

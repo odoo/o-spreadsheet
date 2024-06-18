@@ -51,7 +51,7 @@ export class ConditionalFormatClipboardHandler extends AbstractCellClipboardHand
   }
 
   paste(target: ClipboardPasteTarget, clippedContent: ClipboardContent, options: ClipboardOptions) {
-    if (options.pasteOption === "asValue" || !("zones" in target) || !target.zones.length) {
+    if (options.pasteOption === "asValue") {
       return;
     }
     const zones = target.zones;
