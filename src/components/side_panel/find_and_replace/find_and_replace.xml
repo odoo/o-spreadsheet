@@ -23,7 +23,8 @@
         </div>
         <select
           class="o-input o-type-selector o-type-range-selector mt-3 mb-3"
-          t-on-change="changeSearchScope">
+          t-on-change="changeSearchScope"
+          t-att-value="searchOptions.searchScope">
           <option value="allSheets">All sheets</option>
           <option value="activeSheet">Current sheet</option>
           <option value="specificRange">Specific range</option>
