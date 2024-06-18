@@ -118,17 +118,13 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
   /**
    * Paste the clipboard content in the given target
    */
-  paste(
-    target: ClipboardPasteTarget,
-    content: ClipboardContent,
-    options?: ClipboardOptions | undefined
-  ) {
+  paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
     if (!("zones" in target) || !target.zones.length) {
       return;
     }
     const zones = target.zones;
     const sheetId = target.sheetId;
-    if (!options?.isCutOperation) {
+    if (!options.isCutOperation) {
       this.pasteFromCopy(sheetId, zones, content.cells, options);
     } else {
       this.pasteFromCut(sheetId, zones, content, options);

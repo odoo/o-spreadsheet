@@ -75,7 +75,7 @@ export class ImageClipboardHandler extends AbstractFigureClipboardHandler<Clipbo
       definition: copy,
     });
 
-    if (options?.isCutOperation) {
+    if (options.isCutOperation) {
       this.dispatch("DELETE_FIGURE", {
         sheetId: clippedContent.sheetId,
         id: clippedContent.copiedFigure.id,
