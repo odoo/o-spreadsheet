@@ -18,14 +18,9 @@ const {
   onError,
 } = owl;
 
-const { Spreadsheet, Model, setTranslationMethod } = o_spreadsheet;
+const { Spreadsheet, Model } = o_spreadsheet;
 const { topbarMenuRegistry } = o_spreadsheet.registries;
 const { useStoreProvider, NotificationStore } = o_spreadsheet.stores;
-
-setTranslationMethod(
-  (str, ...values) => str,
-  () => true
-);
 
 const uuidGenerator = new o_spreadsheet.helpers.UuidGenerator();
 

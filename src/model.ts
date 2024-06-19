@@ -26,7 +26,7 @@ import {
   SelectionStreamProcessorImpl,
 } from "./selection_stream/selection_stream_processor";
 import { StateObserver } from "./state_observer";
-import { _t } from "./translation";
+import { _t, setDefaultTranslationMethod } from "./translation";
 import { StateUpdateMessage, TransportService } from "./types/collaborative/transport_service";
 import { FileStore } from "./types/files";
 import {
@@ -194,6 +194,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     verboseImport = true
   ) {
     super();
+    setDefaultTranslationMethod();
 
     stateUpdateMessages = repairInitialMessages(data, stateUpdateMessages);
 
