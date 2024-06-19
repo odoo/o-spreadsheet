@@ -1,6 +1,13 @@
 import { _t, setTranslationMethod } from "../../src/translation";
 
 describe("Translations", () => {
+  beforeEach(() => {
+    setTranslationMethod(
+      (str, ...values) => str,
+      () => true
+    );
+  });
+
   test("placeholders in string translation are replaced with their given value", () => {
     expect(_t("Hello %s", "World")).toBe("Hello World");
   });

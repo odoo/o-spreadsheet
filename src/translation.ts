@@ -2,9 +2,11 @@ type SprintfValues = (string | String | number)[] | [{ [key: string]: string | n
 
 export type TranslationFunction = (string: string, ...values: SprintfValues) => string;
 
-// define a mock translation function, when o-spreadsheet runs in standalone it doesn't translate any string
-let _translate: TranslationFunction = (s) => s;
-let _loaded: () => boolean = () => false;
+const defaultTranslate: TranslationFunction = (s: string) => s;
+const defaultLoaded: () => boolean = () => false;
+
+let _translate = defaultTranslate;
+let _loaded = defaultLoaded;
 
 function sprintf(s: string, ...values: SprintfValues): string {
   if (values.length === 1 && typeof values[0] === "object" && !(values[0] instanceof String)) {
@@ -17,13 +19,27 @@ function sprintf(s: string, ...values: SprintfValues): string {
 }
 
 /***
- * Allow to inject a translation function from outside o-spreadsheet.
+ * Allow to inject a translation function from outside o-spreadsheet. This should be called before instantiating
+ * a model.
  * @param tfn the function that will do the translation
  * @param loaded a function that returns true when the translation is loaded
  */
 export function setTranslationMethod(tfn: TranslationFunction, loaded: () => boolean = () => true) {
   _translate = tfn;
   _loaded = loaded;
+}
+
+/**
+ * If no translation function has been set, this will mark the translation are loaded.
+ *
+ * By default, the translations should not be set as loaded, otherwise top-level translated constants will never be
+ * translated. But if by the time the model is instantiated no custom translation function has been set, we can set
+ * the default translation function as loaded so o-spreadsheet can be run in standalone with no translations.
+ */
+export function setDefaultTranslationMethod() {
+  if (_translate === defaultTranslate && _loaded === defaultLoaded) {
+    _loaded = () => true;
+  }
 }
 
 export const _t: TranslationFunction = function (s: string, ...values: SprintfValues) {

@@ -3,7 +3,6 @@
  */
 import { App } from "@odoo/owl";
 import { setDefaultSheetViewSize } from "../../src/constants";
-import { setTranslationMethod } from "../../src/translation";
 import { getCompiledTemplates } from "../../tools/owl_templates/compile_templates.cjs";
 import "./canvas.mock";
 import "./jest_extend";
@@ -20,10 +19,6 @@ function registerOwlTemplates() {
 beforeAll(() => {
   registerOwlTemplates();
   setDefaultSheetViewSize(1000);
-  setTranslationMethod(
-    (str, ...values) => str,
-    () => true
-  );
   Object.defineProperty(Element.prototype, "innerText", {
     get: function () {
       return this.textContent;
