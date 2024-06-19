@@ -19,15 +19,12 @@ css/* scss */ `
   }
 `;
 
-interface ProgressBarContainerProps {
+interface ProgressBarProps {
   longRunner: LongRunner;
 }
 
-export class ProgressBarContainer extends Component<
-  ProgressBarContainerProps,
-  SpreadsheetChildEnv
-> {
-  static template = "o-spreadsheet-ProgressBarContainer";
+export class SpreadsheetProgressBar extends Component<ProgressBarProps, SpreadsheetChildEnv> {
+  static template = "o-spreadsheet-ProgressBar";
   static props = {
     longRunner: Object,
   };

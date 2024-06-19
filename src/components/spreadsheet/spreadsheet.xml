@@ -28,7 +28,7 @@
         </div>
         <SidePanel/>
         <BottomBar onClick="() => this.focusGrid()"/>
-        <ProgressBarContainer t-props="{longRunner: model.longRunner}"/>
+        <SpreadsheetProgressBar t-props="{longRunner: model.longRunner}"/>
       </t>
     </div>
   </t>
