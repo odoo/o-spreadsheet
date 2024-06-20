@@ -172,7 +172,7 @@ describe("Spreadsheet Pivot", () => {
     ]);
 
     updatePivot(model, "1", {
-      columns: [{ name: "Created on", order: "asc" }],
+      columns: [{ name: "Created on", granularity: "month_number", order: "asc" }],
     });
     expect(getEvaluatedGrid(model, "B26:F26")).toEqual([
       ["February", "March", "April", "Total", ""],
@@ -218,7 +218,7 @@ describe("Spreadsheet Pivot", () => {
     ]);
 
     updatePivot(model, "1", {
-      rows: [{ name: "Created on", order: "asc" }],
+      rows: [{ name: "Created on", granularity: "month_number", order: "asc" }],
     });
     expect(getEvaluatedGrid(model, "A28:A32")).toEqual([
       ["February"],

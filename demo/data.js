@@ -2524,7 +2524,7 @@ export const demoData = {
     1: {
       type: "SPREADSHEET",
       columns: [{ name: "Stage" }],
-      rows: [{ name: "Created on", order: "asc" }],
+      rows: [{ name: "Created on", granularity: "month_number", order: "asc" }],
       measures: [{ name: "Expected Revenue", aggregator: "count" }],
       name: "My pivot",
       dataSet: { sheetId: "pivot", zone: { top: 0, bottom: 21, left: 0, right: 8 } },
