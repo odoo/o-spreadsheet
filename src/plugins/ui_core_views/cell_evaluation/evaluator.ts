@@ -141,14 +141,32 @@ export class Evaluator {
 
   evaluateCells(positions: CellPosition[]) {
     const start = performance.now();
+    console.group("details eval");
+    let sub = performance.now();
     const cellsToCompute = this.createEmptyPositionSet();
+    console.info("createEmptyPositionSet", performance.now() - sub, "ms");
     cellsToCompute.addMany(positions);
+
+    sub = performance.now();
     const arrayFormulasPositions = this.getArrayFormulasImpactedByChangesOf(positions);
+    console.info("getArrayFormulasImpactedByChangesOf", performance.now() - sub, "ms");
+
+    sub = performance.now();
     cellsToCompute.addMany(this.getCellsDependingOn(positions));
+    console.info("getCellsDependingOn positions", performance.now() - sub, "ms");
+
     cellsToCompute.addMany(arrayFormulasPositions);
+
+    sub = performance.now();
     cellsToCompute.addMany(this.getCellsDependingOn(arrayFormulasPositions));
+    console.info("getCellsDependingOn arrayFormula", performance.now() - sub, "ms");
+
+    sub = performance.now();
     this.evaluate(cellsToCompute);
+    console.info("cellsToCompute", performance.now() - sub, "ms");
+
     console.info("evaluate Cells", performance.now() - start, "ms");
+    console.groupEnd();
   }
 
   private getArrayFormulasImpactedByChangesOf(
@@ -270,9 +288,11 @@ export class Evaluator {
             this.evaluatedCells.set(position, evaluatedCell);
           }
         },
-        5000
+        5000,
+        () => {
+          onIterationEndEvaluationRegistry.getAll().forEach((callback) => callback(this.getters));
+        }
       );
-      onIterationEndEvaluationRegistry.getAll().forEach((callback) => callback(this.getters));
     }
   }
 

@@ -8,6 +8,7 @@ export interface LongRunningJob {
   batchSize: number;
   iterable: string | any[];
   executeCallback: (arg0: any) => void;
+  doneCallback: () => void;
   renderEveryMs: number;
 }
 
@@ -17,6 +18,7 @@ export interface ILongRunner extends EventBus<any> {
     iterable: any[],
     callback: (item: T) => void,
     batchSize: number,
+    doneCallback?: () => void,
     renderEveryMs?: number
   ): void;
 }
@@ -38,6 +40,7 @@ export class LongRunner extends EventBus<any> implements ILongRunner {
     iterable: T[],
     callback: (item: T) => void,
     batchSize: number = 100,
+    doneCallback: () => void = () => {},
     renderEveryMs: number = 500
   ) {
     const newId = this.uuidGenerator.uuidv4();
@@ -47,6 +50,7 @@ export class LongRunner extends EventBus<any> implements ILongRunner {
       jobName,
       iterable,
       executeCallback: callback,
+      doneCallback,
       batchSize,
       renderEveryMs,
     });
@@ -59,6 +63,7 @@ export class LongRunner extends EventBus<any> implements ILongRunner {
       if (this.runningJob) {
         this.run(this.runningJob, () => {
           if (this.runningJob) {
+            this.runningJob.doneCallback();
             this.trigger("job-done", { id: this.runningJob.jobUID });
           }
           this.runningJob = undefined;
@@ -103,6 +108,7 @@ export class SynchronousLongRunner extends EventBus<any> implements ILongRunner 
     iterable: T[],
     callback: (item: T) => void,
     batchSize: number,
+    doneCallback: () => void = () => {},
     renderEveryMs: number
   ): void {
     const newId = this.uuidGenerator.uuidv4();
@@ -110,7 +116,7 @@ export class SynchronousLongRunner extends EventBus<any> implements ILongRunner 
     this.trigger("job-started", { id: newId, name: jobName });
 
     iterable.forEach(callback);
-
+    doneCallback();
     this.trigger("job-done", { id: newId });
   }
 }

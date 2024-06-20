@@ -214,7 +214,34 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.config = this.setupConfig(config);
 
     this.longRunner = this.config.longRunner;
-    this.setupLongRunnerEvents();
+    this.longRunner.on("job-done", this, () => {
+      this.longRunner.off("job-done", this);
+      this.setupLongRunnerEvents();
+
+      this.uuidGenerator.setIsFastStrategy(false);
+
+      // Model should be the last permanent subscriber in the list since he should render
+      // after all changes have been applied to the other subscribers (plugins)
+      this.selection.observe(this, {
+        handleEvent: () => this.trigger("update"),
+      });
+      // This should be done after construction of LocalHistory due to order of
+      // events
+      this.setupSessionEvents();
+
+      this.joinSession();
+
+      if (config.snapshotRequested) {
+        const startSnapshot = performance.now();
+        console.info("Snapshot requested");
+        this.session.snapshot(this.exportData());
+        this.garbageCollectExternalResources();
+        console.info("Snapshot taken in", performance.now() - startSnapshot, "ms");
+      }
+
+      console.info("Model created in", performance.now() - this.start, "ms");
+      console.groupEnd();
+    });
 
     this.session = this.setupSession(this.workbookData.revisionId);
 
@@ -275,33 +302,13 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
     }
-    this.uuidGenerator.setIsFastStrategy(false);
 
-    // starting plugins
-    this.dispatch("START");
-    // Model should be the last permanent subscriber in the list since he should render
-    // after all changes have been applied to the other subscribers (plugins)
-    this.selection.observe(this, {
-      handleEvent: () => this.trigger("update"),
-    });
-    // This should be done after construction of LocalHistory due to order of
-    // events
-    this.setupSessionEvents();
-
-    this.joinSession();
-
-    if (config.snapshotRequested) {
-      const startSnapshot = performance.now();
-      console.info("Snapshot requested");
-      this.session.snapshot(this.exportData());
-      this.garbageCollectExternalResources();
-      console.info("Snapshot taken in", performance.now() - startSnapshot, "ms");
-    }
     // mark all models as "raw", so they will not be turned into reactive objects
     // by owl, since we do not rely on reactivity
     markRaw(this);
-    console.info("Model created in", performance.now() - this.start, "ms");
-    console.groupEnd();
+
+    // starting plugins
+    this.dispatch("START");
   }
 
   joinSession() {
