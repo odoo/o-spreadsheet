@@ -97,10 +97,9 @@ export const TEST_COMMANDS: CommandMapping = {
     row: 0,
     col: 0,
   },
-  CLEAR_CELL: {
-    type: "CLEAR_CELL",
-    col: 0,
-    row: 0,
+  CLEAR_CELLS: {
+    type: "CLEAR_CELLS",
+    target: target("A1"),
     sheetId: "sheetId",
   },
   DELETE_CONTENT: {
@@ -447,7 +446,6 @@ export const TEST_COMMANDS: CommandMapping = {
 export const OT_TESTS_SINGLE_CELL_COMMANDS = [
   TEST_COMMANDS.UPDATE_CELL,
   TEST_COMMANDS.UPDATE_CELL_POSITION,
-  TEST_COMMANDS.CLEAR_CELL,
   TEST_COMMANDS.SET_BORDER,
 ];
 
@@ -456,6 +454,7 @@ export const OT_TESTS_TARGET_DEPENDANT_COMMANDS = [
   TEST_COMMANDS.SET_FORMATTING,
   TEST_COMMANDS.CLEAR_FORMATTING,
   TEST_COMMANDS.REMOVE_TABLE,
+  TEST_COMMANDS.CLEAR_CELLS,
 ];
 
 export const OT_TESTS_ZONE_DEPENDANT_COMMANDS = [

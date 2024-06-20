@@ -1,7 +1,7 @@
 import { Model, Spreadsheet } from "../../src";
 import { buildSheetLink } from "../../src/helpers";
 import {
-  clearCell,
+  clearCells,
   createSheet,
   merge,
   selectCell,
@@ -111,7 +111,7 @@ describe("link display component", () => {
     setCellContent(model, "A1", "[label](url.com)");
     await hoverCell(model, "A1", 400);
     expect(fixture.querySelector(".o-link-tool")).toBeTruthy();
-    clearCell(model, "A1");
+    clearCells(model, ["A1"]);
     await nextTick();
     expect(fixture.querySelector(".o-link-tool")).toBeFalsy();
   });

@@ -12,7 +12,7 @@ import {
   addDataValidation,
   addRows,
   changeCFPriority,
-  clearCell,
+  clearCells,
   copy,
   createChart,
   createSheet,
@@ -113,7 +113,7 @@ describe("Multi users synchronisation", () => {
       setCellContent(alice, "A1", "hello");
       expect(getCellContent(alice, "A1")).toBe("hello");
 
-      clearCell(bob, "A1");
+      clearCells(bob, ["A1"]);
       expect(getCell(bob, "A1")).toBeUndefined();
     });
 
@@ -212,7 +212,7 @@ describe("Multi users synchronisation", () => {
     );
 
     network.concurrent(() => {
-      clearCell(alice, "A1");
+      clearCells(alice, ["A1"]);
       setCellContent(bob, "A1", "Hi");
     });
 

@@ -6,6 +6,7 @@ import {
   isDefined,
   isEqual,
   overlap,
+  positionToZone,
   positions,
   splitReference,
   toXC,
@@ -445,7 +446,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
           const merge = this.getMerge(position);
           if (!merge || merge.id !== id) {
             this.history.update("mergeCellMap", sheetId, col, row, undefined);
-            this.dispatch("CLEAR_CELL", position);
+            this.dispatch("CLEAR_CELLS", { sheetId, target: [positionToZone(position)] });
           }
         }
       }
