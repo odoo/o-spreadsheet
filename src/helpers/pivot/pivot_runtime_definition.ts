@@ -79,8 +79,7 @@ function createMeasure(fields: PivotFields, measure: PivotCoreMeasure): PivotMea
 function createPivotDimension(fields: PivotFields, dimension: PivotCoreDimension): PivotDimension {
   const field = fields[dimension.name];
   const type = field?.type ?? "integer";
-  const granularity =
-    field && isDateField(field) ? dimension.granularity ?? "month_number" : undefined;
+  const granularity = field && isDateField(field) ? dimension.granularity : undefined;
 
   return {
     /**
