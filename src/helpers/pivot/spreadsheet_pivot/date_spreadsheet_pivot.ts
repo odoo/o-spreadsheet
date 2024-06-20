@@ -5,8 +5,8 @@ import { toNormalizedPivotValue } from "../pivot_helpers";
 import { FieldValue } from "./data_entry_spreadsheet_pivot";
 
 export function createDate(dimension: PivotDimension, value: FieldValue["value"], locale: Locale) {
-  const granularity = dimension.granularity || "month_number";
-  if (!(granularity in MAP_VALUE_DIMENSION_DATE)) {
+  const granularity = dimension.granularity;
+  if (!granularity || !(granularity in MAP_VALUE_DIMENSION_DATE)) {
     throw new Error(`Unknown date granularity: ${granularity}`);
   }
   if (value === null) {
