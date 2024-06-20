@@ -528,6 +528,56 @@ exports[`TopBar component can set cell format 1`] = `
               
               
             </div>
+            <span
+              class="o-menu-item-button o-hoverable-button"
+              title="Increase indentation"
+            >
+              <span
+                style=""
+              >
+                <svg
+                  class="o-icon increase-indent"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M2 16h16v-2H2v2M10 10h8v2h-8v-2M10 6h8v2h-8v-2M2 2h16v2h-16v2"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M2 8 h4v2h-4v-2 M9 9 L6 6 L6 12"
+                    fill="currentColor"
+                  />
+                </svg>
+              </span>
+              
+              
+            </span>
+            
+            <span
+              class="o-menu-item-button o-hoverable-button"
+              title="Decrease indentation"
+            >
+              <span
+                style=""
+              >
+                <svg
+                  class="o-icon decrease-indent"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M2 16h16v-2H2v2M2 10h8v2h-8v-2M2 6h8v2h-8v-2M2 2h16v2h-16v2"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M14 8 h4v2h-4v-2 M11 9 L14 6 L14 12"
+                    fill="currentColor"
+                  />
+                </svg>
+              </span>
+              
+              
+            </span>
+            
             <div
               class="o-divider"
             />
@@ -1491,6 +1541,56 @@ exports[`TopBar component simple rendering 1`] = `
           
           
         </div>
+        <span
+          class="o-menu-item-button o-hoverable-button"
+          title="Increase indentation"
+        >
+          <span
+            style=""
+          >
+            <svg
+              class="o-icon increase-indent"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M2 16h16v-2H2v2M10 10h8v2h-8v-2M10 6h8v2h-8v-2M2 2h16v2h-16v2"
+                fill="currentColor"
+              />
+              <path
+                d="M2 8 h4v2h-4v-2 M9 9 L6 6 L6 12"
+                fill="currentColor"
+              />
+            </svg>
+          </span>
+          
+          
+        </span>
+        
+        <span
+          class="o-menu-item-button o-hoverable-button"
+          title="Decrease indentation"
+        >
+          <span
+            style=""
+          >
+            <svg
+              class="o-icon decrease-indent"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M2 16h16v-2H2v2M2 10h8v2h-8v-2M2 6h8v2h-8v-2M2 2h16v2h-16v2"
+                fill="currentColor"
+              />
+              <path
+                d="M14 8 h4v2h-4v-2 M11 9 L14 6 L14 12"
+                fill="currentColor"
+              />
+            </svg>
+          </span>
+          
+          
+        </span>
+        
         <div
           class="o-divider"
         />

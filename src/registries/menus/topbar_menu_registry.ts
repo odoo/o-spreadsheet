@@ -399,6 +399,15 @@ topbarMenuRegistry
     ...ACTION_FORMAT.formatWrappingClip,
     sequence: 30,
   })
+  .addChild("format_increase_indent", ["format"], {
+    ...ACTION_FORMAT.styleIncreaseIndent,
+    sequence: 84,
+  })
+  .addChild("format_decrease_indent", ["format"], {
+    ...ACTION_FORMAT.styleDecreaseIndent,
+    sequence: 85,
+    separator: true,
+  })
   .addChild("format_cf", ["format"], {
     ...ACTION_FORMAT.formatCF,
     sequence: 90,

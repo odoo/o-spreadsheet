@@ -1315,6 +1315,22 @@ describe("Menu Item actions", () => {
     });
   });
 
+  test("Format -> indentation", () => {
+    doAction(["format", "format_increase_indent"], env);
+    expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+      sheetId: env.model.getters.getActiveSheetId(),
+      target: env.model.getters.getSelectedZones(),
+      style: { indent: 1 },
+    });
+
+    doAction(["format", "format_decrease_indent"], env);
+    expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+      sheetId: env.model.getters.getActiveSheetId(),
+      target: env.model.getters.getSelectedZones(),
+      style: { indent: 0 },
+    });
+  });
+
   test("Data -> Split to columns action", () => {
     const spyOpenSidePanel = jest.spyOn(env, "openSidePanel");
     doAction(["data", "split_to_columns"], env);

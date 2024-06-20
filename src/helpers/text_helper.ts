@@ -3,6 +3,7 @@ import {
   DEFAULT_FONT,
   DEFAULT_FONT_SIZE,
   DEFAULT_FONT_WEIGHT,
+  DEFAULT_INDENT,
   MIN_CELL_TEXT_MARGIN,
   MIN_CF_ICON_MARGIN,
   NEWLINE,
@@ -12,6 +13,17 @@ import { Cell, Pixel, PixelPosition, Style } from "../types";
 
 export function computeTextLinesHeight(textLineHeight: number, numberOfLines: number = 1) {
   return numberOfLines * (textLineHeight + MIN_CELL_TEXT_MARGIN) - MIN_CELL_TEXT_MARGIN;
+}
+
+export function computeMaxWidth(ctx: CanvasRenderingContext2D, colSize: number, style?: Style) {
+  let maxWidth = 0;
+  if (style?.wrapping === "wrap") {
+    maxWidth += colSize - 2 * MIN_CELL_TEXT_MARGIN;
+    if (style.indent) {
+      maxWidth -= computeTextWidth(ctx, DEFAULT_INDENT, style) * style.indent;
+    }
+  }
+  return maxWidth ? maxWidth : undefined;
 }
 
 /**
@@ -25,11 +37,11 @@ export function getDefaultCellHeight(
   if (!cell || (!cell.isFormula && !cell.content)) {
     return DEFAULT_CELL_HEIGHT;
   }
-  const maxWidth = cell.style?.wrapping === "wrap" ? colSize - 2 * MIN_CELL_TEXT_MARGIN : undefined;
+  const maxWidth = computeMaxWidth(ctx, colSize, cell.style);
 
   const numberOfLines = cell.isFormula
     ? 1
-    : splitTextToWidth(ctx, cell.content, cell.style, maxWidth).length;
+    : splitTextIntoLines(ctx, cell.content, cell.style, maxWidth).length;
 
   const fontSize = computeTextFontSizeInPixels(cell.style);
 
@@ -123,14 +135,14 @@ export function computeTextFontSizeInPixels(style?: Style): number {
   return fontSizeInPixels(sizeInPt);
 }
 
-function splitWordToSpecificWidth(
+function splitWordIntoLines(
   ctx: CanvasRenderingContext2D,
   word: string,
-  width: number,
-  style: Style
+  style: Style,
+  maxWidth: number
 ): string[] {
   const wordWidth = computeTextWidth(ctx, word, style);
-  if (wordWidth <= width) {
+  if (wordWidth <= maxWidth) {
     return [word];
   }
 
@@ -138,7 +150,7 @@ function splitWordToSpecificWidth(
   let wordPart = "";
   for (let l of word) {
     const wordPartWidth = computeTextWidth(ctx, wordPart + l, style);
-    if (wordPartWidth > width) {
+    if (wordPartWidth > maxWidth) {
       splitWord.push(wordPart);
       wordPart = l;
     } else {
@@ -153,11 +165,11 @@ function splitWordToSpecificWidth(
  * Return the given text, split in multiple lines if needed. The text will be split in multiple
  * line if it contains NEWLINE characters, or if it's longer than the given width.
  */
-export function splitTextToWidth(
+export function splitTextIntoLines(
   ctx: CanvasRenderingContext2D,
   text: string,
   style: Style | undefined,
-  width: number | undefined
+  maxWidth: number | undefined
 ): string[] {
   if (!style) style = {};
   const brokenText: string[] = [];
@@ -168,16 +180,16 @@ export function splitTextToWidth(
   for (const line of lines) {
     const words = line.includes(" ") ? line.split(" ") : [line];
 
-    if (!width) {
+    if (!maxWidth) {
       brokenText.push(line);
       continue;
     }
 
     let textLine = "";
-    let availableWidth = width;
+    let availableWidth = maxWidth;
 
     for (let word of words) {
-      const splitWord = splitWordToSpecificWidth(ctx, word, width, style);
+      const splitWord = splitWordIntoLines(ctx, word, style, maxWidth);
       const lastPart = splitWord.pop()!;
       const lastPartWidth = computeTextWidth(ctx, lastPart, style);
 
@@ -191,13 +203,13 @@ export function splitTextToWidth(
         if (textLine !== "") {
           brokenText.push(textLine);
           textLine = "";
-          availableWidth = width;
+          availableWidth = maxWidth;
         }
         splitWord.forEach((wordPart) => {
           brokenText.push(wordPart);
         });
         textLine = lastPart;
-        availableWidth = width - lastPartWidth;
+        availableWidth = maxWidth - lastPartWidth;
       } else {
         // here "lastPart" is equal to "word" and the "word" size is smaller than "width"
         const _word = textLine === "" ? lastPart : " " + lastPart;
@@ -209,7 +221,7 @@ export function splitTextToWidth(
         } else {
           brokenText.push(textLine);
           textLine = lastPart;
-          availableWidth = width - lastPartWidth;
+          availableWidth = maxWidth - lastPartWidth;
         }
       }
     }
