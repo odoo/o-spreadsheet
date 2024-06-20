@@ -54,9 +54,17 @@ import {
   getCellText,
   getClipboardVisibleZones,
   getEvaluatedCell,
+  getEvaluatedGrid,
   getStyle,
 } from "../test_helpers/getters_helpers";
-import { createEqualCF, getGrid, target, toRangesData } from "../test_helpers/helpers";
+import {
+  createEqualCF,
+  createModelFromGrid,
+  getGrid,
+  target,
+  toRangesData,
+} from "../test_helpers/helpers";
+import { addPivot } from "../test_helpers/pivot_helpers";
 
 let model: Model;
 
@@ -1949,6 +1957,59 @@ describe("clipboard", () => {
     cut(model, "B1");
     paste(model, "C3");
     expect(getCell(model, "C3")!.content).toBe(expectedInvalidFormula);
+  });
+
+  test("copying a spread pivot cell results in the fixed pivot formula", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Customer", B1: "Price", C1: "=PIVOT(1)",
+      A2: "Alice",    B2: "10",
+      A3: "Bob",      B3: "30"
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B3", {
+      columns: [],
+      rows: [{ name: "Customer" }],
+      measures: [{ name: "Price", aggregator: "sum" }],
+    });
+
+    // copy 1 cell
+    copy(model, "D1"); // copy the header Total
+    paste(model, "G4");
+    expect(getEvaluatedCell(model, "G4").value).toBe("Total");
+    expect(getCell(model, "G4")!.content).toBe("=PIVOT.HEADER(1)");
+
+    // copy entire pivot
+    copy(model, "C1:D5");
+    paste(model, "G4");
+    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "G4:H8")).toEqual([
+      ["",                                      "=PIVOT.HEADER(1)"],
+      ["",                                      '=PIVOT.HEADER(1,"measure","Price")'],
+      ['=PIVOT.HEADER(1,"Customer","Alice")',   '=PIVOT.VALUE(1,"Price","Customer","Alice")'],
+      ['=PIVOT.HEADER(1,"Customer","Bob")',     '=PIVOT.VALUE(1,"Price","Customer","Bob")'],
+      ["=PIVOT.HEADER(1)",                      '=PIVOT.VALUE(1,"Price")'],
+    ]);
+  });
+
+  test("copying only the cell with a spread pivot formula doesn't fix the pivot", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Customer", B1: "Price", C1: "=PIVOT(1)",
+      A2: "Alice",    B2: "10",
+      A3: "Bob",      B3: "30"
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B3", {
+      columns: [],
+      rows: [{ name: "Customer" }],
+      measures: [{ name: "Price", aggregator: "sum" }],
+    });
+
+    copy(model, "C1");
+    paste(model, "G4");
+    expect(getCell(model, "G4")!.content).toBe("=PIVOT(1)");
   });
 });
 

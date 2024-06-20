@@ -2,6 +2,7 @@ import { CommandResult } from "..";
 import { canonicalizeNumberValue } from "../formulas/formula_locale";
 import { deepEquals, formatValue } from "../helpers";
 import { getPasteZones } from "../helpers/clipboard/clipboard_helpers";
+import { makePivotFormulaFromPivotCell } from "../helpers/pivot/pivot_helpers";
 import {
   CellPosition,
   ClipboardCell,
@@ -36,28 +37,45 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
 
     const { clippedZones, rowsIndexes, columnsIndexes } = data;
     const clippedCells: ClipboardCell[][] = [];
-
+    const isCopyingOneCell = rowsIndexes.length == 1 && columnsIndexes.length == 1;
     for (let row of rowsIndexes) {
       let cellsInRow: ClipboardCell[] = [];
       for (let col of columnsIndexes) {
         const position = { col, row, sheetId };
-        const spreader = this.getters.getArrayFormulaSpreadingOn(position);
         let cell = this.getters.getCell(position);
         const evaluatedCell = this.getters.getEvaluatedCell(position);
-        if (spreader && !deepEquals(spreader, position)) {
-          const isSpreaderCopied =
-            rowsIndexes.includes(spreader.row) && columnsIndexes.includes(spreader.col);
-          const content = isSpreaderCopied
-            ? ""
-            : formatValue(evaluatedCell.value, { locale: this.getters.getLocale() });
-          cell = {
-            id: cell?.id || "",
-            style: cell?.style,
-            format: evaluatedCell.format,
-            content,
-            isFormula: false,
-            parsedValue: evaluatedCell.value,
-          };
+        const pivotId = this.getters.getPivotIdFromPosition(position);
+        const spreader = this.getters.getArrayFormulaSpreadingOn(position);
+        if (pivotId) {
+          if (!deepEquals(spreader, position) || !isCopyingOneCell) {
+            const pivotCell = this.getters.getPivotCellFromPosition(position);
+            const formulaPivotId = this.getters.getPivotFormulaId(pivotId);
+            const pivotFormula = makePivotFormulaFromPivotCell(formulaPivotId, pivotCell);
+            cell = {
+              id: cell?.id || "",
+              style: cell?.style,
+              format: evaluatedCell.format,
+              content: pivotFormula,
+              isFormula: false,
+              parsedValue: evaluatedCell.value,
+            };
+          }
+        } else {
+          if (spreader && !deepEquals(spreader, position)) {
+            const isSpreaderCopied =
+              rowsIndexes.includes(spreader.row) && columnsIndexes.includes(spreader.col);
+            const content = isSpreaderCopied
+              ? ""
+              : formatValue(evaluatedCell.value, { locale: this.getters.getLocale() });
+            cell = {
+              id: cell?.id || "",
+              style: cell?.style,
+              format: evaluatedCell.format,
+              content,
+              isFormula: false,
+              parsedValue: evaluatedCell.value,
+            };
+          }
         }
         cellsInRow.push({
           cell,
