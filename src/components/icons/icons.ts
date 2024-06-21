@@ -1,4 +1,6 @@
 import { ICON_EDGE_LENGTH } from "../../constants";
+import { iconsOnCellRegistry } from "../../registries/icons_on_cell_registry";
+import { ImageSrc } from "../../types/image";
 import { css } from "../helpers";
 
 css/* scss */ `
@@ -51,50 +53,48 @@ const YELLOW_DOT =
 const RED_DOT =
   '<svg class="o-cf-icon red-dot" width="10" height="10" focusable="false" viewBox="0 0 512 512"><path fill="#E06666" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8z"></path></svg>';
 
-function loadIconImage(svg) {
+function getIconSrc(svg: string): ImageSrc {
   /** We have to add xmlns, as it's not added by owl in the canvas */
   svg = `<svg xmlns="http://www.w3.org/2000/svg" ${svg.slice(4)}`;
-  const image = new Image();
-  image.src = "data:image/svg+xml; charset=utf8, " + encodeURIComponent(svg);
-  return image;
+  return "data:image/svg+xml; charset=utf8, " + encodeURIComponent(svg);
 }
 
 export const ICONS = {
   arrowGood: {
     template: "ARROW_UP",
-    img: loadIconImage(ARROW_UP),
+    img: getIconSrc(ARROW_UP),
   },
   arrowNeutral: {
     template: "ARROW_RIGHT",
-    img: loadIconImage(ARROW_RIGHT),
+    img: getIconSrc(ARROW_RIGHT),
   },
   arrowBad: {
     template: "ARROW_DOWN",
-    img: loadIconImage(ARROW_DOWN),
+    img: getIconSrc(ARROW_DOWN),
   },
   smileyGood: {
     template: "SMILE",
-    img: loadIconImage(SMILE),
+    img: getIconSrc(SMILE),
   },
   smileyNeutral: {
     template: "MEH",
-    img: loadIconImage(MEH),
+    img: getIconSrc(MEH),
   },
   smileyBad: {
     template: "FROWN",
-    img: loadIconImage(FROWN),
+    img: getIconSrc(FROWN),
   },
   dotGood: {
     template: "GREEN_DOT",
-    img: loadIconImage(GREEN_DOT),
+    img: getIconSrc(GREEN_DOT),
   },
   dotNeutral: {
     template: "YELLOW_DOT",
-    img: loadIconImage(YELLOW_DOT),
+    img: getIconSrc(YELLOW_DOT),
   },
   dotBad: {
     template: "RED_DOT",
-    img: loadIconImage(RED_DOT),
+    img: getIconSrc(RED_DOT),
   },
 };
 
@@ -115,3 +115,10 @@ export const ICON_SETS = {
     bad: "dotBad",
   },
 };
+
+iconsOnCellRegistry.add("conditional_formatting", (getters, position) => {
+  const icon = getters.getConditionalIcon(position);
+  if (icon) {
+    return ICONS[icon].img;
+  }
+});

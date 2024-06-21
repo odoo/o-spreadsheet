@@ -141,6 +141,7 @@ import {
 } from "./plugins/index";
 import { UNDO_REDO_PIVOT_COMMANDS } from "./plugins/ui_core_views/pivot_ui";
 import { clickableCellRegistry } from "./registries/cell_clickable_registry";
+import { iconsOnCellRegistry } from "./registries/icons_on_cell_registry";
 import {
   autoCompleteProviders,
   autofillModifiersRegistry,
@@ -249,6 +250,7 @@ export const registries = {
   linkMenuRegistry,
   functionRegistry,
   featurePluginRegistry,
+  iconsOnCellRegistry,
   statefulUIPluginRegistry,
   coreViewsPluginRegistry,
   corePluginRegistry,
