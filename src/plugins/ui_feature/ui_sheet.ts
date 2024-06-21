@@ -9,7 +9,9 @@ import {
   splitTextToWidth,
 } from "../../helpers/index";
 import { localizeFormula } from "../../helpers/locale";
+import { iconsOnCellRegistry } from "../../registries/icons_on_cell_registry";
 import { CellValueType, Command, CommandResult, LocalCommand, UID } from "../../types";
+import { ImageSrc } from "../../types/image";
 import { CellPosition, HeaderIndex, Pixel, Style, Zone } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
@@ -17,6 +19,7 @@ export class SheetUIPlugin extends UIPlugin {
   static getters = [
     "doesCellHaveGridIcon",
     "getCellWidth",
+    "getCellIconSrc",
     "getTextWidth",
     "getCellText",
     "getCellMultiLineText",
@@ -78,7 +81,7 @@ export class SheetUIPlugin extends UIPlugin {
       );
     }
 
-    const icon = this.getters.getConditionalIcon(position);
+    const icon = this.getters.getCellIconSrc(position);
     if (icon) {
       contentWidth += computeIconWidth(style);
     }
@@ -98,6 +101,17 @@ export class SheetUIPlugin extends UIPlugin {
     }
 
     return contentWidth;
+  }
+
+  getCellIconSrc(position: CellPosition): ImageSrc | undefined {
+    const callbacks = iconsOnCellRegistry.getAll();
+    for (const callback of callbacks) {
+      const imageSrc = callback(this.getters, position);
+      if (imageSrc) {
+        return imageSrc;
+      }
+    }
+    return undefined;
   }
 
   getTextWidth(text: string, style: Style): Pixel {

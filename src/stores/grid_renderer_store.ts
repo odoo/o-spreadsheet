@@ -1,5 +1,4 @@
 import { ModelStore } from ".";
-import { ICONS } from "../components/icons/icons";
 import {
   BACKGROUND_HEADER_ACTIVE_COLOR,
   BACKGROUND_HEADER_COLOR,
@@ -27,12 +26,14 @@ import {
   drawDecoratedText,
   getZonesCols,
   getZonesRows,
+  memoize,
   numberToLetters,
   overlap,
   positionToZone,
   union,
 } from "../helpers/index";
 import { Get, Store } from "../store_engine";
+import { ImageSrc } from "../types/image";
 import {
   Align,
   Box,
@@ -596,21 +597,23 @@ export class GridRenderer {
         (cell.type === CellValueType.error && !!cell.message) ||
         this.getters.isDataValidationInvalid(position),
     };
-    if (cell.type === CellValueType.empty || this.getters.isCellValidCheckbox(position)) {
-      return box;
-    }
 
-    /** Icon CF */
-    const cfIcon = this.getters.getConditionalIcon(position);
+    /** Icon */
+    const iconSrc = this.getters.getCellIconSrc(position);
     const fontSizePX = computeTextFontSizeInPixels(box.style);
-    const iconBoxWidth = cfIcon ? MIN_CF_ICON_MARGIN + fontSizePX : 0;
-    if (cfIcon) {
+    const iconBoxWidth = iconSrc ? MIN_CF_ICON_MARGIN + fontSizePX : 0;
+    if (iconSrc) {
+      const imageHtmlElement = loadIconImage(iconSrc);
       box.image = {
         type: "icon",
         size: fontSizePX,
         clipIcon: { x: box.x, y: box.y, width: Math.min(iconBoxWidth, width), height },
-        image: ICONS[cfIcon].img,
+        image: imageHtmlElement,
       };
+    }
+
+    if (cell.type === CellValueType.empty || this.getters.isCellValidCheckbox(position)) {
+      return box;
     }
 
     /** Filter Header or data validation icon */
@@ -637,7 +640,7 @@ export class GridRenderer {
 
     /** ClipRect */
     const isOverflowing = contentWidth > width || fontSizePX > height;
-    if (cfIcon || box.hasIcon) {
+    if (iconSrc || box.hasIcon) {
       box.clipRect = {
         x: box.x + iconBoxWidth,
         y: box.y,
@@ -757,3 +760,9 @@ export class GridRenderer {
     return boxes;
   }
 }
+
+const loadIconImage = memoize(function loadIconImage(src: ImageSrc): HTMLImageElement {
+  const image = new Image();
+  image.src = src;
+  return image;
+});
