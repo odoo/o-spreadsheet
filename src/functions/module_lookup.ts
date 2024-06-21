@@ -778,7 +778,7 @@ export const PIVOT = {
   description: _t("Get a pivot table."),
   args: [
     arg("pivot_id (string)", _t("ID of the pivot.")),
-    arg("row_count (number, optional, default=10000)", _t("number of rows")),
+    arg("row_count (number, optional)", _t("number of rows")),
     arg("include_total (boolean, default=TRUE)", _t("Whether to include total/sub-totals or not.")),
     arg(
       "include_column_titles (boolean, default=TRUE)",
@@ -787,12 +787,15 @@ export const PIVOT = {
   ],
   compute: function (
     pivotFormulaId: Maybe<FPayload>,
-    rowCount: Maybe<FPayload> = { value: 10000 },
+    rowCount: Maybe<FPayload> = { value: Number.MAX_VALUE },
     includeTotal: Maybe<FPayload> = { value: true },
     includeColumnHeaders: Maybe<FPayload> = { value: true }
   ) {
     const _pivotFormulaId = toString(pivotFormulaId);
     const _rowCount = toNumber(rowCount, this.locale);
+    if (_rowCount < 0) {
+      throw new EvaluationError(_t("The number of rows must be positive."));
+    }
     const _includeColumnHeaders = toBoolean(includeColumnHeaders);
     const _includedTotal = toBoolean(includeTotal);
 
@@ -809,9 +812,6 @@ export const PIVOT = {
     const cells = table.getPivotCells(_includedTotal, _includeColumnHeaders);
     const headerRows = _includeColumnHeaders ? table.columns.length : 0;
     const pivotTitle = this.getters.getPivotDisplayName(pivotId);
-    if (_rowCount < 0) {
-      throw new EvaluationError(_t("The number of rows must be positive."));
-    }
     const end = Math.min(headerRows + _rowCount, cells[0].length);
     if (end === 0) {
       return [[{ value: pivotTitle }]];
