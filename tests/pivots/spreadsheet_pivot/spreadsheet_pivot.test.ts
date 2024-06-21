@@ -494,7 +494,7 @@ describe("Spreadsheet Pivot", () => {
   test.each([
     ["sum", 40],
     ["count", 3],
-    ["count_distinct", 2],
+    ["count_distincts", 2],
     ["max", 15],
     ["min", 10],
     ["avg", (10 + 15 + 15) / 3],
