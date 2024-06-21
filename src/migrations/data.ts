@@ -50,6 +50,10 @@ export function load(data?: any, verboseImport?: boolean): WorkbookData {
     }
   }
 
+  if (typeof data === "string") {
+    data = JSON.parse(data);
+  }
+
   // apply migrations, if needed
   if ("version" in data) {
     if (data.version < CURRENT_VERSION) {
@@ -67,7 +71,9 @@ export function load(data?: any, verboseImport?: boolean): WorkbookData {
 interface Migration {
   from: number;
   to: number;
+
   applyMigration(data: any): any;
+
   description: string;
 }
 
@@ -435,11 +441,21 @@ export function repairInitialMessages(
   data: Partial<WorkbookData>,
   initialMessages: StateUpdateMessage[]
 ): StateUpdateMessage[] {
+  initialMessages = supportStringCommands(initialMessages);
   initialMessages = fixTranslatedSheetIds(data, initialMessages);
   initialMessages = dropCommands(initialMessages, "SORT_CELLS");
   initialMessages = dropCommands(initialMessages, "SET_DECIMAL");
   initialMessages = fixChartDefinitions(data, initialMessages);
   return initialMessages;
+}
+
+function supportStringCommands(initialMessages: StateUpdateMessage[]): StateUpdateMessage[] {
+  return initialMessages.map((message) => {
+    if ("commands" in message && typeof message.commands === "string") {
+      message.commands = JSON.parse(message.commands).commands;
+    }
+    return message;
+  });
 }
 
 /**
