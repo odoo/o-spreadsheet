@@ -480,6 +480,42 @@ describe("Spreadsheet Pivot", () => {
     );
   });
 
+  test("PIVOT with limited columns count.", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Date",       B1: "Price", C1: "=PIVOT(1)",
+      A2: "2024-12-28", B2: "10",
+      A3: "2024-11-28", B3: "20",
+      A4: "1995-04-14", B4: "30",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B4", {
+      rows: [],
+      columns: [{ name: "Date", granularity: "day" }],
+      measures: [{ name: "Price", aggregator: "sum" }],
+    });
+
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "C1:H2")).toEqual([
+      ["(#1) Pivot", "12/28/2024", "11/28/2024", "4/14/1995", "Total", ""],
+      ["",           "Price",      "Price",      "Price",     "Price", ""],
+    ]);
+
+    setCellContent(model, "C1", "=PIVOT(1,,,,0)");
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "C1:D2")).toEqual([
+      ["(#1) Pivot", ""],
+      ["",           ""],
+    ]);
+
+    setCellContent(model, "C1", "=PIVOT(1,,,,1)");
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "C1:E2")).toEqual([
+      ["(#1) Pivot", "12/28/2024", ""],
+      ["",           "Price",      ""],
+    ]);
+  });
+
   test("PIVOT.HEADER grand total", () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {

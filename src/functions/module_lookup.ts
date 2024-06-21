@@ -784,17 +784,23 @@ export const PIVOT = {
       "include_column_titles (boolean, default=TRUE)",
       _t("Whether to include the column titles or not.")
     ),
+    arg("column_count (number, optional)", _t("number of columns")),
   ],
   compute: function (
     pivotFormulaId: Maybe<FPayload>,
     rowCount: Maybe<FPayload> = { value: Number.MAX_VALUE },
     includeTotal: Maybe<FPayload> = { value: true },
-    includeColumnHeaders: Maybe<FPayload> = { value: true }
+    includeColumnHeaders: Maybe<FPayload> = { value: true },
+    columnCount: Maybe<FPayload> = { value: Number.MAX_VALUE }
   ) {
     const _pivotFormulaId = toString(pivotFormulaId);
     const _rowCount = toNumber(rowCount, this.locale);
     if (_rowCount < 0) {
       throw new EvaluationError(_t("The number of rows must be positive."));
+    }
+    const _columnCount = toNumber(columnCount, this.locale);
+    if (_columnCount < 0) {
+      throw new EvaluationError(_t("The number of columns must be positive."));
     }
     const _includeColumnHeaders = toBoolean(includeColumnHeaders);
     const _includedTotal = toBoolean(includeTotal);
@@ -812,16 +818,15 @@ export const PIVOT = {
     const cells = table.getPivotCells(_includedTotal, _includeColumnHeaders);
     const headerRows = _includeColumnHeaders ? table.columns.length : 0;
     const pivotTitle = this.getters.getPivotDisplayName(pivotId);
-    const end = Math.min(headerRows + _rowCount, cells[0].length);
-    if (end === 0) {
+    const tableHeight = Math.min(headerRows + _rowCount, cells[0].length);
+    if (tableHeight === 0) {
       return [[{ value: pivotTitle }]];
     }
-    const tableWidth = cells.length;
-    const tableRows = range(0, end);
+    const tableWidth = Math.min(1 + _columnCount, cells.length);
     const result: Matrix<FPayload> = [];
     for (const col of range(0, tableWidth)) {
       result[col] = [];
-      for (const row of tableRows) {
+      for (const row of range(0, tableHeight)) {
         const pivotCell = cells[col][row];
         switch (pivotCell.type) {
           case "EMPTY":
