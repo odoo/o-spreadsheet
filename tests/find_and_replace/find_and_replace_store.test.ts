@@ -2,6 +2,8 @@ import { Model } from "../../src";
 import { FindAndReplaceStore } from "../../src/components/side_panel/find_and_replace/find_and_replace_store";
 import { functionRegistry } from "../../src/functions";
 import { toZone } from "../../src/helpers";
+import { DependencyContainer } from "../../src/store_engine";
+import { NotificationStore } from "../../src/stores/notification_store";
 import { UID } from "../../src/types";
 import { SearchOptions } from "../../src/types/find_and_replace";
 import { DEFAULT_LOCALE } from "../../src/types/locale";
@@ -40,6 +42,7 @@ jest.mock("../../src/helpers/misc.ts", () => {
 
 let model: Model;
 let store: FindAndReplaceStore;
+let container: DependencyContainer;
 
 function p(xc: string) {
   const z = toZone(xc);
@@ -69,7 +72,7 @@ function replaceAll(replaceWith: string) {
 let sheetId1: string;
 const sheetId2 = "s2";
 beforeEach(() => {
-  ({ store, model } = makeStore(FindAndReplaceStore));
+  ({ store, model, container } = makeStore(FindAndReplaceStore));
   sheetId1 = model.getters.getActiveSheetId();
 });
 
@@ -807,4 +810,97 @@ test("Selecting a previous match located in a previous sheet will select the las
   store.selectPreviousMatch();
   expect(getActivePosition(model)).toBe("A1");
   expect(store.selectedMatchIndex).toStrictEqual(0);
+});
+
+describe("replace warnings", () => {
+  test("no warning when replacing a match successfully", () => {
+    setCellContent(model, "A1", "2024");
+
+    const notificationStore = container.get(NotificationStore);
+    const spyNotify = jest.spyOn(notificationStore, "notifyUser");
+
+    updateSearch(model, "2024");
+    replaceSearch("2025");
+
+    expect(spyNotify).not.toHaveBeenCalled();
+  });
+
+  test("warns when trying to replace a match in a formula", () => {
+    setCellContent(model, "A2", "=DATE(2024, 1, 1)");
+
+    const notificationStore = container.get(NotificationStore);
+    const spyNotify = jest.spyOn(notificationStore, "notifyUser");
+
+    updateSearch(model, "2024");
+    replaceSearch("2025");
+
+    expect(spyNotify).toHaveBeenCalledWith({
+      type: "warning",
+      sticky: false,
+      text: "Match(es) cannot be replaced as they are part of a formula.",
+    });
+  });
+
+  test("warns correctly when replacing all matches across all sheets including formulas", () => {
+    setCellContent(model, "A1", "2024");
+    setCellContent(model, "A2", "=DATE(2024, 1, 1)");
+    createSheet(model, { sheetId: "sh2", activate: true });
+    setCellContent(model, "A1", "2024");
+    setCellContent(model, "A2", "=DATE(2024, 1, 1)");
+
+    const notificationStore = container.get(NotificationStore);
+    const spyNotify = jest.spyOn(notificationStore, "notifyUser");
+
+    updateSearch(model, "2024", { searchScope: "allSheets" });
+    replaceAll("2025");
+
+    expect(spyNotify).toHaveBeenCalledWith({
+      type: "warning",
+      sticky: false,
+      text: "2 match(es) replaced. 2 match(es) cannot be replaced as they are part of a formula.",
+    });
+  });
+
+  test("warns with correct counts when replacing all matches in active sheet", () => {
+    setCellContent(model, "A1", "2024");
+    setCellContent(model, "A2", "=DATE(2024, 1, 1)");
+
+    const notificationStore = container.get(NotificationStore);
+    const spyNotify = jest.spyOn(notificationStore, "notifyUser");
+
+    updateSearch(model, "2024", { searchScope: "activeSheet" });
+    replaceAll("2025");
+
+    expect(spyNotify).toHaveBeenCalledWith({
+      type: "warning",
+      sticky: false,
+      text: "1 match(es) replaced. 1 match(es) cannot be replaced as they are part of a formula.",
+    });
+  });
+
+  test("warns correctly when replacing all matches and attempting to replace again", () => {
+    setCellContent(model, "A1", "2024");
+    createSheet(model, { sheetId: "sh2", activate: true });
+    setCellContent(model, "A2", "=DATE(2024, 1, 1)");
+
+    const notificationStore = container.get(NotificationStore);
+    const spyNotify = jest.spyOn(notificationStore, "notifyUser");
+
+    updateSearch(model, "2024", { searchScope: "allSheets" });
+    replaceAll("2025");
+
+    expect(spyNotify).toHaveBeenCalledWith({
+      type: "warning",
+      sticky: false,
+      text: "1 match(es) replaced. 1 match(es) cannot be replaced as they are part of a formula.",
+    });
+
+    replaceAll("2025");
+
+    expect(spyNotify).toHaveBeenCalledWith({
+      type: "warning",
+      sticky: false,
+      text: "Match(es) cannot be replaced as they are part of a formula.",
+    });
+  });
 });

@@ -5,6 +5,8 @@ import { CellPosition, Color, Command, Highlight } from "../../../types";
 import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { Get } from "../../../store_engine";
 import { SpreadsheetStore } from "../../../stores";
+import { NotificationStore } from "../../../stores/notification_store";
+import { _t } from "../../../translation";
 import { SearchOptions } from "../../../types/find_and_replace";
 
 const FIND_AND_REPLACE_HIGHLIGHT_COLOR: Color = "#8B008B";
@@ -32,6 +34,9 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
   private isSearchDirty = false;
   private initialShowFormulaState: boolean;
   private preserveSelectedMatchIndex: boolean = false;
+  private irreplaceableMatchCount: number = 0;
+
+  private notificationStore = this.get(NotificationStore);
 
   // fixme: why do we make selectedMatchIndex on top of a selected
   // property in the matches?
@@ -119,6 +124,13 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
         for (const match of cmd.matches) {
           this.replaceMatch(match, cmd.searchString, cmd.replaceWith, cmd.searchOptions);
         }
+
+        if (this.irreplaceableMatchCount > 0) {
+          this.showReplaceWarningMessage(cmd.matches.length, this.irreplaceableMatchCount);
+        }
+
+        this.irreplaceableMatchCount = 0;
+        break;
     }
   }
 
@@ -321,6 +333,33 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     });
   }
 
+  /**
+   * Show a warning message based on the number of matches replaced and irreplaceable.
+   */
+  private showReplaceWarningMessage(totalMatches: number, irreplaceableMatches: number): void {
+    const replaceableMatches = totalMatches - irreplaceableMatches;
+
+    if (replaceableMatches === 0) {
+      this.notificationStore.notifyUser({
+        type: "warning",
+        sticky: false,
+        text: _t("Match(es) cannot be replaced as they are part of a formula."),
+      });
+    } else {
+      this.notificationStore.notifyUser({
+        type: "warning",
+        sticky: false,
+        text: _t(
+          "%(replaceable_count)s match(es) replaced. %(irreplaceable_count)s match(es) cannot be replaced as they are part of a formula.",
+          {
+            replaceable_count: replaceableMatches,
+            irreplaceable_count: irreplaceableMatches,
+          }
+        ),
+      });
+    }
+  }
+
   private replaceMatch(
     selectedMatch: CellPosition,
     searchString: string,
@@ -333,6 +372,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     }
 
     if (cell?.isFormula && !searchOptions.searchFormulas) {
+      this.irreplaceableMatchCount++;
       return;
     }
 
