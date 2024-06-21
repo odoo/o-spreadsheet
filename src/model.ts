@@ -4,6 +4,7 @@ import { Session } from "./collaborative/session";
 import { DEFAULT_REVISION_ID } from "./constants";
 import { EventBus } from "./helpers/event_bus";
 import { deepCopy, UuidGenerator } from "./helpers/index";
+import { ILongRunner, SynchronousLongRunner } from "./helpers/long_runner";
 import { buildRevisionLog } from "./history/factory";
 import {
   createEmptyExcelWorkbookData,
@@ -108,6 +109,7 @@ export interface ModelConfig {
   readonly notifyUI: (payload: InformationNotification) => void;
   readonly raiseBlockingErrorUI: (text: string) => void;
   readonly customColors: Color[];
+  readonly longRunner: ILongRunner;
 }
 
 export interface ModelExternalConfig {
@@ -159,13 +161,13 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   /**
    * The config object contains some configuration flag and callbacks
    */
-  readonly config: ModelConfig;
+  config: ModelConfig;
   private corePluginConfig: CorePluginConfig;
   private uiPluginConfig: UIPluginConfig;
 
   private state: StateObserver;
 
-  readonly selection: SelectionStreamProcessor;
+  selection: SelectionStreamProcessor;
 
   /**
    * Getters are the main way the rest of the UI read data from the model. Also,
@@ -185,6 +187,10 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private readonly handlers: CommandHandler<Command>[] = [];
   private readonly uiHandlers: CommandHandler<Command>[] = [];
   private readonly coreHandlers: CommandHandler<CoreCommand>[] = [];
+  private workbookData: WorkbookData;
+  private stateUpdateMessages: StateUpdateMessage[];
+  private start: DOMHighResTimeStamp;
+  private readonly longRunner: ILongRunner;
 
   constructor(
     data: any = {},
@@ -193,13 +199,13 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     uuidGenerator: UuidGenerator = new UuidGenerator(),
     verboseImport = true
   ) {
-    const start = performance.now();
-    console.group("Model creation");
     super();
+    this.start = performance.now();
+    console.group("Model creation");
 
-    stateUpdateMessages = repairInitialMessages(data, stateUpdateMessages);
+    this.stateUpdateMessages = repairInitialMessages(data, stateUpdateMessages);
 
-    const workbookData = load(data, verboseImport);
+    this.workbookData = load(data, verboseImport);
 
     this.state = new StateObserver();
 
@@ -207,7 +213,37 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
     this.config = this.setupConfig(config);
 
-    this.session = this.setupSession(workbookData.revisionId);
+    this.longRunner = this.config.longRunner;
+    this.longRunner.on("job-done", this, () => {
+      this.longRunner.off("job-done", this);
+      this.setupLongRunnerEvents();
+
+      this.uuidGenerator.setIsFastStrategy(false);
+
+      // Model should be the last permanent subscriber in the list since he should render
+      // after all changes have been applied to the other subscribers (plugins)
+      this.selection.observe(this, {
+        handleEvent: () => this.trigger("update"),
+      });
+      // This should be done after construction of LocalHistory due to order of
+      // events
+      this.setupSessionEvents();
+
+      this.joinSession();
+
+      if (config.snapshotRequested) {
+        const startSnapshot = performance.now();
+        console.info("Snapshot requested");
+        this.session.snapshot(this.exportData());
+        this.garbageCollectExternalResources();
+        console.info("Snapshot taken in", performance.now() - startSnapshot, "ms");
+      }
+
+      console.info("Model created in", performance.now() - this.start, "ms");
+      console.groupEnd();
+    });
+
+    this.session = this.setupSession(this.workbookData.revisionId);
 
     this.coreGetters = {} as CoreGetters;
 
@@ -229,7 +265,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       isReadonly: () => this.config.mode === "readonly" || this.config.mode === "dashboard",
       isDashboard: () => this.config.mode === "dashboard",
     } as Getters;
-
     this.uuidGenerator.setIsFastStrategy(true);
 
     // Initiate stream processor
@@ -241,13 +276,12 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.corePluginConfig = this.setupCorePluginConfig();
     this.uiPluginConfig = this.setupUiPluginConfig();
 
-    // registering plugins
-    for (let Plugin of corePluginRegistry.getAll()) {
-      this.setupCorePlugin(Plugin, workbookData);
+    for (let CorePlugin of corePluginRegistry.getAll()) {
+      this.setupCorePlugin(CorePlugin, this.workbookData);
     }
     Object.assign(this.getters, this.coreGetters);
 
-    this.session.loadInitialMessages(stateUpdateMessages);
+    this.session.loadInitialMessages(this.stateUpdateMessages);
 
     for (let Plugin of coreViewsPluginRegistry.getAll()) {
       const plugin = this.setupUiPlugin(Plugin);
@@ -268,33 +302,13 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
     }
-    this.uuidGenerator.setIsFastStrategy(false);
 
-    // starting plugins
-    this.dispatch("START");
-    // Model should be the last permanent subscriber in the list since he should render
-    // after all changes have been applied to the other subscribers (plugins)
-    this.selection.observe(this, {
-      handleEvent: () => this.trigger("update"),
-    });
-    // This should be done after construction of LocalHistory due to order of
-    // events
-    this.setupSessionEvents();
-
-    this.joinSession();
-
-    if (config.snapshotRequested) {
-      const startSnapshot = performance.now();
-      console.info("Snapshot requested");
-      this.session.snapshot(this.exportData());
-      this.garbageCollectExternalResources();
-      console.info("Snapshot taken in", performance.now() - startSnapshot, "ms");
-    }
     // mark all models as "raw", so they will not be turned into reactive objects
     // by owl, since we do not rely on reactivity
     markRaw(this);
-    console.info("Model created in", performance.now() - start, "ms");
-    console.groupEnd();
+
+    // starting plugins
+    this.dispatch("START");
   }
 
   joinSession() {
@@ -403,6 +417,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       name: _t("Anonymous").toString(),
     };
     const transportService = config.transportService || new LocalTransportService();
+
     return {
       ...config,
       mode: config.mode || "normal",
@@ -415,6 +430,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       notifyUI: (payload) => this.trigger("notify-ui", payload),
       raiseBlockingErrorUI: (text) => this.trigger("raise-error-ui", { text }),
       customColors: config.customColors || [],
+      longRunner: config.longRunner || new SynchronousLongRunner(),
     };
   }
 
@@ -436,6 +452,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       uuidGenerator: this.uuidGenerator,
       custom: this.config.custom,
       external: this.config.external,
+      longRunner: this.longRunner,
     };
   }
 
@@ -452,6 +469,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       session: this.session,
       defaultCurrencyFormat: this.config.defaultCurrencyFormat,
       customColors: this.config.customColors || [],
+      longRunner: this.longRunner,
     };
   }
 
@@ -679,6 +697,19 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   garbageCollectExternalResources() {
     for (const plugin of this.corePlugins) {
       plugin.garbageCollectExternalResources();
+    }
+  }
+
+  private setupLongRunnerEvents() {
+    if (this.config.mode === "normal") {
+      this.longRunner.on("job-started", this, () => {
+        this.updateMode("readonly");
+        this.trigger("update");
+      });
+      this.longRunner.on("job-done", this, () => {
+        this.updateMode("normal");
+        this.trigger("update");
+      });
     }
   }
 }
