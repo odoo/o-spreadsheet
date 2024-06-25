@@ -24,32 +24,15 @@ export function numberToLetters(n: number): string {
   }
 }
 
-const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" as const;
-const LETTERS_NUMBER_MAPPING = {};
-for (const letter of LETTERS) {
-  const colIndex = letter.charCodeAt(0) - 64;
-  LETTERS_NUMBER_MAPPING[letter] = colIndex;
-  LETTERS_NUMBER_MAPPING[letter.toLowerCase()] = colIndex;
-}
-
-/**
- * Convert a string (describing a column) to its number value.
- *
- * Examples:
- *     'A' => 0
- *     'Z' => 25
- *     'AA' => 26
- */
 export function lettersToNumber(letters: string): number {
-  let result = -1;
+  let result = 0;
   const l = letters.length;
-  let pow = 1;
-  for (let i = l - 1; i >= 0; i--) {
-    const charCode = LETTERS_NUMBER_MAPPING[letters[i]];
-    result += charCode * pow;
-    pow *= 26;
+  for (let i = 0; i < l; i++) {
+    const charCode = letters.charCodeAt(i);
+    const colIndex = charCode >= 65 && charCode <= 90 ? charCode - 64 : charCode - 96;
+    result = result * 26 + colIndex;
   }
-  return result;
+  return result - 1;
 }
 
 function isCharALetter(char: string) {
