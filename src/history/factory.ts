@@ -5,18 +5,20 @@ import { StateObserver } from "../state_observer";
 import { CoreCommand, HistoryChange, UID } from "../types";
 import { SelectiveHistory } from "./selective_history";
 
-export function buildRevisionLog(args: {
-  initialRevisionId: UID;
-  recordChanges: StateObserver["recordChanges"];
-  dispatch: (command: CoreCommand) => void;
-}) {
+export function buildRevisionLog(
+  initialRevisionId: UID,
+  recordChanges: StateObserver["recordChanges"],
+  dispatch: (command: CoreCommand) => void
+) {
   return new SelectiveHistory<Revision>({
-    initialOperationId: args.initialRevisionId,
+    initialOperationId: initialRevisionId,
     applyOperation: (revision: Revision) => {
+      // this is used in the selective_history
+      // (b.e. during fast forward when applying new revisions received from the network)
       const commands = revision.commands.slice();
-      const { changes } = args.recordChanges(() => {
+      const { changes } = recordChanges(() => {
         for (const command of commands) {
-          args.dispatch(command);
+          dispatch(command);
         }
       });
       revision.setChanges(changes);

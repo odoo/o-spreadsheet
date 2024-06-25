@@ -3,8 +3,10 @@ import { ModelConfig } from "../model";
 import { StateObserver } from "../state_observer";
 import {
   ApplyRangeChange,
+  Color,
   CoreCommand,
   CoreCommandDispatcher,
+  Getters,
   RangeProvider,
   UID,
   WorkbookData,
@@ -22,6 +24,7 @@ export interface CorePluginConfig {
   readonly uuidGenerator: UuidGenerator;
   readonly custom: ModelConfig["custom"];
   readonly external: ModelConfig["external"];
+  readonly customColors: Color[];
 }
 
 export interface CorePluginConstructor {
@@ -80,4 +83,8 @@ export class CorePlugin<State = any>
    * stored on a server which have been deleted.
    */
   garbageCollectExternalResources() {}
+}
+
+export class CoreUiPlugin<State = any> extends CorePlugin {
+  protected declare getters: Getters;
 }

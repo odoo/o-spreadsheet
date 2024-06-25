@@ -7,7 +7,7 @@ import {
   invalidateCFEvaluationCommands,
   invalidateEvaluationCommands,
 } from "../../types/commands";
-import { UIPlugin } from "../ui_plugin";
+import { CoreUiPlugin } from "../core_plugin";
 
 interface EvaluationChartStyle {
   background: Color;
@@ -18,7 +18,7 @@ interface EvaluationChartState {
   charts: Record<UID, ChartRuntime | undefined>;
 }
 
-export class EvaluationChartPlugin extends UIPlugin<EvaluationChartState> {
+export class EvaluationChartPlugin extends CoreUiPlugin<EvaluationChartState> {
   static getters = ["getChartRuntime", "getStyleOfSingleCellChart"] as const;
 
   charts: Record<UID, ChartRuntime | undefined> = {};

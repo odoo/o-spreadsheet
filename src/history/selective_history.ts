@@ -26,13 +26,13 @@ export class SelectiveHistory<T = unknown> {
    *
    * Since this data structure doesn't know anything about the state nor the structure of
    * operations, the actual work must be performed by external functions given as parameters.
-   * @param initialOperationId
-   * @param applyOperation a function which can apply an operation to the state
-   * @param revertOperation  a function which can revert an operation from the state
-   * @param buildEmpty  a function returning an "empty" operation.
+   * @param args.initialOperationId
+   * @param args.applyOperation a function which can apply an operation to the state
+   * @param args.revertOperation  a function which can revert an operation from the state
+   * @param args.buildEmpty  a function returning an "empty" operation.
    *                    i.e an operation that leaves the state unmodified once applied or reverted
    *                    (used for internal implementation)
-   * @param buildTransformation Factory used to build transformations
+   * @param args.buildTransformation Factory used to build transformations
    */
   constructor(args: {
     initialOperationId: UID;

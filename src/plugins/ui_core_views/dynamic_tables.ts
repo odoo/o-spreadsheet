@@ -24,9 +24,9 @@ import {
   invalidateEvaluationCommands,
 } from "../../types/index";
 
-import { UIPlugin } from "../ui_plugin";
+import { CoreUiPlugin } from "../core_plugin";
 
-export class DynamicTablesPlugin extends UIPlugin {
+export class DynamicTablesPlugin extends CoreUiPlugin {
   static getters = [
     "canCreateDynamicTableOnZones",
     "doesZonesContainFilter",
