@@ -195,7 +195,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   ) {
     super();
 
-    stateUpdateMessages = repairInitialMessages(data, stateUpdateMessages);
+    const transformedStateUpdateMessages = repairInitialMessages(data, stateUpdateMessages);
 
     const workbookData = load(data, verboseImport);
 
@@ -242,47 +242,49 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       this.setupCorePlugin(Plugin, workbookData);
     }
     Object.assign(this.getters, this.coreGetters);
+    transformedStateUpdateMessages.then(() => {
+      this.session.loadInitialMessages(stateUpdateMessages);
 
-    this.session.loadInitialMessages(stateUpdateMessages);
+      for (let Plugin of coreViewsPluginRegistry.getAll()) {
+        const plugin = this.setupUiPlugin(Plugin);
+        this.coreViewsPlugins.push(plugin);
+        this.handlers.push(plugin);
+        this.uiHandlers.push(plugin);
+        this.coreHandlers.push(plugin);
+      }
+      for (let Plugin of statefulUIPluginRegistry.getAll()) {
+        const plugin = this.setupUiPlugin(Plugin);
+        this.statefulUIPlugins.push(plugin);
+        this.handlers.push(plugin);
+        this.uiHandlers.push(plugin);
+      }
+      for (let Plugin of featurePluginRegistry.getAll()) {
+        const plugin = this.setupUiPlugin(Plugin);
+        this.featurePlugins.push(plugin);
+        this.handlers.push(plugin);
+        this.uiHandlers.push(plugin);
+      }
+      this.uuidGenerator.setIsFastStrategy(false);
 
-    for (let Plugin of coreViewsPluginRegistry.getAll()) {
-      const plugin = this.setupUiPlugin(Plugin);
-      this.coreViewsPlugins.push(plugin);
-      this.handlers.push(plugin);
-      this.uiHandlers.push(plugin);
-      this.coreHandlers.push(plugin);
-    }
-    for (let Plugin of statefulUIPluginRegistry.getAll()) {
-      const plugin = this.setupUiPlugin(Plugin);
-      this.statefulUIPlugins.push(plugin);
-      this.handlers.push(plugin);
-      this.uiHandlers.push(plugin);
-    }
-    for (let Plugin of featurePluginRegistry.getAll()) {
-      const plugin = this.setupUiPlugin(Plugin);
-      this.featurePlugins.push(plugin);
-      this.handlers.push(plugin);
-      this.uiHandlers.push(plugin);
-    }
-    this.uuidGenerator.setIsFastStrategy(false);
+      // starting plugins
+      this.dispatch("START");
+      // Model should be the last permanent subscriber in the list since he should render
+      // after all changes have been applied to the other subscribers (plugins)
+      this.selection.observe(this, {
+        handleEvent: () => this.trigger("update"),
+      });
+      // This should be done after construction of LocalHistory due to order of
+      // events
+      this.setupSessionEvents();
 
-    // starting plugins
-    this.dispatch("START");
-    // Model should be the last permanent subscriber in the list since he should render
-    // after all changes have been applied to the other subscribers (plugins)
-    this.selection.observe(this, {
-      handleEvent: () => this.trigger("update"),
+      this.joinSession();
+
+      if (config.snapshotRequested) {
+        this.session.snapshot(this.exportData());
+        this.garbageCollectExternalResources();
+      }
     });
-    // This should be done after construction of LocalHistory due to order of
-    // events
-    this.setupSessionEvents();
 
-    this.joinSession();
-
-    if (config.snapshotRequested) {
-      this.session.snapshot(this.exportData());
-      this.garbageCollectExternalResources();
-    }
     // mark all models as "raw", so they will not be turned into reactive objects
     // by owl, since we do not rely on reactivity
     markRaw(this);

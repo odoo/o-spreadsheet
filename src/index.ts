@@ -134,15 +134,6 @@ import { RendererStore } from "./stores/renderer_store";
 import { AddFunctionDescription, isMatrix } from "./types";
 import { errorTypes } from "./types/errors";
 import { DEFAULT_LOCALE } from "./types/locale";
-
-/**
- * We export here all entities that needs to be accessed publicly by Odoo.
- *
- * Note that the __info__ key is actually completed by the build process (see
- * the rollup.config.js file)
- */
-
-export const __info__ = {};
 export { Revision } from "./collaborative/revisions";
 export { tokenColors } from "./components/composer/composer/composer";
 export { Spreadsheet } from "./components/index";
@@ -156,6 +147,7 @@ export {
   parseTokens,
 } from "./formulas/parser";
 export { tokenize } from "./formulas/tokenizer";
+export { compress, decompress } from "./helpers/compression";
 export { AbstractChart } from "./helpers/figures/charts";
 export { findCellInNewZone } from "./helpers/zones";
 export { load } from "./migrations/data";
@@ -184,6 +176,15 @@ export {
   readonlyAllowedCommands,
 } from "./types/commands";
 export { CellErrorType, EvaluationError } from "./types/errors";
+
+/**
+ * We export here all entities that needs to be accessed publicly by Odoo.
+ *
+ * Note that the __info__ key is actually completed by the build process (see
+ * the rollup.config.js file)
+ */
+
+export const __info__ = {};
 
 export const SPREADSHEET_DIMENSIONS = {
   MIN_ROW_HEIGHT,

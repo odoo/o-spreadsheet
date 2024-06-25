@@ -1,3 +1,4 @@
+import { decompress } from "../compressions";
 import {
   BACKGROUND_CHART_COLOR,
   DEFAULT_REVISION_ID,
@@ -437,11 +438,11 @@ function setDefaults(partialData: Partial<WorkbookData>): Partial<WorkbookData> 
  * a bug.
  * The bug should obviously be fixed, but it's too late for existing spreadsheet.
  */
-export function repairInitialMessages(
+export async function repairInitialMessages(
   data: Partial<WorkbookData>,
   initialMessages: StateUpdateMessage[]
-): StateUpdateMessage[] {
-  initialMessages = supportStringCommands(initialMessages);
+): Promise<StateUpdateMessage[]> {
+  initialMessages = await supportStringCommands(initialMessages);
   initialMessages = fixTranslatedSheetIds(data, initialMessages);
   initialMessages = dropCommands(initialMessages, "SORT_CELLS");
   initialMessages = dropCommands(initialMessages, "SET_DECIMAL");
@@ -449,13 +450,20 @@ export function repairInitialMessages(
   return initialMessages;
 }
 
-function supportStringCommands(initialMessages: StateUpdateMessage[]): StateUpdateMessage[] {
-  return initialMessages.map((message) => {
-    if ("commands" in message && typeof message.commands === "string") {
-      message.commands = JSON.parse(message.commands).commands;
-    }
-    return message;
-  });
+async function supportStringCommands(
+  initialMessages: StateUpdateMessage[]
+): Promise<StateUpdateMessage[]> {
+  return await Promise.all(
+    initialMessages.map(async (message) => {
+      if ("commands" in message && typeof message.commands === "string") {
+        let commands = JSON.parse(message.commands);
+        let zippedCommands = Uint8Array.from(commands.commands.split(","));
+        message.commands = JSON.parse(await decompress(zippedCommands));
+        debugger;
+      }
+      return message;
+    })
+  );
 }
 
 /**

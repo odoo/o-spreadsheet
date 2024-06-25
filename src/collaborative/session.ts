@@ -1,3 +1,4 @@
+import { compress, decompress } from "../compressions";
 import { DEBOUNCE_TIME, DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../constants";
 import { UuidGenerator } from "../helpers";
 import { EventBus } from "../helpers/event_bus";
@@ -145,7 +146,13 @@ export class Session extends EventBus<CollaborativeEvent> {
       this.clients["local"] = { id: "local", name: "local" };
       this.clientId = "local";
     }
-    this.transportService.onNewMessage(this.clientId, this.onMessageReceived.bind(this));
+    this.transportService.onNewMessage(this.clientId, async (message: CollaborationMessage) => {
+      if (message.type === "REMOTE_REVISION") {
+        //@ts-ignore
+        message.commands = await decompress(message.commands);
+      }
+      this.onMessageReceived(message);
+    });
   }
 
   loadInitialMessages(messages: StateUpdateMessage[]) {
@@ -367,7 +374,7 @@ export class Session extends EventBus<CollaborativeEvent> {
   /**
    * Send the next pending message
    */
-  private sendPendingMessage() {
+  private async sendPendingMessage() {
     let message = this.pendingMessages[0];
     if (!message) return;
     if (message.type === "REMOTE_REVISION") {
@@ -390,7 +397,8 @@ export class Session extends EventBus<CollaborativeEvent> {
       message = {
         ...message,
         clientId: revision.clientId,
-        commands: revision.commands,
+        //@ts-ignore
+        commands: String(await compress(JSON.stringify(revision.commands))),
       };
     }
     if (this.isReplayingInitialRevisions) {
