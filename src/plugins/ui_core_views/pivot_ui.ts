@@ -112,7 +112,10 @@ export class PivotUIPlugin extends UIPlugin {
   getPivotIdFromPosition(position: CellPosition) {
     const cell = this.getters.getCorrespondingFormulaCell(position);
     if (cell && cell.isFormula) {
-      const pivotFunction = this.getFirstPivotFunction(cell.compiledFormula.tokens);
+      const pivotFunction = this.getFirstPivotFunction(
+        position.sheetId,
+        cell.compiledFormula.tokens
+      );
       if (pivotFunction) {
         const pivotId = pivotFunction.args[0]?.toString();
         return pivotId && this.getters.getPivotId(pivotId);
@@ -124,13 +127,16 @@ export class PivotUIPlugin extends UIPlugin {
   isSpillPivotFormula(position: CellPosition) {
     const cell = this.getters.getCorrespondingFormulaCell(position);
     if (cell && cell.isFormula) {
-      const pivotFunction = this.getFirstPivotFunction(cell.compiledFormula.tokens);
+      const pivotFunction = this.getFirstPivotFunction(
+        position.sheetId,
+        cell.compiledFormula.tokens
+      );
       return pivotFunction?.functionName === "PIVOT";
     }
     return false;
   }
 
-  getFirstPivotFunction(tokens: Token[]) {
+  getFirstPivotFunction(sheetId: UID, tokens: Token[]) {
     const pivotFunction = getFirstPivotFunction(tokens);
     if (!pivotFunction) {
       return undefined;
@@ -147,7 +153,7 @@ export class PivotUIPlugin extends UIPlugin {
         return argAst.value;
       }
       const argsString = astToFormula(argAst);
-      return this.getters.evaluateFormula(this.getters.getActiveSheetId(), argsString);
+      return this.getters.evaluateFormula(sheetId, argsString);
     });
     return { functionName, args: evaluatedArgs };
   }
@@ -171,7 +177,10 @@ export class PivotUIPlugin extends UIPlugin {
       return EMPTY_PIVOT_CELL;
     }
     const mainPosition = this.getters.getCellPosition(cell.id);
-    const result = this.getters.getFirstPivotFunction(cell.compiledFormula.tokens);
+    const result = this.getters.getFirstPivotFunction(
+      position.sheetId,
+      cell.compiledFormula.tokens
+    );
     if (!result) {
       return EMPTY_PIVOT_CELL;
     }
