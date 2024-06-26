@@ -255,7 +255,6 @@ pivotTimeAdapterRegistry
   .add("week", nullHandlerDecorator(weekAdapter))
   .add("month", nullHandlerDecorator(monthAdapter))
   .add("quarter", nullHandlerDecorator(quarterAdapter))
-  .add("year", nullHandlerDecorator(yearAdapter))
   .add("day_of_month", nullHandlerDecorator(dayOfMonthAdapter))
   .add("iso_week_number", nullHandlerDecorator(isoWeekNumberAdapter))
   .add("month_number", nullHandlerDecorator(monthNumberAdapter))

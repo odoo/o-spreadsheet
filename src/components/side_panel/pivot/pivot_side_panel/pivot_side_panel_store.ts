@@ -193,7 +193,8 @@ export class PivotSidePanelStore extends SpreadsheetStore {
     for (const dimension of columnsWithGranularity.concat(rowsWithGranularity)) {
       const fieldType = fields[dimension.name]?.type;
       if ((fieldType === "date" || fieldType === "datetime") && !dimension.granularity) {
-        const granularity = unusedGranularities[dimension.name]?.values().next().value || "year";
+        const granularity =
+          unusedGranularities[dimension.name]?.values().next().value || "month_number";
         unusedGranularities[dimension.name]?.delete(granularity);
         dimension.granularity = granularity;
       }
