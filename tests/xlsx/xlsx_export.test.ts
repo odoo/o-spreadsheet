@@ -4,7 +4,7 @@ import { RAND, RANDARRAY, RANDBETWEEN } from "../../src/functions/module_math";
 import { buildSheetLink, toXC } from "../../src/helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { Model } from "../../src/model";
-import { CustomizedDataSet, Dimension, ExcelChartType } from "../../src/types";
+import { Dimension, ExcelChartType } from "../../src/types";
 import { XLSXExportXMLFile, XMLString } from "../../src/types/xlsx";
 import { adaptFormulaToExcel } from "../../src/xlsx/functions/cells";
 import { escapeXml, parseXML } from "../../src/xlsx/helpers/xml_helpers";
@@ -961,38 +961,8 @@ describe("Test XLSX export", () => {
       ],
     };
 
-    test.each([
-      ["line", [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }]],
-      ["scatter", [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }]],
-      ["bar", [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }]],
-      ["combo", [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }]],
-      ["pie", [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }]],
-      ["radar", [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }]],
-      ["line", [{ dataRange: "Sheet1!B1:B4" }]],
-      ["scatter", [{ dataRange: "Sheet1!B1:B4" }]],
-      ["bar", [{ dataRange: "Sheet1!B1:B4" }]],
-      ["combo", [{ dataRange: "Sheet1!B1:B4" }]],
-      ["pie", [{ dataRange: "Sheet1!B1:B4" }]],
-      ["radar", [{ dataRange: "Sheet1!B1:B4" }]],
-    ])(
-      "simple %s chart with dataset %s",
-      async (chartType: string, dataSets: CustomizedDataSet[]) => {
-        const model = new Model(chartData);
-        createChart(
-          model,
-          {
-            dataSets,
-            labelRange: "Sheet1!A2:A4",
-            type: chartType as "line" | "bar" | "pie" | "combo",
-          },
-          "1"
-        );
-        expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
-      }
-    );
-
-    test.each(["line", "scatter", "bar", "combo", "radar"])(
-      "simple %s chart with customized dataset",
+    test.each(["line", "scatter", "bar", "combo", "pie", "radar"])(
+      "Customized %s chart",
       async (chartType: string) => {
         const model = new Model(chartData);
         createChart(
@@ -1005,24 +975,13 @@ describe("Test XLSX export", () => {
                 yAxisId: "y",
                 label: "coucou",
               },
+              {
+                dataRange: "Sheet1!C1:C4",
+                yAxisId: "y1",
+              },
             ],
             labelRange: "Sheet1!A2:A4",
-            type: chartType as "line" | "bar" | "pie" | "combo",
-          },
-          "1"
-        );
-        expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
-      }
-    );
-
-    test.each(["line", "scatter", "bar", "combo", "radar"])(
-      "simple %s chart with customized title",
-      async (chartType: string) => {
-        const model = new Model(chartData);
-        createChart(
-          model,
-          {
-            dataSets: [{ dataRange: "Sheet1!B1:B4" }],
+            type: chartType as "line" | "bar" | "pie" | "combo" | "radar",
             title: {
               text: "Coucou",
               align: "right",
@@ -1030,23 +989,6 @@ describe("Test XLSX export", () => {
               italic: true,
               color: "#ff0000",
             },
-            labelRange: "Sheet1!A2:A4",
-            type: chartType as "line" | "bar" | "pie" | "combo" | "radar",
-          },
-          "1"
-        );
-        expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
-      }
-    );
-
-    test.each(["line", "scatter", "bar", "combo", "radar"] as const)(
-      "simple %s chart with customized axis",
-      async (chartType: string) => {
-        const model = new Model(chartData);
-        createChart(
-          model,
-          {
-            dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
             axesDesign: {
               x: {
                 title: {
@@ -1076,8 +1018,6 @@ describe("Test XLSX export", () => {
                 },
               },
             },
-            labelRange: "Sheet1!A2:A4",
-            type: chartType as "line" | "bar" | "pie" | "combo" | "radar",
           },
           "1"
         );
