@@ -34,7 +34,8 @@ const selectors = {
     ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-checkbox:nth-child(3) input",
   checkBoxReplaceFormulas:
     ".o-sidePanel .o-find-and-replace .o-section:nth-child(3) .o-far-item:nth-child(3) input",
-  searchRangeSelection: ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-type-selector",
+  searchRangeSelection:
+    ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-type-range-selector",
   searchRange: ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-selection-input input",
   resetSearchRange: ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-selection-ko",
   confirmSearchRange: ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-selection-ok",
