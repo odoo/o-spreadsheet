@@ -158,7 +158,7 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
     }
   }
 
-  onClickSheetName(ev: MouseEvent) {
+  onMouseEventSheetName(ev: MouseEvent) {
     if (this.state.isEditing) ev.stopPropagation();
   }
 

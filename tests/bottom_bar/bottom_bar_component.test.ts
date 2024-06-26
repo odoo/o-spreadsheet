@@ -917,5 +917,20 @@ describe("BottomBar component", () => {
       expect(getElComputedStyle('.o-sheet[data-id="Sheet1"]', "position")).toBe("");
       expect(getElComputedStyle('.o-sheet[data-id="Sheet1"]', "left")).toBe("");
     });
+
+    test("Cannot drag & drop sheets by clicking the sheetName in edit mode", async () => {
+      const sheetName = fixture.querySelector<HTMLElement>(".o-sheet-name")!;
+      const sheetId = model.getters.getActiveSheetId();
+      await doubleClick(sheetName);
+      await nextTick();
+      await dragElement(
+        `.o-sheet[data-id="${sheetId}"] .o-sheet-name`,
+        { x: 10, y: 0 },
+        { x: sheetName.getBoundingClientRect().x, y: 0 },
+        false
+      );
+      expect(getElComputedStyle('.o-sheet[data-id="Sheet1"]', "position")).toBe("");
+      expect(getElComputedStyle('.o-sheet[data-id="Sheet1"]', "left")).toBe("");
+    });
   });
 });
