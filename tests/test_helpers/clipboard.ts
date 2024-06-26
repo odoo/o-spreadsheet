@@ -44,7 +44,7 @@ export function getClipboardEvent(
   type: "copy" | "paste" | "cut",
   clipboardData: MockClipboardData
 ) {
-  const event = new Event(type, { bubbles: true });
+  const event = new Event(type, { bubbles: true, cancelable: true });
   //@ts-ignore
   event.clipboardData = clipboardData;
   return event;
