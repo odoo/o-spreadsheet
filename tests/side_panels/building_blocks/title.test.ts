@@ -18,6 +18,16 @@ describe("Chart title", () => {
     expect(fixture).toMatchSnapshot();
   });
 
+  test("Can render a chart title component with default title prop if not provided", async () => {
+    await mountChartTitle({
+      updateTitle: () => {},
+      style: {},
+    });
+
+    const input = fixture.querySelector("input")!;
+    expect(input.value).toBe("");
+  });
+
   test("Update is called when title is changed, not on input", async () => {
     const updateTitle = jest.fn();
     await mountChartTitle({
