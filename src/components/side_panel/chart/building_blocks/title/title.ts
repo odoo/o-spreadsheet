@@ -32,7 +32,7 @@ css/* scss */ `
 `;
 
 interface Props {
-  title: string;
+  title?: string;
   updateTitle: (title: string) => void;
   name?: string;
   toggleItalic?: () => void;
@@ -50,7 +50,7 @@ export class ChartTitle extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet.ChartTitle";
   static components = { Section, ColorPickerWidget };
   static props = {
-    title: String,
+    title: { type: String, optional: true },
     updateTitle: Function,
     name: { type: String, optional: true },
     toggleItalic: { type: Function, optional: true },
@@ -58,6 +58,9 @@ export class ChartTitle extends Component<Props, SpreadsheetChildEnv> {
     updateAlignment: { type: Function, optional: true },
     updateColor: { type: Function, optional: true },
     style: { type: Object, optional: true },
+  };
+  static defaultProps = {
+    title: "",
   };
   openedEl: HTMLElement | null = null;
 
