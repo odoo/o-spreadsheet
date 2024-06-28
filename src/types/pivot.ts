@@ -18,7 +18,6 @@ export type Granularity =
   | "week"
   | "month"
   | "quarter"
-  | "year"
   | "day_of_month"
   | "iso_week_number"
   | "month_number"
