@@ -1,4 +1,4 @@
-import { toNumber, toString } from "../../functions/helpers";
+import { toNumber } from "../../functions/helpers";
 import { Registry } from "../../registries/registry";
 import { _t } from "../../translation";
 import { CellValue, DEFAULT_LOCALE } from "../../types";
@@ -78,25 +78,6 @@ const dayOfMonthAdapter: PivotTimeAdapterNotNull<number> = {
 };
 
 /**
- * Normalized value: "2/2023" for week 2 of 2023
- */
-const weekAdapter: PivotTimeAdapterNotNull<string> = {
-  normalizeFunctionValue(value) {
-    const [week, year] = toString(value).split("/");
-    return `${Number(week)}/${Number(year)}`;
-  },
-  toValueAndFormat(normalizedValue, locale) {
-    const [week, year] = normalizedValue.split("/");
-    return {
-      value: _t("W%(week)s %(year)s", { week, year }),
-    };
-  },
-  toFunctionValue(normalizedValue) {
-    return `"${normalizedValue}"`;
-  },
-};
-
-/**
  * normalizes iso week number
  */
 const isoWeekNumberAdapter: PivotTimeAdapterNotNull<number> = {
@@ -121,26 +102,6 @@ const isoWeekNumberAdapter: PivotTimeAdapterNotNull<number> = {
 };
 
 /**
- * normalized month value is a string formatted as "MM/yyyy" (luxon format)
- * e.g. "01/2020" for January 2020
- */
-const monthAdapter: PivotTimeAdapterNotNull<string> = {
-  normalizeFunctionValue(value) {
-    const date = toNumber(value, DEFAULT_LOCALE);
-    return formatValue(date, { locale: DEFAULT_LOCALE, format: "mm/yyyy" });
-  },
-  toValueAndFormat(normalizedValue) {
-    return {
-      value: toNumber(normalizedValue, DEFAULT_LOCALE),
-      format: "mmmm yyyy",
-    };
-  },
-  toFunctionValue(normalizedValue) {
-    return `"${normalizedValue}"`;
-  },
-};
-
-/**
  * normalizes month number
  */
 const monthNumberAdapter: PivotTimeAdapterNotNull<number> = {
@@ -161,26 +122,6 @@ const monthNumberAdapter: PivotTimeAdapterNotNull<number> = {
   },
   toFunctionValue(normalizedValue) {
     return `${normalizedValue}`;
-  },
-};
-
-/**
- * normalized quarter value is "quarter/year"
- * e.g. "1/2020" for Q1 2020
- */
-const quarterAdapter: PivotTimeAdapterNotNull<string> = {
-  normalizeFunctionValue(value) {
-    const [quarter, year] = toString(value).split("/");
-    return `${quarter}/${year}`;
-  },
-  toValueAndFormat(normalizedValue) {
-    const [quarter, year] = normalizedValue.split("/");
-    return {
-      value: _t("Q%(quarter)s %(year)s", { quarter, year }),
-    };
-  },
-  toFunctionValue(normalizedValue) {
-    return `"${normalizedValue}"`;
   },
 };
 
@@ -252,9 +193,6 @@ function nullHandlerDecorator<T>(adapter: PivotTimeAdapterNotNull<T>): PivotTime
 
 pivotTimeAdapterRegistry
   .add("day", nullHandlerDecorator(dayAdapter))
-  .add("week", nullHandlerDecorator(weekAdapter))
-  .add("month", nullHandlerDecorator(monthAdapter))
-  .add("quarter", nullHandlerDecorator(quarterAdapter))
   .add("year", nullHandlerDecorator(yearAdapter))
   .add("day_of_month", nullHandlerDecorator(dayOfMonthAdapter))
   .add("iso_week_number", nullHandlerDecorator(isoWeekNumberAdapter))

@@ -37,23 +37,7 @@ describe("toNormalizedPivotValue", () => {
       expect(toNormalizedPivotValue(dimension, 1)).toBe(1);
       expect(toNormalizedPivotValue(dimension, "false")).toBe(false);
       expect(toNormalizedPivotValue(dimension, false)).toBe(false);
-      // week
-      dimension.granularity = "week";
-      expect(toNormalizedPivotValue(dimension, "11/2020")).toBe("11/2020");
-      expect(toNormalizedPivotValue(dimension, "1/2020")).toBe("1/2020");
-      expect(toNormalizedPivotValue(dimension, "01/2020")).toBe("1/2020");
-      expect(toNormalizedPivotValue(dimension, "false")).toBe(false);
-      expect(toNormalizedPivotValue(dimension, false)).toBe(false);
-      // month
-      dimension.granularity = "month";
-      expect(toNormalizedPivotValue(dimension, "11/2020")).toBe("11/2020");
-      expect(toNormalizedPivotValue(dimension, "1/2020")).toBe("01/2020");
-      expect(toNormalizedPivotValue(dimension, "01/2020")).toBe("01/2020");
-      expect(toNormalizedPivotValue(dimension, "2/11/2020")).toBe("02/2020");
-      expect(toNormalizedPivotValue(dimension, "2/1/2020")).toBe("02/2020");
-      expect(toNormalizedPivotValue(dimension, 1)).toBe("12/1899");
-      expect(toNormalizedPivotValue(dimension, "false")).toBe(false);
-      expect(toNormalizedPivotValue(dimension, false)).toBe(false);
+
       // year
       dimension.granularity = "year";
       expect(toNormalizedPivotValue(dimension, "2020")).toBe(2020);
@@ -116,11 +100,6 @@ describe("toNormalizedPivotValue", () => {
       expect(() => toNormalizedPivotValue(dimension, 5)).toThrow(
         "5 is not a valid quarter (it should be a number between 1 and 4)"
       );
-
-      dimension.granularity = "month";
-      expect(() => toNormalizedPivotValue(dimension, "true")).toThrow();
-      expect(() => toNormalizedPivotValue(dimension, true)).toThrow();
-      expect(() => toNormalizedPivotValue(dimension, "won")).toThrow();
     }
   });
 
@@ -212,12 +191,6 @@ describe("ToFunctionValue", () => {
     const dimension = { type, granularity: "day" };
     // day
     expect(toFunctionPivotValue("1/11/2020", dimension)).toBe(`"01/11/2020"`);
-    // week
-    dimension.granularity = "week";
-    expect(toFunctionPivotValue("11/2020", dimension)).toBe(`"11/2020"`);
-    // month
-    dimension.granularity = "month";
-    expect(toFunctionPivotValue("11/2020", dimension)).toBe(`"11/2020"`);
     // year
     dimension.granularity = "year";
     expect(toFunctionPivotValue("2020", dimension)).toBe("2020");
