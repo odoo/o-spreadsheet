@@ -107,7 +107,6 @@ export const ALL_PERIODS = {
   month: _t("Month"),
   week: _t("Week"),
   day: _t("Day"),
-  year_number: _t("Year"),
   quarter_number: _t("Quarter"),
   month_number: _t("Month"),
   iso_week_number: _t("Week"),

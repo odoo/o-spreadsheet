@@ -61,12 +61,6 @@ describe("toNormalizedPivotValue", () => {
       expect(toNormalizedPivotValue(dimension, "false")).toBe(false);
       expect(toNormalizedPivotValue(dimension, false)).toBe(false);
 
-      dimension.granularity = "year_number";
-      expect(toNormalizedPivotValue(dimension, "2020")).toBe(2020);
-      expect(toNormalizedPivotValue(dimension, 2020)).toBe(2020);
-      expect(toNormalizedPivotValue(dimension, "false")).toBe(false);
-      expect(toNormalizedPivotValue(dimension, false)).toBe(false);
-
       dimension.granularity = "day_of_month";
       expect(toNormalizedPivotValue(dimension, "1")).toBe(1);
       expect(toNormalizedPivotValue(dimension, 1)).toBe(1);
@@ -226,9 +220,6 @@ describe("ToFunctionValue", () => {
     expect(toFunctionPivotValue("11/2020", dimension)).toBe(`"11/2020"`);
     // year
     dimension.granularity = "year";
-    expect(toFunctionPivotValue("2020", dimension)).toBe("2020");
-
-    dimension.granularity = "year_number";
     expect(toFunctionPivotValue("2020", dimension)).toBe("2020");
 
     dimension.granularity = "day_of_month";
