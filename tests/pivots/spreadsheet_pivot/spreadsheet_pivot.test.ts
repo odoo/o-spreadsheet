@@ -189,7 +189,7 @@ describe("Spreadsheet Pivot", () => {
     expect(getEvaluatedGrid(model, "B26:E26")).toEqual([["3", "2", "Total", ""]]);
 
     updatePivot(model, "1", {
-      columns: [{ name: "Created on", order: "asc", granularity: "year_number" }],
+      columns: [{ name: "Created on", order: "asc", granularity: "year" }],
     });
     expect(getEvaluatedGrid(model, "B26:D26")).toEqual([["2024", "Total", ""]]);
   });
@@ -239,7 +239,7 @@ describe("Spreadsheet Pivot", () => {
     expect(getEvaluatedGrid(model, "A28:A31")).toEqual([["3"], ["2"], ["Total"], [""]]);
 
     updatePivot(model, "1", {
-      rows: [{ name: "Created on", order: "asc", granularity: "year_number" }],
+      rows: [{ name: "Created on", order: "asc", granularity: "year" }],
     });
     expect(getEvaluatedGrid(model, "A28:A30")).toEqual([["2024"], ["Total"], [""]]);
   });

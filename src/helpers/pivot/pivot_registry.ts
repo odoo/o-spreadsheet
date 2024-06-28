@@ -43,7 +43,7 @@ pivotRegistry.add("SPREADSHEET", {
   externalData: false,
   onIterationEndEvaluation: (pivot: SpreadsheetPivot) => pivot.markAsDirtyForEvaluation(),
   granularities: [
-    "year_number",
+    "year",
     "quarter_number",
     "month_number",
     "iso_week_number",

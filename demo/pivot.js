@@ -111,7 +111,7 @@ export function makePivotDataset(rowsNumber = 10_000) {
         rows: [
           {
             name: "Created on",
-            granularity: "year_number",
+            granularity: "year",
             order: "asc",
           },
         ],
