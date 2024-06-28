@@ -16,7 +16,7 @@ export function createDate(dimension: PivotDimension, value: FieldValue["value"]
     const date = toJsDate(value, locale);
     let number: FieldValue["value"] = 0;
     switch (granularity) {
-      case "year_number":
+      case "year":
         number = date.getFullYear();
         break;
       case "quarter_number":
@@ -44,7 +44,7 @@ export function createDate(dimension: PivotDimension, value: FieldValue["value"]
  * This map is used to cache the different values of a pivot date value
  * 43_831 -> 01/01/2012
  * Example: {
- *   year_number: {
+ *   year: {
  *     set: { 43_831 },
  *     values: { '43_831': 2012 }
  *   },
@@ -74,7 +74,7 @@ const MAP_VALUE_DIMENSION_DATE: Record<
   string,
   { set: Set<FieldValue["value"]>; values: Record<string, FieldValue["value"]> }
 > = {
-  year_number: {
+  year: {
     set: new Set<FieldValue["value"]>(),
     values: {},
   },

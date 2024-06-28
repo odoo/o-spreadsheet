@@ -23,8 +23,7 @@ export type Granularity =
   | "day_of_month"
   | "iso_week_number"
   | "month_number"
-  | "quarter_number"
-  | "year_number";
+  | "quarter_number";
 
 export interface PivotCoreDimension {
   name: string;
