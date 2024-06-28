@@ -189,7 +189,7 @@ describe("Spreadsheet Pivot", () => {
     expect(getEvaluatedGrid(model, "B26:E26")).toEqual([["3", "2", "Total", ""]]);
 
     updatePivot(model, "1", {
-      columns: [{ name: "Created on", order: "asc", granularity: "year_number" }],
+      columns: [{ name: "Created on", order: "asc", granularity: "year" }],
     });
     expect(getEvaluatedGrid(model, "B26:D26")).toEqual([["2024", "Total", ""]]);
   });
@@ -239,7 +239,7 @@ describe("Spreadsheet Pivot", () => {
     expect(getEvaluatedGrid(model, "A28:A31")).toEqual([["3"], ["2"], ["Total"], [""]]);
 
     updatePivot(model, "1", {
-      rows: [{ name: "Created on", order: "asc", granularity: "year_number" }],
+      rows: [{ name: "Created on", order: "asc", granularity: "year" }],
     });
     expect(getEvaluatedGrid(model, "A28:A30")).toEqual([["2024"], ["Total"], [""]]);
   });
@@ -623,7 +623,7 @@ describe("Spreadsheet Pivot", () => {
     expect(getEvaluatedCell(model, "A27").value).toBe(aggregatedValue);
   });
 
-  test("PIVOT.VALUE grouped by year_number", () => {
+  test("PIVOT.VALUE grouped by year", () => {
     // prettier-ignore
     const grid = {
       A1: "Date", B1: "Price",
@@ -634,18 +634,18 @@ describe("Spreadsheet Pivot", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:B4", {
       columns: [],
-      rows: [{ name: "Date", granularity: "year_number" }],
+      rows: [{ name: "Date", granularity: "year" }],
       measures: [{ name: "Price", aggregator: "sum" }],
     });
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price", "Date:year_number", 2024)');
+    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price", "Date:year", 2024)');
     expect(getEvaluatedCell(model, "A27").value).toBe(30);
 
     // year as string
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price", "Date:year_number", "2024")');
+    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price", "Date:year", "2024")');
     expect(getEvaluatedCell(model, "A27").value).toBe(30);
 
     // no matching value
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price", "Date:year_number", 1900)');
+    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price", "Date:year", 1900)');
     expect(getEvaluatedCell(model, "A27").value).toBe("");
   });
 
@@ -866,7 +866,7 @@ describe("Spreadsheet Pivot", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:A4", {
       columns: [],
-      rows: [{ name: "Date", granularity: "year_number" }],
+      rows: [{ name: "Date", granularity: "year" }],
       measures: [],
     });
     setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:not_a_granularity", 2024)');
@@ -875,7 +875,7 @@ describe("Spreadsheet Pivot", () => {
     );
   });
 
-  test("PIVOT.HEADER date year_number groupby", () => {
+  test("PIVOT.HEADER date year groupby", () => {
     const grid = {
       A1: "Date",
       A2: "2024-12-31",
@@ -884,22 +884,22 @@ describe("Spreadsheet Pivot", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:A4", {
       columns: [],
-      rows: [{ name: "Date", granularity: "year_number" }],
+      rows: [{ name: "Date", granularity: "year" }],
       measures: [],
     });
-    setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:year_number", 2024)');
+    setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:year", 2024)');
     expect(getEvaluatedCell(model, "A27").value).toBe(2024);
     expect(getEvaluatedCell(model, "A27").format).toBe("0");
 
-    setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:year_number", "2024")');
+    setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:year", "2024")');
     expect(getEvaluatedCell(model, "A28").value).toBe(2024);
 
     // not in the dataset
-    setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:year_number", 2000)');
+    setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:year", 2000)');
     expect(getEvaluatedCell(model, "A29").value).toBe(2000);
 
     // missing header value
-    setCellContent(model, "A30", '=PIVOT.HEADER(1, "Date:year_number", )');
+    setCellContent(model, "A30", '=PIVOT.HEADER(1, "Date:year", )');
     expect(getEvaluatedCell(model, "A30").value).toBe(0);
 
     // without granularity
@@ -909,7 +909,7 @@ describe("Spreadsheet Pivot", () => {
     );
 
     // no a number
-    setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date:year_number", "not a number")');
+    setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date:year", "not a number")');
     expect(getEvaluatedCell(model, "A32").message).toBe(
       "The function PIVOT.HEADER expects a number value, but 'not a number' is a string, and cannot be coerced to a number."
     );
@@ -1289,26 +1289,26 @@ describe("Spreadsheet arguments parsing", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [],
-      rows: [{ name: "Date", granularity: "year_number" }],
+      rows: [{ name: "Date", granularity: "year" }],
       measures: [{ name: "Price", aggregator: "sum" }],
     });
     const pivot = model.getters.getPivot(model.getters.getPivotIds()[0]);
-    expect(pivot.parseArgsToPivotDomain(toFPayload(["Date:year_number", 2024]))).toEqual([
+    expect(pivot.parseArgsToPivotDomain(toFPayload(["Date:year", 2024]))).toEqual([
       {
-        field: "Date:year_number",
+        field: "Date:year",
         value: 2024,
         type: "date",
       },
     ]);
-    expect(pivot.parseArgsToPivotDomain(toFPayload(["Date:year_number", "2024"]))).toEqual([
+    expect(pivot.parseArgsToPivotDomain(toFPayload(["Date:year", "2024"]))).toEqual([
       {
-        field: "Date:year_number",
+        field: "Date:year",
         value: 2024,
         type: "date",
       },
     ]);
     expect(() =>
-      pivot.parseArgsToPivotDomain(toFPayload(["Date:year_number", "This is a string"]))
+      pivot.parseArgsToPivotDomain(toFPayload(["Date:year", "This is a string"]))
     ).toThrow();
     expect(() => pivot.parseArgsToPivotDomain(toFPayload(["Date", 2024]))).toThrow();
   });
@@ -1323,7 +1323,7 @@ describe("Spreadsheet arguments parsing", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [],
-      rows: [{ name: "Amount", granularity: "year_number" }],
+      rows: [{ name: "Amount", granularity: "year" }],
       measures: [{ name: "Price", aggregator: "sum" }],
     });
     const pivot = model.getters.getPivot(model.getters.getPivotIds()[0]);

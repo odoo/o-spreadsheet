@@ -259,5 +259,4 @@ pivotTimeAdapterRegistry
   .add("day_of_month", nullHandlerDecorator(dayOfMonthAdapter))
   .add("iso_week_number", nullHandlerDecorator(isoWeekNumberAdapter))
   .add("month_number", nullHandlerDecorator(monthNumberAdapter))
-  .add("quarter_number", nullHandlerDecorator(quarterNumberAdapter))
-  .add("year_number", nullHandlerDecorator(yearAdapter));
+  .add("quarter_number", nullHandlerDecorator(quarterNumberAdapter));
