@@ -237,7 +237,7 @@ export function createScatterChartRuntime(
   };
 
   for (const dataSet of chartJsConfig.data!.datasets!) {
-    (dataSet as ChartDataset<"line">).showLine = false;
+    (dataSet as ChartDataset<"line">).showLine = (dataSet.order ?? 0) < 0;
   }
 
   return { chartJsConfig, background };

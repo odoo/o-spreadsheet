@@ -4,10 +4,14 @@ import { getDefinedAxis } from "../../../../helpers/figures/charts";
 import { _t } from "../../../../translation";
 import {
   ChartWithAxisDefinition,
+  Color,
   DispatchResult,
   SpreadsheetChildEnv,
+  TrendType,
   UID,
 } from "../../../../types/index";
+import { css } from "../../../helpers";
+import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";
@@ -16,6 +20,12 @@ import {
   AxisDesignEditor,
 } from "../building_blocks/axis_design/axis_design_editor";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
+
+css/* scss */ `
+  .o-degree-input {
+    width: 50%;
+  }
+`;
 
 interface Props {
   figureId: UID;
@@ -32,6 +42,7 @@ export class ChartWithAxisDesignPanel extends Component<Props, SpreadsheetChildE
     Section,
     AxisDesignEditor,
     RoundColorPicker,
+    Checkbox,
   };
   static props = {
     figureId: String,
@@ -65,7 +76,8 @@ export class ChartWithAxisDesignPanel extends Component<Props, SpreadsheetChildE
     if (!runtime || !("chartJsConfig" in runtime)) {
       return [];
     }
-    return runtime.chartJsConfig.data.datasets.map((d) => d.label);
+    const datasets = runtime.chartJsConfig.data.datasets;
+    return this.props.definition.dataSets.map((d, i) => datasets[i].label);
   }
 
   updateSerieEditor(ev) {
@@ -130,5 +142,69 @@ export class ChartWithAxisDesignPanel extends Component<Props, SpreadsheetChildE
   getDataSerieLabel() {
     const dataSets = this.props.definition.dataSets;
     return dataSets[this.state.index]?.label || this.getDataSeries()[this.state.index];
+  }
+
+  updateDataTrend(trend: boolean) {
+    const dataSets = this.props.definition.dataSets;
+    if (!dataSets?.[this.state.index]) return;
+    dataSets[this.state.index] = {
+      ...dataSets[this.state.index],
+      trend: trend
+        ? {
+            type: "polynomial",
+            order: 3,
+            ...dataSets[this.state.index].trend,
+          }
+        : undefined,
+    };
+    this.props.updateChart(this.props.figureId, { dataSets });
+  }
+
+  getDataTrend() {
+    const dataSets = this.props.definition.dataSets;
+    return dataSets?.[this.state.index]?.trend;
+  }
+
+  onChangeTrendType(ev: InputEvent) {
+    const type = (ev.target as HTMLInputElement).value as TrendType;
+    const dataSets = this.props.definition.dataSets;
+    if (!dataSets?.[this.state.index]) return;
+    dataSets[this.state.index] = {
+      ...dataSets[this.state.index],
+      trend: {
+        ...dataSets[this.state.index].trend,
+        type,
+      },
+    };
+    this.props.updateChart(this.props.figureId, { dataSets });
+  }
+
+  onChangePolynomialDegree(ev: InputEvent) {
+    const order = parseInt((ev.target as HTMLInputElement).value);
+    const dataSets = this.props.definition.dataSets;
+    if (!dataSets?.[this.state.index]) return;
+    dataSets[this.state.index] = {
+      ...dataSets[this.state.index],
+      trend: {
+        ...dataSets[this.state.index].trend,
+        type: "polynomial",
+        order,
+      },
+    };
+    this.props.updateChart(this.props.figureId, { dataSets });
+  }
+
+  updateTrendLineColor(color: Color) {
+    const dataSets = this.props.definition.dataSets;
+    if (!dataSets?.[this.state.index]) return;
+    dataSets[this.state.index] = {
+      ...dataSets[this.state.index],
+      trend: {
+        type: "polynomial",
+        ...dataSets[this.state.index].trend,
+        color,
+      },
+    };
+    this.props.updateChart(this.props.figureId, { dataSets });
   }
 }

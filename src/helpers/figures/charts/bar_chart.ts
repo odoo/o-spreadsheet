@@ -1,4 +1,4 @@
-import type { ChartConfiguration, ChartDataset, LegendOptions } from "chart.js";
+import type { ChartDataset, LegendOptions } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
@@ -8,7 +8,6 @@ import {
   CommandResult,
   CoreGetters,
   Getters,
-  LocaleFormat,
   Range,
   RemoveColumnsRowsCommand,
   UID,
@@ -40,6 +39,7 @@ import {
   createDataSets,
   getChartAxisTitleRuntime,
   getDefinedAxis,
+  getTrendDataset,
   shouldRemoveFirstLabel,
   toExcelDataset,
   toExcelLabelRange,
@@ -219,11 +219,26 @@ export class BarChart extends AbstractChart {
   }
 }
 
-function getBarConfiguration(
-  chart: BarChart,
-  labels: string[],
-  localeFormat: LocaleFormat
-): ChartConfiguration {
+export function createBarChartRuntime(chart: BarChart, getters: Getters): BarChartRuntime {
+  const labelValues = getChartLabelValues(getters, chart.dataSets, chart.labelRange);
+  let labels = labelValues.formattedValues;
+  let dataSetsValues = getChartDatasetValues(getters, chart.dataSets);
+  if (
+    chart.dataSetsHaveTitle &&
+    dataSetsValues[0] &&
+    labels.length > dataSetsValues[0].data.length
+  ) {
+    labels.shift();
+  }
+
+  ({ labels, dataSetsValues } = filterEmptyDataPoints(labels, dataSetsValues));
+  if (chart.aggregated) {
+    ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
+  }
+
+  const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
+  const locale = getters.getLocale();
+  const localeFormat = { format: dataSetFormat, locale };
   const fontColor = chartFontColor(chart.background);
   const config = getDefaultChartJsRuntime(chart, labels, fontColor, {
     ...localeFormat,
@@ -292,29 +307,6 @@ function getBarConfiguration(
       config.options.scales!.y1!.stacked = true;
     }
   }
-  return config;
-}
-
-export function createBarChartRuntime(chart: BarChart, getters: Getters): BarChartRuntime {
-  const labelValues = getChartLabelValues(getters, chart.dataSets, chart.labelRange);
-  let labels = labelValues.formattedValues;
-  let dataSetsValues = getChartDatasetValues(getters, chart.dataSets);
-  if (
-    chart.dataSetsHaveTitle &&
-    dataSetsValues[0] &&
-    labels.length > dataSetsValues[0].data.length
-  ) {
-    labels.shift();
-  }
-
-  ({ labels, dataSetsValues } = filterEmptyDataPoints(labels, dataSetsValues));
-  if (chart.aggregated) {
-    ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
-  }
-
-  const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
-  const locale = getters.getLocale();
-  const config = getBarConfiguration(chart, labels, { format: dataSetFormat, locale });
   const colors = new ColorGenerator();
 
   const definition = chart.getDefinition();
@@ -329,6 +321,9 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
     config.data.datasets.push(dataset);
   }
 
+  let maxLength = 0;
+  const trendDatasets: any[] = [];
+
   for (const [index, dataset] of config.data.datasets.entries()) {
     if (definition.dataSets?.[index]?.backgroundColor) {
       const color = definition.dataSets[index].backgroundColor;
@@ -342,6 +337,26 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
     if (definition.dataSets?.[index]?.yAxisId && !chart.horizontal) {
       dataset["yAxisID"] = definition.dataSets[index].yAxisId;
     }
+
+    const trend = definition.dataSets?.[index].trend;
+    if (!trend) {
+      continue;
+    }
+
+    maxLength = Math.max(maxLength, dataset.data.length);
+    const trendDataset = getTrendDataset(trend, dataset);
+    if (trendDataset) {
+      trendDatasets.push(trendDataset);
+    }
+  }
+  if (trendDatasets.length) {
+    config.options.scales.x1 = {
+      ...xAxis,
+      labels: Array(10 * maxLength + 1).fill(""),
+      offset: false,
+      display: false,
+    };
+    trendDatasets.forEach((x) => config.data.datasets!.push(x));
   }
 
   return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };

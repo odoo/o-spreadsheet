@@ -1,5 +1,13 @@
 import { transformZone } from "../../../collaborative/ot/ot_helpers";
 import {
+  evaluatePolynomial,
+  expM,
+  logM,
+  polynomialRegression,
+  predictLinearValues,
+} from "../../../functions/helper_statistical";
+import { _t } from "../../../translation";
+import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
   Color,
@@ -20,6 +28,7 @@ import {
   CustomizedDataSet,
   DataSet,
   ExcelChartDataset,
+  TrendConfiguration,
 } from "../../../types/chart/chart";
 import { CellErrorType } from "../../../types/errors";
 import { relativeLuminance } from "../../color";
@@ -427,4 +436,76 @@ export function getDefinedAxis(definition: ChartWithAxisDefinition): {
   }
   useLeftAxis ||= !useRightAxis;
   return { useLeftAxis, useRightAxis };
+}
+
+export function getTrendDataset(
+  trend: TrendConfiguration,
+  dataset: any,
+  dataExtractor = (y, i) => ({ x: i + 1, y })
+) {
+  const values: number[] = [];
+  const labels: number[] = [];
+  for (const point of dataset.data.map(dataExtractor)) {
+    values.push(point.y);
+    labels.push(point.x - 0);
+  }
+
+  const datasetLength = dataset.data.length;
+  const newAxisLabels: number[] = [];
+  for (let i = 0.5; i < datasetLength + 0.5; i += 0.1) {
+    newAxisLabels.push(i);
+  }
+
+  let yApproximatedValues: number[] = [];
+  switch (trend.type) {
+    case "polynomial": {
+      const order = trend.order ?? 2;
+      const coeffs = polynomialRegression(values, labels, order, true).flat();
+      yApproximatedValues = newAxisLabels.map((v) => evaluatePolynomial(coeffs, v, order));
+      break;
+    }
+    case "linear": {
+      yApproximatedValues = predictLinearValues([values], [labels], [newAxisLabels], true)[0];
+      break;
+    }
+    case "exponential": {
+      const filteredValues: number[] = [];
+      const filteredLabels: number[] = [];
+      for (let i = 0; i < datasetLength; i++) {
+        if (values[i] > 0) {
+          filteredValues.push(Math.log(values[i]));
+          filteredLabels.push(labels[i]);
+        }
+      }
+      if (!filteredLabels.length) {
+        return;
+      }
+      yApproximatedValues = expM(
+        predictLinearValues([filteredValues], [filteredLabels], [newAxisLabels], true)
+      )[0];
+      break;
+    }
+    case "logarithmic": {
+      yApproximatedValues = predictLinearValues(
+        [values],
+        logM([labels]),
+        logM([newAxisLabels]),
+        true
+      )[0];
+      break;
+    }
+    default:
+      return;
+  }
+  return {
+    ...dataset,
+    type: "line",
+    xAxisID: "x1",
+    label: _t("Trend line for %s", dataset.label ?? ""),
+    data: yApproximatedValues,
+    order: -1,
+    pointRadius: 0,
+    backgroundColor: trend.color ?? dataset.backgroundColor,
+    borderColor: trend.color ?? dataset.borderColor,
+  };
 }
