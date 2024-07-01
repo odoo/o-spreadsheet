@@ -185,6 +185,7 @@ export {
   parseTokens,
 } from "./formulas/parser";
 export { tokenize } from "./formulas/tokenizer";
+export { compress, decompress } from "./helpers/compression";
 export { AbstractChart } from "./helpers/figures/charts";
 export { findCellInNewZone } from "./helpers/zones";
 export { load } from "./migrations/data";

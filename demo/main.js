@@ -18,7 +18,7 @@ const {
   onError,
 } = owl;
 
-const { Spreadsheet, Model } = o_spreadsheet;
+const { Spreadsheet, Model, decompress } = o_spreadsheet;
 const { topbarMenuRegistry } = o_spreadsheet.registries;
 const { useStoreProvider } = o_spreadsheet.stores;
 
@@ -304,7 +304,18 @@ class Demo extends Component {
    */
   async fetchHistory() {
     const result = await fetch("http://localhost:9090");
-    return result.json();
+    let jsonResult = await result.json();
+    // add support for compressed commands in a revision during the original load.
+    // Note that some revisions could be compressed and some not (due to history or server manipulation)
+    // so we need to check the type of 'commands' in each revision to decide to decompress or not
+    for (let rev of jsonResult) {
+      if (rev.type === "REMOTE_REVISION") {
+        if (typeof rev.commands !== "object") {
+          rev.commands = JSON.parse(await decompress(rev.commands));
+        }
+      }
+    }
+    return jsonResult;
   }
 }
 
