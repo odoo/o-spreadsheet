@@ -50,6 +50,7 @@ export class Session extends EventBus<CollaborativeEvent> {
 
   private uuidGenerator = new UuidGenerator();
   private lastLocalOperation: Revision | undefined;
+
   /**
    * Manages the collaboration between multiple users on the same spreadsheet.
    * It can forward local state changes to other users to ensure they all eventually
@@ -60,7 +61,6 @@ export class Session extends EventBus<CollaborativeEvent> {
    * @param revisions
    * @param transportService communication channel used to send and receive messages
    * between all connected clients
-   * @param client the client connected locally
    * @param serverRevisionId
    */
   constructor(

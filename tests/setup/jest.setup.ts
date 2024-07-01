@@ -16,6 +16,9 @@ function registerOwlTemplates() {
   }
 }
 
+// Jest does not support streams and blobs. We need to mock compression
+jest.mock("../../src/helpers/compression");
+
 beforeAll(() => {
   registerOwlTemplates();
   setDefaultSheetViewSize(1000);
