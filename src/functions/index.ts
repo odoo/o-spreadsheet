@@ -83,14 +83,27 @@ export class FunctionRegistry extends Registry<FunctionDescription> {
     }
     const descr = addMetaInfoFromArg(addDescr);
     validateArguments(descr.args);
-    this.mapping[name] = addErrorHandling(
-      addInputHandling(descr, addResultHandling(descr.compute, name)),
-      name
-    );
+    this.mapping[name] = createComputeFunction(descr, name);
     super.add(name, descr);
     return this;
   }
 }
+
+export const functionRegistry: FunctionRegistry = new FunctionRegistry();
+
+for (let category of categories) {
+  const fns = category.functions;
+  for (let name in fns) {
+    const addDescr = fns[name];
+    addDescr.category = addDescr.category || category.name;
+    name = name.replace(/_/g, ".");
+    functionRegistry.add(name, { isExported: false, ...addDescr });
+  }
+}
+
+//------------------------------------------------------------------------------
+// CREATE COMPUTE FUNCTION
+//------------------------------------------------------------------------------
 
 type VectorArgType = "horizontal" | "vertical" | "matrix";
 
@@ -98,10 +111,18 @@ const notAvailableError = new NotAvailableError(
   _t("Array arguments to [[FUNCTION_NAME]] are of different size.")
 );
 
-function addInputHandling(
+function createComputeFunction(
   descr: FunctionDescription,
-  compute: ComputeFunction<FPayload | Matrix<FPayload>>
-): ComputeFunction<FPayload | Matrix<FPayload>> {
+  functionName: string
+): ComputeFunction<Matrix<FPayload> | FPayload> {
+  function computeFunction(this: EvalContext, ...args: Arg[]): Matrix<FPayload> | FPayload {
+    try {
+      return computeWithVectorization.apply(this, args);
+    } catch (e) {
+      return handleError(e, functionName);
+    }
+  }
+
   function computeWithVectorization(
     this: EvalContext,
     ...args: Arg[]
@@ -155,7 +176,7 @@ function addInputHandling(
     }
 
     if (countVectorizableCol === 1 && countVectorizableRow === 1) {
-      return compute.apply(this, args);
+      return computeToFPayloadObject.apply(this, args);
     }
 
     const argsVector: (i: number, j: number) => Arg[] = (i, j) =>
@@ -176,7 +197,7 @@ function addInputHandling(
       if (col > vectorizableColLimit - 1 || row > vectorizableRowLimit - 1) {
         return notAvailableError;
       }
-      const matrixElm = compute.apply(this, argsVector(col, row));
+      const matrixElm = computeToFPayloadObject.apply(this, argsVector(col, row));
       // In the case where the user tries to vectorize arguments of an array formula, we will get an
       // array for every combination of the vectorized arguments, which will lead to a 3D matrix and
       // we won't be able to return the values.
@@ -190,25 +211,29 @@ function addInputHandling(
     });
   }
 
-  return computeWithVectorization;
-}
+  function computeToFPayloadObject(this: EvalContext, ...args: Arg[]): FPayload | Matrix<FPayload> {
+    const result = descr.compute.apply(this, args);
 
-function addErrorHandling(
-  compute: ComputeFunction<Matrix<FPayload> | FPayload>,
-  functionName: string
-): ComputeFunction<Matrix<FPayload> | FPayload> {
-  return function (this: EvalContext, ...args: Arg[]): Matrix<FPayload> | FPayload {
-    try {
-      return compute.apply(this, args);
-    } catch (e) {
-      return handleError(e, functionName);
+    if (!isMatrix(result)) {
+      if (typeof result === "object" && result !== null && "value" in result) {
+        replaceFunctionNamePlaceholder(result, functionName);
+        return result;
+      }
+      return { value: result };
     }
-  };
-}
 
-export const implementationErrorMessage = _t(
-  "An unexpected error occurred. Submit a support ticket at odoo.com/help."
-);
+    if (typeof result[0][0] === "object" && result[0][0] !== null && "value" in result[0][0]) {
+      matrixForEach(result as Matrix<FPayload>, (result) =>
+        replaceFunctionNamePlaceholder(result, functionName)
+      );
+      return result as Matrix<FPayload>;
+    }
+
+    return matrixMap(result as Matrix<CellValue>, (row) => ({ value: row }));
+  }
+
+  return computeFunction;
+}
 
 export function handleError(e: unknown, functionName: string): FPayload {
   // the error could be an user error (instance of EvaluationError)
@@ -234,42 +259,6 @@ function hasStringValue(obj: unknown): obj is { value: string } {
   );
 }
 
-function hasStringMessage(obj: unknown): obj is { message: string } {
-  return (
-    (obj as { message: string })?.message !== undefined &&
-    typeof (obj as { message: string }).message === "string"
-  );
-}
-
-function addResultHandling(
-  compute: ComputeFunction<FPayload | Matrix<FPayload> | CellValue | Matrix<CellValue>>,
-  functionName: string
-): ComputeFunction<FPayload | Matrix<FPayload>> {
-  return function computeWithResultHandling(
-    this: EvalContext,
-    ...args: Arg[]
-  ): FPayload | Matrix<FPayload> {
-    const result = compute.apply(this, args);
-
-    if (!isMatrix(result)) {
-      if (typeof result === "object" && result !== null && "value" in result) {
-        replaceFunctionNamePlaceholder(result, functionName);
-        return result;
-      }
-      return { value: result };
-    }
-
-    if (typeof result[0][0] === "object" && result[0][0] !== null && "value" in result[0][0]) {
-      matrixForEach(result as Matrix<FPayload>, (result) =>
-        replaceFunctionNamePlaceholder(result, functionName)
-      );
-      return result as Matrix<FPayload>;
-    }
-
-    return matrixMap(result as Matrix<CellValue>, (row) => ({ value: row }));
-  };
-}
-
 function replaceFunctionNamePlaceholder(fPayload: FPayload, functionName: string) {
   // for performance reasons: change in place and only if needed
   if (fPayload.message?.includes("[[FUNCTION_NAME]]")) {
@@ -277,14 +266,13 @@ function replaceFunctionNamePlaceholder(fPayload: FPayload, functionName: string
   }
 }
 
-export const functionRegistry: FunctionRegistry = new FunctionRegistry();
+export const implementationErrorMessage = _t(
+  "An unexpected error occurred. Submit a support ticket at odoo.com/help."
+);
 
-for (let category of categories) {
-  const fns = category.functions;
-  for (let name in fns) {
-    const addDescr = fns[name];
-    addDescr.category = addDescr.category || category.name;
-    name = name.replace(/_/g, ".");
-    functionRegistry.add(name, { isExported: false, ...addDescr });
-  }
+function hasStringMessage(obj: unknown): obj is { message: string } {
+  return (
+    (obj as { message: string })?.message !== undefined &&
+    typeof (obj as { message: string }).message === "string"
+  );
 }
