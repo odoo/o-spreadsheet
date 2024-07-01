@@ -32,6 +32,7 @@ import { formatValue } from "../../format";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
+  TREND_LINE_XAXIS_ID,
   chartFontColor,
   checkDataset,
   checkLabelRange,
@@ -41,6 +42,7 @@ import {
   createDataSets,
   getChartAxisTitleRuntime,
   getDefinedAxis,
+  getTrendDatasetForBarChart,
   shouldRemoveFirstLabel,
   toExcelDataset,
   toExcelLabelRange,
@@ -323,11 +325,13 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
   };
 
   const colors = new ColorGenerator();
+  let maxLength = 0;
+  const trendDatasets: any[] = [];
 
   for (let [index, { label, data }] of dataSetsValues.entries()) {
     const design = definition.dataSets[index];
     const color = colors.next();
-    const dataset: ChartDataset = {
+    const dataset: ChartDataset<"bar" | "line", number[]> = {
       label: design?.label ?? label,
       data,
       borderColor: design?.backgroundColor ?? color,
@@ -337,6 +341,35 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
       order: -index,
     };
     config.data.datasets.push(dataset);
+
+    const trend = definition.dataSets?.[index].trend;
+    if (!trend?.display) {
+      continue;
+    }
+
+    maxLength = Math.max(maxLength, data.length);
+    const trendDataset = getTrendDatasetForBarChart(trend, dataset);
+    if (trendDataset) {
+      trendDatasets.push(trendDataset);
+    }
+  }
+  if (trendDatasets.length) {
+    /* We add a second x axis here to draw the trend lines, with the labels length being
+     * set so that the second axis points match the classical x axis
+     */
+    config.options.scales[TREND_LINE_XAXIS_ID] = {
+      ticks: {
+        padding: 5,
+        color: fontColor,
+      },
+      labels: Array(10 * maxLength + 1).fill(""),
+      offset: false,
+      display: false,
+    };
+    /* These datasets must be inserted after the original datasets to ensure the way we
+     * distinguish the originals and trendLine datasets after
+     */
+    trendDatasets.forEach((x) => config.data.datasets!.push(x));
   }
 
   return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };

@@ -85,7 +85,18 @@ export interface TitleDesign {
   readonly color?: Color;
 }
 
-export type CustomizedDataSet = { readonly dataRange: string } & DatasetDesign;
+export type TrendType = "polynomial" | "exponential" | "logarithmic";
+export interface TrendConfiguration {
+  type?: TrendType;
+  order?: number;
+  color?: Color;
+  display?: boolean;
+}
+
+export type CustomizedDataSet = {
+  readonly dataRange: string;
+  readonly trend?: TrendConfiguration;
+} & DatasetDesign;
 
 export type AxisType = "category" | "linear" | "time";
 

@@ -29,11 +29,11 @@ import {
   updateChart,
   updateLocale,
 } from "../../test_helpers/commands_helpers";
-import { getPlugin, mockChart, nextTick, target } from "../../test_helpers/helpers";
+import { getPlugin, mockChart, nextTick, setGrid, target } from "../../test_helpers/helpers";
 
 import { ChartTerms } from "../../../src/components/translations_terms";
 import { FIGURE_ID_SPLITTER, MAX_CHAR_LABEL } from "../../../src/constants";
-import { toZone, zoneToXc } from "../../../src/helpers";
+import { range, toZone, zoneToXc } from "../../../src/helpers";
 import { BarChart } from "../../../src/helpers/figures/charts";
 import { ChartPlugin } from "../../../src/plugins/core";
 import { ScatterChartRuntime } from "../../../src/types/chart/scatter_chart";
@@ -2713,4 +2713,196 @@ test("Duplicating a sheet dispatches `CREATE_CHART` for each chart", () => {
   // second chart duplicated
   expect(spyDispatch).toHaveBeenNthCalledWith(3, "CREATE_CHART", expect.any(Object));
   expect(spyDispatch).toHaveBeenNthCalledWith(4, "CREATE_FIGURE", expect.any(Object));
+});
+
+test("trend line dataset are put after original dataset in the runtime", async () => {
+  createChart(
+    model,
+    {
+      dataSets: [
+        {
+          dataRange: "A1:A4",
+          label: "serie_1",
+          trend: {
+            type: "polynomial",
+            order: 3,
+            display: true,
+          },
+        },
+        {
+          dataRange: "B1:B4",
+          label: "serie_2",
+          trend: {
+            type: "polynomial",
+            order: 3,
+            display: true,
+          },
+        },
+      ],
+      labelRange: "A1:A4",
+      type: "line",
+      dataSetsHaveTitle: false,
+    },
+    "1"
+  );
+  const datasets = getChartConfiguration(model, "1").data.datasets;
+  expect(datasets.length).toEqual(4);
+  expect(datasets[0]).toMatchObject({ label: "serie_1" });
+  expect(datasets[1]).toMatchObject({ label: "serie_2" });
+});
+
+test("trend line with time axis use time values as labels", () => {
+  setFormat(model, "C2:C5", "m/d/yyyy");
+  createChart(
+    model,
+    {
+      type: "line",
+      dataSets: [{ dataRange: "B2:B5", trend: { display: true, type: "polynomial", order: 2 } }],
+      labelRange: "C2:C5",
+      labelsAsText: false,
+    },
+    "1"
+  );
+  let config = getChartConfiguration(model, "1");
+  expect(config.options?.scales?.x1).toMatchObject({
+    type: "category",
+    display: false,
+    offset: false,
+    labels: range(0, 16).map((v) => v.toString()),
+  });
+});
+
+test("trend line with categorical axis use values as labels", () => {
+  createChart(
+    model,
+    {
+      type: "line",
+      dataSets: [{ dataRange: "B2:B5", trend: { display: true, type: "polynomial", order: 2 } }],
+      labelRange: "C2:C5",
+      labelsAsText: false,
+    },
+    "1"
+  );
+  const config = getChartConfiguration(model, "1");
+  expect(config.options?.scales?.x1).toMatchObject({
+    type: "category",
+    display: false,
+    offset: false,
+    labels: range(0, 16).map((v) => v.toString()),
+  });
+});
+
+describe("trending line", () => {
+  beforeEach(() => {
+    setGrid(model, {
+      B1: "1",
+      C1: "1",
+      B2: "4",
+      C2: "2",
+      B3: "9",
+      C3: "3",
+      B4: "16",
+      C4: "4",
+      B5: "36",
+      C5: "6",
+    });
+    createChart(
+      model,
+      {
+        type: "line",
+        dataSets: [{ dataRange: "B1:B5", trend: { display: true, type: "polynomial", order: 2 } }],
+        labelRange: "C1:C5",
+        labelsAsText: false,
+        dataSetsHaveTitle: false,
+      },
+      "1"
+    );
+  });
+  test("trend line works with numerical values as labels", () => {
+    const config = getChartConfiguration(model, "1");
+    expect(config.options.scales.x1).toMatchObject({
+      type: "category",
+      display: false,
+      offset: false,
+      labels: range(0, 26).map((v) => v.toString()),
+    });
+    const runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+    const step = (6 - 1) / 25;
+    //@ts-ignore
+    const data = runtime.dataSetsValues[1].data;
+    for (let i = 0; i < data.lenght; i++) {
+      const value = data.lenght;
+      const expectedValue = Math.pow(1 + i * step, 2);
+      expect(value).toEqual(expectedValue);
+    }
+  });
+
+  test("trend line works with datetime values as labels", () => {
+    setFormat(model, "C1:C5", "m/d/yyyy");
+    const config = getChartConfiguration(model, "1");
+    expect(config.options.scales.x1).toMatchObject({
+      type: "category",
+      display: false,
+      offset: false,
+      labels: range(0, 26).map((v) => v.toString()),
+    });
+    const runtime = model.getters.getChartRuntime("1");
+    const step = (5 - 1) / 25;
+    //@ts-ignore
+    const data = runtime.dataSetsValues[1].data;
+    for (let i = 0; i < data.lenght; i++) {
+      const value = data.lenght;
+      const expectedValue = Math.pow(1 + i * step, 2);
+      expect(value).toEqual(expectedValue);
+    }
+  });
+
+  test("trend line works with categorical values as labels", () => {
+    const config = getChartConfiguration(model, "1");
+    expect(config.options.scales.x1).toMatchObject({
+      type: "category",
+      display: false,
+      offset: false,
+      labels: range(0, 26).map((v) => v.toString()),
+    });
+    const runtime = model.getters.getChartRuntime("1");
+    const step = (5 - 1) / 25;
+    //@ts-ignore
+    const data = runtime.dataSetsValues[1].data;
+    for (let i = 0; i < data.lenght; i++) {
+      const value = data.lenght;
+      const expectedValue = Math.pow(1 + i * step, 2);
+      expect(value).toEqual(expectedValue);
+    }
+  });
+
+  test("empty labels are correctly predicted", () => {
+    setGrid(model, {
+      C6: "6",
+      C7: "7",
+      C8: "8",
+      C9: "9",
+      C10: "10",
+    });
+    updateChart(model, "1", {
+      dataSets: [{ dataRange: "B1:B10", trend: { display: true, type: "polynomial", order: 2 } }],
+      labelRange: "C1:C10",
+    });
+    const config = getChartConfiguration(model, "1");
+    expect(config.options.scales.x1).toMatchObject({
+      type: "category",
+      display: false,
+      offset: false,
+      labels: range(0, 51).map((v) => v.toString()),
+    });
+    const runtime = model.getters.getChartRuntime("1");
+    const step = (10 - 1) / 25;
+    //@ts-ignore
+    const data = runtime.dataSetsValues[1].data;
+    for (let i = 0; i < data.lenght; i++) {
+      const value = data.lenght;
+      const expectedValue = Math.pow(1 + i * step, 2);
+      expect(value).toEqual(expectedValue);
+    }
+  });
 });

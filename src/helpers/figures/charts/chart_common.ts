@@ -1,4 +1,13 @@
+import { ChartDataset } from "chart.js";
 import { transformZone } from "../../../collaborative/ot/ot_helpers";
+import {
+  evaluatePolynomial,
+  expM,
+  logM,
+  polynomialRegression,
+  predictLinearValues,
+} from "../../../functions/helper_statistical";
+import { _t } from "../../../translation";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -20,13 +29,16 @@ import {
   CustomizedDataSet,
   DataSet,
   ExcelChartDataset,
+  TrendConfiguration,
 } from "../../../types/chart/chart";
 import { CellErrorType } from "../../../types/errors";
-import { relativeLuminance } from "../../color";
-import { isDefined } from "../../misc";
+import { lightenColor, relativeLuminance } from "../../color";
+import { isDefined, range } from "../../misc";
 import { copyRangeWithNewSheetId } from "../../range";
 import { rangeReference } from "../../references";
 import { getZoneArea, isFullRow, toUnboundedZone, zoneToDimension, zoneToXc } from "../../zones";
+
+export const TREND_LINE_XAXIS_ID = "x1";
 
 /**
  * This file contains helpers that are common to different charts (mainly
@@ -448,4 +460,88 @@ export function computeChartPadding({
     top = 10;
   }
   return { left: 20, right: 20, top, bottom: 10 };
+}
+
+export function getTrendDatasetForBarChart(
+  config: TrendConfiguration,
+  dataset: ChartDataset<"bar" | "line", number[]>
+) {
+  const filteredValues: number[] = [];
+  const filteredLabels: number[] = [];
+  const labels: number[] = [];
+  for (let i = 0; i < dataset.data.length; i++) {
+    if (dataset.data[i] !== null) {
+      filteredValues.push(dataset.data[i]);
+      filteredLabels.push(i + 1);
+    }
+    labels.push(i + 1);
+  }
+
+  const newLabels = range(0.5, labels.length + 0.55, 0.2);
+  const newValues = interpolateData(config, filteredValues, filteredLabels, newLabels);
+  if (!newValues.length) {
+    return;
+  }
+  return getFullTrendingLineDataSet(dataset, config, newValues);
+}
+
+export function getFullTrendingLineDataSet(
+  dataset: ChartDataset,
+  config: TrendConfiguration,
+  data: number[]
+) {
+  const backgroundColor = config.color ?? lightenColor(dataset.backgroundColor as string, 0.5);
+  return {
+    ...dataset,
+    type: "line",
+    xAxisID: TREND_LINE_XAXIS_ID,
+    label: dataset.label ? _t("Trend line for %s", dataset.label) : "",
+    data,
+    order: -1,
+    showLine: true,
+    pointRadius: 0,
+    backgroundColor,
+    borderColor: backgroundColor,
+    borderDash: [5, 5],
+  };
+}
+
+export function interpolateData(
+  config: TrendConfiguration,
+  values: number[],
+  labels: number[],
+  newLabels: number[]
+): number[] {
+  if (values.length === 0 || labels.length === 0 || newLabels.length === 0) {
+    return [];
+  }
+  switch (config.type) {
+    case "polynomial": {
+      const order = config.order ?? 2;
+      if (order === 1) {
+        return predictLinearValues([values], [labels], [newLabels], true)[0];
+      }
+      const coeffs = polynomialRegression(values, labels, order, true).flat();
+      return newLabels.map((v) => evaluatePolynomial(coeffs, v, order));
+    }
+    case "exponential": {
+      const positiveLogValues: number[] = [];
+      const filteredLabels: number[] = [];
+      for (let i = 0; i < values.length; i++) {
+        if (values[i] > 0) {
+          positiveLogValues.push(Math.log(values[i]));
+          filteredLabels.push(labels[i]);
+        }
+      }
+      if (!filteredLabels.length) {
+        return [];
+      }
+      return expM(predictLinearValues([positiveLogValues], [filteredLabels], [newLabels], true))[0];
+    }
+    case "logarithmic": {
+      return predictLinearValues([values], logM([labels]), logM([newLabels]), true)[0];
+    }
+    default:
+      return [];
+  }
 }

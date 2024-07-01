@@ -1,17 +1,27 @@
 import { ChartConfiguration, ChartDataset, LegendOptions } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
 import { BACKGROUND_CHART_COLOR, LINE_FILL_TRANSPARENCY } from "../../../constants";
-import { Color, Format, Getters, LocaleFormat, Range } from "../../../types";
-import { AxisType, DatasetValues, LabelValues } from "../../../types/chart/chart";
+import { toJsDate, toNumber } from "../../../functions/helpers";
+import { Color, Format, Getters, Locale, Range } from "../../../types";
+import {
+  AxisType,
+  DatasetValues,
+  LabelValues,
+  TrendConfiguration,
+} from "../../../types/chart/chart";
 import { getChartTimeOptions, timeFormatLuxonCompatible } from "../../chart_date";
 import { ColorGenerator, colorToRGBA, rgbaToHex } from "../../color";
 import { formatValue } from "../../format";
-import { deepCopy, findNextDefinedValue } from "../../misc";
+import { deepCopy, findNextDefinedValue, range } from "../../misc";
+import { isNumber } from "../../numbers";
 import {
+  TREND_LINE_XAXIS_ID,
   chartFontColor,
   computeChartPadding,
   getChartAxisTitleRuntime,
   getDefinedAxis,
+  getFullTrendingLineDataSet,
+  interpolateData,
 } from "./chart_common";
 import {
   aggregateDataForLabels,
@@ -114,11 +124,101 @@ function isLuxonTimeAdapterInstalled() {
   return isInstalled;
 }
 
-function getLineOrScatterConfiguration(
+function getTrendDatasetForLineChart(
+  config: TrendConfiguration,
+  dataset: any,
+  axisType: AxisType,
+  locale: Locale
+): DatasetValues | undefined {
+  const filteredValues: number[] = [];
+  const filteredLabels: number[] = [];
+  const labels: number[] = [];
+  const datasetLength = dataset.data.length;
+  switch (axisType) {
+    case "category":
+      for (let i = 0; i < datasetLength; i++) {
+        if (dataset.data[i] !== null) {
+          filteredValues.push(dataset.data[i]);
+          filteredLabels.push(i + 1);
+        }
+        labels.push(i + 1);
+      }
+      break;
+    case "linear":
+      for (const point of dataset.data) {
+        const label = Number(point.x);
+        if (isNaN(label)) {
+          continue;
+        }
+        if (point.y !== null) {
+          filteredValues.push(point.y);
+          filteredLabels.push(label);
+        }
+        labels.push(label);
+      }
+      break;
+    case "time":
+      for (const point of dataset.data) {
+        const date = toJsDate({ value: point.x }, locale).getTime();
+        if (point.y !== null) {
+          filteredValues.push(point.y);
+          filteredLabels.push(date);
+        }
+        labels.push(date);
+      }
+      break;
+  }
+
+  const xmin = Math.min(...labels);
+  const xmax = Math.max(...labels);
+  if (xmax === xmin) {
+    return;
+  }
+  const numberOfStep = 5 * labels.length;
+  const step = (xmax - xmin) / numberOfStep;
+  const newLabels = range(xmin, xmax + step / 2, step);
+  const newValues = interpolateData(config, filteredValues, filteredLabels, newLabels);
+  if (!newValues.length) {
+    return;
+  }
+  return getFullTrendingLineDataSet(dataset, config, newValues);
+}
+
+export function createLineOrScatterChartRuntime(
   chart: LineChart | ScatterChart,
-  labels: string[],
-  options: LocaleFormat & { truncateLabels?: boolean }
-): Required<ChartConfiguration> {
+  getters: Getters
+): {
+  chartJsConfig: ChartConfiguration;
+  background: Color;
+  dataSetsValues: DatasetValues[];
+  labelValues: LabelValues;
+  dataSetFormat: Format | undefined;
+  labelFormat: Format | undefined;
+} {
+  const axisType = getChartAxisType(chart, getters);
+  const labelValues = getChartLabelValues(getters, chart.dataSets, chart.labelRange);
+  let labels = axisType === "linear" ? labelValues.values : labelValues.formattedValues;
+  let dataSetsValues = getChartDatasetValues(getters, chart.dataSets);
+  if (
+    chart.dataSetsHaveTitle &&
+    dataSetsValues[0] &&
+    labels.length > dataSetsValues[0].data.length
+  ) {
+    labels.shift();
+  }
+
+  ({ labels, dataSetsValues } = filterEmptyDataPoints(labels, dataSetsValues));
+  if (axisType === "time") {
+    ({ labels, dataSetsValues } = fixEmptyLabelsForDateCharts(labels, dataSetsValues));
+  }
+  if (chart.aggregated) {
+    ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
+  }
+
+  const locale = getters.getLocale();
+  const truncateLabels = axisType === "category";
+  const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
+  const options = { format: dataSetFormat, locale, truncateLabels };
   const fontColor = chartFontColor(chart.background);
   const config = getDefaultChartJsRuntime(chart, labels, fontColor, options);
 
@@ -149,14 +249,16 @@ function getLineOrScatterConfiguration(
     }),
   };
 
-  config.options.scales = {
-    x: {
-      ticks: {
-        padding: 5,
-        color: fontColor,
-      },
-      title: getChartAxisTitleRuntime(chart.axesDesign?.x),
+  const xAxis = {
+    ticks: {
+      padding: 5,
+      color: fontColor,
     },
+    title: getChartAxisTitleRuntime(chart.axesDesign?.x),
+  };
+
+  config.options.scales = {
+    x: xAxis,
   };
   const formatCallback = (value) => {
     value = Number(value);
@@ -204,24 +306,7 @@ function getLineOrScatterConfiguration(
     background: chart.background,
     callback: formatCallback,
   };
-  return config;
-}
 
-export function createLineOrScatterChartRuntime(
-  chart: LineChart | ScatterChart,
-  getters: Getters
-): {
-  chartJsConfig: ChartConfiguration;
-  background: Color;
-  dataSetsValues: DatasetValues[];
-  labelValues: LabelValues;
-  dataSetFormat: Format | undefined;
-  labelFormat: Format | undefined;
-} {
-  const axisType = getChartAxisType(chart, getters);
-  const labelValues = getChartLabelValues(getters, chart.dataSets, chart.labelRange);
-  let labels = axisType === "linear" ? labelValues.values : labelValues.formattedValues;
-  let dataSetsValues = getChartDatasetValues(getters, chart.dataSets);
   if (
     chart.dataSetsHaveTitle &&
     dataSetsValues[0] &&
@@ -230,19 +315,6 @@ export function createLineOrScatterChartRuntime(
     labels.shift();
   }
 
-  ({ labels, dataSetsValues } = filterEmptyDataPoints(labels, dataSetsValues));
-  if (axisType === "time") {
-    ({ labels, dataSetsValues } = fixEmptyLabelsForDateCharts(labels, dataSetsValues));
-  }
-  if (chart.aggregated) {
-    ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
-  }
-
-  const locale = getters.getLocale();
-  const truncateLabels = axisType === "category";
-  const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
-  const options = { format: dataSetFormat, locale, truncateLabels };
-  const config = getLineOrScatterConfiguration(chart, labels, options);
   const labelFormat = getChartLabelFormat(getters, chart.labelRange)!;
   if (axisType === "time") {
     const axis = {
@@ -255,11 +327,19 @@ export function createLineOrScatterChartRuntime(
     config.options.scales!.x!.type = "linear";
     config.options.scales!.x!.ticks!.callback = (value) =>
       formatValue(value, { format: labelFormat, locale });
-    config.options.plugins!.tooltip!.callbacks!.title = (tooltipItem) => {
-      return formatValue(tooltipItem[0].parsed.x || tooltipItem[0].label, {
-        locale,
-        format: labelFormat,
-      });
+    config.options.plugins!.tooltip!.callbacks!.title = () => "";
+    config.options.plugins!.tooltip!.callbacks!.label = (tooltipItem) => {
+      const dataSetPoint = dataSetsValues[tooltipItem.datasetIndex!].data![tooltipItem.dataIndex!];
+      let label: string | number = tooltipItem.label || labelValues.values[tooltipItem.dataIndex!];
+      if (isNumber(label, locale)) {
+        label = toNumber(label, locale);
+      }
+      const formattedX = formatValue(label, { locale, format: labelFormat });
+      const formattedY = formatValue(dataSetPoint, { locale, format: dataSetFormat });
+      const dataSetTitle = tooltipItem.dataset.label;
+      return formattedX
+        ? `${dataSetTitle}: (${formattedX}, ${formattedY})`
+        : `${dataSetTitle}: ${formattedY}`;
     };
   }
 
@@ -304,6 +384,9 @@ export function createLineOrScatterChartRuntime(
     config.data!.datasets!.push(dataset);
   }
 
+  let maxLength = 0;
+  const trendDatasets: any[] = [];
+
   for (const [index, dataset] of config.data.datasets.entries()) {
     if (definition.dataSets?.[index]?.backgroundColor) {
       const color = definition.dataSets[index].backgroundColor;
@@ -319,6 +402,34 @@ export function createLineOrScatterChartRuntime(
     if (definition.dataSets?.[index]?.yAxisId) {
       dataset["yAxisID"] = definition.dataSets[index].yAxisId;
     }
+
+    const trend = definition.dataSets?.[index].trend;
+    if (!trend?.display) {
+      continue;
+    }
+
+    const trendDataset = getTrendDatasetForLineChart(trend, dataset, axisType, locale);
+    if (trendDataset) {
+      maxLength = Math.max(maxLength, trendDataset.data.length);
+      trendDatasets.push(trendDataset);
+      dataSetsValues.push(trendDataset);
+    }
+  }
+  if (trendDatasets.length) {
+    /* We add a second x axis here to draw the trend lines, with the labels length being
+     * set so that the second axis points match the classical x axis
+     */
+    config.options.scales[TREND_LINE_XAXIS_ID] = {
+      ...xAxis,
+      type: "category",
+      labels: range(0, maxLength).map((x) => x.toString()),
+      offset: false,
+      display: false,
+    };
+    /* These datasets must be inserted after the original datasets to ensure the way we
+     * distinguish the originals and trendLine datasets after
+     */
+    trendDatasets.forEach((x) => config.data.datasets!.push(x));
   }
 
   return {

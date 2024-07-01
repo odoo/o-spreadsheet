@@ -1,6 +1,5 @@
 import { ChartDataset } from "chart.js";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
-import { toNumber } from "../../../functions/helpers";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -25,8 +24,6 @@ import { LegendPosition } from "../../../types/chart/common_chart";
 import { ScatterChartDefinition, ScatterChartRuntime } from "../../../types/chart/scatter_chart";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
-import { formatValue } from "../../format";
-import { isNumber } from "../../numbers";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
@@ -216,32 +213,12 @@ export function createScatterChartRuntime(
   chart: ScatterChart,
   getters: Getters
 ): ScatterChartRuntime {
-  const { chartJsConfig, background, dataSetsValues, dataSetFormat, labelValues, labelFormat } =
-    createLineOrScatterChartRuntime(chart, getters);
+  const { chartJsConfig, background } = createLineOrScatterChartRuntime(chart, getters);
   // use chartJS line chart and disable the lines instead of chartJS scatter chart. This is because the scatter chart
   // have less options than the line chart (it only works with linear labels)
   chartJsConfig.type = "line";
-
-  const configOptions = chartJsConfig.options!;
-  const locale = getters.getLocale();
-
-  configOptions.plugins!.tooltip!.callbacks!.title = () => "";
-  configOptions.plugins!.tooltip!.callbacks!.label = (tooltipItem) => {
-    const dataSetPoint = dataSetsValues[tooltipItem.datasetIndex!].data![tooltipItem.dataIndex!];
-    let label: string | number = tooltipItem.label || labelValues.values[tooltipItem.dataIndex!];
-    if (isNumber(label, locale)) {
-      label = toNumber(label, locale);
-    }
-    const formattedX = formatValue(label, { locale, format: labelFormat });
-    const formattedY = formatValue(dataSetPoint, { locale, format: dataSetFormat });
-    const dataSetTitle = tooltipItem.dataset.label;
-    return formattedX
-      ? `${dataSetTitle}: (${formattedX}, ${formattedY})`
-      : `${dataSetTitle}: ${formattedY}`;
-  };
-
   for (const dataSet of chartJsConfig.data!.datasets!) {
-    (dataSet as ChartDataset<"line">).showLine = false;
+    (dataSet as ChartDataset<"line">).showLine = "showLine" in dataSet ? dataSet.showLine : false;
   }
 
   return { chartJsConfig, background };
