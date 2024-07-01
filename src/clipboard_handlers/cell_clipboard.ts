@@ -47,7 +47,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
         const pivotId = this.getters.getPivotIdFromPosition(position);
         const spreader = this.getters.getArrayFormulaSpreadingOn(position);
         if (pivotId) {
-          if (!deepEquals(spreader, position) || !isCopyingOneCell) {
+          if (spreader && (!deepEquals(spreader, position) || !isCopyingOneCell)) {
             const pivotCell = this.getters.getPivotCellFromPosition(position);
             const formulaPivotId = this.getters.getPivotFormulaId(pivotId);
             const pivotFormula = createPivotFormula(formulaPivotId, pivotCell);
