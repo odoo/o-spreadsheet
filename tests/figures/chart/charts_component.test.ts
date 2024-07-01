@@ -4,8 +4,14 @@ import { ChartTerms } from "../../../src/components/translations_terms";
 import { BACKGROUND_CHART_COLOR } from "../../../src/constants";
 import { toHex, toZone } from "../../../src/helpers";
 import { ScorecardChart } from "../../../src/helpers/figures/charts";
-import { CHART_TYPES, ChartDefinition, ChartType, SpreadsheetChildEnv } from "../../../src/types";
-import { BarChartDefinition } from "../../../src/types/chart/bar_chart";
+import {
+  CHART_TYPES,
+  ChartDefinition,
+  ChartType,
+  ChartWithAxisDefinition,
+  SpreadsheetChildEnv,
+} from "../../../src/types";
+import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
 import { getChartConfiguration } from "../../test_helpers/chart_helpers";
 import {
@@ -39,6 +45,7 @@ import {
   mountComponentWithPortalTarget,
   mountSpreadsheet as mountSpreadsheetHelper,
   nextTick,
+  setGrid,
   spyModelDispatch,
   textContentAll,
 } from "../../test_helpers/helpers";
@@ -1578,6 +1585,171 @@ describe("charts", () => {
       checkbox = document.querySelector("input[name='dataSetsHaveTitle']") as HTMLInputElement;
       expect(checkbox.checked).toBe(true);
     });
+  });
+
+  describe("trend line", () => {
+    beforeEach(() => {
+      //@prettier-ignore
+      setGrid(model, {
+        A1: "1",
+        B1: "1",
+        A2: "2",
+        B2: "4",
+        A3: "3",
+        B3: "27",
+        A4: "4",
+        B4: "64",
+      });
+    });
+    test.each(["bar", "line", "scatter", "combo"] as const)(
+      "trend line check/uncheck",
+      async (type: "bar" | "line" | "scatter" | "combo") => {
+        createChart(
+          model,
+          {
+            dataSets: [{ dataRange: "B1:B4" }],
+            labelRange: "A1:A4",
+            type,
+            dataSetsHaveTitle: false,
+          },
+          chartId,
+          sheetId
+        );
+        await mountChartSidePanel(chartId);
+        await openChartDesignSidePanel(chartId);
+
+        const checkbox = document.querySelector("input[name='showTrendLine']") as HTMLInputElement;
+        expect(checkbox.checked).toBe(false);
+        let runtime = model.getters.getChartRuntime(chartId) as BarChartRuntime;
+        expect(runtime.chartJsConfig.data.datasets.length).toEqual(1);
+
+        await simulateClick(checkbox);
+        let definition = model.getters.getChartDefinition(chartId) as ChartWithAxisDefinition;
+        expect(definition.dataSets[0].trend).toEqual({
+          type: "polynomial",
+          order: 1,
+          display: true,
+        });
+        runtime = model.getters.getChartRuntime(chartId) as BarChartRuntime;
+        expect(runtime.chartJsConfig.data.datasets.length).toEqual(2);
+
+        await simulateClick(checkbox);
+        definition = model.getters.getChartDefinition(chartId) as ChartWithAxisDefinition;
+        expect(definition.dataSets[0].trend).toEqual({
+          type: "polynomial",
+          order: 1,
+          display: false,
+        });
+        runtime = model.getters.getChartRuntime(chartId) as BarChartRuntime;
+        expect(runtime.chartJsConfig.data.datasets.length).toEqual(1);
+      }
+    );
+
+    test.each(["bar", "line", "scatter", "combo"] as const)(
+      "Can change trend type",
+      async (type: "bar" | "line" | "scatter" | "combo") => {
+        createChart(
+          model,
+          {
+            dataSets: [
+              { dataRange: "B1:B4", trend: { type: "polynomial", order: 3, display: true } },
+            ],
+            labelRange: "A1:A4",
+            type,
+            dataSetsHaveTitle: false,
+          },
+          chartId,
+          sheetId
+        );
+        await mountChartSidePanel(chartId);
+        await openChartDesignSidePanel(chartId);
+
+        let definition = model.getters.getChartDefinition(chartId) as ChartWithAxisDefinition;
+        expect(definition.dataSets[0].trend).toEqual({
+          type: "polynomial",
+          order: 3,
+          display: true,
+        });
+
+        for (const trendType of ["exponential", "logarithmic", "linear"]) {
+          setInputValueAndTrigger(".trend-type-selector", trendType);
+          definition = model.getters.getChartDefinition(chartId) as ChartWithAxisDefinition;
+          if (trendType === "linear") {
+            expect(definition.dataSets[0].trend?.type).toEqual("polynomial");
+            expect(definition.dataSets[0].trend?.order).toEqual(1);
+          } else {
+            expect(definition.dataSets[0].trend?.type).toEqual(trendType);
+          }
+        }
+      }
+    );
+
+    test.each(["bar", "line", "scatter", "combo"] as const)(
+      "Can change polynome degree",
+      async (type: "bar" | "line" | "scatter" | "combo") => {
+        createChart(
+          model,
+          {
+            dataSets: [
+              { dataRange: "B1:B4", trend: { type: "polynomial", order: 3, display: true } },
+            ],
+            labelRange: "A1:A4",
+            type,
+            dataSetsHaveTitle: false,
+          },
+          chartId,
+          sheetId
+        );
+        await mountChartSidePanel(chartId);
+        await openChartDesignSidePanel(chartId);
+
+        let definition = model.getters.getChartDefinition(chartId) as ChartWithAxisDefinition;
+        expect(definition.dataSets[0].trend).toEqual({
+          type: "polynomial",
+          order: 3,
+          display: true,
+        });
+
+        setInputValueAndTrigger(".trend-order-input", "2");
+        definition = model.getters.getChartDefinition(chartId) as ChartWithAxisDefinition;
+        expect(definition.dataSets[0].trend?.order).toEqual(2);
+      }
+    );
+
+    test.each(["bar", "line", "scatter", "combo"] as const)(
+      "Can change trend line color",
+      async (type: "bar" | "line" | "scatter" | "combo") => {
+        createChart(
+          model,
+          {
+            dataSets: [
+              {
+                dataRange: "B1:B4",
+                trend: { type: "polynomial", order: 3, display: true },
+                backgroundColor: "#ff0000",
+              },
+            ],
+            labelRange: "A1:A4",
+            type,
+            dataSetsHaveTitle: false,
+          },
+          chartId,
+          sheetId
+        );
+        await mountChartSidePanel(chartId);
+        await openChartDesignSidePanel(chartId);
+
+        let runtime = model.getters.getChartRuntime(chartId) as BarChartRuntime;
+        expect(runtime.chartJsConfig.data.datasets[1].backgroundColor).toBe("#FF8080");
+
+        let color_menu = fixture.querySelectorAll(".o-round-color-picker-button")[2];
+        await click(color_menu);
+        await click(fixture, ".o-color-picker-line-item[data-color='#EFEFEF'");
+
+        runtime = model.getters.getChartRuntime(chartId) as BarChartRuntime;
+        expect(runtime.chartJsConfig.data.datasets[1].backgroundColor).toBe("#EFEFEF");
+      }
+    );
   });
 
   test("When a figure is selected, pressing Ctrl+A will not propagate to the grid to select all cells", async () => {

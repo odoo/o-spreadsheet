@@ -1,4 +1,4 @@
-import type { ChartConfiguration, ChartDataset, LegendOptions } from "chart.js";
+import type { ChartDataset, LegendOptions } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
@@ -8,7 +8,6 @@ import {
   CommandResult,
   CoreGetters,
   Getters,
-  LocaleFormat,
   Range,
   RemoveColumnsRowsCommand,
   UID,
@@ -32,6 +31,7 @@ import { formatValue } from "../../format";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
+  TREND_LINE_XAXIS_ID,
   chartFontColor,
   checkDataset,
   checkLabelRange,
@@ -41,6 +41,7 @@ import {
   createDataSets,
   getChartAxisTitleRuntime,
   getDefinedAxis,
+  getTrendDatasetForBarChart,
   shouldRemoveFirstLabel,
   toExcelDataset,
   toExcelLabelRange,
@@ -224,11 +225,26 @@ export class BarChart extends AbstractChart {
   }
 }
 
-function getBarConfiguration(
-  chart: BarChart,
-  labels: string[],
-  localeFormat: LocaleFormat
-): ChartConfiguration {
+export function createBarChartRuntime(chart: BarChart, getters: Getters): BarChartRuntime {
+  const labelValues = getChartLabelValues(getters, chart.dataSets, chart.labelRange);
+  let labels = labelValues.formattedValues;
+  let dataSetsValues = getChartDatasetValues(getters, chart.dataSets);
+  if (
+    chart.dataSetsHaveTitle &&
+    dataSetsValues[0] &&
+    labels.length > dataSetsValues[0].data.length
+  ) {
+    labels.shift();
+  }
+
+  ({ labels, dataSetsValues } = filterEmptyDataPoints(labels, dataSetsValues));
+  if (chart.aggregated) {
+    ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
+  }
+
+  const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
+  const locale = getters.getLocale();
+  const localeFormat = { format: dataSetFormat, locale };
   const fontColor = chartFontColor(chart.background);
   const config = getDefaultChartJsRuntime(chart, labels, fontColor, {
     ...localeFormat,
@@ -302,50 +318,30 @@ function getBarConfiguration(
       config.options.scales!.y1!.stacked = true;
     }
   }
+
   config.options.plugins!.chartShowValuesPlugin = {
     showValues: chart.showValues,
     background: chart.background,
     horizontal: chart.horizontal,
     callback: formatCallback,
   };
-  return config;
-}
 
-export function createBarChartRuntime(chart: BarChart, getters: Getters): BarChartRuntime {
-  const labelValues = getChartLabelValues(getters, chart.dataSets, chart.labelRange);
-  let labels = labelValues.formattedValues;
-  let dataSetsValues = getChartDatasetValues(getters, chart.dataSets);
-  if (
-    chart.dataSetsHaveTitle &&
-    dataSetsValues[0] &&
-    labels.length > dataSetsValues[0].data.length
-  ) {
-    labels.shift();
-  }
-
-  ({ labels, dataSetsValues } = filterEmptyDataPoints(labels, dataSetsValues));
-  if (chart.aggregated) {
-    ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
-  }
-
-  const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
-  const locale = getters.getLocale();
-  const config = getBarConfiguration(chart, labels, { format: dataSetFormat, locale });
   const colors = new ColorGenerator();
 
+  const trendDatasets: any[] = [];
+
   const definition = chart.getDefinition();
-  for (const { label, data } of dataSetsValues) {
+  for (const index in dataSetsValues) {
+    const { label, data } = dataSetsValues[index];
     const color = colors.next();
-    const dataset: ChartDataset = {
+    const dataset: ChartDataset<"bar", number[]> = {
       label,
       data,
       borderColor: color,
       backgroundColor: color,
     };
     config.data.datasets.push(dataset);
-  }
 
-  for (const [index, dataset] of config.data.datasets.entries()) {
     if (definition.dataSets?.[index]?.backgroundColor) {
       const color = definition.dataSets[index].backgroundColor;
       dataset.backgroundColor = color;
@@ -358,6 +354,32 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
     if (definition.dataSets?.[index]?.yAxisId && !chart.horizontal) {
       dataset["yAxisID"] = definition.dataSets[index].yAxisId;
     }
+
+    const trend = definition.dataSets?.[index].trend;
+    if (!trend?.display || chart.horizontal) {
+      continue;
+    }
+
+    const trendDataset = getTrendDatasetForBarChart(trend, dataset);
+    if (trendDataset) {
+      trendDatasets.push(trendDataset);
+    }
+  }
+  if (trendDatasets.length) {
+    /* We add a second x axis here to draw the trend lines, with the labels length being
+     * set so that the second axis points match the classical x axis
+     */
+    const maxLength = Math.max(...trendDatasets.map((trendDataset) => trendDataset.data.length));
+    config.options.scales[TREND_LINE_XAXIS_ID] = {
+      ...xAxis,
+      labels: Array(maxLength).fill(""),
+      offset: false,
+      display: false,
+    };
+    /* These datasets must be inserted after the original
+     * datasets to ensure the way we distinguish the originals and trendLine datasets after
+     */
+    trendDatasets.forEach((x) => config.data.datasets!.push(x));
   }
 
   return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };

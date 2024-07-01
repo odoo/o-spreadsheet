@@ -1,11 +1,13 @@
 import { Component, useState } from "@odoo/owl";
-import { getNthColor, toHex } from "../../../../helpers";
+import { getNthColor, setColorAlpha, toHex } from "../../../../helpers";
 import { getDefinedAxis } from "../../../../helpers/figures/charts";
 import { _t } from "../../../../translation";
 import {
   ChartWithAxisDefinition,
+  Color,
   DispatchResult,
   SpreadsheetChildEnv,
+  TrendConfiguration,
   UID,
 } from "../../../../types/index";
 import { ChartTerms } from "../../../translations_terms";
@@ -64,11 +66,7 @@ export class ChartWithAxisDesignPanel extends Component<Props, SpreadsheetChildE
   }
 
   getDataSeries() {
-    const runtime = this.env.model.getters.getChartRuntime(this.props.figureId);
-    if (!runtime || !("chartJsConfig" in runtime)) {
-      return [];
-    }
-    return runtime.chartJsConfig.data.datasets.map((d) => d.label);
+    return this.props.definition.dataSets.map((d, i) => d.label ?? `${ChartTerms.Series} ${i + 1}`);
   }
 
   updateSerieEditor(ev) {
@@ -82,8 +80,10 @@ export class ChartWithAxisDesignPanel extends Component<Props, SpreadsheetChildE
   }
 
   updateDataSeriesColor(color: string) {
-    const dataSets = this.props.definition.dataSets;
-    if (!dataSets?.[this.state.index]) return;
+    const dataSets = [...this.props.definition.dataSets];
+    if (!dataSets?.[this.state.index]) {
+      return;
+    }
     dataSets[this.state.index] = {
       ...dataSets[this.state.index],
       backgroundColor: color,
@@ -93,15 +93,19 @@ export class ChartWithAxisDesignPanel extends Component<Props, SpreadsheetChildE
 
   getDataSerieColor() {
     const dataSets = this.props.definition.dataSets;
-    if (!dataSets?.[this.state.index]) return "";
+    if (!dataSets?.[this.state.index]) {
+      return "";
+    }
     const color = dataSets[this.state.index].backgroundColor;
     return color ? toHex(color) : getNthColor(this.state.index);
   }
 
   updateDataSeriesAxis(ev) {
     const axis = ev.target.value;
-    const dataSets = this.props.definition.dataSets;
-    if (!dataSets?.[this.state.index]) return;
+    const dataSets = [...this.props.definition.dataSets];
+    if (!dataSets?.[this.state.index]) {
+      return;
+    }
     dataSets[this.state.index] = {
       ...dataSets[this.state.index],
       yAxisId: axis === "left" ? "y" : "y1",
@@ -111,7 +115,9 @@ export class ChartWithAxisDesignPanel extends Component<Props, SpreadsheetChildE
 
   getDataSerieAxis() {
     const dataSets = this.props.definition.dataSets;
-    if (!dataSets?.[this.state.index]) return "left";
+    if (!dataSets?.[this.state.index]) {
+      return "left";
+    }
     return dataSets[this.state.index].yAxisId === "y1" ? "right" : "left";
   }
 
@@ -121,8 +127,10 @@ export class ChartWithAxisDesignPanel extends Component<Props, SpreadsheetChildE
 
   updateDataSeriesLabel(ev) {
     const label = ev.target.value;
-    const dataSets = this.props.definition.dataSets;
-    if (!dataSets?.[this.state.index]) return;
+    const dataSets = [...this.props.definition.dataSets];
+    if (!dataSets?.[this.state.index]) {
+      return;
+    }
     dataSets[this.state.index] = {
       ...dataSets[this.state.index],
       label,
@@ -141,5 +149,88 @@ export class ChartWithAxisDesignPanel extends Component<Props, SpreadsheetChildE
 
   updateShowValues(showValues: boolean) {
     this.props.updateChart(this.props.figureId, { showValues });
+  }
+
+  toggleDataTrend(display: boolean) {
+    const dataSets = [...this.props.definition.dataSets];
+    if (!dataSets?.[this.state.index]) {
+      return;
+    }
+    dataSets[this.state.index] = {
+      ...dataSets[this.state.index],
+      trend: {
+        type: "polynomial",
+        order: 1,
+        ...dataSets[this.state.index].trend,
+        display,
+      },
+    };
+    this.props.updateChart(this.props.figureId, { dataSets });
+  }
+
+  getTrendLineConfiguration() {
+    const dataSets = this.props.definition.dataSets;
+    return dataSets?.[this.state.index]?.trend;
+  }
+
+  getTrendType(config: TrendConfiguration) {
+    if (!config) {
+      return "";
+    }
+    return config.type === "polynomial" && config.order === 1 ? "linear" : config.type;
+  }
+
+  onChangeTrendType(ev: InputEvent) {
+    const type = (ev.target as HTMLInputElement).value;
+    let config: TrendConfiguration;
+    switch (type) {
+      case "linear":
+      case "polynomial":
+        config = {
+          type: "polynomial",
+          order: type === "linear" ? 1 : 2,
+        };
+        break;
+      case "exponential":
+      case "logarithmic":
+        config = { type };
+        break;
+      default:
+        return;
+    }
+    this.updateTrendLineValue(config);
+  }
+
+  onChangePolynomialDegree(ev: InputEvent) {
+    const element = ev.target as HTMLInputElement;
+    const order = parseInt(element.value || "1");
+    if (order < 2) {
+      element.value = `${this.getTrendLineConfiguration()?.order ?? 2}`;
+      return;
+    }
+    this.updateTrendLineValue({ order });
+  }
+
+  getTrendLineColor() {
+    return this.getTrendLineConfiguration()?.color ?? setColorAlpha(this.getDataSerieColor(), 0.5);
+  }
+
+  updateTrendLineColor(color: Color) {
+    this.updateTrendLineValue({ color });
+  }
+
+  updateTrendLineValue(config: any) {
+    const dataSets = [...this.props.definition.dataSets];
+    if (!dataSets?.[this.state.index]) {
+      return;
+    }
+    dataSets[this.state.index] = {
+      ...dataSets[this.state.index],
+      trend: {
+        ...dataSets[this.state.index].trend,
+        ...config,
+      },
+    };
+    this.props.updateChart(this.props.figureId, { dataSets });
   }
 }
