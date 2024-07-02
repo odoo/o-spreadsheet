@@ -1000,14 +1000,20 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
   }
 
   private getImportedSheetSize(data: SheetData): { rowNumber: number; colNumber: number } {
-    const positions = Object.keys(data.cells).map(toCartesian);
+    let rowNumber = data.rowNumber - 1;
+    let colNumber = data.colNumber - 1;
 
-    let rowNumber = data.rowNumber;
-    let colNumber = data.colNumber;
-    for (let { col, row } of positions) {
-      rowNumber = Math.max(rowNumber, row + 1);
-      colNumber = Math.max(colNumber, col + 1);
+    for (const xc in data.cells) {
+      const { col, row } = toCartesian(xc);
+      if (row > rowNumber) {
+        rowNumber = row;
+      }
+      if (col > colNumber) {
+        colNumber = col;
+      }
     }
+    rowNumber++;
+    colNumber++;
     return { rowNumber, colNumber };
   }
 
