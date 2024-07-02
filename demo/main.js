@@ -242,6 +242,7 @@ class Demo extends Component {
     // this.createModel(makeLargeDataset(26, 10_000, ["numbers"]));
     // this.createModel(makeLargeDataset(26, 10_000, ["formulas"]));
     // this.createModel(makeLargeDataset(26, 10_000, ["arrayFormulas"]));
+    // this.createModel(makeLargeDataset(26, 10_000, ["vectorizedFormulas"]));
     // this.createModel({});
   }
 

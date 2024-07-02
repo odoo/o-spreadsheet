@@ -2580,6 +2580,29 @@ function computeArrayFormulaCells(cols, rows) {
   return cells;
 }
 
+function computeVectorizedFormulaCells(cols, rows) {
+  const cells = {};
+  const initRow = 4;
+  for (let row = initRow; row <= rows; row++) {
+    cells[`A${row}`] = { content: row.toString() };
+  }
+  for (let col = 1; col < cols; col++) {
+    const colLetter = _getColumnLetter(col);
+    const prev = _getColumnLetter(col - 1);
+    cells[colLetter + initRow] = {
+      content: `=${prev}${initRow}:${prev}${rows}+1`,
+    };
+  }
+  const letter = _getColumnLetter(cols);
+  const nextLetter = _getColumnLetter(cols + 1);
+  for (let i = 3; i < cols; i++) {
+    cells[nextLetter + i] = {
+      content: `=SUM(A${i}:${letter}${i})`,
+    };
+  }
+  return cells;
+}
+
 function computeNumberCells(cols, rows, type = "numbers") {
   const cells = {};
   for (let col = 0; col < cols; col++) {
@@ -2629,6 +2652,9 @@ export function makeLargeDataset(cols, rows, sheetsInfo = ["formulas"]) {
         break;
       case "arrayFormulas":
         cells = computeArrayFormulaCells(cols, rows);
+        break;
+      case "vectorizedFormulas":
+        cells = computeVectorizedFormulaCells(cols, rows);
         break;
       case "numbers":
       case "floats":
