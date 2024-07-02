@@ -10,31 +10,36 @@
 
 # Plugins
 
-A plugin is a way for o-spreadsheet to organize features in order not to interfere with one another.
+A plugin is a way for o-spreadsheet to organize features in such a way that they do not interfere with one another.
 
-All plugins can :
+A plugin can :
 
 - have its own state
-- new getters to make parts of its state available for other plugins, for the user interface or to use in formula
+- define its own getters to make parts of its state available for other plugins, for the user interface or to use in formula
   functions
 - react to any existing command
 
-There is 2 different kind of plugins: CorePlugin and UIPlugin.
+Plugins are divided into two main categories: CorePlugin and UIPlugin, with each category featuring two specific types.
 
-- CorePlugin
-  - manages data that is persistent
-  - can make changes to its state using the history interface (allowing `undo` and `redo`)
-  - import and export its state to be stored in the o-spreadsheet file
-- UIPlugin manages transient state, user specific state and everything that is needed to display the spreadsheet without changing the persistent data (like evaluation)
+### I. CorePlugin
 
-UI plugins are separated in three different categories:
+- manages data that is persistent
+- can make changes to its state using the history interface (allowing `undo` and `redo`)
+- import and export its state to be stored in the o-spreadsheet file
 
-- Stateful Plugins
-  - Plugins which have a state, but which should not be shared in collaborative
-- Core views Plugins
-  - Plugins which have a derived state from core data
-- Feature plugins
-  - Plugins which handle a specific feature, without handling any core commands
+Core plugins include:
+
+1. Core Plugins: manage data persistence
+2. Core views Plugins: have a derived state from core data
+
+### II. UIPlugin
+
+- manages transient state, user specific state and everything that is needed to display the spreadsheet without changing the persistent data (like evaluation)
+
+UI plugins include:
+
+1. Stateful Plugins: have a state, but which should not be shared in collaborative
+2. Feature Plugins: handle a specific feature, without handling any core commands
 
 ## Plugin skeleton
 
@@ -100,7 +105,7 @@ For processing all commands, command will go through the functions on the plugin
 `allowDispatch(command: Command): CommandResult`
 
 Used to refuse a command. As soon as you return anything else than `CommandResult.Success`, the
-entire command processing is aborted for all plugins. Here is the only way to refuse a command safely (that is, ensuring
+entire command processing is aborted for all plugins. This is the only way to refuse a command safely (that is, ensuring
 that no plugin has updated its state and possibly perverting the `undo` stack).
 
 ```typescript
