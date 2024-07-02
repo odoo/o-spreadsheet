@@ -2011,6 +2011,25 @@ describe("clipboard", () => {
     paste(model, "G4");
     expect(getCell(model, "G4")!.content).toBe("=PIVOT(1)");
   });
+
+  test("fixed pivot formulas are copied like standard cells", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Customer", B1: "Price", C1: "1",
+      A2: "Alice",    B2: "10",    C2: '=PIVOT.VALUE(C1,"Price","Customer","Bob")',
+      A3: "Bob",      B3: "30"
+    };
+
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B3", {
+      columns: [],
+      rows: [{ name: "Customer" }],
+      measures: [{ name: "Price", aggregator: "sum" }],
+    });
+    copy(model, "C2");
+    paste(model, "G4");
+    expect(getCell(model, "G4")!.content).toBe('=PIVOT.VALUE(G3,"Price","Customer","Bob")');
+  });
 });
 
 describe("clipboard: pasting outside of sheet", () => {
