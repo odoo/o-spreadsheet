@@ -27,6 +27,7 @@ import {
   updateChart,
 } from "../../test_helpers/commands_helpers";
 import { getPlugin, nextTick, target } from "../../test_helpers/helpers";
+
 jest.mock("../../../src/helpers/uuid", () => require("../../__mocks__/uuid"));
 
 let model: Model;
@@ -1779,6 +1780,30 @@ describe("Cumulative Data line chart", () => {
       .data!.datasets![0].data;
 
     expect(updatedChartData).toEqual(expectedCumulativeData);
+  });
+
+  test("Cumulative data with linear chart", () => {
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "2");
+    setCellContent(model, "B1", "10");
+    setCellContent(model, "B2", "20");
+    createChart(
+      model,
+      {
+        dataSets: ["B1:B2"],
+        dataSetsHaveTitle: false,
+        labelRange: "A1:A2",
+        type: "line",
+        cumulative: true,
+      },
+      "chartId"
+    );
+
+    const runtime = model.getters.getChartRuntime("chartId") as LineChartRuntime;
+    expect(runtime.chartJsConfig.data!.datasets![0].data).toEqual([
+      { x: "1", y: 10 },
+      { x: "2", y: 30 },
+    ]);
   });
 });
 
