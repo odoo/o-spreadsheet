@@ -7,7 +7,7 @@ describe("line chart", () => {
   test("create line chart from creation context", () => {
     const context: Required<ChartCreationContext> = {
       background: "#123456",
-      title: { text: "hello there" },
+      title: { type: "string", text: "hello there" },
       range: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
       auxiliaryRange: "Sheet1!A1:A4",
       legendPosition: "bottom",
@@ -26,7 +26,7 @@ describe("line chart", () => {
     expect(definition).toEqual({
       type: "line",
       background: "#123456",
-      title: { text: "hello there" },
+      title: { type: "string", text: "hello there" },
       dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
       labelRange: "Sheet1!A1:A4",
       legendPosition: "bottom",

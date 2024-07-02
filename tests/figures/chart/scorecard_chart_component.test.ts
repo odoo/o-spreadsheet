@@ -85,7 +85,7 @@ test("Scorecard chart canvas adapt to figure size", () => {
 
   createScorecardChart(
     model,
-    { keyValue: "A1", baseline: "B2", title: { text: "This is a title" } },
+    { keyValue: "A1", baseline: "B2", title: { type: "string", text: "This is a title" } },
     chartId
   );
 
@@ -124,7 +124,12 @@ describe("Scorecard charts computation", () => {
   test("Chart display correct info", () => {
     createScorecardChart(
       model,
-      { keyValue: "A1", baseline: "B1", title: { text: "hello" }, baselineDescr: "desc" },
+      {
+        keyValue: "A1",
+        baseline: "B1",
+        title: { type: "string", text: "hello" },
+        baselineDescr: "desc",
+      },
       chartId
     );
     const chartDesign = getChartDesign(model, chartId, sheetId);
@@ -142,7 +147,7 @@ describe("Scorecard charts computation", () => {
       {
         keyValue: "A1",
         baseline: "B1",
-        title: { text: "hello" },
+        title: { type: "string", text: "hello" },
         baselineDescr: "description really really too long to stay in only one line",
       },
       chartId
@@ -379,7 +384,7 @@ describe("Scorecard charts computation", () => {
         keyValue: "A1",
         baseline: "A1",
         baselineDescr: "descr",
-        title: { text: "title" },
+        title: { type: "string", text: "title" },
         background: "#000000",
       },
       chartId
@@ -395,7 +400,7 @@ describe("Scorecard charts computation", () => {
   test("Font size scale down if we put a long key value", () => {
     createScorecardChart(
       model,
-      { keyValue: "A1", baseline: "B2", title: { text: "This is a title" } },
+      { keyValue: "A1", baseline: "B2", title: { type: "string", text: "This is a title" } },
       chartId
     );
     const chartDesign1 = getChartDesign(model, chartId, sheetId);
@@ -567,7 +572,7 @@ describe("Scorecard charts rendering", () => {
         keyValue: "A1",
         baseline: "A1",
         baselineDescr: "descr",
-        title: { text: "title" },
+        title: { type: "string", text: "title" },
         background: "#000000",
       },
       chartId
@@ -583,7 +588,7 @@ describe("Scorecard charts rendering", () => {
   test("Increasing size of the chart scale up the font sizes", () => {
     createScorecardChart(
       model,
-      { keyValue: "A1", baseline: "B2", title: { text: "This is a title" } },
+      { keyValue: "A1", baseline: "B2", title: { type: "string", text: "This is a title" } },
       chartId
     );
 
@@ -605,7 +610,7 @@ describe("Scorecard charts rendering", () => {
   test("Decreasing size of the chart scale down the font sizes", () => {
     createScorecardChart(
       model,
-      { keyValue: "A1", baseline: "B2", title: { text: "This is a title" } },
+      { keyValue: "A1", baseline: "B2", title: { type: "string", text: "This is a title" } },
       chartId
     );
 
@@ -627,7 +632,7 @@ describe("Scorecard charts rendering", () => {
   test("Font size scale down if we put a long key value", () => {
     createScorecardChart(
       model,
-      { keyValue: "A1", baseline: "B2", title: { text: "This is a title" } },
+      { keyValue: "A1", baseline: "B2", title: { type: "string", text: "This is a title" } },
       chartId
     );
     renderScorecardChart(model, chartId, sheetId, canvas);
@@ -645,7 +650,12 @@ describe("Scorecard charts rendering", () => {
     setCellContent(model, "B2", "");
     createScorecardChart(
       model,
-      { keyValue: "A1", baseline: "B2", title: { text: "This is a title" }, baselineDescr: "" },
+      {
+        keyValue: "A1",
+        baseline: "B2",
+        title: { type: "string", text: "This is a title" },
+        baselineDescr: "",
+      },
       chartId
     );
     renderScorecardChart(model, chartId, sheetId, canvas);

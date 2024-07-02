@@ -46,7 +46,7 @@ describe("datasource tests", function () {
         baseline: "B7",
         type: "scorecard",
         baselineDescr: "Description",
-        title: { text: "Title" },
+        title: { type: "string", text: "Title" },
       },
       "1"
     );
@@ -54,7 +54,7 @@ describe("datasource tests", function () {
       keyValue: "",
       baselineDisplay: "",
       baselineDescr: "Description",
-      title: { text: "Title" },
+      title: { type: "string", text: "Title" },
       baselineArrow: "neutral",
       baselineColor: undefined,
     });
@@ -73,7 +73,7 @@ describe("datasource tests", function () {
       keyValue: "",
       baselineDisplay: "",
       baselineDescr: "",
-      title: { text: "" },
+      title: { type: "string", text: "" },
       baselineArrow: "neutral",
       baselineColor: undefined,
     });
@@ -82,7 +82,7 @@ describe("datasource tests", function () {
   test("create scorecard from creation context", () => {
     const context: Required<ChartCreationContext> = {
       background: "#123456",
-      title: { text: "hello there" },
+      title: { type: "string", text: "hello there" },
       range: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
       auxiliaryRange: "Sheet1!A1:A4",
       legendPosition: "bottom",
@@ -101,7 +101,7 @@ describe("datasource tests", function () {
     expect(definition).toEqual({
       type: "scorecard",
       background: "#123456",
-      title: { text: "hello there" },
+      title: { type: "string", text: "hello there" },
       keyValue: "Sheet1!B1:B4",
       baseline: "Sheet1!A1:A4",
       baselineMode: DEFAULT_SCORECARD_BASELINE_MODE,
@@ -158,14 +158,14 @@ describe("datasource tests", function () {
       baseline: "E3",
       baselineMode: "percentage",
       baselineDescr: "description",
-      title: { text: "hello1" },
+      title: { type: "string", text: "hello1" },
     });
     expect(model.getters.getChartDefinition("1")).toMatchObject({
       keyValue: "A7",
       baseline: "E3",
       baselineMode: "percentage",
       baselineDescr: "description",
-      title: { text: "hello1" },
+      title: { type: "string", text: "hello1" },
     });
   });
 
@@ -210,7 +210,7 @@ describe("datasource tests", function () {
     createScorecardChart(
       model,
       {
-        title: { text: "test" },
+        title: { type: "string", text: "test" },
         keyValue: "B1:B4",
         baseline: "A1",
       },
@@ -226,7 +226,12 @@ describe("datasource tests", function () {
     const duplicatedFigure = model.getters.getFigures(secondSheetId)[0];
 
     const newChart = model.getters.getChart(duplicatedFigure.id) as ScorecardChart;
-    expect(newChart.title.text).toEqual("test");
+    // expect(newChart.title.text).toEqual("test");
+    if (newChart.title.type === "string") {
+      expect(newChart.title.value).toEqual("test");
+    } else {
+      throw new Error("title type is not string");
+    }
     expect(newChart.keyValue?.sheetId).toEqual(secondSheetId);
     expect(zoneToXc(newChart.keyValue!.zone)).toEqual("B1:B4");
     expect(newChart.baseline?.sheetId).toEqual(secondSheetId);

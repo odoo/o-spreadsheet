@@ -67,23 +67,58 @@ export interface DatasetDesign {
   readonly label?: string;
 }
 
-export interface AxisDesign {
-  readonly title?: TitleDesign;
-}
-
-export interface AxesDesign {
-  readonly x?: AxisDesign;
-  readonly y?: AxisDesign;
-  readonly y1?: AxisDesign;
-}
-
 export interface TitleDesign {
-  readonly text?: string;
   readonly bold?: boolean;
   readonly italic?: boolean;
   readonly align?: Align;
   readonly color?: Color;
 }
+
+export type Title = {
+  design?: TitleDesign;
+} & ({ type: "reference"; readonly text: string } | { type: "string"; readonly text: string });
+
+export interface AxesDesign {
+  readonly x?: Title;
+  readonly y?: Title;
+  readonly y1?: Title;
+}
+
+export type ChartTitleType = "reference" | "string";
+
+export type ChartAxisTitleRuntime =
+  | {
+      display: boolean;
+      text: string;
+      color?: string;
+      font: {
+        style: "italic" | "normal";
+        weight: "bold" | "normal";
+      };
+      align: "start" | "center" | "end";
+    }
+  | undefined;
+
+/**
+ * Defines types used within AbstractChart for specifying titles and axes design.
+ *
+ * Reason:
+ * In the definition, only range strings are stored. However, for AbstractChart,
+ * it's necessary to store the actual range objects.
+ */
+
+export type AbstractChartTitle = {
+  readonly design?: TitleDesign;
+} & (
+  | { type: "reference"; readonly reference: Range | undefined }
+  | { type: "string"; readonly value: string }
+);
+
+export type AbstractChartAxesDesign = {
+  readonly x?: AbstractChartTitle;
+  readonly y?: AbstractChartTitle;
+  readonly y1?: AbstractChartTitle;
+};
 
 export type CustomizedDataSet = { readonly dataRange: string } & DatasetDesign;
 
@@ -106,7 +141,7 @@ export interface ExcelChartDataset {
 export type ExcelChartType = "line" | "bar" | "pie" | "combo" | "scatter";
 
 export interface ExcelChartDefinition {
-  readonly title?: TitleDesign;
+  readonly title?: Title;
   readonly type: ExcelChartType;
   readonly dataSets: ExcelChartDataset[];
   readonly labelRange?: string;
@@ -124,7 +159,7 @@ export interface ExcelChartDefinition {
 
 export interface ChartCreationContext {
   readonly range?: CustomizedDataSet[];
-  readonly title?: TitleDesign;
+  readonly title?: Title;
   readonly background?: string;
   readonly auxiliaryRange?: string;
   readonly aggregated?: boolean;

@@ -113,11 +113,12 @@ function isLuxonTimeAdapterInstalled() {
 
 function getLineOrScatterConfiguration(
   chart: LineChart | ScatterChart,
+  getters: Getters,
   labels: string[],
   options: LocaleFormat & { truncateLabels?: boolean }
 ): Required<ChartConfiguration> {
   const fontColor = chartFontColor(chart.background);
-  const config = getDefaultChartJsRuntime(chart, labels, fontColor, options);
+  const config = getDefaultChartJsRuntime(chart, getters, labels, fontColor, options);
 
   const legend: DeepPartial<LegendOptions<"line">> = {
     labels: {
@@ -151,7 +152,7 @@ function getLineOrScatterConfiguration(
         padding: 5,
         color: fontColor,
       },
-      title: getChartAxisTitleRuntime(chart.axesDesign?.x),
+      title: getChartAxisTitleRuntime(getters, chart.axesDesign?.x),
     },
   };
   const yAxis = {
@@ -174,14 +175,14 @@ function getLineOrScatterConfiguration(
     config.options.scales.y = {
       ...yAxis,
       position: "left",
-      title: getChartAxisTitleRuntime(chart.axesDesign?.y),
+      title: getChartAxisTitleRuntime(getters, chart.axesDesign?.y),
     };
   }
   if (useRightAxis) {
     config.options.scales.y1 = {
       ...yAxis,
       position: "right",
-      title: getChartAxisTitleRuntime(chart.axesDesign?.y1),
+      title: getChartAxisTitleRuntime(getters, chart.axesDesign?.y1),
     };
   }
   if ("stacked" in chart && chart.stacked) {
@@ -232,7 +233,7 @@ export function createLineOrScatterChartRuntime(
   const truncateLabels = axisType === "category";
   const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
   const options = { format: dataSetFormat, locale, truncateLabels };
-  const config = getLineOrScatterConfiguration(chart, labels, options);
+  const config = getLineOrScatterConfiguration(chart, getters, labels, options);
   const labelFormat = getChartLabelFormat(getters, chart.labelRange)!;
   if (axisType === "time") {
     const axis = {

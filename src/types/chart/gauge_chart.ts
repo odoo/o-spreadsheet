@@ -1,10 +1,10 @@
 import type { ChartOptions } from "chart.js";
 import { Color } from "../misc";
-import { TitleDesign } from "./chart";
+import { Title } from "./chart";
 
 export interface GaugeChartDefinition {
   readonly type: "gauge";
-  readonly title: TitleDesign;
+  readonly title: Title;
   readonly dataRange?: string;
   readonly sectionRule: SectionRule;
   readonly background?: Color;
@@ -36,7 +36,7 @@ export interface GaugeValue {
 
 export interface GaugeChartRuntime {
   background: Color;
-  title: TitleDesign;
+  title: Title;
   minValue: GaugeValue;
   maxValue: GaugeValue;
   gaugeValue?: GaugeValue;

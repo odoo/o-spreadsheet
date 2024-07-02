@@ -570,13 +570,17 @@ describe("Collaborative Sheet manipulation", () => {
     const chartDef: BarChartDefinition = {
       dataSets: [{ dataRange: "A1:A3", yAxisId: "y" }, { dataRange: "F1:F3" }],
       labelRange: "F3",
-      title: { text: "chart title" },
+      title: { type: "reference", text: "A1" },
       dataSetsHaveTitle: false,
       type: "bar",
       stacked: false,
       background: BACKGROUND_CHART_COLOR,
       legendPosition: "top",
       aggregated: false,
+      axesDesign: {
+        x: { type: "reference", text: "B1", design: { bold: true } },
+        y: { type: "reference", text: "C1", design: { italic: true } },
+      },
     };
 
     test(`Concurrently chart creation & update and add columns`, () => {
@@ -743,6 +747,41 @@ describe("Collaborative Sheet manipulation", () => {
           ...chartDef,
           dataSets: [{ dataRange: "A1:A3" }, { dataRange: "A9" }],
           labelRange: "8:8",
+        }
+      );
+    });
+
+    test("Concurrent chart creation and title reference update are synchronized across users", () => {
+      network.concurrent(() => {
+        setCellContent(alice, "A1", "Hello World");
+        createChart(bob, chartDef, chartId);
+      });
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getChartDefinition(chartId),
+        { ...chartDef, title: { type: "reference", text: "A1" } }
+      );
+
+      network.concurrent(() => {
+        addRows(charlie, "before", 0, 1);
+        updateChart(bob, chartId, {
+          title: { type: "reference", text: "A1" },
+          dataSets: [{ dataRange: "A1:A3" }, { dataRange: "F1:F3" }],
+          labelRange: "F3",
+          dataSetsHaveTitle: false,
+        });
+      });
+
+      expect([alice, bob, charlie]).toHaveSynchronizedValue(
+        (user) => user.getters.getChartDefinition(chartId),
+        {
+          ...chartDef,
+          title: { type: "reference", text: "A2" },
+          axesDesign: {
+            x: { type: "reference", text: "B2", design: { bold: true } },
+            y: { type: "reference", text: "C2", design: { italic: true } },
+          },
+          dataSets: [{ dataRange: "A2:A4" }, { dataRange: "F2:F4" }],
+          labelRange: "F4",
         }
       );
     });

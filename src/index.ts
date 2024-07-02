@@ -70,7 +70,10 @@ import { isEvaluationError, toBoolean, toJsDate, toNumber, toString } from "./fu
 import { FunctionRegistry, arg, functionRegistry } from "./functions/index";
 import {
   chartFontColor,
+  getAxesDesignWithRangeString,
+  getAxesDesignWithValidRanges,
   getChartAxisTitleRuntime,
+  getChartTitleWithRangeString,
   getDefaultChartJsRuntime,
   getFillingMode,
 } from "./helpers/figures/charts";
@@ -304,6 +307,9 @@ export const helpers = {
   getDefaultChartJsRuntime,
   chartFontColor,
   getChartAxisTitleRuntime,
+  getAxesDesignWithValidRanges,
+  getChartTitleWithRangeString,
+  getAxesDesignWithRangeString,
   getFillingMode,
   rgbaToHex,
   colorToRGBA,

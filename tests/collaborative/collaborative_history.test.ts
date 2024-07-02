@@ -415,7 +415,7 @@ describe("Collaborative local history", () => {
               height: 100,
             },
             definition: {
-              title: { text: "" },
+              title: { type: "string", text: "" },
               dataSets: [{ dataRange: "A1", yAxisId: "y" }],
               type: "bar",
               stacked: false,

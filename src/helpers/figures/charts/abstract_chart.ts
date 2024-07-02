@@ -7,13 +7,14 @@ import {
   UID,
 } from "../../../types";
 import {
+  AbstractChartTitle,
   ChartCreationContext,
   ChartDefinition,
   ChartType,
   ExcelChartDefinition,
-  TitleDesign,
 } from "../../../types/chart/chart";
 import { Validator } from "../../../types/validator";
+import { getChartTitleWithValidRange } from "./chart_common";
 
 /**
  * AbstractChart is the class from which every Chart should inherit.
@@ -21,12 +22,12 @@ import { Validator } from "../../../types/validator";
  */
 export abstract class AbstractChart {
   readonly sheetId: UID;
-  readonly title: TitleDesign;
+  readonly title: AbstractChartTitle;
   abstract readonly type: ChartType;
   protected readonly getters: CoreGetters;
 
   constructor(definition: ChartDefinition, sheetId: UID, getters: CoreGetters) {
-    this.title = definition.title;
+    this.title = getChartTitleWithValidRange(getters, sheetId, definition.title);
     this.sheetId = sheetId;
     this.getters = getters;
   }

@@ -80,7 +80,7 @@ describe("datasource tests", function () {
       model,
       {
         dataRange: "B8",
-        title: { text: "Title" },
+        title: { type: "string", text: "Title" },
         sectionRule: randomSectionRule,
       },
       "1"
@@ -114,7 +114,7 @@ describe("datasource tests", function () {
   test("create gauge from creation context", () => {
     const context: Required<ChartCreationContext> = {
       background: "#123456",
-      title: { text: "hello there" },
+      title: { type: "string", text: "hello there" },
       range: [{ dataRange: "Sheet1!B1:B4" }],
       auxiliaryRange: "Sheet1!A1:A4",
       legendPosition: "bottom",
@@ -133,7 +133,7 @@ describe("datasource tests", function () {
     expect(definition).toEqual({
       type: "gauge",
       background: "#123456",
-      title: { text: "hello there" },
+      title: { type: "string", text: "hello there" },
       dataRange: "Sheet1!B1:B4",
       sectionRule: expect.any(Object),
     });
@@ -179,7 +179,7 @@ describe("datasource tests", function () {
     );
     updateChart(model, "1", {
       dataRange: "A7",
-      title: { text: "hello1" },
+      title: { type: "string", text: "hello1" },
       sectionRule: randomSectionRule,
     });
     expect(model.getters.getChartDefinition("1") as GaugeChartDefinition).toMatchObject({
@@ -359,7 +359,7 @@ describe("datasource tests", function () {
     createGaugeChart(
       model,
       {
-        title: { text: "test" },
+        title: { type: "string", text: "test" },
         dataRange: "B1:B4",
         sectionRule: randomSectionRule,
       },
@@ -375,7 +375,11 @@ describe("datasource tests", function () {
     const duplicatedFigure = model.getters.getFigures(secondSheetId)[0];
     const duplicatedChart = model.getters.getChart(duplicatedFigure.id) as GaugeChart;
 
-    expect(duplicatedChart.title.text).toEqual("test");
+    if (duplicatedChart.title.type === "string") {
+      expect(duplicatedChart.title.value).toEqual("test");
+    } else {
+      throw new Error("Title type is not string");
+    }
     expect(zoneToXc(duplicatedChart.dataRange!.zone)).toEqual("B1:B4");
     expect(duplicatedChart.dataRange?.sheetId).toEqual(secondSheetId);
 
@@ -481,7 +485,7 @@ describe("Chart design configuration", () => {
     defaultChart = {
       background: "#ffffff",
       dataRange: "A1",
-      title: { text: "My chart" },
+      title: { type: "string", text: "My chart" },
       type: "gauge",
       sectionRule: deepCopy(defaultSectionRule),
     };

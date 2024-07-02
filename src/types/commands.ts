@@ -1189,6 +1189,7 @@ export const enum CommandResult {
   InvalidChartDefinition = "InvalidChartDefinition",
   InvalidDataSet = "InvalidDataSet",
   InvalidLabelRange = "InvalidLabelRange",
+  InvalidTitleRange = "InvalidTitleRange",
   InvalidScorecardKeyValue = "InvalidScorecardKeyValue",
   InvalidScorecardBaseline = "InvalidScorecardBaseline",
   InvalidGaugeDataRange = "InvalidGaugeDataRange",

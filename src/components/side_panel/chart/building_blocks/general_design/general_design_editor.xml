@@ -14,7 +14,7 @@
           </div>
         </Section>
         <ChartTitle
-          title="title.text"
+          title="title"
           updateTitle.bind="updateTitle"
           name="chart_title"
           toggleItalic.bind="toggleItalicChartTitle"
