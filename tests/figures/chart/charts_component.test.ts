@@ -14,6 +14,7 @@ import {
   paste,
   selectCell,
   setCellContent,
+  setCellFormat,
   setStyle,
   updateChart,
 } from "../../test_helpers/commands_helpers";
@@ -1146,6 +1147,15 @@ describe("charts", () => {
     setCellContent(model, "C3", "value");
     await nextTick();
     expect(updateChart).not.toHaveBeenCalled();
+  });
+
+  test("Chart is not rendered if it's label format change", async () => {
+    const updateChart = jest.spyOn((window as any).Chart.prototype, "update");
+    createTestChart("basicChart");
+    await nextTick();
+    setCellFormat(model, "B2", "#.##0.00");
+    await nextTick();
+    expect(updateChart).toHaveBeenCalled();
   });
 });
 
