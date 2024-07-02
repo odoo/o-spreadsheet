@@ -372,15 +372,6 @@ function createLineChartRuntime(chart: LineChart, getters: Getters): LineChartRu
 
   const colors = new ChartColors();
   for (let [index, { label, data }] of dataSetsValues.entries()) {
-    if (["linear", "time"].includes(axisType)) {
-      // Replace empty string labels by undefined to make sure chartJS doesn't decide that "" is the same as 0
-      data = data.map((y, index) => ({ x: labels[index] || undefined, y }));
-    }
-    const color = colors.next();
-    let backgroundRGBA = colorToRGBA(color);
-    if (chart.stacked) {
-      backgroundRGBA.a = LINE_FILL_TRANSPARENCY;
-    }
     if (chart.cumulative) {
       let accumulator = 0;
       data = data.map((value) => {
@@ -390,6 +381,16 @@ function createLineChartRuntime(chart: LineChart, getters: Getters): LineChartRu
         }
         return value;
       });
+    }
+
+    if (["linear", "time"].includes(axisType)) {
+      // Replace empty string labels by undefined to make sure chartJS doesn't decide that "" is the same as 0
+      data = data.map((y, index) => ({ x: labels[index] || undefined, y }));
+    }
+    const color = colors.next();
+    let backgroundRGBA = colorToRGBA(color);
+    if (chart.stacked) {
+      backgroundRGBA.a = LINE_FILL_TRANSPARENCY;
     }
 
     const backgroundColor = rgbaToHex(backgroundRGBA);
