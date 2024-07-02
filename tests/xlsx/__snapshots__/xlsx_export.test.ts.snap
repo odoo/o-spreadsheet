@@ -24544,7 +24544,7 @@ exports[`Test XLSX export formulas All exportable formulas 1`] = `
         <row r="168">
             <c r="A168">
                 <f>
-                    RANDARRAY(2,2)
+                    _xlfn.RANDARRAY(2,2)
                 </f>
             </c>
             <c r="B168">
@@ -27370,7 +27370,7 @@ exports[`Test XLSX export formulas Multi-Sheets exportable functions 1`] = `
         <row r="168">
             <c r="A168">
                 <f>
-                    RANDARRAY(2,2)
+                    _xlfn.RANDARRAY(2,2)
                 </f>
             </c>
             <c r="B168">
