@@ -172,6 +172,7 @@ export const coreTypes = new Set<CoreCommandTypes>([
 
   /** RANGES MANIPULATION */
   "MOVE_RANGES",
+  "MOVE_REFERENCES",
 
   /** CONDITIONAL FORMAT */
   "ADD_CONDITIONAL_FORMAT",
@@ -365,6 +366,15 @@ export interface ShowSheetCommand extends SheetDependentCommand {
 export interface MoveRangeCommand extends PositionDependentCommand, TargetDependentCommand {
   type: "MOVE_RANGES";
   targetSheetId: string;
+}
+
+export interface MoveReferencesCommand {
+  type: "MOVE_REFERENCES";
+  sheetId: UID;
+  zone: Zone;
+  targetSheetId: string;
+  targetCol: HeaderIndex;
+  targetRow: HeaderIndex;
 }
 
 //------------------------------------------------------------------------------
@@ -896,6 +906,7 @@ export type CoreCommand =
 
   /** RANGES MANIPULATION */
   | MoveRangeCommand
+  | MoveReferencesCommand
 
   /** CONDITIONAL FORMAT */
   | AddConditionalFormatCommand
