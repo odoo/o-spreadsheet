@@ -2499,6 +2499,30 @@ describe("Cumulative Data line chart", () => {
     const updatedChartData = getChartConfiguration(model, "1").data!.datasets![0].data;
     expect(updatedChartData).toEqual(expectedCumulativeData);
   });
+
+  test("Cumulative data with linear chart", () => {
+    setCellContent(model, "A1", "1");
+    setCellContent(model, "A2", "2");
+    setCellContent(model, "B1", "10");
+    setCellContent(model, "B2", "20");
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "B1:B2" }],
+        dataSetsHaveTitle: false,
+        labelRange: "A1:A2",
+        type: "line",
+        cumulative: true,
+      },
+      "chartId"
+    );
+
+    const runtime = model.getters.getChartRuntime("chartId") as LineChartRuntime;
+    expect(runtime.chartJsConfig.data!.datasets![0].data).toEqual([
+      { x: "1", y: 10 },
+      { x: "2", y: 30 },
+    ]);
+  });
 });
 
 describe("Pie chart negative values", () => {
