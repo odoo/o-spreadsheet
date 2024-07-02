@@ -194,6 +194,10 @@ function getLineOrScatterConfiguration(
       config.options.scales!.y1!.stacked = true;
     }
   }
+  config.options.plugins!.chartShowValuesPlugin = {
+    showValues: chart.showValues,
+    background: chart.background,
+  };
   return config;
 }
 

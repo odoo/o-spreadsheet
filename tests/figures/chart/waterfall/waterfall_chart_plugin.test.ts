@@ -280,6 +280,7 @@ describe("Waterfall chart", () => {
       showSubTotals: true,
       axesDesign: {},
       fillArea: true,
+      showValues: false,
     };
     const definition = WaterfallChart.getDefinitionFromContextCreation(context);
     expect(definition).toEqual({
@@ -296,6 +297,7 @@ describe("Waterfall chart", () => {
       showSubTotals: true,
       axesDesign: {},
       verticalAxisPosition: "left",
+      showValues: false,
     });
   });
 });

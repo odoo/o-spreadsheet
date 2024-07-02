@@ -56,6 +56,7 @@ export class ScatterChart extends AbstractChart {
   readonly dataSetsHaveTitle: boolean;
   readonly dataSetDesign?: DatasetDesign[];
   readonly axesDesign?: AxesDesign;
+  readonly showValues?: boolean;
 
   constructor(definition: ScatterChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -73,6 +74,7 @@ export class ScatterChart extends AbstractChart {
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
     this.dataSetDesign = definition.dataSets;
     this.axesDesign = definition.axesDesign;
+    this.showValues = definition.showValues;
   }
 
   static validateChartDefinition(
@@ -101,6 +103,7 @@ export class ScatterChart extends AbstractChart {
       labelRange: context.auxiliaryRange || undefined,
       aggregated: context.aggregated ?? false,
       axesDesign: context.axesDesign,
+      showValues: context.showValues,
     };
   }
 
@@ -133,6 +136,7 @@ export class ScatterChart extends AbstractChart {
       labelsAsText: this.labelsAsText,
       aggregated: this.aggregated,
       axesDesign: this.axesDesign,
+      showValues: this.showValues,
     };
   }
 

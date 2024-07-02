@@ -833,6 +833,11 @@ export function getFigureDefinition(
   }
 }
 
+export function getChartConfiguration(model: Model, chartId: UID) {
+  const runtime = model.getters.getChartRuntime(chartId) as any;
+  return runtime.chartJsConfig;
+}
+
 /** Extract a property of the style of the given html element and return its size in pixel */
 export function getStylePropertyInPx(el: HTMLElement, property: string): number | undefined {
   const styleProperty = el.style[property] as string;

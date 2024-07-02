@@ -80,6 +80,7 @@ export const ChartTerms = {
       "The upper inflection point value must be a number"
     ),
   },
+  ShowValues: _t("Show values"),
 };
 
 export const CustomCurrencyTerms = {

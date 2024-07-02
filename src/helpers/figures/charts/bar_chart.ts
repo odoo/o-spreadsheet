@@ -1,4 +1,4 @@
-import type { ChartConfiguration, ChartDataset, LegendOptions } from "chart.js";
+import { type ChartConfiguration, type ChartDataset, type LegendOptions } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
 import { BACKGROUND_CHART_COLOR } from "../../../constants";
 import {
@@ -67,6 +67,7 @@ export class BarChart extends AbstractChart {
   readonly dataSetDesign?: DatasetDesign[];
   readonly axesDesign?: AxesDesign;
   readonly horizontal?: boolean;
+  readonly showValues?: boolean;
 
   constructor(definition: BarChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
@@ -85,6 +86,7 @@ export class BarChart extends AbstractChart {
     this.dataSetDesign = definition.dataSets;
     this.axesDesign = definition.axesDesign;
     this.horizontal = definition.horizontal;
+    this.showValues = definition.showValues;
   }
 
   static transformDefinition(
@@ -113,6 +115,7 @@ export class BarChart extends AbstractChart {
       type: "bar",
       labelRange: context.auxiliaryRange || undefined,
       axesDesign: context.axesDesign,
+      showValues: context.showValues,
     };
   }
 
@@ -179,6 +182,7 @@ export class BarChart extends AbstractChart {
       aggregated: this.aggregated,
       axesDesign: this.axesDesign,
       horizontal: this.horizontal,
+      showValues: this.showValues,
     };
   }
 
@@ -292,6 +296,11 @@ function getBarConfiguration(
       config.options.scales!.y1!.stacked = true;
     }
   }
+  config.options.plugins!.chartShowValuesPlugin = {
+    showValues: chart.showValues,
+    background: chart.background,
+    horizontal: chart.horizontal,
+  };
   return config;
 }
 

@@ -29,7 +29,13 @@ import {
   updateChart,
   updateLocale,
 } from "../../test_helpers/commands_helpers";
-import { getPlugin, mockChart, nextTick, target } from "../../test_helpers/helpers";
+import {
+  getChartConfiguration,
+  getPlugin,
+  mockChart,
+  nextTick,
+  target,
+} from "../../test_helpers/helpers";
 
 import { ChartTerms } from "../../../src/components/translations_terms";
 import { FIGURE_ID_SPLITTER, MAX_CHAR_LABEL } from "../../../src/constants";
@@ -37,7 +43,6 @@ import { toZone, zoneToXc } from "../../../src/helpers";
 import { BarChart } from "../../../src/helpers/figures/charts";
 import { ChartPlugin } from "../../../src/plugins/core";
 import { ScatterChartRuntime } from "../../../src/types/chart/scatter_chart";
-import { getChartConfiguration } from "../../test_helpers/chart_helpers";
 import { FR_LOCALE } from "../../test_helpers/constants";
 import { getCellContent } from "../../test_helpers/getters_helpers";
 

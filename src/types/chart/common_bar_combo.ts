@@ -11,4 +11,5 @@ export interface ComboBarChartDefinition {
   readonly legendPosition: LegendPosition;
   readonly aggregated?: boolean;
   readonly axesDesign?: AxesDesign;
+  readonly showValues?: boolean;
 }
