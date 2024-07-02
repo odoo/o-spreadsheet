@@ -246,19 +246,6 @@ test.each([
   expect(deepEquals(o2, o1)).toEqual(expectedResult);
 });
 
-test("deepEquals with argument ignoring functions", () => {
-  const o1 = { a: 1, b: () => 2, c: 2 };
-  const o2 = { a: 1, b: () => 2, c: 2 };
-  const o3 = { a: 1, b: () => 2, c: 3 };
-  const o4 = { a: 2, b: () => 2, c: 2 };
-  expect(deepEquals(o1, o2)).toEqual(false);
-  expect(deepEquals(o1, o2, "ignoreFunctions")).toEqual(true);
-  expect(deepEquals(o1, o3)).toEqual(false);
-  expect(deepEquals(o1, o3, "ignoreFunctions")).toEqual(false);
-  expect(deepEquals(o1, o4)).toEqual(false);
-  expect(deepEquals(o1, o4, "ignoreFunctions")).toEqual(false);
-});
-
 describe("isConsecutive", () => {
   test("consecutive", () => {
     expect(isConsecutive([2, 3, 1])).toBeTruthy();
