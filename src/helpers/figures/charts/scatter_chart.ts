@@ -236,6 +236,12 @@ export function createScatterChartRuntime(
       : `${dataSetTitle}: ${formattedY}`;
   };
 
+  configOptions.plugins!.legend!.labels = {
+    ...configOptions.plugins?.legend?.labels,
+    boxHeight: 6,
+    usePointStyle: true,
+  };
+
   for (const dataSet of chartJsConfig.data!.datasets!) {
     (dataSet as ChartDataset<"line">).showLine = false;
   }

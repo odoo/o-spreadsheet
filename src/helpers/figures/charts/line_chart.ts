@@ -217,5 +217,22 @@ export class LineChart extends AbstractChart {
 
 export function createLineChartRuntime(chart: LineChart, getters: Getters): LineChartRuntime {
   const { chartJsConfig, background } = createLineOrScatterChartRuntime(chart, getters);
+  const filled = chart.fillArea;
+  const pointStyle = filled ? "rect" : "line";
+  const lineWidth = filled ? 2 : 3;
+  chartJsConfig.options!.plugins!.legend!.labels = {
+    ...chartJsConfig.options?.plugins?.legend?.labels,
+    usePointStyle: true,
+    //@ts-ignore
+    generateLabels: (_chart) =>
+      _chart.data.datasets.map((dataset, index) => ({
+        text: dataset.label ?? "",
+        strokeStyle: dataset.borderColor,
+        fillStyle: dataset.backgroundColor,
+        pointStyle,
+        hidden: !_chart.isDatasetVisible(index),
+        lineWidth,
+      })),
+  };
   return { chartJsConfig, background };
 }

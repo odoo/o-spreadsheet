@@ -1,34 +1,31 @@
 import { ChartDataset, LegendOptions } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
-import { BACKGROUND_CHART_COLOR } from "../../../constants";
+import { BACKGROUND_CHART_COLOR, LINE_FILL_TRANSPARENCY } from "../../../constants";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
-  ChartCreationContext,
   Color,
   CommandResult,
   CoreGetters,
-  DataSet,
-  ExcelChartDefinition,
-  Format,
+  DatasetDesign,
   Getters,
   Range,
   RemoveColumnsRowsCommand,
   UID,
 } from "../../../types";
 import {
-  AxesDesign,
+  ChartCreationContext,
   CustomizedDataSet,
-  DatasetDesign,
+  DataSet,
   ExcelChartDataset,
+  ExcelChartDefinition,
   LegendPosition,
 } from "../../../types/chart";
-import { ComboChartDefinition, ComboChartRuntime } from "../../../types/chart/combo_chart";
+import { RadarChartDefinition, RadarChartRuntime } from "../../../types/chart/radar_chart";
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
-import { ColorGenerator } from "../../color";
-import { formatValue } from "../../format";
+import { ColorGenerator, setColorAlpha } from "../../color";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
@@ -38,8 +35,6 @@ import {
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
-  getChartAxisTitleRuntime,
-  getDefinedAxis,
   shouldRemoveFirstLabel,
   toExcelDataset,
   toExcelLabelRange,
@@ -55,18 +50,19 @@ import {
   getDefaultChartJsRuntime,
 } from "./chart_ui_common";
 
-export class ComboChart extends AbstractChart {
+export class RadarChart extends AbstractChart {
   readonly dataSets: DataSet[];
-  readonly labelRange?: Range;
+  readonly labelRange?: Range | undefined;
   readonly background?: Color;
   readonly legendPosition: LegendPosition;
+  readonly stacked: boolean;
   readonly aggregated?: boolean;
+  readonly type = "radar";
   readonly dataSetsHaveTitle: boolean;
   readonly dataSetDesign?: DatasetDesign[];
-  readonly axesDesign?: AxesDesign;
-  readonly type = "combo";
+  readonly fillArea?: boolean;
 
-  constructor(definition: ComboChartDefinition, sheetId: UID, getters: CoreGetters) {
+  constructor(definition: RadarChartDefinition, sheetId: UID, getters: CoreGetters) {
     super(definition, sheetId, getters);
     this.dataSets = createDataSets(
       getters,
@@ -77,24 +73,39 @@ export class ComboChart extends AbstractChart {
     this.labelRange = createValidRange(getters, sheetId, definition.labelRange);
     this.background = definition.background;
     this.legendPosition = definition.legendPosition;
+    this.stacked = definition.stacked;
     this.aggregated = definition.aggregated;
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
     this.dataSetDesign = definition.dataSets;
-    this.axesDesign = definition.axesDesign;
+    this.fillArea = definition.fillArea;
   }
 
   static transformDefinition(
-    definition: ComboChartDefinition,
+    definition: RadarChartDefinition,
     executed: AddColumnsRowsCommand | RemoveColumnsRowsCommand
-  ): ComboChartDefinition {
+  ): RadarChartDefinition {
     return transformChartDefinitionWithDataSetsWithZone(definition, executed);
   }
 
   static validateChartDefinition(
     validator: Validator,
-    definition: ComboChartDefinition
+    definition: RadarChartDefinition
   ): CommandResult | CommandResult[] {
     return validator.checkValidations(definition, checkDataset, checkLabelRange);
+  }
+
+  static getDefinitionFromContextCreation(context: ChartCreationContext): RadarChartDefinition {
+    return {
+      background: context.background,
+      dataSets: context.range ?? [],
+      dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
+      stacked: context.stacked ?? false,
+      aggregated: context.aggregated ?? false,
+      legendPosition: context.legendPosition ?? "top",
+      title: context.title || { text: "" },
+      type: "radar",
+      labelRange: context.auxiliaryRange || undefined,
+    };
   }
 
   getContextCreation(): ChartCreationContext {
@@ -114,15 +125,31 @@ export class ComboChart extends AbstractChart {
     };
   }
 
-  getDefinition(): ComboChartDefinition {
+  copyForSheetId(sheetId: UID): RadarChart {
+    const dataSets = copyDataSetsWithNewSheetId(this.sheetId, sheetId, this.dataSets);
+    const labelRange = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.labelRange);
+    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, sheetId);
+    return new RadarChart(definition, sheetId, this.getters);
+  }
+
+  copyInSheetId(sheetId: UID): RadarChart {
+    const definition = this.getDefinitionWithSpecificDataSets(
+      this.dataSets,
+      this.labelRange,
+      sheetId
+    );
+    return new RadarChart(definition, sheetId, this.getters);
+  }
+
+  getDefinition(): RadarChartDefinition {
     return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
   }
 
-  getDefinitionWithSpecificDataSets(
+  private getDefinitionWithSpecificDataSets(
     dataSets: DataSet[],
     labelRange: Range | undefined,
     targetSheetId?: UID
-  ): ComboChartDefinition {
+  ): RadarChartDefinition {
     const ranges: CustomizedDataSet[] = [];
     for (const [i, dataSet] of dataSets.entries()) {
       ranges.push({
@@ -131,7 +158,7 @@ export class ComboChart extends AbstractChart {
       });
     }
     return {
-      type: "combo",
+      type: "radar",
       dataSetsHaveTitle: dataSets.length ? Boolean(dataSets[0].labelCell) : false,
       background: this.background,
       dataSets: ranges,
@@ -140,13 +167,13 @@ export class ComboChart extends AbstractChart {
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
       title: this.title,
+      stacked: this.stacked,
       aggregated: this.aggregated,
-      axesDesign: this.axesDesign,
+      fillArea: this.fillArea,
     };
   }
 
   getDefinitionForExcel(): ExcelChartDefinition | undefined {
-    // Excel does not support aggregating labels
     if (this.aggregated) {
       return undefined;
     }
@@ -165,11 +192,10 @@ export class ComboChart extends AbstractChart {
       fontColor: toXlsxHexColor(chartFontColor(this.background)),
       dataSets,
       labelRange,
-      verticalAxis: getDefinedAxis(definition),
     };
   }
 
-  updateRanges(applyChange: ApplyRangeChange): ComboChart {
+  updateRanges(applyChange: ApplyRangeChange): RadarChart {
     const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,
@@ -180,47 +206,12 @@ export class ComboChart extends AbstractChart {
       return this;
     }
     const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
-    return new ComboChart(definition, this.sheetId, this.getters);
-  }
-
-  static getDefinitionFromContextCreation(context: ChartCreationContext): ComboChartDefinition {
-    return {
-      background: context.background,
-      dataSets: context.range ?? [],
-      dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
-      aggregated: context.aggregated,
-      legendPosition: context.legendPosition ?? "top",
-      title: context.title || { text: "" },
-      labelRange: context.auxiliaryRange || undefined,
-      type: "combo",
-      axesDesign: context.axesDesign,
-    };
-  }
-
-  copyForSheetId(sheetId: UID): ComboChart {
-    const dataSets = copyDataSetsWithNewSheetId(this.sheetId, sheetId, this.dataSets);
-    const labelRange = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.labelRange);
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, sheetId);
-    return new ComboChart(definition, sheetId, this.getters);
-  }
-
-  copyInSheetId(sheetId: UID): ComboChart {
-    const definition = this.getDefinitionWithSpecificDataSets(
-      this.dataSets,
-      this.labelRange,
-      sheetId
-    );
-    return new ComboChart(definition, sheetId, this.getters);
+    return new RadarChart(definition, this.sheetId, this.getters);
   }
 }
 
-export function createComboChartRuntime(chart: ComboChart, getters: Getters): ComboChartRuntime {
-  const mainDataSetFormat = chart.dataSets.length
-    ? getChartDatasetFormat(getters, [chart.dataSets[0]])
-    : undefined;
-  const lineDataSetsFormat = getChartDatasetFormat(getters, chart.dataSets.slice(1));
-  const locale = getters.getLocale();
-
+export function createRadarChartRuntime(chart: RadarChart, getters: Getters): RadarChartRuntime {
+  const definition = chart.getDefinition();
   const labelValues = getChartLabelValues(getters, chart.dataSets, chart.labelRange);
   let labels = labelValues.formattedValues;
   let dataSetsValues = getChartDatasetValues(getters, chart.dataSets);
@@ -237,11 +228,17 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
     ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
   }
 
-  const localeFormat = { format: mainDataSetFormat, locale };
-
+  const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
+  const locale = getters.getLocale();
   const fontColor = chartFontColor(chart.background);
-  const config = getDefaultChartJsRuntime(chart, labels, fontColor, localeFormat);
-  const legend: DeepPartial<LegendOptions<"bar">> = {
+  const config = getDefaultChartJsRuntime(chart, labels, fontColor, {
+    format: dataSetFormat,
+    locale,
+  });
+  const fill = definition.fillArea ?? false;
+  const pointStyle = fill ? "rect" : "line";
+  const lineWidth = fill ? 2 : 3;
+  const legend: DeepPartial<LegendOptions<"radar">> = {
     onHover: (event) => {
       const target = event.native?.target;
       if (!target) {
@@ -262,7 +259,7 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
       if (!legend.legendItems) {
         return;
       }
-      const index = legend.legendItems.reverse().indexOf(legendItem);
+      const index = legend.legendItems.indexOf(legendItem);
       if (legend.chart.isDatasetVisible(index)) {
         legend.chart.hide(index);
       } else {
@@ -273,18 +270,17 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
       color: fontColor,
       usePointStyle: true,
       //@ts-ignore
-      generateLabels(chart) {
-        return chart.data.datasets.map((dataset, index) => ({
-          text: dataset.label,
-          fillStyle: dataset.backgroundColor,
+      generateLabels: (_chart) =>
+        _chart.data.datasets.map((dataset, index) => ({
+          text: dataset.label ?? "",
+          fontColor,
           strokeStyle: dataset.borderColor,
-          pointStyle: dataset.type === "line" ? "line" : "rect",
-          hidden: !chart.isDatasetVisible(index),
-          lineWidth: 3,
-        }));
-      },
+          fillStyle: dataset.backgroundColor,
+          pointStyle,
+          hidden: !_chart.isDatasetVisible(index),
+          lineWidth,
+        })),
     },
-    reverse: true,
   };
   if ((!chart.labelRange && chart.dataSets.length === 1) || chart.legendPosition === "none") {
     legend.display = false;
@@ -295,75 +291,27 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
   config.options.layout = {
     padding: { left: 20, right: 20, top: chart.title ? 10 : 25, bottom: 10 },
   };
+  const colorGenerator = new ColorGenerator();
 
-  config.options.scales = {
-    x: {
-      ticks: {
-        padding: 5,
-        color: fontColor,
-      },
-      title: getChartAxisTitleRuntime(chart.axesDesign?.x),
-    },
-  };
-  const formatCallback = (format: Format | undefined) => {
-    return (value) => {
-      value = Number(value);
-      if (isNaN(value)) return value;
-      const { locale } = localeFormat;
-      return formatValue(value, {
-        locale,
-        format: !format && Math.abs(value) >= 1000 ? "#,##" : format,
-      });
-    };
-  };
-  const leftVerticalAxis = {
-    beginAtZero: true, // the origin of the y axis is always zero
-    ticks: {
-      color: fontColor,
-      callback: formatCallback(mainDataSetFormat),
-    },
-  };
-  const rightVerticalAxis = {
-    beginAtZero: true, // the origin of the y axis is always zero
-    ticks: {
-      color: fontColor,
-      callback: formatCallback(lineDataSetsFormat),
-    },
-  };
-  const definition = chart.getDefinition();
-  const { useLeftAxis, useRightAxis } = getDefinedAxis(definition);
-  if (useLeftAxis) {
-    config.options.scales.y = {
-      ...leftVerticalAxis,
-      position: "left",
-      title: getChartAxisTitleRuntime(chart.axesDesign?.y),
-    };
-  }
-  if (useRightAxis) {
-    config.options.scales.y1 = {
-      ...rightVerticalAxis,
-      position: "right",
-      grid: {
-        display: false,
-      },
-      title: getChartAxisTitleRuntime(chart.axesDesign?.y1),
-    };
-  }
+  for (let i = 0; i < dataSetsValues.length; i++) {
+    let { label, data } = dataSetsValues[i];
+    if (definition.dataSets?.[i]?.label) {
+      label = definition.dataSets[i].label;
+    }
+    let borderColor = colorGenerator.next();
+    if (definition.dataSets?.[i]?.backgroundColor) {
+      borderColor = definition.dataSets[i].backgroundColor!;
+    }
 
-  const colors = new ColorGenerator();
-
-  for (let [index, { label, data }] of dataSetsValues.entries()) {
-    const design = definition.dataSets[index];
-    const color = colors.next();
     const dataset: ChartDataset = {
-      label: design?.label ?? label,
+      label,
       data,
-      borderColor: design?.backgroundColor ?? color,
-      backgroundColor: design.backgroundColor ?? color,
-      yAxisID: design?.yAxisId ?? "y",
-      type: index === 0 ? "bar" : "line",
-      order: -index,
+      borderColor,
     };
+    if (fill) {
+      dataset.backgroundColor = setColorAlpha(borderColor, LINE_FILL_TRANSPARENCY);
+      dataset["fill"] = true;
+    }
     config.data.datasets.push(dataset);
   }
 

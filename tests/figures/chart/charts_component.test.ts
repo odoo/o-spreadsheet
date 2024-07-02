@@ -7,6 +7,7 @@ import { ScorecardChart } from "../../../src/helpers/figures/charts";
 import { CHART_TYPES, ChartDefinition, ChartType, SpreadsheetChildEnv } from "../../../src/types";
 import { BarChartDefinition } from "../../../src/types/chart/bar_chart";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
+import { RadarChartDefinition } from "../../../src/types/chart/radar_chart";
 import {
   copy,
   createChart,
@@ -543,8 +544,9 @@ describe("charts", () => {
       },
       chartId
     );
-    await mountChartSidePanel();
+    await mountChartSidePanel(chartId);
     await openChartDesignSidePanel(chartId);
+    await setInputValueAndTrigger(".data-series-selector", "serie_1");
 
     let color_menu = fixture.querySelectorAll(".o-round-color-picker-button")[1];
 
@@ -588,20 +590,22 @@ describe("charts", () => {
     createChart(
       model,
       {
-        dataSets: [{ dataRange: "C1:C4" }],
+        dataSets: [{ dataRange: "C1:C4", label: "serie_1" }],
         labelRange: "A2:A4",
         type: "line",
       },
       chartId
     );
-    await mountChartSidePanel();
-    await openChartDesignSidePanel();
+    await mountChartSidePanel(chartId);
+    await openChartDesignSidePanel(chartId);
+    await setInputValueAndTrigger(".data-series-selector", "serie_1");
     setInputValueAndTrigger(".o-vertical-axis-selection", "right");
 
     //@ts-ignore
     expect(model.getters.getChartDefinition(chartId).dataSets).toEqual([
       {
         dataRange: "C1:C4",
+        label: "serie_1",
         yAxisId: "y1",
       },
     ]);
@@ -611,14 +615,15 @@ describe("charts", () => {
     createChart(
       model,
       {
-        dataSets: [{ dataRange: "C1:C4" }],
+        dataSets: [{ dataRange: "C1:C4", label: "serie_1" }],
         labelRange: "A2:A4",
         type: "line",
       },
       chartId
     );
-    await mountChartSidePanel();
-    await openChartDesignSidePanel();
+    await mountChartSidePanel(chartId);
+    await openChartDesignSidePanel(chartId);
+    await setInputValueAndTrigger(".data-series-selector", "serie_1");
     setInputValueAndTrigger(".o-serie-label-editor", "coucou");
 
     //@ts-ignore
@@ -629,6 +634,30 @@ describe("charts", () => {
       },
     ]);
   });
+
+  test.each(["line", "radar"] as const)(
+    "%s Chart > can fill chart data series area",
+    async (chartType: "line" | "radar") => {
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "C1:C4" }],
+          labelRange: "A2:A4",
+          type: chartType,
+        },
+        "1"
+      );
+      await mountChartSidePanel("1");
+      await openChartDesignSidePanel("1");
+
+      let definition = model.getters.getChartDefinition("1") as RadarChartDefinition;
+      expect(definition.fillArea).toBeFalsy();
+
+      await simulateClick('input[name="showDataSerieArea"]');
+      definition = model.getters.getChartDefinition("1") as RadarChartDefinition;
+      expect(definition.fillArea).toBeTruthy();
+    }
+  );
 
   test("can open design panel of chart with duplicated dataset", async () => {
     createChart(
@@ -1832,5 +1861,21 @@ describe("Change chart type", () => {
       fillArea: false,
     });
     expect(select.value).toBe("stacked_line");
+  });
+
+  test("Can change chart type between radar and filled radar chart", async () => {
+    createChart(model, { type: "radar", fillArea: false }, chartId);
+    await mountChartSidePanel(chartId);
+    const select = fixture.querySelector(".o-type-selector") as HTMLSelectElement;
+
+    updateChart(model, chartId, { fillArea: true }, sheetId);
+    await nextTick();
+
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject({ fillArea: true });
+    expect(select.value).toBe("filled_radar");
+
+    await changeChartType("radar");
+    expect(model.getters.getChartDefinition(chartId)).toMatchObject({ fillArea: false });
+    expect(select.value).toBe("radar");
   });
 });

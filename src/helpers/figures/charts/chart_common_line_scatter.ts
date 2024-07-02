@@ -4,7 +4,7 @@ import { BACKGROUND_CHART_COLOR, LINE_FILL_TRANSPARENCY } from "../../../constan
 import { Color, Format, Getters, LocaleFormat, Range } from "../../../types";
 import { AxisType, DatasetValues, LabelValues } from "../../../types/chart/chart";
 import { getChartTimeOptions, timeFormatLuxonCompatible } from "../../chart_date";
-import { ColorGenerator, colorToRGBA, rgbaToHex } from "../../color";
+import { ColorGenerator, setColorAlpha } from "../../color";
 import { formatValue } from "../../format";
 import { deepCopy, findNextDefinedValue } from "../../misc";
 import { chartFontColor, getChartAxisTitleRuntime, getDefinedAxis } from "./chart_common";
@@ -120,20 +120,34 @@ function getLineOrScatterConfiguration(
   const config = getDefaultChartJsRuntime(chart, labels, fontColor, options);
 
   const legend: DeepPartial<LegendOptions<"line">> = {
-    labels: {
-      color: fontColor,
-      generateLabels(chart) {
-        // color the legend labels with the dataset color, without any transparency
-        const { data } = chart;
-        /** @ts-ignore */
-        const labels = (window.Chart as typeof ChartType).defaults.plugins.legend.labels
-          .generateLabels!(chart);
-        for (const [index, label] of labels.entries()) {
-          label.fillStyle = data.datasets![index].borderColor as string;
-        }
-        return labels;
-      },
+    onHover: (event) => {
+      const target = event.native?.target;
+      if (!target) {
+        return;
+      }
+      //@ts-ignore
+      target.style.cursor = "pointer";
     },
+    onLeave: (event) => {
+      const target = event.native?.target;
+      if (!target) {
+        return;
+      }
+      //@ts-ignore
+      target.style.cursor = "default";
+    },
+    onClick: (click, legendItem, legend) => {
+      if (!legend.legendItems) {
+        return;
+      }
+      const index = legend.legendItems.indexOf(legendItem);
+      if (legend.chart.isDatasetVisible(index)) {
+        legend.chart.hide(index);
+      } else {
+        legend.chart.show(index);
+      }
+    },
+    labels: { color: fontColor },
   };
   if ((!chart.labelRange && chart.dataSets.length === 1) || chart.legendPosition === "none") {
     legend.display = false;
@@ -259,15 +273,11 @@ export function createLineOrScatterChartRuntime(
 
   const colors = new ColorGenerator();
   const definition = chart.getDefinition();
-  for (let [index, { label, data }] of dataSetsValues.entries()) {
+  for (let index = 0; index < dataSetsValues.length; index++) {
+    let { label, data } = dataSetsValues[index];
     if (["linear", "time"].includes(axisType)) {
       // Replace empty string labels by undefined to make sure chartJS doesn't decide that "" is the same as 0
       data = data.map((y, index) => ({ x: labels[index] || undefined, y }));
-    }
-    const color = colors.next();
-    let backgroundRGBA = colorToRGBA(color);
-    if (areaChart) {
-      backgroundRGBA.a = LINE_FILL_TRANSPARENCY;
     }
     if (cumulative) {
       let accumulator = 0;
@@ -280,35 +290,31 @@ export function createLineOrScatterChartRuntime(
       });
     }
 
-    const backgroundColor = rgbaToHex(backgroundRGBA);
+    let borderColor = colors.next();
+    if (definition.dataSets?.[index]?.backgroundColor) {
+      borderColor = definition.dataSets[index].backgroundColor!;
+    }
+    if (definition.dataSets?.[index]?.label) {
+      label = definition.dataSets[index].label;
+    }
 
     const dataset: ChartDataset = {
       label,
       data,
       tension: 0, // 0 -> render straight lines, which is much faster
-      borderColor: color,
-      backgroundColor,
-      pointBackgroundColor: color,
-      fill: areaChart ? getFillingMode(index, stackedChart) : false,
+      borderColor,
+      pointBackgroundColor: borderColor,
     };
-    config.data!.datasets!.push(dataset);
-  }
 
-  for (const [index, dataset] of config.data.datasets.entries()) {
-    if (definition.dataSets?.[index]?.backgroundColor) {
-      const color = definition.dataSets[index].backgroundColor;
-      dataset.backgroundColor = color;
-      dataset.borderColor = color;
-      //@ts-ignore
-      dataset.pointBackgroundColor = color;
+    if (areaChart) {
+      dataset.backgroundColor = setColorAlpha(borderColor, LINE_FILL_TRANSPARENCY);
+      dataset["fill"] = getFillingMode(index, stackedChart);
     }
-    if (definition.dataSets?.[index]?.label) {
-      const label = definition.dataSets[index].label;
-      dataset.label = label;
-    }
+
     if (definition.dataSets?.[index]?.yAxisId) {
       dataset["yAxisID"] = definition.dataSets[index].yAxisId;
     }
+    config.data!.datasets!.push(dataset);
   }
 
   return {

@@ -1,4 +1,4 @@
-import type { ChartConfiguration, ChartDataset, LegendOptions } from "chart.js";
+import type { ChartConfiguration, ChartDataset, LegendOptions, PointStyle } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
 import {
   BACKGROUND_CHART_COLOR,
@@ -234,18 +234,34 @@ function getWaterfallConfiguration(
   const negativeColor = chart.negativeValuesColor || CHART_WATERFALL_NEGATIVE_COLOR;
   const positiveColor = chart.positiveValuesColor || CHART_WATERFALL_POSITIVE_COLOR;
   const subTotalColor = chart.subTotalValuesColor || CHART_WATERFALL_SUBTOTAL_COLOR;
+  const pointStyle: PointStyle = "rect";
   const legend: DeepPartial<LegendOptions<"bar">> = {
     labels: {
+      usePointStyle: true,
       generateLabels: () => {
         const legendValues = [
-          { text: _t("Positive values"), fontColor, fillStyle: positiveColor },
-          { text: _t("Negative values"), fontColor, fillStyle: negativeColor },
+          {
+            text: _t("Positive values"),
+            fontColor,
+            strokeStyle: positiveColor,
+            fillStyle: positiveColor,
+            pointStyle,
+          },
+          {
+            text: _t("Negative values"),
+            fontColor,
+            strokeStyle: negativeColor,
+            fillStyle: negativeColor,
+            pointStyle,
+          },
         ];
         if (chart.showSubTotals || chart.firstValueAsSubtotal) {
           legendValues.push({
             text: _t("Subtotals"),
             fontColor,
+            strokeStyle: subTotalColor,
             fillStyle: subTotalColor,
+            pointStyle,
           });
         }
         return legendValues;

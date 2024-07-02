@@ -1,0 +1,53 @@
+<templates>
+  <t t-name="o-spreadsheet-GeneralSeriesEditor">
+    <SidePanelCollapsible collapsedAtInit="true">
+      <t t-set-slot="title">Data series</t>
+      <t t-set-slot="content">
+        <Section class="'pt-0 pb-0'">
+          <select
+            class="o-input data-series-selector"
+            t-model="state.label"
+            t-on-change="(ev) => this.updateSerieEditor(ev)">
+            <t t-foreach="getDataSeries()" t-as="serie" t-key="serie_index">
+              <option
+                t-att-value="serie"
+                t-att-selected="state.index+1 === serie_index"
+                t-esc="serie"
+              />
+            </t>
+          </select>
+          <Section class="'px-0'">
+            <div class="d-flex align-items-center" t-if="state.index !== -1">
+              <span class="o-section-title mb-0 pe-2">Series color</span>
+              <RoundColorPicker
+                currentColor="getDataSerieColor()"
+                onColorPicked.bind="updateDataSeriesColor"
+              />
+            </div>
+          </Section>
+          <Section
+            t-if="props.canChangeVerticalAxis and canHaveTwoVerticalAxis"
+            class="'pt-0 px-0'">
+            <t t-set-slot="title">Vertical axis</t>
+            <select
+              t-att-value="getDataSerieAxis()"
+              class="o-input o-vertical-axis-selection"
+              t-on-change="(ev) => this.updateDataSeriesAxis(ev)">
+              <option value="left">Left</option>
+              <option value="right">Right</option>
+            </select>
+          </Section>
+          <Section class="'pt-0 px-0'" t-if="state.index !== -1">
+            <t t-set-slot="title">Series name</t>
+            <input
+              class="o-input o-serie-label-editor"
+              t-att-value="getDataSerieLabel()"
+              t-on-change="(ev) => this.updateDataSeriesLabel(ev)"
+            />
+          </Section>
+        </Section>
+        <t t-slot="general-extension"/>
+      </t>
+    </SidePanelCollapsible>
+  </t>
+</templates>
