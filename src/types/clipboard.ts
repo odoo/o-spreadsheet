@@ -3,6 +3,7 @@ import { HeaderIndex, UID, Zone } from "./misc";
 export enum ClipboardMIMEType {
   PlainText = "text/plain",
   Html = "text/html",
+  OSpreadsheet = "web application/o-spreadsheet",
 }
 
 export type ClipboardContent = { [type in ClipboardMIMEType]?: string };

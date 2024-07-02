@@ -51,35 +51,53 @@ export const PASTE_ACTION = async (env: SpreadsheetChildEnv) => paste(env);
 export const PASTE_AS_VALUE_ACTION = async (env: SpreadsheetChildEnv) => paste(env, "asValue");
 
 async function paste(env: SpreadsheetChildEnv, pasteOption?: ClipboardPasteOptions) {
-  const spreadsheetClipboard = env.model.getters.getClipboardTextContent();
-  const osClipboard = await env.clipboard.readText();
+  if (env.clipboard) {
+    const osClipboard = await env.clipboard?.read();
+    switch (osClipboard.status) {
+      case "ok":
+        const clipboardContent = osClipboard.content;
+        let osClipboardSpreadsheetContent: string = "{}";
+        const htmlDocument = new DOMParser().parseFromString(
+          clipboardContent[ClipboardMIMEType.Html] ?? "<div></div>",
+          "text/xml"
+        );
+        osClipboardSpreadsheetContent =
+          clipboardContent[ClipboardMIMEType.OSpreadsheet] &&
+          clipboardContent[ClipboardMIMEType.OSpreadsheet].length > 0
+            ? clipboardContent[ClipboardMIMEType.OSpreadsheet]
+            : "{}";
 
-  switch (osClipboard.status) {
-    case "ok":
-      const target = env.model.getters.getSelectedZones();
-      if (osClipboard && osClipboard.content !== spreadsheetClipboard) {
-        interactivePasteFromOS(env, target, osClipboard.content, pasteOption);
-      } else {
-        interactivePaste(env, target, pasteOption);
-      }
-      if (env.model.getters.isCutOperation() && pasteOption !== "asValue") {
-        await env.clipboard.write({ [ClipboardMIMEType.PlainText]: "" });
-      }
-      break;
-    case "notImplemented":
-      env.raiseError(
-        _t(
-          "Pasting from the context menu is not supported in this browser. Use keyboard shortcuts ctrl+c / ctrl+v instead."
-        )
-      );
-      break;
-    case "permissionDenied":
-      env.raiseError(
-        _t(
-          "Access to the clipboard denied by the browser. Please enable clipboard permission for this page in your browser settings."
-        )
-      );
-      break;
+        const parsedOSClipboardSpreadsheetContent = JSON.parse(osClipboardSpreadsheetContent);
+        let clipboardId =
+          parsedOSClipboardSpreadsheetContent.clipboardId ??
+          htmlDocument.querySelector("div")?.getAttribute("data-clipboard-id");
+
+        const target = env.model.getters.getSelectedZones();
+
+        if (env.model.getters.getClipboardId() !== clipboardId) {
+          interactivePasteFromOS(env, target, osClipboard.content, pasteOption);
+        } else {
+          interactivePaste(env, target, pasteOption);
+        }
+        if (env.model.getters.isCutOperation() && pasteOption !== "asValue") {
+          await env.clipboard?.write({ [ClipboardMIMEType.PlainText]: "" });
+        }
+        break;
+      case "notImplemented":
+        env.raiseError(
+          _t(
+            "Pasting from the context menu is not supported in this browser. Use keyboard shortcuts ctrl+c / ctrl+v instead."
+          )
+        );
+        break;
+      case "permissionDenied":
+        env.raiseError(
+          _t(
+            "Access to the clipboard denied by the browser. Please enable clipboard permission for this page in your browser settings."
+          )
+        );
+        break;
+    }
   }
 }
 

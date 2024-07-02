@@ -210,12 +210,7 @@ export class EvaluationDataValidationPlugin extends UIPlugin {
         sheetId,
         offset.col,
         offset.row,
-        {
-          ...formula,
-          dependencies: formula.dependencies.map((d) =>
-            this.getters.getRangeFromSheetXC(sheetId, d)
-          ),
-        }
+        formula.tokens
       );
 
       const evaluated = this.getters.evaluateFormula(sheetId, translatedFormula);
