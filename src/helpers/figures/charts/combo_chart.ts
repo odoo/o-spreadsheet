@@ -40,6 +40,7 @@ import {
   createDataSets,
   getChartAxisTitleRuntime,
   getDefinedAxis,
+  getTrendDataset,
   shouldRemoveFirstLabel,
   toExcelDataset,
   toExcelLabelRange,
@@ -310,6 +311,8 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
   }
 
   const colors = new ColorGenerator();
+  let maxLength = 0;
+  const trendDatasets: any[] = [];
 
   for (let [index, { label, data }] of dataSetsValues.entries()) {
     const design = definition.dataSets[index];
@@ -324,6 +327,29 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
       order: -index,
     };
     config.data.datasets.push(dataset);
+
+    const trend = definition.dataSets?.[index].trend;
+    if (!trend) {
+      continue;
+    }
+
+    maxLength = Math.max(maxLength, data.length);
+    const trendDataset = getTrendDataset(trend, dataset);
+    if (trendDataset) {
+      trendDatasets.push(trendDataset);
+    }
+  }
+  if (trendDatasets.length) {
+    config.options.scales.x1 = {
+      ticks: {
+        padding: 5,
+        color: fontColor,
+      },
+      labels: Array(10 * maxLength + 1).fill(""),
+      offset: false,
+      display: false,
+    };
+    trendDatasets.forEach((x) => config.data.datasets!.push(x));
   }
 
   return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
