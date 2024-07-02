@@ -260,10 +260,6 @@ export function createLineOrScatterChartRuntime(
   const colors = new ColorGenerator();
   const definition = chart.getDefinition();
   for (let [index, { label, data }] of dataSetsValues.entries()) {
-    if (["linear", "time"].includes(axisType)) {
-      // Replace empty string labels by undefined to make sure chartJS doesn't decide that "" is the same as 0
-      data = data.map((y, index) => ({ x: labels[index] || undefined, y }));
-    }
     const color = colors.next();
     let backgroundRGBA = colorToRGBA(color);
     if (areaChart) {
@@ -278,6 +274,10 @@ export function createLineOrScatterChartRuntime(
         }
         return value;
       });
+    }
+    if (["linear", "time"].includes(axisType)) {
+      // Replace empty string labels by undefined to make sure chartJS doesn't decide that "" is the same as 0
+      data = data.map((y, index) => ({ x: labels[index] || undefined, y }));
     }
 
     const backgroundColor = rgbaToHex(backgroundRGBA);
