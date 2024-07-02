@@ -1060,14 +1060,6 @@ describe("evaluateCells", () => {
     expect(getEvaluatedCell(model, "A3").value).toBe("new");
   });
 
-  test("wrong range input can become valid", () => {
-    const model = new Model();
-    setCellContent(model, "A1", "=ADD(B1:C1,1)");
-    expect(getEvaluatedCell(model, "A1").value).toBe("#ERROR");
-    deleteColumns(model, ["C"]);
-    expect(getEvaluatedCell(model, "A1").value).toBe(1);
-  });
-
   test("Coherent handling of #REF when it occurs following a column deletion or a copy/paste", () => {
     const model = new Model();
     setCellContent(model, "A1", "=SUM(B1,C1)");

@@ -11,9 +11,9 @@ import {
   isMatrix,
   Matrix,
 } from "../types";
-import { BadExpressionError, EvaluationError } from "../types/errors";
+import { BadExpressionError, EvaluationError, NotAvailableError } from "../types/errors";
 import { addMetaInfoFromArg, validateArguments } from "./arguments";
-import { isEvaluationError, matrixForEach, matrixMap } from "./helpers";
+import { generateMatrix, isEvaluationError, matrixForEach, matrixMap } from "./helpers";
 import * as array from "./module_array";
 import * as misc from "./module_custom";
 import * as database from "./module_database";
@@ -83,33 +83,86 @@ export class FunctionRegistry extends Registry<FunctionDescription> {
     }
     const descr = addMetaInfoFromArg(addDescr);
     validateArguments(descr.args);
-    this.mapping[name] = addErrorHandling(addResultHandling(addInputHandling(descr), name), name);
+    this.mapping[name] = createComputeFunction(descr, name);
     super.add(name, descr);
     return this;
   }
 }
 
-function addInputHandling(
-  descr: FunctionDescription
-): ComputeFunction<FPayload | Matrix<FPayload> | CellValue | Matrix<CellValue>> {
-  function computeWithInputHandling(
+export const functionRegistry: FunctionRegistry = new FunctionRegistry();
+
+for (let category of categories) {
+  const fns = category.functions;
+  for (let name in fns) {
+    const addDescr = fns[name];
+    addDescr.category = addDescr.category || category.name;
+    name = name.replace(/_/g, ".");
+    functionRegistry.add(name, { isExported: false, ...addDescr });
+  }
+}
+
+//------------------------------------------------------------------------------
+// CREATE COMPUTE FUNCTION
+//------------------------------------------------------------------------------
+
+type VectorArgType = "horizontal" | "vertical" | "matrix";
+
+const notAvailableError = new NotAvailableError(
+  _t("Array arguments to [[FUNCTION_NAME]] are of different size.")
+);
+
+function createComputeFunction(
+  descr: FunctionDescription,
+  functionName: string
+): ComputeFunction<Matrix<FPayload> | FPayload> {
+  function computeFunction(this: EvalContext, ...args: Arg[]): Matrix<FPayload> | FPayload {
+    try {
+      return computeWithVectorization.apply(this, args);
+    } catch (e) {
+      return handleError(e, functionName);
+    }
+  }
+
+  function computeWithVectorization(
     this: EvalContext,
     ...args: Arg[]
-  ): FPayload | Matrix<FPayload> | CellValue | Matrix<CellValue> {
+  ): FPayload | Matrix<FPayload> {
+    let countVectorizableCol = 1;
+    let countVectorizableRow = 1;
+    let vectorizableColLimit = Infinity;
+    let vectorizableRowLimit = Infinity;
+
+    let vectorArgsType: VectorArgType[] | undefined = undefined;
+
     for (let i = 0; i < args.length; i++) {
       const argDefinition = descr.args[descr.getArgToFocus(i + 1) - 1];
       const arg = args[i];
 
       if (isMatrix(arg) && !argDefinition.acceptMatrix) {
-        if (arg.length !== 1 || arg[0].length !== 1) {
-          throw new EvaluationError(
-            _t(
-              "Function [[FUNCTION_NAME]] expects the parameter '%s' to be a single value or a single cell reference, not a range.",
-              argDefinition.name
-            )
-          );
+        // if argDefinition does not accept a matrix but arg is still a matrix
+        // --> triggers the arguments vectorization
+        const nColumns = arg.length;
+        const nRows = arg[0].length;
+        if (nColumns !== 1 || nRows !== 1) {
+          vectorArgsType ??= new Array(args.length);
+          if (nColumns !== 1 && nRows !== 1) {
+            vectorArgsType[i] = "matrix";
+            countVectorizableCol = Math.max(countVectorizableCol, nColumns);
+            countVectorizableRow = Math.max(countVectorizableRow, nRows);
+            vectorizableColLimit = Math.min(vectorizableColLimit, nColumns);
+            vectorizableRowLimit = Math.min(vectorizableRowLimit, nRows);
+          } else if (nColumns !== 1) {
+            vectorArgsType[i] = "horizontal";
+            countVectorizableCol = Math.max(countVectorizableCol, nColumns);
+            vectorizableColLimit = Math.min(vectorizableColLimit, nColumns);
+          } else if (nRows !== 1) {
+            vectorArgsType[i] = "vertical";
+            countVectorizableRow = Math.max(countVectorizableRow, nRows);
+            vectorizableRowLimit = Math.min(vectorizableRowLimit, nRows);
+          }
+        } else {
+          args[i] = arg[0][0];
         }
-        args[i] = arg[0][0];
       }
 
       if (!isMatrix(arg) && argDefinition.acceptMatrixOnly) {
@@ -121,28 +174,66 @@ function addInputHandling(
         );
       }
     }
-    return descr.compute.apply(this, args);
+
+    if (countVectorizableCol === 1 && countVectorizableRow === 1) {
+      return computeToFPayloadObject.apply(this, args);
+    }
+
+    const argsVector: (i: number, j: number) => Arg[] = (i, j) =>
+      args.map((arg, index) => {
+        switch (vectorArgsType?.[index]) {
+          case "matrix":
+            return arg![i][j];
+          case "horizontal":
+            return arg![i][0];
+          case "vertical":
+            return arg![0][j];
+          case undefined:
+            return arg;
+        }
+      });
+
+    return generateMatrix(countVectorizableCol, countVectorizableRow, (col, row) => {
+      if (col > vectorizableColLimit - 1 || row > vectorizableRowLimit - 1) {
+        return notAvailableError;
+      }
+      const matrixElm = computeToFPayloadObject.apply(this, argsVector(col, row));
+      // In the case where the user tries to vectorize arguments of an array formula, we will get an
+      // array for every combination of the vectorized arguments, which will lead to a 3D matrix and
+      // we won't be able to return the values.
+      // In this case, we keep the first element of each spreading part, just as Excel does, and
+      // create an array with these parts.
+      // For exemple, we have MUNIT(x) that return an unitary matrix of x*x. If we use it with a
+      // range, like MUNIT(A1:A2), we will get two unitary matrices (one for the value in A1 and one
+      // for the value in A2). In this case, we will simply take the first value of each matrix and
+      // return the array [First value of MUNIT(A1), First value of MUNIT(A2)].
+      return isMatrix(matrixElm) ? matrixElm[0][0] : matrixElm;
+    });
   }
 
-  return computeWithInputHandling;
-}
+  function computeToFPayloadObject(this: EvalContext, ...args: Arg[]): FPayload | Matrix<FPayload> {
+    const result = descr.compute.apply(this, args);
 
-function addErrorHandling(
-  compute: ComputeFunction<Matrix<FPayload> | FPayload>,
-  functionName: string
-): ComputeFunction<Matrix<FPayload> | FPayload> {
-  return function (this: EvalContext, ...args: Arg[]): Matrix<FPayload> | FPayload {
-    try {
-      return compute.apply(this, args);
-    } catch (e) {
-      return handleError(e, functionName);
+    if (!isMatrix(result)) {
+      if (typeof result === "object" && result !== null && "value" in result) {
+        replaceFunctionNamePlaceholder(result, functionName);
+        return result;
+      }
+      return { value: result };
     }
-  };
-}
 
-export const implementationErrorMessage = _t(
-  "An unexpected error occurred. Submit a support ticket at odoo.com/help."
-);
+    if (typeof result[0][0] === "object" && result[0][0] !== null && "value" in result[0][0]) {
+      matrixForEach(result as Matrix<FPayload>, (result) =>
+        replaceFunctionNamePlaceholder(result, functionName)
+      );
+      return result as Matrix<FPayload>;
+    }
+
+    return matrixMap(result as Matrix<CellValue>, (row) => ({ value: row }));
+  }
+
+  return computeFunction;
+}
 
 export function handleError(e: unknown, functionName: string): FPayload {
   // the error could be an user error (instance of EvaluationError)
@@ -168,42 +259,6 @@ function hasStringValue(obj: unknown): obj is { value: string } {
   );
 }
 
-function hasStringMessage(obj: unknown): obj is { message: string } {
-  return (
-    (obj as { message: string })?.message !== undefined &&
-    typeof (obj as { message: string }).message === "string"
-  );
-}
-
-function addResultHandling(
-  compute: ComputeFunction<FPayload | Matrix<FPayload> | CellValue | Matrix<CellValue>>,
-  functionName: string
-): ComputeFunction<FPayload | Matrix<FPayload>> {
-  return function computeWithResultHandling(
-    this: EvalContext,
-    ...args: Arg[]
-  ): FPayload | Matrix<FPayload> {
-    const result = compute.apply(this, args);
-
-    if (!isMatrix(result)) {
-      if (typeof result === "object" && result !== null && "value" in result) {
-        replaceFunctionNamePlaceholder(result, functionName);
-        return result;
-      }
-      return { value: result };
-    }
-
-    if (typeof result[0][0] === "object" && result[0][0] !== null && "value" in result[0][0]) {
-      matrixForEach(result as Matrix<FPayload>, (result) =>
-        replaceFunctionNamePlaceholder(result, functionName)
-      );
-      return result as Matrix<FPayload>;
-    }
-
-    return matrixMap(result as Matrix<CellValue>, (row) => ({ value: row }));
-  };
-}
-
 function replaceFunctionNamePlaceholder(fPayload: FPayload, functionName: string) {
   // for performance reasons: change in place and only if needed
   if (fPayload.message?.includes("[[FUNCTION_NAME]]")) {
@@ -211,14 +266,13 @@ function replaceFunctionNamePlaceholder(fPayload: FPayload, functionName: string
   }
 }
 
-export const functionRegistry: FunctionRegistry = new FunctionRegistry();
+export const implementationErrorMessage = _t(
+  "An unexpected error occurred. Submit a support ticket at odoo.com/help."
+);
 
-for (let category of categories) {
-  const fns = category.functions;
-  for (let name in fns) {
-    const addDescr = fns[name];
-    addDescr.category = addDescr.category || category.name;
-    name = name.replace(/_/g, ".");
-    functionRegistry.add(name, { isExported: false, ...addDescr });
-  }
+function hasStringMessage(obj: unknown): obj is { message: string } {
+  return (
+    (obj as { message: string })?.message !== undefined &&
+    typeof (obj as { message: string }).message === "string"
+  );
 }
