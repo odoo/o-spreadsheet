@@ -1,6 +1,6 @@
 import { Component, onMounted, onWillUnmount, useEffect, useRef } from "@odoo/owl";
 import type { Chart, ChartConfiguration } from "chart.js";
-import { deepCopy, deepEquals } from "../../../../helpers";
+import { deepCopy } from "../../../../helpers";
 import { Figure, SpreadsheetChildEnv } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
 import { waterfallLinesPlugin } from "./chartjs_waterfall_plugin";
@@ -48,7 +48,7 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
     onWillUnmount(() => this.chart?.destroy());
     useEffect(() => {
       const runtime = this.chartRuntime;
-      if (!deepEquals(runtime, this.currentRuntime, "ignoreFunctions")) {
+      if (runtime !== this.currentRuntime) {
         if (runtime.chartJsConfig.type !== this.currentRuntime.chartJsConfig.type) {
           this.chart?.destroy();
           this.createChart(deepCopy(runtime.chartJsConfig));
