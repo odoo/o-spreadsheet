@@ -2,7 +2,8 @@ import { parseNumber, removeStringQuotes } from "../helpers/index";
 import { _t } from "../translation";
 import { DEFAULT_LOCALE } from "../types";
 import { BadExpressionError, InvalidReferenceError } from "../types/errors";
-import { Token, tokenize } from "./tokenizer";
+import { rangeTokenize } from "./range_tokenizer";
+import { Token } from "./tokenizer";
 
 const functionRegex = /[a-zA-Z0-9\_]+(\.[a-zA-Z0-9\_]+)*/;
 
@@ -223,7 +224,7 @@ function parseExpression(tokens: Token[], parent_priority: number = 0): AST {
  * Parse an expression (as a string) into an AST.
  */
 export function parse(str: string): AST {
-  return parseTokens(tokenize(str));
+  return parseTokens(rangeTokenize(str));
 }
 
 export function parseTokens(tokens: Token[]): AST {
