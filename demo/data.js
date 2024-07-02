@@ -2109,6 +2109,22 @@ function computeFormulaCells(cols, rows) {
   return cells;
 }
 
+function computeArrayFormulaCells(cols, rows) {
+  const cells = {};
+  const initRow = 4;
+  for (let row = initRow; row <= rows; row++) {
+    cells[`A${row}`] = { content: row.toString() };
+  }
+  for (let col = 1; col < cols; col++) {
+    const colLetter = _getColumnLetter(col);
+    const prev = _getColumnLetter(col - 1);
+    cells[colLetter + initRow] = {
+      content: `=transpose(transpose(${prev}${initRow}:${prev}${rows}))`,
+    };
+  }
+  return cells;
+}
+
 function computeNumberCells(cols, rows, type = "numbers") {
   const cells = {};
   for (let col = 0; col < cols; col++) {
@@ -2155,6 +2171,9 @@ export function makeLargeDataset(cols, rows, sheetsInfo = ["formulas"]) {
     switch (sheetsInfo[index]) {
       case "formulas":
         cells = computeFormulaCells(cols, rows);
+        break;
+      case "arrayFormulas":
+        cells = computeArrayFormulaCells(cols, rows);
         break;
       case "numbers":
       case "floats":
