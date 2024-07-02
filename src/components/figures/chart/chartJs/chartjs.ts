@@ -1,6 +1,6 @@
 import { Component, onMounted, onWillUnmount, useEffect, useRef } from "@odoo/owl";
 import type { Chart, ChartConfiguration } from "chart.js";
-import { deepCopy, deepEquals } from "../../../../helpers";
+import { deepCopy } from "../../../../helpers";
 import { Figure, SpreadsheetChildEnv } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
 
@@ -16,7 +16,6 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
 
   private canvas = useRef("graphContainer");
   private chart?: Chart;
-  private currentRuntime!: ChartJSRuntime;
 
   get background(): string {
     return this.chartRuntime.background;
@@ -37,18 +36,14 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   setup() {
     onMounted(() => {
       const runtime = this.chartRuntime;
-      this.currentRuntime = runtime;
       // Note: chartJS modify the runtime in place, so it's important to give it a copy
       this.createChart(deepCopy(runtime.chartJsConfig));
     });
     onWillUnmount(() => this.chart?.destroy());
-    useEffect(() => {
-      const runtime = this.chartRuntime;
-      if (!deepEquals(runtime, this.currentRuntime, "ignoreFunctions")) {
-        this.currentRuntime = runtime;
-        this.updateChartJs(deepCopy(runtime));
-      }
-    });
+    useEffect(
+      () => this.updateChartJs(deepCopy(this.chartRuntime)),
+      () => [this.chartRuntime]
+    );
   }
 
   private createChart(chartData: ChartConfiguration) {
