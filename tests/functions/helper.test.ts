@@ -306,13 +306,14 @@ describe("Function helpers", () => {
 describe("Locale helpers", () => {
   test("isValidLocale", () => {
     const locale = DEFAULT_LOCALE;
+    expect(isValidLocale({ ...locale, thousandsSeparator: undefined })).toBe(true);
 
     expect(isValidLocale(locale)).toBe(true);
 
     // Missing values
     expect(isValidLocale("en_US")).toBe(false);
     expect(isValidLocale({})).toBe(false);
-    expect(isValidLocale({ ...locale, thousandsSeparator: undefined })).toBe(false);
+    expect(isValidLocale({ ...locale, thousandsSeparator: undefined })).toBe(true);
     expect(isValidLocale({ ...locale, decimalSeparator: undefined })).toBe(false);
     expect(isValidLocale({ ...locale, dateFormat: undefined })).toBe(false);
     expect(isValidLocale({ ...locale, timeFormat: undefined })).toBe(false);
@@ -320,13 +321,15 @@ describe("Locale helpers", () => {
     expect(isValidLocale({ ...locale, code: undefined })).toBe(false);
     expect(isValidLocale({ ...locale, name: undefined })).toBe(false);
 
-    expect(isValidLocale({ ...locale, thousandsSeparator: "" })).toBe(false);
+    expect(isValidLocale({ ...locale, thousandsSeparator: "" })).toBe(true);
     expect(isValidLocale({ ...locale, decimalSeparator: "" })).toBe(false);
     expect(isValidLocale({ ...locale, dateFormat: "" })).toBe(false);
     expect(isValidLocale({ ...locale, timeFormat: "" })).toBe(false);
     expect(isValidLocale({ ...locale, formulaArgSeparator: "" })).toBe(false);
     expect(isValidLocale({ ...locale, code: "" })).toBe(false);
     expect(isValidLocale({ ...locale, name: "" })).toBe(false);
+
+    expect(isValidLocale({ ...locale, thousandsSeparator: 56 })).toBe(false);
 
     // Invalid formats
     expect(isValidLocale({ ...locale, dateFormat: "hey" })).toBe(false);
