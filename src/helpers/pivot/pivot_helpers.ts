@@ -103,9 +103,9 @@ export function getMaxObjectId(o: object) {
 
 export const ALL_PERIODS = {
   year: _t("Year"),
-  quarter: _t("Quarter"),
-  month: _t("Month"),
-  week: _t("Week"),
+  quarter: _t("Quarter & Year"),
+  month: _t("Month & Year"),
+  week: _t("Week & Year"),
   day: _t("Day"),
   quarter_number: _t("Quarter"),
   month_number: _t("Month"),
