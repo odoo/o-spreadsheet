@@ -841,6 +841,16 @@ describe("COUNTIF formula", () => {
     };
     expect(evaluateCell("A3", { A3: "=COUNTIF(A1:B2, KABOUM)", ...grid })).toBe("#BAD_EXPR"); // @compatibility: should be 4
   });
+
+  test("COUNTIF on empty range", () => {
+    const grid = {
+      A1: '=COUNTIF(B1, "<>Hi")',
+      A2: '=COUNTIF(B1, "=Hi")',
+    };
+    const gridResult = evaluateGrid(grid);
+    expect(gridResult.A1).toBe(1);
+    expect(gridResult.A2).toBe(0);
+  });
 });
 
 describe("COUNTIFS formula", () => {
@@ -897,6 +907,17 @@ describe("COUNTIFS formula", () => {
       A2: "42", B2: "43",
     };
     expect(evaluateCell("A3", { A3: "=COUNTIFS(A1:B2, KABOUM)", ...grid })).toBe("#BAD_EXPR"); // @compatibility: should be 4
+  });
+
+  test("COUNTIFS on empty range", () => {
+    const grid = {
+      A1: "Alice",
+      A2: '=COUNTIFS(A1, "Alice", B1, "<>Hi")',
+      A3: '=COUNTIFS(A1, "Alice", B1, "=Hi")',
+    };
+    const gridResult = evaluateGrid(grid);
+    expect(gridResult.A2).toBe(1);
+    expect(gridResult.A3).toBe(0);
   });
 });
 
@@ -1094,6 +1115,17 @@ describe("COUNTUNIQUEIFS formula", () => {
     expect(evaluateCell("A4", { A4: "=COUNTUNIQUEIFS(A1:A3, B1:B3, KABOUM)", ...grid })).toBe(
       "#BAD_EXPR"
     ); // @compatibility: should be 0
+  });
+
+  test("COUNTUNIQUEIFS on empty range", () => {
+    const grid = {
+      A1: "Alice",
+      A2: '=COUNTUNIQUEIFS(A1, A1, "Alice", B1, "<>Hi")',
+      A3: '=COUNTUNIQUEIFS(A1, A1, "Alice", B1, "=Hi")',
+    };
+    const gridResult = evaluateGrid(grid);
+    expect(gridResult.A2).toBe(1);
+    expect(gridResult.A3).toBe(0);
   });
 });
 
