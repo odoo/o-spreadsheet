@@ -376,10 +376,10 @@ function operandToRegExp(operand: string): RegExp {
   return new RegExp("^" + exp + "$", "i");
 }
 
-function evaluatePredicate(value: CellValue | undefined, criterion: Predicate): boolean {
+function evaluatePredicate(value: CellValue | undefined = "", criterion: Predicate): boolean {
   const { operator, operand } = criterion;
 
-  if (value === undefined || operand === undefined) {
+  if (operand === undefined) {
     return false;
   }
 
