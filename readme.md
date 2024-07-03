@@ -39,7 +39,8 @@ a.k.a. "[Owly](https://github.com/odoo/owl) Sheet" 🦉
 7. Notification (under construction)
 8. Export Excel (under construction)
 9. [Terminology](doc/o-spreadsheet_terminology.png)
-10. [API](doc/tsdoc/README.md)
+10. [Translations](doc/extending/translations.md)
+11. [API](doc/tsdoc/README.md)
 
 ## Run it!
 
