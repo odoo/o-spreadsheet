@@ -34,7 +34,13 @@ export class SettingsPanel extends Component<Props, SpreadsheetChildEnv> {
 
   private async loadLocales() {
     this.loadedLocales = (await this.env.loadLocales())
-      .filter(isValidLocale)
+      .filter((locale) => {
+        const isValid = isValidLocale(locale);
+        if (!isValid) {
+          console.warn(`Invalid locale: ${locale["code"]} ${locale}`);
+        }
+        return isValid;
+      })
       .sort((a, b) => a.name.localeCompare(b.name));
   }
 
