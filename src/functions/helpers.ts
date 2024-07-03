@@ -365,10 +365,10 @@ function operandToRegExp(operand: string): RegExp {
   return new RegExp("^" + exp + "$", "i");
 }
 
-function evaluatePredicate(value: ArgValue, criterion: Predicate): boolean {
+function evaluatePredicate(value: ArgValue = "", criterion: Predicate): boolean {
   const { operator, operand } = criterion;
 
-  if (value === undefined || operand === undefined) {
+  if (operand === undefined) {
     return false;
   }
 
