@@ -537,6 +537,9 @@ function getPredicate(descr: string, locale: Locale): Predicate {
  * If the character is a special regular expression character, it is escaped with "\\".
  */
 const wildcardToRegExp = memoize(function wildcardToRegExp(operand: string): RegExp {
+  if (operand === "*") {
+    return /.+/;
+  }
   let exp = "";
   let predecessor = "";
   for (let char of operand) {
