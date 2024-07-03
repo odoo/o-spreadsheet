@@ -788,6 +788,16 @@ describe("COUNTIF formula", () => {
     expect(grid5Result.J81).toBe(0);
     expect(grid5Result.J82).toBe(1);
   });
+
+  test("COUNTIF on empty range", () => {
+    const grid = {
+      A1: '=COUNTIF(B1, "<>Hi")',
+      A2: '=COUNTIF(B1, "=Hi")',
+    };
+    const gridResult = evaluateGrid(grid);
+    expect(gridResult.A1).toBe(1);
+    expect(gridResult.A2).toBe(0);
+  });
 });
 
 describe("COUNTIFS formula", () => {
@@ -825,6 +835,17 @@ describe("COUNTIFS formula", () => {
     expect(gridResult.D7).toBe(1);
     expect(gridResult.D8).toBe(4);
     expect(gridResult.D9).toBe(4);
+  });
+
+  test("COUNTIFS on empty range", () => {
+    const grid = {
+      A1: "Alice",
+      A2: '=COUNTIFS(A1, "Alice", B1, "<>Hi")',
+      A3: '=COUNTIFS(A1, "Alice", B1, "=Hi")',
+    };
+    const gridResult = evaluateGrid(grid);
+    expect(gridResult.A2).toBe(1);
+    expect(gridResult.A3).toBe(0);
   });
 });
 
@@ -978,6 +999,17 @@ describe("COUNTUNIQUEIFS formula", () => {
     expect(gridResult.A14).toBe(2);
     expect(gridResult.A15).toBe(3);
     expect(gridResult.A16).toBe(2);
+  });
+
+  test("COUNTUNIQUEIFS on empty range", () => {
+    const grid = {
+      A1: "Alice",
+      A2: '=COUNTUNIQUEIFS(A1, A1, "Alice", B1, "<>Hi")',
+      A3: '=COUNTUNIQUEIFS(A1, A1, "Alice", B1, "=Hi")',
+    };
+    const gridResult = evaluateGrid(grid);
+    expect(gridResult.A2).toBe(1);
+    expect(gridResult.A3).toBe(0);
   });
 });
 
