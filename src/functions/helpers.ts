@@ -474,6 +474,9 @@ function getPredicate(descr: string, isQuery: boolean, locale: Locale): Predicat
 }
 
 function operandToRegExp(operand: string): RegExp {
+  if (operand === "*") {
+    return /.+/;
+  }
   let exp = "";
   let predecessor = "";
   for (let char of operand) {

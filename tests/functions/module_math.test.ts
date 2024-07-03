@@ -818,10 +818,12 @@ describe("COUNTIF formula", () => {
     const grid = {
       A1: '=COUNTIF(B1, "<>Hi")',
       A2: '=COUNTIF(B1, "=Hi")',
+      A3: '=COUNTIF(B1, "*")',
     };
     const gridResult = evaluateGrid(grid);
     expect(gridResult.A1).toBe(1);
     expect(gridResult.A2).toBe(0);
+    expect(gridResult.A3).toBe(0);
   });
 });
 
@@ -867,10 +869,12 @@ describe("COUNTIFS formula", () => {
       A1: "Alice",
       A2: '=COUNTIFS(A1, "Alice", B1, "<>Hi")',
       A3: '=COUNTIFS(A1, "Alice", B1, "=Hi")',
+      A4: '=COUNTIFS(A1, "Alice", B1, "*")',
     };
     const gridResult = evaluateGrid(grid);
     expect(gridResult.A2).toBe(1);
     expect(gridResult.A3).toBe(0);
+    expect(gridResult.A4).toBe(0);
   });
 });
 
@@ -1031,10 +1035,12 @@ describe("COUNTUNIQUEIFS formula", () => {
       A1: "Alice",
       A2: '=COUNTUNIQUEIFS(A1, A1, "Alice", B1, "<>Hi")',
       A3: '=COUNTUNIQUEIFS(A1, A1, "Alice", B1, "=Hi")',
+      A4: '=COUNTUNIQUEIFS(A1, A1, "Alice", B1, "*")',
     };
     const gridResult = evaluateGrid(grid);
     expect(gridResult.A2).toBe(1);
     expect(gridResult.A3).toBe(0);
+    expect(gridResult.A4).toBe(0);
   });
 });
 
