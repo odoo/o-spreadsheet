@@ -5,7 +5,7 @@ export type LocaleCode = string & Alias;
 export interface Locale {
   name: string;
   code: LocaleCode;
-  thousandsSeparator: string;
+  thousandsSeparator?: string;
   decimalSeparator: string;
   dateFormat: string;
   timeFormat: string;
