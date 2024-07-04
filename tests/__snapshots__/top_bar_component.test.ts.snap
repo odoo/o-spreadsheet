@@ -54,7 +54,7 @@ exports[`TopBar component can set cell format 1`] = `
           
         </div>
         <div
-          class="o-topbar-topright d-flex justify-content-end"
+          class="o-topbar-topright d-flex justify-content-end align-items-center"
         >
           
         </div>
@@ -1017,7 +1017,7 @@ exports[`TopBar component simple rendering 1`] = `
       
     </div>
     <div
-      class="o-topbar-topright d-flex justify-content-end"
+      class="o-topbar-topright d-flex justify-content-end align-items-center"
     >
       
     </div>

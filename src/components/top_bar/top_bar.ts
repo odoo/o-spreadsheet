@@ -181,7 +181,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
 
   get topbarComponents() {
     return topbarComponentRegistry
-      .getAll()
+      .getAllOrdered()
       .filter((item) => !item.isVisible || item.isVisible(this.env));
   }
 

@@ -516,7 +516,7 @@ describe("TopBar component", () => {
 
   test("Can add a custom component to topbar", async () => {
     const compDefinitions = Object.assign({}, topbarComponentRegistry.content);
-    topbarComponentRegistry.add("1", { component: Comp });
+    topbarComponentRegistry.add("1", { component: Comp, sequence: 1 });
     await mountParent();
     expect(fixture.querySelectorAll(".o-topbar-test")).toHaveLength(1);
     topbarComponentRegistry.content = compDefinitions;
@@ -530,8 +530,9 @@ describe("TopBar component", () => {
       isVisible: () => {
         return comp1Visibility;
       },
+      sequence: 1,
     });
-    topbarComponentRegistry.add("second", { component: Comp2 });
+    topbarComponentRegistry.add("second", { component: Comp2, sequence: 2 });
     const { parent } = await mountParent();
     expect(fixture.querySelectorAll(".o-topbar-test1")).toHaveLength(0);
     expect(fixture.querySelectorAll(".o-topbar-test2")).toHaveLength(1);
@@ -641,10 +642,12 @@ test("Can show/hide a TopBarComponent based on condition", async () => {
   topbarComponentRegistry.add("1", {
     component: Comp1,
     isVisible: (env) => true,
+    sequence: 1,
   });
   topbarComponentRegistry.add("2", {
     component: Comp2,
     isVisible: (env) => false,
+    sequence: 2,
   });
   await mountParent();
   expect(fixture.querySelectorAll(".o-topbar-test1")).toHaveLength(1);

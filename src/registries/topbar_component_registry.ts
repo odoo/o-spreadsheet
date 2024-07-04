@@ -10,6 +10,7 @@ export interface TopbarComponent {
   id: UID;
   component: any;
   isVisible?: (env: SpreadsheetChildEnv) => boolean;
+  sequence: number;
 }
 
 class TopBarComponentRegistry extends Registry<TopbarComponent> {
@@ -19,6 +20,10 @@ class TopBarComponentRegistry extends Registry<TopbarComponent> {
   add(name: string, value: Omit<TopbarComponent, "id">) {
     const component: TopbarComponent = { ...value, id: this.uuidGenerator.uuidv4() };
     return super.add(name, component);
+  }
+
+  getAllOrdered(): TopbarComponent[] {
+    return this.getAll().sort((a, b) => a.sequence - b.sequence);
   }
 }
 
