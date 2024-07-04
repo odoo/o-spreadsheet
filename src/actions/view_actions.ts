@@ -37,6 +37,7 @@ export const unhideCols: ActionSpec = {
     const currentCols = env.model.getters.getElementsFromSelection("COL");
     return currentCols.some((col) => hiddenCols.includes(col));
   },
+  icon: "o-spreadsheet-Icon.UNHIDE_COL",
 };
 
 export const unhideAllCols: ActionSpec = {
@@ -51,6 +52,7 @@ export const unhideAllCols: ActionSpec = {
   },
   isVisible: (env: SpreadsheetChildEnv) =>
     env.model.getters.getHiddenColsGroups(env.model.getters.getActiveSheetId()).length > 0,
+  icon: "o-spreadsheet-Icon.UNHIDE_COL",
 };
 
 export const hideRows: ActionSpec = {
@@ -84,6 +86,7 @@ export const unhideRows: ActionSpec = {
     const currentRows = env.model.getters.getElementsFromSelection("ROW");
     return currentRows.some((col) => hiddenRows.includes(col));
   },
+  icon: "o-spreadsheet-Icon.UNHIDE_ROW",
 };
 
 export const unhideAllRows: ActionSpec = {
@@ -98,6 +101,7 @@ export const unhideAllRows: ActionSpec = {
   },
   isVisible: (env: SpreadsheetChildEnv) =>
     env.model.getters.getHiddenRowsGroups(env.model.getters.getActiveSheetId()).length > 0,
+  icon: "o-spreadsheet-Icon.UNHIDE_ROW",
 };
 
 export const unFreezePane: ActionSpec = {
