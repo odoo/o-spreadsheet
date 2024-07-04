@@ -22,13 +22,14 @@ import {
 } from "../types/index";
 import { XlsxReader } from "../xlsx/xlsx_reader";
 import { normalizeV9 } from "./legacy_tools";
+import { WEEK_START } from "./locale";
 
 /**
  * This is the current state version number. It should be incremented each time
  * a breaking change is made in the way the state is handled, and an upgrade
  * function should be defined
  */
-export const CURRENT_VERSION = 17;
+export const CURRENT_VERSION = 18;
 const INITIAL_SHEET_ID = "Sheet1";
 
 /**
@@ -410,6 +411,19 @@ const MIGRATIONS: Migration[] = [
           newData.dataSets = newDataSets;
           sheet.figures[f].data = newData;
         }
+      }
+      return data;
+    },
+  },
+  {
+    description: "Add weekStart to locale",
+    from: 17,
+    to: 18,
+    applyMigration(data: any): any {
+      const locale = data.settings?.locale;
+      if (locale) {
+        const code = locale.code;
+        locale.weekStart = WEEK_START[code] || 1; // Default to Monday;
       }
       return data;
     },
