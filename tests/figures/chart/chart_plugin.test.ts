@@ -2004,6 +2004,30 @@ describe("Linear/Time charts", () => {
     expect(chart.data!.datasets![0].data![0]).toEqual({ y: 10, x: formattedValue });
   });
 
+  test.each(["bar", "line", "pie"] as const)("long labels are truncated in %s chart", (type) => {
+    setCellContent(model, "A2", "This is a very long label that should be truncated");
+    setCellContent(model, "B1", "First dataset");
+    setCellContent(model, "B2", "10");
+
+    createChart(
+      model,
+      {
+        type,
+        dataSets: ["B1:B2"],
+        labelRange: "A2",
+        labelsAsText: false,
+        dataSetsHaveTitle: true,
+      },
+      chartId
+    );
+
+    const chart = (model.getters.getChartRuntime(chartId) as BarChartRuntime).chartJsConfig;
+
+    expect(chart.data!.labels![0]).toEqual("This is a very long …");
+    expect((chart.data!.labels![0] as string).length).toBe(MAX_CHAR_LABEL + 1); // +1 for the ellipsis
+    expect(chart.data!.datasets![0].data![0]).toEqual(10);
+  });
+
   test("linear chart: label 0 isn't set to undefined", () => {
     setCellContent(model, "B2", "0");
     setCellContent(model, "B3", "1");
