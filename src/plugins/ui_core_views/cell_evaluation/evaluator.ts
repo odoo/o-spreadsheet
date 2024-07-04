@@ -280,6 +280,7 @@ export class Evaluator {
       );
     } finally {
       this.cellsBeingComputed.delete(cellId);
+      this.nextPositionsToUpdate.delete(positionId);
     }
   }
 
