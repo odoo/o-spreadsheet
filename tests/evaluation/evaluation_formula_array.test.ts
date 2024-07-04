@@ -635,6 +635,31 @@ describe("evaluate formulas that return an array", () => {
       expect(c).toEqual(3);
     });
 
+    test("array formula depending on array formula result is evaluated once", () => {
+      const mockCompute = jest.fn().mockImplementation((values) => values);
+
+      functionRegistry.add("RANGE_IDENTITY", {
+        description: "returns the input. Like transpose(transpose(range))",
+        args: [arg("range (range<any>)", "")],
+        returns: ["RANGE<ANY>"],
+        compute: mockCompute,
+      });
+      new Model({
+        sheets: [
+          {
+            cells: {
+              A1: { content: "0" },
+              A2: { content: "1" },
+              B1: { content: "=RANGE_IDENTITY(A1:A2)" },
+              C1: { content: "=RANGE_IDENTITY(B1:B2)" },
+              D1: { content: "=RANGE_IDENTITY(C1:C2)" },
+            },
+          },
+        ],
+      });
+      expect(mockCompute).toHaveBeenCalledTimes(3);
+    });
+
     test("Spreaded formulas with range deps invalidate only once the dependencies of themselves", () => {
       let c = 0;
       functionRegistry.add("INCREMENTONEVAL", {
@@ -690,9 +715,9 @@ describe("evaluate formulas that return an array", () => {
 
       setCellContent(model, "A1", "2");
 
-      expect(getEvaluatedCell(model, "B1").value).toBe(42);
-      expect(getEvaluatedCell(model, "B2").value).toBe(42);
-      expect(getEvaluatedCell(model, "B3").value).toBe(42);
+      expect(getEvaluatedCell(model, "B1").value).toBe("#SPILL!");
+      expect(getEvaluatedCell(model, "B2").value).toBe(null);
+      expect(getEvaluatedCell(model, "B3").value).toBe(0);
 
       expect(getEvaluatedCell(model, "A3").value).toBe("#SPILL!");
     });

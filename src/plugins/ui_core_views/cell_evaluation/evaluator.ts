@@ -289,6 +289,7 @@ export class Evaluator {
       return createEvaluatedCell(e);
     } finally {
       this.cellsBeingComputed.delete(cellId);
+      this.nextPositionsToUpdate.delete(position);
     }
   }
 

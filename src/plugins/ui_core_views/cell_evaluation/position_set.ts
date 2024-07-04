@@ -48,7 +48,7 @@ export class PositionSet {
   }
 
   clear(): CellPosition[] {
-    const insertions = this.insertions;
+    const insertions = [...this];
     this.insertions = [];
     for (const sheetId in this.sheets) {
       this.sheets[sheetId].clear();
