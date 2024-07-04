@@ -8,7 +8,13 @@ import {
 } from "../../src/constants";
 import { toCartesian, toZone } from "../../src/helpers";
 import { CURRENT_VERSION } from "../../src/migrations/data";
-import { BorderDescr, ColorScaleRule, DEFAULT_LOCALE, IconSetRule } from "../../src/types";
+import {
+  BorderDescr,
+  ColorScaleRule,
+  DEFAULT_LOCALE,
+  DEFAULT_LOCALES,
+  IconSetRule,
+} from "../../src/types";
 import {
   activateSheet,
   resizeColumns,
@@ -764,6 +770,21 @@ test("import localized date as string and detect the format", () => {
   expect(getCell(model, "A1")?.format).toBe("d/m/yyyy");
   expect(getCell(model, "A1")?.content).toBe("44196");
   expect(getEvaluatedCell(model, "A1")?.formattedValue).toBe("31/12/2020");
+});
+
+test("Week start is automatically added during migration", () => {
+  expect(
+    new Model({
+      version: 19,
+      settings: { locale: { ...DEFAULT_LOCALES[1], weekStart: undefined } },
+    }).exportData().settings.locale.weekStart
+  ).toBe(1);
+  expect(
+    new Model({
+      version: 19,
+      settings: { locale: { ...DEFAULT_LOCALES[0], weekStart: undefined } },
+    }).exportData().settings.locale.weekStart
+  ).toBe(7);
 });
 
 test("Can import spreadsheet with only version", () => {

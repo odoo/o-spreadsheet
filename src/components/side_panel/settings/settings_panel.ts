@@ -1,6 +1,6 @@
 import { Component, onWillStart } from "@odoo/owl";
 import { GRAY_100, GRAY_300 } from "../../../constants";
-import { deepEquals, formatValue } from "../../../helpers";
+import { DAYS, deepEquals, formatValue } from "../../../helpers";
 import { getDateTimeFormat, isValidLocale } from "../../../helpers/locale";
 import { Locale, LocaleCode, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers";
@@ -61,6 +61,14 @@ export class SettingsPanel extends Component<Props, SpreadsheetChildEnv> {
     const locale = this.env.model.getters.getLocale();
     const dateTimeFormat = getDateTimeFormat(locale);
     return formatValue(1.6, { format: dateTimeFormat, locale });
+  }
+
+  get firstDayOfWeek() {
+    const locale = this.env.model.getters.getLocale();
+    const weekStart = locale.weekStart;
+    // Week start: 1 = Monday, 7 = Sunday
+    // Days: 0 = Sunday, 6 = Saturday
+    return DAYS[weekStart % 7];
   }
 
   get currentLocale() {
