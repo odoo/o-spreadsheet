@@ -103,7 +103,7 @@ export function getDefaultChartJsRuntime(
   chart: AbstractChart,
   labels: string[],
   fontColor: Color,
-  { format, locale, truncateLabels }: LocaleFormat & { truncateLabels?: boolean }
+  { format, locale, truncateLabels = true }: LocaleFormat & { truncateLabels?: boolean }
 ): Required<ChartConfiguration> {
   const options: ChartOptions = {
     // https://www.chartjs.org/docs/latest/general/responsive.html
