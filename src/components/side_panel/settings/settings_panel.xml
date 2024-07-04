@@ -26,6 +26,10 @@
             <span class="fw-bold me-1">Date time:</span>
             <span t-esc="dateTimeFormatPreview"/>
           </div>
+          <div>
+            <span class="fw-bold me-1">First day of week:</span>
+            <span t-esc="firstDayOfWeek"/>
+          </div>
         </div>
       </Section>
       <Section class="'pt-0'">

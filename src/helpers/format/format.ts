@@ -54,7 +54,7 @@ export const MONTHS: Readonly<Record<number, string>> = {
   11: _t("December"),
 };
 
-const DAYS: Readonly<Record<number, string>> = {
+export const DAYS: Readonly<Record<number, string>> = {
   0: _t("Sunday"),
   1: _t("Monday"),
   2: _t("Tuesday"),
