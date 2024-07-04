@@ -103,7 +103,7 @@ export function getDefaultChartJsRuntime(
   chart: AbstractChart,
   labels: string[],
   fontColor: Color,
-  { format, locale, truncateLabels }: LocaleFormat & { truncateLabels?: boolean }
+  { format, locale, truncateLabels = true }: LocaleFormat & { truncateLabels?: boolean }
 ): Required<ChartConfiguration> {
   const chartTitle = chart.title.text ? chart.title : { ...chart.title, content: "" };
   const options: ChartOptions = {
