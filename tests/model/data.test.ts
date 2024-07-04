@@ -172,7 +172,7 @@ describe("load data", () => {
   test("figure data are correctly updated", () => {
     expect(
       load({
-        version: 15,
+        version: 16,
         sheets: [
           {
             name: "Sheet1",
