@@ -1017,6 +1017,17 @@ describe("UI of conditional formats", () => {
     expect(errorMessages()).toEqual(["The second argument is missing. Please provide a value"]);
   });
 
+  test("single color with an invalid formula as value", async () => {
+    await click(fixture, selectors.buttonAdd);
+    setInputValueAndTrigger(selectors.ruleEditor.range, "A1:A3");
+    await setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "GreaterThan");
+    expect(fixture.querySelector(".o-invalid")).toBeNull();
+    await editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "=suùù(");
+    await click(fixture, selectors.buttonSave);
+    expect(fixture.querySelector(".o-invalid")).not.toBeNull();
+    expect(errorMessages()).toEqual(["At least one of the provided values is an invalid formula"]);
+  });
+
   test("changing rule type resets errors", async () => {
     await click(fixture, selectors.buttonAdd);
     setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "GreaterThan");
