@@ -62,21 +62,18 @@ let composerStore: Store<ComposerStore>;
 
 async function startComposition(key?: string) {
   const composerEl = await startGridComposition(key);
-  // @ts-ignore
   cehMock = window.mockContentHelper;
   return composerEl;
 }
 
 async function typeInComposerGrid(text: string, fromScratch: boolean = true) {
   const composerEl = await typeInComposerGridHelper(text, fromScratch);
-  // @ts-ignore
   cehMock = window.mockContentHelper;
   return composerEl;
 }
 
 async function typeInComposerTopBar(text: string, fromScratch: boolean = true) {
   const composerEl = await typeInComposerTopBarHelper(text, fromScratch);
-  // @ts-ignore
   cehMock = window.mockContentHelper;
   return composerEl;
 }

@@ -56,7 +56,6 @@ let composerStore: Store<ComposerStore>;
 async function startComposition(text?: string): Promise<HTMLDivElement> {
   parent.startComposition(text);
   await nextTick();
-  // @ts-ignore
   cehMock = window.mockContentHelper;
   return fixture.querySelector("div.o-composer")! as HTMLDivElement;
 }
@@ -66,7 +65,6 @@ async function typeInComposer(text: string, fromScratch: boolean = true) {
     parent.startComposition();
   }
   const composerEl = await typeInComposerHelper("div.o-composer", text, false);
-  // @ts-ignore
   cehMock = window.mockContentHelper;
   return composerEl;
 }

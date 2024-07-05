@@ -341,7 +341,6 @@ describe("Side Panel", () => {
 
       spreadsheetWidth = 600;
       await nextTick();
-      // @ts-ignore - trigger resize observers
       window.resizers.resize();
       expect(store.panelSize).toBe(600 - MIN_SHEET_VIEW_WIDTH);
     });

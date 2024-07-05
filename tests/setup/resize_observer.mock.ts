@@ -4,24 +4,21 @@ class MockResizeObserver {
     this.cb = cb;
   }
   observe() {
-    //@ts-ignore
-    global.resizers.add(this);
+    window.resizers.add(this);
     Promise.resolve().then(() => this.cb());
   }
 
   unobserve() {
-    //@ts-ignore
-    global.resizers.remove(this);
+    window.resizers.remove(this);
   }
 
   disconnect() {
-    //@ts-ignore
-    global.resizers.remove(this);
+    window.resizers.remove(this);
   }
 }
-global.ResizeObserver = MockResizeObserver;
+window.ResizeObserver = MockResizeObserver;
 
-class Resizers {
+export class Resizers {
   private resizers: Set<MockResizeObserver> = new Set();
 
   add(resizeObserver: MockResizeObserver) {
@@ -41,5 +38,4 @@ class Resizers {
   }
 }
 
-//@ts-ignore
-global.resizers = new Resizers();
+window.resizers = new Resizers();
