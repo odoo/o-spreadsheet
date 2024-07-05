@@ -336,12 +336,41 @@ export class Evaluator {
       // thanks to the isMatrix check above, we know that formulaReturn is MatrixFunctionReturn
       this.spreadValues(formulaPosition, formulaReturn)
     );
-
+    this.invalidatePositionsDependingOnSpread(formulaPosition, nbColumns, nbRows);
     return createEvaluatedCell(
       nullValueToZeroValue(formulaReturn[0][0]),
       this.getters.getLocale(),
       cellData
     );
+  }
+
+  private invalidatePositionsDependingOnSpread(
+    arrayFormulaPosition: CellPosition,
+    nbColumns: number,
+    nbRows: number
+  ) {
+    // the result matrix is split in 2 zones to exclude the array formula position
+    const top = arrayFormulaPosition.row;
+    const left = arrayFormulaPosition.col;
+    const bottom = top + nbRows - 1;
+    const leftColumnZone = {
+      top: top + 1,
+      bottom,
+      left,
+      right: left,
+    };
+    const rightPartZone = {
+      top,
+      bottom,
+      left: left + 1,
+      right: left + nbColumns - 1,
+    };
+    const sheetId = arrayFormulaPosition.sheetId;
+    const invalidatedPositions = this.formulaDependencies().getCellsDependingOn([
+      { sheetId, zone: rightPartZone },
+      { sheetId, zone: leftColumnZone },
+    ]);
+    this.nextPositionsToUpdate.addMany(invalidatedPositions);
   }
 
   private assertSheetHasEnoughSpaceToSpreadFormulaResult(
@@ -440,10 +469,6 @@ export class Evaluator {
         cell
       );
       this.evaluatedCells.set(position, evaluatedCell);
-
-      // check if formula dependencies present in the spread zone
-      // if so, they need to be recomputed
-      this.nextPositionsToUpdate.addMany(this.getCellsDependingOn([position]));
     };
   }
 
