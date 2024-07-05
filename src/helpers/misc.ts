@@ -297,7 +297,7 @@ export function debounce<T extends (...args: any) => void>(
   let timeout: any | undefined = undefined;
   const debounced = function (this: any): void {
     const context = this;
-    const args = arguments;
+    const args = Array.from(arguments);
     function later() {
       timeout = undefined;
       if (!immediate) {
