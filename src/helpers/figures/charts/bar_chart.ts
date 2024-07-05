@@ -35,6 +35,7 @@ import {
   chartFontColor,
   checkDataset,
   checkLabelRange,
+  computeChartPadding,
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
@@ -236,14 +237,17 @@ function getBarConfiguration(
   const legend: DeepPartial<LegendOptions<"bar">> = {
     labels: { color: fontColor },
   };
-  if ((!chart.labelRange && chart.dataSets.length === 1) || chart.legendPosition === "none") {
+  if (chart.legendPosition === "none") {
     legend.display = false;
   } else {
     legend.position = chart.legendPosition;
   }
   config.options.plugins!.legend = { ...config.options.plugins?.legend, ...legend };
   config.options.layout = {
-    padding: { left: 20, right: 20, top: chart.title ? 10 : 25, bottom: 10 },
+    padding: computeChartPadding({
+      displayTitle: !!chart.title.text,
+      displayLegend: chart.legendPosition === "top",
+    }),
   };
   config.options.indexAxis = chart.horizontal ? "y" : "x";
 
