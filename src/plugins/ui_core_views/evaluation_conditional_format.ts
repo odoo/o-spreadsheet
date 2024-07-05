@@ -106,51 +106,55 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
   private getComputedStyles(sheetId: UID): ComputedStyles {
     const computedStyle: ComputedStyles = {};
     for (let cf of this.getters.getConditionalFormats(sheetId).reverse()) {
-      switch (cf.rule.type) {
-        case "ColorScaleRule":
-          for (let range of cf.ranges) {
-            this.applyColorScale(sheetId, range, cf.rule, computedStyle);
-          }
-          break;
-        case "CellIsRule":
-          const formulas = cf.rule.values.map((value) =>
-            value.startsWith("=") ? compile(value) : undefined
-          );
-          for (let ref of cf.ranges) {
-            const zone: Zone = this.getters.getRangeFromSheetXC(sheetId, ref).zone;
-            for (let row = zone.top; row <= zone.bottom; row++) {
-              for (let col = zone.left; col <= zone.right; col++) {
-                const predicate = this.rulePredicate[cf.rule.type];
-                const target = { sheetId, col, row };
-                const values = cf.rule.values.map((value, i) => {
-                  const compiledFormula = formulas[i];
-                  if (compiledFormula) {
-                    return this.getters.getTranslatedCellFormula(
-                      sheetId,
-                      col - zone.left,
-                      row - zone.top,
-                      {
-                        ...compiledFormula,
-                        dependencies: compiledFormula.dependencies.map((d) =>
-                          this.getters.getRangeFromSheetXC(sheetId, d)
-                        ),
-                      }
+      try {
+        switch (cf.rule.type) {
+          case "ColorScaleRule":
+            for (let range of cf.ranges) {
+              this.applyColorScale(sheetId, range, cf.rule, computedStyle);
+            }
+            break;
+          case "CellIsRule":
+            const formulas = cf.rule.values.map((value) =>
+              value.startsWith("=") ? compile(value) : undefined
+            );
+            for (let ref of cf.ranges) {
+              const zone: Zone = this.getters.getRangeFromSheetXC(sheetId, ref).zone;
+              for (let row = zone.top; row <= zone.bottom; row++) {
+                for (let col = zone.left; col <= zone.right; col++) {
+                  const predicate = this.rulePredicate[cf.rule.type];
+                  const target = { sheetId, col, row };
+                  const values = cf.rule.values.map((value, i) => {
+                    const compiledFormula = formulas[i];
+                    if (compiledFormula) {
+                      return this.getters.getTranslatedCellFormula(
+                        sheetId,
+                        col - zone.left,
+                        row - zone.top,
+                        {
+                          ...compiledFormula,
+                          dependencies: compiledFormula.dependencies.map((d) =>
+                            this.getters.getRangeFromSheetXC(sheetId, d)
+                          ),
+                        }
+                      );
+                    }
+                    return value;
+                  });
+                  if (predicate && predicate(target, { ...cf.rule, values })) {
+                    if (!computedStyle[col]) computedStyle[col] = [];
+                    // we must combine all the properties of all the CF rules applied to the given cell
+                    computedStyle[col][row] = Object.assign(
+                      computedStyle[col]?.[row] || {},
+                      cf.rule.style
                     );
                   }
-                  return value;
-                });
-                if (predicate && predicate(target, { ...cf.rule, values })) {
-                  if (!computedStyle[col]) computedStyle[col] = [];
-                  // we must combine all the properties of all the CF rules applied to the given cell
-                  computedStyle[col][row] = Object.assign(
-                    computedStyle[col]?.[row] || {},
-                    cf.rule.style
-                  );
                 }
               }
             }
-          }
-          break;
+            break;
+        }
+      } catch (_) {
+        // we ignore the errors within the evaluation of a rule
       }
     }
     return computedStyle;
