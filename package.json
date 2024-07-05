@@ -13,22 +13,24 @@
     "dist/*.xml"
   ],
   "scripts": {
-    "serve-static": "live-server --open=demo --watch=build/o_spreadsheet.js,build/o_spreadsheet.xml,demo",
-    "dev": "npm-run-all --print-label build --parallel server serve-static watch:*",
+    "serve-static": "live-server --open=demo --watch=build/o_spreadsheet.dev.js,build/o_spreadsheet.xml,demo",
+    "dev": "npm-run-all --print-label buildDev --parallel server serve-static watch:*",
     "server": "node tools/server/main.cjs",
     "build:js": "tsc --module es6 --incremental",
-    "build:bundleJs": "rollup -c -m --configDev",
+    "build:bundleJsDev": "rollup -c -m --configDev",
+    "build:bundleJs": "rollup -c -m --configDist",
     "build:bundleXml": "node tools/bundle_xml/main.cjs",
+    "buildDev": "npm-run-all build:js build:bundleJsDev \"build:bundleXml -- --outDir build\"",
     "build": "npm-run-all build:js build:bundleJs \"build:bundleXml -- --outDir build\"",
     "doc": "typedoc",
     "precommit": "npm run prettier && npm run doc",
-    "test": "jest",
+    "test": "tsc --noEmit --project tsconfig.jest.json && jest",
     "test:watch": "jest --watch",
     "prettier": "prettier . --write",
     "check-formatting": "prettier . --check",
     "dist": "tsc --module es6 --declaration --declarationDir dist/types && rollup -c && npm run build:bundleXml -- --outDir dist",
     "prepare": "husky install",
-    "watch:bundle": "npm run build:bundleJs -- --watch",
+    "watch:bundle": "npm run build:bundleJsDev -- --watch",
     "watch:ts": "npm run build:js -- --watch",
     "watch:xml": "node tools/bundle_xml/watch_xml_templates.cjs",
     "unzipXlsx": "node tools/bundle_xlsx/unzip_xlsx_demo.cjs",
@@ -57,6 +59,7 @@
     "@prettier/plugin-xml": "^2.2.0",
     "@rollup/plugin-node-resolve": "^15.2.0",
     "@rollup/plugin-terser": "^0.4.3",
+    "@swc/jest": "^0.2.36",
     "@types/jest": "^27.0.1",
     "@types/node": "^13.13.23",
     "@types/rbush": "^3.0.3",
@@ -87,10 +90,9 @@
     "rollup": "^3.28.0",
     "rollup-plugin-dts": "^5.3.1",
     "rollup-plugin-typescript2": "^0.35.0",
-    "ts-jest": "^29.1.0",
-    "typedoc": "0.24.8",
-    "typedoc-plugin-markdown": "3.11.1",
-    "typescript": "^5.1.6",
+    "typedoc": "0.25.12",
+    "typedoc-plugin-markdown": "3.17.1",
+    "typescript": "^5.4.3",
     "xml-formatter": "^2.4.0"
   },
   "prettier": {
@@ -111,10 +113,7 @@
     ],
     "transform": {
       "^.+\\.ts?$": [
-        "ts-jest",
-        {
-          "tsconfig": "tsconfig.jest.json"
-        }
+        "@swc/jest"
       ]
     },
     "verbose": false,
