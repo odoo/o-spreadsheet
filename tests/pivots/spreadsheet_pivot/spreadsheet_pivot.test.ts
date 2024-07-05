@@ -439,7 +439,7 @@ describe("Spreadsheet Pivot", () => {
       measures: [{ name: "Expected Revenue", aggregator: "sum" }],
     });
     setCellContent(model, "A26", `=pivot(1)`);
-    expect(getEvaluatedGrid(model, "B26:E26")).toEqual([["1", "2", "Total", ""]]);
+    expect(getEvaluatedGrid(model, "B26:E26")).toEqual([["Q1", "Q2", "Total", ""]]);
   });
 
   test("iso_week_number should be supported", () => {
@@ -928,16 +928,16 @@ describe("Spreadsheet Pivot", () => {
       measures: [],
     });
     setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:quarter_number", 4)');
-    expect(getEvaluatedCell(model, "A27").value).toBe(4);
+    expect(getEvaluatedCell(model, "A27").value).toBe("Q4");
     expect(getEvaluatedCell(model, "A27").format).toBe("0");
 
     // quarter as string
     setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:quarter_number", "4")');
-    expect(getEvaluatedCell(model, "A28").value).toBe(4);
+    expect(getEvaluatedCell(model, "A28").value).toBe("Q4");
 
     // not in the dataset
     setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:quarter_number", 1)');
-    expect(getEvaluatedCell(model, "A29").value).toBe(1);
+    expect(getEvaluatedCell(model, "A29").value).toBe("Q1");
 
     // missing header value
     setCellContent(model, "A30", '=PIVOT.HEADER(1, "Date:quarter_number", )');
