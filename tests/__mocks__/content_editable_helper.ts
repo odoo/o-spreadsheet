@@ -106,7 +106,6 @@ export class ContentEditableHelper {
   private attachEventHandlers() {
     if (this.el === null) return;
     this.el.addEventListener("keydown", (ev: KeyboardEvent) => this.onKeyDown(this.el!, ev));
-    // @ts-ignore
     this.el.addEventListener("focus", (ev: FocusEvent) => (window.mockContentHelper = this));
   }
 

@@ -39,7 +39,6 @@ async function typeInComposer(text: string, fromScratch: boolean = true) {
     parent.startComposition();
   }
   const composerEl = await typeInComposerHelper("div.o-composer", text, false);
-  // @ts-ignore
   cehMock = window.mockContentHelper;
   return composerEl;
 }
