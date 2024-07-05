@@ -1,6 +1,6 @@
 import { Component } from "@odoo/owl";
-import { SpreadsheetChildEnv, UID } from "../../../..";
 import { _t } from "../../../../translation";
+import { SpreadsheetChildEnv, UID } from "../../../../types";
 import { CogWheelMenu } from "../../components/cog_wheel_menu/cog_wheel_menu";
 import { Section } from "../../components/section/section";
 import { EditableName } from "../editable_name/editable_name";
