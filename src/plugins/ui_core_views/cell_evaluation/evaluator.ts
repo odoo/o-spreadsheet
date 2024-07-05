@@ -437,15 +437,16 @@ export class Evaluator {
     row,
   }: CellPosition): (i: number, j: number) => void {
     const arrayFormulaPosition = { sheetId, col, row };
-    return (i: number, j: number) => {
+    const updateSpreadRelation = (i: number, j: number) => {
       const position = { sheetId, col: i + col, row: j + row };
       this.spreadingRelations.addRelation({ resultPosition: position, arrayFormulaPosition });
     };
+    return updateSpreadRelation;
   }
 
   private checkCollision(formulaPosition: CellPosition): (i: number, j: number) => void {
     const { sheetId, col, row } = formulaPosition;
-    return (i: number, j: number) => {
+    const checkCollision = (i: number, j: number) => {
       const position = { sheetId: sheetId, col: i + col, row: j + row };
       const rawCell = this.getters.getCell(position);
       if (
@@ -462,13 +463,14 @@ export class Evaluator {
       }
       this.blockedArrayFormulas.delete(formulaPosition);
     };
+    return checkCollision;
   }
 
   private spreadValues(
     { sheetId, col, row }: CellPosition,
     matrixResult: Matrix<FPayload>
   ): (i: number, j: number) => void {
-    return (i: number, j: number) => {
+    const spreadValues = (i: number, j: number) => {
       const position = { sheetId, col: i + col, row: j + row };
       const cell = this.getters.getCell(position);
       const evaluatedCell = createEvaluatedCell(
@@ -478,6 +480,7 @@ export class Evaluator {
       );
       this.evaluatedCells.set(position, evaluatedCell);
     };
+    return spreadValues;
   }
 
   private invalidateSpreading(position: CellPosition) {
