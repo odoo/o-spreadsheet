@@ -472,12 +472,10 @@ export class JetSet<T> extends Set<T> {
     }
     return this;
   }
-  deleteMany(iterable: Iterable<T>): boolean {
-    let wasDeleted = false;
+  deleteMany(iterable: Iterable<T>) {
     for (const element of iterable) {
-      wasDeleted ||= super.delete(element);
+      super.delete(element);
     }
-    return wasDeleted;
   }
 }
 
