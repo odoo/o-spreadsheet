@@ -479,7 +479,7 @@ describe("conditional format", () => {
     });
   });
 
-  test.skip("multiple conditional formats using stopIfTrue flag", () => {
+  test("multiple conditional formats using stopIfTrue flag", () => {
     setCellContent(model, "A1", "2");
 
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -1650,6 +1650,29 @@ describe("conditional formats types", () => {
       });
       expect(result).toBeCancelledBecause(CommandResult.FirstArgMissing);
     });
+
+    test.each(["=$c:$2", "=suùù("])(
+      "Invalid formula ('%s') as CF value are ignored during CF evaluation",
+      (formula: string) => {
+        setCellContent(model, "A1", "5");
+        model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: {
+            rule: {
+              type: "CellIsRule",
+              operator: "NotEqual",
+              values: [formula],
+              style: { fillColor: "#ff0f0f" },
+            },
+            id: "11",
+          },
+          ranges: toRangesData(sheetId, "A1"),
+          sheetId,
+        });
+        expect(model.getters.getCellComputedStyle(model.getters.getActivePosition())).toMatchObject(
+          {}
+        );
+      }
+    );
   });
   test.each([
     ["Between", ["1"]],
