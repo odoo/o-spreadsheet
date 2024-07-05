@@ -24,6 +24,7 @@ import {
   keyDown,
   keyUp,
   simulateClick,
+  triggerKeyboardEvent,
   triggerMouseEvent,
 } from "../test_helpers/dom_helper";
 import {
@@ -67,6 +68,8 @@ async function typeInComposer(text: string, fromScratch: boolean = true) {
     parent.startComposition();
   }
   const composerEl = await typeInComposerHelper("div.o-composer", text, false);
+  parent.render(true);
+  await nextTick();
   // @ts-ignore
   cehMock = window.mockContentHelper;
   return composerEl;
@@ -78,8 +81,14 @@ async function moveToStart() {
   keyUp({ key: "Home" });
 }
 async function moveToEnd() {
-  await keyDown({ key: "End" });
+  await keyPress({ key: "End" });
   await keyUp({ key: "End" });
+}
+
+async function keyPress(eventArgs: KeyboardEventInit) {
+  triggerKeyboardEvent(document.activeElement!, "keydown", eventArgs);
+  triggerKeyboardEvent(document.activeElement!, "keyup", eventArgs);
+  await nextTick();
 }
 
 beforeEach(async () => {
@@ -110,7 +119,7 @@ describe("ranges and highlights", () => {
 
   test("=Key DOWN in A1, should select and highlight A2", async () => {
     composerEl = await typeInComposer("=");
-    await keyDown({ key: "ArrowDown" });
+    await keyPress({ key: "ArrowDown" });
     expect(composerEl.textContent).toBe("=A2");
   });
 
@@ -118,36 +127,36 @@ describe("ranges and highlights", () => {
     composerEl = await typeInComposer("=");
     expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
     expect(cehMock.selectionState.position).toBe(1);
-    await keyDown({ key: "ArrowDown" });
+    await keyPress({ key: "ArrowDown" });
     expect(composerEl.textContent).toBe("=A2");
     composerEl = await typeInComposer("+", false);
     expect(composerEl.textContent).toBe("=A2+");
     expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
     expect(cehMock.selectionState.position).toBe(4);
     expect(model.getters.getEditionMode()).toBe("selecting");
-    await keyDown({ key: "ArrowDown" });
+    await keyPress({ key: "ArrowDown" });
     expect(composerEl.textContent).toBe("=A2+A2");
   });
 
   test("=Key DOWN+DOWN in A1, should select and highlight A3", async () => {
     composerEl = await typeInComposer("=");
-    await keyDown({ key: "ArrowDown" });
-    await keyDown({ key: "ArrowDown" });
+    await keyPress({ key: "ArrowDown" });
+    await keyPress({ key: "ArrowDown" });
     expect(composerEl.textContent).toBe("=A3");
   });
 
   test("=Key RIGHT in A1, should select and highlight B1", async () => {
     composerEl = await typeInComposer("=");
-    await keyDown({ key: "ArrowRight" });
+    await keyPress({ key: "ArrowRight" });
     expect(composerEl.textContent).toBe("=B1");
   });
 
   test("=Key RIGHT twice selects C1", async () => {
     composerEl = await typeInComposer("=");
-    await keyDown({ key: "ArrowRight" });
+    await keyPress({ key: "ArrowRight" });
     await keyUp({ key: "ArrowRight" });
     expect(composerEl.textContent).toBe("=B1");
-    await keyDown({ key: "ArrowRight" });
+    await keyPress({ key: "ArrowRight" });
     await keyUp({ key: "ArrowRight" });
     expect(composerEl.textContent).toBe("=C1");
   });
@@ -155,45 +164,45 @@ describe("ranges and highlights", () => {
   test("=Key UP in B2, should select and highlight B1", async () => {
     selectCell(model, "B2");
     composerEl = await typeInComposer("=");
-    await keyDown({ key: "ArrowUp" });
+    await keyPress({ key: "ArrowUp" });
     expect(composerEl.textContent).toBe("=B1");
   });
 
   test("=Key LEFT in B2, should select and highlight A2", async () => {
     selectCell(model, "B2");
     composerEl = await typeInComposer("=");
-    await keyDown({ key: "ArrowLeft" });
+    await keyPress({ key: "ArrowLeft" });
     expect(composerEl.textContent).toBe("=A2");
   });
 
   test("=Key DOWN and UP in B2, should select and highlight B2", async () => {
     selectCell(model, "B2");
     composerEl = await typeInComposer("=");
-    await keyDown({ key: "ArrowDown" });
-    await keyDown({ key: "ArrowUp" });
+    await keyPress({ key: "ArrowDown" });
+    await keyPress({ key: "ArrowUp" });
     expect(composerEl.textContent).toBe("=B2");
   });
 
   test("=key UP 2 times and key DOWN in B2, should select and highlight B2", async () => {
     selectCell(model, "B2");
     composerEl = await typeInComposer("=");
-    await keyDown({ key: "ArrowUp" });
-    await keyDown({ key: "ArrowUp" });
-    await keyDown({ key: "ArrowDown" });
+    await keyPress({ key: "ArrowUp" });
+    await keyPress({ key: "ArrowUp" });
+    await keyPress({ key: "ArrowDown" });
     expect(composerEl.textContent).toBe("=B2");
   });
 
   test("While selecting a ref, Shift+UP/DOWN/LEFT/RIGHT extend the range selection and updates the composer", async () => {
     composerEl = await typeInComposer("=");
-    await keyDown({ key: "ArrowDown" });
+    await keyPress({ key: "ArrowDown" });
     expect(composerEl.textContent).toBe("=A2");
-    await keyDown({ key: "ArrowDown", shiftKey: true });
+    await keyPress({ key: "ArrowDown", shiftKey: true });
     expect(composerEl.textContent).toBe("=A2:A3");
-    await keyDown({ key: "ArrowRight", shiftKey: true });
+    await keyPress({ key: "ArrowRight", shiftKey: true });
     expect(composerEl.textContent).toBe("=A2:B3");
-    await keyDown({ key: "ArrowUp", shiftKey: true });
+    await keyPress({ key: "ArrowUp", shiftKey: true });
     expect(composerEl.textContent).toBe("=A2:B2");
-    await keyDown({ key: "ArrowLeft", shiftKey: true });
+    await keyPress({ key: "ArrowLeft", shiftKey: true });
     expect(composerEl.textContent).toBe("=A2");
   });
 
@@ -204,11 +213,11 @@ describe("ranges and highlights", () => {
     merge(model, "B2:C3");
     selectCell(model, "C1");
     composerEl = await typeInComposer("=");
-    await keyDown({ key: "ArrowDown" });
+    await keyPress({ key: "ArrowDown" });
     expect(composerEl.textContent).toBe("=B2");
     expect(getHighlights(model)).toHaveLength(1);
     expect(getHighlights(model)[0].zone).toMatchObject(toZone("B2:C3"));
-    await keyDown({ key: "ArrowDown" });
+    await keyPress({ key: "ArrowDown" });
     expect(composerEl.textContent).toBe("=C4");
   });
 
@@ -219,7 +228,7 @@ describe("ranges and highlights", () => {
     expect(composerEl.textContent).toBe("=B2:B10");
     expect(getHighlights(model)).toHaveLength(1);
     expect(getHighlights(model)[0].zone).toMatchObject(toZone("B2:B10"));
-    await keyDown({ key: "Escape" });
+    await keyPress({ key: "Escape" });
     await keyUp({ key: "Escape" });
     composerEl = await typeInComposer("=B2:B3");
     expect(composerEl.textContent).toBe("=B2:B3");
@@ -467,14 +476,14 @@ describe("composer", () => {
     selectCell(model, "C8");
     await nextTick();
     expect(composerEl.textContent).toBe("=C8");
-    await keyDown({ key: "Enter" });
+    await keyPress({ key: "Enter" });
     expect(model.getters.getEditionMode()).toBe("inactive");
     expect(getCellText(model, "A1")).toBe("=C8");
   });
 
   test("full rows/cols ranges are correctly displayed", async () => {
     composerEl = await typeInComposer("=SUM(A:A)");
-    await keyDown({ key: "Enter" });
+    await keyPress({ key: "Enter" });
     expect(getCellText(model, "A1")).toBe("=SUM(A:A)");
   });
 
@@ -486,7 +495,7 @@ describe("composer", () => {
 
   test("typing incorrect formula then enter exits the edit mode and moves to the next cell down", async () => {
     composerEl = await typeInComposer("=qsdf");
-    await keyDown({ key: "Enter" });
+    await keyPress({ key: "Enter" });
     expect(getCellText(model, "A1")).toBe("=qsdf");
     expect(getEvaluatedCell(model, "A1").value).toBe("#BAD_EXPR");
   });
@@ -494,7 +503,7 @@ describe("composer", () => {
   test("typing text then enter exits the edit mode and moves to the next cell down", async () => {
     composerEl = await startComposition();
     await typeInComposer("qsdf");
-    await keyDown({ key: "Enter" });
+    await keyPress({ key: "Enter" });
     expect(getCellContent(model, "A1")).toBe("qsdf");
     expect(getEvaluatedCell(model, "A1").value).toBe("qsdf");
   });
@@ -528,7 +537,7 @@ describe("composer", () => {
     setCellContent(model, "A1", "[label](http://odoo.com)");
     composerEl = await startComposition();
     await typeInComposer(" updated");
-    await keyDown({ key: "Enter" });
+    await keyPress({ key: "Enter" });
     const link = getEvaluatedCell(model, "A1").link;
     expect(link?.label).toBe("label updated");
     expect(link?.url).toBe("http://odoo.com");
@@ -543,7 +552,7 @@ describe("composer", () => {
     expect(editor).toBeTruthy();
 
     editor!.querySelectorAll("input")[0].focus();
-    await keyDown({ key: "Enter" });
+    await keyPress({ key: "Enter" });
     expect(fixture.querySelector(".o-link-editor")).toBeFalsy();
     expect(model.getters.getEditionMode()).toBe("inactive");
   });
@@ -739,8 +748,8 @@ describe("composer", () => {
   test("Home key sets cursor at the beginning", async () => {
     composerEl = await typeInComposer("Hello");
     expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
-    await keyDown({ key: "Home" });
-    await keyUp({ key: "Home" });
+    await keyPress({ key: "Home" });
+    // await keyUp({ key: "Home" });
     expect(model.getters.getComposerSelection()).toEqual({ start: 0, end: 0 });
   });
 
@@ -748,7 +757,7 @@ describe("composer", () => {
     composerEl = await typeInComposer("Hello");
     model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 0, end: 0 });
     await nextTick();
-    await keyDown({ key: "End" });
+    await keyPress({ key: "End" });
     await keyUp({ key: "End" });
     expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
   });
@@ -761,12 +770,12 @@ describe("composer", () => {
     expect(model.getters.getEditionMode()).toBe("editing");
     expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
     for (let _ in [1, 2, 3]) {
-      await keyDown({ key: "ArrowLeft" });
+      await keyPress({ key: "ArrowLeft" });
     }
     await keyUp({ key: "ArrowLeft" });
     expect(model.getters.getComposerSelection()).toEqual({ start: 2, end: 2 });
     for (let _ in [1, 2]) {
-      await keyDown({ key: "ArrowRight" });
+      await keyPress({ key: "ArrowRight" });
     }
     await keyUp({ key: "ArrowRight" });
 
@@ -777,7 +786,7 @@ describe("composer", () => {
     composerEl = await typeInComposer("Hello");
     expect(model.getters.getEditionMode()).toBe("editing");
     expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
-    await keyDown({ key: "ArrowLeft" });
+    await keyPress({ key: "ArrowLeft" });
     expect(model.getters.getEditionMode()).toBe("inactive");
   });
 
@@ -787,7 +796,7 @@ describe("composer", () => {
     await simulateClick("div.o-composer");
     await moveToEnd();
     const { end } = model.getters.getComposerSelection();
-    await keyDown({ key: "ArrowLeft", shiftKey: true });
+    await keyPress({ key: "ArrowLeft", shiftKey: true });
     await keyUp({ key: "ArrowLeft", shiftKey: true });
     expect(model.getters.getComposerSelection()).toEqual({
       start: end,
@@ -802,7 +811,7 @@ describe("composer", () => {
     await moveToEnd();
     model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 0, end: 0 });
     await nextTick();
-    await keyDown({ key: "ArrowRight", shiftKey: true });
+    await keyPress({ key: "ArrowRight", shiftKey: true });
     await keyUp({ key: "ArrowRight", shiftKey: true });
     expect(model.getters.getComposerSelection()).toEqual({ start: 0, end: 1 });
   });
@@ -812,7 +821,7 @@ describe("composer", () => {
     expect(model.getters.getEditionMode()).toBe("editing");
     model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 0, end: 0 });
     await nextTick();
-    await keyDown({ key: "ArrowRight", shiftKey: true });
+    await keyPress({ key: "ArrowRight", shiftKey: true });
     await keyUp({ key: "ArrowRight", shiftKey: true });
     expect(model.getters.getEditionMode()).toBe("inactive");
   });
@@ -832,7 +841,7 @@ describe("composer", () => {
     expect(model.getters.getEditionMode()).toBe("selecting");
 
     // stop editing with enter
-    await keyDown({ key: "Enter" });
+    await keyPress({ key: "Enter" });
     expect(getCellText(model, "C8")).toBe("=");
     expect(getEvaluatedCell(model, "C8").value).toBe("#BAD_EXPR");
     expect(getSelectionAnchorCellXc(model)).toBe("C9");
@@ -854,7 +863,7 @@ describe("composer", () => {
 
   test("Hitting 'Tab' without the autocomplete open should move the cursor to the next cell", async () => {
     await startComposition("test");
-    await keyDown({ key: "Tab" });
+    await keyPress({ key: "Tab" });
     expect(model.getters.getEditionMode()).toBe("inactive");
   });
 
@@ -862,13 +871,13 @@ describe("composer", () => {
     test("f4 shortcut on cell symbol", async () => {
       composerEl = await typeInComposer("=A1");
       model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 1, end: 1 });
-      await keyDown({ key: "F4" });
+      await keyPress({ key: "F4" });
       expect(model.getters.getCurrentContent()).toBe("=$A$1");
-      await keyDown({ key: "F4" });
+      await keyPress({ key: "F4" });
       expect(model.getters.getCurrentContent()).toBe("=A$1");
-      await keyDown({ key: "F4" });
+      await keyPress({ key: "F4" });
       expect(model.getters.getCurrentContent()).toBe("=$A1");
-      await keyDown({ key: "F4" });
+      await keyPress({ key: "F4" });
       expect(model.getters.getCurrentContent()).toBe("=A1");
     });
   });
@@ -877,11 +886,11 @@ describe("composer", () => {
     composerEl = await typeInComposer("A");
     expect(model.getters.getComposerSelection()).toEqual({ start: 1, end: 1 });
 
-    await keyDown({ key: "Enter", altKey: true });
+    await keyPress({ key: "Enter", altKey: true });
     expect(model.getters.getComposerSelection()).toEqual({ start: 2, end: 2 });
     expect(model.getters.getCurrentContent()).toEqual("A\n");
 
-    await keyDown({ key: "Enter", ctrlKey: true });
+    await keyPress({ key: "Enter", ctrlKey: true });
     expect(model.getters.getComposerSelection()).toEqual({ start: 3, end: 3 });
     expect(model.getters.getCurrentContent()).toEqual("A\n\n");
 
@@ -889,7 +898,7 @@ describe("composer", () => {
     expect(model.getters.getComposerSelection()).toEqual({ start: 4, end: 4 });
     expect(model.getters.getCurrentContent()).toEqual("A\n\nC");
 
-    await keyDown({ key: "Enter" });
+    await keyPress({ key: "Enter" });
     expect(getCellContent(model, "A1")).toEqual("A\n\nC");
   });
 
@@ -902,7 +911,7 @@ describe("composer", () => {
 
       model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start: 6, end: 4 });
       await nextTick();
-      await keyDown({ key: "Enter", bubbles: true, [`${key}Key`]: true });
+      await keyPress({ key: "Enter", bubbles: true, [`${key}Key`]: true });
       expect(model.getters.getCurrentContent()).toEqual("Azer\n");
       expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
     }
@@ -927,6 +936,20 @@ describe("composer", () => {
     keyUp({ code: "NumpadDecimal", key: "." });
     await nextTick();
     expect(model.getters.getCurrentContent()).toBe("5.,");
+  });
+
+  test("Move cursor with render between keyDown and keyUp", async () => {
+    setCellContent(model, "A1", "Hello");
+    await nextTick();
+    await simulateClick("div.o-composer");
+    await moveToEnd();
+    expect(model.getters.getEditionMode()).toBe("editing");
+    expect(model.getters.getComposerSelection()).toEqual({ start: 5, end: 5 });
+    await keyPress({ key: "ArrowLeft" });
+    parent.render(true);
+    await nextTick();
+    await keyUp({ key: "ArrowLeft" });
+    expect(model.getters.getComposerSelection()).toEqual({ start: 4, end: 4 });
   });
 });
 
@@ -998,7 +1021,7 @@ describe("composer highlights color", () => {
     expect(getHighlights(model).length).toBe(2);
     expect(getHighlights(model)[0].color).toBe(colors[0]);
     expect(getHighlights(model)[1].color).toBe(colors[1]);
-    await keyDown({ key: "Enter" });
+    await keyPress({ key: "Enter" });
 
     await startComposition();
     expect(getHighlights(model).length).toBe(2);

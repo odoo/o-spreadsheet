@@ -14,7 +14,7 @@ export class ContentEditableHelper {
   };
   colors = {};
   el: HTMLElement | null = null;
-  manualRange: boolean = false;
+  manualRange: boolean = true;
   selectionState: { isSelectingRange: boolean; position: number } = initialSelectionState;
   contents: HtmlContent[][] = [];
 
@@ -28,6 +28,7 @@ export class ContentEditableHelper {
     this.colors = {};
   }
   selectRange(start: number, end: number) {
+    // console.log("ceh selectRange");
     this.manualRange = true;
     // We cannot set the cursor position beyond the text of the editor
     if (!this.el || !this.el.textContent || start < 0 || end > this.el.textContent.length) return;
@@ -36,6 +37,7 @@ export class ContentEditableHelper {
   }
 
   setText(values: HtmlContent[][]) {
+    // console.log("ceh setText");
     this.removeAll();
     this.selectionState = initialSelectionState;
     this.contents = values;
@@ -50,6 +52,7 @@ export class ContentEditableHelper {
   }
 
   insertText(value: string, { color, className }: { color?: string; className?: string } = {}) {
+    // console.log("ceh insertText", value);
     const text = this.el!.textContent!;
     if (this.manualRange) {
       let start = text.substring(0, this.currentState.cursorStart);
@@ -80,11 +83,13 @@ export class ContentEditableHelper {
   }
 
   removeSelection() {
+    // console.log("ceh remove selection");
     this.currentState.cursorStart = 0;
     this.currentState.cursorEnd = 0;
   }
 
   removeAll() {
+    // console.log("ceh remove all");
     this.selectionState = initialSelectionState;
     this.currentState.cursorStart = 0;
     this.currentState.cursorEnd = 0;
@@ -93,6 +98,7 @@ export class ContentEditableHelper {
     }
   }
   getCurrentSelection() {
+    // console.log("ceh getCurrentSelection manualRange", this.manualRange);
     if (this.manualRange) {
       return { start: this.currentState.cursorStart, end: this.currentState.cursorEnd };
     }
@@ -117,6 +123,7 @@ export class ContentEditableHelper {
     if (ev.defaultPrevented) {
       return;
     }
+    // console.log("ceh keydown");
     switch (ev.key) {
       case "Home":
         this.currentState.cursorStart = 0;

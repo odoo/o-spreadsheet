@@ -164,6 +164,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     functionDescription: {} as FunctionDescription,
     argToFocus: 0,
   });
+  private isKeyStillDown: boolean = false;
   private compositionActive: boolean = false;
 
   get assistantStyle(): string {
@@ -224,7 +225,10 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     });
 
     useEffect(() => {
+      console.log("useEffect isKeyStillDown", this.isKeyStillDown);
+      // if (!this.isKeyStillDown) {
       this.processContent();
+      // }
     });
 
     useEffect(
@@ -307,6 +311,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   private processEnterKey(ev: KeyboardEvent) {
     ev.preventDefault();
     ev.stopPropagation();
+    this.isKeyStillDown = false;
     if (ev.altKey || ev.ctrlKey) {
       this.composerRef.el?.dispatchEvent(
         new InputEvent("input", { inputType: "insertParagraph", bubbles: true, isComposing: false })
@@ -368,6 +373,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   }
 
   onKeydown(ev: KeyboardEvent) {
+    console.log("onKeydown", ev.key, this.env.model.getters.getEditionMode());
     if (this.env.model.getters.getEditionMode() === "inactive") {
       return;
     }
@@ -377,6 +383,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     } else {
       ev.stopPropagation();
     }
+    this.isKeyStillDown = true;
   }
 
   onPaste(ev: ClipboardEvent) {
@@ -395,6 +402,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
    * Triggered automatically by the content-editable between the keydown and key up
    * */
   onInput(ev: InputEvent) {
+    console.log("onInput", ev.data);
     if (!this.shouldProcessInputEvents) {
       return;
     }
@@ -424,6 +432,8 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   }
 
   onKeyup(ev: KeyboardEvent) {
+    console.log("onKeyup", ev.key);
+    this.isKeyStillDown = false;
     if (this.contentHelper.el === document.activeElement) {
       if (this.autoCompleteState.showProvider && ["ArrowUp", "ArrowDown"].includes(ev.key)) {
         return;
@@ -436,6 +446,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
       const { start: oldStart, end: oldEnd } = this.env.model.getters.getComposerSelection();
       const { start, end } = this.contentHelper.getCurrentSelection();
 
+      console.log({ oldStart, oldEnd, start, end });
       if (start !== oldStart || end !== oldEnd) {
         this.env.model.dispatch("CHANGE_COMPOSER_CURSOR_SELECTION", { start, end });
       }
@@ -510,6 +521,10 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
     this.processTokenAtCursor();
   }
 
+  onBlur() {
+    this.isKeyStillDown = false;
+  }
+
   onDblClick() {
     if (this.env.model.getters.isReadonly()) {
       return;
@@ -555,6 +570,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   // ---------------------------------------------------------------------------
 
   private processContent() {
+    console.log("processContent");
     if (this.compositionActive) {
       return;
     }
