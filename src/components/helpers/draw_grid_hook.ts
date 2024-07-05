@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "@odoo/owl";
-import { Model } from "../..";
 import { CANVAS_SHIFT } from "../../constants";
+import { Model } from "../../model";
 import { useStore } from "../../store_engine";
 import { GridRenderer } from "../../stores/grid_renderer_store";
 import { RendererStore } from "../../stores/renderer_store";

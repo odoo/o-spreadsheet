@@ -1,6 +1,5 @@
-import { CommandResult } from "../..";
 import { _t } from "../../translation";
-import { SpreadsheetChildEnv } from "../../types";
+import { CommandResult, SpreadsheetChildEnv } from "../../types";
 import { DispatchResult } from "./../../types/commands";
 
 export const SplitToColumnsInteractiveContent = {
