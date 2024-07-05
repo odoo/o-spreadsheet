@@ -140,7 +140,7 @@ const quarterNumberAdapter: PivotTimeAdapterNotNull<number> = {
   },
   toValueAndFormat(normalizedValue) {
     return {
-      value: toNumber(normalizedValue, DEFAULT_LOCALE),
+      value: _t("Q%(quarter_number)s", { quarter_number: normalizedValue }),
       format: "0",
     };
   },
