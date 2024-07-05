@@ -1,4 +1,3 @@
-import { CommandResult } from "..";
 import { canonicalizeNumberValue } from "../formulas/formula_locale";
 import { deepEquals, formatValue } from "../helpers";
 import { getPasteZones } from "../helpers/clipboard/clipboard_helpers";
@@ -9,6 +8,7 @@ import {
   ClipboardCellData,
   ClipboardOptions,
   ClipboardPasteTarget,
+  CommandResult,
   HeaderIndex,
   UID,
   Zone,

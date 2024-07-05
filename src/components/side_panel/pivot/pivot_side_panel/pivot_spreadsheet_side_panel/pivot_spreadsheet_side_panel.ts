@@ -1,10 +1,9 @@
 import { Component, useState } from "@odoo/owl";
-import { SpreadsheetChildEnv } from "../../../../..";
 import { splitReference, toZone } from "../../../../../helpers";
 import { SpreadsheetPivotRuntimeDefinition } from "../../../../../helpers/pivot/spreadsheet_pivot/runtime_definition_spreadsheet_pivot";
 import { SpreadsheetPivot } from "../../../../../helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
 import { Store, useLocalStore } from "../../../../../store_engine";
-import { UID } from "../../../../../types";
+import { SpreadsheetChildEnv, UID } from "../../../../../types";
 import { SpreadsheetPivotCoreDefinition } from "../../../../../types/pivot";
 import { SelectionInput } from "../../../../selection_input/selection_input";
 import { Checkbox } from "../../../components/checkbox/checkbox";

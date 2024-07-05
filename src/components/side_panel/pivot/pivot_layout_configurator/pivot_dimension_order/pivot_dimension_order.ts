@@ -1,5 +1,5 @@
 import { Component } from "@odoo/owl";
-import { SpreadsheetChildEnv } from "../../../../..";
+import { SpreadsheetChildEnv } from "../../../../../types";
 import { PivotDimension } from "../../../../../types/pivot";
 
 interface Props {

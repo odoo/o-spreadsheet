@@ -1,9 +1,9 @@
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
-import { SpreadsheetChildEnv } from "../../../../..";
 import { COMPOSER_ASSISTANT_COLOR } from "../../../../../constants";
 import { fuzzyLookup } from "../../../../../helpers";
 import { AutoCompleteProposal, AutoCompleteProvider } from "../../../../../registries";
 import { Store, useLocalStore } from "../../../../../store_engine";
+import { SpreadsheetChildEnv } from "../../../../../types";
 import { PivotField } from "../../../../../types/pivot";
 import { TextValueProvider } from "../../../../composer/autocomplete_dropdown/autocomplete_dropdown";
 import { AutoCompleteStore } from "../../../../composer/autocomplete_dropdown/autocomplete_dropdown_store";
