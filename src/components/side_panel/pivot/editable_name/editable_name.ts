@@ -1,7 +1,7 @@
 /** @odoo-module */
 
 import { Component, useState } from "@odoo/owl";
-import { SpreadsheetChildEnv } from "../../../..";
+import { SpreadsheetChildEnv } from "../../../../types";
 
 interface Props {
   name: string;

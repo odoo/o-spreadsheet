@@ -1,8 +1,8 @@
 import { Component, useRef } from "@odoo/owl";
-import { SpreadsheetChildEnv } from "../../../..";
 import { isDefined } from "../../../../helpers";
 import { AGGREGATORS, isDateField } from "../../../../helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "../../../../helpers/pivot/pivot_runtime_definition";
+import { SpreadsheetChildEnv } from "../../../../types";
 import {
   Aggregator,
   Granularity,
