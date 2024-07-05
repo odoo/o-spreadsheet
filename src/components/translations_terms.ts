@@ -24,6 +24,9 @@ export const CfTerms = {
     [CommandResult.ValueUpperInvalidFormula]: _t("Invalid upper inflection point formula"),
     [CommandResult.ValueLowerInvalidFormula]: _t("Invalid lower inflection point formula"),
     [CommandResult.EmptyRange]: _t("A range needs to be defined"),
+    [CommandResult.ValueCellIsInvalidFormula]: _t(
+      "At least one of the provided values is an invalid formula"
+    ),
     Unexpected: _t("The rule is invalid for an unknown reason"),
   },
   ColorScale: _t("Color scale"),

@@ -505,7 +505,7 @@ describe("conditional format", () => {
     });
   });
 
-  test.skip("multiple conditional formats using stopIfTrue flag", () => {
+  test("multiple conditional formats using stopIfTrue flag", () => {
     setCellContent(model, "A1", "2");
 
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
@@ -675,7 +675,7 @@ describe("conditional format", () => {
     });
   });
 
-  test("cannot send invalid arguments to conditional format rules command", () => {
+  test("cannot send invalid arguments to *move* conditional format rules command", () => {
     model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("1", { fillColor: "#FF0000" }, "idRule1"),
       ranges: toRangesData(sheetId, "A1"),
@@ -1676,6 +1676,26 @@ describe("conditional formats types", () => {
       });
       expect(result).toBeCancelledBecause(CommandResult.FirstArgMissing);
     });
+
+    test.each(["=$c:$2", "=suùù("])(
+      "Invalid formula ('%s') cannot be set as CF value",
+      (formula: string) => {
+        const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+          cf: {
+            rule: {
+              type: "CellIsRule",
+              operator: "GreaterThan",
+              values: [formula],
+              style: { fillColor: "#ff0f0f" },
+            },
+            id: "11",
+          },
+          ranges: toRangesData(sheetId, "A1"),
+          sheetId,
+        });
+        expect(result).toBeCancelledBecause(CommandResult.ValueCellIsInvalidFormula);
+      }
+    );
   });
   test.each([
     ["Between", ["1"]],
@@ -1683,7 +1703,7 @@ describe("conditional formats types", () => {
     ["NotBetween", ["1"]],
     ["NotBetween", ["1", ""]],
   ])("%s operator with missing second argument %s", (operator: string, values: string[]) => {
-    let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: {
         rule: {
           type: "CellIsRule",
@@ -1702,7 +1722,7 @@ describe("conditional formats types", () => {
     ["Between", ["", ""]],
     ["NotBetween", ["", ""]],
   ])("%s operator with both arguments missing %s", (operator: string, values: string[]) => {
-    let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+    const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: {
         rule: {
           type: "CellIsRule",

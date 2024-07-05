@@ -394,11 +394,14 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
    ****************************************************************************/
 
   get isValue1Invalid(): boolean {
-    return !!this.state.errors?.includes(CommandResult.FirstArgMissing);
+    return (
+      this.state.errors.includes(CommandResult.FirstArgMissing) ||
+      this.state.errors.includes(CommandResult.ValueCellIsInvalidFormula)
+    );
   }
 
   get isValue2Invalid(): boolean {
-    return !!this.state.errors?.includes(CommandResult.SecondArgMissing);
+    return this.state.errors.includes(CommandResult.SecondArgMissing);
   }
 
   toggleStyle(tool: string) {

@@ -342,7 +342,8 @@ export class ConditionalFormatPlugin
             "LessThanOrEqual",
             "NotContains",
           ]),
-          this.checkOperatorArgsNumber(0, ["IsEmpty", "IsNotEmpty"])
+          this.checkOperatorArgsNumber(0, ["IsEmpty", "IsNotEmpty"]),
+          this.checkCFValues
         );
       case "ColorScaleRule": {
         return this.checkValidations(
@@ -510,6 +511,17 @@ export class ConditionalFormatPlugin
       stringToNumber(minValue) >= stringToNumber(midValue)
     ) {
       return CommandResult.MinBiggerThanMid;
+    }
+    return CommandResult.Success;
+  }
+
+  private checkCFValues(rule: CellIsRule) {
+    for (const value of rule.values) {
+      if (!value.startsWith("=")) continue;
+      const compiledFormula = compile(value || "");
+      if (compiledFormula.isBadExpression) {
+        return CommandResult.ValueCellIsInvalidFormula;
+      }
     }
     return CommandResult.Success;
   }
