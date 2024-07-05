@@ -428,3 +428,24 @@ export function getDefinedAxis(definition: ChartWithAxisDefinition): {
   useLeftAxis ||= !useRightAxis;
   return { useLeftAxis, useRightAxis };
 }
+
+export function computeChartPadding({
+  displayTitle,
+  displayLegend,
+}: {
+  displayTitle: boolean;
+  displayLegend: boolean;
+}): {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+} {
+  let top = 25;
+  if (displayTitle) {
+    top = 0;
+  } else if (displayLegend) {
+    top = 10;
+  }
+  return { left: 20, right: 20, top, bottom: 10 };
+}

@@ -1555,19 +1555,19 @@ describe("Chart without labels", () => {
     aggregated: false,
   };
 
-  test("The legend is not displayed when there is only one dataSet and no label", () => {
+  test("The legend is displayed even when there is only one dataSet or no label", () => {
     createChart(model, defaultChart, "42");
-    expect(getChartConfiguration(model, "42").options?.plugins?.legend?.display).toBe(false);
+    expect(getChartConfiguration(model, "42").options?.plugins?.legend?.position).toBe("top");
 
     createChart(
       model,
       { ...defaultChart, dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A3:A4" }] },
       "43"
     );
-    expect(getChartConfiguration(model, "43").options?.plugins?.legend?.display).toBeUndefined();
+    expect(getChartConfiguration(model, "42").options?.plugins?.legend?.position).toBe("top");
 
     createChart(model, { ...defaultChart, labelRange: "B1:B2" }, "44");
-    expect(getChartConfiguration(model, "44").options?.plugins?.legend?.display).toBeUndefined();
+    expect(getChartConfiguration(model, "42").options?.plugins?.legend?.position).toBe("top");
   });
 
   test("Labels are empty if there is only one dataSet and no label", () => {
@@ -1913,6 +1913,82 @@ describe("Chart design configuration", () => {
       const label = getTooltipLabel(runtime, 0, 0);
       expect(label).toEqual("6,000");
     });
+
+    test.each(["line", "scatter", "combo", "bar"] as const)(
+      "%s chart with no title and no legend have the correct padding",
+      (chartType) => {
+        createChart(
+          model,
+          {
+            dataSets: [{ dataRange: "B1:B2" }],
+            labelRange: "A1:A2",
+            type: chartType,
+            legendPosition: "none",
+            title: { text: "" },
+          },
+          "1"
+        );
+        const config = getChartConfiguration(model, "1");
+        expect(config.options.layout.padding).toEqual({
+          top: 25,
+          bottom: 10,
+          left: 20,
+          right: 20,
+        });
+      }
+    );
+
+    test.each(["line", "scatter", "combo", "bar"] as const)(
+      "%s chart with no title but a legend have the correct padding",
+      (chartType) => {
+        createChart(
+          model,
+          {
+            dataSets: [{ dataRange: "B1:B2" }],
+            labelRange: "A1:A2",
+            type: chartType,
+            legendPosition: "bottom",
+            title: { text: "" },
+          },
+          "1"
+        );
+        let config = getChartConfiguration(model, "1");
+        expect(config.options.layout.padding).toEqual({
+          top: 25,
+          bottom: 10,
+          left: 20,
+          right: 20,
+        });
+
+        updateChart(model, "1", { legendPosition: "top" });
+        config = getChartConfiguration(model, "1");
+        expect(config.options.layout.padding.top).toEqual(10);
+      }
+    );
+
+    test.each(["line", "scatter", "combo", "bar"] as const)(
+      "%s chart with a title and a legend have the correct padding",
+      (chartType) => {
+        createChart(
+          model,
+          {
+            dataSets: [{ dataRange: "B1:B2" }],
+            labelRange: "A1:A2",
+            type: chartType,
+            legendPosition: "bottom",
+            title: { text: "test" },
+          },
+          "1"
+        );
+        const config = getChartConfiguration(model, "1");
+        expect(config.options.layout.padding).toEqual({
+          top: 0,
+          bottom: 10,
+          left: 20,
+          right: 20,
+        });
+      }
+    );
   });
 
   describe("Pie Chart tooltip", () => {

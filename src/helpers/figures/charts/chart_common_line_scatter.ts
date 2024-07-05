@@ -7,7 +7,12 @@ import { getChartTimeOptions, timeFormatLuxonCompatible } from "../../chart_date
 import { ColorGenerator, colorToRGBA, rgbaToHex } from "../../color";
 import { formatValue } from "../../format";
 import { deepCopy, findNextDefinedValue } from "../../misc";
-import { chartFontColor, getChartAxisTitleRuntime, getDefinedAxis } from "./chart_common";
+import {
+  chartFontColor,
+  computeChartPadding,
+  getChartAxisTitleRuntime,
+  getDefinedAxis,
+} from "./chart_common";
 import {
   aggregateDataForLabels,
   filterEmptyDataPoints,
@@ -131,14 +136,17 @@ function getLineOrScatterConfiguration(
       },
     },
   };
-  if ((!chart.labelRange && chart.dataSets.length === 1) || chart.legendPosition === "none") {
+  if (chart.legendPosition === "none") {
     legend.display = false;
   } else {
     legend.position = chart.legendPosition;
   }
   Object.assign(config.options.plugins!.legend || {}, legend);
   config.options.layout = {
-    padding: { left: 20, right: 20, top: chart.title ? 10 : 25, bottom: 10 },
+    padding: computeChartPadding({
+      displayTitle: !!chart.title.text,
+      displayLegend: chart.legendPosition === "top",
+    }),
   };
 
   config.options.scales = {
