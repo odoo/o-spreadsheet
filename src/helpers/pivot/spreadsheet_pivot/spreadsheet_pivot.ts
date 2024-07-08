@@ -5,7 +5,7 @@ import { _t } from "../../../translation";
 import {
   CellValueType,
   EvaluatedCell,
-  FPayload,
+  FunctionResultObject,
   Getters,
   Maybe,
   Range,
@@ -165,7 +165,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     return true;
   }
 
-  assertIsValid({ throwOnError }: { throwOnError: boolean }): FPayload | undefined {
+  assertIsValid({ throwOnError }: { throwOnError: boolean }): FunctionResultObject | undefined {
     if (!this.isValid()) {
       if (throwOnError) {
         if (this.invalidRangeError) {
@@ -184,7 +184,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     return undefined;
   }
 
-  areDomainArgsFieldsValid(args: Maybe<FPayload>[]): boolean {
+  areDomainArgsFieldsValid(args: Maybe<FunctionResultObject>[]): boolean {
     let dimensions = args.filter((_, index) => index % 2 === 0).map(toString);
     if (dimensions.length && dimensions.at(-1) === "measure") {
       dimensions = dimensions.slice(0, -1);
@@ -192,7 +192,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     return areDomainArgsFieldsValid(dimensions, this.definition);
   }
 
-  parseArgsToPivotDomain(args: Maybe<FPayload>[]): PivotDomain {
+  parseArgsToPivotDomain(args: Maybe<FunctionResultObject>[]): PivotDomain {
     const domain: PivotDomain = [];
     for (let i = 0; i < args.length - 1; i += 2) {
       const fieldWithGranularity = toString(args[i]);
@@ -214,13 +214,13 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     return this.definition.getMeasure(name);
   }
 
-  getPivotMeasureValue(name: string): FPayload {
+  getPivotMeasureValue(name: string): FunctionResultObject {
     return {
       value: this.getMeasure(name).displayName,
     };
   }
 
-  getPivotHeaderValueAndFormat(domain: PivotDomain): FPayload {
+  getPivotHeaderValueAndFormat(domain: PivotDomain): FunctionResultObject {
     const lastNode = domain.at(-1);
     if (!lastNode) {
       return { value: _t("Total") };
@@ -244,7 +244,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     };
   }
 
-  getPivotCellValueAndFormat(measure: string, domain: PivotDomain): FPayload {
+  getPivotCellValueAndFormat(measure: string, domain: PivotDomain): FunctionResultObject {
     const dataEntries = this.filterDataEntriesFromDomain(this.dataEntries, domain);
     if (dataEntries.length === 0) {
       return { value: "" };

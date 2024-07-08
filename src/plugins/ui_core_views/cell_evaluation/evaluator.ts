@@ -11,8 +11,8 @@ import {
   CellValue,
   CellValueType,
   EvaluatedCell,
-  FPayload,
   FormulaCell,
+  FunctionResultObject,
   Getters,
   Matrix,
   Range,
@@ -383,7 +383,7 @@ export class Evaluator {
 
   private assertSheetHasEnoughSpaceToSpreadFormulaResult(
     { sheetId, col, row }: CellPosition,
-    matrixResult: Matrix<FPayload>
+    matrixResult: Matrix<FunctionResultObject>
   ) {
     const numberOfCols = this.getters.getNumberCols(sheetId);
     const numberOfRows = this.getters.getNumberRows(sheetId);
@@ -413,7 +413,7 @@ export class Evaluator {
 
   private assertNoMergedCellsInSpreadZone(
     { sheetId, col, row }: CellPosition,
-    matrixResult: Matrix<FPayload>
+    matrixResult: Matrix<FunctionResultObject>
   ) {
     const mergedCells = this.getters.getMergesInZone(sheetId, {
       top: row,
@@ -468,7 +468,7 @@ export class Evaluator {
 
   private spreadValues(
     { sheetId, col, row }: CellPosition,
-    matrixResult: Matrix<FPayload>
+    matrixResult: Matrix<FunctionResultObject>
   ): (i: number, j: number) => void {
     const spreadValues = (i: number, j: number) => {
       const position = { sheetId, col: i + col, row: j + row };
@@ -545,7 +545,7 @@ function forEachSpreadPositionInMatrix(
  * rather than appearing empty. This indicates that the
  * cell is the result of a non-empty content.
  */
-function nullValueToZeroValue(fPayload: FPayload): FPayload {
+function nullValueToZeroValue(fPayload: FunctionResultObject): FunctionResultObject {
   if (fPayload.value === null || fPayload.value === undefined) {
     // 'fPayload.value === undefined' is supposed to never happen, it's a safety net for javascript use
     return { ...fPayload, value: 0 };

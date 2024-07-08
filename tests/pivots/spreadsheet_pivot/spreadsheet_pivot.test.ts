@@ -1,4 +1,4 @@
-import { CellErrorType, FPayload, Model } from "../../../src";
+import { CellErrorType, FunctionResultObject, Model } from "../../../src";
 import {
   createSheet,
   deleteContent,
@@ -1275,8 +1275,8 @@ describe("Spreadsheet Pivot", () => {
 });
 
 describe("Spreadsheet arguments parsing", () => {
-  function toFPayload(args: CellValue[]): FPayload[] {
-    return args.map((value) => ({ value } as FPayload));
+  function toFPayload(args: CellValue[]): FunctionResultObject[] {
+    return args.map((value) => ({ value } as FunctionResultObject));
   }
 
   test("Date arguments are correctly parsed", () => {

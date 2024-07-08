@@ -165,16 +165,16 @@ export type ReferenceDenormalizer = (
   isMeta: boolean,
   functionName: string,
   paramNumber: number
-) => FPayload;
+) => FunctionResultObject;
 
-export type EnsureRange = (range: Range) => Matrix<FPayload>;
+export type EnsureRange = (range: Range) => Matrix<FunctionResultObject>;
 
 export type FormulaToExecute = (
   deps: Range[],
   refFn: ReferenceDenormalizer,
   range: EnsureRange,
   ctx: {}
-) => Matrix<FPayload> | FPayload;
+) => Matrix<FunctionResultObject> | FunctionResultObject;
 
 export interface CompiledFormula {
   execute: FormulaToExecute;
@@ -187,11 +187,11 @@ export interface RangeCompiledFormula extends Omit<CompiledFormula, "dependencie
 }
 
 export type Matrix<T = unknown> = T[][];
-export type FPayload = { value: CellValue; format?: Format; message?: string };
-export type FPayloadNumber = { value: number; format?: string };
+export type FunctionResultObject = { value: CellValue; format?: Format; message?: string };
+export type FunctionResultNumber = { value: number; format?: string };
 
 // FORMULA FUNCTION VALUE AND FORMAT INPUT
-export type Arg = Maybe<FPayload> | Matrix<FPayload>; // undefined corresponds to the lack of argument, e.g. =SUM(1,2,,4)
+export type Arg = Maybe<FunctionResultObject> | Matrix<FunctionResultObject>; // undefined corresponds to the lack of argument, e.g. =SUM(1,2,,4)
 
 export function isMatrix(x: any): x is Matrix<any> {
   return Array.isArray(x) && Array.isArray(x[0]);

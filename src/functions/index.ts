@@ -6,10 +6,10 @@ import {
   CellValue,
   ComputeFunction,
   EvalContext,
-  FPayload,
   FunctionDescription,
-  isMatrix,
+  FunctionResultObject,
   Matrix,
+  isMatrix,
 } from "../types";
 import { BadExpressionError, EvaluationError, NotAvailableError } from "../types/errors";
 import { addMetaInfoFromArg, validateArguments } from "./arguments";
@@ -62,13 +62,13 @@ export interface FunctionRegistry extends Registry<FunctionDescription> {
   add(functionName: string, addDescr: AddFunctionDescription): FunctionRegistry;
   get(functionName: string): FunctionDescription;
   mapping: {
-    [functionName: string]: ComputeFunction<Matrix<FPayload> | FPayload>;
+    [functionName: string]: ComputeFunction<Matrix<FunctionResultObject> | FunctionResultObject>;
   };
 }
 
 export class FunctionRegistry extends Registry<FunctionDescription> {
   mapping: {
-    [key: string]: ComputeFunction<Matrix<FPayload> | FPayload>;
+    [key: string]: ComputeFunction<Matrix<FunctionResultObject> | FunctionResultObject>;
   } = {};
 
   add(name: string, addDescr: AddFunctionDescription) {
@@ -114,19 +114,22 @@ const notAvailableError = new NotAvailableError(
 function createComputeFunction(
   descr: FunctionDescription,
   functionName: string
-): ComputeFunction<Matrix<FPayload> | FPayload> {
-  function computeFunction(this: EvalContext, ...args: Arg[]): Matrix<FPayload> | FPayload {
+): ComputeFunction<Matrix<FunctionResultObject> | FunctionResultObject> {
+  function runtimeCompute(
+    this: EvalContext,
+    ...args: Arg[]
+  ): Matrix<FunctionResultObject> | FunctionResultObject {
     try {
-      return computeWithVectorization.apply(this, args);
+      return vectorizedCompute.apply(this, args);
     } catch (e) {
       return handleError(e, functionName);
     }
   }
 
-  function computeWithVectorization(
+  function vectorizedCompute(
     this: EvalContext,
     ...args: Arg[]
-  ): FPayload | Matrix<FPayload> {
+  ): FunctionResultObject | Matrix<FunctionResultObject> {
     let countVectorizableCol = 1;
     let countVectorizableRow = 1;
     let vectorizableColLimit = Infinity;
@@ -134,6 +137,7 @@ function createComputeFunction(
 
     let vectorArgsType: VectorArgType[] | undefined = undefined;
 
+    //#region Compute vectorisation limits
     for (let i = 0; i < args.length; i++) {
       const argDefinition = descr.args[descr.getArgToFocus(i + 1) - 1];
       const arg = args[i];
@@ -174,12 +178,14 @@ function createComputeFunction(
         );
       }
     }
+    //#endregion
 
     if (countVectorizableCol === 1 && countVectorizableRow === 1) {
-      return computeToFPayloadObject.apply(this, args);
+      // either this function is not vectorized or it ends up with a 1x1 dimension
+      return computeFunctionToObject.apply(this, args);
     }
 
-    const argsVector: (i: number, j: number) => Arg[] = (i, j) =>
+    const getArgOffset: (i: number, j: number) => Arg[] = (i, j) =>
       args.map((arg, index) => {
         switch (vectorArgsType?.[index]) {
           case "matrix":
@@ -197,7 +203,7 @@ function createComputeFunction(
       if (col > vectorizableColLimit - 1 || row > vectorizableRowLimit - 1) {
         return notAvailableError;
       }
-      const matrixElm = computeToFPayloadObject.apply(this, argsVector(col, row));
+      const singleCellComputeResult = computeFunctionToObject.apply(this, getArgOffset(col, row));
       // In the case where the user tries to vectorize arguments of an array formula, we will get an
       // array for every combination of the vectorized arguments, which will lead to a 3D matrix and
       // we won't be able to return the values.
@@ -207,11 +213,16 @@ function createComputeFunction(
       // range, like MUNIT(A1:A2), we will get two unitary matrices (one for the value in A1 and one
       // for the value in A2). In this case, we will simply take the first value of each matrix and
       // return the array [First value of MUNIT(A1), First value of MUNIT(A2)].
-      return isMatrix(matrixElm) ? matrixElm[0][0] : matrixElm;
+      return isMatrix(singleCellComputeResult)
+        ? singleCellComputeResult[0][0]
+        : singleCellComputeResult;
     });
   }
 
-  function computeToFPayloadObject(this: EvalContext, ...args: Arg[]): FPayload | Matrix<FPayload> {
+  function computeFunctionToObject(
+    this: EvalContext,
+    ...args: Arg[]
+  ): FunctionResultObject | Matrix<FunctionResultObject> {
     const result = descr.compute.apply(this, args);
 
     if (!isMatrix(result)) {
@@ -223,19 +234,19 @@ function createComputeFunction(
     }
 
     if (typeof result[0][0] === "object" && result[0][0] !== null && "value" in result[0][0]) {
-      matrixForEach(result as Matrix<FPayload>, (result) =>
+      matrixForEach(result as Matrix<FunctionResultObject>, (result) =>
         replaceFunctionNamePlaceholder(result, functionName)
       );
-      return result as Matrix<FPayload>;
+      return result as Matrix<FunctionResultObject>;
     }
 
     return matrixMap(result as Matrix<CellValue>, (row) => ({ value: row }));
   }
 
-  return computeFunction;
+  return runtimeCompute;
 }
 
-export function handleError(e: unknown, functionName: string): FPayload {
+export function handleError(e: unknown, functionName: string): FunctionResultObject {
   // the error could be an user error (instance of EvaluationError)
   // or a javascript error (instance of Error)
   // we don't want block the user with an implementation error
@@ -259,7 +270,7 @@ function hasStringValue(obj: unknown): obj is { value: string } {
   );
 }
 
-function replaceFunctionNamePlaceholder(fPayload: FPayload, functionName: string) {
+function replaceFunctionNamePlaceholder(fPayload: FunctionResultObject, functionName: string) {
   // for performance reasons: change in place and only if needed
   if (fPayload.message?.includes("[[FUNCTION_NAME]]")) {
     fPayload.message = fPayload.message.replace("[[FUNCTION_NAME]]", functionName);

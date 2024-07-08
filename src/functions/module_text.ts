@@ -1,6 +1,6 @@
 import { escapeRegExp, formatValue, trimContent } from "../helpers";
 import { _t } from "../translation";
-import { AddFunctionDescription, Arg, FPayload, Matrix, Maybe } from "../types";
+import { AddFunctionDescription, Arg, FunctionResultObject, Matrix, Maybe } from "../types";
 import { arg } from "./arguments";
 import { assert, reduceAny, toBoolean, toNumber, toString, transposeMatrix } from "./helpers";
 
@@ -20,7 +20,7 @@ export const CHAR = {
       _t("The number of the character to look up from the current Unicode table in decimal format.")
     ),
   ],
-  compute: function (tableNumber: Maybe<FPayload>): string {
+  compute: function (tableNumber: Maybe<FunctionResultObject>): string {
     const _tableNumber = Math.trunc(toNumber(tableNumber, this.locale));
     assert(
       () => _tableNumber >= 1,
@@ -37,7 +37,7 @@ export const CHAR = {
 export const CLEAN = {
   description: _t("Remove non-printable characters from a piece of text."),
   args: [arg("text (string)", _t("The text whose non-printable characters are to be removed."))],
-  compute: function (text: Maybe<FPayload>): string {
+  compute: function (text: Maybe<FunctionResultObject>): string {
     const _text = toString(text);
     let cleanedStr = "";
     for (const char of _text) {
@@ -74,7 +74,10 @@ export const EXACT = {
     arg("string1 (string)", _t("The first string to compare.")),
     arg("string2 (string)", _t("The second string to compare.")),
   ],
-  compute: function (string1: Maybe<FPayload>, string2: Maybe<FPayload>): boolean {
+  compute: function (
+    string1: Maybe<FunctionResultObject>,
+    string2: Maybe<FunctionResultObject>
+  ): boolean {
     return toString(string1) === toString(string2);
   },
   isExported: true,
@@ -97,9 +100,9 @@ export const FIND = {
     ),
   ],
   compute: function (
-    searchFor: Maybe<FPayload>,
-    textToSearch: Maybe<FPayload>,
-    startingAt: Maybe<FPayload> = { value: DEFAULT_STARTING_AT }
+    searchFor: Maybe<FunctionResultObject>,
+    textToSearch: Maybe<FunctionResultObject>,
+    startingAt: Maybe<FunctionResultObject> = { value: DEFAULT_STARTING_AT }
   ): number {
     const _searchFor = toString(searchFor);
     const _textToSearch = toString(textToSearch);
@@ -146,7 +149,7 @@ export const JOIN = {
       _t("More values to be appended using delimiter.")
     ),
   ],
-  compute: function (delimiter: Maybe<FPayload>, ...valuesOrArrays: Arg[]): string {
+  compute: function (delimiter: Maybe<FunctionResultObject>, ...valuesOrArrays: Arg[]): string {
     const _delimiter = toString(delimiter);
     return reduceAny(valuesOrArrays, (acc, a) => (acc ? acc + _delimiter : "") + toString(a), "");
   },
@@ -164,7 +167,10 @@ export const LEFT = {
       _t("The number of characters to return from the left side of string.")
     ),
   ],
-  compute: function (text: Maybe<FPayload>, ...args: Maybe<FPayload>[]): string {
+  compute: function (
+    text: Maybe<FunctionResultObject>,
+    ...args: Maybe<FunctionResultObject>[]
+  ): string {
     const _numberOfCharacters = args.length ? toNumber(args[0], this.locale) : 1;
     assert(
       () => _numberOfCharacters >= 0,
@@ -181,7 +187,7 @@ export const LEFT = {
 export const LEN = {
   description: _t("Length of a string."),
   args: [arg("text (string)", _t("The string whose length will be returned."))],
-  compute: function (text: Maybe<FPayload>): number {
+  compute: function (text: Maybe<FunctionResultObject>): number {
     return toString(text).length;
   },
   isExported: true,
@@ -193,7 +199,7 @@ export const LEN = {
 export const LOWER = {
   description: _t("Converts a specified string to lowercase."),
   args: [arg("text (string)", _t("The string to convert to lowercase."))],
-  compute: function (text: Maybe<FPayload>): string {
+  compute: function (text: Maybe<FunctionResultObject>): string {
     return toString(text).toLowerCase();
   },
   isExported: true,
@@ -215,9 +221,9 @@ export const MID = {
     arg("extract_length (number)", _t("The length of the segment to extract.")),
   ],
   compute: function (
-    text: Maybe<FPayload>,
-    starting_at: Maybe<FPayload>,
-    extract_length: Maybe<FPayload>
+    text: Maybe<FunctionResultObject>,
+    starting_at: Maybe<FunctionResultObject>,
+    extract_length: Maybe<FunctionResultObject>
   ): string {
     const _text = toString(text);
     const _starting_at = toNumber(starting_at, this.locale);
@@ -253,7 +259,7 @@ export const PROPER = {
       )
     ),
   ],
-  compute: function (text: Maybe<FPayload>): string {
+  compute: function (text: Maybe<FunctionResultObject>): string {
     const _text = toString(text);
     return _text.replace(wordRegex, (word): string => {
       return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
@@ -277,10 +283,10 @@ export const REPLACE = {
     arg("new_text (string)", _t("The text which will be inserted into the original text.")),
   ],
   compute: function (
-    text: Maybe<FPayload>,
-    position: Maybe<FPayload>,
-    length: Maybe<FPayload>,
-    newText: Maybe<FPayload>
+    text: Maybe<FunctionResultObject>,
+    position: Maybe<FunctionResultObject>,
+    length: Maybe<FunctionResultObject>,
+    newText: Maybe<FunctionResultObject>
   ): string {
     const _position = toNumber(position, this.locale);
     assert(
@@ -308,7 +314,10 @@ export const RIGHT = {
       _t("The number of characters to return from the right side of string.")
     ),
   ],
-  compute: function (text: Maybe<FPayload>, ...args: Maybe<FPayload>[]): string {
+  compute: function (
+    text: Maybe<FunctionResultObject>,
+    ...args: Maybe<FunctionResultObject>[]
+  ): string {
     const _numberOfCharacters = args.length ? toNumber(args[0], this.locale) : 1;
     assert(
       () => _numberOfCharacters >= 0,
@@ -338,9 +347,9 @@ export const SEARCH = {
     ),
   ],
   compute: function (
-    searchFor: Maybe<FPayload>,
-    textToSearch: Maybe<FPayload>,
-    startingAt: Maybe<FPayload> = { value: DEFAULT_STARTING_AT }
+    searchFor: Maybe<FunctionResultObject>,
+    textToSearch: Maybe<FunctionResultObject>,
+    startingAt: Maybe<FunctionResultObject> = { value: DEFAULT_STARTING_AT }
   ): number {
     const _searchFor = toString(searchFor).toLowerCase();
     const _textToSearch = toString(textToSearch).toLowerCase();
@@ -391,10 +400,10 @@ export const SPLIT = {
     ),
   ],
   compute: function (
-    text: Maybe<FPayload>,
-    delimiter: Maybe<FPayload>,
-    splitByEach: Maybe<FPayload> = { value: SPLIT_DEFAULT_SPLIT_BY_EACH },
-    removeEmptyText: Maybe<FPayload> = { value: SPLIT_DEFAULT_REMOVE_EMPTY_TEXT }
+    text: Maybe<FunctionResultObject>,
+    delimiter: Maybe<FunctionResultObject>,
+    splitByEach: Maybe<FunctionResultObject> = { value: SPLIT_DEFAULT_SPLIT_BY_EACH },
+    removeEmptyText: Maybe<FunctionResultObject> = { value: SPLIT_DEFAULT_REMOVE_EMPTY_TEXT }
   ): Matrix<string> {
     const _text = toString(text);
     const _delimiter = escapeRegExp(toString(delimiter));
@@ -435,10 +444,10 @@ export const SUBSTITUTE = {
     ),
   ],
   compute: function (
-    textToSearch: Maybe<FPayload>,
-    searchFor: Maybe<FPayload>,
-    replaceWith: Maybe<FPayload>,
-    occurrenceNumber: Maybe<FPayload>
+    textToSearch: Maybe<FunctionResultObject>,
+    searchFor: Maybe<FunctionResultObject>,
+    replaceWith: Maybe<FunctionResultObject>,
+    occurrenceNumber: Maybe<FunctionResultObject>
   ): string {
     const _occurrenceNumber = toNumber(occurrenceNumber, this.locale);
 
@@ -490,8 +499,8 @@ export const TEXTJOIN = {
     arg("text2 (string, range<string>, repeating)", _t("Additional text item(s).")),
   ],
   compute: function (
-    delimiter: Maybe<FPayload>,
-    ignoreEmpty: Maybe<FPayload>,
+    delimiter: Maybe<FunctionResultObject>,
+    ignoreEmpty: Maybe<FunctionResultObject>,
     ...textsOrArrays: Arg[]
   ): string {
     const _delimiter = toString(delimiter);
@@ -515,7 +524,7 @@ export const TRIM = {
   args: [
     arg("text (string)", _t("The text or reference to a cell containing text to be trimmed.")),
   ],
-  compute: function (text: Maybe<FPayload>): string {
+  compute: function (text: Maybe<FunctionResultObject>): string {
     return trimContent(toString(text));
   },
   isExported: true,
@@ -527,7 +536,7 @@ export const TRIM = {
 export const UPPER = {
   description: _t("Converts a specified string to uppercase."),
   args: [arg("text (string)", _t("The string to convert to uppercase."))],
-  compute: function (text: Maybe<FPayload>): string {
+  compute: function (text: Maybe<FunctionResultObject>): string {
     return toString(text).toUpperCase();
   },
   isExported: true,
@@ -545,7 +554,10 @@ export const TEXT = {
       _t("The pattern by which to format the number, enclosed in quotation marks.")
     ),
   ],
-  compute: function (number: Maybe<FPayload>, format: Maybe<FPayload>): string {
+  compute: function (
+    number: Maybe<FunctionResultObject>,
+    format: Maybe<FunctionResultObject>
+  ): string {
     const _number = toNumber(number, this.locale);
     return formatValue(_number, { format: toString(format), locale: this.locale });
   },

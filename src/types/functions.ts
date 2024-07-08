@@ -1,7 +1,7 @@
 import { CellValue } from "./cells";
 import { Getters } from "./getters";
 import { Locale } from "./locale";
-import { Arg, CellPosition, FPayload, Matrix, UID } from "./misc";
+import { Arg, CellPosition, FunctionResultObject, Matrix, UID } from "./misc";
 import { Range } from "./range";
 
 export type ArgType =
@@ -33,7 +33,9 @@ export interface ArgDefinition {
 export type ComputeFunction<R> = (this: EvalContext, ...args: Arg[]) => R;
 
 export interface AddFunctionDescription {
-  compute: ComputeFunction<FPayload | Matrix<FPayload> | CellValue | Matrix<CellValue>>;
+  compute: ComputeFunction<
+    FunctionResultObject | Matrix<FunctionResultObject> | CellValue | Matrix<CellValue>
+  >;
   description: string;
   category?: string;
   args: ArgDefinition[];

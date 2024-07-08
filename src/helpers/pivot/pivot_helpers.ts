@@ -4,7 +4,15 @@ import { average, countAny, max, min } from "../../functions/helper_statistical"
 import { inferFormat, toBoolean, toNumber, toString } from "../../functions/helpers";
 import { Registry } from "../../registries/registry";
 import { _t } from "../../translation";
-import { Arg, CellValue, DEFAULT_LOCALE, FPayload, Format, Locale, Matrix } from "../../types";
+import {
+  Arg,
+  CellValue,
+  DEFAULT_LOCALE,
+  Format,
+  FunctionResultObject,
+  Locale,
+  Matrix,
+} from "../../types";
 import { EvaluationError } from "../../types/errors";
 import {
   Granularity,
@@ -46,41 +54,41 @@ for (const type in AGGREGATORS_BY_FIELD_TYPE) {
 }
 
 type AggregatorFN = {
-  fn: (args: Matrix<FPayload>, locale?: Locale) => CellValue;
+  fn: (args: Matrix<FunctionResultObject>, locale?: Locale) => CellValue;
   format: (data: Arg | undefined) => Format | undefined;
 };
 
 export const AGGREGATORS_FN: Record<string, AggregatorFN | undefined> = {
   count: {
-    fn: (args: Matrix<FPayload>) => countAny([args]),
+    fn: (args: Matrix<FunctionResultObject>) => countAny([args]),
     format: () => "0",
   },
   count_distinct: {
-    fn: (args: Matrix<FPayload>) => countUnique([args]),
+    fn: (args: Matrix<FunctionResultObject>) => countUnique([args]),
     format: () => "0",
   },
   bool_and: {
-    fn: (args: Matrix<FPayload>) => boolAnd([args]).result,
+    fn: (args: Matrix<FunctionResultObject>) => boolAnd([args]).result,
     format: () => undefined,
   },
   bool_or: {
-    fn: (args: Matrix<FPayload>) => boolOr([args]).result,
+    fn: (args: Matrix<FunctionResultObject>) => boolOr([args]).result,
     format: () => undefined,
   },
   max: {
-    fn: (args: Matrix<FPayload>, locale: Locale) => max([args], locale),
+    fn: (args: Matrix<FunctionResultObject>, locale: Locale) => max([args], locale),
     format: inferFormat,
   },
   min: {
-    fn: (args: Matrix<FPayload>, locale: Locale) => min([args], locale),
+    fn: (args: Matrix<FunctionResultObject>, locale: Locale) => min([args], locale),
     format: inferFormat,
   },
   avg: {
-    fn: (args: Matrix<FPayload>, locale: Locale) => average([args], locale),
+    fn: (args: Matrix<FunctionResultObject>, locale: Locale) => average([args], locale),
     format: inferFormat,
   },
   sum: {
-    fn: (args: Matrix<FPayload>, locale: Locale) => sum([args], locale),
+    fn: (args: Matrix<FunctionResultObject>, locale: Locale) => sum([args], locale),
     format: inferFormat,
   },
 };

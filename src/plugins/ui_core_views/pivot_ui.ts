@@ -11,7 +11,7 @@ import {
   CellPosition,
   Command,
   CoreCommand,
-  FPayload,
+  FunctionResultObject,
   PivotTableCell,
   UID,
   UpdatePivotCommand,
@@ -209,7 +209,7 @@ export class PivotUIPlugin extends UIPlugin {
     }
     if (functionName === "PIVOT.HEADER" && args.at(-2) === "measure") {
       const domain = pivot.parseArgsToPivotDomain(
-        args.slice(1, -2).map((value) => ({ value } as FPayload))
+        args.slice(1, -2).map((value) => ({ value } as FunctionResultObject))
       );
       return {
         type: "MEASURE_HEADER",
@@ -218,7 +218,7 @@ export class PivotUIPlugin extends UIPlugin {
       };
     } else if (functionName === "PIVOT.HEADER") {
       const domain = pivot.parseArgsToPivotDomain(
-        args.slice(1).map((value) => ({ value } as FPayload))
+        args.slice(1).map((value) => ({ value } as FunctionResultObject))
       );
       return {
         type: "HEADER",
@@ -226,7 +226,9 @@ export class PivotUIPlugin extends UIPlugin {
       };
     }
     const [measure, ...domainArgs] = args.slice(1);
-    const domain = pivot.parseArgsToPivotDomain(domainArgs.map((value) => ({ value } as FPayload)));
+    const domain = pivot.parseArgsToPivotDomain(
+      domainArgs.map((value) => ({ value } as FunctionResultObject))
+    );
     return {
       type: "VALUE",
       domain,

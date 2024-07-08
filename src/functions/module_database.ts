@@ -2,8 +2,8 @@ import { _t } from "../translation";
 import {
   AddFunctionDescription,
   Arg,
-  FPayload,
-  FPayloadNumber,
+  FunctionResultNumber,
+  FunctionResultObject,
   Locale,
   Matrix,
   Maybe,
@@ -15,9 +15,9 @@ import { PRODUCT, SUM } from "./module_math";
 import { AVERAGE, COUNT, COUNTA, MAX, MIN, STDEV, STDEVP, VAR, VARP } from "./module_statistical";
 
 function getMatchingCells(
-  database: Matrix<FPayload>,
-  field: Maybe<FPayload>,
-  criteria: Matrix<FPayload>,
+  database: Matrix<FunctionResultObject>,
+  field: Maybe<FunctionResultObject>,
+  criteria: Matrix<FunctionResultObject>,
   locale: Locale
 ): any[] {
   // Example
@@ -172,10 +172,10 @@ export const DAVERAGE = {
   description: _t("Average of a set of values from a table-like range."),
   args: databaseArgs,
   compute: function (
-    database: Matrix<FPayload>,
-    field: Maybe<FPayload>,
-    criteria: Matrix<FPayload>
-  ): FPayloadNumber {
+    database: Matrix<FunctionResultObject>,
+    field: Maybe<FunctionResultObject>,
+    criteria: Matrix<FunctionResultObject>
+  ): FunctionResultNumber {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     return AVERAGE.compute.bind(this)([cells]);
   },
@@ -189,9 +189,9 @@ export const DCOUNT = {
   description: _t("Counts values from a table-like range."),
   args: databaseArgs,
   compute: function (
-    database: Matrix<FPayload>,
-    field: Maybe<FPayload>,
-    criteria: Matrix<FPayload>
+    database: Matrix<FunctionResultObject>,
+    field: Maybe<FunctionResultObject>,
+    criteria: Matrix<FunctionResultObject>
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     return COUNT.compute.bind(this)([cells]);
@@ -206,9 +206,9 @@ export const DCOUNTA = {
   description: _t("Counts values and text from a table-like range."),
   args: databaseArgs,
   compute: function (
-    database: Matrix<FPayload>,
-    field: Maybe<FPayload>,
-    criteria: Matrix<FPayload>
+    database: Matrix<FunctionResultObject>,
+    field: Maybe<FunctionResultObject>,
+    criteria: Matrix<FunctionResultObject>
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     return COUNTA.compute.bind(this)([cells]);
@@ -223,10 +223,10 @@ export const DGET = {
   description: _t("Single value from a table-like range."),
   args: databaseArgs,
   compute: function (
-    database: Matrix<FPayload>,
-    field: Maybe<FPayload>,
-    criteria: Matrix<FPayload>
-  ): FPayload {
+    database: Matrix<FunctionResultObject>,
+    field: Maybe<FunctionResultObject>,
+    criteria: Matrix<FunctionResultObject>
+  ): FunctionResultObject {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     assert(() => cells.length === 1, _t("More than one match found in DGET evaluation."));
     return cells[0];
@@ -241,10 +241,10 @@ export const DMAX = {
   description: _t("Maximum of values from a table-like range."),
   args: databaseArgs,
   compute: function (
-    database: Matrix<FPayload>,
-    field: Maybe<FPayload>,
-    criteria: Matrix<FPayload>
-  ): FPayloadNumber {
+    database: Matrix<FunctionResultObject>,
+    field: Maybe<FunctionResultObject>,
+    criteria: Matrix<FunctionResultObject>
+  ): FunctionResultNumber {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     return MAX.compute.bind(this)([cells]);
   },
@@ -258,10 +258,10 @@ export const DMIN = {
   description: _t("Minimum of values from a table-like range."),
   args: databaseArgs,
   compute: function (
-    database: Matrix<FPayload>,
-    field: Maybe<FPayload>,
-    criteria: Matrix<FPayload>
-  ): FPayloadNumber {
+    database: Matrix<FunctionResultObject>,
+    field: Maybe<FunctionResultObject>,
+    criteria: Matrix<FunctionResultObject>
+  ): FunctionResultNumber {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     return MIN.compute.bind(this)([cells]);
   },
@@ -275,10 +275,10 @@ export const DPRODUCT = {
   description: _t("Product of values from a table-like range."),
   args: databaseArgs,
   compute: function (
-    database: Matrix<FPayload>,
-    field: Maybe<FPayload>,
-    criteria: Matrix<FPayload>
-  ): FPayloadNumber {
+    database: Matrix<FunctionResultObject>,
+    field: Maybe<FunctionResultObject>,
+    criteria: Matrix<FunctionResultObject>
+  ): FunctionResultNumber {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     return PRODUCT.compute.bind(this)([cells]);
   },
@@ -292,9 +292,9 @@ export const DSTDEV = {
   description: _t("Standard deviation of population sample from table."),
   args: databaseArgs,
   compute: function (
-    database: Matrix<FPayload>,
-    field: Maybe<FPayload>,
-    criteria: Matrix<FPayload>
+    database: Matrix<FunctionResultObject>,
+    field: Maybe<FunctionResultObject>,
+    criteria: Matrix<FunctionResultObject>
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     return STDEV.compute.bind(this)([cells]);
@@ -309,9 +309,9 @@ export const DSTDEVP = {
   description: _t("Standard deviation of entire population from table."),
   args: databaseArgs,
   compute: function (
-    database: Matrix<FPayload>,
-    field: Maybe<FPayload>,
-    criteria: Matrix<FPayload>
+    database: Matrix<FunctionResultObject>,
+    field: Maybe<FunctionResultObject>,
+    criteria: Matrix<FunctionResultObject>
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     return STDEVP.compute.bind(this)([cells]);
@@ -326,10 +326,10 @@ export const DSUM = {
   description: _t("Sum of values from a table-like range."),
   args: databaseArgs,
   compute: function (
-    database: Matrix<FPayload>,
-    field: Maybe<FPayload>,
-    criteria: Matrix<FPayload>
-  ): FPayloadNumber {
+    database: Matrix<FunctionResultObject>,
+    field: Maybe<FunctionResultObject>,
+    criteria: Matrix<FunctionResultObject>
+  ): FunctionResultNumber {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     return SUM.compute.bind(this)([cells]);
   },
@@ -343,9 +343,9 @@ export const DVAR = {
   description: _t("Variance of population sample from table-like range."),
   args: databaseArgs,
   compute: function (
-    database: Matrix<FPayload>,
-    field: Maybe<FPayload>,
-    criteria: Matrix<FPayload>
+    database: Matrix<FunctionResultObject>,
+    field: Maybe<FunctionResultObject>,
+    criteria: Matrix<FunctionResultObject>
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     return VAR.compute.bind(this)([cells]);
@@ -360,9 +360,9 @@ export const DVARP = {
   description: _t("Variance of a population from a table-like range."),
   args: databaseArgs,
   compute: function (
-    database: Matrix<FPayload>,
-    field: Maybe<FPayload>,
-    criteria: Matrix<FPayload>
+    database: Matrix<FunctionResultObject>,
+    field: Maybe<FunctionResultObject>,
+    criteria: Matrix<FunctionResultObject>
   ): number {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     return VARP.compute.bind(this)([cells]);

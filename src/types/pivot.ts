@@ -1,6 +1,6 @@
 import { CellValue } from "./cells";
 import { Locale } from "./locale";
-import { FPayload, UID, Zone } from "./misc";
+import { FunctionResultObject, UID, Zone } from "./misc";
 
 export type Aggregator =
   | "array_agg"
@@ -131,13 +131,13 @@ export type PivotTableCell =
 
 export interface PivotTimeAdapterNotNull<T> {
   normalizeFunctionValue: (value: Exclude<CellValue, null>) => T;
-  toValueAndFormat: (normalizedValue: T, locale?: Locale) => FPayload;
+  toValueAndFormat: (normalizedValue: T, locale?: Locale) => FunctionResultObject;
   toFunctionValue: (normalizedValue: T) => string;
 }
 
 export interface PivotTimeAdapter<T> {
   normalizeFunctionValue: (value: CellValue) => T | null;
-  toValueAndFormat: (normalizedValue: T, locale?: Locale) => FPayload;
+  toValueAndFormat: (normalizedValue: T, locale?: Locale) => FunctionResultObject;
   toFunctionValue: (normalizedValue: T) => string;
 }
 

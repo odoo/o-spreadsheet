@@ -1,6 +1,11 @@
 import { formatLargeNumber } from "../helpers";
 import { _t } from "../translation";
-import { AddFunctionDescription, FPayload, FPayloadNumber, Maybe } from "../types";
+import {
+  AddFunctionDescription,
+  FunctionResultNumber,
+  FunctionResultObject,
+  Maybe,
+} from "../types";
 import { arg } from "./arguments";
 import { toNumber } from "./helpers";
 
@@ -17,7 +22,10 @@ export const FORMAT_LARGE_NUMBER = {
       _t("The formatting unit. Use 'k', 'm', or 'b' to force the unit")
     ),
   ],
-  compute: function (value: Maybe<FPayload>, unite: Maybe<FPayload>): FPayloadNumber {
+  compute: function (
+    value: Maybe<FunctionResultObject>,
+    unite: Maybe<FunctionResultObject>
+  ): FunctionResultNumber {
     return {
       value: toNumber(value, this.locale),
       format: formatLargeNumber(value, unite, this.locale),

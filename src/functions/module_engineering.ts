@@ -1,5 +1,5 @@
 import { _t } from "../translation";
-import { AddFunctionDescription, FPayload, Maybe } from "../types";
+import { AddFunctionDescription, FunctionResultObject, Maybe } from "../types";
 import { arg } from "./arguments";
 import { toNumber } from "./helpers";
 
@@ -15,8 +15,8 @@ export const DELTA = {
     arg(`number2 (number, default=${DEFAULT_DELTA_ARG})`, _t("The second number to compare.")),
   ],
   compute: function (
-    number1: Maybe<FPayload>,
-    number2: Maybe<FPayload> = { value: DEFAULT_DELTA_ARG }
+    number1: Maybe<FunctionResultObject>,
+    number2: Maybe<FunctionResultObject> = { value: DEFAULT_DELTA_ARG }
   ): number {
     const _number1 = toNumber(number1, this.locale);
     const _number2 = toNumber(number2, this.locale);

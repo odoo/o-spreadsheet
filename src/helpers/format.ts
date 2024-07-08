@@ -3,9 +3,9 @@ import { _t } from "../translation";
 import {
   CellValue,
   Currency,
-  FPayload,
   Format,
   FormattedValue,
+  FunctionResultObject,
   Locale,
   LocaleFormat,
   Maybe,
@@ -584,7 +584,7 @@ export function roundFormat(format: Format): Format {
   return convertInternalFormatToFormat(roundedFormat);
 }
 
-export function humanizeNumber({ value, format }: FPayload, locale: Locale): string {
+export function humanizeNumber({ value, format }: FunctionResultObject, locale: Locale): string {
   const numberFormat = formatLargeNumber(
     {
       value,
@@ -597,8 +597,8 @@ export function humanizeNumber({ value, format }: FPayload, locale: Locale): str
 }
 
 export function formatLargeNumber(
-  arg: Maybe<FPayload>,
-  unit: Maybe<FPayload>,
+  arg: Maybe<FunctionResultObject>,
+  unit: Maybe<FunctionResultObject>,
   locale: Locale
 ): string {
   let value = 0;
