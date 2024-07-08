@@ -3,6 +3,7 @@
     <div
       class="o-grid w-100 h-100"
       tabindex="-1"
+      composerFocusableElement="true"
       t-on-click="focusDefaultElement"
       t-on-keydown="onKeydown"
       t-on-wheel.prevent="onMouseWheel"

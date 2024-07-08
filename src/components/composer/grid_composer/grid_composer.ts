@@ -8,7 +8,6 @@ import {
   toXC,
 } from "../../../helpers";
 import { Store, useStore } from "../../../store_engine";
-import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
 import { DOMDimension, Rect, SpreadsheetChildEnv } from "../../../types/index";
 import { getTextDecoration } from "../../helpers";
 import { css, cssPropertiesToCss } from "../../helpers/css";
@@ -65,7 +64,6 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
 
   private composerStore!: Store<ComposerStore>;
   composerFocusStore!: Store<ComposerFocusStore>;
-  private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
 
   get defaultRect() {
     return { x: 0, y: 0, width: 0, height: 0 };
@@ -74,7 +72,6 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
   setup() {
     this.composerStore = useStore(ComposerStore);
     this.composerFocusStore = useStore(ComposerFocusStore);
-    this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     onWillUpdateProps(() => {
       this.updateComponentPosition();
       this.updateCellReferenceVisibility();
@@ -182,7 +179,6 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
       this.isEditing = isEditing;
       if (!isEditing) {
         this.rect = this.defaultRect;
-        this.DOMFocusableElementStore.focus();
         return;
       }
       const position = this.env.model.getters.getActivePosition();

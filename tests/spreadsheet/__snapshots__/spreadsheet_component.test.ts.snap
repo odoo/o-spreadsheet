@@ -632,6 +632,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
     >
       <div
         class="o-grid w-100 h-100"
+        composerfocusableelement="true"
         tabindex="-1"
       >
         <div
@@ -866,8 +867,10 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
           >
             <div
               class="o-sheet d-flex align-items-center user-select-none text-nowrap active"
+              composerfocusableelement="true"
               data-id="sh1"
               style=""
+              tabindex="-1"
               title="Sheet1"
             >
               <span

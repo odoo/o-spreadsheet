@@ -464,6 +464,44 @@ describe("Composer interactions", () => {
     await startGridComposition();
     expect(fixture.querySelector(".o-autocomplete-dropdown")).toBeFalsy();
   });
+
+  test("Confirming topbar composer ends up focusing the grid composer", async () => {
+    await typeInComposerTopBar("=A1");
+    const topBarComposerEl = fixture.querySelector<HTMLElement>(
+      ".o-spreadsheet-topbar .o-composer"
+    )!;
+    topBarComposerEl.focus();
+    const gridComposerEl = fixture.querySelector(".o-grid .o-composer")!;
+    expect(document.activeElement === topBarComposerEl).toBe(true);
+    composerStore.stopEdition();
+    await nextTick();
+    expect(document.activeElement === gridComposerEl).toBe(true);
+  });
+
+  test("Composer focus is not lost when selecting a range in the grid", async () => {
+    await startGridComposition("=");
+    await simulateClick(".o-grid-overlay", 300, 200);
+    expect(composerStore.editionMode).toBe("selecting");
+  });
+
+  test("Composer focus is lost when clicking on the grid while not selecting a range", async () => {
+    await startGridComposition("=1");
+    await simulateClick(".o-grid-overlay", 300, 200);
+    expect(composerStore.editionMode).toBe("inactive");
+  });
+
+  test("Composer focus is not lost when changing sheet, even when not selecting a range", async () => {
+    createSheet(model, { sheetId: "42", name: "Sheet2" });
+    await startGridComposition("=1");
+    await simulateClick(".o-sheet[data-id='42']");
+    expect(composerStore.editionMode).toBe("editing");
+  });
+
+  test("Composer focus is lost on blur if focusing a random element", async () => {
+    await startComposition("=");
+    await simulateClick(".o-spreadsheet", 300, 200);
+    expect(composerStore.editionMode).toBe("inactive");
+  });
 });
 
 describe("Grid composer", () => {

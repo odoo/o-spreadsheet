@@ -406,7 +406,7 @@ describe("Autocomplete parenthesis", () => {
     expect(document.activeElement).toBe(composerEl);
     expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(1);
     // select the SUM function
-    await simulateClick(fixture.querySelector(".o-autocomplete-value")!);
+    await click(fixture.querySelector(".o-autocomplete-value")!);
     expect(composerEl.textContent).toBe("=SUM(");
     expect(cehMock.selectionState.isSelectingRange).toBeTruthy();
     expect(cehMock.selectionState.position).toBe(5);
