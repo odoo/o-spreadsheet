@@ -1,11 +1,13 @@
 import { Component, useState } from "@odoo/owl";
 import { getColorsPalette, getNthColor, toHex } from "../../../../../helpers";
+import { _t } from "../../../../../translation";
 import {
   ChartWithDataSetDefinition,
   DispatchResult,
   SpreadsheetChildEnv,
   UID,
 } from "../../../../../types";
+import { ChartTerms } from "../../../../translations_terms";
 import { SidePanelCollapsible } from "../../../components/collapsible/side_panel_collapsible";
 import { RoundColorPicker } from "../../../components/round_color_picker/round_color_picker";
 import { Section } from "../../../components/section/section";
@@ -17,6 +19,7 @@ interface Props {
     figureID: UID,
     definition: Partial<ChartWithDataSetDefinition>
   ) => DispatchResult;
+  canEditAllSeries?: boolean;
   updateChart: (figureId: UID, definition: Partial<ChartWithDataSetDefinition>) => DispatchResult;
 }
 
@@ -33,20 +36,30 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
     updateChart: Function,
     canUpdateChart: Function,
     slots: { type: Object, optional: true },
+    canEditAllSeries: { type: Boolean, optional: true },
   };
 
-  protected state = useState({ index: 0 });
+  protected state: { index: "all" | number } = useState({
+    index: this.props.canEditAllSeries ? "all" : 0,
+  });
 
   getDataSeries() {
-    const runtime = this.env.model.getters.getChartRuntime(this.props.figureId);
-    if (!runtime || !("chartJsConfig" in runtime)) {
-      return [];
+    const dataSeries = this.props.definition.dataSets.map(
+      (d, i) => d.label ?? `${ChartTerms.Series} ${i + 1}`
+    );
+    if (!this.props.canEditAllSeries) {
+      return dataSeries;
     }
-    return runtime.chartJsConfig.data.datasets.map((d) => d.label);
+    return [_t("All series"), ...dataSeries];
   }
 
   updateSerieEditor(ev) {
-    this.state.index = ev.target.selectedIndex;
+    const selectedIndex = ev.target.selectedIndex;
+    if (this.props.canEditAllSeries) {
+      this.state.index = selectedIndex === 0 ? "all" : selectedIndex - 1;
+      return;
+    }
+    this.state.index = selectedIndex;
   }
 
   updateDataSeriesColor(color: string) {
@@ -60,6 +73,9 @@ export class SeriesDesignEditor extends Component<Props, SpreadsheetChildEnv> {
   }
 
   getDataSerieColor() {
+    if (this.state.index === "all") {
+      return "";
+    }
     const dataSets = this.props.definition.dataSets;
     if (!dataSets?.[this.state.index]) return "";
     const color = dataSets[this.state.index].backgroundColor;

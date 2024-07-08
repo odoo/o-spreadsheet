@@ -1,7 +1,7 @@
 import { Component } from "@odoo/owl";
 import { DEFAULT_WINDOW_SIZE } from "../../../../../constants";
 import { getColorsPalette, getNthColor, range, setColorAlpha, toHex } from "../../../../../helpers";
-import { CHART_AXIS_CHOICES } from "../../../../../helpers/figures/charts";
+import { CHART_AXIS_CHOICES, getDefinedAxis } from "../../../../../helpers/figures/charts";
 import {
   ChartJSRuntime,
   ChartWithDataSetDefinition,
@@ -46,24 +46,37 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
 
   axisChoices = CHART_AXIS_CHOICES;
 
-  updateDataSeriesAxis(index: number, axis: "left" | "right") {
+  updateDataSeriesAxis(index: number | "all", axis: "left" | "right") {
+    const yAxisId = axis === "left" ? "y" : "y1";
     const dataSets = [...this.props.definition.dataSets];
-    if (!dataSets?.[index]) {
-      return;
+    if (index === "all") {
+      for (let i = 0; i < dataSets.length; i++) {
+        dataSets[i] = {
+          ...dataSets[i],
+          yAxisId,
+        };
+      }
+    } else {
+      dataSets[index] = {
+        ...dataSets[index],
+        yAxisId,
+      };
     }
-    dataSets[index] = {
-      ...dataSets[index],
-      yAxisId: axis === "left" ? "y" : "y1",
-    };
     this.props.updateChart(this.props.figureId, { dataSets });
   }
 
-  getDataSerieAxis(index: number) {
+  getDataSerieAxis(index: number | "all") {
     const dataSets = this.props.definition.dataSets;
-    if (!dataSets?.[index]) {
-      return "left";
+    if (index === "all") {
+      const { useLeftAxis, useRightAxis } = getDefinedAxis(this.props.definition);
+      if (useLeftAxis && useRightAxis) {
+        return "";
+      } else if (useLeftAxis) {
+        return "left";
+      }
+      return "right";
     }
-    return dataSets[index].yAxisId === "y1" ? "right" : "left";
+    return dataSets[index]?.yAxisId === "y1" ? "right" : "left";
   }
 
   get canHaveTwoVerticalAxis() {
@@ -99,7 +112,7 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
     return config.type === "polynomial" && config.order === 1 ? "linear" : config.type;
   }
 
-  onChangeTrendType(index, ev: InputEvent) {
+  onChangeTrendType(index: number, ev: InputEvent) {
     const type = (ev.target as HTMLInputElement).value;
     let config: TrendConfiguration;
     switch (type) {

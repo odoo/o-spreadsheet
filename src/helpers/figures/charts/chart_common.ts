@@ -18,6 +18,7 @@ import {
   Zone,
 } from "../../../types";
 import {
+  AxisDesign,
   ChartAxisFormats,
   ChartWithDataSetDefinition,
   CustomizedDataSet,
@@ -385,6 +386,34 @@ export function getChartPositionAtCenterOfViewport(
     x: x + scrollX + Math.max(0, (width - chartSize.width) / 2),
     y: y + scrollY + Math.max(0, (height - chartSize.height) / 2),
   }; // Position at the center of the scrollable viewport
+}
+
+export function getChartAxisTitleRuntime(design?: AxisDesign):
+  | {
+      display: boolean;
+      text: string;
+      color?: string;
+      font: {
+        style: "italic" | "normal";
+        weight: "bold" | "normal";
+      };
+      align: "start" | "center" | "end";
+    }
+  | undefined {
+  if (design?.title?.text) {
+    const { text, color, align, italic, bold } = design.title;
+    return {
+      display: true,
+      text,
+      color,
+      font: {
+        style: italic ? "italic" : "normal",
+        weight: bold ? "bold" : "normal",
+      },
+      align: align === "left" ? "start" : align === "right" ? "end" : "center",
+    };
+  }
+  return;
 }
 
 export function getDefinedAxis(definition: GenericDefinition<ChartWithDataSetDefinition>): {

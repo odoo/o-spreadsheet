@@ -545,6 +545,7 @@ describe("charts", () => {
     );
     await mountChartSidePanel();
     await openChartDesignSidePanel(model, env, fixture, chartId);
+    await setInputValueAndTrigger(".data-series-selector", "serie_1");
 
     let color_menu = fixture.querySelectorAll(".o-round-color-picker-button")[1];
 
@@ -588,7 +589,32 @@ describe("charts", () => {
     createChart(
       model,
       {
-        dataSets: [{ dataRange: "C1:C4" }],
+        dataSets: [{ dataRange: "C1:C4", label: "serie_1" }],
+        labelRange: "A2:A4",
+        type: "line",
+      },
+      chartId
+    );
+    await mountChartSidePanel();
+    await openChartDesignSidePanel(model, env, fixture, chartId);
+    await setInputValueAndTrigger(".data-series-selector", "serie_1");
+    await click(fixture, ".o-vertical-axis-selection input[value=right]");
+
+    //@ts-ignore
+    expect(model.getters.getChartDefinition(chartId).dataSets).toEqual([
+      {
+        dataRange: "C1:C4",
+        yAxisId: "y1",
+        label: "serie_1",
+      },
+    ]);
+  });
+
+  test("can edit all chart data series vertical axis at once", async () => {
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }],
         labelRange: "A2:A4",
         type: "line",
       },
@@ -601,6 +627,10 @@ describe("charts", () => {
     //@ts-ignore
     expect(model.getters.getChartDefinition(chartId).dataSets).toEqual([
       {
+        dataRange: "B1:B4",
+        yAxisId: "y1",
+      },
+      {
         dataRange: "C1:C4",
         yAxisId: "y1",
       },
@@ -611,7 +641,7 @@ describe("charts", () => {
     createChart(
       model,
       {
-        dataSets: [{ dataRange: "C1:C4" }],
+        dataSets: [{ dataRange: "C1:C4", label: "serie_1" }],
         labelRange: "A2:A4",
         type: "line",
       },
@@ -619,6 +649,7 @@ describe("charts", () => {
     );
     await mountChartSidePanel();
     await openChartDesignSidePanel(model, env, fixture, chartId);
+    await setInputValueAndTrigger(".data-series-selector", "serie_1");
     setInputValueAndTrigger(".o-serie-label-editor", "coucou");
 
     //@ts-ignore
@@ -940,12 +971,48 @@ describe("charts", () => {
     await simulateClick(".o-data-series .o-selection-ok");
     expect((model.getters.getChartDefinition(chartId) as BarChartDefinition).dataSets).toEqual([
       { dataRange: "B1:B4", yAxisId: "y" },
-      { dataRange: "C1:C4" },
+      { dataRange: "C1:C4", yAxisId: "y" },
     ]);
     const remove = document.querySelectorAll(".o-data-series .o-remove-selection")[1];
     await simulateClick(remove);
     expect((model.getters.getChartDefinition(chartId) as BarChartDefinition).dataSets).toEqual([
       { dataRange: "B1:B4", yAxisId: "y" },
+    ]);
+  });
+
+  test("New range added to the chart will have the same axisId as existing ranges", async () => {
+    createTestChart("basicChart");
+    updateChart(model, chartId, { dataSets: [{ dataRange: "B1:B4", yAxisId: "y1" }] });
+    await mountChartSidePanel();
+
+    await simulateClick(".o-data-series .o-add-selection");
+    const element = document.querySelectorAll(".o-data-series input")[1];
+    await setInputValueAndTrigger(element, "C1:C4");
+    await simulateClick(".o-data-series .o-selection-ok");
+    expect((model.getters.getChartDefinition(chartId) as BarChartDefinition).dataSets).toEqual([
+      { dataRange: "B1:B4", yAxisId: "y1" },
+      { dataRange: "C1:C4", yAxisId: "y1" },
+    ]);
+  });
+
+  test("Vertical axis is not added if differents axis are used when adding new range", async () => {
+    createTestChart("basicChart");
+    updateChart(model, chartId, {
+      dataSets: [
+        { dataRange: "B1:B4", yAxisId: "y" },
+        { dataRange: "C1:C4", yAxisId: "y1" },
+      ],
+    });
+    await mountChartSidePanel();
+
+    await simulateClick(".o-data-series .o-add-selection");
+    const element = document.querySelectorAll(".o-data-series input")[2];
+    await setInputValueAndTrigger(element, "D1:D4");
+    await simulateClick(".o-data-series .o-selection-ok");
+    expect((model.getters.getChartDefinition(chartId) as BarChartDefinition).dataSets).toEqual([
+      { dataRange: "B1:B4", yAxisId: "y" },
+      { dataRange: "C1:C4", yAxisId: "y1" },
+      { dataRange: "D1:D4" },
     ]);
   });
 
@@ -959,8 +1026,8 @@ describe("charts", () => {
     await simulateClick(".o-data-series .o-selection-ok");
     expect((model.getters.getChartDefinition(chartId) as BarChartDefinition).dataSets).toEqual([
       { dataRange: "B1:B4", yAxisId: "y" },
-      { dataRange: "C1:C4" },
-      { dataRange: "D1:D4" },
+      { dataRange: "C1:C4", yAxisId: "y" },
+      { dataRange: "D1:D4", yAxisId: "y" },
     ]);
     expect(fixture.querySelectorAll(".o-selection-input input").length).toEqual(4);
     expect(
@@ -1618,7 +1685,7 @@ describe("charts", () => {
         createChart(
           model,
           {
-            dataSets: [{ dataRange: "B1:B4" }],
+            dataSets: [{ dataRange: "B1:B4", label: "serie_1" }],
             labelRange: "A1:A4",
             type,
             dataSetsHaveTitle: false,
@@ -1628,6 +1695,7 @@ describe("charts", () => {
         );
         await mountChartSidePanel(chartId);
         await openChartDesignSidePanel(model, env, fixture, chartId);
+        await setInputValueAndTrigger(".data-series-selector", "serie_1");
 
         const checkbox = document.querySelector("input[name='showTrendLine']") as HTMLInputElement;
         expect(checkbox.checked).toBe(false);
@@ -1663,7 +1731,11 @@ describe("charts", () => {
           model,
           {
             dataSets: [
-              { dataRange: "B1:B4", trend: { type: "polynomial", order: 3, display: true } },
+              {
+                dataRange: "B1:B4",
+                label: "serie_1",
+                trend: { type: "polynomial", order: 3, display: true },
+              },
             ],
             labelRange: "A1:A4",
             type,
@@ -1674,6 +1746,7 @@ describe("charts", () => {
         );
         await mountChartSidePanel(chartId);
         await openChartDesignSidePanel(model, env, fixture, chartId);
+        await setInputValueAndTrigger(".data-series-selector", "serie_1");
 
         let definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
         expect(definition.dataSets[0].trend).toEqual({
@@ -1702,7 +1775,11 @@ describe("charts", () => {
           model,
           {
             dataSets: [
-              { dataRange: "B1:B4", trend: { type: "polynomial", order: 3, display: true } },
+              {
+                dataRange: "B1:B4",
+                label: "serie_1",
+                trend: { type: "polynomial", order: 3, display: true },
+              },
             ],
             labelRange: "A1:A4",
             type,
@@ -1713,6 +1790,7 @@ describe("charts", () => {
         );
         await mountChartSidePanel(chartId);
         await openChartDesignSidePanel(model, env, fixture, chartId);
+        await setInputValueAndTrigger(".data-series-selector", "serie_1");
 
         let definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
         expect(definition.dataSets[0].trend).toEqual({
@@ -1736,6 +1814,7 @@ describe("charts", () => {
             dataSets: [
               {
                 dataRange: "B1:B4",
+                label: "serie_1",
                 trend: { type: "trailingMovingAverage", window: 2, display: true },
               },
             ],
@@ -1748,6 +1827,7 @@ describe("charts", () => {
         );
         await mountChartSidePanel(chartId);
         await openChartDesignSidePanel(model, env, fixture, chartId);
+        await setInputValueAndTrigger(".data-series-selector", "serie_1");
 
         let definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
         expect(definition.dataSets[0].trend).toEqual({
@@ -1770,7 +1850,11 @@ describe("charts", () => {
           model,
           {
             dataSets: [
-              { dataRange: "B1:B5", trend: { type: "polynomial", order: 3, display: true } },
+              {
+                dataRange: "B1:B5",
+                label: "serie_1",
+                trend: { type: "polynomial", order: 3, display: true },
+              },
             ],
             labelRange: "A1:A5",
             type,
@@ -1781,6 +1865,7 @@ describe("charts", () => {
         );
         await mountChartSidePanel(chartId);
         await openChartDesignSidePanel(model, env, fixture, chartId);
+        await setInputValueAndTrigger(".data-series-selector", "serie_1");
 
         const selectElement = fixture.querySelector(".trend-order-input") as HTMLSelectElement;
         const optionValues = [...selectElement.options].map((o) => o.value);
@@ -1797,6 +1882,7 @@ describe("charts", () => {
             dataSets: [
               {
                 dataRange: "B1:B4",
+                label: "serie_1",
                 trend: { type: "polynomial", order: 3, display: true },
                 backgroundColor: "#ff0000",
               },
@@ -1810,6 +1896,7 @@ describe("charts", () => {
         );
         await mountChartSidePanel(chartId);
         await openChartDesignSidePanel(model, env, fixture, chartId);
+        await setInputValueAndTrigger(".data-series-selector", "serie_1");
 
         let runtime = model.getters.getChartRuntime(chartId) as BarChartRuntime;
         expect(runtime.chartJsConfig.data.datasets[1].borderColor).toBe("#FF8080");
