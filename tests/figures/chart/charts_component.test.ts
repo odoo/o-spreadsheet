@@ -547,6 +547,7 @@ describe("charts", () => {
     );
     await mountChartSidePanel();
     await openChartDesignSidePanel(chartId);
+    await setInputValueAndTrigger(".data-series-selector", "serie_1");
 
     let color_menu = fixture.querySelectorAll(".o-round-color-picker-button")[1];
 
@@ -590,7 +591,32 @@ describe("charts", () => {
     createChart(
       model,
       {
-        dataSets: [{ dataRange: "C1:C4" }],
+        dataSets: [{ dataRange: "C1:C4", label: "serie_1" }],
+        labelRange: "A2:A4",
+        type: "line",
+      },
+      chartId
+    );
+    await mountChartSidePanel();
+    await openChartDesignSidePanel();
+    await setInputValueAndTrigger(".data-series-selector", "serie_1");
+    setInputValueAndTrigger(".o-vertical-axis-selection", "right");
+
+    //@ts-ignore
+    expect(model.getters.getChartDefinition(chartId).dataSets).toEqual([
+      {
+        dataRange: "C1:C4",
+        yAxisId: "y1",
+        label: "serie_1",
+      },
+    ]);
+  });
+
+  test("can edit all chart data series vertical axis at once", async () => {
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }],
         labelRange: "A2:A4",
         type: "line",
       },
@@ -603,6 +629,10 @@ describe("charts", () => {
     //@ts-ignore
     expect(model.getters.getChartDefinition(chartId).dataSets).toEqual([
       {
+        dataRange: "B1:B4",
+        yAxisId: "y1",
+      },
+      {
         dataRange: "C1:C4",
         yAxisId: "y1",
       },
@@ -613,7 +643,7 @@ describe("charts", () => {
     createChart(
       model,
       {
-        dataSets: [{ dataRange: "C1:C4" }],
+        dataSets: [{ dataRange: "C1:C4", label: "serie_1" }],
         labelRange: "A2:A4",
         type: "line",
       },
@@ -621,6 +651,7 @@ describe("charts", () => {
     );
     await mountChartSidePanel();
     await openChartDesignSidePanel();
+    await setInputValueAndTrigger(".data-series-selector", "serie_1");
     setInputValueAndTrigger(".o-serie-label-editor", "coucou");
 
     //@ts-ignore
@@ -947,12 +978,48 @@ describe("charts", () => {
     await simulateClick(".o-data-series .o-selection-ok");
     expect((model.getters.getChartDefinition(chartId) as BarChartDefinition).dataSets).toEqual([
       { dataRange: "B1:B4", yAxisId: "y" },
-      { dataRange: "C1:C4" },
+      { dataRange: "C1:C4", yAxisId: "y" },
     ]);
     const remove = document.querySelectorAll(".o-data-series .o-remove-selection")[1];
     await simulateClick(remove);
     expect((model.getters.getChartDefinition(chartId) as BarChartDefinition).dataSets).toEqual([
       { dataRange: "B1:B4", yAxisId: "y" },
+    ]);
+  });
+
+  test("Vertical axis is take into account when adding new range", async () => {
+    createTestChart("basicChart");
+    updateChart(model, chartId, { dataSets: [{ dataRange: "B1:B4", yAxisId: "y1" }] });
+    await mountChartSidePanel();
+
+    await simulateClick(".o-data-series .o-add-selection");
+    const element = document.querySelectorAll(".o-data-series input")[1];
+    await setInputValueAndTrigger(element, "C1:C4");
+    await simulateClick(".o-data-series .o-selection-ok");
+    expect((model.getters.getChartDefinition(chartId) as BarChartDefinition).dataSets).toEqual([
+      { dataRange: "B1:B4", yAxisId: "y1" },
+      { dataRange: "C1:C4", yAxisId: "y1" },
+    ]);
+  });
+
+  test("Vertical axis is not added if differents axis are used when adding new range", async () => {
+    createTestChart("basicChart");
+    updateChart(model, chartId, {
+      dataSets: [
+        { dataRange: "B1:B4", yAxisId: "y" },
+        { dataRange: "C1:C4", yAxisId: "y1" },
+      ],
+    });
+    await mountChartSidePanel();
+
+    await simulateClick(".o-data-series .o-add-selection");
+    const element = document.querySelectorAll(".o-data-series input")[2];
+    await setInputValueAndTrigger(element, "D1:D4");
+    await simulateClick(".o-data-series .o-selection-ok");
+    expect((model.getters.getChartDefinition(chartId) as BarChartDefinition).dataSets).toEqual([
+      { dataRange: "B1:B4", yAxisId: "y" },
+      { dataRange: "C1:C4", yAxisId: "y1" },
+      { dataRange: "D1:D4" },
     ]);
   });
 
@@ -966,8 +1033,8 @@ describe("charts", () => {
     await simulateClick(".o-data-series .o-selection-ok");
     expect((model.getters.getChartDefinition(chartId) as BarChartDefinition).dataSets).toEqual([
       { dataRange: "B1:B4", yAxisId: "y" },
-      { dataRange: "C1:C4" },
-      { dataRange: "D1:D4" },
+      { dataRange: "C1:C4", yAxisId: "y" },
+      { dataRange: "D1:D4", yAxisId: "y" },
     ]);
     expect(fixture.querySelectorAll(".o-selection-input input").length).toEqual(4);
     expect(
