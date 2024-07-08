@@ -31,7 +31,7 @@ export const FIX_FORMULAS: ActionSpec = {
     if (!pivot.isValid()) {
       return;
     }
-    env.model.dispatch("INSERT_PIVOT", {
+    env.model.dispatch("SPLIT_PIVOT_FORMULA", {
       sheetId,
       col,
       row,

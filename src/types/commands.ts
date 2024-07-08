@@ -952,11 +952,14 @@ export interface DuplicatePivotInNewSheetCommand {
   newSheetId: UID;
 }
 
-export interface InsertPivotWithTableCommand {
+export interface InsertPivotWithTableCommand extends PositionDependentCommand {
   type: "INSERT_PIVOT_WITH_TABLE";
-  sheetId: UID;
-  col: HeaderIndex;
-  row: HeaderIndex;
+  pivotId: UID;
+  table: PivotTableData;
+}
+
+export interface SplitPivotFormulaCommand extends PositionDependentCommand {
+  type: "SPLIT_PIVOT_FORMULA";
   pivotId: UID;
   table: PivotTableData;
 }
@@ -1106,7 +1109,8 @@ export type LocalCommand =
   | RefreshPivotCommand
   | InsertNewPivotCommand
   | DuplicatePivotInNewSheetCommand
-  | InsertPivotWithTableCommand;
+  | InsertPivotWithTableCommand
+  | SplitPivotFormulaCommand;
 
 export type Command = CoreCommand | LocalCommand;
 
