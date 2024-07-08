@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-SeriesDesignEditor">
     <SidePanelCollapsible collapsedAtInit="true" title.translate="Data Series">
       <t t-set-slot="content">
-        <Section class="'pt-0 pb-0'">
+        <Section class="'pt-0'">
           <select
             class="o-input data-series-selector"
             t-model="state.label"
@@ -10,12 +10,12 @@
             <t t-foreach="getDataSeries()" t-as="serie" t-key="serie_index">
               <option
                 t-att-value="serie"
-                t-att-selected="state.index === serie_index"
+                t-att-selected="state.index+seriesOffset === serie_index"
                 t-esc="serie"
               />
             </t>
           </select>
-          <Section class="'px-0'">
+          <Section class="'px-0'" t-if="state.index !== -1">
             <div class="d-flex align-items-center">
               <span class="o-section-title mb-0 pe-2">Series color</span>
               <RoundColorPicker
@@ -24,7 +24,7 @@
               />
             </div>
           </Section>
-          <Section class="'pt-0 px-0'" title.translate="Series name">
+          <Section class="'pt-0 pb-0 px-0'" title.translate="Series name" t-if="state.index !== -1">
             <input
               class="o-input o-serie-label-editor"
               type="text"

@@ -113,7 +113,16 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
    * button "confirm" is clicked
    */
   onDataSeriesRangesChanged(ranges: string[]) {
+    let yAxisId: string | undefined = undefined;
+    if (this.dataSeriesRanges.length) {
+      if (this.dataSeriesRanges.every((ds) => ds.yAxisId === "y")) {
+        yAxisId = "y";
+      } else if (this.dataSeriesRanges.every((ds) => ds.yAxisId === "y1")) {
+        yAxisId = "y1";
+      }
+    }
     this.dataSeriesRanges = ranges.map((dataRange, i) => ({
+      yAxisId,
       ...this.dataSeriesRanges?.[i],
       dataRange,
     }));
