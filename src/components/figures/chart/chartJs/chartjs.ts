@@ -1,5 +1,5 @@
 import { Component, onMounted, onWillUnmount, useEffect, useRef } from "@odoo/owl";
-import type { Chart, ChartConfiguration } from "chart.js";
+import { Chart, ChartConfiguration } from "chart.js/auto";
 import { deepCopy } from "../../../../helpers";
 import { Figure, SpreadsheetChildEnv } from "../../../../types";
 import { ChartJSRuntime } from "../../../../types/chart/chart";
@@ -9,7 +9,6 @@ interface Props {
   figure: Figure;
 }
 
-// @ts-ignore
 window.Chart?.register(waterfallLinesPlugin);
 
 export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
@@ -63,7 +62,6 @@ export class ChartJsComponent extends Component<Props, SpreadsheetChildEnv> {
   private createChart(chartData: ChartConfiguration) {
     const canvas = this.canvas.el as HTMLCanvasElement;
     const ctx = canvas.getContext("2d")!;
-    // @ts-ignore
     this.chart = new window.Chart(ctx, chartData as ChartConfiguration);
   }
 

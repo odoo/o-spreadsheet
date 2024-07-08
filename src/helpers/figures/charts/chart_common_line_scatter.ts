@@ -94,13 +94,11 @@ function canBeLinearChart(labelRange: Range | undefined, getters: Getters): bool
 let missingTimeAdapterAlreadyWarned = false;
 
 function isLuxonTimeAdapterInstalled() {
-  // @ts-ignore
   if (!window.Chart) {
     return false;
   }
   // @ts-ignore
   const adapter = new window.Chart._adapters._date({});
-  // @ts-ignore
   const isInstalled = adapter._id === "luxon";
   if (!isInstalled && !missingTimeAdapterAlreadyWarned) {
     missingTimeAdapterAlreadyWarned = true;
@@ -125,9 +123,7 @@ function getLineOrScatterConfiguration(
       generateLabels(chart) {
         // color the legend labels with the dataset color, without any transparency
         const { data } = chart;
-        /** @ts-ignore */
-        const labels = (window.Chart as typeof ChartType).defaults.plugins.legend.labels
-          .generateLabels!(chart);
+        const labels = window.Chart.defaults.plugins.legend.labels.generateLabels!(chart);
         for (const [index, label] of labels.entries()) {
           label.fillStyle = data.datasets![index].borderColor as string;
         }

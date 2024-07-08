@@ -294,7 +294,6 @@ export function chartToImage(
   if ("chartJsConfig" in runtime) {
     const config = deepCopy(runtime.chartJsConfig);
     config.plugins = [backgroundColorChartJSPlugin];
-    // @ts-ignore
     const chart = new window.Chart(canvas, config);
     const imgContent = chart.toBase64Image() as string;
     chart.destroy();
