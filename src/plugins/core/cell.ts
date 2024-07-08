@@ -20,7 +20,6 @@ import {
   Cell,
   CellData,
   CellPosition,
-  ClearCellCommand,
   CommandResult,
   CompiledFormula,
   CoreCommand,
@@ -100,8 +99,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     switch (cmd.type) {
       case "UPDATE_CELL":
         return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessUpdateCell);
-      case "CLEAR_CELL":
-        return this.checkValidations(cmd, this.checkCellOutOfSheet, this.checkUselessClearCell);
       default:
         return CommandResult.Success;
     }
@@ -130,18 +127,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       case "UPDATE_CELL":
         this.updateCell(cmd.sheetId, cmd.col, cmd.row, cmd);
         break;
-
-      case "CLEAR_CELL":
-        this.dispatch("UPDATE_CELL", {
-          sheetId: cmd.sheetId,
-          col: cmd.col,
-          row: cmd.row,
-          content: "",
-          style: null,
-          format: "",
-        });
+      case "CLEAR_CELLS":
+        this.clearCells(cmd.sheetId, cmd.target);
         break;
-
       case "DELETE_CONTENT":
         this.clearZones(cmd.sheetId, cmd.target);
         break;
@@ -196,6 +184,26 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
             sheetId,
             col,
             row,
+            style: null,
+            format: "",
+          });
+        }
+      }
+    }
+  }
+
+  /**
+   * Clear the styles, the format and the content of zones
+   */
+  private clearCells(sheetId: UID, zones: Zone[]) {
+    for (const zone of recomputeZones(zones)) {
+      for (let col = zone.left; col <= zone.right; col++) {
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          this.dispatch("UPDATE_CELL", {
+            sheetId: sheetId,
+            col,
+            row,
+            content: "",
             style: null,
             format: "",
           });
@@ -672,14 +680,13 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     return isInside(col, row, sheetZone) ? CommandResult.Success : CommandResult.TargetOutOfSheet;
   }
 
-  private checkUselessClearCell(cmd: ClearCellCommand): CommandResult {
-    const cell = this.getters.getCell(cmd);
-    if (!cell) return CommandResult.NoChanges;
-    if (!cell.content && !cell.style && !cell.format) {
-      return CommandResult.NoChanges;
-    }
-    return CommandResult.Success;
-  }
+  // private checkZoneOutOfSheet(cmd: ZoneDependentCommand): CommandResult {
+  //   const { sheetId, zone } = cmd;
+  //   const sheet = this.getters.tryGetSheet(sheetId);
+  //   if (!sheet) return CommandResult.InvalidSheetId;
+  //   const sheetZone = this.getters.getSheetZone(sheetId);
+  //   return isZoneInside(zone, sheetZone) ? CommandResult.Success : CommandResult.TargetOutOfSheet;
+  // }
 
   private checkUselessUpdateCell(cmd: UpdateCellCommand): CommandResult {
     const cell = this.getters.getCell(cmd);

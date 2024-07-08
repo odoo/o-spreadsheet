@@ -593,15 +593,14 @@ export function setBorders(
 }
 
 /**
- * Clear a cell
+ * Clear cells in zones
  */
-export function clearCell(
+export function clearCells(
   model: Model,
-  xc: string,
+  xcs: string[],
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
-  const { col, row } = toCartesian(xc);
-  return model.dispatch("CLEAR_CELL", { col, row, sheetId });
+  return model.dispatch("CLEAR_CELLS", { target: xcs.map(toZone), sheetId });
 }
 
 /**

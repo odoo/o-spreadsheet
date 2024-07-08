@@ -58,7 +58,7 @@ describe("Repeat commands basics", () => {
   test("Repeatable core command list", () => {
     const repeatableCommands = [
       "UPDATE_CELL",
-      "CLEAR_CELL",
+      "CLEAR_CELLS",
       "DELETE_CONTENT",
       "ADD_MERGE",
       "REMOVE_MERGE",
@@ -134,7 +134,7 @@ describe("Repeat commands basics", () => {
 describe("Repeat command transform generics", () => {
   test.each([
     TEST_COMMANDS.UPDATE_CELL,
-    TEST_COMMANDS.CLEAR_CELL,
+    TEST_COMMANDS.CLEAR_CELLS,
     TEST_COMMANDS.DELETE_CONTENT,
     TEST_COMMANDS.ADD_MERGE,
     TEST_COMMANDS.REMOVE_MERGE,
@@ -151,7 +151,7 @@ describe("Repeat command transform generics", () => {
     expect((transformed as SheetDependentCommand)?.sheetId).toEqual("42");
   });
 
-  test.each([TEST_COMMANDS.UPDATE_CELL, TEST_COMMANDS.CLEAR_CELL, TEST_COMMANDS.SET_BORDER])(
+  test.each([TEST_COMMANDS.UPDATE_CELL, TEST_COMMANDS.SET_BORDER])(
     "Position dependant commands are adapted to current selection %s",
     (cmd: CoreCommand) => {
       setSelection(model, ["B2:C4"]);
@@ -166,6 +166,7 @@ describe("Repeat command transform generics", () => {
     TEST_COMMANDS.REMOVE_TABLE,
     TEST_COMMANDS.SET_FORMATTING,
     TEST_COMMANDS.CLEAR_FORMATTING,
+    TEST_COMMANDS.CLEAR_CELLS,
   ])(
     "Target dependant commands have target equal to current current selection",
     (command: CoreCommand) => {
