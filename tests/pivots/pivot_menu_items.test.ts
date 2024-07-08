@@ -3,6 +3,7 @@ import { toCartesian, toZone } from "../../src/helpers";
 import { cellMenuRegistry, topbarMenuRegistry } from "../../src/registries";
 import {
   createSheet,
+  createTable,
   redo,
   selectCell,
   setCellContent,
@@ -71,6 +72,40 @@ describe("Pivot menu items", () => {
     const openSidePanel = jest.spyOn(env, "openSidePanel");
     cellMenuRegistry.get("pivot_properties").execute!(env);
     expect(openSidePanel).toHaveBeenCalledWith("PivotSidePanel", { pivotId: "1" });
+  });
+
+  test("it also adapts the dynamic table linked to the pivot", () => {
+    // prettier-ignore
+    const grid = {
+     A1: "Customer", B1: "Price", C1: "=PIVOT(1)",
+     A2: "Alice",    B2: "10",
+     A3: "Bob",      B3: "30",
+   };
+    const model = createModelFromGrid(grid);
+    const env = makeTestEnv({ model });
+
+    addPivot(model, "A1:B3", {
+      columns: [],
+      rows: [{ name: "Customer" }],
+      measures: [{ name: "Price", aggregator: "sum" }],
+    });
+
+    selectCell(model, "C1");
+    createTable(model, "C1", {}, "dynamic");
+    const sheetId = model.getters.getActiveSheetId();
+    const activePosition = model.getters.getActivePosition();
+    expect(model.getters.getCoreTable(activePosition)).toMatchObject({
+      type: "dynamic",
+      range: model.getters.getRangeFromSheetXC(sheetId, "C1"),
+    });
+
+    selectCell(model, "C1");
+    cellMenuRegistry.get("pivot_fix_formulas").execute!(env);
+
+    expect(model.getters.getCoreTable(activePosition)).toMatchObject({
+      type: "static",
+      range: model.getters.getRangeFromSheetXC(sheetId, "C1:D5"),
+    });
   });
 
   test("It should fix formula when clicking on pivot_fix_formulas", () => {

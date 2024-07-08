@@ -1,7 +1,7 @@
 import { PIVOT_TABLE_CONFIG } from "../../constants";
 import { sanitizeSheetName } from "../../helpers";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
-import { getZoneArea } from "../../helpers/zones";
+import { getZoneArea, positionToZone } from "../../helpers/zones";
 import { _t } from "../../translation";
 import { HeaderIndex, PivotTableData, UID, Zone } from "../../types";
 import { Command } from "../../types/commands";
@@ -28,6 +28,8 @@ export class InsertPivotPlugin extends UIPlugin {
           cmd.pivotMode
         );
         break;
+      case "SPLIT_PIVOT_FORMULA":
+        this.splitPivotFormula(cmd.sheetId, cmd.col, cmd.row, cmd.pivotId, cmd.table);
     }
   }
 
@@ -195,6 +197,43 @@ export class InsertPivotPlugin extends UIPlugin {
         sheetId: sheetId,
         quantity: rowLimit - deltaRow,
         position: "after",
+      });
+    }
+  }
+
+  splitPivotFormula(
+    sheetId: UID,
+    col: HeaderIndex,
+    row: HeaderIndex,
+    pivotId: UID,
+    pivotTableData: PivotTableData
+  ) {
+    this.dispatch("INSERT_PIVOT", {
+      sheetId,
+      col,
+      row,
+      pivotId,
+      table: pivotTableData,
+    });
+    const table = this.getters.getCoreTable({ sheetId, col, row });
+    if (table?.type === "dynamic") {
+      const zone = positionToZone({ col, row });
+      const { cols, rows, measures, fieldsType } = pivotTableData;
+      const pivotTable = new SpreadsheetPivotTable(cols, rows, measures, fieldsType || {});
+      const colNumber = pivotTable.getNumberOfDataColumns() + 1;
+      const rowNumber = pivotTable.columns.length + pivotTable.rows.length;
+      const tableZone = {
+        left: col,
+        top: row,
+        right: col + colNumber - 1,
+        bottom: row + rowNumber - 1,
+      };
+      const rangeData = this.getters.getRangeDataFromZone(sheetId, tableZone);
+      this.dispatch("UPDATE_TABLE", {
+        sheetId,
+        zone,
+        newTableRange: rangeData,
+        tableType: "static",
       });
     }
   }
