@@ -225,8 +225,10 @@ exports[`BottomBar component simple rendering 1`] = `
         >
           <div
             class="o-sheet d-flex align-items-center user-select-none text-nowrap active"
+            composerfocusableelement="true"
             data-id="Sheet1"
             style=""
+            tabindex="-1"
             title="Sheet1"
           >
             <span

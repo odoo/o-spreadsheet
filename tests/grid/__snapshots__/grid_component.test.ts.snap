@@ -3,6 +3,7 @@
 exports[`Grid component simple rendering snapshot 1`] = `
 <div
   class="o-grid w-100 h-100"
+  composerfocusableelement="true"
   tabindex="-1"
 >
   <div

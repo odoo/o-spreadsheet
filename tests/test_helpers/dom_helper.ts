@@ -17,7 +17,7 @@ export async function simulateClick(
   if (target !== document.activeElement) {
     const oldActiveEl = document.activeElement;
     (document.activeElement as HTMLElement | null)?.dispatchEvent(
-      new FocusEvent("blur", { relatedTarget: target })
+      new FocusEvent("blur", { relatedTarget: getFocusableParent(target) })
     );
     /** Dispatching a crafted FocusEvent does not actually focus the target.
      * JSDom pretty much requires us to rely on Element.focus()
@@ -36,6 +36,27 @@ export async function simulateClick(
   triggerMouseEvent(selector, "pointerup", x, y, extra);
   triggerMouseEvent(selector, "click", x, y, extra);
   await nextTick();
+}
+
+function getFocusableParent(el: Element | Document | Window): Element | undefined {
+  if (el instanceof Window) {
+    return el.document.body;
+  }
+  if (el instanceof Document) {
+    return el.body;
+  }
+  if (el.attributes["tabindex"] || el.attributes["contenteditable"]) {
+    return el;
+  }
+  if (
+    el.tagName === "A" ||
+    el.tagName === "BUTTON" ||
+    el.tagName === "INPUT" ||
+    el.tagName === "TEXTAREA"
+  ) {
+    return el;
+  }
+  return el.parentElement ? getFocusableParent(el.parentElement) : undefined;
 }
 
 export function getTarget(target: DOMTarget): Element | Document | Window {

@@ -230,6 +230,13 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
 
     useEffect(() => {
       this.processContent();
+      if (
+        document.activeElement === this.contentHelper.el &&
+        this.composerStore.editionMode === "inactive" &&
+        !this.props.isDefaultFocus
+      ) {
+        this.DOMFocusableElementStore.focus();
+      }
     });
 
     useEffect(
@@ -446,6 +453,25 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
 
       this.processTokenAtCursor();
     }
+  }
+
+  onBlur(ev: FocusEvent) {
+    if (this.composerStore.editionMode === "inactive") {
+      return;
+    }
+    const target = ev.relatedTarget;
+    if (!target || !(target instanceof HTMLElement)) {
+      this.composerStore.stopEdition();
+      return;
+    }
+    if (target.attributes.getNamedItem("composerFocusableElement")) {
+      this.contentHelper.el.focus();
+      return;
+    }
+    if (target.classList.contains("o-composer")) {
+      return;
+    }
+    this.composerStore.stopEdition();
   }
 
   updateAutoCompleteIndex(index: number) {
