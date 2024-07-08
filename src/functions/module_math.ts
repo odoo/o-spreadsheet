@@ -2,8 +2,8 @@ import { _t } from "../translation";
 import {
   AddFunctionDescription,
   Arg,
-  FPayload,
-  FPayloadNumber,
+  FunctionResultNumber,
+  FunctionResultObject,
   Matrix,
   Maybe,
   isMatrix,
@@ -41,7 +41,7 @@ const DECIMAL_REPRESENTATION = /^-?[a-z0-9]+$/i;
 export const ABS = {
   description: _t("Absolute value of a number."),
   args: [arg("value (number)", _t("The number of which to return the absolute value."))],
-  compute: function (value: Maybe<FPayload>): number {
+  compute: function (value: Maybe<FunctionResultObject>): number {
     return Math.abs(toNumber(value, this.locale));
   },
   isExported: true,
@@ -60,7 +60,7 @@ export const ACOS = {
       )
     ),
   ],
-  compute: function (value: Maybe<FPayload>): number {
+  compute: function (value: Maybe<FunctionResultObject>): number {
     const _value = toNumber(value, this.locale);
     assert(
       () => Math.abs(_value) <= 1,
@@ -84,7 +84,7 @@ export const ACOSH = {
       )
     ),
   ],
-  compute: function (value: Maybe<FPayload>): number {
+  compute: function (value: Maybe<FunctionResultObject>): number {
     const _value = toNumber(value, this.locale);
     assert(
       () => _value >= 1,
@@ -101,7 +101,7 @@ export const ACOSH = {
 export const ACOT = {
   description: _t("Inverse cotangent of a value."),
   args: [arg("value (number)", _t("The value for which to calculate the inverse cotangent."))],
-  compute: function (value: Maybe<FPayload>): number {
+  compute: function (value: Maybe<FunctionResultObject>): number {
     const _value = toNumber(value, this.locale);
     const sign = Math.sign(_value) || 1;
     // ACOT has two possible configurations:
@@ -125,7 +125,7 @@ export const ACOTH = {
       )
     ),
   ],
-  compute: function (value: Maybe<FPayload>): number {
+  compute: function (value: Maybe<FunctionResultObject>): number {
     const _value = toNumber(value, this.locale);
     assert(
       () => Math.abs(_value) > 1,
@@ -147,7 +147,7 @@ export const ASIN = {
       _t("The value for which to calculate the inverse sine. Must be between -1 and 1, inclusive.")
     ),
   ],
-  compute: function (value: Maybe<FPayload>): number {
+  compute: function (value: Maybe<FunctionResultObject>): number {
     const _value = toNumber(value, this.locale);
     assert(
       () => Math.abs(_value) <= 1,
@@ -166,7 +166,7 @@ export const ASINH = {
   args: [
     arg("value (number)", _t("The value for which to calculate the inverse hyperbolic sine.")),
   ],
-  compute: function (value: Maybe<FPayload>): number {
+  compute: function (value: Maybe<FunctionResultObject>): number {
     return Math.asinh(toNumber(value, this.locale));
   },
   isExported: true,
@@ -178,7 +178,7 @@ export const ASINH = {
 export const ATAN = {
   description: _t("Inverse tangent of a value, in radians."),
   args: [arg("value (number)", _t("The value for which to calculate the inverse tangent."))],
-  compute: function (value: Maybe<FPayload>): number {
+  compute: function (value: Maybe<FunctionResultObject>): number {
     return Math.atan(toNumber(value, this.locale));
   },
   isExported: true,
@@ -203,7 +203,7 @@ export const ATAN2 = {
       )
     ),
   ],
-  compute: function (x: Maybe<FPayload>, y: Maybe<FPayload>): number {
+  compute: function (x: Maybe<FunctionResultObject>, y: Maybe<FunctionResultObject>): number {
     const _x = toNumber(x, this.locale);
     const _y = toNumber(y, this.locale);
     assert(
@@ -229,7 +229,7 @@ export const ATANH = {
       )
     ),
   ],
-  compute: function (value: Maybe<FPayload>): number {
+  compute: function (value: Maybe<FunctionResultObject>): number {
     const _value = toNumber(value, this.locale);
     assert(
       () => Math.abs(_value) < 1,
@@ -253,9 +253,9 @@ export const CEILING = {
     ),
   ],
   compute: function (
-    value: Maybe<FPayload>,
-    factor: Maybe<FPayload> = { value: DEFAULT_FACTOR }
-  ): FPayloadNumber {
+    value: Maybe<FunctionResultObject>,
+    factor: Maybe<FunctionResultObject> = { value: DEFAULT_FACTOR }
+  ): FunctionResultNumber {
     const _value = toNumber(value, this.locale);
     const _factor = toNumber(factor, this.locale);
     assert(
@@ -312,10 +312,10 @@ export const CEILING_MATH = {
     ),
   ],
   compute: function (
-    number: Maybe<FPayload>,
-    significance: Maybe<FPayload> = { value: DEFAULT_SIGNIFICANCE },
-    mode: Maybe<FPayload> = { value: DEFAULT_MODE }
-  ): FPayloadNumber {
+    number: Maybe<FunctionResultObject>,
+    significance: Maybe<FunctionResultObject> = { value: DEFAULT_SIGNIFICANCE },
+    mode: Maybe<FunctionResultObject> = { value: DEFAULT_MODE }
+  ): FunctionResultNumber {
     const _significance = toNumber(significance, this.locale);
     const _number = toNumber(number, this.locale);
     const _mode = toNumber(mode, this.locale);
@@ -343,9 +343,9 @@ export const CEILING_PRECISE = {
     ),
   ],
   compute: function (
-    number: Maybe<FPayload>,
-    significance: Maybe<FPayload> = { value: DEFAULT_SIGNIFICANCE }
-  ): FPayloadNumber {
+    number: Maybe<FunctionResultObject>,
+    significance: Maybe<FunctionResultObject> = { value: DEFAULT_SIGNIFICANCE }
+  ): FunctionResultNumber {
     const _significance = toNumber(significance, this.locale);
     const _number = toNumber(number, this.locale);
     return {
@@ -362,7 +362,7 @@ export const CEILING_PRECISE = {
 export const COS = {
   description: _t("Cosine of an angle provided in radians."),
   args: [arg("angle (number)", _t("The angle to find the cosine of, in radians."))],
-  compute: function (angle: Maybe<FPayload>): number {
+  compute: function (angle: Maybe<FunctionResultObject>): number {
     return Math.cos(toNumber(angle, this.locale));
   },
   isExported: true,
@@ -374,7 +374,7 @@ export const COS = {
 export const COSH = {
   description: _t("Hyperbolic cosine of any real number."),
   args: [arg("value (number)", _t("Any real value to calculate the hyperbolic cosine of."))],
-  compute: function (value: Maybe<FPayload>): number {
+  compute: function (value: Maybe<FunctionResultObject>): number {
     return Math.cosh(toNumber(value, this.locale));
   },
   isExported: true,
@@ -386,7 +386,7 @@ export const COSH = {
 export const COT = {
   description: _t("Cotangent of an angle provided in radians."),
   args: [arg("angle (number)", _t("The angle to find the cotangent of, in radians."))],
-  compute: function (angle: Maybe<FPayload>): number {
+  compute: function (angle: Maybe<FunctionResultObject>): number {
     const _angle = toNumber(angle, this.locale);
     assertNotZero(_angle);
     return 1 / Math.tan(_angle);
@@ -400,7 +400,7 @@ export const COT = {
 export const COTH = {
   description: _t("Hyperbolic cotangent of any real number."),
   args: [arg("value (number)", _t("Any real value to calculate the hyperbolic cotangent of."))],
-  compute: function (value: Maybe<FPayload>): number {
+  compute: function (value: Maybe<FunctionResultObject>): number {
     const _value = toNumber(value, this.locale);
     assertNotZero(_value);
     return 1 / Math.tanh(_value);
@@ -541,7 +541,7 @@ export const COUNTUNIQUEIFS = {
     ),
     arg("criterion2 (string, repeating)", _t("The pattern or test to apply to criteria_range2.")),
   ],
-  compute: function (range: Matrix<FPayload>, ...args: Arg[]): number {
+  compute: function (range: Matrix<FunctionResultObject>, ...args: Arg[]): number {
     let uniqueValues = new Set();
     visitMatchingRanges(
       args,
@@ -563,7 +563,7 @@ export const COUNTUNIQUEIFS = {
 export const CSC = {
   description: _t("Cosecant of an angle provided in radians."),
   args: [arg("angle (number)", _t("The angle to find the cosecant of, in radians."))],
-  compute: function (angle: Maybe<FPayload>): number {
+  compute: function (angle: Maybe<FunctionResultObject>): number {
     const _angle = toNumber(angle, this.locale);
     assertNotZero(_angle);
     return 1 / Math.sin(_angle);
@@ -577,7 +577,7 @@ export const CSC = {
 export const CSCH = {
   description: _t("Hyperbolic cosecant of any real number."),
   args: [arg("value (number)", _t("Any real value to calculate the hyperbolic cosecant of."))],
-  compute: function (value: Maybe<FPayload>): number {
+  compute: function (value: Maybe<FunctionResultObject>): number {
     const _value = toNumber(value, this.locale);
     assertNotZero(_value);
     return 1 / Math.sinh(_value);
@@ -594,7 +594,10 @@ export const DECIMAL = {
     arg("value (string)", _t("The number to convert.")),
     arg("base (number)", _t("The base to convert the value from.")),
   ],
-  compute: function (value: Maybe<FPayload>, base: Maybe<FPayload>): number {
+  compute: function (
+    value: Maybe<FunctionResultObject>,
+    base: Maybe<FunctionResultObject>
+  ): number {
     let _base = toNumber(base, this.locale);
     _base = Math.floor(_base);
 
@@ -634,7 +637,7 @@ export const DECIMAL = {
 export const DEGREES = {
   description: _t("Converts an angle value in radians to degrees."),
   args: [arg("angle (number)", _t("The angle to convert from radians to degrees."))],
-  compute: function (angle: Maybe<FPayload>): number {
+  compute: function (angle: Maybe<FunctionResultObject>): number {
     return (toNumber(angle, this.locale) * 180) / Math.PI;
   },
   isExported: true,
@@ -646,7 +649,7 @@ export const DEGREES = {
 export const EXP = {
   description: _t("Euler's number, e (~2.718) raised to a power."),
   args: [arg("value (number)", _t("The exponent to raise e."))],
-  compute: function (value: Maybe<FPayload>): number {
+  compute: function (value: Maybe<FunctionResultObject>): number {
     return Math.exp(toNumber(value, this.locale));
   },
   isExported: true,
@@ -665,9 +668,9 @@ export const FLOOR = {
     ),
   ],
   compute: function (
-    value: Maybe<FPayload>,
-    factor: Maybe<FPayload> = { value: DEFAULT_FACTOR }
-  ): FPayloadNumber {
+    value: Maybe<FunctionResultObject>,
+    factor: Maybe<FunctionResultObject> = { value: DEFAULT_FACTOR }
+  ): FunctionResultNumber {
     const _value = toNumber(value, this.locale);
     const _factor = toNumber(factor, this.locale);
     assert(
@@ -725,10 +728,10 @@ export const FLOOR_MATH = {
     ),
   ],
   compute: function (
-    number: Maybe<FPayload>,
-    significance: Maybe<FPayload> = { value: DEFAULT_SIGNIFICANCE },
-    mode: Maybe<FPayload> = { value: DEFAULT_MODE }
-  ): FPayloadNumber {
+    number: Maybe<FunctionResultObject>,
+    significance: Maybe<FunctionResultObject> = { value: DEFAULT_SIGNIFICANCE },
+    mode: Maybe<FunctionResultObject> = { value: DEFAULT_MODE }
+  ): FunctionResultNumber {
     const _significance = toNumber(significance, this.locale);
     const _number = toNumber(number, this.locale);
     const _mode = toNumber(mode, this.locale);
@@ -756,9 +759,9 @@ export const FLOOR_PRECISE = {
     ),
   ],
   compute: function (
-    number: Maybe<FPayload>,
-    significance: Maybe<FPayload> = { value: DEFAULT_SIGNIFICANCE }
-  ): FPayloadNumber {
+    number: Maybe<FunctionResultObject>,
+    significance: Maybe<FunctionResultObject> = { value: DEFAULT_SIGNIFICANCE }
+  ): FunctionResultNumber {
     const _significance = toNumber(significance, this.locale);
     const _number = toNumber(number, this.locale);
     return {
@@ -775,7 +778,7 @@ export const FLOOR_PRECISE = {
 export const ISEVEN = {
   description: _t("Whether the provided value is even."),
   args: [arg("value (number)", _t("The value to be verified as even."))],
-  compute: function (value: Maybe<FPayload>): boolean {
+  compute: function (value: Maybe<FunctionResultObject>): boolean {
     const _value = strictToNumber(value, this.locale);
 
     return Math.floor(Math.abs(_value)) & 1 ? false : true;
@@ -799,9 +802,9 @@ export const ISO_CEILING = {
     ),
   ],
   compute: function (
-    number: Maybe<FPayload>,
-    significance: Maybe<FPayload> = { value: DEFAULT_SIGNIFICANCE }
-  ): FPayloadNumber {
+    number: Maybe<FunctionResultObject>,
+    significance: Maybe<FunctionResultObject> = { value: DEFAULT_SIGNIFICANCE }
+  ): FunctionResultNumber {
     const _number = toNumber(number, this.locale);
     const _significance = toNumber(significance, this.locale);
     return {
@@ -818,7 +821,7 @@ export const ISO_CEILING = {
 export const ISODD = {
   description: _t("Whether the provided value is even."),
   args: [arg("value (number)", _t("The value to be verified as even."))],
-  compute: function (value: Maybe<FPayload>): boolean {
+  compute: function (value: Maybe<FunctionResultObject>): boolean {
     const _value = strictToNumber(value, this.locale);
 
     return Math.floor(Math.abs(_value)) & 1 ? true : false;
@@ -832,7 +835,7 @@ export const ISODD = {
 export const LN = {
   description: _t("The logarithm of a number, base e (euler's number)."),
   args: [arg("value (number)", _t("The value for which to calculate the logarithm, base e."))],
-  compute: function (value: Maybe<FPayload>): number {
+  compute: function (value: Maybe<FunctionResultObject>): number {
     const _value = toNumber(value, this.locale);
     assert(() => _value > 0, _t("The value (%s) must be strictly positive.", _value.toString()));
     return Math.log(_value);
@@ -863,7 +866,10 @@ export const MOD = {
     arg("dividend (number)", _t("The number to be divided to find the remainder.")),
     arg("divisor (number)", _t("The number to divide by.")),
   ],
-  compute: function (dividend: Maybe<FPayload>, divisor: Maybe<FPayload>): FPayloadNumber {
+  compute: function (
+    dividend: Maybe<FunctionResultObject>,
+    divisor: Maybe<FunctionResultObject>
+  ): FunctionResultNumber {
     const _divisor = toNumber(divisor, this.locale);
     const _dividend = toNumber(dividend, this.locale);
     return {
@@ -885,7 +891,7 @@ export const MUNIT = {
       _t("An integer specifying the dimension size of the unit matrix. It must be positive.")
     ),
   ],
-  compute: function (n: Maybe<FPayload>): Matrix<number> {
+  compute: function (n: Maybe<FunctionResultObject>): Matrix<number> {
     const _n = toInteger(n, this.locale);
     assertPositive(_t("The argument dimension must be positive"), _n);
     return getUnitMatrix(_n);
@@ -899,7 +905,7 @@ export const MUNIT = {
 export const ODD = {
   description: _t("Rounds a number up to the nearest odd integer."),
   args: [arg("value (number)", _t("The value to round to the next greatest odd number."))],
-  compute: function (value: Maybe<FPayload>): FPayloadNumber {
+  compute: function (value: Maybe<FunctionResultObject>): FunctionResultNumber {
     const _value = toNumber(value, this.locale);
 
     let temp = Math.ceil(Math.abs(_value));
@@ -933,7 +939,10 @@ export const POWER = {
     arg("base (number)", _t("The number to raise to the exponent power.")),
     arg("exponent (number)", _t("The exponent to raise base to.")),
   ],
-  compute: function (base: Maybe<FPayload>, exponent: Maybe<FPayload>): FPayloadNumber {
+  compute: function (
+    base: Maybe<FunctionResultObject>,
+    exponent: Maybe<FunctionResultObject>
+  ): FunctionResultNumber {
     const _base = toNumber(base, this.locale);
     const _exponent = toNumber(exponent, this.locale);
     assert(
@@ -960,7 +969,7 @@ export const PRODUCT = {
       _t("More numbers or ranges to calculate for the product.")
     ),
   ],
-  compute: function (...factors: Arg[]): FPayloadNumber {
+  compute: function (...factors: Arg[]): FunctionResultNumber {
     let count = 0;
     let acc = 1;
     for (let n of factors) {
@@ -1015,11 +1024,11 @@ export const RANDARRAY = {
     arg("whole_number (number, default=FALSE)", _t("Return a whole number or a decimal value.")),
   ],
   compute: function (
-    rows: Maybe<FPayload> = { value: 1 },
-    columns: Maybe<FPayload> = { value: 1 },
-    min: Maybe<FPayload> = { value: 0 },
-    max: Maybe<FPayload> = { value: 1 },
-    wholeNumber: Maybe<FPayload> = { value: false }
+    rows: Maybe<FunctionResultObject> = { value: 1 },
+    columns: Maybe<FunctionResultObject> = { value: 1 },
+    min: Maybe<FunctionResultObject> = { value: 0 },
+    max: Maybe<FunctionResultObject> = { value: 1 },
+    wholeNumber: Maybe<FunctionResultObject> = { value: false }
   ): Matrix<number> {
     const _cols = toInteger(columns, this.locale);
     const _rows = toInteger(rows, this.locale);
@@ -1073,7 +1082,10 @@ export const RANDBETWEEN = {
     arg("low (number)", _t("The low end of the random range.")),
     arg("high (number)", _t("The high end of the random range.")),
   ],
-  compute: function (low: Maybe<FPayload>, high: Maybe<FPayload>): FPayloadNumber {
+  compute: function (
+    low: Maybe<FunctionResultObject>,
+    high: Maybe<FunctionResultObject>
+  ): FunctionResultNumber {
     let _low = toNumber(low, this.locale);
     if (!Number.isInteger(_low)) {
       _low = Math.ceil(_low);
@@ -1113,9 +1125,9 @@ export const ROUND = {
     ),
   ],
   compute: function (
-    value: Maybe<FPayload>,
-    places: Maybe<FPayload> = { value: DEFAULT_PLACES }
-  ): FPayloadNumber {
+    value: Maybe<FunctionResultObject>,
+    places: Maybe<FunctionResultObject> = { value: DEFAULT_PLACES }
+  ): FunctionResultNumber {
     const _value = toNumber(value, this.locale);
     let _places = toNumber(places, this.locale);
 
@@ -1153,9 +1165,9 @@ export const ROUNDDOWN = {
     ),
   ],
   compute: function (
-    value: Maybe<FPayload>,
-    places: Maybe<FPayload> = { value: DEFAULT_PLACES }
-  ): FPayloadNumber {
+    value: Maybe<FunctionResultObject>,
+    places: Maybe<FunctionResultObject> = { value: DEFAULT_PLACES }
+  ): FunctionResultNumber {
     const _value = toNumber(value, this.locale);
     let _places = toNumber(places, this.locale);
 
@@ -1190,9 +1202,9 @@ export const ROUNDUP = {
     ),
   ],
   compute: function (
-    value: Maybe<FPayload>,
-    places: Maybe<FPayload> = { value: DEFAULT_PLACES }
-  ): FPayloadNumber {
+    value: Maybe<FunctionResultObject>,
+    places: Maybe<FunctionResultObject> = { value: DEFAULT_PLACES }
+  ): FunctionResultNumber {
     const _value = toNumber(value, this.locale);
     let _places = toNumber(places, this.locale);
 
@@ -1220,7 +1232,7 @@ export const ROUNDUP = {
 export const SEC = {
   description: _t("Secant of an angle provided in radians."),
   args: [arg("angle (number)", _t("The angle to find the secant of, in radians."))],
-  compute: function (angle: Maybe<FPayload>): number {
+  compute: function (angle: Maybe<FunctionResultObject>): number {
     return 1 / Math.cos(toNumber(angle, this.locale));
   },
   isExported: true,
@@ -1232,7 +1244,7 @@ export const SEC = {
 export const SECH = {
   description: _t("Hyperbolic secant of any real number."),
   args: [arg("value (number)", _t("Any real value to calculate the hyperbolic secant of."))],
-  compute: function (value: Maybe<FPayload>): number {
+  compute: function (value: Maybe<FunctionResultObject>): number {
     return 1 / Math.cosh(toNumber(value, this.locale));
   },
   isExported: true,
@@ -1244,7 +1256,7 @@ export const SECH = {
 export const SIN = {
   description: _t("Sine of an angle provided in radians."),
   args: [arg("angle (number)", _t("The angle to find the sine of, in radians."))],
-  compute: function (angle: Maybe<FPayload>): number {
+  compute: function (angle: Maybe<FunctionResultObject>): number {
     return Math.sin(toNumber(angle, this.locale));
   },
   isExported: true,
@@ -1256,7 +1268,7 @@ export const SIN = {
 export const SINH = {
   description: _t("Hyperbolic sine of any real number."),
   args: [arg("value (number)", _t("Any real value to calculate the hyperbolic sine of."))],
-  compute: function (value: Maybe<FPayload>): number {
+  compute: function (value: Maybe<FunctionResultObject>): number {
     return Math.sinh(toNumber(value, this.locale));
   },
   isExported: true,
@@ -1268,7 +1280,7 @@ export const SINH = {
 export const SQRT = {
   description: _t("Positive square root of a positive number."),
   args: [arg("value (number)", _t("The number for which to calculate the positive square root."))],
-  compute: function (value: Maybe<FPayload>): FPayloadNumber {
+  compute: function (value: Maybe<FunctionResultObject>): FunctionResultNumber {
     const _value = toNumber(value, this.locale);
     assert(() => _value >= 0, _t("The value (%s) must be positive or null.", _value.toString()));
     return { value: Math.sqrt(_value), format: value?.format };
@@ -1288,7 +1300,7 @@ export const SUM = {
       _t("Additional numbers or ranges to add to value1.")
     ),
   ],
-  compute: function (...values: Arg[]): FPayloadNumber {
+  compute: function (...values: Arg[]): FunctionResultNumber {
     const v1 = values[0];
     return {
       value: sum(values, this.locale),
@@ -1312,9 +1324,9 @@ export const SUMIF = {
     ),
   ],
   compute: function (
-    criteriaRange: Matrix<FPayload>,
-    criterion: Maybe<FPayload>,
-    sumRange: Matrix<FPayload>
+    criteriaRange: Matrix<FunctionResultObject>,
+    criterion: Maybe<FunctionResultObject>,
+    sumRange: Matrix<FunctionResultObject>
   ): number {
     if (sumRange === undefined) {
       sumRange = criteriaRange;
@@ -1348,7 +1360,7 @@ export const SUMIFS = {
     arg("criteria_range2 (any, range, repeating)", _t("Additional ranges to check.")),
     arg("criterion2 (string, repeating)", _t("Additional criteria to check.")),
   ],
-  compute: function (sumRange: Matrix<FPayload>, ...criters: Arg[]): number {
+  compute: function (sumRange: Matrix<FunctionResultObject>, ...criters: Arg[]): number {
     let sum = 0;
     visitMatchingRanges(
       criters,
@@ -1371,7 +1383,7 @@ export const SUMIFS = {
 export const TAN = {
   description: _t("Tangent of an angle provided in radians."),
   args: [arg("angle (number)", _t("The angle to find the tangent of, in radians."))],
-  compute: function (angle: Maybe<FPayload>): number {
+  compute: function (angle: Maybe<FunctionResultObject>): number {
     return Math.tan(toNumber(angle, this.locale));
   },
   isExported: true,
@@ -1383,7 +1395,7 @@ export const TAN = {
 export const TANH = {
   description: _t("Hyperbolic tangent of any real number."),
   args: [arg("value (number)", _t("Any real value to calculate the hyperbolic tangent of."))],
-  compute: function (value: Maybe<FPayload>): number {
+  compute: function (value: Maybe<FunctionResultObject>): number {
     return Math.tanh(toNumber(value, this.locale));
   },
   isExported: true,
@@ -1412,9 +1424,9 @@ export const TRUNC = {
     ),
   ],
   compute: function (
-    value: Maybe<FPayload>,
-    places: Maybe<FPayload> = { value: DEFAULT_PLACES }
-  ): FPayloadNumber {
+    value: Maybe<FunctionResultObject>,
+    places: Maybe<FunctionResultObject> = { value: DEFAULT_PLACES }
+  ): FunctionResultNumber {
     const _value = toNumber(value, this.locale);
     const _places = toNumber(places, this.locale);
     return { value: trunc(_value, _places), format: value?.format };
@@ -1428,7 +1440,7 @@ export const TRUNC = {
 export const INT = {
   description: _t("Rounds a number down to the nearest integer that is less than or equal to it."),
   args: [arg("value (number)", _t("The number to round down to the nearest integer."))],
-  compute: function (value: Maybe<FPayload>): number {
+  compute: function (value: Maybe<FunctionResultObject>): number {
     return Math.floor(toNumber(value, this.locale));
   },
   isExported: true,

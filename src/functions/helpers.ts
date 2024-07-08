@@ -3,7 +3,7 @@ import { DateTime, numberToJsDate, parseDateTime } from "../helpers/dates";
 import { memoize } from "../helpers/misc";
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _t } from "../translation";
-import { Arg, CellValue, FPayload, Locale, Matrix, Maybe, isMatrix } from "../types";
+import { Arg, CellValue, FunctionResultObject, Locale, Matrix, Maybe, isMatrix } from "../types";
 import { CellErrorType, EvaluationError, errorTypes } from "../types/errors";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
@@ -56,7 +56,10 @@ export const expectStringSetError = (stringSet: string[], value: string) => {
   );
 };
 
-export function toNumber(data: FPayload | CellValue | undefined, locale: Locale): number {
+export function toNumber(
+  data: FunctionResultObject | CellValue | undefined,
+  locale: Locale
+): number {
   const value = toValue(data);
   switch (typeof value) {
     case "number":
@@ -105,7 +108,10 @@ export function toNumberMatrix(data: Arg, argName: string): Matrix<number> {
   });
 }
 
-export function strictToNumber(data: FPayload | CellValue | undefined, locale: Locale): number {
+export function strictToNumber(
+  data: FunctionResultObject | CellValue | undefined,
+  locale: Locale
+): number {
   const value = toValue(data);
   if (value === "") {
     throw new EvaluationError(expectNumberValueError(value));
@@ -113,11 +119,14 @@ export function strictToNumber(data: FPayload | CellValue | undefined, locale: L
   return toNumber(value, locale);
 }
 
-export function toInteger(value: FPayload | CellValue | undefined, locale: Locale) {
+export function toInteger(value: FunctionResultObject | CellValue | undefined, locale: Locale) {
   return Math.trunc(toNumber(value, locale));
 }
 
-export function strictToInteger(value: FPayload | CellValue | undefined, locale: Locale) {
+export function strictToInteger(
+  value: FunctionResultObject | CellValue | undefined,
+  locale: Locale
+) {
   return Math.trunc(strictToNumber(value, locale));
 }
 
@@ -139,7 +148,7 @@ export function assertNotZero(value: number) {
   );
 }
 
-export function toString(data: FPayload | CellValue | undefined): string {
+export function toString(data: FunctionResultObject | CellValue | undefined): string {
   const value = toValue(data);
   switch (typeof value) {
     case "string":
@@ -175,7 +184,7 @@ const expectBooleanValueError = (value: string) =>
     value
   );
 
-export function toBoolean(data: FPayload | CellValue | undefined): boolean {
+export function toBoolean(data: FunctionResultObject | CellValue | undefined): boolean {
   const value = toValue(data);
   switch (typeof value) {
     case "boolean":
@@ -200,7 +209,7 @@ export function toBoolean(data: FPayload | CellValue | undefined): boolean {
   }
 }
 
-function strictToBoolean(data: FPayload | CellValue | undefined): boolean {
+function strictToBoolean(data: FunctionResultObject | CellValue | undefined): boolean {
   const value = toValue(data);
   if (value === "") {
     throw new EvaluationError(expectBooleanValueError(value));
@@ -208,12 +217,15 @@ function strictToBoolean(data: FPayload | CellValue | undefined): boolean {
   return toBoolean(value);
 }
 
-export function toJsDate(data: FPayload | CellValue | undefined, locale: Locale): DateTime {
+export function toJsDate(
+  data: FunctionResultObject | CellValue | undefined,
+  locale: Locale
+): DateTime {
   const value = toValue(data);
   return numberToJsDate(toNumber(value, locale));
 }
 
-function toValue(data: FPayload | CellValue | undefined): CellValue | undefined {
+function toValue(data: FunctionResultObject | CellValue | undefined): CellValue | undefined {
   if (typeof data === "object" && data !== null && "value" in data) {
     if (isEvaluationError(data.value)) {
       throw data;
@@ -228,7 +240,7 @@ function toValue(data: FPayload | CellValue | undefined): CellValue | undefined 
 // -----------------------------------------------------------------------------
 // VISIT FUNCTIONS
 // -----------------------------------------------------------------------------
-function visitArgs<T extends FPayload | CellValue>(
+function visitArgs<T extends FunctionResultObject | CellValue>(
   args: (T | Matrix<T> | undefined)[],
   cellCb: (a: T) => void,
   dataCb: (a: T | undefined) => void
@@ -250,7 +262,7 @@ function visitArgs<T extends FPayload | CellValue>(
   }
 }
 
-export function visitAny(args: Arg[], cb: (a: Maybe<FPayload>) => void): void {
+export function visitAny(args: Arg[], cb: (a: Maybe<FunctionResultObject>) => void): void {
   visitArgs(
     args,
     (cell) => {
@@ -410,11 +422,11 @@ export function generateMatrix<T>(
   return returned;
 }
 
-export function matrixMap<T, M>(matrix: Matrix<T>, fn: (value: T) => M): Matrix<M> {
+export function matrixMap<T, M>(matrix: Matrix<T>, callback: (value: T) => M): Matrix<M> {
   if (matrix.length === 0) {
     return [];
   }
-  return generateMatrix(matrix.length, matrix[0].length, (col, row) => fn(matrix[col][row]));
+  return generateMatrix(matrix.length, matrix[0].length, (col, row) => callback(matrix[col][row]));
 }
 
 export function matrixForEach<T>(matrix: Matrix<T>, fn: (value: T) => void): void {
@@ -444,8 +456,8 @@ export function transposeMatrix<T>(matrix: Matrix<T>): Matrix<T> {
  */
 function conditionalVisitArgs(
   args: Arg[],
-  cellCb: (a: FPayload | undefined) => boolean,
-  dataCb: (a: Maybe<FPayload>) => boolean
+  cellCb: (a: FunctionResultObject | undefined) => boolean,
+  dataCb: (a: Maybe<FunctionResultObject>) => boolean
 ): void {
   for (let arg of args) {
     if (isMatrix(arg)) {
@@ -655,7 +667,7 @@ export function visitMatchingRanges(
       );
     }
 
-    const description = toString(args[i + 1] as Maybe<FPayload>);
+    const description = toString(args[i + 1] as Maybe<FunctionResultObject>);
     const predicate = getPredicate(description, locale);
     if (isQuery && typeof predicate.operand === "string") {
       predicate.operand += "*";
@@ -702,7 +714,7 @@ export function visitMatchingRanges(
  */
 export function dichotomicSearch<T>(
   data: T,
-  target: Maybe<FPayload>,
+  target: Maybe<FunctionResultObject>,
   mode: "nextGreater" | "nextSmaller" | "strict",
   sortOrder: "asc" | "desc",
   rangeLength: number,
@@ -811,7 +823,7 @@ export type LinearSearchMode = "nextSmaller" | "nextGreater" | "strict" | "wildc
  */
 export function linearSearch<T>(
   data: T,
-  target: Maybe<FPayload> | undefined,
+  target: Maybe<FunctionResultObject> | undefined,
   mode: LinearSearchMode,
   numberOfValues: number,
   getValueInData: (data: T, index: number) => CellValue | undefined,
@@ -934,7 +946,7 @@ export function flattenRowFirst<T, K>(items: Array<T | Matrix<T>>, callback: (va
   );
 }
 
-export function isDataNonEmpty(data: FPayload | undefined): boolean {
+export function isDataNonEmpty(data: FunctionResultObject | undefined): boolean {
   if (data === undefined) {
     return false;
   }

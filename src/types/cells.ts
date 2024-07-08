@@ -1,5 +1,5 @@
 import { Format, FormattedValue } from "./format";
-import { FPayload, Link, RangeCompiledFormula, Style, UID } from "./misc";
+import { FunctionResultObject, Link, RangeCompiledFormula, Style, UID } from "./misc";
 
 interface CellAttributes {
   readonly id: UID;
@@ -23,7 +23,7 @@ export interface FormulaCell extends CellAttributes {
 
 export type Cell = LiteralCell | FormulaCell;
 
-interface EvaluatedCellProperties extends FPayload {
+interface EvaluatedCellProperties extends FunctionResultObject {
   readonly format?: Format;
   /**
    * Cell value formatted based on the format

@@ -8,7 +8,7 @@ import {
   EmptyCell,
   ErrorCell,
   EvaluatedCell,
-  FPayload,
+  FunctionResultObject,
   LiteralCell,
   Locale,
   LocaleFormat,
@@ -52,7 +52,7 @@ export function parseLiteral(content: string, locale: Locale): CellValue {
 }
 
 export function createEvaluatedCell(
-  fPayload: FPayload,
+  fPayload: FunctionResultObject,
   locale: Locale = DEFAULT_LOCALE,
   cell?: Cell
 ): EvaluatedCell {
@@ -76,7 +76,11 @@ export function createEvaluatedCell(
   };
 }
 
-function _createEvaluatedCell(fPayload: FPayload, locale: Locale, cell?: Cell): EvaluatedCell {
+function _createEvaluatedCell(
+  fPayload: FunctionResultObject,
+  locale: Locale,
+  cell?: Cell
+): EvaluatedCell {
   let { value, format, message } = fPayload;
   format = cell?.format || format;
 

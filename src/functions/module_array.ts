@@ -1,5 +1,5 @@
 import { _t } from "../translation";
-import { AddFunctionDescription, Arg, FPayload, Matrix, Maybe } from "../types";
+import { AddFunctionDescription, Arg, FunctionResultObject, Matrix, Maybe } from "../types";
 import { EvaluationError, NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import {
@@ -34,9 +34,9 @@ export const ARRAY_CONSTRAIN = {
   ],
   compute: function (
     array: Arg,
-    rows: Maybe<FPayload>,
-    columns: Maybe<FPayload>
-  ): Matrix<FPayload> {
+    rows: Maybe<FunctionResultObject>,
+    columns: Maybe<FunctionResultObject>
+  ): Matrix<FunctionResultObject> {
     const _array = toMatrix(array);
     const _rowsArg = toInteger(rows?.value, this.locale);
     const _columnsArg = toInteger(columns?.value, this.locale);
@@ -74,7 +74,7 @@ export const CHOOSECOLS = {
       _t("The columns indexes of the columns to be returned.")
     ),
   ],
-  compute: function (array: Arg, ...columns: Arg[]): Matrix<FPayload> {
+  compute: function (array: Arg, ...columns: Arg[]): Matrix<FunctionResultObject> {
     const _array = toMatrix(array);
     const _columns = flattenRowFirst(columns, (item) => toInteger(item?.value, this.locale));
 
@@ -89,7 +89,7 @@ export const CHOOSECOLS = {
       )
     );
 
-    const result: Matrix<FPayload> = Array(_columns.length);
+    const result: Matrix<FunctionResultObject> = Array(_columns.length);
     for (let col = 0; col < _columns.length; col++) {
       if (_columns[col] > 0) {
         result[col] = _array[_columns[col] - 1]; // -1 because columns arguments are 1-indexed
@@ -116,7 +116,7 @@ export const CHOOSEROWS = {
       _t("The rows indexes of the rows to be returned.")
     ),
   ],
-  compute: function (array: Arg, ...rows: Arg[]): Matrix<FPayload> {
+  compute: function (array: Arg, ...rows: Arg[]): Matrix<FunctionResultObject> {
     const _array = toMatrix(array);
     const _rows = flattenRowFirst(rows, (item) => toInteger(item?.value, this.locale));
     const _nbColumns = _array.length;
@@ -161,10 +161,10 @@ export const EXPAND = {
   ],
   compute: function (
     arg: Arg,
-    rows: Maybe<FPayload>,
-    columns?: Maybe<FPayload>,
-    padWith: Maybe<FPayload> = { value: 0 } // TODO : Replace with #N/A errors once it's supported
-  ): Matrix<FPayload> {
+    rows: Maybe<FunctionResultObject>,
+    columns?: Maybe<FunctionResultObject>,
+    padWith: Maybe<FunctionResultObject> = { value: 0 } // TODO : Replace with #N/A errors once it's supported
+  ): Matrix<FunctionResultObject> {
     const _array = toMatrix(arg);
     const _nbRows = toInteger(rows?.value, this.locale);
     const _nbColumns =
@@ -201,7 +201,7 @@ export const FLATTEN = {
     arg("range (any, range<any>)", _t("The first range to flatten.")),
     arg("range2 (any, range<any>, repeating)", _t("Additional ranges to flatten.")),
   ],
-  compute: function (...ranges: Arg[]): Matrix<FPayload> {
+  compute: function (...ranges: Arg[]): Matrix<FunctionResultObject> {
     return [flattenRowFirst(ranges, (val) => (val === undefined ? { value: "" } : val))];
   },
   isExported: false,
@@ -216,7 +216,10 @@ export const FREQUENCY = {
     arg("data (range<number>)", _t("The array of ranges containing the values to be counted.")),
     arg("classes (number, range<number>)", _t("The range containing the set of classes.")),
   ],
-  compute: function (data: Matrix<FPayload>, classes: Matrix<FPayload>): Matrix<number> {
+  compute: function (
+    data: Matrix<FunctionResultObject>,
+    classes: Matrix<FunctionResultObject>
+  ): Matrix<number> {
     const _data = flattenRowFirst([data], (data) => data.value).filter(
       (val): val is number => typeof val === "number"
     );
@@ -273,16 +276,16 @@ export const HSTACK = {
     arg("range1 (any, range<any>)", _t("The first range to be appended.")),
     arg("range2 (any, range<any>, repeating)", _t("Additional ranges to add to range1.")),
   ],
-  compute: function (...ranges: Arg[]): Matrix<FPayload> {
+  compute: function (...ranges: Arg[]): Matrix<FunctionResultObject> {
     const nbRows = Math.max(...ranges.map((r) => r?.[0]?.length ?? 0));
 
-    const result: Matrix<FPayload> = [];
+    const result: Matrix<FunctionResultObject> = [];
 
     for (const range of ranges) {
       const _range = toMatrix(range);
       for (let col = 0; col < _range.length; col++) {
         //TODO: fill with #N/A for unavailable values instead of zeroes
-        const array: FPayload[] = Array(nbRows).fill({ value: null });
+        const array: FunctionResultObject[] = Array(nbRows).fill({ value: null });
         for (let row = 0; row < _range[col].length; row++) {
           array[row] = _range[col][row];
         }
@@ -559,7 +562,7 @@ const TO_COL_ROW_ARGS = [
   ),
 ];
 
-function shouldKeepValue(ignore: number): (data: FPayload) => boolean {
+function shouldKeepValue(ignore: number): (data: FunctionResultObject) => boolean {
   const _ignore = Math.trunc(ignore);
   if (_ignore === 0) {
     return () => true;
@@ -581,8 +584,8 @@ export const TOCOL = {
   args: TO_COL_ROW_ARGS,
   compute: function (
     array: Arg,
-    ignore: Maybe<FPayload> = { value: TO_COL_ROW_DEFAULT_IGNORE },
-    scanByColumn: Maybe<FPayload> = { value: TO_COL_ROW_DEFAULT_SCAN }
+    ignore: Maybe<FunctionResultObject> = { value: TO_COL_ROW_DEFAULT_IGNORE },
+    scanByColumn: Maybe<FunctionResultObject> = { value: TO_COL_ROW_DEFAULT_SCAN }
   ) {
     const _array = toMatrix(array);
     const _ignore = toNumber(ignore.value, this.locale);
@@ -607,9 +610,9 @@ export const TOROW = {
   args: TO_COL_ROW_ARGS,
   compute: function (
     array: Arg,
-    ignore: Maybe<FPayload> = { value: TO_COL_ROW_DEFAULT_IGNORE },
-    scanByColumn: Maybe<FPayload> = { value: TO_COL_ROW_DEFAULT_SCAN }
-  ): Matrix<FPayload> {
+    ignore: Maybe<FunctionResultObject> = { value: TO_COL_ROW_DEFAULT_IGNORE },
+    scanByColumn: Maybe<FunctionResultObject> = { value: TO_COL_ROW_DEFAULT_SCAN }
+  ): Matrix<FunctionResultObject> {
     const _array = toMatrix(array);
     const _ignore = toNumber(ignore.value, this.locale);
     const _scanByColumn = toBoolean(scanByColumn.value);
@@ -632,7 +635,7 @@ export const TOROW = {
 export const TRANSPOSE = {
   description: _t("Transposes the rows and columns of a range."),
   args: [arg("range (any, range<any>)", _t("The range to be transposed."))],
-  compute: function (arg: Arg): Matrix<FPayload> {
+  compute: function (arg: Arg): Matrix<FunctionResultObject> {
     const _array = toMatrix(arg);
     const nbColumns = _array[0].length;
     const nbRows = _array.length;
@@ -651,11 +654,11 @@ export const VSTACK = {
     arg("range1 (any, range<any>)", _t("The first range to be appended.")),
     arg("range2 (any, range<any>, repeating)", _t("Additional ranges to add to range1.")),
   ],
-  compute: function (...ranges: Arg[]): Matrix<FPayload> {
+  compute: function (...ranges: Arg[]): Matrix<FunctionResultObject> {
     const nbColumns = Math.max(...ranges.map((range) => toMatrix(range).length));
     const nbRows = ranges.reduce((acc, range) => acc + toMatrix(range)[0].length, 0);
 
-    const result: Matrix<FPayload> = Array(nbColumns)
+    const result: Matrix<FunctionResultObject> = Array(nbColumns)
       .fill([])
       .map(() => Array(nbRows).fill({ value: 0 })); // TODO fill with #N/A
 
@@ -695,9 +698,9 @@ export const WRAPCOLS = {
   ],
   compute: function (
     range: Arg,
-    wrapCount: Maybe<FPayload>,
-    padWith: Maybe<FPayload> = { value: 0 }
-  ): Matrix<FPayload> {
+    wrapCount: Maybe<FunctionResultObject>,
+    padWith: Maybe<FunctionResultObject> = { value: 0 }
+  ): Matrix<FunctionResultObject> {
     const _array = toMatrix(range);
     const nbRows = toInteger(wrapCount?.value, this.locale);
 
@@ -734,9 +737,9 @@ export const WRAPROWS = {
   ],
   compute: function (
     range: Arg,
-    wrapCount: Maybe<FPayload>,
-    padWith: Maybe<FPayload> = { value: 0 }
-  ): Matrix<FPayload> {
+    wrapCount: Maybe<FunctionResultObject>,
+    padWith: Maybe<FunctionResultObject> = { value: 0 }
+  ): Matrix<FunctionResultObject> {
     const _array = toMatrix(range);
     const nbColumns = toInteger(wrapCount?.value, this.locale);
 

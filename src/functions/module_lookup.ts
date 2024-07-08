@@ -1,6 +1,13 @@
 import { getFullReference, range, splitReference, toXC, toZone } from "../helpers/index";
 import { _t } from "../translation";
-import { AddFunctionDescription, CellPosition, FPayload, Matrix, Maybe, Zone } from "../types";
+import {
+  AddFunctionDescription,
+  CellPosition,
+  FunctionResultObject,
+  Matrix,
+  Maybe,
+  Zone,
+} from "../types";
 import { CellErrorType, EvaluationError, InvalidReferenceError } from "../types/errors";
 import { arg } from "./arguments";
 import { assertPositive } from "./helper_assert";
@@ -31,7 +38,7 @@ const DEFAULT_MATCH_MODE = 0;
 const DEFAULT_SEARCH_MODE = 1;
 const DEFAULT_ABSOLUTE_RELATIVE_MODE = 1;
 
-function valueNotAvailable(searchKey: Maybe<FPayload>): FPayload {
+function valueNotAvailable(searchKey: Maybe<FunctionResultObject>): FunctionResultObject {
   return {
     value: CellErrorType.NotAvailable,
     message: _t("Did not find value '%s' in [[FUNCTION_NAME]] evaluation.", toString(searchKey)),
@@ -68,11 +75,11 @@ export const ADDRESS = {
     ),
   ],
   compute: function (
-    row: Maybe<FPayload>,
-    column: Maybe<FPayload>,
-    absoluteRelativeMode: Maybe<FPayload> = { value: DEFAULT_ABSOLUTE_RELATIVE_MODE },
-    useA1Notation: Maybe<FPayload> = { value: true },
-    sheet: Maybe<FPayload> | undefined
+    row: Maybe<FunctionResultObject>,
+    column: Maybe<FunctionResultObject>,
+    absoluteRelativeMode: Maybe<FunctionResultObject> = { value: DEFAULT_ABSOLUTE_RELATIVE_MODE },
+    useA1Notation: Maybe<FunctionResultObject> = { value: true },
+    sheet: Maybe<FunctionResultObject> | undefined
   ): string {
     const rowNumber = strictToInteger(row, this.locale);
     const colNumber = strictToInteger(column, this.locale);
@@ -177,11 +184,11 @@ export const HLOOKUP = {
     ),
   ],
   compute: function (
-    searchKey: Maybe<FPayload>,
-    range: Matrix<FPayload>,
-    index: Maybe<FPayload>,
-    isSorted: Maybe<FPayload> = { value: DEFAULT_IS_SORTED }
-  ): FPayload {
+    searchKey: Maybe<FunctionResultObject>,
+    range: Matrix<FunctionResultObject>,
+    index: Maybe<FunctionResultObject>,
+    isSorted: Maybe<FunctionResultObject> = { value: DEFAULT_IS_SORTED }
+  ): FunctionResultObject {
     const _index = Math.trunc(toNumber(index?.value, this.locale));
 
     assert(
@@ -192,7 +199,8 @@ export const HLOOKUP = {
       return searchKey;
     }
 
-    const getValueFromRange = (range: Matrix<FPayload>, index: number) => range[index][0].value;
+    const getValueFromRange = (range: Matrix<FunctionResultObject>, index: number) =>
+      range[index][0].value;
 
     const _isSorted = toBoolean(isSorted.value);
     const colIndex = _isSorted
@@ -224,10 +232,10 @@ export const INDEX: AddFunctionDescription = {
     ),
   ],
   compute: function (
-    reference: Matrix<FPayload>,
-    row: Maybe<FPayload> = { value: 0 },
-    column: Maybe<FPayload> = { value: 0 }
-  ): FPayload | Matrix<FPayload> {
+    reference: Matrix<FunctionResultObject>,
+    row: Maybe<FunctionResultObject> = { value: 0 },
+    column: Maybe<FunctionResultObject> = { value: 0 }
+  ): FunctionResultObject | Matrix<FunctionResultObject> {
     const _reference = toMatrix(reference);
     const _row = toNumber(row.value, this.locale);
     const _column = toNumber(column.value, this.locale);
@@ -268,9 +276,9 @@ export const INDIRECT: AddFunctionDescription = {
     ),
   ],
   compute: function (
-    reference: Maybe<FPayload>,
-    useA1Notation: Maybe<FPayload> = { value: true }
-  ): FPayload | Matrix<FPayload> {
+    reference: Maybe<FunctionResultObject>,
+    useA1Notation: Maybe<FunctionResultObject> = { value: true }
+  ): FunctionResultObject | Matrix<FunctionResultObject> {
     let _reference = reference?.value?.toString();
     if (!_reference) {
       throw new InvalidReferenceError(_t("Reference should be defined."));
@@ -303,9 +311,9 @@ export const INDIRECT: AddFunctionDescription = {
       this.addDependencies?.(originPosition, [range]);
     }
 
-    const values: FPayload[][] = [];
+    const values: FunctionResultObject[][] = [];
     for (let col = range.zone.left; col <= range.zone.right; col++) {
-      const colValues: FPayload[] = [];
+      const colValues: FunctionResultObject[] = [];
       for (let row = range.zone.top; row <= range.zone.bottom; row++) {
         const position = { sheetId: range.sheetId, col, row };
         colValues.push(this.getters.getEvaluatedCell(position));
@@ -339,17 +347,17 @@ export const LOOKUP = {
     ),
   ],
   compute: function (
-    searchKey: Maybe<FPayload>,
-    searchArray: Matrix<FPayload>,
-    resultRange: Matrix<FPayload> | undefined
-  ): FPayload {
+    searchKey: Maybe<FunctionResultObject>,
+    searchArray: Matrix<FunctionResultObject>,
+    resultRange: Matrix<FunctionResultObject> | undefined
+  ): FunctionResultObject {
     let nbCol = searchArray.length;
     let nbRow = searchArray[0].length;
 
     const verticalSearch = nbRow >= nbCol;
     const getElement = verticalSearch
-      ? (range: Matrix<FPayload>, index: number) => range[0][index].value
-      : (range: Matrix<FPayload>, index: number) => range[index][0].value;
+      ? (range: Matrix<FunctionResultObject>, index: number) => range[0][index].value
+      : (range: Matrix<FunctionResultObject>, index: number) => range[index][0].value;
     const rangeLength = verticalSearch ? nbRow : nbCol;
     const index = dichotomicSearch(
       searchArray,
@@ -414,9 +422,9 @@ export const MATCH = {
     ),
   ],
   compute: function (
-    searchKey: Maybe<FPayload>,
-    range: Matrix<FPayload>,
-    searchType: Maybe<FPayload> = { value: DEFAULT_SEARCH_TYPE }
+    searchKey: Maybe<FunctionResultObject>,
+    range: Matrix<FunctionResultObject>,
+    searchType: Maybe<FunctionResultObject> = { value: DEFAULT_SEARCH_TYPE }
   ) {
     let _searchType = toNumber(searchType, this.locale);
     const nbCol = range.length;
@@ -431,8 +439,8 @@ export const MATCH = {
 
     const getElement =
       nbCol === 1
-        ? (range: Matrix<FPayload>, index: number) => range[0][index].value
-        : (range: Matrix<FPayload>, index: number) => range[index][0].value;
+        ? (range: Matrix<FunctionResultObject>, index: number) => range[0][index].value
+        : (range: Matrix<FunctionResultObject>, index: number) => range[index][0].value;
 
     const rangeLen = nbCol === 1 ? range[0].length : range.length;
     _searchType = Math.sign(_searchType);
@@ -533,11 +541,11 @@ export const VLOOKUP = {
     ),
   ],
   compute: function (
-    searchKey: Maybe<FPayload>,
-    range: Matrix<FPayload>,
-    index: Maybe<FPayload>,
-    isSorted: Maybe<FPayload> = { value: DEFAULT_IS_SORTED }
-  ): FPayload {
+    searchKey: Maybe<FunctionResultObject>,
+    range: Matrix<FunctionResultObject>,
+    index: Maybe<FunctionResultObject>,
+    isSorted: Maybe<FunctionResultObject> = { value: DEFAULT_IS_SORTED }
+  ): FunctionResultObject {
     const _index = Math.trunc(toNumber(index?.value, this.locale));
     assert(
       () => 1 <= _index && _index <= range.length,
@@ -547,7 +555,8 @@ export const VLOOKUP = {
       return searchKey;
     }
 
-    const getValueFromRange = (range: Matrix<FPayload>, index: number) => range[0][index].value;
+    const getValueFromRange = (range: Matrix<FunctionResultObject>, index: number) =>
+      range[0][index].value;
 
     const _isSorted = toBoolean(isSorted.value);
     const rowIndex = _isSorted
@@ -610,12 +619,12 @@ export const XLOOKUP = {
     ),
   ],
   compute: function (
-    searchKey: Maybe<FPayload>,
-    lookupRange: Matrix<FPayload>,
-    returnRange: Matrix<FPayload>,
-    defaultValue: Maybe<FPayload>,
-    matchMode: Maybe<FPayload> = { value: DEFAULT_MATCH_MODE },
-    searchMode: Maybe<FPayload> = { value: DEFAULT_SEARCH_MODE }
+    searchKey: Maybe<FunctionResultObject>,
+    lookupRange: Matrix<FunctionResultObject>,
+    returnRange: Matrix<FunctionResultObject>,
+    defaultValue: Maybe<FunctionResultObject>,
+    matchMode: Maybe<FunctionResultObject> = { value: DEFAULT_MATCH_MODE },
+    searchMode: Maybe<FunctionResultObject> = { value: DEFAULT_SEARCH_MODE }
   ) {
     const _matchMode = Math.trunc(toNumber(matchMode.value, this.locale));
     const _searchMode = Math.trunc(toNumber(searchMode.value, this.locale));
@@ -654,8 +663,8 @@ export const XLOOKUP = {
 
     const getElement =
       lookupDirection === "col"
-        ? (range: Matrix<FPayload>, index: number) => range[0][index].value
-        : (range: Matrix<FPayload>, index: number) => range[index][0].value;
+        ? (range: Matrix<FunctionResultObject>, index: number) => range[0][index].value
+        : (range: Matrix<FunctionResultObject>, index: number) => range[index][0].value;
 
     const rangeLen = lookupDirection === "col" ? lookupRange[0].length : lookupRange.length;
     const mode = MATCH_MODE[_matchMode];
@@ -699,9 +708,9 @@ export const PIVOT_VALUE = {
     arg("domain_value (string,optional,repeating)", _t("Value.")),
   ],
   compute: function (
-    formulaId: Maybe<FPayload>,
-    measureName: Maybe<FPayload>,
-    ...domainArgs: Maybe<FPayload>[]
+    formulaId: Maybe<FunctionResultObject>,
+    measureName: Maybe<FunctionResultObject>,
+    ...domainArgs: Maybe<FunctionResultObject>[]
   ) {
     const _pivotFormulaId = toString(formulaId);
     const _measure = toString(measureName);
@@ -735,7 +744,10 @@ export const PIVOT_HEADER = {
     arg("domain_field_name (string,optional,repeating)", _t("Field name.")),
     arg("domain_value (string,optional,repeating)", _t("Value.")),
   ],
-  compute: function (pivotId: Maybe<FPayload>, ...domainArgs: Maybe<FPayload>[]) {
+  compute: function (
+    pivotId: Maybe<FunctionResultObject>,
+    ...domainArgs: Maybe<FunctionResultObject>[]
+  ) {
     const _pivotFormulaId = toString(pivotId);
     const _pivotId = getPivotId(_pivotFormulaId, this.getters);
     assertDomainLength(domainArgs);
@@ -781,11 +793,11 @@ export const PIVOT = {
     arg("column_count (number, optional)", _t("number of columns")),
   ],
   compute: function (
-    pivotFormulaId: Maybe<FPayload>,
-    rowCount: Maybe<FPayload> = { value: Number.MAX_VALUE },
-    includeTotal: Maybe<FPayload> = { value: true },
-    includeColumnHeaders: Maybe<FPayload> = { value: true },
-    columnCount: Maybe<FPayload> = { value: Number.MAX_VALUE }
+    pivotFormulaId: Maybe<FunctionResultObject>,
+    rowCount: Maybe<FunctionResultObject> = { value: 10000 },
+    includeTotal: Maybe<FunctionResultObject> = { value: true },
+    includeColumnHeaders: Maybe<FunctionResultObject> = { value: true },
+    columnCount: Maybe<FunctionResultObject> = { value: Number.MAX_VALUE }
   ) {
     const _pivotFormulaId = toString(pivotFormulaId);
     const _rowCount = toNumber(rowCount, this.locale);
@@ -817,7 +829,7 @@ export const PIVOT = {
       return [[{ value: pivotTitle }]];
     }
     const tableWidth = Math.min(1 + _columnCount, cells.length);
-    const result: Matrix<FPayload> = [];
+    const result: Matrix<FunctionResultObject> = [];
     for (const col of range(0, tableWidth)) {
       result[col] = [];
       for (const row of range(0, tableHeight)) {
@@ -871,10 +883,10 @@ export const OFFSET = {
   ],
   compute: function (
     cellReference: Maybe<{ value: string }>,
-    offsetRows: Maybe<FPayload>,
-    offsetColumns: Maybe<FPayload>,
-    height: Maybe<FPayload>,
-    width: Maybe<FPayload>
+    offsetRows: Maybe<FunctionResultObject>,
+    offsetColumns: Maybe<FunctionResultObject>,
+    height: Maybe<FunctionResultObject>,
+    width: Maybe<FunctionResultObject>
   ) {
     if (isEvaluationError(cellReference?.value)) {
       return cellReference;
@@ -954,7 +966,7 @@ export const OFFSET = {
     return generateMatrix(
       offsetWidth,
       offsetHeight,
-      (col: number, row: number): FPayload =>
+      (col: number, row: number): FunctionResultObject =>
         this.getters.getEvaluatedCell({
           sheetId,
           col: startingCol + col,

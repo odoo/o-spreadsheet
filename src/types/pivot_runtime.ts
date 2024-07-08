@@ -1,6 +1,6 @@
 import { PivotRuntimeDefinition } from "../helpers/pivot/pivot_runtime_definition";
 import { SpreadsheetPivotTable } from "../helpers/pivot/spreadsheet_pivot/table_spreadsheet_pivot";
-import { FPayload, Maybe } from "./misc";
+import { FunctionResultObject, Maybe } from "./misc";
 import {
   PivotCoreDefinition,
   PivotDimension,
@@ -21,16 +21,16 @@ export interface Pivot<T = PivotRuntimeDefinition> {
   getTableStructure(): SpreadsheetPivotTable;
   getFields(): PivotFields;
 
-  getPivotHeaderValueAndFormat(domain: PivotDomain): FPayload;
-  getPivotCellValueAndFormat(measure: string, domain: PivotDomain): FPayload;
-  getPivotMeasureValue(measure: string, domain: PivotDomain): FPayload;
+  getPivotHeaderValueAndFormat(domain: PivotDomain): FunctionResultObject;
+  getPivotCellValueAndFormat(measure: string, domain: PivotDomain): FunctionResultObject;
+  getPivotMeasureValue(measure: string, domain: PivotDomain): FunctionResultObject;
 
   getMeasure: (name: string) => PivotMeasure;
 
-  parseArgsToPivotDomain(args: Maybe<FPayload>[]): PivotDomain;
-  areDomainArgsFieldsValid(args: Maybe<FPayload>[]): boolean;
+  parseArgsToPivotDomain(args: Maybe<FunctionResultObject>[]): PivotDomain;
+  areDomainArgsFieldsValid(args: Maybe<FunctionResultObject>[]): boolean;
 
-  assertIsValid({ throwOnError }: { throwOnError: boolean }): FPayload | undefined;
+  assertIsValid({ throwOnError }: { throwOnError: boolean }): FunctionResultObject | undefined;
   getPossibleFieldValues(
     dimension: PivotDimension
   ): { value: string | boolean | number; label: string }[];

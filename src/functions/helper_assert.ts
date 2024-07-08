@@ -1,4 +1,4 @@
-import { Arg, FPayload, FPayloadNumber, Matrix, isMatrix } from "../types";
+import { Arg, FunctionResultNumber, FunctionResultObject, Matrix, isMatrix } from "../types";
 import { EvaluationError } from "../types/errors";
 import { assert } from "./helpers";
 
@@ -28,6 +28,8 @@ export function assertSquareMatrix(errorStr: string, arg: Matrix) {
   assert(() => arg.length === arg[0].length, errorStr);
 }
 
-export function isNumberMatrix(arg: Matrix<FPayload>): arg is Matrix<FPayloadNumber> {
+export function isNumberMatrix(
+  arg: Matrix<FunctionResultObject>
+): arg is Matrix<FunctionResultNumber> {
   return arg.every((row) => row.every((data) => typeof data.value === "number"));
 }

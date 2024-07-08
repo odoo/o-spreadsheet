@@ -1,7 +1,7 @@
 import { getFullReference, splitReference } from "../helpers";
 import { setXcToFixedReferenceType } from "../helpers/reference_type";
 import { _t } from "../translation";
-import { AddFunctionDescription, CellValueType, FPayload, Maybe } from "../types";
+import { AddFunctionDescription, CellValueType, FunctionResultObject, Maybe } from "../types";
 import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
 import { assert, isEvaluationError, toString } from "./helpers";
@@ -20,7 +20,7 @@ export const CELL = {
     ),
     arg("reference (meta)", _t("The reference to the cell.")),
   ],
-  compute: function (info: Maybe<FPayload>, reference: Maybe<{ value: string }>) {
+  compute: function (info: Maybe<FunctionResultObject>, reference: Maybe<{ value: string }>) {
     const _info = toString(info).toLowerCase();
     assert(
       () => CELL_INFO_TYPES.includes(_info),
@@ -75,7 +75,7 @@ export const CELL = {
 export const ISERR = {
   description: _t("Whether a value is an error other than #N/A."),
   args: [arg("value (any)", _t("The value to be verified as an error type."))],
-  compute: function (data: Maybe<FPayload>): boolean {
+  compute: function (data: Maybe<FunctionResultObject>): boolean {
     const value = data?.value;
     return isEvaluationError(value) && value !== CellErrorType.NotAvailable;
   },
@@ -88,7 +88,7 @@ export const ISERR = {
 export const ISERROR = {
   description: _t("Whether a value is an error."),
   args: [arg("value (any)", _t("The value to be verified as an error type."))],
-  compute: function (data: Maybe<FPayload>): boolean {
+  compute: function (data: Maybe<FunctionResultObject>): boolean {
     const value = data?.value;
     return isEvaluationError(value);
   },
@@ -101,7 +101,7 @@ export const ISERROR = {
 export const ISLOGICAL = {
   description: _t("Whether a value is `true` or `false`."),
   args: [arg("value (any)", _t("The value to be verified as a logical TRUE or FALSE."))],
-  compute: function (value: Maybe<FPayload>): boolean {
+  compute: function (value: Maybe<FunctionResultObject>): boolean {
     return typeof value?.value === "boolean";
   },
   isExported: true,
@@ -113,7 +113,7 @@ export const ISLOGICAL = {
 export const ISNA = {
   description: _t("Whether a value is the error #N/A."),
   args: [arg("value (any)", _t("The value to be verified as an error type."))],
-  compute: function (data: Maybe<FPayload>): boolean {
+  compute: function (data: Maybe<FunctionResultObject>): boolean {
     return data?.value === CellErrorType.NotAvailable;
   },
   isExported: true,
@@ -125,7 +125,7 @@ export const ISNA = {
 export const ISNONTEXT = {
   description: _t("Whether a value is non-textual."),
   args: [arg("value (any)", _t("The value to be checked."))],
-  compute: function (value: Maybe<FPayload>): boolean {
+  compute: function (value: Maybe<FunctionResultObject>): boolean {
     return !ISTEXT.compute.bind(this)(value);
   },
   isExported: true,
@@ -138,7 +138,7 @@ export const ISNONTEXT = {
 export const ISNUMBER = {
   description: _t("Whether a value is a number."),
   args: [arg("value (any)", _t("The value to be verified as a number."))],
-  compute: function (value: Maybe<FPayload>): boolean {
+  compute: function (value: Maybe<FunctionResultObject>): boolean {
     return typeof value?.value === "number";
   },
   isExported: true,
@@ -150,7 +150,7 @@ export const ISNUMBER = {
 export const ISTEXT = {
   description: _t("Whether a value is text."),
   args: [arg("value (any)", _t("The value to be verified as text."))],
-  compute: function (value: Maybe<FPayload>): boolean {
+  compute: function (value: Maybe<FunctionResultObject>): boolean {
     return typeof value?.value === "string" && isEvaluationError(value?.value) === false;
   },
   isExported: true,
@@ -162,7 +162,7 @@ export const ISTEXT = {
 export const ISBLANK = {
   description: _t("Whether the referenced cell is empty"),
   args: [arg("value (any)", _t("Reference to the cell that will be checked for emptiness."))],
-  compute: function (value: Maybe<FPayload>): boolean {
+  compute: function (value: Maybe<FunctionResultObject>): boolean {
     return value?.value === null;
   },
   isExported: true,
@@ -174,7 +174,7 @@ export const ISBLANK = {
 export const NA = {
   description: _t("Returns the error value #N/A."),
   args: [],
-  compute: function (): FPayload {
+  compute: function (): FunctionResultObject {
     return { value: CellErrorType.NotAvailable };
   },
   isExported: true,

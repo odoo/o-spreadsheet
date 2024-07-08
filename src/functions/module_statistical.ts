@@ -4,8 +4,8 @@ import { _t } from "../translation";
 import {
   AddFunctionDescription,
   Arg,
-  FPayload,
-  FPayloadNumber,
+  FunctionResultNumber,
+  FunctionResultObject,
   Locale,
   Matrix,
   Maybe,
@@ -42,8 +42,8 @@ import {
 } from "./helpers";
 
 function filterAndFlatData(dataY: Arg, dataX: Arg): { flatDataY: number[]; flatDataX: number[] } {
-  const _flatDataY: Maybe<FPayload>[] = [];
-  const _flatDataX: Maybe<FPayload>[] = [];
+  const _flatDataY: Maybe<FunctionResultObject>[] = [];
+  const _flatDataX: Maybe<FunctionResultObject>[] = [];
   let lenY = 0;
   let lenX = 0;
 
@@ -133,7 +133,7 @@ function variance(args: Arg[], isSample: boolean, textAs0: boolean, locale: Loca
 
 function centile(
   data: Arg[],
-  percent: Maybe<FPayload>,
+  percent: Maybe<FunctionResultObject>,
   isInclusive: boolean,
   locale: Locale
 ): number {
@@ -404,7 +404,7 @@ export const AVERAGE = {
       _t("Additional values or ranges to consider when calculating the average value.")
     ),
   ],
-  compute: function (...values: Arg[]): FPayloadNumber {
+  compute: function (...values: Arg[]): FunctionResultNumber {
     return {
       value: average(values, this.locale),
       format: inferFormat(values[0]),
@@ -432,7 +432,7 @@ export const AVERAGE_WEIGHTED = {
     ),
     arg("additional_weights (number, range<number>, repeating)", _t("Additional weights.")),
   ],
-  compute: function (...args: Arg[]): FPayloadNumber {
+  compute: function (...args: Arg[]): FunctionResultNumber {
     let sum = 0;
     let count = 0;
     for (let n = 0; n < args.length - 1; n += 2) {
@@ -490,7 +490,7 @@ export const AVERAGEA = {
       _t("Additional values or ranges to consider when calculating the average value.")
     ),
   ],
-  compute: function (...args: Arg[]): FPayloadNumber {
+  compute: function (...args: Arg[]): FunctionResultNumber {
     let count = 0;
     const sum = reduceNumbersTextAs0(
       args,
@@ -523,7 +523,11 @@ export const AVERAGEIF = {
       _t("The range to average. If not included, criteria_range is used for the average instead.")
     ),
   ],
-  compute: function (criteriaRange: Arg, criterion: Maybe<FPayload>, averageRange: Arg): number {
+  compute: function (
+    criteriaRange: Arg,
+    criterion: Maybe<FunctionResultObject>,
+    averageRange: Arg
+  ): number {
     const _averageRange =
       averageRange === undefined ? toMatrix(criteriaRange) : toMatrix(averageRange);
 
@@ -562,7 +566,7 @@ export const AVERAGEIFS = {
     ),
     arg("criterion2 (string, repeating)", _t("The pattern or test to apply to criteria_range2.")),
   ],
-  compute: function (averageRange: Matrix<FPayload>, ...args: Arg[]): number {
+  compute: function (averageRange: Matrix<FunctionResultObject>, ...args: Arg[]): number {
     const _averageRange = toMatrix(averageRange);
     let count = 0;
     let sum = 0;
@@ -699,8 +703,8 @@ export const FORECAST: AddFunctionDescription = {
   ],
   compute: function (
     x: Arg,
-    dataY: Matrix<FPayload>,
-    dataX: Matrix<FPayload>
+    dataY: Matrix<FunctionResultObject>,
+    dataX: Matrix<FunctionResultObject>
   ): number | Matrix<number> {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
     return predictLinearValues(
@@ -741,10 +745,10 @@ export const GROWTH: AddFunctionDescription = {
     ),
   ],
   compute: function (
-    knownDataY: Matrix<FPayload>,
-    knownDataX: Matrix<FPayload> = [[]],
-    newDataX: Matrix<FPayload> = [[]],
-    b: Maybe<FPayload> = { value: true }
+    knownDataY: Matrix<FunctionResultObject>,
+    knownDataX: Matrix<FunctionResultObject> = [[]],
+    newDataX: Matrix<FunctionResultObject> = [[]],
+    b: Maybe<FunctionResultObject> = { value: true }
   ): Matrix<number> {
     return expM(
       predictLinearValues(
@@ -772,7 +776,10 @@ export const INTERCEPT: AddFunctionDescription = {
       _t("The range representing the array or matrix of independent data.")
     ),
   ],
-  compute: function (dataY: Matrix<FPayload>, dataX: Matrix<FPayload>): number {
+  compute: function (
+    dataY: Matrix<FunctionResultObject>,
+    dataX: Matrix<FunctionResultObject>
+  ): number {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
     const [[], [intercept]] = fullLinearRegression([flatDataX], [flatDataY]);
     return intercept as number;
@@ -789,9 +796,9 @@ export const LARGE = {
     arg("data (any, range)", _t("Array or range containing the dataset to consider.")),
     arg("n (number)", _t("The rank from largest to smallest of the element to return.")),
   ],
-  compute: function (data: Arg, n: Maybe<FPayload>): FPayload {
+  compute: function (data: Arg, n: Maybe<FunctionResultObject>): FunctionResultObject {
     const _n = Math.trunc(toNumber(n?.value, this.locale));
-    let largests: FPayload[] = [];
+    let largests: FunctionResultObject[] = [];
     let index: number;
     let count = 0;
     visitAny([data], (d) => {
@@ -851,10 +858,10 @@ export const LINEST: AddFunctionDescription = {
     ),
   ],
   compute: function (
-    dataY: Matrix<FPayload>,
-    dataX: Matrix<FPayload> = [[]],
-    calculateB: Maybe<FPayload> = { value: true },
-    verbose: Maybe<FPayload> = { value: false }
+    dataY: Matrix<FunctionResultObject>,
+    dataX: Matrix<FunctionResultObject> = [[]],
+    calculateB: Maybe<FunctionResultObject> = { value: true },
+    verbose: Maybe<FunctionResultObject> = { value: false }
   ): (number | string)[][] {
     return fullLinearRegression(
       toNumberMatrix(dataX, "the first argument (data_y)"),
@@ -894,10 +901,10 @@ export const LOGEST: AddFunctionDescription = {
     ),
   ],
   compute: function (
-    dataY: Matrix<FPayload>,
-    dataX: Matrix<FPayload> = [[]],
-    calculateB: Maybe<FPayload> = { value: true },
-    verbose: Maybe<FPayload> = { value: false }
+    dataY: Matrix<FunctionResultObject>,
+    dataX: Matrix<FunctionResultObject> = [[]],
+    calculateB: Maybe<FunctionResultObject> = { value: true },
+    verbose: Maybe<FunctionResultObject> = { value: false }
   ): (number | string)[][] {
     const coeffs = fullLinearRegression(
       toNumberMatrix(dataX, "the second argument (data_x)"),
@@ -922,7 +929,10 @@ export const MATTHEWS: AddFunctionDescription = {
     arg("data_x (range)", _t("The range representing the array or matrix of observed data.")),
     arg("data_y (range)", _t("The range representing the array or matrix of predicted data.")),
   ],
-  compute: function (dataX: Matrix<FPayload>, dataY: Matrix<FPayload>): number {
+  compute: function (
+    dataX: Matrix<FunctionResultObject>,
+    dataY: Matrix<FunctionResultObject>
+  ): number {
     const flatX = dataX.flat();
     const flatY = dataY.flat();
     assertSameNumberOfElements(flatX, flatY);
@@ -977,7 +987,7 @@ export const MAX = {
       _t("Additional values or ranges to consider when calculating the maximum value.")
     ),
   ],
-  compute: function (...values: Arg[]): FPayloadNumber {
+  compute: function (...values: Arg[]): FunctionResultNumber {
     return {
       value: max(values, this.locale),
       format: inferFormat(values[0]),
@@ -1001,7 +1011,7 @@ export const MAXA = {
       _t("Additional values or ranges to consider when calculating the maximum value.")
     ),
   ],
-  compute: function (...args: Arg[]): FPayloadNumber {
+  compute: function (...args: Arg[]): FunctionResultNumber {
     const maxa = reduceNumbersTextAs0(
       args,
       (acc, a) => {
@@ -1037,7 +1047,7 @@ export const MAXIFS = {
     ),
     arg("criterion2 (string, repeating)", _t("The pattern or test to apply to criteria_range2.")),
   ],
-  compute: function (range: Matrix<FPayload>, ...args: Arg[]): number {
+  compute: function (range: Matrix<FunctionResultObject>, ...args: Arg[]): number {
     let result = -Infinity;
     visitMatchingRanges(
       args,
@@ -1069,8 +1079,8 @@ export const MEDIAN = {
       _t("Additional values or ranges to consider when calculating the median value.")
     ),
   ],
-  compute: function (...values: Arg[]): FPayloadNumber {
-    let data: FPayloadNumber[] = [];
+  compute: function (...values: Arg[]): FunctionResultNumber {
+    let data: FunctionResultNumber[] = [];
     visitNumbers(
       values,
       (value) => {
@@ -1101,7 +1111,7 @@ export const MIN = {
       _t("Additional values or ranges to consider when calculating the minimum value.")
     ),
   ],
-  compute: function (...values: Arg[]): FPayloadNumber {
+  compute: function (...values: Arg[]): FunctionResultNumber {
     return {
       value: min(values, this.locale),
       format: inferFormat(values[0]),
@@ -1125,7 +1135,7 @@ export const MINA = {
       _t("Additional values or ranges to consider when calculating the minimum value.")
     ),
   ],
-  compute: function (...args: Arg[]): FPayloadNumber {
+  compute: function (...args: Arg[]): FunctionResultNumber {
     const mina: number = reduceNumbersTextAs0(
       args,
       (acc, a) => {
@@ -1161,7 +1171,7 @@ export const MINIFS = {
     ),
     arg("criterion2 (string, repeating)", _t("The pattern or test to apply to criteria_range2.")),
   ],
-  compute: function (range: Matrix<FPayload>, ...args: Arg[]): number {
+  compute: function (range: Matrix<FunctionResultObject>, ...args: Arg[]): number {
     let result = Infinity;
     visitMatchingRanges(
       args,
@@ -1181,7 +1191,7 @@ export const MINIFS = {
 // -----------------------------------------------------------------------------
 // PEARSON
 // -----------------------------------------------------------------------------
-function pearson(dataY: Matrix<FPayload>, dataX: Matrix<FPayload>): number {
+function pearson(dataY: Matrix<FunctionResultObject>, dataX: Matrix<FunctionResultObject>): number {
   const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
   if (flatDataX.length === 0) {
     throw new EvaluationError(
@@ -1228,7 +1238,10 @@ export const PEARSON: AddFunctionDescription = {
       _t("The range representing the array or matrix of independent data.")
     ),
   ],
-  compute: function (dataY: Matrix<FPayload>, dataX: Matrix<FPayload>): number {
+  compute: function (
+    dataY: Matrix<FunctionResultObject>,
+    dataX: Matrix<FunctionResultObject>
+  ): number {
     return pearson(dataY, dataX);
   },
   isExported: true,
@@ -1248,7 +1261,7 @@ export const PERCENTILE = {
       _t("The percentile whose value within data will be calculated and returned.")
     ),
   ],
-  compute: function (data: Arg, percentile: Maybe<FPayload>): FPayloadNumber {
+  compute: function (data: Arg, percentile: Maybe<FunctionResultObject>): FunctionResultNumber {
     return PERCENTILE_INC.compute.bind(this)(data, percentile);
   },
   isExported: true,
@@ -1268,7 +1281,7 @@ export const PERCENTILE_EXC = {
       )
     ),
   ],
-  compute: function (data: Arg, percentile: Maybe<FPayload>): FPayloadNumber {
+  compute: function (data: Arg, percentile: Maybe<FunctionResultObject>): FunctionResultNumber {
     return {
       value: centile([data], percentile, false, this.locale),
       format: inferFormat(data),
@@ -1289,7 +1302,7 @@ export const PERCENTILE_INC = {
       _t("The percentile whose value within data will be calculated and returned.")
     ),
   ],
-  compute: function (data: Arg, percentile: Maybe<FPayload>): FPayloadNumber {
+  compute: function (data: Arg, percentile: Maybe<FunctionResultObject>): FunctionResultNumber {
     return {
       value: centile([data], percentile, true, this.locale),
       format: inferFormat(data),
@@ -1319,10 +1332,10 @@ export const POLYFIT_COEFFS: AddFunctionDescription = {
     ),
   ],
   compute: function (
-    dataY: Matrix<FPayload>,
-    dataX: Matrix<FPayload>,
-    order: Maybe<FPayload>,
-    intercept: Maybe<FPayload> = { value: true }
+    dataY: Matrix<FunctionResultObject>,
+    dataX: Matrix<FunctionResultObject>,
+    order: Maybe<FunctionResultObject>,
+    intercept: Maybe<FunctionResultObject> = { value: true }
   ): Matrix<number> {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
     return polynomialRegression(
@@ -1358,10 +1371,10 @@ export const POLYFIT_FORECAST: AddFunctionDescription = {
   ],
   compute: function (
     x: Arg,
-    dataY: Matrix<FPayload>,
-    dataX: Matrix<FPayload>,
-    order: Maybe<FPayload>,
-    intercept: Maybe<FPayload> = { value: true }
+    dataY: Matrix<FunctionResultObject>,
+    dataX: Matrix<FunctionResultObject>,
+    order: Maybe<FunctionResultObject>,
+    intercept: Maybe<FunctionResultObject> = { value: true }
   ): Matrix<number> {
     const _order = toNumber(order, this.locale);
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
@@ -1382,7 +1395,7 @@ export const QUARTILE = {
     arg("data (any, range)", _t("The array or range containing the dataset to consider.")),
     arg("quartile_number (number)", _t("Which quartile value to return.")),
   ],
-  compute: function (data: Arg, quartileNumber: Maybe<FPayload>): FPayloadNumber {
+  compute: function (data: Arg, quartileNumber: Maybe<FunctionResultObject>): FunctionResultNumber {
     return QUARTILE_INC.compute.bind(this)(data, quartileNumber);
   },
   isExported: true,
@@ -1397,7 +1410,7 @@ export const QUARTILE_EXC = {
     arg("data (any, range)", _t("The array or range containing the dataset to consider.")),
     arg("quartile_number (number)", _t("Which quartile value, exclusive of 0 and 4, to return.")),
   ],
-  compute: function (data: Arg, quartileNumber: Maybe<FPayload>): FPayloadNumber {
+  compute: function (data: Arg, quartileNumber: Maybe<FunctionResultObject>): FunctionResultNumber {
     const _quartileNumber = Math.trunc(toNumber(quartileNumber, this.locale));
     const percent = { value: 0.25 * _quartileNumber };
     return {
@@ -1417,7 +1430,7 @@ export const QUARTILE_INC = {
     arg("data (any, range)", _t("The array or range containing the dataset to consider.")),
     arg("quartile_number (number)", _t("Which quartile value to return.")),
   ],
-  compute: function (data: Arg, quartileNumber: Maybe<FPayload>): FPayloadNumber {
+  compute: function (data: Arg, quartileNumber: Maybe<FunctionResultObject>): FunctionResultNumber {
     const percent = { value: 0.25 * Math.trunc(toNumber(quartileNumber, this.locale)) };
     return {
       value: centile([data], percent, true, this.locale),
@@ -1440,9 +1453,9 @@ export const RANK: AddFunctionDescription = {
     ),
   ],
   compute: function (
-    value: Maybe<FPayload>,
-    data: Matrix<FPayload>,
-    isAscending: Maybe<FPayload> = { value: false }
+    value: Maybe<FunctionResultObject>,
+    data: Matrix<FunctionResultObject>,
+    isAscending: Maybe<FunctionResultObject> = { value: false }
   ): number {
     const _isAscending = toBoolean(isAscending);
     const _value = toNumber(value, this.locale);
@@ -1486,7 +1499,10 @@ export const RSQ: AddFunctionDescription = {
       _t("The range representing the array or matrix of independent data.")
     ),
   ],
-  compute: function (dataY: Matrix<FPayload>, dataX: Matrix<FPayload>): number {
+  compute: function (
+    dataY: Matrix<FunctionResultObject>,
+    dataX: Matrix<FunctionResultObject>
+  ): number {
     return Math.pow(pearson(dataX, dataY), 2.0);
   },
   isExported: true,
@@ -1507,7 +1523,10 @@ export const SLOPE: AddFunctionDescription = {
       _t("The range representing the array or matrix of independent data.")
     ),
   ],
-  compute: function (dataY: Matrix<FPayload>, dataX: Matrix<FPayload>): number {
+  compute: function (
+    dataY: Matrix<FunctionResultObject>,
+    dataX: Matrix<FunctionResultObject>
+  ): number {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
     const [[slope]] = fullLinearRegression([flatDataX], [flatDataY]);
     return slope as number;
@@ -1524,9 +1543,9 @@ export const SMALL = {
     arg("data (any, range)", _t("The array or range containing the dataset to consider.")),
     arg("n (number)", _t("The rank from smallest to largest of the element to return.")),
   ],
-  compute: function (data: Arg, n: Maybe<FPayload>): FPayload {
+  compute: function (data: Arg, n: Maybe<FunctionResultObject>): FunctionResultObject {
     const _n = Math.trunc(toNumber(n?.value, this.locale));
-    let largests: FPayload[] = [];
+    let largests: FunctionResultObject[] = [];
     let index: number;
     let count = 0;
     visitAny([data], (d) => {
@@ -1573,7 +1592,10 @@ export const SPEARMAN: AddFunctionDescription = {
       _t("The range representing the array or matrix of independent data.")
     ),
   ],
-  compute: function (dataX: Matrix<FPayload>, dataY: Matrix<FPayload>): number {
+  compute: function (
+    dataX: Matrix<FunctionResultObject>,
+    dataY: Matrix<FunctionResultObject>
+  ): number {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
     const n = flatDataX.length;
 
@@ -1719,7 +1741,10 @@ export const STEYX: AddFunctionDescription = {
       _t("The range representing the array or matrix of independent data.")
     ),
   ],
-  compute: function (dataY: Matrix<FPayload>, dataX: Matrix<FPayload>): number {
+  compute: function (
+    dataY: Matrix<FunctionResultObject>,
+    dataX: Matrix<FunctionResultObject>
+  ): number {
     const { flatDataX, flatDataY } = filterAndFlatData(dataY, dataX);
     const data = fullLinearRegression([flatDataX], [flatDataY], true, true);
     return data[1][2] as number;
@@ -1755,10 +1780,10 @@ export const TREND: AddFunctionDescription = {
     ),
   ],
   compute: function (
-    knownDataY: Matrix<FPayload>,
-    knownDataX: Matrix<FPayload> = [[]],
-    newDataX: Matrix<FPayload> = [[]],
-    b: Maybe<FPayload> = { value: true }
+    knownDataY: Matrix<FunctionResultObject>,
+    knownDataX: Matrix<FunctionResultObject> = [[]],
+    newDataX: Matrix<FunctionResultObject> = [[]],
+    b: Maybe<FunctionResultObject> = { value: true }
   ): Matrix<number> {
     return predictLinearValues(
       toNumberMatrix(knownDataY, "the first argument (known_data_y)"),

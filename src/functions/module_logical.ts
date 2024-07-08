@@ -1,5 +1,5 @@
 import { _t } from "../translation";
-import { AddFunctionDescription, Arg, FPayload, Maybe } from "../types";
+import { AddFunctionDescription, Arg, FunctionResultObject, Maybe } from "../types";
 import { CellErrorType, EvaluationError } from "../types/errors";
 import { arg } from "./arguments";
 import { boolAnd, boolOr } from "./helper_logical";
@@ -61,10 +61,10 @@ export const IF = {
     ),
   ],
   compute: function (
-    logicalExpression: Maybe<FPayload>,
-    valueIfTrue: Maybe<FPayload>,
-    valueIfFalse: Maybe<FPayload>
-  ): FPayload {
+    logicalExpression: Maybe<FunctionResultObject>,
+    valueIfTrue: Maybe<FunctionResultObject>,
+    valueIfFalse: Maybe<FunctionResultObject>
+  ): FunctionResultObject {
     const result = toBoolean(logicalExpression?.value) ? valueIfTrue : valueIfFalse;
     if (result === undefined) {
       return { value: "" };
@@ -90,9 +90,9 @@ export const IFERROR = {
     ),
   ],
   compute: function (
-    value: Maybe<FPayload>,
-    valueIfError: Maybe<FPayload> = { value: "" }
-  ): FPayload {
+    value: Maybe<FunctionResultObject>,
+    valueIfError: Maybe<FunctionResultObject> = { value: "" }
+  ): FunctionResultObject {
     const result = isEvaluationError(value?.value) ? valueIfError : value;
     if (result === undefined) {
       return { value: "" };
@@ -118,9 +118,9 @@ export const IFNA = {
     ),
   ],
   compute: function (
-    value: Maybe<FPayload>,
-    valueIfError: Maybe<FPayload> = { value: "" }
-  ): FPayload {
+    value: Maybe<FunctionResultObject>,
+    valueIfError: Maybe<FunctionResultObject> = { value: "" }
+  ): FunctionResultObject {
     const result = value?.value === CellErrorType.NotAvailable ? valueIfError : value;
     if (result === undefined) {
       return { value: "" };
@@ -155,7 +155,7 @@ export const IFS = {
       _t("Additional values to be returned if their corresponding conditions are TRUE.")
     ),
   ],
-  compute: function (...values: Maybe<FPayload>[]): FPayload {
+  compute: function (...values: Maybe<FunctionResultObject>[]): FunctionResultObject {
     assert(
       () => values.length % 2 === 0,
       _t("Wrong number of arguments. Expected an even number of arguments.")
@@ -190,7 +190,7 @@ export const NOT = {
       )
     ),
   ],
-  compute: function (logicalExpression: Maybe<FPayload>): boolean {
+  compute: function (logicalExpression: Maybe<FunctionResultObject>): boolean {
     return !toBoolean(logicalExpression);
   },
   isExported: true,
