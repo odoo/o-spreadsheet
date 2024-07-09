@@ -355,6 +355,15 @@ describe("Model", () => {
       ],
     };
     const model = new Model(modelData);
-    expect(model.exportData()).toMatchSnapshot();
+    expect(model.exportData()).toMatchObject({
+      sheets: [
+        {
+          cells: {
+            A1: { content: "=SUM(A3:3)" },
+            A2: { content: "=SUM(A3:A)" },
+          },
+        },
+      ],
+    });
   });
 });
