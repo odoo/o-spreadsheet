@@ -674,6 +674,13 @@ describe("Grid component", () => {
       expect(getHorizontalScroll()).toBe(1500);
     });
 
+    test("A1 is not set as hovered by default when opening the spreadsheet without mouse events", async () => {
+      setCellContent(model, "A1", "=1/0");
+      jest.advanceTimersByTime(400);
+      await nextTick();
+      expect(fixture.querySelector(".o-error-tooltip")).toBeNull();
+    });
+
     test("Scrolling the grid remove hover popover", async () => {
       setCellContent(model, "A10", "=1/0");
       await hoverCell(model, "A10", 400);
