@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { ComposerStore } from "../../src/components/composer/composer/composer_store";
+import { ComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { Store } from "../../src/store_engine";
 import { UID } from "../../src/types";
 import { addDataValidation, setCellContent, updateLocale } from "../test_helpers/commands_helpers";

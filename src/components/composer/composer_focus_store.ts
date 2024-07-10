@@ -1,48 +1,70 @@
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
-import { ComposerSelection, ComposerStore } from "./composer/composer_store";
+import { ComposerFocusType, EditionMode } from "../../types";
+import { ComposerSelection } from "./composer/composer_store";
 
-export type ComposerFocusType = "inactive" | "cellFocus" | "contentFocus";
+export interface ComposerInterface {
+  id: string; // for testing purposes only
+  editionMode: EditionMode;
+  startEdition(content?: string, selection?: ComposerSelection): void;
+  stopEdition(): void;
+  setCurrentContent(content: string, selection?: ComposerSelection): void;
+}
+
+interface Args {
+  focusMode?: ComposerFocusType;
+  content?: string;
+  selection?: ComposerSelection;
+}
+
+const VOID_COMPOSER: ComposerInterface = {
+  id: "void-composer",
+  get editionMode(): EditionMode {
+    return "inactive";
+  },
+  startEdition: () => {
+    throw new Error("No composer is registered");
+  },
+  stopEdition: () => {
+    throw new Error("No composer is registered");
+  },
+  setCurrentContent: () => {
+    throw new Error("No composer is registered");
+  },
+};
 
 export class ComposerFocusStore extends SpreadsheetStore {
-  mutators = ["focusTopBarComposer", "focusGridComposerContent", "focusGridComposerCell"] as const;
-  private composerStore = this.get(ComposerStore);
+  mutators = ["focusComposer", "focusActiveComposer"] as const;
 
-  private topBarFocus: Exclude<ComposerFocusType, "cellFocus"> = "inactive";
-  private gridFocusMode: ComposerFocusType = "inactive";
+  activeComposer: ComposerInterface = VOID_COMPOSER;
 
-  get topBarComposerFocus(): Omit<ComposerFocusType, "cellFocus"> {
-    return this.composerStore.editionMode === "inactive" ? "inactive" : this.topBarFocus;
+  private _focusMode: ComposerFocusType = "inactive";
+
+  get focusMode(): ComposerFocusType {
+    return this.activeComposer.editionMode === "inactive" ? "inactive" : this._focusMode;
   }
 
-  get gridComposerFocus(): ComposerFocusType {
-    return this.composerStore.editionMode === "inactive" ? "inactive" : this.gridFocusMode;
-  }
-
-  focusTopBarComposer(selection: ComposerSelection) {
+  focusComposer(listener: ComposerInterface, args: Args) {
+    this.activeComposer = listener;
     if (this.getters.isReadonly()) {
       return;
     }
-    this.topBarFocus = "contentFocus";
-    this.gridFocusMode = "inactive";
-    this.setComposerContent({ selection } || {});
+    this._focusMode = args.focusMode || "contentFocus";
+    if (this._focusMode !== "inactive") {
+      this.setComposerContent(args);
+    }
   }
 
-  focusGridComposerContent() {
+  focusActiveComposer(args: Args) {
     if (this.getters.isReadonly()) {
       return;
     }
-    this.topBarFocus = "inactive";
-    this.gridFocusMode = "contentFocus";
-    this.setComposerContent({});
-  }
-
-  focusGridComposerCell(content?: string, selection?: ComposerSelection) {
-    if (this.getters.isReadonly()) {
-      return;
+    if (!this.activeComposer) {
+      throw new Error("No composer is registered");
     }
-    this.topBarFocus = "inactive";
-    this.gridFocusMode = "cellFocus";
-    this.setComposerContent({ content, selection } || {});
+    this._focusMode = args.focusMode || "contentFocus";
+    if (this._focusMode !== "inactive") {
+      this.setComposerContent(args);
+    }
   }
 
   /**
@@ -55,10 +77,10 @@ export class ComposerFocusStore extends SpreadsheetStore {
     content?: string | undefined;
     selection?: ComposerSelection;
   }) {
-    if (this.composerStore.editionMode === "inactive") {
-      this.composerStore.startEdition(content, selection);
+    if (this.activeComposer.editionMode === "inactive") {
+      this.activeComposer.startEdition(content, selection);
     } else if (content) {
-      this.composerStore.setCurrentContent(content, selection);
+      this.activeComposer.setCurrentContent(content, selection);
     }
   }
 }

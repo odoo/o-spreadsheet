@@ -57,7 +57,7 @@ import {
 } from "../../types/index";
 import { Autofill } from "../autofill/autofill";
 import { ClientTag } from "../collaborative_client_tag/collaborative_client_tag";
-import { ComposerSelection, ComposerStore } from "../composer/composer/composer_store";
+import { ComposerSelection } from "../composer/composer/composer_store";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { GridComposer } from "../composer/grid_composer/grid_composer";
 import { GridOverlay } from "../grid_overlay/grid_overlay";
@@ -138,7 +138,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   private gridRef!: Ref<HTMLElement>;
   private highlightStore!: Store<HighlightStore>;
   private cellPopovers!: Store<CellPopoverStore>;
-  private composerStore!: Store<ComposerStore>;
   private composerFocusStore!: Store<ComposerFocusStore>;
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
 
@@ -157,7 +156,6 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.gridRef = useRef("grid");
     this.canvasPosition = useAbsoluteBoundingRect(this.gridRef);
     this.hoveredCell = useStore(HoveredCellStore);
-    this.composerStore = useStore(ComposerStore);
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     this.sidePanel = useStore(SidePanelStore);
@@ -403,7 +401,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   focusDefaultElement() {
     if (
       !this.env.model.getters.getSelectedFigureId() &&
-      this.composerStore.editionMode === "inactive"
+      this.composerFocusStore.activeComposer.editionMode === "inactive"
     ) {
       this.DOMFocusableElementStore.focus();
     }
@@ -470,8 +468,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   // ---------------------------------------------------------------------------
 
   onCellClicked(col: HeaderIndex, row: HeaderIndex, modifiers: GridClickModifiers) {
-    if (this.composerStore.editionMode === "editing") {
-      this.composerStore.stopEdition();
+    if (this.composerFocusStore.activeComposer.editionMode === "editing") {
+      this.composerFocusStore.activeComposer.stopEdition();
     }
     if (modifiers.expandZone) {
       this.env.model.selection.setAnchorCorner(col, row);
@@ -560,7 +558,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     const lastZone = this.env.model.getters.getSelectedZone();
     const { left: col, top: row } = lastZone;
     let type: ContextMenuType = "CELL";
-    this.composerStore.stopEdition();
+    this.composerFocusStore.activeComposer.stopEdition();
     if (this.env.model.getters.getActiveCols().has(col)) {
       type = "COL";
     } else if (this.env.model.getters.getActiveRows().has(row)) {
@@ -609,7 +607,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     }
 
     /* If we are currently editing a cell, let the default behavior */
-    if (this.composerStore.editionMode !== "inactive") {
+    if (this.composerFocusStore.activeComposer.editionMode !== "inactive") {
       return;
     }
     if (cut) {
@@ -777,11 +775,11 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onComposerCellFocused(content?: string, selection?: ComposerSelection) {
-    this.composerFocusStore.focusGridComposerCell(content, selection);
+    this.composerFocusStore.focusActiveComposer({ content, selection, focusMode: "cellFocus" });
   }
 
   onComposerContentFocused() {
-    this.composerFocusStore.focusGridComposerContent();
+    this.composerFocusStore.focusActiveComposer({ focusMode: "contentFocus" });
   }
 
   get staticTables(): Table[] {

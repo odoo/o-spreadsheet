@@ -29,19 +29,25 @@
           <option value="formula">Formula</option>
         </select>
       </t>
-      <input
-        type="text"
-        class="o-input o-threshold-value o-required"
-        t-model="rule[thresholdType].value"
-        t-att-class="{ 'o-invalid': isValueInvalid(thresholdType), 'invisible': threshold === undefined }"
-        t-if="threshold !== undefined and threshold.type !== 'value'"
-      />
-      <input
-        type="text"
-        t-attf-class="o-input o-threshold-value {{ threshold === undefined ? 'invisible' : ''}}"
-        t-else=""
-        disabled="1"
-      />
+      <div class="o-threshold-value">
+        <input
+          t-if="threshold !== undefined and threshold.type !== 'value' and threshold.type !== 'formula'"
+          type="text"
+          class="o-input o-required"
+          t-model="rule[thresholdType].value"
+          t-att-class="{ 'o-invalid': isValueInvalid(thresholdType), 'invisible': threshold === undefined }"
+        />
+        <StandaloneComposer
+          t-elif="threshold !== undefined and threshold.type === 'formula'"
+          t-props="getColorScaleComposerProps(thresholdType)"
+        />
+        <input
+          t-else=""
+          type="text"
+          t-attf-class="o-input {{ threshold === undefined ? 'invisible' : ''}}"
+          disabled="1"
+        />
+      </div>
       <div t-attf-class="flex-shrink-0 ms-1 {{ threshold === undefined ? 'invisible' : ''}}">
         <RoundColorPicker
           currentColor="getThresholdColor(threshold)"

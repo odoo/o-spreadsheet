@@ -1,6 +1,6 @@
 import { Model, setDefaultSheetViewSize, Spreadsheet } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
-import { ComposerStore } from "../../src/components/composer/composer/composer_store";
+import { ComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { DEBOUNCE_TIME, getDefaultSheetViewSize } from "../../src/constants";
 import { functionRegistry } from "../../src/functions";
 import { toZone } from "../../src/helpers";
@@ -235,12 +235,10 @@ describe("Simple Spreadsheet Component", () => {
   test("Insert a function properly sets the edition", async () => {
     ({ model, parent, fixture, env } = await mountSpreadsheet());
     const composerStore = env.getStore(ComposerStore);
-    const spyStartEdition = jest.spyOn(composerStore, "startEdition");
-    const spySetCurrentContent = jest.spyOn(composerStore, "setCurrentContent");
     doAction(["insert", "insert_function", "insert_function_sum"], env);
-    expect(spyStartEdition).toHaveBeenCalledWith("=SUM(", undefined);
+    expect(composerStore.currentContent).toBe("=SUM(");
     doAction(["insert", "insert_function", "insert_function_sum"], env);
-    expect(spySetCurrentContent).toHaveBeenCalledWith("=SUM(", undefined);
+    expect(composerStore.currentContent).toBe("=SUM(");
   });
 });
 

@@ -87,6 +87,10 @@ css/* scss */ `
           margin-left: 3%;
         }
       }
+
+      .o-sidePanel-composer {
+        color: #666666; /* Match o-input color */
+      }
     }
 
     .o-sidePanelButtons {
@@ -123,7 +127,8 @@ css/* scss */ `
     select.o-optional {
       border: 1px solid #a9a9a9;
     }
-    input.o-invalid {
+    .o-invalid {
+      border-width: 2px;
       border-color: red;
     }
     select.o-input {

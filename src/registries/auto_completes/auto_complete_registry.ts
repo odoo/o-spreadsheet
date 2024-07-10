@@ -1,7 +1,6 @@
 import { HtmlContent } from "../../components/composer/composer/composer";
-import { ComposerStore } from "../../components/composer/composer/composer_store";
 import { EnrichedToken } from "../../formulas/composer_tokenizer";
-import { Getters } from "../../types";
+import { CellPosition, Getters } from "../../types";
 import { Registry } from "../registry";
 
 export interface AutoCompleteProposal {
@@ -26,6 +25,16 @@ export interface AutoCompleteProvider {
   autoSelectFirstProposal: boolean;
 }
 
+interface ComposerStoreInterface {
+  currentEditedCell?: CellPosition;
+  changeComposerCursorSelection(start: number, end: number): void;
+  replaceComposerCursorSelection(text: string): void;
+  setCurrentContent(content: string): void;
+  stopEdition(): void;
+  currentContent: string;
+  currentTokens: EnrichedToken[];
+}
+
 /**
  * We declare the providers in the registry as an object (rather than a class)
  * to allow a type-safe way to declare the provider.
@@ -37,12 +46,12 @@ export interface AutoCompleteProviderDefinition {
   autoSelectFirstProposal?: boolean;
   maxDisplayedProposals?: number;
   getProposals(
-    this: { composer: ComposerStore; getters: Getters },
+    this: { composer: ComposerStoreInterface; getters: Getters },
     tokenAtCursor: EnrichedToken,
     content: string
   ): AutoCompleteProposal[] | undefined;
   selectProposal(
-    this: { composer: ComposerStore },
+    this: { composer: ComposerStoreInterface },
     tokenAtCursor: EnrichedToken,
     text: string
   ): void;

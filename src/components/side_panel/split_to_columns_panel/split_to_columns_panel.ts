@@ -4,11 +4,11 @@ import { interactiveSplitToColumns } from "../../../helpers/ui/split_to_columns_
 import { useStore } from "../../../store_engine";
 import { _t } from "../../../translation";
 import { CommandResult, SpreadsheetChildEnv } from "../../../types/index";
-import { ComposerStore } from "../../composer/composer/composer_store";
 import { SplitToColumnsTerms } from "../../translations_terms";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
 import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
+import { ComposerFocusStore } from "./../../composer/composer_focus_store";
 
 type SeparatorValue = "auto" | "custom" | " " | "," | ";" | typeof NEWLINE;
 
@@ -44,7 +44,7 @@ export class SplitIntoColumnsPanel extends Component<Props, SpreadsheetChildEnv>
   state = useState<State>({ separatorValue: "auto", addNewColumns: false, customSeparator: "" });
 
   setup() {
-    const composerStore = useStore(ComposerStore);
+    const composerFocusStore = useStore(ComposerFocusStore);
     // The feature makes no sense if we are editing a cell, because then the selection isn't active
     // Stop the edition when the panel is mounted, and close the panel if the user start editing a cell
     useEffect(
@@ -53,11 +53,11 @@ export class SplitIntoColumnsPanel extends Component<Props, SpreadsheetChildEnv>
           this.props.onCloseSidePanel();
         }
       },
-      () => [composerStore.editionMode]
+      () => [composerFocusStore.focusMode]
     );
 
     onMounted(() => {
-      composerStore.stopEdition();
+      composerFocusStore.activeComposer.stopEdition();
     });
   }
 

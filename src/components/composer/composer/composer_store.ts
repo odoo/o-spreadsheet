@@ -1,73 +1,48 @@
 import { EnrichedToken, composerTokenize } from "../../../formulas/composer_tokenizer";
 import { POSTFIX_UNARY_OPERATORS } from "../../../formulas/tokenizer";
-import { parseLiteral } from "../../../helpers/cells";
 import {
   colors,
   concat,
-  formatValue,
   fuzzyLookup,
-  isDateTimeFormat,
   isEqual,
   isNumber,
-  markdownLink,
-  numberToString,
-  parseDateTime,
   positionToZone,
   splitReference,
-  toXC,
-  updateSelectionOnDeletion,
-  updateSelectionOnInsertion,
   zoneToDimension,
 } from "../../../helpers/index";
-import {
-  canonicalizeNumberContent,
-  getDateTimeFormat,
-  localizeFormula,
-} from "../../../helpers/locale";
+import { canonicalizeNumberContent } from "../../../helpers/locale";
 import { createPivotFormula } from "../../../helpers/pivot/pivot_helpers";
 import { cycleFixedReference } from "../../../helpers/reference_type";
 import {
   AutoCompleteProvider,
   autoCompleteProviders,
 } from "../../../registries/auto_completes/auto_complete_registry";
-import { dataValidationEvaluatorRegistry } from "../../../registries/data_validation_registry";
 import { Get } from "../../../store_engine";
 import { SpreadsheetStore } from "../../../stores";
 import { HighlightStore } from "../../../stores/highlight_store";
 import { NotificationStore } from "../../../stores/notification_store";
 import { _t } from "../../../translation";
 import {
-  AddColumnsRowsCommand,
   CellPosition,
-  CellValueType,
   Command,
-  Format,
+  Direction,
+  EditionMode,
   HeaderIndex,
   Highlight,
-  Locale,
   Range,
   RangePart,
-  RemoveColumnsRowsCommand,
   UID,
   UnboundedZone,
   Zone,
-  isMatrix,
 } from "../../../types";
 import { SelectionEvent } from "../../../types/event_stream";
-
-export type EditionMode =
-  | "editing"
-  | "selecting" // should tell if you need to underline the current range selected.
-  | "inactive";
-
-const CELL_DELETED_MESSAGE = _t("The cell you are trying to edit has been deleted.");
 
 export interface ComposerSelection {
   start: number;
   end: number;
 }
 
-export class ComposerStore extends SpreadsheetStore {
+export abstract class AbstractComposerStore extends SpreadsheetStore {
   mutators = [
     "startEdition",
     "setCurrentContent",
@@ -78,18 +53,18 @@ export class ComposerStore extends SpreadsheetStore {
     "changeComposerCursorSelection",
     "replaceComposerCursorSelection",
   ] as const;
-  private col: HeaderIndex = 0;
-  private row: HeaderIndex = 0;
+  protected col: HeaderIndex = 0;
+  protected row: HeaderIndex = 0;
   editionMode: EditionMode = "inactive";
-  private sheetId: UID = "";
-  private _currentContent: string = "";
+  sheetId: UID = "";
+  protected _currentContent: string = "";
   currentTokens: EnrichedToken[] = [];
-  private selectionStart: number = 0;
-  private selectionEnd: number = 0;
-  private initialContent: string | undefined = "";
+  protected selectionStart: number = 0;
+  protected selectionEnd: number = 0;
+  protected initialContent: string | undefined = "";
   private colorIndexByRange: { [xc: string]: number } = {};
 
-  private notificationStore = this.get(NotificationStore);
+  protected notificationStore = this.get(NotificationStore);
   private highlightStore = this.get(HighlightStore);
 
   constructor(get: Get) {
@@ -100,12 +75,10 @@ export class ComposerStore extends SpreadsheetStore {
     });
   }
 
-  private canStopEdition(): boolean {
-    if (this.editionMode === "inactive") {
-      return true;
-    }
-    return this.checkDataValidation();
-  }
+  protected abstract confirmEdition(content: string): void;
+  protected abstract getComposerContent(position: CellPosition): string;
+
+  abstract stopEdition(direction?: Direction): void;
 
   private handleEvent(event: SelectionEvent) {
     const sheetId = this.getters.getActiveSheetId();
@@ -165,38 +138,9 @@ export class ComposerStore extends SpreadsheetStore {
     this.updateRangeColor();
   }
 
-  stopEdition() {
-    const canStopEdition = this.canStopEdition();
-    if (canStopEdition) {
-      this._stopEdition();
-      this.colorIndexByRange = {};
-      return;
-    }
-    const editedCell = this.currentEditedCell;
-    const cellXc = toXC(editedCell.col, editedCell.row);
-
-    const rule = this.getters.getValidationRuleForCell(editedCell);
-    if (!rule) {
-      return;
-    }
-
-    const evaluator = dataValidationEvaluatorRegistry.get(rule.criterion.type);
-    const errorStr = evaluator.getErrorString(rule.criterion, this.getters, editedCell.sheetId);
-    this.notificationStore.raiseError(
-      _t(
-        "The data you entered in %s violates the data validation rule set on the cell:\n%s",
-        cellXc,
-        errorStr
-      )
-    );
-    this.cancelEdition();
-    this.colorIndexByRange = {};
-  }
-
   cancelEdition() {
     this.cancelEditionAndActivateSheet();
     this.resetContent();
-    this.colorIndexByRange = {};
   }
 
   setCurrentContent(content: string, selection?: ComposerSelection) {
@@ -220,19 +164,6 @@ export class ComposerStore extends SpreadsheetStore {
           this.resetContent();
         }
         break;
-      case "SET_FORMATTING":
-        this.cancelEdition();
-        break;
-      case "ADD_COLUMNS_ROWS":
-        this.onAddElements(cmd);
-        break;
-      case "REMOVE_COLUMNS_ROWS":
-        if (cmd.dimension === "COL") {
-          this.onColumnsRemoved(cmd);
-        } else {
-          this.onRowsRemoved(cmd);
-        }
-        break;
       case "START_CHANGE_HIGHLIGHT":
         const { left, top } = cmd.zone;
         // changing the highlight can conflit with the 'selecting' mode
@@ -243,33 +174,6 @@ export class ComposerStore extends SpreadsheetStore {
           cell: { col: left, row: top },
           zone: cmd.zone,
         });
-        break;
-      case "ACTIVATE_SHEET":
-        if (!this._currentContent.startsWith("=")) {
-          this._cancelEdition();
-          this.resetContent();
-        }
-        if (cmd.sheetIdFrom !== cmd.sheetIdTo) {
-          const activePosition = this.getters.getActivePosition();
-          const { col, row } = this.getters.getNextVisibleCellPosition({
-            sheetId: cmd.sheetIdTo,
-            col: activePosition.col,
-            row: activePosition.row,
-          });
-          const zone = this.getters.expandZone(cmd.sheetIdTo, positionToZone({ col, row }));
-          this.model.selection.resetAnchor(this, { cell: { col, row }, zone });
-        }
-        break;
-      case "DELETE_SHEET":
-      case "UNDO":
-      case "REDO":
-        const sheetIdExists = !!this.getters.tryGetSheet(this.sheetId);
-        if (!sheetIdExists && this.editionMode !== "inactive") {
-          this.sheetId = this.getters.getActiveSheetId();
-          this.cancelEditionAndActivateSheet();
-          this.resetContent();
-          this.notificationStore.raiseError(CELL_DELETED_MESSAGE);
-        }
         break;
     }
   }
@@ -289,14 +193,6 @@ export class ComposerStore extends SpreadsheetStore {
     return {
       start: this.selectionStart,
       end: this.selectionEnd,
-    };
-  }
-
-  get currentEditedCell(): CellPosition {
-    return {
-      sheetId: this.sheetId,
-      col: this.col,
-      row: this.row,
     };
   }
 
@@ -333,48 +229,6 @@ export class ComposerStore extends SpreadsheetStore {
 
   private isSelectionValid(length: number, start: number, end: number): boolean {
     return start >= 0 && start <= length && end >= 0 && end <= length;
-  }
-
-  private onColumnsRemoved(cmd: RemoveColumnsRowsCommand) {
-    if (cmd.elements.includes(this.col) && this.editionMode !== "inactive") {
-      this.cancelEdition();
-      this.notificationStore.raiseError(CELL_DELETED_MESSAGE);
-      return;
-    }
-    const { top, left } = updateSelectionOnDeletion(
-      { left: this.col, right: this.col, top: this.row, bottom: this.row },
-      "left",
-      [...cmd.elements]
-    );
-    this.col = left;
-    this.row = top;
-  }
-
-  private onRowsRemoved(cmd: RemoveColumnsRowsCommand) {
-    if (cmd.elements.includes(this.row) && this.editionMode !== "inactive") {
-      this.cancelEdition();
-      this.notificationStore.raiseError(CELL_DELETED_MESSAGE);
-      return;
-    }
-    const { top, left } = updateSelectionOnDeletion(
-      { left: this.col, right: this.col, top: this.row, bottom: this.row },
-      "top",
-      [...cmd.elements]
-    );
-    this.col = left;
-    this.row = top;
-  }
-
-  private onAddElements(cmd: AddColumnsRowsCommand) {
-    const { top, left } = updateSelectionOnInsertion(
-      { left: this.col, right: this.col, top: this.row, bottom: this.row },
-      cmd.dimension === "COL" ? "left" : "top",
-      cmd.base,
-      cmd.position,
-      cmd.quantity
-    );
-    this.col = left;
-    this.row = top;
   }
 
   /**
@@ -425,19 +279,15 @@ export class ComposerStore extends SpreadsheetStore {
     );
   }
 
-  private _stopEdition() {
+  protected _stopEdition() {
     if (this.editionMode !== "inactive") {
       this.cancelEditionAndActivateSheet();
-      const col = this.col;
-      const row = this.row;
       let content = this.getCurrentCanonicalContent();
       const didChange = this.initialContent !== content;
       if (!didChange) {
         return;
       }
       if (content) {
-        const sheetId = this.getters.getActiveSheetId();
-        const cell = this.getters.getEvaluatedCell({ sheetId, col: this.col, row: this.row });
         if (content.startsWith("=")) {
           const left = this.currentTokens.filter((t) => t.type === "LEFT_PAREN").length;
           const right = this.currentTokens.filter((t) => t.type === "RIGHT_PAREN").length;
@@ -445,34 +295,17 @@ export class ComposerStore extends SpreadsheetStore {
           if (missing > 0) {
             content += concat(new Array(missing).fill(")"));
           }
-        } else if (cell.link) {
-          content = markdownLink(content, cell.link.url);
         }
-        this.addHeadersForSpreadingFormula(content);
-        this.model.dispatch("UPDATE_CELL", {
-          sheetId: this.sheetId,
-          col,
-          row,
-          content,
-        });
-      } else {
-        this.model.dispatch("UPDATE_CELL", {
-          sheetId: this.sheetId,
-          content: "",
-          col,
-          row,
-        });
       }
-      this.model.dispatch("AUTOFILL_TABLE_COLUMN", { col, row, sheetId: this.sheetId });
-      this.setContent("");
+      this.confirmEdition(content);
     }
   }
 
-  private getCurrentCanonicalContent(): string {
+  protected getCurrentCanonicalContent(): string {
     return canonicalizeNumberContent(this._currentContent, this.getters.getLocale());
   }
 
-  private cancelEditionAndActivateSheet() {
+  protected cancelEditionAndActivateSheet() {
     if (this.editionMode === "inactive") {
       return;
     }
@@ -486,60 +319,23 @@ export class ComposerStore extends SpreadsheetStore {
     }
   }
 
-  private getComposerContent(position: CellPosition): string {
-    const locale = this.getters.getLocale();
-    const cell = this.getters.getCell(position);
-    if (cell?.isFormula) {
-      return localizeFormula(cell.content, locale);
-    }
-    const { format, value, type, formattedValue } = this.getters.getEvaluatedCell(position);
-    switch (type) {
-      case CellValueType.empty:
-        return "";
-      case CellValueType.text:
-      case CellValueType.error:
-        return value;
-      case CellValueType.boolean:
-        return formattedValue;
-      case CellValueType.number:
-        if (format && isDateTimeFormat(format)) {
-          if (parseDateTime(formattedValue, locale) !== null) {
-            // formatted string can be parsed again
-            return formattedValue;
-          }
-          // display a simplified and parsable string otherwise
-          const timeFormat = Number.isInteger(value)
-            ? locale.dateFormat
-            : getDateTimeFormat(locale);
-          return formatValue(value, { locale, format: timeFormat });
-        }
-        return this.numberComposerContent(value, format, locale);
-    }
-  }
-
-  private numberComposerContent(value: number, format: Format | undefined, locale: Locale): string {
-    if (format?.includes("%")) {
-      return `${numberToString(value * 100, locale.decimalSeparator)}%`;
-    }
-    return numberToString(value, locale.decimalSeparator);
-  }
-
-  private _cancelEdition() {
+  protected _cancelEdition() {
     if (this.editionMode === "inactive") {
       return;
     }
     this.editionMode = "inactive";
     this.model.selection.release(this);
+    this.colorIndexByRange = {};
   }
 
   /**
    * Reset the current content to the active cell content
    */
-  private resetContent() {
+  protected resetContent() {
     this.setContent(this.initialContent || "");
   }
 
-  private setContent(text: string, selection?: ComposerSelection, raise?: boolean) {
+  protected setContent(text: string, selection?: ComposerSelection, raise?: boolean) {
     const isNewCurrentContent = this._currentContent !== text;
     this._currentContent = text;
 
@@ -637,7 +433,7 @@ export class ComposerStore extends SpreadsheetStore {
   }
 
   private getZoneReference(zone: Zone | UnboundedZone): string {
-    const inputSheetId = this.currentEditedCell.sheetId;
+    const inputSheetId = this.sheetId;
     const sheetId = this.getters.getActiveSheetId();
     if (zone.top === zone.bottom && zone.left === zone.right) {
       const position = { sheetId, col: zone.left, row: zone.top };
@@ -657,7 +453,7 @@ export class ComposerStore extends SpreadsheetStore {
   private getRangeReference(range: Range, fixedParts: Readonly<RangePart[]>) {
     let _fixedParts = [...fixedParts];
     const newRange = range.clone({ parts: _fixedParts });
-    return this.getters.getSelectionRangeString(newRange, this.currentEditedCell.sheetId);
+    return this.getters.getSelectionRangeString(newRange, this.sheetId);
   }
 
   /**
@@ -691,7 +487,7 @@ export class ComposerStore extends SpreadsheetStore {
     if (!this._currentContent.startsWith("=") || this.editionMode === "inactive") {
       return;
     }
-    const editionSheetId = this.currentEditedCell.sheetId;
+    const editionSheetId = this.sheetId;
     const XCs = this.getReferencedRanges().map((range) =>
       this.getters.getRangeString(range, editionSheetId)
     );
@@ -715,43 +511,6 @@ export class ComposerStore extends SpreadsheetStore {
     this.colorIndexByRange = colorsToKeep;
   }
 
-  /** Add headers at the end of the sheet so the formula in the composer has enough space to spread */
-  private addHeadersForSpreadingFormula(content: string) {
-    if (!content.startsWith("=")) {
-      return;
-    }
-
-    const evaluated = this.getters.evaluateFormula(this.sheetId, content);
-    if (!isMatrix(evaluated)) {
-      return;
-    }
-
-    const numberOfRows = this.getters.getNumberRows(this.sheetId);
-    const numberOfCols = this.getters.getNumberCols(this.sheetId);
-
-    const missingRows = this.row + evaluated[0].length - numberOfRows;
-    const missingCols = this.col + evaluated.length - numberOfCols;
-
-    if (missingCols > 0) {
-      this.model.dispatch("ADD_COLUMNS_ROWS", {
-        sheetId: this.sheetId,
-        dimension: "COL",
-        base: numberOfCols - 1,
-        position: "after",
-        quantity: missingCols + 20,
-      });
-    }
-    if (missingRows > 0) {
-      this.model.dispatch("ADD_COLUMNS_ROWS", {
-        sheetId: this.sheetId,
-        dimension: "ROW",
-        base: numberOfRows - 1,
-        position: "after",
-        quantity: missingRows + 50,
-      });
-    }
-  }
-
   /**
    * Highlight all ranges that can be found in the composer content.
    */
@@ -759,7 +518,7 @@ export class ComposerStore extends SpreadsheetStore {
     if (!this.currentContent.startsWith("=") || this.editionMode === "inactive") {
       return [];
     }
-    const editionSheetId = this.currentEditedCell.sheetId;
+    const editionSheetId = this.sheetId;
     const rangeColor = (rangeString: string) => {
       const colorIndex = this.colorIndexByRange[rangeString];
       return colors[colorIndex % colors.length];
@@ -802,7 +561,7 @@ export class ComposerStore extends SpreadsheetStore {
    * Return ranges currently referenced in the composer
    */
   private getReferencedRanges(): Range[] {
-    const editionSheetId = this.currentEditedCell.sheetId;
+    const editionSheetId = this.sheetId;
     const referenceRanges = this.currentTokens
       .filter((token) => token.type === "REFERENCE")
       .map((token) => this.getters.getRangeFromSheetXC(editionSheetId, token.value));
@@ -910,32 +669,5 @@ export class ComposerStore extends SpreadsheetStore {
       return true;
     }
     return false;
-  }
-
-  private checkDataValidation(): boolean {
-    const cellPosition = { sheetId: this.sheetId, col: this.col, row: this.row };
-    try {
-      const content = this.getCurrentCanonicalContent();
-      const cellValue = content.startsWith("=")
-        ? this.getters.evaluateFormula(this.sheetId, content)
-        : parseLiteral(content, this.getters.getLocale());
-
-      if (isMatrix(cellValue)) {
-        return true;
-      }
-
-      const validationResult = this.getters.getValidationResultForCellValue(
-        cellValue,
-        cellPosition
-      );
-      if (!validationResult.isValid && validationResult.rule.isBlocking) {
-        return false;
-      }
-      return true;
-    } catch (e) {
-      // in this case we are in an error because we tried to evaluate a spread formula
-      // whether the rule is blocking or not, we accept to enter formulas which spread
-      return true;
-    }
   }
 }

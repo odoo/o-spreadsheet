@@ -25,7 +25,7 @@ import { ActionButton } from "../action_button/action_button";
 import { BorderEditorWidget } from "../border_editor/border_editor_widget";
 import { ColorPicker } from "../color_picker/color_picker";
 import { ColorPickerWidget } from "../color_picker/color_picker_widget";
-import { ComposerStore } from "../composer/composer/composer_store";
+import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { TopBarComposer } from "../composer/top_bar_composer/top_bar_composer";
 import { FontSizeEditor } from "../font_size_editor/font_size_editor";
 import { css } from "../helpers/css";
@@ -170,10 +170,10 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
   DATA = ACTION_DATA;
   formatNumberMenuItemSpec = formatNumberMenuItemSpec;
   isntToolbarMenu = false;
-  composerStore!: Store<ComposerStore>;
+  composerFocusStore!: Store<ComposerFocusStore>;
 
   setup() {
-    this.composerStore = useStore(ComposerStore);
+    this.composerFocusStore = useStore(ComposerFocusStore);
     useExternalListener(window, "click", this.onExternalClick);
     onWillStart(() => this.updateCellState());
     onWillUpdateProps(() => this.updateCellState());
@@ -245,7 +245,7 @@ export class TopBar extends Component<Props, SpreadsheetChildEnv> {
     this.state.menuState.parentMenu = menu;
     this.isSelectingMenu = true;
     this.openedEl = ev.target as HTMLElement;
-    this.composerStore.stopEdition();
+    this.composerFocusStore.activeComposer.stopEdition();
   }
 
   closeMenus() {
