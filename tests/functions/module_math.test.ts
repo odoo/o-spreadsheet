@@ -815,6 +815,21 @@ describe("COUNTIF formula", () => {
     expect(gridResult.A2).toBe(0);
     expect(gridResult.A3).toBe(0);
   });
+
+  test("COUNTIF with date predicate", () => {
+    const grid = {
+      A1: "01/01/2024",
+      A2: "01/02/2024",
+      B1: '=COUNTIF(A1, "<01/02/2024")',
+      B2: '=COUNTIF(A2, "<01/02/2024")',
+      B3: '=COUNTIF(A2, "<=01/02/2024")',
+    };
+    expect(evaluateGrid(grid)).toMatchObject({
+      B1: 1,
+      B2: 0,
+      B3: 1,
+    });
+  });
 });
 
 describe("COUNTIFS formula", () => {
