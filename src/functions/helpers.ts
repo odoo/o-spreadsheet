@@ -1,5 +1,5 @@
 // HELPERS
-import { memoize } from "../helpers";
+import { isDateTime, memoize } from "../helpers";
 import { DateTime, numberToJsDate, parseDateTime } from "../helpers/dates";
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _lt } from "../translation";
@@ -335,7 +335,7 @@ function getPredicate(descr: string, isQuery: boolean): Predicate {
     }
   }
 
-  if (isNumber(operand)) {
+  if (isNumber(operand) || isDateTime(operand)) {
     operand = toNumber(operand);
   } else if (operand === "TRUE" || operand === "FALSE") {
     operand = toBoolean(operand);
