@@ -1275,8 +1275,8 @@ describe("Spreadsheet Pivot", () => {
 });
 
 describe("Spreadsheet arguments parsing", () => {
-  function toFPayload(args: CellValue[]): FunctionResultObject[] {
-    return args.map((value) => ({ value } as FunctionResultObject));
+  function toFunctionResultObject(args: CellValue[]): FunctionResultObject[] {
+    return args.map((value) => ({ value }));
   }
 
   test("Date arguments are correctly parsed", () => {
@@ -1293,14 +1293,14 @@ describe("Spreadsheet arguments parsing", () => {
       measures: [{ name: "Price", aggregator: "sum" }],
     });
     const pivot = model.getters.getPivot(model.getters.getPivotIds()[0]);
-    expect(pivot.parseArgsToPivotDomain(toFPayload(["Date:year", 2024]))).toEqual([
+    expect(pivot.parseArgsToPivotDomain(toFunctionResultObject(["Date:year", 2024]))).toEqual([
       {
         field: "Date:year",
         value: 2024,
         type: "date",
       },
     ]);
-    expect(pivot.parseArgsToPivotDomain(toFPayload(["Date:year", "2024"]))).toEqual([
+    expect(pivot.parseArgsToPivotDomain(toFunctionResultObject(["Date:year", "2024"]))).toEqual([
       {
         field: "Date:year",
         value: 2024,
@@ -1308,9 +1308,9 @@ describe("Spreadsheet arguments parsing", () => {
       },
     ]);
     expect(() =>
-      pivot.parseArgsToPivotDomain(toFPayload(["Date:year", "This is a string"]))
+      pivot.parseArgsToPivotDomain(toFunctionResultObject(["Date:year", "This is a string"]))
     ).toThrow();
-    expect(() => pivot.parseArgsToPivotDomain(toFPayload(["Date", 2024]))).toThrow();
+    expect(() => pivot.parseArgsToPivotDomain(toFunctionResultObject(["Date", 2024]))).toThrow();
   });
 
   test("Number arguments are correctly parsed", () => {
@@ -1327,14 +1327,14 @@ describe("Spreadsheet arguments parsing", () => {
       measures: [{ name: "Price", aggregator: "sum" }],
     });
     const pivot = model.getters.getPivot(model.getters.getPivotIds()[0]);
-    expect(pivot.parseArgsToPivotDomain(toFPayload(["Amount", 1]))).toEqual([
+    expect(pivot.parseArgsToPivotDomain(toFunctionResultObject(["Amount", 1]))).toEqual([
       {
         field: "Amount",
         value: 1,
         type: "integer",
       },
     ]);
-    expect(pivot.parseArgsToPivotDomain(toFPayload(["Amount", "1"]))).toEqual([
+    expect(pivot.parseArgsToPivotDomain(toFunctionResultObject(["Amount", "1"]))).toEqual([
       {
         field: "Amount",
         value: 1,
@@ -1342,7 +1342,7 @@ describe("Spreadsheet arguments parsing", () => {
       },
     ]);
     expect(() =>
-      pivot.parseArgsToPivotDomain(toFPayload(["Amount", "This is a string"]))
+      pivot.parseArgsToPivotDomain(toFunctionResultObject(["Amount", "This is a string"]))
     ).toThrow();
   });
 
@@ -1360,14 +1360,14 @@ describe("Spreadsheet arguments parsing", () => {
       measures: [{ name: "Price", aggregator: "sum" }],
     });
     const pivot = model.getters.getPivot(model.getters.getPivotIds()[0]);
-    expect(pivot.parseArgsToPivotDomain(toFPayload(["Active", true]))).toEqual([
+    expect(pivot.parseArgsToPivotDomain(toFunctionResultObject(["Active", true]))).toEqual([
       {
         field: "Active",
         value: true,
         type: "boolean",
       },
     ]);
-    expect(pivot.parseArgsToPivotDomain(toFPayload(["Active", "true"]))).toEqual([
+    expect(pivot.parseArgsToPivotDomain(toFunctionResultObject(["Active", "true"]))).toEqual([
       {
         field: "Active",
         value: true,
@@ -1375,7 +1375,7 @@ describe("Spreadsheet arguments parsing", () => {
       },
     ]);
     expect(() =>
-      pivot.parseArgsToPivotDomain(toFPayload(["Active", "This is a string"]))
+      pivot.parseArgsToPivotDomain(toFunctionResultObject(["Active", "This is a string"]))
     ).toThrow();
   });
 
@@ -1393,28 +1393,28 @@ describe("Spreadsheet arguments parsing", () => {
       measures: [{ name: "Price", aggregator: "sum" }],
     });
     const pivot = model.getters.getPivot(model.getters.getPivotIds()[0]);
-    expect(pivot.parseArgsToPivotDomain(toFPayload(["Name", true]))).toEqual([
+    expect(pivot.parseArgsToPivotDomain(toFunctionResultObject(["Name", true]))).toEqual([
       {
         field: "Name",
         value: "TRUE",
         type: "char",
       },
     ]);
-    expect(pivot.parseArgsToPivotDomain(toFPayload(["Name", "Hello"]))).toEqual([
+    expect(pivot.parseArgsToPivotDomain(toFunctionResultObject(["Name", "Hello"]))).toEqual([
       {
         field: "Name",
         value: "Hello",
         type: "char",
       },
     ]);
-    expect(pivot.parseArgsToPivotDomain(toFPayload(["Name", 1]))).toEqual([
+    expect(pivot.parseArgsToPivotDomain(toFunctionResultObject(["Name", 1]))).toEqual([
       {
         field: "Name",
         value: "1",
         type: "char",
       },
     ]);
-    expect(pivot.parseArgsToPivotDomain(toFPayload(["Name", "01/01/2024"]))).toEqual([
+    expect(pivot.parseArgsToPivotDomain(toFunctionResultObject(["Name", "01/01/2024"]))).toEqual([
       {
         field: "Name",
         value: "01/01/2024",
