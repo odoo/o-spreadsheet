@@ -27,8 +27,8 @@ export function evaluateLiteral(
 ): EvaluatedCell {
   const value =
     localeFormat.format === PLAIN_TEXT_FORMAT ? literalCell.content : literalCell.parsedValue;
-  const fPayload = { value, format: localeFormat.format };
-  return createEvaluatedCell(fPayload, localeFormat.locale);
+  const functionResult = { value, format: localeFormat.format };
+  return createEvaluatedCell(functionResult, localeFormat.locale);
 }
 
 export function parseLiteral(content: string, locale: Locale): CellValue {
@@ -52,17 +52,17 @@ export function parseLiteral(content: string, locale: Locale): CellValue {
 }
 
 export function createEvaluatedCell(
-  fPayload: FunctionResultObject,
+  functionResult: FunctionResultObject,
   locale: Locale = DEFAULT_LOCALE,
   cell?: Cell
 ): EvaluatedCell {
-  const link = detectLink(fPayload.value);
+  const link = detectLink(functionResult.value);
   if (!link) {
-    return _createEvaluatedCell(fPayload, locale, cell);
+    return _createEvaluatedCell(functionResult, locale, cell);
   }
   const value = parseLiteral(link.label, locale);
   const format =
-    fPayload.format ||
+    functionResult.format ||
     (typeof value === "number"
       ? detectDateFormat(link.label, locale) || detectNumberFormat(link.label)
       : undefined);
@@ -77,11 +77,11 @@ export function createEvaluatedCell(
 }
 
 function _createEvaluatedCell(
-  fPayload: FunctionResultObject,
+  functionResult: FunctionResultObject,
   locale: Locale,
   cell?: Cell
 ): EvaluatedCell {
-  let { value, format, message } = fPayload;
+  let { value, format, message } = functionResult;
   format = cell?.format || format;
 
   const formattedValue = formatValue(value, { format, locale });

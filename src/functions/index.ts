@@ -272,10 +272,13 @@ function hasStringValue(obj: unknown): obj is { value: string } {
   );
 }
 
-function replaceFunctionNamePlaceholder(fPayload: FunctionResultObject, functionName: string) {
+function replaceFunctionNamePlaceholder(
+  functionResult: FunctionResultObject,
+  functionName: string
+) {
   // for performance reasons: change in place and only if needed
-  if (fPayload.message?.includes("[[FUNCTION_NAME]]")) {
-    fPayload.message = fPayload.message.replace("[[FUNCTION_NAME]]", functionName);
+  if (functionResult.message?.includes("[[FUNCTION_NAME]]")) {
+    functionResult.message = functionResult.message.replace("[[FUNCTION_NAME]]", functionName);
   }
 }
 

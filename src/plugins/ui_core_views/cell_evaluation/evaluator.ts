@@ -545,12 +545,12 @@ function forEachSpreadPositionInMatrix(
  * rather than appearing empty. This indicates that the
  * cell is the result of a non-empty content.
  */
-function nullValueToZeroValue(fPayload: FunctionResultObject): FunctionResultObject {
-  if (fPayload.value === null || fPayload.value === undefined) {
-    // 'fPayload.value === undefined' is supposed to never happen, it's a safety net for javascript use
-    return { ...fPayload, value: 0 };
+function nullValueToZeroValue(functionResult: FunctionResultObject): FunctionResultObject {
+  if (functionResult.value === null || functionResult.value === undefined) {
+    // 'functionResult.value === undefined' is supposed to never happen, it's a safety net for javascript use
+    return { ...functionResult, value: 0 };
   }
-  return fPayload;
+  return functionResult;
 }
 
 export function updateEvalContextAndExecute(
