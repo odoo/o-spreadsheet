@@ -1,5 +1,5 @@
-import { PivotDomain, PivotTableCell, PivotTableColumn, PivotTableRow } from "../../../types/pivot";
-import { parseDimension, toNormalizedPivotValue } from "../pivot_helpers";
+import { PivotDomain, PivotTableCell, PivotTableColumn, PivotTableRow } from "../../types/pivot";
+import { parseDimension, toNormalizedPivotValue } from "./pivot_helpers";
 
 /**
  * Class used to ease the construction of a pivot table.
