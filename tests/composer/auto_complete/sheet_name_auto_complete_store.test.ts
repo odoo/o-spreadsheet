@@ -1,4 +1,4 @@
-import { ComposerStore } from "../../../src/components/composer/composer/composer_store";
+import { ComposerStore } from "../../../src/components/composer/composer/cell_composer_store";
 import { createSheet } from "../../test_helpers/commands_helpers";
 import { makeStore } from "../../test_helpers/stores";
 

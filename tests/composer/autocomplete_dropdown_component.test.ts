@@ -1,5 +1,5 @@
 import { registries } from "../../src";
-import { ComposerStore } from "../../src/components/composer/composer/composer_store";
+import { ComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";

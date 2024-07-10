@@ -24,23 +24,13 @@
         </t>
       </select>
       <t t-if="rule.operator !== 'IsEmpty' and rule.operator !== 'IsNotEmpty'">
-        <input
-          type="text"
-          placeholder="Value or formula"
-          t-model="rule.values[0]"
-          t-att-class="{ 'o-invalid': isValue1Invalid }"
-          class="o-input o-cell-is-value o-required"
-          t-on-keydown="(ev) => this.onKeydown(ev)"
-        />
+        <div class="o-cell-is-value mb-2">
+          <StandaloneComposer t-props="getCellIsRuleComposerProps(0)"/>
+        </div>
         <t t-if="rule.operator === 'Between' || rule.operator === 'NotBetween'">
-          <input
-            type="text"
-            placeholder="and value or formula"
-            t-model="rule.values[1]"
-            t-att-class="{ 'o-invalid': isValue2Invalid }"
-            class="o-input o-cell-is-value o-required"
-            t-on-keydown="(ev) => this.onKeydown(ev)"
-          />
+          <div class="o-cell-is-value o-secondary-value mb-2">
+            <StandaloneComposer t-props="getCellIsRuleComposerProps(1)"/>
+          </div>
         </t>
       </t>
       <div class="o-section-subtitle">Formatting style</div>

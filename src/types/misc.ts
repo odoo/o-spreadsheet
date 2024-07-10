@@ -378,3 +378,10 @@ export interface GridClickModifiers {
   addZone: boolean;
   expandZone: boolean;
 }
+
+export type ComposerFocusType = "inactive" | "cellFocus" | "contentFocus";
+
+export type EditionMode =
+  | "editing"
+  | "selecting" // should tell if you need to underline the current range selected.
+  | "inactive";

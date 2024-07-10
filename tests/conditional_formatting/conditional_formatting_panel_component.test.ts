@@ -13,8 +13,10 @@ import {
   updateLocale,
 } from "../test_helpers/commands_helpers";
 import {
+  DOMTarget,
   click,
   dragElement,
+  getTarget,
   keyDown,
   setInputValueAndTrigger,
   triggerMouseEvent,
@@ -23,6 +25,7 @@ import {
 import {
   createColorScale,
   createEqualCF,
+  editStandaloneComposer,
   getHighlightsFromStore,
   getPlugin,
   mountComponentWithPortalTarget,
@@ -35,6 +38,10 @@ import {
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 import { FR_LOCALE } from "./../test_helpers/constants";
 
+jest.mock("../../src/components/composer/content_editable_helper.ts", () =>
+  require("../__mocks__/content_editable_helper")
+);
+
 function errorMessages(): string[] {
   return textContentAll(selectors.error);
 }
@@ -45,7 +52,9 @@ const selectors = {
     range: ".o-cf .o-cf-ruleEditor .o-cf-range .o-range input",
     editor: {
       operatorInput: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-cell-is-operator",
-      valueInput: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-cell-is-value",
+      valueInput: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-cell-is-value .o-composer",
+      secondValueInput:
+        ".o-cf .o-cf-ruleEditor .o-cf-editor .o-cell-is-value.o-secondary-value .o-composer",
       bold: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-sidePanel-tools div.o-tool[title='Bold']",
       italic: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-sidePanel-tools div.o-tool[title='Italic']",
       underline:
@@ -74,15 +83,18 @@ const selectors = {
   colorScaleEditor: {
     minColor: ".o-threshold-minimum .o-round-color-picker-button",
     minType: ".o-threshold-minimum > select",
-    minValue: ".o-threshold-minimum .o-threshold-value",
+    minValue: ".o-threshold-minimum .o-threshold-value input",
+    minValueComposer: ".o-threshold-minimum .o-threshold-value .o-composer",
 
     midColor: ".o-threshold-midpoint .o-round-color-picker-button",
     midType: ".o-threshold-midpoint > select",
-    midValue: ".o-threshold-midpoint .o-threshold-value",
+    midValue: ".o-threshold-midpoint .o-threshold-value input",
+    midValueComposer: ".o-threshold-midpoint .o-threshold-value .o-composer",
 
     maxColor: ".o-threshold-maximum .o-round-color-picker-button",
     maxType: ".o-threshold-maximum > select",
-    maxValue: ".o-threshold-maximum .o-threshold-value",
+    maxValue: ".o-threshold-maximum .o-threshold-value input",
+    maxValueComposer: ".o-threshold-maximum .o-threshold-value .o-composer",
 
     colorPickerBlue: ".o-color-picker div[data-color='#0000FF']",
     colorPickerOrange: ".o-color-picker div[data-color='#FF9900']",
@@ -98,6 +110,15 @@ const selectors = {
   error: ".o-cf-error",
   closePanel: ".o-sidePanelClose",
 };
+
+function isInputInvalid(target: DOMTarget): boolean {
+  let el = getTarget(target) as HTMLElement;
+  if (el.className.includes("o-composer")) {
+    const standaloneComposer = el.closest<HTMLElement>(".o-standalone-composer")!;
+    return standaloneComposer.className.includes("o-invalid");
+  }
+  return el.className.includes("o-invalid");
+}
 
 describe("UI of conditional formats", () => {
   let fixture: HTMLElement;
@@ -209,7 +230,7 @@ describe("UI of conditional formats", () => {
       // change every value
       setInputValueAndTrigger(selectors.ruleEditor.range, "A1:A3");
       setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "BeginsWith");
-      setInputValueAndTrigger(selectors.ruleEditor.editor.valueInput, "3");
+      editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "3");
 
       await click(fixture, selectors.ruleEditor.editor.bold);
       await click(fixture, selectors.ruleEditor.editor.italic);
@@ -246,18 +267,14 @@ describe("UI of conditional formats", () => {
       await click(fixture.querySelectorAll(selectors.listPreview)[0]);
       setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "BeginsWith");
 
-      const input = fixture.querySelector(
-        selectors.ruleEditor.editor.valueInput
-      )! as HTMLInputElement;
-      setInputValueAndTrigger(input, "=A2");
-      input.focus();
-      await nextTick();
+      const input = fixture.querySelector<HTMLDivElement>(selectors.ruleEditor.editor.valueInput)!;
+      await editStandaloneComposer(input, "=A2", { confirm: false });
       await keyDown({ key: "F4" });
-      expect(input.value).toBe("=$A$2");
+      expect(input.textContent).toBe("=$A$2");
       await keyDown({ key: "F4" });
-      expect(input.value).toBe("=A$2");
+      expect(input.textContent).toBe("=A$2");
       await keyDown({ key: "F4" });
-      expect(input.value).toBe("=$A2");
+      expect(input.textContent).toBe("=$A2");
     });
 
     test("CellIsRule editor displays the right preview", async () => {
@@ -368,7 +385,7 @@ describe("UI of conditional formats", () => {
       // change every value
       setInputValueAndTrigger(selectors.ruleEditor.range, "A1:A3");
       await setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "BeginsWith");
-      setInputValueAndTrigger(selectors.ruleEditor.editor.valueInput, "3");
+      editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "3");
 
       await click(fixture, selectors.ruleEditor.editor.bold);
       await click(fixture, selectors.ruleEditor.editor.italic);
@@ -936,23 +953,17 @@ describe("UI of conditional formats", () => {
     setInputValueAndTrigger(selectors.colorScaleEditor.minType, "formula");
     setInputValueAndTrigger(selectors.colorScaleEditor.midType, "none");
     await setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "formula");
-    setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "=SUM(1");
-    await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "=SUM(1,2)");
+    await editStandaloneComposer(selectors.colorScaleEditor.minValueComposer, "=SUM");
+    await editStandaloneComposer(selectors.colorScaleEditor.maxValueComposer, "=SUM(1,2)");
 
     expect(errorMessages()).toHaveLength(0);
 
     await click(fixture, selectors.buttonSave);
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
     expect(errorMessages()).toEqual(["Invalid Minpoint formula"]);
-    expect(fixture.querySelector(selectors.colorScaleEditor.minValue)?.className).toContain(
-      "o-invalid"
-    );
-    expect(fixture.querySelector(selectors.colorScaleEditor.midValue)?.className).not.toContain(
-      "o-invalid"
-    );
-    expect(fixture.querySelector(selectors.colorScaleEditor.maxValue)?.className).not.toContain(
-      "o-invalid"
-    );
+    expect(isInputInvalid(selectors.colorScaleEditor.minValueComposer)).toBe(true);
+    expect(isInputInvalid(selectors.colorScaleEditor.midValue)).toBe(false);
+    expect(isInputInvalid(selectors.colorScaleEditor.maxValueComposer)).toBe(false);
   });
 
   test("will display error if there is an invalid formula for the mid", async () => {
@@ -967,7 +978,7 @@ describe("UI of conditional formats", () => {
     setInputValueAndTrigger(selectors.colorScaleEditor.midType, "formula");
     await setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "number");
     setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "1");
-    setInputValueAndTrigger(selectors.colorScaleEditor.midValue, "=SUM(1");
+    editStandaloneComposer(selectors.colorScaleEditor.midValueComposer, "=SUM");
     await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "3");
 
     expect(errorMessages()).toHaveLength(0);
@@ -975,39 +986,34 @@ describe("UI of conditional formats", () => {
     await click(fixture, selectors.buttonSave);
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
     expect(errorMessages()).toEqual(["Invalid Midpoint formula"]);
-    expect(fixture.querySelector(selectors.colorScaleEditor.minValue)?.className).not.toContain(
-      "o-invalid"
-    );
-    expect(fixture.querySelector(selectors.colorScaleEditor.midValue)?.className).toContain(
-      "o-invalid"
-    );
-    expect(fixture.querySelector(selectors.colorScaleEditor.maxValue)?.className).not.toContain(
-      "o-invalid"
-    );
+    expect(isInputInvalid(selectors.colorScaleEditor.minValue)).toBe(false);
+    expect(isInputInvalid(selectors.colorScaleEditor.midValueComposer)).toBe(true);
+    expect(isInputInvalid(selectors.colorScaleEditor.maxValue)).toBe(false);
   });
 
   test("single color missing a single value", async () => {
     await click(fixture, selectors.buttonAdd);
-    setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "GreaterThan");
-    expect(fixture.querySelector(".o-invalid")).toBeNull();
+    await setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "GreaterThan");
+    expect(isInputInvalid(selectors.ruleEditor.editor.valueInput)).toBe(false);
     await click(fixture, selectors.buttonSave);
-    expect(fixture.querySelector(".o-invalid")).not.toBeNull();
+    expect(isInputInvalid(selectors.ruleEditor.editor.valueInput)).toBe(true);
     expect(errorMessages()).toEqual(["The argument is missing. Please provide a value"]);
   });
 
   test("single color missing two values", async () => {
     await click(fixture, selectors.buttonAdd);
     setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "Between");
-    expect(fixture.querySelector(".o-invalid")).toBeNull();
     await click(fixture, selectors.buttonSave);
-    expect([...fixture.querySelectorAll(".o-invalid")]).toHaveLength(2);
+    expect(isInputInvalid(selectors.ruleEditor.editor.valueInput)).toBe(true);
+    expect(isInputInvalid(selectors.ruleEditor.editor.secondValueInput)).toBe(true);
     expect(errorMessages()).toEqual([
       "The argument is missing. Please provide a value",
       "The second argument is missing. Please provide a value",
     ]);
-    setInputValueAndTrigger(selectors.ruleEditor.editor.valueInput, "25");
+    await editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "25");
     await click(fixture, selectors.buttonSave);
-    expect([...fixture.querySelectorAll(".o-invalid")]).toHaveLength(1);
+    expect(isInputInvalid(selectors.ruleEditor.editor.valueInput)).toBe(false);
+    expect(isInputInvalid(selectors.ruleEditor.editor.secondValueInput)).toBe(true);
     expect(errorMessages()).toEqual(["The second argument is missing. Please provide a value"]);
   });
 
@@ -1032,8 +1038,8 @@ describe("UI of conditional formats", () => {
     setInputValueAndTrigger(selectors.colorScaleEditor.minType, "formula");
     setInputValueAndTrigger(selectors.colorScaleEditor.midType, "none");
     await setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "formula");
-    setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "=SUM(1");
-    await setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "=SUM(1,2)");
+    await editStandaloneComposer(selectors.colorScaleEditor.maxValueComposer, "=SUM");
+    await editStandaloneComposer(selectors.colorScaleEditor.minValueComposer, "=SUM(1,2)");
 
     expect(errorMessages()).toHaveLength(0);
 
@@ -1370,7 +1376,7 @@ describe("UI of conditional formats", () => {
     await nextTick();
 
     await setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "Equal");
-    setInputValueAndTrigger(selectors.ruleEditor.editor.valueInput, "3,59");
+    await editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "3,59");
 
     await click(fixture, selectors.buttonSave);
     const sheetId = model.getters.getActiveSheetId();
@@ -1387,7 +1393,7 @@ describe("UI of conditional formats", () => {
     await nextTick();
 
     await setInputValueAndTrigger(selectors.ruleEditor.editor.operatorInput, "Equal");
-    setInputValueAndTrigger(selectors.ruleEditor.editor.valueInput, "01/05/2012");
+    await editStandaloneComposer(selectors.ruleEditor.editor.valueInput, "01/05/2012");
 
     await click(fixture, selectors.buttonSave);
     const sheetId = model.getters.getActiveSheetId();

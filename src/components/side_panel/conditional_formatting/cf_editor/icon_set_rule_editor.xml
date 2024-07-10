@@ -50,10 +50,12 @@
       <td>
         <input
           type="text"
+          t-if="inflectionPointValue.type !== 'formula'"
           class="o-input"
           t-att-class="{ 'o-invalid': isInflectionPointInvalid(inflectionPoint) }"
           t-model="rule[inflectionPoint].value"
         />
+        <StandaloneComposer t-else="" t-props="getColorIconSetComposerProps(inflectionPoint)"/>
       </td>
       <td>
         <select class="o-input" name="valueType" t-model="inflectionPointValue.type">

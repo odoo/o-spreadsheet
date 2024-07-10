@@ -1,5 +1,5 @@
 import { Spreadsheet, TransportService } from "../../src";
-import { ComposerStore } from "../../src/components/composer/composer/composer_store";
+import { ComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { CellPopoverStore } from "../../src/components/popover";
 import {
@@ -1589,11 +1589,11 @@ describe("Copy paste keyboard shortcut", () => {
       0.5 * DEFAULT_CELL_HEIGHT
     );
     await nextTick();
-    expect(composerFocusStore.gridComposerFocus).toBe("contentFocus");
+    expect(composerFocusStore.focusMode).toBe("contentFocus");
 
     composerStore.stopEdition();
     await nextTick();
-    expect(composerFocusStore.gridComposerFocus).toBe("inactive");
+    expect(composerFocusStore.focusMode).toBe("inactive");
 
     // double click A2 - still in a non empty cell (in merge)
     triggerMouseEvent(
@@ -1603,11 +1603,11 @@ describe("Copy paste keyboard shortcut", () => {
       1.5 * DEFAULT_CELL_HEIGHT
     );
     await nextTick();
-    expect(composerFocusStore.gridComposerFocus).toBe("contentFocus");
+    expect(composerFocusStore.focusMode).toBe("contentFocus");
 
     composerStore.stopEdition();
     await nextTick();
-    expect(composerFocusStore.gridComposerFocus).toBe("inactive");
+    expect(composerFocusStore.focusMode).toBe("inactive");
 
     // double click B2
     triggerMouseEvent(
@@ -1617,7 +1617,7 @@ describe("Copy paste keyboard shortcut", () => {
       1.5 * DEFAULT_CELL_HEIGHT
     );
     await nextTick();
-    expect(composerFocusStore.gridComposerFocus).toBe("cellFocus");
+    expect(composerFocusStore.focusMode).toBe("cellFocus");
   });
 });
 

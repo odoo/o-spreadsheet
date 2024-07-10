@@ -1,7 +1,7 @@
 import { Component, onMounted } from "@odoo/owl";
 import { useStore } from "../../../../store_engine";
 import { DataValidationCriterion, SpreadsheetChildEnv } from "../../../../types";
-import { ComposerStore } from "../../../composer/composer/composer_store";
+import { ComposerFocusStore } from "../../../composer/composer_focus_store";
 
 interface Props<T extends DataValidationCriterion> {
   criterion: T;
@@ -16,9 +16,9 @@ export abstract class DataValidationCriterionForm<
     onCriterionChanged: Function,
   };
   setup() {
-    const composerStore = useStore(ComposerStore);
+    const composerFocusStore = useStore(ComposerFocusStore);
     onMounted(() => {
-      composerStore.stopEdition();
+      composerFocusStore.activeComposer.stopEdition();
     });
   }
 

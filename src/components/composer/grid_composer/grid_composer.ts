@@ -1,5 +1,5 @@
 import { Component, onWillUpdateProps } from "@odoo/owl";
-import { ComponentsImportance, SELECTION_BORDER_COLOR } from "../../../constants";
+import { ComponentsImportance, DEFAULT_FONT, SELECTION_BORDER_COLOR } from "../../../constants";
 import {
   deepEquals,
   fontSizeInPixels,
@@ -8,12 +8,12 @@ import {
   toXC,
 } from "../../../helpers";
 import { Store, useStore } from "../../../store_engine";
-import { DOMDimension, Rect, SpreadsheetChildEnv } from "../../../types/index";
+import { ComposerFocusType, DOMDimension, Rect, SpreadsheetChildEnv } from "../../../types/index";
 import { getTextDecoration } from "../../helpers";
 import { css, cssPropertiesToCss } from "../../helpers/css";
+import { ComposerStore } from "../composer/cell_composer_store";
 import { Composer, ComposerProps } from "../composer/composer";
-import { ComposerStore } from "../composer/composer_store";
-import { ComposerFocusStore } from "../composer_focus_store";
+import { ComposerFocusStore, ComposerInterface } from "../composer_focus_store";
 
 const COMPOSER_BORDER_WIDTH = 3 * 0.4 * window.devicePixelRatio || 1;
 const GRID_CELL_REFERENCE_TOP_OFFSET = 28;
@@ -24,6 +24,7 @@ css/* scss */ `
     box-sizing: border-box;
     position: absolute;
     border: ${COMPOSER_BORDER_WIDTH}px solid ${SELECTION_BORDER_COLOR};
+    font-family: ${DEFAULT_FONT};
 
     display: flex;
     align-items: center;
@@ -65,13 +66,26 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
   private composerStore!: Store<ComposerStore>;
   composerFocusStore!: Store<ComposerFocusStore>;
 
+  private composerInterface!: ComposerInterface;
+
   get defaultRect() {
     return { x: 0, y: 0, width: 0, height: 0 };
   }
 
   setup() {
-    this.composerStore = useStore(ComposerStore);
+    const composerStore = useStore(ComposerStore);
+    this.composerStore = composerStore;
     this.composerFocusStore = useStore(ComposerFocusStore);
+    this.composerInterface = {
+      id: "gridComposer",
+      get editionMode() {
+        return composerStore.editionMode;
+      },
+      startEdition: this.composerStore.startEdition,
+      setCurrentContent: this.composerStore.setCurrentContent,
+      stopEdition: this.composerStore.stopEdition,
+    };
+    this.composerFocusStore.focusComposer(this.composerInterface, { focusMode: "inactive" });
     onWillUpdateProps(() => {
       this.updateComponentPosition();
       this.updateCellReferenceVisibility();
@@ -99,6 +113,14 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     });
   }
 
+  get focus(): ComposerFocusType {
+    const focus =
+      this.composerFocusStore.activeComposer === this.composerInterface
+        ? this.composerFocusStore.focusMode
+        : "inactive";
+    return focus;
+  }
+
   get composerProps(): ComposerProps {
     const { width, height } = this.env.model.getters.getSheetViewDimensionWithHeaders();
     return {
@@ -107,12 +129,19 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
         width,
         height,
       },
-      focus: this.composerFocusStore.gridComposerFocus,
+      focus: this.focus,
       isDefaultFocus: true,
-      onComposerContentFocused: () => this.composerFocusStore.focusGridComposerContent(),
+      onComposerContentFocused: () =>
+        this.composerFocusStore.focusComposer(this.composerInterface, {
+          focusMode: "contentFocus",
+        }),
       onComposerCellFocused: (content: string) =>
-        this.composerFocusStore.focusGridComposerCell(content),
+        this.composerFocusStore.focusComposer(this.composerInterface, {
+          focusMode: "cellFocus",
+          content,
+        }),
       onInputContextMenu: this.props.onInputContextMenu,
+      composerStore: this.composerStore,
     };
   }
 
@@ -174,7 +203,11 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
   }
 
   private updateComponentPosition() {
-    const isEditing = this.composerStore.editionMode !== "inactive";
+    const isEditing = this.composerFocusStore.activeComposer.editionMode !== "inactive";
+    if (!isEditing && this.composerFocusStore.activeComposer !== this.composerInterface) {
+      this.composerFocusStore.focusComposer(this.composerInterface, { focusMode: "inactive" });
+    }
+
     if (this.isEditing !== isEditing) {
       this.isEditing = isEditing;
       if (!isEditing) {
@@ -204,6 +237,6 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onFocus() {
-    this.composerFocusStore.focusGridComposerContent();
+    this.composerFocusStore.focusComposer(this.composerInterface, { focusMode: "contentFocus" });
   }
 }

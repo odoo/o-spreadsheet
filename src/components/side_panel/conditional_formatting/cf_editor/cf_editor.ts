@@ -3,6 +3,7 @@ import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../../constants";
 import { colorNumberString, rangeReference } from "../../../../helpers";
 import { canonicalizeCFRule } from "../../../../helpers/locale";
 import { cycleFixedReference } from "../../../../helpers/reference_type";
+import { _t } from "../../../../translation";
 import {
   CancelledReason,
   CellIsRule,
@@ -16,6 +17,7 @@ import {
   SpreadsheetChildEnv,
 } from "../../../../types";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
+import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { css, getTextDecoration } from "../../../helpers";
 import { IconPicker } from "../../../icon_picker/icon_picker";
 import { ICONS, ICON_SETS } from "../../../icons/icons";
@@ -75,6 +77,9 @@ css/* scss */ `
       color: red;
       margin-top: 10px;
     }
+    .o-input {
+      border-width: 1px;
+    }
   }
   .o-cf-cell-is-rule {
     .o-cf-preview-line {
@@ -106,7 +111,7 @@ css/* scss */ `
         width: 20%;
         min-width: 0px; // input overflows in Firefox otherwise
       }
-      .o-threshold-value:disabled {
+      .o-threshold-value input:disabled {
         background-color: #edebed;
       }
     }
@@ -177,12 +182,6 @@ css/* scss */ `
       th.o-cf-iconset-value {
         width: 26%;
       }
-      input,
-      select {
-        width: 100%;
-        height: 100%;
-        box-sizing: border-box;
-      }
     }
     .o-cf-iconset-reverse {
       margin-bottom: 6px;
@@ -239,6 +238,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     ConditionalFormatPreviewList,
     Section,
     RoundColorPicker,
+    StandaloneComposer: StandaloneComposer,
   };
 
   icons = ICONS;
@@ -547,5 +547,47 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
 
   setIcon(target: "upper" | "middle" | "lower", icon: string) {
     this.state.rules.iconSet.icons[target] = icon;
+  }
+
+  getCellIsRuleComposerProps(valueIndex: 0 | 1): StandaloneComposer["props"] {
+    const isInvalid = valueIndex === 0 ? this.isValue1Invalid : this.isValue2Invalid;
+    return {
+      onConfirm: (str: string) => (this.state.rules.cellIs.values[valueIndex] = str),
+      composerContent: this.state.rules.cellIs.values[valueIndex],
+      placeholder: _t("Value or formula"),
+      invalid: isInvalid,
+      class: "o-sidePanel-composer",
+    };
+  }
+
+  getColorScaleComposerProps(
+    thresholdType: "minimum" | "midpoint" | "maximum"
+  ): StandaloneComposer["props"] {
+    const threshold = this.state.rules.colorScale[thresholdType];
+    if (!threshold) {
+      throw new Error("Threshold not found");
+    }
+    const isInvalid = this.isValueInvalid(thresholdType);
+    return {
+      onConfirm: (str: string) => (threshold.value = str),
+      composerContent: threshold.value || "",
+      placeholder: _t("Formula"),
+      invalid: isInvalid,
+      class: "o-sidePanel-composer",
+    };
+  }
+
+  getColorIconSetComposerProps(
+    inflectionPoint: "lowerInflectionPoint" | "upperInflectionPoint"
+  ): StandaloneComposer["props"] {
+    const inflection = this.state.rules.iconSet[inflectionPoint];
+    const isInvalid = this.isInflectionPointInvalid(inflectionPoint);
+    return {
+      onConfirm: (str: string) => (inflection.value = str),
+      composerContent: inflection.value || "",
+      placeholder: _t("Formula"),
+      invalid: isInvalid,
+      class: "o-sidePanel-composer",
+    };
   }
 }

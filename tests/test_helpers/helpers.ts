@@ -3,12 +3,10 @@ import type { ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
 import { functionCache } from "../../src";
 import { Action } from "../../src/actions/action";
+import { ComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { Composer, ComposerProps } from "../../src/components/composer/composer/composer";
-import {
-  ComposerSelection,
-  ComposerStore,
-} from "../../src/components/composer/composer/composer_store";
-import { ComposerFocusType } from "../../src/components/composer/composer_focus_store";
+import { ComposerSelection } from "../../src/components/composer/composer/composer_store";
+import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/spreadsheet";
 import { matrixMap } from "../../src/functions/helpers";
@@ -51,9 +49,11 @@ import {
   ColorScaleMidPointThreshold,
   ColorScaleThreshold,
   CommandTypes,
+  ComposerFocusType,
   ConditionalFormat,
   Currency,
   DEFAULT_LOCALES,
+  EditionMode,
   EvaluatedCell,
   ExcelWorkbookData,
   Format,
@@ -76,6 +76,7 @@ import { FileStore } from "../__mocks__/mock_file_store";
 import { registerCleanup } from "../setup/jest.setup";
 import { MockClipboard } from "./clipboard";
 import { redo, setCellContent, setFormat, setStyle, undo } from "./commands_helpers";
+import { DOMTarget, click, getTarget, keyDown, keyUp } from "./dom_helper";
 import { getCellContent, getEvaluatedCell } from "./getters_helpers";
 
 const functionsContent = functionRegistry.content;
@@ -172,6 +173,21 @@ export function makeTestEnv(
     raiseError: mockEnv.raiseError || (() => {}),
     askConfirmation: mockEnv.askConfirmation || (() => {}),
   });
+
+  // For tests without the grid composer mounted, we register fake composer
+  const composerFocusStore = container.get(ComposerFocusStore);
+  composerFocusStore.focusComposer(
+    {
+      id: "mockTestComposer",
+      get editionMode(): EditionMode {
+        return "inactive";
+      },
+      startEdition: () => {},
+      stopEdition: () => {},
+      setCurrentContent: () => {},
+    },
+    { focusMode: "inactive" }
+  );
 
   const store = container.get(SidePanelStore);
   const sidePanelStore = proxifyStoreMutation(store, () => container.trigger("store-updated"));
@@ -667,6 +683,35 @@ export async function startGridComposition(key?: string) {
   return document.querySelector(".o-grid .o-composer")!;
 }
 
+interface EditStandaloneComposerOptions {
+  confirm?: boolean;
+  fromScratch?: boolean;
+}
+export async function editStandaloneComposer(
+  target: DOMTarget,
+  text: string,
+  { confirm = true, fromScratch = true }: EditStandaloneComposerOptions = {}
+) {
+  let composerEl = getTarget(target) as HTMLElement;
+
+  composerEl.focus();
+  const cehMock = window.mockContentHelper;
+  await click(composerEl);
+
+  if (fromScratch) {
+    cehMock.removeAll();
+  }
+  cehMock.insertText(text);
+  composerEl.dispatchEvent(new InputEvent("input", { data: text, bubbles: true }));
+
+  if (confirm) {
+    keyDown({ key: "Enter" });
+    await keyUp({ key: "Enter" });
+  }
+
+  return composerEl;
+}
+
 /**
  * Return the text of every node matching the selector
  */
@@ -864,6 +909,7 @@ export class ComposerWrapper extends Component<ComposerWrapperProps, Spreadsheet
         this.setEdition({});
       },
       focus: this.state.focusComposer,
+      composerStore: this.composerStore,
     };
   }
 

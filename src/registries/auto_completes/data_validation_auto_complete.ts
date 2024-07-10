@@ -6,6 +6,9 @@ autoCompleteProviders.add("dataValidation", {
     if (content.startsWith("=")) {
       return [];
     }
+    if (!this.composer.currentEditedCell) {
+      return [];
+    }
     const position = this.composer.currentEditedCell;
     const rule = this.getters.getValidationRuleForCell(position);
     if (

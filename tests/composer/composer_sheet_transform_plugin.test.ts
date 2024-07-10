@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import type { ComposerStore } from "../../src/components/composer/composer/composer_store";
+import type { ComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { Store } from "../../src/store_engine";
 import { NotificationStore } from "../../src/stores/notification_store";
 import {

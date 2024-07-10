@@ -1,6 +1,6 @@
 import { Component, xml } from "@odoo/owl";
 import { Model } from "../src";
-import { ComposerStore } from "../src/components/composer/composer/composer_store";
+import { ComposerStore } from "../src/components/composer/composer/cell_composer_store";
 import { TopBar } from "../src/components/top_bar/top_bar";
 import { DEFAULT_FONT_SIZE } from "../src/constants";
 import { toZone, zoneToXc } from "../src/helpers";

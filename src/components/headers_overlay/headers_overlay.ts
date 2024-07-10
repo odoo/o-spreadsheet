@@ -18,12 +18,12 @@ import {
   Ref,
   SpreadsheetChildEnv,
 } from "../../types/index";
-import { ComposerStore } from "../composer/composer/composer_store";
 import { ContextMenuType } from "../grid/grid";
 import { css, cssPropertiesToCss } from "../helpers/css";
 import { isCtrlKey } from "../helpers/dom_helpers";
 import { dragAndDropBeyondTheViewport, startDnd } from "../helpers/drag_and_drop";
 import { MergeErrorMessage } from "../translations_terms";
+import { ComposerFocusStore } from "./../composer/composer_focus_store";
 
 // -----------------------------------------------------------------------------
 // Resizer component
@@ -52,7 +52,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
   static props = {
     onOpenContextMenu: Function,
   };
-  private composerStore!: Store<ComposerStore>;
+  private composerFocusStore!: Store<ComposerFocusStore>;
 
   PADDING: number = 0;
   MAX_SIZE_MARGIN: number = 0;
@@ -111,7 +111,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
   abstract _getPreviousVisibleElement(index: HeaderIndex): HeaderIndex;
 
   setup(): void {
-    this.composerStore = useStore(ComposerStore);
+    this.composerFocusStore = useStore(ComposerFocusStore);
   }
 
   _computeHandleDisplay(ev: MouseEvent) {
@@ -219,7 +219,7 @@ abstract class AbstractResizer extends Component<ResizerProps, SpreadsheetChildE
       }
       return;
     }
-    if (this.composerStore.editionMode === "editing") {
+    if (this.composerFocusStore.activeComposer.editionMode === "editing") {
       this.env.model.selection.getBackToDefault();
     }
     this.startSelection(ev, index);

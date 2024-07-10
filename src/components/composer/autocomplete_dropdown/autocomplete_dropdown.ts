@@ -8,6 +8,8 @@ css/* scss */ `
     cursor: pointer;
     background-color: #fff;
     max-width: 400px;
+    position: relative;
+    z-index: 1;
 
     .o-autocomplete-value-focus {
       background-color: #f2f2f2;

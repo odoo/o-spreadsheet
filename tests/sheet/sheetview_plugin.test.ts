@@ -1,5 +1,5 @@
 import { CommandResult } from "../../src";
-import { ComposerStore } from "../../src/components/composer/composer/composer_store";
+import { ComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,

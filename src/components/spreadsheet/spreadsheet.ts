@@ -321,7 +321,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
       toggleSidePanel: this.sidePanel.toggle.bind(this.sidePanel),
       clipboard: this.env.clipboard || instantiateClipboard(),
       startCellEdition: (content?: string) =>
-        this.composerFocusStore.focusGridComposerCell(content),
+        this.composerFocusStore.focusActiveComposer({ content }),
       notifyUser: (notification) => this.notificationStore.notifyUser(notification),
       askConfirmation: (text, confirm, cancel) =>
         this.notificationStore.askConfirmation(text, confirm, cancel),

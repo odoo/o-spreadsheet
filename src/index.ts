@@ -1,7 +1,6 @@
 import { createAction, createActions } from "./actions/action";
 import { clipboardHandlersRegistries } from "./clipboard_handlers/index";
 import { transformRangeData } from "./collaborative/ot/ot_helpers";
-import { ComposerStore } from "./components/composer/composer/composer_store";
 import { ComposerFocusStore } from "./components/composer/composer_focus_store";
 import { ChartJsComponent } from "./components/figures/chart/chartJs/chartjs";
 import { ScorecardChart } from "./components/figures/chart/scorecard/chart_scorecard";
@@ -114,6 +113,7 @@ import {
 } from "./helpers/pivot/pivot_composer_helpers";
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
 
+import { ComposerStore } from "./components/composer/composer/cell_composer_store";
 import {
   areDomainArgsFieldsValid,
   createPivotFormula,

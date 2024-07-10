@@ -1,8 +1,8 @@
 import { Component } from "@odoo/owl";
 import { Model } from "../../src";
-import { ComposerStore } from "../../src/components/composer/composer/composer_store";
+import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { SplitIntoColumnsPanel } from "../../src/components/side_panel/split_to_columns_panel/split_to_columns_panel";
-import { SpreadsheetChildEnv } from "../../src/types";
+import { EditionMode, SpreadsheetChildEnv } from "../../src/types";
 import { setCellContent, setSelection } from "../test_helpers/commands_helpers";
 import {
   click,
@@ -153,8 +153,19 @@ describe("split to columns sidePanel component", () => {
 
   test("Panel is closed if the user starts to edit a cell", async () => {
     expect(onCloseSidePanel).not.toHaveBeenCalled();
-    const composerStore = parent.env.getStore(ComposerStore);
-    composerStore.startEdition();
+    const composerFocusStore = parent.env.getStore(ComposerFocusStore);
+    composerFocusStore.focusComposer(
+      {
+        id: "testComposer",
+        get editionMode(): EditionMode {
+          return "editing";
+        },
+        startEdition: () => {},
+        stopEdition: () => {},
+        setCurrentContent: () => {},
+      },
+      { focusMode: "contentFocus" }
+    );
     await nextTick();
     expect(onCloseSidePanel).toHaveBeenCalled();
   });

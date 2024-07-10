@@ -45,7 +45,7 @@ import {
 } from "../test_helpers/helpers";
 
 import { Model } from "../../src";
-import { ComposerStore } from "../../src/components/composer/composer/composer_store";
+import { ComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { FONT_SIZES } from "../../src/constants";
 import { functionRegistry } from "../../src/functions";
 import { interactivePaste } from "../../src/helpers/ui/paste_interactive";

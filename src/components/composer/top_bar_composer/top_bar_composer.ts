@@ -1,16 +1,23 @@
 import { Component } from "@odoo/owl";
 import {
   ComponentsImportance,
+  DEFAULT_FONT,
   SELECTION_BORDER_COLOR,
   SEPARATOR_COLOR,
   TOPBAR_TOOLBAR_HEIGHT,
 } from "../../../constants";
 import { Store, useStore } from "../../../store_engine";
-import { CSSProperties, DOMDimension, SpreadsheetChildEnv } from "../../../types/index";
+import {
+  CSSProperties,
+  ComposerFocusType,
+  DOMDimension,
+  SpreadsheetChildEnv,
+} from "../../../types/index";
 import { css, cssPropertiesToCss } from "../../helpers/css";
+import { ComposerStore } from "../composer/cell_composer_store";
 import { Composer } from "../composer/composer";
 import { ComposerSelection } from "../composer/composer_store";
-import { ComposerFocusStore } from "../composer_focus_store";
+import { ComposerFocusStore, ComposerInterface } from "../composer_focus_store";
 
 const COMPOSER_MAX_HEIGHT = 100;
 
@@ -27,6 +34,7 @@ css/* scss */ `
     margin-top: -1px;
     border: 1px solid;
     z-index: ${ComponentsImportance.TopBarComposer};
+    font-family: ${DEFAULT_FONT};
 
     .o-composer:empty:not(:focus):not(.active)::before {
       content: url("data:image/svg+xml,${encodeURIComponent(FX_SVG)}");
@@ -46,13 +54,28 @@ export class TopBarComposer extends Component<any, SpreadsheetChildEnv> {
   static components = { Composer };
 
   private composerFocusStore!: Store<ComposerFocusStore>;
+  private composerStore!: Store<ComposerStore>;
+  private composerInterface!: ComposerInterface;
 
   setup() {
     this.composerFocusStore = useStore(ComposerFocusStore);
+    const composerStore = useStore(ComposerStore);
+    this.composerStore = composerStore;
+    this.composerInterface = {
+      id: "topbarComposer",
+      get editionMode() {
+        return composerStore.editionMode;
+      },
+      startEdition: this.composerStore.startEdition,
+      setCurrentContent: this.composerStore.setCurrentContent,
+      stopEdition: this.composerStore.stopEdition,
+    };
   }
 
-  get focus() {
-    return this.composerFocusStore.topBarComposerFocus;
+  get focus(): ComposerFocusType {
+    return this.composerFocusStore.activeComposer === this.composerInterface
+      ? this.composerFocusStore.focusMode
+      : "inactive";
   }
 
   get composerStyle(): string {
@@ -86,6 +109,6 @@ export class TopBarComposer extends Component<any, SpreadsheetChildEnv> {
   }
 
   onFocus(selection: ComposerSelection) {
-    this.composerFocusStore.focusTopBarComposer(selection);
+    this.composerFocusStore.focusComposer(this.composerInterface, { selection });
   }
 }
