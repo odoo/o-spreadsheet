@@ -5,7 +5,7 @@ import {
   getNumberOfPivotFunctions,
 } from "../../helpers/pivot/pivot_composer_helpers";
 import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
-import { EMPTY_PIVOT_CELL } from "../../helpers/pivot/spreadsheet_pivot/table_spreadsheet_pivot";
+import { EMPTY_PIVOT_CELL } from "../../helpers/pivot/table_spreadsheet_pivot";
 import {
   AddPivotCommand,
   CellPosition,

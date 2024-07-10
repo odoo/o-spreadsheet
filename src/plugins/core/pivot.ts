@@ -1,6 +1,6 @@
 import { deepCopy, deepEquals } from "../../helpers";
 import { createPivotFormula, getMaxObjectId } from "../../helpers/pivot/pivot_helpers";
-import { SpreadsheetPivotTable } from "../../helpers/pivot/spreadsheet_pivot/table_spreadsheet_pivot";
+import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
 import { _t } from "../../translation";
 import { CellPosition, CommandResult, CoreCommand, Position, UID, WorkbookData } from "../../types";
 import { PivotCoreDefinition } from "../../types/pivot";

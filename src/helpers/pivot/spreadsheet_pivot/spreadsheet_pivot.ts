@@ -35,6 +35,7 @@ import {
 } from "../pivot_helpers";
 import { PivotParams } from "../pivot_registry";
 import { pivotTimeAdapter } from "../pivot_time_adapter";
+import { SpreadsheetPivotTable } from "../table_spreadsheet_pivot";
 import {
   DataEntries,
   DataEntry,
@@ -43,7 +44,6 @@ import {
 } from "./data_entry_spreadsheet_pivot";
 import { createDate } from "./date_spreadsheet_pivot";
 import { SpreadsheetPivotRuntimeDefinition } from "./runtime_definition_spreadsheet_pivot";
-import { SpreadsheetPivotTable } from "./table_spreadsheet_pivot";
 
 interface SpreadsheetPivotParams extends PivotParams {
   definition: SpreadsheetPivotCoreDefinition;

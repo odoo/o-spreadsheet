@@ -1,5 +1,5 @@
 import { PIVOT_TABLE_CONFIG } from "../../constants";
-import { SpreadsheetPivotTable } from "../../helpers/pivot/spreadsheet_pivot/table_spreadsheet_pivot";
+import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
 import { getZoneArea } from "../../helpers/zones";
 import { _t } from "../../translation";
 import { HeaderIndex, PivotTableData, UID } from "../../types";

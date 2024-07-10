@@ -1,7 +1,7 @@
 import { CellValue, EvaluatedCell } from "../../../types";
 import { PivotDimension, PivotTableColumn, PivotTableRow } from "../../../types/pivot";
+import { SpreadsheetPivotTable } from "../table_spreadsheet_pivot";
 import { SpreadsheetPivotRuntimeDefinition } from "./runtime_definition_spreadsheet_pivot";
-import { SpreadsheetPivotTable } from "./table_spreadsheet_pivot";
 
 export type FieldName = string;
 export type FieldValue = Pick<EvaluatedCell, "type" | "format" | "value">;
