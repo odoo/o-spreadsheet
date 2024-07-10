@@ -1,11 +1,11 @@
-import { ComposerStore } from "../../../src/components/composer/composer/cell_composer_store";
+import { CellComposerStore } from "../../../src/components/composer/composer/cell_composer_store";
 import { addPivot, createModelWithPivot, updatePivot } from "../../test_helpers/pivot_helpers";
 import { makeStoreWithModel } from "../../test_helpers/stores";
 
 describe("spreadsheet pivot auto complete", () => {
   test("PIVOT.VALUE.* autocomplete pivot id", async () => {
     const model = createModelWithPivot("A1:I5");
-    const { store: composer } = makeStoreWithModel(model, ComposerStore);
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     addPivot(
       model,
       "A1:A4",
@@ -50,7 +50,7 @@ describe("spreadsheet pivot auto complete", () => {
       rows: [],
       measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
-    const { store: composer } = makeStoreWithModel(model, ComposerStore);
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     for (const func of ["PIVOT", "PIVOT.HEADER", "PIVOT.VALUE"]) {
       // id as a number
       composer.startEdition(`=${func}(1`);
@@ -74,7 +74,7 @@ describe("spreadsheet pivot auto complete", () => {
         { id: "__count:sum", fieldName: "__count", aggregator: "sum" },
       ],
     });
-    const { store: composer } = makeStoreWithModel(model, ComposerStore);
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition("=PIVOT.VALUE(1,");
     const autoComplete = composer.autocompleteProvider;
     expect(autoComplete?.proposals).toEqual([
@@ -103,7 +103,7 @@ describe("spreadsheet pivot auto complete", () => {
       rows: [],
       measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
-    const { store: composer } = makeStoreWithModel(model, ComposerStore);
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE("1",');
     const autoComplete = composer.autocompleteProvider;
     expect(autoComplete?.proposals.map((p) => p.text)).toEqual(['"Expected Revenue:sum"']);
@@ -111,14 +111,14 @@ describe("spreadsheet pivot auto complete", () => {
 
   test("PIVOT.VALUE measure with pivot id that does not exist", async () => {
     const model = createModelWithPivot("A1:I5");
-    const { store: composer } = makeStoreWithModel(model, ComposerStore);
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition(`=PIVOT.VALUE(9999,`);
     expect(composer.autocompleteProvider).toBeUndefined();
   });
 
   test("PIVOT.VALUE measure without any pivot id", async () => {
     const model = createModelWithPivot("A1:I5");
-    const { store: composer } = makeStoreWithModel(model, ComposerStore);
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition(`=PIVOT.VALUE(,`);
     expect(composer.autocompleteProvider).toBeUndefined();
   });
@@ -130,7 +130,7 @@ describe("spreadsheet pivot auto complete", () => {
       rows: [],
       measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
-    const { store: composer } = makeStoreWithModel(model, ComposerStore);
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue",');
     const autoComplete = composer.autocompleteProvider;
     expect(autoComplete?.proposals).toEqual([
@@ -153,7 +153,7 @@ describe("spreadsheet pivot auto complete", () => {
       rows: [],
       measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
-    const { store: composer } = makeStoreWithModel(model, ComposerStore);
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE("1","Expected Revenue",');
     const autoComplete = composer.autocompleteProvider;
     expect(autoComplete?.proposals.map((p) => p.text)).toEqual(['"Stage"']);
@@ -166,7 +166,7 @@ describe("spreadsheet pivot auto complete", () => {
       rows: [{ fieldName: "Stage" }],
       measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
-    const { store: composer } = makeStoreWithModel(model, ComposerStore);
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue",');
     const autoComplete = composer.autocompleteProvider;
     expect(autoComplete?.proposals).toEqual([
@@ -189,7 +189,7 @@ describe("spreadsheet pivot auto complete", () => {
       rows: [{ fieldName: "Created on", granularity: "day" }],
       measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
-    const { store: composer } = makeStoreWithModel(model, ComposerStore);
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue",');
     const autoComplete = composer.autocompleteProvider;
     expect(autoComplete?.proposals).toEqual([
@@ -212,7 +212,7 @@ describe("spreadsheet pivot auto complete", () => {
       rows: [{ fieldName: "Stage" }],
       measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
-    const { store: composer } = makeStoreWithModel(model, ComposerStore);
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","sta');
     const autoComplete = composer.autocompleteProvider;
     expect(autoComplete?.proposals.map((p) => p.text)).toEqual(['"Stage"']);
@@ -225,7 +225,7 @@ describe("spreadsheet pivot auto complete", () => {
       rows: [{ fieldName: "Created on", granularity: "month_number" }],
       measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
-    const { store: composer } = makeStoreWithModel(model, ComposerStore);
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue", ');
     const autoComplete = composer.autocompleteProvider;
     expect(autoComplete?.proposals.map((p) => p.text)).toEqual([
@@ -241,7 +241,7 @@ describe("spreadsheet pivot auto complete", () => {
       rows: [{ fieldName: "Stage" }],
       measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
-    const { store: composer } = makeStoreWithModel(model, ComposerStore);
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue",');
     const autoComplete = composer.autocompleteProvider;
     expect(autoComplete?.proposals.map((p) => p.text)).toEqual([
@@ -257,7 +257,7 @@ describe("spreadsheet pivot auto complete", () => {
       rows: [{ fieldName: "Stage" }],
       measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
-    const { store: composer } = makeStoreWithModel(model, ComposerStore);
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","Stage",1,');
     const autoComplete = composer.autocompleteProvider;
     expect(autoComplete?.proposals.map((p) => p.text)).toEqual(['"Created on:month_number"']);
@@ -270,7 +270,7 @@ describe("spreadsheet pivot auto complete", () => {
       columns: [],
       measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
-    const { store: composer } = makeStoreWithModel(model, ComposerStore);
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition(
       '=PIVOT.VALUE(1,"Expected Revenue", ,"Won","Created on:month_number", 11)'
     );
@@ -287,7 +287,7 @@ describe("spreadsheet pivot auto complete", () => {
       rows: [{ fieldName: "Stage" }],
       measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
-    const { store: composer } = makeStoreWithModel(model, ComposerStore);
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","Stage",');
     const autoComplete = composer.autocompleteProvider;
     expect(autoComplete?.proposals).toEqual([
@@ -316,7 +316,7 @@ describe("spreadsheet pivot auto complete", () => {
       rows: [{ fieldName: "Created on", granularity: "month_number" }],
       measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
-    const { store: composer } = makeStoreWithModel(model, ComposerStore);
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","Created on:month_number",');
     const autoComplete = composer.autocompleteProvider;
     expect(autoComplete?.proposals).toEqual([
@@ -407,7 +407,7 @@ describe("spreadsheet pivot auto complete", () => {
       rows: [{ fieldName: "Created on", granularity: "quarter_number" }],
       measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
-    const { store: composer } = makeStoreWithModel(model, ComposerStore);
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","Created on:quarter_number",');
     const autoComplete = composer.autocompleteProvider;
     expect(autoComplete?.proposals).toEqual([
@@ -450,7 +450,7 @@ describe("spreadsheet pivot auto complete", () => {
       rows: [{ fieldName: "Created on", granularity: "day_of_month" }],
       measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
-    const { store: composer } = makeStoreWithModel(model, ComposerStore);
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","Created on:day_of_month",');
     const autoComplete = composer.autocompleteProvider;
     expect(autoComplete?.proposals).toHaveLength(31);
@@ -480,7 +480,7 @@ describe("spreadsheet pivot auto complete", () => {
       rows: [{ fieldName: "Created on", granularity: "iso_week_number" }],
       measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
-    const { store: composer } = makeStoreWithModel(model, ComposerStore);
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","Created on:iso_week_number",');
     const autoComplete = composer.autocompleteProvider;
     expect(autoComplete?.proposals).toHaveLength(54);
@@ -510,7 +510,7 @@ describe("spreadsheet pivot auto complete", () => {
       rows: [{ fieldName: "Created on", granularity: "month_number" }],
       measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
-    const { store: composer } = makeStoreWithModel(model, ComposerStore);
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","Created on:month_number",11,');
     const autoComplete = composer.autocompleteProvider;
     expect(autoComplete?.proposals.map((p) => p.text)).toEqual(['"Stage"']);
@@ -523,7 +523,7 @@ describe("spreadsheet pivot auto complete", () => {
       rows: [{ fieldName: "Stage" }],
       measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
-    const { store: composer } = makeStoreWithModel(model, ComposerStore);
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","not a dimension",');
     expect(composer.autocompleteProvider).toBeUndefined();
   });
@@ -535,7 +535,7 @@ describe("spreadsheet pivot auto complete", () => {
       rows: [],
       measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
-    const { store: composer } = makeStoreWithModel(model, ComposerStore);
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition("=PIVOT.HEADER(1,");
     const autoComplete = composer.autocompleteProvider;
     expect(autoComplete?.proposals.map((p) => p.text)).toEqual(['"Stage"']);
@@ -551,7 +551,7 @@ describe("spreadsheet pivot auto complete", () => {
       rows: [],
       measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
-    const { store: composer } = makeStoreWithModel(model, ComposerStore);
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.HEADER(1,"sta');
     const autoComplete = composer.autocompleteProvider;
     expect(autoComplete?.proposals.map((p) => p.text)).toEqual(['"Stage"']);
@@ -567,7 +567,7 @@ describe("spreadsheet pivot auto complete", () => {
       rows: [],
       measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
-    const { store: composer } = makeStoreWithModel(model, ComposerStore);
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
     composer.startEdition('=PIVOT.HEADER(1,"Stage",');
     const autoComplete = composer.autocompleteProvider;
     expect(autoComplete?.proposals.map((p) => p.text)).toEqual(['"New"', '"Won"']);

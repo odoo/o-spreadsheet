@@ -1,5 +1,5 @@
 import { setTranslationMethod } from "../../src";
-import { ComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { arg, functionRegistry } from "../../src/functions/index";
 import { Store } from "../../src/store_engine";
 import { _t } from "../../src/translation";
@@ -22,7 +22,7 @@ jest.mock("../../src/components/composer/content_editable_helper.ts", () =>
 let composerEl: Element;
 let fixture: HTMLElement;
 let parent: ComposerWrapper;
-let composerStore: Store<ComposerStore>;
+let composerStore: Store<CellComposerStore>;
 
 async function typeInComposer(text: string, fromScratch: boolean = true) {
   if (fromScratch) {
@@ -37,7 +37,7 @@ beforeEach(async () => {
   parent.startComposition();
   await nextTick();
   composerEl = fixture.querySelector("div.o-composer")!;
-  composerStore = parent.env.getStore(ComposerStore);
+  composerStore = parent.env.getStore(CellComposerStore);
 });
 
 describe("formula assistant", () => {

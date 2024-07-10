@@ -57,7 +57,7 @@ import {
 } from "../../types/index";
 import { Autofill } from "../autofill/autofill";
 import { ClientTag } from "../collaborative_client_tag/collaborative_client_tag";
-import { ComposerSelection } from "../composer/composer/composer_store";
+import { ComposerSelection } from "../composer/composer/abstract_composer_store";
 import { ComposerFocusStore } from "../composer/composer_focus_store";
 import { GridComposer } from "../composer/grid_composer/grid_composer";
 import { GridOverlay } from "../grid_overlay/grid_overlay";

@@ -1,4 +1,4 @@
-import { ComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import {
   DateTime,
   colors,
@@ -47,11 +47,11 @@ import { addPivot } from "../test_helpers/pivot_helpers";
 import { makeStore, makeStoreWithModel } from "../test_helpers/stores";
 
 let model: Model;
-let composerStore: Store<ComposerStore>;
+let composerStore: Store<CellComposerStore>;
 let container: DependencyContainer;
 
 beforeEach(() => {
-  ({ model, container, store: composerStore } = makeStore(ComposerStore));
+  ({ model, container, store: composerStore } = makeStore(CellComposerStore));
 });
 
 function editCell(model: Model, xc: string, content: string) {
@@ -1131,7 +1131,7 @@ describe("edition", () => {
       measures: [{ id: "__count:sum", fieldName: "__count", aggregator: "sum" }],
     });
     setCellContent(model, "A1", "=PIVOT(1)");
-    const { store } = makeStoreWithModel(model, ComposerStore);
+    const { store } = makeStoreWithModel(model, CellComposerStore);
     store.startEdition("=");
     selectCell(model, "A3");
     expect(store.currentContent).toBe('=PIVOT.HEADER(1,"Name","Alice")');
@@ -1159,7 +1159,7 @@ describe("edition", () => {
       measures: [{ id: "__count:sum", fieldName: "__count", aggregator: "sum" }],
     });
     setCellContent(model, "A1", "=PIVOT(1)");
-    const { store } = makeStoreWithModel(model, ComposerStore);
+    const { store } = makeStoreWithModel(model, CellComposerStore);
     store.startEdition("=");
     selectCell(model, "B3");
     expect(store.currentContent).toBe('=PIVOT.VALUE(1,"__count:sum","Name","Alice")');
@@ -1187,7 +1187,7 @@ describe("edition", () => {
       measures: [{ id: "__count:sum", fieldName: "__count", aggregator: "sum" }],
     });
     setCellContent(model, "A1", "=PIVOT(1)");
-    const { store } = makeStoreWithModel(model, ComposerStore);
+    const { store } = makeStoreWithModel(model, CellComposerStore);
     store.startEdition("=");
     selectCell(model, "B2");
     expect(store.currentContent).toBe('=PIVOT.HEADER(1,"measure","__count:sum")');
@@ -1207,7 +1207,7 @@ describe("edition", () => {
       measures: [{ id: "__count:sum", fieldName: "__count", aggregator: "sum" }],
     });
     setCellContent(model, "A1", "=PIVOT(1)");
-    const { store } = makeStoreWithModel(model, ComposerStore);
+    const { store } = makeStoreWithModel(model, CellComposerStore);
     store.startEdition("=");
     selectCell(model, "A1"); // top-left cell
     expect(store.currentContent).toBe("=A1");
@@ -1230,7 +1230,7 @@ describe("edition", () => {
       measures: [{ id: "__count:sum", fieldName: "__count", aggregator: "sum" }],
     });
     setCellContent(model, "A1", "=PIVOT(1)");
-    const { store } = makeStoreWithModel(model, ComposerStore);
+    const { store } = makeStoreWithModel(model, CellComposerStore);
     store.startEdition("=");
 
     selectCell(model, "A3");
@@ -1257,7 +1257,7 @@ describe("edition", () => {
       measures: [{ id: "__count:sum", fieldName: "__count", aggregator: "sum" }],
     });
     setCellContent(model, "A1", "=PIVOT(1)");
-    const { store } = makeStoreWithModel(model, ComposerStore);
+    const { store } = makeStoreWithModel(model, CellComposerStore);
     store.startEdition("=");
     selectCell(model, "A3");
     expect(store.currentContent).toBe('=PIVOT.HEADER(1,"Name","Alice")');
@@ -1282,7 +1282,7 @@ describe("edition", () => {
       measures: [{ id: "__count:sum", fieldName: "__count", aggregator: "sum" }],
     });
     setCellContent(model, "A1", "=PIVOT(1)");
-    const { store } = makeStoreWithModel(model, ComposerStore);
+    const { store } = makeStoreWithModel(model, CellComposerStore);
     store.startEdition("=SUM(");
     selectCell(model, "A3");
     expect(store.currentContent).toBe('=SUM(PIVOT.HEADER(1,"Name","Alice")');
@@ -1307,7 +1307,7 @@ describe("edition", () => {
       measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
     setCellContent(model, "A1", "=PIVOT(1)");
-    const { store } = makeStoreWithModel(model, ComposerStore);
+    const { store } = makeStoreWithModel(model, CellComposerStore);
     store.startEdition("=");
     expect(getEvaluatedCell(model, "B4").value).toBe(""); // empty
     selectCell(model, "B4");
@@ -1327,7 +1327,7 @@ describe("edition", () => {
       rows: [{ fieldName: "Name" }],
       measures: [{ id: "__count:sum", fieldName: "__count", aggregator: "sum" }],
     });
-    const { store } = makeStoreWithModel(model, ComposerStore);
+    const { store } = makeStoreWithModel(model, CellComposerStore);
     store.startEdition("=");
     setCellContent(model, "B1", '=PIVOT.HEADER(1,"Name","Alice")');
     selectCell(model, "B1");
@@ -1348,7 +1348,7 @@ describe("edition", () => {
       measures: [{ id: "__count:sum", fieldName: "__count", aggregator: "sum" }],
     });
     setCellContent(model, "A1", "=PIVOT(1)");
-    const { store } = makeStoreWithModel(model, ComposerStore);
+    const { store } = makeStoreWithModel(model, CellComposerStore);
     store.startEdition("=");
     selectCell(model, "B3");
     expect(store.currentContent).toBe('=PIVOT.VALUE(1,"__count:sum","Name","Alice")');

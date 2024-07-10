@@ -1,5 +1,5 @@
 import { Get } from "../../../store_engine";
-import { AbstractComposerStore } from "../composer/composer_store";
+import { AbstractComposerStore } from "../composer/abstract_composer_store";
 
 export interface StandaloneComposerArgs {
   onConfirm: (content: string) => void;

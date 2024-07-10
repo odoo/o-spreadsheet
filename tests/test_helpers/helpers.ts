@@ -3,9 +3,9 @@ import type { ChartConfiguration } from "chart.js";
 import format from "xml-formatter";
 import { functionCache } from "../../src";
 import { Action } from "../../src/actions/action";
-import { ComposerStore } from "../../src/components/composer/composer/cell_composer_store";
-import { Composer, ComposerProps } from "../../src/components/composer/composer/composer";
-import { ComposerSelection } from "../../src/components/composer/composer/composer_store";
+import { ComposerSelection } from "../../src/components/composer/composer/abstract_composer_store";
+import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { CellComposer, CellComposerProps } from "../../src/components/composer/composer/composer";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/spreadsheet";
@@ -886,22 +886,22 @@ export function getStylePropertyInPx(el: HTMLElement, property: string): number 
 
 type ComposerWrapperProps = {
   focusComposer: ComposerFocusType;
-  composerProps: Partial<ComposerProps>;
+  composerProps: Partial<CellComposerProps>;
 };
 export class ComposerWrapper extends Component<ComposerWrapperProps, SpreadsheetChildEnv> {
-  static components = { Composer };
+  static components = { CellComposer };
   static template = xml/*xml*/ `
-    <Composer t-props="composerProps"/>
+    <CellComposer t-props="composerProps"/>
   `;
   static props = { composerProps: Object, focusComposer: String };
   state = useState({ focusComposer: <ComposerFocusType>"inactive" });
-  composerStore!: Store<ComposerStore>;
+  composerStore!: Store<CellComposerStore>;
   setup() {
     this.state.focusComposer = this.props.focusComposer;
-    this.composerStore = useStore(ComposerStore);
+    this.composerStore = useStore(CellComposerStore);
   }
 
-  get composerProps(): ComposerProps {
+  get composerProps(): CellComposerProps {
     return {
       ...this.props.composerProps,
       onComposerContentFocused: () => {
@@ -929,7 +929,7 @@ export class ComposerWrapper extends Component<ComposerWrapperProps, Spreadsheet
 
 export async function mountComposerWrapper(
   model: Model = new Model(),
-  composerProps: Partial<ComposerProps> = {},
+  composerProps: Partial<CellComposerProps> = {},
   focusComposer: ComposerFocusType = "inactive"
 ): Promise<{
   parent: ComposerWrapper;
@@ -991,12 +991,12 @@ export function makeTestNotificationStore(): NotificationStore {
 export function makeTestComposerStore(
   model: Model,
   notificationStore?: NotificationStore
-): ComposerStore {
+): CellComposerStore {
   const container = new DependencyContainer();
   container.inject(ModelStore, model);
   notificationStore = notificationStore || makeTestNotificationStore();
   container.inject(NotificationStore, notificationStore);
-  return container.get(ComposerStore);
+  return container.get(CellComposerStore);
 }
 
 /** Return the values of the first filter found in the sheet */

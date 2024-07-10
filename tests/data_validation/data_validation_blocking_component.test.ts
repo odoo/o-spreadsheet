@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { ComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { Store } from "../../src/store_engine";
 import { UID } from "../../src/types";
 import { addDataValidation, setCellContent, updateLocale } from "../test_helpers/commands_helpers";
@@ -18,7 +18,7 @@ jest.mock("../../src/components/composer/content_editable_helper", () =>
 describe("Data validation with blocking rule", () => {
   let model: Model;
   let sheetId: UID;
-  let composerStore: Store<ComposerStore>;
+  let composerStore: Store<CellComposerStore>;
 
   beforeEach(async () => {
     model = new Model();

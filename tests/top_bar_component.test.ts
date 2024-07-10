@@ -1,6 +1,6 @@
 import { Component, xml } from "@odoo/owl";
 import { Model } from "../src";
-import { ComposerStore } from "../src/components/composer/composer/cell_composer_store";
+import { CellComposerStore } from "../src/components/composer/composer/cell_composer_store";
 import { TopBar } from "../src/components/top_bar/top_bar";
 import { DEFAULT_FONT_SIZE } from "../src/constants";
 import { toZone, zoneToXc } from "../src/helpers";
@@ -562,7 +562,7 @@ describe("TopBar component", () => {
   test("Cannot edit cell in a readonly spreadsheet", async () => {
     const model = new Model({}, { mode: "readonly" });
     ({ fixture, parent } = await mountParent(model));
-    const composerStore = parent.env.getStore(ComposerStore);
+    const composerStore = parent.env.getStore(CellComposerStore);
 
     let composerEl = fixture.querySelector(".o-spreadsheet-topbar div.o-composer")!;
     expect(composerEl.attributes.getNamedItem("contentEditable")!.value).toBe("false");
@@ -849,7 +849,7 @@ describe("Topbar - menu item resizing with viewport", () => {
 
 test("The composer helper should be closed on toggle topbar context menu", async () => {
   const { parent, fixture } = await mountSpreadsheet();
-  const composerStore = parent.env.getStore(ComposerStore);
+  const composerStore = parent.env.getStore(CellComposerStore);
   await typeInComposerTopBar("=sum(");
   expect(composerStore.editionMode).not.toBe("inactive");
   expect(fixture.querySelectorAll(".o-composer-assistant")).toHaveLength(1);

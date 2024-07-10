@@ -45,7 +45,7 @@ import {
 } from "../test_helpers/helpers";
 
 import { Model } from "../../src";
-import { ComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { FONT_SIZES } from "../../src/constants";
 import { functionRegistry } from "../../src/functions";
 import { interactivePaste } from "../../src/helpers/ui/paste_interactive";
@@ -1177,7 +1177,7 @@ describe("Menu Item actions", () => {
     });
 
     test("cancel edition when setting a format", () => {
-      const composerStore = env.getStore(ComposerStore);
+      const composerStore = env.getStore(CellComposerStore);
       composerStore.startEdition("hello");
       expect(composerStore.editionMode).toBe("editing");
       doAction(["format", "format_number", "format_number_percent"], env);

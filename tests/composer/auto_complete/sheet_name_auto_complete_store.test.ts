@@ -1,10 +1,10 @@
-import { ComposerStore } from "../../../src/components/composer/composer/cell_composer_store";
+import { CellComposerStore } from "../../../src/components/composer/composer/cell_composer_store";
 import { createSheet } from "../../test_helpers/commands_helpers";
 import { makeStore } from "../../test_helpers/stores";
 
 describe("Sheet name auto complete", () => {
   test("auto complete a single sheet", () => {
-    const { store: composer, model } = makeStore(ComposerStore);
+    const { store: composer, model } = makeStore(CellComposerStore);
     createSheet(model, { name: "MySheet" });
     composer.startEdition("=MyS");
     const autoComplete = composer.autocompleteProvider;
@@ -20,7 +20,7 @@ describe("Sheet name auto complete", () => {
   });
 
   test("auto complete a sheet with spaces", () => {
-    const { store: composer, model } = makeStore(ComposerStore);
+    const { store: composer, model } = makeStore(CellComposerStore);
     createSheet(model, { name: "My awesome sheet" });
     composer.startEdition("=aweso");
     const autoComplete = composer.autocompleteProvider;
@@ -36,7 +36,7 @@ describe("Sheet name auto complete", () => {
   });
 
   test("function auto complete has higher priority", () => {
-    const { store: composer, model } = makeStore(ComposerStore);
+    const { store: composer, model } = makeStore(CellComposerStore);
     createSheet(model, { name: "SUM" });
     composer.startEdition("=SU");
     const autoComplete = composer.autocompleteProvider;
@@ -48,7 +48,7 @@ describe("Sheet name auto complete", () => {
   });
 
   test("starting with single quote matches the sheet even if the quote is not required", () => {
-    const { store: composer, model } = makeStore(ComposerStore);
+    const { store: composer, model } = makeStore(CellComposerStore);
     createSheet(model, { name: "Hello" });
     composer.startEdition("='Hel");
     const autoComplete = composer.autocompleteProvider;
@@ -59,7 +59,7 @@ describe("Sheet name auto complete", () => {
   });
 
   test("one single quote matches all sheets", () => {
-    const { store: composer, model } = makeStore(ComposerStore);
+    const { store: composer, model } = makeStore(CellComposerStore);
     createSheet(model, { name: "Hello" });
     composer.startEdition("='");
     const autoComplete = composer.autocompleteProvider;

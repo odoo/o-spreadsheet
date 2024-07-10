@@ -1,5 +1,5 @@
 import { Spreadsheet, TransportService } from "../../src";
-import { ComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { CellPopoverStore } from "../../src/components/popover";
 import {
@@ -95,7 +95,7 @@ let fixture: HTMLElement;
 let model: Model;
 let env: SpreadsheetChildEnv;
 let parent: Spreadsheet;
-let composerStore: Store<ComposerStore>;
+let composerStore: Store<CellComposerStore>;
 let composerFocusStore: Store<ComposerFocusStore>;
 
 jest.useFakeTimers();
@@ -103,7 +103,7 @@ jest.useFakeTimers();
 describe("Grid component", () => {
   beforeEach(async () => {
     ({ parent, model, fixture, env } = await mountSpreadsheet());
-    composerStore = env.getStore(ComposerStore);
+    composerStore = env.getStore(CellComposerStore);
     composerFocusStore = env.getStore(ComposerFocusStore);
   });
 
@@ -1349,7 +1349,7 @@ describe("Copy paste keyboard shortcut", () => {
     clipboardData = new MockClipboardData();
     ({ parent, model, fixture } = await mountSpreadsheet());
     sheetId = model.getters.getActiveSheetId();
-    composerStore = parent.env.getStore(ComposerStore);
+    composerStore = parent.env.getStore(CellComposerStore);
     composerFocusStore = parent.env.getStore(ComposerFocusStore);
   });
 

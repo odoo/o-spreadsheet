@@ -3,8 +3,8 @@ import { SELECTION_BORDER_COLOR } from "../../../constants";
 import { Store, useLocalStore, useStore } from "../../../store_engine";
 import { ComposerFocusType, SpreadsheetChildEnv } from "../../../types/index";
 import { css, cssPropertiesToCss } from "../../helpers/css";
-import { Composer } from "../composer/composer";
-import { ComposerSelection } from "../composer/composer_store";
+import { ComposerSelection } from "../composer/abstract_composer_store";
+import { CellComposer } from "../composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer_focus_store";
 import { StandaloneComposerStore } from "./standalone_composer_store";
 
@@ -53,7 +53,7 @@ export class StandaloneComposer extends Component<Props, SpreadsheetChildEnv> {
     class: { type: String, optional: true },
     invalid: { type: Boolean, optional: true },
   };
-  static components = { Composer };
+  static components = { CellComposer };
   static defaultProps = {
     composerContent: "",
   };

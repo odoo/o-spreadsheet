@@ -7,7 +7,7 @@
       t-esc="cellReference"
     />
     <div class="o-grid-composer" t-att-style="containerStyle" t-ref="gridComposer">
-      <Composer t-props="composerProps"/>
+      <CellComposer t-props="composerProps"/>
     </div>
   </t>
 </templates>

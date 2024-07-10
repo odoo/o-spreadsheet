@@ -23,7 +23,7 @@ import { TextValueProvider } from "../autocomplete_dropdown/autocomplete_dropdow
 import { AutoCompleteStore } from "../autocomplete_dropdown/autocomplete_dropdown_store";
 import { ContentEditableHelper } from "../content_editable_helper";
 import { FunctionDescriptionProvider } from "../formula_assistant/formula_assistant";
-import { ComposerStore } from "./cell_composer_store";
+import { CellComposerStore } from "./cell_composer_store";
 
 const functions = functionRegistry.content;
 
@@ -105,7 +105,7 @@ css/* scss */ `
   }
 `;
 
-export interface ComposerProps {
+export interface CellComposerProps {
   focus: ComposerFocusType;
   inputStyle?: string;
   rect?: Rect;
@@ -114,7 +114,7 @@ export interface ComposerProps {
   onComposerCellFocused?: (content: String) => void;
   onInputContextMenu?: (event: MouseEvent) => void;
   isDefaultFocus?: boolean;
-  composerStore: Store<ComposerStore>;
+  composerStore: Store<CellComposerStore>;
   placeholder?: string;
 }
 
@@ -130,7 +130,7 @@ interface FunctionDescriptionState {
   argToFocus: number;
 }
 
-export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
+export class CellComposer extends Component<CellComposerProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Composer";
   static props = {
     focus: {

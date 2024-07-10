@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { ComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -218,7 +218,7 @@ describe("autocomplete in composer", () => {
     test("Values displayed are not filtered when the user opens the composer with a valid value", async () => {
       setCellContent(model, "A1", "hello");
       ({ fixture, parent } = await mountComposerWrapper(model));
-      const composerStore = parent.env.getStore(ComposerStore);
+      const composerStore = parent.env.getStore(CellComposerStore);
       await typeInComposer("");
       expect(composerStore.currentContent).toBe("hello");
       expect(fixture.querySelectorAll<HTMLElement>(".o-autocomplete-value")).toHaveLength(3);
@@ -241,7 +241,7 @@ describe("autocomplete in composer", () => {
 
     test("Enter overwrite composer content with selected value and stops edition", async () => {
       ({ fixture, parent } = await mountComposerWrapper(model));
-      const composerStore = parent.env.getStore(ComposerStore);
+      const composerStore = parent.env.getStore(CellComposerStore);
       await typeInComposer("hel");
       await keyDown({ key: "ArrowDown" });
       await keyDown({ key: "Enter" });
@@ -332,7 +332,7 @@ describe("Selection arrow icon in grid", () => {
   test("Clicking on the icon opens the composer with suggestions", async () => {
     setSelection(model, ["B2"]);
     ({ fixture, env } = await mountSpreadsheet({ model }));
-    const composerStore = env.getStore(ComposerStore);
+    const composerStore = env.getStore(CellComposerStore);
     await click(fixture, ".o-dv-list-icon");
     await nextTick();
     expect(composerStore.editionMode).toBe("editing");

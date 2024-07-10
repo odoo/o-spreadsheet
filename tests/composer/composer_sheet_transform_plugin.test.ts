@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import type { ComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import type { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { Store } from "../../src/store_engine";
 import { NotificationStore } from "../../src/stores/notification_store";
 import {
@@ -19,7 +19,7 @@ import { makeTestComposerStore, makeTestNotificationStore } from "../test_helper
 
 describe("describe", () => {
   let model: Model;
-  let composerStore: Store<ComposerStore>;
+  let composerStore: Store<CellComposerStore>;
   let notificationStore: NotificationStore;
   let raiseErrorSpy: jest.SpyInstance;
 

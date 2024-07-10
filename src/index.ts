@@ -113,7 +113,7 @@ import {
 } from "./helpers/pivot/pivot_composer_helpers";
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
 
-import { ComposerStore } from "./components/composer/composer/cell_composer_store";
+import { CellComposerStore } from "./components/composer/composer/cell_composer_store";
 import {
   areDomainArgsFieldsValid,
   createPivotFormula,
@@ -401,7 +401,7 @@ export const stores = {
   DependencyContainer,
   CellPopoverStore,
   ComposerFocusStore,
-  ComposerStore,
+  CellComposerStore,
   FindAndReplaceStore,
   HighlightStore,
   HoveredCellStore,
