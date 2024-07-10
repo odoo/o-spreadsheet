@@ -276,6 +276,10 @@ export class Evaluator {
       this.invalidateSpreading(position);
     }
 
+    if (this.spreadingRelations.isArrayFormula(position)) {
+      this.spreadingRelations.removeNode(position);
+    }
+
     const cell = this.getters.getCell(position);
     if (cell === undefined) {
       return EMPTY_CELL;
@@ -288,6 +292,7 @@ export class Evaluator {
         return ERROR_CYCLE_CELL;
       }
       this.cellsBeingComputed.add(cellId);
+
       return cell.isFormula
         ? this.computeFormulaCell(position, cell)
         : evaluateLiteral(cell, localeFormat);
@@ -329,8 +334,6 @@ export class Evaluator {
 
     const nbColumns = formulaReturn.length;
     const nbRows = formulaReturn[0].length;
-
-    this.spreadingRelations.removeNode(formulaPosition);
 
     forEachSpreadPositionInMatrix(nbColumns, nbRows, this.updateSpreadRelation(formulaPosition));
     this.assertNoMergedCellsInSpreadZone(formulaPosition, formulaReturn);
