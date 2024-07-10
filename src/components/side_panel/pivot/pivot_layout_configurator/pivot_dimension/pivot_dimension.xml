@@ -2,9 +2,12 @@
   <t t-name="o-spreadsheet-PivotDimension">
     <div
       class="border py-1 px-2 d-flex flex-column shadow-sm pivot-dimension"
-      t-att-class="{'bg-danger': !props.dimension.isValid}">
+      t-att-class="{'pivot-dimension-invalid': !props.dimension.isValid}">
       <div class="d-flex flex-row justify-content-between align-items-center">
         <div class="d-flex align-items-center overflow-hidden text-nowrap">
+          <span class="text-danger me-1" t-if="!props.dimension.isValid">
+            <t t-call="o-spreadsheet-Icon.TRIANGLE_EXCLAMATION"/>
+          </span>
           <TextInput
             t-if="props.onNameUpdated"
             value="props.dimension.displayName"
@@ -14,7 +17,7 @@
           <span t-else="1" class="fw-bold" t-esc="props.dimension.displayName"/>
         </div>
         <i
-          class="btn fa fa-times pe-0"
+          class="btn fa fa-times pe-0 ms-auto"
           t-if="props.onRemoved"
           t-on-click="() => props.onRemoved(props.dimension)"
         />
