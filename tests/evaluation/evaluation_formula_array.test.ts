@@ -912,6 +912,13 @@ describe("evaluate formulas that return an array", () => {
       setCellContent(model, "H1", "2");
       expect(model.getters.getSpreadZone({ sheetId, col: 0, row: 0 })).toEqual(toZone("A1:B2"));
     });
+
+    test("getSpreadZone is updated after changing the cell content to a scalar value", () => {
+      setCellContent(model, "A1", "=MFILL(2,2,42)");
+      expect(model.getters.getSpreadZone({ sheetId, col: 0, row: 0 })).toEqual(toZone("A1:B2"));
+      setCellContent(model, "A1", "5");
+      expect(model.getters.getSpreadZone({ sheetId, col: 0, row: 0 })).not.toBeDefined();
+    });
   });
 
   describe("result array can collides with merged cells", () => {
