@@ -417,9 +417,9 @@ export class Evaluator {
   ) {
     const mergedCells = this.getters.getMergesInZone(sheetId, {
       top: row,
-      bottom: row + matrixResult.length,
+      bottom: row + matrixResult[0].length - 1,
       left: col,
-      right: col + matrixResult[0].length,
+      right: col + matrixResult.length - 1,
     });
 
     if (mergedCells.length === 0) {
