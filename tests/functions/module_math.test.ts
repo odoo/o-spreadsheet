@@ -1,7 +1,8 @@
 import { Model } from "../../src";
 import { toNumber } from "../../src/functions/helpers";
 import { DEFAULT_LOCALE } from "../../src/types";
-import { setCellContent } from "../test_helpers/commands_helpers";
+import { setCellContent, updateLocale } from "../test_helpers/commands_helpers";
+import { FR_LOCALE } from "../test_helpers/constants";
 import { getEvaluatedCell } from "../test_helpers/getters_helpers";
 import {
   checkFunctionDoesntSpreadBeyondRange,
@@ -852,6 +853,31 @@ describe("COUNTIF formula", () => {
     expect(gridResult.A1).toBe(1);
     expect(gridResult.A2).toBe(0);
     expect(gridResult.A3).toBe(0);
+  });
+
+  test("COUNTIF with date predicate", () => {
+    const grid = {
+      A1: "01/01/2024",
+      A2: "01/02/2024",
+      B1: '=COUNTIF(A1, "<01/02/2024")',
+      B2: '=COUNTIF(A2, "<01/02/2024")',
+      B3: '=COUNTIF(A2, "<=01/02/2024")',
+    };
+    expect(evaluateGrid(grid)).toMatchObject({
+      B1: 1,
+      B2: 0,
+      B3: 1,
+    });
+  });
+
+  test("COUNTIF date predicates are localized", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "01/02/2024");
+    setCellContent(model, "A2", '=COUNTIF(A1, "<02/01/2024")');
+    expect(getEvaluatedCell(model, "A2").value).toBe(1);
+
+    updateLocale(model, FR_LOCALE);
+    expect(getEvaluatedCell(model, "A2").value).toBe(0);
   });
 });
 
