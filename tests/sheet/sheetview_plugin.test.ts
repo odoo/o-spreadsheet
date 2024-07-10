@@ -1,5 +1,5 @@
 import { CommandResult } from "../../src";
-import { ComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -1505,7 +1505,7 @@ describe("shift viewport up/down", () => {
   );
 
   test("Ensure the cell is in the viewport when starting the edition of a cell", async () => {
-    const { store: composerStore, model } = makeStore(ComposerStore);
+    const { store: composerStore, model } = makeStore(CellComposerStore);
     model.dispatch("RESIZE_SHEETVIEW", {
       width: 100,
       height: 100,

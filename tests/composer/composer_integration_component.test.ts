@@ -1,5 +1,5 @@
 import { Model } from "../../src";
-import { ComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import {
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
@@ -58,7 +58,7 @@ jest.mock("../../src/components/composer/content_editable_helper.ts", () =>
 let fixture: HTMLElement;
 let model: Model;
 let cehMock: ContentEditableHelper;
-let composerStore: Store<ComposerStore>;
+let composerStore: Store<CellComposerStore>;
 
 async function startComposition(key?: string) {
   const composerEl = await startGridComposition(key);
@@ -84,7 +84,7 @@ describe("Composer interactions", () => {
   beforeEach(async () => {
     let env: SpreadsheetChildEnv;
     ({ model, fixture, env } = await mountSpreadsheet({ model: new Model(modelData) }));
-    composerStore = env.getStore(ComposerStore);
+    composerStore = env.getStore(CellComposerStore);
   });
 
   test("type in grid composer adds text to topbar composer", async () => {
@@ -513,7 +513,7 @@ describe("Grid composer", () => {
   });
 
   test("Composer is closed when changing sheet while not editing a formula", async () => {
-    const composerStore = env.getStore(ComposerStore);
+    const composerStore = env.getStore(CellComposerStore);
     const baseSheetId = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42", name: "Sheet2" });
     await nextTick();

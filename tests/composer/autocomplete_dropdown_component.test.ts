@@ -1,5 +1,5 @@
 import { registries } from "../../src";
-import { ComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { functionRegistry } from "../../src/functions/index";
 import { Model } from "../../src/model";
@@ -32,7 +32,7 @@ let composerEl: Element;
 let fixture: HTMLElement;
 let cehMock: ContentEditableHelper;
 let parent: ComposerWrapper;
-let composerStore: Store<ComposerStore>;
+let composerStore: Store<CellComposerStore>;
 
 async function typeInComposer(text: string, fromScratch: boolean = true) {
   if (fromScratch) {
@@ -80,7 +80,7 @@ describe("Functions autocomplete", () => {
     parent.startComposition();
     await nextTick();
     composerEl = fixture.querySelector("div.o-composer")!;
-    composerStore = parent.env.getStore(ComposerStore);
+    composerStore = parent.env.getStore(CellComposerStore);
   });
 
   describe("autocomplete", () => {
@@ -359,7 +359,7 @@ describe("Autocomplete parenthesis", () => {
     parent.startComposition();
     await nextTick();
     composerEl = fixture.querySelector("div.o-composer")!;
-    composerStore = parent.env.getStore(ComposerStore);
+    composerStore = parent.env.getStore(CellComposerStore);
   });
 
   test("=sum(1,2 + enter adds closing parenthesis", async () => {

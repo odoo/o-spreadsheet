@@ -1,4 +1,4 @@
-import { ComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { ColResizer, RowResizer } from "../../src/components/headers_overlay/headers_overlay";
 import {
   DEFAULT_CELL_HEIGHT,
@@ -217,7 +217,7 @@ describe("Resizer component", () => {
   });
 
   test("The composer should be closed before selecting headers", async () => {
-    const composerStore = env.getStore(ComposerStore);
+    const composerStore = env.getStore(CellComposerStore);
     await typeInComposerGrid("Hello");
     expect(composerStore.editionMode).not.toBe("inactive");
     await selectColumnByClicking(model, "C");

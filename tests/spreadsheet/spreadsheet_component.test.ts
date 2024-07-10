@@ -1,6 +1,6 @@
 import { Model, setDefaultSheetViewSize, Spreadsheet } from "../../src";
 import { OPEN_CF_SIDEPANEL_ACTION } from "../../src/actions/menu_items_actions";
-import { ComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { DEBOUNCE_TIME, getDefaultSheetViewSize } from "../../src/constants";
 import { functionRegistry } from "../../src/functions";
 import { toZone } from "../../src/helpers";
@@ -129,7 +129,7 @@ describe("Simple Spreadsheet Component", () => {
 
   test("typing opens composer after toolbar clicked", async () => {
     ({ model, parent, fixture } = await mountSpreadsheet());
-    const composerStore = parent.env.getStore(ComposerStore);
+    const composerStore = parent.env.getStore(CellComposerStore);
     await simulateClick(`span[title="Bold (Ctrl+B)"]`);
     expect(document.activeElement).not.toBeNull();
     await typeInComposerGrid("d");
@@ -234,7 +234,7 @@ describe("Simple Spreadsheet Component", () => {
 
   test("Insert a function properly sets the edition", async () => {
     ({ model, parent, fixture, env } = await mountSpreadsheet());
-    const composerStore = env.getStore(ComposerStore);
+    const composerStore = env.getStore(CellComposerStore);
     doAction(["insert", "insert_function", "insert_function_sum"], env);
     expect(composerStore.currentContent).toBe("=SUM(");
     doAction(["insert", "insert_function", "insert_function_sum"], env);
@@ -360,7 +360,7 @@ describe("Composer / selectionInput interactions", () => {
 
   jest.setTimeout(500000000);
   test("Switching from selection input to composer should update the highlihts", async () => {
-    const composerStore = env.getStore(ComposerStore);
+    const composerStore = env.getStore(CellComposerStore);
     //open cf sidepanel
     selectCell(model, "B2");
     OPEN_CF_SIDEPANEL_ACTION(env);
@@ -392,7 +392,7 @@ describe("Composer / selectionInput interactions", () => {
 
       // focus selection input
       await simulateClick(".o-selection-input input");
-      expect(env.getStore(ComposerStore).editionMode).toBe("inactive");
+      expect(env.getStore(CellComposerStore).editionMode).toBe("inactive");
     }
   );
 

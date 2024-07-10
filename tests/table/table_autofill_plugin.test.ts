@@ -1,5 +1,5 @@
 import { Model, UID } from "../../src";
-import { ComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import {
   copy,
@@ -86,7 +86,7 @@ describe("Table formula autofill ", () => {
 });
 
 describe("Table autofill with composer", () => {
-  let composerStore: ComposerStore;
+  let composerStore: CellComposerStore;
 
   function editCell(model: Model, xc: string, content: string) {
     selectCell(model, xc);
@@ -95,7 +95,7 @@ describe("Table autofill with composer", () => {
   }
 
   beforeEach(() => {
-    ({ model, store: composerStore } = makeStore(ComposerStore));
+    ({ model, store: composerStore } = makeStore(CellComposerStore));
   });
 
   test("Editing a cell autofill the table column", () => {

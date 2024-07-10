@@ -14,9 +14,9 @@ import {
   SpreadsheetChildEnv,
 } from "../../../types/index";
 import { css, cssPropertiesToCss } from "../../helpers/css";
-import { ComposerStore } from "../composer/cell_composer_store";
-import { Composer } from "../composer/composer";
-import { ComposerSelection } from "../composer/composer_store";
+import { ComposerSelection } from "../composer/abstract_composer_store";
+import { CellComposerStore } from "../composer/cell_composer_store";
+import { CellComposer } from "../composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer_focus_store";
 
 const COMPOSER_MAX_HEIGHT = 100;
@@ -51,15 +51,15 @@ css/* scss */ `
 export class TopBarComposer extends Component<any, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TopBarComposer";
   static props = {};
-  static components = { Composer };
+  static components = { CellComposer };
 
   private composerFocusStore!: Store<ComposerFocusStore>;
-  private composerStore!: Store<ComposerStore>;
+  private composerStore!: Store<CellComposerStore>;
   private composerInterface!: ComposerInterface;
 
   setup() {
     this.composerFocusStore = useStore(ComposerFocusStore);
-    const composerStore = useStore(ComposerStore);
+    const composerStore = useStore(CellComposerStore);
     this.composerStore = composerStore;
     this.composerInterface = {
       id: "topbarComposer",

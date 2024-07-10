@@ -1,4 +1,4 @@
-import { ComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { SelectionInputStore } from "../../src/components/selection_input/selection_input_store";
 import { toZone, zoneToXc } from "../../src/helpers";
 import { DependencyContainer } from "../../src/store_engine";
@@ -101,7 +101,7 @@ describe("selection input plugin", () => {
 
   test("focused input should not change when selecting a zone for composer", () => {
     const { store, model, container } = makeStore(SelectionInputStore);
-    const composerStore = container.get(ComposerStore);
+    const composerStore = container.get(CellComposerStore);
     store.focusById(idOfRange(store, 0));
     composerStore.startEdition("=");
     selectCell(model, "C2");

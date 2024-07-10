@@ -1,6 +1,6 @@
 import { SpreadsheetStore } from "../../stores/spreadsheet_store";
 import { ComposerFocusType, EditionMode } from "../../types";
-import { ComposerSelection } from "./composer/composer_store";
+import { ComposerSelection } from "./composer/abstract_composer_store";
 
 export interface ComposerInterface {
   id: string; // for testing purposes only

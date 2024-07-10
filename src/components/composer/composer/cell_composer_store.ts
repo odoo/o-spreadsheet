@@ -24,11 +24,11 @@ import {
   RemoveColumnsRowsCommand,
   isMatrix,
 } from "../../../types";
-import { AbstractComposerStore, ComposerSelection } from "./composer_store";
+import { AbstractComposerStore, ComposerSelection } from "./abstract_composer_store";
 
 const CELL_DELETED_MESSAGE = _t("The cell you are trying to edit has been deleted.");
 
-export class ComposerStore extends AbstractComposerStore {
+export class CellComposerStore extends AbstractComposerStore {
   private canStopEdition(): boolean {
     if (this.editionMode === "inactive") {
       return true;

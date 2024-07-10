@@ -11,8 +11,8 @@ import { Store, useStore } from "../../../store_engine";
 import { ComposerFocusType, DOMDimension, Rect, SpreadsheetChildEnv } from "../../../types/index";
 import { getTextDecoration } from "../../helpers";
 import { css, cssPropertiesToCss } from "../../helpers/css";
-import { ComposerStore } from "../composer/cell_composer_store";
-import { Composer, ComposerProps } from "../composer/composer";
+import { CellComposerStore } from "../composer/cell_composer_store";
+import { CellComposer, CellComposerProps } from "../composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer_focus_store";
 
 const COMPOSER_BORDER_WIDTH = 3 * 0.4 * window.devicePixelRatio || 1;
@@ -57,13 +57,13 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     gridDims: Object,
     onInputContextMenu: Function,
   };
-  static components = { Composer };
+  static components = { CellComposer };
 
   private rect: Rect = this.defaultRect;
   private isEditing: boolean = false;
   private isCellReferenceVisible: boolean = false;
 
-  private composerStore!: Store<ComposerStore>;
+  private composerStore!: Store<CellComposerStore>;
   composerFocusStore!: Store<ComposerFocusStore>;
 
   private composerInterface!: ComposerInterface;
@@ -73,7 +73,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
   }
 
   setup() {
-    const composerStore = useStore(ComposerStore);
+    const composerStore = useStore(CellComposerStore);
     this.composerStore = composerStore;
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.composerInterface = {
@@ -121,7 +121,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     return focus;
   }
 
-  get composerProps(): ComposerProps {
+  get composerProps(): CellComposerProps {
     const { width, height } = this.env.model.getters.getSheetViewDimensionWithHeaders();
     return {
       rect: { ...this.rect },

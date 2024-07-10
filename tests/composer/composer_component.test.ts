@@ -1,4 +1,4 @@
-import { ComposerStore } from "../../src/components/composer/composer/cell_composer_store";
+import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import {
   selectionIndicatorClass,
   tokenColors,
@@ -51,7 +51,7 @@ let composerEl: Element;
 let fixture: HTMLElement;
 let cehMock: ContentEditableHelper;
 let parent: ComposerWrapper;
-let composerStore: Store<ComposerStore>;
+let composerStore: Store<CellComposerStore>;
 
 async function startComposition(text?: string): Promise<HTMLDivElement> {
   parent.startComposition(text);
@@ -81,7 +81,7 @@ async function moveToEnd() {
 
 beforeEach(async () => {
   ({ model, parent, fixture } = await mountComposerWrapper());
-  composerStore = parent.env.getStore(ComposerStore);
+  composerStore = parent.env.getStore(CellComposerStore);
 });
 
 describe("ranges and highlights", () => {
