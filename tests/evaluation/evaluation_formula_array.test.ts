@@ -935,5 +935,19 @@ describe("evaluate formulas that return an array", () => {
       expect(getEvaluatedCell(model, "B1").value).toBe(42);
       expect(getEvaluatedCell(model, "B2").value).toBe(42);
     });
+
+    test("correctly checks for merges in the specified zone", () => {
+      setCellContent(model, "A1", "=MFILL(1, 2, 42)");
+      merge(model, "B1:B2");
+
+      expect(getEvaluatedCell(model, "A1").value).toBe(42);
+      expect(getEvaluatedCell(model, "A2").value).toBe(42);
+
+      setCellContent(model, "F6", "=MFILL(2, 1, 42)");
+      merge(model, "F7:G7");
+
+      expect(getEvaluatedCell(model, "F6").value).toBe(42);
+      expect(getEvaluatedCell(model, "G6").value).toBe(42);
+    });
   });
 });
