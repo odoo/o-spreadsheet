@@ -1,5 +1,5 @@
 // HELPERS
-import { DateTime, numberToJsDate, parseDateTime } from "../helpers/dates";
+import { DateTime, isDateTime, numberToJsDate, parseDateTime } from "../helpers/dates";
 import { memoize } from "../helpers/misc";
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _t } from "../translation";
@@ -519,7 +519,7 @@ function getPredicate(descr: string, locale: Locale): Predicate {
     }
   }
 
-  if (isNumber(operand, locale)) {
+  if (isNumber(operand, locale) || isDateTime(operand, locale)) {
     operand = toNumber(operand, locale);
   } else if (operand === "TRUE" || operand === "FALSE") {
     operand = toBoolean(operand);
