@@ -234,4 +234,23 @@ describe("Spreadsheet pivot side panel", () => {
       { name: "Amount", order: "desc" },
     ]);
   });
+
+  test("Invalid pivot dimensions are displayed as such in the side panel", async () => {
+    setCellContent(model, "A1", "ValidDimension");
+    setCellContent(model, "A2", "10");
+    addPivot(model, "A1:A2", {
+      columns: [{ name: "ValidDimension" }],
+      rows: [{ name: "InvalidDimension" }],
+    });
+    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    await nextTick();
+    const pivotDimensionEls = fixture.querySelectorAll<HTMLElement>(".pivot-dimension")!;
+    const validDimensionEl = pivotDimensionEls[0];
+    expect(validDimensionEl.classList).not.toContain("pivot-dimension-invalid");
+    expect(validDimensionEl.querySelector(".fa-exclamation-triangle")).toBe(null);
+
+    const invalidDimensionEl = pivotDimensionEls[1];
+    expect(invalidDimensionEl.classList).toContain("pivot-dimension-invalid");
+    expect(invalidDimensionEl.querySelector(".fa-exclamation-triangle")).not.toBe(null);
+  });
 });

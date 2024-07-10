@@ -19,6 +19,14 @@ css/* scss */ `
     .pivot-dim-operator-label {
       min-width: 120px;
     }
+
+    &.pivot-dimension-invalid {
+      background-color: #ffdddd;
+      border-color: red !important;
+      select {
+        background-color: #ffdddd;
+      }
+    }
   }
 `;
 
