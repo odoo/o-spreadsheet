@@ -6,7 +6,7 @@
  */
 
 export const demoData = {
-  version: 17,
+  version: 18,
   sheets: [
     {
       id: "sh1",
@@ -2513,6 +2513,7 @@ export const demoData = {
     locale: {
       name: "English (US)",
       code: "en_US",
+      weekStart: 7,
       thousandsSeparator: ",",
       decimalSeparator: ".",
       dateFormat: "m/d/yyyy",
