@@ -505,6 +505,126 @@ describe("spreadsheet pivot auto complete", () => {
     expect(composer.autocompleteProvider).toBeUndefined();
   });
 
+  test("PIVOT.VALUE autocomplete date day_of_week field for group value", async () => {
+    const model = createModelWithPivot("A1:I5");
+    updatePivot(model, "1", {
+      columns: [],
+      rows: [{ fieldName: "Created on", granularity: "day_of_week" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
+    });
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
+    composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","Created on:day_of_week",');
+    const autoComplete = composer.autocompleteProvider;
+    expect(autoComplete?.proposals).toHaveLength(7);
+    expect(autoComplete?.proposals[0]).toEqual({
+      description: "",
+      fuzzySearchKey: "1",
+      htmlContent: [{ color: "#02c39a", value: "1" }],
+      text: "1",
+    });
+    expect(autoComplete?.proposals[6]).toEqual({
+      description: "",
+      fuzzySearchKey: "7",
+      htmlContent: [{ color: "#02c39a", value: "7" }],
+      text: "7",
+    });
+    autoComplete?.selectProposal(autoComplete?.proposals[0].text);
+    expect(composer.currentContent).toBe(
+      '=PIVOT.VALUE(1,"Expected Revenue","Created on:day_of_week",1'
+    );
+    expect(composer.autocompleteProvider).toBeUndefined();
+  });
+
+  test("PIVOT.VALUE autocomplete date hour_number field for group value", async () => {
+    const model = createModelWithPivot("A1:I5");
+    updatePivot(model, "1", {
+      columns: [],
+      rows: [{ fieldName: "Created on", granularity: "hour_number" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
+    });
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
+    composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","Created on:hour_number",');
+    const autoComplete = composer.autocompleteProvider;
+    expect(autoComplete?.proposals).toHaveLength(24);
+    expect(autoComplete?.proposals[0]).toEqual({
+      description: "",
+      fuzzySearchKey: "0",
+      htmlContent: [{ color: "#02c39a", value: "0" }],
+      text: "0",
+    });
+    expect(autoComplete?.proposals[23]).toEqual({
+      description: "",
+      fuzzySearchKey: "23",
+      htmlContent: [{ color: "#02c39a", value: "23" }],
+      text: "23",
+    });
+    autoComplete?.selectProposal(autoComplete?.proposals[0].text);
+    expect(composer.currentContent).toBe(
+      '=PIVOT.VALUE(1,"Expected Revenue","Created on:hour_number",0'
+    );
+    expect(composer.autocompleteProvider).toBeUndefined();
+  });
+
+  test("PIVOT.VALUE autocomplete date minute_number field for group value", async () => {
+    const model = createModelWithPivot("A1:I5");
+    updatePivot(model, "1", {
+      columns: [],
+      rows: [{ fieldName: "Created on", granularity: "minute_number" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
+    });
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
+    composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","Created on:minute_number",');
+    const autoComplete = composer.autocompleteProvider;
+    expect(autoComplete?.proposals).toHaveLength(60);
+    expect(autoComplete?.proposals[0]).toEqual({
+      description: "",
+      fuzzySearchKey: "0",
+      htmlContent: [{ color: "#02c39a", value: "0" }],
+      text: "0",
+    });
+    expect(autoComplete?.proposals[59]).toEqual({
+      description: "",
+      fuzzySearchKey: "59",
+      htmlContent: [{ color: "#02c39a", value: "59" }],
+      text: "59",
+    });
+    autoComplete?.selectProposal(autoComplete?.proposals[0].text);
+    expect(composer.currentContent).toBe(
+      '=PIVOT.VALUE(1,"Expected Revenue","Created on:minute_number",0'
+    );
+    expect(composer.autocompleteProvider).toBeUndefined();
+  });
+
+  test("PIVOT.VALUE autocomplete date second_number field for group value", async () => {
+    const model = createModelWithPivot("A1:I5");
+    updatePivot(model, "1", {
+      columns: [],
+      rows: [{ fieldName: "Created on", granularity: "second_number" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
+    });
+    const { store: composer } = makeStoreWithModel(model, CellComposerStore);
+    composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","Created on:second_number",');
+    const autoComplete = composer.autocompleteProvider;
+    expect(autoComplete?.proposals).toHaveLength(60);
+    expect(autoComplete?.proposals[0]).toEqual({
+      description: "",
+      fuzzySearchKey: "0",
+      htmlContent: [{ color: "#02c39a", value: "0" }],
+      text: "0",
+    });
+    expect(autoComplete?.proposals[59]).toEqual({
+      description: "",
+      fuzzySearchKey: "59",
+      htmlContent: [{ color: "#02c39a", value: "59" }],
+      text: "59",
+    });
+    autoComplete?.selectProposal(autoComplete?.proposals[0].text);
+    expect(composer.currentContent).toBe(
+      '=PIVOT.VALUE(1,"Expected Revenue","Created on:second_number",0'
+    );
+    expect(composer.autocompleteProvider).toBeUndefined();
+  });
+
   test("PIVOT.VALUE autocomplete field after a date field", async () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {

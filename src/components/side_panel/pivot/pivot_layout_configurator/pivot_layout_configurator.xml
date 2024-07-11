@@ -16,11 +16,11 @@
           class="pt-1">
           <PivotDimension dimension="col" onRemoved.bind="removeDimension">
             <PivotDimensionGranularity
-              t-if="isDateField(col)"
+              t-if="isDateOrDatetimeField(col)"
               dimension="col"
               onUpdated.bind="this.updateGranularity"
-              availableGranularities="props.unusedDateTimeGranularities[col.fieldName]"
-              allGranularities="props.allGranularities"
+              availableGranularities="props.unusedGranularities[col.fieldName]"
+              allGranularities="getGranularitiesFor(col)"
             />
             <PivotDimensionOrder dimension="col" onUpdated.bind="this.updateOrder"/>
           </PivotDimension>
@@ -42,11 +42,11 @@
           class="pt-1">
           <PivotDimension dimension="row" onRemoved.bind="removeDimension">
             <PivotDimensionGranularity
-              t-if="isDateField(row)"
+              t-if="isDateOrDatetimeField(row)"
               dimension="row"
               onUpdated.bind="this.updateGranularity"
-              availableGranularities="props.unusedDateTimeGranularities[row.fieldName]"
-              allGranularities="props.allGranularities"
+              availableGranularities="props.unusedGranularities[row.fieldName]"
+              allGranularities="getGranularitiesFor(row)"
             />
             <PivotDimensionOrder dimension="row" onUpdated.bind="this.updateOrder"/>
           </PivotDimension>

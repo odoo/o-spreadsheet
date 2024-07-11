@@ -6,6 +6,7 @@ import {
 } from "../../helpers/pivot/pivot_composer_helpers";
 import { withPivotPresentationLayer } from "../../helpers/pivot/pivot_presentation";
 import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
+import { resetMapValueDimensionDate } from "../../helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
 import { EMPTY_PIVOT_CELL } from "../../helpers/pivot/table_spreadsheet_pivot";
 import { _t } from "../../translation";
 import {
@@ -102,6 +103,13 @@ export class PivotUIPlugin extends UIPlugin {
         }
         break;
       }
+      case "UPDATE_LOCALE":
+        /**
+         * Reset the cache of the date/datetime pivot values, as it depends on
+         * the locale. (e.g. the first day of the week)
+         */
+        resetMapValueDimensionDate();
+        break;
     }
   }
 

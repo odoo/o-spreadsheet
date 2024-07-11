@@ -100,6 +100,10 @@ export const ALL_PERIODS = {
   month_number: _t("Month"),
   iso_week_number: _t("Week"),
   day_of_month: _t("Day of Month"),
+  day_of_week: _t("Day of Week"),
+  hour_number: _t("Hour"),
+  minute_number: _t("Minute"),
+  second_number: _t("Second"),
 };
 
 const DATE_FIELDS = ["date", "datetime"];
@@ -116,7 +120,7 @@ export function parseDimension(dimension: string): PivotCoreDimension {
   return { fieldName };
 }
 
-export function isDateField(field: PivotField) {
+export function isDateOrDatetimeField(field: PivotField) {
   return DATE_FIELDS.includes(field.type);
 }
 

@@ -249,6 +249,34 @@ autoCompleteProviders.add("pivot_group_values", {
         description: "",
         htmlContent: [{ value: `${isoWeekNumber}`, color: tokenColors.NUMBER }],
       }));
+    } else if (dimension.granularity === "day_of_week") {
+      return range(1, 8).map((dayOfWeekNumber) => ({
+        text: `${dayOfWeekNumber}`,
+        fuzzySearchKey: `${dayOfWeekNumber}`,
+        description: "",
+        htmlContent: [{ value: `${dayOfWeekNumber}`, color: tokenColors.NUMBER }],
+      }));
+    } else if (dimension.granularity === "hour_number") {
+      return range(0, 24).map((hourNumber) => ({
+        text: `${hourNumber}`,
+        fuzzySearchKey: `${hourNumber}`,
+        description: "",
+        htmlContent: [{ value: `${hourNumber}`, color: tokenColors.NUMBER }],
+      }));
+    } else if (dimension.granularity === "minute_number") {
+      return range(0, 60).map((minuteNumber) => ({
+        text: `${minuteNumber}`,
+        fuzzySearchKey: `${minuteNumber}`,
+        description: "",
+        htmlContent: [{ value: `${minuteNumber}`, color: tokenColors.NUMBER }],
+      }));
+    } else if (dimension.granularity === "second_number") {
+      return range(0, 60).map((secondNumber) => ({
+        text: `${secondNumber}`,
+        fuzzySearchKey: `${secondNumber}`,
+        description: "",
+        htmlContent: [{ value: `${secondNumber}`, color: tokenColors.NUMBER }],
+      }));
     }
     return pivot.getPossibleFieldValues(dimension).map(({ value, label }) => {
       const isString = typeof value === "string";

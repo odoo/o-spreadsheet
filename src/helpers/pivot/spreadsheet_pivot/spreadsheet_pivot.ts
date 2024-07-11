@@ -252,7 +252,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     const dimension = this.getDimension(lastNode.field);
     const cells = this.filterDataEntriesFromDomain(this.dataEntries, domain);
     const finalCell = cells[0]?.[dimension.nameWithGranularity];
-    if (dimension.type === "date") {
+    if (dimension.type === "datetime") {
       const adapter = pivotTimeAdapter(dimension.granularity as Granularity);
       return adapter.toValueAndFormat(lastNode.value, this.getters.getLocale());
     }
@@ -390,7 +390,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
       return "integer";
     }
     if (nonEmptyCells.every((cell) => cell.format && isDateTimeFormat(cell.format))) {
-      return "date";
+      return "datetime";
     }
     if (nonEmptyCells.every((cell) => cell.type === CellValueType.boolean)) {
       return "boolean";
@@ -489,7 +489,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     }
     const dateDimensions = this.definition.columns
       .concat(this.definition.rows)
-      .filter((d) => d.type === "date");
+      .filter((d) => d.type === "datetime");
     if (dateDimensions.length) {
       const locale = this.getters.getLocale();
       for (const entry of dataEntries) {
