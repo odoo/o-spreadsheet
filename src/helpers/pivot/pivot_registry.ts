@@ -30,26 +30,31 @@ export interface PivotRegistryItem {
   definition: PivotDefinitionConstructor;
   externalData: boolean;
   onIterationEndEvaluation: (pivot: Pivot) => void;
-  granularities: string[];
+  dateGranularities: string[];
+  datetimeGranularities: string[];
   isMeasureCandidate: (field: PivotField) => boolean;
   isGroupable: (field: PivotField) => boolean;
 }
 
 export const pivotRegistry = new Registry<PivotRegistryItem>();
 
+const dateGranularities = [
+  "year",
+  "quarter_number",
+  "month_number",
+  "iso_week_number",
+  "day_of_month",
+  "day",
+  "day_of_week",
+];
+
 pivotRegistry.add("SPREADSHEET", {
   ui: SpreadsheetPivot,
   definition: SpreadsheetPivotRuntimeDefinition,
   externalData: false,
   onIterationEndEvaluation: (pivot: SpreadsheetPivot) => pivot.markAsDirtyForEvaluation(),
-  granularities: [
-    "year",
-    "quarter_number",
-    "month_number",
-    "iso_week_number",
-    "day_of_month",
-    "day",
-  ],
+  dateGranularities: [...dateGranularities],
+  datetimeGranularities: [...dateGranularities, "hour_number", "minute_number", "second_number"],
   isMeasureCandidate: (field: PivotField) => !["date", "boolean"].includes(field.type),
   isGroupable: () => true,
 });

@@ -3,7 +3,7 @@ import { isDefined } from "../../../../helpers";
 import {
   AGGREGATORS,
   getFieldDisplayName,
-  isDateField,
+  isDateOrDatetimeField,
 } from "../../../../helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "../../../../helpers/pivot/pivot_runtime_definition";
 import { Store, useStore } from "../../../../store_engine";
@@ -33,8 +33,9 @@ interface Props {
   onDimensionsUpdated: (definition: Partial<PivotCoreDefinition>) => void;
   unusedGroupableFields: PivotField[];
   measureFields: PivotField[];
-  unusedDateTimeGranularities: Record<string, Set<string>>;
-  allGranularities: string[];
+  unusedGranularities: Record<string, Set<string>>;
+  dateGranularities: string[];
+  datetimeGranularities: string[];
   pivotId: UID;
 }
 
@@ -58,8 +59,9 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     onDimensionsUpdated: Function,
     unusedGroupableFields: Array,
     measureFields: Array,
-    unusedDateTimeGranularities: Object,
-    allGranularities: Array,
+    unusedGranularities: Object,
+    dateGranularities: Array,
+    datetimeGranularities: Array,
     pivotId: String,
   };
 
@@ -68,7 +70,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
   AGGREGATORS = AGGREGATORS;
   private composerFocus!: Store<ComposerFocusStore>;
 
-  isDateField = isDateField;
+  isDateOrDatetimeField = isDateOrDatetimeField;
 
   setup() {
     this.composerFocus = useStore(ComposerFocusStore);
@@ -127,6 +129,13 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
         });
       },
     });
+  }
+
+  getGranularitiesFor(field: PivotField) {
+    if (!isDateOrDatetimeField(field)) {
+      return [];
+    }
+    return field.type === "date" ? this.props.dateGranularities : this.props.datetimeGranularities;
   }
 
   startDragAndDropMeasures(measure: PivotMeasure, event: MouseEvent) {

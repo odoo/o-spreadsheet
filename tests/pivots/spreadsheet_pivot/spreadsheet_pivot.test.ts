@@ -1,4 +1,6 @@
 import { CellErrorType, FunctionResultObject, Model } from "../../../src";
+import { resetMapValueDimensionDate } from "../../../src/helpers/pivot/spreadsheet_pivot/date_spreadsheet_pivot";
+import { DEFAULT_LOCALES } from "../../../src/types/locale";
 import {
   createSheet,
   deleteContent,
@@ -127,7 +129,7 @@ describe("Spreadsheet Pivot", () => {
     expect(
       Object.keys(fields).map((field) => ({ name: field, type: fields[field]?.type }))
     ).toEqual([
-      { name: "Date", type: "date" },
+      { name: "Date", type: "datetime" },
       { name: "Boolean", type: "boolean" },
       { name: "Char", type: "char" },
       { name: "Number", type: "integer" },
@@ -358,6 +360,121 @@ describe("Spreadsheet Pivot", () => {
     expect(() => model.getters.getPivot("1").assertIsValid({ throwOnError: true })).not.toThrow();
     expect(model.getters.getPivot("1").isValid()).toBeTruthy();
     expect(getCellError(model, "A26")).toBeUndefined();
+  });
+
+  test("Pivot with day_of_week", () => {
+    resetMapValueDimensionDate();
+    // prettier-ignore
+    const grid = {
+      A1: "Date",       B1: "Price", C1: "=PIVOT(1)",
+      A2: "2024-03-31", B2: "10", // Sunday
+      A3: "2024-04-01", B3: "20", // Monday
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B3", {
+      columns: [],
+      rows: [{ fieldName: "Date", granularity: "day_of_week" }],
+      measures: [{ fieldName: "Price", aggregator: "sum", id: "Price:sum" }],
+    });
+    expect(getEvaluatedGrid(model, "C1:C5")).toEqual([
+      ["(#1) Pivot"],
+      [""],
+      ["Sunday"],
+      ["Monday"],
+      ["Total"],
+    ]);
+  });
+
+  test("Pivot with day_of_week with locale with startWeek = 1", () => {
+    resetMapValueDimensionDate();
+    // prettier-ignore
+    const grid = {
+      A1: "Date",       B1: "Price", C1: "=PIVOT(1)",
+      A2: "2024-03-31", B2: "10", // Sunday
+      A3: "2024-04-01", B3: "20", // Monday
+    };
+    const model = createModelFromGrid(grid);
+    const locale = DEFAULT_LOCALES[1];
+    expect(locale.weekStart).toBe(1);
+    model.dispatch("UPDATE_LOCALE", { locale });
+    addPivot(model, "A1:B3", {
+      columns: [],
+      rows: [{ fieldName: "Date", granularity: "day_of_week" }],
+      measures: [{ fieldName: "Price", aggregator: "sum", id: "Price:sum" }],
+    });
+    expect(getEvaluatedGrid(model, "C1:C5")).toEqual([
+      ["(#1) Pivot"],
+      [""],
+      ["Monday"],
+      ["Sunday"],
+      ["Total"],
+    ]);
+  });
+
+  test("Pivot with hour_number", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Date",               B1: "Price", C1: "=PIVOT(1)",
+      A2: "2024-04-03 1:07:12", B2: "10",
+      A3: "2024-04-02 2:08:14", B3: "20",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B3", {
+      columns: [],
+      rows: [{ fieldName: "Date", granularity: "hour_number" }],
+      measures: [{ fieldName: "Price", aggregator: "sum", id: "Price:sum" }],
+    });
+    expect(getEvaluatedGrid(model, "C1:C5")).toEqual([
+      ["(#1) Pivot"],
+      [""],
+      ["1h"],
+      ["2h"],
+      ["Total"],
+    ]);
+  });
+
+  test("Pivot with minute_number", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Date",               B1: "Price", C1: "=PIVOT(1)",
+      A2: "2024-04-03 1:07:12", B2: "10",
+      A3: "2024-04-02 2:08:14", B3: "20",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B3", {
+      columns: [],
+      rows: [{ fieldName: "Date", granularity: "minute_number" }],
+      measures: [{ fieldName: "Price", aggregator: "sum", id: "Price:sum" }],
+    });
+    expect(getEvaluatedGrid(model, "C1:C5")).toEqual([
+      ["(#1) Pivot"],
+      [""],
+      ["7'"],
+      ["8'"],
+      ["Total"],
+    ]);
+  });
+
+  test("Pivot with second_number", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Date",               B1: "Price", C1: "=PIVOT(1)",
+      A2: "2024-04-03 1:07:12", B2: "10",
+      A3: "2024-04-02 2:08:14", B3: "20",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B3", {
+      columns: [],
+      rows: [{ fieldName: "Date", granularity: "second_number" }],
+      measures: [{ fieldName: "Price", aggregator: "sum", id: "Price:sum" }],
+    });
+    expect(getEvaluatedGrid(model, "C1:C5")).toEqual([
+      ["(#1) Pivot"],
+      [""],
+      ["12''"],
+      ["14''"],
+      ["Total"],
+    ]);
   });
 
   test("Pivot is correctly marked as error when a field name is empty", () => {
@@ -1203,6 +1320,208 @@ describe("Spreadsheet Pivot", () => {
     );
   });
 
+  test("PIVOT.HEADER date day_of_week groupby", () => {
+    const grid = {
+      A1: "Date",
+      A2: "2024-04-03", // Wednesday
+      A4: "2024-04-02", // Tuesday
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:A4", {
+      columns: [],
+      rows: [{ fieldName: "Date", granularity: "day_of_week" }],
+      measures: [],
+    });
+    setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:day_of_week", 4)');
+    expect(getEvaluatedCell(model, "A27").value).toBe("Wednesday");
+    expect(getEvaluatedCell(model, "A27").format).toBe("0");
+
+    setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:day_of_week", "4")');
+    expect(getEvaluatedCell(model, "A28").value).toBe("Wednesday");
+
+    // not in the dataset
+    setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:day_of_week", 7)');
+    expect(getEvaluatedCell(model, "A29").value).toBe("Saturday");
+
+    // missing header value
+    setCellContent(model, "A30", '=PIVOT.HEADER(1, "Date:day_of_week", )');
+    expect(getEvaluatedCell(model, "A30").message).toBe(
+      "0 is not a valid day of week (it should be a number between 1 and 7)"
+    );
+
+    // without granularity
+    setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date", )');
+    expect(getEvaluatedCell(model, "A31").message).toBe(
+      "Dimensions don't match the pivot definition"
+    );
+
+    // not a number
+    setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date:day_of_week", "not a number")');
+    expect(getEvaluatedCell(model, "A32").message).toBe(
+      "The function PIVOT.HEADER expects a number value, but 'not a number' is a string, and cannot be coerced to a number."
+    );
+
+    // not a valid day of week
+    setCellContent(model, "A33", '=PIVOT.HEADER(1, "Date:day_of_week", 8)');
+    expect(getEvaluatedCell(model, "A33").message).toBe(
+      "8 is not a valid day of week (it should be a number between 1 and 7)"
+    );
+    setCellContent(model, "A34", '=PIVOT.HEADER(1, "Date:day_of_week", 0)');
+    expect(getEvaluatedCell(model, "A34").message).toBe(
+      "0 is not a valid day of week (it should be a number between 1 and 7)"
+    );
+  });
+
+  test("PIVOT.HEADER date hour_number groupby", () => {
+    const grid = {
+      A1: "Date",
+      A2: "2024-04-03 1:07:12",
+      A4: "2024-04-02 2:08:14",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:A4", {
+      columns: [],
+      rows: [{ fieldName: "Date", granularity: "hour_number" }],
+      measures: [],
+    });
+    setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:hour_number", 1)');
+    expect(getEvaluatedCell(model, "A27").value).toBe("1h");
+    expect(getEvaluatedCell(model, "A27").format).toBe("0");
+
+    setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:hour_number", "1")');
+    expect(getEvaluatedCell(model, "A28").value).toBe("1h");
+
+    // not in the dataset
+    setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:hour_number", 7)');
+    expect(getEvaluatedCell(model, "A29").value).toBe("7h");
+
+    // missing header value
+    setCellContent(model, "A30", '=PIVOT.HEADER(1, "Date:hour_number", )');
+    expect(getEvaluatedCell(model, "A30").value).toBe("0h");
+
+    // without granularity
+    setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date", )');
+    expect(getEvaluatedCell(model, "A31").message).toBe(
+      "Dimensions don't match the pivot definition"
+    );
+
+    // not a number
+    setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date:hour_number", "not a number")');
+    expect(getEvaluatedCell(model, "A32").message).toBe(
+      "The function PIVOT.HEADER expects a number value, but 'not a number' is a string, and cannot be coerced to a number."
+    );
+
+    // not a valid hour
+    setCellContent(model, "A33", '=PIVOT.HEADER(1, "Date:hour_number", 24)');
+    expect(getEvaluatedCell(model, "A33").message).toBe(
+      "24 is not a valid hour (it should be a number between 0 and 23)"
+    );
+    setCellContent(model, "A34", '=PIVOT.HEADER(1, "Date:hour_number", -1)');
+    expect(getEvaluatedCell(model, "A34").message).toBe(
+      "-1 is not a valid hour (it should be a number between 0 and 23)"
+    );
+  });
+
+  test("PIVOT.HEADER date minute_number groupby", () => {
+    const grid = {
+      A1: "Date",
+      A2: "2024-04-03 1:07:12",
+      A4: "2024-04-02 2:08:14",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:A4", {
+      columns: [],
+      rows: [{ fieldName: "Date", granularity: "minute_number" }],
+      measures: [],
+    });
+    setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:minute_number", 7)');
+    expect(getEvaluatedCell(model, "A27").value).toBe("7'");
+    expect(getEvaluatedCell(model, "A27").format).toBe("0");
+
+    setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:minute_number", "7")');
+    expect(getEvaluatedCell(model, "A28").value).toBe("7'");
+
+    // not in the dataset
+    setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:minute_number", 1)');
+    expect(getEvaluatedCell(model, "A29").value).toBe("1'");
+
+    // missing header value
+    setCellContent(model, "A30", '=PIVOT.HEADER(1, "Date:minute_number", )');
+    expect(getEvaluatedCell(model, "A30").value).toBe("0'");
+
+    // without granularity
+    setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date", )');
+    expect(getEvaluatedCell(model, "A31").message).toBe(
+      "Dimensions don't match the pivot definition"
+    );
+
+    // not a number
+    setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date:minute_number", "not a number")');
+    expect(getEvaluatedCell(model, "A32").message).toBe(
+      "The function PIVOT.HEADER expects a number value, but 'not a number' is a string, and cannot be coerced to a number."
+    );
+
+    // not a valid minute
+    setCellContent(model, "A33", '=PIVOT.HEADER(1, "Date:minute_number", 60)');
+    expect(getEvaluatedCell(model, "A33").message).toBe(
+      "60 is not a valid minute (it should be a number between 0 and 59)"
+    );
+    setCellContent(model, "A34", '=PIVOT.HEADER(1, "Date:minute_number", -1)');
+    expect(getEvaluatedCell(model, "A34").message).toBe(
+      "-1 is not a valid minute (it should be a number between 0 and 59)"
+    );
+  });
+
+  test("PIVOT.HEADER date second_number groupby", () => {
+    const grid = {
+      A1: "Date",
+      A2: "2024-04-03 1:07:12",
+      A4: "2024-04-02 2:08:14",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:A4", {
+      columns: [],
+      rows: [{ fieldName: "Date", granularity: "second_number" }],
+      measures: [],
+    });
+    setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:second_number", 7)');
+    expect(getEvaluatedCell(model, "A27").value).toBe("7''");
+    expect(getEvaluatedCell(model, "A27").format).toBe("0");
+
+    setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:second_number", "7")');
+    expect(getEvaluatedCell(model, "A28").value).toBe("7''");
+
+    // not in the dataset
+    setCellContent(model, "A29", '=PIVOT.HEADER(1, "Date:second_number", 1)');
+    expect(getEvaluatedCell(model, "A29").value).toBe("1''");
+
+    // missing header value
+    setCellContent(model, "A30", '=PIVOT.HEADER(1, "Date:second_number", )');
+    expect(getEvaluatedCell(model, "A30").value).toBe("0''");
+
+    // without granularity
+    setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date", )');
+    expect(getEvaluatedCell(model, "A31").message).toBe(
+      "Dimensions don't match the pivot definition"
+    );
+
+    // not a number
+    setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date:second_number", "not a number")');
+    expect(getEvaluatedCell(model, "A32").message).toBe(
+      "The function PIVOT.HEADER expects a number value, but 'not a number' is a string, and cannot be coerced to a number."
+    );
+
+    // not a valid second
+    setCellContent(model, "A33", '=PIVOT.HEADER(1, "Date:second_number", 60)');
+    expect(getEvaluatedCell(model, "A33").message).toBe(
+      "60 is not a valid second (it should be a number between 0 and 59)"
+    );
+    setCellContent(model, "A34", '=PIVOT.HEADER(1, "Date:second_number", -1)');
+    expect(getEvaluatedCell(model, "A34").message).toBe(
+      "-1 is not a valid second (it should be a number between 0 and 59)"
+    );
+  });
+
   test("PIVOT.HEADER date day groupby", () => {
     const grid = {
       A1: "Date",
@@ -1500,14 +1819,14 @@ describe("Spreadsheet arguments parsing", () => {
       {
         field: "Date:year",
         value: 2024,
-        type: "date",
+        type: "datetime",
       },
     ]);
     expect(pivot.parseArgsToPivotDomain(toFunctionResultObject(["Date:year", "2024"]))).toEqual([
       {
         field: "Date:year",
         value: 2024,
-        type: "date",
+        type: "datetime",
       },
     ]);
     expect(() =>

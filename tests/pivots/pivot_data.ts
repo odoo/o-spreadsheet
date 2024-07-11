@@ -563,6 +563,7 @@ export const pivotModelData = function (xc: string) {
         code: "en_US",
         thousandsSeparator: ",",
         decimalSeparator: ".",
+        weekStart: 7,
         dateFormat: "m/d/yyyy",
         timeFormat: "hh:mm:ss a",
         formulaArgSeparator: ",",

@@ -1,5 +1,5 @@
 import { deepCopy, deepEquals } from "../../../../helpers";
-import { isDateField } from "../../../../helpers/pivot/pivot_helpers";
+import { isDateOrDatetimeField } from "../../../../helpers/pivot/pivot_helpers";
 import { pivotRegistry } from "../../../../helpers/pivot/pivot_registry";
 import { Get } from "../../../../store_engine";
 import { SpreadsheetStore } from "../../../../stores/spreadsheet_store";
@@ -90,25 +90,27 @@ export class PivotSidePanelStore extends SpreadsheetStore {
       .concat(rows)
       .concat(columns)
       .map((field) => field.fieldName);
-    const unusedDateTimeGranularities = this.unusedDateTimeGranularities;
+    const unusedGranularities = this.unusedGranularities;
     return groupableFields
       .filter((field) => {
-        if (isDateField(field)) {
-          return (
-            !currentlyUsed.includes(field.name) || unusedDateTimeGranularities[field.name].size > 0
-          );
+        if (isDateOrDatetimeField(field)) {
+          return !currentlyUsed.includes(field.name) || unusedGranularities[field.name].size > 0;
         }
         return !currentlyUsed.includes(field.name);
       })
       .sort((a, b) => a.string.localeCompare(b.string));
   }
 
-  get allGranularities() {
-    return pivotRegistry.get(this.pivot.type).granularities;
+  get datetimeGranularities() {
+    return pivotRegistry.get(this.pivot.type).datetimeGranularities;
   }
 
-  get unusedDateTimeGranularities() {
-    return this.getUnusedDateTimeGranularities(
+  get dateGranularities() {
+    return pivotRegistry.get(this.pivot.type).dateGranularities;
+  }
+
+  get unusedGranularities() {
+    return this.getUnusedGranularities(
       this.fields,
       this.draft ?? this.getters.getPivotCoreDefinition(this.pivotId)
     );
@@ -193,7 +195,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
     const { columns, rows } = definition;
     const columnsWithGranularity = deepCopy(columns);
     const rowsWithGranularity = deepCopy(rows);
-    const unusedGranularities = this.getUnusedDateTimeGranularities(fields, definition);
+    const unusedGranularities = this.getUnusedGranularities(fields, definition);
     for (const dimension of columnsWithGranularity.concat(rowsWithGranularity)) {
       const fieldType = fields[dimension.fieldName]?.type;
       if ((fieldType === "date" || fieldType === "datetime") && !dimension.granularity) {
@@ -210,16 +212,22 @@ export class PivotSidePanelStore extends SpreadsheetStore {
     };
   }
 
-  private getUnusedDateTimeGranularities(fields: PivotFields, definition: PivotCoreDefinition) {
+  private getUnusedGranularities(
+    fields: PivotFields,
+    definition: PivotCoreDefinition
+  ): Record<string, Set<string>> {
     const { columns, rows } = definition;
     const dateFields = columns.concat(rows).filter((dimension) => {
       const fieldType = fields[dimension.fieldName]?.type;
       return fieldType === "date" || fieldType === "datetime";
     });
-    const granularities = this.allGranularities;
     const granularitiesPerFields = {};
     for (const field of dateFields) {
-      granularitiesPerFields[field.fieldName] = new Set(granularities);
+      granularitiesPerFields[field.fieldName] = new Set(
+        fields[field.fieldName]?.type === "date"
+          ? this.dateGranularities
+          : this.datetimeGranularities
+      );
     }
     for (const field of dateFields) {
       granularitiesPerFields[field.fieldName].delete(field.granularity);

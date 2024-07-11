@@ -8,7 +8,7 @@ import {
   PivotFields,
   PivotMeasure,
 } from "../../types/pivot";
-import { isDateField } from "./pivot_helpers";
+import { isDateOrDatetimeField } from "./pivot_helpers";
 
 /**
  * Represent a pivot runtime definition. A pivot runtime definition is a pivot
@@ -89,7 +89,7 @@ function createMeasure(fields: PivotFields, measure: PivotCoreMeasure): PivotMea
 function createPivotDimension(fields: PivotFields, dimension: PivotCoreDimension): PivotDimension {
   const field = fields[dimension.fieldName];
   const type = field?.type ?? "integer";
-  const granularity = field && isDateField(field) ? dimension.granularity : undefined;
+  const granularity = field && isDateOrDatetimeField(field) ? dimension.granularity : undefined;
 
   return {
     /**

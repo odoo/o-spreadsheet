@@ -250,7 +250,7 @@ function compareDimensionValues(dimension: PivotDimension, a: string, b: string)
   if (b === "null") {
     return dimension.order === "asc" ? -1 : 1;
   }
-  if (dimension.type === "integer" || dimension.type === "date") {
+  if (dimension.type === "integer" || dimension.type === "datetime") {
     return dimension.order === "asc" ? Number(a) - Number(b) : Number(b) - Number(a);
   }
   return dimension.order === "asc" ? a.localeCompare(b) : b.localeCompare(a);
