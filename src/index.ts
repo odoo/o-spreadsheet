@@ -114,6 +114,7 @@ import {
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
 
 import { CellComposerStore } from "./components/composer/composer/cell_composer_store";
+import { PivotMeasureDisplayPanelStore } from "./components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel_store";
 import {
   areDomainArgsFieldsValid,
   createPivotFormula,
@@ -414,6 +415,7 @@ export const stores = {
   useLocalStore,
   SidePanelStore,
   PivotSidePanelStore,
+  PivotMeasureDisplayPanelStore,
 };
 
 export type { StoreConstructor, StoreParams } from "./store_engine";

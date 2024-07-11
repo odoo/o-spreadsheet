@@ -362,6 +362,14 @@ export function getGrid(model: Model): GridResult {
   return result;
 }
 
+export function getFormattedGrid(model: Model): GridResult {
+  const result: GridResult = {};
+  for (const [xc, cell] of Object.entries(getCellGrid(model))) {
+    result[xc] = cell.formattedValue ?? "";
+  }
+  return result;
+}
+
 export function getGridFormat(model: Model): GridFormatDescr {
   const result: GridFormatDescr = {};
   for (const [xc, cell] of Object.entries(getCellGrid(model))) {
