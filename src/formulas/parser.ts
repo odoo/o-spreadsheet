@@ -1,4 +1,4 @@
-import { parseNumber, removeStringQuotes } from "../helpers/index";
+import { parseNumber, unquote } from "../helpers/index";
 import { _t } from "../translation";
 import { DEFAULT_LOCALE } from "../types";
 import { BadExpressionError, InvalidReferenceError } from "../types/errors";
@@ -110,7 +110,7 @@ function parseOperand(tokens: Token[]): AST {
     case "NUMBER":
       return { type: "NUMBER", value: parseNumber(current.value, DEFAULT_LOCALE) };
     case "STRING":
-      return { type: "STRING", value: removeStringQuotes(current.value) };
+      return { type: "STRING", value: unquote(current.value) };
     case "INVALID_REFERENCE":
       throw new InvalidReferenceError();
     case "REFERENCE":

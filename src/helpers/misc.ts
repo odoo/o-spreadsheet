@@ -6,23 +6,6 @@ import { ConsecutiveIndexes, Lazy, UID } from "../types";
 import { SearchOptions } from "../types/find_and_replace";
 import { Cloneable, DebouncedFunction } from "./../types/misc";
 
-/**
- * Remove quotes from a quoted string
- * ```js
- * removeStringQuotes('"Hello"')
- * > 'Hello'
- * ```
- */
-export function removeStringQuotes(str: string): string {
-  if (str[0] === '"') {
-    str = str.slice(1);
-  }
-  if (str[str.length - 1] === '"' && str[str.length - 2] !== "\\") {
-    return str.slice(0, str.length - 1);
-  }
-  return str;
-}
-
 function isCloneable<T extends Object>(obj: T | Cloneable<T>): obj is Cloneable<T> {
   return "clone" in obj && obj.clone instanceof Function;
 }
@@ -87,6 +70,13 @@ export function getUnquotedSheetName(sheetName: string): string {
   return unquote(sheetName, "'");
 }
 
+/**
+ * Remove quotes from a quoted string
+ * ```js
+ * unquote('"Hello"')
+ * > 'Hello'
+ * ```
+ */
 export function unquote(string: string, quoteChar: "'" | '"' = '"'): string {
   if (string.startsWith(quoteChar)) {
     string = string.slice(1);
