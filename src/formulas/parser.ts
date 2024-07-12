@@ -1,4 +1,4 @@
-import { parseNumber, removeStringQuotes, unquote } from "../helpers/index";
+import { parseNumber, unquote } from "../helpers/index";
 import { _t } from "../translation";
 import { DEFAULT_LOCALE } from "../types";
 import { BadExpressionError, CellErrorType } from "../types/errors";
@@ -150,7 +150,7 @@ function parseOperand(tokens: TokenList): AST {
     case "STRING":
       return {
         type: "STRING",
-        value: removeStringQuotes(current.value),
+        value: unquote(current.value),
         tokenStartIndex: current.tokenIndex,
         tokenEndIndex: current.tokenIndex,
       };

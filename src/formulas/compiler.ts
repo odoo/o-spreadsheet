@@ -1,7 +1,7 @@
 import { Token } from ".";
 import { argTargeting } from "../functions/arguments";
 import { functionRegistry } from "../functions/index";
-import { parseNumber, removeStringQuotes, unquote } from "../helpers";
+import { parseNumber, unquote } from "../helpers";
 import { _t } from "../translation";
 import { CompiledFormula, DEFAULT_LOCALE, FormulaToExecute } from "../types";
 import { BadExpressionError, UnknownFunctionError } from "../types/errors";
@@ -279,7 +279,7 @@ function formulaArguments(tokens: Token[]) {
         dependencies.push(token.value);
         break;
       case "STRING":
-        const value = removeStringQuotes(token.value);
+        const value = unquote(token.value);
         literalValues.strings.push({ value });
         break;
       case "NUMBER": {
