@@ -24,7 +24,7 @@ describe("expression compiler", () => {
   });
 
   test("simple values that throw error", () => {
-    expect(() => compiledBaseFunction(`='abc'`)).toThrowError();
+    expect(compiledBaseFunction(`='abc'`).isBadExpression).toBe(true);
   });
 
   test.each(["=1 + 3", "=2 * 3", "=2 - 3", "=2 / 3", "=-3", "=(3 + 1) * (-1 + 4)"])(
@@ -79,7 +79,7 @@ describe("expression compiler", () => {
   });
 
   test("cannot compile some invalid formulas", () => {
-    expect(() => compiledBaseFunction("=qsdf")).toThrow();
+    expect(compiledBaseFunction("=qsdf").isBadExpression).toBe(true);
   });
 });
 
@@ -100,10 +100,10 @@ describe("compile functions", () => {
           { name: "arg2", description: "", type: ["ANY"] },
         ],
       });
-      expect(() => compiledBaseFunction("=ANYFUNCTION()")).toThrow();
-      expect(() => compiledBaseFunction("=ANYFUNCTION(1)")).toThrow();
-      expect(() => compiledBaseFunction("=ANYFUNCTION(1,2)")).not.toThrow();
-      expect(() => compiledBaseFunction("=ANYFUNCTION(1,2,3)")).toThrow();
+      expect(compiledBaseFunction("=ANYFUNCTION()").isBadExpression).toBe(true);
+      expect(compiledBaseFunction("=ANYFUNCTION(1)").isBadExpression).toBe(true);
+      expect(compiledBaseFunction("=ANYFUNCTION(1,2)").isBadExpression).toBe(false);
+      expect(compiledBaseFunction("=ANYFUNCTION(1,2,3)").isBadExpression).toBe(true);
       restoreDefaultFunctions();
     });
 
@@ -118,9 +118,9 @@ describe("compile functions", () => {
           { name: "arg2", description: "", type: ["ANY"], optional: true },
         ],
       });
-      expect(() => compiledBaseFunction("=OPTIONAL(1)")).not.toThrow();
-      expect(() => compiledBaseFunction("=OPTIONAL(1,2)")).not.toThrow();
-      expect(() => compiledBaseFunction("=OPTIONAL(1,2,3)")).toThrow();
+      expect(compiledBaseFunction("=OPTIONAL(1)").isBadExpression).toBe(false);
+      expect(compiledBaseFunction("=OPTIONAL(1,2)").isBadExpression).toBe(false);
+      expect(compiledBaseFunction("=OPTIONAL(1,2,3)").isBadExpression).toBe(true);
       restoreDefaultFunctions();
     });
 
@@ -135,9 +135,9 @@ describe("compile functions", () => {
           { name: "arg2", description: "", type: ["ANY"], default: true, defaultValue: 42 },
         ],
       });
-      expect(() => compiledBaseFunction("=USEDEFAULTARG(1)")).not.toThrow();
-      expect(() => compiledBaseFunction("=USEDEFAULTARG(1,2)")).not.toThrow();
-      expect(() => compiledBaseFunction("=USEDEFAULTARG(1,2,3)")).toThrow();
+      expect(compiledBaseFunction("=USEDEFAULTARG(1)").isBadExpression).toBe(false);
+      expect(compiledBaseFunction("=USEDEFAULTARG(1,2)").isBadExpression).toBe(false);
+      expect(compiledBaseFunction("=USEDEFAULTARG(1,2,3)").isBadExpression).toBe(true);
       restoreDefaultFunctions();
     });
 
@@ -152,9 +152,9 @@ describe("compile functions", () => {
           { name: "arg2", description: "", type: ["ANY"], optional: true, repeating: true },
         ],
       });
-      expect(() => compiledBaseFunction("=REPEATABLE(1)")).not.toThrow();
-      expect(() => compiledBaseFunction("=REPEATABLE(1,2)")).not.toThrow();
-      expect(() => compiledBaseFunction("=REPEATABLE(1,2,3,4,5,6)")).not.toThrow();
+      expect(compiledBaseFunction("=REPEATABLE(1)").isBadExpression).toBe(false);
+      expect(compiledBaseFunction("=REPEATABLE(1,2)").isBadExpression).toBe(false);
+      expect(compiledBaseFunction("=REPEATABLE(1,2,3,4,5,6)").isBadExpression).toBe(false);
       restoreDefaultFunctions();
     });
 
@@ -170,10 +170,10 @@ describe("compile functions", () => {
           { name: "arg3", description: "", type: ["ANY"], optional: true, repeating: true },
         ],
       });
-      expect(() => compiledBaseFunction("=REPEATABLES(1, 2)")).toThrow();
-      expect(() => compiledBaseFunction("=REPEATABLES(1, 2, 3)")).not.toThrow();
-      expect(() => compiledBaseFunction("=REPEATABLES(1, 2, 3, 4)")).toThrow();
-      expect(() => compiledBaseFunction("=REPEATABLES(1, 2, 3, 4, 5)")).not.toThrow();
+      expect(compiledBaseFunction("=REPEATABLES(1, 2)").isBadExpression).toBe(true);
+      expect(compiledBaseFunction("=REPEATABLES(1, 2, 3)").isBadExpression).toBe(false);
+      expect(compiledBaseFunction("=REPEATABLES(1, 2, 3, 4)").isBadExpression).toBe(true);
+      expect(compiledBaseFunction("=REPEATABLES(1, 2, 3, 4, 5)").isBadExpression).toBe(false);
       restoreDefaultFunctions();
     });
   });
@@ -249,20 +249,20 @@ describe("compile functions", () => {
     );
 
     test("throw error if parameter isn't cell/range reference", () => {
-      expect(() => compiledBaseFunction("=USEMETAARG(X8)")).not.toThrow();
-      expect(() => compiledBaseFunction("=USEMETAARG($X$8)")).not.toThrow();
-      expect(() => compiledBaseFunction("=USEMETAARG(Sheet42!X8)")).not.toThrow();
-      expect(() => compiledBaseFunction("=USEMETAARG('Sheet 42'!X8)")).not.toThrow();
+      expect(compiledBaseFunction("=USEMETAARG(X8)").isBadExpression).toBe(false);
+      expect(compiledBaseFunction("=USEMETAARG($X$8)").isBadExpression).toBe(false);
+      expect(compiledBaseFunction("=USEMETAARG(Sheet42!X8)").isBadExpression).toBe(false);
+      expect(compiledBaseFunction("=USEMETAARG('Sheet 42'!X8)").isBadExpression).toBe(false);
 
-      expect(() => compiledBaseFunction("=USEMETAARG(D3:Z9)")).not.toThrow();
-      expect(() => compiledBaseFunction("=USEMETAARG($D$3:$Z$9)")).not.toThrow();
-      expect(() => compiledBaseFunction("=USEMETAARG(Sheet42!$D$3:$Z$9)")).not.toThrow();
-      expect(() => compiledBaseFunction("=USEMETAARG('Sheet 42'!D3:Z9)")).not.toThrow();
+      expect(compiledBaseFunction("=USEMETAARG(D3:Z9)").isBadExpression).toBe(false);
+      expect(compiledBaseFunction("=USEMETAARG($D$3:$Z$9)").isBadExpression).toBe(false);
+      expect(compiledBaseFunction("=USEMETAARG(Sheet42!$D$3:$Z$9)").isBadExpression).toBe(false);
+      expect(compiledBaseFunction("=USEMETAARG('Sheet 42'!D3:Z9)").isBadExpression).toBe(false);
 
-      expect(() => compiledBaseFunction('=USEMETAARG("kikou")')).toThrowError();
-      expect(() => compiledBaseFunction('=USEMETAARG("")')).toThrowError();
-      expect(() => compiledBaseFunction("=USEMETAARG(TRUE)")).toThrowError();
-      expect(() => compiledBaseFunction("=USEMETAARG(SUM(1,2,3))")).toThrowError();
+      expect(compiledBaseFunction('=USEMETAARG("kikou")').isBadExpression).toBe(true);
+      expect(compiledBaseFunction('=USEMETAARG("")').isBadExpression).toBe(true);
+      expect(compiledBaseFunction("=USEMETAARG(TRUE)").isBadExpression).toBe(true);
+      expect(compiledBaseFunction("=USEMETAARG(SUM(1,2,3))").isBadExpression).toBe(true);
     });
 
     test("do not care about the value of the cell / range passed as a reference", () => {

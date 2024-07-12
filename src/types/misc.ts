@@ -180,6 +180,7 @@ export interface CompiledFormula {
   execute: FormulaToExecute;
   tokens: Token[];
   dependencies: string[];
+  isBadExpression: boolean;
 }
 
 export interface RangeCompiledFormula extends Omit<CompiledFormula, "dependencies"> {

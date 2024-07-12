@@ -58,6 +58,21 @@ export function compile(formula: string): CompiledFormula {
 }
 
 export function compileTokens(tokens: Token[]): CompiledFormula {
+  try {
+    return compileTokensOrThrow(tokens);
+  } catch (error) {
+    return {
+      tokens,
+      dependencies: [],
+      execute: function () {
+        return error;
+      },
+      isBadExpression: true,
+    };
+  }
+}
+
+function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
   const { dependencies, constantValues } = formulaArguments(tokens);
   const cacheKey = compilationCacheKey(tokens, dependencies, constantValues);
   if (!functionCache[cacheKey]) {
@@ -194,6 +209,7 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
     dependencies,
     constantValues,
     tokens,
+    isBadExpression: false,
   };
   return compiledFormula;
 }

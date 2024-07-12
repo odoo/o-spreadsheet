@@ -1,5 +1,5 @@
 import { DEFAULT_STYLE } from "../../constants";
-import { Token, compile, tokenize } from "../../formulas";
+import { Token, compile } from "../../formulas";
 import { isEvaluationError, toString } from "../../functions/helpers";
 import { deepEquals, isExcelCompatible, recomputeZones } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells";
@@ -557,11 +557,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     if (!content.startsWith("=")) {
       return this.createLiteralCell(id, content, format, style);
     }
-    try {
-      return this.createFormulaCell(id, content, format, style, sheetId);
-    } catch (error) {
-      return this.createErrorFormula(id, content, format, style, error);
-    }
+    return this.createFormulaCell(id, content, format, style, sheetId);
   }
 
   private createLiteralCell(
@@ -639,29 +635,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       sheetId,
       this.getters.getRangeString
     );
-  }
-
-  private createErrorFormula(
-    id: UID,
-    content: string,
-    format: Format | undefined,
-    style: Style | undefined,
-    error: Error
-  ): FormulaCell {
-    return {
-      id,
-      content,
-      style,
-      format,
-      isFormula: true,
-      compiledFormula: {
-        tokens: tokenize(content),
-        dependencies: [],
-        execute: function () {
-          throw error;
-        },
-      },
-    };
   }
 
   private checkCellOutOfSheet(cmd: PositionDependentCommand): CommandResult {
