@@ -6,6 +6,10 @@ describe("parser", () => {
     expect(parse("RAND()")).toEqual({ type: "FUNCALL", value: "RAND", args: [] });
   });
 
+  test("cannot parse a quoted function call", () => {
+    expect(() => parse("'RAND'()")).toThrow("Invalid expression");
+  });
+
   test("can parse a function call with one argument", () => {
     expect(parse("SUM(1)")).toEqual({
       type: "FUNCALL",
@@ -32,7 +36,7 @@ describe("parser", () => {
   });
 
   test("function without a opening parenthesis", () => {
-    expect(() => parse(`SUM 5`)).toThrow("Invalid formula");
+    expect(() => parse(`SUM 5`)).toThrow("Invalid expression");
   });
 
   test("function without closing parenthesis", () => {
@@ -189,13 +193,26 @@ describe("parser", () => {
       ],
     });
   });
-});
 
-describe("parsing other stuff", () => {
-  test("arbitrary text", () => {
-    expect(() => parse("=undefined")).toThrow();
+  test("can parse simple symbol", () => {
+    expect(parse("Hello")).toEqual({
+      type: "SYMBOL",
+      value: "Hello",
+    });
+  });
+
+  test("can parse quoted symbol", () => {
+    expect(parse("'Hello world'")).toEqual({
+      type: "SYMBOL",
+      value: "Hello world",
+    });
+  });
+
+  test("cannot parse unquoted symbol with space", () => {
+    expect(() => parse("Hello world")).toThrow("Invalid expression");
   });
 });
+
 describe("Converting AST to string", () => {
   test("Convert number", () => {
     expect(astToFormula(parse("1"))).toBe("1");

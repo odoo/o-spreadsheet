@@ -6,7 +6,7 @@
  */
 
 export const demoData = {
-  version: 17,
+  version: 19,
   sheets: [
     {
       id: "sh1",
@@ -2258,6 +2258,9 @@ export const demoData = {
         A21: { format: 5, content: "45378.20659722222" },
         A22: { format: 5, content: "45378.20659722222" },
         A25: { content: '=PIVOT("1")' },
+        A33: { content: "Commissions" },
+        A34: { content: "Alice" },
+        A35: { content: "Bob" },
         B1: { style: 11, content: "Opportunity" },
         B2: { content: "Alice's opportunity" },
         B3: { content: "Roger's opportunity" },
@@ -2280,6 +2283,8 @@ export const demoData = {
         B20: { content: "Quote for 12 Tables" },
         B21: { content: "Need 20 Desks" },
         B22: { content: "Access to Online Catalog" },
+        B34: { content: "0.01", format: 1 },
+        B35: { content: "0.02", format: 1 },
         C1: { style: 11, content: "Contact Name" },
         C2: { content: "Alice" },
         C4: { content: "Charlie" },
@@ -2523,9 +2528,25 @@ export const demoData = {
   pivots: {
     1: {
       type: "SPREADSHEET",
-      columns: [{ name: "Stage" }],
-      rows: [{ name: "Created on", granularity: "month_number", order: "asc" }],
-      measures: [{ name: "Expected Revenue", aggregator: "count" }],
+      columns: [{ fieldName: "Stage" }],
+      rows: [{ fieldName: "Salesperson", order: "asc" }],
+      measures: [
+        {
+          id: "Expected Revenue:sum",
+          fieldName: "Expected Revenue",
+          aggregator: "sum",
+        },
+        {
+          id: "Commission",
+          fieldName: "Commission",
+          aggregator: "sum",
+          userDefinedName: "Commission",
+          computedBy: {
+            sheetId: "pivot",
+            formula: "='Expected Revenue:sum'*VLOOKUP(Salesperson,A34:B35,2,0)",
+          },
+        },
+      ],
       name: "My pivot",
       dataSet: { sheetId: "pivot", zone: { top: 0, bottom: 21, left: 0, right: 8 } },
       formulaId: "1",

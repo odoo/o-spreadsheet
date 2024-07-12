@@ -1,6 +1,6 @@
 import { isExportableToExcel } from "../../../formulas/index";
 import { getItemId, positions, toXC } from "../../../helpers/index";
-import { CellErrorType } from "../../../types/errors";
+import { CellErrorType, EvaluationError } from "../../../types/errors";
 import {
   CellPosition,
   CellValue,
@@ -12,8 +12,11 @@ import {
   Format,
   FormattedValue,
   FormulaCell,
+  FunctionResultObject,
   Matrix,
   Range,
+  RangeCompiledFormula,
+  SymbolValueProvider,
   UID,
   Zone,
   invalidateDependenciesCommands,
@@ -141,6 +144,7 @@ import { Evaluator } from "./evaluator";
 export class EvaluationPlugin extends UIPlugin {
   static getters = [
     "evaluateFormula",
+    "evaluateCompiledFormula",
     "getCorrespondingFormulaCell",
     "getRangeFormattedValues",
     "getRangeValues",
@@ -215,6 +219,20 @@ export class EvaluationPlugin extends UIPlugin {
       return this.evaluator.evaluateFormula(sheetId, formulaString);
     } catch (error) {
       return error.value || CellErrorType.GenericError;
+    }
+  }
+
+  evaluateCompiledFormula(
+    sheetId: UID,
+    compiledFormula: RangeCompiledFormula,
+    getSymbolValue: SymbolValueProvider
+  ): FunctionResultObject | Matrix<FunctionResultObject> {
+    try {
+      return this.evaluator.evaluateCompiledFormula(sheetId, compiledFormula, getSymbolValue);
+    } catch (error) {
+      return error instanceof EvaluationError
+        ? error
+        : { value: CellErrorType.GenericError, message: error.message };
     }
   }
 

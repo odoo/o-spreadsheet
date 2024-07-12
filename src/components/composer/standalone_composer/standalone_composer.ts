@@ -1,7 +1,8 @@
 import { Component } from "@odoo/owl";
 import { SELECTION_BORDER_COLOR } from "../../../constants";
+import { AutoCompleteProviderDefinition } from "../../../registries";
 import { Store, useLocalStore, useStore } from "../../../store_engine";
-import { ComposerFocusType, SpreadsheetChildEnv } from "../../../types/index";
+import { ComposerFocusType, SpreadsheetChildEnv, UID } from "../../../types/index";
 import { css, cssPropertiesToCss } from "../../helpers/css";
 import { ComposerSelection } from "../composer/abstract_composer_store";
 import { CellComposer } from "../composer/composer";
@@ -39,6 +40,8 @@ css/* scss */ `
 interface Props {
   onConfirm: (content: string) => void;
   composerContent: string;
+  defaultRangeSheetId: UID;
+  contextualAutocomplete?: AutoCompleteProviderDefinition;
   placeholder?: string;
   class?: string;
   invalid?: boolean;
@@ -48,7 +51,9 @@ export class StandaloneComposer extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-StandaloneComposer";
   static props = {
     composerContent: { type: String, optional: true },
+    defaultRangeSheetId: { type: String, optional: true },
     onConfirm: Function,
+    contextualAutocomplete: { type: Object, optional: true },
     placeholder: { type: String, optional: true },
     class: { type: String, optional: true },
     invalid: { type: Boolean, optional: true },
@@ -67,6 +72,8 @@ export class StandaloneComposer extends Component<Props, SpreadsheetChildEnv> {
     const standaloneComposerStore = useLocalStore(StandaloneComposerStore, () => ({
       onConfirm: this.props.onConfirm,
       content: this.props.composerContent,
+      contextualAutocomplete: this.props.contextualAutocomplete,
+      defaultRangeSheetId: this.props.defaultRangeSheetId,
     }));
     this.standaloneComposerStore = standaloneComposerStore;
     this.composerInterface = {

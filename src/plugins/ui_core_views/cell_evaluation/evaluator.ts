@@ -17,11 +17,17 @@ import {
   Matrix,
   Range,
   RangeCompiledFormula,
+  SymbolValueProvider,
   UID,
   Zone,
   isMatrix,
 } from "../../../types";
-import { CellErrorType, CircularDependencyError, SplillBlockedError } from "../../../types/errors";
+import {
+  BadExpressionError,
+  CellErrorType,
+  CircularDependencyError,
+  SplillBlockedError,
+} from "../../../types/errors";
 import { CompilationParameters, buildCompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
 import { PositionMap } from "./position_map";
@@ -197,20 +203,32 @@ export class Evaluator {
     const ranges: Range[] = compiledFormula.dependencies.map((xc) =>
       this.getters.getRangeFromSheetXC(sheetId, xc)
     );
-    this.updateCompilationParameters();
-    const result = updateEvalContextAndExecute(
-      { ...compiledFormula, dependencies: ranges },
-      this.compilationParams,
-      sheetId,
-      undefined
-    );
+    const result = this.evaluateCompiledFormula(sheetId, {
+      ...compiledFormula,
+      dependencies: ranges,
+    });
     if (isMatrix(result)) {
       return matrixMap(result, (cell) => cell.value);
     }
-    if (result.value === null) {
-      return 0;
-    }
     return result.value;
+  }
+
+  evaluateCompiledFormula(
+    sheetId: UID,
+    compiledFormula: RangeCompiledFormula,
+    getContextualSymbolValue?: SymbolValueProvider
+  ) {
+    const result = updateEvalContextAndExecute(
+      compiledFormula,
+      this.compilationParams,
+      sheetId,
+      this.getSymbolValueProvider(getContextualSymbolValue),
+      this.compilationParams.evalContext.__originCellPosition
+    );
+    if (isMatrix(result)) {
+      return matrixMap(result, nullValueToZeroValue);
+    }
+    return nullValueToZeroValue(result);
   }
 
   private getAllCells(): PositionSet {
@@ -243,6 +261,7 @@ export class Evaluator {
 
   private nextPositionsToUpdate = new PositionSet({});
   private cellsBeingComputed = new Set<UID>();
+  private symbolsBeingComputed = new Set<string>();
 
   private evaluate(positions: PositionSet) {
     this.cellsBeingComputed = new Set<UID>();
@@ -314,6 +333,7 @@ export class Evaluator {
       cellData.compiledFormula,
       this.compilationParams,
       formulaPosition.sheetId,
+      this.getSymbolValueProvider(),
       formulaPosition
     );
 
@@ -499,6 +519,27 @@ export class Evaluator {
     this.nextPositionsToUpdate.addMany(this.getArrayFormulasBlockedBy(invalidated));
   }
 
+  private getSymbolValueProvider(
+    getContextualSymbolValue?: SymbolValueProvider
+  ): SymbolValueProvider {
+    const getSymbolValue = (symbolName: string) => {
+      if (this.symbolsBeingComputed.has(symbolName)) {
+        return ERROR_CYCLE_CELL;
+      }
+      this.symbolsBeingComputed.add(symbolName);
+      try {
+        const symbolValue = getContextualSymbolValue?.(symbolName);
+        if (symbolValue) {
+          return symbolValue;
+        }
+        return new BadExpressionError(_t("Invalid formula"));
+      } finally {
+        this.symbolsBeingComputed.delete(symbolName);
+      }
+    };
+    return getSymbolValue;
+  }
+
   // ----------------------------------------------------------
   //                 COMMON FUNCTIONALITY
   // ----------------------------------------------------------
@@ -554,6 +595,7 @@ export function updateEvalContextAndExecute(
   compiledFormula: RangeCompiledFormula,
   compilationParams: CompilationParameters,
   sheetId: UID,
+  getSymbolValueProvider: SymbolValueProvider,
   originCellPosition: CellPosition | undefined
 ) {
   compilationParams.evalContext.__originCellPosition = originCellPosition;
@@ -562,6 +604,7 @@ export function updateEvalContextAndExecute(
     compiledFormula.dependencies,
     compilationParams.referenceDenormalizer,
     compilationParams.ensureRange,
+    getSymbolValueProvider,
     compilationParams.evalContext
   );
 }

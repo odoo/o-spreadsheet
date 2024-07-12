@@ -2,6 +2,8 @@ import { Component, useRef } from "@odoo/owl";
 import { isDefined } from "../../../../helpers";
 import { AGGREGATORS, isDateField } from "../../../../helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "../../../../helpers/pivot/pivot_runtime_definition";
+import { createMeasureAutoComplete } from "../../../../registries/auto_completes/pivot_dimension_auto_complete";
+import { Store, useStore } from "../../../../store_engine";
 import { SpreadsheetChildEnv } from "../../../../types";
 import {
   Aggregator,
@@ -13,6 +15,9 @@ import {
   PivotField,
   PivotMeasure,
 } from "../../../../types/pivot";
+import { ComposerFocusStore } from "../../../composer/composer_focus_store";
+import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
+import { css } from "../../../helpers";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_hook";
 import { AddDimensionButton } from "./add_dimension_button/add_dimension_button";
 import { PivotDimension } from "./pivot_dimension/pivot_dimension";
@@ -28,6 +33,12 @@ interface Props {
   allGranularities: string[];
 }
 
+css/* scss */ `
+  .add-calculated-measure {
+    cursor: pointer;
+  }
+`;
+
 export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotLayoutConfigurator";
   static components = {
@@ -35,6 +46,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     PivotDimension,
     PivotDimensionOrder,
     PivotDimensionGranularity,
+    StandaloneComposer,
   };
   static props = {
     definition: Object,
@@ -47,8 +59,14 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
 
   private dimensionsRef = useRef("pivot-dimensions");
   private dragAndDrop = useDragAndDropListItems();
+  private composerFocus!: Store<ComposerFocusStore>;
+
   AGGREGATORS = AGGREGATORS;
   isDateField = isDateField;
+
+  setup() {
+    this.composerFocus = useStore(ComposerFocusStore);
+  }
 
   startDragAndDrop(dimension: PivotDimensionType, event: MouseEvent) {
     if (event.button !== 0 || (event.target as HTMLElement).tagName === "SELECT") {
@@ -109,7 +127,8 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     if (
       event.button !== 0 ||
       (event.target as HTMLElement).tagName === "SELECT" ||
-      (event.target as HTMLElement).tagName === "INPUT"
+      (event.target as HTMLElement).tagName === "INPUT" ||
+      this.composerFocus.focusMode !== "inactive"
     ) {
       return;
     }
@@ -146,6 +165,10 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     });
   }
 
+  getMeasureAutocomplete(measure: PivotMeasure) {
+    return createMeasureAutoComplete(this.props.definition, measure);
+  }
+
   getDimensionElementsRects() {
     return Array.from(this.dimensionsRef.el!.children).map((el) => {
       const style = getComputedStyle(el)!;
@@ -180,6 +203,14 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     this.props.onDimensionsUpdated({
       measures: measures.map((measure) => {
         if (measure === updatedMeasure) {
+          if (measure.computedBy && userDefinedName) {
+            return {
+              ...measure,
+              userDefinedName,
+              id: this.getMeasureId(userDefinedName, measure.aggregator),
+              fieldName: userDefinedName,
+            };
+          }
           return {
             ...measure,
             userDefinedName,
@@ -214,7 +245,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     });
   }
 
-  private getMeasureId(fieldName: string, aggregator: string) {
+  private getMeasureId(fieldName: string, aggregator?: string) {
     const baseId = fieldName + (aggregator ? `:${aggregator}` : "");
     let id = baseId;
     let i = 2;
@@ -230,6 +261,24 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     return field?.aggregator ? field.aggregator : "count";
   }
 
+  addCalculatedMeasure() {
+    const { measures }: { measures: PivotCoreMeasure[] } = this.props.definition;
+    const measureName = this.env.model.getters.generateNewCalculatedMeasureName(measures);
+    this.props.onDimensionsUpdated({
+      measures: measures.concat([
+        {
+          id: this.getMeasureId(measureName),
+          fieldName: measureName,
+          aggregator: "sum",
+          computedBy: {
+            sheetId: this.env.model.getters.getActiveSheetId(),
+            formula: "=0",
+          },
+        },
+      ]),
+    });
+  }
+
   updateAggregator(updatedMeasure: PivotMeasure, aggregator: string) {
     const { measures } = this.props.definition;
     this.props.onDimensionsUpdated({
@@ -239,6 +288,24 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
             ...measure,
             aggregator,
             id: this.getMeasureId(updatedMeasure.fieldName, aggregator),
+          };
+        }
+        return measure;
+      }),
+    });
+  }
+
+  updateMeasureFormula(updatedMeasure: PivotMeasure, formula: string) {
+    const { measures } = this.props.definition;
+    this.props.onDimensionsUpdated({
+      measures: measures.map((measure) => {
+        if (measure === updatedMeasure) {
+          return {
+            ...measure,
+            computedBy: {
+              sheetId: this.env.model.getters.getActiveSheetId(),
+              formula: formula[0] === "=" ? formula : "=" + formula,
+            },
           };
         }
         return measure;

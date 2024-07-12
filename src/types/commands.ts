@@ -1271,6 +1271,7 @@ export const enum CommandResult {
   InvalidTableResize = "InvalidTableResize",
   PivotIdNotFound = "PivotIdNotFound",
   EmptyName = "EmptyName",
+  InvalidDefinition = "InvalidDefinition",
 }
 
 export interface CommandHandler<T> {

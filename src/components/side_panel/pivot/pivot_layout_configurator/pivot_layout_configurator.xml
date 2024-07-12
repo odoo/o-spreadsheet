@@ -55,7 +55,16 @@
       <div
         class="fw-bold pt-4 pb-1 d-flex flex-row justify-content-between align-items-center o-section-title o-pivot-measure">
         Measures
-        <AddDimensionButton onFieldPicked.bind="addMeasureDimension" fields="props.measureFields"/>
+        <AddDimensionButton onFieldPicked.bind="addMeasureDimension" fields="props.measureFields">
+          <div
+            t-on-click="addCalculatedMeasure"
+            class="p-2 bg-white border-top d-flex align-items-center add-calculated-measure">
+            <i class="pe-1">
+              <t t-call="o-spreadsheet-Icon.FORMULA"/>
+            </i>
+            Add calculated measure
+          </div>
+        </AddDimensionButton>
       </div>
       <t t-foreach="props.definition.measures" t-as="measure" t-key="measure.id">
         <div
@@ -66,6 +75,17 @@
             dimension="measure"
             onRemoved.bind="removeMeasureDimension"
             onNameUpdated.bind="onMeasureNameUpdated">
+            <div t-if="measure.computedBy" class="d-flex flex-row small">
+              <div class="d-flex flex-column py-2 px-2 w-100">
+                <div class="">Formula</div>
+                <StandaloneComposer
+                  onConfirm="(content) => this.updateMeasureFormula(measure, content)"
+                  composerContent="measure.computedBy.formula"
+                  defaultRangeSheetId="measure.computedBy.sheetId"
+                  contextualAutocomplete="getMeasureAutocomplete(measure)"
+                />
+              </div>
+            </div>
             <div class="d-flex flex-column small">
               <div class="d-flex py-1 px-2 w-100">
                 <div class="pivot-dim-operator-label">Aggregated by</div>
