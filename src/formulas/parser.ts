@@ -1,4 +1,4 @@
-import { parseNumber, removeStringQuotes } from "../helpers/index";
+import { parseNumber, removeStringQuotes, unquote } from "../helpers/index";
 import { _t } from "../translation";
 import { DEFAULT_LOCALE } from "../types";
 import { BadExpressionError, InvalidReferenceError } from "../types/errors";
@@ -59,6 +59,11 @@ export interface ASTFuncall extends ASTBase {
   args: AST[];
 }
 
+export interface ASTSymbol extends ASTBase {
+  type: "SYMBOL";
+  value: string;
+}
+
 interface ASTEmpty extends ASTBase {
   type: "EMPTY";
   value: "";
@@ -68,6 +73,7 @@ export type AST =
   | ASTOperation
   | ASTUnaryOperation
   | ASTFuncall
+  | ASTSymbol
   | ASTNumber
   | ASTBoolean
   | ASTString
@@ -129,7 +135,11 @@ function parseOperand(tokens: Token[]): AST {
     case "SYMBOL":
       const value = current.value;
       const nextToken = tokens[0];
-      if (nextToken?.type === "LEFT_PAREN" && functionRegex.test(current.value)) {
+      if (
+        nextToken?.type === "LEFT_PAREN" &&
+        functionRegex.test(current.value) &&
+        value === unquote(value, "'")
+      ) {
         const args = parseFunctionArgs(tokens);
         return { type: "FUNCALL", value: value, args };
       }
@@ -137,8 +147,7 @@ function parseOperand(tokens: Token[]): AST {
       if (upperCaseValue === "TRUE" || upperCaseValue === "FALSE") {
         return { type: "BOOLEAN", value: upperCaseValue === "TRUE" };
       }
-      throw new BadExpressionError(_t("Invalid formula"));
-
+      return { type: "SYMBOL", value: unquote(current.value, "'") };
     case "LEFT_PAREN":
       const result = parseExpression(tokens);
       consumeOrThrow(tokens, "RIGHT_PAREN", _t("Missing closing parenthesis"));

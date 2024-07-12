@@ -1,6 +1,6 @@
 import { Token } from ".";
 import { functionRegistry } from "../functions/index";
-import { concat, parseNumber, removeStringQuotes } from "../helpers";
+import { concat, parseNumber, removeStringQuotes, unquote } from "../helpers";
 import { _t } from "../translation";
 import { CompiledFormula, DEFAULT_LOCALE, FormulaToExecute } from "../types";
 import { BadExpressionError, UnknownFunctionError } from "../types/errors";
@@ -40,6 +40,7 @@ interface ConstantValues {
 
 type InternalCompiledFormula = CompiledFormula & {
   constantValues: ConstantValues;
+  symbols: string[];
 };
 
 // this cache contains all compiled function code, grouped by "structure". For
@@ -73,8 +74,8 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
 }
 
 function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
-  const { dependencies, constantValues } = formulaArguments(tokens);
-  const cacheKey = compilationCacheKey(tokens, dependencies, constantValues);
+  const { dependencies, constantValues, symbols } = formulaArguments(tokens);
+  const cacheKey = compilationCacheKey(tokens, dependencies, constantValues, symbols);
   if (!functionCache[cacheKey]) {
     const ast = parseTokens([...tokens]);
     const scope = new Scope();
@@ -94,6 +95,7 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
       "deps", // the dependencies in the current formula
       "ref", // a function to access a certain dependency at a given index
       "range", // same as above, but guarantee that the result is in the form of a range
+      "getSymbolValue",
       "ctx",
       code.toString()
     );
@@ -199,6 +201,9 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
             `ctx['${fnName}'](${left.returnExpression}, ${right.returnExpression})`
           );
         }
+        case "SYMBOL":
+          const symbolIndex = symbols.indexOf(ast.value);
+          return code.return(`getSymbolValue(this.symbols[${symbolIndex}])`);
         case "EMPTY":
           return code.return("undefined");
       }
@@ -208,6 +213,7 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
     execute: functionCache[cacheKey],
     dependencies,
     constantValues,
+    symbols,
     tokens,
     isBadExpression: false,
   };
@@ -227,7 +233,8 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
 function compilationCacheKey(
   tokens: Token[],
   dependencies: string[],
-  constantValues: ConstantValues
+  constantValues: ConstantValues,
+  symbols: string[]
 ): string {
   return concat(
     tokens.map((token) => {
@@ -261,6 +268,7 @@ function formulaArguments(tokens: Token[]) {
     strings: [],
   };
   const dependencies: string[] = [];
+  const symbols: string[] = [];
   for (const token of tokens) {
     switch (token.type) {
       case "INVALID_REFERENCE":
@@ -280,11 +288,16 @@ function formulaArguments(tokens: Token[]) {
         }
         break;
       }
+      case "SYMBOL": {
+        // function name symbols are also included here
+        symbols.push(unquote(token.value, "'"));
+      }
     }
   }
   return {
     dependencies,
     constantValues,
+    symbols,
   };
 }
 

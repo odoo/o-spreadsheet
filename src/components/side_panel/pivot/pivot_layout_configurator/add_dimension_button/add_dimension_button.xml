@@ -22,6 +22,7 @@
         onValueSelected="autoComplete.provider.selectProposal"
         onValueHovered="() => {}"
       />
+      <t t-slot="default" t-on-click="togglePopover"/>
     </Popover>
   </t>
 </templates>

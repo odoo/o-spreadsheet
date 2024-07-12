@@ -23,10 +23,6 @@ describe("expression compiler", () => {
     expect(compiledFormula.execute.toString()).toMatchSnapshot();
   });
 
-  test("simple values that throw error", () => {
-    expect(compiledBaseFunction(`='abc'`).isBadExpression).toBe(true);
-  });
-
   test.each(["=1 + 3", "=2 * 3", "=2 - 3", "=2 / 3", "=-3", "=(3 + 1) * (-1 + 4)"])(
     "some arithmetic expressions",
     (formula) => {
@@ -76,10 +72,6 @@ describe("expression compiler", () => {
   test("cells are converted to ranges if function require a range", () => {
     const compiledFormula = compiledBaseFunction("=sum(A1)");
     expect(compiledFormula.execute.toString()).toMatchSnapshot();
-  });
-
-  test("cannot compile some invalid formulas", () => {
-    expect(compiledBaseFunction("=qsdf").isBadExpression).toBe(true);
   });
 });
 
@@ -275,28 +267,29 @@ describe("compile functions", () => {
 
       let refFn = jest.fn();
       let ensureRange = jest.fn();
+      let getSymbolValue = jest.fn();
 
       const ctx = { USEMETAARG: () => {}, NOTUSEMETAARG: () => {} };
 
       const rangeA1 = createValidRange(m.getters, "ABC", "A1")!;
       const rangeA1ToB2 = createValidRange(m.getters, "ABC", "A1:B2")!;
 
-      compiledFormula1.execute([rangeA1], refFn, ensureRange, ctx);
+      compiledFormula1.execute([rangeA1], refFn, ensureRange, getSymbolValue, ctx);
       expect(refFn).toHaveBeenCalledWith(rangeA1, true);
       expect(ensureRange).toHaveBeenCalledTimes(0);
       refFn.mockReset();
 
-      compiledFormula2.execute([rangeA1ToB2], refFn, ensureRange, ctx);
+      compiledFormula2.execute([rangeA1ToB2], refFn, ensureRange, getSymbolValue, ctx);
       expect(refFn).toHaveBeenCalledWith(rangeA1ToB2, true);
       expect(ensureRange).toHaveBeenCalledTimes(0);
       refFn.mockReset();
 
-      compiledFormula3.execute([rangeA1], refFn, ensureRange, ctx);
+      compiledFormula3.execute([rangeA1], refFn, ensureRange, getSymbolValue, ctx);
       expect(refFn).toHaveBeenCalledWith(rangeA1, false);
       expect(ensureRange).toHaveBeenCalledTimes(0);
       refFn.mockReset();
 
-      compiledFormula4.execute([rangeA1ToB2], refFn, ensureRange, ctx);
+      compiledFormula4.execute([rangeA1ToB2], refFn, ensureRange, getSymbolValue, ctx);
       expect(refFn).toHaveBeenCalledTimes(0);
       expect(ensureRange).toHaveBeenCalledWith(rangeA1ToB2);
       refFn.mockReset();
@@ -311,5 +304,39 @@ describe("compile functions", () => {
     compile("= SUM(A1 )");
     compile("= SUM   (    A1    )");
     expect(Object.keys(functionCache)).toEqual(["=SUM(C|0|)"]);
+  });
+
+  test("simple symbol", () => {
+    const compiledFormula = compiledBaseFunction("=Hello");
+    expect(compiledFormula.execute.toString()).toMatchSnapshot();
+  });
+
+  test("simple in a function", () => {
+    const compiledFormula = compiledBaseFunction("=SUM(Hello)");
+    expect(compiledFormula.execute.toString()).toMatchSnapshot();
+  });
+
+  test("two different symbols", () => {
+    const compiledFormula = compiledBaseFunction("=Hello+world");
+    expect(compiledFormula.execute.toString()).toMatchSnapshot();
+  });
+
+  test("same symbol twice", () => {
+    const compiledFormula = compiledBaseFunction("=Hello+Hello");
+    expect(compiledFormula.execute.toString()).toMatchSnapshot();
+  });
+
+  test("symbol with optional single quotes", () => {
+    const compiledFormula = compiledBaseFunction("='Hello'");
+    expect(compiledFormula.execute.toString()).toMatchSnapshot();
+  });
+
+  test("symbol with space and with single quotes", () => {
+    const compiledFormula = compiledBaseFunction("='Hello world'");
+    expect(compiledFormula.execute.toString()).toMatchSnapshot();
+  });
+
+  test("symbol with space and without single quotes", () => {
+    expect(compiledBaseFunction("=Hello world").isBadExpression).toBe(true);
   });
 });
