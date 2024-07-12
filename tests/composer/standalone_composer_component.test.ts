@@ -5,6 +5,7 @@ import { StandaloneComposer } from "../../src/components/composer/standalone_com
 import { zoneToXc } from "../../src/helpers";
 import { sidePanelRegistry } from "../../src/registries/side_panel_registry";
 import { Store } from "../../src/store_engine";
+import { createSheet } from "../test_helpers/commands_helpers";
 import { click, keyDown, simulateClick } from "../test_helpers/dom_helper";
 import { editStandaloneComposer, mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 
@@ -20,9 +21,13 @@ let composerFocusStore: Store<ComposerFocusStore>;
 let model: Model;
 
 class SidePanelWithComposer extends Component<any, any> {
-  static template = xml`
+  static template = xml/*xml*/ `
       <div>
-        <StandaloneComposer onConfirm="props.onConfirm" composerContent="props.composerContent" />
+        <StandaloneComposer
+          onConfirm="props.onConfirm"
+          composerContent="props.composerContent"
+          defaultRangeSheetId="props.defaultRangeSheetId"
+        />
       </div>`;
   static props = { "*": Object };
   static components = { StandaloneComposer };
@@ -32,8 +37,11 @@ sidePanelRegistry.add("SidePanelWithComposer", {
   Body: SidePanelWithComposer,
 });
 
-async function openSidePanelWithComposer(composerContent = "") {
-  env.openSidePanel("SidePanelWithComposer", { onConfirm, composerContent });
+async function openSidePanelWithComposer(
+  composerContent = "",
+  defaultRangeSheetId = model.getters.getActiveSheetId()
+) {
+  env.openSidePanel("SidePanelWithComposer", { onConfirm, composerContent, defaultRangeSheetId });
   await nextTick();
   composerEl = fixture.querySelector<HTMLElement>(".o-sidePanel .o-composer")!;
 }
@@ -50,7 +58,10 @@ describe("Spreadsheet integrations tests", () => {
     await openSidePanelWithComposer("Hello world");
     expect(composerEl.textContent).toBe("Hello world");
 
-    await editStandaloneComposer(composerSelector, " new text !", { fromScratch: false });
+    await editStandaloneComposer(composerSelector, " new text !", {
+      fromScratch: false,
+      confirm: false,
+    });
     expect(composerEl.textContent).toBe("Hello world new text !");
     await keyDown({ key: "Enter" });
     expect(onConfirm).toHaveBeenCalledWith("Hello world new text !");
@@ -105,5 +116,22 @@ describe("Spreadsheet integrations tests", () => {
     await editStandaloneComposer(composerSelector, "=A1", { confirm: false });
     await keyDown({ key: "Enter" });
     expect(zoneToXc(model.getters.getSelectedZone())).toBe("A1");
+  });
+
+  test("content with references from another sheet", async () => {
+    const sheet1Id = model.getters.getActiveSheetId();
+    createSheet(model, { sheetId: "sheet2", activate: true });
+    await openSidePanelWithComposer("=A1", sheet1Id);
+    expect(composerEl.textContent).toBe("=Sheet1!A1");
+  });
+
+  test("display the content from the props when inactive", async () => {
+    await openSidePanelWithComposer("content from props");
+    await editStandaloneComposer(composerSelector, "edited", { confirm: false });
+    expect(composerEl.textContent).toBe("edited");
+    await keyDown({ key: "Enter" });
+    // in a real world scenario, the props most likely changed
+    // to the new confirmed content
+    expect(composerEl.textContent).toBe("content from props");
   });
 });

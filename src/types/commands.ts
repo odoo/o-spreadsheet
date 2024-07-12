@@ -1270,6 +1270,7 @@ export const enum CommandResult {
   PivotIdNotFound = "PivotIdNotFound",
   EmptyName = "EmptyName",
   ValueCellIsInvalidFormula = "ValueCellIsInvalidFormula",
+  InvalidDefinition = "InvalidDefinition",
 }
 
 export interface CommandHandler<T> {

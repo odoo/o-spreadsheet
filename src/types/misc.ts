@@ -169,10 +169,13 @@ export type ReferenceDenormalizer = (
 
 export type EnsureRange = (range: Range) => Matrix<FunctionResultObject>;
 
+export type GetSymbolValue = (symbolName: string) => Arg;
+
 export type FormulaToExecute = (
   deps: Range[],
   refFn: ReferenceDenormalizer,
   range: EnsureRange,
+  getSymbolValue: GetSymbolValue,
   ctx: {}
 ) => Matrix<FunctionResultObject> | FunctionResultObject;
 

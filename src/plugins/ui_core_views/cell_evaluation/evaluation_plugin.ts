@@ -13,8 +13,10 @@ import {
   FormattedValue,
   FormulaCell,
   FunctionResultObject,
+  GetSymbolValue,
   Matrix,
   Range,
+  RangeCompiledFormula,
   UID,
   Zone,
   invalidateDependenciesCommands,
@@ -144,6 +146,7 @@ export class EvaluationPlugin extends UIPlugin {
   static getters = [
     "evaluateFormula",
     "evaluateFormulaResult",
+    "evaluateCompiledFormula",
     "getCorrespondingFormulaCell",
     "getRangeFormattedValues",
     "getRangeValues",
@@ -227,6 +230,14 @@ export class EvaluationPlugin extends UIPlugin {
     formulaString: string
   ): Matrix<FunctionResultObject> | FunctionResultObject {
     return this.evaluator.evaluateFormulaResult(sheetId, formulaString);
+  }
+
+  evaluateCompiledFormula(
+    sheetId: UID,
+    compiledFormula: RangeCompiledFormula,
+    getSymbolValue: GetSymbolValue
+  ): FunctionResultObject | Matrix<FunctionResultObject> {
+    return this.evaluator.evaluateCompiledFormula(sheetId, compiledFormula, getSymbolValue);
   }
 
   /**

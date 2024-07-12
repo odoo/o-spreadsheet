@@ -6,7 +6,7 @@
  */
 
 export const demoData = {
-  version: 17,
+  version: 19,
   sheets: [
     {
       id: "sh1",
@@ -2399,6 +2399,11 @@ export const demoData = {
         I20: { content: "FALSE" },
         I21: { content: "FALSE" },
         I22: { content: "FALSE" },
+        K1: { style: 11, content: "Commissions" },
+        K2: { content: "Alice" },
+        K3: { content: "Bob" },
+        L2: { content: "0.01", format: 1 },
+        L3: { content: "0.02", format: 1 },
       },
       conditionalFormats: [],
       figures: [],
@@ -2521,9 +2526,25 @@ export const demoData = {
   pivots: {
     1: {
       type: "SPREADSHEET",
-      columns: [{ name: "Stage" }],
-      rows: [{ name: "Created on", granularity: "month_number", order: "asc" }],
-      measures: [{ name: "Expected Revenue", aggregator: "count" }],
+      columns: [{ fieldName: "Stage" }],
+      rows: [{ fieldName: "Salesperson", order: "asc" }],
+      measures: [
+        {
+          id: "Expected Revenue:sum",
+          fieldName: "Expected Revenue",
+          aggregator: "sum",
+        },
+        {
+          id: "Commission",
+          fieldName: "Commission",
+          aggregator: "sum",
+          userDefinedName: "Commission",
+          computedBy: {
+            sheetId: "pivot",
+            formula: "='Expected Revenue:sum'*VLOOKUP(Salesperson,K2:L3,2,0)",
+          },
+        },
+      ],
       name: "My pivot",
       dataSet: { sheetId: "pivot", zone: { top: 0, bottom: 21, left: 0, right: 8 } },
       formulaId: "1",

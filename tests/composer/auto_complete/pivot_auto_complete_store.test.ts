@@ -1,4 +1,6 @@
 import { CellComposerStore } from "../../../src/components/composer/composer/cell_composer_store";
+import { StandaloneComposerStore } from "../../../src/components/composer/standalone_composer/standalone_composer_store";
+import { createMeasureAutoComplete } from "../../../src/registries/auto_completes/pivot_dimension_auto_complete";
 import { addPivot, createModelWithPivot, updatePivot } from "../../test_helpers/pivot_helpers";
 import { makeStoreWithModel } from "../../test_helpers/stores";
 
@@ -573,6 +575,78 @@ describe("spreadsheet pivot auto complete", () => {
     expect(autoComplete?.proposals.map((p) => p.text)).toEqual(['"New"', '"Won"']);
     autoComplete?.selectProposal(autoComplete?.proposals[0].text);
     expect(composer.currentContent).toBe('=PIVOT.HEADER(1,"Stage","New"');
+    expect(composer.autocompleteProvider).toBeUndefined();
+  });
+
+  test("auto complete measure from stand alone composer", async () => {
+    const model = createModelWithPivot("A1:I5");
+    updatePivot(model, "1", {
+      columns: [],
+      rows: [],
+      measures: [
+        { id: "Stage:count", fieldName: "Stage", aggregator: "count" },
+        {
+          id: "Expected Revenue:sum",
+          fieldName: "Expected Revenue",
+          aggregator: "sum",
+          userDefinedName: "The revenue",
+        },
+      ],
+    });
+    const pivot = model.getters.getPivot("1");
+    const { store: composer } = makeStoreWithModel(model, StandaloneComposerStore, () => ({
+      content: "=1+E",
+      defaultRangeSheetId: model.getters.getActiveSheetId(),
+      onConfirm: () => {},
+      contextualAutocomplete: createMeasureAutoComplete(
+        pivot.definition,
+        pivot.getMeasure("Stage:count")
+      ),
+    }));
+    composer.startEdition();
+    const autoComplete = composer.autocompleteProvider;
+    expect(autoComplete?.proposals).toEqual([
+      {
+        text: "'Expected Revenue:sum'",
+        description: "The revenue",
+        fuzzySearchKey: "The revenue'Expected Revenue:sum'Expected Revenue",
+        htmlContent: [{ color: "#4a4e4d", value: "'Expected Revenue:sum'" }],
+      },
+    ]);
+    autoComplete?.selectProposal(autoComplete?.proposals[0].text);
+    expect(composer.currentContent).toBe("=1+'Expected Revenue:sum'");
+    expect(composer.autocompleteProvider).toBeUndefined();
+  });
+
+  test("auto complete dimension from stand alone composer", async () => {
+    const model = createModelWithPivot("A1:I5");
+    updatePivot(model, "1", {
+      columns: [],
+      rows: [{ fieldName: "Stage" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
+    });
+    const pivot = model.getters.getPivot("1");
+    const { store: composer } = makeStoreWithModel(model, StandaloneComposerStore, () => ({
+      content: "=1+S",
+      defaultRangeSheetId: model.getters.getActiveSheetId(),
+      onConfirm: () => {},
+      contextualAutocomplete: createMeasureAutoComplete(
+        pivot.definition,
+        pivot.getMeasure("Expected Revenue:sum")
+      ),
+    }));
+    composer.startEdition();
+    const autoComplete = composer.autocompleteProvider;
+    expect(autoComplete?.proposals).toEqual([
+      {
+        text: "Stage",
+        description: "Stage",
+        fuzzySearchKey: "StageStageStage",
+        htmlContent: [{ color: "#4a4e4d", value: "Stage" }],
+      },
+    ]);
+    autoComplete?.selectProposal(autoComplete?.proposals[0].text);
+    expect(composer.currentContent).toBe("=1+Stage");
     expect(composer.autocompleteProvider).toBeUndefined();
   });
 });

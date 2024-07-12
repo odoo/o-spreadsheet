@@ -1,9 +1,20 @@
+import { compile } from "../../formulas";
 import { deepCopy, deepEquals } from "../../helpers";
 import { createPivotFormula, getMaxObjectId } from "../../helpers/pivot/pivot_helpers";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
 import { _t } from "../../translation";
-import { CellPosition, CommandResult, CoreCommand, Position, UID, WorkbookData } from "../../types";
-import { PivotCoreDefinition } from "../../types/pivot";
+import {
+  ApplyRangeChange,
+  CellPosition,
+  CommandResult,
+  CoreCommand,
+  Position,
+  Range,
+  RangeCompiledFormula,
+  UID,
+  WorkbookData,
+} from "../../types";
+import { PivotCoreDefinition, PivotCoreMeasure } from "../../types/pivot";
 import { CorePlugin } from "../core_plugin";
 
 interface Pivot {
@@ -15,6 +26,7 @@ interface CoreState {
   nextFormulaId: number;
   pivots: Record<UID, Pivot | undefined>;
   formulaIds: Record<UID, string | undefined>;
+  compiledMeasureFormulas: Record<UID, Record<string, RangeCompiledFormula | undefined>>;
 }
 
 export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState {
@@ -24,6 +36,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     "getPivotId",
     "getPivotFormulaId",
     "getPivotIds",
+    "getMeasureCompiledFormula",
     "getPivotName",
     "isExistingPivot",
   ] as const;
@@ -33,9 +46,13 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     [pivotId: UID]: Pivot | undefined;
   } = {};
   public readonly formulaIds: { [formulaId: UID]: UID | undefined } = {};
+  public readonly compiledMeasureFormulas: Record<UID, Record<string, RangeCompiledFormula>> = {};
 
   allowDispatch(cmd: CoreCommand) {
     switch (cmd.type) {
+      case "ADD_PIVOT": {
+        return this.checkDuplicatedMeasureIds(cmd.pivot);
+      }
       case "UPDATE_PIVOT": {
         if (deepEquals(cmd.pivot, this.pivots[cmd.pivotId]?.definition)) {
           return CommandResult.NoChanges;
@@ -43,7 +60,7 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
         if (cmd.pivot.name === "") {
           return CommandResult.EmptyName;
         }
-        break;
+        return this.checkDuplicatedMeasureIds(cmd.pivot);
       }
       case "RENAME_PIVOT":
         if (!(cmd.pivotId in this.pivots)) {
@@ -104,7 +121,33 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
       }
       case "UPDATE_PIVOT": {
         this.history.update("pivots", cmd.pivotId, "definition", cmd.pivot);
+        this.compileCalculatedMeasures(cmd.pivot.measures);
         break;
+      }
+    }
+  }
+
+  adaptRanges(applyChange: ApplyRangeChange) {
+    for (const sheetId in this.compiledMeasureFormulas) {
+      for (const formulaString in this.compiledMeasureFormulas[sheetId]) {
+        const compiledFormula = this.compiledMeasureFormulas[sheetId][formulaString];
+        const newDependencies: Range[] = [];
+        for (const range of compiledFormula.dependencies) {
+          const change = applyChange(range);
+          if (change.changeType === "NONE") {
+            newDependencies.push(range);
+          } else {
+            newDependencies.push(change.range);
+          }
+        }
+        const newFormulaString = this.getters.getFormulaString(
+          sheetId,
+          compiledFormula.tokens,
+          newDependencies
+        );
+        if (newFormulaString !== formulaString) {
+          this.replaceMeasureFormula(sheetId, formulaString, newFormulaString);
+        }
       }
     }
   }
@@ -150,6 +193,14 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     return pivotId in this.pivots;
   }
 
+  getMeasureCompiledFormula(measure: PivotCoreMeasure): RangeCompiledFormula {
+    if (!measure.computedBy) {
+      throw new Error(`Measure ${measure.fieldName} is not computed by formula`);
+    }
+    const sheetId = measure.computedBy.sheetId;
+    return this.compiledMeasureFormulas[sheetId][measure.computedBy.formula];
+  }
+
   // -------------------------------------------------------------------------
   // Private
   // -------------------------------------------------------------------------
@@ -160,8 +211,27 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
     formulaId = this.nextFormulaId.toString()
   ) {
     this.history.update("pivots", pivotId, { definition: pivot, formulaId });
+    this.compileCalculatedMeasures(pivot.measures);
     this.history.update("formulaIds", formulaId, pivotId);
     this.history.update("nextFormulaId", this.nextFormulaId + 1);
+  }
+
+  private compileCalculatedMeasures(measures: PivotCoreMeasure[]) {
+    for (const measure of measures) {
+      if (measure.computedBy) {
+        const sheetId = measure.computedBy.sheetId;
+        const compiledFormula = this.compileMeasureFormula(
+          measure.computedBy.sheetId,
+          measure.computedBy.formula
+        );
+        this.history.update(
+          "compiledMeasureFormulas",
+          sheetId,
+          measure.computedBy.formula,
+          compiledFormula
+        );
+      }
+    }
   }
 
   private insertPivot(position: CellPosition, formulaId: UID, table: SpreadsheetPivotTable) {
@@ -214,6 +284,55 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
       throw new Error(`Pivot with id ${pivotId} not found`);
     }
     return pivot;
+  }
+
+  private compileMeasureFormula(sheetId: UID, formulaString: string) {
+    const compiledFormula = compile(formulaString);
+    const rangeDependencies = compiledFormula.dependencies.map((xc) =>
+      this.getters.getRangeFromSheetXC(sheetId, xc)
+    );
+    return {
+      ...compiledFormula,
+      dependencies: rangeDependencies,
+    };
+  }
+
+  private replaceMeasureFormula(sheetId: UID, formulaString: string, newFormulaString: string) {
+    this.history.update("compiledMeasureFormulas", sheetId, formulaString, undefined);
+    this.history.update(
+      "compiledMeasureFormulas",
+      sheetId,
+      newFormulaString,
+      this.compileMeasureFormula(sheetId, newFormulaString)
+    );
+    for (const pivotId in this.pivots) {
+      const pivot = this.pivots[pivotId];
+      if (!pivot) {
+        continue;
+      }
+      for (const measure of pivot.definition.measures) {
+        if (measure.computedBy?.formula === formulaString) {
+          const measureIndex = pivot.definition.measures.indexOf(measure);
+          this.history.update(
+            "pivots",
+            pivotId,
+            "definition",
+            "measures",
+            measureIndex,
+            "computedBy",
+            { formula: newFormulaString, sheetId }
+          );
+        }
+      }
+    }
+  }
+
+  private checkDuplicatedMeasureIds(definition: PivotCoreDefinition) {
+    const uniqueIds = new Set(definition.measures.map((m) => m.id));
+    if (definition.measures.length !== uniqueIds.size) {
+      return CommandResult.InvalidDefinition;
+    }
+    return CommandResult.Success;
   }
 
   // ---------------------------------------------------------------------

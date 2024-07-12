@@ -1800,7 +1800,7 @@ describe("conditional formats types", () => {
       }
     );
 
-    test("refuse invalid and async formulas %s", () => {
+    test("refuse invalid formulas %s", () => {
       const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
         sheetId,
         ranges: toRangesData(sheetId, "A1"),
@@ -1808,8 +1808,8 @@ describe("conditional formats types", () => {
           id: "1",
           rule: {
             type: "IconSetRule",
-            lowerInflectionPoint: { type: "formula", value: "=INVALID", operator: "gt" },
-            upperInflectionPoint: { type: "formula", value: "=INVALID", operator: "gt" },
+            lowerInflectionPoint: { type: "formula", value: "=INVALID(", operator: "gt" },
+            upperInflectionPoint: { type: "formula", value: "=INVALID(", operator: "gt" },
             icons: {
               upper: "arrowGood",
               middle: "arrowNeutral",

@@ -15,6 +15,7 @@ import { createPivotFormula } from "../../../helpers/pivot/pivot_helpers";
 import { cycleFixedReference } from "../../../helpers/reference_type";
 import {
   AutoCompleteProvider,
+  AutoCompleteProviderDefinition,
   autoCompleteProviders,
 } from "../../../registries/auto_completes/auto_complete_registry";
 import { Get } from "../../../store_engine";
@@ -74,7 +75,6 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       this.highlightStore.unRegister(this);
     });
   }
-
   protected abstract confirmEdition(content: string): void;
   protected abstract getComposerContent(position: CellPosition): string;
 
@@ -363,6 +363,10 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     }
   }
 
+  protected getAutoCompleteProviders(): AutoCompleteProviderDefinition[] {
+    return autoCompleteProviders.getAll();
+  }
+
   private insertSelectedRange(zone: Zone | UnboundedZone) {
     // infer if range selected or selecting range from cursor position
     const start = Math.min(this.selectionStart, this.selectionEnd);
@@ -578,8 +582,8 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     }
 
     const thisCtx = { composer: this, getters: this.getters };
-    const providers = autoCompleteProviders
-      .getAll()
+    const providersDefinitions = this.getAutoCompleteProviders();
+    const providers = providersDefinitions
       .sort((a, b) => (a.sequence ?? Infinity) - (b.sequence ?? Infinity))
       .map((provider) => ({
         ...provider,

@@ -203,11 +203,13 @@ describe("composerTokenizer base tests", () => {
       parent: "SUM",
       args: [undefined, { type: "NUMBER", value: 1 }],
     };
-    expect(composerTokenize("=SUM(ADD,1)", DEFAULT_LOCALE)).toMatchObject([
+    expect(composerTokenize("=SUM('ADD'(),1)", DEFAULT_LOCALE)).toMatchObject([
       { type: "OPERATOR", value: "=" },
       { type: "SYMBOL", value: "SUM" },
       { type: "LEFT_PAREN", value: "(", functionContext },
-      { type: "SYMBOL", value: "ADD", functionContext },
+      { type: "SYMBOL", value: "'ADD'", functionContext },
+      { type: "LEFT_PAREN", value: "(" },
+      { type: "RIGHT_PAREN", value: ")" },
       { type: "ARG_SEPARATOR", value: ",", functionContext },
       { type: "NUMBER", value: "1", functionContext },
       { type: "RIGHT_PAREN", value: ")" },
