@@ -427,9 +427,8 @@ export class ConditionalFormatPlugin
     thresholdName: string
   ) {
     if (threshold.type !== "formula") return CommandResult.Success;
-    try {
-      compile(threshold.value || "");
-    } catch (error) {
+    const compiledFormula = compile(threshold.value || "");
+    if (compiledFormula.isBadExpression) {
       switch (thresholdName) {
         case "min":
           return CommandResult.MinInvalidFormula;

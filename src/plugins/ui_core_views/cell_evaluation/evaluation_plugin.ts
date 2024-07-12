@@ -1,5 +1,4 @@
-import { compileTokens } from "../../../formulas/compiler";
-import { isExportableToExcel, Token } from "../../../formulas/index";
+import { isExportableToExcel } from "../../../formulas/index";
 import { getItemId, positions, toXC } from "../../../helpers/index";
 import { CellErrorType } from "../../../types/errors";
 import {
@@ -13,11 +12,11 @@ import {
   Format,
   FormattedValue,
   FormulaCell,
-  invalidateDependenciesCommands,
   Matrix,
   Range,
   UID,
   Zone,
+  invalidateDependenciesCommands,
 } from "../../../types/index";
 import { FormulaCellWithDependencies } from "../../core";
 import { UIPlugin, UIPluginConfig } from "../../ui_plugin";
@@ -346,7 +345,7 @@ export class EvaluationPlugin extends UIPlugin {
     const cell = this.getters.getCell(position);
 
     if (cell && cell.isFormula) {
-      return isBadExpression(cell.compiledFormula.tokens) ? undefined : cell;
+      return cell.compiledFormula.isBadExpression ? undefined : cell;
     } else if (cell && cell.content) {
       return undefined;
     }
@@ -363,14 +362,5 @@ export class EvaluationPlugin extends UIPlugin {
       return spreadingFormulaCell;
     }
     return undefined;
-  }
-}
-
-function isBadExpression(tokens: Token[]): boolean {
-  try {
-    compileTokens(tokens);
-    return false;
-  } catch (error) {
-    return true;
   }
 }
