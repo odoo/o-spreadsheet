@@ -1,12 +1,27 @@
 import { Model, SpreadsheetChildEnv } from "../../../src";
 import { toZone } from "../../../src/helpers";
 import { SpreadsheetPivot } from "../../../src/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
-import { createSheet, setCellContent, undo } from "../../test_helpers/commands_helpers";
-import { click, dragElement, setInputValueAndTrigger } from "../../test_helpers/dom_helper";
+import {
+  activateSheet,
+  createSheet,
+  selectCell,
+  setCellContent,
+  undo,
+} from "../../test_helpers/commands_helpers";
+import {
+  click,
+  dragElement,
+  keyDown,
+  setInputValueAndTrigger,
+} from "../../test_helpers/dom_helper";
 import { getCellText } from "../../test_helpers/getters_helpers";
-import { mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
+import { editStandaloneComposer, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
 import { SELECTORS, addPivot, updatePivot } from "../../test_helpers/pivot_helpers";
+
+jest.mock("../../../src/components/composer/content_editable_helper.ts", () =>
+  require("../../__mocks__/content_editable_helper")
+);
 
 describe("Spreadsheet pivot side panel", () => {
   let model: Model;
@@ -62,6 +77,114 @@ describe("Spreadsheet pivot side panel", () => {
     expect(model.getters.getPivotCoreDefinition("3").columns).toEqual([
       { fieldName: "amount", order: "asc" },
     ]);
+  });
+
+  test("can add a calculated measure", async () => {
+    setCellContent(model, "A1", "amount");
+    setCellContent(model, "A2", "10");
+    setCellContent(model, "A3", "20");
+    addPivot(model, "A1:A3", {}, "3");
+    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    await nextTick();
+    await click(fixture.querySelectorAll(".add-dimension")[2]);
+    expect(fixture.querySelector(".o-popover")).toBeDefined();
+    await click(fixture, ".add-calculated-measure");
+    expect(fixture.querySelector(".o-popover")).toBeNull();
+    expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
+      {
+        id: "Calculated measure 1",
+        fieldName: "Calculated measure 1",
+        aggregator: "sum",
+        computedBy: {
+          formula: "=0",
+          sheetId: model.getters.getActiveSheetId(),
+        },
+      },
+    ]);
+    await editStandaloneComposer(".pivot-dimension .o-composer", "=1+1");
+    expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
+      {
+        id: "Calculated measure 1",
+        fieldName: "Calculated measure 1",
+        aggregator: "sum",
+        computedBy: {
+          formula: "=1+1",
+          sheetId: model.getters.getActiveSheetId(),
+        },
+      },
+    ]);
+  });
+
+  test("can add a calculated measure without leading equal", async () => {
+    setCellContent(model, "A1", "amount");
+    setCellContent(model, "A2", "10");
+    setCellContent(model, "A3", "20");
+    addPivot(model, "A1:A3", {}, "3");
+    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    await nextTick();
+    await click(fixture.querySelectorAll(".add-dimension")[2]);
+    expect(fixture.querySelector(".o-popover")).toBeDefined();
+    await click(fixture, ".add-calculated-measure");
+    await editStandaloneComposer(".pivot-dimension .o-composer", "1+1");
+    expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
+      {
+        id: "Calculated measure 1",
+        fieldName: "Calculated measure 1",
+        aggregator: "sum",
+        computedBy: {
+          formula: "=1+1",
+          sheetId: model.getters.getActiveSheetId(),
+        },
+      },
+    ]);
+  });
+
+  test("can select a cell in the grid in several sheets", async () => {
+    setCellContent(model, "A1", "amount");
+    setCellContent(model, "A2", "10");
+    setCellContent(model, "A3", "20");
+    addPivot(model, "A1:A3", {}, "3");
+    const sheet1Id = model.getters.getActiveSheetId();
+    const sheet2Id = "sheet2";
+    createSheet(model, { sheetId: sheet2Id });
+    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    await nextTick();
+    await click(fixture.querySelectorAll(".add-dimension")[2]);
+    expect(fixture.querySelector(".o-popover")).toBeDefined();
+    await click(fixture, ".add-calculated-measure");
+    await editStandaloneComposer(".pivot-dimension .o-composer", "=", { confirm: false });
+    selectCell(model, "A1");
+    await nextTick();
+    expect(fixture.querySelector(".pivot-dimension .o-composer")?.textContent).toEqual("=A1");
+    await editStandaloneComposer(".pivot-dimension .o-composer", "+", {
+      confirm: false,
+      fromScratch: false,
+    });
+    activateSheet(model, sheet2Id);
+    selectCell(model, "A1");
+    await nextTick();
+    expect(fixture.querySelector(".pivot-dimension .o-composer")?.textContent).toEqual(
+      "=A1+Sheet2!A1"
+    );
+    await keyDown({ key: "Enter" });
+
+    activateSheet(model, sheet2Id);
+    // close the side panel and reopen it while the second sheet is active
+    await click(fixture.querySelector(".o-sidePanelClose")!);
+    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    await nextTick();
+    expect(fixture.querySelector(".pivot-dimension .o-composer")?.textContent).toEqual(
+      "=Sheet1!A1+Sheet2!A1"
+    );
+
+    // reopen in the original sheet
+    await click(fixture.querySelector(".o-sidePanelClose")!);
+    activateSheet(model, sheet1Id);
+    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    await nextTick();
+    expect(fixture.querySelector(".pivot-dimension .o-composer")?.textContent).toEqual(
+      "=A1+Sheet2!A1"
+    );
   });
 
   test("it should not defer update when the dataset is updated", async () => {
@@ -302,5 +425,43 @@ describe("Spreadsheet pivot side panel", () => {
     const invalidDimensionEl = pivotDimensionEls[1];
     expect(invalidDimensionEl.classList).toContain("pivot-dimension-invalid");
     expect(invalidDimensionEl.querySelector(".fa-exclamation-triangle")).not.toBe(null);
+  });
+
+  test("Can update the name of a computed measure", async () => {
+    setCellContent(model, "B1", "person");
+    setCellContent(model, "B2", "Alice");
+    const sheetId = model.getters.getActiveSheetId();
+    addPivot(
+      model,
+      "B1:B2",
+      {
+        measures: [
+          {
+            id: "amount:sum",
+            fieldName: "amount",
+            aggregator: "sum",
+            computedBy: { sheetId, formula: "=10" },
+          },
+        ],
+      },
+      "3"
+    );
+    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    await nextTick();
+
+    const input = fixture.querySelector(".pivot-measure input") as HTMLInputElement;
+    expect(input.value).toBe("amount");
+    await setInputValueAndTrigger(".pivot-measure input", "A lovely name");
+    expect(input.value).toBe("A lovely name");
+
+    expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
+      {
+        id: "A lovely name:sum",
+        fieldName: "A lovely name",
+        aggregator: "sum",
+        userDefinedName: "A lovely name",
+        computedBy: { sheetId, formula: "=10" },
+      },
+    ]);
   });
 });

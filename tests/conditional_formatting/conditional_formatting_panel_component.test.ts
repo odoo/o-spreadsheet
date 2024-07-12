@@ -948,7 +948,7 @@ describe("UI of conditional formats", () => {
     setInputValueAndTrigger(selectors.colorScaleEditor.minType, "formula");
     setInputValueAndTrigger(selectors.colorScaleEditor.midType, "none");
     await setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "formula");
-    await editStandaloneComposer(selectors.colorScaleEditor.minValueComposer, "=SUM");
+    await editStandaloneComposer(selectors.colorScaleEditor.minValueComposer, "=hello()");
     await editStandaloneComposer(selectors.colorScaleEditor.maxValueComposer, "=SUM(1,2)");
 
     expect(errorMessages()).toHaveLength(0);
@@ -973,7 +973,7 @@ describe("UI of conditional formats", () => {
     setInputValueAndTrigger(selectors.colorScaleEditor.midType, "formula");
     await setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "number");
     setInputValueAndTrigger(selectors.colorScaleEditor.minValue, "1");
-    editStandaloneComposer(selectors.colorScaleEditor.midValueComposer, "=SUM");
+    editStandaloneComposer(selectors.colorScaleEditor.midValueComposer, "=hello()");
     await setInputValueAndTrigger(selectors.colorScaleEditor.maxValue, "3");
 
     expect(errorMessages()).toHaveLength(0);
@@ -1044,7 +1044,7 @@ describe("UI of conditional formats", () => {
     setInputValueAndTrigger(selectors.colorScaleEditor.minType, "formula");
     setInputValueAndTrigger(selectors.colorScaleEditor.midType, "none");
     await setInputValueAndTrigger(selectors.colorScaleEditor.maxType, "formula");
-    await editStandaloneComposer(selectors.colorScaleEditor.maxValueComposer, "=SUM");
+    await editStandaloneComposer(selectors.colorScaleEditor.maxValueComposer, "=hello()");
     await editStandaloneComposer(selectors.colorScaleEditor.minValueComposer, "=SUM(1,2)");
 
     expect(errorMessages()).toHaveLength(0);

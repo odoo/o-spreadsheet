@@ -237,6 +237,48 @@ describe("Pivot fix formula menu item", () => {
     });
   });
 
+  test("It should fix formulas with computed measure when clicking on pivot_fix_formulas", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Customer",
+      A2: "Alice",
+      A3: "=PIVOT(1)",
+    };
+    const model = createModelFromGrid(grid);
+    const sheetId = model.getters.getActiveSheetId();
+    const env = makeTestEnv({ model });
+    addPivot(model, "A1:A2", {
+      columns: [],
+      rows: [{ fieldName: "Customer" }],
+      measures: [
+        {
+          id: "calculated",
+          fieldName: "calculated",
+          computedBy: { sheetId, formula: "=42" },
+          aggregator: "sum",
+        },
+      ],
+    });
+    // Zone of the pivot is from A8 to E14
+    selectCell(model, "A3");
+    cellMenuRegistry.get("pivot_fix_formulas").execute?.(env);
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "A3:B6")).toEqual([
+      ["",      "Total"],
+      ["",      "calculated"],
+      ["Alice", "42"],
+      ["Total", "42"],
+    ]);
+
+    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    expect(getEvaluatedGrid(model, "A3:B6")).toEqual([
+      ["", "=PIVOT.HEADER(1)"],
+      ["", '=PIVOT.HEADER(1,"measure","calculated")'],
+      ['=PIVOT.HEADER(1,"Customer","Alice")', '=PIVOT.VALUE(1,"calculated","Customer","Alice")'],
+      ["=PIVOT.HEADER(1)", '=PIVOT.VALUE(1,"calculated")'],
+    ]);
+  });
+
   test("It should not fix formula when the pivot is not valid", () => {
     // prettier-ignore
     const grid = {

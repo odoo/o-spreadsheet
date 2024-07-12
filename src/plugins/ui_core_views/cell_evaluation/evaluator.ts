@@ -1,5 +1,6 @@
 import { compile } from "../../../formulas";
 import { handleError, implementationErrorMessage } from "../../../functions";
+import { matrixMap } from "../../../functions/helpers";
 import {
   aggregatePositionsToZones,
   excludeTopLeft,
@@ -18,6 +19,7 @@ import {
   EvaluatedCell,
   FormulaCell,
   FunctionResultObject,
+  GetSymbolValue,
   Getters,
   Matrix,
   Range,
@@ -26,7 +28,12 @@ import {
   Zone,
   isMatrix,
 } from "../../../types";
-import { CellErrorType, CircularDependencyError, SplillBlockedError } from "../../../types/errors";
+import {
+  BadExpressionError,
+  CellErrorType,
+  CircularDependencyError,
+  SplillBlockedError,
+} from "../../../types/errors";
 import { CompilationParameters, buildCompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
 import { PositionMap } from "./position_map";
@@ -217,20 +224,29 @@ export class Evaluator {
       this.getters.getRangeFromSheetXC(sheetId, xc)
     );
     this.updateCompilationParameters();
+    return this.evaluateCompiledFormula(sheetId, {
+      ...compiledFormula,
+      dependencies: ranges,
+    });
+  }
+
+  evaluateCompiledFormula(
+    sheetId: UID,
+    compiledFormula: RangeCompiledFormula,
+    getContextualSymbolValue?: GetSymbolValue
+  ) {
     try {
       const result = updateEvalContextAndExecute(
-        { ...compiledFormula, dependencies: ranges },
+        compiledFormula,
         this.compilationParams,
         sheetId,
-        undefined
+        this.buildSafeGetSymbolValue(getContextualSymbolValue),
+        this.compilationParams.evalContext.__originCellPosition
       );
       if (isMatrix(result)) {
-        return result;
+        return matrixMap(result, nullValueToZeroValue);
       }
-      if (result.value === null) {
-        return { value: 0, format: result.format };
-      }
-      return result;
+      return nullValueToZeroValue(result);
     } catch (error) {
       return handleError(error, "");
     }
@@ -263,6 +279,7 @@ export class Evaluator {
 
   private nextPositionsToUpdate = new PositionSet({});
   private cellsBeingComputed = new Set<UID>();
+  private symbolsBeingComputed = new Set<string>();
 
   private evaluate(positions: PositionSet) {
     this.cellsBeingComputed = new Set<UID>();
@@ -339,6 +356,7 @@ export class Evaluator {
       cellData.compiledFormula,
       this.compilationParams,
       formulaPosition.sheetId,
+      this.buildSafeGetSymbolValue(),
       formulaPosition
     );
 
@@ -497,6 +515,29 @@ export class Evaluator {
     this.nextPositionsToUpdate.addMany(this.getArrayFormulasBlockedBy(sheetId, zone));
   }
 
+  /**
+   * Wraps a GetSymbolValue function to add cycle detection
+   * and error handling.
+   */
+  private buildSafeGetSymbolValue(getContextualSymbolValue?: GetSymbolValue): GetSymbolValue {
+    const getSymbolValue = (symbolName: string) => {
+      if (this.symbolsBeingComputed.has(symbolName)) {
+        return ERROR_CYCLE_CELL;
+      }
+      this.symbolsBeingComputed.add(symbolName);
+      try {
+        const symbolValue = getContextualSymbolValue?.(symbolName);
+        if (symbolValue) {
+          return symbolValue;
+        }
+        return new BadExpressionError(_t("Invalid formula"));
+      } finally {
+        this.symbolsBeingComputed.delete(symbolName);
+      }
+    };
+    return getSymbolValue;
+  }
+
   // ----------------------------------------------------------
   //                 COMMON FUNCTIONALITY
   // ----------------------------------------------------------
@@ -552,6 +593,7 @@ export function updateEvalContextAndExecute(
   compiledFormula: RangeCompiledFormula,
   compilationParams: CompilationParameters,
   sheetId: UID,
+  getSymbolValue: GetSymbolValue,
   originCellPosition: CellPosition | undefined
 ) {
   compilationParams.evalContext.__originCellPosition = originCellPosition;
@@ -560,6 +602,7 @@ export function updateEvalContextAndExecute(
     compiledFormula.dependencies,
     compilationParams.referenceDenormalizer,
     compilationParams.ensureRange,
+    getSymbolValue,
     compilationParams.evalContext
   );
 }

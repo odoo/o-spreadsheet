@@ -250,8 +250,8 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
       return { value: "" };
     }
     const measure = this.getMeasure(measureId);
-    const values = dataEntries
-      .map((value) => value[measure.fieldName])
+    const allValues = dataEntries.map((value) => value[measure.fieldName]);
+    const values = allValues
       .filter((cell) => cell && cell.type !== CellValueType.empty)
       .filter(isDefined);
     const aggregator = measure.aggregator;
@@ -263,7 +263,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     try {
       return {
         value: values.length ? operator.fn([values], this.getters.getLocale()) : "",
-        format: operator.format(values[0]),
+        format: operator.format(allValues.find((cell) => cell?.format)),
       };
     } catch (e) {
       return handleError(e, aggregator.toUpperCase());

@@ -508,6 +508,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
       placeholder: _t("Value or formula"),
       invalid: isInvalid,
       class: "o-sidePanel-composer",
+      defaultRangeSheetId: this.env.model.getters.getActiveSheetId(),
     };
   }
 
@@ -525,6 +526,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
       placeholder: _t("Formula"),
       invalid: isInvalid,
       class: "o-sidePanel-composer",
+      defaultRangeSheetId: this.env.model.getters.getActiveSheetId(),
     };
   }
 
@@ -539,6 +541,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
       placeholder: _t("Formula"),
       invalid: isInvalid,
       class: "o-sidePanel-composer",
+      defaultRangeSheetId: this.env.model.getters.getActiveSheetId(),
     };
   }
 }
