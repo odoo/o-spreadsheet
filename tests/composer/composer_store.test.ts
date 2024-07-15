@@ -1128,7 +1128,7 @@ describe("edition", () => {
     addPivot(model, "D1:D4", {
       columns: [],
       rows: [{ name: "Name" }],
-      measures: [{ name: "__count" }],
+      measures: [{ name: "__count", aggregator: "sum" }],
     });
     setCellContent(model, "A1", "=PIVOT(1)");
     const { store } = makeStoreWithModel(model, ComposerStore);
@@ -1156,7 +1156,7 @@ describe("edition", () => {
     addPivot(model, "D1:D4", {
       columns: [],
       rows: [{ name: "Name" }],
-      measures: [{ name: "__count" }],
+      measures: [{ name: "__count", aggregator: "sum" }],
     });
     setCellContent(model, "A1", "=PIVOT(1)");
     const { store } = makeStoreWithModel(model, ComposerStore);
@@ -1184,7 +1184,7 @@ describe("edition", () => {
     addPivot(model, "D1:D4", {
       columns: [],
       rows: [{ name: "Name" }],
-      measures: [{ name: "__count" }],
+      measures: [{ name: "__count", aggregator: "sum" }],
     });
     setCellContent(model, "A1", "=PIVOT(1)");
     const { store } = makeStoreWithModel(model, ComposerStore);
@@ -1204,7 +1204,7 @@ describe("edition", () => {
     addPivot(model, "D1:D4", {
       columns: [],
       rows: [{ name: "Name" }],
-      measures: [{ name: "__count" }],
+      measures: [{ name: "__count", aggregator: "sum" }],
     });
     setCellContent(model, "A1", "=PIVOT(1)");
     const { store } = makeStoreWithModel(model, ComposerStore);
@@ -1227,7 +1227,7 @@ describe("edition", () => {
     addPivot(model, "D1:D4", {
       columns: [],
       rows: [{ name: "Name" }],
-      measures: [{ name: "__count" }],
+      measures: [{ name: "__count", aggregator: "sum" }],
     });
     setCellContent(model, "A1", "=PIVOT(1)");
     const { store } = makeStoreWithModel(model, ComposerStore);
@@ -1254,7 +1254,7 @@ describe("edition", () => {
     addPivot(model, "D1:D4", {
       columns: [],
       rows: [{ name: "Name" }],
-      measures: [{ name: "__count" }],
+      measures: [{ name: "__count", aggregator: "sum" }],
     });
     setCellContent(model, "A1", "=PIVOT(1)");
     const { store } = makeStoreWithModel(model, ComposerStore);
@@ -1279,7 +1279,7 @@ describe("edition", () => {
     addPivot(model, "D1:D4", {
       columns: [],
       rows: [{ name: "Name" }],
-      measures: [{ name: "__count" }],
+      measures: [{ name: "__count", aggregator: "sum" }],
     });
     setCellContent(model, "A1", "=PIVOT(1)");
     const { store } = makeStoreWithModel(model, ComposerStore);
@@ -1304,7 +1304,7 @@ describe("edition", () => {
     addPivot(model, "D1:E4", {
       columns: [],
       rows: [{ name: "Name" }],
-      measures: [{ name: "Price" }],
+      measures: [{ name: "Price", aggregator: "sum" }],
     });
     setCellContent(model, "A1", "=PIVOT(1)");
     const { store } = makeStoreWithModel(model, ComposerStore);
@@ -1325,7 +1325,7 @@ describe("edition", () => {
     addPivot(model, "D1:D4", {
       columns: [],
       rows: [{ name: "Name" }],
-      measures: [{ name: "__count" }],
+      measures: [{ name: "__count", aggregator: "sum" }],
     });
     const { store } = makeStoreWithModel(model, ComposerStore);
     store.startEdition("=");
@@ -1345,7 +1345,7 @@ describe("edition", () => {
     addPivot(model, "D1:D4", {
       columns: [],
       rows: [{ name: "Name" }],
-      measures: [{ name: "__count" }],
+      measures: [{ name: "__count", aggregator: "sum" }],
     });
     setCellContent(model, "A1", "=PIVOT(1)");
     const { store } = makeStoreWithModel(model, ComposerStore);
