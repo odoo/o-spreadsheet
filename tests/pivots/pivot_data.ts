@@ -580,6 +580,7 @@ export const pivotModelData = function (xc: string) {
         measures: [
           {
             name: "__count",
+            aggregator: "sum",
           },
         ],
         name: "My pivot",
