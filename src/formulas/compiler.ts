@@ -1,6 +1,6 @@
 import { Token } from ".";
 import { functionRegistry } from "../functions/index";
-import { concat, parseNumber, removeStringQuotes } from "../helpers";
+import { concat, parseNumber, unquote } from "../helpers";
 import { _t } from "../translation";
 import { CompiledFormula, DEFAULT_LOCALE, FormulaToExecute } from "../types";
 import { BadExpressionError, UnknownFunctionError } from "../types/errors";
@@ -217,7 +217,7 @@ function compilationCacheKey(
     tokens.map((token) => {
       switch (token.type) {
         case "STRING":
-          const value = removeStringQuotes(token.value);
+          const value = unquote(token.value);
           return `|S${constantValues.strings.indexOf(value)}|`;
         case "NUMBER":
           return `|N${constantValues.numbers.indexOf(parseNumber(token.value, DEFAULT_LOCALE))}|`;
@@ -252,7 +252,7 @@ function formulaArguments(tokens: Token[]) {
         dependencies.push(token.value);
         break;
       case "STRING":
-        const value = removeStringQuotes(token.value);
+        const value = unquote(token.value);
         if (!constantValues.strings.includes(value)) {
           constantValues.strings.push(value);
         }

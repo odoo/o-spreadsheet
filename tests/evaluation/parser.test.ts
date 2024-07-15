@@ -256,7 +256,7 @@ describe("Converting AST to string", () => {
   test("Convert strings", () => {
     expect(astToFormula(parse('"R"'))).toBe('"R"');
     expect(astToFormula(parse('"R'))).toBe('"R"');
-    expect(astToFormula(parse('"R\\"'))).toBe('"R\\""');
+    expect(astToFormula(parse('"R\\"'))).toBe('"R\\"');
     expect(astToFormula(parse('CONCAT("R", "EM")'))).toBe('CONCAT("R","EM")');
   });
   test("Convert numbers", () => {
