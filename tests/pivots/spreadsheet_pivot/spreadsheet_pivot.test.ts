@@ -385,7 +385,7 @@ describe("Spreadsheet Pivot", () => {
   test("Measure count as a correct label", () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
-      measures: [{ name: "__count" }],
+      measures: [{ name: "__count", aggregator: "sum" }],
     });
     setCellContent(model, "A26", `=pivot(1)`);
     expect(getCellContent(model, "B27")).toEqual("Count");
@@ -479,7 +479,7 @@ describe("Spreadsheet Pivot", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:A3", {
       columns: [{ name: "Date", granularity: "month_number" }],
-      measures: [{ name: "__count" }],
+      measures: [{ name: "__count", aggregator: "sum" }],
     });
     expect(getEvaluatedGrid(model, "B4:E4")).toEqual([["March", "(Undefined)", "Total", ""]]);
   });

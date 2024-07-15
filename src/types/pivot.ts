@@ -33,7 +33,7 @@ export interface PivotCoreDimension {
 
 export interface PivotCoreMeasure {
   name: string;
-  aggregator?: Aggregator | string;
+  aggregator: Aggregator | string;
 }
 
 export interface CommonPivotCoreDefinition {

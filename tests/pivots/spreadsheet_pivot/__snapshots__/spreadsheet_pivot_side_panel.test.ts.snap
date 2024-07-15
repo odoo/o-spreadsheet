@@ -136,7 +136,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
           
           
           <div
-            class="fw-bold pt-4 pb-1 d-flex flex-row justify-content-between align-items-center o-section-title"
+            class="fw-bold pt-4 pb-1 d-flex flex-row justify-content-between align-items-center o-section-title o-pivot-measure"
           >
              Measures 
             <span
