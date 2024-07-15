@@ -2,7 +2,7 @@ import { tokenColors } from "../../components/composer/composer/composer";
 import { ComposerStore } from "../../components/composer/composer/composer_store";
 import { Token, getFunctionsFromTokens } from "../../formulas";
 import { EnrichedToken } from "../../formulas/composer_tokenizer";
-import { Granularity, PivotField } from "../../types";
+import { Granularity, PivotField, PivotMeasure } from "../../types";
 
 const PIVOT_FUNCTIONS = ["PIVOT.VALUE", "PIVOT.HEADER", "PIVOT"];
 
@@ -21,6 +21,17 @@ export function makeFieldProposal(field: PivotField, granularity?: Granularity) 
     text: quotedGroupBy,
     description: field.string + (field.help ? ` (${field.help})` : ""),
     htmlContent: [{ value: quotedGroupBy, color: tokenColors.STRING }],
+    fuzzySearchKey,
+  };
+}
+
+export function makeMeasureProposal(measure: PivotMeasure) {
+  const quotedMeasure = `"${measure.id}"`;
+  const fuzzySearchKey = measure.displayName + measure.fieldName + quotedMeasure;
+  return {
+    text: quotedMeasure,
+    description: measure.displayName,
+    htmlContent: [{ value: quotedMeasure, color: tokenColors.STRING }],
     fuzzySearchKey,
   };
 }

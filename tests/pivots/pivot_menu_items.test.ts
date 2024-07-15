@@ -85,9 +85,9 @@ describe("Pivot menu items", () => {
     const model = createModelFromGrid(grid);
     const env = makeTestEnv({ model });
     addPivot(model, "A1:E6", {
-      columns: [{ name: "Customer", order: "asc" }],
-      rows: [{ name: "Date", order: "asc", granularity: "month_number" }],
-      measures: [{ name: "Amount", aggregator: "sum" }],
+      columns: [{ fieldName: "Customer", order: "asc" }],
+      rows: [{ fieldName: "Date", order: "asc", granularity: "month_number" }],
+      measures: [{ id: "Amount:sum", fieldName: "Amount", aggregator: "sum" }],
     });
     // Zone of the pivot is from A8 to E14
     selectCell(model, "B8");
@@ -115,45 +115,45 @@ describe("Pivot menu items", () => {
       ],
       [
         "",
-        `=PIVOT.HEADER(1,"Customer","Alice","measure","Amount")`,
-        `=PIVOT.HEADER(1,"Customer","Bob","measure","Amount")`,
-        `=PIVOT.HEADER(1,"Customer","Charlie","measure","Amount")`,
-        `=PIVOT.HEADER(1,"measure","Amount")`,
+        `=PIVOT.HEADER(1,"Customer","Alice","measure","Amount:sum")`,
+        `=PIVOT.HEADER(1,"Customer","Bob","measure","Amount:sum")`,
+        `=PIVOT.HEADER(1,"Customer","Charlie","measure","Amount:sum")`,
+        `=PIVOT.HEADER(1,"measure","Amount:sum")`,
       ],
       [
         `=PIVOT.HEADER(1,"Date:month_number",1)`,
-        `=PIVOT.VALUE(1,"Amount","Date:month_number",1,"Customer","Alice")`,
-        `=PIVOT.VALUE(1,"Amount","Date:month_number",1,"Customer","Bob")`,
-        `=PIVOT.VALUE(1,"Amount","Date:month_number",1,"Customer","Charlie")`,
-        `=PIVOT.VALUE(1,"Amount","Date:month_number",1)`,
+        `=PIVOT.VALUE(1,"Amount:sum","Date:month_number",1,"Customer","Alice")`,
+        `=PIVOT.VALUE(1,"Amount:sum","Date:month_number",1,"Customer","Bob")`,
+        `=PIVOT.VALUE(1,"Amount:sum","Date:month_number",1,"Customer","Charlie")`,
+        `=PIVOT.VALUE(1,"Amount:sum","Date:month_number",1)`,
       ],
       [
         `=PIVOT.HEADER(1,"Date:month_number",2)`,
-        `=PIVOT.VALUE(1,"Amount","Date:month_number",2,"Customer","Alice")`,
-        `=PIVOT.VALUE(1,"Amount","Date:month_number",2,"Customer","Bob")`,
-        `=PIVOT.VALUE(1,"Amount","Date:month_number",2,"Customer","Charlie")`,
-        `=PIVOT.VALUE(1,"Amount","Date:month_number",2)`,
+        `=PIVOT.VALUE(1,"Amount:sum","Date:month_number",2,"Customer","Alice")`,
+        `=PIVOT.VALUE(1,"Amount:sum","Date:month_number",2,"Customer","Bob")`,
+        `=PIVOT.VALUE(1,"Amount:sum","Date:month_number",2,"Customer","Charlie")`,
+        `=PIVOT.VALUE(1,"Amount:sum","Date:month_number",2)`,
       ],
       [
         `=PIVOT.HEADER(1,"Date:month_number",5)`,
-        `=PIVOT.VALUE(1,"Amount","Date:month_number",5,"Customer","Alice")`,
-        `=PIVOT.VALUE(1,"Amount","Date:month_number",5,"Customer","Bob")`,
-        `=PIVOT.VALUE(1,"Amount","Date:month_number",5,"Customer","Charlie")`,
-        `=PIVOT.VALUE(1,"Amount","Date:month_number",5)`,
+        `=PIVOT.VALUE(1,"Amount:sum","Date:month_number",5,"Customer","Alice")`,
+        `=PIVOT.VALUE(1,"Amount:sum","Date:month_number",5,"Customer","Bob")`,
+        `=PIVOT.VALUE(1,"Amount:sum","Date:month_number",5,"Customer","Charlie")`,
+        `=PIVOT.VALUE(1,"Amount:sum","Date:month_number",5)`,
       ],
       [
         `=PIVOT.HEADER(1,"Date:month_number",12)`,
-        `=PIVOT.VALUE(1,"Amount","Date:month_number",12,"Customer","Alice")`,
-        `=PIVOT.VALUE(1,"Amount","Date:month_number",12,"Customer","Bob")`,
-        `=PIVOT.VALUE(1,"Amount","Date:month_number",12,"Customer","Charlie")`,
-        `=PIVOT.VALUE(1,"Amount","Date:month_number",12)`,
+        `=PIVOT.VALUE(1,"Amount:sum","Date:month_number",12,"Customer","Alice")`,
+        `=PIVOT.VALUE(1,"Amount:sum","Date:month_number",12,"Customer","Bob")`,
+        `=PIVOT.VALUE(1,"Amount:sum","Date:month_number",12,"Customer","Charlie")`,
+        `=PIVOT.VALUE(1,"Amount:sum","Date:month_number",12)`,
       ],
       [
         `=PIVOT.HEADER(1)`,
-        `=PIVOT.VALUE(1,"Amount","Customer","Alice")`,
-        `=PIVOT.VALUE(1,"Amount","Customer","Bob")`,
-        `=PIVOT.VALUE(1,"Amount","Customer","Charlie")`,
-        `=PIVOT.VALUE(1,"Amount")`,
+        `=PIVOT.VALUE(1,"Amount:sum","Customer","Alice")`,
+        `=PIVOT.VALUE(1,"Amount:sum","Customer","Bob")`,
+        `=PIVOT.VALUE(1,"Amount:sum","Customer","Charlie")`,
+        `=PIVOT.VALUE(1,"Amount:sum")`,
       ],
     ]);
   });
@@ -168,8 +168,8 @@ describe("Pivot menu items", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [],
-      rows: [{ name: "Invalid" }],
-      measures: [{ name: "Price", aggregator: "sum" }],
+      rows: [{ fieldName: "Invalid" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
     const env = makeTestEnv({ model });
     const pivot = model.getters.getPivot("1")!;
@@ -188,8 +188,8 @@ describe("Pivot menu items", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:B2", {
       columns: [],
-      rows: [{ name: "Customer" }],
-      measures: [{ name: "Quantity", aggregator: "sum" }],
+      rows: [{ fieldName: "Customer" }],
+      measures: [{ id: "Quantity:sum", fieldName: "Quantity", aggregator: "sum" }],
     });
     const env = makeTestEnv({ model });
     selectCell(model, "B8");
@@ -216,8 +216,8 @@ describe("Pivot menu items", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:B2", {
       columns: [],
-      rows: [{ name: "Customer" }],
-      measures: [{ name: "Quantity", aggregator: "sum" }],
+      rows: [{ fieldName: "Customer" }],
+      measures: [{ id: "Quantity:sum", fieldName: "Quantity", aggregator: "sum" }],
     });
     createSheet(model, { sheetId: "smallSheet", rows: 1, cols: 1, activate: true });
     const env = makeTestEnv({ model });
@@ -237,8 +237,8 @@ describe("Pivot menu items", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:B2", {
       columns: [],
-      rows: [{ name: "Customer" }],
-      measures: [{ name: "Quantity", aggregator: "sum" }],
+      rows: [{ fieldName: "Customer" }],
+      measures: [{ id: "Quantity:sum", fieldName: "Quantity", aggregator: "sum" }],
     });
     const env = makeTestEnv({ model });
     selectCell(model, "B8");

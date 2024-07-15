@@ -4,7 +4,7 @@ import { PivotDimension } from "../../../src/types/pivot";
 
 function createPivotDimension(granularity: string): PivotDimension {
   return {
-    name: "date",
+    fieldName: "date",
     granularity,
     nameWithGranularity: "date:" + granularity,
     displayName: "Date",

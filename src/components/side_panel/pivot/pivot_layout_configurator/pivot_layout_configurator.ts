@@ -100,7 +100,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     const rects = this.getDimensionElementsRects();
     const definition = this.props.definition;
     const { measures, columns, rows } = definition;
-    const draggableIds = measures.map((m) => m.name);
+    const draggableIds = measures.map((m) => m.id);
     const offset = 3 + columns.length + rows.length; // column title, row title, measure title
     const draggableItems = draggableIds.map((id, index) => ({
       id,
@@ -108,7 +108,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
       position: rects[index + offset].y,
     }));
     this.dragAndDrop.start("vertical", {
-      draggedItemId: measure.name,
+      draggedItemId: measure.id,
       initialMousePosition: event.clientY,
       items: draggableItems,
       containerEl: this.dimensionsRef.el!,
@@ -122,7 +122,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
         draggedItems.splice(finalIndex, 0, measureName);
         this.props.onDimensionsUpdated({
           measures: draggedItems
-            .map((m) => measures.find((measure) => measure.name === m))
+            .map((measureId) => measures.find((measure) => measure.id === measureId))
             .filter(isDefined),
         });
       },
@@ -154,31 +154,43 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
   removeMeasureDimension(measure: PivotMeasure) {
     const { measures } = this.props.definition;
     this.props.onDimensionsUpdated({
-      measures: measures.filter((m) => m.name !== measure.name),
+      measures: measures.filter((m) => m.id !== measure.id),
     });
   }
 
   addColumnDimension(fieldName: string) {
     const { columns }: { columns: PivotCoreDimension[] } = this.props.definition;
     this.props.onDimensionsUpdated({
-      columns: columns.concat([{ name: fieldName, order: "asc" }]),
+      columns: columns.concat([{ fieldName: fieldName, order: "asc" }]),
     });
   }
 
   addRowDimension(fieldName: string) {
     const { rows }: { rows: PivotCoreDimension[] } = this.props.definition;
     this.props.onDimensionsUpdated({
-      rows: rows.concat([{ name: fieldName, order: "asc" }]),
+      rows: rows.concat([{ fieldName: fieldName, order: "asc" }]),
     });
   }
 
   addMeasureDimension(fieldName: string) {
     const { measures }: { measures: PivotCoreMeasure[] } = this.props.definition;
+    const aggregator = this.getDefaultMeasureAggregator(fieldName);
     this.props.onDimensionsUpdated({
       measures: measures.concat([
-        { name: fieldName, aggregator: this.getDefaultMeasureAggregator(fieldName) },
+        { id: this.getMeasureId(fieldName, aggregator), fieldName, aggregator },
       ]),
     });
+  }
+
+  private getMeasureId(fieldName: string, aggregator: string) {
+    const baseId = fieldName + (aggregator ? `:${aggregator}` : "");
+    let id = baseId;
+    let i = 2;
+    while (this.props.definition.measures.some((m) => m.id === id)) {
+      id = `${baseId}:${i}`;
+      i++;
+    }
+    return id;
   }
 
   private getDefaultMeasureAggregator(fieldName: string): Aggregator | string {
@@ -191,7 +203,11 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     this.props.onDimensionsUpdated({
       measures: measures.map((measure) => {
         if (measure === updatedMeasure) {
-          return { ...measure, aggregator };
+          return {
+            ...measure,
+            aggregator,
+            id: this.getMeasureId(updatedMeasure.fieldName, aggregator),
+          };
         }
         return measure;
       }),

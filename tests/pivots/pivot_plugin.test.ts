@@ -13,8 +13,8 @@ describe("Pivot plugin", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [],
-      rows: [{ name: "Customer" }],
-      measures: [{ name: "Price", aggregator: "sum" }],
+      rows: [{ fieldName: "Customer" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
 
     const sheetId = model.getters.getActiveSheetId();

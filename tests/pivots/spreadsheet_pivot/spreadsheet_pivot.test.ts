@@ -153,43 +153,43 @@ describe("Spreadsheet Pivot", () => {
     setCellContent(model, "A26", `=pivot(1)`);
 
     updatePivot(model, "1", {
-      columns: [{ name: "Contact Name", order: "asc" }],
+      columns: [{ fieldName: "Contact Name", order: "asc" }],
     });
     expect(getEvaluatedGrid(model, "B26:F26")).toEqual([
       ["Alice", "Michel", "(Undefined)", "Total", ""],
     ]);
 
     updatePivot(model, "1", {
-      columns: [{ name: "Active", order: "desc" }],
+      columns: [{ fieldName: "Active", order: "desc" }],
     });
     expect(getEvaluatedGrid(model, "B26:E26")).toEqual([["TRUE", "FALSE", "Total", ""]]);
 
     updatePivot(model, "1", {
-      columns: [{ name: "Expected Revenue", order: "asc" }],
+      columns: [{ fieldName: "Expected Revenue", order: "asc" }],
     });
     expect(getEvaluatedGrid(model, "B26:G26")).toEqual([
       ["$2,000.00", "$4,500.00", "$11,000.00", "(Undefined)", "Total", ""],
     ]);
 
     updatePivot(model, "1", {
-      columns: [{ name: "Created on", granularity: "month_number", order: "asc" }],
+      columns: [{ fieldName: "Created on", granularity: "month_number", order: "asc" }],
     });
     expect(getEvaluatedGrid(model, "B26:F26")).toEqual([
       ["February", "March", "April", "Total", ""],
     ]);
 
     updatePivot(model, "1", {
-      columns: [{ name: "Created on", order: "asc", granularity: "day_of_month" }],
+      columns: [{ fieldName: "Created on", order: "asc", granularity: "day_of_month" }],
     });
     expect(getEvaluatedGrid(model, "B26:E26")).toEqual([["2", "3", "Total", ""]]);
 
     updatePivot(model, "1", {
-      columns: [{ name: "Created on", order: "desc", granularity: "day_of_month" }],
+      columns: [{ fieldName: "Created on", order: "desc", granularity: "day_of_month" }],
     });
     expect(getEvaluatedGrid(model, "B26:E26")).toEqual([["3", "2", "Total", ""]]);
 
     updatePivot(model, "1", {
-      columns: [{ name: "Created on", order: "asc", granularity: "year" }],
+      columns: [{ fieldName: "Created on", order: "asc", granularity: "year" }],
     });
     expect(getEvaluatedGrid(model, "B26:D26")).toEqual([["2024", "Total", ""]]);
   });
@@ -199,17 +199,17 @@ describe("Spreadsheet Pivot", () => {
     setCellContent(model, "A26", `=pivot(1)`);
 
     updatePivot(model, "1", {
-      rows: [{ name: "Contact Name", order: "asc" }],
+      rows: [{ fieldName: "Contact Name", order: "asc" }],
     });
     expect(getEvaluatedGrid(model, "A28:A30")).toEqual([["Alice"], ["Michel"], ["(Undefined)"]]);
 
     updatePivot(model, "1", {
-      rows: [{ name: "Active", order: "desc" }],
+      rows: [{ fieldName: "Active", order: "desc" }],
     });
     expect(getEvaluatedGrid(model, "A28:A29")).toEqual([["TRUE"], ["FALSE"]]);
 
     updatePivot(model, "1", {
-      rows: [{ name: "Expected Revenue", order: "asc" }],
+      rows: [{ fieldName: "Expected Revenue", order: "asc" }],
     });
     expect(getEvaluatedGrid(model, "A28:A30")).toEqual([
       ["$2,000.00"],
@@ -218,7 +218,7 @@ describe("Spreadsheet Pivot", () => {
     ]);
 
     updatePivot(model, "1", {
-      rows: [{ name: "Created on", granularity: "month_number", order: "asc" }],
+      rows: [{ fieldName: "Created on", granularity: "month_number", order: "asc" }],
     });
     expect(getEvaluatedGrid(model, "A28:A32")).toEqual([
       ["February"],
@@ -229,17 +229,17 @@ describe("Spreadsheet Pivot", () => {
     ]);
 
     updatePivot(model, "1", {
-      rows: [{ name: "Created on", order: "asc", granularity: "day_of_month" }],
+      rows: [{ fieldName: "Created on", order: "asc", granularity: "day_of_month" }],
     });
     expect(getEvaluatedGrid(model, "A28:A31")).toEqual([["2"], ["3"], ["Total"], [""]]);
 
     updatePivot(model, "1", {
-      rows: [{ name: "Created on", order: "desc", granularity: "day_of_month" }],
+      rows: [{ fieldName: "Created on", order: "desc", granularity: "day_of_month" }],
     });
     expect(getEvaluatedGrid(model, "A28:A31")).toEqual([["3"], ["2"], ["Total"], [""]]);
 
     updatePivot(model, "1", {
-      rows: [{ name: "Created on", order: "asc", granularity: "year" }],
+      rows: [{ fieldName: "Created on", order: "asc", granularity: "year" }],
     });
     expect(getEvaluatedGrid(model, "A28:A30")).toEqual([["2024"], ["Total"], [""]]);
   });
@@ -250,8 +250,8 @@ describe("Spreadsheet Pivot", () => {
 
     updatePivot(model, "1", {
       columns: [
-        { name: "Contact Name", order: "asc" },
-        { name: "Active", order: "asc" },
+        { fieldName: "Contact Name", order: "asc" },
+        { fieldName: "Active", order: "asc" },
       ],
     });
 
@@ -267,8 +267,8 @@ describe("Spreadsheet Pivot", () => {
 
     updatePivot(model, "1", {
       rows: [
-        { name: "Contact Name", order: "asc" },
-        { name: "Active", order: "asc" },
+        { fieldName: "Contact Name", order: "asc" },
+        { fieldName: "Active", order: "asc" },
       ],
     });
 
@@ -292,7 +292,7 @@ describe("Spreadsheet Pivot", () => {
     setCellContent(model, "A26", "=pivot(1)");
 
     updatePivot(model, "1", {
-      columns: [{ name: "Contact Name", order: "asc" }],
+      columns: [{ fieldName: "Contact Name", order: "asc" }],
     });
 
     expect(getEvaluatedGrid(model, "B26:F26")).toEqual([
@@ -365,7 +365,7 @@ describe("Spreadsheet Pivot", () => {
   test("Order of pivot date dimensions is not overridden by the default one if specified", () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
-      rows: [{ name: "Created on", order: "desc", granularity: "day_of_month" }],
+      rows: [{ fieldName: "Created on", order: "desc", granularity: "day_of_month" }],
     });
     setCellContent(model, "A26", `=pivot(1)`);
     expect(model.getters.getPivot("1").definition.rows[0].order).toEqual("desc");
@@ -376,7 +376,7 @@ describe("Spreadsheet Pivot", () => {
   test("Order of pivot dimensions of a non-date field is auto by default", () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
-      rows: [{ name: "Contact name" }],
+      rows: [{ fieldName: "Contact name" }],
     });
     setCellContent(model, "A26", `=pivot(1)`);
     expect(model.getters.getPivot("1").definition.rows[0].order).toBeUndefined();
@@ -385,7 +385,7 @@ describe("Spreadsheet Pivot", () => {
   test("Measure count as a correct label", () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
-      measures: [{ name: "__count", aggregator: "sum" }],
+      measures: [{ id: "__count:sum", fieldName: "__count", aggregator: "sum" }],
     });
     setCellContent(model, "A26", `=pivot(1)`);
     expect(getCellContent(model, "B27")).toEqual("Count");
@@ -421,7 +421,7 @@ describe("Spreadsheet Pivot", () => {
     updatePivot(model, "1", {
       columns: [],
       rows: [],
-      measures: [{ name: "Expected Revenue", aggregator: "sum" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
     setCellContent(model, "A26", `=pivot(1)`);
     expect(getCellContent(model, "B28")).toBe("$17,500.00");
@@ -434,9 +434,9 @@ describe("Spreadsheet Pivot", () => {
   test("quarter_number should be supported", () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
-      columns: [{ name: "Created on", granularity: "quarter_number", order: "asc" }],
+      columns: [{ fieldName: "Created on", granularity: "quarter_number", order: "asc" }],
       rows: [],
-      measures: [{ name: "Expected Revenue", aggregator: "sum" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
     setCellContent(model, "A26", `=pivot(1)`);
     expect(getEvaluatedGrid(model, "B26:E26")).toEqual([["Q1", "Q2", "Total", ""]]);
@@ -445,9 +445,9 @@ describe("Spreadsheet Pivot", () => {
   test("iso_week_number should be supported", () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
-      columns: [{ name: "Created on", granularity: "iso_week_number", order: "asc" }],
+      columns: [{ fieldName: "Created on", granularity: "iso_week_number", order: "asc" }],
       rows: [],
-      measures: [{ name: "Expected Revenue", aggregator: "sum" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
     setCellContent(model, "A26", `=pivot(1)`);
     expect(getEvaluatedGrid(model, "B26:F26")).toEqual([["5", "9", "14", "Total", ""]]);
@@ -470,13 +470,13 @@ describe("Spreadsheet Pivot", () => {
     setCellContent(model, "A26", "=PIVOT.VALUE(1, )"); // missing measure
     expect(getEvaluatedCell(model, "A26").value).toBe("#ERROR");
     expect(getEvaluatedCell(model, "A26").message).toBe(
-      "The argument  is not a valid measure. Here are the measures: (__count)"
+      "The argument  is not a valid measure. Here are the measures: (__count:sum)"
     );
 
     setCellContent(model, "A27", '=PIVOT.VALUE(1, "wrong measure")');
     expect(getEvaluatedCell(model, "A27").value).toBe("#ERROR");
     expect(getEvaluatedCell(model, "A27").message).toBe(
-      "The argument wrong measure is not a valid measure. Here are the measures: (__count)"
+      "The argument wrong measure is not a valid measure. Here are the measures: (__count:sum)"
     );
   });
 
@@ -491,8 +491,8 @@ describe("Spreadsheet Pivot", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:B4", {
       rows: [],
-      columns: [{ name: "Date", granularity: "day" }],
-      measures: [{ name: "Price", aggregator: "sum" }],
+      columns: [{ fieldName: "Date", granularity: "day" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
 
     // prettier-ignore
@@ -521,7 +521,7 @@ describe("Spreadsheet Pivot", () => {
     updatePivot(model, "1", {
       columns: [],
       rows: [],
-      measures: [{ name: "Expected Revenue", aggregator: "sum" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
     setCellContent(model, "A26", "=PIVOT.HEADER(1)");
     expect(getEvaluatedCell(model, "A26").value).toBe("Total");
@@ -547,9 +547,9 @@ describe("Spreadsheet Pivot", () => {
     addPivot(model, "A1:A4", {
       columns: [],
       rows: [],
-      measures: [{ name: "Price", aggregator }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator }],
     });
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price")');
+    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum")');
     expect(getEvaluatedCell(model, "A27").value).toBe(aggregatedValue);
   });
 
@@ -571,9 +571,9 @@ describe("Spreadsheet Pivot", () => {
     addPivot(model, "A1:A4", {
       columns: [],
       rows: [],
-      measures: [{ name: "Name", aggregator }],
+      measures: [{ id: `Name:${aggregator}`, fieldName: "Name", aggregator }],
     });
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Name")');
+    setCellContent(model, "A27", `=PIVOT.VALUE(1, "Name:${aggregator}")`);
     expect(getEvaluatedCell(model, "A27").value).toBe(aggregatedValue);
   });
 
@@ -595,9 +595,9 @@ describe("Spreadsheet Pivot", () => {
     addPivot(model, "A1:A4", {
       columns: [],
       rows: [],
-      measures: [{ name: "Name", aggregator }],
+      measures: [{ id: `Name:${aggregator}`, fieldName: "Name", aggregator }],
     });
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Name")');
+    setCellContent(model, "A27", `=PIVOT.VALUE(1, "Name:${aggregator}")`);
     expect(getEvaluatedCell(model, "A27").value).toBe(aggregatedValue);
   });
 
@@ -617,9 +617,9 @@ describe("Spreadsheet Pivot", () => {
     addPivot(model, "A1:A4", {
       columns: [],
       rows: [],
-      measures: [{ name: "closed", aggregator }],
+      measures: [{ id: `closed:${aggregator}`, fieldName: "closed", aggregator }],
     });
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "closed")');
+    setCellContent(model, "A27", `=PIVOT.VALUE(1, "closed:${aggregator}")`);
     expect(getEvaluatedCell(model, "A27").value).toBe(aggregatedValue);
   });
 
@@ -634,18 +634,18 @@ describe("Spreadsheet Pivot", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:B4", {
       columns: [],
-      rows: [{ name: "Date", granularity: "year" }],
-      measures: [{ name: "Price", aggregator: "sum" }],
+      rows: [{ fieldName: "Date", granularity: "year" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price", "Date:year", 2024)');
+    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:year", 2024)');
     expect(getEvaluatedCell(model, "A27").value).toBe(30);
 
     // year as string
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price", "Date:year", "2024")');
+    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:year", "2024")');
     expect(getEvaluatedCell(model, "A27").value).toBe(30);
 
     // no matching value
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price", "Date:year", 1900)');
+    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:year", 1900)');
     expect(getEvaluatedCell(model, "A27").value).toBe("");
   });
 
@@ -660,18 +660,18 @@ describe("Spreadsheet Pivot", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:B4", {
       columns: [],
-      rows: [{ name: "Date", granularity: "quarter_number" }],
-      measures: [{ name: "Price", aggregator: "sum" }],
+      rows: [{ fieldName: "Date", granularity: "quarter_number" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price", "Date:quarter_number", 4)');
+    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:quarter_number", 4)');
     expect(getEvaluatedCell(model, "A27").value).toBe(30);
 
     // quarter as string
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price", "Date:quarter_number", "4")');
+    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:quarter_number", "4")');
     expect(getEvaluatedCell(model, "A27").value).toBe(30);
 
     // no matching value
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price", "Date:quarter_number", 1)');
+    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:quarter_number", 1)');
     expect(getEvaluatedCell(model, "A27").value).toBe("");
   });
 
@@ -686,18 +686,18 @@ describe("Spreadsheet Pivot", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:B4", {
       columns: [],
-      rows: [{ name: "Date", granularity: "month_number" }],
-      measures: [{ name: "Price", aggregator: "sum" }],
+      rows: [{ fieldName: "Date", granularity: "month_number" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price", "Date:month_number", 12)');
+    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:month_number", 12)');
     expect(getEvaluatedCell(model, "A27").value).toBe(30);
 
     // month as string
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price", "Date:month_number", "12")');
+    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:month_number", "12")');
     expect(getEvaluatedCell(model, "A27").value).toBe(30);
 
     // no matching value
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price", "Date:month_number", 1)');
+    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:month_number", 1)');
     expect(getEvaluatedCell(model, "A27").value).toBe("");
   });
 
@@ -712,18 +712,18 @@ describe("Spreadsheet Pivot", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:B4", {
       columns: [],
-      rows: [{ name: "Date", granularity: "iso_week_number" }],
-      measures: [{ name: "Price", aggregator: "sum" }],
+      rows: [{ fieldName: "Date", granularity: "iso_week_number" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price", "Date:iso_week_number", 52)');
+    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:iso_week_number", 52)');
     expect(getEvaluatedCell(model, "A27").value).toBe(30);
 
     // week as string
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price", "Date:iso_week_number", "52")');
+    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:iso_week_number", "52")');
     expect(getEvaluatedCell(model, "A27").value).toBe(30);
 
     // no matching value
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price", "Date:iso_week_number", 1)');
+    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:iso_week_number", 1)');
     expect(getEvaluatedCell(model, "A27").value).toBe("");
   });
 
@@ -738,18 +738,18 @@ describe("Spreadsheet Pivot", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:B4", {
       columns: [],
-      rows: [{ name: "Date", granularity: "day_of_month" }],
-      measures: [{ name: "Price", aggregator: "sum" }],
+      rows: [{ fieldName: "Date", granularity: "day_of_month" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price", "Date:day_of_month", 28)');
+    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:day_of_month", 28)');
     expect(getEvaluatedCell(model, "A27").value).toBe(30);
 
     // day as string
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price", "Date:day_of_month", "28")');
+    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:day_of_month", "28")');
     expect(getEvaluatedCell(model, "A27").value).toBe(30);
 
     // no matching value
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price", "Date:day_of_month", 1)');
+    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:day_of_month", 1)');
     expect(getEvaluatedCell(model, "A27").value).toBe("");
   });
 
@@ -764,20 +764,20 @@ describe("Spreadsheet Pivot", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:B4", {
       columns: [],
-      rows: [{ name: "Date", granularity: "day" }],
-      measures: [{ name: "Price", aggregator: "sum" }],
+      rows: [{ fieldName: "Date", granularity: "day" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
 
     // hardcoded date string
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price", "Date:day", "2024-12-28")');
+    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:day", "2024-12-28")');
     expect(getEvaluatedCell(model, "A27").value).toBe(30);
 
     // DATE function
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price", "Date:day", DATE(2024, 12, 28))');
+    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:day", DATE(2024, 12, 28))');
     expect(getEvaluatedCell(model, "A27").value).toBe(30);
 
     // no matching value
-    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price", "Date:day", "2020-12-28")');
+    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Price:sum", "Date:day", "2020-12-28")');
     expect(getEvaluatedCell(model, "A27").value).toBe("");
   });
 
@@ -789,7 +789,7 @@ describe("Spreadsheet Pivot", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:A4", {
       columns: [],
-      rows: [{ name: "Price" }],
+      rows: [{ fieldName: "Price" }],
       measures: [],
     });
     setCellContent(model, "A27", '=PIVOT.HEADER(1, "Price", 10)');
@@ -819,7 +819,7 @@ describe("Spreadsheet Pivot", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:A2", {
       columns: [],
-      rows: [{ name: "Name" }],
+      rows: [{ fieldName: "Name" }],
       measures: [],
     });
     setCellContent(model, "A27", '=PIVOT.HEADER(1, "Name", "Alice")');
@@ -843,7 +843,7 @@ describe("Spreadsheet Pivot", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:A3", {
       columns: [],
-      rows: [{ name: "closed" }],
+      rows: [{ fieldName: "closed" }],
       measures: [],
     });
     setCellContent(model, "A27", '=PIVOT.HEADER(1, "closed", true)');
@@ -866,7 +866,7 @@ describe("Spreadsheet Pivot", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:A4", {
       columns: [],
-      rows: [{ name: "Date", granularity: "year" }],
+      rows: [{ fieldName: "Date", granularity: "year" }],
       measures: [],
     });
     setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:not_a_granularity", 2024)');
@@ -884,7 +884,7 @@ describe("Spreadsheet Pivot", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:A4", {
       columns: [],
-      rows: [{ name: "Date", granularity: "year" }],
+      rows: [{ fieldName: "Date", granularity: "year" }],
       measures: [],
     });
     setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:year", 2024)');
@@ -924,7 +924,7 @@ describe("Spreadsheet Pivot", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:A4", {
       columns: [],
-      rows: [{ name: "Date", granularity: "quarter_number" }],
+      rows: [{ fieldName: "Date", granularity: "quarter_number" }],
       measures: [],
     });
     setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:quarter_number", 4)');
@@ -971,7 +971,7 @@ describe("Spreadsheet Pivot", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:A4", {
       columns: [],
-      rows: [{ name: "Date", granularity: "month_number" }],
+      rows: [{ fieldName: "Date", granularity: "month_number" }],
       measures: [],
     });
     setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:month_number", 4)');
@@ -1024,7 +1024,7 @@ describe("Spreadsheet Pivot", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:A4", {
       columns: [],
-      rows: [{ name: "Date", granularity: "iso_week_number" }],
+      rows: [{ fieldName: "Date", granularity: "iso_week_number" }],
       measures: [],
     });
     setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:iso_week_number", 4)');
@@ -1075,7 +1075,7 @@ describe("Spreadsheet Pivot", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:A4", {
       columns: [],
-      rows: [{ name: "Date", granularity: "day_of_month" }],
+      rows: [{ fieldName: "Date", granularity: "day_of_month" }],
       measures: [],
     });
     setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:day_of_month", 4)');
@@ -1127,7 +1127,7 @@ describe("Spreadsheet Pivot", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:A4", {
       columns: [],
-      rows: [{ name: "Date", granularity: "day" }],
+      rows: [{ fieldName: "Date", granularity: "day" }],
       measures: [],
     });
     setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:day", DATE(2024, 12, 31))');
@@ -1163,7 +1163,7 @@ describe("Spreadsheet Pivot", () => {
     addPivot(model, "A1:A3", {
       columns: [],
       rows: [],
-      measures: [{ name: "Customer", aggregator: "avg" }],
+      measures: [{ id: "Customer:avg", fieldName: "Customer", aggregator: "avg" }],
     });
     setCellContent(model, "A26", `=pivot(1)`);
     expect(getCellContent(model, "A26")).toBe(model.getters.getPivotDisplayName("1"));
@@ -1183,8 +1183,8 @@ describe("Spreadsheet Pivot", () => {
     };
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:A3", {
-      columns: [{ name: "Date", granularity: "month_number" }],
-      measures: [{ name: "__count", aggregator: "sum" }],
+      columns: [{ fieldName: "Date", granularity: "month_number" }],
+      measures: [{ id: "__count:sum", fieldName: "__count", aggregator: "sum" }],
     });
     expect(getEvaluatedGrid(model, "B4:E4")).toEqual([["March", "(Undefined)", "Total", ""]]);
   });
@@ -1199,8 +1199,8 @@ describe("Spreadsheet Pivot", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [],
-      rows: [{ name: "Price" }],
-      measures: [{ name: "Name", aggregator: "count" }],
+      rows: [{ fieldName: "Price" }],
+      measures: [{ id: "Name:count", fieldName: "Name", aggregator: "count" }],
     });
     const pivotId = model.getters.getPivotIds()[0];
     const pivot = model.getters.getPivot(pivotId);
@@ -1237,6 +1237,37 @@ describe("Spreadsheet Pivot", () => {
       [`=PIVOT.HEADER(1,"Price",10)`],
       [`=PIVOT.HEADER(1,"Price",20)`],
     ]);
+  });
+
+  test("PIVOT.VALUE works after migration", () => {
+    const model = new Model({
+      version: 17,
+      sheets: [
+        {
+          id: "pivot",
+          cells: {
+            A1: { content: `=PIVOT.VALUE("1", "Amount")` },
+            B1: { content: "Customer" },
+            B2: { content: "Alice" },
+            C1: { content: "Amount" },
+            C2: { content: "10" },
+          },
+        },
+      ],
+      pivots: {
+        1: {
+          type: "SPREADSHEET",
+          columns: [],
+          rows: [],
+          measures: [{ name: "Amount", aggregator: "count" }],
+          name: "My pivot",
+          dataSet: { sheetId: "pivot", zone: { top: 0, bottom: 1, left: 1, right: 2 } },
+          formulaId: "1",
+        },
+      },
+      pivotNextId: 2,
+    });
+    expect(getEvaluatedCell(model, "A1").value).toBe(1);
   });
 
   describe("Pivot reevaluation", () => {
@@ -1289,8 +1320,8 @@ describe("Spreadsheet arguments parsing", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [],
-      rows: [{ name: "Date", granularity: "year" }],
-      measures: [{ name: "Price", aggregator: "sum" }],
+      rows: [{ fieldName: "Date", granularity: "year" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
     const pivot = model.getters.getPivot(model.getters.getPivotIds()[0]);
     expect(pivot.parseArgsToPivotDomain(toFunctionResultObject(["Date:year", 2024]))).toEqual([
@@ -1323,8 +1354,8 @@ describe("Spreadsheet arguments parsing", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [],
-      rows: [{ name: "Amount", granularity: "year" }],
-      measures: [{ name: "Price", aggregator: "sum" }],
+      rows: [{ fieldName: "Amount", granularity: "year" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
     const pivot = model.getters.getPivot(model.getters.getPivotIds()[0]);
     expect(pivot.parseArgsToPivotDomain(toFunctionResultObject(["Amount", 1]))).toEqual([
@@ -1356,8 +1387,8 @@ describe("Spreadsheet arguments parsing", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [],
-      rows: [{ name: "Active" }],
-      measures: [{ name: "Price", aggregator: "sum" }],
+      rows: [{ fieldName: "Active" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
     const pivot = model.getters.getPivot(model.getters.getPivotIds()[0]);
     expect(pivot.parseArgsToPivotDomain(toFunctionResultObject(["Active", true]))).toEqual([
@@ -1389,8 +1420,8 @@ describe("Spreadsheet arguments parsing", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [],
-      rows: [{ name: "Name" }],
-      measures: [{ name: "Price", aggregator: "sum" }],
+      rows: [{ fieldName: "Name" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
     const pivot = model.getters.getPivot(model.getters.getPivotIds()[0]);
     expect(pivot.parseArgsToPivotDomain(toFunctionResultObject(["Name", true]))).toEqual([

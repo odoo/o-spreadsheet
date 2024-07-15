@@ -1969,8 +1969,8 @@ describe("clipboard", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [],
-      rows: [{ name: "Customer" }],
-      measures: [{ name: "Price", aggregator: "sum" }],
+      rows: [{ fieldName: "Customer" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
 
     // copy 1 cell
@@ -1986,10 +1986,10 @@ describe("clipboard", () => {
     // prettier-ignore
     expect(getEvaluatedGrid(model, "G4:H8")).toEqual([
       ["",                                      "=PIVOT.HEADER(1)"],
-      ["",                                      '=PIVOT.HEADER(1,"measure","Price")'],
-      ['=PIVOT.HEADER(1,"Customer","Alice")',   '=PIVOT.VALUE(1,"Price","Customer","Alice")'],
-      ['=PIVOT.HEADER(1,"Customer","Bob")',     '=PIVOT.VALUE(1,"Price","Customer","Bob")'],
-      ["=PIVOT.HEADER(1)",                      '=PIVOT.VALUE(1,"Price")'],
+      ["",                                      '=PIVOT.HEADER(1,"measure","Price:sum")'],
+      ['=PIVOT.HEADER(1,"Customer","Alice")',   '=PIVOT.VALUE(1,"Price:sum","Customer","Alice")'],
+      ['=PIVOT.HEADER(1,"Customer","Bob")',     '=PIVOT.VALUE(1,"Price:sum","Customer","Bob")'],
+      ["=PIVOT.HEADER(1)",                      '=PIVOT.VALUE(1,"Price:sum")'],
     ]);
   });
 
@@ -2003,8 +2003,8 @@ describe("clipboard", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [],
-      rows: [{ name: "Customer" }],
-      measures: [{ name: "Price", aggregator: "sum" }],
+      rows: [{ fieldName: "Customer" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
 
     copy(model, "C1");
@@ -2023,8 +2023,8 @@ describe("clipboard", () => {
     const model = createModelFromGrid(grid);
     addPivot(model, "A1:B3", {
       columns: [],
-      rows: [{ name: "Customer" }],
-      measures: [{ name: "Price", aggregator: "sum" }],
+      rows: [{ fieldName: "Customer" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
     });
     copy(model, "C2");
     paste(model, "G4");

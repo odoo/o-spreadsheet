@@ -17,8 +17,8 @@ export function getPivotId(pivotFormulaId: string, getters: Getters) {
 
 export function assertMeasureExist(pivotId: UID, measure: string, getters: Getters) {
   const { measures } = getters.getPivotCoreDefinition(pivotId);
-  if (!measures.find((m) => m.name === measure)) {
-    const validMeasures = `(${measures.map((m) => m.name).join(", ")})`;
+  if (!measures.find((m) => m.id === measure)) {
+    const validMeasures = `(${measures.map((m) => m.id).join(", ")})`;
     throw new EvaluationError(
       _t(
         "The argument %s is not a valid measure. Here are the measures: %s",

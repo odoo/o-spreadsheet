@@ -25,13 +25,18 @@ export type Granularity =
   | "quarter_number";
 
 export interface PivotCoreDimension {
-  name: string;
+  fieldName: string;
   order?: "asc" | "desc";
   granularity?: Granularity | string;
 }
 
 export interface PivotCoreMeasure {
-  name: string;
+  /**
+   * Identifier of the measure, `technicalName:aggregator{:autoIncrementedNumber}`.
+   * It's used to identify the measure in the pivot formula.
+   */
+  id: string;
+  fieldName: string;
   aggregator: Aggregator | string;
 }
 
@@ -69,7 +74,6 @@ export interface PivotField {
 export type PivotFields = Record<TechnicalName, PivotField | undefined>;
 
 export interface PivotMeasure extends PivotCoreMeasure {
-  nameWithAggregator: string;
   displayName: string;
   type: string;
   isValid: boolean;

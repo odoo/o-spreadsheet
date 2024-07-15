@@ -152,13 +152,27 @@ export class SpreadsheetPivotTable {
     }
     for (let i = 0; i < pivotCol.fields.length; i++) {
       const fieldWithGranularity = pivotCol.fields[i];
-      const { name, granularity } = parseDimension(fieldWithGranularity);
-      const type = this.fieldsType[name] || "char";
-      domain.push({
-        type,
-        field: fieldWithGranularity,
-        value: toNormalizedPivotValue({ displayName: name, type, granularity }, pivotCol.values[i]),
-      });
+      if (fieldWithGranularity === "measure") {
+        domain.push({
+          type: "char",
+          field: fieldWithGranularity,
+          value: toNormalizedPivotValue(
+            { displayName: "measure", type: "char" },
+            pivotCol.values[i]
+          ),
+        });
+      } else {
+        const { fieldName, granularity } = parseDimension(fieldWithGranularity);
+        const type = this.fieldsType[fieldName] || "char";
+        domain.push({
+          type,
+          field: fieldWithGranularity,
+          value: toNormalizedPivotValue(
+            { displayName: fieldName, type, granularity },
+            pivotCol.values[i]
+          ),
+        });
+      }
     }
     return domain;
   }
@@ -181,13 +195,13 @@ export class SpreadsheetPivotTable {
     const domain: PivotDomain = [];
     for (let i = 0; i < this.rows[row].fields.length; i++) {
       const fieldWithGranularity = this.rows[row].fields[i];
-      const { name, granularity } = parseDimension(fieldWithGranularity);
-      const type = this.fieldsType[name] || "char";
+      const { fieldName, granularity } = parseDimension(fieldWithGranularity);
+      const type = this.fieldsType[fieldName] || "char";
       domain.push({
         type,
         field: fieldWithGranularity,
         value: toNormalizedPivotValue(
-          { displayName: name, type, granularity },
+          { displayName: fieldName, type, granularity },
           this.rows[row].values[i]
         ),
       });
