@@ -51,7 +51,7 @@ function createMeasure(fields: PivotFields, measure: PivotCoreMeasure): PivotMea
     name === "__count"
       ? { name: "__count", string: _t("Count"), type: "integer", aggregator: "sum" }
       : fields[name];
-  const aggregator = measure.aggregator || field?.aggregator;
+  const aggregator = measure.aggregator;
   return {
     nameWithAggregator: name + (aggregator ? `:${aggregator}` : ""),
     /**

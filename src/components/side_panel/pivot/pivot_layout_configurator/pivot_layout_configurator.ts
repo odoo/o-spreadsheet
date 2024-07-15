@@ -4,6 +4,7 @@ import { isDefined } from "../../../../helpers";
 import { AGGREGATORS, isDateField, parseDimension } from "../../../../helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "../../../../helpers/pivot/pivot_runtime_definition";
 import {
+  Aggregator,
   Granularity,
   PivotCoreDefinition,
   PivotCoreDimension,
@@ -174,8 +175,15 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
   addMeasureDimension(fieldName: string) {
     const { measures }: { measures: PivotCoreMeasure[] } = this.props.definition;
     this.props.onDimensionsUpdated({
-      measures: measures.concat([{ name: fieldName }]),
+      measures: measures.concat([
+        { name: fieldName, aggregator: this.getDefaultMeasureAggregator(fieldName) },
+      ]),
     });
+  }
+
+  private getDefaultMeasureAggregator(fieldName: string): Aggregator | string {
+    const field = this.props.unusedMeasureFields.find((f) => f.name === fieldName);
+    return field?.aggregator ? field.aggregator : "count";
   }
 
   updateAggregator(updatedMeasure: PivotMeasure, aggregator: string) {
