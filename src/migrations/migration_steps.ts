@@ -332,6 +332,40 @@ migrationStepRegistry
     migrate(data: any): any {
       return data;
     },
+  })
+  .add("migration_18", {
+    // Change measures and dimensions `name` to `fieldName`
+    // Add id to measures
+    versionFrom: "18",
+    migrate(data: any): any {
+      interface PivotCoreMeasureV17 {
+        name: string;
+        aggregator?: string;
+      }
+      interface PivotCoreDimensionV17 {
+        name: string;
+        order?: string;
+        granularity?: string;
+      }
+      for (const pivot of Object.values(data.pivots || {}) as any) {
+        pivot.measures = pivot.measures.map((measure: PivotCoreMeasureV17) => ({
+          id: measure.name, //Do not set name + aggregator, to support old formulas
+          fieldName: measure.name,
+          aggregator: measure.aggregator,
+        }));
+        pivot.columns = pivot.columns.map((column: PivotCoreDimensionV17) => ({
+          fieldName: column.name,
+          order: column.order,
+          granularity: column.granularity,
+        }));
+        pivot.rows = pivot.rows.map((row: PivotCoreDimensionV17) => ({
+          fieldName: row.name,
+          order: row.order,
+          granularity: row.granularity,
+        }));
+      }
+      return data;
+    },
   });
 
 function fixOverlappingFilters(data: any): any {

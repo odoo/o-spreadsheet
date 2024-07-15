@@ -73,7 +73,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
     const currentlyUsed = (measures as (PivotMeasure | PivotDimension)[])
       .concat(rows)
       .concat(columns)
-      .map((field) => field.name);
+      .map((field) => field.fieldName);
     return measureFields
       .filter((field) => !currentlyUsed.includes(field.name))
       .sort((a, b) => a.string.localeCompare(b.string));
@@ -95,7 +95,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
     const currentlyUsed = (measures as (PivotMeasure | PivotDimension)[])
       .concat(rows)
       .concat(columns)
-      .map((field) => field.name);
+      .map((field) => field.fieldName);
     const unusedDateTimeGranularities = this.unusedDateTimeGranularities;
     return groupableFields
       .filter((field) => {
@@ -154,17 +154,18 @@ export class PivotSidePanelStore extends SpreadsheetStore {
     const cleanedDefinition = {
       ...definition,
       columns: definition.columns.map((col) => ({
-        name: col.name,
+        fieldName: col.fieldName,
         order: col.order,
         granularity: col.granularity,
       })),
       rows: definition.rows.map((row) => ({
-        name: row.name,
+        fieldName: row.fieldName,
         order: row.order,
         granularity: row.granularity,
       })),
       measures: definition.measures.map((measure) => ({
-        name: measure.name,
+        id: measure.id,
+        fieldName: measure.fieldName,
         aggregator: measure.aggregator,
       })),
     };
@@ -191,10 +192,11 @@ export class PivotSidePanelStore extends SpreadsheetStore {
     const rowsWithGranularity = deepCopy(rows);
     const unusedGranularities = this.getUnusedDateTimeGranularities(fields, definition);
     for (const dimension of columnsWithGranularity.concat(rowsWithGranularity)) {
-      const fieldType = fields[dimension.name]?.type;
+      const fieldType = fields[dimension.fieldName]?.type;
       if ((fieldType === "date" || fieldType === "datetime") && !dimension.granularity) {
-        const granularity = unusedGranularities[dimension.name]?.values().next().value || "year";
-        unusedGranularities[dimension.name]?.delete(granularity);
+        const granularity =
+          unusedGranularities[dimension.fieldName]?.values().next().value || "year";
+        unusedGranularities[dimension.fieldName]?.delete(granularity);
         dimension.granularity = granularity;
       }
     }
@@ -208,16 +210,16 @@ export class PivotSidePanelStore extends SpreadsheetStore {
   private getUnusedDateTimeGranularities(fields: PivotFields, definition: PivotCoreDefinition) {
     const { columns, rows } = definition;
     const dateFields = columns.concat(rows).filter((dimension) => {
-      const fieldType = fields[dimension.name]?.type;
+      const fieldType = fields[dimension.fieldName]?.type;
       return fieldType === "date" || fieldType === "datetime";
     });
     const granularities = this.allGranularities;
     const granularitiesPerFields = {};
     for (const field of dateFields) {
-      granularitiesPerFields[field.name] = new Set(granularities);
+      granularitiesPerFields[field.fieldName] = new Set(granularities);
     }
     for (const field of dateFields) {
-      granularitiesPerFields[field.name].delete(field.granularity);
+      granularitiesPerFields[field.fieldName].delete(field.granularity);
     }
     return granularitiesPerFields;
   }

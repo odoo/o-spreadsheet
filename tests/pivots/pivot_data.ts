@@ -2,7 +2,7 @@ import { toZone } from "../../src/helpers/index";
 
 export const pivotModelData = function (xc: string) {
   return {
-    version: 16,
+    version: 19,
     sheets: [
       {
         id: "pivot",
@@ -573,13 +573,14 @@ export const pivotModelData = function (xc: string) {
         type: "SPREADSHEET",
         columns: [
           {
-            name: "Expected Revenue",
+            fieldName: "Expected Revenue",
           },
         ],
         rows: [],
         measures: [
           {
-            name: "__count",
+            id: "__count:sum",
+            fieldName: "__count",
             aggregator: "sum",
           },
         ],

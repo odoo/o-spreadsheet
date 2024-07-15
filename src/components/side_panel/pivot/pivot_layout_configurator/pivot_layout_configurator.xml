@@ -19,7 +19,7 @@
               t-if="isDateField(col)"
               dimension="col"
               onUpdated.bind="this.updateGranularity"
-              availableGranularities="props.unusedDateTimeGranularities[col.name]"
+              availableGranularities="props.unusedDateTimeGranularities[col.fieldName]"
               allGranularities="props.allGranularities"
             />
             <PivotDimensionOrder dimension="col" onUpdated.bind="this.updateOrder"/>
@@ -45,7 +45,7 @@
               t-if="isDateField(row)"
               dimension="row"
               onUpdated.bind="this.updateGranularity"
-              availableGranularities="props.unusedDateTimeGranularities[row.name]"
+              availableGranularities="props.unusedDateTimeGranularities[row.fieldName]"
               allGranularities="props.allGranularities"
             />
             <PivotDimensionOrder dimension="row" onUpdated.bind="this.updateOrder"/>
@@ -60,10 +60,10 @@
           fields="props.unusedMeasureFields"
         />
       </div>
-      <t t-foreach="props.definition.measures" t-as="measure" t-key="measure.nameWithAggregator">
+      <t t-foreach="props.definition.measures" t-as="measure" t-key="measure.id">
         <div
           t-on-pointerdown="(ev) => this.startDragAndDropMeasures(measure, ev)"
-          t-att-style="dragAndDrop.itemsStyle[measure.name]"
+          t-att-style="dragAndDrop.itemsStyle[measure.id]"
           class="pt-1 pivot-measure">
           <PivotDimension dimension="measure" onRemoved.bind="removeMeasureDimension">
             <div class="d-flex flex-row small">

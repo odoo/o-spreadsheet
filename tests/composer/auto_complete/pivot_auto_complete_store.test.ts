@@ -13,7 +13,9 @@ describe("spreadsheet pivot auto complete", () => {
         name: "My pivot 2",
         columns: [],
         rows: [],
-        measures: [{ name: "Expected Revenue", aggregator: "sum" }],
+        measures: [
+          { id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" },
+        ],
       },
       "pivot2"
     );
@@ -46,7 +48,7 @@ describe("spreadsheet pivot auto complete", () => {
     addPivot(model, "A1:A4", {
       columns: [],
       rows: [],
-      measures: [{ name: "Expected Revenue", aggregator: "sum" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
     const { store: composer } = makeStoreWithModel(model, ComposerStore);
     for (const func of ["PIVOT", "PIVOT.HEADER", "PIVOT.VALUE"]) {
@@ -62,14 +64,14 @@ describe("spreadsheet pivot auto complete", () => {
     }
   });
 
-  test("PIVOT.VALUE measuresgd", async () => {
+  test("PIVOT.VALUE measures", async () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
       rows: [],
       measures: [
-        { name: "Expected Revenue", aggregator: "sum" },
-        { name: "__count", aggregator: "sum" },
+        { id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" },
+        { id: "__count:sum", fieldName: "__count", aggregator: "sum" },
       ],
     });
     const { store: composer } = makeStoreWithModel(model, ComposerStore);
@@ -78,9 +80,9 @@ describe("spreadsheet pivot auto complete", () => {
     expect(autoComplete?.proposals).toEqual([
       {
         description: "Expected Revenue",
-        fuzzySearchKey: '"Expected Revenue"',
-        htmlContent: [{ color: "#00a82d", value: '"Expected Revenue"' }],
-        text: '"Expected Revenue"',
+        fuzzySearchKey: 'Expected RevenueExpected Revenue"Expected Revenue:sum"',
+        htmlContent: [{ color: "#00a82d", value: '"Expected Revenue:sum"' }],
+        text: '"Expected Revenue:sum"',
       },
       {
         description: "Count",
@@ -90,7 +92,7 @@ describe("spreadsheet pivot auto complete", () => {
       },
     ]);
     autoComplete?.selectProposal(autoComplete?.proposals[0].text);
-    expect(composer.currentContent).toBe('=PIVOT.VALUE(1,"Expected Revenue"');
+    expect(composer.currentContent).toBe('=PIVOT.VALUE(1,"Expected Revenue:sum"');
     expect(composer.autocompleteProvider).toBeUndefined();
   });
 
@@ -99,12 +101,12 @@ describe("spreadsheet pivot auto complete", () => {
     updatePivot(model, "1", {
       columns: [],
       rows: [],
-      measures: [{ name: "Expected Revenue", aggregator: "sum" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
     const { store: composer } = makeStoreWithModel(model, ComposerStore);
     composer.startEdition('=PIVOT.VALUE("1",');
     const autoComplete = composer.autocompleteProvider;
-    expect(autoComplete?.proposals.map((p) => p.text)).toEqual(['"Expected Revenue"']);
+    expect(autoComplete?.proposals.map((p) => p.text)).toEqual(['"Expected Revenue:sum"']);
   });
 
   test("PIVOT.VALUE measure with pivot id that does not exist", async () => {
@@ -124,9 +126,9 @@ describe("spreadsheet pivot auto complete", () => {
   test("PIVOT.VALUE group with a single col group", async () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
-      columns: [{ name: "Stage" }],
+      columns: [{ fieldName: "Stage" }],
       rows: [],
-      measures: [{ name: "Expected Revenue", aggregator: "sum" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
     const { store: composer } = makeStoreWithModel(model, ComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue",');
@@ -147,9 +149,9 @@ describe("spreadsheet pivot auto complete", () => {
   test("PIVOT.VALUE group with a pivot id as string", async () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
-      columns: [{ name: "Stage" }],
+      columns: [{ fieldName: "Stage" }],
       rows: [],
-      measures: [{ name: "Expected Revenue", aggregator: "sum" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
     const { store: composer } = makeStoreWithModel(model, ComposerStore);
     composer.startEdition('=PIVOT.VALUE("1","Expected Revenue",');
@@ -161,8 +163,8 @@ describe("spreadsheet pivot auto complete", () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
-      rows: [{ name: "Stage" }],
-      measures: [{ name: "Expected Revenue", aggregator: "sum" }],
+      rows: [{ fieldName: "Stage" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
     const { store: composer } = makeStoreWithModel(model, ComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue",');
@@ -184,8 +186,8 @@ describe("spreadsheet pivot auto complete", () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
-      rows: [{ name: "Created on", granularity: "day" }],
-      measures: [{ name: "Expected Revenue", aggregator: "sum" }],
+      rows: [{ fieldName: "Created on", granularity: "day" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
     const { store: composer } = makeStoreWithModel(model, ComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue",');
@@ -207,8 +209,8 @@ describe("spreadsheet pivot auto complete", () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
-      rows: [{ name: "Stage" }],
-      measures: [{ name: "Expected Revenue", aggregator: "sum" }],
+      rows: [{ fieldName: "Stage" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
     const { store: composer } = makeStoreWithModel(model, ComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","sta');
@@ -219,9 +221,9 @@ describe("spreadsheet pivot auto complete", () => {
   test("PIVOT.VALUE search field with both col and row group", async () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
-      columns: [{ name: "Stage" }],
-      rows: [{ name: "Created on", granularity: "month_number" }],
-      measures: [{ name: "Expected Revenue", aggregator: "sum" }],
+      columns: [{ fieldName: "Stage" }],
+      rows: [{ fieldName: "Created on", granularity: "month_number" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
     const { store: composer } = makeStoreWithModel(model, ComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue", ');
@@ -235,9 +237,9 @@ describe("spreadsheet pivot auto complete", () => {
   test("PIVOT.VALUE group with row and col groups for the first group", async () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
-      columns: [{ name: "Created on", granularity: "month_number" }],
-      rows: [{ name: "Stage" }],
-      measures: [{ name: "Expected Revenue", aggregator: "sum" }],
+      columns: [{ fieldName: "Created on", granularity: "month_number" }],
+      rows: [{ fieldName: "Stage" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
     const { store: composer } = makeStoreWithModel(model, ComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue",');
@@ -251,9 +253,9 @@ describe("spreadsheet pivot auto complete", () => {
   test("PIVOT.VALUE group with row and col groups for the col group", async () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
-      columns: [{ name: "Created on", granularity: "month_number" }],
-      rows: [{ name: "Stage" }],
-      measures: [{ name: "Expected Revenue", aggregator: "sum" }],
+      columns: [{ fieldName: "Created on", granularity: "month_number" }],
+      rows: [{ fieldName: "Stage" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
     const { store: composer } = makeStoreWithModel(model, ComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","Stage",1,');
@@ -264,9 +266,9 @@ describe("spreadsheet pivot auto complete", () => {
   test("PIVOT.VALUE group with two rows, on the first group", async () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
-      rows: [{ name: "Stage" }, { name: "Created on", granularity: "month_number" }],
+      rows: [{ fieldName: "Stage" }, { fieldName: "Created on", granularity: "month_number" }],
       columns: [],
-      measures: [{ name: "Expected Revenue", aggregator: "sum" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
     const { store: composer } = makeStoreWithModel(model, ComposerStore);
     composer.startEdition(
@@ -282,8 +284,8 @@ describe("spreadsheet pivot auto complete", () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
-      rows: [{ name: "Stage" }],
-      measures: [{ name: "Expected Revenue", aggregator: "sum" }],
+      rows: [{ fieldName: "Stage" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
     const { store: composer } = makeStoreWithModel(model, ComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","Stage",');
@@ -311,8 +313,8 @@ describe("spreadsheet pivot auto complete", () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
-      rows: [{ name: "Created on", granularity: "month_number" }],
-      measures: [{ name: "Expected Revenue", aggregator: "sum" }],
+      rows: [{ fieldName: "Created on", granularity: "month_number" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
     const { store: composer } = makeStoreWithModel(model, ComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","Created on:month_number",');
@@ -402,8 +404,8 @@ describe("spreadsheet pivot auto complete", () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
-      rows: [{ name: "Created on", granularity: "quarter_number" }],
-      measures: [{ name: "Expected Revenue", aggregator: "sum" }],
+      rows: [{ fieldName: "Created on", granularity: "quarter_number" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
     const { store: composer } = makeStoreWithModel(model, ComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","Created on:quarter_number",');
@@ -445,8 +447,8 @@ describe("spreadsheet pivot auto complete", () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
-      rows: [{ name: "Created on", granularity: "day_of_month" }],
-      measures: [{ name: "Expected Revenue", aggregator: "sum" }],
+      rows: [{ fieldName: "Created on", granularity: "day_of_month" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
     const { store: composer } = makeStoreWithModel(model, ComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","Created on:day_of_month",');
@@ -475,8 +477,8 @@ describe("spreadsheet pivot auto complete", () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
-      rows: [{ name: "Created on", granularity: "iso_week_number" }],
-      measures: [{ name: "Expected Revenue", aggregator: "sum" }],
+      rows: [{ fieldName: "Created on", granularity: "iso_week_number" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
     const { store: composer } = makeStoreWithModel(model, ComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","Created on:iso_week_number",');
@@ -504,9 +506,9 @@ describe("spreadsheet pivot auto complete", () => {
   test("PIVOT.VALUE autocomplete field after a date field", async () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
-      columns: [{ name: "Stage" }],
-      rows: [{ name: "Created on", granularity: "month_number" }],
-      measures: [{ name: "Expected Revenue", aggregator: "sum" }],
+      columns: [{ fieldName: "Stage" }],
+      rows: [{ fieldName: "Created on", granularity: "month_number" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
     const { store: composer } = makeStoreWithModel(model, ComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","Created on:month_number",11,');
@@ -518,8 +520,8 @@ describe("spreadsheet pivot auto complete", () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
       columns: [],
-      rows: [{ name: "Stage" }],
-      measures: [{ name: "Expected Revenue", aggregator: "sum" }],
+      rows: [{ fieldName: "Stage" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
     const { store: composer } = makeStoreWithModel(model, ComposerStore);
     composer.startEdition('=PIVOT.VALUE(1,"Expected Revenue","not a dimension",');
@@ -529,9 +531,9 @@ describe("spreadsheet pivot auto complete", () => {
   test("PIVOT.HEADER first field", async () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
-      columns: [{ name: "Stage" }],
+      columns: [{ fieldName: "Stage" }],
       rows: [],
-      measures: [{ name: "Expected Revenue", aggregator: "sum" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
     const { store: composer } = makeStoreWithModel(model, ComposerStore);
     composer.startEdition("=PIVOT.HEADER(1,");
@@ -545,9 +547,9 @@ describe("spreadsheet pivot auto complete", () => {
   test("PIVOT.HEADER search field", async () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
-      columns: [{ name: "Stage" }],
+      columns: [{ fieldName: "Stage" }],
       rows: [],
-      measures: [{ name: "Expected Revenue", aggregator: "sum" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
     const { store: composer } = makeStoreWithModel(model, ComposerStore);
     composer.startEdition('=PIVOT.HEADER(1,"sta');
@@ -561,9 +563,9 @@ describe("spreadsheet pivot auto complete", () => {
   test("PIVOT.HEADER group value", async () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
-      columns: [{ name: "Stage" }],
+      columns: [{ fieldName: "Stage" }],
       rows: [],
-      measures: [{ name: "Expected Revenue", aggregator: "sum" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
     });
     const { store: composer } = makeStoreWithModel(model, ComposerStore);
     composer.startEdition('=PIVOT.HEADER(1,"Stage",');

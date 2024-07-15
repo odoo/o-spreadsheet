@@ -37,15 +37,15 @@ export function dataEntriesToSpreadsheetPivotTable(
     indent: 0,
   });
 
-  const measureNames = definition.measures.map((m) => m.name);
+  const measureIds = definition.measures.map((m) => m.id);
   const fieldsType: Record<string, string> = {};
   for (const columns of definition.columns) {
-    fieldsType[columns.name] = columns.type;
+    fieldsType[columns.fieldName] = columns.type;
   }
   for (const row of definition.rows) {
-    fieldsType[row.name] = row.type;
+    fieldsType[row.fieldName] = row.type;
   }
-  return new SpreadsheetPivotTable(cols, rows, measureNames, fieldsType);
+  return new SpreadsheetPivotTable(cols, rows, measureIds, fieldsType);
 }
 
 // -----------------------------------------------------------------------------
@@ -172,7 +172,7 @@ function columnsTreeToColumns(
       definition.measures.forEach((measure) => {
         const measureCell = {
           fields: [...cell.fields, "measure"],
-          values: [...cell.values, measure.name],
+          values: [...cell.values, measure.id],
           width: 1,
           offset: 0,
         };
@@ -184,7 +184,7 @@ function columnsTreeToColumns(
   definition.measures.forEach((measure) => {
     const measureCell = {
       fields: ["measure"],
-      values: [measure.name],
+      values: [measure.id],
       width: 1,
       offset: 0,
     };

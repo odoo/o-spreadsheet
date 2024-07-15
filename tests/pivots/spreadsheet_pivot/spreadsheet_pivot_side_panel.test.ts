@@ -63,7 +63,7 @@ describe("Spreadsheet pivot side panel", () => {
     expect(model.getters.getPivotCoreDefinition("3").columns).toEqual([]);
     await click(fixture.querySelector(".sp_apply_update")!);
     expect(model.getters.getPivotCoreDefinition("3").columns).toEqual([
-      { name: "amount", order: "asc" },
+      { fieldName: "amount", order: "asc" },
     ]);
   });
 
@@ -141,17 +141,17 @@ describe("Spreadsheet pivot side panel", () => {
 
   test("Can flip axes of a pivot", async () => {
     updatePivot(model, "1", {
-      rows: [{ name: "Contact Name", order: "asc" }],
-      columns: [{ name: "Active", order: "asc" }],
+      rows: [{ fieldName: "Contact Name", order: "asc" }],
+      columns: [{ fieldName: "Active", order: "asc" }],
     });
     await click(fixture, SELECTORS.COG_WHEEL);
     await click(fixture, SELECTORS.FLIP_AXIS_PIVOT);
     const pivotId = model.getters.getPivotId("1")!;
     expect(model.getters.getPivotCoreDefinition(pivotId).rows).toEqual([
-      { name: "Active", order: "asc" },
+      { fieldName: "Active", order: "asc" },
     ]);
     expect(model.getters.getPivotCoreDefinition(pivotId).columns).toEqual([
-      { name: "Contact Name", order: "asc" },
+      { fieldName: "Contact Name", order: "asc" },
     ]);
   });
 
@@ -166,7 +166,7 @@ describe("Spreadsheet pivot side panel", () => {
     expect(fixture.querySelector(".o-popover")).toBeDefined();
     await click(fixture, ".o-autocomplete-value");
     expect(model.getters.getPivotCoreDefinition("3").columns).toEqual([
-      { name: "amount", order: "asc" },
+      { fieldName: "amount", order: "asc" },
     ]);
   });
 
@@ -193,14 +193,14 @@ describe("Spreadsheet pivot side panel", () => {
     await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
     await click(fixture.querySelectorAll(".o-autocomplete-value")[0]);
     expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
-      { name: "amount", aggregator: "sum" },
+      { id: "amount:sum", fieldName: "amount", aggregator: "sum" },
     ]);
 
     await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
     await click(fixture.querySelectorAll(".o-autocomplete-value")[1]);
     expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
-      { name: "amount", aggregator: "sum" },
-      { name: "person", aggregator: "count" },
+      { id: "amount:sum", fieldName: "amount", aggregator: "sum" },
+      { id: "person:count", fieldName: "person", aggregator: "count" },
     ]);
   });
 });

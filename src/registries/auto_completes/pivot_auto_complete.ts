@@ -6,6 +6,7 @@ import {
   insertTokenAfterArgSeparator,
   insertTokenAfterLeftParenthesis,
   makeFieldProposal,
+  makeMeasureProposal,
 } from "../../helpers/pivot/pivot_composer_helpers";
 import { supportedPivotPositionalFormulaRegistry } from "../../helpers/pivot/pivot_positional_formula_registry";
 import { _t } from "../../translation";
@@ -65,12 +66,12 @@ autoCompleteProviders.add("pivot_measures", {
     }
     const pivot = this.getters.getPivot(pivotId);
     pivot.init();
-    const fields = pivot.getFields();
-    const definition = this.getters.getPivotCoreDefinition(pivotId);
-
-    return definition.measures
+    if (!pivot.isValid()) {
+      return [];
+    }
+    return pivot.definition.measures
       .map((measure) => {
-        if (measure.name === "__count") {
+        if (measure.fieldName === "__count") {
           const text = '"__count"';
           return {
             text,
@@ -79,11 +80,7 @@ autoCompleteProviders.add("pivot_measures", {
             fuzzySearchKey: _t("Count") + text,
           };
         }
-        const field = fields[measure.name];
-        if (!field) {
-          return;
-        }
-        return makeFieldProposal(field);
+        return makeMeasureProposal(measure);
       })
       .filter(isDefined);
   },

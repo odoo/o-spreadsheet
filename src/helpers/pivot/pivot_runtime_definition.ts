@@ -36,33 +36,36 @@ export class PivotRuntimeDefinition {
     return dimension;
   }
 
-  getMeasure(name: string): PivotMeasure {
-    const measure = this.measures.find((measure) => measure.name === name);
+  getMeasure(id: string): PivotMeasure {
+    const measure = this.measures.find((measure) => measure.id === id);
     if (!measure) {
-      throw new EvaluationError(_t("Field %s is not a measure", name));
+      throw new EvaluationError(_t("Field %s is not a measure", id));
     }
     return measure;
   }
 }
 
 function createMeasure(fields: PivotFields, measure: PivotCoreMeasure): PivotMeasure {
-  const name = measure.name;
+  const fieldName = measure.fieldName;
   const field =
-    name === "__count"
+    fieldName === "__count"
       ? { name: "__count", string: _t("Count"), type: "integer", aggregator: "sum" }
-      : fields[name];
+      : fields[fieldName];
   const aggregator = measure.aggregator;
   return {
-    nameWithAggregator: name + (aggregator ? `:${aggregator}` : ""),
+    /**
+     * Get the id of the measure, as it is stored in the pivot formula
+     */
+    id: measure.id,
     /**
      * Display name of the measure
      * e.g. "__count" -> "Count", "amount_total" -> "Total Amount"
      */
-    displayName: field?.string ?? name,
+    displayName: field?.string ?? fieldName,
     /**
-     * Get the name of the measure, as it is stored in the pivot formula
+     * Get the name of the field of the measure
      */
-    name,
+    fieldName,
     /**
      * Get the aggregator of the measure
      */
@@ -71,13 +74,13 @@ function createMeasure(fields: PivotFields, measure: PivotCoreMeasure): PivotMea
      * Get the type of the measure field
      * e.g. "stage_id" -> "many2one", "create_date:month" -> "date"
      */
-    type: name === "__count" ? "integer" : field?.type ?? "integer",
+    type: fieldName === "__count" ? "integer" : field?.type ?? "integer",
     isValid: !!field,
   };
 }
 
 function createPivotDimension(fields: PivotFields, dimension: PivotCoreDimension): PivotDimension {
-  const field = fields[dimension.name];
+  const field = fields[dimension.fieldName];
   const type = field?.type ?? "integer";
   const granularity = field && isDateField(field) ? dimension.granularity : undefined;
 
@@ -86,19 +89,19 @@ function createPivotDimension(fields: PivotFields, dimension: PivotCoreDimension
      * Get the display name of the dimension
      * e.g. "stage_id" -> "Stage", "create_date:month" -> "Create Date"
      */
-    displayName: field?.string ?? dimension.name,
+    displayName: field?.string ?? dimension.fieldName,
 
     /**
      * Get the name of the dimension, as it is stored in the pivot formula
      * e.g. "stage_id", "create_date:month"
      */
-    nameWithGranularity: dimension.name + (granularity ? `:${granularity}` : ""),
+    nameWithGranularity: dimension.fieldName + (granularity ? `:${granularity}` : ""),
 
     /**
      * Get the name of the field of the dimension
      * e.g. "stage_id" -> "stage_id", "create_date:month" -> "create_date"
      */
-    name: dimension.name,
+    fieldName: dimension.fieldName,
 
     /**
      * Get the aggregate operator of the dimension

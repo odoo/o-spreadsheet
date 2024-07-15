@@ -244,16 +244,17 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     };
   }
 
-  getPivotCellValueAndFormat(measure: string, domain: PivotDomain): FunctionResultObject {
+  getPivotCellValueAndFormat(measureId: string, domain: PivotDomain): FunctionResultObject {
     const dataEntries = this.filterDataEntriesFromDomain(this.dataEntries, domain);
     if (dataEntries.length === 0) {
       return { value: "" };
     }
+    const measure = this.getMeasure(measureId);
     const values = dataEntries
-      .map((value) => value[measure])
+      .map((value) => value[measure.fieldName])
       .filter((cell) => cell && cell.type !== CellValueType.empty)
       .filter(isDefined);
-    const aggregator = this.getMeasure(measure).aggregator;
+    const aggregator = measure.aggregator;
     const operator = AGGREGATORS_FN[aggregator];
     if (!operator) {
       throw new Error(`Aggregator ${aggregator} does not exist`);
@@ -297,10 +298,10 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     if (fieldWithGranularity === "measure") {
       return "char";
     }
-    const { name } = parseDimension(fieldWithGranularity);
-    const type = this.fields[name]?.type;
+    const { fieldName } = parseDimension(fieldWithGranularity);
+    const type = this.fields[fieldName]?.type;
     if (!type) {
-      throw new Error(`Field ${name} does not exist`);
+      throw new Error(`Field ${fieldName} does not exist`);
     }
     return type;
   }
@@ -435,11 +436,11 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
           entry[dimension.nameWithGranularity] = {
             value: createDate(
               dimension,
-              entry[dimension.name]?.value || null,
+              entry[dimension.fieldName]?.value || null,
               this.getters.getLocale()
             ),
-            type: entry[dimension.name]?.type || CellValueType.empty,
-            format: entry[dimension.name]?.format,
+            type: entry[dimension.fieldName]?.type || CellValueType.empty,
+            format: entry[dimension.fieldName]?.format,
           };
         }
       }
