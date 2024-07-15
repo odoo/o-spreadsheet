@@ -253,7 +253,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
       .map((value) => value[measure])
       .filter((cell) => cell && cell.type !== CellValueType.empty)
       .filter(isDefined);
-    const aggregator = this.getMeasure(measure).aggregator || "count";
+    const aggregator = this.getMeasure(measure).aggregator;
     const operator = AGGREGATORS_FN[aggregator];
     if (!operator) {
       throw new Error(`Aggregator ${aggregator} does not exist`);

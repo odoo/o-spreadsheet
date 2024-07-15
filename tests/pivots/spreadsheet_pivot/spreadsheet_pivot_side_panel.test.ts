@@ -180,4 +180,27 @@ describe("Spreadsheet pivot side panel", () => {
     await click(fixture.querySelector(".fa-undo")!);
     expect(fixture.querySelectorAll(".pivot-dimension")).toHaveLength(0);
   });
+
+  test("Measures have the correct default aggregator", async () => {
+    setCellContent(model, "A1", "amount");
+    setCellContent(model, "A2", "10");
+    setCellContent(model, "B1", "person");
+    setCellContent(model, "B2", "Alice");
+    addPivot(model, "A1:B2", {}, "3");
+    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    await nextTick();
+
+    await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
+    await click(fixture.querySelectorAll(".o-autocomplete-value")[0]);
+    expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
+      { name: "amount", aggregator: "sum" },
+    ]);
+
+    await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
+    await click(fixture.querySelectorAll(".o-autocomplete-value")[1]);
+    expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
+      { name: "amount", aggregator: "sum" },
+      { name: "person", aggregator: "count" },
+    ]);
+  });
 });

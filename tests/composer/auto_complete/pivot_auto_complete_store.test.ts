@@ -67,7 +67,10 @@ describe("spreadsheet pivot auto complete", () => {
     updatePivot(model, "1", {
       columns: [],
       rows: [],
-      measures: [{ name: "Expected Revenue", aggregator: "sum" }, { name: "__count" }],
+      measures: [
+        { name: "Expected Revenue", aggregator: "sum" },
+        { name: "__count", aggregator: "sum" },
+      ],
     });
     const { store: composer } = makeStoreWithModel(model, ComposerStore);
     composer.startEdition("=PIVOT.VALUE(1,");
