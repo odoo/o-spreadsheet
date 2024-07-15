@@ -2,9 +2,10 @@ import { Model, SpreadsheetChildEnv } from "../../../src";
 import { toZone } from "../../../src/helpers";
 import { SpreadsheetPivot } from "../../../src/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
 import { createSheet, setCellContent, undo } from "../../test_helpers/commands_helpers";
-import { click } from "../../test_helpers/dom_helper";
+import { click, dragElement, setInputValueAndTrigger } from "../../test_helpers/dom_helper";
 import { getCellText } from "../../test_helpers/getters_helpers";
 import { mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
+import { mockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
 import { SELECTORS, addPivot, updatePivot } from "../../test_helpers/pivot_helpers";
 
 describe("Spreadsheet pivot side panel", () => {
@@ -201,6 +202,36 @@ describe("Spreadsheet pivot side panel", () => {
     expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
       { name: "amount", aggregator: "sum" },
       { name: "person", aggregator: "count" },
+    ]);
+  });
+
+  test("should preserve the sorting of the dimension after ordering is changed", async () => {
+    mockGetBoundingClientRect({
+      /**
+       * 'pt-1' is the class of the main div of the pivot dimension
+       */
+      "pt-1": () => ({
+        height: 10,
+        y: 0,
+      }),
+      "o-section-title": () => ({
+        height: 10,
+        y: 10,
+      }),
+      "pivot-dimensions": () => ({
+        height: 40,
+        y: 0,
+      }),
+    });
+    await click(fixture.querySelector(".add-dimension")!);
+    await click(fixture.querySelectorAll(".o-autocomplete-value")[0]);
+    await setInputValueAndTrigger(fixture.querySelector(".pivot-dimension select"), "desc");
+    expect(model.getters.getPivotCoreDefinition("1").columns).toEqual([
+      { name: "Amount", order: "desc" },
+    ]);
+    await dragElement(fixture.querySelector(".pivot-dimension")!, { x: 0, y: 30 }, undefined, true);
+    expect(model.getters.getPivotCoreDefinition("1").rows).toEqual([
+      { name: "Amount", order: "desc" },
     ]);
   });
 });
