@@ -1,7 +1,7 @@
 import { Component, useRef } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../../../..";
 import { isDefined } from "../../../../helpers";
-import { AGGREGATORS, isDateField, parseDimension } from "../../../../helpers/pivot/pivot_helpers";
+import { AGGREGATORS, isDateField } from "../../../../helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "../../../../helpers/pivot/pivot_runtime_definition";
 import {
   Aggregator,
@@ -63,6 +63,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
       "__rows_title__",
       ...rows.map((row) => row.nameWithGranularity),
     ];
+    const allDimensions = columns.concat(rows);
     const offset = 1; // column title
     const draggableItems = draggableIds.map((id, index) => ({
       id,
@@ -85,8 +86,20 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
         const columns = draggedItems.slice(0, draggedItems.indexOf("__rows_title__"));
         const rows = draggedItems.slice(draggedItems.indexOf("__rows_title__") + 1);
         this.props.onDimensionsUpdated({
-          columns: columns.map(parseDimension),
-          rows: rows.map(parseDimension),
+          columns: columns
+            .map((nameWithGranularity) =>
+              allDimensions.find(
+                (dimension) => dimension.nameWithGranularity === nameWithGranularity
+              )
+            )
+            .filter(isDefined),
+          rows: rows
+            .map((nameWithGranularity) =>
+              allDimensions.find(
+                (dimension) => dimension.nameWithGranularity === nameWithGranularity
+              )
+            )
+            .filter(isDefined),
         });
       },
     });
