@@ -63,17 +63,19 @@ export class FormulaDependencyGraph {
     const queue: RTreeBoundingBox[] = Array.from(ranges).reverse();
     while (queue.length > 0) {
       const range = queue.pop()!;
-      const zone = range.zone;
-      const sheetId = range.sheetId;
-      for (let col = zone.left; col <= zone.right; col++) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          visited.add({ sheetId, col, row });
-        }
-      }
+      // const zone = range.zone;
+      // const sheetId = range.sheetId;
+      // for (let col = zone.left; col <= zone.right; col++) {
+      //   for (let row = zone.top; row <= zone.bottom; row++) {
+      //     visited.add({ sheetId, col, row });
+      //   }
+      // }
+      visited.addBoundingBox(range);
 
       const impactedPositions = this.rTree.search(range).map((dep) => dep.data);
       const nextInQueue: Record<UID, Zone[]> = {};
       for (const position of impactedPositions) {
+        // to change by zone .?
         if (!visited.has(position)) {
           if (!nextInQueue[position.sheetId]) {
             nextInQueue[position.sheetId] = [];
@@ -89,13 +91,14 @@ export class FormulaDependencyGraph {
 
     // remove initial ranges
     for (const range of ranges) {
-      const zone = range.zone;
-      const sheetId = range.sheetId;
-      for (let col = zone.left; col <= zone.right; col++) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          visited.delete({ sheetId, col, row });
-        }
-      }
+      // const zone = range.zone;
+      // const sheetId = range.sheetId;
+      // for (let col = zone.left; col <= zone.right; col++) {
+      //   for (let row = zone.top; row <= zone.bottom; row++) {
+      //     visited.delete({ sheetId, col, row });
+      //   }
+      // }
+      visited.deleteBoundingBox(range);
     }
     return visited;
   }

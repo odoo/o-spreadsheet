@@ -490,6 +490,7 @@ export class Evaluator {
       return;
     }
     const invalidated = this.createEmptyPositionSet();
+    // could be changed ?
     for (const child of this.spreadingRelations.getArrayResultPositions(position)) {
       const content = this.getters.getCell(child)?.content;
       if (content) {
