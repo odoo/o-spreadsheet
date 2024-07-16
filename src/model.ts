@@ -191,7 +191,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     config: Partial<ModelConfig> = {},
     stateUpdateMessages: StateUpdateMessage[] = [],
     uuidGenerator: UuidGenerator = new UuidGenerator(),
-    verboseImport = true
+    verboseImport = false
   ) {
     const start = performance.now();
     console.group("Model creation");

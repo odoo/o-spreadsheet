@@ -133,6 +133,7 @@ import {
   createEmptySheet,
   createEmptyWorkbookData,
 } from "./migrations/data";
+import { migrationStepRegistry } from "./migrations/migration_steps";
 import {
   corePluginRegistry,
   coreViewsPluginRegistry,
@@ -278,6 +279,7 @@ export const registries = {
   pivotNormalizationValueRegistry,
   supportedPivotPositionalFormulaRegistry,
   pivotToFunctionValueRegistry,
+  migrationStepRegistry,
 };
 export const helpers = {
   arg,
