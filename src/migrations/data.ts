@@ -1,34 +1,25 @@
-import {
-  BACKGROUND_CHART_COLOR,
-  DEFAULT_REVISION_ID,
-  FORBIDDEN_IN_EXCEL_REGEX,
-  FORMULA_REF_IDENTIFIER,
-} from "../constants";
-import { UuidGenerator, getItemId, overlap, toXC, toZone, zoneToXc } from "../helpers/index";
+import { DEFAULT_REVISION_ID } from "../constants";
+import { UuidGenerator } from "../helpers/index";
 import { isValidLocale } from "../helpers/locale";
-import { getMaxObjectId } from "../helpers/pivot/pivot_helpers";
 import { StateUpdateMessage } from "../types/collaborative/transport_service";
 import {
   CoreCommand,
-  CustomizedDataSet,
   DEFAULT_LOCALE,
   ExcelSheetData,
   ExcelWorkbookData,
-  Format,
   SheetData,
   UID,
   WorkbookData,
-  Zone,
 } from "../types/index";
 import { XlsxReader } from "../xlsx/xlsx_reader";
-import { normalizeV9 } from "./legacy_tools";
+import { migrationStepRegistry } from "./migration_steps";
 
 /**
  * This is the current state version number. It should be incremented each time
  * a breaking change is made in the way the state is handled, and an upgrade
  * function should be defined
  */
-export const CURRENT_VERSION = 17;
+export const CURRENT_VERSION = 18;
 const INITIAL_SHEET_ID = "Sheet1";
 
 /**
@@ -71,350 +62,37 @@ export function load(data?: any, verboseImport?: boolean): WorkbookData {
 // Migrations
 // -----------------------------------------------------------------------------
 
-interface Migration {
-  from: number;
-  to: number;
-  applyMigration(data: any): any;
-  description: string;
+function compareVersions(v1: string, v2: string): number {
+  const version1 = v1.split(".").map(Number);
+  const version2 = v2.split(".").map(Number);
+
+  for (let i = 0; i < Math.max(version1.length, version2.length); i++) {
+    const part1 = version1[i] || 0;
+    const part2 = version2[i] || 0;
+
+    if (part1 > part2) {
+      return 1;
+    }
+    if (part1 < part2) {
+      return -1;
+    }
+  }
+
+  return 0;
 }
 
 function migrate(data: any): WorkbookData {
   const start = performance.now();
-  const index = MIGRATIONS.findIndex((m) => m.from === data.version);
-  for (let i = index; i < MIGRATIONS.length; i++) {
-    data = MIGRATIONS[i].applyMigration(data);
+  const steps = migrationStepRegistry
+    .getAll()
+    .sort((a, b) => compareVersions(a.version, b.version));
+  const index = steps.findIndex((step) => step.version === data.version.toString());
+  for (let i = index; i < steps.length; i++) {
+    data = steps[i].migrate(data);
   }
   console.info("Data migrated in", performance.now() - start, "ms");
   return data;
 }
-
-const MIGRATIONS: Migration[] = [
-  {
-    description: "add the `activeSheet` field on data",
-    from: 1,
-    to: 2,
-    applyMigration(data: any): any {
-      if (data.sheets && data.sheets[0]) {
-        data.activeSheet = data.sheets[0].name;
-      }
-      return data;
-    },
-  },
-  {
-    description: "add an id field in each sheet",
-    from: 2,
-    to: 3,
-    applyMigration(data: any): any {
-      if (data.sheets && data.sheets.length) {
-        for (let sheet of data.sheets) {
-          sheet.id = sheet.id || sheet.name;
-        }
-      }
-      return data;
-    },
-  },
-  {
-    description: "activeSheet is now an id, not the name of a sheet",
-    from: 3,
-    to: 4,
-    applyMigration(data: any): any {
-      if (data.sheets && data.activeSheet) {
-        const activeSheet = data.sheets.find((s) => s.name === data.activeSheet);
-        data.activeSheet = activeSheet.id;
-      }
-      return data;
-    },
-  },
-  {
-    description: "add figures object in each sheets",
-    from: 4,
-    to: 5,
-    applyMigration(data: any): any {
-      for (let sheet of data.sheets || []) {
-        sheet.figures = sheet.figures || [];
-      }
-      return data;
-    },
-  },
-  {
-    description:
-      "normalize the content of the cell if it is a formula to avoid parsing all the formula that vary only by the cells they use",
-    from: 5,
-    to: 6,
-    applyMigration(data: any): any {
-      for (let sheet of data.sheets || []) {
-        for (let xc in sheet.cells || []) {
-          const cell = sheet.cells[xc];
-          if (cell.content && cell.content.startsWith("=")) {
-            cell.formula = normalizeV9(cell.content);
-          }
-        }
-      }
-      return data;
-    },
-  },
-  {
-    description: "transform chart data structure",
-    from: 6,
-    to: 7,
-    applyMigration(data: any): any {
-      for (let sheet of data.sheets || []) {
-        for (let f in sheet.figures || []) {
-          const { dataSets, ...newData } = sheet.figures[f].data;
-          const newDataSets: string[] = [];
-          for (let ds of dataSets) {
-            if (ds.labelCell) {
-              const dataRange = toZone(ds.dataRange);
-              const newRange = ds.labelCell + ":" + toXC(dataRange.right, dataRange.bottom);
-              newDataSets.push(newRange);
-            } else {
-              newDataSets.push(ds.dataRange);
-            }
-          }
-          newData.dataSetsHaveTitle = Boolean(dataSets[0].labelCell);
-          newData.dataSets = newDataSets;
-          sheet.figures[f].data = newData;
-        }
-      }
-      return data;
-    },
-  },
-  {
-    description: "remove single quotes in sheet names",
-    from: 7,
-    to: 8,
-    applyMigration(data: any): any {
-      const namesTaken: string[] = [];
-      const globalForbiddenInExcel = new RegExp(FORBIDDEN_IN_EXCEL_REGEX, "g");
-      for (let sheet of data.sheets || []) {
-        if (!sheet.name) {
-          continue;
-        }
-        const oldName = sheet.name;
-        const escapedName: string = oldName.replace(globalForbiddenInExcel, "_");
-        let i = 1;
-        let newName = escapedName;
-        while (namesTaken.includes(newName)) {
-          newName = `${escapedName}${i}`;
-          i++;
-        }
-        sheet.name = newName;
-        namesTaken.push(newName);
-
-        const replaceName = (str: string | undefined) => {
-          if (str === undefined) {
-            return str;
-          }
-          // replaceAll is only available in next Typescript version
-          let newString: string = str.replace(oldName, newName);
-          let currentString: string = str;
-          while (currentString !== newString) {
-            currentString = newString;
-            newString = currentString.replace(oldName, newName);
-          }
-          return currentString;
-        };
-        //cells
-        for (let xc in sheet.cells) {
-          const cell = sheet.cells[xc];
-          if (cell.formula) {
-            cell.formula.dependencies = cell.formula.dependencies.map(replaceName);
-          }
-        }
-        //charts
-        for (let figure of sheet.figures || []) {
-          if (figure.type === "chart") {
-            const dataSets = figure.data.dataSets.map(replaceName);
-            const labelRange = replaceName(figure.data.labelRange);
-            figure.data = { ...figure.data, dataSets, labelRange };
-          }
-        }
-        //ConditionalFormats
-        for (let cf of sheet.conditionalFormats || []) {
-          cf.ranges = cf.ranges.map(replaceName);
-          for (const thresholdName of [
-            "minimum",
-            "maximum",
-            "midpoint",
-            "upperInflectionPoint",
-            "lowerInflectionPoint",
-          ] as const) {
-            if (cf.rule[thresholdName]?.type === "formula") {
-              cf.rule[thresholdName].value = replaceName(cf.rule[thresholdName].value);
-            }
-          }
-        }
-      }
-      return data;
-    },
-  },
-  {
-    description: "transform chart data structure with design attributes",
-    from: 8,
-    to: 9,
-    applyMigration(data: any): any {
-      for (const sheet of data.sheets || []) {
-        for (const chart of sheet.figures || []) {
-          chart.data.background = BACKGROUND_CHART_COLOR;
-          chart.data.verticalAxisPosition = "left";
-          chart.data.legendPosition = "top";
-          chart.data.stacked = false;
-        }
-      }
-      return data;
-    },
-  },
-  {
-    description: "de-normalize formula to reduce exported json size (~30%)",
-    from: 9,
-    to: 10,
-    applyMigration(data: any): any {
-      for (let sheet of data.sheets || []) {
-        for (let xc in sheet.cells || []) {
-          const cell = sheet.cells[xc];
-          if (cell.formula) {
-            let { text, dependencies } = cell.formula;
-            for (let [index, d] of Object.entries(dependencies)) {
-              const stringPosition = `\\${FORMULA_REF_IDENTIFIER}${index}\\${FORMULA_REF_IDENTIFIER}`;
-              text = text.replace(new RegExp(stringPosition, "g"), d);
-            }
-            cell.content = text;
-            delete cell.formula;
-          }
-        }
-      }
-      return data;
-    },
-  },
-  {
-    description: "normalize the formats of the cells",
-    from: 10,
-    to: 11,
-    applyMigration(data: any): any {
-      const formats: { [formatId: number]: Format } = {};
-      for (let sheet of data.sheets || []) {
-        for (let xc in sheet.cells || []) {
-          const cell = sheet.cells[xc];
-          if (cell.format) {
-            cell.format = getItemId(cell.format, formats);
-          }
-        }
-      }
-      data.formats = formats;
-      return data;
-    },
-  },
-  {
-    description: "Add isVisible to sheets",
-    from: 11,
-    to: 12,
-    applyMigration(data: any): any {
-      for (let sheet of data.sheets || []) {
-        sheet.isVisible = true;
-      }
-      return data;
-    },
-  },
-  {
-    description: "Fix datafilter duplication",
-    from: 12,
-    to: 12.5,
-    applyMigration(data: any): any {
-      return fixOverlappingFilters(data);
-    },
-  },
-  {
-    description: "Change Border description structure",
-    from: 12.5,
-    to: 13,
-    applyMigration(data: any): any {
-      for (const borderId in data.borders) {
-        const border = data.borders[borderId];
-        for (const position in border) {
-          if (Array.isArray(border[position])) {
-            border[position] = {
-              style: border[position][0],
-              color: border[position][1],
-            };
-          }
-        }
-      }
-      return data;
-    },
-  },
-  {
-    description: "Add locale to spreadsheet settings",
-    from: 13,
-    to: 14,
-    applyMigration(data: any): any {
-      if (!data.settings) {
-        data.settings = {};
-      }
-      if (!data.settings.locale) {
-        data.settings.locale = DEFAULT_LOCALE;
-      }
-      return data;
-    },
-  },
-  {
-    description: "Fix datafilter duplication (post saas-17.1)",
-    from: 14,
-    to: 14.5,
-    applyMigration(data: any): any {
-      return fixOverlappingFilters(data);
-    },
-  },
-  {
-    description: "Rename filterTable to tables",
-    from: 14.5,
-    to: 15,
-    applyMigration(data: any): any {
-      for (const sheetData of data.sheets || []) {
-        sheetData.tables = sheetData.tables || sheetData.filterTables || [];
-        delete sheetData.filterTables;
-      }
-      return data;
-    },
-  },
-  {
-    description: "Add pivots",
-    from: 15,
-    to: 16,
-    applyMigration(data: any): any {
-      if (!data.pivots) {
-        data.pivots = {};
-      }
-      if (!data.pivotNextId) {
-        data.pivotNextId = getMaxObjectId(data.pivots) + 1;
-      }
-      return data;
-    },
-  },
-  {
-    description: "transform chart data structure (2)",
-    from: 16,
-    to: 17,
-    applyMigration(data: any): any {
-      for (const sheet of data.sheets || []) {
-        for (const f in sheet.figures || []) {
-          const figure = sheet.figures[f];
-          if ("title" in figure.data && typeof figure.data.title === "string") {
-            figure.data.title = { text: figure.data.title };
-          }
-          const figureType = figure.data.type;
-          if (!["line", "bar", "pie", "scatter", "waterfall", "combo"].includes(figureType)) {
-            continue;
-          }
-          const { dataSets, ...newData } = sheet.figures[f].data;
-          const newDataSets: CustomizedDataSet = dataSets.map((dataRange) => ({ dataRange }));
-          newData.dataSets = newDataSets;
-          sheet.figures[f].data = newData;
-        }
-      }
-      return data;
-    },
-  },
-];
 
 /**
  * This function is used to repair faulty data independently of the migration.
@@ -585,29 +263,6 @@ function fixChartDefinitions(data: Partial<WorkbookData>, initialMessages: State
     }
   }
   return messages;
-}
-
-function fixOverlappingFilters(data: any): any {
-  for (let sheet of data.sheets || []) {
-    let knownDataFilterZones: Zone[] = [];
-    for (let filterTable of sheet.filterTables || []) {
-      const zone = toZone(filterTable.range);
-      // See commit message of https://github.com/odoo/o-spreadsheet/pull/3632 of more details
-      const intersectZoneIndex = knownDataFilterZones.findIndex((knownZone) =>
-        overlap(knownZone, zone)
-      );
-      if (intersectZoneIndex !== -1) {
-        knownDataFilterZones[intersectZoneIndex] = zone;
-      } else {
-        knownDataFilterZones.push(zone);
-      }
-    }
-
-    sheet.filterTables = knownDataFilterZones.map((zone) => ({
-      range: zoneToXc(zone),
-    }));
-  }
-  return data;
 }
 
 // -----------------------------------------------------------------------------
