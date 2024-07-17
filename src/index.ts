@@ -431,6 +431,7 @@ export const constants = {
   ChartTerms,
 };
 
+export { PivotPostProcessLayer } from "./helpers/pivot/pivot_post_process_layer";
 export { PivotRuntimeDefinition } from "./helpers/pivot/pivot_runtime_definition";
 export { SpreadsheetPivotTable } from "./helpers/pivot/table_spreadsheet_pivot";
 

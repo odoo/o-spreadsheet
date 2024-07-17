@@ -34,5 +34,8 @@ export interface Pivot<T = PivotRuntimeDefinition> {
   getPossibleFieldValues(
     dimension: PivotDimension
   ): { value: string | boolean | number; label: string }[];
-  needsReevaluation: boolean;
+}
+
+export interface PivotDataLayer {
+  getPivotCellValueAndFormat(measure: string, domain: PivotDomain): FunctionResultObject;
 }
