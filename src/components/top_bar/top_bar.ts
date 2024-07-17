@@ -50,6 +50,11 @@ interface Props {
 // TopBar
 // -----------------------------------------------------------------------------
 css/* scss */ `
+  @media (max-width: 800px) {
+    .caca {
+      flex-direction: column !important;
+    }
+  }
   .o-spreadsheet-topbar {
     line-height: 1.2;
     font-size: 13px;
@@ -62,6 +67,7 @@ css/* scss */ `
 
       /* Menus */
       .o-topbar-topleft {
+        height: 23px;
         .o-topbar-menu {
           padding: 4px 6px;
           margin: 0 2px;

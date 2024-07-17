@@ -10,3 +10,9 @@ body {
 .o-spreadsheet {
   height: 100%;
 }
+
+@media (max-width: 800px) {
+  div.caca {
+    flex-direction: column !important;
+  }
+}

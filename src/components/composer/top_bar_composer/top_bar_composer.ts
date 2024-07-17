@@ -27,6 +27,7 @@ css/* scss */ `
   .o-topbar-composer {
     height: fit-content;
     margin-top: -1px;
+    margin-bottom: -1px;
     border: 1px solid;
     z-index: ${ComponentsImportance.TopBarComposer};
     font-family: ${DEFAULT_FONT};
