@@ -1,6 +1,6 @@
-import { toZone, zoneToXc } from "../helpers";
+import { zoneToXc } from "../helpers";
 import { _t } from "../translation";
-import { CellPosition, EvalContext, FunctionResultObject, Getters, Maybe, UID } from "../types";
+import { EvalContext, FunctionResultObject, Getters, Maybe, UID } from "../types";
 import { EvaluationError, InvalidReferenceError } from "../types/errors";
 import { PivotCoreDefinition } from "../types/pivot";
 
@@ -44,16 +44,8 @@ export function addPivotDependencies(
     return;
   }
   const { sheetId, zone } = coreDefinition.dataSet;
-  let originPosition: CellPosition | undefined;
-  const originSheetId = evalContext.__originSheetId;
-  const originCellXC = evalContext.__originCellXC?.();
-  if (originCellXC) {
-    const cellZone = toZone(originCellXC);
-    originPosition = {
-      sheetId: originSheetId,
-      col: cellZone.left,
-      row: cellZone.top,
-    };
+  const originPosition = evalContext.__originCellPosition;
+  if (originPosition) {
     // The following line is used to reset the dependencies of the cell, to avoid
     // keeping dependencies from previous evaluation of the PIVOT formula (i.e.
     // in case the reference has been changed).

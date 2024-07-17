@@ -1,13 +1,6 @@
 import { getFullReference, range, splitReference, toXC, toZone } from "../helpers/index";
 import { _t } from "../translation";
-import {
-  AddFunctionDescription,
-  CellPosition,
-  FunctionResultObject,
-  Matrix,
-  Maybe,
-  Zone,
-} from "../types";
+import { AddFunctionDescription, FunctionResultObject, Matrix, Maybe, Zone } from "../types";
 import { CellErrorType, EvaluationError, InvalidReferenceError } from "../types/errors";
 import { arg } from "./arguments";
 import { assertPositive } from "./helper_assert";
@@ -129,14 +122,15 @@ export const COLUMN = {
     if (isEvaluationError(cellReference?.value)) {
       throw cellReference;
     }
-    const _cellReference =
-      cellReference === undefined ? this.__originCellXC?.() : cellReference.value;
+    const column =
+      cellReference === undefined
+        ? this.__originCellPosition?.col
+        : toZone(cellReference.value).left;
     assert(
-      () => !!_cellReference,
+      () => column !== undefined,
       "In this context, the function [[FUNCTION_NAME]] needs to have a cell or range in parameter."
     );
-    const zone = toZone(_cellReference!);
-    return zone.left + 1;
+    return column! + 1;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -288,15 +282,8 @@ export const INDIRECT: AddFunctionDescription = {
       throw new EvaluationError(_t("R1C1 notation is not supported."));
     }
     const sheetId = this.__originSheetId;
-    let originPosition: CellPosition | undefined;
-    const __originCellXC = this.__originCellXC?.();
-    if (__originCellXC) {
-      const cellZone = toZone(__originCellXC);
-      originPosition = {
-        sheetId,
-        col: cellZone.left,
-        row: cellZone.top,
-      };
+    const originPosition = this.__originCellPosition;
+    if (originPosition) {
       // The following line is used to reset the dependencies of the cell, to avoid
       // keeping dependencies from previous evaluation of the INDIRECT formula (i.e.
       // in case the reference has been changed).
@@ -484,14 +471,15 @@ export const ROW = {
     if (isEvaluationError(cellReference?.value)) {
       throw cellReference;
     }
-    const _cellReference =
-      cellReference === undefined ? this.__originCellXC?.() : cellReference.value;
+    const row =
+      cellReference === undefined
+        ? this.__originCellPosition?.row
+        : toZone(cellReference.value).top;
     assert(
-      () => !!_cellReference,
+      () => row !== undefined,
       "In this context, the function [[FUNCTION_NAME]] needs to have a cell or range in parameter."
     );
-    const zone = toZone(_cellReference!);
-    return zone.top + 1;
+    return row! + 1;
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -929,15 +917,8 @@ export const OFFSET = {
     const _offsetRows = toNumber(offsetRows, this.locale);
     const _offsetColumns = toNumber(offsetColumns, this.locale);
 
-    let originPosition: CellPosition | undefined;
-    const __originCellXC = this.__originCellXC?.();
-    if (__originCellXC) {
-      const cellZone = toZone(__originCellXC);
-      originPosition = {
-        sheetId: this.__originSheetId,
-        col: cellZone.left,
-        row: cellZone.top,
-      };
+    const originPosition = this.__originCellPosition;
+    if (originPosition) {
       this.updateDependencies?.(originPosition);
     }
 
