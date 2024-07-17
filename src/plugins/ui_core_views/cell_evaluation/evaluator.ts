@@ -201,7 +201,8 @@ export class Evaluator {
     const result = updateEvalContextAndExecute(
       { ...compiledFormula, dependencies: ranges },
       this.compilationParams,
-      sheetId
+      sheetId,
+      undefined
     );
     if (isMatrix(result)) {
       return matrixMap(result, (cell) => cell.value);
@@ -288,7 +289,7 @@ export class Evaluator {
       }
       this.cellsBeingComputed.add(cellId);
       return cell.isFormula
-        ? this.computeFormulaCell(position.sheetId, cell)
+        ? this.computeFormulaCell(position, cell)
         : evaluateLiteral(cell, localeFormat);
     } catch (e) {
       e.value = e?.value || CellErrorType.GenericError;
@@ -308,14 +309,12 @@ export class Evaluator {
     return evaluatedCell;
   }
 
-  private computeFormulaCell(sheetId: UID, cellData: FormulaCell): EvaluatedCell {
-    const cellId = cellData.id;
-
+  private computeFormulaCell(formulaPosition: CellPosition, cellData: FormulaCell): EvaluatedCell {
     const formulaReturn = updateEvalContextAndExecute(
       cellData.compiledFormula,
       this.compilationParams,
-      sheetId,
-      cellId
+      formulaPosition.sheetId,
+      formulaPosition
     );
 
     if (!isMatrix(formulaReturn)) {
@@ -325,8 +324,6 @@ export class Evaluator {
         cellData
       );
     }
-
-    const formulaPosition = this.getters.getCellPosition(cellId);
 
     this.assertSheetHasEnoughSpaceToSpreadFormulaResult(formulaPosition, formulaReturn);
 
@@ -557,16 +554,9 @@ export function updateEvalContextAndExecute(
   compiledFormula: RangeCompiledFormula,
   compilationParams: CompilationParameters,
   sheetId: UID,
-  cellId?: UID
+  originCellPosition: CellPosition | undefined
 ) {
-  compilationParams.evalContext.__originCellXC = lazy(() => {
-    if (!cellId) {
-      return undefined;
-    }
-    // compute the value lazily for performance reasons
-    const position = compilationParams.evalContext.getters.getCellPosition(cellId);
-    return toXC(position.col, position.row);
-  });
+  compilationParams.evalContext.__originCellPosition = originCellPosition;
   compilationParams.evalContext.__originSheetId = sheetId;
   return compiledFormula.execute(
     compiledFormula.dependencies,

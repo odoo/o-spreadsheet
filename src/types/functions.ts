@@ -52,7 +52,7 @@ export type FunctionDescription = AddFunctionDescription & {
 
 export type EvalContext = {
   __originSheetId: UID;
-  __originCellXC: () => string | undefined;
+  __originCellPosition?: CellPosition;
   locale: Locale;
   getters: Getters;
   [key: string]: any;
