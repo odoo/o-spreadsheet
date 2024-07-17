@@ -27,8 +27,8 @@
         </div>
       </div>
       <!-- Toolbar and Cell Content -->
-      <div class="d-flex">
-        <div class="o-topbar-toolbar d-flex flex-shrink-0">
+      <div class="d-flex caca">
+        <div class="o-topbar-toolbar caca d-flex flex-shrink-0">
           <!-- Toolbar -->
           <div
             t-if="env.model.getters.isReadonly()"
