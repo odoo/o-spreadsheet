@@ -4,7 +4,15 @@
       class="border py-1 px-2 d-flex flex-column shadow-sm pivot-dimension"
       t-att-class="{'bg-danger': !props.dimension.isValid}">
       <div class="d-flex flex-row justify-content-between align-items-center">
-        <span class="fw-bold" t-esc="props.dimension.displayName"/>
+        <div class="d-flex align-items-center overflow-hidden text-nowrap">
+          <TextInput
+            t-if="props.onNameUpdated"
+            value="props.dimension.displayName"
+            onChange.bind="updateName"
+            class="'fw-bold'"
+          />
+          <span t-else="1" class="fw-bold" t-esc="props.dimension.displayName"/>
+        </div>
         <i
           class="btn fa fa-times pe-0"
           t-if="props.onRemoved"

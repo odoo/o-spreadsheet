@@ -106,7 +106,11 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
   }
 
   startDragAndDropMeasures(measure: PivotMeasure, event: MouseEvent) {
-    if (event.button !== 0 || (event.target as HTMLElement).tagName === "SELECT") {
+    if (
+      event.button !== 0 ||
+      (event.target as HTMLElement).tagName === "SELECT" ||
+      (event.target as HTMLElement).tagName === "INPUT"
+    ) {
       return;
     }
 
@@ -168,6 +172,21 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     const { measures } = this.props.definition;
     this.props.onDimensionsUpdated({
       measures: measures.filter((m) => m.id !== measure.id),
+    });
+  }
+
+  onMeasureNameUpdated(updatedMeasure: PivotMeasure, userDefinedName?: string) {
+    const { measures } = this.props.definition;
+    this.props.onDimensionsUpdated({
+      measures: measures.map((measure) => {
+        if (measure === updatedMeasure) {
+          return {
+            ...measure,
+            userDefinedName,
+          };
+        }
+        return measure;
+      }),
     });
   }
 

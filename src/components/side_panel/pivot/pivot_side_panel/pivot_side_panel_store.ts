@@ -7,6 +7,7 @@ import { _t } from "../../../../translation";
 import { Command, UID } from "../../../../types";
 import {
   PivotCoreDefinition,
+  PivotCoreMeasure,
   PivotDimension,
   PivotField,
   PivotFields,
@@ -149,7 +150,11 @@ export class PivotSidePanelStore extends SpreadsheetStore {
 
   update(definitionUpdate: Partial<PivotCoreDefinition>) {
     const coreDefinition = this.getters.getPivotCoreDefinition(this.pivotId);
-    const definition = { ...coreDefinition, ...this.draft, ...definitionUpdate };
+    const definition: PivotCoreDefinition = {
+      ...coreDefinition,
+      ...this.draft,
+      ...definitionUpdate,
+    };
     // clean to make sure we only keep the core properties
     const cleanedDefinition = {
       ...definition,
@@ -163,10 +168,11 @@ export class PivotSidePanelStore extends SpreadsheetStore {
         order: row.order,
         granularity: row.granularity,
       })),
-      measures: definition.measures.map((measure) => ({
+      measures: definition.measures.map((measure: PivotCoreMeasure) => ({
         id: measure.id,
         fieldName: measure.fieldName,
         aggregator: measure.aggregator,
+        userDefinedName: measure.userDefinedName,
       })),
     };
     if (!this.draft && deepEquals(coreDefinition, cleanedDefinition)) {

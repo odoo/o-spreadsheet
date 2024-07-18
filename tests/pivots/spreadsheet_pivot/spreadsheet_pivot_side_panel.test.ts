@@ -234,4 +234,35 @@ describe("Spreadsheet pivot side panel", () => {
       { fieldName: "Amount", order: "desc" },
     ]);
   });
+
+  test("Can update the name of a measure", async () => {
+    setCellContent(model, "A1", "amount");
+    setCellContent(model, "A2", "10");
+    setCellContent(model, "B1", "person");
+    setCellContent(model, "B2", "Alice");
+    addPivot(
+      model,
+      "A1:B2",
+      {
+        measures: [{ id: "amount:sum", fieldName: "amount", aggregator: "sum" }],
+      },
+      "3"
+    );
+    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    await nextTick();
+
+    const input = fixture.querySelector(".pivot-measure input") as HTMLInputElement;
+    expect(input.value).toBe("amount");
+    await setInputValueAndTrigger(".pivot-measure input", "A lovely name");
+    expect(input.value).toBe("A lovely name");
+
+    expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
+      {
+        id: "amount:sum",
+        fieldName: "amount",
+        aggregator: "sum",
+        userDefinedName: "A lovely name",
+      },
+    ]);
+  });
 });
