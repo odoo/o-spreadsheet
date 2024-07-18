@@ -1,5 +1,7 @@
+import { positionToZone, ZoneGrid } from "../../../helpers";
 import { CellPosition, UID } from "../../../types";
 import { BinaryGrid } from "./binary_grid";
+import { RTreeBoundingBox } from "./r_tree";
 
 export type SheetSizes = Record<UID, { rows: number; cols: number }>;
 
@@ -91,6 +93,55 @@ export class PositionSet {
     for (const position of this.insertions) {
       if (this.sheets[position.sheetId].getValue(position) === 1) {
         yield position;
+      }
+    }
+  }
+}
+
+export class ZoneSet {
+  private sheets: Record<UID, ZoneGrid> = {};
+  /**
+   * List of positions in the order they were inserted.
+   */
+  private insertions: RTreeBoundingBox[] = [];
+
+  constructor(sheetIds: UID[]) {
+    for (const sheetId of sheetIds) {
+      this.sheets[sheetId] = new ZoneGrid();
+    }
+  }
+
+  addBoundingBox(boundingBox: RTreeBoundingBox) {
+    const zonesActuallyAdded = this.sheets[boundingBox.sheetId].addZone(boundingBox.zone);
+    for (const zone of zonesActuallyAdded) {
+      this.insertions.push({ sheetId: boundingBox.sheetId, zone });
+    }
+  }
+
+  deleteBoundingBox(boundingBox: RTreeBoundingBox) {
+    this.sheets[boundingBox.sheetId].removeZone(boundingBox.zone);
+  }
+
+  has(position: CellPosition) {
+    return this.sheets[position.sheetId].getIntersectionWith(positionToZone(position)).length > 0;
+  }
+
+  /**
+   * Iterate over the positions in the order of insertion.
+   * Note that the same position may be yielded multiple times if the value was added
+   * to the set then removed and then added again.
+   */
+  *[Symbol.iterator](): Generator<CellPosition> {
+    for (const boundingBox of this.insertions) {
+      const intersectedZones = this.sheets[boundingBox.sheetId].getIntersectionWith(
+        boundingBox.zone
+      );
+      for (const zone of intersectedZones) {
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          for (let col = zone.left; col <= zone.right; col++) {
+            yield { sheetId: boundingBox.sheetId, col, row };
+          }
+        }
       }
     }
   }

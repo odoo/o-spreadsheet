@@ -25,7 +25,7 @@ import { CellErrorType, CircularDependencyError, SplillBlockedError } from "../.
 import { CompilationParameters, buildCompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
 import { PositionMap } from "./position_map";
-import { PositionSet, SheetSizes } from "./position_set";
+import { PositionSet, SheetSizes, ZoneSet } from "./position_set";
 import { RTreeBoundingBox } from "./r_tree";
 import { SpreadingRelation } from "./spreading_relation";
 
@@ -39,7 +39,7 @@ export class Evaluator {
 
   private evaluatedCells: PositionMap<EvaluatedCell> = new PositionMap();
   private formulaDependencies = lazy(
-    new FormulaDependencyGraph(this.createEmptyPositionSet.bind(this))
+    new FormulaDependencyGraph(this.createEmptyZoneSet.bind(this))
   );
   private blockedArrayFormulas = new PositionSet({});
   private spreadingRelations = new SpreadingRelation();
@@ -138,6 +138,10 @@ export class Evaluator {
     return new PositionSet(sheetSizes);
   }
 
+  private createEmptyZoneSet() {
+    return new ZoneSet(this.getters.getSheetIds());
+  }
+
   evaluateCells(positions: CellPosition[]) {
     const start = performance.now();
     const cellsToCompute = this.createEmptyPositionSet();
@@ -200,7 +204,7 @@ export class Evaluator {
             },
           }))
       );
-      return new FormulaDependencyGraph(this.createEmptyPositionSet.bind(this), dependencies);
+      return new FormulaDependencyGraph(this.createEmptyZoneSet.bind(this), dependencies);
     });
   }
 
@@ -356,6 +360,9 @@ export class Evaluator {
     };
     this.spreadingRelations.addRelation({ resultZone, arrayFormulaPosition: formulaPosition });
     this.assertNoMergedCellsInSpreadZone(formulaPosition, formulaReturn);
+
+    this.blockedArrayFormulas.delete(formulaPosition);
+
     forEachSpreadPositionInMatrix(nbColumns, nbRows, this.checkCollision(formulaPosition));
     forEachSpreadPositionInMatrix(
       nbColumns,
@@ -467,7 +474,6 @@ export class Evaluator {
           )
         );
       }
-      this.blockedArrayFormulas.delete(formulaPosition);
     };
     return checkCollision;
   }

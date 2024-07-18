@@ -2,7 +2,7 @@ import { positionToZone } from "../../../helpers";
 import { recomputeZones } from "../../../helpers/recompute_zones";
 import { CellPosition, UID, Zone } from "../../../types";
 import { PositionMap } from "./position_map";
-import { PositionSet } from "./position_set";
+import { ZoneSet } from "./position_set";
 import { RTreeBoundingBox, RTreeItem, SpreadsheetRTree } from "./r_tree";
 
 /**
@@ -17,7 +17,7 @@ export class FormulaDependencyGraph {
   private readonly rTree: SpreadsheetRTree<CellPosition>;
 
   constructor(
-    private readonly createEmptyPositionSet: () => PositionSet,
+    private readonly createEmptyZoneSet: () => ZoneSet,
     data: RTreeItem<CellPosition>[] = []
   ) {
     this.rTree = new SpreadsheetRTree(data);
@@ -58,22 +58,17 @@ export class FormulaDependencyGraph {
    * in the correct order they should be evaluated.
    * This is called a topological ordering (excluding cycles)
    */
-  getCellsDependingOn(ranges: RTreeBoundingBox[]): PositionSet {
-    const visited = this.createEmptyPositionSet();
+  getCellsDependingOn(ranges: RTreeBoundingBox[]): ZoneSet {
+    const visited = this.createEmptyZoneSet();
     const queue: RTreeBoundingBox[] = Array.from(ranges).reverse();
     while (queue.length > 0) {
       const range = queue.pop()!;
-      const zone = range.zone;
-      const sheetId = range.sheetId;
-      for (let col = zone.left; col <= zone.right; col++) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          visited.add({ sheetId, col, row });
-        }
-      }
+      visited.addBoundingBox(range);
 
       const impactedPositions = this.rTree.search(range).map((dep) => dep.data);
       const nextInQueue: Record<UID, Zone[]> = {};
       for (const position of impactedPositions) {
+        // to change by zone .?
         if (!visited.has(position)) {
           if (!nextInQueue[position.sheetId]) {
             nextInQueue[position.sheetId] = [];
@@ -89,13 +84,7 @@ export class FormulaDependencyGraph {
 
     // remove initial ranges
     for (const range of ranges) {
-      const zone = range.zone;
-      const sheetId = range.sheetId;
-      for (let col = zone.left; col <= zone.right; col++) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          visited.delete({ sheetId, col, row });
-        }
-      }
+      visited.deleteBoundingBox(range);
     }
     return visited;
   }
