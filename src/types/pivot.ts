@@ -36,6 +36,7 @@ export interface PivotCoreMeasure {
    * It's used to identify the measure in the pivot formula.
    */
   id: string;
+  userDefinedName?: string;
   fieldName: string;
   aggregator: Aggregator | string;
 }

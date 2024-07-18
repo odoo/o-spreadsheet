@@ -61,7 +61,10 @@ function createMeasure(fields: PivotFields, measure: PivotCoreMeasure): PivotMea
      * Display name of the measure
      * e.g. "__count" -> "Count", "amount_total" -> "Total Amount"
      */
-    displayName: field?.string ?? fieldName,
+    get displayName() {
+      return measure.userDefinedName ?? field?.string ?? measure.fieldName;
+    },
+    userDefinedName: measure.userDefinedName,
     /**
      * Get the name of the field of the measure
      */

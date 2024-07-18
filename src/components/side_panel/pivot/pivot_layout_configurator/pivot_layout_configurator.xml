@@ -65,12 +65,15 @@
           t-on-pointerdown="(ev) => this.startDragAndDropMeasures(measure, ev)"
           t-att-style="dragAndDrop.itemsStyle[measure.id]"
           class="pt-1 pivot-measure">
-          <PivotDimension dimension="measure" onRemoved.bind="removeMeasureDimension">
-            <div class="d-flex flex-row small">
-              <div class="d-flex flex-row py-1 px-2 w-100">
+          <PivotDimension
+            dimension="measure"
+            onRemoved.bind="removeMeasureDimension"
+            onNameUpdated.bind="onMeasureNameUpdated">
+            <div class="d-flex flex-column small">
+              <div class="d-flex py-1 px-2 w-100">
                 <div class="pivot-dim-operator-label">Aggregated by</div>
                 <select
-                  class="o_input flex-grow-1"
+                  class="o_input flex-grow-1 me-3"
                   t-on-change="(ev) => this.updateAggregator(measure, ev.target.value)">
                   <option
                     t-foreach="Object.keys(AGGREGATORS[measure.type])"

@@ -1377,6 +1377,32 @@ describe("Spreadsheet arguments parsing", () => {
     ).toThrow();
   });
 
+  test("Can customize the name of a measure", () => {
+    const grid = {
+      A1: "Amount",
+      A2: "1",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:A2", {
+      columns: [],
+      rows: [],
+      measures: [{ id: "Amount:sum", fieldName: "Amount", aggregator: "sum" }],
+    });
+    setCellContent(model, "A26", `=PIVOT.HEADER("1", "measure", "Amount:sum")`);
+    expect(getCellContent(model, "A26")).toBe("Amount");
+    updatePivot(model, "1", {
+      measures: [
+        {
+          id: "Amount:sum",
+          fieldName: "Amount",
+          aggregator: "sum",
+          userDefinedName: "A lovely name",
+        },
+      ],
+    });
+    expect(getCellContent(model, "A26")).toBe("A lovely name");
+  });
+
   test("Boolean arguments are correctly parsed", () => {
     // prettier-ignore
     const grid = {
