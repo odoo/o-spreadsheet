@@ -337,6 +337,9 @@ export class Evaluator {
 
     forEachSpreadPositionInMatrix(nbColumns, nbRows, this.updateSpreadRelation(formulaPosition));
     this.assertNoMergedCellsInSpreadZone(formulaPosition, formulaReturn);
+
+    this.blockedArrayFormulas.delete(formulaPosition);
+
     forEachSpreadPositionInMatrix(nbColumns, nbRows, this.checkCollision(formulaPosition));
     forEachSpreadPositionInMatrix(
       nbColumns,
@@ -461,7 +464,6 @@ export class Evaluator {
           )
         );
       }
-      this.blockedArrayFormulas.delete(formulaPosition);
     };
     return checkCollision;
   }
