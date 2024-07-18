@@ -398,13 +398,6 @@ function binarySuccessorSearch(arr: number[], val: number, start = 0, matchEqual
 export class ZoneGrid {
   private profilesStartingPosition: number[] = [0];
   private profiles = new Map<number, number[]>([[0, []]]);
-  cols = 0;
-  rows = 0;
-
-  constructor(rows: number, cols: number) {
-    this.rows = rows;
-    this.cols = cols;
-  }
 
   /**
    * Add a zone to the profile and return as information the part of the zone that was actually added
@@ -426,23 +419,5 @@ export class ZoneGrid {
 
   removeZone(zone: Zone) {
     modifyProfiles(this.profilesStartingPosition, this.profiles, [zone], true);
-  }
-
-  extractZones(): Zone[] {
-    return constructZonesFromProfiles(this.profilesStartingPosition, this.profiles);
-  }
-
-  isEmpty() {
-    for (const profile of this.profiles.values()) {
-      if (profile.length) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  clear() {
-    this.profilesStartingPosition = [0];
-    this.profiles = new Map([[0, []]]);
   }
 }

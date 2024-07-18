@@ -2,7 +2,7 @@ import { positionToZone } from "../../../helpers";
 import { recomputeZones } from "../../../helpers/recompute_zones";
 import { CellPosition, UID, Zone } from "../../../types";
 import { PositionMap } from "./position_map";
-import { PositionSet } from "./position_set";
+import { ZoneSet } from "./position_set";
 import { RTreeBoundingBox, RTreeItem, SpreadsheetRTree } from "./r_tree";
 
 /**
@@ -17,7 +17,7 @@ export class FormulaDependencyGraph {
   private readonly rTree: SpreadsheetRTree<CellPosition>;
 
   constructor(
-    private readonly createEmptyPositionSet: () => PositionSet,
+    private readonly createEmptyZoneSet: () => ZoneSet,
     data: RTreeItem<CellPosition>[] = []
   ) {
     this.rTree = new SpreadsheetRTree(data);
@@ -58,8 +58,8 @@ export class FormulaDependencyGraph {
    * in the correct order they should be evaluated.
    * This is called a topological ordering (excluding cycles)
    */
-  getCellsDependingOn(ranges: RTreeBoundingBox[]): PositionSet {
-    const visited = this.createEmptyPositionSet();
+  getCellsDependingOn(ranges: RTreeBoundingBox[]): ZoneSet {
+    const visited = this.createEmptyZoneSet();
     const queue: RTreeBoundingBox[] = Array.from(ranges).reverse();
     while (queue.length > 0) {
       const range = queue.pop()!;
