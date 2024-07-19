@@ -1240,7 +1240,7 @@ describe("Spreadsheet Pivot", () => {
   });
 
   test("PIVOT.VALUE works after migration", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       version: 17,
       sheets: [
         {
