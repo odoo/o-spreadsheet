@@ -209,6 +209,9 @@ export function toNormalizedPivotValue(
     typeof groupValue === "boolean"
       ? toString(groupValue).toLocaleLowerCase()
       : toString(groupValue);
+  if (groupValueString === "null") {
+    return null;
+  }
   if (!pivotNormalizationValueRegistry.contains(dimension.type)) {
     throw new EvaluationError(
       _t("Field %(field)s is not supported because of its type (%(type)s)", {
@@ -236,6 +239,9 @@ export function toFunctionPivotValue(
   value: CellValue,
   dimension: Pick<PivotDimension, "type" | "granularity">
 ) {
+  if (value === null) {
+    return `"null"`;
+  }
   if (!pivotToFunctionValueRegistry.contains(dimension.type)) {
     return `"${value}"`;
   }
