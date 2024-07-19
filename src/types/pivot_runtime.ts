@@ -25,7 +25,7 @@ export interface Pivot<T = PivotRuntimeDefinition> {
   getPivotCellValueAndFormat(measure: string, domain: PivotDomain): FunctionResultObject;
   getPivotMeasureValue(measure: string, domain: PivotDomain): FunctionResultObject;
 
-  getMeasure: (name: string) => PivotMeasure;
+  getMeasure: (id: string) => PivotMeasure;
 
   parseArgsToPivotDomain(args: Maybe<FunctionResultObject>[]): PivotDomain;
   areDomainArgsFieldsValid(args: Maybe<FunctionResultObject>[]): boolean;
