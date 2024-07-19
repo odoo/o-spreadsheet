@@ -210,13 +210,13 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     this.needsReevaluation = true;
   }
 
-  getMeasure(name: string): PivotMeasure {
-    return this.definition.getMeasure(name);
+  getMeasure(id: string): PivotMeasure {
+    return this.definition.getMeasure(id);
   }
 
-  getPivotMeasureValue(name: string): FunctionResultObject {
+  getPivotMeasureValue(id: string): FunctionResultObject {
     return {
-      value: this.getMeasure(name).displayName,
+      value: this.getMeasure(id).displayName,
     };
   }
 
