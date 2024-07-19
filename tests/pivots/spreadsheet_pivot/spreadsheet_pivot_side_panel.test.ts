@@ -198,7 +198,7 @@ describe("Spreadsheet pivot side panel", () => {
     ]);
 
     await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
-    await click(fixture.querySelectorAll(".o-autocomplete-value")[1]);
+    await click(fixture.querySelectorAll(".o-autocomplete-value")[2]);
     expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
       { id: "amount:sum", fieldName: "amount", aggregator: "sum" },
       { id: "person:count", fieldName: "person", aggregator: "count" },
@@ -232,6 +232,25 @@ describe("Spreadsheet pivot side panel", () => {
     await dragElement(fixture.querySelector(".pivot-dimension")!, { x: 0, y: 30 }, undefined, true);
     expect(model.getters.getPivotCoreDefinition("1").rows).toEqual([
       { fieldName: "Amount", order: "desc" },
+    ]);
+  });
+
+  test("Can add the same measure multiple times", async () => {
+    setCellContent(model, "A1", "amount");
+    setCellContent(model, "A2", "10");
+    setCellContent(model, "B1", "person");
+    setCellContent(model, "B2", "Alice");
+    addPivot(model, "A1:B2", {}, "3");
+    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    await nextTick();
+
+    await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
+    await click(fixture.querySelectorAll(".o-autocomplete-value")[0]);
+    await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
+    await click(fixture.querySelectorAll(".o-autocomplete-value")[0]);
+    expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
+      { id: "amount:sum", fieldName: "amount", aggregator: "sum" },
+      { id: "amount:sum:2", fieldName: "amount", aggregator: "sum" },
     ]);
   });
 

@@ -23,7 +23,7 @@
         <PivotLayoutConfigurator
           t-if="!pivot.isInvalidRange"
           unusedGroupableFields="store.unusedGroupableFields"
-          unusedMeasureFields="store.unusedMeasureFields"
+          measureFields="store.measureFields"
           unusedDateTimeGranularities="store.unusedDateTimeGranularities"
           allGranularities="store.allGranularities"
           definition="definition"
