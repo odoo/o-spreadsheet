@@ -1270,6 +1270,77 @@ describe("Spreadsheet Pivot", () => {
     expect(getEvaluatedCell(model, "A1").value).toBe(1);
   });
 
+  test("PIVOT with the same measures", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Date",       B1: "Price", C1: "=PIVOT(1)",
+      A2: "2024-12-28", B2: "10",
+      A3: "2024-11-28", B3: "20",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B3", {
+      rows: [],
+      columns: [{ fieldName: "Date", granularity: "day" }],
+      measures: [
+        { id: "Price:sum", fieldName: "Price", aggregator: "sum" },
+        { id: "Price:sum:2", fieldName: "Price", aggregator: "sum" },
+      ],
+    });
+
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "C1:I2")).toEqual([
+      ["(#1) Pivot", "11/28/2024", "",      "12/28/2024", "",      "Total", ""],
+      ["",           "Price",      "Price", "Price",      "Price", "Price", "Price"],
+    ]);
+  });
+
+  test("PIVOT with the same measures with custom name", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Date",       B1: "Price", C1: "=PIVOT(1)",
+      A2: "2024-12-28", B2: "10",
+      A3: "2024-11-28", B3: "20",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B3", {
+      rows: [],
+      columns: [{ fieldName: "Date", granularity: "day" }],
+      measures: [
+        { id: "Price:sum", fieldName: "Price", aggregator: "sum" },
+        { id: "Price:sum:2", fieldName: "Price", aggregator: "sum", userDefinedName: "My price" },
+      ],
+    });
+
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "C1:I2")).toEqual([
+      ["(#1) Pivot", "11/28/2024", "",         "12/28/2024", "",         "Total", ""],
+      ["",           "Price",      "My price", "Price",      "My price", "Price", "My price"],
+    ]);
+  });
+
+  test("PIVOT.HEADER with custom measure name", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Date",       B1: "Price", C1: `=PIVOT.HEADER(1, "measure", "Price:sum")`,
+      A2: "2024-12-28", B2: "10",
+      A3: "2024-11-28", B3: "20",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B3", {
+      rows: [],
+      columns: [{ fieldName: "Date", granularity: "day" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
+    });
+
+    expect(getCellContent(model, "C1")).toBe("Price");
+    updatePivot(model, "1", {
+      measures: [
+        { id: "Price:sum", fieldName: "Price", aggregator: "sum", userDefinedName: "My price" },
+      ],
+    });
+    expect(getCellContent(model, "C1")).toBe("My price");
+  });
+
   describe("Pivot reevaluation", () => {
     test("Pivot fields reevaluation", () => {
       const model = new Model({

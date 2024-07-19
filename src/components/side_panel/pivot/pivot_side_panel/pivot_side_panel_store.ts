@@ -51,7 +51,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
     return !!this.draft;
   }
 
-  get unusedMeasureFields() {
+  get measureFields() {
     const measureFields: PivotField[] = [
       {
         name: "__count",
@@ -70,14 +70,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
         measureFields.push(field);
       }
     }
-    const { rows, columns, measures } = this.definition;
-    const currentlyUsed = (measures as (PivotMeasure | PivotDimension)[])
-      .concat(rows)
-      .concat(columns)
-      .map((field) => field.fieldName);
-    return measureFields
-      .filter((field) => !currentlyUsed.includes(field.name))
-      .sort((a, b) => a.string.localeCompare(b.string));
+    return measureFields.sort((a, b) => a.string.localeCompare(b.string));
   }
 
   get unusedGroupableFields() {

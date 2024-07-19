@@ -23,7 +23,7 @@ interface Props {
   definition: PivotRuntimeDefinition;
   onDimensionsUpdated: (definition: Partial<PivotCoreDefinition>) => void;
   unusedGroupableFields: PivotField[];
-  unusedMeasureFields: PivotField[];
+  measureFields: PivotField[];
   unusedDateTimeGranularities: Record<string, Set<string>>;
   allGranularities: string[];
 }
@@ -40,7 +40,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     definition: Object,
     onDimensionsUpdated: Function,
     unusedGroupableFields: Array,
-    unusedMeasureFields: Array,
+    measureFields: Array,
     unusedDateTimeGranularities: Object,
     allGranularities: Array,
   };
@@ -226,7 +226,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
   }
 
   private getDefaultMeasureAggregator(fieldName: string): Aggregator | string {
-    const field = this.props.unusedMeasureFields.find((f) => f.name === fieldName);
+    const field = this.props.measureFields.find((f) => f.name === fieldName);
     return field?.aggregator ? field.aggregator : "count";
   }
 
