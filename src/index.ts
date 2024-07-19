@@ -114,6 +114,7 @@ import {
 } from "./helpers/pivot/pivot_composer_helpers";
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
 
+import { HeatMapComponent } from "./components/figures/chart/heatmap/heat_map";
 import {
   areDomainArgsFieldsValid,
   createPivotFormula,
@@ -362,6 +363,7 @@ export const components = {
   Grid,
   GridOverlay,
   ScorecardChart,
+  HeatMapComponent,
   LineConfigPanel,
   BarConfigPanel,
   PieChartDesignPanel,

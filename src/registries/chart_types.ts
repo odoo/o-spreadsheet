@@ -1,12 +1,14 @@
 import { Component } from "@odoo/owl";
 import { ChartJsComponent } from "../components/figures/chart/chartJs/chartjs";
 import { GaugeChartComponent } from "../components/figures/chart/gauge/gauge_chart_component";
+import { HeatMapComponent } from "../components/figures/chart/heatmap/heat_map";
 import { ScorecardChart as ScorecardChartComponent } from "../components/figures/chart/scorecard/chart_scorecard";
 import { AbstractChart } from "../helpers/figures/charts/abstract_chart";
 import { BarChart, createBarChartRuntime } from "../helpers/figures/charts/bar_chart";
 import { createLineOrScatterChartRuntime } from "../helpers/figures/charts/chart_common_line_scatter";
 import { ComboChart, createComboChartRuntime } from "../helpers/figures/charts/combo_chart";
 import { GaugeChart, createGaugeChartRuntime } from "../helpers/figures/charts/gauge_chart";
+import { HeatMap, createHeatMapRuntime } from "../helpers/figures/charts/heat_map";
 import { LineChart } from "../helpers/figures/charts/line_chart";
 import { PieChart, createPieChartRuntime } from "../helpers/figures/charts/pie_chart";
 import { PyramidChart, createPyramidChartRuntime } from "../helpers/figures/charts/pyramid_chart";
@@ -42,6 +44,7 @@ import {
   ChartType,
 } from "../types/chart/chart";
 import { ComboChartDefinition } from "../types/chart/combo_chart";
+import { HeatMapDefinition } from "../types/chart/heat_map";
 import { PyramidChartDefinition } from "../types/chart/pyramid_chart";
 import { ScatterChartDefinition } from "../types/chart/scatter_chart";
 import { WaterfallChartDefinition } from "../types/chart/waterfall_chart";
@@ -129,6 +132,16 @@ chartRegistry.add("scorecard", {
   getChartDefinitionFromContextCreation: ScorecardChart.getDefinitionFromContextCreation,
   sequence: 40,
 });
+chartRegistry.add("heatmap", {
+  match: (type) => type === "heatmap",
+  createChart: (definition, sheetId, getters) =>
+    new HeatMap(definition as HeatMapDefinition, sheetId, getters),
+  getChartRuntime: createHeatMapRuntime,
+  validateChartDefinition: HeatMap.validateChartDefinition,
+  transformDefinition: HeatMap.transformDefinition,
+  getChartDefinitionFromContextCreation: HeatMap.getDefinitionFromContextCreation,
+  sequence: 40,
+});
 chartRegistry.add("gauge", {
   match: (type) => type === "gauge",
   createChart: (definition, sheetId, getters) =>
@@ -178,6 +191,7 @@ chartComponentRegistry.add("pie", ChartJsComponent);
 chartComponentRegistry.add("gauge", GaugeChartComponent);
 chartComponentRegistry.add("scatter", ChartJsComponent);
 chartComponentRegistry.add("scorecard", ScorecardChartComponent);
+chartComponentRegistry.add("heatmap", HeatMapComponent);
 chartComponentRegistry.add("waterfall", ChartJsComponent);
 chartComponentRegistry.add("pyramid", ChartJsComponent);
 
@@ -334,6 +348,13 @@ chartSubtypeRegistry
     chartType: "scorecard",
     category: "misc",
     preview: "o-spreadsheet-ChartPreview.SCORECARD_CHART",
+  })
+  .add("heatmap", {
+    displayName: _t("Heatmap"),
+    chartSubtype: "heatmap",
+    chartType: "heatmap",
+    category: "misc",
+    preview: "o-spreadsheet-ChartPreview.HEAT_MAP",
   })
   .add("waterfall", {
     displayName: _t("Waterfall"),

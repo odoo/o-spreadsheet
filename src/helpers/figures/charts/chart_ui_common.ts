@@ -6,11 +6,14 @@ import { _t } from "../../../translation";
 import { Color, Figure, Format, Getters, LocaleFormat, Range } from "../../../types";
 import { GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
 import { ChartRuntime, DataSet, DatasetValues, LabelValues } from "../../../types/chart/chart";
+import { HeatMapRuntime } from "../../../types/chart/heat_map";
 import { formatValue, isDateTimeFormat } from "../../format";
 import { deepCopy, range } from "../../misc";
 import { recomputeZones } from "../../recompute_zones";
 import { AbstractChart } from "./abstract_chart";
 import { drawGaugeChart } from "./gauge_chart_rendering";
+import { drawHeatMap } from "./heat_map";
+import { getHeatMapConfiguration } from "./heat_map_config_builder";
 import { drawScoreChart } from "./scorecard_chart";
 import { getScorecardConfiguration } from "./scorecard_chart_config_builder";
 /**
@@ -306,6 +309,12 @@ export function chartToImage(
   } else if (type === "scorecard") {
     const design = getScorecardConfiguration(figure, runtime as ScorecardChartRuntime);
     drawScoreChart(design, canvas);
+    const imgContent = canvas.toDataURL();
+    div.remove();
+    return imgContent;
+  } else if (type === "heatmap") {
+    const design = getHeatMapConfiguration(figure, runtime as HeatMapRuntime);
+    drawHeatMap(design, canvas);
     const imgContent = canvas.toDataURL();
     div.remove();
     return imgContent;
