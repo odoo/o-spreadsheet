@@ -41,11 +41,14 @@ function useCellHovered(
     row: undefined,
   };
   const { Date } = window;
-  let x = 0;
-  let y = 0;
+  let x: number | undefined = undefined;
+  let y: number | undefined = undefined;
   let lastMoved = 0;
 
   function getPosition(): Position {
+    if (x === undefined || y === undefined) {
+      return { col: -1, row: -1 };
+    }
     const col = env.model.getters.getColIndex(x);
     const row = env.model.getters.getRowIndex(y);
     return { col, row };
