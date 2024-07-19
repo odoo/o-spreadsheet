@@ -158,6 +158,47 @@ describe("Pivot menu items", () => {
     ]);
   });
 
+  test("It should correctly manage empty values while fixing formulas", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Customer", B1: "Amount", C1: "=PIVOT(1)",
+      A2: "Alice",    B2: "10",
+      A3: "",         B3: "20",
+    };
+    const model = createModelFromGrid(grid);
+    const env = makeTestEnv({ model });
+    addPivot(model, "A1:B3", {
+      columns: [],
+      rows: [{ fieldName: "Customer", order: "asc" }],
+      measures: [{ fieldName: "Amount", aggregator: "sum", id: "Amount:sum" }],
+    });
+
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "C1:D4")).toEqual([
+      ["(#1) Pivot", "Total"],
+      ["",              "Amount"],
+      ["Alice",         "10",],
+      ["(Undefined)",   "20"],
+    ]);
+
+    selectCell(model, "C2");
+    cellMenuRegistry.get("pivot_fix_formulas").execute!(env);
+
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "C1:D4")).toEqual([
+      ["",            "Total"],
+      ["",            "Amount"],
+      ["Alice",       "10",],
+      ["(Undefined)", "20"],
+    ]);
+
+    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    expect(getEvaluatedGrid(model, "C3:D4")).toEqual([
+      [`=PIVOT.HEADER(1,"Customer","Alice")`, `=PIVOT.VALUE(1,"Amount:sum","Customer","Alice")`],
+      [`=PIVOT.HEADER(1,"Customer","null")`, `=PIVOT.VALUE(1,"Amount:sum","Customer","null")`],
+    ]);
+  });
+
   test("It should not fix formula when the pivot is not valid", () => {
     // prettier-ignore
     const grid = {
