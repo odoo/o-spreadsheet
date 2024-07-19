@@ -67,6 +67,10 @@ chartSidePanelComponentRegistry
     configuration: ScorecardChartConfigPanel,
     design: ScorecardChartDesignPanel,
   })
+  .add("heatmap", {
+    configuration: GenericChartConfigPanel,
+    design: ChartWithAxisDesignPanel,
+  })
   .add("waterfall", {
     configuration: GenericChartConfigPanel,
     design: WaterfallChartDesignPanel,

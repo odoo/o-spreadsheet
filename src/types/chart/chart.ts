@@ -7,6 +7,7 @@ import { LegendPosition } from "./common_chart";
 import { FunnelChartColors, FunnelChartDefinition, FunnelChartRuntime } from "./funnel_chart";
 import { GaugeChartDefinition, GaugeChartRuntime } from "./gauge_chart";
 import { GeoChartDefinition, GeoChartRuntime } from "./geo_chart";
+import { HeatMapDefinition, HeatMapRuntime } from "./heat_map";
 import { LineChartDefinition, LineChartRuntime } from "./line_chart";
 import { PieChartDefinition, PieChartRuntime } from "./pie_chart";
 import { PyramidChartDefinition, PyramidChartRuntime } from "./pyramid_chart";
@@ -36,6 +37,7 @@ export const CHART_TYPES = [
   "funnel",
   "sunburst",
   "treemap",
+  "heatmap",
 ] as const;
 export type ChartType = (typeof CHART_TYPES)[number];
 
@@ -53,7 +55,8 @@ export type ChartDefinition =
   | GeoChartDefinition
   | FunnelChartDefinition
   | SunburstChartDefinition
-  | TreeMapChartDefinition;
+  | TreeMapChartDefinition
+  | HeatMapDefinition;
 
 export type ChartWithDataSetDefinition = Extract<
   ChartDefinition,
@@ -79,7 +82,11 @@ export type ChartJSRuntime =
   | SunburstChartRuntime
   | TreeMapChartRuntime;
 
-export type ChartRuntime = ChartJSRuntime | ScorecardChartRuntime | GaugeChartRuntime;
+export type ChartRuntime =
+  | ChartJSRuntime
+  | ScorecardChartRuntime
+  | GaugeChartRuntime
+  | HeatMapRuntime;
 
 export interface LabelValues {
   readonly values: string[];
