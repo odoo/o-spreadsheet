@@ -36,6 +36,7 @@ export interface AutoCompleteProviderDefinition {
   sequence?: number;
   autoSelectFirstProposal?: boolean;
   maxDisplayedProposals?: number;
+  keepOpenOnExactMatch?: boolean; // By default, the auto complete closes when the exact match is found.
   getProposals(
     this: { composer: ComposerStore; getters: Getters },
     tokenAtCursor: EnrichedToken,

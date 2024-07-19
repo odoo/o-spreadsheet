@@ -789,8 +789,11 @@ export class ComposerStore extends SpreadsheetStore {
       const exactMatch = proposals?.find((p) => p.text === tokenAtCursor.value);
       // remove tokens that are likely to be other parts of the formula that slipped in the token if it's a string
       const searchTerm = tokenAtCursor.value.replace(/[ ,\(\)]/g, "");
-      if (exactMatch && this._currentContent !== this.initialContent) {
-        // this means the user has chosen a proposal
+      if (
+        !provider.keepOpenOnExactMatch &&
+        exactMatch &&
+        this._currentContent !== this.initialContent
+      ) {
         return;
       }
       if (

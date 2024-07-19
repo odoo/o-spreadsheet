@@ -7,6 +7,7 @@ autoCompleteProviders.add("functions", {
   sequence: 100,
   autoSelectFirstProposal: true,
   maxDisplayedProposals: 10,
+  keepOpenOnExactMatch: true,
   getProposals(tokenAtCursor) {
     if (tokenAtCursor.type !== "SYMBOL") {
       return [];

@@ -227,15 +227,17 @@ describe("Functions autocomplete", () => {
       );
     });
 
-    test("autocomplete not displayed for exact match", async () => {
-      functionRegistry.add("FUZZY", {
+    test("autocomplete dropdown remains open for exact function matches", async () => {
+      functionRegistry.add("SUMIF", {
         description: "",
         args: [],
         compute: () => 1,
         returns: ["ANY"],
       });
-      await typeInComposer("=FUZZY");
-      expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
+
+      await typeInComposer("=SUM");
+      expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(2);
+      expect(fixture.querySelectorAll(".o-autocomplete-value")[0].textContent).toBe("SUM");
     });
 
     test("Mouse events on the autocomplete dropdown don't make the composer loose focus", async () => {
