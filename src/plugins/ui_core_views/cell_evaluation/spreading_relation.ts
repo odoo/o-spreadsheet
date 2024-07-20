@@ -1,5 +1,7 @@
-import { CellPosition } from "../../../types";
+import { positionToZone } from "../../../helpers";
+import { CellPosition, UID, Zone } from "../../../types";
 import { PositionMap } from "./position_map";
+import { SpreadsheetRTree } from "./r_tree";
 
 /**
  * Contains, for each cell, the array
@@ -31,33 +33,41 @@ export class SpreadingRelation {
    * | 4 |   | E |   |
    * -----------------
    * ```
-   * We will have `resultsToArrayFormulas` looking like:
-   * - (B2) --> (A2, B1)  meaning B2 can be the result of A2 OR B1
-   * - (C2) --> (A2)      meaning C2 is the result of A2
-   * - (B3) --> (B1)      meaning B3 is the result of B1
-   * - (B4) --> (B1)      meaning B4 is the result of B1
+   * We have `resultsToArrayFormulas` is an R-tree looking like:
+   * - (A2:C2) --> A2     meaning values in A2:C2 are the result of A2
+   * - (B1:B4) --> B1     meaning values in B1:B4 are the result of B1
    *
-   * We will have `arrayFormulasToResults` looking like:
-   * - (A2) --> (B2, C2)      meaning A2 spreads on B2 and C2
-   * - (B1) --> (B2, B3, B4)  meaning B1 spreads on B2, B3 and B4
+   * Note that B2 is part of both zones because it can be the result of
+   * A2 or B1.
+   * Using an R-tree allows for fast insertions while still having
+   * a relatively fast lookup.
+   *
+   * We have `arrayFormulasToResults` looking like:
+   * - (A2) --> A2:C2     meaning A2 spreads on the zone A2:C2
+   * - (B1) --> B1:B4     meaning B1 spreads on the zone B1:B4
    *
    */
-  private readonly resultsToArrayFormulas: PositionMap<CellPosition[]> = new PositionMap();
-  private readonly arrayFormulasToResults: PositionMap<CellPosition[]> = new PositionMap();
+  private readonly resultsToArrayFormulas = new SpreadsheetRTree<CellPosition>();
+  private readonly arrayFormulasToResults: PositionMap<Zone> = new PositionMap();
 
-  getFormulaPositionsSpreadingOn(resultPosition: CellPosition): Iterable<CellPosition> {
-    return this.resultsToArrayFormulas.get(resultPosition) || EMPTY_ARRAY;
+  getFormulaPositionsSpreadingOn(sheetId: UID, zone: Zone): Iterable<CellPosition> {
+    return (
+      this.resultsToArrayFormulas.search({ sheetId, zone }).map((node) => node.data) || EMPTY_ARRAY
+    );
   }
 
-  getArrayResultPositions(formulasPosition: CellPosition): Iterable<CellPosition> {
-    return this.arrayFormulasToResults.get(formulasPosition) || EMPTY_ARRAY;
+  getArrayResultZone(formulasPosition: CellPosition): Zone | undefined {
+    return this.arrayFormulasToResults.get(formulasPosition);
   }
 
   /**
    * Remove a node, also remove it from other nodes adjacency list
    */
   removeNode(position: CellPosition) {
-    this.resultsToArrayFormulas.delete(position);
+    this.resultsToArrayFormulas.remove({
+      boundingBox: { sheetId: position.sheetId, zone: positionToZone(position) },
+      data: position,
+    });
     this.arrayFormulasToResults.delete(position);
   }
 
@@ -66,23 +76,16 @@ export class SpreadingRelation {
    */
   addRelation({
     arrayFormulaPosition,
-    resultPosition,
+    resultZone: resultPosition,
   }: {
     arrayFormulaPosition: CellPosition;
-    resultPosition: CellPosition;
+    resultZone: Zone;
   }): void {
-    if (!this.resultsToArrayFormulas.has(resultPosition)) {
-      this.resultsToArrayFormulas.set(resultPosition, []);
-    }
-    this.resultsToArrayFormulas.get(resultPosition)?.push(arrayFormulaPosition);
-    if (!this.arrayFormulasToResults.has(arrayFormulaPosition)) {
-      this.arrayFormulasToResults.set(arrayFormulaPosition, []);
-    }
-    this.arrayFormulasToResults.get(arrayFormulaPosition)?.push(resultPosition);
-  }
-
-  hasArrayFormulaResult(position: CellPosition): boolean {
-    return this.resultsToArrayFormulas.has(position);
+    this.resultsToArrayFormulas.insert({
+      boundingBox: { sheetId: arrayFormulaPosition.sheetId, zone: resultPosition },
+      data: arrayFormulaPosition,
+    });
+    this.arrayFormulasToResults.set(arrayFormulaPosition, resultPosition);
   }
 
   isArrayFormula(position: CellPosition): boolean {

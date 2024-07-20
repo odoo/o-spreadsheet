@@ -1,5 +1,6 @@
 import {
   createAdaptedZone,
+  excludeTopLeft,
   isZoneValid,
   mergeContiguousZones,
   overlap,
@@ -193,5 +194,23 @@ describe("mergeContiguousZones", () => {
   test("Zones diagonally next to each other are not contiguous", () => {
     const zones = mergeContiguousZones(target("A1, B2, C3, A3"));
     expect(zones.map(zoneToXc)).toEqual(["A1", "B2", "C3", "A3"]);
+  });
+});
+
+describe("excludeTopLeft", () => {
+  test("single cell zone", () => {
+    expect(excludeTopLeft(toZone("A1"))).toEqual([]);
+  });
+
+  test("single column zone", () => {
+    expect(excludeTopLeft(toZone("A1:A4"))).toEqual([toZone("A2:A4")]);
+  });
+
+  test("single row zone", () => {
+    expect(excludeTopLeft(toZone("A1:D1"))).toEqual([toZone("B1:D1")]);
+  });
+
+  test("2d zone", () => {
+    expect(excludeTopLeft(toZone("A1:D4"))).toEqual([toZone("A2:A4"), toZone("B1:D4")]);
   });
 });

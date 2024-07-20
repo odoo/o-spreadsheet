@@ -186,10 +186,11 @@ export class EvaluationPlugin extends UIPlugin {
         if (!("content" in cmd || "format" in cmd) || this.shouldRebuildDependenciesGraph) {
           return;
         }
-        this.positionsToUpdate.push(cmd);
+        const position = { sheetId: cmd.sheetId, row: cmd.row, col: cmd.col };
+        this.positionsToUpdate.push(position);
 
         if ("content" in cmd) {
-          this.evaluator.updateDependencies(cmd);
+          this.evaluator.updateDependencies(position);
         }
         break;
       case "EVALUATE_CELLS":

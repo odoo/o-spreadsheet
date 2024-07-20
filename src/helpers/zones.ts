@@ -1,5 +1,5 @@
 import { _t } from "../translation";
-import { Position, UnboundedZone, Zone, ZoneDimension } from "../types";
+import { CellPosition, Position, UnboundedZone, Zone, ZoneDimension } from "../types";
 import { lettersToNumber, numberToLetters, toCartesian, toXC } from "./coordinates";
 import { range } from "./misc";
 import { recomputeZones } from "./recompute_zones";
@@ -394,6 +394,46 @@ export function zoneToDimension(zone: Zone): ZoneDimension {
 export function isOneDimensional(zone: Zone): boolean {
   const { numberOfCols, numberOfRows } = zoneToDimension(zone);
   return numberOfCols === 1 || numberOfRows === 1;
+}
+
+export function excludeTopLeft(zone: Zone): Zone[] {
+  const { top, left, bottom, right } = zone;
+  if (getZoneArea(zone) === 1) {
+    return [];
+  }
+  const leftColumnZone = {
+    top: top + 1,
+    bottom,
+    left,
+    right: left,
+  };
+  if (right === left) {
+    return [leftColumnZone];
+  }
+  const rightPartZone = {
+    top,
+    bottom,
+    left: left + 1,
+    right,
+  };
+  if (top === bottom) {
+    return [rightPartZone];
+  }
+  return [leftColumnZone, rightPartZone];
+}
+
+export function aggregatePositionsToZones(positions: Iterable<CellPosition>): {
+  [sheetId: string]: Zone[];
+} {
+  const result: { [sheetId: string]: Zone[] } = {};
+  for (const position of positions) {
+    result[position.sheetId] ??= [];
+    result[position.sheetId].push(positionToZone(position));
+  }
+  for (const sheetId in result) {
+    result[sheetId] = recomputeZones(result[sheetId]);
+  }
+  return result;
 }
 
 /**
