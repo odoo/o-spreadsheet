@@ -1,7 +1,7 @@
 import { compile } from "../../../formulas";
 import { implementationErrorMessage } from "../../../functions";
 import { matrixMap } from "../../../functions/helpers";
-import { lazy, positionToZone, toXC, union, unionPositionsToZone } from "../../../helpers";
+import { lazy, positionToZone, recomputeZones, toXC, union } from "../../../helpers";
 import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells";
 import { ModelConfig } from "../../../model";
 import { onIterationEndEvaluationRegistry } from "../../../registries/evaluation_registry";
@@ -68,8 +68,8 @@ export class Evaluator {
     ) {
       return positionToZone(position);
     }
-    const spreadPositions = Array.from(this.spreadingRelations.getArrayResultPositions(position));
-    return union(positionToZone(position), unionPositionsToZone(spreadPositions));
+    const spreadZone = this.spreadingRelations.getArrayResultZone(position);
+    return union(positionToZone(position), spreadZone);
   }
 
   getEvaluatedPositions(): CellPosition[] {
@@ -84,7 +84,10 @@ export class Evaluator {
     if (!this.spreadingRelations.hasArrayFormulaResult(position)) {
       return this.spreadingRelations.isArrayFormula(position) ? position : undefined;
     }
-    const arrayFormulas = this.spreadingRelations.getFormulaPositionsSpreadingOn(position);
+    const arrayFormulas = this.spreadingRelations.getFormulaPositionsSpreadingOn(
+      position.sheetId,
+      positionToZone(position)
+    );
     return Array.from(arrayFormulas).find((position) => !this.blockedArrayFormulas.has(position));
   }
 
@@ -161,7 +164,21 @@ export class Evaluator {
         impactedPositions.add(position);
       }
     }
-    impactedPositions.addMany(this.getArrayFormulasBlockedBy(impactedPositions));
+    const nextInQueue: Record<UID, Zone[]> = {};
+    for (const position of impactedPositions) {
+      if (!nextInQueue[position.sheetId]) {
+        nextInQueue[position.sheetId] = [];
+      }
+      nextInQueue[position.sheetId].push(positionToZone(position));
+    }
+    for (const sheetId in nextInQueue) {
+      nextInQueue[sheetId] = recomputeZones(nextInQueue[sheetId], []);
+    }
+    for (const sheetId in nextInQueue) {
+      for (const zone of nextInQueue[sheetId]) {
+        impactedPositions.addMany(this.getArrayFormulasBlockedBy(sheetId, zone));
+      }
+    }
     return impactedPositions;
   }
 
@@ -223,19 +240,16 @@ export class Evaluator {
    * Return the position of formulas blocked by the given positions
    * as well as all their dependencies.
    */
-  private getArrayFormulasBlockedBy(positions: Iterable<CellPosition>): Iterable<CellPosition> {
+  private getArrayFormulasBlockedBy(sheetId: UID, zone: Zone): Iterable<CellPosition> {
     const arrayFormulaPositions = this.createEmptyPositionSet();
-    for (const position of positions) {
-      if (!this.spreadingRelations.hasArrayFormulaResult(position)) {
-        continue;
-      }
-      const arrayFormulas = this.spreadingRelations.getFormulaPositionsSpreadingOn(position);
-      arrayFormulaPositions.addMany(arrayFormulas);
-      const arrayFormulaPosition = this.getArrayFormulaSpreadingOn(position);
-      if (arrayFormulaPosition) {
-        // ignore the formula spreading on the position. Keep only the blocked ones
-        arrayFormulaPositions.delete(arrayFormulaPosition);
-      }
+    const arrayFormulas = this.spreadingRelations.getFormulaPositionsSpreadingOn(sheetId, zone);
+    arrayFormulaPositions.addMany(arrayFormulas);
+    const spilledPositions = [...arrayFormulas].filter(
+      (position) => !this.blockedArrayFormulas.has(position)
+    );
+    if (spilledPositions.length) {
+      // ignore the formula spreading on the position. Keep only the blocked ones
+      arrayFormulaPositions.deleteMany(spilledPositions);
     }
     arrayFormulaPositions.addMany(this.getCellsDependingOn(arrayFormulaPositions));
     return arrayFormulaPositions;
@@ -331,8 +345,13 @@ export class Evaluator {
     const nbRows = formulaReturn[0].length;
 
     this.spreadingRelations.removeNode(formulaPosition);
-
-    forEachSpreadPositionInMatrix(nbColumns, nbRows, this.updateSpreadRelation(formulaPosition));
+    const resultZone = {
+      top: formulaPosition.row,
+      bottom: formulaPosition.row + nbRows - 1,
+      left: formulaPosition.col,
+      right: formulaPosition.col + nbColumns - 1,
+    };
+    this.spreadingRelations.addRelation({ resultZone, arrayFormulaPosition: formulaPosition });
     this.assertNoMergedCellsInSpreadZone(formulaPosition, formulaReturn);
     forEachSpreadPositionInMatrix(nbColumns, nbRows, this.checkCollision(formulaPosition));
     forEachSpreadPositionInMatrix(
@@ -428,19 +447,6 @@ export class Evaluator {
     );
   }
 
-  private updateSpreadRelation({
-    sheetId,
-    col,
-    row,
-  }: CellPosition): (i: number, j: number) => void {
-    const arrayFormulaPosition = { sheetId, col, row };
-    const updateSpreadRelation = (i: number, j: number) => {
-      const position = { sheetId, col: i + col, row: j + row };
-      this.spreadingRelations.addRelation({ resultPosition: position, arrayFormulaPosition });
-    };
-    return updateSpreadRelation;
-  }
-
   private checkCollision(formulaPosition: CellPosition): (i: number, j: number) => void {
     const { sheetId, col, row } = formulaPosition;
     const checkCollision = (i: number, j: number) => {
@@ -484,19 +490,24 @@ export class Evaluator {
     if (!this.spreadingRelations.isArrayFormula(position)) {
       return;
     }
-    const invalidated = this.createEmptyPositionSet();
-    for (const child of this.spreadingRelations.getArrayResultPositions(position)) {
-      const content = this.getters.getCell(child)?.content;
-      if (content) {
-        // there's no point at re-evaluating overlapping array formulas,
-        // there's still a collision
-        continue;
+    const zone = this.spreadingRelations.getArrayResultZone(position);
+    for (let col = zone.left; col <= zone.right; col++) {
+      for (let row = zone.top; row <= zone.bottom; row++) {
+        const resultPosition = { sheetId: position.sheetId, col, row };
+        const content = this.getters.getCell(resultPosition)?.content;
+        if (content) {
+          // there's no point at re-evaluating overlapping array formulas,
+          // there's still a collision
+          continue;
+        }
+        this.evaluatedCells.delete(resultPosition);
       }
-      invalidated.add(child);
-      this.evaluatedCells.delete(child);
     }
-    this.nextPositionsToUpdate.addMany(this.getCellsDependingOn(invalidated));
-    this.nextPositionsToUpdate.addMany(this.getArrayFormulasBlockedBy(invalidated));
+    const sheetId = position.sheetId;
+    this.nextPositionsToUpdate.addMany(
+      this.formulaDependencies().getCellsDependingOn([{ sheetId, zone }])
+    );
+    this.nextPositionsToUpdate.addMany(this.getArrayFormulasBlockedBy(sheetId, zone));
   }
 
   // ----------------------------------------------------------

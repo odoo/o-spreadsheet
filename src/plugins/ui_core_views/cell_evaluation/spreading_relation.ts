@@ -1,5 +1,7 @@
-import { CellPosition } from "../../../types";
+import { positionToZone } from "../../../helpers";
+import { CellPosition, UID, Zone } from "../../../types";
 import { PositionMap } from "./position_map";
+import { SpreadsheetRTree } from "./r_tree";
 
 /**
  * Contains, for each cell, the array
@@ -15,7 +17,7 @@ import { PositionMap } from "./position_map";
  */
 export class SpreadingRelation {
   /**
-   * Internal structure:
+   * Internal structure: TODO update
    * For something like
    * - A2:'=SPLIT("KAYAK", "A")'
    * - B1:'=TRANSPOSE(SPLIT("COYOTE", "O"))'
@@ -42,22 +44,27 @@ export class SpreadingRelation {
    * - (B1) --> (B2, B3, B4)  meaning B1 spreads on B2, B3 and B4
    *
    */
-  private readonly resultsToArrayFormulas: PositionMap<CellPosition[]> = new PositionMap();
-  private readonly arrayFormulasToResults: PositionMap<CellPosition[]> = new PositionMap();
+  private readonly resultsToArrayFormulas = new SpreadsheetRTree<CellPosition>();
+  private readonly arrayFormulasToResults: PositionMap<Zone> = new PositionMap();
 
-  getFormulaPositionsSpreadingOn(resultPosition: CellPosition): Iterable<CellPosition> {
-    return this.resultsToArrayFormulas.get(resultPosition) || EMPTY_ARRAY;
+  getFormulaPositionsSpreadingOn(sheetId: UID, zone: Zone): Iterable<CellPosition> {
+    return (
+      this.resultsToArrayFormulas.search({ sheetId, zone }).map((node) => node.data) || EMPTY_ARRAY
+    );
   }
 
-  getArrayResultPositions(formulasPosition: CellPosition): Iterable<CellPosition> {
-    return this.arrayFormulasToResults.get(formulasPosition) || EMPTY_ARRAY;
+  getArrayResultZone(formulasPosition: CellPosition): Zone {
+    return this.arrayFormulasToResults.get(formulasPosition) || EMPTY_ZONE;
   }
 
   /**
    * Remove a node, also remove it from other nodes adjacency list
    */
   removeNode(position: CellPosition) {
-    this.resultsToArrayFormulas.delete(position);
+    this.resultsToArrayFormulas.remove({
+      boundingBox: { sheetId: position.sheetId, zone: positionToZone(position) },
+      data: position,
+    });
     this.arrayFormulasToResults.delete(position);
   }
 
@@ -66,23 +73,25 @@ export class SpreadingRelation {
    */
   addRelation({
     arrayFormulaPosition,
-    resultPosition,
+    resultZone: resultPosition,
   }: {
     arrayFormulaPosition: CellPosition;
-    resultPosition: CellPosition;
+    resultZone: Zone;
   }): void {
-    if (!this.resultsToArrayFormulas.has(resultPosition)) {
-      this.resultsToArrayFormulas.set(resultPosition, []);
-    }
-    this.resultsToArrayFormulas.get(resultPosition)?.push(arrayFormulaPosition);
-    if (!this.arrayFormulasToResults.has(arrayFormulaPosition)) {
-      this.arrayFormulasToResults.set(arrayFormulaPosition, []);
-    }
-    this.arrayFormulasToResults.get(arrayFormulaPosition)?.push(resultPosition);
+    this.resultsToArrayFormulas.insert({
+      boundingBox: { sheetId: arrayFormulaPosition.sheetId, zone: resultPosition },
+      data: arrayFormulaPosition,
+    });
+    this.arrayFormulasToResults.set(arrayFormulaPosition, resultPosition);
   }
 
   hasArrayFormulaResult(position: CellPosition): boolean {
-    return this.resultsToArrayFormulas.has(position);
+    return (
+      this.resultsToArrayFormulas.search({
+        sheetId: position.sheetId,
+        zone: positionToZone(position),
+      }).length > 0
+    );
   }
 
   isArrayFormula(position: CellPosition): boolean {
@@ -91,3 +100,5 @@ export class SpreadingRelation {
 }
 
 const EMPTY_ARRAY = [] as const;
+// not sure about that...
+const EMPTY_ZONE = { top: -1, bottom: -1, left: -1, right: -1 } as const;
