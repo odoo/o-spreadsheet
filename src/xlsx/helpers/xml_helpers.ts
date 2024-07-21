@@ -30,11 +30,11 @@ export function createXMLFile(
 export function xmlEscape(str: XMLAttributeValue): string {
   return (
     String(str)
-      .replace(/\&/g, "&amp;")
-      .replace(/\</g, "&lt;")
-      .replace(/\>/g, "&gt;")
-      .replace(/\"/g, "&quot;")
-      .replace(/\'/g, "&apos;")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&apos;")
       // Delete all ASCII control characters except for TAB (\x09), LF (\x0A) and CR (\x0D)
       // They are not valid at all in XML 1.0 (even escaped)
       .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, "")

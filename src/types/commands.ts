@@ -1282,7 +1282,7 @@ export interface CommandHandler<T> {
 
 export interface CommandDispatcher {
   dispatch<T extends CommandTypes, C extends Extract<Command, { type: T }>>(
-    type: {} extends Omit<C, "type"> ? T : never
+    type: object extends Omit<C, "type"> ? T : never
   ): DispatchResult;
   dispatch<T extends CommandTypes, C extends Extract<Command, { type: T }>>(
     type: T,
@@ -1292,7 +1292,7 @@ export interface CommandDispatcher {
 
 export interface CoreCommandDispatcher {
   dispatch<T extends CoreCommandTypes, C extends Extract<CoreCommand, { type: T }>>(
-    type: {} extends Omit<C, "type"> ? T : never
+    type: Record<string, never> extends Omit<C, "type"> ? T : never
   ): DispatchResult;
   dispatch<T extends CoreCommandTypes, C extends Extract<CoreCommand, { type: T }>>(
     type: T,
