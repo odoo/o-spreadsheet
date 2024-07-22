@@ -281,6 +281,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   private afterSetup() {
     this.uuidGenerator.setIsFastStrategy(false);
 
+    // starting plugins
+    this.dispatch("START");
+
     // Model should be the last permanent subscriber in the list since he should render
     // after all changes have been applied to the other subscribers (plugins)
     this.selection.observe(this, {
@@ -299,9 +302,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       this.garbageCollectExternalResources();
       console.info("Snapshot taken in", performance.now() - startSnapshot, "ms");
     }
-
-    // starting plugins
-    this.dispatch("START");
   }
 
   private constructor(
