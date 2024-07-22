@@ -81,7 +81,6 @@ export class LongRunner extends EventBus<any> implements ILongRunner {
 
   private run(job: LongRunningJob, doneCallback: () => void, offset: number = 0) {
     let timeout = Date.now() + job.renderEveryMs;
-
     while (Date.now() < timeout) {
       this.batchN(job, offset);
       offset += job.batchSize;
