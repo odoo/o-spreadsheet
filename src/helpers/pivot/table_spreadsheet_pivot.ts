@@ -1,4 +1,13 @@
-import { PivotDomain, PivotTableCell, PivotTableColumn, PivotTableRow } from "../../types/pivot";
+import { Lazy } from "../../types";
+import {
+  DimensionTree,
+  DimensionTreeNode,
+  PivotDomain,
+  PivotTableCell,
+  PivotTableColumn,
+  PivotTableRow,
+} from "../../types/pivot";
+import { lazy } from "../misc";
 import { parseDimension, toNormalizedPivotValue } from "./pivot_helpers";
 
 /**
@@ -51,6 +60,8 @@ export class SpreadsheetPivotTable {
   readonly fieldsType: Record<string, string | undefined>;
   readonly maxIndent: number;
   readonly pivotCells: { [key: string]: PivotTableCell[][] } = {};
+  readonly getRowTree: Lazy<DimensionTree>;
+  readonly getColTree: Lazy<DimensionTree>;
 
   constructor(
     columns: PivotTableColumn[][],
@@ -72,6 +83,8 @@ export class SpreadsheetPivotTable {
     this.measures = measures;
     this.fieldsType = fieldsType;
     this.maxIndent = Math.max(...this.rows.map((row) => row.indent));
+    this.getRowTree = lazy(() => this.buildRowsTree());
+    this.getColTree = lazy(() => this.buildColumnsTree());
   }
 
   /**
@@ -207,6 +220,73 @@ export class SpreadsheetPivotTable {
       });
     }
     return domain;
+  }
+
+  buildRowsTree(): DimensionTree {
+    const tree: DimensionTree = [];
+    let depth = 0;
+    const treesAtDepth: Record<number, DimensionTree> = {};
+    treesAtDepth[0] = tree;
+    for (const row of this.rows) {
+      if (row.fields.length === 0 || row.values.length === 0) {
+        return tree;
+      }
+      const rowDepth = row.fields.length - 1;
+      const fieldWithGranularity = row.fields[rowDepth];
+      const { fieldName, granularity } = parseDimension(fieldWithGranularity);
+      const type = this.fieldsType[fieldName] ?? "char";
+      const value = toNormalizedPivotValue(
+        { displayName: fieldName, type, granularity },
+        row.values[rowDepth]
+      );
+      if (rowDepth > depth) {
+        depth = rowDepth;
+        treesAtDepth[depth] = [];
+        const parentNode = treesAtDepth[depth - 1].at(-1);
+        if (parentNode) {
+          parentNode.children = treesAtDepth[depth];
+        }
+      }
+      depth = rowDepth;
+      const node: DimensionTreeNode = {
+        value,
+        field: row.fields[rowDepth],
+        children: [],
+        width: 0, // not used
+      };
+      treesAtDepth[depth].push(node);
+    }
+    return tree;
+  }
+
+  buildColumnsTree(): DimensionTree {
+    const tree: DimensionTree = [];
+    const columns = this.columns.at(-2) || [];
+    const treesAtDepth: Record<number, DimensionTree> = {};
+    treesAtDepth[0] = tree;
+    for (const leaf of columns) {
+      for (let depth = 0; depth < leaf.fields.length; depth++) {
+        const fieldWithGranularity = leaf.fields[depth];
+        const { fieldName, granularity } = parseDimension(fieldWithGranularity);
+        const type = this.fieldsType[fieldName] ?? "char";
+        const value = toNormalizedPivotValue(
+          { displayName: fieldName, type, granularity },
+          leaf.values[depth]
+        );
+        const node: DimensionTreeNode = {
+          value,
+          field: leaf.fields[depth],
+          children: [],
+          width: leaf.width,
+        };
+        if (treesAtDepth[depth]?.at(-1)?.value !== value) {
+          treesAtDepth[depth + 1] = [];
+          node.children = treesAtDepth[depth + 1];
+          treesAtDepth[depth].push(node);
+        }
+      }
+    }
+    return tree;
   }
 
   export() {

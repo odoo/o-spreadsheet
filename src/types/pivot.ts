@@ -152,3 +152,12 @@ export interface PivotNode {
 }
 
 export type PivotDomain = PivotNode[];
+
+export interface DimensionTreeNode {
+  value: CellValue;
+  field: string;
+  children: DimensionTree;
+  width: number;
+}
+
+export type DimensionTree = DimensionTreeNode[];
