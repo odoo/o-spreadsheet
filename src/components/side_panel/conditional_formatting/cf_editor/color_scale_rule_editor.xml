@@ -5,7 +5,8 @@
 
   <t t-name="o-spreadsheet-ColorScaleRuleEditorThreshold">
     <t t-set="fill_color">Fill Color</t>
-    <div t-attf-class="o-threshold o-threshold-{{thresholdType}}">
+    <div
+      t-attf-class="o-threshold o-threshold-{{thresholdType}} d-flex align-items-center flex-row">
       <t t-if="thresholdType === 'midpoint'">
         <t t-set="type" t-value="threshold and threshold.type"/>
         <select
