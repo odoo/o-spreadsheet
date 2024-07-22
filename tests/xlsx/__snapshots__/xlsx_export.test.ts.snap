@@ -76,11 +76,11 @@ exports[`Test XLSX export Charts Chart legend is set to none position 1`] = `
                     </c:tx>
                     <c:spPr>
                         <a:solidFill>
-                            <a:srgbClr val="1F77B4"/>
+                            <a:srgbClr val="4EA7F2"/>
                         </a:solidFill>
                         <a:ln cmpd="sng">
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                         </a:ln>
                     </c:spPr>
@@ -114,11 +114,11 @@ exports[`Test XLSX export Charts Chart legend is set to none position 1`] = `
                     </c:tx>
                     <c:spPr>
                         <a:solidFill>
-                            <a:srgbClr val="FF7F0E"/>
+                            <a:srgbClr val="EA6175"/>
                         </a:solidFill>
                         <a:ln cmpd="sng">
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                         </a:ln>
                     </c:spPr>
@@ -673,11 +673,11 @@ exports[`Test XLSX export Charts Export chart overflowing outside the sheet 1`] 
                     <c:order val="0"/>
                     <c:spPr>
                         <a:solidFill>
-                            <a:srgbClr val="1F77B4"/>
+                            <a:srgbClr val="4EA7F2"/>
                         </a:solidFill>
                         <a:ln cmpd="sng">
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                         </a:ln>
                     </c:spPr>
@@ -704,11 +704,11 @@ exports[`Test XLSX export Charts Export chart overflowing outside the sheet 1`] 
                     <c:order val="1"/>
                     <c:spPr>
                         <a:solidFill>
-                            <a:srgbClr val="FF7F0E"/>
+                            <a:srgbClr val="EA6175"/>
                         </a:solidFill>
                         <a:ln cmpd="sng">
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                         </a:ln>
                     </c:spPr>
@@ -1263,11 +1263,11 @@ exports[`Test XLSX export Charts chart dataset without title 1`] = `
                     <c:order val="0"/>
                     <c:spPr>
                         <a:solidFill>
-                            <a:srgbClr val="1F77B4"/>
+                            <a:srgbClr val="4EA7F2"/>
                         </a:solidFill>
                         <a:ln cmpd="sng">
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                         </a:ln>
                     </c:spPr>
@@ -1294,11 +1294,11 @@ exports[`Test XLSX export Charts chart dataset without title 1`] = `
                     <c:order val="1"/>
                     <c:spPr>
                         <a:solidFill>
-                            <a:srgbClr val="FF7F0E"/>
+                            <a:srgbClr val="EA6175"/>
                         </a:solidFill>
                         <a:ln cmpd="sng">
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                         </a:ln>
                     </c:spPr>
@@ -1861,11 +1861,11 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                     </c:tx>
                     <c:spPr>
                         <a:solidFill>
-                            <a:srgbClr val="1F77B4"/>
+                            <a:srgbClr val="4EA7F2"/>
                         </a:solidFill>
                         <a:ln cmpd="sng">
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                         </a:ln>
                     </c:spPr>
@@ -1899,11 +1899,11 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                     </c:tx>
                     <c:spPr>
                         <a:solidFill>
-                            <a:srgbClr val="FF7F0E"/>
+                            <a:srgbClr val="EA6175"/>
                         </a:solidFill>
                         <a:ln cmpd="sng">
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                         </a:ln>
                     </c:spPr>
@@ -2152,7 +2152,7 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                         <c:idx val="0"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -2165,7 +2165,7 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                         <c:idx val="1"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -2213,7 +2213,7 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                         <c:idx val="0"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -2226,7 +2226,7 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                         <c:idx val="1"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -2348,11 +2348,11 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                         <c:size val="5"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:ln cmpd="sng">
                                 <a:solidFill>
-                                    <a:srgbClr val="1F77B4"/>
+                                    <a:srgbClr val="4EA7F2"/>
                                 </a:solidFill>
                             </a:ln>
                         </c:spPr>
@@ -2367,7 +2367,7 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:prstDash val="solid"/>
                         </a:ln>
@@ -2399,11 +2399,11 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                         <c:size val="5"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                             <a:ln cmpd="sng">
                                 <a:solidFill>
-                                    <a:srgbClr val="FF7F0E"/>
+                                    <a:srgbClr val="EA6175"/>
                                 </a:solidFill>
                             </a:ln>
                         </c:spPr>
@@ -2418,7 +2418,7 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                             <a:prstDash val="solid"/>
                         </a:ln>
@@ -2668,7 +2668,7 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                         <c:idx val="0"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -2681,7 +2681,7 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                         <c:idx val="1"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -2729,7 +2729,7 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                         <c:idx val="0"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -2742,7 +2742,7 @@ exports[`Test XLSX export Charts chart font color is white with a dark backgroun
                         <c:idx val="1"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -3372,11 +3372,11 @@ exports[`Test XLSX export Charts charts in different sheets 1`] = `
                         <c:size val="5"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:ln cmpd="sng">
                                 <a:solidFill>
-                                    <a:srgbClr val="1F77B4"/>
+                                    <a:srgbClr val="4EA7F2"/>
                                 </a:solidFill>
                             </a:ln>
                         </c:spPr>
@@ -3391,7 +3391,7 @@ exports[`Test XLSX export Charts charts in different sheets 1`] = `
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:prstDash val="solid"/>
                         </a:ln>
@@ -3423,11 +3423,11 @@ exports[`Test XLSX export Charts charts in different sheets 1`] = `
                         <c:size val="5"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                             <a:ln cmpd="sng">
                                 <a:solidFill>
-                                    <a:srgbClr val="FF7F0E"/>
+                                    <a:srgbClr val="EA6175"/>
                                 </a:solidFill>
                             </a:ln>
                         </c:spPr>
@@ -3442,7 +3442,7 @@ exports[`Test XLSX export Charts charts in different sheets 1`] = `
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                             <a:prstDash val="solid"/>
                         </a:ln>
@@ -3858,11 +3858,11 @@ exports[`Test XLSX export Charts charts in different sheets 1`] = `
                     </c:tx>
                     <c:spPr>
                         <a:solidFill>
-                            <a:srgbClr val="1F77B4"/>
+                            <a:srgbClr val="4EA7F2"/>
                         </a:solidFill>
                         <a:ln cmpd="sng">
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                         </a:ln>
                     </c:spPr>
@@ -3896,11 +3896,11 @@ exports[`Test XLSX export Charts charts in different sheets 1`] = `
                     </c:tx>
                     <c:spPr>
                         <a:solidFill>
-                            <a:srgbClr val="FF7F0E"/>
+                            <a:srgbClr val="EA6175"/>
                         </a:solidFill>
                         <a:ln cmpd="sng">
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                         </a:ln>
                     </c:spPr>
@@ -4395,11 +4395,11 @@ exports[`Test XLSX export Charts multiple charts in the same sheet 1`] = `
                         <c:size val="5"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:ln cmpd="sng">
                                 <a:solidFill>
-                                    <a:srgbClr val="1F77B4"/>
+                                    <a:srgbClr val="4EA7F2"/>
                                 </a:solidFill>
                             </a:ln>
                         </c:spPr>
@@ -4414,7 +4414,7 @@ exports[`Test XLSX export Charts multiple charts in the same sheet 1`] = `
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:prstDash val="solid"/>
                         </a:ln>
@@ -4446,11 +4446,11 @@ exports[`Test XLSX export Charts multiple charts in the same sheet 1`] = `
                         <c:size val="5"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                             <a:ln cmpd="sng">
                                 <a:solidFill>
-                                    <a:srgbClr val="FF7F0E"/>
+                                    <a:srgbClr val="EA6175"/>
                                 </a:solidFill>
                             </a:ln>
                         </c:spPr>
@@ -4465,7 +4465,7 @@ exports[`Test XLSX export Charts multiple charts in the same sheet 1`] = `
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                             <a:prstDash val="solid"/>
                         </a:ln>
@@ -4708,11 +4708,11 @@ exports[`Test XLSX export Charts multiple charts in the same sheet 1`] = `
                     </c:tx>
                     <c:spPr>
                         <a:solidFill>
-                            <a:srgbClr val="1F77B4"/>
+                            <a:srgbClr val="4EA7F2"/>
                         </a:solidFill>
                         <a:ln cmpd="sng">
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                         </a:ln>
                     </c:spPr>
@@ -4746,11 +4746,11 @@ exports[`Test XLSX export Charts multiple charts in the same sheet 1`] = `
                     </c:tx>
                     <c:spPr>
                         <a:solidFill>
-                            <a:srgbClr val="FF7F0E"/>
+                            <a:srgbClr val="EA6175"/>
                         </a:solidFill>
                         <a:ln cmpd="sng">
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                         </a:ln>
                     </c:spPr>
@@ -5658,11 +5658,11 @@ exports[`Test XLSX export Charts simple bar chart with customized axis 1`] = `
                     </c:tx>
                     <c:spPr>
                         <a:solidFill>
-                            <a:srgbClr val="1F77B4"/>
+                            <a:srgbClr val="4EA7F2"/>
                         </a:solidFill>
                         <a:ln cmpd="sng">
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                         </a:ln>
                     </c:spPr>
@@ -6792,11 +6792,11 @@ exports[`Test XLSX export Charts simple bar chart with customized title 1`] = `
                     </c:tx>
                     <c:spPr>
                         <a:solidFill>
-                            <a:srgbClr val="1F77B4"/>
+                            <a:srgbClr val="4EA7F2"/>
                         </a:solidFill>
                         <a:ln cmpd="sng">
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                         </a:ln>
                     </c:spPr>
@@ -7358,11 +7358,11 @@ exports[`Test XLSX export Charts simple bar chart with dataset [ [Object] ] 1`] 
                     </c:tx>
                     <c:spPr>
                         <a:solidFill>
-                            <a:srgbClr val="1F77B4"/>
+                            <a:srgbClr val="4EA7F2"/>
                         </a:solidFill>
                         <a:ln cmpd="sng">
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                         </a:ln>
                     </c:spPr>
@@ -7924,11 +7924,11 @@ exports[`Test XLSX export Charts simple bar chart with dataset [ [Object], [Obje
                     </c:tx>
                     <c:spPr>
                         <a:solidFill>
-                            <a:srgbClr val="1F77B4"/>
+                            <a:srgbClr val="4EA7F2"/>
                         </a:solidFill>
                         <a:ln cmpd="sng">
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                         </a:ln>
                     </c:spPr>
@@ -7962,11 +7962,11 @@ exports[`Test XLSX export Charts simple bar chart with dataset [ [Object], [Obje
                     </c:tx>
                     <c:spPr>
                         <a:solidFill>
-                            <a:srgbClr val="FF7F0E"/>
+                            <a:srgbClr val="EA6175"/>
                         </a:solidFill>
                         <a:ln cmpd="sng">
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                         </a:ln>
                     </c:spPr>
@@ -8528,11 +8528,11 @@ exports[`Test XLSX export Charts simple combo chart with customized axis 1`] = `
                     </c:tx>
                     <c:spPr>
                         <a:solidFill>
-                            <a:srgbClr val="1F77B4"/>
+                            <a:srgbClr val="4EA7F2"/>
                         </a:solidFill>
                         <a:ln cmpd="sng">
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                         </a:ln>
                     </c:spPr>
@@ -9660,11 +9660,11 @@ exports[`Test XLSX export Charts simple combo chart with customized title 1`] = 
                     </c:tx>
                     <c:spPr>
                         <a:solidFill>
-                            <a:srgbClr val="1F77B4"/>
+                            <a:srgbClr val="4EA7F2"/>
                         </a:solidFill>
                         <a:ln cmpd="sng">
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                         </a:ln>
                     </c:spPr>
@@ -10225,11 +10225,11 @@ exports[`Test XLSX export Charts simple combo chart with dataset [ [Object] ] 1`
                     </c:tx>
                     <c:spPr>
                         <a:solidFill>
-                            <a:srgbClr val="1F77B4"/>
+                            <a:srgbClr val="4EA7F2"/>
                         </a:solidFill>
                         <a:ln cmpd="sng">
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                         </a:ln>
                     </c:spPr>
@@ -10790,11 +10790,11 @@ exports[`Test XLSX export Charts simple combo chart with dataset [ [Object], [Ob
                     </c:tx>
                     <c:spPr>
                         <a:solidFill>
-                            <a:srgbClr val="1F77B4"/>
+                            <a:srgbClr val="4EA7F2"/>
                         </a:solidFill>
                         <a:ln cmpd="sng">
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                         </a:ln>
                     </c:spPr>
@@ -10831,11 +10831,11 @@ exports[`Test XLSX export Charts simple combo chart with dataset [ [Object], [Ob
                         <c:size val="5"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                             <a:ln cmpd="sng">
                                 <a:solidFill>
-                                    <a:srgbClr val="FF7F0E"/>
+                                    <a:srgbClr val="EA6175"/>
                                 </a:solidFill>
                             </a:ln>
                         </c:spPr>
@@ -10849,11 +10849,11 @@ exports[`Test XLSX export Charts simple combo chart with dataset [ [Object], [Ob
                     </c:tx>
                     <c:spPr>
                         <a:solidFill>
-                            <a:srgbClr val="FF7F0E"/>
+                            <a:srgbClr val="EA6175"/>
                         </a:solidFill>
                         <a:ln cmpd="sng">
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                         </a:ln>
                     </c:spPr>
@@ -11408,11 +11408,11 @@ exports[`Test XLSX export Charts simple line chart with customized axis 1`] = `
                         <c:size val="5"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:ln cmpd="sng">
                                 <a:solidFill>
-                                    <a:srgbClr val="1F77B4"/>
+                                    <a:srgbClr val="4EA7F2"/>
                                 </a:solidFill>
                             </a:ln>
                         </c:spPr>
@@ -11427,7 +11427,7 @@ exports[`Test XLSX export Charts simple line chart with customized axis 1`] = `
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:prstDash val="solid"/>
                         </a:ln>
@@ -12562,11 +12562,11 @@ exports[`Test XLSX export Charts simple line chart with customized title 1`] = `
                         <c:size val="5"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:ln cmpd="sng">
                                 <a:solidFill>
-                                    <a:srgbClr val="1F77B4"/>
+                                    <a:srgbClr val="4EA7F2"/>
                                 </a:solidFill>
                             </a:ln>
                         </c:spPr>
@@ -12581,7 +12581,7 @@ exports[`Test XLSX export Charts simple line chart with customized title 1`] = `
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:prstDash val="solid"/>
                         </a:ln>
@@ -13138,11 +13138,11 @@ exports[`Test XLSX export Charts simple line chart with dataset [ [Object] ] 1`]
                         <c:size val="5"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:ln cmpd="sng">
                                 <a:solidFill>
-                                    <a:srgbClr val="1F77B4"/>
+                                    <a:srgbClr val="4EA7F2"/>
                                 </a:solidFill>
                             </a:ln>
                         </c:spPr>
@@ -13157,7 +13157,7 @@ exports[`Test XLSX export Charts simple line chart with dataset [ [Object] ] 1`]
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:prstDash val="solid"/>
                         </a:ln>
@@ -13714,11 +13714,11 @@ exports[`Test XLSX export Charts simple line chart with dataset [ [Object], [Obj
                         <c:size val="5"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:ln cmpd="sng">
                                 <a:solidFill>
-                                    <a:srgbClr val="1F77B4"/>
+                                    <a:srgbClr val="4EA7F2"/>
                                 </a:solidFill>
                             </a:ln>
                         </c:spPr>
@@ -13733,7 +13733,7 @@ exports[`Test XLSX export Charts simple line chart with dataset [ [Object], [Obj
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:prstDash val="solid"/>
                         </a:ln>
@@ -13765,11 +13765,11 @@ exports[`Test XLSX export Charts simple line chart with dataset [ [Object], [Obj
                         <c:size val="5"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                             <a:ln cmpd="sng">
                                 <a:solidFill>
-                                    <a:srgbClr val="FF7F0E"/>
+                                    <a:srgbClr val="EA6175"/>
                                 </a:solidFill>
                             </a:ln>
                         </c:spPr>
@@ -13784,7 +13784,7 @@ exports[`Test XLSX export Charts simple line chart with dataset [ [Object], [Obj
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                             <a:prstDash val="solid"/>
                         </a:ln>
@@ -14354,7 +14354,7 @@ exports[`Test XLSX export Charts simple pie chart with dataset [ [Object] ] 1`] 
                         <c:idx val="0"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -14367,7 +14367,7 @@ exports[`Test XLSX export Charts simple pie chart with dataset [ [Object] ] 1`] 
                         <c:idx val="1"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -14380,7 +14380,7 @@ exports[`Test XLSX export Charts simple pie chart with dataset [ [Object] ] 1`] 
                         <c:idx val="2"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="AEC7E8"/>
+                                <a:srgbClr val="43C5B1"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -14835,7 +14835,7 @@ exports[`Test XLSX export Charts simple pie chart with dataset [ [Object], [Obje
                         <c:idx val="0"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -14848,7 +14848,7 @@ exports[`Test XLSX export Charts simple pie chart with dataset [ [Object], [Obje
                         <c:idx val="1"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -14861,7 +14861,7 @@ exports[`Test XLSX export Charts simple pie chart with dataset [ [Object], [Obje
                         <c:idx val="2"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="AEC7E8"/>
+                                <a:srgbClr val="43C5B1"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -14909,7 +14909,7 @@ exports[`Test XLSX export Charts simple pie chart with dataset [ [Object], [Obje
                         <c:idx val="0"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -14922,7 +14922,7 @@ exports[`Test XLSX export Charts simple pie chart with dataset [ [Object], [Obje
                         <c:idx val="1"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -14935,7 +14935,7 @@ exports[`Test XLSX export Charts simple pie chart with dataset [ [Object], [Obje
                         <c:idx val="2"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="AEC7E8"/>
+                                <a:srgbClr val="43C5B1"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -15384,11 +15384,11 @@ exports[`Test XLSX export Charts simple scatter chart with customized axis 1`] =
                         <c:size val="5"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:ln cmpd="sng">
                                 <a:solidFill>
-                                    <a:srgbClr val="1F77B4"/>
+                                    <a:srgbClr val="4EA7F2"/>
                                 </a:solidFill>
                             </a:ln>
                         </c:spPr>
@@ -16538,11 +16538,11 @@ exports[`Test XLSX export Charts simple scatter chart with customized title 1`] 
                         <c:size val="5"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:ln cmpd="sng">
                                 <a:solidFill>
-                                    <a:srgbClr val="1F77B4"/>
+                                    <a:srgbClr val="4EA7F2"/>
                                 </a:solidFill>
                             </a:ln>
                         </c:spPr>
@@ -17114,11 +17114,11 @@ exports[`Test XLSX export Charts simple scatter chart with dataset [ [Object] ] 
                         <c:size val="5"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:ln cmpd="sng">
                                 <a:solidFill>
-                                    <a:srgbClr val="1F77B4"/>
+                                    <a:srgbClr val="4EA7F2"/>
                                 </a:solidFill>
                             </a:ln>
                         </c:spPr>
@@ -17690,11 +17690,11 @@ exports[`Test XLSX export Charts simple scatter chart with dataset [ [Object], [
                         <c:size val="5"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:ln cmpd="sng">
                                 <a:solidFill>
-                                    <a:srgbClr val="1F77B4"/>
+                                    <a:srgbClr val="4EA7F2"/>
                                 </a:solidFill>
                             </a:ln>
                         </c:spPr>
@@ -17741,11 +17741,11 @@ exports[`Test XLSX export Charts simple scatter chart with dataset [ [Object], [
                         <c:size val="5"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                             <a:ln cmpd="sng">
                                 <a:solidFill>
-                                    <a:srgbClr val="FF7F0E"/>
+                                    <a:srgbClr val="EA6175"/>
                                 </a:solidFill>
                             </a:ln>
                         </c:spPr>
@@ -18316,11 +18316,11 @@ exports[`Test XLSX export Charts stacked bar chart 1`] = `
                     </c:tx>
                     <c:spPr>
                         <a:solidFill>
-                            <a:srgbClr val="1F77B4"/>
+                            <a:srgbClr val="4EA7F2"/>
                         </a:solidFill>
                         <a:ln cmpd="sng">
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                         </a:ln>
                     </c:spPr>
@@ -18354,11 +18354,11 @@ exports[`Test XLSX export Charts stacked bar chart 1`] = `
                     </c:tx>
                     <c:spPr>
                         <a:solidFill>
-                            <a:srgbClr val="FF7F0E"/>
+                            <a:srgbClr val="EA6175"/>
                         </a:solidFill>
                         <a:ln cmpd="sng">
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                         </a:ln>
                     </c:spPr>
@@ -28192,11 +28192,11 @@ exports[`Test XLSX export multiple elements are exported in the correct order 1`
                     <c:order val="0"/>
                     <c:spPr>
                         <a:solidFill>
-                            <a:srgbClr val="1F77B4"/>
+                            <a:srgbClr val="4EA7F2"/>
                         </a:solidFill>
                         <a:ln cmpd="sng">
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                         </a:ln>
                     </c:spPr>
@@ -28223,11 +28223,11 @@ exports[`Test XLSX export multiple elements are exported in the correct order 1`
                     <c:order val="1"/>
                     <c:spPr>
                         <a:solidFill>
-                            <a:srgbClr val="FF7F0E"/>
+                            <a:srgbClr val="EA6175"/>
                         </a:solidFill>
                         <a:ln cmpd="sng">
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                         </a:ln>
                     </c:spPr>
@@ -28705,11 +28705,11 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:size val="5"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:ln cmpd="sng">
                                 <a:solidFill>
-                                    <a:srgbClr val="1F77B4"/>
+                                    <a:srgbClr val="4EA7F2"/>
                                 </a:solidFill>
                             </a:ln>
                         </c:spPr>
@@ -28724,7 +28724,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:prstDash val="solid"/>
                         </a:ln>
@@ -28756,11 +28756,11 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:size val="5"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                             <a:ln cmpd="sng">
                                 <a:solidFill>
-                                    <a:srgbClr val="FF7F0E"/>
+                                    <a:srgbClr val="EA6175"/>
                                 </a:solidFill>
                             </a:ln>
                         </c:spPr>
@@ -28775,7 +28775,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                     <c:spPr>
                         <a:ln cmpd="sng" w="23813">
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                             <a:prstDash val="solid"/>
                         </a:ln>
@@ -29018,11 +29018,11 @@ exports[`Test XLSX export references with headers should be converted to referen
                     </c:tx>
                     <c:spPr>
                         <a:solidFill>
-                            <a:srgbClr val="1F77B4"/>
+                            <a:srgbClr val="4EA7F2"/>
                         </a:solidFill>
                         <a:ln cmpd="sng">
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                         </a:ln>
                     </c:spPr>
@@ -29056,11 +29056,11 @@ exports[`Test XLSX export references with headers should be converted to referen
                     </c:tx>
                     <c:spPr>
                         <a:solidFill>
-                            <a:srgbClr val="FF7F0E"/>
+                            <a:srgbClr val="EA6175"/>
                         </a:solidFill>
                         <a:ln cmpd="sng">
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                         </a:ln>
                     </c:spPr>
@@ -29309,7 +29309,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="0"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29322,7 +29322,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="1"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="3188E6"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29335,7 +29335,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="2"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="AEC7E8"/>
+                                <a:srgbClr val="056BD9"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29348,7 +29348,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="3"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FFBB78"/>
+                                <a:srgbClr val="155193"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29361,7 +29361,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="4"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="2CA02C"/>
+                                <a:srgbClr val="A76DBC"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29374,7 +29374,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="5"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="98DF8A"/>
+                                <a:srgbClr val="7F4295"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29387,7 +29387,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="6"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="D62728"/>
+                                <a:srgbClr val="6D2387"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29400,7 +29400,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="7"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FF9896"/>
+                                <a:srgbClr val="4F1565"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29413,7 +29413,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="8"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="9467BD"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29426,7 +29426,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="9"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="C5B0D5"/>
+                                <a:srgbClr val="CE4257"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29439,7 +29439,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="10"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="8C564B"/>
+                                <a:srgbClr val="982738"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29452,7 +29452,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="11"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="C49C94"/>
+                                <a:srgbClr val="791B29"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29465,7 +29465,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="12"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="E377C2"/>
+                                <a:srgbClr val="43C5B1"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29478,7 +29478,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="13"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="F7B6D2"/>
+                                <a:srgbClr val="00A78D"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29491,7 +29491,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="14"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="7F7F7F"/>
+                                <a:srgbClr val="0E8270"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29504,7 +29504,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="15"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="C7C7C7"/>
+                                <a:srgbClr val="105F53"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29517,7 +29517,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="16"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="BCBD22"/>
+                                <a:srgbClr val="F4A261"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29530,7 +29530,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="17"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="DBDB8D"/>
+                                <a:srgbClr val="F48935"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29543,7 +29543,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="18"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="17BECF"/>
+                                <a:srgbClr val="BE5D10"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29556,7 +29556,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="19"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="9EDAE5"/>
+                                <a:srgbClr val="7D380D"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29569,7 +29569,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="20"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="8481DD"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29582,7 +29582,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="21"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="5752D1"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29595,7 +29595,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="22"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="AEC7E8"/>
+                                <a:srgbClr val="3A3580"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29643,7 +29643,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="0"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29656,7 +29656,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="1"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="3188E6"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29669,7 +29669,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="2"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="AEC7E8"/>
+                                <a:srgbClr val="056BD9"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29682,7 +29682,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="3"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FFBB78"/>
+                                <a:srgbClr val="155193"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29695,7 +29695,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="4"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="2CA02C"/>
+                                <a:srgbClr val="A76DBC"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29708,7 +29708,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="5"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="98DF8A"/>
+                                <a:srgbClr val="7F4295"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29721,7 +29721,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="6"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="D62728"/>
+                                <a:srgbClr val="6D2387"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29734,7 +29734,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="7"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FF9896"/>
+                                <a:srgbClr val="4F1565"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29747,7 +29747,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="8"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="9467BD"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29760,7 +29760,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="9"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="C5B0D5"/>
+                                <a:srgbClr val="CE4257"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29773,7 +29773,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="10"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="8C564B"/>
+                                <a:srgbClr val="982738"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29786,7 +29786,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="11"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="C49C94"/>
+                                <a:srgbClr val="791B29"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29799,7 +29799,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="12"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="E377C2"/>
+                                <a:srgbClr val="43C5B1"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29812,7 +29812,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="13"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="F7B6D2"/>
+                                <a:srgbClr val="00A78D"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29825,7 +29825,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="14"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="7F7F7F"/>
+                                <a:srgbClr val="0E8270"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29838,7 +29838,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="15"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="C7C7C7"/>
+                                <a:srgbClr val="105F53"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29851,7 +29851,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="16"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="BCBD22"/>
+                                <a:srgbClr val="F4A261"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29864,7 +29864,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="17"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="DBDB8D"/>
+                                <a:srgbClr val="F48935"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29877,7 +29877,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="18"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="17BECF"/>
+                                <a:srgbClr val="BE5D10"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29890,7 +29890,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="19"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="9EDAE5"/>
+                                <a:srgbClr val="7D380D"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29903,7 +29903,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="20"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="8481DD"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29916,7 +29916,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="21"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="5752D1"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29929,7 +29929,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="22"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="AEC7E8"/>
+                                <a:srgbClr val="3A3580"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29942,7 +29942,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="23"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FFBB78"/>
+                                <a:srgbClr val="26235F"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29955,7 +29955,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="24"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="2CA02C"/>
+                                <a:srgbClr val="A4A8B6"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29968,7 +29968,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="25"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="98DF8A"/>
+                                <a:srgbClr val="7E8290"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29981,7 +29981,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="26"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="D62728"/>
+                                <a:srgbClr val="545B70"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -29994,7 +29994,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="27"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FF9896"/>
+                                <a:srgbClr val="3F4250"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30007,7 +30007,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="28"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="9467BD"/>
+                                <a:srgbClr val="FFD86D"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30020,7 +30020,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="29"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="C5B0D5"/>
+                                <a:srgbClr val="FFBC2C"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30033,7 +30033,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="30"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="8C564B"/>
+                                <a:srgbClr val="C08A16"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30046,7 +30046,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="31"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="C49C94"/>
+                                <a:srgbClr val="936A12"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30059,7 +30059,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="32"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="E377C2"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30072,7 +30072,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="33"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="F7B6D2"/>
+                                <a:srgbClr val="3188E6"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30085,7 +30085,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="34"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="7F7F7F"/>
+                                <a:srgbClr val="056BD9"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30098,7 +30098,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="35"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="C7C7C7"/>
+                                <a:srgbClr val="155193"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30111,7 +30111,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="36"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="BCBD22"/>
+                                <a:srgbClr val="A76DBC"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30124,7 +30124,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="37"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="DBDB8D"/>
+                                <a:srgbClr val="7F4295"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30137,7 +30137,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="38"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="17BECF"/>
+                                <a:srgbClr val="6D2387"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30150,7 +30150,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="39"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="9EDAE5"/>
+                                <a:srgbClr val="4F1565"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30163,7 +30163,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="40"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30176,7 +30176,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="41"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="CE4257"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30189,7 +30189,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="42"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="AEC7E8"/>
+                                <a:srgbClr val="982738"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30202,7 +30202,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="43"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FFBB78"/>
+                                <a:srgbClr val="791B29"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30215,7 +30215,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="44"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="2CA02C"/>
+                                <a:srgbClr val="43C5B1"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30228,7 +30228,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="45"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="98DF8A"/>
+                                <a:srgbClr val="00A78D"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30241,7 +30241,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="46"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="D62728"/>
+                                <a:srgbClr val="0E8270"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30254,7 +30254,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="47"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FF9896"/>
+                                <a:srgbClr val="105F53"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30267,7 +30267,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="48"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="9467BD"/>
+                                <a:srgbClr val="F4A261"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30280,7 +30280,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="49"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="C5B0D5"/>
+                                <a:srgbClr val="F48935"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30293,7 +30293,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="50"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="8C564B"/>
+                                <a:srgbClr val="BE5D10"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30306,7 +30306,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="51"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="C49C94"/>
+                                <a:srgbClr val="7D380D"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30319,7 +30319,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="52"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="E377C2"/>
+                                <a:srgbClr val="8481DD"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30332,7 +30332,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="53"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="F7B6D2"/>
+                                <a:srgbClr val="5752D1"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30345,7 +30345,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="54"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="7F7F7F"/>
+                                <a:srgbClr val="3A3580"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30358,7 +30358,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="55"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="C7C7C7"/>
+                                <a:srgbClr val="26235F"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30371,7 +30371,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="56"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="BCBD22"/>
+                                <a:srgbClr val="A4A8B6"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30384,7 +30384,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="57"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="DBDB8D"/>
+                                <a:srgbClr val="7E8290"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30397,7 +30397,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="58"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="17BECF"/>
+                                <a:srgbClr val="545B70"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30410,7 +30410,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="59"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="9EDAE5"/>
+                                <a:srgbClr val="3F4250"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30423,7 +30423,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="60"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="FFD86D"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30436,7 +30436,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="61"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="FFBC2C"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30449,7 +30449,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="62"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="AEC7E8"/>
+                                <a:srgbClr val="C08A16"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30462,7 +30462,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="63"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FFBB78"/>
+                                <a:srgbClr val="936A12"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30475,7 +30475,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="64"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="2CA02C"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30488,7 +30488,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="65"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="98DF8A"/>
+                                <a:srgbClr val="3188E6"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30501,7 +30501,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="66"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="D62728"/>
+                                <a:srgbClr val="056BD9"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30514,7 +30514,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="67"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FF9896"/>
+                                <a:srgbClr val="155193"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30527,7 +30527,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="68"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="9467BD"/>
+                                <a:srgbClr val="A76DBC"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30540,7 +30540,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="69"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="C5B0D5"/>
+                                <a:srgbClr val="7F4295"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30553,7 +30553,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="70"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="8C564B"/>
+                                <a:srgbClr val="6D2387"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30566,7 +30566,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="71"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="C49C94"/>
+                                <a:srgbClr val="4F1565"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30579,7 +30579,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="72"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="E377C2"/>
+                                <a:srgbClr val="EA6175"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30592,7 +30592,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="73"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="F7B6D2"/>
+                                <a:srgbClr val="CE4257"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30605,7 +30605,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="74"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="7F7F7F"/>
+                                <a:srgbClr val="982738"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30618,7 +30618,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="75"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="C7C7C7"/>
+                                <a:srgbClr val="791B29"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30631,7 +30631,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="76"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="BCBD22"/>
+                                <a:srgbClr val="43C5B1"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30644,7 +30644,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="77"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="DBDB8D"/>
+                                <a:srgbClr val="00A78D"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30657,7 +30657,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="78"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="17BECF"/>
+                                <a:srgbClr val="0E8270"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30670,7 +30670,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="79"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="9EDAE5"/>
+                                <a:srgbClr val="105F53"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30683,7 +30683,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="80"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="1F77B4"/>
+                                <a:srgbClr val="F4A261"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30696,7 +30696,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="81"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FF7F0E"/>
+                                <a:srgbClr val="F48935"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30709,7 +30709,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="82"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="AEC7E8"/>
+                                <a:srgbClr val="BE5D10"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30722,7 +30722,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="83"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FFBB78"/>
+                                <a:srgbClr val="7D380D"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30735,7 +30735,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="84"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="2CA02C"/>
+                                <a:srgbClr val="8481DD"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30748,7 +30748,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="85"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="98DF8A"/>
+                                <a:srgbClr val="5752D1"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30761,7 +30761,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="86"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="D62728"/>
+                                <a:srgbClr val="3A3580"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30774,7 +30774,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="87"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="FF9896"/>
+                                <a:srgbClr val="26235F"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30787,7 +30787,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="88"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="9467BD"/>
+                                <a:srgbClr val="A4A8B6"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30800,7 +30800,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="89"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="C5B0D5"/>
+                                <a:srgbClr val="7E8290"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30813,7 +30813,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="90"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="8C564B"/>
+                                <a:srgbClr val="545B70"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30826,7 +30826,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="91"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="C49C94"/>
+                                <a:srgbClr val="3F4250"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30839,7 +30839,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="92"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="E377C2"/>
+                                <a:srgbClr val="FFD86D"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30852,7 +30852,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="93"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="F7B6D2"/>
+                                <a:srgbClr val="FFBC2C"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30865,7 +30865,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="94"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="7F7F7F"/>
+                                <a:srgbClr val="C08A16"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30878,7 +30878,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="95"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="C7C7C7"/>
+                                <a:srgbClr val="936A12"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30891,7 +30891,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="96"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="BCBD22"/>
+                                <a:srgbClr val="4EA7F2"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>
@@ -30904,7 +30904,7 @@ exports[`Test XLSX export references with headers should be converted to referen
                         <c:idx val="97"/>
                         <c:spPr>
                             <a:solidFill>
-                                <a:srgbClr val="DBDB8D"/>
+                                <a:srgbClr val="3188E6"/>
                             </a:solidFill>
                             <a:ln cmpd="sng" w="14288">
                                 <a:solidFill>

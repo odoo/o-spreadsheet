@@ -1,5 +1,5 @@
 import { Component, useState } from "@odoo/owl";
-import { getNthColor, setColorAlpha, toHex } from "../../../../helpers";
+import { getColorsPalette, getNthColor, setColorAlpha, toHex } from "../../../../helpers";
 import { getDefinedAxis } from "../../../../helpers/figures/charts";
 import { _t } from "../../../../translation";
 import {
@@ -97,7 +97,7 @@ export class ChartWithAxisDesignPanel extends Component<Props, SpreadsheetChildE
       return "";
     }
     const color = dataSets[this.state.index].backgroundColor;
-    return color ? toHex(color) : getNthColor(this.state.index);
+    return color ? toHex(color) : getNthColor(this.state.index, getColorsPalette(dataSets.length));
   }
 
   updateDataSeriesAxis(ev) {

@@ -26,7 +26,6 @@ import { ComboChartDefinition, ComboChartRuntime } from "../../../types/chart/co
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
-import { ColorGenerator } from "../../color";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
@@ -40,6 +39,7 @@ import {
   createDataSets,
   formatTickValue,
   getChartAxisTitleRuntime,
+  getChartColorsGenerator,
   getDefinedAxis,
   getTrendDatasetForBarChart,
   shouldRemoveFirstLabel,
@@ -313,7 +313,7 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
     callback: formatTickValue({ format: mainDataSetFormat, locale }),
   };
 
-  const colors = new ColorGenerator();
+  const colors = getChartColorsGenerator(definition, dataSetsValues.length);
   let maxLength = 0;
   const trendDatasets: any[] = [];
 
@@ -323,8 +323,8 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
     const dataset: ChartDataset<"bar" | "line", number[]> = {
       label: design?.label ?? label,
       data,
-      borderColor: design?.backgroundColor ?? color,
-      backgroundColor: design.backgroundColor ?? color,
+      borderColor: color,
+      backgroundColor: color,
       yAxisID: design?.yAxisId ?? "y",
       type: index === 0 ? "bar" : "line",
       order: -index,

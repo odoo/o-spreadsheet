@@ -201,7 +201,7 @@ export class SelectionInputStore extends SpreadsheetStore {
    * e.g. ["A1", "Sheet2!B3", "E12"]
    */
   get selectionInputs(): (RangeInputValue & { isFocused: boolean; isValidRange: boolean })[] {
-    const generator = new ColorGenerator(this.colors);
+    const generator = new ColorGenerator(this.ranges.length, this.colors);
     return this.ranges.map((input, index) =>
       Object.assign({}, input, {
         color:
@@ -303,7 +303,7 @@ export class SelectionInputStore extends SpreadsheetStore {
    */
   private insertNewRange(index: number, values: string[]) {
     const currentMaxId = Math.max(0, ...this.ranges.map((range) => Number(range.id)));
-    const colors = new ColorGenerator(this.colors);
+    const colors = new ColorGenerator(this.ranges.length, this.colors);
     for (let i = 0; i < index; i++) {
       colors.next();
     }

@@ -343,45 +343,116 @@ export function darkenColor(color: Color, percentage: number): Color {
   return hslaToHex(hsla);
 }
 
-const ColorsList = [
-  // the same colors as those used in odoo reporting
-  "rgb(31,119,180)",
-  "rgb(255,127,14)",
-  "rgb(174,199,232)",
-  "rgb(255,187,120)",
-  "rgb(44,160,44)",
-  "rgb(152,223,138)",
-  "rgb(214,39,40)",
-  "rgb(255,152,150)",
-  "rgb(148,103,189)",
-  "rgb(197,176,213)",
-  "rgb(140,86,75)",
-  "rgb(196,156,148)",
-  "rgb(227,119,194)",
-  "rgb(247,182,210)",
-  "rgb(127,127,127)",
-  "rgb(199,199,199)",
-  "rgb(188,189,34)",
-  "rgb(219,219,141)",
-  "rgb(23,190,207)",
-  "rgb(158,218,229)",
+const COLORS_SM = [
+  "#4EA7F2", // Blue
+  "#EA6175", // Red
+  "#43C5B1", // Teal
+  "#F4A261", // Orange
+  "#8481DD", // Purple
+  "#FFD86D", // Yellow
+];
+const COLORS_MD = [
+  "#4EA7F2", // Blue #1
+  "#3188E6", // Blue #2
+  "#43C5B1", // Teal #1
+  "#00A78D", // Teal #2
+  "#EA6175", // Red #1
+  "#CE4257", // Red #2
+  "#F4A261", // Orange #1
+  "#F48935", // Orange #2
+  "#8481DD", // Purple #1
+  "#5752D1", // Purple #2
+  "#FFD86D", // Yellow #1
+  "#FFBC2C", // Yellow #2
+];
+const COLORS_LG = [
+  "#4EA7F2", // Blue #1
+  "#3188E6", // Blue #2
+  "#056BD9", // Blue #3
+  "#A76DBC", // Violet #1
+  "#7F4295", // Violet #2
+  "#6D2387", // Violet #3
+  "#EA6175", // Red #1
+  "#CE4257", // Red #2
+  "#982738", // Red #3
+  "#43C5B1", // Teal #1
+  "#00A78D", // Teal #2
+  "#0E8270", // Teal #3
+  "#F4A261", // Orange #1
+  "#F48935", // Orange #2
+  "#BE5D10", // Orange #3
+  "#8481DD", // Purple #1
+  "#5752D1", // Purple #2
+  "#3A3580", // Purple #3
+  "#A4A8B6", // Gray #1
+  "#7E8290", // Gray #2
+  "#545B70", // Gray #3
+  "#FFD86D", // Yellow #1
+  "#FFBC2C", // Yellow #2
+  "#C08A16", // Yellow #3
+];
+const COLORS_XL = [
+  "#4EA7F2", // Blue #1
+  "#3188E6", // Blue #2
+  "#056BD9", // Blue #3
+  "#155193", // Blue #4
+  "#A76DBC", // Violet #1
+  "#7F4295", // Violet #1
+  "#6D2387", // Violet #1
+  "#4F1565", // Violet #1
+  "#EA6175", // Red #1
+  "#CE4257", // Red #2
+  "#982738", // Red #3
+  "#791B29", // Red #4
+  "#43C5B1", // Teal #1
+  "#00A78D", // Teal #2
+  "#0E8270", // Teal #3
+  "#105F53", // Teal #4
+  "#F4A261", // Orange #1
+  "#F48935", // Orange #2
+  "#BE5D10", // Orange #3
+  "#7D380D", // Orange #4
+  "#8481DD", // Purple #1
+  "#5752D1", // Purple #2
+  "#3A3580", // Purple #3
+  "#26235F", // Purple #4
+  "#A4A8B6", // Grey #1
+  "#7E8290", // Grey #2
+  "#545B70", // Grey #3
+  "#3F4250", // Grey #4
+  "#FFD86D", // Yellow #1
+  "#FFBC2C", // Yellow #2
+  "#C08A16", // Yellow #3
+  "#936A12", // Yellow #4
 ];
 
-export function getNthColor(index: number): Color {
-  return ColorsList[index % ColorsList.length];
+export function getNthColor(index: number, palette: Color[]): Color {
+  return palette[index % palette.length];
+}
+
+export function getColorsPalette(quantity: number) {
+  if (quantity <= 6) {
+    return COLORS_SM;
+  } else if (quantity <= 12) {
+    return COLORS_MD;
+  } else if (quantity <= 24) {
+    return COLORS_LG;
+  } else {
+    return COLORS_XL;
+  }
 }
 
 export class ColorGenerator {
   private currentColorIndex = 0;
-  private colors: string[];
+  private palette: Color[];
 
-  constructor(colors: string[] = []) {
-    this.colors = colors;
+  constructor(paletteSize: number, private preferredColors: (string | undefined)[] = []) {
+    this.palette = getColorsPalette(paletteSize).filter((c) => !preferredColors.includes(c));
   }
 
   next(): string {
-    return this.colors?.[this.currentColorIndex]
-      ? this.colors[this.currentColorIndex++]
-      : getNthColor(this.currentColorIndex++);
+    return this.preferredColors?.[this.currentColorIndex]
+      ? this.preferredColors[this.currentColorIndex++]!
+      : getNthColor(this.currentColorIndex++, this.palette);
   }
 }

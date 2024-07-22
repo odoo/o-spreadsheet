@@ -1,6 +1,6 @@
 import type { ChartDataset, LegendOptions } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
-import { BACKGROUND_CHART_COLOR } from "../../../constants";
+import { BACKGROUND_CHART_COLOR, BORDER_CHART_COLOR } from "../../../constants";
 import {
   AddColumnsRowsCommand,
   ApplyRangeChange,
@@ -26,7 +26,6 @@ import { LegendPosition } from "../../../types/chart/common_chart";
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
-import { ColorGenerator } from "../../color";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
@@ -40,6 +39,7 @@ import {
   createDataSets,
   formatTickValue,
   getChartAxisTitleRuntime,
+  getChartColorsGenerator,
   getDefinedAxis,
   getTrendDatasetForBarChart,
   shouldRemoveFirstLabel,
@@ -316,27 +316,21 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
     callback: formatTickValue(localeFormat),
   };
 
-  const colors = new ColorGenerator();
-
-  const trendDatasets: any[] = [];
-
   const definition = chart.getDefinition();
+  const colors = getChartColorsGenerator(definition, dataSetsValues.length);
+  const trendDatasets: any[] = [];
   for (const index in dataSetsValues) {
     const { label, data } = dataSetsValues[index];
     const color = colors.next();
     const dataset: ChartDataset<"bar", number[]> = {
       label,
       data,
-      borderColor: color,
+      borderColor: BORDER_CHART_COLOR,
+      borderWidth: 1,
       backgroundColor: color,
     };
     config.data.datasets.push(dataset);
 
-    if (definition.dataSets?.[index]?.backgroundColor) {
-      const color = definition.dataSets[index].backgroundColor;
-      dataset.backgroundColor = color;
-      dataset.borderColor = color;
-    }
     if (definition.dataSets?.[index]?.label) {
       const label = definition.dataSets[index].label;
       dataset.label = label;

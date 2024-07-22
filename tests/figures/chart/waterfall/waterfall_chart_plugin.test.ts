@@ -228,8 +228,18 @@ describe("Waterfall chart", () => {
     expect(
       runtime.chartJsConfig.options?.plugins?.legend?.labels?.generateLabels?.({} as any)
     ).toEqual([
-      { text: "Positive values", fillStyle: CHART_WATERFALL_POSITIVE_COLOR, fontColor },
-      { text: "Negative values", fillStyle: CHART_WATERFALL_NEGATIVE_COLOR, fontColor },
+      {
+        text: "Positive values",
+        fillStyle: CHART_WATERFALL_POSITIVE_COLOR,
+        strokeStyle: CHART_WATERFALL_POSITIVE_COLOR,
+        fontColor,
+      },
+      {
+        text: "Negative values",
+        fillStyle: CHART_WATERFALL_NEGATIVE_COLOR,
+        strokeStyle: CHART_WATERFALL_NEGATIVE_COLOR,
+        fontColor,
+      },
     ]);
 
     updateChart(model, chartId, { showSubTotals: true });
@@ -237,9 +247,24 @@ describe("Waterfall chart", () => {
     expect(
       runtime.chartJsConfig.options?.plugins?.legend?.labels?.generateLabels?.({} as any)
     ).toEqual([
-      { text: "Positive values", fillStyle: CHART_WATERFALL_POSITIVE_COLOR, fontColor },
-      { text: "Negative values", fillStyle: CHART_WATERFALL_NEGATIVE_COLOR, fontColor },
-      { text: "Subtotals", fillStyle: CHART_WATERFALL_SUBTOTAL_COLOR, fontColor },
+      {
+        text: "Positive values",
+        fillStyle: CHART_WATERFALL_POSITIVE_COLOR,
+        strokeStyle: CHART_WATERFALL_POSITIVE_COLOR,
+        fontColor,
+      },
+      {
+        text: "Negative values",
+        fillStyle: CHART_WATERFALL_NEGATIVE_COLOR,
+        strokeStyle: CHART_WATERFALL_NEGATIVE_COLOR,
+        fontColor,
+      },
+      {
+        text: "Subtotals",
+        fillStyle: CHART_WATERFALL_SUBTOTAL_COLOR,
+        strokeStyle: CHART_WATERFALL_SUBTOTAL_COLOR,
+        fontColor,
+      },
     ]);
 
     updateChart(model, chartId, {

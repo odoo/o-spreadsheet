@@ -195,7 +195,7 @@ describe("Selection Input", () => {
     selectCell(model, "B4");
     await nextTick();
     expect(fixture.querySelector("input")!.value).toBe("B4");
-    const colorGenerator = new ColorGenerator();
+    const colorGenerator = new ColorGenerator(2);
     const color = colorGenerator.next();
     expect(fixture.querySelector("input")!.getAttribute("style")).toBe(`color: ${color};`);
     simulateClick(".o-add-selection");
@@ -217,7 +217,7 @@ describe("Selection Input", () => {
     simulateClick(".o-add-selection");
     selectCell(model, "B5");
     await nextTick();
-    const colorGenerator = new ColorGenerator();
+    const colorGenerator = new ColorGenerator(2);
     colorGenerator.next(); //the first generated color is skipped in favor of the props color
     const secondColor = colorGenerator.next();
     expect(fixture.querySelectorAll("input")[0].value).toBe("B4");
