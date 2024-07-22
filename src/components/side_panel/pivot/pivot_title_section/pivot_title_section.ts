@@ -1,4 +1,5 @@
 import { Component } from "@odoo/owl";
+import { ActionSpec } from "../../../../actions/action";
 import { _t } from "../../../../translation";
 import { SpreadsheetChildEnv, UID } from "../../../../types";
 import { CogWheelMenu } from "../../components/cog_wheel_menu/cog_wheel_menu";
@@ -18,22 +19,22 @@ export class PivotTitleSection extends Component<Props, SpreadsheetChildEnv> {
     flipAxis: Function,
   };
 
-  get cogWheelMenuItems() {
+  get cogWheelMenuItems(): ActionSpec[] {
     return [
       {
         name: _t("Flip axes"),
-        icon: "fa-exchange",
-        onClick: this.props.flipAxis,
+        icon: "o-spreadsheet-Icon.EXCHANGE",
+        execute: this.props.flipAxis,
       },
       {
         name: _t("Duplicate"),
-        icon: "fa-copy",
-        onClick: () => this.duplicatePivot(),
+        icon: "o-spreadsheet-Icon.COPY",
+        execute: () => this.duplicatePivot(),
       },
       {
         name: _t("Delete"),
-        icon: "fa-trash",
-        onClick: () => this.delete(),
+        icon: "o-spreadsheet-Icon.TRASH",
+        execute: () => this.delete(),
       },
     ];
   }

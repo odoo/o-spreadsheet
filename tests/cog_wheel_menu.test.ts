@@ -18,8 +18,9 @@ async function mountCogWheelMenu(
 }
 
 const SELECTORS = {
-  COG: ".os-cog-wheel-menu-icon",
-  MENU: ".os-cog-wheel-menu",
+  COG: ".fa-cog",
+  MENU: ".o-menu",
+  MENU_ITEM: ".o-menu-item",
 };
 
 describe("CogWheelMenu", () => {
@@ -28,48 +29,36 @@ describe("CogWheelMenu", () => {
     expect(fixture).toMatchSnapshot();
   });
 
-  test("Clicking on the cog wheel menu opens the menu", async () => {
+  test("Clicking on the cog wheel menu toggles the menu", async () => {
     const { fixture } = await mountCogWheelMenu({
-      items: [
-        {
-          name: "test",
-          onClick: () => {},
-        },
-      ],
+      items: [{ name: "test", execute: () => {} }],
     });
-    expect(fixture.querySelector(".os-cog-wheel-menu")).toBeNull();
+    expect(fixture.querySelector(SELECTORS.MENU)).toBeNull();
     await click(fixture, SELECTORS.COG);
-    expect(fixture.querySelector(".os-cog-wheel-menu")).toBeTruthy();
-    expect(fixture.querySelectorAll(SELECTORS.MENU)).toHaveLength(1);
+    expect(fixture.querySelector(SELECTORS.MENU)).toBeTruthy();
+    expect(fixture.querySelectorAll(SELECTORS.MENU_ITEM)).toHaveLength(1);
+
+    await click(fixture, SELECTORS.COG);
+    expect(fixture.querySelector(SELECTORS.MENU)).toBeNull();
   });
 
   test("Clicking on an item execute the action", async () => {
-    const onClick = jest.fn();
+    const execute = jest.fn();
     const { fixture } = await mountCogWheelMenu({
-      items: [
-        {
-          name: "test",
-          onClick,
-        },
-      ],
+      items: [{ name: "test", execute }],
     });
     await click(fixture, SELECTORS.COG);
-    await click(fixture, `${SELECTORS.MENU} div`);
+    await click(fixture, SELECTORS.MENU_ITEM);
+    expect(execute).toHaveBeenCalled();
   });
 
   test("Clicking outside closes the menu", async () => {
-    const onClick = jest.fn();
     const { fixture } = await mountCogWheelMenu({
-      items: [
-        {
-          name: "test",
-          onClick,
-        },
-      ],
+      items: [{ name: "test", execute: () => {} }],
     });
     await click(fixture, SELECTORS.COG);
-    expect(fixture.querySelector(".os-cog-wheel-menu")).toBeTruthy();
+    expect(fixture.querySelector(SELECTORS.MENU)).toBeTruthy();
     await click(document.body);
-    expect(fixture.querySelector(".os-cog-wheel-menu")).toBeNull();
+    expect(fixture.querySelector(SELECTORS.MENU)).toBeNull();
   });
 });

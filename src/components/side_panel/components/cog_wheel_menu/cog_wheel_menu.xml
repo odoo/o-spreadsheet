@@ -1,18 +1,13 @@
 <templates>
   <t t-name="o-spreadsheet-CogWheelMenu">
-    <span class="fa fa-cog os-cog-wheel-menu-icon" t-on-click="togglePopover" t-ref="button"/>
-    <Popover t-if="popover.isOpen" t-props="popoverProps">
-      <div class="d-flex flex-column align-items-start os-cog-wheel-menu my-2">
-        <div
-          t-foreach="props.items"
-          t-as="item"
-          t-key="item.name"
-          t-on-click="() => this.onClick(item)"
-          class="btn btn-link me-3">
-          <i t-if="item.icon" t-att-class="'me-2 fa ' + item.icon"/>
-          <t t-esc="item.name"/>
-        </div>
-      </div>
-    </Popover>
+    <span class="fa fa-cog os-cog-wheel-menu-icon" t-on-click="toggleMenu" t-ref="button"/>
+    <Menu
+      t-if="menuState.isOpen"
+      menuId="menuId"
+      position="menuState.position"
+      menuItems="menuState.menuItems"
+      onClose="() => this.menuState.isOpen=false"
+      width="160"
+    />
   </t>
 </templates>

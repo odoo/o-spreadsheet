@@ -1,68 +1,40 @@
-import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
+import { Component, useRef, useState } from "@odoo/owl";
+import { ActionSpec, createActions } from "../../../../actions/action";
+import { MenuMouseEvent } from "../../../../types";
 import { SpreadsheetChildEnv } from "../../../../types/env";
 import { css } from "../../../helpers";
-import { Popover } from "../../../popover";
-
-interface CogWheelMenuItem {
-  name: string;
-  icon?: string;
-  onClick: () => void;
-}
+import { Menu, MenuState } from "../../../menu/menu";
 
 interface Props {
-  items: CogWheelMenuItem[];
+  items: ActionSpec[];
 }
 
 css/* scss */ `
   .os-cog-wheel-menu-icon {
     cursor: pointer;
   }
-
-  .os-cog-wheel-menu {
-    background: white;
-    .btn-link {
-      text-decoration: none;
-      color: #017e84;
-      font-weight: 500;
-      &:hover {
-        color: #01585c;
-      }
-    }
-  }
 `;
 
 export class CogWheelMenu extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-CogWheelMenu";
-  static components = { Popover };
+  static components = { Menu };
   static props = {
     items: Array,
   };
 
   private buttonRef = useRef("button");
-  private popover = useState({ isOpen: false });
+  private menuState: MenuState = useState({ isOpen: false, position: null, menuItems: [] });
 
-  setup() {
-    useExternalListener(window, "click", (ev) => {
-      if (ev.target !== this.buttonRef.el) {
-        this.popover.isOpen = false;
-      }
-    });
-  }
+  private menuId = this.env.model.uuidGenerator.uuidv4();
 
-  onClick(item: CogWheelMenuItem) {
-    item.onClick();
-    this.popover.isOpen = false;
-  }
+  toggleMenu(ev: MenuMouseEvent) {
+    if (ev.closedMenuId === this.menuId) {
+      return;
+    }
 
-  get popoverProps() {
-    const { x, y, width, height } = this.buttonRef.el!.getBoundingClientRect();
-    return {
-      anchorRect: { x, y, width, height },
-      positioning: "BottomLeft",
-    };
-  }
-
-  togglePopover() {
-    this.popover.isOpen = !this.popover.isOpen;
+    const { x, y } = this.buttonRef.el!.getBoundingClientRect();
+    this.menuState.isOpen = !this.menuState.isOpen;
+    this.menuState.position = { x, y };
+    this.menuState.menuItems = createActions(this.props.items);
   }
 }

@@ -18,7 +18,7 @@ import {
   MENU_WIDTH,
 } from "../../constants";
 import { DOMCoordinates, MenuMouseEvent, Pixel, SpreadsheetChildEnv, UID } from "../../types";
-import { css } from "../helpers/css";
+import { css, cssPropertiesToCss } from "../helpers/css";
 import { getOpenedMenus, isChildEvent } from "../helpers/dom_helpers";
 import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { useTimeOut } from "../helpers/time_hooks";
@@ -89,6 +89,7 @@ interface Props {
   onMenuClicked?: (ev: CustomEvent) => void;
   menuId?: UID;
   onMouseOver?: () => void;
+  width?: number;
 }
 
 export interface MenuState {
@@ -111,6 +112,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     onMenuClicked: { type: Function, optional: true },
     menuId: { type: String, optional: true },
     onMouseOver: { type: Function, optional: true },
+    width: { type: Number, optional: true },
   };
 
   static components = { Menu, Popover };
@@ -178,9 +180,9 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     const isRoot = this.props.depth === 1;
     return {
       anchorRect: {
-        x: this.props.position.x - MENU_WIDTH * (this.props.depth - 1),
+        x: this.props.position.x,
         y: this.props.position.y,
-        width: isRoot ? 0 : MENU_WIDTH,
+        width: isRoot ? 0 : this.props.width || MENU_WIDTH,
         height: isRoot ? 0 : MENU_ITEM_HEIGHT,
       },
       positioning: "TopRight",
@@ -264,7 +266,7 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     const y = parentMenuEl.getBoundingClientRect().top;
 
     this.subMenu.position = {
-      x: this.position.x + this.props.depth * MENU_WIDTH,
+      x: this.position.x,
       y: y - (this.subMenu.scrollOffset || 0),
     };
     this.subMenu.menuItems = menu.children(this.env);
@@ -328,5 +330,9 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
     this.openingTimeOut.schedule(this.closeSubMenu.bind(this), TIMEOUT_DELAY);
     this.hoveredMenu = undefined;
     menu.onStopHover?.(this.env);
+  }
+
+  get menuStyle() {
+    return this.props.width ? cssPropertiesToCss({ width: this.props.width + "px" }) : "";
   }
 }

@@ -152,6 +152,7 @@ function getSubMenuSize(depth = 1) {
 interface ContextMenuTestConfig {
   onClose?: () => void;
   menuItems?: Action[];
+  menuWidth?: number;
 }
 
 async function renderContextMenu(
@@ -196,6 +197,7 @@ class ContextMenuParent extends Component {
         onClose="() => this.onClose()"
         position="position"
         menuItems="menus"
+        width="props.config.menuWidth"
       />
     </div>
   `;
@@ -692,6 +694,15 @@ describe("Context Menu internal tests", () => {
     triggerMouseEvent("div[data-name='menuItem']", "mouseenter");
     parent.__owl__.destroy();
     expect(onStopHover).toHaveBeenCalled();
+  });
+
+  test("Can set the menu size with the props", async () => {
+    await renderContextMenu(300, 300, { menuItems: subMenu, menuWidth: 100 });
+    const rootMenuEl = fixture.querySelector<HTMLElement>(".o-menu")!;
+    expect(getStylePropertyInPx(rootMenuEl, "width")).toBe(100);
+    await mouseOverMenuElement(".o-menu div[data-name='root']");
+    const childMenu = fixture.querySelectorAll<HTMLElement>(".o-menu")[1]!;
+    expect(getStylePropertyInPx(childMenu, "width")).toBe(100);
   });
 });
 

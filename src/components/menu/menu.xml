@@ -4,6 +4,7 @@
       <div
         t-ref="menu"
         class="o-menu"
+        t-att-style="menuStyle"
         t-on-scroll="onScroll"
         t-on-wheel.stop=""
         t-on-click.stop=""
@@ -63,6 +64,7 @@
         onClose.bind="close"
         menuId="props.menuId"
         onMouseOver.bind="onMouseOverChildMenu"
+        width="props.width"
       />
     </Popover>
   </t>

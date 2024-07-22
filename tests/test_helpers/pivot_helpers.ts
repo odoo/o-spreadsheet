@@ -58,8 +58,8 @@ export function removePivot(model: Model, pivotId: UID) {
 }
 
 export const SELECTORS = {
-  COG_WHEEL: ".os-cog-wheel-menu-icon",
-  DUPLICATE_PIVOT: ".os-cog-wheel-menu .fa-copy",
-  DELETE_PIVOT: ".os-cog-wheel-menu .fa-trash",
-  FLIP_AXIS_PIVOT: ".os-cog-wheel-menu .fa-exchange",
+  COG_WHEEL: ".fa-cog",
+  DUPLICATE_PIVOT: ".o-menu .fa-clone",
+  DELETE_PIVOT: ".o-menu .fa-trash-o",
+  FLIP_AXIS_PIVOT: ".o-menu .fa-exchange",
 };
