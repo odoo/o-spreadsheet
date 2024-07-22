@@ -99,16 +99,13 @@ css/* scss */ `
   }
   .o-cf-color-scale-editor {
     .o-threshold {
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      align-items: center;
       select {
-        width: 100%;
+        max-width: 200px;
       }
       .o-threshold-value {
         margin-left: 6px;
-        width: 20%;
+        flex-grow: 1;
+        flex-basis: 60%;
         min-width: 0px; // input overflows in Firefox otherwise
       }
       .o-threshold-value input:disabled {
@@ -124,14 +121,14 @@ css/* scss */ `
   .o-cf-iconset-rule {
     font-size: 12;
     .o-cf-iconsets {
-      display: flex;
-      justify-content: space-between;
+      gap: 11px;
       .o-cf-iconset {
         border: 1px solid #dadce0;
         border-radius: 4px;
         display: inline-flex;
         padding: 5px 8px;
-        width: 25%;
+        width: 95px;
+        box-sizing: border-box;
         cursor: pointer;
         justify-content: space-between;
         .o-cf-icon {
@@ -159,7 +156,6 @@ css/* scss */ `
         background-color: rgba(0, 0, 0, 0.08);
       }
       table {
-        table-layout: fixed;
         margin-top: 6px;
         display: table;
         text-align: left;
@@ -168,19 +164,16 @@ css/* scss */ `
         width: 100%;
       }
       th.o-cf-iconset-icons {
-        width: 8%;
+        width: 25px;
       }
       th.o-cf-iconset-text {
-        width: 28%;
+        width: 82px;
       }
       th.o-cf-iconset-operator {
-        width: 14%;
+        width: 40px;
       }
-      th.o-cf-iconset-type {
-        width: 28%;
-      }
-      th.o-cf-iconset-value {
-        width: 26%;
+      .o-cf-iconset-type {
+        min-width: 80px;
       }
     }
     .o-cf-iconset-reverse {

@@ -2,9 +2,9 @@
   <t t-name="o-spreadsheet-IconSets">
     <div>
       <div class="o-section-subtitle">Icons</div>
-      <div class="o-cf-iconsets">
+      <div class="o-cf-iconsets d-flex flex-row">
         <div
-          class="o-cf-iconset"
+          class="o-cf-iconset d-flex flex-row justify-content-between"
           t-foreach="['arrows', 'smiley', 'dots']"
           t-as="iconSet"
           t-key="iconSet"
@@ -75,7 +75,7 @@
           <th class="o-cf-iconset-icons"/>
           <th class="o-cf-iconset-text"/>
           <th class="o-cf-iconset-operator"/>
-          <th class="o-cf-iconset-value">Value</th>
+          <th>Value</th>
           <th class="o-cf-iconset-type">Type</th>
         </tr>
         <t t-call="o-spreadsheet-IconSetInflexionPointRow">
