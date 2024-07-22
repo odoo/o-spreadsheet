@@ -258,9 +258,11 @@ export class PivotUIPlugin extends UIPlugin {
 
   setupPivot(pivotId: UID, { recreate } = { recreate: false }) {
     const definition = this.getters.getPivotCoreDefinition(pivotId);
-    if (recreate || !(pivotId in this.pivots)) {
+    if (!(pivotId in this.pivots)) {
       const Pivot = pivotRegistry.get(definition.type).ui;
       this.pivots[pivotId] = new Pivot(this.custom, { definition, getters: this.getters });
+    } else if (recreate) {
+      this.pivots[pivotId].onDefinitionChange(definition);
     }
   }
 

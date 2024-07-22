@@ -26,7 +26,7 @@ import {
 import { InitPivotParams, Pivot } from "../../../types/pivot_runtime";
 import { toXC } from "../../coordinates";
 import { isDateTimeFormat } from "../../format";
-import { isDefined } from "../../misc";
+import { deepEquals, isDefined } from "../../misc";
 import {
   AGGREGATORS_FN,
   areDomainArgsFieldsValid,
@@ -49,6 +49,23 @@ interface SpreadsheetPivotParams extends PivotParams {
   definition: SpreadsheetPivotCoreDefinition;
 }
 
+interface MetaData {
+  fields: PivotFields;
+  /**
+   * This array contains the keys of the fields. It is used to keep the order
+   * of the fields as they are in the range.
+   */
+  fieldKeys: TechnicalName[];
+}
+
+enum ReloadType {
+  NONE = 0,
+  TABLE = 1,
+  DATA = 2,
+  DEFINITION = 3,
+  ALL = 4,
+}
+
 /**
  * This class represents a pivot table that is created from a range of cells.
  * It will extract the fields from the first row of the range and the data from
@@ -59,17 +76,12 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
   private getters: Getters;
   private _definition: SpreadsheetPivotRuntimeDefinition | undefined;
   private coreDefinition: SpreadsheetPivotCoreDefinition;
+  private metaData: MetaData = { fields: {}, fieldKeys: [] };
   /**
    * This array contains the data entries of the pivot. Each entry is an object
    * that contains the values of the fields for a row.
    */
   private dataEntries: DataEntries = [];
-  private fields: PivotFields = {};
-  /**
-   * This array contains the keys of the fields. It is used to keep the order
-   * of the fields as they are in the range.
-   */
-  private fieldKeys: TechnicalName[] = [];
   /**
    * This object contains the pivot table structure. It is created from the
    * data entries and the pivot definition.
@@ -94,35 +106,46 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
 
   init(params: InitPivotParams = {}) {
     if (!this._definition || params.reload) {
-      this.invalidRangeError = undefined;
-      if (this.coreDefinition.dataSet) {
-        const { zone, sheetId } = this.coreDefinition.dataSet;
-        const range = this.getters.getRangeFromZone(sheetId, zone);
-        try {
-          ({ fields: this.fields, fieldKeys: this.fieldKeys } = this.extractFieldsFromRange(range));
-        } catch (e) {
-          this.fields = {};
-          this.fieldKeys = [];
-          this.invalidRangeError = e;
-        }
-      } else {
-        this.invalidRangeError = new EvaluationError(
-          _t("The pivot cannot be created because the dataset is missing.")
-        );
-      }
-      this._definition = new SpreadsheetPivotRuntimeDefinition(
-        this.coreDefinition,
-        this.fields,
-        this.getters
-      );
-      this.table = undefined;
-      this.dataEntries = [];
-      const range = this._definition.range;
-      if (this.isValid() && range) {
-        this.dataEntries = this.extractDataEntriesFromRange(range);
-      }
+      this.reload(ReloadType.ALL);
       this.needsReevaluation = false;
     }
+  }
+
+  reload(type: ReloadType) {
+    if (type === ReloadType.ALL) {
+      this.metaData = this.loadMetaData();
+    }
+    if (type >= ReloadType.DEFINITION) {
+      this._definition = this.loadRuntimeDefinition();
+    }
+    if (type >= ReloadType.DATA) {
+      this.dataEntries = this.loadData();
+    }
+    if (type >= ReloadType.TABLE) {
+      this.table = undefined;
+    }
+  }
+
+  onDefinitionChange(nextDefinition: SpreadsheetPivotCoreDefinition) {
+    const actualDefinition = this.coreDefinition;
+    this.coreDefinition = nextDefinition;
+    if (this._definition) {
+      const reloadType = Math.max(
+        this.computeShouldReload(actualDefinition, nextDefinition),
+        ReloadType.NONE
+      );
+      this.reload(reloadType);
+    }
+  }
+
+  private computeShouldReload(
+    actualDefinition: SpreadsheetPivotCoreDefinition,
+    nextDefinition: SpreadsheetPivotCoreDefinition
+  ): ReloadType {
+    if (deepEquals(actualDefinition.dataSet, nextDefinition.dataSet)) {
+      return ReloadType.DEFINITION;
+    }
+    return ReloadType.ALL;
   }
 
   get isInvalidRange() {
@@ -291,7 +314,39 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
   }
 
   getFields(): PivotFields {
-    return this.fields;
+    return this.metaData.fields;
+  }
+
+  get fields(): PivotFields {
+    return this.getFields();
+  }
+
+  private loadMetaData(): MetaData {
+    this.invalidRangeError = undefined;
+    if (this.coreDefinition.dataSet) {
+      const { zone, sheetId } = this.coreDefinition.dataSet;
+      const range = this.getters.getRangeFromZone(sheetId, zone);
+      try {
+        return this.extractFieldsFromRange(range);
+      } catch (e) {
+        this.invalidRangeError = e;
+        return { fields: {}, fieldKeys: [] };
+      }
+    } else {
+      this.invalidRangeError = new EvaluationError(
+        _t("The pivot cannot be created because the dataset is missing.")
+      );
+      return { fields: {}, fieldKeys: [] };
+    }
+  }
+
+  private loadRuntimeDefinition() {
+    return new SpreadsheetPivotRuntimeDefinition(this.coreDefinition, this.fields, this.getters);
+  }
+
+  private loadData() {
+    const range = this._definition?.range;
+    return this.isValid() && range ? this.extractDataEntriesFromRange(range) : [];
   }
 
   private getTypeOfDimension(fieldWithGranularity: string): string {
@@ -364,7 +419,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
    * Create the fields from the given range. It will extract all the fields from
    * the first row of the range.
    */
-  private extractFieldsFromRange(range: Range) {
+  private extractFieldsFromRange(range: Range): MetaData {
     const fields: PivotFields = {};
     const fieldKeys: TechnicalName[] = [];
     const sheetId = range.sheetId;
@@ -414,9 +469,9 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
       const entry: DataEntry = {};
       for (const index in cells) {
         const cell = cells[index];
-        const field = this.fields[this.fieldKeys[index]];
+        const field = this.fields[this.metaData.fieldKeys[index]];
         if (!field) {
-          throw new Error(`Field ${this.fieldKeys[index]} does not exist`);
+          throw new Error(`Field ${this.metaData.fieldKeys[index]} does not exist`);
         }
         if (cell.value === "") {
           entry[field.name] = { value: null, type: CellValueType.empty };
