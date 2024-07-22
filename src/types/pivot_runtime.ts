@@ -17,6 +17,7 @@ export interface Pivot<T = PivotRuntimeDefinition> {
   definition: T;
   init(params?: InitPivotParams): void;
   isValid(): boolean;
+  onDefinitionChange(nextDefinition: PivotCoreDefinition): void;
 
   getTableStructure(): SpreadsheetPivotTable;
   getFields(): PivotFields;
