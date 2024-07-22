@@ -68,9 +68,9 @@ describe("line chart", () => {
     updateChart(model, "chartId", { fillArea: true });
     runtime = model.getters.getChartRuntime("chartId") as any;
     expect(runtime.chartJsConfig.data.datasets[0].fill).toBe("origin");
-    expect(runtime.chartJsConfig.data.datasets[0].backgroundColor).toBe("#1F77B466");
+    expect(runtime.chartJsConfig.data.datasets[0].backgroundColor).toBe("#4EA7F266");
     expect(runtime.chartJsConfig.data.datasets[1].fill).toBe("origin");
-    expect(runtime.chartJsConfig.data.datasets[1].backgroundColor).toBe("#FF7F0E66");
+    expect(runtime.chartJsConfig.data.datasets[1].backgroundColor).toBe("#EA617566");
     expect(isChartAxisStacked(model, "chartId", "x")).toBeUndefined();
     expect(isChartAxisStacked(model, "chartId", "y")).toBeUndefined();
   });
@@ -88,9 +88,9 @@ describe("line chart", () => {
     updateChart(model, "chartId", { fillArea: true, stacked: true });
     runtime = model.getters.getChartRuntime("chartId") as any;
     expect(runtime.chartJsConfig.data.datasets[0].fill).toBe("origin");
-    expect(runtime.chartJsConfig.data.datasets[0].backgroundColor).toBe("#1F77B466");
+    expect(runtime.chartJsConfig.data.datasets[0].backgroundColor).toBe("#4EA7F266");
     expect(runtime.chartJsConfig.data.datasets[1].fill).toBe("-1"); // fill until the previous dataset
-    expect(runtime.chartJsConfig.data.datasets[1].backgroundColor).toBe("#FF7F0E66");
+    expect(runtime.chartJsConfig.data.datasets[1].backgroundColor).toBe("#EA617566");
     expect(isChartAxisStacked(model, "chartId", "x")).toBeUndefined();
     expect(isChartAxisStacked(model, "chartId", "y")).toBe(true);
   });

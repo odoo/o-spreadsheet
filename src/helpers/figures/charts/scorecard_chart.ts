@@ -180,8 +180,8 @@ export class ScorecardChart extends AbstractChart {
     this.baselineMode = definition.baselineMode;
     this.baselineDescr = definition.baselineDescr;
     this.background = definition.background;
-    this.baselineColorUp = definition.baselineColorUp;
-    this.baselineColorDown = definition.baselineColorDown;
+    this.baselineColorUp = definition.baselineColorUp ?? DEFAULT_SCORECARD_BASELINE_COLOR_UP;
+    this.baselineColorDown = definition.baselineColorDown ?? DEFAULT_SCORECARD_BASELINE_COLOR_DOWN;
     this.humanize = definition.humanize ?? false;
   }
 

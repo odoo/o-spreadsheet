@@ -234,7 +234,7 @@ function addBarChart(chart: ExcelChartDefinition): XMLString {
   // overlap and gapWitdh seems to be by default at -20 and 20 in chart.js.
   // See https://www.chartjs.org/docs/latest/charts/bar.html and https://www.chartjs.org/docs/latest/charts/bar.html#barpercentage-vs-categorypercentage
   const dataSetsColors = chart.dataSets.map((ds) => ds.backgroundColor ?? "");
-  const colors = new ColorGenerator(dataSetsColors);
+  const colors = new ColorGenerator(chart.dataSets.length, dataSetsColors);
   const leftDataSetsNodes: XMLString[] = [];
   const rightDataSetsNodes: XMLString[] = [];
   for (const [dsIndex, dataset] of Object.entries(chart.dataSets)) {
@@ -332,7 +332,7 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
   // See https://www.chartjs.org/docs/latest/charts/bar.html and https://www.chartjs.org/docs/latest/charts/bar.html#barpercentage-vs-categorypercentage
   const dataSets = chart.dataSets;
   const dataSetsColors = dataSets.map((ds) => ds.backgroundColor ?? "");
-  const colors = new ColorGenerator(dataSetsColors);
+  const colors = new ColorGenerator(dataSets.length, dataSetsColors);
   let dataSet = dataSets[0];
   const firstColor = toXlsxHexColor(colors.next());
   const useRightAxisForBarSerie = dataSet.rightYAxis ?? false;
@@ -473,7 +473,7 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
 
 function addLineChart(chart: ExcelChartDefinition): XMLString {
   const dataSetsColors = chart.dataSets.map((ds) => ds.backgroundColor ?? "");
-  const colors = new ColorGenerator(dataSetsColors);
+  const colors = new ColorGenerator(chart.dataSets.length, dataSetsColors);
   const leftDataSetsNodes: XMLString[] = [];
   const rightDataSetsNodes: XMLString[] = [];
   for (const [dsIndex, dataset] of Object.entries(chart.dataSets)) {
@@ -568,7 +568,7 @@ function addLineChart(chart: ExcelChartDefinition): XMLString {
 
 function addScatterChart(chart: ExcelChartDefinition): XMLString {
   const dataSetsColors = chart.dataSets.map((ds) => ds.backgroundColor ?? "");
-  const colors = new ColorGenerator(dataSetsColors);
+  const colors = new ColorGenerator(chart.dataSets.length, dataSetsColors);
   const leftDataSetsNodes: XMLString[] = [];
   const rightDataSetsNodes: XMLString[] = [];
   for (const [dsIndex, dataset] of Object.entries(chart.dataSets)) {
@@ -665,11 +665,10 @@ function addDoughnutChart(
   data: ExcelWorkbookData,
   { holeSize } = { holeSize: 50 }
 ) {
-  const colors = new ColorGenerator();
-
   const maxLength = largeMax(
     chart.dataSets.map((ds) => getRangeSize(ds.range, chartSheetIndex, data))
   );
+  const colors = new ColorGenerator(maxLength);
   const doughnutColors: string[] = range(0, maxLength).map(() => toXlsxHexColor(colors.next()));
 
   const dataSetsNodes: XMLString[] = [];

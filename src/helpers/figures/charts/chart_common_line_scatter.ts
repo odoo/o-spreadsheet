@@ -10,7 +10,7 @@ import {
   TrendConfiguration,
 } from "../../../types/chart/chart";
 import { getChartTimeOptions, timeFormatLuxonCompatible } from "../../chart_date";
-import { ColorGenerator, colorToRGBA, rgbaToHex } from "../../color";
+import { colorToRGBA, rgbaToHex } from "../../color";
 import { formatValue } from "../../format";
 import { deepCopy, findNextDefinedValue, range } from "../../misc";
 import { isNumber } from "../../numbers";
@@ -20,6 +20,7 @@ import {
   computeChartPadding,
   formatTickValue,
   getChartAxisTitleRuntime,
+  getChartColorsGenerator,
   getDefinedAxis,
   getFullTrendingLineDataSet,
   interpolateData,
@@ -340,8 +341,8 @@ export function createLineOrScatterChartRuntime(
   const stackedChart = "stacked" in chart ? chart.stacked : false;
   const cumulative = "cumulative" in chart ? chart.cumulative : false;
 
-  const colors = new ColorGenerator();
   const definition = chart.getDefinition();
+  const colors = getChartColorsGenerator(definition, dataSetsValues.length);
   for (let [index, { label, data }] of dataSetsValues.entries()) {
     const color = colors.next();
     let backgroundRGBA = colorToRGBA(color);
@@ -381,13 +382,6 @@ export function createLineOrScatterChartRuntime(
   const trendDatasets: any[] = [];
 
   for (const [index, dataset] of config.data.datasets.entries()) {
-    if (definition.dataSets?.[index]?.backgroundColor) {
-      const color = definition.dataSets[index].backgroundColor;
-      dataset.backgroundColor = color;
-      dataset.borderColor = color;
-      //@ts-ignore
-      dataset.pointBackgroundColor = color;
-    }
     if (definition.dataSets?.[index]?.label) {
       const label = definition.dataSets[index].label;
       dataset.label = label;

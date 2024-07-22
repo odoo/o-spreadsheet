@@ -33,7 +33,7 @@ import {
   TrendConfiguration,
 } from "../../../types/chart/chart";
 import { CellErrorType } from "../../../types/errors";
-import { lightenColor, relativeLuminance } from "../../color";
+import { ColorGenerator, lightenColor, relativeLuminance } from "../../color";
 import { formatValue } from "../../format";
 import { isDefined, range } from "../../misc";
 import { copyRangeWithNewSheetId } from "../../range";
@@ -505,6 +505,7 @@ export function getFullTrendingLineDataSet(
     backgroundColor,
     borderColor: backgroundColor,
     borderDash: [5, 5],
+    borderWidth: undefined,
   };
 }
 
@@ -558,4 +559,11 @@ export function formatTickValue(localeFormat: LocaleFormat) {
       format: !format && Math.abs(value) >= 1000 ? "#,##" : format,
     });
   };
+}
+
+export function getChartColorsGenerator(definition: ChartWithAxisDefinition, dataSetsSize: number) {
+  return new ColorGenerator(
+    dataSetsSize,
+    definition.dataSets.map((ds) => ds.backgroundColor)
+  );
 }

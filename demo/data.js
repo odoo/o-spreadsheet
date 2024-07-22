@@ -243,8 +243,6 @@ export const demoData = {
           width: 465,
           tag: "chart",
           data: {
-            baselineColorDown: "#E06666",
-            baselineColorUp: "#6AA84F",
             baselineMode: "absolute",
             title: { text: "Scorecard" },
             type: "scorecard",

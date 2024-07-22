@@ -243,14 +243,25 @@ function getWaterfallConfiguration(
     labels: {
       generateLabels: () => {
         const legendValues = [
-          { text: _t("Positive values"), fontColor, fillStyle: positiveColor },
-          { text: _t("Negative values"), fontColor, fillStyle: negativeColor },
+          {
+            text: _t("Positive values"),
+            fontColor,
+            fillStyle: positiveColor,
+            strokeStyle: positiveColor,
+          },
+          {
+            text: _t("Negative values"),
+            fontColor,
+            fillStyle: negativeColor,
+            strokeStyle: negativeColor,
+          },
         ];
         if (chart.showSubTotals || chart.firstValueAsSubtotal) {
           legendValues.push({
             text: _t("Subtotals"),
             fontColor,
             fillStyle: subTotalColor,
+            strokeStyle: subTotalColor,
           });
         }
         return legendValues;

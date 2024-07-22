@@ -326,13 +326,15 @@ export function createPieChartRuntime(chart: PieChart, getters: Getters): PieCha
   const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
   const locale = getters.getLocale();
   const config = getPieConfiguration(chart, labels, { format: dataSetFormat, locale });
-  const backgroundColor = getPieColors(new ColorGenerator(), dataSetsValues);
+  const dataSetsLength = Math.max(0, ...dataSetsValues.map((ds) => ds?.data?.length ?? 0));
+  const backgroundColor = getPieColors(new ColorGenerator(dataSetsLength), dataSetsValues);
   for (const { label, data } of dataSetsValues) {
     const dataset: ChartDataset = {
       label,
       data,
-      borderColor: "#FFFFFF",
+      borderColor: BACKGROUND_CHART_COLOR,
       backgroundColor,
+      hoverOffset: 30,
     };
     config.data!.datasets!.push(dataset);
   }
