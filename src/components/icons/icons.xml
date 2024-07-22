@@ -583,7 +583,11 @@
       <i class="fa fa-refresh"/>
     </div>
   </t>
-
+  <t t-name="o-spreadsheet-Icon.EXCHANGE">
+    <div class="o-icon">
+      <i class="fa fa-exchange"/>
+    </div>
+  </t>
   <t t-name="o-spreadsheet-Icon.ARROW_DOWN">
     <svg
       class="o-cf-icon arrow-down"

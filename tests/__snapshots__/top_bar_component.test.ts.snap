@@ -615,6 +615,7 @@ exports[`TopBar component can set cell format 1`] = `
     >
       <div
         class="o-menu"
+        style=""
       >
         
         <div
