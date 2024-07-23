@@ -157,6 +157,8 @@ css/* scss */ `
 
     .o-sidePanel-handle-container {
       width: 8px;
+      position: fixed;
+      top: 50%;
     }
     .o-sidePanel-handle {
       cursor: col-resize;

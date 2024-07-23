@@ -6,7 +6,7 @@
         <div class="o-sidePanelClose" t-on-click="close">✕</div>
       </div>
       <div class="o-sidePanelBody-container d-flex flex-grow-1 ">
-        <div class="o-sidePanel-handle-container d-flex align-items-center">
+        <div class="o-sidePanel-handle-container">
           <div
             class="o-sidePanel-handle"
             t-on-pointerdown="startHandleDrag"

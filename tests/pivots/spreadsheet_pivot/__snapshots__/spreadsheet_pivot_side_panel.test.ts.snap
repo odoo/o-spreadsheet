@@ -22,7 +22,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
     class="o-sidePanelBody-container d-flex flex-grow-1 "
   >
     <div
-      class="o-sidePanel-handle-container d-flex align-items-center"
+      class="o-sidePanel-handle-container"
     >
       <div
         class="o-sidePanel-handle"
@@ -239,7 +239,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
     class="o-sidePanelBody-container d-flex flex-grow-1 "
   >
     <div
-      class="o-sidePanel-handle-container d-flex align-items-center"
+      class="o-sidePanel-handle-container"
     >
       <div
         class="o-sidePanel-handle"
