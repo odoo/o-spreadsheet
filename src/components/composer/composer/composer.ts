@@ -18,6 +18,7 @@ import {
 } from "../../../types/index";
 import { css, cssPropertiesToCss } from "../../helpers/css";
 import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
+import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { updateSelectionWithArrowKeys } from "../../helpers/selection_helpers";
 import { TextValueProvider } from "../autocomplete_dropdown/autocomplete_dropdown";
 import { AutoCompleteStore } from "../autocomplete_dropdown/autocomplete_dropdown_store";
@@ -172,8 +173,10 @@ export class CellComposer extends Component<CellComposerProps, SpreadsheetChildE
     argToFocus: 0,
   });
   private compositionActive: boolean = false;
+  private spreadsheetRect = useSpreadsheetRect();
 
   get assistantStyle(): string {
+    const composerRect = this.composerRef.el!.getBoundingClientRect();
     const assistantStyle: CSSProperties = {};
 
     assistantStyle["min-width"] = `${this.props.rect?.width || ASSISTANT_WIDTH}px`;
@@ -201,6 +204,9 @@ export class CellComposer extends Component<CellComposerProps, SpreadsheetChildE
       }
     } else if (this.props.delimitation) {
       assistantStyle["max-height"] = `${this.props.delimitation.height}px`;
+      if (composerRect.left + ASSISTANT_WIDTH > this.spreadsheetRect.width) {
+        assistantStyle.right = `0px`;
+      }
     }
     return cssPropertiesToCss(assistantStyle);
   }
