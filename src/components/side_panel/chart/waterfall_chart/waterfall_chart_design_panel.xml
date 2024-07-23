@@ -13,19 +13,12 @@
             onChange.bind="updateVerticalAxisPosition"
           />
         </Section>
-        <Section title.translate="Legend position">
-          <select
-            t-att-value="props.definition.legendPosition"
-            class="o-input o-chart-legend-position"
-            t-on-change="(ev) => this.updateLegendPosition(ev)">
-            <option value="none">None</option>
-            <option value="top">Top</option>
-            <option value="bottom">Bottom</option>
-            <option value="left">Left</option>
-            <option value="right">Right</option>
-          </select>
-        </Section>
-        <Section title.translate="Values">
+        <ChartLegend
+          figureId="props.figureId"
+          definition="props.definition"
+          updateChart="props.updateChart"
+        />
+        <Section class="'pt-0'" title.translate="Values">
           <Checkbox
             name="'showValues'"
             label.translate="Show values"
