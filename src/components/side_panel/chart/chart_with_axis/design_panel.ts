@@ -15,6 +15,7 @@ import {
   AxisDesignEditor,
 } from "../building_blocks/axis_design/axis_design_editor";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
+import { ChartLegend } from "../building_blocks/legend/legend";
 import { SeriesWithAxisDesignEditor } from "../building_blocks/series_design/series_with_axis_design_editor";
 
 interface Props {
@@ -39,6 +40,7 @@ export class ChartWithAxisDesignPanel<P extends Props = Props> extends Component
     AxisDesignEditor,
     Checkbox,
     SeriesWithAxisDesignEditor,
+    ChartLegend,
   };
   static props = {
     figureId: String,
@@ -57,11 +59,5 @@ export class ChartWithAxisDesignPanel<P extends Props = Props> extends Component
       axes.push({ id: "y1", name: useLeftAxis ? _t("Right axis") : _t("Vertical axis") });
     }
     return axes;
-  }
-
-  updateLegendPosition(ev) {
-    this.props.updateChart(this.props.figureId, {
-      legendPosition: ev.target.value,
-    });
   }
 }

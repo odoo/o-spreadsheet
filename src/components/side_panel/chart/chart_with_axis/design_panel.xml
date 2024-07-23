@@ -5,18 +5,11 @@
       definition="props.definition"
       updateChart="props.updateChart">
       <t t-set-slot="general-extension">
-        <Section class="'pt-0'" title.translate="Legend position">
-          <select
-            t-att-value="props.definition.legendPosition ?? 'top'"
-            class="o-input"
-            t-on-change="this.updateLegendPosition">
-            <option value="none">None</option>
-            <option value="top">Top</option>
-            <option value="bottom">Bottom</option>
-            <option value="left">Left</option>
-            <option value="right">Right</option>
-          </select>
-        </Section>
+        <ChartLegend
+          figureId="props.figureId"
+          definition="props.definition"
+          updateChart="props.updateChart"
+        />
         <Section class="'pt-0'" title.translate="Values">
           <Checkbox
             name="'showValues'"
