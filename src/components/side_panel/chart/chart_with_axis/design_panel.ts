@@ -15,6 +15,7 @@ import {
   AxisDesignEditor,
 } from "../building_blocks/axis_design/axis_design_editor";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
+import { ChartLegend } from "../building_blocks/legend/legend";
 import { SeriesWithAxisDesignEditor } from "../building_blocks/series_design/series_with_axis_design_editor";
 
 interface Props {
@@ -39,6 +40,7 @@ export class ChartWithAxisDesignPanel<P extends Props = Props> extends Component
     AxisDesignEditor,
     Checkbox,
     SeriesWithAxisDesignEditor,
+    ChartLegend,
   };
   static props = {
     figureId: String,

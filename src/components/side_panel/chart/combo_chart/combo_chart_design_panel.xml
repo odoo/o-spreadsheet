@@ -33,14 +33,14 @@
       <t t-set-slot="general-extension" t-slot-scope="scope">
         <t t-set="index" t-value="scope.index"/>
         <Section class="'pt-0 o-series-type-selection'">
-            <t t-set-slot="title">Serie type</t>
-            <RadioSelection
-              choices="seriesTypeChoices"
-              selectedValue="getDataSeriesType(index)"
-              name="'seriesType'"
-              onChange="(type) => this.updateDataSeriesType(index, type)"
-            />
-          </Section>
+          <t t-set-slot="title">Serie type</t>
+          <RadioSelection
+            choices="seriesTypeChoices"
+            selectedValue="getDataSeriesType(index)"
+            name="'seriesType'"
+            onChange="(type) => this.updateDataSeriesType(index, type)"
+          />
+        </Section>
       </t>
     </SeriesWithAxisDesignEditor>
     <SidePanelCollapsible collapsedAtInit="true">
