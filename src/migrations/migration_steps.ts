@@ -11,7 +11,7 @@ import { Registry } from "../registries/registry";
 import { CustomizedDataSet, DEFAULT_LOCALE, Format, Zone } from "../types";
 import { normalizeV9 } from "./legacy_tools";
 
-interface MigrationStep {
+export interface MigrationStep {
   versionFrom: string;
   migrate: (data: any) => any;
 }
