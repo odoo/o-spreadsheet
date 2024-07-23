@@ -52,6 +52,7 @@ export class Session extends EventBus<CollaborativeEvent> {
   private uuidGenerator = new UuidGenerator();
   private lastLocalOperation: Revision | undefined;
   private longRunner: ILongRunner;
+
   /**
    * Manages the collaboration between multiple users on the same spreadsheet.
    * It can forward local state changes to other users to ensure they all eventually
@@ -149,7 +150,9 @@ export class Session extends EventBus<CollaborativeEvent> {
       this.clients["local"] = { id: "local", name: "local" };
       this.clientId = "local";
     }
-    this.transportService.onNewMessage(this.clientId, this.onMessageReceived.bind(this));
+    this.transportService.onNewMessage(this.clientId, (message) => {
+      this.longRunner.queueJob("catching up", [message], this.onMessageReceived.bind(this), 1);
+    });
   }
 
   loadInitialMessages(messages: StateUpdateMessage[]) {

@@ -719,16 +719,15 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 
   private setupLongRunnerEvents() {
-    if (this.config.mode === "normal") {
-      this.longRunner.on("job-started", this, () => {
-        this.updateMode("readonly");
-        this.trigger("update");
-      });
-      this.longRunner.on("job-done", this, () => {
-        this.updateMode("normal");
-        this.trigger("update");
-      });
-    }
+    // if (this.config.mode === "normal") {
+    //   this.longRunner.on("job-started", this, () => {
+    //     this.updateMode("readonly");
+    //     this.trigger("update");
+    //   });
+    this.longRunner.on("job-done", this, () => {
+      this.trigger("update");
+    });
+    // }
   }
 }
 
