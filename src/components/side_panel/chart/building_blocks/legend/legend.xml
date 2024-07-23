@@ -1,0 +1,17 @@
+<templates>
+  <t t-name="o-spreadsheet-ChartLegend">
+    <Section class="'pt-0'">
+      <t t-set-slot="title">Legend position</t>
+      <select
+        t-att-value="props.definition.legendPosition ?? 'top'"
+        class="o-input o-chart-legend-position"
+        t-on-change="this.updateLegendPosition">
+        <option value="none">None</option>
+        <option value="top">Top</option>
+        <option value="bottom">Bottom</option>
+        <option value="left">Left</option>
+        <option value="right">Right</option>
+      </select>
+    </Section>
+  </t>
+</templates>
