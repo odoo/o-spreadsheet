@@ -6,12 +6,14 @@ import { isEqual, rangeReference, splitReference, zoneToDimension } from "../../
 import { SelectionIndicator } from "../../../plugins/ui/edition";
 import {
   Color,
+  CSSProperties,
   DOMDimension,
   FunctionDescription,
   Rect,
   SpreadsheetChildEnv,
 } from "../../../types/index";
-import { css } from "../../helpers/css";
+import { css, cssPropertiesToCss } from "../../helpers/css";
+import { useSpreadsheetRect } from "../../helpers/position_hook";
 import {
   TextValueProvider,
   TextValueProviderApi,
@@ -133,6 +135,7 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
 
   composerRef = useRef("o_composer");
   private autocompleteAPI?: TextValueProviderApi;
+  private spreadsheetRect = useSpreadsheetRect();
 
   contentHelper: ContentEditableHelper = new ContentEditableHelper(this.composerRef.el!);
 
@@ -157,24 +160,30 @@ export class Composer extends Component<ComposerProps, SpreadsheetChildEnv> {
   private compositionActive: boolean = false;
 
   get assistantStyle(): string {
+    const composerRect = this.composerRef.el!.getBoundingClientRect();
+    const assistantStyle: CSSProperties = {
+      width: `${ASSISTANT_WIDTH}px`,
+    };
+
     if (this.props.delimitation && this.props.rect) {
       const { x: cellX, y: cellY, height: cellHeight } = this.props.rect;
       const remainingHeight = this.props.delimitation.height - (cellY + cellHeight);
-      let assistantStyle = "";
       if (cellY > remainingHeight) {
         // render top
-        assistantStyle += `
-          top: -8px;
-          transform: translate(0, -100%);
-        `;
+        assistantStyle.top = "-8px";
+        assistantStyle.transform = "translate(0, -100%)";
       }
       if (cellX + ASSISTANT_WIDTH > this.props.delimitation.width) {
         // render left
-        assistantStyle += `right:0px;`;
+        assistantStyle.right = "0px";
       }
-      return (assistantStyle += `width:${ASSISTANT_WIDTH}px;`);
+      return cssPropertiesToCss(assistantStyle);
     }
-    return `width:${ASSISTANT_WIDTH}px;`;
+
+    if (composerRect.left + ASSISTANT_WIDTH > this.spreadsheetRect.width) {
+      assistantStyle.right = "0px";
+    }
+    return cssPropertiesToCss(assistantStyle);
   }
 
   borderStyle = `box-shadow: 0 1px 4px 3px rgba(60, 64, 67, 0.15);`;
