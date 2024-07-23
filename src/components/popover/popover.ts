@@ -6,7 +6,7 @@ import {
   TOPBAR_HEIGHT,
 } from "../../constants";
 import { DOMCoordinates, DOMDimension, Pixel, SpreadsheetChildEnv } from "../../types";
-import { useSpreadsheetPosition } from "../helpers/position_hook";
+import { useSpreadsheetRect } from "../helpers/position_hook";
 
 interface Props {
   /**
@@ -41,7 +41,7 @@ export class Popover extends Component<Props, SpreadsheetChildEnv> {
     zIndex: ComponentsImportance.Popover,
   };
 
-  private spreadsheetPosition = useSpreadsheetPosition();
+  private spreadsheetRect = useSpreadsheetRect();
 
   get maxHeight(): number {
     return Math.max(0, this.viewportDimension.height - BOTTOMBAR_HEIGHT - SCROLLBAR_WIDTH);
@@ -51,8 +51,8 @@ export class Popover extends Component<Props, SpreadsheetChildEnv> {
     // the props's position is expressed relative to the "body" element
     // but we teleport the element in ".o-spreadsheet" to keep everything
     // within our control and to avoid leaking into external DOM
-    const horizontalPosition = `left:${this.horizontalPosition() - this.spreadsheetPosition.x}`;
-    const verticalPosition = `top:${this.verticalPosition() - this.spreadsheetPosition.y}`;
+    const horizontalPosition = `left:${this.horizontalPosition() - this.spreadsheetRect.x}`;
+    const verticalPosition = `top:${this.verticalPosition() - this.spreadsheetRect.y}`;
     const maxHeight = this.maxHeight;
     const height = `max-height:${maxHeight}`;
     const shadow = maxHeight !== 0 ? "box-shadow: 1px 2px 5px 2px rgb(51 51 51 / 15%);" : "";
