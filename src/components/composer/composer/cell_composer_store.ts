@@ -277,28 +277,19 @@ export class CellComposerStore extends AbstractComposerStore {
 
   private checkDataValidation(): boolean {
     const cellPosition = { sheetId: this.sheetId, col: this.col, row: this.row };
-    try {
-      const content = this.getCurrentCanonicalContent();
-      const cellValue = content.startsWith("=")
-        ? this.getters.evaluateFormula(this.sheetId, content)
-        : parseLiteral(content, this.getters.getLocale());
+    const content = this.getCurrentCanonicalContent();
+    const cellValue = content.startsWith("=")
+      ? this.getters.evaluateFormula(this.sheetId, content)
+      : parseLiteral(content, this.getters.getLocale());
 
-      if (isMatrix(cellValue)) {
-        return true;
-      }
-
-      const validationResult = this.getters.getValidationResultForCellValue(
-        cellValue,
-        cellPosition
-      );
-      if (!validationResult.isValid && validationResult.rule.isBlocking) {
-        return false;
-      }
-      return true;
-    } catch (e) {
-      // in this case we are in an error because we tried to evaluate a spread formula
-      // whether the rule is blocking or not, we accept to enter formulas which spread
+    if (isMatrix(cellValue)) {
       return true;
     }
+
+    const validationResult = this.getters.getValidationResultForCellValue(cellValue, cellPosition);
+    if (!validationResult.isValid && validationResult.rule.isBlocking) {
+      return false;
+    }
+    return true;
   }
 }
