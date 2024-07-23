@@ -16,6 +16,7 @@ import {
   AxisDesignEditor,
 } from "../building_blocks/axis_design/axis_design_editor";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
+import { LegendComponent } from "../building_blocks/legend/legend";
 import { Checkbox } from "./../../components/checkbox/checkbox";
 
 interface Props {
@@ -34,6 +35,7 @@ export class WaterfallChartDesignPanel extends Component<Props, SpreadsheetChild
     Section,
     RoundColorPicker,
     AxisDesignEditor,
+    LegendComponent,
   };
   static props = {
     figureId: String,
@@ -84,12 +86,6 @@ export class WaterfallChartDesignPanel extends Component<Props, SpreadsheetChild
       (this.props.definition as WaterfallChartDefinition).subTotalValuesColor ||
       CHART_WATERFALL_SUBTOTAL_COLOR
     );
-  }
-
-  updateLegendPosition(ev) {
-    this.props.updateChart(this.props.figureId, {
-      legendPosition: ev.target.value,
-    });
   }
 
   updateVerticalAxisPosition(ev) {

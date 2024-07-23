@@ -5,6 +5,7 @@ import { Checkbox } from "../../components/checkbox/checkbox";
 import { Section } from "../../components/section/section";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
 import { GeneralSeriesEditor } from "../building_blocks/general_series/general_serie_editor";
+import { LegendComponent } from "../building_blocks/legend/legend";
 
 interface Props {
   figureId: UID;
@@ -20,6 +21,7 @@ export class RadarChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
     GeneralSeriesEditor,
     Section,
     Checkbox,
+    LegendComponent,
   };
   static props = {
     figureId: String,
@@ -27,12 +29,6 @@ export class RadarChartDesignPanel extends Component<Props, SpreadsheetChildEnv>
     canUpdateChart: Function,
     updateChart: Function,
   };
-
-  updateLegendPosition(ev) {
-    this.props.updateChart(this.props.figureId, {
-      legendPosition: ev.target.value,
-    });
-  }
 
   shouldShowDataSerieArea(): boolean {
     return this.props.definition.fillArea ?? false;
