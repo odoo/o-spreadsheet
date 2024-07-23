@@ -1,10 +1,11 @@
-import { Model } from "../../src";
+import { LongRunner, Model } from "../../src";
 import { Session } from "../../src/collaborative/session";
-import { DEBOUNCE_TIME, MESSAGE_VERSION } from "../../src/constants";
+import { DEBOUNCE_TIME, DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../../src/constants";
 import { lazy } from "../../src/helpers";
 import { buildRevisionLog } from "../../src/history/factory";
 import { Client, CommandResult, WorkbookData } from "../../src/types";
 import { MockTransportService } from "../__mocks__/transport_service";
+import { getCell } from "../test_helpers";
 import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { nextTick } from "../test_helpers/helpers";
 
@@ -282,5 +283,40 @@ describe("Collaborative session", () => {
         message,
       ]);
     }).not.toThrow();
+  });
+});
+
+describe("collaborative session with async long runner", () => {
+  test("Receiving a revision while long-running is executing should queue this revision", async () => {
+    const transportService = new MockTransportService();
+    const longRunner = new LongRunner();
+
+    jest.useFakeTimers();
+
+    const model: Model = await Model.Build(
+      {},
+      { transportService: transportService, longRunner: longRunner }
+    );
+    longRunner.queueJob("long loop", new Array(10_000), () => {
+      jest.advanceTimersByTime(100);
+    });
+    transportService.sendMessage({
+      type: "REMOTE_REVISION",
+      version: MESSAGE_VERSION,
+      clientId: model.config.client.id,
+      nextRevisionId: "2",
+      serverRevisionId: DEFAULT_REVISION_ID,
+      commands: [
+        {
+          type: "UPDATE_CELL",
+          col: 0,
+          row: 0,
+          sheetId: "Sheet1",
+          content: "coucou",
+        },
+      ],
+    });
+    jest.runAllTimers();
+    expect(getCell(model, "a1")).toBe("coucou");
   });
 });
