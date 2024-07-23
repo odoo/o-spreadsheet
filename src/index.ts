@@ -342,6 +342,8 @@ export const helpers = {
   areDomainArgsFieldsValid,
 };
 
+export { LongRunner } from "./helpers/long_runner";
+
 export const links = {
   isMarkdownLink,
   parseMarkdownLink,

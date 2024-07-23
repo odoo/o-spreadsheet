@@ -20,7 +20,7 @@ describe("Data validation registry", () => {
   let getters: Getters;
   let sheetId: UID;
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
     getters = model.getters;
     sheetId = model.getters.getActiveSheetId();
   });

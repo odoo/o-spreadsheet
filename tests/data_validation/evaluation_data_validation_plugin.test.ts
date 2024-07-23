@@ -13,7 +13,7 @@ describe("Data validation evaluation", () => {
   let A1: CellPosition;
 
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
     sheetId = model.getters.getActiveSheetId();
     A1 = { sheetId, col: 0, row: 0 };
   });

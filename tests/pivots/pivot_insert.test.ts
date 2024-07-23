@@ -5,7 +5,7 @@ import { getCellText } from "../test_helpers/getters_helpers";
 
 describe("Insert pivot command", () => {
   test("Can insert a pivot in a cell", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     insertPivot(model, "A1", "pivot1", "Sheet2");
     expect(model.getters.getActiveSheetId()).toEqual("Sheet2");
     expect(getCellText(model, "A1")).toEqual("=PIVOT(1)");
@@ -14,13 +14,13 @@ describe("Insert pivot command", () => {
   });
 
   test("Can insert a pivot from a zone", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     insertPivot(model, "A1:B2", "pivot1", "Sheet2");
     expect(model.getters.getPivotCoreDefinition("pivot1")["dataSet"].zone).toEqual(toZone("A1:B2"));
   });
 
   test("Can insert a pivot from a contiguous zone", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       sheets: [
         {
           id: "Sheet1",

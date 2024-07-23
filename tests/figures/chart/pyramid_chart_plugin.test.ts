@@ -43,7 +43,7 @@ describe("population pyramid chart", () => {
 
   describe("Pyramid chart definition and runtime", () => {
     beforeEach(() => {
-      model = new Model();
+      model = Model.BuildSync();
     });
 
     test("We only keep the first two datasets", () => {

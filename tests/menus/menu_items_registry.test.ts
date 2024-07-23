@@ -1078,7 +1078,7 @@ describe("Menu Item actions", () => {
     });
 
     test("currency format with custom default currency", () => {
-      const model = new Model({}, { defaultCurrencyFormat: "[$€]#,##0.000" });
+      const model = Model.BuildSync({}, { defaultCurrencyFormat: "[$€]#,##0.000" });
       env = makeTestEnv({ model });
       const action = getNode(["format", "format_number", "format_number_currency"], env);
       expect(action.description(env)).toBe("€1,000.120");
@@ -1087,7 +1087,7 @@ describe("Menu Item actions", () => {
     });
 
     test("rounded currency format with custom default currency", () => {
-      const model = new Model({}, { defaultCurrencyFormat: "[$€]#,##0.000" });
+      const model = Model.BuildSync({}, { defaultCurrencyFormat: "[$€]#,##0.000" });
       env = makeTestEnv({ model });
       const action = getNode(["format", "format_number", "format_number_currency_rounded"], env);
       expect(action.description(env)).toBe("€1,000");
@@ -1096,14 +1096,14 @@ describe("Menu Item actions", () => {
     });
 
     test("rounded currency format is invisible if the custom default format is already rounded", () => {
-      const model = new Model({}, { defaultCurrencyFormat: "[$€]#,##0" });
+      const model = Model.BuildSync({}, { defaultCurrencyFormat: "[$€]#,##0" });
       env = makeTestEnv({ model });
       const action = getNode(["format", "format_number", "format_number_currency_rounded"], env);
       expect(action.isVisible(env)).toBe(false);
     });
 
     test("currency format description with locale and custom default currency", () => {
-      const model = new Model({}, { defaultCurrencyFormat: "[$€]#,##0.000" });
+      const model = Model.BuildSync({}, { defaultCurrencyFormat: "[$€]#,##0.000" });
       env = makeTestEnv({ model });
       updateLocale(model, FR_LOCALE);
       const action = getNode(["format", "format_number", "format_number_currency"], env);

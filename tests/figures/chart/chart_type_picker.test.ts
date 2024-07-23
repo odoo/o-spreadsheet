@@ -18,7 +18,7 @@ async function pointerDown(target: DOMTarget) {
 
 describe("Chart type picker component", () => {
   beforeEach(async () => {
-    model = new Model();
+    model = Model.BuildSync();
     createChart(model, { type: "bar" }, chartId);
     ({ store: chartPanelStore } = makeStoreWithModel(model, MainChartPanelStore));
     const props = { figureId: chartId, chartPanelStore };

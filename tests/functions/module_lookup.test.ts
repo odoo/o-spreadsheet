@@ -90,7 +90,7 @@ describe("COLUMN formula", () => {
   });
 
   test("functional test without grid context", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "kikoulol");
     expect(model.getters.evaluateFormula(sheetId, "=COLUMN()")).toBe("#ERROR"); // @compatibility: on google sheets, return #N/A
@@ -503,7 +503,7 @@ describe("ROW formula", () => {
   });
 
   test("functional test without grid context", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "kikoulol");
     expect(model.getters.evaluateFormula(sheetId, "=ROW()")).toBe("#ERROR"); // @compatibility: on google sheets, return #N/A
@@ -1508,7 +1508,7 @@ describe("INDIRECT formula", () => {
   });
 
   test("functional test without grid context", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const sheetId = model.getters.getActiveSheetId();
     setCellContent(model, "A1", "kikoulol");
     expect(model.getters.evaluateFormula(sheetId, "=INDIRECT()")).toBe("#BAD_EXPR"); // @compatibility: on google sheets, return #N/A
@@ -1572,7 +1572,7 @@ describe("INDIRECT formula", () => {
   });
 
   test("Dependencies are correctly evaluated", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       sheets: [
         {
           cells: {
@@ -1589,7 +1589,7 @@ describe("INDIRECT formula", () => {
   });
 
   test("Reference to a cell and range of a different sheet (A1 notation)", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const sheetId = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "sheet2", activate: true });
     setCellContent(model, "A1", "1");
@@ -1602,7 +1602,7 @@ describe("INDIRECT formula", () => {
   });
 
   test("Cell are correctly updated when changing referenced cells value", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A2", '=INDIRECT("A1")');
     setCellContent(model, "A3", '=INDIRECT("A"&A1)');
     expect(getCellContent(model, "A2")).toBe("0");

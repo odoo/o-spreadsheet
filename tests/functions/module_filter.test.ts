@@ -103,7 +103,7 @@ describe("FILTER function", () => {
   });
 
   test("FILTER with literals", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "D1", '=FILTER("hello", TRUE)');
     expect(getRangeValuesAsMatrix(model, "D1")).toEqual([["hello"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1")).toBeTruthy();
@@ -763,7 +763,7 @@ describe("SORT function", () => {
   });
 
   test("Sorting with missing 'order' argument", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "B1", "=SORT(A1:A2, 1)");
     expect(getRangeValuesAsMatrix(model, "B1")).toEqual([["#BAD_EXPR"]]);
     expect(checkFunctionDoesntSpreadBeyondRange(model, "B1")).toBeTruthy();
@@ -876,7 +876,7 @@ describe("SORTN function", () => {
   });
 
   test("Sorting with bad n argument", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A11", "=SORTN(A1:C10, -1, 0)");
     expect(getCellContent(model, "A11")).toEqual("#ERROR");
     expect(getCellError(model, "A11")).toBe(
@@ -901,7 +901,7 @@ describe("SORTN function", () => {
   });
 
   test.each(["-1", "4"])("Sorting with bad display ties mode argument", (mode) => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A11", `=SORTN(A1:C10, 1, ${mode})`);
     expect(getCellContent(model, "A11")).toEqual("#ERROR");
     expect(getCellError(model, "A11")).toBe(

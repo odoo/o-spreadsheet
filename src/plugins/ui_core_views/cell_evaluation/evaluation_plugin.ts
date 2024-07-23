@@ -161,7 +161,7 @@ export class EvaluationPlugin extends UIPlugin {
 
   constructor(config: UIPluginConfig) {
     super(config);
-    this.evaluator = new Evaluator(config.custom, this.getters);
+    this.evaluator = new Evaluator(config.custom, this.getters, config.longRunner);
   }
 
   // ---------------------------------------------------------------------------

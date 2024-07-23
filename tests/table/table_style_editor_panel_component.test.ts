@@ -29,7 +29,7 @@ function getTableStyleFromName(name: string): TableStyle | undefined {
 
 describe("Table style editor panel", () => {
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
   });
 
   test("Can create a new table style", async () => {

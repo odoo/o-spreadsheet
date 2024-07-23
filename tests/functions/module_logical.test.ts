@@ -166,7 +166,7 @@ describe("IFERROR formula", () => {
   });
 
   test("format is preserved from value", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "1");
     setCellFormat(model, "A1", "0.00%");
     setCellContent(model, "A3", "=IFERROR(A1, 2)");
@@ -174,7 +174,7 @@ describe("IFERROR formula", () => {
   });
 
   test("format is preserved from error value", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "1");
     setCellFormat(model, "A1", "0.00%");
     setCellContent(model, "A3", "=IFERROR(0/0, A1)");

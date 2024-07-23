@@ -21,7 +21,7 @@ function drawHighlight(highlight: Highlight) {
 
 describe("Highlight store", () => {
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
     sheetId = model.getters.getActiveSheetId();
     ({ store: highlightStore } = makeStoreWithModel(model, HighlightStore));
 

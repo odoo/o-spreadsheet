@@ -127,6 +127,7 @@ export const invalidateEvaluationCommands = new Set<CommandTypes>([
   "RENAME_PIVOT",
   "REMOVE_PIVOT",
   "DUPLICATE_PIVOT",
+  "UPDATE_CELLS_DONE",
 ]);
 
 export const invalidateDependenciesCommands = new Set<CommandTypes>(["MOVE_RANGES"]);
@@ -782,6 +783,10 @@ export interface EvaluateCellsCommand {
   type: "EVALUATE_CELLS";
 }
 
+export interface EvaluateCellsDoneCommand {
+  type: "UPDATE_CELLS_DONE";
+}
+
 export interface StartChangeHighlightCommand {
   type: "START_CHANGE_HIGHLIGHT";
   zone: Zone;
@@ -1077,6 +1082,7 @@ export type LocalCommand =
   | MoveColumnsRowsCommand
   | ActivateSheetCommand
   | EvaluateCellsCommand
+  | EvaluateCellsDoneCommand
   | StartChangeHighlightCommand
   | StartCommand
   | AutofillCommand

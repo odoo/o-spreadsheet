@@ -179,7 +179,7 @@ describe("Multi users synchronisation", () => {
       callback(nextMessage);
     });
     const data = alice.exportData();
-    const david = new Model(data, { transportService: transport }, [catchupMessage]);
+    const david = Model.BuildSync(data, { transportService: transport }, [catchupMessage]);
     expect(getCellContent(david, "A1")).toBe("second command");
   });
 
@@ -193,7 +193,7 @@ describe("Multi users synchronisation", () => {
       clientId: "alice",
       commands: [{ type: "DELETE_SHEET", sheetId }],
     };
-    const model = new Model(
+    const model = Model.BuildSync(
       {
         sheets: [{ id: sheetId }, { id: "sheet2" }],
         activeSheetId: sheetId,
@@ -525,7 +525,7 @@ describe("Multi users synchronisation", () => {
       commands,
     };
     // The message is received once as initial message and once from the network
-    const david = new Model(data, { transportService: network }, [message]);
+    const david = Model.BuildSync(data, { transportService: network }, [message]);
     network.sendMessage(message);
     expect(david.getters.getNumberCols(david.getters.getActiveSheetId())).toBe(length + 50);
   });
@@ -540,7 +540,10 @@ describe("Multi users synchronisation", () => {
   });
 
   test("Spreadsheet in readonly still receive commands", () => {
-    const david = new Model(alice.exportData(), { transportService: network, mode: "readonly" });
+    const david = Model.BuildSync(alice.exportData(), {
+      transportService: network,
+      mode: "readonly",
+    });
     setCellContent(alice, "A1", "hello");
     expect([alice, bob, charlie, david]).toHaveSynchronizedValue(
       (user) => getCellContent(user, "A1"),

@@ -17,7 +17,7 @@ import { makeTestComposerStore } from "../test_helpers/helpers";
 
 describe("figure plugin", () => {
   test("can create a simple figure", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     model.dispatch("CREATE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
       figure: {
@@ -42,13 +42,13 @@ describe("figure plugin", () => {
   });
 
   test("Sheet with no figure has no figure", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const sheetId = model.getters.getActiveSheetId();
     expect(model.getters.getFigures(sheetId)).toEqual([]);
   });
 
   test("can undo figure creation", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     model.dispatch("CREATE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
       figure: {
@@ -66,7 +66,7 @@ describe("figure plugin", () => {
   });
 
   test("can create a figure in a different sheet", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const sheetId = "Sheet2";
     createSheet(model, { sheetId }); // The sheet is not activated
 
@@ -92,7 +92,7 @@ describe("figure plugin", () => {
   });
 
   test("getVisibleFigures only returns visible figures", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     model.dispatch("CREATE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
       figure: {
@@ -114,7 +114,7 @@ describe("figure plugin", () => {
   });
 
   test("getVisibleFigures only returns visible figures on sheet with frozen panes", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     model.dispatch("CREATE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
       figure: {
@@ -152,7 +152,7 @@ describe("figure plugin", () => {
   });
 
   test("selecting a figure, then clicking on a cell unselect figure", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     model.dispatch("CREATE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
       figure: {
@@ -172,7 +172,7 @@ describe("figure plugin", () => {
   });
 
   test("some commands do not remove figure selection", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     model.dispatch("CREATE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
       figure: {
@@ -195,7 +195,7 @@ describe("figure plugin", () => {
   });
 
   test("can move a figure", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     model.dispatch("CREATE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
       figure: {
@@ -224,7 +224,7 @@ describe("figure plugin", () => {
   });
 
   test("can undo an update operation", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     model.dispatch("CREATE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
       figure: {
@@ -254,7 +254,7 @@ describe("figure plugin", () => {
   });
 
   test("prevent moving a figure left or above of the sheet", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     model.dispatch("CREATE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
       figure: {
@@ -280,7 +280,7 @@ describe("figure plugin", () => {
   });
 
   test("cannot update a figure which doesn't exist", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const result = model.dispatch("UPDATE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
       id: "someuuid",
@@ -291,7 +291,7 @@ describe("figure plugin", () => {
   });
 
   test("cannot delete a figure which doesn't exist", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const result = model.dispatch("DELETE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
       id: "someuuid",
@@ -300,7 +300,7 @@ describe("figure plugin", () => {
   });
 
   test("can delete a figure", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const sheetId = model.getters.getActiveSheetId();
     model.dispatch("CREATE_FIGURE", {
       sheetId,
@@ -325,7 +325,7 @@ describe("figure plugin", () => {
   });
 
   test("change sheet deselect figure", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       sheets: [
         { id: "1", colNumber: 2, rowNumber: 2 },
         { id: "2", colNumber: 2, rowNumber: 2 },
@@ -349,7 +349,7 @@ describe("figure plugin", () => {
   });
 
   test("Selecting a figure cancel the edition of a cell", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const composerStore = makeTestComposerStore(model);
     model.dispatch("CREATE_FIGURE", {
       sheetId: model.getters.getActiveSheetId(),
@@ -371,7 +371,7 @@ describe("figure plugin", () => {
   });
 
   test("cannot duplicate figure ids", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const figure = {
       id: "someuuid",
       x: 10,
@@ -401,7 +401,7 @@ describe("figure plugin", () => {
   });
 
   test("Figure stay in grid after removing the rows and columns", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const sheetId = model.getters.getActiveSheetId();
     const figureId = "someuuid";
 
@@ -438,7 +438,7 @@ describe("figure plugin", () => {
   });
 
   test("Move image at (0,0) if not enough space after removing rows and columns", async () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const sheetId = model.getters.getActiveSheetId();
     const figureId = "someuuid";
     const figureDef = {

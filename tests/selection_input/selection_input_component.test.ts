@@ -120,7 +120,7 @@ async function createSelectionInput(
   config: SelectionInputTestConfig = {},
   fixtureEl?: HTMLElement
 ) {
-  model = new Model();
+  model = Model.BuildSync();
   let parent: Component;
   let app: App;
   ({ fixture, parent, app } = await mountComponent(Parent, {
@@ -409,7 +409,7 @@ describe("Selection Input", () => {
   });
 
   test("focus is transferred from one input to another", async () => {
-    model = new Model();
+    model = Model.BuildSync();
     ({ fixture } = await mountComponent(MultiParent, { props: { model }, model }));
     await nextTick();
     expect(fixture.querySelector(".input-1 .o-focused")).toBeFalsy();

@@ -55,7 +55,7 @@ describe("custom currency sidePanel component", () => {
 
     ({ model, fixture } = await mountComponent(CustomCurrencyPanel, {
       env: { loadCurrencies },
-      model: new Model({}, { external: { loadCurrencies } }),
+      model: Model.BuildSync({}, { external: { loadCurrencies } }),
       props: { onCloseSidePanel: () => {} },
     }));
     dispatch = spyModelDispatch(model);
@@ -443,7 +443,7 @@ describe("Provided Currencies", () => {
   test("if currencies are provided in spreadsheet --> display this currencies", async () => {
     const { fixture } = await mountComponent(CustomCurrencyPanel, {
       env: { loadCurrencies },
-      model: new Model({}, { external: { loadCurrencies } }),
+      model: Model.BuildSync({}, { external: { loadCurrencies } }),
       props: { onCloseSidePanel: () => {} },
     });
     expect(fixture.querySelector(selectors.availableCurrencies)).toMatchSnapshot();
@@ -452,7 +452,7 @@ describe("Provided Currencies", () => {
   test("if currencies aren't provided in spreadsheet --> remove 'available currencies' section", async () => {
     const { fixture } = await mountComponent(CustomCurrencyPanel, {
       env: { loadCurrencies: undefined },
-      model: new Model({}),
+      model: Model.BuildSync({}),
       props: { onCloseSidePanel: () => {} },
     });
     await nextTick();

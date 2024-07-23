@@ -80,7 +80,7 @@ test("Scorecard chart canvas adapt to figure size", () => {
       },
     ],
   };
-  model = new Model(data);
+  model = Model.BuildSync(data);
   canvas = document.createElement("canvas");
 
   createScorecardChart(
@@ -118,7 +118,7 @@ describe("Scorecard charts computation", () => {
         },
       ],
     };
-    model = new Model(data);
+    model = Model.BuildSync(data);
   });
 
   test("Chart display correct info", () => {
@@ -458,7 +458,7 @@ describe("Scorecard charts rendering", () => {
         },
       ],
     };
-    model = new Model(data);
+    model = Model.BuildSync(data);
     scorecardChartStyle = {
       title: {},
       key: {},

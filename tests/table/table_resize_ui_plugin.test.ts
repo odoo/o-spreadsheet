@@ -13,7 +13,7 @@ let sheetId: UID;
 
 describe("Table resize", () => {
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
     sheetId = model.getters.getActiveSheetId();
   });
 

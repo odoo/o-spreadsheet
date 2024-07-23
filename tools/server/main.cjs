@@ -54,7 +54,11 @@ if (fs.existsSync(currentSessionFile)) {
 
 const aWss = expressWS.getWss("/");
 expressWS.getWss().on("connection", (ws) => {
-  log(`Connection: ${messages.length} messages have been sent`);
+  log(
+    `Connection: ${messages.length} messages have been sent ${
+      JSON.stringify(messages).length
+    } Bytes`
+  );
 });
 
 function log(message) {

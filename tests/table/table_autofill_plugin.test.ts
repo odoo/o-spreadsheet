@@ -21,7 +21,7 @@ let sheetId: UID;
 
 describe("Table formula autofill ", () => {
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -133,7 +133,7 @@ describe("Table autofill with composer", () => {
 
 describe("Table autofill with copy/paste", () => {
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
   });
 
   test("Copy paste a formula autofill the table column", () => {

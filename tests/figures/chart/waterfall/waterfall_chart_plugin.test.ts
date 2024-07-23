@@ -16,7 +16,7 @@ function getWaterfallRuntime(chartId: UID): WaterfallChartRuntime {
 
 describe("Waterfall chart", () => {
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
   });
 
   test("Waterfall runtime with single dataset", () => {

@@ -12,7 +12,7 @@ describe("Checkbox in model", () => {
   let model: Model;
 
   beforeEach(async () => {
-    model = new Model();
+    model = Model.BuildSync();
   });
 
   test("Adding a checkbox rule will make its cells align middle/center", () => {
@@ -36,7 +36,7 @@ describe("Checkbox in model", () => {
 
 describe("Checkbox component", () => {
   test("Data validation checkbox on formula is disabled", async () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
     const { fixture } = await mountSpreadsheet({ model });
     await nextTick();
@@ -48,7 +48,7 @@ describe("Checkbox component", () => {
   });
 
   test("Data validation checkbox is disabled in readonly mode", async () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
     model.updateMode("readonly");
     const { fixture } = await mountSpreadsheet({ model });
@@ -57,7 +57,7 @@ describe("Checkbox component", () => {
   });
 
   test("Icon is not displayed if there is a filter icon", async () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     addDataValidation(model, "A1", "id", { type: "isBoolean", values: [] });
     createTable(model, "A1:A4");
 

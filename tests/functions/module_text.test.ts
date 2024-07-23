@@ -560,7 +560,7 @@ describe("SPLIT function", () => {
   });
 
   test("Split with regex characters", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "Hello.there");
     setCellContent(model, "A5", '=SPLIT(A1, ".", 1, 1)');
     expect(getRangeValuesAsMatrix(model, "A5:B5")).toEqual([["Hello", "there"]]);

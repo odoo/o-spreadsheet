@@ -28,7 +28,7 @@ let model: Model;
 describe("Hide Columns", () => {
   const sheetId = "1";
   beforeEach(() => {
-    model = new Model({ sheets: [{ id: sheetId, colNumber: 6, rowNumber: 2 }] });
+    model = Model.BuildSync({ sheets: [{ id: sheetId, colNumber: 6, rowNumber: 2 }] });
   });
 
   test("hide single column", () => {
@@ -82,7 +82,7 @@ describe("Hide Columns", () => {
   });
 
   test("hide/unhide Column on small sheet", () => {
-    model = new Model({ sheets: [{ colNumber: 5, rowNumber: 1 }] });
+    model = Model.BuildSync({ sheets: [{ colNumber: 5, rowNumber: 1 }] });
     model.dispatch("RESIZE_SHEETVIEW", { width: DEFAULT_CELL_WIDTH, height: 1000 });
     const sheet = model.getters.getActiveSheet();
     const dimensions = model.getters.getMainViewportRect();
@@ -95,7 +95,7 @@ describe("Hide Columns", () => {
   });
 
   test("hide/ unhide Column on big sheet", () => {
-    model = new Model();
+    model = Model.BuildSync();
     const sheet = model.getters.getActiveSheet();
     const dimensions = model.getters.getMainViewportRect();
     hideColumns(model, ["B", "C", "D"], sheet.id);
@@ -107,7 +107,7 @@ describe("Hide Columns", () => {
   });
 
   test("undo/redo hiding", () => {
-    model = new Model();
+    model = Model.BuildSync();
     const beforeHidden = model.exportData();
     hideColumns(model, ["B"]);
     const afterHidden1 = model.exportData();
@@ -127,7 +127,7 @@ describe("Hide Columns", () => {
   });
 
   test("update selection when hiding one columns", () => {
-    model = new Model();
+    model = Model.BuildSync();
     setSelection(model, ["E1:E4"]);
     expect(model.getters.getSelectedZone()).toEqual(toZone("E1:E4"));
     hideColumns(model, ["E"]);
@@ -135,7 +135,7 @@ describe("Hide Columns", () => {
   });
 
   test("don't update selection when hiding a column within a merge", () => {
-    model = new Model();
+    model = Model.BuildSync();
     merge(model, "A4:D4");
     setSelection(model, ["A1:A4"]);
     hideColumns(model, ["A"]);
@@ -143,7 +143,7 @@ describe("Hide Columns", () => {
   });
 
   test("update selection when hiding multiple columns", () => {
-    model = new Model();
+    model = Model.BuildSync();
     setSelection(model, ["A1:A4", "E1:E4"]);
     hideColumns(model, ["A", "E"]);
     expect(model.getters.getSelectedZones()).toEqual([toZone("A1:A4"), toZone("E1:E4")]);
@@ -153,7 +153,7 @@ describe("Hide Columns", () => {
 describe("Hide Rows", () => {
   const sheetId = "2";
   beforeEach(() => {
-    model = new Model({ sheets: [{ id: sheetId, colNumber: 2, rowNumber: 6 }] });
+    model = Model.BuildSync({ sheets: [{ id: sheetId, colNumber: 2, rowNumber: 6 }] });
   });
 
   test("hide single row", () => {
@@ -177,7 +177,7 @@ describe("Hide Rows", () => {
   });
 
   test("hide/unhide Row on small sheet", () => {
-    model = new Model({ sheets: [{ colNumber: 1, rowNumber: 5 }] });
+    model = Model.BuildSync({ sheets: [{ colNumber: 1, rowNumber: 5 }] });
     model.dispatch("RESIZE_SHEETVIEW", { width: 1000, height: DEFAULT_CELL_HEIGHT });
     const sheet = model.getters.getActiveSheet();
     const dimensions = model.getters.getMainViewportRect();
@@ -190,7 +190,7 @@ describe("Hide Rows", () => {
   });
 
   test("hide/ unhide Row on big sheet", () => {
-    model = new Model();
+    model = Model.BuildSync();
     const sheet = model.getters.getActiveSheet();
     const dimensions = model.getters.getMainViewportRect();
     hideRows(model, [1, 2, 3], sheet.id);
@@ -202,7 +202,7 @@ describe("Hide Rows", () => {
   });
 
   test("undo/redo hiding", () => {
-    model = new Model();
+    model = Model.BuildSync();
     const beforeHidden = model.exportData();
     hideRows(model, [1]);
     const afterHidden1 = model.exportData();
@@ -245,7 +245,7 @@ describe("Hide Rows", () => {
   ])(
     "delete multiple rows with alphabetical order different from natural order",
     (...deletedRows) => {
-      model = new Model({ sheets: [{ id: sheetId, colNumber: 10, rowNumber: 10 }] });
+      model = Model.BuildSync({ sheets: [{ id: sheetId, colNumber: 10, rowNumber: 10 }] });
       hideRows(model, [5, 8]);
       deleteRows(model, deletedRows);
       expect(model.getters.getHiddenRowsGroups(sheetId)).toEqual([[4], [7]]);
@@ -265,14 +265,14 @@ describe("Hide Rows", () => {
   });
 
   test("update selection when hiding a single row", () => {
-    model = new Model();
+    model = Model.BuildSync();
     setSelection(model, ["A3:D3"]);
     hideRows(model, [2]);
     expect(model.getters.getSelectedZone()).toEqual(toZone("A3:D3"));
   });
 
   test("update selection when hiding multiple rows", () => {
-    model = new Model();
+    model = Model.BuildSync();
     const zone1 = toZone("A1:D1");
     const zone2 = toZone("A3:D3");
     setSelection(model, ["A1:D1", "A3:D3"]);
@@ -281,7 +281,7 @@ describe("Hide Rows", () => {
   });
 
   test("don't update selection when hiding a row within a merge", () => {
-    model = new Model();
+    model = Model.BuildSync();
     merge(model, "A4:D4");
     setSelection(model, ["A1:A4"]);
     hideRows(model, [0]);
@@ -289,7 +289,7 @@ describe("Hide Rows", () => {
   });
 
   test("Cannot hide unexisting columns", () => {
-    model = new Model();
+    model = Model.BuildSync();
     const sheetId = model.getters.getActiveSheetId();
     const originalNumberCols = model.getters.getNumberCols(sheetId);
     const result = hideColumns(model, [1, 2, originalNumberCols + 10].map(numberToLetters));
@@ -299,7 +299,7 @@ describe("Hide Rows", () => {
   });
 
   test("Cannot hide unexisting rows", () => {
-    model = new Model();
+    model = Model.BuildSync();
     const sheetId = model.getters.getActiveSheetId();
     const originalNumberRows = model.getters.getNumberRows(sheetId);
     const result = hideRows(model, [1, 2, originalNumberRows + 1]);
@@ -309,7 +309,7 @@ describe("Hide Rows", () => {
   });
 
   test("Do not compute row of empty cell", () => {
-    model = new Model();
+    model = Model.BuildSync();
     const sheetId = model.getters.getActiveSheetId();
     // Will force an UPDATE_CELL subcommand upon addRows
     setStyle(model, "A100", { fillColor: "red" });

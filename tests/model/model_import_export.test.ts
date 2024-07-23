@@ -27,7 +27,7 @@ import {
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 describe("data", () => {
   test("give default col size if not specified", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const sheet = model.getters.getActiveSheetId();
     // 96 is default cell width
     expect(model.getters.getColSize(sheet, 0)).toEqual(DEFAULT_CELL_WIDTH);
@@ -37,7 +37,7 @@ describe("data", () => {
 
 describe("Migrations", () => {
   test("Can upgrade from 1 to 13", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       version: 1,
       sheets: [
         {
@@ -59,7 +59,7 @@ describe("Migrations", () => {
     expect(data.sheets[0].isVisible).toBe(true);
   });
   test("migrate version 5: normalize formulas", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       version: 5,
       sheets: [
         {
@@ -84,7 +84,7 @@ describe("Migrations", () => {
     expect(cells.A5?.content).toBe(`=A1+1+"2"`);
   });
   test("migrate version 6: charts", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       version: 6,
       sheets: [
         {
@@ -205,7 +205,7 @@ describe("Migrations", () => {
     });
   });
   test.each(FORBIDDEN_SHEET_CHARS)("migrate version 7: sheet Names", (char) => {
-    const model = new Model({
+    const model = Model.BuildSync({
       version: 7,
       sheets: [
         { name: "My sheet" },
@@ -305,7 +305,7 @@ describe("Migrations", () => {
   });
 
   test("migrate version 7: duplicated sheet Names without forbidden characters", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       version: 7,
       sheets: [
         { name: "My sheet?" },
@@ -328,7 +328,7 @@ describe("Migrations", () => {
   });
 
   test("migrate version 9: de-normalize formulas", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       version: 9,
       sheets: [
         {
@@ -346,7 +346,7 @@ describe("Migrations", () => {
   });
 
   test("migrate version 10: normalized cell formats", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       version: 10,
       sheets: [
         {
@@ -378,7 +378,7 @@ describe("Migrations", () => {
   });
 
   test("migrate version 12: Fix Overlapping datafilters", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       version: 12,
       sheets: [
         {
@@ -392,7 +392,7 @@ describe("Migrations", () => {
   });
 
   test("migrate version 12.5: update border description structure", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       version: 12.5,
       sheets: [
         {
@@ -422,13 +422,13 @@ describe("Migrations", () => {
   });
 
   test("migrate version 14: set locale of spreadsheet to en_US", () => {
-    let model = new Model({ version: 13 });
+    let model = Model.BuildSync({ version: 13 });
     let data = model.exportData();
     expect(data.settings).toEqual({ locale: DEFAULT_LOCALE });
   });
 
   test("migrate version 14.5: Fix Overlapping datafilters", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       version: 14,
       sheets: [
         {
@@ -442,7 +442,7 @@ describe("Migrations", () => {
   });
 
   test("migrate version 15: filterTables are renamed into tables", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       version: 14.5,
       sheets: [
         {
@@ -460,7 +460,7 @@ describe("Migrations", () => {
 
 describe("Import", () => {
   test("Import sheet with rows/cols size defined.", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       sheets: [
         { colNumber: 2, rowNumber: 2, cols: { 0: { size: 42 } }, rows: { 1: { size: 13 } } },
       ],
@@ -473,7 +473,7 @@ describe("Import", () => {
   });
 
   test("Import 2 sheets with merges", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       sheets: [
         { colNumber: 2, rowNumber: 2, merges: ["A2:B2"] },
         { colNumber: 2, rowNumber: 2 },
@@ -489,7 +489,7 @@ describe("Import", () => {
   });
 
   test("can import cell without content", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       sheets: [{ id: "1", cells: { A1: { format: 1 } } }],
       formats: { 1: "0.00%" },
     });
@@ -500,21 +500,21 @@ describe("Import", () => {
 
 describe("Export", () => {
   test("Can export col size", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+    const model = Model.BuildSync({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     resizeColumns(model, ["B"], 150);
     const exp = model.exportData();
     expect(exp.sheets![0].cols![1].size).toBe(150);
   });
 
   test("Can export row size", () => {
-    const model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+    const model = Model.BuildSync({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     resizeRows(model, [1], 150);
     const exp = model.exportData();
     expect(exp.sheets![0].rows![1].size).toBe(150);
   });
 
   test("Can export merges", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       sheets: [{ colNumber: 10, rowNumber: 10, merges: ["A1:A2", "B1:C1", "D1:E2"] }],
     });
     const exp = model.exportData();
@@ -522,7 +522,7 @@ describe("Export", () => {
   });
 
   test("Can export format", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       sheets: [{ colNumber: 10, rowNumber: 10, cells: { A1: { content: "145", format: 1 } } }],
       formats: { 1: "0.00%" },
     });
@@ -531,14 +531,14 @@ describe("Export", () => {
   });
 
   test("empty content is not exported", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setStyle(model, "A1", { fillColor: "#123456" });
     const exp = model.exportData();
     expect(exp.sheets![0].cells!.A1!).toEqual({ style: 1 });
   });
 
   test("chart figures without a definition are not exported", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       sheets: [
         {
           id: "someuuid",
@@ -659,10 +659,10 @@ test("complete import, then export", () => {
     },
     uniqueFigureIds: true,
   };
-  const model = new Model(modelData);
+  const model = Model.BuildSync(modelData);
   expect(model).toExport(modelData);
   // We test here a that two import with the same data give the same result.
-  const model2 = new Model(modelData);
+  const model2 = Model.BuildSync(modelData);
   expect(model2.exportData()).toEqual(modelData);
 });
 
@@ -683,7 +683,7 @@ test("can import cells outside sheet size", () => {
       },
     ],
   };
-  const model = new Model(modelData);
+  const model = Model.BuildSync(modelData);
   expect(model.getters.getNumberRows(sheetId)).toBe(100);
   expect(model.getters.getNumberCols(sheetId)).toBe(26);
   const { col, row } = toCartesian("Z100");
@@ -692,7 +692,7 @@ test("can import cells outside sheet size", () => {
 });
 
 test("Data of a duplicate sheet are correctly duplicated", () => {
-  const model = new Model();
+  const model = Model.BuildSync();
   setCellContent(model, "A1", "hello");
   const sheetId = model.getters.getActiveSheetId();
   model.dispatch("DUPLICATE_SHEET", { sheetId, sheetIdTo: "42" });
@@ -735,12 +735,12 @@ test("import then export (figures)", () => {
     settings: { locale: DEFAULT_LOCALE },
     customTableStyles: {},
   };
-  const model = new Model(modelData);
+  const model = Model.BuildSync(modelData);
   expect(model).toExport(modelData);
 });
 
 test("import date as string and detect the format", () => {
-  const model = new Model({
+  const model = Model.BuildSync({
     sheets: [
       {
         cells: { A1: { content: "12/31/2020" } },
@@ -753,7 +753,7 @@ test("import date as string and detect the format", () => {
 });
 
 test("import localized date as string and detect the format", () => {
-  const model = new Model({
+  const model = Model.BuildSync({
     sheets: [
       {
         cells: { A1: { content: "31/12/2020" } },
@@ -767,7 +767,7 @@ test("import localized date as string and detect the format", () => {
 });
 
 test("Can import spreadsheet with only version", () => {
-  new Model({ version: 1 });
+  Model.BuildSync({ version: 1 });
   // We expect the model to be loaded without traceback
   expect(true).toBeTruthy();
 });

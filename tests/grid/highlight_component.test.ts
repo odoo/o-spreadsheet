@@ -178,7 +178,7 @@ function expectedResult(xc: string) {
 }
 
 const genericBeforeEach = async () => {
-  model = new Model();
+  model = Model.BuildSync();
   model.dispatch("RESIZE_SHEETVIEW", {
     width: getDefaultSheetViewSize(),
     height: getDefaultSheetViewSize(),
@@ -250,7 +250,7 @@ describe("Corner component", () => {
 
   describe("drag highlight corner to cover full columns/rows will make the final highlight zone to be unbounded", () => {
     beforeEach(() => {
-      model = new Model({
+      model = Model.BuildSync({
         sheets: [
           {
             colNumber: 10,
@@ -355,7 +355,7 @@ describe("Corner component", () => {
 
   describe("dragging highlight corner on merged cells expands the final highlight zone", () => {
     beforeEach(() => {
-      model = new Model({
+      model = Model.BuildSync({
         sheets: [
           {
             colNumber: 10,
@@ -533,7 +533,7 @@ describe("Border component", () => {
 
   describe("dragging borders will keep the unbounded zones", () => {
     beforeEach(() => {
-      model = new Model({
+      model = Model.BuildSync({
         sheets: [
           {
             colNumber: 10,
@@ -655,7 +655,7 @@ describe("Border component", () => {
 
   describe("dragging highlight border on merged cells expands the final highlight zone", () => {
     beforeEach(() => {
-      model = new Model({
+      model = Model.BuildSync({
         sheets: [
           {
             colNumber: 10,
