@@ -84,9 +84,9 @@ css/* scss */ `
     }
     .o-composer[placeholder]:empty:not(:focus):not(.active)::before {
       content: attr(placeholder);
-      color: #ccc;
+      color: #bdbdbd;
       position: relative;
-      top: 20%;
+      top: 0%;
       pointer-events: none;
     }
 

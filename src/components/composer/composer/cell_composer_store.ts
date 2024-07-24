@@ -115,6 +115,16 @@ export class CellComposerStore extends AbstractComposerStore {
   // Getters
   // ---------------------------------------------------------------------------
 
+  get placeholder(): string | undefined {
+    const position = this.getters.getActivePosition();
+    const spreader = this.model.getters.getArrayFormulaSpreadingOn(position);
+    if (!spreader) {
+      return undefined;
+    }
+    const cell = this.getters.getCell(spreader);
+    return cell?.content;
+  }
+
   get currentEditedCell(): CellPosition {
     return {
       sheetId: this.sheetId,
@@ -192,6 +202,10 @@ export class CellComposerStore extends AbstractComposerStore {
     const cell = this.getters.getCell(position);
     if (cell?.isFormula) {
       return localizeFormula(cell.content, locale);
+    }
+    const spreader = this.model.getters.getArrayFormulaSpreadingOn(position);
+    if (spreader) {
+      return "";
     }
     const { format, value, type, formattedValue } = this.getters.getEvaluatedCell(position);
     switch (type) {

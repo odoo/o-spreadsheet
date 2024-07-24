@@ -728,4 +728,22 @@ describe("TopBar composer", () => {
     expect(document.activeElement).toBe(composerEl);
     expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
   });
+
+  test("Spreaded cell has no value in the composer but has a placeholder", async () => {
+    ({ model, fixture } = await mountSpreadsheet());
+    setCellContent(model, "A1", "=MUNIT(3)");
+    selectCell(model, "A2");
+    await nextTick();
+
+    const topBarComposer = document.querySelector(".o-spreadsheet-topbar .o-composer")!;
+    expect(topBarComposer.textContent).toBe("");
+    expect(topBarComposer.attributes.getNamedItem("placeholder")?.value).toEqual("=MUNIT(3)");
+
+    await simulateClick(topBarComposer);
+    expect(topBarComposer!.textContent).toBe("");
+
+    await keyDown({ key: "Enter" });
+    expect(topBarComposer!.textContent).toBe("");
+    expect(topBarComposer.attributes.getNamedItem("placeholder")?.value).toEqual("=MUNIT(3)");
+  });
 });
