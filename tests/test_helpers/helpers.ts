@@ -5,7 +5,7 @@ import { functionCache } from "../../src";
 import { Action } from "../../src/actions/action";
 import { ComposerSelection } from "../../src/components/composer/composer/abstract_composer_store";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
-import { CellComposer, CellComposerProps } from "../../src/components/composer/composer/composer";
+import { CellComposerProps, Composer } from "../../src/components/composer/composer/composer";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
 import { SidePanelStore } from "../../src/components/side_panel/side_panel/side_panel_store";
 import { Spreadsheet, SpreadsheetProps } from "../../src/components/spreadsheet/spreadsheet";
@@ -889,9 +889,9 @@ type ComposerWrapperProps = {
   composerProps: Partial<CellComposerProps>;
 };
 export class ComposerWrapper extends Component<ComposerWrapperProps, SpreadsheetChildEnv> {
-  static components = { CellComposer };
+  static components = { Composer };
   static template = xml/*xml*/ `
-    <CellComposer t-props="composerProps"/>
+    <Composer t-props="composerProps"/>
   `;
   static props = { composerProps: Object, focusComposer: String };
   state = useState({ focusComposer: <ComposerFocusType>"inactive" });

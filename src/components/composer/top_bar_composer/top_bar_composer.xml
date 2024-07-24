@@ -4,7 +4,7 @@
       class="o-topbar-composer bg-white user-select-text"
       t-on-click.stop=""
       t-att-style="containerStyle">
-      <CellComposer
+      <Composer
         focus="focus"
         inputStyle="composerStyle"
         onComposerContentFocused.bind="onFocus"

@@ -5,7 +5,7 @@ import { ComposerFocusType, SpreadsheetChildEnv } from "../../../types/index";
 import { css, cssPropertiesToCss } from "../../helpers/css";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { ComposerSelection } from "../composer/abstract_composer_store";
-import { CellComposer } from "../composer/composer";
+import { Composer } from "../composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer_focus_store";
 import { StandaloneComposerStore } from "./standalone_composer_store";
 
@@ -54,7 +54,7 @@ export class StandaloneComposer extends Component<Props, SpreadsheetChildEnv> {
     class: { type: String, optional: true },
     invalid: { type: Boolean, optional: true },
   };
-  static components = { CellComposer };
+  static components = { Composer };
   static defaultProps = {
     composerContent: "",
   };

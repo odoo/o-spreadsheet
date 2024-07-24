@@ -131,7 +131,7 @@ interface FunctionDescriptionState {
   argToFocus: number;
 }
 
-export class CellComposer extends Component<CellComposerProps, SpreadsheetChildEnv> {
+export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-Composer";
   static props = {
     focus: {

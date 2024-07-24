@@ -11,7 +11,7 @@ import { CSSProperties, ComposerFocusType, SpreadsheetChildEnv } from "../../../
 import { css, cssPropertiesToCss } from "../../helpers/css";
 import { ComposerSelection } from "../composer/abstract_composer_store";
 import { CellComposerStore } from "../composer/cell_composer_store";
-import { CellComposer } from "../composer/composer";
+import { Composer } from "../composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer_focus_store";
 
 const COMPOSER_MAX_HEIGHT = 100;
@@ -46,7 +46,7 @@ css/* scss */ `
 export class TopBarComposer extends Component<any, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-TopBarComposer";
   static props = {};
-  static components = { CellComposer };
+  static components = { Composer };
 
   private composerFocusStore!: Store<ComposerFocusStore>;
   private composerStore!: Store<CellComposerStore>;

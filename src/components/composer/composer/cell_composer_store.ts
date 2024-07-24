@@ -24,7 +24,7 @@ import {
   RemoveColumnsRowsCommand,
   isMatrix,
 } from "../../../types";
-import { AbstractComposerStore, ComposerSelection } from "./abstract_composer_store";
+import { AbstractComposerStore } from "./abstract_composer_store";
 
 const CELL_DELETED_MESSAGE = _t("The cell you are trying to edit has been deleted.");
 
@@ -115,20 +115,6 @@ export class CellComposerStore extends AbstractComposerStore {
   // Getters
   // ---------------------------------------------------------------------------
 
-  get currentContent(): string {
-    if (this.editionMode === "inactive") {
-      return this.getComposerContent(this.getters.getActivePosition());
-    }
-    return this._currentContent;
-  }
-
-  get composerSelection(): ComposerSelection {
-    return {
-      start: this.selectionStart,
-      end: this.selectionEnd,
-    };
-  }
-
   get currentEditedCell(): CellPosition {
     return {
       sheetId: this.sheetId,
@@ -136,6 +122,7 @@ export class CellComposerStore extends AbstractComposerStore {
       row: this.row,
     };
   }
+
   private onColumnsRemoved(cmd: RemoveColumnsRowsCommand) {
     if (cmd.elements.includes(this.col) && this.editionMode !== "inactive") {
       this.cancelEdition();
