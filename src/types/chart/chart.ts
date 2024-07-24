@@ -4,6 +4,7 @@ import { BarChartDefinition, BarChartRuntime } from "./bar_chart";
 import { ComboChartDefinition, ComboChartRuntime } from "./combo_chart";
 import { LegendPosition } from "./common_chart";
 import { GaugeChartDefinition, GaugeChartRuntime } from "./gauge_chart";
+import { HeatMapDefinition, HeatMapRuntime } from "./heat_map";
 import { LineChartDefinition, LineChartRuntime } from "./line_chart";
 import { PieChartDefinition, PieChartRuntime } from "./pie_chart";
 import { PyramidChartDefinition, PyramidChartRuntime } from "./pyramid_chart";
@@ -21,6 +22,7 @@ export const CHART_TYPES = [
   "combo",
   "waterfall",
   "pyramid",
+  "heatmap",
 ] as const;
 export type ChartType = (typeof CHART_TYPES)[number];
 
@@ -33,7 +35,8 @@ export type ChartDefinition =
   | ScatterChartDefinition
   | ComboChartDefinition
   | WaterfallChartDefinition
-  | PyramidChartDefinition;
+  | PyramidChartDefinition
+  | HeatMapDefinition;
 
 export type ChartWithAxisDefinition = Extract<
   ChartDefinition,
@@ -49,7 +52,11 @@ export type ChartJSRuntime =
   | WaterfallChartRuntime
   | PyramidChartRuntime;
 
-export type ChartRuntime = ChartJSRuntime | ScorecardChartRuntime | GaugeChartRuntime;
+export type ChartRuntime =
+  | ChartJSRuntime
+  | ScorecardChartRuntime
+  | GaugeChartRuntime
+  | HeatMapRuntime;
 
 export interface LabelValues {
   readonly values: string[];
