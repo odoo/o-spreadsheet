@@ -48,7 +48,7 @@ export default (commandLineArgs) => {
       output[0].format = `iife`;
     } else {
       output[0].file = `build/o_spreadsheet.js`;
-      output[0].format = `esm`;
+      output[0].format = `iife`;
     }
     config = {
       input,
