@@ -9,6 +9,7 @@
         inputStyle="composerStyle"
         onComposerContentFocused.bind="onFocus"
         composerStore="composerStore"
+        placeholder="composerStore.placeholder"
       />
     </div>
   </t>
