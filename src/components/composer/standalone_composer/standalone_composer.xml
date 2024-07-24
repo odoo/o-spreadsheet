@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-StandaloneComposer">
     <div class="o-standalone-composer" t-on-click.stop="" t-att-class="containerClass">
-      <CellComposer
+      <Composer
         focus="focus"
         inputStyle="composerStyle"
         onComposerContentFocused.bind="onFocus"

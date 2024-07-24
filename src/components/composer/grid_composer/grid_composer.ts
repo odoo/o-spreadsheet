@@ -12,7 +12,7 @@ import { ComposerFocusType, DOMDimension, Rect, SpreadsheetChildEnv } from "../.
 import { getTextDecoration } from "../../helpers";
 import { css, cssPropertiesToCss } from "../../helpers/css";
 import { CellComposerStore } from "../composer/cell_composer_store";
-import { CellComposer, CellComposerProps } from "../composer/composer";
+import { CellComposerProps, Composer } from "../composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer_focus_store";
 
 const COMPOSER_BORDER_WIDTH = 3 * 0.4 * window.devicePixelRatio || 1;
@@ -57,7 +57,7 @@ export class GridComposer extends Component<Props, SpreadsheetChildEnv> {
     gridDims: Object,
     onInputContextMenu: Function,
   };
-  static components = { CellComposer };
+  static components = { Composer };
 
   private rect: Rect = this.defaultRect;
   private isEditing: boolean = false;
