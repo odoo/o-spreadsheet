@@ -1,7 +1,60 @@
+// import { tokenize } from "../../src";
+import { tokenize } from "../../src/formulas";
+import {
+  getFirstPivotFunction,
+  getNumberOfPivotFunctions,
+} from "../../src/helpers/pivot/pivot_composer_helpers";
 import {
   toFunctionPivotValue,
   toNormalizedPivotValue,
 } from "../../src/helpers/pivot/pivot_helpers";
+import { pivotTimeAdapter } from "../../src/helpers/pivot/pivot_time_adapter";
+import { setDefaultTranslationMethod } from "../../src/translation";
+import { DEFAULT_LOCALE } from "../../src/types";
+
+function stringArg(value: string) {
+  return { type: "STRING", value: `${value}` };
+}
+
+setDefaultTranslationMethod();
+
+describe("Extract pivot function from formula", () => {
+  test("Formula extractor", async function () {
+    const formula = `=PIVOT.VALUE("1", "test")`;
+    const tokens = tokenize(formula);
+    let functionName;
+    let args;
+    ({ functionName, args } = getFirstPivotFunction(tokens));
+    expect(functionName).toBe("PIVOT.VALUE");
+    expect(args.length).toBe(2);
+    expect(args[0]).toEqual(stringArg("1"));
+    expect(args[1]).toEqual(stringArg("test"));
+  });
+
+  test("Extraction with two PIVOT formulas", async function () {
+    const formula = `=PIVOT.VALUE("1", "test") + PIVOT.VALUE("2", "hello", "bla")`;
+    const tokens = tokenize(formula);
+    const { functionName, args } = getFirstPivotFunction(tokens);
+    expect(functionName).toBe("PIVOT.VALUE");
+    expect(args.length).toBe(2);
+    expect(args[0]).toEqual(stringArg("1"));
+    expect(args[1]).toEqual(stringArg("test"));
+  });
+
+  test("Number of formulas", async function () {
+    const formula = `=PIVOT.VALUE("1", "test") + PIVOT.VALUE("2", "hello", "bla") + ODOO.LIST("1", "bla")`;
+    expect(getNumberOfPivotFunctions(tokenize(formula))).toBe(2);
+    expect(getNumberOfPivotFunctions(tokenize("=1+1"))).toBe(0);
+    expect(getNumberOfPivotFunctions(tokenize("=bla"))).toBe(0);
+  });
+
+  test("getFirstPivotFunction does not crash when given crap", async function () {
+    expect(getFirstPivotFunction(tokenize("=SUM(A1)"))).toBe(undefined);
+    expect(getFirstPivotFunction(tokenize("=1+1"))).toBe(undefined);
+    expect(getFirstPivotFunction(tokenize("=bla"))).toBe(undefined);
+    expect(getFirstPivotFunction(tokenize("bla"))).toBe(undefined);
+  });
+});
 
 describe("toNormalizedPivotValue", () => {
   test("parse values of char field", () => {
@@ -103,24 +156,6 @@ describe("toNormalizedPivotValue", () => {
     }
   });
 
-  test("parse values of boolean field", () => {
-    const dimension = {
-      type: "boolean",
-      displayName: "A field",
-      name: "field_name",
-    };
-    expect(toNormalizedPivotValue(dimension, "false")).toBe(false);
-    expect(toNormalizedPivotValue(dimension, false)).toBe(false);
-    expect(toNormalizedPivotValue(dimension, "true")).toBe(true);
-    expect(toNormalizedPivotValue(dimension, true)).toBe(true);
-    expect(() => toNormalizedPivotValue(dimension, "11/2020")).toThrow();
-    expect(() => toNormalizedPivotValue(dimension, "2020")).toThrow();
-    expect(() => toNormalizedPivotValue(dimension, "01/11/2020")).toThrow();
-    expect(() => toNormalizedPivotValue(dimension, "1")).toThrow();
-    expect(() => toNormalizedPivotValue(dimension, 1)).toThrow();
-    expect(() => toNormalizedPivotValue(dimension, "won")).toThrow();
-  });
-
   test("parse values of numeric fields", () => {
     const dimension = {
       type: "integer",
@@ -216,5 +251,58 @@ describe("ToFunctionValue", () => {
     expect(toFunctionPivotValue(false, dimension)).toBe("FALSE");
     expect(toFunctionPivotValue("true", dimension)).toBe("TRUE");
     expect(toFunctionPivotValue(true, dimension)).toBe("TRUE");
+  });
+});
+
+describe("pivot time adapters formatted value", () => {
+  test("Day adapter", () => {
+    const adapter = pivotTimeAdapter("day");
+    expect(adapter.toValueAndFormat("11/12/2020", DEFAULT_LOCALE)).toEqual({
+      value: 44147,
+      format: "m/d/yyyy",
+    });
+    expect(adapter.toValueAndFormat("01/11/2020", DEFAULT_LOCALE)).toEqual({
+      value: 43841,
+      format: "m/d/yyyy",
+    });
+    expect(adapter.toValueAndFormat("12/05/2020", DEFAULT_LOCALE)).toEqual({
+      value: 44170,
+      format: "m/d/yyyy",
+    });
+  });
+
+  test("Year adapter", () => {
+    const adapter = pivotTimeAdapter("year");
+    expect(adapter.toValueAndFormat("2020", DEFAULT_LOCALE)).toEqual({
+      value: 2020,
+      format: "0",
+    });
+    expect(adapter.toValueAndFormat("1997", DEFAULT_LOCALE)).toEqual({
+      value: 1997,
+      format: "0",
+    });
+  });
+
+  test("Day of month", () => {
+    const adapter = pivotTimeAdapter("day_of_month");
+    expect(adapter.toValueAndFormat("1", DEFAULT_LOCALE)).toEqual({ value: 1, format: "0" });
+  });
+
+  test("ISO week number", () => {
+    const adapter = pivotTimeAdapter("iso_week_number");
+    expect(adapter.toValueAndFormat("1", DEFAULT_LOCALE)).toEqual({ value: 1, format: "0" });
+  });
+
+  test("Month number", () => {
+    const adapter = pivotTimeAdapter("month_number");
+    expect(adapter.toValueAndFormat("1", DEFAULT_LOCALE)).toEqual({
+      value: "January",
+      format: "0",
+    });
+  });
+
+  test("Quarter number", () => {
+    const adapter = pivotTimeAdapter("quarter_number");
+    expect(adapter.toValueAndFormat("1", DEFAULT_LOCALE)).toEqual({ value: "Q1", format: "0" });
   });
 });

@@ -1,4 +1,4 @@
-import { toCartesian, toXC, toZone } from "../../src/helpers/index";
+import { range, toCartesian, toXC, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
 import { ClipboardPlugin } from "../../src/plugins/ui_stateful";
 import {
@@ -7,6 +7,7 @@ import {
   CellValue,
   CellValueType,
   EvaluatedCell,
+  Format,
   FormattedValue,
   Merge,
   Style,
@@ -78,18 +79,40 @@ export function getCellContent(
 export function getEvaluatedGrid(
   model: Model,
   range: string,
+  option: "asFormattedValue" | "asValue" = "asFormattedValue",
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
   const zone = toZone(range);
-  const content: string[][] = [];
+  const content: CellValue[][] = [];
   for (let row = zone.top; row <= zone.bottom; row++) {
-    const rowContent: string[] = [];
+    const rowContent: CellValue[] = [];
     for (let col = zone.left; col <= zone.right; col++) {
-      rowContent.push(getCellContent(model, toXC(col, row), sheetId));
+      const content =
+        option === "asFormattedValue"
+          ? getCellContent(model, toXC(col, row), sheetId)
+          : getEvaluatedCell(model, toXC(col, row), sheetId).value;
+      rowContent.push(content);
     }
     content.push(rowContent);
   }
   return content;
+}
+
+export function getEvaluatedFormatGrid(
+  model: Model,
+  zoneXc: string,
+  sheetId = model.getters.getActiveSheetId()
+) {
+  const { top, bottom, left, right } = toZone(zoneXc);
+  const grid: (Format | undefined)[][] = [];
+  for (const row of range(top, bottom + 1)) {
+    grid.push([]);
+    for (const col of range(left, right + 1)) {
+      const cell = model.getters.getEvaluatedCell({ sheetId, col, row });
+      grid[row][col] = cell.format;
+    }
+  }
+  return grid;
 }
 
 /**
