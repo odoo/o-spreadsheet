@@ -63,11 +63,15 @@ export function withPivotPresentationLayer(PivotClass: PivotUIConstructor) {
     }
 
     getPivotCellValueAndFormat(measureName: string, domain: PivotDomain): FunctionResultObject {
+      return this.getMeasureDisplayValue(measureName, domain);
+    }
+
+    private getRawValueAndFormat(measureName: string, domain: PivotDomain): FunctionResultObject {
       const measure = this.getMeasure(measureName);
       if (measure.computedBy) {
         return this.computeMeasure(measure, domain);
       }
-      return this.getMeasureDisplayValue(measureName, domain);
+      return super.getPivotCellValueAndFormat(measureName, domain);
     }
 
     private computeMeasure(measure: PivotMeasure, domain: PivotDomain): FunctionResultObject {
@@ -100,7 +104,7 @@ export function withPivotPresentationLayer(PivotClass: PivotUIConstructor) {
           const symbolIndex = rowDomain.findIndex((row) => row.field === symbolName);
           return this.getPivotHeaderValueAndFormat(rowDomain.slice(0, symbolIndex + 1));
         }
-        return this.getPivotCellValueAndFormat(symbolName, domain);
+        return this.getRawValueAndFormat(symbolName, domain);
       };
       const result = this.getters.evaluateCompiledFormula(
         measure.computedBy.sheetId,
@@ -130,7 +134,7 @@ export function withPivotPresentationLayer(PivotClass: PivotUIConstructor) {
         for (const colDomain of colDomains) {
           for (const subRowDomain of rowDomains) {
             values.push(
-              this.getPivotCellValueAndFormat(
+              this.getRawValueAndFormat(
                 measure.id,
                 rowDomain.concat(subRowDomain).concat(colDomain)
               )
@@ -145,7 +149,7 @@ export function withPivotPresentationLayer(PivotClass: PivotUIConstructor) {
         const domains = treeToLeafDomains(subTree, colDomain);
         // FIXME This is clearly sub-optimal. The same aggregates and values are computed multiple times :(
         for (const domain of domains) {
-          values.push(this.getPivotCellValueAndFormat(measure.id, rowDomain.concat(domain)));
+          values.push(this.getRawValueAndFormat(measure.id, rowDomain.concat(domain)));
         }
         return values;
       } else {
@@ -154,7 +158,7 @@ export function withPivotPresentationLayer(PivotClass: PivotUIConstructor) {
         const domains = treeToLeafDomains(subTree, rowDomain);
         // FIXME This is clearly sub-optimal. The same aggregates and values are computed multiple times :(
         for (const domain of domains) {
-          values.push(this.getPivotCellValueAndFormat(measure.id, domain.concat(colDomain)));
+          values.push(this.getRawValueAndFormat(measure.id, domain.concat(colDomain)));
         }
         return values;
       }
@@ -170,7 +174,7 @@ export function withPivotPresentationLayer(PivotClass: PivotUIConstructor) {
 
     private getMeasureDisplayValue(measureId: string, domain: PivotDomain): FunctionResultObject {
       const measure = this.getMeasure(measureId);
-      const rawValue = super.getPivotCellValueAndFormat(measureId, domain);
+      const rawValue = this.getRawValueAndFormat(measureId, domain);
       if (!measure.display || measure.display.type === "no_calculations" || rawValue.message) {
         return rawValue;
       }
@@ -259,7 +263,7 @@ export function withPivotPresentationLayer(PivotClass: PivotUIConstructor) {
     ): FunctionResultObject {
       const parentRowDomain = getDomainOfParentRow(this, domain);
       const parentRowValue = this.measureValueToNumber(
-        super.getPivotCellValueAndFormat(measure.id, parentRowDomain)
+        this.getRawValueAndFormat(measure.id, parentRowDomain)
       );
       return parentRowValue === 0
         ? { value: "" }
@@ -273,7 +277,7 @@ export function withPivotPresentationLayer(PivotClass: PivotUIConstructor) {
     ): FunctionResultObject {
       const parentColumnDomain = getDomainOfParentCol(this, domain);
       const parentColValue = this.measureValueToNumber(
-        super.getPivotCellValueAndFormat(measure.id, parentColumnDomain)
+        this.getRawValueAndFormat(measure.id, parentColumnDomain)
       );
       return parentColValue === 0
         ? { value: "" }
@@ -294,7 +298,7 @@ export function withPivotPresentationLayer(PivotClass: PivotUIConstructor) {
         return { value: "" };
       }
       const parentDomain = getFieldParentDomain(this, fieldNameWithGranularity, domain);
-      const parentTotal = super.getPivotCellValueAndFormat(measure.id, parentDomain);
+      const parentTotal = this.getRawValueAndFormat(measure.id, parentDomain);
       const parentTotalValue = this.measureValueToNumber(parentTotal);
 
       return parentTotalValue === 0
@@ -489,7 +493,7 @@ export function withPivotPresentationLayer(PivotClass: PivotUIConstructor) {
           .map((cell) => ({
             ...cell,
             value: this.strictMeasureValueToNumber(
-              super.getPivotCellValueAndFormat(measure.id, cell.domain)
+              this.getRawValueAndFormat(measure.id, cell.domain)
             ),
             rowDomain: getDimensionDomain(this, mainDimension, cell.domain),
           }))
@@ -555,9 +559,7 @@ export function withPivotPresentationLayer(PivotClass: PivotUIConstructor) {
           .map((cell) => ({
             ...cell,
             rowDomain: getDimensionDomain(this, mainDimension, cell.domain),
-            value: this.measureValueToNumber(
-              super.getPivotCellValueAndFormat(measure.id, cell.domain)
-            ),
+            value: this.measureValueToNumber(this.getRawValueAndFormat(measure.id, cell.domain)),
           }))
           .filter((cell) => isFieldInDomain(fieldNameWithGranularity, cell.rowDomain));
 
@@ -591,19 +593,19 @@ export function withPivotPresentationLayer(PivotClass: PivotUIConstructor) {
     }
 
     private getGrandTotal(measureId: string): number {
-      const grandTotal = super.getPivotCellValueAndFormat(measureId, []);
+      const grandTotal = this.getRawValueAndFormat(measureId, []);
       return this.measureValueToNumber(grandTotal);
     }
 
     private getRowTotal(measureId: string, domain: PivotDomain) {
       const totalDomain = domainToColRowDomain(this, domain).rowDomain;
-      const rowTotal = super.getPivotCellValueAndFormat(measureId, totalDomain);
+      const rowTotal = this.getRawValueAndFormat(measureId, totalDomain);
       return this.measureValueToNumber(rowTotal);
     }
 
     private getColumnTotal(measureId: string, domain: PivotDomain) {
       const totalDomain = domainToColRowDomain(this, domain).colDomain;
-      const columnTotal = super.getPivotCellValueAndFormat(measureId, totalDomain);
+      const columnTotal = this.getRawValueAndFormat(measureId, totalDomain);
       return this.measureValueToNumber(columnTotal);
     }
 
@@ -638,7 +640,7 @@ export function withPivotPresentationLayer(PivotClass: PivotUIConstructor) {
         throw new NotAvailableError();
       }
 
-      const comparedValue = super.getPivotCellValueAndFormat(measure.id, comparedDomain);
+      const comparedValue = this.getRawValueAndFormat(measure.id, comparedDomain);
       const comparedValueNumber = this.strictMeasureValueToNumber(comparedValue);
       return comparedValueNumber;
     }
