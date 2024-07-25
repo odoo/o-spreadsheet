@@ -1792,7 +1792,7 @@ describe("charts", () => {
     const updateChart = jest.spyOn((window as any).Chart.prototype, "update");
     createTestChart("basicChart");
     await nextTick();
-    setCellFormat(model, "B2", "#.##0.00");
+    setCellFormat(model, "B2", "#,##0.00");
     await nextTick();
     expect(updateChart).toHaveBeenCalled();
   });

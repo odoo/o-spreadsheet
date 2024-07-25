@@ -522,6 +522,12 @@ export function insertItemsAtIndex<T>(array: readonly T[], items: T[], index: nu
   return newArray;
 }
 
+export function replaceItemAtIndex<T>(array: readonly T[], newItem: T, index: number): T[] {
+  const newArray = [...array];
+  newArray.splice(index, 1, newItem);
+  return newArray;
+}
+
 export function trimContent(content: string): string {
   const contentLines = content.split("\n");
   return contentLines.map((line) => line.replace(/\s+/g, " ").trim()).join("\n");
@@ -576,4 +582,47 @@ export function largeMin(array: number[]) {
     min = array[len] < min ? array[len] : min;
   }
   return min;
+}
+
+export class TokenizingChars {
+  private text: string;
+  private currentIndex: number = 0;
+  current: string;
+
+  constructor(text: string) {
+    this.text = text;
+    this.current = text[0];
+  }
+
+  shift() {
+    const current = this.current;
+    const next = this.text[++this.currentIndex];
+    this.current = next;
+    return current;
+  }
+
+  advanceBy(length: number) {
+    this.currentIndex += length;
+    this.current = this.text[this.currentIndex];
+  }
+
+  isOver() {
+    return this.currentIndex >= this.text.length;
+  }
+
+  remaining() {
+    return this.text.substring(this.currentIndex);
+  }
+
+  currentStartsWith(str: string) {
+    if (this.current !== str[0]) {
+      return false;
+    }
+    for (let j = 1; j < str.length; j++) {
+      if (this.text[this.currentIndex + j] !== str[j]) {
+        return false;
+      }
+    }
+    return true;
+  }
 }

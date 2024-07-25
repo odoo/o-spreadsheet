@@ -106,21 +106,12 @@ Excel don't really use the theme.xml file for theme colors, but define its own s
 
 ### Number Formats
 
-We do not currently support many features in number formats. We try to convert the number formats of Excel into something we can use, dropping what we do not support.
+We try to convert the number formats of Excel into something we can use, dropping what we do not support.
 If we cannot convert the number format into something we can use, we drop it completely.
 
-- Multi-parts format :
-  - They are parts separated by ; in format
-  - We don't support those, we only take the first part
 - Locale/Date System info :
   - They are HexCodes in brackets in the format (eg . [\$-40C], [\$string-52B])
   - We drop them completely
-- Escaped sequences of character :
-  - They are blocks in the format that are pasted as-is in the parsed format. They can either be blocks with quotes "..." or brackets [\$...]
-  - We only support one of these escaped sequence by format. Drop the format if there are multiple of these.
-  - We only support brackets, convert "..." into [\$...]
-- Spaces :
-  - We only support spaces inside escaped sequence. Drop the spaces that are not in the escaped sequence.
 - Underscore character (\_) :
   - It marks the next character as a character to ignore when computing the alignment of the word.
   - We don't support this, drop \_ and the character that follows it in the format.
