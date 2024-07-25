@@ -187,6 +187,42 @@ describe("formatting values (with formatters)", () => {
     expect(getEvaluatedCell(model, "A1")?.formattedValue).toEqual("10.12345679");
   });
 
+  test("SET_DECIMAL on format with escaped string", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "10");
+
+    setFormat(model, "A1", "0.0\\€");
+    setDecimal(model, "A1", 1);
+    expect(getCell(model, "A1")?.format).toBe("0.00\\€");
+
+    setFormat(model, "A1", "0.0\\€");
+    setDecimal(model, "A1", -1);
+    expect(getCell(model, "A1")?.format).toBe("0\\€");
+
+    setFormat(model, "A1", "0.0$0");
+    setDecimal(model, "A1", -1);
+    expect(getCell(model, "A1")?.format).toBe("0.0$");
+    setDecimal(model, "A1", -1);
+    expect(getCell(model, "A1")?.format).toBe("0$");
+  });
+
+  test("SET_DECIMAL on multi-part format", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "10");
+
+    setFormat(model, "A1", "0.0\\€;$0.#; 0 ;@");
+    setDecimal(model, "A1", 1);
+    expect(getCell(model, "A1")?.format).toBe("0.00\\€;$0.#0; 0.0 ;@");
+
+    setFormat(model, "A1", "0.0\\€;$0.#; 0 ;@");
+    setDecimal(model, "A1", -1);
+    expect(getCell(model, "A1")?.format).toBe("0\\€;$0; 0 ;@");
+
+    setFormat(model, "A1", ";;;@");
+    setDecimal(model, "A1", -1);
+    expect(getCell(model, "A1")?.format).toBe(";;;@");
+  });
+
   test("UPDATE_CELL on long number that are truncated due to default format don't loose truncated digits", () => {
     const model = new Model();
     setCellContent(model, "A1", "10.123456789123");
