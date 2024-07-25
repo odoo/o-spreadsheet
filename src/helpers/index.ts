@@ -3,7 +3,7 @@ export * from "./coordinates";
 export * from "./data_validation_helpers";
 export * from "./dates";
 export * from "./edge_scrolling";
-export * from "./format";
+export * from "./format/format";
 export * from "./misc";
 export * from "./numbers";
 export * from "./range";

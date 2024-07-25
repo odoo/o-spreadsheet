@@ -34,7 +34,7 @@ import {
 } from "../../../types/chart/chart";
 import { CellErrorType } from "../../../types/errors";
 import { ColorGenerator, lightenColor, relativeLuminance } from "../../color";
-import { formatValue } from "../../format";
+import { formatValue } from "../../format/format";
 import { isDefined, range } from "../../misc";
 import { copyRangeWithNewSheetId } from "../../range";
 import { rangeReference } from "../../references";
