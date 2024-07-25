@@ -1,4 +1,4 @@
-import { toNumber, toString } from "../../functions/helpers";
+import { toNumber } from "../../functions/helpers";
 import { _t } from "../../translation";
 import {
   CellValue,
@@ -9,55 +9,33 @@ import {
   Locale,
   LocaleFormat,
   Maybe,
-  PLAIN_TEXT_FORMAT,
 } from "../../types";
 import { EvaluationError } from "../../types/errors";
 import { DateTime, INITIAL_1900_DAY, isDateTime, numberToJsDate, parseDateTime } from "../dates";
-import { escapeRegExp, memoize } from "../misc";
-
-/**
- *  Constant used to indicate the maximum of digits that is possible to display
- *  in a cell with standard size.
- */
-const MAX_DECIMAL_PLACES = 20;
+import {
+  escapeRegExp,
+  insertItemsAtIndex,
+  memoize,
+  range,
+  removeIndexesFromArray,
+  replaceItemAtIndex,
+} from "../misc";
+import {
+  DateInternalFormat,
+  InternalFormat,
+  MAX_DECIMAL_PLACES,
+  NumberInternalFormat,
+  TextInternalFormat,
+  convertInternalFormatToFormat,
+  parseFormat,
+} from "./format_parser";
+import { FormatToken } from "./format_tokenizer";
 
 /**
  * Number of digits for the default number format. This number of digit make a number fit well in a cell
  * with default size and default font size.
  */
 const DEFAULT_FORMAT_NUMBER_OF_DIGITS = 11;
-
-//from https://stackoverflow.com/questions/721304/insert-commas-into-number-string @Thomas/Alan Moore
-const thousandsGroupsRegexp = /(\d+?)(?=(\d{3})+(?!\d)|$)/g;
-
-const zeroRegexp = /0/g;
-
-/**
- * This internal format allows to represent a string format into subparts.
- * This division simplifies:
- * - the interpretation of the format when apply it to a value
- * - its modification (ex: easier to change the number of decimals)
- *
- * The internal format was introduced with the custom currency. The challenge was
- * to separate the custom currency from the rest of the format to not interfere
- * during analysis.
- *
- * This internal format and functions related to its application or modification
- * are not perfect ! Unlike implementation of custom currencies, implementation
- * of custom formats will ask to completely revisit internal format. The custom
- * formats request a customization character by character.
- *
- * For mor information, see:
- * - ECMA 376 standard:
- *  - Part 1 “Fundamentals And Markup Language Reference”, 5th edition, December 2016:
- *   - 18.8.30 numFmt (Number Format)
- *   - 18.8.31 numFmts (Number Formats)
- */
-type InternalFormat = (
-  | { type: "NUMBER"; format: InternalNumberFormat }
-  | { type: "STRING"; format: string }
-  | { type: "DATE"; format: string }
-)[];
 
 // TODO in the future : remove these constants MONTHS/DAYS, and use a library such as luxon to handle it
 // + possibly handle automatic translation of day/month
@@ -86,153 +64,188 @@ const DAYS: Readonly<Record<number, string>> = {
   6: _t("Saturday"),
 };
 
-interface InternalNumberFormat {
-  readonly integerPart: string;
-  readonly isPercent: boolean;
-  readonly thousandsSeparator: boolean;
-  readonly magnitude: number;
-  /**
-   * optional because we need to differentiate a number
-   * with a dot but no decimals with a number without any decimals.
-   * i.e. '5.'  !=== '5' !=== '5.0'
-   */
-  readonly decimalPart?: string;
-}
-
-// -----------------------------------------------------------------------------
-// FORMAT REPRESENTATION CACHE
-// -----------------------------------------------------------------------------
-
-const internalFormatByFormatString: { [format: string]: InternalFormat } = {};
-
-function parseFormat(formatString: Format): InternalFormat {
-  let internalFormat = internalFormatByFormatString[formatString];
-  if (internalFormat === undefined) {
-    internalFormat = convertFormatToInternalFormat(formatString);
-    internalFormatByFormatString[formatString] = internalFormat;
-  }
-  return internalFormat;
-}
-
-// -----------------------------------------------------------------------------
-// APPLY FORMAT
-// -----------------------------------------------------------------------------
-
 /**
  * Formats a cell value with its format.
  */
 export function formatValue(value: CellValue, { format, locale }: LocaleFormat): FormattedValue {
-  if (format === PLAIN_TEXT_FORMAT) {
-    return toString(value) || "";
+  if (typeof value === "boolean") {
+    value = value ? "TRUE" : "FALSE";
   }
   switch (typeof value) {
-    case "string":
+    case "string": {
       if (value.includes('\\"')) {
-        return value.replace(/\\"/g, '"');
+        value = value.replaceAll(/\\"/g, '"');
       }
-      return value;
-    case "boolean":
-      return value ? "TRUE" : "FALSE";
+      if (!format) {
+        return value;
+      }
+      const internalFormat = parseFormat(format);
+      let formatToApply = internalFormat.text || internalFormat.positive;
+      if (!formatToApply || formatToApply.type !== "text") {
+        return value;
+      }
+      return applyTextInternalFormat(value, formatToApply);
+    }
     case "number":
-      // transform to internalNumberFormat
       if (!format) {
         format = createDefaultFormat(value);
       }
+
       const internalFormat = parseFormat(format);
-      return applyInternalFormat(value, internalFormat, locale);
+      if (internalFormat.positive.type === "text") {
+        return applyTextInternalFormat(value.toString(), internalFormat.positive);
+      }
+
+      let formatToApply: InternalFormat = internalFormat.positive;
+      if (value < 0 && internalFormat.negative) {
+        formatToApply = internalFormat.negative;
+        value = -value;
+      } else if (value === 0 && internalFormat.zero) {
+        formatToApply = internalFormat.zero;
+      }
+
+      if (formatToApply.type === "date") {
+        return applyDateTimeFormat(value, formatToApply);
+      }
+
+      const isNegative = value < 0;
+      const formatted = applyInternalNumberFormat(Math.abs(value), formatToApply, locale);
+      return isNegative ? "-" + formatted : formatted;
     case "object": // case value === null
       return "";
   }
 }
 
-function applyInternalFormat(
-  value: number,
-  internalFormat: InternalFormat,
-  locale: Locale
+function applyTextInternalFormat(
+  value: string,
+  internalFormat: TextInternalFormat
 ): FormattedValue {
-  if (internalFormat[0].type === "DATE") {
-    return applyDateTimeFormat(value, internalFormat[0].format);
-  }
-
-  let formattedValue: FormattedValue = value < 0 ? "-" : "";
-  for (let part of internalFormat) {
-    switch (part.type) {
-      case "NUMBER":
-        formattedValue += applyInternalNumberFormat(Math.abs(value), part.format, locale);
+  let formattedValue = "";
+  for (const token of internalFormat.tokens) {
+    switch (token.type) {
+      case "TEXT_PLACEHOLDER":
+        formattedValue += value;
         break;
+      case "CHAR":
       case "STRING":
-        formattedValue += part.format;
+        formattedValue += token.value;
         break;
     }
   }
   return formattedValue;
 }
 
-function applyInternalNumberFormat(value: number, format: InternalNumberFormat, locale: Locale) {
+function applyInternalNumberFormat(value: number, format: NumberInternalFormat, locale: Locale) {
   if (value === Infinity) {
-    return "∞" + (format.isPercent ? "%" : "");
+    return "∞" + (format.percentSymbols ? "%" : "");
   }
-  if (format.isPercent) {
-    value = value * 100;
-  }
-  value = value / format.magnitude;
+
+  const multiplier = format.percentSymbols * 2 - format.magnitude * 3;
+  value = value * 10 ** multiplier;
+
   let maxDecimals = 0;
   if (format.decimalPart !== undefined) {
-    maxDecimals = format.decimalPart.length;
+    maxDecimals = format.decimalPart.filter((token) => token.type === "DIGIT").length;
   }
-  const { integerDigits, decimalDigits } = splitNumber(value, maxDecimals);
+  const { integerDigits, decimalDigits } = splitNumber(Math.abs(value), maxDecimals);
 
   let formattedValue = applyIntegerFormat(
     integerDigits,
-    format.integerPart,
+    format,
     format.thousandsSeparator ? locale.thousandsSeparator : undefined
   );
 
   if (format.decimalPart !== undefined) {
-    formattedValue +=
-      locale.decimalSeparator + applyDecimalFormat(decimalDigits || "", format.decimalPart);
+    formattedValue += locale.decimalSeparator + applyDecimalFormat(decimalDigits || "", format);
   }
 
-  if (format.isPercent) {
-    formattedValue += "%";
-  }
   return formattedValue;
 }
 
 function applyIntegerFormat(
   integerDigits: string,
-  integerFormat: string,
+  internalFormat: NumberInternalFormat,
   thousandsSeparator: string | undefined
 ): string {
-  const _integerDigits = integerDigits === "0" ? "" : integerDigits;
+  let tokens = internalFormat.integerPart;
+  if (!tokens.some((token) => token.type === "DIGIT")) {
+    tokens = [...tokens, { type: "DIGIT", value: "#" }];
+  }
+  if (integerDigits === "0") {
+    integerDigits = "";
+  }
+  let formattedInteger = "";
 
-  let formattedInteger = _integerDigits;
-  const delta = integerFormat.length - _integerDigits.length;
-  if (delta > 0) {
-    // ex: format = "0#000000" and integerDigit: "123"
-    const restIntegerFormat = integerFormat.substring(0, delta); // restIntegerFormat = "0#00"
-    const countZero = (restIntegerFormat.match(zeroRegexp) || []).length; // countZero = 3
-    formattedInteger = "0".repeat(countZero) + formattedInteger; // return "000123"
+  const firstDigitIndex = tokens.findIndex((token) => token.type === "DIGIT");
+  let indexInIntegerString = integerDigits.length - 1;
+
+  function appendDigitToFormattedValue(digit: string | undefined, digitType: "0" | "#") {
+    if (digitType === "0") {
+      digit = digit || "0";
+    }
+    if (!digit) return;
+
+    const digitIndex = integerDigits.length - 1 - indexInIntegerString;
+    if (thousandsSeparator && digitIndex > 0 && digitIndex % 3 === 0) {
+      formattedInteger = digit + thousandsSeparator + formattedInteger;
+    } else {
+      formattedInteger = digit + formattedInteger;
+    }
   }
 
-  if (thousandsSeparator) {
-    formattedInteger =
-      formattedInteger.match(thousandsGroupsRegexp)?.join(thousandsSeparator) || formattedInteger;
+  for (let i = tokens.length - 1; i >= 0; i--) {
+    const token = tokens[i];
+    switch (token.type) {
+      case "DIGIT":
+        let digit = integerDigits[indexInIntegerString];
+        appendDigitToFormattedValue(digit, token.value);
+
+        indexInIntegerString--;
+
+        // Apply the rest of the integer digits at the first digit character
+        if (firstDigitIndex === i) {
+          while (indexInIntegerString >= 0) {
+            appendDigitToFormattedValue(integerDigits[indexInIntegerString], "0");
+            indexInIntegerString--;
+          }
+        }
+        break;
+      case "THOUSANDS_SEPARATOR":
+        break;
+      default:
+        formattedInteger = token.value + formattedInteger;
+        break;
+    }
   }
 
   return formattedInteger;
 }
 
-function applyDecimalFormat(decimalDigits: string, decimalFormat: string): string {
-  // assume the format is valid (no commas)
-  let formattedDecimals = decimalDigits;
-  if (decimalFormat.length - decimalDigits.length > 0) {
-    const restDecimalFormat = decimalFormat.substring(
-      decimalDigits.length,
-      decimalFormat.length + 1
-    );
-    const countZero = (restDecimalFormat.match(zeroRegexp) || []).length;
-    formattedDecimals = formattedDecimals + "0".repeat(countZero);
+function applyDecimalFormat(decimalDigits: string, internalFormat: NumberInternalFormat): string {
+  if (!internalFormat.decimalPart) {
+    return "";
+  }
+
+  let formattedDecimals = "";
+
+  let indexInDecimalString = 0;
+
+  for (const token of internalFormat.decimalPart) {
+    switch (token.type) {
+      case "DIGIT":
+        const digit =
+          token.value === "#"
+            ? decimalDigits[indexInDecimalString] || ""
+            : decimalDigits[indexInDecimalString] || "0";
+        formattedDecimals += digit;
+        indexInDecimalString++;
+        break;
+      case "THOUSANDS_SEPARATOR":
+        break;
+      default:
+        formattedDecimals += token.value;
+        break;
+    }
   }
 
   return formattedDecimals;
@@ -372,117 +385,93 @@ export function numberToString(number: number, decimalSeparator: string): string
 }
 
 /**
- * Check if the given format is a time, date or date time format.
+ * Check if the given format is a time, date or date time format. Only check the first part of a multi-part format.
  */
-export function isDateTimeFormat(format: Format) {
-  if (!allowedDateTimeFormatFirstChar.has(format[0])) {
-    // first check for performance reason
+export const isDateTimeFormat = memoize(function isDateTimeFormat(format: Format) {
+  if (!format) {
     return false;
   }
   try {
-    applyDateTimeFormat(1, format);
-    return true;
+    const internalFormat = parseFormat(format);
+    return internalFormat.positive.type === "date";
   } catch (error) {
     return false;
   }
-}
-const allowedDateTimeFormatFirstChar = new Set(["h", "m", "y", "d", "q"]);
+});
 
-export function applyDateTimeFormat(value: number, format: Format): FormattedValue {
-  // TODO: unify the format functions for date and datetime
-  // This requires some code to 'parse' or 'tokenize' the format, keep it in a
-  // cache, and use it in a single mapping, that recognizes the special list
-  // of tokens dd,d,m,y,h, ... and preserves the rest
-
+function applyDateTimeFormat(value: number, internalFormat: DateInternalFormat): FormattedValue {
   const jsDate = numberToJsDate(value);
-  const indexH = format.indexOf("h");
-  let strDate: FormattedValue = "";
-  let strTime: FormattedValue = "";
-  if (indexH > 0) {
-    strDate = formatJSDate(jsDate, format.substring(0, indexH - 1));
-    strTime = formatJSTime(jsDate, format.substring(indexH));
-  } else if (indexH === 0) {
-    strTime = formatJSTime(jsDate, format);
-  } else if (indexH < 0) {
-    strDate = formatJSDate(jsDate, format);
-  }
-  return strDate + (strDate && strTime ? " " : "") + strTime;
-}
 
-function formatJSDate(jsDate: DateTime, format: Format): FormattedValue {
-  const sep = format.match(/\/|-|\s/)?.[0];
-  const parts = sep ? format.split(sep) : [format];
-  return parts
-    .map((p) => {
-      switch (p) {
-        case "d":
-          return jsDate.getDate();
-        case "dd":
-          return jsDate.getDate().toString().padStart(2, "0");
-        case "ddd":
-          return DAYS[jsDate.getDay()].slice(0, 3);
-        case "dddd":
-          return DAYS[jsDate.getDay()];
-        case "m":
-          return jsDate.getMonth() + 1;
-        case "mm":
-          return String(jsDate.getMonth() + 1).padStart(2, "0");
-        case "mmm":
-          return MONTHS[jsDate.getMonth()].slice(0, 3);
-        case "mmmm":
-          return MONTHS[jsDate.getMonth()];
-        case "mmmmm":
-          return MONTHS[jsDate.getMonth()].slice(0, 1);
-        case "qq":
-          return _t("Q%(quarter)s", { quarter: jsDate.getQuarter() });
-        case "qqqq":
-          return _t("Quarter %(quarter)s", { quarter: jsDate.getQuarter() });
-        case "yy":
-          const fullYear = String(jsDate.getFullYear()).replace("-", "").padStart(2, "0");
-          return fullYear.slice(fullYear.length - 2);
-        case "yyyy":
-          return jsDate.getFullYear();
-        default:
-          throw new Error(`invalid format: ${format}`);
-      }
-    })
-    .join(sep);
-}
-
-function formatJSTime(jsDate: DateTime, format: Format): FormattedValue {
-  let parts = format.split(/:|\s/);
-
-  const dateHours = jsDate.getHours();
-  const isMeridian = parts[parts.length - 1] === "a";
-  let hours = dateHours;
-  let meridian = "";
-  if (isMeridian) {
-    hours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
-    meridian = dateHours >= 12 ? " PM" : " AM";
-    parts.pop();
-  }
-
-  return (
-    parts
-      .map((p) => {
-        switch (p) {
-          case "hhhh":
-            const helapsedHours = Math.floor(
-              (jsDate.getTime() - INITIAL_1900_DAY.getTime()) / (60 * 60 * 1000)
-            );
-            return helapsedHours.toString();
-          case "hh":
-            return hours.toString().padStart(2, "0");
-          case "mm":
-            return jsDate.getMinutes().toString().padStart(2, "0");
-          case "ss":
-            return jsDate.getSeconds().toString().padStart(2, "0");
-          default:
-            throw new Error(`invalid format: ${format}`);
-        }
-      })
-      .join(":") + meridian
+  const isMeridian = internalFormat.tokens.some(
+    (token) => token.type === "DATE_PART" && token.value === "a"
   );
+
+  let currentValue = "";
+  for (const token of internalFormat.tokens) {
+    switch (token.type) {
+      case "DATE_PART":
+        currentValue += formatJSDatePart(jsDate, token.value, isMeridian);
+        break;
+      default:
+        currentValue += token.value;
+        break;
+    }
+  }
+
+  return currentValue;
+}
+
+function formatJSDatePart(jsDate: DateTime, tokenValue: string, isMeridian: boolean) {
+  switch (tokenValue) {
+    case "d":
+      return jsDate.getDate();
+    case "dd":
+      return jsDate.getDate().toString().padStart(2, "0");
+    case "ddd":
+      return DAYS[jsDate.getDay()].slice(0, 3);
+    case "dddd":
+      // force translation because somehow node 22 doesn't call LazyTranslatedString.toString() whe concatenating it to a string
+      return DAYS[jsDate.getDay()].toString();
+    case "m":
+      return jsDate.getMonth() + 1;
+    case "mm":
+      return String(jsDate.getMonth() + 1).padStart(2, "0");
+    case "mmm":
+      return MONTHS[jsDate.getMonth()].slice(0, 3);
+    case "mmmm":
+      return MONTHS[jsDate.getMonth()].toString();
+    case "mmmmm":
+      return MONTHS[jsDate.getMonth()].slice(0, 1);
+    case "qq":
+      return _t("Q%(quarter)s", { quarter: jsDate.getQuarter() }).toString();
+    case "qqqq":
+      return _t("Quarter %(quarter)s", { quarter: jsDate.getQuarter() }).toString();
+    case "yy":
+      const fullYear = String(jsDate.getFullYear()).replace("-", "").padStart(2, "0");
+      return fullYear.slice(fullYear.length - 2);
+    case "yyyy":
+      return jsDate.getFullYear();
+    case "hhhh":
+      const elapsedHours = Math.floor(
+        (jsDate.getTime() - INITIAL_1900_DAY.getTime()) / (60 * 60 * 1000)
+      );
+      return elapsedHours.toString();
+    case "hh":
+      const dateHours = jsDate.getHours();
+      let hours = dateHours;
+      if (isMeridian) {
+        hours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+      }
+      return hours.toString().padStart(2, "0");
+    case "MM": // "MM" replaces "mm" for minutes during format parsing
+      return jsDate.getMinutes().toString().padStart(2, "0");
+    case "ss":
+      return jsDate.getSeconds().toString().padStart(2, "0");
+    case "a":
+      return jsDate.getHours() >= 12 ? "PM" : "AM";
+    default:
+      throw new Error(`invalid date format token: ${tokenValue}`);
+  }
 }
 
 /**
@@ -568,20 +557,26 @@ function insertTextInFormat(text: string, position: "before" | "after", format: 
 }
 
 export function roundFormat(format: Format): Format {
-  const internalFormat = parseFormat(format);
-  const roundedFormat = internalFormat.map((formatPart) => {
-    if (formatPart.type === "NUMBER") {
-      return {
-        type: formatPart.type,
-        format: {
-          ...formatPart.format,
-          decimalPart: undefined,
-        },
-      };
-    }
-    return formatPart;
-  });
-  return convertInternalFormatToFormat(roundedFormat);
+  const multiPartFormat = parseFormat(format);
+  const roundedInternalFormat = {
+    positive: _roundFormat(multiPartFormat.positive),
+    negative: multiPartFormat.negative ? _roundFormat(multiPartFormat.negative) : undefined,
+    zero: multiPartFormat.zero ? _roundFormat(multiPartFormat.zero) : undefined,
+    text: multiPartFormat.text,
+  };
+  return convertInternalFormatToFormat(roundedInternalFormat);
+}
+
+function _roundFormat<T extends InternalFormat>(internalFormat: T): T {
+  if (internalFormat.type !== "number" || !internalFormat.decimalPart) {
+    return internalFormat;
+  }
+  const nonDigitDecimalPart = internalFormat.decimalPart.filter((token) => token.type !== "DIGIT");
+  return {
+    ...internalFormat,
+    decimalPart: undefined,
+    integerPart: [...internalFormat.integerPart, ...nonDigitDecimalPart],
+  };
 }
 
 export function humanizeNumber({ value, format }: FunctionResultObject, locale: Locale): string {
@@ -612,11 +607,11 @@ export function formatLargeNumber(
     const postFix = unit?.value;
     switch (postFix) {
       case "k":
-        return createLargeNumberFormat(format, 1e3, "k", locale);
+        return createLargeNumberFormat(format, 1, "k", locale);
       case "m":
-        return createLargeNumberFormat(format, 1e6, "m", locale);
+        return createLargeNumberFormat(format, 2, "m", locale);
       case "b":
-        return createLargeNumberFormat(format, 1e9, "b", locale);
+        return createLargeNumberFormat(format, 3, "b", locale);
       default:
         throw new EvaluationError(_t("The formatting unit should be 'k', 'm' or 'b'."));
     }
@@ -624,221 +619,153 @@ export function formatLargeNumber(
   if (value < 1e5) {
     return createLargeNumberFormat(format, 0, "", locale);
   } else if (value < 1e8) {
-    return createLargeNumberFormat(format, 1e3, "k", locale);
+    return createLargeNumberFormat(format, 1, "k", locale);
   } else if (value < 1e11) {
-    return createLargeNumberFormat(format, 1e6, "m", locale);
+    return createLargeNumberFormat(format, 2, "m", locale);
   }
-  return createLargeNumberFormat(format, 1e9, "b", locale);
+  return createLargeNumberFormat(format, 3, "b", locale);
 }
 
-export function createLargeNumberFormat(
+function createLargeNumberFormat(
   format: Format | undefined,
   magnitude: number,
   postFix: string,
   locale: Locale
 ): Format {
-  const internalFormat = parseFormat(format || "#,##0");
-  const largeNumberFormat: InternalFormat = [];
-  for (let i = 0; i < internalFormat.length; i++) {
-    const formatPart = internalFormat[i];
-    if (formatPart.type !== "NUMBER") {
-      largeNumberFormat.push(formatPart);
-      continue;
-    }
-
-    largeNumberFormat.push({
-      ...formatPart,
-      format: {
-        ...formatPart.format,
-        magnitude,
-        decimalPart: undefined,
-      },
-    });
-    largeNumberFormat.push({
-      type: "STRING" as const,
-      format: postFix,
-    });
-
-    const nextFormatPart = internalFormat[i + 1];
-    if (nextFormatPart?.type === "STRING" && ["k", "m", "b"].includes(nextFormatPart.format)) {
-      i++;
-    }
-  }
-  return convertInternalFormatToFormat(largeNumberFormat);
+  const multiPartFormat = parseFormat(format || "#,##0");
+  const roundedInternalFormat = {
+    positive: _createLargeNumberFormat(multiPartFormat.positive, magnitude, postFix),
+    negative: multiPartFormat.negative
+      ? _createLargeNumberFormat(multiPartFormat.negative, magnitude, postFix)
+      : undefined,
+    zero: multiPartFormat.zero
+      ? _createLargeNumberFormat(multiPartFormat.zero, magnitude, postFix)
+      : undefined,
+    text: multiPartFormat.text,
+  };
+  return convertInternalFormatToFormat(roundedInternalFormat);
 }
 
-export function changeDecimalPlaces(format: Format, step: number, locale: Locale) {
-  const internalFormat = parseFormat(format);
-  const newInternalFormat = internalFormat.map((intFmt) => {
-    if (intFmt.type === "NUMBER") {
-      return { ...intFmt, format: changeInternalNumberFormatDecimalPlaces(intFmt.format, step) };
-    } else {
-      return intFmt;
+function _createLargeNumberFormat<T extends InternalFormat>(
+  format: T,
+  magnitude: number,
+  postFix: string
+): T {
+  if (format.type !== "number") {
+    return format;
+  }
+
+  const postFixToken: FormatToken = { type: "STRING", value: postFix };
+  let newIntegerPart = [...format.integerPart];
+
+  const lastDigitIndex = newIntegerPart.findLastIndex((token) => token.type === "DIGIT");
+  if (lastDigitIndex === -1) {
+    throw new Error("Cannot create a large number format from a format with no digit.");
+  }
+  while (newIntegerPart[lastDigitIndex + 1]?.type === "THOUSANDS_SEPARATOR") {
+    newIntegerPart = removeIndexesFromArray(newIntegerPart, [lastDigitIndex + 1]);
+  }
+
+  const tokenAfterDigits = newIntegerPart[lastDigitIndex + 1];
+  if (tokenAfterDigits?.type === "STRING" && ["m", "k", "b"].includes(tokenAfterDigits.value)) {
+    newIntegerPart = replaceItemAtIndex(newIntegerPart, postFixToken, lastDigitIndex + 1);
+  } else {
+    newIntegerPart = insertItemsAtIndex(newIntegerPart, [postFixToken], lastDigitIndex + 1);
+  }
+
+  if (magnitude > 0) {
+    newIntegerPart = insertItemsAtIndex(
+      newIntegerPart,
+      Array(magnitude).fill({ type: "THOUSANDS_SEPARATOR", value: "," }),
+      lastDigitIndex + 1
+    );
+  }
+  return { ...format, integerPart: newIntegerPart, decimalPart: undefined, magnitude };
+}
+
+export function changeDecimalPlaces(format: Format, step: number) {
+  const multiPartFormat = parseFormat(format);
+  const newInternalFormat = {
+    positive: _changeDecimalPlace(multiPartFormat.positive, step),
+    negative: multiPartFormat.negative
+      ? _changeDecimalPlace(multiPartFormat.negative, step)
+      : undefined,
+    zero: multiPartFormat.zero ? _changeDecimalPlace(multiPartFormat.zero, step) : undefined,
+    text: multiPartFormat.text,
+  };
+  // Re-parse the format to make sure we don't break the number of digit limit
+  return convertInternalFormatToFormat(
+    parseFormat(convertInternalFormatToFormat(newInternalFormat))
+  );
+}
+
+function _changeDecimalPlace<T extends InternalFormat>(format: T, step: number): T {
+  if (format.type !== "number") {
+    return format;
+  }
+  return (
+    step > 0 ? addDecimalPlaces(format, step) : removeDecimalPlaces(format, Math.abs(step))
+  ) as T;
+}
+
+function removeDecimalPlaces(format: NumberInternalFormat, step: number): NumberInternalFormat {
+  let decimalPart = format.decimalPart;
+  if (!decimalPart) {
+    return format;
+  }
+
+  const indexesToRemove: number[] = [];
+  let digitCount = 0;
+  for (let i = decimalPart.length - 1; i >= 0; i--) {
+    if (digitCount >= Math.abs(step)) {
+      break;
     }
-  });
-  const newFormat = convertInternalFormatToFormat(newInternalFormat);
-  internalFormatByFormatString[newFormat] = newInternalFormat;
-  return newFormat;
+    if (decimalPart[i].type === "DIGIT") {
+      digitCount++;
+      indexesToRemove.push(i);
+    }
+  }
+  decimalPart = removeIndexesFromArray(decimalPart, indexesToRemove);
+
+  if (decimalPart.some((token) => token.type === "DIGIT")) {
+    return { ...format, decimalPart };
+  }
+
+  return {
+    ...format,
+    decimalPart: undefined,
+    integerPart: [...format.integerPart, ...decimalPart],
+  };
+}
+
+function addDecimalPlaces(format: NumberInternalFormat, step: number): NumberInternalFormat {
+  let integerPart = format.integerPart;
+  let decimalPart = format.decimalPart;
+
+  if (!decimalPart) {
+    const lastDigitIndex = integerPart.findLastIndex((token) => token.type === "DIGIT");
+    decimalPart = integerPart.slice(lastDigitIndex + 1);
+    integerPart = integerPart.slice(0, lastDigitIndex + 1);
+  }
+
+  const digitsToAdd = range(0, step).map(() => ({ type: "DIGIT", value: "0" } as const));
+  const lastDigitIndex = decimalPart.findLastIndex((token) => token.type === "DIGIT");
+
+  if (lastDigitIndex === -1) {
+    decimalPart = [...digitsToAdd, ...decimalPart];
+  } else {
+    decimalPart = insertItemsAtIndex(decimalPart, digitsToAdd, lastDigitIndex + 1);
+  }
+
+  return { ...format, decimalPart, integerPart };
 }
 
 export function isExcelCompatible(format: Format): boolean {
   const internalFormat = parseFormat(format);
-  for (let part of internalFormat) {
-    if (part.type === "DATE" && part.format.includes("q")) {
+  for (const part of [internalFormat.positive, internalFormat.negative, internalFormat.zero]) {
+    if (part && part.type === "date" && part.tokens.some((token) => token.value.includes("q"))) {
       return false;
     }
   }
   return true;
-}
-
-function changeInternalNumberFormatDecimalPlaces(
-  format: Readonly<InternalNumberFormat>,
-  step: number
-): InternalNumberFormat {
-  const _format = { ...format };
-  const sign = Math.sign(step);
-  const decimalLength = _format.decimalPart?.length || 0;
-  const countZero = Math.min(Math.max(0, decimalLength + sign), MAX_DECIMAL_PLACES);
-  _format.decimalPart = "0".repeat(countZero);
-  if (_format.decimalPart === "") {
-    delete _format.decimalPart;
-  }
-  return _format;
-}
-
-// -----------------------------------------------------------------------------
-// MANAGING FORMAT
-// -----------------------------------------------------------------------------
-
-/**
- * Validates the provided format string and returns an InternalFormat Object.
- */
-function convertFormatToInternalFormat(format: Format): InternalFormat {
-  if (format === "") {
-    throw new Error("A format cannot be empty");
-  }
-  let currentIndex = 0;
-  let result: InternalFormat = [];
-  while (currentIndex < format.length) {
-    let closingIndex: number;
-    if (format.charAt(currentIndex) === "[") {
-      if (format.charAt(currentIndex + 1) !== "$") {
-        throw new Error(`Currency formats have to be prefixed by a $: ${format}`);
-      }
-      // manage brackets/customStrings
-      closingIndex = format.substring(currentIndex + 1).indexOf("]") + currentIndex + 2;
-      if (closingIndex === 0) {
-        throw new Error(`Invalid currency brackets format: ${format}`);
-      }
-      // remove leading "[$"" and ending "]".
-      const str = format.substring(currentIndex + 2, closingIndex - 1);
-      if (str.includes("[")) {
-        throw new Error(`Invalid currency format: ${format}`);
-      }
-      result.push({
-        type: "STRING",
-        format: str,
-      });
-    } else {
-      // rest of the time
-      const nextPartIndex = format.substring(currentIndex).indexOf("[");
-      closingIndex = nextPartIndex > -1 ? nextPartIndex + currentIndex : format.length;
-      const subFormat = format.substring(currentIndex, closingIndex);
-      if (isDateTimeFormat(subFormat)) {
-        result.push({ type: "DATE", format: subFormat });
-      } else {
-        result.push({
-          type: "NUMBER",
-          format: convertToInternalNumberFormat(subFormat),
-        });
-      }
-    }
-    currentIndex = closingIndex;
-  }
-  return result;
-}
-
-const magnitudeRegex = /,*?$/;
-
-/**
- * @param format a formatString that is only applicable to numbers. I.e. composed of characters 0 # , . %
- */
-function convertToInternalNumberFormat(format: Format): InternalNumberFormat {
-  format = format.trim();
-  if (containsInvalidNumberChars(format)) {
-    throw new Error(`Invalid number format: ${format}`);
-  }
-  const isPercent = format.includes("%");
-  const magnitudeCommas = format.match(magnitudeRegex)?.[0] || "";
-  const magnitude = !magnitudeCommas ? 1 : 1000 ** magnitudeCommas.length;
-  let _format = format.slice(0, format.length - (magnitudeCommas.length || 0));
-  const thousandsSeparator = _format.includes(",");
-  if (/\..*,/.test(_format)) {
-    throw new Error("A format can't contain ',' symbol in the decimal part");
-  }
-  _format = _format.replace("%", "").replace(",", "");
-
-  const extraSigns = _format.match(/[\%|,]/);
-  if (extraSigns) {
-    throw new Error(`A format can only contain a single '${extraSigns[0]}' symbol`);
-  }
-  const [integerPart, decimalPart] = _format.split(".");
-  if (decimalPart && decimalPart.length > 20) {
-    throw new Error("A format can't contain more than 20 decimal places");
-  }
-  if (decimalPart !== undefined) {
-    return {
-      integerPart,
-      isPercent,
-      thousandsSeparator,
-      decimalPart,
-      magnitude,
-    };
-  } else {
-    return {
-      integerPart,
-      isPercent,
-      thousandsSeparator,
-      magnitude,
-    };
-  }
-}
-
-const validNumberChars = /[,#0.%@]/g;
-
-function containsInvalidNumberChars(format: Format): boolean {
-  return Boolean(format.replace(validNumberChars, ""));
-}
-
-function convertInternalFormatToFormat(internalFormat: InternalFormat): Format {
-  let format: Format = "";
-  for (let part of internalFormat) {
-    let currentFormat: string;
-    switch (part.type) {
-      case "NUMBER":
-        const fmt = part.format;
-        currentFormat = fmt.integerPart;
-        if (fmt.thousandsSeparator) {
-          currentFormat = currentFormat.slice(0, -3) + "," + currentFormat.slice(-3);
-        }
-        if (fmt.decimalPart !== undefined) {
-          currentFormat += "." + fmt.decimalPart;
-        }
-        if (fmt.isPercent) {
-          currentFormat += "%";
-        }
-        if (fmt.magnitude) {
-          currentFormat += ",".repeat(Math.log10(fmt.magnitude) / 3);
-        }
-        break;
-      case "STRING":
-        currentFormat = `[$${part.format}]`;
-        break;
-      case "DATE":
-        currentFormat = part.format;
-        break;
-    }
-    format += currentFormat;
-  }
-  return format;
 }

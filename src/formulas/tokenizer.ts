@@ -1,5 +1,10 @@
 import { NEWLINE } from "../constants";
-import { getFormulaNumberRegex, rangeReference, replaceSpecialSpaces } from "../helpers/index";
+import {
+  TokenizingChars,
+  getFormulaNumberRegex,
+  rangeReference,
+  replaceSpecialSpaces,
+} from "../helpers/index";
 import { DEFAULT_LOCALE, Locale } from "../types";
 import { CellErrorType } from "../types/errors";
 
@@ -226,47 +231,4 @@ function tokenizeInvalidRange(chars: TokenizingChars): Token | null {
     return { type: "INVALID_REFERENCE", value: CellErrorType.InvalidReference };
   }
   return null;
-}
-
-class TokenizingChars {
-  private text: string;
-  private currentIndex: number = 0;
-  current: string;
-
-  constructor(text: string) {
-    this.text = text;
-    this.current = text[0];
-  }
-
-  shift() {
-    const current = this.current;
-    const next = this.text[++this.currentIndex];
-    this.current = next;
-    return current;
-  }
-
-  advanceBy(length: number) {
-    this.currentIndex += length;
-    this.current = this.text[this.currentIndex];
-  }
-
-  isOver() {
-    return this.currentIndex >= this.text.length;
-  }
-
-  remaining() {
-    return this.text.substring(this.currentIndex);
-  }
-
-  currentStartsWith(str: string) {
-    if (this.current !== str[0]) {
-      return false;
-    }
-    for (let j = 1; j < str.length; j++) {
-      if (this.text[this.currentIndex + j] !== str[j]) {
-        return false;
-      }
-    }
-    return true;
-  }
 }

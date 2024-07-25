@@ -51,8 +51,7 @@ export class FormatPlugin extends UIPlugin {
         if (numberFormat !== undefined) {
           // Depending on the step sign, increase or decrease the decimal representation
           // of the format
-          const locale = this.getters.getLocale();
-          const newFormat = changeDecimalPlaces(numberFormat, step, locale);
+          const newFormat = changeDecimalPlaces(numberFormat, step);
           positionsByFormat[newFormat] = positionsByFormat[newFormat] || [];
           positionsByFormat[newFormat].push(position);
         }
