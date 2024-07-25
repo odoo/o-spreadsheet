@@ -12,7 +12,7 @@ import { StandaloneComposerStore } from "./standalone_composer_store";
 css/* scss */ `
   .o-spreadsheet {
     .o-standalone-composer {
-      height: 28px;
+      min-height: 28px;
       overflow: auto;
       box-sizing: border-box;
 
