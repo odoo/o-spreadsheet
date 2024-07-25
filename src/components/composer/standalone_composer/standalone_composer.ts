@@ -3,6 +3,7 @@ import { SELECTION_BORDER_COLOR } from "../../../constants";
 import { Store, useLocalStore, useStore } from "../../../store_engine";
 import { ComposerFocusType, SpreadsheetChildEnv } from "../../../types/index";
 import { css, cssPropertiesToCss } from "../../helpers/css";
+import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { ComposerSelection } from "../composer/abstract_composer_store";
 import { CellComposer } from "../composer/composer";
 import { ComposerFocusStore, ComposerInterface } from "../composer_focus_store";
@@ -11,7 +12,7 @@ import { StandaloneComposerStore } from "./standalone_composer_store";
 css/* scss */ `
   .o-spreadsheet {
     .o-standalone-composer {
-      height: 28px;
+      min-height: 28px;
       overflow: auto;
       box-sizing: border-box;
 
@@ -61,6 +62,7 @@ export class StandaloneComposer extends Component<Props, SpreadsheetChildEnv> {
   private composerFocusStore!: Store<ComposerFocusStore>;
   private standaloneComposerStore!: Store<StandaloneComposerStore>;
   private composerInterface!: ComposerInterface;
+  readonly spreadsheetRect = useSpreadsheetRect();
 
   setup() {
     this.composerFocusStore = useStore(ComposerFocusStore);
