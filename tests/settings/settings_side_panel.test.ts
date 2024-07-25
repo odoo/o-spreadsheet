@@ -95,6 +95,7 @@ describe("settings sidePanel component", () => {
     });
 
     test("Malformed locales in env.loadLocales() are not displayed", async () => {
+      jest.spyOn(console, "warn").mockImplementation(() => {}); // silence console.warn and don't crash the test
       const testLocales: Locale[] = [DEFAULT_LOCALE, { code: "malformed" } as any, "yo !" as any];
       const env = makeTestEnv({ loadLocales: async () => testLocales });
       await mountSettingsSidePanel(undefined, env);
