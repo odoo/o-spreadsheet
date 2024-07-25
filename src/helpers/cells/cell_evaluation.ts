@@ -16,7 +16,12 @@ import {
   PLAIN_TEXT_FORMAT,
 } from "../../types";
 import { parseDateTime } from "../dates";
-import { detectDateFormat, detectNumberFormat, formatValue, isDateTimeFormat } from "../format";
+import {
+  detectDateFormat,
+  detectNumberFormat,
+  formatValue,
+  isDateTimeFormat,
+} from "../format/format";
 import { detectLink } from "../links";
 import { isBoolean, memoize } from "../misc";
 import { isNumber, parseNumber } from "../numbers";

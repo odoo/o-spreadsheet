@@ -1,5 +1,5 @@
-import { toNumber, toString } from "../functions/helpers";
-import { _t } from "../translation";
+import { toNumber, toString } from "../../functions/helpers";
+import { _t } from "../../translation";
 import {
   CellValue,
   Currency,
@@ -10,10 +10,10 @@ import {
   LocaleFormat,
   Maybe,
   PLAIN_TEXT_FORMAT,
-} from "../types";
-import { EvaluationError } from "../types/errors";
-import { DateTime, INITIAL_1900_DAY, isDateTime, numberToJsDate, parseDateTime } from "./dates";
-import { escapeRegExp, memoize } from "./misc";
+} from "../../types";
+import { EvaluationError } from "../../types/errors";
+import { DateTime, INITIAL_1900_DAY, isDateTime, numberToJsDate, parseDateTime } from "../dates";
+import { escapeRegExp, memoize } from "../misc";
 
 /**
  *  Constant used to indicate the maximum of digits that is possible to display
