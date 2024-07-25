@@ -1,13 +1,14 @@
 import { Component, useExternalListener, useState } from "@odoo/owl";
-import { CancelledReason, CommandResult } from "../../../..";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../../constants";
 import { colorNumberString, rangeReference } from "../../../../helpers";
 import { canonicalizeCFRule } from "../../../../helpers/locale";
 import {
+  CancelledReason,
   CellIsRule,
   Color,
   ColorScaleRule,
   ColorScaleThreshold,
+  CommandResult,
   ConditionalFormat,
   ConditionalFormatRule,
   IconSetRule,
