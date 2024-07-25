@@ -36,7 +36,10 @@ export class Checkbox extends Component<Props, SpreadsheetChildEnv> {
   static defaultProps = { value: false };
 
   onChange(ev: InputEvent) {
-    const value = (ev.target as HTMLInputElement).checked;
+    const input = ev.target as HTMLInputElement;
+    const value = input.checked;
+    // make sure the input is always in sync with the props if the onChange doesn't trigger a re-render
+    input.checked = this.props.value;
     this.props.onChange(value);
   }
 }

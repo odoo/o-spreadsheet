@@ -577,3 +577,28 @@ export function largeMin(array: number[]) {
   }
   return min;
 }
+
+/**
+ * Remove duplicates from an array.
+ *
+ * @param array The array to remove duplicates from.
+ * @param cb A callback to get an element value.
+ */
+export function removeDuplicates<T>(array: T[], cb: (a: T) => any = (a) => a): T[] {
+  return array.filter((value, index) => array.findIndex((v) => cb(v) === cb(value)) === index);
+}
+
+export function transpose2dPOJO<T>(
+  pojo: Record<string, Record<string, T>>
+): Record<string, Record<string, T>> {
+  const result: Record<string, Record<string, T>> = {};
+  for (const key in pojo) {
+    for (const subKey in pojo[key]) {
+      if (!result[subKey]) {
+        result[subKey] = {};
+      }
+      result[subKey][key] = pojo[key][subKey];
+    }
+  }
+  return result;
+}

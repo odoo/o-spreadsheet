@@ -14,7 +14,11 @@
           t-on-pointerdown="(ev) => this.startDragAndDrop(col, ev)"
           t-att-style="dragAndDrop.itemsStyle[col.nameWithGranularity]"
           class="pt-1">
-          <PivotDimension dimension="col" onRemoved.bind="removeDimension">
+          <PivotDimension
+            dimension="col"
+            type="'col'"
+            pivotId="props.pivotId"
+            onRemoved.bind="removeDimension">
             <PivotDimensionGranularity
               t-if="isDateField(col)"
               dimension="col"
@@ -40,7 +44,11 @@
           t-on-pointerdown="(ev) => this.startDragAndDrop(row, ev)"
           t-att-style="dragAndDrop.itemsStyle[row.nameWithGranularity]"
           class="pt-1">
-          <PivotDimension dimension="row" onRemoved.bind="removeDimension">
+          <PivotDimension
+            dimension="row"
+            type="'row'"
+            pivotId="props.pivotId"
+            onRemoved.bind="removeDimension">
             <PivotDimensionGranularity
               t-if="isDateField(row)"
               dimension="row"
@@ -73,6 +81,8 @@
           class="pt-1 pivot-measure">
           <PivotDimension
             dimension="measure"
+            type="'measure'"
+            pivotId="props.pivotId"
             onRemoved.bind="removeMeasureDimension"
             onNameUpdated.bind="onMeasureNameUpdated">
             <div t-if="measure.computedBy" class="d-flex flex-row small">
@@ -86,8 +96,8 @@
                 />
               </div>
             </div>
-            <div class="d-flex flex-column small">
-              <div class="d-flex py-1 px-2 w-100">
+            <div class="d-flex flex-row small">
+              <div class="d-flex  flex-row py-1 px-2 w-100">
                 <div class="pivot-dim-operator-label">Aggregated by</div>
                 <select
                   class="o_input flex-grow-1 me-3"

@@ -24,8 +24,12 @@ describe("Checkbox", () => {
     await mountCheckbox({ value: true, onChange });
     await click(fixture, "input[type=checkbox]");
     expect(onChange).toHaveBeenCalledWith(false);
+  });
+
+  test("clicking on the checkbox does not change its state if its props does not change", async () => {
+    await mountCheckbox({ value: true, onChange: () => {} });
     await click(fixture, "input[type=checkbox]");
-    expect(onChange).toHaveBeenCalledWith(true);
+    expect(fixture.querySelector("input")!.checked).toBe(true);
   });
 
   test("Can render a checkbox with a name", async () => {

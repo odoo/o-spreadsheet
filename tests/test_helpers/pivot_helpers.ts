@@ -1,6 +1,6 @@
 import { DispatchResult, Model, UID } from "../../src";
-import { toZone } from "../../src/helpers";
-import { SpreadsheetPivotCoreDefinition } from "../../src/types/pivot";
+import { deepCopy, toZone } from "../../src/helpers";
+import { PivotMeasureDisplay, SpreadsheetPivotCoreDefinition } from "../../src/types/pivot";
 import { pivotModelData } from "../pivots/pivot_data";
 
 export function createModelWithPivot(range: string): Model {
@@ -63,3 +63,15 @@ export const SELECTORS = {
   DELETE_PIVOT: ".os-cog-wheel-menu .fa-trash",
   FLIP_AXIS_PIVOT: ".os-cog-wheel-menu .fa-exchange",
 };
+
+export function updatePivotMeasureDisplay(
+  model: Model,
+  pivotId: string,
+  measureId: string,
+  display: PivotMeasureDisplay
+) {
+  const measures = deepCopy(model.getters.getPivotCoreDefinition(pivotId)).measures;
+  const measure = measures.find((m) => m.id === measureId)!;
+  measure.display = display;
+  updatePivot(model, pivotId, { measures });
+}

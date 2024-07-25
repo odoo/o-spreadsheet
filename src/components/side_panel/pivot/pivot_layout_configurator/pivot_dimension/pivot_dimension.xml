@@ -13,11 +13,14 @@
           />
           <span t-else="1" class="fw-bold" t-esc="props.dimension.displayName"/>
         </div>
-        <i
-          class="btn fa fa-times pe-0"
-          t-if="props.onRemoved"
-          t-on-click="() => props.onRemoved(props.dimension)"
-        />
+        <div class="d-flex flex-row align-items-center">
+          <CogWheelMenu t-if="props.type === 'measure'" items="cogWheelMenuItems"/>
+          <i
+            class="btn fa fa-times pe-0 ps-2"
+            t-if="props.onRemoved"
+            t-on-click="() => props.onRemoved(props.dimension)"
+          />
+        </div>
       </div>
       <t t-slot="default"/>
     </div>

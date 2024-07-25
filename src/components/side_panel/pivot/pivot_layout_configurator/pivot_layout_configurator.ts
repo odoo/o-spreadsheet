@@ -4,7 +4,7 @@ import { AGGREGATORS, isDateField } from "../../../../helpers/pivot/pivot_helper
 import { PivotRuntimeDefinition } from "../../../../helpers/pivot/pivot_runtime_definition";
 import { createMeasureAutoComplete } from "../../../../registries/auto_completes/pivot_dimension_auto_complete";
 import { Store, useStore } from "../../../../store_engine";
-import { SpreadsheetChildEnv } from "../../../../types";
+import { SpreadsheetChildEnv, UID } from "../../../../types";
 import {
   Aggregator,
   Granularity,
@@ -31,6 +31,7 @@ interface Props {
   measureFields: PivotField[];
   unusedDateTimeGranularities: Record<string, Set<string>>;
   allGranularities: string[];
+  pivotId: UID;
 }
 
 css/* scss */ `
@@ -55,6 +56,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     measureFields: Array,
     unusedDateTimeGranularities: Object,
     allGranularities: Array,
+    pivotId: String,
   };
 
   private dimensionsRef = useRef("pivot-dimensions");

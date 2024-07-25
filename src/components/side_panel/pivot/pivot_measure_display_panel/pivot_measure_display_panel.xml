@@ -1,0 +1,66 @@
+<templates>
+  <t t-name="o-spreadsheet-PivotMeasureDisplayPanel">
+    <Section>
+      <t t-set-slot="title">Show measure as:</t>
+      <select
+        class="o-pivot-measure-display-type o-input"
+        t-on-change="(ev) => this.store.updateMeasureDisplayType(ev.target.value)">
+        <t t-foreach="measureDisplayTypeLabels" t-as="measureType" t-key="measureType">
+          <option
+            t-att-value="measureType"
+            t-att-selected="measureType === store.measureDisplay.type"
+            t-esc="measureType_value"
+          />
+        </t>
+      </select>
+      <div
+        class="o-pivot-measure-display-description mt-2 ps-3"
+        t-esc="measureDisplayDescription[store.measureDisplay.type]"
+      />
+    </Section>
+
+    <t t-set="fields" t-value="store.fields"/>
+    <Section t-if="store.doesDisplayNeedsField">
+      <t t-set-slot="title">Base field:</t>
+      <div class="o-pivot-measure-display-field w-100 py-1 px-3">
+        <t t-if="fields.length">
+          <t t-foreach="fields" t-as="field" t-key="field.nameWithGranularity">
+            <Checkbox
+              name="field.nameWithGranularity"
+              label="field.displayName"
+              value="field.nameWithGranularity === store.measureDisplay.fieldNameWithGranularity"
+              onChange="() => store.updateMeasureDisplayField(field.nameWithGranularity)"
+            />
+          </t>
+        </t>
+        <t t-else="">
+          <div class="text-muted text-center my-3">No active dimension in the pivot</div>
+        </t>
+      </div>
+    </Section>
+
+    <t t-set="values" t-value="store.values"/>
+    <Section t-if="store.doesDisplayNeedsValue and values.length">
+      <t t-set-slot="title">Base item:</t>
+      <div class="o-pivot-measure-display-value w-100 py-1 px-3">
+        <t t-foreach="values" t-as="val" t-key="val_index">
+          <Checkbox
+            name="val.value.toString()"
+            label="val.label"
+            value="val.value === store.measureDisplay.value"
+            onChange="() => store.updateMeasureDisplayValue(val.value)"
+          />
+        </t>
+      </div>
+    </Section>
+
+    <div class="o-sidePanelButtons">
+      <button t-on-click="onCancel" class="o-pivot-measure-cancel o-button o-button-grey">
+        Cancel
+      </button>
+      <button t-on-click="onSave" class="o-pivot-measure-save o-button o-button-grey primary">
+        Save
+      </button>
+    </div>
+  </t>
+</templates>

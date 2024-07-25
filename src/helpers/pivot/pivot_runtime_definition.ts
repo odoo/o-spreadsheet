@@ -80,6 +80,7 @@ function createMeasure(fields: PivotFields, measure: PivotCoreMeasure): PivotMea
     type: fieldName === "__count" ? "integer" : field?.type ?? "integer",
     isValid: !!(field || measure.computedBy),
     computedBy: measure.computedBy,
+    display: measure.display,
   };
 }
 

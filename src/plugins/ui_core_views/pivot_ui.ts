@@ -251,7 +251,7 @@ export class PivotUIPlugin extends UIPlugin {
     return name;
   }
 
-  getPivot(pivotId: UID) {
+  getPivot(pivotId: UID): Pivot {
     return this.pivots[pivotId];
   }
 
