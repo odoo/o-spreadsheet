@@ -285,7 +285,7 @@ export function debounce(func: Function, wait: number, immediate?: boolean): Fun
   let timeout;
   return function (this: any): void {
     const context = this;
-    const args = arguments;
+    const args = Array.from(arguments);
     function later() {
       timeout = null;
       if (!immediate) {
