@@ -25,7 +25,7 @@ import {
 } from "../../../types/pivot";
 import { InitPivotParams, Pivot } from "../../../types/pivot_runtime";
 import { toXC } from "../../coordinates";
-import { isDateTimeFormat } from "../../format";
+import { isDateTimeFormat } from "../../format/format";
 import { isDefined } from "../../misc";
 import {
   AGGREGATORS_FN,

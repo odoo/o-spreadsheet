@@ -4,7 +4,7 @@ import { _t } from "../../translation";
 import { CellValue, DEFAULT_LOCALE } from "../../types";
 import { EvaluationError } from "../../types/errors";
 import { Granularity, PivotTimeAdapter, PivotTimeAdapterNotNull } from "../../types/pivot";
-import { MONTHS, formatValue } from "../format";
+import { MONTHS, formatValue } from "../format/format";
 
 export const pivotTimeAdapterRegistry = new Registry<PivotTimeAdapter<CellValue>>();
 

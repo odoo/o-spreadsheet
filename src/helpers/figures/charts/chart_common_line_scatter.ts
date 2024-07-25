@@ -11,7 +11,7 @@ import {
 } from "../../../types/chart/chart";
 import { getChartTimeOptions, timeFormatLuxonCompatible } from "../../chart_date";
 import { colorToRGBA, rgbaToHex } from "../../color";
-import { formatValue } from "../../format";
+import { formatValue } from "../../format/format";
 import { deepCopy, findNextDefinedValue, range } from "../../misc";
 import { isNumber } from "../../numbers";
 import {

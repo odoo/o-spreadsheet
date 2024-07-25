@@ -6,7 +6,7 @@ import { _t } from "../../../translation";
 import { CellValue, Color, Figure, Format, Getters, LocaleFormat, Range } from "../../../types";
 import { GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
 import { ChartRuntime, DataSet, DatasetValues, LabelValues } from "../../../types/chart/chart";
-import { formatValue, isDateTimeFormat } from "../../format";
+import { formatValue, isDateTimeFormat } from "../../format/format";
 import { deepCopy, range } from "../../misc";
 import { recomputeZones } from "../../recompute_zones";
 import { AbstractChart } from "./abstract_chart";

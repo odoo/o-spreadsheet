@@ -1,5 +1,5 @@
 import { Component, onWillUpdateProps } from "@odoo/owl";
-import { formatValue } from "../../../helpers/format";
+import { formatValue } from "../../../helpers/format/format";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
 import { Store, useStore } from "../../../store_engine";
 import { SpreadsheetChildEnv } from "../../../types";
