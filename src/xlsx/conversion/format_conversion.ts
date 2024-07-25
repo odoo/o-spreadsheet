@@ -25,24 +25,11 @@ export function convertXlsxFormat(
 
   if (format) {
     try {
-      let convertedFormat = format.replace(/(.*?);.*/, "$1"); // only take first part of multi-part format
-      convertedFormat = convertedFormat.replace(/\[(.*)-[A-Z0-9]{3}\]/g, "[$1]"); // remove currency and locale/date system/number system info (ECMA §18.8.31)
+      let convertedFormat = format.replace(/\[(.*)-[A-Z0-9]{3}\]/g, "[$1]"); // remove currency and locale/date system/number system info (ECMA §18.8.31)
       convertedFormat = convertedFormat.replace(/\[\$\]/g, ""); // remove empty bocks
-
-      // Quotes in format escape sequences of characters. ATM we only support [$...] blocks to escape characters, and only one of them per format
-      const numberOfQuotes = convertedFormat.match(/"/g)?.length || 0;
-      const numberOfOpenBrackets = convertedFormat.match(/\[/g)?.length || 0;
-      if (numberOfQuotes / 2 + numberOfOpenBrackets > 1) {
-        throw new Error("Multiple escaped blocks in format");
-      }
-      convertedFormat = convertedFormat.replace(/"(.*)"/g, "[$$$1]"); // replace '"..."' by '[$...]'
 
       convertedFormat = convertedFormat.replace(/_.{1}/g, ""); // _ === ignore width of next char for align purposes. Not supported ATM
       convertedFormat = convertedFormat.replace(/\*.{1}/g, ""); // * === repeat next character enough to fill the line. Not supported ATM
-
-      convertedFormat = convertedFormat.replace(/\\ /g, " "); // unescape spaces
-
-      convertedFormat = convertedFormat.replace(/\\./g, (match) => match[1]); // unescape other characters
 
       if (isXlsxDateFormat(convertedFormat)) {
         convertedFormat = convertDateFormat(convertedFormat);

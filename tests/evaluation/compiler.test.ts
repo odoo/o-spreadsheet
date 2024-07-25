@@ -189,7 +189,7 @@ describe("compile functions", () => {
         compute: (arg1, arg2) => {
           return {
             value: arg2 === undefined,
-            format: arg2 === undefined ? "TRUE" : "FALSE",
+            format: arg2 === undefined ? '"TRUE"' : '"FALSE"',
           };
         },
       });
@@ -202,8 +202,8 @@ describe("compile functions", () => {
         ],
         compute: (arg1, arg2 = { value: 42, format: "42" }) => {
           return !Array.isArray(arg2) && arg2.value === 42 && arg2.format === "42"
-            ? { value: true, format: "TRUE" }
-            : { value: false, format: "FALSE" };
+            ? { value: true, format: '"TRUE"' }
+            : { value: false, format: '"FALSE"' };
         },
       });
     });
@@ -212,17 +212,17 @@ describe("compile functions", () => {
     });
     test("empty value interpreted as undefined", () => {
       expect(evaluateCell("A1", { A1: "=ISSECONDARGUNDEFINED(1,)" })).toBe(true);
-      expect(evaluateCellFormat("A1", { A1: "=ISSECONDARGUNDEFINED(1,)" })).toBe("TRUE");
+      expect(evaluateCellFormat("A1", { A1: "=ISSECONDARGUNDEFINED(1,)" })).toBe('"TRUE"');
     });
 
     test("if default value --> empty value interpreted as default value", () => {
       expect(evaluateCell("A1", { A1: "=SECONDARGDEFAULTVALUEEQUAL42(1,)" })).toBe(true);
-      expect(evaluateCellFormat("A1", { A1: "=SECONDARGDEFAULTVALUEEQUAL42(1,)" })).toBe("TRUE");
+      expect(evaluateCellFormat("A1", { A1: "=SECONDARGDEFAULTVALUEEQUAL42(1,)" })).toBe('"TRUE"');
     });
 
     test("if default value --> non-value interpreted as default value", () => {
       expect(evaluateCell("A1", { A1: "=SECONDARGDEFAULTVALUEEQUAL42(1)" })).toBe(true);
-      expect(evaluateCellFormat("A1", { A1: "=SECONDARGDEFAULTVALUEEQUAL42(1)" })).toBe("TRUE");
+      expect(evaluateCellFormat("A1", { A1: "=SECONDARGDEFAULTVALUEEQUAL42(1)" })).toBe('"TRUE"');
     });
   });
 
