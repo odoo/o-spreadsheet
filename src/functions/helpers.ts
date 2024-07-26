@@ -385,9 +385,11 @@ function evaluatePredicate(value: CellValue | undefined = "", criterion: Predica
   if (operand === undefined) {
     return false;
   }
-
   if (typeof operand === "number" && operator === "=") {
-    return toString(value) === toString(operand);
+    if (typeof value === "string" && (isNumber(value) || isDateTime(value))) {
+      return toNumber(value) === operand;
+    }
+    return value === operand;
   }
 
   if (operator === "<>" || operator === "=") {
