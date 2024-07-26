@@ -556,15 +556,21 @@ function operandToRegExp(operand: string): RegExp {
   return new RegExp("^" + exp + "$", "i");
 }
 
-function evaluatePredicate(value: CellValue | undefined = "", criterion: Predicate): boolean {
+function evaluatePredicate(
+  value: CellValue | undefined = "",
+  criterion: Predicate,
+  locale: Locale
+): boolean {
   const { operator, operand } = criterion;
 
   if (operand === undefined || value === null || operand === null) {
     return false;
   }
-
   if (typeof operand === "number" && operator === "=") {
-    return value.toString() === operand.toString();
+    if (typeof value === "string" && (isNumber(value, locale) || isDateTime(value, locale))) {
+      return toNumber(value, locale) === operand;
+    }
+    return value === operand;
   }
 
   if (operator === "<>" || operator === "=") {
@@ -659,7 +665,7 @@ export function visitMatchingRanges(
       for (let k = 0; k < countArg - 1; k += 2) {
         const criteriaValue = toMatrix(args[k])[i][j].value;
         const criterion = predicates[k / 2];
-        validatedPredicates = evaluatePredicate(criteriaValue ?? undefined, criterion);
+        validatedPredicates = evaluatePredicate(criteriaValue ?? undefined, criterion, locale);
         if (!validatedPredicates) {
           break;
         }
