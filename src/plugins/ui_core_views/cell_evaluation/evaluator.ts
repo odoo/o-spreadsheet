@@ -81,7 +81,10 @@ export class Evaluator {
   }
 
   getArrayFormulaSpreadingOn(position: CellPosition): CellPosition | undefined {
-    if (!this.spreadingRelations.hasArrayFormulaResult(position)) {
+    const hasArrayFormulaResult =
+      this.getEvaluatedCell(position).type !== CellValueType.empty &&
+      !this.getters.getCell(position)?.isFormula;
+    if (!hasArrayFormulaResult) {
       return this.spreadingRelations.isArrayFormula(position) ? position : undefined;
     }
     const arrayFormulas = this.spreadingRelations.getFormulaPositionsSpreadingOn(

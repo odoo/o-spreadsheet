@@ -85,15 +85,6 @@ export class SpreadingRelation {
     this.arrayFormulasToResults.set(arrayFormulaPosition, resultPosition);
   }
 
-  hasArrayFormulaResult(position: CellPosition): boolean {
-    return (
-      this.resultsToArrayFormulas.search({
-        sheetId: position.sheetId,
-        zone: positionToZone(position),
-      }).length > 0
-    );
-  }
-
   isArrayFormula(position: CellPosition): boolean {
     return this.arrayFormulasToResults.has(position);
   }
