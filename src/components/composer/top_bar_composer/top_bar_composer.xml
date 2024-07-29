@@ -8,7 +8,6 @@
         focus="focus"
         inputStyle="composerStyle"
         onComposerContentFocused.bind="onFocus"
-        delimitation="delimitation"
         composerStore="composerStore"
       />
     </div>
