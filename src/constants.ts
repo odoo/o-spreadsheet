@@ -168,10 +168,12 @@ export const DEFAULT_STYLE = {
   fontSize: 10,
   fillColor: "",
   textColor: "#000000",
+  indent: 0,
 } satisfies Required<Style>;
 
 export const DEFAULT_VERTICAL_ALIGN = DEFAULT_STYLE.verticalAlign;
 export const DEFAULT_WRAPPING_MODE = DEFAULT_STYLE.wrapping;
+export const DEFAULT_INDENT = "   ";
 
 // Fonts
 export const DEFAULT_FONT_WEIGHT = "400";

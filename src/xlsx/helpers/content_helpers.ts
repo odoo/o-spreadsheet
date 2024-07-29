@@ -97,6 +97,7 @@ export function extractStyle(cell: ExcelCellData, data: WorkbookData): Extracted
         ? V_ALIGNMENT_EXPORT_CONVERSION_MAP[style.verticalAlign]
         : undefined,
       wrapText: style.wrapping === "wrap" || undefined,
+      indent: style.indent,
     },
   };
 
@@ -126,6 +127,7 @@ export function normalizeStyle(construct: XLSXStructure, styles: ExtractedStyle)
       vertical: styles.alignment.vertical,
       horizontal: styles.alignment.horizontal,
       wrapText: styles.alignment.wrapText,
+      indent: styles.alignment.indent,
     },
   } as XLSXStyle;
 

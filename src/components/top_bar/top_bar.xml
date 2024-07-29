@@ -161,6 +161,8 @@
                 </div>
               </div>
             </div>
+            <ActionButton action="FORMAT.styleIncreaseIndent" class="'o-hoverable-button'"/>
+            <ActionButton action="FORMAT.styleDecreaseIndent" class="'o-hoverable-button'"/>
 
             <div class="o-divider"/>
 

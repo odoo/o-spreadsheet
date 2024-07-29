@@ -5,6 +5,7 @@ import {
   CELL_BORDER_COLOR,
   DEFAULT_CELL_HEIGHT,
   DEFAULT_CELL_WIDTH,
+  DEFAULT_INDENT,
   HEADER_HEIGHT,
   HEADER_WIDTH,
   MIN_CELL_TEXT_MARGIN,
@@ -50,8 +51,8 @@ MockCanvasRenderingContext2D.prototype.measureText = function (text: string) {
 };
 jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
 
-function getBoxFromText(gridRenderer: GridRenderer, text: string): Box {
-  return (gridRenderer["getGridBoxes"]()! as Box[]).find(
+function getBoxFromText(ctx: GridRenderingContext, gridRenderer: GridRenderer, text: string): Box {
+  return (gridRenderer["getGridBoxes"](ctx)! as Box[]).find(
     (b) => (b.content?.textLines || []).join(" ") === text
   )!;
 }
@@ -789,7 +790,7 @@ describe("renderer", () => {
       let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
       drawGridRenderer(ctx);
 
-      box = getBoxFromText(gridRendererStore, overflowingContent);
+      box = getBoxFromText(ctx, gridRendererStore, overflowingContent);
       // no clip
       expect(box.clipRect).toBeUndefined();
       expect(box.isOverflow).toBeTruthy();
@@ -798,7 +799,7 @@ describe("renderer", () => {
       setCellContent(model, "A1", "Content at the left");
       drawGridRenderer(ctx);
 
-      box = getBoxFromText(gridRendererStore, overflowingContent);
+      box = getBoxFromText(ctx, gridRendererStore, overflowingContent);
       expect(box.clipRect).toBeUndefined();
       expect(box.isOverflow).toBeTruthy();
 
@@ -806,7 +807,7 @@ describe("renderer", () => {
       setCellContent(model, "C1", "Content at the right");
       drawGridRenderer(ctx);
 
-      box = getBoxFromText(gridRendererStore, overflowingContent);
+      box = getBoxFromText(ctx, gridRendererStore, overflowingContent);
       expect(box.clipRect).toEqual({
         x: DEFAULT_CELL_WIDTH,
         y: 0,
@@ -839,7 +840,7 @@ describe("renderer", () => {
       let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
       drawGridRenderer(ctx);
 
-      box = getBoxFromText(gridRendererStore, overflowingNumber);
+      box = getBoxFromText(ctx, gridRendererStore, overflowingNumber);
       // no clip
       expect(box.clipRect).toBeUndefined();
       expect(box.isOverflow).toBeTruthy();
@@ -848,7 +849,7 @@ describe("renderer", () => {
       setCellContent(model, "A1", "Content at the left");
       drawGridRenderer(ctx);
 
-      box = getBoxFromText(gridRendererStore, overflowingNumber);
+      box = getBoxFromText(ctx, gridRendererStore, overflowingNumber);
       expect(box.clipRect).toBeUndefined();
       expect(box.isOverflow).toBeTruthy();
 
@@ -856,7 +857,7 @@ describe("renderer", () => {
       setCellContent(model, "C1", "Content at the right");
       drawGridRenderer(ctx);
 
-      box = getBoxFromText(gridRendererStore, overflowingNumber);
+      box = getBoxFromText(ctx, gridRendererStore, overflowingNumber);
       expect(box.clipRect).toEqual({
         x: DEFAULT_CELL_WIDTH,
         y: 0,
@@ -887,7 +888,7 @@ describe("renderer", () => {
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     drawGridRenderer(ctx);
 
-    box = getBoxFromText(gridRendererStore, overflowingText);
+    box = getBoxFromText(ctx, gridRendererStore, overflowingText);
     // no clip
     expect(box.clipRect).toBeUndefined();
     expect(box.isOverflow).toBeTruthy();
@@ -896,7 +897,7 @@ describe("renderer", () => {
     setCellContent(model, "C1", "Content at the left");
     drawGridRenderer(ctx);
 
-    box = getBoxFromText(gridRendererStore, overflowingText);
+    box = getBoxFromText(ctx, gridRendererStore, overflowingText);
     expect(box.clipRect).toBeUndefined();
     expect(box.isOverflow).toBeTruthy();
 
@@ -904,7 +905,7 @@ describe("renderer", () => {
     setCellContent(model, "A1", "Content at the right");
     drawGridRenderer(ctx);
 
-    box = getBoxFromText(gridRendererStore, overflowingText);
+    box = getBoxFromText(ctx, gridRendererStore, overflowingText);
     expect(box.clipRect).toEqual({
       x: DEFAULT_CELL_WIDTH,
       y: 0,
@@ -934,7 +935,7 @@ describe("renderer", () => {
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     drawGridRenderer(ctx);
 
-    const centeredBox = getBoxFromText(gridRendererStore, overflowingContent);
+    const centeredBox = getBoxFromText(ctx, gridRendererStore, overflowingContent);
     expect(centeredBox.clipRect).toEqual({
       x: DEFAULT_CELL_WIDTH, // clipped to the left
       y: 0,
@@ -964,7 +965,7 @@ describe("renderer", () => {
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     drawGridRenderer(ctx);
 
-    const centeredBox = getBoxFromText(gridRendererStore, overflowingContent);
+    const centeredBox = getBoxFromText(ctx, gridRendererStore, overflowingContent);
     const cell = getCell(model, "C1")!;
     const contentWidth =
       model.getters.getTextWidth(cell.content, cell.style || {}) + MIN_CELL_TEXT_MARGIN;
@@ -1001,7 +1002,7 @@ describe("renderer", () => {
       let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
       drawGridRenderer(ctx);
 
-      box = getBoxFromText(gridRendererStore, overflowingText);
+      box = getBoxFromText(ctx, gridRendererStore, overflowingText);
       expect(box.clipRect).toEqual({
         x: DEFAULT_CELL_WIDTH,
         y: 0,
@@ -1036,7 +1037,7 @@ describe("renderer", () => {
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     drawGridRenderer(ctx);
 
-    const box = getBoxFromText(gridRendererStore, overflowingText);
+    const box = getBoxFromText(ctx, gridRendererStore, overflowingText);
     expect(box.clipRect).toEqual({
       x: DEFAULT_CELL_WIDTH,
       y: DEFAULT_CELL_HEIGHT,
@@ -1068,7 +1069,7 @@ describe("renderer", () => {
       let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
       drawGridRenderer(ctx);
 
-      box = getBoxFromText(gridRendererStore, overflowingText);
+      box = getBoxFromText(ctx, gridRendererStore, overflowingText);
       expect(box.clipRect).toEqual({
         x: DEFAULT_CELL_WIDTH, // clipped to the left
         y: 0,
@@ -1101,7 +1102,7 @@ describe("renderer", () => {
       let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
       drawGridRenderer(ctx);
 
-      box = getBoxFromText(gridRendererStore, overflowingText);
+      box = getBoxFromText(ctx, gridRendererStore, overflowingText);
       expect(box.clipRect).toEqual({
         x: DEFAULT_CELL_WIDTH, // clipped to the left
         y: 0,
@@ -1133,13 +1134,13 @@ describe("renderer", () => {
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     drawGridRenderer(ctx);
 
-    box = getBoxFromText(gridRendererStore, overflowingText);
+    box = getBoxFromText(ctx, gridRendererStore, overflowingText);
     expect(box.clipRect).toBeUndefined();
 
     resizeRows(model, [0], Math.floor(fontSizeInPixels(fontSize) / 2));
     drawGridRenderer(ctx);
 
-    box = getBoxFromText(gridRendererStore, overflowingText);
+    box = getBoxFromText(ctx, gridRendererStore, overflowingText);
     expect(box.clipRect).toEqual({
       x: 0,
       y: 0,
@@ -1161,7 +1162,7 @@ describe("renderer", () => {
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     drawGridRenderer(ctx);
 
-    expect(getBoxFromText(gridRendererStore, overflowingText).clipRect).toEqual({
+    expect(getBoxFromText(ctx, gridRendererStore, overflowingText).clipRect).toEqual({
       x: 0,
       y: 0,
       width: 952,
@@ -1200,7 +1201,7 @@ describe("renderer", () => {
     let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     drawGridRenderer(ctx);
 
-    box = getBoxFromText(gridRendererStore, cellContent);
+    box = getBoxFromText(ctx, gridRendererStore, cellContent);
     const maxIconBoxWidth = box.image!.size + MIN_CF_ICON_MARGIN;
     expect(box.image!.clipIcon).toEqual({
       x: 0,
@@ -1218,7 +1219,7 @@ describe("renderer", () => {
     resizeColumns(model, ["A"], maxIconBoxWidth - 3);
     drawGridRenderer(ctx);
 
-    box = getBoxFromText(gridRendererStore, cellContent);
+    box = getBoxFromText(ctx, gridRendererStore, cellContent);
     expect(box.image!.clipIcon).toEqual({
       x: 0,
       y: 0,
@@ -1245,7 +1246,7 @@ describe("renderer", () => {
     const ctx = new MockGridRenderingContext(model, 1000, 1000, {});
     drawGridRenderer(ctx);
 
-    box = getBoxFromText(gridRendererStore, cellContent);
+    box = getBoxFromText(ctx, gridRendererStore, cellContent);
     const expectedClipRect = { x: 0, y: 0, width: 10, height: DEFAULT_CELL_HEIGHT };
     expect(box.clipRect).toEqual(expectedClipRect);
 
@@ -1256,7 +1257,7 @@ describe("renderer", () => {
     });
     drawGridRenderer(ctx);
 
-    box = getBoxFromText(gridRendererStore, cellContent);
+    box = getBoxFromText(ctx, gridRendererStore, cellContent);
     expect(box.clipRect).toEqual(expectedClipRect);
   });
 
@@ -1298,7 +1299,7 @@ describe("renderer", () => {
       let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
       drawGridRenderer(ctx);
 
-      const box = getBoxFromText(gridRendererStore, cellContent);
+      const box = getBoxFromText(ctx, gridRendererStore, cellContent);
       expect(box.clipRect).toEqual(
         expectedClipRectZone ? model.getters.getVisibleRect(expectedClipRectZone) : undefined
       );
@@ -1326,7 +1327,7 @@ describe("renderer", () => {
       let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
       drawGridRenderer(ctx);
 
-      const box = getBoxFromText(gridRendererStore, cellContent);
+      const box = getBoxFromText(ctx, gridRendererStore, cellContent);
       const cell = getCell(model, "B2")!;
       const textWidth = model.getters.getTextWidth(cell.content, cell.style || {});
       const expectedClipRect = model.getters.getVisibleRect({
@@ -1373,7 +1374,7 @@ describe("renderer", () => {
       let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
       drawGridRenderer(ctx);
 
-      const box = getBoxFromText(gridRendererStore, cellContent);
+      const box = getBoxFromText(ctx, gridRendererStore, cellContent);
       expect(box.clipRect).toEqual(
         expectedClipRectZone ? model.getters.getVisibleRect(expectedClipRectZone) : undefined
       );
@@ -1392,7 +1393,7 @@ describe("renderer", () => {
     setCellContent(model, "A1", text);
     drawGridRenderer(ctx);
 
-    box = getBoxFromText(gridRendererStore, text);
+    box = getBoxFromText(ctx, gridRendererStore, text);
     expect(box.clipRect).toBeUndefined();
 
     // Text + MIN_CELL_TEXT_MARGIN  > col size, clip text
@@ -1401,7 +1402,7 @@ describe("renderer", () => {
     setCellContent(model, "A1", text);
     drawGridRenderer(ctx);
 
-    box = getBoxFromText(gridRendererStore, text);
+    box = getBoxFromText(ctx, gridRendererStore, text);
     expect(box.clipRect).toEqual({ x: 0, y: 0, width: 10, height: DEFAULT_CELL_HEIGHT });
   });
 
@@ -1509,25 +1510,25 @@ describe("renderer", () => {
     });
     drawGridRenderer(ctx);
 
-    const boxA1 = getBoxFromText(gridRendererStore, "#N/A"); //NotAvailableError => Shouldn't display
+    const boxA1 = getBoxFromText(ctx, gridRendererStore, "#N/A"); //NotAvailableError => Shouldn't display
     expect(boxA1.isError).toBeFalsy();
-    const boxB1 = getBoxFromText(gridRendererStore, "#CYCLE"); //CycleError => Should display
+    const boxB1 = getBoxFromText(ctx, gridRendererStore, "#CYCLE"); //CycleError => Should display
     expect(boxB1.isError).toBeTruthy();
     expect(filled[0][0]).toBe(boxB1.x + boxB1.width - 5);
     expect(filled[0][1]).toBe(boxB1.y);
-    const boxC1 = getBoxFromText(gridRendererStore, "#REF"); //BadReferenceError => Should display
+    const boxC1 = getBoxFromText(ctx, gridRendererStore, "#REF"); //BadReferenceError => Should display
     expect(boxB1.isError).toBeTruthy();
     expect(filled[1][0]).toBe(boxC1.x + boxC1.width - 5);
     expect(filled[1][1]).toBe(boxC1.y);
-    const boxD1 = getBoxFromText(gridRendererStore, "#BAD_EXPR"); //BadExpressionError => Should display
+    const boxD1 = getBoxFromText(ctx, gridRendererStore, "#BAD_EXPR"); //BadExpressionError => Should display
     expect(boxD1.isError).toBeTruthy();
     expect(filled[2][0]).toBe(boxD1.x + boxD1.width - 5);
     expect(filled[2][1]).toBe(boxD1.y);
-    const boxE1 = getBoxFromText(gridRendererStore, "#DIV/0!"); // DivisionByZero => Should display
+    const boxE1 = getBoxFromText(ctx, gridRendererStore, "#DIV/0!"); // DivisionByZero => Should display
     expect(boxE1.isError).toBeTruthy();
     expect(filled[3][0]).toBe(boxE1.x + boxE1.width - 5);
     expect(filled[3][1]).toBe(boxE1.y);
-    const boxF1 = getBoxFromText(gridRendererStore, "#ERROR"); // GeneralError => Should display
+    const boxF1 = getBoxFromText(ctx, gridRendererStore, "#ERROR"); // GeneralError => Should display
     expect(boxF1.isError).toBeTruthy();
     expect(filled[4][0]).toBe(boxF1.x + boxF1.width - 5);
     expect(filled[4][1]).toBe(boxF1.y);
@@ -1699,6 +1700,40 @@ describe("renderer", () => {
     expect(verticalStartPoints[0]).toEqual(5);
   });
 
+  test("Correctly display text indentation", () => {
+    const { drawGridRenderer, model } = setRenderer(
+      new Model({
+        sheets: [
+          {
+            id: 1,
+            colNumber: 1,
+            rowNumber: 1,
+            cells: {
+              A1: { content: "Hello", style: 1 },
+            },
+          },
+        ],
+        styles: {
+          1: { indent: 2 },
+        },
+      })
+    );
+
+    const texts: string[] = [];
+
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {
+      onFunctionCall: (val, args) => {
+        if (val === "fillText") {
+          texts.push(args[0]);
+        }
+      },
+    });
+
+    drawGridRenderer(ctx);
+
+    expect(texts[0]).toEqual(DEFAULT_INDENT.repeat(2) + "Hello");
+  });
+
   describe("Overflowing cells background", () => {
     let model: Model;
     let fillWhiteRectInstructions: number[][];
@@ -1748,7 +1783,7 @@ describe("renderer", () => {
       resizeColumns(model, ["A"], 10);
       drawGridRenderer(ctx);
 
-      const box = getBoxFromText(gridRendererStore, overflowingText);
+      const box = getBoxFromText(ctx, gridRendererStore, overflowingText);
       expect(getCellOverflowingBackgroundDims()).toMatchObject({
         x: box.x + ctx.thinLineWidth / 2,
         y: box.y + ctx.thinLineWidth / 2,
@@ -1765,7 +1800,7 @@ describe("renderer", () => {
       resizeColumns(model, ["A"], 10);
       drawGridRenderer(ctx);
 
-      const box = getBoxFromText(gridRendererStore, longLine + " " + longerLine);
+      const box = getBoxFromText(ctx, gridRendererStore, longLine + " " + longerLine);
       expect(getCellOverflowingBackgroundDims()).toMatchObject({
         x: box.x + ctx.thinLineWidth / 2,
         y: box.y + ctx.thinLineWidth / 2,
@@ -1782,7 +1817,7 @@ describe("renderer", () => {
       resizeRows(model, [0], Math.floor(fontSizeInPixels(fontSize) / 2));
       drawGridRenderer(ctx);
 
-      const box = getBoxFromText(gridRendererStore, overflowingText);
+      const box = getBoxFromText(ctx, gridRendererStore, overflowingText);
       expect(getCellOverflowingBackgroundDims()).toMatchObject({
         x: box.x + ctx.thinLineWidth / 2,
         y: box.y + ctx.thinLineWidth / 2,
@@ -1851,7 +1886,7 @@ describe("renderer", () => {
       resizeColumns(model, ["A"], 10);
       drawGridRenderer(ctx);
 
-      const box = getBoxFromText(gridRendererStore, longLine + " " + longerLine);
+      const box = getBoxFromText(ctx, gridRendererStore, longLine + " " + longerLine);
       expect(box.isOverflow).toBeTruthy();
       expect(box.content?.width).toEqual(longerLine.length + MIN_CELL_TEXT_MARGIN);
     });

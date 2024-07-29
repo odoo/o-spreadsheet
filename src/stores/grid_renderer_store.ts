@@ -6,6 +6,7 @@ import {
   CANVAS_SHIFT,
   CELL_BORDER_COLOR,
   DEFAULT_FONT,
+  DEFAULT_INDENT,
   DEFAULT_VERTICAL_ALIGN,
   FROZEN_PANE_BORDER_COLOR,
   FROZEN_PANE_HEADER_BORDER_COLOR,
@@ -20,6 +21,7 @@ import {
   TEXT_HEADER_COLOR,
 } from "../constants";
 import {
+  computeMaxWidth,
   computeTextFont,
   computeTextFontSizeInPixels,
   computeTextLinesHeight,
@@ -89,7 +91,7 @@ export class GridRenderer {
   drawLayer(renderingContext: GridRenderingContext, layer: LayerName) {
     switch (layer) {
       case "Background":
-        const boxes = this.getGridBoxes();
+        const boxes = this.getGridBoxes(renderingContext);
         this.drawBackground(renderingContext, boxes);
         this.drawOverflowingCellBackground(renderingContext, boxes);
         this.drawCellBackground(renderingContext, boxes);
@@ -310,6 +312,9 @@ export class GridRenderer {
         // use the horizontal and the vertical start points to:
         // fill text / fill strikethrough / fill underline
         for (let brokenLine of box.content.textLines) {
+          if (style.indent) {
+            brokenLine = DEFAULT_INDENT.repeat(style.indent) + brokenLine;
+          }
           drawDecoratedText(
             ctx,
             brokenLine,
@@ -575,7 +580,12 @@ export class GridRenderer {
     return align || evaluatedCell.defaultAlign;
   }
 
-  private createZoneBox(sheetId: UID, zone: Zone, viewport: Viewport): Box {
+  private createZoneBox(
+    renderingContext: GridRenderingContext,
+    sheetId: UID,
+    zone: Zone,
+    viewport: Viewport
+  ): Box {
     const { left, right } = viewport;
     const col: HeaderIndex = zone.left;
     const row: HeaderIndex = zone.top;
@@ -623,8 +633,7 @@ export class GridRenderer {
     /** Content */
     const style = this.getters.getCellComputedStyle(position);
     const wrapping = style.wrapping || "overflow";
-    const maxWidth =
-      wrapping === "wrap" && !showFormula ? width - 2 * MIN_CELL_TEXT_MARGIN : undefined;
+    const maxWidth = showFormula ? undefined : computeMaxWidth(renderingContext.ctx, width, style);
     const multiLineText = this.getters.getCellMultiLineText(position, maxWidth);
     const textWidth = Math.max(
       ...multiLineText.map((line) => this.getters.getTextWidth(line, style) + MIN_CELL_TEXT_MARGIN)
@@ -716,7 +725,7 @@ export class GridRenderer {
     return box;
   }
 
-  private getGridBoxes(): Box[] {
+  private getGridBoxes(renderingContext: GridRenderingContext): Box[] {
     const boxes: Box[] = [];
 
     const visibleCols = this.getters.getSheetViewVisibleCols();
@@ -734,7 +743,9 @@ export class GridRenderer {
         if (this.getters.isInMerge(position)) {
           continue;
         }
-        boxes.push(this.createZoneBox(sheetId, positionToZone(position), viewport));
+        boxes.push(
+          this.createZoneBox(renderingContext, sheetId, positionToZone(position), viewport)
+        );
       }
     }
     for (const merge of this.getters.getMerges(sheetId)) {
@@ -742,7 +753,7 @@ export class GridRenderer {
         continue;
       }
       if (overlap(merge, viewport)) {
-        const box = this.createZoneBox(sheetId, merge, viewport);
+        const box = this.createZoneBox(renderingContext, sheetId, merge, viewport);
         const borderBottomRight = this.getters.getCellComputedBorder({
           sheetId,
           col: merge.right,

@@ -348,6 +348,18 @@ export const formatWrappingClip: ActionSpec = {
   icon: "o-spreadsheet-Icon.WRAPPING_CLIP",
 };
 
+export const styleIncreaseIndent: ActionSpec = {
+  name: _t("Increase indentation"),
+  execute: (env) => ACTIONS.setStyle(env, { indent: getIndentLevel(env) + 1 }),
+  icon: "o-spreadsheet-Icon.INCREASE_INDENT",
+};
+
+export const styleDecreaseIndent: ActionSpec = {
+  name: _t("Decrease indentation"),
+  execute: (env) => ACTIONS.setStyle(env, { indent: getIndentLevel(env) - 1 }),
+  icon: "o-spreadsheet-Icon.DECREASE_INDENT",
+};
+
 export const textColor: ActionSpec = {
   name: _t("Text Color"),
   icon: "o-spreadsheet-Icon.TEXT_COLOR",
@@ -425,6 +437,11 @@ function getWrappingMode(env: SpreadsheetChildEnv): Wrapping {
     return style.wrapping;
   }
   return DEFAULT_WRAPPING_MODE;
+}
+
+function getIndentLevel(env: SpreadsheetChildEnv): number {
+  const style = env.model.getters.getCurrentStyle();
+  return style.indent || 0;
 }
 
 function getHorizontalAlignmentIcon(env: SpreadsheetChildEnv) {

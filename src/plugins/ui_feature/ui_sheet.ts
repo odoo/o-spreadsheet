@@ -1,4 +1,9 @@
-import { GRID_ICON_MARGIN, ICON_EDGE_LENGTH, PADDING_AUTORESIZE_HORIZONTAL } from "../../constants";
+import {
+  DEFAULT_INDENT,
+  GRID_ICON_MARGIN,
+  ICON_EDGE_LENGTH,
+  PADDING_AUTORESIZE_HORIZONTAL,
+} from "../../constants";
 import {
   computeIconWidth,
   computeTextWidth,
@@ -6,7 +11,7 @@ import {
   largeMax,
   positions,
   range,
-  splitTextToWidth,
+  splitTextIntoLines,
 } from "../../helpers/index";
 import { localizeFormula } from "../../helpers/locale";
 import { iconsOnCellRegistry } from "../../registries/icons_on_cell_registry";
@@ -75,10 +80,13 @@ export class SheetUIPlugin extends UIPlugin {
 
     const content = this.getters.getEvaluatedCell(position).formattedValue;
     if (content) {
-      const multiLineText = splitTextToWidth(this.ctx, content, style, undefined);
+      const multiLineText = splitTextIntoLines(this.ctx, content, style, undefined);
       contentWidth += Math.max(
         ...multiLineText.map((line) => computeTextWidth(this.ctx, line, style))
       );
+      if (style.indent) {
+        contentWidth += computeTextWidth(this.ctx, DEFAULT_INDENT, style) * style.indent;
+      }
     }
 
     const icon = this.getters.getCellIconSrc(position);
@@ -134,7 +142,7 @@ export class SheetUIPlugin extends UIPlugin {
   getCellMultiLineText(position: CellPosition, width: number | undefined): string[] {
     const style = this.getters.getCellStyle(position);
     const text = this.getters.getCellText(position, this.getters.shouldShowFormulas());
-    return splitTextToWidth(this.ctx, text, style, width);
+    return splitTextIntoLines(this.ctx, text, style, width);
   }
 
   doesCellHaveGridIcon(position: CellPosition): boolean {
