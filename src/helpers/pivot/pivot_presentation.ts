@@ -4,6 +4,7 @@ import {
   DimensionTree,
   FunctionResultObject,
   Getters,
+  InitPivotParams,
   Pivot,
   PivotDomain,
   PivotMeasure,
@@ -22,18 +23,31 @@ import { PivotParams, PivotUIConstructor } from "./pivot_registry";
 export function withPivotPresentationLayer(PivotClass: PivotUIConstructor) {
   class PivotPresentationLayer extends PivotClass {
     private getters: Getters;
+    private cache: Record<string, FunctionResultObject> = {};
 
     constructor(custom: ModelConfig["custom"], params: PivotParams) {
       super(custom, params);
       this.getters = params.getters;
     }
 
+    init(params?: InitPivotParams | undefined): void {
+      this.cache = {};
+      super.init(params);
+    }
+
     getPivotCellValueAndFormat(measureName: string, domain: PivotDomain): FunctionResultObject {
-      const measure = this.getMeasure(measureName);
-      if (measure.computedBy) {
-        return this.computeMeasure(measure, domain);
+      const cacheKey = `${measureName}-${domain
+        .map((node) => node.field + "=" + node.value)
+        .join(",")}`;
+      if (this.cache[cacheKey]) {
+        return this.cache[cacheKey];
       }
-      return super.getPivotCellValueAndFormat(measureName, domain);
+      const measure = this.getMeasure(measureName);
+      const result = measure.computedBy
+        ? this.computeMeasure(measure, domain)
+        : super.getPivotCellValueAndFormat(measureName, domain);
+      this.cache[cacheKey] = result;
+      return result;
     }
 
     private computeMeasure(measure: PivotMeasure, domain: PivotDomain): FunctionResultObject {
