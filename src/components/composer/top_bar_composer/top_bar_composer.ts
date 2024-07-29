@@ -7,12 +7,7 @@ import {
   TOPBAR_TOOLBAR_HEIGHT,
 } from "../../../constants";
 import { Store, useStore } from "../../../store_engine";
-import {
-  CSSProperties,
-  ComposerFocusType,
-  DOMDimension,
-  SpreadsheetChildEnv,
-} from "../../../types/index";
+import { CSSProperties, ComposerFocusType, SpreadsheetChildEnv } from "../../../types/index";
 import { css, cssPropertiesToCss } from "../../helpers/css";
 import { ComposerSelection } from "../composer/abstract_composer_store";
 import { CellComposerStore } from "../composer/cell_composer_store";
@@ -98,14 +93,6 @@ export class TopBarComposer extends Component<any, SpreadsheetChildEnv> {
     return cssPropertiesToCss({
       "border-color": SELECTION_BORDER_COLOR,
     });
-  }
-
-  get delimitation(): DOMDimension {
-    const { width, height } = this.env.model.getters.getSheetViewDimensionWithHeaders();
-    return {
-      width,
-      height,
-    };
   }
 
   onFocus(selection: ComposerSelection) {

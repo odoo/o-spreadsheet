@@ -440,7 +440,10 @@ describe("Autocomplete parenthesis", () => {
 
 describe("composer Assistant", () => {
   test("render below the cell by default", async () => {
-    ({ model, fixture, parent } = await mountComposerWrapper());
+    ({ model, fixture, parent } = await mountComposerWrapper(new Model(), {
+      delimitation: { width: 500, height: 500 },
+      rect: { width: DEFAULT_CELL_WIDTH, height: DEFAULT_CELL_HEIGHT, x: 150, y: 150 },
+    }));
     await typeInComposer("=s");
     expect(fixture.querySelectorAll(".o-composer-assistant").length).toBe(1);
     const assistantEl = fixture.querySelector(".o-composer-assistant")! as HTMLElement;

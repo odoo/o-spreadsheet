@@ -202,8 +202,8 @@ export class CellComposer extends Component<CellComposerProps, SpreadsheetChildE
         // render left
         assistantStyle.right = `0px`;
       }
-    } else if (this.props.delimitation) {
-      assistantStyle["max-height"] = `${this.props.delimitation.height}px`;
+    } else {
+      assistantStyle["max-height"] = `${this.spreadsheetRect.height - composerRect.bottom}px`;
       if (composerRect.left + ASSISTANT_WIDTH > this.spreadsheetRect.width) {
         assistantStyle.right = `0px`;
       }
