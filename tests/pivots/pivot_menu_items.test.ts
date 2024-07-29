@@ -283,7 +283,7 @@ describe("Pivot reinsertion menu item", () => {
       })
     ).toMatchObject({
       range: { zone: toZone("B8") },
-      config: { numberOfHeaders: 1 },
+      config: { numberOfHeaders: 1, automaticAutofill: true },
       type: "dynamic",
     });
   });
