@@ -721,6 +721,7 @@ export const PIVOT_VALUE = {
     const coreDefinition = this.getters.getPivotCoreDefinition(pivotId);
 
     addPivotDependencies(this, coreDefinition);
+    pivot.init({ reload: pivot.needsReevaluation });
     const error = pivot.assertIsValid({ throwOnError: false });
     if (error) {
       return error;
@@ -754,6 +755,7 @@ export const PIVOT_HEADER = {
     const pivot = this.getters.getPivot(_pivotId);
     const coreDefinition = this.getters.getPivotCoreDefinition(_pivotId);
     addPivotDependencies(this, coreDefinition);
+    pivot.init({ reload: pivot.needsReevaluation });
     const error = pivot.assertIsValid({ throwOnError: false });
     if (error) {
       return error;
