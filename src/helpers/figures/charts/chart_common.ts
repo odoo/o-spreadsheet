@@ -8,6 +8,7 @@ import {
   DOMCoordinates,
   DOMDimension,
   Getters,
+  LocaleFormat,
   Range,
   RemoveColumnsRowsCommand,
   UID,
@@ -23,6 +24,7 @@ import {
 } from "../../../types/chart/chart";
 import { CellErrorType } from "../../../types/errors";
 import { relativeLuminance } from "../../color";
+import { formatValue } from "../../format";
 import { isDefined } from "../../misc";
 import { copyRangeWithNewSheetId } from "../../range";
 import { rangeReference } from "../../references";
@@ -427,4 +429,16 @@ export function getDefinedAxis(definition: ChartWithAxisDefinition): {
   }
   useLeftAxis ||= !useRightAxis;
   return { useLeftAxis, useRightAxis };
+}
+
+export function formatTickValue(localeFormat: LocaleFormat) {
+  return (value: any) => {
+    value = Number(value);
+    if (isNaN(value)) return value;
+    const { locale, format } = localeFormat;
+    return formatValue(value, {
+      locale,
+      format: !format && Math.abs(value) >= 1000 ? "#,##" : format,
+    });
+  };
 }

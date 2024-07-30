@@ -7,7 +7,12 @@ import { getChartTimeOptions, timeFormatLuxonCompatible } from "../../chart_date
 import { ColorGenerator, colorToRGBA, rgbaToHex } from "../../color";
 import { formatValue } from "../../format";
 import { deepCopy, findNextDefinedValue } from "../../misc";
-import { chartFontColor, getChartAxisTitleRuntime, getDefinedAxis } from "./chart_common";
+import {
+  chartFontColor,
+  formatTickValue,
+  getChartAxisTitleRuntime,
+  getDefinedAxis,
+} from "./chart_common";
 import {
   aggregateDataForLabels,
   filterEmptyDataPoints,
@@ -150,20 +155,12 @@ function getLineOrScatterConfiguration(
       title: getChartAxisTitleRuntime(chart.axesDesign?.x),
     },
   };
-  const formatCallback = (value) => {
-    value = Number(value);
-    if (isNaN(value)) return value;
-    const { locale, format } = options;
-    return formatValue(value, {
-      locale,
-      format: !format && Math.abs(value) >= 1000 ? "#,##" : format,
-    });
-  };
+
   const yAxis = {
     beginAtZero: true, // the origin of the y axis is always zero
     ticks: {
       color: fontColor,
-      callback: formatCallback,
+      callback: formatTickValue(options),
     },
   };
   const { useLeftAxis, useRightAxis } = getDefinedAxis(chart.getDefinition());
@@ -194,7 +191,7 @@ function getLineOrScatterConfiguration(
   config.options.plugins!.chartShowValuesPlugin = {
     showValues: chart.showValues,
     background: chart.background,
-    callback: formatCallback,
+    callback: formatTickValue(options),
   };
   return config;
 }

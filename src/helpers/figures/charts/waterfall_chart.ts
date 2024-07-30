@@ -42,6 +42,7 @@ import {
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
+  formatTickValue,
   getChartAxisTitleRuntime,
   transformChartDefinitionWithDataSetsWithZone,
   updateChartRangesWithDataSets,
@@ -312,10 +313,12 @@ function getWaterfallConfiguration(
       },
     },
   };
+
   config.options.plugins!.waterfallLinesPlugin = { showConnectorLines: chart.showConnectorLines };
   config.options.plugins!.chartShowValuesPlugin = {
     showValues: chart.showValues,
     background: chart.background,
+    callback: formatTickValue(localeFormat),
   };
 
   return config;
