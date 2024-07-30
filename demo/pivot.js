@@ -55,7 +55,6 @@ export function makePivotDataset(rowsNumber = 10_000) {
     I1: { content: "Active" },
   };
   let rowIndex = 2;
-  const data = [];
   for (let i = 0; i < rowsNumber; i++) {
     const customer = customers[randomIntFromInterval(0, customers.length - 1)];
     cells[`A${rowIndex}`] = {
@@ -74,6 +73,7 @@ export function makePivotDataset(rowsNumber = 10_000) {
     rowIndex++;
   }
   return {
+    version: 19,
     sheets: [
       {
         name: "Pivot",
@@ -105,19 +105,20 @@ export function makePivotDataset(rowsNumber = 10_000) {
         type: "SPREADSHEET",
         columns: [
           {
-            name: "Stage",
+            fieldName: "Stage",
           },
         ],
         rows: [
           {
-            name: "Created on",
+            fieldName: "Created on",
             granularity: "year",
             order: "asc",
           },
         ],
         measures: [
           {
-            name: "Amount",
+            id: "Amount:sum",
+            fieldName: "Amount",
             aggregator: "sum",
           },
         ],
