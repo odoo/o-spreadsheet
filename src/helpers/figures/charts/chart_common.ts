@@ -17,6 +17,7 @@ import {
   DOMCoordinates,
   DOMDimension,
   Getters,
+  LocaleFormat,
   Range,
   RemoveColumnsRowsCommand,
   UID,
@@ -33,6 +34,7 @@ import {
 } from "../../../types/chart/chart";
 import { CellErrorType } from "../../../types/errors";
 import { lightenColor, relativeLuminance } from "../../color";
+import { formatValue } from "../../format";
 import { isDefined, range } from "../../misc";
 import { copyRangeWithNewSheetId } from "../../range";
 import { rangeReference } from "../../references";
@@ -544,4 +546,16 @@ export function interpolateData(
     default:
       return [];
   }
+}
+
+export function formatTickValue(localeFormat: LocaleFormat) {
+  return (value: any) => {
+    value = Number(value);
+    if (isNaN(value)) return value;
+    const { locale, format } = localeFormat;
+    return formatValue(value, {
+      locale,
+      format: !format && Math.abs(value) >= 1000 ? "#,##" : format,
+    });
+  };
 }

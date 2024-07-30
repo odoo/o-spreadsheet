@@ -27,7 +27,6 @@ import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { ColorGenerator } from "../../color";
-import { formatValue } from "../../format";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
@@ -39,6 +38,7 @@ import {
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
+  formatTickValue,
   getChartAxisTitleRuntime,
   getDefinedAxis,
   getTrendDatasetForBarChart,
@@ -267,23 +267,13 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
   };
   config.options.indexAxis = chart.horizontal ? "y" : "x";
 
-  const formatCallback = (value) => {
-    value = Number(value);
-    if (isNaN(value)) return value;
-    const { locale, format } = localeFormat;
-    return formatValue(value, {
-      locale,
-      format: !format && Math.abs(value) >= 1000 ? "#,##" : format,
-    });
-  };
-
   config.options.scales = {};
   const labelsAxis = { ticks: { padding: 5, color: fontColor } };
   const valuesAxis = {
     beginAtZero: true, // the origin of the y axis is always zero
     ticks: {
       color: fontColor,
-      callback: formatCallback,
+      callback: formatTickValue(localeFormat),
     },
   };
 
@@ -323,7 +313,7 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
     showValues: chart.showValues,
     background: chart.background,
     horizontal: chart.horizontal,
-    callback: formatCallback,
+    callback: formatTickValue(localeFormat),
   };
 
   const colors = new ColorGenerator();

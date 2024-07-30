@@ -43,6 +43,7 @@ import {
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
+  formatTickValue,
   shouldRemoveFirstLabel,
   toExcelDataset,
   toExcelLabelRange,
@@ -241,7 +242,10 @@ function getPieConfiguration(
     return xLabel ? `${xLabel}: ${yLabelStr} (${percentage}%)` : `${yLabelStr} (${percentage}%)`;
   };
 
-  config.options.plugins!.chartShowValuesPlugin = { showValues: chart.showValues };
+  config.options.plugins!.chartShowValuesPlugin = {
+    showValues: chart.showValues,
+    callback: formatTickValue(localeFormat),
+  };
   return config;
 }
 

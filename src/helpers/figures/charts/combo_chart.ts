@@ -10,7 +10,6 @@ import {
   CoreGetters,
   DataSet,
   ExcelChartDefinition,
-  Format,
   Getters,
   Range,
   RemoveColumnsRowsCommand,
@@ -28,7 +27,6 @@ import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { ColorGenerator } from "../../color";
-import { formatValue } from "../../format";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
@@ -40,6 +38,7 @@ import {
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
+  formatTickValue,
   getChartAxisTitleRuntime,
   getDefinedAxis,
   getTrendDatasetForBarChart,
@@ -274,29 +273,19 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
       title: getChartAxisTitleRuntime(chart.axesDesign?.x),
     },
   };
-  const formatCallback = (format: Format | undefined) => {
-    return (value) => {
-      value = Number(value);
-      if (isNaN(value)) return value;
-      const { locale } = localeFormat;
-      return formatValue(value, {
-        locale,
-        format: !format && Math.abs(value) >= 1000 ? "#,##" : format,
-      });
-    };
-  };
+
   const leftVerticalAxis = {
     beginAtZero: true, // the origin of the y axis is always zero
     ticks: {
       color: fontColor,
-      callback: formatCallback(mainDataSetFormat),
+      callback: formatTickValue({ format: mainDataSetFormat, locale }),
     },
   };
   const rightVerticalAxis = {
     beginAtZero: true, // the origin of the y axis is always zero
     ticks: {
       color: fontColor,
-      callback: formatCallback(lineDataSetsFormat),
+      callback: formatTickValue({ format: lineDataSetsFormat, locale }),
     },
   };
   const definition = chart.getDefinition();
@@ -321,7 +310,7 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
   config.options.plugins!.chartShowValuesPlugin = {
     showValues: chart.showValues,
     background: chart.background,
-    callback: formatCallback(mainDataSetFormat),
+    callback: formatTickValue({ format: mainDataSetFormat, locale }),
   };
 
   const colors = new ColorGenerator();
