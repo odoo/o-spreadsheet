@@ -4,7 +4,7 @@ import { CoreCommand, HistoryChange } from "./types";
 type HistoryPath = [any, ...(number | string)[]];
 
 export class StateObserver {
-  private changes: HistoryChange[] = [];
+  private changes: HistoryChange[] | undefined;
   private commands: CoreCommand[] = [];
 
   /**
@@ -39,7 +39,7 @@ export class StateObserver {
     if (value[key] === val) {
       return;
     }
-    this.changes.push({
+    this.changes?.push({
       key,
       target: value,
       before: value[key],
