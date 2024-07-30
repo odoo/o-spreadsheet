@@ -394,3 +394,30 @@ function binarySuccessorSearch(arr: number[], val: number, start = 0, matchEqual
   }
   return result;
 }
+
+export class ZoneGrid {
+  private profilesStartingPosition: number[] = [0];
+  private profiles = new Map<number, number[]>([[0, []]]);
+
+  /**
+   * Add a zone to the profile and return as information the part of the zone that was actually added
+   */
+  addZone(zone: Zone): Zone[] {
+    const currentZones = constructZonesFromProfiles(this.profilesStartingPosition, this.profiles);
+    const zonesActuallyAdded = recomputeZones([zone], currentZones);
+    modifyProfiles(this.profilesStartingPosition, this.profiles, zonesActuallyAdded);
+    return zonesActuallyAdded;
+  }
+
+  getIntersectionWith(zone: Zone): Zone[] {
+    const currentZones = constructZonesFromProfiles<Zone>(
+      this.profilesStartingPosition,
+      this.profiles
+    );
+    return recomputeZones(currentZones, recomputeZones(currentZones, [zone]));
+  }
+
+  removeZone(zone: Zone) {
+    modifyProfiles(this.profilesStartingPosition, this.profiles, [zone], true);
+  }
+}
