@@ -1422,4 +1422,42 @@ describe("Spreadsheet arguments parsing", () => {
       },
     ]);
   });
+
+  test("update PIVOT.VALUE when data set changes", () => {
+    const grid = {
+      A1: "Price",
+      B1: "Customer",
+      A2: "2",
+      B2: "Alice",
+      A3: '=PIVOT.VALUE(1, "Price")',
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B2", {
+      columns: [],
+      rows: [{ name: "Customer" }],
+      measures: [{ name: "Price", aggregator: "sum" }],
+    });
+    expect(getEvaluatedCell(model, "A3").value).toBe(2);
+    setCellContent(model, "A2", "3");
+    expect(getEvaluatedCell(model, "A3").value).toBe(3);
+  });
+
+  test("update PIVOT.HEADER when data set changes", () => {
+    const grid = {
+      A1: "Price",
+      B1: "Customer",
+      A2: "2",
+      B2: "Alice",
+      A3: '=PIVOT.HEADER(1, "Customer", "Alice")',
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B2", {
+      columns: [],
+      rows: [{ name: "Customer" }],
+      measures: [{ name: "Price", aggregator: "sum" }],
+    });
+    expect(getEvaluatedCell(model, "A3").value).toBe("Alice");
+    setCellContent(model, "B2", "Bob");
+    expect(getEvaluatedCell(model, "A3").value).toBe("");
+  });
 });
