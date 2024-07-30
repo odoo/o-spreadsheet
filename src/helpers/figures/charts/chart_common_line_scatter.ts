@@ -18,6 +18,7 @@ import {
   TREND_LINE_XAXIS_ID,
   chartFontColor,
   computeChartPadding,
+  formatTickValue,
   getChartAxisTitleRuntime,
   getDefinedAxis,
   getFullTrendingLineDataSet,
@@ -260,20 +261,12 @@ export function createLineOrScatterChartRuntime(
   config.options.scales = {
     x: xAxis,
   };
-  const formatCallback = (value) => {
-    value = Number(value);
-    if (isNaN(value)) return value;
-    const { locale, format } = options;
-    return formatValue(value, {
-      locale,
-      format: !format && Math.abs(value) >= 1000 ? "#,##" : format,
-    });
-  };
+
   const yAxis = {
     beginAtZero: true, // the origin of the y axis is always zero
     ticks: {
       color: fontColor,
-      callback: formatCallback,
+      callback: formatTickValue(options),
     },
   };
   const { useLeftAxis, useRightAxis } = getDefinedAxis(chart.getDefinition());
@@ -304,7 +297,7 @@ export function createLineOrScatterChartRuntime(
   config.options.plugins!.chartShowValuesPlugin = {
     showValues: chart.showValues,
     background: chart.background,
-    callback: formatCallback,
+    callback: formatTickValue(options),
   };
 
   if (
