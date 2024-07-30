@@ -327,6 +327,9 @@ export class GridSelectionPlugin extends UIPlugin {
         this.selectedFigureId = null;
         break;
     }
+  }
+
+  finalize(): void {
     /** Any change to the selection has to be  reflected in the selection processor. */
     this.selection.resetDefaultAnchor(this, deepCopy(this.gridSelection.anchor));
   }
