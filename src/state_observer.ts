@@ -2,7 +2,7 @@ import { createEmptyStructure } from "./helpers/state_manager_helpers";
 import { CoreCommand, HistoryChange } from "./types";
 
 export class StateObserver {
-  private changes: HistoryChange[] = [];
+  private changes: HistoryChange[] | undefined;
   private commands: CoreCommand[] = [];
 
   /**
@@ -37,7 +37,7 @@ export class StateObserver {
     if (value[key] === val) {
       return;
     }
-    this.changes.push({
+    this.changes?.push({
       path: args,
       before: value[key],
       after: val,
