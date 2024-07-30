@@ -83,7 +83,7 @@ import { getXLSX } from "./xlsx/xlsx_writer";
  * programmatically a spreadsheet.
  */
 
-export type Mode = "normal" | "readonly" | "dashboard";
+export type Mode = "normal" | "readonly" | "dashboard" | "placeholder";
 
 export interface ModelConfig {
   readonly mode: Mode;
@@ -227,8 +227,12 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.coreGetters.removeRangesSheetPrefix = this.range.removeRangesSheetPrefix.bind(this.range);
 
     this.getters = {
-      isReadonly: () => this.config.mode === "readonly" || this.config.mode === "dashboard",
-      isDashboard: () => this.config.mode === "dashboard",
+      isReadonly: () =>
+        this.config.mode === "readonly" ||
+        this.config.mode === "dashboard" ||
+        this.config.mode === "placeholder",
+      isDashboard: () => this.config.mode === "dashboard" || this.config.mode === "placeholder",
+      isPlaceholder: () => this.config.mode === "placeholder",
     } as Getters;
 
     this.uuidGenerator.setIsFastStrategy(true);
