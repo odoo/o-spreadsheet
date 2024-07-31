@@ -156,8 +156,6 @@ export class SheetViewPlugin extends UIPlugin {
   }
 
   handle(cmd: Command) {
-    this.cleanViewports();
-
     switch (cmd.type) {
       case "START":
         this.selection.observe(this, {
@@ -201,6 +199,9 @@ export class SheetViewPlugin extends UIPlugin {
         if ("content" in cmd || "format" in cmd || cmd.style?.fontSize !== undefined) {
           this.sheetsWithDirtyViewports.add(cmd.sheetId);
         }
+        break;
+      case "DELETE_SHEET":
+        this.cleanViewports();
         break;
       case "ACTIVATE_SHEET":
         this.setViewports();
@@ -564,6 +565,7 @@ export class SheetViewPlugin extends UIPlugin {
   }
 
   private resetSheetViews() {
+    this.cleanViewports();
     for (let sheetId of Object.keys(this.viewports)) {
       const position = this.getters.getSheetPosition(sheetId);
       this.resetViewports(sheetId);
