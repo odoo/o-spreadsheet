@@ -422,7 +422,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     }
   }
 
-  private updateCellPosition(cmd: UpdateCellPositionCommand) {
+  private updateCellPosition(cmd: Omit<UpdateCellPositionCommand, "type">) {
     if (cmd.cell) {
       const position = this.cellPosition[cmd.cellId];
       if (position) {
@@ -693,7 +693,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
             });
           }
           if (colIndex > deletedColumn) {
-            this.dispatch("UPDATE_CELL_POSITION", {
+            this.updateCellPosition({
               sheetId: sheet.id,
               cellId: cell.id,
               cell: cell,
@@ -715,7 +715,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     quantity: number,
     dimension: "rows" | "columns"
   ) {
-    const commands: UpdateCellPositionCommand[] = [];
+    const updates: Omit<UpdateCellPositionCommand, "type">[] = [];
     for (const [index, row] of Object.entries(sheet.rows)) {
       const rowIndex = parseInt(index, 10);
       if (dimension !== "rows" || rowIndex >= addedElement) {
@@ -724,8 +724,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           const cell = row.cells[i];
           if (cell) {
             if (dimension === "rows" || colIndex >= addedElement) {
-              commands.push({
-                type: "UPDATE_CELL_POSITION",
+              updates.push({
                 sheetId: sheet.id,
                 cellId: cell.id,
                 cell: cell,
@@ -737,8 +736,8 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         }
       }
     }
-    for (let cmd of commands.reverse()) {
-      this.dispatch(cmd.type, cmd);
+    for (let update of updates.reverse()) {
+      this.updateCellPosition(update);
     }
   }
 
@@ -772,7 +771,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           const colIndex = parseInt(i, 10);
           const cell = row.cells[i];
           if (cell) {
-            this.dispatch("UPDATE_CELL_POSITION", {
+            this.updateCellPosition({
               sheetId: sheet.id,
               cellId: cell.id,
               cell: cell,
