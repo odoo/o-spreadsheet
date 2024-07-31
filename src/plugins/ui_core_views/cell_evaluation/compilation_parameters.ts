@@ -74,13 +74,14 @@ class CompilationParametersBuilder {
     if (rangeError) {
       return rangeError;
     }
+    // the compiler guarantees only single cell ranges reach this part of the code
+    const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
     if (isMeta) {
+      this.computeCell(position); // make sure the cell is computed
       // Use zoneToXc of zone instead of getRangeString to avoid sending unbounded ranges
       const sheetName = this.getters.getSheetName(range.sheetId);
       return { value: getFullReference(sheetName, zoneToXc(range.zone)) };
     }
-    // the compiler guarantees only single cell ranges reach this part of the code
-    const position = { sheetId: range.sheetId, col: range.zone.left, row: range.zone.top };
     return this.computeCell(position);
   }
 
