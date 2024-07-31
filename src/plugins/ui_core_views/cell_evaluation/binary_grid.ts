@@ -45,10 +45,7 @@ export class BinaryGrid extends Uint32Array {
    */
   setValue(position: CellPosition, value: Bit) {
     const [bucket, bitPosition] = this.getCoordinates(position);
-    const currentValue = (this[bucket] >> bitPosition) & 1;
-    const hasBeenInserted = currentValue === 0 && value === 1;
     this[bucket] = (this[bucket] & ~(1 << bitPosition)) | (value << bitPosition);
-    return hasBeenInserted;
     // Let's breakdown of the above line:
     // with an example with a 4-bit integer (instead of 32-bit).
     //
