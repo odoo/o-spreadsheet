@@ -9,7 +9,7 @@ import {
 import { chartTerms } from "../../components/side_panel/translations_terms";
 import { MAX_CHAR_LABEL } from "../../constants";
 import { ChartColors } from "../../helpers/chart";
-import { recomputeZones, zoneToXc } from "../../helpers/index";
+import { isNumber, recomputeZones, zoneToXc } from "../../helpers/index";
 import { range } from "../../helpers/misc";
 import { Mode } from "../../model";
 import { Cell } from "../../types";
@@ -231,6 +231,10 @@ export class EvaluationChartPlugin extends UIPlugin {
       }
     }
     for (const [dsIndex, ds] of Object.entries(definition.dataSets)) {
+      const data = ds.dataRange ? this.getData(ds, definition.sheetId) : [];
+      if (data.every((cell) => cell === undefined || cell === null || !isNumber(cell.toString()))) {
+        continue;
+      }
       let label: string;
       if (ds.labelCell) {
         const labelRange = ds.labelCell;
@@ -247,7 +251,7 @@ export class EvaluationChartPlugin extends UIPlugin {
       const color = definition.type !== "pie" ? colors.next() : "#FFFFFF"; // white border for pie chart
       const dataset: ChartDataSets = {
         label,
-        data: ds.dataRange ? this.getData(ds, definition.sheetId) : [],
+        data,
         lineTension: 0, // 0 -> render straight lines, which is much faster
         borderColor: color,
         backgroundColor: color,
