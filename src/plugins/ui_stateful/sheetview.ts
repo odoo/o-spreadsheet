@@ -168,7 +168,6 @@ export class SheetViewPlugin extends UIPlugin {
   }
 
   handle(cmd: Command) {
-    this.cleanViewports();
     // changing the evaluation can hide/show rows because of data filters
     if (invalidateEvaluationCommands.has(cmd.type)) {
       for (const sheetId of this.getters.getSheetIds()) {
@@ -185,6 +184,7 @@ export class SheetViewPlugin extends UIPlugin {
         break;
       case "UNDO":
       case "REDO":
+        this.cleanViewports();
         for (const sheetId of this.getters.getSheetIds()) {
           this.sheetsWithDirtyViewports.add(sheetId);
         }
@@ -238,6 +238,9 @@ export class SheetViewPlugin extends UIPlugin {
             this.sheetsWithDirtyViewports.add(sheetId);
           }
         }
+        break;
+      case "DELETE_SHEET":
+        this.cleanViewports();
         break;
       case "ACTIVATE_SHEET":
         this.sheetsWithDirtyViewports.add(cmd.sheetIdTo);
