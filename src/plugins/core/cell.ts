@@ -344,6 +344,9 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     dependencies: Range[],
     useFixedReference: boolean = false
   ): string {
+    if (!dependencies.length) {
+      return concat(compiledFormula.tokens.map((token) => token.value));
+    }
     let rangeIndex = 0;
     return concat(
       compiledFormula.tokens.map((token) => {
