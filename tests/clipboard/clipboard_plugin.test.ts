@@ -1458,6 +1458,18 @@ describe("clipboard", () => {
     });
   });
 
+  test("can cut and paste an invalid formula", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=(+)");
+    setCellContent(model, "A2", "=C1{C2");
+    cut(model, "A1:A2");
+    paste(model, "C1");
+    expect(getCellText(model, "C1")).toBe("=(+)");
+    expect(getCellText(model, "C2")).toBe("=C1{C2");
+    expect(getCellText(model, "A1")).toBe("");
+    expect(getCellText(model, "A2")).toBe("");
+  });
+
   test("cut/paste a formula with references does not update references in the formula", () => {
     const model = new Model();
     setCellContent(model, "A1", "=SUM(C1:C2)");
