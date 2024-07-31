@@ -17,5 +17,6 @@ export default tseslint.config(eslint.configs.recommended, ...tseslint.configs.r
     "@typescript-eslint/no-this-alias": "error", // we reuse a reserved word without reason (could use self)
     "@typescript-eslint/no-unnecessary-type-constraint": "error", // TODO
     "@typescript-eslint/no-unsafe-declaration-merging": "error", // TODO
+    "@typescript-eslint/consistent-type-imports": "error",
   },
 });

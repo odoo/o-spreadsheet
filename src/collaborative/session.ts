@@ -2,15 +2,15 @@ import { DEBOUNCE_TIME, DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../constant
 import { UuidGenerator } from "../helpers";
 import { EventBus } from "../helpers/event_bus";
 import { debounce, isDefined } from "../helpers/misc";
-import { SelectiveHistory as RevisionLog } from "../history/selective_history";
-import { CoreCommand, HistoryChange, UID, WorkbookData } from "../types";
-import {
+import type { SelectiveHistory as RevisionLog } from "../history/selective_history";
+import type { CoreCommand, HistoryChange, UID, WorkbookData } from "../types";
+import type {
   Client,
   ClientId,
   ClientPosition,
   CollaborativeEvent,
 } from "../types/collaborative/session";
-import {
+import type {
   ClientJoinedMessage,
   ClientLeftMessage,
   ClientMovedMessage,
@@ -19,7 +19,7 @@ import {
   StateUpdateMessage,
   TransportService,
 } from "../types/collaborative/transport_service";
-import { Command } from "./../types/commands";
+import type { Command } from "./../types/commands";
 import { transformAll } from "./ot/ot";
 import { Revision } from "./revisions";
 
