@@ -542,7 +542,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     return CommandResult.Success;
   }
 
-  private updateCellPosition(cmd: UpdateCellPositionCommand) {
+  private updateCellPosition(cmd: Omit<UpdateCellPositionCommand, "type">) {
     const { sheetId, cellId, col, row } = cmd;
     if (cellId) {
       this.setNewPosition(cellId, sheetId, col, row);
@@ -905,12 +905,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
             });
           }
           if (colIndex > deletedColumn) {
-            this.dispatch("UPDATE_CELL_POSITION", {
-              sheetId: sheet.id,
-              cellId: cellId,
-              col: colIndex - 1,
-              row: rowIndex,
-            });
+            this.setNewPosition(cellId, sheet.id, colIndex - 1, rowIndex);
           }
         }
       }
@@ -926,7 +921,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
     quantity: number,
     dimension: "rows" | "columns"
   ) {
-    const commands: UpdateCellPositionCommand[] = [];
+    const updates: UpdateCellPositionCommand[] = [];
     for (let rowIndex = 0; rowIndex < sheet.rows.length; rowIndex++) {
       const row = sheet.rows[rowIndex];
       if (dimension !== "rows" || rowIndex >= addedElement) {
@@ -935,20 +930,20 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           const cellId = row.cells[i];
           if (cellId) {
             if (dimension === "rows" || colIndex >= addedElement) {
-              commands.push({
-                type: "UPDATE_CELL_POSITION",
+              updates.push({
                 sheetId: sheet.id,
                 cellId: cellId,
                 col: colIndex + (dimension === "columns" ? quantity : 0),
                 row: rowIndex + (dimension === "rows" ? quantity : 0),
+                type: "UPDATE_CELL_POSITION",
               });
             }
           }
         }
       }
     }
-    for (let cmd of commands.reverse()) {
-      this.dispatch(cmd.type, cmd);
+    for (let update of updates.reverse()) {
+      this.updateCellPosition(update);
     }
   }
 
@@ -986,12 +981,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           const colIndex = Number(i);
           const cellId = row.cells[i];
           if (cellId) {
-            this.dispatch("UPDATE_CELL_POSITION", {
-              sheetId: sheet.id,
-              cellId: cellId,
-              col: colIndex,
-              row: rowIndex - numberRows,
-            });
+            this.setNewPosition(cellId, sheet.id, colIndex, rowIndex - numberRows);
           }
         }
       }
