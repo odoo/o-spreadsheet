@@ -324,7 +324,7 @@ export class Evaluator {
 
   private computeAndSave(position: CellPosition) {
     const evaluatedCell = this.computeCell(position);
-    if (!this.evaluatedCells.has(position)) {
+    if (!this.evaluatedCells.has(position) && evaluatedCell !== EMPTY_CELL) {
       this.evaluatedCells.set(position, evaluatedCell);
     }
     return evaluatedCell;
