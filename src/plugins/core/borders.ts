@@ -1,5 +1,13 @@
 import { DEFAULT_BORDER_DESC } from "../../constants";
-import { deepEquals, isDefined, range, toCartesian, toXC, toZone } from "../../helpers/index";
+import {
+  deepEquals,
+  groupConsecutive,
+  isDefined,
+  range,
+  toCartesian,
+  toXC,
+  toZone,
+} from "../../helpers/index";
 import {
   AddColumnsRowsCommand,
   Border,
@@ -71,11 +79,12 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
         this.clearBorders(cmd.sheetId, cmd.target);
         break;
       case "REMOVE_COLUMNS_ROWS":
-        for (let el of cmd.elements) {
+        cmd.elements.sort((a, b) => b - a);
+        for (const group of groupConsecutive(cmd.elements)) {
           if (cmd.dimension === "COL") {
-            this.shiftBordersHorizontally(cmd.sheetId, el + 1, -1);
+            this.shiftBordersHorizontally(cmd.sheetId, group[group.length - 1] + 1, -group.length);
           } else {
-            this.shiftBordersVertically(cmd.sheetId, el + 1, -1);
+            this.shiftBordersVertically(cmd.sheetId, group[group.length - 1] + 1, -group.length);
           }
         }
         break;
