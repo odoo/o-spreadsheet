@@ -2,6 +2,8 @@ import { Model } from "../../src";
 import { isSameColor } from "../../src/helpers/color";
 import { CancelledReason, DispatchResult } from "../../src/types";
 
+type DOMTarget = string | Element | Document | Window | null;
+
 declare global {
   namespace jest {
     interface Matchers<R> {
@@ -25,6 +27,9 @@ declare global {
       /** Check if a number is between 2 values (inclusive) */
       toBeBetween(lower: number, upper: number): R;
       toBeSameColorAs(expected: string, tolerance?: number): R;
+      toHaveValue(value: string | boolean): R;
+      toHaveText(text: string): R;
+      toHaveCount(count: number): R;
     }
   }
 }
@@ -145,4 +150,83 @@ CancelledReasons: ${this.utils.printReceived(dispatchResult.reasons)}
       message,
     };
   },
+  toHaveValue(target: DOMTarget, expectedValue: string | boolean) {
+    const element = getTarget(target);
+    if (!(element instanceof HTMLInputElement) && !(element instanceof HTMLSelectElement)) {
+      const message = element ? "Target is not an input element" : "Target not found";
+      return { pass: false, message: () => message };
+    }
+    const value =
+      element instanceof HTMLInputElement && element.type === "checkbox"
+        ? element.checked
+        : element.value;
+    if (value !== expectedValue) {
+      return {
+        pass: false,
+        message: () =>
+          `expect(target).toHaveValue(expected);\n\n${this.utils.printDiffOrStringify(
+            expectedValue,
+            value,
+            "Expected value",
+            "Received value",
+            false
+          )}`,
+      };
+    }
+    return { pass: true, message: () => "" };
+  },
+  toHaveText(target: DOMTarget, expectedText: string) {
+    const element = getTarget(target);
+    if (!(element instanceof HTMLElement)) {
+      const message = element ? "Target is not an HTML element" : "Target not found";
+      return { pass: false, message: () => message };
+    }
+    const text = element.textContent;
+    if (text !== expectedText) {
+      return {
+        pass: false,
+        message: () =>
+          `expect(target).toHaveText(expected);\n\n${this.utils.printDiffOrStringify(
+            expectedText,
+            text,
+            "Expected text",
+            "Received text",
+            false
+          )}`,
+      };
+    }
+    return { pass: true, message: () => "" };
+  },
+  toHaveCount(selector: string, expectedCount: number) {
+    const elements = document.querySelectorAll(selector);
+    if (elements.length !== expectedCount) {
+      return {
+        pass: false,
+        message: () =>
+          `expect("${selector}").toHaveCount(expected);\n\n${this.utils.printDiffOrStringify(
+            expectedCount,
+            elements.length,
+            "Expected",
+            "Received",
+            false
+          )}`,
+      };
+    }
+    return { pass: true, message: () => "" };
+  },
 });
+
+function getTarget(target: DOMTarget): Element | Document | Window {
+  if (target === null) {
+    throw new Error("Target is null");
+  }
+  if (typeof target === "string") {
+    const els = document.querySelectorAll(target);
+    if (els.length === 0) {
+      throw new Error(`No element found (selector: ${target})`);
+    }
+    return els[0];
+  } else {
+    return target;
+  }
+}

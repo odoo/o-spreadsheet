@@ -2,7 +2,7 @@ import { Component, useRef } from "@odoo/owl";
 import { isDefined } from "../../../../helpers";
 import { AGGREGATORS, isDateField } from "../../../../helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "../../../../helpers/pivot/pivot_runtime_definition";
-import { SpreadsheetChildEnv } from "../../../../types";
+import { SpreadsheetChildEnv, UID } from "../../../../types";
 import {
   Aggregator,
   Granularity,
@@ -26,6 +26,7 @@ interface Props {
   measureFields: PivotField[];
   unusedDateTimeGranularities: Record<string, Set<string>>;
   allGranularities: string[];
+  pivotId: UID;
 }
 
 export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEnv> {
@@ -43,6 +44,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     measureFields: Array,
     unusedDateTimeGranularities: Object,
     allGranularities: Array,
+    pivotId: String,
   };
 
   private dimensionsRef = useRef("pivot-dimensions");

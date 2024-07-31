@@ -39,6 +39,7 @@ export interface PivotCoreMeasure {
   userDefinedName?: string;
   fieldName: string;
   aggregator: Aggregator | string;
+  display?: PivotMeasureDisplay;
 }
 
 export interface CommonPivotCoreDefinition {
@@ -153,3 +154,41 @@ export interface PivotNode {
 }
 
 export type PivotDomain = PivotNode[];
+
+/** Pivot domain splitted for the domain related to the pivot's rows and columns  */
+export interface PivotColRowDomain {
+  colDomain: PivotDomain;
+  rowDomain: PivotDomain;
+}
+
+export interface PivotMeasureDisplay {
+  type: PivotMeasureDisplayType;
+  fieldNameWithGranularity?: string;
+  value?: string | boolean | number | "(previous)" | "(next)";
+}
+
+export type PivotMeasureDisplayType =
+  | "no_calculations"
+  | "%_of_grand_total"
+  | "%_of_col_total"
+  | "%_of_row_total"
+  | "%_of_parent_row_total"
+  | "%_of_parent_col_total"
+  | "index"
+  | "%_of_parent_total"
+  | "running_total"
+  | "%_running_total"
+  | "rank_asc"
+  | "rank_desc"
+  | "%_of"
+  | "difference_from"
+  | "%_difference_from";
+
+export interface DimensionTreeNode {
+  value: CellValue;
+  field: string;
+  children: DimensionTree;
+  width: number;
+}
+
+export type DimensionTree = DimensionTreeNode[];

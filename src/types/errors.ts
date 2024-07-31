@@ -9,6 +9,7 @@ export const CellErrorType = {
   DivisionByZero: "#DIV/0!",
   SpilledBlocked: "#SPILL!",
   GenericError: "#ERROR",
+  NullError: "#NULL!",
 } as const;
 
 export const errorTypes: Set<string> = new Set(Object.values(CellErrorType));

@@ -4,6 +4,7 @@ import {
   getFirstPivotFunction,
   getNumberOfPivotFunctions,
 } from "../../helpers/pivot/pivot_composer_helpers";
+import { withPivotPresentationLayer } from "../../helpers/pivot/pivot_presentation";
 import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
 import { EMPTY_PIVOT_CELL } from "../../helpers/pivot/table_spreadsheet_pivot";
 import {
@@ -236,7 +237,7 @@ export class PivotUIPlugin extends UIPlugin {
     };
   }
 
-  getPivot(pivotId: UID) {
+  getPivot(pivotId: UID): Pivot {
     return this.pivots[pivotId];
   }
 
@@ -258,9 +259,11 @@ export class PivotUIPlugin extends UIPlugin {
 
   setupPivot(pivotId: UID, { recreate } = { recreate: false }) {
     const definition = this.getters.getPivotCoreDefinition(pivotId);
-    if (recreate || !(pivotId in this.pivots)) {
-      const Pivot = pivotRegistry.get(definition.type).ui;
+    if (!(pivotId in this.pivots)) {
+      const Pivot = withPivotPresentationLayer(pivotRegistry.get(definition.type).ui);
       this.pivots[pivotId] = new Pivot(this.custom, { definition, getters: this.getters });
+    } else if (recreate) {
+      this.pivots[pivotId].onDefinitionChange(definition);
     }
   }
 

@@ -28,6 +28,7 @@
           allGranularities="store.allGranularities"
           definition="definition"
           onDimensionsUpdated.bind="onDimensionsUpdated"
+          pivotId="props.pivotId"
         />
       </div>
       <PivotDeferUpdate
