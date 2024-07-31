@@ -63,4 +63,19 @@ describe("TextInput", () => {
     await keyDown({ key: "Enter" });
     expect(onChange).toHaveBeenCalledWith("world");
   });
+
+  test("selects input content upon focus", async () => {
+    await mountTextInput({ value: "hello", onChange: () => {} });
+    fixture.querySelector("input")!.focus();
+    expect(fixture.querySelector("input")!.selectionStart).toEqual(0);
+    expect(fixture.querySelector("input")!.selectionEnd).toEqual(5);
+  });
+
+  test("saves the value on input blur", async () => {
+    const onChange = jest.fn();
+    await mountTextInput({ value: "hello", onChange });
+    setInputValueAndTrigger(fixture.querySelector("input")!, "world");
+    fixture.querySelector("input")!.blur();
+    expect(onChange).toHaveBeenCalledWith("world");
+  });
 });
