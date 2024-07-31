@@ -409,7 +409,7 @@ export function getChartAxisTitleRuntime(design?: AxisDesign):
   return;
 }
 
-export function getDefinedAxis(definition: ChartWithAxisDefinition): {
+export function getDefinedAxis(definition: Partial<ChartWithAxisDefinition>): {
   useLeftAxis: boolean;
   useRightAxis: boolean;
 } {
