@@ -207,33 +207,37 @@ export class PivotUIPlugin extends UIPlugin {
       const pivotRow = position.row - mainPosition.row;
       return pivotCells[pivotCol][pivotRow];
     }
-    if (functionName === "PIVOT.HEADER" && args.at(-2) === "measure") {
+    try {
+      if (functionName === "PIVOT.HEADER" && args.at(-2) === "measure") {
+        const domain = pivot.parseArgsToPivotDomain(
+          args.slice(1, -2).map((value) => ({ value } as FunctionResultObject))
+        );
+        return {
+          type: "MEASURE_HEADER",
+          domain,
+          measure: args.at(-1)?.toString() || "",
+        };
+      } else if (functionName === "PIVOT.HEADER") {
+        const domain = pivot.parseArgsToPivotDomain(
+          args.slice(1).map((value) => ({ value } as FunctionResultObject))
+        );
+        return {
+          type: "HEADER",
+          domain,
+        };
+      }
+      const [measure, ...domainArgs] = args.slice(1);
       const domain = pivot.parseArgsToPivotDomain(
-        args.slice(1, -2).map((value) => ({ value } as FunctionResultObject))
+        domainArgs.map((value) => ({ value } as FunctionResultObject))
       );
       return {
-        type: "MEASURE_HEADER",
+        type: "VALUE",
         domain,
-        measure: args.at(-1)?.toString() || "",
+        measure: measure?.toString() || "",
       };
-    } else if (functionName === "PIVOT.HEADER") {
-      const domain = pivot.parseArgsToPivotDomain(
-        args.slice(1).map((value) => ({ value } as FunctionResultObject))
-      );
-      return {
-        type: "HEADER",
-        domain,
-      };
+    } catch (_) {
+      return EMPTY_PIVOT_CELL;
     }
-    const [measure, ...domainArgs] = args.slice(1);
-    const domain = pivot.parseArgsToPivotDomain(
-      domainArgs.map((value) => ({ value } as FunctionResultObject))
-    );
-    return {
-      type: "VALUE",
-      domain,
-      measure: measure?.toString() || "",
-    };
   }
 
   getPivot(pivotId: UID) {
