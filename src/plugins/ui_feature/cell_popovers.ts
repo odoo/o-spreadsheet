@@ -1,7 +1,8 @@
 import { positionToZone } from "../../helpers";
 import { cellPopoverRegistry } from "../../registries/cell_popovers_registry";
-import { CellPosition, Command, CommandResult, LocalCommand, Position, Rect } from "../../types";
-import {
+import type { CellPosition, Command, LocalCommand, Position, Rect } from "../../types";
+import { CommandResult } from "../../types";
+import type {
   CellPopoverType,
   ClosedCellPopover,
   PositionedCellPopover,

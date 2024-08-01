@@ -5,9 +5,9 @@ import type {
   LegendOptions,
   Point,
 } from "chart.js";
-import { DeepPartial } from "chart.js/dist/types/utils";
+import type { DeepPartial } from "chart.js/dist/types/utils";
 import { BACKGROUND_CHART_COLOR, INCORRECT_RANGE_STRING } from "../../../constants";
-import {
+import type {
   AddColumnsRowsCommand,
   ApplyRangeChange,
   Color,
@@ -19,16 +19,16 @@ import {
   RemoveColumnsRowsCommand,
   UID,
 } from "../../../types";
-import {
+import type {
   ChartCreationContext,
   DataSet,
   DatasetValues,
   ExcelChartDataset,
   ExcelChartDefinition,
 } from "../../../types/chart/chart";
-import { LegendPosition } from "../../../types/chart/common_chart";
-import { PieChartDefinition, PieChartRuntime } from "../../../types/chart/pie_chart";
-import { Validator } from "../../../types/validator";
+import type { LegendPosition } from "../../../types/chart/common_chart";
+import type { PieChartDefinition, PieChartRuntime } from "../../../types/chart/pie_chart";
+import type { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { formatValue } from "../../format";
 import { largeMax } from "../../misc";

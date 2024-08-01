@@ -1,11 +1,11 @@
 import { compileTokens } from "../../../formulas/compiler";
-import { Token, isExportableToExcel } from "../../../formulas/index";
+import type { Token } from "../../../formulas/index";
+import { isExportableToExcel } from "../../../formulas/index";
 import { getItemId, positions, toXC } from "../../../helpers/index";
 import { CellErrorType, EvaluationError } from "../../../types/errors";
-import {
+import type {
   CellPosition,
   CellValue,
-  CellValueType,
   Command,
   EvaluatedCell,
   ExcelCellData,
@@ -17,10 +17,11 @@ import {
   Range,
   UID,
   Zone,
-  invalidateDependenciesCommands,
 } from "../../../types/index";
-import { UIPlugin, UIPluginConfig } from "../../ui_plugin";
-import { CoreViewCommand } from "./../../../types/commands";
+import { CellValueType, invalidateDependenciesCommands } from "../../../types/index";
+import type { UIPluginConfig } from "../../ui_plugin";
+import { UIPlugin } from "../../ui_plugin";
+import type { CoreViewCommand } from "./../../../types/commands";
 import { Evaluator } from "./evaluator";
 
 //#region

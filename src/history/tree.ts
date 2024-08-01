@@ -1,7 +1,7 @@
 import { linkNext } from "../helpers";
-import { OperationSequenceNode, Transformation, TransformationFactory, UID } from "../types";
-import { Branch } from "./branch";
-import { Operation } from "./operation";
+import type { OperationSequenceNode, Transformation, TransformationFactory, UID } from "../types";
+import type { Branch } from "./branch";
+import type { Operation } from "./operation";
 import { OperationSequence } from "./operation_sequence";
 
 /**

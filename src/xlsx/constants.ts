@@ -1,4 +1,4 @@
-import { ExcelIconSet } from "../types/xlsx";
+import type { ExcelIconSet } from "../types/xlsx";
 
 /** In XLSX color format (no #)  */
 export const AUTO_COLOR = "000000";

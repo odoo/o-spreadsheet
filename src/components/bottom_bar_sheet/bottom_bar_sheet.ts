@@ -2,8 +2,8 @@ import { Component, onMounted, onPatched, useRef, useState } from "@odoo/owl";
 import { BOTTOMBAR_HEIGHT } from "../../constants";
 import { interactiveRenameSheet } from "../../helpers/ui/sheet_interactive";
 import { getSheetMenuRegistry } from "../../registries";
-import { MenuItemRegistry } from "../../registries/menu_items_registry";
-import { SpreadsheetChildEnv } from "../../types";
+import type { MenuItemRegistry } from "../../registries/menu_items_registry";
+import type { SpreadsheetChildEnv } from "../../types";
 import { Ripple } from "../animation/ripple";
 import { css } from "../helpers/css";
 

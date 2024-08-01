@@ -3,13 +3,14 @@ import { BACKGROUND_GRAY_COLOR, HEADER_WIDTH, TEXT_HEADER_COLOR } from "../../co
 import { deepEquals } from "../../helpers";
 import { MenuItemRegistry } from "../../registries/menu_items_registry";
 import { _t } from "../../translation";
-import { MenuMouseEvent, Pixel, Rect, SpreadsheetChildEnv, UID } from "../../types";
+import type { MenuMouseEvent, Pixel, Rect, SpreadsheetChildEnv, UID } from "../../types";
 import { Ripple } from "../animation/ripple";
 import { BottomBarSheet } from "../bottom_bar_sheet/bottom_bar_sheet";
 import { BottomBarStatistic } from "../bottom_bar_statistic/bottom_bar_statistic";
 import { css } from "../helpers/css";
 import { useDragAndDropListItems } from "../helpers/drag_and_drop_hook";
-import { Menu, MenuState } from "../menu/menu";
+import type { MenuState } from "../menu/menu";
+import { Menu } from "../menu/menu";
 
 // -----------------------------------------------------------------------------
 // SpreadSheet

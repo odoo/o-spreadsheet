@@ -14,20 +14,17 @@ import {
   updateSelectionOnInsertion,
 } from "../../helpers/index";
 import { _t } from "../../translation";
-import { SelectionEvent } from "../../types/event_stream";
-import {
+import type { SelectionEvent } from "../../types/event_stream";
+import type {
   AddColumnsRowsCommand,
   AnchorZone,
   CellPosition,
-  CellValueType,
   ClientPosition,
   Command,
-  CommandResult,
   Dimension,
   EvaluatedCell,
   GridRenderingContext,
   HeaderIndex,
-  LAYERS,
   LocalCommand,
   Locale,
   MoveColumnsRowsCommand,
@@ -38,7 +35,9 @@ import {
   UID,
   Zone,
 } from "../../types/index";
-import { UIPlugin, UIPluginConfig } from "../ui_plugin";
+import { CellValueType, CommandResult, LAYERS } from "../../types/index";
+import type { UIPluginConfig } from "../ui_plugin";
+import { UIPlugin } from "../ui_plugin";
 
 interface SheetInfo {
   gridSelection: Selection;

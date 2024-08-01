@@ -1,6 +1,6 @@
-import { CommandResult } from "./commands";
-import { Dimension, HeaderIndex, UID, Zone } from "./misc";
-import { GridRenderingContext } from "./rendering";
+import type { CommandResult } from "./commands";
+import type { Dimension, HeaderIndex, UID, Zone } from "./misc";
+import type { GridRenderingContext } from "./rendering";
 
 export enum ClipboardMIMEType {
   PlainText = "text/plain",

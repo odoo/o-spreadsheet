@@ -1,4 +1,4 @@
-import { HtmlContent } from "../composer/composer/composer";
+import type { HtmlContent } from "../composer/composer/composer";
 
 export function getHtmlContentFromPattern(
   pattern: string,

@@ -1,17 +1,11 @@
-import {
-  AST,
-  ASTFuncall,
-  ASTString,
-  astToFormula,
-  convertAstNodes,
-  parse,
-} from "../../formulas/parser";
+import type { AST, ASTFuncall, ASTString } from "../../formulas/parser";
+import { astToFormula, convertAstNodes, parse } from "../../formulas/parser";
 import { functionRegistry } from "../../functions";
 import { formatValue, isNumber } from "../../helpers";
 import { mdyDateRegexp, parseDateTime, timeRegexp, ymdDateRegexp } from "../../helpers/dates";
-import { ExcelCellData, Format } from "../../types";
+import type { ExcelCellData, Format } from "../../types";
 import { CellErrorType } from "../../types/errors";
-import { XMLAttributes, XMLString } from "../../types/xlsx";
+import type { XMLAttributes, XMLString } from "../../types/xlsx";
 import { FORCE_DEFAULT_ARGS_FUNCTIONS, NON_RETROCOMPATIBLE_FUNCTIONS } from "../constants";
 import { pushElement } from "../helpers/content_helpers";
 import { escapeXml } from "../helpers/xml_helpers";

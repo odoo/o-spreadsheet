@@ -35,21 +35,20 @@ import {
   positionToZone,
   union,
 } from "../../helpers/index";
-import {
+import type {
   Align,
   Box,
   CellPosition,
-  CellValueType,
   Dimension,
   GridRenderingContext,
   HeaderDimensions,
   HeaderIndex,
-  LAYERS,
   Pixel,
   UID,
   Viewport,
   Zone,
 } from "../../types/index";
+import { CellValueType, LAYERS } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 // -----------------------------------------------------------------------------

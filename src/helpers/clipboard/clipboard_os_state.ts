@@ -1,13 +1,7 @@
 import { canonicalizeNumberValue } from "../../formulas/formula_locale";
-import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
-import {
-  ClipboardMIMEType,
-  ClipboardOptions,
-  CommandDispatcher,
-  CommandResult,
-  Getters,
-  Zone,
-} from "../../types";
+import type { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
+import type { ClipboardOptions, CommandDispatcher, Getters, Zone } from "../../types";
+import { ClipboardMIMEType, CommandResult } from "../../types";
 import { largeMax } from "../misc";
 import { zoneToDimension } from "../zones";
 import { ClipboardCellsAbstractState } from "./clipboard_abstract_cell_state";

@@ -2,7 +2,7 @@ import { range } from "../helpers";
 import { parseDateTime } from "../helpers/dates";
 import { isNumber, percentile } from "../helpers/index";
 import { _t } from "../translation";
-import {
+import type {
   AddFunctionDescription,
   Arg,
   ArgValue,
@@ -11,8 +11,8 @@ import {
   Matrix,
   Maybe,
   ValueAndFormat,
-  isMatrix,
 } from "../types";
+import { isMatrix } from "../types";
 import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import { invertMatrix, multiplyMatrices } from "./helper_matrices";

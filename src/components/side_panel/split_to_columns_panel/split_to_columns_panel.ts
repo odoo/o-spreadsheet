@@ -3,7 +3,8 @@ import { NEWLINE } from "../../../constants";
 import { interactiveSplitToColumns } from "../../../helpers/ui/split_to_columns_interactive";
 import { interactiveStopEdition } from "../../../helpers/ui/stop_edition_interactive";
 import { _t } from "../../../translation";
-import { CommandResult, SpreadsheetChildEnv } from "../../../types/index";
+import type { SpreadsheetChildEnv } from "../../../types/index";
+import { CommandResult } from "../../../types/index";
 import { SplitToColumnsTerms } from "../../translations_terms";
 import { ValidationMessages } from "../../validation_messages/validation_messages";
 

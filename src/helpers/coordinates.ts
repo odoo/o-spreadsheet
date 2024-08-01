@@ -2,7 +2,7 @@
 // Coordinate
 //------------------------------------------------------------------------------
 
-import { HeaderIndex, Position, RangePart } from "../types";
+import type { HeaderIndex, Position, RangePart } from "../types";
 
 /**
  * Convert a (col) number to the corresponding letter.

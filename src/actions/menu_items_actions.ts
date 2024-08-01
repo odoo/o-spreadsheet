@@ -14,9 +14,10 @@ import {
 } from "../helpers/index";
 import { interactivePaste, interactivePasteFromOS } from "../helpers/ui/paste_interactive";
 import { _t } from "../translation";
-import { ClipboardMIMEType, ClipboardPasteOptions } from "../types/clipboard";
-import { Image } from "../types/image";
-import { Dimension, Format, SpreadsheetChildEnv, Style } from "../types/index";
+import type { ClipboardPasteOptions } from "../types/clipboard";
+import { ClipboardMIMEType } from "../types/clipboard";
+import type { Image } from "../types/image";
+import type { Dimension, Format, SpreadsheetChildEnv, Style } from "../types/index";
 
 //------------------------------------------------------------------------------
 // Helpers

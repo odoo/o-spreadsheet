@@ -1,5 +1,5 @@
 import { Component, onWillUpdateProps, useExternalListener, useRef, useState } from "@odoo/owl";
-import { Action } from "../../actions/action";
+import type { Action } from "../../actions/action";
 import {
   BG_HOVER_COLOR,
   DISABLED_TEXT_COLOR,
@@ -10,11 +10,12 @@ import {
   MENU_VERTICAL_PADDING,
   MENU_WIDTH,
 } from "../../constants";
-import { DOMCoordinates, MenuMouseEvent, Pixel, SpreadsheetChildEnv, UID } from "../../types";
+import type { DOMCoordinates, MenuMouseEvent, Pixel, SpreadsheetChildEnv, UID } from "../../types";
 import { css } from "../helpers/css";
 import { getOpenedMenus, isChildEvent } from "../helpers/dom_helpers";
 import { useAbsoluteBoundingRect } from "../helpers/position_hook";
-import { Popover, PopoverProps } from "../popover/popover";
+import type { PopoverProps } from "../popover/popover";
+import { Popover } from "../popover/popover";
 
 //------------------------------------------------------------------------------
 // Context Menu Component

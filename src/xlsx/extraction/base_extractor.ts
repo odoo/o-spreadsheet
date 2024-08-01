@@ -1,5 +1,5 @@
 import { isDefined } from "../../helpers";
-import {
+import type {
   XLSXColor,
   XLSXColorScheme,
   XLSXFileStructure,
@@ -9,9 +9,9 @@ import {
   XMLFile,
 } from "../../types/xlsx";
 import { fixXlsxUnicode } from "../helpers/misc";
-import { XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
+import type { XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
 import { escapeQueryNameSpaces } from "../helpers/xml_helpers";
-import { XLSXImageFile } from "./../../types/xlsx";
+import type { XLSXImageFile } from "./../../types/xlsx";
 
 interface MapOnElementArgs {
   query: string;

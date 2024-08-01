@@ -1,4 +1,5 @@
-import { composerTokenize, EnrichedToken } from "../../formulas/index";
+import type { EnrichedToken } from "../../formulas/index";
+import { composerTokenize } from "../../formulas/index";
 import { POSTFIX_UNARY_OPERATORS } from "../../formulas/tokenizer";
 import { parseLiteral } from "../../helpers/cells";
 import {
@@ -25,16 +26,13 @@ import {
 } from "../../helpers/locale";
 import { loopThroughReferenceType } from "../../helpers/reference_type";
 import { _t } from "../../translation";
-import {
+import type {
   AddColumnsRowsCommand,
   CellPosition,
-  CellValueType,
   Command,
-  CommandResult,
   Format,
   HeaderIndex,
   Highlight,
-  isMatrix,
   LocalCommand,
   Locale,
   Range,
@@ -45,7 +43,8 @@ import {
   UnboundedZone,
   Zone,
 } from "../../types";
-import { SelectionEvent } from "../../types/event_stream";
+import { CellValueType, CommandResult, isMatrix } from "../../types";
+import type { SelectionEvent } from "../../types/event_stream";
 import { UIPlugin } from "../ui_plugin";
 
 export type EditionMode =

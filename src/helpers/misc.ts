@@ -2,8 +2,8 @@
 // Miscellaneous
 //------------------------------------------------------------------------------
 import { NEWLINE } from "../constants";
-import { ConsecutiveIndexes, Lazy, UID } from "../types";
-import { Cloneable } from "./../types/misc";
+import type { ConsecutiveIndexes, Lazy, UID } from "../types";
+import type { Cloneable } from "./../types/misc";
 
 /**
  * Remove quotes from a quoted string

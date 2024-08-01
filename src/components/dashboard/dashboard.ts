@@ -1,7 +1,7 @@
 import { Component, useChildSubEnv, useRef, useState } from "@odoo/owl";
 import { positionToZone } from "../../helpers/zones";
 import { clickableCellRegistry } from "../../registries/cell_clickable_registry";
-import {
+import type {
   CellPosition,
   DOMCoordinates,
   DOMDimension,

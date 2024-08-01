@@ -1,6 +1,6 @@
 import { deepCopy, range, UuidGenerator } from "../../helpers";
-import { Getters } from "../../types";
-import {
+import type { Getters } from "../../types";
+import type {
   AddColumnsRowsCommand,
   AutoresizeColumnsCommand,
   AutoresizeRowsCommand,

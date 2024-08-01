@@ -1,14 +1,14 @@
 import { _t } from "../translation";
-import {
+import type {
   AddFunctionDescription,
   Arg,
   ArgValue,
   CellValue,
-  isMatrix,
   Matrix,
   Maybe,
   ValueAndFormat,
 } from "../types";
+import { isMatrix } from "../types";
 import { arg } from "./arguments";
 import { assertPositive } from "./helper_assert";
 import { getUnitMatrix } from "./helper_matrices";

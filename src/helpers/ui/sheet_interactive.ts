@@ -1,6 +1,7 @@
 import { FORBIDDEN_SHEET_CHARS } from "../../constants";
 import { _t } from "../../translation";
-import { CommandResult, SpreadsheetChildEnv, UID } from "../../types";
+import type { SpreadsheetChildEnv, UID } from "../../types";
+import { CommandResult } from "../../types";
 
 export function interactiveRenameSheet(
   env: SpreadsheetChildEnv,

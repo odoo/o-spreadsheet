@@ -1,7 +1,8 @@
 import { formatValue } from "../../helpers";
 import { DEFAULT_LOCALE } from "../../types";
-import { XLSXNumFormat } from "../../types/xlsx";
-import { WarningTypes, XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
+import type { XLSXNumFormat } from "../../types/xlsx";
+import type { XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
+import { WarningTypes } from "../helpers/xlsx_parser_error_manager";
 import { XLSX_FORMATS_CONVERSION_MAP } from "./conversion_maps";
 
 const XLSX_DATE_FORMAT_REGEX = /^(yy|yyyy|m{1,5}|d{1,4}|h{1,2}|s{1,2}|am\/pm|a\/m|\s|-|\/|\.|:)+$/i;

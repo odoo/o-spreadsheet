@@ -1,11 +1,9 @@
 import { isInside, overlap, positions, range, zoneToDimension } from "../../helpers/index";
 import { sortCells } from "../../helpers/sort";
 import { _t } from "../../translation";
-import {
+import type {
   CellPosition,
-  CellValueType,
   Command,
-  CommandResult,
   EvaluatedCell,
   HeaderIndex,
   LocalCommand,
@@ -17,6 +15,7 @@ import {
   UpdateCellCommand,
   Zone,
 } from "../../types/index";
+import { CellValueType, CommandResult } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 export class SortPlugin extends UIPlugin {

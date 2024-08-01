@@ -1,10 +1,8 @@
 import { DEFAULT_ERROR_MESSAGE } from "../../constants";
 import { toNumber } from "../../functions/helpers";
-import {
+import type {
   BooleanCell,
   CellValue,
-  CellValueType,
-  DEFAULT_LOCALE,
   EmptyCell,
   ErrorCell,
   EvaluatedCell,
@@ -12,6 +10,7 @@ import {
   LocaleFormat,
   NumberCell,
 } from "../../types";
+import { CellValueType, DEFAULT_LOCALE } from "../../types";
 import { CellErrorType, EvaluationError } from "../../types/errors";
 import { isDateTime } from "../dates";
 import { detectDateFormat, detectNumberFormat, formatValue, isDateTimeFormat } from "../format";

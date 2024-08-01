@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "@odoo/owl";
-import { Model } from "../..";
+import type { Model } from "../..";
 import { CANVAS_SHIFT } from "../../constants";
-import { DOMDimension } from "../../types";
+import type { DOMDimension } from "../../types";
 
 export function useGridDrawing(refName: string, model: Model, canvasSize: () => DOMDimension) {
   const canvasRef = useRef(refName);

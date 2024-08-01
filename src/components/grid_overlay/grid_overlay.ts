@@ -1,5 +1,5 @@
 import { Component, onMounted, onWillUnmount, useExternalListener, useRef } from "@odoo/owl";
-import {
+import type {
   DOMCoordinates,
   HeaderIndex,
   Pixel,

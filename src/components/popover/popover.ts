@@ -1,11 +1,11 @@
 import { Component, useEffect, useRef } from "@odoo/owl";
 import { ComponentsImportance } from "../../constants";
 import { rectIntersection } from "../../helpers/rectangle";
-import { DOMCoordinates, DOMDimension, Pixel, Rect, SpreadsheetChildEnv } from "../../types";
-import { PopoverPropsPosition } from "../../types/cell_popovers";
+import type { DOMCoordinates, DOMDimension, Pixel, Rect, SpreadsheetChildEnv } from "../../types";
+import type { PopoverPropsPosition } from "../../types/cell_popovers";
 import { css, cssPropertiesToCss } from "../helpers/css";
 import { usePopoverContainer, useSpreadsheetRect } from "../helpers/position_hook";
-import { CSSProperties } from "./../../types/misc";
+import type { CSSProperties } from "./../../types/misc";
 
 type PopoverPosition = "TopLeft" | "TopRight" | "BottomLeft" | "BottomRight";
 type DisplayValue = "none" | "block";

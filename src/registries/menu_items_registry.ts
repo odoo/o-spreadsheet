@@ -1,4 +1,5 @@
-import { Action, ActionBuilder, ActionSpec, createActions } from "../actions/action";
+import type { Action, ActionBuilder, ActionSpec } from "../actions/action";
+import { createActions } from "../actions/action";
 import { Registry } from "./registry";
 
 /**

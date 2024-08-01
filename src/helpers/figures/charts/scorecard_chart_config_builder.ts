@@ -1,7 +1,7 @@
-import { Color } from "chart.js";
+import type { Color } from "chart.js";
 import { DEFAULT_FONT } from "../../../constants";
-import { DOMDimension, Pixel, PixelPosition, Style } from "../../../types";
-import { BaselineArrowDirection, ScorecardChartRuntime } from "../../../types/chart";
+import type { DOMDimension, Pixel, PixelPosition, Style } from "../../../types";
+import type { BaselineArrowDirection, ScorecardChartRuntime } from "../../../types/chart";
 import { relativeLuminance } from "../../color";
 import { getFontSizeMatchingWidth } from "../../text_helper";
 

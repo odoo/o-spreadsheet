@@ -2,8 +2,8 @@ import { Component, onWillUpdateProps, useRef, useState } from "@odoo/owl";
 import { MENU_ITEM_HEIGHT, MENU_WIDTH } from "../../../constants";
 import { deepEquals, positions, toLowerCase } from "../../../helpers";
 import { fuzzyLookup } from "../../../helpers/search";
-import { Position, SortDirection, SpreadsheetChildEnv } from "../../../types";
-import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
+import type { Position, SortDirection, SpreadsheetChildEnv } from "../../../types";
+import type { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { css } from "../../helpers/css";
 import { FilterMenuValueItem } from "../filter_menu_item/filter_menu_value_item";
 

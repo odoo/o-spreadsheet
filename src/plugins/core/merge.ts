@@ -14,11 +14,10 @@ import {
   zoneToDimension,
   zoneToXc,
 } from "../../helpers/index";
-import {
+import type {
   AddMergeCommand,
   ApplyRangeChange,
   CellPosition,
-  CommandResult,
   CoreCommand,
   ExcelWorkbookData,
   HeaderIndex,
@@ -30,6 +29,7 @@ import {
   WorkbookData,
   Zone,
 } from "../../types/index";
+import { CommandResult } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
 
 // type SheetMergeCellMap = Record<string, number | undefined>;

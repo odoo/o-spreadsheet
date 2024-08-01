@@ -1,14 +1,8 @@
 import { deepEquals, positions, range, trimContent, zoneToDimension } from "../../helpers";
 import { ClipboardCellsState } from "../../helpers/clipboard/clipboard_cells_state";
 import { _t } from "../../translation";
-import {
-  Command,
-  CommandResult,
-  HeaderIndex,
-  RemoveDuplicatesCommand,
-  UID,
-  Zone,
-} from "../../types/index";
+import type { Command, HeaderIndex, RemoveDuplicatesCommand, UID, Zone } from "../../types/index";
+import { CommandResult } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 export class DataCleanupPlugin extends UIPlugin {

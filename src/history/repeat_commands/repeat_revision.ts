@@ -1,12 +1,13 @@
-import { Revision } from "../../collaborative/revisions";
+import type { Revision } from "../../collaborative/revisions";
 import {
   repeatCommandTransformRegistry,
   repeatCoreCommand,
   repeatLocalCommand,
   repeatLocalCommandTransformRegistry,
 } from "../../registries/repeat_commands_registry";
-import { CoreCommand, Getters } from "../../types";
-import { Command, isCoreCommand } from "../../types/commands";
+import type { CoreCommand, Getters } from "../../types";
+import type { Command } from "../../types/commands";
+import { isCoreCommand } from "../../types/commands";
 
 export function canRepeatRevision(revision: Revision | undefined): boolean {
   if (!revision || !revision.rootCommand || typeof revision.rootCommand !== "object") {

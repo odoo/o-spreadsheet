@@ -1,5 +1,6 @@
 import { canonicalizeNumberLiteral } from "../helpers/locale";
-import { DEFAULT_LOCALE, Locale } from "../types";
+import type { Locale } from "../types";
+import { DEFAULT_LOCALE } from "../types";
 import { tokenize } from "./tokenizer";
 
 /** Change a number string to its canonical form (en_US locale) */

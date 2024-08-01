@@ -1,5 +1,5 @@
-import { Transformation, TransformationFactory, UID } from "../types";
-import { Operation } from "./operation";
+import type { Transformation, TransformationFactory, UID } from "../types";
+import type { Operation } from "./operation";
 
 /**
  * A branch holds a sequence of operations.

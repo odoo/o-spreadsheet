@@ -1,5 +1,5 @@
 import { _t } from "./translation";
-import { BorderDescr, Color, Style } from "./types";
+import type { BorderDescr, Color, Style } from "./types";
 import { CellErrorType } from "./types/errors";
 
 export const CANVAS_SHIFT = 0.5;

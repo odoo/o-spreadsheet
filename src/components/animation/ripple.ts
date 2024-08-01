@@ -1,5 +1,5 @@
 import { Component, onMounted, onWillUnmount, useRef, useState } from "@odoo/owl";
-import { Rect, SpreadsheetChildEnv } from "../../types";
+import type { Rect, SpreadsheetChildEnv } from "../../types";
 import { css, cssPropertiesToCss, getElementMargins } from "../helpers/css";
 import { getBoundingRectAsPOJO } from "../helpers/dom_helpers";
 

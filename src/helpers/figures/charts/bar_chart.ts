@@ -1,7 +1,7 @@
 import type { ChartConfiguration, ChartDataset, LegendOptions } from "chart.js";
-import { DeepPartial } from "chart.js/dist/types/utils";
+import type { DeepPartial } from "chart.js/dist/types/utils";
 import { BACKGROUND_CHART_COLOR, INCORRECT_RANGE_STRING } from "../../../constants";
-import {
+import type {
   AddColumnsRowsCommand,
   ApplyRangeChange,
   Color,
@@ -13,15 +13,15 @@ import {
   RemoveColumnsRowsCommand,
   UID,
 } from "../../../types";
-import { BarChartDefinition, BarChartRuntime } from "../../../types/chart/bar_chart";
-import {
+import type { BarChartDefinition, BarChartRuntime } from "../../../types/chart/bar_chart";
+import type {
   ChartCreationContext,
   DataSet,
   ExcelChartDataset,
   ExcelChartDefinition,
 } from "../../../types/chart/chart";
-import { LegendPosition, VerticalAxisPosition } from "../../../types/chart/common_chart";
-import { Validator } from "../../../types/validator";
+import type { LegendPosition, VerticalAxisPosition } from "../../../types/chart/common_chart";
+import type { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { formatValue } from "../../format";
 import { createValidRange } from "../../range";

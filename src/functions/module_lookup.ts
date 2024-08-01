@@ -1,13 +1,7 @@
 import { getCanonicalSheetName, toXC, toZone } from "../helpers/index";
 import { _t } from "../translation";
-import {
-  AddFunctionDescription,
-  CellValue,
-  Matrix,
-  Maybe,
-  ValueAndFormat,
-  isMatrix,
-} from "../types";
+import type { AddFunctionDescription, CellValue, Matrix, Maybe, ValueAndFormat } from "../types";
+import { isMatrix } from "../types";
 import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import {

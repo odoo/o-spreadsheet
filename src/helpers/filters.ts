@@ -1,5 +1,5 @@
 import { range, UuidGenerator } from ".";
-import { Cloneable, FilterTableId, UID, Zone } from "../types/misc";
+import type { Cloneable, FilterTableId, UID, Zone } from "../types/misc";
 
 export class FilterTable implements Cloneable<FilterTable> {
   readonly id: FilterTableId;

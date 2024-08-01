@@ -1,7 +1,7 @@
 import { Component, onWillUpdateProps, useRef } from "@odoo/owl";
 import { colorNumberString, deepEquals } from "../../../../helpers";
 import { _t } from "../../../../translation";
-import {
+import type {
   ColorScaleRule,
   ConditionalFormat,
   SingleColorRules,

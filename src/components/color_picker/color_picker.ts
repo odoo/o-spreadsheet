@@ -16,11 +16,12 @@ import {
   toHex,
 } from "../../helpers";
 import { chartFontColor } from "../../helpers/figures/charts";
-import { Color, HSLA, Pixel, PixelPosition, Rect } from "../../types";
-import { SpreadsheetChildEnv } from "../../types/env";
+import type { Color, HSLA, Pixel, PixelPosition, Rect } from "../../types";
+import type { SpreadsheetChildEnv } from "../../types/env";
 import { css, cssPropertiesToCss } from "../helpers/css";
 import { startDnd } from "../helpers/drag_and_drop";
-import { Popover, PopoverProps } from "../popover/popover";
+import type { PopoverProps } from "../popover/popover";
+import { Popover } from "../popover/popover";
 
 const LINE_VERTICAL_PADDING = 1;
 

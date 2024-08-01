@@ -1,11 +1,6 @@
 import { _t } from "../../translation";
-import {
-  ClipboardPasteOptions,
-  CommandResult,
-  DispatchResult,
-  SpreadsheetChildEnv,
-  Zone,
-} from "../../types";
+import type { ClipboardPasteOptions, DispatchResult, SpreadsheetChildEnv, Zone } from "../../types";
+import { CommandResult } from "../../types";
 
 export const PasteInteractiveContent = {
   wrongPasteSelection: _t("This operation is not allowed with multiple selections."),

@@ -1,7 +1,7 @@
-import { UuidGenerator } from "../helpers";
-import { ModelConfig } from "../model";
-import { StateObserver } from "../state_observer";
-import {
+import type { UuidGenerator } from "../helpers";
+import type { ModelConfig } from "../model";
+import type { StateObserver } from "../state_observer";
+import type {
   ApplyRangeChange,
   CoreCommand,
   CoreCommandDispatcher,
@@ -9,9 +9,9 @@ import {
   UID,
   WorkbookData,
 } from "../types";
-import { CoreGetters } from "../types/getters";
+import type { CoreGetters } from "../types/getters";
 import { BasePlugin } from "./base_plugin";
-import { RangeAdapter } from "./core/range";
+import type { RangeAdapter } from "./core/range";
 
 export interface CorePluginConfig {
   readonly getters: CoreGetters;

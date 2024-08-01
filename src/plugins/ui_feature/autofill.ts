@@ -1,22 +1,20 @@
 import { clip, deepCopy, isInside, recomputeZones, toCartesian, toXC } from "../../helpers/index";
 import { autofillModifiersRegistry, autofillRulesRegistry } from "../../registries/index";
-import {
+import type {
   AutofillData,
   AutofillModifier,
   AutofillResult,
   Cell,
   Command,
-  CommandResult,
-  DIRECTION,
   GeneratorCell,
   Getters,
   GridRenderingContext,
   HeaderIndex,
-  LAYERS,
   LocalCommand,
   Tooltip,
   Zone,
 } from "../../types/index";
+import { CommandResult, DIRECTION, LAYERS } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 /**

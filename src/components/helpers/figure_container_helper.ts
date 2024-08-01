@@ -1,4 +1,4 @@
-import { DOMCoordinates, Figure, Getters } from "../../types";
+import type { DOMCoordinates, Figure, Getters } from "../../types";
 
 /**
  * Transform a figure with coordinates from the model, to coordinates as they are shown on the screen,

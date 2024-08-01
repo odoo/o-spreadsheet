@@ -1,4 +1,5 @@
-import { ArgValue, CellValue, isMatrix, Matrix } from "../types";
+import type { ArgValue, CellValue, Matrix } from "../types";
+import { isMatrix } from "../types";
 import { assert } from "./helpers";
 
 export function assertSingleColOrRow(errorStr: string, arg: Matrix) {

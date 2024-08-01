@@ -1,6 +1,6 @@
 import { Registry } from "../registries/registry";
 import { _t } from "../translation";
-import { CellValue, Getters, Link, SpreadsheetChildEnv } from "../types";
+import type { CellValue, Getters, Link, SpreadsheetChildEnv } from "../types";
 import { isMarkdownLink, isSheetUrl, isWebLink, parseMarkdownLink, parseSheetUrl } from "./misc";
 
 /**

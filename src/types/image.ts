@@ -1,5 +1,5 @@
-import { FigureSize } from "./figure";
-import { XLSXFigureSize } from "./xlsx";
+import type { FigureSize } from "./figure";
+import type { XLSXFigureSize } from "./xlsx";
 
 export interface Image {
   path: string;

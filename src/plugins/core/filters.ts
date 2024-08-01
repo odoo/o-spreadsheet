@@ -15,10 +15,9 @@ import {
   zoneToXc,
 } from "../../helpers";
 import { Filter, FilterTable } from "../../helpers/filters";
-import {
+import type {
   AddColumnsRowsCommand,
   CellPosition,
-  CommandResult,
   CoreCommand,
   ExcelWorkbookData,
   FilterId,
@@ -30,6 +29,7 @@ import {
   WorkbookData,
   Zone,
 } from "../../types/index";
+import { CommandResult } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
 
 interface FiltersState {

@@ -8,7 +8,7 @@ import {
   toXC,
   toZone,
 } from "../../helpers/index";
-import {
+import type {
   AddColumnsRowsCommand,
   Border,
   BorderDescr,
@@ -16,7 +16,6 @@ import {
   BorderPosition,
   CellPosition,
   Color,
-  CommandResult,
   CoreCommand,
   ExcelWorkbookData,
   HeaderIndex,
@@ -25,6 +24,7 @@ import {
   WorkbookData,
   Zone,
 } from "../../types/index";
+import { CommandResult } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
 
 interface BordersPluginState {

@@ -1,5 +1,6 @@
 import { _t } from "../../translation";
-import { CommandResult, SpreadsheetChildEnv, UID, Zone } from "../../types";
+import type { SpreadsheetChildEnv, UID, Zone } from "../../types";
+import { CommandResult } from "../../types";
 
 export const AddMergeInteractiveContent = {
   MergeIsDestructive: _t(

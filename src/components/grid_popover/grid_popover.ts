@@ -1,7 +1,7 @@
 import { Component } from "@odoo/owl";
 import { ComponentsImportance } from "../../constants";
-import { Position, Rect, SpreadsheetChildEnv } from "../../types";
-import { ClosedCellPopover, PositionedCellPopover } from "../../types/cell_popovers";
+import type { Position, Rect, SpreadsheetChildEnv } from "../../types";
+import type { ClosedCellPopover, PositionedCellPopover } from "../../types/cell_popovers";
 import { Popover } from "../popover/popover";
 
 interface Props {

@@ -1,6 +1,6 @@
 import type { ChartConfiguration } from "chart.js";
-import { Color } from "../misc";
-import { LegendPosition } from "./common_chart";
+import type { Color } from "../misc";
+import type { LegendPosition } from "./common_chart";
 
 export interface PieChartDefinition {
   readonly type: "pie";

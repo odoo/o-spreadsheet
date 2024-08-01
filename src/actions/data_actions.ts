@@ -1,7 +1,7 @@
 import { areZonesContinuous, getZoneArea } from "../helpers/index";
 import { interactiveSortSelection } from "../helpers/sort";
 import { _t } from "../translation";
-import { ActionSpec } from "./action";
+import type { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 import { createRemoveFilterAction } from "./view_actions";
 

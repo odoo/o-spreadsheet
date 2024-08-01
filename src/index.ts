@@ -97,7 +97,8 @@ import {
   repeatCommandTransformRegistry,
   repeatLocalCommandTransformRegistry,
 } from "./registries/repeat_commands_registry";
-import { AddFunctionDescription, isMatrix } from "./types";
+import type { AddFunctionDescription } from "./types";
+import { isMatrix } from "./types";
 import { CellErrorLevel, EvaluationError } from "./types/errors";
 import { DEFAULT_LOCALE } from "./types/locale";
 

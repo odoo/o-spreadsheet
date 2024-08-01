@@ -1,4 +1,4 @@
-import { PositionId } from "./evaluator";
+import type { PositionId } from "./evaluator";
 
 /**
  * Contains, for each cell, the array

@@ -4,8 +4,8 @@ import type {
   DoughnutController as DoughnutControllerType,
   Element,
 } from "chart.js";
-import { PixelPosition, Rect } from "../../../types";
-import { NeedleOptions, ValueLabelOptions } from "../../../types/chart";
+import type { PixelPosition, Rect } from "../../../types";
+import type { NeedleOptions, ValueLabelOptions } from "../../../types/chart";
 
 // @ts-ignore
 if (window.Chart) {

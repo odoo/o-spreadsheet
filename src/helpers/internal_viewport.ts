@@ -1,5 +1,5 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, FOOTER_HEIGHT } from "../constants";
-import {
+import type {
   DOMDimension,
   Dimension,
   Getters,

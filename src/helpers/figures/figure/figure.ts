@@ -1,4 +1,4 @@
-import { FigureSize, Getters } from "../../../types";
+import type { FigureSize, Getters } from "../../../types";
 import { deepCopy } from "../../misc";
 
 export function centerFigurePosition(getters: Getters, size: FigureSize) {

@@ -1,11 +1,9 @@
 import { transformZone } from "../../../collaborative/ot/ot_helpers";
 import { INCORRECT_RANGE_STRING } from "../../../constants";
-import {
+import type {
   AddColumnsRowsCommand,
   ApplyRangeChange,
-  CellValueType,
   Color,
-  CommandResult,
   CoreGetters,
   DOMCoordinates,
   DOMDimension,
@@ -18,11 +16,12 @@ import {
   UnboundedZone,
   Zone,
 } from "../../../types";
-import { BarChartDefinition } from "../../../types/chart/bar_chart";
-import { DataSet, ExcelChartDataset } from "../../../types/chart/chart";
-import { LineChartDefinition } from "../../../types/chart/line_chart";
-import { PieChartDefinition } from "../../../types/chart/pie_chart";
-import { BaselineArrowDirection, BaselineMode } from "../../../types/chart/scorecard_chart";
+import { CellValueType, CommandResult } from "../../../types";
+import type { BarChartDefinition } from "../../../types/chart/bar_chart";
+import type { DataSet, ExcelChartDataset } from "../../../types/chart/chart";
+import type { LineChartDefinition } from "../../../types/chart/line_chart";
+import type { PieChartDefinition } from "../../../types/chart/pie_chart";
+import type { BaselineArrowDirection, BaselineMode } from "../../../types/chart/scorecard_chart";
 import { relativeLuminance } from "../../color";
 import { formatValue } from "../../format";
 import { isDefined } from "../../misc";

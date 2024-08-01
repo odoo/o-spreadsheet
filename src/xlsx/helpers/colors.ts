@@ -1,6 +1,6 @@
 import { toHex } from "../../helpers";
-import { Color } from "../../types";
-import { XlsxHexColor } from "../../types/xlsx";
+import type { Color } from "../../types";
+import type { XlsxHexColor } from "../../types/xlsx";
 
 /**
  * Convert a JS color hexadecimal to an excel compatible color.

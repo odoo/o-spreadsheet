@@ -1,4 +1,4 @@
-import { Command } from "../../types/index";
+import type { Command } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 export class UIOptionsPlugin extends UIPlugin {

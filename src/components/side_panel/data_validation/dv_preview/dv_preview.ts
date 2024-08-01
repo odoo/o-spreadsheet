@@ -1,7 +1,7 @@
 import { Component } from "@odoo/owl";
 import { FIGURE_BORDER_COLOR } from "../../../../constants";
 import { dataValidationEvaluatorRegistry } from "../../../../registries/data_validation_registry";
-import { DataValidationRule, SpreadsheetChildEnv } from "../../../../types";
+import type { DataValidationRule, SpreadsheetChildEnv } from "../../../../types";
 import { css } from "../../../helpers";
 
 css/* scss */ `

@@ -15,7 +15,7 @@ import {
 } from "./core";
 import { HeaderGroupingPlugin } from "./core/header_grouping";
 import { SettingsPlugin } from "./core/settings";
-import { CorePluginConstructor } from "./core_plugin";
+import type { CorePluginConstructor } from "./core_plugin";
 import {
   CustomColorsPlugin,
   EvaluationChartPlugin,
@@ -42,7 +42,7 @@ import {
 } from "./ui_feature";
 import { HistoryPlugin } from "./ui_feature/local_history";
 import { SplitToColumnsPlugin } from "./ui_feature/split_to_columns";
-import { UIPluginConstructor } from "./ui_plugin";
+import type { UIPluginConstructor } from "./ui_plugin";
 import {
   ClipboardPlugin,
   EditionPlugin,

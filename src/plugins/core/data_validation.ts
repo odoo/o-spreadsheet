@@ -6,12 +6,11 @@ import {
   recomputeZones,
 } from "../../helpers";
 import { dataValidationEvaluatorRegistry } from "../../registries/data_validation_registry";
-import {
+import type {
   AddDataValidationCommand,
   ApplyRangeChange,
   CellPosition,
   Command,
-  CommandResult,
   CoreCommand,
   DataValidationRule,
   Range,
@@ -19,6 +18,7 @@ import {
   UID,
   WorkbookData,
 } from "../../types";
+import { CommandResult } from "../../types";
 import { CorePlugin } from "../core_plugin";
 
 interface DataValidationState {

@@ -1,5 +1,5 @@
 import { useEffect } from "@odoo/owl";
-import { Ref } from "../../types";
+import type { Ref } from "../../types";
 
 /**
  * Manages an event listener on a ref. Useful for hooks that want to manage

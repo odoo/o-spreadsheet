@@ -5,11 +5,10 @@ import {
   DEFAULT_SCORECARD_BASELINE_MODE,
 } from "../../../constants";
 import { _t } from "../../../translation";
-import {
+import type {
   AddColumnsRowsCommand,
   ApplyRangeChange,
   Color,
-  CommandResult,
   CoreGetters,
   EvaluatedCell,
   Getters,
@@ -18,13 +17,14 @@ import {
   UID,
   UnboundedZone,
 } from "../../../types";
-import { ChartCreationContext } from "../../../types/chart/chart";
-import {
+import { CommandResult } from "../../../types";
+import type { ChartCreationContext } from "../../../types/chart/chart";
+import type {
   BaselineMode,
   ScorecardChartDefinition,
   ScorecardChartRuntime,
 } from "../../../types/chart/scorecard_chart";
-import { Validator } from "../../../types/validator";
+import type { Validator } from "../../../types/validator";
 import { createValidRange } from "../../range";
 import { rangeReference } from "../../references";
 import { drawDecoratedText } from "../../text_helper";
@@ -37,7 +37,7 @@ import {
   getBaselineColor,
   getBaselineText,
 } from "./chart_common";
-import { ScorecardChartConfig } from "./scorecard_chart_config_builder";
+import type { ScorecardChartConfig } from "./scorecard_chart_config_builder";
 
 function checkKeyValue(definition: ScorecardChartDefinition): CommandResult {
   return definition.keyValue && !rangeReference.test(definition.keyValue)

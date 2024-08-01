@@ -1,9 +1,11 @@
 // HELPERS
-import { DateTime, isDateTime, numberToJsDate, parseDateTime } from "../helpers/dates";
+import type { DateTime } from "../helpers/dates";
+import { isDateTime, numberToJsDate, parseDateTime } from "../helpers/dates";
 import { memoize } from "../helpers/misc";
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _t } from "../translation";
-import { ArgValue, CellValue, Locale, Matrix, Maybe, ValueAndFormat, isMatrix } from "../types";
+import type { ArgValue, CellValue, Locale, Matrix, Maybe, ValueAndFormat } from "../types";
+import { isMatrix } from "../types";
 import { CellErrorType, EvaluationError } from "../types/errors";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];

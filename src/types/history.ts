@@ -1,6 +1,6 @@
-import { Branch } from "../history/branch";
-import { Operation } from "../history/operation";
-import { UID } from "./misc";
+import type { Branch } from "../history/branch";
+import type { Operation } from "../history/operation";
+import type { UID } from "./misc";
 
 export interface CreateRevisionOptions {
   revisionId?: UID;

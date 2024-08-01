@@ -1,7 +1,7 @@
 import { Component } from "@odoo/owl";
 import { _t } from "../../translation";
 import { CellValueType } from "../../types";
-import { CellPopoverComponent, PopoverBuilders } from "../../types/cell_popovers";
+import type { CellPopoverComponent, PopoverBuilders } from "../../types/cell_popovers";
 import { css } from "../helpers/css";
 
 const ERROR_TOOLTIP_MAX_HEIGHT = 80;

@@ -1,8 +1,8 @@
-import { Session } from "../collaborative/session";
-import { ModelConfig } from "../model";
-import { SelectionStreamProcessor } from "../selection_stream/selection_stream_processor";
-import { StateObserver } from "../state_observer";
-import {
+import type { Session } from "../collaborative/session";
+import type { ModelConfig } from "../model";
+import type { SelectionStreamProcessor } from "../selection_stream/selection_stream_processor";
+import type { StateObserver } from "../state_observer";
+import type {
   ClientPosition,
   Command,
   CommandDispatcher,

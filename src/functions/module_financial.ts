@@ -6,15 +6,8 @@ import {
   range,
 } from "../helpers";
 import { _t } from "../translation";
-import {
-  AddFunctionDescription,
-  ArgValue,
-  CellValue,
-  Locale,
-  Matrix,
-  Maybe,
-  isMatrix,
-} from "../types";
+import type { AddFunctionDescription, ArgValue, CellValue, Locale, Matrix, Maybe } from "../types";
+import { isMatrix } from "../types";
 import { arg } from "./arguments";
 import {
   assertCashFlowsAndDatesHaveSameDimension,

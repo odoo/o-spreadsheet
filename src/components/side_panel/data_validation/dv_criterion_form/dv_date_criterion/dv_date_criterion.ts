@@ -1,6 +1,6 @@
 import { onWillStart, onWillUpdateProps } from "@odoo/owl";
 import { _t } from "../../../../../translation";
-import { DataValidationDateCriterion, DateCriterionValue } from "../../../../../types";
+import type { DataValidationDateCriterion, DateCriterionValue } from "../../../../../types";
 import { DataValidationCriterionForm } from "../dv_criterion_form";
 import { DataValidationInput } from "../dv_input/dv_input";
 

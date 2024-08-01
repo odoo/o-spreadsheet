@@ -1,8 +1,8 @@
-import { CellValue, DataValidationRule, Format, Locale } from ".";
-import { ExcelChartDefinition } from "./chart/chart";
-import { ConditionalFormat } from "./conditional_formatting";
-import { Image } from "./image";
-import { Border, Dimension, HeaderGroup, PaneDivision, Pixel, Style, UID } from "./misc";
+import type { CellValue, DataValidationRule, Format, Locale } from ".";
+import type { ExcelChartDefinition } from "./chart/chart";
+import type { ConditionalFormat } from "./conditional_formatting";
+import type { Image } from "./image";
+import type { Border, Dimension, HeaderGroup, PaneDivision, Pixel, Style, UID } from "./misc";
 
 export interface Dependencies {
   references: string[];

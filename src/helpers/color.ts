@@ -1,4 +1,4 @@
-import { Color, HSLA, RGBA } from "../types";
+import type { Color, HSLA, RGBA } from "../types";
 import { concat } from "./misc";
 
 const RBA_REGEX = /rgba?\(|\s+|\)/gi;

@@ -1,5 +1,5 @@
-import { IconSetType } from "../../components/icons/icons";
-import {
+import type { IconSetType } from "../../components/icons/icons";
+import type {
   Align,
   BorderStyle,
   ConditionalFormattingOperatorValues,
@@ -7,8 +7,8 @@ import {
   ThresholdType,
   VerticalAlign,
 } from "../../types";
-import { LegendPosition } from "../../types/chart/common_chart";
-import {
+import type { LegendPosition } from "../../types/chart/common_chart";
+import type {
   ExcelIconSet,
   XLSXBorderStyle,
   XLSXCellType,
@@ -18,7 +18,7 @@ import {
   XLSXChartType,
   XLSXHorizontalAlignment,
 } from "../../types/xlsx";
-import { XLSXVerticalAlignment } from "./../../types/xlsx";
+import type { XLSXVerticalAlignment } from "./../../types/xlsx";
 
 export const SUPPORTED_BORDER_STYLES = ["thin"];
 export const SUPPORTED_HORIZONTAL_ALIGNMENTS: XLSXHorizontalAlignment[] = [

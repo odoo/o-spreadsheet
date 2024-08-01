@@ -2,7 +2,7 @@ import { Component, onWillStart, useState } from "@odoo/owl";
 import { createCurrencyFormat, formatValue, roundFormat } from "../../../helpers";
 import { currenciesRegistry } from "../../../registries/currencies_registry";
 import { _t } from "../../../translation";
-import { Currency, Format, SpreadsheetChildEnv } from "../../../types";
+import type { Currency, Format, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
 import { CustomCurrencyTerms } from "../../translations_terms";
 

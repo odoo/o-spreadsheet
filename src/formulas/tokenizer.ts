@@ -1,6 +1,7 @@
 import { INCORRECT_RANGE_STRING, NEWLINE } from "../constants";
 import { getFormulaNumberRegex, rangeReference, replaceSpecialSpaces } from "../helpers/index";
-import { DEFAULT_LOCALE, Locale } from "../types";
+import type { Locale } from "../types";
+import { DEFAULT_LOCALE } from "../types";
 
 /**
  * Tokenizer

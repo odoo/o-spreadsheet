@@ -1,6 +1,6 @@
 import { compile } from "../../formulas/index";
 import { isInside, recomputeZones } from "../../helpers/index";
-import {
+import type {
   AddConditionalFormatCommand,
   ApplyRangeChange,
   CancelledReason,
@@ -9,7 +9,6 @@ import {
   ColorScaleRule,
   ColorScaleThreshold,
   Command,
-  CommandResult,
   ConditionalFormat,
   ConditionalFormatInternal,
   ConditionalFormattingOperatorValues,
@@ -22,6 +21,7 @@ import {
   WorkbookData,
   Zone,
 } from "../../types";
+import { CommandResult } from "../../types";
 import { CorePlugin } from "../core_plugin";
 
 // -----------------------------------------------------------------------------

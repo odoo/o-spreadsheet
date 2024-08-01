@@ -1,9 +1,8 @@
 import { FIGURE_ID_SPLITTER } from "../../constants";
 import { deepCopy, isDefined } from "../../helpers";
-import { FileStore } from "../../types/files";
-import { Image } from "../../types/image";
-import {
-  CommandResult,
+import type { FileStore } from "../../types/files";
+import type { Image } from "../../types/image";
+import type {
   CoreCommand,
   ExcelWorkbookData,
   Figure,
@@ -13,7 +12,9 @@ import {
   UID,
   WorkbookData,
 } from "../../types/index";
-import { CorePlugin, CorePluginConfig } from "../core_plugin";
+import { CommandResult } from "../../types/index";
+import type { CorePluginConfig } from "../core_plugin";
+import { CorePlugin } from "../core_plugin";
 
 interface ImageState {
   readonly images: Record<UID, Record<UID, Image | undefined> | undefined>;

@@ -1,5 +1,5 @@
 import { _t } from "../translation";
-import {
+import type {
   CellPosition,
   CoreGetters,
   Getters,

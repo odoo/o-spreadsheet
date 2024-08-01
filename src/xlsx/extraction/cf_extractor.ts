@@ -1,4 +1,4 @@
-import {
+import type {
   ExcelIconSet,
   XLSXCfIcon,
   XLSXCfOperatorType,
@@ -13,8 +13,8 @@ import {
   XLSXImportFile,
   XLSXTheme,
 } from "../../types/xlsx";
-import { XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
-import { XLSXColorScale } from "./../../types/xlsx";
+import type { XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
+import type { XLSXColorScale } from "./../../types/xlsx";
 import { XlsxBaseExtractor } from "./base_extractor";
 
 export class XlsxCfExtractor extends XlsxBaseExtractor {

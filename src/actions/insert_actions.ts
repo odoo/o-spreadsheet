@@ -2,7 +2,7 @@ import { functionRegistry } from "../functions";
 import { isDefined } from "../helpers";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
 import { _t } from "../translation";
-import { ActionBuilder, ActionSpec } from "./action";
+import type { ActionBuilder, ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 
 export const insertRow: ActionSpec = {

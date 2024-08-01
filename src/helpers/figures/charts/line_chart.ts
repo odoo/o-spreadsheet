@@ -1,11 +1,11 @@
 import type { ChartConfiguration, ChartDataset, Chart as ChartType, LegendOptions } from "chart.js";
-import { DeepPartial } from "chart.js/dist/types/utils";
+import type { DeepPartial } from "chart.js/dist/types/utils";
 import {
   BACKGROUND_CHART_COLOR,
   INCORRECT_RANGE_STRING,
   LINE_FILL_TRANSPARENCY,
 } from "../../../constants";
-import {
+import type {
   AddColumnsRowsCommand,
   ApplyRangeChange,
   Color,
@@ -17,7 +17,7 @@ import {
   RemoveColumnsRowsCommand,
   UID,
 } from "../../../types";
-import {
+import type {
   AxisType,
   ChartCreationContext,
   DataSet,
@@ -25,9 +25,9 @@ import {
   ExcelChartDataset,
   ExcelChartDefinition,
 } from "../../../types/chart/chart";
-import { LegendPosition, VerticalAxisPosition } from "../../../types/chart/common_chart";
-import { LineChartDefinition, LineChartRuntime } from "../../../types/chart/line_chart";
-import { Validator } from "../../../types/validator";
+import type { LegendPosition, VerticalAxisPosition } from "../../../types/chart/common_chart";
+import type { LineChartDefinition, LineChartRuntime } from "../../../types/chart/line_chart";
+import type { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { getChartTimeOptions, timeFormatLuxonCompatible } from "../../chart_date";
 import { colorToRGBA, rgbaToHex } from "../../color";

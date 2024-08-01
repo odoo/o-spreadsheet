@@ -13,48 +13,49 @@ import {
 } from "./migrations/data";
 import { BasePlugin } from "./plugins/base_plugin";
 import { RangeAdapter } from "./plugins/core/range";
-import { CorePlugin, CorePluginConfig, CorePluginConstructor } from "./plugins/core_plugin";
+import type { CorePluginConfig, CorePluginConstructor } from "./plugins/core_plugin";
+import { CorePlugin } from "./plugins/core_plugin";
 import {
   corePluginRegistry,
   coreViewsPluginRegistry,
   featurePluginRegistry,
   statefulUIPluginRegistry,
 } from "./plugins/index";
-import { UIPlugin, UIPluginConfig, UIPluginConstructor } from "./plugins/ui_plugin";
-import {
-  SelectionStreamProcessor,
-  SelectionStreamProcessorImpl,
-} from "./selection_stream/selection_stream_processor";
+import type { UIPlugin, UIPluginConfig, UIPluginConstructor } from "./plugins/ui_plugin";
+import type { SelectionStreamProcessor } from "./selection_stream/selection_stream_processor";
+import { SelectionStreamProcessorImpl } from "./selection_stream/selection_stream_processor";
 import { StateObserver } from "./state_observer";
 import { _t, setDefaultTranslationMethod } from "./translation";
-import { StateUpdateMessage, TransportService } from "./types/collaborative/transport_service";
-import { CommandTypes } from "./types/commands";
-import { FileStore } from "./types/files";
-import {
-  canExecuteInReadonly,
+import type { StateUpdateMessage, TransportService } from "./types/collaborative/transport_service";
+import type { CommandTypes } from "./types/commands";
+import type { FileStore } from "./types/files";
+import type {
   Client,
   ClientPosition,
   Command,
   CommandDispatcher,
   CommandHandler,
-  CommandResult,
   CoreCommand,
   CoreGetters,
   Currency,
-  DEFAULT_LOCALES,
-  DispatchResult,
   Format,
   Getters,
   GridRenderingContext,
   InformationNotification,
-  isCoreCommand,
   LAYERS,
   LocalCommand,
   Locale,
   UID,
 } from "./types/index";
-import { WorkbookData } from "./types/workbook_data";
-import { XLSXExport } from "./types/xlsx";
+import {
+  canExecuteInReadonly,
+  CommandResult,
+  DEFAULT_LOCALES,
+  DispatchResult,
+  isCoreCommand,
+} from "./types/index";
+import type { WorkbookData } from "./types/workbook_data";
+import type { XLSXExport } from "./types/xlsx";
 import { getXLSX } from "./xlsx/xlsx_writer";
 
 /**

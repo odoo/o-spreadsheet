@@ -9,8 +9,7 @@ import {
   SELECTION_BORDER_COLOR,
   UNHIDE_ICON_EDGE_LENGTH,
 } from "../../constants";
-import {
-  CommandResult,
+import type {
   EdgeScrollInfo,
   HeaderDimensions,
   HeaderIndex,
@@ -18,7 +17,8 @@ import {
   Ref,
   SpreadsheetChildEnv,
 } from "../../types/index";
-import { ContextMenuType } from "../grid/grid";
+import { CommandResult } from "../../types/index";
+import type { ContextMenuType } from "../grid/grid";
 import { css } from "../helpers/css";
 import { isCtrlKey } from "../helpers/dom_helpers";
 import { dragAndDropBeyondTheViewport, startDnd } from "../helpers/drag_and_drop";

@@ -10,18 +10,18 @@ import {
   toZone,
   zoneToDimension,
 } from "../../helpers";
-import {
+import type {
   Border,
   CellPosition,
   Command,
-  CommandResult,
   ExcelFilterData,
   ExcelWorkbookData,
   FilterId,
   UID,
   Zone,
 } from "../../types";
-import { LocalCommand, UpdateFilterCommand } from "../../types/commands";
+import { CommandResult } from "../../types";
+import type { LocalCommand, UpdateFilterCommand } from "../../types/commands";
 import { UIPlugin } from "../ui_plugin";
 
 export class FilterEvaluationPlugin extends UIPlugin {

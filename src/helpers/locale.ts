@@ -1,13 +1,13 @@
 import { tokenize } from "../formulas/tokenizer";
 import { toNumber } from "../functions/helpers";
-import {
+import type {
   ColorScaleThreshold,
   ConditionalFormatRule,
   DataValidationRule,
-  DEFAULT_LOCALE,
   IconThreshold,
   Locale,
 } from "../types";
+import { DEFAULT_LOCALE } from "../types";
 import { isDateTime } from "./dates";
 import { formatValue, getDecimalNumberRegex } from "./format";
 import { deepCopy } from "./misc";

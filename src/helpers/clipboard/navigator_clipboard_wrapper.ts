@@ -1,4 +1,5 @@
-import { ClipboardContent, ClipboardMIMEType } from "./../../types/clipboard";
+import type { ClipboardContent } from "./../../types/clipboard";
+import { ClipboardMIMEType } from "./../../types/clipboard";
 
 export type ClipboardReadResult =
   | { status: "ok"; content: string }

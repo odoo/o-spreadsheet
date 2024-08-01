@@ -1,7 +1,7 @@
-import { TransformationFactory, UID } from "../types";
+import type { TransformationFactory, UID } from "../types";
 import { Branch } from "./branch";
 import { Operation } from "./operation";
-import { OperationSequence } from "./operation_sequence";
+import type { OperationSequence } from "./operation_sequence";
 import { Tree } from "./tree";
 
 export class SelectiveHistory<T = unknown> {

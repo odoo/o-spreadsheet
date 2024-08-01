@@ -1,5 +1,6 @@
 import { _t } from "../translation";
-import { Matrix, isMatrix } from "../types";
+import type { Matrix } from "../types";
+import { isMatrix } from "../types";
 
 export function getUnitMatrix(n: number): Matrix<number> {
   const matrix: Matrix<number> = Array(n);

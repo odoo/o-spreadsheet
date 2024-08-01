@@ -1,6 +1,5 @@
-import {
+import type {
   CommandDispatcher,
-  CommandResult,
   Dimension,
   Figure,
   FigureSize,
@@ -10,17 +9,18 @@ import {
   UID,
   Zone,
 } from "../../types";
-import { Image } from "../../types/image";
-import { AbstractChart } from "../figures/charts";
+import { CommandResult } from "../../types";
+import type { Image } from "../../types/image";
+import type { AbstractChart } from "../figures/charts";
 import { deepCopy } from "../misc";
 import { UuidGenerator } from "../uuid";
-import {
+import type {
   ClipboardContent,
-  ClipboardMIMEType,
   ClipboardOperation,
   ClipboardOptions,
   ClipboardState,
 } from "./../../types/clipboard";
+import { ClipboardMIMEType } from "./../../types/clipboard";
 
 /** State of the clipboard when copying/cutting figures */
 export class ClipboardFigureState implements ClipboardState {

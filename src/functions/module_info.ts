@@ -1,5 +1,5 @@
 import { _t } from "../translation";
-import { AddFunctionDescription, CellValue, Maybe } from "../types";
+import type { AddFunctionDescription, CellValue, Maybe } from "../types";
 import { CellErrorType, NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 

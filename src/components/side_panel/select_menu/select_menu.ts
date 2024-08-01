@@ -1,7 +1,7 @@
 import { Component, useRef, useState } from "@odoo/owl";
-import { Action } from "../../../actions/action";
+import type { Action } from "../../../actions/action";
 import { UuidGenerator } from "../../../helpers";
-import { DOMCoordinates, MenuMouseEvent, SpreadsheetChildEnv } from "../../../types";
+import type { DOMCoordinates, MenuMouseEvent, SpreadsheetChildEnv } from "../../../types";
 import { useAbsoluteBoundingRect } from "../../helpers/position_hook";
 import { Menu } from "../../menu/menu";
 

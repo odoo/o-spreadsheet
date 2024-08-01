@@ -1,4 +1,4 @@
-import { Alias, Align, Border, Pixel, Style, VerticalAlign, Zone } from "./misc";
+import type { Alias, Align, Border, Pixel, Style, VerticalAlign, Zone } from "./misc";
 
 /**
  * Coordinate in pixels

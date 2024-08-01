@@ -1,7 +1,7 @@
-import { CellValue } from "./cells";
-import { Format } from "./format";
-import { Locale } from "./locale";
-import { Arg, ArgValue, Matrix, ValueAndFormat } from "./misc";
+import type { CellValue } from "./cells";
+import type { Format } from "./format";
+import type { Locale } from "./locale";
+import type { Arg, ArgValue, Matrix, ValueAndFormat } from "./misc";
 
 export type ArgType =
   | "ANY"

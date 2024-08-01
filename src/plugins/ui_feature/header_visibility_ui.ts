@@ -1,5 +1,5 @@
 import { range } from "../../helpers";
-import { CellPosition, Dimension, ExcelWorkbookData, HeaderIndex, UID } from "../../types";
+import type { CellPosition, Dimension, ExcelWorkbookData, HeaderIndex, UID } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
 export class HeaderVisibilityUIPlugin extends UIPlugin {

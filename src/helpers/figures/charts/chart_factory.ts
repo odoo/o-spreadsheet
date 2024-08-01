@@ -5,24 +5,24 @@ import {
 } from "../../../constants";
 import { chartRegistry } from "../../../registries/chart_types";
 import { _t } from "../../../translation";
-import {
+import type {
   AddColumnsRowsCommand,
-  CellValueType,
   CommandResult,
   RemoveColumnsRowsCommand,
   UID,
   Zone,
 } from "../../../types";
-import {
+import { CellValueType } from "../../../types";
+import type {
   ChartCreationContext,
   ChartDefinition,
   ChartRuntime,
   ChartType,
 } from "../../../types/chart/chart";
-import { CoreGetters, Getters } from "../../../types/getters";
-import { Validator } from "../../../types/validator";
+import type { CoreGetters, Getters } from "../../../types/getters";
+import type { Validator } from "../../../types/validator";
 import { getZoneArea, zoneToXc } from "../../zones";
-import { AbstractChart } from "./abstract_chart";
+import type { AbstractChart } from "./abstract_chart";
 import { canChartParseLabels } from "./line_chart";
 
 /**

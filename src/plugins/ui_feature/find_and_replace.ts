@@ -1,14 +1,14 @@
 import { escapeRegExp } from "../../helpers";
 import { canonicalizeNumberContent } from "../../helpers/locale";
-import {
+import type {
   CellPosition,
   Color,
   Command,
   GridRenderingContext,
   HeaderIndex,
-  LAYERS,
   Position,
 } from "../../types/index";
+import { LAYERS } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 const BORDER_COLOR: Color = "#8B008B";

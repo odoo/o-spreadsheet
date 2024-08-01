@@ -1,13 +1,13 @@
-import { StateObserver } from "../state_observer";
-import {
+import type { StateObserver } from "../state_observer";
+import type {
   CommandDispatcher,
   CommandHandler,
-  CommandResult,
   ExcelWorkbookData,
   Validation,
   WorkbookHistory,
 } from "../types/index";
-import { Validator } from "../types/validator";
+import { CommandResult } from "../types/index";
+import type { Validator } from "../types/validator";
 
 /**
  * BasePlugin

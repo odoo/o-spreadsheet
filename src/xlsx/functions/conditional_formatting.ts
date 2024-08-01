@@ -1,5 +1,5 @@
 import { colorNumberString } from "../../helpers";
-import {
+import type {
   CellIsRule,
   ColorScaleMidPointThreshold,
   ColorScaleRule,
@@ -10,7 +10,7 @@ import {
   IconThreshold,
   ThresholdType,
 } from "../../types";
-import { ExcelIconSet, XLSXDxf, XMLAttributes, XMLString } from "../../types/xlsx";
+import type { ExcelIconSet, XLSXDxf, XMLAttributes, XMLString } from "../../types/xlsx";
 import { XLSX_ICONSET_MAP } from "../constants";
 import { toXlsxHexColor } from "../helpers/colors";
 import { convertOperator, pushElement } from "../helpers/content_helpers";

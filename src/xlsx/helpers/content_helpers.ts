@@ -1,6 +1,6 @@
 import { DEFAULT_FONT_SIZE } from "../../constants";
 import { deepEquals, splitReference, toUnboundedZone } from "../../helpers";
-import {
+import type {
   ConditionalFormattingOperatorValues,
   ExcelCellData,
   ExcelWorkbookData,
@@ -9,7 +9,7 @@ import {
   UID,
   WorkbookData,
 } from "../../types";
-import {
+import type {
   ExtractedStyle,
   XLSXHorizontalAlignment,
   XLSXNumFormat,

@@ -1,4 +1,4 @@
-import { XLSXColorScheme, XLSXTheme } from "../../types/xlsx";
+import type { XLSXColorScheme, XLSXTheme } from "../../types/xlsx";
 import { AUTO_COLOR } from "../constants";
 import { XlsxBaseExtractor } from "./base_extractor";
 

@@ -1,12 +1,6 @@
 import { isDefined } from "../../helpers/index";
-import {
-  CommandResult,
-  CoreCommand,
-  ExcelWorkbookData,
-  Figure,
-  UID,
-  WorkbookData,
-} from "../../types/index";
+import type { CoreCommand, ExcelWorkbookData, Figure, UID, WorkbookData } from "../../types/index";
+import { CommandResult } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
 import { DEFAULT_CELL_HEIGHT } from "./../../constants";
 

@@ -1,5 +1,5 @@
-import { Border, BorderDescr, Style } from "../../types";
-import {
+import type { Border, BorderDescr, Style } from "../../types";
+import type {
   XLSXBorder,
   XLSXBorderDescr,
   XLSXCellAlignment,
@@ -10,7 +10,8 @@ import {
   XLSXVerticalAlignment,
 } from "../../types/xlsx";
 import { arrayToObject } from "../helpers/misc";
-import { WarningTypes, XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
+import type { XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
+import { WarningTypes } from "../helpers/xlsx_parser_error_manager";
 import { convertColor } from "./color_conversion";
 import {
   BORDER_STYLE_CONVERSION_MAP,

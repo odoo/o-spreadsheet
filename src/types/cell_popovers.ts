@@ -1,7 +1,7 @@
-import { ComponentConstructor } from "@odoo/owl";
-import { Getters } from "./index";
-import { CellPosition, PropsOf } from "./misc";
-import { Rect } from "./rendering";
+import type { ComponentConstructor } from "@odoo/owl";
+import type { Getters } from "./index";
+import type { CellPosition, PropsOf } from "./misc";
+import type { Rect } from "./rendering";
 
 export type CellPopoverType = "ErrorToolTip" | "LinkDisplay" | "FilterMenu" | "LinkEditor";
 export type PopoverPropsPosition = "TopRight" | "BottomLeft";

@@ -1,11 +1,12 @@
 import { Component, onWillUpdateProps, useState } from "@odoo/owl";
-import { ChartSidePanel, chartSidePanelComponentRegistry } from "..";
+import type { ChartSidePanel } from "..";
+import { chartSidePanelComponentRegistry } from "..";
 import { BACKGROUND_HEADER_COLOR } from "../../../../constants";
 import {
   getChartDefinitionFromContextCreation,
   getChartTypes,
 } from "../../../../helpers/figures/charts";
-import { ChartDefinition, ChartType, SpreadsheetChildEnv, UID } from "../../../../types/index";
+import type { ChartDefinition, ChartType, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { css } from "../../../helpers/css";
 
 css/* scss */ `

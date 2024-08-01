@@ -7,7 +7,7 @@
  * created for the first time.
  */
 
-import { CSSProperties, Style } from "../../types";
+import type { CSSProperties, Style } from "../../types";
 
 const STYLESHEETS: { [id: string]: HTMLStyleElement } = {};
 let nextId: number = 0;

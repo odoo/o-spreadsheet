@@ -1,5 +1,5 @@
 import { onWillStart, onWillUpdateProps, useState } from "@odoo/owl";
-import { IsValueInListCriterion } from "../../../../../types";
+import type { IsValueInListCriterion } from "../../../../../types";
 import { css } from "../../../../helpers";
 import { DataValidationCriterionForm } from "../dv_criterion_form";
 import { DataValidationInput } from "../dv_input/dv_input";

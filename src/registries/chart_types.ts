@@ -1,7 +1,7 @@
-import { Component } from "@odoo/owl";
+import type { Component } from "@odoo/owl";
 import { ChartJsComponent } from "../components/figures/chart/chartJs/chartjs";
 import { ScorecardChart as ScorecardChartComponent } from "../components/figures/chart/scorecard/chart_scorecard";
-import { AbstractChart } from "../helpers/figures/charts/abstract_chart";
+import type { AbstractChart } from "../helpers/figures/charts/abstract_chart";
 import { BarChart, createBarChartRuntime } from "../helpers/figures/charts/bar_chart";
 import { GaugeChart, createGaugeChartRuntime } from "../helpers/figures/charts/gauge_chart";
 import { LineChart, createLineChartRuntime } from "../helpers/figures/charts/line_chart";
@@ -11,7 +11,7 @@ import {
   createScorecardChartRuntime,
 } from "../helpers/figures/charts/scorecard_chart";
 import { _t } from "../translation";
-import {
+import type {
   AddColumnsRowsCommand,
   CommandResult,
   CoreGetters,
@@ -19,20 +19,20 @@ import {
   RemoveColumnsRowsCommand,
   UID,
 } from "../types";
-import {
+import type {
   BarChartDefinition,
   GaugeChartDefinition,
   LineChartDefinition,
   PieChartDefinition,
   ScorecardChartDefinition,
 } from "../types/chart";
-import {
+import type {
   ChartCreationContext,
   ChartDefinition,
   ChartRuntime,
   ChartType,
 } from "../types/chart/chart";
-import { Validator } from "../types/validator";
+import type { Validator } from "../types/validator";
 import { Registry } from "./registry";
 
 //------------------------------------------------------------------------------

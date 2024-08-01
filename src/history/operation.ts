@@ -1,5 +1,5 @@
 import { lazy } from "../helpers";
-import { Lazy, Transformation, UID } from "../types";
+import type { Lazy, Transformation, UID } from "../types";
 
 /**
  * An Operation can be executed to change a data structure from state A

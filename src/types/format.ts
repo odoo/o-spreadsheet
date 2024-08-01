@@ -1,5 +1,5 @@
-import { Locale } from "./locale";
-import { Alias } from "./misc";
+import type { Locale } from "./locale";
+import type { Alias } from "./misc";
 
 export type Format = string & Alias;
 

@@ -1,9 +1,10 @@
-import { Component, ComponentConstructor, useState } from "@odoo/owl";
-import { Action } from "../../../../actions/action";
+import type { ComponentConstructor } from "@odoo/owl";
+import { Component, useState } from "@odoo/owl";
+import type { Action } from "../../../../actions/action";
 import { zoneToXc } from "../../../../helpers";
 import { canonicalizeContent } from "../../../../helpers/locale";
 import { dataValidationEvaluatorRegistry } from "../../../../registries/data_validation_registry";
-import {
+import type {
   AddDataValidationCommand,
   DataValidationCriterion,
   DataValidationCriterionType,

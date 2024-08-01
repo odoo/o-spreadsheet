@@ -8,8 +8,8 @@ import {
   useState,
 } from "@odoo/owl";
 import { UuidGenerator } from "../../helpers/index";
-import { RangeInputValue } from "../../plugins/ui_feature/selection_input";
-import { Color, SpreadsheetChildEnv } from "../../types";
+import type { RangeInputValue } from "../../plugins/ui_feature/selection_input";
+import type { Color, SpreadsheetChildEnv } from "../../types";
 import { css } from "../helpers/css";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
 

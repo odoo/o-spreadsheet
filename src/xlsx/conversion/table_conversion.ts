@@ -1,8 +1,8 @@
 import { INCORRECT_RANGE_STRING } from "../../constants";
 import { deepEquals, positions, toCartesian, toXC, toZone, zoneToXc } from "../../helpers";
-import { BorderDescr, CellData, Style, WorkbookData, Zone } from "../../types";
-import { SheetData } from "../../types/workbook_data";
-import { XLSXImportData, XLSXTable, XLSXWorksheet } from "../../types/xlsx";
+import type { BorderDescr, CellData, Style, WorkbookData, Zone } from "../../types";
+import type { SheetData } from "../../types/workbook_data";
+import type { XLSXImportData, XLSXTable, XLSXWorksheet } from "../../types/xlsx";
 import { arrayToObject, objectToArray } from "../helpers/misc";
 
 type CellMap = { [key: string]: CellData | undefined };

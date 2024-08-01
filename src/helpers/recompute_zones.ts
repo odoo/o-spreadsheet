@@ -1,4 +1,4 @@
-import { UnboundedZone, Zone } from "../types";
+import type { UnboundedZone, Zone } from "../types";
 import { deepEquals } from "./misc";
 
 /**

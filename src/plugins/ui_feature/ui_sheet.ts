@@ -7,8 +7,9 @@ import {
   splitTextToWidth,
 } from "../../helpers/index";
 import { localizeFormula } from "../../helpers/locale";
-import { Command, CommandResult, LocalCommand, UID } from "../../types";
-import { CellPosition, HeaderIndex, Pixel, Style } from "../../types/misc";
+import type { Command, LocalCommand, UID } from "../../types";
+import { CommandResult } from "../../types";
+import type { CellPosition, HeaderIndex, Pixel, Style } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 export class SheetUIPlugin extends UIPlugin {

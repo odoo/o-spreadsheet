@@ -4,14 +4,12 @@ import { parseLiteral } from "../../helpers/cells";
 import { colorNumberString, percentile } from "../../helpers/index";
 import { clip, largeMax, largeMin, lazy } from "../../helpers/misc";
 import { _t } from "../../translation";
-import {
+import type {
   CellIsRule,
   CellPosition,
-  CellValueType,
   ColorScaleMidPointThreshold,
   ColorScaleRule,
   ColorScaleThreshold,
-  DEFAULT_LOCALE,
   EvaluatedCell,
   HeaderIndex,
   IconSetRule,
@@ -21,11 +19,15 @@ import {
   Style,
   UID,
   Zone,
+} from "../../types/index";
+import {
+  CellValueType,
+  DEFAULT_LOCALE,
   invalidateCFEvaluationCommands,
   isMatrix,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
-import { CoreViewCommand } from "./../../types/commands";
+import type { CoreViewCommand } from "./../../types/commands";
 
 type ComputedStyles = { [col: HeaderIndex]: (Style | undefined)[] };
 type ComputedIcons = { [col: HeaderIndex]: (string | undefined)[] };

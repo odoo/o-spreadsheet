@@ -1,4 +1,4 @@
-import {
+import type {
   AddColumnsRowsCommand,
   ApplyRangeChange,
   CommandResult,
@@ -6,13 +6,13 @@ import {
   RemoveColumnsRowsCommand,
   UID,
 } from "../../../types";
-import {
+import type {
   ChartCreationContext,
   ChartDefinition,
   ChartType,
   ExcelChartDefinition,
 } from "../../../types/chart/chart";
-import { Validator } from "../../../types/validator";
+import type { Validator } from "../../../types/validator";
 
 /**
  * AbstractChart is the class from which every Chart should inherit.

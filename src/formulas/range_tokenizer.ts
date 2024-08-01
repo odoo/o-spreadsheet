@@ -6,7 +6,8 @@ import {
   isSingleCellReference,
 } from "../helpers";
 import { DEFAULT_LOCALE } from "./../types/locale";
-import { Token, tokenize } from "./tokenizer";
+import type { Token } from "./tokenizer";
+import { tokenize } from "./tokenizer";
 
 enum State {
   /**

@@ -8,8 +8,8 @@ import {
   range,
   removeIndexesFromArray,
 } from "../../helpers";
-import { Command } from "../../types";
-import { CellPosition, Dimension, HeaderIndex, Immutable, Pixel, UID } from "../../types/misc";
+import type { Command } from "../../types";
+import type { CellPosition, Dimension, HeaderIndex, Immutable, Pixel, UID } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 interface HeaderSizeState {

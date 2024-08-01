@@ -1,7 +1,7 @@
-import { CoreCommand } from "../commands";
-import { UID } from "../misc";
-import { WorkbookData } from "../workbook_data";
-import { Client, ClientId } from "./session";
+import type { CoreCommand } from "../commands";
+import type { UID } from "../misc";
+import type { WorkbookData } from "../workbook_data";
+import type { Client, ClientId } from "./session";
 
 interface AbstractMessage {
   version: number;

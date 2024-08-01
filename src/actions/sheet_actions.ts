@@ -1,6 +1,6 @@
 import { buildSheetLink, markdownLink } from "../helpers";
 import { _t } from "../translation";
-import { ActionSpec } from "./action";
+import type { ActionSpec } from "./action";
 
 export const linkSheet: ActionSpec = {
   name: _t("Link sheet"),

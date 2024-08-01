@@ -1,5 +1,6 @@
 import { MergeErrorMessage } from "../../components/translations_terms";
-import { CommandResult, Dimension, HeaderIndex, SpreadsheetChildEnv } from "../../types";
+import type { Dimension, HeaderIndex, SpreadsheetChildEnv } from "../../types";
+import { CommandResult } from "../../types";
 
 export function interactiveFreezeColumnsRows(
   env: SpreadsheetChildEnv,

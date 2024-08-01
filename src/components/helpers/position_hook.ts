@@ -1,5 +1,6 @@
-import { onMounted, onPatched, useComponent, useRef, useState } from "@odoo/owl";
-import { Rect } from "../../types";
+import type { useRef } from "@odoo/owl";
+import { onMounted, onPatched, useComponent, useState } from "@odoo/owl";
+import type { Rect } from "../../types";
 
 // type Ref is not exported by owl :(
 type Ref = ReturnType<typeof useRef>;

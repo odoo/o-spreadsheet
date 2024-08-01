@@ -1,12 +1,12 @@
 import { FIGURE_BORDER_WIDTH } from "../../constants";
-import { HeaderData, SheetData } from "../../types";
-import { ExcelChartDefinition } from "../../types/chart/chart";
-import { XMLAttributes, XMLString } from "../../types/xlsx";
+import type { HeaderData, SheetData } from "../../types";
+import type { ExcelChartDefinition } from "../../types/chart/chart";
+import type { XMLAttributes, XMLString } from "../../types/xlsx";
 import { DRAWING_NS_A, DRAWING_NS_C, NAMESPACE, RELATIONSHIP_NSR } from "../constants";
 import { convertChartId, convertDotValueToEMU, convertImageId } from "../helpers/content_helpers";
 import { escapeXml, formatAttributes, joinXmlNodes, parseXML } from "../helpers/xml_helpers";
-import { Image } from "./../../types/image";
-import { FigureData } from "./../../types/workbook_data";
+import type { Image } from "./../../types/image";
+import type { FigureData } from "./../../types/workbook_data";
 
 type FigurePosition = {
   to: {

@@ -1,11 +1,10 @@
 import { cellStyleToCss, cssPropertiesToCss } from "../../components/helpers";
 import { SELECTION_BORDER_COLOR } from "../../constants";
-import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
-import {
+import type { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
+import type {
   CellPosition,
   ClipboardCell,
   CommandDispatcher,
-  CommandResult,
   ConditionalFormat,
   DataValidationRule,
   Dimension,
@@ -15,7 +14,9 @@ import {
   UID,
   Zone,
 } from "../../types";
-import { ClipboardMIMEType, ClipboardOperation, ClipboardOptions } from "../../types/clipboard";
+import { CommandResult } from "../../types";
+import type { ClipboardOperation, ClipboardOptions } from "../../types/clipboard";
+import { ClipboardMIMEType } from "../../types/clipboard";
 import { xmlEscape } from "../../xlsx/helpers/xml_helpers";
 import { toXC } from "../coordinates";
 import { formatValue } from "../format";

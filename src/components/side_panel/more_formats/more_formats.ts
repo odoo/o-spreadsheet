@@ -13,7 +13,7 @@ import {
   formatNumberShortWeekDay,
   formatNumberTime,
 } from "../../../actions/format_actions";
-import { SpreadsheetChildEnv } from "../../../types";
+import type { SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers";
 
 interface Props {

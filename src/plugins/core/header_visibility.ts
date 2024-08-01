@@ -6,8 +6,9 @@ import {
   largeMin,
   range,
 } from "../../helpers";
-import { Command, CommandResult, ExcelWorkbookData, WorkbookData } from "../../types";
-import { ConsecutiveIndexes, Dimension, HeaderIndex, UID } from "../../types/misc";
+import type { Command, ExcelWorkbookData, WorkbookData } from "../../types";
+import { CommandResult } from "../../types";
+import type { ConsecutiveIndexes, Dimension, HeaderIndex, UID } from "../../types/misc";
 import { CorePlugin } from "../core_plugin";
 
 export class HeaderVisibilityPlugin extends CorePlugin {

@@ -1,4 +1,4 @@
-import { ClientId, Command, CoreCommand, HistoryChange, RevisionData, UID } from "../types";
+import type { ClientId, Command, CoreCommand, HistoryChange, RevisionData, UID } from "../types";
 
 export class Revision implements RevisionData {
   public readonly id: UID;

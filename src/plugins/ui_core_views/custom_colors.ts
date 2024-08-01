@@ -9,8 +9,8 @@ import {
   rgbaToHSLA,
   toHex,
 } from "../../helpers";
-import { GaugeChart, ScorecardChart } from "../../helpers/figures/charts";
-import { Color, CoreViewCommand, Immutable, RGBA, UID } from "../../types";
+import type { GaugeChart, ScorecardChart } from "../../helpers/figures/charts";
+import type { Color, CoreViewCommand, Immutable, RGBA, UID } from "../../types";
 import { UIPlugin } from "../ui_plugin";
 
 /**

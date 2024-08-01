@@ -1,10 +1,9 @@
 import { compile } from "../../formulas";
 import { getCellPositionsInRanges, isInside, lazy } from "../../helpers";
 import { dataValidationEvaluatorRegistry } from "../../registries/data_validation_registry";
-import {
+import type {
   CellPosition,
   CellValue,
-  CellValueType,
   DataValidationCriterion,
   DataValidationCriterionType,
   DataValidationRule,
@@ -12,9 +11,10 @@ import {
   Lazy,
   Offset,
   UID,
-  isMatrix,
 } from "../../types";
-import { CoreViewCommand, invalidateEvaluationCommands } from "../../types/commands";
+import { CellValueType, isMatrix } from "../../types";
+import type { CoreViewCommand } from "../../types/commands";
+import { invalidateEvaluationCommands } from "../../types/commands";
 import { CellErrorType, EvaluationError } from "../../types/errors";
 import { UIPlugin } from "../ui_plugin";
 import { _t } from "./../../translation";

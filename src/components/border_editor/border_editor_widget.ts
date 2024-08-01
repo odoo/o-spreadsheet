@@ -1,6 +1,13 @@
 import { Component, useRef, useState } from "@odoo/owl";
 import { DEFAULT_BORDER_DESC } from "../../constants";
-import { BorderPosition, BorderStyle, Color, Pixel, Rect, SpreadsheetChildEnv } from "../../types";
+import type {
+  BorderPosition,
+  BorderStyle,
+  Color,
+  Pixel,
+  Rect,
+  SpreadsheetChildEnv,
+} from "../../types";
 import { BorderEditor } from "./border_editor";
 
 interface Props {

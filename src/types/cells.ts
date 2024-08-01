@@ -1,6 +1,6 @@
-import { EvaluationError } from "./errors";
-import { Format, FormattedValue } from "./format";
-import { Link, RangeCompiledFormula, Style, UID } from "./misc";
+import type { EvaluationError } from "./errors";
+import type { Format, FormattedValue } from "./format";
+import type { Link, RangeCompiledFormula, Style, UID } from "./misc";
 
 interface CellAttributes {
   readonly id: UID;

@@ -1,7 +1,10 @@
 import { positionToZone, rangeReference, splitReference } from "../../helpers/index";
-import { Command, CommandResult, Highlight, LAYERS, LocalCommand, UID } from "../../types/index";
-import { UIPlugin, UIPluginConfig } from "../ui_plugin";
-import { RangeInputValue, SelectionInputPlugin } from "./selection_input";
+import type { Command, Highlight, LocalCommand, UID } from "../../types/index";
+import { CommandResult, LAYERS } from "../../types/index";
+import type { UIPluginConfig } from "../ui_plugin";
+import { UIPlugin } from "../ui_plugin";
+import type { RangeInputValue } from "./selection_input";
+import { SelectionInputPlugin } from "./selection_input";
 
 /**
  * Selection input Plugin

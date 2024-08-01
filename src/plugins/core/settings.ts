@@ -1,12 +1,6 @@
 import { getDateTimeFormat, isValidLocale } from "../../helpers/locale";
-import {
-  CommandResult,
-  CoreCommand,
-  DEFAULT_LOCALE,
-  Format,
-  Locale,
-  WorkbookData,
-} from "../../types";
+import type { CoreCommand, Format, Locale, WorkbookData } from "../../types";
+import { CommandResult, DEFAULT_LOCALE } from "../../types";
 import { CorePlugin } from "./../core_plugin";
 
 export class SettingsPlugin extends CorePlugin {

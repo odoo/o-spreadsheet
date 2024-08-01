@@ -10,17 +10,9 @@ import {
   union,
   zoneToDimension,
 } from "../../helpers";
-import {
-  CellValueType,
-  Command,
-  Dimension,
-  EvaluatedCell,
-  Position,
-  Sheet,
-  UID,
-  Zone,
-} from "../../types";
-import { HeaderIndex } from "../../types/misc";
+import type { Command, Dimension, EvaluatedCell, Position, Sheet, UID, Zone } from "../../types";
+import { CellValueType } from "../../types";
+import type { HeaderIndex } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 interface AutomaticSum {

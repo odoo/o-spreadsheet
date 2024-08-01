@@ -7,7 +7,7 @@ import {
 } from "../../helpers";
 import { transformDefinition } from "../../helpers/figures/charts";
 import { otRegistry } from "../../registries";
-import {
+import type {
   AddColumnsRowsCommand,
   AddMergeCommand,
   CreateChartCommand,

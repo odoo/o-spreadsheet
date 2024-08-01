@@ -1,4 +1,4 @@
-import { ActionSpec } from "../../actions/action";
+import type { ActionSpec } from "../../actions/action";
 import * as ACTION_FORMAT from "../../actions/format_actions";
 import { _t } from "../../translation";
 import { MenuItemRegistry } from "../menu_items_registry";

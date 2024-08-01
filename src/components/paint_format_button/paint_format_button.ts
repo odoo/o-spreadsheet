@@ -1,5 +1,5 @@
 import { Component } from "@odoo/owl";
-import { SpreadsheetChildEnv } from "../../types";
+import type { SpreadsheetChildEnv } from "../../types";
 
 interface Props {
   class?: string;

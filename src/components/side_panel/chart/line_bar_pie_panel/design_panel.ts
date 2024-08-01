@@ -1,9 +1,9 @@
 import { Component, useExternalListener, useState } from "@odoo/owl";
 import { _t } from "../../../../translation";
-import { BarChartDefinition } from "../../../../types/chart/bar_chart";
-import { LineChartDefinition } from "../../../../types/chart/line_chart";
-import { PieChartDefinition } from "../../../../types/chart/pie_chart";
-import { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
+import type { BarChartDefinition } from "../../../../types/chart/bar_chart";
+import type { LineChartDefinition } from "../../../../types/chart/line_chart";
+import type { PieChartDefinition } from "../../../../types/chart/pie_chart";
+import type { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
 
 interface Props {

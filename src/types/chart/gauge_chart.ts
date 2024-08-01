@@ -1,5 +1,5 @@
 import type { ChartConfiguration, ChartData, ChartDataset, ChartOptions } from "chart.js";
-import { Color } from "../misc";
+import type { Color } from "../misc";
 
 export interface GaugeChartDefinition {
   readonly type: "gauge";

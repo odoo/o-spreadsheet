@@ -1,15 +1,15 @@
 import { DEFAULT_FONT_SIZE } from "../../constants";
 import { concat } from "../../helpers";
-import { BorderDescr, ExcelWorkbookData } from "../../types";
-import {
+import type { BorderDescr, ExcelWorkbookData } from "../../types";
+import type {
   XLSXBorder,
   XLSXBorderDescr,
   XLSXStructure,
   XMLAttributeValue,
   XMLAttributes,
-  XMLString,
 } from "../../types/xlsx";
-import { XLSXExportXMLFile } from "./../../types/xlsx";
+import { XMLString } from "../../types/xlsx";
+import type { XLSXExportXMLFile } from "./../../types/xlsx";
 
 // -------------------------------------
 //            XML HELPERS

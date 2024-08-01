@@ -1,5 +1,5 @@
 import { UuidGenerator } from "../helpers";
-import { Color, SpreadsheetChildEnv } from "../types";
+import type { Color, SpreadsheetChildEnv } from "../types";
 
 /*
  * An Action represent a menu item for the menus of the top bar

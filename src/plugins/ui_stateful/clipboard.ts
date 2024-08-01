@@ -2,23 +2,17 @@ import { ClipboardCellsState } from "../../helpers/clipboard/clipboard_cells_sta
 import { ClipboardFigureState } from "../../helpers/clipboard/clipboard_figure_state";
 import { ClipboardOsState } from "../../helpers/clipboard/clipboard_os_state";
 import { isZoneValid, positions } from "../../helpers/index";
-import {
-  ClipboardContent,
-  ClipboardMIMEType,
-  ClipboardOperation,
-  ClipboardState,
-} from "../../types/clipboard";
-import {
+import type { ClipboardContent, ClipboardOperation, ClipboardState } from "../../types/clipboard";
+import { ClipboardMIMEType } from "../../types/clipboard";
+import type {
   Command,
-  CommandResult,
   Dimension,
   GridRenderingContext,
-  LAYERS,
   LocalCommand,
   UID,
   Zone,
-  isCoreCommand,
 } from "../../types/index";
+import { CommandResult, LAYERS, isCoreCommand } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 interface InsertDeleteCellsTargets {

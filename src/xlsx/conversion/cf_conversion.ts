@@ -1,13 +1,14 @@
 import { ICON_SETS } from "../../components/icons/icons";
-import {
+import type {
   ColorScaleMidPointThreshold,
   ColorScaleThreshold,
   ConditionalFormat,
   ConditionalFormattingOperatorValues,
   IconThreshold,
 } from "../../types";
-import { ExcelIconSet, XLSXConditionalFormat, XLSXDxf } from "../../types/xlsx";
-import { WarningTypes, XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
+import type { ExcelIconSet, XLSXConditionalFormat, XLSXDxf } from "../../types/xlsx";
+import type { XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
+import { WarningTypes } from "../helpers/xlsx_parser_error_manager";
 import { convertColor, hexaToInt } from "./color_conversion";
 import {
   CF_THRESHOLD_CONVERSION_MAP,

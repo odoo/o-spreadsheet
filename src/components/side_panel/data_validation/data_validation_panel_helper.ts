@@ -1,8 +1,9 @@
-import { ComponentConstructor } from "@odoo/owl";
-import { Action, ActionSpec, createActions } from "../../../actions/action";
+import type { ComponentConstructor } from "@odoo/owl";
+import type { Action, ActionSpec } from "../../../actions/action";
+import { createActions } from "../../../actions/action";
 import { dataValidationEvaluatorRegistry } from "../../../registries/data_validation_registry";
 import { Registry } from "../../../registries/registry";
-import { DataValidationCriterionType } from "../../../types";
+import type { DataValidationCriterionType } from "../../../types";
 import { DataValidationDateCriterionForm } from "./dv_criterion_form/dv_date_criterion/dv_date_criterion";
 import { DataValidationDoubleInputCriterionForm } from "./dv_criterion_form/dv_double_input_criterion/dv_double_input_criterion";
 import { DataValidationSingleInputCriterionForm } from "./dv_criterion_form/dv_single_input_criterion/dv_single_input_criterion";

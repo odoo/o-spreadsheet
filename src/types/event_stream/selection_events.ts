@@ -1,4 +1,4 @@
-import { AnchorZone } from "..";
+import type { AnchorZone } from "..";
 
 export type SelectionEventOptions = {
   scrollIntoView?: boolean;

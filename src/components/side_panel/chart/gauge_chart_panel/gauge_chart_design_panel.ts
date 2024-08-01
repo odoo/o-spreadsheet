@@ -1,14 +1,9 @@
 import { Component, useExternalListener, useState } from "@odoo/owl";
 import { deepCopy } from "../../../../helpers/index";
 import { _t } from "../../../../translation";
-import { GaugeChartDefinition, SectionRule } from "../../../../types/chart/gauge_chart";
-import {
-  Color,
-  CommandResult,
-  DispatchResult,
-  SpreadsheetChildEnv,
-  UID,
-} from "../../../../types/index";
+import type { GaugeChartDefinition, SectionRule } from "../../../../types/chart/gauge_chart";
+import type { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
+import { CommandResult } from "../../../../types/index";
 import { css } from "../../../helpers/css";
 import { ChartTerms } from "../../../translations_terms";
 import { ValidationMessages } from "../../../validation_messages/validation_messages";

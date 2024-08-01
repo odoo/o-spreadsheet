@@ -5,9 +5,9 @@ import {
   toUnboundedZone,
   zoneToXc,
 } from "../../helpers";
-import { ChartDefinition, ExcelChartDefinition, FigureData } from "../../types";
-import { ExcelImage } from "../../types/image";
-import { XLSXFigure, XLSXWorksheet } from "../../types/xlsx";
+import type { ChartDefinition, ExcelChartDefinition, FigureData } from "../../types";
+import type { ExcelImage } from "../../types/image";
+import type { XLSXFigure, XLSXWorksheet } from "../../types/xlsx";
 import { convertEMUToDotValue, getColPosition, getRowPosition } from "../helpers/content_helpers";
 import { convertColor } from "./color_conversion";
 

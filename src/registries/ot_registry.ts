@@ -1,4 +1,4 @@
-import { CoreCommand, CoreCommandTypes } from "../types";
+import type { CoreCommand, CoreCommandTypes } from "../types";
 import { Registry } from "./registry";
 
 /*

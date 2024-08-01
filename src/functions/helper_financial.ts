@@ -1,5 +1,5 @@
 import { _t } from "../translation";
-import { Locale } from "../types";
+import type { Locale } from "../types";
 import { assert, toJsDate } from "./helpers";
 
 /** Assert maturity date > settlement date */

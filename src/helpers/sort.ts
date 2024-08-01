@@ -1,9 +1,6 @@
 import { _t } from "../translation";
-import {
+import type {
   CellValue,
-  CellValueType,
-  CommandResult,
-  DispatchResult,
   EvaluatedCell,
   Position,
   SortDirection,
@@ -11,6 +8,7 @@ import {
   UID,
   Zone,
 } from "../types";
+import { CellValueType, CommandResult, DispatchResult } from "../types";
 import { isEqual } from "./zones";
 
 type CellWithIndex = { index: number; type: CellValueType; value: any };

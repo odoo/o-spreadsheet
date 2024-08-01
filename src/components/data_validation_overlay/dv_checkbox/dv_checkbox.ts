@@ -1,6 +1,6 @@
 import { Component } from "@odoo/owl";
 import { GRID_ICON_EDGE_LENGTH } from "../../../constants";
-import { CellPosition, SpreadsheetChildEnv } from "../../../types";
+import type { CellPosition, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers";
 
 const CHECKBOX_WIDTH = 15;

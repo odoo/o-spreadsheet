@@ -20,9 +20,8 @@ import { parseLiteral } from "../helpers/cells";
 import { detectLink } from "../helpers/links";
 import { localizeContent } from "../helpers/locale";
 import { _t } from "../translation";
-import {
+import type {
   CellValue,
-  DEFAULT_LOCALE,
   DataValidationCriterion,
   DataValidationCriterionType,
   DateIsAfterCriterion,
@@ -48,6 +47,7 @@ import {
   TextNotContainsCriterion,
   UID,
 } from "../types";
+import { DEFAULT_LOCALE } from "../types";
 import { CellErrorType } from "../types/errors";
 import { rangeReference } from "./../helpers/references";
 import { Registry } from "./registry";

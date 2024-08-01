@@ -1,17 +1,18 @@
 import { Component, useRef, useState } from "@odoo/owl";
 import { BG_HOVER_COLOR } from "../../constants";
-import {
+import type {
   BorderPosition,
   BorderStyle,
   Color,
   Pixel,
   Rect,
   SpreadsheetChildEnv,
-  borderStyles,
 } from "../../types/index";
+import { borderStyles } from "../../types/index";
 import { ColorPickerWidget } from "../color_picker/color_picker_widget";
 import { css } from "../helpers/css";
-import { Popover, PopoverProps } from "../popover/popover";
+import type { PopoverProps } from "../popover/popover";
+import { Popover } from "../popover/popover";
 
 type Tool = "borderColorTool" | "borderTypeTool";
 

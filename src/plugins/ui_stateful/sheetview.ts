@@ -2,11 +2,10 @@ import { getDefaultSheetViewSize } from "../../constants";
 import { clip, findCellInNewZone, isDefined, range } from "../../helpers";
 import { scrollDelay } from "../../helpers/index";
 import { InternalViewport } from "../../helpers/internal_viewport";
-import { SelectionEvent } from "../../types/event_stream";
-import {
+import type { SelectionEvent } from "../../types/event_stream";
+import type {
   CellPosition,
   Command,
-  CommandResult,
   DOMCoordinates,
   DOMDimension,
   Dimension,
@@ -24,9 +23,9 @@ import {
   UID,
   Viewport,
   Zone,
-  invalidateEvaluationCommands,
 } from "../../types/index";
-import { PixelPosition } from "../../types/misc";
+import { CommandResult, invalidateEvaluationCommands } from "../../types/index";
+import type { PixelPosition } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
 
 type SheetViewports = {

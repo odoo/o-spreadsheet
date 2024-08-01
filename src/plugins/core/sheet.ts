@@ -14,11 +14,10 @@ import {
   toCartesian,
 } from "../../helpers/index";
 import { _t } from "../../translation";
-import {
+import type {
   Cell,
   CellPosition,
   Command,
-  CommandResult,
   CoreCommand,
   CreateSheetCommand,
   Dimension,
@@ -38,6 +37,7 @@ import {
   Zone,
   ZoneDimension,
 } from "../../types/index";
+import { CommandResult } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
 
 interface SheetState {

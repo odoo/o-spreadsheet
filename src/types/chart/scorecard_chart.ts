@@ -1,4 +1,4 @@
-import { Color, Style } from "../misc";
+import type { Color, Style } from "../misc";
 
 export interface ScorecardChartDefinition {
   readonly type: "scorecard";

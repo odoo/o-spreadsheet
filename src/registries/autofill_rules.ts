@@ -1,7 +1,8 @@
 import { isDateTimeFormat } from "../helpers";
 import { evaluateLiteral } from "../helpers/cells";
-import { AutofillModifier, Cell, CellValueType, DEFAULT_LOCALE } from "../types/index";
-import { EvaluatedCell } from "./../types/cells";
+import type { AutofillModifier, Cell } from "../types/index";
+import { CellValueType, DEFAULT_LOCALE } from "../types/index";
+import type { EvaluatedCell } from "./../types/cells";
 import { Registry } from "./registry";
 
 /**

@@ -1,4 +1,4 @@
-import { Pixel, UID } from ".";
+import type { Pixel, UID } from ".";
 
 export interface Figure {
   id: UID;

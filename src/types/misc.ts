@@ -1,12 +1,12 @@
 // -----------------------------------------------------------------------------
 // MISC
 // -----------------------------------------------------------------------------
-import { ComponentConstructor } from "@odoo/owl";
-import { Token } from "../formulas";
-import { Cell, CellValue, EvaluatedCell } from "./cells";
-import { CommandResult } from "./commands";
-import { Format } from "./format";
-import { Range } from "./range";
+import type { ComponentConstructor } from "@odoo/owl";
+import type { Token } from "../formulas";
+import type { Cell, CellValue, EvaluatedCell } from "./cells";
+import type { CommandResult } from "./commands";
+import type { Format } from "./format";
+import type { Range } from "./range";
 
 /**
  * The following type is meant to be used in union with other aliases to prevent

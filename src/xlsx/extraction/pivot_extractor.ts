@@ -1,4 +1,4 @@
-import { XLSXTable } from "../../types/xlsx";
+import type { XLSXTable } from "../../types/xlsx";
 import { XlsxBaseExtractor } from "./base_extractor";
 
 /**

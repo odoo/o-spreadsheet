@@ -1,6 +1,6 @@
 import { Component } from "@odoo/owl";
 import { DEFAULT_FONT_SIZE } from "../../constants";
-import { Color, HeaderIndex, SpreadsheetChildEnv } from "../../types";
+import type { Color, HeaderIndex, SpreadsheetChildEnv } from "../../types";
 import { css, cssPropertiesToCss } from "../helpers/css";
 
 interface ClientTagProps {

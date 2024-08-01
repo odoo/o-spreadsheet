@@ -1,7 +1,9 @@
 import { ClientDisconnectedError } from "../../collaborative/session";
 import { DEFAULT_FONT, DEFAULT_FONT_SIZE } from "../../constants";
-import { Client, ClientPosition, Color, GridRenderingContext, LAYERS, UID } from "../../types";
-import { UIPlugin, UIPluginConfig } from "../ui_plugin";
+import type { Client, ClientPosition, Color, GridRenderingContext, UID } from "../../types";
+import { LAYERS } from "../../types";
+import type { UIPluginConfig } from "../ui_plugin";
+import { UIPlugin } from "../ui_plugin";
 
 function randomChoice(arr: string[]): string {
   return arr[Math.floor(Math.random() * arr.length)];

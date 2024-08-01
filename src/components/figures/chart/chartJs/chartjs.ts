@@ -1,9 +1,12 @@
 import { Component, onMounted, useEffect, useRef } from "@odoo/owl";
 import type { Chart, ChartConfiguration } from "chart.js";
 import { deepCopy } from "../../../../helpers";
-import { Figure, SpreadsheetChildEnv } from "../../../../types";
-import { ChartJSRuntime } from "../../../../types/chart/chart";
-import { GaugeChartConfiguration, GaugeChartOptions } from "../../../../types/chart/gauge_chart";
+import type { Figure, SpreadsheetChildEnv } from "../../../../types";
+import type { ChartJSRuntime } from "../../../../types/chart/chart";
+import type {
+  GaugeChartConfiguration,
+  GaugeChartOptions,
+} from "../../../../types/chart/gauge_chart";
 
 interface Props {
   figure: Figure;

@@ -4,7 +4,7 @@ import { _t } from "../translation";
 import { DEFAULT_LOCALE } from "../types";
 import { BadExpressionError, InvalidReferenceError } from "../types/errors";
 import { rangeTokenize } from "./range_tokenizer";
-import { Token } from "./tokenizer";
+import type { Token } from "./tokenizer";
 
 const functionRegex = /[a-zA-Z0-9\_]+(\.[a-zA-Z0-9\_]+)*/;
 

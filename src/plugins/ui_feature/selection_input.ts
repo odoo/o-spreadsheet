@@ -1,8 +1,10 @@
 import { colors, isEqual, positionToZone, splitReference } from "../../helpers/index";
-import { StreamCallbacks } from "../../selection_stream/event_stream";
-import { SelectionEvent } from "../../types/event_stream";
-import { Color, Command, Highlight, LAYERS, UID } from "../../types/index";
-import { UIPlugin, UIPluginConfig } from "../ui_plugin";
+import type { StreamCallbacks } from "../../selection_stream/event_stream";
+import type { SelectionEvent } from "../../types/event_stream";
+import type { Color, Command, Highlight, UID } from "../../types/index";
+import { LAYERS } from "../../types/index";
+import type { UIPluginConfig } from "../ui_plugin";
+import { UIPlugin } from "../ui_plugin";
 
 export interface RangeInputValue {
   id: number;

@@ -2,12 +2,12 @@ import type { ChartConfiguration, ChartOptions, ChartType } from "chart.js";
 import { ChartTerms } from "../../../components/translations_terms";
 import { MAX_CHAR_LABEL } from "../../../constants";
 import { _t } from "../../../translation";
-import { Color, Figure, Format, Getters, LocaleFormat, Range } from "../../../types";
-import { ChartRuntime, DataSet, DatasetValues, LabelValues } from "../../../types/chart/chart";
+import type { Color, Figure, Format, Getters, LocaleFormat, Range } from "../../../types";
+import type { ChartRuntime, DataSet, DatasetValues, LabelValues } from "../../../types/chart/chart";
 import { formatValue, isDateTimeFormat } from "../../format";
 import { deepCopy, range } from "../../misc";
 import { recomputeZones, zoneToXc } from "../../zones";
-import { AbstractChart } from "./abstract_chart";
+import type { AbstractChart } from "./abstract_chart";
 import { drawScoreChart } from "./scorecard_chart";
 import { getScorecardConfiguration } from "./scorecard_chart_config_builder";
 /**

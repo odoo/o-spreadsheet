@@ -1,4 +1,4 @@
-import { Figure, Getters, Pixel, PixelPosition, UID } from "../../types";
+import type { Figure, Getters, Pixel, PixelPosition, UID } from "../../types";
 import { FIGURE_BORDER_WIDTH } from "./../../constants";
 import { internalFigureToScreen } from "./figure_container_helper";
 

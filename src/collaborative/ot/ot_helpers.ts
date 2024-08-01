@@ -1,5 +1,5 @@
 import { expandZoneOnInsertion, reduceZoneOnDeletion } from "../../helpers";
-import { CoreCommand, RangeData, UnboundedZone, Zone } from "../../types";
+import type { CoreCommand, RangeData, UnboundedZone, Zone } from "../../types";
 
 export function transformZone<Z extends Zone | UnboundedZone>(
   zone: Z,

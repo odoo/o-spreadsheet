@@ -1,5 +1,5 @@
 import { tryToNumber } from "../functions/helpers";
-import { DataValidationCriterion, DateCriterionValue, Locale } from "../types";
+import type { DataValidationCriterion, DateCriterionValue, Locale } from "../types";
 import { DateTime, jsDateToNumber, valueToDateNumber } from "./dates";
 
 function toCriterionDateNumber(dateValue: Exclude<DateCriterionValue, "exactDate">): number {

@@ -8,9 +8,9 @@
  *  - Formula: update the formula, with the same behavior than paste
  */
 
-import { Getters } from ".";
-import { Cell } from "./cells";
-import { Border, DIRECTION, UID, UpdateCellData } from "./misc";
+import type { Getters } from ".";
+import type { Cell } from "./cells";
+import type { Border, DIRECTION, UID, UpdateCellData } from "./misc";
 
 export interface IncrementModifier {
   type: "INCREMENT_MODIFIER";

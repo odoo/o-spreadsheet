@@ -1,5 +1,5 @@
 import { Component } from "@odoo/owl";
-import { Action } from "../../actions/action";
+import type { Action } from "../../actions/action";
 import {
   ComponentsImportance,
   GROUP_LAYER_WIDTH,
@@ -9,8 +9,8 @@ import {
 } from "../../constants";
 import { interactiveToggleGroup } from "../../helpers/ui/toggle_group_interactive";
 import { getHeaderGroupContextMenu } from "../../registries/menus/header_group_registry";
-import { DOMCoordinates, Dimension, HeaderGroup, Rect } from "../../types";
-import { SpreadsheetChildEnv } from "../../types/env";
+import type { DOMCoordinates, Dimension, HeaderGroup, Rect } from "../../types";
+import type { SpreadsheetChildEnv } from "../../types/env";
 import { css, cssPropertiesToCss } from "../helpers";
 
 interface Props {

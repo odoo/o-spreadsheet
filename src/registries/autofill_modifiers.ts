@@ -1,15 +1,15 @@
 import { evaluateLiteral } from "../helpers/cells";
 import { formatValue } from "../helpers/format";
-import {
+import type {
   AutofillData,
   AutofillModifierImplementation,
   CopyModifier,
-  DIRECTION,
   FormulaModifier,
   Getters,
   IncrementModifier,
 } from "../types/index";
-import { AlphanumericIncrementModifier } from "./../types/autofill";
+import { DIRECTION } from "../types/index";
+import type { AlphanumericIncrementModifier } from "./../types/autofill";
 import { Registry } from "./registry";
 
 /**

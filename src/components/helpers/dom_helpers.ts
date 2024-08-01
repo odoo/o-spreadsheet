@@ -1,4 +1,4 @@
-import { Rect } from "./../../types/rendering";
+import type { Rect } from "./../../types/rendering";
 
 const macRegex = /Mac/i;
 

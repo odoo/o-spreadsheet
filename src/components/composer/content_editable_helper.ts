@@ -1,7 +1,7 @@
 import { deepEquals, toHex } from "../../helpers";
 import { iterateChildren } from "../helpers/dom_helpers";
 import { NEWLINE } from "./../../constants";
-import { HtmlContent } from "./composer/composer";
+import type { HtmlContent } from "./composer/composer";
 
 export class ContentEditableHelper {
   // todo make el private and expose dedicated methods

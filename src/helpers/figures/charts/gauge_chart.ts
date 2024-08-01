@@ -4,13 +4,11 @@ import {
   DEFAULT_GAUGE_MIDDLE_COLOR,
   DEFAULT_GAUGE_UPPER_COLOR,
 } from "../../../constants";
-import { BasePlugin } from "../../../plugins/base_plugin";
-import {
+import type { BasePlugin } from "../../../plugins/base_plugin";
+import type {
   AddColumnsRowsCommand,
   ApplyRangeChange,
-  CellValueType,
   Color,
-  CommandResult,
   CoreGetters,
   Getters,
   Locale,
@@ -20,14 +18,15 @@ import {
   UnboundedZone,
   Validation,
 } from "../../../types";
-import { ChartCreationContext } from "../../../types/chart/chart";
-import {
+import { CellValueType, CommandResult } from "../../../types";
+import type { ChartCreationContext } from "../../../types/chart/chart";
+import type {
   GaugeChartConfiguration,
   GaugeChartDefinition,
   GaugeChartRuntime,
   SectionRule,
 } from "../../../types/chart/gauge_chart";
-import { Validator } from "../../../types/validator";
+import type { Validator } from "../../../types/validator";
 import { clip } from "../../index";
 import { createValidRange } from "../../range";
 import { rangeReference } from "../../references";

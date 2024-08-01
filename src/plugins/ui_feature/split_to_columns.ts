@@ -1,14 +1,8 @@
 import { NEWLINE } from "../../constants";
 import { range } from "../../helpers";
 import { canonicalizeNumberContent } from "../../helpers/locale";
-import {
-  CellPosition,
-  CellValueType,
-  Command,
-  CommandResult,
-  SplitTextIntoColumnsCommand,
-  Zone,
-} from "../../types/index";
+import type { CellPosition, Command, SplitTextIntoColumnsCommand, Zone } from "../../types/index";
+import { CellValueType, CommandResult } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 export class SplitToColumnsPlugin extends UIPlugin {

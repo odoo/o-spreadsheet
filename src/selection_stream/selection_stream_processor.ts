@@ -9,20 +9,12 @@ import {
   union,
 } from "../helpers";
 import { _t } from "../translation";
-import {
-  AnchorZone,
-  CellValueType,
-  CommandResult,
-  Direction,
-  DispatchResult,
-  Getters,
-  Position,
-  SelectionStep,
-  Zone,
-} from "../types";
-import { SelectionEvent, SelectionEventOptions } from "../types/event_stream";
-import { Dimension, HeaderIndex } from "./../types/misc";
-import { EventStream, StreamCallbacks } from "./event_stream";
+import type { AnchorZone, Direction, Getters, Position, SelectionStep, Zone } from "../types";
+import { CellValueType, CommandResult, DispatchResult } from "../types";
+import type { SelectionEvent, SelectionEventOptions } from "../types/event_stream";
+import type { Dimension, HeaderIndex } from "./../types/misc";
+import type { StreamCallbacks } from "./event_stream";
+import { EventStream } from "./event_stream";
 
 type Delta = [number, number];
 

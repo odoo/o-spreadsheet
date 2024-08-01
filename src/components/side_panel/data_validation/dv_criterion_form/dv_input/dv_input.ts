@@ -2,7 +2,7 @@ import { Component, useEffect, useRef, useState } from "@odoo/owl";
 import { canonicalizeContent } from "../../../../../helpers/locale";
 import { dataValidationEvaluatorRegistry } from "../../../../../registries/data_validation_registry";
 import { _t } from "../../../../../translation";
-import { DataValidationCriterionType, SpreadsheetChildEnv } from "../../../../../types";
+import type { DataValidationCriterionType, SpreadsheetChildEnv } from "../../../../../types";
 import { css } from "../../../../helpers";
 
 interface Props {

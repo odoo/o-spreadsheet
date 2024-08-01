@@ -1,6 +1,7 @@
 import { dataValidationEvaluatorRegistry } from "../../registries/data_validation_registry";
 import { _t } from "../../translation";
-import { CommandResult, SpreadsheetChildEnv } from "../../types";
+import type { SpreadsheetChildEnv } from "../../types";
+import { CommandResult } from "../../types";
 import { toXC } from "../coordinates";
 
 export function interactiveStopEdition(env: SpreadsheetChildEnv) {

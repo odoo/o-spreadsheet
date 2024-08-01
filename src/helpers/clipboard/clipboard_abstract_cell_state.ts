@@ -1,7 +1,6 @@
-import { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
-import {
+import type { SelectionStreamProcessor } from "../../selection_stream/selection_stream_processor";
+import type {
   CommandDispatcher,
-  CommandResult,
   Dimension,
   Getters,
   GridRenderingContext,
@@ -9,7 +8,8 @@ import {
   UID,
   Zone,
 } from "../../types";
-import {
+import { CommandResult } from "../../types";
+import type {
   ClipboardMIMEType,
   ClipboardOperation,
   ClipboardOptions,

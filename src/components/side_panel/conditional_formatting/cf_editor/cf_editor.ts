@@ -2,18 +2,18 @@ import { Component, useExternalListener, useState } from "@odoo/owl";
 import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../../constants";
 import { colorNumberString, rangeReference } from "../../../../helpers";
 import { canonicalizeCFRule } from "../../../../helpers/locale";
-import {
+import type {
   CancelledReason,
   CellIsRule,
   Color,
   ColorScaleRule,
   ColorScaleThreshold,
-  CommandResult,
   ConditionalFormat,
   ConditionalFormatRule,
   IconSetRule,
   SpreadsheetChildEnv,
 } from "../../../../types";
+import { CommandResult } from "../../../../types";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
 import { css, getTextDecoration } from "../../../helpers";
 import { IconPicker } from "../../../icon_picker/icon_picker";

@@ -1,11 +1,10 @@
 import { DEFAULT_FIGURE_HEIGHT, DEFAULT_FIGURE_WIDTH, FIGURE_ID_SPLITTER } from "../../constants";
-import { AbstractChart } from "../../helpers/figures/charts/abstract_chart";
+import type { AbstractChart } from "../../helpers/figures/charts/abstract_chart";
 import { chartFactory, validateChartDefinition } from "../../helpers/figures/charts/chart_factory";
-import { ChartCreationContext, ChartDefinition, ChartType } from "../../types/chart/chart";
-import {
+import type { ChartCreationContext, ChartDefinition, ChartType } from "../../types/chart/chart";
+import type {
   ApplyRangeChange,
   Command,
-  CommandResult,
   CoreCommand,
   CreateChartCommand,
   Figure,
@@ -15,6 +14,7 @@ import {
   UpdateChartCommand,
   WorkbookData,
 } from "../../types/index";
+import { CommandResult } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
 
 /**

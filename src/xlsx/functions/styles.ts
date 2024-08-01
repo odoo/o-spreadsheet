@@ -1,5 +1,5 @@
 import { isObjectEmptyRecursive } from "../../helpers";
-import {
+import type {
   XLSXBorder,
   XLSXBorderDescr,
   XLSXDxf,

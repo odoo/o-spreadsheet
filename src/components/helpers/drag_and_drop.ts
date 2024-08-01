@@ -1,6 +1,6 @@
 import { MAX_DELAY } from "../../helpers";
-import { SpreadsheetChildEnv } from "../../types/env";
-import { HeaderIndex } from "../../types/misc";
+import type { SpreadsheetChildEnv } from "../../types/env";
+import type { HeaderIndex } from "../../types/misc";
 import { gridOverlayPosition } from "./dom_helpers";
 type EventFn = (ev: MouseEvent) => void;
 

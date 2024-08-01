@@ -1,5 +1,5 @@
-import { CoreCommand, UID } from "..";
-import { ClientId } from "./session";
+import type { CoreCommand, UID } from "..";
+import type { ClientId } from "./session";
 
 export interface RevisionData {
   readonly id: UID;

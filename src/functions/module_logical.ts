@@ -1,5 +1,5 @@
 import { _t } from "../translation";
-import { AddFunctionDescription, ArgValue, CellValue, Maybe, ValueAndFormat } from "../types";
+import type { AddFunctionDescription, ArgValue, CellValue, Maybe, ValueAndFormat } from "../types";
 import { CellErrorType } from "../types/errors";
 import { arg } from "./arguments";
 import { assert, conditionalVisitBoolean, toBoolean } from "./helpers";

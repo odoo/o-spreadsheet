@@ -1,6 +1,6 @@
 import { range, toXC, toZone, zoneToDimension } from "../../helpers";
-import { ExcelFilterData, ExcelFilterTableData, ExcelSheetData } from "../../types";
-import { XMLAttributes, XMLString } from "../../types/xlsx";
+import type { ExcelFilterData, ExcelFilterTableData, ExcelSheetData } from "../../types";
+import type { XMLAttributes, XMLString } from "../../types/xlsx";
 import { NAMESPACE } from "../constants";
 import { escapeXml, formatAttributes, joinXmlNodes, parseXML } from "../helpers/xml_helpers";
 

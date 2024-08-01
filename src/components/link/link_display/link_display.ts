@@ -2,8 +2,8 @@ import { Component } from "@odoo/owl";
 import { LINK_COLOR } from "../../../constants";
 import { toXC } from "../../../helpers";
 import { openLink, urlRepresentation } from "../../../helpers/links";
-import { EvaluatedCell, Link, Position, SpreadsheetChildEnv } from "../../../types";
-import { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
+import type { EvaluatedCell, Link, Position, SpreadsheetChildEnv } from "../../../types";
+import type { CellPopoverComponent, PopoverBuilders } from "../../../types/cell_popovers";
 import { css } from "../../helpers/css";
 import { Menu } from "../../menu/menu";
 

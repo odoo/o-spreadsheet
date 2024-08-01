@@ -1,8 +1,8 @@
 import { Component, useEffect, useRef } from "@odoo/owl";
 import { drawScoreChart } from "../../../../helpers/figures/charts/scorecard_chart";
 import { getScorecardConfiguration } from "../../../../helpers/figures/charts/scorecard_chart_config_builder";
-import { Figure, SpreadsheetChildEnv } from "../../../../types";
-import { ScorecardChartRuntime } from "../../../../types/chart/scorecard_chart";
+import type { Figure, SpreadsheetChildEnv } from "../../../../types";
+import type { ScorecardChartRuntime } from "../../../../types/chart/scorecard_chart";
 
 interface Props {
   figure: Figure;

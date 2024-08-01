@@ -1,11 +1,11 @@
-import { SearchOptions } from "../plugins/ui_feature/find_and_replace";
-import { ComposerSelection } from "../plugins/ui_stateful/edition";
-import { CellPopoverType } from "./cell_popovers";
-import { ChartDefinition } from "./chart/chart";
-import { ClipboardPasteOptions } from "./clipboard";
-import { FigureSize } from "./figure";
-import { Image } from "./image";
-import {
+import type { SearchOptions } from "../plugins/ui_feature/find_and_replace";
+import type { ComposerSelection } from "../plugins/ui_stateful/edition";
+import type { CellPopoverType } from "./cell_popovers";
+import type { ChartDefinition } from "./chart/chart";
+import type { ClipboardPasteOptions } from "./clipboard";
+import type { FigureSize } from "./figure";
+import type { Image } from "./image";
+import type {
   ConditionalFormat,
   DataValidationRule,
   Figure,
@@ -14,7 +14,7 @@ import {
   Style,
   Zone,
 } from "./index";
-import {
+import type {
   Border,
   BorderData,
   Color,
@@ -25,7 +25,7 @@ import {
   SortOptions,
   UID,
 } from "./misc";
-import { RangeData } from "./range";
+import type { RangeData } from "./range";
 
 // -----------------------------------------------------------------------------
 // Grid commands

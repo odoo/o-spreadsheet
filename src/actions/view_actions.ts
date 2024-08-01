@@ -2,9 +2,9 @@ import { areZonesContinuous, numberToLetters } from "../helpers";
 import { interactiveAddFilter } from "../helpers/ui/filter_interactive";
 import { interactiveFreezeColumnsRows } from "../helpers/ui/freeze_interactive";
 import { _t } from "../translation";
-import { SpreadsheetChildEnv } from "../types";
-import { Dimension } from "./../types/misc";
-import { ActionSpec } from "./action";
+import type { SpreadsheetChildEnv } from "../types";
+import type { Dimension } from "./../types/misc";
+import type { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 
 export const hideCols: ActionSpec = {

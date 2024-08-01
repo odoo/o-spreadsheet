@@ -1,4 +1,4 @@
-import { Locale } from "../types";
+import type { Locale } from "../types";
 import { escapeRegExp, memoize } from "./misc";
 
 /**

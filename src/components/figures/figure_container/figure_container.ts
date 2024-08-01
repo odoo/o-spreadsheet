@@ -3,7 +3,7 @@ import { ComponentsImportance, MIN_FIG_SIZE } from "../../../constants";
 import { isDefined } from "../../../helpers";
 import { rectIntersection, rectUnion } from "../../../helpers/rectangle";
 import { figureRegistry } from "../../../registries";
-import { Figure, Rect, ResizeDirection, SpreadsheetChildEnv, UID } from "../../../types/index";
+import type { Figure, Rect, ResizeDirection, SpreadsheetChildEnv, UID } from "../../../types/index";
 import { css, cssPropertiesToCss } from "../../helpers";
 import { startDnd } from "../../helpers/drag_and_drop";
 import {
@@ -11,13 +11,8 @@ import {
   screenFigureToInternal,
 } from "../../helpers/figure_container_helper";
 import { dragFigureForMove, dragFigureForResize } from "../../helpers/figure_drag_helper";
-import {
-  HFigureAxisType,
-  SnapLine,
-  VFigureAxisType,
-  snapForMove,
-  snapForResize,
-} from "../../helpers/figure_snap_helper";
+import type { HFigureAxisType, SnapLine, VFigureAxisType } from "../../helpers/figure_snap_helper";
+import { snapForMove, snapForResize } from "../../helpers/figure_snap_helper";
 import { FigureComponent } from "../figure/figure";
 
 type ContainerType = "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "dnd";

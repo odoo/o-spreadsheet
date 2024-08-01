@@ -1,8 +1,10 @@
-import { Session } from "../../collaborative/session";
+import type { Session } from "../../collaborative/session";
 import { MAX_HISTORY_STEPS } from "../../constants";
 import { canRepeatRevision, repeatRevision } from "../../history/repeat_commands/repeat_revision";
-import { Command, CommandResult, UID } from "../../types";
-import { UIPlugin, UIPluginConfig } from "../ui_plugin";
+import type { Command, UID } from "../../types";
+import { CommandResult } from "../../types";
+import type { UIPluginConfig } from "../ui_plugin";
+import { UIPlugin } from "../ui_plugin";
 
 /**
  * Local History

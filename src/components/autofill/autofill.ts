@@ -1,7 +1,7 @@
 import { Component, useState, xml } from "@odoo/owl";
 import { AUTOFILL_EDGE_LENGTH } from "../../constants";
 import { clip } from "../../helpers";
-import { HeaderIndex, SpreadsheetChildEnv } from "../../types";
+import type { HeaderIndex, SpreadsheetChildEnv } from "../../types";
 import { css, cssPropertiesToCss } from "../helpers/css";
 import { dragAndDropBeyondTheViewport } from "../helpers/drag_and_drop";
 

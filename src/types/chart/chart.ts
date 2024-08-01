@@ -1,11 +1,11 @@
-import { Range } from "../../types";
-import { XlsxHexColor } from "../xlsx";
-import { BarChartDefinition, BarChartRuntime } from "./bar_chart";
-import { LegendPosition, VerticalAxisPosition } from "./common_chart";
-import { GaugeChartDefinition, GaugeChartRuntime } from "./gauge_chart";
-import { LineChartDefinition, LineChartRuntime } from "./line_chart";
-import { PieChartDefinition, PieChartRuntime } from "./pie_chart";
-import { ScorecardChartDefinition, ScorecardChartRuntime } from "./scorecard_chart";
+import type { Range } from "../../types";
+import type { XlsxHexColor } from "../xlsx";
+import type { BarChartDefinition, BarChartRuntime } from "./bar_chart";
+import type { LegendPosition, VerticalAxisPosition } from "./common_chart";
+import type { GaugeChartDefinition, GaugeChartRuntime } from "./gauge_chart";
+import type { LineChartDefinition, LineChartRuntime } from "./line_chart";
+import type { PieChartDefinition, PieChartRuntime } from "./pie_chart";
+import type { ScorecardChartDefinition, ScorecardChartRuntime } from "./scorecard_chart";
 
 export type ChartType = "line" | "bar" | "pie" | "scorecard" | "gauge";
 

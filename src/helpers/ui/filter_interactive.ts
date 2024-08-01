@@ -1,5 +1,6 @@
 import { _t } from "../../translation";
-import { CommandResult, SpreadsheetChildEnv, UID, Zone } from "../../types";
+import type { SpreadsheetChildEnv, UID, Zone } from "../../types";
+import { CommandResult } from "../../types";
 
 export const AddFilterInteractiveContent = {
   filterOverlap: _t("You cannot create overlapping filters."),

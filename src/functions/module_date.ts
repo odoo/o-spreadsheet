@@ -15,7 +15,7 @@ import {
 } from "../helpers/dates";
 import { getDateTimeFormat } from "../helpers/locale";
 import { _t } from "../translation";
-import { AddFunctionDescription, ArgValue, CellValue, Maybe } from "../types";
+import type { AddFunctionDescription, ArgValue, CellValue, Maybe } from "../types";
 import { arg } from "./arguments";
 import {
   assert,

@@ -2,7 +2,7 @@
 // Date Type
 // -----------------------------------------------------------------------------
 
-import { CellValue, Format, Locale } from "../types";
+import type { CellValue, Format, Locale } from "../types";
 import { isDefined } from "./misc";
 
 /**

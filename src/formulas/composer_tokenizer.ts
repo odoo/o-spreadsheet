@@ -1,5 +1,5 @@
-import { Locale } from "../types";
-import { Token } from "./index";
+import type { Locale } from "../types";
+import type { Token } from "./index";
 import { rangeTokenize } from "./range_tokenizer";
 interface FunctionContext {
   parent: string;

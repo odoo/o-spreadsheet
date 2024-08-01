@@ -1,6 +1,6 @@
 import { createLargeNumberFormat } from "../helpers";
 import { _t } from "../translation";
-import { AddFunctionDescription, CellValue, Maybe, ValueAndFormat } from "../types";
+import type { AddFunctionDescription, CellValue, Maybe, ValueAndFormat } from "../types";
 import { arg } from "./arguments";
 import { toNumber } from "./helpers";
 

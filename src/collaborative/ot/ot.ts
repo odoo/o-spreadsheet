@@ -6,7 +6,7 @@ import {
   moveHeaderIndexesOnHeaderDeletion,
 } from "../../helpers/index";
 import { otRegistry } from "../../registries/ot_registry";
-import {
+import type {
   AddColumnsRowsCommand,
   AddMergeCommand,
   CoreCommand,
@@ -16,18 +16,14 @@ import {
   SheetDependentCommand,
   TargetDependentCommand,
   Zone,
-  isPositionDependent,
-  isSheetDependent,
-  isTargetDependent,
 } from "../../types";
-import {
+import { isPositionDependent, isSheetDependent, isTargetDependent } from "../../types";
+import type {
   HeadersDependentCommand,
   RangesDependentCommand,
   ZoneDependentCommand,
-  isHeadersDependant,
-  isRangeDependant,
-  isZoneDependent,
 } from "./../../types/commands";
+import { isHeadersDependant, isRangeDependant, isZoneDependent } from "./../../types/commands";
 import { transformRangeData, transformZone } from "./ot_helpers";
 import "./ot_specific";
 

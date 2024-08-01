@@ -6,10 +6,9 @@ import {
 } from "../constants";
 import { UuidGenerator, getItemId, overlap, toXC, toZone, zoneToXc } from "../helpers/index";
 import { isValidLocale } from "../helpers/locale";
-import { StateUpdateMessage } from "../types/collaborative/transport_service";
-import {
+import type { StateUpdateMessage } from "../types/collaborative/transport_service";
+import type {
   CoreCommand,
-  DEFAULT_LOCALE,
   ExcelSheetData,
   ExcelWorkbookData,
   Format,
@@ -18,6 +17,7 @@ import {
   WorkbookData,
   Zone,
 } from "../types/index";
+import { DEFAULT_LOCALE } from "../types/index";
 import { XlsxReader } from "../xlsx/xlsx_reader";
 import { normalizeV9 } from "./legacy_tools";
 

@@ -1,5 +1,5 @@
-import { CoreCommand } from "../commands";
-import { HeaderIndex, UID } from "../misc";
+import type { CoreCommand } from "../commands";
+import type { HeaderIndex, UID } from "../misc";
 
 export type ClientId = string;
 

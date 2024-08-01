@@ -8,16 +8,16 @@ import { formatValue, roundFormat } from "../helpers";
 import { parseLiteral } from "../helpers/cells";
 import { getDateTimeFormat } from "../helpers/locale";
 import { _t } from "../translation";
-import {
+import type {
   Align,
   CellValue,
-  DEFAULT_LOCALE,
   Format,
   SpreadsheetChildEnv,
   VerticalAlign,
   Wrapping,
 } from "../types";
-import { ActionSpec } from "./action";
+import { DEFAULT_LOCALE } from "../types";
+import type { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 import { setFormatter, setStyle } from "./menu_items_actions";
 

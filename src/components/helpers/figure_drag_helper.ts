@@ -1,4 +1,4 @@
-import { Figure, PixelPosition, SheetScrollInfo } from "../../types";
+import type { Figure, PixelPosition, SheetScrollInfo } from "../../types";
 
 export function dragFigureForMove(
   { x: mouseX, y: mouseY }: PixelPosition,

@@ -1,6 +1,6 @@
 import { Component, xml } from "@odoo/owl";
 import { SCROLLBAR_WIDTH } from "../../constants";
-import { SpreadsheetChildEnv } from "../../types";
+import type { SpreadsheetChildEnv } from "../../types";
 import { ScrollBar } from "./scrollbar";
 
 interface Props {

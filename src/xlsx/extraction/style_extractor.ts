@@ -1,5 +1,5 @@
 import { DEFAULT_FONT_SIZE } from "../../constants";
-import {
+import type {
   XLSXBorder,
   XLSXBorderDescr,
   XLSXCellAlignment,
@@ -13,8 +13,8 @@ import {
   XLSXTheme,
   XLSXVerticalAlignment,
 } from "../../types/xlsx";
-import { XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
-import { XLSXBorderStyle } from "./../../types/xlsx";
+import type { XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
+import type { XLSXBorderStyle } from "./../../types/xlsx";
 import { XlsxBaseExtractor } from "./base_extractor";
 
 type BorderDirection = "left" | "right" | "top" | "bottom" | "diagonal";

@@ -7,7 +7,7 @@ import { RemoveDuplicatesPanel } from "../components/side_panel/remove_duplicate
 import { SettingsPanel } from "../components/side_panel/settings/settings_panel";
 import { SplitIntoColumnsPanel } from "../components/side_panel/split_to_columns_panel/split_to_columns_panel";
 import { _t } from "../translation";
-import { SpreadsheetChildEnv } from "../types";
+import type { SpreadsheetChildEnv } from "../types";
 import { DataValidationPanel } from "./../components/side_panel/data_validation/data_validation_panel";
 import { Registry } from "./registry";
 

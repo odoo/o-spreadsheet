@@ -1,5 +1,5 @@
 // Helper file for the reference types in Xcs (the $ symbol, eg. A$1)
-import { Token } from "../formulas";
+import type { Token } from "../formulas";
 import { getCanonicalSheetName } from "./misc";
 import { splitReference } from "./references";
 

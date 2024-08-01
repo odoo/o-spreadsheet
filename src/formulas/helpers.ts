@@ -1,6 +1,6 @@
 import { functionRegistry } from "../functions";
 import { iterateAstNodes, parseTokens } from "./parser";
-import { Token } from "./tokenizer";
+import type { Token } from "./tokenizer";
 
 const functions = functionRegistry.content;
 

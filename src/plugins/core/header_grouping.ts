@@ -6,8 +6,9 @@ import {
   moveHeaderIndexesOnHeaderDeletion,
   range,
 } from "../../helpers";
-import { CommandResult, CoreCommand, UID, WorkbookData } from "../../types";
-import { Dimension, HeaderGroup, HeaderIndex, Zone } from "./../../types/misc";
+import type { CoreCommand, UID, WorkbookData } from "../../types";
+import { CommandResult } from "../../types";
+import type { Dimension, HeaderGroup, HeaderIndex, Zone } from "./../../types/misc";
 import { CorePlugin } from "./../core_plugin";
 
 interface State {

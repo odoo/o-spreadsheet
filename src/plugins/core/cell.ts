@@ -1,5 +1,6 @@
 import { DEFAULT_STYLE } from "../../constants";
-import { Token, compile, tokenize } from "../../formulas";
+import type { Token } from "../../formulas";
+import { compile, tokenize } from "../../formulas";
 import { deepEquals } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells";
 import {
@@ -13,14 +14,13 @@ import {
   toCartesian,
   toXC,
 } from "../../helpers/index";
-import {
+import type {
   AddColumnsRowsCommand,
   ApplyRangeChange,
   Cell,
   CellData,
   CellPosition,
   ClearCellCommand,
-  CommandResult,
   CompiledFormula,
   CoreCommand,
   ExcelWorkbookData,
@@ -39,6 +39,7 @@ import {
   WorkbookData,
   Zone,
 } from "../../types/index";
+import { CommandResult } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
 
 interface CoreState {

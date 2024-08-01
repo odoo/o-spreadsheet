@@ -1,5 +1,6 @@
 import { _t } from "../../translation";
-import { CommandResult, Dimension, HeaderIndex, SpreadsheetChildEnv, UID } from "../../types";
+import type { Dimension, HeaderIndex, SpreadsheetChildEnv, UID } from "../../types";
+import { CommandResult } from "../../types";
 
 export const ToggleGroupInteractiveContent = {
   CannotHideAllRows: _t("Cannot hide all the rows of a sheet."),

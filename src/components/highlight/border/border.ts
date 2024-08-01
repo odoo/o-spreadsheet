@@ -1,5 +1,5 @@
 import { Component } from "@odoo/owl";
-import { Pixel, SpreadsheetChildEnv, Zone } from "../../../types";
+import type { Pixel, SpreadsheetChildEnv, Zone } from "../../../types";
 import { css, cssPropertiesToCss } from "../../helpers/css";
 
 css/* scss */ `

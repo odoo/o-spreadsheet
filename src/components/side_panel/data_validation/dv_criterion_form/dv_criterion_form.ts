@@ -1,6 +1,6 @@
 import { Component, onMounted } from "@odoo/owl";
 import { interactiveStopEdition } from "../../../../helpers/ui/stop_edition_interactive";
-import { DataValidationCriterion, SpreadsheetChildEnv } from "../../../../types";
+import type { DataValidationCriterion, SpreadsheetChildEnv } from "../../../../types";
 
 interface Props<T extends DataValidationCriterion> {
   criterion: T;

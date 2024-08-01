@@ -1,5 +1,6 @@
 import { isEqual, zoneToDimension } from "../../helpers/index";
-import { GridRenderingContext, Highlight, LAYERS } from "../../types/index";
+import type { GridRenderingContext, Highlight } from "../../types/index";
+import { LAYERS } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 /**

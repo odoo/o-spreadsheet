@@ -1,6 +1,6 @@
-import { XLSXImportFile, XLSXXmlDocuments } from "../../types/xlsx";
+import type { XLSXImportFile, XLSXXmlDocuments } from "../../types/xlsx";
 import { CONTENT_TYPES_FILE } from "../constants";
-import { XLSXExportFile, XLSXExportXMLFile } from "./../../types/xlsx";
+import type { XLSXExportFile, XLSXExportXMLFile } from "./../../types/xlsx";
 
 /**
  * Return all the xmls converted to XLSXImportFile corresponding to the given content type.

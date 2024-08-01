@@ -1,5 +1,5 @@
-import { FigureSize } from "./figure";
-import { Image } from "./image";
+import type { FigureSize } from "./figure";
+import type { Image } from "./image";
 
 type FilePath = string;
 

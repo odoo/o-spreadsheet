@@ -9,8 +9,8 @@ import {
   toZone,
 } from "../../helpers";
 import { withHttps } from "../../helpers/links";
-import { ExcelSheetData, ExcelWorkbookData, HeaderData } from "../../types";
-import { XLSXStructure, XMLAttributes, XMLString } from "../../types/xlsx";
+import type { ExcelSheetData, ExcelWorkbookData, HeaderData } from "../../types";
+import type { XLSXStructure, XMLAttributes, XMLString } from "../../types/xlsx";
 import { XLSX_RELATION_TYPE } from "../constants";
 import {
   addRelsToFile,
@@ -20,7 +20,7 @@ import {
   normalizeStyle,
 } from "../helpers/content_helpers";
 import { escapeXml, formatAttributes, joinXmlNodes } from "../helpers/xml_helpers";
-import { HeaderIndex } from "./../../types/misc";
+import type { HeaderIndex } from "./../../types/misc";
 import { addContent, addFormula } from "./cells";
 
 export function addColumns(cols: { [key: number]: HeaderData }): XMLString {

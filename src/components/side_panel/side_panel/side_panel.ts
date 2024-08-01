@@ -1,7 +1,8 @@
 import { Component, onWillUpdateProps, useState } from "@odoo/owl";
 import { BACKGROUND_HEADER_COLOR, FILTERS_COLOR } from "../../../constants";
-import { SidePanelContent, sidePanelRegistry } from "../../../registries/side_panel_registry";
-import { SpreadsheetChildEnv } from "../../../types";
+import type { SidePanelContent } from "../../../registries/side_panel_registry";
+import { sidePanelRegistry } from "../../../registries/side_panel_registry";
+import type { SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
 
 css/* scss */ `

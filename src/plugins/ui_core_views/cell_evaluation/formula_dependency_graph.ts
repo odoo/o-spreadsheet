@@ -1,8 +1,9 @@
 import { JetSet } from "../../../helpers";
 import { futureRecomputeZones } from "../../../helpers/recompute_zones";
-import { UID, Zone } from "../../../types";
-import { PositionBitsEncoder, PositionId } from "./evaluator";
-import { RTreeBoundingBox, RTreeItem, SpreadsheetRTree } from "./r_tree";
+import type { UID, Zone } from "../../../types";
+import type { PositionBitsEncoder, PositionId } from "./evaluator";
+import type { RTreeBoundingBox, RTreeItem } from "./r_tree";
+import { SpreadsheetRTree } from "./r_tree";
 
 /**
  * Implementation of a dependency Graph.

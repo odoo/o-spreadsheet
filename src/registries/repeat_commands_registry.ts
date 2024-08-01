@@ -16,8 +16,8 @@ import {
   repeatPasteCommand,
   repeatSortCellsCommand,
 } from "../history/repeat_commands/repeat_commands_specific";
-import { CoreCommand, Getters } from "../types";
-import { Command, LocalCommand } from "./../types/commands";
+import type { CoreCommand, Getters } from "../types";
+import type { Command, LocalCommand } from "./../types/commands";
 import { Registry } from "./registry";
 
 type RepeatTransform = (getters: Getters, cmd: CoreCommand) => CoreCommand | undefined;

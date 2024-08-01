@@ -1,9 +1,9 @@
-import { Model } from "..";
-import { ClipboardInterface } from "../helpers/clipboard/navigator_clipboard_wrapper";
-import { FocusableElement } from "../helpers/focus_manager";
-import { Currency } from "./currency";
-import { ImageProviderInterface } from "./files";
-import { Locale } from "./locale";
+import type { Model } from "..";
+import type { ClipboardInterface } from "../helpers/clipboard/navigator_clipboard_wrapper";
+import type { FocusableElement } from "../helpers/focus_manager";
+import type { Currency } from "./currency";
+import type { ImageProviderInterface } from "./files";
+import type { Locale } from "./locale";
 
 export interface EditTextOptions {
   error?: string;

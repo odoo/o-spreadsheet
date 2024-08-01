@@ -1,10 +1,11 @@
 import { Component, useState } from "@odoo/owl";
 import { createValidRange, spreadRange } from "../../../../helpers";
 import { createDataSets } from "../../../../helpers/figures/charts";
-import { BarChartDefinition } from "../../../../types/chart/bar_chart";
-import { LineChartDefinition } from "../../../../types/chart/line_chart";
-import { PieChartDefinition } from "../../../../types/chart/pie_chart";
-import { CommandResult, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
+import type { BarChartDefinition } from "../../../../types/chart/bar_chart";
+import type { LineChartDefinition } from "../../../../types/chart/line_chart";
+import type { PieChartDefinition } from "../../../../types/chart/pie_chart";
+import type { DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
+import { CommandResult } from "../../../../types/index";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { ChartTerms } from "../../../translations_terms";
 import { ValidationMessages } from "../../../validation_messages/validation_messages";

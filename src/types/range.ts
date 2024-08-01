@@ -1,4 +1,4 @@
-import { Cloneable, UID, UnboundedZone, Zone } from "./misc";
+import type { Cloneable, UID, UnboundedZone, Zone } from "./misc";
 
 export interface RangePart {
   readonly colFixed: boolean;

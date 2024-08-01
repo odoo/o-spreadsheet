@@ -1,11 +1,11 @@
 import { Component, onMounted, useEffect, useRef, useState } from "@odoo/owl";
 import { COMPOSER_ASSISTANT_COLOR, DEFAULT_FONT, NEWLINE } from "../../../constants";
-import { EnrichedToken } from "../../../formulas/index";
+import type { EnrichedToken } from "../../../formulas/index";
 import { functionRegistry } from "../../../functions/index";
 import { clip, fuzzyLookup, getZoneArea, isEqual, splitReference } from "../../../helpers/index";
 import { interactiveStopEdition } from "../../../helpers/ui/stop_edition_interactive";
 
-import {
+import type {
   Color,
   CSSProperties,
   DOMDimension,
@@ -17,7 +17,7 @@ import { css, cssPropertiesToCss } from "../../helpers/css";
 import { getHtmlContentFromPattern } from "../../helpers/html_content_helpers";
 import { useSpreadsheetRect } from "../../helpers/position_hook";
 import { updateSelectionWithArrowKeys } from "../../helpers/selection_helpers";
-import { ComposerFocusType } from "../../spreadsheet/spreadsheet";
+import type { ComposerFocusType } from "../../spreadsheet/spreadsheet";
 import { TextValueProvider } from "../autocomplete_dropdown/autocomplete_dropdown";
 import { ContentEditableHelper } from "../content_editable_helper";
 import { FunctionDescriptionProvider } from "../formula_assistant/formula_assistant";

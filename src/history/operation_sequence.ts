@@ -1,4 +1,4 @@
-import { OperationSequenceNode, UID } from "../types";
+import type { OperationSequenceNode, UID } from "../types";
 
 /**
  * An execution object is a sequence of executionSteps (each execution step is an operation in a branch).

@@ -1,7 +1,7 @@
 import { Component, useExternalListener, useState } from "@odoo/owl";
 import { _t } from "../../../../translation";
-import { ScorecardChartDefinition } from "../../../../types/chart/scorecard_chart";
-import { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
+import type { ScorecardChartDefinition } from "../../../../types/chart/scorecard_chart";
+import type { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
 
 type ColorPickerId = undefined | "backgroundColor" | "baselineColorUp" | "baselineColorDown";

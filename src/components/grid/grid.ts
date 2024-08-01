@@ -26,7 +26,7 @@ import { openLink } from "../../helpers/links";
 import { interactiveCut } from "../../helpers/ui/cut_interactive";
 import { interactivePaste, interactivePasteFromOS } from "../../helpers/ui/paste_interactive";
 import { interactiveStopEdition } from "../../helpers/ui/stop_edition_interactive";
-import { ComposerSelection } from "../../plugins/ui_stateful";
+import type { ComposerSelection } from "../../plugins/ui_stateful";
 import { cellMenuRegistry } from "../../registries/menus/cell_menu_registry";
 import { colMenuRegistry } from "../../registries/menus/col_menu_registry";
 import {
@@ -35,11 +35,9 @@ import {
 } from "../../registries/menus/header_group_registry";
 import { rowMenuRegistry } from "../../registries/menus/row_menu_registry";
 import { _t } from "../../translation";
-import {
+import type {
   Align,
-  CellValueType,
   Client,
-  ClipboardMIMEType,
   DOMCoordinates,
   DOMDimension,
   Dimension,
@@ -51,6 +49,7 @@ import {
   Ref,
   SpreadsheetChildEnv,
 } from "../../types/index";
+import { CellValueType, ClipboardMIMEType } from "../../types/index";
 import { Autofill } from "../autofill/autofill";
 import { ClientTag } from "../collaborative_client_tag/collaborative_client_tag";
 import { GridComposer } from "../composer/grid_composer/grid_composer";
@@ -66,10 +65,11 @@ import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { Highlight } from "../highlight/highlight/highlight";
-import { Menu, MenuState } from "../menu/menu";
+import type { MenuState } from "../menu/menu";
+import { Menu } from "../menu/menu";
 import { Popover } from "../popover/popover";
 import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
-import { ComposerFocusType } from "../spreadsheet/spreadsheet";
+import type { ComposerFocusType } from "../spreadsheet/spreadsheet";
 
 /**
  * The Grid component is the main part of the spreadsheet UI. It is responsible

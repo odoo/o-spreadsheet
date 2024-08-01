@@ -1,11 +1,14 @@
-import { Token } from ".";
+import type { Token } from ".";
 import { functionRegistry } from "../functions/index";
 import { concat, parseNumber, removeStringQuotes } from "../helpers";
 import { _t } from "../translation";
-import { CompiledFormula, DEFAULT_LOCALE } from "../types";
+import type { CompiledFormula } from "../types";
+import { DEFAULT_LOCALE } from "../types";
 import { BadExpressionError, UnknownFunctionError } from "../types/errors";
-import { FunctionCode, FunctionCodeBuilder, Scope } from "./code_builder";
-import { AST, ASTFuncall, parseTokens } from "./parser";
+import type { FunctionCode } from "./code_builder";
+import { FunctionCodeBuilder, Scope } from "./code_builder";
+import type { AST, ASTFuncall } from "./parser";
+import { parseTokens } from "./parser";
 import { rangeTokenize } from "./range_tokenizer";
 
 const functions = functionRegistry.content;

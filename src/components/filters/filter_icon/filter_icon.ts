@@ -1,6 +1,6 @@
 import { Component } from "@odoo/owl";
 import { FILTERS_COLOR, GRID_ICON_EDGE_LENGTH } from "../../../constants";
-import { CellPosition, SpreadsheetChildEnv } from "../../../types";
+import type { CellPosition, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
 
 const CSS = css/* scss */ `

@@ -1,5 +1,5 @@
 import { onWillStart, onWillUpdateProps } from "@odoo/owl";
-import { IsValueInRangeCriterion } from "../../../../../types";
+import type { IsValueInRangeCriterion } from "../../../../../types";
 import { SelectionInput } from "../../../../selection_input/selection_input";
 import { DataValidationCriterionForm } from "../dv_criterion_form";
 

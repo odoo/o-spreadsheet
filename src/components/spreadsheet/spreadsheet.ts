@@ -30,10 +30,10 @@ import {
 } from "../../constants";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
 import { FocusableElement } from "../../helpers/focus_manager";
-import { Model } from "../../model";
-import { ComposerSelection } from "../../plugins/ui_stateful/edition";
+import type { Model } from "../../model";
+import type { ComposerSelection } from "../../plugins/ui_stateful/edition";
 import { _t } from "../../translation";
-import { HeaderGroup, InformationNotification, Pixel, SpreadsheetChildEnv } from "../../types";
+import type { HeaderGroup, InformationNotification, Pixel, SpreadsheetChildEnv } from "../../types";
 import { BottomBar } from "../bottom_bar/bottom_bar";
 import { SpreadsheetDashboard } from "../dashboard/dashboard";
 import { Grid } from "../grid/grid";

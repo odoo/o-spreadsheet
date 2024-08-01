@@ -3,8 +3,8 @@ import { interactiveCut } from "../helpers/ui/cut_interactive";
 import { interactiveAddMerge } from "../helpers/ui/merge_interactive";
 import { handlePasteResult } from "../helpers/ui/paste_interactive";
 import { _t } from "../translation";
-import { SpreadsheetChildEnv } from "../types";
-import { ActionSpec } from "./action";
+import type { SpreadsheetChildEnv } from "../types";
+import type { ActionSpec } from "./action";
 import * as ACTIONS from "./menu_items_actions";
 
 export const undo: ActionSpec = {

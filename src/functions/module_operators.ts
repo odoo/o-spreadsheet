@@ -1,5 +1,5 @@
 import { _t } from "../translation";
-import { AddFunctionDescription, CellValue, Maybe, ValueAndFormat } from "../types";
+import type { AddFunctionDescription, CellValue, Maybe, ValueAndFormat } from "../types";
 import { arg } from "./arguments";
 import { assert, toNumber, toString } from "./helpers";
 import { POWER } from "./module_math";

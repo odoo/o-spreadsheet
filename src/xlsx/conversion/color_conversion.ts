@@ -1,6 +1,6 @@
 import { colorToRGBA, hslaToRGBA, rgbaToHex, rgbaToHSLA } from "../../helpers";
-import { Color } from "../../types";
-import { XLSXColor } from "../../types/xlsx";
+import type { Color } from "../../types";
+import type { XLSXColor } from "../../types/xlsx";
 import { AUTO_COLOR } from "../constants";
 import { XLSX_INDEXED_COLORS } from "./conversion_maps";
 

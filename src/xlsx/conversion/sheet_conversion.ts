@@ -6,8 +6,8 @@ import {
   toCartesian,
   toXC,
 } from "../../helpers";
-import { CellData, HeaderData, SheetData } from "../../types";
-import { XLSXCell, XLSXHyperLink, XLSXImportData, XLSXWorksheet } from "../../types/xlsx";
+import type { CellData, HeaderData, SheetData } from "../../types";
+import type { XLSXCell, XLSXHyperLink, XLSXImportData, XLSXWorksheet } from "../../types/xlsx";
 import {
   EXCEL_DEFAULT_COL_WIDTH,
   EXCEL_DEFAULT_ROW_HEIGHT,
@@ -15,7 +15,8 @@ import {
   EXCEL_IMPORT_DEFAULT_NUMBER_OF_ROWS,
 } from "../constants";
 import { convertHeightFromExcel, convertWidthFromExcel } from "../helpers/content_helpers";
-import { WarningTypes, XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
+import type { XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
+import { WarningTypes } from "../helpers/xlsx_parser_error_manager";
 import { convertConditionalFormats } from "./cf_conversion";
 import { convertFigures } from "./figure_conversion";
 import { convertFormulasContent } from "./formula_conversion";

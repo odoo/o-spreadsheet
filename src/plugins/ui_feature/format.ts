@@ -5,15 +5,8 @@ import {
   positions,
   positionToZone,
 } from "../../helpers";
-import {
-  CellPosition,
-  CellValueType,
-  Command,
-  Format,
-  SetDecimalStep,
-  UID,
-  Zone,
-} from "../../types/index";
+import type { CellPosition, Command, Format, SetDecimalStep, UID, Zone } from "../../types/index";
+import { CellValueType } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
 export class FormatPlugin extends UIPlugin {

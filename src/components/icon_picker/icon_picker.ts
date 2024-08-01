@@ -1,6 +1,6 @@
 import { Component } from "@odoo/owl";
 import { ComponentsImportance } from "../../constants";
-import { SpreadsheetChildEnv } from "../../types/env";
+import type { SpreadsheetChildEnv } from "../../types/env";
 import { css } from "../helpers/css";
 import { ICONS, ICON_SETS } from "../icons/icons";
 

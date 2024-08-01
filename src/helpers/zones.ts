@@ -1,5 +1,5 @@
 import { _t } from "../translation";
-import { Position, UnboundedZone, Zone, ZoneDimension } from "../types";
+import type { Position, UnboundedZone, Zone, ZoneDimension } from "../types";
 import { lettersToNumber, numberToLetters, toCartesian, toXC } from "./coordinates";
 import { range } from "./misc";
 import { isColReference, isRowReference } from "./references";

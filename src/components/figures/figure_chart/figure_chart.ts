@@ -1,6 +1,6 @@
 import { Component } from "@odoo/owl";
 import { chartComponentRegistry } from "../../../registries/chart_types";
-import { ChartType, Figure, SpreadsheetChildEnv } from "../../../types";
+import type { ChartType, Figure, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
 
 // -----------------------------------------------------------------------------

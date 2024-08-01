@@ -1,6 +1,6 @@
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
 import { _t } from "../../translation";
-import { SpreadsheetChildEnv } from "../../types";
+import type { SpreadsheetChildEnv } from "../../types";
 import { css, cssPropertiesToCss } from "../helpers";
 import { ValidationMessages } from "../validation_messages/validation_messages";
 

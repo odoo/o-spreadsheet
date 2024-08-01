@@ -1,6 +1,6 @@
 import { Component, onWillUnmount, useState } from "@odoo/owl";
 import { COMPOSER_ASSISTANT_COLOR } from "../../../constants";
-import { FunctionDescription, SpreadsheetChildEnv } from "../../../types";
+import type { FunctionDescription, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers/css";
 
 // -----------------------------------------------------------------------------

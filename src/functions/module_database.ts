@@ -1,5 +1,5 @@
 import { _t } from "../translation";
-import { AddFunctionDescription, ArgValue, CellValue, Locale, Matrix, Maybe } from "../types";
+import type { AddFunctionDescription, ArgValue, CellValue, Locale, Matrix, Maybe } from "../types";
 import { arg } from "./arguments";
 import { assert, toString, visitMatchingRanges } from "./helpers";
 import { PRODUCT, SUM } from "./module_math";

@@ -1,5 +1,6 @@
 import { _t } from "../../translation";
-import { CommandResult, SpreadsheetChildEnv } from "../../types";
+import type { SpreadsheetChildEnv } from "../../types";
+import { CommandResult } from "../../types";
 
 export function interactiveCut(env: SpreadsheetChildEnv) {
   const result = env.model.dispatch("CUT");

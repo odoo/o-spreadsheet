@@ -1,7 +1,7 @@
 import { Component } from "@odoo/owl";
 import { DEFAULT_VERTICAL_ALIGN, GRID_ICON_EDGE_LENGTH, GRID_ICON_MARGIN } from "../../constants";
 import { positionToZone } from "../../helpers";
-import {
+import type {
   Align,
   CellPosition,
   DOMCoordinates,

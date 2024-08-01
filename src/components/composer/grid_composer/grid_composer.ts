@@ -7,11 +7,12 @@ import {
   positionToZone,
   toXC,
 } from "../../../helpers";
-import { DOMDimension, Rect, SpreadsheetChildEnv } from "../../../types/index";
+import type { DOMDimension, Rect, SpreadsheetChildEnv } from "../../../types/index";
 import { getTextDecoration } from "../../helpers";
 import { css, cssPropertiesToCss } from "../../helpers/css";
-import { ComposerFocusType } from "../../spreadsheet/spreadsheet";
-import { Composer, ComposerProps } from "../composer/composer";
+import type { ComposerFocusType } from "../../spreadsheet/spreadsheet";
+import type { ComposerProps } from "../composer/composer";
+import { Composer } from "../composer/composer";
 
 const COMPOSER_BORDER_WIDTH = 3 * 0.4 * window.devicePixelRatio || 1;
 const GRID_CELL_REFERENCE_TOP_OFFSET = 28;

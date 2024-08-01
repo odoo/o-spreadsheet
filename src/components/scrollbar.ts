@@ -1,4 +1,4 @@
-import { Pixel } from "../types";
+import type { Pixel } from "../types";
 
 export type ScrollDirection = "horizontal" | "vertical";
 

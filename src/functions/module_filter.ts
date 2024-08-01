@@ -1,17 +1,16 @@
 import { range } from "../helpers";
 import { cellsSortingCriterion } from "../helpers/sort";
 import { _t } from "../translation";
-import {
+import type {
   AddFunctionDescription,
   Arg,
   CellValue,
-  CellValueType,
-  isMatrix,
   Locale,
   Matrix,
   Maybe,
   ValueAndFormat,
 } from "../types";
+import { CellValueType, isMatrix } from "../types";
 import { NotAvailableError } from "../types/errors";
 import { arg } from "./arguments";
 import { assertSameDimensions, assertSingleColOrRow } from "./helper_assert";

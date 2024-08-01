@@ -1,4 +1,4 @@
-import { HeaderIndex, Row } from "../types";
+import type { HeaderIndex, Row } from "../types";
 import { isDefined } from "./misc";
 
 export function createDefaultRows(rowNumber: number): Row[] {

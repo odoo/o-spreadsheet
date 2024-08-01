@@ -1,10 +1,9 @@
 import { functionRegistry } from "../../../functions";
 import { intersection, isZoneValid, zoneToXc } from "../../../helpers";
-import { ModelConfig } from "../../../model";
+import type { ModelConfig } from "../../../model";
 import { _t } from "../../../translation";
-import {
+import type {
   CellPosition,
-  CellValueType,
   EnsureRange,
   EvalContext,
   EvaluatedCell,
@@ -15,6 +14,7 @@ import {
   ReferenceDenormalizer,
   ValueAndFormat,
 } from "../../../types";
+import { CellValueType } from "../../../types";
 import { EvaluationError, InvalidReferenceError } from "../../../types/errors";
 
 export type CompilationParameters = [ReferenceDenormalizer, EnsureRange, EvalContext];

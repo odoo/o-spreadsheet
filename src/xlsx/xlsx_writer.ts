@@ -1,14 +1,14 @@
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../constants";
-import { ExcelSheetData, ExcelWorkbookData } from "../types";
-import {
+import type { ExcelSheetData, ExcelWorkbookData } from "../types";
+import type {
   XLSXExport,
   XLSXExportFile,
   XLSXRelFile,
   XLSXStructure,
   XMLAttributes,
-  XMLString,
 } from "../types/xlsx";
-import { XLSXExportXMLFile } from "./../types/xlsx";
+import { XMLString } from "../types/xlsx";
+import type { XLSXExportXMLFile } from "./../types/xlsx";
 import { CONTENT_TYPES, NAMESPACE, RELATIONSHIP_NSR, XLSX_RELATION_TYPE } from "./constants";
 import { IMAGE_MIMETYPE_TO_EXTENSION_MAPPING } from "./conversion";
 import { createChart } from "./functions/charts";

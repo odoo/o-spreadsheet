@@ -1,6 +1,6 @@
 import { cellReference, toCartesian, toXC } from "../../helpers";
-import { RangePart } from "../../types";
-import { XLSXImportData, XLSXSharedFormula, XLSXWorksheet } from "../../types/xlsx";
+import type { RangePart } from "../../types";
+import type { XLSXImportData, XLSXSharedFormula, XLSXWorksheet } from "../../types/xlsx";
 import { SUBTOTAL_FUNCTION_CONVERSION_MAP } from "./conversion_maps";
 
 type SharedFormulasMap = Record<number, XLSXSharedFormula>;

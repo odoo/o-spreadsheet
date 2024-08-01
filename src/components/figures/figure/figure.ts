@@ -6,7 +6,7 @@ import {
   SELECTION_BORDER_COLOR,
 } from "../../../constants";
 import { figureRegistry } from "../../../registries/index";
-import {
+import type {
   CSSProperties,
   DOMCoordinates,
   Figure,
@@ -18,7 +18,8 @@ import {
 import { css, cssPropertiesToCss } from "../../helpers/css";
 import { keyboardEventToShortcutString } from "../../helpers/dom_helpers";
 import { useAbsoluteBoundingRect } from "../../helpers/position_hook";
-import { Menu, MenuState } from "../../menu/menu";
+import type { MenuState } from "../../menu/menu";
+import { Menu } from "../../menu/menu";
 
 type ResizeAnchor =
   | "top left"

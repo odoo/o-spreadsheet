@@ -2,26 +2,26 @@ import { compile } from "../../../formulas";
 import { matrixMap } from "../../../functions/helpers";
 import { forEachPositionsInZone, JetSet, lazy, toXC } from "../../../helpers";
 import { createEvaluatedCell, errorCell, evaluateLiteral } from "../../../helpers/cells";
-import { ModelConfig } from "../../../model";
+import type { ModelConfig } from "../../../model";
 import { _t } from "../../../translation";
-import {
+import type {
   Cell,
   CellPosition,
   CellValue,
-  CellValueType,
   EvaluatedCell,
   FormulaCell,
   Getters,
-  isMatrix,
   Matrix,
   Range,
   UID,
   ValueAndFormat,
 } from "../../../types";
+import { CellValueType, isMatrix } from "../../../types";
 import { CellErrorType, CircularDependencyError, EvaluationError } from "../../../types/errors";
-import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
+import type { CompilationParameters } from "./compilation_parameters";
+import { buildCompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
-import { RTreeBoundingBox } from "./r_tree";
+import type { RTreeBoundingBox } from "./r_tree";
 import { SpreadingRelation } from "./spreading_relation";
 
 type PositionDict<T> = Map<PositionId, T>;

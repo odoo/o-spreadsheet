@@ -13,13 +13,12 @@ import {
   splitReference,
   toUnboundedZone,
 } from "../../helpers/index";
-import {
+import type {
   ApplyRangeChange,
   ApplyRangeChangeResult,
   ChangeType,
   Command,
   CommandHandler,
-  CommandResult,
   CoreCommand,
   CoreGetters,
   Range,
@@ -29,6 +28,7 @@ import {
   UnboundedZone,
   Zone,
 } from "../../types/index";
+import { CommandResult } from "../../types/index";
 
 export class RangeAdapter implements CommandHandler<CoreCommand> {
   private getters: CoreGetters;

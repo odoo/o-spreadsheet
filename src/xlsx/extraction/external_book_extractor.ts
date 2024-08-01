@@ -1,4 +1,4 @@
-import { XLSXExternalBook, XLSXExternalSheetData } from "../../types/xlsx";
+import type { XLSXExternalBook, XLSXExternalSheetData } from "../../types/xlsx";
 import { XlsxBaseExtractor } from "./base_extractor";
 
 export class XlsxExternalBookExtractor extends XlsxBaseExtractor {

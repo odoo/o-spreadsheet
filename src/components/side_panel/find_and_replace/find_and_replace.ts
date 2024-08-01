@@ -1,5 +1,5 @@
 import { Component, onMounted, onWillUnmount, useEffect, useRef, useState } from "@odoo/owl";
-import { SpreadsheetChildEnv } from "../../../types/index";
+import type { SpreadsheetChildEnv } from "../../../types/index";
 import { css } from "../../helpers/css";
 
 css/* scss */ `

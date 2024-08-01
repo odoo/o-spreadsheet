@@ -1,5 +1,5 @@
-import { Alias, ExcelChartDefinition, Format, PaneDivision } from ".";
-import { ExcelImage } from "../types/image";
+import type { Alias, ExcelChartDefinition, Format, PaneDivision } from ".";
+import type { ExcelImage } from "../types/image";
 
 /**
  * Most of the times we tried to create Objects that matched quite closely with the data in the XLSX files.

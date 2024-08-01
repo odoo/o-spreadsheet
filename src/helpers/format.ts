@@ -1,7 +1,8 @@
 import { _t } from "../translation";
-import { CellValue, Currency, Format, FormattedValue, Locale, LocaleFormat } from "../types";
+import type { CellValue, Currency, Format, FormattedValue, Locale, LocaleFormat } from "../types";
 import { DEFAULT_LOCALE } from "./../types/locale";
-import { DateTime, INITIAL_1900_DAY, isDateTime, numberToJsDate, parseDateTime } from "./dates";
+import type { DateTime } from "./dates";
+import { INITIAL_1900_DAY, isDateTime, numberToJsDate, parseDateTime } from "./dates";
 import { escapeRegExp, memoize } from "./misc";
 import { isNumber } from "./numbers";
 

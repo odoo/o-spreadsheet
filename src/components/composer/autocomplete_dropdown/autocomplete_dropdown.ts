@@ -1,6 +1,6 @@
 import { Component, useEffect, useRef } from "@odoo/owl";
 import { css } from "../../helpers/css";
-import { AutocompleteValue } from "../composer/composer";
+import type { AutocompleteValue } from "../composer/composer";
 
 css/* scss */ `
   .o-autocomplete-dropdown {

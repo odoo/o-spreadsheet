@@ -1,5 +1,5 @@
 import { Component } from "@odoo/owl";
-import { CellPosition, DOMCoordinates, SpreadsheetChildEnv } from "../../../types";
+import type { CellPosition, DOMCoordinates, SpreadsheetChildEnv } from "../../../types";
 import { GridCellIcon } from "../../grid_cell_icon/grid_cell_icon";
 import { FilterIcon } from "../filter_icon/filter_icon";
 

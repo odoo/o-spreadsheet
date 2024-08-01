@@ -1,6 +1,6 @@
 import RBush from "rbush";
 
-import { UID, Zone } from "../../../types";
+import type { UID, Zone } from "../../../types";
 
 /**
  * R-Tree Data Structure

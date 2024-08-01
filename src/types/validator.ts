@@ -1,5 +1,5 @@
-import { CommandResult } from "./commands";
-import { Validation } from "./misc";
+import type { CommandResult } from "./commands";
+import type { Validation } from "./misc";
 
 export interface Validator {
   /**

@@ -1,7 +1,7 @@
 import { DEFAULT_REVISION_ID } from "../constants";
 import { removeFalsyAttributes } from "../helpers";
 import { _t } from "../translation";
-import {
+import type {
   ImportedFiles,
   XLSXExternalBook,
   XLSXFileStructure,
@@ -9,9 +9,9 @@ import {
   XLSXImportData,
   XLSXWorksheet,
   XLSXXmlDocuments,
-  XMLString,
 } from "../types/xlsx";
-import { WorkbookData } from "./../types/workbook_data";
+import { XMLString } from "../types/xlsx";
+import type { WorkbookData } from "./../types/workbook_data";
 import { CONTENT_TYPES } from "./constants";
 import {
   convertBorders,

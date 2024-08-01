@@ -1,6 +1,6 @@
 import { Registry } from "../registries/registry";
 import { _t } from "../translation";
-import {
+import type {
   AddFunctionDescription,
   Arg,
   ArgValue,
@@ -8,10 +8,10 @@ import {
   ComputeFunctionArg,
   EvalContext,
   FunctionDescription,
-  isMatrix,
   Matrix,
   ValueAndFormat,
 } from "../types";
+import { isMatrix } from "../types";
 import { CellErrorType, EvaluationError } from "../types/errors";
 import { addMetaInfoFromArg, validateArguments } from "./arguments";
 import { matrixMap } from "./helpers";

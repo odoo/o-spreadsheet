@@ -1,5 +1,5 @@
-import { UID } from "../types";
-import {
+import type { UID } from "../types";
+import type {
   CollaborationMessage,
   NewMessageCallback,
   TransportService,

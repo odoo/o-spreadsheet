@@ -1,12 +1,9 @@
 import { BACKGROUND_CHART_COLOR } from "../../constants";
 import { chartFontColor, chartRuntimeFactory, chartToImage } from "../../helpers/figures/charts";
-import { Color, ExcelWorkbookData, FigureData, Range, UID } from "../../types";
-import { ChartRuntime, ExcelChartDefinition } from "../../types/chart/chart";
-import {
-  CoreViewCommand,
-  invalidateCFEvaluationCommands,
-  invalidateEvaluationCommands,
-} from "../../types/commands";
+import type { Color, ExcelWorkbookData, FigureData, Range, UID } from "../../types";
+import type { ChartRuntime, ExcelChartDefinition } from "../../types/chart/chart";
+import type { CoreViewCommand } from "../../types/commands";
+import { invalidateCFEvaluationCommands, invalidateEvaluationCommands } from "../../types/commands";
 import { UIPlugin } from "../ui_plugin";
 
 interface EvaluationChartStyle {
