@@ -582,6 +582,11 @@ export interface SetDecimalCommand extends TargetDependentCommand {
   step: SetDecimalStep;
 }
 
+interface SetContextualFormatCommand extends TargetDependentCommand {
+  type: "SET_FORMATTING_WITH_PIVOT";
+  format: Format;
+}
+
 export interface UpdateLocaleCommand {
   type: "UPDATE_LOCALE";
   locale: Locale;
@@ -1086,6 +1091,7 @@ export type LocalCommand =
   | ReplaceSearchCommand
   | SortCommand
   | SetDecimalCommand
+  | SetContextualFormatCommand
   | ResizeViewportCommand
   | SumSelectionCommand
   | DeleteCellCommand

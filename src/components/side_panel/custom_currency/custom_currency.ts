@@ -165,7 +165,7 @@ export class CustomCurrencyPanel extends Component<Props, SpreadsheetChildEnv> {
   }
 
   apply() {
-    this.env.model.dispatch("SET_FORMATTING", {
+    this.env.model.dispatch("SET_FORMATTING_WITH_PIVOT", {
       sheetId: this.env.model.getters.getActiveSheetId(),
       target: this.env.model.getters.getSelectedZones(),
       format: this.selectedFormat,

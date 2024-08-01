@@ -168,6 +168,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
         userDefinedName: measure.userDefinedName,
         computedBy: measure.computedBy,
         isHidden: measure.isHidden,
+        format: measure.format,
       })),
     };
     if (!this.draft && deepEquals(coreDefinition, cleanedDefinition)) {

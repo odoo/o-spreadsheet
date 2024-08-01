@@ -28,7 +28,57 @@ export class FormatPlugin extends UIPlugin {
       case "SET_DECIMAL":
         this.setDecimal(cmd.sheetId, cmd.target, cmd.step);
         break;
+      case "SET_FORMATTING_WITH_PIVOT": {
+        this.setContextualFormat(cmd.sheetId, cmd.target, cmd.format);
+        break;
+      }
     }
+  }
+
+  private setContextualFormat(sheetId: UID, zones: Zone[], format: Format) {
+    const measurePositions: CellPosition[] = [];
+    const measuresByPivotId: Record<string, Set<string>> = {};
+    for (const zone of recomputeZones(zones)) {
+      for (let col = zone.left; col <= zone.right; col++) {
+        for (let row = zone.top; row <= zone.bottom; row++) {
+          const position = { sheetId, col, row };
+          const pivotCell = this.getters.getPivotCellFromPosition(position);
+          if (pivotCell.type === "VALUE") {
+            measurePositions.push(position);
+            const pivotId = this.getters.getPivotIdFromPosition(position) || "";
+            measuresByPivotId[pivotId] ??= new Set();
+            measuresByPivotId[pivotId].add(pivotCell.measure);
+          }
+        }
+      }
+    }
+    const measureZones = recomputeZones(measurePositions.map(positionToZone));
+    for (const pivotId in measuresByPivotId) {
+      const measures = measuresByPivotId[pivotId];
+      const pivotDefinition = this.getters.getPivotCoreDefinition(pivotId);
+      this.dispatch("UPDATE_PIVOT", {
+        pivotId,
+        pivot: {
+          ...pivotDefinition,
+          measures: pivotDefinition.measures.map((measure) => {
+            if (measures.has(measure.id)) {
+              return { ...measure, format };
+            }
+            return measure;
+          }),
+        },
+      });
+    }
+    this.dispatch("SET_FORMATTING", {
+      sheetId,
+      target: measureZones,
+      format: "",
+    });
+    this.dispatch("SET_FORMATTING", {
+      sheetId,
+      target: recomputeZones(zones, measureZones),
+      format,
+    });
   }
 
   /**
@@ -62,11 +112,7 @@ export class FormatPlugin extends UIPlugin {
       const zones = recomputeZones(
         positionsByFormat[newFormat].map((position) => positionToZone(position))
       );
-      this.dispatch("SET_FORMATTING", {
-        sheetId,
-        format: newFormat,
-        target: zones,
-      });
+      this.setContextualFormat(sheetId, zones, newFormat);
     }
   }
 
