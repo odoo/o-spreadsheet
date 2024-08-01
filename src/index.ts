@@ -130,9 +130,10 @@ export { CorePlugin } from "./plugins/core_plugin";
 export { UIPlugin } from "./plugins/ui_plugin";
 export { Registry } from "./registries/registry";
 export { setTranslationMethod } from "./translation";
-export { CancelledReason, CommandResult, DispatchResult } from "./types";
-export { Client } from "./types/collaborative/session";
-export {
+export { CommandResult, DispatchResult } from "./types";
+export type { CancelledReason } from "./types";
+export type { Client } from "./types/collaborative/session";
+export type {
   ClientJoinedMessage,
   ClientLeftMessage,
   ClientMovedMessage,
