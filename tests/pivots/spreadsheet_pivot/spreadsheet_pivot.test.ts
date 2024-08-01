@@ -1665,4 +1665,43 @@ describe("Spreadsheet arguments parsing", () => {
     setCellContent(model, "B2", "Bob");
     expect(getEvaluatedCell(model, "A3").value).toBe("");
   });
+
+  test("can hide measures", () => {
+    const grid = {
+      A1: "Price",
+      A2: "10",
+      A5: "=PIVOT(1)",
+    };
+    const model = createModelFromGrid(grid);
+    const sheetId = model.getters.getActiveSheetId();
+    const measures = [
+      { id: "Price:sum", fieldName: "Price", aggregator: "sum" },
+      {
+        id: "double:sum",
+        fieldName: "double",
+        aggregator: "sum",
+        computedBy: { sheetId, formula: "=2*'Price:sum'" },
+      },
+    ];
+    addPivot(model, "A1:A2", {
+      rows: [],
+      columns: [],
+      measures,
+    });
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "A5:C7")).toEqual([
+      ["(#1) Pivot", "Total", ""],
+      ["",           "Price", "double"],
+      ["Total",      "10",    "20"],
+    ]);
+    updatePivot(model, "1", {
+      measures: measures.map((measure) => ({ ...measure, isHidden: true })),
+    });
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "A5:C7")).toEqual([
+      ["(#1) Pivot", "", ""],
+      ["",           "", ""],
+      ["Total",      "", ""],
+    ]);
+  });
 });

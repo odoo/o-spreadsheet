@@ -70,11 +70,22 @@
         <div
           t-on-pointerdown="(ev) => this.startDragAndDropMeasures(measure, ev)"
           t-att-style="dragAndDrop.itemsStyle[measure.id]"
+          t-att-class="measure.isHidden ? 'opacity-50' : ''"
           class="pt-1 pivot-measure">
           <PivotDimension
             dimension="measure"
             onRemoved.bind="removeMeasureDimension"
             onNameUpdated.bind="onMeasureNameUpdated">
+            <t t-set-slot="upper-right-icons">
+              <t t-if="measure.isHidden" t-set="hideTitle">Show</t>
+              <t t-else="" t-set="hideTitle">Hide</t>
+              <i
+                t-att-class="measure.isHidden ? 'fa fa-eye-slash': 'fa fa-eye'"
+                t-att-title="hideTitle"
+                class="btn o-text-muted"
+                t-on-click="() => this.toggleMeasureVisibility(measure)"
+              />
+            </t>
             <div t-if="measure.computedBy" class="d-flex flex-row small">
               <div class="d-flex flex-column py-2 px-2 w-100">
                 <StandaloneComposer
