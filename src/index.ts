@@ -68,10 +68,12 @@ import { getFunctionsFromTokens } from "./formulas";
 import { isEvaluationError, toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
 import { FunctionRegistry, arg, functionRegistry } from "./functions/index";
 import {
+  TREND_LINE_XAXIS_ID,
   chartFontColor,
   getChartAxisTitleRuntime,
   getDefaultChartJsRuntime,
   getFillingMode,
+  getTrendDatasetForBarChart,
 } from "./helpers/figures/charts";
 import {
   ColorGenerator,
@@ -115,6 +117,10 @@ import {
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
 
 import { CellComposerStore } from "./components/composer/composer/cell_composer_store";
+import {
+  getChartAxisType,
+  getTrendDatasetForLineChart,
+} from "./helpers/figures/charts/chart_common_line_scatter";
 import {
   areDomainArgsFieldsValid,
   createPivotFormula,
@@ -307,6 +313,9 @@ export const helpers = {
   getDefaultChartJsRuntime,
   chartFontColor,
   getChartAxisTitleRuntime,
+  getChartAxisType,
+  getTrendDatasetForBarChart,
+  getTrendDatasetForLineChart,
   getFillingMode,
   rgbaToHex,
   colorToRGBA,
@@ -433,6 +442,7 @@ export const constants = {
   HIGHLIGHT_COLOR,
   PIVOT_TABLE_CONFIG,
   ChartTerms,
+  TREND_LINE_XAXIS_ID,
 };
 
 export { PivotRuntimeDefinition } from "./helpers/pivot/pivot_runtime_definition";

@@ -124,7 +124,7 @@ function isLuxonTimeAdapterInstalled() {
   return isInstalled;
 }
 
-function getTrendDatasetForLineChart(
+export function getTrendDatasetForLineChart(
   config: TrendConfiguration,
   dataset: any,
   axisType: AxisType,
