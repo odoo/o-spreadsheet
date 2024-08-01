@@ -33,7 +33,7 @@ export default (commandLineArgs) => {
 
   if (commandLineArgs.configDev) {
     // Only build iife version to improve speed
-    input = "build/js/index.js";
+    input = "build/src/index.js";
     output = [
       {
         file: `build/o_spreadsheet.js`,

@@ -6,7 +6,7 @@
     "moduleResolution": "node",
     "removeComments": false,
     "target": "es2022",
-    "outDir": "build/js",
+    "outDir": "build/src",
     "alwaysStrict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": false,
@@ -18,7 +18,8 @@
     "allowJs": true,
     "preserveWatchOutput": true,
     "sourceMap": true,
-    "strictBindCallApply": true
+    "strictBindCallApply": true,
+    "verbatimModuleSyntax": false
   },
   "include": ["src"],
   "typedocOptions": {
