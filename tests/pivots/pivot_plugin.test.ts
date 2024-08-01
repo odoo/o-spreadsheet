@@ -1,4 +1,5 @@
-import { setCellContent } from "../test_helpers/commands_helpers";
+import { EMPTY_PIVOT_CELL } from "../../src/helpers/pivot/table_spreadsheet_pivot";
+import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { createModelFromGrid, toCellPosition } from "../test_helpers/helpers";
 import { addPivot } from "../test_helpers/pivot_helpers";
 
@@ -27,5 +28,24 @@ describe("Pivot plugin", () => {
     expect(isSpillPivotFormula("G1")).toBe(false);
     setCellContent(model, "G1", "=PIVOT.HEADER(1)");
     expect(isSpillPivotFormula("G1")).toBe(false);
+  });
+
+  test("getPivotCellFromPosition doesn't throw with invalid pivot domain", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Customer", B1: "Price", C1: '=PIVOT.VALUE(1,"Price","5","Bob")',
+      A2: "Alice",    B2: "10",
+      A3: "Bob",      B3: "30",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B3", {
+      columns: [],
+      rows: [{ name: "Customer" }],
+      measures: [{ name: "Price", aggregator: "sum" }],
+    });
+    selectCell(model, "C1");
+    expect(model.getters.getPivotCellFromPosition(model.getters.getActivePosition())).toMatchObject(
+      EMPTY_PIVOT_CELL
+    );
   });
 });
