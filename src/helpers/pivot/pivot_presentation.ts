@@ -46,8 +46,12 @@ export function withPivotPresentationLayer(PivotClass: PivotUIConstructor) {
       const result = measure.computedBy
         ? this.computeMeasure(measure, domain)
         : super.getPivotCellValueAndFormat(measureName, domain);
-      this.cache[cacheKey] = result;
-      return result;
+      if (measure.format) {
+        this.cache[cacheKey] = { ...result, format: measure.format };
+      } else {
+        this.cache[cacheKey] = result;
+      }
+      return this.cache[cacheKey];
     }
 
     private computeMeasure(measure: PivotMeasure, domain: PivotDomain): FunctionResultObject {

@@ -1,4 +1,5 @@
 import { CellValue } from "./cells";
+import { Format } from "./format";
 import { Locale } from "./locale";
 import { FunctionResultObject, UID, Zone } from "./misc";
 
@@ -40,6 +41,7 @@ export interface PivotCoreMeasure {
   fieldName: string;
   aggregator: Aggregator | string;
   isHidden?: boolean;
+  format?: Format;
   computedBy?: { sheetId: UID; formula: string };
 }
 
