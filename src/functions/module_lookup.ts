@@ -805,7 +805,6 @@ export const PIVOT = {
     const pivot = this.getters.getPivot(pivotId);
     const coreDefinition = this.getters.getPivotCoreDefinition(pivotId);
     addPivotDependencies(this, coreDefinition);
-    debugger;
     pivot.init({ reload: pivot.needsReevaluation });
     const error = pivot.assertIsValid({ throwOnError: false });
     if (error) {

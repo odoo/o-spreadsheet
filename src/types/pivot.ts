@@ -39,6 +39,7 @@ export interface PivotCoreMeasure {
   userDefinedName?: string;
   fieldName: string;
   aggregator: Aggregator | string;
+  isHidden?: boolean;
   computedBy?: { sheetId: UID; formula: string };
 }
 

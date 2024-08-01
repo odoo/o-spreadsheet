@@ -464,4 +464,25 @@ describe("Spreadsheet pivot side panel", () => {
       },
     ]);
   });
+
+  test("can hide and unhide a measure", async () => {
+    addPivot(
+      model,
+      "B1:B2",
+      {
+        measures: [{ id: "amount:sum", fieldName: "amount", aggregator: "sum" }],
+      },
+      "3"
+    );
+    env.openSidePanel("PivotSidePanel", { pivotId: "3" });
+    await nextTick();
+    await click(fixture.querySelector(".pivot-measure .fa-eye")!);
+    expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
+      { id: "amount:sum", fieldName: "amount", aggregator: "sum", isHidden: true },
+    ]);
+    await click(fixture.querySelector(".pivot-measure .fa-eye-slash")!);
+    expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
+      { id: "amount:sum", fieldName: "amount", aggregator: "sum", isHidden: false },
+    ]);
+  });
 });

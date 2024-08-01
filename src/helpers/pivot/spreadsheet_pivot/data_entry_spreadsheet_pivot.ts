@@ -33,7 +33,7 @@ export function dataEntriesToSpreadsheetPivotTable(
     indent: 0,
   });
 
-  const measureIds = definition.measures.map((m) => m.id);
+  const measureIds = definition.measures.filter((measure) => !measure.isHidden).map((m) => m.id);
   const fieldsType: Record<string, string> = {};
   for (const columns of definition.columns) {
     fieldsType[columns.fieldName] = columns.type;
@@ -137,7 +137,8 @@ function columnsTreeToColumns(
 ): PivotTableColumn[][] {
   const columnNames = definition.columns.map((col) => col.nameWithGranularity);
   const height = columnNames.length;
-  const measureCount = definition.measures.length;
+  const measures = definition.measures.filter((measure) => !measure.isHidden);
+  const measureCount = measures.length;
 
   const headers: PivotTableColumn[][] = new Array(height).fill(0).map(() => []);
 
@@ -165,7 +166,7 @@ function columnsTreeToColumns(
 
   if (hasColGroupBys) {
     headers[headers.length - 1].forEach((cell) => {
-      definition.measures.forEach((measure) => {
+      measures.forEach((measure) => {
         const measureCell = {
           fields: [...cell.fields, "measure"],
           values: [...cell.values, measure.id],
@@ -177,7 +178,7 @@ function columnsTreeToColumns(
     });
   }
   // Add the totals of the measures
-  definition.measures.forEach((measure) => {
+  measures.forEach((measure) => {
     const measureCell = {
       fields: ["measure"],
       values: [measure.id],
