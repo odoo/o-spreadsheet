@@ -72,48 +72,14 @@
           t-att-style="dragAndDrop.itemsStyle[measure.id]"
           t-att-class="measure.isHidden ? 'opacity-50' : ''"
           class="pt-1 pivot-measure">
-          <PivotDimension
-            dimension="measure"
-            onRemoved.bind="removeMeasureDimension"
-            onNameUpdated.bind="onMeasureNameUpdated">
-            <t t-set-slot="upper-right-icons">
-              <t t-if="measure.isHidden" t-set="hideTitle">Show</t>
-              <t t-else="" t-set="hideTitle">Hide</t>
-              <i
-                t-att-class="measure.isHidden ? 'fa fa-eye-slash': 'fa fa-eye'"
-                t-att-title="hideTitle"
-                class="btn o-text-muted"
-                t-on-click="() => this.toggleMeasureVisibility(measure)"
-              />
-            </t>
-            <div t-if="measure.computedBy" class="d-flex flex-row small">
-              <div class="d-flex flex-column py-2 px-2 w-100">
-                <StandaloneComposer
-                  onConfirm="(content) => this.updateMeasureFormula(measure, content)"
-                  composerContent="measure.computedBy.formula"
-                  defaultRangeSheetId="measure.computedBy.sheetId"
-                  contextualAutocomplete="getMeasureAutocomplete(measure)"
-                />
-              </div>
-            </div>
-            <div class="d-flex flex-column small">
-              <div class="d-flex py-1 px-2 w-100">
-                <div class="pivot-dim-operator-label">Aggregated by</div>
-                <select
-                  class="o-input flex-grow-1 me-3"
-                  t-on-change="(ev) => this.updateAggregator(measure, ev.target.value)">
-                  <option
-                    t-foreach="Object.keys(AGGREGATORS[measure.type])"
-                    t-as="agg"
-                    t-key="agg"
-                    t-att-value="agg"
-                    t-att-selected="agg === measure.aggregator"
-                    t-esc="AGGREGATORS[measure.type][agg]"
-                  />
-                </select>
-              </div>
-            </div>
-          </PivotDimension>
+          <PivotMeasureEditor
+            definition="props.definition"
+            measure="measure"
+            aggregators="AGGREGATORS"
+            onRemoved="() => this.removeMeasureDimension(measure)"
+            onMeasureUpdated="(newMeasure) => this.updateMeasure(measure, newMeasure)"
+            generateMeasureId.bind="getMeasureId"
+          />
         </div>
       </t>
     </div>

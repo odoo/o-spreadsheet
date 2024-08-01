@@ -2,7 +2,6 @@ import { Component, useRef } from "@odoo/owl";
 import { isDefined } from "../../../../helpers";
 import { AGGREGATORS, isDateField } from "../../../../helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "../../../../helpers/pivot/pivot_runtime_definition";
-import { createMeasureAutoComplete } from "../../../../registries/auto_completes/pivot_dimension_auto_complete";
 import { Store, useStore } from "../../../../store_engine";
 import { SpreadsheetChildEnv } from "../../../../types";
 import {
@@ -16,13 +15,13 @@ import {
   PivotMeasure,
 } from "../../../../types/pivot";
 import { ComposerFocusStore } from "../../../composer/composer_focus_store";
-import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { css } from "../../../helpers";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_hook";
 import { AddDimensionButton } from "./add_dimension_button/add_dimension_button";
 import { PivotDimension } from "./pivot_dimension/pivot_dimension";
 import { PivotDimensionGranularity } from "./pivot_dimension_granularity/pivot_dimension_granularity";
 import { PivotDimensionOrder } from "./pivot_dimension_order/pivot_dimension_order";
+import { PivotMeasureEditor } from "./pivot_measure/pivot_measure";
 
 interface Props {
   definition: PivotRuntimeDefinition;
@@ -46,7 +45,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     PivotDimension,
     PivotDimensionOrder,
     PivotDimensionGranularity,
-    StandaloneComposer,
+    PivotMeasureEditor,
   };
   static props = {
     definition: Object,
@@ -59,9 +58,9 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
 
   private dimensionsRef = useRef("pivot-dimensions");
   private dragAndDrop = useDragAndDropListItems();
+  AGGREGATORS = AGGREGATORS;
   private composerFocus!: Store<ComposerFocusStore>;
 
-  AGGREGATORS = AGGREGATORS;
   isDateField = isDateField;
 
   setup() {
@@ -165,10 +164,6 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     });
   }
 
-  getMeasureAutocomplete(measure: PivotMeasure) {
-    return createMeasureAutoComplete(this.props.definition, measure);
-  }
-
   getDimensionElementsRects() {
     return Array.from(this.dimensionsRef.el!.children).map((el) => {
       const style = getComputedStyle(el)!;
@@ -198,29 +193,6 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     });
   }
 
-  onMeasureNameUpdated(updatedMeasure: PivotMeasure, userDefinedName?: string) {
-    const { measures } = this.props.definition;
-    this.props.onDimensionsUpdated({
-      measures: measures.map((measure) => {
-        if (measure === updatedMeasure) {
-          if (measure.computedBy && userDefinedName) {
-            return {
-              ...measure,
-              userDefinedName,
-              id: this.getMeasureId(userDefinedName, measure.aggregator),
-              fieldName: userDefinedName,
-            };
-          }
-          return {
-            ...measure,
-            userDefinedName,
-          };
-        }
-        return measure;
-      }),
-    });
-  }
-
   addColumnDimension(fieldName: string) {
     const { columns }: { columns: PivotCoreDimension[] } = this.props.definition;
     this.props.onDimensionsUpdated({
@@ -242,6 +214,13 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
       measures: measures.concat([
         { id: this.getMeasureId(fieldName, aggregator), fieldName, aggregator },
       ]),
+    });
+  }
+
+  updateMeasure(measure: PivotMeasure, newMeasure: PivotMeasure) {
+    const { measures }: { measures: PivotCoreMeasure[] } = this.props.definition;
+    this.props.onDimensionsUpdated({
+      measures: measures.map((m) => (m.id === measure.id ? newMeasure : m)),
     });
   }
 
@@ -276,55 +255,6 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
           },
         },
       ]),
-    });
-  }
-
-  updateAggregator(updatedMeasure: PivotMeasure, aggregator: string) {
-    const { measures } = this.props.definition;
-    this.props.onDimensionsUpdated({
-      measures: measures.map((measure) => {
-        if (measure === updatedMeasure) {
-          return {
-            ...measure,
-            aggregator,
-            id: this.getMeasureId(updatedMeasure.fieldName, aggregator),
-          };
-        }
-        return measure;
-      }),
-    });
-  }
-
-  updateMeasureFormula(updatedMeasure: PivotMeasure, formula: string) {
-    const { measures } = this.props.definition;
-    this.props.onDimensionsUpdated({
-      measures: measures.map((measure) => {
-        if (measure === updatedMeasure) {
-          return {
-            ...measure,
-            computedBy: {
-              sheetId: this.env.model.getters.getActiveSheetId(),
-              formula: formula[0] === "=" ? formula : "=" + formula,
-            },
-          };
-        }
-        return measure;
-      }),
-    });
-  }
-
-  toggleMeasureVisibility(updatedMeasure: PivotMeasure) {
-    const { measures } = this.props.definition;
-    this.props.onDimensionsUpdated({
-      measures: measures.map((measure) => {
-        if (measure === updatedMeasure) {
-          return {
-            ...measure,
-            isHidden: !measure.isHidden,
-          };
-        }
-        return measure;
-      }),
     });
   }
 
