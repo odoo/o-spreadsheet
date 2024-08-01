@@ -1026,7 +1026,7 @@ describe("Menu Item actions", () => {
     test("Automatic", () => {
       const action = getNode(["format", "format_number", "format_number_automatic"], env);
       action.execute?.(env);
-      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING_WITH_PIVOT", {
         sheetId: env.model.getters.getActiveSheetId(),
         target: env.model.getters.getSelectedZones(),
         format: "",
@@ -1038,7 +1038,7 @@ describe("Menu Item actions", () => {
       const action = getNode(["format", "format_number", "format_number_number"], env);
       expect(action.isActive?.(env)).toBe(false);
       action.execute?.(env);
-      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING_WITH_PIVOT", {
         sheetId: env.model.getters.getActiveSheetId(),
         target: env.model.getters.getSelectedZones(),
         format: "#,##0.00",
@@ -1077,7 +1077,7 @@ describe("Menu Item actions", () => {
 
     test("Percent", () => {
       doAction(["format", "format_number", "format_number_percent"], env);
-      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING_WITH_PIVOT", {
         sheetId: env.model.getters.getActiveSheetId(),
         target: env.model.getters.getSelectedZones(),
         format: "0.00%",
@@ -1143,7 +1143,7 @@ describe("Menu Item actions", () => {
     test.each(DEFAULT_LOCALES)("Date", (locale) => {
       env.model.dispatch("UPDATE_LOCALE", { locale });
       doAction(["format", "format_number", "format_number_date"], env);
-      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING_WITH_PIVOT", {
         sheetId: env.model.getters.getActiveSheetId(),
         target: env.model.getters.getSelectedZones(),
         format: locale.dateFormat,
@@ -1153,7 +1153,7 @@ describe("Menu Item actions", () => {
     test.each(DEFAULT_LOCALES)("Time", (locale) => {
       env.model.dispatch("UPDATE_LOCALE", { locale });
       doAction(["format", "format_number", "format_number_time"], env);
-      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING_WITH_PIVOT", {
         sheetId: env.model.getters.getActiveSheetId(),
         target: env.model.getters.getSelectedZones(),
         format: locale.timeFormat,
@@ -1163,7 +1163,7 @@ describe("Menu Item actions", () => {
     test.each(DEFAULT_LOCALES)("Date time", (locale) => {
       env.model.dispatch("UPDATE_LOCALE", { locale });
       doAction(["format", "format_number", "format_number_date_time"], env);
-      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING_WITH_PIVOT", {
         sheetId: env.model.getters.getActiveSheetId(),
         target: env.model.getters.getSelectedZones(),
         format: `${locale.dateFormat} ${locale.timeFormat}`,
@@ -1172,7 +1172,7 @@ describe("Menu Item actions", () => {
 
     test("Duration", () => {
       doAction(["format", "format_number", "format_number_duration"], env);
-      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING_WITH_PIVOT", {
         sheetId: env.model.getters.getActiveSheetId(),
         target: env.model.getters.getSelectedZones(),
         format: "hhhh:mm:ss",

@@ -13,7 +13,7 @@ import { toScalar } from "../../src/functions/helper_matrices";
 import { toString } from "../../src/functions/helpers";
 import { fontSizeInPixels, toCartesian } from "../../src/helpers";
 import { Model } from "../../src/model";
-import { CommandResult, SetDecimalStep, UID } from "../../src/types";
+import { CommandResult, Format, SetDecimalStep, UID } from "../../src/types";
 import {
   createSheet,
   createTable,
@@ -25,14 +25,28 @@ import {
   setFormat,
   setStyle,
 } from "../test_helpers/commands_helpers";
-import { getCell, getCellContent, getEvaluatedCell } from "../test_helpers/getters_helpers";
-import { target } from "../test_helpers/helpers";
+import {
+  getCell,
+  getCellContent,
+  getEvaluatedCell,
+  getEvaluatedGrid,
+} from "../test_helpers/getters_helpers";
+import { createModelFromGrid, target } from "../test_helpers/helpers";
+import { addPivot } from "../test_helpers/pivot_helpers";
 
 function setDecimal(model: Model, targetXc: string, step: SetDecimalStep) {
   model.dispatch("SET_DECIMAL", {
     sheetId: model.getters.getActiveSheetId(),
     target: target(targetXc),
     step: step,
+  });
+}
+
+function setContextualFormat(model: Model, targetXc: string, format: Format) {
+  model.dispatch("SET_FORMATTING_WITH_PIVOT", {
+    sheetId: model.getters.getActiveSheetId(),
+    target: target(targetXc),
+    format,
   });
 }
 
@@ -237,6 +251,125 @@ describe("formatting values (with formatters)", () => {
       format: "[$$]#,##0.00",
     });
     expect(getEvaluatedCell(model, "A1").value).toEqual(10.123456789123);
+  });
+});
+
+describe("pivot contextual formatting", () => {
+  test("format without pivot", () => {
+    const model = new Model();
+    setContextualFormat(model, "A1", "0.00%");
+    expect(getCell(model, "A1")?.format).toBe("0.00%");
+  });
+
+  test("format on a pivot measure value applies to the entire measure", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Customer", B1: "Price",  C1: "=PIVOT(1)",
+      A2: "Alice",    B2: "10",
+      A3: "Bob",      B3: "12",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B3", {
+      columns: [{ fieldName: "Customer" }],
+      measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
+    });
+    setContextualFormat(model, "D3", "[$$]#,##0.00");
+    expect(getCell(model, "D3")?.format).toBeUndefined();
+    expect(getCell(model, "E3")?.format).toBeUndefined();
+    expect(getCell(model, "F3")?.format).toBeUndefined();
+    expect(getEvaluatedCell(model, "D3")?.format).toBe("[$$]#,##0.00");
+    expect(getEvaluatedCell(model, "E3")?.format).toBe("[$$]#,##0.00");
+    expect(getEvaluatedCell(model, "F3")?.format).toBe("[$$]#,##0.00");
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "C1:F3")).toEqual([
+      ["(#1) Pivot", "Alice",   "Bob",    "Total"],
+      ["",           "Price",   "Price",  "Price"],
+      ["Total",      "$10.00",  "$12.00", "$22.00"],
+    ]);
+  });
+
+  test("format on a pivot measure value applies to the selected measures", () => {
+    const grid = {
+      A1: "Price",
+      A2: "10",
+      A3: "=PIVOT(1)",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:A2", {
+      measures: [
+        { id: "Price:sum", fieldName: "Price", aggregator: "sum" },
+        { id: "Price:avg", fieldName: "Price", aggregator: "avg", userDefinedName: "Price avg" },
+      ],
+    });
+
+    setContextualFormat(model, "B5", "[$$]#,##0.00"); // only on the first measure
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "A3:C5")).toEqual([
+      ["(#1) Pivot", "Total",   ""],
+      ["",           "Price",   "Price avg"],
+      ["Total",      "$10.00",  "10"],
+    ]);
+
+    setContextualFormat(model, "B5:C5", "[$€]#,##0.00"); // on both measures
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "A3:C5")).toEqual([
+      ["(#1) Pivot", "Total",   ""],
+      ["",           "Price",   "Price avg"],
+      ["Total",      "€10.00",  "€10.00"],
+    ]);
+  });
+
+  test("format on a pivot values overwrites user defined format", () => {
+    const grid = {
+      A1: "Price",
+      A2: "10",
+      A3: "=PIVOT(1)",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:A2", {
+      measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
+    });
+    setFormat(model, "B5", "0.0%");
+    setContextualFormat(model, "B5", "[$$]#,##0.00");
+    expect(getCell(model, "B5")?.format).toBeUndefined();
+    expect(getEvaluatedCell(model, "B5").formattedValue).toBe("$10.00");
+  });
+
+  test("format both pivot values and normal cells", () => {
+    const grid = {
+      A1: "Price",
+      A2: "10",
+      A3: "=PIVOT(1)",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:A2", {
+      measures: [{ id: "Price", fieldName: "Price", aggregator: "sum" }],
+    });
+    setContextualFormat(model, "B5:B6", "[$$]#,##0.00");
+    expect(getCell(model, "B5")?.format).toBeUndefined();
+    expect(getCell(model, "B6")?.format).toBe("[$$]#,##0.00");
+    expect(getEvaluatedCell(model, "B5")?.format).toBe("[$$]#,##0.00");
+  });
+
+  test("measure format takes precedence over aggregate format", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Customer", B1: "Price",  C1: "=PIVOT(1)",
+      A2: "Alice",    B2: "10",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B2", {
+      rows: [{ fieldName: "Customer" }],
+      measures: [{ id: "Price", fieldName: "Price", aggregator: "count" }],
+    });
+    setContextualFormat(model, "D3", "[$$]#,##0.00");
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "C1:D4")).toEqual([
+      ["(#1) Pivot", "Total"],
+      ["",           "Price"],
+      ["Alice",      "$1.00"],
+      ["Total",      "$1.00"],
+    ]);
   });
 });
 
