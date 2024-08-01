@@ -313,6 +313,21 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     });
   }
 
+  toggleMeasureVisibility(updatedMeasure: PivotMeasure) {
+    const { measures } = this.props.definition;
+    this.props.onDimensionsUpdated({
+      measures: measures.map((measure) => {
+        if (measure === updatedMeasure) {
+          return {
+            ...measure,
+            isHidden: !measure.isHidden,
+          };
+        }
+        return measure;
+      }),
+    });
+  }
+
   updateOrder(updateDimension: PivotDimensionType, order?: "asc" | "desc") {
     const { rows, columns } = this.props.definition;
     this.props.onDimensionsUpdated({

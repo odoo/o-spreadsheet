@@ -299,6 +299,44 @@ describe("Pivot fix formula menu item", () => {
     cellMenuRegistry.get("pivot_fix_formulas").execute!(env);
     expect(getCellText(model, "C1")).toBe("=PIVOT(1)");
   });
+
+  test("It should ignore hidden measures", () => {
+    const grid = {
+      A1: "Price",
+      A2: "10",
+      A3: "30",
+      A4: "=PIVOT(1)",
+    };
+    const model = createModelFromGrid(grid);
+    const sheetId = model.getters.getActiveSheetId();
+    addPivot(model, "A1:A3", {
+      columns: [],
+      rows: [],
+      measures: [
+        { id: "Price:sum", fieldName: "Price", aggregator: "sum", isHidden: true },
+        {
+          id: "double:sum",
+          fieldName: "double",
+          aggregator: "sum",
+          computedBy: {
+            sheetId,
+            formula: "=2*Price",
+          },
+        },
+      ],
+    });
+    const env = makeTestEnv({ model });
+    selectCell(model, "A4");
+    cellMenuRegistry.get("pivot_fix_formulas").execute?.(env);
+    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "A4:B6")).toEqual([
+      ["",                  "=PIVOT.HEADER(1)"],
+      ["",                  '=PIVOT.HEADER(1,"measure\","double:sum")',],
+      ["=PIVOT.HEADER(1)",  '=PIVOT.VALUE(1,"double:sum")'],
+    ]);
+  });
 });
 
 describe("Pivot reinsertion menu item", () => {

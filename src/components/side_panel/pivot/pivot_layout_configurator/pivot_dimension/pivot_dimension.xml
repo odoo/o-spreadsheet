@@ -16,11 +16,14 @@
           />
           <span t-else="1" class="fw-bold" t-esc="props.dimension.displayName"/>
         </div>
-        <i
-          class="btn fa fa-trash o-text-muted pe-0 ms-auto"
-          t-if="props.onRemoved"
-          t-on-click="() => props.onRemoved(props.dimension)"
-        />
+        <div class="d-flex flex-rows">
+          <t t-slot="upper-right-icons"/>
+          <i
+            class="btn fa fa-trash o-text-muted pe-0 ms-auto"
+            t-if="props.onRemoved"
+            t-on-click="() => props.onRemoved(props.dimension)"
+          />
+        </div>
       </div>
       <t t-slot="default"/>
     </div>
