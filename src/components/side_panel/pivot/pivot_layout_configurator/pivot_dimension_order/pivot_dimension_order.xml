@@ -4,7 +4,7 @@
       <div class="d-flex py-1 px-2 w-100 small">
         <div class="pivot-dim-operator-label">Order by</div>
         <select
-          class="o_input flex-grow-1"
+          class="o-input flex-grow-1"
           t-on-change="(ev) => props.onUpdated(props.dimension, ev.target.value)">
           <option value="asc" t-att-selected="props.dimension.order === 'asc'">Ascending</option>
           <option value="desc" t-att-selected="props.dimension.order === 'desc'">Descending</option>

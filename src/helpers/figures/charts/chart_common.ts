@@ -567,3 +567,8 @@ export function getChartColorsGenerator(definition: ChartWithAxisDefinition, dat
     definition.dataSets.map((ds) => ds.backgroundColor)
   );
 }
+
+export const CHART_AXIS_CHOICES = [
+  { value: "left", label: _t("Left") },
+  { value: "right", label: _t("Right") },
+];

@@ -8,17 +8,31 @@
       <div class="o-section">
         <div class="o-section-title">Text</div>
         <div class="d-flex">
-          <input type="text" title="Link label" class="o-input flex-grow-1" t-model="link.label"/>
+          <input
+            type="text"
+            title="Link label"
+            placeholder="e.g. 'Link label'"
+            class="o-input"
+            t-model="link.label"
+          />
         </div>
 
         <div class="o-section-title mt-3">Link</div>
         <div class="o-link-url">
           <t t-if="link.isUrlEditable">
-            <input type="text" title="Link URL" t-ref="urlInput" t-model="link.url"/>
+            <input
+              class="o-input"
+              type="text"
+              placeholder="e.g. 'http://www.odoo.com'"
+              title="Link URL"
+              t-ref="urlInput"
+              t-model="link.url"
+            />
           </t>
           <t t-else="">
             <input
               type="text"
+              class="o-input"
               title="Link URL"
               t-att-value="getUrlRepresentation(link)"
               disabled="1"
@@ -38,8 +52,8 @@
         onClose="() => this.menu.isOpen=false"
       />
       <div class="o-buttons">
-        <button t-on-click="cancel" class="o-button o-button-grey o-cancel">Cancel</button>
-        <button t-on-click="save" class="o-button o-button-grey o-save" t-att-disabled="!link.url">
+        <button t-on-click="cancel" class="o-button o-cancel me-2">Cancel</button>
+        <button t-on-click="save" class="o-button primary o-save" t-att-disabled="!link.url">
           Confirm
         </button>
       </div>

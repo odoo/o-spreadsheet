@@ -1,6 +1,6 @@
 import { Component, useState } from "@odoo/owl";
 import { getColorsPalette, getNthColor, setColorAlpha, toHex } from "../../../../helpers";
-import { getDefinedAxis } from "../../../../helpers/figures/charts";
+import { CHART_AXIS_CHOICES, getDefinedAxis } from "../../../../helpers/figures/charts";
 import { _t } from "../../../../translation";
 import {
   ChartWithAxisDefinition,
@@ -13,6 +13,7 @@ import {
 import { ChartTerms } from "../../../translations_terms";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
+import { RadioSelection } from "../../components/radio_selection/radio_selection";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";
 import {
@@ -37,6 +38,7 @@ export class ChartWithAxisDesignPanel extends Component<Props, SpreadsheetChildE
     AxisDesignEditor,
     RoundColorPicker,
     Checkbox,
+    RadioSelection,
   };
   static props = {
     figureId: String,
@@ -45,16 +47,18 @@ export class ChartWithAxisDesignPanel extends Component<Props, SpreadsheetChildE
     updateChart: Function,
   };
 
+  axisChoices = CHART_AXIS_CHOICES;
+
   private state = useState({ index: 0 });
 
   get axesList(): AxisDefinition[] {
     const { useLeftAxis, useRightAxis } = getDefinedAxis(this.props.definition);
     let axes: AxisDefinition[] = [{ id: "x", name: _t("Horizontal axis") }];
     if (useLeftAxis) {
-      axes.push({ id: "y", name: _t("Vertical (left) axis") });
+      axes.push({ id: "y", name: useRightAxis ? _t("Left axis") : _t("Vertical axis") });
     }
     if (useRightAxis) {
-      axes.push({ id: "y1", name: _t("Vertical (right) axis") });
+      axes.push({ id: "y1", name: useLeftAxis ? _t("Right axis") : _t("Vertical axis") });
     }
     return axes;
   }
@@ -100,8 +104,7 @@ export class ChartWithAxisDesignPanel extends Component<Props, SpreadsheetChildE
     return color ? toHex(color) : getNthColor(this.state.index, getColorsPalette(dataSets.length));
   }
 
-  updateDataSeriesAxis(ev) {
-    const axis = ev.target.value;
+  updateDataSeriesAxis(axis: "left" | "right") {
     const dataSets = [...this.props.definition.dataSets];
     if (!dataSets?.[this.state.index]) {
       return;

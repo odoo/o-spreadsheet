@@ -22,6 +22,7 @@
             type="text"
             class="o-input"
             t-model="state.currencyCode"
+            placeholder="code"
             t-on-input="(ev) => this.updateCode(ev)"
           />
         </div>
@@ -30,6 +31,7 @@
           <input
             type="text"
             class="o-input"
+            placeholder="symbol"
             t-model="state.currencySymbol"
             t-on-input="(ev) => this.updateSymbol(ev)"
           />
@@ -50,14 +52,16 @@
           </t>
         </select>
       </Section>
-      <div class="o-sidePanelButtons">
-        <button
-          class="o-button o-button-grey"
-          t-on-click="() => this.apply()"
-          t-att-disabled="!formatProposals.length || isSameFormat">
-          Apply
-        </button>
-      </div>
+      <Section>
+        <div class="o-sidePanelButtons">
+          <button
+            class="o-button primary"
+            t-on-click="() => this.apply()"
+            t-att-disabled="!formatProposals.length || isSameFormat">
+            Apply
+          </button>
+        </div>
+      </Section>
     </div>
   </t>
 </templates>

@@ -3,14 +3,11 @@
     <div class="o-table-style-editor-panel">
       <Section>
         <t t-set-slot="title">Style name</t>
-        <input type="text" class="o-input o-optional" t-model="state.styleName"/>
+        <input type="text" class="o-input" t-model="state.styleName"/>
       </Section>
       <Section class="'pt-1'">
         <t t-set-slot="title">Style color</t>
-        <div class="d-flex align-items-center">
-          <span class="pe-2">Primary table style color</span>
-          <RoundColorPicker currentColor="state.primaryColor" onColorPicked.bind="onColorPicked"/>
-        </div>
+        <RoundColorPicker currentColor="state.primaryColor" onColorPicked.bind="onColorPicked"/>
       </Section>
       <Section class="'pt-1'">
         <t t-set-slot="title">Style template</t>
@@ -25,17 +22,17 @@
             />
           </t>
         </div>
+      </Section>
+      <Section>
         <div class="o-sidePanelButtons">
           <button
             t-if="props.styleId"
             t-on-click="onDelete"
-            class="o-delete o-button o-button-grey danger">
+            class="o-delete o-button-danger o-button">
             Delete
           </button>
-          <button t-on-click="onCancel" class="o-cancel o-button o-button-grey">Cancel</button>
-          <button t-on-click="onConfirm" class="o-confirm o-button o-button-grey primary">
-            Confirm
-          </button>
+          <button t-on-click="onCancel" class="o-cancel o-button">Cancel</button>
+          <button t-on-click="onConfirm" class="o-confirm o-button primary">Confirm</button>
         </div>
       </Section>
     </div>

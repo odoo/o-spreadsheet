@@ -1,5 +1,5 @@
 import { Component, useRef, useState } from "@odoo/owl";
-import { BG_HOVER_COLOR } from "../../constants";
+import { BUTTON_ACTIVE_BG, BUTTON_HOVER_BG, GRAY_300 } from "../../constants";
 import {
   BorderPosition,
   BorderStyle,
@@ -60,69 +60,73 @@ css/* scss */ `
   .o-border-selector {
     padding: 4px;
     background-color: white;
-  }
-  .o-divider {
-    border-right: 1px solid #e0e2e4;
-    margin: 0 6px;
-  }
-  .o-border-selector-section {
-    .o-dropdown-line {
-      height: 30px;
-      margin: 1px;
-      .o-line-item {
-        padding: 4px;
-        width: 18px;
-        height: 18px;
+
+    .o-divider {
+      border-right: 1px solid ${GRAY_300};
+      margin: 0 6px;
+    }
+
+    .o-border-selector-section {
+      .o-dropdown-line {
+        height: 30px;
+        margin: 1px;
+        .o-line-item {
+          padding: 4px;
+          width: 18px;
+          height: 18px;
+          &.active {
+            background-color: ${BUTTON_ACTIVE_BG};
+          }
+        }
+      }
+      .o-border-style-tool {
+        padding: 0px 3px;
+        margin: 2px;
+        height: 25px;
       }
     }
-    .o-border-style-tool {
-      padding: 0px 3px;
-      margin: 2px;
-      height: 25px;
-    }
   }
-  .o-style-preview {
-    margin: 7px 5px 7px 5px;
-    width: 60px;
-    height: 5px;
-  }
-  .o-style-thin {
-    border-bottom: 1px solid #000000;
-  }
-  .o-style-medium {
-    border-bottom: 2px solid #000000;
-  }
-  .o-style-thick {
-    border-bottom: 3px solid #000000;
-  }
-  .o-style-dashed {
-    border-bottom: 1px dashed #000000;
-  }
-  .o-style-dotted {
-    border-bottom: 1px dotted #000000;
-  }
-  .o-dropdown-border-type {
-    &:not(.o-disabled):not(.active):hover {
-      background-color: ${BG_HOVER_COLOR};
-    }
-  }
-  .o-dropdown-border-check {
-    width: 20px;
-    font-size: 12px;
-  }
+
   .o-border-style-dropdown {
     background: #ffffff;
     padding: 4px;
     .o-dropdown-line {
-      .o-line-item.active {
-        background-color: rgba(0, 0, 0, 0.2);
+    }
+    .o-style-preview {
+      margin: 7px 5px 7px 5px;
+      width: 60px;
+      height: 5px;
+    }
+    .o-style-thin {
+      border-bottom: 1px solid #000000;
+    }
+    .o-style-medium {
+      border-bottom: 2px solid #000000;
+    }
+    .o-style-thick {
+      border-bottom: 3px solid #000000;
+    }
+    .o-style-dashed {
+      border-bottom: 1px dashed #000000;
+    }
+    .o-style-dotted {
+      border-bottom: 1px dotted #000000;
+    }
+    .o-dropdown-border-type {
+      cursor: pointer;
+      &:not(.o-disabled):not(.active):hover {
+        background-color: ${BUTTON_HOVER_BG};
       }
     }
-  }
-  .o-border-picker-button {
-    padding: 0px !important;
-    margin: 5px 0px 0px 0px !important;
-    height: 25px !important;
+    .o-dropdown-border-check {
+      width: 20px;
+      font-size: 12px;
+    }
+    .o-border-picker-button {
+      padding: 0px !important;
+      margin: 5px 0px 0px 0px !important;
+      height: 25px !important;
+    }
   }
 `;
 

@@ -5,15 +5,14 @@
       definition="props.definition"
       updateChart="props.updateChart">
       <t t-set-slot="general-extension">
-        <Section>
+        <Section class="'o-vertical-axis-selection'">
           <t t-set-slot="title">Vertical axis position</t>
-          <select
-            t-att-value="props.definition.verticalAxisPosition"
-            class="o-input o-chart-vertical-axis-position"
-            t-on-change="(ev) => this.updateVerticalAxisPosition(ev)">
-            <option value="left">Left</option>
-            <option value="right">Right</option>
-          </select>
+          <RadioSelection
+            choices="axisChoices"
+            selectedValue="props.definition.verticalAxisPosition"
+            name="'axis'"
+            onChange.bind="updateVerticalAxisPosition"
+          />
         </Section>
         <Section>
           <t t-set-slot="title">Legend position</t>
@@ -29,6 +28,7 @@
           </select>
         </Section>
         <Section>
+          <t t-set-slot="title">Values</t>
           <Checkbox
             name="'showValues'"
             label="showValuesLabel"
@@ -42,9 +42,10 @@
       <t t-set-slot="title">Waterfall design</t>
       <t t-set-slot="content">
         <Section class="'pt-0'">
-          <t t-set-slot="title">Waterfall options</t>
+          <t t-set-slot="title">Options</t>
           <t t-set="firstValueAsSubtotal">Use first value as subtotal</t>
           <Checkbox
+            className="'mb-2'"
             name="'firstValueAsSubtotal'"
             label="firstValueAsSubtotal"
             value="props.definition.firstValueAsSubtotal"
@@ -52,6 +53,7 @@
           />
           <t t-set="showSubTotalsLabel">Show subtotals at the end of series</t>
           <Checkbox
+            className="'mb-2'"
             name="'showSubTotals'"
             label="showSubTotalsLabel"
             value="props.definition.showSubTotals"
@@ -66,15 +68,15 @@
           />
         </Section>
         <Section>
-          <t t-set-slot="title">Waterfall colors</t>
-          <div class="o-waterfall-positive-color d-flex align-items-center mb-1">
+          <t t-set-slot="title">Colors</t>
+          <div class="o-waterfall-positive-color d-flex align-items-center mb-2">
             <RoundColorPicker
               currentColor="positiveValuesColor"
               onColorPicked="(color) => this.updateColor('positiveValuesColor', color)"
             />
             <span class="ps-2">Color of positive values</span>
           </div>
-          <div class="o-waterfall-negative-color d-flex align-items-center mb-1">
+          <div class="o-waterfall-negative-color d-flex align-items-center mb-2">
             <RoundColorPicker
               currentColor="negativeValuesColor"
               onColorPicked="(color) => this.updateColor('negativeValuesColor', color)"
@@ -92,7 +94,7 @@
       </t>
     </SidePanelCollapsible>
     <SidePanelCollapsible collapsedAtInit="true">
-      <t t-set-slot="title">Axis title</t>
+      <t t-set-slot="title">Axes</t>
       <t t-set-slot="content">
         <AxisDesignEditor
           axesList="axesList"

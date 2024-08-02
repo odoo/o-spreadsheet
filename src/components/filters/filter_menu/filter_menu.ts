@@ -76,30 +76,8 @@ const CSS = css/* scss */ `
     .o-filter-menu-buttons {
       margin-top: 9px;
 
-      .o-filter-menu-button {
-        border: 1px solid lightgrey;
-        padding: 6px 10px;
-        cursor: pointer;
-        border-radius: 4px;
-        font-weight: 500;
-        line-height: 16px;
-      }
-
-      .o-filter-menu-button-cancel {
-        background: white;
-        &:hover {
-          background-color: rgba(0, 0, 0, 0.08);
-        }
-      }
-
-      .o-filter-menu-button-primary {
-        background-color: #188038;
-        &:hover {
-          background-color: #1d9641;
-        }
-        color: white;
-        font-weight: bold;
-        margin-left: 10px;
+      .o-button {
+        height: 26px;
       }
     }
   }

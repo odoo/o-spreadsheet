@@ -4,17 +4,17 @@
       <t t-foreach="iconSets" t-as="iconSet" t-key="iconSet">
         <div class="o-cf-icon-line">
           <div
-            class="o-icon-picker-item"
+            class="o-icon-picker-item p-1"
             t-on-click="() => this.onIconClick(iconSets[iconSet].good)">
             <t t-call="o-spreadsheet-Icon.{{icons[iconSets[iconSet].good].template}}"/>
           </div>
           <div
-            class="o-icon-picker-item"
+            class="o-icon-picker-item p-1"
             t-on-click="() => this.onIconClick(iconSets[iconSet].neutral)">
             <t t-call="o-spreadsheet-Icon.{{icons[iconSets[iconSet].neutral].template}}"/>
           </div>
           <div
-            class="o-icon-picker-item"
+            class="o-icon-picker-item p-1"
             t-on-click="() => this.onIconClick(iconSets[iconSet].bad)">
             <t t-call="o-spreadsheet-Icon.{{icons[iconSets[iconSet].bad].template}}"/>
           </div>

@@ -21,9 +21,10 @@ exports[`Label range Can add options to the label range component 1`] = `
           class="position-relative w-100"
         >
           <input
-            class="w-100 o-optional"
+            class="o-input mb-2"
+            placeholder="e.g. A1:A2"
             spellcheck="false"
-            style="color: #000;"
+            style=""
             type="text"
           />
           
@@ -33,18 +34,17 @@ exports[`Label range Can add options to the label range component 1`] = `
       
       
       <div
-        class="o-selection-input d-flex flex-row"
+        class="d-flex flex-row w-100 o-selection-input"
       >
-        
         
         
       </div>
     </div>
     <label
-      class="o-checkbox"
+      class="o-checkbox d-flex align-items-center mt-2"
     >
       <input
-        class="align-middle"
+        class="me-2"
         name="my_option"
         type="checkbox"
       />
@@ -78,9 +78,10 @@ exports[`Label range Can render a label range component 1`] = `
           class="position-relative w-100"
         >
           <input
-            class="w-100 o-optional"
+            class="o-input mb-2"
+            placeholder="e.g. A1:A2"
             spellcheck="false"
-            style="color: #000;"
+            style=""
             type="text"
           />
           
@@ -90,9 +91,8 @@ exports[`Label range Can render a label range component 1`] = `
       
       
       <div
-        class="o-selection-input d-flex flex-row"
+        class="d-flex flex-row w-100 o-selection-input"
       >
-        
         
         
       </div>

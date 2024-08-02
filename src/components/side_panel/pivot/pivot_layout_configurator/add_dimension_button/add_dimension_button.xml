@@ -1,8 +1,6 @@
 <templates>
   <t t-name="o-spreadsheet-AddDimensionButton">
-    <span class="btn btn-sm btn-link add-dimension" t-on-click="togglePopover" t-ref="button">
-      Add
-    </span>
+    <button class="add-dimension o-button" t-on-click="togglePopover" t-ref="button">Add</button>
     <Popover t-if="popover.isOpen" t-props="popoverProps">
       <div
         class="p-2 bg-white border-bottom d-flex sticky-top align-items-baseline pivot-dimension-search">

@@ -11,16 +11,15 @@
           <input
             type="text"
             spellcheck="false"
+            placeholder="e.g. A1:A2"
             t-on-input="(ev) => this.onInputChanged(range.id, ev)"
             t-on-focus="() => this.focus(range.id)"
             t-on-keydown="onKeydown"
             t-att-value="range.xc"
             t-att-style="getColor(range)"
-            class="w-100"
+            class="o-input mb-2"
             t-att-class="{
               'o-focused' : range.isFocused,
-              'o-required': props.required,
-              'o-optional': !props.required,
               'o-invalid border-danger position-relative': isInvalid || !range.isValidRange,
               'text-decoration-underline': range.isFocused and state.mode === 'select-range'
             }"
@@ -34,32 +33,29 @@
           </span>
         </div>
         <button
-          class="o-btn border-0 bg-transparent fw-bold o-remove-selection"
+          class="o-btn border-0 bg-transparent fw-bold o-remove-selection o-text-muted pe-0"
           t-if="ranges.length > 1"
           t-on-click="() => this.removeInput(range.id)">
-          ✕
+          <t t-call="o-spreadsheet-Icon.TRASH_FILLED"/>
         </button>
       </div>
 
-      <div class="o-selection-input d-flex flex-row">
-        <button
-          class="o-btn-action bg-transparent fw-bold o-add-selection"
-          t-if="canAddRange"
-          t-on-click="addEmptyInput">
+      <div class="d-flex flex-row w-100 o-selection-input">
+        <button class="o-button o-add-selection" t-if="canAddRange" t-on-click="addEmptyInput">
           Add range
         </button>
-        <button
-          class="o-btn-action bg-transparent fw-bold o-selection-ko"
-          t-if="isResettable"
-          t-on-click="reset">
-          Reset
-        </button>
-        <button
-          class="o-btn-action bg-transparent fw-bold o-selection-ok"
-          t-if="isConfirmable"
-          t-on-click="confirm">
-          Confirm
-        </button>
+        <div class="ms-auto" t-if="store.hasFocus">
+          <button class="o-button o-selection-ko" t-if="isResettable" t-on-click="reset">
+            Reset
+          </button>
+          <button
+            class="o-button primary ms-2 o-selection-ok"
+            t-if="store.hasFocus"
+            t-att-disabled="!isConfirmable"
+            t-on-click="confirm">
+            Confirm
+          </button>
+        </div>
       </div>
     </div>
   </t>

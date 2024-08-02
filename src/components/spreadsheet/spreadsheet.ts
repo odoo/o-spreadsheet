@@ -10,22 +10,32 @@ import {
   useSubEnv,
 } from "@odoo/owl";
 import {
+  ACTION_COLOR,
+  ALERT_DANGER_BORDER,
   BACKGROUND_GRAY_COLOR,
-  BACKGROUND_HEADER_FILTER_COLOR,
-  BG_HOVER_COLOR,
   BOTTOMBAR_HEIGHT,
-  CF_ICON_EDGE_LENGTH,
+  BUTTON_ACTIVE_BG,
+  BUTTON_ACTIVE_TEXT_COLOR,
+  BUTTON_BG,
+  BUTTON_HOVER_BG,
+  BUTTON_HOVER_TEXT_COLOR,
   DISABLED_TEXT_COLOR,
-  FILTERS_COLOR,
+  GRAY_200,
+  GRAY_300,
+  GRAY_900,
   GRID_BORDER_COLOR,
   GROUP_LAYER_WIDTH,
   HEADER_GROUPING_BACKGROUND_COLOR,
-  ICONS_COLOR,
   MAXIMAL_FREEZABLE_RATIO,
   MENU_SEPARATOR_BORDER_WIDTH,
   MENU_SEPARATOR_PADDING,
+  PRIMARY_BUTTON_ACTIVE_BG,
+  PRIMARY_BUTTON_BG,
+  PRIMARY_BUTTON_HOVER_BG,
   SCROLLBAR_WIDTH,
   SEPARATOR_COLOR,
+  TEXT_BODY,
+  TEXT_BODY_MUTED,
   TOPBAR_HEIGHT,
 } from "../../constants";
 import { batched } from "../../helpers";
@@ -59,24 +69,24 @@ import { instantiateClipboard } from "./../../helpers/clipboard/navigator_clipbo
 // SpreadSheet
 // -----------------------------------------------------------------------------
 
-// If we ever change these colors, make sure the filter tool stays green to match the icon in the grid
-const ACTIVE_BG_COLOR = BACKGROUND_HEADER_FILTER_COLOR;
-const ACTIVE_FONT_COLOR = FILTERS_COLOR;
-const HOVERED_BG_COLOR = BG_HOVER_COLOR;
-const HOVERED_FONT_COLOR = "#000";
+const CARET_DOWN_SVG = /*xml*/ `
+<svg xmlns='http://www.w3.org/2000/svg' width='7' height='4' viewBox='0 0 7 4'>
+  <polygon fill='%23374151' points='3.5 4 7 0 0 0'/>
+</svg>
+`;
 
 css/* scss */ `
   .o-spreadsheet {
     position: relative;
     display: grid;
-    color: #333;
+    color: ${TEXT_BODY};
     font-size: 14px;
 
     input {
       background-color: white;
     }
     .text-muted {
-      color: grey !important;
+      color: ${TEXT_BODY_MUTED} !important;
     }
     .o-disabled {
       opacity: 0.4;
@@ -101,20 +111,20 @@ css/* scss */ `
       border-radius: 2px;
       cursor: pointer;
       .o-icon {
-        color: ${ICONS_COLOR};
+        color: ${TEXT_BODY};
       }
       &:not(.o-disabled):not(.active):hover {
-        background-color: ${HOVERED_BG_COLOR};
-        color: ${HOVERED_FONT_COLOR};
+        background-color: ${BUTTON_HOVER_BG};
+        color: ${BUTTON_HOVER_TEXT_COLOR};
         .o-icon {
-          color: ${HOVERED_FONT_COLOR};
+          color: ${BUTTON_HOVER_TEXT_COLOR};
         }
       }
       &.active {
-        background-color: ${ACTIVE_BG_COLOR};
-        color: ${ACTIVE_FONT_COLOR};
+        background-color: ${BUTTON_ACTIVE_BG};
+        color: ${BUTTON_ACTIVE_TEXT_COLOR};
         .o-icon {
-          color: ${ACTIVE_FONT_COLOR};
+          color: ${BUTTON_ACTIVE_TEXT_COLOR};
         }
       }
     }
@@ -143,16 +153,62 @@ css/* scss */ `
         border-left: 1px solid ${GRID_BORDER_COLOR};
       }
     }
+
+    .o-input {
+      min-width: 0px;
+      padding: 1px 0;
+      box-sizing: border-box;
+      width: 100%;
+      outline: none;
+      border-color: ${GRAY_300};
+      color: ${GRAY_900};
+
+      &::placeholder {
+        opacity: 0.5;
+      }
+      &:focus {
+        border-color: ${ACTION_COLOR};
+      }
+    }
+
+    select.o-input {
+      cursor: pointer;
+      border-width: 0 0 1px 0;
+      padding: 1px 6px 1px 0px;
+
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background: transparent url("data:image/svg+xml,${encodeURIComponent(CARET_DOWN_SVG)}")
+        no-repeat right center;
+      text-overflow: ellipsis;
+
+      &:disabled {
+        color: ${DISABLED_TEXT_COLOR};
+        opacity: 0.4;
+        cursor: default;
+      }
+    }
+
+    .o-input[type="text"] {
+      border-width: 0 0 1px 0;
+    }
+
+    .o-input[type="number"],
+    .o-number-input {
+      border-width: 0 0 1px 0;
+      /* Remove number input arrows */
+      appearance: textfield;
+      &::-webkit-outer-spin-button,
+      &::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+    }
   }
 
   .o-two-columns {
     grid-column: 1 / 3;
-  }
-
-  .o-cf-icon {
-    width: ${CF_ICON_EDGE_LENGTH}px;
-    height: ${CF_ICON_EDGE_LENGTH}px;
-    vertical-align: sub;
   }
 
   .o-text-icon {
@@ -195,58 +251,55 @@ css/* scss */ `
 
   .o-button {
     border: 1px solid;
-    padding: 0px 20px 0px 20px;
     border-radius: 4px;
     font-weight: 500;
     font-size: 14px;
     height: 30px;
     line-height: 16px;
-    margin-right: 8px;
-
-    &:not(:hover) {
-      background-color: transparent;
-    }
-
-    &:enabled {
-      cursor: pointer;
-    }
+    flex-grow: 1;
+    background-color: ${BUTTON_BG};
+    border: 1px solid ${GRAY_200};
+    color: ${TEXT_BODY};
 
     &:disabled {
       color: ${DISABLED_TEXT_COLOR};
     }
 
-    &:last-child {
-      margin-right: 0px;
-    }
-
-    &.o-button-grey {
-      border-color: lightgrey;
-      background: #ffffff;
-      color: #333;
+    &.primary {
+      background-color: ${PRIMARY_BUTTON_BG};
+      border-color: ${PRIMARY_BUTTON_BG};
+      color: #fff;
       &:hover:enabled {
-        background-color: rgba(0, 0, 0, 0.08);
+        color: #fff;
+        background-color: ${PRIMARY_BUTTON_HOVER_BG};
+      }
+      &:active:enabled {
+        background-color: ${PRIMARY_BUTTON_ACTIVE_BG};
+        color: ${PRIMARY_BUTTON_BG};
+      }
+      &.o-disabled,
+      &:disabled {
+        opacity: 0.5;
       }
     }
-  }
 
-  .o-input {
-    color: #666666;
-    border-radius: 4px;
-    min-width: 0px;
-    padding: 4px 6px;
-    box-sizing: border-box;
-    line-height: 1;
-    width: 100%;
-    height: 28px;
-  }
+    &:hover:enabled {
+      color: ${BUTTON_HOVER_TEXT_COLOR};
+      background-color: ${BUTTON_HOVER_BG};
+    }
+    &:active:enabled {
+      color: ${BUTTON_ACTIVE_TEXT_COLOR};
+      background-color: ${BUTTON_ACTIVE_BG};
+    }
 
-  .o-number-input {
-    /* Remove number input arrows */
-    appearance: textfield;
-    &::-webkit-outer-spin-button,
-    &::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
+    &.o-disabled,
+    &:disabled {
+      opacity: 0.8;
+    }
+
+    &.o-button-danger:hover {
+      color: #ffffff;
+      background: ${ALERT_DANGER_BORDER};
     }
   }
 `;

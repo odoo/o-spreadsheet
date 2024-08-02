@@ -5,7 +5,7 @@
         <t t-set="granularity" t-value="props.dimension.granularity"/>
         <div class="pivot-dim-operator-label">Granularity</div>
         <select
-          class="o_input flex-grow-1"
+          class="o-input flex-grow-1"
           t-on-change="(ev) => props.onUpdated(props.dimension, ev.target.value)">
           <option
             t-foreach="props.allGranularities"

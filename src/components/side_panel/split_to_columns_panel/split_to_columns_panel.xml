@@ -3,7 +3,7 @@
     <div class="o-split-to-cols-panel">
       <Section>
         <t t-set-slot="title">Separator</t>
-        <select class="o-input" t-on-change="(ev) => this.onSeparatorChange(ev.target.value)">
+        <select class="o-input mb-3" t-on-change="(ev) => this.onSeparatorChange(ev.target.value)">
           <option
             t-foreach="separators"
             t-as="separator"
@@ -15,7 +15,7 @@
         </select>
 
         <input
-          class="o-input o-required mt-3"
+          class="o-input mb-3"
           type="text"
           t-if="state.separatorValue === 'custom'"
           t-att-value="state.customSeparator"
@@ -29,16 +29,18 @@
           label="addColumnsLabel"
           onChange.bind="updateAddNewColumnsCheckbox"
         />
-
+      </Section>
+      <Section>
         <div class="o-sidePanelButtons">
           <button
-            class="o-button o-button-grey"
+            class="o-button primary"
             t-att-class="{'o-disabled': isConfirmDisabled}"
             t-on-click="confirm">
             Confirm
           </button>
         </div>
-
+      </Section>
+      <Section t-if="errorMessages.length || warningMessages.length" class="'pb-0 pt-2'">
         <ValidationMessages messages="errorMessages" msgType="'error'"/>
         <ValidationMessages messages="warningMessages" msgType="'warning'"/>
       </Section>

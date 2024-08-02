@@ -1,4 +1,5 @@
 import { Component, useState } from "@odoo/owl";
+import { GRAY_300 } from "../../../constants";
 import { SpreadsheetChildEnv } from "../../../types";
 import { Table } from "../../../types/table";
 import { css } from "../../helpers";
@@ -20,11 +21,11 @@ interface TableStylePickerState {
 css/* scss */ `
   .o-table-style-picker {
     box-sizing: border-box;
-    border: 1px solid #ddd;
+    border: 1px solid ${GRAY_300};
     border-radius: 3px;
 
     .o-table-style-picker-arrow {
-      border-left: 1px solid #ddd;
+      border-left: 1px solid ${GRAY_300};
 
       &:hover {
         background: #f5f5f5;
@@ -33,12 +34,12 @@ css/* scss */ `
     }
 
     .o-table-style-list-item {
-      padding: 3px 2px;
-      margin: 2px 1px;
+      padding: 5px 6px;
+      margin: 5px 2px;
 
       .o-table-style-picker-preview {
-        width: 61px;
-        height: 46px;
+        width: 51px;
+        height: 36px;
       }
     }
   }

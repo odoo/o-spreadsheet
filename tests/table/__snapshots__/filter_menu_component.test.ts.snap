@@ -124,16 +124,16 @@ exports[`Filter menu component Filter Tests Filter menu is correctly rendered 1`
   <div
     class="o-filter-menu-buttons d-flex justify-content-end"
   >
-    <div
-      class="o-filter-menu-button o-filter-menu-button-cancel"
+    <button
+      class="o-button o-filter-menu-cancel me-2"
     >
-       Cancel 
-    </div>
-    <div
-      class="o-filter-menu-button o-filter-menu-button-primary"
+      Cancel
+    </button>
+    <button
+      class="o-button primary o-filter-menu-confirm"
     >
-       Confirm 
-    </div>
+      Confirm
+    </button>
   </div>
 </div>
 `;

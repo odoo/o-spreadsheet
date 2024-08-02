@@ -1,5 +1,12 @@
 import { Component, useExternalListener, useState } from "@odoo/owl";
-import { DEFAULT_COLOR_SCALE_MIDPOINT_COLOR } from "../../../../constants";
+import {
+  ACTION_COLOR,
+  BADGE_SELECTED_COLOR,
+  CF_ICON_EDGE_LENGTH,
+  DEFAULT_COLOR_SCALE_MIDPOINT_COLOR,
+  GRAY_200,
+  GRAY_300,
+} from "../../../../constants";
 import { colorNumberString, rangeReference } from "../../../../helpers";
 import { canonicalizeCFRule } from "../../../../helpers/locale";
 import { cycleFixedReference } from "../../../../helpers/reference_type";
@@ -23,167 +30,105 @@ import { IconPicker } from "../../../icon_picker/icon_picker";
 import { ICONS, ICON_SETS } from "../../../icons/icons";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { CellIsOperators, CfTerms } from "../../../translations_terms";
+import { ValidationMessages } from "../../../validation_messages/validation_messages";
+import { BadgeSelection } from "../../components/badge_selection/badge_selection";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";
 import { ConditionalFormatPreviewList } from "../cf_preview_list/cf_preview_list";
 
 css/* scss */ `
-  label {
-    vertical-align: middle;
-  }
-  .o_cf_radio_item {
-    margin-right: 30px;
-  }
-  .radio input:checked {
-    color: #e9ecef;
-    border-color: #00a09d;
-    background-color: #00a09d;
-  }
-  .o-cf-editor {
-    border-bottom: solid;
-    border-color: lightgrey;
-  }
-  .o-cf {
-    .o-cf-type-selector {
-      *,
-      ::after,
-      ::before {
-        box-sizing: border-box;
-      }
-      margin-top: 10px;
-      display: flex;
-      .form-check {
-        padding-left: 1rem;
-      }
-    }
-    .o-section-subtitle:first-child {
-      margin-top: 0px;
-    }
-    .o-cf-ruleEditor {
-      font-size: 12px;
-      line-height: 1.5;
-      .o-selection-cf {
-        margin-bottom: 9px;
-      }
-      .o-cell-content {
-        font-size: 12px;
-        font-weight: 500;
-        padding: 0 12px;
-        margin: 0;
-        line-height: 35px;
-      }
-    }
-    .o-cf-error {
-      color: red;
-      margin-top: 10px;
-    }
-    .o-input {
-      border-width: 1px;
-    }
-  }
-  .o-cf-cell-is-rule {
-    .o-cf-preview-line {
-      border: 1px solid darkgrey;
+  .o-cf-ruleEditor {
+    .o-cf-preview-display {
+      border: 1px solid ${GRAY_300};
       padding: 10px;
     }
-    .o-cell-is-operator {
-      margin-bottom: 5px;
-    }
-    .o-cell-is-value {
-      margin-bottom: 5px;
-    }
-    .o-color-picker-widget .o-color-picker-button {
-      pointer-events: all;
-      cursor: default;
-    }
-  }
-  .o-cf-color-scale-editor {
-    .o-threshold {
-      select {
-        max-width: 200px;
-      }
-      .o-threshold-value {
-        margin-left: 6px;
-        flex-grow: 1;
-        flex-basis: 60%;
-        min-width: 0px; // input overflows in Firefox otherwise
-      }
-      .o-threshold-value input:disabled {
-        background-color: #edebed;
+
+    .o-cf-cell-is-rule {
+      .o-divider {
+        border-right: 1px solid ${GRAY_300};
+        margin: 4px 6px;
       }
     }
-    .o-cf-preview-gradient {
-      border: 1px solid darkgrey;
-      padding: 10px;
-      border-radius: 4px;
-    }
-  }
-  .o-cf-iconset-rule {
-    font-size: 12;
-    .o-cf-iconsets {
-      gap: 11px;
-      .o-cf-iconset {
-        border: 1px solid #dadce0;
-        border-radius: 4px;
-        display: inline-flex;
-        padding: 5px 8px;
-        width: 95px;
-        box-sizing: border-box;
-        cursor: pointer;
-        justify-content: space-between;
-        .o-cf-icon {
-          display: inline;
-          margin-left: 3px;
-          margin-right: 3px;
+    .o-cf-color-scale-editor {
+      .o-threshold {
+        .o-select-with-input {
+          max-width: 150px;
         }
-        svg {
-          vertical-align: baseline;
+        .o-threshold-value {
+          flex-grow: 1;
+          flex-basis: 60%;
+          min-width: 0px; // input overflows in Firefox otherwise
+        }
+        .o-threshold-value input:disabled {
+          background-color: #edebed;
         }
       }
-      .o-cf-iconset:hover {
-        background-color: rgba(0, 0, 0, 0.08);
-      }
     }
-    .o-inflection {
-      .o-cf-icon-button {
-        display: inline-block;
-        border: 1px solid #dadce0;
+    .o-cf-iconset-rule {
+      .o-cf-clickable-icon {
+        border: 1px solid ${GRAY_200};
         border-radius: 4px;
         cursor: pointer;
-        padding: 1px 2px;
+        &:hover {
+          border-color: ${ACTION_COLOR};
+          background-color: ${BADGE_SELECTED_COLOR};
+        }
+        .o-icon {
+          width: ${CF_ICON_EDGE_LENGTH}px;
+          height: ${CF_ICON_EDGE_LENGTH}px;
+        }
       }
-      .o-cf-icon-button:hover {
-        background-color: rgba(0, 0, 0, 0.08);
+      .o-cf-iconsets {
+        gap: 11px;
+        .o-cf-iconset {
+          padding: 7px 8px;
+          width: 95px;
+          .o-icon {
+            margin: 0 3px;
+          }
+          svg {
+            vertical-align: baseline;
+          }
+        }
       }
-      table {
-        margin-top: 6px;
-        display: table;
-        text-align: left;
-        font-size: 12px;
-        line-height: 18px;
-        width: 100%;
+      .o-inflection {
+        .o-cf-icon-button {
+          padding: 4px 10px;
+        }
+        table {
+          font-size: 13px;
+          td {
+            padding: 6px 0;
+          }
+
+          th.o-cf-iconset-icons {
+            width: 25px;
+          }
+          th.o-cf-iconset-text {
+            width: 82px;
+          }
+          th.o-cf-iconset-operator {
+            width: 20px;
+          }
+          .o-cf-iconset-type {
+            min-width: 80px;
+          }
+        }
       }
-      th.o-cf-iconset-icons {
-        width: 25px;
-      }
-      th.o-cf-iconset-text {
-        width: 82px;
-      }
-      th.o-cf-iconset-operator {
-        width: 40px;
-      }
-      .o-cf-iconset-type {
-        min-width: 80px;
+
+      .o-cf-iconset-reverse {
+        font-size: 14px;
+        .o-icon {
+          font-size: 17px;
+        }
       }
     }
-    .o-cf-iconset-reverse {
-      margin-bottom: 6px;
-      margin-top: 6px;
-      .o-cf-label {
-        display: inline-block;
-        vertical-align: bottom;
-        margin-bottom: 2px;
-      }
+
+    .o-icon.arrow-down {
+      color: #e06666;
+    }
+    .o-icon.arrow-up {
+      color: #6aa84f;
     }
   }
 `;
@@ -232,6 +177,8 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     Section,
     RoundColorPicker,
     StandaloneComposer: StandaloneComposer,
+    BadgeSelection,
+    ValidationMessages,
   };
 
   icons = ICONS;
@@ -279,8 +226,16 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
     return this.state.errors.includes(CommandResult.EmptyRange);
   }
 
-  errorMessage(error: CancelledReason): string {
-    return CfTerms.Errors[error] || CfTerms.Errors.Unexpected;
+  get errorMessages(): string[] {
+    return this.state.errors.map((error) => CfTerms.Errors[error] || CfTerms.Errors.Unexpected);
+  }
+
+  get cfTypesValues() {
+    return [
+      { value: "CellIsRule", label: _t("Single color") },
+      { value: "ColorScaleRule", label: _t("Color scale") },
+      { value: "IconSetRule", label: _t("Icon set") },
+    ];
   }
 
   saveConditionalFormat() {

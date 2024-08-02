@@ -35,15 +35,4 @@ describe("Label range", () => {
     });
     expect(fixture).toMatchSnapshot();
   });
-
-  test("Can make the label range required", async () => {
-    await mountLabelRange({
-      range: "A1:B1",
-      isInvalid: false,
-      onSelectionChanged: () => {},
-      onSelectionConfirmed: () => {},
-      required: true,
-    });
-    expect(fixture.querySelector(".o-selection-input input")?.classList).toContain("o-required");
-  });
 });

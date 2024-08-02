@@ -1,5 +1,5 @@
 import { Component, useEffect } from "@odoo/owl";
-import { BACKGROUND_HEADER_COLOR, FILTERS_COLOR } from "../../../constants";
+import { GRAY_300, TEXT_BODY, TEXT_BODY_MUTED } from "../../../constants";
 import { sidePanelRegistry } from "../../../registries/side_panel_registry";
 import { Store, useStore } from "../../../store_engine";
 import { SpreadsheetChildEnv } from "../../../types";
@@ -14,8 +14,20 @@ css/* scss */ `
     flex-direction: column;
     overflow-x: hidden;
     background-color: white;
-    border: 1px solid darkgray;
+    border: solid ${GRAY_300};
+    border-width: 1px 0 0 1px;
     user-select: none;
+    color: ${TEXT_BODY};
+
+    .o-text-muted {
+      color: ${TEXT_BODY_MUTED};
+    }
+
+    .o-heading-3 {
+      line-height: 20px;
+      font-size: 16px;
+      font-weight: 600;
+    }
 
     .btn-link {
       text-decoration: none;
@@ -27,20 +39,12 @@ css/* scss */ `
     }
 
     .o-sidePanelHeader {
-      padding: 6px;
-      height: 30px;
-      background-color: ${BACKGROUND_HEADER_COLOR};
+      padding: 8px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid darkgray;
-      border-top: 1px solid darkgray;
-      font-weight: bold;
-      .o-sidePanelTitle {
-        font-weight: bold;
-        padding: 5px 10px;
-        color: dimgrey;
-      }
+      border-bottom: 1px solid ${GRAY_300};
+
       .o-sidePanelClose {
         padding: 5px 10px;
         cursor: pointer;
@@ -62,15 +66,13 @@ css/* scss */ `
         padding: 16px;
 
         .o-section-title {
-          font-weight: bold;
-          color: dimgrey;
+          font-weight: 500;
           margin-bottom: 5px;
         }
 
         .o-section-subtitle {
-          color: dimgrey;
           font-weight: 500;
-          font-size: 12px;
+          font-size: 13px;
           line-height: 14px;
           margin: 8px 0 4px 0;
         }
@@ -89,13 +91,13 @@ css/* scss */ `
       }
 
       .o-sidePanel-composer {
-        color: #666666; /* Match o-input color */
+        color: ${TEXT_BODY};
       }
     }
 
     .o-sidePanelButtons {
-      padding: 16px;
-      text-align: right;
+      display: flex;
+      gap: 8px;
     }
 
     .o-sidePanel-btn-link {
@@ -110,49 +112,9 @@ css/* scss */ `
       }
     }
 
-    .o-button.primary:not(.o-disabled) {
-      background-color: ${FILTERS_COLOR};
-      color: white;
-      &:hover:enabled {
-        opacity: 0.8;
-        background-color: ${FILTERS_COLOR};
-      }
-    }
-
-    input.o-required,
-    select.o-required {
-      border-color: #4c4c4c;
-    }
-    input.o-optional,
-    select.o-optional {
-      border: 1px solid #a9a9a9;
-    }
     .o-invalid {
       border-width: 2px;
       border-color: red;
-    }
-    select.o-input {
-      background-color: white;
-      text-align: left;
-    }
-
-    .o-sidePanel-tools {
-      color: #333;
-      font-size: 13px;
-      cursor: default;
-      display: flex;
-
-      .o-tool {
-        display: flex;
-        align-items: center;
-        margin: 2px;
-        padding: 0 3px;
-        border-radius: 2px;
-
-        &:hover {
-          background-color: rgba(0, 0, 0, 0.08);
-        }
-      }
     }
 
     .o-sidePanel-handle-container {

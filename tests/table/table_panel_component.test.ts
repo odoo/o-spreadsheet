@@ -147,10 +147,10 @@ describe("Table side panel", () => {
     createTable(model, "D1:D2");
     await simulateClick(".o-selection input");
     await setInputValueAndTrigger(".o-selection input", "D1:D5");
-    expect(fixture.querySelector(".o-side-panel-error")).not.toBeNull();
+    expect(fixture.querySelector(".o-validation-error")).not.toBeNull();
 
     await click(fixture, ".o-selection .o-selection-ok");
-    expect(fixture.querySelector(".o-side-panel-error")).toBeNull();
+    expect(fixture.querySelector(".o-validation-error")).toBeNull();
     expect(fixture.querySelector<HTMLInputElement>(".o-selection input")!.value).toBe("A1:C3");
   });
 

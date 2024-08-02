@@ -15,17 +15,12 @@ jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 
 const selectors = {
   closeSidepanel: ".o-sidePanel .o-sidePanelClose",
-  inputSearch:
-    ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-input-search-container input.o-input-with-count",
-  inputReplace: ".o-sidePanel .o-find-and-replace .o-section:nth-child(3) input",
-  previousButton:
-    ".o-sidePanel .o-find-and-replace .o-sidePanelButtons:nth-of-type(2) .o-button:nth-child(1)",
-  nextButton:
-    ".o-sidePanel .o-find-and-replace .o-sidePanelButtons:nth-of-type(2) .o-button:nth-child(2)",
-  replaceButton:
-    ".o-sidePanel .o-find-and-replace .o-sidePanelButtons:nth-of-type(4) .o-button:nth-child(1)",
-  replaceAllButton:
-    ".o-sidePanel .o-find-and-replace .o-sidePanelButtons:nth-of-type(4) .o-button:nth-child(2)",
+  inputSearch: ".o-sidePanel .o-find-and-replace .o-search",
+  inputReplace: ".o-sidePanel .o-find-and-replace input.o-replace",
+  previousButton: ".o-sidePanel .o-find-and-replace .arrow-up",
+  nextButton: ".o-sidePanel .o-find-and-replace .arrow-down",
+  replaceButton: ".o-sidePanel .o-find-and-replace button.o-replace",
+  replaceAllButton: ".o-sidePanel .o-find-and-replace button.o-replace-all",
   checkBoxMatchingCase:
     ".o-sidePanel .o-find-and-replace .o-section:nth-child(1) .o-checkbox:nth-child(1) input",
   checkBoxExactMatch:
@@ -57,8 +52,8 @@ async function inputSearchValue(value: string) {
 }
 
 function getMatchesCountContent() {
-  const countDivs = document.querySelectorAll(selectors.matchesCount + " div");
-  return [...countDivs].map((div) => div.textContent);
+  const countSpans = document.querySelectorAll(selectors.matchesCount + " span");
+  return [...countSpans].map((div) => div.textContent).filter((text) => text !== "");
 }
 
 function getMatchesCount() {
@@ -70,7 +65,7 @@ function getMatchesCount() {
   }
 
   const countAllSheets = parseInt(counts.find((text) => text?.includes("in all sheets")) || "0");
-  const countCurrentSheet = parseInt(counts.find((text) => text?.includes("in sheet")) || "0");
+  const countCurrentSheet = parseInt(counts.find((text) => text?.includes("in")) || "0");
   const countSpecificRange = parseInt(counts.find((text) => text?.includes("in range")) || "0");
 
   return {
@@ -105,12 +100,8 @@ describe("find and replace sidePanel component", () => {
 
     test("disable next/previous/replace/replaceAll if searching on empty string", async () => {
       await setInputValueAndTrigger(selectors.inputSearch, "");
-      expect((document.querySelector(selectors.previousButton) as HTMLButtonElement).disabled).toBe(
-        true
-      );
-      expect((document.querySelector(selectors.nextButton) as HTMLButtonElement).disabled).toBe(
-        true
-      );
+      expect(document.querySelector(selectors.previousButton)).toBe(null);
+      expect(document.querySelector(selectors.nextButton)).toBe(null);
       expect((document.querySelector(selectors.replaceButton) as HTMLButtonElement).disabled).toBe(
         true
       );
@@ -426,18 +417,18 @@ describe("find and replace sidePanel component", () => {
       expect(fixture.querySelector(".o-matches-count")).toBeNull();
       expect(getMatchesCountContent()).toEqual([]);
       await inputSearchValue("hello");
-      expect(getMatchesCountContent()).toEqual(["3 in sheet Sheet1", "5 in all sheets"]);
+      expect(getMatchesCountContent()).toEqual(["3 matches in Sheet1", "5 matches in all sheets"]);
       changeSearchScope("specificRange");
       await nextTick();
-      expect(getMatchesCountContent()).toEqual(["3 in sheet Sheet1", "5 in all sheets"]);
+      expect(getMatchesCountContent()).toEqual(["3 matches in Sheet1", "5 matches in all sheets"]);
       await simulateClick(selectors.searchRange);
       setInputValueAndTrigger(selectors.searchRange, "A1:B2");
       await nextTick();
       await click(fixture, selectors.confirmSearchRange);
       expect(getMatchesCountContent()).toEqual([
-        "2 in range A1:B2 of sheet Sheet1",
-        "3 in sheet Sheet1",
-        "5 in all sheets",
+        "2 matches in range A1:B2 of Sheet1",
+        "3 matches in Sheet1",
+        "5 matches in all sheets",
       ]);
     });
   });

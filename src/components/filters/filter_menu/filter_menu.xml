@@ -51,12 +51,8 @@
         </div>
       </div>
       <div class="o-filter-menu-buttons d-flex justify-content-end">
-        <div class="o-filter-menu-button o-filter-menu-button-cancel" t-on-click="cancel">
-          Cancel
-        </div>
-        <div class="o-filter-menu-button o-filter-menu-button-primary" t-on-click="confirm">
-          Confirm
-        </div>
+        <button class="o-button o-filter-menu-cancel me-2" t-on-click="cancel">Cancel</button>
+        <button class="o-button primary o-filter-menu-confirm" t-on-click="confirm">Confirm</button>
       </div>
     </div>
   </t>

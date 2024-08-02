@@ -55,19 +55,20 @@ const selectors = {
       valueInput: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-cell-is-value .o-composer",
       secondValueInput:
         ".o-cf .o-cf-ruleEditor .o-cf-editor .o-cell-is-value.o-secondary-value .o-composer",
-      bold: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-sidePanel-tools div.o-tool[title='Bold']",
-      italic: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-sidePanel-tools div.o-tool[title='Italic']",
+      bold: ".o-cf .o-cf-ruleEditor .o-cf-editor .o-sidePanel-tools div.o-menu-item-button[title='Bold']",
+      italic:
+        ".o-cf .o-cf-ruleEditor .o-cf-editor .o-sidePanel-tools div.o-menu-item-button[title='Italic']",
       underline:
-        ".o-cf .o-cf-ruleEditor .o-cf-editor .o-sidePanel-tools div.o-tool[title='Underline']",
+        ".o-cf .o-cf-ruleEditor .o-cf-editor .o-sidePanel-tools div.o-menu-item-button[title='Underline']",
       strikethrough:
-        ".o-cf .o-cf-ruleEditor .o-cf-editor .o-sidePanel-tools div.o-tool[title='Strikethrough']",
+        ".o-cf .o-cf-ruleEditor .o-cf-editor .o-sidePanel-tools div.o-menu-item-button[title='Strikethrough']",
       colorDropdown:
         ".o-cf .o-cf-ruleEditor .o-cf-editor .o-color-picker-widget .o-color-picker-button",
       iconSetRule: {
         container: ".o-cf .o-cf-iconset-rule",
         iconsets: ".o-cf .o-cf-iconset-rule .o-cf-iconsets .o-cf-iconset",
         inflextion: ".o-cf .o-cf-iconset-rule .o-inflection",
-        icons: ".o-cf .o-cf-iconset-rule .o-inflection .o-cf-icon",
+        icons: ".o-cf .o-cf-iconset-rule .o-inflection .o-icon",
         reverse: ".o-cf .o-cf-iconset-rule .o-cf-iconset-reverse",
         rows: ".o-cf .o-cf-iconset-rule .o-inflection tr",
       },
@@ -100,14 +101,14 @@ const selectors = {
     colorPickerOrange: ".o-color-picker div[data-color='#FF9900']",
     colorPickerYellow: ".o-color-picker div[data-color='#FFFF00']",
   },
-  cfTabSelector: ".o-cf-type-selector .o_form_label",
+  cfTabSelector: ".o-cf-type-selector .o-badge-selection button",
   buttonSave: ".o-sidePanelButtons .o-cf-save",
   buttonDelete: ".o-cf-delete-button",
   buttonCancel: ".o-sidePanelButtons .o-cf-cancel",
   buttonAdd: ".o-cf-add",
   buttonReoder: ".o-cf-reorder",
   buttonExitReorder: ".o-cf-exit-reorder",
-  error: ".o-cf-error",
+  error: ".o-validation-error",
   closePanel: ".o-sidePanelClose",
 };
 
@@ -189,7 +190,7 @@ describe("UI of conditional formats", () => {
       expect(previews[1].querySelector(selectors.description.range)!.textContent).toBe("B1:B5");
       expect(
         window.getComputedStyle(previews[1].querySelector(selectors.previewImage)!).backgroundColor
-      ).toBe("");
+      ).toBeSameColorAs("#fff");
       // TODO VSC: see how we can test the gradient background image
     });
 
@@ -299,7 +300,7 @@ describe("UI of conditional formats", () => {
       await click(fixture.querySelectorAll(selectors.listPreview)[0]);
       await nextTick();
 
-      const previewLine = document.querySelector(".o-cf-preview-line")! as HTMLDivElement;
+      const previewLine = document.querySelector(".o-cf-preview-display")! as HTMLDivElement;
       const style = window.getComputedStyle(previewLine);
       expect(previewLine.textContent).toBe("Preview text");
       expect(toHex(style.color)).toBe("#FFFF00");
@@ -374,7 +375,7 @@ describe("UI of conditional formats", () => {
       await click(fixture.querySelectorAll(selectors.listPreview)[0]);
       await click(fixture.querySelectorAll(selectors.ruleEditor.editor.colorDropdown)[0]);
       expect(fixture.querySelector(".o-color-picker")).toBeTruthy();
-      await click(fixture, ".o-cf-preview-line");
+      await click(fixture, ".o-cf-preview-display");
       expect(fixture.querySelector(".o-color-picker")).toBeFalsy();
     });
 
@@ -762,9 +763,7 @@ describe("UI of conditional formats", () => {
     expect(fixture.querySelector(selectors.colorScaleEditor.minValue)?.className).toContain(
       "o-invalid"
     );
-    expect(fixture.querySelector(selectors.colorScaleEditor.midValue)?.className).not.toContain(
-      "o-invalid"
-    );
+    expect(fixture.querySelector(selectors.colorScaleEditor.midValue)).toBe(null);
     expect(fixture.querySelector(selectors.colorScaleEditor.maxValue)?.className).not.toContain(
       "o-invalid"
     );
@@ -866,9 +865,7 @@ describe("UI of conditional formats", () => {
       expect(fixture.querySelector(selectors.colorScaleEditor.minValue)?.className).toContain(
         "o-invalid"
       );
-      expect(fixture.querySelector(selectors.colorScaleEditor.midValue)?.className).not.toContain(
-        "o-invalid"
-      );
+      expect(fixture.querySelector(selectors.colorScaleEditor.midValue)).toBe(null);
       expect(fixture.querySelector(selectors.colorScaleEditor.maxValue)?.className).not.toContain(
         "o-invalid"
       );
@@ -933,9 +930,7 @@ describe("UI of conditional formats", () => {
       expect(fixture.querySelector(selectors.colorScaleEditor.minValue)?.className).not.toContain(
         "o-invalid"
       );
-      expect(fixture.querySelector(selectors.colorScaleEditor.midValue)?.className).not.toContain(
-        "o-invalid"
-      );
+      expect(fixture.querySelector(selectors.colorScaleEditor.midValue)).toBe(null);
       expect(fixture.querySelector(selectors.colorScaleEditor.maxValue)?.className).toContain(
         "o-invalid"
       );
@@ -962,7 +957,7 @@ describe("UI of conditional formats", () => {
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
     expect(errorMessages()).toEqual(["Invalid Minpoint formula"]);
     expect(isInputInvalid(selectors.colorScaleEditor.minValueComposer)).toBe(true);
-    expect(isInputInvalid(selectors.colorScaleEditor.midValue)).toBe(false);
+    expect(fixture.querySelector(selectors.colorScaleEditor.midValue)).toBe(null);
     expect(isInputInvalid(selectors.colorScaleEditor.maxValueComposer)).toBe(false);
   });
 
@@ -1059,16 +1054,10 @@ describe("UI of conditional formats", () => {
     expect(errorMessages()).toEqual(["Invalid Maxpoint formula"]);
   });
 
-  test("If there is no midpoint in a color scale, the input and color picker are invisible", async () => {
+  test("If there is no midpoint in a color scale, the color picker is invisible", async () => {
     await click(fixture, selectors.buttonAdd);
     await click(fixture.querySelectorAll(selectors.cfTabSelector)[1]);
 
-    expect(fixture.querySelector<HTMLInputElement>(selectors.colorScaleEditor.midType)?.value).toBe(
-      "none"
-    );
-    expect(fixture.querySelector(selectors.colorScaleEditor.midValue)?.classList).toContain(
-      "invisible"
-    );
     expect(
       fixture.querySelector(selectors.colorScaleEditor.midColor)?.parentElement?.classList
     ).toContain("invisible");
@@ -1089,21 +1078,21 @@ describe("UI of conditional formats", () => {
 
       await click(fixture.querySelectorAll(selectors.cfTabSelector)[2]);
       let icons = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.icons);
-      expect(icons[0].classList.value).toBe("o-cf-icon arrow-up");
-      expect(icons[1].classList.value).toBe("o-cf-icon arrow-right");
-      expect(icons[2].classList.value).toBe("o-cf-icon arrow-down");
+      expect(icons[0].classList).toContain("arrow-up");
+      expect(icons[1].classList).toContain("arrow-right");
+      expect(icons[2].classList).toContain("arrow-down");
 
       await click(fixture.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.iconsets)[1]);
       icons = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.icons);
-      expect(icons[0].classList.value).toBe("o-cf-icon smile");
-      expect(icons[1].classList.value).toBe("o-cf-icon meh");
-      expect(icons[2].classList.value).toBe("o-cf-icon frown");
+      expect(icons[0].classList).toContain("smile");
+      expect(icons[1].classList).toContain("meh");
+      expect(icons[2].classList).toContain("frown");
 
       await click(fixture.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.iconsets)[2]);
       icons = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.icons);
-      expect(icons[0].classList.value).toBe("o-cf-icon green-dot");
-      expect(icons[1].classList.value).toBe("o-cf-icon yellow-dot");
-      expect(icons[2].classList.value).toBe("o-cf-icon red-dot");
+      expect(icons[0].classList).toContain("green-dot");
+      expect(icons[1].classList).toContain("yellow-dot");
+      expect(icons[2].classList).toContain("red-dot");
     });
 
     test("inverse checkbox will inverse icons", async () => {
@@ -1112,15 +1101,15 @@ describe("UI of conditional formats", () => {
       await click(fixture.querySelectorAll(selectors.cfTabSelector)[2]);
 
       let icons = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.icons);
-      expect(icons[0].classList.value).toBe("o-cf-icon arrow-up");
-      expect(icons[1].classList.value).toBe("o-cf-icon arrow-right");
-      expect(icons[2].classList.value).toBe("o-cf-icon arrow-down");
+      expect(icons[0].classList).toContain("arrow-up");
+      expect(icons[1].classList).toContain("arrow-right");
+      expect(icons[2].classList).toContain("arrow-down");
 
       await click(fixture, selectors.ruleEditor.editor.iconSetRule.reverse);
       icons = document.querySelectorAll(selectors.ruleEditor.editor.iconSetRule.icons);
-      expect(icons[2].classList.value).toBe("o-cf-icon arrow-up");
-      expect(icons[1].classList.value).toBe("o-cf-icon arrow-right");
-      expect(icons[0].classList.value).toBe("o-cf-icon arrow-down");
+      expect(icons[2].classList).toContain("arrow-up");
+      expect(icons[1].classList).toContain("arrow-right");
+      expect(icons[0].classList).toContain("arrow-down");
     });
 
     test("can create a new IconsetRule", async () => {
