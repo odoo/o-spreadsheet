@@ -5,6 +5,7 @@ import { Currency } from "../../src/types/currency";
 import { setSelection, updateLocale } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
 import { click, setInputValueAndTrigger } from "../test_helpers/dom_helper";
+import { getCell } from "../test_helpers/getters_helpers";
 import { mountComponent, nextTick, spyModelDispatch } from "../test_helpers/helpers";
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
 jest.useFakeTimers();
@@ -15,6 +16,7 @@ const selectors = {
   inputSymbol: ".o-custom-currency .o-subsection-right input",
   formatProposals: ".o-custom-currency .o-format-proposals",
   formatProposalOptions: ".o-custom-currency .o-format-proposals option",
+  accountingFormatCheckbox: ".o-custom-currency input[name='accountingFormat']",
   applyFormat: ".o-custom-currency .o-sidePanelButtons button",
 };
 
@@ -48,6 +50,11 @@ let dispatch: jest.SpyInstance;
 let currenciesContent: { [key: string]: Currency };
 let model: Model;
 let fixture: HTMLElement;
+
+function getExampleValues() {
+  const tableRows = fixture.querySelectorAll(".o-custom-currency table tr");
+  return Array.from(tableRows).map((row) => row.children[1].textContent);
+}
 
 describe("custom currency sidePanel component", () => {
   beforeEach(async () => {
@@ -213,6 +220,19 @@ describe("custom currency sidePanel component", () => {
       await setInputValueAndTrigger(selectors.availableCurrencies, "1");
       expect((document.querySelector(selectors.applyFormat) as HTMLButtonElement).disabled).toBe(
         true
+      );
+    });
+
+    test("not disable formatProposals/applyFormat if apply proposal and check accounting format checkbox", async () => {
+      await setInputValueAndTrigger(selectors.availableCurrencies, "1");
+      await click(fixture, selectors.applyFormat);
+      expect((document.querySelector(selectors.applyFormat) as HTMLButtonElement).disabled).toBe(
+        true
+      );
+
+      await click(fixture, selectors.accountingFormatCheckbox);
+      expect((document.querySelector(selectors.applyFormat) as HTMLButtonElement).disabled).toBe(
+        false
       );
     });
 
@@ -429,6 +449,16 @@ describe("custom currency sidePanel component", () => {
       );
     }
   );
+
+  test("Can apply accounting format in the panel", async () => {
+    await setInputValueAndTrigger(selectors.inputSymbol, "€");
+
+    expect(getExampleValues()).toEqual(["1,235€", "-1,235€", "0€"]);
+    await click(fixture, selectors.accountingFormatCheckbox);
+    expect(getExampleValues()).toEqual(["1,235€", "(1,235)€", "- €"]);
+    await click(fixture, selectors.applyFormat);
+    expect(getCell(model, "A1")?.format).toBe("#,##0[$€];(#,##0)[$€];- [$€]");
+  });
 });
 
 describe("Provided Currencies", () => {

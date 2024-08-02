@@ -551,6 +551,24 @@ export function createCurrencyFormat(currency: Partial<Currency>): Format {
   return insertTextInFormat(textExpression, position, numberFormat);
 }
 
+export function createAccountingFormat(currency: Partial<Currency>): Format {
+  const decimalPlaces = currency.decimalPlaces ?? 2;
+  const position = currency.position ?? "before";
+  const code = currency.code ?? "";
+  const symbol = currency.symbol ?? "";
+  const decimalRepresentation = decimalPlaces ? "." + "0".repeat(decimalPlaces) : "";
+  const numberFormat = "#,##0" + decimalRepresentation;
+
+  let textExpression = `${code} ${symbol}`.trim();
+  if (position === "after" && code) {
+    textExpression = " " + textExpression;
+  }
+  const positivePart = insertTextInFormat(textExpression, position, `${numberFormat}`);
+  const negativePart = insertTextInFormat(textExpression, position, `(${numberFormat})`);
+  const zeroPart = insertTextInFormat(textExpression, position, "- ");
+  return [positivePart, negativePart, zeroPart].join(";");
+}
+
 function insertTextInFormat(text: string, position: "before" | "after", format: Format): Format {
   const textExpression = `[$${text}]`;
   return position === "before" ? textExpression + format : format + textExpression;
@@ -763,7 +781,11 @@ function addDecimalPlaces(format: NumberInternalFormat, step: number): NumberInt
 export function isExcelCompatible(format: Format): boolean {
   const internalFormat = parseFormat(format);
   for (const part of [internalFormat.positive, internalFormat.negative, internalFormat.zero]) {
-    if (part && part.type === "date" && part.tokens.some((token) => token.value.includes("q"))) {
+    if (
+      part &&
+      part.type === "date" &&
+      part.tokens.some((token) => token.type === "DATE_PART" && token.value.includes("q"))
+    ) {
       return false;
     }
   }

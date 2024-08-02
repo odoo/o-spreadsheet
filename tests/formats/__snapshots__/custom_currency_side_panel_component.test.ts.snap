@@ -25,7 +25,7 @@ exports[`Provided Currencies if currencies are provided in spreadsheet --> displ
 
 exports[`custom currency sidePanel component Sidepanel change code input or symbol input --> change currency proposals 1`] = `
 <select
-  class="o-input o-format-proposals"
+  class="o-input o-format-proposals mb-1"
 >
   <option
     value="0"
@@ -73,7 +73,7 @@ exports[`custom currency sidePanel component Sidepanel change code input or symb
 
 exports[`custom currency sidePanel component Sidepanel change code input or symbol input --> change currency proposals 2`] = `
 <select
-  class="o-input o-format-proposals"
+  class="o-input o-format-proposals mb-1"
 >
   <option
     value="0"
@@ -121,7 +121,7 @@ exports[`custom currency sidePanel component Sidepanel change code input or symb
 
 exports[`custom currency sidePanel component Sidepanel change code input or symbol input --> change currency proposals 3`] = `
 <select
-  class="o-input o-format-proposals"
+  class="o-input o-format-proposals mb-1"
 >
   <option
     value="0"
@@ -169,7 +169,7 @@ exports[`custom currency sidePanel component Sidepanel change code input or symb
 
 exports[`custom currency sidePanel component Sidepanel change code input or symbol input --> change currency proposals 4`] = `
 <select
-  class="o-input o-format-proposals"
+  class="o-input o-format-proposals mb-1"
 >
   <option
     value="0"
@@ -217,7 +217,7 @@ exports[`custom currency sidePanel component Sidepanel change code input or symb
 
 exports[`custom currency sidePanel component Sidepanel select currency in available currencies selector --> changes currency proposals 1`] = `
 <select
-  class="o-input o-format-proposals"
+  class="o-input o-format-proposals mb-1"
 >
   <option
     value="0"
@@ -265,7 +265,7 @@ exports[`custom currency sidePanel component Sidepanel select currency in availa
 
 exports[`custom currency sidePanel component Sidepanel select currency in available currencies selector --> changes currency proposals 2`] = `
 <select
-  class="o-input o-format-proposals"
+  class="o-input o-format-proposals mb-1"
 >
   <option
     value="0"

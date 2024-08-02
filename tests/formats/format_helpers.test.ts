@@ -1,4 +1,5 @@
 import {
+  createAccountingFormat,
   createCurrencyFormat,
   formatValue,
   isDateTimeFormat,
@@ -1099,6 +1100,50 @@ describe("create currency format", () => {
     const format = createCurrencyFormat({ symbol, code, position: "after" });
     expect(format).toBe("#,##0.00[$ O$OO θ]");
     expect(formatValue(1234.56, { format, locale: DEFAULT_LOCALE })).toBe("1,234.56 O$OO θ");
+  });
+});
+
+describe("create accounting format", () => {
+  const symbol = "θ";
+  const code = "O$OO";
+
+  test("full accounting format", () => {
+    const currency: Currency = {
+      code,
+      symbol,
+      decimalPlaces: 2,
+      name: "Odoo Dollar",
+      position: "before",
+    };
+    const format = createAccountingFormat(currency);
+    expect(format).toBe("[$O$OO θ]#,##0.00;[$O$OO θ](#,##0.00);[$O$OO θ]- ");
+    expect(formatValue(1234.56, { format, locale: DEFAULT_LOCALE })).toBe("O$OO θ1,234.56");
+    expect(formatValue(-1234.56, { format, locale: DEFAULT_LOCALE })).toBe("O$OO θ(1,234.56)");
+    expect(formatValue(0, { format, locale: DEFAULT_LOCALE })).toBe("O$OO θ- ");
+  });
+
+  test("custom decimal places on accounting format", () => {
+    const format = createAccountingFormat({ symbol, decimalPlaces: 4 });
+    expect(format).toBe("[$θ]#,##0.0000;[$θ](#,##0.0000);[$θ]- ");
+    expect(formatValue(1234.56, { format, locale: DEFAULT_LOCALE })).toBe("θ1,234.5600");
+    expect(formatValue(-1234.56, { format, locale: DEFAULT_LOCALE })).toBe("θ(1,234.5600)");
+    expect(formatValue(0, { format, locale: DEFAULT_LOCALE })).toBe("θ- ");
+  });
+
+  test("without decimal places currency", () => {
+    const format = createAccountingFormat({ symbol, decimalPlaces: 0 });
+    expect(format).toBe("[$θ]#,##0;[$θ](#,##0);[$θ]- ");
+    expect(formatValue(1234.56, { format, locale: DEFAULT_LOCALE })).toBe("θ1,235");
+    expect(formatValue(-1234.56, { format, locale: DEFAULT_LOCALE })).toBe("θ(1,235)");
+    expect(formatValue(0, { format, locale: DEFAULT_LOCALE })).toBe("θ- ");
+  });
+
+  test("currency with symbol placed after", () => {
+    const format = createAccountingFormat({ symbol, position: "after", decimalPlaces: 0 });
+    expect(format).toBe("#,##0[$θ];(#,##0)[$θ];- [$θ]");
+    expect(formatValue(1234.56, { format, locale: DEFAULT_LOCALE })).toBe("1,235θ");
+    expect(formatValue(-1234.56, { format, locale: DEFAULT_LOCALE })).toBe("(1,235)θ");
+    expect(formatValue(0, { format, locale: DEFAULT_LOCALE })).toBe("- θ");
   });
 });
 
