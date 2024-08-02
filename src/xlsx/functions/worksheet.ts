@@ -3,13 +3,14 @@ import {
   isInside,
   isMarkdownLink,
   isSheetUrl,
+  isTextFormat,
   parseMarkdownLink,
   parseSheetUrl,
   toXC,
   toZone,
 } from "../../helpers";
 import { withHttps } from "../../helpers/links";
-import { ExcelHeaderData, ExcelSheetData, ExcelWorkbookData, PLAIN_TEXT_FORMAT } from "../../types";
+import { ExcelHeaderData, ExcelSheetData, ExcelWorkbookData } from "../../types";
 import { CellErrorType } from "../../types/errors";
 import { XLSXStructure, XMLAttributes, XMLString } from "../../types/xlsx";
 import { XLSX_RELATION_TYPE } from "../constants";
@@ -105,7 +106,7 @@ export function addRows(
           ({ attrs: additionalAttrs, node: cellNode } = addContent(label, construct.sharedStrings));
         } else if (cell.content && cell.content !== "") {
           const isTableHeader = isCellTableHeader(c, r, sheet);
-          const isPlainText = !!(cell.format && data.formats[cell.format] === PLAIN_TEXT_FORMAT);
+          const isPlainText = !!(cell.format && isTextFormat(data.formats[cell.format]));
           ({ attrs: additionalAttrs, node: cellNode } = addContent(
             cell.content,
             construct.sharedStrings,

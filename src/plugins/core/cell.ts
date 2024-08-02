@@ -2,7 +2,7 @@ import { DEFAULT_STYLE } from "../../constants";
 import { Token, compile } from "../../formulas";
 import { compileTokens } from "../../formulas/compiler";
 import { isEvaluationError, toString } from "../../functions/helpers";
-import { deepEquals, isExcelCompatible, recomputeZones } from "../../helpers";
+import { deepEquals, isExcelCompatible, isTextFormat, recomputeZones } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells";
 import {
   concat,
@@ -30,7 +30,6 @@ import {
   FormulaCell,
   HeaderIndex,
   LiteralCell,
-  PLAIN_TEXT_FORMAT,
   PositionDependentCommand,
   Range,
   RangeCompiledFormula,
@@ -599,7 +598,7 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       (typeof parsedValue === "number"
         ? detectDateFormat(content, locale) || detectNumberFormat(content)
         : undefined);
-    if (format !== PLAIN_TEXT_FORMAT && !isEvaluationError(content)) {
+    if (!isTextFormat(format) && !isEvaluationError(content)) {
       content = toString(parsedValue);
     }
     return {

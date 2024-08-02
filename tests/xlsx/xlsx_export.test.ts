@@ -2,7 +2,7 @@ import { arg, functionRegistry } from "../../src/functions";
 import { buildSheetLink, toXC } from "../../src/helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { Model } from "../../src/model";
-import { CustomizedDataSet, Dimension, ExcelChartType, PLAIN_TEXT_FORMAT } from "../../src/types";
+import { CustomizedDataSet, Dimension, ExcelChartType } from "../../src/types";
 import { XLSXExportXMLFile, XMLString } from "../../src/types/xlsx";
 import { adaptFormulaToExcel } from "../../src/xlsx/functions/cells";
 import { escapeXml, parseXML } from "../../src/xlsx/helpers/xml_helpers";
@@ -1582,7 +1582,7 @@ describe("Test XLSX export", () => {
 
   test("Cells with plain text format are exported in the shared strings", async () => {
     const model = new Model();
-    setFormat(model, "A1", PLAIN_TEXT_FORMAT);
+    setFormat(model, "A1", "@");
     setCellContent(model, "A1", "0006");
 
     expect(getCellContent(model, "A1")).toEqual("0006");

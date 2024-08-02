@@ -7,7 +7,7 @@ import {
   toZone,
 } from "../../src/helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
-import { CellIsRule, DEFAULT_LOCALE, IconSetRule, PLAIN_TEXT_FORMAT } from "../../src/types";
+import { CellIsRule, DEFAULT_LOCALE, IconSetRule } from "../../src/types";
 import { BarChartDefinition } from "../../src/types/chart/bar_chart";
 import { ComboChartDefinition } from "../../src/types/chart/combo_chart";
 import { LineChartDefinition } from "../../src/types/chart/line_chart";
@@ -854,7 +854,7 @@ test.each([
   ["#,##0.00[$MM/DD/YYYY]", "#,##0.00[$MM/DD/YYYY]", "0.00MM/DD/YYYY"],
   ["[$₪-40D] #,##0.00", "[$₪] #,##0.00", "₪ 0.00"],
   ['"€"#,##0.00 "€"', '"€"#,##0.00 "€"', "€0.00 €"],
-  ["@", PLAIN_TEXT_FORMAT, "0"],
+  ["@", "@", "0"],
 ])("convert format %s", async (excelFormat, convertedFormat, expectedValue) => {
   expect(
     convertXlsxFormat(80, [{ id: 80, format: excelFormat }], new XLSXImportWarningManager())
