@@ -42,16 +42,16 @@ describe("Table style editor panel", () => {
     expect(fixture.querySelector(mediumTableSelector)).toBeTruthy();
     expect(fixture.querySelector(lightTableSelector)).toBeFalsy();
 
-    await click(fixture, ".form-check-input[value='light']");
+    await click(fixture, ".o-notebook-tab[data-id='light']");
     expect(fixture.querySelector(mediumTableSelector)).toBeFalsy();
     expect(fixture.querySelector(lightTableSelector)).toBeTruthy();
   });
 
   test("The category of props.selectedStyleId is opened and the item is selected", async () => {
     await mountPopover({ selectedStyleId: "TableStyleDark1" });
-    expect(
-      fixture.querySelector<HTMLInputElement>(".form-check-input[value='dark']")?.checked
-    ).toBe(true);
+    expect(fixture.querySelector(".o-notebook-tab[data-id='dark']")?.classList).toContain(
+      "selected"
+    );
     expect(
       fixture.querySelector(".o-table-style-list-item[title='Black, TableStyleDark1']")?.classList
     ).toContain("selected");
@@ -68,7 +68,7 @@ describe("Table style editor panel", () => {
   test("Can create custom style", async () => {
     const onStylePicked = jest.fn();
     await mountPopover({ onStylePicked });
-    await click(fixture, ".form-check-input[value='custom']");
+    await click(fixture, ".o-notebook-tab[data-id='custom']");
     click(fixture, ".o-new-table-style");
     expect(openSidePanel).toHaveBeenCalledWith("TableStyleEditorPanel", { onStylePicked });
   });
@@ -77,7 +77,7 @@ describe("Table style editor panel", () => {
     beforeEach(async () => {
       createTableStyle(model, "MyStyle");
       await mountPopover();
-      await click(fixture, ".form-check-input[value='custom']");
+      await click(fixture, ".o-notebook-tab[data-id='custom']");
     });
 
     test("Can edit a custom table style with the top-right hover button", async () => {

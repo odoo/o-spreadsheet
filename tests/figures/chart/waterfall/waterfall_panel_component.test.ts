@@ -8,6 +8,7 @@ import {
   createWaterfallChart,
   getHTMLCheckboxValue,
   getHTMLInputValue,
+  getHTMLRadioValue,
   setInputValueAndTrigger,
   simulateClick,
 } from "../../../test_helpers";
@@ -42,7 +43,7 @@ async function changeChartColor(selector: string, color: string) {
   await click(fixture, `.o-color-picker-line-item[data-color='${color}'`);
 }
 
-describe("Watrefall chart side panel", () => {
+describe("Waterfall chart side panel", () => {
   beforeEach(async () => {
     model = new Model();
     createTable(model, "A1:C3");
@@ -108,7 +109,7 @@ describe("Watrefall chart side panel", () => {
       await click(fixture, ".o-panel-design");
 
       expect(getHTMLInputValue(".o-chart-title input")).toEqual("My Waterfall chart");
-      expect(getHTMLInputValue(".o-chart-vertical-axis-position")).toEqual("right");
+      expect(getHTMLRadioValue(".o-vertical-axis-selection")).toEqual("right");
       expect(getHTMLInputValue(".o-chart-legend-position")).toEqual("bottom");
       expect(getHTMLCheckboxValue('input[name="showSubTotals"]')).toBe(true);
       expect(getHTMLCheckboxValue('input[name="showConnectorLines"]')).toBe(true);
@@ -126,7 +127,7 @@ describe("Watrefall chart side panel", () => {
       await click(fixture, ".o-panel-design");
 
       await setInputValueAndTrigger(".o-chart-title input", "My Waterfall chart");
-      await setInputValueAndTrigger(".o-chart-vertical-axis-position", "right");
+      await click(fixture, ".o-vertical-axis-selection input[value=right]");
       await setInputValueAndTrigger(".o-chart-legend-position", "bottom");
 
       const definition = getWaterfallDefinition(chartId);

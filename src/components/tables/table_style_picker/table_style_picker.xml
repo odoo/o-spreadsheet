@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-TableStylePicker">
     <div class="o-table-style-picker d-flex flew-row justify-content-between ps-1">
-      <div class="d-flex flex-row overflow-hidden">
+      <div class="d-flex flex-row overflow-hidden ps-2">
         <t t-foreach="getDisplayedTableStyles()" t-as="styleId" t-key="styleId">
           <TableStylePreview
             class="'o-table-style-picker-preview'"

@@ -1,6 +1,13 @@
 import { Component } from "@odoo/owl";
+import { ACTION_COLOR, GRAY_300 } from "../../../../constants";
 import { SpreadsheetChildEnv } from "../../../../types";
 import { css } from "../../../helpers/css";
+
+const CHECK_SVG = /*xml*/ `
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'>
+  <path fill='none' stroke='#FFF' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/>
+</svg>
+`;
 
 interface Props {
   label?: string;
@@ -13,11 +20,34 @@ interface Props {
 }
 
 css/* scss */ `
-  .o-checkbox {
-    display: flex;
-    justify-items: center;
+  label.o-checkbox {
     input {
-      margin-right: 5px;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      border-radius: 0;
+      width: 14px;
+      height: 14px;
+      vertical-align: top;
+      box-sizing: border-box;
+      outline: none;
+      border: 1px solid ${GRAY_300};
+
+      &:hover {
+        border-color: ${ACTION_COLOR};
+      }
+
+      &:checked {
+        background: url("data:image/svg+xml,${encodeURIComponent(CHECK_SVG)}");
+        background-color: ${ACTION_COLOR};
+        border-color: ${ACTION_COLOR};
+      }
+
+      &:focus {
+        outline: none;
+        box-shadow: 0 0 0 0.25rem rgba(113, 75, 103, 0.25);
+        border-color: ${ACTION_COLOR};
+      }
     }
   }
 `;

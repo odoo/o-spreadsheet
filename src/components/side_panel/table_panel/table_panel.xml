@@ -16,7 +16,7 @@
                 t-if="tableConfig.numberOfHeaders > 0"
                 t-att-value="tableConfig.numberOfHeaders"
                 type="number"
-                class="o-table-n-of-headers ms-2 o-number-input"
+                class="o-table-n-of-headers ms-2 o-input"
                 t-on-change="onChangeNumberOfHeaders"
               />
             </div>
@@ -75,12 +75,14 @@
           onSelectionChanged="(ranges) => this.onRangeChanged(ranges)"
           onSelectionConfirmed.bind="this.onRangeConfirmed"
         />
-        <ValidationMessages messages="errorMessages" msgType="'error'"/>
+      </Section>
+      <Section class="'pt-0'">
         <Checkbox
           label="getCheckboxLabel('automaticAutofill')"
           name="'automaticAutofill'"
           value="tableConfig.automaticAutofill"
           onChange="(val) => this.updateTableConfig('automaticAutofill', val)"
+          className="'mb-1'"
         />
         <div class="d-flex flex-row align-items-center">
           <Checkbox
@@ -97,9 +99,16 @@
           </div>
         </div>
       </Section>
-      <div class="o-sidePanelButtons">
-        <button t-on-click="deleteTable" class="o-table-delete o-button">Delete table</button>
-      </div>
+      <Section>
+        <div class="o-sidePanelButtons">
+          <button t-on-click="deleteTable" class="o-table-delete o-button o-button-danger">
+            Delete table
+          </button>
+        </div>
+      </Section>
+      <Section t-if="errorMessages.length">
+        <ValidationMessages messages="errorMessages" msgType="'error'"/>
+      </Section>
     </div>
   </t>
 </templates>

@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-ConditionalFormattingEditor">
     <div class="o-cf-ruleEditor">
-      <Section class="'o-cf-range'">
+      <Section class="'o-cf-range pb-0'">
         <t t-set-slot="title">Apply to range</t>
         <div class="o-selection-cf">
           <SelectionInput
@@ -12,48 +12,15 @@
             required="true"
           />
         </div>
-        <div class="o-section-title">Format rules</div>
-        <div class="o_field_radio o_horizontal o_field_widget o-cf-type-selector">
-          <div
-            class="custom-control form-check o_cf_radio_item"
-            t-on-click="() => this.changeRuleType('CellIsRule')">
-            <input
-              class="form-check-input o_radio_input"
-              t-att-checked="state.currentCFType === 'CellIsRule'"
-              type="radio"
-              id="cellIsRule"
-              name="ruleType"
-              value="CellIsRule"
-            />
-            <label for="cellIsRule" class="form-check-label o_form_label">Single color</label>
-          </div>
-          <div
-            class="custom-control form-check o_cf_radio_item"
-            t-on-click="() => this.changeRuleType('ColorScaleRule')">
-            <input
-              class="form-check-input o_radio_input"
-              t-att-checked="state.currentCFType === 'ColorScaleRule'"
-              type="radio"
-              id="colorScaleRule"
-              name="ruleType"
-              value="ColorScaleRule"
-            />
-            <label for="colorScaleRule" class="form-check-label o_form_label">Color scale</label>
-          </div>
-
-          <div
-            class="custom-control form-check o_cf_radio_item"
-            t-on-click="() => this.changeRuleType('IconSetRule')">
-            <input
-              class="form-check-input o_radio_input"
-              t-att-checked="state.currentCFType === 'IconSetRule'"
-              type="radio"
-              id="iconSetRule"
-              name="ruleType"
-              value="IconSetRule"
-            />
-            <label for="iconSetRule" class="form-check-label o_form_label">Icon set</label>
-          </div>
+      </Section>
+      <Section class="'pb-0'">
+        <t t-set-slot="title">Format rules</t>
+        <div class="o-cf-type-selector">
+          <BadgeSelection
+            choices="cfTypesValues"
+            onChange.bind="changeRuleType"
+            selectedValue="state.currentCFType"
+          />
         </div>
       </Section>
       <Section class="'o-cf-editor'">
@@ -68,21 +35,17 @@
         <t t-if="state.currentCFType === 'IconSetRule'" t-call="o-spreadsheet-IconSetEditor">
           <t t-set="rule" t-value="state.rules.iconSet"/>
         </t>
+      </Section>
+      <Section class="'pt-1'">
         <div class="o-sidePanelButtons">
-          <button t-on-click="props.onExitEdition" class="o-button o-button-grey o-cf-cancel">
-            Cancel
-          </button>
-          <button
-            t-on-click="saveConditionalFormat"
-            class="o-button o-button-grey primary o-cf-save">
+          <button t-on-click="props.onExitEdition" class="o-button o-cf-cancel">Cancel</button>
+          <button t-on-click="saveConditionalFormat" class="o-button primary o-cf-save">
             Save
           </button>
         </div>
       </Section>
       <Section>
-        <div class="o-cf-error" t-foreach="state.errors || []" t-as="error" t-key="error_index">
-          <t t-esc="errorMessage(error)"/>
-        </div>
+        <ValidationMessages messages="errorMessages" msgType="'error'"/>
       </Section>
     </div>
   </t>

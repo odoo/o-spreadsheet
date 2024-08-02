@@ -7,7 +7,7 @@
       <button
         t-on-click="onConfirm"
         t-att-disabled="state.errorFlag"
-        class="o-button o-button-grey">
+        class="o-button flex-grow-0 me-2">
         Add
       </button>
       <input

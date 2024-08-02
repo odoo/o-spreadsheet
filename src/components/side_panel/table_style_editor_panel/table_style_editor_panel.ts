@@ -15,18 +15,13 @@ import { Section } from "../components/section/section";
 css/* scss */ `
   .o-table-style-editor-panel {
     .o-table-style-list-item {
-      margin: 1px 3px;
-      padding: 3px 6px;
+      margin: 2px 7px;
+      padding: 6px 9px;
 
       .o-table-style-edit-template-preview {
-        width: 81px;
-        height: 61px;
+        width: 71px;
+        height: 51px;
       }
-    }
-
-    .o-sidePanelButtons .o-delete:hover:enabled {
-      color: #ffffff;
-      background: #d94b4b;
     }
   }
 `;

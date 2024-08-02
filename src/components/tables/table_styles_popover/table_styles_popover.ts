@@ -1,4 +1,5 @@
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
+import { GRAY_300, PRIMARY_BUTTON_BG, TEXT_BODY, TEXT_HEADING } from "../../../constants";
 import { TABLE_STYLE_CATEGORIES } from "../../../helpers/table_presets";
 import { SpreadsheetChildEnv } from "../../../types";
 import { TableConfig } from "../../../types/table";
@@ -19,13 +20,29 @@ export interface TableStylesPopoverProps {
 css/* scss */ `
   .o-table-style-popover {
     /** 7 tables preview + padding by line */
-    width: calc((66px + 4px * 2) * 7);
+    width: calc((66px + 4px * 2) * 7 + 1.5rem * 2);
     background: #fff;
     font-size: 14px;
     user-select: none;
 
-    .form-check-input {
-      font-size: 12px;
+    .o-notebook {
+      border-bottom: 1px solid ${GRAY_300};
+
+      .o-notebook-tab {
+        padding: 5px 15px;
+        border: 1px solid ${GRAY_300};
+        margin-bottom: -1px;
+        margin-left: -1px;
+        color: ${TEXT_BODY};
+        cursor: pointer;
+        transition: color 0.2s, border-color 0.2s;
+
+        &.selected {
+          border-bottom-color: #fff;
+          border-top-color: ${PRIMARY_BUTTON_BG};
+          color: ${TEXT_HEADING};
+        }
+      }
     }
 
     .o-table-style-list-item {

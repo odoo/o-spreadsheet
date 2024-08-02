@@ -21,9 +21,10 @@ exports[`Data Series Can render a data series component 1`] = `
           class="position-relative w-100"
         >
           <input
-            class="w-100 o-required"
+            class="o-input mb-2"
+            placeholder="e.g. A1:A2"
             spellcheck="false"
-            style="color: #000;"
+            style=""
             type="text"
           />
           
@@ -33,14 +34,13 @@ exports[`Data Series Can render a data series component 1`] = `
       
       
       <div
-        class="o-selection-input d-flex flex-row"
+        class="d-flex flex-row w-100 o-selection-input"
       >
         <button
-          class="o-btn-action bg-transparent fw-bold o-add-selection"
+          class="o-button o-add-selection"
         >
            Add range 
         </button>
-        
         
         
       </div>

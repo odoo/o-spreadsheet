@@ -7,7 +7,7 @@
       hasSingleRange="true"
     />
 
-    <div class="o-section-subtitle">Display style</div>
+    <div class="o-section-subtitle mt-4">Display style</div>
     <select class="o-dv-display-style o-input" t-on-change="onChangedDisplayStyle">
       <option t-att-selected="props.criterion.displayStyle === 'arrow'" value="arrow">Arrow</option>
       <option t-att-selected="props.criterion.displayStyle === 'plainText'" value="plainText">

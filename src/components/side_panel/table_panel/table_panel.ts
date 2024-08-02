@@ -34,22 +34,9 @@ interface State {
 
 css/* scss */ `
   .o-table-panel {
-    .o-table-n-of-headers {
+    input.o-table-n-of-headers {
       width: 14px;
-      color: #666666;
-      line-height: 1;
       text-align: center;
-      border: none;
-      border-bottom: 1px solid #ccc;
-      padding: 0px 2px;
-      &:focus {
-        outline: none;
-      }
-    }
-
-    .o-sidePanelButtons .o-table-delete:hover {
-      color: #ffffff;
-      background: #d94b4b;
     }
 
     .o-info-icon {

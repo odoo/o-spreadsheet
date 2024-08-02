@@ -8,6 +8,7 @@ import {
   UID,
 } from "../../../../../types";
 import { WaterfallChartDefinition } from "../../../../../types/chart/waterfall_chart";
+import { BadgeSelection } from "../../../components/badge_selection/badge_selection";
 import { Section } from "../../../components/section/section";
 import { ChartTitle } from "../title/title";
 
@@ -28,7 +29,7 @@ interface Props {
 
 export class AxisDesignEditor extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-AxisDesignEditor";
-  static components = { Section, ChartTitle };
+  static components = { Section, ChartTitle, BadgeSelection };
   static props = { figureId: String, definition: Object, updateChart: Function, axesList: Array };
 
   state = useState({ currentAxis: "x" });
@@ -40,6 +41,10 @@ export class AxisDesignEditor extends Component<Props, SpreadsheetChildEnv> {
       align: "center",
       ...axisDesign.title,
     };
+  }
+
+  get badgeAxes() {
+    return this.props.axesList.map((axis) => ({ value: axis.id, label: axis.name }));
   }
 
   updateAxisTitleColor(color: Color) {

@@ -13,7 +13,7 @@
             t-att-selected="currentLocale.code === locale.code"
           />
         </select>
-        <div class="o-locale-preview mt-2 ms-3">
+        <div class="o-locale-preview mt-4 p-3 rounded">
           <div>
             <span class="fw-bold me-1">Number:</span>
             <span t-esc="numberFormatPreview"/>
@@ -27,12 +27,10 @@
             <span t-esc="dateTimeFormatPreview"/>
           </div>
         </div>
-        <div class="alert alert-primary d-flex align-items-center mt-2" role="alert">
-          <div class="o-icon">
-            <i class="fa fa-info"/>
-          </div>
-          <div>This setting affects all users.</div>
-        </div>
+      </Section>
+      <Section class="'pt-0'">
+        <t t-set="message">This setting affects all users.</t>
+        <ValidationMessages messages="[message]" msgType="'info'"/>
       </Section>
     </div>
   </t>

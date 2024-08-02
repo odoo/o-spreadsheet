@@ -7,10 +7,11 @@
           <input
             type="text"
             t-ref="searchInput"
-            class="o-input o-input-with-count"
+            class="o-input o-input-with-count o-search"
             t-on-input="onSearchInput"
             t-on-focus="onFocusSearch"
             t-on-keydown="onKeydownSearch"
+            placeholder="e.g. 'search me'"
           />
           <div class="o-input-count" t-if="hasSearchResult">
             <t t-esc="store.selectedMatchIndex+1"/>
@@ -19,6 +20,18 @@
           </div>
           <div t-elif="!store.pendingSearch and store.toSearch !== ''" class="o-input-count">
             0 / 0
+          </div>
+          <div class="d-flex flex-row o-result-buttons align-items-center" t-if="hasSearchResult">
+            <button
+              t-on-click="() => store.selectPreviousMatch()"
+              class="o-button ms-2 d-flex justify-content-center align-items-center">
+              <t t-call="o-spreadsheet-Icon.ARROW_UP"/>
+            </button>
+            <button
+              t-on-click="() => store.selectNextMatch()"
+              class="o-button ms-1 d-flex justify-content-center align-items-center">
+              <t t-call="o-spreadsheet-Icon.ARROW_DOWN"/>
+            </button>
           </div>
         </div>
         <select
@@ -39,18 +52,19 @@
           />
         </div>
         <div>
-          <!-- TODO: go through this css, the group misses a padding and could profit from BootStrap -->
           <t t-set="matchCaseLabel">Match case</t>
           <Checkbox
             value="searchOptions.matchCase"
             label="matchCaseLabel"
             onChange.bind="searchMatchCase"
+            className="'mb-1'"
           />
           <t t-set="exactMatchLabel">Match entire cell content</t>
           <Checkbox
             value="searchOptions.exactMatch"
             label="exactMatchLabel"
             onChange.bind="searchExactMatch"
+            className="'mb-1'"
           />
           <t t-set="searchFormulasLabel">Search in formulas</t>
           <Checkbox
@@ -59,58 +73,38 @@
             onChange.bind="searchFormulas"
           />
         </div>
-        <div class="o-matches-count mt-4" t-if="store.toSearch !== ''">
-          <div t-if="searchOptions.searchScope === 'specificRange' and state.dataRange != ''">
-            <t t-esc="specificRangeMatchesCount"/>
-          </div>
-          <div>
-            <t t-esc="currentSheetMatchesCount"/>
-          </div>
-          <div>
-            <t t-esc="allSheetsMatchesCount"/>
-          </div>
+        <div class="o-matches-count mt-4" t-if="searchInfo.length">
+          <ValidationMessages msgType="'info'" messages="searchInfo" singleBox="true"/>
         </div>
       </Section>
-      <div class="o-sidePanelButtons">
-        <button
-          t-att-disabled="!hasSearchResult"
-          t-on-click="() => store.selectPreviousMatch()"
-          class="o-button o-button-grey">
-          Previous
-        </button>
-        <button
-          t-att-disabled="!hasSearchResult"
-          t-on-click="() => store.selectNextMatch()"
-          class="o-button o-button-grey">
-          Next
-        </button>
-      </div>
-      <Section t-if="!env.model.getters.isReadonly()">
+      <Section class="'pt-0'" t-if="!env.model.getters.isReadonly()">
         <t t-set-slot="title">Replace</t>
         <div class="o-input-search-container">
           <input
             type="text"
-            class="o-input o-input-without-count"
+            class="o-input o-input-without-count o-replace"
             t-on-keydown="onKeydownReplace"
             t-model="store.toReplace"
+            placeholder="e.g. 'replace me'"
           />
         </div>
       </Section>
-
-      <div class="o-sidePanelButtons" t-if="!env.model.getters.isReadonly()">
-        <button
-          t-att-disabled="store.selectedMatchIndex === null"
-          t-on-click="() => store.replace()"
-          class="o-button o-button-grey">
-          Replace
-        </button>
-        <button
-          t-att-disabled="store.selectedMatchIndex === null"
-          t-on-click="() => store.replaceAll()"
-          class="o-button o-button-grey">
-          Replace all
-        </button>
-      </div>
+      <Section>
+        <div class="o-sidePanelButtons" t-if="!env.model.getters.isReadonly()">
+          <button
+            t-att-disabled="store.selectedMatchIndex === null"
+            t-on-click="() => store.replace()"
+            class="o-button o-replace">
+            Replace
+          </button>
+          <button
+            t-att-disabled="store.selectedMatchIndex === null"
+            t-on-click="() => store.replaceAll()"
+            class="o-button o-replace-all">
+            Replace all
+          </button>
+        </div>
+      </Section>
     </div>
   </t>
 </templates>

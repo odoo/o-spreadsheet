@@ -5,6 +5,7 @@ import { _t } from "../../../translation";
 import { SpreadsheetChildEnv } from "../../../types/index";
 import { css } from "../../helpers/css";
 import { SelectionInput } from "../../selection_input/selection_input";
+import { ValidationMessages } from "../../validation_messages/validation_messages";
 import { Checkbox } from "../components/checkbox/checkbox";
 import { Section } from "../components/section/section";
 import { FindAndReplaceStore } from "./find_and_replace_store";
@@ -25,13 +26,19 @@ css/* scss */ `
       .o-input-count {
         width: fit-content;
         padding: 4px 0 4px 4px;
+        white-space: nowrap;
       }
     }
 
-    .o-matches-count div {
-      text-overflow: ellipsis;
-      overflow: hidden;
-      white-space: nowrap;
+    .o-result-buttons {
+      .o-button {
+        height: 19px;
+        width: 19px;
+        .o-icon {
+          height: 14px;
+          width: 14px;
+        }
+      }
     }
   }
 `;
@@ -42,7 +49,7 @@ interface Props {
 
 export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-FindAndReplacePanel";
-  static components = { SelectionInput, Section, Checkbox };
+  static components = { SelectionInput, Section, Checkbox, ValidationMessages };
   static props = {
     onCloseSidePanel: Function,
   };
@@ -60,11 +67,11 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get allSheetsMatchesCount() {
-    return _t("%s in all sheets", this.store.allSheetMatchesCount);
+    return _t("%s matches in all sheets", this.store.allSheetMatchesCount);
   }
 
   get currentSheetMatchesCount() {
-    return _t("%(matches)s in sheet %(sheetName)s", {
+    return _t("%(matches)s matches in %(sheetName)s", {
       matches: this.store.activeSheetMatchesCount,
       sheetName: this.env.model.getters.getSheetName(this.env.model.getters.getActiveSheetId()),
     });
@@ -76,11 +83,22 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
       return "";
     }
     const { sheetId, zone } = range;
-    return _t("%(matches)s in range %(range)s of sheet %(sheetName)s", {
+    return _t("%(matches)s matches in range %(range)s of %(sheetName)s", {
       matches: this.store.specificRangeMatchesCount,
       range: zoneToXc(zone),
       sheetName: this.env.model.getters.getSheetName(sheetId),
     });
+  }
+
+  get searchInfo(): string[] {
+    if (!this.store.toSearch) {
+      return [];
+    }
+    return [
+      this.specificRangeMatchesCount,
+      this.currentSheetMatchesCount,
+      this.allSheetsMatchesCount,
+    ];
   }
 
   setup() {

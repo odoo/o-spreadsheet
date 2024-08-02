@@ -218,7 +218,7 @@ describe("charts", () => {
       case "combo":
         const dataSeries = fixture.querySelectorAll(".o-chart .o-data-series")[0];
         const hasTitle = (
-          fixture.querySelector(".o-use-row-as-headers input[type=checkbox]") as HTMLInputElement
+          fixture.querySelector("input[name=dataSetsHaveTitle]") as HTMLInputElement
         ).checked;
         const labels = fixture.querySelector(".o-data-labels");
         expect((panelChartType as HTMLSelectElement).value).toBe("combo");
@@ -233,7 +233,7 @@ describe("charts", () => {
       case "basicChart": {
         const dataSeries = fixture.querySelectorAll(".o-chart .o-data-series")[0];
         const hasTitle = (
-          fixture.querySelector(".o-use-row-as-headers input[type=checkbox]") as HTMLInputElement
+          fixture.querySelector("input[name=dataSetsHaveTitle]") as HTMLInputElement
         ).checked;
         const labels = fixture.querySelector(".o-data-labels");
         expect((panelChartType as HTMLSelectElement).value).toBe("column");
@@ -281,7 +281,7 @@ describe("charts", () => {
     switch (chartType) {
       case "combo":
       case "basicChart":
-        await click(fixture.querySelector(".o-use-row-as-headers input[type=checkbox]")!);
+        await click(fixture.querySelector("input[name=dataSetsHaveTitle]")!);
         expect(dispatch).toHaveBeenLastCalledWith("UPDATE_CHART", {
           id: chartId,
           sheetId,
@@ -519,7 +519,7 @@ describe("charts", () => {
       },
     });
 
-    setInputValueAndTrigger(".o-axis-selector", "y");
+    await click(fixture, ".o-badge-selection button[data-id=y]");
     const italic_element = fixture.querySelectorAll(
       ".o-chart-title-designer > .o-menu-item-button[title='Italic']"
     )[1];
@@ -605,7 +605,7 @@ describe("charts", () => {
     );
     await mountChartSidePanel();
     await openChartDesignSidePanel();
-    setInputValueAndTrigger(".o-vertical-axis-selection", "right");
+    await click(fixture, ".o-vertical-axis-selection input[value=right]");
 
     //@ts-ignore
     expect(model.getters.getChartDefinition(chartId).dataSets).toEqual([
@@ -808,9 +808,7 @@ describe("charts", () => {
 
     const dataSeries = fixture.querySelectorAll(".o-chart .o-data-series")[0] as HTMLInputElement;
     const dataSeriesValues = dataSeries.querySelector("input");
-    const hasTitle = fixture.querySelector(
-      ".o-use-row-as-headers input[type=checkbox]"
-    ) as HTMLInputElement;
+    const hasTitle = fixture.querySelector("input[name=dataSetsHaveTitle]") as HTMLInputElement;
     await changeChartType("pie");
     setInputValueAndTrigger(dataSeriesValues, "B2:B5");
     await click(hasTitle);
@@ -831,9 +829,7 @@ describe("charts", () => {
 
     const dataSeries = fixture.querySelectorAll(".o-chart .o-data-series")[0] as HTMLInputElement;
     const dataSeriesValues = dataSeries.querySelector("input");
-    const hasTitle = fixture.querySelector(
-      ".o-use-row-as-headers input[type=checkbox]"
-    ) as HTMLInputElement;
+    const hasTitle = fixture.querySelector("input[name=dataSetsHaveTitle]") as HTMLInputElement;
     setInputValueAndTrigger(dataSeriesValues, "B2:B5");
     await simulateClick(hasTitle);
     expect(model.getters.getChart(chartId)?.sheetId).toBe(sheetId);
@@ -927,9 +923,8 @@ describe("charts", () => {
       await nextTick();
       const panelChartType = fixture.querySelectorAll(".o-chart .o-input")[0];
       const dataSeries = fixture.querySelectorAll(".o-chart .o-data-series")[0];
-      const hasTitle = (
-        fixture.querySelector(".o-use-row-as-headers input[type=checkbox]") as HTMLInputElement
-      ).checked;
+      const hasTitle = (fixture.querySelector("input[name=dataSetsHaveTitle]") as HTMLInputElement)
+        .checked;
       const labels = fixture.querySelector(".o-data-labels");
       expect((panelChartType as HTMLSelectElement).value).toBe("line");
       expect((dataSeries.querySelector(" .o-selection input") as HTMLInputElement).value).toBe(
@@ -1069,14 +1064,14 @@ describe("charts", () => {
     );
 
     test.each(TEST_CHART_TYPES)(
-      "update chart with invalid dataset/keyValue/dataRange hide confirm button",
+      "update chart with invalid dataset/keyValue/dataRange disable confirm button",
       async (chartType) => {
         createTestChart(chartType);
         await mountChartSidePanel();
 
         await simulateClick(".o-data-series input");
         await setInputValueAndTrigger(".o-data-series input", "This is not valid");
-        expect(fixture.querySelectorAll(".o-data-series .o-selection-ok").length).toBe(0);
+        expect(fixture.querySelectorAll(".o-data-series .o-selection-ok[disabled]").length).toBe(1);
       }
     );
 
@@ -1298,7 +1293,7 @@ describe("charts", () => {
       await mountSpreadsheet();
       await openChartConfigSidePanel();
 
-      const input = fixture.querySelector("input.o-required");
+      const input = fixture.querySelector(".o-selection input");
       await simulateClick(input);
       expect(fixture.querySelector(".o-figure")).toBeTruthy();
     }
@@ -1806,7 +1801,7 @@ describe("charts", () => {
     createChart(model, { type: "bar", horizontal: true }, chartId);
     await mountChartSidePanel();
     await openChartDesignSidePanel();
-    expect(fixture.querySelector(".o-vertical-axis-selection")).toBeNull();
+    expect(fixture.querySelector(".o-vertical-axis-selection ")).toBeNull();
   });
 });
 

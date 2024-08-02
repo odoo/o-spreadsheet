@@ -95,7 +95,7 @@
         />
       </td>
       <td>When value is below</td>
-      <td>
+      <td class="pe-2">
         <input
           type="text"
           class="o-input"

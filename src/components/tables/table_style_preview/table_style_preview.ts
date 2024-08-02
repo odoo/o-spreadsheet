@@ -1,4 +1,5 @@
 import { Component, onMounted, onWillUpdateProps, useRef, useState } from "@odoo/owl";
+import { ACTION_COLOR, BADGE_SELECTED_COLOR } from "../../../constants";
 import { deepEquals } from "../../../helpers";
 import { getComputedTableStyle } from "../../../helpers/table_helpers";
 import { createTableStyleContextMenuActions } from "../../../registries/menus/table_style_menu_registry";
@@ -20,9 +21,10 @@ interface Props {
 css/* scss */ `
   .o-table-style-list-item {
     border: 1px solid transparent;
+    border-radius: 4px;
     &.selected {
-      border: 1px solid #007eff;
-      background: #f5f5f5;
+      border: 1px solid ${ACTION_COLOR};
+      background: ${BADGE_SELECTED_COLOR};
     }
 
     &:hover {

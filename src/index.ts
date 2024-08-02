@@ -68,6 +68,7 @@ import { getFunctionsFromTokens } from "./formulas";
 import { isEvaluationError, toBoolean, toJsDate, toNumber, toString } from "./functions/helpers";
 import { FunctionRegistry, arg, functionRegistry } from "./functions/index";
 import {
+  CHART_AXIS_CHOICES,
   TREND_LINE_XAXIS_ID,
   chartFontColor,
   getChartAxisTitleRuntime,
@@ -117,6 +118,7 @@ import {
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
 
 import { CellComposerStore } from "./components/composer/composer/cell_composer_store";
+import { TextInput } from "./components/text_input/text_input";
 import {
   getChartAxisType,
   getTrendDatasetForLineChart,
@@ -399,6 +401,7 @@ export const components = {
   PivotDeferUpdate,
   PivotTitleSection,
   CogWheelMenu,
+  TextInput,
 };
 
 export const hooks = {
@@ -443,6 +446,7 @@ export const constants = {
   PIVOT_TABLE_CONFIG,
   ChartTerms,
   TREND_LINE_XAXIS_ID,
+  CHART_AXIS_CHOICES,
 };
 
 export { PivotRuntimeDefinition } from "./helpers/pivot/pivot_runtime_definition";

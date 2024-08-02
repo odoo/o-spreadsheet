@@ -1,6 +1,6 @@
 import { Component } from "@odoo/owl";
 import { ChartSidePanel, chartSidePanelComponentRegistry } from "..";
-import { BACKGROUND_HEADER_COLOR } from "../../../../constants";
+import { GRAY_100, GRAY_300, TEXT_BODY, TEXT_HEADING } from "../../../../constants";
 import { Store, useLocalStore } from "../../../../store_engine";
 import { ChartDefinition, ChartType, SpreadsheetChildEnv, UID } from "../../../../types/index";
 import { css } from "../../../helpers/css";
@@ -17,11 +17,19 @@ css/* scss */ `
         padding: 8px 0px;
         text-align: center;
         cursor: pointer;
-        border-right: 1px solid darkgray;
+        border-right: 1px solid ${GRAY_300};
+
         &.inactive {
-          background-color: ${BACKGROUND_HEADER_COLOR};
-          border-bottom: 1px solid darkgray;
+          color: ${TEXT_BODY};
+          background-color: ${GRAY_100};
+          border-bottom: 1px solid ${GRAY_300};
         }
+
+        &:not(.inactive) {
+          color: ${TEXT_HEADING};
+          border-bottom: 1px solid #fff;
+        }
+
         .fa {
           margin-right: 4px;
         }

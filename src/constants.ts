@@ -15,7 +15,6 @@ export const HEADER_BORDER_COLOR = "#C0C0C0";
 export const CELL_BORDER_COLOR = "#E2E3E3";
 export const BACKGROUND_CHART_COLOR = "#FFFFFF";
 export const BORDER_CHART_COLOR = "#FFFFFF";
-export const BG_HOVER_COLOR = "#EBEBEB";
 export const DISABLED_TEXT_COLOR = "#CACACA";
 export const DEFAULT_COLOR_SCALE_MIDPOINT_COLOR = 0xb6d7a8;
 export const LINK_COLOR = "#017E84";
@@ -33,8 +32,35 @@ export const COMPOSER_ASSISTANT_COLOR = "#9B359B";
 export const CHART_WATERFALL_POSITIVE_COLOR = "#4EA7F2";
 export const CHART_WATERFALL_NEGATIVE_COLOR = "#EA6175";
 export const CHART_WATERFALL_SUBTOTAL_COLOR = "#AAAAAA";
-export const DEFAULT_CHART_PADDING = 20;
 
+export const GRAY_900 = "#111827";
+export const GRAY_300 = "#D8DADD";
+export const GRAY_200 = "#E7E9ED";
+export const GRAY_100 = "#F9FAFB";
+export const TEXT_BODY = "#374151";
+export const TEXT_BODY_MUTED = TEXT_BODY + "C2";
+export const TEXT_HEADING = "#111827";
+export const PRIMARY_BUTTON_BG = "#714B67";
+export const PRIMARY_BUTTON_HOVER_BG = "#624159";
+export const PRIMARY_BUTTON_ACTIVE_BG = "#f1edf0";
+export const BUTTON_BG = GRAY_200;
+export const BUTTON_HOVER_BG = GRAY_300;
+export const BUTTON_HOVER_TEXT_COLOR = "#111827";
+export const BUTTON_ACTIVE_BG = "#e6f2f3";
+export const BUTTON_ACTIVE_TEXT_COLOR = "#111827";
+export const ACTION_COLOR = "#017E84";
+export const ALERT_WARNING_BG = "#FBEBCC";
+export const ALERT_WARNING_BORDER = "#F8E2B3";
+export const ALERT_WARNING_TEXT_COLOR = "#946D23";
+export const ALERT_DANGER_BG = "#D44C591A";
+export const ALERT_DANGER_BORDER = "#C34A41";
+export const ALERT_DANGER_TEXT_COLOR = "#C34A41";
+export const ALERT_INFO_BG = "#CDEDF1";
+export const ALERT_INFO_BORDER = "#98DBE2";
+export const ALERT_INFO_TEXT_COLOR = "#09414A";
+export const BADGE_SELECTED_COLOR = "#E6F2F3";
+
+export const DEFAULT_CHART_PADDING = 20;
 export const DEFAULT_CHART_FONT_SIZE = 22;
 
 // Color picker defaults as upper case HEX to match `toHex`helper

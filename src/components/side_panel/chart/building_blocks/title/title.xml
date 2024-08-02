@@ -1,94 +1,94 @@
 <templates>
   <t t-name="o-spreadsheet.ChartTitle">
     <t t-set="placeholder">Add a title</t>
-    <Section class="'o-chart-title pb-0'">
+    <Section class="'o-chart-title'">
       <t t-set-slot="title">
         <t t-if="props.name" t-esc="props.name"/>
         <t t-else="">Title</t>
       </t>
       <input
         type="text"
-        class="o-input o-optional"
+        class="o-input"
         t-att-value="props.title"
         t-on-change="updateTitle"
         t-att-placeholder="placeholder"
       />
-      <Section class="'pt-0 px-0'">
-        <div class="o-chart-title-designer position-relative d-flex align-items-center">
-          <span
-            class="o-menu-item-button o-hoverable-button"
-            title="Bold"
-            t-att-class="{active: props.style.bold}"
-            t-on-click="(ev) => this.props.toggleBold()">
-            <span>
-              <t t-call="o-spreadsheet-Icon.BOLD"/>
-            </span>
+      <div class="o-chart-title-designer position-relative d-flex align-items-center">
+        <span
+          class="o-menu-item-button o-hoverable-button"
+          title="Bold"
+          t-att-class="{active: props.style.bold}"
+          t-on-click="(ev) => this.props.toggleBold()">
+          <span>
+            <t t-call="o-spreadsheet-Icon.BOLD"/>
           </span>
-          <span
-            class="o-menu-item-button o-hoverable-button"
-            title="Italic"
-            t-att-class="{active: props.style.italic}"
-            t-on-click="(ev) => this.props.toggleItalic()">
-            <span>
-              <t t-call="o-spreadsheet-Icon.ITALIC"/>
-            </span>
+        </span>
+        <span
+          class="o-menu-item-button o-hoverable-button"
+          title="Italic"
+          t-att-class="{active: props.style.italic}"
+          t-on-click="(ev) => this.props.toggleItalic()">
+          <span>
+            <t t-call="o-spreadsheet-Icon.ITALIC"/>
           </span>
-          <span
-            class="o-menu-item-button o-hoverable-button"
-            title="Horizontal alignment"
-            t-on-click="(ev) => this.toggleDropdownTool('horizontalChartAlignTool', ev)">
-            <span>
-              <t t-if="props.style.align === 'center'" t-call="o-spreadsheet-Icon.ALIGN_CENTER"/>
-              <t t-elif="props.style.align === 'right'" t-call="o-spreadsheet-Icon.ALIGN_RIGHT"/>
-              <t t-else="" t-call="o-spreadsheet-Icon.ALIGN_LEFT"/>
-            </span>
-            <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
+        </span>
+        <div class="o-divider"/>
+        <span
+          class="o-menu-item-button o-hoverable-button"
+          title="Horizontal alignment"
+          t-on-click="(ev) => this.toggleDropdownTool('horizontalChartAlignTool', ev)">
+          <span>
+            <t t-if="props.style.align === 'center'" t-call="o-spreadsheet-Icon.ALIGN_CENTER"/>
+            <t t-elif="props.style.align === 'right'" t-call="o-spreadsheet-Icon.ALIGN_RIGHT"/>
+            <t t-else="" t-call="o-spreadsheet-Icon.ALIGN_LEFT"/>
           </span>
-          <div
-            class="o-dropdown-content position-absolute top-100 start-0 bg-white"
-            t-if="state.activeTool === 'horizontalChartAlignTool'"
-            t-on-click.stop="">
-            <div class="o-dropdown-line d-flex">
-              <span
-                class="o-menu-item-button o-hoverable-button"
-                t-att-class="{active: props.style.align === 'left'}"
-                title="Left"
-                t-on-click="(ev) => this.updateAlignment('left')">
-                <span>
-                  <t t-call="o-spreadsheet-Icon.ALIGN_LEFT"/>
-                </span>
+          <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
+        </span>
+        <div
+          class="o-dropdown-content position-absolute top-100 start-0 bg-white"
+          t-if="state.activeTool === 'horizontalChartAlignTool'"
+          t-on-click.stop="">
+          <div class="o-dropdown-line d-flex">
+            <span
+              class="o-menu-item-button o-hoverable-button"
+              t-att-class="{active: props.style.align === 'left'}"
+              title="Left"
+              t-on-click="(ev) => this.updateAlignment('left')">
+              <span>
+                <t t-call="o-spreadsheet-Icon.ALIGN_LEFT"/>
               </span>
-              <span
-                class="o-menu-item-button o-hoverable-button"
-                t-att-class="{active: props.style.align === 'center'}"
-                title="Center"
-                t-on-click="(ev) => this.updateAlignment('center')">
-                <span>
-                  <t t-call="o-spreadsheet-Icon.ALIGN_CENTER"/>
-                </span>
+            </span>
+            <span
+              class="o-menu-item-button o-hoverable-button"
+              t-att-class="{active: props.style.align === 'center'}"
+              title="Center"
+              t-on-click="(ev) => this.updateAlignment('center')">
+              <span>
+                <t t-call="o-spreadsheet-Icon.ALIGN_CENTER"/>
               </span>
-              <span
-                class="o-menu-item-button o-hoverable-button"
-                t-att-class="{active: props.style.align === 'right'}"
-                title="Right"
-                t-on-click="(ev) => this.updateAlignment('right')">
-                <span>
-                  <t t-call="o-spreadsheet-Icon.ALIGN_RIGHT"/>
-                </span>
+            </span>
+            <span
+              class="o-menu-item-button o-hoverable-button"
+              t-att-class="{active: props.style.align === 'right'}"
+              title="Right"
+              t-on-click="(ev) => this.updateAlignment('right')">
+              <span>
+                <t t-call="o-spreadsheet-Icon.ALIGN_RIGHT"/>
               </span>
-            </div>
+            </span>
           </div>
-          <ColorPickerWidget
-            currentColor="props.style.color"
-            toggleColorPicker="(ev) => this.toggleDropdownTool('fillChartColorTool', ev)"
-            showColorPicker="state.activeTool === 'fillChartColorTool'"
-            onColorPicked.bind="onColorPicked"
-            title="fill_color"
-            icon="'o-spreadsheet-Icon.TEXT_COLOR'"
-            class="'o-hoverable-button o-menu-item-button'"
-          />
         </div>
-      </Section>
+        <div class="o-divider"/>
+        <ColorPickerWidget
+          currentColor="props.style.color"
+          toggleColorPicker="(ev) => this.toggleDropdownTool('fillChartColorTool', ev)"
+          showColorPicker="state.activeTool === 'fillChartColorTool'"
+          onColorPicked.bind="onColorPicked"
+          title="fill_color"
+          icon="'o-spreadsheet-Icon.TEXT_COLOR'"
+          class="'o-hoverable-button o-menu-item-button'"
+        />
+      </div>
     </Section>
   </t>
 </templates>

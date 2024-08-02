@@ -4,11 +4,13 @@ import {
   CHART_WATERFALL_POSITIVE_COLOR,
   CHART_WATERFALL_SUBTOTAL_COLOR,
 } from "../../../../constants";
+import { CHART_AXIS_CHOICES } from "../../../../helpers/figures/charts";
 import { _t } from "../../../../translation";
 import { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types";
 import { WaterfallChartDefinition } from "../../../../types/chart/waterfall_chart";
 import { ChartTerms } from "../../../translations_terms";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
+import { RadioSelection } from "../../components/radio_selection/radio_selection";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";
 import {
@@ -34,6 +36,7 @@ export class WaterfallChartDesignPanel extends Component<Props, SpreadsheetChild
     Section,
     RoundColorPicker,
     AxisDesignEditor,
+    RadioSelection,
   };
   static props = {
     figureId: String,
@@ -41,6 +44,8 @@ export class WaterfallChartDesignPanel extends Component<Props, SpreadsheetChild
     updateChart: Function,
     canUpdateChart: { type: Function, optional: true },
   };
+
+  axisChoices = CHART_AXIS_CHOICES;
 
   onUpdateShowSubTotals(showSubTotals: boolean) {
     this.props.updateChart(this.props.figureId, { showSubTotals });
@@ -92,9 +97,9 @@ export class WaterfallChartDesignPanel extends Component<Props, SpreadsheetChild
     });
   }
 
-  updateVerticalAxisPosition(ev) {
+  updateVerticalAxisPosition(value: "left" | "right") {
     this.props.updateChart(this.props.figureId, {
-      verticalAxisPosition: ev.target.value,
+      verticalAxisPosition: value,
     });
   }
 

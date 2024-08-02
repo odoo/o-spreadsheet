@@ -90,6 +90,12 @@ export class GenericChartConfigPanel extends Component<Props, SpreadsheetChildEn
         value: this.props.definition.aggregated ?? false,
         onChange: this.onUpdateAggregated.bind(this),
       },
+      {
+        name: "dataSetsHaveTitle",
+        label: this.dataSetsHaveTitleLabel,
+        value: this.props.definition.dataSetsHaveTitle,
+        onChange: this.onUpdateDataSetsHaveTitle.bind(this),
+      },
     ];
   }
 

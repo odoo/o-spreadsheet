@@ -5,12 +5,11 @@ import { getRangeValuesAsMatrix, mountSpreadsheet, nextTick } from "../test_help
 
 const selectors = {
   closeSidepanel: ".o-sidePanel .o-sidePanelClose",
-  statisticalInformation:
-    ".o-sidePanel .o-remove-duplicates .o-section:nth-child(1) .o-section-subtitle",
-  checkBoxHasHeaderRow: ".o-sidePanel .o-remove-duplicates .o-section:nth-child(1) input",
-  checkBoxColumnsLabel: ".o-sidePanel .o-remove-duplicates .o-section:nth-child(2) label",
-  checkBoxColumnsInput: ".o-sidePanel .o-remove-duplicates .o-section:nth-child(2) input",
-  sidePanelError: ".o-side-panel-error",
+  statisticalInformation: ".o-sidePanel .o-remove-duplicates .o-validation-info",
+  checkBoxHasHeaderRow: ".o-sidePanel .o-remove-duplicates input[name=dataHasHeader]",
+  checkBoxColumnsLabel: ".o-sidePanel .o-remove-duplicates .o-checkbox-selection label",
+  checkBoxColumnsInput: ".o-sidePanel .o-remove-duplicates .o-checkbox-selection input",
+  sidePanelError: ".o-validation-error",
   removeDuplicateButton: ".o-sidePanel .o-remove-duplicates .o-button",
 };
 

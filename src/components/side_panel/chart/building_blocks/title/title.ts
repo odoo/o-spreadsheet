@@ -1,4 +1,5 @@
 import { Component, useExternalListener, useState } from "@odoo/owl";
+import { GRAY_300 } from "../../../../../constants";
 import { Color, SpreadsheetChildEnv, TitleDesign } from "../../../../../types";
 import { ColorPickerWidget } from "../../../../color_picker/color_picker_widget";
 import { css } from "../../../../helpers";
@@ -8,6 +9,12 @@ css/* scss */ `
   .o-chart-title-designer {
     > span {
       height: 30px;
+    }
+
+    .o-divider {
+      border-right: 1px solid ${GRAY_300};
+      margin: 0px 4px;
+      height: 14px;
     }
 
     .o-menu-item-button.active {

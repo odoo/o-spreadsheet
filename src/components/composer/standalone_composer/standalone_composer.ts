@@ -1,5 +1,5 @@
 import { Component } from "@odoo/owl";
-import { SELECTION_BORDER_COLOR } from "../../../constants";
+import { GRAY_300, SELECTION_BORDER_COLOR } from "../../../constants";
 import { Store, useLocalStore, useStore } from "../../../store_engine";
 import { ComposerFocusType, SpreadsheetChildEnv } from "../../../types/index";
 import { css, cssPropertiesToCss } from "../../helpers/css";
@@ -12,20 +12,19 @@ import { StandaloneComposerStore } from "./standalone_composer_store";
 css/* scss */ `
   .o-spreadsheet {
     .o-standalone-composer {
-      min-height: 28px;
+      min-height: 24px;
       overflow: auto;
       box-sizing: border-box;
 
-      border-radius: 4px;
-      border: 1px solid;
-      border-color: #666666;
+      border-bottom: 1px solid;
+      border-color: ${GRAY_300};
 
       &.active {
         border-color: ${SELECTION_BORDER_COLOR};
       }
 
       &.o-invalid {
-        border: 2px solid red;
+        border-bottom: 2px solid red;
       }
 
       /* As the standalone composer is potentially very small (eg. in a side panel), we remove the scrollbar display */
@@ -90,8 +89,8 @@ export class StandaloneComposer extends Component<Props, SpreadsheetChildEnv> {
 
   get composerStyle(): string {
     return this.props.invalid
-      ? cssPropertiesToCss({ padding: "3px 0px 3px 4px" })
-      : cssPropertiesToCss({ padding: "4px 0px 4px 5px" });
+      ? cssPropertiesToCss({ padding: "1px 0px 0px 0px" })
+      : cssPropertiesToCss({ padding: "1px 0px" });
   }
 
   get containerClass(): string {

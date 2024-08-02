@@ -1,8 +1,10 @@
 import { Component, onWillStart } from "@odoo/owl";
+import { GRAY_100, GRAY_300 } from "../../../constants";
 import { deepEquals, formatValue } from "../../../helpers";
 import { getDateTimeFormat, isValidLocale } from "../../../helpers/locale";
 import { Locale, LocaleCode, SpreadsheetChildEnv } from "../../../types";
 import { css } from "../../helpers";
+import { ValidationMessages } from "../../validation_messages/validation_messages";
 import { Section } from "../components/section/section";
 
 interface Props {
@@ -11,13 +13,14 @@ interface Props {
 
 css/* scss */ `
   .o-locale-preview {
-    color: dimgrey;
+    border: 1px solid ${GRAY_300};
+    background-color: ${GRAY_100};
   }
 `;
 
 export class SettingsPanel extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-SettingsPanel";
-  static components = { Section };
+  static components = { Section, ValidationMessages };
   static props = { onCloseSidePanel: Function };
 
   loadedLocales: Locale[] = [];
