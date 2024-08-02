@@ -40,7 +40,7 @@
       <Section>
         <t t-set-slot="title">Format</t>
         <select
-          class="o-input o-format-proposals"
+          class="o-input o-format-proposals mb-1"
           t-on-change="(ev) => this.updateSelectFormat(ev)"
           t-att-disabled="!formatProposals.length">
           <t t-foreach="formatProposals" t-as="proposal" t-key="proposal_index">
@@ -51,6 +51,23 @@
             />
           </t>
         </select>
+        <t t-set="accounting_format_label">Accounting format</t>
+        <Checkbox
+          name="'accountingFormat'"
+          label="accounting_format_label"
+          value="state.isAccountingFormat"
+          onChange.bind="toggleAccountingFormat"
+        />
+        <div class="o-format-examples mt-4" t-if="selectedFormat">
+          <table>
+            <t t-foreach="getFormatExamples()" t-as="example" t-key="example_index">
+              <tr>
+                <td class="pe-3 fw-bolder" t-esc="example.label"/>
+                <td t-esc="example.value"/>
+              </tr>
+            </t>
+          </table>
+        </div>
       </Section>
       <Section>
         <div class="o-sidePanelButtons">

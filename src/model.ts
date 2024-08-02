@@ -3,7 +3,7 @@ import { LocalTransportService } from "./collaborative/local_transport_service";
 import { Session } from "./collaborative/session";
 import { DEFAULT_REVISION_ID } from "./constants";
 import { EventBus } from "./helpers/event_bus";
-import { deepCopy, lazy, UuidGenerator } from "./helpers/index";
+import { UuidGenerator, deepCopy, lazy } from "./helpers/index";
 import { buildRevisionLog } from "./history/factory";
 import {
   createEmptyExcelWorkbookData,
@@ -30,7 +30,6 @@ import { _t, setDefaultTranslationMethod } from "./translation";
 import { StateUpdateMessage, TransportService } from "./types/collaborative/transport_service";
 import { FileStore } from "./types/files";
 import {
-  canExecuteInReadonly,
   Client,
   ClientPosition,
   Color,
@@ -44,15 +43,15 @@ import {
   Currency,
   DEFAULT_LOCALES,
   DispatchResult,
-  Format,
   Getters,
   GridRenderingContext,
   InformationNotification,
-  isCoreCommand,
   LayerName,
   LocalCommand,
   Locale,
   UID,
+  canExecuteInReadonly,
+  isCoreCommand,
 } from "./types/index";
 import { WorkbookData } from "./types/workbook_data";
 import { XLSXExport } from "./types/xlsx";
@@ -95,7 +94,7 @@ export interface ModelConfig {
   readonly custom: Readonly<{
     [key: string]: any;
   }>;
-  readonly defaultCurrencyFormat?: Format;
+  readonly defaultCurrency?: Partial<Currency>;
   /**
    * External dependencies required to enable some features
    * such as uploading images.
@@ -451,7 +450,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       custom: this.config.custom,
       uiActions: this.config,
       session: this.session,
-      defaultCurrencyFormat: this.config.defaultCurrencyFormat,
+      defaultCurrency: this.config.defaultCurrency,
       customColors: this.config.customColors || [],
     };
   }

@@ -1,4 +1,4 @@
-import { BorderDescr, Color, Style } from "./types";
+import { BorderDescr, Color, Currency, Style } from "./types";
 
 export const CANVAS_SHIFT = 0.5;
 
@@ -290,4 +290,12 @@ export const PIVOT_TABLE_CONFIG = {
   bandedRows: true,
   bandedColumns: false,
   styleId: "TableStyleMedium5",
+};
+
+export const DEFAULT_CURRENCY: Currency = {
+  symbol: "$",
+  position: "before",
+  decimalPlaces: 2,
+  code: "",
+  name: "Dollar",
 };

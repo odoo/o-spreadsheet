@@ -49,7 +49,7 @@ import {
   target,
 } from "../test_helpers/helpers";
 
-import { Model } from "../../src";
+import { Currency, Model } from "../../src";
 import { ClipboardMIMEType } from "../../src/types";
 
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
@@ -61,6 +61,12 @@ import { DEFAULT_LOCALES } from "../../src/types/locale";
 import { FR_LOCALE } from "../test_helpers/constants";
 
 jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
+
+const TEST_CURRENCY: Partial<Currency> = {
+  symbol: "€",
+  decimalPlaces: 3,
+  position: "before",
+};
 
 describe("Top Bar Menu Item Registry", () => {
   let registry: MenuItemRegistry;
@@ -1093,7 +1099,7 @@ describe("Menu Item actions", () => {
     });
 
     test("currency format with custom default currency", () => {
-      const model = new Model({}, { defaultCurrencyFormat: "[$€]#,##0.000" });
+      const model = new Model({}, { defaultCurrency: TEST_CURRENCY });
       env = makeTestEnv({ model });
       const action = getNode(["format", "format_number", "format_number_currency"], env);
       expect(action.description(env)).toBe("€1,000.120");
@@ -1102,7 +1108,7 @@ describe("Menu Item actions", () => {
     });
 
     test("rounded currency format with custom default currency", () => {
-      const model = new Model({}, { defaultCurrencyFormat: "[$€]#,##0.000" });
+      const model = new Model({}, { defaultCurrency: TEST_CURRENCY });
       env = makeTestEnv({ model });
       const action = getNode(["format", "format_number", "format_number_currency_rounded"], env);
       expect(action.description(env)).toBe("€1,000");
@@ -1111,18 +1117,27 @@ describe("Menu Item actions", () => {
     });
 
     test("rounded currency format is invisible if the custom default format is already rounded", () => {
-      const model = new Model({}, { defaultCurrencyFormat: "[$€]#,##0" });
+      const model = new Model({}, { defaultCurrency: { decimalPlaces: 0 } });
       env = makeTestEnv({ model });
       const action = getNode(["format", "format_number", "format_number_currency_rounded"], env);
       expect(action.isVisible(env)).toBe(false);
     });
 
     test("currency format description with locale and custom default currency", () => {
-      const model = new Model({}, { defaultCurrencyFormat: "[$€]#,##0.000" });
+      const model = new Model({}, { defaultCurrency: TEST_CURRENCY });
       env = makeTestEnv({ model });
       updateLocale(model, FR_LOCALE);
       const action = getNode(["format", "format_number", "format_number_currency"], env);
       expect(action.description(env)).toBe("€1 000,120");
+    });
+
+    test("accounting format menu item", () => {
+      const model = new Model({}, { defaultCurrency: { ...TEST_CURRENCY, decimalPlaces: 0 } });
+      env = makeTestEnv({ model });
+      const action = getNode(["format", "format_number", "format_number_accounting"], env);
+      expect(action.isVisible(env)).toBe(true);
+      action.execute?.(env);
+      expect(getCell(model, "A1")?.format).toBe("[$€]#,##0;[$€](#,##0);[$€]- ");
     });
 
     test.each(DEFAULT_LOCALES)("Date", (locale) => {

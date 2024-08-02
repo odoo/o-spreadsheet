@@ -1,10 +1,11 @@
 import {
+  DEFAULT_CURRENCY,
   DEFAULT_FONT_SIZE,
   DEFAULT_VERTICAL_ALIGN,
   DEFAULT_WRAPPING_MODE,
   FONT_SIZES,
 } from "../constants";
-import { formatValue, roundFormat } from "../helpers";
+import { createAccountingFormat, createCurrencyFormat, formatValue, roundFormat } from "../helpers";
 import { parseLiteral } from "../helpers/cells";
 import { getDateTimeFormat } from "../helpers/locale";
 import { _t } from "../translation";
@@ -85,22 +86,30 @@ export const formatNumberPercent = createFormatActionSpec({
 export const formatNumberCurrency = createFormatActionSpec({
   name: _t("Currency"),
   descriptionValue: 1000.12,
-  format: (env) => env.model.config.defaultCurrencyFormat ?? DEFAULT_CURRENCY_FORMAT,
+  format: (env) => createCurrencyFormat(env.model.config.defaultCurrency || DEFAULT_CURRENCY),
 });
 
 export const formatNumberCurrencyRounded: NumberFormatActionSpec = {
   ...createFormatActionSpec({
     name: _t("Currency rounded"),
     descriptionValue: 1000,
-    format: (env) => roundFormat(env.model.config.defaultCurrencyFormat ?? DEFAULT_CURRENCY_FORMAT),
+    format: (env) =>
+      roundFormat(createCurrencyFormat(env.model.config.defaultCurrency || DEFAULT_CURRENCY)),
   }),
   isVisible: (env) => {
-    const currencyFormat = env.model.config.defaultCurrencyFormat;
-    return currencyFormat !== roundFormat(currencyFormat ?? DEFAULT_CURRENCY_FORMAT);
+    const currencyFormat = createCurrencyFormat(
+      env.model.config.defaultCurrency || DEFAULT_CURRENCY
+    );
+    const roundedFormat = roundFormat(currencyFormat);
+    return currencyFormat !== roundedFormat;
   },
 };
 
-const DEFAULT_CURRENCY_FORMAT = "[$$]#,##0.00";
+export const formatNumberAccounting = createFormatActionSpec({
+  name: _t("Accounting"),
+  descriptionValue: -1000.12,
+  format: (env) => createAccountingFormat(env.model.config.defaultCurrency || DEFAULT_CURRENCY),
+});
 
 export const EXAMPLE_DATE = parseLiteral("2023/09/26 10:43:00 PM", DEFAULT_LOCALE);
 
