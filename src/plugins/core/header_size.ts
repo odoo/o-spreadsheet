@@ -15,7 +15,10 @@ export class HeaderSizePlugin extends CorePlugin<HeaderSizeState> implements Hea
   handle(cmd: Command) {
     switch (cmd.type) {
       case "CREATE_SHEET": {
-        this.history.update("sizes", cmd.sheetId, { COL: [], ROW: [] });
+        this.history.update("sizes", cmd.sheetId, {
+          COL: Array(this.getters.getNumberCols(cmd.sheetId)).fill(undefined),
+          ROW: Array(this.getters.getNumberRows(cmd.sheetId)).fill(undefined),
+        });
         break;
       }
       case "DUPLICATE_SHEET":

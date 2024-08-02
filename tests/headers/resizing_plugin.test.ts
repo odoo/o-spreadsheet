@@ -297,6 +297,19 @@ describe("Model resizer", () => {
       expect(model.getters.getRowSize(sheetId, 0)).toEqual(font36CellHeight);
       expect(model.getters.getRowSize(sheetId, 1)).toEqual(DEFAULT_CELL_HEIGHT);
     });
+
+    test("resizing rows/columns and removing rows/columns maintains expected sizes in new sheet", () => {
+      const sheetId = "sh2";
+      createSheet(model, { sheetId });
+
+      resizeRows(model, [5], 200, sheetId);
+      deleteRows(model, [10], sheetId);
+      expect(model.getters.getRowSize(sheetId, 5)).toEqual(200);
+
+      resizeColumns(model, ["B"], 200, sheetId);
+      deleteColumns(model, ["E"], sheetId);
+      expect(model.getters.getColSize(sheetId, 1)).toEqual(200);
+    });
   });
 
   describe("resize rows when changing font", () => {
