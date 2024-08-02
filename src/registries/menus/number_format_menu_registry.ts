@@ -35,6 +35,11 @@ numberFormatMenuRegistry
     id: "format_number_currency",
     sequence: 40,
   })
+  .add("format_number_accounting", {
+    ...ACTION_FORMAT.formatNumberAccounting,
+    id: "format_number_accounting",
+    sequence: 45,
+  })
   .add("format_number_currency_rounded", {
     ...ACTION_FORMAT.formatNumberCurrencyRounded,
     id: "format_number_currency_rounded",
