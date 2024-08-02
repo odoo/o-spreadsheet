@@ -13,7 +13,6 @@ import {
   Locale,
   LocaleFormat,
   NumberCell,
-  PLAIN_TEXT_FORMAT,
 } from "../../types";
 import { parseDateTime } from "../dates";
 import {
@@ -21,6 +20,7 @@ import {
   detectNumberFormat,
   formatValue,
   isDateTimeFormat,
+  isTextFormat,
 } from "../format/format";
 import { detectLink } from "../links";
 import { isBoolean, memoize } from "../misc";
@@ -30,8 +30,7 @@ export function evaluateLiteral(
   literalCell: LiteralCell,
   localeFormat: LocaleFormat
 ): EvaluatedCell {
-  const value =
-    localeFormat.format === PLAIN_TEXT_FORMAT ? literalCell.content : literalCell.parsedValue;
+  const value = isTextFormat(localeFormat.format) ? literalCell.content : literalCell.parsedValue;
   const functionResult = { value, format: localeFormat.format };
   return createEvaluatedCell(functionResult, localeFormat.locale);
 }
@@ -93,7 +92,7 @@ function _createEvaluatedCell(
   if (isEvaluationError(value)) {
     return errorCell(value, message);
   }
-  if (format === PLAIN_TEXT_FORMAT) {
+  if (isTextFormat(format)) {
     // TO DO:
     // with the next line, the value of the cell is transformed depending on the format.
     // This shouldn't happen, by doing this, the formulas handling numbers are not able

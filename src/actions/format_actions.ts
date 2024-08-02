@@ -13,7 +13,6 @@ import {
   CellValue,
   DEFAULT_LOCALE,
   Format,
-  PLAIN_TEXT_FORMAT,
   SpreadsheetChildEnv,
   VerticalAlign,
   Wrapping,
@@ -61,8 +60,8 @@ export const formatNumberAutomatic: NumberFormatActionSpec = {
 
 export const formatNumberPlainText: NumberFormatActionSpec = {
   name: _t("Plain text"),
-  execute: (env) => setFormatter(env, PLAIN_TEXT_FORMAT),
-  isActive: (env) => isFormatSelected(env, PLAIN_TEXT_FORMAT),
+  execute: (env) => setFormatter(env, "@"),
+  isActive: (env) => isFormatSelected(env, "@"),
 };
 
 export const formatNumberNumber = createFormatActionSpec({
