@@ -7,7 +7,7 @@ import {
   Color,
   Command,
   CommandDispatcher,
-  Format,
+  Currency,
   Getters,
   GridRenderingContext,
   LayerName,
@@ -26,7 +26,7 @@ export interface UIPluginConfig {
   readonly uiActions: UIActions;
   readonly custom: ModelConfig["custom"];
   readonly session: Session;
-  readonly defaultCurrencyFormat?: Format;
+  readonly defaultCurrency?: Partial<Currency>;
   readonly customColors: Color[];
 }
 
