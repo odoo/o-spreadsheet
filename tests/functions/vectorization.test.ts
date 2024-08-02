@@ -153,6 +153,25 @@ describe("vectorization", () => {
     expect(checkFunctionDoesntSpreadBeyondRange(model, "D1:E2")).toBeTruthy();
   });
 
+  test("function which throws an error during the evaluation of the position of one of its vectors, will apply the error to this position and continue the evaluation for each vector position", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "A1", B1: "B1",
+      A2: "A2", B2: "#ERROR",
+      A3: "A3", B3: "B3",
+    };
+    const model = createModelFromGrid(grid);
+    setCellContent(model, "D1", '=FUNCTION.WITHOUT.RANGE.ARGS("this is ", B1:B3)');
+    expect(getRangeValuesAsMatrix(model, "D1:D3")).toEqual([
+      ["this is B1"],
+      ["#ERROR"],
+      ["this is B3"],
+    ]);
+
+    setCellContent(model, "D1", '=FUNCTION.WITHOUT.RANGE.ARGS("#ERROR", A1:A3)');
+    expect(getRangeValuesAsMatrix(model, "D1:D3")).toEqual([["#ERROR"], ["#ERROR"], ["#ERROR"]]);
+  });
+
   test("binary operators should always accept vectors", () => {
     // mean binary operators args should always be simple args
     for (let op in OPERATOR_MAP) {
