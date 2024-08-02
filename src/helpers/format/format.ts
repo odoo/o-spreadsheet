@@ -769,3 +769,13 @@ export function isExcelCompatible(format: Format): boolean {
   }
   return true;
 }
+
+export function isTextFormat(format: Format | undefined): boolean {
+  if (!format) return false;
+  try {
+    const internalFormat = parseFormat(format);
+    return internalFormat.positive.type === "text";
+  } catch {
+    return false;
+  }
+}
