@@ -11,6 +11,7 @@ import {
   CellValueType,
   Command,
   Format,
+  Position,
   SetDecimalStep,
   UID,
   Zone,
@@ -42,6 +43,7 @@ export class FormatPlugin extends UIPlugin {
    * evaluated and updated with the number type.
    */
   private setDecimal(sheetId: UID, zones: Zone[], step: SetDecimalStep) {
+    const positionsByFormat: Record<Format, Position[]> = {};
     // Find the each cell with a number value and get the format
     for (const zone of recomputeZones(zones)) {
       for (const position of positions(zone)) {
@@ -51,14 +53,21 @@ export class FormatPlugin extends UIPlugin {
           // of the format
           const locale = this.getters.getLocale();
           const newFormat = changeDecimalPlaces(numberFormat, step, locale);
-          // Apply the new format on the whole zone
-          this.dispatch("SET_FORMATTING", {
-            sheetId,
-            target: [positionToZone(position)],
-            format: newFormat,
-          });
+          positionsByFormat[newFormat] = positionsByFormat[newFormat] || [];
+          positionsByFormat[newFormat].push(position);
         }
       }
+    }
+    // consolidate all positions with the same format in bigger zones
+    for (const newFormat in positionsByFormat) {
+      const zones = recomputeZones(
+        positionsByFormat[newFormat].map((position) => positionToZone(position))
+      );
+      this.dispatch("SET_FORMATTING", {
+        sheetId,
+        format: newFormat,
+        target: zones,
+      });
     }
   }
 
