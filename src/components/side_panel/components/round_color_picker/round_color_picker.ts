@@ -1,4 +1,5 @@
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
+import { GRAY_300 } from "../../../../constants";
 import { Rect, SpreadsheetChildEnv } from "../../../../types";
 import { ColorPicker } from "../../../color_picker/color_picker";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
@@ -24,10 +25,10 @@ const TRANSPARENT_BACKGROUND_SVG = /*xml*/ `
 
 css/* scss */ `
   .o-round-color-picker-button {
-    width: 15px;
-    height: 15px;
+    width: 18px;
+    height: 18px;
     cursor: pointer;
-    border: 1px solid #aaa;
+    border: 1px solid ${GRAY_300};
     background-position: 1px 1px;
     background-image: url("data:image/svg+xml,${encodeURIComponent(TRANSPARENT_BACKGROUND_SVG)}");
   }

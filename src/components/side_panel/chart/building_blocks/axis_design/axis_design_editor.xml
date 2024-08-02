@@ -2,15 +2,11 @@
   <t t-name="o-spreadsheet-AxisDesignEditor">
     <t t-set="editor_label">Axis title</t>
     <Section class="'py-0'">
-      <select class="o-input o-axis-selector" t-on-change="this.updateAxisEditor">
-        <t t-foreach="props.axesList" t-as="axis" t-key="axis.id">
-          <option
-            t-att-value="axis.id"
-            t-att-selected="state.currentAxis === axis.id"
-            t-esc="axis.name"
-          />
-        </t>
-      </select>
+      <BadgeSelection
+        choices="badgeAxes"
+        onChange.bind="(value) => state.currentAxis = value"
+        selectedValue="state.currentAxis"
+      />
     </Section>
     <ChartTitle
       title="this.getAxisTitle()"

@@ -1,5 +1,5 @@
 import { Component, useRef } from "@odoo/owl";
-import { HIGHLIGHT_COLOR } from "../../../../constants";
+import { CF_ICON_EDGE_LENGTH, HIGHLIGHT_COLOR } from "../../../../constants";
 import { colorNumberString } from "../../../../helpers";
 import { _t } from "../../../../translation";
 import { ConditionalFormat, Highlight, SpreadsheetChildEnv } from "../../../../types";
@@ -32,6 +32,10 @@ css/* scss */ `
       position: absolute;
       height: 50px;
       width: 50px;
+      .o-icon {
+        width: ${CF_ICON_EDGE_LENGTH}px;
+        height: ${CF_ICON_EDGE_LENGTH}px;
+      }
     }
     .o-cf-preview-description {
       left: 65px;
@@ -66,6 +70,13 @@ css/* scss */ `
         width: 6px;
         height: 30px;
       }
+    }
+
+    .o-icon.arrow-down {
+      color: #e06666;
+    }
+    .o-icon.arrow-up {
+      color: #6aa84f;
     }
   }
 `;

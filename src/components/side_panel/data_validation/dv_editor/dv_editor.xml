@@ -8,11 +8,12 @@
           onSelectionChanged="(ranges) => this.onRangesChanged(ranges)"
           required="true"
         />
-
+      </Section>
+      <Section class="'pt-0'">
         <div class="o-subsection o-dv-settings">
           <div class="o-section-title">Criteria</div>
           <SelectMenu
-            class="'o-dv-type o-input mb-4'"
+            class="'o-dv-type o-input mb-2'"
             menuItems="dvCriterionMenuItems"
             selectedValue="selectedCriterionName"
           />
@@ -27,7 +28,7 @@
         </div>
       </Section>
 
-      <Section class="'o-dv-invalid-option'">
+      <Section class="'o-dv-invalid-option pt-0'">
         <t t-set-slot="title">If the data is invalid</t>
         <select class="o-dv-reject-input o-input" t-on-change="changeRuleIsBlocking">
           <option t-att-selected="!state.rule.isBlocking" value="false">Show a warning</option>
@@ -35,15 +36,17 @@
         </select>
       </Section>
 
-      <div class="o-sidePanelButtons">
-        <button t-on-click="props.onExit" class="o-dv-cancel o-button o-button-grey">Cancel</button>
-        <button
-          t-on-click="onSave"
-          class="o-dv-save o-button o-button-grey primary"
-          t-att-class="{'o-disabled': !canSave }">
-          Save
-        </button>
-      </div>
+      <Section>
+        <div class="o-sidePanelButtons">
+          <button t-on-click="props.onExit" class="o-dv-cancel o-button">Cancel</button>
+          <button
+            t-on-click="onSave"
+            class="o-dv-save o-button primary"
+            t-att-class="{'o-disabled': !canSave }">
+            Save
+          </button>
+        </div>
+      </Section>
     </div>
   </t>
 </templates>

@@ -8,7 +8,8 @@ import {
 } from "@odoo/owl";
 import { Action } from "../../actions/action";
 import {
-  BG_HOVER_COLOR,
+  BUTTON_ACTIVE_BG,
+  BUTTON_ACTIVE_TEXT_COLOR,
   DISABLED_TEXT_COLOR,
   ICONS_COLOR,
   MENU_ITEM_HEIGHT,
@@ -57,7 +58,8 @@ css/* scss */ `
       &:not(.disabled) {
         &:hover,
         &.o-menu-item-active {
-          background-color: ${BG_HOVER_COLOR};
+          background-color: ${BUTTON_ACTIVE_BG};
+          color: ${BUTTON_ACTIVE_TEXT_COLOR};
         }
         .o-menu-item-description {
           color: grey;

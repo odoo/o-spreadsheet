@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-SidePanel">
     <div class="o-sidePanel" t-if="sidePanelStore.isOpen">
       <div class="o-sidePanelHeader">
-        <div class="o-sidePanelTitle" t-esc="getTitle()"/>
+        <div class="o-sidePanelTitle o-heading-3" t-esc="getTitle()"/>
         <div class="o-sidePanelClose" t-on-click="close">✕</div>
       </div>
       <div class="o-sidePanelBody-container d-flex flex-grow-1 ">

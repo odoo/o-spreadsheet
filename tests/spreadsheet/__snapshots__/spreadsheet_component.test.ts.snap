@@ -658,7 +658,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
             style="top:2300px; "
           >
             <button
-              class="o-button o-button-grey"
+              class="o-button flex-grow-0 me-2"
             >
                Add 
             </button>

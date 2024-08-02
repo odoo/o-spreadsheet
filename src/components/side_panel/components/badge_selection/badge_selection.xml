@@ -1,0 +1,15 @@
+<templates>
+  <t t-name="o-spreadsheet.BadgeSelection">
+    <div class="d-flex w-100 o-badge-selection">
+      <t t-foreach="props.choices" t-as="choice" t-key="choice.value">
+        <button
+          class="flex-grow-1 o-button"
+          t-esc="choice.label"
+          t-att-class="{ 'selected': props.selectedValue === choice.value }"
+          t-on-click="() => props.onChange(choice.value)"
+          t-att-data-id="choice.value"
+        />
+      </t>
+    </div>
+  </t>
+</templates>

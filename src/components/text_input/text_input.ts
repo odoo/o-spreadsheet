@@ -1,5 +1,6 @@
 import { Component, useExternalListener, useRef } from "@odoo/owl";
 import { SpreadsheetChildEnv } from "../..";
+import { GRAY_300, TEXT_BODY } from "../../constants";
 import { Ref } from "../../types";
 import { css } from "../helpers";
 
@@ -11,10 +12,11 @@ css/* scss */ `
       border-color: transparent;
       outline: none;
       text-overflow: ellipsis;
+      color: ${TEXT_BODY};
     }
     .os-input:hover,
     .os-input:focus {
-      border-color: black;
+      border-color: ${GRAY_300};
     }
   }
 `;

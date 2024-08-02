@@ -27,6 +27,7 @@ css/* scss */ `
     .format-preview {
       height: 48px;
       background-color: white;
+      cursor: pointer;
 
       &:hover {
         background-color: rgba(0, 0, 0, 0.08);

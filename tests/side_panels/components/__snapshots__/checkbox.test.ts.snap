@@ -3,10 +3,10 @@
 exports[`Checkbox Can render a checkbox 1`] = `
 <div>
   <label
-    class="o-checkbox"
+    class="o-checkbox d-flex align-items-center"
   >
     <input
-      class="align-middle"
+      class="me-2"
       type="checkbox"
     />
     

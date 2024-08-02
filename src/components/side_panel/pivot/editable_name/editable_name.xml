@@ -2,7 +2,7 @@
   <t t-name="o-spreadsheet-EditableName">
     <t t-if="state.isEditing">
       <div>
-        <input type="text" class="o_input o_sp_en_name" t-model="state.name"/>
+        <input type="text" class="o-input o_sp_en_name" t-model="state.name"/>
       </div>
       <div class="btn btn-link o_sp_en_save" t-on-click="save">Save</div>
       <br/>

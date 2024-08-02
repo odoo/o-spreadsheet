@@ -1,7 +1,8 @@
 import { Component, onWillUpdateProps, useEffect, useRef, useState } from "@odoo/owl";
+import { ALERT_DANGER_BG } from "../../constants";
 import { Store, useLocalStore } from "../../store_engine";
 import { Color, SpreadsheetChildEnv } from "../../types";
-import { css } from "../helpers/css";
+import { css, cssPropertiesToCss } from "../helpers/css";
 import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
 import { RangeInputValue, SelectionInputStore } from "./selection_input_store";
 
@@ -10,46 +11,19 @@ css/* scss */ `
     .o-selection-input {
       padding: 2px 0px;
 
-      input {
-        padding: 4px 6px;
-        border-radius: 4px;
-        box-sizing: border-box;
-      }
-      input:focus {
-        outline: none;
-      }
-      input.o-required,
-      input.o-focused {
-        border: 1px solid;
-      }
-      input.o-focused {
-        border-width: 2px;
-        padding: 3px 5px;
-      }
       input.o-invalid {
-        /* The background-color is similar to the bootstrap alert-danger class but, because of the commit 0358a76d,
-         * which avoids being parasitized by the dark-mode in spreadsheet, we cannot use this class.
-         * TODO: Replace with the bootstrap alert-danger class when we support dark mode
-         */
-        background-color: #ffdddd;
-        border-width: 2px;
-      }
-      button.o-btn {
-        color: #333;
-      }
-      button.o-btn-action {
-        margin: 8px 1px;
-        border-radius: 4px;
-        border: 1px solid #dadce0;
-        color: #188038;
-        font-size: 14px;
-        height: 25px;
+        background-color: ${ALERT_DANGER_BG};
       }
       .error-icon {
         right: 7px;
-        top: 7px;
+        top: 4px;
       }
     }
+    .o-button {
+      height: 28px;
+      flex-grow: 0;
+    }
+
     /** Make the character a bit bigger
     compared to its neighbor INPUT box  */
     .o-remove-selection {
@@ -153,8 +127,10 @@ export class SelectionInput extends Component<Props, SpreadsheetChildEnv> {
   }
 
   getColor(range: SelectionRange) {
-    const color = range.color || "#000";
-    return "color: " + color + ";";
+    if (!range.color) {
+      return "";
+    }
+    return cssPropertiesToCss({ color: range.color });
   }
 
   private triggerChange() {

@@ -221,8 +221,11 @@ export class SelectionInputStore extends SpreadsheetStore {
   }
 
   get isConfirmable(): boolean {
-    const hasFocus = this.selectionInputs.some((i) => i.isFocused);
-    return hasFocus && this.selectionInputs.every((range) => range.isValidRange);
+    return this.selectionInputs.every((range) => range.isValidRange);
+  }
+
+  get hasFocus(): boolean {
+    return this.selectionInputs.some((i) => i.isFocused);
   }
 
   private get hasMainFocus() {

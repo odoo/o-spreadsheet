@@ -9,7 +9,6 @@ interface Props {
   title?: string;
   range: string;
   isInvalid: boolean;
-  required?: boolean;
   onSelectionChanged: (range: string) => void;
   onSelectionConfirmed: () => void;
   options?: Array<{
@@ -27,7 +26,6 @@ export class ChartLabelRange extends Component<Props, SpreadsheetChildEnv> {
     title: { type: String, optional: true },
     range: String,
     isInvalid: Boolean,
-    required: { type: Boolean, optional: true },
     onSelectionChanged: Function,
     onSelectionConfirmed: Function,
     options: { type: Array, optional: true },
@@ -36,6 +34,5 @@ export class ChartLabelRange extends Component<Props, SpreadsheetChildEnv> {
   static defaultProps: Partial<Props> = {
     title: _t("Categories / Labels"),
     options: [],
-    required: false,
   };
 }

@@ -12,7 +12,8 @@ import * as ACTION_FORMAT from "../../actions/format_actions";
 import { setStyle } from "../../actions/menu_items_actions";
 import {
   BACKGROUND_HEADER_COLOR,
-  BG_HOVER_COLOR,
+  BUTTON_ACTIVE_BG,
+  BUTTON_ACTIVE_TEXT_COLOR,
   ComponentsImportance,
   SEPARATOR_COLOR,
   TOPBAR_TOOLBAR_HEIGHT,
@@ -66,8 +67,8 @@ css/* scss */ `
           margin: 0 2px;
 
           &.active {
-            background-color: ${BG_HOVER_COLOR};
-            color: #000;
+            background-color: ${BUTTON_ACTIVE_BG};
+            color: ${BUTTON_ACTIVE_TEXT_COLOR};
           }
         }
       }

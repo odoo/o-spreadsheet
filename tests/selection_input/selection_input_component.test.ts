@@ -143,7 +143,7 @@ async function createSelectionInput(
 describe("Selection Input", () => {
   test("empty input is not colored", async () => {
     await createSelectionInput();
-    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color: #000;");
+    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("");
   });
 
   test("remove button is not displayed with a single input", async () => {
@@ -172,7 +172,7 @@ describe("Selection Input", () => {
 
     await simulateClick("input");
     await setInputValueAndTrigger(fixture.querySelector("input")!, "this is not valid");
-    expect(fixture.querySelectorAll(".o-selection-ok").length).toBe(0);
+    expect(fixture.querySelectorAll(".o-selection-ok[disabled]").length).toBe(1);
     expect(fixture.querySelectorAll(".o-selection-ko").length).toBe(1);
   });
 
@@ -197,15 +197,15 @@ describe("Selection Input", () => {
     expect(fixture.querySelector("input")!.value).toBe("B4");
     const colorGenerator = new ColorGenerator(2);
     const color = colorGenerator.next();
-    expect(fixture.querySelector("input")!.getAttribute("style")).toBe(`color: ${color};`);
+    expect(fixture.querySelector("input")!.getAttribute("style")).toBe(`color:${color}; `);
     simulateClick(".o-add-selection");
     selectCell(model, "B5");
     await nextTick();
     const color2 = colorGenerator.next();
     expect(fixture.querySelectorAll("input")[0].value).toBe("B4");
-    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe(`color: ${color};`);
+    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe(`color:${color}; `);
     expect(fixture.querySelectorAll("input")[1].value).toBe("B5");
-    expect(fixture.querySelectorAll("input")[1].getAttribute("style")).toBe(`color: ${color2};`);
+    expect(fixture.querySelectorAll("input")[1].getAttribute("style")).toBe(`color:${color2}; `);
   });
 
   test("colors passed as props are taken into account and completed by a color", async () => {
@@ -213,7 +213,7 @@ describe("Selection Input", () => {
     selectCell(model, "B4");
     await nextTick();
     expect(fixture.querySelector("input")!.value).toBe("B4");
-    expect(fixture.querySelector("input")!.getAttribute("style")).toBe("color: #FF0000;");
+    expect(fixture.querySelector("input")!.getAttribute("style")).toBe("color:#FF0000; ");
     simulateClick(".o-add-selection");
     selectCell(model, "B5");
     await nextTick();
@@ -221,10 +221,10 @@ describe("Selection Input", () => {
     colorGenerator.next(); //the first generated color is skipped in favor of the props color
     const secondColor = colorGenerator.next();
     expect(fixture.querySelectorAll("input")[0].value).toBe("B4");
-    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color: #FF0000;");
+    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color:#FF0000; ");
     expect(fixture.querySelectorAll("input")[1].value).toBe("B5");
     expect(fixture.querySelectorAll("input")[1].getAttribute("style")).toBe(
-      `color: ${secondColor};`
+      `color:${secondColor}; `
     );
   });
 
@@ -459,15 +459,15 @@ describe("Selection Input", () => {
     await createSelectionInput();
     await writeInput(0, "A1");
     expect(fixture.querySelectorAll("input")[0].value).toBe("A1");
-    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).not.toBe("color: #000;");
+    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).not.toBe("");
     expect(fixture.querySelectorAll("input")[0].classList).not.toContain("o-invalid");
     await writeInput(0, "aaaaa");
     expect(fixture.querySelectorAll("input")[0].value).toBe("aaaaa");
-    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("color: #000;");
+    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).toBe("");
     expect(fixture.querySelectorAll("input")[0].classList).toContain("o-invalid");
     await writeInput(0, "B1");
     expect(fixture.querySelectorAll("input")[0].value).toBe("B1");
-    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).not.toBe("color: #000;");
+    expect(fixture.querySelectorAll("input")[0].getAttribute("style")).not.toBe("");
     expect(fixture.querySelectorAll("input")[0].classList).not.toContain("o-invalid");
   });
   test("don't show red border initially", async () => {

@@ -2,32 +2,22 @@
   <t t-name="o-spreadsheet-TableStylesPopover">
     <Popover t-if="props.popoverProps" t-props="props.popoverProps">
       <div
-        class="o-table-style-popover d-flex flex-column px-4 py-3"
+        class="o-table-style-popover d-flex flex-column py-3"
         t-ref="tableStyleList"
         t-on-contextmenu.prevent="">
-        <div class="d-flex">
+        <div class="d-flex o-notebook ps-4 mb-3">
           <div
             t-foreach="Object.keys(categories)"
             t-as="category"
             t-key="category"
-            class="form-check d-flex align-items-center">
-            <input
-              class="form-check-input me-1"
-              type="radio"
-              t-att-id="category_value"
-              t-att-value="category_value"
-              name="category"
-              t-model="state.selectedCategory"
-            />
-            <label
-              class="form-check-label pe-4"
-              t-att-for="category_value"
-              t-esc="categories[category_value]"
-            />
-          </div>
+            class="o-notebook-tab d-flex align-items-center"
+            t-att-class="{ 'selected': state.selectedCategory === category }"
+            t-on-click="() => state.selectedCategory = category"
+            t-att-data-id="category"
+            t-esc="categories[category_value]"
+          />
         </div>
-        <hr class="hr my-2"/>
-        <div class="d-flex flex-wrap">
+        <div class="d-flex flex-wrap px-4">
           <t t-foreach="displayedStyles" t-as="styleId" t-key="styleId">
             <TableStylePreview
               class="'o-table-style-popover-preview'"

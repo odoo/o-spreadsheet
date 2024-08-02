@@ -1,4 +1,5 @@
 import { Component } from "@odoo/owl";
+import { GRAY_300 } from "../../../../../constants";
 import { SpreadsheetChildEnv } from "../../../../../types";
 import { css } from "../../../../helpers";
 import { TextInput } from "../../../../text_input/text_input";
@@ -13,6 +14,12 @@ interface Props {
 css/* scss */ `
   .pivot-dimension {
     background-color: white;
+    border: 1px solid ${GRAY_300};
+    border-radius: 4px;
+
+    select.o-input {
+      height: inherit;
+    }
 
     select > option {
       background-color: white;

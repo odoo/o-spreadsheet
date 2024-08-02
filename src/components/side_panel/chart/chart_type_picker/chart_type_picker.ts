@@ -1,4 +1,5 @@
 import { Component, useExternalListener, useRef, useState } from "@odoo/owl";
+import { ACTION_COLOR, BADGE_SELECTED_COLOR } from "../../../../constants";
 import {
   ChartSubtypeProperties,
   chartCategories,
@@ -12,9 +13,10 @@ import { Section } from "../../components/section/section";
 import { MainChartPanelStore } from "../main_chart_panel/main_chart_panel_store";
 
 css/* scss */ `
-  .o-section .o-type-selector {
+  .o-section .o-input.o-type-selector {
     height: 30px;
-    padding-left: 30px;
+    padding-left: 35px;
+    padding-top: 5px;
   }
   .o-type-selector-preview {
     left: 5px;
@@ -34,8 +36,8 @@ css/* scss */ `
       margin: 1px 2px;
       &.selected,
       &:hover {
-        background: #f5f5f5;
-        border: 1px solid #ccc;
+        border: 1px solid ${ACTION_COLOR};
+        background: ${BADGE_SELECTED_COLOR};
         padding: 2px 5px;
       }
       .o-chart-preview {

@@ -21,13 +21,14 @@
     <SidePanelCollapsible collapsedAtInit="true">
       <t t-set-slot="title">Baseline</t>
       <t t-set-slot="content">
-        <Section>
+        <Section class="'pt-0'">
           <t t-set-slot="title">Baseline description</t>
           <input
             type="text"
             t-att-value="translate(props.definition.baselineDescr)"
             t-on-change="updateBaselineDescr"
-            class="o-input o-optional"
+            class="o-input"
+            placeholder="Baseline description"
           />
         </Section>
         <Section class="'o-chart-baseline-color'">
