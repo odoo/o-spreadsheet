@@ -156,8 +156,12 @@ export class SheetViewPlugin extends UIPlugin {
   }
 
   handle(cmd: Command) {
-    this.cleanViewports();
-
+    switch (cmd.type) {
+      case "UNDO":
+      case "REDO":
+      case "DELETE_SHEET":
+        this.cleanViewports();
+    }
     switch (cmd.type) {
       case "START":
         this.selection.observe(this, {
