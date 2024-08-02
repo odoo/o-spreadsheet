@@ -117,17 +117,6 @@ function createComputeFunction(
   descr: FunctionDescription,
   functionName: string
 ): ComputeFunction<Matrix<FunctionResultObject> | FunctionResultObject> {
-  function runtimeCompute(
-    this: EvalContext,
-    ...args: Arg[]
-  ): Matrix<FunctionResultObject> | FunctionResultObject {
-    try {
-      return vectorizedCompute.apply(this, args);
-    } catch (e) {
-      return handleError(e, functionName);
-    }
-  }
-
   function vectorizedCompute(
     this: EvalContext,
     ...args: Arg[]
@@ -174,7 +163,8 @@ function createComputeFunction(
       if (!isMatrix(arg) && argDefinition.acceptMatrixOnly) {
         throw new BadExpressionError(
           _t(
-            "Function [[FUNCTION_NAME]] expects the parameter '%s' to be reference to a cell or range.",
+            "Function %s expects the parameter '%s' to be reference to a cell or range.",
+            functionName,
             (i + 1).toString()
           )
         );
@@ -184,7 +174,7 @@ function createComputeFunction(
 
     if (countVectorizableCol === 1 && countVectorizableRow === 1) {
       // either this function is not vectorized or it ends up with a 1x1 dimension
-      return computeFunctionToObject.apply(this, args);
+      return errorHandlingCompute.apply(this, args);
     }
 
     const getArgOffset: (i: number, j: number) => Arg[] = (i, j) =>
@@ -205,7 +195,7 @@ function createComputeFunction(
       if (col > vectorizableColLimit - 1 || row > vectorizableRowLimit - 1) {
         return notAvailableError;
       }
-      const singleCellComputeResult = computeFunctionToObject.apply(this, getArgOffset(col, row));
+      const singleCellComputeResult = errorHandlingCompute.apply(this, getArgOffset(col, row));
       // In the case where the user tries to vectorize arguments of an array formula, we will get an
       // array for every combination of the vectorized arguments, which will lead to a 3D matrix and
       // we won't be able to return the values.
@@ -219,6 +209,17 @@ function createComputeFunction(
         ? singleCellComputeResult[0][0]
         : singleCellComputeResult;
     });
+  }
+
+  function errorHandlingCompute(
+    this: EvalContext,
+    ...args: Arg[]
+  ): Matrix<FunctionResultObject> | FunctionResultObject {
+    try {
+      return computeFunctionToObject.apply(this, args);
+    } catch (e) {
+      return handleError(e, functionName);
+    }
   }
 
   function computeFunctionToObject(
@@ -245,7 +246,7 @@ function createComputeFunction(
     return matrixMap(result as Matrix<CellValue>, (row) => ({ value: row }));
   }
 
-  return runtimeCompute;
+  return vectorizedCompute;
 }
 
 export function handleError(e: unknown, functionName: string): FunctionResultObject {
