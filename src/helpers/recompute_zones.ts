@@ -399,6 +399,15 @@ export class ZoneGrid {
   private profilesStartingPosition: number[] = [0];
   private profiles = new Map<number, number[]>([[0, []]]);
 
+  isEmpty() {
+    for (const profile of this.profiles.values()) {
+      if (profile.length) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   /**
    * Add a zone to the profile and return as information the part of the zone that was actually added
    */

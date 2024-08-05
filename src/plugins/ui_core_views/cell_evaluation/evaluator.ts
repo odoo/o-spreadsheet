@@ -144,13 +144,20 @@ export class Evaluator {
 
   evaluateCells(positions: CellPosition[]) {
     const start = performance.now();
-    const cellsToCompute = this.createEmptyPositionSet();
-    cellsToCompute.addMany(positions);
+    // const cellsToCompute = this.createEmptyPositionSet();
+    const zonesToCompute = this.createEmptyZoneSet();
+    const boundingBoxs = positions.map((p) => {
+      return { sheetId: p.sheetId, zone: positionToZone(p) };
+    });
+    zonesToCompute.addManyBoundingBox(boundingBoxs);
     const arrayFormulasPositions = this.getArrayFormulasImpactedByChangesOf(positions);
-    cellsToCompute.addMany(this.getCellsDependingOn(positions));
-    cellsToCompute.addMany(arrayFormulasPositions);
-    cellsToCompute.addMany(this.getCellsDependingOn(arrayFormulasPositions));
-    this.evaluate(cellsToCompute);
+    const arrayFormulaZones = [...arrayFormulasPositions].map((p) => {
+      return { sheetId: p.sheetId, zone: positionToZone(p) };
+    });
+    zonesToCompute.addManyBoundingBox(this.getZonesDependingOn(boundingBoxs));
+    zonesToCompute.addManyBoundingBox(arrayFormulaZones);
+    zonesToCompute.addManyBoundingBox(this.getZonesDependingOn(arrayFormulaZones));
+    this.evaluate(zonesToCompute);
     console.info("evaluate Cells", performance.now() - start, "ms");
   }
 
@@ -211,7 +218,11 @@ export class Evaluator {
   evaluateAllCells() {
     const start = performance.now();
     this.evaluatedCells = new PositionMap();
-    this.evaluate(this.getAllCells());
+    const zones = this.createEmptyZoneSet();
+    for (const sheetId of this.getters.getSheetIds()) {
+      zones.addBoundingBox({ sheetId, zone: this.getters.getSheetZone(sheetId) });
+    }
+    this.evaluate(zones);
     console.info("evaluate all cells", performance.now() - start, "ms");
   }
 
@@ -249,6 +260,8 @@ export class Evaluator {
    */
   private getArrayFormulasBlockedBy(sheetId: UID, zone: Zone): Iterable<CellPosition> {
     const arrayFormulaPositions = this.createEmptyPositionSet();
+    // const arrayFormulaPositions = this.createEmptyZoneSet();
+
     const arrayFormulas = this.spreadingRelations.getFormulaPositionsSpreadingOn(sheetId, zone);
     arrayFormulaPositions.addMany(arrayFormulas);
     const spilledPositions = [...arrayFormulas].filter(
@@ -258,21 +271,31 @@ export class Evaluator {
       // ignore the formula spreading on the position. Keep only the blocked ones
       arrayFormulaPositions.deleteMany(spilledPositions);
     }
-    arrayFormulaPositions.addMany(this.getCellsDependingOn(arrayFormulaPositions));
+    // TODO check this
+    // arrayFormulaPositions.addManyBoundingBox(this.getZonesDependingOn(arrayFormulaPositions));
     return arrayFormulaPositions;
   }
 
-  private nextPositionsToUpdate = new PositionSet({});
+  // private nextPositionsToUpdate = new PositionSet({});
+  private nextPositionsToUpdate = new ZoneSet([]);
   private cellsBeingComputed = new Set<UID>();
 
-  private evaluate(positions: PositionSet) {
+  private evaluate(zones: ZoneSet) {
     this.cellsBeingComputed = new Set<UID>();
-    this.nextPositionsToUpdate = positions;
+    this.nextPositionsToUpdate = zones;
 
     let currentIteration = 0;
     while (!this.nextPositionsToUpdate.isEmpty() && currentIteration++ < MAX_ITERATION) {
       this.updateCompilationParameters();
-      const positions = this.nextPositionsToUpdate.clear();
+      const zones = this.nextPositionsToUpdate.clear();
+      const positions: CellPosition[] = [];
+      for (const { sheetId, zone } of zones) {
+        for (let col = zone.left; col <= zone.right; col++) {
+          for (let row = zone.top; row <= zone.bottom; row++) {
+            positions.push({ sheetId, col, row });
+          }
+        }
+      }
       for (let i = 0; i < positions.length; ++i) {
         this.evaluatedCells.delete(positions[i]);
       }
@@ -318,7 +341,11 @@ export class Evaluator {
       return createEvaluatedCell(e);
     } finally {
       this.cellsBeingComputed.delete(cellId);
-      this.nextPositionsToUpdate.delete(position);
+      // this.nextPositionsToUpdate.delete(position);
+      this.nextPositionsToUpdate.deleteBoundingBox({
+        sheetId: position.sheetId,
+        zone: positionToZone(position),
+      });
     }
   }
 
@@ -404,7 +431,7 @@ export class Evaluator {
       { sheetId, zone: rightPartZone },
       { sheetId, zone: leftColumnZone },
     ]);
-    this.nextPositionsToUpdate.addMany(invalidatedPositions);
+    this.nextPositionsToUpdate.addManyBoundingBox(invalidatedPositions);
   }
 
   private assertSheetHasEnoughSpaceToSpreadFormulaResult(
@@ -513,10 +540,15 @@ export class Evaluator {
       }
     }
     const sheetId = position.sheetId;
-    this.nextPositionsToUpdate.addMany(
+    this.nextPositionsToUpdate.addManyBoundingBox(
       this.formulaDependencies().getCellsDependingOn([{ sheetId, zone }])
     );
-    this.nextPositionsToUpdate.addMany(this.getArrayFormulasBlockedBy(sheetId, zone));
+    this.nextPositionsToUpdate.addManyBoundingBox(
+      [...this.getArrayFormulasBlockedBy(sheetId, zone)].map((p) => ({
+        sheetId: p.sheetId,
+        zone: positionToZone(p),
+      }))
+    );
   }
 
   // ----------------------------------------------------------
@@ -531,10 +563,12 @@ export class Evaluator {
     return cell.compiledFormula.dependencies;
   }
 
-  private getCellsDependingOn(positions: Iterable<CellPosition>): Iterable<CellPosition> {
+  private getZonesDependingOn(
+    rTreeBoundingBoxes: Iterable<RTreeBoundingBox>
+  ): Iterable<RTreeBoundingBox> {
     const ranges: RTreeBoundingBox[] = [];
-    for (const position of positions) {
-      ranges.push({ sheetId: position.sheetId, zone: positionToZone(position) });
+    for (const rTreeBoundingBoxe of rTreeBoundingBoxes) {
+      ranges.push(rTreeBoundingBoxe);
     }
     return this.formulaDependencies().getCellsDependingOn(ranges);
   }

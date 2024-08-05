@@ -99,6 +99,15 @@ export class ZoneSet {
     }
   }
 
+  isEmpty() {
+    for (const sheetId in this.sheets) {
+      if (!this.sheets[sheetId].isEmpty()) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   addBoundingBox(boundingBox: RTreeBoundingBox) {
     const zonesActuallyAdded = this.sheets[boundingBox.sheetId].addZone(boundingBox.zone);
     for (const zone of zonesActuallyAdded) {
@@ -106,12 +115,32 @@ export class ZoneSet {
     }
   }
 
+  addManyBoundingBox(boundingBoxes: Iterable<RTreeBoundingBox>) {
+    for (const boundingBox of boundingBoxes) {
+      this.addBoundingBox(boundingBox);
+    }
+  }
+
   deleteBoundingBox(boundingBox: RTreeBoundingBox) {
     this.sheets[boundingBox.sheetId].removeZone(boundingBox.zone);
   }
 
+  deleteManyBoundingBox(boundingBoxes: Iterable<RTreeBoundingBox>) {
+    for (const boundingBox of boundingBoxes) {
+      this.deleteBoundingBox(boundingBox);
+    }
+  }
+
   has(position: CellPosition) {
     return this.sheets[position.sheetId].getIntersectionWith(positionToZone(position)).length > 0;
+  }
+
+  clear(): Iterable<RTreeBoundingBox> {
+    const zones = [...this];
+    for (const sheetId in this.sheets) {
+      this.sheets[sheetId] = new ZoneGrid();
+    }
+    return zones;
   }
 
   /**
@@ -119,18 +148,22 @@ export class ZoneSet {
    * Note that the same position may be yielded multiple times if the value was added
    * to the set then removed and then added again.
    */
-  *[Symbol.iterator](): Generator<CellPosition> {
+  *[Symbol.iterator](): Generator<RTreeBoundingBox> {
     for (const boundingBox of this.insertions) {
       const intersectedZones = this.sheets[boundingBox.sheetId].getIntersectionWith(
         boundingBox.zone
       );
       for (const zone of intersectedZones) {
-        for (let row = zone.top; row <= zone.bottom; row++) {
-          for (let col = zone.left; col <= zone.right; col++) {
-            yield { sheetId: boundingBox.sheetId, col, row };
-          }
-        }
+        yield { sheetId: boundingBox.sheetId, zone };
       }
+
+      //   {
+      //   for (let row = zone.top; row <= zone.bottom; row++) {
+      //     for (let col = zone.left; col <= zone.right; col++) {
+      //       yield { sheetId: boundingBox.sheetId, col, row };
+      //     }
+      //   }
+      // }
     }
   }
 }
