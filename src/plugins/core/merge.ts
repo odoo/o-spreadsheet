@@ -1,12 +1,13 @@
 import {
+  RangeImpl,
   clip,
   deepEquals,
   getCanonicalSheetName,
   isDefined,
   isEqual,
   overlap,
+  positionToZone,
   positions,
-  RangeImpl,
   splitReference,
   toXC,
   toZone,
@@ -453,7 +454,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
           const merge = this.getMerge(position);
           if (!merge || merge.id !== id) {
             this.history.update("mergeCellMap", sheetId, col, row, undefined);
-            this.dispatch("CLEAR_CELL", position);
+            this.dispatch("CLEAR_CELLS", { sheetId, target: [positionToZone(position)] });
           }
         }
       }

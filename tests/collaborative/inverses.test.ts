@@ -4,6 +4,7 @@ import {
   AddColumnsRowsCommand,
   AddMergeCommand,
   ClearCellCommand,
+  ClearCellsCommand,
   ClearFormattingCommand,
   CoreCommand,
   CreateSheetCommand,
@@ -249,6 +250,11 @@ describe("Inverses commands", () => {
       col: 1,
       row: 1,
     };
+    const clearCells: ClearCellsCommand = {
+      type: "CLEAR_CELLS",
+      sheetId: "1",
+      target: [toZone("A1")],
+    };
     const deleteContent: DeleteContentCommand = {
       type: "DELETE_CONTENT",
       sheetId: "1",
@@ -301,6 +307,7 @@ describe("Inverses commands", () => {
       updateCell,
       updateCellPosition,
       clearCell,
+      clearCells,
       deleteContent,
       resizeColumns,
       resizeRows,
