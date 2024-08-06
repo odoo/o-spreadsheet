@@ -208,4 +208,30 @@
       <path fill="#444" d="M23,2 v43 h1 v-43 M2,45 h44 v1 h-44"/>
     </svg>
   </t>
+  <t t-name="o-spreadsheet-ChartPreview.RADAR_CHART">
+    <svg viewBox="0 0 48 48" class="o-chart-preview" xmlns="http://www.w3.org/2000/svg">
+      <path fill="none" stroke="#0074d9" d="m24 16 14.27 3.36-1.93 21.63-18.22-8.9-3.63-11.18Z"/>
+      <path fill="none" stroke="#eb6d00" d="m24 4 7.61 17.53-4.67 6.52-12.34 8.89-7.72-18.5Z"/>
+      <path
+        fill="none"
+        stroke="#444"
+        d="M24 2v22l20.92-6.8L24 24l12.93 17.8L24 24 11.07 41.8 24 24 3.08 17.2"
+      />
+    </svg>
+  </t>
+  <t t-name="o-spreadsheet-ChartPreview.FILLED_RADAR_CHART">
+    <svg viewBox="0 0 48 48" class="o-chart-preview" xmlns="http://www.w3.org/2000/svg">
+      <path
+        fill="#0074d944"
+        stroke="#0074d9"
+        d="m24 16 14.27 3.36-1.93 21.63-18.22-8.9-3.63-11.18Z"
+      />
+      <path fill="#eb6d0044" stroke="#eb6d00" d="m24 4 7.61 17.53-4.67 6.52-12.34 8.89-7.72-18.5Z"/>
+      <path
+        fill="none"
+        stroke="#444"
+        d="M24 2v22l20.92-6.8L24 24l12.93 17.8L24 24 11.07 41.8 24 24 3.08 17.2"
+      />
+    </svg>
+  </t>
 </templates>

@@ -5,6 +5,7 @@ import { ChartTerms } from "../../../translations_terms";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { Section } from "../../components/section/section";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
+import { LegendComponent } from "../building_blocks/legend/legend";
 
 interface Props {
   figureId: UID;
@@ -19,6 +20,7 @@ export class PieChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
     GeneralDesignEditor,
     Section,
     Checkbox,
+    LegendComponent,
   };
   static props = {
     figureId: String,
@@ -26,12 +28,6 @@ export class PieChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
     updateChart: Function,
     canUpdateChart: { type: Function, optional: true },
   };
-
-  updateLegendPosition(ev) {
-    this.props.updateChart(this.props.figureId, {
-      legendPosition: ev.target.value,
-    });
-  }
 
   get showValuesLabel(): string {
     return ChartTerms.ShowValues;

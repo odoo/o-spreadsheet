@@ -1,4 +1,4 @@
-import { ChartDataset } from "chart.js";
+import { Chart, ChartDataset, LegendItem } from "chart.js";
 import { transformZone } from "../../../collaborative/ot/ot_helpers";
 import {
   evaluatePolynomial,
@@ -544,4 +544,68 @@ export function interpolateData(
     default:
       return [];
   }
+}
+
+/* Callback used to make the legend interactive
+ * These are used to male the user able to hide/show a data series by
+ * clicking on the corresponding label in the legend. The onHover and
+ * onLeave callbacks are used to show a pointer when hovering an item
+ * of the legend so that the user knows it is clickable.
+ */
+export const INTERACTIVE_LEGEND_CONFIG = {
+  onHover: (event) => {
+    const target = event.native?.target;
+    if (!target) {
+      return;
+    }
+    //@ts-ignore
+    target.style.cursor = "pointer";
+  },
+  onLeave: (event) => {
+    const target = event.native?.target;
+    if (!target) {
+      return;
+    }
+    //@ts-ignore
+    target.style.cursor = "default";
+  },
+  onClick: (click, legendItem, legend) => {
+    if (!legend.legendItems) {
+      return;
+    }
+    const index = legend.legendItems.indexOf(legendItem);
+    if (legend.chart.isDatasetVisible(index)) {
+      legend.chart.hide(index);
+    } else {
+      legend.chart.show(index);
+    }
+  },
+};
+
+export function getCustomLegendLabels(
+  color: Color,
+  config: Partial<LegendItem>
+): {
+  labels: {
+    color: Color;
+    usePointStyle: boolean;
+    generateLabels: (chart: Chart) => LegendItem[];
+  };
+} {
+  return {
+    labels: {
+      color,
+      usePointStyle: true,
+      generateLabels: (chart: Chart) =>
+        chart.data.datasets.map((dataset, index) => ({
+          text: dataset.label ?? "",
+          color,
+          strokeStyle: dataset.borderColor as Color,
+          fillStyle: dataset.backgroundColor as Color,
+          hidden: !chart.isDatasetVisible(index),
+          pointStyle: dataset.type === "line" ? "line" : "rect",
+          ...config,
+        })),
+    },
+  };
 }

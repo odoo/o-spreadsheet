@@ -1,0 +1,31 @@
+<templates>
+  <t t-name="o-spreadsheet-RadarChartDesignPanel">
+    <GeneralDesignEditor
+      figureId="props.figureId"
+      definition="props.definition"
+      updateChart="props.updateChart">
+      <t t-set-slot="general-extension">
+        <LegendComponent
+          figureId="props.figureId"
+          definition="props.definition"
+          updateChart="props.updateChart"
+        />
+        <Section class="'pt-0'">
+          <t t-set="showDataSerieAreaLabel">Fill series area</t>
+          <Checkbox
+            name="'showDataSerieArea'"
+            label="showDataSerieAreaLabel"
+            value="shouldShowDataSerieArea()"
+            onChange.bind="updateFillArea"
+          />
+        </Section>
+      </t>
+    </GeneralDesignEditor>
+    <GeneralSeriesEditor
+      figureId="props.figureId"
+      definition="props.definition"
+      updateChart="props.updateChart"
+      canChangeVerticalAxis="false"
+    />
+  </t>
+</templates>

@@ -619,6 +619,7 @@ describe("Import xlsx data", () => {
     ["pie chart", "C38:L56"],
     ["combo chart", "H58:L71"],
     ["doughnut chart", "C19:L37"],
+    ["radar chart", "C58:G71"],
   ])("Can import figures ", (chartTitle, figureZone) => {
     const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
     // Cells in the 1st column of the sheet contains jsons with expected figure data
@@ -656,6 +657,12 @@ describe("Import xlsx data", () => {
     [
       "combo chart",
       "combo",
+      "#fff",
+      [{ dataRange: "Sheet1!B27:B35" }, { dataRange: "Sheet1!C27:C35" }],
+    ],
+    [
+      "radar chart",
+      "radar",
       "#fff",
       [{ dataRange: "Sheet1!B27:B35" }, { dataRange: "Sheet1!C27:C35" }],
     ],

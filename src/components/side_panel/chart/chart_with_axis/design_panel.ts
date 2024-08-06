@@ -20,6 +20,7 @@ import {
   AxisDesignEditor,
 } from "../building_blocks/axis_design/axis_design_editor";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
+import { LegendComponent } from "../building_blocks/legend/legend";
 
 interface Props {
   figureId: UID;
@@ -37,6 +38,7 @@ export class ChartWithAxisDesignPanel extends Component<Props, SpreadsheetChildE
     AxisDesignEditor,
     RoundColorPicker,
     Checkbox,
+    LegendComponent,
   };
   static props = {
     figureId: String,
@@ -57,12 +59,6 @@ export class ChartWithAxisDesignPanel extends Component<Props, SpreadsheetChildE
       axes.push({ id: "y1", name: _t("Vertical (right) axis") });
     }
     return axes;
-  }
-
-  updateLegendPosition(ev) {
-    this.props.updateChart(this.props.figureId, {
-      legendPosition: ev.target.value,
-    });
   }
 
   getDataSeries() {

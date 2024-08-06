@@ -2,7 +2,7 @@ import { arg, functionRegistry } from "../../src/functions";
 import { buildSheetLink, toXC } from "../../src/helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { Model } from "../../src/model";
-import { CustomizedDataSet, Dimension, ExcelChartType, PLAIN_TEXT_FORMAT } from "../../src/types";
+import { Dimension, ExcelChartType, PLAIN_TEXT_FORMAT } from "../../src/types";
 import { XLSXExportXMLFile, XMLString } from "../../src/types/xlsx";
 import { adaptFormulaToExcel } from "../../src/xlsx/functions/cells";
 import { escapeXml, parseXML } from "../../src/xlsx/helpers/xml_helpers";
@@ -736,6 +736,26 @@ describe("Test XLSX export", () => {
         "3"
       );
 
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "Sheet1!B2:B" }, { dataRange: "Sheet1!C4:4" }],
+          labelRange: "Sheet1!A2:A",
+          type: "scatter",
+        },
+        "4"
+      );
+
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "Sheet1!B2:B" }, { dataRange: "Sheet1!C4:4" }],
+          labelRange: "Sheet1!A2:A",
+          type: "radar",
+        },
+        "5"
+      );
+
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
   });
@@ -906,36 +926,8 @@ describe("Test XLSX export", () => {
       ],
     };
 
-    test.each([
-      ["line", [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }]],
-      ["scatter", [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }]],
-      ["bar", [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }]],
-      ["combo", [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }]],
-      ["pie", [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }]],
-      ["line", [{ dataRange: "Sheet1!B1:B4" }]],
-      ["scatter", [{ dataRange: "Sheet1!B1:B4" }]],
-      ["bar", [{ dataRange: "Sheet1!B1:B4" }]],
-      ["combo", [{ dataRange: "Sheet1!B1:B4" }]],
-      ["pie", [{ dataRange: "Sheet1!B1:B4" }]],
-    ])(
-      "simple %s chart with dataset %s",
-      async (chartType: string, dataSets: CustomizedDataSet[]) => {
-        const model = new Model(chartData);
-        createChart(
-          model,
-          {
-            dataSets,
-            labelRange: "Sheet1!A2:A4",
-            type: chartType as "line" | "bar" | "pie" | "combo",
-          },
-          "1"
-        );
-        expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
-      }
-    );
-
-    test.each(["line", "scatter", "bar", "combo"])(
-      "simple %s chart with customized dataset",
+    test.each(["line", "scatter", "bar", "combo", "pie", "radar"])(
+      "Customized %s chart",
       async (chartType: string) => {
         const model = new Model(chartData);
         createChart(
@@ -948,24 +940,13 @@ describe("Test XLSX export", () => {
                 yAxisId: "y",
                 label: "coucou",
               },
+              {
+                dataRange: "Sheet1!C1:C4",
+                yAxisId: "y1",
+              },
             ],
             labelRange: "Sheet1!A2:A4",
-            type: chartType as "line" | "bar" | "pie" | "combo",
-          },
-          "1"
-        );
-        expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
-      }
-    );
-
-    test.each(["line", "scatter", "bar", "combo"])(
-      "simple %s chart with customized title",
-      async (chartType: string) => {
-        const model = new Model(chartData);
-        createChart(
-          model,
-          {
-            dataSets: [{ dataRange: "Sheet1!B1:B4" }],
+            type: chartType as "line" | "bar" | "pie" | "combo" | "radar",
             title: {
               text: "Coucou",
               align: "right",
@@ -973,23 +954,6 @@ describe("Test XLSX export", () => {
               italic: true,
               color: "#ff0000",
             },
-            labelRange: "Sheet1!A2:A4",
-            type: chartType as "line" | "bar" | "pie" | "combo",
-          },
-          "1"
-        );
-        expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
-      }
-    );
-
-    test.each(["line", "scatter", "bar", "combo"] as const)(
-      "simple %s chart with customized axis",
-      async (chartType: string) => {
-        const model = new Model(chartData);
-        createChart(
-          model,
-          {
-            dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
             axesDesign: {
               x: {
                 title: {
@@ -1019,8 +983,6 @@ describe("Test XLSX export", () => {
                 },
               },
             },
-            labelRange: "Sheet1!A2:A4",
-            type: chartType as "line" | "bar" | "pie" | "combo",
           },
           "1"
         );
@@ -1077,7 +1039,7 @@ describe("Test XLSX export", () => {
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
 
-    test.each(["bar", "line", "pie", "scatter"] as const)(
+    test.each(["bar", "line", "pie", "scatter", "radar"] as const)(
       "%s chart that aggregate labels is exported as image",
       async (type: ExcelChartType) => {
         const model = new Model({
@@ -1226,12 +1188,32 @@ describe("Test XLSX export", () => {
       createChart(
         model,
         {
-          dataSets: [{ dataRange: "She!et2!B2:B4" }, { dataRange: "She!et2!C2:C4" }],
+          dataSets: [{ dataRange: "Sheet2!B2:B4" }, { dataRange: "Sheet2!C2:C4" }],
           labelRange: "She!et2!A2:A4",
           type: "pie",
           background: "#EEEEEE",
         },
         "4"
+      );
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
+          labelRange: "Sheet1!A2:A4",
+          type: "scatter",
+          background: "#EEEEEE",
+        },
+        "5"
+      );
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "Sheet1!B2:B4" }, { dataRange: "Sheet1!C2:C4" }],
+          labelRange: "Sheet1!A2:A4",
+          type: "radar",
+          background: "#EEEEEE",
+        },
+        "6"
       );
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
