@@ -1,5 +1,5 @@
 import { evaluateLiteral } from "../helpers/cells";
-import { formatValue } from "../helpers/format";
+import { formatValue } from "../helpers/format/format";
 import {
   AutofillData,
   AutofillModifierImplementation,

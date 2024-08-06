@@ -9,7 +9,7 @@ import {
   Locale,
 } from "../types";
 import { isDateTime } from "./dates";
-import { formatValue, getDecimalNumberRegex } from "./format";
+import { formatValue, getDecimalNumberRegex } from "./format/format";
 import { deepCopy } from "./misc";
 import { isNumber } from "./numbers";
 

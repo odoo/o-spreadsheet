@@ -32,7 +32,7 @@ import {
   WaterfallChartRuntime,
 } from "../../../types/chart/waterfall_chart";
 import { Validator } from "../../../types/validator";
-import { formatValue } from "../../format";
+import { formatValue } from "../../format/format";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {

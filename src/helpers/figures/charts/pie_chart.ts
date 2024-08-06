@@ -32,7 +32,7 @@ import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
 import { ColorGenerator } from "../../color";
-import { formatValue } from "../../format";
+import { formatValue } from "../../format/format";
 import { largeMax } from "../../misc";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";

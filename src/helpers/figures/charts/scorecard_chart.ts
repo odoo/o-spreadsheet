@@ -30,7 +30,7 @@ import {
   ScorecardChartRuntime,
 } from "../../../types/chart/scorecard_chart";
 import { Validator } from "../../../types/validator";
-import { formatValue, humanizeNumber } from "../../format";
+import { formatValue, humanizeNumber } from "../../format/format";
 import { isNumber } from "../../numbers";
 import { createValidRange } from "../../range";
 import { rangeReference } from "../../references";

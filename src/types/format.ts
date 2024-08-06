@@ -9,5 +9,3 @@ export interface LocaleFormat {
   locale: Locale;
   format?: Format;
 }
-
-export const PLAIN_TEXT_FORMAT: Format = "@"; // see OpenXML spec §18.8.31

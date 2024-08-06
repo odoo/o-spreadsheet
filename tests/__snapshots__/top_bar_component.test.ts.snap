@@ -769,6 +769,34 @@ exports[`TopBar component can set cell format 1`] = `
         
         <div
           class="o-menu-item d-flex justify-content-between align-items-center"
+          data-name="format_number_accounting"
+          title="Accounting"
+        >
+          <div
+            class="d-flex w-100"
+          >
+            <div
+              class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
+            />
+            
+            <div
+              class="o-menu-item-name align-middle text-truncate"
+            >
+              Accounting
+            </div>
+            <div
+              class="o-menu-item-description ms-auto text-truncate"
+            >
+              $(1,000.12)
+            </div>
+            
+            
+            
+          </div>
+        </div>
+        
+        <div
+          class="o-menu-item d-flex justify-content-between align-items-center"
           data-name="format_number_currency_rounded"
           title="Currency rounded"
         >
