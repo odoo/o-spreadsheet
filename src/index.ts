@@ -96,6 +96,7 @@ import {
   positionToZone,
   reduceZoneOnDeletion,
   rgbaToHex,
+  splitReference,
   toCartesian,
   toUnboundedZone,
   toXC,
@@ -340,6 +341,7 @@ export const helpers = {
   UNDO_REDO_PIVOT_COMMANDS,
   createPivotFormula,
   areDomainArgsFieldsValid,
+  splitReference,
 };
 
 export const links = {
