@@ -10,6 +10,7 @@ import { overlap, toZone, zoneToXc } from "../helpers/zones";
 import { Registry } from "../registries/registry";
 import { CustomizedDataSet, DEFAULT_LOCALE, Format, Zone } from "../types";
 import { normalizeV9 } from "./legacy_tools";
+import { WEEK_START } from "./locale";
 
 export interface MigrationStep {
   versionFrom: string;
@@ -363,6 +364,18 @@ migrationStepRegistry
           order: row.order,
           granularity: row.granularity,
         }));
+      }
+      return data;
+    },
+  })
+  .add("migration_19", {
+    // "Add weekStart to locale",
+    versionFrom: "19",
+    migrate(data: any): any {
+      const locale = data.settings?.locale;
+      if (locale) {
+        const code = locale.code;
+        locale.weekStart = WEEK_START[code] || 1; // Default to Monday;
       }
       return data;
     },
