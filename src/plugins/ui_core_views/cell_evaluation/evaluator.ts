@@ -1,13 +1,11 @@
 import { compile } from "../../../formulas";
-import { implementationErrorMessage } from "../../../functions";
-import { matrixMap } from "../../../functions/helpers";
+import { handleError, implementationErrorMessage } from "../../../functions";
 import { lazy, positionToZone, toXC } from "../../../helpers";
 import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells";
 import { ModelConfig } from "../../../model";
 import { _t } from "../../../translation";
 import {
   CellPosition,
-  CellValue,
   CellValueType,
   EvaluatedCell,
   FPayload,
@@ -161,25 +159,29 @@ export class Evaluator {
     this.evaluate(this.getAllCells());
   }
 
-  evaluateFormula(sheetId: UID, formulaString: string): CellValue | Matrix<CellValue> {
-    const compiledFormula = compile(formulaString);
+  evaluateFormulaResult(sheetId: UID, formulaString: string): FPayload | Matrix<FPayload> {
+    try {
+      const compiledFormula = compile(formulaString);
 
-    const ranges: Range[] = compiledFormula.dependencies.map((xc) =>
-      this.getters.getRangeFromSheetXC(sheetId, xc)
-    );
-    this.updateCompilationParameters();
-    const result = updateEvalContextAndExecute(
-      { ...compiledFormula, dependencies: ranges },
-      this.compilationParams,
-      sheetId
-    );
-    if (isMatrix(result)) {
-      return matrixMap(result, (cell) => cell.value);
+      const ranges: Range[] = compiledFormula.dependencies.map((xc) =>
+        this.getters.getRangeFromSheetXC(sheetId, xc)
+      );
+      this.updateCompilationParameters();
+      const result = updateEvalContextAndExecute(
+        { ...compiledFormula, dependencies: ranges },
+        this.compilationParams,
+        sheetId
+      );
+      if (isMatrix(result)) {
+        return result;
+      }
+      if (result.value === null) {
+        return { value: 0, format: result.format };
+      }
+      return result;
+    } catch (error) {
+      return handleError(error, "");
     }
-    if (result.value === null) {
-      return 0;
-    }
-    return result.value;
   }
 
   private getAllCells(): PositionSet {
