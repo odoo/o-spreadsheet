@@ -1,5 +1,5 @@
 import { Component, useState } from "@odoo/owl";
-import { getZoneArea, positionToZone, rangeReference } from "../../../helpers";
+import { getZoneArea, positionToZone } from "../../../helpers";
 import {
   CommandResult,
   CoreTable,
@@ -139,10 +139,6 @@ export class TablePanel extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onRangeChanged(ranges: string[]) {
-    if (!ranges[0] || !ranges[0].match(rangeReference)) {
-      this.state.tableZoneErrors = [CommandResult.InvalidRange];
-      return;
-    }
     const sheetId = this.env.model.getters.getActiveSheetId();
 
     this.state.tableXc = ranges[0];
@@ -186,11 +182,7 @@ export class TablePanel extends Component<Props, SpreadsheetChildEnv> {
       });
       const newTableRange = updatedTable.range;
       this.state.tableXc = this.env.model.getters.getRangeString(newTableRange, sheetId);
-    } else {
-      const oldTableRange = this.props.table.range;
-      this.state.tableXc = this.env.model.getters.getRangeString(oldTableRange, sheetId);
     }
-    this.state.tableZoneErrors = [];
   }
 
   deleteTable() {
