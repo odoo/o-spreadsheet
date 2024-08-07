@@ -1,5 +1,4 @@
 import { compile } from "../../../formulas";
-import { matrixMap } from "../../../functions/helpers";
 import { forEachPositionsInZone, JetSet, lazy, toXC } from "../../../helpers";
 import { createEvaluatedCell, errorCell, evaluateLiteral } from "../../../helpers/cells";
 import { ModelConfig } from "../../../model";
@@ -7,7 +6,6 @@ import { _t } from "../../../translation";
 import {
   Cell,
   CellPosition,
-  CellValue,
   CellValueType,
   EvaluatedCell,
   FormulaCell,
@@ -159,18 +157,20 @@ export class Evaluator {
     this.evaluate(this.getAllCells());
   }
 
-  evaluateFormula(sheetId: UID, formulaString: string): CellValue | Matrix<CellValue> {
-    const compiledFormula = compile(formulaString);
-
-    const ranges: Range[] = compiledFormula.dependencies.map((xc) =>
-      this.getters.getRangeFromSheetXC(sheetId, xc)
-    );
-    this.updateCompilationParameters();
-    const array = compiledFormula.execute(ranges, ...this.compilationParams);
-    if (isMatrix(array)) {
-      return matrixMap(array, (cell) => cell.value);
+  evaluateFormulaResult(
+    sheetId: UID,
+    formulaString: string
+  ): ValueAndFormat | Matrix<ValueAndFormat> {
+    try {
+      const compiledFormula = compile(formulaString);
+      const ranges: Range[] = compiledFormula.dependencies.map((xc) =>
+        this.getters.getRangeFromSheetXC(sheetId, xc)
+      );
+      this.updateCompilationParameters();
+      return compiledFormula.execute(ranges, ...this.compilationParams);
+    } catch (error) {
+      return this.handleError(error);
     }
-    return array.value;
   }
 
   private getAllCells(): JetSet<PositionId> {
@@ -256,7 +256,7 @@ export class Evaluator {
         ? this.computeFormulaCell(cell)
         : evaluateLiteral(cell.content, { format: cell.format, locale: this.getters.getLocale() });
     } catch (e) {
-      return this.handleError(e, cell);
+      return this.handleError(e);
     } finally {
       this.cellsBeingComputed.delete(cellId);
       this.nextPositionsToUpdate.delete(positionId);
@@ -272,7 +272,7 @@ export class Evaluator {
     return evaluatedCell;
   }
 
-  private handleError(e: Error | any, cell: Cell): EvaluatedCell {
+  private handleError(e: Error | any): EvaluatedCell {
     if (!(e instanceof EvaluationError)) {
       e = new EvaluationError(CellErrorType.GenericError, e.message);
     }

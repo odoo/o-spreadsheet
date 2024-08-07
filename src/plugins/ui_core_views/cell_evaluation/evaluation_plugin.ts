@@ -1,7 +1,7 @@
 import { compileTokens } from "../../../formulas/compiler";
 import { Token, isExportableToExcel } from "../../../formulas/index";
+import { matrixMap } from "../../../functions/helpers";
 import { getItemId, positions, toXC } from "../../../helpers/index";
-import { CellErrorType, EvaluationError } from "../../../types/errors";
 import {
   CellPosition,
   CellValue,
@@ -16,8 +16,10 @@ import {
   Matrix,
   Range,
   UID,
+  ValueAndFormat,
   Zone,
   invalidateDependenciesCommands,
+  isMatrix,
 } from "../../../types/index";
 import { UIPlugin, UIPluginConfig } from "../../ui_plugin";
 import { CoreViewCommand } from "./../../../types/commands";
@@ -141,6 +143,7 @@ import { Evaluator } from "./evaluator";
 export class EvaluationPlugin extends UIPlugin {
   static getters = [
     "evaluateFormula",
+    "evaluateFormulaResult",
     "getCorrespondingFormulaCell",
     "getRangeFormattedValues",
     "getRangeValues",
@@ -207,11 +210,18 @@ export class EvaluationPlugin extends UIPlugin {
   // ---------------------------------------------------------------------------
 
   evaluateFormula(sheetId: UID, formulaString: string): CellValue | Matrix<CellValue> {
-    try {
-      return this.evaluator.evaluateFormula(sheetId, formulaString);
-    } catch (error) {
-      return error instanceof EvaluationError ? error.errorType : CellErrorType.GenericError;
+    const result = this.evaluateFormulaResult(sheetId, formulaString);
+    if (isMatrix(result)) {
+      return matrixMap(result, (cell) => cell.value);
     }
+    return result.value;
+  }
+
+  evaluateFormulaResult(
+    sheetId: UID,
+    formulaString: string
+  ): ValueAndFormat | Matrix<ValueAndFormat> {
+    return this.evaluator.evaluateFormulaResult(sheetId, formulaString);
   }
 
   /**
