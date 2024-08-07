@@ -27,6 +27,7 @@ export const deleteSheet: ActionSpec = {
     env.askConfirmation(_t("Are you sure you want to delete this sheet?"), () => {
       env.model.dispatch("DELETE_SHEET", { sheetId: env.model.getters.getActiveSheetId() });
     }),
+  icon: "o-spreadsheet-Icon.TRASH",
 };
 
 export const duplicateSheet: ActionSpec = {
@@ -40,12 +41,14 @@ export const duplicateSheet: ActionSpec = {
     });
     env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom, sheetIdTo });
   },
+  icon: "o-spreadsheet-Icon.COPY",
 };
 
 export const renameSheet = (args: { renameSheetCallback: () => void }): ActionSpec => {
   return {
     name: _t("Rename"),
     execute: args.renameSheetCallback,
+    icon: "o-spreadsheet-Icon.RENAME_SHEET",
   };
 };
 
@@ -61,6 +64,7 @@ export const sheetMoveRight: ActionSpec = {
       sheetId: env.model.getters.getActiveSheetId(),
       delta: 1,
     }),
+  icon: "o-spreadsheet-Icon.MOVE_SHEET_RIGHT",
 };
 
 export const sheetMoveLeft: ActionSpec = {
@@ -74,6 +78,7 @@ export const sheetMoveLeft: ActionSpec = {
       sheetId: env.model.getters.getActiveSheetId(),
       delta: -1,
     }),
+  icon: "o-spreadsheet-Icon.MOVE_SHEET_LEFT",
 };
 
 export const hideSheet: ActionSpec = {
@@ -81,4 +86,5 @@ export const hideSheet: ActionSpec = {
   isVisible: (env) => env.model.getters.getVisibleSheetIds().length !== 1,
   execute: (env) =>
     env.model.dispatch("HIDE_SHEET", { sheetId: env.model.getters.getActiveSheetId() }),
+  icon: "o-spreadsheet-Icon.HIDE_SHEET",
 };
