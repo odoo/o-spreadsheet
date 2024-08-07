@@ -1,7 +1,7 @@
 import { Model, Spreadsheet } from "../../src";
 import { BACKGROUND_CHART_COLOR, MENU_WIDTH } from "../../src/constants";
 import { DispatchResult } from "../../src/types";
-import { createChart } from "../test_helpers/commands_helpers";
+import { createChart, hideColumns, hideRows } from "../test_helpers/commands_helpers";
 import {
   setInputValueAndTrigger,
   simulateClick,
@@ -454,6 +454,141 @@ describe("figures", () => {
     await nextTick();
     await simulateClick(".o-data-labels .o-selection-ok");
     expect(errorMessages()).toEqual(["Labels are invalid"]);
+  });
+
+  test("hidden columns are filtered", () => {
+    model = new Model({
+      sheets: [
+        {
+          name: "Sheet1",
+          colNumber: 10,
+          rowNumber: 10,
+          rows: {},
+          cells: {
+            A2: { content: "P1" },
+            A3: { content: "P2" },
+            A4: { content: "P3" },
+            A5: { content: "P4" },
+            B1: { content: "first column dataset" },
+            B2: { content: "10" },
+            B3: { content: "11" },
+            B4: { content: "12" },
+            B5: { content: "13" },
+            C1: { content: "second column dataset" },
+            C2: { content: "15" },
+            C3: { content: "16" },
+            C4: { content: "17" },
+            C5: { content: "18" },
+          },
+        },
+      ],
+    });
+    createChart(
+      model,
+      {
+        dataSets: ["Sheet1!B1:B5", "Sheet1!C1:C5"],
+        labelRange: "Sheet1!A2:A5",
+        dataSetsHaveTitle: true,
+        type: "line",
+      },
+      "1"
+    );
+    let chart = model.getters.getChartRuntime("1")!;
+    expect(chart.data!.datasets?.length).toEqual(2);
+    hideColumns(model, ["C"]);
+    chart = model.getters.getChartRuntime("1")!;
+    expect(chart.data!.datasets?.length).toEqual(1);
+    expect(chart.data!.datasets![0].label).toBe("first column dataset");
+  });
+
+  test("hidden rows are filtered", () => {
+    model = new Model({
+      sheets: [
+        {
+          name: "Sheet1",
+          colNumber: 10,
+          rowNumber: 10,
+          rows: {},
+          cells: {
+            A2: { content: "P1" },
+            A3: { content: "P2" },
+            A4: { content: "P3" },
+            A5: { content: "P4" },
+            B1: { content: "first column dataset" },
+            B2: { content: "10" },
+            B3: { content: "11" },
+            B4: { content: "12" },
+            B5: { content: "13" },
+            C1: { content: "second column dataset" },
+            C2: { content: "15" },
+            C3: { content: "16" },
+            C4: { content: "17" },
+            C5: { content: "18" },
+          },
+        },
+      ],
+    });
+    createChart(
+      model,
+      {
+        dataSets: ["Sheet1!B1:B5", "Sheet1!C1:C5"],
+        labelRange: "Sheet1!A2:A5",
+        dataSetsHaveTitle: true,
+        type: "line",
+      },
+      "1"
+    );
+    let chart = model.getters.getChartRuntime("1")!;
+    expect(chart.data!.datasets![0].data?.length).toEqual(4);
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
+    hideRows(model, [2]);
+    chart = model.getters.getChartRuntime("1")!;
+    expect(chart.data!.datasets![0].data?.length).toEqual(3);
+    expect(chart.data!.labels).toEqual(["P1", "P3", "P4"]);
+  });
+
+  test("hidden labels are replaced by numbers", () => {
+    model = new Model({
+      sheets: [
+        {
+          name: "Sheet1",
+          colNumber: 10,
+          rowNumber: 10,
+          rows: {},
+          cells: {
+            A2: { content: "P1" },
+            A3: { content: "P2" },
+            A4: { content: "P3" },
+            A5: { content: "P4" },
+            B1: { content: "first column dataset" },
+            B2: { content: "10" },
+            B3: { content: "11" },
+            B4: { content: "12" },
+            B5: { content: "13" },
+            C1: { content: "second column dataset" },
+            C2: { content: "15" },
+            C3: { content: "16" },
+            C4: { content: "17" },
+            C5: { content: "18" },
+          },
+        },
+      ],
+    });
+    createChart(
+      model,
+      {
+        dataSets: ["Sheet1!B1:B5", "Sheet1!C1:C5"],
+        labelRange: "Sheet1!A2:A5",
+        dataSetsHaveTitle: true,
+        type: "line",
+      },
+      "1"
+    );
+    let chart = model.getters.getChartRuntime("1")!;
+    expect(chart.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
+    hideColumns(model, ["A"]);
+    chart = model.getters.getChartRuntime("1")!;
+    expect(chart.data!.labels).toEqual(["0", "1", "2", "3"]);
   });
 
   test("Can remove the last data series", async () => {

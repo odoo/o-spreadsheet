@@ -30,7 +30,9 @@ export class EvaluationChartPlugin extends UIPlugin {
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
       cmd.type === "EVALUATE_CELLS" ||
-      (cmd.type === "UPDATE_CELL" && "content" in cmd)
+      (cmd.type === "UPDATE_CELL" && "content" in cmd) ||
+      cmd.type === "UNHIDE_COLUMNS_ROWS" ||
+      cmd.type === "HIDE_COLUMNS_ROWS"
     ) {
       for (let chartId of Object.keys(this.chartRuntime)) {
         this.outOfDate.add(chartId);
@@ -205,8 +207,17 @@ export class EvaluationChartPlugin extends UIPlugin {
   private mapDefinitionToRuntime(definition: ChartDefinition): ChartConfiguration {
     let labels: string[] = [];
     if (definition.labelRange) {
-      if (!definition.labelRange.invalidXc && !definition.labelRange.invalidSheetName) {
+      const hiddenCols = this.getters.getHiddenColsGroups(definition.labelRange.sheetId).flat();
+      const { left } = definition.labelRange.zone;
+      if (
+        !definition.labelRange.invalidXc &&
+        !definition.labelRange.invalidSheetName &&
+        !hiddenCols.includes(left)
+      ) {
         labels = this.getters.getRangeFormattedValues(definition.labelRange).flat(1);
+      } else if (definition.dataSets[0]) {
+        const ranges = this.getData(definition.dataSets[0], definition.sheetId);
+        labels = range(0, ranges.length).map((r) => r.toString());
       }
     } else if (definition.dataSets.length === 1) {
       for (let i = 0; i < this.getData(definition.dataSets[0], definition.sheetId).length; i++) {
@@ -232,6 +243,14 @@ export class EvaluationChartPlugin extends UIPlugin {
     }
     for (const [dsIndex, ds] of Object.entries(definition.dataSets)) {
       let label: string;
+      if (
+        this.getters
+          .getHiddenColsGroups(ds.dataRange.sheetId)
+          .flat()
+          .includes(ds.dataRange.zone.left)
+      ) {
+        continue;
+      }
       if (ds.labelCell) {
         const labelRange = ds.labelCell;
         const cell: Cell | undefined = labelRange

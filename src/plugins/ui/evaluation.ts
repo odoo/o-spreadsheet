@@ -19,6 +19,7 @@ import {
   Range,
   ReferenceDenormalizer,
   UID,
+  Zone,
 } from "../../types/index";
 import { UIPlugin } from "../ui_plugin";
 
@@ -110,11 +111,15 @@ export class EvaluationPlugin extends UIPlugin {
   getRangeFormattedValues(range: Range): string[][] {
     const sheet = this.getters.tryGetSheet(range.sheetId);
     if (sheet === undefined) return [[]];
-    return mapCellsInZone(
+    return this.filterHiddenColsRows(
+      range.sheetId,
       range.zone,
-      sheet,
-      (cell) => this.getters.getCellText(cell, this.getters.shouldShowFormulas()),
-      ""
+      mapCellsInZone(
+        range.zone,
+        sheet,
+        (cell) => this.getters.getCellText(cell, this.getters.shouldShowFormulas()),
+        ""
+      )
     );
   }
 
@@ -124,7 +129,11 @@ export class EvaluationPlugin extends UIPlugin {
   getRangeValues(range: Range): CellValue[][] {
     const sheet = this.getters.tryGetSheet(range.sheetId);
     if (sheet === undefined) return [[]];
-    return mapCellsInZone(range.zone, sheet, (cell) => cell.evaluated.value);
+    return this.filterHiddenColsRows(
+      range.sheetId,
+      range.zone,
+      mapCellsInZone(range.zone, sheet, (cell) => cell.evaluated.value)
+    );
   }
 
   // ---------------------------------------------------------------------------
@@ -327,5 +336,33 @@ export class EvaluationPlugin extends UIPlugin {
       this.evaluate(sheetId);
       this.isUpToDate.add(sheetId);
     }
+  }
+
+  /**
+   * Fitler some values according to the hidden columns or row in the corresponding zone
+   * @param sheetId - The UID of the sheet to take into account
+   * @param zone - The zone to tke into account when filtering
+   * @param values - The original values to filter
+   * @returns the values filtered (ie we keep only the not hidden values)
+   */
+  private filterHiddenColsRows<T>(sheetId: UID, zone: Zone, values: T[][]): T[][] {
+    const data: T[][] = [];
+    const hiddenRows = this.getters.getHiddenRowsGroups(sheetId).flat();
+    const hiddenCols = this.getters.getHiddenColsGroups(sheetId).flat();
+    const { left, top } = zone;
+    let currentIndex = 0;
+    for (let i = 0; i < values.length; i++) {
+      if (hiddenCols.includes(i + left)) {
+        continue;
+      }
+      data.push([]);
+      for (let j = 0; j < values[i].length; j++) {
+        if (!hiddenRows.includes(j + top)) {
+          data[currentIndex].push(values[i][j]);
+        }
+      }
+      currentIndex++;
+    }
+    return data;
   }
 }
