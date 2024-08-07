@@ -91,7 +91,7 @@ export class ZoneSet {
   /**
    * List of positions in the order they were inserted.
    */
-  private insertions: RTreeBoundingBox[] = [];
+  // private insertions: RTreeBoundingBox[] = [];
 
   constructor(sheetIds: UID[]) {
     for (const sheetId of sheetIds) {
@@ -109,10 +109,10 @@ export class ZoneSet {
   }
 
   addBoundingBox(boundingBox: RTreeBoundingBox) {
-    const zonesActuallyAdded = this.sheets[boundingBox.sheetId].addZone(boundingBox.zone);
-    for (const zone of zonesActuallyAdded) {
-      this.insertions.push({ sheetId: boundingBox.sheetId, zone });
-    }
+    this.sheets[boundingBox.sheetId].addZone(boundingBox.zone);
+    // for (const zone of zonesActuallyAdded) {
+    //   this.insertions.push({ sheetId: boundingBox.sheetId, zone });
+    // }
   }
 
   addManyBoundingBox(boundingBoxes: Iterable<RTreeBoundingBox>) {
@@ -149,21 +149,26 @@ export class ZoneSet {
    * to the set then removed and then added again.
    */
   *[Symbol.iterator](): Generator<RTreeBoundingBox> {
-    for (const boundingBox of this.insertions) {
-      const intersectedZones = this.sheets[boundingBox.sheetId].getIntersectionWith(
-        boundingBox.zone
-      );
-      for (const zone of intersectedZones) {
-        yield { sheetId: boundingBox.sheetId, zone };
+    for (const sheetId in this.sheets) {
+      for (const zone of this.sheets[sheetId].getZones()) {
+        yield { sheetId, zone };
       }
-
-      //   {
-      //   for (let row = zone.top; row <= zone.bottom; row++) {
-      //     for (let col = zone.left; col <= zone.right; col++) {
-      //       yield { sheetId: boundingBox.sheetId, col, row };
-      //     }
-      //   }
-      // }
     }
+    // for (const boundingBox of this.insertions) {
+    //   const intersectedZones = this.sheets[boundingBox.sheetId].getIntersectionWith(
+    //     boundingBox.zone
+    //   );
+    //   for (const zone of intersectedZones) {
+    //     yield { sheetId: boundingBox.sheetId, zone };
+    //   }
+
+    //   {
+    //   for (let row = zone.top; row <= zone.bottom; row++) {
+    //     for (let col = zone.left; col <= zone.right; col++) {
+    //       yield { sheetId: boundingBox.sheetId, col, row };
+    //     }
+    //   }
+    // }
+    // }
   }
 }

@@ -411,11 +411,10 @@ export class ZoneGrid {
   /**
    * Add a zone to the profile and return as information the part of the zone that was actually added
    */
-  addZone(zone: Zone): Zone[] {
-    const currentZones = constructZonesFromProfiles(this.profilesStartingPosition, this.profiles);
-    const zonesActuallyAdded = recomputeZones([zone], currentZones);
-    modifyProfiles(this.profilesStartingPosition, this.profiles, zonesActuallyAdded);
-    return zonesActuallyAdded;
+  addZone(zone: Zone) {
+    // const currentZones = constructZonesFromProfiles(this.profilesStartingPosition, this.profiles);
+    // const zonesActuallyAdded = recomputeZones([zone], currentZones);
+    modifyProfiles(this.profilesStartingPosition, this.profiles, [zone]);
   }
 
   getIntersectionWith(zone: Zone): Zone[] {
@@ -424,6 +423,10 @@ export class ZoneGrid {
       this.profiles
     );
     return recomputeZones(currentZones, recomputeZones(currentZones, [zone]));
+  }
+
+  getZones() {
+    return constructZonesFromProfiles<Zone>(this.profilesStartingPosition, this.profiles);
   }
 
   removeZone(zone: Zone) {
