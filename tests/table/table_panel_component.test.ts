@@ -117,15 +117,27 @@ describe("Table side panel", () => {
     expect(model.getters.getSelectedZone()).toEqual(toZone("D2"));
   });
 
-  test("Errors messages are displayed when wrong zone is entered and input is reset on confirm", async () => {
+  test("Errors messages are displayed when wrong zone is entered", async () => {
     createTable(model, "D1:D2");
     await simulateClick(".o-selection input");
     await setInputValueAndTrigger(".o-selection input", "D1:D5");
     expect(fixture.querySelector(".o-side-panel-error")).not.toBeNull();
 
     await click(fixture, ".o-selection .o-selection-ok");
+    expect(fixture.querySelector(".o-side-panel-error")).not.toBeNull();
+  });
+
+  test("Can update a table after entering an invalid range", async () => {
+    createTable(model, "D1:D2");
+    await simulateClick(".o-selection input");
+    await setInputValueAndTrigger(".o-selection input", "OK");
+    await simulateClick(".o-checkbox");
+    expect(fixture.querySelector(".o-side-panel-error")).not.toBeNull();
+    await simulateClick(".o-selection input");
+    await setInputValueAndTrigger(".o-selection input", "A1");
+    await click(fixture, ".o-selection .o-selection-ok");
     expect(fixture.querySelector(".o-side-panel-error")).toBeNull();
-    expect(fixture.querySelector<HTMLInputElement>(".o-selection input")!.value).toBe("A1:C4");
+    expect(getTable(model, sheetId).range.zone).toEqual(toZone("A1"));
   });
 
   test("Changing the selection changes the edited table", async () => {
