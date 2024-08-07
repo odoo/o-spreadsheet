@@ -1,5 +1,5 @@
 import { Component, useState } from "@odoo/owl";
-import { positionToZone, rangeReference } from "../../../helpers";
+import { positionToZone } from "../../../helpers";
 import {
   CommandResult,
   DispatchResult,
@@ -106,10 +106,6 @@ export class TablePanel extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onRangeChanged(ranges: string[]) {
-    if (!ranges[0] || !ranges[0].match(rangeReference)) {
-      this.state.tableZoneErrors = [CommandResult.InvalidRange];
-      return;
-    }
     const sheetId = this.env.model.getters.getActiveSheetId();
 
     this.state.tableXc = ranges[0];
@@ -136,10 +132,6 @@ export class TablePanel extends Component<Props, SpreadsheetChildEnv> {
         cell: position,
       });
     }
-    this.state.tableZoneErrors = [];
-    this.state.tableXc = result.isSuccessful
-      ? this.state.tableXc
-      : this.env.model.getters.getRangeString(this.props.table.range, sheetId);
   }
 
   deleteTable() {
