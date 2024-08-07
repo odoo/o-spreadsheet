@@ -1,7 +1,7 @@
 import { compile } from "../../../formulas";
-import { implementationErrorMessage } from "../../../functions";
+import { handleError, implementationErrorMessage } from "../../../functions";
 import { matrixMap } from "../../../functions/helpers";
-import { forEachPositionsInZone, JetSet, lazy, toXC } from "../../../helpers";
+import { JetSet, forEachPositionsInZone, lazy, toXC } from "../../../helpers";
 import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells";
 import { ModelConfig } from "../../../model";
 import { _t } from "../../../translation";
@@ -12,17 +12,17 @@ import {
   CellValueType,
   DEFAULT_LOCALE,
   EvaluatedCell,
-  FormulaCell,
   FPayload,
+  FormulaCell,
   Getters,
-  isMatrix,
   Matrix,
   Range,
   RangeCompiledFormula,
   UID,
+  isMatrix,
 } from "../../../types";
 import { CellErrorType, CircularDependencyError, EvaluationError } from "../../../types/errors";
-import { buildCompilationParameters, CompilationParameters } from "./compilation_parameters";
+import { CompilationParameters, buildCompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
 import { RTreeBoundingBox } from "./r_tree";
 import { SpreadingRelation } from "./spreading_relation";
@@ -169,24 +169,35 @@ export class Evaluator {
   }
 
   evaluateFormula(sheetId: UID, formulaString: string): CellValue | Matrix<CellValue> {
-    const compiledFormula = compile(formulaString);
-
-    const ranges: Range[] = compiledFormula.dependencies.map((xc) =>
-      this.getters.getRangeFromSheetXC(sheetId, xc)
-    );
-    this.updateCompilationParameters();
-    const result = updateEvalContextAndExecute(
-      { ...compiledFormula, dependencies: ranges },
-      this.compilationParams,
-      sheetId
-    );
+    const result = this.evaluateFormulaResult(sheetId, formulaString);
     if (isMatrix(result)) {
       return matrixMap(result, (cell) => cell.value);
     }
-    if (result.value === null) {
-      return 0;
-    }
     return result.value;
+  }
+
+  evaluateFormulaResult(sheetId: UID, formulaString: string): Matrix<FPayload> | FPayload {
+    try {
+      const compiledFormula = compile(formulaString);
+      const ranges: Range[] = compiledFormula.dependencies.map((xc) =>
+        this.getters.getRangeFromSheetXC(sheetId, xc)
+      );
+      this.updateCompilationParameters();
+      const result = updateEvalContextAndExecute(
+        { ...compiledFormula, dependencies: ranges },
+        this.compilationParams,
+        sheetId
+      );
+      if (isMatrix(result)) {
+        return result;
+      }
+      if (result.value === null) {
+        return { value: 0, format: result.format };
+      }
+      return result;
+    } catch (error) {
+      return handleError(error, "");
+    }
   }
 
   private getAllCells(): JetSet<PositionId> {
