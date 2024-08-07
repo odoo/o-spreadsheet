@@ -83,6 +83,7 @@ function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | un
     return {
       dataRange: convertExcelRangeToSheetXC(data.range, dataSetsHaveTitle),
       label,
+      backgroundColor: data.backgroundColor,
     };
   });
   // For doughnut charts, in chartJS first dataset = outer dataset, in excel first dataset = inner dataset
