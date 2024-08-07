@@ -72,6 +72,7 @@
           t-key="props.table.id"
           ranges="[this.state.tableXc]"
           hasSingleRange="true"
+          isInvalid="this.state.tableZoneErrors.length !== 0"
           onSelectionChanged="(ranges) => this.onRangeChanged(ranges)"
           onSelectionConfirmed.bind="this.onRangeConfirmed"
         />
