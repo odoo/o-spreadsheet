@@ -24,7 +24,7 @@ import {
   HeaderIndex,
   Merge,
   Range,
-  TargetDependentCommand,
+  TargetAndSheetDependentCommand,
   UID,
   UpdateCellCommand,
   WorkbookData,
@@ -383,7 +383,7 @@ export class MergePlugin extends CorePlugin<MergeState> implements MergeState {
     return CommandResult.CellIsMerged;
   }
 
-  private checkMergeExists(cmd: TargetDependentCommand): CommandResult {
+  private checkMergeExists(cmd: TargetAndSheetDependentCommand): CommandResult {
     const { sheetId, target } = cmd;
     for (const zone of target) {
       const { left, top } = zone;

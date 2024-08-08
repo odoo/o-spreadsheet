@@ -1,4 +1,4 @@
-import { CellValue, DataValidationRule, Format, Locale } from ".";
+import { CellProtectionRule, CellValue, DataValidationRule, Format, Locale } from ".";
 import { ExcelChartDefinition } from "./chart/chart";
 import { ConditionalFormat } from "./conditional_formatting";
 import { Image } from "./image";
@@ -46,6 +46,7 @@ export interface SheetData {
   rows: { [key: number]: HeaderData };
   conditionalFormats: ConditionalFormat[];
   dataValidationRules?: DataValidationRuleData[];
+  cellProtectionRules?: CellProtectionRuleData[];
   tables: TableData[];
   areGridLinesVisible?: boolean;
   isVisible: boolean;
@@ -103,6 +104,10 @@ export interface TableData {
 }
 
 export interface DataValidationRuleData extends Omit<DataValidationRule, "ranges"> {
+  ranges: string[];
+}
+
+export interface CellProtectionRuleData extends Omit<CellProtectionRule, "ranges"> {
   ranges: string[];
 }
 

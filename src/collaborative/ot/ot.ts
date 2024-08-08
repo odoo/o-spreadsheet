@@ -18,7 +18,7 @@ import {
   Zone,
   isPositionDependent,
   isSheetDependent,
-  isTargetDependent,
+  isTargetAndSheetDependent,
 } from "../../types";
 import {
   HeadersDependentCommand,
@@ -38,7 +38,7 @@ const transformations: {
   fn: (t: CoreCommand, e: CoreCommand) => CoreCommand | TransformResult;
 }[] = [
   { match: isSheetDependent, fn: transformSheetId },
-  { match: isTargetDependent, fn: transformTarget },
+  { match: isTargetAndSheetDependent, fn: transformTarget },
   { match: isZoneDependent, fn: transformZoneDependentCommand },
   { match: isPositionDependent, fn: transformPosition },
   { match: isHeadersDependant, fn: transformHeaders },

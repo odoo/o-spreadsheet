@@ -1,0 +1,20 @@
+<templates>
+  <t t-name="o-spreadsheet-CellProtectionPreview">
+    <div class="o-cp-preview p-3" t-on-click="props.onClick" t-ref="cpPreview">
+      <div class="d-flex justify-content-between">
+        <div class="o-cp-container d-flex flex-column">
+          <div
+            class="o-cp-preview-description fw-bold text-truncate"
+            t-esc="props.rule.description"
+          />
+          <div class="o-cp-preview-ranges text-truncate" t-esc="rangesString"/>
+        </div>
+        <div
+          class="o-cp-preview-delete d-flex align-items-center text-muted px-3"
+          t-on-click.stop="deleteCellProtection">
+          <t t-call="o-spreadsheet-Icon.TRASH"/>
+        </div>
+      </div>
+    </div>
+  </t>
+</templates>

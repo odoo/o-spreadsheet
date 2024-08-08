@@ -1,0 +1,40 @@
+<templates>
+  <t t-name="o-spreadsheet-CellProtectionEditor">
+    <div class="o-dv-form w-100 h-100">
+      <Section class="'o-cp-rule-type'">
+        <div class="o-section-title">Rule type</div>
+        <select class="o-input" t-on-change="onRuleTypeChanged">
+          <option t-att-value="'range'">Range</option>
+          <option t-att-value="'sheet'">Sheet</option>
+        </select>
+      </Section>
+      <Section class="'o-dv-range'" t-if="">
+        <t t-set-slot="title">Apply to ranges</t>
+        <SelectionInput
+          ranges="state.rule.ranges"
+          onSelectionChanged="(ranges) => this.onRangesChanged(ranges)"
+          required="true"
+        />
+        <div class="o-subsection">
+          <input
+            type="text"
+            title="Description"
+            class="o-input flex-grow-1"
+            placeholder="Enter a description"
+            t-att-value="state.rule.description"
+            t-on-change="this.onDescriptionChanged"
+          />
+        </div>
+      </Section>
+      <div class="o-sidePanelButtons">
+        <button t-on-click="props.onExit" class="o-dv-cancel o-button o-button-grey">Cancel</button>
+        <button
+          t-on-click="onSave"
+          class="o-dv-save o-button o-button-grey primary"
+          t-att-class="{'o-disabled': !canSave }">
+          Save
+        </button>
+      </div>
+    </div>
+  </t>
+</templates>

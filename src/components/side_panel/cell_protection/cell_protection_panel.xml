@@ -1,0 +1,21 @@
+<templates>
+  <t t-name="o-spreadsheet-CellProtectionPanel">
+    <div class="o-cell-protection">
+      <t t-if="state.mode === 'list'">
+        <div class="o-dv-preview-list">
+          <t t-foreach="cellProtectionRules" t-as="rule" t-key="rule.id">
+            <CellProtectionPreview rule="rule" onClick="() => this.onPreviewClick(rule.id)"/>
+          </t>
+        </div>
+        <div
+          class="o-dv-add btn btn-link o-sidePanel-btn-link float-end"
+          t-on-click="addCellProtectionRule">
+          + Add a sheet or range
+        </div>
+      </t>
+      <t t-else="">
+        <CellProtectionEditor rule="state.activeRule" onExit.bind="onExitEditMode"/>
+      </t>
+    </div>
+  </t>
+</templates>

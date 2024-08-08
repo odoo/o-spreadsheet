@@ -423,6 +423,15 @@ topbarMenuRegistry
     sequence: 10,
     separator: true,
   })
+  .addChild("cell_protection", ["data"], {
+    name: _t("Protect sheets and ranges"),
+    execute: (env) => {
+      env.openSidePanel("CellProtection");
+    },
+    icon: "o-spreadsheet-Icon.OPEN_READ_ONLY",
+    sequence: 10,
+    separator: true,
+  })
   .addChild("sort_ascending", ["data", "sort_range"], {
     ...ACTION_DATA.sortAscending,
     sequence: 10,

@@ -1,4 +1,5 @@
 import {
+  CellProtectionRule,
   ConditionalFormat,
   DOMCoordinates,
   DataValidationRule,
@@ -59,7 +60,7 @@ export interface SheetDependentCommand {
   sheetId: UID;
 }
 
-export function isSheetDependent(cmd: CoreCommand): boolean {
+export function isSheetDependent(cmd: Command): cmd is Command & SheetDependentCommand {
   return "sheetId" in cmd;
 }
 
@@ -69,24 +70,44 @@ export interface HeadersDependentCommand {
   elements: HeaderIndex[];
 }
 
-export function isHeadersDependant(cmd: CoreCommand): boolean {
+export function isHeadersDependant(cmd: Command): cmd is Command & HeadersDependentCommand {
   return "dimension" in cmd && "sheetId" in cmd && "elements" in cmd;
 }
 
-export interface TargetDependentCommand {
+export interface BaseDependantCommand {
+  base: number;
+  dimension: Dimension;
+  position: "before" | "after";
+}
+
+export function isBaseDependant(cmd: Command): cmd is Command & BaseDependantCommand {
+  return "dimension" in cmd && "base" in cmd && "position" in cmd;
+}
+
+export interface TargetAndSheetDependentCommand {
   sheetId: UID;
   target: Zone[];
 }
 
-export function isTargetDependent(cmd: CoreCommand): boolean {
+export function isTargetAndSheetDependent(
+  cmd: Command
+): cmd is Command & TargetAndSheetDependentCommand {
   return "target" in cmd && "sheetId" in cmd;
+}
+
+export interface TargetDependentCommand {
+  target: Zone[];
+}
+
+export function isTargetDependent(cmd: Command): cmd is Command & TargetDependentCommand {
+  return "target" in cmd;
 }
 
 export interface RangesDependentCommand {
   ranges: RangeData[];
 }
 
-export function isRangeDependant(cmd: CoreCommand): boolean {
+export function isRangeDependant(cmd: Command): cmd is Command & RangesDependentCommand {
   return "ranges" in cmd;
 }
 
@@ -101,11 +122,10 @@ export interface ZoneDependentCommand {
   zone: Zone;
 }
 
-export function isZoneDependent(cmd: CoreCommand): boolean {
+export function isZoneDependent(cmd: Command): cmd is Command & ZoneDependentCommand {
   return "zone" in cmd;
 }
-
-export function isPositionDependent(cmd: CoreCommand): boolean {
+export function isPositionDependent(cmd: Command): cmd is Command & PositionDependentCommand {
   return "col" in cmd && "row" in cmd && "sheetId" in cmd;
 }
 
@@ -242,6 +262,10 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "ADD_DATA_VALIDATION_RULE",
   "REMOVE_DATA_VALIDATION_RULE",
 
+  /** CELL PROTECTION */
+  "ADD_CELL_PROTECTION_RULE",
+  "REMOVE_CELL_PROTECTION_RULE",
+
   /** MISC */
   "UPDATE_LOCALE",
 
@@ -363,12 +387,12 @@ export interface SetGridLinesVisibilityCommand extends SheetDependentCommand {
 // Merge
 //------------------------------------------------------------------------------
 
-export interface AddMergeCommand extends TargetDependentCommand {
+export interface AddMergeCommand extends TargetAndSheetDependentCommand {
   type: "ADD_MERGE";
   force?: boolean;
 }
 
-export interface RemoveMergeCommand extends TargetDependentCommand {
+export interface RemoveMergeCommand extends TargetAndSheetDependentCommand {
   type: "REMOVE_MERGE";
 }
 
@@ -509,7 +533,7 @@ export interface CreateTableCommand extends RangesDependentCommand {
   tableType: CoreTableType;
 }
 
-export interface RemoveTableCommand extends TargetDependentCommand {
+export interface RemoveTableCommand extends TargetAndSheetDependentCommand {
   type: "REMOVE_TABLE";
 }
 
@@ -557,13 +581,13 @@ export interface UpdateFilterCommand extends PositionDependentCommand {
   hiddenValues: string[];
 }
 
-export interface SetFormattingCommand extends TargetDependentCommand {
+export interface SetFormattingCommand extends TargetAndSheetDependentCommand {
   type: "SET_FORMATTING";
   style?: Style;
   format?: Format;
 }
 
-export interface SetZoneBordersCommand extends TargetDependentCommand {
+export interface SetZoneBordersCommand extends TargetAndSheetDependentCommand {
   type: "SET_ZONE_BORDERS";
   border: BorderData;
 }
@@ -573,11 +597,11 @@ export interface SetBorderCommand extends PositionDependentCommand {
   border: Border | undefined;
 }
 
-export interface ClearFormattingCommand extends TargetDependentCommand {
+export interface ClearFormattingCommand extends TargetAndSheetDependentCommand {
   type: "CLEAR_FORMATTING";
 }
 
-export interface SetDecimalCommand extends TargetDependentCommand {
+export interface SetDecimalCommand extends TargetAndSheetDependentCommand {
   type: "SET_DECIMAL";
   step: SetDecimalStep;
 }
@@ -697,6 +721,16 @@ export interface RemoveDataValidationCommand extends SheetDependentCommand {
   id: string;
 }
 
+export interface AddCellProtectionCommand extends SheetDependentCommand, RangesDependentCommand {
+  type: "ADD_CELL_PROTECTION_RULE";
+  rule: Omit<CellProtectionRule, "ranges">;
+}
+
+export interface RemoveCellProtectionCommand extends SheetDependentCommand {
+  type: "REMOVE_CELL_PROTECTION_RULE";
+  id: string;
+}
+
 //#endregion
 
 //#region Local Commands
@@ -803,7 +837,7 @@ export interface ClearCellCommand extends PositionDependentCommand {
   type: "CLEAR_CELL";
 }
 
-export interface ClearCellsCommand extends TargetDependentCommand {
+export interface ClearCellsCommand extends TargetAndSheetDependentCommand {
   type: "CLEAR_CELLS";
 }
 
@@ -1054,6 +1088,10 @@ export type CoreCommand =
   | AddDataValidationCommand
   | RemoveDataValidationCommand
 
+  /** CELL PROTECTION */
+  | AddCellProtectionCommand
+  | RemoveCellProtectionCommand
+
   /** MISC */
   | UpdateLocaleCommand
 
@@ -1168,6 +1206,7 @@ export const enum CommandResult {
   WillRemoveExistingMerge = "WillRemoveExistingMerge",
   MergeIsDestructive = "MergeIsDestructive",
   CellIsMerged = "CellIsMerged",
+  CellIsProtected = "CellIsProtected",
   InvalidTarget = "InvalidTarget",
   EmptyUndoStack = "EmptyUndoStack",
   EmptyRedoStack = "EmptyRedoStack",
@@ -1282,6 +1321,7 @@ export const enum CommandResult {
   PivotIdNotFound = "PivotIdNotFound",
   EmptyName = "EmptyName",
   ValueCellIsInvalidFormula = "ValueCellIsInvalidFormula",
+  UnknownCellProtectionRule = "UnknownCellProtectionRule",
 }
 
 export interface CommandHandler<T> {
