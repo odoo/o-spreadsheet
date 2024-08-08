@@ -89,7 +89,7 @@ describe("ranges and highlights", () => {
     await typeInComposer("=SU");
     const contentColors = cehMock.colors;
     expect(contentColors["="]).toBe("#3da4ab");
-    expect(contentColors["SU"]).toBe("#000");
+    expect(contentColors["SU"]).toBe("#000000");
   });
 
   test.each([
@@ -1060,9 +1060,9 @@ describe("Composer string is correctly translated to HtmlContents[][] for the co
       [
         { value: "=", color: tokenColors.OPERATOR },
         { value: "1", color: tokenColors.NUMBER },
-        { value: " ", color: "#000" },
+        { value: " ", color: "#000000" },
         { value: "+", color: tokenColors.OPERATOR },
-        { value: " ", color: "#000" },
+        { value: " ", color: "#000000" },
         { value: "A1", color: cehMock.colors["A1"] },
       ],
     ]);
@@ -1093,7 +1093,7 @@ describe("Composer string is correctly translated to HtmlContents[][] for the co
       [{ value: "=", color: tokenColors.OPERATOR }],
       [{ value: "A1: ", color: cehMock.colors["A1: "] }],
       [{ value: "A2", color: cehMock.colors["A1: "] }],
-      [{ value: "", color: "#000" }],
+      [{ value: "", color: "#000000" }],
       [
         { value: "+", color: tokenColors.OPERATOR },
         { value: "SUM", color: tokenColors.FUNCTION },
@@ -1110,8 +1110,8 @@ describe("Composer string is correctly translated to HtmlContents[][] for the co
     await typeInComposer("=\n\n");
     expect(cehMock.contents).toEqual([
       [{ value: "=", color: tokenColors.OPERATOR }],
-      [{ value: "", color: "#000" }],
-      [{ value: "", color: "#000", class: selectionIndicatorClass }],
+      [{ value: "", color: "#000000" }],
+      [{ value: "", color: "#000000", class: selectionIndicatorClass }],
     ]);
   });
 });
