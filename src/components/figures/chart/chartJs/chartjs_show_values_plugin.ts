@@ -1,5 +1,8 @@
 import { ChartType, Plugin } from "chart.js";
-import { chartFontColor } from "../../../../helpers/figures/charts/chart_common";
+import {
+  TREND_LINE_XAXIS_ID,
+  chartFontColor,
+} from "../../../../helpers/figures/charts/chart_common";
 import { Color } from "../../../../types";
 
 interface ChartShowValuesPluginOptions {
@@ -35,6 +38,9 @@ export const chartShowValuesPlugin: Plugin = {
     ctx.strokeStyle = chartFontColor(ctx.fillStyle);
 
     chart._metasets.forEach(function (dataset) {
+      if (dataset.xAxisID === TREND_LINE_XAXIS_ID) {
+        return; // ignore trend lines
+      }
       switch (dataset.type) {
         case "doughnut":
         case "pie": {
