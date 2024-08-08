@@ -2062,4 +2062,15 @@ describe("renderer", () => {
     model.drawGrid(ctx);
     expect(borderRenderingContext).toEqual([[1, [[1, 1]]]]);
   });
+
+  test("Cells of splilled formula are empty is we display the formulas", () => {
+    const model = new Model({ sheets: [{ colNumber: 2, rowNumber: 2 }] });
+    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    setCellContent(model, "A1", "=MUNIT(2)");
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+    model.drawGrid(ctx);
+    const boxes = getPlugin(model, RendererPlugin)["boxes"];
+    const boxesText = boxes.map((box) => box.content?.textLines.join(""));
+    expect(boxesText).toEqual(["=MUNIT(2)", "", "", ""]);
+  });
 });
