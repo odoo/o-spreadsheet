@@ -156,6 +156,7 @@ export class ClipboardPlugin extends UIPlugin {
         this.status = "invisible";
         if (this._isCutOperation) {
           this.copiedData = undefined;
+          this._isCutOperation = false;
         }
         break;
       }
@@ -258,6 +259,7 @@ export class ClipboardPlugin extends UIPlugin {
       }
       case "ACTIVATE_PAINT_FORMAT": {
         const zones = this.getters.getSelectedZones();
+        this._isCutOperation = false;
         this.copiedData = this.copy(zones);
         this.status = "visible";
         if (cmd.persistent) {
