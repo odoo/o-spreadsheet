@@ -1,4 +1,4 @@
-import { EnrichedToken, composerTokenize } from "../../../formulas/composer_tokenizer";
+import { composerTokenize, EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { POSTFIX_UNARY_OPERATORS } from "../../../formulas/tokenizer";
 import {
   colors,
@@ -10,7 +10,7 @@ import {
   splitReference,
   zoneToDimension,
 } from "../../../helpers/index";
-import { canonicalizeNumberContent } from "../../../helpers/locale";
+import { canonicalizeNumberContent, localizeFormula } from "../../../helpers/locale";
 import { createPivotFormula } from "../../../helpers/pivot/pivot_helpers";
 import { cycleFixedReference } from "../../../helpers/reference_type";
 import {
@@ -443,7 +443,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       if (pivotId && pivotCell.type !== "EMPTY" && !cell?.isFormula) {
         const formulaPivotId = this.getters.getPivotFormulaId(pivotId);
         const formula = createPivotFormula(formulaPivotId, pivotCell);
-        return formula.slice(1); // strip leading =
+        return localizeFormula(formula, this.getters.getLocale()).slice(1); // strip leading =
       }
     }
     const range = this.getters.getRangeFromZone(sheetId, zone);
