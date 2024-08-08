@@ -152,6 +152,7 @@ export class ClipboardPlugin extends UIPlugin {
         this.status = "invisible";
         if (this._isCutOperation) {
           this.copiedData = undefined;
+          this._isCutOperation = false;
         }
         break;
       }

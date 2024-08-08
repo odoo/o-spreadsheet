@@ -934,6 +934,19 @@ describe("Grid component", () => {
       paintFormatStore.activate({ persistent: false });
       expect(model.getters.getClipboardContent()).toEqual(clipboardContent);
     });
+
+    test("can paint format after a cut", async () => {
+      setCellContent(model, "B2", "b2");
+      cut(model, "A1");
+      selectCell(model, "B2");
+      setStyle(model, "B2", { bold: true });
+      paintFormatStore.activate({ persistent: false });
+      expect(model.getters.isCutOperation());
+
+      gridMouseEvent(model, "pointerdown", "D8");
+      gridMouseEvent(model, "pointerup", "D8");
+      expect(getCell(model, "D8")?.style).toEqual({ bold: true });
+    });
   });
 
   test("closing contextmenu focuses the grid", async () => {
