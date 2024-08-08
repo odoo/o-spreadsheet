@@ -2124,6 +2124,19 @@ describe("renderer", () => {
     expect(borderRenderingContext).toEqual([[1, [[1, 1]]]]);
   });
 
+  test("Cells of splilled formula are empty is we display the formulas", () => {
+    const model = new Model({ sheets: [{ colNumber: 2, rowNumber: 2 }] });
+    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    setCellContent(model, "A1", "=MUNIT(2)");
+    const { drawGridRenderer, gridRendererStore } = setRenderer(model);
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+    drawGridRenderer(ctx);
+    //@ts-expect-error
+    const boxes = gridRendererStore.getGridBoxes();
+    const boxesText = boxes.map((box) => box.content?.textLines.join(""));
+    expect(boxesText).toEqual(["=MUNIT(2)", "", "", ""]);
+  });
+
   describe("DataValidations are correctly rendered", () => {
     let renderedTexts: string[];
     let ctx: MockGridRenderingContext;
