@@ -99,7 +99,9 @@ describe("clipboard", () => {
     expect(getCell(model, "B2")).toMatchObject({
       content: "b2",
     });
+    expect(model.getters.isCutOperation()).toBe(true);
     paste(model, "D2");
+    expect(model.getters.isCutOperation()).toBe(false);
 
     expect(getCell(model, "B2")).toBeUndefined();
     expect(getCell(model, "D2")).toMatchObject({
