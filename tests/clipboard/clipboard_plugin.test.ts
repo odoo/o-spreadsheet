@@ -2,7 +2,12 @@ import { DEFAULT_BORDER_DESC } from "../../src/constants";
 import { toCartesian, toZone, zoneToXc } from "../../src/helpers";
 import { ClipboardCellsState } from "../../src/helpers/clipboard/clipboard_cells_state";
 import { Model } from "../../src/model";
-import { ClipboardMIMEType, CommandResult, DEFAULT_LOCALE } from "../../src/types/index";
+import {
+  ClipboardMIMEType,
+  CommandResult,
+  DEFAULT_LOCALE,
+  DEFAULT_LOCALES,
+} from "../../src/types/index";
 import { XMLString } from "../../src/types/xlsx";
 import { parseXML, xmlEscape } from "../../src/xlsx/helpers/xml_helpers";
 import { MockClipboardData } from "../test_helpers/clipboard";
@@ -1187,6 +1192,17 @@ describe("clipboard", () => {
     expect(getCellContent(model, "B1")).toBe("3");
     expect(getCellContent(model, "B2")).toBe("TRUE");
     expect(getCellContent(model, "B3")).toBe("Kikou");
+  });
+
+  test("Can paste localized content as value", () => {
+    const model = new Model();
+    updateLocale(model, DEFAULT_LOCALES[1]);
+    setCellContent(model, "A1", "5.4");
+    setCellContent(model, "A2", "=SUM(4.5)");
+    copy(model, "A1:A2");
+    paste(model, "B1", "asValue");
+    expect(getCell(model, "B1")?.content).toBe("5.4");
+    expect(getCell(model, "B2")?.content).toBe("4.5");
   });
 
   test("can copy a formula and paste -> apply the format defined by user, if not apply the automatic evaluated format ", () => {

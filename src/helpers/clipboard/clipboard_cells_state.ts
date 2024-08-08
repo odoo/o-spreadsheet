@@ -382,9 +382,11 @@ export class ClipboardCellsState extends ClipboardCellsAbstractState {
     const originFormat = origin.cell?.format ?? origin.evaluatedCell.format;
 
     if (clipboardOption?.pasteOption === "asValue") {
-      const locale = this.getters.getLocale();
-      const content = formatValue(origin.evaluatedCell.value, { locale });
-      this.dispatch("UPDATE_CELL", { ...target, content, format: originFormat });
+      this.dispatch("UPDATE_CELL", {
+        ...target,
+        content: origin.evaluatedCell.value.toString(),
+        format: originFormat,
+      });
       return;
     }
 
