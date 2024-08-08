@@ -43,6 +43,7 @@ export type HtmlContent = {
 
 const functionColor = "#4a4e4d";
 const operatorColor = "#3da4ab";
+const DEFAULT_TOKEN_COLOR = "#000000";
 
 export const tokenColors = {
   OPERATOR: operatorColor,
@@ -642,62 +643,53 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
 
   private getColoredTokens(): HtmlContent[] {
     const tokens = this.props.composerStore.currentTokens;
-    const tokenAtCursor = this.props.composerStore.tokenAtCursor;
     const result: HtmlContent[] = [];
     const { end, start } = this.props.composerStore.composerSelection;
     for (const token of tokens) {
-      switch (token.type) {
-        case "OPERATOR":
-        case "NUMBER":
-        case "ARG_SEPARATOR":
-        case "STRING":
-          result.push({ value: token.value, color: tokenColors[token.type] || "#000" });
-          break;
-        case "REFERENCE":
-          const { xc, sheetName } = splitReference(token.value);
-          result.push({
-            value: token.value,
-            color: this.rangeColor(xc, sheetName) || "#000",
-            class:
-              tokenAtCursor === token && this.props.composerStore.editionMode === "selecting"
-                ? "text-decoration-underline"
-                : undefined,
-          });
-          break;
-        case "SYMBOL":
-          const value = token.value;
-          const upperCaseValue = value.toUpperCase();
-          if (upperCaseValue === "TRUE" || upperCaseValue === "FALSE") {
-            result.push({ value: token.value, color: tokenColors.NUMBER });
-          } else if (upperCaseValue in functionRegistry.content) {
-            result.push({ value: token.value, color: tokenColors.FUNCTION });
-          } else {
-            result.push({ value: token.value, color: "#000" });
-          }
-          break;
-        case "LEFT_PAREN":
-        case "RIGHT_PAREN":
-          // Compute the matching parenthesis
-          if (
-            tokenAtCursor &&
-            ["LEFT_PAREN", "RIGHT_PAREN"].includes(tokenAtCursor.type) &&
-            tokenAtCursor.parenIndex &&
-            tokenAtCursor.parenIndex === token.parenIndex
-          ) {
-            result.push({ value: token.value, color: tokenColors.MATCHING_PAREN || "#000" });
-          } else {
-            result.push({ value: token.value, color: tokenColors[token.type] || "#000" });
-          }
-          break;
-        default:
-          result.push({ value: token.value, color: "#000" });
-          break;
+      result.push({ value: token.value, color: this.getTokenColor(token) });
+
+      if (
+        token.type === "REFERENCE" &&
+        this.props.composerStore.tokenAtCursor === token &&
+        this.props.composerStore.editionMode === "selecting"
+      ) {
+        result[result.length - 1].class = "text-decoration-underline";
       }
+
       if (this.props.composerStore.showSelectionIndicator && end === start && end === token.end) {
         result[result.length - 1].class = selectionIndicatorClass;
       }
     }
     return result;
+  }
+
+  private getTokenColor(token: EnrichedToken): string {
+    if (token.type === "REFERENCE") {
+      const { xc, sheetName } = splitReference(token.value);
+      return this.rangeColor(xc, sheetName) || DEFAULT_TOKEN_COLOR;
+    }
+    if (token.type === "SYMBOL") {
+      const upperCaseValue = token.value.toUpperCase();
+      if (upperCaseValue === "TRUE" || upperCaseValue === "FALSE") {
+        return tokenColors.NUMBER;
+      }
+      if (upperCaseValue in functionRegistry.content) {
+        return tokenColors.FUNCTION;
+      }
+    }
+    if (["LEFT_PAREN", "RIGHT_PAREN"].includes(token.type)) {
+      // Compute the matching parenthesis
+      const tokenAtCursor = this.props.composerStore.tokenAtCursor;
+      if (
+        tokenAtCursor &&
+        ["LEFT_PAREN", "RIGHT_PAREN"].includes(tokenAtCursor.type) &&
+        tokenAtCursor.parenIndex &&
+        tokenAtCursor.parenIndex === token.parenIndex
+      ) {
+        return tokenColors.MATCHING_PAREN || DEFAULT_TOKEN_COLOR;
+      }
+    }
+    return tokenColors[token.type] || DEFAULT_TOKEN_COLOR;
   }
 
   /**
