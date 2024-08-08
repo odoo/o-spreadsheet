@@ -11,6 +11,7 @@
 import { Chart } from "chart.js";
 
 export * from "./autofill";
+export * from "./cell_protection";
 export * from "./cells";
 export * from "./chart/chart";
 export * from "./clipboard";

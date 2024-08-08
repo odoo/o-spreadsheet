@@ -1,4 +1,5 @@
 import {
+  CellProtectionRule,
   ConditionalFormat,
   DOMCoordinates,
   DataValidationRule,
@@ -240,6 +241,10 @@ export const coreTypes = new Set<CoreCommandTypes>([
   /** DATA VALIDATION */
   "ADD_DATA_VALIDATION_RULE",
   "REMOVE_DATA_VALIDATION_RULE",
+
+  /** CELL PROTECTION */
+  "ADD_CELL_PROTECTION_RULE",
+  "REMOVE_CELL_PROTECTION_RULE",
 
   /** MISC */
   "UPDATE_LOCALE",
@@ -696,6 +701,16 @@ export interface RemoveDataValidationCommand extends SheetDependentCommand {
   id: string;
 }
 
+export interface AddCellProtectionCommand extends SheetDependentCommand, RangesDependentCommand {
+  type: "ADD_CELL_PROTECTION_RULE";
+  rule: Omit<CellProtectionRule, "ranges">;
+}
+
+export interface RemoveCellProtectionCommand extends SheetDependentCommand {
+  type: "REMOVE_CELL_PROTECTION_RULE";
+  id: string;
+}
+
 //#endregion
 
 //#region Local Commands
@@ -1048,6 +1063,10 @@ export type CoreCommand =
   | AddDataValidationCommand
   | RemoveDataValidationCommand
 
+  /** CELL PROTECTION */
+  | AddCellProtectionCommand
+  | RemoveCellProtectionCommand
+
   /** MISC */
   | UpdateLocaleCommand
 
@@ -1276,6 +1295,7 @@ export const enum CommandResult {
   PivotIdNotFound = "PivotIdNotFound",
   EmptyName = "EmptyName",
   ValueCellIsInvalidFormula = "ValueCellIsInvalidFormula",
+  UnknownCellProtectionRule = "UnknownCellProtectionRule",
 }
 
 export interface CommandHandler<T> {
