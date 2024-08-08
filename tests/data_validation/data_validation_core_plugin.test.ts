@@ -70,6 +70,15 @@ describe("Data validation", () => {
       const result = removeDataValidation(model, "notAnExistingId");
       expect(result).toBeCancelledBecause(CommandResult.UnknownDataValidationRule);
     });
+
+    test("Cannot create a data validation rule with an empty range", () => {
+      const result = model.dispatch("ADD_DATA_VALIDATION_RULE", {
+        sheetId,
+        ranges: [],
+        rule: { id: "id", criterion: { type: "isBoolean", values: [] } },
+      });
+      expect(result).toBeCancelledBecause(CommandResult.EmptyRange);
+    });
   });
 
   test("Can add a data validation rule", () => {
