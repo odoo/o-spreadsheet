@@ -2124,6 +2124,7 @@ describe("renderer", () => {
     expect(borderRenderingContext).toEqual([[1, [[1, 1]]]]);
   });
 
+<<<<<<< saas-17.2:tests/renderer_store.test.ts
   describe("DataValidations are correctly rendered", () => {
     let renderedTexts: string[];
     let ctx: MockGridRenderingContext;
@@ -2155,5 +2156,17 @@ describe("renderer", () => {
       drawGridRenderer(ctx);
       expect(renderedTexts).toContain("hello");
     });
+||||||| d6bc2b79c064ddc2f3e6ba0502bb74ad6eade513:tests/renderer_plugin.test.ts
+=======
+  test("Cells of splilled formula are empty is we display the formulas", () => {
+    const model = new Model({ sheets: [{ colNumber: 2, rowNumber: 2 }] });
+    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    setCellContent(model, "A1", "=MUNIT(2)");
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+    model.drawGrid(ctx);
+    const boxes = getPlugin(model, RendererPlugin)["boxes"];
+    const boxesText = boxes.map((box) => box.content?.textLines.join(""));
+    expect(boxesText).toEqual(["=MUNIT(2)", "", "", ""]);
+>>>>>>> beb6a8b241798b52b962dc19134f47e146c89fe1:tests/renderer_plugin.test.ts
   });
 });
