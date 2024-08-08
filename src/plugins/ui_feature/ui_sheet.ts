@@ -109,6 +109,8 @@ export class SheetUIPlugin extends UIPlugin {
     const cell = this.getters.getCell(position);
     if (showFormula && cell?.isFormula) {
       return localizeFormula(cell.content, this.getters.getLocale());
+    } else if (showFormula && !cell?.content) {
+      return "";
     } else {
       return this.getters.getEvaluatedCell(position).formattedValue;
     }
