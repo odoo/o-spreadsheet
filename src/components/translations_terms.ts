@@ -147,6 +147,22 @@ export const DVTerms = {
   },
 };
 
+export const CellProtectionTerms = {
+  Checkboxes: {
+    exceptCertainCells: _t("Except certain cells"),
+    showAllRules: _t("Show all protected ranges"),
+    showOnlySheetRules: _t("Show only this sheet's protected ranges"),
+  },
+  Errors: {
+    Unexpected: _t("The rule zone is invalid for an unknown reason"),
+    [CommandResult.CellIsProtected]: _t(
+      "You’re trying to edit part of this sheet that shouldn’t be changed accidentally. Please contact the spreadsheet owner to remove the protection if you need to edit."
+    ),
+    [CommandResult.InvalidRange]: _t("The range is invalid"),
+    [CommandResult.EmptyRange]: _t("A range needs to be defined"),
+  },
+};
+
 export const TableTerms = {
   Errors: {
     Unexpected: _t("The table zone is invalid for an unknown reason"),

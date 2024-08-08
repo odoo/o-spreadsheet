@@ -9,6 +9,7 @@ import {
   AnchorZone,
   Border,
   BorderData,
+  CellProtectionRuleData,
   ChartDefinition,
   ChartWithAxisDefinition,
   ClipboardContent,
@@ -305,7 +306,7 @@ export function copy(model: Model, ...ranges: string[]): DispatchResult {
   if (ranges && ranges.length) {
     setSelection(model, ranges);
   }
-  const result = model.dispatch("COPY");
+  const result = model.dispatch("COPY", { target: model.getters.getSelectedZones() });
   return result;
 }
 
@@ -316,7 +317,7 @@ export function cut(model: Model, ...ranges: string[]): DispatchResult {
   if (ranges && ranges.length) {
     setSelection(model, ranges);
   }
-  const result = model.dispatch("CUT");
+  const result = model.dispatch("CUT", { target: model.getters.getSelectedZones() });
   return result;
 }
 
@@ -1235,12 +1236,48 @@ export function addDataValidation(
   });
 }
 
+export function addCellProtectionRule(
+  model: Model,
+  rule: CellProtectionRuleData = {
+    id: "id",
+    type: "range",
+    sheetId: model.getters.getActiveSheetId(),
+    ranges: ["A1"],
+  }
+) {
+  if (rule.type === "range") {
+    const ranges = rule.ranges.map((range) =>
+      model.getters.getRangeDataFromXc(rule.sheetId, range)
+    );
+    return model.dispatch("ADD_RANGE_CELL_PROTECTION_RULE", {
+      rule: {
+        ...rule,
+        ranges,
+      },
+    });
+  } else {
+    const excludeRanges = rule.excludeRanges.map((range) =>
+      model.getters.getRangeDataFromXc(rule.sheetId, range)
+    );
+    return model.dispatch("ADD_SHEET_CELL_PROTECTION_RULE", {
+      rule: {
+        ...rule,
+        excludeRanges,
+      },
+    });
+  }
+}
+
 export function removeDataValidation(
   model: Model,
   id: UID,
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
   return model.dispatch("REMOVE_DATA_VALIDATION_RULE", { sheetId, id });
+}
+
+export function removeCellProtectionRule(model: Model, sheetId: UID) {
+  return model.dispatch("REMOVE_CELL_PROTECTION_RULE", { sheetId });
 }
 
 export function insertPivot(

@@ -948,4 +948,14 @@
       <i class="fa fa-eye-slash"/>
     </div>
   </t>
+  <t t-name="o-spreadsheet-Icon.LOCK">
+    <div class="o-icon">
+      <i class="fa fa-lock"/>
+    </div>
+  </t>
+  <t t-name="o-spreadsheet-Icon.UNLOCK">
+    <div class="o-icon">
+      <i class="fa fa-unlock"/>
+    </div>
+  </t>
 </templates>

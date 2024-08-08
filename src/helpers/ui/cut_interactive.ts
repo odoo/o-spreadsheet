@@ -2,7 +2,7 @@ import { _t } from "../../translation";
 import { CommandResult, SpreadsheetChildEnv } from "../../types";
 
 export function interactiveCut(env: SpreadsheetChildEnv) {
-  const result = env.model.dispatch("CUT");
+  const result = env.model.dispatch("CUT", { target: env.model.getters.getSelectedZones() });
 
   if (!result.isSuccessful) {
     if (result.isCancelledBecause(CommandResult.WrongCutSelection)) {

@@ -96,7 +96,7 @@ describe("Model", () => {
     expect(getCellText(model, "A2")).toBe("copy&paste me");
   });
 
-  test("UI plugins cannot refuse core commands", () => {
+  test("UI plugins can refuse core commands", () => {
     class MyUIPlugin extends UIPlugin {
       allowDispatch(cmd: Command) {
         if (cmd.type === "UPDATE_CELL") {
@@ -109,7 +109,7 @@ describe("Model", () => {
     const model = new Model();
 
     setCellContent(model, "A1", "hello");
-    expect(getCellContent(model, "A1")).toBe("hello");
+    expect(getCellContent(model, "A1")).toBe("");
   });
 
   test("Core plugins allowDispatch don't receive UI commands", () => {
@@ -122,7 +122,7 @@ describe("Model", () => {
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = new Model();
-    model.dispatch("COPY");
+    model.dispatch("COPY", { target: model.getters.getSelectedZones() });
     expect(receivedCommands).not.toContain("COPY");
   });
 
@@ -135,7 +135,7 @@ describe("Model", () => {
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
     const model = new Model();
-    model.dispatch("COPY");
+    model.dispatch("COPY", { target: model.getters.getSelectedZones() });
     expect(receivedCommands).not.toContain("COPY");
   });
 

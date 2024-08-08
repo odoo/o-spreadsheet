@@ -47,7 +47,6 @@ import {
   GridRenderingContext,
   InformationNotification,
   LayerName,
-  LocalCommand,
   Locale,
   UID,
   canExecuteInReadonly,
@@ -364,7 +363,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         initialRevisionId: revisionId,
         recordChanges: this.state.recordChanges.bind(this.state),
         dispatch: (command: CoreCommand) => {
-          const result = this.checkDispatchAllowed(command);
+          const result = this.checkDispatchAllowedForIntermediateCommands(command);
           if (!result.isSuccessful) {
             return;
           }
@@ -459,17 +458,29 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  /**
-   * Check if the given command is allowed by all the plugins and the history.
-   */
-  private checkDispatchAllowed(command: Command): DispatchResult {
-    const results = isCoreCommand(command)
-      ? this.checkDispatchAllowedCoreCommand(command)
-      : this.checkDispatchAllowedLocalCommand(command);
+  private checkCommandResults(results: (CommandResult | CommandResult[])[]): DispatchResult {
     if (results.some((r) => r !== CommandResult.Success)) {
       return new DispatchResult(results.flat());
     }
     return DispatchResult.Success;
+  }
+
+  /**
+   * Check if the given command is allowed by all the plugins and the history.
+   */
+  private checkDispatchAllowedForRootCommands(command: Command): DispatchResult {
+    let results = this.checkDispatchAllowedLocalCommand(command);
+    if (isCoreCommand(command)) {
+      results = [...results, ...this.checkDispatchAllowedCoreCommand(command)];
+    }
+    return this.checkCommandResults(results);
+  }
+
+  private checkDispatchAllowedForIntermediateCommands(command: Command): DispatchResult {
+    const results = isCoreCommand(command)
+      ? this.checkDispatchAllowedCoreCommand(command)
+      : this.checkDispatchAllowedLocalCommand(command);
+    return this.checkCommandResults(results);
   }
 
   private checkDispatchAllowedCoreCommand(command: CoreCommand) {
@@ -478,7 +489,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     return results;
   }
 
-  private checkDispatchAllowedLocalCommand(command: LocalCommand) {
+  private checkDispatchAllowedLocalCommand(command: Command) {
     const results = this.uiHandlers.map((handler) => handler.allowDispatch(command));
     return results;
   }
@@ -497,7 +508,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    * reasons the dispatch failed.
    */
   canDispatch: CommandDispatcher["dispatch"] = (type: string, payload?: any) => {
-    return this.checkDispatchAllowed(createCommand(type, payload));
+    return this.checkDispatchAllowedForRootCommands(createCommand(type, payload));
   };
 
   /**
@@ -524,13 +535,13 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       return new DispatchResult(CommandResult.WaitingSessionConfirmation);
     }
     switch (status) {
-      case Status.Ready:
-        const result = this.checkDispatchAllowed(command);
+      case Status.Ready: // root command
+        const result = this.checkDispatchAllowedForRootCommands(command);
         if (!result.isSuccessful) {
           this.trigger("update");
           return result;
         }
-        this.status = Status.Running;
+        this.status = Status.Running; // intermediate command
         const { changes, commands } = this.state.recordChanges(() => {
           const start = performance.now();
           if (isCoreCommand(command)) {
@@ -549,7 +560,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
         break;
       case Status.Running:
         if (isCoreCommand(command)) {
-          const dispatchResult = this.checkDispatchAllowed(command);
+          const dispatchResult = this.checkDispatchAllowedForIntermediateCommands(command);
           if (!dispatchResult.isSuccessful) {
             return dispatchResult;
           }

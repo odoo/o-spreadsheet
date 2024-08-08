@@ -605,7 +605,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     if (cut) {
       interactiveCut(this.env);
     } else {
-      this.env.model.dispatch("COPY");
+      this.env.model.dispatch("COPY", { target: this.env.model.getters.getSelectedZones() });
     }
     const content = this.env.model.getters.getClipboardContent();
     await this.env.clipboard.write(content);

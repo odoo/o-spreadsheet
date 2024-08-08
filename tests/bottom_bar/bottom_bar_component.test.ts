@@ -7,6 +7,7 @@ import { DOMFocusableElementStore } from "../../src/stores/DOM_focus_store";
 import { Pixel, SpreadsheetChildEnv, UID } from "../../src/types";
 import {
   activateSheet,
+  addCellProtectionRule,
   createSheet,
   deleteSheet,
   hideSheet,
@@ -29,6 +30,7 @@ import {
   triggerWheelEvent,
 } from "../test_helpers/dom_helper";
 import {
+  getCellProtectionRule,
   makeTestEnv,
   mockUuidV4To,
   mountComponentWithPortalTarget,
@@ -932,6 +934,50 @@ describe("BottomBar component", () => {
       expect(getElComputedStyle('.o-sheet[data-id="Sheet1"]', "position")).toBe("");
       expect(getElComputedStyle('.o-sheet[data-id="Sheet1"]', "left")).toBe("");
     });
+  });
+
+  test("Can open cell protection panel to protect a sheet", async () => {
+    const mockEnv = {
+      openSidePanel: jest.fn(),
+    };
+    const model = new Model();
+    createSheet(model, { sheetId: "MySheet" });
+    await mountBottomBar(model, mockEnv);
+    triggerMouseEvent(".o-sheet", "contextmenu");
+    await nextTick();
+    const sheetId = model.getters.getActiveSheetId();
+    await click(fixture, ".o-menu-item[data-name='protect_sheet']");
+    expect(mockEnv.openSidePanel).toHaveBeenCalledWith("CellProtection", {
+      rule: {
+        id: "2",
+        type: "sheet",
+        sheetId,
+        excludeRanges: [],
+      },
+    });
+  });
+
+  test("Should display lock icon when the sheet is protected", async () => {
+    const { model } = await mountBottomBar();
+    const sheetId = model.getters.getActiveSheetId();
+    addCellProtectionRule(model, { id: "id", type: "sheet", sheetId, excludeRanges: [] }, sheetId);
+    const lockIcon = fixture.querySelector<HTMLElement>(".o-protected-sheet");
+    expect(lockIcon).toBeDefined();
+  });
+
+  test("Can remove sheet protection", async () => {
+    const { model } = await mountBottomBar();
+    const sheetId = model.getters.getActiveSheetId();
+    addCellProtectionRule(model, { id: "id", type: "sheet", sheetId, excludeRanges: [] }, sheetId);
+    expect(getCellProtectionRule(model, sheetId)).toHaveLength(1);
+    const dispatch = jest.spyOn(model, "dispatch");
+    triggerMouseEvent(".o-sheet", "contextmenu");
+    await nextTick();
+    await click(fixture, ".o-menu-item[data-name='remove_sheet_protection']");
+    expect(dispatch).toHaveBeenCalledWith("REMOVE_CELL_PROTECTION_RULE", {
+      sheetId,
+    });
+    expect(getCellProtectionRule(model, sheetId)).toHaveLength(0);
   });
 
   describe("Sheet colors", () => {

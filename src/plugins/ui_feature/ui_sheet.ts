@@ -10,7 +10,7 @@ import {
 } from "../../helpers/index";
 import { localizeFormula } from "../../helpers/locale";
 import { iconsOnCellRegistry } from "../../registries/icons_on_cell_registry";
-import { CellValueType, Command, CommandResult, LocalCommand, UID } from "../../types";
+import { CellValueType, Command, CommandResult, UID } from "../../types";
 import { ImageSrc } from "../../types/image";
 import { CellPosition, HeaderIndex, Pixel, Style, Zone } from "../../types/misc";
 import { UIPlugin } from "../ui_plugin";
@@ -32,8 +32,11 @@ export class SheetUIPlugin extends UIPlugin {
   // Command Handling
   // ---------------------------------------------------------------------------
 
-  allowDispatch(cmd: LocalCommand): CommandResult | CommandResult[] {
-    return this.chainValidations(this.checkSheetExists, this.checkZonesAreInSheet)(cmd);
+  allowDispatch(cmd: Command): CommandResult | CommandResult[] {
+    if (cmd.type !== "CREATE_SHEET") {
+      return this.chainValidations(this.checkSheetExists, this.checkZonesAreInSheet)(cmd);
+    }
+    return CommandResult.Success;
   }
 
   handle(cmd: Command) {

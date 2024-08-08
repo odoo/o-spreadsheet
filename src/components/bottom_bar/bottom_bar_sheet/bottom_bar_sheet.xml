@@ -12,6 +12,9 @@
         t-att-title="sheetName"
         t-att-data-id="props.sheetId"
         t-att-class="{active: isSheetActive}">
+        <span t-if="props.isProtected" class="o-protected-sheet">
+          <t t-call="o-spreadsheet-Icon.LOCK"/>
+        </span>
         <span
           class="o-sheet-name"
           t-att-class="{'o-sheet-name-editable': state.isEditing }"

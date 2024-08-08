@@ -32,6 +32,7 @@
             <BottomBarSheet
               style="getSheetStyle(sheet.id)"
               sheetId="sheet.id"
+              isProtected="sheet.isProtected"
               openContextMenu="(registry, ev) => this.onSheetContextMenu(sheet.id, registry, ev)"
               onMouseDown="(ev) => this.onSheetMouseDown(sheet.id, ev)"
             />

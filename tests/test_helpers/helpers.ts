@@ -1019,3 +1019,20 @@ export function getFilterHiddenValues(model: Model, sheetId = model.getters.getA
     }),
   }));
 }
+
+export function getCellProtectionRule(model: Model, sheetId: UID) {
+  const rule = model.getters.getCellProtectionRule(sheetId);
+  if (!rule) {
+    return;
+  }
+  if (rule.type === "range") {
+    return {
+      ...rule,
+      ranges: rule.ranges.map((range) => model.getters.getRangeString(range, sheetId)),
+    };
+  }
+  return {
+    ...rule,
+    excludeRanges: rule.excludeRanges.map((range) => model.getters.getRangeString(range, sheetId)),
+  };
+}

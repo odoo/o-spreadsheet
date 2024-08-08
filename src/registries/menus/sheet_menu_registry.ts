@@ -30,13 +30,21 @@ export function getSheetMenuRegistry(args: {
       sequence: 50,
       separator: true,
     })
+    .add("protect_sheet", {
+      ...ACTION_SHEET.protectSheet,
+      sequence: 60,
+    })
+    .add("remove_sheet_protection", {
+      ...ACTION_SHEET.removeSheetProtection,
+      sequence: 70,
+    })
     .add("move_right", {
       ...ACTION_SHEET.sheetMoveRight,
-      sequence: 60,
+      sequence: 80,
     })
     .add("move_left", {
       ...ACTION_SHEET.sheetMoveLeft,
-      sequence: 70,
+      sequence: 90,
     });
 
   return sheetMenuRegistry;

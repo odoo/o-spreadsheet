@@ -118,7 +118,7 @@ export class ClipboardPlugin extends UIPlugin {
     switch (cmd.type) {
       case "COPY":
       case "CUT":
-        const zones = this.getters.getSelectedZones();
+        const zones = cmd.target;
         this.status = "visible";
         this.originSheetId = this.getters.getActiveSheetId();
         this.copiedData = this.copy(zones);

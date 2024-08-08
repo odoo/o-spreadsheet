@@ -13,6 +13,7 @@ import {
   SheetPlugin,
   TablePlugin,
 } from "./core";
+import { CellProtectionPlugin } from "./core/cell_protection";
 import { HeaderGroupingPlugin } from "./core/header_grouping";
 import { PivotCorePlugin } from "./core/pivot";
 import { SettingsPlugin } from "./core/settings";
@@ -53,6 +54,7 @@ import {
   FilterEvaluationPlugin,
   GridSelectionPlugin,
   SheetViewPlugin,
+  UICellProtectionPlugin,
 } from "./ui_stateful";
 import { HeaderPositionsUIPlugin } from "./ui_stateful/header_positions";
 
@@ -63,6 +65,7 @@ export const corePluginRegistry = new Registry<CorePluginConstructor>()
   .add("header visibility", HeaderVisibilityPlugin)
   .add("tables", TablePlugin)
   .add("dataValidation", DataValidationPlugin)
+  .add("cellProtection", CellProtectionPlugin)
   .add("cell", CellPlugin)
   .add("merge", MergePlugin)
   .add("headerSize", HeaderSizePlugin)
@@ -109,6 +112,7 @@ export const coreViewsPluginRegistry = new Registry<UIPluginConstructor>()
   .add("evaluation_cf", EvaluationConditionalFormatPlugin)
   .add("row_size", HeaderSizeUIPlugin)
   .add("data_validation_ui", EvaluationDataValidationPlugin)
+  .add("cell_protection_ui", UICellProtectionPlugin)
   .add("dynamic_tables", DynamicTablesPlugin)
   .add("custom_colors", CustomColorsPlugin)
   .add("pivot_ui", PivotUIPlugin);

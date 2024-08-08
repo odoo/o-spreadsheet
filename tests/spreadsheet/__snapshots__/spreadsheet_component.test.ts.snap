@@ -883,6 +883,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
               tabindex="-1"
               title="Sheet1"
             >
+              
               <span
                 class="o-sheet-name"
                 contenteditable="false"

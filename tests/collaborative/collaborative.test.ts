@@ -445,7 +445,7 @@ describe("Multi users synchronisation", () => {
     network.concurrent(() => {
       setCellContent(alice, "A1", "hello");
       const spy = jest.spyOn(network, "sendMessage");
-      alice.dispatch("COPY");
+      alice.dispatch("COPY", { target: [toZone("A1")] });
       expect(spy).not.toHaveBeenCalled();
     });
   });
