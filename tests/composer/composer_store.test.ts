@@ -11,7 +11,7 @@ import { Model } from "../../src/model";
 import { DependencyContainer, Store } from "../../src/store_engine";
 import { HighlightStore } from "../../src/stores/highlight_store";
 import { NotificationStore } from "../../src/stores/notification_store";
-import { CellValueType, DEFAULT_LOCALE } from "../../src/types";
+import { CellValueType, DEFAULT_LOCALE, DEFAULT_LOCALES } from "../../src/types";
 import {
   activateSheet,
   addCellToSelection,
@@ -1171,6 +1171,27 @@ describe("edition", () => {
     // click on total value
     selectCell(model, "B5");
     expect(store.currentContent).toBe('=PIVOT.VALUE(1,"__count")');
+  });
+
+  test("click on a pivot value inserts the formula in the right locale", () => {
+    const grid = {
+      D1: "Name",
+      D2: "Alice",
+      D3: "Bob",
+      D4: "Bob",
+    };
+    const model = createModelFromGrid(grid);
+    updateLocale(model, DEFAULT_LOCALES[1]);
+    addPivot(model, "D1:D4", {
+      columns: [],
+      rows: [{ name: "Name" }],
+      measures: [{ name: "__count", aggregator: "sum" }],
+    });
+    setCellContent(model, "A1", "=PIVOT(1)");
+    const { store } = makeStoreWithModel(model, ComposerStore);
+    store.startEdition("=");
+    selectCell(model, "B3");
+    expect(store.currentContent).toBe('=PIVOT.VALUE(1;"__count";"Name";"Alice")');
   });
 
   test("click on a pivot measure header cell insert the formula", () => {
