@@ -1,4 +1,5 @@
 export * from "./color";
+export * from "./composer";
 export * from "./coordinates";
 export * from "./data_validation_helpers";
 export * from "./dates";

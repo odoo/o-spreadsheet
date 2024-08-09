@@ -217,6 +217,21 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     }
   }
 
+  /**
+   * Return the (enriched) token just after the cursor.
+   * - token1|token2 --> token2
+   * - token|1token2 --> token1
+   */
+  get tokenAfterCursor(): EnrichedToken | undefined {
+    const start = Math.min(this.selectionStart, this.selectionEnd);
+    const end = Math.max(this.selectionStart, this.selectionEnd);
+    if (start === end && end === 0) {
+      return undefined;
+    } else {
+      return this.currentTokens.find((t) => end < t.end);
+    }
+  }
+
   cycleReferences() {
     const locale = this.getters.getLocale();
     const updated = cycleFixedReference(this.composerSelection, this._currentContent, locale);

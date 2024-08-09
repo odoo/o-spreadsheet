@@ -1,7 +1,15 @@
 import { Component, onMounted, useEffect, useRef, useState } from "@odoo/owl";
 import { NEWLINE } from "../../../constants";
 import { functionRegistry } from "../../../functions/index";
-import { clip, getZoneArea, isEqual, splitReference } from "../../../helpers/index";
+import {
+  clip,
+  getZoneArea,
+  isBooleanToken,
+  isEqual,
+  isFunctionRegistryToken,
+  lightenColor,
+  splitReference,
+} from "../../../helpers/index";
 
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { Store, useLocalStore, useStore } from "../../../store_engine";
@@ -609,9 +617,36 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
   private getColoredTokens(): HtmlContent[] {
     const tokens = this.props.composerStore.currentTokens;
     const result: HtmlContent[] = [];
+    const parenIndexCursor = this.props.composerStore.tokenAfterCursor?.parenIndex;
     const { end, start } = this.props.composerStore.composerSelection;
+
+    let saturationStartPositionPassed = false;
+    let saturationEndPositionPassed = false;
+
     for (const token of tokens) {
-      result.push({ value: token.value, color: this.getTokenColor(token) });
+      let tokenColor = this.getTokenColor(token);
+
+      if (
+        !saturationEndPositionPassed &&
+        !saturationStartPositionPassed &&
+        token.parenIndex === parenIndexCursor
+      ) {
+        saturationStartPositionPassed = true;
+      }
+
+      if (!saturationStartPositionPassed || saturationEndPositionPassed) {
+        tokenColor = lightenColor(tokenColor, 0.6);
+      }
+
+      if (
+        saturationStartPositionPassed &&
+        token?.type === "RIGHT_PAREN" &&
+        token.parenIndex === parenIndexCursor
+      ) {
+        saturationEndPositionPassed = true;
+      }
+
+      result.push({ value: token.value, color: tokenColor });
       if (this.props.composerStore.showSelectionIndicator && end === start && end === token.end) {
         result[result.length - 1].class = selectionIndicatorClass;
       }
@@ -624,26 +659,11 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
       const { xc, sheetName } = splitReference(token.value);
       return this.rangeColor(xc, sheetName) || DEFAULT_TOKEN_COLOR;
     }
-    if (token.type === "SYMBOL") {
-      const upperCaseValue = token.value.toUpperCase();
-      if (upperCaseValue === "TRUE" || upperCaseValue === "FALSE") {
-        return tokenColors.NUMBER;
-      }
-      if (upperCaseValue in functionRegistry.content) {
-        return tokenColors.FUNCTION;
-      }
+    if (isBooleanToken(token)) {
+      return tokenColors.NUMBER;
     }
-    if (["LEFT_PAREN", "RIGHT_PAREN"].includes(token.type)) {
-      // Compute the matching parenthesis
-      const tokenAtCursor = this.props.composerStore.tokenAtCursor;
-      if (
-        tokenAtCursor &&
-        ["LEFT_PAREN", "RIGHT_PAREN"].includes(tokenAtCursor.type) &&
-        tokenAtCursor.parenIndex &&
-        tokenAtCursor.parenIndex === token.parenIndex
-      ) {
-        return tokenColors.MATCHING_PAREN || DEFAULT_TOKEN_COLOR;
-      }
+    if (isFunctionRegistryToken(token)) {
+      return tokenColors.FUNCTION;
     }
     return tokenColors[token.type] || DEFAULT_TOKEN_COLOR;
   }

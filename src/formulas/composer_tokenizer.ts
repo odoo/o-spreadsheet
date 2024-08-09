@@ -1,3 +1,4 @@
+import { isFunctionRegistryToken } from "../helpers";
 import { Locale } from "../types";
 import { Token } from "./index";
 import { AST, parseTokens } from "./parser";
@@ -71,13 +72,18 @@ function enrichTokens(tokens: Token[]): EnrichedToken[] {
 function mapParenthesis(tokens: EnrichedToken[]): EnrichedToken[] {
   let maxParen = 1;
   const stack: number[] = [];
-  return tokens.map((token) => {
+  return tokens.map((token, i) => {
     if (token.type === "LEFT_PAREN") {
       stack.push(maxParen);
       token.parenIndex = maxParen;
+      if (tokens[i - 1] && isFunctionRegistryToken(tokens[i - 1])) {
+        tokens[i - 1].parenIndex = maxParen;
+      }
       maxParen++;
     } else if (token.type === "RIGHT_PAREN") {
       token.parenIndex = stack.pop();
+    } else {
+      token.parenIndex = stack[stack.length - 1] || 0;
     }
     return token;
   });
