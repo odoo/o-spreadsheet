@@ -437,16 +437,14 @@ describe("conditional format", () => {
     });
   });
 
-  test("Set conditionalFormat on empty cell", () => {
+  test("Prevents creation of CF CellIsRule with operator 'Equal' and empty value", () => {
     let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
       cf: createEqualCF("", { fillColor: "#FF0000" }, "1"),
       target: [toZone("A1")],
       sheetId: model.getters.getActiveSheetId(),
     });
-    expect(result).toBeSuccessfullyDispatched();
-    expect(model.getters.getConditionalStyle(...toCartesian("A1"))).toEqual({
-      fillColor: "#FF0000",
-    });
+    expect(result).toBeCancelledBecause(CommandResult.FirstArgMissing);
+    expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
   });
 
   describe("Grid Manipulation", () => {
