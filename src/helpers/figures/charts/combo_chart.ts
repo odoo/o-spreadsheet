@@ -346,12 +346,9 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
     /* We add a second x axis here to draw the trend lines, with the labels length being
      * set so that the second axis points match the classical x axis
      */
+    const trendLinesMaxLength = Math.max(...trendDatasets.map((trend) => trend.data.length));
     config.options.scales[TREND_LINE_XAXIS_ID] = {
-      ticks: {
-        padding: 5,
-        color: fontColor,
-      },
-      labels: Array(10 * maxLength + 1).fill(""),
+      labels: Array(Math.round(trendLinesMaxLength)).fill(""),
       offset: false,
       display: false,
     };
