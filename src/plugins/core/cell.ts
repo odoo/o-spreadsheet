@@ -72,6 +72,10 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     this.updateCellDependencies(applyChange);
   }
 
+  adaptReferences(applyChange: ApplyRangeChange, sheetId?: UID) {
+    this.updateCellDependencies(applyChange);
+  }
+
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
@@ -137,13 +141,6 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
       case "DELETE_CONTENT":
         this.clearZones(cmd.sheetId, cmd.target);
         break;
-      case "MOVE_REFERENCES": {
-        const target = { sheetId: cmd.targetSheetId, col: cmd.targetCol, row: cmd.targetRow };
-        this.updateCellDependencies((range) =>
-          this.getters.moveRangeInsideZone(range, cmd.sheetId, cmd.zone, target)
-        );
-        break;
-      }
     }
   }
 

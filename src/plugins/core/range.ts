@@ -1,7 +1,6 @@
 import {
   RangeImpl,
   createAdaptedZone,
-  deepEquals,
   getCanonicalSheetName,
   groupConsecutive,
   isZoneInside,
@@ -19,7 +18,6 @@ import { CellErrorType } from "../../types/errors";
 import {
   ApplyRangeChange,
   ApplyRangeChangeResult,
-  CellPosition,
   ChangeType,
   Command,
   CommandHandler,
@@ -37,7 +35,9 @@ import {
 
 export class RangeAdapter implements CommandHandler<CoreCommand> {
   private getters: CoreGetters;
-  private providers: Array<RangeProvider["adaptRanges"]> = [];
+  private rangeProviders: Array<RangeProvider["adaptRanges"]> = [];
+  private referenceProviders: Array<RangeProvider["adaptReferences"]> = [];
+
   constructor(getters: CoreGetters) {
     this.getters = getters;
   }
@@ -55,7 +55,6 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     "recomputeRanges",
     "isRangeValid",
     "removeRangesSheetPrefix",
-    "moveRangeInsideZone",
   ] as const;
 
   // ---------------------------------------------------------------------------
@@ -186,6 +185,24 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
         });
         break;
       }
+      case "MOVE_REFERENCES": {
+        const originZone = cmd.zone;
+        this.executeOnAllReferences((range: RangeImpl) => {
+          if (range.sheetId !== cmd.sheetId || !isZoneInside(range.zone, originZone)) {
+            return { changeType: "NONE" };
+          }
+          const targetSheetId = cmd.targetSheetId;
+          const offsetX = cmd.targetCol - originZone.left;
+          const offsetY = cmd.targetRow - originZone.top;
+          const adaptedRange = this.createAdaptedRange(range, "both", "MOVE", [offsetX, offsetY]);
+          const prefixSheet = cmd.sheetId === targetSheetId ? adaptedRange.prefixSheet : true;
+          return {
+            changeType: "MOVE",
+            range: adaptedRange.clone({ sheetId: targetSheetId, prefixSheet }),
+          };
+        });
+        break;
+      }
     }
   }
 
@@ -220,7 +237,14 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
 
   private executeOnAllRanges(adaptRange: ApplyRangeChange, sheetId?: UID) {
     const func = this.verifyRangeRemoved(adaptRange);
-    for (const provider of this.providers) {
+    for (const provider of this.rangeProviders) {
+      provider(func, sheetId);
+    }
+  }
+
+  private executeOnAllReferences(adaptRange: ApplyRangeChange, sheetId?: UID) {
+    const func = this.verifyRangeRemoved(adaptRange);
+    for (const provider of this.referenceProviders) {
       provider(func, sheetId);
     }
   }
@@ -234,7 +258,11 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
    * all ranges
    */
   addRangeProvider(provider: RangeProvider["adaptRanges"]) {
-    this.providers.push(provider);
+    this.rangeProviders.push(provider);
+  }
+
+  addReferencesProvider(provider: RangeProvider["adaptReferences"]) {
+    this.referenceProviders.push(provider);
   }
 
   // ---------------------------------------------------------------------------
@@ -468,33 +496,6 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     const zones = ranges.map((range) => RangeImpl.fromRange(range, this.getters).unboundedZone);
     const unionOfZones = unionUnboundedZones(...zones);
     return this.getRangeFromZone(ranges[0].sheetId, unionOfZones);
-  }
-
-  /**
-   * Get the changed range if the given zone is moved to the target position
-   */
-  moveRangeInsideZone(
-    range: Range,
-    originSheetId: UID,
-    originZone: Zone,
-    target: CellPosition
-  ): ApplyRangeChangeResult {
-    const rangeImpl = RangeImpl.fromRange(range, this.getters);
-    const { col, row, sheetId: targetSheetId } = target;
-    if (range.sheetId !== originSheetId || !isZoneInside(range.zone, originZone)) {
-      return { changeType: "NONE" };
-    }
-    const offsetX = col - originZone.left;
-    const offsetY = row - originZone.top;
-    const adaptedRange = this.createAdaptedRange(rangeImpl, "both", "MOVE", [offsetX, offsetY]);
-    if (targetSheetId === originSheetId && deepEquals(adaptedRange.zone, range.zone)) {
-      return { changeType: "NONE" };
-    }
-    const prefixSheet = adaptedRange.sheetId === targetSheetId ? adaptedRange.prefixSheet : true;
-    return {
-      changeType: "MOVE",
-      range: adaptedRange.clone({ sheetId: targetSheetId, prefixSheet }),
-    };
   }
 
   // ---------------------------------------------------------------------------
