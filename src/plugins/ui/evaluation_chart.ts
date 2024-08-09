@@ -30,7 +30,9 @@ export class EvaluationChartPlugin extends UIPlugin {
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
       cmd.type === "EVALUATE_CELLS" ||
-      (cmd.type === "UPDATE_CELL" && "content" in cmd)
+      (cmd.type === "UPDATE_CELL" && "content" in cmd) ||
+      cmd.type === "UNHIDE_COLUMNS_ROWS" ||
+      cmd.type === "HIDE_COLUMNS_ROWS"
     ) {
       for (let chartId of Object.keys(this.chartRuntime)) {
         this.outOfDate.add(chartId);
@@ -232,6 +234,14 @@ export class EvaluationChartPlugin extends UIPlugin {
     }
     for (const [dsIndex, ds] of Object.entries(definition.dataSets)) {
       let label: string;
+      if (
+        this.getters
+          .getHiddenColsGroups(ds.dataRange.sheetId)
+          .flat()
+          .includes(ds.dataRange.zone.left)
+      ) {
+        continue;
+      }
       if (ds.labelCell) {
         const labelRange = ds.labelCell;
         const cell: Cell | undefined = labelRange
