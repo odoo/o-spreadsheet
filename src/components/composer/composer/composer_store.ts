@@ -1,4 +1,4 @@
-import { EnrichedToken, composerTokenize } from "../../../formulas/composer_tokenizer";
+import { composerTokenize, EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { POSTFIX_UNARY_OPERATORS } from "../../../formulas/tokenizer";
 import { parseLiteral } from "../../../helpers/cells";
 import {
@@ -44,6 +44,7 @@ import {
   Format,
   HeaderIndex,
   Highlight,
+  isMatrix,
   Locale,
   Range,
   RangePart,
@@ -51,7 +52,6 @@ import {
   UID,
   UnboundedZone,
   Zone,
-  isMatrix,
 } from "../../../types";
 import { SelectionEvent } from "../../../types/event_stream";
 
@@ -647,7 +647,7 @@ export class ComposerStore extends SpreadsheetStore {
       if (pivotId && pivotCell.type !== "EMPTY" && !cell?.isFormula) {
         const formulaPivotId = this.getters.getPivotFormulaId(pivotId);
         const formula = createPivotFormula(formulaPivotId, pivotCell);
-        return formula.slice(1); // strip leading =
+        return localizeFormula(formula, this.getters.getLocale()).slice(1); // strip leading =
       }
     }
     const range = this.getters.getRangeFromZone(sheetId, zone);
