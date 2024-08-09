@@ -52,6 +52,7 @@ export class CorePlugin<State = any>
   }: CorePluginConfig) {
     super(stateObserver, dispatch, canDispatch);
     range.addRangeProvider(this.adaptRanges.bind(this));
+    range.addReferencesProvider(this.adaptReferences.bind(this));
     this.getters = getters;
     this.uuidGenerator = uuidGenerator;
   }
@@ -74,6 +75,7 @@ export class CorePlugin<State = any>
    * @param sheetId an optional sheetId to adapt either range of that sheet specifically, or ranges pointing to that sheet
    */
   adaptRanges(applyChange: ApplyRangeChange, sheetId?: UID): void {}
+  adaptReferences(applyChange: ApplyRangeChange, sheetId?: UID): void {}
 
   /**
    * Implement this method to clean unused external resources, such as images

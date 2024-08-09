@@ -1,4 +1,5 @@
 import {
+  RangeImpl,
   createAdaptedZone,
   getCanonicalSheetName,
   groupConsecutive,
@@ -7,7 +8,6 @@ import {
   largeMax,
   largeMin,
   numberToLetters,
-  RangeImpl,
   rangeReference,
   recomputeZones,
   splitReference,
@@ -35,7 +35,9 @@ import {
 
 export class RangeAdapter implements CommandHandler<CoreCommand> {
   private getters: CoreGetters;
-  private providers: Array<RangeProvider["adaptRanges"]> = [];
+  private rangeProviders: Array<RangeProvider["adaptRanges"]> = [];
+  private referenceProviders: Array<RangeProvider["adaptReferences"]> = [];
+
   constructor(getters: CoreGetters) {
     this.getters = getters;
   }
@@ -59,9 +61,6 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
   // Command Handling
   // ---------------------------------------------------------------------------
   allowDispatch(cmd: Command): CommandResult {
-    if (cmd.type === "MOVE_RANGES") {
-      return cmd.target.length === 1 ? CommandResult.Success : CommandResult.InvalidZones;
-    }
     return CommandResult.Success;
   }
   beforeHandle(command: Command) {}
@@ -186,15 +185,15 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
         });
         break;
       }
-      case "MOVE_RANGES": {
-        const originZone = cmd.target[0];
-        this.executeOnAllRanges((range: RangeImpl) => {
+      case "MOVE_REFERENCES": {
+        const originZone = cmd.zone;
+        this.executeOnAllReferences((range: RangeImpl) => {
           if (range.sheetId !== cmd.sheetId || !isZoneInside(range.zone, originZone)) {
             return { changeType: "NONE" };
           }
           const targetSheetId = cmd.targetSheetId;
-          const offsetX = cmd.col - originZone.left;
-          const offsetY = cmd.row - originZone.top;
+          const offsetX = cmd.targetCol - originZone.left;
+          const offsetY = cmd.targetRow - originZone.top;
           const adaptedRange = this.createAdaptedRange(range, "both", "MOVE", [offsetX, offsetY]);
           const prefixSheet = cmd.sheetId === targetSheetId ? adaptedRange.prefixSheet : true;
           return {
@@ -238,7 +237,14 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
 
   private executeOnAllRanges(adaptRange: ApplyRangeChange, sheetId?: UID) {
     const func = this.verifyRangeRemoved(adaptRange);
-    for (const provider of this.providers) {
+    for (const provider of this.rangeProviders) {
+      provider(func, sheetId);
+    }
+  }
+
+  private executeOnAllReferences(adaptRange: ApplyRangeChange, sheetId?: UID) {
+    const func = this.verifyRangeRemoved(adaptRange);
+    for (const provider of this.referenceProviders) {
       provider(func, sheetId);
     }
   }
@@ -252,7 +258,11 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
    * all ranges
    */
   addRangeProvider(provider: RangeProvider["adaptRanges"]) {
-    this.providers.push(provider);
+    this.rangeProviders.push(provider);
+  }
+
+  addReferencesProvider(provider: RangeProvider["adaptReferences"]) {
+    this.referenceProviders.push(provider);
   }
 
   // ---------------------------------------------------------------------------

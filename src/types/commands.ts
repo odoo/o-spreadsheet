@@ -129,7 +129,7 @@ export const invalidateEvaluationCommands = new Set<CommandTypes>([
   "DUPLICATE_PIVOT",
 ]);
 
-export const invalidateDependenciesCommands = new Set<CommandTypes>(["MOVE_RANGES"]);
+export const invalidateDependenciesCommands = new Set<CommandTypes>(["MOVE_REFERENCES"]);
 
 export const invalidateCFEvaluationCommands = new Set<CommandTypes>([
   "DUPLICATE_SHEET",
@@ -195,7 +195,7 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "SHOW_SHEET",
 
   /** RANGES MANIPULATION */
-  "MOVE_RANGES",
+  "MOVE_REFERENCES",
 
   /** CONDITIONAL FORMAT */
   "ADD_CONDITIONAL_FORMAT",
@@ -414,14 +414,13 @@ export interface ShowSheetCommand extends SheetDependentCommand {
 // Ranges Manipulation
 //------------------------------------------------------------------------------
 
-/**
- * Command created in order to apply a translational movement for all references
- * to cells/ranges within a specific zone.
- * Command particularly useful during CUT / PATE.
- */
-export interface MoveRangeCommand extends PositionDependentCommand, TargetDependentCommand {
-  type: "MOVE_RANGES";
+export interface MoveReferencesCommand {
+  type: "MOVE_REFERENCES";
+  sheetId: UID;
+  zone: Zone;
   targetSheetId: string;
+  targetCol: HeaderIndex;
+  targetRow: HeaderIndex;
 }
 
 //------------------------------------------------------------------------------
@@ -1002,7 +1001,7 @@ export type CoreCommand =
   | ShowSheetCommand
 
   /** RANGES MANIPULATION */
-  | MoveRangeCommand
+  | MoveReferencesCommand
 
   /** CONDITIONAL FORMAT */
   | AddConditionalFormatCommand

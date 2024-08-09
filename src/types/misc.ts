@@ -285,6 +285,7 @@ export type ConsecutiveIndexes = HeaderIndex[];
 
 export interface RangeProvider {
   adaptRanges: (applyChange: ApplyRangeChange, sheetId?: UID) => void;
+  adaptReferences: (applyChange: ApplyRangeChange, sheetId?: UID) => void;
 }
 
 export type Validation<T> = (toValidate: T) => CommandResult | CommandResult[];
