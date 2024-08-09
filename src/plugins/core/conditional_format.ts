@@ -276,6 +276,8 @@ export class ConditionalFormatPlugin
             "LessThan",
             "LessThanOrEqual",
             "NotContains",
+            "Equal",
+            "NotEqual",
           ]),
           this.checkOperatorArgsNumber(0, ["IsEmpty", "IsNotEmpty"])
         );

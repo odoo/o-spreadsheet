@@ -592,8 +592,16 @@ describe("renderer", () => {
     model.drawGrid(ctx);
     expect(fillStyle).toEqual([]);
     fillStyle = [];
-    let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF("", { fillColor: "#DC6CDF" }, "1"),
+    const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        rule: {
+          type: "CellIsRule",
+          operator: "IsEmpty",
+          values: [],
+          style: { fillColor: "#DC6CDF" },
+        },
+        id: "1",
+      },
       target: [toZone("A1")],
       sheetId: model.getters.getActiveSheetId(),
     });
