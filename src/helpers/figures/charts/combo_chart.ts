@@ -16,7 +16,8 @@ import {
   UID,
 } from "../../../types";
 import {
-  AxesDesign,
+  AbstractChartAxesDesign,
+  AbstractChartTitle,
   CustomizedDataSet,
   DatasetDesign,
   ExcelChartDataset,
@@ -32,14 +33,22 @@ import { AbstractChart } from "./abstract_chart";
 import {
   TREND_LINE_XAXIS_ID,
   chartFontColor,
+  checkAxesDesign,
+  checkChartTitle,
   checkDataset,
   checkLabelRange,
   computeChartPadding,
+  copyAxesDesignWithNewSheetId,
+  copyChartTitleReferenceWithNewSheetId,
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
   formatTickValue,
+  getAxesDesignWithRangeString,
+  getAxesDesignWithValidRanges,
   getChartAxisTitleRuntime,
+  getChartRuntimeTitle,
+  getChartTitleWithRangeString,
   getDefinedAxis,
   getTrendDatasetForBarChart,
   shouldRemoveFirstLabel,
@@ -65,7 +74,7 @@ export class ComboChart extends AbstractChart {
   readonly aggregated?: boolean;
   readonly dataSetsHaveTitle: boolean;
   readonly dataSetDesign?: DatasetDesign[];
-  readonly axesDesign?: AxesDesign;
+  readonly axesDesign?: AbstractChartAxesDesign;
   readonly type = "combo";
   readonly showValues?: boolean;
 
@@ -83,7 +92,7 @@ export class ComboChart extends AbstractChart {
     this.aggregated = definition.aggregated;
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
     this.dataSetDesign = definition.dataSets;
-    this.axesDesign = definition.axesDesign;
+    this.axesDesign = getAxesDesignWithValidRanges(getters, sheetId, definition.axesDesign);
     this.showValues = definition.showValues;
   }
 
@@ -98,7 +107,13 @@ export class ComboChart extends AbstractChart {
     validator: Validator,
     definition: ComboChartDefinition
   ): CommandResult | CommandResult[] {
-    return validator.checkValidations(definition, checkDataset, checkLabelRange);
+    return validator.checkValidations(
+      definition,
+      checkDataset,
+      checkLabelRange,
+      checkChartTitle,
+      checkAxesDesign
+    );
   }
 
   getContextCreation(): ChartCreationContext {
@@ -111,20 +126,29 @@ export class ComboChart extends AbstractChart {
     }
     return {
       ...this,
+      title: getChartTitleWithRangeString(this.getters, this.sheetId, this.title),
       range,
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
         : undefined,
+      axesDesign: getAxesDesignWithRangeString(this.getters, this.sheetId, this.axesDesign),
     };
   }
 
   getDefinition(): ComboChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
+    return this.getDefinitionWithSpecificDataSets(
+      this.dataSets,
+      this.labelRange,
+      this.title,
+      this.axesDesign
+    );
   }
 
   getDefinitionWithSpecificDataSets(
     dataSets: DataSet[],
     labelRange: Range | undefined,
+    title: AbstractChartTitle,
+    axesDesign?: AbstractChartAxesDesign,
     targetSheetId?: UID
   ): ComboChartDefinition {
     const ranges: CustomizedDataSet[] = [];
@@ -143,9 +167,13 @@ export class ComboChart extends AbstractChart {
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
-      title: this.title,
+      title: getChartTitleWithRangeString(this.getters, targetSheetId || this.sheetId, title),
       aggregated: this.aggregated,
-      axesDesign: this.axesDesign,
+      axesDesign: getAxesDesignWithRangeString(
+        this.getters,
+        targetSheetId || this.sheetId,
+        axesDesign
+      ),
       showValues: this.showValues,
     };
   }
@@ -175,16 +203,23 @@ export class ComboChart extends AbstractChart {
   }
 
   updateRanges(applyChange: ApplyRangeChange): ComboChart {
-    const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
+    const { dataSets, labelRange, title, axesDesign, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,
       this.dataSets,
+      this.title,
+      this.axesDesign,
       this.labelRange
     );
     if (!isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
+    const definition = this.getDefinitionWithSpecificDataSets(
+      dataSets,
+      labelRange,
+      title,
+      axesDesign
+    );
     return new ComboChart(definition, this.sheetId, this.getters);
   }
 
@@ -195,7 +230,7 @@ export class ComboChart extends AbstractChart {
       dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
       aggregated: context.aggregated,
       legendPosition: context.legendPosition ?? "top",
-      title: context.title || { text: "" },
+      title: context.title || { type: "string", text: "" },
       labelRange: context.auxiliaryRange || undefined,
       type: "combo",
       axesDesign: context.axesDesign,
@@ -206,7 +241,15 @@ export class ComboChart extends AbstractChart {
   copyForSheetId(sheetId: UID): ComboChart {
     const dataSets = copyDataSetsWithNewSheetId(this.sheetId, sheetId, this.dataSets);
     const labelRange = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.labelRange);
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, sheetId);
+    const chartTitle = copyChartTitleReferenceWithNewSheetId(this.sheetId, sheetId, this.title);
+    const axesDesign = copyAxesDesignWithNewSheetId(this.sheetId, sheetId, this.axesDesign);
+    const definition = this.getDefinitionWithSpecificDataSets(
+      dataSets,
+      labelRange,
+      chartTitle,
+      axesDesign,
+      sheetId
+    );
     return new ComboChart(definition, sheetId, this.getters);
   }
 
@@ -214,6 +257,8 @@ export class ComboChart extends AbstractChart {
     const definition = this.getDefinitionWithSpecificDataSets(
       this.dataSets,
       this.labelRange,
+      this.title,
+      this.axesDesign,
       sheetId
     );
     return new ComboChart(definition, sheetId, this.getters);
@@ -246,7 +291,7 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
   const localeFormat = { format: mainDataSetFormat, locale };
 
   const fontColor = chartFontColor(chart.background);
-  const config = getDefaultChartJsRuntime(chart, labels, fontColor, localeFormat);
+  const config = getDefaultChartJsRuntime(chart, getters, labels, fontColor, localeFormat);
   const legend: DeepPartial<LegendOptions<"bar">> = {
     labels: { color: fontColor },
     reverse: true,
@@ -259,7 +304,7 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
   config.options.plugins!.legend = { ...config.options.plugins?.legend, ...legend };
   config.options.layout = {
     padding: computeChartPadding({
-      displayTitle: !!chart.title.text,
+      displayTitle: !!getChartRuntimeTitle(getters, chart.title).text,
       displayLegend: chart.legendPosition === "top",
     }),
   };
@@ -270,7 +315,7 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
         padding: 5,
         color: fontColor,
       },
-      title: getChartAxisTitleRuntime(chart.axesDesign?.x),
+      title: getChartAxisTitleRuntime(getters, chart.axesDesign?.x),
     },
   };
 
@@ -294,7 +339,7 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
     config.options.scales.y = {
       ...leftVerticalAxis,
       position: "left",
-      title: getChartAxisTitleRuntime(chart.axesDesign?.y),
+      title: getChartAxisTitleRuntime(getters, chart.axesDesign?.y),
     };
   }
   if (useRightAxis) {
@@ -304,7 +349,7 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
       grid: {
         display: false,
       },
-      title: getChartAxisTitleRuntime(chart.axesDesign?.y1),
+      title: getChartAxisTitleRuntime(getters, chart.axesDesign?.y1),
     };
   }
   config.options.plugins!.chartShowValuesPlugin = {

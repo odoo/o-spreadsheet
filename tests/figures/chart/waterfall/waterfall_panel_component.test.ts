@@ -93,7 +93,7 @@ describe("Watrefall chart side panel", () => {
   describe("Design panel", () => {
     test("Waterfall design panel is correctly initialized", async () => {
       const chartId = createWaterfallChart(model, {
-        title: { text: "My Waterfall chart" },
+        title: { type: "string", text: "My Waterfall chart" },
         verticalAxisPosition: "right",
         legendPosition: "bottom",
         showSubTotals: true,

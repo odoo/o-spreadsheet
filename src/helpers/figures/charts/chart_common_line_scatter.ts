@@ -20,6 +20,7 @@ import {
   computeChartPadding,
   formatTickValue,
   getChartAxisTitleRuntime,
+  getChartRuntimeTitle,
   getDefinedAxis,
   getFullTrendingLineDataSet,
   interpolateData,
@@ -221,7 +222,7 @@ export function createLineOrScatterChartRuntime(
   const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
   const options = { format: dataSetFormat, locale, truncateLabels };
   const fontColor = chartFontColor(chart.background);
-  const config = getDefaultChartJsRuntime(chart, labels, fontColor, options);
+  const config = getDefaultChartJsRuntime(chart, getters, labels, fontColor, options);
 
   const legend: DeepPartial<LegendOptions<"line">> = {
     labels: {
@@ -245,7 +246,7 @@ export function createLineOrScatterChartRuntime(
   Object.assign(config.options.plugins!.legend || {}, legend);
   config.options.layout = {
     padding: computeChartPadding({
-      displayTitle: !!chart.title.text,
+      displayTitle: !!getChartRuntimeTitle(getters, chart.title).text,
       displayLegend: chart.legendPosition === "top",
     }),
   };
@@ -255,7 +256,7 @@ export function createLineOrScatterChartRuntime(
       padding: 5,
       color: fontColor,
     },
-    title: getChartAxisTitleRuntime(chart.axesDesign?.x),
+    title: getChartAxisTitleRuntime(getters, chart.axesDesign?.x),
   };
 
   config.options.scales = {
@@ -274,14 +275,14 @@ export function createLineOrScatterChartRuntime(
     config.options.scales.y = {
       ...yAxis,
       position: "left",
-      title: getChartAxisTitleRuntime(chart.axesDesign?.y),
+      title: getChartAxisTitleRuntime(getters, chart.axesDesign?.y),
     };
   }
   if (useRightAxis) {
     config.options.scales.y1 = {
       ...yAxis,
       position: "right",
-      title: getChartAxisTitleRuntime(chart.axesDesign?.y1),
+      title: getChartAxisTitleRuntime(getters, chart.axesDesign?.y1),
     };
   }
   if ("stacked" in chart && chart.stacked) {

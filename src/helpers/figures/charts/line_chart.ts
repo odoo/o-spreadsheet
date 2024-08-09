@@ -10,7 +10,8 @@ import {
   UID,
 } from "../../../types";
 import {
-  AxesDesign,
+  AbstractChartAxesDesign,
+  AbstractChartTitle,
   ChartCreationContext,
   CustomizedDataSet,
   DataSet,
@@ -27,11 +28,18 @@ import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
   chartFontColor,
+  checkAxesDesign,
+  checkChartTitle,
   checkDataset,
   checkLabelRange,
+  copyAxesDesignWithNewSheetId,
+  copyChartTitleReferenceWithNewSheetId,
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
+  getAxesDesignWithRangeString,
+  getAxesDesignWithValidRanges,
+  getChartTitleWithRangeString,
   getDefinedAxis,
   shouldRemoveFirstLabel,
   toExcelDataset,
@@ -52,8 +60,8 @@ export class LineChart extends AbstractChart {
   readonly dataSetsHaveTitle: boolean;
   readonly cumulative: boolean;
   readonly dataSetDesign?: DatasetDesign[];
-  readonly axesDesign?: AxesDesign;
   readonly fillArea?: boolean;
+  readonly axesDesign?: AbstractChartAxesDesign;
   readonly showValues?: boolean;
 
   constructor(definition: LineChartDefinition, sheetId: UID, getters: CoreGetters) {
@@ -73,8 +81,8 @@ export class LineChart extends AbstractChart {
     this.dataSetsHaveTitle = definition.dataSetsHaveTitle;
     this.cumulative = definition.cumulative;
     this.dataSetDesign = definition.dataSets;
-    this.axesDesign = definition.axesDesign;
     this.fillArea = definition.fillArea;
+    this.axesDesign = getAxesDesignWithValidRanges(getters, sheetId, definition.axesDesign);
     this.showValues = definition.showValues;
   }
 
@@ -82,7 +90,13 @@ export class LineChart extends AbstractChart {
     validator: Validator,
     definition: LineChartDefinition
   ): CommandResult | CommandResult[] {
-    return validator.checkValidations(definition, checkDataset, checkLabelRange);
+    return validator.checkValidations(
+      definition,
+      checkDataset,
+      checkLabelRange,
+      checkChartTitle,
+      checkAxesDesign
+    );
   }
 
   static transformDefinition(
@@ -99,7 +113,7 @@ export class LineChart extends AbstractChart {
       dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
       labelsAsText: context.labelsAsText ?? false,
       legendPosition: context.legendPosition ?? "top",
-      title: context.title || { text: "" },
+      title: context.title || { type: "string", text: "" },
       type: "line",
       labelRange: context.auxiliaryRange || undefined,
       stacked: context.stacked ?? false,
@@ -112,12 +126,19 @@ export class LineChart extends AbstractChart {
   }
 
   getDefinition(): LineChartDefinition {
-    return this.getDefinitionWithSpecificDataSets(this.dataSets, this.labelRange);
+    return this.getDefinitionWithSpecificDataSets(
+      this.dataSets,
+      this.labelRange,
+      this.title,
+      this.axesDesign
+    );
   }
 
   private getDefinitionWithSpecificDataSets(
     dataSets: DataSet[],
     labelRange: Range | undefined,
+    title: AbstractChartTitle,
+    axesDesign?: AbstractChartAxesDesign,
     targetSheetId?: UID
   ): LineChartDefinition {
     const ranges: CustomizedDataSet[] = [];
@@ -136,13 +157,17 @@ export class LineChart extends AbstractChart {
       labelRange: labelRange
         ? this.getters.getRangeString(labelRange, targetSheetId || this.sheetId)
         : undefined,
-      title: this.title,
+      title: getChartTitleWithRangeString(this.getters, targetSheetId || this.sheetId, title),
       labelsAsText: this.labelsAsText,
       stacked: this.stacked,
       aggregated: this.aggregated,
       cumulative: this.cumulative,
-      axesDesign: this.axesDesign,
       fillArea: this.fillArea,
+      axesDesign: getAxesDesignWithRangeString(
+        this.getters,
+        targetSheetId || this.sheetId,
+        axesDesign
+      ),
       showValues: this.showValues,
     };
   }
@@ -157,24 +182,33 @@ export class LineChart extends AbstractChart {
     }
     return {
       ...this,
+      title: getChartTitleWithRangeString(this.getters, this.sheetId, this.title),
       range,
       auxiliaryRange: this.labelRange
         ? this.getters.getRangeString(this.labelRange, this.sheetId)
         : undefined,
+      axesDesign: getAxesDesignWithRangeString(this.getters, this.sheetId, this.axesDesign),
     };
   }
 
   updateRanges(applyChange: ApplyRangeChange): LineChart {
-    const { dataSets, labelRange, isStale } = updateChartRangesWithDataSets(
+    const { dataSets, labelRange, title, axesDesign, isStale } = updateChartRangesWithDataSets(
       this.getters,
       applyChange,
       this.dataSets,
+      this.title,
+      this.axesDesign,
       this.labelRange
     );
     if (!isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange);
+    const definition = this.getDefinitionWithSpecificDataSets(
+      dataSets,
+      labelRange,
+      title,
+      axesDesign
+    );
     return new LineChart(definition, this.sheetId, this.getters);
   }
 
@@ -203,7 +237,15 @@ export class LineChart extends AbstractChart {
   copyForSheetId(sheetId: UID): LineChart {
     const dataSets = copyDataSetsWithNewSheetId(this.sheetId, sheetId, this.dataSets);
     const labelRange = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.labelRange);
-    const definition = this.getDefinitionWithSpecificDataSets(dataSets, labelRange, sheetId);
+    const chartTitle = copyChartTitleReferenceWithNewSheetId(this.sheetId, sheetId, this.title);
+    const axesDesign = copyAxesDesignWithNewSheetId(this.sheetId, sheetId, this.axesDesign);
+    const definition = this.getDefinitionWithSpecificDataSets(
+      dataSets,
+      labelRange,
+      chartTitle,
+      axesDesign,
+      sheetId
+    );
     return new LineChart(definition, sheetId, this.getters);
   }
 
@@ -211,6 +253,8 @@ export class LineChart extends AbstractChart {
     const definition = this.getDefinitionWithSpecificDataSets(
       this.dataSets,
       this.labelRange,
+      this.title,
+      this.axesDesign,
       sheetId
     );
     return new LineChart(definition, sheetId, this.getters);

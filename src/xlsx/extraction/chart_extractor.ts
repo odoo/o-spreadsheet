@@ -29,7 +29,7 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
         }).asString();
 
         return {
-          title: { text: chartTitle },
+          title: { type: "string", text: chartTitle },
           type: CHART_TYPE_CONVERSION_MAP[chartType]!,
           dataSets: this.extractChartDatasets(
             this.querySelectorAll(rootChartElement, `c:${chartType}`)!,
@@ -73,7 +73,7 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
     }).asString();
 
     return {
-      title: { text: chartTitle },
+      title: { type: "string", text: chartTitle },
       type: "combo",
       dataSets: [
         ...this.extractChartDatasets(
