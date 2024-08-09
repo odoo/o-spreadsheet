@@ -79,6 +79,7 @@ export class DataValidationPlugin
         return this.checkValidations(
           cmd,
           this.chainValidations(
+            this.checkEmptyRange,
             this.checkCriterionTypeIsValid,
             this.checkCriterionHasValidNumberOfValues,
             this.checkCriterionValuesAreValid
@@ -226,6 +227,10 @@ export class DataValidationPlugin
       };
       this.dispatch("UPDATE_CELL", { ...position, style });
     }
+  }
+
+  private checkEmptyRange(cmd: AddDataValidationCommand) {
+    return cmd.ranges.length ? CommandResult.Success : CommandResult.EmptyRange;
   }
 
   import(data: WorkbookData) {
