@@ -10,7 +10,7 @@ import { Section } from "../components/section/section";
 
 css/* scss */ `
   .o-checkbox-selection {
-    height: 150px;
+    max-height: 300px;
   }
 `;
 

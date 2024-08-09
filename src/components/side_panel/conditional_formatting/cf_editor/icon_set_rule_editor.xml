@@ -1,21 +1,21 @@
 <templates>
   <t t-name="o-spreadsheet-IconSets">
-    <div>
+    <div class="pb-2">
       <div class="o-section-subtitle">Icons</div>
       <div class="o-cf-iconsets d-flex flex-row">
         <div
-          class="o-cf-iconset d-flex flex-row justify-content-between"
+          class="o-cf-iconset o-cf-clickable-icon d-flex flex-row justify-content-between"
           t-foreach="['arrows', 'smiley', 'dots']"
           t-as="iconSet"
           t-key="iconSet"
           t-on-click="(ev) => this.setIconSet(iconSet, ev)">
-          <div class="o-cf-icon">
+          <div>
             <t t-call="o-spreadsheet-Icon.{{icons[iconSets[iconSet].good].template}}"/>
           </div>
-          <div class="o-cf-icon">
+          <div>
             <t t-call="o-spreadsheet-Icon.{{icons[iconSets[iconSet].neutral].template}}"/>
           </div>
-          <div class="o-cf-icon">
+          <div>
             <t t-call="o-spreadsheet-Icon.{{icons[iconSets[iconSet].bad].template}}"/>
           </div>
         </div>
@@ -27,7 +27,7 @@
     <tr>
       <td>
         <div t-on-click.stop="(ev) => this.toggleMenu('iconSet-'+icon+'Icon', ev)">
-          <div class="o-cf-icon-button">
+          <div class="o-cf-icon-button o-cf-clickable-icon me-3">
             <t t-call="o-spreadsheet-Icon.{{icons[iconValue].template}}"/>
           </div>
         </div>
@@ -48,14 +48,16 @@
         </select>
       </td>
       <td>
-        <input
-          type="text"
-          t-if="inflectionPointValue.type !== 'formula'"
-          class="o-input"
-          t-att-class="{ 'o-invalid': isInflectionPointInvalid(inflectionPoint) }"
-          t-model="rule[inflectionPoint].value"
-        />
-        <StandaloneComposer t-else="" t-props="getColorIconSetComposerProps(inflectionPoint)"/>
+        <div class="ms-2 me-2">
+          <input
+            type="text"
+            t-if="inflectionPointValue.type !== 'formula'"
+            class="o-input"
+            t-att-class="{ 'o-invalid': isInflectionPointInvalid(inflectionPoint) }"
+            t-model="rule[inflectionPoint].value"
+          />
+          <StandaloneComposer t-else="" t-props="getColorIconSetComposerProps(inflectionPoint)"/>
+        </div>
       </td>
       <td>
         <select class="o-input" name="valueType" t-model="inflectionPointValue.type">
@@ -69,14 +71,14 @@
   </t>
 
   <t t-name="o-spreadsheet-IconSetInflexionPoints">
-    <div class="o-inflection">
-      <table>
+    <div class="o-inflection mt-4">
+      <table class="w-100">
         <tr>
           <th class="o-cf-iconset-icons"/>
           <th class="o-cf-iconset-text"/>
           <th class="o-cf-iconset-operator"/>
-          <th>Value</th>
-          <th class="o-cf-iconset-type">Type</th>
+          <th/>
+          <th class="o-cf-iconset-type"/>
         </tr>
         <t t-call="o-spreadsheet-IconSetInflexionPointRow">
           <t t-set="iconValue" t-value="rule.icons.upper"/>
@@ -93,7 +95,7 @@
         <tr>
           <td>
             <div t-on-click.stop="(ev) => this.toggleMenu('iconSet-lowerIcon', ev)">
-              <div class="o-cf-icon-button">
+              <div class="o-cf-icon-button o-cf-clickable-icon me-3">
                 <t t-call="o-spreadsheet-Icon.{{icons[rule.icons.lower].template}}"/>
               </div>
             </div>
@@ -114,11 +116,11 @@
     <div class="o-cf-iconset-rule">
       <t t-call="o-spreadsheet-IconSets"/>
       <t t-call="o-spreadsheet-IconSetInflexionPoints"/>
-      <div class="btn btn-link o_refresh_measures o-cf-iconset-reverse" t-on-click="reverseIcons">
-        <div class="me-1 d-inline-block">
-          <t t-call="o-spreadsheet-Icon.REFRESH"/>
-        </div>
-        Reverse icons
+      <div
+        class="btn btn-link ps-0 o-cf-iconset-reverse d-flex flex-row align-items-center"
+        t-on-click="reverseIcons">
+        <t t-call="o-spreadsheet-Icon.REFRESH"/>
+        <div class="ms-1">Reverse icons</div>
       </div>
     </div>
   </t>

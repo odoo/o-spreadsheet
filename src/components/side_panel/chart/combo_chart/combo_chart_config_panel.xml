@@ -13,14 +13,6 @@
         onSelectionConfirmed="() => this.onLabelRangeConfirmed()"
         options="this.getLabelRangeOptions()"
       />
-      <Section class="'o-use-row-as-headers py-0'" t-if="calculateHeaderPosition()">
-        <Checkbox
-          name="'dataSetsHaveTitle'"
-          label="dataSetsHaveTitleLabel"
-          value="props.definition.dataSetsHaveTitle"
-          onChange.bind="onUpdateDataSetsHaveTitle"
-        />
-      </Section>
 
       <ChartErrorSection t-if="errorMessages.length" messages="errorMessages"/>
     </div>

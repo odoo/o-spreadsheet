@@ -5,13 +5,11 @@
       <t t-set-slot="title">General</t>
       <t t-set-slot="content">
         <Section class="'o-chart-background-color pt-0 pb-0'">
-          <div class="d-flex align-items-center mt-0">
-            <span class="o-section-title mb-0 pe-2">Background color</span>
-            <RoundColorPicker
-              currentColor="props.definition.background"
-              onColorPicked.bind="updateBackgroundColor"
-            />
-          </div>
+          <t t-set-slot="title">Background color</t>
+          <RoundColorPicker
+            currentColor="props.definition.background"
+            onColorPicked.bind="updateBackgroundColor"
+          />
         </Section>
         <ChartTitle
           title="title.text"

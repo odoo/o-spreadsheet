@@ -66,7 +66,7 @@ describe("Table dropdown button", () => {
   test("Can insert a table with a custom style with the widget", async () => {
     setSelection(model, ["A1:C3"]);
     await click(fixture, ".o-table-widget .o-menu-item-button");
-    await click(fixture, ".form-check-input[value='custom']");
+    await click(fixture, ".o-notebook-tab[data-id='custom']");
     await click(fixture, ".o-new-table-style");
 
     expect(fixture.querySelector(".o-table-style-editor-panel")).toBeTruthy();

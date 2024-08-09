@@ -104,6 +104,7 @@ export class SplitIntoColumnsPanel extends Component<Props, SpreadsheetChildEnv>
           errors.add(SplitToColumnsTerms.Errors[reason] || SplitToColumnsTerms.Errors.Unexpected);
       }
     }
+
     return Array.from(errors);
   }
 

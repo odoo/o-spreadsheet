@@ -70,7 +70,7 @@
               <div class="d-flex py-1 px-2 w-100">
                 <div class="pivot-dim-operator-label">Aggregated by</div>
                 <select
-                  class="o_input flex-grow-1 me-3"
+                  class="o-input flex-grow-1 me-3"
                   t-on-change="(ev) => this.updateAggregator(measure, ev.target.value)">
                   <option
                     t-foreach="Object.keys(AGGREGATORS[measure.type])"

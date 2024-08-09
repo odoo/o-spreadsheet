@@ -26,10 +26,13 @@ css/* scss */ `
       font-size: 12px;
       line-height: 18px;
       width: 100%;
+      font-size: 12px;
     }
+
     td {
       box-sizing: border-box;
       height: 30px;
+      padding: 6px 0;
     }
     th.o-gauge-color-set-colorPicker {
       width: 8%;

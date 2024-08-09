@@ -11,7 +11,6 @@ import {
   DataValidationRuleData,
   SpreadsheetChildEnv,
 } from "../../../../types";
-import { css } from "../../../helpers";
 import { SelectionInput } from "../../../selection_input/selection_input";
 import { Section } from "../../components/section/section";
 import { SelectMenu } from "../../select_menu/select_menu";
@@ -20,13 +19,6 @@ import {
   getDataValidationCriterionMenuItems,
 } from "../data_validation_panel_helper";
 
-css/* scss */ `
-  .o-sidePanel .o-sidePanelBody .o-dv-form {
-    .o-section {
-      padding: 16px 16px 0 16px;
-    }
-  }
-`;
 interface Props {
   rule: DataValidationRule | undefined;
   onExit: () => void;

@@ -6,7 +6,6 @@
         ranges="[props.range]"
         isInvalid="props.isInvalid"
         hasSingleRange="true"
-        required="props.required"
         onSelectionChanged="(ranges) => props.onSelectionChanged(ranges)"
         onSelectionConfirmed="() => props.onSelectionConfirmed()"
       />
@@ -16,6 +15,7 @@
           label="option.label"
           value="option.value"
           onChange="option.onChange"
+          className="'mt-2'"
         />
       </t>
     </Section>

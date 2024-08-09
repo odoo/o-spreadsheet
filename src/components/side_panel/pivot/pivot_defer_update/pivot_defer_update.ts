@@ -8,7 +8,6 @@ import { Section } from "../../components/section/section";
 css/* scss */ `
   .pivot-defer-update {
     min-height: 35px;
-    background-color: #f8f9fa;
   }
 `;
 

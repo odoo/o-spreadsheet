@@ -159,7 +159,7 @@ describe("Filter menu component", () => {
       await openFilterMenu();
       await simulateClick(".o-filter-menu-value:nth-of-type(2)");
       await simulateClick(".o-filter-menu-value:nth-of-type(3)");
-      await simulateClick(".o-filter-menu-button-primary");
+      await simulateClick(".o-filter-menu-confirm");
       expect(model.getters.getFilterHiddenValues({ sheetId, col: 0, row: 0 })).toEqual([
         "1",
         "1/1/1900",
@@ -171,7 +171,7 @@ describe("Filter menu component", () => {
       await openFilterMenu();
       await simulateClick(".o-filter-menu-value:nth-of-type(1)");
       await simulateClick(".o-filter-menu-value:nth-of-type(2)");
-      await simulateClick(".o-filter-menu-button-cancel");
+      await simulateClick(".o-filter-menu-cancel");
       expect(model.getters.getFilterHiddenValues({ sheetId, col: 0, row: 0 })).toEqual([]);
     });
 

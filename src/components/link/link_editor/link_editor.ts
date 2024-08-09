@@ -30,7 +30,6 @@ css/* scss */ `
     .o-section {
       .o-section-title {
         font-weight: bold;
-        color: dimgrey;
         margin-bottom: 5px;
       }
     }
@@ -40,14 +39,10 @@ css/* scss */ `
       padding-bottom: 16px;
       text-align: right;
     }
-    input {
+    input.o-input {
       box-sizing: border-box;
       width: 100%;
-      border-radius: 4px;
-      padding: 4px 23px 4px 10px;
-      border: none;
-      height: 24px;
-      border: 1px solid lightgrey;
+      padding: 0 23px 4px 0;
     }
     .o-link-url {
       position: relative;

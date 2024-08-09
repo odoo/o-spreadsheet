@@ -7,34 +7,58 @@ exports[`Chart error section Can render a chart error section component 1`] = `
   >
     
     <div
-      class="d-flex align-items-center o-side-panel-error o-validation-error text-danger"
+      class="d-flex flex-column p-3 m-1 o-validation o-validation-error"
     >
       <div
-        class="o-icon fa-small"
+        class="d-flex align-items-center"
       >
-        <i
-          class="fa fa-exclamation-triangle"
-        />
+        
+        <div
+          class="o-icon fa-small"
+        >
+          <i
+            class="fa fa-exclamation-triangle"
+          />
+        </div>
+        
+        <div
+          class="d-flex flex-column overflow-hidden"
+        >
+          <span
+            class="ps-2"
+          >
+            error_1
+          </span>
+          
+        </div>
       </div>
-      
-      <span>
-        error_1
-      </span>
     </div>
     <div
-      class="d-flex align-items-center o-side-panel-error o-validation-error text-danger"
+      class="d-flex flex-column p-3 m-1 o-validation o-validation-error"
     >
       <div
-        class="o-icon fa-small"
+        class="d-flex align-items-center"
       >
-        <i
-          class="fa fa-exclamation-triangle"
-        />
+        
+        <div
+          class="o-icon fa-small"
+        >
+          <i
+            class="fa fa-exclamation-triangle"
+          />
+        </div>
+        
+        <div
+          class="d-flex flex-column overflow-hidden"
+        >
+          <span
+            class="ps-2"
+          >
+            error_2
+          </span>
+          
+        </div>
       </div>
-      
-      <span>
-        error_2
-      </span>
     </div>
     
     

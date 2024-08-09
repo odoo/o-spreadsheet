@@ -1,6 +1,10 @@
 <templates>
   <t t-name="o-spreadsheet-CogWheelMenu">
-    <span class="fa fa-cog os-cog-wheel-menu-icon" t-on-click="toggleMenu" t-ref="button"/>
+    <span
+      class="fa fa-cog o-text-muted os-cog-wheel-menu-icon"
+      t-on-click="toggleMenu"
+      t-ref="button"
+    />
     <Menu
       t-if="menuState.isOpen"
       menuId="menuId"

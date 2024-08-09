@@ -1,7 +1,7 @@
 <templates>
   <t t-name="o-spreadsheet-PivotDimension">
     <div
-      class="border py-1 px-2 d-flex flex-column shadow-sm pivot-dimension"
+      class="py-1 px-2 d-flex flex-column shadow-sm pivot-dimension"
       t-att-class="{'pivot-dimension-invalid': !props.dimension.isValid}">
       <div class="d-flex flex-row justify-content-between align-items-center">
         <div class="d-flex align-items-center overflow-hidden text-nowrap">
@@ -17,7 +17,7 @@
           <span t-else="1" class="fw-bold" t-esc="props.dimension.displayName"/>
         </div>
         <i
-          class="btn fa fa-times pe-0 ms-auto"
+          class="btn fa fa-trash o-text-muted pe-0 ms-auto"
           t-if="props.onRemoved"
           t-on-click="() => props.onRemoved(props.dimension)"
         />

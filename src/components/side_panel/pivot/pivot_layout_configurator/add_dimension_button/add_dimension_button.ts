@@ -28,6 +28,13 @@ css/* scss */ `
   .pivot-dimension-search {
     background-color: white;
   }
+  .add-dimension.o-button {
+    padding: 2px 7px;
+    font-weight: 400;
+    font-size: 12px;
+    flex-grow: 0;
+    height: inherit;
+  }
 `;
 
 export class AddDimensionButton extends Component<Props, SpreadsheetChildEnv> {

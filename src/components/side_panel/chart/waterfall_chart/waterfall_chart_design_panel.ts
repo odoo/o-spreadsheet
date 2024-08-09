@@ -9,6 +9,7 @@ import { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../typ
 import { WaterfallChartDefinition } from "../../../../types/chart/waterfall_chart";
 import { ChartTerms } from "../../../translations_terms";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
+import { RadioSelection } from "../../components/radio_selection/radio_selection";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
 import { Section } from "../../components/section/section";
 import {
@@ -34,6 +35,7 @@ export class WaterfallChartDesignPanel extends Component<Props, SpreadsheetChild
     Section,
     RoundColorPicker,
     AxisDesignEditor,
+    RadioSelection,
   };
   static props = {
     figureId: String,
@@ -86,15 +88,22 @@ export class WaterfallChartDesignPanel extends Component<Props, SpreadsheetChild
     );
   }
 
+  get axisChoices() {
+    return [
+      { value: "left", label: _t("Left") },
+      { value: "right", label: _t("Right") },
+    ];
+  }
+
   updateLegendPosition(ev) {
     this.props.updateChart(this.props.figureId, {
       legendPosition: ev.target.value,
     });
   }
 
-  updateVerticalAxisPosition(ev) {
+  updateVerticalAxisPosition(value: "left" | "right") {
     this.props.updateChart(this.props.figureId, {
-      verticalAxisPosition: ev.target.value,
+      verticalAxisPosition: value,
     });
   }
 

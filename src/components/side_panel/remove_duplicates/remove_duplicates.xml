@@ -2,18 +2,21 @@
   <t t-name="o-spreadsheet-RemoveDuplicatesPanel">
     <div class="o-remove-duplicates">
       <Section>
-        <div class="o-section-subtitle" t-esc="selectionStatisticalInformation"/>
+        <ValidationMessages messages="[selectionStatisticalInformation]" msgType="'info'"/>
+      </Section>
+      <Section class="'pt-0'">
         <t t-set="dataHasHeaderLabel">Data has header row</t>
         <Checkbox
+          name="'dataHasHeader'"
           value="state.hasHeader"
           label="dataHasHeaderLabel"
           onChange.bind="toggleHasHeader"
         />
       </Section>
 
-      <Section>
+      <Section class="'pt-0'">
         <t t-set-slot="title">Columns to analyze</t>
-        <div class="o-checkbox-selection overflow-auto p-3 vh-50 border rounded">
+        <div class="o-checkbox-selection overflow-auto">
           <t t-set="selectAllLabel">Select all</t>
           <Checkbox
             value="isEveryColumnSelected"
@@ -31,18 +34,19 @@
         </div>
       </Section>
 
-      <div class="o-sidePanelButtons">
-        <button
-          class="o-button o-button-grey"
-          t-att-class="{'o-disabled': !canConfirm}"
-          t-on-click="onRemoveDuplicates">
-          Remove duplicates
-        </button>
-      </div>
-
-      <div class="o-section" t-if="errorMessages.length">
+      <Section>
+        <div class="o-sidePanelButtons">
+          <button
+            class="o-button primary"
+            t-att-class="{'o-disabled': !canConfirm}"
+            t-on-click="onRemoveDuplicates">
+            Remove duplicates
+          </button>
+        </div>
+      </Section>
+      <Section t-if="errorMessages.length">
         <ValidationMessages messages="errorMessages" msgType="'error'"/>
-      </div>
+      </Section>
     </div>
   </t>
 </templates>
