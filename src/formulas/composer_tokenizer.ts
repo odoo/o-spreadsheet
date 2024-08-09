@@ -31,8 +31,8 @@ interface FunctionContext {
  * The information added are:
  * - start, end and length of each token
  * - range detection (replaces the tokens that composes the range with 1 token)
- * - parenthesis matching (only for parenthesis tokens)
- * - parent function (only for tokens surrounded by a function)
+ * - parenthesesCode (a code indicating the position of the token in the parentheses tree)
+ * - functionContext (only for tokens surrounded by a function)
  * - arg position (only for tokens surrounded by a function)
  */
 
@@ -40,7 +40,7 @@ export interface EnrichedToken extends Token {
   start: number;
   end: number;
   length: number;
-  parenIndex?: number;
+  parenthesesCode?: string;
   functionContext?: FunctionContext;
 }
 
@@ -65,19 +65,40 @@ function enrichTokens(tokens: Token[]): EnrichedToken[] {
 }
 
 /**
- * add on each token the length, start and end
- * also matches the opening to its closing parenthesis (using the same number)
+ * add on each token a code representing the position of the token in an opening parentheses tree.""
+ *
+ * For `=SIN(0) + SUM(COS(1), ABS(-1))`:
+ * |Token    |Code  |
+ * |---------|------|
+ * |`=`      |`""`  |
+ * |`SIN(0)` |`"1"` |
+ * |`+`      |`""`  |
+ * |`SUM(`   |`"2"` |
+ * |`COS(1)` |`"21"`|
+ * |`,`      |`"2"` |
+ * |`ABS(-1)`|`"22"`|
+ * |`)`      |`"2"` |
  */
-function mapParenthesis(tokens: EnrichedToken[]): EnrichedToken[] {
-  let maxParen = 1;
-  const stack: number[] = [];
-  return tokens.map((token) => {
+function mapParenthesisCode(tokens: EnrichedToken[]): EnrichedToken[] {
+  let code = "";
+  let nextLvl = 0;
+  return tokens.map((token, i) => {
     if (token.type === "LEFT_PAREN") {
-      stack.push(maxParen);
-      token.parenIndex = maxParen;
-      maxParen++;
+      code += String(nextLvl + 1);
+      nextLvl = 0;
+      token.parenthesesCode = code;
+      // allows to link the parentheses opening a function to the function
+      if (tokens[i - 1].type === "SYMBOL") {
+        tokens[i - 1].parenthesesCode = code;
+      }
     } else if (token.type === "RIGHT_PAREN") {
-      token.parenIndex = stack.pop();
+      token.parenthesesCode = code;
+      // get the last character
+      nextLvl = Number(code.charAt(code.length - 1));
+      // remove the last character
+      code = code.slice(0, -1);
+    } else {
+      token.parenthesesCode = code;
     }
     return token;
   });
@@ -199,5 +220,5 @@ function addArgsAST(tokens: EnrichedToken[]): EnrichedToken[] {
 export function composerTokenize(formula: string, locale: Locale): EnrichedToken[] {
   const tokens = rangeTokenize(formula, locale);
 
-  return addArgsAST(mapParentFunction(mapParenthesis(enrichTokens(tokens))));
+  return addArgsAST(mapParentFunction(mapParenthesisCode(enrichTokens(tokens))));
 }

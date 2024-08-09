@@ -387,7 +387,8 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     } else if (currentToken?.type === "RIGHT_PAREN") {
       // match left parenthesis
       const leftParenthesisIndex = this.currentTokens.findIndex(
-        (token) => token.type === "LEFT_PAREN" && token.parenIndex === currentToken.parenIndex
+        (token) =>
+          token.type === "LEFT_PAREN" && token.parenthesesCode === currentToken.parenthesesCode
       );
       const functionToken = this.currentTokens[leftParenthesisIndex - 1];
       if (functionToken === undefined) {
