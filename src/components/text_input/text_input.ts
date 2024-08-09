@@ -45,6 +45,7 @@ export class TextInput extends Component<Props, SpreadsheetChildEnv> {
       optional: true,
     },
   };
+
   private inputRef: Ref<HTMLInputElement> = useRef("input");
 
   setup() {
@@ -56,9 +57,7 @@ export class TextInput extends Component<Props, SpreadsheetChildEnv> {
           this.save();
         }
       },
-      {
-        capture: true,
-      }
+      { capture: true }
     );
   }
 
@@ -66,7 +65,22 @@ export class TextInput extends Component<Props, SpreadsheetChildEnv> {
     this.save();
   }
 
+  onFocus() {
+    this.focusInputAndSelectContent();
+  }
+
+  onBlur() {
+    this.save();
+  }
+
   save() {
     this.props.onChange((this.inputRef.el?.value || "").trim());
+  }
+
+  private focusInputAndSelectContent() {
+    if (this.inputRef.el) {
+      this.inputRef.el.focus();
+      this.inputRef.el.select();
+    }
   }
 }

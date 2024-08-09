@@ -50,6 +50,43 @@ describe("Spreadsheet pivot side panel", () => {
     expect(model.getters.getPivotName("1")).toEqual("New Pivot Name");
   });
 
+  test("It should highlight the text when clicking on the pivot rename button", async () => {
+    updatePivot(model, "1", { name: "Pivot Name" });
+    await nextTick();
+
+    await click(fixture.querySelector(".o_sp_en_rename")!);
+    const input = fixture.querySelector(".o_sp_en_name") as HTMLInputElement;
+    expect(input.selectionStart).toBe(0);
+    expect(input.selectionEnd).toBe(10);
+  });
+
+  test("It should save the new pivot name when pressing Enter", async () => {
+    await click(fixture.querySelector(".o_sp_en_rename")!);
+    const input = fixture.querySelector(".o_sp_en_name") as HTMLInputElement;
+    input.value = "New Pivot Name";
+    input.dispatchEvent(new Event("input"));
+    input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+    expect(model.getters.getPivotName("1")).toEqual("New Pivot Name");
+  });
+
+  test("It should cancel the renaming when pressing Escape", async () => {
+    await click(fixture.querySelector(".o_sp_en_rename")!);
+    const input = fixture.querySelector(".o_sp_en_name") as HTMLInputElement;
+    input.value = "New Pivot Name";
+    input.dispatchEvent(new Event("input"));
+    input.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    expect(model.getters.getPivotName("1")).toEqual("Pivot");
+  });
+
+  test("It should cancel the renaming when clicking on the cancel button", async () => {
+    await click(fixture.querySelector(".o_sp_en_rename")!);
+    const input = fixture.querySelector(".o_sp_en_name") as HTMLInputElement;
+    input.value = "New Pivot Name";
+    input.dispatchEvent(new Event("input"));
+    await click(fixture.querySelector(".o_sp_en_cancel")!);
+    expect(model.getters.getPivotName("1")).toEqual("Pivot");
+  });
+
   test("It should be able to defer updates", async () => {
     setCellContent(model, "A1", "amount");
     setCellContent(model, "A2", "10");
