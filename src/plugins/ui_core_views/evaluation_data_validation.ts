@@ -15,7 +15,7 @@ import {
   isMatrix,
 } from "../../types";
 import { CoreViewCommand, invalidateEvaluationCommands } from "../../types/commands";
-import { UIPlugin } from "../ui_plugin";
+import { CoreUiPlugin } from "../core_plugin";
 import { _t } from "./../../translation";
 
 interface InvalidValidationResult {
@@ -34,7 +34,7 @@ type ValidationResult = ValidValidationResult | InvalidValidationResult;
 
 type SheetValidationResult = { [col: HeaderIndex]: Array<Lazy<ValidationResult>> };
 
-export class EvaluationDataValidationPlugin extends UIPlugin {
+export class EvaluationDataValidationPlugin extends CoreUiPlugin {
   static getters = [
     "getDataValidationInvalidCriterionValueMessage",
     "getInvalidDataValidationMessage",
