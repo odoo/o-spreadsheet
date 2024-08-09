@@ -1,3 +1,4 @@
+import { toHex } from "../../helpers";
 import { ExcelChartDataset, ExcelChartDefinition } from "../../types";
 import { XLSXChartType, XLSX_CHART_TYPES } from "../../types/xlsx";
 import { CHART_TYPE_CONVERSION_MAP, DRAWING_LEGEND_POSITION_CONVERSION_MAP } from "../conversion";
@@ -127,11 +128,17 @@ export class XlsxChartExtractor extends XlsxBaseExtractor {
                 label = { text };
               }
             }
+            const color = this.extractChildAttr(
+              chartDataElement,
+              "c:spPr a:solidFill a:srgbClr",
+              "val"
+            );
             return {
               label,
               range: this.extractChildTextContent(chartDataElement, "c:val c:f", {
                 required: true,
               })!,
+              backgroundColor: color ? `${toHex(color.asString())}` : undefined,
             };
           }
         );

@@ -648,16 +648,44 @@ describe("Import xlsx data", () => {
 
   test.each([
     [
+      "line",
+      [
+        { dataRange: "Sheet1!B26:B35", backgroundColor: "#7030A0" },
+        { dataRange: "Sheet1!C26:C35", backgroundColor: "#C65911" },
+      ],
+    ],
+    [
+      "bar",
+      [
+        { dataRange: "Sheet1!B27:B35", backgroundColor: "#7030A0" },
+        { dataRange: "Sheet1!C27:C35", backgroundColor: "#C65911" },
+      ],
+    ],
+  ])("Can import charts %s with dataset colors", (chartType, chartDatasets) => {
+    const testSheet = getWorkbookSheet("jestCharts", convertedData)!;
+    const figure = testSheet.figures.find((figure) => figure.data.type === chartType);
+    const chartData = figure!.data as LineChartDefinition | BarChartDefinition;
+    expect(chartData.dataSets).toEqual(chartDatasets);
+  });
+
+  test.each([
+    [
       "bar chart",
       "bar",
       "#fff",
-      [{ dataRange: "Sheet1!B27:B35" }, { dataRange: "Sheet1!C27:C35" }],
+      [
+        { dataRange: "Sheet1!B27:B35", backgroundColor: "#7030A0" },
+        { dataRange: "Sheet1!C27:C35", backgroundColor: "#C65911" },
+      ],
     ],
     [
       "combo chart",
       "combo",
       "#fff",
-      [{ dataRange: "Sheet1!B27:B35" }, { dataRange: "Sheet1!C27:C35" }],
+      [
+        { dataRange: "Sheet1!B27:B35", backgroundColor: "#1F77B4" },
+        { dataRange: "Sheet1!C27:C35", backgroundColor: "#FF7F0E" },
+      ],
     ],
   ])(
     "Can import charts %s without dataset titles",
@@ -680,14 +708,20 @@ describe("Import xlsx data", () => {
       "line chart",
       "line",
       "#CECECE",
-      [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
+      [
+        { dataRange: "Sheet1!B26:B35", backgroundColor: "#7030A0" },
+        { dataRange: "Sheet1!C26:C35", backgroundColor: "#C65911" },
+      ],
     ],
-    ["pie chart", "pie", "#fff", [{ dataRange: "Sheet1!B26:B35" }]],
+    ["pie chart", "pie", "#fff", [{ dataRange: "Sheet1!B26:B35", backgroundColor: "#1F77B4" }]],
     [
       "doughnut chart",
       "pie",
       "#fff",
-      [{ dataRange: "Sheet1!B26:B35" }, { dataRange: "Sheet1!C26:C35" }],
+      [
+        { dataRange: "Sheet1!B26:B35", backgroundColor: "#1F77B4" },
+        { dataRange: "Sheet1!C26:C35", backgroundColor: "#1F77B4" },
+      ],
     ],
   ])(
     "Can import charts %s with dataset titles",
