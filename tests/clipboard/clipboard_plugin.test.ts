@@ -4,6 +4,7 @@ import { markdownLink, toCartesian, toZone, zoneToXc } from "../../src/helpers";
 import { getClipboardDataPositions } from "../../src/helpers/clipboard/clipboard_helpers";
 import { urlRepresentation } from "../../src/helpers/links";
 import { Model } from "../../src/model";
+import { LineChartDefinition } from "../../src/types/chart";
 import {
   ClipboardMIMEType,
   ClipboardPasteTarget,
@@ -22,6 +23,7 @@ import {
   copy,
   copyPasteAboveCells,
   copyPasteCellsOnLeft,
+  createChart,
   createSheet,
   createSheetWithName,
   createTable,
@@ -347,20 +349,36 @@ describe("clipboard", () => {
     expect(model.getters.isInMerge({ sheetId, ...toCartesian("B5") })).toBe(true);
   });
 
+  test("can copy and paste merge not at the origin of the copy", () => {
+    const model = new Model();
+    merge(model, "B2:C3");
+    copy(model, "A1:C3");
+    paste(model, "A4");
+    const sheetId = model.getters.getActiveSheetId();
+    expect(model.getters.getMerges(sheetId).map(zoneToXc)).toEqual(["B2:C3", "B5:C6"]);
+  });
+
   test("can cut and paste merged content", () => {
     const model = new Model({
       sheets: [{ id: "s2", colNumber: 5, rowNumber: 5, merges: ["B1:C2"] }],
     });
     cut(model, "B1:C2");
     paste(model, "B4");
-    expect(model.getters.isInMerge({ sheetId: "s2", ...toCartesian("B1") })).toBe(false);
-    expect(model.getters.isInMerge({ sheetId: "s2", ...toCartesian("B2") })).toBe(false);
-    expect(model.getters.isInMerge({ sheetId: "s2", ...toCartesian("C1") })).toBe(false);
-    expect(model.getters.isInMerge({ sheetId: "s2", ...toCartesian("C2") })).toBe(false);
-    expect(model.getters.isInMerge({ sheetId: "s2", ...toCartesian("B4") })).toBe(true);
-    expect(model.getters.isInMerge({ sheetId: "s2", ...toCartesian("B5") })).toBe(true);
-    expect(model.getters.isInMerge({ sheetId: "s2", ...toCartesian("C4") })).toBe(true);
-    expect(model.getters.isInMerge({ sheetId: "s2", ...toCartesian("C5") })).toBe(true);
+    expect(model.getters.getMerges("s2").map(zoneToXc)).toEqual(["B4:C5"]);
+  });
+
+  test("can cut and paste merge in another sheet", () => {
+    const model = new Model();
+    const sheet1Id = model.getters.getActiveSheetId();
+    setCellContent(model, "B2", "text");
+    merge(model, "B2:C3");
+    cut(model, "B2:C3");
+    createSheet(model, { sheetId: "s2", activate: true });
+
+    paste(model, "A1");
+    expect(getCellContent(model, "A1", "s2")).toBe("text");
+    expect(model.getters.getMerges("s2").map(zoneToXc)).toEqual(["A1:B2"]);
+    expect(model.getters.getMerges(sheet1Id)).toEqual([]);
   });
 
   test("Pasting merge on content will remove the content", () => {
@@ -1575,6 +1593,32 @@ describe("clipboard", () => {
       expect(getCellText(model, "B1")).toBe("");
       expect(getCellText(model, "A2")).toBe("=SUM(B1:C1)+B2");
       expect(getCellText(model, "B2")).toBe("b1");
+    });
+  });
+
+  test("cut/paste ranges present in charts", () => {
+    const model = new Model();
+    createChart(
+      model,
+      {
+        type: "bar",
+        dataSets: [{ dataRange: "A1:A4" }, { dataRange: "B1:B4" }],
+        labelRange: "C1:C4",
+      },
+      "chartId"
+    );
+
+    cut(model, "A1:A4");
+    paste(model, "A5");
+
+    cut(model, "C1:C4");
+    createSheet(model, { activate: true, sheetId: "sh2" });
+    paste(model, "C1");
+
+    const chartDefinition = model.getters.getChartDefinition("chartId") as LineChartDefinition;
+    expect(chartDefinition).toMatchObject({
+      dataSets: [{ dataRange: "A5:A8" }, { dataRange: "B1:B4" }],
+      labelRange: "Sheet2!C1:C4",
     });
   });
 

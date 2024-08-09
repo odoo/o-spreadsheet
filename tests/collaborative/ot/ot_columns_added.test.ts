@@ -4,6 +4,7 @@ import {
   AddColumnsRowsCommand,
   FreezeColumnsCommand,
   FreezeRowsCommand,
+  MoveReferencesCommand,
   RemoveColumnsRowsCommand,
   ResizeColumnsRowsCommand,
   UpdateTableCommand,
@@ -418,6 +419,47 @@ describe("OT with ADD_COLUMNS_ROWS with dimension COL", () => {
       const command = { ...toTransform, quantity: 2 };
       const result = transform(command, addColumnsBefore);
       expect(result).toEqual({ ...command });
+    });
+  });
+
+  describe("OT with MOVE_REFERENCES", () => {
+    const moveReferencesCmd: MoveReferencesCommand = {
+      type: "MOVE_REFERENCES",
+      sheetId,
+      zone: toZone("A1:B2"),
+      targetSheetId: "Sheet2",
+      targetCol: 0,
+      targetRow: 0,
+    };
+
+    test("Columns added before origin zone", () => {
+      const addColumnsCmd = { ...addColumnsBefore, quantity: 2, base: 0 };
+      const result = transform(moveReferencesCmd, addColumnsCmd);
+      expect(result).toEqual({ ...moveReferencesCmd, zone: toZone("C1:D2") });
+    });
+
+    test("Columns added inside origin zone", () => {
+      const addColumnsCmd = { ...addColumnsBefore, quantity: 2, base: 1 };
+      const result = transform(moveReferencesCmd, addColumnsCmd);
+      expect(result).toEqual({ ...moveReferencesCmd, zone: toZone("A1:D2") });
+    });
+
+    test("Columns added after origin zone", () => {
+      const addColumnsCmd = { ...addColumnsAfter, quantity: 2, base: 2 };
+      const result = transform(moveReferencesCmd, addColumnsCmd);
+      expect(result).toEqual(moveReferencesCmd);
+    });
+
+    test("Columns added before target position", () => {
+      const addColumnsCmd = { ...addColumnsBefore, quantity: 2, base: 0, sheetId: "Sheet2" };
+      const result = transform(moveReferencesCmd, addColumnsCmd);
+      expect(result).toEqual({ ...moveReferencesCmd, targetCol: 2 });
+    });
+
+    test("Columns added after target position", () => {
+      const addColumnsCmd = { ...addColumnsAfter, quantity: 2, base: 2, sheetId: "Sheet2" };
+      const result = transform(moveReferencesCmd, addColumnsCmd);
+      expect(result).toEqual(moveReferencesCmd);
     });
   });
 });

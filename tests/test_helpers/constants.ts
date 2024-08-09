@@ -325,13 +325,13 @@ export const TEST_COMMANDS: CommandMapping = {
     sheetId: "sheetId",
     areGridLinesVisible: true,
   },
-  MOVE_RANGES: {
-    type: "MOVE_RANGES",
-    target: target("A1"),
+  MOVE_REFERENCES: {
+    type: "MOVE_REFERENCES",
+    zone: toZone("A1"),
     sheetId: "sheetId",
     targetSheetId: "sheetId",
-    col: 0,
-    row: 0,
+    targetCol: 0,
+    targetRow: 0,
   },
   SET_ZONE_BORDERS: {
     type: "SET_ZONE_BORDERS",

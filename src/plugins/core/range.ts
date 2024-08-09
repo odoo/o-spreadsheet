@@ -1,5 +1,7 @@
 import {
+  RangeImpl,
   createAdaptedZone,
+  deepEquals,
   getCanonicalSheetName,
   groupConsecutive,
   isZoneInside,
@@ -7,7 +9,6 @@ import {
   largeMax,
   largeMin,
   numberToLetters,
-  RangeImpl,
   rangeReference,
   recomputeZones,
   splitReference,
@@ -18,6 +19,7 @@ import { CellErrorType } from "../../types/errors";
 import {
   ApplyRangeChange,
   ApplyRangeChangeResult,
+  CellPosition,
   ChangeType,
   Command,
   CommandHandler,
@@ -53,15 +55,13 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     "recomputeRanges",
     "isRangeValid",
     "removeRangesSheetPrefix",
+    "moveRangeInsideZone",
   ] as const;
 
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
   allowDispatch(cmd: Command): CommandResult {
-    if (cmd.type === "MOVE_RANGES") {
-      return cmd.target.length === 1 ? CommandResult.Success : CommandResult.InvalidZones;
-    }
     return CommandResult.Success;
   }
   beforeHandle(command: Command) {}
@@ -183,24 +183,6 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
             return { changeType: "CHANGE", range: newRange };
           }
           return { changeType: "NONE" };
-        });
-        break;
-      }
-      case "MOVE_RANGES": {
-        const originZone = cmd.target[0];
-        this.executeOnAllRanges((range: RangeImpl) => {
-          if (range.sheetId !== cmd.sheetId || !isZoneInside(range.zone, originZone)) {
-            return { changeType: "NONE" };
-          }
-          const targetSheetId = cmd.targetSheetId;
-          const offsetX = cmd.col - originZone.left;
-          const offsetY = cmd.row - originZone.top;
-          const adaptedRange = this.createAdaptedRange(range, "both", "MOVE", [offsetX, offsetY]);
-          const prefixSheet = cmd.sheetId === targetSheetId ? adaptedRange.prefixSheet : true;
-          return {
-            changeType: "MOVE",
-            range: adaptedRange.clone({ sheetId: targetSheetId, prefixSheet }),
-          };
         });
         break;
       }
@@ -486,6 +468,33 @@ export class RangeAdapter implements CommandHandler<CoreCommand> {
     const zones = ranges.map((range) => RangeImpl.fromRange(range, this.getters).unboundedZone);
     const unionOfZones = unionUnboundedZones(...zones);
     return this.getRangeFromZone(ranges[0].sheetId, unionOfZones);
+  }
+
+  /**
+   * Get the changed range if the given zone is moved to the target position
+   */
+  moveRangeInsideZone(
+    range: Range,
+    originSheetId: UID,
+    originZone: Zone,
+    target: CellPosition
+  ): ApplyRangeChangeResult {
+    const rangeImpl = RangeImpl.fromRange(range, this.getters);
+    const { col, row, sheetId: targetSheetId } = target;
+    if (range.sheetId !== originSheetId || !isZoneInside(range.zone, originZone)) {
+      return { changeType: "NONE" };
+    }
+    const offsetX = col - originZone.left;
+    const offsetY = row - originZone.top;
+    const adaptedRange = this.createAdaptedRange(rangeImpl, "both", "MOVE", [offsetX, offsetY]);
+    if (targetSheetId === originSheetId && deepEquals(adaptedRange.zone, range.zone)) {
+      return { changeType: "NONE" };
+    }
+    const prefixSheet = adaptedRange.sheetId === targetSheetId ? adaptedRange.prefixSheet : true;
+    return {
+      changeType: "MOVE",
+      range: adaptedRange.clone({ sheetId: targetSheetId, prefixSheet }),
+    };
   }
 
   // ---------------------------------------------------------------------------
