@@ -1,5 +1,6 @@
 import { compile } from "../../../formulas";
 import { handleError, implementationErrorMessage } from "../../../functions";
+import { matrixMap } from "../../../functions/helpers";
 import { lazy, positionToZone, toXC, union, unionPositionsToZone } from "../../../helpers";
 import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells";
 import { ModelConfig } from "../../../model";
@@ -11,6 +12,7 @@ import {
   EvaluatedCell,
   FormulaCell,
   FunctionResultObject,
+  GetSymbolValue,
   Getters,
   Matrix,
   Range,
@@ -19,7 +21,12 @@ import {
   Zone,
   isMatrix,
 } from "../../../types";
-import { CellErrorType, CircularDependencyError, SplillBlockedError } from "../../../types/errors";
+import {
+  BadExpressionError,
+  CellErrorType,
+  CircularDependencyError,
+  SplillBlockedError,
+} from "../../../types/errors";
 import { CompilationParameters, buildCompilationParameters } from "./compilation_parameters";
 import { FormulaDependencyGraph } from "./formula_dependency_graph";
 import { PositionMap } from "./position_map";
@@ -200,12 +207,10 @@ export class Evaluator {
     );
     this.updateCompilationParameters();
     try {
-      const result = updateEvalContextAndExecute(
-        { ...compiledFormula, dependencies: ranges },
-        this.compilationParams,
-        sheetId,
-        undefined
-      );
+      const result = this.evaluateCompiledFormula(sheetId, {
+        ...compiledFormula,
+        dependencies: ranges,
+      });
       if (isMatrix(result)) {
         return result;
       }
@@ -216,6 +221,24 @@ export class Evaluator {
     } catch (error) {
       return handleError(error, "");
     }
+  }
+
+  evaluateCompiledFormula(
+    sheetId: UID,
+    compiledFormula: RangeCompiledFormula,
+    getContextualSymbolValue?: GetSymbolValue
+  ) {
+    const result = updateEvalContextAndExecute(
+      compiledFormula,
+      this.compilationParams,
+      sheetId,
+      this.buildSafeGetSymbolValue(getContextualSymbolValue),
+      this.compilationParams.evalContext.__originCellPosition
+    );
+    if (isMatrix(result)) {
+      return matrixMap(result, nullValueToZeroValue);
+    }
+    return nullValueToZeroValue(result);
   }
 
   private getAllCells(): PositionSet {
@@ -248,6 +271,7 @@ export class Evaluator {
 
   private nextPositionsToUpdate = new PositionSet({});
   private cellsBeingComputed = new Set<UID>();
+  private symbolsBeingComputed = new Set<string>();
 
   private evaluate(positions: PositionSet) {
     this.cellsBeingComputed = new Set<UID>();
@@ -324,6 +348,7 @@ export class Evaluator {
       cellData.compiledFormula,
       this.compilationParams,
       formulaPosition.sheetId,
+      this.buildSafeGetSymbolValue(),
       formulaPosition
     );
 
@@ -507,6 +532,29 @@ export class Evaluator {
     this.nextPositionsToUpdate.addMany(this.getArrayFormulasBlockedBy(invalidated));
   }
 
+  /**
+   * Wraps a GetSymbolValue function to add cycle detection
+   * and error handling.
+   */
+  private buildSafeGetSymbolValue(getContextualSymbolValue?: GetSymbolValue): GetSymbolValue {
+    const getSymbolValue = (symbolName: string) => {
+      if (this.symbolsBeingComputed.has(symbolName)) {
+        return ERROR_CYCLE_CELL;
+      }
+      this.symbolsBeingComputed.add(symbolName);
+      try {
+        const symbolValue = getContextualSymbolValue?.(symbolName);
+        if (symbolValue) {
+          return symbolValue;
+        }
+        return new BadExpressionError(_t("Invalid formula"));
+      } finally {
+        this.symbolsBeingComputed.delete(symbolName);
+      }
+    };
+    return getSymbolValue;
+  }
+
   // ----------------------------------------------------------
   //                 COMMON FUNCTIONALITY
   // ----------------------------------------------------------
@@ -562,6 +610,7 @@ export function updateEvalContextAndExecute(
   compiledFormula: RangeCompiledFormula,
   compilationParams: CompilationParameters,
   sheetId: UID,
+  getSymbolValue: GetSymbolValue,
   originCellPosition: CellPosition | undefined
 ) {
   compilationParams.evalContext.__originCellPosition = originCellPosition;
@@ -570,6 +619,7 @@ export function updateEvalContextAndExecute(
     compiledFormula.dependencies,
     compilationParams.referenceDenormalizer,
     compilationParams.ensureRange,
+    getSymbolValue,
     compilationParams.evalContext
   );
 }

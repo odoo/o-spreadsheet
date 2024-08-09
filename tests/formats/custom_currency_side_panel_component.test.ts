@@ -315,7 +315,7 @@ describe("custom currency sidePanel component", () => {
       await setInputValueAndTrigger(selectors.inputCode, "USD");
       await setInputValueAndTrigger(selectors.formatProposals, proposalIndex);
       await click(fixture, selectors.applyFormat);
-      expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+      expect(dispatch).toHaveBeenCalledWith("SET_CONTEXTUAL_FORMAT", {
         sheetId: model.getters.getActiveSheetId(),
         target: model.getters.getSelectedZones(),
         format: formatResult,
@@ -345,7 +345,7 @@ describe("custom currency sidePanel component", () => {
           await setInputValueAndTrigger(selectors.availableCurrencies, availableCurrencyIndex);
           await setInputValueAndTrigger(selectors.formatProposals, concernedIndex);
           await click(fixture, selectors.applyFormat);
-          expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+          expect(dispatch).toHaveBeenCalledWith("SET_CONTEXTUAL_FORMAT", {
             sheetId: model.getters.getActiveSheetId(),
             target: model.getters.getSelectedZones(),
             format: expect.stringMatching(decimalPlacesRegexp),
@@ -377,7 +377,7 @@ describe("custom currency sidePanel component", () => {
           await setInputValueAndTrigger(selectors.availableCurrencies, availableCurrencyIndex);
           await setInputValueAndTrigger(selectors.formatProposals, concernedIndex);
           await click(fixture, selectors.applyFormat);
-          expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+          expect(dispatch).toHaveBeenCalledWith("SET_CONTEXTUAL_FORMAT", {
             sheetId: model.getters.getActiveSheetId(),
             target: model.getters.getSelectedZones(),
             format: expect.stringMatching(positionExpressionRegexp),
@@ -395,7 +395,7 @@ describe("custom currency sidePanel component", () => {
           await setInputValueAndTrigger(selectors.inputSymbol, "SYMBOL");
           await setInputValueAndTrigger(selectors.formatProposals, concernedIndex);
           await click(fixture, selectors.applyFormat);
-          expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+          expect(dispatch).toHaveBeenCalledWith("SET_CONTEXTUAL_FORMAT", {
             sheetId: model.getters.getActiveSheetId(),
             target: model.getters.getSelectedZones(),
             format: expect.stringMatching(twoDecimalPlacesRegex),
@@ -420,7 +420,7 @@ describe("custom currency sidePanel component", () => {
           await setInputValueAndTrigger(selectors.inputSymbol, "SYMBOL");
           await setInputValueAndTrigger(selectors.formatProposals, concernedIndex);
           await click(fixture, selectors.applyFormat);
-          expect(dispatch).toHaveBeenCalledWith("SET_FORMATTING", {
+          expect(dispatch).toHaveBeenCalledWith("SET_CONTEXTUAL_FORMAT", {
             sheetId: model.getters.getActiveSheetId(),
             target: model.getters.getSelectedZones(),
             format: expect.stringMatching(positionExpressionRegexp),

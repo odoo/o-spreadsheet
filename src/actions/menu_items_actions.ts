@@ -28,7 +28,7 @@ import { ActionSpec } from "./action";
 //------------------------------------------------------------------------------
 
 export function setFormatter(env: SpreadsheetChildEnv, format: Format) {
-  env.model.dispatch("SET_FORMATTING", {
+  env.model.dispatch("SET_CONTEXTUAL_FORMAT", {
     sheetId: env.model.getters.getActiveSheetId(),
     target: env.model.getters.getSelectedZones(),
     format,

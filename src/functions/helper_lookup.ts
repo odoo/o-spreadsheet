@@ -1,6 +1,6 @@
 import { zoneToXc } from "../helpers";
 import { _t } from "../translation";
-import { EvalContext, FunctionResultObject, Getters, Maybe, UID } from "../types";
+import { EvalContext, FunctionResultObject, Getters, Maybe, Range, UID } from "../types";
 import { EvaluationError, InvalidReferenceError } from "../types/errors";
 import { PivotCoreDefinition } from "../types/pivot";
 
@@ -40,23 +40,30 @@ export function addPivotDependencies(
   coreDefinition: PivotCoreDefinition
 ) {
   //TODO This function can be very costly when used with PIVOT.VALUE and PIVOT.HEADER
-  if (coreDefinition.type !== "SPREADSHEET" || !coreDefinition.dataSet) {
-    return;
+  const dependencies: Range[] = [];
+
+  if (coreDefinition.type === "SPREADSHEET" && coreDefinition.dataSet) {
+    const { sheetId, zone } = coreDefinition.dataSet;
+    const xc = zoneToXc(zone);
+    const range = evalContext.getters.getRangeFromSheetXC(sheetId, xc);
+    if (range === undefined || range.invalidXc || range.invalidSheetName) {
+      throw new InvalidReferenceError();
+    }
+    dependencies.push(range);
   }
-  const { sheetId, zone } = coreDefinition.dataSet;
+
+  for (const measure of coreDefinition.measures) {
+    if (measure.computedBy) {
+      const formula = evalContext.getters.getMeasureCompiledFormula(measure);
+      dependencies.push(...formula.dependencies.filter((range) => !range.invalidXc));
+    }
+  }
   const originPosition = evalContext.__originCellPosition;
-  if (originPosition) {
+  if (originPosition && dependencies.length) {
     // The following line is used to reset the dependencies of the cell, to avoid
     // keeping dependencies from previous evaluation of the PIVOT formula (i.e.
     // in case the reference has been changed).
     evalContext.updateDependencies?.(originPosition);
-  }
-  const xc = zoneToXc(zone);
-  const range = evalContext.getters.getRangeFromSheetXC(sheetId, xc);
-  if (range === undefined || range.invalidXc || range.invalidSheetName) {
-    throw new InvalidReferenceError();
-  }
-  if (originPosition) {
-    evalContext.addDependencies?.(originPosition, [range]);
+    evalContext.addDependencies?.(originPosition, dependencies);
   }
 }

@@ -36,6 +36,7 @@ export class AddDimensionButton extends Component<Props, SpreadsheetChildEnv> {
   static props = {
     onFieldPicked: Function,
     fields: Array,
+    slots: { type: Object, optional: true },
   };
 
   private buttonRef = useRef("button");

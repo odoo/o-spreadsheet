@@ -144,7 +144,7 @@ export class CustomCurrencyPanel extends Component<Props, SpreadsheetChildEnv> {
 
   apply() {
     const selectedFormat = this.formatProposals[this.state.selectedFormatIndex];
-    this.env.model.dispatch("SET_FORMATTING", {
+    this.env.model.dispatch("SET_CONTEXTUAL_FORMAT", {
       sheetId: this.env.model.getters.getActiveSheetId(),
       target: this.env.model.getters.getSelectedZones(),
       format: selectedFormat.format,

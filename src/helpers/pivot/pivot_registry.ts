@@ -17,7 +17,7 @@ export interface PivotCoreParams {
   getters: CoreGetters;
 }
 
-type PivotUIConstructor = new (custom: ModelConfig["custom"], params: PivotParams) => Pivot;
+export type PivotUIConstructor = new (custom: ModelConfig["custom"], params: PivotParams) => Pivot;
 
 type PivotDefinitionConstructor = new (
   definition: PivotCoreDefinition,

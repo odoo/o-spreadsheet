@@ -1,4 +1,5 @@
 import { CellValue } from "./cells";
+import { Format } from "./format";
 import { Locale } from "./locale";
 import { FunctionResultObject, UID, Zone } from "./misc";
 
@@ -39,6 +40,9 @@ export interface PivotCoreMeasure {
   userDefinedName?: string;
   fieldName: string;
   aggregator: Aggregator | string;
+  isHidden?: boolean;
+  format?: Format;
+  computedBy?: { sheetId: UID; formula: string };
 }
 
 export interface CommonPivotCoreDefinition {
@@ -153,3 +157,12 @@ export interface PivotNode {
 }
 
 export type PivotDomain = PivotNode[];
+
+export interface DimensionTreeNode {
+  value: CellValue;
+  field: string;
+  children: DimensionTree;
+  width: number;
+}
+
+export type DimensionTree = DimensionTreeNode[];

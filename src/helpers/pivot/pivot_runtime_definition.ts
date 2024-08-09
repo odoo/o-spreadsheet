@@ -78,7 +78,10 @@ function createMeasure(fields: PivotFields, measure: PivotCoreMeasure): PivotMea
      * e.g. "stage_id" -> "many2one", "create_date:month" -> "date"
      */
     type: fieldName === "__count" ? "integer" : field?.type ?? "integer",
-    isValid: !!field,
+    isValid: !!(field || measure.computedBy),
+    isHidden: measure.isHidden,
+    format: measure.format,
+    computedBy: measure.computedBy,
   };
 }
 

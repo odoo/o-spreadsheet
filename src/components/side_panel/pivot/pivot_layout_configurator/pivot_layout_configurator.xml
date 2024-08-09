@@ -55,35 +55,30 @@
       <div
         class="fw-bold pt-4 pb-1 d-flex flex-row justify-content-between align-items-center o-section-title o-pivot-measure">
         Measures
-        <AddDimensionButton onFieldPicked.bind="addMeasureDimension" fields="props.measureFields"/>
+        <AddDimensionButton onFieldPicked.bind="addMeasureDimension" fields="props.measureFields">
+          <div
+            t-on-click="addCalculatedMeasure"
+            class="p-2 bg-white border-top d-flex align-items-center sticky-bottom add-calculated-measure">
+            <i class="pe-1">
+              <t t-call="o-spreadsheet-Icon.FORMULA"/>
+            </i>
+            Add calculated measure
+          </div>
+        </AddDimensionButton>
       </div>
       <t t-foreach="props.definition.measures" t-as="measure" t-key="measure.id">
         <div
           t-on-pointerdown="(ev) => this.startDragAndDropMeasures(measure, ev)"
           t-att-style="dragAndDrop.itemsStyle[measure.id]"
+          t-att-class="measure.isHidden ? 'opacity-50' : ''"
           class="pt-1 pivot-measure">
-          <PivotDimension
-            dimension="measure"
-            onRemoved.bind="removeMeasureDimension"
-            onNameUpdated.bind="onMeasureNameUpdated">
-            <div class="d-flex flex-column small">
-              <div class="d-flex py-1 px-2 w-100">
-                <div class="pivot-dim-operator-label">Aggregated by</div>
-                <select
-                  class="o_input flex-grow-1 me-3"
-                  t-on-change="(ev) => this.updateAggregator(measure, ev.target.value)">
-                  <option
-                    t-foreach="Object.keys(AGGREGATORS[measure.type])"
-                    t-as="agg"
-                    t-key="agg"
-                    t-att-value="agg"
-                    t-att-selected="agg === measure.aggregator"
-                    t-esc="AGGREGATORS[measure.type][agg]"
-                  />
-                </select>
-              </div>
-            </div>
-          </PivotDimension>
+          <PivotMeasureEditor
+            definition="props.definition"
+            measure="measure"
+            onRemoved="() => this.removeMeasureDimension(measure)"
+            onMeasureUpdated="(newMeasure) => this.updateMeasure(measure, newMeasure)"
+            generateMeasureId.bind="getMeasureId"
+          />
         </div>
       </t>
     </div>

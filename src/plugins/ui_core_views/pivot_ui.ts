@@ -4,14 +4,17 @@ import {
   getFirstPivotFunction,
   getNumberOfPivotFunctions,
 } from "../../helpers/pivot/pivot_composer_helpers";
+import { withPivotPresentationLayer } from "../../helpers/pivot/pivot_presentation";
 import { pivotRegistry } from "../../helpers/pivot/pivot_registry";
 import { EMPTY_PIVOT_CELL } from "../../helpers/pivot/table_spreadsheet_pivot";
+import { _t } from "../../translation";
 import {
   AddPivotCommand,
   CellPosition,
   Command,
   CoreCommand,
   FunctionResultObject,
+  PivotCoreMeasure,
   PivotTableCell,
   UID,
   UpdatePivotCommand,
@@ -32,6 +35,7 @@ export class PivotUIPlugin extends UIPlugin {
     "getFirstPivotFunction",
     "getPivotIdFromPosition",
     "getPivotCellFromPosition",
+    "generateNewCalculatedMeasureName",
     "isPivotUnused",
     "isSpillPivotFormula",
   ] as const;
@@ -240,6 +244,17 @@ export class PivotUIPlugin extends UIPlugin {
     }
   }
 
+  generateNewCalculatedMeasureName(measures: PivotCoreMeasure[]) {
+    const existingMeasures = measures.map((m) => m.fieldName);
+    let i = 1;
+    let name = _t("Calculated measure %s", i);
+    while (existingMeasures.includes(name)) {
+      i++;
+      name = _t("Calculated measure %s", i);
+    }
+    return name;
+  }
+
   getPivot(pivotId: UID) {
     return this.pivots[pivotId];
   }
@@ -263,7 +278,7 @@ export class PivotUIPlugin extends UIPlugin {
   setupPivot(pivotId: UID, { recreate } = { recreate: false }) {
     const definition = this.getters.getPivotCoreDefinition(pivotId);
     if (recreate || !(pivotId in this.pivots)) {
-      const Pivot = pivotRegistry.get(definition.type).ui;
+      const Pivot = withPivotPresentationLayer(pivotRegistry.get(definition.type).ui);
       this.pivots[pivotId] = new Pivot(this.custom, { definition, getters: this.getters });
     }
   }
