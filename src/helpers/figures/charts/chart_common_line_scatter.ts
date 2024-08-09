@@ -423,6 +423,15 @@ export function createLineOrScatterChartRuntime(
      * distinguish the originals and trendLine datasets after
      */
     trendDatasets.forEach((x) => config.data.datasets!.push(x));
+
+    const originalTooltipTitle = config.options.plugins!.tooltip!.callbacks!.title;
+    config.options.plugins!.tooltip!.callbacks!.title = function (tooltipItem) {
+      if (tooltipItem.some((item) => item.dataset.xAxisID !== TREND_LINE_XAXIS_ID)) {
+        // @ts-expect-error
+        return originalTooltipTitle?.(tooltipItem);
+      }
+      return "";
+    };
   }
 
   return {
