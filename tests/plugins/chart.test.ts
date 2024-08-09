@@ -417,6 +417,47 @@ describe("datasource tests", function () {
     expect(title).toBeUndefined();
   });
 
+  test("empty datasets are filtered", () => {
+    model = new Model({
+      sheets: [
+        {
+          name: "Sheet1",
+          colNumber: 10,
+          rowNumber: 10,
+          rows: {},
+          cells: {
+            A2: { content: "P1" },
+            A3: { content: "P2" },
+            A4: { content: "P3" },
+            A5: { content: "P4" },
+            B1: { content: "first column dataset" },
+            B2: { content: "10" },
+            B3: { content: "11" },
+            B4: { content: "12" },
+            B5: { content: "13" },
+            C1: { content: "" },
+            C2: { content: "" },
+            C3: { content: "" },
+            C4: { content: "" },
+            C5: { content: "" },
+          },
+        },
+      ],
+    });
+    createChart(
+      model,
+      {
+        dataSets: ["Sheet1!B1:B5", "Sheet1!C1:C5"],
+        labelRange: "Sheet1!A2:A5",
+        dataSetsHaveTitle: true,
+        type: "line",
+      },
+      "1"
+    );
+    const chart = model.getters.getChartRuntime("1")!;
+    expect(chart.data!.datasets?.length).toEqual(1);
+  });
+
   test("can delete an imported chart", () => {
     const sheetId = model.getters.getActiveSheetId();
     createChart(
@@ -689,8 +730,7 @@ describe("datasource tests", function () {
     );
     deleteRows(model, [1, 2, 3, 4]);
     const chart = model.getters.getChartRuntime("1")!;
-    expect(chart.data!.datasets![0].data).toEqual([]);
-    expect(chart.data!.datasets![1].data).toEqual([]);
+    expect(chart.data!.datasets?.length).toEqual(0);
     expect(chart.data!.labels).toEqual([]);
   });
 
@@ -1485,6 +1525,8 @@ describe("Chart without labels", () => {
   test("Labels are empty if there is only one dataSet and no label", () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
+    setCellContent(model, "A3", "3");
+    setCellContent(model, "A4", "4");
     createChart(model, defaultChart, "42");
     expect(model.getters.getChartRuntime("42")?.data?.labels).toEqual(["", ""]);
 
@@ -1588,10 +1630,10 @@ describe("Chart evaluation", () => {
       },
       "1"
     );
-    expect(model.getters.getChartRuntime("1")!.data!.datasets![0]!.data![0]).toBeNull();
+    expect(model.getters.getChartRuntime("1")!.data!.datasets?.length).toBe(0);
     setCellContent(model, "C3", "1");
     expect(model.getters.getChartRuntime("1")!.data!.datasets![0]!.data![0]).toBe(1);
     deleteColumns(model, ["C"]);
-    expect(model.getters.getChartRuntime("1")!.data!.datasets![0]!.data![0]).toBe("#ERROR");
+    expect(model.getters.getChartRuntime("1")!.data!.datasets?.length).toBe(0);
   });
 });
