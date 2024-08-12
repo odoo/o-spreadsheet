@@ -34,7 +34,9 @@ interface LineAttributes {
  * The value does not matter, it can be hardcoded.
  */
 const catAxId = 17781237;
+const secondaryCatAxId = 17781238;
 const valAxId = 88853993;
+const secondaryValAxId = 88853994;
 
 export function createChart(
   chart: FigureData<ExcelChartDefinition>,
@@ -398,8 +400,8 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
       <!-- each data marker in the series does not have a different color -->
       <c:varyColors val="0"/>
       ${barDataSetNode}
-      <c:axId val="${catAxId + (useRightAxisForBarSerie ? 1 : 0)}" />
-      <c:axId val="${valAxId + (useRightAxisForBarSerie ? 1 : 0)}" />
+      <c:axId val="${useRightAxisForBarSerie ? secondaryCatAxId : catAxId}" />
+      <c:axId val="${useRightAxisForBarSerie ? secondaryValAxId : valAxId}" />
     </c:barChart>
     ${
       leftDataSetsNodes.length
@@ -423,8 +425,8 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
           <!-- each data marker in the series does not have a different color -->
           <c:varyColors val="0"/>
           ${joinXmlNodes(rightDataSetsNodes)}
-          <c:axId val="${catAxId + 1}" />
-          <c:axId val="${valAxId + 1}" />
+          <c:axId val="${secondaryCatAxId}" />
+          <c:axId val="${secondaryValAxId}" />
         </c:lineChart>
       `
         : ""
@@ -435,20 +437,13 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
         ${addAx(
           "b",
           "c:catAx",
-          catAxId + 1,
-          valAxId + 1,
+          catAxId,
+          valAxId,
           chart.axesDesign?.x?.title,
           chart.fontColor,
           leftDataSetsNodes.length ? 1 : 0
         )}
-        ${addAx(
-          "r",
-          "c:valAx",
-          valAxId + 1,
-          catAxId + 1,
-          chart.axesDesign?.y1?.title,
-          chart.fontColor
-        )}
+        ${addAx("l", "c:valAx", valAxId, catAxId, chart.axesDesign?.y?.title, chart.fontColor)}
       `
         : ""
     }
@@ -458,13 +453,20 @@ function addComboChart(chart: ExcelChartDefinition): XMLString {
         ${addAx(
           "b",
           "c:catAx",
-          catAxId,
-          valAxId,
+          secondaryCatAxId,
+          secondaryValAxId,
           chart.axesDesign?.x?.title,
           chart.fontColor,
           leftDataSetsNodes.length || !useRightAxisForBarSerie ? 1 : 0
         )}
-        ${addAx("l", "c:valAx", valAxId, catAxId, chart.axesDesign?.y?.title, chart.fontColor)}
+        ${addAx(
+          "r",
+          "c:valAx",
+          secondaryValAxId,
+          secondaryCatAxId,
+          chart.axesDesign?.y1?.title,
+          chart.fontColor
+        )}
       `
         : ""
     }
