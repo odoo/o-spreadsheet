@@ -171,6 +171,10 @@ describe("parser", () => {
     expect(() => parse("#REF")).toThrowError(new InvalidReferenceError().message);
   });
 
+  test("Cannot parse empty string", () => {
+    expect(() => parse("")).toThrowError("Invalid expression");
+  });
+
   test("AND", () => {
     expect(parse("=AND(true, false)")).toEqual({
       type: "FUNCALL",
