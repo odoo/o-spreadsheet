@@ -8557,8 +8557,8 @@ exports[`Test XLSX export Charts simple combo chart with customized axis 1`] = `
                 <c:axId val="88853994"/>
             </c:barChart>
             <c:catAx>
-                <c:axId val="17781237"/>
-                <c:crossAx val="88853993"/>
+                <c:axId val="17781238"/>
+                <c:crossAx val="88853994"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
                 <c:delete val="0"/>
@@ -8621,16 +8621,16 @@ exports[`Test XLSX export Charts simple combo chart with customized axis 1`] = `
             </c:catAx>
             <!-- <tickLblPos/> omitted -->
             <c:valAx>
-                <c:axId val="88853993"/>
-                <c:crossAx val="17781237"/>
+                <c:axId val="88853994"/>
+                <c:crossAx val="17781238"/>
                 <!-- reference to the other axe of the chart -->
-                <c:crosses val="min"/>
+                <c:crosses val="max"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
-                <c:axPos val="l"/>
+                <c:axPos val="r"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -8652,7 +8652,7 @@ exports[`Test XLSX export Charts simple combo chart with customized axis 1`] = `
                                 <a:pPr lvl="0">
                                     <a:defRPr b="1" i="1">
                                         <a:solidFill>
-                                            <a:srgbClr val="00FF00"/>
+                                            <a:srgbClr val="0000FF"/>
                                         </a:solidFill>
                                         <a:latin typeface="+mn-lt"/>
                                     </a:defRPr>
@@ -8661,7 +8661,7 @@ exports[`Test XLSX export Charts simple combo chart with customized axis 1`] = `
                                     <!-- Runs -->
                                     <a:rPr b="1" i="1" sz="1000"/>
                                     <a:t>
-                                        Coucou 2
+                                        Coucou 3
                                     </a:t>
                                 </a:r>
                             </a:p>
@@ -9124,8 +9124,8 @@ exports[`Test XLSX export Charts simple combo chart with customized dataset 1`] 
                 <c:axId val="88853993"/>
             </c:barChart>
             <c:catAx>
-                <c:axId val="17781238"/>
-                <c:crossAx val="88853994"/>
+                <c:axId val="17781237"/>
+                <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
                 <c:delete val="0"/>
@@ -9186,16 +9186,16 @@ exports[`Test XLSX export Charts simple combo chart with customized dataset 1`] 
             </c:catAx>
             <!-- <tickLblPos/> omitted -->
             <c:valAx>
-                <c:axId val="88853994"/>
-                <c:crossAx val="17781238"/>
+                <c:axId val="88853993"/>
+                <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
-                <c:crosses val="max"/>
+                <c:crosses val="min"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
-                <c:axPos val="r"/>
+                <c:axPos val="l"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -9689,8 +9689,8 @@ exports[`Test XLSX export Charts simple combo chart with customized title 1`] = 
                 <c:axId val="88853993"/>
             </c:barChart>
             <c:catAx>
-                <c:axId val="17781238"/>
-                <c:crossAx val="88853994"/>
+                <c:axId val="17781237"/>
+                <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
                 <c:delete val="0"/>
@@ -9751,16 +9751,16 @@ exports[`Test XLSX export Charts simple combo chart with customized title 1`] = 
             </c:catAx>
             <!-- <tickLblPos/> omitted -->
             <c:valAx>
-                <c:axId val="88853994"/>
-                <c:crossAx val="17781238"/>
+                <c:axId val="88853993"/>
+                <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
-                <c:crosses val="max"/>
+                <c:crosses val="min"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
-                <c:axPos val="r"/>
+                <c:axPos val="l"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -10254,8 +10254,8 @@ exports[`Test XLSX export Charts simple combo chart with dataset [ [Object] ] 1`
                 <c:axId val="88853993"/>
             </c:barChart>
             <c:catAx>
-                <c:axId val="17781238"/>
-                <c:crossAx val="88853994"/>
+                <c:axId val="17781237"/>
+                <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
                 <c:delete val="0"/>
@@ -10316,16 +10316,16 @@ exports[`Test XLSX export Charts simple combo chart with dataset [ [Object] ] 1`
             </c:catAx>
             <!-- <tickLblPos/> omitted -->
             <c:valAx>
-                <c:axId val="88853994"/>
-                <c:crossAx val="17781238"/>
+                <c:axId val="88853993"/>
+                <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
-                <c:crosses val="max"/>
+                <c:crosses val="min"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
-                <c:axPos val="r"/>
+                <c:axPos val="l"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
@@ -10878,8 +10878,8 @@ exports[`Test XLSX export Charts simple combo chart with dataset [ [Object], [Ob
                 <c:axId val="88853993"/>
             </c:lineChart>
             <c:catAx>
-                <c:axId val="17781238"/>
-                <c:crossAx val="88853994"/>
+                <c:axId val="17781237"/>
+                <c:crossAx val="88853993"/>
                 <!-- reference to the other axe of the chart -->
                 <c:crosses val="min"/>
                 <c:delete val="1"/>
@@ -10940,16 +10940,16 @@ exports[`Test XLSX export Charts simple combo chart with dataset [ [Object], [Ob
             </c:catAx>
             <!-- <tickLblPos/> omitted -->
             <c:valAx>
-                <c:axId val="88853994"/>
-                <c:crossAx val="17781238"/>
+                <c:axId val="88853993"/>
+                <c:crossAx val="17781237"/>
                 <!-- reference to the other axe of the chart -->
-                <c:crosses val="max"/>
+                <c:crosses val="min"/>
                 <c:delete val="0"/>
                 <!-- by default, axis are not displayed -->
                 <c:scaling>
                     <c:orientation val="minMax"/>
                 </c:scaling>
-                <c:axPos val="r"/>
+                <c:axPos val="l"/>
                 <c:majorGridlines>
                     <c:spPr>
                         <a:ln cmpd="sng">
