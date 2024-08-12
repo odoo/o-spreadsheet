@@ -1,4 +1,4 @@
-import { getCanonicalSheetName, getUnquotedSheetName } from "./misc";
+import { getCanonicalSymbolName, getUnquotedSheetName } from "./misc";
 
 /** Reference of a cell (eg. A1, $B$5) */
 export const cellReference = new RegExp(/\$?([A-Z]{1,3})\$?([0-9]{1,7})/, "i");
@@ -76,5 +76,5 @@ export function splitReference(ref: string): { sheetName?: string; xc: string } 
 
 /** Return a reference SheetName!xc from the given arguments */
 export function getFullReference(sheetName: string | undefined, xc: string): string {
-  return sheetName !== undefined ? `${getCanonicalSheetName(sheetName)}!${xc}` : xc;
+  return sheetName !== undefined ? `${getCanonicalSymbolName(sheetName)}!${xc}` : xc;
 }

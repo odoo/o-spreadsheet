@@ -1,5 +1,5 @@
 import { FORBIDDEN_SHEET_CHARS } from "../../src/constants";
-import { getCanonicalSheetName, numberToLetters, toZone } from "../../src/helpers";
+import { getCanonicalSymbolName, numberToLetters, toZone } from "../../src/helpers";
 import { Model } from "../../src/model";
 import { CommandResult } from "../../src/types";
 import {
@@ -946,7 +946,7 @@ describe("sheets", () => {
     renameSheet(model, sheetId, name);
     expect(model.getters.getSheetIdByName(name)).toBe(sheetId);
     expect(model.getters.getSheetIdByName(`'${name}'`)).toBe(sheetId);
-    expect(model.getters.getSheetIdByName(getCanonicalSheetName(name))).toBe(sheetId);
+    expect(model.getters.getSheetIdByName(getCanonicalSymbolName(name))).toBe(sheetId);
   });
 
   test("getSheetIdByName with invalid name", () => {
