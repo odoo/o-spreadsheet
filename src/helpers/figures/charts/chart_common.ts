@@ -479,7 +479,7 @@ export function getTrendDatasetForBarChart(
   const filteredLabels: number[] = [];
   const labels: number[] = [];
   for (let i = 0; i < dataset.data.length; i++) {
-    if (dataset.data[i] !== null) {
+    if (typeof dataset.data[i] === "number") {
       filteredValues.push(dataset.data[i]);
       filteredLabels.push(i + 1);
     }
@@ -531,7 +531,7 @@ export function interpolateData(
   labels: number[],
   newLabels: number[]
 ): number[] {
-  if (values.length === 0 || labels.length === 0 || newLabels.length === 0) {
+  if (values.length < 2 || labels.length < 2 || newLabels.length === 0) {
     return [];
   }
   switch (config.type) {

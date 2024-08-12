@@ -136,10 +136,15 @@ export function getTrendDatasetForLineChart(
   const filteredLabels: number[] = [];
   const labels: number[] = [];
   const datasetLength = dataset.data.length;
+
+  if (datasetLength < 2) {
+    return;
+  }
+
   switch (axisType) {
     case "category":
       for (let i = 0; i < datasetLength; i++) {
-        if (dataset.data[i] !== null) {
+        if (typeof dataset.data[i] === "number") {
           filteredValues.push(dataset.data[i]);
           filteredLabels.push(i + 1);
         }
@@ -152,7 +157,7 @@ export function getTrendDatasetForLineChart(
         if (isNaN(label)) {
           continue;
         }
-        if (point.y !== null) {
+        if (typeof point.y === "number") {
           filteredValues.push(point.y);
           filteredLabels.push(label);
         }
@@ -162,7 +167,7 @@ export function getTrendDatasetForLineChart(
     case "time":
       for (const point of dataset.data) {
         const date = toJsDate({ value: point.x }, locale).getTime();
-        if (point.y !== null) {
+        if (typeof point.y === "number") {
           filteredValues.push(point.y);
           filteredLabels.push(date);
         }
