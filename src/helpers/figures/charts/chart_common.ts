@@ -492,7 +492,7 @@ export function getFullTrendingLineDataSet(
   config: TrendConfiguration,
   data: number[]
 ) {
-  const backgroundColor = config.color ?? lightenColor(dataset.backgroundColor as string, 0.5);
+  const backgroundColor = config.color || lightenColor(dataset.backgroundColor as string, 0.5);
   return {
     ...dataset,
     type: "line",
