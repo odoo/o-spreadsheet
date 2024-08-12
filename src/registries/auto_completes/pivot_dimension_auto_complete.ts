@@ -1,5 +1,5 @@
 import { tokenColors } from "../../components/composer/composer/composer";
-import { getCanonicalSheetName } from "../../helpers";
+import { getCanonicalSymbolName } from "../../helpers";
 import { PivotRuntimeDefinition } from "../../helpers/pivot/pivot_runtime_definition";
 import { PivotMeasure } from "../../types";
 import { AutoCompleteProviderDefinition } from "./auto_complete_registry";
@@ -16,7 +16,7 @@ export function createMeasureAutoComplete(
       const measureProposals = pivot.measures
         .filter((m) => m !== forComputedMeasure)
         .map((measure) => {
-          const text = getCanonicalSheetName(measure.id);
+          const text = getCanonicalSymbolName(measure.id);
           return {
             text: text,
             description: measure.displayName,
@@ -25,7 +25,7 @@ export function createMeasureAutoComplete(
           };
         });
       const dimensionsProposals = pivot.rows.concat(pivot.columns).map((dimension) => {
-        const text = getCanonicalSheetName(dimension.nameWithGranularity);
+        const text = getCanonicalSymbolName(dimension.nameWithGranularity);
         return {
           text: text,
           description: dimension.displayName,

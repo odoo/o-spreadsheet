@@ -2,7 +2,7 @@ import { CellComposerStore } from "../../src/components/composer/composer/cell_c
 import {
   DateTime,
   colors,
-  getCanonicalSheetName,
+  getCanonicalSymbolName,
   jsDateToRoundNumber,
   toXC,
   toZone,
@@ -893,7 +893,7 @@ describe("edition", () => {
 
   test.each(["sheet2", "sheet 2"])("Loop references on references with sheet name", (sheetName) => {
     createSheet(model, { name: sheetName });
-    const composerSheetName = getCanonicalSheetName(sheetName);
+    const composerSheetName = getCanonicalSymbolName(sheetName);
     composerStore.startEdition(`=${composerSheetName}!A1`);
     composerStore.cycleReferences();
     expect(composerStore.currentContent).toBe(`=${composerSheetName}!$A$1`);

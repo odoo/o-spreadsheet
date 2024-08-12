@@ -1,4 +1,4 @@
-import { getCanonicalSheetName } from "../../helpers";
+import { getCanonicalSymbolName } from "../../helpers";
 import { autoCompleteProviders } from "./auto_complete_registry";
 
 autoCompleteProviders.add("sheet_names", {
@@ -10,7 +10,7 @@ autoCompleteProviders.add("sheet_names", {
       (tokenAtCursor.type === "UNKNOWN" && tokenAtCursor.value.startsWith("'"))
     ) {
       return this.getters.getSheetIds().map((sheetId) => {
-        const sheetName = getCanonicalSheetName(this.getters.getSheetName(sheetId));
+        const sheetName = getCanonicalSymbolName(this.getters.getSheetName(sheetId));
         return {
           text: sheetName,
           fuzzySearchKey: sheetName.startsWith("'") ? sheetName : "'" + sheetName, // typing a single quote is a way to avoid matching function names

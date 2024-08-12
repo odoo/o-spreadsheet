@@ -98,15 +98,15 @@ export function unquote(string: string, quoteChar: "'" | '"' = '"'): string {
 }
 
 /**
- * Add quotes around the sheet name if it contains at least one non alphanumeric character
+ * Add quotes around the sheet name or any symbol name if it contains at least one non alphanumeric character
  * '\w' captures [0-9][a-z][A-Z] and _.
- * @param sheetName Name of the sheet
+ * @param symbolName Name of the sheet or symbol
  */
-export function getCanonicalSheetName(sheetName: string): string {
-  if (sheetName.match(/\w/g)?.length !== sheetName.length) {
-    sheetName = `'${sheetName}'`;
+export function getCanonicalSymbolName(symbolName: string): string {
+  if (symbolName.match(/\w/g)?.length !== symbolName.length) {
+    symbolName = `'${symbolName}'`;
   }
-  return sheetName;
+  return symbolName;
 }
 
 export function clip(val: number, min: number, max: number): number {
