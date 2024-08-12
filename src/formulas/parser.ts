@@ -241,7 +241,7 @@ export function parse(str: string): AST {
 
 export function parseTokens(tokens: Token[]): AST {
   tokens = tokens.filter((x) => x.type !== "SPACE");
-  if (tokens[0].type === "OPERATOR" && tokens[0].value === "=") {
+  if (tokens[0] && tokens[0].type === "OPERATOR" && tokens[0].value === "=") {
     tokens.splice(0, 1);
   }
   const result = parseExpression(tokens, 0);
