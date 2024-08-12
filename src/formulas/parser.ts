@@ -239,7 +239,7 @@ function parseExpression(tokens: Token[], bp: number): AST {
  */
 export function parse(str: NormalizedFormulaString): AST {
   const tokens = tokenize(str).filter((x) => x.type !== "SPACE");
-  if (tokens[0].type === "OPERATOR" && tokens[0].value === "=") {
+  if (tokens[0] && tokens[0].type === "OPERATOR" && tokens[0].value === "=") {
     tokens.splice(0, 1);
   }
   const result = parseExpression(tokens, 0);
