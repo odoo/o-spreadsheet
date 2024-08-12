@@ -1,5 +1,6 @@
 import { ChartDataset } from "chart.js";
 import { transformZone } from "../../../collaborative/ot/ot_helpers";
+import { LINE_FILL_TRANSPARENCY } from "../../../constants";
 import {
   evaluatePolynomial,
   expM,
@@ -33,7 +34,13 @@ import {
   TrendConfiguration,
 } from "../../../types/chart/chart";
 import { CellErrorType } from "../../../types/errors";
-import { ColorGenerator, lightenColor, relativeLuminance } from "../../color";
+import {
+  ColorGenerator,
+  colorToRGBA,
+  lightenColor,
+  relativeLuminance,
+  rgbaToHex,
+} from "../../color";
 import { formatValue } from "../../format/format";
 import { isDefined, range } from "../../misc";
 import { copyRangeWithNewSheetId } from "../../range";
@@ -492,7 +499,16 @@ export function getFullTrendingLineDataSet(
   config: TrendConfiguration,
   data: number[]
 ) {
-  const backgroundColor = config.color || lightenColor(dataset.backgroundColor as string, 0.5);
+  const defaultBorderColor = colorToRGBA(dataset.backgroundColor as Color);
+  defaultBorderColor.a = 1;
+
+  const borderColor = config.color || lightenColor(rgbaToHex(defaultBorderColor), 0.5);
+  const backgroundRGBA = colorToRGBA(borderColor);
+  // @ts-expect-error
+  if (dataset?.fill) {
+    backgroundRGBA.a = LINE_FILL_TRANSPARENCY; // to support area charts
+  }
+
   return {
     ...dataset,
     type: "line",
@@ -502,8 +518,8 @@ export function getFullTrendingLineDataSet(
     order: -1,
     showLine: true,
     pointRadius: 0,
-    backgroundColor,
-    borderColor: backgroundColor,
+    backgroundColor: rgbaToHex(backgroundRGBA),
+    borderColor,
     borderDash: [5, 5],
     borderWidth: undefined,
   };
