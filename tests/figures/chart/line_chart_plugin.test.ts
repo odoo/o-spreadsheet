@@ -1,7 +1,7 @@
 import { ChartCreationContext, Model } from "../../../src";
 import { LineChart } from "../../../src/helpers/figures/charts";
 import { isChartAxisStacked } from "../../test_helpers/chart_helpers";
-import { createChart, updateChart } from "../../test_helpers/commands_helpers";
+import { createChart, setCellContent, updateChart } from "../../test_helpers/commands_helpers";
 
 describe("line chart", () => {
   test("create line chart from creation context", () => {
@@ -93,5 +93,41 @@ describe("line chart", () => {
     expect(runtime.chartJsConfig.data.datasets[1].backgroundColor).toBe("#EA617566");
     expect(isChartAxisStacked(model, "chartId", "x")).toBeUndefined();
     expect(isChartAxisStacked(model, "chartId", "y")).toBe(true);
+  });
+
+  test("trend line opacity is preserved when choosing a custom color", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "data");
+    setCellContent(model, "A2", "3");
+    setCellContent(model, "A3", "4");
+    createChart(
+      model,
+      {
+        type: "line",
+        dataSets: [{ dataRange: "A1:A3", trend: { type: "polynomial", order: 1, display: true } }],
+        fillArea: true,
+        dataSetsHaveTitle: false,
+      },
+      "chartId"
+    );
+    let runtime = model.getters.getChartRuntime("chartId") as any;
+    expect(runtime.chartJsConfig.data.datasets[0].fill).toBe("origin");
+    expect(runtime.chartJsConfig.data.datasets[0].backgroundColor).toBe("#4EA7F266");
+    expect(runtime.chartJsConfig.data.datasets[1].fill).toBe("origin");
+    expect(runtime.chartJsConfig.data.datasets[1].backgroundColor).toBe("#A6D4F866");
+
+    updateChart(model, "chartId", {
+      dataSets: [
+        {
+          dataRange: "A1:A3",
+          trend: { type: "polynomial", order: 1, display: true, color: "#112233" },
+        },
+      ],
+    });
+
+    runtime = model.getters.getChartRuntime("chartId") as any;
+    expect(runtime.chartJsConfig.data.datasets[1].fill).toBe("origin");
+    expect(runtime.chartJsConfig.data.datasets[1].borderColor).toBe("#112233");
+    expect(runtime.chartJsConfig.data.datasets[1].backgroundColor).toBe("#11223366");
   });
 });
