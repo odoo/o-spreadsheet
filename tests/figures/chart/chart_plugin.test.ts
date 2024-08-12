@@ -29,7 +29,14 @@ import {
   updateChart,
   updateLocale,
 } from "../../test_helpers/commands_helpers";
-import { getPlugin, mockChart, nextTick, setGrid, target } from "../../test_helpers/helpers";
+import {
+  createModelFromGrid,
+  getPlugin,
+  mockChart,
+  nextTick,
+  setGrid,
+  target,
+} from "../../test_helpers/helpers";
 
 import { ChartTerms } from "../../../src/components/translations_terms";
 import { FIGURE_ID_SPLITTER, MAX_CHAR_LABEL } from "../../../src/constants";
@@ -2776,7 +2783,7 @@ test("trend line dataset are put after original dataset in the runtime", async (
     {
       dataSets: [
         {
-          dataRange: "A1:A4",
+          dataRange: "C1:C4",
           label: "serie_1",
           trend: {
             type: "polynomial",
@@ -2958,6 +2965,58 @@ describe("trending line", () => {
       const value = data.lenght;
       const expectedValue = Math.pow(1 + i * step, 2);
       expect(value).toEqual(expectedValue);
+    }
+  });
+
+  test("trend line is bypassed without sufficient dataset values", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "test");
+    createChart(
+      model,
+      {
+        type: "line",
+        dataSets: [{ dataRange: "A1", trend: { type: "polynomial", order: 1, display: true } }],
+        fillArea: true,
+      },
+      "chartId"
+    );
+    let runtime = model.getters.getChartRuntime("chartId") as LineChartRuntime;
+    expect(runtime.chartJsConfig.data.datasets).toHaveLength(1);
+    setCellContent(model, "A1", "5");
+    runtime = model.getters.getChartRuntime("chartId") as LineChartRuntime;
+    expect(runtime.chartJsConfig.data.datasets).toHaveLength(1);
+  });
+
+  test("trend line ignores invalid input data", () => {
+    const grid = {
+      A1: "1",
+      A2: "2",
+      A3: "3",
+      A4: "4",
+      B1: "1",
+      B2: "not a number",
+      B3: "9",
+      B4: "16",
+    };
+    const model = createModelFromGrid(grid);
+    createChart(
+      model,
+      {
+        type: "line",
+        dataSets: [{ dataRange: "B1:B4", trend: { type: "polynomial", order: 2, display: true } }],
+        labelRange: "A1:A4",
+        fillArea: true,
+        dataSetsHaveTitle: false,
+      },
+      "chartId"
+    );
+    const runtime = model.getters.getChartRuntime("chartId") as LineChartRuntime;
+    const data = runtime.chartJsConfig.data.datasets[1]?.data;
+    const step = (4 - 1) / (data.length - 1);
+    for (let i = 0; i < data.length; i++) {
+      const value = data[i];
+      const expectedValue = Math.pow(1 + i * step, 2);
+      expect(value).toBeCloseTo(expectedValue);
     }
   });
 });
