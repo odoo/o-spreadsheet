@@ -1,4 +1,5 @@
 import { CellValue } from "./cells";
+import { Format } from "./format";
 import { Locale } from "./locale";
 import { FunctionResultObject, UID, Zone } from "./misc";
 
@@ -70,6 +71,7 @@ export interface PivotField {
   string: string;
   aggregator?: string;
   help?: string;
+  format?: Format;
 }
 
 export type PivotFields = Record<TechnicalName, PivotField | undefined>;
@@ -78,6 +80,7 @@ export interface PivotMeasure extends PivotCoreMeasure {
   displayName: string;
   type: string;
   isValid: boolean;
+  format?: Format;
 }
 
 export interface PivotDimension extends PivotCoreDimension {

@@ -1,11 +1,10 @@
 import { boolAnd, boolOr } from "../../functions/helper_logical";
 import { countUnique, sum } from "../../functions/helper_math";
 import { average, countAny, max, min } from "../../functions/helper_statistical";
-import { inferFormat, toBoolean, toNumber, toString } from "../../functions/helpers";
+import { toBoolean, toNumber, toString } from "../../functions/helpers";
 import { Registry } from "../../registries/registry";
 import { _t } from "../../translation";
 import {
-  Arg,
   CellValue,
   DEFAULT_LOCALE,
   Format,
@@ -55,7 +54,7 @@ for (const type in AGGREGATORS_BY_FIELD_TYPE) {
 
 type AggregatorFN = {
   fn: (args: Matrix<FunctionResultObject>, locale?: Locale) => CellValue;
-  format: (data: Arg | undefined) => Format | undefined;
+  format: (fieldFormat: Format | undefined) => Format | undefined;
 };
 
 export const AGGREGATORS_FN: Record<string, AggregatorFN | undefined> = {
@@ -77,19 +76,19 @@ export const AGGREGATORS_FN: Record<string, AggregatorFN | undefined> = {
   },
   max: {
     fn: (args: Matrix<FunctionResultObject>, locale: Locale) => max([args], locale),
-    format: inferFormat,
+    format: (fieldFormat) => fieldFormat,
   },
   min: {
     fn: (args: Matrix<FunctionResultObject>, locale: Locale) => min([args], locale),
-    format: inferFormat,
+    format: (fieldFormat) => fieldFormat,
   },
   avg: {
     fn: (args: Matrix<FunctionResultObject>, locale: Locale) => average([args], locale),
-    format: inferFormat,
+    format: (fieldFormat) => fieldFormat,
   },
   sum: {
     fn: (args: Matrix<FunctionResultObject>, locale: Locale) => sum([args], locale),
-    format: inferFormat,
+    format: (fieldFormat) => fieldFormat,
   },
 };
 
