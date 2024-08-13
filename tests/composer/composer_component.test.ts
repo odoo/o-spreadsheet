@@ -926,6 +926,15 @@ describe("composer", () => {
     await nextTick();
     expect(composerStore.currentContent).toBe("5.,");
   });
+
+  test("Pressing F2 will toggle edition mode on ranges", async () => {
+    await startComposition("=A1+A2");
+    expect(composerStore.editionMode).toBe("editing");
+    await keyDown({ key: "F2" });
+    expect(composerStore.editionMode).toBe("selecting");
+    await keyDown({ key: "F2" });
+    expect(composerStore.editionMode).toBe("editing");
+  });
 });
 
 describe("composer formula color", () => {

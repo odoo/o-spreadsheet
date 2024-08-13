@@ -49,7 +49,7 @@ export class ContentEditableHelper {
       let startNode = this.findChildAtCharacterIndex(start);
       let endNode = this.findChildAtCharacterIndex(end);
       range.setStart(startNode.node, startNode.offset);
-      selection.extend(endNode.node, endNode.offset);
+      range.setEnd(endNode.node, endNode.offset);
     }
   }
 

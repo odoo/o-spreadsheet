@@ -1385,4 +1385,53 @@ describe("edition", () => {
       },
     ]);
   });
+
+  describe("Toggling edition", () => {
+    test("toggling edition mode on a reference", () => {
+      const { store } = makeStoreWithModel(model, CellComposerStore);
+      store.startEdition("=A1+A2");
+      expect(store.editionMode).toBe("editing");
+      // select A1
+      store.changeComposerCursorSelection(2, 2);
+      store.toggleEditionMode();
+      expect(store.editionMode).toBe("selecting");
+      store.toggleEditionMode();
+      expect(store.editionMode).toBe("editing");
+
+      // select A2
+      store.changeComposerCursorSelection(5, 5);
+      store.toggleEditionMode();
+      expect(store.editionMode).toBe("selecting");
+    });
+
+    test("toggling edition mode on a range moves the cursor to the end of the range", () => {
+      const { store } = makeStoreWithModel(model, CellComposerStore);
+      store.startEdition("=A1:B2");
+      expect(store.editionMode).toBe("editing");
+      store.changeComposerCursorSelection(2, 2);
+      store.toggleEditionMode();
+      expect(store.editionMode).toBe("selecting");
+      store.stopComposerRangeSelection();
+      expect(store.composerSelection).toEqual({ start: 6, end: 6 });
+    });
+
+    test("toggling edition mode on a string", () => {
+      const { store } = makeStoreWithModel(model, CellComposerStore);
+      store.startEdition("=sum(A1)");
+      expect(store.editionMode).toBe("editing");
+      store.toggleEditionMode();
+      expect(store.editionMode).toBe("editing");
+      store.changeComposerCursorSelection(2, 2);
+      expect(store.tokenAtCursor?.value).toBe("sum");
+      store.toggleEditionMode();
+      expect(store.editionMode).toBe("editing");
+    });
+
+    test("toggling edition mode when inactive does nothing", () => {
+      const { store } = makeStoreWithModel(model, CellComposerStore);
+      expect(store.editionMode).toBe("inactive");
+      store.toggleEditionMode();
+      expect(store.editionMode).toBe("inactive");
+    });
+  });
 });

@@ -242,7 +242,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     "Alt+Enter": this.processNewLineEvent,
     "Ctrl+Enter": this.processNewLineEvent,
     Escape: this.processEscapeKey,
-    F2: () => console.warn("Not implemented"),
+    F2: (ev: KeyboardEvent) => this.toggleEditionMode(ev),
     F4: (ev: KeyboardEvent) => this.processF4Key(ev),
     Tab: (ev: KeyboardEvent) => this.processTabKey(ev, "right"),
     "Shift+Tab": (ev: KeyboardEvent) => this.processTabKey(ev, "left"),
@@ -387,6 +387,12 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
   private processF4Key(ev: KeyboardEvent) {
     ev.stopPropagation();
     this.props.composerStore.cycleReferences();
+    this.processContent();
+  }
+
+  private toggleEditionMode(ev: KeyboardEvent) {
+    ev.stopPropagation();
+    this.props.composerStore.toggleEditionMode();
     this.processContent();
   }
 
@@ -649,7 +655,14 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
           break;
         case "REFERENCE":
           const { xc, sheetName } = splitReference(token.value);
-          result.push({ value: token.value, color: this.rangeColor(xc, sheetName) || "#000" });
+          result.push({
+            value: token.value,
+            color: this.rangeColor(xc, sheetName) || "#000",
+            class:
+              tokenAtCursor === token && this.props.composerStore.editionMode === "selecting"
+                ? "text-decoration-underline"
+                : undefined,
+          });
           break;
         case "SYMBOL":
           const value = token.value;
