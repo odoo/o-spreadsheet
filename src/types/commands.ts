@@ -129,6 +129,25 @@ export const invalidateEvaluationCommands = new Set<CommandTypes>([
   "DUPLICATE_PIVOT",
 ]);
 
+export const invalidateChartEvaluationCommands = new Set<CommandTypes>([
+  "EVALUATE_CELLS",
+  "UPDATE_CELL",
+  "UNHIDE_COLUMNS_ROWS",
+  "HIDE_COLUMNS_ROWS",
+  "GROUP_HEADERS",
+  "UNGROUP_HEADERS",
+  "FOLD_ALL_HEADER_GROUPS",
+  "FOLD_HEADER_GROUP",
+  "FOLD_HEADER_GROUPS_IN_ZONE",
+  "UNFOLD_ALL_HEADER_GROUPS",
+  "UNFOLD_HEADER_GROUP",
+  "UNFOLD_HEADER_GROUPS_IN_ZONE",
+  "UPDATE_TABLE",
+  "UPDATE_FILTER",
+  "UNDO",
+  "REDO",
+]);
+
 export const invalidateDependenciesCommands = new Set<CommandTypes>(["MOVE_RANGES"]);
 
 export const invalidateCFEvaluationCommands = new Set<CommandTypes>([

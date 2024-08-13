@@ -5,6 +5,7 @@ import { ChartRuntime, ExcelChartDefinition } from "../../types/chart/chart";
 import {
   CoreViewCommand,
   invalidateCFEvaluationCommands,
+  invalidateChartEvaluationCommands,
   invalidateEvaluationCommands,
 } from "../../types/commands";
 import { UIPlugin } from "../ui_plugin";
@@ -29,8 +30,7 @@ export class EvaluationChartPlugin extends UIPlugin<EvaluationChartState> {
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
       invalidateCFEvaluationCommands.has(cmd.type) ||
-      cmd.type === "EVALUATE_CELLS" ||
-      cmd.type === "UPDATE_CELL"
+      invalidateChartEvaluationCommands.has(cmd.type)
     ) {
       for (const chartId in this.charts) {
         this.charts[chartId] = undefined;
