@@ -43,23 +43,57 @@ describe("line chart", () => {
   });
 
   test("Stacked line chart", () => {
-    const model = new Model();
-    createChart(model, { type: "line", dataSets: [{ dataRange: "A1" }] }, "chartId");
+    const model = new Model({
+      sheets: [
+        {
+          name: "Sheet1",
+          colNumber: 10,
+          rowNumber: 10,
+          rows: {},
+          cells: {
+            B1: { content: "first column dataset" },
+            B2: { content: "10" },
+            B3: { content: "11" },
+            B4: { content: "12" },
+          },
+        },
+      ],
+    });
+    createChart(model, { type: "line", dataSets: [{ dataRange: "Sheet1!B1:B4" }] }, "chartId");
     expect(isChartAxisStacked(model, "chartId", "x")).toBeUndefined();
     expect(isChartAxisStacked(model, "chartId", "y")).toBeUndefined();
 
     updateChart(model, "chartId", { stacked: true });
-    let runtime = model.getters.getChartRuntime("chartId") as any;
+    const runtime = model.getters.getChartRuntime("chartId") as any;
     expect(isChartAxisStacked(model, "chartId", "x")).toBeUndefined();
     expect(isChartAxisStacked(model, "chartId", "y")).toBe(true);
     expect(runtime.chartJsConfig.data.datasets[0].fill).toBeFalsy();
   });
 
   test("Area chart", () => {
-    const model = new Model();
+    const model = new Model({
+      sheets: [
+        {
+          name: "Sheet1",
+          colNumber: 10,
+          rowNumber: 10,
+          rows: {},
+          cells: {
+            B1: { content: "first column dataset" },
+            B2: { content: "10" },
+            B3: { content: "11" },
+            B4: { content: "12" },
+            C1: { content: "second column dataset" },
+            C2: { content: "13" },
+            C3: { content: "14" },
+            C4: { content: "15" },
+          },
+        },
+      ],
+    });
     createChart(
       model,
-      { type: "line", dataSets: [{ dataRange: "A1" }, { dataRange: "A2" }] },
+      { type: "line", dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }] },
       "chartId"
     );
     let runtime = model.getters.getChartRuntime("chartId") as any;
@@ -76,10 +110,29 @@ describe("line chart", () => {
   });
 
   test("Stacked area chart", () => {
-    const model = new Model();
+    const model = new Model({
+      sheets: [
+        {
+          name: "Sheet1",
+          colNumber: 10,
+          rowNumber: 10,
+          rows: {},
+          cells: {
+            B1: { content: "first column dataset" },
+            B2: { content: "10" },
+            B3: { content: "11" },
+            B4: { content: "12" },
+            C1: { content: "second column dataset" },
+            C2: { content: "13" },
+            C3: { content: "14" },
+            C4: { content: "15" },
+          },
+        },
+      ],
+    });
     createChart(
       model,
-      { type: "line", dataSets: [{ dataRange: "A1" }, { dataRange: "A2" }] },
+      { type: "line", dataSets: [{ dataRange: "B1:B4" }, { dataRange: "C1:C4" }] },
       "chartId"
     );
     let runtime = model.getters.getChartRuntime("chartId") as any;

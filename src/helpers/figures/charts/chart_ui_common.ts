@@ -8,6 +8,7 @@ import { GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
 import { ChartRuntime, DataSet, DatasetValues, LabelValues } from "../../../types/chart/chart";
 import { formatValue, isDateTimeFormat } from "../../format/format";
 import { deepCopy, range } from "../../misc";
+import { isNumber } from "../../numbers";
 import { recomputeZones } from "../../recompute_zones";
 import { AbstractChart } from "./abstract_chart";
 import { drawGaugeChart } from "./gauge_chart_rendering";
@@ -255,11 +256,21 @@ export function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): Da
       label = `${ChartTerms.Series} ${parseInt(dsIndex) + 1}`;
     }
     let data = ds.dataRange ? getData(getters, ds) : [];
-    if (data.every((e) => typeof e === "string" && !isEvaluationError(e))) {
+    if (
+      data.every((e) => typeof e === "string" && !isEvaluationError(e)) &&
+      data.some((e) => e !== "")
+    ) {
       // In this case, we want a chart based on the string occurrences count
       // This will be done by associating each string with a value of 1 and
-      // the using the classical aggregation method to sum the values.
+      // then using the classical aggregation method to sum the values.
       data.fill(1);
+    } else if (
+      data.every(
+        (cell) =>
+          cell === undefined || cell === null || !isNumber(cell.toString(), getters.getLocale())
+      )
+    ) {
+      continue;
     }
     datasetValues.push({ data, label });
   }
