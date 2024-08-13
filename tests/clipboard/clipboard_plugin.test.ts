@@ -622,7 +622,9 @@ describe("clipboard", () => {
       const model = new Model();
       setCellContent(model, "A1", "1");
       copy(model, "A1");
-      expect(model.getters.getClipboardContent()[ClipboardMIMEType.Html]).toEqual("1");
+      expect(model.getters.getClipboardContent()[ClipboardMIMEType.Html]).toBe(
+        `<div data-clipboard-id="${model.getters.getClipboardId()}">1</div>`
+      );
     });
   });
 
