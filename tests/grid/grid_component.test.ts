@@ -1405,7 +1405,7 @@ describe("Copy paste keyboard shortcut", () => {
     const clipboardContent = "content" in clipboard ? clipboard.content : {};
     expect(clipboardContent).toMatchObject({
       "text/plain": "things",
-      "text/html": "things",
+      "text/html": `<div data-clipboard-id="${model.getters.getClipboardId()}">things</div>`,
     });
     selectCell(model, "A2");
     document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));
@@ -1421,7 +1421,7 @@ describe("Copy paste keyboard shortcut", () => {
     const clipboardContent = "content" in clipboard ? clipboard.content : {};
     expect(clipboardContent).toMatchObject({
       "text/plain": "things",
-      "text/html": "things",
+      "text/html": `<div data-clipboard-id="${model.getters.getClipboardId()}">things</div>`,
     });
     selectCell(model, "A2");
     document.body.dispatchEvent(getClipboardEvent("paste", clipboardData));

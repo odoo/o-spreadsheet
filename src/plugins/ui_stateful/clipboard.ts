@@ -522,7 +522,9 @@ export class ClipboardPlugin extends UIPlugin {
     }
     const cells = this.copiedData.cells;
     if (cells.length === 1 && cells[0].length === 1) {
-      return this.getters.getCellText(cells[0][0].position);
+      return `<div data-clipboard-id="${this.clipboardId}">${this.getters.getCellText(
+        cells[0][0].position
+      )}</div>`;
     }
     if (!cells[0][0]) {
       return "";
