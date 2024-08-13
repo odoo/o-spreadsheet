@@ -51,6 +51,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     "stopComposerRangeSelection",
     "cancelEdition",
     "cycleReferences",
+    "toggleEditionMode",
     "changeComposerCursorSelection",
     "replaceComposerCursorSelection",
   ] as const;
@@ -227,6 +228,47 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     this.setCurrentContent(updated.content, updated.selection);
   }
 
+  toggleEditionMode() {
+    if (this.editionMode === "inactive") return;
+    const start = Math.min(this.selectionStart, this.selectionEnd);
+    const end = Math.max(this.selectionStart, this.selectionEnd);
+    const refToken = [...this.currentTokens]
+      .reverse()
+      .find((tk) => tk.end >= start && end >= tk.start && tk.type === "REFERENCE");
+
+    if (this.editionMode === "editing" && refToken) {
+      const currentSheetId = this.getters.getActiveSheetId();
+      const { sheetName, xc } = splitReference(refToken.value);
+      const sheetId = this.getters.getSheetIdByName(sheetName);
+      if (sheetId && sheetId !== currentSheetId) {
+        this.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: currentSheetId, sheetIdTo: sheetId });
+      }
+      // move cursor to the right part of the token
+      this.selectionStart = this.selectionEnd = refToken.end;
+      const zone = this.getters.getRangeFromSheetXC(this.sheetId, xc).zone;
+      this.captureSelection(zone);
+      this.editionMode = "selecting";
+    } else {
+      this.editionMode = "editing";
+    }
+  }
+
+  private captureSelection(zone: Zone, col?: HeaderIndex, row?: HeaderIndex) {
+    this.model.selection.capture(
+      this,
+      {
+        cell: { col: col || zone.left, row: row || zone.right },
+        zone,
+      },
+      {
+        handleEvent: this.handleEvent.bind(this),
+        release: () => {
+          this._stopEdition();
+        },
+      }
+    );
+  }
+
   private isSelectionValid(length: number, start: number, end: number): boolean {
     return start >= 0 && start <= length && end >= 0 && end <= length;
   }
@@ -267,16 +309,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     this.setContent(str || this.initialContent, selection);
     this.colorIndexByRange = {};
     const zone = positionToZone({ col: this.col, row: this.row });
-    this.model.selection.capture(
-      this,
-      { cell: { col: this.col, row: this.row }, zone },
-      {
-        handleEvent: this.handleEvent.bind(this),
-        release: () => {
-          this._stopEdition();
-        },
-      }
-    );
+    this.captureSelection(zone, col, row);
   }
 
   protected _stopEdition() {
