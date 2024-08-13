@@ -17,16 +17,25 @@ import {
   createComboChart,
   createSheet,
   createSheetWithName,
+  createTable,
   deleteColumns,
   deleteRows,
   deleteSheet,
+  foldHeaderGroup,
+  groupHeaders,
+  hideColumns,
+  hideRows,
   redo,
   selectCell,
   setCellContent,
   setCellFormat,
   setFormat,
   undo,
+  unfoldHeaderGroup,
+  unhideColumns,
+  unhideRows,
   updateChart,
+  updateFilter,
   updateLocale,
 } from "../../test_helpers/commands_helpers";
 import {
@@ -2675,6 +2684,160 @@ describe("Chart evaluation", () => {
     expect(getChartConfiguration(model, chartId).data?.labels).toEqual([]);
     redo(model);
     expect(getChartConfiguration(model, chartId).data?.labels).toEqual(["oui", "non"]);
+  });
+
+  describe("hidden col/rows", () => {
+    beforeEach(() => {
+      model = new Model({
+        sheets: [
+          {
+            name: "Sheet1",
+            colNumber: 10,
+            rowNumber: 10,
+            rows: {},
+            cells: {
+              A2: { content: "P1" },
+              A3: { content: "P2" },
+              A4: { content: "P3" },
+              A5: { content: "P4" },
+              B1: { content: "first column dataset" },
+              B2: { content: "10" },
+              B3: { content: "11" },
+              B4: { content: "12" },
+              B5: { content: "13" },
+              C1: { content: "second column dataset" },
+              C2: { content: "15" },
+              C3: { content: "16" },
+              C4: { content: "17" },
+              C5: { content: "18" },
+            },
+          },
+        ],
+      });
+      createChart(
+        model,
+        {
+          dataSets: [{ dataRange: "Sheet1!B1:B5" }, { dataRange: "Sheet1!C1:C5" }],
+          labelRange: "Sheet1!A2:A5",
+          dataSetsHaveTitle: true,
+          type: "line",
+        },
+        "1"
+      );
+    });
+
+    test("hidden columns are filtered", () => {
+      let chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
+      expect(chart.chartJsConfig.data.datasets?.length).toEqual(2);
+      hideColumns(model, ["C"]);
+      chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
+      expect(chart.chartJsConfig.data.datasets?.length).toEqual(1);
+      expect(chart.chartJsConfig.data.datasets![0].label).toBe("first column dataset");
+      unhideColumns(model, ["C"]);
+      chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
+      expect(chart.chartJsConfig.data.datasets?.length).toEqual(2);
+    });
+
+    test("folded group of columns are filtered", () => {
+      let chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
+      expect(chart.chartJsConfig.data.datasets?.length).toEqual(2);
+      groupHeaders(model, "COL", 2, 2);
+      foldHeaderGroup(model, "COL", 2, 2);
+      chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
+      expect(chart.chartJsConfig.data.datasets?.length).toEqual(1);
+      expect(chart.chartJsConfig.data.datasets![0].label).toBe("first column dataset");
+      unfoldHeaderGroup(model, "COL", 2, 2);
+      chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
+      expect(chart.chartJsConfig.data.datasets?.length).toEqual(2);
+    });
+
+    test("hidden rows are filtered", () => {
+      let chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
+      expect(chart.chartJsConfig.data.datasets![0].data?.length).toEqual(4);
+      expect(chart.chartJsConfig.data.labels).toEqual(["P1", "P2", "P3", "P4"]);
+      hideRows(model, [2]);
+      chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
+      expect(chart.chartJsConfig.data.datasets![0].data?.length).toEqual(3);
+      expect(chart.chartJsConfig.data.labels).toEqual(["P1", "P3", "P4"]);
+      unhideRows(model, [2]);
+      chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
+      expect(chart.chartJsConfig.data.datasets![0].data?.length).toEqual(4);
+      expect(chart.chartJsConfig.data.labels).toEqual(["P1", "P2", "P3", "P4"]);
+    });
+
+    test("folded groups of rows are filtered", () => {
+      let chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
+      expect(chart.chartJsConfig.data.datasets![0].data?.length).toEqual(4);
+      expect(chart.chartJsConfig.data.labels).toEqual(["P1", "P2", "P3", "P4"]);
+      groupHeaders(model, "ROW", 2, 2);
+      foldHeaderGroup(model, "ROW", 2, 2);
+      chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
+      expect(chart.chartJsConfig.data.datasets![0].data?.length).toEqual(3);
+      expect(chart.chartJsConfig.data.labels).toEqual(["P1", "P3", "P4"]);
+      unfoldHeaderGroup(model, "ROW", 2, 2);
+      chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
+      expect(chart.chartJsConfig.data.datasets![0].data?.length).toEqual(4);
+      expect(chart.chartJsConfig.data.labels).toEqual(["P1", "P2", "P3", "P4"]);
+    });
+
+    test("rows with filtered cell are ignored", () => {
+      let chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
+      expect(chart.chartJsConfig.data.datasets![0].data?.length).toEqual(4);
+      expect(chart.chartJsConfig.data.labels).toEqual(["P1", "P2", "P3", "P4"]);
+      createTable(model, "A1:C5");
+      updateFilter(model, "B3", ["11"]);
+      chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
+      expect(chart.chartJsConfig.data.datasets![0].data?.length).toEqual(3);
+      expect(chart.chartJsConfig.data.labels).toEqual(["P1", "P3", "P4"]);
+      updateFilter(model, "B3", []);
+      chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
+      expect(chart.chartJsConfig.data.datasets![0].data?.length).toEqual(4);
+      expect(chart.chartJsConfig.data.labels).toEqual(["P1", "P2", "P3", "P4"]);
+    });
+  });
+
+  test("hidden labels are replaced by numbers", () => {
+    model = new Model({
+      sheets: [
+        {
+          name: "Sheet1",
+          colNumber: 10,
+          rowNumber: 10,
+          rows: {},
+          cells: {
+            A2: { content: "P1" },
+            A3: { content: "P2" },
+            A4: { content: "P3" },
+            A5: { content: "P4" },
+            B1: { content: "first column dataset" },
+            B2: { content: "10" },
+            B3: { content: "11" },
+            B4: { content: "12" },
+            B5: { content: "13" },
+            C1: { content: "second column dataset" },
+            C2: { content: "15" },
+            C3: { content: "16" },
+            C4: { content: "17" },
+            C5: { content: "18" },
+          },
+        },
+      ],
+    });
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "Sheet1!B1:B5" }, { dataRange: "Sheet1!C1:C5" }],
+        labelRange: "Sheet1!A2:A5",
+        dataSetsHaveTitle: true,
+        type: "line",
+      },
+      "1"
+    );
+    let chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
+    expect(chart.chartJsConfig.data!.labels).toEqual(["P1", "P2", "P3", "P4"]);
+    hideColumns(model, ["A"]);
+    chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
+    expect(chart.chartJsConfig.data!.labels).toEqual(["0", "1", "2", "3"]);
   });
 });
 

@@ -246,9 +246,7 @@ export class EvaluationPlugin extends UIPlugin {
   getRangeFormattedValues(range: Range): FormattedValue[] {
     const sheet = this.getters.tryGetSheet(range.sheetId);
     if (sheet === undefined) return [];
-    return this.getters
-      .getEvaluatedCellsInZone(sheet.id, range.zone)
-      .map((cell) => cell.formattedValue);
+    return this.mapVisiblePositions(range, (p) => this.getters.getEvaluatedCell(p).formattedValue);
   }
 
   /**
@@ -257,7 +255,7 @@ export class EvaluationPlugin extends UIPlugin {
   getRangeValues(range: Range): CellValue[] {
     const sheet = this.getters.tryGetSheet(range.sheetId);
     if (sheet === undefined) return [];
-    return this.getters.getEvaluatedCellsInZone(sheet.id, range.zone).map((cell) => cell.value);
+    return this.mapVisiblePositions(range, (p) => this.getters.getEvaluatedCell(p).value);
   }
 
   /**
@@ -307,6 +305,24 @@ export class EvaluationPlugin extends UIPlugin {
     return positions(zone)
       .map(({ col, row }) => this.getEvaluatedCell({ sheetId, col, row }))
       .every((cell) => cell.type === CellValueType.empty);
+  }
+
+  /**
+   * Maps the visible positions of a range  according to a provided callback
+   * @param range - the range we filter out
+   * @param evaluationCallback - the callback applied to the filtered positions
+   * @returns the values filtered (ie we keep only the not hidden values)
+   */
+  private mapVisiblePositions<T>(range: Range, evaluationCallback: (p: CellPosition) => T): T[] {
+    const { sheetId, zone } = range;
+    const xcPositions = positions(zone);
+    return xcPositions.reduce((acc, position) => {
+      const { col, row } = position;
+      if (!this.getters.isColHidden(sheetId, col) && !this.getters.isRowHidden(sheetId, row)) {
+        acc.push(evaluationCallback({ sheetId, ...position }));
+      }
+      return acc;
+    }, [] as T[]);
   }
 
   // ---------------------------------------------------------------------------

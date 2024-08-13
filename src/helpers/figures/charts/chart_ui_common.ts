@@ -199,10 +199,21 @@ export function getChartLabelValues(
 ): LabelValues {
   let labels: LabelValues = { values: [], formattedValues: [] };
   if (labelRange) {
-    if (!labelRange.invalidXc && !labelRange.invalidSheetName) {
+    const { left } = labelRange.zone;
+    if (
+      !labelRange.invalidXc &&
+      !labelRange.invalidSheetName &&
+      !getters.isColHidden(labelRange.sheetId, left)
+    ) {
       labels = {
         formattedValues: getters.getRangeFormattedValues(labelRange),
         values: getters.getRangeValues(labelRange).map((val) => String(val ?? "")),
+      };
+    } else if (dataSets[0]) {
+      const ranges = getData(getters, dataSets[0]);
+      labels = {
+        formattedValues: range(0, ranges.length).map((r) => r.toString()),
+        values: labels.formattedValues,
       };
     }
   } else if (dataSets.length === 1) {
@@ -238,6 +249,9 @@ export function getChartDatasetFormat(getters: Getters, dataSets: DataSet[]): Fo
 export function getChartDatasetValues(getters: Getters, dataSets: DataSet[]): DatasetValues[] {
   const datasetValues: DatasetValues[] = [];
   for (const [dsIndex, ds] of Object.entries(dataSets)) {
+    if (getters.isColHidden(ds.dataRange.sheetId, ds.dataRange.zone.left)) {
+      continue;
+    }
     let label: string;
     if (ds.labelCell) {
       const labelRange = ds.labelCell;
