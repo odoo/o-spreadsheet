@@ -253,7 +253,7 @@ describe("datasource tests", function () {
       title: { text: "test" },
       type: "line",
     });
-    expect(data.datasets?.[0].data).toEqual(expect.arrayContaining([undefined, undefined]));
+    expect(data.datasets).toEqual([]);
     expect(model.getters.getChartRuntime("1")).toMatchSnapshot();
   });
 
@@ -296,6 +296,44 @@ describe("datasource tests", function () {
     });
     const config = getChartConfiguration(model, "1");
     expect(config?.data?.datasets?.[0].data).toEqual([0]);
+  });
+
+  test("empty datasets are filtered", () => {
+    model = new Model({
+      sheets: [
+        {
+          name: "Sheet1",
+          colNumber: 10,
+          rowNumber: 10,
+          rows: {},
+          cells: {
+            A2: { content: "P1" },
+            A3: { content: "P2" },
+            A4: { content: "P3" },
+            B1: { content: "first column dataset" },
+            B2: { content: "10" },
+            B3: { content: "11" },
+            B4: { content: "12" },
+            C1: { content: "" },
+            C2: { content: "" },
+            C3: { content: "" },
+            C4: { content: "" },
+          },
+        },
+      ],
+    });
+    createChart(
+      model,
+      {
+        dataSets: [{ dataRange: "Sheet1!B1:B4" }, { dataRange: "Sheet1!C1:C4" }],
+        labelRange: "Sheet1!A2:A4",
+        dataSetsHaveTitle: true,
+        type: "line",
+      },
+      "1"
+    );
+    const chart = model.getters.getChartRuntime("1")! as LineChartRuntime;
+    expect(chart.chartJsConfig.data!.datasets?.length).toEqual(1);
   });
 
   test("create a chart with stacked bar", () => {
@@ -600,8 +638,7 @@ describe("datasource tests", function () {
     );
     deleteRows(model, [1, 2, 3, 4]);
     const data = getChartConfiguration(model, "1").data;
-    expect(data.datasets?.[0].data).toHaveLength(0);
-    expect(data.datasets?.[1].data).toHaveLength(0);
+    expect(data.datasets).toHaveLength(0);
     expect(data.labels).toEqual([]);
   });
 
@@ -1716,7 +1753,7 @@ describe("Chart design configuration", () => {
     );
     const data = getChartConfiguration(model, "1").data;
     expect(data.labels).toEqual(["P1"]);
-    expect(data.datasets![0].data).toEqual([undefined]);
+    expect(data.datasets).toEqual([]);
   });
 
   test("no data points at all", () => {
@@ -1728,7 +1765,7 @@ describe("Chart design configuration", () => {
     );
     const data = getChartConfiguration(model, "1").data;
     expect(data.labels).toEqual([]);
-    expect(data.datasets![0].data).toEqual([]);
+    expect(data.datasets).toEqual([]);
   });
 
   test.each([{ format: "0.00%" }, { style: { textColor: "#FFF" } }])(
@@ -1747,7 +1784,7 @@ describe("Chart design configuration", () => {
       );
       const data = getChartConfiguration(model, "1").data;
       expect(data.labels).toEqual([]);
-      expect(data.datasets![0].data).toEqual([]);
+      expect(data.datasets).toEqual([]);
     }
   );
 
@@ -1767,7 +1804,7 @@ describe("Chart design configuration", () => {
       );
       const data = getChartConfiguration(model, "1").data;
       expect(data.labels).toEqual([]);
-      expect(data.datasets![0].data).toEqual([]);
+      expect(data.datasets).toEqual([]);
     }
   );
 
@@ -1794,7 +1831,7 @@ describe("Chart design configuration", () => {
     );
     const data = getChartConfiguration(model, "1").data;
     expect(data.labels).toEqual(["0"]);
-    expect(data.datasets![0].data).toEqual([null]);
+    expect(data.datasets).toEqual([]);
   });
 
   test("Changing the format of a cell reevaluates a chart runtime", () => {
@@ -2619,7 +2656,7 @@ describe("Chart evaluation", () => {
     setCellContent(model, "C3", "1");
     expect(getChartConfiguration(model, "1").data!.datasets![0]!.data![0]).toBe(1);
     deleteColumns(model, ["C"]);
-    expect(getChartConfiguration(model, "1").data!.datasets![0]!.data![0]).toBe("#REF");
+    expect(getChartConfiguration(model, "1").data!.datasets.length).toBe(0);
   });
 
   test("undo/redo invalidates the chart runtime", () => {
@@ -2783,7 +2820,7 @@ test("trend line dataset are put after original dataset in the runtime", async (
     {
       dataSets: [
         {
-          dataRange: "C1:C4",
+          dataRange: "B1:B4",
           label: "serie_1",
           trend: {
             type: "polynomial",
@@ -2792,7 +2829,7 @@ test("trend line dataset are put after original dataset in the runtime", async (
           },
         },
         {
-          dataRange: "B1:B4",
+          dataRange: "C1:C4",
           label: "serie_2",
           trend: {
             type: "polynomial",
@@ -2977,6 +3014,7 @@ describe("trending line", () => {
         type: "line",
         dataSets: [{ dataRange: "A1", trend: { type: "polynomial", order: 1, display: true } }],
         fillArea: true,
+        dataSetsHaveTitle: false,
       },
       "chartId"
     );

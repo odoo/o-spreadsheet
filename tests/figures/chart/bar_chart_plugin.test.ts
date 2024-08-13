@@ -95,6 +95,22 @@ describe("bar chart", () => {
     });
 
     test("Horizontal bar chart cannot have datasets on the right", () => {
+      const model = new Model({
+        sheets: [
+          {
+            name: "Sheet1",
+            colNumber: 10,
+            rowNumber: 10,
+            rows: {},
+            cells: {
+              B1: { content: "first column dataset" },
+              B2: { content: "10" },
+              B3: { content: "11" },
+              B4: { content: "12" },
+            },
+          },
+        ],
+      });
       // Note: this is a chartJS limitation, it bugs when trying to display an horizontal bar chart with datasets with
       // axis on both right and left sides
       createChart(
@@ -102,7 +118,7 @@ describe("bar chart", () => {
         {
           horizontal: true,
           type: "bar",
-          dataSets: [{ dataRange: "A1", yAxisId: "y1" }],
+          dataSets: [{ dataRange: "B1:B4", yAxisId: "y1" }],
           axesDesign: { x: { title: { text: "xAxis" } }, y1: { title: { text: "yAxis" } } },
         },
         "id"

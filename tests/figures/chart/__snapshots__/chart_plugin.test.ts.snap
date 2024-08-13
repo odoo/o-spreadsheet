@@ -1107,21 +1107,9 @@ exports[`datasource tests create chart with only the dataset title (no data) 1`]
   "background": "#FFFFFF",
   "chartJsConfig": {
     "data": {
-      "datasets": [
-        {
-          "backgroundColor": "#4EA7F2",
-          "borderColor": "#4EA7F2",
-          "data": [
-            undefined,
-            undefined,
-          ],
-          "fill": false,
-          "label": "30",
-          "pointBackgroundColor": "#4EA7F2",
-          "tension": 0,
-        },
-      ],
+      "datasets": [],
       "labels": [
+        "P4",
         "P5",
         "P6",
       ],
@@ -1201,18 +1189,11 @@ exports[`datasource tests create chart with only the dataset title (no data) 1`]
     "type": "line",
   },
   "dataSetFormat": undefined,
-  "dataSetsValues": [
-    {
-      "data": [
-        undefined,
-        undefined,
-      ],
-      "label": "30",
-    },
-  ],
+  "dataSetsValues": [],
   "labelFormat": undefined,
   "labelValues": {
     "formattedValues": [
+      "P4",
       "P5",
       "P6",
     ],
