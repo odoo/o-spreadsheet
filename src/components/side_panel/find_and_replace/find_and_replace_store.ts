@@ -1,4 +1,4 @@
-import { debounce, getSearchRegex, isInside, positionToZone } from "../../../helpers";
+import { getSearchRegex, isInside, positionToZone } from "../../../helpers";
 import { HighlightProvider, HighlightStore } from "../../../stores/highlight_store";
 import { CellPosition, Color, Command, Highlight } from "../../../types";
 
@@ -45,7 +45,6 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     specificRange: undefined,
   };
 
-  updateSearchContent = debounce(this._updateSearchContent.bind(this), 200);
   constructor(get: Get) {
     super(get);
     this.initialShowFormulaState = this.model.getters.shouldShowFormulas();
@@ -55,7 +54,6 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     highlightStore.register(this);
     this.onDispose(() => {
       this.model.dispatch("SET_FORMULA_VISIBILITY", { show: this.initialShowFormulaState });
-      this.updateSearchContent.stopDebounce();
       highlightStore.unRegister(this);
     });
   }
@@ -71,7 +69,7 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
     }
   }
 
-  private _updateSearchContent(toSearch: string) {
+  updateSearchContent(toSearch: string) {
     this._updateSearch(toSearch, this.searchOptions);
   }
 
@@ -90,10 +88,6 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
 
   selectNextMatch() {
     this.selectNextCell(Direction.next);
-  }
-
-  get pendingSearch() {
-    return this.updateSearchContent.isDebouncePending();
   }
 
   handle(cmd: Command) {

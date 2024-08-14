@@ -30,14 +30,6 @@ import {
 } from "../test_helpers/getters_helpers";
 import { makeStore } from "../test_helpers/stores";
 
-// Disable debounce for tests
-jest.mock("../../src/helpers/misc.ts", () => {
-  return {
-    ...jest.requireActual("../../src/helpers/misc.ts"),
-    ...jest.requireActual("../__mocks__/mock_misc_helpers.ts"),
-  };
-});
-
 let model: Model;
 let store: FindAndReplaceStore;
 
@@ -312,17 +304,6 @@ describe("basic search", () => {
     deleteTable(model, "A1:A6");
     expect(store.searchMatches).toHaveLength(2);
     expect(store.selectedMatchIndex).toStrictEqual(0);
-  });
-
-  test("Store update search content method is debounced and debounce timeout is cleared on dispose", () => {
-    const debouncedSearch = store.updateSearchContent;
-    expect(typeof debouncedSearch).toBe("function");
-    expect(debouncedSearch.isDebouncePending).toBeTruthy();
-    expect(debouncedSearch.stopDebounce).toBeTruthy();
-
-    const spyStopDebounce = jest.spyOn(debouncedSearch, "stopDebounce");
-    store.dispose();
-    expect(spyStopDebounce).toHaveBeenCalled();
   });
 
   test("Switching sheet properly recomputes search results and shows them in the viewport", () => {
