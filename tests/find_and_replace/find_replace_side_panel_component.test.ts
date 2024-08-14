@@ -163,6 +163,17 @@ describe("find and replace sidePanel component", () => {
       expect(getMatchesCount()).toBeUndefined();
     });
 
+    test("Search is debounced", async () => {
+      setCellContent(model, "A1", "ok");
+      setInputValueAndTrigger(selectors.inputSearch, "o");
+      await nextTick();
+      expect(getMatchesCount()).toBeUndefined();
+
+      jest.runOnlyPendingTimers();
+      await nextTick();
+      expect(getMatchesCount()).toMatchObject({ allSheets: 1, currentSheet: 1 });
+    });
+
     test("clicking on specific range and hitting confirm will search in the range", async () => {
       setCellContent(model, "A1", "1");
       inputSearchValue("1");
