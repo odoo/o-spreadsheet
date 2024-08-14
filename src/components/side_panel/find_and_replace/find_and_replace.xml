@@ -17,7 +17,7 @@
             /
             <t t-esc="store.searchMatches.length"/>
           </div>
-          <div t-elif="!store.pendingSearch and store.toSearch !== ''" class="o-input-count">
+          <div t-elif="!this.pendingSearch and store.toSearch !== ''" class="o-input-count">
             0 / 0
           </div>
         </div>
