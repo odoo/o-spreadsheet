@@ -532,18 +532,6 @@ describe("conditional format", () => {
     });
   });
 
-  test("Set conditionalFormat on empty cell", () => {
-    let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF("", { fillColor: "#FF0000" }, "1"),
-      ranges: toRangesData(sheetId, "A1"),
-      sheetId,
-    });
-    expect(result).toBeSuccessfullyDispatched();
-    expect(getStyle(model, "A1")).toEqual({
-      fillColor: "#FF0000",
-    });
-  });
-
   describe("Grid Manipulation", () => {
     const rule = {
       values: ["42"],
@@ -1641,6 +1629,10 @@ describe("conditional formats types", () => {
     });
 
     test.each([
+      ["Equal", []],
+      ["Equal", [""]],
+      ["NotEqual", []],
+      ["NotEqual", [""]],
       ["GreaterThan", []],
       ["GreaterThan", [""]],
       ["GreaterThan", ["", "1"]],

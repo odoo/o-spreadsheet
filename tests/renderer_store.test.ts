@@ -757,7 +757,15 @@ describe("renderer", () => {
     fillStyle = [];
     const sheetId = model.getters.getActiveSheetId();
     let result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
-      cf: createEqualCF("", { fillColor: "#DC6CDF" }, "1"),
+      cf: {
+        id: "1",
+        rule: {
+          type: "CellIsRule",
+          operator: "IsEmpty",
+          values: [],
+          style: { fillColor: "#DC6CDF" },
+        },
+      },
       ranges: toRangesData(sheetId, "A1"),
       sheetId,
     });
