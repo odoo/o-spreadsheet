@@ -71,6 +71,7 @@ import { updateSelectionWithArrowKeys } from "../helpers/selection_helpers";
 import { useWheelHandler } from "../helpers/wheel_hook";
 import { Highlight } from "../highlight/highlight/highlight";
 import { Menu, MenuState } from "../menu/menu";
+import { PaintFormatStore } from "../paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../popover";
 import { Popover } from "../popover/popover";
 import { HorizontalScrollBar, VerticalScrollBar } from "../scrollbar/";
@@ -139,6 +140,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
   private cellPopovers!: Store<CellPopoverStore>;
   private composerFocusStore!: Store<ComposerFocusStore>;
   private DOMFocusableElementStore!: Store<DOMFocusableElementStore>;
+  private paintFormatStore!: Store<PaintFormatStore>;
 
   onMouseWheel!: (ev: WheelEvent) => void;
   canvasPosition!: DOMCoordinates;
@@ -158,6 +160,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     this.composerFocusStore = useStore(ComposerFocusStore);
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
     this.sidePanel = useStore(SidePanelStore);
+    this.paintFormatStore = useStore(PaintFormatStore);
     useStore(ArrayFormulaHighlight);
 
     useChildSubEnv({ getPopoverContainerRect: () => this.getGridRect() });
@@ -244,8 +247,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         this.cellPopovers.close();
       } else if (this.menuState.isOpen) {
         this.closeMenu();
-      } else if (this.env.model.getters.isPaintingFormat()) {
-        this.env.model.dispatch("CANCEL_PAINT_FORMAT");
+      } else if (this.paintFormatStore.isActive) {
+        this.paintFormatStore.cancel();
       } else {
         this.env.model.dispatch("CLEAN_CLIPBOARD_HIGHLIGHT");
       }
@@ -492,10 +495,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       }
     };
     const onMouseUp = () => {
-      if (this.env.model.getters.isPaintingFormat()) {
-        this.env.model.dispatch("PASTE", {
-          target: this.env.model.getters.getSelectedZones(),
-        });
+      if (this.paintFormatStore.isActive) {
+        this.paintFormatStore.pasteFormat(this.env.model.getters.getSelectedZones());
       }
     };
     dragAndDropBeyondTheViewport(this.env, onMouseMove, onMouseUp);
@@ -525,10 +526,8 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
     updateSelectionWithArrowKeys(ev, this.env.model.selection);
 
-    if (this.env.model.getters.isPaintingFormat()) {
-      this.env.model.dispatch("PASTE", {
-        target: this.env.model.getters.getSelectedZones(),
-      });
+    if (this.paintFormatStore.isActive) {
+      this.paintFormatStore.pasteFormat(this.env.model.getters.getSelectedZones());
     }
   }
 
