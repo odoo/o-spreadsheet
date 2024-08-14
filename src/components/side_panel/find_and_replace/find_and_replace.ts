@@ -1,8 +1,8 @@
-import { Component, onMounted, useRef, useState } from "@odoo/owl";
-import { zoneToXc } from "../../../helpers";
+import { Component, onMounted, onWillUnmount, useRef, useState } from "@odoo/owl";
+import { debounce, zoneToXc } from "../../../helpers";
 import { Store, useLocalStore } from "../../../store_engine";
 import { _t } from "../../../translation";
-import { SpreadsheetChildEnv } from "../../../types/index";
+import { DebouncedFunction, SpreadsheetChildEnv } from "../../../types/index";
 import { css } from "../../helpers/css";
 import { SelectionInput } from "../../selection_input/selection_input";
 import { Checkbox } from "../components/checkbox/checkbox";
@@ -50,6 +50,7 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
   private searchInput = useRef("searchInput");
   private store!: Store<FindAndReplaceStore>;
   private state!: { dataRange: string };
+  private updateSearchContent!: DebouncedFunction<(value: string) => void>;
 
   get hasSearchResult() {
     return this.store.selectedMatchIndex !== null;
@@ -87,6 +88,8 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
     this.store = useLocalStore(FindAndReplaceStore);
     this.state = useState({ dataRange: "" });
     onMounted(() => this.searchInput.el?.focus());
+    onWillUnmount(() => this.updateSearchContent.stopDebounce());
+    this.updateSearchContent = debounce(this.store.updateSearchContent, 200);
   }
 
   onFocusSearch() {
@@ -94,7 +97,7 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
   }
 
   onSearchInput(ev: InputEvent) {
-    this.store.updateSearchContent((ev.target as HTMLInputElement)?.value || "");
+    this.updateSearchContent((ev.target as HTMLInputElement).value);
   }
 
   onKeydownSearch(ev: KeyboardEvent) {
@@ -143,5 +146,9 @@ export class FindAndReplacePanel extends Component<Props, SpreadsheetChildEnv> {
       this.state.dataRange
     );
     this.store.updateSearchOptions({ specificRange });
+  }
+
+  get pendingSearch() {
+    return this.updateSearchContent.isDebouncePending();
   }
 }
