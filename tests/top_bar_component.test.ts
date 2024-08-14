@@ -1,6 +1,7 @@
 import { Component, xml } from "@odoo/owl";
 import { Model } from "../src";
 import { CellComposerStore } from "../src/components/composer/composer/cell_composer_store";
+import { PaintFormatStore } from "../src/components/paint_format_button/paint_format_store";
 import { TopBar } from "../src/components/top_bar/top_bar";
 import { DEFAULT_FONT_SIZE } from "../src/constants";
 import { toZone, zoneToXc } from "../src/helpers";
@@ -195,31 +196,27 @@ describe("TopBar component", () => {
 
   describe("Paint format tools", () => {
     test("Single click to activate paint format (once)", async () => {
-      const { model } = await mountParent();
+      const { parent } = await mountParent();
       const paintFormatTool = fixture.querySelector('.o-menu-item-button[title="Paint Format"]')!;
       expect(paintFormatTool.classList.contains("active")).toBeFalsy();
 
       await click(paintFormatTool);
       expect(paintFormatTool.classList.contains("active")).toBeTruthy();
 
-      model.dispatch("PASTE", {
-        target: target("B2"),
-      }); // to simulate clicking cell to paste format
+      parent.env.getStore(PaintFormatStore).pasteFormat(target("B2"));
       await nextTick();
       expect(paintFormatTool.classList.contains("active")).toBeFalsy();
     });
 
     test("Double click to activate and keep it", async () => {
-      const { model } = await mountParent();
+      const { parent } = await mountParent();
       const paintFormatTool = fixture.querySelector('.o-menu-item-button[title="Paint Format"]')!;
       expect(paintFormatTool.classList.contains("active")).toBeFalsy();
 
       await doubleClick(paintFormatTool);
       expect(paintFormatTool.classList.contains("active")).toBeTruthy();
 
-      model.dispatch("PASTE", {
-        target: target("B2"),
-      }); // to simulate clicking cell to paste format
+      parent.env.getStore(PaintFormatStore).pasteFormat(target("B2"));
       expect(paintFormatTool.classList.contains("active")).toBeTruthy();
     });
 

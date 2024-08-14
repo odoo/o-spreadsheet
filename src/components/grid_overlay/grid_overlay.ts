@@ -19,6 +19,7 @@ import { getBoundingRectAsPOJO, isCtrlKey } from "../helpers/dom_helpers";
 import { useRefListener } from "../helpers/listener_hook";
 import { useAbsoluteBoundingRect } from "../helpers/position_hook";
 import { useInterval } from "../helpers/time_hooks";
+import { PaintFormatStore } from "../paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../popover";
 
 const CURSOR_SVG = /*xml*/ `
@@ -200,6 +201,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   private gridOverlay: Ref<HTMLElement> = useRef("gridOverlay");
   private gridOverlayRect = useAbsoluteBoundingRect(this.gridOverlay);
   private cellPopovers!: Store<CellPopoverStore>;
+  private paintFormatStore!: Store<PaintFormatStore>;
 
   setup() {
     useCellHovered(this.env, this.gridOverlay, this.props.onCellHovered);
@@ -223,6 +225,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
       return scrollY > 0;
     });
     this.cellPopovers = useStore(CellPopoverStore);
+    this.paintFormatStore = useStore(PaintFormatStore);
   }
 
   get gridOverlayEl(): HTMLElement {
@@ -237,7 +240,7 @@ export class GridOverlay extends Component<Props, SpreadsheetChildEnv> {
   }
 
   get isPaintingFormat() {
-    return this.env.model.getters.isPaintingFormat();
+    return this.paintFormatStore.isActive;
   }
 
   onMouseDown(ev: MouseEvent) {

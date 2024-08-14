@@ -52,11 +52,9 @@ export class ClipboardPlugin extends UIPlugin {
     "getClipboardId",
     "getClipboardTextContent",
     "isCutOperation",
-    "isPaintingFormat",
   ] as const;
 
   private status: "visible" | "invisible" = "invisible";
-  private paintFormatStatus: "inactive" | "oneOff" | "persistent" = "inactive";
   private originSheetId?: UID;
   private copiedData?: MinimalClipboardData;
   private _isCutOperation: boolean = false;
@@ -75,16 +73,14 @@ export class ClipboardPlugin extends UIPlugin {
         const copiedData = this.convertOSClipboardData(
           cmd.clipboardContent[ClipboardMIMEType.PlainText] ?? ""
         );
-        const pasteOption =
-          cmd.pasteOption || (this.paintFormatStatus !== "inactive" ? "onlyFormat" : undefined);
+        const pasteOption = cmd.pasteOption;
         return this.isPasteAllowed(cmd.target, copiedData, { pasteOption, isCutOperation: false });
       }
       case "PASTE": {
         if (!this.copiedData) {
           return CommandResult.EmptyClipboard;
         }
-        const pasteOption =
-          cmd.pasteOption || (this.paintFormatStatus !== "inactive" ? "onlyFormat" : undefined);
+        const pasteOption = cmd.pasteOption;
         return this.isPasteAllowed(cmd.target, this.copiedData, {
           pasteOption: pasteOption,
           isCutOperation: this._isCutOperation,
@@ -114,12 +110,6 @@ export class ClipboardPlugin extends UIPlugin {
         const copiedData = this.copy(cut);
         return this.isPasteAllowed(paste, copiedData, { isCutOperation: true });
       }
-      case "ACTIVATE_PAINT_FORMAT": {
-        if (this.paintFormatStatus !== "inactive") {
-          return CommandResult.AlreadyInPaintingFormatMode;
-        }
-        return CommandResult.Success;
-      }
     }
     return CommandResult.Success;
   }
@@ -143,8 +133,7 @@ export class ClipboardPlugin extends UIPlugin {
             cmd.clipboardContent[ClipboardMIMEType.PlainText] ?? ""
           );
         }
-        const pasteOption =
-          cmd.pasteOption || (this.paintFormatStatus !== "inactive" ? "onlyFormat" : undefined);
+        const pasteOption = cmd.pasteOption;
         this.paste(cmd.target, this.copiedData, {
           pasteOption,
           selectTarget: true,
@@ -154,16 +143,12 @@ export class ClipboardPlugin extends UIPlugin {
         break;
       }
       case "PASTE": {
-        const pasteOption =
-          cmd.pasteOption || (this.paintFormatStatus !== "inactive" ? "onlyFormat" : undefined);
+        const pasteOption = cmd.pasteOption;
         this.paste(cmd.target, this.copiedData, {
           pasteOption,
           selectTarget: true,
           isCutOperation: this._isCutOperation,
         });
-        if (this.paintFormatStatus === "oneOff") {
-          this.paintFormatStatus = "inactive";
-        }
         this.status = "invisible";
         if (this._isCutOperation) {
           this.copiedData = undefined;
@@ -267,17 +252,6 @@ export class ClipboardPlugin extends UIPlugin {
         });
         break;
       }
-      case "ACTIVATE_PAINT_FORMAT": {
-        const zones = this.getters.getSelectedZones();
-        this.copiedData = this.copy(zones);
-        this.status = "visible";
-        if (cmd.persistent) {
-          this.paintFormatStatus = "persistent";
-        } else {
-          this.paintFormatStatus = "oneOff";
-        }
-        break;
-      }
       case "DELETE_SHEET":
         if (this._isCutOperation !== true) {
           return;
@@ -287,11 +261,6 @@ export class ClipboardPlugin extends UIPlugin {
           this.status = "invisible";
         }
         break;
-      case "CANCEL_PAINT_FORMAT": {
-        this.paintFormatStatus = "inactive";
-        this.status = "invisible";
-        break;
-      }
       default:
         if (isCoreCommand(cmd)) {
           this.status = "invisible";
@@ -580,10 +549,6 @@ export class ClipboardPlugin extends UIPlugin {
 
   isCutOperation(): boolean {
     return this._isCutOperation ?? false;
-  }
-
-  isPaintingFormat(): boolean {
-    return this.paintFormatStatus !== "inactive";
   }
 
   // ---------------------------------------------------------------------------

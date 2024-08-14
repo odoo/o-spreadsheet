@@ -1,6 +1,7 @@
 import { Spreadsheet, TransportService } from "../../src";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
 import { ComposerFocusStore } from "../../src/components/composer/composer_focus_store";
+import { PaintFormatStore } from "../../src/components/paint_format_button/paint_format_store";
 import { CellPopoverStore } from "../../src/components/popover";
 import {
   BACKGROUND_GRAY_COLOR,
@@ -17,6 +18,7 @@ import { buildSheetLink, toCartesian, toHex, toZone, zoneToXc } from "../../src/
 import { createEmptyWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
 import { Store } from "../../src/store_engine";
+import { HighlightStore } from "../../src/stores/highlight_store";
 import { Align, ClipboardMIMEType, SpreadsheetChildEnv } from "../../src/types";
 import { FileStore } from "../__mocks__/mock_file_store";
 import { MockTransportService } from "../__mocks__/transport_service";
@@ -839,11 +841,19 @@ describe("Grid component", () => {
   });
 
   describe("paint format tool with grid selection", () => {
+    let paintFormatStore: Store<PaintFormatStore>;
+    let highlightStore: Store<HighlightStore>;
+
+    beforeEach(() => {
+      paintFormatStore = env.getStore(PaintFormatStore);
+      highlightStore = env.getStore(HighlightStore);
+    });
+
     test("can paste format with mouse once", async () => {
       setCellContent(model, "B2", "b2");
       selectCell(model, "B2");
       setStyle(model, "B2", { bold: true });
-      model.dispatch("ACTIVATE_PAINT_FORMAT", { persistent: false });
+      paintFormatStore.activate({ persistent: false });
       gridMouseEvent(model, "pointerdown", "C8");
       expect(getCell(model, "C8")).toBeUndefined();
       gridMouseEvent(model, "pointerup", "C8");
@@ -859,7 +869,7 @@ describe("Grid component", () => {
       setCellContent(model, "B2", "b2");
       selectCell(model, "B2");
       setStyle(model, "B2", { bold: true });
-      model.dispatch("ACTIVATE_PAINT_FORMAT", { persistent: true });
+      paintFormatStore.activate({ persistent: true });
       gridMouseEvent(model, "pointerdown", "C8");
       expect(getCell(model, "C8")).toBeUndefined();
       gridMouseEvent(model, "pointerup", "C8");
@@ -875,7 +885,7 @@ describe("Grid component", () => {
       setCellContent(model, "B2", "b2");
       selectCell(model, "B2");
       setStyle(model, "B2", { bold: true });
-      model.dispatch("ACTIVATE_PAINT_FORMAT", { persistent: false });
+      paintFormatStore.activate({ persistent: false });
       expect(getCell(model, "C2")).toBeUndefined();
       keyDown({ key: "ArrowRight" });
       expect(getCell(model, "C2")!.style).toEqual({ bold: true });
@@ -885,7 +895,7 @@ describe("Grid component", () => {
       setCellContent(model, "B2", "b2");
       selectCell(model, "B2");
       setStyle(model, "B2", { bold: true });
-      model.dispatch("ACTIVATE_PAINT_FORMAT", { persistent: false });
+      paintFormatStore.activate({ persistent: false });
       keyDown({ key: "Escape" });
       gridMouseEvent(model, "pointerdown", "C8");
       expect(getCell(model, "C8")).toBeUndefined();
@@ -897,13 +907,32 @@ describe("Grid component", () => {
       setCellContent(model, "B2", "b2");
       selectCell(model, "B2");
       setStyle(model, "B2", { bold: true });
-      model.dispatch("ACTIVATE_PAINT_FORMAT", { persistent: true });
+      paintFormatStore.activate({ persistent: true });
       setStyle(model, "B2", { bold: false });
 
       gridMouseEvent(model, "pointerdown", "D8");
       expect(getCell(model, "D8")).toBeUndefined();
       gridMouseEvent(model, "pointerup", "D8");
       expect(getCell(model, "D8")!.style).toEqual({ bold: true });
+    });
+
+    test("zone to paint is highlighted", async () => {
+      selectCell(model, "B2");
+      paintFormatStore.activate({ persistent: false });
+      expect(highlightStore.highlights).toMatchObject([{ zone: toZone("B2") }]);
+
+      paintFormatStore.cancel();
+      expect(highlightStore.highlights).toEqual([]);
+    });
+
+    test("paint format does not destroy clipboard content", () => {
+      setCellContent(model, "A1", "hello");
+      setStyle(model, "A1", { bold: true });
+      copy(model, "A1");
+
+      const clipboardContent = model.getters.getClipboardContent();
+      paintFormatStore.activate({ persistent: false });
+      expect(model.getters.getClipboardContent()).toEqual(clipboardContent);
     });
   });
 
