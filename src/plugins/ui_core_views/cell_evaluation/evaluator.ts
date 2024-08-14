@@ -92,7 +92,7 @@ export class Evaluator {
     if (!hasArrayFormulaResult) {
       return this.spreadingRelations.isArrayFormula(position) ? position : undefined;
     }
-    const arrayFormulas = this.spreadingRelations.getFormulaPositionsSpreadingOn(
+    const arrayFormulas = this.spreadingRelations.searchFormulaPositionsSpreadingOn(
       position.sheetId,
       positionToZone(position)
     );
@@ -248,7 +248,7 @@ export class Evaluator {
    */
   private getArrayFormulasBlockedBy(sheetId: UID, zone: Zone): Iterable<CellPosition> {
     const arrayFormulaPositions = this.createEmptyPositionSet();
-    const arrayFormulas = this.spreadingRelations.getFormulaPositionsSpreadingOn(sheetId, zone);
+    const arrayFormulas = this.spreadingRelations.searchFormulaPositionsSpreadingOn(sheetId, zone);
     arrayFormulaPositions.addMany(arrayFormulas);
     const spilledPositions = [...arrayFormulas].filter(
       (position) => !this.blockedArrayFormulas.has(position)
