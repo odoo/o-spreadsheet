@@ -14,7 +14,12 @@ import {
   getEvaluatedGrid,
 } from "../../test_helpers/getters_helpers";
 import { createModelFromGrid } from "../../test_helpers/helpers";
-import { addPivot, createModelWithPivot, updatePivot } from "../../test_helpers/pivot_helpers";
+import {
+  addPivot,
+  createModelWithPivot,
+  removePivot,
+  updatePivot,
+} from "../../test_helpers/pivot_helpers";
 import { CellValue, CellValueType } from "./../../../src/types/cells";
 
 describe("Spreadsheet Pivot", () => {
@@ -1373,6 +1378,18 @@ describe("Spreadsheet Pivot", () => {
       setCellContent(model, "A1", "Tabouret");
       expect(model.getters.getPivot("1").isValid()).toBeTruthy();
     });
+  });
+
+  test("Pivot is removed on command REMOVE_PIVOT", () => {
+    const model = createModelWithPivot("A1:I5");
+    expect(model.getters.getPivotIds()).toEqual(["1"]);
+    expect(model.getters.getPivotCoreDefinition("1")).toBeTruthy();
+    expect(model.getters.getPivot("1")).toBeTruthy();
+
+    removePivot(model, "1");
+    expect(model.getters.getPivotIds()).toEqual([]);
+    expect(() => model.getters.getPivotCoreDefinition("1")).toThrow();
+    expect(model.getters.getPivot("1")).toBeUndefined();
   });
 });
 

@@ -78,6 +78,10 @@ export class PivotUIPlugin extends UIPlugin {
         this.setupPivot(cmd.pivotId, { recreate: true });
         break;
       }
+      case "REMOVE_PIVOT": {
+        delete this.pivots[cmd.pivotId];
+        break;
+      }
       case "DELETE_SHEET":
       case "UPDATE_CELL": {
         this.unusedPivots = undefined;
