@@ -1,5 +1,6 @@
 import { PivotRuntimeDefinition } from "../helpers/pivot/pivot_runtime_definition";
 import { SpreadsheetPivotTable } from "../helpers/pivot/table_spreadsheet_pivot";
+import { Format } from "./format";
 import { FunctionResultObject, Maybe } from "./misc";
 import {
   PivotCoreDefinition,
@@ -26,6 +27,7 @@ export interface Pivot<T = PivotRuntimeDefinition> {
   getPivotMeasureValue(measure: string, domain: PivotDomain): FunctionResultObject;
 
   getMeasure: (id: string) => PivotMeasure;
+  getMeasureFormat: (id: string) => Format | undefined;
 
   parseArgsToPivotDomain(args: Maybe<FunctionResultObject>[]): PivotDomain;
   areDomainArgsFieldsValid(args: Maybe<FunctionResultObject>[]): boolean;

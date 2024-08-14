@@ -5,6 +5,7 @@ import { _t } from "../../../translation";
 import {
   CellValueType,
   EvaluatedCell,
+  Format,
   FunctionResultObject,
   Getters,
   Maybe,
@@ -214,6 +215,16 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     return this.definition.getMeasure(id);
   }
 
+  getMeasureFormat(measureId: string): Format | undefined {
+    const measure = this.getMeasure(measureId);
+    const operator = AGGREGATORS_FN[measure.aggregator];
+    if (!operator) {
+      throw new Error(`Aggregator ${measure.aggregator} does not exist`);
+    }
+    const measureField = this.fields[measure.fieldName];
+    return operator.format(measureField?.format);
+  }
+
   getPivotMeasureValue(id: string): FunctionResultObject {
     return {
       value: this.getMeasure(id).displayName,
@@ -263,7 +274,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     try {
       return {
         value: values.length ? operator.fn([values], this.getters.getLocale()) : "",
-        format: operator.format(values[0]),
+        format: this.getMeasureFormat(measureId),
       };
     } catch (e) {
       return handleError(e, aggregator.toUpperCase());
@@ -323,22 +334,22 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     return this.definition.getDimension(nameWithGranularity);
   }
 
-  private getTypeFromZone(sheetId: UID, zone: Zone) {
-    const cells = this.getters.getEvaluatedCellsInZone(sheetId, zone);
+  private getTypeAndFormatFromCol(sheetId: UID, columnZone: Zone) {
+    const cells = this.getters.getEvaluatedCellsInZone(sheetId, columnZone);
     const nonEmptyCells = cells.filter((cell) => cell.type !== CellValueType.empty);
+
+    let type = "integer";
     if (nonEmptyCells.length === 0) {
-      return "integer";
+      type = "integer";
+    } else if (nonEmptyCells.every((cell) => cell.format && isDateTimeFormat(cell.format))) {
+      type = "date";
+    } else if (nonEmptyCells.every((cell) => cell.type === CellValueType.boolean)) {
+      type = "boolean";
+    } else if (nonEmptyCells.some((cell) => cell.type === CellValueType.text)) {
+      type = "char";
     }
-    if (nonEmptyCells.every((cell) => cell.format && isDateTimeFormat(cell.format))) {
-      return "date";
-    }
-    if (nonEmptyCells.every((cell) => cell.type === CellValueType.boolean)) {
-      return "boolean";
-    }
-    if (nonEmptyCells.some((cell) => cell.type === CellValueType.text)) {
-      return "char";
-    }
-    return "integer";
+    const format = nonEmptyCells.find((cell) => cell.format)?.format;
+    return { type, format };
   }
 
   private assertCellIsValidField(col: number, row: number, cell: EvaluatedCell) {
@@ -374,7 +385,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
       this.assertCellIsValidField(col, row, cell);
       const field = cell.value?.toString();
       if (field) {
-        const type = this.getTypeFromZone(sheetId, {
+        const { type, format } = this.getTypeAndFormatFromCol(sheetId, {
           top: range.zone.top + 1,
           left: col,
           bottom: range.zone.bottom,
@@ -386,6 +397,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
           type,
           string,
           aggregator: type === "integer" ? "sum" : "count",
+          format,
         };
         fieldKeys.push(string);
       }

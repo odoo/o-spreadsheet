@@ -5,6 +5,7 @@ import {
   deleteSheet,
   redo,
   setCellContent,
+  setFormat,
   undo,
 } from "../../test_helpers/commands_helpers";
 import {
@@ -13,7 +14,7 @@ import {
   getEvaluatedCell,
   getEvaluatedGrid,
 } from "../../test_helpers/getters_helpers";
-import { createModelFromGrid } from "../../test_helpers/helpers";
+import { createModelFromGrid, getGridFormat } from "../../test_helpers/helpers";
 import { addPivot, createModelWithPivot, updatePivot } from "../../test_helpers/pivot_helpers";
 import { CellValue, CellValueType } from "./../../../src/types/cells";
 
@@ -1374,6 +1375,76 @@ describe("Spreadsheet Pivot", () => {
       expect(model.getters.getPivot("1").isValid()).toBeTruthy();
     });
   });
+
+  test("Measure format is the same on the whole pivot even with mixed format in data", () => {
+    // prettier-ignore
+    const model = createModelFromGrid({
+      A1: "Name", B1: "Price",
+      A2: "Alice", B2: "10",
+      A3: "Bob", B3: "20",
+    });
+    setFormat(model, "B2", "0[$$]");
+    setFormat(model, "B3", "0[$€]");
+    addPivot(model, "A1:B3", {
+      columns: [],
+      rows: [{ fieldName: "Name" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
+    });
+
+    const pivotId = model.getters.getPivotIds()[0];
+    expect(model.getters.getPivot(pivotId).getMeasureFormat("Price:sum")).toBe("0[$$]");
+
+    setCellContent(model, "A26", `=PIVOT(1)`);
+    expect(getGridFormat(model)).toMatchObject({
+      B28: "0[$$]",
+      B29: "0[$$]",
+    });
+
+    updatePivot(model, pivotId, {
+      measures: [{ id: "Price:count", fieldName: "Price", aggregator: "count" }],
+    });
+    expect(model.getters.getPivot(pivotId).getMeasureFormat("Price:count")).toBe("0");
+    expect(getGridFormat(model)).toMatchObject({
+      B28: "0",
+      B29: "0",
+    });
+  });
+
+  // test("difference_from format with empty data", () => {
+  //   // prettier-ignore
+  //   const grid = {
+  //     B1: "Salesperson",  C1: "Expected Revenue",
+  //     B2: "Alice",        C2: "",
+  //     B3: "Bob",          C3: "",
+  //     B4: "Roger",        C4: "500",
+  //   };
+  //   const model = createModelFromGrid(grid);
+  //   setFormat(model, "C2:C4", "0.00[$€]");
+
+  //   const pivotDefinition: Partial<SpreadsheetPivotCoreDefinition> = {
+  //     columns: [{ fieldName: "Salesperson", order: "asc" }],
+  //     measures: [
+  //       {
+  //         fieldName: "Expected Revenue",
+  //         aggregator: "sum",
+  //         id: measureId,
+  //         display: {
+  //           type: "difference_from",
+  //           fieldNameWithGranularity: "Salesperson",
+  //           value: "Alice",
+  //         },
+  //       },
+  //     ],
+  //   };
+  //   addPivot(model, "B1:C4", pivotDefinition, pivotId);
+  //   setCellContent(model, "A20", "=PIVOT(1)");
+
+  //   // prettier-ignore
+  //   expect(getFormattedGrid(model)).toMatchObject({
+  //     A20:"(#1) Pivot",  B20: "Alice",  C20: "Bob",      D20: "Roger",    E20: "Total",
+  //     A22: "Total",      B22: "",       C22: "0.00€",    D22: "500.00€",  E22: "",
+  //   });
+  // });
 });
 
 describe("Spreadsheet arguments parsing", () => {
