@@ -3,7 +3,7 @@ import { LocalTransportService } from "./collaborative/local_transport_service";
 import { Session } from "./collaborative/session";
 import { DEFAULT_REVISION_ID } from "./constants";
 import { EventBus } from "./helpers/event_bus";
-import { deepCopy, UuidGenerator } from "./helpers/index";
+import { deepCopy, lazy, UuidGenerator } from "./helpers/index";
 import { buildRevisionLog } from "./history/factory";
 import {
   createEmptyExcelWorkbookData,
@@ -294,7 +294,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 
   leaveSession() {
-    this.session.leave(this.exportData());
+    this.session.leave(lazy(() => this.exportData()));
   }
 
   private setupUiPlugin(Plugin: UIPluginConstructor) {

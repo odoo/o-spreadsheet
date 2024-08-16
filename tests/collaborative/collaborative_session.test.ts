@@ -1,6 +1,7 @@
 import { Model } from "../../src";
 import { Session } from "../../src/collaborative/session";
 import { DEBOUNCE_TIME, MESSAGE_VERSION } from "../../src/constants";
+import { lazy } from "../../src/helpers";
 import { buildRevisionLog } from "../../src/history/factory";
 import { Client, CommandResult, WorkbookData } from "../../src/types";
 import { MockTransportService } from "../__mocks__/transport_service";
@@ -50,7 +51,7 @@ describe("Collaborative session", () => {
 
   test("local client leaves", () => {
     const spy = jest.spyOn(transport, "sendMessage");
-    session.leave({} as WorkbookData);
+    session.leave(lazy({} as WorkbookData));
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith({
       type: "CLIENT_LEFT",
@@ -71,7 +72,7 @@ describe("Collaborative session", () => {
     });
     const spy = jest.spyOn(transport, "sendMessage");
     const data = { sheets: [{}] } as WorkbookData;
-    session.leave(data);
+    session.leave(lazy(data));
     expect(spy).toHaveBeenCalledWith({
       type: "SNAPSHOT",
       version: MESSAGE_VERSION,
@@ -123,7 +124,7 @@ describe("Collaborative session", () => {
     });
     const spy = jest.spyOn(transport, "sendMessage");
     const data = { sheets: [{}] } as WorkbookData;
-    session.leave(data);
+    session.leave(lazy(data));
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith({
       type: "CLIENT_LEFT",
@@ -220,7 +221,7 @@ describe("Collaborative session", () => {
 
   test("Leave the session do not crash", () => {
     session.move({ sheetId: "sheetId", col: 1, row: 2 });
-    session.leave({} as WorkbookData);
+    session.leave(lazy({} as WorkbookData));
     jest.advanceTimersByTime(DEBOUNCE_TIME + 100);
   });
 
