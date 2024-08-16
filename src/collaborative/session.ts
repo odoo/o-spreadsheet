@@ -3,7 +3,7 @@ import { UuidGenerator } from "../helpers";
 import { EventBus } from "../helpers/event_bus";
 import { debounce, isDefined } from "../helpers/misc";
 import { SelectiveHistory as RevisionLog } from "../history/selective_history";
-import { CoreCommand, HistoryChange, UID, WorkbookData } from "../types";
+import { CoreCommand, HistoryChange, Lazy, UID, WorkbookData } from "../types";
 import {
   Client,
   ClientId,
@@ -159,9 +159,9 @@ export class Session extends EventBus<CollaborativeEvent> {
   /**
    * Notify the server that the user client left the collaborative session
    */
-  leave(data: WorkbookData) {
+  leave(data: Lazy<WorkbookData>) {
     if (Object.keys(this.clients).length === 1 && this.processedRevisions.size) {
-      this.snapshot(data);
+      this.snapshot(data());
     }
     delete this.clients[this.clientId];
     this.transportService.leave(this.clientId);
