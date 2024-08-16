@@ -38,8 +38,13 @@ interface ConstantValues {
   strings: string[];
 }
 
+interface ConstantValueObjects {
+  numbers: { value: number }[];
+  strings: { value: string }[];
+}
+
 type InternalCompiledFormula = CompiledFormula & {
-  constantValues: ConstantValues;
+  constantValues: ConstantValueObjects;
 };
 
 // this cache contains all compiled function code, grouped by "structure". For
@@ -165,11 +170,11 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
           return code.return(`{ value: ${ast.value} }`);
         case "NUMBER":
           return code.return(
-            `{ value: this.constantValues.numbers[${constantValues.numbers.indexOf(ast.value)}] }`
+            `this.constantValues.numbers[${constantValues.numbers.indexOf(ast.value)}]`
           );
         case "STRING":
           return code.return(
-            `{ value: this.constantValues.strings[${constantValues.strings.indexOf(ast.value)}] }`
+            `this.constantValues.strings[${constantValues.strings.indexOf(ast.value)}]`
           );
         case "REFERENCE":
           const referenceIndex = dependencies.indexOf(ast.value);
@@ -207,7 +212,10 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
   const compiledFormula: InternalCompiledFormula = {
     execute: functionCache[cacheKey],
     dependencies,
-    constantValues,
+    constantValues: {
+      numbers: constantValues.numbers.map((value) => ({ value })),
+      strings: constantValues.strings.map((value) => ({ value })),
+    },
     tokens,
     isBadExpression: false,
   };

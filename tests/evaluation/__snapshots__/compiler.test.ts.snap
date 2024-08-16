@@ -53,7 +53,7 @@ exports[`expression compiler expressions with a debugger 1`] = `
 // =?C|0|/|N0|
 debugger;
 const _1 = ref(deps[0], false);
-const _2 = { value: this.constantValues.numbers[0] };
+const _2 = this.constantValues.numbers[0];
 return ctx['DIVIDE'](_1, _2);
 }"
 `;
@@ -73,7 +73,7 @@ exports[`expression compiler some arithmetic expressions 1`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =|N0|
-return { value: this.constantValues.numbers[0] };
+return this.constantValues.numbers[0];
 }"
 `;
 
@@ -89,7 +89,7 @@ exports[`expression compiler some arithmetic expressions 3`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =|S0|
-return { value: this.constantValues.strings[0] };
+return this.constantValues.strings[0];
 }"
 `;
 
@@ -97,8 +97,8 @@ exports[`expression compiler some arithmetic expressions 4`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =|N0|+|N1|
-const _1 = { value: this.constantValues.numbers[0] };
-const _2 = { value: this.constantValues.numbers[1] };
+const _1 = this.constantValues.numbers[0];
+const _2 = this.constantValues.numbers[1];
 return ctx['ADD'](_1, _2);
 }"
 `;
@@ -107,8 +107,8 @@ exports[`expression compiler some arithmetic expressions 5`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =|N0|*|N1|
-const _1 = { value: this.constantValues.numbers[0] };
-const _2 = { value: this.constantValues.numbers[1] };
+const _1 = this.constantValues.numbers[0];
+const _2 = this.constantValues.numbers[1];
 return ctx['MULTIPLY'](_1, _2);
 }"
 `;
@@ -117,8 +117,8 @@ exports[`expression compiler some arithmetic expressions 6`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =|N0|-|N1|
-const _1 = { value: this.constantValues.numbers[0] };
-const _2 = { value: this.constantValues.numbers[1] };
+const _1 = this.constantValues.numbers[0];
+const _2 = this.constantValues.numbers[1];
 return ctx['MINUS'](_1, _2);
 }"
 `;
@@ -127,8 +127,8 @@ exports[`expression compiler some arithmetic expressions 7`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =|N0|/|N1|
-const _1 = { value: this.constantValues.numbers[0] };
-const _2 = { value: this.constantValues.numbers[1] };
+const _1 = this.constantValues.numbers[0];
+const _2 = this.constantValues.numbers[1];
 return ctx['DIVIDE'](_1, _2);
 }"
 `;
@@ -137,7 +137,7 @@ exports[`expression compiler some arithmetic expressions 8`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =-|N0|
-const _1 = { value: this.constantValues.numbers[0] };
+const _1 = this.constantValues.numbers[0];
 return ctx['UMINUS'](_1);
 }"
 `;
@@ -146,12 +146,12 @@ exports[`expression compiler some arithmetic expressions 9`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =(|N0|+|N1|)*(-|N1|+|N2|)
-const _1 = { value: this.constantValues.numbers[0] };
-const _2 = { value: this.constantValues.numbers[1] };
+const _1 = this.constantValues.numbers[0];
+const _2 = this.constantValues.numbers[1];
 const _3 = ctx['ADD'](_1, _2);
-const _4 = { value: this.constantValues.numbers[1] };
+const _4 = this.constantValues.numbers[1];
 const _5 = ctx['UMINUS'](_4);
-const _6 = { value: this.constantValues.numbers[2] };
+const _6 = this.constantValues.numbers[2];
 const _7 = ctx['ADD'](_5, _6);
 return ctx['MULTIPLY'](_3, _7);
 }"
@@ -161,8 +161,8 @@ exports[`expression compiler some arithmetic expressions 10`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =sum(|N0|,|N1|)
-const _1 = { value: this.constantValues.numbers[0] };
-const _2 = { value: this.constantValues.numbers[1] };
+const _1 = this.constantValues.numbers[0];
+const _2 = this.constantValues.numbers[1];
 return ctx['SUM'](_1,_2);
 }"
 `;
@@ -172,7 +172,7 @@ exports[`expression compiler some arithmetic expressions 11`] = `
 ) {
 // =sum(true,|S0|)
 const _1 = { value: true };
-const _2 = { value: this.constantValues.strings[0] };
+const _2 = this.constantValues.strings[0];
 return ctx['SUM'](_1,_2);
 }"
 `;
@@ -181,9 +181,9 @@ exports[`expression compiler some arithmetic expressions 12`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =sum(|N0|,,|N1|)
-const _1 = { value: this.constantValues.numbers[0] };
+const _1 = this.constantValues.numbers[0];
 const _2 = undefined;
-const _3 = { value: this.constantValues.numbers[1] };
+const _3 = this.constantValues.numbers[1];
 return ctx['SUM'](_1,_2,_3);
 }"
 `;
@@ -192,7 +192,7 @@ exports[`expression compiler some arithmetic expressions 13`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =|N0|%
-const _1 = { value: this.constantValues.numbers[0] };
+const _1 = this.constantValues.numbers[0];
 return ctx['UNARY.PERCENT'](_1);
 }"
 `;
@@ -201,8 +201,8 @@ exports[`expression compiler some arithmetic expressions 14`] = `
 "function anonymous(deps,ref,range,ctx
 ) {
 // =(|N0|+|N1|)%
-const _1 = { value: this.constantValues.numbers[0] };
-const _2 = { value: this.constantValues.numbers[1] };
+const _1 = this.constantValues.numbers[0];
+const _2 = this.constantValues.numbers[1];
 const _3 = ctx['ADD'](_1, _2);
 return ctx['UNARY.PERCENT'](_3);
 }"
