@@ -14,6 +14,9 @@ css/* scss */ `
       background-color: #f2f2f2;
       padding: 10px;
     }
+    .collapsed {
+      transform: rotate(180deg);
+    }
     .o-formula-assistant-core {
       border-bottom: 1px solid gray;
     }

@@ -12,48 +12,57 @@
         t-if="context.functionName"
         t-on-pointermove="onMouseMove"
         t-att-class="{'opacity-25': assistantState.allowCellSelectionBehind}">
-        <div class="o-formula-assistant-head">
-          <span t-esc="context.functionName"/>
-          (
-          <t t-foreach="context.functionDescription.args" t-as="arg" t-key="arg.name">
-            <span t-if="arg_index > '0'" t-esc="formulaArgSeparator"/>
-            <span t-att-class="{ 'o-formula-assistant-focus': context.argToFocus === arg_index }">
-              <span>
-                <span t-if="arg.optional || arg.repeating || arg.default">[</span>
-                <span t-esc="arg.name"/>
-                <span t-if="arg.repeating">, ...</span>
-                <span t-if="arg.optional || arg.repeating || arg.default">]</span>
+        <div class="o-formula-assistant-head d-flex flex-row justify-content-between">
+          <div>
+            <span t-esc="context.functionName"/>
+            (
+            <t t-foreach="context.functionDescription.args" t-as="arg" t-key="arg.name">
+              <span t-if="arg_index > '0'" t-esc="formulaArgSeparator"/>
+              <span t-att-class="{ 'o-formula-assistant-focus': context.argToFocus === arg_index }">
+                <span>
+                  <span t-if="arg.optional || arg.repeating || arg.default">[</span>
+                  <span t-esc="arg.name"/>
+                  <span t-if="arg.repeating">, ...</span>
+                  <span t-if="arg.optional || arg.repeating || arg.default">]</span>
+                </span>
               </span>
-            </span>
-          </t>
-          )
-        </div>
-
-        <div class="o-formula-assistant-core pb-3 m-3">
-          <div class="o-formula-assistant-gray">ABOUT</div>
-          <div t-esc="context.functionDescription.description"/>
-        </div>
-
-        <t t-foreach="context.functionDescription.args" t-as="arg" t-key="arg.name">
-          <div
-            class="o-formula-assistant-arg p-3 pt-0 display-flex flex-column"
-            t-att-class="{
-                'o-formula-assistant-gray': context.argToFocus >= '0',
-                'o-formula-assistant-focus': context.argToFocus === arg_index,
-              }">
-            <div>
-              <span t-esc="arg.name"/>
-              <span
-                t-if="arg.optional || arg.repeating || arg.default ">&#xA0;- [optional]&#xA0;</span>
-              <span t-if="arg.default">
-                <span>default:&#xA0;</span>
-                <t t-esc="arg.defaultValue"/>
-              </span>
-              <span t-if="arg.repeating">repeatable</span>
-            </div>
-            <div class="o-formula-assistant-arg-description" t-esc="arg.description"/>
+            </t>
+            )
           </div>
-        </t>
+          <i
+            class="fa fa-caret-up px-2 align-self-start collapsed"
+            data-bs-toggle="collapse"
+            data-bs-target="#formula-assistant-details"
+          />
+        </div>
+
+        <div id="formula-assistant-details" class="collapse">
+          <div class="o-formula-assistant-core pb-3 m-3">
+            <div class="o-formula-assistant-gray">ABOUT</div>
+            <div t-esc="context.functionDescription.description"/>
+          </div>
+
+          <t t-foreach="context.functionDescription.args" t-as="arg" t-key="arg.name">
+            <div
+              class="o-formula-assistant-arg p-3 pt-0 display-flex flex-column"
+              t-att-class="{
+                  'o-formula-assistant-gray': context.argToFocus >= '0',
+                  'o-formula-assistant-focus': context.argToFocus === arg_index,
+                }">
+              <div>
+                <span t-esc="arg.name"/>
+                <span
+                  t-if="arg.optional || arg.repeating || arg.default ">&#xA0;- [optional]&#xA0;</span>
+                <span t-if="arg.default">
+                  <span>default:&#xA0;</span>
+                  <t t-esc="arg.defaultValue"/>
+                </span>
+                <span t-if="arg.repeating">repeatable</span>
+              </div>
+              <div class="o-formula-assistant-arg-description" t-esc="arg.description"/>
+            </div>
+          </t>
+        </div>
       </div>
     </div>
   </t>
