@@ -78,10 +78,6 @@ export class PivotUIPlugin extends UIPlugin {
         this.setupPivot(cmd.pivotId, { recreate: true });
         break;
       }
-      case "REMOVE_PIVOT": {
-        delete this.pivots[cmd.pivotId];
-        break;
-      }
       case "DELETE_SHEET":
       case "UPDATE_CELL": {
         this.unusedPivots = undefined;
@@ -245,6 +241,9 @@ export class PivotUIPlugin extends UIPlugin {
   }
 
   getPivot(pivotId: UID) {
+    if (!this.getters.isExistingPivot(pivotId)) {
+      throw new Error(`pivot ${pivotId} not found`);
+    }
     return this.pivots[pivotId];
   }
 

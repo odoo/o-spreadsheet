@@ -1295,7 +1295,11 @@ describe("Spreadsheet Pivot", () => {
     removePivot(model, "1");
     expect(model.getters.getPivotIds()).toEqual([]);
     expect(() => model.getters.getPivotCoreDefinition("1")).toThrow();
-    expect(model.getters.getPivot("1")).toBeUndefined();
+    expect(() => model.getters.getPivot("1")).toThrow();
+    undo(model);
+    expect(model.getters.getPivotIds()).toEqual(["1"]);
+    expect(model.getters.getPivotCoreDefinition("1")).toBeTruthy();
+    expect(model.getters.getPivot("1")).toBeTruthy();
   });
 });
 
