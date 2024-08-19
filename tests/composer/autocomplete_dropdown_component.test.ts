@@ -23,6 +23,7 @@ import {
   restoreDefaultFunctions,
   typeInComposerHelper,
 } from "../test_helpers/helpers";
+import { addPivot } from "../test_helpers/pivot_helpers";
 jest.mock("../../src/components/composer/content_editable_helper.ts", () =>
   require("../__mocks__/content_editable_helper")
 );
@@ -325,6 +326,15 @@ describe("Functions autocomplete", () => {
 
       await typeInComposer("", true);
       expect(fixture.querySelector(".o-autocomplete-dropdown")).toBeFalsy();
+    });
+
+    test("show auto-complete and assistant at the same time", async () => {
+      restoreDefaultFunctions();
+      addPivot(model, "A1:A2");
+      await typeInComposer("=PIVOT.VALUE(", true);
+      expect(fixture.querySelector(".o-autocomplete-dropdown")).toBeTruthy();
+      expect(fixture.querySelector(".o-formula-assistant-container")).toBeTruthy();
+      expect(fixture.querySelector("#formula-assistant-details")?.className).not.toContain("show");
     });
   });
 

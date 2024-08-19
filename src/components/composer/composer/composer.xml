@@ -32,18 +32,22 @@
         t-on-pointerdown.prevent.stop=""
         t-on-click.prevent.stop=""
         t-on-pointerup.prevent.stop="">
+        <FunctionDescriptionProvider
+          t-if="functionDescriptionState.showDescription"
+          functionName="functionDescriptionState.functionName"
+          functionDescription="functionDescriptionState.functionDescription"
+          argToFocus="functionDescriptionState.argToFocus"
+        />
+        <div
+          t-if="functionDescriptionState.showDescription and autoCompleteState.provider"
+          class="border-top"
+        />
         <TextValueProvider
           t-if="autoCompleteState.provider"
           proposals="autoCompleteState.provider.proposals"
           selectedIndex="autoCompleteState.selectedIndex"
           onValueSelected.bind="this.autoComplete"
           onValueHovered.bind="this.updateAutoCompleteIndex"
-        />
-        <FunctionDescriptionProvider
-          t-if="functionDescriptionState.showDescription"
-          functionName="functionDescriptionState.functionName"
-          functionDescription="functionDescriptionState.functionDescription"
-          argToFocus="functionDescriptionState.argToFocus"
         />
       </div>
     </div>

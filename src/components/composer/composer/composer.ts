@@ -735,7 +735,6 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     const autoCompleteProvider = this.props.composerStore.autocompleteProvider;
     if (autoCompleteProvider) {
       this.autoCompleteState.useProvider(autoCompleteProvider);
-      return;
     }
     const token = this.props.composerStore.tokenAtCursor;
 
