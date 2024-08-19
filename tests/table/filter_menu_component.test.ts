@@ -109,6 +109,13 @@ describe("Filter menu component", () => {
       expect(values.map((val) => val.value)).toEqual(["(Blanks)", "1", "1/1/1900"]);
     });
 
+    test("Repeated character in format is not shown", async () => {
+      setFormat(model, "A4", "$* 0");
+      await openFilterMenu();
+      const values = getFilterMenuValues();
+      expect(values.map((val) => val.value)).toEqual(["(Blanks)", "$2", "1"]);
+    });
+
     test("Values are checked depending on the filter state", async () => {
       updateFilter(model, "A1", ["1"]);
       await openFilterMenu();

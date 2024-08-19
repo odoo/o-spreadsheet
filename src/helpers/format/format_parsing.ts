@@ -8,6 +8,7 @@ import {
   EscapedStringToken,
   FormatToken,
   PercentToken,
+  RepeatCharToken,
   TextPlaceholderToken,
   ThousandsSeparatorToken,
   shouldEscapeFormatChar,
@@ -29,12 +30,18 @@ export interface MultiPartInternalFormat {
 
 export interface DateInternalFormat {
   type: "date";
-  tokens: (DatePartToken | DecimalPointToken | EscapedStringToken | CharToken)[];
+  tokens: (DatePartToken | DecimalPointToken | EscapedStringToken | CharToken | RepeatCharToken)[];
 }
 
 export interface NumberInternalFormat {
   type: "number";
-  readonly integerPart: (DigitToken | EscapedStringToken | CharToken | PercentToken)[];
+  readonly integerPart: (
+    | DigitToken
+    | EscapedStringToken
+    | CharToken
+    | PercentToken
+    | RepeatCharToken
+  )[];
   readonly percentSymbols: number;
   readonly thousandsSeparator: boolean;
   /** A thousand separator after the last digit in the format means that we divide the number by a thousand */
@@ -44,12 +51,18 @@ export interface NumberInternalFormat {
    * with a dot but no decimals with a number without any decimals.
    * i.e. '5.'  !=== '5' !=== '5.0'
    */
-  readonly decimalPart?: (DigitToken | EscapedStringToken | CharToken | PercentToken)[];
+  readonly decimalPart?: (
+    | DigitToken
+    | EscapedStringToken
+    | CharToken
+    | PercentToken
+    | RepeatCharToken
+  )[];
 }
 
 export interface TextInternalFormat {
   type: "text";
-  tokens: (EscapedStringToken | CharToken | TextPlaceholderToken)[];
+  tokens: (EscapedStringToken | CharToken | TextPlaceholderToken | RepeatCharToken)[];
 }
 
 export type InternalFormat = NumberInternalFormat | DateInternalFormat | TextInternalFormat;
@@ -67,6 +80,14 @@ export function parseFormat(formatString: Format): MultiPartInternalFormat {
 
 export function convertFormatToInternalFormat(format: Format): MultiPartInternalFormat {
   const formatParts = tokenizeFormat(format);
+
+  // A format can only have a single REPEATED_CHAR token. The rest are converted to simple CHAR tokens.
+  for (const part of formatParts) {
+    const repeatedCharTokens = part.filter((token) => token.type === "REPEATED_CHAR");
+    for (const repeatedCharToken of repeatedCharTokens.slice(1)) {
+      repeatedCharToken.type = "CHAR";
+    }
+  }
 
   const positiveFormat =
     parseDateFormatTokens(formatParts[0]) ||
@@ -105,7 +126,8 @@ function areValidDateFormatTokens(tokens: FormatToken[]): tokens is DateInternal
       token.type === "DATE_PART" ||
       token.type === "DECIMAL_POINT" ||
       token.type === "ESCAPED_STRING" ||
-      token.type === "CHAR"
+      token.type === "CHAR" ||
+      token.type === "REPEATED_CHAR"
   );
 }
 
@@ -118,6 +140,7 @@ function areValidNumberFormatTokens(
   | PercentToken
   | EscapedStringToken
   | CharToken
+  | RepeatCharToken
 )[] {
   return tokens.every(
     (token) =>
@@ -126,14 +149,18 @@ function areValidNumberFormatTokens(
       token.type === "THOUSANDS_SEPARATOR" ||
       token.type === "PERCENT" ||
       token.type === "ESCAPED_STRING" ||
-      token.type === "CHAR"
+      token.type === "CHAR" ||
+      token.type === "REPEATED_CHAR"
   );
 }
 
 function areValidTextFormatTokens(tokens: FormatToken[]): tokens is TextInternalFormat["tokens"] {
   return tokens.every(
     (token) =>
-      token.type === "ESCAPED_STRING" || token.type === "TEXT_PLACEHOLDER" || token.type === "CHAR"
+      token.type === "ESCAPED_STRING" ||
+      token.type === "TEXT_PLACEHOLDER" ||
+      token.type === "CHAR" ||
+      token.type === "REPEATED_CHAR"
   );
 }
 
@@ -172,6 +199,7 @@ function parseNumberFormatTokens(
           throw new Error("Multiple decimal points in a number format");
         }
         break;
+      case "REPEATED_CHAR":
       case "CHAR":
       case "ESCAPED_STRING":
         parsedPart.push(token);
@@ -279,6 +307,9 @@ function internalFormatPartToFormat(
         break;
       case "CHAR":
         format += shouldEscapeFormatChar(token.value) ? `\\${token.value}` : token.value;
+        break;
+      case "REPEATED_CHAR":
+        format += "*" + token.value;
         break;
       default:
         format += token.value;

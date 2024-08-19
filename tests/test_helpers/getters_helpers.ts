@@ -69,7 +69,10 @@ export function getCellContent(
   sheetId: UID = model.getters.getActiveSheetId()
 ): string {
   const { col, row } = toCartesian(xc);
-  return model.getters.getCellText({ sheetId, col, row }, model.getters.shouldShowFormulas());
+  return model.getters.getCellText(
+    { sheetId, col, row },
+    { showFormula: model.getters.shouldShowFormulas() }
+  );
 }
 
 /**
@@ -102,7 +105,7 @@ export function getCellText(
   sheetId: UID = model.getters.getActiveSheetId()
 ) {
   const { col, row } = toCartesian(xc);
-  return model.getters.getCellText({ sheetId, col, row }, true);
+  return model.getters.getCellText({ sheetId, col, row }, { showFormula: true });
 }
 
 export function getStyle(

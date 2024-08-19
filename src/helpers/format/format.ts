@@ -37,6 +37,8 @@ import { FormatToken } from "./format_tokenize";
  */
 const DEFAULT_FORMAT_NUMBER_OF_DIGITS = 11;
 
+const REPEATED_CHAR_PLACEHOLDER = "REPEATED_CHAR_PLACEHOLDER_";
+
 // TODO in the future : remove these constants MONTHS/DAYS, and use a library such as luxon to handle it
 // + possibly handle automatic translation of day/month
 export const MONTHS: Readonly<Record<number, string>> = {
@@ -64,10 +66,18 @@ const DAYS: Readonly<Record<number, string>> = {
   6: _t("Saturday"),
 };
 
+interface FormatWidth {
+  maxWidth: number;
+  measureText: (text: string) => number;
+}
+
 /**
  * Formats a cell value with its format.
  */
-export function formatValue(value: CellValue, { format, locale }: LocaleFormat): FormattedValue {
+export function formatValue(
+  value: CellValue,
+  { format, locale, formatWidth }: LocaleFormat & { formatWidth?: FormatWidth }
+): FormattedValue {
   if (typeof value === "boolean") {
     value = value ? "TRUE" : "FALSE";
   } else if (typeof value === "string") {
@@ -75,6 +85,7 @@ export function formatValue(value: CellValue, { format, locale }: LocaleFormat):
       value = value.replaceAll(/\\"/g, '"');
     }
   }
+
   switch (typeof value) {
     case "string": {
       if (!format) {
@@ -85,7 +96,7 @@ export function formatValue(value: CellValue, { format, locale }: LocaleFormat):
       if (!formatToApply || formatToApply.type !== "text") {
         return value;
       }
-      return applyTextInternalFormat(value, formatToApply);
+      return applyTextInternalFormat(value, formatToApply, formatWidth);
     }
     case "number":
       if (!format) {
@@ -94,7 +105,7 @@ export function formatValue(value: CellValue, { format, locale }: LocaleFormat):
 
       const internalFormat = parseFormat(format);
       if (internalFormat.positive.type === "text") {
-        return applyTextInternalFormat(value.toString(), internalFormat.positive);
+        return applyTextInternalFormat(value.toString(), internalFormat.positive, formatWidth);
       }
 
       let formatToApply: InternalFormat = internalFormat.positive;
@@ -104,7 +115,7 @@ export function formatValue(value: CellValue, { format, locale }: LocaleFormat):
       } else if (value === 0 && internalFormat.zero) {
         formatToApply = internalFormat.zero;
       }
-      return applyNumberInternalFormat(value, formatToApply, locale);
+      return applyNumberInternalFormat(value, formatToApply, locale, formatWidth);
     case "object": // case value === null
       return "";
   }
@@ -113,20 +124,23 @@ export function formatValue(value: CellValue, { format, locale }: LocaleFormat):
 function applyNumberInternalFormat(
   value: number,
   internalFormat: NumberInternalFormat | DateInternalFormat,
-  locale: Locale
+  locale: Locale,
+  formatWidth?: FormatWidth
 ): FormattedValue {
   if (internalFormat.type === "date") {
-    return applyDateTimeFormat(value, internalFormat);
+    return repeatCharToFitWidth(applyDateTimeFormat(value, internalFormat), formatWidth);
   }
 
   const isNegative = value < 0;
   const formatted = applyInternalNumberFormat(Math.abs(value), internalFormat, locale);
-  return isNegative ? "-" + formatted : formatted;
+  const formattedValue = isNegative ? "-" + formatted : formatted;
+  return repeatCharToFitWidth(formattedValue, formatWidth);
 }
 
 function applyTextInternalFormat(
   value: string,
-  internalFormat: TextInternalFormat
+  internalFormat: TextInternalFormat,
+  formatWidth?: FormatWidth
 ): FormattedValue {
   let formattedValue = "";
   for (let token of internalFormat.tokens) {
@@ -138,9 +152,35 @@ function applyTextInternalFormat(
       case "ESCAPED_STRING":
         formattedValue += token.value;
         break;
+      case "REPEATED_CHAR":
+        formattedValue += REPEATED_CHAR_PLACEHOLDER + token.value;
+        break;
     }
   }
-  return formattedValue;
+  return repeatCharToFitWidth(formattedValue, formatWidth);
+}
+
+function repeatCharToFitWidth(formattedValue: string, formatWidth?: FormatWidth): string {
+  const placeholderIndex = formattedValue.indexOf(REPEATED_CHAR_PLACEHOLDER);
+  if (placeholderIndex === -1) {
+    return formattedValue;
+  }
+  const prefix = formattedValue.slice(0, placeholderIndex);
+  const suffix = formattedValue.slice(placeholderIndex + REPEATED_CHAR_PLACEHOLDER.length + 1);
+  const repeatedChar = formattedValue[placeholderIndex + REPEATED_CHAR_PLACEHOLDER.length];
+
+  function getTimesToRepeat() {
+    if (!formatWidth) {
+      return 0;
+    }
+    const widthTaken = formatWidth.measureText(prefix + suffix);
+    const charWidth = formatWidth.measureText(repeatedChar);
+    const availableWidth = formatWidth.maxWidth - widthTaken;
+    const timesToRepeat = Math.floor(availableWidth / charWidth);
+    return Math.max(0, timesToRepeat);
+  }
+
+  return prefix + repeatedChar.repeat(getTimesToRepeat()) + suffix;
 }
 
 function applyInternalNumberFormat(value: number, format: NumberInternalFormat, locale: Locale) {
@@ -219,6 +259,9 @@ function applyIntegerFormat(
           }
         }
         break;
+      case "REPEATED_CHAR":
+        formattedInteger = REPEATED_CHAR_PLACEHOLDER + token.value + formattedInteger;
+        break;
       default:
         formattedInteger = token.value + formattedInteger;
         break;
@@ -246,6 +289,9 @@ function applyDecimalFormat(decimalDigits: string, internalFormat: NumberInterna
             : decimalDigits[indexInDecimalString] || "0";
         formattedDecimals += digit;
         indexInDecimalString++;
+        break;
+      case "REPEATED_CHAR":
+        formattedDecimals += REPEATED_CHAR_PLACEHOLDER + token.value;
         break;
       default:
         formattedDecimals += token.value;
@@ -420,6 +466,9 @@ export function applyDateTimeFormat(
       case "DATE_PART":
         currentValue += formatJSDatePart(jsDate, token.value, isMeridian);
         break;
+      case "REPEATED_CHAR":
+        currentValue += REPEATED_CHAR_PLACEHOLDER + token.value;
+        break;
       default:
         currentValue += token.value;
         break;
@@ -570,10 +619,20 @@ export function createAccountingFormat(currency: Partial<Currency>): Format {
   if (position === "after" && code) {
     textExpression = " " + textExpression;
   }
-  const positivePart = insertTextInFormat(textExpression, position, numberFormat);
-  const negativePart = insertTextInFormat(textExpression, position, `(${numberFormat})`);
-  const zeroPart = insertTextInFormat(textExpression, position, "-");
+
+  const positivePart = insertTextInAccountingFormat(textExpression, position, ` ${numberFormat} `);
+  const negativePart = insertTextInAccountingFormat(textExpression, position, `(${numberFormat})`);
+  const zeroPart = insertTextInAccountingFormat(textExpression, position, "  -  ");
   return [positivePart, negativePart, zeroPart].join(";");
+}
+
+function insertTextInAccountingFormat(
+  text: string,
+  position: "before" | "after",
+  format: Format
+): Format {
+  const textExpression = `[$${text}]`;
+  return position === "before" ? textExpression + "* " + format : format + "* " + textExpression;
 }
 
 function insertTextInFormat(text: string, position: "before" | "after", format: Format): Format {
