@@ -60,6 +60,7 @@ exports[`composer Assistant render above the cell when not enough place below 1`
   class="o-composer-assistant shadow"
   style="min-width:96px; width:300px; max-height:150px; top:-3px; transform:translate(0, -100%); right:0px; "
 >
+  
   <div
     class="o-autocomplete-dropdown"
   >
@@ -112,7 +113,6 @@ exports[`composer Assistant render above the cell when not enough place below 1`
     </div>
     
   </div>
-  
   
 </div>
 `;
@@ -122,6 +122,7 @@ exports[`composer Assistant render below the cell by default 1`] = `
   class="o-composer-assistant shadow"
   style="min-width:96px; width:300px; max-height:327px; "
 >
+  
   <div
     class="o-autocomplete-dropdown"
   >
@@ -174,7 +175,6 @@ exports[`composer Assistant render below the cell by default 1`] = `
     </div>
     
   </div>
-  
   
 </div>
 `;
