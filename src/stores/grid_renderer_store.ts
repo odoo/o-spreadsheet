@@ -630,9 +630,9 @@ export class GridRenderer {
     /** Content */
     const style = this.getters.getCellComputedStyle(position);
     const wrapping = style.wrapping || "overflow";
-    const maxWidth =
-      wrapping === "wrap" && !showFormula ? width - 2 * MIN_CELL_TEXT_MARGIN : undefined;
-    const multiLineText = this.getters.getCellMultiLineText(position, maxWidth);
+    const wrapText = wrapping === "wrap" && !showFormula;
+    const maxWidth = width - 2 * MIN_CELL_TEXT_MARGIN;
+    const multiLineText = this.getters.getCellMultiLineText(position, { maxWidth, wrapText });
     const textWidth = Math.max(
       ...multiLineText.map((line) => this.getters.getTextWidth(line, style) + MIN_CELL_TEXT_MARGIN)
     );

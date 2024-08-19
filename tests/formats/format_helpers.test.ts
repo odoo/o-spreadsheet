@@ -1116,34 +1116,34 @@ describe("create accounting format", () => {
       position: "before",
     };
     const format = createAccountingFormat(currency);
-    expect(format).toBe("[$O$OO θ]#,##0.00;[$O$OO θ](#,##0.00);[$O$OO θ]- ");
-    expect(formatValue(1234.56, { format, locale: DEFAULT_LOCALE })).toBe("O$OO θ1,234.56");
+    expect(format).toBe("[$O$OO θ]*  #,##0.00 ;[$O$OO θ]* (#,##0.00);[$O$OO θ]*   -  ");
+    expect(formatValue(1234.56, { format, locale: DEFAULT_LOCALE })).toBe("O$OO θ 1,234.56 ");
     expect(formatValue(-1234.56, { format, locale: DEFAULT_LOCALE })).toBe("O$OO θ(1,234.56)");
-    expect(formatValue(0, { format, locale: DEFAULT_LOCALE })).toBe("O$OO θ- ");
+    expect(formatValue(0, { format, locale: DEFAULT_LOCALE })).toBe("O$OO θ  -  ");
   });
 
   test("custom decimal places on accounting format", () => {
     const format = createAccountingFormat({ symbol, decimalPlaces: 4 });
-    expect(format).toBe("[$θ]#,##0.0000;[$θ](#,##0.0000);[$θ]- ");
-    expect(formatValue(1234.56, { format, locale: DEFAULT_LOCALE })).toBe("θ1,234.5600");
+    expect(format).toBe("[$θ]*  #,##0.0000 ;[$θ]* (#,##0.0000);[$θ]*   -  ");
+    expect(formatValue(1234.56, { format, locale: DEFAULT_LOCALE })).toBe("θ 1,234.5600 ");
     expect(formatValue(-1234.56, { format, locale: DEFAULT_LOCALE })).toBe("θ(1,234.5600)");
-    expect(formatValue(0, { format, locale: DEFAULT_LOCALE })).toBe("θ- ");
+    expect(formatValue(0, { format, locale: DEFAULT_LOCALE })).toBe("θ  -  ");
   });
 
   test("without decimal places currency", () => {
     const format = createAccountingFormat({ symbol, decimalPlaces: 0 });
-    expect(format).toBe("[$θ]#,##0;[$θ](#,##0);[$θ]- ");
-    expect(formatValue(1234.56, { format, locale: DEFAULT_LOCALE })).toBe("θ1,235");
+    expect(format).toBe("[$θ]*  #,##0 ;[$θ]* (#,##0);[$θ]*   -  ");
+    expect(formatValue(1234.56, { format, locale: DEFAULT_LOCALE })).toBe("θ 1,235 ");
     expect(formatValue(-1234.56, { format, locale: DEFAULT_LOCALE })).toBe("θ(1,235)");
-    expect(formatValue(0, { format, locale: DEFAULT_LOCALE })).toBe("θ- ");
+    expect(formatValue(0, { format, locale: DEFAULT_LOCALE })).toBe("θ  -  ");
   });
 
   test("currency with symbol placed after", () => {
     const format = createAccountingFormat({ symbol, position: "after", decimalPlaces: 0 });
-    expect(format).toBe("#,##0[$θ];(#,##0)[$θ];- [$θ]");
-    expect(formatValue(1234.56, { format, locale: DEFAULT_LOCALE })).toBe("1,235θ");
+    expect(format).toBe(" #,##0 * [$θ];(#,##0)* [$θ];  -  * [$θ]");
+    expect(formatValue(1234.56, { format, locale: DEFAULT_LOCALE })).toBe(" 1,235 θ");
     expect(formatValue(-1234.56, { format, locale: DEFAULT_LOCALE })).toBe("(1,235)θ");
-    expect(formatValue(0, { format, locale: DEFAULT_LOCALE })).toBe("- θ");
+    expect(formatValue(0, { format, locale: DEFAULT_LOCALE })).toBe("  -  θ");
   });
 });
 
@@ -1217,5 +1217,46 @@ describe("Multi-part format", () => {
     expect(formatValue(0, { locale, format })).toBe("0.0");
     expect(formatValue(-1, { locale, format })).toBe("31/12/1899");
     expect(formatValue("text", { locale, format })).toBe("text");
+  });
+});
+
+describe("Format with repeated character", () => {
+  function measureText(str: string) {
+    return str.length;
+  }
+
+  test("Repeat a character to fit the width", () => {
+    const formatWidth = { measureText, availableWidth: 5 };
+    expect(formatValue(1, { locale, format: "0*c", formatWidth })).toBe("1cccc");
+    expect(formatValue(10, { locale, format: "0*c", formatWidth })).toBe("10ccc");
+    expect(formatValue(1000000, { locale, format: "0*c", formatWidth })).toBe("1000000");
+  });
+
+  test("Only first asterisk is repeated", () => {
+    expect(
+      formatValue(1, { locale, format: "*c0*c", formatWidth: { measureText, availableWidth: 5 } })
+    ).toBe("ccc1c");
+  });
+
+  test("Character is not repeated if no with is given to formatValue", () => {
+    expect(formatValue(1, { locale, format: "0* " })).toBe("1");
+    expect(formatValue(1, { locale, format: "* 0" })).toBe("1");
+  });
+
+  test("Can repeat a character in a multi part format", () => {
+    const formatWidth = { measureText, availableWidth: 5 };
+    const format = '0* "€";$* -0;"£"* 0;* @';
+    expect(formatValue(1, { locale, format, formatWidth })).toBe("1   €");
+    expect(formatValue(-1, { locale, format, formatWidth })).toBe("$  -1");
+    expect(formatValue(0, { locale, format, formatWidth })).toBe("£   0");
+    expect(formatValue("hey", { locale, format, formatWidth })).toBe("  hey");
+  });
+
+  test("Thin spaces are added as padding to more closely fit the available width", () => {
+    const measureText = (str: string) => {
+      return str === "\u2009" ? 0.5 : str.length * 2;
+    };
+    const formatWidth = { measureText, availableWidth: 5.5 };
+    expect(formatValue(1, { locale, format: "*a0", formatWidth })).toBe("a\u2009\u2009\u20091");
   });
 });

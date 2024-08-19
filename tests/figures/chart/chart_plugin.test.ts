@@ -1906,10 +1906,14 @@ describe("Chart design configuration", () => {
       (chartType) => {
         setCellFormat(model, "A2", "[$$]#,##0.00");
         createChart(model, { ...defaultChart, type: chartType as "bar" | "line" }, "42");
-        //@ts-ignore
         expect(
           getChartConfiguration(model, "42").options.scales.y?.ticks.callback!(60000000)
         ).toEqual("$60,000,000.00");
+
+        setCellFormat(model, "A2", "[$$]*A#,##"); // We should ignore repeated characters in format
+        expect(
+          getChartConfiguration(model, "42").options.scales.y?.ticks.callback!(60000000)
+        ).toEqual("$60,000,000");
       }
     );
 

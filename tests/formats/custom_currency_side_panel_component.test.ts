@@ -455,9 +455,9 @@ describe("custom currency sidePanel component", () => {
 
     expect(getExampleValues()).toEqual(["1,235€", "-1,235€", "0€"]);
     await click(fixture, selectors.accountingFormatCheckbox);
-    expect(getExampleValues()).toEqual(["1,235€", "(1,235)€", "- €"]);
+    expect(getExampleValues()).toEqual([" 1,235 €", "(1,235)€", "  -  €"]);
     await click(fixture, selectors.applyFormat);
-    expect(getCell(model, "A1")?.format).toBe("#,##0[$€];(#,##0)[$€];- [$€]");
+    expect(getCell(model, "A1")?.format).toBe(" #,##0 * [$€];(#,##0)* [$€];  -  * [$€]");
   });
 });
 

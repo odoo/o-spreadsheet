@@ -36,6 +36,7 @@ import {
   resizeColumns,
   resizeRows,
   setCellContent,
+  setFormat,
   setSelection,
   setStyle,
   setZoneBorders,
@@ -698,7 +699,7 @@ describe("renderer", () => {
     expect(textAligns).toEqual(["left", "center"]);
     expect(getCellTextMock).toHaveBeenLastCalledWith(
       { sheetId: expect.any(String), col: 0, row: 0 },
-      true
+      { showFormula: true, availableWidth: DEFAULT_CELL_WIDTH - 2 * MIN_CELL_TEXT_MARGIN }
     );
   });
 
@@ -727,7 +728,7 @@ describe("renderer", () => {
     expect(textAligns).toEqual(["left", "center"]);
     expect(getCellTextMock).toHaveBeenLastCalledWith(
       { sheetId: expect.any(String), col: 0, row: 0 },
-      true
+      { showFormula: true, availableWidth: DEFAULT_CELL_WIDTH - 2 * MIN_CELL_TEXT_MARGIN }
     );
   });
 
@@ -2191,5 +2192,24 @@ describe("renderer", () => {
       drawGridRenderer(ctx);
       expect(renderedTexts).toContain("hello");
     });
+  });
+
+  test("Repeated character in format is repeated to fill the column", () => {
+    const { drawGridRenderer, model, gridRendererStore } = setRenderer();
+    setCellContent(model, "A1", "1");
+    setFormat(model, "A1", "* 0");
+    resizeColumns(model, ["A"], 20);
+
+    let ctx = new MockGridRenderingContext(model, 1000, 1000, {});
+    drawGridRenderer(ctx);
+
+    let box = gridRendererStore["getGridBoxes"]().filter((box) => box.content)[0];
+    const expectedSpaces = 20 - 2 * MIN_CELL_TEXT_MARGIN;
+    expect(box.content?.textLines).toEqual(["1".padStart(expectedSpaces)]);
+
+    setFormat(model, "A1", "0*c");
+    drawGridRenderer(ctx);
+    box = gridRendererStore["getGridBoxes"]().filter((box) => box.content)[0];
+    expect(box.content?.textLines).toEqual(["1".padEnd(expectedSpaces, "c")]);
   });
 });

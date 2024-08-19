@@ -2,6 +2,7 @@ import { GRID_ICON_MARGIN, ICON_EDGE_LENGTH, PADDING_AUTORESIZE_HORIZONTAL } fro
 import {
   computeIconWidth,
   computeTextWidth,
+  formatValue,
   isEqual,
   largeMax,
   positions,
@@ -118,14 +119,29 @@ export class SheetUIPlugin extends UIPlugin {
     return computeTextWidth(this.ctx, text, style);
   }
 
-  getCellText(position: CellPosition, showFormula: boolean = false): string {
+  getCellText(
+    position: CellPosition,
+    args?: { showFormula?: boolean; availableWidth?: number }
+  ): string {
     const cell = this.getters.getCell(position);
-    if (showFormula && cell?.isFormula) {
-      return localizeFormula(cell.content, this.getters.getLocale());
-    } else if (showFormula && !cell?.content) {
+    const locale = this.getters.getLocale();
+    if (args?.showFormula && cell?.isFormula) {
+      return localizeFormula(cell.content, locale);
+    } else if (args?.showFormula && !cell?.content) {
       return "";
     } else {
-      return this.getters.getEvaluatedCell(position).formattedValue;
+      const evaluatedCell = this.getters.getEvaluatedCell(position);
+      const formatWidth = args?.availableWidth
+        ? {
+            availableWidth: args.availableWidth,
+            measureText: (text: string) => computeTextWidth(this.ctx, text, cell?.style || {}),
+          }
+        : undefined;
+      return formatValue(evaluatedCell.value, {
+        format: evaluatedCell.format,
+        locale,
+        formatWidth,
+      });
     }
   }
 
@@ -133,10 +149,16 @@ export class SheetUIPlugin extends UIPlugin {
    * Return the text of a cell, split in multiple lines if needed. The text will be split in multiple
    * line if it contains NEWLINE characters, or if it's longer than the given width.
    */
-  getCellMultiLineText(position: CellPosition, width: number | undefined): string[] {
+  getCellMultiLineText(
+    position: CellPosition,
+    args: { wrapText: boolean; maxWidth: number }
+  ): string[] {
     const style = this.getters.getCellStyle(position);
-    const text = this.getters.getCellText(position, this.getters.shouldShowFormulas());
-    return splitTextToWidth(this.ctx, text, style, width);
+    const text = this.getters.getCellText(position, {
+      showFormula: this.getters.shouldShowFormulas(),
+      availableWidth: args.maxWidth,
+    });
+    return splitTextToWidth(this.ctx, text, style, args.wrapText ? args.maxWidth : undefined);
   }
 
   doesCellHaveGridIcon(position: CellPosition): boolean {
