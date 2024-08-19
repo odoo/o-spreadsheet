@@ -54,7 +54,7 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
             cell = {
               id: cell?.id || "",
               style: cell?.style,
-              format: evaluatedCell.format,
+              format: cell?.format,
               content: pivotFormula,
               isFormula: false,
               parsedValue: evaluatedCell.value,

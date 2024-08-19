@@ -2025,6 +2025,38 @@ describe("clipboard", () => {
     ]);
   });
 
+  test("copy spread pivot cells format", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Customer", B1: "Price", C1: "=PIVOT(1)",
+      A2: "Alice",    B2: "10",
+      A3: "Bob",      B3: "30"
+    };
+    const model = createModelFromGrid(grid);
+
+    setFormat(model, "B2:B3", "#,##0[$$]");
+
+    addPivot(model, "A1:B3", {
+      columns: [],
+      rows: [{ fieldName: "Customer" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
+    });
+
+    setFormat(model, "D5", "#,##0.0");
+    copy(model, "D4:D5");
+    paste(model, "G4");
+
+    // automatic format on G4
+    expect(getCell(model, "G4")?.content).toBe('=PIVOT.VALUE(1,"Price:sum","Customer","Bob")');
+    expect(getCell(model, "G4")?.format).toBeUndefined();
+    expect(getEvaluatedCell(model, "G4").format).toBe("#,##0[$$]");
+
+    // forced format copied from D5
+    expect(getCell(model, "G5")?.content).toBe('=PIVOT.VALUE(1,"Price:sum")');
+    expect(getCell(model, "G5")?.format).toBe("#,##0.0");
+    expect(getEvaluatedCell(model, "G5").format).toBe("#,##0.0");
+  });
+
   test("copying a spread pivot cell with (Undefined)", () => {
     // prettier-ignore
     const grid = {
