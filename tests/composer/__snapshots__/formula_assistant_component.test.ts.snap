@@ -8,90 +8,102 @@ exports[`formula assistant appearance simple snapshot with =FUNC1( 1`] = `
     class="o-formula-assistant"
   >
     <div
-      class="o-formula-assistant-head"
+      class="o-formula-assistant-head d-flex flex-row justify-content-between"
     >
-      <span>
-        FUNC1
-      </span>
-       ( 
-      
-      <span
-        class="o-formula-assistant-focus"
-      >
+      <div>
         <span>
-          
+          FUNC1
+        </span>
+         ( 
+        
+        <span
+          class="o-formula-assistant-focus"
+        >
+          <span>
+            
+            <span>
+              f1Arg1
+            </span>
+            
+            
+          </span>
+        </span>
+        <span>
+          , 
+        </span>
+        <span>
+          <span>
+            
+            <span>
+              f1Arg2
+            </span>
+            
+            
+          </span>
+        </span>
+        
+        
+         ) 
+      </div>
+      <i
+        class="fa fa-caret-up px-2 align-self-start collapsed"
+        data-bs-target="#formula-assistant-details"
+        data-bs-toggle="collapse"
+      />
+    </div>
+    <div
+      class="collapse"
+      id="formula-assistant-details"
+    >
+      <div
+        class="o-formula-assistant-core pb-3 m-3"
+      >
+        <div
+          class="o-formula-assistant-gray"
+        >
+          ABOUT
+        </div>
+        <div>
+          func1 def
+        </div>
+      </div>
+      <div
+        class="o-formula-assistant-arg p-3 pt-0 display-flex flex-column o-formula-assistant-gray o-formula-assistant-focus"
+      >
+        <div>
           <span>
             f1Arg1
           </span>
           
           
-        </span>
-      </span>
-      <span>
-        , 
-      </span>
-      <span>
-        <span>
           
+        </div>
+        <div
+          class="o-formula-assistant-arg-description"
+        >
+          f1 Arg1 def
+        </div>
+      </div>
+      <div
+        class="o-formula-assistant-arg p-3 pt-0 display-flex flex-column o-formula-assistant-gray"
+      >
+        <div>
           <span>
             f1Arg2
           </span>
           
           
-        </span>
-      </span>
+          
+        </div>
+        <div
+          class="o-formula-assistant-arg-description"
+        >
+          f1 Arg2 def
+        </div>
+      </div>
       
       
-       ) 
     </div>
-    <div
-      class="o-formula-assistant-core pb-3 m-3"
-    >
-      <div
-        class="o-formula-assistant-gray"
-      >
-        ABOUT
-      </div>
-      <div>
-        func1 def
-      </div>
-    </div>
-    <div
-      class="o-formula-assistant-arg p-3 pt-0 display-flex flex-column o-formula-assistant-gray o-formula-assistant-focus"
-    >
-      <div>
-        <span>
-          f1Arg1
-        </span>
-        
-        
-        
-      </div>
-      <div
-        class="o-formula-assistant-arg-description"
-      >
-        f1 Arg1 def
-      </div>
-    </div>
-    <div
-      class="o-formula-assistant-arg p-3 pt-0 display-flex flex-column o-formula-assistant-gray"
-    >
-      <div>
-        <span>
-          f1Arg2
-        </span>
-        
-        
-        
-      </div>
-      <div
-        class="o-formula-assistant-arg-description"
-      >
-        f1 Arg2 def
-      </div>
-    </div>
-    
-    
   </div>
 </div>
 `;
