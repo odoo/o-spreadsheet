@@ -1137,7 +1137,7 @@ describe("Menu Item actions", () => {
       const action = getNode(["format", "format_number", "format_number_accounting"], env);
       expect(action.isVisible(env)).toBe(true);
       action.execute?.(env);
-      expect(getCell(model, "A1")?.format).toBe("[$€]#,##0;[$€](#,##0);[$€]- ");
+      expect(getCell(model, "A1")?.format).toBe("[$€]*  #,##0 ;[$€]* (#,##0);[$€]*   -  ");
     });
 
     test.each(DEFAULT_LOCALES)("Date", (locale) => {

@@ -40,6 +40,11 @@ export interface DatePartToken {
   value: string;
 }
 
+export interface RepeatCharToken {
+  type: "REPEATED_CHAR";
+  value: string;
+}
+
 export type FormatToken =
   | DigitToken
   | DecimalPointToken
@@ -48,7 +53,8 @@ export type FormatToken =
   | PercentToken
   | ThousandsSeparatorToken
   | TextPlaceholderToken
-  | DatePartToken;
+  | DatePartToken
+  | RepeatCharToken;
 
 export function tokenizeFormat(str: string): FormatToken[][] {
   const chars = new TokenizingChars(str);
@@ -72,7 +78,8 @@ export function tokenizeFormat(str: string): FormatToken[][] {
       tokenizeDecimalPoint(chars) ||
       tokenizePercent(chars) ||
       tokenizeDatePart(chars) ||
-      tokenizeTextPlaceholder(chars);
+      tokenizeTextPlaceholder(chars) ||
+      tokenizeRepeatedChar(chars);
 
     if (!token) {
       throw new Error("Unknown token at " + chars.remaining());
@@ -187,4 +194,20 @@ function tokenizeDatePart(chars: TokenizingChars): FormatToken | null {
     value += chars.shift();
   }
   return { type: "DATE_PART", value };
+}
+
+function tokenizeRepeatedChar(chars: TokenizingChars): FormatToken | null {
+  if (chars.current !== "*") {
+    return null;
+  }
+
+  chars.shift();
+  const repeatedChar = chars.shift();
+  if (!repeatedChar) {
+    throw new Error("Unexpected end of format string");
+  }
+  return {
+    type: "REPEATED_CHAR",
+    value: repeatedChar,
+  };
 }

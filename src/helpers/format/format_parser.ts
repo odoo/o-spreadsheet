@@ -7,6 +7,7 @@ import {
   DigitToken,
   FormatToken,
   PercentToken,
+  RepeatCharToken,
   StringToken,
   TextPlaceholderToken,
   ThousandsSeparatorToken,
@@ -29,7 +30,7 @@ export interface MultiPartInternalFormat {
 
 export interface DateInternalFormat {
   type: "date";
-  tokens: (DatePartToken | StringToken | CharToken)[];
+  tokens: (DatePartToken | StringToken | CharToken | RepeatCharToken)[];
 }
 
 export interface NumberInternalFormat {
@@ -40,6 +41,7 @@ export interface NumberInternalFormat {
     | CharToken
     | PercentToken
     | ThousandsSeparatorToken
+    | RepeatCharToken
   )[];
   readonly percentSymbols: number;
   readonly thousandsSeparator: boolean;
@@ -56,12 +58,13 @@ export interface NumberInternalFormat {
     | CharToken
     | PercentToken
     | ThousandsSeparatorToken
+    | RepeatCharToken
   )[];
 }
 
 export interface TextInternalFormat {
   type: "text";
-  tokens: (StringToken | CharToken | TextPlaceholderToken)[];
+  tokens: (StringToken | CharToken | TextPlaceholderToken | RepeatCharToken)[];
 }
 
 export type InternalFormat = NumberInternalFormat | DateInternalFormat | TextInternalFormat;
@@ -79,6 +82,14 @@ export function parseFormat(formatString: Format): MultiPartInternalFormat {
 
 function convertFormatToInternalFormat(format: Format): MultiPartInternalFormat {
   const formatParts = tokenizeFormat(format);
+
+  // A format can only have a single REPEATED_CHAR token. The rest are converted to simple CHAR tokens.
+  for (const part of formatParts) {
+    const repeatedCharTokens = part.filter((token) => token.type === "REPEATED_CHAR");
+    for (const repeatedCharToken of repeatedCharTokens.slice(1)) {
+      repeatedCharToken.type = "CHAR";
+    }
+  }
 
   const positiveFormat =
     parseDateFormatTokens(formatParts[0]) ||
@@ -126,7 +137,8 @@ function areValidDateFormatTokens(
       token.type === "DECIMAL_POINT" ||
       token.type === "THOUSANDS_SEPARATOR" ||
       token.type === "STRING" ||
-      token.type === "CHAR"
+      token.type === "CHAR" ||
+      token.type === "REPEATED_CHAR"
   );
 }
 
@@ -139,6 +151,7 @@ function areValidNumberFormatTokens(
   | PercentToken
   | StringToken
   | CharToken
+  | RepeatCharToken
 )[] {
   return tokens.every(
     (token) =>
@@ -147,13 +160,18 @@ function areValidNumberFormatTokens(
       token.type === "THOUSANDS_SEPARATOR" ||
       token.type === "PERCENT" ||
       token.type === "STRING" ||
-      token.type === "CHAR"
+      token.type === "CHAR" ||
+      token.type === "REPEATED_CHAR"
   );
 }
 
 function areValidTextFormatTokens(tokens: FormatToken[]): tokens is TextInternalFormat["tokens"] {
   return tokens.every(
-    (token) => token.type === "STRING" || token.type === "TEXT_PLACEHOLDER" || token.type === "CHAR"
+    (token) =>
+      token.type === "STRING" ||
+      token.type === "TEXT_PLACEHOLDER" ||
+      token.type === "CHAR" ||
+      token.type === "REPEATED_CHAR"
   );
 }
 
@@ -192,6 +210,7 @@ function parseNumberFormatTokens(
           throw new Error("Multiple decimal points in a number format");
         }
         break;
+      case "REPEATED_CHAR":
       case "CHAR":
       case "STRING":
         parsedPart.push(token);
@@ -307,6 +326,9 @@ function internalFormatPartToFormat(
         break;
       case "CHAR":
         format += shouldEscapeFormatChar(token.value) ? `\\${token.value}` : token.value;
+        break;
+      case "REPEATED_CHAR":
+        format += "*" + token.value;
         break;
       default:
         format += token.value;

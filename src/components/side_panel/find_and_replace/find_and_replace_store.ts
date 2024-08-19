@@ -372,17 +372,16 @@ export class FindAndReplaceStore extends SpreadsheetStore implements HighlightPr
 
     const searchRegex = getSearchRegex(searchString, searchOptions);
     const replaceRegex = new RegExp(searchRegex.source, searchRegex.flags + "g");
-    const toReplace: string | null = this.getters.getCellText(
-      selectedMatch,
-      searchOptions.searchFormulas
-    );
+    const toReplace: string | null = this.getters.getCellText(selectedMatch, {
+      showFormula: searchOptions.searchFormulas,
+    });
     const content = toReplace.replace(replaceRegex, replaceWith);
     const canonicalContent = canonicalizeNumberContent(content, this.getters.getLocale());
     this.model.dispatch("UPDATE_CELL", { ...selectedMatch, content: canonicalContent });
   }
 
   private getSearchableString(position: CellPosition): string {
-    return this.getters.getCellText(position, this.searchOptions.searchFormulas);
+    return this.getters.getCellText(position, { showFormula: this.searchOptions.searchFormulas });
   }
 
   // ---------------------------------------------------------------------------
