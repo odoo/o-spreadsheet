@@ -367,6 +367,14 @@ describe("Spreadsheet Pivot", () => {
     expect(getCellError(model, "A26")).toBe("The pivot cannot be created because cell A1 is empty");
   });
 
+  test("Pivot is correctly marked as error when a field name is an empty formula result", () => {
+    const model = createModelWithPivot("A1:I5");
+    setCellContent(model, "A1", `=""`);
+    setCellContent(model, "A26", `=pivot(1)`);
+    expect(model.getters.getPivot("1").isValid()).toBeFalsy();
+    expect(getCellError(model, "A26")).toBe("The pivot cannot be created because cell A1 is empty");
+  });
+
   test("Order of pivot date dimensions is not overridden by the default one if specified", () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {

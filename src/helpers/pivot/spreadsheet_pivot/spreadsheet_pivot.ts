@@ -346,7 +346,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
         _t("The pivot cannot be created because cell %s contains an error", toXC(col, row))
       );
     }
-    if (cell.type === CellValueType.empty) {
+    if (cell.type === CellValueType.empty || cell.value === "") {
       throw new EvaluationError(
         _t("The pivot cannot be created because cell %s is empty", toXC(col, row))
       );
