@@ -395,6 +395,54 @@ describe("Spreadsheet Pivot", () => {
     expect(model.getters.getPivot("1").definition.rows[0].order).toBeUndefined();
   });
 
+  test("Order of undefined value is correct when ordered asc", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Customer",   B1: "Price", C1: "=PIVOT(1)",
+      A2: "Alice",      B2: "10",
+      A3: "",           B3: "20",
+      A4: "Olaf",       B4: "30",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B4", {
+      rows: [{ name: "Customer", order: "asc" }],
+      columns: [],
+      measures: [{ name: "Price", aggregator: "sum" }],
+    });
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "C1:C5")).toEqual([
+      ["(#1) Pivot"],
+      [""],
+      ["Alice"],
+      ["Olaf"],
+      ["(Undefined)"],
+    ]);
+  });
+
+  test("Order of undefined value is correct when ordered desc", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Customer",   B1: "Price", C1: "=PIVOT(1)",
+      A2: "Alice",      B2: "10",
+      A3: "",           B3: "20",
+      A4: "Olaf",       B4: "30",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B4", {
+      rows: [{ name: "Customer", order: "desc" }],
+      columns: [],
+      measures: [{ name: "Price", aggregator: "sum" }],
+    });
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "C1:C5")).toEqual([
+      ["(#1) Pivot"],
+      [""],
+      ["(Undefined)"],
+      ["Olaf"],
+      ["Alice"],
+    ]);
+  });
+
   test("Measure count as a correct label", () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
