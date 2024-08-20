@@ -119,7 +119,7 @@ export class InsertPivotPlugin extends UIPlugin {
       sheetId,
       col,
       row,
-      content: `=PIVOT("${pivotFormulaId}")`,
+      content: `=PIVOT(${pivotFormulaId})`,
     });
     const zone = {
       left: col,
