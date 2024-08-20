@@ -1,5 +1,5 @@
 import { Component, onMounted, useEffect, useRef, useState } from "@odoo/owl";
-import { NEWLINE } from "../../../constants";
+import { NEWLINE, PRIMARY_BUTTON_BG, SCROLLBAR_WIDTH } from "../../../constants";
 import { functionRegistry } from "../../../functions/index";
 import { clip, getZoneArea, isEqual, splitReference } from "../../../helpers/index";
 
@@ -29,6 +29,7 @@ import { CellComposerStore } from "./cell_composer_store";
 const functions = functionRegistry.content;
 
 const ASSISTANT_WIDTH = 300;
+const CLOSE_ICON_RADIUS = 9;
 
 export const selectionIndicatorClass = "selector-flag";
 const selectionIndicatorColor = "#a9a9a9";
@@ -90,11 +91,25 @@ css/* scss */ `
       pointer-events: none;
     }
 
+    .fa-stack {
+      // reset stack size which is doubled by default
+      width: 1em;
+      height: 1em;
+      line-height: 1em;
+    }
+
+    .force-open-assistant {
+      left: -1px;
+      top: -1px;
+
+      .fa-question-circle {
+        color: ${PRIMARY_BUTTON_BG};
+      }
+    }
+
     .o-composer-assistant {
       position: absolute;
       margin: 1px 4px;
-      pointer-events: none;
-      overflow: auto;
 
       .o-semi-bold {
         /** FIXME: to remove in favor of Bootstrap
@@ -172,6 +187,9 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     functionDescription: {} as FunctionDescription,
     argToFocus: 0,
   });
+  assistant = useState({
+    forcedClosed: false,
+  });
   private compositionActive: boolean = false;
   private spreadsheetRect = useSpreadsheetRect();
 
@@ -192,7 +210,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
       assistantStyle["max-height"] = `${remainingHeight}px`;
       if (cellY > remainingHeight) {
         const availableSpaceAbove = cellY;
-        assistantStyle["max-height"] = `${availableSpaceAbove}px`;
+        assistantStyle["max-height"] = `${availableSpaceAbove - CLOSE_ICON_RADIUS}px`;
         // render top
         // We compensate 2 px of margin on the assistant style + 1px for design reasons
         assistantStyle.top = `-3px`;
@@ -204,8 +222,11 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
       }
     } else {
       assistantStyle["max-height"] = `${this.spreadsheetRect.height - composerRect.bottom}px`;
-      if (composerRect.left + ASSISTANT_WIDTH > this.spreadsheetRect.width) {
-        assistantStyle.right = `0px`;
+      if (
+        composerRect.left + ASSISTANT_WIDTH + SCROLLBAR_WIDTH + CLOSE_ICON_RADIUS >
+        this.spreadsheetRect.width
+      ) {
+        assistantStyle.right = `${CLOSE_ICON_RADIUS}px`;
       }
     }
     return cssPropertiesToCss(assistantStyle);
@@ -561,6 +582,14 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     if (this.props.composerStore.editionMode === "inactive") {
       this.props.onInputContextMenu?.(ev);
     }
+  }
+
+  closeAssistant() {
+    this.assistant.forcedClosed = true;
+  }
+
+  openAssistant() {
+    this.assistant.forcedClosed = false;
   }
 
   // ---------------------------------------------------------------------------

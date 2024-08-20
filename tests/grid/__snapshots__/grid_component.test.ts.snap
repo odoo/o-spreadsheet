@@ -83,12 +83,17 @@ exports[`Grid component simple rendering snapshot 1`] = `
       class="o-composer-container w-100 h-100"
     >
       <div
-        class="o-composer w-100 text-start"
-        contenteditable="true"
-        spellcheck="false"
-        style=""
-        tabindex="1"
-      />
+        class="d-flex flex-row position-relative"
+      >
+        
+        <div
+          class="o-composer w-100 text-start"
+          contenteditable="true"
+          spellcheck="false"
+          style=""
+          tabindex="1"
+        />
+      </div>
       
     </div>
   </div>

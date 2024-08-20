@@ -58,8 +58,20 @@ exports[`Functions autocomplete autocomplete simple snapshot with =S 1`] = `
 exports[`composer Assistant render above the cell when not enough place below 1`] = `
 <div
   class="o-composer-assistant shadow"
-  style="min-width:96px; width:300px; max-height:150px; top:-3px; transform:translate(0, -100%); right:0px; "
+  style="min-width:96px; width:300px; max-height:141px; top:-3px; transform:translate(0, -100%); right:0px; "
 >
+  <span
+    class="fa-stack position-absolute top-0 start-100 translate-middle fs-4"
+    role="button"
+  >
+    <i
+      class="fa fa-circle fa-stack-1x fa-inverse"
+    />
+    <i
+      class="fa fa-times-circle fa-stack-1x text-muted"
+    />
+  </span>
+  
   
   <div
     class="o-autocomplete-dropdown"
@@ -122,6 +134,18 @@ exports[`composer Assistant render below the cell by default 1`] = `
   class="o-composer-assistant shadow"
   style="min-width:96px; width:300px; max-height:327px; "
 >
+  <span
+    class="fa-stack position-absolute top-0 start-100 translate-middle fs-4"
+    role="button"
+  >
+    <i
+      class="fa fa-circle fa-stack-1x fa-inverse"
+    />
+    <i
+      class="fa fa-times-circle fa-stack-1x text-muted"
+    />
+  </span>
+  
   
   <div
     class="o-autocomplete-dropdown"

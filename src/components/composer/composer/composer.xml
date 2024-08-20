@@ -1,37 +1,61 @@
 <templates>
   <t t-name="o-spreadsheet-Composer">
     <div class="o-composer-container w-100 h-100">
-      <div
-        class="o-composer w-100 text-start"
-        t-att-class="{ 'text-muted': env.model.getters.isReadonly(), 'active': props.focus !== 'inactive' }"
-        t-att-style="props.inputStyle"
-        t-ref="o_composer"
-        tabindex="1"
-        t-att-contenteditable="env.model.getters.isReadonly() ? 'false' : 'true'"
-        t-att-placeHolder="props.placeholder"
-        spellcheck="false"
-        t-on-keydown="onKeydown"
-        t-on-mousewheel.stop=""
-        t-on-input="onInput"
-        t-on-pointerdown="onMousedown"
-        t-on-click="onClick"
-        t-on-keyup="onKeyup"
-        t-on-paste="onPaste"
-        t-on-compositionstart="onCompositionStart"
-        t-on-compositionend="onCompositionEnd"
-        t-on-dblclick="onDblClick"
-        t-on-contextmenu="onContextMenu"
-        t-on-blur="onBlur"
+      <t
+        t-set="assistantIsAvailable"
+        t-value="autoCompleteState.provider or functionDescriptionState.showDescription"
       />
-
+      <div class="d-flex flex-row position-relative">
+        <span
+          t-if="props.focus !== 'inactive' and assistantIsAvailable and assistant.forcedClosed"
+          role="button"
+          title="Show formula help"
+          t-on-click="openAssistant"
+          t-on-pointerdown.prevent.stop=""
+          t-on-click.prevent.stop=""
+          t-on-pointerup.prevent.stop=""
+          class="fa-stack position-absolute translate-middle force-open-assistant fs-4">
+          <i class="fa fa-circle fa-stack-1x fa-inverse"/>
+          <i class="fa fa-question-circle fa-stack-1x"/>
+        </span>
+        <div
+          class="o-composer w-100 text-start"
+          t-att-class="{ 'text-muted': env.model.getters.isReadonly(), 'active': props.focus !== 'inactive' }"
+          t-att-style="props.inputStyle"
+          t-ref="o_composer"
+          tabindex="1"
+          t-att-contenteditable="env.model.getters.isReadonly() ? 'false' : 'true'"
+          t-att-placeHolder="props.placeholder"
+          spellcheck="false"
+          t-on-keydown="onKeydown"
+          t-on-mousewheel.stop=""
+          t-on-input="onInput"
+          t-on-pointerdown="onMousedown"
+          t-on-click="onClick"
+          t-on-keyup="onKeyup"
+          t-on-paste="onPaste"
+          t-on-compositionstart="onCompositionStart"
+          t-on-compositionend="onCompositionEnd"
+          t-on-dblclick="onDblClick"
+          t-on-contextmenu="onContextMenu"
+          t-on-blur="onBlur"
+        />
+      </div>
       <div
-        t-if="props.focus !== 'inactive' and (autoCompleteState.provider or functionDescriptionState.showDescription)"
+        t-if="props.focus !== 'inactive' and !assistant.forcedClosed and assistantIsAvailable"
         class="o-composer-assistant shadow"
         t-att-style="assistantStyle"
         t-on-wheel.stop=""
         t-on-pointerdown.prevent.stop=""
         t-on-click.prevent.stop=""
         t-on-pointerup.prevent.stop="">
+        <span
+          role="button"
+          t-on-click="closeAssistant"
+          class="fa-stack position-absolute top-0 start-100 translate-middle fs-4">
+          <i class="fa fa-circle fa-stack-1x fa-inverse"/>
+          <i class="fa fa-times-circle fa-stack-1x text-muted"/>
+        </span>
         <FunctionDescriptionProvider
           t-if="functionDescriptionState.showDescription"
           functionName="functionDescriptionState.functionName"

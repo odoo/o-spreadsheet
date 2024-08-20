@@ -416,7 +416,7 @@ describe("Composer interactions", () => {
     setCellContent(model, "A2", "wooplaburg");
     await clickCell(model, "A1");
     const topbarComposerElement = fixture.querySelector(
-      ".o-spreadsheet-topbar .o-composer-container div"
+      ".o-spreadsheet-topbar .o-composer-container .o-composer"
     )!;
     expect(topbarComposerElement.textContent).toBe("I am Tabouret");
     await simulateClick(topbarComposerElement);
@@ -439,11 +439,11 @@ describe("Composer interactions", () => {
 
   test("focus topbar composer then focus grid composer", async () => {
     const topbarComposerElement = fixture.querySelector(
-      ".o-spreadsheet-topbar .o-composer-container div"
+      ".o-spreadsheet-topbar .o-composer-container .o-composer"
     )!;
     await simulateClick(topbarComposerElement);
     expect(document.activeElement).toBe(topbarComposerElement);
-    const gridComposerElement = fixture.querySelector(".o-grid .o-composer-container div")!;
+    const gridComposerElement = fixture.querySelector(".o-grid .o-composer-container .o-composer")!;
     await simulateClick(gridComposerElement);
     expect(document.activeElement).toBe(gridComposerElement);
   });
