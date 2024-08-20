@@ -1,4 +1,4 @@
-import { NEXT_VALUE, PREVIOUS_VALUE } from "../helpers/pivot/pivot_helpers";
+import { NEXT_VALUE, PREVIOUS_VALUE } from "../helpers/pivot/pivot_domain_helpers";
 import { CellValue } from "./cells";
 import { Format } from "./format";
 import { Locale } from "./locale";

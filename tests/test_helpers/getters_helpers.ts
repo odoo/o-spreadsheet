@@ -95,6 +95,23 @@ export function getEvaluatedGrid(
   return content;
 }
 
+export function getEvaluatedCells(
+  model: Model,
+  range: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+): EvaluatedCell[][] {
+  const zone = toZone(range);
+  const content: EvaluatedCell[][] = [];
+  for (let row = zone.top; row <= zone.bottom; row++) {
+    const rowContent: EvaluatedCell[] = [];
+    for (let col = zone.left; col <= zone.right; col++) {
+      rowContent.push(model.getters.getEvaluatedCell({ sheetId, col, row }));
+    }
+    content.push(rowContent);
+  }
+  return content;
+}
+
 /**
  * Get the string representation of the content of a cell, and always formula
  * for formula cells

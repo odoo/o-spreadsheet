@@ -147,14 +147,14 @@ describe("Pivot calculated measure", () => {
     // prettier-ignore
     expect(getEvaluatedGrid(model, "A5:C12")).toEqual(
       [
-        ["(#1) Pivot",  "Total",          "",],
-        ["",            "calc Customer",  "calc Category"],
-        ["Alice",       "1",              "2"],
-        ["Food",        "Alice",          "Food"],
-        ["Drink",       "Alice",          "Drink"],
-        ["Bob",         "1",              "1"],
-        ["Food",        "Bob",            "Food"],
-        ["Total",       "2",              "2"],
+        ["(#1) Pivot",      "Total",          "",],
+        ["",                "calc Customer",  "calc Category"],
+        ["Alice",           "1",              "2"],
+        ["    Food",        "Alice",          "Food"],
+        ["    Drink",       "Alice",          "Drink"],
+        ["Bob",             "1",              "1"],
+        ["    Food",        "Bob",            "Food"],
+        ["Total",           "2",              "2"],
       ]
     );
   });
@@ -259,12 +259,12 @@ describe("Pivot calculated measure", () => {
     // prettier-ignore
     expect(getEvaluatedGrid(model, "A5:C10")).toEqual(
       [
-        ["(#1) Pivot",  "10",             "Total"],
-        ["",            "calc Category",  "calc Category"],
-        ["Alice",       "2",              "2"],
-        ["Food",        "Food",           "1"],
-        ["Drink",       "Drink",          "1"],
-        ["Total",       "2",              "2" ],
+        ["(#1) Pivot",      "10",             "Total"],
+        ["",                "calc Category",  "calc Category"],
+        ["Alice",           "2",              "2"],
+        ["    Food",        "Food",           "1"],
+        ["    Drink",       "Drink",          "1"],
+        ["Total",           "2",              "2" ],
       ]
     );
   });
@@ -354,14 +354,14 @@ describe("Pivot calculated measure", () => {
     // prettier-ignore
     expect(getEvaluatedGrid(model, "A10:C17")).toEqual(
       [
-        ["(#1) Pivot",  "Total",  ""],
-        ["",            "Price",  "Commission"],
-        ["Alice",       "30",             "3"],
-        ["Food",        "10",             "1"],
-        ["Drink",       "20",             "2"],
-        ["Bob",         "10",             "3"],
-        ["Food",        "10",             "3"],
-        ["Total",       "40",             "6" ],
+        ["(#1) Pivot",      "Total",  ""],
+        ["",                "Price",  "Commission"],
+        ["Alice",           "30",             "3"],
+        ["    Food",        "10",             "1"],
+        ["    Drink",       "20",             "2"],
+        ["Bob",             "10",             "3"],
+        ["    Food",        "10",             "3"],
+        ["Total",           "40",             "6" ],
       ]
     );
   });
@@ -550,12 +550,12 @@ describe("Pivot calculated measure", () => {
     });
     // prettier-ignore
     expect(getEvaluatedGrid(model, "D1:F6")).toEqual([
-      ["(#1) Pivot",  "Total", ""],
-      ["",            "Price", "calculated"],
-      ["Alice",       "30",    "50"], // 50 = 20 + 30
-      ["2020",        "10",    "20"], // 20 = 10 + 10
-      ["2021",        "20",    "30"], // 30 = 20 + 10
-      ["Total",       "30",    "50"],
+      ["(#1) Pivot",      "Total", ""],
+      ["",                "Price", "calculated"],
+      ["Alice",           "30",    "50"], // 50 = 20 + 30
+      ["    2020",        "10",    "20"], // 20 = 10 + 10
+      ["    2021",        "20",    "30"], // 30 = 20 + 10
+      ["Total",           "30",    "50"],
     ]);
   });
 
@@ -744,12 +744,12 @@ describe("Pivot calculated measure", () => {
     });
     // prettier-ignore
     expect(getEvaluatedGrid(model, "D1:F6")).toEqual([
-      ["(#1) Pivot",  "Total",  ""],
-      ["",            "Price",  "calculated"],
-      ["Alice",       "1",      "11"],
-      ["2020",        "10",     "20"],
-      ["2021",        "1",      "11"],
-      ["Total",       "1",      "11"],
+      ["(#1) Pivot",      "Total",  ""],
+      ["",                "Price",  "calculated"],
+      ["Alice",           "1",      "11"],
+      ["    2020",        "10",     "20"],
+      ["    2021",        "1",      "11"],
+      ["Total",           "1",      "11"],
     ]);
   });
 

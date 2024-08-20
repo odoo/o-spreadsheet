@@ -14,6 +14,7 @@ import {
   getCellContent,
   getCellError,
   getEvaluatedCell,
+  getEvaluatedCells,
   getEvaluatedGrid,
 } from "../../test_helpers/getters_helpers";
 import { createModelFromGrid } from "../../test_helpers/helpers";
@@ -282,12 +283,12 @@ describe("Spreadsheet Pivot", () => {
 
     expect(getEvaluatedGrid(model, "A28:A36")).toEqual([
       ["Alice"],
-      ["TRUE"],
+      ["    TRUE"],
       ["Michel"],
-      ["TRUE"],
+      ["    TRUE"],
       ["(Undefined)"],
-      ["FALSE"],
-      ["TRUE"],
+      ["    FALSE"],
+      ["    TRUE"],
       ["Total"],
       [""],
     ]);
@@ -692,6 +693,39 @@ describe("Spreadsheet Pivot", () => {
     expect(getEvaluatedGrid(model, "C1:E2")).toEqual([
       ["(#1) Pivot", "4/14/1995", ""],
       ["",           "Price",      ""],
+    ]);
+  });
+
+  test("PIVOT row headers are indented relative to the groupBy depth.", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Date",       B1: "Price", C1: "=PIVOT(1)",
+      A2: "2024-12-28", B2: "10",
+      A3: "2024-11-28", B3: "20",
+      A4: "1995-04-14", B4: "30",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B4", {
+      rows: [
+        { fieldName: "Date", granularity: "year" },
+        { fieldName: "Date", granularity: "quarter_number" },
+        { fieldName: "Date", granularity: "day" },
+      ],
+      columns: [],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
+    });
+
+    expect(getEvaluatedCells(model, "C1:C10").flat()).toMatchObject([
+      { value: "(#1) Pivot", format: undefined },
+      { value: "", format: undefined },
+      { value: 1995, format: "0* " },
+      { value: "Q2", format: "    @* " },
+      { value: 34803, format: "        m/d/yyyy* " },
+      { value: 2024, format: "0* " },
+      { value: "Q4", format: "    @* " },
+      { value: 45624, format: "        m/d/yyyy* " },
+      { value: 45654, format: "        m/d/yyyy* " },
+      { value: "Total", format: undefined },
     ]);
   });
 
@@ -1131,7 +1165,7 @@ describe("Spreadsheet Pivot", () => {
     });
     setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:quarter_number", 4)');
     expect(getEvaluatedCell(model, "A27").value).toBe("Q4");
-    expect(getEvaluatedCell(model, "A27").format).toBe("0");
+    expect(getEvaluatedCell(model, "A27").format).toBe("@");
 
     // quarter as string
     setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:quarter_number", "4")');
@@ -1334,7 +1368,7 @@ describe("Spreadsheet Pivot", () => {
     });
     setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:day_of_week", 4)');
     expect(getEvaluatedCell(model, "A27").value).toBe("Wednesday");
-    expect(getEvaluatedCell(model, "A27").format).toBe("0");
+    expect(getEvaluatedCell(model, "A27").format).toBe("@");
 
     setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:day_of_week", "4")');
     expect(getEvaluatedCell(model, "A28").value).toBe("Wednesday");
@@ -1386,7 +1420,7 @@ describe("Spreadsheet Pivot", () => {
     });
     setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:hour_number", 1)');
     expect(getEvaluatedCell(model, "A27").value).toBe("1h");
-    expect(getEvaluatedCell(model, "A27").format).toBe("0");
+    expect(getEvaluatedCell(model, "A27").format).toBe("@");
 
     setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:hour_number", "1")');
     expect(getEvaluatedCell(model, "A28").value).toBe("1h");
@@ -1436,7 +1470,7 @@ describe("Spreadsheet Pivot", () => {
     });
     setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:minute_number", 7)');
     expect(getEvaluatedCell(model, "A27").value).toBe("7'");
-    expect(getEvaluatedCell(model, "A27").format).toBe("0");
+    expect(getEvaluatedCell(model, "A27").format).toBe("@");
 
     setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:minute_number", "7")');
     expect(getEvaluatedCell(model, "A28").value).toBe("7'");
@@ -1486,7 +1520,7 @@ describe("Spreadsheet Pivot", () => {
     });
     setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:second_number", 7)');
     expect(getEvaluatedCell(model, "A27").value).toBe("7''");
-    expect(getEvaluatedCell(model, "A27").format).toBe("0");
+    expect(getEvaluatedCell(model, "A27").format).toBe("@");
 
     setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:second_number", "7")');
     expect(getEvaluatedCell(model, "A28").value).toBe("7''");
