@@ -1,4 +1,5 @@
 import { getFullReference, range, splitReference, toXC, toZone } from "../helpers/index";
+import { addRowIndentToPivotHeader } from "../helpers/pivot/pivot_helpers";
 import { _t } from "../translation";
 import { AddFunctionDescription, FunctionResultObject, Matrix, Maybe, Zone } from "../types";
 import { CellErrorType, EvaluationError, InvalidReferenceError } from "../types/errors";
@@ -829,7 +830,8 @@ export const PIVOT = {
             result[col].push({ value: "" });
             break;
           case "HEADER":
-            result[col].push(pivot.getPivotHeaderValueAndFormat(pivotCell.domain));
+            const valueAndFormat = pivot.getPivotHeaderValueAndFormat(pivotCell.domain);
+            result[col].push(addRowIndentToPivotHeader(pivot, pivotCell.domain, valueAndFormat));
             break;
           case "MEASURE_HEADER":
             result[col].push(pivot.getPivotMeasureValue(pivotCell.measure, pivotCell.domain));

@@ -1,7 +1,7 @@
 import { Model, PivotCoreMeasure, SpreadsheetChildEnv, UID } from "../../../src";
 import { PivotMeasureDisplayPanel } from "../../../src/components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel";
 import { toZone } from "../../../src/helpers";
-import { PREVIOUS_VALUE } from "../../../src/helpers/pivot/pivot_helpers";
+import { PREVIOUS_VALUE } from "../../../src/helpers/pivot/pivot_domain_helpers";
 import { setCellContent, setFormat } from "../../test_helpers/commands_helpers";
 import { click, setInputValueAndTrigger } from "../../test_helpers/dom_helper";
 import { mountComponent, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";

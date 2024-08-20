@@ -17,6 +17,8 @@ import {
 import { CellErrorType, NotAvailableError } from "../../types/errors";
 import { deepEquals, removeDuplicates, transpose2dPOJO } from "../misc";
 import {
+  NEXT_VALUE,
+  PREVIOUS_VALUE,
   domainToColRowDomain,
   domainToString,
   getDimensionDomain,
@@ -31,12 +33,7 @@ import {
   isFieldInDomain,
   replaceFieldValueInDomain,
 } from "./pivot_domain_helpers";
-import {
-  AGGREGATORS_FN,
-  NEXT_VALUE,
-  PREVIOUS_VALUE,
-  toNormalizedPivotValue,
-} from "./pivot_helpers";
+import { AGGREGATORS_FN, toNormalizedPivotValue } from "./pivot_helpers";
 import { PivotParams, PivotUIConstructor } from "./pivot_registry";
 
 const PERCENT_FORMAT = "0.00%";

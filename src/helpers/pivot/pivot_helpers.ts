@@ -4,7 +4,14 @@ import { average, countAny, max, min } from "../../functions/helper_statistical"
 import { inferFormat, toBoolean, toNumber, toString } from "../../functions/helpers";
 import { Registry } from "../../registries/registry";
 import { _t } from "../../translation";
-import { CellValue, DEFAULT_LOCALE, FunctionResultObject, Locale, Matrix } from "../../types";
+import {
+  CellValue,
+  DEFAULT_LOCALE,
+  FunctionResultObject,
+  Locale,
+  Matrix,
+  Pivot,
+} from "../../types";
 import { EvaluationError } from "../../types/errors";
 import {
   Granularity,
@@ -14,6 +21,7 @@ import {
   PivotField,
   PivotTableCell,
 } from "../../types/pivot";
+import { domainToColRowDomain } from "./pivot_domain_helpers";
 import { PivotRuntimeDefinition } from "./pivot_runtime_definition";
 import { pivotTimeAdapter } from "./pivot_time_adapter";
 
@@ -262,9 +270,25 @@ pivotToFunctionValueRegistry
   .add("boolean", (value: CellValue) => (toBoolean(value) ? "TRUE" : "FALSE"))
   .add("char", (value: CellValue) => `"${toString(value).replace(/"/g, '\\"')}"`);
 
-export const PREVIOUS_VALUE = "(previous)";
-export const NEXT_VALUE = "(next)";
-
 export function getFieldDisplayName(field: PivotDimension) {
   return field.displayName + (field.granularity ? ` (${ALL_PERIODS[field.granularity]})` : "");
+}
+
+export function addRowIndentToPivotHeader(
+  pivot: Pivot,
+  domain: PivotDomain,
+  functionResult: FunctionResultObject
+): FunctionResultObject {
+  const { rowDomain } = domainToColRowDomain(pivot, domain);
+  if (rowDomain.length === 0) {
+    return functionResult;
+  }
+  const indent = rowDomain.length - 1;
+
+  const format = functionResult.format || "@";
+
+  return {
+    ...functionResult,
+    format: `${"    ".repeat(indent)}${format}* `,
+  };
 }

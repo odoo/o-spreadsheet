@@ -1,9 +1,6 @@
 import { deepCopy } from "../../../../helpers";
-import {
-  NEXT_VALUE,
-  PREVIOUS_VALUE,
-  getFieldDisplayName,
-} from "../../../../helpers/pivot/pivot_helpers";
+import { NEXT_VALUE, PREVIOUS_VALUE } from "../../../../helpers/pivot/pivot_domain_helpers";
+import { getFieldDisplayName } from "../../../../helpers/pivot/pivot_helpers";
 import { Get } from "../../../../store_engine";
 import { SpreadsheetStore } from "../../../../stores";
 import { _t } from "../../../../translation";

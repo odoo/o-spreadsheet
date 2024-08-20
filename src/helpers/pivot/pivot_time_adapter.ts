@@ -111,7 +111,7 @@ const dayOfWeekAdapter: PivotTimeAdapterNotNull<number> = {
     const index = (normalizedValue - 1 + (locale || DEFAULT_LOCALE).weekStart) % 7;
     return {
       value: DAYS[index].toString(),
-      format: "0",
+      format: "@",
     };
   },
   toFunctionValue(normalizedValue) {
@@ -159,7 +159,7 @@ const monthNumberAdapter: PivotTimeAdapterNotNull<number> = {
   toValueAndFormat(normalizedValue) {
     return {
       value: MONTHS[toNumber(normalizedValue, DEFAULT_LOCALE) - 1].toString(),
-      format: "0",
+      format: "@",
     };
   },
   toFunctionValue(normalizedValue) {
@@ -183,7 +183,7 @@ const quarterNumberAdapter: PivotTimeAdapterNotNull<number> = {
   toValueAndFormat(normalizedValue) {
     return {
       value: _t("Q%(quarter_number)s", { quarter_number: normalizedValue }),
-      format: "0",
+      format: "@",
     };
   },
   toFunctionValue(normalizedValue) {
@@ -222,7 +222,7 @@ const hourNumberAdapter: PivotTimeAdapterNotNull<number> = {
   toValueAndFormat(normalizedValue) {
     return {
       value: _t("%(hour_number)sh", { hour_number: normalizedValue }),
-      format: "0",
+      format: "@",
     };
   },
   toFunctionValue(normalizedValue) {
@@ -246,7 +246,7 @@ const minuteNumberAdapter: PivotTimeAdapterNotNull<number> = {
   toValueAndFormat(normalizedValue) {
     return {
       value: _t("%(minute_number)s'", { minute_number: normalizedValue }),
-      format: "0",
+      format: "@",
     };
   },
   toFunctionValue(normalizedValue) {
@@ -270,7 +270,7 @@ const secondNumberAdapter: PivotTimeAdapterNotNull<number> = {
   toValueAndFormat(normalizedValue) {
     return {
       value: _t("%(second_number)s''", { second_number: normalizedValue }),
-      format: "0",
+      format: "@",
     };
   },
   toFunctionValue(normalizedValue) {

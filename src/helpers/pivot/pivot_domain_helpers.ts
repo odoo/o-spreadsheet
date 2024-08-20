@@ -7,7 +7,9 @@ import {
   PivotNode,
 } from "../../types";
 import { clip, deepCopy } from "../misc";
-import { NEXT_VALUE, PREVIOUS_VALUE } from "./pivot_helpers";
+
+export const PREVIOUS_VALUE = "(previous)";
+export const NEXT_VALUE = "(next)";
 
 export function getDomainOfParentRow(pivot: Pivot, domain: PivotDomain): PivotDomain {
   const { colDomain, rowDomain } = domainToColRowDomain(pivot, domain);
