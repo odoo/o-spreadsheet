@@ -247,6 +247,12 @@ function orderDataEntriesKeys(
  * Used to order two values
  */
 function compareDimensionValues(dimension: PivotDimension, a: string, b: string): number {
+  if (a === "null") {
+    return dimension.order === "asc" ? 1 : -1;
+  }
+  if (b === "null") {
+    return dimension.order === "asc" ? -1 : 1;
+  }
   if (dimension.type === "integer" || dimension.type === "date") {
     return dimension.order === "asc" ? Number(a) - Number(b) : Number(b) - Number(a);
   }
