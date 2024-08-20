@@ -117,7 +117,7 @@ const monthNumberAdapter: PivotTimeAdapterNotNull<number> = {
   toValueAndFormat(normalizedValue) {
     return {
       value: MONTHS[toNumber(normalizedValue, DEFAULT_LOCALE) - 1].toString(),
-      format: "0",
+      format: "@",
     };
   },
   toFunctionValue(normalizedValue) {
@@ -141,7 +141,7 @@ const quarterNumberAdapter: PivotTimeAdapterNotNull<number> = {
   toValueAndFormat(normalizedValue) {
     return {
       value: _t("Q%(quarter_number)s", { quarter_number: normalizedValue }),
-      format: "0",
+      format: "@",
     };
   },
   toFunctionValue(normalizedValue) {

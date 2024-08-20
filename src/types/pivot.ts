@@ -153,3 +153,9 @@ export interface PivotNode {
 }
 
 export type PivotDomain = PivotNode[];
+
+/** Pivot domain splitted for the domain related to the pivot's rows and columns  */
+export interface PivotColRowDomain {
+  colDomain: PivotDomain;
+  rowDomain: PivotDomain;
+}

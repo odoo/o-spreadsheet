@@ -12,6 +12,7 @@ import {
   FunctionResultObject,
   Locale,
   Matrix,
+  Pivot,
 } from "../../types";
 import { EvaluationError } from "../../types/errors";
 import {
@@ -22,6 +23,7 @@ import {
   PivotField,
   PivotTableCell,
 } from "../../types/pivot";
+import { domainToColRowDomain } from "./pivot_domain_helpers";
 import { PivotRuntimeDefinition } from "./pivot_runtime_definition";
 import { pivotTimeAdapter } from "./pivot_time_adapter";
 
@@ -276,3 +278,22 @@ pivotToFunctionValueRegistry
   .add("integer", (value: CellValue) => `${toNumber(value, DEFAULT_LOCALE)}`)
   .add("boolean", (value: CellValue) => (toBoolean(value) ? "TRUE" : "FALSE"))
   .add("char", (value: CellValue) => `"${toString(value).replace(/"/g, '\\"')}"`);
+
+export function addRowIndentToPivotHeader(
+  pivot: Pivot,
+  domain: PivotDomain,
+  functionResult: FunctionResultObject
+): FunctionResultObject {
+  const { rowDomain } = domainToColRowDomain(pivot, domain);
+  if (rowDomain.length === 0) {
+    return functionResult;
+  }
+  const indent = rowDomain.length - 1;
+
+  const format = functionResult.format || "@";
+
+  return {
+    ...functionResult,
+    format: `${"    ".repeat(indent)}${format}* `,
+  };
+}
