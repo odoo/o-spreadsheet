@@ -235,7 +235,7 @@ describe("Pivot menu items", () => {
     const env = makeTestEnv({ model });
     selectCell(model, "B8");
     doAction(reinsertPivotPath, env, topbarMenuRegistry);
-    expect(getCellText(model, "B8")).toEqual(`=PIVOT("1")`);
+    expect(getCellText(model, "B8")).toEqual(`=PIVOT(1)`);
     expect(
       model.getters.getCoreTable({
         sheetId: model.getters.getActiveSheetId(),
@@ -263,7 +263,7 @@ describe("Pivot menu items", () => {
     createSheet(model, { sheetId: "smallSheet", rows: 1, cols: 1, activate: true });
     const env = makeTestEnv({ model });
     doAction(reinsertPivotPath, env, topbarMenuRegistry);
-    expect(getCellText(model, "A1")).toEqual(`=PIVOT("1")`);
+    expect(getCellText(model, "A1")).toEqual(`=PIVOT(1)`);
     expect(model.getters.getPivot(model.getters.getPivotId("1")!).isValid()).toBeTruthy();
     expect(model.getters.getNumberCols("smallSheet")).toEqual(2);
     expect(model.getters.getNumberRows("smallSheet")).toEqual(4); // title, col group, row header, total
@@ -284,13 +284,13 @@ describe("Pivot menu items", () => {
     const env = makeTestEnv({ model });
     selectCell(model, "B8");
     doAction(reinsertPivotPath, env, topbarMenuRegistry);
-    expect(getCellText(model, "B8")).toEqual(`=PIVOT("1")`);
+    expect(getCellText(model, "B8")).toEqual(`=PIVOT(1)`);
     expect(getTable(model, "B8")).toBeDefined();
     undo(model);
     expect(getCell(model, "B8")).toBeUndefined();
     expect(getTable(model, "B8")).toBeUndefined();
     redo(model);
-    expect(getCellText(model, "B8")).toEqual(`=PIVOT("1")`);
+    expect(getCellText(model, "B8")).toEqual(`=PIVOT(1)`);
     expect(getTable(model, "B8")).toBeDefined();
   });
 });
