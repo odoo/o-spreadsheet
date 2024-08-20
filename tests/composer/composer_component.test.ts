@@ -1,8 +1,6 @@
+import { tokenColors } from "../../src/components/composer/composer/abstract_composer_store";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
-import {
-  selectionIndicatorClass,
-  tokenColors,
-} from "../../src/components/composer/composer/composer";
+import { selectionIndicatorClass } from "../../src/components/composer/composer/composer";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { colors, toCartesian, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";

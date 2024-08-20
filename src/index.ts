@@ -199,7 +199,7 @@ import { DEFAULT_LOCALE } from "./types/locale";
 
 export const __info__ = {};
 export { Revision } from "./collaborative/revisions";
-export { tokenColors } from "./components/composer/composer/composer";
+export { tokenColors } from "./components/composer/composer/abstract_composer_store";
 export { Spreadsheet } from "./components/index";
 export { setDefaultSheetViewSize } from "./constants";
 export { compile, compileTokens, functionCache } from "./formulas/compiler";

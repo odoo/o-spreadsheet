@@ -1,4 +1,4 @@
-import { Locale } from "../types";
+import { Color, Locale } from "../types";
 import { Token } from "./index";
 import { AST, parseTokens } from "./parser";
 import { rangeTokenize } from "./range_tokenizer";
@@ -42,6 +42,7 @@ export interface EnrichedToken extends Token {
   length: number;
   parenIndex?: number;
   functionContext?: FunctionContext;
+  color?: Color;
 }
 
 /**
