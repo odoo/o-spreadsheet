@@ -6,7 +6,7 @@ import { _t } from "../../src/translation";
 import { DEFAULT_LOCALE } from "../../src/types";
 import { registerCleanup } from "../setup/jest.setup";
 import { updateLocale } from "../test_helpers/commands_helpers";
-import { keyDown, keyUp } from "../test_helpers/dom_helper";
+import { click, keyDown, keyUp } from "../test_helpers/dom_helper";
 import {
   ComposerWrapper,
   clearFunctions,
@@ -222,6 +222,17 @@ describe("formula assistant", () => {
       await typeInComposer("=FUNC1(1");
       expect(fixture.querySelectorAll(".o-formula-assistant")).toHaveLength(1);
       expect(composerStore.editionMode).toBe("editing");
+    });
+
+    test("can close and open the formula assistant", async () => {
+      await typeInComposer("=FUNC1(");
+      expect(document.activeElement).toBe(composerEl);
+      expect(fixture.querySelector(".o-formula-assistant")).toBeDefined();
+      expect(fixture.querySelector(".fa-question-circle")).toBe(null);
+      await click(fixture, ".fa-times-circle");
+      expect(fixture.querySelector(".o-formula-assistant")).toBe(null);
+      await click(fixture, ".fa-question-circle");
+      expect(fixture.querySelector(".o-formula-assistant")).toBeDefined();
     });
 
     describe("function definition", () => {

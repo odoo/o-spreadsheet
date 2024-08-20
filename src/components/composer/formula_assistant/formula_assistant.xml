@@ -1,17 +1,8 @@
 <templates>
   <t t-name="o-spreadsheet-FunctionDescriptionProvider">
-    <div
-      class="o-formula-assistant-container user-select-none shadow"
-      t-att-class="{
-          'pe-none': assistantState.allowCellSelectionBehind,
-          'pe-auto': !assistantState.allowCellSelectionBehind
-          }">
+    <div class="o-formula-assistant-container user-select-none shadow">
       <t t-set="context" t-value="getContext()"/>
-      <div
-        class="o-formula-assistant"
-        t-if="context.functionName"
-        t-on-pointermove="onMouseMove"
-        t-att-class="{'opacity-25': assistantState.allowCellSelectionBehind}">
+      <div class="o-formula-assistant" t-if="context.functionName">
         <div class="o-formula-assistant-head d-flex flex-row justify-content-between">
           <div>
             <span t-esc="context.functionName"/>
