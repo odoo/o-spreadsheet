@@ -1,9 +1,11 @@
 import { composerTokenize, EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { POSTFIX_UNARY_OPERATORS } from "../../../formulas/tokenizer";
+import { functionRegistry } from "../../../functions";
 import {
   colors,
   concat,
   fuzzyLookup,
+  getZoneArea,
   isEqual,
   isNumber,
   positionToZone,
@@ -25,6 +27,7 @@ import { NotificationStore } from "../../../stores/notification_store";
 import { _t } from "../../../translation";
 import {
   CellPosition,
+  Color,
   Command,
   Direction,
   EditionMode,
@@ -37,6 +40,22 @@ import {
   Zone,
 } from "../../../types";
 import { SelectionEvent } from "../../../types/event_stream";
+
+const functionColor = "#4a4e4d";
+const operatorColor = "#3da4ab";
+const DEFAULT_TOKEN_COLOR = "#000000";
+
+export const tokenColors = {
+  OPERATOR: operatorColor,
+  NUMBER: "#02c39a",
+  STRING: "#00a82d",
+  FUNCTION: functionColor,
+  DEBUGGER: operatorColor,
+  LEFT_PAREN: functionColor,
+  RIGHT_PAREN: functionColor,
+  ARG_SEPARATOR: functionColor,
+  MATCHING_PAREN: "#000000",
+} as const;
 
 export interface ComposerSelection {
   start: number;
@@ -137,6 +156,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       this._startEdition(text, selection);
     }
     this.updateRangeColor();
+    this.updateTokenColor();
   }
 
   cancelEdition() {
@@ -151,6 +171,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
 
     this.setContent(content, selection, true);
     this.updateRangeColor();
+    this.updateTokenColor();
   }
 
   replaceComposerCursorSelection(text: string) {
@@ -518,6 +539,54 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     const content = this._currentContent.slice(0, start) + text + this._currentContent.slice(start);
     const end = start + text.length;
     this.setCurrentContent(content, { start: end, end });
+  }
+
+  private updateTokenColor() {
+    for (let i = 0; i < this.currentTokens.length; i++) {
+      this.currentTokens[i].color = this.getTokenColor(this.currentTokens[i]);
+    }
+  }
+
+  private getTokenColor(token: EnrichedToken): string {
+    if (token.type === "REFERENCE") {
+      const { xc, sheetName } = splitReference(token.value);
+      return this.rangeColor(xc, sheetName) || DEFAULT_TOKEN_COLOR;
+    }
+    if (token.type === "SYMBOL") {
+      const upperCaseValue = token.value.toUpperCase();
+      if (upperCaseValue === "TRUE" || upperCaseValue === "FALSE") {
+        return tokenColors.NUMBER;
+      }
+      if (upperCaseValue in functionRegistry.content) {
+        return tokenColors.FUNCTION;
+      }
+    }
+    if (["LEFT_PAREN", "RIGHT_PAREN"].includes(token.type)) {
+      // Compute the matching parenthesis
+      if (
+        this.tokenAtCursor &&
+        ["LEFT_PAREN", "RIGHT_PAREN"].includes(this.tokenAtCursor.type) &&
+        this.tokenAtCursor.parenIndex &&
+        this.tokenAtCursor.parenIndex === token.parenIndex
+      ) {
+        return tokenColors.MATCHING_PAREN;
+      }
+    }
+    return tokenColors[token.type] || DEFAULT_TOKEN_COLOR;
+  }
+
+  private rangeColor(xc: string, sheetName?: string): Color | undefined {
+    const refSheet = sheetName ? this.model.getters.getSheetIdByName(sheetName) : this.sheetId;
+
+    const highlight = this.highlights.find((highlight) => {
+      if (highlight.sheetId !== refSheet) return false;
+
+      const range = this.model.getters.getRangeFromSheetXC(refSheet, xc);
+      let zone = range.zone;
+      zone = getZoneArea(zone) === 1 ? this.model.getters.expandZone(refSheet, zone) : zone;
+      return isEqual(zone, highlight.zone);
+    });
+    return highlight && highlight.color ? highlight.color : undefined;
   }
 
   private updateRangeColor() {

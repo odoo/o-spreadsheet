@@ -1,7 +1,7 @@
 import { Component, onMounted, useEffect, useRef, useState } from "@odoo/owl";
 import { NEWLINE, PRIMARY_BUTTON_BG, SCROLLBAR_WIDTH } from "../../../constants";
 import { functionRegistry } from "../../../functions/index";
-import { clip, getZoneArea, isEqual, splitReference } from "../../../helpers/index";
+import { clip } from "../../../helpers/index";
 
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { Store, useLocalStore, useStore } from "../../../store_engine";
@@ -40,22 +40,6 @@ export type HtmlContent = {
   color?: Color;
   class?: string;
 };
-
-const functionColor = "#4a4e4d";
-const operatorColor = "#3da4ab";
-const DEFAULT_TOKEN_COLOR = "#000000";
-
-export const tokenColors = {
-  OPERATOR: operatorColor,
-  NUMBER: "#02c39a",
-  STRING: "#00a82d",
-  FUNCTION: functionColor,
-  DEBUGGER: operatorColor,
-  LEFT_PAREN: functionColor,
-  RIGHT_PAREN: functionColor,
-  ARG_SEPARATOR: functionColor,
-  MATCHING_PAREN: "#000000",
-} as const;
 
 css/* scss */ `
   .o-composer-container {
@@ -646,7 +630,8 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     const result: HtmlContent[] = [];
     const { end, start } = this.props.composerStore.composerSelection;
     for (const token of tokens) {
-      result.push({ value: token.value, color: this.getTokenColor(token) });
+      const { value, color } = token;
+      result.push({ value, color });
 
       if (
         token.type === "REFERENCE" &&
@@ -661,35 +646,6 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
       }
     }
     return result;
-  }
-
-  private getTokenColor(token: EnrichedToken): string {
-    if (token.type === "REFERENCE") {
-      const { xc, sheetName } = splitReference(token.value);
-      return this.rangeColor(xc, sheetName) || DEFAULT_TOKEN_COLOR;
-    }
-    if (token.type === "SYMBOL") {
-      const upperCaseValue = token.value.toUpperCase();
-      if (upperCaseValue === "TRUE" || upperCaseValue === "FALSE") {
-        return tokenColors.NUMBER;
-      }
-      if (upperCaseValue in functionRegistry.content) {
-        return tokenColors.FUNCTION;
-      }
-    }
-    if (["LEFT_PAREN", "RIGHT_PAREN"].includes(token.type)) {
-      // Compute the matching parenthesis
-      const tokenAtCursor = this.props.composerStore.tokenAtCursor;
-      if (
-        tokenAtCursor &&
-        ["LEFT_PAREN", "RIGHT_PAREN"].includes(tokenAtCursor.type) &&
-        tokenAtCursor.parenIndex &&
-        tokenAtCursor.parenIndex === token.parenIndex
-      ) {
-        return tokenColors.MATCHING_PAREN || DEFAULT_TOKEN_COLOR;
-      }
-    }
-    return tokenColors[token.type] || DEFAULT_TOKEN_COLOR;
   }
 
   /**
@@ -733,26 +689,6 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
 
   private isContentEmpty(content: HtmlContent): boolean {
     return !(content.value || content.class);
-  }
-
-  private rangeColor(xc: string, sheetName?: string): Color | undefined {
-    if (this.props.focus === "inactive") {
-      return undefined;
-    }
-    const highlights = this.props.composerStore.highlights;
-    const refSheet = sheetName
-      ? this.env.model.getters.getSheetIdByName(sheetName)
-      : this.props.composerStore.sheetId;
-
-    const highlight = highlights.find((highlight) => {
-      if (highlight.sheetId !== refSheet) return false;
-
-      const range = this.env.model.getters.getRangeFromSheetXC(refSheet, xc);
-      let zone = range.zone;
-      zone = getZoneArea(zone) === 1 ? this.env.model.getters.expandZone(refSheet, zone) : zone;
-      return isEqual(zone, highlight.zone);
-    });
-    return highlight && highlight.color ? highlight.color : undefined;
   }
 
   /**
