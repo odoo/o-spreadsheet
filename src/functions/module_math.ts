@@ -16,6 +16,7 @@ import { getUnitMatrix } from "./helper_matrices";
 import {
   assert,
   assertNotZero,
+  generateMatrix,
   inferFormat,
   isDataNonEmpty,
   isEvaluationError,
@@ -1036,8 +1037,8 @@ export const RANDARRAY = {
     const _max = toNumber(max, this.locale);
     const _whole_number = toBoolean(wholeNumber);
 
-    assertPositive(_t("The number columns (%s) must be positive.", _cols.toString()), _cols);
-    assertPositive(_t("The number rows (%s) must be positive.", _rows.toString()), _rows);
+    assertPositive(_t("The number of columns (%s) must be positive.", _cols.toString()), _cols);
+    assertPositive(_t("The number of rows (%s) must be positive.", _rows.toString()), _rows);
     assert(
       () => _min <= _max,
       _t(
@@ -1246,6 +1247,41 @@ export const SECH = {
   args: [arg("value (number)", _t("Any real value to calculate the hyperbolic secant of."))],
   compute: function (value: Maybe<FunctionResultObject>): number {
     return 1 / Math.cosh(toNumber(value, this.locale));
+  },
+  isExported: true,
+} satisfies AddFunctionDescription;
+
+// -----------------------------------------------------------------------------
+// SEQUENCE
+// -----------------------------------------------------------------------------
+export const SEQUENCE = {
+  description: _t("Returns a sequence of numbers."),
+  args: [
+    arg("rows (number)", _t("The number of rows to return")),
+    arg("columns (number, optional, default=1)", _t("The number of columns to return")),
+    arg("start (number, optional, default=1)", _t("The first number in the sequence")),
+    arg(
+      "step (number, optional, default=1)",
+      _t("The amount to increment each value in the sequence")
+    ),
+  ],
+  compute: function (
+    rows: Maybe<FunctionResultObject>,
+    columns: FunctionResultObject = { value: 1 },
+    start: FunctionResultObject = { value: 1 },
+    step: FunctionResultObject = { value: 1 }
+  ): Matrix<FunctionResultObject> {
+    const _start = toNumber(start, this.locale);
+    const _step = toNumber(step, this.locale);
+    const _rows = toInteger(rows, this.locale);
+    const _columns = toInteger(columns, this.locale);
+    assertPositive(_t("The number of columns (%s) must be positive.", _columns), _columns);
+    assertPositive(_t("The number of rows (%s) must be positive.", _rows), _rows);
+    return generateMatrix(_columns, _rows, (col, row) => {
+      return {
+        value: _start + row * _columns * _step + col * _step,
+      };
+    });
   },
   isExported: true,
 } satisfies AddFunctionDescription;

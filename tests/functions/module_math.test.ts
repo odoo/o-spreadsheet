@@ -2445,6 +2445,90 @@ describe("SECH formula", () => {
   });
 });
 
+describe("SEQUENCE formula", () => {
+  test("only positive rows parameter", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=SEQUENCE(3)");
+    expect(getRangeValuesAsMatrix(model, "A1:A3")).toEqual([[1], [2], [3]]);
+    expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:A3")).toBeTruthy();
+  });
+
+  test("rows and step", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=SEQUENCE(3,,,2)");
+    expect(getRangeValuesAsMatrix(model, "A1:A3")).toEqual([[1], [3], [5]]);
+    expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:A3")).toBeTruthy();
+  });
+
+  test("rows and negative step", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=SEQUENCE(4,,,-1)");
+    expect(getRangeValuesAsMatrix(model, "A1:A4")).toEqual([[1], [0], [-1], [-2]]);
+    expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:A4")).toBeTruthy();
+  });
+
+  test("step can be zero", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=SEQUENCE(3,,,0)");
+    expect(getRangeValuesAsMatrix(model, "A1:A3")).toEqual([[1], [1], [1]]);
+    expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:A3")).toBeTruthy();
+  });
+
+  test("step can be omitted", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=SEQUENCE(3,,,)");
+    expect(getRangeValuesAsMatrix(model, "A1:A3")).toEqual([[1], [2], [3]]);
+    expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:A3")).toBeTruthy();
+  });
+
+  test("positive rows and columns parameters", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=SEQUENCE(3, 4)");
+    expect(getRangeValuesAsMatrix(model, "A1:D3")).toEqual([
+      [1, 2, 3, 4],
+      [5, 6, 7, 8],
+      [9, 10, 11, 12],
+    ]);
+    expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:D3")).toBeTruthy();
+  });
+
+  test("rows, columns and step parameters", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=SEQUENCE(3,4,,2)");
+    expect(getRangeValuesAsMatrix(model, "A1:D3")).toEqual([
+      [1, 3, 5, 7],
+      [9, 11, 13, 15],
+      [17, 19, 21, 23],
+    ]);
+    expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:D3")).toBeTruthy();
+  });
+
+  test("rows, columns, start and step parameters", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=SEQUENCE(3,2,2,2)");
+    expect(getRangeValuesAsMatrix(model, "A1:B3")).toEqual([
+      [2, 4],
+      [6, 8],
+      [10, 12],
+    ]);
+    expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:B3")).toBeTruthy();
+  });
+
+  test("float rows and columns parameters", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=SEQUENCE(1.6, 2.9)");
+    expect(getRangeValuesAsMatrix(model, "A1:B1")).toEqual([[1, 2]]);
+    expect(checkFunctionDoesntSpreadBeyondRange(model, "A1:B1")).toBeTruthy();
+  });
+
+  test("rows and columns parameters not positive", () => {
+    expect(evaluateCell("A1", { A1: "=SEQUENCE(-1, 1)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=SEQUENCE(1, -1)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=SEQUENCE(0, 1)" })).toBe("#ERROR");
+    expect(evaluateCell("A1", { A1: "=SEQUENCE(1, 0)" })).toBe("#ERROR");
+  });
+});
+
 describe("SIN formula", () => {
   test.each([
     ["0", 0],
