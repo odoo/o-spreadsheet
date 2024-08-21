@@ -1,5 +1,5 @@
 import { Component, useEffect } from "@odoo/owl";
-import { GRAY_300, TEXT_BODY, TEXT_BODY_MUTED } from "../../../constants";
+import { GRAY_300, TEXT_BODY } from "../../../constants";
 import { sidePanelRegistry } from "../../../registries/side_panel_registry";
 import { Store, useStore } from "../../../store_engine";
 import { SpreadsheetChildEnv } from "../../../types";
@@ -19,23 +19,10 @@ css/* scss */ `
     user-select: none;
     color: ${TEXT_BODY};
 
-    .o-text-muted {
-      color: ${TEXT_BODY_MUTED};
-    }
-
     .o-heading-3 {
       line-height: 20px;
       font-size: 16px;
       font-weight: 600;
-    }
-
-    .btn-link {
-      text-decoration: none;
-      color: #017e84;
-      font-weight: 500;
-      &:hover {
-        color: #01585c;
-      }
     }
 
     .o-sidePanelHeader {
@@ -98,18 +85,6 @@ css/* scss */ `
     .o-sidePanelButtons {
       display: flex;
       gap: 8px;
-    }
-
-    .o-sidePanel-btn-link {
-      font-size: 14px;
-      padding: 20px 24px 11px 24px;
-      height: 44px;
-      cursor: pointer;
-      text-decoration: none;
-      &:hover {
-        color: #003a39;
-        text-decoration: none;
-      }
     }
 
     .o-invalid {

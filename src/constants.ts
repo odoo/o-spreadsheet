@@ -49,6 +49,7 @@ export const BUTTON_HOVER_TEXT_COLOR = "#111827";
 export const BUTTON_ACTIVE_BG = "#e6f2f3";
 export const BUTTON_ACTIVE_TEXT_COLOR = "#111827";
 export const ACTION_COLOR = "#017E84";
+export const ACTION_COLOR_HOVER = "#01585c";
 export const ALERT_WARNING_BG = "#FBEBCC";
 export const ALERT_WARNING_BORDER = "#F8E2B3";
 export const ALERT_WARNING_TEXT_COLOR = "#946D23";

@@ -20,6 +20,7 @@ css/* scss */ `
     display: flex;
     position: relative;
     align-items: center;
+    height: 30px;
 
     .o-color-picker-button-style {
       display: flex;
@@ -35,11 +36,11 @@ css/* scss */ `
     }
 
     .o-color-picker-button {
-      height: 30px;
       > span {
         border-bottom: 4px solid;
         height: 16px;
         margin-top: 2px;
+        display: block;
       }
 
       &[disabled] {

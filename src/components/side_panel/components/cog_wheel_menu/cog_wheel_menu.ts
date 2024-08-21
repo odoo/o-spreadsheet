@@ -2,18 +2,11 @@ import { Component, useRef, useState } from "@odoo/owl";
 import { ActionSpec, createActions } from "../../../../actions/action";
 import { MenuMouseEvent } from "../../../../types";
 import { SpreadsheetChildEnv } from "../../../../types/env";
-import { css } from "../../../helpers";
 import { Menu, MenuState } from "../../../menu/menu";
 
 interface Props {
   items: ActionSpec[];
 }
-
-css/* scss */ `
-  .os-cog-wheel-menu-icon {
-    cursor: pointer;
-  }
-`;
 
 export class CogWheelMenu extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-CogWheelMenu";

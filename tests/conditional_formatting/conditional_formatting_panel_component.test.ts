@@ -69,7 +69,7 @@ const selectors = {
         iconsets: ".o-cf .o-cf-iconset-rule .o-cf-iconsets .o-cf-iconset",
         inflextion: ".o-cf .o-cf-iconset-rule .o-inflection",
         icons: ".o-cf .o-cf-iconset-rule .o-inflection .o-icon",
-        reverse: ".o-cf .o-cf-iconset-rule .o-cf-iconset-reverse",
+        reverse: ".o-cf .o-cf-iconset-rule .o-button-link",
         rows: ".o-cf .o-cf-iconset-rule .o-inflection tr",
       },
     },

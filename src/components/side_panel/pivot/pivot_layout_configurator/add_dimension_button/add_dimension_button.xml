@@ -4,7 +4,7 @@
     <Popover t-if="popover.isOpen" t-props="popoverProps">
       <div
         class="p-2 bg-white border-bottom d-flex sticky-top align-items-baseline pivot-dimension-search">
-        <i class="pe-1 pivot-dimension-search-field-icon">
+        <i class="pe-1 pivot-dimension-search-field-icon text-muted">
           <t t-call="o-spreadsheet-Icon.SEARCH"/>
         </i>
         <input

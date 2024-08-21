@@ -8,7 +8,7 @@
         <i
           t-att-class="measure.isHidden ? 'fa fa-eye-slash': 'fa fa-eye'"
           t-att-title="hideTitle"
-          class="btn o-text-muted"
+          class="o-button-icon pe-1 ps-2"
           t-on-click="toggleMeasureVisibility"
         />
       </t>
@@ -22,11 +22,11 @@
           />
         </div>
       </div>
-      <div class="d-flex flex-column small">
-        <div class="d-flex py-1 px-2 w-100">
+      <div class="d-flex flex-row">
+        <div class="d-flex py-1 px-2 w-100 small">
           <div class="pivot-dim-operator-label">Aggregated by</div>
           <select
-            class="o-input flex-grow-1 me-3"
+            class="o-input flex-grow-1"
             t-on-change="(ev) => this.updateAggregator(ev.target.value)">
             <option
               t-foreach="Object.keys(props.aggregators[measure.type])"

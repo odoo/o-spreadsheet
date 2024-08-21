@@ -117,7 +117,7 @@
       <t t-call="o-spreadsheet-IconSets"/>
       <t t-call="o-spreadsheet-IconSetInflexionPoints"/>
       <div
-        class="btn btn-link ps-0 o-cf-iconset-reverse d-flex flex-row align-items-center"
+        class="o-button-link py-1 ps-0 d-flex flex-row align-items-center"
         t-on-click="reverseIcons">
         <t t-call="o-spreadsheet-Icon.REFRESH"/>
         <div class="ms-1">Reverse icons</div>

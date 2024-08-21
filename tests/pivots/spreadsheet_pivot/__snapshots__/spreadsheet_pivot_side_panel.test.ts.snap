@@ -76,7 +76,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
               >
                  Name 
                 <span
-                  class="fa fa-cog o-text-muted os-cog-wheel-menu-icon"
+                  class="fa fa-cog os-cog-wheel-menu-icon o-button-icon"
                 />
                 
                 
@@ -286,7 +286,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
               >
                  Name 
                 <span
-                  class="fa fa-cog o-text-muted os-cog-wheel-menu-icon"
+                  class="fa fa-cog os-cog-wheel-menu-icon o-button-icon"
                 />
                 
                 
@@ -323,7 +323,7 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
                   class="position-relative w-100"
                 >
                   <input
-                    class="o-input mb-2 o-focused o-invalid border-danger position-relative text-decoration-underline"
+                    class="o-input mb-2 o-focused o-invalid border-danger position-relative"
                     placeholder="e.g. A1:A2"
                     spellcheck="false"
                     style=""

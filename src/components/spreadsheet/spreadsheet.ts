@@ -11,6 +11,7 @@ import {
 } from "@odoo/owl";
 import {
   ACTION_COLOR,
+  ACTION_COLOR_HOVER,
   ALERT_DANGER_BORDER,
   BACKGROUND_GRAY_COLOR,
   BOTTOMBAR_HEIGHT,
@@ -300,6 +301,27 @@ css/* scss */ `
     &.o-button-danger:hover {
       color: #ffffff;
       background: ${ALERT_DANGER_BORDER};
+    }
+  }
+
+  .o-button-link {
+    cursor: pointer;
+    text-decoration: none;
+    color: ${ACTION_COLOR};
+    font-weight: 500;
+    &:hover,
+    &:active {
+      color: ${ACTION_COLOR_HOVER};
+    }
+  }
+
+  .o-button-icon {
+    cursor: pointer;
+    color: ${TEXT_BODY_MUTED};
+    font-weight: 500;
+    &:hover,
+    &:active {
+      color: ${TEXT_BODY};
     }
   }
 `;
