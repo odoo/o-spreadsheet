@@ -118,6 +118,7 @@ import {
 import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_positional_formula_registry";
 
 import { CellComposerStore } from "./components/composer/composer/cell_composer_store";
+import { SidePanelCollapsible } from "./components/side_panel/components/collapsible/side_panel_collapsible";
 import { TextInput } from "./components/text_input/text_input";
 import {
   getChartAxisType,
@@ -402,6 +403,7 @@ export const components = {
   PivotTitleSection,
   CogWheelMenu,
   TextInput,
+  SidePanelCollapsible,
 };
 
 export const hooks = {
