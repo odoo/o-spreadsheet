@@ -58,17 +58,45 @@ export class TextInput extends Component<Props, SpreadsheetChildEnv> {
           this.save();
         }
       },
-      {
-        capture: true,
-      }
+      { capture: true }
     );
   }
 
-  onChange() {
-    this.save();
+  onKeyDown(ev: KeyboardEvent) {
+    switch (ev.key) {
+      case "Enter":
+        this.save();
+        ev.preventDefault();
+        ev.stopPropagation();
+        break;
+      case "Escape":
+        if (this.inputRef.el) {
+          this.inputRef.el.value = this.props.value;
+          this.inputRef.el.blur();
+        }
+        ev.preventDefault();
+        ev.stopPropagation();
+        break;
+    }
   }
 
   save() {
-    this.props.onChange((this.inputRef.el?.value || "").trim());
+    const currentValue = (this.inputRef.el?.value || "").trim();
+    if (currentValue !== this.props.value) {
+      this.props.onChange(currentValue);
+    }
+    this.inputRef.el?.blur();
+  }
+
+  focusInputAndSelectContent() {
+    const inputEl = this.inputRef.el;
+    if (!inputEl) return;
+
+    // The onFocus event selects all text in the input.
+    // The subsequent mouseup event can deselect this text,
+    // so t-on-mouseup.prevent.stop is used to prevent this
+    // default behavior and preserve the selection.
+    inputEl.focus();
+    inputEl.select();
   }
 }
