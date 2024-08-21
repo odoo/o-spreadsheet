@@ -83,21 +83,14 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
               </div>
             </div>
             
-            
             <div
-              class="o_sp_en_display_name"
+              class="w-100"
             >
-              (#1) Pivot
-            </div>
-            <div
-              class="btn btn-link o_sp_en_rename"
-            >
-              <i
-                class="fa fa-pencil me-1"
+              <input
+                class="os-input w-100 os-pivot-title"
+                type="text"
               />
-               Rename 
             </div>
-            <br />
             
           </div>
           
@@ -300,21 +293,14 @@ exports[`Spreadsheet pivot side panel It should display only the selection input
               </div>
             </div>
             
-            
             <div
-              class="o_sp_en_display_name"
+              class="w-100"
             >
-              (#1) Pivot
-            </div>
-            <div
-              class="btn btn-link o_sp_en_rename"
-            >
-              <i
-                class="fa fa-pencil me-1"
+              <input
+                class="os-input w-100 os-pivot-title"
+                type="text"
               />
-               Rename 
             </div>
-            <br />
             
           </div>
           

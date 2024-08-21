@@ -42,11 +42,7 @@ describe("Spreadsheet pivot side panel", () => {
   test("It should be able to change the pivot name", async () => {
     await click(fixture.querySelector(".pivot-defer-update input")!);
     await nextTick();
-    await click(fixture.querySelector(".o_sp_en_rename")!);
-    const input = fixture.querySelector(".o_sp_en_name") as HTMLInputElement;
-    input.value = "New Pivot Name";
-    input.dispatchEvent(new Event("input"));
-    await click(fixture.querySelector(".o_sp_en_save")!);
+    setInputValueAndTrigger(".os-pivot-title", "New Pivot Name");
     expect(model.getters.getPivotName("1")).toEqual("New Pivot Name");
   });
 
@@ -97,11 +93,7 @@ describe("Spreadsheet pivot side panel", () => {
   });
 
   test("Can rename a pivot", async () => {
-    await click(fixture.querySelector(".o_sp_en_rename")!);
-    const input = fixture.querySelector(".o_sp_en_name") as HTMLInputElement;
-    input.value = "New Pivot Name";
-    input.dispatchEvent(new Event("input"));
-    await click(fixture.querySelector(".o_sp_en_save")!);
+    setInputValueAndTrigger(".os-pivot-title", "New Pivot Name");
     expect(model.getters.getPivotName("1")).toEqual("New Pivot Name");
   });
 

@@ -2,9 +2,9 @@ import { Component } from "@odoo/owl";
 import { ActionSpec } from "../../../../actions/action";
 import { _t } from "../../../../translation";
 import { SpreadsheetChildEnv, UID } from "../../../../types";
+import { TextInput } from "../../../text_input/text_input";
 import { CogWheelMenu } from "../../components/cog_wheel_menu/cog_wheel_menu";
 import { Section } from "../../components/section/section";
-import { EditableName } from "../editable_name/editable_name";
 
 interface Props {
   pivotId: UID;
@@ -13,7 +13,7 @@ interface Props {
 
 export class PivotTitleSection extends Component<Props, SpreadsheetChildEnv> {
   static template = "o-spreadsheet-PivotTitleSection";
-  static components = { CogWheelMenu, Section, EditableName };
+  static components = { CogWheelMenu, Section, TextInput };
   static props = {
     pivotId: String,
     flipAxis: Function,
