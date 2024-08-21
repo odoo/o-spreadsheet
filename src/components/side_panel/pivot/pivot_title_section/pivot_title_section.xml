@@ -7,7 +7,7 @@
           <CogWheelMenu items="cogWheelMenuItems"/>
         </div>
       </t>
-      <EditableName name="name" displayName="displayName" onChanged.bind="onNameChanged"/>
+      <TextInput class="'os-pivot-title'" value="name" onChange.bind="onNameChanged"/>
     </Section>
   </t>
 </templates>
