@@ -3,7 +3,7 @@ import { ChartTerms } from "../../../components/translations_terms";
 import { DEFAULT_CHART_FONT_SIZE, DEFAULT_CHART_PADDING, MAX_CHAR_LABEL } from "../../../constants";
 import { isEvaluationError } from "../../../functions/helpers";
 import { _t } from "../../../translation";
-import { Color, Figure, Format, Getters, LocaleFormat, Range } from "../../../types";
+import { CellValue, Color, Figure, Format, Getters, LocaleFormat, Range } from "../../../types";
 import { GaugeChartRuntime, ScorecardChartRuntime } from "../../../types/chart";
 import { ChartRuntime, DataSet, DatasetValues, LabelValues } from "../../../types/chart/chart";
 import { formatValue, isDateTimeFormat } from "../../format";
@@ -21,7 +21,7 @@ import { getScorecardConfiguration } from "./scorecard_chart_config_builder";
 /**
  * Get the data from a dataSet
  */
-export function getData(getters: Getters, ds: DataSet): any[] {
+export function getData(getters: Getters, ds: DataSet): (CellValue | undefined)[] {
   if (ds.dataRange) {
     const labelCellZone = ds.labelCell ? [ds.labelCell.zone] : [];
     const dataZone = recomputeZones([ds.dataRange.zone], labelCellZone)[0];
