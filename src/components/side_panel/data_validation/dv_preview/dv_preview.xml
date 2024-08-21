@@ -7,9 +7,9 @@
           <div class="o-dv-preview-ranges text-truncate" t-esc="rangesString"/>
         </div>
         <div
-          class="o-dv-preview-delete d-flex align-items-center text-muted px-3"
+          class="o-dv-preview-delete d-flex align-items-center o-button-icon px-3"
           t-on-click.stop="deleteDataValidation">
-          <t t-call="o-spreadsheet-Icon.TRASH"/>
+          <t t-call="o-spreadsheet-Icon.TRASH_FILLED"/>
         </div>
       </div>
     </div>

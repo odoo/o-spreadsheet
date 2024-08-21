@@ -21,7 +21,7 @@
             t-att-class="{
               'o-focused' : range.isFocused,
               'o-invalid border-danger position-relative': isInvalid || !range.isValidRange,
-              'text-decoration-underline': range.isFocused and state.mode === 'select-range'
+              'text-decoration-underline': range.xc and range.isFocused and state.mode === 'select-range'
             }"
             t-ref="{{range.isFocused ? 'focusedInput' : 'unfocusedInput' + range_index}}"
           />
@@ -33,7 +33,7 @@
           </span>
         </div>
         <button
-          class="o-btn border-0 bg-transparent fw-bold o-remove-selection o-text-muted pe-0"
+          class="border-0 bg-transparent fw-bold o-remove-selection o-button-icon pe-0"
           t-if="ranges.length > 1"
           t-on-click="() => this.removeInput(range.id)">
           <t t-call="o-spreadsheet-Icon.TRASH_FILLED"/>

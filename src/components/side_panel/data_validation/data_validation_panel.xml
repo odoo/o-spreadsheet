@@ -10,9 +10,7 @@
             />
           </t>
         </div>
-        <div
-          class="o-dv-add btn btn-link o-sidePanel-btn-link float-end"
-          t-on-click="addDataValidationRule">
+        <div class="o-dv-add o-button-link p-4 float-end" t-on-click="addDataValidationRule">
           + Add another rule
         </div>
       </t>

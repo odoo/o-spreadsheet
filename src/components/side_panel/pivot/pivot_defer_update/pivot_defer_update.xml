@@ -8,14 +8,14 @@
         value="props.deferUpdate"
         onChange="(value) => props.toggleDeferUpdate(value)"
       />
-      <div t-if="props.isDirty">
+      <div t-if="props.isDirty" class="d-flex align-items-center">
         <i
-          class="btn btn-sm pe-0 fa fa-undo"
+          class="o-button-icon pe-0 fa fa-undo"
           title="Discard all changes"
           t-on-click="() => props.discard()"
         />
         <span
-          class="btn btm-sm btn-link sp_apply_update"
+          class="o-button-link sp_apply_update small ps-2"
           title="Apply all changes"
           t-on-click="() => props.apply()">
           Update

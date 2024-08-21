@@ -38,8 +38,10 @@
               disabled="1"
             />
           </t>
-          <button t-if="link.url" t-on-click="removeLink" class="o-remove-url">✖</button>
-          <button t-if="!link.url" t-on-click.stop="openMenu" class="o-special-link">
+          <button t-if="link.url" t-on-click="removeLink" class="o-remove-url o-button-icon">
+            ✖
+          </button>
+          <button t-if="!link.url" t-on-click.stop="openMenu" class="o-special-link o-button-icon">
             <t t-call="o-spreadsheet-Icon.LIST"/>
           </button>
         </div>

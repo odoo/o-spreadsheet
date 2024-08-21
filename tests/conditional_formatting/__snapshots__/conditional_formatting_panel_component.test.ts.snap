@@ -22,7 +22,7 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
             class="position-relative h-100 w-100 d-flex align-items-center"
           >
             <div
-              class="o-cf-drag-handle h-100 position-absolute d-flex align-items-center text-muted"
+              class="o-cf-drag-handle h-100 position-absolute d-flex align-items-center o-button-icon"
             >
               <svg
                 class="o-icon"
@@ -82,14 +82,14 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
               class="o-cf-delete"
             >
               <div
-                class="o-cf-delete-button text-muted"
+                class="o-cf-delete-button o-button-icon"
                 title="Remove rule"
               >
                 <div
                   class="o-icon"
                 >
                   <i
-                    class="fa fa-trash-o"
+                    class="fa fa-trash"
                   />
                 </div>
               </div>
@@ -109,7 +109,7 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
             class="position-relative h-100 w-100 d-flex align-items-center"
           >
             <div
-              class="o-cf-drag-handle h-100 position-absolute d-flex align-items-center text-muted"
+              class="o-cf-drag-handle h-100 position-absolute d-flex align-items-center o-button-icon"
             >
               <svg
                 class="o-icon"
@@ -169,14 +169,14 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
               class="o-cf-delete"
             >
               <div
-                class="o-cf-delete-button text-muted"
+                class="o-cf-delete-button o-button-icon"
                 title="Remove rule"
               >
                 <div
                   class="o-icon"
                 >
                   <i
-                    class="fa fa-trash-o"
+                    class="fa fa-trash"
                   />
                 </div>
               </div>
@@ -187,7 +187,7 @@ exports[`UI of conditional formats Conditional format list simple snapshot 1`] =
       
       
       <div
-        class="btn btn-link o-sidePanel-btn-link o-cf-add float-end"
+        class="o-button-link p-4 o-cf-add float-end"
       >
          + Add another rule 
       </div>

@@ -11,9 +11,9 @@
           onBlur.bind="onBlurInput"
         />
         <div
-          class="o-dv-list-item-delete ms-2 me-1"
+          class="o-dv-list-item-delete ms-2 o-button-icon"
           t-on-click="() => this.removeItem(value_index)">
-          <t t-call="o-spreadsheet-Icon.TRASH"/>
+          <t t-call="o-spreadsheet-Icon.TRASH_FILLED"/>
         </div>
       </div>
       <div class="mb-2"/>

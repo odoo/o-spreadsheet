@@ -9,7 +9,8 @@
       t-on-click="props.onPreviewClick"
       t-on-pointerdown="(ev) => this.onMouseDown(ev)">
       <div class="position-relative h-100 w-100 d-flex align-items-center">
-        <div class="o-cf-drag-handle h-100 position-absolute d-flex align-items-center text-muted">
+        <div
+          class="o-cf-drag-handle h-100 position-absolute d-flex align-items-center o-button-icon">
           <t t-call="o-spreadsheet-Icon.THIN_DRAG_HANDLE"/>
         </div>
         <t t-if="cf.rule.type==='IconSetRule'">
@@ -36,10 +37,10 @@
         </div>
         <div class="o-cf-delete">
           <div
-            class="o-cf-delete-button text-muted"
+            class="o-cf-delete-button o-button-icon"
             t-on-click.stop="(ev) => this.deleteConditionalFormat(cf, ev)"
             title="Remove rule">
-            <t t-call="o-spreadsheet-Icon.TRASH"/>
+            <t t-call="o-spreadsheet-Icon.TRASH_FILLED"/>
           </div>
         </div>
       </div>

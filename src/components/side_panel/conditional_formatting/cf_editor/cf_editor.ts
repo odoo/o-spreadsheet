@@ -116,13 +116,6 @@ css/* scss */ `
           }
         }
       }
-
-      .o-cf-iconset-reverse {
-        font-size: 14px;
-        .o-icon {
-          font-size: 17px;
-        }
-      }
     }
 
     .o-icon.arrow-down {
