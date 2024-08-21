@@ -1,6 +1,7 @@
-import { Model, SpreadsheetChildEnv } from "../../src";
+import { Model, SpreadsheetChildEnv, SpreadsheetPivotCoreDefinition } from "../../src";
+import { toZone } from "../../src/helpers";
 import { createSheet, deleteSheet } from "../test_helpers/commands_helpers";
-import { click } from "../test_helpers/dom_helper";
+import { click, setInputValueAndTrigger, simulateClick } from "../test_helpers/dom_helper";
 import { mountSpreadsheet, nextTick } from "../test_helpers/helpers";
 import { SELECTORS, addPivot, removePivot } from "../test_helpers/pivot_helpers";
 
@@ -44,5 +45,19 @@ describe("Pivot side panel", () => {
     deleteSheet(model, "toDelete");
     await nextTick();
     expect(fixture.querySelector(".o-sidePanel")).not.toBeNull();
+  });
+
+  test("Side panel supports unbounded zone in definition", async () => {
+    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    await nextTick();
+    setInputValueAndTrigger(SELECTORS.ZONE_INPUT, "A:A");
+    await nextTick();
+    await simulateClick(SELECTORS.ZONE_CONFIRM);
+    expect(
+      (model.getters.getPivotCoreDefinition("1") as SpreadsheetPivotCoreDefinition).dataSet
+    ).toMatchObject({
+      sheetId: model.getters.getActiveSheetId(),
+      zone: toZone("A1:A100"),
+    });
   });
 });
