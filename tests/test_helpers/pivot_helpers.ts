@@ -62,4 +62,6 @@ export const SELECTORS = {
   DUPLICATE_PIVOT: ".o-menu .fa-clone",
   DELETE_PIVOT: ".o-menu .fa-trash-o",
   FLIP_AXIS_PIVOT: ".o-menu .fa-exchange",
+  ZONE_INPUT: ".o-selection-input input",
+  ZONE_CONFIRM: ".o-selection-input .o-selection-ok",
 };

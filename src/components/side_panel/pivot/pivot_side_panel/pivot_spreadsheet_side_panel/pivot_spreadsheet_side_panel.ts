@@ -1,5 +1,4 @@
 import { Component, useState } from "@odoo/owl";
-import { splitReference, toZone } from "../../../../../helpers";
 import { SpreadsheetPivotRuntimeDefinition } from "../../../../../helpers/pivot/spreadsheet_pivot/runtime_definition_spreadsheet_pivot";
 import { SpreadsheetPivot } from "../../../../../helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
 import { Store, useLocalStore } from "../../../../../store_engine";
@@ -76,15 +75,15 @@ export class PivotSpreadsheetSidePanel extends Component<Props, SpreadsheetChild
 
   onSelectionConfirmed() {
     if (this.state.range) {
-      const { sheetName, xc } = splitReference(this.state.range);
-      const sheetId = sheetName
-        ? this.env.model.getters.getSheetIdByName(sheetName)
-        : this.env.model.getters.getActiveSheetId();
-      if (!sheetId) {
+      const range = this.env.model.getters.getRangeFromSheetXC(
+        this.env.model.getters.getActiveSheetId(),
+        this.state.range
+      );
+      if (range.invalidSheetName || range.invalidXc) {
         return;
       }
-      const zone = toZone(xc);
-      const dataSet = { sheetId, zone };
+
+      const dataSet = { sheetId: range.sheetId, zone: range.zone };
       this.store.update({ dataSet });
       // Immediately apply the update to recompute the pivot fields
       this.store.applyUpdate();
