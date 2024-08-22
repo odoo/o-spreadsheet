@@ -37,6 +37,7 @@ export interface ActionSpec {
    * Can be defined to display an icon
    */
   icon?: string | ((env: SpreadsheetChildEnv) => string);
+  iconColor?: Color;
   /**
    * Can be defined to display another icon on the right of the item.
    */
@@ -74,6 +75,7 @@ export interface Action {
   isEnabled: (env: SpreadsheetChildEnv) => boolean;
   isActive?: (env: SpreadsheetChildEnv) => boolean;
   icon: (env: SpreadsheetChildEnv) => string;
+  iconColor?: Color;
   secondaryIcon: (env: SpreadsheetChildEnv) => string;
   isReadonlyAllowed: boolean;
   execute?: (env: SpreadsheetChildEnv) => unknown;
@@ -117,6 +119,7 @@ export function createAction(item: ActionSpec): Action {
     isReadonlyAllowed: item.isReadonlyAllowed || false,
     separator: item.separator || false,
     icon: typeof icon === "function" ? icon : () => icon || "",
+    iconColor: item.iconColor,
     secondaryIcon: typeof secondaryIcon === "function" ? secondaryIcon : () => secondaryIcon || "",
     description: typeof description === "function" ? description : () => description || "",
     textColor: item.textColor,

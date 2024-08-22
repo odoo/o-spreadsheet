@@ -238,6 +238,7 @@ export class XlsxSheetExtractor extends XlsxBaseExtractor {
 
     return {
       outlinePr: this.extractSheetOutlineProperties(propertiesElement),
+      tabColor: this.extractColor(this.querySelector(propertiesElement, "tabColor"), this.theme),
     };
   }
 

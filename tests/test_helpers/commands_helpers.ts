@@ -13,6 +13,7 @@ import {
   ChartWithAxisDefinition,
   ClipboardContent,
   ClipboardPasteOptions,
+  Color,
   CreateSheetCommand,
   CreateTableStyleCommand,
   DataValidationCriterion,
@@ -65,7 +66,7 @@ export function activateSheet(
  */
 export function createSheet(
   model: Model,
-  data: Partial<CreateSheetCommand & { activate: boolean; hidden: boolean }>
+  data: Partial<CreateSheetCommand & { activate: boolean; hidden: boolean; color: Color }>
 ) {
   const sheetId = data.sheetId || model.uuidGenerator.uuidv4();
   const result = model.dispatch("CREATE_SHEET", {
@@ -81,11 +82,18 @@ export function createSheet(
   if (data.activate) {
     activateSheet(model, sheetId);
   }
+  if (data.color) {
+    colorSheet(model, sheetId, data.color);
+  }
   return result;
 }
 
 export function renameSheet(model: Model, sheetId: UID, name: string): DispatchResult {
   return model.dispatch("RENAME_SHEET", { sheetId, name });
+}
+
+export function colorSheet(model: Model, sheetId: UID, color: Color | undefined): DispatchResult {
+  return model.dispatch("COLOR_SHEET", { sheetId, color });
 }
 
 export function createSheetWithName(

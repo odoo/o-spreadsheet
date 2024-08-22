@@ -797,6 +797,12 @@ describe("Import xlsx data", () => {
       const testSheet = getWorkbookSheet("jestHiddenSheet", convertedData)!;
       expect(testSheet.isVisible).toEqual(false);
     });
+
+    test("Can import sheet colors", () => {
+      expect(getWorkbookSheet("Sheet1", convertedData)!.color).toEqual("#00FF00");
+      expect(getWorkbookSheet("Formulas", convertedData)!.color).toEqual("#70AD47");
+      expect(getWorkbookSheet("jestSheet", convertedData)!.color).toEqual("#FF0000");
+    });
   });
 
   test("Import header groups", () => {

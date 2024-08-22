@@ -1407,6 +1407,11 @@ describe("Test XLSX export", () => {
     expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
   });
 
+  test("Workbook with colored sheet", async () => {
+    const model = new Model({ sheets: [{ id: "sheet0" }, { id: "sheet1", color: "#FF0000" }] });
+    expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
+  });
+
   test("Sheet with frozen panes", async () => {
     const model = new Model({
       sheets: [{ id: "sheet0" }, { id: "sheet1", panes: { xSplit: 1, ySplit: 2 } }],

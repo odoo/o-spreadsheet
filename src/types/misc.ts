@@ -131,6 +131,7 @@ export interface Sheet {
   areGridLinesVisible: boolean;
   isVisible: boolean;
   panes: PaneDivision;
+  color?: Color;
 }
 
 export interface CellPosition {

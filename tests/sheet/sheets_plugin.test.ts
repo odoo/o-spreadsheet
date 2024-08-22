@@ -6,6 +6,7 @@ import {
   activateSheet,
   addColumns,
   addRows,
+  colorSheet,
   createChart,
   createSheet,
   createSheetWithName,
@@ -1074,5 +1075,42 @@ describe("sheets", () => {
     const sheetId = model.getters.getActiveSheetId();
     const zone = toZone("A1:J1");
     expect(model.getters.getUnboundedZone(sheetId, zone)).toEqual({ ...zone, right: undefined });
+  });
+
+  describe("Sheet color", () => {
+    test("Can change a sheet color", () => {
+      const model = new Model();
+      const sheetId = model.getters.getActiveSheetId();
+
+      colorSheet(model, sheetId, "#FF0000");
+      expect(model.getters.getSheet(sheetId).color).toBe("#FF0000");
+
+      colorSheet(model, sheetId, undefined);
+      expect(model.getters.getSheet(sheetId).color).toBe(undefined);
+
+      undo(model);
+      expect(model.getters.getSheet(sheetId).color).toBe("#FF0000");
+
+      redo(model);
+      expect(model.getters.getSheet(sheetId).color).toBe(undefined);
+    });
+
+    test("Cannot give an invalid color to a sheet", () => {
+      const model = new Model();
+      const sheetId = model.getters.getActiveSheetId();
+      expect(colorSheet(model, sheetId, "#PPP")).toBeCancelledBecause(CommandResult.InvalidColor);
+    });
+
+    test("Can export and import sheet colors", () => {
+      const model = new Model();
+      const sheetId = model.getters.getActiveSheetId();
+
+      colorSheet(model, sheetId, "#FF0000");
+      const exported = model.exportData();
+      expect(exported.sheets[0].color).toBe("#FF0000");
+
+      const newModel = new Model(exported);
+      expect(newModel.getters.getSheet(sheetId).color).toBe("#FF0000");
+    });
   });
 });

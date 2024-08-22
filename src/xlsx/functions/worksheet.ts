@@ -14,6 +14,7 @@ import { ExcelHeaderData, ExcelSheetData, ExcelWorkbookData } from "../../types"
 import { CellErrorType } from "../../types/errors";
 import { XLSXStructure, XMLAttributes, XMLString } from "../../types/xlsx";
 import { XLSX_RELATION_TYPE } from "../constants";
+import { toXlsxHexColor } from "../helpers/colors";
 import {
   addRelsToFile,
   convertHeightToExcel,
@@ -251,6 +252,19 @@ export function addSheetViews(sheet: ExcelSheetData) {
           ${splitPanes}
         </sheetView>
       </sheetViews>
+    `;
+  return sheetView;
+}
+
+export function addSheetProperties(sheet: ExcelSheetData) {
+  if (!sheet.color) {
+    return "";
+  }
+
+  let sheetView = escapeXml/*xml*/ `
+      <sheetPr>
+        <tabColor ${formatAttributes([["rgb", toXlsxHexColor(sheet.color)]])} />
+      </sheetPr>
     `;
   return sheetView;
 }

@@ -210,7 +210,11 @@ export class Menu extends Component<Props, SpreadsheetChildEnv> {
   }
 
   getColor(menu: Action) {
-    return menu.textColor ? `color: ${menu.textColor}` : undefined;
+    return cssPropertiesToCss({ color: menu.textColor });
+  }
+
+  getIconColor(menu: Action) {
+    return cssPropertiesToCss({ color: menu.iconColor });
   }
 
   async activateMenu(menu: Action) {

@@ -2,7 +2,7 @@ import { CellValue, DataValidationRule, Format, Locale } from ".";
 import { ExcelChartDefinition } from "./chart/chart";
 import { ConditionalFormat } from "./conditional_formatting";
 import { Image } from "./image";
-import { Border, Dimension, HeaderGroup, PaneDivision, Pixel, Style, UID } from "./misc";
+import { Border, Color, Dimension, HeaderGroup, PaneDivision, Pixel, Style, UID } from "./misc";
 import { PivotCoreDefinition } from "./pivot";
 import { CoreTableType, TableConfig, TableStyleTemplateName } from "./table";
 
@@ -51,6 +51,7 @@ export interface SheetData {
   isVisible: boolean;
   panes?: PaneDivision;
   headerGroups?: Record<Dimension, HeaderGroup[]>;
+  color?: Color;
 }
 
 interface WorkbookSettings {

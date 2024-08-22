@@ -192,6 +192,7 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "DUPLICATE_SHEET",
   "MOVE_SHEET",
   "RENAME_SHEET",
+  "COLOR_SHEET",
   "HIDE_SHEET",
   "SHOW_SHEET",
 
@@ -401,6 +402,11 @@ export interface MoveSheetCommand extends SheetDependentCommand {
 export interface RenameSheetCommand extends SheetDependentCommand {
   type: "RENAME_SHEET";
   name?: string;
+}
+
+export interface ColorSheetCommand extends SheetDependentCommand {
+  type: "COLOR_SHEET";
+  color?: Color;
 }
 
 export interface HideSheetCommand extends SheetDependentCommand {
@@ -1000,6 +1006,7 @@ export type CoreCommand =
   | DuplicateSheetCommand
   | MoveSheetCommand
   | RenameSheetCommand
+  | ColorSheetCommand
   | HideSheetCommand
   | ShowSheetCommand
 
@@ -1277,6 +1284,7 @@ export const enum CommandResult {
   EmptyName = "EmptyName",
   ValueCellIsInvalidFormula = "ValueCellIsInvalidFormula",
   InvalidDefinition = "InvalidDefinition",
+  InvalidColor = "InvalidColor",
 }
 
 export interface CommandHandler<T> {
