@@ -2,7 +2,7 @@
 
 description of this task, what is implemented and why it is implemented that way.
 
-Task: : [TASK_ID](https://www.odoo.com/web#id=TASK_ID&action=333&active_id=2328&model=project.task&view_type=form&cids=1&menu_id=4720)
+Task: [TASK_ID](https://www.odoo.com/web#id=TASK_ID&action=333&active_id=2328&model=project.task&view_type=form&cids=1&menu_id=4720)
 
 ## review checklist
 
