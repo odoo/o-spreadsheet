@@ -222,6 +222,15 @@ export function getTable(
   return model.getters.getTable({ sheetId, col, row });
 }
 
+export function getCoreTable(
+  model: Model,
+  xc: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  const { col, row } = toCartesian(xc);
+  return model.getters.getCoreTable({ sheetId, col, row });
+}
+
 export function getFilter(
   model: Model,
   xc: string,
