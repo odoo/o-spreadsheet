@@ -7,6 +7,7 @@ import {
   activateSheet,
   addColumns,
   addRows,
+  colorSheet,
   createChart,
   createSheet,
   deleteCells,
@@ -54,6 +55,20 @@ describe("Collaborative Sheet manipulation", () => {
     expect([alice, bob, charlie]).toHaveSynchronizedValue(
       (user) => user.getters.getSheetIds(),
       [sheet1, "2"]
+    );
+    expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
+  });
+
+  test("color and delete sheet concurrently", () => {
+    const sheet1 = alice.getters.getActiveSheetId();
+    createSheet(alice, { sheetId: "42" });
+    network.concurrent(() => {
+      colorSheet(alice, "42", "#FF0000");
+      bob.dispatch("DELETE_SHEET", { sheetId: "42" });
+    });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => user.getters.getSheetIds(),
+      [sheet1]
     );
     expect([alice, bob, charlie]).toHaveSynchronizedExportedData();
   });

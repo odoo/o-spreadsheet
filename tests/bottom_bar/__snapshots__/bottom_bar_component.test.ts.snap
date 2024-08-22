@@ -9,6 +9,7 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
   <div
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="Sum"
+    style=""
     title="Sum: 24"
   >
     <div
@@ -29,6 +30,7 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
   <div
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="Avg"
+    style=""
     title="Avg: 24"
   >
     <div
@@ -49,6 +51,7 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
   <div
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="Min"
+    style=""
     title="Min: 24"
   >
     <div
@@ -69,6 +72,7 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
   <div
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="Max"
+    style=""
     title="Max: 24"
   >
     <div
@@ -89,6 +93,7 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
   <div
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="Count"
+    style=""
     title="Count: 1"
   >
     <div
@@ -109,6 +114,7 @@ exports[`BottomBar component Can open the list of statistics 1`] = `
   <div
     class="o-menu-item d-flex justify-content-between align-items-center"
     data-name="Count Numbers"
+    style=""
     title="Count Numbers: 1"
   >
     <div
@@ -249,9 +255,11 @@ exports[`BottomBar component simple rendering 1`] = `
                 />
               </div>
             </span>
+            
           </div>
         </div>
       </div>
+      
       
     </div>
     

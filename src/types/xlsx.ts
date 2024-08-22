@@ -42,6 +42,7 @@ import { ExcelFigureSize } from "./figure";
  *  - sheet (XLSXWorksheet): §18.3.1.99 (worksheet)
  *  - sheet format (XLSXSheetFormat): §18.3.1.81 (sheetFormatPr)
  *  - sheet properties (XLSXSheetProperties): §18.3.1.82 (sheetPr)
+ *  - sheet tab color: (XLSXColor): §18.3.1.93 (tabColor)
  *  - sheet view (XLSXSheetView): §18.3.1.87 (sheetFormatPr)
  *  - sheet workbook info (XLSXSheetWorkbookInfo): §18.2.19 (sheet)
  *  - style, for cell (XLSXStyle): §18.8.45 (xf)
@@ -660,6 +661,7 @@ export interface XLSXSheetWorkbookInfo {
 
 export interface XLSXSheetProperties {
   outlinePr?: XLSXOutlineProperties;
+  tabColor?: XLSXColor;
 }
 
 export interface XLSXOutlineProperties {

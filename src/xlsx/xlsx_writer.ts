@@ -29,6 +29,7 @@ import {
   addHyperlinks,
   addMerges,
   addRows,
+  addSheetProperties,
   addSheetViews,
 } from "./functions/worksheet";
 import {
@@ -190,6 +191,7 @@ function createWorksheets(data: ExcelWorkbookData, construct: XLSXStructure): XL
 
     const sheetXml = escapeXml/*xml*/ `
       <worksheet ${formatAttributes(namespaces)}>
+        ${addSheetProperties(sheet)}
         ${addSheetViews(sheet)}
         <sheetFormatPr ${formatAttributes(sheetFormatAttributes)} />
         ${addColumns(sheet.cols)}

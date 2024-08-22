@@ -27,7 +27,18 @@
         <span class="o-sheet-icon ms-1" t-on-click.stop="(ev) => this.onIconClick(ev)">
           <t t-call="o-spreadsheet-Icon.CARET_DOWN"/>
         </span>
+        <div
+          t-if="sheetColorStyle"
+          class="o-sheet-color position-absolute"
+          t-att-style="sheetColorStyle"
+        />
       </div>
     </Ripple>
+    <ColorPicker
+      t-if="state.pickerOpened"
+      anchorRect="colorPickerAnchorRect"
+      onColorPicked.bind="onColorPicked"
+      currentColor="props.currentColor"
+    />
   </t>
 </templates>

@@ -1,13 +1,15 @@
-import { Component, onMounted, onPatched, useRef, useState } from "@odoo/owl";
+import { Component, onMounted, onPatched, useExternalListener, useRef, useState } from "@odoo/owl";
 import { BOTTOMBAR_HEIGHT } from "../../../constants";
 import { interactiveRenameSheet } from "../../../helpers/ui/sheet_interactive";
 import { getSheetMenuRegistry } from "../../../registries";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
 import { Store, useStore } from "../../../store_engine";
 import { DOMFocusableElementStore } from "../../../stores/DOM_focus_store";
-import { SpreadsheetChildEnv } from "../../../types";
+import { Rect, SpreadsheetChildEnv } from "../../../types";
 import { Ripple } from "../../animation/ripple";
-import { css } from "../../helpers/css";
+import { ColorPicker } from "../../color_picker/color_picker";
+import { css, cssPropertiesToCss } from "../../helpers/css";
+import { getBoundingRectAsPOJO } from "../../helpers/dom_helpers";
 
 css/* scss */ `
   .o-sheet {
@@ -48,6 +50,14 @@ css/* scss */ `
         margin-right: -2px;
       }
     }
+
+    .o-sheet-color {
+      bottom: 0;
+      left: 0;
+      height: 6px;
+      z-index: 1;
+      width: calc(100% - 1px);
+    }
   }
 `;
 
@@ -60,6 +70,7 @@ interface Props {
 
 interface State {
   isEditing: boolean;
+  pickerOpened: boolean;
 }
 
 export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
@@ -70,13 +81,13 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
     style: { type: String, optional: true },
     onMouseDown: { type: Function, optional: true },
   };
-  static components = { Ripple };
+  static components = { Ripple, ColorPicker };
   static defaultProps = {
     onMouseDown: () => {},
     style: "",
   };
 
-  private state = useState<State>({ isEditing: false });
+  private state = useState<State>({ isEditing: false, pickerOpened: false });
 
   private sheetDivRef = useRef("sheetDiv");
   private sheetNameRef = useRef("sheetNameSpan");
@@ -98,6 +109,7 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
       }
     });
     this.DOMFocusableElementStore = useStore(DOMFocusableElementStore);
+    useExternalListener(window, "click", () => (this.state.pickerOpened = false));
   }
 
   private focusInputAndSelectContent() {
@@ -210,11 +222,24 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
     if (this.sheetNameRef.el) this.sheetNameRef.el.textContent = content;
   }
 
+  onColorPicked(color: string) {
+    this.state.pickerOpened = false;
+    this.env.model.dispatch("COLOR_SHEET", { sheetId: this.props.sheetId, color });
+  }
+
+  get colorPickerAnchorRect(): Rect {
+    const button = this.sheetDivRef.el!;
+    return getBoundingRectAsPOJO(button);
+  }
+
   get contextMenuRegistry() {
     return getSheetMenuRegistry({
       renameSheetCallback: () => {
         this.scrollToSheet();
         this.startEdition();
+      },
+      openSheetColorPickerCallback: () => {
+        this.state.pickerOpened = true;
       },
     });
   }
@@ -225,5 +250,10 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
 
   get sheetName() {
     return this.env.model.getters.getSheetName(this.props.sheetId);
+  }
+
+  get sheetColorStyle() {
+    const color = this.env.model.getters.getSheet(this.props.sheetId).color || "";
+    return cssPropertiesToCss({ background: color });
   }
 }

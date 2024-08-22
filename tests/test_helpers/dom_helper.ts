@@ -282,9 +282,11 @@ export async function focusAndKeyUp(
   return await nextTick();
 }
 
-export function getElComputedStyle(selector: string, style: string): string {
-  const element = document.querySelector(selector);
-  if (!element) throw new Error(`No element matching selector "${selector}"`);
+export function getElComputedStyle(selector: DOMTarget, style: string): string {
+  const element = getTarget(selector);
+  if (!element || !(element instanceof Element)) {
+    throw new Error(`No element matching selector "${selector}"`);
+  }
   return window.getComputedStyle(element)[style];
 }
 

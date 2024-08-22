@@ -5,6 +5,7 @@ import {
   getUnquotedSheetName,
   groupConsecutive,
   includesAll,
+  isColorValid,
   isDefined,
   isZoneInside,
   isZoneValid,
@@ -116,6 +117,10 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         }
       case "RENAME_SHEET":
         return this.isRenameAllowed(cmd);
+      case "COLOR_SHEET":
+        return !cmd.color || isColorValid(cmd.color)
+          ? CommandResult.Success
+          : CommandResult.InvalidColor;
       case "DELETE_SHEET":
         return this.orderedSheetIds.length > 1
           ? CommandResult.Success
@@ -179,6 +184,9 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         break;
       case "RENAME_SHEET":
         this.renameSheet(this.sheets[cmd.sheetId]!, cmd.name!);
+        break;
+      case "COLOR_SHEET":
+        this.history.update("sheets", cmd.sheetId, "color", cmd.color);
         break;
       case "HIDE_SHEET":
         this.hideSheet(cmd.sheetId);
@@ -255,6 +263,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
           xSplit: sheetData.panes?.xSplit || 0,
           ySplit: sheetData.panes?.ySplit || 0,
         },
+        color: sheetData.color,
       };
       this.orderedSheetIds.push(sheet.id);
       this.sheets[sheet.id] = sheet;
@@ -279,6 +288,7 @@ export class SheetPlugin extends CorePlugin<SheetState> implements SheetState {
         areGridLinesVisible:
           sheet.areGridLinesVisible === undefined ? true : sheet.areGridLinesVisible,
         isVisible: sheet.isVisible,
+        color: sheet.color,
       };
       if (sheet.panes.xSplit || sheet.panes.ySplit) {
         sheetData.panes = sheet.panes;

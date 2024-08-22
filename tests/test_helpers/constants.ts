@@ -197,6 +197,10 @@ export const TEST_COMMANDS: CommandMapping = {
     sheetId: "sheetId",
     name: "newName",
   },
+  COLOR_SHEET: {
+    type: "COLOR_SHEET",
+    sheetId: "sheetId",
+  },
   SHOW_SHEET: {
     type: "SHOW_SHEET",
     sheetId: "sheetId",

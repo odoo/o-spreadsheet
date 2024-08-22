@@ -507,6 +507,7 @@ export const demoData = {
       colNumber: 26,
       rowNumber: 224,
       rows: {},
+      color: "#6AA84F",
       cols: {},
       merges: [],
       cells: {
@@ -2221,6 +2222,7 @@ export const demoData = {
       colNumber: 26,
       rowNumber: 100,
       rows: {},
+      color: "#FF9900",
       cols: {
         0: { size: 127 },
         1: { size: 191 },

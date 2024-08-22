@@ -224,7 +224,7 @@ describe("BottomBar component", () => {
     expect(fixture.querySelector(".o-menu-item[data-name='hide_sheet']")).toBeNull();
   });
 
-  test("Move right and left are not visible when it's not possible to move", async () => {
+  test("Move right and left are disabled when it's not possible to move", async () => {
     await mountBottomBar();
 
     triggerMouseEvent(".o-sheet", "contextmenu");
@@ -931,6 +931,51 @@ describe("BottomBar component", () => {
       );
       expect(getElComputedStyle('.o-sheet[data-id="Sheet1"]', "position")).toBe("");
       expect(getElComputedStyle('.o-sheet[data-id="Sheet1"]', "left")).toBe("");
+    });
+  });
+
+  describe("Sheet colors", () => {
+    function getSheetColor(): string {
+      return fixture.querySelector<HTMLElement>(`.o-sheet-color`)?.style.background || "";
+    }
+
+    test("Can color a sheet", async () => {
+      const { model } = await mountBottomBar();
+      expect(getSheetColor()).toBe("");
+
+      triggerMouseEvent(".o-sheet", "contextmenu");
+      await nextTick();
+      await click(fixture, ".o-menu-item[data-name='change_color'");
+      await click(fixture, ".o-color-picker-line-item[data-color='#FFFF00'");
+
+      expect(getSheetColor()).toBeSameColorAs("#FFFF00");
+      expect(model.getters.getSheet(model.getters.getActiveSheetId()).color).toBe("#FFFF00");
+    });
+
+    test("Clicking outside sheet color picker closes it", async () => {
+      await mountBottomBar();
+      expect(getSheetColor()).toBe("");
+
+      triggerMouseEvent(".o-sheet", "contextmenu");
+      await nextTick();
+      await click(fixture, ".o-menu-item[data-name='change_color'");
+
+      expect(fixture.querySelector(".o-color-picker")).toBeTruthy();
+      await click(document.body);
+      expect(fixture.querySelector(".o-color-picker")).toBeFalsy();
+    });
+
+    test("Sheet icons are colored in the menu listing all sheets", async () => {
+      const { model } = await mountBottomBar();
+      createSheet(model, { sheetId: "42", color: "#FFFF00", position: 1 });
+      createSheet(model, { sheetId: "43", color: "#FF0000", position: 2 });
+
+      await click(fixture, ".o-sheet-item.o-list-sheets");
+      const menuItemsIcons = fixture.querySelectorAll(".o-menu-item-icon");
+
+      expect(menuItemsIcons[0]?.children).toHaveLength(0);
+      expect(getElComputedStyle(menuItemsIcons[1], "color")).toBeSameColorAs("#FFFF00");
+      expect(getElComputedStyle(menuItemsIcons[2], "color")).toBeSameColorAs("#FF0000");
     });
   });
 });

@@ -28,7 +28,8 @@
               <div class="d-flex w-100">
                 <div
                   t-if="childrenHaveIcon"
-                  class="o-menu-item-icon d-flex align-items-center flex-shrink-0">
+                  class="o-menu-item-icon d-flex align-items-center flex-shrink-0"
+                  t-att-style="getIconColor(menuItem)">
                   <t t-if="getIconName(menuItem)" t-call="{{getIconName(menuItem)}}"/>
                 </div>
                 <div class="o-menu-item-name align-middle text-truncate" t-esc="getName(menuItem)"/>

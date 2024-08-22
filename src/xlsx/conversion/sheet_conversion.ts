@@ -24,6 +24,7 @@ import {
 import { convertHeightFromExcel, convertWidthFromExcel } from "../helpers/content_helpers";
 import { WarningTypes, XLSXImportWarningManager } from "../helpers/xlsx_parser_error_manager";
 import { convertConditionalFormats } from "./cf_conversion";
+import { convertColor } from "./color_conversion";
 import { convertFigures } from "./figure_conversion";
 import { convertFormulasContent } from "./formula_conversion";
 
@@ -58,6 +59,7 @@ export function convertSheets(
         : { xSplit: 0, ySplit: 0 },
       tables: [],
       headerGroups: { COL: colHeaderGroups, ROW: rowHeaderGroups },
+      color: convertColor(sheet.sheetProperties?.tabColor),
     };
   });
 }

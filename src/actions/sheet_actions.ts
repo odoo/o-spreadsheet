@@ -52,6 +52,16 @@ export const renameSheet = (args: { renameSheetCallback: () => void }): ActionSp
   };
 };
 
+export const changeSheetColor = (args: {
+  openSheetColorPickerCallback: () => void;
+}): ActionSpec => {
+  return {
+    name: _t("Change color"),
+    execute: args.openSheetColorPickerCallback,
+    icon: "o-spreadsheet-Icon.PAINT_FORMAT",
+  };
+};
+
 export const sheetMoveRight: ActionSpec = {
   name: _t("Move right"),
   isVisible: (env) => {

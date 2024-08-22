@@ -149,6 +149,8 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
           env.model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: from, sheetIdTo: sheetId });
         },
         isEnabled: (env) => (env.model.getters.isReadonly() ? sheet.isVisible : true),
+        icon: sheet.color ? "o-spreadsheet-Icon.SMALL_DOT_RIGHT_ALIGN" : undefined,
+        iconColor: sheet.color,
       });
       i++;
     }
