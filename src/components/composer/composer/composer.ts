@@ -1,7 +1,7 @@
 import { Component, onMounted, useEffect, useRef, useState } from "@odoo/owl";
 import { NEWLINE, PRIMARY_BUTTON_BG, SCROLLBAR_WIDTH } from "../../../constants";
 import { functionRegistry } from "../../../functions/index";
-import { clip } from "../../../helpers/index";
+import { clip, setColorAlpha } from "../../../helpers/index";
 
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { Store, useLocalStore, useStore } from "../../../store_engine";
@@ -24,6 +24,7 @@ import { TextValueProvider } from "../autocomplete_dropdown/autocomplete_dropdow
 import { AutoCompleteStore } from "../autocomplete_dropdown/autocomplete_dropdown_store";
 import { ContentEditableHelper } from "../content_editable_helper";
 import { FunctionDescriptionProvider } from "../formula_assistant/formula_assistant";
+import { DEFAULT_TOKEN_COLOR } from "./abstract_composer_store";
 import { CellComposerStore } from "./cell_composer_store";
 
 const functions = functionRegistry.content;
@@ -620,19 +621,21 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     if (value === "") {
       return [];
     } else if (isValidFormula && this.props.focus !== "inactive") {
-      return this.splitHtmlContentIntoLines(this.getColoredTokens());
+      return this.splitHtmlContentIntoLines(this.getHtmlContentFromTokens());
     }
     return this.splitHtmlContentIntoLines([{ value }]);
   }
 
-  private getColoredTokens(): HtmlContent[] {
+  private getHtmlContentFromTokens(): HtmlContent[] {
     const tokens = this.props.composerStore.currentTokens;
     const result: HtmlContent[] = [];
     const { end, start } = this.props.composerStore.composerSelection;
     for (const token of tokens) {
-      const { value, color } = token;
-      result.push({ value, color });
-
+      let color = token.color || DEFAULT_TOKEN_COLOR;
+      if (token.isBlurred) {
+        color = setColorAlpha(color, 0.5);
+      }
+      result.push({ value: token.value, color });
       if (
         token.type === "REFERENCE" &&
         this.props.composerStore.tokenAtCursor === token &&
@@ -640,7 +643,6 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
       ) {
         result[result.length - 1].class = "text-decoration-underline";
       }
-
       if (this.props.composerStore.showSelectionIndicator && end === start && end === token.end) {
         result[result.length - 1].class = selectionIndicatorClass;
       }
