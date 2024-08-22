@@ -64,12 +64,15 @@ export class InsertPivotPlugin extends UIPlugin {
       sheetIdFrom: currentSheetId,
       sheetIdTo: sheetId,
     });
-    this.dispatch("UPDATE_CELL", {
+    const pivot = this.getters.getPivot(pivotId);
+    this.insertPivotWithTable(
       sheetId,
-      col: 0,
-      row: 0,
-      content: `=PIVOT(${formulaId})`,
-    });
+      0,
+      0,
+      pivotId,
+      pivot.getTableStructure().export(),
+      "dynamic"
+    );
   }
 
   private duplicatePivotInNewSheet(pivotId: UID, newPivotId: UID, newSheetId: UID) {

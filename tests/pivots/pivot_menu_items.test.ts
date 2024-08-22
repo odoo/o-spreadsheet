@@ -1,4 +1,5 @@
 import { Model, SpreadsheetChildEnv } from "../../src";
+import { PIVOT_TABLE_CONFIG } from "../../src/constants";
 import { toCartesian, toZone } from "../../src/helpers";
 import { cellMenuRegistry, topbarMenuRegistry } from "../../src/registries";
 import {
@@ -7,14 +8,22 @@ import {
   redo,
   selectCell,
   setCellContent,
+  setSelection,
   undo,
 } from "../test_helpers/commands_helpers";
-import { getCell, getCellText, getEvaluatedGrid, getTable } from "../test_helpers/getters_helpers";
+import {
+  getCell,
+  getCellText,
+  getCoreTable,
+  getEvaluatedGrid,
+  getTable,
+} from "../test_helpers/getters_helpers";
 import { createModelFromGrid, doAction, getNode, makeTestEnv } from "../test_helpers/helpers";
 import { addPivot } from "../test_helpers/pivot_helpers";
 
 const reinsertDynamicPivotPath = ["data", "reinsert_dynamic_pivot", "reinsert_dynamic_pivot_1"];
 const reinsertStaticPivotPath = ["data", "reinsert_static_pivot", "reinsert_static_pivot_1"];
+const insertPivotPath = ["insert", "insert_pivot"];
 
 describe("Pivot properties menu item", () => {
   let model: Model;
@@ -535,5 +544,21 @@ describe("Pivot reinsertion menu item", () => {
 
     expect(getNode(reinsertDynamicPivotPath, env, topbarMenuRegistry).isVisible(env)).toBeTruthy();
     expect(getNode(reinsertStaticPivotPath, env, topbarMenuRegistry).isVisible(env)).toBeTruthy();
+  });
+
+  test("Insert a pivot", () => {
+    const model = new Model();
+    const sheetId = model.getters.getActiveSheetId();
+    const env = makeTestEnv({ model });
+    setSelection(model, ["A1:B2"]);
+    doAction(insertPivotPath, env, topbarMenuRegistry);
+    expect(model.getters.getActiveSheetId()).not.toEqual(sheetId);
+    expect(model.getters.getPivotIds()).toHaveLength(1);
+    expect(getCellText(model, "A1")).toEqual(`=PIVOT(1)`);
+    expect(getCoreTable(model, "A1")).toMatchObject({
+      range: { zone: toZone("A1") },
+      config: PIVOT_TABLE_CONFIG,
+      type: "dynamic",
+    });
   });
 });
