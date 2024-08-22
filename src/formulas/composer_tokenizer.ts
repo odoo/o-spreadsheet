@@ -30,19 +30,22 @@ interface FunctionContext {
  *
  * The information added are:
  * - start, end and length of each token
- * - range detection (replaces the tokens that composes the range with 1 token)
- * - parenthesis matching (only for parenthesis tokens)
- * - parent function (only for tokens surrounded by a function)
- * - arg position (only for tokens surrounded by a function)
+ * - parenthesesCode (a code indicating the position of the token in the parentheses tree)
+ * - functionContext (only for tokens surrounded by a function)
+ * - color (the base color of the token, without fading modification)
+ * - isBlurred (indicates whether the text should be highlighted or not, useful to know if the token matches the same formula as the cursor token)
+ * - isParenthesisLinkedToCursor (Useful for highlighting tokens related to the current token, such as matching parentheses)
  */
 
 export interface EnrichedToken extends Token {
   start: number;
   end: number;
   length: number;
-  parenIndex?: number;
+  parenthesesCode?: string;
   functionContext?: FunctionContext;
   color?: Color;
+  isBlurred?: boolean;
+  isParenthesisLinkedToCursor?: boolean;
 }
 
 /**
@@ -66,20 +69,48 @@ function enrichTokens(tokens: Token[]): EnrichedToken[] {
 }
 
 /**
- * add on each token the length, start and end
- * also matches the opening to its closing parenthesis (using the same number)
+ * add on each token a code representing the position of the token in an opening parentheses tree.""
+ *
+ * For `=SIN(0) + SUM(COS(1), ABS(-1*(2+4)))`:
+ * |Tokens   | code             |
+ * |---------|------------------|
+ * |`=`      | undefined        |
+ * |`SIN(0)` | 1                |
+ * |`+`      | undefined        |
+ * |`SUM(`   | 2                |
+ * |`COS(1)` | 2:1              |
+ * |`,`      | 2                |
+ * |`ABS(-1*`| 2:2              |
+ * |`(2+4)`  | 2:2:1            |
+ * |`)`      | 2:2              |
+ * |`)`      | 2                |
  */
-function mapParenthesis(tokens: EnrichedToken[]): EnrichedToken[] {
-  let maxParen = 1;
-  const stack: number[] = [];
-  return tokens.map((token) => {
+function mapParenthesisCode(tokens: EnrichedToken[]): EnrichedToken[] {
+  let code: number[] = [];
+  let nextLevel = 0;
+  return tokens.map((token, i) => {
     if (token.type === "LEFT_PAREN") {
-      stack.push(maxParen);
-      token.parenIndex = maxParen;
-      maxParen++;
-    } else if (token.type === "RIGHT_PAREN") {
-      token.parenIndex = stack.pop();
+      code.push(nextLevel + 1);
+      nextLevel = 0;
+      // allows to link the parentheses opening a function to the function
+      for (let previousIndex = i - 1; previousIndex >= 0; previousIndex--) {
+        if (tokens[previousIndex].type === "SPACE") {
+          tokens[previousIndex].parenthesesCode = code.join(":");
+          continue;
+        }
+        if (tokens[previousIndex].type === "SYMBOL") {
+          tokens[previousIndex].parenthesesCode = code.join(":");
+        }
+        break;
+      }
     }
+
+    token.parenthesesCode = code.join(":");
+
+    if (token.type === "RIGHT_PAREN" && code.length) {
+      nextLevel = code.pop()!;
+    }
+
     return token;
   });
 }
@@ -199,5 +230,5 @@ function addArgsAST(tokens: EnrichedToken[]): EnrichedToken[] {
 export function composerTokenize(formula: string, locale: Locale): EnrichedToken[] {
   const tokens = rangeTokenize(formula, locale);
 
-  return addArgsAST(mapParentFunction(mapParenthesis(enrichTokens(tokens))));
+  return addArgsAST(mapParentFunction(mapParenthesisCode(enrichTokens(tokens))));
 }

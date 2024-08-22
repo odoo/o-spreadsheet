@@ -43,7 +43,7 @@ import { SelectionEvent } from "../../../types/event_stream";
 
 const functionColor = "#4a4e4d";
 const operatorColor = "#3da4ab";
-const DEFAULT_TOKEN_COLOR = "#000000";
+export const DEFAULT_TOKEN_COLOR: Color = "#000000";
 
 export const tokenColors = {
   OPERATOR: operatorColor,
@@ -130,6 +130,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     }
     this.selectionStart = start;
     this.selectionEnd = end;
+    this.computeFormulaCursorContext();
   }
 
   stopComposerRangeSelection() {
@@ -155,8 +156,8 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     } else {
       this._startEdition(text, selection);
     }
-    this.updateRangeColor();
     this.updateTokenColor();
+    this.computeFormulaCursorContext();
   }
 
   cancelEdition() {
@@ -170,8 +171,8 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     }
 
     this.setContent(content, selection, true);
-    this.updateRangeColor();
     this.updateTokenColor();
+    this.computeFormulaCursorContext();
   }
 
   replaceComposerCursorSelection(text: string) {
@@ -445,7 +446,8 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     } else if (currentToken?.type === "RIGHT_PAREN") {
       // match left parenthesis
       const leftParenthesisIndex = this.currentTokens.findIndex(
-        (token) => token.type === "LEFT_PAREN" && token.parenIndex === currentToken.parenIndex
+        (token) =>
+          token.type === "LEFT_PAREN" && token.parenthesesCode === currentToken.parenthesesCode
       );
       const functionToken = this.currentTokens[leftParenthesisIndex - 1];
       if (functionToken === undefined) {
@@ -542,6 +544,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
   }
 
   private updateTokenColor() {
+    this.updateRangeColor();
     for (let i = 0; i < this.currentTokens.length; i++) {
       this.currentTokens[i].color = this.getTokenColor(this.currentTokens[i]);
     }
@@ -566,8 +569,8 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       if (
         this.tokenAtCursor &&
         ["LEFT_PAREN", "RIGHT_PAREN"].includes(this.tokenAtCursor.type) &&
-        this.tokenAtCursor.parenIndex &&
-        this.tokenAtCursor.parenIndex === token.parenIndex
+        this.tokenAtCursor.parenthesesCode &&
+        this.tokenAtCursor.parenthesesCode === token.parenthesesCode
       ) {
         return tokenColors.MATCHING_PAREN;
       }
@@ -587,6 +590,58 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       return isEqual(zone, highlight.zone);
     });
     return highlight && highlight.color ? highlight.color : undefined;
+  }
+
+  /**
+   * Compute for each token if it is part of the same
+   * formula as the current selector token.
+   * If no specific formula found for the current selected
+   * token, it assumes all tokens are part of the formula
+   * context.
+   */
+  private computeFormulaCursorContext() {
+    // reset everything first
+    for (let i = 0; i < this.currentTokens.length; i++) {
+      this.currentTokens[i].isBlurred = false;
+    }
+
+    if (this.selectionStart !== this.selectionEnd) {
+      return;
+    }
+
+    const parenthesesCodeAtCursor = this.getParenthesesCodeAfterCursor();
+    const previousSymbolAtCursor = [...this.currentTokens] // a formula correspond to a symbol token
+      .reverse()
+      .find((t) => parenthesesCodeAtCursor.startsWith(t.parenthesesCode!) && t.type === "SYMBOL");
+
+    if (!previousSymbolAtCursor) {
+      return;
+    }
+
+    // we refer to the previous symbol parenthesesCode and not directly the
+    // parenthesesCode of the token at the cursor because we don't want to
+    // match cases where the token at the cursor is between parentheses which
+    // are not function parentheses
+    for (let i = 0; i < this.currentTokens.length; i++) {
+      if (
+        !(this.currentTokens[i].parenthesesCode || "").startsWith(
+          previousSymbolAtCursor.parenthesesCode || ""
+        )
+      ) {
+        this.currentTokens[i].isBlurred = true;
+      }
+    }
+  }
+
+  private getParenthesesCodeAfterCursor(): string {
+    // we always look at the code associated with the token located after the cursor.
+    // This code is the same as the 'tokenAtCursor' except in the case of a closing parenthesis.
+    // In this case we look at the code located one degree below in the parentheses tree
+    const code = this.tokenAtCursor?.parenthesesCode || "";
+    if (this.tokenAtCursor?.type === "RIGHT_PAREN") {
+      return code.slice(0, -1) || "";
+    }
+    return code;
   }
 
   private updateRangeColor() {
