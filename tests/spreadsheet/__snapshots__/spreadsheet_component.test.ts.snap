@@ -862,7 +862,7 @@ exports[`Simple Spreadsheet Component simple rendering snapshot 1`] = `
     >
       
       <div
-        class="o-sheet-list d-flex w-100 overflow-hidden px-1"
+        class="o-sheet-list d-flex w-100 px-1"
       >
         <div
           class="o-ripple-container position-relative"

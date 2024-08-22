@@ -40,6 +40,17 @@ css/* scss */ `
       .o-bottom-bar-fade-in {
         background-image: linear-gradient(90deg, #cfcfcf, transparent 1%);
       }
+
+      .o-sheet-list {
+        overflow-y: hidden;
+        overflow-x: auto;
+
+        &::-webkit-scrollbar {
+          display: none; /* Chrome */
+        }
+        -ms-overflow-style: none; /* IE and Edge */
+        scrollbar-width: none; /* Firefox */
+      }
     }
 
     .o-bottom-bar-arrows {
