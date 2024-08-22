@@ -1,4 +1,4 @@
-import { deepEquals, formatValue } from "../helpers";
+import { deepEquals, formatValue, isZoneInside } from "../helpers";
 import { getPasteZones } from "../helpers/clipboard/clipboard_helpers";
 import { canonicalizeNumberValue } from "../helpers/locale";
 import { createPivotFormula } from "../helpers/pivot/pivot_helpers";
@@ -46,8 +46,13 @@ export class CellClipboardHandler extends AbstractCellClipboardHandler<
         const evaluatedCell = this.getters.getEvaluatedCell(position);
         const pivotId = this.getters.getPivotIdFromPosition(position);
         const spreader = this.getters.getArrayFormulaSpreadingOn(position);
-        if (pivotId) {
-          if (spreader && (!deepEquals(spreader, position) || !isCopyingOneCell)) {
+        if (pivotId && spreader) {
+          const pivotZone = this.getters.getSpreadZone(spreader);
+          if (
+            (!deepEquals(spreader, position) || !isCopyingOneCell) &&
+            pivotZone &&
+            !data.zones.some((z) => isZoneInside(pivotZone, z))
+          ) {
             const pivotCell = this.getters.getPivotCellFromPosition(position);
             const formulaPivotId = this.getters.getPivotFormulaId(pivotId);
             const pivotFormula = createPivotFormula(formulaPivotId, pivotCell);
