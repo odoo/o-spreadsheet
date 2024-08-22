@@ -2011,18 +2011,42 @@ describe("clipboard", () => {
     expect(getEvaluatedCell(model, "G4").value).toBe("Total");
     expect(getCell(model, "G4")!.content).toBe("=PIVOT.HEADER(1)");
 
-    // copy entire pivot
-    copy(model, "C1:D5");
+    // copy part of pivot
+    copy(model, "C1:D4");
     paste(model, "G4");
     model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
     // prettier-ignore
-    expect(getEvaluatedGrid(model, "G4:H8")).toEqual([
+    expect(getEvaluatedGrid(model, "G4:H7")).toEqual([
       ["",                                      "=PIVOT.HEADER(1)"],
       ["",                                      '=PIVOT.HEADER(1,"measure","Price:sum")'],
       ['=PIVOT.HEADER(1,"Customer","Alice")',   '=PIVOT.VALUE(1,"Price:sum","Customer","Alice")'],
       ['=PIVOT.HEADER(1,"Customer","Bob")',     '=PIVOT.VALUE(1,"Price:sum","Customer","Bob")'],
-      ["=PIVOT.HEADER(1)",                      '=PIVOT.VALUE(1,"Price:sum")'],
     ]);
+  });
+
+  test("Copying (or cutting) entire pivot does not results in fixed pivot formula", () => {
+    // prettier-ignore
+    const grid = {
+        A1: "Customer", B1: "Price", C1: "=PIVOT(1)",
+        A2: "Alice",    B2: "10",
+        A3: "Bob",      B3: "30"
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B3", {
+      columns: [],
+      rows: [{ fieldName: "Customer" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
+    });
+
+    copy(model, "C1:D5");
+    paste(model, "G4");
+    expect(getCell(model, "G4")!.content).toBe("=PIVOT(1)");
+    expect(getCell(model, "G5")).toBeUndefined();
+
+    cut(model, "C1:D5");
+    paste(model, "G20");
+    expect(getCell(model, "G20")!.content).toBe("=PIVOT(1)");
+    expect(getCell(model, "G21")).toBeUndefined();
   });
 
   test("copy spread pivot cells format", () => {
@@ -2071,17 +2095,15 @@ describe("clipboard", () => {
       measures: [{ fieldName: "Price", aggregator: "sum", id: "Price:sum" }],
     });
 
-    // copy entire pivot
-    copy(model, "C1:D5");
+    copy(model, "C1:D4");
     paste(model, "G4");
     model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
     // prettier-ignore
-    expect(getEvaluatedGrid(model, "G4:H8")).toEqual([
+    expect(getEvaluatedGrid(model, "G4:H7")).toEqual([
       ["",                                      "=PIVOT.HEADER(1)"],
       ["",                                      '=PIVOT.HEADER(1,"measure","Price:sum")'],
       ['=PIVOT.HEADER(1,"Customer","Alice")',   '=PIVOT.VALUE(1,"Price:sum","Customer","Alice")'],
       ['=PIVOT.HEADER(1,"Customer","null")',    '=PIVOT.VALUE(1,"Price:sum","Customer","null")'],
-      ["=PIVOT.HEADER(1)",                      '=PIVOT.VALUE(1,"Price:sum")'],
     ]);
   });
 
