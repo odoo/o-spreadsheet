@@ -1,7 +1,7 @@
 import { Component, onMounted, useEffect, useRef, useState } from "@odoo/owl";
 import { NEWLINE, PRIMARY_BUTTON_BG, SCROLLBAR_WIDTH } from "../../../constants";
 import { functionRegistry } from "../../../functions/index";
-import { clip } from "../../../helpers/index";
+import { clip, lightenColor } from "../../../helpers/index";
 
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { Store, useLocalStore, useStore } from "../../../store_engine";
@@ -24,6 +24,7 @@ import { TextValueProvider } from "../autocomplete_dropdown/autocomplete_dropdow
 import { AutoCompleteStore } from "../autocomplete_dropdown/autocomplete_dropdown_store";
 import { ContentEditableHelper } from "../content_editable_helper";
 import { FunctionDescriptionProvider } from "../formula_assistant/formula_assistant";
+import { DEFAULT_TOKEN_COLOR } from "./abstract_composer_store";
 import { CellComposerStore } from "./cell_composer_store";
 
 const functions = functionRegistry.content;
@@ -624,8 +625,11 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
     const result: HtmlContent[] = [];
     const { end, start } = this.props.composerStore.composerSelection;
     for (const token of tokens) {
-      const { value, color } = token;
-      result.push({ value, color });
+      let color = token.color || DEFAULT_TOKEN_COLOR;
+      if (token.isBlurred) {
+        color = lightenColor(color, 0.48);
+      }
+      result.push({ value: token.value, color });
       if (this.props.composerStore.showSelectionIndicator && end === start && end === token.end) {
         result[result.length - 1].class = selectionIndicatorClass;
       }
