@@ -1,3 +1,4 @@
+import { CommandResult } from "../../src";
 import { EMPTY_PIVOT_CELL } from "../../src/helpers/pivot/table_spreadsheet_pivot";
 import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
 import { createModelFromGrid, toCellPosition } from "../test_helpers/helpers";
@@ -47,5 +48,24 @@ describe("Pivot plugin", () => {
     expect(model.getters.getPivotCellFromPosition(model.getters.getActivePosition())).toMatchObject(
       EMPTY_PIVOT_CELL
     );
+  });
+
+  test("Cannot update a pivot with an empty name", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Customer", B1: "Price", C1: '=PIVOT(1)',
+      A2: "Alice",    B2: "10",
+      A3: "Bob",      B3: "30",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B3", {
+      columns: [],
+      rows: [{ fieldName: "Customer" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
+    });
+    const pivot = model.getters.getPivotCoreDefinition("1");
+    expect(
+      model.dispatch("UPDATE_PIVOT", { pivotId: "1", pivot: { ...pivot, name: "" } })
+    ).toBeCancelledBecause(CommandResult.EmptyName);
   });
 });
