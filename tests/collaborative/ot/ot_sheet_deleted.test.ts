@@ -5,7 +5,7 @@ import {
   AddConditionalFormatCommand,
   DeleteSheetCommand,
   DuplicateSheetCommand,
-  MoveRangeCommand,
+  MoveReferencesCommand,
   RemoveColumnsRowsCommand,
   ResizeColumnsRowsCommand,
 } from "../../../src/types";
@@ -70,7 +70,6 @@ describe("OT with DELETE_SHEET", () => {
     resizeRows,
     TEST_COMMANDS.REMOVE_CONDITIONAL_FORMAT,
     TEST_COMMANDS.DELETE_SHEET,
-    TEST_COMMANDS.MOVE_RANGES,
     TEST_COMMANDS.GROUP_HEADERS,
     TEST_COMMANDS.UNGROUP_HEADERS,
     TEST_COMMANDS.FOLD_HEADER_GROUP,
@@ -107,16 +106,22 @@ describe("OT with DELETE_SHEET", () => {
     });
   });
 
-  describe("Delete sheet with move ranges", () => {
-    const cmd: Omit<MoveRangeCommand, "targetSheetId"> = {
-      type: "MOVE_RANGES",
+  describe("Delete sheet with move references", () => {
+    const cmd: MoveReferencesCommand = {
+      type: "MOVE_REFERENCES",
       sheetId,
-      col: 0,
-      row: 0,
-      target: [toZone("A1")],
+      targetSheetId: "sheet2",
+      targetCol: 0,
+      targetRow: 0,
+      zone: toZone("A1"),
     };
 
-    test("Delete the sheet on which the command is triggered", () => {
+    test("Delete the source sheet", () => {
+      const result = transform({ ...cmd, sheetId: deletedSheetId }, deleteSheet);
+      expect(result).toBeUndefined();
+    });
+
+    test("Delete the target sheet", () => {
       const result = transform({ ...cmd, targetSheetId: deletedSheetId }, deleteSheet);
       expect(result).toBeUndefined();
     });

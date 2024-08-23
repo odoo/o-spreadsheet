@@ -1,3 +1,4 @@
+import { isDefined } from "../helpers";
 import {
   CellPosition,
   ClipboardCellData,
@@ -11,6 +12,7 @@ import {
 import { AbstractCellClipboardHandler } from "./abstract_cell_clipboard_handler";
 
 interface ClipboardContent {
+  sheetId: UID;
   merges: Maybe<Merge>[][];
 }
 
@@ -31,7 +33,7 @@ export class MergeClipboardHandler extends AbstractCellClipboardHandler<
       }
       merges.push(mergesInRow);
     }
-    return { merges };
+    return { merges, sheetId };
   }
 
   /**
@@ -39,7 +41,8 @@ export class MergeClipboardHandler extends AbstractCellClipboardHandler<
    */
   paste(target: ClipboardPasteTarget, content: ClipboardContent, options: ClipboardOptions) {
     if (options.isCutOperation) {
-      return;
+      const copiedMerges = content.merges.flat().filter(isDefined);
+      this.dispatch("REMOVE_MERGE", { sheetId: content.sheetId, target: copiedMerges });
     }
     this.pasteFromCopy(target.sheetId, target.zones, content.merges, options);
   }

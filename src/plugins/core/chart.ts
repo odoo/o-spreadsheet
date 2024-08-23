@@ -50,6 +50,12 @@ export class ChartPlugin extends CorePlugin<ChartState> implements ChartState {
     }
   }
 
+  adaptReferences(applyChange: ApplyRangeChange) {
+    for (const [chartId, chart] of Object.entries(this.charts)) {
+      this.history.update("charts", chartId, chart?.updateRanges(applyChange));
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Command Handling
   // ---------------------------------------------------------------------------
