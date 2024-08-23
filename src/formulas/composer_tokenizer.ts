@@ -34,6 +34,7 @@ interface FunctionContext {
  * - functionContext (only for tokens surrounded by a function)
  * - color (the base color of the token, without fading modification)
  * - isBlurred (indicates whether the text should be highlighted or not, useful to know if the token matches the same formula as the cursor token)
+ * - isRelatedToCursorToken (Useful for highlighting tokens related to the current token, such as matching parentheses)
  */
 
 export interface EnrichedToken extends Token {
@@ -44,6 +45,7 @@ export interface EnrichedToken extends Token {
   functionContext?: FunctionContext;
   color?: Color;
   isBlurred?: boolean;
+  isRelatedToCursorToken?: boolean;
 }
 
 /**
