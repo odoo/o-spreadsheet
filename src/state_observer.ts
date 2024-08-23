@@ -24,8 +24,8 @@ export class StateObserver {
 
   addChange(...args: [...HistoryPath, any]) {
     const val: any = args.pop();
-    const root = args[0];
-    let value = root as any;
+    const plugin = args[0];
+    let value = plugin as any;
     let key = args.at(-1);
     const pathLength = args.length - 2;
     for (let pathIndex = 1; pathIndex <= pathLength; pathIndex++) {

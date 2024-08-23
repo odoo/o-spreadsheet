@@ -126,11 +126,7 @@ const enum Status {
 export class Model extends EventBus<any> implements CommandDispatcher {
   private corePlugins: CorePlugin[] = [];
 
-  private featurePlugins: UIPlugin[] = [];
-
   private statefulUIPlugins: UIPlugin[] = [];
-
-  private coreViewsPlugins: UIPlugin[] = [];
 
   private range: RangeAdapter;
 
@@ -251,8 +247,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.session.loadInitialMessages(stateUpdateMessages);
 
     for (let Plugin of coreViewsPluginRegistry.getAll()) {
-      const plugin = this.setupUiPlugin(Plugin);
-      this.coreViewsPlugins.push(plugin);
+      const plugin = this.setupCoreUiPlugin(Plugin);
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
       this.coreHandlers.push(plugin);
@@ -265,7 +260,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     }
     for (let Plugin of featurePluginRegistry.getAll()) {
       const plugin = this.setupUiPlugin(Plugin);
-      this.featurePlugins.push(plugin);
       this.handlers.push(plugin);
       this.uiHandlers.push(plugin);
     }
@@ -326,6 +320,20 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     return plugin;
   }
 
+  private setupCoreUiPlugin(Plugin: CorePluginConstructor) {
+    const plugin = new Plugin({ ...this.corePluginConfig, getters: this.getters });
+    for (let name of Plugin.getters) {
+      if (!(name in plugin)) {
+        throw new Error(`Invalid getter name: ${name} for plugin ${plugin.constructor}`);
+      }
+      if (name in this.getters) {
+        throw new Error(`Getter "${name}" is already defined.`);
+      }
+      this.getters[name] = plugin[name].bind(plugin);
+    }
+    return plugin;
+  }
+
   /**
    * Initialize and properly configure a plugin.
    *
@@ -353,7 +361,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     for (let command of commands) {
       const previousStatus = this.status;
       this.status = Status.RunningCore;
-      this.dispatchToHandlers(this.statefulUIPlugins, command);
+      this.dispatchToUIStateful(command);
       this.status = previousStatus;
     }
     this.finalize();
@@ -361,19 +369,21 @@ export class Model extends EventBus<any> implements CommandDispatcher {
 
   private setupSession(revisionId: UID): Session {
     const session = new Session(
-      buildRevisionLog({
-        initialRevisionId: revisionId,
-        recordChanges: this.state.recordChanges.bind(this.state),
-        dispatch: (command: CoreCommand) => {
+      buildRevisionLog(
+        revisionId,
+        this.state.recordChanges.bind(this.state),
+        (command: CoreCommand) => {
           const result = this.checkDispatchAllowed(command);
           if (!result.isSuccessful) {
             return;
           }
           this.isReplayingCommand = true;
-          this.dispatchToHandlers(this.coreHandlers, command);
+          // here we need to dispatch to Core and CoreUI (AKA CoreView)
+          // without recording changes because the changes are recorded in factory.ts/buildRevisionLog
+          this.dispatchToCoreAndCoreUI(command);
           this.isReplayingCommand = false;
-        },
-      }),
+        }
+      ),
       this.config.transportService,
       revisionId
     );
@@ -437,6 +447,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       uuidGenerator: this.uuidGenerator,
       custom: this.config.custom,
       external: this.config.external,
+      customColors: this.config.customColors || [],
     };
   }
 
@@ -452,7 +463,6 @@ export class Model extends EventBus<any> implements CommandDispatcher {
       uiActions: this.config,
       session: this.session,
       defaultCurrencyFormat: this.config.defaultCurrencyFormat,
-      customColors: this.config.customColors || [],
     };
   }
 
@@ -504,7 +514,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   /**
    * The dispatch method is the only entry point to manipulate data in the model.
    * This is through this method that commands are dispatched most of the time
-   * recursively until no plugin want to react anymore.
+   * recursively until no plugin wants to react anymore.
    *
    * CoreCommands dispatched from this function are saved in the history.
    *
@@ -531,39 +541,47 @@ export class Model extends EventBus<any> implements CommandDispatcher {
           return result;
         }
         this.status = Status.Running;
+        const start = performance.now();
         const { changes, commands } = this.state.recordChanges(() => {
-          const start = performance.now();
           if (isCoreCommand(command)) {
             this.state.addCommand(command);
-          }
-          this.dispatchToHandlers(this.handlers, command);
-          this.finalize();
-          const time = performance.now() - start;
-          if (time > 5) {
-            console.info(type, time, "ms");
+            this.dispatchToCoreOnly(command);
           }
         });
+        this.dispatchToUI(command);
+        this.trigger("command-dispatched", command);
+        this.finalize();
+        const time = performance.now() - start;
+        if (time > 5) {
+          console.info(type, time, "ms");
+        }
         this.session.save(command, commands, changes);
         this.status = Status.Ready;
         this.trigger("update");
         break;
       case Status.Running:
+        // When, during the handling of a command by a UI plugin,
+        // those plugin(s) dispatch another command (Core or UI)
         if (isCoreCommand(command)) {
           const dispatchResult = this.checkDispatchAllowed(command);
           if (!dispatchResult.isSuccessful) {
             return dispatchResult;
           }
           this.state.addCommand(command);
+          this.dispatchToCoreOnly(command);
         }
-        this.dispatchToHandlers(this.handlers, command);
+        this.dispatchToUI(command);
+        this.trigger("command-dispatched", command);
+
         break;
       case Status.Finalizing:
         throw new Error("Cannot dispatch commands in the finalize state");
       case Status.RunningCore:
+        // We only use this when executing remote revisions to notify UI Plugins
         if (isCoreCommand(command)) {
           throw new Error(`A UI plugin cannot dispatch ${type} while handling a core command`);
         }
-        this.dispatchToHandlers(this.handlers, command);
+        this.dispatchToUI(command);
     }
     return DispatchResult.Success;
   };
@@ -576,31 +594,53 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     const command = createCommand(type, payload);
     const previousStatus = this.status;
     this.status = Status.RunningCore;
-    const handlers = this.isReplayingCommand ? this.coreHandlers : this.handlers;
-    this.dispatchToHandlers(handlers, command);
+    if (isCoreCommand(command)) {
+      this.dispatchToCoreAndCoreUI(command);
+    }
+    if (!this.isReplayingCommand) {
+      this.dispatchToUI(command);
+    }
+    this.trigger("command-dispatched", command);
     this.status = previousStatus;
     return DispatchResult.Success;
   };
 
-  /**
-   * Dispatch the given command to the given handlers.
-   * It will call `beforeHandle` and `handle`
-   */
-  private dispatchToHandlers(handlers: CommandHandler<Command>[], command: Command) {
-    const isCommandCore = isCoreCommand(command);
-    for (const handler of handlers) {
-      if (!isCommandCore && handler instanceof CorePlugin) {
-        continue;
-      }
+  private dispatchToCoreAndCoreUI(command: CoreCommand) {
+    for (const handler of this.coreHandlers) {
       handler.beforeHandle(command);
     }
-    for (const handler of handlers) {
-      if (!isCommandCore && handler instanceof CorePlugin) {
-        continue;
-      }
+    for (const handler of this.coreHandlers) {
       handler.handle(command);
     }
-    this.trigger("command-dispatched", command);
+  }
+
+  private dispatchToCoreOnly(command: CoreCommand) {
+    this.range.beforeHandle(command);
+    for (const handler of this.corePlugins) {
+      handler.beforeHandle(command);
+    }
+    this.range.handle(command);
+    for (const handler of this.corePlugins) {
+      handler.handle(command);
+    }
+  }
+
+  private dispatchToUI(command: Command) {
+    for (const handler of this.uiHandlers) {
+      handler.beforeHandle(command);
+    }
+    for (const handler of this.uiHandlers) {
+      handler.handle(command);
+    }
+  }
+
+  private dispatchToUIStateful(command: CoreCommand) {
+    for (const handler of this.statefulUIPlugins) {
+      handler.beforeHandle(command);
+    }
+    for (const handler of this.statefulUIPlugins) {
+      handler.handle(command);
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -639,10 +679,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    */
   exportData(): WorkbookData {
     let data = createEmptyWorkbookData();
-    for (let handler of this.handlers) {
-      if (handler instanceof CorePlugin) {
-        handler.export(data);
-      }
+    for (let corePlugin of this.corePlugins) {
+      corePlugin.export(data);
     }
     data.revisionId = this.session.getRevisionId() || DEFAULT_REVISION_ID;
     data = deepCopy(data);
