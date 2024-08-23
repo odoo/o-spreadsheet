@@ -941,9 +941,9 @@ describe("composer formula color", () => {
     expect(cehMock.colors["SUM"]).toBe(tokenColors["FUNCTION"]);
   });
 
-  test('type "=SUM(" --> left parenthesis should be highlighted', async () => {
+  test('type "=SUM(" --> left parenthesis should have specific function color', async () => {
     await typeInComposer("=SUM(");
-    expect(cehMock.colors["("]).toBe(tokenColors.MATCHING_PAREN);
+    expect(cehMock.colors["("]).toBe(tokenColors["LEFT_PAREN"]);
   });
 
   test('type "=SUM(1" --> left parenthesis should have specific parenthesis color', async () => {
@@ -966,9 +966,9 @@ describe("composer formula color", () => {
     expect(cehMock.colors[`"2"`]).toBe(tokenColors["STRING"]);
   });
 
-  test(`type '=SUM(1, "2")' --> right parenthesis should be highlighted`, async () => {
+  test(`type '=SUM(1, "2")' --> right parenthesis should have specific function color`, async () => {
     await typeInComposer('=SUM(1, "2")');
-    expect(cehMock.colors[")"]).toBe(tokenColors.MATCHING_PAREN);
+    expect(cehMock.colors[")"]).toBe(tokenColors["RIGHT_PAREN"]);
   });
 
   test(`type '=SUM(1, "2") +' --> right parenthesis should have specific parenthesis color`, async () => {
@@ -984,6 +984,11 @@ describe("composer formula color", () => {
   test(`type '=SUM(1, "2") + TRUE' --> boolean should have specific bolean color`, async () => {
     await typeInComposer('=SUM(1, "2") + TRUE');
     expect(cehMock.colors["TRUE"]).toBe(tokenColors.NUMBER);
+  });
+
+  test(`type '=SUM(1, "2"))' --> extra parenthesis should have specific parenthesis color`, async () => {
+    await typeInComposer('=SUM(1, "2"))');
+    expect(cehMock.colors[")"]).toBe(tokenColors.ORPHAN_RIGHT_PAREN);
   });
 });
 
@@ -1276,6 +1281,86 @@ describe("Composer blurs formula parts not affected by cursor position.", () => 
   });
 });
 
+describe("composer set background on matching parenthesis ", () => {
+  test('type "=SUM(" --> left parenthesis should not have background', async () => {
+    await typeInComposer("=SUM(");
+    expect(composerStore.tokenAtCursor?.isParenthesisLinkedToCursor).toBe(false);
+  });
+
+  test('type "=SUM()" --> left and right parenthesis should have background', async () => {
+    await typeInComposer("=SUM()");
+    expect(
+      composerStore.currentTokens
+        .filter((t) => ["RIGHT_PAREN", "LEFT_PAREN"].includes(t.type))
+        .every((t) => t.isParenthesisLinkedToCursor === true)
+    ).toBe(true);
+  });
+
+  test('type "=SUM( COS(42) )" --> left and right parenthesis of "SUM" should have background', async () => {
+    await typeInComposer("=SUM( COS(42) )");
+    expect(
+      composerStore.currentTokens
+        .filter((t) => ["RIGHT_PAREN", "LEFT_PAREN"].includes(t.type) && t.parenthesesCode === "1")
+        .every((t) => t.isParenthesisLinkedToCursor === true)
+    ).toBe(true);
+
+    expect(
+      composerStore.currentTokens
+        .filter((t) => ["RIGHT_PAREN", "LEFT_PAREN"].includes(t.type) && t.parenthesesCode !== "1")
+        .every((t) => t.isParenthesisLinkedToCursor === false)
+    ).toBe(true);
+  });
+
+  test('type "=SUM( COS(42) ) + SIN(24)" and move cursor on left "COS" parenthesis --> only left and right parenthesis of "COS" should have background', async () => {
+    await typeInComposer("=SUM( COS(42) ) + SIN(24)");
+    const str = "=SUM( COS(";
+    composerStore.changeComposerCursorSelection(str.length, str.length);
+
+    expect(
+      composerStore.currentTokens
+        .filter(
+          (t) => ["RIGHT_PAREN", "LEFT_PAREN"].includes(t.type) && t.parenthesesCode === "1:1"
+        )
+        .every((t) => t.isParenthesisLinkedToCursor === true)
+    ).toBe(true);
+
+    expect(
+      composerStore.currentTokens
+        .filter(
+          (t) => ["RIGHT_PAREN", "LEFT_PAREN"].includes(t.type) && t.parenthesesCode !== "1:1"
+        )
+        .every((t) => t.isParenthesisLinkedToCursor === false)
+    ).toBe(true);
+  });
+
+  test('type "=SUM( COS(42) ) + SIN(24)" and move cursor on right "COS" parenthesis --> only left and right parenthesis of "COS" should have background', async () => {
+    await typeInComposer("=SUM( COS(42) ) + SIN(24)");
+    const str = "=SUM( COS(42)";
+    composerStore.changeComposerCursorSelection(str.length, str.length);
+
+    expect(
+      composerStore.currentTokens
+        .filter(
+          (t) => ["RIGHT_PAREN", "LEFT_PAREN"].includes(t.type) && t.parenthesesCode === "1:1"
+        )
+        .every((t) => t.isParenthesisLinkedToCursor === true)
+    ).toBe(true);
+
+    expect(
+      composerStore.currentTokens
+        .filter(
+          (t) => ["RIGHT_PAREN", "LEFT_PAREN"].includes(t.type) && t.parenthesesCode !== "1:1"
+        )
+        .every((t) => t.isParenthesisLinkedToCursor === false)
+    ).toBe(true);
+  });
+
+  test('type "=SUM(42, 24))))" --> right parenthesis should not have background', async () => {
+    await typeInComposer("=SUM(42, 24))))");
+    expect(composerStore.tokenAtCursor?.isParenthesisLinkedToCursor).toBe(false);
+  });
+});
+
 describe("composer highlights color", () => {
   test("colors start with first color", async () => {
     setCellContent(model, "A1", "=a1+a2");
@@ -1393,11 +1478,11 @@ describe("Composer string is correctly translated to HtmlContents[][] for the co
       [
         { value: "+", color: tokenColors.OPERATOR },
         { value: "SUM", color: tokenColors.FUNCTION },
-        { value: "(", color: tokenColors.MATCHING_PAREN },
+        { value: "(", color: tokenColors.LEFT_PAREN, class: "background-flag" },
       ],
       [
         { value: "5", color: tokenColors.NUMBER },
-        { value: ")", color: tokenColors.MATCHING_PAREN },
+        { value: ")", color: tokenColors.RIGHT_PAREN, class: "background-flag" },
       ],
     ]);
   });

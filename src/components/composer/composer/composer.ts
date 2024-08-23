@@ -33,6 +33,7 @@ const ASSISTANT_WIDTH = 300;
 const CLOSE_ICON_RADIUS = 9;
 
 export const selectionIndicatorClass = "selector-flag";
+const backgroundClass = "background-flag";
 const selectionIndicatorColor = "#a9a9a9";
 const selectionIndicator = "␣";
 
@@ -62,9 +63,16 @@ css/* scss */ `
 
         span {
           white-space: pre-wrap;
+
           &.${selectionIndicatorClass}:after {
             content: "${selectionIndicator}";
             color: ${selectionIndicatorColor};
+          }
+
+          &.${backgroundClass} {
+            border-radius: 5px;
+            background-color: lightgray;
+            padding: 0px 1.5px 1.5px 1.5px;
           }
         }
       }
@@ -643,6 +651,11 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
       ) {
         result[result.length - 1].class = "text-decoration-underline";
       }
+
+      if (end === start && token.isParenthesisLinkedToCursor) {
+        result[result.length - 1].class = backgroundClass;
+      }
+
       if (this.props.composerStore.showSelectionIndicator && end === start && end === token.end) {
         result[result.length - 1].class = selectionIndicatorClass;
       }
