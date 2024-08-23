@@ -969,7 +969,6 @@ export interface InsertPivotWithTableCommand extends PositionDependentCommand {
 export interface SplitPivotFormulaCommand extends PositionDependentCommand {
   type: "SPLIT_PIVOT_FORMULA";
   pivotId: UID;
-  table: PivotTableData;
 }
 
 export type CoreCommand =

@@ -1,8 +1,9 @@
 import { PIVOT_TABLE_CONFIG } from "../../constants";
+import { createPivotFormula } from "../../helpers/pivot/pivot_helpers";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
 import { getZoneArea, positionToZone } from "../../helpers/zones";
 import { _t } from "../../translation";
-import { HeaderIndex, PivotTableData, UID, Zone } from "../../types";
+import { CellPosition, HeaderIndex, PivotTableCell, PivotTableData, UID, Zone } from "../../types";
 import { Command } from "../../types/commands";
 import { UIPlugin } from "../ui_plugin";
 
@@ -28,7 +29,7 @@ export class InsertPivotPlugin extends UIPlugin {
         );
         break;
       case "SPLIT_PIVOT_FORMULA":
-        this.splitPivotFormula(cmd.sheetId, cmd.col, cmd.row, cmd.pivotId, cmd.table);
+        this.splitPivotFormula(cmd.sheetId, cmd.col, cmd.row, cmd.pivotId);
     }
   }
 
@@ -199,34 +200,31 @@ export class InsertPivotPlugin extends UIPlugin {
     }
   }
 
-  splitPivotFormula(
-    sheetId: UID,
-    col: HeaderIndex,
-    row: HeaderIndex,
-    pivotId: UID,
-    pivotTableData: PivotTableData
-  ) {
-    this.dispatch("INSERT_PIVOT", {
-      sheetId,
-      col,
-      row,
-      pivotId,
-      table: pivotTableData,
-    });
+  splitPivotFormula(sheetId: UID, col: HeaderIndex, row: HeaderIndex, pivotId: UID) {
+    const spreadZone = this.getters.getSpreadZone({ sheetId, col, row });
+    if (!spreadZone) {
+      return;
+    }
+    const formulaId = this.getters.getPivotFormulaId(pivotId);
+
+    const pivotCells = new Map<CellPosition, PivotTableCell>();
+    for (let col = spreadZone.left; col <= spreadZone.right; col++) {
+      for (let row = spreadZone.top; row <= spreadZone.bottom; row++) {
+        const position = { sheetId, col, row };
+        pivotCells.set(position, this.getters.getPivotCellFromPosition(position));
+      }
+    }
+    for (const [position, pivotCell] of pivotCells) {
+      this.dispatch("UPDATE_CELL", {
+        ...position,
+        content: createPivotFormula(formulaId, pivotCell),
+      });
+    }
+
     const table = this.getters.getCoreTable({ sheetId, col, row });
     if (table?.type === "dynamic") {
       const zone = positionToZone({ col, row });
-      const { cols, rows, measures, fieldsType } = pivotTableData;
-      const pivotTable = new SpreadsheetPivotTable(cols, rows, measures, fieldsType || {});
-      const colNumber = pivotTable.getNumberOfDataColumns() + 1;
-      const rowNumber = pivotTable.columns.length + pivotTable.rows.length;
-      const tableZone = {
-        left: col,
-        top: row,
-        right: col + colNumber - 1,
-        bottom: row + rowNumber - 1,
-      };
-      const rangeData = this.getters.getRangeDataFromZone(sheetId, tableZone);
+      const rangeData = this.getters.getRangeDataFromZone(sheetId, spreadZone);
       this.dispatch("UPDATE_TABLE", {
         sheetId,
         zone,
