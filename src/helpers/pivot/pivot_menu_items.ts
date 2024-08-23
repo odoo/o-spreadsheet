@@ -36,7 +36,6 @@ export const FIX_FORMULAS: ActionSpec = {
       col,
       row,
       pivotId,
-      table: pivot.getTableStructure().export(),
     });
   },
   isVisible: (env) => {

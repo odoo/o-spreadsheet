@@ -347,6 +347,39 @@ describe("Pivot fix formula menu item", () => {
       ["=PIVOT.HEADER(1)",  '=PIVOT.VALUE(1,"double:sum")'],
     ]);
   });
+
+  test("Fixing the formula take into account the arguments of PIVOT()", () => {
+    // prettier-ignore
+    const grid = {
+     A1: "Customer", B1: "Price", C1: "Date",     E1: "=PIVOT(1, 1, false, false, 1)",
+     A2: "Alice",    B2: "10",    C2: "2/4/2023",
+     A3: "Bob",      B3: "30",    C3: "1/1/2024",
+   };
+    const model = createModelFromGrid(grid);
+    const env = makeTestEnv({ model });
+
+    addPivot(model, "A1:C3", {
+      columns: [{ fieldName: "Customer" }],
+      rows: [{ fieldName: "Date", granularity: "year" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
+    });
+    createTable(model, "E1", {}, "dynamic");
+
+    selectCell(model, "E1");
+    cellMenuRegistry.get("pivot_fix_formulas").execute!(env);
+
+    model.dispatch("SET_FORMULA_VISIBILITY", { show: true });
+    expect(getEvaluatedGrid(model, "E1:F1")).toEqual([
+      [
+        `=PIVOT.HEADER(1,"Date:year",2023)`,
+        `=PIVOT.VALUE(1,"Price:sum","Date:year",2023,"Customer","Alice")`,
+      ],
+    ]);
+    expect(model.getters.getCoreTable(model.getters.getActivePosition())).toMatchObject({
+      type: "static",
+      range: { zone: toZone("E1:F1") },
+    });
+  });
 });
 
 describe("Pivot reinsertion menu item", () => {
