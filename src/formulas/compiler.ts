@@ -33,18 +33,18 @@ export const UNARY_OPERATOR_MAP = {
   "%": "UNARY.PERCENT",
 };
 
-interface ConstantValues {
+interface LiteralValues {
   numbers: number[];
   strings: string[];
 }
 
-interface ConstantValueObjects {
+interface LiteralValueObjects {
   numbers: { value: number }[];
   strings: { value: string }[];
 }
 
 type InternalCompiledFormula = CompiledFormula & {
-  constantValues: ConstantValueObjects;
+  literalValues: LiteralValueObjects;
 };
 
 // this cache contains all compiled function code, grouped by "structure". For
@@ -78,8 +78,8 @@ export function compileTokens(tokens: Token[]): CompiledFormula {
 }
 
 function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
-  const { dependencies, constantValues } = formulaArguments(tokens);
-  const cacheKey = compilationCacheKey(tokens, dependencies, constantValues);
+  const { dependencies, literalValues } = formulaArguments(tokens);
+  const cacheKey = compilationCacheKey(tokens, dependencies, literalValues);
   if (!functionCache[cacheKey]) {
     const ast = parseTokens([...tokens]);
     const scope = new Scope();
@@ -170,11 +170,11 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
           return code.return(`{ value: ${ast.value} }`);
         case "NUMBER":
           return code.return(
-            `this.constantValues.numbers[${constantValues.numbers.indexOf(ast.value)}]`
+            `this.literalValues.numbers[${literalValues.numbers.indexOf(ast.value)}]`
           );
         case "STRING":
           return code.return(
-            `this.constantValues.strings[${constantValues.strings.indexOf(ast.value)}]`
+            `this.literalValues.strings[${literalValues.strings.indexOf(ast.value)}]`
           );
         case "REFERENCE":
           const referenceIndex = dependencies.indexOf(ast.value);
@@ -212,9 +212,9 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
   const compiledFormula: InternalCompiledFormula = {
     execute: functionCache[cacheKey],
     dependencies,
-    constantValues: {
-      numbers: constantValues.numbers.map((value) => ({ value })),
-      strings: constantValues.strings.map((value) => ({ value })),
+    literalValues: {
+      numbers: literalValues.numbers.map((value) => ({ value })),
+      strings: literalValues.strings.map((value) => ({ value })),
     },
     tokens,
     isBadExpression: false,
@@ -235,16 +235,16 @@ function compileTokensOrThrow(tokens: Token[]): CompiledFormula {
 function compilationCacheKey(
   tokens: Token[],
   dependencies: string[],
-  constantValues: ConstantValues
+  literalValues: LiteralValues
 ): string {
   return concat(
     tokens.map((token) => {
       switch (token.type) {
         case "STRING":
           const value = removeStringQuotes(token.value);
-          return `|S${constantValues.strings.indexOf(value)}|`;
+          return `|S${literalValues.strings.indexOf(value)}|`;
         case "NUMBER":
-          return `|N${constantValues.numbers.indexOf(parseNumber(token.value, DEFAULT_LOCALE))}|`;
+          return `|N${literalValues.numbers.indexOf(parseNumber(token.value, DEFAULT_LOCALE))}|`;
         case "REFERENCE":
         case "INVALID_REFERENCE":
           if (token.value.includes(":")) {
@@ -264,7 +264,7 @@ function compilationCacheKey(
  * Return formula arguments which are references, strings and numbers.
  */
 function formulaArguments(tokens: Token[]) {
-  const constantValues: ConstantValues = {
+  const literalValues: LiteralValues = {
     numbers: [],
     strings: [],
   };
@@ -277,14 +277,14 @@ function formulaArguments(tokens: Token[]) {
         break;
       case "STRING":
         const value = removeStringQuotes(token.value);
-        if (!constantValues.strings.includes(value)) {
-          constantValues.strings.push(value);
+        if (!literalValues.strings.includes(value)) {
+          literalValues.strings.push(value);
         }
         break;
       case "NUMBER": {
         const value = parseNumber(token.value, DEFAULT_LOCALE);
-        if (!constantValues.numbers.includes(value)) {
-          constantValues.numbers.push(value);
+        if (!literalValues.numbers.includes(value)) {
+          literalValues.numbers.push(value);
         }
         break;
       }
@@ -292,7 +292,7 @@ function formulaArguments(tokens: Token[]) {
   }
   return {
     dependencies,
-    constantValues,
+    literalValues,
   };
 }
 
