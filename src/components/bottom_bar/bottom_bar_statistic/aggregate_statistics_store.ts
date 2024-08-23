@@ -37,12 +37,12 @@ const selectionStatisticFunctions: SelectionStatisticFunction[] = [
   {
     name: _t("Min"),
     types: [CellValueType.number],
-    compute: (values, locale) => min([[values]], locale),
+    compute: (values, locale) => min([[values]], locale).value,
   },
   {
     name: _t("Max"),
     types: [CellValueType.number],
-    compute: (values, locale) => max([[values]], locale),
+    compute: (values, locale) => max([[values]], locale).value,
   },
   {
     name: _t("Count"),

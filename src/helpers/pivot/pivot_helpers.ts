@@ -76,11 +76,11 @@ export const AGGREGATORS_FN: Record<string, AggregatorFN | undefined> = {
     format: () => undefined,
   },
   max: {
-    fn: (args: Matrix<FunctionResultObject>, locale: Locale) => max([args], locale),
+    fn: (args: Matrix<FunctionResultObject>, locale: Locale) => max([args], locale).value,
     format: inferFormat,
   },
   min: {
-    fn: (args: Matrix<FunctionResultObject>, locale: Locale) => min([args], locale),
+    fn: (args: Matrix<FunctionResultObject>, locale: Locale) => min([args], locale).value,
     format: inferFormat,
   },
   avg: {

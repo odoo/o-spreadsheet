@@ -1037,10 +1037,12 @@ describe("MAX formula", () => {
     expect(gridResult.E1).toEqual(0);
   });
 
-  test("result format depends on 1st argument", () => {
+  test("result format depends on the maximum value", () => {
     expect(evaluateCellFormat("A1", { A1: "=MAX(A2, 2)", A2: "42" })).toBe("");
-    expect(evaluateCellFormat("A1", { A1: "=MAX(A2:A3)", A2: "42%", A3: "1" })).toBe("0%");
-    expect(evaluateCellFormat("A1", { A1: "=MAX(A2:A3)", A2: "1", A3: "42%" })).toBe("");
+    expect(evaluateCellFormat("A1", { A1: "=MAX(A2:A3)", A2: "42%", A3: "0.1" })).toBe("0%");
+    expect(evaluateCellFormat("A1", { A1: "=MAX(A2:A3)", A2: "0.1", A3: "42%" })).toBe("0%");
+    expect(evaluateCellFormat("A1", { A1: "=MAX(A2, A3)", A2: "42%", A3: "0.1" })).toBe("0%");
+    expect(evaluateCellFormat("A1", { A1: "=MAX(A2, A3)", A2: "0.1", A3: "42%" })).toBe("0%");
   });
 });
 
@@ -1304,10 +1306,12 @@ describe("MEDIAN formula", () => {
     });
   });
 
-  test("result format depends on 1st argument", () => {
+  test("result format depends on 1st numeric cell", () => {
     expect(evaluateCellFormat("A1", { A1: "=MEDIAN(A2, 2)", A2: "42" })).toBe("");
     expect(evaluateCellFormat("A1", { A1: "=MEDIAN(A2:A3)", A2: "42%", A3: "1" })).toBe("0%");
     expect(evaluateCellFormat("A1", { A1: "=MEDIAN(A2:A3)", A2: "1", A3: "42%" })).toBe("");
+    expect(evaluateCellFormat("A1", { A1: "=MEDIAN(A2:A3)", A2: "hi", A3: "42%" })).toBe("0%");
+    expect(evaluateCellFormat("A1", { A1: "=MEDIAN(A2:A3)", A3: "42%" })).toBe("0%");
   });
 
   test("MEDIAN doesn't accept errors", () => {
@@ -1434,10 +1438,12 @@ describe("MIN formula", () => {
     expect(gridResult.E1).toEqual(0);
   });
 
-  test("result format depends on 1st argument", () => {
+  test("result format depends on the minimum value", () => {
     expect(evaluateCellFormat("A1", { A1: "=MIN(A2, 2)", A2: "42" })).toBe("");
     expect(evaluateCellFormat("A1", { A1: "=MIN(A2:A3)", A2: "42%", A3: "1" })).toBe("0%");
-    expect(evaluateCellFormat("A1", { A1: "=MIN(A2:A3)", A2: "1", A3: "42%" })).toBe("");
+    expect(evaluateCellFormat("A1", { A1: "=MIN(A2:A3)", A2: "1", A3: "42%" })).toBe("0%");
+    expect(evaluateCellFormat("A1", { A1: "=MIN(A2, A3)", A2: "42%", A3: "1" })).toBe("0%");
+    expect(evaluateCellFormat("A1", { A1: "=MIN(A2, A3)", A2: "1", A3: "42%" })).toBe("0%");
   });
 });
 

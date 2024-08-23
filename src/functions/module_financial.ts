@@ -1209,7 +1209,7 @@ export const IRR = {
 
     visitNumbers(
       [cashFlowAmounts],
-      (amount) => {
+      ({ value: amount }) => {
         if (amount > 0) positive = true;
         if (amount < 0) negative = true;
         amounts.push(amount);
