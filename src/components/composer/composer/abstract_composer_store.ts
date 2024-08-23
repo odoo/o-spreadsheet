@@ -54,7 +54,7 @@ export const tokenColors = {
   LEFT_PAREN: functionColor,
   RIGHT_PAREN: functionColor,
   ARG_SEPARATOR: functionColor,
-  MATCHING_PAREN: "#000000",
+  ORPHAN_RIGHT_PAREN: "#ff0000",
 } as const;
 
 export interface ComposerSelection {
@@ -131,6 +131,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     this.selectionStart = start;
     this.selectionEnd = end;
     this.computeFormulaCursorContext();
+    this.computeParenthesisRelatedToCursor();
   }
 
   stopComposerRangeSelection() {
@@ -158,6 +159,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     }
     this.updateTokenColor();
     this.computeFormulaCursorContext();
+    this.computeParenthesisRelatedToCursor();
   }
 
   cancelEdition() {
@@ -173,6 +175,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     this.setContent(content, selection, true);
     this.updateTokenColor();
     this.computeFormulaCursorContext();
+    this.computeParenthesisRelatedToCursor();
   }
 
   replaceComposerCursorSelection(text: string) {
@@ -565,14 +568,8 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       }
     }
     if (["LEFT_PAREN", "RIGHT_PAREN"].includes(token.type)) {
-      // Compute the matching parenthesis
-      if (
-        this.tokenAtCursor &&
-        ["LEFT_PAREN", "RIGHT_PAREN"].includes(this.tokenAtCursor.type) &&
-        this.tokenAtCursor.parenthesesCode &&
-        this.tokenAtCursor.parenthesesCode === token.parenthesesCode
-      ) {
-        return tokenColors.MATCHING_PAREN;
+      if (token.parenthesesCode === "") {
+        return tokenColors.ORPHAN_RIGHT_PAREN;
       }
     }
     return tokenColors[token.type] || DEFAULT_TOKEN_COLOR;
@@ -642,6 +639,34 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       return code.slice(0, -1) || "";
     }
     return code;
+  }
+
+  private computeParenthesisRelatedToCursor() {
+    // reset everything first
+    for (let i = 0; i < this.currentTokens.length; i++) {
+      this.currentTokens[i].isParenthesisLinkedToCursor = false;
+    }
+
+    const tokenAtCursor = this.tokenAtCursor;
+    if (
+      !tokenAtCursor ||
+      tokenAtCursor.parenthesesCode === "" ||
+      !["LEFT_PAREN", "RIGHT_PAREN"].includes(tokenAtCursor.type)
+    ) {
+      return;
+    }
+
+    for (let i = 0; i < this.currentTokens.length; i++) {
+      const currentToken = this.currentTokens[i];
+      if (
+        ["LEFT_PAREN", "RIGHT_PAREN"].includes(currentToken.type) &&
+        currentToken.parenthesesCode === tokenAtCursor.parenthesesCode &&
+        currentToken !== tokenAtCursor
+      ) {
+        this.currentTokens[i].isParenthesisLinkedToCursor = true;
+        this.tokenAtCursor.isParenthesisLinkedToCursor = true;
+      }
+    }
   }
 
   private updateRangeColor() {
