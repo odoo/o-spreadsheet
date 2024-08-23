@@ -3,7 +3,16 @@ import { DateTime, isDateTime, numberToJsDate, parseDateTime } from "../helpers/
 import { memoize } from "../helpers/misc";
 import { isNumber, parseNumber } from "../helpers/numbers";
 import { _t } from "../translation";
-import { Arg, CellValue, FunctionResultObject, Locale, Matrix, Maybe, isMatrix } from "../types";
+import {
+  Arg,
+  CellValue,
+  FunctionResultNumber,
+  FunctionResultObject,
+  Locale,
+  Matrix,
+  Maybe,
+  isMatrix,
+} from "../types";
 import { CellErrorType, EvaluationError, errorTypes } from "../types/errors";
 
 const SORT_TYPES_ORDER = ["number", "string", "boolean", "undefined"];
@@ -280,20 +289,23 @@ export function visitAny(args: Arg[], cb: (a: Maybe<FunctionResultObject>) => vo
   );
 }
 
-export function visitNumbers(args: Arg[], cb: (arg: number) => void, locale: Locale): void {
+export function visitNumbers(
+  args: Arg[],
+  cb: (arg: FunctionResultNumber) => void,
+  locale: Locale
+): void {
   visitArgs(
     args,
     (cell) => {
-      const cellValue = cell?.value;
-      if (typeof cellValue === "number") {
-        cb(cellValue);
+      if (typeof cell?.value === "number") {
+        cb(cell as FunctionResultNumber);
       }
-      if (isEvaluationError(cellValue)) {
+      if (isEvaluationError(cell?.value)) {
         throw cell;
       }
     },
     (arg) => {
-      cb(strictToNumber(arg, locale));
+      cb({ value: strictToNumber(arg, locale), format: arg?.format });
     }
   );
 }

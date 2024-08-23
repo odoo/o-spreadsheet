@@ -805,10 +805,7 @@ export const MAX = {
     ),
   ],
   compute: function (...values: Arg[]): FunctionResultNumber {
-    return {
-      value: max(values, this.locale),
-      format: inferFormat(values[0]),
-    };
+    return max(values, this.locale);
   },
   isExported: true,
 } satisfies AddFunctionDescription;
@@ -901,13 +898,13 @@ export const MEDIAN = {
     visitNumbers(
       values,
       (value) => {
-        data.push({ value });
+        data.push(value);
       },
       this.locale
     );
     return {
       value: centile(data, { value: 0.5 }, true, this.locale),
-      format: inferFormat(values[0]),
+      format: inferFormat(data[0]),
     };
   },
   isExported: true,
@@ -929,10 +926,7 @@ export const MIN = {
     ),
   ],
   compute: function (...values: Arg[]): FunctionResultNumber {
-    return {
-      value: min(values, this.locale),
-      format: inferFormat(values[0]),
-    };
+    return min(values, this.locale);
   },
   isExported: true,
 } satisfies AddFunctionDescription;

@@ -10,6 +10,7 @@ import {
   reduceAny,
   reduceNumbers,
   transposeMatrix,
+  visitNumbers,
 } from "./helpers";
 
 export function assertSameNumberOfElements(...args: any[][]) {
@@ -71,13 +72,31 @@ export function countAny(values: Arg[]): number {
 }
 
 export function max(values: Arg[], locale: Locale) {
-  const result = reduceNumbers(values, (acc, a) => (acc < a ? a : acc), -Infinity, locale);
-  return result === -Infinity ? 0 : result;
+  let max = { value: -Infinity };
+  visitNumbers(
+    values,
+    (a) => {
+      if (a.value >= max.value) {
+        max = a;
+      }
+    },
+    locale
+  );
+  return max.value === -Infinity ? { value: 0 } : max;
 }
 
-export function min(values: Arg[], locale: Locale): number {
-  const result = reduceNumbers(values, (acc, a) => (a < acc ? a : acc), Infinity, locale);
-  return result === Infinity ? 0 : result;
+export function min(values: Arg[], locale: Locale) {
+  let min = { value: Infinity };
+  visitNumbers(
+    values,
+    (a) => {
+      if (a.value <= min.value) {
+        min = a;
+      }
+    },
+    locale
+  );
+  return min.value === Infinity ? { value: 0 } : min;
 }
 
 function prepareDataForRegression(X: Matrix<number>, Y: Matrix<number>, newX: Matrix<number>) {
