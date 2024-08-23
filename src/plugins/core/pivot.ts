@@ -40,6 +40,9 @@ export class PivotCorePlugin extends CorePlugin<CoreState> implements CoreState 
         if (deepEquals(cmd.pivot, this.pivots[cmd.pivotId]?.definition)) {
           return CommandResult.NoChanges;
         }
+        if (cmd.pivot.name === "") {
+          return CommandResult.EmptyName;
+        }
         break;
       }
       case "RENAME_PIVOT":

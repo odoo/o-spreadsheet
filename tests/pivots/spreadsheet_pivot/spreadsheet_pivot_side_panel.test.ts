@@ -97,6 +97,14 @@ describe("Spreadsheet pivot side panel", () => {
     expect(model.getters.getPivotName("1")).toEqual("New Pivot Name");
   });
 
+  test("Cannot rename a pivot with an empty name", async () => {
+    const name = model.getters.getPivotName("1");
+    setInputValueAndTrigger(".os-pivot-title", "");
+    await nextTick();
+    expect((fixture.querySelector(".os-pivot-title") as HTMLInputElement).value).toEqual(name);
+    expect(model.getters.getPivotName("1")).toEqual(name);
+  });
+
   test("Can duplicate a pivot and undo the whole action with one step backward", async () => {
     await click(fixture, SELECTORS.COG_WHEEL);
     await click(fixture, SELECTORS.DUPLICATE_PIVOT);
