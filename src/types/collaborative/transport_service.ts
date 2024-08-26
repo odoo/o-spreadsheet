@@ -88,7 +88,7 @@ export interface TransportService<T = any> {
   /**
    * Send a message to all clients
    */
-  sendMessage: (message: T) => void;
+  sendMessage: (message: T) => Promise<void>;
   /**
    * Register a callback function which will be called each time
    * a new message is received.
