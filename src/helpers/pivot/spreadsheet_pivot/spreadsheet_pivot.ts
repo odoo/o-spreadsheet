@@ -250,10 +250,8 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
       return { value: "" };
     }
     const measure = this.getMeasure(measureId);
-    const allValues = dataEntries.map((value) => value[measure.fieldName]);
-    const values = allValues
-      .filter((cell) => cell && cell.type !== CellValueType.empty)
-      .filter(isDefined);
+    const allValues = dataEntries.map((value) => value[measure.fieldName]).filter(isDefined);
+    const values = allValues.filter((cell) => cell.type !== CellValueType.empty);
     const aggregator = measure.aggregator;
     const operator = AGGREGATORS_FN[aggregator];
     if (!operator) {
@@ -261,10 +259,11 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     }
 
     try {
-      return {
-        value: values.length ? operator.fn([values], this.getters.getLocale()) : "",
-        format: operator.format(allValues.find((cell) => cell?.format)),
-      };
+      const result = operator([allValues], this.getters.getLocale());
+      if (values.length === 0) {
+        return { ...result, value: "" };
+      }
+      return result;
     } catch (e) {
       return handleError(e, aggregator.toUpperCase());
     }

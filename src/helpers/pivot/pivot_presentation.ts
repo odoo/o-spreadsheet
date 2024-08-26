@@ -62,11 +62,11 @@ export function withPivotPresentationLayer(PivotClass: PivotUIConstructor) {
       if (columns.length + rows.length !== domain.length) {
         const values = this.getValuesToAggregate(measure, domain);
         const aggregator = AGGREGATORS_FN[measure.aggregator];
+        if (!aggregator) {
+          return { value: 0 };
+        }
         try {
-          return {
-            value: aggregator?.fn([values], this.getters.getLocale()) || 0,
-            format: aggregator?.format([values]),
-          };
+          return aggregator([values], this.getters.getLocale());
         } catch (error) {
           return handleError(error, measure.aggregator.toUpperCase());
         }
