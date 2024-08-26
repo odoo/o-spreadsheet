@@ -6,6 +6,7 @@ import { buildRevisionLog } from "../../src/history/factory";
 import { Client, CommandResult, WorkbookData } from "../../src/types";
 import { MockTransportService } from "../__mocks__/transport_service";
 import { selectCell, setCellContent } from "../test_helpers/commands_helpers";
+import { nextTick } from "../test_helpers/helpers";
 
 describe("Collaborative session", () => {
   let transport: MockTransportService;
@@ -82,7 +83,7 @@ describe("Collaborative session", () => {
     });
   });
 
-  test("do not snapshot when leaving if there are pending change", () => {
+  test("do not snapshot when leaving if there are pending change", async () => {
     const model = new Model(
       {},
       {
@@ -98,6 +99,7 @@ describe("Collaborative session", () => {
       // and leave before receiving the acknowledgement
       model.leaveSession();
     });
+    await nextTick();
     expect(spy).toHaveBeenCalledTimes(2);
     expect(spy).toHaveBeenCalledWith(expect.objectContaining({ type: "REMOTE_REVISION" }));
     expect(spy).toHaveBeenCalledWith(expect.objectContaining({ type: "CLIENT_LEFT" }));
