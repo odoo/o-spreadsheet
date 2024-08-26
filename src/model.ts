@@ -301,8 +301,8 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.session.join(this.config.client);
   }
 
-  leaveSession() {
-    this.session.leave(lazy(() => this.exportData()));
+  async leaveSession() {
+    await this.session.leave(lazy(() => this.exportData()));
   }
 
   private setupUiPlugin(Plugin: UIPluginConstructor) {

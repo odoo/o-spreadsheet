@@ -18,7 +18,7 @@ export class MockTransportService implements TransportService<CollaborationMessa
     this.listeners.push({ id, callback });
   }
 
-  sendMessage(message: CollaborationMessage) {
+  async sendMessage(message: CollaborationMessage) {
     const msg: CollaborationMessage = deepCopy(message);
     switch (msg.type) {
       case "REMOTE_REVISION":
