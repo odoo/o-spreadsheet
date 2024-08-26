@@ -5,6 +5,7 @@ import {
   deleteSheet,
   redo,
   setCellContent,
+  setFormat,
   undo,
 } from "../../test_helpers/commands_helpers";
 import {
@@ -660,6 +661,29 @@ describe("Spreadsheet Pivot", () => {
     });
     setCellContent(model, "A27", `=PIVOT.VALUE(1, "Name:${aggregator}")`);
     expect(getEvaluatedCell(model, "A27").value).toBe(aggregatedValue);
+  });
+
+  test("min and max aggregate format is inferred", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Name",   B1: "Revenue",
+      A2: "Alice",  B2: "Hi",
+      A3: "Bob",    B3: "5",
+    };
+    const model = createModelFromGrid(grid);
+    setFormat(model, "B3", "[$$]#,##0");
+    addPivot(model, "A1:B3", {
+      columns: [],
+      rows: [{ fieldName: "Name" }],
+      measures: [
+        { id: "Revenue:max", fieldName: "Revenue", aggregator: "max" },
+        { id: "Revenue:min", fieldName: "Revenue", aggregator: "min" },
+      ],
+    });
+    setCellContent(model, "A27", '=PIVOT.VALUE(1, "Revenue:max")');
+    setCellContent(model, "A28", '=PIVOT.VALUE(1, "Revenue:min")');
+    expect(getEvaluatedCell(model, "A27").format).toBe("[$$]#,##0");
+    expect(getEvaluatedCell(model, "A28").format).toBe("[$$]#,##0");
   });
 
   test.each([

@@ -4,15 +4,7 @@ import { average, countAny, max, min } from "../../functions/helper_statistical"
 import { inferFormat, toBoolean, toNumber, toString } from "../../functions/helpers";
 import { Registry } from "../../registries/registry";
 import { _t } from "../../translation";
-import {
-  Arg,
-  CellValue,
-  DEFAULT_LOCALE,
-  Format,
-  FunctionResultObject,
-  Locale,
-  Matrix,
-} from "../../types";
+import { CellValue, DEFAULT_LOCALE, FunctionResultObject, Locale, Matrix } from "../../types";
 import { EvaluationError } from "../../types/errors";
 import {
   Granularity,
@@ -53,44 +45,33 @@ for (const type in AGGREGATORS_BY_FIELD_TYPE) {
   }
 }
 
-type AggregatorFN = {
-  fn: (args: Matrix<FunctionResultObject>, locale?: Locale) => CellValue;
-  format: (data: Arg | undefined) => Format | undefined;
-};
+type AggregatorFN = (args: Matrix<FunctionResultObject>, locale?: Locale) => FunctionResultObject;
 
 export const AGGREGATORS_FN: Record<string, AggregatorFN | undefined> = {
-  count: {
-    fn: (args: Matrix<FunctionResultObject>) => countAny([args]),
-    format: () => "0",
-  },
-  count_distinct: {
-    fn: (args: Matrix<FunctionResultObject>) => countUnique([args]),
-    format: () => "0",
-  },
-  bool_and: {
-    fn: (args: Matrix<FunctionResultObject>) => boolAnd([args]).result,
-    format: () => undefined,
-  },
-  bool_or: {
-    fn: (args: Matrix<FunctionResultObject>) => boolOr([args]).result,
-    format: () => undefined,
-  },
-  max: {
-    fn: (args: Matrix<FunctionResultObject>, locale: Locale) => max([args], locale).value,
-    format: inferFormat,
-  },
-  min: {
-    fn: (args: Matrix<FunctionResultObject>, locale: Locale) => min([args], locale).value,
-    format: inferFormat,
-  },
-  avg: {
-    fn: (args: Matrix<FunctionResultObject>, locale: Locale) => average([args], locale),
-    format: inferFormat,
-  },
-  sum: {
-    fn: (args: Matrix<FunctionResultObject>, locale: Locale) => sum([args], locale),
-    format: inferFormat,
-  },
+  count: (args: Matrix<FunctionResultObject>) => ({
+    value: countAny([args]),
+    format: "0",
+  }),
+  count_distinct: (args: Matrix<FunctionResultObject>) => ({
+    value: countUnique([args]),
+    format: "0",
+  }),
+  bool_and: (args: Matrix<FunctionResultObject>) => ({
+    value: boolAnd([args]).result,
+  }),
+  bool_or: (args: Matrix<FunctionResultObject>) => ({
+    value: boolOr([args]).result,
+  }),
+  max: (args: Matrix<FunctionResultObject>, locale: Locale) => max([args], locale),
+  min: (args: Matrix<FunctionResultObject>, locale: Locale) => min([args], locale),
+  avg: (args: Matrix<FunctionResultObject>, locale: Locale) => ({
+    value: average([args], locale),
+    format: inferFormat(args),
+  }),
+  sum: (args: Matrix<FunctionResultObject>, locale: Locale) => ({
+    value: sum([args], locale),
+    format: inferFormat(args),
+  }),
 };
 
 /**
