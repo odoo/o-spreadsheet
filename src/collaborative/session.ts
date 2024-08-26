@@ -159,9 +159,9 @@ export class Session extends EventBus<CollaborativeEvent> {
   /**
    * Notify the server that the user client left the collaborative session
    */
-  leave(data: Lazy<WorkbookData>) {
+  async leave(data: Lazy<WorkbookData>) {
     if (Object.keys(this.clients).length === 1 && this.processedRevisions.size) {
-      this.snapshot(data());
+      await this.snapshot(data());
     }
     delete this.clients[this.clientId];
     this.transportService.leave(this.clientId);
@@ -175,12 +175,12 @@ export class Session extends EventBus<CollaborativeEvent> {
   /**
    * Send a snapshot of the spreadsheet to the collaboration server
    */
-  snapshot(data: WorkbookData) {
+  async snapshot(data: WorkbookData) {
     if (this.pendingMessages.length !== 0) {
       return;
     }
     const snapshotId = this.uuidGenerator.uuidv4();
-    this.transportService.sendMessage({
+    await this.transportService.sendMessage({
       type: "SNAPSHOT",
       nextRevisionId: snapshotId,
       serverRevisionId: this.serverRevisionId,
