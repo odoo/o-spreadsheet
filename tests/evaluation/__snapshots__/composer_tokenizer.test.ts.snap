@@ -1,120 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`composerTokenizer = SUM ( C4 : C5 ) 1`] = `
-[
-  {
-    "end": 1,
-    "length": 1,
-    "start": 0,
-    "type": "OPERATOR",
-    "value": "=",
-  },
-  {
-    "end": 2,
-    "length": 1,
-    "start": 1,
-    "type": "SPACE",
-    "value": " ",
-  },
-  {
-    "end": 5,
-    "length": 3,
-    "start": 2,
-    "type": "SYMBOL",
-    "value": "SUM",
-  },
-  {
-    "end": 6,
-    "length": 1,
-    "start": 5,
-    "type": "SPACE",
-    "value": " ",
-  },
-  {
-    "end": 7,
-    "functionContext": {
-      "argPosition": 0,
-      "args": [
-        {
-          "type": "REFERENCE",
-          "value": "C4 : C5",
-        },
-      ],
-      "parent": "SUM",
-    },
-    "length": 1,
-    "parenIndex": 1,
-    "start": 6,
-    "type": "LEFT_PAREN",
-    "value": "(",
-  },
-  {
-    "end": 8,
-    "functionContext": {
-      "argPosition": 0,
-      "args": [
-        {
-          "type": "REFERENCE",
-          "value": "C4 : C5",
-        },
-      ],
-      "parent": "SUM",
-    },
-    "length": 1,
-    "start": 7,
-    "type": "SPACE",
-    "value": " ",
-  },
-  {
-    "end": 15,
-    "functionContext": {
-      "argPosition": 0,
-      "args": [
-        {
-          "type": "REFERENCE",
-          "value": "C4 : C5",
-        },
-      ],
-      "parent": "SUM",
-    },
-    "length": 7,
-    "start": 8,
-    "type": "REFERENCE",
-    "value": "C4 : C5",
-  },
-  {
-    "end": 16,
-    "functionContext": {
-      "argPosition": 0,
-      "args": [
-        {
-          "type": "REFERENCE",
-          "value": "C4 : C5",
-        },
-      ],
-      "parent": "SUM",
-    },
-    "length": 1,
-    "start": 15,
-    "type": "SPACE",
-    "value": " ",
-  },
-  {
-    "end": 17,
-    "length": 1,
-    "parenIndex": 1,
-    "start": 16,
-    "type": "RIGHT_PAREN",
-    "value": ")",
-  },
-]
-`;
-
 exports[`composerTokenizer base tests Boolean 1`] = `
 [
   {
     "end": 1,
     "length": 1,
+    "parenthesesCode": "",
     "start": 0,
     "type": "OPERATOR",
     "value": "=",
@@ -122,6 +13,7 @@ exports[`composerTokenizer base tests Boolean 1`] = `
   {
     "end": 4,
     "length": 3,
+    "parenthesesCode": "1",
     "start": 1,
     "type": "SYMBOL",
     "value": "AND",
@@ -143,7 +35,7 @@ exports[`composerTokenizer base tests Boolean 1`] = `
       "parent": "AND",
     },
     "length": 1,
-    "parenIndex": 1,
+    "parenthesesCode": "1",
     "start": 4,
     "type": "LEFT_PAREN",
     "value": "(",
@@ -165,6 +57,7 @@ exports[`composerTokenizer base tests Boolean 1`] = `
       "parent": "AND",
     },
     "length": 4,
+    "parenthesesCode": "1",
     "start": 5,
     "type": "SYMBOL",
     "value": "true",
@@ -186,6 +79,7 @@ exports[`composerTokenizer base tests Boolean 1`] = `
       "parent": "AND",
     },
     "length": 1,
+    "parenthesesCode": "1",
     "start": 9,
     "type": "ARG_SEPARATOR",
     "value": ",",
@@ -207,6 +101,7 @@ exports[`composerTokenizer base tests Boolean 1`] = `
       "parent": "AND",
     },
     "length": 5,
+    "parenthesesCode": "1",
     "start": 10,
     "type": "SYMBOL",
     "value": "false",
@@ -214,7 +109,7 @@ exports[`composerTokenizer base tests Boolean 1`] = `
   {
     "end": 16,
     "length": 1,
-    "parenIndex": 1,
+    "parenthesesCode": "1",
     "start": 15,
     "type": "RIGHT_PAREN",
     "value": ")",
@@ -227,6 +122,7 @@ exports[`composerTokenizer base tests formula token 1`] = `
   {
     "end": 1,
     "length": 1,
+    "parenthesesCode": "",
     "start": 0,
     "type": "OPERATOR",
     "value": "=",
@@ -234,6 +130,7 @@ exports[`composerTokenizer base tests formula token 1`] = `
   {
     "end": 4,
     "length": 3,
+    "parenthesesCode": "1",
     "start": 1,
     "type": "SYMBOL",
     "value": "SUM",
@@ -281,7 +178,7 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "parent": "SUM",
     },
     "length": 1,
-    "parenIndex": 1,
+    "parenthesesCode": "1",
     "start": 4,
     "type": "LEFT_PAREN",
     "value": "(",
@@ -329,6 +226,7 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "parent": "SUM",
     },
     "length": 1,
+    "parenthesesCode": "1",
     "start": 5,
     "type": "NUMBER",
     "value": "1",
@@ -376,6 +274,7 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "parent": "SUM",
     },
     "length": 1,
+    "parenthesesCode": "1",
     "start": 6,
     "type": "SPACE",
     "value": " ",
@@ -423,6 +322,7 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "parent": "SUM",
     },
     "length": 1,
+    "parenthesesCode": "1",
     "start": 7,
     "type": "ARG_SEPARATOR",
     "value": ",",
@@ -430,7 +330,7 @@ exports[`composerTokenizer base tests formula token 1`] = `
   {
     "end": 9,
     "length": 1,
-    "parenIndex": 2,
+    "parenthesesCode": "11",
     "start": 8,
     "type": "LEFT_PAREN",
     "value": "(",
@@ -438,6 +338,7 @@ exports[`composerTokenizer base tests formula token 1`] = `
   {
     "end": 10,
     "length": 1,
+    "parenthesesCode": "11",
     "start": 9,
     "type": "NUMBER",
     "value": "1",
@@ -445,6 +346,7 @@ exports[`composerTokenizer base tests formula token 1`] = `
   {
     "end": 11,
     "length": 1,
+    "parenthesesCode": "11",
     "start": 10,
     "type": "OPERATOR",
     "value": "+",
@@ -452,6 +354,7 @@ exports[`composerTokenizer base tests formula token 1`] = `
   {
     "end": 12,
     "length": 1,
+    "parenthesesCode": "11",
     "start": 11,
     "type": "NUMBER",
     "value": "2",
@@ -499,7 +402,7 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "parent": "SUM",
     },
     "length": 1,
-    "parenIndex": 2,
+    "parenthesesCode": "11",
     "start": 12,
     "type": "RIGHT_PAREN",
     "value": ")",
@@ -547,6 +450,7 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "parent": "SUM",
     },
     "length": 1,
+    "parenthesesCode": "1",
     "start": 13,
     "type": "ARG_SEPARATOR",
     "value": ",",
@@ -594,6 +498,7 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "parent": "SUM",
     },
     "length": 3,
+    "parenthesesCode": "1",
     "start": 14,
     "type": "SYMBOL",
     "value": "ADD",
@@ -641,6 +546,7 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "parent": "SUM",
     },
     "length": 1,
+    "parenthesesCode": "1",
     "start": 17,
     "type": "SPACE",
     "value": " ",
@@ -662,7 +568,7 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "parent": "ADD",
     },
     "length": 1,
-    "parenIndex": 3,
+    "parenthesesCode": "12",
     "start": 18,
     "type": "LEFT_PAREN",
     "value": "(",
@@ -684,6 +590,7 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "parent": "ADD",
     },
     "length": 1,
+    "parenthesesCode": "12",
     "start": 19,
     "type": "NUMBER",
     "value": "2",
@@ -705,6 +612,7 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "parent": "ADD",
     },
     "length": 1,
+    "parenthesesCode": "12",
     "start": 20,
     "type": "ARG_SEPARATOR",
     "value": ",",
@@ -726,6 +634,7 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "parent": "ADD",
     },
     "length": 1,
+    "parenthesesCode": "12",
     "start": 21,
     "type": "SPACE",
     "value": " ",
@@ -747,6 +656,7 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "parent": "ADD",
     },
     "length": 1,
+    "parenthesesCode": "12",
     "start": 22,
     "type": "NUMBER",
     "value": "3",
@@ -794,7 +704,7 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "parent": "SUM",
     },
     "length": 1,
-    "parenIndex": 3,
+    "parenthesesCode": "12",
     "start": 23,
     "type": "RIGHT_PAREN",
     "value": ")",
@@ -842,6 +752,7 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "parent": "SUM",
     },
     "length": 1,
+    "parenthesesCode": "1",
     "start": 24,
     "type": "ARG_SEPARATOR",
     "value": ",",
@@ -889,6 +800,7 @@ exports[`composerTokenizer base tests formula token 1`] = `
       "parent": "SUM",
     },
     "length": 1,
+    "parenthesesCode": "1",
     "start": 25,
     "type": "NUMBER",
     "value": "4",
@@ -896,8 +808,601 @@ exports[`composerTokenizer base tests formula token 1`] = `
   {
     "end": 27,
     "length": 1,
-    "parenIndex": 1,
+    "parenthesesCode": "1",
     "start": 26,
+    "type": "RIGHT_PAREN",
+    "value": ")",
+  },
+]
+`;
+
+exports[`composerTokenizer formula with nested function 1`] = `
+[
+  {
+    "end": 1,
+    "length": 1,
+    "parenthesesCode": "",
+    "start": 0,
+    "type": "OPERATOR",
+    "value": "=",
+  },
+  {
+    "end": 2,
+    "length": 1,
+    "parenthesesCode": "",
+    "start": 1,
+    "type": "SPACE",
+    "value": " ",
+  },
+  {
+    "end": 5,
+    "length": 3,
+    "parenthesesCode": "1",
+    "start": 2,
+    "type": "SYMBOL",
+    "value": "SIN",
+  },
+  {
+    "end": 6,
+    "functionContext": {
+      "argPosition": 0,
+      "args": [
+        {
+          "type": "NUMBER",
+          "value": 0,
+        },
+      ],
+      "parent": "SIN",
+    },
+    "length": 1,
+    "parenthesesCode": "1",
+    "start": 5,
+    "type": "LEFT_PAREN",
+    "value": "(",
+  },
+  {
+    "end": 7,
+    "functionContext": {
+      "argPosition": 0,
+      "args": [
+        {
+          "type": "NUMBER",
+          "value": 0,
+        },
+      ],
+      "parent": "SIN",
+    },
+    "length": 1,
+    "parenthesesCode": "1",
+    "start": 6,
+    "type": "SPACE",
+    "value": " ",
+  },
+  {
+    "end": 8,
+    "functionContext": {
+      "argPosition": 0,
+      "args": [
+        {
+          "type": "NUMBER",
+          "value": 0,
+        },
+      ],
+      "parent": "SIN",
+    },
+    "length": 1,
+    "parenthesesCode": "1",
+    "start": 7,
+    "type": "NUMBER",
+    "value": "0",
+  },
+  {
+    "end": 9,
+    "functionContext": {
+      "argPosition": 0,
+      "args": [
+        {
+          "type": "NUMBER",
+          "value": 0,
+        },
+      ],
+      "parent": "SIN",
+    },
+    "length": 1,
+    "parenthesesCode": "1",
+    "start": 8,
+    "type": "SPACE",
+    "value": " ",
+  },
+  {
+    "end": 10,
+    "length": 1,
+    "parenthesesCode": "1",
+    "start": 9,
+    "type": "RIGHT_PAREN",
+    "value": ")",
+  },
+  {
+    "end": 11,
+    "length": 1,
+    "parenthesesCode": "",
+    "start": 10,
+    "type": "SPACE",
+    "value": " ",
+  },
+  {
+    "end": 12,
+    "length": 1,
+    "parenthesesCode": "",
+    "start": 11,
+    "type": "OPERATOR",
+    "value": "+",
+  },
+  {
+    "end": 13,
+    "length": 1,
+    "parenthesesCode": "",
+    "start": 12,
+    "type": "SPACE",
+    "value": " ",
+  },
+  {
+    "end": 16,
+    "length": 3,
+    "parenthesesCode": "2",
+    "start": 13,
+    "type": "SYMBOL",
+    "value": "SUM",
+  },
+  {
+    "end": 17,
+    "functionContext": {
+      "argPosition": 0,
+      "args": [
+        {
+          "args": [
+            {
+              "type": "NUMBER",
+              "value": 1,
+            },
+          ],
+          "type": "FUNCALL",
+          "value": "COS",
+        },
+        {
+          "args": [
+            {
+              "operand": {
+                "type": "NUMBER",
+                "value": 1,
+              },
+              "type": "UNARY_OPERATION",
+              "value": "-",
+            },
+          ],
+          "type": "FUNCALL",
+          "value": "ABS",
+        },
+      ],
+      "parent": "SUM",
+    },
+    "length": 1,
+    "parenthesesCode": "2",
+    "start": 16,
+    "type": "LEFT_PAREN",
+    "value": "(",
+  },
+  {
+    "end": 18,
+    "functionContext": {
+      "argPosition": 0,
+      "args": [
+        {
+          "args": [
+            {
+              "type": "NUMBER",
+              "value": 1,
+            },
+          ],
+          "type": "FUNCALL",
+          "value": "COS",
+        },
+        {
+          "args": [
+            {
+              "operand": {
+                "type": "NUMBER",
+                "value": 1,
+              },
+              "type": "UNARY_OPERATION",
+              "value": "-",
+            },
+          ],
+          "type": "FUNCALL",
+          "value": "ABS",
+        },
+      ],
+      "parent": "SUM",
+    },
+    "length": 1,
+    "parenthesesCode": "2",
+    "start": 17,
+    "type": "SPACE",
+    "value": " ",
+  },
+  {
+    "end": 21,
+    "functionContext": {
+      "argPosition": 0,
+      "args": [
+        {
+          "args": [
+            {
+              "type": "NUMBER",
+              "value": 1,
+            },
+          ],
+          "type": "FUNCALL",
+          "value": "COS",
+        },
+        {
+          "args": [
+            {
+              "operand": {
+                "type": "NUMBER",
+                "value": 1,
+              },
+              "type": "UNARY_OPERATION",
+              "value": "-",
+            },
+          ],
+          "type": "FUNCALL",
+          "value": "ABS",
+        },
+      ],
+      "parent": "SUM",
+    },
+    "length": 3,
+    "parenthesesCode": "21",
+    "start": 18,
+    "type": "SYMBOL",
+    "value": "COS",
+  },
+  {
+    "end": 22,
+    "functionContext": {
+      "argPosition": 0,
+      "args": [
+        {
+          "type": "NUMBER",
+          "value": 1,
+        },
+      ],
+      "parent": "COS",
+    },
+    "length": 1,
+    "parenthesesCode": "21",
+    "start": 21,
+    "type": "LEFT_PAREN",
+    "value": "(",
+  },
+  {
+    "end": 23,
+    "functionContext": {
+      "argPosition": 0,
+      "args": [
+        {
+          "type": "NUMBER",
+          "value": 1,
+        },
+      ],
+      "parent": "COS",
+    },
+    "length": 1,
+    "parenthesesCode": "21",
+    "start": 22,
+    "type": "NUMBER",
+    "value": "1",
+  },
+  {
+    "end": 24,
+    "functionContext": {
+      "argPosition": 0,
+      "args": [
+        {
+          "args": [
+            {
+              "type": "NUMBER",
+              "value": 1,
+            },
+          ],
+          "type": "FUNCALL",
+          "value": "COS",
+        },
+        {
+          "args": [
+            {
+              "operand": {
+                "type": "NUMBER",
+                "value": 1,
+              },
+              "type": "UNARY_OPERATION",
+              "value": "-",
+            },
+          ],
+          "type": "FUNCALL",
+          "value": "ABS",
+        },
+      ],
+      "parent": "SUM",
+    },
+    "length": 1,
+    "parenthesesCode": "21",
+    "start": 23,
+    "type": "RIGHT_PAREN",
+    "value": ")",
+  },
+  {
+    "end": 25,
+    "functionContext": {
+      "argPosition": 1,
+      "args": [
+        {
+          "args": [
+            {
+              "type": "NUMBER",
+              "value": 1,
+            },
+          ],
+          "type": "FUNCALL",
+          "value": "COS",
+        },
+        {
+          "args": [
+            {
+              "operand": {
+                "type": "NUMBER",
+                "value": 1,
+              },
+              "type": "UNARY_OPERATION",
+              "value": "-",
+            },
+          ],
+          "type": "FUNCALL",
+          "value": "ABS",
+        },
+      ],
+      "parent": "SUM",
+    },
+    "length": 1,
+    "parenthesesCode": "2",
+    "start": 24,
+    "type": "ARG_SEPARATOR",
+    "value": ",",
+  },
+  {
+    "end": 26,
+    "functionContext": {
+      "argPosition": 1,
+      "args": [
+        {
+          "args": [
+            {
+              "type": "NUMBER",
+              "value": 1,
+            },
+          ],
+          "type": "FUNCALL",
+          "value": "COS",
+        },
+        {
+          "args": [
+            {
+              "operand": {
+                "type": "NUMBER",
+                "value": 1,
+              },
+              "type": "UNARY_OPERATION",
+              "value": "-",
+            },
+          ],
+          "type": "FUNCALL",
+          "value": "ABS",
+        },
+      ],
+      "parent": "SUM",
+    },
+    "length": 1,
+    "parenthesesCode": "2",
+    "start": 25,
+    "type": "SPACE",
+    "value": " ",
+  },
+  {
+    "end": 29,
+    "functionContext": {
+      "argPosition": 1,
+      "args": [
+        {
+          "args": [
+            {
+              "type": "NUMBER",
+              "value": 1,
+            },
+          ],
+          "type": "FUNCALL",
+          "value": "COS",
+        },
+        {
+          "args": [
+            {
+              "operand": {
+                "type": "NUMBER",
+                "value": 1,
+              },
+              "type": "UNARY_OPERATION",
+              "value": "-",
+            },
+          ],
+          "type": "FUNCALL",
+          "value": "ABS",
+        },
+      ],
+      "parent": "SUM",
+    },
+    "length": 3,
+    "parenthesesCode": "22",
+    "start": 26,
+    "type": "SYMBOL",
+    "value": "ABS",
+  },
+  {
+    "end": 30,
+    "functionContext": {
+      "argPosition": 0,
+      "args": [
+        {
+          "operand": {
+            "type": "NUMBER",
+            "value": 1,
+          },
+          "type": "UNARY_OPERATION",
+          "value": "-",
+        },
+      ],
+      "parent": "ABS",
+    },
+    "length": 1,
+    "parenthesesCode": "22",
+    "start": 29,
+    "type": "LEFT_PAREN",
+    "value": "(",
+  },
+  {
+    "end": 31,
+    "functionContext": {
+      "argPosition": 0,
+      "args": [
+        {
+          "operand": {
+            "type": "NUMBER",
+            "value": 1,
+          },
+          "type": "UNARY_OPERATION",
+          "value": "-",
+        },
+      ],
+      "parent": "ABS",
+    },
+    "length": 1,
+    "parenthesesCode": "22",
+    "start": 30,
+    "type": "OPERATOR",
+    "value": "-",
+  },
+  {
+    "end": 32,
+    "functionContext": {
+      "argPosition": 0,
+      "args": [
+        {
+          "operand": {
+            "type": "NUMBER",
+            "value": 1,
+          },
+          "type": "UNARY_OPERATION",
+          "value": "-",
+        },
+      ],
+      "parent": "ABS",
+    },
+    "length": 1,
+    "parenthesesCode": "22",
+    "start": 31,
+    "type": "NUMBER",
+    "value": "1",
+  },
+  {
+    "end": 33,
+    "functionContext": {
+      "argPosition": 1,
+      "args": [
+        {
+          "args": [
+            {
+              "type": "NUMBER",
+              "value": 1,
+            },
+          ],
+          "type": "FUNCALL",
+          "value": "COS",
+        },
+        {
+          "args": [
+            {
+              "operand": {
+                "type": "NUMBER",
+                "value": 1,
+              },
+              "type": "UNARY_OPERATION",
+              "value": "-",
+            },
+          ],
+          "type": "FUNCALL",
+          "value": "ABS",
+        },
+      ],
+      "parent": "SUM",
+    },
+    "length": 1,
+    "parenthesesCode": "22",
+    "start": 32,
+    "type": "RIGHT_PAREN",
+    "value": ")",
+  },
+  {
+    "end": 34,
+    "functionContext": {
+      "argPosition": 1,
+      "args": [
+        {
+          "args": [
+            {
+              "type": "NUMBER",
+              "value": 1,
+            },
+          ],
+          "type": "FUNCALL",
+          "value": "COS",
+        },
+        {
+          "args": [
+            {
+              "operand": {
+                "type": "NUMBER",
+                "value": 1,
+              },
+              "type": "UNARY_OPERATION",
+              "value": "-",
+            },
+          ],
+          "type": "FUNCALL",
+          "value": "ABS",
+        },
+      ],
+      "parent": "SUM",
+    },
+    "length": 1,
+    "parenthesesCode": "2",
+    "start": 33,
+    "type": "SPACE",
+    "value": " ",
+  },
+  {
+    "end": 35,
+    "length": 1,
+    "parenthesesCode": "2",
+    "start": 34,
     "type": "RIGHT_PAREN",
     "value": ")",
   },

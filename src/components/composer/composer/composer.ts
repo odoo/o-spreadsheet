@@ -1,7 +1,7 @@
 import { Component, onMounted, useEffect, useRef, useState } from "@odoo/owl";
 import { NEWLINE } from "../../../constants";
 import { functionRegistry } from "../../../functions/index";
-import { clip, getZoneArea, isEqual, splitReference } from "../../../helpers/index";
+import { clip, getZoneArea, isEqual, lightenColor, splitReference } from "../../../helpers/index";
 
 import { EnrichedToken } from "../../../formulas/composer_tokenizer";
 import { Store, useLocalStore, useStore } from "../../../store_engine";
@@ -42,6 +42,7 @@ export type HtmlContent = {
 
 const functionColor = "#4a4e4d";
 const operatorColor = "#3da4ab";
+const DEFAULT_TOKEN_COLOR = "#000000";
 
 export const tokenColors = {
   OPERATOR: operatorColor,
@@ -607,55 +608,92 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
 
   private getColoredTokens(): HtmlContent[] {
     const tokens = this.props.composerStore.currentTokens;
-    const tokenAtCursor = this.props.composerStore.tokenAtCursor;
     const result: HtmlContent[] = [];
     const { end, start } = this.props.composerStore.composerSelection;
+    const isSingleCursorPosition = start === end;
+
     for (const token of tokens) {
-      switch (token.type) {
-        case "OPERATOR":
-        case "NUMBER":
-        case "ARG_SEPARATOR":
-        case "STRING":
-          result.push({ value: token.value, color: tokenColors[token.type] || "#000" });
-          break;
-        case "REFERENCE":
-          const { xc, sheetName } = splitReference(token.value);
-          result.push({ value: token.value, color: this.rangeColor(xc, sheetName) || "#000" });
-          break;
-        case "SYMBOL":
-          const value = token.value;
-          const upperCaseValue = value.toUpperCase();
-          if (upperCaseValue === "TRUE" || upperCaseValue === "FALSE") {
-            result.push({ value: token.value, color: tokenColors.NUMBER });
-          } else if (upperCaseValue in functionRegistry.content) {
-            result.push({ value: token.value, color: tokenColors.FUNCTION });
-          } else {
-            result.push({ value: token.value, color: "#000" });
-          }
-          break;
-        case "LEFT_PAREN":
-        case "RIGHT_PAREN":
-          // Compute the matching parenthesis
-          if (
-            tokenAtCursor &&
-            ["LEFT_PAREN", "RIGHT_PAREN"].includes(tokenAtCursor.type) &&
-            tokenAtCursor.parenIndex &&
-            tokenAtCursor.parenIndex === token.parenIndex
-          ) {
-            result.push({ value: token.value, color: tokenColors.MATCHING_PAREN || "#000" });
-          } else {
-            result.push({ value: token.value, color: tokenColors[token.type] || "#000" });
-          }
-          break;
-        default:
-          result.push({ value: token.value, color: "#000" });
-          break;
+      result.push({ value: token.value, color: this.getTokenColor(token) });
+    }
+
+    if (!isSingleCursorPosition) {
+      return result;
+    }
+
+    const parenthesesCodeAtCursor = this.getParenthesesCodeAtCursor();
+    const previousSymbolAtCursor = [...tokens]
+      .reverse()
+      .find((t) => parenthesesCodeAtCursor.startsWith(t.parenthesesCode!) && t.type === "SYMBOL");
+
+    for (let i = 0; i < tokens.length; i++) {
+      const token = tokens[i];
+      if (
+        previousSymbolAtCursor &&
+        !this.isTokenInCursorFormulaContext(token, previousSymbolAtCursor)
+      ) {
+        result[i].color = lightenColor(result[i].color || DEFAULT_TOKEN_COLOR, 0.55);
       }
-      if (this.props.composerStore.showSelectionIndicator && end === start && end === token.end) {
-        result[result.length - 1].class = selectionIndicatorClass;
+
+      if (this.shouldAddSelectionIndicator(token, end)) {
+        result[i].class = selectionIndicatorClass;
       }
     }
+
     return result;
+  }
+
+  private getTokenColor(token: EnrichedToken): string {
+    if (token.type === "REFERENCE") {
+      const { xc, sheetName } = splitReference(token.value);
+      return this.rangeColor(xc, sheetName) || DEFAULT_TOKEN_COLOR;
+    }
+    if (token.type === "SYMBOL") {
+      const upperCaseValue = token.value.toUpperCase();
+      if (upperCaseValue === "TRUE" || upperCaseValue === "FALSE") {
+        return tokenColors.NUMBER;
+      }
+      if (upperCaseValue in functionRegistry.content) {
+        return tokenColors.FUNCTION;
+      }
+    }
+    if (["LEFT_PAREN", "RIGHT_PAREN"].includes(token.type)) {
+      // Compute the matching parenthesis
+      const tokenAtCursor = this.props.composerStore.tokenAtCursor;
+      if (
+        tokenAtCursor &&
+        ["LEFT_PAREN", "RIGHT_PAREN"].includes(tokenAtCursor.type) &&
+        tokenAtCursor.parenthesesCode &&
+        tokenAtCursor.parenthesesCode === token.parenthesesCode
+      ) {
+        return tokenColors.MATCHING_PAREN || DEFAULT_TOKEN_COLOR;
+      }
+    }
+    return tokenColors[token.type] || DEFAULT_TOKEN_COLOR;
+  }
+
+  private getParenthesesCodeAtCursor(): string {
+    // we always look at the code associated with the token located after the cursor.
+    // This code is the same as the 'tokenAtCursor' except in the case of a closing parenthesis.
+    // In this case, the code corresponds to the code of the parent token
+    const tokenAtCursor = this.props.composerStore.tokenAtCursor;
+    if (tokenAtCursor?.type === "RIGHT_PAREN") {
+      return tokenAtCursor.parenthesesCode?.slice(0, -1) || "";
+    }
+    return tokenAtCursor?.parenthesesCode || "";
+  }
+
+  private isTokenInCursorFormulaContext(
+    token: EnrichedToken,
+    // we are looking for the previous symbol token and not directly the token at the cursor
+    // because we don't want to match cases where the token at the cursor is between
+    // parentheses which are not function parentheses
+    previousSymbolAtCursor: EnrichedToken
+  ): boolean {
+    return (token.parenthesesCode || "").startsWith(previousSymbolAtCursor.parenthesesCode || "");
+  }
+
+  private shouldAddSelectionIndicator(token: EnrichedToken, end: number): boolean {
+    return this.props.composerStore.showSelectionIndicator && end === token.end;
   }
 
   /**
