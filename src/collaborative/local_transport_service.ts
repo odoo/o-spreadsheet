@@ -8,7 +8,7 @@ import {
 export class LocalTransportService implements TransportService<CollaborationMessage> {
   private listeners: { id: UID; callback: NewMessageCallback }[] = [];
 
-  sendMessage(message: CollaborationMessage) {
+  async sendMessage(message: CollaborationMessage) {
     for (const { callback } of this.listeners) {
       callback(message);
     }
