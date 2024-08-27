@@ -1,10 +1,13 @@
+import { functionRegistry } from "../src/functions";
+import { NOW, TODAY } from "../src/functions/module_date";
+import { RAND } from "../src/functions/module_math";
 import { buildSheetLink, toXC } from "../src/helpers";
 import { Model } from "../src/model";
 import { ChartTypes } from "../src/types";
 import { adaptFormulaToExcel } from "../src/xlsx/functions/cells";
 import { escapeXml, parseXML } from "../src/xlsx/helpers/xml_helpers";
 import { createChart, createSheet, merge, setCellContent } from "./test_helpers/commands_helpers";
-import { exportPrettifiedXlsx, target } from "./test_helpers/helpers";
+import { exportPrettifiedXlsx, resetFunctions, target } from "./test_helpers/helpers";
 
 const simpleData = {
   sheets: [
@@ -609,6 +612,24 @@ describe("Test XLSX export", () => {
   });
 
   describe("formulas", () => {
+    beforeAll(() => {
+      functionRegistry.add("NOW", {
+        ...NOW,
+        compute: () => 1,
+      });
+      functionRegistry.add("RAND", {
+        ...RAND,
+        compute: () => 1,
+      });
+      functionRegistry.add("TODAY", {
+        ...TODAY,
+        compute: () => 1,
+      });
+    });
+
+    afterAll(() => {
+      resetFunctions();
+    });
     test("All exportable formulas", async () => {
       const model = new Model(allExportableFormulasData);
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
