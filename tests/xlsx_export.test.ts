@@ -1,3 +1,6 @@
+import { functionRegistry } from "../src/functions";
+import { NOW, TODAY } from "../src/functions/module_date";
+import { RAND } from "../src/functions/module_math";
 import { buildSheetLink, toXC } from "../src/helpers";
 import { createEmptyExcelWorkbookData } from "../src/migrations/data";
 import { Model } from "../src/model";
@@ -13,7 +16,11 @@ import {
   setCellContent,
   updateFilter,
 } from "./test_helpers/commands_helpers";
-import { exportPrettifiedXlsx, toRangesData } from "./test_helpers/helpers";
+import {
+  exportPrettifiedXlsx,
+  restoreDefaultFunctions,
+  toRangesData,
+} from "./test_helpers/helpers";
 
 function getExportedExcelData(model: Model): ExcelWorkbookData {
   model.dispatch("EVALUATE_CELLS");
@@ -692,6 +699,24 @@ describe("Test XLSX export", () => {
   });
 
   describe("formulas", () => {
+    beforeAll(() => {
+      functionRegistry.add("NOW", {
+        ...NOW,
+        compute: () => 1,
+      });
+      functionRegistry.add("RAND", {
+        ...RAND,
+        compute: () => 1,
+      });
+      functionRegistry.add("TODAY", {
+        ...TODAY,
+        compute: () => 1,
+      });
+    });
+
+    afterAll(() => {
+      restoreDefaultFunctions();
+    });
     test("All exportable formulas", async () => {
       const model = new Model(allExportableFormulasData);
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
