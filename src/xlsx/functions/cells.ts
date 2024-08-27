@@ -39,34 +39,26 @@ export function addFormula(cell: ExcelCellData):
     .filter((tk) => tk.type === "FUNCTION")
     .every((tk) => functions[tk.value.toUpperCase()].isExported);
 
+  const type = getCellType(cell.value);
   if (isExported) {
-    let cycle = escapeXml``;
     const XlsxFormula = adaptFormulaToExcel(formula);
-    // hack for cycles : if we don't set a value (be it 0 or #VALUE!), it will appear as invisible on excel,
-    // Making it very hard for the client to find where the recursion is.
-    if (cell.value === "#CYCLE") {
-      attrs.push(["t", "str"]);
-      cycle = escapeXml/*xml*/ `<v>${cell.value}</v>`;
-    }
     node = escapeXml/*xml*/ `
       <f>
         ${XlsxFormula}
       </f>
-      ${cycle}
+      ${escapeXml/*xml*/ `<v>${cell.value}</v>`}
     `;
+    attrs.push(["t", type]);
     return { attrs, node };
   } else {
-    // Shouldn't we always output the value then ?
-    const value = cell.value;
     // If the cell contains a non-exported formula and that is evaluates to
     // nothing* ,we don't export it.
     // * non-falsy value are relevant and so are 0 and FALSE, which only leaves
     // the empty string.
-    if (value === "") return undefined;
+    if (cell.value === "") return undefined;
 
-    const type = getCellType(value);
     attrs.push(["t", type]);
-    node = escapeXml/*xml*/ `<v>${value}</v>`;
+    node = escapeXml/*xml*/ `<v>${cell.value}</v>`;
     return { attrs, node };
   }
 }
