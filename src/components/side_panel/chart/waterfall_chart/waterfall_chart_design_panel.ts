@@ -8,7 +8,6 @@ import { CHART_AXIS_CHOICES } from "../../../../helpers/figures/charts";
 import { _t } from "../../../../translation";
 import { Color, DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types";
 import { WaterfallChartDefinition } from "../../../../types/chart/waterfall_chart";
-import { ChartTerms } from "../../../translations_terms";
 import { SidePanelCollapsible } from "../../components/collapsible/side_panel_collapsible";
 import { RadioSelection } from "../../components/radio_selection/radio_selection";
 import { RoundColorPicker } from "../../components/round_color_picker/round_color_picker";
@@ -101,10 +100,6 @@ export class WaterfallChartDesignPanel extends Component<Props, SpreadsheetChild
     this.props.updateChart(this.props.figureId, {
       verticalAxisPosition: value,
     });
-  }
-
-  get showValuesLabel(): string {
-    return ChartTerms.ShowValues;
   }
 
   updateShowValues(showValues: boolean) {

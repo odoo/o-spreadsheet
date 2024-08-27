@@ -146,10 +146,6 @@ export class ChartWithAxisDesignPanel extends Component<Props, SpreadsheetChildE
     return dataSets[this.state.index]?.label || this.getDataSeries()[this.state.index];
   }
 
-  get showValuesLabel(): string {
-    return ChartTerms.ShowValues;
-  }
-
   updateShowValues(showValues: boolean) {
     this.props.updateChart(this.props.figureId, { showValues });
   }
