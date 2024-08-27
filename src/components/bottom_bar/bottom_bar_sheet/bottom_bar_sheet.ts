@@ -1,5 +1,5 @@
 import { Component, onMounted, onPatched, useExternalListener, useRef, useState } from "@odoo/owl";
-import { BOTTOMBAR_HEIGHT } from "../../../constants";
+import { ACTION_COLOR, BOTTOMBAR_HEIGHT } from "../../../constants";
 import { interactiveRenameSheet } from "../../../helpers/ui/sheet_interactive";
 import { getSheetMenuRegistry } from "../../../registries";
 import { MenuItemRegistry } from "../../../registries/menu_items_registry";
@@ -25,7 +25,7 @@ css/* scss */ `
     }
 
     &.active {
-      color: #484;
+      color: ${ACTION_COLOR};
       background-color: #ffffff;
       box-shadow: 0 1px 3px 1px rgba(60, 64, 67, 0.15);
     }
