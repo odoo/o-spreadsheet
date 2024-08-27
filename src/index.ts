@@ -70,6 +70,7 @@ import { isEvaluationError, toBoolean, toJsDate, toNumber, toString } from "./fu
 import { FunctionRegistry, arg, functionRegistry } from "./functions/index";
 import {
   chartFontColor,
+  formatTickValue,
   getChartAxisTitleRuntime,
   getDefaultChartJsRuntime,
   getFillingMode,
@@ -338,6 +339,7 @@ export const helpers = {
   UNDO_REDO_PIVOT_COMMANDS,
   createPivotFormula,
   areDomainArgsFieldsValid,
+  formatTickValue,
 };
 
 export const links = {
