@@ -71,6 +71,7 @@ import {
   CHART_AXIS_CHOICES,
   TREND_LINE_XAXIS_ID,
   chartFontColor,
+  formatTickValue,
   getChartAxisTitleRuntime,
   getDefaultChartJsRuntime,
   getFillingMode,
@@ -355,6 +356,7 @@ export const helpers = {
   createPivotFormula,
   areDomainArgsFieldsValid,
   splitReference,
+  formatTickValue,
 };
 
 export const links = {
