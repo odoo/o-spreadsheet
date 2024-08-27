@@ -1,7 +1,6 @@
 import { Component } from "@odoo/owl";
 import { DispatchResult, SpreadsheetChildEnv, UID } from "../../../../types";
 import { PieChartDefinition } from "../../../../types/chart";
-import { ChartTerms } from "../../../translations_terms";
 import { Checkbox } from "../../components/checkbox/checkbox";
 import { Section } from "../../components/section/section";
 import { GeneralDesignEditor } from "../building_blocks/general_design/general_design_editor";
@@ -31,9 +30,5 @@ export class PieChartDesignPanel extends Component<Props, SpreadsheetChildEnv> {
     this.props.updateChart(this.props.figureId, {
       legendPosition: ev.target.value,
     });
-  }
-
-  get showValuesLabel(): string {
-    return ChartTerms.ShowValues;
   }
 }

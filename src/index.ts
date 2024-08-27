@@ -49,7 +49,6 @@ import { PivotLayoutConfigurator } from "./components/side_panel/pivot/pivot_lay
 import { PivotSidePanelStore } from "./components/side_panel/pivot/pivot_side_panel/pivot_side_panel_store";
 import { PivotTitleSection } from "./components/side_panel/pivot/pivot_title_section/pivot_title_section";
 import { SidePanelStore } from "./components/side_panel/side_panel/side_panel_store";
-import { ChartTerms } from "./components/translations_terms";
 import { ValidationMessages } from "./components/validation_messages/validation_messages";
 import {
   BOTTOMBAR_HEIGHT,
@@ -450,7 +449,6 @@ export const constants = {
   DEFAULT_LOCALE,
   HIGHLIGHT_COLOR,
   PIVOT_TABLE_CONFIG,
-  ChartTerms,
   TREND_LINE_XAXIS_ID,
   CHART_AXIS_CHOICES,
 };
