@@ -2,7 +2,7 @@ import { PIVOT_TABLE_CONFIG } from "../../constants";
 import { SpreadsheetPivotTable } from "../../helpers/pivot/table_spreadsheet_pivot";
 import { getZoneArea } from "../../helpers/zones";
 import { _t } from "../../translation";
-import { HeaderIndex, PivotTableData, UID } from "../../types";
+import { HeaderIndex, PivotTableData, UID, Zone } from "../../types";
 import { Command } from "../../types/commands";
 import { UIPlugin } from "../ui_plugin";
 
@@ -18,7 +18,14 @@ export class InsertPivotPlugin extends UIPlugin {
         this.duplicatePivotInNewSheet(cmd.pivotId, cmd.newPivotId, cmd.newSheetId);
         break;
       case "INSERT_PIVOT_WITH_TABLE":
-        this.insertPivotWithTable(cmd.sheetId, cmd.col, cmd.row, cmd.pivotId, cmd.table);
+        this.insertPivotWithTable(
+          cmd.sheetId,
+          cmd.col,
+          cmd.row,
+          cmd.pivotId,
+          cmd.table,
+          cmd.pivotMode
+        );
         break;
     }
   }
@@ -107,28 +114,48 @@ export class InsertPivotPlugin extends UIPlugin {
     col: HeaderIndex,
     row: HeaderIndex,
     pivotId: UID,
-    table: PivotTableData
+    table: PivotTableData,
+    mode: "static" | "dynamic"
   ) {
     const { cols, rows, measures, fieldsType } = table;
     const pivotTable = new SpreadsheetPivotTable(cols, rows, measures, fieldsType || {});
+    const numberOfHeaders = pivotTable.columns.length - 1;
     this.resizeSheet(sheetId, col, row, pivotTable);
     const pivotFormulaId = this.getters.getPivotFormulaId(pivotId);
-    this.dispatch("UPDATE_CELL", {
-      sheetId,
-      col,
-      row,
-      content: `=PIVOT(${pivotFormulaId})`,
-    });
-    const zone = {
-      left: col,
-      right: col,
-      top: row,
-      bottom: row,
-    };
 
-    const numberOfHeaders = pivotTable.columns.length - 1;
+    let zone: Zone;
+
+    if (mode === "dynamic") {
+      this.dispatch("UPDATE_CELL", {
+        sheetId,
+        col,
+        row,
+        content: `=PIVOT(${pivotFormulaId})`,
+      });
+      zone = {
+        left: col,
+        right: col,
+        top: row,
+        bottom: row,
+      };
+    } else {
+      this.dispatch("INSERT_PIVOT", {
+        sheetId,
+        col,
+        row,
+        pivotId,
+        table: pivotTable.export(),
+      });
+      zone = {
+        left: col,
+        right: col + pivotTable.getNumberOfDataColumns(),
+        top: row,
+        bottom: row + numberOfHeaders + pivotTable.rows.length,
+      };
+    }
+
     this.dispatch("CREATE_TABLE", {
-      tableType: "dynamic",
+      tableType: mode,
       sheetId,
       ranges: [this.getters.getRangeDataFromZone(sheetId, zone)],
       config: { ...PIVOT_TABLE_CONFIG, numberOfHeaders },

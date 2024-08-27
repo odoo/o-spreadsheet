@@ -485,4 +485,5 @@ topbarMenuRegistry
       };
     });
   })
-  .addChild("reinsert_pivot", ["data"], ACTION_DATA.reinsertPivotMenu);
+  .addChild("reinsert_dynamic_pivot", ["data"], ACTION_DATA.reinsertDynamicPivotMenu)
+  .addChild("reinsert_static_pivot", ["data"], ACTION_DATA.reinsertStaticPivotMenu);

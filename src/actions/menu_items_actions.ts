@@ -414,9 +414,9 @@ export const CREATE_PIVOT = (env: SpreadsheetChildEnv) => {
   }
 };
 
-export const REINSERT_PIVOT_CHILDREN = (env: SpreadsheetChildEnv) =>
+export const REINSERT_DYNAMIC_PIVOT_CHILDREN = (env: SpreadsheetChildEnv) =>
   env.model.getters.getPivotIds().map((pivotId, index) => ({
-    id: `reinsert_pivot_${env.model.getters.getPivotFormulaId(pivotId)}`,
+    id: `reinsert_dynamic_pivot_${env.model.getters.getPivotFormulaId(pivotId)}`,
     name: env.model.getters.getPivotDisplayName(pivotId),
     sequence: index,
     execute: (env: SpreadsheetChildEnv) => {
@@ -428,6 +428,27 @@ export const REINSERT_PIVOT_CHILDREN = (env: SpreadsheetChildEnv) =>
         col: zone.left,
         row: zone.top,
         sheetId: env.model.getters.getActiveSheetId(),
+        pivotMode: "dynamic",
+      });
+      env.model.dispatch("REFRESH_PIVOT", { id: pivotId });
+    },
+  }));
+
+export const REINSERT_STATIC_PIVOT_CHILDREN = (env: SpreadsheetChildEnv) =>
+  env.model.getters.getPivotIds().map((pivotId, index) => ({
+    id: `reinsert_static_pivot_${env.model.getters.getPivotFormulaId(pivotId)}`,
+    name: env.model.getters.getPivotDisplayName(pivotId),
+    sequence: index,
+    execute: (env: SpreadsheetChildEnv) => {
+      const zone = env.model.getters.getSelectedZone();
+      const table = env.model.getters.getPivot(pivotId).getTableStructure().export();
+      env.model.dispatch("INSERT_PIVOT_WITH_TABLE", {
+        pivotId,
+        table,
+        col: zone.left,
+        row: zone.top,
+        sheetId: env.model.getters.getActiveSheetId(),
+        pivotMode: "static",
       });
       env.model.dispatch("REFRESH_PIVOT", { id: pivotId });
     },
