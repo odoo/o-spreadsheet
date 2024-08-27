@@ -1,4 +1,6 @@
 import { arg, functionRegistry } from "../../src/functions";
+import { NOW, TODAY } from "../../src/functions/module_date";
+import { RAND, RANDARRAY, RANDBETWEEN } from "../../src/functions/module_math";
 import { buildSheetLink, toXC } from "../../src/helpers";
 import { createEmptyExcelWorkbookData } from "../../src/migrations/data";
 import { Model } from "../../src/model";
@@ -6,6 +8,7 @@ import { BasePlugin } from "../../src/plugins/base_plugin";
 import { ExcelWorkbookData } from "../../src/types";
 import { adaptFormulaToExcel } from "../../src/xlsx/functions/cells";
 import { escapeXml, parseXML } from "../../src/xlsx/helpers/xml_helpers";
+
 import {
   createChart,
   createFilter,
@@ -18,7 +21,12 @@ import {
   updateFilter,
 } from "../test_helpers/commands_helpers";
 import { TEST_CHART_DATA } from "../test_helpers/constants";
-import { exportPrettifiedXlsx, mockChart, toRangesData } from "../test_helpers/helpers";
+import {
+  exportPrettifiedXlsx,
+  mockChart,
+  restoreDefaultFunctions,
+  toRangesData,
+} from "../test_helpers/helpers";
 
 function getExportedExcelData(model: Model): ExcelWorkbookData {
   model.dispatch("EVALUATE_CELLS");
@@ -717,6 +725,36 @@ describe("Test XLSX export", () => {
   });
 
   describe("formulas", () => {
+    beforeAll(() => {
+      functionRegistry.add("NOW", {
+        ...NOW,
+        compute: () => 1,
+      });
+      functionRegistry.add("RAND", {
+        ...RAND,
+        compute: () => 1,
+      });
+      functionRegistry.add("TODAY", {
+        ...TODAY,
+        compute: () => 1,
+      });
+      functionRegistry.add("RANDARRAY", {
+        ...RANDARRAY,
+        compute: () => [
+          [1, 1],
+          [1, 1],
+        ],
+      });
+      // @ts-ignore
+      functionRegistry.add("RANDBETWEEN", {
+        ...RANDBETWEEN,
+        compute: () => 1,
+      });
+    });
+
+    afterAll(() => {
+      restoreDefaultFunctions();
+    });
     test("All exportable formulas", async () => {
       const model = new Model(allExportableFormulasData);
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
