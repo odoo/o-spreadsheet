@@ -964,6 +964,7 @@ export interface InsertPivotWithTableCommand {
   row: HeaderIndex;
   pivotId: UID;
   table: PivotTableData;
+  pivotMode: "static" | "dynamic";
 }
 
 export type CoreCommand =
