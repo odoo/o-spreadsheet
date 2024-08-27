@@ -1,4 +1,6 @@
 import { arg, functionRegistry } from "../../src/functions";
+import { NOW, TODAY } from "../../src/functions/module_date";
+import { RAND, RANDARRAY, RANDBETWEEN } from "../../src/functions/module_math";
 import { buildSheetLink, toXC } from "../../src/helpers";
 import { DEFAULT_TABLE_CONFIG } from "../../src/helpers/table_presets";
 import { Model } from "../../src/model";
@@ -6,6 +8,7 @@ import { CustomizedDataSet, Dimension, ExcelChartType, PLAIN_TEXT_FORMAT } from 
 import { XLSXExportXMLFile, XMLString } from "../../src/types/xlsx";
 import { adaptFormulaToExcel } from "../../src/xlsx/functions/cells";
 import { escapeXml, parseXML } from "../../src/xlsx/helpers/xml_helpers";
+
 import {
   createChart,
   createGaugeChart,
@@ -27,6 +30,7 @@ import {
   exportPrettifiedXlsx,
   getExportedExcelData,
   mockChart,
+  restoreDefaultFunctions,
   toRangesData,
 } from "../test_helpers/helpers";
 
@@ -741,6 +745,36 @@ describe("Test XLSX export", () => {
   });
 
   describe("formulas", () => {
+    beforeAll(() => {
+      functionRegistry.add("NOW", {
+        ...NOW,
+        compute: () => 1,
+      });
+      functionRegistry.add("RAND", {
+        ...RAND,
+        compute: () => 1,
+      });
+      functionRegistry.add("TODAY", {
+        ...TODAY,
+        compute: () => 1,
+      });
+      functionRegistry.add("RANDARRAY", {
+        ...RANDARRAY,
+        compute: () => [
+          [1, 1],
+          [1, 1],
+        ],
+      });
+      // @ts-ignore
+      functionRegistry.add("RANDBETWEEN", {
+        ...RANDBETWEEN,
+        compute: () => 1,
+      });
+    });
+
+    afterAll(() => {
+      restoreDefaultFunctions();
+    });
     test("All exportable formulas", async () => {
       const model = new Model(allExportableFormulasData);
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
