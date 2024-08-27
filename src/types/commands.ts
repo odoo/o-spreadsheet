@@ -963,6 +963,7 @@ export interface InsertPivotWithTableCommand extends PositionDependentCommand {
   type: "INSERT_PIVOT_WITH_TABLE";
   pivotId: UID;
   table: PivotTableData;
+  pivotMode: "static" | "dynamic";
 }
 
 export interface SplitPivotFormulaCommand extends PositionDependentCommand {
