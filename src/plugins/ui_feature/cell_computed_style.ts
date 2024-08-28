@@ -20,6 +20,7 @@ export class CellComputedStylePlugin extends UIPlugin {
     if (
       invalidateEvaluationCommands.has(cmd.type) ||
       cmd.type === "UPDATE_CELL" ||
+      cmd.type === "SET_FORMATTING" ||
       cmd.type === "EVALUATE_CELLS"
     ) {
       this.styles = {};
