@@ -780,6 +780,19 @@ describe("Multi users synchronisation", () => {
     );
   });
 
+  test("background color is updated for each client", () => {
+    setCellContent(alice, "A1", "Hi");
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getStyle(user, "A1").fillColor,
+      undefined
+    );
+    setStyle(bob, "A1", { fillColor: "#112233" });
+    expect([alice, bob, charlie]).toHaveSynchronizedValue(
+      (user) => getStyle(user, "A1").fillColor,
+      "#112233"
+    );
+  });
+
   test.each(["COL", "ROW"] as const)("Can group headers concurrently", (dimension) => {
     const sheetId = alice.getters.getActiveSheetId();
 
