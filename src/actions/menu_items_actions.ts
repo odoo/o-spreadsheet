@@ -441,6 +441,7 @@ export const REINSERT_DYNAMIC_PIVOT_CHILDREN = (env: SpreadsheetChildEnv) =>
       });
       env.model.dispatch("REFRESH_PIVOT", { id: pivotId });
     },
+    isVisible: (env: SpreadsheetChildEnv) => env.model.getters.getPivot(pivotId).isValid(),
   }));
 
 export const REINSERT_STATIC_PIVOT_CHILDREN = (env: SpreadsheetChildEnv) =>
@@ -461,6 +462,7 @@ export const REINSERT_STATIC_PIVOT_CHILDREN = (env: SpreadsheetChildEnv) =>
       });
       env.model.dispatch("REFRESH_PIVOT", { id: pivotId });
     },
+    isVisible: (env: SpreadsheetChildEnv) => env.model.getters.getPivot(pivotId).isValid(),
   }));
 
 //------------------------------------------------------------------------------
