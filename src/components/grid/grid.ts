@@ -609,7 +609,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       this.env.model.dispatch("COPY");
     }
     const content = this.env.model.getters.getClipboardContent();
-    await this.env.clipboard.write(content);
+    // await this.env.clipboard.write(content);
+    for (const type in content) {
+      ev.clipboardData?.setData(type, content[type]);
+    }
     ev.preventDefault();
   }
 
@@ -652,6 +655,7 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
         "text/xml"
       );
       const clipboardId = htmlDocument.querySelector("div")?.getAttribute("data-clipboard-id");
+      debugger;
       return clipboardId;
     }
     const clipboard = await this.env.clipboard.read();
