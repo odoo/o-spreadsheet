@@ -9,7 +9,7 @@ import {
   undo,
 } from "../test_helpers/commands_helpers";
 import { getCell, getCellText, getEvaluatedGrid, getTable } from "../test_helpers/getters_helpers";
-import { createModelFromGrid, doAction, makeTestEnv } from "../test_helpers/helpers";
+import { createModelFromGrid, doAction, getNode, makeTestEnv } from "../test_helpers/helpers";
 import { addPivot } from "../test_helpers/pivot_helpers";
 
 const reinsertDynamicPivotPath = ["data", "reinsert_dynamic_pivot", "reinsert_dynamic_pivot_1"];
@@ -372,5 +372,49 @@ describe("Pivot menu items", () => {
       expect(getCellText(model, "B10")).toEqual(`=PIVOT.HEADER(1,"Customer","Alice")`);
       expect(getTable(model, "B10")).toBeDefined();
     });
+  });
+
+  test("Reinsert pivot menu item should be hidden if the pivot is invalid", () => {
+    // prettier-ignore
+    const grid = {
+          A1: "", B1: "Quantity",
+          A2: "Alice",    B2: "Jambon",
+        };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B2", {
+      columns: [],
+      rows: [{ name: "Customer" }],
+      measures: [{ name: "Quantity", aggregator: "sum" }],
+    });
+    const env = makeTestEnv({ model });
+    selectCell(model, "B8");
+    expect(model.getters.getPivot("1")!.isValid()).toBeFalsy();
+    expect(getNode(reinsertDynamicPivotPath, env, topbarMenuRegistry).isVisible(env)).toBeFalsy();
+    expect(getNode(reinsertStaticPivotPath, env, topbarMenuRegistry).isVisible(env)).toBeFalsy();
+  });
+
+  test("Verify re-insert pivot menu items invisibility when no pivots present", () => {
+    const reinsertStaticPivotPath = ["data", "reinsert_static_pivot"];
+    const reinsertDynamicPivotPath = ["data", "reinsert_dynamic_pivot"];
+
+    // prettier-ignore
+    const grid = {
+            A1: "Customer", B1: "Quantity",
+            A2: "Alice",    B2: "Jambon",
+          };
+    const model = createModelFromGrid(grid);
+    const env = makeTestEnv({ model });
+
+    expect(getNode(reinsertDynamicPivotPath, env, topbarMenuRegistry).isVisible(env)).toBeFalsy();
+    expect(getNode(reinsertStaticPivotPath, env, topbarMenuRegistry).isVisible(env)).toBeFalsy();
+
+    addPivot(model, "A1:B2", {
+      columns: [],
+      rows: [{ name: "Customer" }],
+      measures: [{ name: "Quantity", aggregator: "sum" }],
+    });
+
+    expect(getNode(reinsertDynamicPivotPath, env, topbarMenuRegistry).isVisible(env)).toBeTruthy();
+    expect(getNode(reinsertStaticPivotPath, env, topbarMenuRegistry).isVisible(env)).toBeTruthy();
   });
 });
