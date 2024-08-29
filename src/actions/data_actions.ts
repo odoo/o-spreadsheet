@@ -75,7 +75,8 @@ export const reinsertDynamicPivotMenu: ActionSpec = {
   sequence: 1020,
   icon: "o-spreadsheet-Icon.INSERT_PIVOT",
   children: [ACTIONS.REINSERT_DYNAMIC_PIVOT_CHILDREN],
-  isVisible: (env) => env.model.getters.getPivotIds().length > 0,
+  isVisible: (env) =>
+    env.model.getters.getPivotIds().some((id) => env.model.getters.getPivot(id).isValid()),
 };
 
 export const reinsertStaticPivotMenu: ActionSpec = {
@@ -84,5 +85,6 @@ export const reinsertStaticPivotMenu: ActionSpec = {
   sequence: 1020,
   icon: "o-spreadsheet-Icon.INSERT_PIVOT",
   children: [ACTIONS.REINSERT_STATIC_PIVOT_CHILDREN],
-  isVisible: (env) => env.model.getters.getPivotIds().length > 0,
+  isVisible: (env) =>
+    env.model.getters.getPivotIds().some((id) => env.model.getters.getPivot(id).isValid()),
 };
