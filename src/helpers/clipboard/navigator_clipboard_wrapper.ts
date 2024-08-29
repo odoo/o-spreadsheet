@@ -24,20 +24,21 @@ class WebClipboardWrapper implements ClipboardInterface {
         await this.clipboard?.write(this.getClipboardItems(clipboardContent));
       } catch (e) {
         /**
-         * Some browsers (e.g firefox, safari) do not support writing
-         * custom mimetypes in the clipboard. Therefore, we try to catch
-         * any errors and fallback on writing only standard mimetypes to
-         * prevent the whole copy action from crashing.
+         * Some browsers do not support writing custom mimetypes in the clipboard.
+         * Therefore, we try to catch any errors and fallback on writing only standard
+         * mimetypes to prevent the whole copy action from crashing.
          */
-        await this.clipboard?.write([
-          new ClipboardItem({
-            [ClipboardMIMEType.PlainText]: this.getBlob(
-              clipboardContent,
-              ClipboardMIMEType.PlainText
-            ),
-            [ClipboardMIMEType.Html]: this.getBlob(clipboardContent, ClipboardMIMEType.Html),
-          }),
-        ]);
+        try {
+          await this.clipboard?.write([
+            new ClipboardItem({
+              [ClipboardMIMEType.PlainText]: this.getBlob(
+                clipboardContent,
+                ClipboardMIMEType.PlainText
+              ),
+              [ClipboardMIMEType.Html]: this.getBlob(clipboardContent, ClipboardMIMEType.Html),
+            }),
+          ]);
+        } catch (e) {}
       }
     } else {
       await this.writeText(clipboardContent[ClipboardMIMEType.PlainText] ?? "");
@@ -83,13 +84,18 @@ class WebClipboardWrapper implements ClipboardInterface {
   }
 
   private getClipboardItems(content: ClipboardContent): ClipboardItems {
-    return [
-      new ClipboardItem({
-        [ClipboardMIMEType.PlainText]: this.getBlob(content, ClipboardMIMEType.PlainText),
-        [ClipboardMIMEType.Html]: this.getBlob(content, ClipboardMIMEType.Html),
-        [ClipboardMIMEType.OSpreadsheet]: this.getBlob(content, ClipboardMIMEType.OSpreadsheet),
-      }),
-    ];
+    const clipboardItemData = {
+      [ClipboardMIMEType.PlainText]: this.getBlob(content, ClipboardMIMEType.PlainText),
+      [ClipboardMIMEType.Html]: this.getBlob(content, ClipboardMIMEType.Html),
+    };
+    const spreadsheetData = content[ClipboardMIMEType.OSpreadsheet];
+    if (spreadsheetData) {
+      clipboardItemData[ClipboardMIMEType.OSpreadsheet] = this.getBlob(
+        content,
+        ClipboardMIMEType.OSpreadsheet
+      );
+    }
+    return [new ClipboardItem(clipboardItemData)];
   }
 
   private getBlob(clipboardContent: ClipboardContent, type: ClipboardMIMEType): Blob {

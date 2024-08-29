@@ -608,7 +608,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       this.env.model.dispatch("COPY");
     }
     const content = this.env.model.getters.getClipboardContent();
-    await this.env.clipboard.write(content);
+    const clipboardData = ev.clipboardData;
+    for (const type in content) {
+      clipboardData?.setData(type, content[type]);
+    }
     ev.preventDefault();
   }
 
@@ -619,15 +622,18 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
 
     ev.preventDefault();
 
-    const clipboard = await this.env.clipboard.read();
-    if (clipboard.status !== "ok") {
+    const clipboardData = ev.clipboardData;
+    if (!clipboardData) {
       return;
     }
+    const clipboardDataTextContent = clipboardData?.getData(ClipboardMIMEType.PlainText);
+    const clipboardDataHtmlContent = clipboardData?.getData(ClipboardMIMEType.Html);
     const htmlDocument = new DOMParser().parseFromString(
-      clipboard.content[ClipboardMIMEType.Html] ?? "<div></div>",
-      "text/xml"
+      clipboardDataHtmlContent ?? "<div></div>",
+      "text/html"
     );
-    const osClipboardSpreadsheetContent = clipboard.content[ClipboardMIMEType.OSpreadsheet] || "{}";
+    const osClipboardSpreadsheetContent =
+      clipboardData.getData(ClipboardMIMEType.OSpreadsheet) || "{}";
 
     const target = this.env.model.getters.getSelectedZones();
     const isCutOperation = this.env.model.getters.isCutOperation();
@@ -639,7 +645,14 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     if (this.env.model.getters.getClipboardId() === clipboardId) {
       interactivePaste(this.env, target);
     } else {
-      interactivePasteFromOS(this.env, target, clipboard.content);
+      const clipboardContent = {
+        [ClipboardMIMEType.PlainText]: clipboardDataTextContent,
+        [ClipboardMIMEType.Html]: clipboardDataHtmlContent,
+      };
+      if (osClipboardSpreadsheetContent !== "{}") {
+        clipboardContent[ClipboardMIMEType.OSpreadsheet] = osClipboardSpreadsheetContent;
+      }
+      interactivePasteFromOS(this.env, target, clipboardContent);
     }
     if (isCutOperation) {
       await this.env.clipboard.write({ [ClipboardMIMEType.PlainText]: "" });

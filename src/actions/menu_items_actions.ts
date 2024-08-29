@@ -56,7 +56,7 @@ async function paste(env: SpreadsheetChildEnv, pasteOption?: ClipboardPasteOptio
     case "ok":
       const htmlDocument = new DOMParser().parseFromString(
         osClipboard.content[ClipboardMIMEType.Html] ?? "<div></div>",
-        "text/xml"
+        "text/html"
       );
       const osClipboardSpreadsheetContent =
         osClipboard.content[ClipboardMIMEType.OSpreadsheet] || "{}";

@@ -517,7 +517,7 @@ export class ClipboardPlugin extends UIPlugin {
     );
   }
 
-  private getHTMLContent(): string | undefined {
+  private getHTMLContent(): string {
     if (!this.copiedData?.cells) {
       return `<div data-clipboard-id="${this.clipboardId}">\t</div>`;
     }
