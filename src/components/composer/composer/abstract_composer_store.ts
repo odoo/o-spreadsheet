@@ -41,9 +41,9 @@ import {
 } from "../../../types";
 import { SelectionEvent } from "../../../types/event_stream";
 
-const functionColor = "#4a4e4d";
-const operatorColor = "#3da4ab";
 export const DEFAULT_TOKEN_COLOR: Color = "#000000";
+const functionColor = DEFAULT_TOKEN_COLOR;
+const operatorColor = "#3da4ab";
 
 export const tokenColors = {
   OPERATOR: operatorColor,
