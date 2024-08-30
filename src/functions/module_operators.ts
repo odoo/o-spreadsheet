@@ -118,15 +118,15 @@ function applyRelationalOperator(
   value1: Maybe<FunctionResultObject>,
   value2: Maybe<FunctionResultObject>,
   cb: (v1: string | number, v2: string | number) => boolean
-): boolean {
+): FunctionResultObject {
+  if (isEvaluationError(value1?.value)) {
+    return value1;
+  }
+  if (isEvaluationError(value2?.value)) {
+    return value2;
+  }
   let _value1 = isEmpty(value1) ? getNeutral[typeof value2?.value] : value1?.value;
   let _value2 = isEmpty(value2) ? getNeutral[typeof value1?.value] : value2?.value;
-  if (isEvaluationError(_value1)) {
-    throw value1;
-  }
-  if (isEvaluationError(_value2)) {
-    throw value2;
-  }
   if (typeof _value1 !== "number") {
     _value1 = toString(_value1).toUpperCase();
   }
@@ -136,12 +136,12 @@ function applyRelationalOperator(
   const tV1 = typeof _value1;
   const tV2 = typeof _value2;
   if (tV1 === "string" && tV2 === "number") {
-    return true;
+    return { value: true };
   }
   if (tV2 === "string" && tV1 === "number") {
-    return false;
+    return { value: false };
   }
-  return cb(_value1, _value2);
+  return { value: cb(_value1, _value2) };
 }
 
 export const GT = {
@@ -150,10 +150,7 @@ export const GT = {
     arg("value1 (any)", _t("The value to test as being greater than value2.")),
     arg("value2 (any)", _t("The second value.")),
   ],
-  compute: function (
-    value1: Maybe<FunctionResultObject>,
-    value2: Maybe<FunctionResultObject>
-  ): boolean {
+  compute: function (value1: Maybe<FunctionResultObject>, value2: Maybe<FunctionResultObject>) {
     return applyRelationalOperator(value1, value2, (v1, v2) => {
       return v1 > v2;
     });
@@ -169,10 +166,7 @@ export const GTE = {
     arg("value1 (any)", _t("The value to test as being greater than or equal to value2.")),
     arg("value2 (any)", _t("The second value.")),
   ],
-  compute: function (
-    value1: Maybe<FunctionResultObject>,
-    value2: Maybe<FunctionResultObject>
-  ): boolean {
+  compute: function (value1: Maybe<FunctionResultObject>, value2: Maybe<FunctionResultObject>) {
     return applyRelationalOperator(value1, value2, (v1, v2) => {
       return v1 >= v2;
     });
@@ -191,8 +185,12 @@ export const LT = {
   compute: function (
     value1: Maybe<FunctionResultObject>,
     value2: Maybe<FunctionResultObject>
-  ): boolean {
-    return !GTE.compute.bind(this)(value1, value2);
+  ) {
+    const result = GTE.compute.bind(this)(value1, value2);
+    if (isEvaluationError(result.value)) {
+      return result;
+    }
+    return { value: !result.value };
   },
 } satisfies AddFunctionDescription;
 
@@ -208,8 +206,12 @@ export const LTE = {
   compute: function (
     value1: Maybe<FunctionResultObject>,
     value2: Maybe<FunctionResultObject>
-  ): boolean {
-    return !GT.compute.bind(this)(value1, value2);
+  ) {
+    const result = GT.compute.bind(this)(value1, value2);
+    if (isEvaluationError(result.value)) {
+      return result;
+    }
+    return { value: !result.value };
   },
 } satisfies AddFunctionDescription;
 
