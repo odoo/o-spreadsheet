@@ -3272,3 +3272,36 @@ describe("trending line", () => {
     }
   });
 });
+
+test("moving average trending line", () => {
+  // prettier-ignore
+  setGrid(model, {
+      B1: "Label 1", C1: "1",
+      B2: "Label 2", C2: "2",
+      B3: "Label 3", C3: "3",
+      B4: "Label 4", C4: "4",
+      B5: "Label 5", C5: "5",
+    });
+  createChart(
+    model,
+    {
+      type: "line",
+      dataSets: [
+        { dataRange: "C1:C5", trend: { display: true, type: "trailingMovingAverage", window: 3 } },
+      ],
+      labelRange: "B1:B5",
+      labelsAsText: false,
+      dataSetsHaveTitle: false,
+    },
+    "1"
+  );
+  let runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+  expect(runtime.chartJsConfig.data.datasets[1].data).toEqual([null, null, 2, 3, 4]);
+  updateChart(model, "1", {
+    dataSets: [
+      { dataRange: "C1:C5", trend: { display: true, type: "trailingMovingAverage", window: 2 } },
+    ],
+  });
+  runtime = model.getters.getChartRuntime("1") as LineChartRuntime;
+  expect(runtime.chartJsConfig.data.datasets[1].data).toEqual([null, 1.5, 2.5, 3.5, 4.5]);
+});
