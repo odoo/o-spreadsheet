@@ -1,4 +1,5 @@
 import { Component } from "@odoo/owl";
+import { DEFAULT_WINDOW_SIZE } from "../../../../../constants";
 import { getColorsPalette, getNthColor, setColorAlpha, toHex } from "../../../../../helpers";
 import { CHART_AXIS_CHOICES } from "../../../../../helpers/figures/charts";
 import {
@@ -110,6 +111,7 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
         break;
       case "exponential":
       case "logarithmic":
+      case "trailingMovingAverage":
         config = { type };
         break;
       default:
@@ -126,6 +128,19 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
       return;
     }
     this.updateTrendLineValue(index, { order });
+  }
+
+  get defaultWindowSize() {
+    return DEFAULT_WINDOW_SIZE;
+  }
+
+  onChangeMovingAverageWindow(index: number, ev: InputEvent) {
+    const element = ev.target as HTMLInputElement;
+    let window = parseInt(element.value) || DEFAULT_WINDOW_SIZE;
+    if (window <= 1) {
+      window = DEFAULT_WINDOW_SIZE;
+    }
+    this.updateTrendLineValue(index, { window });
   }
 
   getDataSerieColor(index: number) {

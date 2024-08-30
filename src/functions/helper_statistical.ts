@@ -1,3 +1,4 @@
+import { DEFAULT_WINDOW_SIZE } from "../constants";
 import { isNumber, parseDateTime, range } from "../helpers";
 import { _t } from "../translation";
 import { Arg, Locale, Matrix, isMatrix } from "../types";
@@ -283,4 +284,23 @@ export function predictLinearValues(
     return [value];
   });
   return newY.length === newX.length ? newY : transposeMatrix(newY);
+}
+
+export function getMovingAverageValues(
+  dataset: number[],
+  windowSize = DEFAULT_WINDOW_SIZE
+): (number | null)[] {
+  const values: (number | null)[] = [];
+  // Fill the starting values with null until we have a full window
+  for (let i = 0; i < windowSize - 1; i++) {
+    values.push(null);
+  }
+  for (let i = 0; i <= dataset.length - windowSize; i++) {
+    let sum = 0;
+    for (let j = i; j < i + windowSize; j++) {
+      sum += dataset[j];
+    }
+    values.push(sum / windowSize);
+  }
+  return values;
 }

@@ -1688,7 +1688,7 @@ describe("charts", () => {
           display: true,
         });
 
-        for (const trendType of ["exponential", "logarithmic", "linear"]) {
+        for (const trendType of ["exponential", "logarithmic", "linear", "trailingMovingAverage"]) {
           setInputValueAndTrigger(".trend-type-selector", trendType);
           definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
           if (trendType === "linear") {
@@ -1730,6 +1730,42 @@ describe("charts", () => {
         setInputValueAndTrigger(".trend-order-input", "2");
         definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
         expect(definition.dataSets[0].trend?.order).toEqual(2);
+      }
+    );
+
+    test.each(["bar", "line", "scatter", "combo"] as const)(
+      "Can change moving average window size",
+      async (type: "bar" | "line" | "scatter" | "combo") => {
+        createChart(
+          model,
+          {
+            dataSets: [
+              {
+                dataRange: "B1:B4",
+                trend: { type: "trailingMovingAverage", window: 2, display: true },
+              },
+            ],
+            labelRange: "A1:A4",
+            type,
+            dataSetsHaveTitle: false,
+          },
+          chartId,
+          sheetId
+        );
+        await mountChartSidePanel(chartId);
+        await openChartDesignSidePanel(model, env, fixture, chartId);
+
+        let definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
+        expect(definition.dataSets[0].trend).toEqual({
+          type: "trailingMovingAverage",
+          window: 2,
+          display: true,
+        });
+
+        setInputValueAndTrigger(".trend-window-input", "3");
+        await nextTick();
+        definition = model.getters.getChartDefinition(chartId) as ChartWithDataSetDefinition;
+        expect(definition.dataSets[0].trend?.window).toEqual(3);
       }
     );
 

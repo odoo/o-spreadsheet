@@ -5,6 +5,7 @@ import { LINE_FILL_TRANSPARENCY } from "../../../constants";
 import {
   evaluatePolynomial,
   expM,
+  getMovingAverageValues,
   logM,
   polynomialRegression,
   predictLinearValues,
@@ -548,7 +549,7 @@ export function getTrendDatasetForBarChart(
 export function getFullTrendingLineDataSet(
   dataset: ChartDataset,
   config: TrendConfiguration,
-  data: number[]
+  data: (number | null)[]
 ) {
   const defaultBorderColor = colorToRGBA(dataset.backgroundColor as Color);
   defaultBorderColor.a = 1;
@@ -563,7 +564,7 @@ export function getFullTrendingLineDataSet(
   return {
     ...dataset,
     type: "line",
-    xAxisID: TREND_LINE_XAXIS_ID,
+    xAxisID: config.type !== "trailingMovingAverage" ? TREND_LINE_XAXIS_ID : "x",
     label: dataset.label ? _t("Trend line for %s", dataset.label) : "",
     data,
     order: -1,
@@ -581,7 +582,7 @@ export function interpolateData(
   values: number[],
   labels: number[],
   newLabels: number[]
-): number[] {
+): (number | null)[] {
   if (values.length < 2 || labels.length < 2 || newLabels.length === 0) {
     return [];
   }
@@ -610,6 +611,9 @@ export function interpolateData(
     }
     case "logarithmic": {
       return predictLinearValues([values], logM([labels]), logM([newLabels]), true)[0];
+    }
+    case "trailingMovingAverage": {
+      return getMovingAverageValues(values, config.window);
     }
     default:
       return [];
