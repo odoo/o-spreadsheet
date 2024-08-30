@@ -278,7 +278,7 @@ export const DPRODUCT = {
     database: Matrix<FunctionResultObject>,
     field: Maybe<FunctionResultObject>,
     criteria: Matrix<FunctionResultObject>
-  ): FunctionResultNumber {
+  ) {
     const cells = getMatchingCells(database, field, criteria, this.locale);
     return PRODUCT.compute.bind(this)([cells]);
   },

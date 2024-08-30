@@ -970,7 +970,7 @@ export const PRODUCT = {
       _t("More numbers or ranges to calculate for the product.")
     ),
   ],
-  compute: function (...factors: Arg[]): FunctionResultNumber {
+  compute: function (...factors: Arg[]) {
     let count = 0;
     let acc = 1;
     for (let n of factors) {
@@ -983,7 +983,7 @@ export const PRODUCT = {
               count += 1;
             }
             if (isEvaluationError(f)) {
-              throw j;
+              return j;
             }
           }
         }
