@@ -240,6 +240,7 @@ export const DEFAULT_SCORECARD_BASELINE_COLOR_UP = "#43C5B1";
 export const DEFAULT_SCORECARD_BASELINE_COLOR_DOWN = "#EA6175";
 
 export const LINE_FILL_TRANSPARENCY = 0.4;
+export const DEFAULT_WINDOW_SIZE = 2;
 
 // session
 export const DEBOUNCE_TIME = 200;

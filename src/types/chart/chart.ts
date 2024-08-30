@@ -85,12 +85,13 @@ export interface TitleDesign {
   readonly color?: Color;
 }
 
-export type TrendType = "polynomial" | "exponential" | "logarithmic";
+export type TrendType = "polynomial" | "exponential" | "logarithmic" | "movingAverage";
 export interface TrendConfiguration {
   type?: TrendType;
   order?: number;
   color?: Color;
   display?: boolean;
+  window?: number;
 }
 
 export type CustomizedDataSet = {

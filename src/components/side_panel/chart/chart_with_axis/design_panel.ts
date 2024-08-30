@@ -1,4 +1,5 @@
 import { Component, useState } from "@odoo/owl";
+import { DEFAULT_WINDOW_SIZE } from "../../../../constants";
 import { getColorsPalette, getNthColor, setColorAlpha, toHex } from "../../../../helpers";
 import { CHART_AXIS_CHOICES, getDefinedAxis } from "../../../../helpers/figures/charts";
 import { _t } from "../../../../translation";
@@ -131,6 +132,10 @@ export class ChartWithAxisDesignPanel<P extends Props = Props> extends Component
     return "horizontal" in this.props.definition ? !this.props.definition.horizontal : true;
   }
 
+  get defaultWindowSize() {
+    return DEFAULT_WINDOW_SIZE;
+  }
+
   updateDataSeriesLabel(ev) {
     const label = ev.target.value;
     const dataSets = [...this.props.definition.dataSets];
@@ -195,6 +200,7 @@ export class ChartWithAxisDesignPanel<P extends Props = Props> extends Component
         break;
       case "exponential":
       case "logarithmic":
+      case "movingAverage":
         config = { type };
         break;
       default:
@@ -211,6 +217,15 @@ export class ChartWithAxisDesignPanel<P extends Props = Props> extends Component
       return;
     }
     this.updateTrendLineValue({ order });
+  }
+
+  onChangeMovingAverageWindow(ev: InputEvent) {
+    const element = ev.target as HTMLInputElement;
+    let window = parseInt(element.value) || DEFAULT_WINDOW_SIZE;
+    if (window <= 1) {
+      window = DEFAULT_WINDOW_SIZE;
+    }
+    this.updateTrendLineValue({ window });
   }
 
   getTrendLineColor() {
