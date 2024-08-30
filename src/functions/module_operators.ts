@@ -89,10 +89,13 @@ export const EQ = {
     arg("value1 (any)", _t("The first value.")),
     arg("value2 (any)", _t("The value to test against value1 for equality.")),
   ],
-  compute: function (
-    value1: Maybe<FunctionResultObject>,
-    value2: Maybe<FunctionResultObject>
-  ): boolean {
+  compute: function (value1: Maybe<FunctionResultObject>, value2: Maybe<FunctionResultObject>) {
+    if (isEvaluationError(value1?.value)) {
+      return value1;
+    }
+    if (isEvaluationError(value2?.value)) {
+      return value2;
+    }
     let _value1 = isEmpty(value1) ? getNeutral[typeof value2?.value] : value1?.value;
     let _value2 = isEmpty(value2) ? getNeutral[typeof value1?.value] : value2?.value;
     if (typeof _value1 === "string") {
@@ -101,13 +104,7 @@ export const EQ = {
     if (typeof _value2 === "string") {
       _value2 = _value2.toUpperCase();
     }
-    if (isEvaluationError(_value1)) {
-      throw value1;
-    }
-    if (isEvaluationError(_value2)) {
-      throw value2;
-    }
-    return _value1 === _value2;
+    return { value: _value1 === _value2 };
   },
 } satisfies AddFunctionDescription;
 
@@ -182,10 +179,7 @@ export const LT = {
     arg("value1 (any)", _t("The value to test as being less than value2.")),
     arg("value2 (any)", _t("The second value.")),
   ],
-  compute: function (
-    value1: Maybe<FunctionResultObject>,
-    value2: Maybe<FunctionResultObject>
-  ) {
+  compute: function (value1: Maybe<FunctionResultObject>, value2: Maybe<FunctionResultObject>) {
     const result = GTE.compute.bind(this)(value1, value2);
     if (isEvaluationError(result.value)) {
       return result;
@@ -203,10 +197,7 @@ export const LTE = {
     arg("value1 (any)", _t("The value to test as being less than or equal to value2.")),
     arg("value2 (any)", _t("The second value.")),
   ],
-  compute: function (
-    value1: Maybe<FunctionResultObject>,
-    value2: Maybe<FunctionResultObject>
-  ) {
+  compute: function (value1: Maybe<FunctionResultObject>, value2: Maybe<FunctionResultObject>) {
     const result = GT.compute.bind(this)(value1, value2);
     if (isEvaluationError(result.value)) {
       return result;
@@ -264,11 +255,12 @@ export const NE = {
     arg("value1 (any)", _t("The first value.")),
     arg("value2 (any)", _t("The value to test against value1 for inequality.")),
   ],
-  compute: function (
-    value1: Maybe<FunctionResultObject>,
-    value2: Maybe<FunctionResultObject>
-  ): boolean {
-    return !EQ.compute.bind(this)(value1, value2);
+  compute: function (value1: Maybe<FunctionResultObject>, value2: Maybe<FunctionResultObject>) {
+    const result = EQ.compute.bind(this)(value1, value2);
+    if (isEvaluationError(result.value)) {
+      return result;
+    }
+    return { value: !result.value };
   },
 } satisfies AddFunctionDescription;
 

@@ -122,7 +122,7 @@ export const FILTER = {
       _t("Additional column or row containing true or false values.")
     ),
   ],
-  compute: function (range: Arg, ...conditions: Arg[]): Matrix<FunctionResultObject> {
+  compute: function (range: Arg, ...conditions: Arg[]) {
     let _array = toMatrix(range);
     const _conditionsMatrices = conditions.map((cond) =>
       matrixMap(toMatrix(cond), (data) => data.value)
@@ -152,7 +152,7 @@ export const FILTER = {
     }
 
     if (!result.length) {
-      throw new NotAvailableError(_t("No match found in FILTER evaluation"));
+      return new NotAvailableError(_t("No match found in FILTER evaluation"));
     }
 
     return mode === "row" ? transposeMatrix(result) : result;
