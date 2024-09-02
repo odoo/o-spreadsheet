@@ -60,6 +60,7 @@ import { HeaderGroupContainer } from "../header_group/header_group_container";
 import { css, cssPropertiesToCss } from "../helpers/css";
 import { isCtrlKey } from "../helpers/dom_helpers";
 import { useSpreadsheetRect } from "../helpers/position_hook";
+import { SpreadsheetProgressBar } from "../progress_bar/progress_bar";
 import { SidePanel } from "../side_panel/side_panel/side_panel";
 import { SidePanelStore } from "../side_panel/side_panel/side_panel_store";
 import { TopBar } from "../top_bar/top_bar";
@@ -323,6 +324,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     SidePanel,
     SpreadsheetDashboard,
     HeaderGroupContainer,
+    SpreadsheetProgressBar,
   };
 
   sidePanel!: Store<SidePanelStore>;
@@ -507,7 +509,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
   }
 
   get gridHeight(): Pixel {
-    const { height } = this.env.model.getters.getSheetViewDimension();
+    const { height } = this.env.model.getters?.getSheetViewDimension();
     return height;
   }
 

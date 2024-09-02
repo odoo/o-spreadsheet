@@ -168,7 +168,7 @@ export class SheetViewPlugin extends UIPlugin {
   }
 
   handle(cmd: Command) {
-    this.cleanViewports();
+    this.cleanViewports(); //VSC this is super slow
     // changing the evaluation can hide/show rows because of data filters
     if (invalidateEvaluationCommands.has(cmd.type)) {
       for (const sheetId of this.getters.getSheetIds()) {
@@ -668,6 +668,7 @@ export class SheetViewPlugin extends UIPlugin {
 
   /** gets rid of deprecated sheetIds */
   private cleanViewports() {
+    return;
     const sheetIds = this.getters.getSheetIds();
     for (let sheetId of Object.keys(this.viewports)) {
       if (!sheetIds.includes(sheetId)) {

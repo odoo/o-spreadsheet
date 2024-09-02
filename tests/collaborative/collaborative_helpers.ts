@@ -19,16 +19,16 @@ interface CollaborativeEnv {
  */
 export function setupCollaborativeEnv(): CollaborativeEnv {
   const network = new MockTransportService();
-  const emptySheetData = new Model().exportData();
-  const alice = new Model(deepCopy(emptySheetData), {
+  const emptySheetData = Model.BuildSync().exportData();
+  const alice = Model.BuildSync(deepCopy(emptySheetData), {
     transportService: network,
     client: { id: "alice", name: "Alice" },
   });
-  const bob = new Model(deepCopy(emptySheetData), {
+  const bob = Model.BuildSync(deepCopy(emptySheetData), {
     transportService: network,
     client: { id: "bob", name: "Bob" },
   });
-  const charlie = new Model(deepCopy(emptySheetData), {
+  const charlie = Model.BuildSync(deepCopy(emptySheetData), {
     transportService: network,
     client: { id: "charlie", name: "Charlie" },
   });

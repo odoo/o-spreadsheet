@@ -53,14 +53,14 @@ afterEach(() => {
 describe("Simple Spreadsheet Component", () => {
   test("simple rendering snapshot", async () => {
     ({ model, parent, fixture } = await mountSpreadsheet({
-      model: new Model({ sheets: [{ id: "sh1" }] }),
+      model: Model.BuildSync({ sheets: [{ id: "sh1" }] }),
     }));
     expect(fixture.querySelector(".o-spreadsheet")).toMatchSnapshot();
   });
 
   test("focus is properly set, initially and after switching sheet", async () => {
     ({ model, fixture } = await mountSpreadsheet({
-      model: new Model({ sheets: [{ id: "sh1" }] }),
+      model: Model.BuildSync({ sheets: [{ id: "sh1" }] }),
     }));
     const defaultComposer = fixture.querySelector(".o-grid div.o-composer");
     expect(document.activeElement).toBe(defaultComposer);
@@ -89,7 +89,7 @@ describe("Simple Spreadsheet Component", () => {
     });
 
     test("Can use  an external dependency in a function", () => {
-      const model = new Model({ sheets: [{ id: 1 }] }, { custom: { env: { myKey: [] } } });
+      const model = Model.BuildSync({ sheets: [{ id: 1 }] }, { custom: { env: { myKey: [] } } });
       setCellContent(model, "A1", "=GETACTIVESHEET()");
       expect(getCellContent(model, "A1")).toBe("Sheet");
       expect(env).toMatchObject({ myKey: [] });
@@ -97,7 +97,7 @@ describe("Simple Spreadsheet Component", () => {
 
     test("Can use an external dependency in a function at model start", async () => {
       await mountSpreadsheet({
-        model: new Model(
+        model: Model.BuildSync(
           {
             version: 2,
             sheets: [
@@ -122,7 +122,7 @@ describe("Simple Spreadsheet Component", () => {
 
   test("Clipboard is in spreadsheet env", async () => {
     ({ env } = await mountSpreadsheet({
-      model: new Model({ sheets: [{ id: "sh1" }] }),
+      model: Model.BuildSync({ sheets: [{ id: "sh1" }] }),
     }));
     expect(env.clipboard["clipboard"]).toBe(navigator.clipboard);
   });
@@ -156,7 +156,7 @@ describe("Simple Spreadsheet Component", () => {
 
   test("Mac user use metaKey, not CtrlKey", async () => {
     ({ model, parent, fixture } = await mountSpreadsheet({
-      model: new Model({ sheets: [{ id: "sh1" }] }),
+      model: Model.BuildSync({ sheets: [{ id: "sh1" }] }),
     }));
     const mockUserAgent = jest.spyOn(navigator, "userAgent", "get");
     mockUserAgent.mockImplementation(
@@ -244,7 +244,7 @@ describe("Simple Spreadsheet Component", () => {
 
 test("Can instantiate a spreadsheet with a given client id-name", async () => {
   const client = { id: "alice", name: "Alice" };
-  ({ model } = await mountSpreadsheet({ model: new Model({}, { client }) }));
+  ({ model } = await mountSpreadsheet({ model: Model.BuildSync({}, { client }) }));
   expect(model.getters.getClient()).toEqual(client);
 
   // Validate that after the move debounce has run, the client has a position ad
@@ -263,7 +263,7 @@ test("Can instantiate a spreadsheet with a given client id-name", async () => {
 
 test("Spreadsheet detects frozen panes that exceed the limit size at start", async () => {
   const notifyUser = jest.fn();
-  const model = new Model({ sheets: [{ panes: { xSplit: 12, ySplit: 50 } }] });
+  const model = Model.BuildSync({ sheets: [{ panes: { xSplit: 12, ySplit: 50 } }] });
   ({ parent, fixture } = await mountSpreadsheet({ model }, { notifyUser }));
   expect(notifyUser).toHaveBeenCalled();
 });
@@ -274,7 +274,7 @@ test("Warns user when viewport is too small for frozen panes but stops warning a
   // Setting the sheet viewport size to 0 to represent the "real life" scenario where the default size is 0
   setDefaultSheetViewSize(0);
   const notifyUser = jest.fn();
-  const model = new Model({ sheets: [{ panes: { xSplit: 0, ySplit: 20 } }] });
+  const model = Model.BuildSync({ sheets: [{ panes: { xSplit: 0, ySplit: 20 } }] });
   ({ parent, fixture } = await mountSpreadsheet({ model }, { notifyUser }));
   expect(notifyUser).toHaveBeenCalledTimes(0);
 
@@ -354,7 +354,7 @@ describe("Composer / selectionInput interactions", () => {
   };
   beforeEach(async () => {
     ({ model, parent, fixture, env } = await mountSpreadsheet({
-      model: new Model(modelDataCf),
+      model: Model.BuildSync(modelDataCf),
     }));
   });
 

@@ -318,7 +318,7 @@ describe("Grid component", () => {
       const fileStore = new FileStore();
       const data = createEmptyWorkbookData();
       const { env } = await mountSpreadsheet({
-        model: new Model(data, {
+        model: Model.BuildSync(data, {
           external: { fileStore },
         }),
       });
@@ -999,7 +999,7 @@ describe("Multi User selection", () => {
   beforeEach(async () => {
     transportService = new MockTransportService();
 
-    model = new Model({}, { transportService });
+    model = Model.BuildSync({}, { transportService });
     ({ parent, fixture } = await mountSpreadsheet({ model }));
   });
 

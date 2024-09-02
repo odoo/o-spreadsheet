@@ -43,7 +43,7 @@ describe("line chart", () => {
   });
 
   test("Stacked line chart", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     createChart(model, { type: "line", dataSets: [{ dataRange: "A1" }] }, "chartId");
     expect(isChartAxisStacked(model, "chartId", "x")).toBeUndefined();
     expect(isChartAxisStacked(model, "chartId", "y")).toBeUndefined();
@@ -56,7 +56,7 @@ describe("line chart", () => {
   });
 
   test("Area chart", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     createChart(
       model,
       { type: "line", dataSets: [{ dataRange: "A1" }, { dataRange: "A2" }] },
@@ -76,7 +76,7 @@ describe("line chart", () => {
   });
 
   test("Stacked area chart", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     createChart(
       model,
       { type: "line", dataSets: [{ dataRange: "A1" }, { dataRange: "A2" }] },

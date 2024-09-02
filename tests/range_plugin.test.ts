@@ -88,7 +88,7 @@ beforeEach(() => {
 
 describe("range plugin", () => {
   beforeEach(() => {
-    m = new Model({
+    m = Model.BuildSync({
       sheets: [
         { id: "s1", name: "s1" },
         { id: "s2", name: "s 2" },
@@ -137,7 +137,7 @@ describe("range plugin", () => {
 
     describe("create a range and remove multiple columns", () => {
       beforeEach(() => {
-        m = new Model({
+        m = Model.BuildSync({
           sheets: [
             { id: "s1", name: "s1" },
             { id: "s2", name: "s 2" },
@@ -223,7 +223,7 @@ describe("range plugin", () => {
 
     describe("create a range and remove multiple rows", () => {
       beforeEach(() => {
-        m = new Model({
+        m = Model.BuildSync({
           sheets: [
             { id: "s1", name: "s1" },
             { id: "s2", name: "s 2" },
@@ -604,7 +604,7 @@ describe("Helpers", () => {
     ["Sheet1!A1:B1", "s1", "s2", "s2"],
     ["Sheet2!A1:B1", "s1", "s2", "s2"],
   ])("copyRangeWithNewSheetId", (xc, sheetIdFrom, sheetIdTo, result) => {
-    const model = new Model({
+    const model = Model.BuildSync({
       sheets: [
         { id: "s1", name: "Sheet1" },
         { id: "s2", name: "Sheet2" },
@@ -617,7 +617,7 @@ describe("Helpers", () => {
 });
 describe("full column range", () => {
   beforeEach(() => {
-    m = new Model({ sheets: [{ id: "s1", name: "s1", rows: 10, cols: 10 }] });
+    m = Model.BuildSync({ sheets: [{ id: "s1", name: "s1", rows: 10, cols: 10 }] });
     m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["B:C"] });
   });
   afterEach(() => {
@@ -668,7 +668,7 @@ describe("full column range", () => {
 
 describe("full row range", () => {
   beforeEach(() => {
-    m = new Model({ sheets: [{ id: "s1", name: "s1", rows: 10, cols: 10 }] });
+    m = Model.BuildSync({ sheets: [{ id: "s1", name: "s1", rows: 10, cols: 10 }] });
     m.dispatch("USE_RANGE", { sheetId: m.getters.getActiveSheetId(), rangesXC: ["2:3"] });
   });
   afterEach(() => {
@@ -736,7 +736,7 @@ test.each([
   ["$A1:B", "$A2:C"],
   ["A:A$1", "B$1:B"],
 ])("adapt ranges", (value, expected) => {
-  const model = new Model();
+  const model = Model.BuildSync();
   const sheetId = model.getters.getActiveSheetId();
   const range = model.getters.getRangeFromSheetXC(sheetId, value);
   const adaptedRange = model.getters.createAdaptedRanges([range], 1, 1, sheetId);

@@ -21,7 +21,7 @@ describe("Data validation", () => {
   let sheetId: UID;
 
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -324,7 +324,7 @@ describe("Data validation", () => {
       },
     ]);
 
-    const newModel = new Model(exported);
+    const newModel = Model.BuildSync(exported);
     expect(getDataValidationRules(newModel, sheetId)).toEqual([
       {
         id: "id",

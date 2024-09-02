@@ -438,11 +438,11 @@ describe("Test XLSX export", () => {
   });
   describe("Generic sheets (style, hidden, size, cf)", () => {
     test("Simple model data with default style", async () => {
-      const model = new Model(simpleData);
+      const model = Model.BuildSync(simpleData);
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
     test("Merges", async () => {
-      const model = new Model({
+      const model = Model.BuildSync({
         sheets: [{ name: "MergeSheet", merges: ["A1:B2", "B6:C9", "A20:Z40"] }],
       });
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
@@ -450,7 +450,7 @@ describe("Test XLSX export", () => {
 
     test("Conditional formatting", async () => {
       const style = { fillColor: "#B6D7A8" };
-      const model = new Model({
+      const model = Model.BuildSync({
         sheets: [
           {
             colNumber: 2,
@@ -635,7 +635,7 @@ describe("Test XLSX export", () => {
     });
 
     test("does not export quarter format", async () => {
-      const model = new Model();
+      const model = Model.BuildSync();
 
       setCellFormat(model, "A1", "qq yyyy");
       setCellFormat(model, "A2", "qqqq yyyy");
@@ -648,7 +648,7 @@ describe("Test XLSX export", () => {
 
     test("Conditional formatting with formula cannot be exported (for now)", async () => {
       jest.spyOn(global.console, "warn").mockImplementation();
-      const model = new Model({
+      const model = Model.BuildSync({
         sheets: [
           {
             colNumber: 2,
@@ -679,7 +679,7 @@ describe("Test XLSX export", () => {
   describe("references with headers should be converted to references with fixed coordinates", () => {
     test("Conditional formatting and formula", async () => {
       const style = { fillColor: "#B6D7A8" };
-      const model = new Model({
+      const model = Model.BuildSync({
         sheets: [
           {
             colNumber: 2,
@@ -706,7 +706,7 @@ describe("Test XLSX export", () => {
     });
 
     test("Chart", async () => {
-      const model = new Model({});
+      const model = Model.BuildSync({});
 
       createChart(
         model,
@@ -742,24 +742,24 @@ describe("Test XLSX export", () => {
 
   describe("formulas", () => {
     test("All exportable formulas", async () => {
-      const model = new Model(allExportableFormulasData);
+      const model = Model.BuildSync(allExportableFormulasData);
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
 
     test("All non-exportable formulas", async () => {
-      const model = new Model(allNonExportableFormulasData);
+      const model = Model.BuildSync(allNonExportableFormulasData);
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
 
     test("Non exportable formulas are exported even with a falsy value", async () => {
-      const model = new Model({
+      const model = Model.BuildSync({
         sheets: [{ cells: { A1: { content: "=MULTIPLY(100,0)" }, A2: { content: "=EQ(2,4)" } } }],
       });
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
 
     test("can export value and format from non-exportable formulas", async () => {
-      const model = new Model();
+      const model = Model.BuildSync();
 
       functionRegistry.add("NON.EXPORTABLE", {
         description: "a non exportable formula",
@@ -785,7 +785,7 @@ describe("Test XLSX export", () => {
     });
 
     test("can export value and format from non-exportable formulas that spread", async () => {
-      const model = new Model();
+      const model = Model.BuildSync();
 
       functionRegistry.add("NON.EXPORTABLE.ARRAY.FORMULA", {
         description: "a non exportable formula that spread",
@@ -831,21 +831,21 @@ describe("Test XLSX export", () => {
     });
 
     test("Non exportable functions that is evaluated as nothing (aka empty string)", async () => {
-      const model = new Model({
+      const model = Model.BuildSync({
         sheets: [{ cells: { A1: { content: '=join("", A2:A3)' } }, rowNumber: 3, colNumber: 1 }],
       });
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
 
     test("Multi-Sheets exportable functions", async () => {
-      const model = new Model({
+      const model = Model.BuildSync({
         sheets: [allExportableFormulasData.sheets[0], { cells: { A1: { content: "=wait(10)" } } }],
       });
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
 
     test("Multi-Sheet export async functions without cross references across sheets", async () => {
-      const model = new Model({
+      const model = Model.BuildSync({
         sheets: [
           { id: "s1" },
           {
@@ -859,7 +859,7 @@ describe("Test XLSX export", () => {
     });
 
     test("Multi-Sheet export functions with cross references across sheets", async () => {
-      const model = new Model({
+      const model = Model.BuildSync({
         sheets: [
           {
             id: "s1",
@@ -920,7 +920,7 @@ describe("Test XLSX export", () => {
     ])(
       "simple %s chart with dataset %s",
       async (chartType: string, dataSets: CustomizedDataSet[]) => {
-        const model = new Model(chartData);
+        const model = Model.BuildSync(chartData);
         createChart(
           model,
           {
@@ -937,7 +937,7 @@ describe("Test XLSX export", () => {
     test.each(["line", "scatter", "bar", "combo"])(
       "simple %s chart with customized dataset",
       async (chartType: string) => {
-        const model = new Model(chartData);
+        const model = Model.BuildSync(chartData);
         createChart(
           model,
           {
@@ -961,7 +961,7 @@ describe("Test XLSX export", () => {
     test.each(["line", "scatter", "bar", "combo"])(
       "simple %s chart with customized title",
       async (chartType: string) => {
-        const model = new Model(chartData);
+        const model = Model.BuildSync(chartData);
         createChart(
           model,
           {
@@ -985,7 +985,7 @@ describe("Test XLSX export", () => {
     test.each(["line", "scatter", "bar", "combo"] as const)(
       "simple %s chart with customized axis",
       async (chartType: string) => {
-        const model = new Model(chartData);
+        const model = Model.BuildSync(chartData);
         createChart(
           model,
           {
@@ -1029,7 +1029,7 @@ describe("Test XLSX export", () => {
     );
 
     test("exported results will not be influenced by `dataSetsHaveTitle` if the dataset contains titles and label range doesn't", async () => {
-      const model = new Model(chartData);
+      const model = Model.BuildSync(chartData);
       createChart(
         model,
         {
@@ -1055,7 +1055,7 @@ describe("Test XLSX export", () => {
     });
 
     test("multiple charts in the same sheet", async () => {
-      const model = new Model(chartData);
+      const model = Model.BuildSync(chartData);
       createChart(
         model,
         {
@@ -1080,7 +1080,7 @@ describe("Test XLSX export", () => {
     test.each(["bar", "line", "pie", "scatter"] as const)(
       "%s chart that aggregate labels is exported as image",
       async (type: ExcelChartType) => {
-        const model = new Model({
+        const model = Model.BuildSync({
           sheets: [
             {
               ...chartData.sheets,
@@ -1118,7 +1118,7 @@ describe("Test XLSX export", () => {
     );
 
     test("Scorecard is exported as an image", () => {
-      const model = new Model({
+      const model = Model.BuildSync({
         sheets: chartData.sheets,
       });
       createScorecardChart(model, TEST_CHART_DATA.scorecard);
@@ -1127,7 +1127,7 @@ describe("Test XLSX export", () => {
     });
 
     test("Gauge Chart is exported as an image", () => {
-      const model = new Model({
+      const model = Model.BuildSync({
         sheets: chartData.sheets,
       });
       createGaugeChart(model, TEST_CHART_DATA.gauge);
@@ -1136,7 +1136,7 @@ describe("Test XLSX export", () => {
     });
 
     test("stacked bar chart", async () => {
-      const model = new Model(chartData);
+      const model = Model.BuildSync(chartData);
       createChart(
         model,
         {
@@ -1151,7 +1151,7 @@ describe("Test XLSX export", () => {
     });
 
     test("charts in different sheets", async () => {
-      const model = new Model(chartData);
+      const model = Model.BuildSync(chartData);
       createSheet(model, { sheetId: "42" });
       createChart(
         model,
@@ -1176,7 +1176,7 @@ describe("Test XLSX export", () => {
     });
 
     test("chart dataset without title", async () => {
-      const model = new Model(chartData);
+      const model = Model.BuildSync(chartData);
       createChart(
         model,
         {
@@ -1191,7 +1191,7 @@ describe("Test XLSX export", () => {
     });
 
     test("chart font color is white with a dark background color", async () => {
-      const model = new Model(chartData);
+      const model = Model.BuildSync(chartData);
       createSheet(model, { sheetId: "42", name: "She!et2" });
       createChart(
         model,
@@ -1237,7 +1237,7 @@ describe("Test XLSX export", () => {
     });
 
     test("Chart legend is set to none position", async () => {
-      const model = new Model(chartData);
+      const model = Model.BuildSync(chartData);
       createChart(
         model,
         {
@@ -1252,7 +1252,7 @@ describe("Test XLSX export", () => {
     });
 
     test("pie chart with only title dataset", async () => {
-      const model = new Model({});
+      const model = Model.BuildSync({});
       createChart(
         model,
         {
@@ -1266,7 +1266,7 @@ describe("Test XLSX export", () => {
     });
 
     test("Export chart overflowing outside the sheet", async () => {
-      const model = new Model(chartData);
+      const model = Model.BuildSync(chartData);
       createChart(
         model,
         {
@@ -1303,20 +1303,20 @@ describe("Test XLSX export", () => {
     });
 
     test("simple image", async () => {
-      const model = new Model(getModelData());
+      const model = Model.BuildSync(getModelData());
       createImage(model, {});
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
 
     test("multiple images in the same sheet", async () => {
-      const model = new Model(getModelData());
+      const model = Model.BuildSync(getModelData());
       createImage(model, {});
       createImage(model, { position: { x: 2, y: 2 } });
       expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
     });
 
     test("images in different sheets", async () => {
-      const model = new Model(getModelData());
+      const model = Model.BuildSync(getModelData());
       createSheet(model, { sheetId: "42" });
       createImage(model, {});
       createImage(model, {
@@ -1326,7 +1326,7 @@ describe("Test XLSX export", () => {
     });
 
     test("image overflowing outside the sheet", async () => {
-      const model = new Model(getModelData());
+      const model = Model.BuildSync(getModelData());
       createImage(model, {});
       const sheetId = model.getters.getActiveSheetId();
       const end = model.getters.getColDimensions(
@@ -1342,7 +1342,7 @@ describe("Test XLSX export", () => {
     });
 
     test("image larger than the sheet", async () => {
-      const model = new Model(getModelData());
+      const model = Model.BuildSync(getModelData());
       const maxSheetSize = model.getters.getMainViewportRect();
       createImage(model, {
         size: {
@@ -1355,7 +1355,7 @@ describe("Test XLSX export", () => {
   });
 
   test("multiple elements are exported in the correct order", async () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "[label](url.com)");
     merge(model, "F10:F12");
     createChart(
@@ -1385,7 +1385,7 @@ describe("Test XLSX export", () => {
   });
 
   test("link cells", async () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "[label](url.com)");
     setCellContent(model, "A2", "[label](http://url.com)");
     setCellContent(model, "A3", `[Sheet1](${buildSheetLink(model.getters.getActiveSheetId())})`);
@@ -1403,24 +1403,26 @@ describe("Test XLSX export", () => {
   });
 
   test("Workbook with hidden sheet", async () => {
-    const model = new Model({ sheets: [{ id: "sheet0" }, { id: "sheet1", isVisible: false }] });
+    const model = Model.BuildSync({
+      sheets: [{ id: "sheet0" }, { id: "sheet1", isVisible: false }],
+    });
     expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
   });
 
   test("Workbook with colored sheet", async () => {
-    const model = new Model({ sheets: [{ id: "sheet0" }, { id: "sheet1", color: "#FF0000" }] });
+    const model = Model.BuildSync({ sheets: [{ id: "sheet0" }, { id: "sheet1", color: "#FF0000" }] });
     expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
   });
 
   test("Sheet with frozen panes", async () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       sheets: [{ id: "sheet0" }, { id: "sheet1", panes: { xSplit: 1, ySplit: 2 } }],
     });
     expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
   });
 
   test("Sheet with hide gridlines", async () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       sheets: [{ id: "sheet0" }, { id: "sheet1", areGridLinesVisible: true }],
     });
     expect(await exportPrettifiedXlsx(model)).toMatchSnapshot();
@@ -1428,7 +1430,7 @@ describe("Test XLSX export", () => {
 
   describe("Export data filters", () => {
     test("Table headers formula are replaced with their evaluated formatted value", () => {
-      const model = new Model();
+      const model = Model.BuildSync();
       createTable(model, "A1:A4");
       setCellContent(model, "A1", "=DATE(1,1,1)");
       setCellContent(model, "A2", "=DATE(1,1,1)");
@@ -1443,7 +1445,7 @@ describe("Test XLSX export", () => {
     });
 
     test("Table headers are replaced by unique value", () => {
-      const model = new Model();
+      const model = Model.BuildSync();
       createTable(model, "A1:B4");
       setCellContent(model, "A1", "Hello");
       setCellContent(model, "B1", "Hello");
@@ -1456,7 +1458,7 @@ describe("Test XLSX export", () => {
     });
 
     test("Table headers are replaced by unique formatted value even if table has no filters", () => {
-      const model = new Model();
+      const model = Model.BuildSync();
       createTable(model, "A1:A4", { ...DEFAULT_TABLE_CONFIG, hasFilters: false });
       setCellContent(model, "A1", "=DATE(1,1,1)");
       const exported = getExportedExcelData(model);
@@ -1464,7 +1466,7 @@ describe("Test XLSX export", () => {
     });
 
     test("Table style is correctly exported", async () => {
-      const model = new Model();
+      const model = Model.BuildSync();
       createTable(model, "A1:A4", {
         totalRow: true,
         firstColumn: true,
@@ -1493,7 +1495,7 @@ describe("Test XLSX export", () => {
     });
 
     test("Filtered values are exported and rows are hidden", () => {
-      const model = new Model();
+      const model = Model.BuildSync();
       createTable(model, "A1:B4");
       setCellContent(model, "A2", "Hello");
       setCellContent(model, "A3", "Konnichiwa");
@@ -1506,7 +1508,7 @@ describe("Test XLSX export", () => {
     });
 
     test("Empty filters aren't exported", () => {
-      const model = new Model();
+      const model = Model.BuildSync();
       createTable(model, "A1:B4");
       setCellContent(model, "A2", "Hello");
       setCellContent(model, "B2", "Hello");
@@ -1515,7 +1517,7 @@ describe("Test XLSX export", () => {
     });
 
     test("Tables with only one row are not exported", () => {
-      const model = new Model();
+      const model = Model.BuildSync();
       setCellContent(model, "A1", "Hello");
       setCellContent(model, "B1", "Hello");
       createTable(model, "A1:B1");
@@ -1524,7 +1526,7 @@ describe("Test XLSX export", () => {
     });
 
     test("Filtered values are not duplicated", () => {
-      const model = new Model();
+      const model = Model.BuildSync();
       createTable(model, "A1:B4");
       setCellContent(model, "A2", "Konnichiwa");
       setCellContent(model, "A3", "Konnichiwa");
@@ -1535,7 +1537,7 @@ describe("Test XLSX export", () => {
     });
 
     test("Empty cells are not added to displayedValues", () => {
-      const model = new Model();
+      const model = Model.BuildSync();
       createTable(model, "A1:B4");
       setCellContent(model, "A2", "5");
       updateFilter(model, "A1", ["5"]);
@@ -1544,7 +1546,7 @@ describe("Test XLSX export", () => {
     });
 
     test("Formulas evaluated to empty string are not added to displayedValues", () => {
-      const model = new Model();
+      const model = Model.BuildSync();
       createTable(model, "A1:B4");
       setCellContent(model, "A2", "5");
       updateFilter(model, "A1", ["5"]);
@@ -1555,7 +1557,7 @@ describe("Test XLSX export", () => {
     });
 
     test("Export data filters snapshot", async () => {
-      const model = new Model();
+      const model = Model.BuildSync();
       createTable(model, "A1:C4");
 
       setCellContent(model, "A1", "Hello");
@@ -1578,7 +1580,7 @@ describe("Test XLSX export", () => {
   });
 
   test("Invalid ASCII characters are escaped in XML", async () => {
-    const model = new Model({ sheets: [{ rowNumber: 200 }] });
+    const model = Model.BuildSync({ sheets: [{ rowNumber: 200 }] });
     for (let i = 0; i < 127; i++) {
       setCellContent(model, toXC(0, i), String.fromCharCode(i));
     }
@@ -1586,7 +1588,7 @@ describe("Test XLSX export", () => {
   });
 
   test("Cells with plain text format are exported in the shared strings", async () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setFormat(model, "A1", "@");
     setCellContent(model, "A1", "0006");
 
@@ -1600,7 +1602,7 @@ describe("Test XLSX export", () => {
 
   describe("Header grouping export", () => {
     test.each<Dimension>(["ROW", "COL"])("Simple grouped headers", async (dim) => {
-      const model = new Model();
+      const model = Model.BuildSync();
       groupHeaders(model, dim, 0, 2);
       foldHeaderGroup(model, dim, 0, 2);
 
@@ -1616,7 +1618,7 @@ describe("Test XLSX export", () => {
     });
 
     test.each<Dimension>(["COL", "ROW"])("Nested grouped headers", async (dim) => {
-      const model = new Model();
+      const model = Model.BuildSync();
       groupHeaders(model, dim, 0, 6);
       groupHeaders(model, dim, 1, 3);
       foldHeaderGroup(model, dim, 1, 3);
@@ -1637,7 +1639,7 @@ describe("Test XLSX export", () => {
   });
 
   test("Sheet names longer than 31 characters are sliced in the Excel Export", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const longSheetName = "a".repeat(40);
     const longSheetNameWithSpaces = "Hey " + "a".repeat(40);
     createSheet(model, { name: longSheetNameWithSpaces });
@@ -1665,7 +1667,7 @@ describe("Test XLSX export", () => {
   });
 
   test("Avoid duplicated sheet names in excel export if multiple sliced names are the same", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     createSheet(model, { name: "a".repeat(40) });
     createSheet(model, { name: "a".repeat(41) });
     createSheet(model, { name: "a".repeat(42) });
@@ -1676,7 +1678,7 @@ describe("Test XLSX export", () => {
   });
 
   test("Cells whose content are the same as a too long sheet name are not changed", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const longFormula = "=A1+A2+A3+A4+A5+A6+A7+A8+A9+A10+A11+A12+A13+A14+A15+A16";
     createSheet(model, { name: longFormula });
     setCellContent(model, "A1", longFormula);

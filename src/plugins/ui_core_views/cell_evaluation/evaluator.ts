@@ -10,6 +10,7 @@ import {
   union,
 } from "../../../helpers";
 import { createEvaluatedCell, evaluateLiteral } from "../../../helpers/cells";
+import { ILongRunner } from "../../../helpers/long_runner";
 import { ModelConfig } from "../../../model";
 import { onIterationEndEvaluationRegistry } from "../../../registries/evaluation_registry";
 import { _t } from "../../../translation";
@@ -55,14 +56,20 @@ export class Evaluator {
   );
   private blockedArrayFormulas = new PositionSet({});
   private spreadingRelations = new SpreadingRelation();
+  private readonly longRunner: ILongRunner;
 
-  constructor(private readonly context: ModelConfig["custom"], getters: Getters) {
+  constructor(
+    private readonly context: ModelConfig["custom"],
+    getters: Getters,
+    longRunner: ILongRunner
+  ) {
     this.getters = getters;
     this.compilationParams = buildCompilationParameters(
       this.context,
       this.getters,
       this.computeAndSave.bind(this)
     );
+    this.longRunner = longRunner;
   }
 
   getEvaluatedCell(position: CellPosition): EvaluatedCell {
@@ -151,7 +158,6 @@ export class Evaluator {
   }
 
   evaluateCells(positions: CellPosition[]) {
-    const start = performance.now();
     const cellsToCompute = this.createEmptyPositionSet();
     cellsToCompute.addMany(positions);
     const arrayFormulasPositions = this.getArrayFormulasImpactedByChangesOf(positions);
@@ -159,7 +165,6 @@ export class Evaluator {
     cellsToCompute.addMany(arrayFormulasPositions);
     cellsToCompute.addMany(this.getCellsDependingOn(arrayFormulasPositions));
     this.evaluate(cellsToCompute);
-    console.info("evaluate Cells", performance.now() - start, "ms");
   }
 
   private getArrayFormulasImpactedByChangesOf(
@@ -289,17 +294,23 @@ export class Evaluator {
     while (!this.nextPositionsToUpdate.isEmpty() && currentIteration++ < MAX_ITERATION) {
       this.updateCompilationParameters();
       const positions = this.nextPositionsToUpdate.clear();
-      for (let i = 0; i < positions.length; ++i) {
-        this.evaluatedCells.delete(positions[i]);
+      for (const position of positions) {
+        this.evaluatedCells.delete(position);
       }
-      for (let i = 0; i < positions.length; ++i) {
-        const position = positions[i];
-        const evaluatedCell = this.computeCell(position);
-        if (evaluatedCell !== EMPTY_CELL) {
-          this.evaluatedCells.set(position, evaluatedCell);
+      this.longRunner.queueJob<CellPosition>(
+        "Evaluating",
+        positions,
+        (position) => {
+          const evaluatedCell = this.computeCell(position);
+          if (evaluatedCell !== EMPTY_CELL) {
+            this.evaluatedCells.set(position, evaluatedCell);
+          }
+        },
+        5000,
+        () => {
+          onIterationEndEvaluationRegistry.getAll().forEach((callback) => callback(this.getters));
         }
-      }
-      onIterationEndEvaluationRegistry.getAll().forEach((callback) => callback(this.getters));
+      );
     }
   }
 

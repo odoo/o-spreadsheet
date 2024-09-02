@@ -171,7 +171,7 @@ describe("history", () => {
 
 describe("Model history", () => {
   test("Can undo a basic operation", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "hello");
     undo(model);
     expect(getCell(model, "A1")).toBeUndefined();
@@ -180,7 +180,7 @@ describe("Model history", () => {
   });
 
   test("can undo and redo two consecutive operations", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A2", "3");
     setCellContent(model, "A2", "5");
 
@@ -199,24 +199,24 @@ describe("Model history", () => {
   });
 
   test("Cannot redo when when the redo stack is empty", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     expect(model.getters.canRedo()).toBeFalsy();
   });
 
   test("Cannot redo when when the redo stack is empty and last command is not repeatable", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     freezeRows(model, 2);
     expect(model.getters.canRedo()).toBeFalsy();
   });
 
   test("Can redo when when the redo stack is empty and last command is repeatable", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "5");
     expect(model.getters.canRedo()).toBeTruthy();
   });
 
   test("two identical changes do not count as two undo steps", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     selectCell(model, "B2");
     setZoneBorders(model, { position: "all" });
     setZoneBorders(model, { position: "all" });
@@ -227,7 +227,7 @@ describe("Model history", () => {
   });
 
   test("undo steps are dropped at some point", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const composerStore = makeTestComposerStore(model);
     expect(model.getters.canUndo()).toBe(false);
     for (let i = 0; i < MAX_HISTORY_STEPS; i++) {
@@ -243,7 +243,7 @@ describe("Model history", () => {
   });
 
   test("undo recomputes the cells", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "=A2");
     setCellContent(model, "A2", "11");
     expect(getEvaluatedCell(model, "A1").value).toBe(11);
@@ -254,7 +254,7 @@ describe("Model history", () => {
   });
 
   test("undo when undo stack is empty does nothing", async () => {
-    const model = new Model({ sheets: [{ cells: { A1: { content: "=10" } } }] });
+    const model = Model.BuildSync({ sheets: [{ cells: { A1: { content: "=10" } } }] });
 
     expect(getEvaluatedCell(model, "A1").value).toBe(10);
 
@@ -263,7 +263,7 @@ describe("Model history", () => {
   });
 
   test("undo when redo stack is empty does nothing", async () => {
-    const model = new Model({ sheets: [{ cells: { A1: { content: "=10" } } }] });
+    const model = Model.BuildSync({ sheets: [{ cells: { A1: { content: "=10" } } }] });
 
     expect(getEvaluatedCell(model, "A1").value).toBe(10);
 
@@ -272,7 +272,7 @@ describe("Model history", () => {
   });
 
   test("undo a sheet creation changes the active sheet", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const sheetId = model.getters.getActiveSheetId();
     model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
     model.dispatch("ACTIVATE_SHEET", { sheetIdFrom: sheetId, sheetIdTo: "42" });
@@ -281,7 +281,7 @@ describe("Model history", () => {
   });
 
   test("ACTIVATE_SHEET standalone is not saved", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     createSheet(model, { sheetId: "42" });
     setCellContent(model, "A1", "this will be undone");
     activateSheet(model, "42");
@@ -292,7 +292,7 @@ describe("Model history", () => {
   test("create and activate sheet, then undo", () => {
     // The active sheet is currently not changed when the sheet
     // creation is undone
-    const model = new Model();
+    const model = Model.BuildSync();
     const originActiveSheetId = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42" });
     activateSheet(model, "42");
@@ -302,7 +302,7 @@ describe("Model history", () => {
   });
 
   test("ACTIVATE_SHEET with another command is saved", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const sheet = model.getters.getActiveSheetId();
     createSheet(model, { sheetId: "42", activate: true });
     undo(model);
@@ -312,7 +312,7 @@ describe("Model history", () => {
   test("undone & redone commands are part of the command", () => {
     class TestPlugin extends UIPlugin {}
     addTestPlugin(featurePluginRegistry, TestPlugin);
-    const model = new Model();
+    const model = Model.BuildSync();
     const plugin = getPlugin(model, TestPlugin);
     plugin.handle = jest.fn((cmd) => {});
     const command: UpdateCellCommand = {

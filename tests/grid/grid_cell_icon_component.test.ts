@@ -35,7 +35,7 @@ describe("Grid cell icon component", () => {
   let fixture: HTMLElement;
 
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
     sheetId = model.getters.getActiveSheetId();
   });
 

@@ -16,7 +16,7 @@ describe("custom colors are correctly handled when formatting cells", () => {
   let sheetId: UID;
 
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -89,7 +89,7 @@ describe("custom colors are correctly handled when editing charts", () => {
   let sheetId: UID;
 
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
     sheetId = model.getters.getActiveSheetId();
   });
   test("Chart background colors are taken into account", () => {
@@ -190,14 +190,14 @@ describe("custom colors are correctly handled when editing charts", () => {
 
   test("custom colors from model imported data", () => {
     setStyle(model, "A1", { fillColor: "#123456" });
-    const importedModel = new Model(model.exportData());
+    const importedModel = Model.BuildSync(model.exportData());
     expect(importedModel.getters.getCustomColors()).toEqual(["#123456"]);
   });
 });
 
 test("custom colors from config", () => {
   const data = {};
-  const model = new Model(data, { customColors: ["#875A7B", "not a valid color"] });
+  const model = Model.BuildSync(data, { customColors: ["#875A7B", "not a valid color"] });
   expect(model.getters.getCustomColors()).toEqual(["#875A7B"]);
 });
 
@@ -215,7 +215,7 @@ describe("Custom colors with table styles", () => {
 
   beforeEach(() => {
     TABLE_PRESETS["customStyle"] = customStyle;
-    model = new Model();
+    model = Model.BuildSync();
   });
 
   afterEach(() => {

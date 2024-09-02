@@ -24,7 +24,7 @@ describe("describe", () => {
   let raiseErrorSpy: jest.SpyInstance;
 
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
     notificationStore = makeTestNotificationStore();
     raiseErrorSpy = jest.spyOn(notificationStore, "raiseError");
     composerStore = makeTestComposerStore(model, notificationStore);

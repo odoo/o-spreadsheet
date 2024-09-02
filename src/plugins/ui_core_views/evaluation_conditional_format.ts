@@ -1,7 +1,7 @@
 import { compile } from "../../formulas";
 import { parseLiteral } from "../../helpers/cells";
 import { colorNumberString, percentile } from "../../helpers/index";
-import { clip, largeMax, largeMin, lazy } from "../../helpers/misc";
+import { clip, largeMax, largeMin } from "../../helpers/misc";
 import { _t } from "../../translation";
 import {
   CellIsRule,
@@ -15,7 +15,6 @@ import {
   HeaderIndex,
   IconSetRule,
   IconThreshold,
-  Lazy,
   NumberCell,
   Style,
   UID,
@@ -33,8 +32,8 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
   static getters = ["getConditionalIcon", "getCellConditionalFormatStyle"] as const;
   private isStale: boolean = true;
   // stores the computed styles in the format of computedStyles.sheetName[col][row] = Style
-  private computedStyles: { [sheet: string]: Lazy<ComputedStyles> } = {};
-  private computedIcons: { [sheet: string]: Lazy<ComputedIcons> } = {};
+  private computedStyles: { [sheet: string]: ComputedStyles } = {};
+  private computedIcons: { [sheet: string]: ComputedIcons } = {};
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -52,11 +51,18 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
 
   finalize() {
     if (this.isStale) {
-      for (const sheetId of this.getters.getSheetIds()) {
-        this.computedStyles[sheetId] = lazy(() => this.getComputedStyles(sheetId));
-        this.computedIcons[sheetId] = lazy(() => this.getComputedIcons(sheetId));
-      }
-      this.isStale = false;
+      this.longRunner.queueJob(
+        "Evaluating Conditional Formats",
+        this.getters.getSheetIds(),
+        (sheetId: UID) => {
+          this.computedStyles[sheetId] = this.getComputedStyles(sheetId);
+          this.computedIcons[sheetId] = this.getComputedIcons(sheetId);
+        },
+        5,
+        () => {
+          this.isStale = false;
+        }
+      );
     }
   }
 
@@ -66,14 +72,15 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
 
   getCellConditionalFormatStyle(position: CellPosition): Style | undefined {
     const { sheetId, col, row } = position;
-    const styles = this.computedStyles[sheetId]();
+    const styles = this.computedStyles[sheetId];
     return styles && styles[col]?.[row];
   }
 
   getConditionalIcon({ sheetId, col, row }: CellPosition): string | undefined {
-    const icons = this.computedIcons[sheetId]();
+    const icons = this.computedIcons[sheetId];
     return icons && icons[col]?.[row];
   }
+
   // ---------------------------------------------------------------------------
   // Private
   // ---------------------------------------------------------------------------
@@ -226,6 +233,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
       }
     }
   }
+
   private computeIcon(
     value: number,
     upperInflectionPoint: number,

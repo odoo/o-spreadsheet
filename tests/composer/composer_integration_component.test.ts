@@ -83,7 +83,7 @@ const modelData = { sheets: [{ id: "sh1" }] };
 describe("Composer interactions", () => {
   beforeEach(async () => {
     let env: SpreadsheetChildEnv;
-    ({ model, fixture, env } = await mountSpreadsheet({ model: new Model(modelData) }));
+    ({ model, fixture, env } = await mountSpreadsheet({ model: Model.BuildSync(modelData) }));
     composerStore = env.getStore(CellComposerStore);
   });
 
@@ -508,7 +508,7 @@ describe("Grid composer", () => {
   let env: SpreadsheetChildEnv;
   beforeEach(async () => {
     ({ model, env, fixture } = await mountSpreadsheet({
-      model: new Model(modelData),
+      model: Model.BuildSync(modelData),
     }));
   });
 

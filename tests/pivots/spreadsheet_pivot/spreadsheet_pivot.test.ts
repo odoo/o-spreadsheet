@@ -30,7 +30,7 @@ describe("Spreadsheet Pivot", () => {
   });
 
   test("Pivot fields are correctly computed", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       sheets: [
         {
           cells: {
@@ -47,7 +47,7 @@ describe("Spreadsheet Pivot", () => {
   });
 
   test("Pivot fields with same name are correctly loaded", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       sheets: [
         {
           cells: {
@@ -63,7 +63,7 @@ describe("Spreadsheet Pivot", () => {
   });
 
   test("Pivot fields are correctly loaded after evaluation", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       sheets: [
         {
           cells: {
@@ -79,7 +79,7 @@ describe("Spreadsheet Pivot", () => {
   });
 
   test("Types are correctly inferred", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       sheets: [
         {
           cells: {
@@ -140,7 +140,7 @@ describe("Spreadsheet Pivot", () => {
   });
 
   test("Pivot fields are not loaded if a cell is in error", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       sheets: [
         {
           cells: {
@@ -1325,7 +1325,7 @@ describe("Spreadsheet Pivot", () => {
   });
 
   test("PIVOT.VALUE works after migration", () => {
-    const model = new Model({
+    const model = Model.BuildSync({
       version: 17,
       sheets: [
         {
@@ -1428,7 +1428,7 @@ describe("Spreadsheet Pivot", () => {
 
   describe("Pivot reevaluation", () => {
     test("Pivot fields reevaluation", () => {
-      const model = new Model({
+      const model = Model.BuildSync({
         sheets: [
           {
             cells: {

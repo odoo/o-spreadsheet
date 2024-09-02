@@ -32,7 +32,7 @@ async function mountPopover(partialProps: Partial<TableStylesPopoverProps> = {})
 
 describe("Table style editor panel", () => {
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
   });
 
   test("Can change displayed categories with the radio button", async () => {

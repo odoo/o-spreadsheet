@@ -126,7 +126,7 @@ describe("Header group component test", () => {
   let sheetId: UID;
 
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
     sheetId = model.getters.getActiveSheetId();
   });
 

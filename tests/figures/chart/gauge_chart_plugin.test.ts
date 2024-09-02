@@ -61,7 +61,7 @@ const randomSectionRule: SectionRule = {
 };
 
 beforeEach(() => {
-  model = new Model({
+  model = Model.BuildSync({
     sheets: [
       {
         name: "Sheet1",
@@ -162,7 +162,7 @@ describe("datasource tests", function () {
       "1"
     );
     const exportedData = model.exportData();
-    const newModel = new Model(exportedData);
+    const newModel = Model.BuildSync(exportedData);
     expect(newModel.getters.getVisibleFigures()).toHaveLength(1);
     expect(newModel.getters.getChartRuntime("1") as GaugeChartRuntime).toBeTruthy();
     newModel.dispatch("DELETE_FIGURE", { sheetId: model.getters.getActiveSheetId(), id: "1" });
@@ -206,7 +206,7 @@ describe("datasource tests", function () {
     let model: Model;
     beforeEach(() => {
       sectionRule = deepCopy(defaultSectionRule);
-      model = new Model({
+      model = Model.BuildSync({
         sheets: [
           {
             name: "Sheet1",
@@ -391,7 +391,7 @@ describe("datasource tests", function () {
 
 describe("multiple sheets", () => {
   beforeEach(() => {
-    model = new Model({
+    model = Model.BuildSync({
       sheets: [
         {
           name: "Sheet1",
@@ -478,7 +478,7 @@ describe("Chart design configuration", () => {
   let model: Model;
 
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
     defaultChart = {
       background: "#ffffff",
       dataRange: "A1",

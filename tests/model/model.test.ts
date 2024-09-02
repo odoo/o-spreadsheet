@@ -39,7 +39,7 @@ describe("Model", () => {
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
     addTestPlugin(corePluginRegistry, MyCorePlugin);
-    const model = new Model();
+    const model = Model.BuildSync();
     copy(model, "A1");
     expect(result).toBeCancelledBecause(CommandResult.CancelledForUnknownReason);
   });
@@ -65,7 +65,7 @@ describe("Model", () => {
       }
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
-    const model = new Model();
+    const model = Model.BuildSync();
     model.dispatch("CREATE_SHEET", { sheetId: "42", position: 1 });
     expect(result).toBeSuccessfullyDispatched();
     expect(getCellText(model, "A1", "42")).toBe("Hello");
@@ -89,7 +89,7 @@ describe("Model", () => {
       }
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "A1", "copy&paste me");
     copy(model, "A1");
     expect(result).toBeSuccessfullyDispatched();
@@ -106,7 +106,7 @@ describe("Model", () => {
       }
     }
     addTestPlugin(featurePluginRegistry, MyUIPlugin);
-    const model = new Model();
+    const model = Model.BuildSync();
 
     setCellContent(model, "A1", "hello");
     expect(getCellContent(model, "A1")).toBe("hello");
@@ -121,7 +121,7 @@ describe("Model", () => {
       }
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
-    const model = new Model();
+    const model = Model.BuildSync();
     model.dispatch("COPY");
     expect(receivedCommands).not.toContain("COPY");
   });
@@ -134,7 +134,7 @@ describe("Model", () => {
       }
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
-    const model = new Model();
+    const model = Model.BuildSync();
     model.dispatch("COPY");
     expect(receivedCommands).not.toContain("COPY");
   });
@@ -149,7 +149,7 @@ describe("Model", () => {
       }
     }
     addTestPlugin(corePluginRegistry, MyCorePlugin);
-    const model = new Model();
+    const model = Model.BuildSync();
     expect(model.canDispatch("CREATE_SHEET", { sheetId: "42", position: 1 })).toBeCancelledBecause(
       CommandResult.CancelledForUnknownReason
     );
@@ -168,27 +168,27 @@ describe("Model", () => {
   });
 
   test("Can open a model in readonly mode", () => {
-    const model = new Model({}, { mode: "readonly" });
+    const model = Model.BuildSync({}, { mode: "readonly" });
     expect(model.getters.isReadonly()).toBe(true);
   });
 
   test("Some commands are not dispatched in readonly mode", () => {
-    const model = new Model({}, { mode: "readonly" });
+    const model = Model.BuildSync({}, { mode: "readonly" });
     expect(setCellContent(model, "A1", "hello")).toBeCancelledBecause(CommandResult.Readonly);
   });
 
   test("Moving the selection is allowed in readonly mode", () => {
-    const model = new Model({}, { mode: "readonly" });
+    const model = Model.BuildSync({}, { mode: "readonly" });
     expect(selectCell(model, "A15")).toBeSuccessfullyDispatched();
   });
 
   test("Can add custom elements in the config of model", () => {
-    const model = new Model({}, { custom: "42" } as unknown as ModelConfig);
+    const model = Model.BuildSync({}, { custom: "42" } as unknown as ModelConfig);
     expect(model["config"]["custom"]).toBe("42");
   });
 
   test("type property in command payload is ignored", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const payload = {
       col: 0,
       row: 0,
@@ -215,7 +215,7 @@ describe("Model", () => {
     addTestPlugin(corePluginRegistry, MyCorePlugin1);
     addTestPlugin(corePluginRegistry, MyCorePlugin2);
 
-    expect(() => new Model()).toThrowError(`Getter "getSomething" is already defined.`);
+    expect(() => Model.BuildSync()).toThrowError(`Getter "getSomething" is already defined.`);
   });
 
   test("Cannot add an already existing getters", () => {
@@ -233,7 +233,7 @@ describe("Model", () => {
     addTestPlugin(featurePluginRegistry, MyUIPlugin1);
     addTestPlugin(featurePluginRegistry, MyUIPlugin2);
 
-    expect(() => new Model()).toThrowError(`Getter "getSomething" is already defined.`);
+    expect(() => Model.BuildSync()).toThrowError(`Getter "getSomething" is already defined.`);
   });
 
   test("Replayed commands are not send to UI plugins", () => {
@@ -289,7 +289,7 @@ describe("Model", () => {
       sheets: [{ id: "sheet1" }],
       revisionId: "initialRevision",
     };
-    const model = new Model(data, {}, [
+    const model = Model.BuildSync(data, {}, [
       {
         type: "REMOTE_REVISION",
         nextRevisionId: "1",
@@ -354,7 +354,7 @@ describe("Model", () => {
         },
       ],
     };
-    const model = new Model(modelData);
+    const model = Model.BuildSync(modelData);
     expect(model.exportData()).toMatchObject({
       sheets: [
         {

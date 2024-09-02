@@ -69,7 +69,7 @@ mockGetBoundingClientRect({
 });
 
 beforeEach(async () => {
-  model = new Model();
+  model = Model.BuildSync();
 });
 
 describe("Popover sizing", () => {

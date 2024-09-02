@@ -151,7 +151,7 @@ describe("Resizer component", () => {
         },
       ],
     };
-    model = new Model(data);
+    model = Model.BuildSync(data);
     ({ fixture, env } = await mountSpreadsheet({ model }));
   });
 
@@ -857,7 +857,7 @@ describe("move selected element(s)", () => {
         },
       ],
     };
-    model = new Model(data);
+    model = Model.BuildSync(data);
     ({ fixture } = await mountSpreadsheet({ model }));
   });
 

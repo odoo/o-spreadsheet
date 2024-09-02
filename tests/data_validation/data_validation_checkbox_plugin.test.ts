@@ -13,7 +13,7 @@ describe("Checkbox in model", () => {
   let sheetId: UID;
 
   beforeEach(async () => {
-    model = new Model();
+    model = Model.BuildSync();
     sheetId = model.getters.getActiveSheetId();
   });
 

@@ -17,7 +17,7 @@ describe("Data validation", () => {
   let sheetId: UID;
 
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
     sheetId = model.getters.getActiveSheetId();
   });
 
@@ -114,7 +114,7 @@ describe("Data validation", () => {
   });
 
   test("copy paste DV in another sheet => change DV => copy paste again doesnt overwrite the previously pasted DV", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     createSheet(model, { sheetId: "sheet2" });
     const sheet1Id = model.getters.getSheetIds()[0];
     const sheet2Id = model.getters.getSheetIds()[1];

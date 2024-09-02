@@ -24,7 +24,7 @@ describe("Split text into columns", () => {
   let model: Model;
   let sheetId: UID;
   beforeEach(() => {
-    model = new Model({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
+    model = Model.BuildSync({ sheets: [{ colNumber: 10, rowNumber: 10 }] });
     sheetId = model.getters.getActiveSheetId();
   });
 

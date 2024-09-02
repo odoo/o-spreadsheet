@@ -450,7 +450,7 @@ describe("Autocomplete parenthesis", () => {
 
 describe("composer Assistant", () => {
   test("render below the cell by default", async () => {
-    ({ model, fixture, parent } = await mountComposerWrapper(new Model(), {
+    ({ model, fixture, parent } = await mountComposerWrapper(Model.BuildSync(), {
       delimitation: { width: 500, height: 500 },
       rect: { width: DEFAULT_CELL_WIDTH, height: DEFAULT_CELL_HEIGHT, x: 150, y: 150 },
     }));
@@ -464,7 +464,7 @@ describe("composer Assistant", () => {
   });
 
   test("render above the cell when not enough place below", async () => {
-    ({ model, fixture, parent } = await mountComposerWrapper(new Model(), {
+    ({ model, fixture, parent } = await mountComposerWrapper(Model.BuildSync(), {
       delimitation: { width: 200, height: 200 },
       rect: { width: DEFAULT_CELL_WIDTH, height: DEFAULT_CELL_HEIGHT, x: 150, y: 150 },
     }));

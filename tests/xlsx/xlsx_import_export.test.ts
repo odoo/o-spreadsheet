@@ -57,7 +57,7 @@ function exportToXlsxThenImport(model: Model) {
       imageSrc: file.imageSrc,
     };
   }
-  const imported = new Model(dataToImport, undefined, undefined, undefined, false);
+  const imported = Model.BuildSync(dataToImport, undefined, undefined, undefined, false);
   return imported;
 }
 
@@ -66,7 +66,7 @@ describe("Export data to xlsx then import it", () => {
   let sheetId;
 
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
     sheetId = model.getters.getActiveSheetId();
   });
 

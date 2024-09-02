@@ -90,14 +90,14 @@ describe("Insert chart menu item", () => {
   }
 
   async function mountTestSpreadsheet() {
-    ({ model, env } = await mountSpreadsheet({ model: new Model(data) }));
+    ({ model, env } = await mountSpreadsheet({ model: Model.BuildSync(data) }));
     dispatchSpy = spyModelDispatch(model);
   }
 
   beforeEach(async () => {
     openSidePanelSpy = jest.fn();
     env = makeTestEnv({
-      model: new Model(data),
+      model: Model.BuildSync(data),
       openSidePanel: (type, props) => openSidePanelSpy(type, props),
     });
     model = env.model;

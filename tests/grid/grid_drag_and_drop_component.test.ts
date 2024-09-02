@@ -71,7 +71,7 @@ afterAll(() => {
 });
 
 beforeEach(async () => {
-  model = new Model();
+  model = Model.BuildSync();
   await mountComponent(FakeGridComponent, { model, props: { model } });
   selectedCol = selectedRow = undefined;
   sheetId = model.getters.getActiveSheetId();

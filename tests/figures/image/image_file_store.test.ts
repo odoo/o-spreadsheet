@@ -8,7 +8,7 @@ describe("image file store", () => {
     fileStore.delete = jest.fn();
     const data = createEmptyWorkbookData();
     const size = { width: 100, height: 100 };
-    new Model(
+    Model.BuildSync(
       data,
       {
         external: { fileStore },
@@ -43,7 +43,7 @@ describe("image file store", () => {
     const data = createEmptyWorkbookData();
     const sheetId = data.sheets[0].id;
     const size = { width: 100, height: 100 };
-    new Model(
+    Model.BuildSync(
       data,
       {
         external: { fileStore },
@@ -79,7 +79,7 @@ describe("image file store", () => {
     const data = createEmptyWorkbookData();
     const sheetId = data.sheets[0].id;
     const size = { width: 100, height: 100 };
-    new Model(
+    Model.BuildSync(
       data,
       {
         external: { fileStore },
@@ -121,7 +121,7 @@ describe("image file store", () => {
     const data = createEmptyWorkbookData();
     const sheetId = data.sheets[0].id;
     const size = { width: 100, height: 100 };
-    new Model(
+    Model.BuildSync(
       data,
       {
         external: { fileStore },
@@ -170,7 +170,7 @@ describe("image file store", () => {
     const data = createEmptyWorkbookData();
     const sheetId = data.sheets[0].id;
     const size = { width: 100, height: 100 };
-    new Model(
+    Model.BuildSync(
       data,
       {
         external: { fileStore },
@@ -213,7 +213,7 @@ describe("image file store", () => {
     fileStore.delete = jest.fn();
     const data = createEmptyWorkbookData();
     const size = { width: 100, height: 100 };
-    new Model(
+    Model.BuildSync(
       data,
       {
         external: { fileStore },
@@ -249,7 +249,7 @@ describe("image file store", () => {
     fileStore.delete = jest.fn();
     const data = createEmptyWorkbookData();
     const size = { width: 100, height: 100 };
-    new Model(
+    Model.BuildSync(
       data,
       {
         external: { fileStore },
@@ -306,7 +306,7 @@ describe("image file store", () => {
         },
       },
     ];
-    new Model(
+    Model.BuildSync(
       data,
       {
         external: { fileStore },

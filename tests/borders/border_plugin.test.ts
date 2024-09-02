@@ -26,7 +26,7 @@ import "../test_helpers/helpers"; // to have getcontext mocks
 
 describe("borders", () => {
   test("can add and remove a border, on empty cell", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
 
     // select B2, set its top border, then clear it
     selectCell(model, "B2");
@@ -59,7 +59,7 @@ describe("borders", () => {
   });
 
   test("can add and remove a top border, on existing cell", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
 
     // select B2
     setCellContent(model, "B2", "content");
@@ -76,7 +76,7 @@ describe("borders", () => {
   });
 
   test("can add and remove a top border, on a selection", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
 
     // select B2:C2
     selectCell(model, "B2");
@@ -90,7 +90,7 @@ describe("borders", () => {
   });
 
   test("can clear a zone", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
 
     // select C3 and add a border
     selectCell(model, "C3");
@@ -108,14 +108,14 @@ describe("borders", () => {
   });
 
   test("set the same border twice is cancelled", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const border = { top: DEFAULT_BORDER_DESC };
     setBorders(model, "A1", border);
     expect(setBorders(model, "A1", border)).toBeCancelledBecause(CommandResult.NoChanges);
   });
 
   test("reset border when there is no border is cancelled", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     expect(setBorders(model, "A1", undefined)).toBeCancelledBecause(CommandResult.NoChanges);
     expect(setBorders(model, "A1", { top: undefined })).toBeCancelledBecause(
       CommandResult.NoChanges
@@ -123,7 +123,7 @@ describe("borders", () => {
   });
 
   test("can set all borders in a zone", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
 
     // select B2, then expand selection to B2:C3
     selectCell(model, "B2");
@@ -144,7 +144,7 @@ describe("borders", () => {
   });
 
   test("setting top border in a zone only set top row", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
 
     // select B2, then expand selection to B2:C3
     selectCell(model, "B2");
@@ -162,7 +162,7 @@ describe("borders", () => {
   });
 
   test("clearing a common border in a neighbour cell", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
 
     // select B2, then set its right border
     selectCell(model, "B2");
@@ -176,7 +176,7 @@ describe("borders", () => {
   });
 
   test("setting external border in a zone works", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
 
     // select B2, then expand selection to B2:D4
     selectCell(model, "B2");
@@ -205,7 +205,7 @@ describe("borders", () => {
   });
 
   test("setting internal horizontal borders in a zone works", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
 
     // select B2, then expand selection to B2:C4
     selectCell(model, "B2");
@@ -227,7 +227,7 @@ describe("borders", () => {
   });
 
   test("setting internal vertical borders in a zone works", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
 
     // select B2, then expand selection to B2:D4
     selectCell(model, "B2");
@@ -255,7 +255,7 @@ describe("borders", () => {
   });
 
   test("setting internal  borders in a zone works", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
 
     // select B2, then expand selection to B2:D4
     selectCell(model, "B2");
@@ -304,7 +304,7 @@ describe("borders", () => {
   });
 
   test("deleting a cell with a border does not remove the border", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
 
     // select B2 and set its top border
     setCellContent(model, "B2", "content");
@@ -320,7 +320,7 @@ describe("borders", () => {
   });
 
   test("can undo and redo a setBorder operation on an non empty cell", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "B2", "some content");
     selectCell(model, "B2");
     setZoneBorders(model, { position: "all" });
@@ -333,7 +333,7 @@ describe("borders", () => {
   });
 
   test("can clear formatting (border)", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setCellContent(model, "B1", "b1");
     selectCell(model, "B1");
     setZoneBorders(model, { position: "all" });
@@ -347,7 +347,7 @@ describe("borders", () => {
   });
 
   test("can clear formatting (border) after selecting all cells", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     selectCell(model, "A1");
 
     setAnchorCorner(model, "Z100");
@@ -365,7 +365,7 @@ describe("borders", () => {
   });
 
   test("set all border of a cell", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const s: BorderDescr = { style: "medium", color: "#FF0000" };
     model.dispatch("SET_BORDER", {
       sheetId: model.getters.getActiveSheetId(),
@@ -377,7 +377,7 @@ describe("borders", () => {
   });
 
   test("cut & paste a border", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     setZoneBorders(model, { position: "external" }, ["B2"]);
     expect(getBorder(model, "B2")).toEqual({
       top: DEFAULT_BORDER_DESC,
@@ -400,7 +400,7 @@ describe("borders", () => {
 describe("Grid manipulation", () => {
   let model: Model;
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
   });
 
   test("ADD_COLUMNS_ROWS with dimension col before with external borders", () => {
@@ -417,7 +417,7 @@ describe("Grid manipulation", () => {
   });
 
   test("move duplicated border when col is inserted before", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
     setZoneBorders(model, { position: "external" }, ["B2"]);
@@ -448,7 +448,7 @@ describe("Grid manipulation", () => {
   });
 
   test("move duplicated border when row is inserted before", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     const firstSheetId = model.getters.getActiveSheetId();
     const secondSheetId = "42";
     setZoneBorders(model, { position: "external" }, ["B2"]);
@@ -751,7 +751,7 @@ test("Cells that have undefined borders don't override borders of neighboring ce
       },
     },
   };
-  const model = new Model(data);
+  const model = Model.BuildSync(data);
   expect(model.getters.getCellBorder({ sheetId: "Sheet1", col: 1, row: 1 })).toEqual({
     top: { style: "thin", color: "#000" },
     bottom: { style: "thin", color: "#000" },
@@ -764,7 +764,7 @@ describe("Borders formatting", () => {
   let model: Model;
 
   beforeEach(() => {
-    model = new Model();
+    model = Model.BuildSync();
   });
 
   test("Can set a border with style and color", () => {
@@ -792,14 +792,14 @@ describe("Borders formatting", () => {
 
 describe("Computed borders", () => {
   test("SET_BORDER command recomputes the borders", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     expect(getComputedBorder(model, "A1")).toBeNull();
     setBorders(model, "A1", { top: DEFAULT_BORDER_DESC });
     expect(getComputedBorder(model, "A1")).not.toBeNull();
   });
 
   test("SET_ZONE_BORDERS command recomputes the borders", () => {
-    const model = new Model();
+    const model = Model.BuildSync();
     expect(getComputedBorder(model, "A1")).toBeNull();
     setZoneBorders(model, { position: "all" }, ["A1"]);
     expect(getComputedBorder(model, "A1")).not.toBeNull();

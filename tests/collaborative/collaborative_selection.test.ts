@@ -188,7 +188,7 @@ describe("Collaborative selection", () => {
         },
       ])
     );
-    const david = new Model(alice.exportData(), {
+    const david = Model.BuildSync(alice.exportData(), {
       transportService: network,
       client: { id: "david", name: "David" },
     });
@@ -270,7 +270,7 @@ describe("Collaborative selection", () => {
 
   test("Can send custom data in client", () => {
     const sheetId = alice.getters.getActiveSheetId();
-    new Model(alice.exportData(), {
+    Model.BuildSync(alice.exportData(), {
       transportService: network,
       client: { id: "david", name: "David", customId: "1" } as Client,
     });

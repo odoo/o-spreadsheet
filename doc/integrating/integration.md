@@ -7,7 +7,7 @@ Here is the shortest example to use o-spreadsheet.
 ```typescript
 const { Spreadsheet, Model } = o_spreadsheet;
 
-const model = new Model();
+const model = Model.BuildSync();
 const templates = await(await fetch("../dist/o_spreadsheet.xml")).text();
 const app = new owl.App(Spreadsheet, {
   props: {
@@ -53,7 +53,7 @@ Spreadsheet model can be created with the following arguments, all optionals:
 
 ```ts
 const { Model } = o_spreadsheet;
-const model = new Model(data, config);
+const model = Model.BuildSync(data, config);
 ```
 
 - `data`
@@ -99,7 +99,7 @@ Your file store instance should implements the [`FileStore`](https://github.com/
 ```ts
 const fileStore = new MyFileStore(...);
 
-const model = new Model(data, {
+const model = Model.BuildSync(data, {
   external: {
     fileStore,
   },
@@ -121,7 +121,7 @@ async function loadCurrencies() {
   ];
 }
 
-const model = new Model(data, {
+const model = Model.BuildSync(data, {
   external: {
     loadCurrencies,
   },
@@ -150,7 +150,7 @@ async function loadLocales() {
   return [ locale, locale2, ...];
 }
 
-const model = new Model(data, {
+const model = Model.BuildSync(data, {
   external: {
     loadLocales,
   },
