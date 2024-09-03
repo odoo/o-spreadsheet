@@ -552,8 +552,9 @@ export class Evaluator {
 
   private getCellsDependingOn(positions: Iterable<CellPosition>): Iterable<CellPosition> {
     const ranges: RTreeBoundingBox[] = [];
-    for (const position of positions) {
-      ranges.push({ sheetId: position.sheetId, zone: positionToZone(position) });
+    const zonesBySheetIds = aggregatePositionsToZones(positions);
+    for (const sheetId in zonesBySheetIds) {
+      ranges.push(...zonesBySheetIds[sheetId].map((zone) => ({ sheetId, zone })));
     }
     return this.formulaDependencies().getCellsDependingOn(ranges);
   }
