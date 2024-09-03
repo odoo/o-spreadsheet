@@ -1,5 +1,5 @@
 import { _t } from "../translation";
-import { Position, UnboundedZone, Zone, ZoneDimension } from "../types";
+import { CellPosition, Position, UnboundedZone, Zone, ZoneDimension } from "../types";
 import { lettersToNumber, numberToLetters, toCartesian, toXC } from "./coordinates";
 import { range } from "./misc";
 import { recomputeZones } from "./recompute_zones";
@@ -419,6 +419,20 @@ export function reorderZone(zone: Zone): Zone {
     zone = { left: zone.left, right: zone.right, top: zone.bottom, bottom: zone.top };
   }
   return zone;
+}
+
+export function aggregatePositionsToZones(positions: Iterable<CellPosition>): {
+  [sheetId: string]: Zone[];
+} {
+  const result: { [sheetId: string]: Zone[] } = {};
+  for (const position of positions) {
+    result[position.sheetId] ??= [];
+    result[position.sheetId].push(positionToZone(position));
+  }
+  for (const sheetId in result) {
+    result[sheetId] = recomputeZones(result[sheetId]);
+  }
+  return result;
 }
 
 /**
