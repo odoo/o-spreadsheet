@@ -116,11 +116,13 @@
     <div class="o-cf-iconset-rule">
       <t t-call="o-spreadsheet-IconSets"/>
       <t t-call="o-spreadsheet-IconSetInflexionPoints"/>
-      <div
-        class="o-button-link py-1 ps-0 d-flex flex-row align-items-center"
-        t-on-click="reverseIcons">
-        <t t-call="o-spreadsheet-Icon.REFRESH"/>
-        <div class="ms-1">Reverse icons</div>
+      <div class="d-flex flex-row">
+        <div
+          class="o-button-link py-1 ps-0 o-cf-iconset-reverse d-flex align-items-center"
+          t-on-click="reverseIcons">
+          <t t-call="o-spreadsheet-Icon.REFRESH"/>
+          <div class="ms-1">Reverse icons</div>
+        </div>
       </div>
     </div>
   </t>
