@@ -170,4 +170,12 @@ describe("FORMAT.LARGE.NUMBER formula", () => {
     // should be "5,000mk" in a perfect world. But we cannot tell the difference between a custom currency and a unit in a format.
     expect(getCellContent(model, "A2")).toBe("5,000m");
   });
+
+  test("Percentage in decimal part is preserved by FORMAT.LARGE.NUMBER", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "100000");
+    setFormat(model, "A1", "#,##0.0%");
+    setCellContent(model, "A2", "=FORMAT.LARGE.NUMBER(A1)");
+    expect(getCellContent(model, "A2")).toBe("10,000k%");
+  });
 });

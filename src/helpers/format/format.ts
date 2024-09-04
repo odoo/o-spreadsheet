@@ -698,6 +698,12 @@ function _createLargeNumberFormat<T extends InternalFormat>(
       lastDigitIndex + 1
     );
   }
+
+  const missingPercents =
+    format.percentSymbols - newIntegerPart.filter((tk) => tk.type === "PERCENT").length;
+
+  newIntegerPart.push(...new Array(missingPercents).fill({ type: "PERCENT", value: "%" }));
+
   return { ...format, integerPart: newIntegerPart, decimalPart: undefined, magnitude };
 }
 
