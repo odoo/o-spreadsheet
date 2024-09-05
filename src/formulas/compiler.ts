@@ -1,6 +1,6 @@
 import { Token } from ".";
 import { functionRegistry } from "../functions/index";
-import { concat, parseNumber, removeStringQuotes, unquote } from "../helpers";
+import { parseNumber, removeStringQuotes, unquote } from "../helpers";
 import { _t } from "../translation";
 import { CompiledFormula, DEFAULT_LOCALE, FormulaToExecute } from "../types";
 import { BadExpressionError, UnknownFunctionError } from "../types/errors";
@@ -236,27 +236,35 @@ function compilationCacheKey(
   constantValues: ConstantValues,
   symbols: string[]
 ): string {
-  return concat(
-    tokens.map((token) => {
-      switch (token.type) {
-        case "STRING":
-          const value = removeStringQuotes(token.value);
-          return `|S${constantValues.strings.indexOf(value)}|`;
-        case "NUMBER":
-          return `|N${constantValues.numbers.indexOf(parseNumber(token.value, DEFAULT_LOCALE))}|`;
-        case "REFERENCE":
-        case "INVALID_REFERENCE":
-          if (token.value.includes(":")) {
-            return `R|${dependencies.indexOf(token.value)}|`;
-          }
-          return `C|${dependencies.indexOf(token.value)}|`;
-        case "SPACE":
-          return "";
-        default:
-          return token.value;
-      }
-    })
-  );
+  let cacheKey = "";
+  for (const token of tokens) {
+    switch (token.type) {
+      case "STRING":
+        const value = removeStringQuotes(token.value);
+        cacheKey += `|S${constantValues.strings.indexOf(value)}|`;
+        break;
+      case "NUMBER":
+        cacheKey += `|N${constantValues.numbers.indexOf(
+          parseNumber(token.value, DEFAULT_LOCALE)
+        )}|`;
+        break;
+      case "REFERENCE":
+      case "INVALID_REFERENCE":
+        if (token.value.includes(":")) {
+          cacheKey += `R|${dependencies.indexOf(token.value)}|`;
+        } else {
+          cacheKey += `C|${dependencies.indexOf(token.value)}|`;
+        }
+        break;
+      case "SPACE":
+        cacheKey += "";
+        break;
+      default:
+        cacheKey += token.value;
+        break;
+    }
+  }
+  return cacheKey;
 }
 
 /**
