@@ -1,6 +1,11 @@
 import { ChartCreationContext, Model } from "../../../src";
 import { ComboChartRuntime } from "../../../src/types/chart/combo_chart";
-import { createChart, setCellContent, setCellFormat } from "../../test_helpers/commands_helpers";
+import {
+  createChart,
+  setCellContent,
+  setCellFormat,
+  updateChart,
+} from "../../test_helpers/commands_helpers";
 import { ComboChart } from "./../../../src/helpers/figures/charts/combo_chart";
 
 describe("combo chart", () => {
@@ -28,7 +33,7 @@ describe("combo chart", () => {
       type: "combo",
       background: "#123456",
       title: { text: "hello there" },
-      dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1" }],
+      dataSets: [{ dataRange: "Sheet1!B1:B4", yAxisId: "y1", type: "bar" }],
       labelRange: "Sheet1!A1:A4",
       legendPosition: "bottom",
       dataSetsHaveTitle: true,
@@ -77,5 +82,34 @@ describe("combo chart", () => {
     expect(
       runtime.chartJsConfig.options?.scales?.y1?.ticks?.callback?.apply(null, [1, index, ticks])
     ).toBe("1.00$");
+  });
+
+  test("Can edit the type of the series", () => {
+    const model = new Model();
+
+    setCellContent(model, "A1", "Alice");
+    setCellContent(model, "A2", "Bob");
+    setCellContent(model, "B1", "1");
+    setCellContent(model, "B2", "2");
+    setCellContent(model, "C1", "10");
+    setCellContent(model, "C2", "20");
+
+    createChart(
+      model,
+      {
+        type: "combo",
+        labelRange: "A1:A2",
+        dataSets: [{ dataRange: "B1:B2" }, { dataRange: "C1:C2" }],
+        dataSetsHaveTitle: false,
+      },
+      "1"
+    );
+    let runtime = model.getters.getChartRuntime("1") as ComboChartRuntime;
+    expect(runtime.chartJsConfig.data?.datasets?.[1].type).toBe("line");
+    updateChart(model, "1", {
+      dataSets: [{ dataRange: "B1:B2" }, { dataRange: "C1:C2", type: "bar" }],
+    });
+    runtime = model.getters.getChartRuntime("1") as ComboChartRuntime;
+    expect(runtime.chartJsConfig.data?.datasets?.[1].type).toBe("bar");
   });
 });

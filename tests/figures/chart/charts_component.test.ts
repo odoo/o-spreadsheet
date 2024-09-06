@@ -13,7 +13,11 @@ import {
 } from "../../../src/types";
 import { BarChartDefinition, BarChartRuntime } from "../../../src/types/chart/bar_chart";
 import { LineChartDefinition } from "../../../src/types/chart/line_chart";
-import { getChartConfiguration } from "../../test_helpers/chart_helpers";
+import {
+  getChartConfiguration,
+  openChartConfigSidePanel,
+  openChartDesignSidePanel,
+} from "../../test_helpers/chart_helpers";
 import {
   copy,
   createChart,
@@ -79,19 +83,6 @@ function errorMessages(): string[] {
   return textContentAll(".o-validation-error");
 }
 
-async function openChartConfigSidePanel(id = chartId) {
-  model.dispatch("SELECT_FIGURE", { id });
-  env.openSidePanel("ChartPanel");
-  await nextTick();
-}
-
-async function openChartDesignSidePanel(id = chartId) {
-  if (!fixture.querySelector(".o-chart")) {
-    await openChartConfigSidePanel(id);
-  }
-  await simulateClick(".o-panel-element.inactive");
-}
-
 async function changeChartType(type: string) {
   triggerMouseEvent(".o-type-selector", "pointerdown");
   await nextTick();
@@ -152,7 +143,7 @@ describe("charts", () => {
   test.each(CHART_TYPES)("Can open a chart sidePanel", async (chartType) => {
     await mountSpreadsheet();
     createTestChart(chartType);
-    await openChartConfigSidePanel();
+    await openChartConfigSidePanel(model, env, chartId);
     expect(fixture.querySelector(".o-figure")).toBeTruthy();
   });
 
@@ -323,7 +314,7 @@ describe("charts", () => {
       chartId
     );
     await mountChartSidePanel();
-    await openChartDesignSidePanel(chartId);
+    await openChartDesignSidePanel(model, env, fixture, chartId);
 
     const color_menu = fixture.querySelectorAll(
       ".o-chart-title-designer > .o-color-picker-widget > .o-color-picker-button"
@@ -351,7 +342,7 @@ describe("charts", () => {
         chartId
       );
       await mountChartSidePanel();
-      await openChartDesignSidePanel(chartId);
+      await openChartDesignSidePanel(model, env, fixture, chartId);
       const alignment_menu = fixture.querySelectorAll(
         ".o-chart-title-designer > .o-menu-item-button[title='Horizontal alignment']"
       )[0];
@@ -377,7 +368,7 @@ describe("charts", () => {
       chartId
     );
     await mountChartSidePanel();
-    await openChartDesignSidePanel(chartId);
+    await openChartDesignSidePanel(model, env, fixture, chartId);
 
     const bold_element = fixture.querySelectorAll(
       ".o-chart-title-designer > .o-menu-item-button[title='Bold']"
@@ -410,7 +401,7 @@ describe("charts", () => {
       chartId
     );
     await mountChartSidePanel();
-    await openChartDesignSidePanel(chartId);
+    await openChartDesignSidePanel(model, env, fixture, chartId);
 
     const color_menu = fixture.querySelectorAll(
       ".o-chart-title-designer > .o-color-picker-widget > .o-color-picker-button"
@@ -440,7 +431,7 @@ describe("charts", () => {
         chartId
       );
       await mountChartSidePanel();
-      await openChartDesignSidePanel(chartId);
+      await openChartDesignSidePanel(model, env, fixture, chartId);
       const alignment_menu = fixture.querySelectorAll(
         ".o-chart-title-designer > .o-menu-item-button[title='Horizontal alignment']"
       )[1];
@@ -468,7 +459,7 @@ describe("charts", () => {
       chartId
     );
     await mountChartSidePanel();
-    await openChartDesignSidePanel(chartId);
+    await openChartDesignSidePanel(model, env, fixture, chartId);
 
     const bold_element = fixture.querySelectorAll(
       ".o-chart-title-designer > .o-menu-item-button[title='Bold']"
@@ -506,7 +497,7 @@ describe("charts", () => {
       chartId
     );
     await mountChartSidePanel();
-    await openChartDesignSidePanel(chartId);
+    await openChartDesignSidePanel(model, env, fixture, chartId);
 
     const bold_element = fixture.querySelectorAll(
       ".o-chart-title-designer > .o-menu-item-button[title='Bold']"
@@ -553,7 +544,7 @@ describe("charts", () => {
       chartId
     );
     await mountChartSidePanel();
-    await openChartDesignSidePanel(chartId);
+    await openChartDesignSidePanel(model, env, fixture, chartId);
 
     let color_menu = fixture.querySelectorAll(".o-round-color-picker-button")[1];
 
@@ -604,7 +595,7 @@ describe("charts", () => {
       chartId
     );
     await mountChartSidePanel();
-    await openChartDesignSidePanel();
+    await openChartDesignSidePanel(model, env, fixture, chartId);
     await click(fixture, ".o-vertical-axis-selection input[value=right]");
 
     //@ts-ignore
@@ -627,7 +618,7 @@ describe("charts", () => {
       chartId
     );
     await mountChartSidePanel();
-    await openChartDesignSidePanel();
+    await openChartDesignSidePanel(model, env, fixture, chartId);
     setInputValueAndTrigger(".o-serie-label-editor", "coucou");
 
     //@ts-ignore
@@ -646,7 +637,7 @@ describe("charts", () => {
       chartId
     );
     await mountChartSidePanel(chartId);
-    await openChartDesignSidePanel(chartId);
+    await openChartDesignSidePanel(model, env, fixture, chartId);
     expect(1).toBe(1);
   });
 
@@ -672,7 +663,7 @@ describe("charts", () => {
       "2"
     );
     await mountSpreadsheet();
-    await openChartDesignSidePanel("1");
+    await openChartDesignSidePanel(model, env, fixture, "1");
 
     await simulateClick(".o-chart-title input");
     setInputValueAndTrigger(".o-chart-title input", "first_title", "onlyInput");
@@ -705,7 +696,7 @@ describe("charts", () => {
       "2"
     );
     await mountSpreadsheet();
-    await openChartDesignSidePanel("1");
+    await openChartDesignSidePanel(model, env, fixture, "1");
 
     const figures = fixture.querySelectorAll(".o-figure");
     await simulateClick(figures[1] as HTMLElement);
@@ -721,7 +712,7 @@ describe("charts", () => {
     async (chartType) => {
       createTestChart(chartType);
       await mountSpreadsheet();
-      await openChartDesignSidePanel();
+      await openChartDesignSidePanel(model, env, fixture, chartId);
 
       await simulateClick(".o-chart-title input");
       const chartTitle = document.querySelector(".o-chart-title input") as HTMLInputElement;
@@ -738,7 +729,7 @@ describe("charts", () => {
       createTestChart(chartType);
       await mountSpreadsheet();
       const dispatch = spyModelDispatch(model);
-      await openChartDesignSidePanel();
+      await openChartDesignSidePanel(model, env, fixture, chartId);
 
       expect(fixture.querySelector(".o-chart")).toBeTruthy();
       await simulateClick(".o-round-color-picker-button");
@@ -770,7 +761,7 @@ describe("charts", () => {
     async (chartType) => {
       createTestChart(chartType);
       await mountChartSidePanel();
-      await openChartDesignSidePanel();
+      await openChartDesignSidePanel(model, env, fixture, chartId);
 
       await simulateClick(".o-color-picker-widget .o-color-picker-button");
       expect(fixture.querySelector(".o-color-picker")).toBeTruthy();
@@ -804,7 +795,7 @@ describe("charts", () => {
   test("drawing of chart will receive new data after update", async () => {
     createTestChart("basicChart");
     await mountSpreadsheet();
-    await openChartConfigSidePanel();
+    await openChartConfigSidePanel(model, env, chartId);
 
     const dataSeries = fixture.querySelectorAll(".o-chart .o-data-series")[0] as HTMLInputElement;
     const dataSeriesValues = dataSeries.querySelector("input");
@@ -863,7 +854,7 @@ describe("charts", () => {
   test("Deleting a chart with active selection input does not produce a traceback", async () => {
     createTestChart("basicChart");
     await mountSpreadsheet();
-    await openChartConfigSidePanel();
+    await openChartConfigSidePanel(model, env, chartId);
 
     await simulateClick(".o-data-series .o-add-selection");
     const element = document.querySelectorAll(".o-data-series input")[0];
@@ -877,7 +868,7 @@ describe("charts", () => {
   test("Undo a chart insertion will close the chart side panel", async () => {
     createTestChart("basicChart");
     await mountSpreadsheet();
-    await openChartConfigSidePanel();
+    await openChartConfigSidePanel(model, env, chartId);
     undo(model);
     await nextTick();
     expect(fixture.querySelector(".o-chart")).toBeFalsy();
@@ -910,7 +901,7 @@ describe("charts", () => {
         "secondChartId"
       );
       await mountSpreadsheet();
-      await openChartConfigSidePanel();
+      await openChartConfigSidePanel(model, env, chartId);
       expect(fixture.querySelector(".o-chart")).toBeTruthy();
 
       const figures = fixture.querySelectorAll(".o-figure");
@@ -1133,7 +1124,7 @@ describe("charts", () => {
     test("Can change gauge inflection operator", async () => {
       createTestChart("gauge");
       await mountChartSidePanel();
-      await openChartDesignSidePanel();
+      await openChartDesignSidePanel(model, env, fixture, chartId);
 
       expect(model.getters.getChartDefinition(chartId)).toMatchObject({
         sectionRule: {
@@ -1165,7 +1156,7 @@ describe("charts", () => {
       beforeEach(async () => {
         createTestChart("gauge");
         await mountChartSidePanel();
-        await openChartDesignSidePanel();
+        await openChartDesignSidePanel(model, env, fixture, chartId);
       });
 
       test("empty rangeMin", async () => {
@@ -1322,7 +1313,7 @@ describe("charts", () => {
       createTestChart(chartType);
       updateChart(model, chartId, { keyValue: undefined, dataRange: undefined, dataSets: [] });
       await mountSpreadsheet();
-      await openChartConfigSidePanel();
+      await openChartConfigSidePanel(model, env, chartId);
 
       const input = fixture.querySelector(".o-selection input");
       await simulateClick(input);
@@ -1335,7 +1326,7 @@ describe("charts", () => {
       createTestChart("scorecard");
       const dispatch = spyModelDispatch(model);
       await mountChartSidePanel();
-      await openChartDesignSidePanel();
+      await openChartDesignSidePanel(model, env, fixture, chartId);
 
       // Change color of "up" value of baseline
       const colorpickerUpButton = fixture.querySelectorAll(
@@ -1538,7 +1529,7 @@ describe("charts", () => {
       dataSets: [{ dataRange: "B2:B4" }],
     });
     await mountChartSidePanel();
-    await openChartDesignSidePanel();
+    await openChartDesignSidePanel(model, env, fixture, chartId);
 
     expect(
       (model.getters.getChartDefinition(chartId) as LineChartDefinition).showValues
@@ -1642,7 +1633,7 @@ describe("charts", () => {
           sheetId
         );
         await mountChartSidePanel(chartId);
-        await openChartDesignSidePanel(chartId);
+        await openChartDesignSidePanel(model, env, fixture, chartId);
 
         const checkbox = document.querySelector("input[name='showTrendLine']") as HTMLInputElement;
         expect(checkbox.checked).toBe(false);
@@ -1688,7 +1679,7 @@ describe("charts", () => {
           sheetId
         );
         await mountChartSidePanel(chartId);
-        await openChartDesignSidePanel(chartId);
+        await openChartDesignSidePanel(model, env, fixture, chartId);
 
         let definition = model.getters.getChartDefinition(chartId) as ChartWithAxisDefinition;
         expect(definition.dataSets[0].trend).toEqual({
@@ -1727,7 +1718,7 @@ describe("charts", () => {
           sheetId
         );
         await mountChartSidePanel(chartId);
-        await openChartDesignSidePanel(chartId);
+        await openChartDesignSidePanel(model, env, fixture, chartId);
 
         let definition = model.getters.getChartDefinition(chartId) as ChartWithAxisDefinition;
         expect(definition.dataSets[0].trend).toEqual({
@@ -1763,7 +1754,7 @@ describe("charts", () => {
           sheetId
         );
         await mountChartSidePanel(chartId);
-        await openChartDesignSidePanel(chartId);
+        await openChartDesignSidePanel(model, env, fixture, chartId);
 
         let runtime = model.getters.getChartRuntime(chartId) as BarChartRuntime;
         expect(runtime.chartJsConfig.data.datasets[1].backgroundColor).toBe("#FF8080");
@@ -1831,7 +1822,7 @@ describe("charts", () => {
   test("Cannot change series axis on horizontal bar chart", async () => {
     createChart(model, { type: "bar", horizontal: true }, chartId);
     await mountChartSidePanel();
-    await openChartDesignSidePanel();
+    await openChartDesignSidePanel(model, env, fixture, chartId);
     expect(fixture.querySelector(".o-vertical-axis-selection ")).toBeNull();
   });
 });

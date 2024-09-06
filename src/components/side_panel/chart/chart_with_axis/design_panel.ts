@@ -29,7 +29,10 @@ interface Props {
   updateChart: (figureId: UID, definition: Partial<ChartWithAxisDefinition>) => DispatchResult;
 }
 
-export class ChartWithAxisDesignPanel extends Component<Props, SpreadsheetChildEnv> {
+export class ChartWithAxisDesignPanel<P extends Props = Props> extends Component<
+  P,
+  SpreadsheetChildEnv
+> {
   static template = "o-spreadsheet-ChartWithAxisDesignPanel";
   static components = {
     GeneralDesignEditor,
@@ -49,7 +52,7 @@ export class ChartWithAxisDesignPanel extends Component<Props, SpreadsheetChildE
 
   axisChoices = CHART_AXIS_CHOICES;
 
-  private state = useState({ index: 0 });
+  protected state = useState({ index: 0 });
 
   get axesList(): AxisDefinition[] {
     const { useLeftAxis, useRightAxis } = getDefinedAxis(this.props.definition);
