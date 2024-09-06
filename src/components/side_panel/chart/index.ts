@@ -3,6 +3,7 @@ import { Registry } from "../../../registries/registry";
 import { BarConfigPanel } from "./bar_chart/bar_chart_config_panel";
 import { GenericChartConfigPanel } from "./building_blocks/generic_side_panel/config_panel";
 import { ChartWithAxisDesignPanel } from "./chart_with_axis/design_panel";
+import { ComboChartDesignPanel } from "./combo_chart/combo_chart_design_panel";
 import { GaugeChartConfigPanel } from "./gauge_chart_panel/gauge_chart_config_panel";
 import { GaugeChartDesignPanel } from "./gauge_chart_panel/gauge_chart_design_panel";
 import { LineConfigPanel } from "./line_chart/line_chart_config_panel";
@@ -43,7 +44,7 @@ chartSidePanelComponentRegistry
   })
   .add("combo", {
     configuration: GenericChartConfigPanel,
-    design: ChartWithAxisDesignPanel,
+    design: ComboChartDesignPanel,
   })
   .add("pie", {
     configuration: GenericChartConfigPanel,

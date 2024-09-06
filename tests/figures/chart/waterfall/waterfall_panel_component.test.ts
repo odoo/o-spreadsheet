@@ -12,17 +12,12 @@ import {
   setInputValueAndTrigger,
   simulateClick,
 } from "../../../test_helpers";
-import { mountComponentWithPortalTarget, nextTick } from "../../../test_helpers/helpers";
+import { openChartConfigSidePanel } from "../../../test_helpers/chart_helpers";
+import { mountComponentWithPortalTarget } from "../../../test_helpers/helpers";
 
 let model: Model;
 let fixture: HTMLElement;
 let env: SpreadsheetChildEnv;
-
-async function openChartConfigSidePanel(chartId: UID) {
-  model.dispatch("SELECT_FIGURE", { id: chartId });
-  env.openSidePanel("ChartPanel");
-  await nextTick();
-}
 
 function getWaterfallDefinition(chartId: UID): WaterfallChartDefinition {
   return model.getters.getChartDefinition(chartId) as WaterfallChartDefinition;
@@ -58,7 +53,7 @@ describe("Waterfall chart side panel", () => {
         dataSetsHaveTitle: true,
         aggregated: true,
       });
-      await openChartConfigSidePanel(chartId);
+      await openChartConfigSidePanel(model, env, chartId);
 
       expect(getHTMLInputValue(".o-data-series input")).toEqual("A1:A3");
       expect(getHTMLInputValue(".o-data-labels input")).toEqual("B1:B3");
@@ -73,7 +68,7 @@ describe("Waterfall chart side panel", () => {
         dataSetsHaveTitle: true,
         aggregated: true,
       });
-      await openChartConfigSidePanel(chartId);
+      await openChartConfigSidePanel(model, env, chartId);
 
       await setInputValueAndTrigger(".o-data-labels input", "C1:C3");
       await simulateClick(".o-data-labels .o-selection-ok");
@@ -105,7 +100,7 @@ describe("Waterfall chart side panel", () => {
         background: "#00FF00",
         firstValueAsSubtotal: true,
       });
-      await openChartConfigSidePanel(chartId);
+      await openChartConfigSidePanel(model, env, chartId);
       await click(fixture, ".o-panel-design");
 
       expect(getHTMLInputValue(".o-chart-title input")).toEqual("My Waterfall chart");
@@ -123,7 +118,7 @@ describe("Waterfall chart side panel", () => {
 
     test("Can change basic chart options", async () => {
       const chartId = createWaterfallChart(model, {});
-      await openChartConfigSidePanel(chartId);
+      await openChartConfigSidePanel(model, env, chartId);
       await click(fixture, ".o-panel-design");
 
       await setInputValueAndTrigger(".o-chart-title input", "My Waterfall chart");
@@ -143,7 +138,7 @@ describe("Waterfall chart side panel", () => {
         showConnectorLines: true,
         firstValueAsSubtotal: true,
       });
-      await openChartConfigSidePanel(chartId);
+      await openChartConfigSidePanel(model, env, chartId);
       await click(fixture, ".o-panel-design");
 
       await simulateClick('input[name="showSubTotals"]');
@@ -157,7 +152,7 @@ describe("Waterfall chart side panel", () => {
 
     test("Can change waterfall chart colors", async () => {
       const chartId = createWaterfallChart(model);
-      await openChartConfigSidePanel(chartId);
+      await openChartConfigSidePanel(model, env, chartId);
       await click(fixture, ".o-panel-design");
 
       await changeChartColor(".o-chart-background-color", "#A64D79");
