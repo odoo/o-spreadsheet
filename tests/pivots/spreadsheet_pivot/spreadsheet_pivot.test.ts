@@ -932,7 +932,7 @@ describe("Spreadsheet Pivot", () => {
     });
     setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:not_a_granularity", 2024)');
     expect(getEvaluatedCell(model, "A27").message).toBe(
-      "Dimensions don't match the pivot definition"
+      "Dimensions don't match the pivot definition. Consider using a dynamic pivot formula: =PIVOT(1). Or re-insert the static pivot from the Data menu."
     );
   });
 
@@ -966,7 +966,7 @@ describe("Spreadsheet Pivot", () => {
     // without granularity
     setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date", )');
     expect(getEvaluatedCell(model, "A31").message).toBe(
-      "Dimensions don't match the pivot definition"
+      "Dimensions don't match the pivot definition. Consider using a dynamic pivot formula: =PIVOT(1). Or re-insert the static pivot from the Data menu."
     );
 
     // no a number
@@ -1009,7 +1009,7 @@ describe("Spreadsheet Pivot", () => {
     // without granularity
     setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date", )');
     expect(getEvaluatedCell(model, "A31").message).toBe(
-      "Dimensions don't match the pivot definition"
+      "Dimensions don't match the pivot definition. Consider using a dynamic pivot formula: =PIVOT(1). Or re-insert the static pivot from the Data menu."
     );
     setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date:quarter_number", "not a number")');
     expect(getEvaluatedCell(model, "A32").message).toBe(
@@ -1060,7 +1060,7 @@ describe("Spreadsheet Pivot", () => {
     // without granularity
     setCellContent(model, "A32", '=PIVOT.HEADER(1, "Date", )');
     expect(getEvaluatedCell(model, "A32").message).toBe(
-      "Dimensions don't match the pivot definition"
+      "Dimensions don't match the pivot definition. Consider using a dynamic pivot formula: =PIVOT(1). Or re-insert the static pivot from the Data menu."
     );
 
     // not a number
@@ -1106,7 +1106,7 @@ describe("Spreadsheet Pivot", () => {
     // without granularity
     setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date", )');
     expect(getEvaluatedCell(model, "A31").message).toBe(
-      "Dimensions don't match the pivot definition"
+      "Dimensions don't match the pivot definition. Consider using a dynamic pivot formula: =PIVOT(1). Or re-insert the static pivot from the Data menu."
     );
 
     // not a number
@@ -1159,7 +1159,7 @@ describe("Spreadsheet Pivot", () => {
     // without granularity
     setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date", )');
     expect(getEvaluatedCell(model, "A31").message).toBe(
-      "Dimensions don't match the pivot definition"
+      "Dimensions don't match the pivot definition. Consider using a dynamic pivot formula: =PIVOT(1). Or re-insert the static pivot from the Data menu."
     );
 
     // not a number
@@ -1209,7 +1209,7 @@ describe("Spreadsheet Pivot", () => {
     // without granularity
     setCellContent(model, "A31", '=PIVOT.HEADER(1, "Date", )');
     expect(getEvaluatedCell(model, "A31").message).toBe(
-      "Dimensions don't match the pivot definition"
+      "Dimensions don't match the pivot definition. Consider using a dynamic pivot formula: =PIVOT(1). Or re-insert the static pivot from the Data menu."
     );
 
     // not a number

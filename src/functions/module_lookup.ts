@@ -728,9 +728,13 @@ export const PIVOT_VALUE = {
     }
 
     if (!pivot.areDomainArgsFieldsValid(domainArgs)) {
+      const suggestion = _t(
+        "Consider using a dynamic pivot formula: %s. Or re-insert the static pivot from the Data menu.",
+        `=PIVOT(${_pivotFormulaId})`
+      );
       return {
         value: CellErrorType.GenericError,
-        message: _t("Dimensions don't match the pivot definition"),
+        message: _t("Dimensions don't match the pivot definition") + ". " + suggestion,
       };
     }
     const domain = pivot.parseArgsToPivotDomain(domainArgs);
@@ -761,9 +765,13 @@ export const PIVOT_HEADER = {
       return error;
     }
     if (!pivot.areDomainArgsFieldsValid(domainArgs)) {
+      const suggestion = _t(
+        "Consider using a dynamic pivot formula: %s. Or re-insert the static pivot from the Data menu.",
+        `=PIVOT(${_pivotFormulaId})`
+      );
       return {
         value: CellErrorType.GenericError,
-        message: _t("Dimensions don't match the pivot definition"),
+        message: _t("Dimensions don't match the pivot definition") + ". " + suggestion,
       };
     }
     const domain = pivot.parseArgsToPivotDomain(domainArgs);
