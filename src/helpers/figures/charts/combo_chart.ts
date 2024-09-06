@@ -18,11 +18,14 @@ import {
 import {
   AxesDesign,
   CustomizedDataSet,
-  DatasetDesign,
   ExcelChartDataset,
   LegendPosition,
 } from "../../../types/chart";
-import { ComboChartDefinition, ComboChartRuntime } from "../../../types/chart/combo_chart";
+import {
+  ComboChartDataSet,
+  ComboChartDefinition,
+  ComboChartRuntime,
+} from "../../../types/chart/combo_chart";
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
@@ -64,7 +67,7 @@ export class ComboChart extends AbstractChart {
   readonly legendPosition: LegendPosition;
   readonly aggregated?: boolean;
   readonly dataSetsHaveTitle: boolean;
-  readonly dataSetDesign?: DatasetDesign[];
+  readonly dataSetDesign?: ComboChartDataSet[];
   readonly axesDesign?: AxesDesign;
   readonly type = "combo";
   readonly showValues?: boolean;
@@ -127,11 +130,12 @@ export class ComboChart extends AbstractChart {
     labelRange: Range | undefined,
     targetSheetId?: UID
   ): ComboChartDefinition {
-    const ranges: CustomizedDataSet[] = [];
+    const ranges: ComboChartDataSet[] = [];
     for (const [i, dataSet] of dataSets.entries()) {
       ranges.push({
         ...this.dataSetDesign?.[i],
         dataRange: this.getters.getRangeString(dataSet.dataRange, targetSheetId || this.sheetId),
+        type: this.dataSetDesign?.[i]?.type ?? (i ? "line" : "bar"),
       });
     }
     return {
@@ -189,9 +193,13 @@ export class ComboChart extends AbstractChart {
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): ComboChartDefinition {
+    const dataSets: ComboChartDataSet[] = (context.range ?? []).map((ds, index) => ({
+      ...ds,
+      type: index ? "line" : "bar",
+    }));
     return {
       background: context.background,
-      dataSets: context.range ?? [],
+      dataSets,
       dataSetsHaveTitle: context.dataSetsHaveTitle ?? false,
       aggregated: context.aggregated,
       legendPosition: context.legendPosition ?? "top",
@@ -249,7 +257,6 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
   const config = getDefaultChartJsRuntime(chart, labels, fontColor, localeFormat);
   const legend: DeepPartial<LegendOptions<"bar">> = {
     labels: { color: fontColor },
-    reverse: true,
   };
   if (chart.legendPosition === "none") {
     legend.display = false;
@@ -320,14 +327,15 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
   for (let [index, { label, data }] of dataSetsValues.entries()) {
     const design = definition.dataSets[index];
     const color = colors.next();
+    const type = design?.type ?? "line";
     const dataset: ChartDataset<"bar" | "line", number[]> = {
       label: design?.label ?? label,
       data,
       borderColor: color,
       backgroundColor: color,
       yAxisID: design?.yAxisId ?? "y",
-      type: index === 0 ? "bar" : "line",
-      order: -index,
+      type,
+      order: type === "bar" ? dataSetsValues.length + index : index,
     };
     config.data.datasets.push(dataset);
 
