@@ -1644,7 +1644,7 @@ describe("Chart without labels", () => {
     expect(getChartConfiguration(model, "44").data?.labels).toEqual(["B1", "B2"]);
   });
 
-  test("Combo chart has both line and bar", () => {
+  test("Combo chart has bar if the type is set to bar and line else", () => {
     setCellContent(model, "A1", "1");
     setCellContent(model, "A2", "2");
     setCellContent(model, "A3", "3");
@@ -1654,7 +1654,13 @@ describe("Chart without labels", () => {
 
     createComboChart(
       model,
-      { dataSets: [{ dataRange: "A1:A2" }, { dataRange: "A3:A4" }, { dataRange: "A5:A6" }] },
+      {
+        dataSets: [
+          { dataRange: "A1:A2", type: "bar" },
+          { dataRange: "A3:A4" },
+          { dataRange: "A5:A6" },
+        ],
+      },
       "43"
     );
     const dataSets = getChartConfiguration(model, "43").data.datasets;
