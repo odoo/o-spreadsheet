@@ -1,11 +1,13 @@
 import { Model, SpreadsheetChildEnv } from "../../../src";
 import { toZone } from "../../../src/helpers";
 import { SpreadsheetPivot } from "../../../src/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
+import { NotificationStore } from "../../../src/stores/notification_store";
 import {
   activateSheet,
   createSheet,
   selectCell,
   setCellContent,
+  setViewportOffset,
   undo,
 } from "../../test_helpers/commands_helpers";
 import {
@@ -406,6 +408,35 @@ describe("Spreadsheet pivot side panel", () => {
         userDefinedName: "A lovely name",
       },
     ]);
+  });
+
+  test("notify when no dynamic pivot is visible", async () => {
+    setCellContent(model, "A4", "=PIVOT(1)");
+    const mockNotify = jest.fn();
+    const notificationStore = env.getStore(NotificationStore);
+    notificationStore.updateNotificationCallbacks({
+      notifyUser: mockNotify,
+    });
+
+    await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
+    await click(fixture.querySelectorAll(".o-autocomplete-value")[1]);
+    // don't notify when dynamic pivot is visible
+    expect(mockNotify).toHaveBeenCalledTimes(0);
+
+    // scroll beyond the =PIVOT formula
+    setViewportOffset(model, 0, 1000);
+    await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
+    await click(fixture.querySelectorAll(".o-autocomplete-value")[1]);
+    expect(mockNotify).toHaveBeenCalledWith({
+      text: "Pivot updates only work with dynamic pivot tables. Use =PIVOT(1) or re-insert the static pivot from the Data menu.",
+      sticky: false,
+      type: "info",
+    });
+
+    // don't notify a second time
+    await click(fixture.querySelector(".o-pivot-measure .add-dimension")!);
+    await click(fixture.querySelectorAll(".o-autocomplete-value")[1]);
+    expect(mockNotify).toHaveBeenCalledTimes(1);
   });
 
   test("Invalid pivot dimensions are displayed as such in the side panel", async () => {

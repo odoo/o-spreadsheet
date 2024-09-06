@@ -2,6 +2,7 @@ import { deepCopy, deepEquals } from "../../../../helpers";
 import { isDateOrDatetimeField } from "../../../../helpers/pivot/pivot_helpers";
 import { pivotRegistry } from "../../../../helpers/pivot/pivot_registry";
 import { Get } from "../../../../store_engine";
+import { NotificationStore } from "../../../../stores/notification_store";
 import { SpreadsheetStore } from "../../../../stores/spreadsheet_store";
 import { _t } from "../../../../translation";
 import { Command, UID } from "../../../../types";
@@ -19,6 +20,9 @@ export class PivotSidePanelStore extends SpreadsheetStore {
 
   private updatesAreDeferred: boolean = false;
   private draft: PivotCoreDefinition | null = null;
+  private notification = this.get(NotificationStore);
+  private alreadyNotified = false;
+
   constructor(get: Get, private pivotId: UID) {
     super(get);
   }
@@ -136,6 +140,19 @@ export class PivotSidePanelStore extends SpreadsheetStore {
         pivot: this.draft,
       });
       this.draft = null;
+      if (!this.alreadyNotified && !this.isDynamicPivotInViewport()) {
+        const formulaId = this.getters.getPivotFormulaId(this.pivotId);
+        const pivotExample = `=PIVOT(${formulaId})`;
+        this.alreadyNotified = true;
+        this.notification.notifyUser({
+          type: "info",
+          text: _t(
+            "Pivot updates only work with dynamic pivot tables. Use %s or re-insert the static pivot from the Data menu.",
+            pivotExample
+          ),
+          sticky: false,
+        });
+      }
     }
   }
 
@@ -181,14 +198,23 @@ export class PivotSidePanelStore extends SpreadsheetStore {
       this.fields,
       cleanedDefinition
     );
-    if (this.updatesAreDeferred) {
-      this.draft = cleanedWithGranularity;
-    } else {
-      this.model.dispatch("UPDATE_PIVOT", {
-        pivotId: this.pivotId,
-        pivot: cleanedWithGranularity,
-      });
+    this.draft = cleanedWithGranularity;
+    if (!this.updatesAreDeferred) {
+      this.applyUpdate();
     }
+  }
+
+  private isDynamicPivotInViewport() {
+    const sheetId = this.getters.getActiveSheetId();
+    for (const col of this.getters.getSheetViewVisibleCols()) {
+      for (const row of this.getters.getSheetViewVisibleRows()) {
+        const isDynamicPivot = this.getters.isSpillPivotFormula({ sheetId, col, row });
+        if (isDynamicPivot) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   private addDefaultDateTimeGranularity(fields: PivotFields, definition: PivotCoreDefinition) {
