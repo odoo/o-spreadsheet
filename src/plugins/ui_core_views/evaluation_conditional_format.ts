@@ -11,6 +11,8 @@ import {
   ColorScaleRule,
   ColorScaleThreshold,
   DEFAULT_LOCALE,
+  DataBarFill,
+  DataBarRule,
   EvaluatedCell,
   HeaderIndex,
   IconSetRule,
@@ -28,13 +30,19 @@ import { CoreViewCommand, invalidateEvaluationCommands } from "./../../types/com
 
 type ComputedStyles = { [col: HeaderIndex]: (Style | undefined)[] };
 type ComputedIcons = { [col: HeaderIndex]: (string | undefined)[] };
+type ComputedDataBars = { [col: HeaderIndex]: (DataBarFill | undefined)[] };
 
 export class EvaluationConditionalFormatPlugin extends UIPlugin {
-  static getters = ["getConditionalIcon", "getCellConditionalFormatStyle"] as const;
+  static getters = [
+    "getConditionalIcon",
+    "getCellConditionalFormatStyle",
+    "getConditionalDataBar",
+  ] as const;
   private isStale: boolean = true;
   // stores the computed styles in the format of computedStyles.sheetName[col][row] = Style
   private computedStyles: { [sheet: string]: Lazy<ComputedStyles> } = {};
   private computedIcons: { [sheet: string]: Lazy<ComputedIcons> } = {};
+  private computedDataBars: { [sheet: string]: Lazy<ComputedDataBars> } = {};
 
   // ---------------------------------------------------------------------------
   // Command Handling
@@ -55,6 +63,7 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
       for (const sheetId of this.getters.getSheetIds()) {
         this.computedStyles[sheetId] = lazy(() => this.getComputedStyles(sheetId));
         this.computedIcons[sheetId] = lazy(() => this.getComputedIcons(sheetId));
+        this.computedDataBars[sheetId] = lazy(() => this.getComputedDataBars(sheetId));
       }
       this.isStale = false;
     }
@@ -74,6 +83,12 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
     const icons = this.computedIcons[sheetId]();
     return icons && icons[col]?.[row];
   }
+
+  getConditionalDataBar({ sheetId, col, row }: CellPosition): DataBarFill | undefined {
+    const dataBars = this.computedDataBars[sheetId]();
+    return dataBars && dataBars[col]?.[row];
+  }
+
   // ---------------------------------------------------------------------------
   // Private
   // ---------------------------------------------------------------------------
@@ -146,6 +161,18 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
       }
     }
     return computedIcons;
+  }
+
+  private getComputedDataBars(sheetId: UID): ComputedDataBars {
+    const computedDataBars: ComputedDataBars = {};
+    for (let cf of this.getters.getConditionalFormats(sheetId).reverse()) {
+      if (cf.rule.type !== "DataBarRule") continue;
+
+      for (let range of cf.ranges) {
+        this.applyDataBar(sheetId, range, cf.rule, computedDataBars);
+      }
+    }
+    return computedDataBars;
   }
 
   private parsePoint(
@@ -247,6 +274,54 @@ export class EvaluationConditionalFormatPlugin extends UIPlugin {
     }
 
     return icons[2];
+  }
+
+  private applyDataBar(
+    sheetId: UID,
+    range: string,
+    rule: DataBarRule,
+    computedDataBars: ComputedDataBars
+  ): void {
+    const rangeValues = this.getters.getRangeFromSheetXC(sheetId, rule.rangeValues || range);
+    const allValues = this.getters
+      .getEvaluatedCellsInZone(sheetId, rangeValues.zone)
+      .filter((cell): cell is NumberCell => cell.type === CellValueType.number)
+      .map((cell) => cell.value);
+    const max = largeMax(allValues);
+    if (max <= 0) {
+      // no need to apply the data bar if all values are negative or 0
+      return;
+    }
+    const color = rule.color;
+    const zone: Zone = this.getters.getRangeFromSheetXC(sheetId, range).zone;
+    const zoneOfValues: Zone = rangeValues.zone;
+
+    for (let row = zone.top; row <= zone.bottom; row++) {
+      for (let col = zone.left; col <= zone.right; col++) {
+        const cell = this.getEvaluatedCellInZone(sheetId, zone, col, row, zoneOfValues);
+        if (cell.type !== CellValueType.number || cell.value <= 0) {
+          // values negatives or 0 are ignored
+          continue;
+        }
+        if (!computedDataBars[col]) computedDataBars[col] = [];
+        computedDataBars[col][row] = {
+          color: colorNumberString(color),
+          percentage: (cell.value * 100) / max,
+        };
+      }
+    }
+  }
+
+  private getEvaluatedCellInZone(
+    sheetId: UID,
+    zone: Zone,
+    col: HeaderIndex,
+    row: HeaderIndex,
+    targetZone: Zone
+  ) {
+    const targetCol = col - zone.left + targetZone.left;
+    const targetRow = row - zone.top + targetZone.top;
+    return this.getters.getEvaluatedCell({ sheetId, col: targetCol, row: targetRow });
   }
 
   /** Compute the color scale for the given range and CF rule, and apply in in the given computedStyle object */

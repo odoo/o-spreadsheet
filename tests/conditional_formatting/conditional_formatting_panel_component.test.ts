@@ -1406,6 +1406,32 @@ describe("UI of conditional formats", () => {
     const description = fixture.querySelector(selectors.description.ruletype.rule);
     expect(description?.textContent).toContain("01/05/2012");
   });
+
+  test("Can create a data bar rule", async () => {
+    await click(fixture, selectors.buttonAdd);
+
+    await click(fixture.querySelectorAll(selectors.cfTabSelector)[3]);
+
+    // change every value
+    setInputValueAndTrigger(selectors.ruleEditor.range, "B2:B5");
+
+    const dispatch = spyModelDispatch(model);
+    //  click save
+    await click(fixture, selectors.buttonSave);
+
+    const sheetId = model.getters.getActiveSheetId();
+    expect(dispatch).toHaveBeenCalledWith("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: expect.any(String),
+        rule: {
+          type: "DataBarRule",
+          color: 0xd9ead3,
+        },
+      },
+      ranges: toRangesData(sheetId, "B2:B5"),
+      sheetId,
+    });
+  });
 });
 
 describe("Integration tests", () => {

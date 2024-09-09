@@ -16,11 +16,17 @@ export interface ConditionalFormat {
   ranges: string[]; // the cells/ranges on which to apply this conditional formatting
 }
 
-export interface ConditionalFormatInternal extends Omit<ConditionalFormat, "ranges"> {
+export interface ConditionalFormatInternal extends Omit<ConditionalFormat, "ranges" | "rule"> {
   ranges: Range[];
+  rule: ConditionalFormatRuleInternal;
 }
 
-export type ConditionalFormatRule = SingleColorRules | ColorScaleRule | IconSetRule; //| DataBarRule |;
+export type ConditionalFormatRule = SingleColorRules | ColorScaleRule | IconSetRule | DataBarRule;
+export type ConditionalFormatRuleInternal =
+  | SingleColorRules
+  | ColorScaleRule
+  | IconSetRule
+  | DataBarRuleInternal;
 export type SingleColorRules = CellIsRule;
 // not implemented
 // | ExpressionRule
@@ -79,10 +85,16 @@ export interface ColorScaleRule {
   maximum: ColorScaleThreshold;
   midpoint?: ColorScaleMidPointThreshold;
 }
-// for future use
-// export interface DataBarRule {
-//   type: "ColorScaleRule";
-// }
+
+export interface DataBarRule {
+  type: "DataBarRule";
+  color: number;
+  rangeValues?: string;
+}
+
+export interface DataBarRuleInternal extends Omit<DataBarRule, "rangeValues"> {
+  rangeValues?: Range;
+}
 
 export interface IconSet {
   upper: string;

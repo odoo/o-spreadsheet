@@ -137,6 +137,12 @@ export class GridRenderer {
         ctx.fillStyle = style.fillColor || "#ffffff";
         ctx.fillRect(box.x, box.y, box.width, box.height);
       }
+      if (box.dataBarFill) {
+        ctx.fillStyle = box.dataBarFill.color;
+        const percentage = box.dataBarFill.percentage;
+        const width = box.width * (percentage / 100);
+        ctx.fillRect(box.x, box.y, width, box.height);
+      }
       if (box.isError) {
         ctx.fillStyle = "red";
         ctx.beginPath();
@@ -592,6 +598,7 @@ export class GridRenderer {
       height,
       border: this.getters.getCellComputedBorder(position) || undefined,
       style: this.getters.getCellComputedStyle(position),
+      dataBarFill: this.getters.getConditionalDataBar(position),
       verticalAlign,
       isError:
         (cell.type === CellValueType.error && !!cell.message) ||

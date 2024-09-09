@@ -20,6 +20,7 @@ import {
   CommandResult,
   ConditionalFormat,
   ConditionalFormatRule,
+  DataBarRule,
   IconSetRule,
   SpreadsheetChildEnv,
 } from "../../../../types";
@@ -137,12 +138,13 @@ interface Props {
   onExitEdition: () => void;
 }
 
-type CFType = "CellIsRule" | "ColorScaleRule" | "IconSetRule";
+type CFType = "CellIsRule" | "ColorScaleRule" | "IconSetRule" | "DataBarRule";
 
 interface Rules {
   cellIs: CellIsRule;
   colorScale: ColorScaleRule;
   iconSet: IconSetRule;
+  dataBar: DataBarRule;
 }
 
 type CFMenu =
@@ -216,6 +218,9 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
         case "IconSetRule":
           this.state.rules.iconSet = this.props.editedCf.rule;
           break;
+        case "DataBarRule":
+          this.state.rules.dataBar = this.props.editedCf.rule;
+          break;
       }
     }
 
@@ -235,6 +240,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
       { value: "CellIsRule", label: _t("Single color") },
       { value: "ColorScaleRule", label: _t("Color scale") },
       { value: "IconSetRule", label: _t("Icon set") },
+      { value: "DataBarRule", label: _t("Data bar") },
     ];
   }
 
@@ -276,6 +282,8 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
         return this.state.rules.colorScale;
       case "IconSetRule":
         return this.state.rules.iconSet;
+      case "DataBarRule":
+        return this.state.rules.dataBar;
     }
   }
 
@@ -310,6 +318,10 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
           value: "33",
           operator: "gt",
         },
+      },
+      dataBar: {
+        type: "DataBarRule",
+        color: 0xd9ead3,
       },
     };
   }
@@ -543,5 +555,21 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
       class: "o-sidePanel-composer",
       defaultRangeSheetId: this.env.model.getters.getActiveSheetId(),
     };
+  }
+
+  /*****************************************************************************
+   * DataBar
+   ****************************************************************************/
+
+  getRangeValues(): string[] {
+    return [this.state.rules.dataBar.rangeValues || ""];
+  }
+
+  updateDataBarColor(color: Color) {
+    this.state.rules.dataBar.color = Number.parseInt(color.substr(1), 16);
+  }
+
+  onDataBarRangeUpdate(ranges: string[]) {
+    this.state.rules.dataBar.rangeValues = ranges[0];
   }
 }

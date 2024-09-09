@@ -1,5 +1,5 @@
 import { compile } from "../../formulas/index";
-import { isInside, recomputeZones, toUnboundedZone } from "../../helpers/index";
+import { isInside, recomputeZones, toUnboundedZone, zoneToDimension } from "../../helpers/index";
 import {
   AddConditionalFormatCommand,
   ApplyRangeChange,
@@ -14,6 +14,7 @@ import {
   ConditionalFormatInternal,
   ConditionalFormattingOperatorValues,
   CoreCommand,
+  DataBarRule,
   ExcelWorkbookData,
   IconSetRule,
   IconThreshold,
@@ -60,6 +61,35 @@ export class ConditionalFormatPlugin
 
   loopThroughRangesOfSheet(sheetId: UID, applyChange: ApplyRangeChange) {
     for (const rule of this.cfRules[sheetId]) {
+      if (rule.rule.type === "DataBarRule" && rule.rule.rangeValues) {
+        const change = applyChange(rule.rule.rangeValues);
+        switch (change.changeType) {
+          case "REMOVE":
+            this.history.update(
+              "cfRules",
+              sheetId,
+              this.cfRules[sheetId].indexOf(rule),
+              "rule",
+              //@ts-expect-error
+              "rangeValues",
+              undefined
+            );
+            break;
+          case "RESIZE":
+          case "MOVE":
+          case "CHANGE":
+            this.history.update(
+              "cfRules",
+              sheetId,
+              this.cfRules[sheetId].indexOf(rule),
+              "rule",
+              //@ts-expect-error
+              "rangeValues",
+              change.range
+            );
+            break;
+        }
+      }
       for (const range of rule.ranges) {
         const change = applyChange(range);
         switch (change.changeType) {
@@ -272,11 +302,27 @@ export class ConditionalFormatPlugin
     cf: ConditionalFormatInternal,
     { useFixedReference } = { useFixedReference: false }
   ): ConditionalFormat {
+    const ranges = cf.ranges.map((range) => {
+      return this.getters.getRangeString(range, sheetId, { useFixedReference });
+    });
+    if (cf.rule.type !== "DataBarRule") {
+      return {
+        ...cf,
+        rule: { ...cf.rule },
+        ranges,
+      };
+    }
     return {
       ...cf,
-      ranges: cf.ranges.map((range) => {
-        return this.getters.getRangeString(range, sheetId, { useFixedReference });
-      }),
+      rule: {
+        ...cf.rule,
+        rangeValues:
+          cf.rule.rangeValues &&
+          this.getters.getRangeString(cf.rule.rangeValues!, sheetId, {
+            useFixedReference,
+          }),
+      },
+      ranges,
     };
   }
 
@@ -284,13 +330,26 @@ export class ConditionalFormatPlugin
     sheet: UID,
     cf: ConditionalFormat
   ): ConditionalFormatInternal {
-    const conditionalFormat = {
+    const ranges = cf.ranges.map((range) => {
+      return this.getters.getRangeFromSheetXC(sheet, range);
+    });
+    if (cf.rule.type !== "DataBarRule") {
+      return {
+        ...cf,
+        rule: { ...cf.rule },
+        ranges,
+      };
+    }
+    return {
       ...cf,
-      ranges: cf.ranges.map((range) => {
-        return this.getters.getRangeFromSheetXC(sheet, range);
-      }),
+      rule: {
+        ...cf.rule,
+        rangeValues: cf.rule.rangeValues
+          ? this.getters.getRangeFromSheetXC(sheet, cf.rule.rangeValues)
+          : undefined,
+      },
+      ranges,
     };
-    return conditionalFormat;
   }
 
   /**
@@ -372,6 +431,8 @@ export class ConditionalFormatPlugin
           this.chainValidations(this.checkInflectionPoints(this.checkFormulaCompilation))
         );
       }
+      case "DataBarRule":
+        return this.checkDataBarRangeValues(rule, cmd.ranges, cmd.sheetId);
     }
     return CommandResult.Success;
   }
@@ -523,6 +584,21 @@ export class ConditionalFormatPlugin
       const compiledFormula = compile(value || "");
       if (compiledFormula.isBadExpression) {
         return CommandResult.ValueCellIsInvalidFormula;
+      }
+    }
+    return CommandResult.Success;
+  }
+
+  private checkDataBarRangeValues(rule: DataBarRule, ranges: RangeData[], sheetId: UID) {
+    if (rule.rangeValues) {
+      const { numberOfCols, numberOfRows } = zoneToDimension(
+        this.getters.getRangeFromSheetXC(sheetId, rule.rangeValues).zone
+      );
+      for (const range of ranges) {
+        const dimensions = zoneToDimension(this.getters.getRangeFromRangeData(range).zone);
+        if (numberOfCols !== dimensions.numberOfCols || numberOfRows !== dimensions.numberOfRows) {
+          return CommandResult.DataBarRangeValuesMismatch;
+        }
       }
     }
     return CommandResult.Success;
