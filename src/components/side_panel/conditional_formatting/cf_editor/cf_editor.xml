@@ -35,6 +35,9 @@
         <t t-if="state.currentCFType === 'IconSetRule'" t-call="o-spreadsheet-IconSetEditor">
           <t t-set="rule" t-value="state.rules.iconSet"/>
         </t>
+        <t t-if="state.currentCFType === 'DataBarRule'" t-call="o-spreadsheet-DataBarEditor">
+          <t t-set="rule" t-value="state.rules.dataBar"/>
+        </t>
       </Section>
       <Section class="'pt-1'">
         <div class="o-sidePanelButtons">

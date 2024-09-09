@@ -110,6 +110,9 @@ export class ConditionalFormatPreview extends Component<Props, SpreadsheetChildE
       return midColor
         ? baseString + minColor + ", " + midColor + ", " + maxColor + ")"
         : baseString + minColor + ", " + maxColor + ")";
+    } else if (rule.type === "DataBarRule") {
+      const color = colorNumberString(rule.color);
+      return `background-image: linear-gradient(to right, ${color} 50%, white 50%)`;
     }
     return "";
   }
@@ -130,6 +133,8 @@ export class ConditionalFormatPreview extends Component<Props, SpreadsheetChildE
         return CfTerms.ColorScale;
       case "IconSetRule":
         return CfTerms.IconSet;
+      case "DataBarRule":
+        return CfTerms.DataBar;
     }
   }
 

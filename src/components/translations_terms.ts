@@ -27,10 +27,14 @@ export const CfTerms = {
     [CommandResult.ValueCellIsInvalidFormula]: _t(
       "At least one of the provided values is an invalid formula"
     ),
+    [CommandResult.DataBarRangeValuesMismatch]: _t(
+      "All the ranges and the range values must have the same size"
+    ),
     Unexpected: _t("The rule is invalid for an unknown reason"),
   },
   ColorScale: _t("Color scale"),
   IconSet: _t("Icon set"),
+  DataBar: _t("Data bar"),
 };
 
 export const CellIsOperators = {

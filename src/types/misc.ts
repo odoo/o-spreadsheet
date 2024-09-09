@@ -116,6 +116,11 @@ export interface Style {
   fontSize?: number; // in pt, not in px!
 }
 
+export interface DataBarFill {
+  color: Color;
+  percentage: number;
+}
+
 export interface UpdateCellData {
   content?: string;
   formula?: string;

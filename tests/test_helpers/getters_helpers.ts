@@ -114,6 +114,15 @@ export function getStyle(
   return model.getters.getCellComputedStyle({ sheetId, col, row });
 }
 
+export function getDataBarFill(
+  model: Model,
+  xc: string,
+  sheetId: UID = model.getters.getActiveSheetId()
+) {
+  const { col, row } = toCartesian(xc);
+  return model.getters.getConditionalDataBar({ sheetId, col, row });
+}
+
 export function getRangeFormattedValues(
   model: Model,
   xc: string,

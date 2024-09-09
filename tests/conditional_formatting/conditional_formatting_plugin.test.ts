@@ -17,10 +17,11 @@ import {
   updateLocale,
 } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
-import { getStyle } from "../test_helpers/getters_helpers";
+import { getDataBarFill, getStyle } from "../test_helpers/getters_helpers";
 import {
   createColorScale,
   createEqualCF,
+  createModelFromGrid,
   toCellPosition,
   toRangesData,
 } from "../test_helpers/helpers";
@@ -2327,5 +2328,210 @@ describe("conditional formats types", () => {
     setCellContent(model, "A1", "01/12/2012");
     // Cf is 12 of January (commands should use canonical formatting), but cell is 1 of December (input in french locale)
     expect(getStyle(model, "A1")).toEqual({});
+  });
+
+  test("DataBar command is refused if the rangeValue cell has not the same size", () => {
+    const result = model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: "1",
+        rule: {
+          type: "DataBarRule",
+          color: 0xff0000,
+          rangeValues: "A1:A2",
+        },
+      },
+      ranges: toRangesData(sheetId, "A1"),
+      sheetId,
+    });
+    expect(result).toBeCancelledBecause(CommandResult.DataBarRangeValuesMismatch);
+  });
+
+  test("Can add a data bar cf based on itself", () => {
+    // prettier-ignore
+    const grid = {
+        A1: "2",
+        A2: "4",
+        A3: "8",
+    };
+    const model = createModelFromGrid(grid);
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: "1",
+        rule: {
+          type: "DataBarRule",
+          color: 0xff0000,
+        },
+      },
+      ranges: toRangesData(sheetId, "A1:A3"),
+      sheetId,
+    });
+    expect(getDataBarFill(model, "A1")?.percentage).toBe(25);
+    expect(getDataBarFill(model, "A2")?.percentage).toBe(50);
+    expect(getDataBarFill(model, "A3")?.percentage).toBe(100);
+  });
+
+  test("Can add a data bar cf based on another range", () => {
+    // prettier-ignore
+    const grid = {
+        A1: "2", B1: "Hello",
+        A2: "4", B2: "World",
+        A3: "8", B3: "!",
+    };
+    const model = createModelFromGrid(grid);
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: "1",
+        rule: {
+          type: "DataBarRule",
+          color: 0xff0000,
+          rangeValues: "A1:A3",
+        },
+      },
+      ranges: toRangesData(sheetId, "B1:B3"),
+      sheetId,
+    });
+    expect(getDataBarFill(model, "B1")?.percentage).toBe(25);
+    expect(getDataBarFill(model, "B2")?.percentage).toBe(50);
+    expect(getDataBarFill(model, "B3")?.percentage).toBe(100);
+  });
+
+  test("Data bar CF with negative values", () => {
+    // prettier-ignore
+    const grid = {
+        A1: "-2",
+        A2: "-4",
+        A3: "-8",
+    };
+    const model = createModelFromGrid(grid);
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: "1",
+        rule: {
+          type: "DataBarRule",
+          color: 0xff0000,
+        },
+      },
+      ranges: toRangesData(sheetId, "A1:A3"),
+      sheetId,
+    });
+    expect(getDataBarFill(model, "A1")).toBeUndefined();
+    expect(getDataBarFill(model, "A2")).toBeUndefined();
+    expect(getDataBarFill(model, "A3")).toBeUndefined();
+  });
+
+  test("Data bar CF with 0 values", () => {
+    // prettier-ignore
+    const grid = {
+        A1: "2",
+        A2: "1",
+        A3: "0",
+    };
+    const model = createModelFromGrid(grid);
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: "1",
+        rule: {
+          type: "DataBarRule",
+          color: 0xff0000,
+        },
+      },
+      ranges: toRangesData(sheetId, "A1:A3"),
+      sheetId,
+    });
+    expect(getDataBarFill(model, "A1")?.percentage).toBe(100);
+    expect(getDataBarFill(model, "A2")?.percentage).toBe(50);
+    expect(getDataBarFill(model, "A3")).toBeUndefined();
+  });
+
+  test("Data bar CF with 0 as maximum", () => {
+    // prettier-ignore
+    const grid = {
+        A1: "0",
+    };
+    const model = createModelFromGrid(grid);
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: "1",
+        rule: {
+          type: "DataBarRule",
+          color: 0xff0000,
+        },
+      },
+      ranges: toRangesData(sheetId, "A1"),
+      sheetId,
+    });
+    expect(getDataBarFill(model, "A1")).toBeUndefined();
+  });
+
+  test("Ignore not number cells", () => {
+    // prettier-ignore
+    const grid = {
+        A1: "10",
+        A2: "Hello",
+        A3: "World",
+    };
+    const model = createModelFromGrid(grid);
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: "1",
+        rule: {
+          type: "DataBarRule",
+          color: 0xff0000,
+        },
+      },
+      ranges: toRangesData(sheetId, "A1:A3"),
+      sheetId,
+    });
+    expect(getDataBarFill(model, "A1")?.percentage).toBe(100);
+    expect(getDataBarFill(model, "A2")).toBeUndefined();
+    expect(getDataBarFill(model, "A3")).toBeUndefined();
+  });
+
+  test("Ignore negative number cells", () => {
+    // prettier-ignore
+    const grid = {
+        A1: "10",
+        A2: "-10",
+    };
+    const model = createModelFromGrid(grid);
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: "1",
+        rule: {
+          type: "DataBarRule",
+          color: 0xff0000,
+        },
+      },
+      ranges: toRangesData(sheetId, "A1:A2"),
+      sheetId,
+    });
+    expect(getDataBarFill(model, "A1")?.percentage).toBe(100);
+    expect(getDataBarFill(model, "A2")).toBeUndefined();
+  });
+
+  test("range value range is adapted", () => {
+    // prettier-ignore
+    const grid = {
+        B1: "2", C1: "Hello",
+        B2: "4", C2: "World",
+        B3: "8", C3: "!",
+    };
+    const model = createModelFromGrid(grid);
+    model.dispatch("ADD_CONDITIONAL_FORMAT", {
+      cf: {
+        id: "1",
+        rule: {
+          type: "DataBarRule",
+          color: 0xff0000,
+          rangeValues: "B1:B3",
+        },
+      },
+      ranges: toRangesData(sheetId, "C1:C3"),
+      sheetId,
+    });
+    deleteColumns(model, ["A"]);
+    expect(getDataBarFill(model, "B1")?.percentage).toBe(25);
+    expect(getDataBarFill(model, "B2")?.percentage).toBe(50);
+    expect(getDataBarFill(model, "B3")?.percentage).toBe(100);
   });
 });

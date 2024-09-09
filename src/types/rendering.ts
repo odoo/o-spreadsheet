@@ -1,5 +1,5 @@
 import { memoize } from "../helpers/misc";
-import { Alias, Align, Border, Pixel, Style, VerticalAlign, Zone } from "./misc";
+import { Alias, Align, Border, DataBarFill, Pixel, Style, VerticalAlign, Zone } from "./misc";
 
 /**
  * Coordinate in pixels
@@ -25,6 +25,7 @@ export interface BoxTextContent {
 export interface Box extends Rect {
   content?: BoxTextContent;
   style: Style;
+  dataBarFill?: DataBarFill;
   border?: Border;
   hasIcon?: boolean;
   clipRect?: Rect;

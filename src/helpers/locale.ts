@@ -275,7 +275,8 @@ function changeCFRuleLocale(
         case "IsNotEmpty":
           return rule;
       }
-      break;
+    case "DataBarRule":
+      return rule;
     case "ColorScaleRule":
       rule.minimum = changeCFRuleThresholdLocale(rule.minimum, changeContentLocale);
       rule.maximum = changeCFRuleThresholdLocale(rule.maximum, changeContentLocale);

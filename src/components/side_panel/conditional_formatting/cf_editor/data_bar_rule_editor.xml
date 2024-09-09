@@ -1,0 +1,20 @@
+<templates>
+  <t t-name="o-spreadsheet-DataBarEditor">
+    <div class="o-cf-data-bar-editor">
+      <div class="o-section-subtitle">Color</div>
+      <RoundColorPicker
+        currentColor="colorNumberString(rule.color)"
+        onColorPicked.bind="updateDataBarColor"
+      />
+      <div class="o-section-subtitle">Range of values</div>
+      <SelectionInput
+        ranges="getRangeValues()"
+        class="'o-range'"
+        isInvalid="false"
+        hasSingleRange="true"
+        onSelectionChanged="(ranges) => this.onDataBarRangeUpdate(ranges)"
+        required="false"
+      />
+    </div>
+  </t>
+</templates>
