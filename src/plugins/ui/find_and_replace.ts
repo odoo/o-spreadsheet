@@ -151,11 +151,7 @@ export class FindAndReplacePlugin extends UIPlugin {
           cell &&
           this.currentSearchRegex &&
           this.currentSearchRegex.test(
-            this.searchOptions.searchFormulas
-              ? cell.isFormula()
-                ? cell.content
-                : String(cell.evaluated.value)
-              : String(cell.evaluated.value)
+            this.searchOptions.searchFormulas ? cell.content : String(cell.evaluated.value)
           )
         ) {
           const position = this.getters.getCellPosition(cell.id);
