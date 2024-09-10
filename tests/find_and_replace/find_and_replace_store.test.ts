@@ -28,6 +28,7 @@ import {
   getActivePosition,
   getCell,
   getCellContent,
+  getCellError,
   getCellText,
 } from "../test_helpers/getters_helpers";
 import { makeStore } from "../test_helpers/stores";
@@ -602,6 +603,18 @@ describe("search options", () => {
     updateSearch(model, "4", { searchFormulas: true });
     expect(store.searchMatches).toStrictEqual([]);
     expect(store.selectedMatchIndex).toBe(null);
+  });
+
+  test("Search in formula searches cell content of a cell in error", () => {
+    setCellContent(model, "A6", "=notASumifFunction(2)");
+    setCellContent(model, "A7", '=SUMIF("a")');
+    expect(getCellError(model, "A6")).toBeDefined();
+    expect(getCellError(model, "A7")).toBeDefined();
+    updateSearch(model, "sumif", { searchScope: "activeSheet", searchFormulas: true });
+    const matches = store.searchMatches;
+    expect(matches).toHaveLength(2);
+    expect(matches[0]).toStrictEqual({ sheetId: sheetId1, col: 0, row: 5 });
+    expect(matches[1]).toStrictEqual({ sheetId: sheetId1, col: 0, row: 6 });
   });
 
   test("Combine matching case / matching entire cell / search in formulas", () => {
