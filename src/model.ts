@@ -114,6 +114,7 @@ export class Model extends EventBus<any> implements CommandDispatcher {
    */
   private renderers: [UIPlugin, LAYERS][] = [];
 
+  private isLoading: boolean;
   /**
    * Internal status of the model. Important for command handling coordination
    */
@@ -219,6 +220,11 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     this.selection.observe(this, {
       handleEvent: () => this.trigger("update"),
     });
+
+    // move in "Loading" mode where we ignore redundant calls to finalize triggered by the
+    // replay of stateUpdateMessages in the session
+    this.isLoading = true;
+
     // This should be done after construction of LocalHistory due to order of
     // events
     this.setupSessionEvents();
@@ -233,6 +239,10 @@ export class Model extends EventBus<any> implements CommandDispatcher {
     // mark all models as "raw", so they will not be turned into reactive objects
     // by owl, since we do not rely on reactivity
     markRaw(this);
+
+    this.isLoading = false;
+    // ensure propre recomputation of plugin states after the message replays
+    this.finalize();
   }
 
   joinSession() {
@@ -368,6 +378,9 @@ export class Model extends EventBus<any> implements CommandDispatcher {
   }
 
   private finalize() {
+    if (this.isLoading) {
+      return;
+    }
     this.status = Status.Finalizing;
     for (const h of this.handlers) {
       h.finalize();
