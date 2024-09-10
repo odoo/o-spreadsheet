@@ -118,6 +118,7 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
    */
   private renderers: [UIPlugin, LAYERS][] = [];
 
+  private isLoading: boolean;
   /**
    * Internal status of the model. Important for command handling coordination
    */
@@ -192,6 +193,10 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     // starting plugins
     this.dispatch("START");
 
+    // move in "Loading" mode where we ignore redundant calls to finalize triggered by the
+    // replay of stateUpdateMessages in the session
+    this.isLoading = true;
+
     // This should be done after construction of LocalHistory due to order of
     // events
     this.setupSessionEvents();
@@ -203,6 +208,10 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
     if (config.snapshotRequested) {
       this.session.snapshot(this.exportData());
     }
+
+    this.isLoading = false;
+    // ensure propre recomputation of plugin states after the message replays
+    this.finalize();
   }
 
   get handlers(): CommandHandler<Command>[] {
@@ -346,6 +355,9 @@ export class Model extends owl.core.EventBus implements CommandDispatcher {
   }
 
   private finalize() {
+    if (this.isLoading) {
+      return;
+    }
     this.status = Status.Finalizing;
     for (const h of this.handlers) {
       h.finalize();
