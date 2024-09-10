@@ -16,7 +16,7 @@ import {
   unhideRows,
   updateFilter,
 } from "../test_helpers/commands_helpers";
-import { getCellContent, getCellText } from "../test_helpers/getters_helpers";
+import { getCellContent, getCellError, getCellText } from "../test_helpers/getters_helpers";
 
 let model: Model;
 let searchOptions: SearchOptions;
@@ -497,6 +497,20 @@ describe("search options", () => {
     matchIndex = model.getters.getCurrentSelectedMatchIndex();
     expect(matches).toHaveLength(0);
     expect(matchIndex).toBe(null);
+  });
+
+  test("Search in formula searches cell content of a cell in error", () => {
+    const model = new Model();
+    setCellContent(model, "A1", "=notASumFunction(2)");
+    setCellContent(model, "A2", '=SUM("a")');
+    expect(getCellError(model, "A1")).toBeDefined();
+    expect(getCellError(model, "A2")).toBeDefined();
+    searchOptions.searchFormulas = true;
+    model.dispatch("UPDATE_SEARCH", { toSearch: "sum", searchOptions });
+    const matches = model.getters.getSearchMatches();
+    expect(matches).toHaveLength(2);
+    expect(matches[0]).toStrictEqual({ col: 0, row: 0, selected: true });
+    expect(matches[1]).toStrictEqual({ col: 0, row: 1, selected: false });
   });
 
   test("Combine matching case / matching entire cell / search in formulas", () => {
