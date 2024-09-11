@@ -257,3 +257,10 @@ pivotToFunctionValueRegistry
   .add("integer", (value: CellValue) => `${toNumber(value, DEFAULT_LOCALE)}`)
   .add("boolean", (value: CellValue) => (toBoolean(value) ? "TRUE" : "FALSE"))
   .add("char", (value: CellValue) => `"${toString(value).replace(/"/g, '\\"')}"`);
+
+export const PREVIOUS_VALUE = "(previous)";
+export const NEXT_VALUE = "(next)";
+
+export function getFieldDisplayName(field: PivotDimension) {
+  return field.displayName + (field.granularity ? ` (${ALL_PERIODS[field.granularity]})` : "");
+}

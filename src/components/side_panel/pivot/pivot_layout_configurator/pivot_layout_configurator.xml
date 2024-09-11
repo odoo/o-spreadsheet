@@ -73,6 +73,7 @@
           t-att-class="measure.isHidden ? 'opacity-50' : ''"
           class="pt-1 pivot-measure">
           <PivotMeasureEditor
+            pivotId="props.pivotId"
             definition="props.definition"
             measure="measure"
             aggregators="AGGREGATORS"

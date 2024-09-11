@@ -3,7 +3,7 @@ import { SpreadsheetStore } from "../../../stores";
 
 interface SidePanelProps {
   onCloseSidePanel?: () => void;
-  [key: string]: unknown;
+  [key: string]: any;
 }
 
 interface OpenSidePanel {

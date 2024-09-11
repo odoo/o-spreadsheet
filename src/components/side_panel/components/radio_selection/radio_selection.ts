@@ -4,15 +4,16 @@ import { SpreadsheetChildEnv } from "../../../../types";
 import { css } from "../../../helpers/css";
 
 interface Choice {
-  value: string;
+  value: unknown;
   label: string;
 }
 
 interface Props {
   choices: Choice[];
-  onChange: (value: string) => void;
+  onChange: (value: unknown) => void;
   selectedValue: string;
   name: string;
+  direction: "horizontal" | "vertical";
 }
 
 const CIRCLE_SVG = /*xml*/ `
@@ -48,12 +49,11 @@ export class RadioSelection extends Component<Props, SpreadsheetChildEnv> {
   static props = {
     choices: Array,
     onChange: Function,
-    selectedValue: String,
+    selectedValue: { optional: false },
     name: String,
+    direction: { type: String, optional: true },
   };
-
-  onChange(ev: InputEvent) {
-    const value = (ev.target as HTMLInputElement).value;
-    this.props.onChange(value);
-  }
+  static defaultProps = {
+    direction: "horizontal",
+  };
 }

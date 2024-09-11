@@ -1,15 +1,21 @@
 <templates>
   <t t-name="o-spreadsheet.RadioSelection">
-    <div class="d-flex flex-row">
+    <div
+      class="d-flex"
+      t-att-class="{
+            'flex-row': props.direction === 'horizontal',
+            'flex-column': props.direction === 'vertical'}">
       <t t-foreach="props.choices" t-as="choice" t-key="choice.value">
         <label class="o-radio d-flex align-items-center me-4">
           <input
-            class="me-1"
+            t-att-class="{
+              'me-1': props.direction === 'horizontal',
+              'me-2': props.direction === 'vertical'}"
             type="radio"
             t-att-name="props.name"
             t-att-value="choice.value"
             t-att-checked="choice.value === props.selectedValue"
-            t-on-change="onChange"
+            t-on-change="() => props.onChange(choice.value)"
           />
           <t t-esc="choice.label"/>
         </label>

@@ -119,6 +119,7 @@ import { supportedPivotPositionalFormulaRegistry } from "./helpers/pivot/pivot_p
 
 import { CellComposerStore } from "./components/composer/composer/cell_composer_store";
 import { SidePanelCollapsible } from "./components/side_panel/components/collapsible/side_panel_collapsible";
+import { PivotMeasureDisplayPanelStore } from "./components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel_store";
 import { TextInput } from "./components/text_input/text_input";
 import {
   getChartAxisType,
@@ -430,6 +431,7 @@ export const stores = {
   useLocalStore,
   SidePanelStore,
   PivotSidePanelStore,
+  PivotMeasureDisplayPanelStore,
 };
 
 export type { StoreConstructor, StoreParams } from "./store_engine";

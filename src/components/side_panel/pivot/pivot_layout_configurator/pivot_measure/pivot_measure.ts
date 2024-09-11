@@ -6,6 +6,7 @@ import { StandaloneComposer } from "../../../../composer/standalone_composer/sta
 import { PivotDimension } from "../pivot_dimension/pivot_dimension";
 
 interface Props {
+  pivotId: string;
   definition: PivotRuntimeDefinition;
   measure: PivotMeasure;
   onMeasureUpdated: (measure: PivotMeasure) => void;
@@ -26,6 +27,7 @@ export class PivotMeasureEditor extends Component<Props> {
     onRemoved: Function,
     generateMeasureId: Function,
     aggregators: Object,
+    pivotId: String,
   };
 
   getMeasureAutocomplete() {
@@ -70,6 +72,13 @@ export class PivotMeasureEditor extends Component<Props> {
     this.props.onMeasureUpdated({
       ...this.props.measure,
       isHidden: !this.props.measure.isHidden,
+    });
+  }
+
+  openShowValuesAs() {
+    this.env.openSidePanel("PivotMeasureDisplayPanel", {
+      pivotId: this.props.pivotId,
+      measure: this.props.measure,
     });
   }
 }

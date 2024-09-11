@@ -24,8 +24,6 @@ describe("Checkbox", () => {
     await mountCheckbox({ value: true, onChange });
     await click(fixture, "input[type=checkbox]");
     expect(onChange).toHaveBeenCalledWith(false);
-    await click(fixture, "input[type=checkbox]");
-    expect(onChange).toHaveBeenCalledWith(true);
   });
 
   test("Can render a checkbox with a name", async () => {

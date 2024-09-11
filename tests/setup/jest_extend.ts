@@ -157,7 +157,8 @@ CancelledReasons: ${this.utils.printReceived(dispatchResult.reasons)}
       return { pass: false, message: () => message };
     }
     const value =
-      element instanceof HTMLInputElement && element.type === "checkbox"
+      element instanceof HTMLInputElement &&
+      (element.type === "checkbox" || element.type === "radio")
         ? element.checked
         : element.value;
     if (value !== expectedValue) {
