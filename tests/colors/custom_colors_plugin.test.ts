@@ -174,6 +174,25 @@ describe("custom colors are correctly handled when editing charts", () => {
     expect(model.getters.getCustomColors()).toEqual(["#112233", "#123456"]);
   });
 
+  test("Chart data series colors are taken into account", () => {
+    expect(model.getters.getCustomColors()).toEqual([]);
+    createChart(
+      model,
+      {
+        type: "bar",
+        dataSets: [
+          {
+            dataRange: "A1:A10",
+            backgroundColor: "#112233",
+            trend: { type: "polynomial", order: 2, color: "#123456" },
+          },
+        ],
+      },
+      "1"
+    );
+    expect(model.getters.getCustomColors()).toEqual(["#112233", "#123456"]);
+  });
+
   test("duplicated colors on cell and chart only appears once", () => {
     setStyle(model, "A1", { fillColor: "#123456" });
     createChart(
@@ -192,8 +211,9 @@ describe("custom colors are correctly handled when editing charts", () => {
 
   test("custom colors from model imported data", () => {
     setStyle(model, "A1", { fillColor: "#123456" });
+    createChart(model, { type: "bar", background: "#654987" }, "1", sheetId);
     const importedModel = new Model(model.exportData());
-    expect(importedModel.getters.getCustomColors()).toEqual(["#123456"]);
+    expect(importedModel.getters.getCustomColors()).toEqual(["#654987", "#123456"]);
   });
 });
 
