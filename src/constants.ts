@@ -63,6 +63,9 @@ export const BADGE_SELECTED_COLOR = "#E6F2F3";
 export const DEFAULT_CHART_PADDING = 20;
 export const DEFAULT_CHART_FONT_SIZE = 22;
 
+export const SCORECARD_GAUGE_CHART_PADDING = 10;
+export const SCORECARD_GAUGE_CHART_FONT_SIZE = 14;
+
 // Color picker defaults as upper case HEX to match `toHex`helper
 export const COLOR_PICKER_DEFAULTS: Color[] = [
   "#000000",

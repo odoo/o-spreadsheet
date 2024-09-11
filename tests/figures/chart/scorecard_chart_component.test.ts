@@ -18,7 +18,6 @@ import {
   setCellContent,
   setFormat,
   setStyle,
-  updateChart,
   updateLocale,
 } from "../../test_helpers/commands_helpers";
 import { getCellContent } from "../../test_helpers/getters_helpers";
@@ -136,21 +135,6 @@ describe("Scorecard charts computation", () => {
     expect(chartDesign.baselineDescr?.[0].text).toEqual(" desc");
     expect(chartDesign.key?.text).toEqual("2");
     expect(chartDesign.baselineDescr?.length).toEqual(1);
-  });
-
-  test("Too long baseline description is split", () => {
-    createScorecardChart(
-      model,
-      {
-        keyValue: "A1",
-        baseline: "B1",
-        title: { text: "hello" },
-        baselineDescr: "description really really too long to stay in only one line",
-      },
-      chartId
-    );
-    const chartDesign = getChartDesign(model, chartId, sheetId);
-    expect(chartDesign.baselineDescr?.length).toEqual(2);
   });
 
   test("Baseline = 0 correctly displayed", () => {
@@ -405,7 +389,7 @@ describe("Scorecard charts computation", () => {
     expect(chartDesign.key?.style.color).toBeSameColorAs("#FFFFFF");
   });
 
-  test("Font size scale down if we put a long key value", () => {
+  test("Font size stays the same if we put a long key value", () => {
     createScorecardChart(
       model,
       { keyValue: "A1", baseline: "B2", title: { text: "This is a title" } },
@@ -414,13 +398,13 @@ describe("Scorecard charts computation", () => {
     const chartDesign1 = getChartDesign(model, chartId, sheetId);
     setCellContent(model, "A1", "123456789123456789123456789");
     const chartDesign2 = getChartDesign(model, chartId, sheetId);
-    expect(getContextFontSize(chartDesign2.baseline!.style.font)).toBeLessThan(
+    expect(getContextFontSize(chartDesign2.baseline!.style.font)).toEqual(
       getContextFontSize(chartDesign1.baseline!.style.font)
     );
     expect(getContextFontSize(chartDesign2.title!.style.font)).toEqual(
       getContextFontSize(chartDesign1.title!.style.font)
     );
-    expect(getContextFontSize(chartDesign2.key!.style.font)).toBeLessThan(
+    expect(getContextFontSize(chartDesign2.key!.style.font)).toEqual(
       getContextFontSize(chartDesign1.key!.style.font)
     );
   });
@@ -591,80 +575,5 @@ describe("Scorecard charts rendering", () => {
     expect(scorecardChartStyle.baseline.color).toBeSameColorAs("#C8C8C8");
     expect(scorecardChartStyle.baselineDescr.color).toBeSameColorAs("#C8C8C8");
     expect(scorecardChartStyle.key.color).toBeSameColorAs("#FFFFFF");
-  });
-
-  test("Increasing size of the chart scale up the font sizes", () => {
-    createScorecardChart(
-      model,
-      { keyValue: "A1", baseline: "B2", title: { text: "This is a title" } },
-      chartId
-    );
-
-    updateScorecardChartSize(100, 100);
-    renderScorecardChart(model, chartId, sheetId, canvas);
-
-    const baselineFontSize = scorecardChartStyle.baseline.fontSize!;
-    const titleFontSize = scorecardChartStyle.title.fontSize!;
-    const keyFontSize = scorecardChartStyle.key.fontSize!;
-
-    updateScorecardChartSize(200, 200);
-    renderScorecardChart(model, chartId, sheetId, canvas);
-
-    expect(scorecardChartStyle.baseline.fontSize).toBeGreaterThan(baselineFontSize);
-    expect(scorecardChartStyle.title.fontSize).toEqual(titleFontSize);
-    expect(scorecardChartStyle.key.fontSize).toBeGreaterThan(keyFontSize);
-  });
-
-  test("Decreasing size of the chart scale down the font sizes", () => {
-    createScorecardChart(
-      model,
-      { keyValue: "A1", baseline: "B2", title: { text: "This is a title" } },
-      chartId
-    );
-
-    updateScorecardChartSize(200, 200);
-    renderScorecardChart(model, chartId, sheetId, canvas);
-
-    const baselineFontSize = scorecardChartStyle.baseline.fontSize!;
-    const titleFontSize = scorecardChartStyle.title.fontSize!;
-    const keyFontSize = scorecardChartStyle.key.fontSize!;
-
-    updateScorecardChartSize(100, 100);
-    renderScorecardChart(model, chartId, sheetId, canvas);
-
-    expect(scorecardChartStyle.baseline.fontSize).toBeLessThan(baselineFontSize);
-    expect(scorecardChartStyle.title.fontSize).toEqual(titleFontSize);
-    expect(scorecardChartStyle.key.fontSize).toBeLessThan(keyFontSize);
-  });
-
-  test("Font size scale down if we put a long key value", () => {
-    createScorecardChart(
-      model,
-      { keyValue: "A1", baseline: "B2", title: { text: "This is a title" } },
-      chartId
-    );
-    renderScorecardChart(model, chartId, sheetId, canvas);
-    const baselineFontSize = scorecardChartStyle.baseline.fontSize!;
-    const titleFontSize = scorecardChartStyle.title.fontSize!;
-    const keyFontSize = scorecardChartStyle.key.fontSize!;
-    setCellContent(model, "A1", "123456789");
-    renderScorecardChart(model, chartId, sheetId, canvas);
-    expect(scorecardChartStyle.baseline.fontSize).toBeLessThan(baselineFontSize);
-    expect(scorecardChartStyle.title.fontSize).toEqual(titleFontSize);
-    expect(scorecardChartStyle.key.fontSize).toBeLessThan(keyFontSize);
-  });
-
-  test("Font size scale down if we add a description with no baseline", () => {
-    setCellContent(model, "B2", "");
-    createScorecardChart(
-      model,
-      { keyValue: "A1", baseline: "B2", title: { text: "This is a title" }, baselineDescr: "" },
-      chartId
-    );
-    renderScorecardChart(model, chartId, sheetId, canvas);
-    const keyFontSize = scorecardChartStyle.key.fontSize!;
-    updateChart(model, chartId, { baselineDescr: "Coucou" });
-    renderScorecardChart(model, chartId, sheetId, canvas);
-    expect(scorecardChartStyle.key.fontSize).toBeLessThan(keyFontSize);
   });
 });

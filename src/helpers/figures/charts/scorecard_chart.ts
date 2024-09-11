@@ -352,7 +352,7 @@ export function drawScoreChart(structure: ScorecardChartConfig, canvas: HTMLCanv
     ctx.fillStyle = descr.style.color;
     for (const description of structure.baselineDescr) {
       ctx.fillText(
-        clipTextWithEllipsis(ctx, description.text, canvas.width - description.position.x),
+        clipTextWithEllipsis(ctx, description.text, availableWidth - description.position.x),
         description.position.x,
         description.position.y
       );
@@ -364,7 +364,7 @@ export function drawScoreChart(structure: ScorecardChartConfig, canvas: HTMLCanv
     ctx.fillStyle = structure.key.style.color;
     drawDecoratedText(
       ctx,
-      structure.key.text,
+      clipTextWithEllipsis(ctx, structure.key.text, availableWidth - structure.key.position.x),
       structure.key.position,
       structure.key.style.underline,
       structure.key.style.strikethrough

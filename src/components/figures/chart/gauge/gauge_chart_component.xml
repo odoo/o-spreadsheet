@@ -1,5 +1,5 @@
 <templates>
   <t t-name="o-spreadsheet-GaugeChartComponent">
-    <canvas class="o-figure-canvas w-100 h-100" t-ref="chartContainer"/>
+    <canvas class="o-figure-canvas o-gauge-chart w-100 h-100" t-ref="chartContainer"/>
   </t>
 </templates>
