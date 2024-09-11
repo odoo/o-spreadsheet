@@ -1,9 +1,13 @@
 import { Component, useRef } from "@odoo/owl";
 import { isDefined } from "../../../../helpers";
-import { AGGREGATORS, isDateField } from "../../../../helpers/pivot/pivot_helpers";
+import {
+  AGGREGATORS,
+  getFieldDisplayName,
+  isDateField,
+} from "../../../../helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "../../../../helpers/pivot/pivot_runtime_definition";
 import { Store, useStore } from "../../../../store_engine";
-import { SpreadsheetChildEnv } from "../../../../types";
+import { SpreadsheetChildEnv, UID } from "../../../../types";
 import {
   Aggregator,
   Granularity,
@@ -17,6 +21,7 @@ import {
 import { ComposerFocusStore } from "../../../composer/composer_focus_store";
 import { css } from "../../../helpers";
 import { useDragAndDropListItems } from "../../../helpers/drag_and_drop_hook";
+import { measureDisplayTerms } from "../../../translations_terms";
 import { AddDimensionButton } from "./add_dimension_button/add_dimension_button";
 import { PivotDimension } from "./pivot_dimension/pivot_dimension";
 import { PivotDimensionGranularity } from "./pivot_dimension_granularity/pivot_dimension_granularity";
@@ -30,6 +35,7 @@ interface Props {
   measureFields: PivotField[];
   unusedDateTimeGranularities: Record<string, Set<string>>;
   allGranularities: string[];
+  pivotId: UID;
 }
 
 css/* scss */ `
@@ -54,6 +60,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     measureFields: Array,
     unusedDateTimeGranularities: Object,
     allGranularities: Array,
+    pivotId: String,
   };
 
   private dimensionsRef = useRef("pivot-dimensions");
@@ -292,5 +299,19 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
         return col;
       }),
     });
+  }
+
+  getMeasureDescription(measure: PivotMeasure) {
+    const measureDisplay = measure.display;
+    if (!measureDisplay || measureDisplay.type === "no_calculations") {
+      return "";
+    }
+    const pivot = this.env.model.getters.getPivot(this.props.pivotId);
+    const field = [...pivot.definition.columns, ...pivot.definition.rows].find(
+      (f) => f.nameWithGranularity === measureDisplay.fieldNameWithGranularity
+    );
+    const fieldName = field ? getFieldDisplayName(field) : "";
+
+    return measureDisplayTerms.descriptions[measureDisplay.type](fieldName);
   }
 }

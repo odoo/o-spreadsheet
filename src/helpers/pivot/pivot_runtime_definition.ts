@@ -82,6 +82,7 @@ function createMeasure(fields: PivotFields, measure: PivotCoreMeasure): PivotMea
     isHidden: measure.isHidden,
     format: measure.format,
     computedBy: measure.computedBy,
+    display: measure.display,
   };
 }
 

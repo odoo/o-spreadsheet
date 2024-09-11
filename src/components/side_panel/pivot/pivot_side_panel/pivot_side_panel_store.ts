@@ -149,7 +149,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
       ...definitionUpdate,
     };
     // clean to make sure we only keep the core properties
-    const cleanedDefinition = {
+    const cleanedDefinition: PivotCoreDefinition = {
       ...definition,
       columns: definition.columns.map((col) => ({
         fieldName: col.fieldName,
@@ -169,6 +169,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
         computedBy: measure.computedBy,
         isHidden: measure.isHidden,
         format: measure.format,
+        display: measure.display,
       })),
     };
     if (!this.draft && deepEquals(coreDefinition, cleanedDefinition)) {

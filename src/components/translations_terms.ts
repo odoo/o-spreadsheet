@@ -173,3 +173,84 @@ export const TableTerms = {
     isDynamic: _t("For tables based on array formulas only"),
   },
 };
+
+export const measureDisplayTerms = {
+  labels: {
+    no_calculations: _t("No calculations"),
+    "%_of_grand_total": _t("% of grand total"),
+    "%_of_col_total": _t("% of column total"),
+    "%_of_row_total": _t("% of row total"),
+    "%_of": _t("% of"),
+    "%_of_parent_row_total": _t("% of parent row total"),
+    "%_of_parent_col_total": _t("% of parent column total"),
+    "%_of_parent_total": _t("% of parent total"),
+    difference_from: _t("Difference from"),
+    "%_difference_from": _t("% difference from"),
+    running_total: _t("Running total"),
+    "%_running_total": _t("% Running total"),
+    rank_asc: _t("Rank smallest to largest"),
+    rank_desc: _t("Rank largest to smallest"),
+    index: _t("Index"),
+  },
+  descriptions: {
+    "%_of_grand_total": () => _t("Displayed as % of grand total"),
+    "%_of_col_total": () => _t("Displayed as % of column total"),
+    "%_of_row_total": () => _t("Displayed as % of row total"),
+    "%_of": (field: string) => _t('Displayed as % of "%s"', field),
+    "%_of_parent_row_total": (field: string) =>
+      _t('Displayed as % of parent row total of "%s"', field),
+    "%_of_parent_col_total": () => _t("Displayed as % of parent column total"),
+    "%_of_parent_total": (field: string) => _t('Displayed as % of parent "%s" total', field),
+    difference_from: (field: string) => _t('Displayed as difference from "%s"', field),
+    "%_difference_from": (field: string) => _t('Displayed as % difference from "%s"', field),
+    running_total: (field: string) => _t('Displayed as running total based on "%s"', field),
+    "%_running_total": (field: string) => _t('Displayed as % running total based on "%s"', field),
+    rank_asc: (field: string) =>
+      _t('Displayed as rank from smallest to largest based on "%s"', field),
+    rank_desc: (field: string) => _t('Displayed as rank largest to smallest based on "%s"', field),
+    index: () => _t("Displayed as index"),
+  },
+  documentation: {
+    no_calculations: _t("Displays the value that is entered in the field."),
+    "%_of_grand_total": _t(
+      "Displays values as a percentage of the grand total of all the values or data points in the report."
+    ),
+    "%_of_col_total": _t(
+      "Displays all the values in each column or series as a percentage of the total for the column or series."
+    ),
+    "%_of_row_total": _t(
+      "Displays the value in each row or category as a percentage of the total for the row or category."
+    ),
+    "%_of": _t("Displays values as a percentage of the value of the Base item in the Base field."),
+    "%_of_parent_row_total": _t(
+      "Calculates values as follows:\n(value for the item) / (value for the parent item on rows)"
+    ),
+    "%_of_parent_col_total": _t(
+      "Calculates values as follows:\n(value for the item) / (value for the parent item on columns)"
+    ),
+    "%_of_parent_total": _t(
+      "Calculates values as follows:\n(value for the item) / (value for the parent item of the selected Base field)"
+    ),
+    difference_from: _t(
+      "Displays values as the difference from the value of the Base item in the Base field."
+    ),
+    "%_difference_from": _t(
+      "Displays values as the percentage difference from the value of the Base item in the Base field."
+    ),
+    running_total: _t(
+      "Displays the value for successive items in the Base field as a running total."
+    ),
+    "%_running_total": _t(
+      "Calculates the value as a percentage for successive items in the Base field that are displayed as a running total."
+    ),
+    rank_asc: _t(
+      "Displays the rank of selected values in a specific field, listing the smallest item in the field as 1, and each larger value with a higher rank value."
+    ),
+    rank_desc: _t(
+      "Displays the rank of selected values in a specific field, listing the largest item in the field as 1, and each smaller value with a higher rank value."
+    ),
+    index: _t(
+      "Calculates values as follows:\n((value in cell) x (Grand Total of Grand Totals)) / ((Grand Row Total) x (Grand Column Total))"
+    ),
+  },
+};

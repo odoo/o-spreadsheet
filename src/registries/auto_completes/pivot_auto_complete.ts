@@ -254,11 +254,12 @@ autoCompleteProviders.add("pivot_group_values", {
       const isString = typeof value === "string";
       const text = isString ? `"${value}"` : value.toString();
       const color = isString ? tokenColors.STRING : tokenColors.NUMBER;
+      const usedLabel = label === value ? "" : label;
       return {
         text,
-        description: label,
+        description: usedLabel,
         htmlContent: [{ value: text, color }],
-        fuzzySearchKey: value + label,
+        fuzzySearchKey: value + usedLabel,
       };
     });
   },

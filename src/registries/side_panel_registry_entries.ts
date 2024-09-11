@@ -5,6 +5,7 @@ import { DataValidationPanel } from "../components/side_panel/data_validation/da
 import { DataValidationEditor } from "../components/side_panel/data_validation/dv_editor/dv_editor";
 import { FindAndReplacePanel } from "../components/side_panel/find_and_replace/find_and_replace";
 import { MoreFormatsPanel } from "../components/side_panel/more_formats/more_formats";
+import { PivotMeasureDisplayPanel } from "../components/side_panel/pivot/pivot_measure_display_panel/pivot_measure_display_panel";
 import { PivotSidePanel } from "../components/side_panel/pivot/pivot_side_panel/pivot_side_panel";
 import { RemoveDuplicatesPanel } from "../components/side_panel/remove_duplicates/remove_duplicates";
 import { SettingsPanel } from "../components/side_panel/settings/settings_panel";
@@ -117,5 +118,22 @@ sidePanelRegistry.add("PivotSidePanel", {
       props,
       key: `pivot_key_${props.pivotId}`,
     };
+  },
+});
+
+sidePanelRegistry.add("PivotMeasureDisplayPanel", {
+  title: (env: SpreadsheetChildEnv, props: PivotMeasureDisplayPanel["props"]) => {
+    const measure = env.model.getters.getPivot(props.pivotId).getMeasure(props.measure.id);
+    return _t('Measure "%s" options', measure.displayName);
+  },
+  Body: PivotMeasureDisplayPanel,
+  computeState: (getters: Getters, props: PivotMeasureDisplayPanel["props"]) => {
+    try {
+      // This will throw if the pivot or measure does not exist
+      getters.getPivot(props.pivotId).getMeasure(props.measure.id);
+      return { isOpen: true, props, key: "pivot_measure_display" };
+    } catch (e) {
+      return { isOpen: false };
+    }
   },
 });

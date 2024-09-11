@@ -9,7 +9,7 @@ import { SpreadsheetPivotTable } from "../table_spreadsheet_pivot";
 import { SpreadsheetPivotRuntimeDefinition } from "./runtime_definition_spreadsheet_pivot";
 
 export type FieldName = string;
-export type FieldValue = Pick<EvaluatedCell, "type" | "format" | "value">;
+export type FieldValue = Pick<EvaluatedCell, "type" | "format" | "value" | "formattedValue">;
 
 export type DataEntry = Record<FieldName, FieldValue | undefined>;
 export type DataEntries = DataEntry[];
@@ -102,11 +102,11 @@ function dataEntriesToColumnsTree(
   const colName = columns[index].nameWithGranularity;
   const groups = groupPivotDataEntriesBy(dataEntries, column);
   const orderedKeys = orderDataEntriesKeys(groups, columns[index]);
-  return orderedKeys.map((value) => {
+  return orderedKeys.map((key) => {
     return {
-      value,
+      value: groups[key]?.[0]?.[column.nameWithGranularity]?.value ?? null,
       field: colName,
-      children: dataEntriesToColumnsTree(groups[value] || [], columns, index + 1),
+      children: dataEntriesToColumnsTree(groups[key] || [], columns, index + 1),
       width: 0,
     };
   });
@@ -226,7 +226,7 @@ function keySelector(dimension: PivotDimension): (item: DataEntry, index: number
 /**
  * Order the keys of the given data entries, based on the given dimension
  */
-function orderDataEntriesKeys(
+export function orderDataEntriesKeys(
   groups: Partial<Record<string, DataEntries>>,
   dimension: PivotDimension
 ): string[] {

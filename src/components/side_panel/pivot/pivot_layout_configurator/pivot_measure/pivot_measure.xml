@@ -11,6 +11,11 @@
           class="o-button-icon pe-1 ps-2"
           t-on-click="toggleMeasureVisibility"
         />
+        <i
+          class="o-button-icon pe-1 ps-2 fa fa-cog"
+          title="Show values as"
+          t-on-click="openShowValuesAs"
+        />
       </t>
       <div t-if="measure.computedBy" class="d-flex flex-row small">
         <div class="d-flex flex-column py-2 px-2 w-100">

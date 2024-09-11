@@ -626,3 +626,42 @@ export class TokenizingChars {
     return true;
   }
 }
+
+/**
+ * Remove duplicates from an array.
+ *
+ * @param array The array to remove duplicates from.
+ * @param cb A callback to get an element value.
+ */
+export function removeDuplicates<T>(array: T[], cb: (a: T) => any = (a) => a): T[] {
+  const set = new Set();
+  return array.filter((item) => {
+    const key = cb(item);
+    if (set.has(key)) {
+      return false;
+    }
+    set.add(key);
+    return true;
+  });
+}
+
+/**
+ * Similar to transposing and array, but with POJOs instead of arrays. Useful, for example, when manipulating
+ * a POJO grid[col][row] and you want to transpose it to grid[row][col].
+ *
+ * The resulting object is created such as result[key1][key2] = pojo[key2][key1]
+ */
+export function transpose2dPOJO<T>(
+  pojo: Record<string, Record<string, T>>
+): Record<string, Record<string, T>> {
+  const result: Record<string, Record<string, T>> = {};
+  for (const key in pojo) {
+    for (const subKey in pojo[key]) {
+      if (!result[subKey]) {
+        result[subKey] = {};
+      }
+      result[subKey][key] = pojo[key][subKey];
+    }
+  }
+  return result;
+}

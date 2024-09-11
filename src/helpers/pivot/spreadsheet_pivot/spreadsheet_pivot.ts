@@ -25,7 +25,7 @@ import {
 } from "../../../types/pivot";
 import { InitPivotParams, Pivot } from "../../../types/pivot_runtime";
 import { toXC } from "../../coordinates";
-import { isDateTimeFormat } from "../../format/format";
+import { formatValue, isDateTimeFormat } from "../../format/format";
 import { isDefined } from "../../misc";
 import {
   AGGREGATORS_FN,
@@ -41,6 +41,7 @@ import {
   DataEntry,
   dataEntriesToSpreadsheetPivotTable,
   groupPivotDataEntriesBy,
+  orderDataEntriesKeys,
 } from "./data_entry_spreadsheet_pivot";
 import { createDate } from "./date_spreadsheet_pivot";
 import { SpreadsheetPivotRuntimeDefinition } from "./runtime_definition_spreadsheet_pivot";
@@ -59,6 +60,7 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
   private getters: Getters;
   private _definition: SpreadsheetPivotRuntimeDefinition | undefined;
   private coreDefinition: SpreadsheetPivotCoreDefinition;
+
   /**
    * This array contains the data entries of the pivot. Each entry is an object
    * that contains the values of the fields for a row.
@@ -273,8 +275,13 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
     dimension: PivotDimension
   ): { value: string | number | boolean; label: string }[] {
     const values: { value: string | number | boolean; label: string }[] = [];
-    for (const value in groupPivotDataEntriesBy(this.dataEntries, dimension)) {
-      values.push({ value, label: "" });
+    const groups = groupPivotDataEntriesBy(this.dataEntries, dimension);
+    const orderedKeys = orderDataEntriesKeys(groups, dimension);
+    for (const key of orderedKeys) {
+      values.push({
+        value: groups[key]?.[0]?.[dimension.nameWithGranularity]?.value ?? "",
+        label: groups[key]?.[0]?.[dimension.nameWithGranularity]?.formattedValue || "",
+      });
     }
     return values;
   }
@@ -418,28 +425,34 @@ export class SpreadsheetPivot implements Pivot<SpreadsheetPivotRuntimeDefinition
           throw new Error(`Field ${this.fieldKeys[index]} does not exist`);
         }
         if (cell.value === "") {
-          entry[field.name] = { value: null, type: CellValueType.empty };
+          entry[field.name] = { value: null, type: CellValueType.empty, formattedValue: "" };
         } else {
           entry[field.name] = cell;
         }
       }
-      entry["__count"] = { value: 1, type: CellValueType.number };
+      entry["__count"] = { value: 1, type: CellValueType.number, formattedValue: "1" };
       dataEntries.push(entry);
     }
     const dateDimensions = this.definition.columns
       .concat(this.definition.rows)
       .filter((d) => d.type === "date");
     if (dateDimensions.length) {
+      const locale = this.getters.getLocale();
       for (const entry of dataEntries) {
         for (const dimension of dateDimensions) {
+          const value = createDate(
+            dimension,
+            entry[dimension.fieldName]?.value || null,
+            this.getters.getLocale()
+          );
+          const adapter = pivotTimeAdapter(dimension.granularity as Granularity);
+          const { format, value: valueToFormat } = adapter.toValueAndFormat(value, locale);
+
           entry[dimension.nameWithGranularity] = {
-            value: createDate(
-              dimension,
-              entry[dimension.fieldName]?.value || null,
-              this.getters.getLocale()
-            ),
+            value,
             type: entry[dimension.fieldName]?.type || CellValueType.empty,
             format: entry[dimension.fieldName]?.format,
+            formattedValue: formatValue(valueToFormat, { locale, format }),
           };
         }
       }
