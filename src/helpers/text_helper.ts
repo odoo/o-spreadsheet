@@ -298,25 +298,6 @@ export function clipTextWithEllipsis(
   return text + ellipsis;
 }
 
-export function splitTextInTwoLines(text: string): [string, string] {
-  let spaces = "";
-  while (text[0] === " ") {
-    spaces += " ";
-    text = text.slice(1);
-  }
-  const length = text.length;
-  const middle = Math.floor(length / 2);
-  const leftSpace = text.substring(0, middle).lastIndexOf(" ");
-  const rightSpace = text.substring(middle).indexOf(" ") + middle;
-  if (leftSpace === -1 && rightSpace === middle - 1) {
-    return [spaces + text, ""];
-  }
-  if (leftSpace > length - rightSpace || rightSpace === middle - 1) {
-    return [spaces + text.slice(0, leftSpace), spaces + text.slice(leftSpace + 1)];
-  }
-  return [spaces + text.slice(0, rightSpace), spaces + text.slice(rightSpace + 1)];
-}
-
 export function drawDecoratedText(
   context: CanvasRenderingContext2D,
   text: string,

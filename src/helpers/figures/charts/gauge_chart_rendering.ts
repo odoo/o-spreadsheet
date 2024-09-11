@@ -1,4 +1,8 @@
-import { DEFAULT_CHART_FONT_SIZE, DEFAULT_CHART_PADDING, DEFAULT_FONT } from "../../../constants";
+import {
+  DEFAULT_FONT,
+  SCORECARD_GAUGE_CHART_FONT_SIZE,
+  SCORECARD_GAUGE_CHART_PADDING,
+} from "../../../constants";
 import { Color, PixelPosition, Rect } from "../../../types";
 import { GaugeChartRuntime } from "../../../types/chart";
 import { relativeLuminance } from "../../color";
@@ -23,9 +27,9 @@ const GAUGE_INFLECTION_MARKER_COLOR = "#666666aa";
 const GAUGE_INFLECTION_LABEL_BOTTOM_MARGIN = 6;
 
 export const GAUGE_TITLE_SECTION_HEIGHT = 25;
-export const GAUGE_TITLE_FONT_SIZE = DEFAULT_CHART_FONT_SIZE;
-export const GAUGE_TITLE_PADDING_LEFT = DEFAULT_CHART_PADDING;
-export const GAUGE_TITLE_PADDING_TOP = DEFAULT_CHART_PADDING;
+export const GAUGE_TITLE_FONT_SIZE = SCORECARD_GAUGE_CHART_FONT_SIZE;
+export const GAUGE_TITLE_PADDING_LEFT = SCORECARD_GAUGE_CHART_PADDING;
+export const GAUGE_TITLE_PADDING_TOP = SCORECARD_GAUGE_CHART_PADDING;
 
 interface RenderingParams {
   width: number;
