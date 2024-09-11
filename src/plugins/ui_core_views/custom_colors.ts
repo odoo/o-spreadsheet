@@ -9,9 +9,10 @@ import {
   rgbaToHSLA,
   toHex,
 } from "../../helpers";
-import { GaugeChart, ScorecardChart } from "../../helpers/figures/charts";
-import { Color, CoreViewCommand, Immutable, RGBA, TableElementStyle, UID } from "../../types";
+import { Color, Command, Immutable, RGBA, TableElementStyle, UID } from "../../types";
 import { UIPlugin, UIPluginConfig } from "../ui_plugin";
+
+const chartColorRegex = /"(#[0-9a-fA-F]{6})"/g;
 
 /**
  * https://tomekdev.com/posts/sorting-colors-in-js
@@ -76,16 +77,23 @@ export class CustomColorsPlugin extends UIPlugin<CustomColorState> {
 
   constructor(config: UIPluginConfig) {
     super(config);
-    for (const color of config.customColors ?? []) {
-      this.tryToAddColor(color);
-    }
+    this.tryToAddColors(config.customColors ?? []);
   }
 
-  handle(cmd: CoreViewCommand) {
+  handle(cmd: Command) {
     switch (cmd.type) {
-      case "UPDATE_CELL":
+      case "START":
+        for (const sheetId of this.getters.getSheetIds()) {
+          for (const chartId of this.getters.getChartIds(sheetId)) {
+            this.tryToAddColors(this.getChartColors(chartId));
+          }
+        }
+        break;
       case "UPDATE_CHART":
       case "CREATE_CHART":
+        this.tryToAddColors(this.getChartColors(cmd.id));
+        break;
+      case "UPDATE_CELL":
       case "ADD_CONDITIONAL_FORMAT":
       case "SET_BORDER":
       case "SET_ZONE_BORDERS":
@@ -100,9 +108,7 @@ export class CustomColorsPlugin extends UIPlugin<CustomColorState> {
   finalize() {
     if (this.shouldUpdateColors) {
       this.history.update("shouldUpdateColors", false);
-      for (const color of this.computeCustomColors()) {
-        this.tryToAddColor(color);
-      }
+      this.tryToAddColors(this.computeCustomColors());
     }
   }
 
@@ -116,7 +122,6 @@ export class CustomColorsPlugin extends UIPlugin<CustomColorState> {
       usedColors = usedColors.concat(
         this.getColorsFromCells(sheetId),
         this.getFormattingColors(sheetId),
-        this.getChartColors(sheetId),
         this.getTableColors(sheetId)
       );
     }
@@ -157,32 +162,14 @@ export class CustomColorsPlugin extends UIPlugin<CustomColorState> {
     return formatColors.filter(isDefined);
   }
 
-  private getChartColors(sheetId: UID): Color[] {
-    const charts = this.getters.getChartIds(sheetId).map((cid) => this.getters.getChart(cid));
-    let chartsColors = new Set<Color>();
-    for (let chart of charts) {
-      if (chart === undefined) {
-        continue;
-      }
-      const background = chart.getDefinition().background;
-      if (background !== undefined) {
-        chartsColors.add(background);
-      }
-      switch (chart.type) {
-        case "gauge":
-          const colors = (chart as GaugeChart).sectionRule.colors;
-          chartsColors.add(colors.lowerColor);
-          chartsColors.add(colors.middleColor);
-          chartsColors.add(colors.upperColor);
-          break;
-        case "scorecard":
-          const scoreChart = chart as ScorecardChart;
-          chartsColors.add(scoreChart.baselineColorDown);
-          chartsColors.add(scoreChart.baselineColorUp);
-          break;
-      }
+  private getChartColors(chartId: UID): Color[] {
+    const chart = this.getters.getChart(chartId);
+    if (chart === undefined) {
+      return [];
     }
-    return [...chartsColors];
+    const stringifiedChart = JSON.stringify(chart.getDefinition());
+    const colors = stringifiedChart.matchAll(chartColorRegex);
+    return [...colors].map((color) => color[1]); // color[1] is the first capturing group of the regex
   }
 
   private getTableColors(sheetId: UID): Color[] {
@@ -220,13 +207,15 @@ export class CustomColorsPlugin extends UIPlugin<CustomColorState> {
     ].filter(isDefined);
   }
 
-  private tryToAddColor(color: Color) {
-    if (!isColorValid(color)) {
-      return;
-    }
-    const formattedColor = toHex(color);
-    if (color && !COLOR_PICKER_DEFAULTS.includes(formattedColor)) {
-      this.history.update("customColors", formattedColor, true);
+  private tryToAddColors(colors: Color[]) {
+    for (const color of colors) {
+      if (!isColorValid(color)) {
+        continue;
+      }
+      const formattedColor = toHex(color);
+      if (color && !COLOR_PICKER_DEFAULTS.includes(formattedColor)) {
+        this.history.update("customColors", formattedColor, true);
+      }
     }
   }
 }
