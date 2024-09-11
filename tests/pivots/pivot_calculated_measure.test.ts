@@ -618,16 +618,20 @@ describe("Pivot calculated measure", () => {
   });
 
   test("aggregate grouped by date field aggregated by month number", () => {
+    // prettier-ignore
     const grid = {
-      A1: "Date",
-      A2: "2024/01/01",
+      A1: "Date",       B1: "Name",
+      A2: "2024/01/01", B2: "Bob",
+      A3: "2024/01/01", B3: "Alice",
       A6: '=PIVOT.VALUE(1,"calc")',
+      A7: '=PIVOT.VALUE(1,"calc","Name","Bob")',
+      A8: '=PIVOT.VALUE(1,"calc","Name","Bob","Date:month_number",1)',
     };
     const model = createModelFromGrid(grid);
     const sheetId = model.getters.getActiveSheetId();
-    addPivot(model, "A1:A2", {
+    addPivot(model, "A1:B3", {
       columns: [],
-      rows: [{ fieldName: "Date", granularity: "month_number" }],
+      rows: [{ fieldName: "Name" }, { fieldName: "Date", granularity: "month_number" }],
       measures: [
         {
           id: "calc",
@@ -637,7 +641,9 @@ describe("Pivot calculated measure", () => {
         },
       ],
     });
-    expect(getEvaluatedCell(model, "A6").value).toEqual(10);
+    expect(getEvaluatedCell(model, "A6").value).toEqual(20);
+    expect(getEvaluatedCell(model, "A7").value).toEqual(10);
+    expect(getEvaluatedCell(model, "A8").value).toEqual(10);
   });
 
   test("aggregator preserves the format", () => {

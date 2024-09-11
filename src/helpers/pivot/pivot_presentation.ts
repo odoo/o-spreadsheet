@@ -199,7 +199,7 @@ export function withPivotPresentationLayer(PivotClass: PivotUIConstructor) {
       if (domainLevel > domain.length) {
         return [];
       }
-      if (!domain.length) {
+      if (domain.length === domainLevel) {
         return tree;
       }
       for (const node of tree) {
