@@ -769,4 +769,69 @@ describe("spreadsheet pivot auto complete", () => {
     expect(composer.currentContent).toBe("=1+Stage");
     expect(composer.autocompleteProvider).toBeUndefined();
   });
+
+  test("auto complete dimension starting with the cursor after an operator token", async () => {
+    const model = createModelWithPivot("A1:I5");
+    updatePivot(model, "1", {
+      columns: [],
+      rows: [{ fieldName: "Stage" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
+    });
+    const pivot = model.getters.getPivot("1");
+    const { store: composer } = makeStoreWithModel(model, StandaloneComposerStore, () => ({
+      content: "=",
+      defaultRangeSheetId: model.getters.getActiveSheetId(),
+      onConfirm: () => {},
+      contextualAutocomplete: createMeasureAutoComplete(
+        pivot.definition,
+        pivot.getMeasure("Expected Revenue:sum")
+      ),
+    }));
+    composer.startEdition();
+    const autoComplete = composer.autocompleteProvider;
+    expect(autoComplete?.proposals).toEqual([
+      {
+        text: "Stage",
+        description: "Stage",
+        fuzzySearchKey: "StageStageStage",
+        htmlContent: [{ color: "#4a4e4d", value: "Stage" }],
+      },
+    ]);
+    autoComplete?.selectProposal(autoComplete?.proposals[0].text);
+    expect(composer.currentContent).toBe("=Stage");
+    expect(composer.autocompleteProvider).toBeUndefined();
+  });
+
+  test("auto complete dimension with cursor after an operator token", async () => {
+    const model = createModelWithPivot("A1:I5");
+    updatePivot(model, "1", {
+      columns: [],
+      rows: [{ fieldName: "Stage" }],
+      measures: [{ id: "Expected Revenue:sum", fieldName: "Expected Revenue", aggregator: "sum" }],
+    });
+    const pivot = model.getters.getPivot("1");
+    const { store: composer } = makeStoreWithModel(model, StandaloneComposerStore, () => ({
+      content: "=0",
+      defaultRangeSheetId: model.getters.getActiveSheetId(),
+      onConfirm: () => {},
+      contextualAutocomplete: createMeasureAutoComplete(
+        pivot.definition,
+        pivot.getMeasure("Expected Revenue:sum")
+      ),
+    }));
+    composer.startEdition();
+    composer.setCurrentContent("="); // simulate a backspace to delete the "0"
+    const autoComplete = composer.autocompleteProvider;
+    expect(autoComplete?.proposals).toEqual([
+      {
+        text: "Stage",
+        description: "Stage",
+        fuzzySearchKey: "StageStageStage",
+        htmlContent: [{ color: "#4a4e4d", value: "Stage" }],
+      },
+    ]);
+    autoComplete?.selectProposal(autoComplete?.proposals[0].text);
+    expect(composer.currentContent).toBe("=Stage");
+    expect(composer.autocompleteProvider).toBeUndefined();
+  });
 });
