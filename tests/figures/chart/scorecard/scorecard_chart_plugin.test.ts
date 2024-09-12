@@ -1,15 +1,15 @@
-import { ChartCreationContext, CommandResult, Model } from "../../../src";
+import { ChartCreationContext, CommandResult, Model } from "../../../../src";
 import {
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
   DEFAULT_SCORECARD_BASELINE_MODE,
-} from "../../../src/constants";
-import { zoneToXc } from "../../../src/helpers";
-import { ScorecardChart } from "../../../src/helpers/figures/charts";
+} from "../../../../src/constants";
+import { zoneToXc } from "../../../../src/helpers";
+import { ScorecardChart } from "../../../../src/helpers/figures/charts";
 import {
   ScorecardChartDefinition,
   ScorecardChartRuntime,
-} from "../../../src/types/chart/scorecard_chart";
+} from "../../../../src/types/chart/scorecard_chart";
 import {
   addColumns,
   createScorecardChart,
@@ -19,7 +19,7 @@ import {
   setCellContent,
   undo,
   updateChart,
-} from "../../test_helpers/commands_helpers";
+} from "../../../test_helpers/commands_helpers";
 
 let model: Model;
 

@@ -1,11 +1,11 @@
-import { ChartCreationContext, CommandResult, Model } from "../../../src";
-import { deepCopy, zoneToXc } from "../../../src/helpers";
-import { GaugeChart } from "../../../src/helpers/figures/charts";
+import { ChartCreationContext, CommandResult, Model } from "../../../../src";
+import { deepCopy, zoneToXc } from "../../../../src/helpers";
+import { GaugeChart } from "../../../../src/helpers/figures/charts";
 import {
   GaugeChartDefinition,
   GaugeChartRuntime,
   SectionRule,
-} from "../../../src/types/chart/gauge_chart";
+} from "../../../../src/types/chart/gauge_chart";
 import {
   addColumns,
   createGaugeChart,
@@ -16,7 +16,7 @@ import {
   setFormat,
   undo,
   updateChart,
-} from "../../test_helpers/commands_helpers";
+} from "../../../test_helpers/commands_helpers";
 
 let model: Model;
 
