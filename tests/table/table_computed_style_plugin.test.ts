@@ -6,7 +6,9 @@ import {
   createTable,
   deleteContent,
   deleteTable,
+  foldAllHeaderGroups,
   foldHeaderGroup,
+  foldHeaderGroupsInZone,
   groupRows,
   hideColumns,
   hideRows,
@@ -15,7 +17,10 @@ import {
   setStyle,
   setZoneBorders,
   undo,
+  unfoldAllHeaderGroups,
   unfoldHeaderGroup,
+  unfoldHeaderGroupsInZone,
+  ungroupHeaders,
   unhideColumns,
   unhideRows,
   updateFilter,
@@ -214,6 +219,25 @@ describe("Table style", () => {
       foldHeaderGroup(model, "ROW", 0, 2);
       expect(getFullTableStyle("A1:B4")).not.toEqual(tableStyle);
       unfoldHeaderGroup(model, "ROW", 0, 2);
+      expect(getFullTableStyle("A1:B4")).toEqual(tableStyle);
+
+      foldHeaderGroupsInZone(model, "ROW", "B1:B2");
+      expect(getFullTableStyle("A1:B4")).not.toEqual(tableStyle);
+      unfoldHeaderGroupsInZone(model, "ROW", "B1:B2");
+      expect(getFullTableStyle("A1:B4")).toEqual(tableStyle);
+
+      foldAllHeaderGroups(model, "ROW");
+      expect(getFullTableStyle("A1:B4")).not.toEqual(tableStyle);
+      unfoldAllHeaderGroups(model, "ROW");
+      expect(getFullTableStyle("A1:B4")).toEqual(tableStyle);
+    });
+
+    test("Table style is updated when removing a header group", () => {
+      const tableStyle = getFullTableStyle("A1:B4");
+      groupRows(model, 0, 2);
+      foldHeaderGroup(model, "ROW", 0, 2);
+      expect(getFullTableStyle("A1:B4")).not.toEqual(tableStyle);
+      ungroupHeaders(model, "ROW", 0, 2);
       expect(getFullTableStyle("A1:B4")).toEqual(tableStyle);
     });
 
