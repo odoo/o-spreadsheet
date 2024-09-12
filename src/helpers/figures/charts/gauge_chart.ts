@@ -24,7 +24,7 @@ import { ChartCreationContext } from "../../../types/chart/chart";
 import {
   GaugeChartDefinition,
   GaugeChartRuntime,
-  GaugeValue,
+  GaugeInflectionValue,
   SectionRule,
   SectionThreshold,
 } from "../../../types/chart/gauge_chart";
@@ -192,10 +192,12 @@ export class GaugeChart extends AbstractChart {
         lowerInflectionPoint: {
           type: "percentage",
           value: "15",
+          operator: "<=",
         },
         upperInflectionPoint: {
           type: "percentage",
           value: "40",
+          operator: "<=",
         },
       },
     };
@@ -284,13 +286,14 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
   const lowerPointValue = getSectionThresholdValue(lowerPoint, minValue, maxValue);
   const upperPointValue = getSectionThresholdValue(upperPoint, minValue, maxValue);
 
-  const inflectionValues: GaugeValue[] = [];
+  const inflectionValues: GaugeInflectionValue[] = [];
   const colors: Color[] = [];
 
   if (lowerPointValue !== undefined) {
     inflectionValues.push({
       value: lowerPointValue,
       label: formatValue(lowerPointValue, { locale, format }),
+      operator: lowerPoint.operator,
     });
     colors.push(chartColors.lowerColor);
   }
@@ -299,6 +302,7 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
     inflectionValues.push({
       value: upperPointValue,
       label: formatValue(upperPointValue, { locale, format }),
+      operator: upperPoint.operator,
     });
     colors.push(chartColors.middleColor);
   }

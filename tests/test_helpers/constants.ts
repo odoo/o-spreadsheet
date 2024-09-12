@@ -57,10 +57,12 @@ export const TEST_CHART_DATA = {
       lowerInflectionPoint: {
         type: "number" as const,
         value: "33",
+        operator: "<=" as const,
       },
       upperInflectionPoint: {
         type: "number" as const,
         value: "66",
+        operator: "<=" as const,
       },
     },
   },

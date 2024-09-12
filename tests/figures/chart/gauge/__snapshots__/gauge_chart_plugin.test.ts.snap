@@ -12,10 +12,12 @@ exports[`datasource tests create a gauge chart 1`] = `
   "inflectionValues": [
     {
       "label": "70",
+      "operator": "<=",
       "value": 70,
     },
     {
       "label": "150",
+      "operator": "<=",
       "value": 150,
     },
   ],
@@ -45,10 +47,12 @@ exports[`datasource tests create empty gauge chart 1`] = `
   "inflectionValues": [
     {
       "label": "33",
+      "operator": "<=",
       "value": 33,
     },
     {
       "label": "66",
+      "operator": "<=",
       "value": 66,
     },
   ],

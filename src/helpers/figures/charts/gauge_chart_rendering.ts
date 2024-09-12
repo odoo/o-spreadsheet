@@ -373,11 +373,15 @@ function getGaugeColor(runtime: GaugeChartRuntime): Color {
   if (gaugeValue === undefined) {
     return GAUGE_BACKGROUND_COLOR;
   }
-  let colorIndex = 0;
-  while (runtime.inflectionValues[colorIndex]?.value <= gaugeValue) {
-    colorIndex++;
+  for (let i = 0; i < runtime.inflectionValues.length; i++) {
+    const inflectionValue = runtime.inflectionValues[i];
+    if (inflectionValue.operator === "<" && gaugeValue < inflectionValue.value) {
+      return runtime.colors[i];
+    } else if (inflectionValue.operator === "<=" && gaugeValue <= inflectionValue.value) {
+      return runtime.colors[i];
+    }
   }
-  return runtime.colors[colorIndex];
+  return runtime.colors.at(-1)!;
 }
 
 function getContrastedTextColor(backgroundColor: Color) {

@@ -1130,6 +1130,37 @@ describe("charts", () => {
       }
     );
 
+    test("Can change gauge inflection operator", async () => {
+      createTestChart("gauge");
+      await mountChartSidePanel();
+      await openChartDesignSidePanel();
+
+      expect(model.getters.getChartDefinition(chartId)).toMatchObject({
+        sectionRule: {
+          lowerInflectionPoint: { operator: "<=" },
+          upperInflectionPoint: { operator: "<=" },
+        },
+      });
+
+      const inputs = fixture.querySelectorAll(".o-input[name=operatorType]");
+
+      await setInputValueAndTrigger(inputs[0], "<");
+      expect(model.getters.getChartDefinition(chartId)).toMatchObject({
+        sectionRule: {
+          lowerInflectionPoint: { operator: "<" },
+          upperInflectionPoint: { operator: "<=" },
+        },
+      });
+
+      setInputValueAndTrigger(inputs[1], "<");
+      expect(model.getters.getChartDefinition(chartId)).toMatchObject({
+        sectionRule: {
+          lowerInflectionPoint: { operator: "<" },
+          upperInflectionPoint: { operator: "<" },
+        },
+      });
+    });
+
     describe("update chart with invalid section rule", () => {
       beforeEach(async () => {
         createTestChart("gauge");

@@ -38,7 +38,10 @@ css/* scss */ `
       width: 8%;
     }
     th.o-gauge-color-set-text {
-      width: 40%;
+      width: 25%;
+    }
+    th.o-gauge-color-set-operator {
+      width: 10%;
     }
     th.o-gauge-color-set-value {
       width: 22%;

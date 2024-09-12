@@ -148,10 +148,12 @@ describe("custom colors are correctly handled when editing charts", () => {
           lowerInflectionPoint: {
             type: "number" as const,
             value: "33",
+            operator: "<=" as const,
           },
           upperInflectionPoint: {
             type: "number" as const,
             value: "66",
+            operator: "<=" as const,
           },
         },
       },

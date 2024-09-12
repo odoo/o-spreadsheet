@@ -268,10 +268,12 @@ export function createGaugeChart(
         lowerInflectionPoint: {
           type: "number",
           value: "33",
+          operator: "<=",
         },
         upperInflectionPoint: {
           type: "number",
           value: "66",
+          operator: "<=",
         },
       },
     },

@@ -8,7 +8,7 @@ import { toXC } from "../helpers/coordinates";
 import { getMaxObjectId } from "../helpers/pivot/pivot_helpers";
 import { overlap, toZone, zoneToXc } from "../helpers/zones";
 import { Registry } from "../registries/registry";
-import { CustomizedDataSet, DEFAULT_LOCALE, Format, Zone } from "../types";
+import { CustomizedDataSet, DEFAULT_LOCALE, Format, WorkbookData, Zone } from "../types";
 import { normalizeV9 } from "./legacy_tools";
 import { WEEK_START } from "./locale";
 
@@ -395,6 +395,27 @@ migrationStepRegistry
           delete sheet.cells[xc].style;
           delete sheet.cells[xc].format;
           delete sheet.cells[xc].border;
+        }
+      }
+      return data;
+    },
+  })
+  .add("migration_21", {
+    // "Add operator in gauge inflection points",
+    versionFrom: "21",
+    migrate(data: WorkbookData): any {
+      for (const sheet of data.sheets || []) {
+        for (const figure of sheet.figures || []) {
+          if (figure.tag !== "chart" || figure.data.type !== "gauge") {
+            continue;
+          }
+          const gaugeData = figure.data;
+          if (gaugeData?.sectionRule?.lowerInflectionPoint) {
+            gaugeData.sectionRule.lowerInflectionPoint.operator = "<=";
+          }
+          if (gaugeData?.sectionRule?.upperInflectionPoint) {
+            gaugeData.sectionRule.upperInflectionPoint.operator = "<=";
+          }
         }
       }
       return data;
