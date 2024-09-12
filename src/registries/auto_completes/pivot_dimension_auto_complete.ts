@@ -36,7 +36,10 @@ export function createMeasureAutoComplete(
       return measureProposals.concat(dimensionsProposals);
     },
     selectProposal(tokenAtCursor, value) {
-      const start = tokenAtCursor.start;
+      let start = tokenAtCursor.end;
+      if (tokenAtCursor.type === "SYMBOL") {
+        start = tokenAtCursor.start;
+      }
       const end = tokenAtCursor.end;
       this.composer.changeComposerCursorSelection(start, end);
       this.composer.replaceComposerCursorSelection(value);

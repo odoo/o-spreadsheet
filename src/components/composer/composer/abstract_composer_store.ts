@@ -602,7 +602,7 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
       if (
         searchTerm &&
         proposals &&
-        !["ARG_SEPARATOR", "LEFT_PAREN"].includes(tokenAtCursor.type)
+        !["ARG_SEPARATOR", "LEFT_PAREN", "OPERATOR"].includes(tokenAtCursor.type)
       ) {
         const filteredProposals = fuzzyLookup(
           searchTerm,
