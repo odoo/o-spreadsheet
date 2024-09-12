@@ -46,6 +46,9 @@ export class TableStylePlugin extends UIPlugin {
       case "FOLD_HEADER_GROUP":
       case "FOLD_ALL_HEADER_GROUPS":
       case "UNFOLD_ALL_HEADER_GROUPS":
+      case "FOLD_HEADER_GROUPS_IN_ZONE":
+      case "UNFOLD_HEADER_GROUPS_IN_ZONE":
+      case "UNGROUP_HEADERS":
       case "UPDATE_TABLE":
       case "UPDATE_FILTER":
         delete this.tableStyles[cmd.sheetId];
