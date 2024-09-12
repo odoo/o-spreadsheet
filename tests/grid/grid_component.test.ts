@@ -72,7 +72,13 @@ import {
   getSelectionAnchorCellXc,
   getStyle,
 } from "../test_helpers/getters_helpers";
-import { mockChart, mountSpreadsheet, nextTick, typeInComposerGrid } from "../test_helpers/helpers";
+import {
+  mockChart,
+  mountSpreadsheet,
+  nextTick,
+  spyModelDispatch,
+  typeInComposerGrid,
+} from "../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../test_helpers/mock_helpers";
 jest.mock("../../src/components/composer/content_editable_helper", () =>
   require("../__mocks__/content_editable_helper")
@@ -784,6 +790,12 @@ describe("Grid component", () => {
       await nextTick();
       await simulateClick(".o-filter-icon");
       expect(fixture.querySelectorAll(".o-filter-menu")).toHaveLength(1);
+    });
+
+    test("F9 triggers a re-evaluation of the grid", () => {
+      const spyDispatch = spyModelDispatch(model);
+      keyDown({ key: "F9" });
+      expect(spyDispatch).toHaveBeenCalledWith("EVALUATE_CELLS");
     });
   });
 
