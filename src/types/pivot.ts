@@ -56,6 +56,7 @@ export interface CommonPivotCoreDefinition {
   rows: PivotCoreDimension[];
   measures: PivotCoreMeasure[];
   name: string;
+  deferUpdates?: boolean;
 }
 
 export interface SpreadsheetPivotCoreDefinition extends CommonPivotCoreDefinition {
