@@ -1,28 +1,28 @@
-import { Model } from "../../../src";
+import { Model } from "../../../../src";
 import {
   DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
   DEFAULT_SCORECARD_BASELINE_COLOR_UP,
-} from "../../../src/constants";
-import { getContextFontSize } from "../../../src/helpers";
-import { drawScoreChart } from "../../../src/helpers/figures/charts";
+} from "../../../../src/constants";
+import { getContextFontSize } from "../../../../src/helpers";
+import { drawScoreChart } from "../../../../src/helpers/figures/charts";
 import {
   ScorecardChartConfig,
   formatBaselineDescr,
   getScorecardConfiguration,
-} from "../../../src/helpers/figures/charts/scorecard_chart_config_builder";
-import { Pixel, UID } from "../../../src/types";
-import { ScorecardChartRuntime } from "../../../src/types/chart/scorecard_chart";
-import { MockCanvasRenderingContext2D } from "../../setup/canvas.mock";
+} from "../../../../src/helpers/figures/charts/scorecard_chart_config_builder";
+import { Pixel, UID } from "../../../../src/types";
+import { ScorecardChartRuntime } from "../../../../src/types/chart/scorecard_chart";
+import { MockCanvasRenderingContext2D } from "../../../setup/canvas.mock";
 import {
   createScorecardChart,
   setCellContent,
   setFormat,
   setStyle,
   updateLocale,
-} from "../../test_helpers/commands_helpers";
-import { getCellContent } from "../../test_helpers/getters_helpers";
-import { toRangesData } from "../../test_helpers/helpers";
-import { FR_LOCALE } from "./../../test_helpers/constants";
+} from "../../../test_helpers/commands_helpers";
+import { FR_LOCALE } from "../../../test_helpers/constants";
+import { getCellContent } from "../../../test_helpers/getters_helpers";
+import { toRangesData } from "../../../test_helpers/helpers";
 
 let model: Model;
 let chartId: string;

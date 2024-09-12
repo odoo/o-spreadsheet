@@ -6,10 +6,10 @@ import {
   GAUGE_TITLE_FONT_SIZE,
   GAUGE_TITLE_PADDING_LEFT,
   getGaugeRenderingConfig,
-} from "../../../src/helpers/figures/charts/gauge_chart_rendering";
-import { Rect } from "../../../src/types";
-import { GaugeChartRuntime } from "../../../src/types/chart";
-import { MockCanvasRenderingContext2D } from "../../setup/canvas.mock";
+} from "../../../../src/helpers/figures/charts/gauge_chart_rendering";
+import { Rect } from "../../../../src/types";
+import { GaugeChartRuntime } from "../../../../src/types/chart";
+import { MockCanvasRenderingContext2D } from "../../../setup/canvas.mock";
 
 const testRuntime: GaugeChartRuntime = {
   background: "#FFFFFF",
