@@ -73,6 +73,8 @@ export class FilterEvaluationPlugin extends UIPlugin {
       case "UNFOLD_HEADER_GROUP":
       case "FOLD_ALL_HEADER_GROUPS":
       case "UNFOLD_ALL_HEADER_GROUPS":
+      case "FOLD_HEADER_GROUPS_IN_ZONE":
+      case "UNFOLD_HEADER_GROUPS_IN_ZONE":
         this.updateHiddenRows(cmd.sheetId);
         break;
       case "UPDATE_FILTER":
