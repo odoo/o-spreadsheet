@@ -337,6 +337,21 @@ describe("Spreadsheet pivot side panel", () => {
     expect(measures).toEqual(["Count", "float", "integer", "text"]);
   });
 
+  test("defer update option is persistent", async () => {
+    const pivotId = model.getters.getPivotIds()[0];
+    expect(".pivot-defer-update input").toHaveValue(false);
+    expect(model.getters.getPivotCoreDefinition(pivotId).deferUpdates).toBeFalsy();
+
+    await click(fixture, ".pivot-defer-update input");
+    expect(".pivot-defer-update input").toHaveValue(true);
+    expect(model.getters.getPivotCoreDefinition(pivotId).deferUpdates).toBeTruthy();
+
+    await click(fixture, ".o-sidePanelClose");
+    env.openSidePanel("PivotSidePanel", { pivotId });
+    await nextTick();
+    expect(".pivot-defer-update input").toHaveValue(true);
+  });
+
   test("Measures have the correct default aggregator", async () => {
     setCellContent(model, "A1", "amount");
     setCellContent(model, "A2", "10");
