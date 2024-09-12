@@ -35,10 +35,12 @@ const defaultSectionRule: SectionRule = {
   lowerInflectionPoint: {
     type: "number",
     value: "33",
+    operator: "<=",
   },
   upperInflectionPoint: {
     type: "number",
     value: "66",
+    operator: "<=",
   },
 };
 
@@ -53,10 +55,12 @@ const randomSectionRule: SectionRule = {
   lowerInflectionPoint: {
     type: "percentage",
     value: "50",
+    operator: "<=",
   },
   upperInflectionPoint: {
     type: "number",
     value: "70",
+    operator: "<=",
   },
 };
 
@@ -601,8 +605,8 @@ describe("Chart design configuration", () => {
     createGaugeChart(model, defaultChart, "1");
     let chart = model.getters.getChartRuntime("1") as GaugeChartRuntime;
     expect(chart.inflectionValues).toEqual([
-      { value: 22, label: "22" },
-      { value: 42, label: "42" },
+      { value: 22, label: "22", operator: "<=" },
+      { value: 42, label: "42", operator: "<=" },
     ]);
     expect(chart.colors).toStrictEqual([lowerColor, middleColor, upperColor]);
   });
@@ -669,6 +673,24 @@ describe("Chart design configuration", () => {
     createGaugeChart(model, defaultChart, "1");
     let chart = model.getters.getChartRuntime("1") as GaugeChartRuntime;
     expect(chart.inflectionValues).toMatchObject([{ value: 100 }, { value: 200 }]);
+    expect(chart.colors).toStrictEqual([lowerColor, middleColor, upperColor]);
+  });
+
+  test("Can have lesser than or lesser or equal than operators in thresholds", () => {
+    defaultChart = {
+      ...defaultChart,
+      sectionRule: {
+        ...defaultChart.sectionRule,
+        lowerInflectionPoint: { type: "number", value: "10", operator: "<" },
+        upperInflectionPoint: { type: "number", value: "30", operator: "<=" },
+      },
+    };
+    createGaugeChart(model, defaultChart, "1");
+    let chart = model.getters.getChartRuntime("1") as GaugeChartRuntime;
+    expect(chart.inflectionValues).toMatchObject([
+      { value: 10, operator: "<" },
+      { value: 30, operator: "<=" },
+    ]);
     expect(chart.colors).toStrictEqual([lowerColor, middleColor, upperColor]);
   });
 });

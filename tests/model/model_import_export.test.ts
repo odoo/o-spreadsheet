@@ -494,6 +494,45 @@ describe("Migrations", () => {
     expect(data.styles).toEqual({ 1: style });
     expect(data.borders).toEqual({ 1: border });
   });
+
+  test("Migrate version 22: add inflection operator to gauge chart", () => {
+    const model = new Model({
+      version: 19,
+      sheets: [
+        {
+          id: "1",
+          figures: [
+            {
+              id: "5",
+              tag: "chart",
+              data: {
+                type: "gauge",
+                background: "#FFFFFF",
+                sectionRule: {
+                  colors: { lowerColor: "#cc0000", middleColor: "#f1c232", upperColor: "#6aa84f" },
+                  rangeMin: "0",
+                  rangeMax: "100",
+                  lowerInflectionPoint: { type: "percentage", value: "15" },
+                  upperInflectionPoint: { type: "percentage", value: "40" },
+                },
+                title: { text: "Gauge" },
+                dataRange: "Sheet1!B29",
+              },
+            },
+          ],
+        },
+      ],
+    });
+    expect(model.getters.getChartDefinition("5")).toMatchObject({
+      sectionRule: {
+        colors: { lowerColor: "#cc0000", middleColor: "#f1c232", upperColor: "#6aa84f" },
+        rangeMin: "0",
+        rangeMax: "100",
+        lowerInflectionPoint: { type: "percentage", value: "15", operator: "<=" },
+        upperInflectionPoint: { type: "percentage", value: "40", operator: "<=" },
+      },
+    });
+  });
 });
 
 describe("Import", () => {

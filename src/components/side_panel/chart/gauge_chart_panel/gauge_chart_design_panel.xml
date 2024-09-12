@@ -50,6 +50,7 @@
         <tr>
           <th class="o-gauge-color-set-colorPicker"/>
           <th class="o-gauge-color-set-text"/>
+          <th class="o-gauge-color-set-operator"/>
           <th class="o-gauge-color-set-value">Value</th>
           <th class="o-gauge-color-set-type">Type</th>
         </tr>
@@ -94,7 +95,20 @@
           onColorPicked="(color) => this.updateSectionColor(sectionType, color)"
         />
       </td>
-      <td>When value is below</td>
+      <td>When value is</td>
+      <td class="pe-2">
+        <t t-set="below">below</t>
+        <t t-set="belowOrEqualTo">below or equal to</t>
+        <select
+          class="o-input"
+          name="operatorType"
+          t-att-title="inflectionPoint.operator === '&lt;' ? below : belowOrEqualTo"
+          t-model="inflectionPoint.operator"
+          t-on-change="() => this.updateSectionRule(state.sectionRule)">
+          <option title="below" value="&lt;">&lt;</option>
+          <option title="below or equal to" value="&lt;=">&lt;=</option>
+        </select>
+      </td>
       <td class="pe-2">
         <input
           type="text"

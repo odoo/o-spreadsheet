@@ -18,8 +18,8 @@ const testRuntime: GaugeChartRuntime = {
   maxValue: { value: 100, label: "100" },
   gaugeValue: { value: 50, label: "50" },
   inflectionValues: [
-    { value: 25, label: "25" },
-    { value: 75, label: "75" },
+    { value: 25, label: "25", operator: "<" },
+    { value: 75, label: "75", operator: "<" },
   ],
   colors: ["#FF0000", "#FF9900", "#007000"],
 };
@@ -129,6 +129,30 @@ describe("Gauge rendering config", () => {
     ).toEqual(testRuntime.colors[2]);
   });
 
+  test("Gauge inflection value can be lower than or lower or equal than", () => {
+    const ltRuntime = testRuntime;
+    expect(
+      getRenderingConfig({ ...ltRuntime, gaugeValue: { value: 25, label: "25" } }).gauge.color
+    ).toEqual(testRuntime.colors[1]);
+    expect(
+      getRenderingConfig({ ...ltRuntime, gaugeValue: { value: 75, label: "75" } }).gauge.color
+    ).toEqual(testRuntime.colors[2]);
+
+    const lteRuntime: GaugeChartRuntime = {
+      ...testRuntime,
+      inflectionValues: [
+        { value: 25, label: "25", operator: "<=" },
+        { value: 75, label: "75", operator: "<=" },
+      ],
+    };
+    expect(
+      getRenderingConfig({ ...lteRuntime, gaugeValue: { value: 25, label: "25" } }).gauge.color
+    ).toEqual(testRuntime.colors[0]);
+    expect(
+      getRenderingConfig({ ...lteRuntime, gaugeValue: { value: 75, label: "75" } }).gauge.color
+    ).toEqual(testRuntime.colors[1]);
+  });
+
   test("Inflection values", () => {
     expect(getRenderingConfig(testRuntime).inflectionValues).toEqual([
       {
@@ -149,11 +173,11 @@ describe("Gauge rendering config", () => {
   });
 
   test("Inflection values are offset when they would overlap each other", () => {
-    const runtime = {
+    const runtime: GaugeChartRuntime = {
       ...testRuntime,
       inflectionValues: [
-        { value: 25, label: "25$" },
-        { value: 26, label: "26$" },
+        { value: 25, label: "25$", operator: "<" },
+        { value: 26, label: "26$", operator: "<" },
       ],
     };
     expect(getRenderingConfig(runtime).inflectionValues).toMatchObject([

@@ -27,11 +27,16 @@ interface ColorSet {
 export interface SectionThreshold {
   readonly type: "number" | "percentage";
   readonly value: string;
+  readonly operator: "<" | "<=";
 }
 
 export interface GaugeValue {
   value: number;
   label: string;
+}
+
+export interface GaugeInflectionValue extends GaugeValue {
+  operator: "<" | "<=";
 }
 
 export interface GaugeChartRuntime {
@@ -40,7 +45,7 @@ export interface GaugeChartRuntime {
   minValue: GaugeValue;
   maxValue: GaugeValue;
   gaugeValue?: GaugeValue;
-  inflectionValues: GaugeValue[];
+  inflectionValues: GaugeInflectionValue[];
   colors: Color[];
 }
 
