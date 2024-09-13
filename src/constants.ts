@@ -198,7 +198,7 @@ export const DEFAULT_STYLE = {
   underline: false,
   fontSize: 10,
   fillColor: "",
-  textColor: "#000000",
+  textColor: "",
 } satisfies Required<Style>;
 
 export const DEFAULT_VERTICAL_ALIGN = DEFAULT_STYLE.verticalAlign;
