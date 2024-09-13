@@ -195,13 +195,14 @@ describe("merges", () => {
   test("merge style is correct for inactive sheets", () => {
     const model = new Model({
       sheets: [
-        { id: "1", colNumber: 1, rowNumber: 1, cells: { A1: { content: "1", style: 1 } } },
+        { id: "1", colNumber: 1, rowNumber: 1, cells: { A1: { content: "1" } }, styles: { A1: 1 } },
         {
           id: "2",
           colNumber: 3,
           rowNumber: 3,
           merges: ["A1:B1"],
-          cells: { A1: { content: "2", style: 2 }, B1: { content: "", style: 2 } },
+          cells: { A1: { content: "2" }, B1: { content: "" } },
+          styles: { "A1:B1": 2 },
         },
       ],
       styles: { 1: { fillColor: "#f2f2f2" }, 2: { fillColor: "#a2a2a2" } },
@@ -248,7 +249,7 @@ describe("merges", () => {
   test("a merge with only style should not be considered destructive", () => {
     const sheetId = "42";
     const model = new Model({
-      sheets: [{ id: sheetId, colNumber: 10, rowNumber: 10, cells: { B2: { style: 1 } } }],
+      sheets: [{ id: sheetId, colNumber: 10, rowNumber: 10, styles: { B2: 1 } }],
       styles: { 1: {} },
     });
     expect(merge(model, "A1:C4")).toBeSuccessfullyDispatched();
@@ -572,7 +573,8 @@ describe("merges", () => {
           id: "sheet1",
           colNumber: 4,
           rowNumber: 5,
-          cells: { B4: { style: 1, border: 1 } },
+          borders: { B4: 1 },
+          styles: { B4: 1 },
           merges: ["B4:C5"],
         },
       ],

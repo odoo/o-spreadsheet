@@ -2,13 +2,13 @@ import { DEFAULT_STYLE } from "../../constants";
 import { Token, compile } from "../../formulas";
 import { compileTokens } from "../../formulas/compiler";
 import { isEvaluationError, toString } from "../../functions/helpers";
-import { deepEquals, isExcelCompatible, isTextFormat, recomputeZones } from "../../helpers";
+import { deepEquals, isExcelCompatible, isTextFormat, recomputeZones, toZone } from "../../helpers";
 import { parseLiteral } from "../../helpers/cells";
+import { getItemId, groupItemIdsByZones } from "../../helpers/data_normalization";
 import {
   concat,
   detectDateFormat,
   detectNumberFormat,
-  getItemId,
   isInside,
   range,
   replaceSpecialSpaces,
@@ -25,6 +25,7 @@ import {
   CommandResult,
   CompiledFormula,
   CoreCommand,
+  ExcelCellData,
   ExcelWorkbookData,
   Format,
   FormulaCell,
@@ -42,6 +43,7 @@ import {
   Zone,
 } from "../../types/index";
 import { CorePlugin } from "../core_plugin";
+import { PositionMap } from "../ui_core_views/cell_evaluation/position_map";
 
 interface CoreState {
   // this.cells[sheetId][cellId] --> cell|undefined
@@ -255,18 +257,50 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
 
   import(data: WorkbookData) {
     for (let sheet of data.sheets) {
-      // cells
-      for (let xc in sheet.cells) {
-        const cellData = sheet.cells[xc];
-        const { col, row } = toCartesian(xc);
+      const sheetId = sheet.id;
+      const cellsData = new PositionMap<{ content?: string; style?: number; format?: number }>();
+      // cells content
+      for (const xc in sheet.cells) {
+        if (sheet.cells[xc]?.content) {
+          const { col, row } = toCartesian(xc);
+          const position = { sheetId: sheet.id, col, row };
+          cellsData.set(position, { content: sheet.cells[xc]?.content });
+        }
+      }
+      // cells style and format
+      for (const [cellProperty, valuesByZones] of [
+        ["style", sheet.styles],
+        ["format", sheet.formats],
+      ] as const) {
+        for (const zoneXc in valuesByZones) {
+          const itemId = valuesByZones[zoneXc];
+          const zone = toZone(zoneXc);
+          for (let row = zone.top; row <= zone.bottom; row++) {
+            for (let col = zone.left; col <= zone.right; col++) {
+              const position = { sheetId, col, row };
+              const cellData = cellsData.get(position);
+              if (cellData) {
+                cellData[cellProperty] = itemId;
+              } else {
+                cellsData.set(position, { [cellProperty]: itemId });
+              }
+            }
+          }
+        }
+      }
+      for (const position of cellsData.keysForSheet(sheetId)) {
+        const cellData = cellsData.get(position);
         if (cellData?.content || cellData?.format || cellData?.style) {
-          const cell = this.importCell(sheet.id, cellData, data.styles, data.formats);
+          const cell = this.importCell(
+            sheet.id,
+            cellData?.content,
+            cellData?.style ? data.styles[cellData?.style] : undefined,
+            cellData?.format ? data.formats[cellData?.format] : undefined
+          );
           this.history.update("cells", sheet.id, cell.id, cell);
           this.dispatch("UPDATE_CELL_POSITION", {
             cellId: cell.id,
-            col,
-            row,
-            sheetId: sheet.id,
+            ...position,
           });
         }
       }
@@ -278,6 +312,8 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
     const formats: { [formatId: number]: string } = {};
 
     for (let _sheet of data.sheets) {
+      const positionsByStyle: Record<number, CellPosition[]> = [];
+      const positionsByFormat: Record<number, CellPosition[]> = [];
       const cells: { [key: string]: CellData } = {};
       const positions = Object.keys(this.cells[_sheet.id] || {})
         .map((cellId) => this.getters.getCellPosition(cellId))
@@ -286,32 +322,55 @@ export class CellPlugin extends CorePlugin<CoreState> implements CoreState {
         const cell = this.getters.getCell(position)!;
         const xc = toXC(position.col, position.row);
         const style = this.removeDefaultStyleValues(cell.style);
-        cells[xc] = {
-          style: Object.keys(style).length ? getItemId<Style>(style, styles) : undefined,
-          format: cell.format ? getItemId<Format>(cell.format, formats) : undefined,
-          content: cell.content || undefined,
-        };
+        if (Object.keys(style).length) {
+          const styleId = getItemId<Style>(style, styles);
+          positionsByStyle[styleId] ??= [];
+          positionsByStyle[styleId].push(position);
+        }
+        if (cell.format) {
+          const formatId = getItemId<Format>(cell.format, formats);
+          positionsByFormat[formatId] ??= [];
+          positionsByFormat[formatId].push(position);
+        }
+        if (cell.content) {
+          cells[xc] = {
+            content: cell.content,
+          };
+        }
       }
+      _sheet.styles = groupItemIdsByZones(positionsByStyle);
+      _sheet.formats = groupItemIdsByZones(positionsByFormat);
       _sheet.cells = cells;
     }
     data.styles = styles;
     data.formats = formats;
   }
 
-  importCell(
-    sheetId: UID,
-    cellData: CellData,
-    normalizedStyles: { [key: number]: Style },
-    normalizedFormats: { [key: number]: Format }
-  ): Cell {
-    const style = (cellData.style && normalizedStyles[cellData.style]) || undefined;
-    const format = (cellData.format && normalizedFormats[cellData.format]) || undefined;
+  importCell(sheetId: UID, content?: string, style?: Style, format?: Format): Cell {
     const cellId = this.getNextUid();
-    return this.createCell(cellId, cellData?.content || "", format, style, sheetId);
+    return this.createCell(cellId, content || "", format, style, sheetId);
   }
 
   exportForExcel(data: ExcelWorkbookData) {
     this.export(data);
+    for (const sheet of data.sheets) {
+      for (const cellId in this.getters.getCells(sheet.id)) {
+        const { col, row } = this.getters.getCellPosition(cellId);
+        const xc = toXC(col, row);
+        const cell = this.getCellById(cellId);
+        sheet.cells[xc] ??= {} as ExcelCellData;
+        if (cell?.format) {
+          sheet.cells[xc]!.format = getItemId<Format>(cell.format, data.formats);
+        }
+        if (cell?.style) {
+          sheet.cells[xc] ??= {} as ExcelCellData;
+          sheet.cells[xc]!.style = getItemId<Style>(
+            this.removeDefaultStyleValues(cell.style),
+            data.styles
+          );
+        }
+      }
+    }
     const incompatible: string[] = [];
     for (const formatId in data.formats || []) {
       if (!isExcelCompatible(data.formats[formatId])) {

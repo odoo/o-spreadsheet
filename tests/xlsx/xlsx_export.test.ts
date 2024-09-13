@@ -37,6 +37,7 @@ import {
 mockChart();
 
 const simpleData = {
+  version: 20,
   sheets: [
     {
       name: "Sheet1",

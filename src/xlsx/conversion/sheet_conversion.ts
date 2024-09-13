@@ -47,7 +47,7 @@ export function convertSheets(
       name: sheet.sheetName,
       colNumber: sheetDims[0],
       rowNumber: sheetDims[1],
-      cells: convertCells(sheet, data, sheetDims, warningManager),
+      ...convertCells(sheet, data, sheetDims, warningManager),
       merges: sheet.merges,
       cols: convertCols(sheet, sheetDims[0], colHeaderGroups),
       rows: convertRows(sheet, sheetDims[1], rowHeaderGroups),
@@ -128,8 +128,11 @@ function convertCells(
   data: XLSXImportData,
   sheetDims: number[],
   warningManager: XLSXImportWarningManager
-): Record<string, CellData | undefined> {
+): Pick<SheetData, "cells" | "styles" | "formats" | "borders"> {
   const cells: Record<string, CellData | undefined> = {};
+  const styles: Record<string, number> = {};
+  const formats: Record<string, number> = {};
+  const borders: Record<string, number> = {};
   const sharedStrings = convertSharedStrings(data.sharedStrings);
 
   const hyperlinkMap = sheet.hyperlinks.reduce((map, link) => {
@@ -141,11 +144,13 @@ function convertCells(
     for (let cell of row.cells) {
       cells[cell.xc] = {
         content: getCellValue(cell, hyperlinkMap, sharedStrings, warningManager),
-        // + 1 : our indexes for normalized values begin at 1 and not 0
-        style: cell.styleIndex ? cell.styleIndex + 1 : undefined,
-        border: cell.styleIndex ? data.styles[cell.styleIndex].borderId + 1 : undefined,
-        format: cell.styleIndex ? data.styles[cell.styleIndex].numFmtId + 1 : undefined,
       };
+      if (cell.styleIndex) {
+        // + 1 : our indexes for normalized values begin at 1 and not 0
+        styles[cell.xc] = cell.styleIndex + 1;
+        formats[cell.xc] = data.styles[cell.styleIndex].numFmtId + 1;
+        borders[cell.xc] = data.styles[cell.styleIndex].borderId + 1;
+      }
     }
   }
 
@@ -158,9 +163,9 @@ function convertCells(
         cell = {};
         cells[xc] = cell;
       }
-      cell.style = cell.style ? cell.style : row.styleIndex! + 1;
-      cell.border = cell.border ? cell.border : data.styles[row.styleIndex!].borderId + 1;
-      cell.format = cell.format ? cell.format : data.styles[row.styleIndex!].numFmtId + 1;
+      styles[xc] ??= row.styleIndex! + 1;
+      borders[xc] ??= data.styles[row.styleIndex!].borderId + 1;
+      formats[xc] ??= data.styles[row.styleIndex!].numFmtId + 1;
     }
   }
 
@@ -174,14 +179,14 @@ function convertCells(
           cell = {};
           cells[xc] = cell;
         }
-        cell.style = cell.style ? cell.style : col.styleIndex! + 1;
-        cell.border = cell.border ? cell.border : data.styles[col.styleIndex!].borderId + 1;
-        cell.format = cell.format ? cell.format : data.styles[col.styleIndex!].numFmtId + 1;
+        styles[xc] ??= col.styleIndex! + 1;
+        borders[xc] ??= data.styles[col.styleIndex!].borderId + 1;
+        formats[xc] ??= data.styles[col.styleIndex!].numFmtId + 1;
       }
     }
   }
 
-  return cells;
+  return { cells, styles, formats, borders };
 }
 
 function getCellValue(

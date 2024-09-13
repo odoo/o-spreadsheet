@@ -11,23 +11,32 @@ export function getWorkbookCell(col: number, row: number, sheet: SheetData): Cel
   return sheet.cells[toXC(col, row)];
 }
 
-export function getWorkbookCellStyle(cell: CellData, data: WorkbookData): Style | undefined {
-  return cell.style ? data.styles[cell.style] : undefined;
+export function getWorkbookCellStyle(
+  styleId: number | undefined,
+  data: WorkbookData
+): Style | undefined {
+  return styleId ? data.styles[styleId] : undefined;
 }
 
-export function getWorkbookCellFormat(cell: CellData, data: WorkbookData): string | undefined {
-  return cell.format ? data.formats[cell.format] : undefined;
+export function getWorkbookCellFormat(
+  formatId: number | undefined,
+  data: WorkbookData
+): string | undefined {
+  return formatId ? data.formats[formatId] : undefined;
 }
 
-export function getWorkbookCellBorder(cell: CellData, data: WorkbookData): Border | undefined {
-  const border = cell.border ? data.borders[cell.border] : undefined;
+export function getWorkbookCellBorder(
+  borderId: number | undefined,
+  data: WorkbookData
+): Border | undefined {
+  const border = borderId ? data.borders[borderId] : undefined;
   // Add undefined borders for toMatchObject matchers
   if (border) {
     ["top", "left", "right", "bottom"].forEach(
       (dir) => (border[dir] = border[dir] ? border[dir] : undefined)
     );
   }
-  return cell.border ? data.borders[cell.border] : undefined;
+  return borderId ? data.borders[borderId] : undefined;
 }
 
 export function getCFBeginningAt(xc: string, sheetData: SheetData): ConditionalFormat | undefined {

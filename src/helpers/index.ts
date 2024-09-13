@@ -1,5 +1,6 @@
 export * from "./color";
 export * from "./coordinates";
+export * from "./data_normalization";
 export * from "./data_validation_helpers";
 export * from "./dates";
 export * from "./edge_scrolling";

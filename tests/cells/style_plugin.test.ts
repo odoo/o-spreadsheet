@@ -56,7 +56,7 @@ describe("styles", () => {
     const model = new Model();
     setStyle(model, "A1", DEFAULT_STYLE);
     const data = model.exportData();
-    expect(data.sheets[0].cells.A1?.style).toBeUndefined();
+    expect(data.sheets[0].styles.A1).toBeUndefined();
     expect(data.styles).toEqual({});
   });
 
@@ -67,7 +67,7 @@ describe("styles", () => {
       italic: false,
     });
     const data = model.exportData();
-    expect(data.sheets[0].cells.A1?.style).toBe(1);
+    expect(data.sheets[0].styles.A1).toBe(1);
     expect(data.styles).toEqual({
       1: { bold: true },
     });

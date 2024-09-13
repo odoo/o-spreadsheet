@@ -128,8 +128,7 @@ describe("Import xlsx data", () => {
     ["lightTrellis", "A17"],
   ])("Can import fills", (fillType, cellXc) => {
     const testSheet = getWorkbookSheet("jestStyles", convertedData)!;
-    const styledCell = testSheet.cells[cellXc]!;
-    const cellStyle = getWorkbookCellStyle(styledCell, convertedData);
+    const cellStyle = getWorkbookCellStyle(testSheet.styles[cellXc], convertedData);
     expect(standardizeColor(cellStyle!.fillColor!)).toEqual("#FFC000FF");
   });
 
@@ -150,8 +149,7 @@ describe("Import xlsx data", () => {
     ["thick #ff0000", "C28"],
   ])("Can import borders", (borderType, cellXc) => {
     const testSheet = getWorkbookSheet("jestStyles", convertedData)!;
-    const cell = testSheet.cells[cellXc]!;
-    const cellBorders = getWorkbookCellBorder(cell, convertedData)!;
+    const cellBorders = getWorkbookCellBorder(testSheet.borders[cellXc], convertedData)!;
     const cellContentSplit = borderType.split(" ");
     const expectedBorderStyle = BORDER_STYLE_CONVERSION_MAP[cellContentSplit[0]];
     const expectedBorderColor =
@@ -173,8 +171,7 @@ describe("Import xlsx data", () => {
     ["distributed", "F9"],
   ])("Can import Horizontal Alignment %s", (alignType, cellXc) => {
     const testSheet = getWorkbookSheet("jestStyles", convertedData)!;
-    const styledCell = testSheet.cells[cellXc]!;
-    const cellStyle = getWorkbookCellStyle(styledCell, convertedData);
+    const cellStyle = getWorkbookCellStyle(testSheet.styles[cellXc], convertedData);
     expect(cellStyle?.align).toEqual(H_ALIGNMENT_CONVERSION_MAP[alignType]);
   });
 
@@ -186,8 +183,7 @@ describe("Import xlsx data", () => {
     ["distributed", "F16"],
   ])("Can import Vertical Alignment %s", (alignType, cellXc) => {
     const testSheet = getWorkbookSheet("jestStyles", convertedData)!;
-    const styledCell = testSheet.cells[cellXc]!;
-    const cellStyle = getWorkbookCellStyle(styledCell, convertedData);
+    const cellStyle = getWorkbookCellStyle(testSheet.styles[cellXc], convertedData);
     expect(cellStyle?.verticalAlign).toEqual(
       alignType === undefined ? undefined : V_ALIGNMENT_CONVERSION_MAP[alignType]
     );
@@ -198,8 +194,7 @@ describe("Import xlsx data", () => {
     ["wrap", "F20"],
   ])("Can import wrapping mode %s", (wrapType, cellXc) => {
     const testSheet = getWorkbookSheet("jestStyles", convertedData)!;
-    const styledCell = testSheet.cells[cellXc]!;
-    const cellStyle = getWorkbookCellStyle(styledCell, convertedData);
+    const cellStyle = getWorkbookCellStyle(testSheet.styles[cellXc], convertedData);
     expect(cellStyle?.wrapping).toEqual(wrapType);
   });
 
@@ -214,8 +209,7 @@ describe("Import xlsx data", () => {
     ['"€"#,##0.00\\ "€"', "M9"],
   ])("Can import format %s", (format, cellXc) => {
     const testSheet = getWorkbookSheet("jestStyles", convertedData)!;
-    const formattedCell = testSheet.cells[cellXc]!;
-    const cellFormat = getWorkbookCellFormat(formattedCell, convertedData);
+    const cellFormat = getWorkbookCellFormat(testSheet.formats[cellXc], convertedData);
     let expectedFormat: string | undefined = format;
     expect(cellFormat).toEqual(expectedFormat);
   });
@@ -230,8 +224,7 @@ describe("Import xlsx data", () => {
     ["size16", "H8"],
   ])("Can import font styles", (style, cellXc) => {
     const testSheet = getWorkbookSheet("jestStyles", convertedData)!;
-    const cell = testSheet.cells[cellXc]!;
-    const cellStyle = getWorkbookCellStyle(cell, convertedData);
+    const cellStyle = getWorkbookCellStyle(testSheet.styles[cellXc], convertedData);
     switch (style) {
       case "Red":
         expect(standardizeColor(cellStyle!.textColor!)).toEqual("#FF0000FF");

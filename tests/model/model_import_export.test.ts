@@ -24,6 +24,7 @@ import {
 } from "../test_helpers/commands_helpers";
 import { FR_LOCALE } from "../test_helpers/constants";
 import {
+  getBorder,
   getCell,
   getCellContent,
   getEvaluatedCell,
@@ -377,10 +378,10 @@ describe("Migrations", () => {
       "1": "#,##0",
       "2": "mm/dd/yyyy",
     });
-    expect(data.sheets[0].cells["A1"]?.format).toEqual(1);
-    expect(data.sheets[0].cells["A2"]?.format).toBeUndefined();
-    expect(data.sheets[1].cells["A1"]?.format).toEqual(1);
-    expect(data.sheets[1].cells["A2"]?.format).toEqual(2);
+    expect(data.sheets[0].formats["A1"]).toEqual(1);
+    expect(data.sheets[0].formats["A2"]).toBeUndefined();
+    expect(data.sheets[1].formats["A1"]).toEqual(1);
+    expect(data.sheets[1].formats["A2"]).toEqual(2);
   });
 
   test("migrate version 12: Fix Overlapping datafilters", () => {
@@ -462,6 +463,37 @@ describe("Migrations", () => {
     expect(data.version).toBe(CURRENT_VERSION);
     expect(data.sheets[0].tables).toEqual([{ range: "A1:B2", type: "static" }]);
   });
+
+  test("migrate version 21: style,format and borders by zones", () => {
+    const style = { bold: true };
+    const border = { top: { style: "thin", color: "#000" } as BorderDescr };
+    const model = new Model({
+      version: 20,
+      sheets: [
+        {
+          id: "1",
+          cells: {
+            A1: { content: "hi", style: 1, format: 2, border: 3 },
+          },
+        },
+      ],
+      styles: { 1: style },
+      formats: { 2: "0.00%" },
+      borders: { 3: border },
+    });
+    expect(getCell(model, "A1")?.format).toBe("0.00%");
+    expect(getCell(model, "A1")?.style).toEqual(style);
+    expect(getBorder(model, "A1")).toEqual(border);
+    const data = model.exportData();
+    expect(data.version).toBe(CURRENT_VERSION);
+    expect(data.sheets[0].cells).toEqual({ A1: { content: "hi" } });
+    expect(data.sheets[0].formats).toEqual({ A1: 1 });
+    expect(data.sheets[0].styles).toEqual({ A1: 1 });
+    expect(data.sheets[0].borders).toEqual({ A1: 1 });
+    expect(data.formats).toEqual({ 1: "0.00%" });
+    expect(data.styles).toEqual({ 1: style });
+    expect(data.borders).toEqual({ 1: border });
+  });
 });
 
 describe("Import", () => {
@@ -496,7 +528,7 @@ describe("Import", () => {
 
   test("can import cell without content", () => {
     const model = new Model({
-      sheets: [{ id: "1", cells: { A1: { format: 1 } } }],
+      sheets: [{ id: "1", formats: { A1: 1 } }],
       formats: { 1: "0.00%" },
     });
     expect(getCell(model, "A1")?.content).toBe("");
@@ -529,18 +561,20 @@ describe("Export", () => {
 
   test("Can export format", () => {
     const model = new Model({
-      sheets: [{ colNumber: 10, rowNumber: 10, cells: { A1: { content: "145", format: 1 } } }],
+      sheets: [
+        { colNumber: 10, rowNumber: 10, cells: { A1: { content: "145" } }, formats: { A1: 1 } },
+      ],
       formats: { 1: "0.00%" },
     });
     const exp = model.exportData();
-    expect(exp.sheets![0].cells!.A1!.format).toBe(1);
+    expect(exp.sheets[0].formats.A1).toBe(1);
   });
 
   test("empty content is not exported", () => {
     const model = new Model();
     setStyle(model, "A1", { fillColor: "#123456" });
     const exp = model.exportData();
-    expect(exp.sheets![0].cells!.A1!).toEqual({ style: 1 });
+    expect(exp.sheets[0].styles.A1).toEqual(1);
   });
 
   test("chart figures without a definition are not exported", () => {
@@ -605,15 +639,22 @@ test("complete import, then export", () => {
           1: { size: 13 },
         },
         cells: {
-          A1: { content: "hello", border: 1 },
-          B1: {
-            content: "=A1",
-            style: 1,
-            border: 2,
-            format: 1,
-          },
+          A1: { content: "hello" },
+          B1: { content: "=A1" },
           C1: { content: "=mqdlskjfqmslfkj(++%//@@@)" },
           D1: { content: '="This is a quote \\""' },
+        },
+        styles: {
+          B1: 1,
+          "D1:D2": 1,
+        },
+        formats: {
+          B1: 1,
+          "D1:D2": 1,
+        },
+        borders: {
+          A1: 1,
+          B1: 2,
         },
         name: "My sheet",
         conditionalFormats: [],
@@ -635,6 +676,9 @@ test("complete import, then export", () => {
         cells: {
           A1: { content: "hello" },
         },
+        styles: {},
+        formats: {},
+        borders: {},
         name: "My sheet 2",
         conditionalFormats: [],
         dataValidationRules: [],
@@ -722,6 +766,9 @@ test("import then export (figures)", () => {
         cols: {},
         rows: {},
         cells: {},
+        styles: {},
+        formats: {},
+        borders: {},
         name: "My sheet",
         conditionalFormats: [],
         dataValidationRules: [],

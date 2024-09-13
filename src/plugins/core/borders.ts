@@ -3,10 +3,10 @@ import {
   deepEquals,
   getItemId,
   groupConsecutive,
+  groupItemIdsByZones,
   isDefined,
   range,
   recomputeZones,
-  toCartesian,
   toXC,
   toZone,
 } from "../../helpers/index";
@@ -20,6 +20,7 @@ import {
   Color,
   CommandResult,
   CoreCommand,
+  ExcelCellData,
   ExcelWorkbookData,
   HeaderIndex,
   SetBorderCommand,
@@ -574,12 +575,14 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
     // Borders
     if (Object.keys(data.borders || {}).length) {
       for (let sheet of data.sheets) {
-        for (const xc in sheet.cells) {
-          const cell = sheet.cells[xc];
-          if (cell?.border) {
-            const border = data.borders[cell.border];
-            const { col, row } = toCartesian(xc);
-            this.setBorder(sheet.id, col, row, border, false);
+        for (const zoneXc in sheet.borders) {
+          const borderId = sheet.borders[zoneXc];
+          const border = data.borders[borderId];
+          const zone = toZone(zoneXc);
+          for (let row = zone.top; row <= zone.bottom; row++) {
+            for (let col = zone.left; col <= zone.right; col++) {
+              this.setBorder(sheet.id, col, row, border, false);
+            }
           }
         }
       }
@@ -597,26 +600,35 @@ export class BordersPlugin extends CorePlugin<BordersPluginState> implements Bor
   export(data: WorkbookData) {
     const borders: { [borderId: number]: Border } = {};
     for (let sheet of data.sheets) {
+      const positionsByBorder: Record<number, CellPosition[]> = {};
       for (let col: HeaderIndex = 0; col < sheet.colNumber; col++) {
         for (let row: HeaderIndex = 0; row < sheet.rowNumber; row++) {
           const border = this.getCellBorder({ sheetId: sheet.id, col, row });
           if (border) {
-            const xc = toXC(col, row);
-            const cell = sheet.cells[xc];
             const borderId = getItemId(border, borders);
-            if (cell) {
-              cell.border = borderId;
-            } else {
-              sheet.cells[xc] = { border: borderId };
-            }
+            const position = { sheetId: sheet.id, col, row };
+            positionsByBorder[borderId] ??= [];
+            positionsByBorder[borderId].push(position);
           }
         }
       }
+      sheet.borders = groupItemIdsByZones(positionsByBorder);
     }
     data.borders = borders;
   }
 
   exportForExcel(data: ExcelWorkbookData) {
-    this.export(data);
+    for (const sheet of data.sheets) {
+      for (let col: HeaderIndex = 0; col < sheet.colNumber; col++) {
+        for (let row: HeaderIndex = 0; row < sheet.rowNumber; row++) {
+          const border = this.getCellBorder({ sheetId: sheet.id, col, row });
+          if (border) {
+            const xc = toXC(col, row);
+            sheet.cells[xc] ??= {} as ExcelCellData;
+            sheet.cells[xc]!.border = getItemId<Border>(border, data.borders);
+          }
+        }
+      }
+    }
   }
 }
