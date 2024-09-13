@@ -519,9 +519,14 @@ describe("history", () => {
             colNumber: 10,
             rowNumber: 10,
             cells: {
-              A1: { content: "1000", format: 1 },
-              A3: { content: "2000", format: 1 },
-              B2: { content: "TRUE", format: 1 },
+              A1: { content: "1000" },
+              A3: { content: "2000" },
+              B2: { content: "TRUE" },
+            },
+            formats: {
+              A1: 1,
+              A3: 1,
+              B2: 1,
             },
           },
           {
@@ -529,9 +534,14 @@ describe("history", () => {
             colNumber: 10,
             rowNumber: 10,
             cells: {
-              A1: { content: "21000", format: 1 },
-              A3: { content: "12-31-2020", format: 2 },
-              B2: { content: "TRUE", format: 1 },
+              A1: { content: "21000" },
+              A3: { content: "12-31-2020" },
+              B2: { content: "TRUE" },
+            },
+            formats: {
+              A1: 1,
+              A3: 2,
+              B2: 1,
             },
           },
         ],

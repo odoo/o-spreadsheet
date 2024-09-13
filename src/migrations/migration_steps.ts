@@ -379,6 +379,26 @@ migrationStepRegistry
       }
       return data;
     },
+  })
+  .add("migration_20", {
+    // group style and format into zones,
+    versionFrom: "20",
+    migrate(data: any): any {
+      for (const sheet of data.sheets || []) {
+        sheet.styles = {};
+        sheet.formats = {};
+        sheet.borders = {};
+        for (const xc in sheet.cells) {
+          sheet.styles[xc] = sheet.cells[xc].style;
+          sheet.formats[xc] = sheet.cells[xc].format;
+          sheet.borders[xc] = sheet.cells[xc].border;
+          delete sheet.cells[xc].style;
+          delete sheet.cells[xc].format;
+          delete sheet.cells[xc].border;
+        }
+      }
+      return data;
+    },
   });
 
 function fixOverlappingFilters(data: any): any {

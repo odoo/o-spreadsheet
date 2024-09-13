@@ -19,7 +19,7 @@ import { migrationStepRegistry } from "./migration_steps";
  * a breaking change is made in the way the state is handled, and an upgrade
  * function should be defined
  */
-export const CURRENT_VERSION = 20;
+export const CURRENT_VERSION = 21;
 const INITIAL_SHEET_ID = "Sheet1";
 
 /**
@@ -275,6 +275,9 @@ export function createEmptySheet(sheetId: UID, name: string): SheetData {
     colNumber: 26,
     rowNumber: 100,
     cells: {},
+    styles: {},
+    formats: {},
+    borders: {},
     cols: {},
     rows: {},
     merges: [],

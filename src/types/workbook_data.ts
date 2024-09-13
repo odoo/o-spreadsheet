@@ -14,9 +14,6 @@ export interface Dependencies {
 
 export interface CellData {
   content?: string;
-  style?: number;
-  border?: number;
-  format?: number;
 }
 
 export interface HeaderData {
@@ -40,6 +37,9 @@ export interface SheetData {
   colNumber: number;
   rowNumber: number;
   cells: { [key: string]: CellData | undefined };
+  styles: { [zone: string]: number };
+  formats: { [zone: string]: number };
+  borders: { [zone: string]: number };
   merges: string[];
   figures: FigureData<any>[];
   cols: { [key: number]: HeaderData };
@@ -81,6 +81,9 @@ export interface ExcelWorkbookData extends WorkbookData {
 export interface ExcelCellData extends CellData {
   value: CellValue;
   isFormula: Boolean;
+  format?: number;
+  style?: number;
+  border?: number;
   computedFormat?: Format;
 }
 export interface ExcelSheetData extends Omit<SheetData, "figureTables" | "cols" | "rows"> {

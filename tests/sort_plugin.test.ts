@@ -238,8 +238,14 @@ describe("Basic Sorting", () => {
           rowNumber: 8,
           cells: {
             A1: { content: "33" },
-            A2: { content: "11", style: 1 },
-            A3: { content: "22", border: 1 },
+            A2: { content: "11" },
+            A3: { content: "22" },
+          },
+          styles: {
+            A2: 1,
+          },
+          borders: {
+            A3: 1,
           },
         },
       ],

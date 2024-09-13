@@ -326,7 +326,10 @@ describe("Model resizer", () => {
             cells: {
               A1: { content: "A1" },
               B1: { content: "B1" },
-              A4: { content: "A4", style: 1 },
+              A4: { content: "A4" },
+            },
+            styles: {
+              A4: 1,
             },
           },
         ],

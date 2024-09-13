@@ -569,8 +569,8 @@ test.each([
     const exportedData = model.exportData();
     expect(exportedData.sheets[0].cells.A1).toMatchObject({
       content: value,
-      format: 1,
     });
+    expect(exportedData.sheets[0].formats.A1).toBe(1);
     expect(exportedData.formats["1"]).toEqual(format);
   }
 );

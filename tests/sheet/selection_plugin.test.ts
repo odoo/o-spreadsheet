@@ -730,15 +730,18 @@ describe("Change selection to next clusters", () => {
                                      B6: { content: "content on same line as empty merge topLeft" },            E6: hiddenContent,
                                      B7: { content: "line of empty merge but aligned with topLeft" },           E7: hiddenContent,
             A9: hiddenContent,       B9: hiddenContent,       C9: hiddenContent,       D9: hiddenContent,       E9: hiddenContent,  F9: hiddenContent, G9: hiddenContent,
-            A11: { content: "A11" }, B11: { content: "B9" },  C11: { content: "C9" },                           E11: hiddenContent, F11: { style: 1 }, G11: { content: "F9" }, H11: { content: "G9" },
+            A11: { content: "A11" }, B11: { content: "B9" },  C11: { content: "C9" },                           E11: hiddenContent,                    G11: { content: "F9" }, H11: { content: "G9" },
             A13: { content: '=""' }, B13: { content: "B11" }, C13: { content: "C11" }, D13: { content: "D11" },
             A14: { content: '=""' }, B14: { content: "B12" }, C14: { content: "C12" },
             A15: { content: '=""' },                          C15: { content: "=TRANSPOSE(A13:A15)" },
           },
+          styles: {
+            F11: 1,
+          },
           merges: ["B2:D4", "C6:D7"],
-          styles: { 1: { textColor: "#fe0000" } },
         },
       ],
+      styles: { 1: { textColor: "#fe0000" } },
     });
   });
   test.each([
@@ -984,7 +987,6 @@ describe("Selection loop (ctrl + a)", () => {
             rowNumber: 10,
             // prettier-ignore
             cells: {
-                        B1: { style: 1},
                         B2: { content: "a" }, C2: { content: "a" },
                                               C3: { content: "merged" }, D3: { content: "merged" }, E3: { content: "a" },
                                               C4: { content: "a"},
@@ -993,9 +995,10 @@ describe("Selection loop (ctrl + a)", () => {
               A9: { content : "=TRANSPOSE(C8:D8)" },
             },
             merges: ["C3:D3"],
-            styles: { 1: { textColor: "#fe0000" } },
+            styles: { B1: 1 },
           },
         ],
+        styles: { 1: { textColor: "#fe0000" } },
       });
     });
 
