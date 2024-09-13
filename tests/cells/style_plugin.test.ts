@@ -60,6 +60,14 @@ describe("styles", () => {
     expect(data.styles).toEqual({});
   });
 
+  test("textColor black(#000000) is exported as non default style", () => {
+    const model = new Model();
+    setStyle(model, "A1", { textColor: "#000000" });
+    const data = model.exportData();
+    expect(data.sheets[0].styles.A1).toBe(1);
+    expect(data.styles).toEqual({ 1: { textColor: "#000000" } });
+  });
+
   test("only non default style values are exported", () => {
     const model = new Model();
     setStyle(model, "A1", {
