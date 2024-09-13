@@ -24,6 +24,8 @@ describe("spreadsheet pivot auto complete", () => {
     );
     for (const func of ["PIVOT", "PIVOT.HEADER", "PIVOT.VALUE"]) {
       composer.startEdition(`=${func}(`);
+      expect(composer.isSelectingRange).toBeTruthy();
+
       const autoComplete = composer.autocompleteProvider;
       expect(autoComplete?.proposals).toEqual([
         {
@@ -41,6 +43,8 @@ describe("spreadsheet pivot auto complete", () => {
       ]);
       autoComplete?.selectProposal(autoComplete?.proposals[0].text);
       expect(composer.currentContent).toBe(`=${func}(1`);
+      // range selection stops
+      expect(composer.isSelectingRange).toBeFalsy();
       expect(composer.autocompleteProvider).toBeUndefined();
       composer.cancelEdition();
     }
