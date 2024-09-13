@@ -253,3 +253,18 @@ export function getRunningTotalDomainKey(
   }
   return domainToString([...domain.slice(0, index), ...domain.slice(index + 1)]);
 }
+
+export function sortPivotTree(
+  tree: DimensionTree,
+  baseDomain: PivotDomain,
+  sortFn: (a: PivotDomain, b: PivotDomain) => number
+) {
+  const sortedTree = [...tree];
+  const domain = [...baseDomain];
+  sortedTree.sort((node1, node2) => sortFn([...domain, node1], [...domain, node2]));
+  for (const node of tree) {
+    const children = sortPivotTree(node.children, [...domain, node], sortFn);
+    node.children = children;
+  }
+  return sortedTree;
+}

@@ -34,8 +34,9 @@ import {
   isFieldInDomain,
   replaceFieldValueInDomain,
 } from "./pivot_domain_helpers";
-import { AGGREGATORS_FN, toNormalizedPivotValue } from "./pivot_helpers";
+import { AGGREGATORS_FN, isSortedColumnValid, toNormalizedPivotValue } from "./pivot_helpers";
 import { PivotParams, PivotUIConstructor } from "./pivot_registry";
+import { SpreadsheetPivotTable } from "./table_spreadsheet_pivot";
 
 const PERCENT_FORMAT = "0.00%";
 
@@ -147,7 +148,7 @@ export default function (PivotClass: PivotUIConstructor) {
 
     private getValuesToAggregate(measure: PivotMeasure, domain: PivotDomain) {
       const { rowDomain, colDomain } = domainToColRowDomain(this, domain);
-      const table = this.getTableStructure();
+      const table = super.getTableStructure();
       const values: FunctionResultObject[] = [];
       if (
         colDomain.length === 0 &&
@@ -729,6 +730,25 @@ export default function (PivotClass: PivotUIConstructor) {
         return undefined;
       }
       throw new Error(`Value ${result.value} is not a number`);
+    }
+
+    getTableStructure(): SpreadsheetPivotTable {
+      const table = super.getTableStructure();
+      this.sortTableStructure(table);
+      return table;
+    }
+
+    private sortTableStructure(table: SpreadsheetPivotTable) {
+      if (!this.definition.sortedColumn || table.isSorted) {
+        return;
+      }
+      const measure = this.definition.sortedColumn.measure;
+      const isSortValid = isSortedColumnValid(this.definition.sortedColumn, this);
+      if (isSortValid) {
+        table.sort(measure, this.definition.sortedColumn, (measure, domain) =>
+          this._getPivotCellValueAndFormat(measure, domain)
+        );
+      }
     }
   }
   return PivotPresentationLayer;

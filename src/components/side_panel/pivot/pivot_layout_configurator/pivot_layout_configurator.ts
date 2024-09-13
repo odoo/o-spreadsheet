@@ -27,6 +27,7 @@ import { PivotDimension } from "./pivot_dimension/pivot_dimension";
 import { PivotDimensionGranularity } from "./pivot_dimension_granularity/pivot_dimension_granularity";
 import { PivotDimensionOrder } from "./pivot_dimension_order/pivot_dimension_order";
 import { PivotMeasureEditor } from "./pivot_measure/pivot_measure";
+import { PivotSortSection } from "./pivot_sort_section/pivot_sort_section";
 
 interface Props {
   definition: PivotRuntimeDefinition;
@@ -53,6 +54,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     PivotDimensionOrder,
     PivotDimensionGranularity,
     PivotMeasureEditor,
+    PivotSortSection,
   };
   static props = {
     definition: Object,
@@ -235,9 +237,14 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
 
   updateMeasure(measure: PivotMeasure, newMeasure: PivotMeasure) {
     const { measures }: { measures: PivotCoreMeasure[] } = this.props.definition;
-    this.props.onDimensionsUpdated({
+
+    const update: Partial<PivotCoreDefinition> = {
       measures: measures.map((m) => (m.id === measure.id ? newMeasure : m)),
-    });
+    };
+    if (this.props.definition.sortedColumn?.measure === measure.id) {
+      update.sortedColumn = { ...this.props.definition.sortedColumn, measure: newMeasure.id };
+    }
+    this.props.onDimensionsUpdated(update);
   }
 
   private getMeasureId(fieldName: string, aggregator?: string) {

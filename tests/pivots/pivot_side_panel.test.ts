@@ -9,7 +9,7 @@ import {
   nextTick,
   setGrid,
 } from "../test_helpers/helpers";
-import { SELECTORS, addPivot, removePivot } from "../test_helpers/pivot_helpers";
+import { SELECTORS, addPivot, removePivot, updatePivot } from "../test_helpers/pivot_helpers";
 
 describe("Pivot side panel", () => {
   let model: Model;
@@ -93,5 +93,37 @@ describe("Pivot side panel", () => {
     env.openSidePanel("PivotSidePanel", { pivotId: "1" });
     await nextTick();
     expect(getHighlightsFromStore(env).map((h) => zoneToXc(h.zone))).toEqual(["A5:A7"]);
+  });
+
+  test("Renaming the computed measure the pivot is sorted on keep the sorting", async () => {
+    // prettier-ignore
+    setGrid(model, {
+      A1: "Partner", B1: "Amount",
+      A2: "Alice", B2: "10",
+      A5: "=PIVOT(1)"
+    });
+
+    const sheetId = model.getters.getActiveSheetId();
+    updatePivot(model, "1", {
+      measures: [
+        { id: "Price", fieldName: "Amount", aggregator: "sum" },
+        {
+          id: "Amount times 2",
+          fieldName: "Amount times 2",
+          aggregator: "sum",
+          computedBy: { formula: "=Amount*2", sheetId },
+        },
+      ],
+      sortedColumn: { domain: [], order: "asc", measure: "Amount times 2" },
+    });
+    env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+    await nextTick();
+
+    const measureEl = fixture.querySelectorAll(".pivot-measure")[1];
+    await setInputValueAndTrigger(measureEl.querySelector("input")!, "renamed");
+
+    const definition = model.getters.getPivotCoreDefinition("1") as SpreadsheetPivotCoreDefinition;
+    expect(definition.measures[1].id).toBe("renamed:sum");
+    expect(definition.sortedColumn?.measure).toBe("renamed:sum");
   });
 });

@@ -19,6 +19,7 @@ import {
   PivotDimension,
   PivotDomain,
   PivotField,
+  PivotSortedColumn,
   PivotTableCell,
 } from "../../types/pivot";
 import { domainToColRowDomain } from "./pivot_domain_helpers";
@@ -298,4 +299,28 @@ export function addIndentAndAlignToPivotHeader(
     ...functionResult,
     format: `${"    ".repeat(indent)}${format}* `,
   };
+}
+
+export function isSortedColumnValid(sortedColumn: PivotSortedColumn, pivot: Pivot): boolean {
+  try {
+    if (!pivot.getMeasure(sortedColumn.measure)) {
+      return false;
+    }
+
+    const columns = pivot.definition.columns;
+    for (let i = 0; i < sortedColumn.domain.length; i++) {
+      if (columns[i].nameWithGranularity !== sortedColumn.domain[i].field) {
+        return false;
+      }
+      const possibleValues: (CellValue | null)[] = pivot
+        .getPossibleFieldValues(columns[i])
+        .map((v) => v.value);
+      if (!possibleValues.includes(sortedColumn.domain[i].value)) {
+        return false;
+      }
+    }
+    return true;
+  } catch (e) {
+    return false;
+  }
 }
