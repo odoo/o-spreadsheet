@@ -1,6 +1,6 @@
 import { tokenColors } from "../../components/composer/composer/composer";
 import { ComposerStore } from "../../components/composer/composer/composer_store";
-import { Token, getFunctionsFromTokens } from "../../formulas";
+import { getFunctionsFromTokens, Token } from "../../formulas";
 import { EnrichedToken } from "../../formulas/composer_tokenizer";
 import { Granularity, PivotField } from "../../types";
 
@@ -41,6 +41,7 @@ export function insertTokenAfterArgSeparator(
     // replace the whole token
     start = tokenAtCursor.start;
   }
+  this.composer.stopComposerRangeSelection();
   this.composer.changeComposerCursorSelection(start, end);
   this.composer.replaceComposerCursorSelection(value);
 }
@@ -63,6 +64,7 @@ export function insertTokenAfterLeftParenthesis(
     // replace the whole token
     start = tokenAtCursor.start;
   }
+  this.composer.stopComposerRangeSelection();
   this.composer.changeComposerCursorSelection(start, end);
   this.composer.replaceComposerCursorSelection(value);
 }
