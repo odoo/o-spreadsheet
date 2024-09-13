@@ -195,6 +195,7 @@ export class PivotSidePanelStore extends SpreadsheetStore {
         format: measure.format,
         display: measure.display,
       })),
+      sortedColumn: this.shouldKeepSortedColumn(definition) ? definition.sortedColumn : undefined,
     };
     if (!this.draft && deepEquals(coreDefinition, cleanedDefinition)) {
       return;
@@ -264,5 +265,21 @@ export class PivotSidePanelStore extends SpreadsheetStore {
       granularitiesPerFields[field.fieldName].delete(field.granularity);
     }
     return granularitiesPerFields;
+  }
+
+  /**
+   * Check if we want to keep the sorted column when updating the pivot definition. We should remove it if either
+   * the measure is not in the new definition or the columns have changed.
+   */
+  private shouldKeepSortedColumn(newDefinition: PivotCoreDefinition) {
+    const { sortedColumn } = newDefinition;
+    if (!sortedColumn) {
+      return true;
+    }
+    const oldDefinition = this.getters.getPivotCoreDefinition(this.pivotId);
+    return (
+      newDefinition.measures.find((measure) => measure.id === sortedColumn.measure) &&
+      deepEquals(oldDefinition.columns, newDefinition.columns)
+    );
   }
 }

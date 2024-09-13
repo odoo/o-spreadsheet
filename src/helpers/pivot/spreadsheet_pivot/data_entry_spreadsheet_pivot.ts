@@ -107,6 +107,7 @@ function dataEntriesToColumnsTree(
       value: groups[key]?.[0]?.[column.nameWithGranularity]?.value ?? null,
       field: colName,
       children: dataEntriesToColumnsTree(groups[key] || [], columns, index + 1),
+      type: column.type,
       width: 0,
     };
   });
