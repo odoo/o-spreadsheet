@@ -2416,7 +2416,7 @@ export const demoData = {
             numberOfHeaders: 1,
             bandedRows: false,
             bandedColumns: false,
-            styleId: "TableStyleLigh12",
+            styleId: "TableStyleLight12",
           },
         },
         {
