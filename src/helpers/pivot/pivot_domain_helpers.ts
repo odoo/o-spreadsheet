@@ -5,6 +5,7 @@ import {
   PivotColRowDomain,
   PivotDomain,
   PivotNode,
+  SortDirection,
 } from "../../types";
 import { clip, deepCopy } from "../misc";
 
@@ -252,4 +253,29 @@ export function getRunningTotalDomainKey(
     return "";
   }
   return domainToString([...domain.slice(0, index), ...domain.slice(index + 1)]);
+}
+
+export function sortPivotTree(
+  tree: DimensionTree,
+  baseDomain: PivotDomain,
+  sortDirection: SortDirection,
+  getSortValue: (domain: PivotDomain) => number
+): DimensionTree {
+  const sortedTree = tree
+    .map((node) => {
+      const fullDomain = [...baseDomain, { field: node.field, value: node.value, type: node.type }];
+      const sortValue = getSortValue(fullDomain);
+      return { ...node, sortValue, fullDomain };
+    })
+    .sort((node1, node2) =>
+      sortDirection === "asc"
+        ? node1.sortValue - node2.sortValue
+        : node2.sortValue - node1.sortValue
+    );
+
+  for (const node of sortedTree) {
+    node.children = sortPivotTree(node.children, node.fullDomain, sortDirection, getSortValue);
+  }
+
+  return sortedTree;
 }

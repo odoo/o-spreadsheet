@@ -1,4 +1,4 @@
-import { Model, SpreadsheetChildEnv } from "../../../src";
+import { Model, PivotSortedColumn, SpreadsheetChildEnv } from "../../../src";
 import { toZone } from "../../../src/helpers";
 import { SpreadsheetPivot } from "../../../src/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
 import {
@@ -15,7 +15,12 @@ import {
   setInputValueAndTrigger,
 } from "../../test_helpers/dom_helper";
 import { getCellText } from "../../test_helpers/getters_helpers";
-import { editStandaloneComposer, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
+import {
+  editStandaloneComposer,
+  mountSpreadsheet,
+  nextTick,
+  setGrid,
+} from "../../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
 import { SELECTORS, addPivot, updatePivot } from "../../test_helpers/pivot_helpers";
 
@@ -30,15 +35,14 @@ describe("Spreadsheet pivot side panel", () => {
 
   beforeEach(async () => {
     ({ env, model, fixture } = await mountSpreadsheet());
-    setCellContent(model, "A1", "Customer");
-    setCellContent(model, "B1", "Product");
-    setCellContent(model, "C1", "Amount");
-    setCellContent(model, "A2", "Alice");
-    setCellContent(model, "B2", "Chair");
-    setCellContent(model, "C2", "10");
-    setCellContent(model, "A3", "Bob");
-    setCellContent(model, "B3", "Table");
-    setCellContent(model, "C3", "20");
+    // prettier-ignore
+    const grid = {
+      A1: "Customer", B1: "Product", C1: "Amount",
+      A2: "Alice",    B2: "Chair",   C2: "10",
+      A3: "Bob",      B3: "Table",   C3: "20",
+    };
+    setGrid(model, grid);
+
     addPivot(model, "A1:C3", {}, "1");
     env.openSidePanel("PivotSidePanel", { pivotId: "1" });
     await nextTick();
@@ -484,5 +488,60 @@ describe("Spreadsheet pivot side panel", () => {
     expect(model.getters.getPivotCoreDefinition("3").measures).toEqual([
       { id: "amount:sum", fieldName: "amount", aggregator: "sum", isHidden: false },
     ]);
+  });
+
+  describe("Pivot sorting", () => {
+    const sortedCol: PivotSortedColumn = {
+      order: "asc",
+      measure: "Amount",
+      domain: [{ field: "Customer", value: "Bob", type: "char" }],
+    };
+
+    beforeEach(async () => {
+      addPivot(
+        model,
+        "A1:C3",
+        {
+          columns: [{ fieldName: "Customer" }],
+          measures: [{ id: "Amount", fieldName: "Amount", aggregator: "sum" }],
+          sortedCol,
+        },
+        "1"
+      );
+      env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+      await nextTick();
+    });
+
+    test("Pivot sorting is displayed in the side panel", async () => {
+      expect(".o-sidePanel .o-pivot-sort").toHaveCount(1);
+      const sortValues = [...fixture.querySelectorAll(".o-sort-card")].map((s) => s.textContent);
+      expect(sortValues).toEqual(["Customer = Bob", "Measure = Amount"]);
+    });
+
+    test("Does not display sorting for pivot with no sorting or invalid sorting ", async () => {
+      updatePivot(model, "1", { sortedCol: undefined });
+      env.openSidePanel("PivotSidePanel", { pivotId: "1" });
+      await nextTick();
+      expect(".o-sidePanel .o-pivot-sort").toHaveCount(0);
+
+      updatePivot(model, "1", {
+        sortedCol: { order: "asc", measure: "Yolo", domain: [] },
+      });
+      await nextTick();
+      expect(".o-sidePanel .o-pivot-sort").toHaveCount(0);
+    });
+
+    test("Pivot sorting is removed when removing the sorted measure", async () => {
+      expect(model.getters.getPivotCoreDefinition("1").sortedCol).toEqual(sortedCol);
+      click(fixture, ".pivot-measure .fa-trash");
+      expect(model.getters.getPivotCoreDefinition("1").sortedCol).toBeUndefined();
+    });
+
+    test("Pivot sorting is removed when removing a column", async () => {
+      expect(model.getters.getPivotCoreDefinition("1").sortedCol).toEqual(sortedCol);
+      const column = fixture.querySelectorAll(".pivot-dimension")[0];
+      click(column, ".fa-trash");
+      expect(model.getters.getPivotCoreDefinition("1").sortedCol).toBeUndefined();
+    });
   });
 });

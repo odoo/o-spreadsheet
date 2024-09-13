@@ -27,6 +27,7 @@ import { PivotDimension } from "./pivot_dimension/pivot_dimension";
 import { PivotDimensionGranularity } from "./pivot_dimension_granularity/pivot_dimension_granularity";
 import { PivotDimensionOrder } from "./pivot_dimension_order/pivot_dimension_order";
 import { PivotMeasureEditor } from "./pivot_measure/pivot_measure";
+import { PivotSortSection } from "./pivot_sort_section/pivot_sort_section";
 
 interface Props {
   definition: PivotRuntimeDefinition;
@@ -53,6 +54,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     PivotDimensionOrder,
     PivotDimensionGranularity,
     PivotMeasureEditor,
+    PivotSortSection,
   };
   static props = {
     definition: Object,

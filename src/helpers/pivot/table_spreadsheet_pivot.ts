@@ -1,13 +1,15 @@
-import { Lazy } from "../../types";
+import { FunctionResultObject, Lazy } from "../../types";
 import {
   DimensionTree,
   DimensionTreeNode,
   PivotDomain,
+  PivotSortedColumn,
   PivotTableCell,
   PivotTableColumn,
   PivotTableRow,
 } from "../../types/pivot";
 import { lazy } from "../misc";
+import { sortPivotTree } from "./pivot_domain_helpers";
 import { parseDimension, toNormalizedPivotValue } from "./pivot_helpers";
 
 /**
@@ -55,13 +57,15 @@ import { parseDimension, toNormalizedPivotValue } from "./pivot_helpers";
 
 export class SpreadsheetPivotTable {
   readonly columns: PivotTableColumn[][];
-  readonly rows: PivotTableRow[];
+  rows: PivotTableRow[];
   readonly measures: string[];
   readonly fieldsType: Record<string, string | undefined>;
   readonly maxIndent: number;
   readonly pivotCells: { [key: string]: PivotTableCell[][] } = {};
   private rowTree: Lazy<DimensionTree>;
   private colTree: Lazy<DimensionTree>;
+
+  isSorted = false;
 
   constructor(
     columns: PivotTableColumn[][],
@@ -260,6 +264,7 @@ export class SpreadsheetPivotTable {
         value,
         field: row.fields[rowDepth],
         children: [],
+        type: this.fieldsType[fieldName] || "char",
         width: 0, // not used
       };
       treesAtDepth[depth].push(node);
@@ -286,6 +291,7 @@ export class SpreadsheetPivotTable {
           field: leaf.fields[depth],
           children: [],
           width: leaf.width,
+          type: this.fieldsType[fieldName] || "char",
         };
         if (treesAtDepth[depth]?.at(-1)?.value !== value) {
           treesAtDepth[depth + 1] = [];
@@ -304,6 +310,41 @@ export class SpreadsheetPivotTable {
       measures: this.measures,
       fieldsType: this.fieldsType,
     };
+  }
+
+  sort(
+    measure: string,
+    sortedCol: PivotSortedColumn,
+    getValue: (measure: string, domain: PivotDomain) => FunctionResultObject
+  ) {
+    if (this.isSorted) {
+      return;
+    }
+    const getSortValue = (domain: PivotDomain): number => {
+      const rawValue = getValue(measure, domain).value;
+      return typeof rawValue === "number" ? rawValue : -Infinity; // the only non-number values are empty aggregates
+    };
+
+    const sortedRowTree = sortPivotTree(
+      this.rowTree(),
+      sortedCol.domain,
+      sortedCol.order,
+      getSortValue
+    );
+    this.rowTree = lazy(() => sortedRowTree);
+    this.rows = [...this.rowTreeToRows(sortedRowTree), this.rows[this.rows.length - 1]]!;
+    this.isSorted = true;
+  }
+
+  private rowTreeToRows(tree: DimensionTree, parentRow?: PivotTableRow): PivotTableRow[] {
+    return tree.flatMap((node) => {
+      const row: PivotTableRow = {
+        indent: parentRow ? parentRow.indent + 1 : 0,
+        fields: [...(parentRow?.fields || []), node.field],
+        values: [...(parentRow?.values || []), node.value],
+      };
+      return [row, ...this.rowTreeToRows(node.children, row)];
+    });
   }
 }
 

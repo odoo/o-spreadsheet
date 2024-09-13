@@ -183,6 +183,7 @@ exports[`Spreadsheet pivot side panel It should correctly be displayed 1`] = `
             
           </div>
           
+          
         </div>
         <div
           class="o-section align-items-center border-top d-flex flex-row justify-content-between py-1 pivot-defer-update"

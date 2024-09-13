@@ -56,6 +56,13 @@ export interface CommonPivotCoreDefinition {
   rows: PivotCoreDimension[];
   measures: PivotCoreMeasure[];
   name: string;
+  sortedCol?: PivotSortedColumn;
+}
+
+export interface PivotSortedColumn {
+  order: SortDirection;
+  domain: PivotDomain;
+  measure: string;
 }
 
 export interface SpreadsheetPivotCoreDefinition extends CommonPivotCoreDefinition {
@@ -196,6 +203,7 @@ export type PivotMeasureDisplayType =
 export interface DimensionTreeNode {
   value: CellValue;
   field: string;
+  type: string;
   children: DimensionTree;
   width: number;
 }
