@@ -13,8 +13,8 @@
     "dist/*.xml"
   ],
   "scripts": {
-    "serve-static": "live-server --open=demo --watch=build/o_spreadsheet.dev.js,build/o_spreadsheet.xml,demo",
-    "dev": "npm-run-all --print-label buildDev --parallel server serve-static watch:*",
+    "demo": "npm run start --workspace=packages/spreadsheet-demo",
+    "dev": "npm-run-all --print-label buildDev --parallel server demo watch:*",
     "server": "node tools/server/main.cjs",
     "build:js": "tsc --module es6 --incremental",
     "build:bundleJsDev": "rollup -c -m --configDev",
@@ -140,5 +140,8 @@
   },
   "publishConfig": {
     "tag": "alpha"
-  }
+  },
+  "workspaces": [
+    "packages/spreadsheet-demo"
+  ]
 }
