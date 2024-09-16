@@ -466,6 +466,11 @@ export interface XLSXColorScale {
   cfvos: XLSXCfValueObject[];
 }
 
+export interface XLSXDataBar {
+  color: XLSXColor;
+  cfvos: XLSXCfValueObject[];
+}
+
 export interface XLSXIconSet {
   iconSet: ExcelIconSet;
   cfvos: XLSXCfValueObject[];
@@ -491,7 +496,7 @@ export interface XLSXCfRule {
   priority: number;
   formula?: string[];
   colorScale?: XLSXColorScale;
-  dataBar?: any;
+  dataBar?: XLSXDataBar;
   iconSet?: XLSXIconSet;
   dxfId?: number;
   stopIfTrue?: boolean;

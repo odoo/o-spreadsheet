@@ -27,6 +27,7 @@ import {
   SpreadsheetChildEnv,
   ThresholdType,
 } from "../../../../types";
+import { hexaToInt } from "../../../../xlsx/conversion";
 import { ColorPickerWidget } from "../../../color_picker/color_picker_widget";
 import { StandaloneComposer } from "../../../composer/standalone_composer/standalone_composer";
 import { css, getTextDecoration } from "../../../helpers";
@@ -290,7 +291,7 @@ export class ConditionalFormattingEditor extends Component<Props, SpreadsheetChi
       },
       colorScale: {
         type: "ColorScaleRule",
-        minimum: { type: "value", color: 0xffffff },
+        minimum: { type: "value", color: hexaToInt("EFF7FF") },
         midpoint: undefined,
         maximum: { type: "value", color: 0x6aa84f },
       },
