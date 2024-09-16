@@ -455,7 +455,7 @@ export function createScorecardChartRuntime(
     title: {
       ...chart.title,
       // chart titles are extracted from .json files and they are translated at runtime here
-      text: _t(chart.title.text ?? ""),
+      text: chart.title.text ? _t(chart.title.text) : "",
     },
     keyValue: formattedKeyValue,
     baselineDisplay,
