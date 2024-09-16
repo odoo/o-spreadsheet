@@ -66,6 +66,7 @@ interface Props {
   openContextMenu: (registry: MenuItemRegistry, ev: MouseEvent) => void;
   style?: string;
   onMouseDown: (ev: MouseEvent) => void;
+  isProtected: boolean;
 }
 
 interface State {
@@ -80,6 +81,7 @@ export class BottomBarSheet extends Component<Props, SpreadsheetChildEnv> {
     openContextMenu: Function,
     style: { type: String, optional: true },
     onMouseDown: { type: Function, optional: true },
+    isProtected: { type: Boolean, optional: true },
   };
   static components = { Ripple, ColorPicker };
   static defaultProps = {

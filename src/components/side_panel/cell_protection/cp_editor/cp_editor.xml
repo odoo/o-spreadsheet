@@ -1,0 +1,110 @@
+<templates>
+  <t t-name="o-spreadsheet-CellProtectionEditor">
+    <div class="o-cp-form w-100 h-100">
+      <Section class="'o-cp-info'">
+        <p class="mt-3 text-muted">
+          Protect this sheet to prevent accidental edits and unwanted changes. 
+          Note that protecting this sheet only locks cell content editing.
+          You can unlock specific ranges for editing or lock only certain cells.
+        </p>
+      </Section>
+
+      <Section class="'o-cp-sheet'" t-if="!this.props.rule">
+        <t t-set-slot="title">Apply to sheet</t>
+        <select
+          class="o-input"
+          t-on-change="onSheetChanged"
+          t-att-value="state.rule.sheetId"
+          t-att-disabled="this.props.rule">
+          <option
+            t-att-value="''"
+            t-esc="'Select a sheet'"
+            t-att-selected="!state.rule.sheetId.length"
+          />
+          <t t-foreach="sheets" t-as="sheet" t-key="sheet.id">
+            <option
+              t-att-value="sheet.id"
+              t-esc="sheet.name"
+              t-att-selected="state.rule.sheetId === sheet.id"
+            />
+          </t>
+        </select>
+      </Section>
+
+      <Section class="'o-cp-rule-type'">
+        <t t-set-slot="title" t-esc="sheetName"/>
+        <label class="o-radio d-flex align-items-center me-4 mb-1">
+          <input
+            class="me-1"
+            name="ruleType"
+            value="none"
+            type="radio"
+            t-att-checked="this.state.ruleCategory === 'none'"
+            t-on-change="onRuleCategoryChanged"
+          />
+          <t t-esc="'None'"/>
+        </label>
+        <label class="o-radio d-flex align-items-center me-4 my-1">
+          <input
+            class="me-1"
+            name="ruleType"
+            value="entireSheet"
+            type="radio"
+            t-att-checked="this.state.ruleCategory === 'entireSheet'"
+            t-on-change="onRuleCategoryChanged"
+          />
+          <t t-esc="'Entire sheet'"/>
+        </label>
+        <label class="o-radio d-flex align-items-center me-4 my-1">
+          <input
+            class="me-1"
+            name="ruleType"
+            value="entireSheetExceptCertainCells"
+            type="radio"
+            t-att-checked="this.state.ruleCategory === 'entireSheetExceptCertainCells'"
+            t-on-change="onRuleCategoryChanged"
+          />
+          <t t-esc="'Entire sheet except certain cells'"/>
+        </label>
+        <label class="o-radio d-flex align-items-center me-4 my-1">
+          <input
+            class="me-1"
+            type="radio"
+            value="onlyCertainCells"
+            name="ruleType"
+            t-att-checked="this.state.ruleCategory === 'onlyCertainCells'"
+            t-on-change="onRuleCategoryChanged"
+          />
+          <t t-esc="'Only certain cells'"/>
+        </label>
+      </Section>
+      <Section class="'o-cp-range'" t-if="state.ruleCategory === 'onlyCertainCells'">
+        <t t-set-slot="title">Apply to ranges</t>
+        <SelectionInput
+          ranges="state.rule.ranges"
+          onSelectionChanged="(ranges) => this.onRangesChanged(ranges)"
+          required="true"
+        />
+      </Section>
+      <Section class="'o-cp-sheet'" t-if="state.ruleCategory === 'entireSheetExceptCertainCells'">
+        <t t-set-slot="title">Exclude ranges</t>
+        <div class="o-subsection o-cp-exclude-cells">
+          <SelectionInput
+            ranges="state.rule.excludeRanges"
+            onSelectionChanged="(ranges) => this.onRangesChanged(ranges)"
+            required="true"
+          />
+        </div>
+      </Section>
+      <div class="o-sidePanelButtons p-3">
+        <button t-on-click="props.onExit" class="o-cp-cancel o-button o-button-grey">Cancel</button>
+        <button
+          t-on-click="onSave"
+          class="o-cp-save o-button o-button-grey primary"
+          t-att-class="{'o-disabled': !canSave }">
+          Save
+        </button>
+      </div>
+    </div>
+  </t>
+</templates>

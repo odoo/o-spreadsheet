@@ -1,3 +1,4 @@
+import { CellProtectionPanel } from "../components/side_panel/cell_protection/cell_protection_panel";
 import { ChartPanel } from "../components/side_panel/chart/main_chart_panel/main_chart_panel";
 import { ConditionalFormattingPanel } from "../components/side_panel/conditional_formatting/conditional_formatting";
 import { CustomCurrencyPanel } from "../components/side_panel/custom_currency/custom_currency";
@@ -69,6 +70,11 @@ sidePanelRegistry.add("RemoveDuplicates", {
 sidePanelRegistry.add("DataValidation", {
   title: _t("Data validation"),
   Body: DataValidationPanel,
+});
+
+sidePanelRegistry.add("CellProtection", {
+  title: _t("Manage sheet protection"),
+  Body: CellProtectionPanel,
 });
 
 sidePanelRegistry.add("DataValidationEditor", {

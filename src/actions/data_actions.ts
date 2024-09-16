@@ -1,4 +1,11 @@
-import { getZoneArea } from "../helpers/index";
+import {
+  getZoneArea,
+  isZoneInside,
+  overlap,
+  recomputeZones,
+  toZone,
+  zoneToDimension,
+} from "../helpers/index";
 import { interactiveSortSelection } from "../helpers/sort";
 import { _t } from "../translation";
 import { ActionSpec } from "./action";
@@ -18,6 +25,113 @@ export const sortAscending: ActionSpec = {
     interactiveSortSelection(env, sheetId, anchor.cell, zones[0], "ascending");
   },
   icon: "o-spreadsheet-Icon.SORT_ASCENDING",
+};
+
+export const protectCells: ActionSpec = {
+  name: (env) => {
+    const zone = env.model.getters.getSelectedZone();
+    const { numberOfCols, numberOfRows } = zoneToDimension(zone);
+    return numberOfCols === 1 && numberOfRows === 1 ? _t("Protect cell") : _t("Protect cells");
+  },
+  isVisible: (env) => {
+    const sheetId = env.model.getters.getActiveSheetId();
+    const protectedZones = env.model.getters.getProtectedZones(sheetId);
+    const selectedZones = env.model.getters.getSelectedZones();
+    return selectedZones.some((zone) =>
+      protectedZones.every((protectedZone) => !isZoneInside(zone, protectedZone))
+    );
+  },
+  execute: (env) => {
+    const sheetId = env.model.getters.getActiveSheetId();
+    const rule = env.model.getters.getCellProtectionRule(sheetId);
+    const selectedZones = env.model.getters.getSelectedZones();
+    if (!rule) {
+      env.model.dispatch("ADD_RANGE_CELL_PROTECTION_RULE", {
+        rule: {
+          id: env.model.uuidGenerator.uuidv4(),
+          type: "range",
+          sheetId: sheetId,
+          ranges: selectedZones.map((zone) =>
+            env.model.getters.getRangeDataFromZone(sheetId, zone)
+          ),
+        },
+      });
+    } else {
+      if (rule?.type === "range") {
+        const protectedZones = env.model.getters.getProtectedZones(sheetId);
+        const newZones = recomputeZones([...protectedZones, ...selectedZones]);
+        env.model.dispatch("ADD_RANGE_CELL_PROTECTION_RULE", {
+          rule: {
+            ...rule,
+            ranges: newZones.map((zone) => env.model.getters.getRangeDataFromZone(sheetId, zone)),
+          },
+        });
+      } else {
+        const excludedZones = rule.excludeRanges
+          .map((range) => env.model.getters.getRangeString(range, sheetId))
+          .map((rangeString) => toZone(rangeString));
+        const newZonesToExclude = recomputeZones(excludedZones, selectedZones);
+        env.model.dispatch("ADD_SHEET_CELL_PROTECTION_RULE", {
+          rule: {
+            ...rule,
+            excludeRanges: newZonesToExclude.map((zone) =>
+              env.model.getters.getRangeDataFromZone(sheetId, zone)
+            ),
+          },
+        });
+      }
+    }
+    env.openSidePanel("CellProtection");
+  },
+  icon: "o-spreadsheet-Icon.LOCK",
+};
+
+export const unprotectCells: ActionSpec = {
+  name: (env) => {
+    const zone = env.model.getters.getSelectedZone();
+    const { numberOfCols, numberOfRows } = zoneToDimension(zone);
+    return numberOfCols === 1 && numberOfRows === 1 ? _t("Unprotect cell") : _t("Unprotect cells");
+  },
+  isVisible: (env) => {
+    const sheetId = env.model.getters.getActiveSheetId();
+    const protectedZones = env.model.getters.getProtectedZones(sheetId);
+    const selectedZones = env.model.getters.getSelectedZones();
+    return selectedZones.some((zone) =>
+      protectedZones.some((protectedZone) => overlap(zone, protectedZone))
+    );
+  },
+  execute: (env) => {
+    const sheetId = env.model.getters.getActiveSheetId();
+    const rule = env.model.getters.getCellProtectionRule(sheetId);
+    if (!rule) {
+      return;
+    }
+    const selectedZones = env.model.getters.getSelectedZones();
+    if (rule?.type === "range") {
+      const protectedZones = env.model.getters.getProtectedZones(sheetId);
+      const newZones = recomputeZones(protectedZones, selectedZones);
+      env.model.dispatch("ADD_RANGE_CELL_PROTECTION_RULE", {
+        rule: {
+          ...rule,
+          ranges: newZones.map((zone) => env.model.getters.getRangeDataFromZone(sheetId, zone)),
+        },
+      });
+    } else {
+      const excludedZones = rule.excludeRanges
+        .map((range) => env.model.getters.getRangeString(range, sheetId))
+        .map((rangeString) => toZone(rangeString));
+      const newZonesToExclude = recomputeZones([...excludedZones, ...selectedZones]);
+      env.model.dispatch("ADD_SHEET_CELL_PROTECTION_RULE", {
+        rule: {
+          ...rule,
+          excludeRanges: newZonesToExclude.map((zone) =>
+            env.model.getters.getRangeDataFromZone(sheetId, zone)
+          ),
+        },
+      });
+    }
+  },
+  icon: "o-spreadsheet-Icon.UNLOCK",
 };
 
 export const dataCleanup: ActionSpec = {

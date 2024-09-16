@@ -1,5 +1,6 @@
 import { BordersPlugin } from "../plugins/core/borders";
 import { CellPlugin } from "../plugins/core/cell";
+import { CellProtectionPlugin } from "../plugins/core/cell_protection";
 import { ChartPlugin } from "../plugins/core/chart";
 import { ConditionalFormatPlugin } from "../plugins/core/conditional_format";
 import { DataValidationPlugin } from "../plugins/core/data_validation";
@@ -111,6 +112,7 @@ export type CoreGetters = PluginGetters<typeof SheetPlugin> &
   PluginGetters<typeof SettingsPlugin> &
   PluginGetters<typeof HeaderGroupingPlugin> &
   PluginGetters<typeof DataValidationPlugin> &
+  PluginGetters<typeof CellProtectionPlugin> &
   PluginGetters<typeof PivotCorePlugin>;
 
 export type Getters = {

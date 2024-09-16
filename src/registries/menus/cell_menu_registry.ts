@@ -1,6 +1,7 @@
 import { _t } from "../../translation";
 import { MenuItemRegistry } from "../menu_items_registry";
 
+import * as ACTION_DATA from "../../actions/data_actions";
 import * as ACTION_EDIT from "../../actions/edit_actions";
 import * as ACTION_INSERT from "../../actions/insert_actions";
 import * as ACTIONS from "../../actions/menu_items_actions";
@@ -28,6 +29,15 @@ cellMenuRegistry
   .add("paste_special", {
     ...ACTION_EDIT.pasteSpecial,
     sequence: 40,
+    separator: true,
+  })
+  .add("protect_cells", {
+    ...ACTION_DATA.protectCells,
+    sequence: 50,
+  })
+  .add("unprotect_cells", {
+    ...ACTION_DATA.unprotectCells,
+    sequence: 60,
     separator: true,
   })
   .addChild("paste_value_only", ["paste_special"], {

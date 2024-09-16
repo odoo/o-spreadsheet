@@ -52,6 +52,37 @@ export const renameSheet = (args: { renameSheetCallback: () => void }): ActionSp
   };
 };
 
+export const protectSheet: ActionSpec = {
+  name: _t("Manage protection"),
+  execute: (env) => {
+    const sheetId = env.model.getters.getActiveSheetId();
+    let rule = env.model.getters.getCellProtectionRule(sheetId);
+    if (!rule) {
+      rule = {
+        id: env.model.uuidGenerator.uuidv4(),
+        sheetId,
+        type: "sheet",
+        excludeRanges: [],
+      };
+    }
+    env.openSidePanel("CellProtection", { rule });
+  },
+  icon: "o-spreadsheet-Icon.LOCK",
+};
+
+export const removeSheetProtection: ActionSpec = {
+  name: _t("Remove protection"),
+  isVisible: (env) => {
+    return env.model.getters.getProtectedSheetIds().includes(env.model.getters.getActiveSheetId());
+  },
+  execute: (env) => {
+    env.model.dispatch("REMOVE_CELL_PROTECTION_RULE", {
+      sheetId: env.model.getters.getActiveSheetId(),
+    });
+  },
+  icon: "o-spreadsheet-Icon.UNLOCK",
+};
+
 export const changeSheetColor = (args: {
   openSheetColorPickerCallback: () => void;
 }): ActionSpec => {

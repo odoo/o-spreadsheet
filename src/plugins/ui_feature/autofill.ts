@@ -91,7 +91,7 @@ class AutofillGenerator {
  */
 export class AutofillPlugin extends UIPlugin {
   static layers = ["Autofill"] as const;
-  static getters = ["getAutofillTooltip"] as const;
+  static getters = ["getAutofillTooltip", "getAutofillZone"] as const;
 
   private autofillZone: Zone | undefined;
   private steps: number | undefined;
@@ -162,6 +162,10 @@ export class AutofillPlugin extends UIPlugin {
 
   getAutofillTooltip(): Tooltip | undefined {
     return this.tooltip;
+  }
+
+  getAutofillZone(): Zone | undefined {
+    return this.autofillZone;
   }
 
   // ---------------------------------------------------------------------------

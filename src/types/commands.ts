@@ -5,6 +5,8 @@ import {
   Figure,
   Format,
   Locale,
+  SerializableRangeCellProtectionRule,
+  SerializableSheetCellProtectionRule,
   Style,
   Zone,
 } from "./index";
@@ -59,7 +61,7 @@ export interface SheetDependentCommand {
   sheetId: UID;
 }
 
-export function isSheetDependent(cmd: CoreCommand): boolean {
+export function isSheetDependent(cmd: Command): cmd is Command & SheetDependentCommand {
   return "sheetId" in cmd;
 }
 
@@ -69,16 +71,24 @@ export interface HeadersDependentCommand {
   elements: HeaderIndex[];
 }
 
-export function isHeadersDependant(cmd: CoreCommand): boolean {
+export function isHeadersDependant(cmd: Command): cmd is Command & HeadersDependentCommand {
   return "dimension" in cmd && "sheetId" in cmd && "elements" in cmd;
 }
 
+export interface BaseDependantCommand {
+  base: number;
+  dimension: Dimension;
+  position: "before" | "after";
+}
+
+export function isBaseDependant(cmd: Command): cmd is Command & BaseDependantCommand {
+  return "dimension" in cmd && "base" in cmd && "position" in cmd;
+}
 export interface TargetDependentCommand {
-  sheetId: UID;
   target: Zone[];
 }
 
-export function isTargetDependent(cmd: CoreCommand): boolean {
+export function isTargetDependent(cmd: Command): cmd is Command & TargetDependentCommand {
   return "target" in cmd && "sheetId" in cmd;
 }
 
@@ -86,7 +96,7 @@ export interface RangesDependentCommand {
   ranges: RangeData[];
 }
 
-export function isRangeDependant(cmd: CoreCommand): boolean {
+export function isRangeDependant(cmd: Command): cmd is Command & RangesDependentCommand {
   return "ranges" in cmd;
 }
 
@@ -101,11 +111,10 @@ export interface ZoneDependentCommand {
   zone: Zone;
 }
 
-export function isZoneDependent(cmd: CoreCommand): boolean {
+export function isZoneDependent(cmd: Command): cmd is Command & ZoneDependentCommand {
   return "zone" in cmd;
 }
-
-export function isPositionDependent(cmd: CoreCommand): boolean {
+export function isPositionDependent(cmd: Command): cmd is Command & PositionDependentCommand {
   return "col" in cmd && "row" in cmd && "sheetId" in cmd;
 }
 
@@ -243,6 +252,11 @@ export const coreTypes = new Set<CoreCommandTypes>([
   "ADD_DATA_VALIDATION_RULE",
   "REMOVE_DATA_VALIDATION_RULE",
 
+  /** CELL PROTECTION */
+  "ADD_RANGE_CELL_PROTECTION_RULE",
+  "ADD_SHEET_CELL_PROTECTION_RULE",
+  "REMOVE_CELL_PROTECTION_RULE",
+
   /** MISC */
   "UPDATE_LOCALE",
 
@@ -364,12 +378,12 @@ export interface SetGridLinesVisibilityCommand extends SheetDependentCommand {
 // Merge
 //------------------------------------------------------------------------------
 
-export interface AddMergeCommand extends TargetDependentCommand {
+export interface AddMergeCommand extends TargetDependentCommand, SheetDependentCommand {
   type: "ADD_MERGE";
   force?: boolean;
 }
 
-export interface RemoveMergeCommand extends TargetDependentCommand {
+export interface RemoveMergeCommand extends TargetDependentCommand, SheetDependentCommand {
   type: "REMOVE_MERGE";
 }
 
@@ -515,7 +529,7 @@ export interface CreateTableCommand extends RangesDependentCommand {
   tableType: CoreTableType;
 }
 
-export interface RemoveTableCommand extends TargetDependentCommand {
+export interface RemoveTableCommand extends TargetDependentCommand, SheetDependentCommand {
   type: "REMOVE_TABLE";
 }
 
@@ -563,13 +577,13 @@ export interface UpdateFilterCommand extends PositionDependentCommand {
   hiddenValues: string[];
 }
 
-export interface SetFormattingCommand extends TargetDependentCommand {
+export interface SetFormattingCommand extends TargetDependentCommand, SheetDependentCommand {
   type: "SET_FORMATTING";
   style?: Style;
   format?: Format;
 }
 
-export interface SetZoneBordersCommand extends TargetDependentCommand {
+export interface SetZoneBordersCommand extends TargetDependentCommand, SheetDependentCommand {
   type: "SET_ZONE_BORDERS";
   border: BorderData;
 }
@@ -579,16 +593,16 @@ export interface SetBorderCommand extends PositionDependentCommand {
   border: Border | undefined;
 }
 
-export interface ClearFormattingCommand extends TargetDependentCommand {
+export interface ClearFormattingCommand extends TargetDependentCommand, SheetDependentCommand {
   type: "CLEAR_FORMATTING";
 }
 
-export interface SetDecimalCommand extends TargetDependentCommand {
+export interface SetDecimalCommand extends TargetDependentCommand, SheetDependentCommand {
   type: "SET_DECIMAL";
   step: SetDecimalStep;
 }
 
-interface SetContextualFormatCommand extends TargetDependentCommand {
+interface SetContextualFormatCommand extends TargetDependentCommand, SheetDependentCommand {
   type: "SET_FORMATTING_WITH_PIVOT";
   format: Format;
 }
@@ -650,32 +664,26 @@ export interface TrimWhitespaceCommand {
   type: "TRIM_WHITESPACE";
 }
 
-export interface GroupHeadersCommand extends SheetDependentCommand {
+export interface HeaderGroupCommand {
+  dimension: Dimension;
+  start: HeaderIndex;
+  end: HeaderIndex;
+}
+
+export interface GroupHeadersCommand extends SheetDependentCommand, HeaderGroupCommand {
   type: "GROUP_HEADERS";
-  dimension: Dimension;
-  start: HeaderIndex;
-  end: HeaderIndex;
 }
 
-export interface UnGroupHeadersCommand extends SheetDependentCommand {
+export interface UnGroupHeadersCommand extends SheetDependentCommand, HeaderGroupCommand {
   type: "UNGROUP_HEADERS";
-  dimension: Dimension;
-  start: HeaderIndex;
-  end: HeaderIndex;
 }
 
-export interface FoldHeaderGroupCommand extends SheetDependentCommand {
+export interface FoldHeaderGroupCommand extends SheetDependentCommand, HeaderGroupCommand {
   type: "FOLD_HEADER_GROUP";
-  dimension: Dimension;
-  start: HeaderIndex;
-  end: HeaderIndex;
 }
 
-export interface UnfoldHeaderGroupCommand extends SheetDependentCommand {
+export interface UnfoldHeaderGroupCommand extends SheetDependentCommand, HeaderGroupCommand {
   type: "UNFOLD_HEADER_GROUP";
-  dimension: Dimension;
-  start: HeaderIndex;
-  end: HeaderIndex;
 }
 
 export interface FoldAllHeaderGroupsCommand extends SheetDependentCommand {
@@ -708,15 +716,33 @@ export interface RemoveDataValidationCommand extends SheetDependentCommand {
   id: string;
 }
 
+export interface AddRangeCellProtectionCommand {
+  type: "ADD_RANGE_CELL_PROTECTION_RULE";
+  rule: SerializableRangeCellProtectionRule;
+}
+
+export interface AddSheetCellProtectionCommand {
+  type: "ADD_SHEET_CELL_PROTECTION_RULE";
+  rule: SerializableSheetCellProtectionRule;
+}
+
+export type AddCellProtectionCommand =
+  | AddRangeCellProtectionCommand
+  | AddSheetCellProtectionCommand;
+
+export interface RemoveCellProtectionCommand extends SheetDependentCommand {
+  type: "REMOVE_CELL_PROTECTION_RULE";
+}
+
 //#endregion
 
 //#region Local Commands
 // ------------------------------------------------
-export interface CopyCommand {
+export interface CopyCommand extends TargetDependentCommand {
   type: "COPY";
 }
 
-export interface CutCommand {
+export interface CutCommand extends TargetDependentCommand {
   type: "CUT";
 }
 
@@ -805,7 +831,7 @@ export interface ClearCellCommand extends PositionDependentCommand {
   type: "CLEAR_CELL";
 }
 
-export interface ClearCellsCommand extends TargetDependentCommand {
+export interface ClearCellsCommand extends TargetDependentCommand, SheetDependentCommand {
   type: "CLEAR_CELLS";
 }
 
@@ -1058,6 +1084,11 @@ export type CoreCommand =
   | AddDataValidationCommand
   | RemoveDataValidationCommand
 
+  /** CELL PROTECTION */
+  | AddRangeCellProtectionCommand
+  | AddSheetCellProtectionCommand
+  | RemoveCellProtectionCommand
+
   /** MISC */
   | UpdateLocaleCommand
 
@@ -1171,6 +1202,7 @@ export const enum CommandResult {
   WillRemoveExistingMerge = "WillRemoveExistingMerge",
   MergeIsDestructive = "MergeIsDestructive",
   CellIsMerged = "CellIsMerged",
+  CellIsProtected = "CellIsProtected",
   InvalidTarget = "InvalidTarget",
   EmptyUndoStack = "EmptyUndoStack",
   EmptyRedoStack = "EmptyRedoStack",
@@ -1284,6 +1316,8 @@ export const enum CommandResult {
   PivotIdNotFound = "PivotIdNotFound",
   EmptyName = "EmptyName",
   ValueCellIsInvalidFormula = "ValueCellIsInvalidFormula",
+  UnknownCellProtectionRule = "UnknownCellProtectionRule",
+  SheetAlreadyHasProtection = "SheetAlreadyHasProtection",
   InvalidDefinition = "InvalidDefinition",
   InvalidColor = "InvalidColor",
   DataBarRangeValuesMismatch = "DataBarRangeValuesMismatch",

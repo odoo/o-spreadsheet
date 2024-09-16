@@ -451,6 +451,28 @@ export const TEST_COMMANDS: CommandMapping = {
     pivotId: "1",
     name: "newName",
   },
+  ADD_RANGE_CELL_PROTECTION_RULE: {
+    type: "ADD_RANGE_CELL_PROTECTION_RULE",
+    rule: {
+      id: "id",
+      type: "range",
+      sheetId: "sheetId",
+      ranges: [],
+    },
+  },
+  ADD_SHEET_CELL_PROTECTION_RULE: {
+    type: "ADD_SHEET_CELL_PROTECTION_RULE",
+    rule: {
+      id: "id",
+      type: "sheet",
+      sheetId: "sheetId",
+      excludeRanges: [],
+    },
+  },
+  REMOVE_CELL_PROTECTION_RULE: {
+    type: "REMOVE_CELL_PROTECTION_RULE",
+    sheetId: "sheetId",
+  },
 };
 
 export const OT_TESTS_SINGLE_CELL_COMMANDS = [

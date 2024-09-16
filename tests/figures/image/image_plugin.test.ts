@@ -40,7 +40,7 @@ describe("image plugin", function () {
     };
     createImage(model, { figureId: imageId, definition });
     model.dispatch("SELECT_FIGURE", { id: imageId });
-    model.dispatch("COPY");
+    model.dispatch("COPY", { target: model.getters.getSelectedZones() });
     paste(model, "D4");
     const images = getFigureIds(model, sheetId);
     expect(images).toHaveLength(2);
@@ -61,7 +61,7 @@ describe("image plugin", function () {
     };
     createImage(model, { figureId: imageId, definition });
     model.dispatch("SELECT_FIGURE", { id: imageId });
-    model.dispatch("CUT");
+    model.dispatch("CUT", { target: model.getters.getSelectedZones() });
     paste(model, "D4");
     const images = getFigureIds(model, sheetId);
     expect(images).toHaveLength(1);
@@ -199,7 +199,7 @@ describe("test image undo/redo", () => {
     createImage(model, { figureId: imageId });
     const before = model.exportData();
     model.dispatch("SELECT_FIGURE", { id: imageId });
-    model.dispatch("CUT");
+    model.dispatch("CUT", { target: model.getters.getSelectedZones() });
     paste(model, "D4");
     const after = model.exportData();
     undo(model);

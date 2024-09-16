@@ -107,7 +107,7 @@ function getCopyMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
     description: "Ctrl+C",
     execute: async () => {
       env.model.dispatch("SELECT_FIGURE", { id: figureId });
-      env.model.dispatch("COPY");
+      env.model.dispatch("COPY", { target: env.model.getters.getSelectedZones() });
       await env.clipboard.write(env.model.getters.getClipboardContent());
     },
     icon: "o-spreadsheet-Icon.COPY",
@@ -122,7 +122,7 @@ function getCutMenuItem(figureId: UID, env: SpreadsheetChildEnv): ActionSpec {
     description: "Ctrl+X",
     execute: async () => {
       env.model.dispatch("SELECT_FIGURE", { id: figureId });
-      env.model.dispatch("CUT");
+      env.model.dispatch("CUT", { target: env.model.getters.getSelectedZones() });
       await env.clipboard.write(env.model.getters.getClipboardContent());
     },
     icon: "o-spreadsheet-Icon.CUT",

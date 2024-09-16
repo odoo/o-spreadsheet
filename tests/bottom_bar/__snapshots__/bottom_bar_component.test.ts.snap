@@ -238,6 +238,7 @@ exports[`BottomBar component simple rendering 1`] = `
             tabindex="-1"
             title="Sheet1"
           >
+            
             <span
               class="o-sheet-name"
               contenteditable="false"

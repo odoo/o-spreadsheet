@@ -183,14 +183,18 @@ describe("Menu Item actions", () => {
   test("Edit -> copy", () => {
     const spyWriteClipboard = jest.spyOn(env.clipboard!, "write");
     doAction(["edit", "copy"], env);
-    expect(dispatch).toHaveBeenCalledWith("COPY");
+    expect(dispatch).toHaveBeenCalledWith("COPY", {
+      target: [{ bottom: 0, left: 0, right: 0, top: 0 }],
+    });
     expect(spyWriteClipboard).toHaveBeenCalledWith(model.getters.getClipboardContent());
   });
 
   test("Edit -> cut", () => {
     const spyWriteClipboard = jest.spyOn(env.clipboard!, "write");
     doAction(["edit", "cut"], env);
-    expect(dispatch).toHaveBeenCalledWith("CUT");
+    expect(dispatch).toHaveBeenCalledWith("CUT", {
+      target: [{ bottom: 0, left: 0, right: 0, top: 0 }],
+    });
     expect(spyWriteClipboard).toHaveBeenCalledWith(model.getters.getClipboardContent());
   });
 
@@ -254,7 +258,7 @@ describe("Menu Item actions", () => {
   });
 
   test("Edit -> paste_special should be hidden after a CUT ", () => {
-    model.dispatch("CUT");
+    model.dispatch("CUT", { target: env.model.getters.getSelectedZones() });
     expect(getNode(["edit", "paste_special"], env).isVisible(env)).toBeFalsy();
   });
 

@@ -75,6 +75,7 @@ css/* scss */ `
 interface BottomBarSheetItem {
   id: UID;
   name: string;
+  isProtected: boolean;
 }
 
 interface Props {
@@ -137,8 +138,13 @@ export class BottomBar extends Component<Props, SpreadsheetChildEnv> {
 
   getVisibleSheets(): BottomBarSheetItem[] {
     return this.env.model.getters.getVisibleSheetIds().map((sheetId) => {
+      const fullyProtectedSheetIds = this.env.model.getters.getFullyProtectedSheetIds();
       const sheet = this.env.model.getters.getSheet(sheetId);
-      return { id: sheet.id, name: sheet.name };
+      return {
+        id: sheet.id,
+        name: sheet.name,
+        isProtected: fullyProtectedSheetIds.includes(sheet.id),
+      };
     });
   }
 

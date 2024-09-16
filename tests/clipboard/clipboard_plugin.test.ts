@@ -139,8 +139,7 @@ describe("clipboard", () => {
   test("cut command will cut the selection if no target were given", () => {
     const model = new Model();
     setCellContent(model, "B2", "b2");
-    setSelection(model, ["B2"]);
-    model.dispatch("CUT");
+    model.dispatch("CUT", { target: [toZone("B2")] });
     paste(model, "D2");
     expect(getCell(model, "D2")?.content).toBe("b2");
   });

@@ -28,7 +28,7 @@ export const copy: ActionSpec = {
   description: "Ctrl+C",
   isReadonlyAllowed: true,
   execute: async (env) => {
-    env.model.dispatch("COPY");
+    env.model.dispatch("COPY", { target: env.model.getters.getSelectedZones() });
     await env.clipboard.write(env.model.getters.getClipboardContent());
   },
   icon: "o-spreadsheet-Icon.COPY",
