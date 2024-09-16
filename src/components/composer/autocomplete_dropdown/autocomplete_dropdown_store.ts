@@ -1,10 +1,19 @@
 import { AutoCompleteProposal, AutoCompleteProvider } from "../../../registries";
+import { Get } from "../../../store_engine";
 import { SpreadsheetStore } from "../../../stores";
 
 export class AutoCompleteStore extends SpreadsheetStore {
   mutators = ["useProvider", "moveSelection", "hide", "selectIndex"] as const;
   selectedIndex: number | undefined = undefined;
   provider: AutoCompleteProvider | undefined;
+
+  constructor(get: Get) {
+    super(get);
+    this.model.selection.observe(this, {
+      handleEvent: () => this.hide(),
+    });
+    this.onDispose(() => this.model.selection.stopWatching(this));
+  }
 
   get selectedProposal(): AutoCompleteProposal | undefined {
     if (this.selectedIndex === undefined || this.provider === undefined) {
