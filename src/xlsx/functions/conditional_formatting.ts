@@ -5,6 +5,7 @@ import {
   ColorScaleRule,
   ColorScaleThreshold,
   ConditionalFormat,
+  DataBarRule,
   IconSet,
   IconSetRule,
   IconThreshold,
@@ -36,6 +37,9 @@ export function addConditionalFormatting(
         break;
       case "IconSetRule":
         cfNodes.push(addIconSetRule(cf, cf.rule));
+        break;
+      case "DataBarRule":
+        cfNodes.push(addDataBarRule(cf, cf.rule));
         break;
       default:
         // @ts-ignore Typescript knows it will never happen at compile time
@@ -133,6 +137,25 @@ function cellRuleTypeAttributes(rule: CellIsRule): XMLAttributes {
     case "NotBetween":
       return [["type", "cellIs"]];
   }
+}
+
+function addDataBarRule(cf: ConditionalFormat, rule: DataBarRule): XMLString {
+  const ruleAttributes = commonCfAttributes(cf);
+  ruleAttributes.push(["type", "dataBar"]);
+
+  // TODO ATM we do not support min and max values, so to have the same result
+  // in Excel, we export with min=0 and max=100
+  return escapeXml/*xml*/ `
+    <conditionalFormatting sqref="${cf.ranges.join(" ")}">
+      <cfRule ${formatAttributes(ruleAttributes)}>
+        <dataBar>
+          <cfvo type="min" val="0"/>
+          <cfvo type="max" val="100"/>
+          <color rgb="${toXlsxHexColor(colorNumberString(rule.color))}"/>
+        </dataBar>
+      </cfRule>
+    </conditionalFormatting>
+  `;
 }
 
 function addColorScaleRule(cf: ConditionalFormat, rule: ColorScaleRule): XMLString {
