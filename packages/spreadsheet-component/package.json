@@ -1,7 +1,7 @@
 {
   "name": "@odoo/o-spreadsheet",
   "version": "17.5.0-alpha.12",
-  "description": "A spreadsheet component",
+  "description": "Odoo Spreadsheet component",
   "type": "module",
   "main": "dist/o-spreadsheet.cjs.js",
   "browser": "dist/o-spreadsheet.iife.js",
@@ -13,17 +13,21 @@
     "dist/*.xml"
   ],
   "scripts": {
-    "demo": "npm run start --workspace=packages/spreadsheet-demo",
-    "server": "npm run start --workspace=packages/spreadsheet-server",
-    "buildDev": "npm run start --workspace=packages/spreadsheet-component",
-    "watchDev": "npm run startWatch --workspace=packages/spreadsheet-component",
-    "dev": "npm-run-all --print-label buildDev --parallel server demo watchDev",
-    "precommit": "npm run prettier && npm run doc",
+    "startWatch": "npm-run-all -p watch:*",
+    "build:js": "tsc --module es6 --incremental",
+    "build:bundleJsDev": "rollup -c -m --configDev",
+    "build:bundleJs": "rollup -c -m --configDist",
+    "build:bundleXml": "node ../../tools/bundle_xml/main.cjs",
+    "start": "npm-run-all build:js build:bundleJsDev \"build:bundleXml -- --outDir packages/spreadsheet-component/build\"",
+    "build": "npm-run-all build:js build:bundleJs \"build:bundleXml -- --outDir packages/spreadsheet-component/build\"",
+    "test": "tsc --noEmit --project tsconfig.jest.json && jest",
+    "test:watch": "jest --watch",
     "prettier": "prettier . --write",
     "check-formatting": "prettier . --check",
-    "prepare": "husky install",
-    "unzipXlsx": "node tools/bundle_xlsx/unzip_xlsx_demo.cjs",
-    "zipXlsx": "node tools/bundle_xlsx/zip_xlsx_demo.cjs"
+    "dist": "tsc --module es6 --declaration --declarationDir dist/types && rollup -c && npm run build:bundleXml -- --outDir dist",
+    "watch:bundle": "npm run build:bundleJsDev -- --watch",
+    "watch:ts": "npm run build:js -- --watch",
+    "watch:xml": "node ../../tools/bundle_xml/watch_xml_templates.cjs"
   },
   "browserslist": [
     "last 1 Chrome versions"

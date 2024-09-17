@@ -9,13 +9,17 @@ LICENSE
 .vscode/
 dist/
 build/
+packages/spreadsheet-component/dist/
+packages/spreadsheet-component/build/
 .gitignore
 .npmrc
 coverage/
-logs/
+packages/spreadsheet-server/logs/
 doc/tsdoc
 tests/**/__snapshots__
 tests/**/xlsx_demo_data
+packages/spreadsheet-component/tests/**/__snapshots__
+packages/spreadsheet-component/tests/**/xlsx_demo_data
 # Ignore all PNG files:
 **/*.png
 **/*.xlsx

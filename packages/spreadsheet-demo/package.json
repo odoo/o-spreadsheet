@@ -4,7 +4,7 @@
   "description": "Odoo Spreadsheet demo page",
   "type": "module",
   "scripts": {
-    "start": "live-server --mount=/node_modules:../../node_modules --mount=/build:../../build --open=demo --watch=../../build/o_spreadsheet.dev.js,../../build/o_spreadsheet.xml,demo"
+    "start": "live-server --mount=/node_modules:../../node_modules --mount=/build:../../packages/spreadsheet-component/build --open=demo --watch=../../build/o_spreadsheet.dev.js,../../build/o_spreadsheet.xml,demo"
   },
   "author": "Odoo",
   "license": "LGPL-3.0-or-later",

@@ -20,7 +20,7 @@ function getParsedOwlTemplateBundle() {
  * @param {boolean} removeRootTags : remove the unnecessary <templates> root tags for export to Odoo. Slightly slower.
  */
 function getOwlTemplatesBundle(removeRootTags = false) {
-  const srcPath = path.join(__dirname, "../../src");
+  const srcPath = path.join(__dirname, "../../packages/spreadsheet-component/src");
   const files = getXmlTemplatesFiles(srcPath);
   const templateBundle = createOwlTemplateBundle(files, removeRootTags);
   return templateBundle;
