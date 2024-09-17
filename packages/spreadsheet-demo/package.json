@@ -4,7 +4,7 @@
   "description": "Odoo Spreadsheet demo page",
   "type": "module",
   "scripts": {
-    "start": "live-server --mount=/node_modules:../../node_modules --mount=/build:../../packages/spreadsheet-component/build --open=demo --watch=../../build/o_spreadsheet.dev.js,../../build/o_spreadsheet.xml,demo"
+    "start": "live-server --mount=/node_modules:../../node_modules --open=demo --watch=../../node_modules/@odoo/o-spreadsheet/build/o_spreadsheet.dev.js,../../node_modules/@odoo/o-spreadsheet/build/o_spreadsheet.xml,demo"
   },
   "author": "Odoo",
   "license": "LGPL-3.0-or-later",
@@ -19,14 +19,15 @@
     "xmlSelfClosingSpace": false
   },
   "dependencies": {
+    "@odoo/o-spreadsheet": "^17.5.0-alpha.12",
     "@odoo/owl": "2.3.0",
     "bootstrap": "^5.3.3",
-    "font-awesome": "^4.7.0",
-    "rbush": "^3.0.1",
     "chart.js": "4.4.1",
     "chartjs-adapter-luxon": "^1.3.1",
     "file-saver": "^2.0.5",
+    "font-awesome": "^4.7.0",
     "jszip": "^3.6.0",
-    "live-server": "^1.2.1"
+    "live-server": "^1.2.1",
+    "rbush": "^3.0.1"
   }
 }

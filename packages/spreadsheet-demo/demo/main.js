@@ -327,7 +327,9 @@ Demo.props = {};
 
 // Setup code
 async function setup() {
-  const templates = await (await fetch("../build/o_spreadsheet.xml")).text();
+  const templates = await (
+    await fetch("../node_modules/@odoo/o-spreadsheet/build/o_spreadsheet.xml")
+  ).text();
   start = Date.now();
 
   const rootApp = new owl.App(Demo, { dev: true, warnIfNoStaticProps: true });
