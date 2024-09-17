@@ -1,33 +1,31 @@
 {
   "name": "@odoo/o-spreadsheet",
   "version": "17.5.0-alpha.12",
-  "description": "Odoo Spreadsheet component",
+  "description": "Odoo Spreadsheet Library",
   "type": "module",
-  "main": "dist/o-spreadsheet.cjs.js",
-  "browser": "dist/o-spreadsheet.iife.js",
-  "module": "dist/o-spreadsheet.esm.js",
-  "types": "dist/o-spreadsheet.d.ts",
+  "main": "./dist/o-spreadsheet.cjs.js",
+  "browser": "./dist/o-spreadsheet.iife.js",
+  "module": "./dist/o-spreadsheet.esm.js",
+  "types": "./dist/o-spreadsheet.d.ts",
   "files": [
-    "dist/*.js",
-    "dist/*.d.ts",
-    "dist/*.xml"
+    "./dist/*.js",
+    "./dist/*.d.ts",
+    "./dist/*.xml"
   ],
   "scripts": {
-    "startWatch": "npm-run-all -p watch:*",
     "build:js": "tsc --module es6 --incremental",
-    "build:bundleJsDev": "rollup -c -m --configDev",
-    "build:bundleJs": "rollup -c -m --configDist",
-    "build:bundleXml": "node ../../tools/bundle_xml/main.cjs",
-    "start": "npm-run-all build:js build:bundleJsDev \"build:bundleXml -- --outDir packages/spreadsheet-component/build\"",
-    "build": "npm-run-all build:js build:bundleJs \"build:bundleXml -- --outDir packages/spreadsheet-component/build\"",
+    "bundle:iife": "rollup -c -m -- --format iife",
+    "bundle:esm": "rollup -c -m -- --format esm",
+    "bundle:xml": "node tools/bundle_xml/main.cjs",
+    "bundle:dev": "npm-run-all build:js bundle:iife \"bundle:xml -- --outDir ./build\"",
+    "bundle:odoo": "npm-run-all build:js bundle:esm \"bundle:xml -- --outDir ./build\"",
+    "dist": "tsc --module es6 --declaration --declarationDir ./dist/types && rollup -c && npm run bundle:xml -- --outDir ./dist",
     "test": "tsc --noEmit --project tsconfig.jest.json && jest",
-    "test:watch": "jest --watch",
-    "prettier": "prettier . --write",
-    "check-formatting": "prettier . --check",
-    "dist": "tsc --module es6 --declaration --declarationDir dist/types && rollup -c && npm run build:bundleXml -- --outDir dist",
-    "watch:bundle": "npm run build:bundleJsDev -- --watch",
+    "watch": "npm-run-all -p watch:*",
+    "watch:bundle": "npm run bundle:iife -- --watch",
     "watch:ts": "npm run build:js -- --watch",
-    "watch:xml": "node ../../tools/bundle_xml/watch_xml_templates.cjs"
+    "watch:xml": "node tools/bundle_xml/watch_xml_templates.cjs",
+    "build": "npm run bundle:odoo"
   },
   "browserslist": [
     "last 1 Chrome versions"
@@ -133,10 +131,5 @@
   },
   "publishConfig": {
     "tag": "alpha"
-  },
-  "workspaces": [
-    "packages/spreadsheet-demo",
-    "packages/spreadsheet-server",
-    "packages/spreadsheet-component"
-  ]
+  }
 }
