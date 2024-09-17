@@ -1,0 +1,27 @@
+{
+  "name": "@odoo/spreadsheet-server",
+  "version": "17.5.0-alpha.12",
+  "description": "Odoo Spreadsheet demo server",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/index.cjs"
+  },
+  "author": "Odoo",
+  "license": "LGPL-3.0-or-later",
+  "devDependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-form-data": "^2.0.19",
+    "express-ws": "^4.0.0",
+    "file-saver": "^2.0.5",
+    "fs": "^0.0.1-security",
+    "typescript": "^5.4.3"
+  },
+  "prettier": {
+    "printWidth": 100,
+    "xmlWhitespaceSensitivity": "ignore",
+    "bracketSameLine": true,
+    "xmlSelfClosingSpace": false
+  }
+}
