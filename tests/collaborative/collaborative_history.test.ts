@@ -335,7 +335,7 @@ describe("Collaborative local history", () => {
             row: 0,
             sheetId: "sheet1",
             zone: toZone("A1:A3"),
-            sortDirection: "ascending",
+            sortDirection: "asc",
           },
         ],
         serverRevisionId: "initial_revision",
