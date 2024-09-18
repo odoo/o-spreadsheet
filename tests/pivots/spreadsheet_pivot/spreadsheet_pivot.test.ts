@@ -729,6 +729,25 @@ describe("Spreadsheet Pivot", () => {
     ]);
   });
 
+  test("Pivot column headers are aligned left with their format", () => {
+    // prettier-ignore
+    const grid = {
+          A1: "Date",       B1: "Price", C1: "Active", D1: "=PIVOT(1)",
+          A2: "2024-12-28", B2: "10",    C2: "TRUE",
+          A3: "2024-12-29", B3: "20",    C3: "FALSE",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:C3", {
+      rows: [],
+      columns: [{ fieldName: "Date", granularity: "year" }, { fieldName: "Active" }],
+      measures: [{ id: "Price:sum", fieldName: "Price", aggregator: "sum" }],
+    });
+
+    expect(getEvaluatedCell(model, "E1")).toMatchObject({ value: 2024, format: "0* " });
+    expect(getEvaluatedCell(model, "E2")).toMatchObject({ value: "TRUE", format: "@* " });
+    expect(getEvaluatedCell(model, "F2")).toMatchObject({ value: "FALSE", format: "@* " });
+  });
+
   test("PIVOT.HEADER grand total", () => {
     const model = createModelWithPivot("A1:I5");
     updatePivot(model, "1", {
