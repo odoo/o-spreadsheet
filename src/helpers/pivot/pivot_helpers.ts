@@ -274,15 +274,23 @@ export function getFieldDisplayName(field: PivotDimension) {
   return field.displayName + (field.granularity ? ` (${ALL_PERIODS[field.granularity]})` : "");
 }
 
-export function addRowIndentToPivotHeader(
+export function addIndentAndAlignToPivotHeader(
   pivot: Pivot,
   domain: PivotDomain,
   functionResult: FunctionResultObject
 ): FunctionResultObject {
-  const { rowDomain } = domainToColRowDomain(pivot, domain);
-  if (rowDomain.length === 0) {
+  const { rowDomain, colDomain } = domainToColRowDomain(pivot, domain);
+  if (rowDomain.length === 0 && colDomain.length === 0) {
     return functionResult;
   }
+
+  if (rowDomain.length === 0 && colDomain.length > 0) {
+    return {
+      ...functionResult,
+      format: (functionResult.format || "@") + "* ",
+    };
+  }
+
   const indent = rowDomain.length - 1;
 
   const format = functionResult.format || "@";
