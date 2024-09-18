@@ -1,6 +1,7 @@
 import { CellComposerStore } from "../../../src/components/composer/composer/cell_composer_store";
 import { StandaloneComposerStore } from "../../../src/components/composer/standalone_composer/standalone_composer_store";
 import { createMeasureAutoComplete } from "../../../src/registries/auto_completes/pivot_dimension_auto_complete";
+import { createModelFromGrid } from "../../test_helpers/helpers";
 import { addPivot, createModelWithPivot, updatePivot } from "../../test_helpers/pivot_helpers";
 import { makeStoreWithModel } from "../../test_helpers/stores";
 
@@ -834,4 +835,37 @@ describe("spreadsheet pivot auto complete", () => {
     expect(composer.currentContent).toBe("=Stage");
     expect(composer.autocompleteProvider).toBeUndefined();
   });
+
+  test.each(["=add(1,2", "=add(1,2)", "=true", "=false"])(
+    "do not auto complete dimension after %s",
+    (content) => {
+      // prettier-ignore
+      const grid = {
+      A1: "Level 2",  B1: "This is true", C1: "This is false",  D1: "a",
+      A2: "Alice",    B2: "yes",          C2: "no",             D2: "ok",
+    };
+      const model = createModelFromGrid(grid);
+      addPivot(model, "A1:B2", {
+        measures: [
+          { id: "Level 2:count", fieldName: "Level 2", aggregator: "count" },
+          { id: "This is true:count", fieldName: "This is true", aggregator: "count" },
+          { id: "This is false:count", fieldName: "This is false", aggregator: "count" },
+          { id: "a:count", fieldName: "a", aggregator: "count" },
+        ],
+      });
+      const pivot = model.getters.getPivot("1");
+      const { store: composer } = makeStoreWithModel(model, StandaloneComposerStore, () => ({
+        content: "",
+        defaultRangeSheetId: model.getters.getActiveSheetId(),
+        onConfirm: () => {},
+        contextualAutocomplete: createMeasureAutoComplete(
+          pivot.definition,
+          pivot.getMeasure("a:count")
+        ),
+      }));
+      composer.startEdition();
+      composer.setCurrentContent(content);
+      expect(composer.autocompleteProvider).toBeUndefined();
+    }
+  );
 });

@@ -12,12 +12,7 @@ autoCompleteProviders.add("functions", {
       return [];
     }
     const searchTerm = tokenAtCursor.value;
-    const searchTermUpperCase = searchTerm.toUpperCase();
-    if (
-      !this.composer.currentContent.startsWith("=") ||
-      searchTermUpperCase === "TRUE" ||
-      searchTermUpperCase === "FALSE"
-    ) {
+    if (!this.composer.currentContent.startsWith("=")) {
       return [];
     }
     const values = Object.entries(functionRegistry.content)

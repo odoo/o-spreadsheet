@@ -577,10 +577,17 @@ export abstract class AbstractComposerStore extends SpreadsheetStore {
     const tokenAtCursor = content.startsWith("=")
       ? this.tokenAtCursor
       : { type: "STRING", value: content };
-    if (this.editionMode === "inactive" || !tokenAtCursor) {
+    if (
+      this.editionMode === "inactive" ||
+      !tokenAtCursor ||
+      ["TRUE", "FALSE"].includes(tokenAtCursor.value.toUpperCase()) ||
+      !(
+        this.canStartComposerRangeSelection() ||
+        ["SYMBOL", "STRING", "UNKNOWN"].includes(tokenAtCursor.type)
+      )
+    ) {
       return;
     }
-
     const thisCtx = { composer: this, getters: this.getters };
     const providersDefinitions = this.getAutoCompleteProviders();
     const providers = providersDefinitions
