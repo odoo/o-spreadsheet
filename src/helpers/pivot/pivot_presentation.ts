@@ -48,7 +48,7 @@ type DomainGroups<T> = { [colDomain: string]: { [rowDomain: string]: T } };
  * to all pivots, regardless of the specific pivot implementation.
  * Examples of such features include calculated measures or "Show value as" options.
  */
-export function withPivotPresentationLayer(PivotClass: PivotUIConstructor) {
+export default function (PivotClass: PivotUIConstructor) {
   class PivotPresentationLayer extends PivotClass {
     private getters: Getters;
     private cache: Record<string, FunctionResultObject> = {};

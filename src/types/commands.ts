@@ -588,7 +588,7 @@ export interface SetDecimalCommand extends TargetDependentCommand {
   step: SetDecimalStep;
 }
 
-interface SetContextualFormatCommand extends TargetDependentCommand {
+export interface SetContextualFormatCommand extends TargetDependentCommand {
   type: "SET_FORMATTING_WITH_PIVOT";
   format: Format;
 }
