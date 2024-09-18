@@ -23,7 +23,8 @@
     "check-formatting": "prettier . --check",
     "prepare": "husky install",
     "unzipXlsx": "node tools/bundle_xlsx/unzip_xlsx_demo.cjs",
-    "zipXlsx": "node tools/bundle_xlsx/zip_xlsx_demo.cjs"
+    "zipXlsx": "node tools/bundle_xlsx/zip_xlsx_demo.cjs",
+    "build": "npm run bundle:odoo --workspace=packages/spreadsheet-component"
   },
   "browserslist": [
     "last 1 Chrome versions"
@@ -52,12 +53,10 @@
     "@types/jest": "^27.0.1",
     "@types/node": "^13.13.23",
     "@types/rbush": "^3.0.3",
-    "babel-eslint": "^10.1.0",
     "body-parser": "^1.19.0",
     "chart.js": "4.4.1",
     "chartjs-adapter-luxon": "^1.3.1",
     "cors": "^2.8.5",
-    "eslint": "^6.8.0",
     "express": "^4.17.1",
     "express-form-data": "^2.0.19",
     "express-ws": "^4.0.0",
