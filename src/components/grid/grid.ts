@@ -53,6 +53,7 @@ import {
   Ref,
   SpreadsheetChildEnv,
   Table,
+  UID,
 } from "../../types/index";
 import { Autofill } from "../autofill/autofill";
 import { ClientTag } from "../collaborative_client_tag/collaborative_client_tag";
@@ -608,7 +609,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
       this.env.model.dispatch("COPY");
     }
     const content = this.env.model.getters.getClipboardContent();
-    await this.env.clipboard.write(content);
+    // await this.env.clipboard.write(content);
+    for (const type in content) {
+      ev.clipboardData?.setData(type, content[type]);
+    }
     ev.preventDefault();
   }
 
@@ -618,7 +622,42 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     }
 
     ev.preventDefault();
+    const target = this.env.model.getters.getSelectedZones();
+    const isCutOperation = this.env.model.getters.isCutOperation();
+    const clipboardId = await this.getClipboardId(ev);
+    if (this.env.model.getters.getClipboardId() === clipboardId) {
+      interactivePaste(this.env, target);
+      if (isCutOperation) {
+        await this.env.clipboard.write({ [ClipboardMIMEType.PlainText]: "" });
+      }
+      return;
+    }
+    const clipboard = await this.env.clipboard.read();
+    if (clipboard.status !== "ok") {
+      return;
+    }
 
+    interactivePasteFromOS(this.env, target, clipboard.content);
+    if (isCutOperation) {
+      await this.env.clipboard.write({ [ClipboardMIMEType.PlainText]: "" });
+    }
+  }
+
+  async getClipboardId(ev: ClipboardEvent): Promise<UID | undefined | null> {
+    const clipboardData = ev.clipboardData;
+    // read clipboardData from the event because it doesn't require any additional permission.
+    // fallback on the os clipboard
+    if (clipboardData) {
+      // not supported by all browsers
+      const htmlContent = clipboardData.getData(ClipboardMIMEType.Html);
+      const htmlDocument = new DOMParser().parseFromString(
+        htmlContent ?? "<div></div>",
+        "text/xml"
+      );
+      const clipboardId = htmlDocument.querySelector("div")?.getAttribute("data-clipboard-id");
+      debugger;
+      return clipboardId;
+    }
     const clipboard = await this.env.clipboard.read();
     if (clipboard.status !== "ok") {
       return;
@@ -629,21 +668,10 @@ export class Grid extends Component<Props, SpreadsheetChildEnv> {
     );
     const osClipboardSpreadsheetContent = clipboard.content[ClipboardMIMEType.OSpreadsheet] || "{}";
 
-    const target = this.env.model.getters.getSelectedZones();
-    const isCutOperation = this.env.model.getters.isCutOperation();
-
     const clipboardId =
       JSON.parse(osClipboardSpreadsheetContent).clipboardId ??
       htmlDocument.querySelector("div")?.getAttribute("data-clipboard-id");
-
-    if (this.env.model.getters.getClipboardId() === clipboardId) {
-      interactivePaste(this.env, target);
-    } else {
-      interactivePasteFromOS(this.env, target, clipboard.content);
-    }
-    if (isCutOperation) {
-      await this.env.clipboard.write({ [ClipboardMIMEType.PlainText]: "" });
-    }
+    return clipboardId;
   }
 
   private clearFormatting() {

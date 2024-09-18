@@ -1430,6 +1430,7 @@ describe("Copy paste keyboard shortcut", () => {
     setCellContent(model, "A1", "things");
     selectCell(model, "A1");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
+    clipboardData.content = model.getters.getClipboardContent();
     const clipboard = await parent.env.clipboard.read!();
     const clipboardContent = "content" in clipboard ? clipboard.content : {};
     expect(clipboardContent).toMatchObject({
@@ -1448,6 +1449,7 @@ describe("Copy paste keyboard shortcut", () => {
     setStyle(model, "A1", { bold: true });
     selectCell(model, "A1");
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
+    clipboardData.content = model.getters.getClipboardContent();
     setCellContent(model, "A1", "new content");
     setStyle(model, "A1", { bold: false });
     selectCell(model, "A2");
@@ -1607,6 +1609,7 @@ describe("Copy paste keyboard shortcut", () => {
     createChart(model, { type: "bar" }, "chartId");
     model.dispatch("SELECT_FIGURE", { id: "chartId" });
     document.body.dispatchEvent(getClipboardEvent("copy", clipboardData));
+    clipboardData.content = model.getters.getClipboardContent();
     const clipboard = await parent.env.clipboard.read!();
     const clipboardContent = "content" in clipboard ? clipboard.content : {};
     expect(clipboardContent).toMatchObject({
@@ -1621,6 +1624,7 @@ describe("Copy paste keyboard shortcut", () => {
     createChart(model, { type: "bar" }, "chartId");
     model.dispatch("SELECT_FIGURE", { id: "chartId" });
     document.body.dispatchEvent(getClipboardEvent("cut", clipboardData));
+    clipboardData.content = model.getters.getClipboardContent();
     const clipboard = await parent.env.clipboard.read!();
     const clipboardContent = "content" in clipboard ? clipboard.content : {};
     expect(clipboardContent).toMatchObject({
