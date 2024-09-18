@@ -3146,14 +3146,15 @@ describe("trending line", () => {
     const runtime = model.getters.getChartRuntime("1") as any;
     const step = (6 - 1) / 25;
     const data = runtime.chartJsConfig.data.datasets[1].data;
-    for (let i = 0; i < data.lenght; i++) {
-      const value = data.lenght;
+    for (let i = 0; i < data.length; i++) {
+      const value = data[i];
       const expectedValue = Math.pow(1 + i * step, 2);
-      expect(value).toEqual(expectedValue);
+      expect(value).toBeCloseTo(expectedValue);
     }
   });
 
   test("trend line works with datetime values as labels", () => {
+    mockChart();
     setFormat(model, "C1:C5", "m/d/yyyy");
     const config = getChartConfiguration(model, "1");
     expect(config.options.scales.x1).toMatchObject({
@@ -3163,12 +3164,12 @@ describe("trending line", () => {
       labels: range(0, 26).map((v) => v.toString()),
     });
     const runtime = model.getters.getChartRuntime("1") as any;
-    const step = (5 - 1) / 25;
+    const step = (6 - 1) / 25;
     const data = runtime.chartJsConfig.data.datasets[1].data;
-    for (let i = 0; i < data.lenght; i++) {
-      const value = data.lenght;
+    for (let i = 0; i < data.length; i++) {
+      const value = data[i];
       const expectedValue = Math.pow(1 + i * step, 2);
-      expect(value).toEqual(expectedValue);
+      expect(value).toBeCloseTo(expectedValue);
     }
   });
 
@@ -3181,22 +3182,23 @@ describe("trending line", () => {
       labels: range(0, 26).map((v) => v.toString()),
     });
     const runtime = model.getters.getChartRuntime("1") as any;
-    const step = (5 - 1) / 25;
+    const step = (6 - 1) / 25;
     const data = runtime.chartJsConfig.data.datasets[1].data;
-    for (let i = 0; i < data.lenght; i++) {
-      const value = data.lenght;
+    for (let i = 0; i < data.length; i++) {
+      const value = data[i];
       const expectedValue = Math.pow(1 + i * step, 2);
-      expect(value).toEqual(expectedValue);
+      expect(value).toBeCloseTo(expectedValue);
     }
   });
 
   test("empty labels are correctly predicted", () => {
+    // prettier-ignore
     setGrid(model, {
-      C6: "6",
-      C7: "7",
-      C8: "8",
-      C9: "9",
-      C10: "10",
+      B6:  "", C6:  "6",
+      B7:  "", C7:  "7",
+      B8:  "", C8:  "8",
+      B9:  "", C9:  "9",
+      B10: "", C10: "10",
     });
     updateChart(model, "1", {
       dataSets: [{ dataRange: "B1:B10", trend: { display: true, type: "polynomial", order: 2 } }],
@@ -3210,12 +3212,12 @@ describe("trending line", () => {
       labels: range(0, 51).map((v) => v.toString()),
     });
     const runtime = model.getters.getChartRuntime("1") as any;
-    const step = (10 - 1) / 25;
+    const step = (10 - 1) / 50;
     const data = runtime.chartJsConfig.data.datasets[1].data;
-    for (let i = 0; i < data.lenght; i++) {
-      const value = data.lenght;
+    for (let i = 0; i < data.length; i++) {
+      const value = data[i];
       const expectedValue = Math.pow(1 + i * step, 2);
-      expect(value).toEqual(expectedValue);
+      expect(value).toBeCloseTo(expectedValue);
     }
   });
 

@@ -1,7 +1,7 @@
 import { ChartDataset, LegendOptions } from "chart.js";
 import { DeepPartial } from "chart.js/dist/types/utils";
 import { BACKGROUND_CHART_COLOR, LINE_FILL_TRANSPARENCY } from "../../../constants";
-import { toJsDate, toNumber } from "../../../functions/helpers";
+import { toNumber } from "../../../functions/helpers";
 import { Getters, Locale, Range } from "../../../types";
 import {
   AxisType,
@@ -165,8 +165,8 @@ export function getTrendDatasetForLineChart(
       break;
     case "time":
       for (const point of dataset.data) {
-        const date = toJsDate({ value: point.x }, locale).getTime();
-        if (typeof point.y === "number") {
+        const date = toNumber({ value: point.x }, locale);
+        if (point.y !== null) {
           filteredValues.push(point.y);
           filteredLabels.push(date);
         }
