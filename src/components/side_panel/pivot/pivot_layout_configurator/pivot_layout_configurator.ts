@@ -7,7 +7,7 @@ import {
 } from "../../../../helpers/pivot/pivot_helpers";
 import { PivotRuntimeDefinition } from "../../../../helpers/pivot/pivot_runtime_definition";
 import { Store, useStore } from "../../../../store_engine";
-import { SpreadsheetChildEnv, UID } from "../../../../types";
+import { SortDirection, SpreadsheetChildEnv, UID } from "../../../../types";
 import {
   Aggregator,
   Granularity,
@@ -274,7 +274,7 @@ export class PivotLayoutConfigurator extends Component<Props, SpreadsheetChildEn
     });
   }
 
-  updateOrder(updateDimension: PivotDimensionType, order?: "asc" | "desc") {
+  updateOrder(updateDimension: PivotDimensionType, order?: SortDirection) {
     const { rows, columns } = this.props.definition;
     this.props.onDimensionsUpdated({
       rows: rows.map((row) => {

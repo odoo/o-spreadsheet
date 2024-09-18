@@ -23,7 +23,7 @@ const SORT_TYPES: CellValueType[] = [
 ];
 
 export function cellsSortingCriterion(sortingOrder: string) {
-  const inverse = sortingOrder === "ascending" ? 1 : -1;
+  const inverse = sortingOrder === "asc" ? 1 : -1;
   return (
     left: { type: CellValueType; value: CellValue },
     right: { type: CellValueType; value: CellValue }

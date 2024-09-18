@@ -12,6 +12,7 @@ import {
   PivotMeasure,
   PivotMeasureDisplay,
   PivotValueCell,
+  SortDirection,
   isMatrix,
 } from "../../types";
 import { CellErrorType, NotAvailableError } from "../../types/errors";
@@ -495,7 +496,7 @@ export default function (PivotClass: PivotUIConstructor) {
       measure: PivotMeasure,
       domain: PivotDomain,
       display: PivotMeasureDisplay,
-      order: "asc" | "desc"
+      order: SortDirection
     ): FunctionResultObject {
       const { fieldNameWithGranularity } = display;
       if (!fieldNameWithGranularity) {
@@ -527,7 +528,7 @@ export default function (PivotClass: PivotUIConstructor) {
     private computeRank(
       measure: PivotMeasure,
       fieldNameWithGranularity: string,
-      order: "asc" | "desc"
+      order: SortDirection
     ): DomainGroups<number> {
       const ranking: DomainGroups<number> = {};
       const mainDimension = getFieldDimensionType(this, fieldNameWithGranularity);

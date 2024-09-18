@@ -10,6 +10,7 @@ import {
   Locale,
   Matrix,
   Maybe,
+  SortDirection,
   isMatrix,
 } from "../types";
 import { EvaluationError, NotAvailableError } from "../types/errors";
@@ -32,11 +33,11 @@ function sortMatrix(
       )
     );
   }
-  const sortingOrders: ("ascending" | "descending")[] = [];
+  const sortingOrders: SortDirection[] = [];
   const sortColumns: Matrix<CellValue> = [];
   const nRows = matrix.length;
   for (let i = 0; i < criteria.length; i += 2) {
-    sortingOrders.push(toBoolean(toScalar(criteria[i + 1])?.value) ? "ascending" : "descending");
+    sortingOrders.push(toBoolean(toScalar(criteria[i + 1])?.value) ? "asc" : "desc");
     const sortColumn = criteria[i];
     if (isMatrix(sortColumn) && (sortColumn.length > 1 || sortColumn[0].length > 1)) {
       assert(
@@ -61,12 +62,12 @@ function sortMatrix(
   if (sortColumns.length === 0) {
     for (let i = 0; i < matrix[0].length; i++) {
       sortColumns.push(matrix.map((row) => row[i].value));
-      sortingOrders.push("ascending");
+      sortingOrders.push("asc");
     }
   }
   const sortingCriteria = {
-    descending: cellsSortingCriterion("descending"),
-    ascending: cellsSortingCriterion("ascending"),
+    desc: cellsSortingCriterion("desc"),
+    asc: cellsSortingCriterion("asc"),
   };
   const indexes = range(0, matrix.length);
   indexes.sort((a, b) => {
