@@ -31,29 +31,22 @@ export default (commandLineArgs) => {
   let plugins = [nodeResolve()];
   let config = {};
 
-  if (commandLineArgs.configDev || commandLineArgs.configDist) {
+  if (commandLineArgs.format) {
     // Only build one version to improve speed
-    input = "build/js/index.js";
-    output = [
-      {
-        name: "o_spreadsheet",
-        extend: true,
-        outro,
-        banner: bundle.jsBanner(),
-        globals: { "@odoo/owl": "owl" },
-      },
-    ];
-    if (commandLineArgs.configDev) {
-      output[0].file = `build/o_spreadsheet.dev.js`;
-      output[0].format = `iife`;
-    } else {
-      output[0].file = `build/o_spreadsheet.js`;
-      output[0].format = `esm`;
-    }
     config = {
-      input,
+      input: "build/js/index.js",
       external: ["@odoo/owl"],
-      output,
+      output: [
+        {
+          name: "o_spreadsheet",
+          extend: true,
+          outro,
+          banner: bundle.jsBanner(),
+          globals: { "@odoo/owl": "owl" },
+          file: `build/o_spreadsheet.${commandLineArgs.format}.js`,
+          format: commandLineArgs.format,
+        },
+      ],
       plugins,
     };
   } else {
