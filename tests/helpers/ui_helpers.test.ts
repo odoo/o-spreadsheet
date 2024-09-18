@@ -391,7 +391,7 @@ describe("UI Helpers", () => {
       const zone = toZone("A2:A3");
       anchor = toCartesian("A2");
       const env = makeTestEnv({ model, askConfirmation });
-      interactiveSortSelection(env, sheetId, anchor, zone, "descending");
+      interactiveSortSelection(env, sheetId, anchor, zone, "desc");
       expect(askConfirmation).toHaveBeenCalled();
     });
     test("Sort without adjacent values to the selection does not ask for confirmation", () => {
@@ -400,7 +400,7 @@ describe("UI Helpers", () => {
       const zone = toZone("A2:A3");
       const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
       const env = makeTestEnv({ model, askConfirmation });
-      interactiveSortSelection(env, sheetId, anchor, contiguousZone, "descending");
+      interactiveSortSelection(env, sheetId, anchor, contiguousZone, "desc");
       expect(askConfirmation).not.toHaveBeenCalled();
     });
 
@@ -410,7 +410,7 @@ describe("UI Helpers", () => {
       const zone = toZone("A3:A4");
       anchor = toCartesian("A3");
       const env = makeTestEnv({ model, askConfirmation });
-      interactiveSortSelection(env, sheetId, anchor, zone, "descending");
+      interactiveSortSelection(env, sheetId, anchor, zone, "desc");
       expect(getCellsObject(model, sheetId)).toMatchObject({
         A1: { content: "Zulu" },
         A2: { content: "Tango" },
@@ -430,7 +430,7 @@ describe("UI Helpers", () => {
       const zone = toZone("A3:A4");
       anchor = toCartesian("A3");
       const env = makeTestEnv({ model, askConfirmation });
-      interactiveSortSelection(env, sheetId, anchor, zone, "descending");
+      interactiveSortSelection(env, sheetId, anchor, zone, "desc");
       expect(getCellsObject(model, sheetId)).toMatchObject({
         A1: { content: "Alpha" },
         A2: { content: "Tango" },
@@ -451,7 +451,7 @@ describe("UI Helpers", () => {
     model = createModelFromGrid({ A1: "9", A2: "8", A3: "=CHOOSECOLS(A1:A2, 1)" });
     const env = makeTestEnv({ model, raiseError });
 
-    interactiveSortSelection(env, sheetId, toCartesian("A1"), toZone("A1:A4"), "ascending");
+    interactiveSortSelection(env, sheetId, toCartesian("A1"), toZone("A1:A4"), "asc");
     expect(raiseError).toHaveBeenCalledWith("Cannot sort a zone with array formulas.");
   });
 
@@ -502,7 +502,7 @@ describe("UI Helpers", () => {
       const contiguousZone = model.getters.getContiguousZone(sheetId, zone);
       anchor = toCartesian("B2");
       const env = makeTestEnv({ model, raiseError });
-      interactiveSortSelection(env, sheetId, anchor, contiguousZone, "ascending");
+      interactiveSortSelection(env, sheetId, anchor, contiguousZone, "asc");
       expect(raiseError).toHaveBeenCalled();
       expect(model.getters.getSelection()).toEqual({
         anchor: { cell: anchor, zone: contiguousZone },
@@ -513,7 +513,7 @@ describe("UI Helpers", () => {
         sort(model, {
           zone: zoneToXc(contiguousZone),
           anchor: "B2",
-          direction: "ascending",
+          direction: "asc",
         })
       ).toBeCancelledBecause(CommandResult.InvalidSortZone);
     });
@@ -529,7 +529,7 @@ describe("UI Helpers", () => {
 
       const anchor = toCartesian("B2");
       const env = makeTestEnv({ model, raiseError });
-      interactiveSortSelection(env, sheetId, anchor, contiguousZone, "ascending");
+      interactiveSortSelection(env, sheetId, anchor, contiguousZone, "asc");
       expect(raiseError).toHaveBeenCalled();
       expect(model.getters.getSelection()).toEqual({
         anchor: { cell: anchor, zone: contiguousZone },
@@ -540,7 +540,7 @@ describe("UI Helpers", () => {
         sort(model, {
           zone: zoneToXc(contiguousZone),
           anchor: "B2",
-          direction: "ascending",
+          direction: "asc",
         })
       ).toBeCancelledBecause(CommandResult.InvalidSortZone);
     });

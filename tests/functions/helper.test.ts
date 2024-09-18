@@ -1,6 +1,6 @@
 import { dichotomicSearch as dichotomicSearchUniteData } from "../../src/functions/helpers";
 import { isValidLocale } from "../../src/helpers/locale";
-import { CellValue, DEFAULT_LOCALE } from "../../src/types";
+import { CellValue, DEFAULT_LOCALE, SortDirection } from "../../src/types";
 
 function getItem(arr: any[], i: number) {
   return arr[i];
@@ -12,7 +12,7 @@ function dichotomicSearch<T>(
   data: T,
   target: CellValue,
   mode: "nextGreater" | "nextSmaller" | "strict",
-  sortOrder: "asc" | "desc",
+  sortOrder: SortDirection,
   rangeLength: number,
   getValueInData: (range: T, index: number) => CellValue | undefined
 ): number {

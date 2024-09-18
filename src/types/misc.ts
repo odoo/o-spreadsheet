@@ -397,3 +397,5 @@ export type EditionMode =
   | "editing"
   | "selecting" // should tell if you need to underline the current range selected.
   | "inactive";
+
+export type SortDirection = "asc" | "desc";

@@ -3,10 +3,10 @@
     <div class="o-filter-menu d-flex flex-column bg-white" t-on-wheel.stop="">
       <t t-if="isSortable">
         <div>
-          <div class="o-filter-menu-item" t-on-click="() => this.sortFilterZone('ascending')">
+          <div class="o-filter-menu-item" t-on-click="() => this.sortFilterZone('asc')">
             Sort ascending (A ⟶ Z)
           </div>
-          <div class="o-filter-menu-item" t-on-click="() => this.sortFilterZone('descending')">
+          <div class="o-filter-menu-item" t-on-click="() => this.sortFilterZone('desc')">
             Sort descending (Z ⟶ A)
           </div>
         </div>

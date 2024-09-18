@@ -1387,7 +1387,7 @@ describe("Menu Item actions", () => {
       sheetId: env.model.getters.getActiveSheetId(),
       ...anchor.cell,
       zone: zones[0],
-      sortDirection: "ascending",
+      sortDirection: "asc",
     });
   });
 
@@ -1398,7 +1398,7 @@ describe("Menu Item actions", () => {
       sheetId: env.model.getters.getActiveSheetId(),
       ...anchor.cell,
       zone: zones[0],
-      sortDirection: "descending",
+      sortDirection: "desc",
     });
   });
 
