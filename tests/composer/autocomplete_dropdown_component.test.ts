@@ -336,6 +336,24 @@ describe("Functions autocomplete", () => {
       expect(fixture.querySelector(".o-formula-assistant-container")).toBeTruthy();
       expect(fixture.querySelector("#formula-assistant-details")?.className).not.toContain("show");
     });
+
+    test("cannot auto-complete when it is closed", async () => {
+      await typeInComposer("=SU");
+      expect(document.activeElement).toBe(composerEl);
+      expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(1);
+
+      // hide the auto-complete
+      await click(fixture, ".fa-times-circle");
+      expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(0);
+      await keyDown({ key: "Enter" });
+      expect(composerStore.currentContent).toBe("=SU");
+
+      // show it again
+      await click(fixture, ".fa-question-circle");
+      expect(fixture.querySelectorAll(".o-autocomplete-value")).toHaveLength(1);
+      await keyDown({ key: "Enter" });
+      expect(composerStore.currentContent).toBe("=SUM(");
+    });
   });
 
   describe("autocomplete functions SUM IF", () => {

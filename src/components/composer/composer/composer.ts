@@ -789,7 +789,7 @@ export class Composer extends Component<CellComposerProps, SpreadsheetChildEnv> 
   }
 
   private autoComplete(value: string) {
-    if (!value) {
+    if (!value || this.assistant.forcedClosed) {
       return;
     }
     this.autoCompleteState.provider?.selectProposal(value);
