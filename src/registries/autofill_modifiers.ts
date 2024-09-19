@@ -1,3 +1,5 @@
+import { toJsDate } from "../functions/helpers";
+import { jsDateToNumber } from "../helpers";
 import { evaluateLiteral } from "../helpers/cells";
 import { formatValue } from "../helpers/format/format";
 import {
@@ -10,7 +12,7 @@ import {
   IncrementModifier,
   LiteralCell,
 } from "../types/index";
-import { AlphanumericIncrementModifier } from "./../types/autofill";
+import { AlphanumericIncrementModifier, DateIncrementModifier } from "./../types/autofill";
 import { Registry } from "./registry";
 
 /**
@@ -52,6 +54,28 @@ autofillModifiersRegistry
           content,
         },
         tooltip: content ? { props: { content: tooltipValue } } : undefined,
+      };
+    },
+  })
+  .add("DATE_INCREMENT_MODIFIER", {
+    apply: (rule: DateIncrementModifier, data: AutofillData, getters: Getters) => {
+      const date = toJsDate(rule.current, getters.getLocale());
+      date.setFullYear(date.getFullYear() + rule.increment.years || 0);
+      date.setMonth(date.getMonth() + rule.increment.months || 0);
+      date.setDate(date.getDate() + rule.increment.days || 0);
+
+      const value = jsDateToNumber(date);
+      rule.current = value;
+      const locale = getters.getLocale();
+      const tooltipValue = formatValue(value, { format: data.cell?.format, locale });
+      return {
+        cellData: {
+          border: data.border,
+          style: data.cell && data.cell.style,
+          format: data.cell && data.cell.format,
+          content: value.toString(),
+        },
+        tooltip: value ? { props: { content: tooltipValue } } : undefined,
       };
     },
   })
