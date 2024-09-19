@@ -677,8 +677,8 @@ describe("Spreadsheet Pivot", () => {
 
     // prettier-ignore
     expect(getEvaluatedGrid(model, "C1:H2")).toEqual([
-      ["(#1) Pivot", "4/14/1995", "11/28/2024", "12/28/2024", "Total", ""],
-      ["",           "Price",     "Price",      "Price",      "Price", ""],
+      ["(#1) Pivot", "14 Apr 1995", "28 Nov 2024", "28 Dec 2024", "Total", ""],
+      ["",           "Price",       "Price",       "Price",      "Price", ""],
     ]);
 
     setCellContent(model, "C1", "=PIVOT(1,,,,0)");
@@ -691,8 +691,8 @@ describe("Spreadsheet Pivot", () => {
     setCellContent(model, "C1", "=PIVOT(1,,,,1)");
     // prettier-ignore
     expect(getEvaluatedGrid(model, "C1:E2")).toEqual([
-      ["(#1) Pivot", "4/14/1995", ""],
-      ["",           "Price",      ""],
+      ["(#1) Pivot", "14 Apr 1995", ""],
+      ["",           "Price",       ""],
     ]);
   });
 
@@ -720,11 +720,11 @@ describe("Spreadsheet Pivot", () => {
       { value: "", format: undefined },
       { value: 1995, format: "0* " },
       { value: "Q2", format: "    @* " },
-      { value: 34803, format: "        m/d/yyyy* " },
+      { value: 34803, format: "        dd mmm yyyy* " },
       { value: 2024, format: "0* " },
       { value: "Q4", format: "    @* " },
-      { value: 45624, format: "        m/d/yyyy* " },
-      { value: 45654, format: "        m/d/yyyy* " },
+      { value: 45624, format: "        dd mmm yyyy* " },
+      { value: 45654, format: "        dd mmm yyyy* " },
       { value: "Total", format: undefined },
     ]);
   });
@@ -1589,7 +1589,7 @@ describe("Spreadsheet Pivot", () => {
     });
     setCellContent(model, "A27", '=PIVOT.HEADER(1, "Date:day", DATE(2024, 12, 31))');
     expect(getEvaluatedCell(model, "A27").value).toBe(45657);
-    expect(getEvaluatedCell(model, "A27").format).toBe("m/d/yyyy");
+    expect(getEvaluatedCell(model, "A27").format).toBe("dd mmm yyyy");
 
     setCellContent(model, "A28", '=PIVOT.HEADER(1, "Date:day", "2024-12-31")');
     expect(getEvaluatedCell(model, "A28").value).toBe(45657);
@@ -1746,8 +1746,8 @@ describe("Spreadsheet Pivot", () => {
 
     // prettier-ignore
     expect(getEvaluatedGrid(model, "C1:I2")).toEqual([
-      ["(#1) Pivot", "11/28/2024", "",      "12/28/2024", "",      "Total", ""],
-      ["",           "Price",      "Price", "Price",      "Price", "Price", "Price"],
+      ["(#1) Pivot", "28 Nov 2024", "",      "28 Dec 2024", "",      "Total", ""],
+      ["",           "Price",       "Price", "Price",       "Price", "Price", "Price"],
     ]);
   });
 
@@ -1770,8 +1770,8 @@ describe("Spreadsheet Pivot", () => {
 
     // prettier-ignore
     expect(getEvaluatedGrid(model, "C1:I2")).toEqual([
-      ["(#1) Pivot", "11/28/2024", "",         "12/28/2024", "",         "Total", ""],
-      ["",           "Price",      "My price", "Price",      "My price", "Price", "My price"],
+      ["(#1) Pivot", "28 Nov 2024", "",         "28 Dec 2024", "",         "Total", ""],
+      ["",           "Price",       "My price", "Price",       "My price", "Price", "My price"],
     ]);
   });
 

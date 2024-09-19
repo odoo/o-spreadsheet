@@ -44,7 +44,7 @@ const dayAdapter: PivotTimeAdapterNotNull<number> = {
   toValueAndFormat(normalizedValue, locale) {
     return {
       value: toNumber(normalizedValue, DEFAULT_LOCALE),
-      format: (locale ?? DEFAULT_LOCALE).dateFormat,
+      format: "dd mmm yyyy",
     };
   },
   toFunctionValue(normalizedValue) {

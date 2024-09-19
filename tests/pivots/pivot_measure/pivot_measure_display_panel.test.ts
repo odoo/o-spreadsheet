@@ -188,7 +188,7 @@ describe("Standalone side panel tests", () => {
 
     await click(fixture, '.o-pivot-measure-display-field input[value="FieldB:day"]');
     expect(fixture.querySelectorAll(".o-pivot-measure-display-value label")[2]).toHaveText(
-      "1/1/2021"
+      "01 Jan 2021"
     );
   });
 
