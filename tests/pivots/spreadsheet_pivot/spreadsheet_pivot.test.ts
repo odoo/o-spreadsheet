@@ -2100,4 +2100,29 @@ describe("Spreadsheet arguments parsing", () => {
       ["Total",      "", ""],
     ]);
   });
+
+  test("Column headers are correct when hiding a measure", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Price",      B1: "Tax",    C1: "Salesman",
+      A2: "10",         B2: "2",      C2: "Alice",
+      A3: "20",         B3: "4",      C3: "Bob",
+      A5: "=PIVOT(1)",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:C3", {
+      rows: [],
+      columns: [{ fieldName: "Salesman" }],
+      measures: [
+        { id: "Price:sum", fieldName: "Price", aggregator: "sum" },
+        { id: "Tax:sum", fieldName: "Tax", aggregator: "sum", isHidden: true },
+      ],
+    });
+    // prettier-ignore
+    expect(getEvaluatedGrid(model, "A5:D7")).toEqual([
+      ["(#1) Pivot",  "Alice",  "Bob",   "Total"],
+      ["",            "Price",  "Price", "Price"],
+      ["Total",       "10",     "20",    "30"],
+    ]);
+  });
 });
