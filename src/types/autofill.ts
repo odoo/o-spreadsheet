@@ -26,6 +26,16 @@ export interface AlphanumericIncrementModifier {
   numberPostfixLength: number; // the length of the number post fix string, e.g. "0001" is four but "1" is one
 }
 
+export interface DateIncrementModifier {
+  type: "DATE_INCREMENT_MODIFIER";
+  current: number;
+  increment: {
+    years: number;
+    months: number;
+    days: number;
+  };
+}
+
 export interface CopyModifier {
   type: "COPY_MODIFIER";
 }
@@ -40,7 +50,8 @@ export type AutofillModifier =
   | IncrementModifier
   | AlphanumericIncrementModifier
   | CopyModifier
-  | FormulaModifier;
+  | FormulaModifier
+  | DateIncrementModifier;
 
 export interface Tooltip {
   props: any;
