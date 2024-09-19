@@ -21,8 +21,9 @@ export function dataEntriesToSpreadsheetPivotTable(
   dataEntries: DataEntries,
   definition: SpreadsheetPivotRuntimeDefinition
 ) {
+  const measureIds = definition.measures.filter((measure) => !measure.isHidden).map((m) => m.id);
   const columnsTree = dataEntriesToColumnsTree(dataEntries, definition.columns, 0);
-  computeWidthOfColumnsNodes(columnsTree, definition.measures.length);
+  computeWidthOfColumnsNodes(columnsTree, measureIds.length);
   const cols = columnsTreeToColumns(columnsTree, definition);
 
   const rows = dataEntriesToRows(dataEntries, 0, definition.rows, [], []);
@@ -33,7 +34,6 @@ export function dataEntriesToSpreadsheetPivotTable(
     indent: 0,
   });
 
-  const measureIds = definition.measures.filter((measure) => !measure.isHidden).map((m) => m.id);
   const fieldsType: Record<string, string> = {};
   for (const columns of definition.columns) {
     fieldsType[columns.fieldName] = columns.type;
