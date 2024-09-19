@@ -218,14 +218,150 @@ describe("Autofill", () => {
       expect(getCellContent(model, "A6")).toBe("6");
     });
 
-    test("Autofill dates", () => {
-      setCellContent(model, "A1", "3/3/2003");
-      setCellContent(model, "A2", "3/4/2003");
-      autofill("A1:A2", "A6");
-      expect(getCellText(model, "A3")).toBe("3/5/2003");
-      expect(getCellText(model, "A4")).toBe("3/6/2003");
-      expect(getCellText(model, "A5")).toBe("3/7/2003");
-      expect(getCellText(model, "A6")).toBe("3/8/2003");
+    describe("Autofill dates", () => {
+      test("consecutive dates", () => {
+        setCellContent(model, "A1", "3/28/2003");
+        setCellContent(model, "A2", "3/29/2003");
+        setCellContent(model, "A3", "3/30/2003");
+        autofill("A1:A3", "A6");
+        expect(getCellText(model, "A4")).toBe("3/31/2003");
+        expect(getCellText(model, "A5")).toBe("4/1/2003");
+        expect(getCellText(model, "A6")).toBe("4/2/2003");
+      });
+
+      test("Descending dates", () => {
+        setCellContent(model, "A1", "3/4/2003");
+        setCellContent(model, "A2", "3/3/2003");
+        autofill("A1:A2", "A5");
+        expect(getCellText(model, "A3")).toBe("3/2/2003");
+        expect(getCellText(model, "A4")).toBe("3/1/2003");
+        expect(getCellText(model, "A5")).toBe("2/28/2003");
+      });
+
+      test("Autofill upwards consecutive dates", () => {
+        setCellContent(model, "A4", "3/31/2003");
+        setCellContent(model, "A5", "4/1/2003");
+        setCellContent(model, "A6", "4/2/2003");
+        autofill("A4:A6", "A1");
+        expect(getCellText(model, "A1")).toBe("3/28/2003");
+        expect(getCellText(model, "A2")).toBe("3/29/2003");
+        expect(getCellText(model, "A3")).toBe("3/30/2003");
+      });
+
+      test("dates with consistent day gap", () => {
+        setCellContent(model, "A1", "4/21/2003");
+        setCellContent(model, "A2", "4/23/2003");
+        setCellContent(model, "A3", "4/25/2003");
+        autofill("A1:A3", "A7");
+        expect(getCellText(model, "A4")).toBe("4/27/2003");
+        expect(getCellText(model, "A5")).toBe("4/29/2003");
+        expect(getCellText(model, "A6")).toBe("5/1/2003");
+        expect(getCellText(model, "A7")).toBe("5/3/2003");
+      });
+
+      test("dates with consistent month gap", () => {
+        setCellContent(model, "A1", "3/24/2003");
+        setCellContent(model, "A2", "5/24/2003");
+        setCellContent(model, "A3", "7/24/2003");
+        autofill("A1:A3", "A6");
+        expect(getCellText(model, "A4")).toBe("9/24/2003");
+        expect(getCellText(model, "A5")).toBe("11/24/2003");
+        expect(getCellText(model, "A6")).toBe("1/24/2004");
+      });
+
+      test("dates with consistent year gap", () => {
+        setCellContent(model, "A1", "3/24/2000");
+        setCellContent(model, "A2", "3/24/2003");
+        setCellContent(model, "A3", "3/24/2006");
+        autofill("A1:A3", "A6");
+        expect(getCellText(model, "A4")).toBe("3/24/2009");
+        expect(getCellText(model, "A5")).toBe("3/24/2012");
+        expect(getCellText(model, "A6")).toBe("3/24/2015");
+      });
+
+      test("dates 2 year apart with leap year", () => {
+        setCellContent(model, "A1", "3/24/2000");
+        setCellContent(model, "A2", "3/24/2002");
+        autofill("A1:A2", "A6");
+        expect(getCellText(model, "A3")).toBe("3/24/2004");
+        expect(getCellText(model, "A4")).toBe("3/24/2006");
+        expect(getCellText(model, "A5")).toBe("3/24/2008");
+        expect(getCellText(model, "A6")).toBe("3/24/2010");
+      });
+
+      test("dates with inconsistent day gap", () => {
+        setCellContent(model, "A1", "4/11/2003");
+        setCellContent(model, "A2", "4/12/2003");
+        setCellContent(model, "A3", "4/25/2003");
+        autofill("A1:A3", "A7");
+        expect(getCellText(model, "A4")).toBe("4/11/2003");
+        expect(getCellText(model, "A5")).toBe("4/12/2003");
+        expect(getCellText(model, "A6")).toBe("4/25/2003");
+        expect(getCellText(model, "A7")).toBe("4/11/2003");
+      });
+
+      test("dates with inconsistent month gap", () => {
+        setCellContent(model, "A1", "4/11/2003");
+        setCellContent(model, "A2", "5/11/2003");
+        setCellContent(model, "A3", "7/11/2003");
+        autofill("A1:A3", "A7");
+        expect(getCellText(model, "A4")).toBe("4/11/2003");
+        expect(getCellText(model, "A5")).toBe("5/11/2003");
+        expect(getCellText(model, "A6")).toBe("7/11/2003");
+        expect(getCellText(model, "A7")).toBe("4/11/2003");
+      });
+
+      test("dates with inconsistent year gap", () => {
+        setCellContent(model, "A1", "4/11/2003");
+        setCellContent(model, "A2", "4/11/2005");
+        setCellContent(model, "A3", "4/11/2006");
+        autofill("A1:A3", "A7");
+        expect(getCellText(model, "A4")).toBe("4/11/2003");
+        expect(getCellText(model, "A5")).toBe("4/11/2005");
+        expect(getCellText(model, "A6")).toBe("4/11/2006");
+        expect(getCellText(model, "A7")).toBe("4/11/2003");
+      });
+
+      test("dates with random gaps", () => {
+        setCellContent(model, "A1", "3/24/2000");
+        setCellContent(model, "A2", "3/25/2003");
+        setCellContent(model, "A3", "4/24/1997");
+        autofill("A1:A3", "A6");
+        expect(getCellText(model, "A4")).toBe("3/24/2000");
+        expect(getCellText(model, "A5")).toBe("3/25/2003");
+        expect(getCellText(model, "A6")).toBe("4/24/1997");
+      });
+
+      test("dates wich constant year/month gap", () => {
+        setCellContent(model, "A1", "2/1/2001");
+        setCellContent(model, "A2", "3/1/2002");
+        setCellContent(model, "A3", "4/1/2003");
+        autofill("A1:A3", "A6");
+        expect(getCellText(model, "A4")).toBe("5/1/2004");
+        expect(getCellText(model, "A5")).toBe("6/1/2005");
+        expect(getCellText(model, "A6")).toBe("7/1/2006");
+      });
+
+      test("dates with constant month/day gap", () => {
+        setCellContent(model, "A1", "2/1/2001");
+        setCellContent(model, "A2", "3/2/2001");
+        setCellContent(model, "A3", "4/3/2001");
+        autofill("A1:A3", "A6");
+        // Note: differs from Excel but consistent with other cases
+        expect(getCellText(model, "A4")).toBe("5/4/2001");
+        expect(getCellText(model, "A5")).toBe("6/5/2001");
+        expect(getCellText(model, "A6")).toBe("7/6/2001");
+      });
+
+      test("dates with constant year/day gap", () => {
+        setCellContent(model, "A1", "1/3/2001");
+        setCellContent(model, "A2", "1/5/2002");
+        setCellContent(model, "A3", "1/7/2003");
+        autofill("A1:A3", "A6");
+        expect(getCellText(model, "A4")).toBe("1/9/2004");
+        expect(getCellText(model, "A5")).toBe("1/10/2005");
+        expect(getCellText(model, "A6")).toBe("1/12/2006");
+      });
     });
 
     test("Autofill hours", () => {
@@ -342,6 +478,28 @@ describe("Autofill", () => {
       expect(getCellContent(model, "A7")).toBe("5");
       expect(getCellContent(model, "A8")).toBe("6");
       expect(getCellContent(model, "A9")).toBe("test");
+    });
+
+    test("Autofill dates mixed with numbers", () => {
+      setCellContent(model, "A1", "1/8/2023");
+      setCellContent(model, "A2", "2/8/2023");
+      setCellContent(model, "A3", "5");
+      autofill("A1:A3", "A7");
+      expect(getCellContent(model, "A4")).toBe("3/8/2023");
+      expect(getCellContent(model, "A5")).toBe("4/8/2023");
+      expect(getCellContent(model, "A6")).toBe("6");
+      expect(getCellContent(model, "A7")).toBe("5/8/2023");
+    });
+
+    test("Autofill dates mixed with text", () => {
+      setCellContent(model, "A1", "1/8/2023");
+      setCellContent(model, "A2", "2/8/2023");
+      setCellContent(model, "A3", "text");
+      autofill("A1:A3", "A7");
+      expect(getCellContent(model, "A4")).toBe("3/8/2023");
+      expect(getCellContent(model, "A5")).toBe("4/8/2023");
+      expect(getCellContent(model, "A6")).toBe("text");
+      expect(getCellContent(model, "A7")).toBe("5/8/2023");
     });
 
     test("Autofill number and text", () => {
