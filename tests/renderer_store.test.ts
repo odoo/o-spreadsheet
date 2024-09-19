@@ -49,7 +49,7 @@ import { makeStoreWithModel } from "./test_helpers/stores";
 MockCanvasRenderingContext2D.prototype.measureText = function (text: string) {
   return { width: text.length };
 };
-jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
+jest.mock("@odoo/o-spreadsheet-utils/uuid", () => require("./__mocks__/uuid"));
 
 function getBoxFromText(gridRenderer: GridRenderer, text: string): Box {
   return (gridRenderer["getGridBoxes"]()! as Box[]).find(

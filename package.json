@@ -104,6 +104,7 @@
     "xmlSelfClosingSpace": false
   },
   "dependencies": {
+    "@odoo/o-spreadsheet-utils": "^17.5.0-alpha.13",
     "@odoo/owl": "2.3.0",
     "bootstrap": "^5.3.3",
     "font-awesome": "^4.7.0",
@@ -118,6 +119,9 @@
       "^.+\\.ts?$": [
         "@swc/jest"
       ]
+    },
+    "moduleNameMapper": {
+      "@odoo/o-spreadsheet-utils": "<rootDir>/packages/o-spreadsheet-utils/src"
     },
     "verbose": false,
     "testEnvironment": "jsdom",
@@ -142,5 +146,8 @@
   },
   "publishConfig": {
     "tag": "alpha"
-  }
+  },
+  "workspaces": [
+    "packages/o-spreadsheet-utils"
+  ]
 }

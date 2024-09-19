@@ -6,6 +6,7 @@
     "moduleResolution": "node",
     "removeComments": false,
     "target": "ESNext",
+    "rootDir": "src",
     "outDir": "build/js",
     "alwaysStrict": true,
     "noUnusedLocals": true,
@@ -18,18 +19,7 @@
     "allowJs": true,
     "preserveWatchOutput": true,
     "sourceMap": true,
-    "strictBindCallApply": true
-  },
-  "include": ["src"],
-  "typedocOptions": {
-    "entryPoints": ["src/index.ts"],
-    "out": "doc/tsdoc",
-    "name": "o-spreadsheet API",
-    "readme": "none",
-    "excludePrivate": true,
-    "hideGenerator": true,
-    "disableSources": true,
-    "excludeExternals": true
-  },
-  "references": [{ "path": "packages/o-spreadsheet-utils" }]
+    "strictBindCallApply": true,
+    "composite": true
+  }
 }

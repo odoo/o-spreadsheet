@@ -1,5 +1,5 @@
+import { UuidGenerator } from "@odoo/o-spreadsheet-utils";
 import { DEBOUNCE_TIME, DEFAULT_REVISION_ID, MESSAGE_VERSION } from "../constants";
-import { UuidGenerator } from "../helpers";
 import { EventBus } from "../helpers/event_bus";
 import { debounce, isDefined } from "../helpers/misc";
 import { SelectiveHistory as RevisionLog } from "../history/selective_history";

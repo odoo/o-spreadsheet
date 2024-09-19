@@ -1,9 +1,10 @@
+import { UuidGenerator } from "@odoo/o-spreadsheet-utils";
 import { markRaw } from "@odoo/owl";
 import { LocalTransportService } from "./collaborative/local_transport_service";
 import { Session } from "./collaborative/session";
 import { DEFAULT_REVISION_ID } from "./constants";
 import { EventBus } from "./helpers/event_bus";
-import { UuidGenerator, deepCopy, lazy } from "./helpers/index";
+import { deepCopy, lazy } from "./helpers/index";
 import { buildRevisionLog } from "./history/factory";
 import {
   createEmptyExcelWorkbookData,

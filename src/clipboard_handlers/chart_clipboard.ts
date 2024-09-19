@@ -1,4 +1,4 @@
-import { UuidGenerator } from "../helpers";
+import { UuidGenerator } from "@odoo/o-spreadsheet-utils";
 import { AbstractChart } from "../helpers/figures/charts";
 import {
   ClipboardFigureData,

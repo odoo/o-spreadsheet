@@ -40,7 +40,7 @@ import {
   testUndoRedo,
 } from "../test_helpers/helpers";
 let model: Model;
-jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
+jest.mock("@odoo/o-spreadsheet-utils/uuid", () => require("../__mocks__/uuid"));
 
 function clearColumns(indexes: string[]) {
   const sheetId = model.getters.getActiveSheetId();

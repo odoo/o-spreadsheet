@@ -1,5 +1,5 @@
+import { UuidGenerator } from "@odoo/o-spreadsheet-utils";
 import { DEFAULT_REVISION_ID } from "../constants";
-import { UuidGenerator } from "../helpers/index";
 import { isValidLocale } from "../helpers/locale";
 import { StateUpdateMessage } from "../types/collaborative/transport_service";
 import {

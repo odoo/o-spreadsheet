@@ -26,7 +26,7 @@ import {
   toRangesData,
 } from "../test_helpers/helpers";
 
-jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
+jest.mock("@odoo/o-spreadsheet-utils/uuid", () => require("../__mocks__/uuid"));
 
 let model: Model;
 let sheetId: UID;

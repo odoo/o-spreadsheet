@@ -6,7 +6,7 @@ import { CellErrorType } from "../src/types/errors";
 import { redo, setCellContent, sort, undo } from "./test_helpers/commands_helpers";
 import { getEvaluatedCell } from "./test_helpers/getters_helpers";
 import { getCellsObject } from "./test_helpers/helpers";
-jest.mock("../src/helpers/uuid", () => require("./__mocks__/uuid"));
+jest.mock("@odoo/o-spreadsheet-utils/uuid", () => require("./__mocks__/uuid"));
 
 let model: Model;
 const dateFormat = "mm/dd/yyyy";

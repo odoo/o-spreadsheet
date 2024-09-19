@@ -1,7 +1,7 @@
 import { DEFAULT_REVISION_ID } from "../../src/constants";
 import { CURRENT_VERSION, load } from "../../src/migrations/data";
 import { DEFAULT_LOCALE } from "../../src/types";
-jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
+jest.mock("@odoo/o-spreadsheet-utils/uuid", () => require("../__mocks__/uuid"));
 
 describe("load data", () => {
   test("create empty workbookdata when loading nothing", () => {

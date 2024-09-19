@@ -1,4 +1,6 @@
-import { UuidGenerator, deepEquals, positionToZone } from "../helpers";
+import { UuidGenerator } from "@odoo/o-spreadsheet-utils";
+import { deepEquals, positionToZone } from "../helpers";
+
 import {
   CellPosition,
   ClipboardCellData,

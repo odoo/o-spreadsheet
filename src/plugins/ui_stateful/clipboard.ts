@@ -1,9 +1,10 @@
+import { UuidGenerator } from "@odoo/o-spreadsheet-utils";
 import { clipboardHandlersRegistries } from "../../clipboard_handlers";
 import { ClipboardHandler } from "../../clipboard_handlers/abstract_clipboard_handler";
 import { cellStyleToCss, cssPropertiesToCss } from "../../components/helpers";
 import { SELECTION_BORDER_COLOR } from "../../constants";
 import { getClipboardDataPositions } from "../../helpers/clipboard/clipboard_helpers";
-import { UuidGenerator, isZoneValid, union } from "../../helpers/index";
+import { isZoneValid, union } from "../../helpers/index";
 import { CURRENT_VERSION } from "../../migrations/data";
 import {
   ClipboardContent,

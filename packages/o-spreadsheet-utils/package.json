@@ -1,0 +1,15 @@
+{
+  "name": "@odoo/o-spreadsheet-utils",
+  "version": "17.5.0-alpha.13",
+  "description": "A spreadsheet component",
+  "type": "module",
+  "main": "build/js/index.js",
+  "scripts": {
+    "build": "tsc --module es6 --incremental"
+  },
+  "author": "Odoo",
+  "license": "LGPL-3.0-or-later",
+  "devDependencies": {
+    "typescript": "^5.4.3"
+  }
+}

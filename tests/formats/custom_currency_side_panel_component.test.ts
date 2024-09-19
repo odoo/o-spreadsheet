@@ -7,7 +7,7 @@ import { FR_LOCALE } from "../test_helpers/constants";
 import { click, setInputValueAndTrigger } from "../test_helpers/dom_helper";
 import { getCell } from "../test_helpers/getters_helpers";
 import { mountComponent, nextTick, spyModelDispatch } from "../test_helpers/helpers";
-jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
+jest.mock("@odoo/o-spreadsheet-utils/uuid", () => require("../__mocks__/uuid"));
 jest.useFakeTimers();
 
 const selectors = {

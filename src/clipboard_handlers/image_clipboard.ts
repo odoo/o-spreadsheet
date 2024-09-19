@@ -1,4 +1,5 @@
-import { UuidGenerator, deepCopy } from "../helpers";
+import { UuidGenerator } from "@odoo/o-spreadsheet-utils";
+import { deepCopy } from "../helpers";
 import {
   ClipboardFigureData,
   ClipboardOptions,

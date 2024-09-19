@@ -1,4 +1,4 @@
-import { UuidGenerator } from "../helpers";
+import { UuidGenerator } from "@odoo/o-spreadsheet-utils";
 import { ModelConfig } from "../model";
 import { StateObserver } from "../state_observer";
 import {

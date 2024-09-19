@@ -13,5 +13,4 @@ export * from "./references";
 export * from "./search";
 export * from "./sheet";
 export * from "./text_helper";
-export * from "./uuid";
 export * from "./zones";

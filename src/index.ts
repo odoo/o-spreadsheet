@@ -78,7 +78,6 @@ import {
 } from "./helpers/figures/charts";
 import {
   ColorGenerator,
-  UuidGenerator,
   colorToRGBA,
   computeTextWidth,
   createCurrencyFormat,
@@ -197,6 +196,7 @@ import { DEFAULT_LOCALE } from "./types/locale";
  * the rollup.config.js file)
  */
 
+import { UuidGenerator } from "@odoo/o-spreadsheet-utils";
 export const __info__ = {};
 export { Revision } from "./collaborative/revisions";
 export { tokenColors } from "./components/composer/composer/composer";

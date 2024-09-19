@@ -1,4 +1,4 @@
-import { UuidGenerator } from "../helpers";
+import { UuidGenerator } from "@odoo/o-spreadsheet-utils";
 import { UID } from "../types";
 import { SpreadsheetChildEnv } from "../types/env";
 import { Registry } from "./registry";

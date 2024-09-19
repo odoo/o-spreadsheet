@@ -1,4 +1,5 @@
-import { deepCopy, range, UuidGenerator } from "../../helpers";
+import { UuidGenerator } from "@odoo/o-spreadsheet-utils";
+import { deepCopy, range } from "../../helpers";
 import { Getters } from "../../types";
 import {
   AddColumnsRowsCommand,

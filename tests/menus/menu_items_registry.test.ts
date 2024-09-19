@@ -60,7 +60,7 @@ import { MenuItemRegistry } from "../../src/registries/menu_items_registry";
 import { DEFAULT_LOCALES } from "../../src/types/locale";
 import { FR_LOCALE } from "../test_helpers/constants";
 
-jest.mock("../../src/helpers/uuid", () => require("../__mocks__/uuid"));
+jest.mock("@odoo/o-spreadsheet-utils/uuid", () => require("../__mocks__/uuid"));
 
 const TEST_CURRENCY: Partial<Currency> = {
   symbol: "€",
