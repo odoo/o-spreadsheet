@@ -13,13 +13,14 @@ import {
 } from "../test_helpers/commands_helpers";
 import {
   getCell,
+  getCellContent,
   getCellText,
   getCoreTable,
   getEvaluatedGrid,
   getTable,
 } from "../test_helpers/getters_helpers";
 import { createModelFromGrid, doAction, getNode, makeTestEnv } from "../test_helpers/helpers";
-import { addPivot } from "../test_helpers/pivot_helpers";
+import { addPivot, createModelWithPivot } from "../test_helpers/pivot_helpers";
 
 const reinsertDynamicPivotPath = ["data", "reinsert_dynamic_pivot", "reinsert_dynamic_pivot_1"];
 const reinsertStaticPivotPath = ["data", "reinsert_static_pivot", "reinsert_static_pivot_1"];
@@ -306,8 +307,18 @@ describe("Pivot fix formula menu item", () => {
     const pivot = model.getters.getPivot("1")!;
     expect(pivot.isValid()).toBe(false);
     selectCell(model, "C1");
-    cellMenuRegistry.get("pivot_fix_formulas").execute!(env);
-    expect(getCellText(model, "C1")).toBe("=PIVOT(1)");
+    expect(cellMenuRegistry.get("pivot_fix_formulas").isVisible!(env)).toBe(false);
+  });
+
+  test("It should  be invisible when the pivot cannot spill", () => {
+    const model = createModelWithPivot("A1:I5");
+    setCellContent(model, "A24", "=pivot(1)");
+    setCellContent(model, "A25", "block the spill");
+    const env = makeTestEnv({ model });
+
+    expect(getCellContent(model, "A24")).toEqual("#SPILL!");
+    selectCell(model, "A24");
+    expect(cellMenuRegistry.get("pivot_fix_formulas").isVisible!(env)).toBe(false);
   });
 
   test("It should ignore hidden measures", () => {

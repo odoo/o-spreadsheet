@@ -1,5 +1,6 @@
 import { ActionSpec } from "../../actions/action";
 import { _t } from "../../translation";
+import { CellValueType } from "../../types";
 
 export const pivotProperties: ActionSpec = {
   name: _t("Edit Pivot"),
@@ -45,7 +46,12 @@ export const FIX_FORMULAS: ActionSpec = {
       return false;
     }
     const pivot = env.model.getters.getPivot(pivotId);
-    return pivot.isValid() && env.model.getters.isSpillPivotFormula(position);
+    const cell = env.model.getters.getEvaluatedCell(position);
+    return (
+      pivot.isValid() &&
+      env.model.getters.isSpillPivotFormula(position) &&
+      cell.type !== CellValueType.error
+    );
   },
   icon: "o-spreadsheet-Icon.PIVOT",
 };
