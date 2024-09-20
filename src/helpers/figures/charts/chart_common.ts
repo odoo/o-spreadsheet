@@ -19,6 +19,7 @@ import {
   DOMCoordinates,
   DOMDimension,
   Getters,
+  Locale,
   LocaleFormat,
   Range,
   RemoveColumnsRowsCommand,
@@ -28,6 +29,7 @@ import {
 } from "../../../types";
 import {
   AxisDesign,
+  ChartAxisFormats,
   ChartWithAxisDefinition,
   CustomizedDataSet,
   DataSet,
@@ -612,6 +614,13 @@ export function interpolateData(
     default:
       return [];
   }
+}
+
+export function formatChartDatasetValue(axisFormats: ChartAxisFormats, locale: Locale) {
+  return (value: any, axisId: string | undefined) => {
+    const format = axisId ? axisFormats?.[axisId] : undefined;
+    return formatTickValue({ format, locale })(value);
+  };
 }
 
 export function formatTickValue(localeFormat: LocaleFormat) {

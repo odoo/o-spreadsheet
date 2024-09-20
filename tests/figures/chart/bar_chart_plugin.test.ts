@@ -89,7 +89,11 @@ describe("bar chart", () => {
       expect(options.scales.y.title.text).toBe("yAxis");
       expect(options.scales.y.ticks.callback).toBeUndefined();
 
-      const tooltipTestItem = { parsed: { x: 5, y: "label" }, label: "dataSetLabel" };
+      const tooltipTestItem = {
+        parsed: { x: 5, y: "label" },
+        label: "dataSetLabel",
+        dataset: { xAxisID: "x" },
+      };
       const tooltip = runtime.chartJsConfig.options?.plugins?.tooltip as any;
       expect(tooltip?.callbacks?.label(tooltipTestItem)).toBe("dataSetLabel: 5€");
     });
@@ -125,7 +129,7 @@ describe("bar chart", () => {
       );
       const runtime = model.getters.getChartRuntime("id") as any;
       expect(runtime.chartJsConfig.options?.scales?.y1).toBe(undefined);
-      expect(runtime.chartJsConfig.data.datasets[0].yAxisID).toBe(undefined);
+      expect(runtime.chartJsConfig.data.datasets[0].yAxisID).toBe("y");
     });
   });
 });

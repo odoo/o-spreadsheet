@@ -41,7 +41,7 @@ import {
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
-  formatTickValue,
+  formatChartDatasetValue,
   getChartAxis,
   getChartColorsGenerator,
   getDefinedAxis,
@@ -230,10 +230,8 @@ export class ComboChart extends AbstractChart {
 }
 
 export function createComboChartRuntime(chart: ComboChart, getters: Getters): ComboChartRuntime {
-  const mainDataSetFormat = chart.dataSets.length
-    ? getChartDatasetFormat(getters, [chart.dataSets[0]])
-    : undefined;
-  const lineDataSetsFormat = getChartDatasetFormat(getters, chart.dataSets.slice(1));
+  const mainDataSetFormat = getChartDatasetFormat(getters, chart.dataSets, "left");
+  const lineDataSetsFormat = getChartDatasetFormat(getters, chart.dataSets, "right");
   const locale = getters.getLocale();
 
   const labelValues = getChartLabelValues(getters, chart.dataSets, chart.labelRange);
@@ -252,10 +250,9 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
     ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
   }
 
-  const localeFormat = { format: mainDataSetFormat, locale };
-
   const fontColor = chartFontColor(chart.background);
-  const config = getDefaultChartJsRuntime(chart, labels, fontColor, localeFormat);
+  const axisFormats = { y: mainDataSetFormat, y1: lineDataSetsFormat };
+  const config = getDefaultChartJsRuntime(chart, labels, fontColor, { locale, axisFormats });
   const legend: DeepPartial<LegendOptions<"bar">> = {
     labels: { color: fontColor },
   };
@@ -283,7 +280,7 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
   config.options.plugins!.chartShowValuesPlugin = {
     showValues: chart.showValues,
     background: chart.background,
-    callback: formatTickValue({ format: mainDataSetFormat, locale }),
+    callback: formatChartDatasetValue(axisFormats, locale),
   };
 
   const colors = getChartColorsGenerator(definition, dataSetsValues.length);

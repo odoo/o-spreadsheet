@@ -38,7 +38,7 @@ import {
   copyDataSetsWithNewSheetId,
   copyLabelRangeWithNewSheetId,
   createDataSets,
-  formatTickValue,
+  formatChartDatasetValue,
   getChartAxis,
   getChartColorsGenerator,
   getDefinedAxis,
@@ -243,12 +243,16 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
     ({ labels, dataSetsValues } = aggregateDataForLabels(labels, dataSetsValues));
   }
 
-  const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
+  const leftAxisFormat = getChartDatasetFormat(getters, chart.dataSets, "left");
+  const rightAxisFormat = getChartDatasetFormat(getters, chart.dataSets, "right");
   const locale = getters.getLocale();
-  const localeFormat = { format: dataSetFormat, locale };
   const fontColor = chartFontColor(chart.background);
+  const axisFormats = chart.horizontal
+    ? { x: leftAxisFormat || rightAxisFormat }
+    : { y: leftAxisFormat, y1: rightAxisFormat };
   const config = getDefaultChartJsRuntime(chart, labels, fontColor, {
-    ...localeFormat,
+    locale,
+    axisFormats,
     horizontalChart: chart.horizontal,
   });
   const legend: DeepPartial<LegendOptions<"bar">> = {
@@ -270,17 +274,17 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
 
   config.options.scales = {};
   const definition = chart.getDefinition();
-  const stacked = chart.stacked;
-
-  const valueAxisOptions = { ...localeFormat, stacked };
-  const labelAxisOptions = { stacked, locale };
+  const options = { stacked: chart.stacked, locale };
   if (chart.horizontal) {
-    config.options.scales.x = getChartAxis(definition, "bottom", "values", valueAxisOptions);
-    config.options.scales.y = getChartAxis(definition, "left", "labels", labelAxisOptions);
+    const format = leftAxisFormat || rightAxisFormat;
+    config.options.scales.x = getChartAxis(definition, "bottom", "values", { ...options, format });
+    config.options.scales.y = getChartAxis(definition, "left", "labels", options);
   } else {
-    config.options.scales.x = getChartAxis(definition, "bottom", "labels", labelAxisOptions);
-    config.options.scales.y = getChartAxis(definition, "left", "values", valueAxisOptions);
-    config.options.scales.y1 = getChartAxis(definition, "right", "values", valueAxisOptions);
+    config.options.scales.x = getChartAxis(definition, "bottom", "labels", options);
+    const leftAxisOptions = { ...options, format: leftAxisFormat };
+    config.options.scales.y = getChartAxis(definition, "left", "values", leftAxisOptions);
+    const rightAxisOptions = { ...options, format: rightAxisFormat };
+    config.options.scales.y1 = getChartAxis(definition, "right", "values", rightAxisOptions);
   }
   config.options.scales = removeFalsyAttributes(config.options.scales);
 
@@ -288,7 +292,7 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
     showValues: chart.showValues,
     background: chart.background,
     horizontal: chart.horizontal,
-    callback: formatTickValue(localeFormat),
+    callback: formatChartDatasetValue(axisFormats, locale),
   };
 
   const colors = getChartColorsGenerator(definition, dataSetsValues.length);
@@ -309,9 +313,9 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
       const label = definition.dataSets[index].label;
       dataset.label = label;
     }
-    if (definition.dataSets?.[index]?.yAxisId && !chart.horizontal) {
-      dataset["yAxisID"] = definition.dataSets[index].yAxisId;
-    }
+
+    dataset.yAxisID = chart.horizontal ? "y" : definition.dataSets[index].yAxisId || "y";
+    dataset.xAxisID = "x";
 
     const trend = definition.dataSets?.[index].trend;
     if (!trend?.display || chart.horizontal) {

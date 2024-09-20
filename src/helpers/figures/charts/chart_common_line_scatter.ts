@@ -18,7 +18,7 @@ import {
   TREND_LINE_XAXIS_ID,
   chartFontColor,
   computeChartPadding,
-  formatTickValue,
+  formatChartDatasetValue,
   getChartAxis,
   getChartColorsGenerator,
   getFullTrendingLineDataSet,
@@ -223,8 +223,10 @@ export function createLineOrScatterChartRuntime(
 
   const locale = getters.getLocale();
   const truncateLabels = axisType === "category";
-  const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
-  const options = { format: dataSetFormat, locale, truncateLabels };
+  const leftAxisFormat = getChartDatasetFormat(getters, chart.dataSets, "left");
+  const rightAxisFormat = getChartDatasetFormat(getters, chart.dataSets, "right");
+  const axisFormats = { y: leftAxisFormat, y1: rightAxisFormat };
+  const options = { locale, truncateLabels, axisFormats };
   const fontColor = chartFontColor(chart.background);
   const config = getDefaultChartJsRuntime(chart, labels, fontColor, options);
 
@@ -259,15 +261,15 @@ export function createLineOrScatterChartRuntime(
   const stacked = "stacked" in chart && chart.stacked;
   config.options.scales = {
     x: getChartAxis(definition, "bottom", "labels", { locale }),
-    y: getChartAxis(definition, "left", "values", { ...options, stacked }),
-    y1: getChartAxis(definition, "right", "values", { ...options, stacked }),
+    y: getChartAxis(definition, "left", "values", { locale, stacked, format: leftAxisFormat }),
+    y1: getChartAxis(definition, "right", "values", { locale, stacked, format: rightAxisFormat }),
   };
   config.options.scales = removeFalsyAttributes(config.options.scales);
 
   config.options.plugins!.chartShowValuesPlugin = {
     showValues: chart.showValues,
     background: chart.background,
-    callback: formatTickValue(options),
+    callback: formatChartDatasetValue(axisFormats, locale),
   };
 
   if (
@@ -298,7 +300,7 @@ export function createLineOrScatterChartRuntime(
         label = toNumber(label, locale);
       }
       const formattedX = formatValue(label, { locale, format: labelFormat });
-      const formattedY = formatValue(dataSetPoint, { locale, format: dataSetFormat });
+      const formattedY = formatValue(dataSetPoint, { locale, format: leftAxisFormat });
       const dataSetTitle = tooltipItem.dataset.label;
       return formattedX
         ? `${dataSetTitle}: (${formattedX}, ${formattedY})`
@@ -354,9 +356,7 @@ export function createLineOrScatterChartRuntime(
       const label = definition.dataSets[index].label;
       dataset.label = label;
     }
-    if (definition.dataSets?.[index]?.yAxisId) {
-      dataset["yAxisID"] = definition.dataSets[index].yAxisId;
-    }
+    dataset["yAxisID"] = definition.dataSets[index].yAxisId || "y";
 
     const trend = definition.dataSets?.[index].trend;
     if (!trend?.display) {
@@ -401,7 +401,7 @@ export function createLineOrScatterChartRuntime(
     background: chart.background || BACKGROUND_CHART_COLOR,
     dataSetsValues,
     labelValues,
-    dataSetFormat,
+    dataSetFormat: leftAxisFormat,
     labelFormat,
   };
 }

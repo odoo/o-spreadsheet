@@ -210,8 +210,8 @@ export function createPyramidChartRuntime(
     return tooltipLabelCallback(tooltipItem);
   };
   const callback = config.options!.plugins!.chartShowValuesPlugin!.callback;
-  config.options!.plugins!.chartShowValuesPlugin!.callback = (x) =>
-    callback!(Math.abs(x as number));
+  config.options!.plugins!.chartShowValuesPlugin!.callback = (x, axisId) =>
+    callback!(Math.abs(x as number), axisId);
 
   return { chartJsConfig: config, background: chart.background || BACKGROUND_CHART_COLOR };
 }
