@@ -20,15 +20,5 @@
     "sourceMap": true,
     "strictBindCallApply": true
   },
-  "include": ["src"],
-  "typedocOptions": {
-    "entryPoints": ["src/index.ts"],
-    "out": "doc/tsdoc",
-    "name": "o-spreadsheet API",
-    "readme": "none",
-    "excludePrivate": true,
-    "hideGenerator": true,
-    "disableSources": true,
-    "excludeExternals": true
-  }
+  "include": ["src"]
 }
