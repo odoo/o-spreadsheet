@@ -97,12 +97,15 @@ export class InsertPivotPlugin extends UIPlugin {
     });
     if (result.isSuccessful) {
       this.dispatch("ACTIVATE_SHEET", { sheetIdFrom: activeSheetId, sheetIdTo: newSheetId });
-      this.dispatch("UPDATE_CELL", {
-        sheetId: newSheetId,
-        col: 0,
-        row: 0,
-        content: `=PIVOT(${formulaId})`,
-      });
+      const pivot = this.getters.getPivot(pivotId);
+      this.insertPivotWithTable(
+        newSheetId,
+        0,
+        0,
+        newPivotId,
+        pivot.getTableStructure().export(),
+        "dynamic"
+      );
     }
   }
 
