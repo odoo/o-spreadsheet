@@ -1,4 +1,5 @@
 import { Model, SpreadsheetChildEnv } from "../../../src";
+import { PIVOT_TABLE_CONFIG } from "../../../src/constants";
 import { toZone } from "../../../src/helpers";
 import { SpreadsheetPivot } from "../../../src/helpers/pivot/spreadsheet_pivot/spreadsheet_pivot";
 import { NotificationStore } from "../../../src/stores/notification_store";
@@ -16,7 +17,7 @@ import {
   keyDown,
   setInputValueAndTrigger,
 } from "../../test_helpers/dom_helper";
-import { getCellText } from "../../test_helpers/getters_helpers";
+import { getCellText, getCoreTable } from "../../test_helpers/getters_helpers";
 import { editStandaloneComposer, mountSpreadsheet, nextTick } from "../../test_helpers/helpers";
 import { mockGetBoundingClientRect } from "../../test_helpers/mock_helpers";
 import { SELECTORS, addPivot, updatePivot } from "../../test_helpers/pivot_helpers";
@@ -242,12 +243,18 @@ describe("Spreadsheet pivot side panel", () => {
       "Pivot (copy) (Pivot #2)"
     );
     expect(getCellText(model, "A1")).toBe("=PIVOT(2)");
+    expect(getCoreTable(model, "A1")).toMatchObject({
+      range: { zone: toZone("A1") },
+      config: PIVOT_TABLE_CONFIG,
+      type: "dynamic",
+    });
 
     undo(model);
 
     expect(model.getters.getPivotId("2")).toBeUndefined();
     expect(model.getters.getSheetIds()).toHaveLength(1);
     expect(model.getters.getSheetName(model.getters.getActiveSheetId())).toBe("Sheet1");
+    expect(getCoreTable(model, "A1")).toBe(undefined);
   });
 
   test("Can duplicate a pivot when a duplicate sheet name already exists", async () => {
