@@ -49,8 +49,8 @@ describe("bar chart", () => {
   test("Stacked bar", () => {
     const model = new Model();
     createChart(model, { type: "bar", stacked: false }, "chartId");
-    expect(isChartAxisStacked(model, "chartId", "x")).toBeUndefined();
-    expect(isChartAxisStacked(model, "chartId", "y")).toBeUndefined();
+    expect(isChartAxisStacked(model, "chartId", "x")).toBeFalsy();
+    expect(isChartAxisStacked(model, "chartId", "y")).toBeFalsy();
 
     updateChart(model, "chartId", { stacked: true });
     expect(isChartAxisStacked(model, "chartId", "x")).toBe(true);

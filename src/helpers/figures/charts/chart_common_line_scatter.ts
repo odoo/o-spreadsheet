@@ -12,16 +12,15 @@ import {
 import { getChartTimeOptions, timeFormatLuxonCompatible } from "../../chart_date";
 import { colorToRGBA, rgbaToHex } from "../../color";
 import { formatValue } from "../../format/format";
-import { deepCopy, findNextDefinedValue, range } from "../../misc";
+import { deepCopy, findNextDefinedValue, range, removeFalsyAttributes } from "../../misc";
 import { isNumber } from "../../numbers";
 import {
   TREND_LINE_XAXIS_ID,
   chartFontColor,
   computeChartPadding,
   formatTickValue,
-  getChartAxisTitleRuntime,
+  getChartAxis,
   getChartColorsGenerator,
-  getDefinedAxis,
   getFullTrendingLineDataSet,
   interpolateData,
 } from "./chart_common";
@@ -256,50 +255,15 @@ export function createLineOrScatterChartRuntime(
     }),
   };
 
-  const xAxis = {
-    ticks: {
-      padding: 5,
-      color: fontColor,
-    },
-    title: getChartAxisTitleRuntime(chart.axesDesign?.x),
-  };
-
+  const definition = chart.getDefinition();
+  const stacked = "stacked" in chart && chart.stacked;
   config.options.scales = {
-    x: xAxis,
+    x: getChartAxis(definition, "bottom", "labels", { locale }),
+    y: getChartAxis(definition, "left", "values", { ...options, stacked }),
+    y1: getChartAxis(definition, "right", "values", { ...options, stacked }),
   };
+  config.options.scales = removeFalsyAttributes(config.options.scales);
 
-  const yAxis = {
-    beginAtZero: true, // the origin of the y axis is always zero
-    ticks: {
-      color: fontColor,
-      callback: formatTickValue(options),
-    },
-  };
-  const { useLeftAxis, useRightAxis } = getDefinedAxis(chart.getDefinition());
-  if (useLeftAxis) {
-    config.options.scales.y = {
-      ...yAxis,
-      position: "left",
-      title: getChartAxisTitleRuntime(chart.axesDesign?.y),
-    };
-  }
-  if (useRightAxis) {
-    config.options.scales.y1 = {
-      ...yAxis,
-      position: "right",
-      title: getChartAxisTitleRuntime(chart.axesDesign?.y1),
-    };
-  }
-  if ("stacked" in chart && chart.stacked) {
-    if (useLeftAxis) {
-      // @ts-ignore chart.js type is broken
-      config.options.scales!.y!.stacked = true;
-    }
-    if (useRightAxis) {
-      // @ts-ignore chart.js type is broken
-      config.options.scales!.y1!.stacked = true;
-    }
-  }
   config.options.plugins!.chartShowValuesPlugin = {
     showValues: chart.showValues,
     background: chart.background,
@@ -346,7 +310,6 @@ export function createLineOrScatterChartRuntime(
   const stackedChart = "stacked" in chart ? chart.stacked : false;
   const cumulative = "cumulative" in chart ? chart.cumulative : false;
 
-  const definition = chart.getDefinition();
   const colors = getChartColorsGenerator(definition, dataSetsValues.length);
   for (let [index, { label, data }] of dataSetsValues.entries()) {
     const color = colors.next();
@@ -412,7 +375,7 @@ export function createLineOrScatterChartRuntime(
      * set so that the second axis points match the classical x axis
      */
     config.options.scales[TREND_LINE_XAXIS_ID] = {
-      ...xAxis,
+      ...(config.options.scales.x as any),
       type: "category",
       labels: range(0, maxLength).map((x) => x.toString()),
       offset: false,

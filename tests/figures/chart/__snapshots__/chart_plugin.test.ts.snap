@@ -89,6 +89,7 @@ exports[`Linear/Time charts font color is white with a dark background color 1`]
       "responsive": true,
       "scales": {
         "x": {
+          "stacked": undefined,
           "ticks": {
             "callback": [Function],
             "color": "#FFFFFF",
@@ -99,7 +100,11 @@ exports[`Linear/Time charts font color is white with a dark background color 1`]
         },
         "y": {
           "beginAtZero": true,
+          "grid": {
+            "display": true,
+          },
           "position": "left",
+          "stacked": false,
           "ticks": {
             "callback": [Function],
             "color": "#FFFFFF",
@@ -233,6 +238,7 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for date char
       "responsive": true,
       "scales": {
         "x": {
+          "stacked": undefined,
           "ticks": {
             "color": "#000000",
             "maxTicksLimit": 15,
@@ -250,7 +256,11 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for date char
         },
         "y": {
           "beginAtZero": true,
+          "grid": {
+            "display": true,
+          },
           "position": "left",
+          "stacked": false,
           "ticks": {
             "callback": [Function],
             "color": "#000000",
@@ -387,6 +397,7 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for linear ch
       "responsive": true,
       "scales": {
         "x": {
+          "stacked": undefined,
           "ticks": {
             "callback": [Function],
             "color": "#000000",
@@ -397,7 +408,11 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for linear ch
         },
         "y": {
           "beginAtZero": true,
+          "grid": {
+            "display": true,
+          },
           "position": "left",
+          "stacked": false,
           "ticks": {
             "callback": [Function],
             "color": "#000000",
@@ -523,6 +538,9 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
         },
         "y": {
           "beginAtZero": true,
+          "grid": {
+            "display": true,
+          },
           "position": "left",
           "stacked": true,
           "ticks": {
@@ -615,6 +633,7 @@ exports[`datasource tests create chart with a dataset of one cell (no title) 1`]
       "responsive": true,
       "scales": {
         "x": {
+          "stacked": undefined,
           "ticks": {
             "color": "#000000",
             "padding": 5,
@@ -623,7 +642,11 @@ exports[`datasource tests create chart with a dataset of one cell (no title) 1`]
         },
         "y": {
           "beginAtZero": true,
+          "grid": {
+            "display": true,
+          },
           "position": "left",
+          "stacked": false,
           "ticks": {
             "callback": [Function],
             "color": "#000000",
@@ -749,6 +772,7 @@ exports[`datasource tests create chart with column datasets 1`] = `
       "responsive": true,
       "scales": {
         "x": {
+          "stacked": undefined,
           "ticks": {
             "color": "#000000",
             "padding": 5,
@@ -757,7 +781,11 @@ exports[`datasource tests create chart with column datasets 1`] = `
         },
         "y": {
           "beginAtZero": true,
+          "grid": {
+            "display": true,
+          },
           "position": "left",
+          "stacked": false,
           "ticks": {
             "callback": [Function],
             "color": "#000000",
@@ -897,6 +925,7 @@ exports[`datasource tests create chart with column datasets with category title 
       "responsive": true,
       "scales": {
         "x": {
+          "stacked": undefined,
           "ticks": {
             "color": "#000000",
             "padding": 5,
@@ -905,7 +934,11 @@ exports[`datasource tests create chart with column datasets with category title 
         },
         "y": {
           "beginAtZero": true,
+          "grid": {
+            "display": true,
+          },
           "position": "left",
+          "stacked": false,
           "ticks": {
             "callback": [Function],
             "color": "#000000",
@@ -1046,6 +1079,7 @@ exports[`datasource tests create chart with column datasets without series title
       "responsive": true,
       "scales": {
         "x": {
+          "stacked": undefined,
           "ticks": {
             "color": "#000000",
             "padding": 5,
@@ -1054,7 +1088,11 @@ exports[`datasource tests create chart with column datasets without series title
         },
         "y": {
           "beginAtZero": true,
+          "grid": {
+            "display": true,
+          },
           "position": "left",
+          "stacked": false,
           "ticks": {
             "callback": [Function],
             "color": "#000000",
@@ -1167,6 +1205,7 @@ exports[`datasource tests create chart with only the dataset title (no data) 1`]
       "responsive": true,
       "scales": {
         "x": {
+          "stacked": undefined,
           "ticks": {
             "color": "#000000",
             "padding": 5,
@@ -1175,7 +1214,11 @@ exports[`datasource tests create chart with only the dataset title (no data) 1`]
         },
         "y": {
           "beginAtZero": true,
+          "grid": {
+            "display": true,
+          },
           "position": "left",
+          "stacked": false,
           "ticks": {
             "callback": [Function],
             "color": "#000000",
@@ -1298,6 +1341,7 @@ exports[`datasource tests create chart with rectangle dataset 1`] = `
       "responsive": true,
       "scales": {
         "x": {
+          "stacked": undefined,
           "ticks": {
             "color": "#000000",
             "padding": 5,
@@ -1306,7 +1350,11 @@ exports[`datasource tests create chart with rectangle dataset 1`] = `
         },
         "y": {
           "beginAtZero": true,
+          "grid": {
+            "display": true,
+          },
           "position": "left",
+          "stacked": false,
           "ticks": {
             "callback": [Function],
             "color": "#000000",
@@ -1446,6 +1494,7 @@ exports[`datasource tests create chart with row datasets 1`] = `
       "responsive": true,
       "scales": {
         "x": {
+          "stacked": undefined,
           "ticks": {
             "color": "#000000",
             "padding": 5,
@@ -1454,7 +1503,11 @@ exports[`datasource tests create chart with row datasets 1`] = `
         },
         "y": {
           "beginAtZero": true,
+          "grid": {
+            "display": true,
+          },
           "position": "left",
+          "stacked": false,
           "ticks": {
             "callback": [Function],
             "color": "#000000",
@@ -1594,6 +1647,7 @@ exports[`datasource tests create chart with row datasets with category title 1`]
       "responsive": true,
       "scales": {
         "x": {
+          "stacked": undefined,
           "ticks": {
             "color": "#000000",
             "padding": 5,
@@ -1602,7 +1656,11 @@ exports[`datasource tests create chart with row datasets with category title 1`]
         },
         "y": {
           "beginAtZero": true,
+          "grid": {
+            "display": true,
+          },
           "position": "left",
+          "stacked": false,
           "ticks": {
             "callback": [Function],
             "color": "#000000",
@@ -1743,6 +1801,7 @@ exports[`datasource tests create chart with row datasets without series title 1`
       "responsive": true,
       "scales": {
         "x": {
+          "stacked": undefined,
           "ticks": {
             "color": "#000000",
             "padding": 5,
@@ -1751,7 +1810,11 @@ exports[`datasource tests create chart with row datasets without series title 1`
         },
         "y": {
           "beginAtZero": true,
+          "grid": {
+            "display": true,
+          },
           "position": "left",
+          "stacked": false,
           "ticks": {
             "callback": [Function],
             "color": "#000000",
