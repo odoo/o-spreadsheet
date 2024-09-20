@@ -1,24 +1,8 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "module": "ES6",
-    "preserveConstEnums": true,
-    "noImplicitThis": true,
-    "moduleResolution": "node",
-    "removeComments": false,
-    "target": "ESNext",
     "outDir": "build/js",
-    "alwaysStrict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": false,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "strictPropertyInitialization": true,
-    "strictNullChecks": true,
-    "esModuleInterop": true,
-    "allowJs": true,
-    "preserveWatchOutput": true,
-    "sourceMap": true,
-    "strictBindCallApply": true
+    "preserveWatchOutput": true
   },
   "include": ["src"]
 }

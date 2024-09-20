@@ -1,23 +1,7 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "module": "commonjs",
-    "preserveConstEnums": true,
-    "noImplicitThis": true,
-    "moduleResolution": "node",
-    "removeComments": false,
-    "target": "ESNext",
-    "outDir": "dist",
-    "alwaysStrict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": false,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "strictPropertyInitialization": true,
-    "strictNullChecks": true,
-    "esModuleInterop": true,
-    "allowJs": true,
-    "sourceMap": true,
-    "strictBindCallApply": true
+    "outDir": "dist"
   },
   "include": ["src", "tests"],
   "files": ["global.d.ts"]
