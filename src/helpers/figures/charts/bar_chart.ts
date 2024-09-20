@@ -26,6 +26,7 @@ import { LegendPosition } from "../../../types/chart/common_chart";
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
+import { removeFalsyAttributes } from "../../misc";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
@@ -38,7 +39,7 @@ import {
   copyLabelRangeWithNewSheetId,
   createDataSets,
   formatTickValue,
-  getChartAxisTitleRuntime,
+  getChartAxis,
   getChartColorsGenerator,
   getDefinedAxis,
   getTrendDatasetForBarChart,
@@ -268,46 +269,20 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
   config.options.indexAxis = chart.horizontal ? "y" : "x";
 
   config.options.scales = {};
-  const labelsAxis = { ticks: { padding: 5, color: fontColor } };
-  const valuesAxis = {
-    beginAtZero: true, // the origin of the y axis is always zero
-    ticks: {
-      color: fontColor,
-      callback: formatTickValue(localeFormat),
-    },
-  };
+  const definition = chart.getDefinition();
+  const stacked = chart.stacked;
 
-  const xAxis = chart.horizontal ? valuesAxis : labelsAxis;
-  const yAxis = chart.horizontal ? labelsAxis : valuesAxis;
-  const { useLeftAxis, useRightAxis } = getDefinedAxis(chart.getDefinition());
-
-  config.options.scales.x = { ...xAxis, title: getChartAxisTitleRuntime(chart.axesDesign?.x) };
-  if (useLeftAxis) {
-    config.options.scales.y = {
-      ...yAxis,
-      position: "left",
-      title: getChartAxisTitleRuntime(chart.axesDesign?.y),
-    };
+  const valueAxisOptions = { ...localeFormat, stacked };
+  const labelAxisOptions = { stacked, locale };
+  if (chart.horizontal) {
+    config.options.scales.x = getChartAxis(definition, "bottom", "values", valueAxisOptions);
+    config.options.scales.y = getChartAxis(definition, "left", "labels", labelAxisOptions);
+  } else {
+    config.options.scales.x = getChartAxis(definition, "bottom", "labels", labelAxisOptions);
+    config.options.scales.y = getChartAxis(definition, "left", "values", valueAxisOptions);
+    config.options.scales.y1 = getChartAxis(definition, "right", "values", valueAxisOptions);
   }
-  if (useRightAxis) {
-    config.options.scales.y1 = {
-      ...yAxis,
-      position: "right",
-      title: getChartAxisTitleRuntime(chart.axesDesign?.y1),
-    };
-  }
-  if (chart.stacked) {
-    // @ts-ignore chart.js type is broken
-    config.options.scales!.x!.stacked = true;
-    if (useLeftAxis) {
-      // @ts-ignore chart.js type is broken
-      config.options.scales!.y!.stacked = true;
-    }
-    if (useRightAxis) {
-      // @ts-ignore chart.js type is broken
-      config.options.scales!.y1!.stacked = true;
-    }
-  }
+  config.options.scales = removeFalsyAttributes(config.options.scales);
 
   config.options.plugins!.chartShowValuesPlugin = {
     showValues: chart.showValues,
@@ -316,7 +291,6 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
     callback: formatTickValue(localeFormat),
   };
 
-  const definition = chart.getDefinition();
   const colors = getChartColorsGenerator(definition, dataSetsValues.length);
   const trendDatasets: any[] = [];
   for (const index in dataSetsValues) {
@@ -355,7 +329,7 @@ export function createBarChartRuntime(chart: BarChart, getters: Getters): BarCha
      */
     const maxLength = Math.max(...trendDatasets.map((trendDataset) => trendDataset.data.length));
     config.options.scales[TREND_LINE_XAXIS_ID] = {
-      ...xAxis,
+      ...(config.options.scales!.x as any),
       labels: Array(maxLength).fill(""),
       offset: false,
       display: false,

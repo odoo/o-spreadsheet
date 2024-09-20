@@ -2117,7 +2117,7 @@ describe("Chart design configuration", () => {
   });
 
   test.each(["line", "scatter", "bar", "combo"] as const)(
-    "%s chart correctly use right axis if set up in definition",
+    "%s chart correctly use right axis if set up in definition, and the grid lines are only displayed once",
     (chartType) => {
       setCellContent(model, "A1", "1");
       setCellContent(model, "A2", "2");
@@ -2139,8 +2139,14 @@ describe("Chart design configuration", () => {
       let config = getChartConfiguration(model, "43");
       expect(config.data?.datasets![0]["yAxisID"]).toEqual("y");
       expect(config.data?.datasets![1]["yAxisID"]).toEqual("y1");
-      expect(config.options?.scales?.y).toMatchObject({ position: "left" });
-      expect(config.options?.scales?.y1).toMatchObject({ position: "right" });
+      expect(config.options?.scales?.y).toMatchObject({
+        position: "left",
+        grid: { display: true },
+      });
+      expect(config.options?.scales?.y1).toMatchObject({
+        position: "right",
+        grid: { display: false },
+      });
       updateChart(model, "43", {
         dataSets: [
           { dataRange: "A1:A2", yAxisId: "y1" },
@@ -2150,8 +2156,11 @@ describe("Chart design configuration", () => {
       config = getChartConfiguration(model, "43");
       expect(config.data?.datasets![0]["yAxisID"]).toEqual("y1");
       expect(config.data?.datasets![1]["yAxisID"]).toEqual("y1");
-      expect(config.options?.scales?.y).not.toBeDefined();
-      expect(config.options?.scales?.y1).toMatchObject({ position: "right" });
+      expect(config.options?.scales?.y).toBeUndefined();
+      expect(config.options?.scales?.y1).toMatchObject({
+        position: "right",
+        grid: { display: true },
+      });
       updateChart(model, "43", {
         dataSets: [
           { dataRange: "A1:A2", yAxisId: "y" },
@@ -2161,8 +2170,11 @@ describe("Chart design configuration", () => {
       config = getChartConfiguration(model, "43");
       expect(config.data?.datasets![0]["yAxisID"]).toEqual("y");
       expect(config.data?.datasets![1]["yAxisID"]).toEqual("y");
-      expect(config.options?.scales?.y1).not.toBeDefined();
-      expect(config.options?.scales?.y).toMatchObject({ position: "left" });
+      expect(config.options?.scales?.y1).toBeUndefined();
+      expect(config.options?.scales?.y).toMatchObject({
+        position: "left",
+        grid: { display: true },
+      });
     }
   );
 

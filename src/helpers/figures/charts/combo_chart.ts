@@ -29,6 +29,7 @@ import {
 import { CellErrorType } from "../../../types/errors";
 import { Validator } from "../../../types/validator";
 import { toXlsxHexColor } from "../../../xlsx/helpers/colors";
+import { removeFalsyAttributes } from "../../misc";
 import { createValidRange } from "../../range";
 import { AbstractChart } from "./abstract_chart";
 import {
@@ -41,7 +42,7 @@ import {
   copyLabelRangeWithNewSheetId,
   createDataSets,
   formatTickValue,
-  getChartAxisTitleRuntime,
+  getChartAxis,
   getChartColorsGenerator,
   getDefinedAxis,
   getTrendDatasetForBarChart,
@@ -271,49 +272,14 @@ export function createComboChartRuntime(chart: ComboChart, getters: Getters): Co
     }),
   };
 
-  config.options.scales = {
-    x: {
-      ticks: {
-        padding: 5,
-        color: fontColor,
-      },
-      title: getChartAxisTitleRuntime(chart.axesDesign?.x),
-    },
-  };
-
-  const leftVerticalAxis = {
-    beginAtZero: true, // the origin of the y axis is always zero
-    ticks: {
-      color: fontColor,
-      callback: formatTickValue({ format: mainDataSetFormat, locale }),
-    },
-  };
-  const rightVerticalAxis = {
-    beginAtZero: true, // the origin of the y axis is always zero
-    ticks: {
-      color: fontColor,
-      callback: formatTickValue({ format: lineDataSetsFormat, locale }),
-    },
-  };
   const definition = chart.getDefinition();
-  const { useLeftAxis, useRightAxis } = getDefinedAxis(definition);
-  if (useLeftAxis) {
-    config.options.scales.y = {
-      ...leftVerticalAxis,
-      position: "left",
-      title: getChartAxisTitleRuntime(chart.axesDesign?.y),
-    };
-  }
-  if (useRightAxis) {
-    config.options.scales.y1 = {
-      ...rightVerticalAxis,
-      position: "right",
-      grid: {
-        display: false,
-      },
-      title: getChartAxisTitleRuntime(chart.axesDesign?.y1),
-    };
-  }
+  config.options.scales = {
+    x: getChartAxis(definition, "bottom", "labels", { locale }),
+    y: getChartAxis(definition, "left", "values", { locale, format: mainDataSetFormat }),
+    y1: getChartAxis(definition, "right", "values", { locale, format: lineDataSetsFormat }),
+  };
+  config.options.scales = removeFalsyAttributes(config.options.scales);
+
   config.options.plugins!.chartShowValuesPlugin = {
     showValues: chart.showValues,
     background: chart.background,
