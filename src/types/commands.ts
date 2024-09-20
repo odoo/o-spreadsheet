@@ -653,6 +653,8 @@ export interface DuplicatePivotCommand {
   type: "DUPLICATE_PIVOT";
   pivotId: UID;
   newPivotId: string;
+  // an early version of the command did not include the duplicatedPivotName
+  duplicatedPivotName?: string;
 }
 
 // ------------------------------------------------
