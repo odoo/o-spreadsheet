@@ -80,6 +80,7 @@ export class InsertPivotPlugin extends UIPlugin {
     this.dispatch("DUPLICATE_PIVOT", {
       pivotId,
       newPivotId,
+      duplicatedPivotName: _t("%s (copy)", this.getters.getPivotCoreDefinition(pivotId).name),
     });
     const activeSheetId = this.getters.getActiveSheetId();
     const position = this.getters.getSheetIds().indexOf(activeSheetId) + 1;
