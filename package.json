@@ -22,7 +22,6 @@
     "build:bundleXml": "node tools/bundle_xml/main.cjs",
     "buildDev": "npm-run-all build:js build:bundleJsDev \"build:bundleXml -- --outDir build\"",
     "build": "npm-run-all build:js build:bundleJs \"build:bundleXml -- --outDir build\"",
-    "doc": "typedoc",
     "precommit": "npm run prettier && npm run doc",
     "test": "tsc --noEmit --project tsconfig.jest.json && jest",
     "test:watch": "jest --watch",
@@ -90,8 +89,6 @@
     "rollup": "^3.28.0",
     "rollup-plugin-dts": "^5.3.1",
     "rollup-plugin-typescript2": "^0.35.0",
-    "typedoc": "0.25.12",
-    "typedoc-plugin-markdown": "3.17.1",
     "typescript": "^5.4.3",
     "xml-formatter": "^2.4.0"
   },
