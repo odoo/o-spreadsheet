@@ -27,6 +27,7 @@ exports[`Linear/Time charts font color is white with a dark background color 1`]
           "label": "10",
           "pointBackgroundColor": "#4EA7F2",
           "tension": 0,
+          "yAxisID": "y",
         },
       ],
       "labels": [
@@ -176,6 +177,7 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for date char
           "label": "Series 1",
           "pointBackgroundColor": "#4EA7F2",
           "tension": 0,
+          "yAxisID": "y",
         },
       ],
       "labels": [
@@ -334,6 +336,7 @@ exports[`Linear/Time charts snapshot test of chartJS configuration for linear ch
           "label": "Series 1",
           "pointBackgroundColor": "#4EA7F2",
           "tension": 0,
+          "yAxisID": "y",
         },
       ],
       "labels": [
@@ -469,6 +472,8 @@ exports[`datasource tests create a chart with stacked bar 1`] = `
             30,
           ],
           "label": "P4",
+          "xAxisID": "x",
+          "yAxisID": "y",
         },
       ],
       "labels": [
@@ -574,6 +579,7 @@ exports[`datasource tests create chart with a dataset of one cell (no title) 1`]
           "label": "Series 1",
           "pointBackgroundColor": "#4EA7F2",
           "tension": 0,
+          "yAxisID": "y",
         },
       ],
       "labels": [
@@ -698,6 +704,7 @@ exports[`datasource tests create chart with column datasets 1`] = `
           "label": "first column dataset",
           "pointBackgroundColor": "#4EA7F2",
           "tension": 0,
+          "yAxisID": "y",
         },
         {
           "backgroundColor": "#EA6175",
@@ -711,6 +718,7 @@ exports[`datasource tests create chart with column datasets 1`] = `
           "label": "second column datase…",
           "pointBackgroundColor": "#EA6175",
           "tension": 0,
+          "yAxisID": "y",
         },
       ],
       "labels": [
@@ -851,6 +859,7 @@ exports[`datasource tests create chart with column datasets with category title 
           "label": "first column dataset",
           "pointBackgroundColor": "#4EA7F2",
           "tension": 0,
+          "yAxisID": "y",
         },
         {
           "backgroundColor": "#EA6175",
@@ -864,6 +873,7 @@ exports[`datasource tests create chart with column datasets with category title 
           "label": "second column datase…",
           "pointBackgroundColor": "#EA6175",
           "tension": 0,
+          "yAxisID": "y",
         },
       ],
       "labels": [
@@ -1005,6 +1015,7 @@ exports[`datasource tests create chart with column datasets without series title
           "label": "Series 1",
           "pointBackgroundColor": "#4EA7F2",
           "tension": 0,
+          "yAxisID": "y",
         },
         {
           "backgroundColor": "#EA6175",
@@ -1018,6 +1029,7 @@ exports[`datasource tests create chart with column datasets without series title
           "label": "Series 2",
           "pointBackgroundColor": "#EA6175",
           "tension": 0,
+          "yAxisID": "y",
         },
       ],
       "labels": [
@@ -1267,6 +1279,7 @@ exports[`datasource tests create chart with rectangle dataset 1`] = `
           "label": "first column dataset",
           "pointBackgroundColor": "#4EA7F2",
           "tension": 0,
+          "yAxisID": "y",
         },
         {
           "backgroundColor": "#EA6175",
@@ -1280,6 +1293,7 @@ exports[`datasource tests create chart with rectangle dataset 1`] = `
           "label": "second column datase…",
           "pointBackgroundColor": "#EA6175",
           "tension": 0,
+          "yAxisID": "y",
         },
       ],
       "labels": [
@@ -1420,6 +1434,7 @@ exports[`datasource tests create chart with row datasets 1`] = `
           "label": "first row dataset",
           "pointBackgroundColor": "#4EA7F2",
           "tension": 0,
+          "yAxisID": "y",
         },
         {
           "backgroundColor": "#EA6175",
@@ -1433,6 +1448,7 @@ exports[`datasource tests create chart with row datasets 1`] = `
           "label": "second row dataset",
           "pointBackgroundColor": "#EA6175",
           "tension": 0,
+          "yAxisID": "y",
         },
       ],
       "labels": [
@@ -1573,6 +1589,7 @@ exports[`datasource tests create chart with row datasets with category title 1`]
           "label": "first row dataset",
           "pointBackgroundColor": "#4EA7F2",
           "tension": 0,
+          "yAxisID": "y",
         },
         {
           "backgroundColor": "#EA6175",
@@ -1586,6 +1603,7 @@ exports[`datasource tests create chart with row datasets with category title 1`]
           "label": "second row dataset",
           "pointBackgroundColor": "#EA6175",
           "tension": 0,
+          "yAxisID": "y",
         },
       ],
       "labels": [
@@ -1727,6 +1745,7 @@ exports[`datasource tests create chart with row datasets without series title 1`
           "label": "Series 1",
           "pointBackgroundColor": "#4EA7F2",
           "tension": 0,
+          "yAxisID": "y",
         },
         {
           "backgroundColor": "#EA6175",
@@ -1740,6 +1759,7 @@ exports[`datasource tests create chart with row datasets without series title 1`
           "label": "Series 2",
           "pointBackgroundColor": "#EA6175",
           "tension": 0,
+          "yAxisID": "y",
         },
       ],
       "labels": [

@@ -5,6 +5,7 @@ import {
   BarChartDefinition,
   BarChartRuntime,
   ChartJSRuntime,
+  ChartWithAxisDefinition,
   LineChartDefinition,
   LineChartRuntime,
   PieChartRuntime,
@@ -1929,6 +1930,38 @@ describe("Chart design configuration", () => {
         expect(
           getChartConfiguration(model, "42").options.scales.y?.ticks.callback!(60000000)
         ).toEqual("$60,000,000");
+      }
+    );
+
+    test.each<ChartWithAxisDefinition["type"]>(["bar", "line", "scatter", "combo"])(
+      "%s chart: both Y axis can have different formats, which are applied to the ticks and tooltips",
+      (chartType) => {
+        createChart(
+          model,
+          {
+            ...defaultChart,
+            type: chartType,
+            dataSets: [
+              { dataRange: "A1:A2", yAxisId: "y" },
+              { dataRange: "B1:B2", yAxisId: "y1" },
+            ],
+          },
+          "42"
+        );
+        setCellFormat(model, "A2", "[$$]#,#");
+        setCellFormat(model, "B1", "0%");
+
+        const options = getChartConfiguration(model, "42").options;
+        const scales = options.scales;
+        expect(scales.y?.ticks.callback!(60000000)).toEqual("$60,000,000");
+        expect(scales.y1?.ticks.callback!(0.5)).toEqual("50%");
+
+        const tooltipCallbacks = options?.plugins?.tooltip?.callbacks as any;
+        let tooltipItem = { parsed: { y: 20 }, dataset: { yAxisID: "y", label: "Ds 1" } };
+        expect(tooltipCallbacks?.label?.(tooltipItem)).toEqual("Ds 1: $20");
+
+        tooltipItem = { parsed: { y: 20 }, dataset: { yAxisID: "y1", label: "Ds 2" } };
+        expect(tooltipCallbacks?.label?.(tooltipItem)).toEqual("Ds 2: 2000%");
       }
     );
 

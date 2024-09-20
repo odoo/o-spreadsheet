@@ -97,7 +97,11 @@ describe("population pyramid chart", () => {
       // Second dataset is converted to negative values for chartJS display, but it should be invisible to the user
       expect(options.scales.x.ticks.callback(-10)).toBe("10€");
 
-      const tooltipTestItem = { parsed: { x: -10, y: "label" }, label: "dataSetLabel" };
+      const tooltipTestItem = {
+        parsed: { x: -10, y: "label" },
+        label: "dataSetLabel",
+        dataset: { xAxisID: "x" },
+      };
       const tooltip = runtime.chartJsConfig.options?.plugins?.tooltip as any;
       expect(tooltip?.callbacks?.label(tooltipTestItem)).toBe("dataSetLabel: 10€");
     });

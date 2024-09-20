@@ -358,7 +358,9 @@ export function createWaterfallChartRuntime(
     labels.push(_t("Subtotal"));
   }
 
-  const dataSetFormat = getChartDatasetFormat(getters, chart.dataSets);
+  const dataSetFormat =
+    getChartDatasetFormat(getters, chart.dataSets, "left") ||
+    getChartDatasetFormat(getters, chart.dataSets, "right");
   const locale = getters.getLocale();
   const dataSeriesLabels = dataSetsValues.map((dataSet) => dataSet.label);
   const config = getWaterfallConfiguration(chart, labels, dataSeriesLabels, {
