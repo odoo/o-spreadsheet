@@ -13,7 +13,6 @@ import {
   ACTION_COLOR,
   ALERT_DANGER_BORDER,
   BACKGROUND_GRAY_COLOR,
-  BOTTOMBAR_HEIGHT,
   BUTTON_ACTIVE_BG,
   BUTTON_ACTIVE_TEXT_COLOR,
   BUTTON_BG,
@@ -36,7 +35,6 @@ import {
   SEPARATOR_COLOR,
   TEXT_BODY,
   TEXT_BODY_MUTED,
-  TOPBAR_HEIGHT,
 } from "../../constants";
 import { batched } from "../../helpers";
 import { ImageProvider } from "../../helpers/figures/images/image_provider";
@@ -346,7 +344,7 @@ export class Spreadsheet extends Component<SpreadsheetProps, SpreadsheetChildEnv
     if (this.env.isDashboard()) {
       properties["grid-template-rows"] = `auto`;
     } else {
-      properties["grid-template-rows"] = `${TOPBAR_HEIGHT}px auto ${BOTTOMBAR_HEIGHT + 1}px`;
+      properties["grid-template-rows"] = `min-content auto min-content`;
     }
     properties["grid-template-columns"] = `auto ${this.sidePanel.panelSize}px`;
 
