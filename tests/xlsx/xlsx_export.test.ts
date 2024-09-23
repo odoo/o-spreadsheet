@@ -1494,7 +1494,7 @@ describe("Test XLSX export", () => {
 
     test("Table style is correctly exported", async () => {
       const model = new Model();
-      createTable(model, "A1:A4", {
+      createTable(model, "A1:B4", {
         totalRow: true,
         firstColumn: true,
         lastColumn: true,
@@ -1503,6 +1503,8 @@ describe("Test XLSX export", () => {
         bandedColumns: true,
         styleId: "TableStyleMedium9",
       });
+      setCellContent(model, "A4", "5");
+      setCellContent(model, "B4", "=65+9");
       const exported = await exportPrettifiedXlsx(model);
       const tableFile = exported.files.find((file) => file.path === "xl/tables/table1.xml");
       const xml = parseXML(new XMLString((tableFile as XLSXExportXMLFile)?.content));
@@ -1517,6 +1519,13 @@ describe("Test XLSX export", () => {
       expect(tableStyle?.getAttribute("showLastColumn")).toEqual("1");
       expect(tableStyle?.getAttribute("showRowStripes")).toEqual("1");
       expect(tableStyle?.getAttribute("showColumnStripes")).toEqual("1");
+
+      const worksheet = exported.files.find((file) => file.path === "xl/worksheets/sheet0.xml");
+      const sheetXML = parseXML(new XMLString((worksheet as XLSXExportXMLFile)?.content));
+      const A4 = sheetXML.querySelector("worksheet row c[r='A4']");
+      expect(A4?.getAttribute("t")).toEqual("s"); // A4 was exported as a string
+      const tableCol2 = xml.querySelector("tableColumn[id='2']");
+      expect(tableCol2?.getAttribute("totalsRowFunction")).toEqual("custom"); // Column with B4 has a custom total row function
 
       expect(tableFile).toMatchSnapshot();
     });

@@ -19095,11 +19095,12 @@ exports[`Test XLSX export Export data filters Export data filters snapshot 1`] =
 
 exports[`Test XLSX export Export data filters Table style is correctly exported 1`] = `
 {
-  "content": "<table id="1" name="Table1" displayName="Table1" ref="A1:A4" headerRowCount="1" totalsRowCount="1" xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" xmlns:xr3="http://schemas.microsoft.com/office/spreadsheetml/2016/revision3" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
-    <autoFilter ref="A1:A4">
+  "content": "<table id="1" name="Table1" displayName="Table1" ref="A1:B4" headerRowCount="1" totalsRowCount="1" xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" xmlns:xr3="http://schemas.microsoft.com/office/spreadsheetml/2016/revision3" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006">
+    <autoFilter ref="A1:B4">
     </autoFilter>
-    <tableColumns count="1">
+    <tableColumns count="2">
         <tableColumn id="1" name="Column0"/>
+        <tableColumn id="2" name="Column1" totalsRowFunction="custom"/>
     </tableColumns>
     <tableStyleInfo name="TableStyleMedium9" showFirstColumn="1" showLastColumn="1" showRowStripes="1" showColumnStripes="1"/>
 </table>",
