@@ -105,11 +105,12 @@ export function addRows(
           ({ attrs: additionalAttrs, node: cellNode } = addContent(label, construct.sharedStrings));
         } else if (cell.content && cell.content !== "") {
           const isTableHeader = isCellTableHeader(c, r, sheet);
+          const isTableTotal = isCellTableTotal(c, r, sheet);
           const isPlainText = !!(cell.format && data.formats[cell.format] === PLAIN_TEXT_FORMAT);
           ({ attrs: additionalAttrs, node: cellNode } = addContent(
             cell.content,
             construct.sharedStrings,
-            isTableHeader || isPlainText
+            isTableHeader || isTableTotal || isPlainText
           ));
         }
         attributes.push(...additionalAttrs);
@@ -145,6 +146,17 @@ function isCellTableHeader(col: HeaderIndex, row: HeaderIndex, sheet: ExcelSheet
     const zone = toZone(table.range);
     const headerZone = { ...zone, bottom: zone.top };
     return isInside(col, row, headerZone);
+  });
+}
+
+function isCellTableTotal(col: HeaderIndex, row: HeaderIndex, sheet: ExcelSheetData): boolean {
+  return sheet.tables.some((table) => {
+    if (!table.config.totalRow) {
+      return false;
+    }
+    const zone = toZone(table.range);
+    const totalZone = { ...zone, top: zone.bottom };
+    return isInside(col, row, totalZone);
   });
 }
 
