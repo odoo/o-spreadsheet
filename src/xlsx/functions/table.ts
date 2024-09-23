@@ -76,6 +76,15 @@ function addTableColumns(table: ExcelTableData, sheetData: ExcelSheetData): XMLS
       ["id", i + 1], // id cannot be 0
       ["name", colName],
     ];
+    if (table.config.totalRow) {
+      // Note: To be 100% complete, we could also add a `totalsRowLabel` attribute for total strings, and a tag
+      // `<totalsRowFormula>` for the formula of the total. But those doesn't seem to be mandatory for Excel.
+      const colTotalXc = toXC(tableZone.left + i, tableZone.bottom);
+      const colTotalContent = sheetData.cells[colTotalXc]?.content;
+      if (colTotalContent?.startsWith("=")) {
+        colAttributes.push(["totalsRowFunction", "custom"]);
+      }
+    }
     columns.push(escapeXml/*xml*/ `<tableColumn ${formatAttributes(colAttributes)}/>`);
   }
 
