@@ -9,7 +9,6 @@
     "outDir": "build/js",
     "alwaysStrict": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": false,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "strictPropertyInitialization": true,

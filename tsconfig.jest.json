@@ -30,5 +30,6 @@
     "disableSources": true,
     "excludeExternals": true
   },
-  "files": ["global.d.ts"]
+  "files": ["global.d.ts"],
+  "references": [{ "path": "packages/o-spreadsheet-utils" }]
 }

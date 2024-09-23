@@ -198,6 +198,7 @@ import { DEFAULT_LOCALE } from "./types/locale";
 
 import { UuidGenerator } from "@odoo/o-spreadsheet-utils";
 export const __info__ = {};
+export { setTranslationMethod } from "@odoo/o-spreadsheet-utils";
 export { Revision } from "./collaborative/revisions";
 export { tokenColors } from "./components/composer/composer/composer";
 export { Spreadsheet } from "./components/index";
@@ -218,7 +219,6 @@ export { Model } from "./model";
 export { CorePlugin } from "./plugins/core_plugin";
 export { UIPlugin } from "./plugins/ui_plugin";
 export { Registry } from "./registries/registry";
-export { setTranslationMethod } from "./translation";
 export { CancelledReason, CommandResult, DispatchResult, addRenderingLayer } from "./types";
 export { Client } from "./types/collaborative/session";
 export {

@@ -121,7 +121,7 @@
       ]
     },
     "moduleNameMapper": {
-      "@odoo/o-spreadsheet-utils": "<rootDir>/packages/o-spreadsheet-utils/src"
+      "@odoo/o-spreadsheet-utils": "<rootDir>/packages/o-spreadsheet-utils/src/"
     },
     "verbose": false,
     "testEnvironment": "jsdom",
