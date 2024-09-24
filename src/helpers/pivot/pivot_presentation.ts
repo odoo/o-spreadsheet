@@ -533,7 +533,7 @@ export default function (PivotClass: PivotUIConstructor) {
       const mainDimension = getFieldDimensionType(this, fieldNameWithGranularity);
       const secondaryDimension = mainDimension === "row" ? "column" : "row";
 
-      let pivotCells = this.getPivotValueCells();
+      let pivotCells = this.getPivotValueCells(measure.id);
 
       if (mainDimension === "column") {
         // Transpose the pivot cells so we can do the same operations on the columns as on the rows
@@ -597,7 +597,7 @@ export default function (PivotClass: PivotUIConstructor) {
       const mainDimension = getFieldDimensionType(this, fieldNameWithGranularity);
       const secondaryDimension = mainDimension === "row" ? "column" : "row";
 
-      let pivotCells = this.getPivotValueCells();
+      let pivotCells = this.getPivotValueCells(measure.id);
 
       if (mainDimension === "column") {
         // Transpose the pivot cells so we can do the same operations on the columns as on the rows
@@ -703,10 +703,10 @@ export default function (PivotClass: PivotUIConstructor) {
       return comparedValueNumber;
     }
 
-    private getPivotValueCells(): PivotValueCell[][] {
+    private getPivotValueCells(measureId: string): PivotValueCell[][] {
       return this.getTableStructure()
         .getPivotCells()
-        .map((col) => col.filter((cell) => cell.type === "VALUE"))
+        .map((col) => col.filter((cell) => cell.type === "VALUE" && cell.measure === measureId))
         .filter((col) => col.length > 0) as PivotValueCell[][];
     }
 
