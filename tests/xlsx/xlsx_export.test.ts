@@ -84,6 +84,7 @@ const simpleData = {
         A38: { content: `='<Sheet2>'!B2` },
         A39: { content: `=A39` },
         A40: { content: `=(1+2)/3` },
+        A41: { content: "=#REF + 5" },
         K3: { border: 5 },
         K4: { border: 4 },
         K5: { border: 4 },
