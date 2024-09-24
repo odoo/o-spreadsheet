@@ -1,5 +1,7 @@
 import { Token } from "../../formulas";
 import { astToFormula } from "../../formulas/parser";
+import { toScalar } from "../../functions/helper_matrices";
+import { toBoolean } from "../../functions/helpers";
 import {
   getFirstPivotFunction,
   getNumberOfPivotFunctions,
@@ -204,11 +206,14 @@ export class PivotUIPlugin extends UIPlugin {
       return EMPTY_PIVOT_CELL;
     }
     if (functionName === "PIVOT") {
-      const includeTotal = args[2] === false ? false : undefined;
-      const includeColumnHeaders = args[3] === false ? false : undefined;
+      const includeTotal = toScalar(args[2]);
+      const shouldIncludeTotal = includeTotal === undefined ? true : toBoolean(includeTotal);
+      const includeColumnHeaders = toScalar(args[3]);
+      const shouldIncludeColumnHeaders =
+        includeColumnHeaders === undefined ? true : toBoolean(includeColumnHeaders);
       const pivotCells = pivot
         .getTableStructure()
-        .getPivotCells(includeTotal, includeColumnHeaders);
+        .getPivotCells(shouldIncludeTotal, shouldIncludeColumnHeaders);
       const pivotCol = position.col - mainPosition.col;
       const pivotRow = position.row - mainPosition.row;
       return pivotCells[pivotCol][pivotRow];
