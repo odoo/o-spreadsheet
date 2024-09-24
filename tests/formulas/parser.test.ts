@@ -1,5 +1,5 @@
 import { astToFormula, parse } from "../../src";
-import { InvalidReferenceError } from "../../src/types/errors";
+import { CellErrorType } from "../../src/types/errors";
 
 describe("parser", () => {
   test("can parse a function call with no argument", () => {
@@ -151,7 +151,10 @@ describe("parser", () => {
   });
 
   test("Can parse invalid references", () => {
-    expect(() => parse("#REF")).toThrowError(new InvalidReferenceError().message);
+    expect(parse("#REF")).toEqual({
+      type: "REFERENCE",
+      value: CellErrorType.InvalidReference,
+    });
   });
 
   test("Cannot parse empty string", () => {
