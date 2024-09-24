@@ -1,7 +1,7 @@
 import { parseNumber, removeStringQuotes } from "../helpers/index";
 import { _t } from "../translation";
 import { DEFAULT_LOCALE } from "../types";
-import { BadExpressionError, InvalidReferenceError } from "../types/errors";
+import { BadExpressionError, CellErrorType } from "../types/errors";
 import { rangeTokenize } from "./range_tokenizer";
 import { Token } from "./tokenizer";
 
@@ -112,7 +112,11 @@ function parseOperand(tokens: Token[]): AST {
     case "STRING":
       return { type: "STRING", value: removeStringQuotes(current.value) };
     case "INVALID_REFERENCE":
-      throw new InvalidReferenceError();
+      return {
+        type: "REFERENCE",
+        value: CellErrorType.InvalidReference,
+      };
+
     case "REFERENCE":
       if (tokens[0]?.value === ":" && tokens[1]?.type === "REFERENCE") {
         tokens.shift();
