@@ -644,7 +644,11 @@ export class ComposerStore extends SpreadsheetStore {
       const pivotId = this.getters.getPivotIdFromPosition(position);
       const pivotCell = this.getters.getPivotCellFromPosition(position);
       const cell = this.getters.getCell(position);
-      if (pivotId && pivotCell.type !== "EMPTY" && !cell?.isFormula) {
+      const cellIsPivotFormula =
+        cell?.isFormula &&
+        this.getters.getFirstPivotFunction(position.sheetId, cell.compiledFormula.tokens)
+          ?.functionName === "PIVOT";
+      if (pivotId && pivotCell.type !== "EMPTY" && (!cell?.isFormula || cellIsPivotFormula)) {
         const formulaPivotId = this.getters.getPivotFormulaId(pivotId);
         const formula = createPivotFormula(formulaPivotId, pivotCell);
         return localizeFormula(formula, this.getters.getLocale()).slice(1); // strip leading =
