@@ -49,6 +49,7 @@
             dropdownDirection="'left'"
             onColorPicked="(color) => this.setColorScaleColor(thresholdType, color)"
             currentColor="getThresholdColor(threshold)"
+            disableNoColor="true"
           />
         </div>
       </div>

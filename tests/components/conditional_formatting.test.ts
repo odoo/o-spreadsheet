@@ -9,7 +9,11 @@ import {
   paste,
   setSelection,
 } from "../test_helpers/commands_helpers";
-import { setInputValueAndTrigger, triggerMouseEvent } from "../test_helpers/dom_helper";
+import {
+  setInputValueAndTrigger,
+  simulateClick,
+  triggerMouseEvent,
+} from "../test_helpers/dom_helper";
 import {
   createColorScale,
   createEqualCF,
@@ -1121,6 +1125,14 @@ describe("UI of conditional formats", () => {
     await nextTick();
     expect(model.getters.getConditionalFormats(model.getters.getActiveSheetId())).toHaveLength(0);
     expect(errorMessages()).toEqual(["Invalid Maxpoint formula"]);
+  });
+
+  test("Hides the 'No Color' button when the color picker is opened for the color scale", async () => {
+    await simulateClick(selectors.buttonAdd);
+    await simulateClick(document.querySelectorAll(selectors.cfTabSelector)[1]);
+    await simulateClick(selectors.colorScaleEditor.minColor);
+
+    expect(fixture.querySelector(".o-buttons .o-cancel")).toBeNull();
   });
 
   describe("Icon set CF", () => {
