@@ -1387,6 +1387,39 @@ describe("Measure display", () => {
         A25: "Total",      B25: "",        C25: "",       D25: "",
       });
     });
+
+    test("Running total with multiple measures", () => {
+      const model = createModelWithTestPivot({
+        measures: [
+          {
+            fieldName: "Expected Revenue",
+            aggregator: "sum",
+            userDefinedName: "m1",
+            id: "m1",
+          },
+          {
+            fieldName: "Expected Revenue",
+            aggregator: "sum",
+            id: "m2",
+            userDefinedName: "m2",
+            display: {
+              type: "running_total",
+              fieldNameWithGranularity: "Salesperson",
+            },
+          },
+        ],
+      });
+
+      // prettier-ignore
+      expect(getFormattedGrid(model)).toMatchObject({
+        A20:"(#1) Pivot",  B20: "Alice",   C20: "",        D20: "Bob",    E20: "",        F20: "Total",   G20: "",
+        A21: "",           B21: "m1",      C21: "m2",      D21: "m1",     E21: "m2",      F21: "m1",      G21: "m2",
+        A22: "February",   B22: "22500",   C22: "22500",   D22: "",       E22: "22500",   F22: "22500",   G22: "",
+        A23: "March",      B23: "125400",  C23: "125400",  D23: "64000",  E23: "189400",  F23: "189400",  G23: "",
+        A24: "April",      B24: "82300",   C24: "82300",   D24: "26000",  E24: "108300",  F24: "108300",  G24: "",
+        A25: "Total",      B25: "230200",  C25: "230200",  D25: "90000",  E25: "320200",  F25: "320200",  G25: "",
+      });
+    });
   });
 
   describe("%_running_total", () => {
