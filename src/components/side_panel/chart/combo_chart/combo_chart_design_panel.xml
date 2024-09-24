@@ -111,13 +111,16 @@
                 </div>
                 <div class="w-50 ms-3" t-if="trendType === 'polynomial'">
                   <span class="o-section-subtitle">Degree</span>
-                  <input
+                  <select
                     t-att-value="trend.order"
-                    type="number"
-                    class="w-100 o-input trend-order-input"
-                    t-on-change="this.onChangePolynomialDegree"
-                    min="1"
-                  />
+                    class="o-input trend-order-input"
+                    t-on-change="this.onChangePolynomialDegree">
+                    <t t-foreach="getPolynomialDegrees()" t-as="degree" t-key="degree">
+                      <option t-att-value="degree">
+                        <t t-esc="degree"/>
+                      </option>
+                    </t>
+                  </select>
                 </div>
               </div>
               <div class="d-flex align-items-center">

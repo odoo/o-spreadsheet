@@ -1,7 +1,8 @@
 import { Component, useState } from "@odoo/owl";
-import { getColorsPalette, getNthColor, setColorAlpha, toHex } from "../../../../helpers";
+import { getColorsPalette, getNthColor, range, setColorAlpha, toHex } from "../../../../helpers";
 import { CHART_AXIS_CHOICES, getDefinedAxis } from "../../../../helpers/figures/charts";
 import { _t } from "../../../../translation";
+import { ChartJSRuntime } from "../../../../types/chart";
 import {
   ChartWithAxisDefinition,
   Color,
@@ -74,6 +75,10 @@ export class ChartWithAxisDesignPanel<P extends Props = Props> extends Component
 
   getDataSeries() {
     return this.props.definition.dataSets.map((d, i) => d.label ?? `${ChartTerms.Series} ${i + 1}`);
+  }
+
+  getPolynomialDegrees(): number[] {
+    return range(1, this.getMaxPolynomialDegree() + 1);
   }
 
   updateSerieEditor(ev) {
@@ -205,12 +210,7 @@ export class ChartWithAxisDesignPanel<P extends Props = Props> extends Component
 
   onChangePolynomialDegree(ev: InputEvent) {
     const element = ev.target as HTMLInputElement;
-    const order = parseInt(element.value || "1");
-    if (order < 2) {
-      element.value = `${this.getTrendLineConfiguration()?.order ?? 2}`;
-      return;
-    }
-    this.updateTrendLineValue({ order });
+    this.updateTrendLineValue({ order: parseInt(element.value) });
   }
 
   getTrendLineColor() {
@@ -234,5 +234,10 @@ export class ChartWithAxisDesignPanel<P extends Props = Props> extends Component
       },
     };
     this.props.updateChart(this.props.figureId, { dataSets });
+  }
+
+  getMaxPolynomialDegree() {
+    const runtime = this.env.model.getters.getChartRuntime(this.props.figureId) as ChartJSRuntime;
+    return Math.min(10, runtime.chartJsConfig.data.datasets[this.state.index].data.length - 1);
   }
 }
