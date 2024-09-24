@@ -1,8 +1,7 @@
 import { DEFAULT_ERROR_MESSAGE } from "../constants";
 import { parseNumber, removeStringQuotes } from "../helpers/index";
 import { _lt } from "../translation";
-import { InvalidReferenceError } from "../types/errors";
-import { UnknownFunctionError } from "./../types/errors";
+import { CellErrorType, UnknownFunctionError } from "./../types/errors";
 import { rangeTokenize } from "./range_tokenizer";
 import { Token } from "./tokenizer";
 
@@ -152,7 +151,11 @@ function parsePrefix(current: Token, tokens: Token[]): AST {
         return { type: "FUNCALL", value: current.value, args };
       }
     case "INVALID_REFERENCE":
-      throw new InvalidReferenceError();
+      return {
+        type: "REFERENCE",
+        value: CellErrorType.InvalidReference,
+      };
+
     case "REFERENCE":
       if (tokens[0]?.value === ":" && tokens[1]?.type === "REFERENCE") {
         tokens.shift();
