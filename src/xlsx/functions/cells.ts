@@ -10,7 +10,8 @@ import {
 import { functionRegistry } from "../../functions";
 import { formatValue, isNumber } from "../../helpers";
 import { mdyDateRegexp, parseDateTime, timeRegexp, ymdDateRegexp } from "../../helpers/dates";
-import { ExcelCellData, Format } from "../../types";
+import { CellValue, ExcelCellData, Format } from "../../types";
+import { CellErrorType } from "../../types/errors";
 import { XMLAttributes, XMLString } from "../../types/xlsx";
 import { FORCE_DEFAULT_ARGS_FUNCTIONS, NON_RETROCOMPATIBLE_FUNCTIONS } from "../constants";
 import { getCellType, pushElement } from "../helpers/content_helpers";
@@ -34,13 +35,14 @@ export function addFormula(cell: ExcelCellData):
     .every((tk) => functions[tk.value.toUpperCase()].isExported);
 
   const type = getCellType(cell.value);
+  const exportedValue = adaptFormulaValueToExcel(cell.value);
   if (isExported) {
     const XlsxFormula = adaptFormulaToExcel(formula);
     node = escapeXml/*xml*/ `
       <f>
         ${XlsxFormula}
       </f>
-      ${escapeXml/*xml*/ `<v>${cell.value}</v>`}
+      ${escapeXml/*xml*/ `<v>${exportedValue}</v>`}
     `;
     attrs.push(["t", type]);
     return { attrs, node };
@@ -49,10 +51,10 @@ export function addFormula(cell: ExcelCellData):
     // nothing* ,we don't export it.
     // * non-falsy value are relevant and so are 0 and FALSE, which only leaves
     // the empty string.
-    if (cell.value === "") return undefined;
+    if (exportedValue === "") return undefined;
 
     attrs.push(["t", type]);
-    node = escapeXml/*xml*/ `<v>${cell.value}</v>`;
+    node = escapeXml/*xml*/ `<v>${exportedValue}</v>`;
     return { attrs, node };
   }
 }
@@ -95,7 +97,14 @@ export function adaptFormulaToExcel(formulaText: string): string {
     ast = addMissingRequiredArgs(ast);
     return ast;
   });
+  ast = convertAstNodes(ast, "REFERENCE", (ast) => {
+    return ast.value === CellErrorType.InvalidReference ? { ...ast, value: "#REF!" } : ast;
+  });
   return ast ? astToFormula(ast) : formulaText;
+}
+
+function adaptFormulaValueToExcel(formulaValue: CellValue): CellValue {
+  return formulaValue === CellErrorType.InvalidReference ? "#REF!" : formulaValue;
 }
 
 /**
