@@ -23593,6 +23593,16 @@ exports[`Test XLSX export Generic sheets (style, hidden, size, cf) Simple model 
                 </v>
             </c>
         </row>
+        <row r="41">
+            <c r="A41" t="str">
+                <f>
+                    #REF!+5
+                </f>
+                <v>
+                    #REF!
+                </v>
+            </c>
+        </row>
     </sheetData>
 </worksheet>",
       "contentType": "sheet",
