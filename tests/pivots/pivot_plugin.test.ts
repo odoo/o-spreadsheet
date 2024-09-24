@@ -105,4 +105,47 @@ describe("Pivot plugin", () => {
     });
     expect(model.getters.getSheetName("Sheet2")).toEqual("forbidden:   (copy) (Pivot #2) (1)");
   });
+
+  test("getPivotCellFromPosition handles falsy arguments for includeColumnTitle", () => {
+    // prettier-ignore
+    const grid = {
+      A1: "Customer", B1: "Price",
+      A2: "Alice",    B2: "10",    
+      A3: "Bob",      B3: "30",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "A1:B3", {
+      columns: [{ name: "Customer" }],
+      rows: [{ name: "Price" }],
+      measures: [{ name: "__count", aggregator: "sum" }],
+    });
+    const sheetId = model.getters.getActiveSheetId();
+    setCellContent(model, "C1", "=PIVOT(1,,,false)");
+    expect(model.getters.getPivotCellFromPosition(toCellPosition(sheetId, "D1"))).toMatchObject({
+      measure: "__count",
+      type: "VALUE",
+    });
+    setCellContent(model, "C1", "=PIVOT(1,,,0)");
+    expect(model.getters.getPivotCellFromPosition(toCellPosition(sheetId, "D1"))).toMatchObject({
+      measure: "__count",
+      type: "VALUE",
+    });
+    setCellContent(model, "C1", `=PIVOT(1,,,"FALSE")`);
+    expect(model.getters.getPivotCellFromPosition(toCellPosition(sheetId, "D1"))).toMatchObject({
+      measure: "__count",
+      type: "VALUE",
+    });
+    setCellContent(model, "C1", "=PIVOT(1,,,true)");
+    expect(model.getters.getPivotCellFromPosition(toCellPosition(sheetId, "D1"))).toMatchObject({
+      type: "HEADER",
+    });
+    setCellContent(model, "C1", "=PIVOT(1,,,1)");
+    expect(model.getters.getPivotCellFromPosition(toCellPosition(sheetId, "D1"))).toMatchObject({
+      type: "HEADER",
+    });
+    setCellContent(model, "C1", `=PIVOT(1,,,"TRUE")`);
+    expect(model.getters.getPivotCellFromPosition(toCellPosition(sheetId, "D1"))).toMatchObject({
+      type: "HEADER",
+    });
+  });
 });
