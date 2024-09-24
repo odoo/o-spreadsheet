@@ -198,8 +198,8 @@ export class PivotUIPlugin extends UIPlugin {
       return EMPTY_PIVOT_CELL;
     }
     if (functionName === "PIVOT") {
-      const includeTotal = args[2] === false ? false : undefined;
-      const includeColumnHeaders = args[3] === false ? false : undefined;
+      const includeTotal = args[2] === false || args[2] === 0 ? false : undefined;
+      const includeColumnHeaders = args[3] === false || args[3] === 0 ? false : undefined;
       const pivotCells = pivot
         .getTableStructure()
         .getPivotCells(includeTotal, includeColumnHeaders);
