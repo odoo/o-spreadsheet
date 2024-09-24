@@ -1,8 +1,9 @@
 import { Component } from "@odoo/owl";
 import { DEFAULT_WINDOW_SIZE } from "../../../../../constants";
-import { getColorsPalette, getNthColor, setColorAlpha, toHex } from "../../../../../helpers";
+import { getColorsPalette, getNthColor, range, setColorAlpha, toHex } from "../../../../../helpers";
 import { CHART_AXIS_CHOICES } from "../../../../../helpers/figures/charts";
 import {
+  ChartJSRuntime,
   ChartWithDataSetDefinition,
   Color,
   DispatchResult,
@@ -120,14 +121,18 @@ export class SeriesWithAxisDesignEditor extends Component<Props, SpreadsheetChil
     this.updateTrendLineValue(index, config);
   }
 
+  getPolynomialDegrees(index: number): number[] {
+    return range(1, this.getMaxPolynomialDegree(index) + 1);
+  }
+
   onChangePolynomialDegree(index: number, ev: InputEvent) {
     const element = ev.target as HTMLInputElement;
-    const order = parseInt(element.value || "1");
-    if (order < 2) {
-      element.value = `${this.getTrendLineConfiguration(index)?.order ?? 2}`;
-      return;
-    }
-    this.updateTrendLineValue(index, { order });
+    this.updateTrendLineValue(index, { order: parseInt(element.value) });
+  }
+
+  getMaxPolynomialDegree(index) {
+    const runtime = this.env.model.getters.getChartRuntime(this.props.figureId) as ChartJSRuntime;
+    return Math.min(10, runtime.chartJsConfig.data.datasets[index].data.length - 1);
   }
 
   get defaultWindowSize() {
