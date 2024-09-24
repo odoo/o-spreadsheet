@@ -1770,6 +1770,31 @@ describe("charts", () => {
     );
 
     test.each(["bar", "line", "scatter", "combo"] as const)(
+      "Polynome degree choices are limited by the number of points",
+      async (type: "bar" | "line" | "scatter" | "combo") => {
+        createChart(
+          model,
+          {
+            dataSets: [
+              { dataRange: "B1:B5", trend: { type: "polynomial", order: 3, display: true } },
+            ],
+            labelRange: "A1:A5",
+            type,
+            dataSetsHaveTitle: false,
+          },
+          chartId,
+          sheetId
+        );
+        await mountChartSidePanel(chartId);
+        await openChartDesignSidePanel(model, env, fixture, chartId);
+
+        const selectElement = fixture.querySelector(".trend-order-input") as HTMLSelectElement;
+        const optionValues = [...selectElement.options].map((o) => o.value);
+        expect(optionValues).toEqual(["1", "2", "3", "4"]);
+      }
+    );
+
+    test.each(["bar", "line", "scatter", "combo"] as const)(
       "Can change trend line color",
       async (type: "bar" | "line" | "scatter" | "combo") => {
         createChart(
