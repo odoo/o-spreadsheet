@@ -9,7 +9,8 @@ import {
 import { functionRegistry } from "../../functions";
 import { formatValue, isNumber } from "../../helpers";
 import { mdyDateRegexp, parseDateTime, timeRegexp, ymdDateRegexp } from "../../helpers/dates";
-import { ExcelCellData, Format } from "../../types";
+import { CellValue, ExcelCellData, Format } from "../../types";
+import { CellErrorType } from "../../types/errors";
 import { XMLAttributes, XMLString } from "../../types/xlsx";
 import { FORCE_DEFAULT_ARGS_FUNCTIONS, NON_RETROCOMPATIBLE_FUNCTIONS } from "../constants";
 import { getCellType, pushElement } from "../helpers/content_helpers";
@@ -33,7 +34,8 @@ export function addFormula(cell: ExcelCellData): {
   const attrs: XMLAttributes = [["t", type]];
   const XlsxFormula = adaptFormulaToExcel(formula);
 
-  const node = escapeXml/*xml*/ `<f>${XlsxFormula}</f><v>${cell.value}</v>`;
+  const exportedValue = adaptFormulaValueToExcel(cell.value);
+  const node = escapeXml/*xml*/ `<f>${XlsxFormula}</f><v>${exportedValue}</v>`;
   return { attrs, node };
 }
 
@@ -76,7 +78,14 @@ export function adaptFormulaToExcel(formulaText: string): string {
     ast = addMissingRequiredArgs(ast);
     return ast;
   });
+  ast = convertAstNodes(ast, "REFERENCE", (ast) => {
+    return ast.value === CellErrorType.InvalidReference ? { ...ast, value: "#REF!" } : ast;
+  });
   return ast ? astToFormula(ast) : formulaText;
+}
+
+function adaptFormulaValueToExcel(formulaValue: CellValue): CellValue {
+  return formulaValue === CellErrorType.InvalidReference ? "#REF!" : formulaValue;
 }
 
 /**
