@@ -1,8 +1,6 @@
+import { tokenColors } from "../../src/components/composer/composer/abstract_composer_store";
 import { CellComposerStore } from "../../src/components/composer/composer/cell_composer_store";
-import {
-  selectionIndicatorClass,
-  tokenColors,
-} from "../../src/components/composer/composer/composer";
+import { selectionIndicatorClass } from "../../src/components/composer/composer/composer";
 import { DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH } from "../../src/constants";
 import { colors, toCartesian, toZone } from "../../src/helpers/index";
 import { Model } from "../../src/model";
@@ -89,7 +87,7 @@ describe("ranges and highlights", () => {
     await typeInComposer("=SU");
     const contentColors = cehMock.colors;
     expect(contentColors["="]).toBe("#3da4ab");
-    expect(contentColors["SU"]).toBe("#000");
+    expect(contentColors["SU"]).toBe("#000000");
   });
 
   test.each([
@@ -934,9 +932,9 @@ describe("composer formula color", () => {
     expect(cehMock.colors["SUM"]).toBe(tokenColors["FUNCTION"]);
   });
 
-  test('type "=SUM(" --> left parenthesis should be highlighted', async () => {
+  test('type "=SUM(" --> left parenthesis should have specific function color', async () => {
     await typeInComposer("=SUM(");
-    expect(cehMock.colors["("]).toBe(tokenColors.MATCHING_PAREN);
+    expect(cehMock.colors["("]).toBe(tokenColors["LEFT_PAREN"]);
   });
 
   test('type "=SUM(1" --> left parenthesis should have specific parenthesis color', async () => {
@@ -959,9 +957,9 @@ describe("composer formula color", () => {
     expect(cehMock.colors[`"2"`]).toBe(tokenColors["STRING"]);
   });
 
-  test(`type '=SUM(1, "2")' --> right parenthesis should be highlighted`, async () => {
+  test(`type '=SUM(1, "2")' --> right parenthesis should have specific function color`, async () => {
     await typeInComposer('=SUM(1, "2")');
-    expect(cehMock.colors[")"]).toBe(tokenColors.MATCHING_PAREN);
+    expect(cehMock.colors[")"]).toBe(tokenColors["RIGHT_PAREN"]);
   });
 
   test(`type '=SUM(1, "2") +' --> right parenthesis should have specific parenthesis color`, async () => {
@@ -977,6 +975,380 @@ describe("composer formula color", () => {
   test(`type '=SUM(1, "2") + TRUE' --> boolean should have specific bolean color`, async () => {
     await typeInComposer('=SUM(1, "2") + TRUE');
     expect(cehMock.colors["TRUE"]).toBe(tokenColors.NUMBER);
+  });
+
+  test(`type '=SUM(1, "2"))' --> extra parenthesis should have specific parenthesis color`, async () => {
+    await typeInComposer('=SUM(1, "2"))');
+    expect(cehMock.colors[")"]).toBe(tokenColors.EXTRA_PAREN);
+  });
+});
+
+function getBlurredState(composerStore: Store<CellComposerStore>) {
+  const result: { isBlurred: boolean; value: string }[] = [];
+
+  let blurredState = !!composerStore.currentTokens[0].isBlurred;
+  let value = "";
+
+  for (const token of composerStore.currentTokens) {
+    if (!!token.isBlurred !== blurredState) {
+      result.push({ isBlurred: blurredState, value });
+      value = token.value;
+      blurredState = !!token.isBlurred;
+    } else {
+      value += token.value;
+    }
+  }
+  result.push({ isBlurred: blurredState, value });
+
+  return result;
+}
+
+describe("Composer blurs formula parts not affected by cursor position.", () => {
+  describe("Type an unfinished formula --> lighten the unfinished part.", () => {
+    let firstPart: string;
+    test.each([
+      "=",
+      "= ",
+      "= S",
+      "= SU",
+      "= SUM",
+      "= SUM( COS ( A1 ) )",
+      "= SUM( COS ( A1 ) ) ",
+      "= SUM( COS ( A1 ) ) +",
+      "= SUM( COS ( A1 ) ) + ",
+      "= SUM( COS ( A1 ) ) + A",
+      "= SUM( COS ( A1 ) ) + AB",
+      "= SUM( COS ( A1 ) ) + ABS",
+      "= SUM( COS ( A1 ) ) + ABS ",
+      "= SUM( COS ( A1 ) ) + ABS ( 42 + (3*2) )",
+      "= SUM( COS ( A1 ) ) + ABS ( 42 + (3*2) ) ",
+    ])('type "%s" --> lighten all', async (str: string) => {
+      await typeInComposer(str);
+      expect(getBlurredState(composerStore)).toEqual([{ isBlurred: false, value: str }]);
+    });
+
+    firstPart = "= ";
+    test.each([
+      "SUM(",
+      "SUM( ",
+      "SUM( C",
+      "SUM( CO",
+      "SUM( COS",
+      "SUM( COS ",
+      "SUM( COS ( A1 )",
+      "SUM( COS ( A1 ) ",
+    ])(`type "${firstPart}%s" --> lighten all elements in SUM`, async (str: string) => {
+      await typeInComposer(firstPart + str);
+      expect(getBlurredState(composerStore)).toEqual([
+        { isBlurred: true, value: firstPart },
+        { isBlurred: false, value: str },
+      ]);
+    });
+
+    firstPart = "= SUM( ";
+    test.each(["COS (", "COS ( ", "COS ( A", "COS ( A", "COS ( A1", "COS ( A1 "])(
+      `type "${firstPart}%s" --> lighten all elements in COS`,
+      async (str: string) => {
+        await typeInComposer(firstPart + str);
+        expect(getBlurredState(composerStore)).toEqual([
+          { isBlurred: true, value: firstPart },
+          { isBlurred: false, value: str },
+        ]);
+      }
+    );
+
+    firstPart = "= SUM( COS ( A1 ) ) + ";
+    test.each([
+      "ABS (",
+      "ABS ( ",
+      "ABS ( 4",
+      "ABS ( 42",
+      "ABS ( 42 ",
+      "ABS ( 42 +",
+      "ABS ( 42 + ",
+      "ABS ( 42 + (",
+      "ABS ( 42 + (3",
+      "ABS ( 42 + (3*",
+      "ABS ( 42 + (3*2",
+      "ABS ( 42 + (3*2)",
+      "ABS ( 42 + (3*2) ",
+    ])(`type "${firstPart}%s" --> lighten all elements in ABS`, async (str: string) => {
+      await typeInComposer(firstPart + str);
+      expect(getBlurredState(composerStore)).toEqual([
+        { isBlurred: true, value: firstPart },
+        { isBlurred: false, value: str },
+      ]);
+    });
+  });
+
+  describe("Move cursor on a nested formula --> lighten the concerned part", () => {
+    test.each([
+      "",
+      "=",
+      "= ", // controversy case --> on google Sheet, lighten only elements in "SUM"
+      "= SUM( COS ( A1 ) )",
+      "= SUM( COS ( A1 ) ) ",
+      "= SUM( COS ( A1 ) ) +",
+      "= SUM( COS ( A1 ) ) + ", // controversy case --> on google Sheet, lighten only elements in "ABS"
+      "= SUM( COS ( A1 ) ) + ABS ( 42 + (3*2) )",
+      "= SUM( COS ( A1 ) ) + ABS ( 42 + (3*2) ) ",
+    ])(
+      'type "= SUM( COS ( A1 ) ) + ABS ( 42 + (3*2) ) " and move cursor after "%s" --> lighten all',
+      async (str: string) => {
+        await typeInComposer("= SUM( COS ( A1 ) ) + ABS ( 42 + (3*2) ) ");
+        composerStore.changeComposerCursorSelection(str.length, str.length);
+        expect(getBlurredState(composerStore)).toEqual([
+          { isBlurred: false, value: "= SUM( COS ( A1 ) ) + ABS ( 42 + (3*2) ) " },
+        ]);
+      }
+    );
+
+    test.each([
+      "= S",
+      "= SU",
+      "= SUM",
+      "= SUM(",
+      "= SUM( ", // controversy case --> on google Sheet, lighten only elements in "COS"
+      "= SUM( COS ( A1 )",
+      "= SUM( COS ( A1 ) ",
+    ])(
+      'type "= SUM( COS ( A1 ) ) + ABS ( 42 + (3*2) ) " and move cursor after "%s" --> lighten all elements in "SUM"',
+      async (str: string) => {
+        await typeInComposer("= SUM( COS ( A1 ) ) + ABS ( 42 + (3*2) ) ");
+        composerStore.changeComposerCursorSelection(str.length, str.length);
+        expect(getBlurredState(composerStore)).toEqual([
+          { isBlurred: true, value: "= " },
+          { isBlurred: false, value: "SUM( COS ( A1 ) )" },
+          { isBlurred: true, value: " + ABS ( 42 + (3*2) ) " },
+        ]);
+      }
+    );
+
+    test.each([
+      "= SUM( C",
+      "= SUM( CO",
+      "= SUM( COS",
+      "= SUM( COS ",
+      "= SUM( COS (",
+      "= SUM( COS ( A",
+      "= SUM( COS ( A1",
+      "= SUM( COS ( A1 ",
+    ])(
+      'type "= SUM( COS ( A1 ) ) + ABS ( 42 + (3*2) ) " and move cursor after "%s" --> lighten all elements in "COS"',
+      async (str: string) => {
+        await typeInComposer("= SUM( COS ( A1 ) ) + ABS ( 42 + (3*2) ) ");
+        composerStore.changeComposerCursorSelection(str.length, str.length);
+        expect(getBlurredState(composerStore)).toEqual([
+          { isBlurred: true, value: "= SUM( " },
+          { isBlurred: false, value: "COS ( A1 )" },
+          { isBlurred: true, value: " ) + ABS ( 42 + (3*2) ) " },
+        ]);
+      }
+    );
+
+    test.each([
+      "= SUM( COS ( A1 ) ) + A",
+      "= SUM( COS ( A1 ) ) + AB",
+      "= SUM( COS ( A1 ) ) + ABS",
+      "= SUM( COS ( A1 ) ) + ABS ",
+      "= SUM( COS ( A1 ) ) + ABS (",
+      "= SUM( COS ( A1 ) ) + ABS ( ",
+      "= SUM( COS ( A1 ) ) + ABS ( 4",
+      "= SUM( COS ( A1 ) ) + ABS ( 42",
+      "= SUM( COS ( A1 ) ) + ABS ( 42 ",
+      "= SUM( COS ( A1 ) ) + ABS ( 42 +",
+      "= SUM( COS ( A1 ) ) + ABS ( 42 + ",
+      "= SUM( COS ( A1 ) ) + ABS ( 42 + (",
+      "= SUM( COS ( A1 ) ) + ABS ( 42 + (3",
+      "= SUM( COS ( A1 ) ) + ABS ( 42 + (3*",
+      "= SUM( COS ( A1 ) ) + ABS ( 42 + (3*2",
+      "= SUM( COS ( A1 ) ) + ABS ( 42 + (3*2)",
+      "= SUM( COS ( A1 ) ) + ABS ( 42 + (3*2) ",
+    ])(
+      'type "= SUM( COS ( A1 ) ) + ABS ( 42 + (3*2) ) " and move cursor after "%s" --> lighten all elements in "ABS"',
+      async (str: string) => {
+        await typeInComposer("= SUM( COS ( A1 ) ) + ABS ( 42 + (3*2) ) ");
+        composerStore.changeComposerCursorSelection(str.length, str.length);
+        expect(getBlurredState(composerStore)).toEqual([
+          { isBlurred: true, value: "= SUM( COS ( A1 ) ) + " },
+          { isBlurred: false, value: "ABS ( 42 + (3*2) )" },
+          { isBlurred: true, value: " " },
+        ]);
+      }
+    );
+  });
+
+  test("Do nothing when selectionStart !== selectionEnd", async () => {
+    const str = "= SUM( COS ( A";
+    await typeInComposer("= SUM( COS ( A1 ) ) + ABS ( 42 + (3*2) ) ");
+    composerStore.changeComposerCursorSelection(str.length, str.length + 1);
+    expect(getBlurredState(composerStore)).toEqual([
+      { isBlurred: false, value: "= SUM( COS ( A1 ) ) + ABS ( 42 + (3*2) ) " },
+    ]);
+  });
+
+  describe("lighten correctly when too much parenthesis", () => {
+    test.each([
+      "",
+      "=", // controversy case --> on google Sheet, lighten only elements in "SUM"
+      "=SUM(COS(A1))",
+      "=SUM(COS(A1)) ",
+      "=SUM(COS(A1)) )",
+      "=SUM(COS(A1)) ))",
+      "=SUM(COS(A1)) )))",
+      "=SUM(COS(A1)) ))) ",
+      "=SUM(COS(A1)) ))) +",
+      "=SUM(COS(A1)) ))) + ", // controversy case --> on google Sheet, lighten only elements in "ABS"
+      "=SUM(COS(A1)) ))) + ABS(42+(3*2))",
+      "=SUM(COS(A1)) ))) + ABS(42+(3*2)) ",
+    ])(
+      'type "=SUM(COS(A1)) ))) + ABS(42+(3*2)) " and move cursor after "%s" --> lighten all',
+      async (str: string) => {
+        await typeInComposer("=SUM(COS(A1)) ))) + ABS(42+(3*2)) ");
+        composerStore.changeComposerCursorSelection(str.length, str.length);
+        expect(getBlurredState(composerStore)).toEqual([
+          { isBlurred: false, value: "=SUM(COS(A1)) ))) + ABS(42+(3*2)) " },
+        ]);
+      }
+    );
+
+    test.each([
+      "=S",
+      "=SU",
+      "=SUM",
+      "=SUM(", // controversy case --> on google Sheet, lighten only elements in "COS"
+      "=SUM(COS(A1)",
+    ])(
+      'type "=SUM(COS(A1)) ))) + ABS(42+(3*2)) " and move cursor after "%s" --> lighten all elements in "SUM"',
+      async (str: string) => {
+        await typeInComposer("=SUM(COS(A1)) ))) + ABS(42+(3*2)) ");
+        composerStore.changeComposerCursorSelection(str.length, str.length);
+        expect(getBlurredState(composerStore)).toEqual([
+          { isBlurred: true, value: "=" },
+          { isBlurred: false, value: "SUM(COS(A1))" },
+          { isBlurred: true, value: " ))) + ABS(42+(3*2)) " },
+        ]);
+      }
+    );
+
+    test.each(["=SUM(C", "=SUM(CO", "=SUM(COS", "=SUM(COS(", "=SUM(COS(A", "=SUM(COS(A1"])(
+      'type "=SUM(COS(A1)) ))) + ABS(42+(3*2)) " and move cursor after "%s" --> lighten all elements in "COS"',
+      async (str: string) => {
+        await typeInComposer("=SUM(COS(A1)) ))) + ABS(42+(3*2)) ");
+        composerStore.changeComposerCursorSelection(str.length, str.length);
+        expect(getBlurredState(composerStore)).toEqual([
+          { isBlurred: true, value: "=SUM(" },
+          { isBlurred: false, value: "COS(A1)" },
+          { isBlurred: true, value: ") ))) + ABS(42+(3*2)) " },
+        ]);
+      }
+    );
+
+    test.each([
+      "=SUM(COS(A1)) ))) + A",
+      "=SUM(COS(A1)) ))) + AB",
+      "=SUM(COS(A1)) ))) + ABS",
+      "=SUM(COS(A1)) ))) + ABS(",
+      "=SUM(COS(A1)) ))) + ABS(4",
+      "=SUM(COS(A1)) ))) + ABS(42",
+      "=SUM(COS(A1)) ))) + ABS(42+",
+      "=SUM(COS(A1)) ))) + ABS(42+(",
+      "=SUM(COS(A1)) ))) + ABS(42+(3",
+      "=SUM(COS(A1)) ))) + ABS(42+(3*",
+      "=SUM(COS(A1)) ))) + ABS(42+(3*2",
+      "=SUM(COS(A1)) ))) + ABS(42+(3*2)",
+    ])(
+      'type "=SUM(COS(A1)) ))) + ABS(42+(3*2)) " and move cursor after "%s" --> lighten all elements in "ABS"',
+      async (str: string) => {
+        await typeInComposer("=SUM(COS(A1)) ))) + ABS(42+(3*2)) ");
+        composerStore.changeComposerCursorSelection(str.length, str.length);
+        expect(getBlurredState(composerStore)).toEqual([
+          { isBlurred: true, value: "=SUM(COS(A1)) ))) + " },
+          { isBlurred: false, value: "ABS(42+(3*2))" },
+          { isBlurred: true, value: " " },
+        ]);
+      }
+    );
+  });
+});
+
+describe("composer set background on matching parenthesis ", () => {
+  test('type "=SUM(" --> left parenthesis should not have background', async () => {
+    await typeInComposer("=SUM(");
+    expect(composerStore.tokenAtCursor?.isRelatedToCursorToken).toBe(false);
+  });
+
+  test('type "=SUM()" --> left and right parenthesis should have background', async () => {
+    await typeInComposer("=SUM()");
+    expect(
+      composerStore.currentTokens
+        .filter((t) => ["RIGHT_PAREN", "LEFT_PAREN"].includes(t.type))
+        .every((t) => t.isRelatedToCursorToken === true)
+    ).toBe(true);
+  });
+
+  test('type "=SUM( COS(42) )" --> left and right parenthesis of "SUM" should have background', async () => {
+    await typeInComposer("=SUM( COS(42) )");
+    expect(
+      composerStore.currentTokens
+        .filter((t) => ["RIGHT_PAREN", "LEFT_PAREN"].includes(t.type) && t.parenthesesCode === "1")
+        .every((t) => t.isRelatedToCursorToken === true)
+    ).toBe(true);
+
+    expect(
+      composerStore.currentTokens
+        .filter((t) => ["RIGHT_PAREN", "LEFT_PAREN"].includes(t.type) && t.parenthesesCode !== "1")
+        .every((t) => t.isRelatedToCursorToken === false)
+    ).toBe(true);
+  });
+
+  test('type "=SUM( COS(42) ) + SIN(24)" and move cursor on left "COS" parenthesis --> only left and right parenthesis of "COS" should have background', async () => {
+    await typeInComposer("=SUM( COS(42) ) + SIN(24)");
+    const str = "=SUM( COS(";
+    composerStore.changeComposerCursorSelection(str.length, str.length);
+
+    expect(
+      composerStore.currentTokens
+        .filter(
+          (t) => ["RIGHT_PAREN", "LEFT_PAREN"].includes(t.type) && t.parenthesesCode === "1:1"
+        )
+        .every((t) => t.isRelatedToCursorToken === true)
+    ).toBe(true);
+
+    expect(
+      composerStore.currentTokens
+        .filter(
+          (t) => ["RIGHT_PAREN", "LEFT_PAREN"].includes(t.type) && t.parenthesesCode !== "1:1"
+        )
+        .every((t) => t.isRelatedToCursorToken === false)
+    ).toBe(true);
+  });
+
+  test('type "=SUM( COS(42) ) + SIN(24)" and move cursor on right "COS" parenthesis --> only left and right parenthesis of "COS" should have background', async () => {
+    await typeInComposer("=SUM( COS(42) ) + SIN(24)");
+    const str = "=SUM( COS(42)";
+    composerStore.changeComposerCursorSelection(str.length, str.length);
+
+    expect(
+      composerStore.currentTokens
+        .filter(
+          (t) => ["RIGHT_PAREN", "LEFT_PAREN"].includes(t.type) && t.parenthesesCode === "1:1"
+        )
+        .every((t) => t.isRelatedToCursorToken === true)
+    ).toBe(true);
+
+    expect(
+      composerStore.currentTokens
+        .filter(
+          (t) => ["RIGHT_PAREN", "LEFT_PAREN"].includes(t.type) && t.parenthesesCode !== "1:1"
+        )
+        .every((t) => t.isRelatedToCursorToken === false)
+    ).toBe(true);
+  });
+
+  test('type "=SUM(42, 24))))" --> right parenthesis should not have background', async () => {
+    await typeInComposer("=SUM(42, 24))))");
+    expect(composerStore.tokenAtCursor?.isRelatedToCursorToken).toBe(false);
   });
 });
 
@@ -1060,9 +1432,9 @@ describe("Composer string is correctly translated to HtmlContents[][] for the co
       [
         { value: "=", color: tokenColors.OPERATOR },
         { value: "1", color: tokenColors.NUMBER },
-        { value: " ", color: "#000" },
+        { value: " ", color: "#000000" },
         { value: "+", color: tokenColors.OPERATOR },
-        { value: " ", color: "#000" },
+        { value: " ", color: "#000000" },
         { value: "A1", color: cehMock.colors["A1"] },
       ],
     ]);
@@ -1093,15 +1465,15 @@ describe("Composer string is correctly translated to HtmlContents[][] for the co
       [{ value: "=", color: tokenColors.OPERATOR }],
       [{ value: "A1: ", color: cehMock.colors["A1: "] }],
       [{ value: "A2", color: cehMock.colors["A1: "] }],
-      [{ value: "", color: "#000" }],
+      [{ value: "", color: "#000000" }],
       [
         { value: "+", color: tokenColors.OPERATOR },
         { value: "SUM", color: tokenColors.FUNCTION },
-        { value: "(", color: tokenColors.MATCHING_PAREN },
+        { value: "(", color: tokenColors.LEFT_PAREN, class: "background-flag" },
       ],
       [
         { value: "5", color: tokenColors.NUMBER },
-        { value: ")", color: tokenColors.MATCHING_PAREN },
+        { value: ")", color: tokenColors.RIGHT_PAREN, class: "background-flag" },
       ],
     ]);
   });
@@ -1110,8 +1482,8 @@ describe("Composer string is correctly translated to HtmlContents[][] for the co
     await typeInComposer("=\n\n");
     expect(cehMock.contents).toEqual([
       [{ value: "=", color: tokenColors.OPERATOR }],
-      [{ value: "", color: "#000" }],
-      [{ value: "", color: "#000", class: selectionIndicatorClass }],
+      [{ value: "", color: "#000000" }],
+      [{ value: "", color: "#000000", class: selectionIndicatorClass }],
     ]);
   });
 });
