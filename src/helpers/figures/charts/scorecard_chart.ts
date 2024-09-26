@@ -22,7 +22,7 @@ import {
   UID,
   UnboundedZone,
 } from "../../../types";
-import { ChartCreationContext } from "../../../types/chart/chart";
+import { AbstractChartTitle, ChartCreationContext } from "../../../types/chart/chart";
 import {
   BaselineArrowDirection,
   BaselineMode,
@@ -37,7 +37,15 @@ import { rangeReference } from "../../references";
 import { clipTextWithEllipsis, drawDecoratedText } from "../../text_helper";
 import { toUnboundedZone, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
-import { adaptChartRange, copyLabelRangeWithNewSheetId } from "./chart_common";
+import {
+  adaptChartRange,
+  checkChartTitle,
+  copyChartTitleReferenceWithNewSheetId,
+  copyLabelRangeWithNewSheetId,
+  getChartRuntimeTitle,
+  getChartTitleWithRangeString,
+  updateTitleRangesForScorecardAndGaugeCharts,
+} from "./chart_common";
 import { ScorecardChartConfig } from "./scorecard_chart_config_builder";
 
 function getBaselineText(
@@ -189,7 +197,7 @@ export class ScorecardChart extends AbstractChart {
     validator: Validator,
     definition: ScorecardChartDefinition
   ): CommandResult | CommandResult[] {
-    return validator.checkValidations(definition, checkKeyValue, checkBaseline);
+    return validator.checkValidations(definition, checkKeyValue, checkBaseline, checkChartTitle);
   }
 
   static getDefinitionFromContextCreation(context: ChartCreationContext): ScorecardChartDefinition {
@@ -197,7 +205,7 @@ export class ScorecardChart extends AbstractChart {
       background: context.background,
       type: "scorecard",
       keyValue: context.range ? context.range[0].dataRange : undefined,
-      title: context.title || { text: "" },
+      title: context.title || { type: "string", text: "" },
       baselineMode: DEFAULT_SCORECARD_BASELINE_MODE,
       baselineColorUp: DEFAULT_SCORECARD_BASELINE_COLOR_UP,
       baselineColorDown: DEFAULT_SCORECARD_BASELINE_COLOR_DOWN,
@@ -218,8 +226,19 @@ export class ScorecardChart extends AbstractChart {
     if (definition.keyValue) {
       keyValueZone = transformZone(toUnboundedZone(definition.keyValue), executed);
     }
+
+    let title: string = definition.title.text;
+    if (definition.title.type === "reference" && definition.title.text) {
+      const titleZone = transformZone(toUnboundedZone(definition.title.text), executed);
+      title = titleZone ? zoneToXc(titleZone) : "";
+    }
+
     return {
       ...definition,
+      title: {
+        ...definition.title,
+        text: title,
+      },
       baseline: baselineZone ? zoneToXc(baselineZone) : undefined,
       keyValue: keyValueZone ? zoneToXc(keyValueZone) : undefined,
     };
@@ -228,22 +247,34 @@ export class ScorecardChart extends AbstractChart {
   copyForSheetId(sheetId: UID): ScorecardChart {
     const baseline = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.baseline);
     const keyValue = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.keyValue);
-    const definition = this.getDefinitionWithSpecificRanges(baseline, keyValue, sheetId);
+    const chartTitle = copyChartTitleReferenceWithNewSheetId(this.sheetId, sheetId, this.title);
+    const definition = this.getDefinitionWithSpecificRanges(
+      baseline,
+      keyValue,
+      chartTitle,
+      sheetId
+    );
     return new ScorecardChart(definition, sheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): ScorecardChart {
-    const definition = this.getDefinitionWithSpecificRanges(this.baseline, this.keyValue, sheetId);
+    const definition = this.getDefinitionWithSpecificRanges(
+      this.baseline,
+      this.keyValue,
+      this.title,
+      sheetId
+    );
     return new ScorecardChart(definition, sheetId, this.getters);
   }
 
   getDefinition(): ScorecardChartDefinition {
-    return this.getDefinitionWithSpecificRanges(this.baseline, this.keyValue);
+    return this.getDefinitionWithSpecificRanges(this.baseline, this.keyValue, this.title);
   }
 
   getContextCreation(): ChartCreationContext {
     return {
       ...this,
+      title: getChartTitleWithRangeString(this.getters, this.sheetId, this.title),
       range: this.keyValue
         ? [{ dataRange: this.getters.getRangeString(this.keyValue, this.sheetId) }]
         : undefined,
@@ -256,13 +287,14 @@ export class ScorecardChart extends AbstractChart {
   private getDefinitionWithSpecificRanges(
     baseline: Range | undefined,
     keyValue: Range | undefined,
+    title: AbstractChartTitle,
     targetSheetId?: UID
   ): ScorecardChartDefinition {
     return {
       baselineColorDown: this.baselineColorDown,
       baselineColorUp: this.baselineColorUp,
       baselineMode: this.baselineMode,
-      title: this.title,
+      title: getChartTitleWithRangeString(this.getters, targetSheetId || this.sheetId, title),
       type: "scorecard",
       background: this.background,
       baseline: baseline
@@ -284,10 +316,11 @@ export class ScorecardChart extends AbstractChart {
   updateRanges(applyChange: ApplyRangeChange): ScorecardChart {
     const baseline = adaptChartRange(this.baseline, applyChange);
     const keyValue = adaptChartRange(this.keyValue, applyChange);
-    if (this.baseline === baseline && this.keyValue === keyValue) {
+    const { isStale, title } = updateTitleRangesForScorecardAndGaugeCharts(applyChange, this.title);
+    if (this.baseline === baseline && this.keyValue === keyValue && !isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificRanges(baseline, keyValue);
+    const definition = this.getDefinitionWithSpecificRanges(baseline, keyValue, title);
     return new ScorecardChart(definition, this.sheetId, this.getters);
   }
 }
@@ -416,6 +449,7 @@ export function createScorecardChartRuntime(
   let formattedKeyValue = "";
   let keyValueCell: EvaluatedCell | undefined;
   const locale = getters.getLocale();
+  const chartTitle = getChartRuntimeTitle(getters, chart.title);
   if (chart.keyValue) {
     const keyValuePosition = {
       sheetId: chart.keyValue.sheetId,
@@ -453,9 +487,9 @@ export function createScorecardChartRuntime(
       : 0;
   return {
     title: {
-      ...chart.title,
+      ...chartTitle,
       // chart titles are extracted from .json files and they are translated at runtime here
-      text: chart.title.text ? _t(chart.title.text) : "",
+      text: chartTitle.text ? _t(chartTitle.text) : "",
     },
     keyValue: formattedKeyValue,
     baselineDisplay,

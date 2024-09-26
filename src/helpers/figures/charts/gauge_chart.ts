@@ -20,7 +20,7 @@ import {
   UnboundedZone,
   Validation,
 } from "../../../types";
-import { ChartCreationContext } from "../../../types/chart/chart";
+import { AbstractChartTitle, ChartCreationContext } from "../../../types/chart/chart";
 import {
   GaugeChartDefinition,
   GaugeChartRuntime,
@@ -34,7 +34,15 @@ import { createValidRange } from "../../range";
 import { rangeReference } from "../../references";
 import { toUnboundedZone, zoneToXc } from "../../zones";
 import { AbstractChart } from "./abstract_chart";
-import { adaptChartRange, copyLabelRangeWithNewSheetId } from "./chart_common";
+import {
+  adaptChartRange,
+  checkChartTitle,
+  copyChartTitleReferenceWithNewSheetId,
+  copyLabelRangeWithNewSheetId,
+  getChartRuntimeTitle,
+  getChartTitleWithRangeString,
+  updateTitleRangesForScorecardAndGaugeCharts,
+} from "./chart_common";
 
 type RangeLimitsValidation = (rangeLimit: string, rangeLimitName: string) => CommandResult;
 type InflectionPointValueValidation = (
@@ -151,6 +159,7 @@ export class GaugeChart extends AbstractChart {
     return validator.checkValidations(
       definition,
       isDataRangeValid,
+      checkChartTitle,
       validator.chainValidations(
         checkRangeLimits(checkEmpty, validator.batchValidations),
         checkRangeLimits(checkNaN, validator.batchValidations),
@@ -169,8 +178,18 @@ export class GaugeChart extends AbstractChart {
       dataRangeZone = transformZone(toUnboundedZone(definition.dataRange), executed);
     }
 
+    let title: string = definition.title.text;
+    if (definition.title.type === "reference" && definition.title.text) {
+      const titleZone = transformZone(toUnboundedZone(definition.title.text), executed);
+      title = titleZone ? zoneToXc(titleZone) : "";
+    }
+
     return {
       ...definition,
+      title: {
+        ...definition.title,
+        text: title,
+      },
       dataRange: dataRangeZone ? zoneToXc(dataRangeZone) : undefined,
     };
   }
@@ -178,7 +197,7 @@ export class GaugeChart extends AbstractChart {
   static getDefinitionFromContextCreation(context: ChartCreationContext): GaugeChartDefinition {
     return {
       background: context.background,
-      title: context.title || { text: "" },
+      title: context.title || { type: "string", text: "" },
       type: "gauge",
       dataRange: context.range ? context.range[0].dataRange : undefined,
       sectionRule: {
@@ -205,27 +224,29 @@ export class GaugeChart extends AbstractChart {
 
   copyForSheetId(sheetId: UID): GaugeChart {
     const dataRange = copyLabelRangeWithNewSheetId(this.sheetId, sheetId, this.dataRange);
-    const definition = this.getDefinitionWithSpecificRanges(dataRange, sheetId);
+    const chartTitle = copyChartTitleReferenceWithNewSheetId(this.sheetId, sheetId, this.title);
+    const definition = this.getDefinitionWithSpecificRanges(dataRange, chartTitle, sheetId);
     return new GaugeChart(definition, sheetId, this.getters);
   }
 
   copyInSheetId(sheetId: UID): GaugeChart {
-    const definition = this.getDefinitionWithSpecificRanges(this.dataRange, sheetId);
+    const definition = this.getDefinitionWithSpecificRanges(this.dataRange, this.title, sheetId);
     return new GaugeChart(definition, sheetId, this.getters);
   }
 
   getDefinition(): GaugeChartDefinition {
-    return this.getDefinitionWithSpecificRanges(this.dataRange);
+    return this.getDefinitionWithSpecificRanges(this.dataRange, this.title);
   }
 
   private getDefinitionWithSpecificRanges(
     dataRange: Range | undefined,
+    title: AbstractChartTitle,
     targetSheetId?: UID
   ): GaugeChartDefinition {
     return {
       background: this.background,
       sectionRule: this.sectionRule,
-      title: this.title,
+      title: getChartTitleWithRangeString(this.getters, targetSheetId || this.sheetId, title),
       type: "gauge",
       dataRange: dataRange
         ? this.getters.getRangeString(dataRange, targetSheetId || this.sheetId)
@@ -241,6 +262,7 @@ export class GaugeChart extends AbstractChart {
   getContextCreation(): ChartCreationContext {
     return {
       ...this,
+      title: getChartTitleWithRangeString(this.getters, this.sheetId, this.title),
       range: this.dataRange
         ? [{ dataRange: this.getters.getRangeString(this.dataRange, this.sheetId) }]
         : undefined,
@@ -249,10 +271,11 @@ export class GaugeChart extends AbstractChart {
 
   updateRanges(applyChange: ApplyRangeChange): GaugeChart {
     const range = adaptChartRange(this.dataRange, applyChange);
-    if (this.dataRange === range) {
+    const { isStale, title } = updateTitleRangesForScorecardAndGaugeCharts(applyChange, this.title);
+    if (this.dataRange === range && !isStale) {
       return this;
     }
-    const definition = this.getDefinitionWithSpecificRanges(range);
+    const definition = this.getDefinitionWithSpecificRanges(range, title);
     return new GaugeChart(definition, this.sheetId, this.getters);
   }
 }
@@ -260,6 +283,7 @@ export class GaugeChart extends AbstractChart {
 export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): GaugeChartRuntime {
   const locale = getters.getLocale();
   const chartColors = chart.sectionRule.colors;
+  const chartTitle = getChartRuntimeTitle(getters, chart.title);
 
   let gaugeValue: number | undefined = undefined;
   let formattedValue: string | undefined = undefined;
@@ -320,7 +344,7 @@ export function createGaugeChartRuntime(chart: GaugeChart, getters: Getters): Ga
 
   return {
     background: getters.getStyleOfSingleCellChart(chart.background, dataRange).background,
-    title: chart.title ?? { text: "" },
+    title: chartTitle,
     minValue: {
       value: minValue,
       label: formatValue(minValue, { locale, format }),

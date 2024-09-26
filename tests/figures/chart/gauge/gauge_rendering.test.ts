@@ -13,7 +13,7 @@ import { MockCanvasRenderingContext2D } from "../../../setup/canvas.mock";
 
 const testRuntime: GaugeChartRuntime = {
   background: "#FFFFFF",
-  title: { text: "This is a title" },
+  title: { type: "string", text: "This is a title" },
   minValue: { value: 0, label: "0" },
   maxValue: { value: 100, label: "100" },
   gaugeValue: { value: 50, label: "50" },

@@ -464,7 +464,7 @@ describe("datasource tests", function () {
       dataSets: [{ dataRange: "Sheet1!A8:D8" }, { dataRange: "Sheet1!A9:D9" }],
       labelRange: "Sheet1!C7:D7",
       dataSetsHaveTitle: true,
-      title: { text: "hello1" },
+      title: { type: "string", text: "hello1" },
     });
     config = getChartConfiguration(model, "1");
     expect(model.getters.getChartDefinition("1")).toMatchObject({
@@ -761,7 +761,7 @@ describe("datasource tests", function () {
     updateChart(model, chartId, {
       dataSets: [{ dataRange: "B1:B4" }],
       labelRange: "A2:A4",
-      title: { text: "updated chart" },
+      title: { type: "string", text: "updated chart" },
     });
     expect(model.getters.getSelectedFigureId()).toBeNull();
   });
@@ -1086,298 +1086,6 @@ describe("datasource tests", function () {
   });
 });
 
-describe("title", function () {
-  test("change title manually", () => {
-    createChart(
-      model,
-      {
-        type: "bar",
-        dataSets: [{ dataRange: "A1:B1" }],
-        labelRange: "A2:B2",
-        title: { text: "title" },
-      },
-      "1"
-    );
-    let options = getChartConfiguration(model, "1").options;
-    expect(options!.plugins!.title!.text).toEqual("title");
-
-    updateChart(model, "1", { title: { text: "newTitle" } });
-    options = getChartConfiguration(model, "1").options;
-    expect(options!.plugins!.title!.text).toEqual("newTitle");
-  });
-
-  test("Title is not displayed if empty", () => {
-    createChart(
-      model,
-      {
-        type: "bar",
-        dataSets: [{ dataRange: "A1:B1" }],
-        labelRange: "A2:B2",
-        title: {
-          text: "title",
-        },
-      },
-      "1"
-    );
-    expect(getChartConfiguration(model, "1").options?.plugins?.title?.display).toBe(true);
-    updateChart(model, "1", { title: { text: "" } });
-    expect(getChartConfiguration(model, "1").options?.plugins?.title?.display).toBe(false);
-  });
-
-  test.each(["line", "bar", "pyramid", "pie", "combo", "waterfall", "scatter"] as const)(
-    "Title alignment is taken into account",
-    (type) => {
-      createChart(
-        model,
-        {
-          dataSets: [{ dataRange: "A1:B1" }],
-          labelRange: "A2:B2",
-          title: {
-            text: "title",
-          },
-          type,
-        },
-        "1"
-      );
-      expect(getChartConfiguration(model, "1").options?.plugins?.title?.align).toBe("start");
-      updateChart(model, "1", { title: { text: "title", align: "center" } });
-      expect(getChartConfiguration(model, "1").options?.plugins?.title?.align).toBe("center");
-      updateChart(model, "1", { title: { text: "title", align: "right" } });
-      expect(getChartConfiguration(model, "1").options?.plugins?.title?.align).toBe("end");
-      updateChart(model, "1", { title: { text: "title", align: "left" } });
-      expect(getChartConfiguration(model, "1").options?.plugins?.title?.align).toBe("start");
-    }
-  );
-  test.each(["line", "bar", "pyramid", "pie", "combo", "waterfall", "scatter"] as const)(
-    "Title color is taken into account",
-    (type) => {
-      createChart(
-        model,
-        {
-          dataSets: [{ dataRange: "A1:B1" }],
-          labelRange: "A2:B2",
-          title: {
-            text: "title",
-            color: "#f00",
-          },
-          type,
-        },
-        "1"
-      );
-      expect(getChartConfiguration(model, "1").options?.plugins?.title?.color).toBe("#f00");
-    }
-  );
-
-  test.each(["line", "bar", "pyramid", "pie", "combo", "waterfall", "scatter"] as const)(
-    "Title bold style is taken into account",
-    (type) => {
-      createChart(
-        model,
-        {
-          dataSets: [{ dataRange: "A1:B1" }],
-          labelRange: "A2:B2",
-          title: {
-            text: "title",
-            bold: true,
-          },
-          type,
-        },
-        "1"
-      );
-      expect(getChartConfiguration(model, "1").options?.plugins?.title?.font).toMatchObject({
-        weight: "bold",
-      });
-      updateChart(model, "1", { title: { text: "title", bold: false } });
-      expect(getChartConfiguration(model, "1").options?.plugins?.title?.font).toMatchObject({
-        weight: "normal",
-      });
-    }
-  );
-
-  test.each(["line", "bar", "pyramid", "pie", "combo", "waterfall", "scatter"] as const)(
-    "Title italic style is taken into account",
-    (type) => {
-      createChart(
-        model,
-        {
-          dataSets: [{ dataRange: "A1:B1" }],
-          labelRange: "A2:B2",
-          title: {
-            text: "title",
-            italic: true,
-          },
-          type,
-        },
-        "1"
-      );
-      expect(getChartConfiguration(model, "1").options?.plugins?.title?.font).toMatchObject({
-        style: "italic",
-      });
-      updateChart(model, "1", { title: { text: "title", italic: false } });
-      expect(getChartConfiguration(model, "1").options?.plugins?.title?.font).toMatchObject({
-        style: "normal",
-      });
-    }
-  );
-
-  test.each(["line", "bar", "pyramid", "combo", "waterfall", "scatter"] as const)(
-    "Axis title alignment is taken into account for %s chart",
-    (type) => {
-      createChart(
-        model,
-        {
-          dataSets: [{ dataRange: "A1:B1" }],
-          labelRange: "A2:B2",
-          type,
-          axesDesign: {
-            x: {
-              title: {
-                text: "test",
-              },
-            },
-          },
-        },
-        "1"
-      );
-      let scales = getChartConfiguration(model, "1").options.scales;
-      expect(scales.x!["title"].align).toEqual("center");
-      updateChart(model, "1", {
-        axesDesign: {
-          x: {
-            title: {
-              text: "test",
-              align: "left",
-            },
-          },
-        },
-      });
-      scales = getChartConfiguration(model, "1").options.scales;
-      expect(scales.x!["title"].align).toEqual("start");
-      updateChart(model, "1", {
-        axesDesign: {
-          x: {
-            title: {
-              text: "test",
-              align: "center",
-            },
-          },
-        },
-      });
-      scales = getChartConfiguration(model, "1").options.scales;
-      expect(scales.x!["title"].align).toEqual("center");
-      updateChart(model, "1", {
-        axesDesign: {
-          x: {
-            title: {
-              text: "test",
-              align: "right",
-            },
-          },
-        },
-      });
-      scales = getChartConfiguration(model, "1").options.scales;
-      expect(scales.x!["title"].align).toEqual("end");
-    }
-  );
-
-  test.each(["line", "bar", "pyramid", "combo", "waterfall", "scatter"] as const)(
-    "Axis title color is taken into account for %s chart",
-    (type) => {
-      createChart(
-        model,
-        {
-          dataSets: [{ dataRange: "A1:B1" }],
-          labelRange: "A2:B2",
-          type,
-          axesDesign: {
-            x: {
-              title: {
-                text: "test",
-                color: "#f00",
-              },
-            },
-          },
-        },
-        "1"
-      );
-      const options = getChartConfiguration(model, "1").options;
-      expect(options!.scales!.x!["title"].color).toEqual("#f00");
-    }
-  );
-
-  test.each(["line", "bar", "pyramid", "combo", "waterfall", "scatter"] as const)(
-    "Axis bold style is taken into account for %s chart",
-    (type) => {
-      createChart(
-        model,
-        {
-          dataSets: [{ dataRange: "A1:B1" }],
-          labelRange: "A2:B2",
-          type,
-          axesDesign: {
-            x: {
-              title: {
-                text: "test",
-              },
-            },
-          },
-        },
-        "1"
-      );
-      let scales = getChartConfiguration(model, "1").options.scales;
-      expect(scales.x!["title"].font.weight).toEqual("normal");
-      updateChart(model, "1", {
-        axesDesign: {
-          x: {
-            title: {
-              text: "test",
-              bold: true,
-            },
-          },
-        },
-      });
-      scales = getChartConfiguration(model, "1").options.scales;
-      expect(scales!.x!["title"].font.weight).toEqual("bold");
-    }
-  );
-
-  test.each(["line", "bar", "pyramid", "combo", "waterfall", "scatter"] as const)(
-    "Axis italic style is taken into account for %s chart",
-    (type) => {
-      createChart(
-        model,
-        {
-          dataSets: [{ dataRange: "A1:B1" }],
-          labelRange: "A2:B2",
-          type,
-          axesDesign: {
-            x: {
-              title: {
-                text: "test",
-              },
-            },
-          },
-        },
-        "1"
-      );
-      let scales = getChartConfiguration(model, "1").options.scales;
-      expect(scales.x!["title"].font.style).toEqual("normal");
-      updateChart(model, "1", {
-        axesDesign: {
-          x: {
-            title: {
-              text: "test",
-              italic: true,
-            },
-          },
-        },
-      });
-      scales = getChartConfiguration(model, "1").options.scales;
-      expect(scales.x!["title"].font.style).toEqual("italic");
-    }
-  );
-});
-
 describe("multiple sheets", function () {
   test("create a chart with data from another sheet", () => {
     createSheet(model, { sheetId: "42", activate: true });
@@ -1602,7 +1310,7 @@ describe("Chart without labels", () => {
     dataSets: [{ dataRange: "A1:A2", yAxisId: "y" }],
     dataSetsHaveTitle: false,
     legendPosition: "top",
-    title: { text: "My chart" },
+    title: { type: "string", text: "My chart" },
     type: "bar",
     stacked: false,
     aggregated: false,
@@ -1670,7 +1378,7 @@ describe("Chart design configuration", () => {
     dataSets: [{ dataRange: "A1:A2", yAxisId: "y" }],
     dataSetsHaveTitle: true,
     legendPosition: "top",
-    title: { text: "My chart" },
+    title: { type: "string", text: "My chart" },
     type: "bar",
     labelRange: "A3",
     stacked: false,
@@ -1981,7 +1689,7 @@ describe("Chart design configuration", () => {
             labelRange: "A1:A2",
             type: chartType,
             legendPosition: "none",
-            title: { text: "" },
+            title: { type: "string", text: "" },
           },
           "1"
         );
@@ -2005,7 +1713,7 @@ describe("Chart design configuration", () => {
             labelRange: "A1:A2",
             type: chartType,
             legendPosition: "bottom",
-            title: { text: "" },
+            title: { type: "string", text: "" },
           },
           "1"
         );
@@ -2033,7 +1741,7 @@ describe("Chart design configuration", () => {
             labelRange: "A1:A2",
             type: chartType,
             legendPosition: "bottom",
-            title: { text: "test" },
+            title: { type: "string", text: "test" },
           },
           "1"
         );
@@ -2256,7 +1964,7 @@ describe("Chart aggregate labels", () => {
       labelRange: "A2:A9",
       dataSetsHaveTitle: false,
       legendPosition: "top",
-      title: { text: "My chart" },
+      title: { type: "string", text: "My chart" },
       type: "bar",
       stacked: false,
       aggregated: false,

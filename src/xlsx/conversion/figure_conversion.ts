@@ -94,7 +94,7 @@ function convertChartData(chartData: ExcelChartDefinition): ChartDefinition | un
     dataSets,
     dataSetsHaveTitle,
     labelRange,
-    title: chartData.title ?? { text: "" },
+    title: chartData.title ?? { type: "string", text: "" },
     type: chartData.type,
     background: convertColor({ rgb: chartData.backgroundColor }) || "#FFFFFF",
     legendPosition: chartData.legendPosition,
