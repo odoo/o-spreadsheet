@@ -709,7 +709,11 @@ export const PIVOT_VALUE = {
     const pivot = this.getters.getPivot(pivotId);
     const coreDefinition = this.getters.getPivotCoreDefinition(pivotId);
 
-    addPivotDependencies(this, coreDefinition);
+    addPivotDependencies(
+      this,
+      coreDefinition,
+      coreDefinition.measures.filter((m) => m.id === _measure)
+    );
     pivot.init({ reload: pivot.needsReevaluation });
     const error = pivot.assertIsValid({ throwOnError: false });
     if (error) {
@@ -747,7 +751,7 @@ export const PIVOT_HEADER = {
     assertDomainLength(domainArgs);
     const pivot = this.getters.getPivot(_pivotId);
     const coreDefinition = this.getters.getPivotCoreDefinition(_pivotId);
-    addPivotDependencies(this, coreDefinition);
+    addPivotDependencies(this, coreDefinition, []);
     pivot.init({ reload: pivot.needsReevaluation });
     const error = pivot.assertIsValid({ throwOnError: false });
     if (error) {
@@ -813,7 +817,7 @@ export const PIVOT = {
     const pivotId = getPivotId(_pivotFormulaId, this.getters);
     const pivot = this.getters.getPivot(pivotId);
     const coreDefinition = this.getters.getPivotCoreDefinition(pivotId);
-    addPivotDependencies(this, coreDefinition);
+    addPivotDependencies(this, coreDefinition, coreDefinition.measures);
     pivot.init({ reload: pivot.needsReevaluation });
     const error = pivot.assertIsValid({ throwOnError: false });
     if (error) {
