@@ -1385,4 +1385,44 @@ describe("edition", () => {
       },
     ]);
   });
+
+  test("click on a pivot without column headers inserts the formula", () => {
+    const grid = {
+      D1: "Name",
+      D2: "Alice",
+      D3: "Bob",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "D1:D3", {
+      columns: [],
+      rows: [{ name: "Name" }],
+      measures: [{ name: "__count", aggregator: "sum" }],
+    });
+    setCellContent(model, "A1", "=PIVOT(1,,,false)");
+    const { store } = makeStoreWithModel(model, ComposerStore);
+    selectCell(model, "C5");
+    store.startEdition("=");
+    selectCell(model, "B1");
+    expect(store.currentContent).toBe('=PIVOT.VALUE(1,"__count","Name","Alice")');
+  });
+
+  test("click on the topLeft cell of the spilled pivot inserts the formula", () => {
+    const grid = {
+      D1: "Name",
+      D2: "Alice",
+      D3: "Bob",
+    };
+    const model = createModelFromGrid(grid);
+    addPivot(model, "D1:D3", {
+      columns: [],
+      rows: [{ name: "Name" }],
+      measures: [{ name: "__count", aggregator: "sum" }],
+    });
+    setCellContent(model, "A1", "=PIVOT(1,,,false)");
+    const { store } = makeStoreWithModel(model, ComposerStore);
+    selectCell(model, "C5");
+    store.startEdition("=");
+    selectCell(model, "A1");
+    expect(store.currentContent).toBe('=PIVOT.HEADER(1,"Name","Alice")');
+  });
 });
